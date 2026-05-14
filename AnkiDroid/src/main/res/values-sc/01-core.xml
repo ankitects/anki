@@ -91,7 +91,6 @@
     <!-- flashcard_portrait.xml -->
     <string name="undo_action_whiteboard_last_stroke" comment="One of the display patterns of \'Undo\' item on the action menu in the Study Screen. It is shown as the title of the item when the whiteboard (handwriting) feature is enabled and visible and has any strokes (handwritten lines)" maxLength="28">Annulla su tratu</string>
     <string name="move_all_to_deck">Move totu a intro de su matzu</string>
-    <string name="unbury" maxLength="28">Disinterra</string>
     <string name="rename_deck" maxLength="28">Càmbia nùmene a su matzu</string>
     <string name="create_shortcut">Crea un\'incurtzada</string>
     <string name="browse_cards">Esplora sas cartas</string>
@@ -128,7 +127,6 @@
     of the permissions/app info screen will differ between devices. -->
     <string name="startup_no_storage_permission">Dae a AnkiDroid su permissu de Archiviatzione pro sighire</string>
     <string name="rebuild_filtered_deck">Torrende a fraigare su matzu filtradu&#8230;</string>
-    <string name="rebuild_cram_label" maxLength="28">Torra a fraigare</string>
     <string name="empty_cram_label" maxLength="28">Isbòida</string>
     <string name="create_subdeck">Crea unu suta-matzu</string>
     <string name="empty_filtered_deck">Isboidende su matzu filtradu&#8230;</string>
@@ -150,9 +148,6 @@
     <string name="export_collection">Esporta sa colletzione</string>
     <!-- Card template editor -->
     <string name="title_activity_template_editor">Castas de cartas</string>
-    <string name="card_template_editor_front">Mollu de su fronte</string>
-    <string name="card_template_editor_back">Mollu de sa parte de segus</string>
-    <string name="card_template_editor_styling" maxLength="28">Istile</string>
     <string name="card_template_editor_menu_card_browser_appearance" maxLength="28">Aparèntzia de su navigadore de cartas</string>
     <string name="card_template_editor_deck_override" maxLength="28">Subraiscritura de su matzu</string>
     <string name="card_template_editor_insert_field" maxLength="28">Inserta unu campu</string>

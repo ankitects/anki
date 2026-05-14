@@ -56,12 +56,10 @@
     <!-- MyAccount.kt -->
     <string name="username">E-mailová adresa</string>
     <string name="password">Heslo</string>
-    <string name="log_in">Prihlásiť sa</string>
     <string name="sign_up_description">Nemáte AnkiWeb účet? Je zadarmo!</string>
     <string name="sign_up_not_affiliated">Poznámka: Služba AnkiWeb nie je súčasťou AnkiDroid a naopak. Ide o dve samostatné služby</string>
     <string name="sign_up">Zaregistrovať sa</string>
     <string name="logged_as">Prihlásený ako</string>
-    <string name="log_out">Odhlásiť</string>
     <string name="reset_password">Obnoviť heslo</string>
     <string name="lost_mail_instructions">Zabudli ste e-mail?</string>
     <string name="sign_in">Prihlasovanie</string>

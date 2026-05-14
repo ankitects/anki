@@ -45,7 +45,6 @@
 -->
 <resources xmlns:tools="http://schemas.android.com/tools">
     <string name="check_db_warning">Это может занять много времени. Продолжить?</string>
-    <string name="contextmenu_deckpicker_delete_deck" maxLength="28">Удалить колоду</string>
     <string name="delete_deck_title">Удалить колоду?</string>
     <plurals name="delete_deck_message">
         <item quantity="one">Удалить все карточки в %1$s? В ней %2$d карточка</item>

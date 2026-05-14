@@ -45,7 +45,6 @@
 -->
 <resources xmlns:tools="http://schemas.android.com/tools">
     <string name="check_db_warning">Dit kan lang duren. Doorgaan?</string>
-    <string name="contextmenu_deckpicker_delete_deck" maxLength="28">Leerset verwijderen</string>
     <string name="delete_deck_title">Verwijder set?</string>
     <plurals name="delete_deck_message">
         <item quantity="one">Alle kaarten verwijderen in %1$s? Het bevat %2$d kaart</item>

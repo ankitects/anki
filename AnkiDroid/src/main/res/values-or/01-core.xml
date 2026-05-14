@@ -90,7 +90,6 @@
     <!-- flashcard_portrait.xml -->
     <string name="undo_action_whiteboard_last_stroke" comment="One of the display patterns of \'Undo\' item on the action menu in the Study Screen. It is shown as the title of the item when the whiteboard (handwriting) feature is enabled and visible and has any strokes (handwritten lines)" maxLength="28">ଗାର ଲିଭାଇବା</string>
     <string name="move_all_to_deck">ସବୁ ଏହି କେରୀ ଭିତରକୁ ଘୁଞ୍ଚାଇବା</string>
-    <string name="unbury" maxLength="28">ସ୍ଥଗିତରୁ ଫେରାଇ ଆଣ</string>
     <string name="rename_deck" maxLength="28">କେରୀର ନାମ ବଦଳାଇବା</string>
     <string name="create_shortcut">ସର୍ଟ୍‌କଟ୍ ସୃଷ୍ଟି କରିବା</string>
     <string name="browse_cards">ପତ୍ରଗୁଡ଼ିକ ଖେଳାଇବା</string>
@@ -126,7 +125,6 @@
     of the permissions/app info screen will differ between devices. -->
     <string name="startup_no_storage_permission">ଜାରି ରଖିବାକୁ ଦୟାକରି AnkiDroid କୁ ‘ଷ୍ଟୋରେଜ୍’ ଅନୁମତି ଦିଅନ୍ତୁ</string>
     <string name="rebuild_filtered_deck">ଶୋଧିତ କେରୀର ପୁନଃନିର୍ମାଣ ଚାଲିଛି&#8230;</string>
-    <string name="rebuild_cram_label" maxLength="28">ପୁନଃନିର୍ମାଣ</string>
     <string name="empty_cram_label" maxLength="28">ଖାଲି</string>
     <string name="create_subdeck">ଉପ-କେରୀ ସୃଷ୍ଟି କରିବା</string>
     <string name="empty_filtered_deck">ଶୋଧିତ କେରୀ ଖାଲି କରାଚାଲିଛି&#8230;</string>
@@ -147,9 +145,6 @@
     <string name="export_collection">ସଂଗ୍ରହ ରପ୍ତାନି କରିବା</string>
     <!-- Card template editor -->
     <string name="title_activity_template_editor">ପତ୍ର ପ୍ରକାର</string>
-    <string name="card_template_editor_front">ସାମ୍ନା ଟେମ୍ପଲେଟ୍</string>
-    <string name="card_template_editor_back">ପଛ ଟେମ୍ପଲେଟ୍</string>
-    <string name="card_template_editor_styling" maxLength="28">ଶୈଳୀକରଣ</string>
     <string name="card_template_editor_menu_card_browser_appearance" maxLength="28">ପତ୍ର ବ୍ରାଉଜର୍‌ର ରୂପ</string>
     <string name="card_template_editor_deck_override" maxLength="28">କେରୀର ନବଲିଖନ</string>
     <string name="card_template_editor_insert_field" maxLength="28">କ୍ଷେତ୍ର ସନ୍ନିବେଶ କରନ୍ତୁ</string>

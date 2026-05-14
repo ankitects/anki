@@ -56,12 +56,10 @@
     <!-- MyAccount.kt -->
     <string name="username">Địa chỉ email</string>
     <string name="password">Mật khẩu</string>
-    <string name="log_in">Đăng nhập</string>
     <string name="sign_up_description">Không có tài khoản AnkiWeb? Nó miễn phí đấy!</string>
     <string name="sign_up_not_affiliated">Lưu ý: AnkiWeb không liên quan gì đến AnkiDroid</string>
     <string name="sign_up">Đăng ký</string>
     <string name="logged_as">Đăng nhập với</string>
-    <string name="log_out">Đăng xuất</string>
     <string name="reset_password">Đặt lại mật khẩu</string>
     <string name="lost_mail_instructions">Quên Email?</string>
     <string name="sign_in">Đang đăng nhập</string>

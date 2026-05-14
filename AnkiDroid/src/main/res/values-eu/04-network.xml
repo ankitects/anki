@@ -56,12 +56,10 @@
     <!-- MyAccount.kt -->
     <string name="username">E-mail helbidea</string>
     <string name="password">Pasahitza</string>
-    <string name="log_in">Hasi saioa</string>
     <string name="sign_up_description">Ez daukazu AnkiWeb konturik? Doainekoa da!</string>
     <string name="sign_up_not_affiliated">Note: AnkiWeb is not affiliated with AnkiDroid</string>
     <string name="sign_up">Erregistratu</string>
     <string name="logged_as">Saioa hasi duzu honela:</string>
-    <string name="log_out">Saioa itxi</string>
     <string name="reset_password">Pasahitza berrezarri</string>
     <string name="lost_mail_instructions">Forgot Email?</string>
     <string name="sign_in">Signing in</string>

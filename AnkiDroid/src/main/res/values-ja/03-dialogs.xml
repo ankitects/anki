@@ -45,7 +45,6 @@
 -->
 <resources xmlns:tools="http://schemas.android.com/tools">
     <string name="check_db_warning">これには長い時間がかかることがあります。続行しますか？</string>
-    <string name="contextmenu_deckpicker_delete_deck" maxLength="28">デッキを削除</string>
     <string name="delete_deck_title">デッキを削除しますか？</string>
     <plurals name="delete_deck_message">
         <item quantity="other">「%1$s」内のすべてのカードを削除しますか？　%2$d枚のカードが含まれています</item>

@@ -189,7 +189,6 @@
     <string name="menu__deck_options" maxLength="28">Опции за тестето</string>
     <string name="menu__study_options" comment="Menu item that opens options for a Filtered deck (aka Cram deck, aka Custom study)">Опции за учене</string>
     <string name="select_tts" maxLength="28">Задаване на TTS език</string>
-    <string name="custom_study" maxLength="28">Допълнително учене</string>
     <string name="dyn_deck_desc">Това е специално тесте за учене извън нормалния график. Картите автоматично ще бъдат върнати в техните първоначални тестета след като бъдат разгледани. Изтриването на това тесте от списъка с тестета ще върне всички останали карти в тестетата, където са били първоначално.</string>
     <string name="tag_editor_add_feedback">Докоснете \"%2$s\", за да потвърдите добавянето на \"%1$s\"</string>
     <string name="tag_editor_add_feedback_existing">Избран е съществуващ етикет \"%1$s\"</string>

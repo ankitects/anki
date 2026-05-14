@@ -87,7 +87,6 @@
     <!-- flashcard_portrait.xml -->
     <string name="undo_action_whiteboard_last_stroke" comment="One of the display patterns of \'Undo\' item on the action menu in the Study Screen. It is shown as the title of the item when the whiteboard (handwriting) feature is enabled and visible and has any strokes (handwritten lines)" maxLength="28">Batalkan Coretan</string>
     <string name="move_all_to_deck">Pindahkan semua ke dek</string>
-    <string name="unbury" maxLength="28">Angkat</string>
     <string name="rename_deck" maxLength="28">Ubah nama dek</string>
     <string name="create_shortcut">Buat shortcut</string>
     <string name="browse_cards">Telusuri kartu</string>
@@ -123,7 +122,6 @@
     of the permissions/app info screen will differ between devices. -->
     <string name="startup_no_storage_permission">Mohon beri AnkiDroid izin ‘Penyimpanan’ untuk melanjutkan</string>
     <string name="rebuild_filtered_deck">Sedang membuat dek yang telah difilter</string>
-    <string name="rebuild_cram_label" maxLength="28">Buat ulang</string>
     <string name="empty_cram_label" maxLength="28">Kosong</string>
     <string name="create_subdeck">Buat subdek</string>
     <string name="empty_filtered_deck">Mengosongkan dek yang telah difilter</string>
@@ -144,9 +142,6 @@
     <string name="export_collection">Ekspor koleksi</string>
     <!-- Card template editor -->
     <string name="title_activity_template_editor">Tipe kartu</string>
-    <string name="card_template_editor_front">Templat depan</string>
-    <string name="card_template_editor_back">Templat belakang</string>
-    <string name="card_template_editor_styling" maxLength="28">Penataan</string>
     <string name="card_template_editor_menu_card_browser_appearance" maxLength="28">Tampilan Peramban Kartu</string>
     <string name="card_template_editor_deck_override" maxLength="28">Paksa Lokasi Dek</string>
     <string name="card_template_editor_insert_field" maxLength="28">Masukkan bidang</string>

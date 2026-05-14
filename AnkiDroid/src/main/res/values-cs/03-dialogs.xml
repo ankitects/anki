@@ -45,7 +45,6 @@
 -->
 <resources xmlns:tools="http://schemas.android.com/tools">
     <string name="check_db_warning">Toto může trvat dlouhou dobu? Pokračovat?</string>
-    <string name="contextmenu_deckpicker_delete_deck" maxLength="28">Odstranit balíček</string>
     <string name="delete_deck_title">Odstranit balíček?</string>
     <plurals name="delete_deck_message">
         <item quantity="one">Vymazat všechny karty v %1$s? Obsahuje %2$d kartu</item>

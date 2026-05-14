@@ -56,12 +56,10 @@
     <!-- MyAccount.kt -->
     <string name="username">电子邮件地址</string>
     <string name="password">密码</string>
-    <string name="log_in">登录</string>
     <string name="sign_up_description">还没有AnkiWeb账户吗？它是免费的！</string>
     <string name="sign_up_not_affiliated">注 ：AnkiWeb 不属于 AnkiDroid</string>
     <string name="sign_up">注册</string>
     <string name="logged_as">登录为</string>
-    <string name="log_out">注销</string>
     <string name="reset_password">重置密码</string>
     <string name="lost_mail_instructions">忘了电子邮件地址吗？</string>
     <string name="sign_in">正在登录</string>

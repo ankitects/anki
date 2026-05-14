@@ -45,7 +45,6 @@
 -->
 <resources xmlns:tools="http://schemas.android.com/tools">
     <string name="check_db_warning">Bu uzoq vaqt olishi mumkin. Davom etmoqchimisiz?</string>
-    <string name="contextmenu_deckpicker_delete_deck" maxLength="28">Dastani oʻchirish</string>
     <string name="delete_deck_title">Dasta oʻchirilsinmi?</string>
     <plurals name="delete_deck_message">
         <item quantity="one">%1$sʼdagi barcha kartalar oʻchirilsinmi? Ichida %2$d karta mavjud</item>

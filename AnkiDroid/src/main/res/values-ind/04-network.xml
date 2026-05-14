@@ -56,12 +56,10 @@
     <!-- MyAccount.kt -->
     <string name="username">Alamat surel</string>
     <string name="password">Kata Sandi</string>
-    <string name="log_in">Masuk</string>
     <string name="sign_up_description">Belum punya akun AnkiWeb? Gratis!</string>
     <string name="sign_up_not_affiliated">Catatan: AnkiWeb tidak berafiliasi dengan AnkiDroid</string>
     <string name="sign_up">Daftar</string>
     <string name="logged_as">Login sebagai</string>
-    <string name="log_out">Log keluar</string>
     <string name="reset_password">Reset kata sandi</string>
     <string name="lost_mail_instructions">Lupa Surel?</string>
     <string name="sign_in">Memasuki akun</string>

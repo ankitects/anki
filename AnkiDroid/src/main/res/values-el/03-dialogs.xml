@@ -45,7 +45,6 @@
 -->
 <resources xmlns:tools="http://schemas.android.com/tools">
     <string name="check_db_warning">This may take a long time. Proceed?</string>
-    <string name="contextmenu_deckpicker_delete_deck" maxLength="28">Διαγραφή τράπουλας</string>
     <string name="delete_deck_title">Διαγραφή τράπουλας;</string>
     <plurals name="delete_deck_message">
         <item quantity="one">Διαγραφή όλων των καρτών στο %1$s; Περιέχει %2$d κάρτα</item>

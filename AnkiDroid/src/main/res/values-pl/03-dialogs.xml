@@ -45,7 +45,6 @@
 -->
 <resources xmlns:tools="http://schemas.android.com/tools">
     <string name="check_db_warning">To może zająć dużo czasu. Kontynuować?</string>
-    <string name="contextmenu_deckpicker_delete_deck" maxLength="28">Skasuj talię</string>
     <string name="delete_deck_title">Usunąć talię?</string>
     <plurals name="delete_deck_message">
         <item quantity="one">Usunąć wszystkie karty z %1$s? Jest tam %2$d karta</item>

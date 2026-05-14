@@ -56,12 +56,10 @@
     <!-- MyAccount.kt -->
     <string name="username">E-pochta manzili</string>
     <string name="password">Parol</string>
-    <string name="log_in">Kirish</string>
     <string name="sign_up_description">AnkiWeb akkauntingiz yoʻqmi? U bepul!</string>
     <string name="sign_up_not_affiliated">Eslatma: AnkiWeb AnkiDroid bilan bogʻliq emas</string>
     <string name="sign_up">Roʻyxatdan oʻtish</string>
     <string name="logged_as">Shu orqali tizimga kirgansiz</string>
-    <string name="log_out">Tizimdan chiqish</string>
     <string name="reset_password">Parolni tiklash</string>
     <string name="lost_mail_instructions">E-pochtangizni unutdingizmi?</string>
     <string name="sign_in">Tizimga kirilmoqda</string>

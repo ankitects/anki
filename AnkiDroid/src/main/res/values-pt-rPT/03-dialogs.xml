@@ -45,7 +45,6 @@
 -->
 <resources xmlns:tools="http://schemas.android.com/tools">
     <string name="check_db_warning">This may take a long time. Proceed?</string>
-    <string name="contextmenu_deckpicker_delete_deck" maxLength="28">Eliminar baralho</string>
     <string name="delete_deck_title">Eliminar baralho?</string>
     <plurals name="delete_deck_message">
         <item quantity="one">Apagar todas as fichas em %1$s? Este tem %2$d ficha</item>

@@ -56,12 +56,10 @@
     <!-- MyAccount.kt -->
     <string name="username">Indiritzu de posta eletrònica</string>
     <string name="password">Crae</string>
-    <string name="log_in">Intra</string>
     <string name="sign_up_description">Non tenes unu contu de AnkiWeb? Est de badas!</string>
     <string name="sign_up_not_affiliated">Dae cara: AnkiWeb no est assotziadu cun AnkiDroid</string>
     <string name="sign_up">Registra·ti</string>
     <string name="logged_as">Intradu comente</string>
-    <string name="log_out">Essi</string>
     <string name="reset_password">Reseta sa crae</string>
     <string name="lost_mail_instructions">Indiritzu de posta ismentigadu?</string>
     <string name="sign_in">Intrende</string>

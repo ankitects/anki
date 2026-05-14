@@ -56,12 +56,10 @@
     <!-- MyAccount.kt -->
     <string name="username">Alamat e-mel</string>
     <string name="password">Kata laluan</string>
-    <string name="log_in">Log masuk</string>
     <string name="sign_up_description">Tiada akaun AnkiWeb? Ia percuma!</string>
     <string name="sign_up_not_affiliated">Perhatian: AnkiWeb tidak bergabung dengan AnkiDroid</string>
     <string name="sign_up">Daftar</string>
     <string name="logged_as">Log masuk sebagai</string>
-    <string name="log_out">Log keluar</string>
     <string name="reset_password">Tetap semula kata laluan</string>
     <string name="lost_mail_instructions">Terlupa E-mel?</string>
     <string name="sign_in">Signing in</string>

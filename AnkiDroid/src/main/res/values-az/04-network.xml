@@ -56,12 +56,10 @@
     <!-- MyAccount.kt -->
     <string name="username">E-poçt ünvanı</string>
     <string name="password">Şifrə</string>
-    <string name="log_in">Daxil ol</string>
     <string name="sign_up_description">AnkiWeb hesabınız yoxdur? Bu pulsuzdur!</string>
     <string name="sign_up_not_affiliated">Qeyd: AnkiWeb AnkiDroid ilə əlaqəli deyil</string>
     <string name="sign_up">Qeydiyyatdan keç</string>
     <string name="logged_as">Daxil olundu:</string>
-    <string name="log_out">Çıxış</string>
     <string name="reset_password">Şifrəni dəyiş</string>
     <string name="lost_mail_instructions">E-poçtunu unutmusan?</string>
     <string name="sign_in">Qeydiyyatdan keçilir</string>

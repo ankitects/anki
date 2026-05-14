@@ -45,7 +45,6 @@
 -->
 <resources xmlns:tools="http://schemas.android.com/tools">
     <string name="check_db_warning">Isto pode levar moito tempo. Queres continuar?</string>
-    <string name="contextmenu_deckpicker_delete_deck" maxLength="28">Eliminar baralla</string>
     <string name="delete_deck_title">Eliminar baralla?</string>
     <plurals name="delete_deck_message">
         <item quantity="one">Eliminar tódalas tarxetas en %1$s? Contén %2$d tarxeta</item>

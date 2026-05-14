@@ -90,7 +90,6 @@
     <!-- flashcard_portrait.xml -->
     <string name="undo_action_whiteboard_last_stroke" comment="One of the display patterns of \'Undo\' item on the action menu in the Study Screen. It is shown as the title of the item when the whiteboard (handwriting) feature is enabled and visible and has any strokes (handwritten lines)" maxLength="28">Desfacer trazo</string>
     <string name="move_all_to_deck">Mover todos cara á baralla</string>
-    <string name="unbury" maxLength="28">Desagochar</string>
     <string name="rename_deck" maxLength="28">Renomear baralla</string>
     <string name="create_shortcut">Crear atallo</string>
     <string name="browse_cards">Explorar tarxetas</string>
@@ -126,7 +125,6 @@
     of the permissions/app info screen will differ between devices. -->
     <string name="startup_no_storage_permission">Concede a AnkiDroid o permiso de \'Almacenamento\' para continuar</string>
     <string name="rebuild_filtered_deck">Reconstruíndo baralla filtrada&#8230;</string>
-    <string name="rebuild_cram_label" maxLength="28">Reconstruír</string>
     <string name="empty_cram_label" maxLength="28">Baleirar</string>
     <string name="create_subdeck">Crear baralla secundaria</string>
     <string name="empty_filtered_deck">Baleirando baralla filtrada&#8230;</string>
@@ -147,9 +145,6 @@
     <string name="export_collection">Exportar colección</string>
     <!-- Card template editor -->
     <string name="title_activity_template_editor">Tipos de tarxetas</string>
-    <string name="card_template_editor_front">Modelo anverso</string>
-    <string name="card_template_editor_back">Modelo reverso</string>
-    <string name="card_template_editor_styling" maxLength="28">Estilo</string>
     <string name="card_template_editor_menu_card_browser_appearance" maxLength="28">Aparencia do explorador</string>
     <string name="card_template_editor_deck_override" maxLength="28">Baralla por defecto</string>
     <string name="card_template_editor_insert_field" maxLength="28">Inserir campo</string>

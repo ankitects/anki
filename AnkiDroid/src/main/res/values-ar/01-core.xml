@@ -102,7 +102,6 @@
     <!-- flashcard_portrait.xml -->
     <string name="undo_action_whiteboard_last_stroke" comment="One of the display patterns of \'Undo\' item on the action menu in the Study Screen. It is shown as the title of the item when the whiteboard (handwriting) feature is enabled and visible and has any strokes (handwritten lines)" maxLength="28">تراجع خط</string>
     <string name="move_all_to_deck">نقل الكل إلى الرزمة</string>
-    <string name="unbury" maxLength="28">نكش</string>
     <string name="rename_deck" maxLength="28">تغيير اسم الرِزمة</string>
     <string name="create_shortcut">إنشاء اختصار</string>
     <string name="browse_cards">تصفح البطاقات</string>
@@ -138,7 +137,6 @@
     of the permissions/app info screen will differ between devices. -->
     <string name="startup_no_storage_permission">الرجاء منح آنكي درويد إذن «التخزين» للاستمرار</string>
     <string name="rebuild_filtered_deck">تُجرى إعادة بناء الرِزمة المفروزة&#8230;</string>
-    <string name="rebuild_cram_label" maxLength="28">إعادة إنشاء</string>
     <string name="empty_cram_label" maxLength="28">إفراغ</string>
     <string name="create_subdeck">إنشاء رِزمة فرعية</string>
     <string name="empty_filtered_deck">يتم إفراغ الرزمة المفروزة&#8230;</string>
@@ -159,9 +157,6 @@
     <string name="export_collection">صدِّر المجموعة</string>
     <!-- Card template editor -->
     <string name="title_activity_template_editor">أنواع البطاقات</string>
-    <string name="card_template_editor_front">القالب الأمامي</string>
-    <string name="card_template_editor_back">القالب الخلفي</string>
-    <string name="card_template_editor_styling" maxLength="28">التنسيق</string>
     <string name="card_template_editor_menu_card_browser_appearance" maxLength="28">مظهر متصفح البطاقات</string>
     <string name="card_template_editor_deck_override" maxLength="28">الرزمة المهيمنة</string>
     <string name="card_template_editor_insert_field" maxLength="28">إدراج حقل</string>

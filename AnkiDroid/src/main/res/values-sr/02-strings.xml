@@ -192,7 +192,6 @@
     <string name="menu__deck_options" maxLength="28">Deck options</string>
     <string name="menu__study_options" comment="Menu item that opens options for a Filtered deck (aka Cram deck, aka Custom study)">Study options</string>
     <string name="select_tts" maxLength="28">Set TTS language</string>
-    <string name="custom_study" maxLength="28">Прилагођено учење</string>
     <string name="dyn_deck_desc">Ово су специјални шпилови за учење ван нормалног распореда. После прегледа, картице ће аутоматски бити враћене у њихов изворни шпил. Брисање овог шпила из списка шпилова, вратиће све остале карте у њихове изворне шпилове.</string>
     <string name="tag_editor_add_feedback">Притисните “%2$s” да бисте потврдили додавање “%1$s”</string>
     <string name="tag_editor_add_feedback_existing">Постојећа ознака “%1$s” је изабрана</string>

@@ -45,7 +45,6 @@
 -->
 <resources xmlns:tools="http://schemas.android.com/tools">
     <string name="check_db_warning">This may take a long time. Proceed?</string>
-    <string name="contextmenu_deckpicker_delete_deck" maxLength="28">حذف دسته</string>
     <string name="delete_deck_title">حذف دسته؟</string>
     <plurals name="delete_deck_message">
         <item quantity="one">حذف همه کارت ها در دسته ی %1$s؟ این دسته شامل %2$d کارت است</item>

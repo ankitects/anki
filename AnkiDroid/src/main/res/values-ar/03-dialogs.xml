@@ -45,7 +45,6 @@
 -->
 <resources xmlns:tools="http://schemas.android.com/tools">
     <string name="check_db_warning">قد يستغرق هذا وقتًا طويلًا. أتود الاستمرار؟</string>
-    <string name="contextmenu_deckpicker_delete_deck" maxLength="28">حذف الرزمة</string>
     <string name="delete_deck_title">هل تريد حذف الرزمة؟</string>
     <plurals name="delete_deck_message">
         <item quantity="zero">هل تريد حذف كل البطاقات في %1$s؟ إنها تحتوي على %2$d بطاقات</item>

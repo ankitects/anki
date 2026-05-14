@@ -90,7 +90,6 @@
     <!-- flashcard_portrait.xml -->
     <string name="undo_action_whiteboard_last_stroke" comment="One of the display patterns of \'Undo\' item on the action menu in the Study Screen. It is shown as the title of the item when the whiteboard (handwriting) feature is enabled and visible and has any strokes (handwritten lines)" maxLength="28">Konturu geri al</string>
     <string name="move_all_to_deck">Hepsini desteye taşı</string>
-    <string name="unbury" maxLength="28">Gömülenleri çıkar</string>
     <string name="rename_deck" maxLength="28">Desteyi yeniden adlandır</string>
     <string name="create_shortcut">Kısayol oluştur</string>
     <string name="browse_cards">Kartlara göz at</string>
@@ -126,7 +125,6 @@
     of the permissions/app info screen will differ between devices. -->
     <string name="startup_no_storage_permission">Lütfen devam etmek için AnkiDroid\'e ‘Depolama’ yetkisini veriniz</string>
     <string name="rebuild_filtered_deck">Filtreli deste yeniden oluşturuluyor&#8230;</string>
-    <string name="rebuild_cram_label" maxLength="28">Yeniden Oluştur</string>
     <string name="empty_cram_label" maxLength="28">Boşalt</string>
     <string name="create_subdeck">Altdeste oluştur</string>
     <string name="empty_filtered_deck">Filtreli deste boşaltılıyor&#8230;</string>
@@ -147,9 +145,6 @@
     <string name="export_collection">Koleksiyonu dışarı aktar</string>
     <!-- Card template editor -->
     <string name="title_activity_template_editor">Kart türleri</string>
-    <string name="card_template_editor_front">Ön şablon</string>
-    <string name="card_template_editor_back">Arka şablon</string>
-    <string name="card_template_editor_styling" maxLength="28">Biçim</string>
     <string name="card_template_editor_menu_card_browser_appearance" maxLength="28">Kart Tarayıcısı Görünümü</string>
     <string name="card_template_editor_deck_override" maxLength="28">Desteyi geçersiz kılma</string>
     <string name="card_template_editor_insert_field" maxLength="28">Alan ekle</string>

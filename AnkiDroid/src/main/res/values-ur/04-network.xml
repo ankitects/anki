@@ -56,12 +56,10 @@
     <!-- MyAccount.kt -->
     <string name="username">ای میل اڈریس</string>
     <string name="password">پاس ورڈ</string>
-    <string name="log_in">لاگ ان</string>
     <string name="sign_up_description">AnkiWeb اکاؤنٹ نہیں ہے؟ یہ مفت ہے!</string>
     <string name="sign_up_not_affiliated">نوٹ: AnkiWeb AnkiDroid سے وابستہ نہیں ہے۔</string>
     <string name="sign_up">سائن اپ</string>
     <string name="logged_as">بطور لاگ ان</string>
-    <string name="log_out">لاگ آؤٹ</string>
     <string name="reset_password">پاس ورڈ ری سیٹ</string>
     <string name="lost_mail_instructions">ای میل بھول گئے؟</string>
     <string name="sign_in">Signing in</string>

@@ -55,7 +55,7 @@
     <string name="CardEditorTags">Các đuôi: %1$s</string>
     <string name="CardEditorCards">Các thẻ: %1$s</string>
     <string name="edit_occlusions">Edit occlusions</string>
-    <string name="paste_from_clipboard" maxLength="28">Paste from clipboard</string>
+    <string name="paste_from_clipboard" maxLength="28">Dán từ bộ nhớ tạm</string>
     <string name="add_new_filter_tags">Thêm/lọc các đuôi</string>
     <string name="add_tag" maxLength="28">Thêm đuôi</string>
     <string name="check_all_tags" maxLength="28">Chọn/bỏ chọn toàn bộ đuôi</string>
@@ -186,7 +186,6 @@
     <string name="menu__deck_options" maxLength="28">Tùy chọn bộ thẻ</string>
     <string name="menu__study_options" comment="Menu item that opens options for a Filtered deck (aka Cram deck, aka Custom study)">Tùy chọn học tập</string>
     <string name="select_tts" maxLength="28">Thiết lập ngôn ngữ TTS</string>
-    <string name="custom_study" maxLength="28">Học theo tuỳ chọn</string>
     <string name="dyn_deck_desc">Đây là bộ thẻ đặc biệt phục vụ cho việc học ngoài lịch trình thông thường. Các thẻ sẽ tự động quay lại bộ thẻ ban đầu của chúng sau khi ôn tập. Xoá bộ thẻ này khỏi danh sách sẽ chuyển toàn bộ thẻ còn lại về bộ thẻ ban đầu của chúng.</string>
     <string name="tag_editor_add_feedback">Bấm \"%2$s\" để xác nhận thêm \"%1$s\"</string>
     <string name="tag_editor_add_feedback_existing">Đã chọn đuôi hiện hữu \"%1$s\"</string>
@@ -215,8 +214,8 @@
     <string name="white_board_eraser_disabled">Đã tắt tẩy</string>
     <string comment="Progress amount e.g. \'28 MB/141 MB\'. %1$s is the current amount, %2$s is the max." name="progress_amount_bytes">%1$s/%2$s</string>
     <string name="media_file_size_warning_title">Media too large</string>
-    <string name="media_file_size_warning_message" comment="1$s: File name, 2$s: File size, 3$s: The size limit (e.g. 100MB)">The file \"%1$s\" (%2$s) exceeds the AnkiWeb limit of %3$s and cannot be synced. Add anyway?</string>
-    <string name="media_file_size_add_anyway">Add anyway</string>
+    <string name="media_file_size_warning_message" comment="1$s: File name, 2$s: File size, 3$s: The size limit (e.g. 100MB)">Tệp \"%1$s\" (%2$s) vượt quá giới hạn %3$s của AnkiWeb và không thể đồng bộ. Vẫn thêm vào?</string>
+    <string name="media_file_size_add_anyway">Vẫn thêm</string>
     <!-- Whiteboard save image message in the Study Screen -->
     <string name="white_board_image_save_failed">Không thể lưu hình ảnh bảng trắng. %s</string>
     <string name="white_board_image_saved">Hình ảnh bảng trắng được lưu vào %s</string>
@@ -272,7 +271,7 @@
     <!-- IncrementNumberRangePreference -->
     <string name="plus_sign" comment="Label for increment button in IncrementerNumberRangePreference">+</string>
     <string name="minus_sign" comment="Label for decrement button in IncrementerNumberRangePreference">-</string>
-    <string name="invalid_value" comment="Error message in IncrementerNumberRangePreference when input is not a valid number">Invalid value</string>
+    <string name="invalid_value" comment="Error message in IncrementerNumberRangePreference when input is not a valid number">Giá trị không hợp lệ</string>
     <string name="maximum_value_is" comment="Error message in IncrementerNumberRangePreference. %d is the maximum allowed value">Maximum value is %d</string>
     <string name="minimum_value_is" comment="Error message in IncrementerNumberRangePreference. %d is the minimum allowed value">Minimum value is %d</string>
     <!-- Used for credential empty warning message -->
@@ -349,7 +348,7 @@
     <string name="shared_decks_login_required">Vui lòng đăng nhập để tải thêm các bộ thẻ</string>
     <string name="deck_description_field_hint">Mô tả</string>
     <string name="deck_description_saved">Mô tả đã được cập nhật</string>
-    <string name="format_deck_description_as_markdown">Format as Markdown</string>
+    <string name="format_deck_description_as_markdown">Định dạng dưới dạng Markdown</string>
     <string name="help_button_content_description">Mở trợ giúp cho ‘%s’</string>
     <string name="failed_to_copy">Không sao chép được</string>
     <plurals name="unbury_cards_feedback">

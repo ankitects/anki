@@ -45,7 +45,6 @@
 -->
 <resources xmlns:tools="http://schemas.android.com/tools">
     <string name="check_db_warning">这可能需要很长时间。继续吗？</string>
-    <string name="contextmenu_deckpicker_delete_deck" maxLength="28">删除牌组</string>
     <string name="delete_deck_title">删除该牌组？</string>
     <plurals name="delete_deck_message">
         <item quantity="other">删除 %1$s 中包含的 %2$d 张卡牌吗？</item>

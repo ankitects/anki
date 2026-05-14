@@ -56,12 +56,10 @@
     <!-- MyAccount.kt -->
     <string name="username">Էլ. փոստի հասցե</string>
     <string name="password">Գաղտնաբառ</string>
-    <string name="log_in">Մուտք գործել</string>
     <string name="sign_up_description">Չունե՞ք AnkiWeb հաշիվ։ Այն անվճար է։</string>
     <string name="sign_up_not_affiliated">AnkiWeb-ը անկախ է AnkiDroid-ից</string>
     <string name="sign_up">Գրանցվել</string>
     <string name="logged_as">Logged in as</string>
-    <string name="log_out">Դուրս գալ</string>
     <string name="reset_password">Reset password</string>
     <string name="lost_mail_instructions">Forgot Email?</string>
     <string name="sign_in">Մուտք&#8230;</string>

@@ -96,7 +96,6 @@
     <!-- flashcard_portrait.xml -->
     <string name="undo_action_whiteboard_last_stroke" comment="One of the display patterns of \'Undo\' item on the action menu in the Study Screen. It is shown as the title of the item when the whiteboard (handwriting) feature is enabled and visible and has any strokes (handwritten lines)" maxLength="28">Адрабіць штрых</string>
     <string name="move_all_to_deck">Перамясціць усё ў калоду</string>
-    <string name="unbury" maxLength="28">Вярнуць</string>
     <string name="rename_deck" maxLength="28">Перайменаваць калоду</string>
     <string name="create_shortcut">Стварыць ярлык</string>
     <string name="browse_cards">Праглядзець карткі</string>
@@ -132,7 +131,6 @@
     of the permissions/app info screen will differ between devices. -->
     <string name="startup_no_storage_permission">Дазвольце AnkiDroid атрымаць доступ да сховішча, каб завяршыць дзеянне</string>
     <string name="rebuild_filtered_deck">Перабудова фільтраванай калоды&#8230;</string>
-    <string name="rebuild_cram_label" maxLength="28">Перабудаваць</string>
     <string name="empty_cram_label" maxLength="28">Ачысціць</string>
     <string name="create_subdeck">Стварыць падкалоду</string>
     <string name="empty_filtered_deck">Ачыстка фільтраванай калоды&#8230;</string>
@@ -153,9 +151,6 @@
     <string name="export_collection">Экспартаваць калекцыю</string>
     <!-- Card template editor -->
     <string name="title_activity_template_editor">Тыпы картак</string>
-    <string name="card_template_editor_front">Шаблон пярэдняга боку</string>
-    <string name="card_template_editor_back">Шаблон задняга боку</string>
-    <string name="card_template_editor_styling" maxLength="28">Знешні выгляд</string>
     <string name="card_template_editor_menu_card_browser_appearance" maxLength="28">Выгляд аглядальніка картак</string>
     <string name="card_template_editor_deck_override" maxLength="28">Перавызначэнне калоды</string>
     <string name="card_template_editor_insert_field" maxLength="28">Уставіць поле</string>

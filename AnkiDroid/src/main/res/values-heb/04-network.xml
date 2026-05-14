@@ -56,12 +56,10 @@
     <!-- MyAccount.kt -->
     <string name="username">כתובת דוא״ל</string>
     <string name="password">ססמה</string>
-    <string name="log_in">כניסה</string>
     <string name="sign_up_description">אין לך חשבון ב־AnkiWeb? זה חינם!</string>
     <string name="sign_up_not_affiliated">לתשומת לבך: אין קשר בין AnkiWeb ל־AnkiDroid</string>
     <string name="sign_up">הרשמה</string>
     <string name="logged_as">נכנסת בשם</string>
-    <string name="log_out">יציאה</string>
     <string name="reset_password">איפוס ססמה</string>
     <string name="lost_mail_instructions">שכחת את הדוא\"ל?</string>
     <string name="sign_in">מתחבר</string>

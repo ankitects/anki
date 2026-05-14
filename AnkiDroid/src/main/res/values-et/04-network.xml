@@ -56,12 +56,10 @@
     <!-- MyAccount.kt -->
     <string name="username">E-posti aadress</string>
     <string name="password">Parool</string>
-    <string name="log_in">Logi sisse</string>
     <string name="sign_up_description">Kas sul pole veel AnkiWebi kontot? See on tasuta!</string>
     <string name="sign_up_not_affiliated">Märkus: AnkiWeb pole kuidagi seotud AnkiDroidiga</string>
     <string name="sign_up">Loo konto</string>
     <string name="logged_as">Logitud sisse kui</string>
-    <string name="log_out">Logi välja</string>
     <string name="reset_password">Lähtesta salasõna</string>
     <string name="lost_mail_instructions">Unustasid meili?</string>
     <string name="sign_in">Sisse logimine</string>

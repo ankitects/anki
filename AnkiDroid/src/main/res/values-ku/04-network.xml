@@ -56,12 +56,10 @@
     <!-- MyAccount.kt -->
     <string name="username">E-name</string>
     <string name="password">Nihênî</string>
-    <string name="log_in">Têkeve</string>
     <string name="sign_up_description">Don’t have an AnkiWeb account? It’s free!</string>
     <string name="sign_up_not_affiliated">Note: AnkiWeb is not affiliated with AnkiDroid</string>
     <string name="sign_up">Hesabekî çêke</string>
     <string name="logged_as">Têketî wek</string>
-    <string name="log_out">Derkeve</string>
     <string name="reset_password">Reset password</string>
     <string name="lost_mail_instructions">Forgot Email?</string>
     <string name="sign_in">Signing in</string>

@@ -45,7 +45,6 @@
 -->
 <resources xmlns:tools="http://schemas.android.com/tools">
     <string name="check_db_warning">This may take a long time. Proceed?</string>
-    <string name="contextmenu_deckpicker_delete_deck" maxLength="28">𐌺𐌰𐍂𐍄𐌰𐌷𐌿𐌶𐌳𐌰 𐌿𐍃𐌵𐌹𐍃𐍄𐌾𐌰𐌽</string>
     <string name="delete_deck_title">𐌺𐌰𐍂𐍄𐌰𐌷𐌿𐌶𐌳𐌰 𐌿𐍃𐌵𐌹𐍃𐍄𐌾𐌰𐌽?</string>
     <plurals name="delete_deck_message">
         <item quantity="one">𐌰𐌻𐌻𐌰𐌹𐌼 𐌺𐌰𐍂𐍄𐍉𐌼 𐌹𐌽 %1$s 𐌿𐍃𐌵𐌹𐍃𐍄𐌾𐌰𐌽? 𐌷𐌰𐌱𐌰𐌹𐌸 %2$d 𐌺𐌰𐍂𐍄𐌰</item>

@@ -45,7 +45,6 @@
 -->
 <resources xmlns:tools="http://schemas.android.com/tools">
     <string name="check_db_warning">Bu uzun sürebilir. Devam etmek ister misin?</string>
-    <string name="contextmenu_deckpicker_delete_deck" maxLength="28">Desteyi sil</string>
     <string name="delete_deck_title">Deste silinsin mi?</string>
     <plurals name="delete_deck_message">
         <item quantity="one">%1$s destesindeki bütün kartlar silinsin mi? İçinde %2$d kart var</item>

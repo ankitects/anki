@@ -56,12 +56,10 @@
     <!-- MyAccount.kt -->
     <string name="username">ელფოსტის მისამართი</string>
     <string name="password">პაროლი</string>
-    <string name="log_in">ავტორიზაცია</string>
     <string name="sign_up_description">არ გაქვთ AnkiWeb-ის ანგარიში? უფასოა!</string>
     <string name="sign_up_not_affiliated">შენიშვნა: AnkiWeb არ თანამშრომლობს AnkiDroid-თან</string>
     <string name="sign_up">რეგისტრაცია</string>
     <string name="logged_as">შესული ხართ როგორც</string>
-    <string name="log_out">გასვლა</string>
     <string name="reset_password">პაროლის აღდგენა</string>
     <string name="lost_mail_instructions">დაგავიწყდათ ელფოსტა?</string>
     <string name="sign_in">შესვლა</string>

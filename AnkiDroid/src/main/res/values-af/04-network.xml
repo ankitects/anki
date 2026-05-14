@@ -56,12 +56,10 @@
     <!-- MyAccount.kt -->
     <string name="username">E-pos adres</string>
     <string name="password">Wagwoord</string>
-    <string name="log_in">Log in</string>
     <string name="sign_up_description">Don’t have an AnkiWeb account? It’s free!</string>
     <string name="sign_up_not_affiliated">Note: AnkiWeb is not affiliated with AnkiDroid</string>
     <string name="sign_up">Sign up</string>
     <string name="logged_as">Logged in as</string>
-    <string name="log_out">Log out</string>
     <string name="reset_password">Herstel wagwoord</string>
     <string name="lost_mail_instructions">Forgot Email?</string>
     <string name="sign_in">Signing in</string>

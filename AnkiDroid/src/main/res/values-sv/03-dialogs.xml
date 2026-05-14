@@ -45,7 +45,6 @@
 -->
 <resources xmlns:tools="http://schemas.android.com/tools">
     <string name="check_db_warning">This may take a long time. Proceed?</string>
-    <string name="contextmenu_deckpicker_delete_deck" maxLength="28">Radera kortlek</string>
     <string name="delete_deck_title">Radera kortlek?</string>
     <plurals name="delete_deck_message">
         <item quantity="one">Ta bort alla kort i %1$s? Den innehåller %2$d kort</item>

@@ -97,7 +97,6 @@
     <!-- flashcard_portrait.xml -->
     <string name="undo_action_whiteboard_last_stroke" comment="One of the display patterns of \'Undo\' item on the action menu in the Study Screen. It is shown as the title of the item when the whiteboard (handwriting) feature is enabled and visible and has any strokes (handwritten lines)" maxLength="28">בטל שרבוט</string>
     <string name="move_all_to_deck">העברת הכול לחפיסה</string>
-    <string name="unbury" maxLength="28">ביטול הטמנה</string>
     <string name="rename_deck" maxLength="28">שינוי שם חפיסה</string>
     <string name="create_shortcut">צור קיצור דרך</string>
     <string name="browse_cards">דפדף בכרטיסים</string>
@@ -133,7 +132,6 @@
     of the permissions/app info screen will differ between devices. -->
     <string name="startup_no_storage_permission">אנא אפשר לAnkiDroid גישה לאחסון בכדי להמשיך</string>
     <string name="rebuild_filtered_deck">בונה מחדש חפיסה מסוננת&#8230;</string>
-    <string name="rebuild_cram_label" maxLength="28">בניה מחדש</string>
     <string name="empty_cram_label" maxLength="28">ריקון</string>
     <string name="create_subdeck">צור חפיסת משנה</string>
     <string name="empty_filtered_deck">מרוקן חפיסה מסוננת&#8230;</string>
@@ -154,9 +152,6 @@
     <string name="export_collection">ייצא אוסף</string>
     <!-- Card template editor -->
     <string name="title_activity_template_editor">סוגי כרטיסים</string>
-    <string name="card_template_editor_front">תבנית קדמית</string>
-    <string name="card_template_editor_back">תבנית אחורית</string>
-    <string name="card_template_editor_styling" maxLength="28">סגנון</string>
     <string name="card_template_editor_menu_card_browser_appearance" maxLength="28">מראה דפדפן הקלפים</string>
     <string name="card_template_editor_deck_override" maxLength="28">שכתוב חפיסה</string>
     <string name="card_template_editor_insert_field" maxLength="28">הוסף שדה</string>

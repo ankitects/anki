@@ -56,12 +56,10 @@
     <!-- MyAccount.kt -->
     <string name="username">이메일 주소</string>
     <string name="password">암호</string>
-    <string name="log_in">로그인하기</string>
     <string name="sign_up_description">AnkiWeb 계정이 없으십니까? 무료입니다!</string>
     <string name="sign_up_not_affiliated">참고: AnkiWeb은 AnkiDroid와 관련이 없습니다.</string>
     <string name="sign_up">가입</string>
     <string name="logged_as">다음 사용자로 로그인 됨</string>
-    <string name="log_out">로그아웃하기</string>
     <string name="reset_password">암호 재설정하기</string>
     <string name="lost_mail_instructions">이메일을 잊으셨나요?</string>
     <string name="sign_in">로그인 중</string>

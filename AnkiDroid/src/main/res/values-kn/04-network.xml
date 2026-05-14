@@ -56,12 +56,10 @@
     <!-- MyAccount.kt -->
     <string name="username">ಇಮೇಲ್ ವಿಳಾಸ</string>
     <string name="password">ಗುಪ್ತಪದ</string>
-    <string name="log_in">ಲಾಗ್ ಇನ್ ಮಾಡಿ</string>
     <string name="sign_up_description">AnkiWeb ಖಾತೆಯನ್ನು ಹೊಂದಿಲ್ಲವೇ? ಇದು ಉಚಿತ!</string>
     <string name="sign_up_not_affiliated">ಗಮನಿಸಿ: AnkiWeb AnkiDroid ಜೊತೆಗೆ ಸಂಯೋಜಿತವಾಗಿಲ್ಲ</string>
     <string name="sign_up">ಸೈನ್ ಅಪ್ ಮಾಡಿ</string>
     <string name="logged_as">ಎಂದು ಲಾಗಿನ್ ಮಾಡಲಾಗಿದೆ</string>
-    <string name="log_out">ಲಾಗ್ ಔಟ್</string>
     <string name="reset_password">ಪಾಸ್ವರ್ಡ್ ಮರುಹೊಂದಿಸಿ</string>
     <string name="lost_mail_instructions">ಇಮೇಲ್ ಮರೆತಿರುವಿರಾ?</string>
     <string name="sign_in">ಸೈನ್ ಇನ್ ಮಾಡಲಾಗುತ್ತಿದೆ</string>

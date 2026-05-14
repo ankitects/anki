@@ -56,12 +56,10 @@
     <!-- MyAccount.kt -->
     <string name="username">登録済みのメールアドレス</string>
     <string name="password">パスワード</string>
-    <string name="log_in">ログイン</string>
     <string name="sign_up_description">AnkiWebのアカウントを新規登録（無料）</string>
     <string name="sign_up_not_affiliated">備考: AnkiWebはAnkiのサービスです。AnkiDroid開発グループが管理するものではありません。</string>
     <string name="sign_up">新規登録用ページに進む</string>
     <string name="logged_as">ログイン中のアカウント：</string>
-    <string name="log_out">ログアウト</string>
     <string name="reset_password">パスワードをリセット</string>
     <string name="lost_mail_instructions">メールアドレスを忘れましたか？</string>
     <string name="sign_in">ログインしています&#8230;</string>

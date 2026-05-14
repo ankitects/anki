@@ -45,7 +45,6 @@
 -->
 <resources xmlns:tools="http://schemas.android.com/tools">
     <string name="check_db_warning">This may take a long time. Proceed?</string>
-    <string name="contextmenu_deckpicker_delete_deck" maxLength="28">ডেক মুছে ফেলো</string>
     <string name="delete_deck_title">ডেক মুছে ফেলবেন?</string>
     <plurals name="delete_deck_message">
         <item quantity="one">%1$s এর সমস্ত কার্ড মুছবেন? এতে %2$d কার্ড রয়েছে</item>

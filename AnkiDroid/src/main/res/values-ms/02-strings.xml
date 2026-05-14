@@ -186,7 +186,6 @@
     <string name="menu__deck_options" maxLength="28">Tetapan dek</string>
     <string name="menu__study_options" comment="Menu item that opens options for a Filtered deck (aka Cram deck, aka Custom study)">Tetapan ulang kaji</string>
     <string name="select_tts" maxLength="28">Tetapkan bahasa TTS</string>
-    <string name="custom_study" maxLength="28">Ulang kaji tersuai</string>
     <string name="dyn_deck_desc">Ini merupakan dek khas untuk mengulang kaji diluar jadual biasa. Kad akan dikembalikan ke dek asal setelah disemak. Memadam dek ini daripada senarai dek akan mengembalikan baki kad ke dek asal.</string>
     <string name="tag_editor_add_feedback">Sentuh “%2$s” untuk sahkan tambah “%1$s”</string>
     <string name="tag_editor_add_feedback_existing">Tag “%1$s” sedia ada dipilih</string>

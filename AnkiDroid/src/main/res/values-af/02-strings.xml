@@ -189,7 +189,6 @@
     <string name="menu__deck_options" maxLength="28">Pak-opsies</string>
     <string name="menu__study_options" comment="Menu item that opens options for a Filtered deck (aka Cram deck, aka Custom study)">Studeer Opsies</string>
     <string name="select_tts" maxLength="28">Stel TTS-taal</string>
-    <string name="custom_study" maxLength="28">Gepasmaakte studie</string>
     <string name="dyn_deck_desc">Dit is \'n spesiale dek vir studie buite die normale skedule. Kaartjies sal outomaties na hul oorspronklike dekke teruggestuur word nadat jy dit hersien het. Die verwydering van hierdie dek uit die deklys sal alle oorblywende kaartjies na hul oorspronklike dek terugstuur.</string>
     <string name="tag_editor_add_feedback">Raak \"%2$s\" aan om \"%1$s\" by te voeg</string>
     <string name="tag_editor_add_feedback_existing">Bestaande etiket “%1$s” gekies</string>

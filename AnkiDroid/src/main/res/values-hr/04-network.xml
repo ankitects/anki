@@ -56,12 +56,10 @@
     <!-- MyAccount.kt -->
     <string name="username">E-mail adresa</string>
     <string name="password">Lozinka</string>
-    <string name="log_in">Prijavi se</string>
     <string name="sign_up_description">Nemate AnkiWeb račun? Besplatan je!</string>
     <string name="sign_up_not_affiliated">Napomena: AnkiWeb nije povezan s AnkiDroidom</string>
     <string name="sign_up">Izradi račun</string>
     <string name="logged_as">Prijavljen/a kao</string>
-    <string name="log_out">Odjavi se</string>
     <string name="reset_password">Resetiraj lozinku</string>
     <string name="lost_mail_instructions">Zaboravili ste e-mail?</string>
     <string name="sign_in">Prijavljivanje</string>

@@ -56,12 +56,10 @@
     <!-- MyAccount.kt -->
     <string name="username">E-pasta adrese</string>
     <string name="password">Parole</string>
-    <string name="log_in">Pieteikties</string>
     <string name="sign_up_description">Nav AnkiWeb konta? Tas ir bez maksas.</string>
     <string name="sign_up_not_affiliated">Piebilde: AnkiWeb nav saistīta ar AnkiDroid</string>
     <string name="sign_up">Reģistrēties</string>
     <string name="logged_as">Pieteicies kā</string>
-    <string name="log_out">Atteikties</string>
     <string name="reset_password">Atiestatīt paroli</string>
     <string name="lost_mail_instructions">Aizmirsta e-pasta adrese?</string>
     <string name="sign_in">Piesakās</string>

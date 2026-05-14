@@ -189,7 +189,6 @@
     <string name="menu__deck_options" maxLength="28">Επιλογές τράπουλας</string>
     <string name="menu__study_options" comment="Menu item that opens options for a Filtered deck (aka Cram deck, aka Custom study)">Επιλογές μελέτης</string>
     <string name="select_tts" maxLength="28">Ορισμός γλώσσας TTS</string>
-    <string name="custom_study" maxLength="28">Προσαρμοσμένη μελέτη</string>
     <string name="dyn_deck_desc">Αυτή είναι μια ειδική τράπουλα για μάθηση εκτός του κανονικού προγράμματος. Οι κάρτες θα επιστραφούν αυτόματα στην αρχική τους τράπουλα μετά την επανάληψή τους. Η διαγραφή αυτής της τράπουλας από τη λίστα τραπουλών θα επιστρέψει όλες τις κάρτες στην αρχική τους τράπουλα.</string>
     <string name="tag_editor_add_feedback">Αγγίξτε το “%2$s” για να επιβεβαιώσετε την προσθήκη “%1$s”</string>
     <string name="tag_editor_add_feedback_existing">Επιλέχθηκε η υπάρχουσα ετικέτα “%1$s”</string>

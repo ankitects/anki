@@ -56,12 +56,10 @@
     <!-- MyAccount.kt -->
     <string name="username">E-mailadres</string>
     <string name="password">Wachtwoord</string>
-    <string name="log_in">Inloggen</string>
     <string name="sign_up_description">Heb je nog geen AnkiWeb account? Het is gratis!</string>
     <string name="sign_up_not_affiliated">Belangrijk: AnkiWeb is niet verwant met AnkiDroid</string>
     <string name="sign_up">Meld je nu aan</string>
     <string name="logged_as">Ingelogd als</string>
-    <string name="log_out">Uitloggen</string>
     <string name="reset_password">Wachtwoord resetten</string>
     <string name="lost_mail_instructions">Email vergeten?</string>
     <string name="sign_in">Aanmelden</string>

@@ -189,7 +189,6 @@
     <string name="menu__deck_options" maxLength="28">Agordoj pri kartaro</string>
     <string name="menu__study_options" comment="Menu item that opens options for a Filtered deck (aka Cram deck, aka Custom study)">Agordoj pri lernado</string>
     <string name="select_tts" maxLength="28">Agordi lingvon por parolsintezilo</string>
-    <string name="custom_study" maxLength="28">Propra lernado</string>
     <string name="dyn_deck_desc">Tio ĉi estas speciala kartaro por lerni ekster la norma lern-plano. Kartoj aŭtomate revenos al originalaj kartaroj post ripeti ilin. Forigi tiun ĉi kartaron el la listo de kartaroj redonos ĉiujn restantajn kartojn al originalaj kartaroj.</string>
     <string name="tag_editor_add_feedback">Frapetu “%2$s” por konfirmi aldoni “%1$s”</string>
     <string name="tag_editor_add_feedback_existing">Elektis ekzistan etikedon “%1$s”</string>

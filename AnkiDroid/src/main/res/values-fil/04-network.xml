@@ -56,12 +56,10 @@
     <!-- MyAccount.kt -->
     <string name="username">Email address</string>
     <string name="password">Password</string>
-    <string name="log_in">Mag login</string>
     <string name="sign_up_description">Walang kang AnkiWeb na account? Ito ay libre!</string>
     <string name="sign_up_not_affiliated">Note: Ang AnkiWeb ay hindi kasapi ng AnkiDroid</string>
     <string name="sign_up">Mag Sign up</string>
     <string name="logged_as">Naka-login bilang</string>
-    <string name="log_out">Mag log out</string>
     <string name="reset_password">I-reset ang password</string>
     <string name="lost_mail_instructions">Nakalimutan ang email?</string>
     <string name="sign_in">Naglo-login</string>

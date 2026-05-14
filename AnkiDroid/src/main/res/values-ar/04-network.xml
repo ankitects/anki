@@ -56,12 +56,10 @@
     <!-- MyAccount.kt -->
     <string name="username">عنوان البريد الإلكتروني</string>
     <string name="password">كلمة السر</string>
-    <string name="log_in">تسجيل الدخول</string>
     <string name="sign_up_description">ألا تملك حساب آنكي ويب؟ إنه مجاني!</string>
     <string name="sign_up_not_affiliated">ملاحظة: آنكي ويب غير تابع لآنكي درويد.</string>
     <string name="sign_up">التسجيل</string>
     <string name="logged_as">مسجل كـ</string>
-    <string name="log_out">تسجيل الخروج</string>
     <string name="reset_password">إعادة تعيين كلمة السر</string>
     <string name="lost_mail_instructions">هل نسيت بريدك الإلكتروني؟</string>
     <string name="sign_in">جار تسجيل الدخول</string>

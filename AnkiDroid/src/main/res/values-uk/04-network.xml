@@ -56,12 +56,10 @@
     <!-- MyAccount.kt -->
     <string name="username">Електронна пошта</string>
     <string name="password">Пароль</string>
-    <string name="log_in">Ввійти</string>
     <string name="sign_up_description">Не маєте облікового запису AnkiWeb? Це безкоштовно!</string>
     <string name="sign_up_not_affiliated">Примітка: AnkiWeb не афілійований з AnkiDroid</string>
     <string name="sign_up">Створити обліковий запис</string>
     <string name="logged_as">Ви ввійшли як</string>
-    <string name="log_out">Вийти</string>
     <string name="reset_password">Відновити пароль</string>
     <string name="lost_mail_instructions">Забули електронну пошту?</string>
     <string name="sign_in">Виконується вхід</string>

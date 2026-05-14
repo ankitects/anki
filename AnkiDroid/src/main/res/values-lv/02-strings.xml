@@ -192,7 +192,6 @@
     <string name="menu__deck_options" maxLength="28">Kavas iespējas</string>
     <string name="menu__study_options" comment="Menu item that opens options for a Filtered deck (aka Cram deck, aka Custom study)">Mācīšanās iespējas</string>
     <string name="select_tts" maxLength="28">Iestatīt teksta pārveidošanas runā valodu</string>
-    <string name="custom_study" maxLength="28">Pielāgota mācīšanās</string>
     <string name="dyn_deck_desc">Šī ir īpaša kava, kas paredzēta papildu mācībām. Kartītes pēc to pārskatīšanas tiks automātiski atgrieztas sākotnējās kavās. Šīs kavas izdzēšana no saraksta atgriezīs atlikušās kartītes to sākotnējā kavā.</string>
     <string name="tag_editor_add_feedback">Pieskarties \"%2$s\", lai apstiprinātu \"%1$s\" pievienošanu</string>
     <string name="tag_editor_add_feedback_existing">Atlasīta esoša birka \"%1$s\"</string>

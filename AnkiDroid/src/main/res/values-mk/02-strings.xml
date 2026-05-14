@@ -190,7 +190,6 @@
     <string name="menu__deck_options" maxLength="28">Deck options</string>
     <string name="menu__study_options" comment="Menu item that opens options for a Filtered deck (aka Cram deck, aka Custom study)">Study options</string>
     <string name="select_tts" maxLength="28">Поставете го јазикот на TTS</string>
-    <string name="custom_study" maxLength="28">Прилагодено студија</string>
     <string name="dyn_deck_desc">Ова е специјална палуба за студирање надвор од секојдневен распоред. Картичките автоматски ќе бидат вратени на нивните палуби откако ќе ги прегледате. Бришењето на овој пабула од листата на палуби ќе ги врати сите останати картички во нивната оригинална палуба.</string>
     <string name="tag_editor_add_feedback">Допрете \"%2$s\" за да потврдите додавање \"%1$s\"</string>
     <string name="tag_editor_add_feedback_existing">Избрана е постоечка ознака \"%1$s\"</string>

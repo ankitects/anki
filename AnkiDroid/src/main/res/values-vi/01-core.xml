@@ -87,7 +87,6 @@
     <!-- flashcard_portrait.xml -->
     <string name="undo_action_whiteboard_last_stroke" comment="One of the display patterns of \'Undo\' item on the action menu in the Study Screen. It is shown as the title of the item when the whiteboard (handwriting) feature is enabled and visible and has any strokes (handwritten lines)" maxLength="28">Hoàn tác</string>
     <string name="move_all_to_deck">Di chuyển tất cả đến bộ thẻ</string>
-    <string name="unbury" maxLength="28">Bỏ tạm ẩn</string>
     <string name="rename_deck" maxLength="28">Đổi tên bộ thẻ</string>
     <string name="create_shortcut">Tạo lối tắt</string>
     <string name="browse_cards">Xem tất cả thẻ</string>
@@ -113,7 +112,7 @@
     <string name="menu_unmark_note">Bỏ đánh dấu ghi chú</string>
     <string name="menu_enable_voice_playback" maxLength="28">Kích hoạt phát âm thanh</string>
     <string name="menu_disable_voice_playback">Tắt phát âm thanh</string>
-    <string name="menu_create_backup" maxLength="28">Create backup</string>
+    <string name="menu_create_backup" maxLength="28">Tạo bản sao lưu</string>
     <string name="new_deck">Tạo bộ thẻ</string>
     <string name="new_dynamic_deck">Tạo bộ thẻ đã lọc</string>
     <string name="directory_inaccessible">Không thể truy cập thư mục AnkiDroid</string>
@@ -123,11 +122,10 @@
     of the permissions/app info screen will differ between devices. -->
     <string name="startup_no_storage_permission">Cấp quyền \"Lưu trữ\" cho AnkiDroid để có thể tiếp tục</string>
     <string name="rebuild_filtered_deck">Đang xây dựng lại bộ thẻ đã lọc</string>
-    <string name="rebuild_cram_label" maxLength="28">Dựng lại</string>
     <string name="empty_cram_label" maxLength="28">Dọn trống</string>
     <string name="create_subdeck">Tạo bộ thẻ phụ</string>
     <string name="empty_filtered_deck">Đang làm trống các bộ thẻ đã lọc</string>
-    <string name="search_deck" comment="Deck search for selecting it">Deck search</string>
+    <string name="search_deck" comment="Deck search for selecting it">Tìm kiếm bộ thẻ</string>
     <string name="empty_deck">Bộ thẻ này rỗng</string>
     <string name="invalid_deck_name">Tên bộ thẻ không hợp lệ</string>
     <string name="studyoptions_congrats_finished">Chúc mừng! Bạn đã hoàn thành hết cho hôm nay.</string>
@@ -144,9 +142,6 @@
     <string name="export_collection">Xuất bộ sưu tập</string>
     <!-- Card template editor -->
     <string name="title_activity_template_editor">Các loại thẻ</string>
-    <string name="card_template_editor_front">Mẫu định dạng mặt trước</string>
-    <string name="card_template_editor_back">Mẫu định dạng mặt sau</string>
-    <string name="card_template_editor_styling" maxLength="28">Phong cách</string>
     <string name="card_template_editor_menu_card_browser_appearance" maxLength="28">Giao diện Trình duyệt Thẻ</string>
     <string name="card_template_editor_deck_override" maxLength="28">Ghi đè bộ thẻ</string>
     <string name="card_template_editor_insert_field" maxLength="28">Thêm trường</string>
@@ -164,7 +159,7 @@
     <string name="card_template_browser_appearance_title">Giao diện trình duyệt</string>
     <!-- card Info -->
     <string name="card_info_title" maxLength="28">Thông tin thẻ</string>
-    <string name="previous_card_info_title" maxLength="28">Previous card info</string>
+    <string name="previous_card_info_title" maxLength="28">Thông tin thẻ trước</string>
     <!-- Permissions -->
     <string name="read_write_permission_label">Đọc và ghi vào cơ sở dữ liệu AnkiDroid</string>
     <string name="read_write_permission_description">truy cập các ghi chú, thẻ, loại ghi chú và các bộ thẻ hiện có, cũng như tạo mới chúng</string>
@@ -210,7 +205,7 @@
     <!-- Internet Permissions -->
     <string name="internet_access_title" comment="used for notifying user to unable internet access">Internet</string>
     <string name="permission_access_summary">Required for the app to work</string>
-    <string name="permission_required_message">Please grant AnkiDroid the ‘%s’ permission to continue</string>
+    <string name="permission_required_message">Vui lòng cấp cho AnkiDroid quyền ‘%s’ để tiếp tục</string>
     <!-- Multiple profile -->
     <string name="add_profile">Add profile</string>
 </resources>

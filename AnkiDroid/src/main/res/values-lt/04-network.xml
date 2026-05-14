@@ -56,12 +56,10 @@
     <!-- MyAccount.kt -->
     <string name="username">El. pašto adresas</string>
     <string name="password">Slaptažodis</string>
-    <string name="log_in">Prisijungti</string>
     <string name="sign_up_description">Nesate susikūrę „AnkiWeb“ paskyros? Tai padaryti galite nemokamai!</string>
     <string name="sign_up_not_affiliated">Pastaba: „AnkiWeb“ nėra susijusi su „AnkiDroid“</string>
     <string name="sign_up">Užsiregistruoti</string>
     <string name="logged_as">Esate prisijungę kaip</string>
-    <string name="log_out">Atsijungti</string>
     <string name="reset_password">Atkurti slaptažodį</string>
     <string name="lost_mail_instructions">Pamiršote elektroninį paštą?</string>
     <string name="sign_in">Vyksta prisijungimas</string>

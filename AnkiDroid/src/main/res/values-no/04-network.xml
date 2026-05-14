@@ -56,12 +56,10 @@
     <!-- MyAccount.kt -->
     <string name="username">E-postadresse</string>
     <string name="password">Passord</string>
-    <string name="log_in">Logg på</string>
     <string name="sign_up_description">Har du ingen AnkiWeb-konto? Det er gratis!</string>
     <string name="sign_up_not_affiliated">Merk: AnkiWeb er ikke tilknyttet AnkiDroid</string>
     <string name="sign_up">Registrer deg</string>
     <string name="logged_as">Logget på som</string>
-    <string name="log_out">Logg ut</string>
     <string name="reset_password">Tilbakestill passord</string>
     <string name="lost_mail_instructions">Glemt e-post?</string>
     <string name="sign_in">Signing in</string>

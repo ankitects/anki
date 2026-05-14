@@ -90,7 +90,6 @@
     <!-- flashcard_portrait.xml -->
     <string name="undo_action_whiteboard_last_stroke" comment="One of the display patterns of \'Undo\' item on the action menu in the Study Screen. It is shown as the title of the item when the whiteboard (handwriting) feature is enabled and visible and has any strokes (handwritten lines)" maxLength="28">ಸ್ಟ್ರೋಕ್ ರದ್ದುಗೊಳಿಸಿ</string>
     <string name="move_all_to_deck">ಎಲ್ಲವನ್ನೂ ಡೆಕ್‌ಗೆ ಸರಿಸಿ</string>
-    <string name="unbury" maxLength="28">ಅನ್ಬರಿ</string>
     <string name="rename_deck" maxLength="28">ಸಂಗ್ರಹಣೆಗೆ ಮರುಹೆಸರಿಸಿ</string>
     <string name="create_shortcut">ಕಿರುದಾರಿ ರಚಿಸಿ</string>
     <string name="browse_cards">ಕಾರ್ಡ್‌ಗಳನ್ನು ಬ್ರೌಸ್ ಮಾಡಿ</string>
@@ -126,7 +125,6 @@
     of the permissions/app info screen will differ between devices. -->
     <string name="startup_no_storage_permission">ಮುಂದುವರೆಯಲು ದಯವಿಟ್ಟು ಆಂಕಿಡ್ರಾಯ್ಡ್‌ಗೆ ‘ಸಂಗ್ರಹ’ ಅನುಮತಿಯನ್ನು ನೀಡಿ</string>
     <string name="rebuild_filtered_deck">ಫಿಲ್ಟರ್ ಮಾಡಿದ ಸಂಗ್ರಹವನ್ನು ಪುನರ್ನಿರ್ಮಿಸಲಾಗುತ್ತಿದೆ &#8230;</string>
-    <string name="rebuild_cram_label" maxLength="28">ಪುನರ್ನಿರ್ಮಾಣ</string>
     <string name="empty_cram_label" maxLength="28">ಖಾಲಿ</string>
     <string name="create_subdeck">ಉಪ ಸಂಗ್ರಹವನ್ನು ರಚಿಸಿ</string>
     <string name="empty_filtered_deck">ಫಿಲ್ಟರ್ ಮಾಡಿದ ಡೆಕ್ ಅನ್ನು ಖಾಲಿ ಮಾಡಲಾಗುತ್ತಿದೆ&#8230;</string>
@@ -147,9 +145,6 @@
     <string name="export_collection">Export collection</string>
     <!-- Card template editor -->
     <string name="title_activity_template_editor">ಕಾರ್ಡ್ ಪ್ರಕಾರಗಳು</string>
-    <string name="card_template_editor_front">ಮುಂಭಾಗದ ಟೆಂಪ್ಲೇಟ್</string>
-    <string name="card_template_editor_back">ಹಿಂದಿನ ಟೆಂಪ್ಲೇಟ್</string>
-    <string name="card_template_editor_styling" maxLength="28">ವಿನ್ಯಾಸ</string>
     <string name="card_template_editor_menu_card_browser_appearance" maxLength="28">ಕಾರ್ಡ್ ಬ್ರೌಸರ್ ಗೋಚರತೆ</string>
     <string name="card_template_editor_deck_override" maxLength="28">ಡೆಕ್ ಅತಿಕ್ರಮಿಸಿ</string>
     <string name="card_template_editor_insert_field" maxLength="28">ಕ್ಷೇತ್ರವನ್ನು ಸೇರಿಸಿ</string>

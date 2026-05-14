@@ -56,12 +56,10 @@
     <!-- MyAccount.kt -->
     <string name="username">ئېلخەت ئادرېس</string>
     <string name="password">ئىم</string>
-    <string name="log_in">تىزىمغا كىرىڭ</string>
     <string name="sign_up_description">AnkiWeb ھېساباتىڭىز يوقمۇ؟ ھەقسىز!</string>
     <string name="sign_up_not_affiliated">ئەسكەرتىش: AnkiWeb تورى AnkiDroid قا تەۋە ئەمەس</string>
     <string name="sign_up">تىزىملىتىڭ</string>
     <string name="logged_as">تىزىمغا كىرگىنى</string>
-    <string name="log_out">تىزىمدىن چىقىڭ</string>
     <string name="reset_password">ئىمنى ئەسلىگە قايتۇر</string>
     <string name="lost_mail_instructions">ئېلخەت ئۇنۇتۇلدىمۇ؟</string>
     <string name="sign_in">تىزىمغا كىرىۋاتىدۇ</string>

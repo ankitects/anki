@@ -189,7 +189,6 @@
     <string name="menu__deck_options" maxLength="28">Kortleikval</string>
     <string name="menu__study_options" comment="Menu item that opens options for a Filtered deck (aka Cram deck, aka Custom study)">Study options</string>
     <string name="select_tts" maxLength="28">Set TTS language</string>
-    <string name="custom_study" maxLength="28">Tilpasset studie</string>
     <string name="dyn_deck_desc">Det finnes en spesiell kortstokk for å studere utenfor den vanlige tidsrammen. Kort vil automatisk bli satt tilbake i de opprinnelige kortstokkene sine etter at du har gått gjennom dem. Ved å slette denne kortstokken fra kortstokklisten, vil alle gjenværende kort bli satt tilbake i de opprinnelige kortstokkene sine.</string>
     <string name="tag_editor_add_feedback">Touch “%2$s” to confirm adding “%1$s”</string>
     <string name="tag_editor_add_feedback_existing">Existing tag “%1$s” selected</string>

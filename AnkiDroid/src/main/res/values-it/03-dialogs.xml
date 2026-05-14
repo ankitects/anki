@@ -45,7 +45,6 @@
 -->
 <resources xmlns:tools="http://schemas.android.com/tools">
     <string name="check_db_warning">Potrebbe richiedere molto tempo. Procedere?</string>
-    <string name="contextmenu_deckpicker_delete_deck" maxLength="28">Elimina il mazzo</string>
     <string name="delete_deck_title">Elimina il mazzo</string>
     <plurals name="delete_deck_message">
         <item quantity="one">Cancellare tutte le carte in %1$s? Contiene %2$d carta</item>

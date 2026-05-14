@@ -56,12 +56,10 @@
     <!-- MyAccount.kt -->
     <string name="username">E-Mail-Adresse</string>
     <string name="password">Passwort</string>
-    <string name="log_in">Einloggen</string>
     <string name="sign_up_description">Sie haben keinen AnkiWeb-Konto? Es ist gratis!</string>
     <string name="sign_up_not_affiliated">Hinweis: AnkiWeb gehört nicht zu AnkiDroid</string>
     <string name="sign_up">Registrieren</string>
     <string name="logged_as">Eingeloggt als</string>
-    <string name="log_out">Ausloggen</string>
     <string name="reset_password">Passwort zurücksetzen</string>
     <string name="lost_mail_instructions">E-Mail-Adresse vergessen?</string>
     <string name="sign_in">Wird angemeldet</string>

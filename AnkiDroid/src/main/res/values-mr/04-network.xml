@@ -56,12 +56,10 @@
     <!-- MyAccount.kt -->
     <string name="username">ईमेल पत्ता</string>
     <string name="password">संकेतशब्द</string>
-    <string name="log_in">लॉग इन</string>
     <string name="sign_up_description">AnkiWeb खाते नाही? ते फुकट आहे!</string>
     <string name="sign_up_not_affiliated">टीप: अँकीवेब अँकीड्रोइडशी संबद्ध नाही</string>
     <string name="sign_up">साइन अप करा</string>
     <string name="logged_as">म्हणून लॉग इन केले</string>
-    <string name="log_out">बाहेर पडणे</string>
     <string name="reset_password">संकेतशब्द रीसेट करा</string>
     <string name="lost_mail_instructions">ईमेल विसरलात?</string>
     <string name="sign_in">साइन इन करत आहे</string>

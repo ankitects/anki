@@ -189,7 +189,6 @@
     <string name="menu__deck_options" maxLength="28">ᱰᱮᱠ ᱚᱯᱥᱚᱱᱠᱚ</string>
     <string name="menu__study_options" comment="Menu item that opens options for a Filtered deck (aka Cram deck, aka Custom study)">ᱯᱟᱲᱦᱟᱣ ᱚᱯᱥᱚᱱ ᱠᱚ</string>
     <string name="select_tts" maxLength="28">TTS ᱯᱟᱹᱨᱥᱤ ᱥᱮᱴ ᱢᱮ</string>
-    <string name="custom_study" maxLength="28">ᱱᱤᱡᱮᱛᱮ ᱯᱟᱲᱦᱟᱣ</string>
     <string name="dyn_deck_desc">ᱱᱚᱶᱟ ᱫᱚ ᱱᱚᱨᱢᱟᱞ ᱥᱮᱰᱭᱩᱞ ᱠᱷᱣᱱ ᱮᱴᱟᱜ ᱨᱮ ᱯᱟᱲᱦᱟᱣ ᱞᱟᱹᱜᱤᱫ ᱥᱯᱮᱥᱟᱞ ᱰᱮᱠ ᱠᱟᱱᱟ ᱾ ᱠᱟᱰ ᱠᱚ ᱨᱤᱵᱷᱤᱣ ᱯᱚᱨᱮ ᱟᱡ ᱛᱮᱜᱮ ᱢᱩᱞ ᱰᱮᱢᱠ ᱥᱮᱱ ᱥᱮᱱᱚᱜᱼᱟ ᱾ ᱰᱮᱠ ᱞᱤᱥᱴ ᱠᱷᱚᱱ ᱰᱮᱠᱜᱮᱫ ᱜᱤᱰᱤ ᱞᱮᱠᱷᱱᱟ ᱫᱚ ᱡᱷᱚᱛᱚ ᱠᱟᱲ ᱢᱩᱞ ᱰᱮᱠ ᱥᱮᱱ ᱥᱮᱱᱚᱜᱼᱟ</string>
     <string name="tag_editor_add_feedback">“%1$s” ᱥᱞᱮᱫ ᱞᱟᱹᱜᱤᱫ ᱛᱮ “%2$s” ᱚᱛᱟᱭᱯᱮ</string>
     <string name="tag_editor_add_feedback_existing">ᱢᱟᱲᱟᱝ ᱨᱮ ᱢᱮᱱᱟᱜᱠᱟ ᱴᱮᱛᱜ “%1$s” ᱪᱚᱭᱟᱱᱮᱱᱟ</string>

@@ -56,12 +56,10 @@
     <!-- MyAccount.kt -->
     <string name="username">نشانی رایانامه</string>
     <string name="password">رمزعبور</string>
-    <string name="log_in">ورود به حساب کاربری</string>
     <string name="sign_up_description">آيا حساب كاربري در آنکی وب نداريد؟ حساب كاربري رايگان است!</string>
     <string name="sign_up_not_affiliated">توجه: AnkiWeb وابسته به AnkiDroid نیست</string>
     <string name="sign_up">ثبت نام</string>
     <string name="logged_as">ورود به حساب کاربری به عنوان</string>
-    <string name="log_out">خروج</string>
     <string name="reset_password">تنظیم مجدد گذرواژه</string>
     <string name="lost_mail_instructions">ایمیل خود را فراموش کردید؟</string>
     <string name="sign_in">ورود به سیستم</string>

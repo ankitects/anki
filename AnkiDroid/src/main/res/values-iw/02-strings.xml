@@ -195,7 +195,6 @@
     <string name="menu__deck_options" maxLength="28">אפשרויות חפיסה</string>
     <string name="menu__study_options" comment="Menu item that opens options for a Filtered deck (aka Cram deck, aka Custom study)">אפשרויות למידה</string>
     <string name="select_tts" maxLength="28">הגדר שפת TTS</string>
-    <string name="custom_study" maxLength="28">אימון נוסף</string>
     <string name="dyn_deck_desc">חפיסה זאת הינה חפיסה מיוחדת ללמידה מחוץ ללו\"ז הרגיל. הכרטיסים יוחזרו באופן אוטומטי לחפיסותיהם המקוריות לאחר סיום הלמידה. מחיקת החפיסה תחזיר את כל הכרטיסים שנותרו בה לחפיסותיהם המקוריות.</string>
     <string name="tag_editor_add_feedback">לחץ \"%2$s\" לאישור הוספת \"%1$s\"</string>
     <string name="tag_editor_add_feedback_existing">תגית קיימת \"%1$s\" נבחרה</string>

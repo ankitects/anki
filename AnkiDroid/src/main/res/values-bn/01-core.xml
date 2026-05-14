@@ -90,7 +90,6 @@
     <!-- flashcard_portrait.xml -->
     <string name="undo_action_whiteboard_last_stroke" comment="One of the display patterns of \'Undo\' item on the action menu in the Study Screen. It is shown as the title of the item when the whiteboard (handwriting) feature is enabled and visible and has any strokes (handwritten lines)" maxLength="28">স্ট্রোক ফিরত নাও</string>
     <string name="move_all_to_deck">সবগুলো ডেক এ সড়াও</string>
-    <string name="unbury" maxLength="28">অদাফন</string>
     <string name="rename_deck" maxLength="28">ডেক পুনঃনামকরণ করুন</string>
     <string name="create_shortcut">শর্টকাট তৈরী করুন</string>
     <string name="browse_cards">কার্ড খুঁজুন</string>
@@ -126,7 +125,6 @@
     of the permissions/app info screen will differ between devices. -->
     <string name="startup_no_storage_permission">অনুগ্রহ করে আগানোর জন্য অঙ্কিড্রইডকে \'storage\' পারমিশনের অনুমতি দেন</string>
     <string name="rebuild_filtered_deck">পুনর্নির্মাণ করা হচ্ছে ফিল্টারড ডেক</string>
-    <string name="rebuild_cram_label" maxLength="28">নতুন করে তৈরি করো</string>
     <string name="empty_cram_label" maxLength="28">খালি</string>
     <string name="create_subdeck">সাব ডেক বানাও</string>
     <string name="empty_filtered_deck">খালি করা হচ্ছে ফিল্টারড ডেক</string>
@@ -147,9 +145,6 @@
     <string name="export_collection">রপ্তানি সংগ্রহ</string>
     <!-- Card template editor -->
     <string name="title_activity_template_editor">কার্ডের ধরন</string>
-    <string name="card_template_editor_front">সম্মুখ খসড়া</string>
-    <string name="card_template_editor_back">পশ্চাৎ খসড়া</string>
-    <string name="card_template_editor_styling" maxLength="28">স্টাইলিং</string>
     <string name="card_template_editor_menu_card_browser_appearance" maxLength="28">কার্ড ব্রাউজারের চেহারা</string>
     <string name="card_template_editor_deck_override" maxLength="28">ডেকের অগ্রাহ্য</string>
     <string name="card_template_editor_insert_field" maxLength="28">ফিল্ড যোগ-করুন</string>
