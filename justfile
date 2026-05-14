@@ -29,6 +29,12 @@ test coverage='' html='':
 coverage html='':
     just _coverage-py {{ html }}
 
+# Run Rust tests. Pass --coverage to enforce Rust coverage, and --html to include an HTML report.
+[arg("coverage", long="coverage", value="--coverage")]
+[arg("html", long="html", value="--html")]
+test-rust coverage='' html='':
+    just {{ if coverage == "--coverage" { "_coverage-rust " + html } else { "_test-rust" } }}
+
 # Run Python tests (pylib + qt). Pass --coverage to enforce coverage, and --html to include HTML reports.
 [arg("coverage", long="coverage", value="--coverage")]
 [arg("html", long="html", value="--html")]
@@ -40,8 +46,19 @@ _test:
     {{ ninja }} check:rust_test check:pytest check:vitest
 
 [private]
+_test-rust:
+    {{ ninja }} check:rust_test
+
+[private]
 _test-py:
     {{ ninja }} check:pytest
+
+[private]
+_coverage-rust html='':
+    mkdir -p out/coverage/rust out/bin
+    test -x out/bin/cargo-llvm-cov || cargo install cargo-llvm-cov --version 0.8.4 --locked --root out
+    ANKI_TEST_MODE=1 out/bin/cargo-llvm-cov llvm-cov --workspace --locked --json --summary-only --output-path out/coverage/rust/coverage-summary.json --fail-under-lines 60
+    {{ if html == "--html" { "ANKI_TEST_MODE=1 out/bin/cargo-llvm-cov llvm-cov report --html --output-dir out/coverage/rust/html && echo 'Rust coverage report: out/coverage/rust/html/index.html'" } else { "true" } }}
 
 [private]
 _coverage-py html='':
