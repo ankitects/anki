@@ -22,6 +22,38 @@ check:
 test:
     {{ ninja }} check:rust_test check:pytest check:vitest
 
+# Run Python tests (pylib + qt). Pass --coverage to enforce coverage, and --html to include HTML reports.
+[arg("coverage", long="coverage", value="--coverage")]
+[arg("html", long="html", value="--html")]
+test-py coverage='' html='':
+    just {{ if coverage == "--coverage" { "_coverage-py " + html } else { "_test-py" } }}
+
+[private]
+_test-py:
+    {{ ninja }} check:pytest
+
+[private]
+_coverage-py html='':
+    {{ ninja }} pylib qt
+    just _coverage-py-pylib {{ html }}
+    just _coverage-py-qt {{ html }}
+
+[private]
+_coverage-py-pylib html='':
+    mkdir -p out/coverage/python-pylib
+    PYTHONPATH=out/pylib ANKI_TEST_MODE=1 out/pyenv/bin/python -m coverage run --source=pylib/anki --data-file=out/coverage/python-pylib/.coverage -m pytest -p no:cacheprovider pylib/tests
+    out/pyenv/bin/python -m coverage json --data-file=out/coverage/python-pylib/.coverage -o out/coverage/python-pylib/coverage-summary.json
+    out/pyenv/bin/python -m coverage report --data-file=out/coverage/python-pylib/.coverage --fail-under=65
+    {{ if html == "--html" { "out/pyenv/bin/python -m coverage html --data-file=out/coverage/python-pylib/.coverage -d out/coverage/python-pylib/html --fail-under=65 && echo 'Python pylib coverage report: out/coverage/python-pylib/html/index.html'" } else { "true" } }}
+
+[private]
+_coverage-py-qt html='':
+    mkdir -p out/coverage/python-qt
+    PYTHONPATH=pylib:out/pylib:out/qt ANKI_TEST_MODE=1 out/pyenv/bin/python -m coverage run --source=qt/aqt --data-file=out/coverage/python-qt/.coverage -m pytest -p no:cacheprovider qt/tests
+    out/pyenv/bin/python -m coverage json --data-file=out/coverage/python-qt/.coverage -o out/coverage/python-qt/coverage-summary.json
+    out/pyenv/bin/python -m coverage report --data-file=out/coverage/python-qt/.coverage --fail-under=20
+    {{ if html == "--html" { "out/pyenv/bin/python -m coverage html --data-file=out/coverage/python-qt/.coverage -d out/coverage/python-qt/html --fail-under=20 && echo 'Python qt coverage report: out/coverage/python-qt/html/index.html'" } else { "true" } }}
+
 # Check formatting (fast, no build needed)
 fmt:
     {{ ninja }} check:format
