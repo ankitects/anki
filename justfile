@@ -27,6 +27,7 @@ test coverage='' html='':
 # Run coverage for all test stacks. Pass --html to also generate HTML reports.
 [arg("html", long="html", value="--html")]
 coverage html='':
+    just _coverage-rust {{ html }}
     just _coverage-py {{ html }}
 
 # Run Rust tests. Pass --coverage to enforce Rust coverage, and --html to include an HTML report.
