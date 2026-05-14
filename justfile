@@ -29,6 +29,7 @@ test coverage='' html='':
 coverage html='':
     just _coverage-rust {{ html }}
     just _coverage-py {{ html }}
+    just _coverage-ts {{ html }}
 
 # Run Rust tests. Pass --coverage to enforce Rust coverage, and --html to include an HTML report.
 [arg("coverage", long="coverage", value="--coverage")]
