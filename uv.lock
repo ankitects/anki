@@ -182,7 +182,6 @@ wheels = [
 name = "aqt"
 source = { editable = "qt" }
 dependencies = [
-    { name = "anki" },
     { name = "anki-mac-helper", marker = "sys_platform == 'darwin' or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt610') or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt68') or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt69') or (extra == 'extra-3-aqt-qt610' and extra == 'extra-3-aqt-qt68') or (extra == 'extra-3-aqt-qt610' and extra == 'extra-3-aqt-qt69') or (extra == 'extra-3-aqt-qt68' and extra == 'extra-3-aqt-qt69')" },
     { name = "beautifulsoup4" },
     { name = "flask" },
@@ -239,7 +238,6 @@ qt69 = [
 
 [package.metadata]
 requires-dist = [
-    { name = "anki", editable = "pylib" },
     { name = "anki-audio", marker = "(platform_machine == 'AMD64' and sys_platform == 'win32' and extra == 'audio') or (sys_platform == 'darwin' and extra == 'audio')", specifier = "==0.1.0" },
     { name = "anki-mac-helper", marker = "sys_platform == 'darwin'", specifier = ">=0.1.1" },
     { name = "beautifulsoup4" },

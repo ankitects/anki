@@ -18,15 +18,26 @@ wheels:
 check:
     {{ ninja }} pylib qt check
 
-# Run all tests (Rust, Python, TypeScript)
-test:
-    {{ ninja }} check:rust_test check:pytest check:vitest
+# Run all tests (Rust, Python, TypeScript). Pass --coverage to enforce coverage, and --html to include HTML reports.
+[arg("coverage", long="coverage", value="--coverage")]
+[arg("html", long="html", value="--html")]
+test coverage='' html='':
+    just {{ if coverage == "--coverage" { "coverage " + html } else { "_test" } }}
+
+# Run coverage for all test stacks. Pass --html to also generate HTML reports.
+[arg("html", long="html", value="--html")]
+coverage html='':
+    just _coverage-py {{ html }}
 
 # Run Python tests (pylib + qt). Pass --coverage to enforce coverage, and --html to include HTML reports.
 [arg("coverage", long="coverage", value="--coverage")]
 [arg("html", long="html", value="--html")]
 test-py coverage='' html='':
     just {{ if coverage == "--coverage" { "_coverage-py " + html } else { "_test-py" } }}
+
+[private]
+_test:
+    {{ ninja }} check:rust_test check:pytest check:vitest
 
 [private]
 _test-py:
