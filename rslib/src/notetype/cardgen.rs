@@ -126,7 +126,14 @@ impl<N: Deref<Target = Notetype>> CardGenContext<N> {
         if !note.tags.is_empty() {
             nonempty_fields.insert("Tags");
         }
-
+        // Special fields are always non-empty at render time
+        nonempty_fields.insert("Deck");
+        nonempty_fields.insert("Subdeck");
+        nonempty_fields.insert("Card");
+        nonempty_fields.insert("CardFlag");
+        nonempty_fields.insert("Type");
+        nonempty_fields.insert("CardID");
+        
         self.cards
             .iter()
             .enumerate()
