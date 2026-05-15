@@ -56,10 +56,7 @@ _test-py:
 
 [private]
 _coverage-rust html='':
-    mkdir -p out/coverage/rust out/bin
-    test -x out/bin/cargo-llvm-cov || cargo install cargo-llvm-cov --version 0.8.4 --locked --root out
-    ANKI_TEST_MODE=1 out/bin/cargo-llvm-cov llvm-cov --workspace --locked --json --summary-only --output-path out/coverage/rust/coverage-summary.json --fail-under-lines 60
-    {{ if html == "--html" { "ANKI_TEST_MODE=1 out/bin/cargo-llvm-cov llvm-cov report --html --output-dir out/coverage/rust/html && echo 'Rust coverage report: out/coverage/rust/html/index.html'" } else { "true" } }}
+    {{ if os_family() == "windows" { "tools\\coverage-rust" } else { "tools/coverage-rust" } }} {{ html }}
 
 [private]
 _coverage-py html='':
