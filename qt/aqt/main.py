@@ -23,7 +23,6 @@ import anki.cards
 import anki.sound
 import aqt
 import aqt.forms
-import aqt.mediasrv
 import aqt.mpv
 import aqt.operations
 import aqt.progress
@@ -1916,6 +1915,8 @@ title="{}" {}>{}</button>""".format(
     ##########################################################################
 
     def setupMediaServer(self) -> None:
+        import aqt.mediasrv
+
         self.mediaServer = aqt.mediasrv.MediaServer(self)
         self.mediaServer.start()
 

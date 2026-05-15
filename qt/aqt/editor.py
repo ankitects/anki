@@ -20,9 +20,7 @@ from enum import Enum
 from random import randrange
 from typing import Any, Iterable, Match, cast
 
-import bs4
 import requests
-from bs4 import BeautifulSoup
 
 import aqt
 import aqt.forms
@@ -1042,6 +1040,9 @@ require("anki/ui").loaded.then(() => require("anki/NoteEditor").instances[0].too
     removeTags = ["script", "iframe", "object", "style"]
 
     def _pastePreFilter(self, html: str, internal: bool) -> str:
+        import bs4
+        from bs4 import BeautifulSoup
+
         # https://anki.tenderapp.com/discussions/ankidesktop/39543-anki-is-replacing-the-character-by-when-i-exit-the-html-edit-mode-ctrlshiftx
         if html.find(">") < 0:
             return html
@@ -1286,6 +1287,8 @@ require("anki/ui").loaded.then(() => require("anki/NoteEditor").instances[0].too
         d.exec()
         html = form.textEdit.toPlainText()
         if html.find(">") > -1:
+            from bs4 import BeautifulSoup
+
             # filter html through beautifulsoup so we can strip out things like a
             # leading </div>
             html_escaped = self.mw.col.media.escape_media_filenames(html)
