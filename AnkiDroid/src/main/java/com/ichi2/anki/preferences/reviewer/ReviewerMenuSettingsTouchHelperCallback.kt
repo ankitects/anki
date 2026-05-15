@@ -17,7 +17,7 @@ package com.ichi2.anki.preferences.reviewer
 
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.RecyclerView
-import java.util.Collections
+import com.ichi2.anki.utils.ext.swapPositions
 
 /**
  * A [ItemTouchHelper.Callback] for the [ReviewerMenuSettingsAdapter].
@@ -29,7 +29,7 @@ import java.util.Collections
  * (see [clearView]).
  */
 class ReviewerMenuSettingsTouchHelperCallback(
-    private val items: List<ReviewerMenuSettingsRecyclerItem>,
+    private val items: MutableList<ReviewerMenuSettingsRecyclerItem>,
 ) : ItemTouchHelper.Callback() {
     private val movementFlags = makeMovementFlags(ItemTouchHelper.UP or ItemTouchHelper.DOWN, 0)
 
@@ -54,7 +54,7 @@ class ReviewerMenuSettingsTouchHelperCallback(
         // `Always show` should always be the first element, so don't allow moving above it
         if (toPosition == 0) return false
 
-        Collections.swap(items, fromPosition, toPosition)
+        items.swapPositions(fromPosition, toPosition)
         recyclerView.adapter?.notifyItemMoved(fromPosition, toPosition)
         return true
     }

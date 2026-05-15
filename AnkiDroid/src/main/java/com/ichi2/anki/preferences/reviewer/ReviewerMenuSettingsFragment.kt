@@ -59,7 +59,7 @@ class ReviewerMenuSettingsFragment :
             listOf(ReviewerMenuSettingsRecyclerItem.DisplayType(displayType)) +
                 menuItems.getValue(displayType).map { ReviewerMenuSettingsRecyclerItem.Action(it) }
 
-        val recyclerViewItems = MenuDisplayType.entries.flatMap { section(it) }
+        val recyclerViewItems = MenuDisplayType.entries.flatMap { section(it) }.toMutableList()
 
         val callback = ReviewerMenuSettingsTouchHelperCallback(recyclerViewItems)
         callback.setOnClearViewListener(this)

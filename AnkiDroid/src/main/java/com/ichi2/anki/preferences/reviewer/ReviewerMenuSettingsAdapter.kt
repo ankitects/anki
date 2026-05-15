@@ -37,7 +37,7 @@ import com.ichi2.anki.databinding.ItemReviewerMenuDisplayTypeBinding
  * @see ReviewerMenuSettingsRecyclerItem
  */
 class ReviewerMenuSettingsAdapter(
-    private val items: List<ReviewerMenuSettingsRecyclerItem>,
+    private val items: MutableList<ReviewerMenuSettingsRecyclerItem>,
 ) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
     override fun onCreateViewHolder(
         parent: ViewGroup,

@@ -28,7 +28,7 @@ import com.ichi2.anki.browser.BrowserColumnSelectionRecyclerItem.UsageItem
 import com.ichi2.anki.browser.ColumnUsage.AVAILABLE
 import com.ichi2.anki.databinding.ItemBrowserColumnsEntryBinding
 import com.ichi2.anki.databinding.ItemBrowserColumnsHeadingBinding
-import java.util.Collections
+import com.ichi2.anki.utils.ext.swapPositions
 
 class BrowserColumnSelectionAdapter(
     val items: MutableList<BrowserColumnSelectionRecyclerItem>,
@@ -202,7 +202,7 @@ open class BrowserColumnSelectionTouchHelperCallback(
         // `Available` should always be the first element, so don't allow moving above it
         if (toPosition == 0) return false
 
-        Collections.swap(items, fromPosition, toPosition)
+        items.swapPositions(fromPosition, toPosition)
         recyclerView.adapter?.notifyItemMoved(fromPosition, toPosition)
         return true
     }
