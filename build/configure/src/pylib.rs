@@ -71,6 +71,7 @@ pub fn build_pylib(build: &mut Build) -> Result<()> {
                 "pylib/pyproject.toml",
                 "pylib/hatch_build.py"
             ],
+            project_dir: "pylib",
         },
     )?;
     Ok(())

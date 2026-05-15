@@ -17,10 +17,12 @@ if "ANKI_FIRST_RUN" in os.environ:
     first_run_setup()
 
 try:
-    import pip_system_certs.wrapt_requests
+    import truststore
+
+    truststore.inject_into_ssl()
 except ModuleNotFoundError:
     print(
-        "Python module pip_system_certs is not installed. System certificate store and custom SSL certificates may not work. See: https://github.com/ankitects/anki/issues/3016"
+        "Python module truststore is not installed. System certificate store and custom SSL certificates may not work. See: https://github.com/ankitects/anki/issues/3016"
     )
 
 if sys.version_info[0] < 3 or sys.version_info[1] < 9:
@@ -290,7 +292,7 @@ def setupLangAndBackend(
 class NativeEventFilter(QAbstractNativeEventFilter):
     def nativeEventFilter(
         self, eventType: Any, message: Any
-    ) -> tuple[bool, Any | None]:
+    ) -> tuple[bool, sip.voidptr]:
         if eventType == "windows_generic_MSG":
             import ctypes.wintypes
 
@@ -300,8 +302,8 @@ class NativeEventFilter(QAbstractNativeEventFilter):
                 if mw.can_auto_sync():
                     mw.app._set_windows_shutdown_block_reason(tr.sync_syncing())
                     mw.progress.single_shot(100, mw.unloadProfileAndExit)
-                    return (True, 0)
-        return (False, 0)
+                    return (True, sip.voidptr(0))
+        return (False, sip.voidptr(0))
 
 
 class AnkiApp(QApplication):

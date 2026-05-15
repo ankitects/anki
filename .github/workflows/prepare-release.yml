@@ -1,0 +1,106 @@
+name: Prepare Release
+run-name: "Prepare release ${{ inputs.version }}"
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Version (e.g. 26.04 for stable, 26.04b1 or 26.04rc1 for pre-release)"
+        required: true
+        type: string
+      skip-ci-check:
+        description: "Skip the CI status check (for hotfix releases from non-main branches)"
+        default: false
+        required: false
+        type: boolean
+
+permissions:
+  contents: write
+  actions: read
+
+concurrency:
+  group: release
+  cancel-in-progress: false
+
+env:
+  N2_OUTPUT_PROGRESS: "1"
+  N2_OUTPUT_SUCCESS: "1"
+
+jobs:
+  prepare:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: true
+          fetch-depth: 0
+          token: ${{ secrets.RELEASE_TOKEN }}
+
+      - name: Validate version
+        run: |
+          pip install --break-system-packages 'packaging>=24,<26'
+          current_version=$(cat .version)
+          echo "Current .version: $current_version"
+          python3 .github/scripts/validate_version.py "$INPUT_VERSION" "$current_version"
+          echo "Version check passed"
+        env:
+          INPUT_VERSION: ${{ inputs.version }}
+
+      - name: Check CI passed
+        if: inputs.skip-ci-check != true
+        run: |
+          conclusion=$(gh run list \
+            --workflow=ci.yml \
+            --commit "$COMMIT_SHA" \
+            --limit 5 \
+            --json conclusion,event \
+            --jq '[.[] | select(.event == "push" or .event == "workflow_dispatch")][0].conclusion')
+
+          if [[ -z "$conclusion" ]]; then
+            echo "::error::Could not determine CI status for commit $COMMIT_SHA"
+            exit 1
+          elif [[ "$conclusion" != "success" ]]; then
+            echo "::error::CI for commit $COMMIT_SHA concluded with '$conclusion'"
+            exit 1
+          fi
+        env:
+          GH_TOKEN: ${{ github.token }}
+          COMMIT_SHA: ${{ github.sha }}
+
+      - name: Check for duplicate tag or release
+        run: |
+          git fetch --tags origin
+          if git rev-parse "refs/tags/$INPUT_VERSION" >/dev/null 2>&1; then
+            echo "::error::Tag '$INPUT_VERSION' already exists"
+            exit 1
+          fi
+
+          if gh release view "$INPUT_VERSION" >/dev/null 2>&1; then
+            echo "::error::GitHub release '$INPUT_VERSION' already exists"
+            exit 1
+          fi
+        env:
+          GH_TOKEN: ${{ github.token }}
+          INPUT_VERSION: ${{ inputs.version }}
+
+      - name: Sync translations
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          python3 .github/scripts/sync_translations.py
+        env:
+          GH_TOKEN: ${{ secrets.RELEASE_TOKEN }}
+          ANKI_NO_GIT_PUSH: "1"
+
+      - name: Update .version and commit
+        run: |
+          printf '%s' "$INPUT_VERSION" > .version
+          git add .version
+          git commit -m "Prepare release $INPUT_VERSION"
+        env:
+          INPUT_VERSION: ${{ inputs.version }}
+
+      - name: Push to branch
+        run: git push origin HEAD:refs/heads/$BRANCH
+        env:
+          BRANCH: ${{ github.ref_name }}

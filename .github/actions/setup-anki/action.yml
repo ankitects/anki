@@ -25,6 +25,7 @@ runs:
           libgstreamer-gl1.0-0 \
           libgstreamer-plugins-base1.0 \
           libgstreamer1.0-0 \
+          libunwind-dev \
           libnss3 \
           libpulse-mainloop-glib0 \
           libssl-dev \
@@ -48,10 +49,17 @@ runs:
 
     - name: Install rsync (Windows)
       if: runner.os == 'Windows'
-      shell: bash
+      id: setup-msys2
+      uses: msys2/setup-msys2@v2
+      with:
+        update: false
+        install: rsync
+
+    - name: Add MSYS2 usr/bin to PATH (Windows)
+      if: runner.os == 'Windows'
+      shell: pwsh
       run: |
-        /c/msys64/usr/bin/pacman.exe -Sy --noconfirm rsync
-        echo "C:\msys64\usr\bin" >> "$GITHUB_PATH"
+        "${{ steps.setup-msys2.outputs.msys2-location }}\usr\bin" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
 
     # Reads toolchain version from rust-toolchain.toml automatically.
     - name: Install Rust toolchain
