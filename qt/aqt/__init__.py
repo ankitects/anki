@@ -11,6 +11,8 @@ import sys
 from collections.abc import Callable
 from typing import TYPE_CHECKING, Any, Union, cast
 
+from aqt.package import launcher_executable
+
 if "ANKI_FIRST_RUN" in os.environ:
     from .package import first_run_setup
 
@@ -44,7 +46,7 @@ if "--syncserver" in sys.argv:
     # does not return
     run_sync_server()
 
-if sys.platform == "win32":
+if sys.platform == "win32" and launcher_executable():
     from win32com.shell import shell
 
     shell.SetCurrentProcessExplicitAppUserModelID("Ankitects.Anki")
