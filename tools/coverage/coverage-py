@@ -34,6 +34,7 @@ out/pyenv/bin/python -m coverage json \
     --data-file="$outdir/.coverage" -o "$outdir/coverage-summary.json"
 out/pyenv/bin/python -m coverage report \
     --data-file="$outdir/.coverage" --fail-under="$threshold"
+
 if [ "$html" = "--html" ]; then
     out/pyenv/bin/python -m coverage html \
         --data-file="$outdir/.coverage" -d "$outdir/html" --fail-under="$threshold"

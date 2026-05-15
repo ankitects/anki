@@ -56,7 +56,7 @@ _test-py:
 
 [private]
 _coverage-rust html='':
-    {{ if os_family() == "windows" { "tools\\coverage-rust" } else { "tools/coverage-rust" } }} {{ html }}
+    {{ if os_family() == "windows" { "tools\\coverage\\coverage-rust" } else { "tools/coverage/coverage-rust" } }} {{ html }}
 
 [private]
 _coverage-py html='':
@@ -66,11 +66,11 @@ _coverage-py html='':
 
 [private]
 _coverage-py-pylib html='':
-    {{ if os_family() == "windows" { "tools\\coverage-py" } else { "tools/coverage-py" } }} pylib {{ html }}
+    {{ if os_family() == "windows" { "tools\\coverage\\coverage-py" } else { "tools/coverage/coverage-py" } }} pylib {{ html }}
 
 [private]
 _coverage-py-qt html='':
-    {{ if os_family() == "windows" { "tools\\coverage-py" } else { "tools/coverage-py" } }} qt {{ html }}
+    {{ if os_family() == "windows" { "tools\\coverage\\coverage-py" } else { "tools/coverage/coverage-py" } }} qt {{ html }}
 
 # Check formatting (fast, no build needed)
 fmt:
