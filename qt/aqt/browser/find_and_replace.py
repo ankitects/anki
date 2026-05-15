@@ -10,6 +10,7 @@ from markdown import markdown
 import aqt
 import aqt.forms
 import aqt.operations
+from anki.collection import OpChangesWithCount
 from anki.notes import NoteId
 from aqt import AnkiQt
 from aqt.operations import QueryOp
@@ -167,17 +168,19 @@ class FindAndReplaceDialog(QDialog):
                 match_case=match_case,
             )
 
-        if not self.note_ids:
-            op.success(
-                lambda out: tooltip(
-                    tr.browsing_notes_updated(count=out.count),
-                    parent=self.parentWidget(),
+        def on_success(changes: OpChangesWithCount) -> None:
+            if self.note_ids:
+                message = tr.findreplace_notes_updated(
+                    changed=changes.count, total=len(self.note_ids)
                 )
-            )
+            else:
+                message = tr.browsing_notes_updated(count=changes.count)
+            tooltip(message, parent=self.parentWidget())
+            super(FindAndReplaceDialog, self).accept()
+
+        op.success(on_success)
         op.failure(lambda err: showWarning(markdown(str(err))))
         op.run_in_background()
-
-        super().accept()
 
     def show_help(self) -> None:
         openHelp(HelpPage.BROWSING_FIND_AND_REPLACE)
