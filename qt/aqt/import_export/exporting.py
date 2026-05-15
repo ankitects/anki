@@ -202,10 +202,7 @@ def _export_parent(mw: aqt.main.AnkiQt, options: ExportOptions) -> QWidget:
 def _show_exported_tooltip(
     mw: aqt.main.AnkiQt, options: ExportOptions, message: str
 ) -> None:
-    parent = _export_parent(mw, options)
-    tooltip(message, parent=parent)
-    parent.activateWindow()
-    parent.raise_()
+    tooltip(message, parent=_export_parent(mw, options))
 
 
 class Exporter(ABC):
