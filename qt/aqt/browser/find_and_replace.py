@@ -5,6 +5,8 @@ from __future__ import annotations
 
 from collections.abc import Sequence
 
+from markdown import markdown
+
 import aqt
 import aqt.forms
 import aqt.operations
@@ -27,6 +29,7 @@ from aqt.utils import (
     save_combo_index_for_session,
     save_is_checked,
     saveGeom,
+    showWarning,
     tooltip,
     tr,
 )
@@ -171,6 +174,7 @@ class FindAndReplaceDialog(QDialog):
                     parent=self.parentWidget(),
                 )
             )
+        op.failure(lambda err: showWarning(markdown(str(err))))
         op.run_in_background()
 
         super().accept()
