@@ -22,6 +22,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.ichi2.anki.R
 import com.ichi2.anki.databinding.ItemReviewerMenuBinding
 import com.ichi2.anki.databinding.ItemReviewerMenuDisplayTypeBinding
+import java.util.Objects
 
 /**
  * Provides bindings from menu items and display types (headings) to [RecyclerView] views
@@ -39,6 +40,10 @@ import com.ichi2.anki.databinding.ItemReviewerMenuDisplayTypeBinding
 class ReviewerMenuSettingsAdapter(
     private val items: MutableList<ReviewerMenuSettingsRecyclerItem>,
 ) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
+    init {
+        setHasStableIds(true)
+    }
+
     override fun onCreateViewHolder(
         parent: ViewGroup,
         viewType: Int,
@@ -71,6 +76,11 @@ class ReviewerMenuSettingsAdapter(
     override fun getItemCount(): Int = items.size
 
     override fun getItemViewType(position: Int): Int = items[position].viewType
+
+    override fun getItemId(position: Int): Long {
+        val item = items[position]
+        return Objects.hash(item.viewType, item).toLong()
+    }
 
     private var onDragHandleTouchedListener: ((RecyclerView.ViewHolder) -> Unit)? = null
 
