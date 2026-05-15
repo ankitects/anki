@@ -1,6 +1,14 @@
 @echo off
 setlocal
 
+rem cargo-llvm-cov's llvm-profdata uses the host toolchain, which is incompatible
+rem with the profraw files produced when running on Windows ARM64.
+if "%PROCESSOR_ARCHITECTURE%"=="ARM64" (
+    echo Rust coverage is not supported on Windows ARM64 ^(llvm-profdata format mismatch^).
+    echo Run on Linux or let CI enforce coverage.
+    exit /b 0
+)
+
 set "outdir=out\coverage\rust"
 set "LLVMCOVPATH=out\bin"
 
