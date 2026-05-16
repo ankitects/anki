@@ -22,8 +22,11 @@ import com.github.takahirom.roborazzi.captureScreenRoboImage
 import com.github.takahirom.roborazzi.provideRoborazziContext
 import com.google.testing.junit.testparameterinjector.TestParameter
 import com.google.testing.junit.testparameterinjector.TestParameterValuesProvider
-import com.ichi2.anki.settings.Prefs
+import com.google.testing.junit.testparameterinjector.TestParameterValuesProvider.Context
+import com.ichi2.anki.settings.PrefsRepository
 import com.ichi2.anki.settings.enums.AppTheme
+import com.ichi2.anki.settings.enums.DayTheme
+import com.ichi2.anki.settings.enums.NightTheme
 import org.junit.Before
 import org.junit.experimental.categories.Category
 import org.junit.runner.RunWith
@@ -43,7 +46,12 @@ interface ScreenshotTestCategory
 abstract class ScreenshotTest : RobolectricTest() {
     var fileNamePrefix = ""
 
+    enum class ThemeConfig { LIGHT, PLAIN, DARK, BLACK }
+
     enum class DeviceConfig { PHONE, TABLET, FOLDABLE, DESKTOP }
+
+    @TestParameter(valuesProvider = ThemeProvider::class)
+    lateinit var theme: ThemeConfig
 
     @TestParameter(valuesProvider = DeviceProvider::class)
     lateinit var device: DeviceConfig
@@ -73,10 +81,20 @@ abstract class ScreenshotTest : RobolectricTest() {
     }
 
     protected open fun applyThemeConfig() {
-        if (System.getProperty("screenshot.theme") == "dark") {
+        val isNightMode = theme == ThemeConfig.DARK || theme == ThemeConfig.BLACK
+        if (isNightMode) {
             RuntimeEnvironment.setQualifiers("+night")
-            Prefs.appTheme = AppTheme.NIGHT
-            fileNamePrefix += "dark_"
+        }
+        if (theme != ThemeConfig.LIGHT) {
+            fileNamePrefix += "${theme.name.lowercase()}_"
+        }
+        val prefs = PrefsRepository(targetContext)
+        prefs.appTheme = if (isNightMode) AppTheme.NIGHT else AppTheme.DAY
+        when (theme) {
+            ThemeConfig.LIGHT -> prefs.dayTheme = DayTheme.LIGHT
+            ThemeConfig.PLAIN -> prefs.dayTheme = DayTheme.PLAIN
+            ThemeConfig.DARK -> prefs.nightTheme = NightTheme.DARK
+            ThemeConfig.BLACK -> prefs.nightTheme = NightTheme.BLACK
         }
     }
 
@@ -114,6 +132,17 @@ abstract class ScreenshotTest : RobolectricTest() {
                 File(diffDir, "${name}_actual.png").exists()
         if (diffWritten && baseline.isFile) {
             baseline.copyTo(File(diffDir, baseline.name), overwrite = true)
+        }
+    }
+
+    class ThemeProvider : TestParameterValuesProvider() {
+        override fun provideValues(context: Context?): List<ThemeConfig> {
+            val requestedTheme = System.getProperty("screenshot.theme") ?: "light"
+            if (requestedTheme == "all") {
+                return ThemeConfig.entries
+            }
+            val requestedThemes = requestedTheme.split(",").map { it.trim().lowercase() }
+            return ThemeConfig.entries.filter { requestedThemes.contains(it.name.lowercase()) }
         }
     }
 
