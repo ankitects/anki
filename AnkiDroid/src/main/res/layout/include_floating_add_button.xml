@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     >
@@ -15,7 +16,7 @@
     <ScrollView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginEnd="10dp"
+        android:layout_marginEnd="8dp"
         android:layout_gravity="bottom|end">
         <LinearLayout
             android:id="@+id/fabLinearLayout"
@@ -25,169 +26,73 @@
             android:layout_height="wrap_content"
         >
 
-            <LinearLayout
-                android:id="@+id/add_shared_layout"
+            <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
+                android:id="@+id/add_shared_button"
+                android:layout_gravity="end"
+                style="@style/Widget.Material3.ExtendedFloatingActionButton.Secondary"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:clipToPadding="false"
-                android:gravity="center_vertical"
-                android:orientation="horizontal"
-                android:layout_gravity="bottom|end"
+                android:layout_margin="8dp"
+                app:icon="@drawable/ic_file_download_white"
+                android:text="@string/menu_get_shared_decks"
+                android:contentDescription="@string/menu_get_shared_decks"
+                android:focusable="true"
+                android:clickable="true"
                 android:visibility="gone"
-                android:alpha="0"
-                android:translationY="300px"
-                >
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:background="@drawable/fab_label_background"
-                    android:id="@+id/add_shared_label"
-                    android:paddingBottom="5dp"
-                    android:paddingTop="5dp"
-                    android:paddingEnd="10dp"
-                    android:paddingStart="10dp"
-                    android:textColor="@color/white"
-                    android:layout_marginEnd="5dp"
-                    android:layout_height="wrap_content"
-                    android:text="@string/menu_get_shared_decks"
-                    android:focusable="true"
-                    android:clickable="true"
-                    />
-                <com.google.android.material.floatingactionbutton.FloatingActionButton
-                    android:id="@+id/add_shared_button"
-                    style="?attr/floatingActionButtonSmallStyle"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_margin="10dp"
-                    app:backgroundTint="?attr/fab_normal"
-                    android:src="@drawable/ic_file_download_white"
-                    android:contentDescription="@string/menu_get_shared_decks"
-                    android:focusable="true"
-                    android:clickable="true"
-                    />
-            </LinearLayout>
+                tools:visibility="visible"
+                />
 
-            <LinearLayout
-                android:id="@+id/add_filtered_deck_layout"
+            <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
+                android:id="@+id/add_filtered_deck_button"
                 android:layout_width="wrap_content"
+                android:layout_gravity="end"
+                style="@style/Widget.Material3.ExtendedFloatingActionButton.Secondary"
                 android:layout_height="wrap_content"
-                android:clipToPadding="false"
-                android:gravity="center_vertical"
-                android:orientation="horizontal"
-                android:layout_gravity="bottom|end"
+                android:layout_margin="8dp"
+                app:icon="@drawable/ic_add_filtered_deck"
+                android:text="@string/new_dynamic_deck"
+                android:contentDescription="@string/new_dynamic_deck"
+                android:focusable="true"
+                android:clickable="true"
                 android:visibility="gone"
-                android:alpha="0"
-                android:translationY="400px"
-                >
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:background="@drawable/fab_label_background"
-                    android:id="@+id/add_filtered_deck_label"
-                    android:paddingBottom="5dp"
-                    android:paddingTop="5dp"
-                    android:paddingEnd="10dp"
-                    android:paddingStart="10dp"
-                    android:textColor="@color/white"
-                    android:layout_marginEnd="5dp"
-                    android:layout_height="wrap_content"
-                    android:text="@string/new_dynamic_deck"
-                    android:focusable="true"
-                    android:clickable="true"
-                    />
-                <com.google.android.material.floatingactionbutton.FloatingActionButton
-                    android:id="@+id/add_filtered_deck_button"
-                    android:layout_width="wrap_content"
-                    style="?attr/floatingActionButtonSmallStyle"
-                    android:layout_height="wrap_content"
-                    android:layout_margin="10dp"
-                    app:backgroundTint="?attr/fab_normal"
-                    android:src="@drawable/ic_add_filtered_deck"
-                    android:contentDescription="@string/new_dynamic_deck"
-                    android:focusable="true"
-                    android:clickable="true"
-                    />
-            </LinearLayout>
+                tools:visibility="visible"
+                />
 
-            <LinearLayout
-                android:id="@+id/add_deck_layout"
+            <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
+                android:id="@+id/add_deck_button"
                 android:layout_width="wrap_content"
+                android:layout_gravity="end"
+                style="@style/Widget.Material3.ExtendedFloatingActionButton.Secondary"
                 android:layout_height="wrap_content"
-                android:clipToPadding="false"
-                android:gravity="center_vertical"
-                android:orientation="horizontal"
-                android:layout_gravity="bottom|end"
+                android:layout_margin="8dp"
+                app:icon="@drawable/ic_add_deck_filled"
+                android:text="@string/new_deck"
+                android:contentDescription="@string/new_deck"
+                android:focusable="true"
+                android:clickable="true"
                 android:visibility="gone"
-                android:alpha="0"
-                android:translationY="400px"
-                >
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:background="@drawable/fab_label_background"
-                    android:id="@+id/add_deck_label"
-                    android:paddingBottom="5dp"
-                    android:paddingTop="5dp"
-                    android:paddingEnd="10dp"
-                    android:paddingStart="10dp"
-                    android:textColor="@color/white"
-                    android:layout_marginEnd="5dp"
-                    android:layout_height="wrap_content"
-                    android:text="@string/new_deck"
-                    android:focusable="true"
-                    android:clickable="true"
-                    />
-                <com.google.android.material.floatingactionbutton.FloatingActionButton
-                    android:id="@+id/add_deck_button"
-                    android:layout_width="wrap_content"
-                    style="?attr/floatingActionButtonSmallStyle"
-                    android:layout_height="wrap_content"
-                    android:layout_margin="10dp"
-                    app:backgroundTint="?attr/fab_normal"
-                    android:src="@drawable/ic_add_deck_filled"
-                    android:contentDescription="@string/new_deck"
-                    android:focusable="true"
-                    android:clickable="true"
-                    />
-            </LinearLayout>
+                tools:visibility="visible"
+                />
 
-            <LinearLayout
+
+            <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
+                android:id="@+id/fab_main"
+                style="@style/Widget.Material3.ExtendedFloatingActionButton.Primary"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:gravity="center_vertical"
-                android:orientation="horizontal"
-                android:layout_gravity="bottom|end"
-                >
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:background="@drawable/fab_label_background"
-                    android:id="@+id/add_note_label"
-                    android:paddingBottom="5dp"
-                    android:paddingTop="5dp"
-                    android:paddingEnd="10dp"
-                    android:paddingStart="10dp"
-                    android:textColor="@color/white"
-                    android:layout_marginEnd="5dp"
-                    android:layout_height="wrap_content"
-                    android:text="@string/menu_add"
-                    android:visibility="gone"
-                    android:translationX="180px"
-                    android:focusable="true"
-                    android:clickable="true"
-                    />
-                <com.google.android.material.floatingactionbutton.FloatingActionButton
-                    android:id="@+id/fab_main"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginEnd="10dp"
-                    android:layout_marginStart="10dp"
-                    android:layout_marginBottom="17dp"
-                    android:layout_marginTop="10dp"
-                    app:srcCompat="@drawable/ic_add"
-                    app:backgroundTint="?attr/fab_normal"
-                    app:fabSize="normal"
-                    android:contentDescription="@string/menu_add"
-                    android:focusable="true"
-                    android:clickable="true"
-                    />
-            </LinearLayout>
+                android:layout_gravity="end"
+                android:layout_marginHorizontal="8dp"
+                android:layout_marginBottom="16dp"
+                android:layout_marginTop="8dp"
+                android:backgroundTint="?attr/fab_normal"
+                app:icon="@drawable/ic_add"
+                app:iconTint="?colorOnPrimary"
+                android:text="@string/menu_add"
+                android:contentDescription="@string/menu_add"
+                android:focusable="true"
+                android:clickable="true"
+                tools:text=""
+                />
 
         </LinearLayout>
     </ScrollView>

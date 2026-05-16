@@ -193,8 +193,6 @@
     <!-- FAB -->
     <attr name="fab_normal" format="color"/> <!-- Also color of the Study button in StudyOptions -->
     <attr name="fab_pressed" format="color"/>
-    <attr name="fab_labelsTextColor" format="color">#fff</attr>
-    <attr name="fab_item_background" format="reference"/>
     <!--Custom Tabs colors-->
     <attr name="customTabNavBarColor" format="color"/>
     <!-- Popup menus' background color -->
