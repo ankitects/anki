@@ -938,14 +938,14 @@ wheels = [
 
 [[package]]
 name = "markdown-it-py"
-version = "3.0.0"
+version = "4.2.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "mdurl" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/38/71/3b932df36c1a044d397a1f92d1cf91ee0a503d91e470cbd670aa66b07ed0/markdown-it-py-3.0.0.tar.gz", hash = "sha256:e3f60a94fa066dc52ec76661e37c851cb232d92f9886b15cb560aaada2df8feb", size = 74596, upload-time = "2023-06-03T06:41:14.443Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/06/ff/7841249c247aa650a76b9ee4bbaeae59370dc8bfd2f6c01f3630c35eb134/markdown_it_py-4.2.0.tar.gz", hash = "sha256:04a21681d6fbb623de53f6f364d352309d4094dd4194040a10fd51833e418d49", size = 82454, upload-time = "2026-05-07T12:08:28.36Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/42/d7/1ec15b46af6af88f19b8e5ffea08fa375d433c998b8a7639e76935c14f1f/markdown_it_py-3.0.0-py3-none-any.whl", hash = "sha256:355216845c60bd96232cd8d8c40e8f9765cc86f46880e43a8fd22dc1a1a8cab1", size = 87528, upload-time = "2023-06-03T06:41:11.019Z" },
+    { url = "https://files.pythonhosted.org/packages/b3/81/4da04ced5a082363ecfa159c010d200ecbd959ae410c10c0264a38cac0f5/markdown_it_py-4.2.0-py3-none-any.whl", hash = "sha256:9f7ebbcd14fe59494226453aed97c1070d83f8d24b6fc3a3bcf9a38092641c4a", size = 91687, upload-time = "2026-05-07T12:08:27.182Z" },
 ]
 
 [[package]]
@@ -1072,7 +1072,7 @@ wheels = [
 
 [[package]]
 name = "myst-parser"
-version = "4.0.1"
+version = "5.0.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "docutils" },
@@ -1082,9 +1082,9 @@ dependencies = [
     { name = "pyyaml" },
     { name = "sphinx" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/66/a5/9626ba4f73555b3735ad86247a8077d4603aa8628537687c839ab08bfe44/myst_parser-4.0.1.tar.gz", hash = "sha256:5cfea715e4f3574138aecbf7d54132296bfd72bb614d31168f48c477a830a7c4", size = 93985, upload-time = "2025-02-12T10:53:03.833Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/33/fa/7b45eef11b7971f0beb29d27b7bfe0d747d063aa29e170d9edd004733c8a/myst_parser-5.0.0.tar.gz", hash = "sha256:f6f231452c56e8baa662cc352c548158f6a16fcbd6e3800fc594978002b94f3a", size = 98535, upload-time = "2026-01-15T09:08:18.036Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/5f/df/76d0321c3797b54b60fef9ec3bd6f4cfd124b9e422182156a1dd418722cf/myst_parser-4.0.1-py3-none-any.whl", hash = "sha256:9134e88959ec3b5780aedf8a99680ea242869d012e8821db3126d427edc9c95d", size = 84579, upload-time = "2025-02-12T10:53:02.078Z" },
+    { url = "https://files.pythonhosted.org/packages/d3/ac/686789b9145413f1a61878c407210e41bfdb097976864e0913078b24098c/myst_parser-5.0.0-py3-none-any.whl", hash = "sha256:ab31e516024918296e169139072b81592336f2fef55b8986aa31c9f04b5f7211", size = 84533, upload-time = "2026-01-15T09:08:16.788Z" },
 ]
 
 [[package]]
@@ -1853,12 +1853,12 @@ wheels = [
 ]
 
 [[package]]
-name = "roman-numerals-py"
-version = "3.1.0"
+name = "roman-numerals"
+version = "4.1.0"
 source = { registry = "https://pypi.org/simple" }
-sdist = { url = "https://files.pythonhosted.org/packages/30/76/48fd56d17c5bdbdf65609abbc67288728a98ed4c02919428d4f52d23b24b/roman_numerals_py-3.1.0.tar.gz", hash = "sha256:be4bf804f083a4ce001b5eb7e3c0862479d10f94c936f6c4e5f250aa5ff5bd2d", size = 9017, upload-time = "2025-02-22T07:34:54.333Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/ae/f9/41dc953bbeb056c17d5f7a519f50fdf010bd0553be2d630bc69d1e022703/roman_numerals-4.1.0.tar.gz", hash = "sha256:1af8b147eb1405d5839e78aeb93131690495fe9da5c91856cb33ad55a7f1e5b2", size = 9077, upload-time = "2025-12-17T18:25:34.381Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/53/97/d2cbbaa10c9b826af0e10fdf836e1bf344d9f0abb873ebc34d1f49642d3f/roman_numerals_py-3.1.0-py3-none-any.whl", hash = "sha256:9da2ad2fb670bcf24e81070ceb3be72f6c11c440d73bd579fbeca1e9f330954c", size = 7742, upload-time = "2025-02-22T07:34:52.422Z" },
+    { url = "https://files.pythonhosted.org/packages/04/54/6f679c435d28e0a568d8e8a7c0a93a09010818634c3c3907fc98d8983770/roman_numerals-4.1.0-py3-none-any.whl", hash = "sha256:647ba99caddc2cc1e55a51e4360689115551bf4476d90e8162cf8c345fe233c7", size = 7676, upload-time = "2025-12-17T18:25:33.098Z" },
 ]
 
 [[package]]
@@ -1992,7 +1992,7 @@ wheels = [
 
 [[package]]
 name = "sphinx"
-version = "8.2.3"
+version = "9.1.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "alabaster" },
@@ -2004,7 +2004,7 @@ dependencies = [
     { name = "packaging" },
     { name = "pygments" },
     { name = "requests" },
-    { name = "roman-numerals-py" },
+    { name = "roman-numerals" },
     { name = "snowballstemmer" },
     { name = "sphinxcontrib-applehelp" },
     { name = "sphinxcontrib-devhelp" },
@@ -2013,9 +2013,9 @@ dependencies = [
     { name = "sphinxcontrib-qthelp" },
     { name = "sphinxcontrib-serializinghtml" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/38/ad/4360e50ed56cb483667b8e6dadf2d3fda62359593faabbe749a27c4eaca6/sphinx-8.2.3.tar.gz", hash = "sha256:398ad29dee7f63a75888314e9424d40f52ce5a6a87ae88e7071e80af296ec348", size = 8321876, upload-time = "2025-03-02T22:31:59.658Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/cd/bd/f08eb0f4eed5c83f1ba2a3bd18f7745a2b1525fad70660a1c00224ec468a/sphinx-9.1.0.tar.gz", hash = "sha256:7741722357dd75f8190766926071fed3bdc211c74dd2d7d4df5404da95930ddb", size = 8718324, upload-time = "2025-12-31T15:09:27.646Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/31/53/136e9eca6e0b9dc0e1962e2c908fbea2e5ac000c2a2fbd9a35797958c48b/sphinx-8.2.3-py3-none-any.whl", hash = "sha256:4405915165f13521d875a8c29c8970800a0141c14cc5416a38feca4ea5d9b9c3", size = 3589741, upload-time = "2025-03-02T22:31:56.836Z" },
+    { url = "https://files.pythonhosted.org/packages/73/f7/b1884cb3188ab181fc81fa00c266699dab600f927a964df02ec3d5d1916a/sphinx-9.1.0-py3-none-any.whl", hash = "sha256:c84fdd4e782504495fe4f2c0b3413d6c2bf388589bb352d439b2a3bb99991978", size = 3921742, upload-time = "2025-12-31T15:09:25.561Z" },
 ]
 
 [[package]]
