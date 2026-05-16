@@ -208,4 +208,35 @@ class DeckPickerViewModelTest : RobolectricTest() {
             }
         }
     }
+
+    @Test
+    fun `request context menu - flow`() {
+        runTest {
+            val deckId = addDeck("Deck A")
+
+            viewModel.flowOfShowContextMenu.test {
+                viewModel.requestContextMenu(deckId).join()
+
+                assertEquals(deckId, awaitItem())
+            }
+        }
+    }
+
+    @Test
+    fun `request right click context menu - flow`() {
+        runTest {
+            val deckId = addDeck("Deck B")
+            val x = 10f
+            val y = 20f
+
+            viewModel.flowOfShowRightClickContextMenu.test {
+                viewModel.requestRightClickContextMenu(deckId, x, y).join()
+
+                val item = awaitItem()
+                assertEquals(deckId, item.deckId)
+                assertEquals(x, item.x)
+                assertEquals(y, item.y)
+            }
+        }
+    }
 }

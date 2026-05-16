@@ -304,6 +304,31 @@ class DeckPickerViewModel :
         flowOfDestination.emit(NoteEditorLauncher.AddNote(deckId))
     }
 
+    val flowOfShowContextMenu = MutableSharedFlow<DeckId>(extraBufferCapacity = 1)
+
+    data class RightClickMenuRequest(
+        val deckId: DeckId,
+        val x: Float,
+        val y: Float,
+    )
+
+    val flowOfShowRightClickContextMenu = MutableSharedFlow<RightClickMenuRequest>(extraBufferCapacity = 1)
+
+    fun requestContextMenu(deckId: DeckId) =
+        viewModelScope.launch {
+            selectDeck(deckId).join()
+            flowOfShowContextMenu.emit(deckId)
+        }
+
+    fun requestRightClickContextMenu(
+        deckId: DeckId,
+        x: Float,
+        y: Float,
+    ) = viewModelScope.launch {
+        selectDeck(deckId).join()
+        flowOfShowRightClickContextMenu.emit(RightClickMenuRequest(deckId, x, y))
+    }
+
     /**
      * Opens the Manage Note Types screen.
      */
