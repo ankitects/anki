@@ -39,23 +39,23 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v6
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
 
       - name: Configure JDK
-        uses: actions/setup-java@v5
+        uses: actions/setup-java@be666c2fcd27ec809703dec50e508c2fdc7f6654 # v5.2.0
         with:
           distribution: "temurin"
           java-version: "21"
 
       - name: Setup Gradle
-        uses: gradle/actions/setup-gradle@v6
+        uses: gradle/actions/setup-gradle@50e97c2cd7a37755bbfafc9c5b7cafaece252f6e # v6.1.0
         with:
           # Use open source provider: https://github.com/gradle/actions/blob/main/docs/setup-gradle.md#basic-caching
           cache-provider: basic
           gradle-version: wrapper
 
       - name: Download base branch screenshots
-        uses: dawidd6/action-download-artifact@v3
+        uses: dawidd6/action-download-artifact@09f2f74827fd3a8607589e5ad7f9398816f540fe # v3.1.4
         continue-on-error: true
         with:
           name: screenshot
@@ -83,7 +83,7 @@ jobs:
           done
 
       - name: Upload screenshot diffs
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         if: ${{ always() }}
         with:
           name: screenshot-diff  # referenced by screenshot_comment.yml
@@ -91,7 +91,7 @@ jobs:
           retention-days: 30
 
       - name: Upload screenshot diff reports
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         if: ${{ always() }}
         with:
           name: screenshot-diff-reports
@@ -100,7 +100,7 @@ jobs:
           retention-days: 30
 
       - name: Upload screenshot diff test results
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         if: ${{ always() }}
         with:
           name: screenshot-diff-test-results
@@ -114,7 +114,7 @@ jobs:
           mkdir -p ./pr
           echo ${{ github.event.number }} > ./pr/NR
       - name: Persist PR number
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: pr  # downloaded by screenshot_comment.yml
           path: pr/
