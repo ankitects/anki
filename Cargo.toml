@@ -101,7 +101,7 @@ num_enum = "0.7.3"
 once_cell = "1.21.3"
 pbkdf2 = { version = "0.12", features = ["simple"] }
 permutation = "0.4.1"
-phf = { version = "0.11.3", features = ["macros"] }
+phf = { version = "0.13.1", features = ["macros"] }
 pin-project = "1.1.10"
 prettyplease = "0.2.34"
 prost = "0.13"
