@@ -86,9 +86,7 @@ _coverage-py-qt html='':
 [private]
 _coverage-ts html='':
     {{ ninja }} node_modules ts:generated
-    mkdir -p out/coverage/typescript
-    {{ yarn }} vitest:once --coverage.enabled true --coverage.provider=v8 --coverage.reporter=text-summary --coverage.reporter=json-summary {{ if html == "--html" { "--coverage.reporter=html" } else { "" } }} --coverage.reportsDirectory=../out/coverage/typescript --coverage.thresholds.lines=5
-    {{ if html == "--html" { "echo 'TypeScript coverage report: out/coverage/typescript/index.html'" } else { "true" } }}
+    {{ if os_family() == "windows" { "tools\\coverage\\coverage-ts" } else { "tools/coverage/coverage-ts" } }} {{ html }}
 
 # Check formatting (fast, no build needed)
 fmt:
