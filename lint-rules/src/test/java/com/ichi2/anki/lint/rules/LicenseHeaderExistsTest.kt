@@ -15,6 +15,7 @@
  */
 package com.ichi2.anki.lint.rules
 
+import com.android.tools.lint.checks.infrastructure.ProjectDescription
 import com.android.tools.lint.checks.infrastructure.TestFile.JavaTestFile.create
 import com.android.tools.lint.checks.infrastructure.TestLintTask.lint
 import com.google.common.annotations.Beta
@@ -22,12 +23,12 @@ import org.intellij.lang.annotations.Language
 import org.junit.Assert.assertTrue
 import org.junit.Test
 
-/** Test for [CopyrightHeaderExists] */
+/** Test for [LicenseHeaderExists] */
 @Suppress("UnstableApiUsage")
 @Beta
-class CopyrightHeaderExistsTest {
+class LicenseHeaderExistsTest {
     @Language("JAVA")
-    private val copyrightHeader = """/*
+    private val fileWithLicense = """/*
  *  This program is free software; you can redistribute it and/or modify it under
  *  the terms of the GNU General Public License as published by the Free Software
  *  Foundation; either version 3 of the License, or (at your option) any later
@@ -42,34 +43,34 @@ class CopyrightHeaderExistsTest {
  */"""
 
     @Language("JAVA")
-    private val spdxCopyrightHeader =
-        """// SPDX-FileCopyrightText: 2025 David Allison <david@example.com>
-// SPDX-License-Identifier: GPL-3.0-or-later"""
+    private val spdxGplHeader =
+        "// SPDX-License-Identifier: GPL-3.0-or-later"
 
     @Language("JAVA")
-    private val spdxLgplCopyrightHeader =
-        """// SPDX-FileCopyrightText: 2025 David Allison <david@example.com>
-// SPDX-License-Identifier: LGPL-3.0-or-later"""
+    private val spdxLgplHeader =
+        "// SPDX-License-Identifier: LGPL-3.0-or-later"
 
     // invalid
     @Language("JAVA")
     private val spdxOldGplHeader =
-        """// SPDX-FileCopyrightText: 2025 David Allison <david@example.com>
-// SPDX-License-Identifier: GPL-3.0"""
+        "// SPDX-License-Identifier: GPL-3.0"
 
     @Language("JAVA")
     private val spdxGplOnlyHeader =
-        """// SPDX-FileCopyrightText: 2025 David Allison <david@example.com>
-// SPDX-License-Identifier: GPL-3.0-only"""
+        "// SPDX-License-Identifier: GPL-3.0-only"
 
     // invalid
     @Language("JAVA")
     private val spdxLgplOnlyHeader =
-        """// SPDX-FileCopyrightText: 2025 David Allison <ddavid@example.com>
-// SPDX-License-Identifier: LGPL-3.0"""
+        "// SPDX-License-Identifier: LGPL-3.0"
 
     @Language("JAVA")
-    private val noCopyrightHeader =
+    private val spdxGplAndCopyrightHeader =
+        """// SPDX-License-Identifier: GPL-3.0-or-later
+// SPDX-FileCopyrightText: 2025 David Allison <david@example.com>"""
+
+    @Language("JAVA")
+    private val noHeader =
         """
         
         package com.ichi2.upgrade;
@@ -86,31 +87,41 @@ class CopyrightHeaderExistsTest {
         """.trimIndent()
 
     @Test
-    fun fileWithCopyrightHeaderPasses() {
+    fun fileWithLicensePasses() {
         lint()
             .allowMissingSdk()
-            .files(create(copyrightHeader))
-            .issues(CopyrightHeaderExists.ISSUE)
+            .files(create(fileWithLicense))
+            .issues(LicenseHeaderExists.ISSUE)
             .run()
             .expectClean()
     }
 
     @Test
-    fun fileWithSpdxCopyrightHeaderPasses() {
+    fun fileWithSpdxLicenseHeaderPasses() {
         lint()
             .allowMissingSdk()
-            .files(create(spdxCopyrightHeader))
-            .issues(CopyrightHeaderExists.ISSUE)
+            .files(create(spdxGplHeader))
+            .issues(LicenseHeaderExists.ISSUE)
             .run()
             .expectClean()
     }
 
     @Test
-    fun fileWithSpdxLgplCopyrightHeaderPasses() {
+    fun fileWithSpdxLgplLicenseHeaderPasses() {
         lint()
             .allowMissingSdk()
-            .files(create(spdxLgplCopyrightHeader))
-            .issues(CopyrightHeaderExists.ISSUE)
+            .files(create(spdxLgplHeader))
+            .issues(LicenseHeaderExists.ISSUE)
+            .run()
+            .expectClean()
+    }
+
+    @Test
+    fun fileWithGplAndCopyrightHeaderPasses() {
+        lint()
+            .allowMissingSdk()
+            .files(create(spdxGplAndCopyrightHeader))
+            .issues(LicenseHeaderExists.ISSUE)
             .run()
             .expectClean()
     }
@@ -121,7 +132,7 @@ class CopyrightHeaderExistsTest {
             .allowMissingSdk()
             .allowCompilationErrors()
             .files(create(spdxOldGplHeader))
-            .issues(CopyrightHeaderExists.ISSUE)
+            .issues(LicenseHeaderExists.ISSUE)
             .run()
             .expectErrorCount(1)
     }
@@ -132,7 +143,7 @@ class CopyrightHeaderExistsTest {
             .allowMissingSdk()
             .allowCompilationErrors()
             .files(create(spdxGplOnlyHeader))
-            .issues(CopyrightHeaderExists.ISSUE)
+            .issues(LicenseHeaderExists.ISSUE)
             .run()
             .expectErrorCount(1)
     }
@@ -143,23 +154,59 @@ class CopyrightHeaderExistsTest {
             .allowMissingSdk()
             .allowCompilationErrors()
             .files(create(spdxLgplOnlyHeader))
-            .issues(CopyrightHeaderExists.ISSUE)
+            .issues(LicenseHeaderExists.ISSUE)
             .run()
             .expectErrorCount(1)
     }
 
     @Test
-    fun fileWithNoCopyrightHeaderFails() {
+    fun fileWithNoLicenseHeaderFails() {
         lint()
             .allowMissingSdk()
             .allowCompilationErrors() // import failures
-            .files(create(noCopyrightHeader))
-            .issues(CopyrightHeaderExists.ISSUE)
+            .files(create(noHeader))
+            .issues(LicenseHeaderExists.ISSUE)
             .run()
             .expectErrorCount(1)
             .check({ output: String ->
-                assertTrue(output.contains(CopyrightHeaderExists.ID))
-                assertTrue(output.contains(CopyrightHeaderExists.DESCRIPTION))
+                assertTrue(output.contains(LicenseHeaderExists.ID))
+                assertTrue(output.contains(LicenseHeaderExists.DESCRIPTION))
             })
+    }
+
+    @Test
+    fun autofixPrependsSpdxIdentifier() {
+        lint()
+            .allowMissingSdk()
+            .allowCompilationErrors()
+            .files(create(noHeader))
+            .issues(LicenseHeaderExists.ISSUE)
+            .run()
+            .expectFixDiffs(
+                """
+                Autofix for src/com/ichi2/upgrade/Upgrade.java line 1: Add SPDX-License-Identifier: GPL-3.0-or-later:
+                @@ -1 +1
+                + // SPDX-License-Identifier: GPL-3.0-or-later
+                +
+                """.trimIndent(),
+            )
+    }
+
+    @Test
+    fun autofixInApiModuleUsesLgpl() {
+        lint()
+            .allowMissingSdk()
+            .allowCompilationErrors()
+            .projects(ProjectDescription(create(noHeader)).name("api"))
+            .issues(LicenseHeaderExists.ISSUE)
+            .run()
+            .expectFixDiffs(
+                """
+                Autofix for src/com/ichi2/upgrade/Upgrade.java line 1: Add SPDX-License-Identifier: LGPL-3.0-or-later:
+                @@ -1 +1
+                + // SPDX-License-Identifier: LGPL-3.0-or-later
+                +
+                """.trimIndent(),
+            )
     }
 }

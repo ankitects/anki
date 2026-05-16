@@ -21,6 +21,7 @@ import com.android.tools.lint.detector.api.Context
 import com.android.tools.lint.detector.api.Detector
 import com.android.tools.lint.detector.api.Implementation
 import com.android.tools.lint.detector.api.Issue
+import com.android.tools.lint.detector.api.LintFix
 import com.android.tools.lint.detector.api.Location
 import com.android.tools.lint.detector.api.Scope
 import com.android.tools.lint.detector.api.SourceCodeScanner
@@ -40,7 +41,7 @@ import java.util.regex.Pattern
  * @see .EXPLANATION
  */
 @Beta
-class CopyrightHeaderExists :
+class LicenseHeaderExists :
     Detector(),
     SourceCodeScanner {
     companion object {
@@ -71,17 +72,18 @@ class CopyrightHeaderExists :
         const val ID = "MissingCopyrightHeader"
 
         @VisibleForTesting
-        const val DESCRIPTION = "All files in AnkiDroid must contain a GPLv3-compatible copyright header"
+        const val DESCRIPTION = "All files in AnkiDroid must contain a GPLv3-compatible license identifier"
         private const val EXPLANATION =
             "All files in AnkiDroid must start with a " +
-                "GPLv3-compatible copyright header: \n" +
+                "GPLv3-compatible license identifier: \n" +
                 "```" +
-                $$"// SPDX-FileCopyrightText: $today.year Your Name <email@example.com> // name + email optional\n" +
-                "// SPDX-License-Identifier: GPL-3.0-or-later" +
+                $$"// SPDX-License-Identifier: GPL-3.0-or-later" +
                 "```\n" +
                 "The copyright header can be set in " +
                 "`Settings - Editor - Copyright - Copyright Profiles - Add Profile - AnkiDroid`" +
-                "or search in Settings for 'Copyright'. " +
+                "or search in Settings for 'Copyright'. \n" +
+                "You may optionally add your copyright to the file. " +
+                "See https://github.com/ankidroid/Anki-Android/blob/main/docs/contributing/copyright-headers.md.\n" +
                 "A long-form header may also be used: " +
                 "https://github.com/ankidroid/Anki-Android/issues/8211#issuecomment-825269673\n\n" +
                 "If the file is under a GPL-Compatible License " +
@@ -89,7 +91,7 @@ class CopyrightHeaderExists :
                 "then this warning may be suppressed either by adding a GPL header alongside the license " +
                 "(https://softwarefreedom.org/resources/2007/gpl-non-gpl-collaboration.html#x1-40002.2) or by " +
                 "adding \"//noinspection MissingCopyrightHeader <reason>\" as the first line of the file."
-        private val implementation = Implementation(CopyrightHeaderExists::class.java, EnumSet.of(Scope.JAVA_FILE, Scope.TEST_SOURCES))
+        private val implementation = Implementation(LicenseHeaderExists::class.java, EnumSet.of(Scope.JAVA_FILE, Scope.TEST_SOURCES))
         val ISSUE: Issue =
             Issue.create(
                 ID,
@@ -128,6 +130,25 @@ class CopyrightHeaderExists :
         // If there is no line break, highlight the contents
         val endOffset = if (end == 0) contents.length else end
         val location: Location = Location.create(context.file, contents.subSequence(0, endOffset), 0, endOffset)
-        context.report(ISSUE, location, DESCRIPTION)
+        context.report(ISSUE, location, DESCRIPTION, createFix(context, location))
+    }
+
+    /**
+     * Builds a [LintFix] that prepends `// SPDX-License-Identifier` to the file
+     */
+    private fun createFix(
+        context: Context,
+        location: Location,
+    ): LintFix {
+        val license = if (context.project.name == "api") "LGPL" else "GPL"
+        return LintFix
+            .create()
+            .name("Add SPDX-License-Identifier: $license-3.0-or-later")
+            .replace()
+            .range(location)
+            .beginning()
+            .with("// SPDX-License-Identifier: $license-3.0-or-later\n\n")
+            .autoFix()
+            .build()
     }
 }
