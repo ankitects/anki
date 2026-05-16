@@ -7,7 +7,6 @@ import android.view.Gravity
 import android.view.View
 import android.view.ViewGroup
 import android.widget.FrameLayout
-import androidx.core.content.edit
 import androidx.core.graphics.Insets
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
@@ -17,7 +16,6 @@ import com.ichi2.anki.account.AccountActivity
 import com.ichi2.anki.instantnoteeditor.InstantNoteEditorActivity
 import com.ichi2.anki.multimedia.MultimediaActivity
 import com.ichi2.anki.preferences.PreferencesActivity
-import com.ichi2.anki.preferences.sharedPrefs
 import com.ichi2.anki.previewer.CardViewerActivity
 import com.ichi2.anki.utils.ConfigAwareSingleFragmentActivity
 import com.ichi2.testutils.ActivityList
@@ -66,13 +64,6 @@ class AllActivitiesScreenshotTest : ScreenshotTest() {
         notYetHandled(CardTemplateEditor::class.java.simpleName, "Needs a real note type in the collection")
 
         super.setUp()
-
-        // Setup for DeckPicker
-        ensureCollectionLoadIsSynchronous()
-        setIntroductionSlidesShown(true)
-        BackupManagerTestUtilities.setupSpaceForBackup(targetContext)
-        // suppress the periodic 'backup your collection' prompt so the screenshot is just the activity
-        targetContext.sharedPrefs().edit { putBoolean("backupPromptDisabled", true) }
     }
 
     @After
@@ -116,7 +107,9 @@ class AllActivitiesScreenshotTest : ScreenshotTest() {
     class ActivityLauncherProvider : TestParameterValuesProvider() {
         override fun provideValues(context: Context?): List<ActivityConfig> {
             val handled =
-                listOf(
+                setOf(
+                    // DeckPickerScreenshotTest
+                    DeckPicker::class.java,
                     // StudyScreenScreenshotTest, PreviewerScreenshotTest and TemplatePreviewerScreenshotTest
                     CardViewerActivity::class.java,
                     // PreferencesScreenshotTest

@@ -22,6 +22,7 @@ import android.view.KeyEvent
 import android.view.MotionEvent
 import android.view.View
 import android.widget.LinearLayout
+import androidx.annotation.VisibleForTesting
 import com.google.android.material.color.MaterialColors
 import com.ichi2.anki.databinding.ActivityHomescreenBinding
 import com.ichi2.anki.databinding.IncludeFloatingAddButtonBinding
@@ -59,7 +60,8 @@ class DeckPickerFloatingActionMenu(
     val isFragmented: Boolean
         get() = studyOptionsFrame != null
 
-    private fun showFloatingActionMenu() {
+    @VisibleForTesting
+    fun showFloatingActionMenu() {
         toggleListener?.onBeginToggle(isOpening = true)
         deckPicker.activeSnackBar?.dismiss()
         linearLayout.alpha = 0.5f

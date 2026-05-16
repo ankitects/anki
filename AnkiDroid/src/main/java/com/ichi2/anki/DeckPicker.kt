@@ -268,7 +268,8 @@ open class DeckPicker :
     private lateinit var deckListAdapter: DeckAdapter
     private lateinit var pullToSyncWrapper: SwipeRefreshLayout
 
-    private lateinit var floatingActionMenu: DeckPickerFloatingActionMenu
+    @VisibleForTesting
+    lateinit var floatingActionMenu: DeckPickerFloatingActionMenu
 
     var activeSnackBar: Snackbar? = null
     private val activeSnackbarCallback =
