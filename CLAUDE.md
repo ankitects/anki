@@ -1,5 +1,10 @@
 # Claude Code Configuration
 
+> **Note:** All commands you need for building, testing, linting, and
+> formatting are defined as recipes in the project `justfile`. Run
+> `just --list` to see them. Do not invoke `./ninja` or scripts under
+> `./tools` directly — use the `just` recipes instead.
+
 ## Project Overview
 
 Anki is a spaced repetition flashcard program with a multi-layered architecture. Main components:
@@ -13,24 +18,31 @@ Anki is a spaced repetition flashcard program with a multi-layered architecture.
 
 ## Building/checking
 
-./check (check.bat) will format the code and run the main build & checks.
+`just check` will format the code and run the main build & checks.
 Please do this as a final step before marking a task as completed.
+
+Run `just` (or `just --list`) to see all available commands.
 
 ## Quick iteration
 
 During development, you can build/check subsections of our code:
 
-- Rust: 'cargo check'
-- Python: './tools/dmypy', and if wheel-related, './ninja wheels'
-- TypeScript/Svelte: './ninja check:svelte'
+- Rust: `cargo check`
+- Python: `just lint` (runs mypy/ruff), and if wheel-related, `just wheels`
+- TypeScript/Svelte: `just lint` (includes check:svelte and check:typescript)
+
+Language-specific tests are also available: `just test-rust`, `just test-py`,
+`just test-ts`. Use `just fmt` / `just fix-fmt` for formatting and
+`just fix-lint` to auto-fix lint issues.
 
 Be mindful that some changes (such as modifications to .proto files) may
-need a full build with './check' first.
+need a full build with `just check` first.
 
 ## Build tooling
 
-'./check' and './ninja' invoke our build system, which is implemented in build/. It takes care of downloading required deps and invoking our build
-steps.
+`just` recipes wrap our build system (implemented in build/), which takes
+care of downloading required deps and invoking our build steps. See the
+project `justfile` for the full set of recipes.
 
 ## Translations
 
