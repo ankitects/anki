@@ -10,8 +10,8 @@ test -f build.sh || {
 # Get the project root (two levels up from qt/release)
 PROJ_ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
 
-# Use extracted uv binary
-UV="$PROJ_ROOT/out/extracted/uv/uv"
+# Use uv from PATH (CI), falling back to the extracted copy (local builds)
+UV="${UV_BINARY:-$(command -v uv 2>/dev/null || echo "$PROJ_ROOT/out/extracted/uv/uv")}"
 
 # Read version from .version file
 VERSION=$(cat "$PROJ_ROOT/.version" | tr -d '[:space:]')
@@ -32,7 +32,7 @@ cat > pyproject.toml << EOF
 name = "anki-release"
 version = "$VERSION"
 description = "A package to lock Anki's dependencies"
-requires-python = ">=3.9"
+requires-python = ">=3.10"
 dependencies = [
   "anki==$VERSION",
   "aqt==$VERSION",

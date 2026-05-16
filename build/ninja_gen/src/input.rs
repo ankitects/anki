@@ -6,6 +6,7 @@ use std::fmt::Display;
 use std::sync::LazyLock;
 
 use camino::Utf8PathBuf;
+use regex::Regex;
 
 #[derive(Debug, Clone, Hash, Default)]
 pub enum BuildInput {
@@ -178,5 +179,20 @@ where
     I: IntoIterator,
     I::Item: Display,
 {
+    itertools::join(iter, " ")
+}
+
+/// Join target inputs with a space. Any whitespace characters in the inputs are
+/// escaped as `$ `
+pub fn join_inputs<I>(iter: I) -> String
+where
+    I: IntoIterator,
+    I::Item: Display,
+{
+    static WHITESPACE_RE: LazyLock<Regex> = LazyLock::new(|| Regex::new(r"\s").unwrap());
+    let iter = iter.into_iter().map(|input| {
+        let input = input.to_string();
+        WHITESPACE_RE.replace_all(input.trim(), "$$$0").to_string()
+    });
     itertools::join(iter, " ")
 }

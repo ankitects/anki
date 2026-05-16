@@ -1,8 +1,9 @@
 name: CI
 
 on:
+  workflow_dispatch:
   push:
-    branches: [main]
+    branches: [main, 'release/**']
   pull_request:
     branches: [main]
     types: [opened, synchronize, reopened, labeled]
@@ -10,6 +11,10 @@ on:
 concurrency:
   group: ci-${{ github.ref }}
   cancel-in-progress: true
+
+env:
+  N2_OUTPUT_PROGRESS: "1"
+  N2_OUTPUT_SUCCESS: "1"
 
 jobs:
   minilints:
@@ -102,7 +107,11 @@ jobs:
         run: |
           just build
           just lint
-          just test
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            just test --coverage
+          else
+            just test
+          fi
 
       - name: Ensure libs importable
         env:
@@ -142,6 +151,7 @@ jobs:
   check-macos:
     if: >-
       github.event_name == 'push'
+      || github.event_name == 'workflow_dispatch'
       || contains(github.event.pull_request.labels.*.name, 'check:macos')
     runs-on: macos-latest
     name: check (macos)
@@ -205,6 +215,7 @@ jobs:
   check-windows:
     if: >-
       github.event_name == 'push'
+      || github.event_name == 'workflow_dispatch'
       || contains(github.event.pull_request.labels.*.name, 'check:windows')
     runs-on: windows-latest
     name: check (windows)

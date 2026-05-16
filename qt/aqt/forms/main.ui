@@ -94,6 +94,7 @@
     <addaction name="separator"/>
     <addaction name="actionNoteTypes"/>
     <addaction name="action_upgrade_downgrade"/>
+    <addaction name="action_check_for_updates"/>
     <addaction name="actionPreferences"/>
    </widget>
    <widget class="QMenu" name="menuqt_accel_view">
@@ -287,6 +288,11 @@
   <action name="action_upgrade_downgrade">
    <property name="text">
     <string>qt_accel_upgrade_downgrade</string>
+   </property>
+  </action>
+  <action name="action_check_for_updates">
+   <property name="text">
+    <string>addons_check_for_updates</string>
    </property>
   </action>
  </widget>

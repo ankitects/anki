@@ -114,6 +114,7 @@ pub struct BuildWheel {
     pub version: String,
     pub platform: Option<Platform>,
     pub deps: BuildInput,
+    pub project_dir: &'static str,
 }
 
 impl BuildAction for BuildWheel {
@@ -132,9 +133,7 @@ impl BuildAction for BuildWheel {
 
         build.add_inputs("", &self.deps);
 
-        // Set the project directory based on which package we're building
-        let project_dir = if self.name == "anki" { "pylib" } else { "qt" };
-        build.add_variable("project_dir", project_dir);
+        build.add_variable("project_dir", self.project_dir);
 
         // Set environment variable for uv to use our pyenv
         build.add_variable("pyenv_path", "$builddir/pyenv");
@@ -146,14 +145,14 @@ impl BuildAction for BuildWheel {
         // Calculate the wheel filename that uv will generate
         let tag = if let Some(platform) = self.platform {
             let platform_tag = match platform {
-                Platform::LinuxX64 => "manylinux_2_36_x86_64",
-                Platform::LinuxArm => "manylinux_2_36_aarch64",
+                Platform::LinuxX64 => "manylinux_2_35_x86_64",
+                Platform::LinuxArm => "manylinux_2_35_aarch64",
                 Platform::MacX64 => "macosx_12_0_x86_64",
                 Platform::MacArm => "macosx_12_0_arm64",
                 Platform::WindowsX64 => "win_amd64",
                 Platform::WindowsArm => "win_arm64",
             };
-            format!("cp39-abi3-{platform_tag}")
+            format!("cp310-abi3-{platform_tag}")
         } else {
             "py3-none-any".into()
         };

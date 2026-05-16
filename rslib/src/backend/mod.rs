@@ -10,6 +10,7 @@ mod collection;
 mod config;
 pub(crate) mod dbproxy;
 mod error;
+mod github;
 mod i18n;
 mod import_export;
 mod ops;

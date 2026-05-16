@@ -1,7 +1,0 @@
-#!/bin/bash
-
-if [[ "${BUILDKITE_COMMAND}" != ".buildkite/linux/entrypoint" &&
-    "${BUILDKITE_COMMAND}" != ".buildkite/linux/release-entrypoint" ]]; then
-  echo "Command not allowed: ${BUILDKITE_COMMAND}"
-  exit 1
-fi

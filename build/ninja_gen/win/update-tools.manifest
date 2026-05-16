@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<assembly xmlns="urn:schemas-microsoft-com:asm.v1" manifestVersion="1.0">
+    <assemblyIdentity type="win32" name="Anki.Build.UpdateTool" version="1.0.0.0" />
+    <trustInfo xmlns="urn:schemas-microsoft-com:asm.v2">
+        <security>
+            <requestedPrivileges xmlns="urn:schemas-microsoft-com:asm.v3">
+                <requestedExecutionLevel level="asInvoker" uiAccess="false" />
+            </requestedPrivileges>
+        </security>
+    </trustInfo>
+    <application xmlns="urn:schemas-microsoft-com:asm.v3">
+        <windowsSettings>
+            <longPathAware xmlns="http://schemas.microsoft.com/SMI/2016/WindowsSettings">true</longPathAware>
+            <activeCodePage xmlns="http://schemas.microsoft.com/SMI/2019/WindowsSettings">UTF-8</activeCodePage>
+        </windowsSettings>
+    </application>
+</assembly>
