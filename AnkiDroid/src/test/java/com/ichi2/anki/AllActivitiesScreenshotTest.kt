@@ -58,7 +58,6 @@ class AllActivitiesScreenshotTest : ScreenshotTest() {
         // TODO: split these into per-class screenshot tests that pass a real fragment.
         notYetHandled(ConfigAwareSingleFragmentActivity::class.java.simpleName, "Needs 'fragmentName' intent extra")
         notYetHandled(MultimediaActivity::class.java.simpleName, "Needs 'fragmentName' intent extra")
-        notYetHandled(AccountActivity::class.java.simpleName, "Needs 'fragmentName' intent extra")
 
         super.setUp()
     }
@@ -105,8 +104,10 @@ class AllActivitiesScreenshotTest : ScreenshotTest() {
         override fun provideValues(context: Context?): List<ActivityConfig> {
             val handled =
                 setOf(
+                    // AccountActivityScreenshotTest
+                    AccountActivity::class.java,
                     // CardTemplateEditorScreenshotTest
-                    CardTemplateEditorScreenshotTest::class.java,
+                    CardTemplateEditor::class.java,
                     // DeckPickerScreenshotTest
                     DeckPicker::class.java,
                     // StudyScreenScreenshotTest, PreviewerScreenshotTest and TemplatePreviewerScreenshotTest
