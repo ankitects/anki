@@ -458,7 +458,12 @@ impl Collection {
             .unwrap_or_default();
 
         let desired_retention = home_deck.effective_desired_retention(&config);
-        let fsrs_enabled = self.get_config_bool(BoolKey::Fsrs);
+        let fsrs_enabled = self
+            .state
+            .card_queues
+            .as_ref()
+            .map(|q| q.fsrs_enabled)
+            .unwrap_or_else(|| self.get_config_bool(BoolKey::Fsrs));
         let fsrs_next_states = if fsrs_enabled {
             let params = config.fsrs_params();
             let fsrs = FSRS::new(Some(params))?;
@@ -494,8 +499,12 @@ impl Collection {
             None
         };
         let desired_retention = fsrs_enabled.then_some(desired_retention);
-        let fsrs_short_term_with_steps =
-            self.get_config_bool(BoolKey::FsrsShortTermWithStepsEnabled);
+        let fsrs_short_term_with_steps = self
+            .state
+            .card_queues
+            .as_ref()
+            .map(|q| q.fsrs_short_term_with_steps)
+            .unwrap_or_else(|| self.get_config_bool(BoolKey::FsrsShortTermWithStepsEnabled));
         let fsrs_allow_short_term = if fsrs_enabled {
             let params = config.fsrs_params();
             if params.len() >= 19 {
