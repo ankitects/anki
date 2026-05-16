@@ -3,14 +3,11 @@
 package com.ichi2.anki.previewer
 
 import androidx.test.core.app.ActivityScenario
-import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.ichi2.anki.NotetypeFile
 import com.ichi2.anki.ScreenshotTest
 import com.ichi2.testutils.createTransientDirectory
 import org.junit.Test
-import org.junit.runner.RunWith
 
-@RunWith(AndroidJUnit4::class)
 class TemplatePreviewerScreenshotTest : ScreenshotTest() {
     @Test
     fun baseState() {

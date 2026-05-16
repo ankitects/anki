@@ -24,6 +24,8 @@ import com.ichi2.anki.settings.Prefs
 import com.ichi2.anki.settings.enums.AppTheme
 import org.junit.Before
 import org.junit.experimental.categories.Category
+import org.junit.runner.RunWith
+import org.robolectric.RobolectricTestParameterInjector
 import org.robolectric.RuntimeEnvironment
 import org.robolectric.annotation.GraphicsMode
 import java.io.File
@@ -33,6 +35,7 @@ interface ScreenshotTestCategory
 /**
  * Base class for [roborazzi](https://github.com/takahirom/roborazzi) screenshot tests
  */
+@RunWith(RobolectricTestParameterInjector::class)
 @Category(ScreenshotTestCategory::class)
 @GraphicsMode(GraphicsMode.Mode.NATIVE)
 abstract class ScreenshotTest : RobolectricTest() {

@@ -120,6 +120,8 @@ slackKeeper = "0.16.1"
 # https://github.com/qos-ch/slf4j
 slf4j = "1.7.30"
 slf4jTimber = "3.1"
+# https://github.com/google/TestParameterInjector/blob/main/CHANGELOG.md
+testParameterInjector = "1.22"
 timber = "5.0.1"
 # https://github.com/Triple-T/gradle-play-publisher/releases
 # In the past, releases have been published before the changelog
@@ -216,6 +218,7 @@ robolectric = { module = "org.robolectric:robolectric", version.ref = "robolectr
 roborazzi = { group = "io.github.takahirom.roborazzi", name = "roborazzi", version.ref = "roborazzi" }
 roborazzi-rule = { group = "io.github.takahirom.roborazzi", name = "roborazzi-junit-rule", version.ref = "roborazzi" }
 cashapp-turbine = { module = "app.cash.turbine:turbine", version.ref = "turbine" }
+test-parameter-injector = { module = "com.google.testparameterinjector:test-parameter-injector", version.ref = "testParameterInjector" }
 
 [plugins]
 

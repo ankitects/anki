@@ -510,6 +510,7 @@ dependencies {
     testImplementation libs.mockito.inline
     testImplementation libs.mockito.kotlin
     testImplementation libs.hamcrest
+    testImplementation libs.test.parameter.injector
     // robolectricDownloader.gradle *may* need a new SDK jar entry if they release one or if we change targetSdk. Instructions in that gradle file.
     testImplementation libs.robolectric
     testImplementation libs.androidx.test.core
