@@ -20,6 +20,8 @@ import com.github.takahirom.roborazzi.RobolectricDeviceQualifiers
 import com.github.takahirom.roborazzi.RoborazziOptions
 import com.github.takahirom.roborazzi.captureScreenRoboImage
 import com.github.takahirom.roborazzi.provideRoborazziContext
+import com.google.testing.junit.testparameterinjector.TestParameter
+import com.google.testing.junit.testparameterinjector.TestParameterValuesProvider
 import com.ichi2.anki.settings.Prefs
 import com.ichi2.anki.settings.enums.AppTheme
 import org.junit.Before
@@ -41,6 +43,11 @@ interface ScreenshotTestCategory
 abstract class ScreenshotTest : RobolectricTest() {
     var fileNamePrefix = ""
 
+    enum class DeviceConfig { PHONE, TABLET, FOLDABLE, DESKTOP }
+
+    @TestParameter(valuesProvider = DeviceProvider::class)
+    lateinit var device: DeviceConfig
+
     @Before
     open fun applyGlobalConfig() {
         applyDeviceConfig()
@@ -48,11 +55,20 @@ abstract class ScreenshotTest : RobolectricTest() {
     }
 
     protected open fun applyDeviceConfig() {
-        if (System.getProperty("screenshot.device") == "tablet") {
-            setTabletQualifiers()
-            fileNamePrefix += "tablet_"
-        } else {
-            setPhoneQualifiers()
+        when (device) {
+            DeviceConfig.PHONE -> setPhoneQualifiers()
+            DeviceConfig.TABLET -> {
+                setTabletQualifiers()
+                fileNamePrefix += "tablet_"
+            }
+            DeviceConfig.FOLDABLE -> {
+                setFoldableQualifiers()
+                fileNamePrefix += "foldable_"
+            }
+            DeviceConfig.DESKTOP -> {
+                setDesktopQualifiers()
+                fileNamePrefix += "desktop_"
+            }
         }
     }
 
@@ -98,6 +114,17 @@ abstract class ScreenshotTest : RobolectricTest() {
                 File(diffDir, "${name}_actual.png").exists()
         if (diffWritten && baseline.isFile) {
             baseline.copyTo(File(diffDir, baseline.name), overwrite = true)
+        }
+    }
+
+    class DeviceProvider : TestParameterValuesProvider() {
+        override fun provideValues(context: Context?): List<DeviceConfig> {
+            val requestedDevice = System.getProperty("screenshot.device") ?: "phone"
+            if (requestedDevice == "all") {
+                return DeviceConfig.entries
+            }
+            val requestedDevices = requestedDevice.split(",").map { it.trim().lowercase() }
+            return DeviceConfig.entries.filter { requestedDevices.contains(it.name.lowercase()) }
         }
     }
 }

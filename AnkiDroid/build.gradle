@@ -279,7 +279,8 @@ android {
 
                         // ./gradlew :AnkiDroid:recordRoborazziPlayDebug -Pscreenshot -Ptheme=dark
                         systemProperty "screenshot.theme", project.findProperty("theme") ?: "light"
-                        // ./gradlew :AnkiDroid:recordRoborazziPlayDebug -Pscreenshot -Pdevice=tablet
+                        // Available values: phone, foldable, tablet, desktop and all
+                        // ./gradlew :AnkiDroid:recordRoborazziPlayDebug -Pscreenshot -Pdevice=tablet,foldable
                         systemProperty "screenshot.device", project.findProperty("device") ?: "phone"
                     } else {
                         excludeTags "com.ichi2.anki.ScreenshotTestCategory"
