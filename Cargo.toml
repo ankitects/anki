@@ -48,40 +48,40 @@ anki_proto_gen = { path = "rslib/proto_gen" }
 ninja_gen = { "path" = "build/ninja_gen" }
 
 # pinned
-unicase = "=2.6.0" # any changes could invalidate sqlite indexes
+unicase = "=2.9.0" # any changes could invalidate sqlite indexes
 
 # normal
 ammonia = "4.1.2"
-anyhow = "1.0.98"
-async-compression = { version = "0.4.24", features = ["zstd", "tokio"] }
+anyhow = "1.0.102"
+async-compression = { version = "0.4.42", features = ["zstd", "tokio"] }
 async-stream = "0.3.6"
 async-trait = "0.1.88"
 axum = { version = "0.8.4", features = ["multipart", "macros"] }
-axum-client-ip = "1.1.3"
+axum-client-ip = "1.3.1"
 axum-extra = { version = "0.10.1", features = ["typed-header"] }
-bitflags = "2.9.1"
-blake3 = "1.8.2"
+bitflags = "2.11.1"
+blake3 = "1.8.5"
 bytes = "1.11.1"
-camino = "1.1.10"
-chrono = { version = "0.4.41", default-features = false, features = ["std", "clock"] }
-clap = { version = "4.5.40", features = ["derive"] }
-coarsetime = "0.1.36"
+camino = "1.2.2"
+chrono = { version = "0.4.44", default-features = false, features = ["std", "clock"] }
+clap = { version = "4.5.60", features = ["derive"] }
+coarsetime = "0.1.37"
 convert_case = "0.8.0"
 criterion = { version = "0.6.0" }
-csv = "1.3.1"
-data-encoding = "2.9.0"
+csv = "1.4.0"
+data-encoding = "2.11.0"
 difflib = "0.4.0"
 dirs = "6.0.0"
 dunce = "1.0.5"
-embed-resource = "3.0.4"
+embed-resource = "3.0.9"
 envy = "0.4.2"
-flate2 = "1.1.2"
+flate2 = "1.1.9"
 fluent = "0.17.0"
 fluent-bundle = "0.16.0"
 fluent-syntax = "0.12.0"
 fnv = "1.0.7"
-futures = "0.3.31"
-globset = "0.4.16"
+futures = "0.3.32"
+globset = "0.4.18"
 hex = "0.4.3"
 htmlescape = "0.3.1"
 hyper = "1"
@@ -97,51 +97,51 @@ maplit = "1.0.2"
 nom = "8.0.0"
 num-format = "0.4.4"
 num_cpus = "1.17.0"
-num_enum = "0.7.3"
-once_cell = "1.21.3"
+num_enum = "0.7.6"
+once_cell = "1.21.4"
 pbkdf2 = { version = "0.12", features = ["simple"] }
 permutation = "0.4.1"
 phf = { version = "0.11.3", features = ["macros"] }
-pin-project = "1.1.10"
+pin-project = "1.1.12"
 prettyplease = "0.2.34"
 prost = "0.13"
 prost-build = "0.13"
 prost-reflect = "0.14.7"
 prost-types = "0.13"
-pulldown-cmark = "0.13.0"
+pulldown-cmark = "0.13.3"
 pyo3 = { version = "0.25.1", features = ["extension-module", "abi3", "abi3-py39"] }
 rand = "0.9.4"
-rayon = "1.10.0"
-regex = "1.11.1"
+rayon = "1.12.0"
+regex = "1.12.3"
 reqwest = { version = "0.12.20", default-features = false, features = ["json", "socks", "stream", "multipart"] }
 rusqlite = { version = "0.36.0", features = ["trace", "functions", "collation", "bundled"] }
 rustls-pemfile = "2.2.0"
 scopeguard = "1.2.0"
 serde = { version = "1.0.219", features = ["derive"] }
 serde-aux = "4.7.0"
-serde_json = "1.0.140"
+serde_json = "1.0.149"
 serde_repr = "0.1.20"
-serde_tuple = "1.1.0"
+serde_tuple = "1.1.3"
 sha1 = "0.10.6"
 sha2 = { version = "0.11.0" }
 snafu = { version = "0.8.6", features = ["rust_1_61"] }
 strum = { version = "0.27.1", features = ["derive"] }
 syn = { version = "2.0.103", features = ["parsing", "printing"] }
 tar = "0.4.44"
-tempfile = "3.20.0"
+tempfile = "3.27.0"
 termcolor = "1.4.1"
-tokio = { version = "1.45", features = ["fs", "rt-multi-thread", "macros", "signal"] }
-tokio-util = { version = "0.7.15", features = ["io"] }
-tower-http = { version = "0.6.6", features = ["trace"] }
-tracing = { version = "0.1.41", features = ["max_level_trace", "release_max_level_debug"] }
-tracing-appender = "0.2.3"
-tracing-subscriber = { version = "0.3.20", features = ["fmt", "env-filter"] }
+tokio = { version = "1.50", features = ["fs", "rt-multi-thread", "macros", "signal"] }
+tokio-util = { version = "0.7.18", features = ["io"] }
+tower-http = { version = "0.6.10", features = ["trace"] }
+tracing = { version = "0.1.44", features = ["max_level_trace", "release_max_level_debug"] }
+tracing-appender = "0.2.5"
+tracing-subscriber = { version = "0.3.23", features = ["fmt", "env-filter"] }
 unic-langid = { version = "0.9.6", features = ["macros"] }
 unic-ucd-category = "0.9.0"
-unicode-normalization = "0.1.24"
+unicode-normalization = "0.1.25"
 walkdir = "2.5.0"
-which = "8.0.0"
-widestring = "1.1.0"
+which = "8.0.2"
+widestring = "1.2.1"
 winapi = { version = "0.3", features = ["wincon", "winreg"] }
 windows = { version = "0.61.3", features = ["Media_SpeechSynthesis", "Media_Core", "Foundation_Collections", "Storage_Streams", "Win32_System_Console", "Win32_System_Registry", "Win32_System_SystemInformation", "Win32_Foundation", "Win32_UI_Shell", "Wdk_System_SystemServices"] }
 wiremock = "0.6.3"
