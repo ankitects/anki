@@ -22,7 +22,6 @@ import com.github.takahirom.roborazzi.captureScreenRoboImage
 import com.github.takahirom.roborazzi.provideRoborazziContext
 import com.google.testing.junit.testparameterinjector.TestParameter
 import com.google.testing.junit.testparameterinjector.TestParameterValuesProvider
-import com.google.testing.junit.testparameterinjector.TestParameterValuesProvider.Context
 import com.ichi2.anki.settings.PrefsRepository
 import com.ichi2.anki.settings.enums.AppTheme
 import com.ichi2.anki.settings.enums.DayTheme
@@ -138,10 +137,10 @@ abstract class ScreenshotTest : RobolectricTest() {
     class ThemeProvider : TestParameterValuesProvider() {
         override fun provideValues(context: Context?): List<ThemeConfig> {
             val requestedTheme = System.getProperty("screenshot.theme") ?: "light"
-            if (requestedTheme == "all") {
+            val requestedThemes = requestedTheme.split(",").map { it.trim().lowercase() }
+            if ("all" in requestedThemes) {
                 return ThemeConfig.entries
             }
-            val requestedThemes = requestedTheme.split(",").map { it.trim().lowercase() }
             return ThemeConfig.entries.filter { requestedThemes.contains(it.name.lowercase()) }
         }
     }
@@ -149,10 +148,10 @@ abstract class ScreenshotTest : RobolectricTest() {
     class DeviceProvider : TestParameterValuesProvider() {
         override fun provideValues(context: Context?): List<DeviceConfig> {
             val requestedDevice = System.getProperty("screenshot.device") ?: "phone"
-            if (requestedDevice == "all") {
+            val requestedDevices = requestedDevice.split(",").map { it.trim().lowercase() }
+            if ("all" in requestedDevices) {
                 return DeviceConfig.entries
             }
-            val requestedDevices = requestedDevice.split(",").map { it.trim().lowercase() }
             return DeviceConfig.entries.filter { requestedDevices.contains(it.name.lowercase()) }
         }
     }
