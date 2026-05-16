@@ -20,13 +20,13 @@ jobs:
   minilints:
     runs-on: ubuntu-24.04
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           fetch-depth: 0
           filter: blob:none
 
       - name: Install Rust toolchain
-        uses: actions-rust-lang/setup-rust-toolchain@v1
+        uses: actions-rust-lang/setup-rust-toolchain@v1.16.0
 
       - name: Run minilints
         run: cargo run -p minilints -- check /tmp/minilints.stamp
@@ -38,16 +38,16 @@ jobs:
   format:
     runs-on: ubuntu-24.04
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - name: Install Rust toolchain
-        uses: actions-rust-lang/setup-rust-toolchain@v1
+        uses: actions-rust-lang/setup-rust-toolchain@v1.16.0
 
       - name: Install uv
         uses: astral-sh/setup-uv@v7
 
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
           node-version: '20'
 
@@ -57,7 +57,7 @@ jobs:
           RUSTFLAGS: "--cap-lints warn"
 
       - name: Install just
-        uses: extractions/setup-just@v3
+        uses: extractions/setup-just@v4
 
       - name: Run format checks
         run: just fmt
@@ -67,10 +67,10 @@ jobs:
     runs-on: ubuntu-24.04
     name: check (linux)
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - name: Restore cargo cache
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: |
             ~/.cargo/registry/index
@@ -83,7 +83,7 @@ jobs:
           restore-keys: cargo-${{ runner.os }}-
 
       - name: Restore build output cache
-        uses: actions/cache/restore@v4
+        uses: actions/cache/restore@v5
         with:
           path: out
           key: build-Linux-${{ github.event.pull_request.number || 'main' }}-${{ github.run_id }}
@@ -96,7 +96,7 @@ jobs:
         uses: ./.github/actions/setup-anki
 
       - name: Install just
-        uses: extractions/setup-just@v3
+        uses: extractions/setup-just@v4
 
       - name: Symlink node_modules
         run: ln -sf out/node_modules .
@@ -121,7 +121,7 @@ jobs:
       - name: Check Rust dependencies
         if: github.event_name == 'pull_request'
         id: rust-deps
-        uses: tj-actions/changed-files@v47.0.5
+        uses: tj-actions/changed-files@v47.0.6
         with:
           files: |
             Cargo.lock
@@ -142,7 +142,7 @@ jobs:
 
       - name: Save build output cache
         if: always()
-        uses: actions/cache/save@v4
+        uses: actions/cache/save@v5
         with:
           path: out
           key: build-Linux-${{ github.event.pull_request.number || 'main' }}-${{ github.run_id }}
@@ -156,10 +156,10 @@ jobs:
     runs-on: macos-latest
     name: check (macos)
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - name: Restore cargo cache
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: |
             ~/.cargo/registry/index
@@ -172,7 +172,7 @@ jobs:
           restore-keys: cargo-macOS-
 
       - name: Restore build output cache
-        uses: actions/cache/restore@v4
+        uses: actions/cache/restore@v5
         with:
           path: out
           key: build-macOS-${{ github.event.pull_request.number || 'main' }}-${{ github.run_id }}
@@ -185,7 +185,7 @@ jobs:
         uses: ./.github/actions/setup-anki
 
       - name: Install just
-        uses: extractions/setup-just@v3
+        uses: extractions/setup-just@v4
 
       - name: Symlink node_modules
         run: ln -sf out/node_modules .
@@ -206,7 +206,7 @@ jobs:
 
       - name: Save build output cache
         if: always()
-        uses: actions/cache/save@v4
+        uses: actions/cache/save@v5
         with:
           path: out
           key: build-macOS-${{ github.event.pull_request.number || 'main' }}-${{ github.run_id }}
@@ -226,14 +226,14 @@ jobs:
       TEMP: D:\tmp
       TMP: D:\tmp
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - name: Prepare D:\ directories
         shell: bash
         run: mkdir -p /d/cargo-home /d/tmp
 
       - name: Restore cargo cache
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: |
             D:\cargo-home\registry\index
@@ -246,7 +246,7 @@ jobs:
           restore-keys: cargo-Windows-
 
       - name: Restore build output cache
-        uses: actions/cache/restore@v4
+        uses: actions/cache/restore@v5
         with:
           path: out
           key: build-Windows-${{ github.event.pull_request.number || 'main' }}-${{ github.run_id }}
@@ -259,7 +259,7 @@ jobs:
         uses: ./.github/actions/setup-anki
 
       - name: Install just
-        uses: extractions/setup-just@v3
+        uses: extractions/setup-just@v4
 
       - name: Build, lint, and test
         run: |
@@ -277,7 +277,7 @@ jobs:
 
       - name: Save build output cache
         if: always()
-        uses: actions/cache/save@v4
+        uses: actions/cache/save@v5
         with:
           path: out
           key: build-Windows-${{ github.event.pull_request.number || 'main' }}-${{ github.run_id }}
