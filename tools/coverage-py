@@ -1,0 +1,41 @@
+#!/bin/bash
+
+set -e
+
+target="$1"
+html="$2"
+
+case "$target" in
+    pylib)
+        pythonpath="out/pylib"
+        source="pylib/anki"
+        outdir="out/coverage/python-pylib"
+        tests="pylib/tests"
+        threshold=65
+        ;;
+    qt)
+        pythonpath="pylib:out/pylib:out/qt"
+        source="qt/aqt"
+        outdir="out/coverage/python-qt"
+        tests="qt/tests"
+        threshold=20
+        ;;
+    *)
+        echo "Usage: $0 [pylib|qt] [--html]"
+        exit 1
+        ;;
+esac
+
+mkdir -p "$outdir"
+PYTHONPATH="$pythonpath" ANKI_TEST_MODE=1 out/pyenv/bin/python -m coverage run \
+    --source="$source" --data-file="$outdir/.coverage" \
+    -m pytest -p no:cacheprovider "$tests"
+out/pyenv/bin/python -m coverage json \
+    --data-file="$outdir/.coverage" -o "$outdir/coverage-summary.json"
+out/pyenv/bin/python -m coverage report \
+    --data-file="$outdir/.coverage" --fail-under="$threshold"
+if [ "$html" = "--html" ]; then
+    out/pyenv/bin/python -m coverage html \
+        --data-file="$outdir/.coverage" -d "$outdir/html" --fail-under="$threshold"
+    echo "Python $target coverage report: $outdir/html/index.html"
+fi

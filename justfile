@@ -18,9 +18,44 @@ wheels:
 check:
     {{ ninja }} pylib qt check
 
-# Run all tests (Rust, Python, TypeScript)
-test:
+# Run all tests (Rust, Python, TypeScript). Pass --coverage to enforce coverage, and --html to include HTML reports.
+[arg("coverage", long="coverage", value="--coverage")]
+[arg("html", long="html", value="--html")]
+test coverage='' html='':
+    just {{ if coverage == "--coverage" { "coverage " + html } else { "_test" } }}
+
+# Run coverage for all test stacks. Pass --html to also generate HTML reports.
+[arg("html", long="html", value="--html")]
+coverage html='':
+    just _coverage-py {{ html }}
+
+# Run Python tests (pylib + qt). Pass --coverage to enforce coverage, and --html to include HTML reports.
+[arg("coverage", long="coverage", value="--coverage")]
+[arg("html", long="html", value="--html")]
+test-py coverage='' html='':
+    just {{ if coverage == "--coverage" { "_coverage-py " + html } else { "_test-py" } }}
+
+[private]
+_test:
     {{ ninja }} check:rust_test check:pytest check:vitest
+
+[private]
+_test-py:
+    {{ ninja }} check:pytest
+
+[private]
+_coverage-py html='':
+    {{ ninja }} pylib qt
+    just _coverage-py-pylib {{ html }}
+    just _coverage-py-qt {{ html }}
+
+[private]
+_coverage-py-pylib html='':
+    {{ if os_family() == "windows" { "tools\\coverage-py" } else { "tools/coverage-py" } }} pylib {{ html }}
+
+[private]
+_coverage-py-qt html='':
+    {{ if os_family() == "windows" { "tools\\coverage-py" } else { "tools/coverage-py" } }} qt {{ html }}
 
 # Check formatting (fast, no build needed)
 fmt:
