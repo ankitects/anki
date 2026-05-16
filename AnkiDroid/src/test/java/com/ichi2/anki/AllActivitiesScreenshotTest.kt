@@ -60,9 +60,6 @@ class AllActivitiesScreenshotTest : ScreenshotTest() {
         notYetHandled(MultimediaActivity::class.java.simpleName, "Needs 'fragmentName' intent extra")
         notYetHandled(AccountActivity::class.java.simpleName, "Needs 'fragmentName' intent extra")
 
-        // TODO: split into a per-class test that creates a real note type before launching.
-        notYetHandled(CardTemplateEditor::class.java.simpleName, "Needs a real note type in the collection")
-
         super.setUp()
     }
 
@@ -108,6 +105,8 @@ class AllActivitiesScreenshotTest : ScreenshotTest() {
         override fun provideValues(context: Context?): List<ActivityConfig> {
             val handled =
                 setOf(
+                    // CardTemplateEditorScreenshotTest
+                    CardTemplateEditorScreenshotTest::class.java,
                     // DeckPickerScreenshotTest
                     DeckPicker::class.java,
                     // StudyScreenScreenshotTest, PreviewerScreenshotTest and TemplatePreviewerScreenshotTest
