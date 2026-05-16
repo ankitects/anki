@@ -64,15 +64,14 @@ abstract class ScreenshotTest : RobolectricTest() {
         }
     }
 
-    /** Pixel-class phone in portrait, light theme. */
-    protected fun setPhoneQualifiers() {
-        RuntimeEnvironment.setQualifiers(RobolectricDeviceQualifiers.MediumPhone)
-    }
+    /** Pixel-class phone in portrait */
+    protected fun setPhoneQualifiers() = RuntimeEnvironment.setQualifiers(RobolectricDeviceQualifiers.MediumPhone)
 
-    /** Required for [DeckPicker.fragmented] to be true. */
-    protected fun setTabletQualifiers() {
-        RuntimeEnvironment.setQualifiers(RobolectricDeviceQualifiers.MediumTablet)
-    }
+    protected fun setTabletQualifiers() = RuntimeEnvironment.setQualifiers(RobolectricDeviceQualifiers.MediumTablet)
+
+    protected fun setFoldableQualifiers() = RuntimeEnvironment.setQualifiers(RobolectricDeviceQualifiers.Pixel9ProFold)
+
+    protected fun setDesktopQualifiers() = RuntimeEnvironment.setQualifiers(RobolectricDeviceQualifiers.MediumDesktop)
 
     /**
      * Captures a screenshot to `build/outputs/roborazzi/<TestClass>/<name>.png`.
