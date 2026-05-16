@@ -2,7 +2,7 @@
 # Diff Roborazzi screenshot tests between a provided baseline commit and HEAD.
 #
 # Usage:
-#   tools/compare-screenshot-test.sh <baseline-commit> [test-class-fqn]
+#   tools/compare-screenshot-test.sh <baseline-commit> [test-class-fqn] [-Ptheme=dark] [-Pdevice=tablet]
 #   tools/compare-screenshot-test.sh HEAD                          # diff working tree vs last commit
 #
 # With no test filter, runs every test tagged ScreenshotTestCategory.
@@ -12,14 +12,36 @@
 
 set -euo pipefail
 
+BASELINE=""
+TEST_FILTER=""
+GRADLE_EXTRA_ARGS=()
+
+while [[ $# -gt 0 ]]; do
+    case "$1" in
+        -P*)
+            GRADLE_EXTRA_ARGS+=("$1")
+            shift
+            ;;
+        *)
+            if [ -z "$BASELINE" ]; then
+                BASELINE="$1"
+            elif [ -z "$TEST_FILTER" ]; then
+                TEST_FILTER="$1"
+            else
+                echo "error: unexpected argument '$1'" >&2
+                exit 1
+            fi
+            shift
+            ;;
+    esac
+done
+
 # Ensure the commit hash is provided as the first argument
-if [ $# -lt 1 ]; then
-    echo "usage: $(basename "$0") <baseline-commit> [test-class-fqn]" >&2
+if [ -z "$BASELINE" ]; then
+    echo "usage: $(basename "$0") <baseline-commit> [test-class-fqn] [-P<arg>...]" >&2
     echo "       pass 'HEAD' to diff only your uncommitted changes" >&2
     exit 1
 fi
-BASELINE="$1"
-TEST_FILTER="${2:-}"
 
 # Validate the baseline commit (arg 1)
 if ! git rev-parse --verify --quiet "${BASELINE}^{commit}" >/dev/null; then
@@ -118,7 +140,8 @@ echo "==> Recording baseline at $BASELINE"
 gradle_quiet "${WORKTREE_DIR}/gradlew" -p "$WORKTREE_DIR" \
     :AnkiDroid:recordRoborazziPlayDebug -Pscreenshot -q \
     -x installGitHook \
-    ${GRADLE_TESTS_ARG[@]+"${GRADLE_TESTS_ARG[@]}"}
+    ${GRADLE_TESTS_ARG[@]+"${GRADLE_TESTS_ARG[@]}"} \
+    ${GRADLE_EXTRA_ARGS[@]+"${GRADLE_EXTRA_ARGS[@]}"}
 
 # Clear stale Roborazzi outputs
 gradle_quiet "${REPO_ROOT}/gradlew" -p "$REPO_ROOT" \
@@ -151,7 +174,8 @@ echo "==> Comparing baseline to HEAD"
 # *_actual.png / *_compare.png are written if there are differences
 gradle_quiet "${REPO_ROOT}/gradlew" -p "$REPO_ROOT" \
     :AnkiDroid:compareRoborazziPlayDebug -Pscreenshot -q \
-    ${GRADLE_TESTS_ARG[@]+"${GRADLE_TESTS_ARG[@]}"}
+    ${GRADLE_TESTS_ARG[@]+"${GRADLE_TESTS_ARG[@]}"} \
+    ${GRADLE_EXTRA_ARGS[@]+"${GRADLE_EXTRA_ARGS[@]}"}
 
 
 # Recurse — Roborazzi writes *_compare.png inside directories
