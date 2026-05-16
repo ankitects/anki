@@ -43,6 +43,12 @@ jobs run `just test` (no coverage enforcement) for now.
 - **Rust** — `cargo-llvm-cov` is installed on demand into `out/bin/` to avoid
   polluting the global cargo install. Coverage runs rebuild the workspace with
   instrumentation, so they are slower than plain `just test-rust`.
+  **Windows ARM64 (`aarch64-pc-windows-msvc`) is not supported**: the Rust
+  compiler produces malformed `.profraw` files on that target
+  ([rust-lang/rust#150123](https://github.com/rust-lang/rust/issues/150123),
+  [cargo-llvm-cov#436](https://github.com/taiki-e/cargo-llvm-cov/issues/436)).
+  `just test-rust --coverage` exits with a clear message on ARM64 Windows;
+  use `just test-rust` (no coverage) or rely on CI (Linux) for enforcement.
 - **Python** — coverage is split across two suites (`pylib` and `qt`) because
   they have different `PYTHONPATH` setups and test folders.
 - **TypeScript** — coverage is measured only over code reachable through
