@@ -36,7 +36,7 @@ impl Collection {
                 Some(cards),
                 None,
             )?
-            .clamp(0.7, 0.95))
+            .clamp(0.1, 0.99))
     }
 
     pub fn get_optimal_retention_parameters(

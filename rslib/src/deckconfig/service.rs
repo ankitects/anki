@@ -127,7 +127,7 @@ impl crate::services::DeckConfigService for Collection {
 
         config.deck_size = guard.cards;
 
-        let costs = (70u32..=99u32)
+        let costs = (10u32..=99u32)
             .into_par_iter()
             .map(|dr| {
                 Ok((
