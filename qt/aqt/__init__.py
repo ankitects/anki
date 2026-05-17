@@ -44,7 +44,7 @@ if "--syncserver" in sys.argv:
     # does not return
     run_sync_server()
 
-if sys.platform == "win32":
+if sys.platform == "win32" and os.environ.get("ANKI_LAUNCHER"):
     from win32com.shell import shell
 
     shell.SetCurrentProcessExplicitAppUserModelID("Ankitects.Anki")
