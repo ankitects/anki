@@ -10,9 +10,20 @@ pub mod mac;
 #[cfg(target_os = "windows")]
 pub mod windows;
 
+#[cfg(unix)]
+pub mod nix;
+
+mod py313;
+mod py39;
+
+use std::ffi::CStr;
+use std::ffi::CString;
 use std::path::PathBuf;
 
+use anki_io::ToUtf8Path;
 use anki_process::CommandExt;
+use anyhow::anyhow;
+use anyhow::ensure;
 use anyhow::Context;
 use anyhow::Result;
 
@@ -109,6 +120,37 @@ pub fn launch_anki_normally(mut cmd: std::process::Command) -> Result<()> {
     Ok(())
 }
 
+pub fn _run_anki_embeddedly(state: &crate::State) -> Result<()> {
+    let (version, lib_path, exec) = crate::get_python_env_info(state)?;
+
+    std::env::set_var("ANKI_LAUNCHER", std::env::current_exe()?.utf8()?.as_str());
+    std::env::set_var("ANKI_LAUNCHER_UV", state.uv_path.utf8()?.as_str());
+    std::env::set_var("UV_PROJECT", state.uv_install_root.utf8()?.as_str());
+    std::env::remove_var("SSLKEYLOGFILE");
+
+    let ffi = PyFfi::load(lib_path, exec)?;
+
+    #[cfg(windows)]
+    {
+        let console = std::env::var("ANKI_CONSOLE").is_ok();
+        crate::platform::windows::prepare_to_launch_normally();
+        // NOTE: without windows_subsystem=console or pythonw,
+        // we need to reconnect stdin/stdout/stderr within the interp
+        let preamble = console.then_some(cr#"import sys; sys.stdout = sys.stderr = open("CONOUT$", "w"); sys.stdin = open("CONIN$", "r");"#);
+        ffi.run(&version, preamble)
+    }
+    #[cfg(unix)]
+    ffi.run(&version, None)
+}
+
+pub fn run_anki_embeddedly(state: &crate::State) -> bool {
+    if let Err(e) = _run_anki_embeddedly(state) {
+        eprintln!("failed to run as embedded: {e:?}");
+        return false;
+    }
+    true
+}
+
 #[cfg(windows)]
 pub use windows::ensure_terminal_shown;
 
@@ -138,4 +180,132 @@ pub fn ensure_os_supported() -> Result<()> {
     windows::ensure_windows_version_supported()?;
 
     Ok(())
+}
+
+pub type PyIsInitialized = extern "C" fn() -> std::ffi::c_int;
+pub type PyRunSimpleString = extern "C" fn(command: *const std::ffi::c_char) -> std::ffi::c_int;
+pub type PyFinalizeEx = extern "C" fn() -> std::ffi::c_int;
+pub type PyConfigInitPythonConfig = extern "C" fn(*mut std::ffi::c_void);
+// WARN: py39 and py313's PyStatus are identical
+// check if this remains true in future versions
+pub type PyConfigSetBytesString = extern "C" fn(
+    config: *mut std::ffi::c_void,
+    config_str: *mut *mut libc::wchar_t,
+    str_: *const std::os::raw::c_char,
+) -> py313::PyStatus;
+pub type PyConfigSetBytesArgv = extern "C" fn(
+    config: *mut std::ffi::c_void,
+    argc: isize,
+    argv: *const *mut std::os::raw::c_char,
+) -> py313::PyStatus;
+pub type PyInitializeFromConfig = extern "C" fn(*const std::ffi::c_void) -> py313::PyStatus;
+pub type PyStatusException = extern "C" fn(err: py313::PyStatus) -> std::os::raw::c_int;
+
+#[allow(non_snake_case)]
+struct PyFfi {
+    exec: CString,
+    lib: *mut std::ffi::c_void,
+    Py_IsInitialized: PyIsInitialized,
+    PyRun_SimpleString: PyRunSimpleString,
+    Py_FinalizeEx: PyFinalizeEx,
+    PyConfig_InitPythonConfig: PyConfigInitPythonConfig,
+    PyConfig_SetBytesString: PyConfigSetBytesString,
+    Py_InitializeFromConfig: PyInitializeFromConfig,
+    PyConfig_SetBytesArgv: PyConfigSetBytesArgv,
+    PyStatus_Exception: PyStatusException,
+}
+
+trait PyConfigExt {
+    fn init(ffi: &PyFfi) -> Self
+    where
+        Self: Sized;
+    fn set_exec(&mut self, ffi: &PyFfi) -> Result<&mut Self>;
+    fn set_argv(&mut self, ffi: &PyFfi) -> Result<&mut Self>;
+}
+
+macro_rules! impl_pyconfig {
+    ($($pyconfig:path),* $(,)*) => {
+        $(impl PyConfigExt for $pyconfig {
+            fn init(ffi: &PyFfi) -> Self
+            where
+                Self: Sized,
+            {
+                let mut config: Self = unsafe { std::mem::zeroed() };
+                (ffi.PyConfig_InitPythonConfig)(&raw mut config as _);
+                config.parse_argv = 0;
+                config.install_signal_handlers = 1;
+                config
+            }
+
+            fn set_exec(&mut self, ffi: &PyFfi) -> Result<&mut Self> {
+                let status = (ffi.PyConfig_SetBytesString)(
+                    self as *mut _ as _,
+                    &mut self.executable,
+                    ffi.exec.as_ptr(),
+                );
+                ensure!(
+                    (ffi.PyStatus_Exception)(status) == 0,
+                    "failed to set config"
+                );
+                Ok(self)
+            }
+
+            fn set_argv(&mut self, ffi: &PyFfi) -> Result<&mut Self> {
+                let argv = std::env::args_os()
+                    .map(|x| CString::new(x.as_encoded_bytes()))
+                    .collect::<Result<Vec<_>, _>>()
+                    .map_err(|_| anyhow!("unable to construct argv"))?;
+                let argvp = argv
+                    .iter()
+                    .map(|x| x.as_ptr() as *mut i8)
+                    .collect::<Vec<_>>();
+                let status = (ffi.PyConfig_SetBytesArgv)(
+                    self as *mut _ as _,
+                    argvp.len() as isize,
+                    argvp.as_ptr().cast(),
+                );
+                ensure!((ffi.PyStatus_Exception)(status) == 0, "failed to set argv");
+                Ok(self)
+            }
+        })*
+    };
+}
+
+impl_pyconfig![py39::PyConfig, py313::PyConfig];
+
+impl PyFfi {
+    fn run(self, version: &str, preamble: Option<&CStr>) -> Result<()> {
+        match version {
+            "39" => {
+                let mut config = py39::PyConfig::init(&self);
+                config.set_exec(&self)?.set_argv(&self)?;
+                (self.Py_InitializeFromConfig)(&raw const config as _);
+            }
+            "313" => {
+                let mut config = py313::PyConfig::init(&self);
+                config.set_exec(&self)?.set_argv(&self)?;
+                (self.Py_InitializeFromConfig)(&raw const config as _);
+            }
+            _ => Err(anyhow!("unsupported python version: {version}"))?,
+        };
+
+        ensure!(
+            (self.Py_IsInitialized)() == 1,
+            "interpreter was not initialised!"
+        );
+
+        if let Some(preamble) = preamble {
+            let res = (self.PyRun_SimpleString)(preamble.as_ptr());
+            ensure!(res == 0, "failed to run preamble");
+        }
+
+        // test importing aqt first before falling back to usual launch
+        let res = (self.PyRun_SimpleString)(c"import aqt".as_ptr());
+        ensure!(res == 0, "failed to import aqt");
+
+        // from here on, don't fallback if we fail
+        let _ = (self.PyRun_SimpleString)(c"aqt.run()".as_ptr());
+
+        Ok(())
+    }
 }

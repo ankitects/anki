@@ -3,6 +3,7 @@
 
 #![windows_subsystem = "windows"]
 
+use std::ffi::CString;
 use std::io::stdin;
 use std::io::stdout;
 use std::io::Write;
@@ -19,6 +20,7 @@ use anki_io::remove_file;
 use anki_io::write_file;
 use anki_io::ToUtf8Path;
 use anki_process::CommandExt as AnkiCommandExt;
+use anyhow::anyhow;
 use anyhow::Context;
 use anyhow::Result;
 
@@ -28,6 +30,7 @@ use crate::platform::get_exe_and_resources_dirs;
 use crate::platform::get_uv_binary_name;
 use crate::platform::launch_anki_normally;
 use crate::platform::respawn_launcher;
+use crate::platform::run_anki_embeddedly;
 
 mod platform;
 
@@ -53,6 +56,7 @@ struct State {
     previous_version: Option<String>,
     resources_dir: std::path::PathBuf,
     venv_folder: std::path::PathBuf,
+    libpython_info: std::path::PathBuf,
     /// system Python + PyQt6 library mode
     system_qt: bool,
 }
@@ -132,6 +136,7 @@ fn run() -> Result<()> {
             && resources_dir.join("system_qt").exists(),
         resources_dir,
         venv_folder: uv_install_root.join(".venv"),
+        libpython_info: uv_install_root.join(".cached-info"),
     };
 
     // Check for uninstall request from Windows uninstaller
@@ -156,9 +161,11 @@ fn run() -> Result<()> {
 
     if !launcher_requested && !pyproject_has_changed && !different_launcher {
         // If no launcher request and venv is already up to date, launch Anki normally
-        let args: Vec<String> = std::env::args().skip(1).collect();
-        let cmd = build_python_command(&state, &args)?;
-        launch_anki_normally(cmd)?;
+        if std::env::var("ANKI_LAUNCHER_NO_EMBED").is_ok() || !run_anki_embeddedly(&state) {
+            let args: Vec<String> = std::env::args().skip(1).collect();
+            let cmd = build_python_command(&state, &args)?;
+            launch_anki_normally(cmd)?;
+        }
         return Ok(());
     }
 
@@ -273,6 +280,9 @@ fn handle_version_install_or_update(state: &State, choice: MainMenuChoice) -> Re
 
     // Remove sync marker before attempting sync
     let _ = remove_file(&state.sync_complete_marker);
+
+    // clear possibly invalidated ibpython info cache
+    let _ = remove_file(&state.libpython_info);
 
     println!("{}\n", state.tr.launcher_updating_anki());
 
@@ -1031,8 +1041,8 @@ fn uv_command(state: &State) -> Result<Command> {
     Ok(command)
 }
 
-fn build_python_command(state: &State, args: &[String]) -> Result<Command> {
-    let python_exe = if cfg!(target_os = "windows") {
+fn get_venv_bin_path(state: &State) -> std::path::PathBuf {
+    if cfg!(target_os = "windows") {
         let show_console = std::env::var("ANKI_CONSOLE").is_ok();
         if show_console {
             state.venv_folder.join("Scripts/python.exe")
@@ -1041,11 +1051,11 @@ fn build_python_command(state: &State, args: &[String]) -> Result<Command> {
         }
     } else {
         state.venv_folder.join("bin/python")
-    };
+    }
+}
 
-    let mut cmd = Command::new(&python_exe);
-    cmd.args(["-c", "import aqt, sys; sys.argv[0] = 'Anki'; aqt.run()"]);
-    cmd.args(args);
+fn _build_python_command(state: &State, python_exe: &std::path::Path) -> Result<Command> {
+    let mut cmd = Command::new(python_exe);
     // tell the Python code it was invoked by the launcher, and updating is
     // available
     cmd.env("ANKI_LAUNCHER", std::env::current_exe()?.utf8()?.as_str());
@@ -1056,6 +1066,82 @@ fn build_python_command(state: &State, args: &[String]) -> Result<Command> {
     cmd.env_remove("SSLKEYLOGFILE");
 
     Ok(cmd)
+}
+
+fn build_python_command(state: &State, args: &[String]) -> Result<Command> {
+    let python_exe = get_venv_bin_path(state);
+    let mut cmd = _build_python_command(state, &python_exe)?;
+    cmd.args(["-c", "import aqt, sys; sys.argv[0] = 'Anki'; aqt.run()"]);
+    cmd.args(args);
+    Ok(cmd)
+}
+
+fn get_python_env_info(state: &State) -> Result<(String, std::path::PathBuf, CString)> {
+    let python_exe = get_venv_bin_path(state);
+    // we can cache this, as it can only change after syncing the project
+    // as it stands, we already expect there to be a trusted python exe in
+    // a particular place so this doesn't seem too concerning security-wise
+    // TODO: let-chains...
+    if let Ok(cached) = read_file(&state.libpython_info) {
+        if let Ok(cached) = String::from_utf8(cached) {
+            if let Some((version, lib_path)) = cached.split_once('\n') {
+                if let Ok(lib_path) = state.uv_install_root.join(lib_path.trim()).canonicalize() {
+                    // make sure we're still within AnkiProgramFiles...
+                    if lib_path.strip_prefix(&state.uv_install_root).is_ok() {
+                        return Ok((
+                            version.trim().to_string(),
+                            lib_path,
+                            CString::new(python_exe.as_os_str().as_encoded_bytes())?,
+                        ));
+                    }
+                }
+            }
+        }
+        let _ = remove_file(&state.libpython_info);
+    }
+
+    let mut cmd = _build_python_command(state, &python_exe)?;
+    // NOTE:
+    // we can check which sysconfig vars are available
+    // with `sysconfig.get_config_vars()`. very limited on
+    // windows pre-3.13 (probably because no ./configure)
+    // from what i've found, `installed_base` seems to be
+    // available on 3.9/3.13 on both windows and linux.
+    // `LIBDIR` and `LDLIBRARY` aren't present on 3.9/win.
+    // on win, we can't use python3.dll, only python3XX.dll
+    let script = if cfg!(windows) {
+        include_str!("libpython_win.py")
+    } else {
+        include_str!("libpython_nix.py")
+    }
+    .trim();
+
+    cmd.args(["-c", script]);
+
+    let output = cmd.utf8_output()?;
+    let output = output.stdout.trim();
+
+    let (version, lib_path) = output
+        .split_once('\n')
+        .ok_or_else(|| anyhow!("invalid libpython info"))?;
+    let lib_path = std::path::PathBuf::from(lib_path.trim());
+
+    if !lib_path.exists() {
+        anyhow::bail!("library path doesn't exist: {lib_path:?}");
+    }
+
+    if let Ok(lib_path) = lib_path.strip_prefix(&state.uv_install_root) {
+        let _ = write_file(
+            &state.libpython_info,
+            format!("{version}\n{}", lib_path.display()),
+        );
+    }
+
+    Ok((
+        version.trim().to_owned(),
+        lib_path,
+        CString::new(python_exe.as_os_str().as_encoded_bytes())?,
+    ))
 }
 
 fn is_mirror_enabled(state: &State) -> bool {
