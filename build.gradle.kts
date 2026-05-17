@@ -142,11 +142,13 @@ subprojects {
     }
 }
 
-// Opt all modules in to lint (with :AnkiDroid pinned to one flavor: 'Play')
+// Opt all modules in to lint (with :AnkiDroid pinned to one flavor: 'Full')
 val lintAll = tasks.register("lintAll") {
     group = "verification"
     description = "Runs lint on every module."
-    dependsOn(":AnkiDroid:lintPlayDebug") // specify 'Play' explicitly so other flavors don't run
+    // specify 'Full' explicitly so other flavors don't run
+    // 'full' has no Manifest changes, so catches more unused references (#15741)
+    dependsOn(":AnkiDroid:lintFullDebug")
 }
 
 subprojects {

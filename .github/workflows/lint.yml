@@ -50,13 +50,12 @@ jobs:
           timeout_minutes: 10
           retry_wait_seconds: 60
           max_attempts: 3
-          command: ./gradlew :AnkiDroid:compilePlayDebugJavaWithJavac compileLint lint-rules:compileTestJava --daemon
+          command: ./gradlew :AnkiDroid:compileFullDebugJavaWithJavac compileLint lint-rules:compileTestJava --daemon
 
       - name: Run Lint Debug
-        # "lintAll" opts in all modules in 1 flavor to lint, pinning :AnkiDroid to lintPlayDebug
-        # "lintVitalFullRelease": if `main` resources are only used in `androidTest` (#15741)
+        # "lintAll" opts in all modules in 1 flavor to lint, pinning :AnkiDroid to lintFullDebug
         # update workflows/README.md when modifying this line
-        run: ./gradlew lintAll ktLintCheck lintVitalFullRelease lint-rules:test --daemon
+        run: ./gradlew lintAll ktLintCheck lint-rules:test --daemon
 
   # update workflows/README.md when modifying commands
   lintJavascript:
