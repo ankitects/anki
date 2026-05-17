@@ -2237,14 +2237,14 @@ wheels = [
 
 [[package]]
 name = "types-flask-cors"
-version = "6.0.0.20250520"
+version = "6.0.0.20260408"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "flask" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/e0/b0/1457265478222c877ac38a79f24d579955380be2c5fdb4322b613aad059a/types_flask_cors-6.0.0.20250520.tar.gz", hash = "sha256:9357c21be733f65e568ff27e816426832f3e3fd906eedbb896bcc6b1cfa026e6", size = 9960, upload-time = "2025-05-20T03:06:28.545Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/22/68/e58191af5b56e836a4a2e2583ecfad91bde176940edf1bfc8ea706a5f74d/types_flask_cors-6.0.0.20260408.tar.gz", hash = "sha256:8c440c158c335819bb9286870c9770687ae6d943510fdd97e4b573324f8d2178", size = 10223, upload-time = "2026-04-08T04:35:42.608Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/3b/9d/a983479a860d536805f9ea9fc7af147bcab7b73b573178d8bd36d8cf25c4/types_flask_cors-6.0.0.20250520-py3-none-any.whl", hash = "sha256:8898ed43a6b68d0b3b499e1d2f7aa696a99a001610de44e09fc6f404d16eb704", size = 10011, upload-time = "2025-05-20T03:06:27.379Z" },
+    { url = "https://files.pythonhosted.org/packages/a2/8d/eb905e231aaed6c0853f002446a1fb12d5a32d79b688f2cdd4f8d6e6ce03/types_flask_cors-6.0.0.20260408-py3-none-any.whl", hash = "sha256:ccd8801862b3ebd27754734b84fc3dcfebd0f8056380ae88254c7dd799d64a39", size = 9993, upload-time = "2026-04-08T04:35:41.452Z" },
 ]
 
 [[package]]
