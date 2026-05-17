@@ -60,7 +60,9 @@ subprojects {
 
     afterEvaluate {
         plugins.withType<com.android.build.gradle.BasePlugin> {
-            val androidExtension = extensions.getByName("android") as CommonExtension
+            // com.android.lint [BasePlugin] has no `android` extension
+            // as it can be applied to java-library
+            val androidExtension = extensions.findByName("android") as? CommonExtension ?: return@withType
             androidExtension.testOptions.unitTests {
                 isIncludeAndroidResources = true
             }

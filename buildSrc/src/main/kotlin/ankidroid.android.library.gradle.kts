@@ -30,6 +30,14 @@ extensions.configure<LibraryExtension> {
 // Shared project-wide lint configuration.
 apply(from = "${rootDir}/lint.gradle")
 
+// `:vbpd` is vendored third-party code; not subject to our lint rules.
+if (path != ":vbpd") {
+    dependencies {
+        // PERF: some rules do not need to be applied... but the full run was 3s
+        "lintChecks"(project(":lint-rules"))
+    }
+}
+
 // Apply jacoco so module unit tests produce .exec files that
 // AnkiDroid's jacocoUnitTestReport aggregates across modules.
 apply(from = "${rootDir}/jacocoSupport.gradle")

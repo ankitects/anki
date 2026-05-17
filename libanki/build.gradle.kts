@@ -62,8 +62,4 @@ dependencies {
     testFixturesImplementation(libs.kotlinx.coroutines.core)
     testFixturesImplementation(libs.kotlinx.coroutines.test)
     testFixturesImplementation(libs.androidx.sqlite.framework)
-
-    // project lint checks
-    // PERF: some rules do not need to be applied... but the full run was 3s
-    lintChecks(project(":lint-rules"))
 }

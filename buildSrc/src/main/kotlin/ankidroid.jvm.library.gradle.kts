@@ -20,3 +20,11 @@ tasks.withType(KotlinCompile::class).configureEach {
         jvmTarget = JvmTarget.JVM_17
     }
 }
+
+// Skip self-application for `:lint-rules`, which provides the checks.
+if (path != ":lint-rules") {
+    pluginManager.apply("com.android.lint")
+    dependencies {
+        "lintChecks"(project(":lint-rules"))
+    }
+}

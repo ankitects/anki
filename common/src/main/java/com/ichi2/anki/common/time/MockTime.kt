@@ -76,6 +76,7 @@ open class MockTime(
          * @param milliseconds, from 0 to 999
          * @return the time stamp of this instant in GMT calendar
          */
+        @Suppress("DirectGregorianInstantiation") // MockTime is the test-controlled time source the rule points at
         fun timeStamp(
             year: Int,
             month: Int,

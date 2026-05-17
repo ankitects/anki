@@ -59,8 +59,6 @@ dependencies {
     testImplementation(libs.junit.platform.launcher)
     testImplementation(libs.robolectric)
     testImplementation(libs.kotlin.test)
-
-    lintChecks(project(":lint-rules"))
 }
 
 afterEvaluate {
