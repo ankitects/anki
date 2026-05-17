@@ -97,7 +97,7 @@
             cursor: not-allowed;
             color: var(--fg-disabled);
             box-shadow: none !important;
-            background-color: var(--button-gradient-end);
+            background: var(--button-gradient-end);
             border-bottom-color: var(--border-subtle);
         }
     }

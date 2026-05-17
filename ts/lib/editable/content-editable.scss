@@ -1,0 +1,15 @@
+anki-editable {
+    display: block;
+    position: relative;
+
+    overflow: auto;
+    overflow-wrap: anywhere;
+    /* fallback for iOS */
+    word-break: break-word;
+
+    &:focus {
+        outline: none;
+    }
+
+    min-height: 1.5em;
+}

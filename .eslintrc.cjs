@@ -41,11 +41,17 @@ module.exports = {
             parser: "svelte-eslint-parser",
             parserOptions: {
                 parser: "@typescript-eslint/parser",
+                svelteFeatures: {
+                    experimentalGenerics: true,
+                },
             },
             rules: {
                 "svelte/no-at-html-tags": "off",
                 "svelte/valid-compile": ["error", { "ignoreWarnings": true }],
                 "@typescript-eslint/no-explicit-any": "off",
+                "prefer-const": "off",
+                // TODO: enable this when we update to eslint-plugin-svelte 3
+                // "svelte/prefer-const": "warn",
             },
         },
     ],

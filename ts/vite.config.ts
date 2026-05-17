@@ -19,7 +19,10 @@ const configure = (proxy: any, _options: any) => {
 };
 
 const viteConfig = defineViteConfig({
-    plugins: [sveltekit(), svg({})],
+    plugins: [
+        sveltekit(),
+        svg({ svgoOptions: { plugins: [{ name: "cleanupIds", params: { remove: false } }] } }),
+    ],
     build: {
         reportCompressedSize: false,
         // defaults use chrome87, but we need 77 for qt 5.14
