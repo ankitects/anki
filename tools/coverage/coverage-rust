@@ -1,0 +1,18 @@
+#!/bin/bash
+
+set -e
+
+html="$1"
+
+outdir="out/coverage/rust"
+LLVMCOVPATH="out/bin"
+
+mkdir -p $outdir $LLVMCOVPATH
+test -x $LLVMCOVPATH/cargo-llvm-cov || cargo install cargo-llvm-cov --version 0.8.4 --locked --root out
+ANKI_TEST_MODE=1 $LLVMCOVPATH/cargo-llvm-cov llvm-cov --workspace --locked --json --summary-only \
+    --output-path $outdir/coverage-summary.json --fail-under-lines 60
+
+if [ "$html" = "--html" ]; then
+    ANKI_TEST_MODE=1 $LLVMCOVPATH/cargo-llvm-cov llvm-cov report --html --output-dir $outdir/html
+    echo "Rust coverage report: $outdir/html/index.html"
+fi

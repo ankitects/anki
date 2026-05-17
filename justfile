@@ -27,7 +27,14 @@ test coverage='' html='':
 # Run coverage for all test stacks. Pass --html to also generate HTML reports.
 [arg("html", long="html", value="--html")]
 coverage html='':
+    just _coverage-rust {{ html }}
     just _coverage-py {{ html }}
+
+# Run Rust tests. Pass --coverage to enforce Rust coverage, and --html to include an HTML report.
+[arg("coverage", long="coverage", value="--coverage")]
+[arg("html", long="html", value="--html")]
+test-rust coverage='' html='':
+    just {{ if coverage == "--coverage" { "_coverage-rust " + html } else { "_test-rust" } }}
 
 # Run Python tests (pylib + qt). Pass --coverage to enforce coverage, and --html to include HTML reports.
 [arg("coverage", long="coverage", value="--coverage")]
@@ -40,8 +47,16 @@ _test:
     {{ ninja }} check:rust_test check:pytest check:vitest
 
 [private]
+_test-rust:
+    {{ ninja }} check:rust_test
+
+[private]
 _test-py:
     {{ ninja }} check:pytest
+
+[private]
+_coverage-rust html='':
+    {{ if os_family() == "windows" { "tools\\coverage\\coverage-rust" } else { "tools/coverage/coverage-rust" } }} {{ html }}
 
 [private]
 _coverage-py html='':
@@ -51,11 +66,11 @@ _coverage-py html='':
 
 [private]
 _coverage-py-pylib html='':
-    {{ if os_family() == "windows" { "tools\\coverage-py" } else { "tools/coverage-py" } }} pylib {{ html }}
+    {{ if os_family() == "windows" { "tools\\coverage\\coverage-py" } else { "tools/coverage/coverage-py" } }} pylib {{ html }}
 
 [private]
 _coverage-py-qt html='':
-    {{ if os_family() == "windows" { "tools\\coverage-py" } else { "tools/coverage-py" } }} qt {{ html }}
+    {{ if os_family() == "windows" { "tools\\coverage\\coverage-py" } else { "tools/coverage/coverage-py" } }} qt {{ html }}
 
 # Check formatting (fast, no build needed)
 fmt:
