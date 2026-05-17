@@ -286,8 +286,14 @@ impl MediaChecker<'_> {
         assert_ne!(fname.as_ref(), original_fname);
 
         // remove the original file
-        let path = &self.media.media_folder.join(original_fname);
-        fs::remove_file(path)?;
+        // but only if both paths arent equal on a case-insensitive fs
+        // e.g given a.jpg (hash 1) and a.JPG (hash 1), a.JPG gets renamed to a.jpg,
+        // but then removing a.JPG on windows would be the same as removing a.jpg
+        let orig_path = &self.media.media_folder.join(original_fname);
+        let new_path = &self.media.media_folder.join(fname.as_ref());
+        if !matches!(same_file::is_same_file(orig_path, new_path), Ok(true)) {
+            fs::remove_file(orig_path)?;
+        }
 
         Ok(fname)
     }
