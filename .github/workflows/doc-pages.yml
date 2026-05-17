@@ -1,0 +1,38 @@
+name: Docs
+
+on:
+  push:
+    branches: [main]
+
+permissions:
+  pages: write
+  id-token: write
+
+jobs:
+  docs:
+    runs-on: ubuntu-24.04
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Anki
+        uses: ./.github/actions/setup-anki
+
+      - name: Install just
+        uses: extractions/setup-just@v3
+
+      - name: Run ninja
+        shell: bash
+        run: ./ninja pylib qt
+
+      - name: Build documentation
+        shell: bash
+        run: just build docs
+
+      - name: Upload Docs Artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: out/docs/html
+
+      - name: Deploy to GitHub Pages
+        uses: actions/deploy-pages@v4
