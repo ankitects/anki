@@ -30,7 +30,6 @@ import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.commit
-import androidx.fragment.app.setFragmentResult
 import androidx.fragment.app.setFragmentResultListener
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.flowWithLifecycle
@@ -43,11 +42,8 @@ import com.ichi2.anki.R
 import com.ichi2.anki.SingleFragmentActivity
 import com.ichi2.anki.canUserAccessDeck
 import com.ichi2.anki.databinding.FragmentScheduleRemindersBinding
-import com.ichi2.anki.dialogs.DeckSelectionDialog
-import com.ichi2.anki.dialogs.registerDeckSelectedHandler
 import com.ichi2.anki.launchCatchingTask
 import com.ichi2.anki.libanki.DeckId
-import com.ichi2.anki.model.SelectableDeck
 import com.ichi2.anki.services.AlarmManagerService
 import com.ichi2.anki.snackbar.BaseSnackbarBuilderProvider
 import com.ichi2.anki.snackbar.SnackbarBuilder
@@ -185,7 +181,6 @@ class ScheduleRemindersFragment :
         // Retrieve reminders based on the editing scope
         launchCatchingTask { loadDatabaseRemindersIntoUI() }
 
-        registerDeckSelectedHandler(action = ::onDeckSelected)
         // If the user creates or edits a review reminder, the dialog for doing so opens
         // Once their changes are complete, the dialog closes and this fragment is reloaded
         // Hence, we check for any fragment results here and update the database accordingly
@@ -453,22 +448,6 @@ class ScheduleRemindersFragment :
     }
 
     /**
-     * [AddEditReminderDialog] requires to catch changes from [DeckSelectionDialog]. However,
-     * [AddEditReminderDialog] is removed from the fragment stack when the [DeckSelectionDialog]
-     * appears, so we set [ScheduleRemindersFragment] as the receiver and forward data to
-     * [AddEditReminderDialog] when a deck is selected.
-     */
-    private fun onDeckSelected(deck: SelectableDeck?) {
-        Timber.d("Deck selected in deck spinner: %s", deck)
-        setFragmentResult(
-            DECK_SELECTION_RESULT_REQUEST_KEY,
-            Bundle().apply {
-                putParcelable(DECK_SELECTION_RESULT_REQUEST_KEY, deck)
-            },
-        )
-    }
-
-    /**
      * Trigger a RecyclerView UI update for this fragment.
      * If there are no reminders to display, show the "No Reminders" placeholder icon and text.
      */
@@ -505,13 +484,6 @@ class ScheduleRemindersFragment :
          * Public so [AddEditReminderDialog] can access it, too.
          */
         const val ADD_EDIT_DIALOG_RESULT_REQUEST_KEY = "add_edit_reminder_dialog_result_request_key"
-
-        /**
-         * Fragment result key for sending [AddEditReminderDialog] the result of the deck spinner selection event.
-         * Public so [AddEditReminderDialog] can access it, too.
-         * @see onDeckSelected
-         */
-        const val DECK_SELECTION_RESULT_REQUEST_KEY = "reminder_deck_selection_result_request_key"
 
         /**
          * Wrapper for database access in this fragment.

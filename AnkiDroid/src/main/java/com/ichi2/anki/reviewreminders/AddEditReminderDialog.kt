@@ -27,7 +27,6 @@ import androidx.core.view.isVisible
 import androidx.core.widget.doOnTextChanged
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.setFragmentResult
-import androidx.fragment.app.setFragmentResultListener
 import androidx.fragment.app.viewModels
 import com.google.android.material.timepicker.MaterialTimePicker
 import com.google.android.material.timepicker.TimeFormat
@@ -36,6 +35,7 @@ import com.ichi2.anki.CollectionManager.withCol
 import com.ichi2.anki.R
 import com.ichi2.anki.databinding.DialogAddEditReminderBinding
 import com.ichi2.anki.dialogs.ConfirmationDialog
+import com.ichi2.anki.dialogs.registerDeckSelectedHandler
 import com.ichi2.anki.isDefaultDeckEmpty
 import com.ichi2.anki.launchCatchingTask
 import com.ichi2.anki.libanki.Consts
@@ -124,6 +124,8 @@ class AddEditReminderDialog : DialogFragment() {
             negativeButton?.setOnClickListener { onDelete() } // delete button does not exist in Add mode, hence null check
         }
 
+        registerDeckSelectedHandler(action = ::onDeckSelected)
+
         Timber.d("Setting up fields")
         setUpToolbar()
         setUpTimeButton()
@@ -131,26 +133,6 @@ class AddEditReminderDialog : DialogFragment() {
         setUpAdvancedDropdown()
         setUpCardThresholdInput()
         setUpOnlyNotifyIfNoReviewsCheckbox()
-
-        // For getting the result of the deck selection sub-dialog from ScheduleRemindersFragment
-        // See ScheduleRemindersFragment.onDeckSelected for more information
-        setFragmentResultListener(ScheduleRemindersFragment.DECK_SELECTION_RESULT_REQUEST_KEY) { _, bundle ->
-            val selectedDeck =
-                BundleCompat.getParcelable(
-                    bundle,
-                    ScheduleRemindersFragment.DECK_SELECTION_RESULT_REQUEST_KEY,
-                    SelectableDeck::class.java,
-                )
-            Timber.d("Received result from deck selection sub-dialog: %s", selectedDeck)
-            val selectedDeckId: DeckId =
-                when (selectedDeck) {
-                    is SelectableDeck.Deck -> selectedDeck.deckId
-                    is SelectableDeck.AllDecks -> ALL_DECKS_ID
-                    else -> Consts.DEFAULT_DECK_ID
-                }
-            viewModel.setDeckSelected(selectedDeckId)
-            binding.addEditReminderDeckName.text = selectedDeck?.getDisplayName(requireContext())
-        }
 
         dialog.window?.let { resizeWhenSoftInputShown(it) }
         return dialog
@@ -344,6 +326,18 @@ class AddEditReminderDialog : DialogFragment() {
         }
 
         showDialogFragment(confirmationDialog)
+    }
+
+    private fun onDeckSelected(deck: SelectableDeck?) {
+        Timber.d("Deck selected in deck spinner: %s", deck)
+        val selectedDeckId: DeckId =
+            when (deck) {
+                is SelectableDeck.Deck -> deck.deckId
+                is SelectableDeck.AllDecks -> ALL_DECKS_ID
+                null -> return
+            }
+        viewModel.setDeckSelected(selectedDeckId)
+        binding.addEditReminderDeckName.text = deck.getDisplayName(requireContext())
     }
 
     companion object {
