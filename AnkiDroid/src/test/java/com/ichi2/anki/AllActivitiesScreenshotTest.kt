@@ -15,6 +15,7 @@ import com.google.testing.junit.testparameterinjector.TestParameterValuesProvide
 import com.ichi2.anki.account.AccountActivity
 import com.ichi2.anki.instantnoteeditor.InstantNoteEditorActivity
 import com.ichi2.anki.multimedia.MultimediaActivity
+import com.ichi2.anki.notetype.ManageNotetypes
 import com.ichi2.anki.preferences.PreferencesActivity
 import com.ichi2.anki.previewer.CardViewerActivity
 import com.ichi2.anki.utils.ConfigAwareSingleFragmentActivity
@@ -112,6 +113,8 @@ class AllActivitiesScreenshotTest : ScreenshotTest() {
                     DeckPicker::class.java,
                     // StudyScreenScreenshotTest, PreviewerScreenshotTest and TemplatePreviewerScreenshotTest
                     CardViewerActivity::class.java,
+                    // ManageNotetypesScreenshotTest,
+                    ManageNotetypes::class.java,
                     // PreferencesScreenshotTest
                     PreferencesActivity::class.java,
                 )

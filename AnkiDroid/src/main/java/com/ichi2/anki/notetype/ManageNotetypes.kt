@@ -63,7 +63,8 @@ import dev.androidbroadcast.vbpd.viewBinding
 import kotlinx.coroutines.launch
 
 class ManageNotetypes : AnkiActivity(R.layout.activity_manage_note_types) {
-    private val binding by viewBinding(ActivityManageNoteTypesBinding::bind)
+    @VisibleForTesting
+    val binding by viewBinding(ActivityManageNoteTypesBinding::bind)
     val viewModel by viewModels<ManageNoteTypesViewModel>()
 
     private val notetypesAdapter: NoteTypesAdapter by lazy {
@@ -161,7 +162,8 @@ class ManageNotetypes : AnkiActivity(R.layout.activity_manage_note_types) {
         onBackPressedDispatcher.addCallback(this, backCallback)
     }
 
-    private fun bindState(state: ManageNoteTypesState) {
+    @VisibleForTesting
+    fun bindState(state: ManageNoteTypesState) {
         if (state.error != null) {
             if (state.error.isReportable) {
                 CrashReportService.sendExceptionReport(
