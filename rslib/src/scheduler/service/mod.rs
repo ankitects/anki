@@ -82,6 +82,13 @@ impl crate::services::SchedulerService for Collection {
         self.counts_for_deck_today(input.did.into())
     }
 
+    fn get_overview_counts(
+        &mut self,
+        input: scheduler::GetOverviewCountsRequest,
+    ) -> Result<scheduler::OverviewCounts> {
+        self.get_overview_counts(input.deck_id.into())
+    }
+
     fn congrats_info(&mut self) -> Result<scheduler::CongratsInfoResponse> {
         self.congrats_info()
     }

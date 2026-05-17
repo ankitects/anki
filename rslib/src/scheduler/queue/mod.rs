@@ -9,6 +9,7 @@ pub(crate) mod undo;
 
 use std::collections::VecDeque;
 
+use anki_proto::scheduler;
 use anki_proto::scheduler::SchedulingContext;
 pub(crate) use builder::DueCard;
 pub(crate) use builder::DueCardKind;
@@ -22,6 +23,7 @@ pub(crate) use main::MainQueueEntryKind;
 use self::undo::QueueUpdate;
 use super::states::SchedulingStates;
 use super::timing::SchedTimingToday;
+use crate::decks::tree::get_deck_in_tree;
 use crate::prelude::*;
 use crate::scheduler::states::load_balancer::LoadBalancer;
 use crate::timestamp::TimestampSecs;
@@ -91,7 +93,7 @@ impl Collection {
         intraday_learning_only: bool,
     ) -> Result<QueuedCards> {
         let queues = self.get_queues()?;
-        let counts = queues.counts();
+        let counts = queues.counts(TimestampSecs::now());
         let entries: Vec<_> = if intraday_learning_only {
             queues
                 .intraday_now_iter()
@@ -181,14 +183,18 @@ impl CardQueues {
     }
 
     /// Return the current due counts. If there are no due cards, the learning
-    /// cutoff is updated to the current time first, and any newly-due learning
-    /// cards are added to the counts.
-    pub(crate) fn counts(&mut self) -> Counts {
+    /// cutoff is updated to the current time first. Otherwise, any newly-due
+    /// learning cards are added to the counts without updating the cutoff.
+    pub(crate) fn counts(&mut self, now: TimestampSecs) -> Counts {
         if self.counts.all_zero() {
             // we discard the returned undo information in this case
             self.update_learning_cutoff_and_count();
+            self.counts
+        } else {
+            let mut counts = self.counts;
+            counts.learning += self.newly_due_learning_count(now);
+            counts
         }
-        self.counts
     }
 
     fn is_stale(&self, current_day: u32) -> bool {
@@ -197,6 +203,28 @@ impl CardQueues {
 }
 
 impl Collection {
+    /// Return queue counts and buried-card deltas for the deck overview.
+    pub(crate) fn get_overview_counts(
+        &mut self,
+        deck_id: DeckId,
+    ) -> Result<scheduler::OverviewCounts> {
+        let now = TimestampSecs::now();
+        let counts = {
+            let queues = self.get_queues()?;
+            queues.counts(now)
+        };
+        let tree = self.deck_tree(Some(now))?;
+        let node = get_deck_in_tree(tree, deck_id).or_not_found(deck_id)?;
+        Ok(scheduler::OverviewCounts {
+            new_count: counts.new as u32,
+            learning_count: counts.learning as u32,
+            review_count: counts.review as u32,
+            buried_new: node.new_count.saturating_sub(counts.new as u32),
+            buried_learning: node.learn_count.saturating_sub(counts.learning as u32),
+            buried_review: node.review_count.saturating_sub(counts.review as u32),
+        })
+    }
+
     /// This is automatically done when transact() is called for everything
     /// except card answers, so unless you are modifying state outside of a
     /// transaction, you probably don't need this.
