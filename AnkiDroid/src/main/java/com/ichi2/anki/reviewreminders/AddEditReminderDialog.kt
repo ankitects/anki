@@ -26,7 +26,9 @@ import androidx.core.os.BundleCompat
 import androidx.core.view.isVisible
 import androidx.core.widget.doOnTextChanged
 import androidx.fragment.app.DialogFragment
+import androidx.fragment.app.Fragment
 import androidx.fragment.app.setFragmentResult
+import androidx.fragment.app.setFragmentResultListener
 import androidx.fragment.app.viewModels
 import com.google.android.material.timepicker.MaterialTimePicker
 import com.google.android.material.timepicker.TimeFormat
@@ -45,6 +47,7 @@ import com.ichi2.anki.reviewreminders.AddEditReminderDialog.Companion.getInstanc
 import com.ichi2.anki.settings.Prefs
 import com.ichi2.anki.snackbar.showSnackbar
 import com.ichi2.anki.startDeckSelection
+import com.ichi2.anki.utils.ext.getParcelableCompat
 import com.ichi2.anki.utils.ext.showDialogFragment
 import com.ichi2.utils.DisplayUtils.resizeWhenSoftInputShown
 import com.ichi2.utils.Permissions
@@ -90,7 +93,7 @@ class AddEditReminderDialog : DialogFragment() {
      */
     private val dialogMode: DialogMode by lazy {
         requireNotNull(
-            BundleCompat.getParcelable(requireArguments(), DIALOG_MODE_ARGUMENTS_KEY, DialogMode::class.java),
+            BundleCompat.getParcelable(requireArguments(), ARGS_DIALOG_MODE, DialogMode::class.java),
         ) {
             "Dialog mode cannot be null"
         }
@@ -291,9 +294,10 @@ class AddEditReminderDialog : DialogFragment() {
         val reminderToBeReturned = viewModel.outputStateAsReminder()
         Timber.d("Reminder to be returned: %s", reminderToBeReturned)
         setFragmentResult(
-            ScheduleRemindersFragment.ADD_EDIT_DIALOG_RESULT_REQUEST_KEY,
+            REQUEST_ADD_EDIT_REMINDER,
             Bundle().apply {
-                putParcelable(ScheduleRemindersFragment.ADD_EDIT_DIALOG_RESULT_REQUEST_KEY, reminderToBeReturned)
+                putParcelable(KEY_REMINDER_MODE, dialogMode)
+                putParcelable(KEY_REMINDER_RESULT, reminderToBeReturned)
             },
         )
 
@@ -317,9 +321,11 @@ class AddEditReminderDialog : DialogFragment() {
         )
         confirmationDialog.setConfirm {
             setFragmentResult(
-                ScheduleRemindersFragment.ADD_EDIT_DIALOG_RESULT_REQUEST_KEY,
+                REQUEST_ADD_EDIT_REMINDER,
                 Bundle().apply {
-                    putParcelable(ScheduleRemindersFragment.ADD_EDIT_DIALOG_RESULT_REQUEST_KEY, null)
+                    // dialogMode should always be DialogMode.Edit in this case since the delete button only exists in Edit mode
+                    putParcelable(KEY_REMINDER_MODE, dialogMode)
+                    putParcelable(KEY_REMINDER_RESULT, null)
                 },
             )
             dismiss()
@@ -357,12 +363,47 @@ class AddEditReminderDialog : DialogFragment() {
          *
          * @see DialogMode
          */
-        const val DIALOG_MODE_ARGUMENTS_KEY = "dialog_mode"
+        const val ARGS_DIALOG_MODE = "args_dialog_mode"
+
+        /**
+         * Fragment result key for receiving the result of a recently closed [AddEditReminderDialog].
+         */
+        private const val REQUEST_ADD_EDIT_REMINDER = "request_add_edit"
+
+        /**
+         * Fragment result bundle key for the [DialogMode] of a recently closed [AddEditReminderDialog].
+         */
+        private const val KEY_REMINDER_MODE = "key_reminder_mode"
+
+        /**
+         * Fragment result bundle key for the [ReviewReminder] result of a recently closed [AddEditReminderDialog].
+         */
+        private const val KEY_REMINDER_RESULT = "key_reminder_result"
 
         /**
          * Unique fragment tag for the Material TimePicker shown for setting the time of a review reminder.
          */
         private const val TIME_PICKER_TAG = "REMINDER_TIME_PICKER_DIALOG"
+
+        /**
+         * Register a fragment result listener to listen for results from a recently closed [AddEditReminderDialog].
+         * If the reminder has been deleted, the [ReviewReminder] argument to the callback will be null.
+         *
+         * @param action The callback to be executed when a result is received
+         */
+        fun Fragment.registerAddEditReminderHandler(
+            action: (newOrModifiedReminder: ReviewReminder?, modeOfFinishedDialog: DialogMode) -> Unit,
+        ) {
+            setFragmentResultListener(REQUEST_ADD_EDIT_REMINDER) { _, bundle ->
+                Timber.i("Received fragment result from add/edit dialog")
+                val modeOfFinishedDialog =
+                    bundle.getParcelableCompat<DialogMode>(
+                        KEY_REMINDER_MODE,
+                    ) ?: return@setFragmentResultListener
+                val newOrModifiedReminder = bundle.getParcelableCompat<ReviewReminder>(KEY_REMINDER_RESULT)
+                action(newOrModifiedReminder, modeOfFinishedDialog)
+            }
+        }
 
         /**
          * Creates a new instance of this dialog with the given dialog mode.
@@ -371,7 +412,7 @@ class AddEditReminderDialog : DialogFragment() {
             AddEditReminderDialog().apply {
                 arguments =
                     Bundle().apply {
-                        putParcelable(DIALOG_MODE_ARGUMENTS_KEY, dialogMode)
+                        putParcelable(ARGS_DIALOG_MODE, dialogMode)
                     }
             }
     }

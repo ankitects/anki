@@ -30,7 +30,6 @@ import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.commit
-import androidx.fragment.app.setFragmentResultListener
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
@@ -44,6 +43,7 @@ import com.ichi2.anki.canUserAccessDeck
 import com.ichi2.anki.databinding.FragmentScheduleRemindersBinding
 import com.ichi2.anki.launchCatchingTask
 import com.ichi2.anki.libanki.DeckId
+import com.ichi2.anki.reviewreminders.AddEditReminderDialog.Companion.registerAddEditReminderHandler
 import com.ichi2.anki.services.AlarmManagerService
 import com.ichi2.anki.snackbar.BaseSnackbarBuilderProvider
 import com.ichi2.anki.snackbar.SnackbarBuilder
@@ -67,7 +67,7 @@ class ScheduleRemindersFragment :
     private val scheduleRemindersScope: ReviewReminderScope by lazy {
         BundleCompat.getParcelable(
             requireArguments(),
-            EXTRAS_SCOPE_KEY,
+            ARGS_SCOPE,
             ReviewReminderScope::class.java,
         ) ?: ReviewReminderScope.Global
     }
@@ -183,21 +183,9 @@ class ScheduleRemindersFragment :
 
         // If the user creates or edits a review reminder, the dialog for doing so opens
         // Once their changes are complete, the dialog closes and this fragment is reloaded
-        // Hence, we check for any fragment results here and update the database accordingly
-        setFragmentResultListener(ADD_EDIT_DIALOG_RESULT_REQUEST_KEY) { _, bundle ->
-            val modeOfFinishedDialog =
-                BundleCompat.getParcelable(
-                    requireArguments(),
-                    ACTIVE_DIALOG_MODE_ARGUMENTS_KEY,
-                    AddEditReminderDialog.DialogMode::class.java,
-                ) ?: return@setFragmentResultListener
-            val newOrModifiedReminder =
-                BundleCompat.getParcelable(
-                    bundle,
-                    ADD_EDIT_DIALOG_RESULT_REQUEST_KEY,
-                    ReviewReminder::class.java,
-                )
-            Timber.d("Dialog result received with recent dialog mode: %s", modeOfFinishedDialog)
+        // Hence, we check for any fragment results and update the database accordingly
+        registerAddEditReminderHandler { newOrModifiedReminder, modeOfFinishedDialog ->
+            Timber.i("Received result from add/edit dialog: mode=%s reminder=%s", modeOfFinishedDialog, newOrModifiedReminder)
             handleAddEditDialogResult(newOrModifiedReminder, modeOfFinishedDialog)
         }
     }
@@ -429,8 +417,6 @@ class ScheduleRemindersFragment :
         Timber.d("Adding new review reminder")
         val dialogMode = AddEditReminderDialog.DialogMode.Add(scheduleRemindersScope)
         val dialog = AddEditReminderDialog.getInstance(dialogMode)
-        // Save the dialog mode so that we refer back to it once the dialog closes
-        requireArguments().putParcelable(ACTIVE_DIALOG_MODE_ARGUMENTS_KEY, dialogMode)
         showDialogFragment(dialog)
     }
 
@@ -442,8 +428,6 @@ class ScheduleRemindersFragment :
         Timber.d("Editing review reminder: %s", reminder.id)
         val dialogMode = AddEditReminderDialog.DialogMode.Edit(reminder)
         val dialog = AddEditReminderDialog.getInstance(dialogMode)
-        // Save the dialog mode so that we refer back to it once the dialog closes
-        requireArguments().putParcelable(ACTIVE_DIALOG_MODE_ARGUMENTS_KEY, dialogMode)
         showDialogFragment(dialog)
     }
 
@@ -470,20 +454,7 @@ class ScheduleRemindersFragment :
         /**
          * Arguments key for passing the [ReviewReminderScope] to open this fragment with.
          */
-        private const val EXTRAS_SCOPE_KEY = "scope"
-
-        /**
-         * Arguments key for storing the current or latest [AddEditReminderDialog] instance.
-         * We save this so we can pass [onDeckSelected] onward to the dialog
-         * and so we can determine what reminder has been recently edited.
-         */
-        private const val ACTIVE_DIALOG_MODE_ARGUMENTS_KEY = "active_dialog_mode"
-
-        /**
-         * Fragment result key for receiving the result of [AddEditReminderDialog].
-         * Public so [AddEditReminderDialog] can access it, too.
-         */
-        const val ADD_EDIT_DIALOG_RESULT_REQUEST_KEY = "add_edit_reminder_dialog_result_request_key"
+        private const val ARGS_SCOPE = "scope"
 
         /**
          * Wrapper for database access in this fragment.
@@ -510,7 +481,7 @@ class ScheduleRemindersFragment :
                     context,
                     ScheduleRemindersFragment::class,
                     Bundle().apply {
-                        putParcelable(EXTRAS_SCOPE_KEY, scope)
+                        putParcelable(ARGS_SCOPE, scope)
                     },
                 ).apply {
                     Timber.i("launching ScheduleRemindersFragment for %s scope", scope)
