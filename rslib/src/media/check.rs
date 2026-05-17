@@ -14,6 +14,7 @@ use data_encoding::BASE64;
 use regex::Regex;
 use tracing::debug;
 use tracing::info;
+use unicase::UniCase;
 
 use crate::error::DbErrorKind;
 use crate::latex::extract_latex_expanding_clozes;
@@ -197,15 +198,16 @@ impl MediaChecker<'_> {
     /// Check all the files in the media folder.
     ///
     /// - Renames files with invalid names
+    /// - Dedupes filenames case-insensitively
     /// - Notes folders/oversized files
     /// - Gathers a list of all files
     fn check_media_folder(&mut self) -> Result<MediaFolderCheck> {
         let mut out = MediaFolderCheck::default();
+        let mut case_insensitive_fnames = HashSet::<UniCase<String>>::new();
+        let mut files_sorted = vec![];
 
         for dentry in self.media.media_folder.read_dir()? {
             let dentry = dentry?;
-
-            self.increment_progress()?;
 
             // if the filename is not valid unicode, skip it
             let fname_os = dentry.file_name();
@@ -234,22 +236,37 @@ impl MediaChecker<'_> {
                 continue;
             }
 
-            if let Some(norm_name) = filename_if_normalized(disk_fname) {
-                out.files.push(norm_name.into_owned());
-            } else {
-                match data_for_file(&self.media.media_folder, disk_fname)? {
-                    Some(data) => {
-                        let norm_name = self.normalize_file(disk_fname, data)?;
-                        out.renamed
-                            .insert(disk_fname.to_string(), norm_name.to_string());
-                        out.files.push(norm_name.into_owned());
-                    }
-                    None => {
-                        // file not found, caused by the file being removed at this exact instant,
-                        // or the path being larger than MAXPATH on Windows
-                        continue;
-                    }
-                };
+            files_sorted.push(disk_fname.to_owned());
+        }
+
+        // if there are case-insensitive dupes, have the lowercase entries show up first
+        files_sorted.sort_unstable();
+        files_sorted.reverse();
+
+        for disk_fname in files_sorted {
+            self.increment_progress()?;
+
+            if let Some(norm_name) = filename_if_normalized(&disk_fname) {
+                if case_insensitive_fnames.insert(UniCase::new(disk_fname.clone())) {
+                    out.files.push(norm_name.into_owned());
+                    continue;
+                }
+            }
+
+            // if we reach this point, the file has to be renamed
+            match data_for_file(&self.media.media_folder, &disk_fname)? {
+                Some(data) => {
+                    let lowercased_fname = disk_fname.to_lowercase();
+                    let norm_name = self.normalize_file(&disk_fname, &lowercased_fname, data)?;
+                    out.renamed
+                        .insert(disk_fname.to_string(), norm_name.to_string());
+                    out.files.push(norm_name.into_owned());
+                }
+                None => {
+                    // file not found, caused by the file being removed at this exact instant,
+                    // or the path being larger than MAXPATH on Windows
+                    continue;
+                }
             }
         }
 
@@ -257,14 +274,19 @@ impl MediaChecker<'_> {
     }
 
     /// Write file data to normalized location, moving old file to trash.
-    fn normalize_file<'a>(&mut self, disk_fname: &'a str, data: Vec<u8>) -> Result<Cow<'a, str>> {
+    fn normalize_file<'a>(
+        &mut self,
+        original_fname: &'a str,
+        desired_fname: &'a str,
+        data: Vec<u8>,
+    ) -> Result<Cow<'a, str>> {
         // add a copy of the file using the correct name
-        let fname = self.media.add_file(disk_fname, &data)?;
-        debug!(from = disk_fname, to = &fname.as_ref(), "renamed");
-        assert_ne!(fname.as_ref(), disk_fname);
+        let fname = self.media.add_file(desired_fname, &data)?;
+        debug!(from = original_fname, to = &fname.as_ref(), "renamed");
+        assert_ne!(fname.as_ref(), original_fname);
 
         // remove the original file
-        let path = &self.media.media_folder.join(disk_fname);
+        let path = &self.media.media_folder.join(original_fname);
         fs::remove_file(path)?;
 
         Ok(fname)
