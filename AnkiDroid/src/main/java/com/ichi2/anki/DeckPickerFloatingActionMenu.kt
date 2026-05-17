@@ -274,6 +274,8 @@ class DeckPickerFloatingActionMenu(
 
     fun hideFloatingActionButton() {
         if (binding.fabMain.isShown) {
+            // close the menu if it's open so the other menu items are hidden as well
+            closeFloatingActionMenu(false)
             Timber.i("DeckPicker:: hideFloatingActionButton()")
             binding.fabMain.visibility = View.GONE
         }
