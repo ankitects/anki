@@ -195,16 +195,33 @@ impl QueueBuilder {
         let review_count = self.review.len();
         let new_count = self.new.len();
 
+        // Number of each card type the user has already done today.
+        // Used to keep the interleaving cadence consistent after a queue rebuild.
+        let today = self.context.timing.days_elapsed;
+        let (new_studied, interday_learn_studied, review_studied) =
+            self.context.root_deck.new_rev_counts(today);
+        // Counts can be negative when limits are extended; clamp to 0.
+        let new_studied = new_studied.max(0) as usize;
+        let interday_learn_studied = interday_learn_studied.max(0) as usize;
+        let review_studied = review_studied.max(0) as usize;
+        // review_studied includes DayLearn cards (they consume the review limit).
+        // For merge_day_learning, we need pure-review and day_learn separately.
+        let pure_reviews_studied = review_studied.saturating_sub(interday_learn_studied);
+
         // merge interday and new cards into main
         let with_interday_learn = merge_day_learning(
             self.review,
             self.day_learning,
             self.context.sort_options.day_learn_mix,
+            pure_reviews_studied,
+            interday_learn_studied,
         );
         let main_iter = merge_new(
             with_interday_learn,
             self.new,
             self.context.sort_options.new_review_mix,
+            review_studied,
+            new_studied,
         );
 
         CardQueues {
@@ -247,6 +264,8 @@ fn merge_day_learning(
     reviews: Vec<DueCard>,
     day_learning: Vec<DueCard>,
     mode: ReviewMix,
+    pure_reviews_studied: usize,
+    interday_learn_studied: usize,
 ) -> Box<dyn ExactSizeIterator<Item = MainQueueEntry>> {
     let day_learning_iter = day_learning.into_iter().map(Into::into);
     let reviews_iter = reviews.into_iter().map(Into::into);
@@ -254,7 +273,12 @@ fn merge_day_learning(
     match mode {
         ReviewMix::AfterReviews => Box::new(SizedChain::new(reviews_iter, day_learning_iter)),
         ReviewMix::BeforeReviews => Box::new(SizedChain::new(day_learning_iter, reviews_iter)),
-        ReviewMix::MixWithReviews => Box::new(Intersperser::new(reviews_iter, day_learning_iter)),
+        ReviewMix::MixWithReviews => Box::new(Intersperser::new(
+            reviews_iter,
+            day_learning_iter,
+            pure_reviews_studied,
+            interday_learn_studied,
+        )),
     }
 }
 
@@ -262,13 +286,20 @@ fn merge_new(
     review_iter: impl ExactSizeIterator<Item = MainQueueEntry> + 'static,
     new: Vec<NewCard>,
     mode: ReviewMix,
+    review_studied: usize,
+    new_studied: usize,
 ) -> Box<dyn ExactSizeIterator<Item = MainQueueEntry>> {
     let new_iter = new.into_iter().map(Into::into);
 
     match mode {
         ReviewMix::BeforeReviews => Box::new(SizedChain::new(new_iter, review_iter)),
         ReviewMix::AfterReviews => Box::new(SizedChain::new(review_iter, new_iter)),
-        ReviewMix::MixWithReviews => Box::new(Intersperser::new(review_iter, new_iter)),
+        ReviewMix::MixWithReviews => Box::new(Intersperser::new(
+            review_iter,
+            new_iter,
+            review_studied,
+            new_studied,
+        )),
     }
 }
 
