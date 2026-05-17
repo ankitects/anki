@@ -9,7 +9,6 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.Robolectric.buildActivity
 
-@RunWith(AndroidJUnit4::class)
 class CardSideSelectionDialogScreenshotTest : ScreenshotTest() {
     @Test
     fun testCardSideSelectionDialogAppearance() {
