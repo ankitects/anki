@@ -20,6 +20,7 @@ import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.view.Menu
+import android.view.View
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.result.ActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -29,10 +30,12 @@ import androidx.annotation.VisibleForTesting
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.widget.SearchView
 import androidx.appcompat.widget.Toolbar
+import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.core.view.isVisible
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
+import com.google.android.material.behavior.HideViewOnScrollBehavior
 import com.ichi2.anki.AnkiActivity
 import com.ichi2.anki.CollectionManager.TR
 import com.ichi2.anki.R
@@ -94,9 +97,13 @@ class ManageNotetypes : AnkiActivity(R.layout.activity_manage_note_types) {
         super.onCreate(savedInstanceState)
         enableToolbar().title = getString(R.string.model_browser_label)
         binding.noteTypesList.adapter = notetypesAdapter
-        binding.floatingActionButton.setOnClickListener {
-            val addNewNotesType = AddNewNotesType(this)
-            launchCatchingTask { addNewNotesType.showAddNewNotetypeDialog() }
+        binding.floatingActionButton.apply {
+            setOnClickListener {
+                val addNewNotesType = AddNewNotesType(this@ManageNotetypes)
+                launchCatchingTask { addNewNotesType.showAddNewNotetypeDialog() }
+            }
+            val params = (layoutParams as? CoordinatorLayout.LayoutParams)
+            (params?.behavior as? HideViewOnScrollBehavior<View>)?.setViewEdge(HideViewOnScrollBehavior.EDGE_BOTTOM)
         }
         binding.btnClearSelection.setOnClickListener { viewModel.clearSelection() }
 

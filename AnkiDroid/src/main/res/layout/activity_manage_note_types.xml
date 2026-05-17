@@ -31,7 +31,7 @@
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:clipToPadding="false"
-            android:paddingBottom="104dp"
+            android:paddingBottom="52dp"
             app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
             app:layout_constraintTop_toBottomOf="@id/toolbar"
             app:layout_constraintStart_toStartOf="parent"
@@ -90,7 +90,6 @@
         </LinearLayout>
     </androidx.constraintlayout.widget.ConstraintLayout>
 
-    <!-- Floating Action Button for adding new note types -->
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/floating_action_button"
         android:layout_width="wrap_content"
@@ -102,5 +101,6 @@
         app:srcCompat="@drawable/ic_add"
         android:contentDescription="@string/cd_manage_notetypes_add"
         app:backgroundTint="?attr/fab_normal"
-        tools:ignore="HardcodedText" />
+        app:layout_behavior="com.google.android.material.behavior.HideViewOnScrollBehavior"
+        />
 </androidx.coordinatorlayout.widget.CoordinatorLayout>
