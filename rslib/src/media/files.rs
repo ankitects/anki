@@ -173,17 +173,25 @@ pub fn add_data_to_folder_uniquely<'a, P>(
 where
     P: AsRef<Path>,
 {
-    // force lowercase to account for case-insensitive filesystems
-    // but not within normalize_filename, for existing media refs
-    let normalized_name: Cow<_> = normalize_filename(desired_name).to_lowercase().into();
+    let normalized_name = normalize_filename(desired_name);
 
     let mut target_path = folder.as_ref().join(normalized_name.as_ref());
 
     let existing_file_hash = existing_file_sha1(&target_path)?;
     if existing_file_hash.is_none() {
-        // no file with that name exists yet
-        write_file(&target_path, data)?;
-        return Ok(normalized_name);
+        let lowercased_name = normalized_name.to_lowercase();
+        if lowercased_name == normalized_name {
+            // no file with that name that's also in lowercase exists yet
+            write_file(&target_path, data)?;
+            return Ok(normalized_name);
+        } else {
+            // try again with the lowercased name
+            return Ok(
+                add_data_to_folder_uniquely(folder, &lowercased_name, data, sha1)?
+                    .to_string()
+                    .into(),
+            );
+        }
     }
 
     if existing_file_hash.unwrap() == sha1 {
