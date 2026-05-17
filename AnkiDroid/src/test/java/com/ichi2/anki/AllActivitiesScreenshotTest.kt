@@ -1,5 +1,5 @@
-// SPDX-FileCopyrightText: 2026 David Allison <davidallisongithub@gmail.com>
 // SPDX-License-Identifier: GPL-3.0-or-later
+
 package com.ichi2.anki
 
 import android.app.Activity
