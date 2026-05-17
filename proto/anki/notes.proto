@@ -12,22 +12,47 @@ import "anki/collection.proto";
 import "anki/decks.proto";
 import "anki/cards.proto";
 
+/// API related to creating, modifying, or gathering informations about notes.
 service NotesService {
+  /// Returns a new note for the given note type. The only relevant returned
+  /// values are the GUID and the number of fields.
   rpc NewNote(notetypes.NotetypeId) returns (Note);
+  /// Save `note` in collection, return the note id (it's new, and distinct from
+  /// the one in the note.)
   rpc AddNote(AddNoteRequest) returns (AddNoteResponse);
+  /// Same as multiple AddNotes.
   rpc AddNotes(AddNotesRequest) returns (AddNotesResponse);
+  /// See rslib/src/adding.rs's default_for_adding.
   rpc DefaultsForAdding(DefaultsForAddingRequest) returns (DeckAndNotetype);
+  /// The default deck for the note type with this id. That is, either the last
+  /// deck in which a note with this note type was added, or the default for
+  /// adding.
   rpc DefaultDeckForNotetype(notetypes.NotetypeId) returns (decks.DeckId);
+  /// Update the notes.
   rpc UpdateNotes(UpdateNotesRequest) returns (collection.OpChanges);
+  /// Returns the notes whose id is NoteId.
   rpc GetNote(NoteId) returns (Note);
+  /// Takes either note ids or card ids. Remove all notes associated to those
+  /// ids. Returns the number of removed cards.
   rpc RemoveNotes(RemoveNotesRequest) returns (collection.OpChangesWithCount);
+  /// Returns the set of cloze numbers, with the indices as they appear in any
+  /// field of `note`.
   rpc ClozeNumbersInNote(Note) returns (ClozeNumbersInNoteResponse);
+  /// Update cards and field cache after notes modified externally.
+  /// If gencards is false, skip card generation.
   rpc AfterNoteUpdates(AfterNoteUpdatesRequest)
       returns (collection.OpChangesWithCount);
+  /// A sorted list of all field names used by provided notes, for use with
+  /// the find&replace feature.
   rpc FieldNamesForNotes(FieldNamesForNotesRequest)
       returns (FieldNamesForNotesResponse);
+  /// Whether any message need to be displayed to the user regarding the current
+  /// note.
   rpc NoteFieldsCheck(Note) returns (NoteFieldsCheckResponse);
+  /// The cards' ids of the note with `NoteId`.
   rpc CardsOfNote(NoteId) returns (cards.CardIds);
+  /// Return the notetype used by `note_ids`, or an error if not exactly 1
+  /// notetype is in use.
   rpc GetSingleNotetypeOfNotes(notes.NoteIds) returns (notetypes.NotetypeId);
 }
 
@@ -35,6 +60,7 @@ service NotesService {
 // backend service.
 service BackendNotesService {}
 
+/// See `Note.id`.
 message NoteId {
   int64 nid = 1;
 }
@@ -44,22 +70,42 @@ message NoteIds {
 }
 
 message Note {
+  /// The identifier used to represent a note in the current collection.
+  /// It is also the timestamp of the note's creation in milisecond.
+  /// Have low probably to collide with note id of different note in different
+  /// collections. This value can thus be changed while importing the note.;
   int64 id = 1;
+  /// An identifier for this note, that is very strongly expected to be unique
+  /// accross all collections.
   string guid = 2;
+  /// The id of the note type of this note. See proto/anki/notetypes.proto's
+  /// `NotetypeId`.
   int64 notetype_id = 3;
+  /// Timestamp of the last modification of this note in second.
   uint32 mtime_secs = 4;
+  /// The value of col's USN the last time the note was modified
   int32 usn = 5;
+  /// The tags of the note. In the collection, tags are expected to be unique
+  /// and containing no spaces.
   repeated string tags = 6;
+  /// The list of fields of this note.
   repeated string fields = 7;
 }
 
 message AddNoteRequest {
+  /// The note to add. Its id, usn and mtime_secs are set by the backend.
+  /// Tags are cleaned-up. Fields may be cleaned-up if `NormalizeNoteText`
+  /// holds.
   Note note = 1;
+  /// The id of the deck in which to put the cards if the card type does not
+  /// override this value.
   int64 deck_id = 2;
 }
 
 message AddNoteResponse {
+  /// The number of cards added by the request.
   collection.OpChangesWithCount changes = 1;
+  /// The id of the added note.
   int64 note_id = 2;
 }
 
@@ -69,10 +115,14 @@ message AddNotesRequest {
 
 message AddNotesResponse {
   collection.OpChanges changes = 1;
+  /// The id of each note added.
   repeated int64 nids = 2;
 }
 
 message UpdateNotesRequest {
+  /// The note to update. In case of change, its usn and mtime_secs are updated
+  /// by the backend. Tags are cleaned-up. Fields may be cleaned-up if
+  /// `NormalizeNoteText` holds.
   repeated Note notes = 1;
   bool skip_undo_entry = 2;
 }
@@ -87,7 +137,10 @@ message DeckAndNotetype {
 }
 
 message RemoveNotesRequest {
+  /// Remove the note whose id belong to this field.
   repeated int64 note_ids = 1;
+  /// Remove the note whose card's id belong to this field. The `card_ids` are
+  /// ignored if the `note_ids` are not empty.
   repeated int64 card_ids = 2;
 }
 
@@ -109,14 +162,23 @@ message FieldNamesForNotesResponse {
   repeated string fields = 1;
 }
 
+// The message that may be shown in the note editor to let the user know whether
+// there may be something to correct in the note, and if not, why not. In case
+// of multiple problem, the first one of this list is returned.
 message NoteFieldsCheckResponse {
   enum State {
+    /// Nothing to warns the user about.
     NORMAL = 0;
-    EMPTY = 1;
-    DUPLICATE = 2;
-    MISSING_CLOZE = 3;
-    NOTETYPE_NOT_CLOZE = 4;
-    FIELD_NOT_CLOZE = 5;
+    /// A cloze appear in a field that is not supposed to contain clozes.
+    FIELD_NOT_CLOZE = 1;
+    /// The first field is empty.
+    EMPTY = 2;
+    /// A cloze appear in this note, but it's note type is not a clozed type.
+    NOTETYPE_NOT_CLOZE = 3;
+    /// The note's type expect cloze, but none are present in this note's field.
+    MISSING_CLOZE = 4;
+    /// Another note with the same note type have the same first field.
+    DUPLICATE = 5;
   }
   State state = 1;
 }
