@@ -160,7 +160,8 @@ pub enum RatingKind {
 
 /// Parse the input string into a list of nodes.
 pub fn parse(input: &str) -> Result<Vec<Node>> {
-    let input = input.trim();
+    let normalized = input.replace('\u{a0}', " ");
+    let input = normalized.trim();
     if input.is_empty() {
         return Ok(vec![Node::Search(SearchNode::WholeCollection)]);
     }
@@ -802,6 +803,16 @@ mod test {
 
         assert_eq!(parse("")?, vec![Search(WholeCollection)]);
         assert_eq!(parse("  ")?, vec![Search(WholeCollection)]);
+
+        // non-breaking spaces should be treated as regular spaces
+        assert_eq!(
+            parse("foo\u{a0}bar")?,
+            vec![
+                Search(UnqualifiedText("foo".into())),
+                And,
+                Search(UnqualifiedText("bar".into()))
+            ]
+        );
 
         // leading/trailing/interspersed whitespace
         assert_eq!(
