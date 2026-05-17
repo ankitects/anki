@@ -594,17 +594,17 @@ impl RowContext {
                 CardType::Review | CardType::Relearn => (),
             }
         }
-        let intervals: Vec<u32> = self
+        let intervals: Vec<f32> = self
             .cards
             .iter()
             .filter(|c| matches!(c.ctype, CardType::Review | CardType::Relearn))
-            .map(|c| c.interval)
+            .map(|c| c.interval as f32)
             .collect();
         if intervals.is_empty() {
             "".into()
         } else {
             time_span(
-                (intervals.iter().sum::<u32>() * 86400 / (intervals.len() as u32)) as f32,
+                intervals.iter().sum::<f32>() * 86400.0 / (intervals.len() as f32),
                 &self.tr,
                 false,
             )
