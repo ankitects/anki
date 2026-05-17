@@ -26,6 +26,16 @@ notetypes-cards = Cards
 notetypes-clone = Clone: { $val }
 notetypes-copy = { $val } copy
 notetypes-create-scalable-images-with-dvisvgm = Create scalable images with dvisvgm
+notetypes-delete-selected-note-types =
+    { $count ->
+        [one] Delete this selected note type?
+       *[other] Delete { $count } selected note types?
+    }
+notetypes-delete-selected-note-types-and-all =
+    { $count ->
+        [one] Delete this selected note type and all its notes and cards?
+       *[other] Delete { $count } selected note types and all their notes and cards?
+    }
 notetypes-delete-this-note-type-and-all = Delete this note type and all its cards?
 notetypes-delete-this-unused-note-type = Delete this unused note type?
 notetypes-fields = Fields
@@ -34,6 +44,11 @@ notetypes-header = Header
 notetypes-note-types = Note Types
 notetypes-options = Options
 notetypes-please-add-another-note-type-first = Please add another note type first.
+notetypes-selected-note-types-removed =
+    { $count ->
+        [one] Removed one selected note type.
+       *[other] Removed { $count } selected note types.
+    }
 notetypes-type = Type
 
 ## Image Occlusion
