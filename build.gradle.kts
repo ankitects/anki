@@ -142,6 +142,22 @@ subprojects {
     }
 }
 
+// Opt all modules in to lint (with :AnkiDroid pinned to one flavor: 'Play')
+val lintAll = tasks.register("lintAll") {
+    group = "verification"
+    description = "Runs lint on every module."
+    dependsOn(":AnkiDroid:lintPlayDebug") // specify 'Play' explicitly so other flavors don't run
+}
+
+subprojects {
+    if (path == ":AnkiDroid") return@subprojects // pinned above to avoid other flavors
+    afterEvaluate {
+        // 'lintDebug' applies to all Android modules; 'lint' for all JVM modules
+        (tasks.findByName("lintDebug") ?: tasks.findByName("lint"))
+            ?.let { lintAll.configure { dependsOn(it) } }
+    }
+}
+
 val jvmVersion = Jvm.current().javaVersion?.majorVersion.parseIntOrDefault(defaultValue = 0)
 val minSdk: String = libs.versions.minSdk.get()
 val jvmVersionLowerBound = 21

@@ -53,13 +53,10 @@ jobs:
           command: ./gradlew :AnkiDroid:compilePlayDebugJavaWithJavac compileLint lint-rules:compileTestJava --daemon
 
       - name: Run Lint Debug
-        # "lint" is run under the 'Amazon' flavor, so slow in CI
-        # "lintPlayRelease" doesn't test androidTest
-        # "lintPlayDebug" doesn't test the API
+        # "lintAll" opts in all modules in 1 flavor to lint, pinning :AnkiDroid to lintPlayDebug
         # "lintVitalFullRelease": if `main` resources are only used in `androidTest` (#15741)
-
         # update workflows/README.md when modifying this line
-        run: ./gradlew lintPlayDebug :api:lintDebug :libanki:lintDebug ktLintCheck lintVitalFullRelease lint-rules:test --daemon
+        run: ./gradlew lintAll ktLintCheck lintVitalFullRelease lint-rules:test --daemon
 
   # update workflows/README.md when modifying commands
   lintJavascript:
