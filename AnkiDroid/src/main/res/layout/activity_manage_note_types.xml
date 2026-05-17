@@ -5,90 +5,71 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:fitsSystemWindows="true">
+    android:fitsSystemWindows="true"
+    tools:context=".notetype.ManageNotetypes">
 
-    <androidx.constraintlayout.widget.ConstraintLayout
+    <com.google.android.material.appbar.AppBarLayout
+        android:id="@+id/app_bar_layout"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="wrap_content"
+        android:fitsSystemWindows="true">
 
-        <androidx.appcompat.widget.Toolbar
+        <com.google.android.material.appbar.MaterialToolbar
             android:id="@+id/toolbar"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:background="?attr/appBarColor"
-            android:minHeight="?attr/actionBarSize"
-            android:theme="@style/ActionBarStyle"
+            android:layout_height="?attr/actionBarSize"
+            app:title="@string/model_browser_label"
             app:navigationContentDescription="@string/abc_action_bar_up_description"
-            app:navigationIcon="?attr/homeAsUpIndicator"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            />
+            app:navigationIcon="?attr/homeAsUpIndicator" />
 
-        <!-- RecyclerView for displaying note types -->
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/note_types_list"
-            android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:clipToPadding="false"
-            android:paddingBottom="52dp"
-            app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
-            app:layout_constraintTop_toBottomOf="@id/toolbar"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintBottom_toBottomOf="parent"
-            tools:listitem="@layout/item_manage_note_type"
-            />
+    </com.google.android.material.appbar.AppBarLayout>
 
-        <!-- TODO Use FloatingToolbar once the theme is made to use the proper colors -->
-        <LinearLayout
-            android:id="@+id/selection_toolbar"
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/note_types_list"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:clipToPadding="false"
+        android:paddingBottom="52dp"
+        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior"
+        tools:listitem="@layout/item_manage_note_type" />
+
+    <LinearLayout
+        android:id="@+id/selection_toolbar"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:background="@drawable/note_types_selection_background"
+        android:paddingHorizontal="16dp"
+        android:paddingVertical="4dp"
+        android:layout_marginBottom="32dp"
+        android:layout_gravity="center_horizontal|bottom">
+
+        <com.ichi2.ui.FixedTextView
+            android:id="@+id/selected_label"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:background="@drawable/note_types_selection_background"
-            android:paddingHorizontal="16dp"
-            android:paddingVertical="4dp"
-            android:layout_marginBottom="32dp"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintBottom_toBottomOf="parent">
+            android:layout_marginEnd="8dp"
+            android:textColor="?attr/colorOnPrimary"
+            android:textAppearance="?textAppearanceBodyMediumEmphasized"
+            tools:text="5 note types selected" />
 
-            <com.ichi2.ui.FixedTextView
-                android:id="@+id/selected_label"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginEnd="8dp"
-                android:textColor="?attr/colorOnPrimary"
-                android:textAppearance="?textAppearanceBodyMediumEmphasized"
-                tools:text="5 note types selected"
-                />
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_delete_selection"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:icon="@drawable/ic_delete"
+            style="@style/Widget.Material3.Button.IconButton"
+            app:iconTint="@color/white"/>
 
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/btn_delete_selection"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                app:icon="@drawable/ic_delete"
-                style="@style/Widget.Material3.Button.IconButton"
-                app:iconTint="@color/white"
-                app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toStartOf="@+id/btn_more"
-                />
-
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/btn_clear_selection"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                app:icon="@drawable/ic_clear_white"
-                style="@style/Widget.Material3.Button.IconButton"
-                app:iconTint="@color/white"
-                app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toStartOf="@+id/btn_more"
-                />
-        </LinearLayout>
-    </androidx.constraintlayout.widget.ConstraintLayout>
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_clear_selection"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:icon="@drawable/ic_clear_white"
+            style="@style/Widget.Material3.Button.IconButton"
+            app:iconTint="@color/white"/>
+    </LinearLayout>
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/floating_action_button"
@@ -101,6 +82,6 @@
         app:srcCompat="@drawable/ic_add"
         android:contentDescription="@string/cd_manage_notetypes_add"
         app:backgroundTint="?attr/fab_normal"
-        app:layout_behavior="com.google.android.material.behavior.HideViewOnScrollBehavior"
-        />
+        app:layout_behavior="com.google.android.material.behavior.HideViewOnScrollBehavior" />
+
 </androidx.coordinatorlayout.widget.CoordinatorLayout>
