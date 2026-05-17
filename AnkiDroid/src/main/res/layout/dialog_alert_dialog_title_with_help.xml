@@ -27,12 +27,11 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:textAppearance="?attr/textAppearanceHeadlineSmall"
+        android:textColor="?attr/colorOnSurface"
         android:layout_marginStart="12dp"
         app:layout_goneMarginStart="0dp"
         app:layout_constraintStart_toEndOf="@id/title_icon"
         app:layout_constraintEnd_toStartOf="@id/help_icon"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent"
         tools:text="Reset Card Progress" />
 
     <ImageView
