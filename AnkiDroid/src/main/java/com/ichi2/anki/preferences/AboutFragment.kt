@@ -21,6 +21,7 @@ import android.os.Bundle
 import android.text.format.DateFormat
 import android.text.method.LinkMovementMethod
 import android.view.View
+import androidx.annotation.VisibleForTesting
 import androidx.appcompat.app.AlertDialog
 import androidx.core.text.parseAsHtml
 import androidx.fragment.app.Fragment
@@ -48,7 +49,8 @@ import java.util.Locale
 import net.ankiweb.rsdroid.BuildConfig as BackendBuildConfig
 
 class AboutFragment : Fragment(R.layout.fragment_about) {
-    private val binding by viewBinding(FragmentAboutBinding::bind)
+    @VisibleForTesting
+    val binding by viewBinding(FragmentAboutBinding::bind)
 
     override fun onViewCreated(
         view: View,
