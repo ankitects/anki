@@ -4186,6 +4186,7 @@ dependencies = [
  "anyhow",
  "camino",
  "dunce",
+ "embed-resource",
  "globset",
  "hex",
  "itertools 0.14.0",
