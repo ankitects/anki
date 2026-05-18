@@ -46,7 +46,7 @@ import com.ichi2.anki.common.annotations.LegacyNotifications
 import com.ichi2.anki.preferences.HeaderFragment.Companion.getHeaderKeyForFragment
 import com.ichi2.anki.reviewreminders.ReviewReminderScope
 import com.ichi2.anki.reviewreminders.ScheduleRemindersFragment
-import com.ichi2.anki.utils.AnimationUtils
+import com.ichi2.anki.utils.AnimUtils
 import com.ichi2.anki.utils.isWindowCompact
 import com.ichi2.themes.Themes
 import com.ichi2.utils.FragmentFactoryUtils
@@ -209,7 +209,7 @@ class PreferencesFragment :
     }
 
     private fun setFadeTransition(fragmentTransaction: FragmentTransaction) {
-        if (AnimationUtils.areAnimationsEnabled(requireContext())) {
+        if (AnimUtils.areAnimationsEnabled(requireContext())) {
             fragmentTransaction.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE)
         }
     }

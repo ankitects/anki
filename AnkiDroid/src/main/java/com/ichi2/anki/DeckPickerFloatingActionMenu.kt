@@ -27,7 +27,6 @@ import com.google.android.material.color.MaterialColors
 import com.ichi2.anki.databinding.ActivityHomescreenBinding
 import com.ichi2.anki.databinding.IncludeFloatingAddButtonBinding
 import com.ichi2.anki.ui.DoubleTapListener
-import com.ichi2.anki.utils.AnimationUtils.areSystemAnimationsEnabled
 import timber.log.Timber
 
 class DeckPickerFloatingActionMenu(
@@ -73,12 +72,7 @@ class DeckPickerFloatingActionMenu(
             binding.addDeckButton.visibility = View.VISIBLE
             binding.addFilteredDeckButton.visibility = View.VISIBLE
             binding.fabBGLayout.visibility = View.VISIBLE
-            if (areSystemAnimationsEnabled(context)) {
-                binding.fabMain.backgroundTintList = ColorStateList.valueOf(fabPressedColor)
-            } else {
-                // Changes the background color of FAB
-                binding.fabMain.backgroundTintList = ColorStateList.valueOf(fabNormalColor)
-            }
+            binding.fabMain.backgroundTintList = ColorStateList.valueOf(fabPressedColor)
             binding.fabMain.setIconResource(addNoteIcon)
             binding.fabMain.extend()
 

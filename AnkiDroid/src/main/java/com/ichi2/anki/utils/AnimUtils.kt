@@ -22,7 +22,7 @@ import com.ichi2.anki.settings.PrefsRepository
 /**
  * Utility class for animation-related helper functions
  */
-object AnimationUtils {
+object AnimUtils {
     /**
      * @return whether the animations are enabled by the system settings,
      * i.e. the 'Remove animations' setting is disabled.
