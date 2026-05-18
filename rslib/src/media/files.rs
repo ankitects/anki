@@ -178,24 +178,25 @@ where
     let mut target_path = folder.as_ref().join(normalized_name.as_ref());
 
     let existing_file_hash = existing_file_sha1(&target_path)?;
-    if existing_file_hash.is_none() {
-        let lowercased_name = normalized_name.to_lowercase();
-        if lowercased_name == normalized_name {
-            // no file with that name that's also in lowercase exists yet
-            write_file(&target_path, data)?;
-            return Ok(normalized_name);
-        } else {
-            // try again with the lowercased name
-            return Ok(
-                add_data_to_folder_uniquely(folder, &lowercased_name, data, sha1)?
-                    .to_string()
-                    .into(),
-            );
-        }
+
+    if matches!(existing_file_hash, Some(hash) if hash == sha1) {
+        // existing file has same checksum, nothing to do
+        return Ok(normalized_name);
     }
 
-    if existing_file_hash.unwrap() == sha1 {
-        // existing file has same checksum, nothing to do
+    let lowercased_name = normalized_name.to_lowercase();
+    if lowercased_name != normalized_name {
+        // try again with the lowercased name (to_lowercase is idempotent)
+        return Ok(
+            add_data_to_folder_uniquely(folder, &lowercased_name, data, sha1)?
+                .to_string()
+                .into(),
+        );
+    }
+
+    if existing_file_hash.is_none() {
+        // no file with that name that's also in lowercase exists yet
+        write_file(&target_path, data)?;
         return Ok(normalized_name);
     }
 
