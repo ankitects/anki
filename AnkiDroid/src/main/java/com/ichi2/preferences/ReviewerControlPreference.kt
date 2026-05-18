@@ -17,6 +17,7 @@ package com.ichi2.preferences
 
 import android.content.Context
 import android.util.AttributeSet
+import androidx.fragment.app.DialogFragment
 import com.ichi2.anki.R
 import com.ichi2.anki.cardviewer.GestureProcessor
 import com.ichi2.anki.common.annotations.NeedsTest
@@ -24,13 +25,15 @@ import com.ichi2.anki.dialogs.CardSideSelectionDialog
 import com.ichi2.anki.preferences.allPreferences
 import com.ichi2.anki.reviewer.Binding
 import com.ichi2.anki.reviewer.CardSide
+import com.ichi2.anki.reviewer.MappableBinding
 import com.ichi2.anki.reviewer.MappableBinding.Companion.toPreferenceString
 import com.ichi2.anki.reviewer.ReviewerBinding
 import com.ichi2.anki.settings.Prefs
 import com.ichi2.anki.utils.ext.usingStyledAttributes
 
 open class ReviewerControlPreference : ControlPreference {
-    protected open var side: CardSide? = null
+    open var side: CardSide? = null
+        protected set
 
     @Suppress("unused")
     constructor(context: Context) : this(context, null)
@@ -68,6 +71,8 @@ open class ReviewerControlPreference : ControlPreference {
 
     override val areGesturesEnabled: Boolean
         get() = Prefs.isNewStudyScreenEnabled || sharedPreferences?.getBoolean(GestureProcessor.PREF_KEY, false) ?: false
+
+    override fun makeDialogFragment(): DialogFragment = ReviewerControlPreferenceDialogFragment()
 
     override fun getMappableBindings(): List<ReviewerBinding> = ReviewerBinding.fromPreferenceString(value).toList()
 
@@ -153,6 +158,17 @@ open class ReviewerControlPreference : ControlPreference {
             callback(cardSide)
         } else {
             CardSideSelectionDialog.displayInstance(context, callback)
+        }
+    }
+}
+
+class ReviewerControlPreferenceDialogFragment : ControlPreferenceDialogFragment() {
+    override fun getDisplayString(mappableBinding: MappableBinding): String {
+        val side = (preference as? ReviewerControlPreference)?.side
+        return if (side != null) {
+            mappableBinding.binding.toDisplayString(requireContext())
+        } else {
+            super.getDisplayString(mappableBinding)
         }
     }
 }

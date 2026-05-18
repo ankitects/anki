@@ -226,8 +226,8 @@ open class ControlPreference :
     }
 }
 
-class ControlPreferenceDialogFragment : DialogFragment() {
-    private lateinit var preference: ControlPreference
+open class ControlPreferenceDialogFragment : DialogFragment() {
+    protected lateinit var preference: ControlPreference
 
     @Suppress("DEPRECATION") // targetFragment
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -282,7 +282,7 @@ class ControlPreferenceDialogFragment : DialogFragment() {
         }
         val titles =
             bindings.map {
-                getString(R.string.binding_remove_binding, it.toDisplayString(requireContext()))
+                getString(R.string.binding_remove_binding, getDisplayString(it))
             }
         binding.listView.apply {
             adapter = ArrayAdapter(requireContext(), R.layout.item_control_preference, titles)
@@ -293,4 +293,7 @@ class ControlPreferenceDialogFragment : DialogFragment() {
             }
         }
     }
+
+    /** @return how a binding should be displayed to the user */
+    protected open fun getDisplayString(mappableBinding: MappableBinding): String = mappableBinding.toDisplayString(requireContext())
 }
