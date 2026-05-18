@@ -114,7 +114,8 @@ def compile_sources(out_dir: Path, version: str) -> None:
     if not sources_root:
         return
     for src_dir in (sources_root / "app", sources_root / "app_packages"):
-        compileall.compile_dir(src_dir, legacy=True)
+        if not compileall.compile_dir(src_dir, legacy=True):
+            raise RuntimeError(f"Failed to compile Python sources in {src_dir}")
         for path in src_dir.rglob("*.py"):
             path.unlink()
 
