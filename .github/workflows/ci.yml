@@ -107,7 +107,11 @@ jobs:
         run: |
           just build
           just lint
-          just test
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            just test --coverage
+          else
+            just test
+          fi
 
       - name: Ensure libs importable
         env:
