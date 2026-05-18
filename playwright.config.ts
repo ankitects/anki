@@ -5,10 +5,9 @@ import { defineConfig } from "@playwright/test";
 
 const MEDIASRV_PORT = process.env.ANKI_API_PORT ?? "40000";
 
-const PYENV_PYTHON =
-    process.platform === "win32"
-        ? "out\\pyenv\\Scripts\\python.exe"
-        : "out/pyenv/bin/python";
+const PYENV_PYTHON = process.platform === "win32"
+    ? "out\\pyenv\\Scripts\\python.exe"
+    : "out/pyenv/bin/python";
 
 export default defineConfig({
     testDir: "./ts/tests/e2e",
