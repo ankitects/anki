@@ -16,8 +16,10 @@
 package com.ichi2.anki.preferences
 
 import androidx.preference.Preference
+import androidx.preference.SwitchPreferenceCompat
 import com.ichi2.anki.R
 import com.ichi2.anki.settings.Prefs
+import com.ichi2.anki.utils.AnimationUtils
 
 /**
  * Fragment with preferences related to notifications
@@ -41,6 +43,12 @@ class AccessibilitySettingsFragment : SettingsFragment() {
             val keyString = getString(key)
             findPreference<Preference>(keyString)?.isVisible = false
         }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        requirePreference<SwitchPreferenceCompat>(R.string.safe_display_key).isEnabled =
+            AnimationUtils.areSystemAnimationsEnabled(requireContext())
     }
 
     companion object {

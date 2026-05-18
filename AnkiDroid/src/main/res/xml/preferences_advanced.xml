@@ -49,11 +49,6 @@
                 android:title="@string/software_render" />
             <SwitchPreferenceCompat
                 android:defaultValue="false"
-                android:key="@string/safe_display_key"
-                android:summary="@string/safe_display_summ"
-                android:title="@string/safe_display" />
-            <SwitchPreferenceCompat
-                android:defaultValue="false"
                 android:key="@string/use_input_tag_key"
                 android:disableDependentsState="true"
                 android:summary="@string/use_input_tag_summ"

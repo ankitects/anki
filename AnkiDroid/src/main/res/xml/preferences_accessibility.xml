@@ -83,4 +83,13 @@
         android:stepSize="10"
         app:displayFormat="@string/pref_milliseconds"
         />
+    <PreferenceCategory
+        android:title="@string/screen">
+        <SwitchPreferenceCompat
+            android:key="@string/safe_display_key"
+            android:defaultValue="false"
+            android:title="@string/remove_animations"
+            android:summary="@string/remove_animations_summary"
+            />
+    </PreferenceCategory>
 </PreferenceScreen>
