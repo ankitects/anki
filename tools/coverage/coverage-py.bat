@@ -23,6 +23,7 @@ if not exist %outdir% mkdir %outdir%
 out\pyenv\Scripts\python -m coverage run --source=%source% --data-file=%outdir%\.coverage -m pytest -p no:cacheprovider %tests% || exit /b 1
 out\pyenv\Scripts\python -m coverage json --data-file=%outdir%\.coverage -o %outdir%\coverage-summary.json || exit /b 1
 out\pyenv\Scripts\python -m coverage report --data-file=%outdir%\.coverage --fail-under=%threshold% || exit /b 1
+
 if "%2"=="--html" (
     out\pyenv\Scripts\python -m coverage html --data-file=%outdir%\.coverage -d %outdir%\html --fail-under=%threshold% || exit /b 1
     echo Python %1 coverage report: %outdir%\html\index.html
