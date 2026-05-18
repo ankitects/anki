@@ -22,41 +22,14 @@ import android.provider.Settings
  * Utility class for animation-related helper functions
  */
 object AnimationUtils {
-    /**
-     * Checks if system animations are enabled by verifying all animation scale settings.
-     *
-     * This function returns false if any of the mentioned system animations are disabled (0f),
-     * which addresses safe display mode and accessibility concerns.
-     *
-     * ANIMATION_DURATION_SCALE - controls app switching animation speed.
-     * TRANSITION_ANIMATION_SCALE - controls app window opening and closing animation speed
-     * WINDOW_ANIMATION_SCALE - controls pop-up window opening and closing animation speed
-     *
-     * @param context The context used to access system settings
-     * @return true if all animation scales are non-zero, false otherwise
-     */
     fun areSystemAnimationsEnabled(context: Context): Boolean =
         try {
-            val animDuration =
-                Settings.Global.getFloat(
-                    context.contentResolver,
-                    Settings.Global.ANIMATOR_DURATION_SCALE,
-                    1f,
-                )
-            val animTransition =
-                Settings.Global.getFloat(
-                    context.contentResolver,
-                    Settings.Global.TRANSITION_ANIMATION_SCALE,
-                    1f,
-                )
-            val animWindow =
-                Settings.Global.getFloat(
-                    context.contentResolver,
-                    Settings.Global.WINDOW_ANIMATION_SCALE,
-                    1f,
-                )
-            animDuration != 0f && animTransition != 0f && animWindow != 0f
-        } catch (e: Exception) {
+            Settings.Global.getFloat(
+                context.contentResolver,
+                Settings.Global.ANIMATOR_DURATION_SCALE,
+                1f,
+            ) > 0f
+        } catch (_: Exception) {
             true // Default to animations enabled if unable to read settings
         }
 }
