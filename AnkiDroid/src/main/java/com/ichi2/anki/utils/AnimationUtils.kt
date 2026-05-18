@@ -17,11 +17,18 @@ package com.ichi2.anki.utils
 
 import android.content.Context
 import android.provider.Settings
+import com.ichi2.anki.settings.PrefsRepository
 
 /**
  * Utility class for animation-related helper functions
  */
 object AnimationUtils {
+    /**
+     * @return whether the animations are enabled by the system settings,
+     * i.e. the 'Remove animations' setting is disabled.
+     * On most cases, using [AnimationUtils.areAnimationsEnabled] is preferred
+     * because it considers the app's own 'Remove animations' setting
+     */
     fun areSystemAnimationsEnabled(context: Context): Boolean =
         try {
             Settings.Global.getFloat(
@@ -32,4 +39,10 @@ object AnimationUtils {
         } catch (_: Exception) {
             true // Default to animations enabled if unable to read settings
         }
+
+    /**
+     * @return whether animations are enabled on the system and app settings
+     */
+    fun areAnimationsEnabled(context: Context): Boolean =
+        areSystemAnimationsEnabled(context) && !PrefsRepository(context).removeAppAnimations
 }

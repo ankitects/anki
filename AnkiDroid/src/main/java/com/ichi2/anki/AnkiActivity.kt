@@ -87,6 +87,7 @@ import com.ichi2.anki.preferences.sharedPrefs
 import com.ichi2.anki.receiver.SdCardReceiver
 import com.ichi2.anki.settings.Prefs
 import com.ichi2.anki.snackbar.showSnackbar
+import com.ichi2.anki.utils.AnimationUtils
 import com.ichi2.anki.utils.ext.requireString
 import com.ichi2.anki.utils.ext.showDialogFragment
 import com.ichi2.anki.workarounds.AppLoadedFromBackupWorkaround.showedActivityFailedScreen
@@ -298,10 +299,7 @@ open class AnkiActivity(
      *
      * @see .animationEnabled
      */
-    fun animationDisabled(): Boolean {
-        val preferences = this.sharedPrefs()
-        return preferences.getBoolean("safeDisplay", false)
-    }
+    fun animationDisabled(): Boolean = !AnimationUtils.areAnimationsEnabled(this)
 
     /**
      * Whether animations should be displayed
