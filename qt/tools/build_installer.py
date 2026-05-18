@@ -13,8 +13,6 @@ from pathlib import Path
 
 sys.path.extend(["pylib", "out/pylib"])
 
-from anki.lang import lang_to_disk_lang, langs
-
 installer_dir = Path("qt/installer")
 app_dir = installer_dir / "app"
 out_dir = Path("out/installer").resolve()
@@ -29,6 +27,8 @@ def normalize_wheel_path(out_dir: Path, path: str) -> str:
 
 
 def chromium_paks_to_keep() -> set[str]:
+    from anki.lang import lang_to_disk_lang, langs
+
     keep = {"en-US"}
     for _name, code in langs:
         disk = lang_to_disk_lang(code)
