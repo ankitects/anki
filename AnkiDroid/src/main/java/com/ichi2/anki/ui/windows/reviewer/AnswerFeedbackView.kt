@@ -23,6 +23,9 @@ import android.view.animation.Animation
 import android.view.animation.AnimationUtils
 import androidx.appcompat.widget.AppCompatImageView
 import com.ichi2.anki.R
+import com.ichi2.anki.utils.AnimUtils
+import com.ichi2.anki.utils.postDelayed
+import kotlin.time.Duration.Companion.milliseconds
 
 class AnswerFeedbackView : AppCompatImageView {
     constructor(context: Context) : this(context, null)
@@ -35,8 +38,6 @@ class AnswerFeedbackView : AppCompatImageView {
     /**
      * Shows the feedback for one second
      * with a quick fade in, brief hold, then gentle fade out.
-     *
-     * TODO handle "safeDisplay" setting
      */
     fun toggle() {
         clearAnimation()
@@ -44,6 +45,18 @@ class AnswerFeedbackView : AppCompatImageView {
         fadeOutRunnable?.let {
             handler.removeCallbacks(it)
             fadeOutRunnable = null
+        }
+
+        if (!AnimUtils.areAnimationsEnabled(context)) {
+            visibility = VISIBLE
+            fadeOutRunnable =
+                Runnable {
+                    visibility = GONE
+                    fadeOutRunnable = null
+                }.also {
+                    handler.postDelayed(it, 800.milliseconds)
+                }
+            return
         }
 
         val fadeIn = AnimationUtils.loadAnimation(context, R.anim.answer_feedback_fade_in)

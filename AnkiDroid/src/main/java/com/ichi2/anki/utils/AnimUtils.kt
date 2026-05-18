@@ -26,7 +26,7 @@ object AnimUtils {
     /**
      * @return whether the animations are enabled by the system settings,
      * i.e. the 'Remove animations' setting is disabled.
-     * On most cases, using [AnimationUtils.areAnimationsEnabled] is preferred
+     * On most cases, using [AnimUtils.areAnimationsEnabled] is preferred
      * because it considers the app's own 'Remove animations' setting
      */
     fun areSystemAnimationsEnabled(context: Context): Boolean =
