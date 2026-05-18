@@ -877,7 +877,14 @@ abstract class AbstractFlashcardViewer :
     // Set the content view to the one provided and initialize accessors.
     protected open fun initLayout() {
         topBarLayout = findViewById(R.id.top_bar)
-        cardFrame = findViewById(R.id.flashcard)
+        cardFrame =
+            findViewById<FrameLayout>(R.id.flashcard).apply {
+                // Force the WebView's container onto its own GPU texture so it isn't dropped from
+                // composition when the overlapping Whiteboard sibling invalidates each touch frame.
+                // Without this, Samsung WebView (since a recent update) hides the card mid-stroke
+                // until the next full hierarchy invalidation. (#19364)
+                setLayerType(View.LAYER_TYPE_HARDWARE, null)
+            }
         cardFrameParent = cardFrame!!.parent as ViewGroup
         touchLayer =
             findViewById<FrameLayout>(R.id.touch_layer).apply { setOnTouchListener(gestureListener) }
@@ -2312,7 +2319,12 @@ abstract class AbstractFlashcardViewer :
         destroyWebView(webView)
         webView = null
         // inflate a new instance of mCardFrame
-        cardFrame = inflateNewView<FrameLayout>(R.id.flashcard)
+        cardFrame =
+            inflateNewView<FrameLayout>(R.id.flashcard).apply {
+                // 'recreateWebView' applies setRenderWorkaround so the hardware renderer remains
+                // disabled if a user requests it
+                setLayerType(View.LAYER_TYPE_HARDWARE, null)
+            }
         // Even with the above, I occasionally saw the above error. Manually trigger the GC.
         // I'll keep this line unless I see another crash, which would point to another underlying issue.
         System.gc()
