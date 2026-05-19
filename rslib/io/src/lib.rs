@@ -365,6 +365,11 @@ pub fn write_file_if_changed(path: impl AsRef<Path>, contents: impl AsRef<[u8]>)
     }
 }
 
+pub fn is_case_sensitive(_dir: &Path) -> bool {
+    // TODO: make robust?
+    cfg!(unix) && !cfg!(target_os = "macos")
+}
+
 pub trait ToUtf8PathBuf {
     fn utf8(self) -> Result<Utf8PathBuf>;
 }
