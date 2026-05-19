@@ -20,7 +20,6 @@ import android.content.SharedPreferences
 import android.view.KeyEvent
 import androidx.annotation.DrawableRes
 import androidx.annotation.IdRes
-import androidx.annotation.StringRes
 import com.ichi2.anki.CollectionManager.TR
 import com.ichi2.anki.Flag
 import com.ichi2.anki.R
@@ -48,56 +47,50 @@ import com.ichi2.anki.ui.internationalization.toSentenceCase
 enum class ViewerAction(
     @IdRes val menuId: Int = 0,
     @DrawableRes val drawableRes: Int? = null,
-    @StringRes private val titleRes: Int = R.string.empty_string,
     val defaultDisplayType: MenuDisplayType? = null,
     val parentMenu: ViewerAction? = null,
 ) : MappableAction<ReviewerBinding> {
     // Always
-    UNDO(R.id.action_undo, R.drawable.ic_undo_white, R.string.undo, ALWAYS),
+    UNDO(R.id.action_undo, R.drawable.ic_undo_white, ALWAYS),
 
     // Menu only
-    REDO(R.id.action_redo, R.drawable.ic_redo, R.string.redo, MENU_ONLY),
-    FLAG_MENU(R.id.action_flag, R.drawable.ic_flag_transparent, R.string.menu_flag, MENU_ONLY),
-    MARK(R.id.action_mark, R.drawable.ic_star, R.string.menu_mark_note, MENU_ONLY),
-    EDIT(R.id.action_edit_note, R.drawable.ic_mode_edit_white, R.string.cardeditor_title_edit_card, MENU_ONLY),
-    BURY_MENU(R.id.action_bury, R.drawable.ic_flip_to_back_white, R.string.menu_bury, MENU_ONLY),
-    SUSPEND_MENU(R.id.action_suspend, R.drawable.ic_suspend, R.string.menu_suspend, MENU_ONLY),
-    DELETE(R.id.action_delete, R.drawable.ic_delete_white, R.string.menu_delete_note, MENU_ONLY),
-    TOGGLE_WHITEBOARD(R.id.action_toggle_whiteboard, R.drawable.ic_enable_whiteboard, R.string.gesture_toggle_whiteboard, MENU_ONLY),
+    REDO(R.id.action_redo, R.drawable.ic_redo, MENU_ONLY),
+    FLAG_MENU(R.id.action_flag, R.drawable.ic_flag_transparent, MENU_ONLY),
+    MARK(R.id.action_mark, R.drawable.ic_star, MENU_ONLY),
+    EDIT(R.id.action_edit_note, R.drawable.ic_mode_edit_white, MENU_ONLY),
+    BURY_MENU(R.id.action_bury, R.drawable.ic_flip_to_back_white, MENU_ONLY),
+    SUSPEND_MENU(R.id.action_suspend, R.drawable.ic_suspend, MENU_ONLY),
+    DELETE(R.id.action_delete, R.drawable.ic_delete_white, MENU_ONLY),
+    TOGGLE_WHITEBOARD(R.id.action_toggle_whiteboard, R.drawable.ic_enable_whiteboard, MENU_ONLY),
 
     // Disabled
-    BROWSE(R.id.action_browse, R.drawable.ic_flashcard_black, R.string.empty_string, DISABLED),
-    STATISTICS(R.id.action_statistics, R.drawable.ic_bar_chart_black, R.string.empty_string, DISABLED),
-    DECK_OPTIONS(R.id.action_deck_options, R.drawable.ic_tune_white, R.string.menu__deck_options, DISABLED),
-    CARD_INFO(R.id.action_card_info, R.drawable.ic_dialog_info, R.string.card_info_title, DISABLED),
-    PREVIOUS_CARD_INFO(R.id.action_previous_card_info, R.drawable.ic_outline_info_24, R.string.empty_string, DISABLED),
-    ADD_NOTE(R.id.action_add_note, R.drawable.ic_add, R.string.menu_add_note, DISABLED),
-    TAG(R.id.action_edit_tags, R.drawable.ic_tag, R.string.menu_edit_tags, DISABLED),
-    RESCHEDULE_NOTE(R.id.action_set_due_date, R.drawable.ic_reschedule, titleRes = R.string.empty_string, DISABLED),
-    RESET_PROGRESS(
-        R.id.action_reset_progress,
-        drawableRes = R.drawable.ic_backup_restore,
-        titleRes = R.string.card_editor_reset_card,
-        DISABLED,
-    ),
-    TOGGLE_AUTO_ADVANCE(R.id.action_toggle_auto_advance, R.drawable.ic_fast_forward, R.string.toggle_auto_advance, DISABLED),
-    RECORD_VOICE(R.id.action_record_voice, R.drawable.ic_action_mic, R.string.record_voice, DISABLED),
-    PLAY_MEDIA(R.id.action_replay_media, R.drawable.ic_play_circle_white, R.string.replay_media, DISABLED),
-    USER_ACTION_1(R.id.user_action_1, R.drawable.user_action_1, R.string.user_action_1, DISABLED),
-    USER_ACTION_2(R.id.user_action_2, R.drawable.user_action_2, R.string.user_action_2, DISABLED),
-    USER_ACTION_3(R.id.user_action_3, R.drawable.user_action_3, R.string.user_action_3, DISABLED),
-    USER_ACTION_4(R.id.user_action_4, R.drawable.user_action_4, R.string.user_action_4, DISABLED),
-    USER_ACTION_5(R.id.user_action_5, R.drawable.user_action_5, R.string.user_action_5, DISABLED),
-    USER_ACTION_6(R.id.user_action_6, R.drawable.user_action_6, R.string.user_action_6, DISABLED),
-    USER_ACTION_7(R.id.user_action_7, R.drawable.user_action_7, R.string.user_action_7, DISABLED),
-    USER_ACTION_8(R.id.user_action_8, R.drawable.user_action_8, R.string.user_action_8, DISABLED),
-    USER_ACTION_9(R.id.user_action_9, R.drawable.user_action_9, R.string.user_action_9, DISABLED),
+    BROWSE(R.id.action_browse, R.drawable.ic_flashcard_black, DISABLED),
+    STATISTICS(R.id.action_statistics, R.drawable.ic_bar_chart_black, DISABLED),
+    DECK_OPTIONS(R.id.action_deck_options, R.drawable.ic_tune_white, DISABLED),
+    CARD_INFO(R.id.action_card_info, R.drawable.ic_dialog_info, DISABLED),
+    PREVIOUS_CARD_INFO(R.id.action_previous_card_info, R.drawable.ic_outline_info_24, DISABLED),
+    ADD_NOTE(R.id.action_add_note, R.drawable.ic_add, DISABLED),
+    TAG(R.id.action_edit_tags, R.drawable.ic_tag, DISABLED),
+    RESCHEDULE_NOTE(R.id.action_set_due_date, R.drawable.ic_reschedule, DISABLED),
+    RESET_PROGRESS(R.id.action_reset_progress, R.drawable.ic_backup_restore, DISABLED),
+    TOGGLE_AUTO_ADVANCE(R.id.action_toggle_auto_advance, R.drawable.ic_fast_forward, DISABLED),
+    RECORD_VOICE(R.id.action_record_voice, R.drawable.ic_action_mic, DISABLED),
+    PLAY_MEDIA(R.id.action_replay_media, R.drawable.ic_play_circle_white, DISABLED),
+    USER_ACTION_1(R.id.user_action_1, R.drawable.user_action_1, DISABLED),
+    USER_ACTION_2(R.id.user_action_2, R.drawable.user_action_2, DISABLED),
+    USER_ACTION_3(R.id.user_action_3, R.drawable.user_action_3, DISABLED),
+    USER_ACTION_4(R.id.user_action_4, R.drawable.user_action_4, DISABLED),
+    USER_ACTION_5(R.id.user_action_5, R.drawable.user_action_5, DISABLED),
+    USER_ACTION_6(R.id.user_action_6, R.drawable.user_action_6, DISABLED),
+    USER_ACTION_7(R.id.user_action_7, R.drawable.user_action_7, DISABLED),
+    USER_ACTION_8(R.id.user_action_8, R.drawable.user_action_8, DISABLED),
+    USER_ACTION_9(R.id.user_action_9, R.drawable.user_action_9, DISABLED),
 
     // Child items
-    BURY_NOTE(R.id.action_bury_note, drawableRes = null, titleRes = R.string.menu_bury_note, parentMenu = BURY_MENU),
-    BURY_CARD(R.id.action_bury_card, drawableRes = null, titleRes = R.string.menu_bury_card, parentMenu = BURY_MENU),
-    SUSPEND_NOTE(R.id.action_suspend_note, drawableRes = null, titleRes = R.string.menu_suspend_note, parentMenu = SUSPEND_MENU),
-    SUSPEND_CARD(R.id.action_suspend_card, drawableRes = null, titleRes = R.string.menu_suspend_card, parentMenu = SUSPEND_MENU),
+    BURY_NOTE(R.id.action_bury_note, drawableRes = null, parentMenu = BURY_MENU),
+    BURY_CARD(R.id.action_bury_card, drawableRes = null, parentMenu = BURY_MENU),
+    SUSPEND_NOTE(R.id.action_suspend_note, drawableRes = null, parentMenu = SUSPEND_MENU),
+    SUSPEND_CARD(R.id.action_suspend_card, drawableRes = null, parentMenu = SUSPEND_MENU),
     UNSET_FLAG(Flag.NONE.id, Flag.NONE.drawableRes, parentMenu = FLAG_MENU),
     FLAG_RED(Flag.RED.id, Flag.RED.drawableRes, parentMenu = FLAG_MENU),
     FLAG_ORANGE(Flag.ORANGE.id, Flag.ORANGE.drawableRes, parentMenu = FLAG_MENU),
@@ -269,7 +262,63 @@ enum class ViewerAction(
             STATISTICS -> TR.statisticsTitle()
             RESCHEDULE_NOTE -> with(context) { TR.sentenceCase.setDueDate }
             PREVIOUS_CARD_INFO -> TR.actionsPreviousCardInfo().toSentenceCase(context, R.string.sentence_actions_previous_card_info)
-            else -> context.getString(titleRes)
+            UNDO -> context.getString(R.string.undo)
+            REDO -> context.getString(R.string.redo)
+            FLAG_MENU -> context.getString(R.string.menu_flag)
+            MARK -> context.getString(R.string.menu_mark_note)
+            EDIT -> context.getString(R.string.cardeditor_title_edit_card)
+            BURY_MENU -> context.getString(R.string.menu_bury)
+            SUSPEND_MENU -> context.getString(R.string.menu_suspend)
+            DELETE -> context.getString(R.string.menu_delete_note)
+            TOGGLE_WHITEBOARD -> context.getString(R.string.gesture_toggle_whiteboard)
+            DECK_OPTIONS -> context.getString(R.string.menu__deck_options)
+            CARD_INFO -> context.getString(R.string.card_info_title)
+            ADD_NOTE -> context.getString(R.string.menu_add_note)
+            TAG -> context.getString(R.string.menu_edit_tags)
+            RESET_PROGRESS -> context.getString(R.string.card_editor_reset_card)
+            TOGGLE_AUTO_ADVANCE -> context.getString(R.string.toggle_auto_advance)
+            RECORD_VOICE -> context.getString(R.string.record_voice)
+            PLAY_MEDIA -> context.getString(R.string.replay_media)
+            USER_ACTION_1 -> context.getString(R.string.user_action_1)
+            USER_ACTION_2 -> context.getString(R.string.user_action_2)
+            USER_ACTION_3 -> context.getString(R.string.user_action_3)
+            USER_ACTION_4 -> context.getString(R.string.user_action_4)
+            USER_ACTION_5 -> context.getString(R.string.user_action_5)
+            USER_ACTION_6 -> context.getString(R.string.user_action_6)
+            USER_ACTION_7 -> context.getString(R.string.user_action_7)
+            USER_ACTION_8 -> context.getString(R.string.user_action_8)
+            USER_ACTION_9 -> context.getString(R.string.user_action_9)
+            BURY_NOTE -> context.getString(R.string.menu_bury_note)
+            BURY_CARD -> context.getString(R.string.menu_bury_card)
+            SUSPEND_NOTE -> context.getString(R.string.menu_suspend_note)
+            SUSPEND_CARD -> context.getString(R.string.menu_suspend_card)
+            UNSET_FLAG,
+            FLAG_RED,
+            FLAG_ORANGE,
+            FLAG_GREEN,
+            FLAG_BLUE,
+            FLAG_PINK,
+            FLAG_TURQUOISE,
+            FLAG_PURPLE,
+            SHOW_ANSWER,
+            ANSWER_AGAIN,
+            ANSWER_HARD,
+            ANSWER_GOOD,
+            ANSWER_EASY,
+            TOGGLE_FLAG_RED,
+            TOGGLE_FLAG_ORANGE,
+            TOGGLE_FLAG_GREEN,
+            TOGGLE_FLAG_BLUE,
+            TOGGLE_FLAG_PINK,
+            TOGGLE_FLAG_TURQUOISE,
+            TOGGLE_FLAG_PURPLE,
+            SHOW_HINT,
+            SHOW_ALL_HINTS,
+            REPLAY_VOICE,
+            PAGE_UP,
+            PAGE_DOWN,
+            EXIT,
+            -> context.getString(R.string.empty_string)
         }
 
     private fun keycode(
