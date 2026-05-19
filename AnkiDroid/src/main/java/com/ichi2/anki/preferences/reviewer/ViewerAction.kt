@@ -48,7 +48,7 @@ import com.ichi2.anki.ui.internationalization.toSentenceCase
 enum class ViewerAction(
     @IdRes val menuId: Int = 0,
     @DrawableRes val drawableRes: Int? = null,
-    @StringRes val titleRes: Int = R.string.empty_string,
+    @StringRes private val titleRes: Int = R.string.empty_string,
     val defaultDisplayType: MenuDisplayType? = null,
     val parentMenu: ViewerAction? = null,
 ) : MappableAction<ReviewerBinding> {
