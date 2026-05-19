@@ -157,8 +157,6 @@
     <string name="select_locale_title">Sprache wählen</string>
     <string name="software_render" maxLength="41">Karten-Hardware-Rendering deaktivieren</string>
     <string name="software_render_summ">Hardware-Rendering ist schneller, kann aber Probleme haben, insbesondere auf Android 8/8.1. Wenn Sie Teile der Benutzeroberfläche der Karte nicht sehen können, versuchen Sie diese Einstellung.</string>
-    <string name="safe_display" maxLength="41">Sicherer Anzeigemodus</string>
-    <string name="safe_display_summ">Alle Animationen deaktivieren und Karten mit sichererer Methode darstellen. Eventuell erforderlich für E-Ink-Geräte.</string>
     <string name="disable_extended_text_ui" maxLength="41">Einzelfeldbearbeitungsmodus deaktivieren</string>
     <!--See: multimedia_editor_popup_cloze. We can\'t use format strings as this is auto-generated-->
     <string name="disable_extended_text_ui_summ">Erlaubt im Querformat das Kontextmenü »Auslassung erzeugen«</string>
@@ -172,6 +170,8 @@
     <string name="show_estimates_summ">Zeigt Zeiten bis zur nächsten Wiederholung auf den Antwortschaltflächen</string>
     <string name="show_large_answer_buttons" maxLength="41">Große Antwortschaltflächen anzeigen</string>
     <string name="show_large_answer_buttons_summ">Antwort-Fläche in 2 Zeilen anzeigen</string>
+    <string name="remove_animations" maxLength="41">Remove animations</string>
+    <string name="remove_animations_summary">Also enabled if animations are removed on the system settings</string>
     <string name="show_top_bar" maxLength="41">Obere Leiste anzeigen</string>
     <string name="show_top_bar_summary">Kartenzähler, Antwort-Timer, Flagge und Markierung in der oberen Leiste anzeigen</string>
     <string name="show_progress" maxLength="41">Fällige anzeigen</string>

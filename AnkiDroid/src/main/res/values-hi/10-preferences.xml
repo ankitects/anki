@@ -157,8 +157,6 @@
     <string name="select_locale_title">भाषा चुनें</string>
     <string name="software_render" maxLength="41">कार्ड हार्डवेयर रेंडर अक्षम करें</string>
     <string name="software_render_summ">हार्डवेयर रेंडर तेज़ है लेकिन इसमें समस्याएँ हो सकती हैं, विशेष रूप से Android 8/8.1 पर।  यदि आप कार्ड समीक्षा उपयोगकर्ता इंटरफ़ेस के कुछ हिस्सों को नहीं देख पा रहे हैं, तो इस सेटिंग को आज़माएँ।</string>
-    <string name="safe_display" maxLength="41">सुरक्षित प्रदर्शन मोड</string>
-    <string name="safe_display_summ">सभी एनिमेशन अक्षम करें और कार्ड बनाने के लिए सुरक्षित विधि का उपयोग करें। ई-इंक उपकरणों को इसकी आवश्यकता हो सकती है।</string>
     <string name="disable_extended_text_ui" maxLength="41">एकल फ़ील्ड मोड अक्षम करें</string>
     <!--See: multimedia_editor_popup_cloze. We can\'t use format strings as this is auto-generated-->
     <string name="disable_extended_text_ui_summ">लैंडस्केप मोड में होने पर \'क्लोज़ डिलीशन\' संदर्भ मेनू की अनुमति देता है।</string>
@@ -172,6 +170,8 @@
     <string name="show_estimates_summ">उत्तर बटंस पर अगली समीक्षा समय दिखाएं</string>
     <string name="show_large_answer_buttons" maxLength="41">बड़े उत्तर बटन दिखाएं</string>
     <string name="show_large_answer_buttons_summ">Show answer button in 2 rows</string>
+    <string name="remove_animations" maxLength="41">Remove animations</string>
+    <string name="remove_animations_summary">Also enabled if animations are removed on the system settings</string>
     <string name="show_top_bar" maxLength="41">ऊपरी बार दिखाएं</string>
     <string name="show_top_bar_summary">Show card counts, answer timer, flag and mark in top bar</string>
     <string name="show_progress" maxLength="41">शेष दिखाएं</string>

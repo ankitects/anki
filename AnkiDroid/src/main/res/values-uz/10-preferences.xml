@@ -157,8 +157,6 @@
     <string name="select_locale_title">Tilni tanlash</string>
     <string name="software_render" maxLength="41">Qurilma renderini oʻchirish</string>
     <string name="software_render_summ">Qurilma renderi tezroq, lekin muammolarga duch kelishi mumkin, xususan, Android 8/8.1ʼda. Agar siz kartani takrorlash foydalanuvchi interfeysi qismlarini koʻrmasangiz, ushbu sozlamani sinab koʻring.</string>
-    <string name="safe_display" maxLength="41">Xavfsiz displey rejimi</string>
-    <string name="safe_display_summ">Barcha animatsiyalarni oʻchiriladi va kartalarni chizish uchun xavfsizroq usuldan foydalaniladi. E-ink qurilmalari buni talab qilishi mumkin.</string>
     <string name="disable_extended_text_ui" maxLength="41">Yagona maydon tahrirlash rejimini oʻchir</string>
     <!--See: multimedia_editor_popup_cloze. We can\'t use format strings as this is auto-generated-->
     <string name="disable_extended_text_ui_summ">Albom (gorizontal) rejimida \'Boʻshliqni toʻldirish\' kontekst menyusini yoqish</string>
@@ -172,6 +170,8 @@
     <string name="show_estimates_summ">Javob tugmalarida keyingi takrorlash vaqtini koʻrsatish</string>
     <string name="show_large_answer_buttons" maxLength="41">Katta javob tugmalarini koʻrsatish</string>
     <string name="show_large_answer_buttons_summ">Javob tugmalarini 2 qatorda koʻrsatish</string>
+    <string name="remove_animations" maxLength="41">Remove animations</string>
+    <string name="remove_animations_summary">Also enabled if animations are removed on the system settings</string>
     <string name="show_top_bar" maxLength="41">Yuqorigi panelni koʻrsatish</string>
     <string name="show_top_bar_summary">Kartalar soni, javob vaqti, bayroq va belgini yuqorigi panelda koʻrsatish</string>
     <string name="show_progress" maxLength="41">Qancha qolganini koʻrsatish</string>

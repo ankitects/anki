@@ -156,8 +156,6 @@
     <string name="select_locale_title">언어 선택</string>
     <string name="software_render" maxLength="41">카드 하드웨어 렌더링 비활성화</string>
     <string name="software_render_summ">하드웨어 렌더링은 더 빠르지만 특히 Android 8/8.1에서 문제가 있을 수 있습니다.  카드 복습 사용자 인터페이스의 일부가 표시되지 않으면 이 설정을 시도해 보십시오.</string>
-    <string name="safe_display" maxLength="41">안전한 디스플레이 모드</string>
-    <string name="safe_display_summ">모든 애니메이션을 비활성화하고 더 안전한 그리기 방법을 사용합니다. 전자 잉크 기기에는 이 기능이 필요할 수 있습니다.</string>
     <string name="disable_extended_text_ui" maxLength="41">단일 필드 편집 모드 비활성화</string>
     <!--See: multimedia_editor_popup_cloze. We can\'t use format strings as this is auto-generated-->
     <string name="disable_extended_text_ui_summ">가로 모드에서 \'빈칸 뚫기\' 메뉴를 표시합니다.</string>
@@ -171,6 +169,8 @@
     <string name="show_estimates_summ">답변 버튼에 다음 복습 시간을 표시합니다</string>
     <string name="show_large_answer_buttons" maxLength="41">버튼 크기 크게</string>
     <string name="show_large_answer_buttons_summ">답변 버튼을 두 줄로 표시합니다.</string>
+    <string name="remove_animations" maxLength="41">Remove animations</string>
+    <string name="remove_animations_summary">Also enabled if animations are removed on the system settings</string>
     <string name="show_top_bar" maxLength="41">상단 바 표시</string>
     <string name="show_top_bar_summary">카드 수, 타이머, 플래그, 강조를 상단 바에 표시합니다.</string>
     <string name="show_progress" maxLength="41">남은 개수 표시</string>

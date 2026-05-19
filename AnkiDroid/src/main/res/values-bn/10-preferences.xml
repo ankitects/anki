@@ -158,8 +158,6 @@
     <string name="select_locale_title">ভাষা নির্বাচন করুন</string>
     <string name="software_render" maxLength="41">কার্ড হার্ডওয়্যার রেন্ডার অক্ষম করুন</string>
     <string name="software_render_summ">Hardware render is faster but may have problems, specifically on Android 8/8.1. If you cannot see parts of the card review user interface, try this setting.</string>
-    <string name="safe_display" maxLength="41">নিরাপদ প্রদর্শন মোড</string>
-    <string name="safe_display_summ">সমস্ত অ্যানিমেশন অক্ষম করুন এবং কার্ড আঁকতে নিরাপদ পদ্ধতি ব্যবহার করুন। এটি ই-কালি ডিভাইসের জন্য প্রয়োজন হতে পারে</string>
     <string name="disable_extended_text_ui" maxLength="41">একক-ক্ষেত্র সম্পাদনা মোড অক্ষম করুন</string>
     <!--See: multimedia_editor_popup_cloze. We can\'t use format strings as this is auto-generated-->
     <string name="disable_extended_text_ui_summ">ল্যান্ডস্কেপ মোডে থাকাকালীন \'মোছা বন্ধ করুন\' প্রসঙ্গ মেনুকে অনুমতি দেয়</string>
@@ -173,6 +171,8 @@
     <string name="show_estimates_summ">উত্তর বোতামে পরবর্তী পর্যালোচনা সময় দেখান</string>
     <string name="show_large_answer_buttons" maxLength="41">বৃহত্তর উত্তর বোতাম দেখান</string>
     <string name="show_large_answer_buttons_summ">Show answer button in 2 rows</string>
+    <string name="remove_animations" maxLength="41">Remove animations</string>
+    <string name="remove_animations_summary">Also enabled if animations are removed on the system settings</string>
     <string name="show_top_bar" maxLength="41">শীর্ষ বার দেখান</string>
     <string name="show_top_bar_summary">কার্ড গণনা, উত্তর টাইমার, পতাকা এবং শীর্ষ বিএ প্রতীক দেখান</string>
     <string name="show_progress" maxLength="41">বাকিটা দেখান</string>

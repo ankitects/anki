@@ -159,8 +159,6 @@
     <string name="select_locale_title">Atlasīt valodu</string>
     <string name="software_render" maxLength="41">Atspējot kartīšu aparatūras atveidotāju</string>
     <string name="software_render_summ">Aparatūras atveidotājs ir ātrāks, bet tam var būt sarežģījumi, it īpaši ar Android 8/8.1. Šis iestatījums jāmēģina, ja kartīšu nav redzamas atsevišķas kartīšu izskatīšanas saskarnes daļas.</string>
-    <string name="safe_display" maxLength="41">Drošs attēlošanas veids</string>
-    <string name="safe_display_summ">Atspējot visas animācijas un izmantot drošāku kartīšu attēlošanas veidu. Tas var būt nepieciešams e-tintes ierīcēs.</string>
     <string name="disable_extended_text_ui" maxLength="41">Atspējot viena lauka labošanu</string>
     <!--See: multimedia_editor_popup_cloze. We can\'t use format strings as this is auto-generated-->
     <string name="disable_extended_text_ui_summ">Ļauj \"Satura paslēpšana\" konteksta izvēlni, kad tiek izmantots guleniskais novietojums.</string>
@@ -174,6 +172,8 @@
     <string name="show_estimates_summ">Rādīt nākamās pārskatīšanas laiku uz atbilžu pogām</string>
     <string name="show_large_answer_buttons" maxLength="41">Rādīt lielas atbilžu pogas</string>
     <string name="show_large_answer_buttons_summ">Rādīt atbilžu pogas 2 rindās</string>
+    <string name="remove_animations" maxLength="41">Remove animations</string>
+    <string name="remove_animations_summary">Also enabled if animations are removed on the system settings</string>
     <string name="show_top_bar" maxLength="41">Rādīt augšējo joslu</string>
     <string name="show_top_bar_summary">Rādīt kartīšu skaitu, atbildes laika skaitītāju, karogu un iezīmi augšējā joslā</string>
     <string name="show_progress" maxLength="41">Rādīt atlikušās</string>

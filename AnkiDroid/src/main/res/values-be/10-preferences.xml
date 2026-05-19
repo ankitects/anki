@@ -160,8 +160,6 @@
     <string name="select_locale_title">Выберыце мову</string>
     <string name="software_render" maxLength="41">Адключыць апаратны апрацоўшчык картак</string>
     <string name="software_render_summ">Апаратны апрацоўшчык працуе хутчэй, але можа выклікаць праблемы (асабліва ў АС Android 8/8.1). Паспрабуйце гэтыя налады, калі ў вас праблемы з адлюстраваннем картак у рэжыме паўтарэння.</string>
-    <string name="safe_display" maxLength="41">Статычны рэжым экрана</string>
-    <string name="safe_display_summ">Адключыць усю анімацыю і выкарыстоўваць бяспечны метад для адлюстравання картак. Гэта можа быць актуальна для прылад з экранамі на электронных чарнілах.</string>
     <string name="disable_extended_text_ui" maxLength="41">Адключыць рэжым адзіночнага поля</string>
     <!--See: multimedia_editor_popup_cloze. We can\'t use format strings as this is auto-generated-->
     <string name="disable_extended_text_ui_summ">Уключае кантэкстнае меню \"Заданні з пропускамі\" ў альбомным рэжыме.</string>
@@ -175,6 +173,8 @@
     <string name="show_estimates_summ">Паказваць наступны час паўтарэння над кнопкай адказу</string>
     <string name="show_large_answer_buttons" maxLength="41">Паказваць вялікія кнопкі адказу</string>
     <string name="show_large_answer_buttons_summ">Паказваць кнопкі адказу ў 2 радкі</string>
+    <string name="remove_animations" maxLength="41">Remove animations</string>
+    <string name="remove_animations_summary">Also enabled if animations are removed on the system settings</string>
     <string name="show_top_bar" maxLength="41">Паказваць верхнюю панэль</string>
     <string name="show_top_bar_summary">Паказваць лічыльнік картак, таймер адказу і пазнакі на верхняй панэлі</string>
     <string name="show_progress" maxLength="41">Паказаць тое, што засталося</string>

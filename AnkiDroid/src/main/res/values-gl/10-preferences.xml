@@ -158,8 +158,6 @@
     <string name="select_locale_title">Seleccionar idioma</string>
     <string name="software_render" maxLength="41">Desactivar a representación por hardware das tarxetas</string>
     <string name="software_render_summ">A representación por hardware é máis rápida pero pode dar problemas, especialmente en Android 8/8.1. Se non podes ver algunhas partes da interface de repaso das tarxetas, proba esta opción</string>
-    <string name="safe_display" maxLength="41">Modo de visualización segura</string>
-    <string name="safe_display_summ">Desactivar tódalas animacións e usa métodos máis seguros para debuxar as tarxetas. Os dispositivos de tinta electrónica (\"e-ink\") poden precisar esta opción</string>
     <string name="disable_extended_text_ui" maxLength="41">Desactivar o modo de edición de campo único</string>
     <!--See: multimedia_editor_popup_cloze. We can\'t use format strings as this is auto-generated-->
     <string name="disable_extended_text_ui_summ">Permite o menú contextual \"Preguntas aniñadas\" cando se está en modo horizontal</string>
@@ -173,6 +171,8 @@
     <string name="show_estimates_summ">Amosar o próximo repaso nos botóns de resposta</string>
     <string name="show_large_answer_buttons" maxLength="41">Amosar botóns de resposta grandes</string>
     <string name="show_large_answer_buttons_summ">Amosar botóns de resposta en dúas filas</string>
+    <string name="remove_animations" maxLength="41">Remove animations</string>
+    <string name="remove_animations_summary">Also enabled if animations are removed on the system settings</string>
     <string name="show_top_bar" maxLength="41">Amosar barra superior</string>
     <string name="show_top_bar_summary">Amosar contador de tarxetas, temporizador, bandeira e marca na barra superior</string>
     <string name="show_progress" maxLength="41">Amosar restantes</string>

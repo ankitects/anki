@@ -157,8 +157,6 @@
     <string name="select_locale_title">Seletziona sa limba</string>
     <string name="software_render" maxLength="41">Disabìlita su renderizadore fìsicu (hardware) de sas cartas</string>
     <string name="software_render_summ">Su renderizadore fìsicu (hardware) est prus lestru ma diat pòdere tènnere problemas, mescamente in Android 8/8.1. Si non resesses a bìdere cantos de s\'interfache de impreu proa custa impostatzione.</string>
-    <string name="safe_display" maxLength="41">Modalidade visualizatzione segura</string>
-    <string name="safe_display_summ">Disabìlita totu sas animatziones e imprea una manera prus segura de disinnare sas cartas. Diat podere èssere netzessàriu pro sos dispositivos a tinta digitale.</string>
     <string name="disable_extended_text_ui" maxLength="41">Disabìlita sa modalidade de modìfica a campu sìngulu</string>
     <!--See: multimedia_editor_popup_cloze. We can\'t use format strings as this is auto-generated-->
     <string name="disable_extended_text_ui_summ">Permitet su menù de cuntestu \'Omissione (iscantzellamentu cloze)\' in sa modalidade orizontale</string>
@@ -172,6 +170,8 @@
     <string name="show_estimates_summ">Ammustra s\'iscadèntzia imbieniente in subra de sos butones de risposta</string>
     <string name="show_large_answer_buttons" maxLength="41">Ammustra sos butones de risposta mannos</string>
     <string name="show_large_answer_buttons_summ">Show answer button in 2 rows</string>
+    <string name="remove_animations" maxLength="41">Remove animations</string>
+    <string name="remove_animations_summary">Also enabled if animations are removed on the system settings</string>
     <string name="show_top_bar" maxLength="41">Ammustra sa barra superiore</string>
     <string name="show_top_bar_summary">Ammustra su nùmeru de cartas, tempus de risposta, sa bandera e su marcadore in s\'istanga de susu</string>
     <string name="show_progress" maxLength="41">Ammustra ite mancat</string>

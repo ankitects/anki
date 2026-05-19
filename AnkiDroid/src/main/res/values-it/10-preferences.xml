@@ -157,8 +157,6 @@
     <string name="select_locale_title">Scegli la lingua</string>
     <string name="software_render" maxLength="41">Disabilita il rendering hardware scheda</string>
     <string name="software_render_summ">Il rendering hardware è più veloce, ma può avere problemi, in particolare su Android 8/8.1. Se non riesci a vedere parti dell\'interfaccia utente di revisione della carta, prova questa impostazione.</string>
-    <string name="safe_display" maxLength="41">Modalità visualizzazione sicura</string>
-    <string name="safe_display_summ">Disattiva tutte le animazioni e utilizza il metodo più sicuro per disegnare le carte. Dispositivi e-ink possono richiedere questo.</string>
     <string name="disable_extended_text_ui" maxLength="41">Disabilita la modalità Modifica singolo campo</string>
     <!--See: multimedia_editor_popup_cloze. We can\'t use format strings as this is auto-generated-->
     <string name="disable_extended_text_ui_summ">Consente il menù contestuale «Cloze» quando in modalità orizzontale.</string>
@@ -172,6 +170,8 @@
     <string name="show_estimates_summ">Mostra la prossima scadenza sopra i pulsanti di risposta</string>
     <string name="show_large_answer_buttons" maxLength="41">Mostra pulsanti risposta grandi</string>
     <string name="show_large_answer_buttons_summ">Show answer button in 2 rows</string>
+    <string name="remove_animations" maxLength="41">Remove animations</string>
+    <string name="remove_animations_summary">Also enabled if animations are removed on the system settings</string>
     <string name="show_top_bar" maxLength="41">Mostra barra superiore</string>
     <string name="show_top_bar_summary">Show card counts, answer timer, flag and mark in top bar</string>
     <string name="show_progress" maxLength="41">Mostra rimanenti</string>

@@ -157,8 +157,6 @@
     <string name="select_locale_title">భాషను ఎంచుకోండి</string>
     <string name="software_render" maxLength="41">హార్డ్‌వేర్ రెండర్ కార్డ్‌ను నిలిపివేయండి</string>
     <string name="software_render_summ">హార్డ్‌వేర్ రెండర్ వేగవంతమైనది కానీ సమస్యలు ఉండవచ్చు, ముఖ్యంగా Android 8/8.1లో. మీరు కార్డ్ రివ్యూ యూజర్ ఇంటర్‌ఫేస్ భాగాలను చూడలేకపోతే, ఈ సెట్టింగ్‌ని ప్రయత్నించండి.</string>
-    <string name="safe_display" maxLength="41">సురక్షిత ప్రదర్శన మోడ్</string>
-    <string name="safe_display_summ">అన్ని యానిమేషన్‌లను నిలిపివేయండి మరియు కార్డ్‌లను గీయడానికి సురక్షితమైన పద్ధతిని ఉపయోగించండి. ఇ-ఇంక్ పరికరాలకు ఇది అవసరం కావచ్చు.</string>
     <string name="disable_extended_text_ui" maxLength="41">సింగిల్-ఫీల్డ్ సవరణ మోడ్‌ను నిలిపివేయండి</string>
     <!--See: multimedia_editor_popup_cloze. We can\'t use format strings as this is auto-generated-->
     <string name="disable_extended_text_ui_summ">ల్యాండ్‌స్కేప్ మోడ్‌లో ఉన్నప్పుడు \'క్లోజ్ డిలీట్\' కాంటెక్స్ట్ మెనుని ప్రారంభిస్తుంది.</string>
@@ -172,6 +170,8 @@
     <string name="show_estimates_summ">సమాధానం బటన్లపై తదుపరి సమీక్ష సమయం చూపించు</string>
     <string name="show_large_answer_buttons" maxLength="41">పెద్ద జవాబు బటన్‌లను చూపండి</string>
     <string name="show_large_answer_buttons_summ">Show answer button in 2 rows</string>
+    <string name="remove_animations" maxLength="41">Remove animations</string>
+    <string name="remove_animations_summary">Also enabled if animations are removed on the system settings</string>
     <string name="show_top_bar" maxLength="41">ఎగువ పట్టీని చూపు</string>
     <string name="show_top_bar_summary">కార్డ్ గణనలను చూపండి, టైమర్‌కు సమాధానం ఇవ్వండి, ఫ్లాగ్ చేయండి మరియు ఎగువ బార్‌లో గుర్తు పెట్టండి</string>
     <string name="show_progress" maxLength="41">మిగిలిన చూపు</string>

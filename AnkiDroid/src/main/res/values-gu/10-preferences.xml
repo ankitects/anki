@@ -157,8 +157,6 @@
     <string name="select_locale_title">ભાષા પસંદ કરો</string>
     <string name="software_render" maxLength="41">કાર્ડ હાર્ડવેર રેન્ડરને અક્ષમ કરો</string>
     <string name="software_render_summ">હાર્ડવેર રેન્ડર ઝડપી છે પરંતુ ખાસ કરીને Android 8/8.1 પર સમસ્યાઓ આવી શકે છે. જો તમે કાર્ડ રિવ્યુ યુઝર ઈન્ટરફેસના ભાગો જોઈ શકતા નથી, તો આ સેટિંગ અજમાવી જુઓ.</string>
-    <string name="safe_display" maxLength="41">સેફ ડિસ્પ્લે મોડ</string>
-    <string name="safe_display_summ">તમામ એનિમેશન અક્ષમ કરો અને કાર્ડ દોરવા માટે સલામત પદ્ધતિનો ઉપયોગ કરો. ઇ-ઇંક ઉપકરણોને આની જરૂર પડી શકે છે.</string>
     <string name="disable_extended_text_ui" maxLength="41">સિંગલ-ફીલ્ડ એડિટ મોડને અક્ષમ કરો</string>
     <!--See: multimedia_editor_popup_cloze. We can\'t use format strings as this is auto-generated-->
     <string name="disable_extended_text_ui_summ">જ્યારે લેન્ડસ્કેપ મોડમાં હોય ત્યારે સંદર્ભ મેનૂને \'કાઢી નાખવાનું બંધ\' કરવાની મંજૂરી આપે છે.</string>
@@ -172,6 +170,8 @@
     <string name="show_estimates_summ">જવાબ બટનો પર આગામી સમીક્ષા સમય બતાવો</string>
     <string name="show_large_answer_buttons" maxLength="41">મોટા જવાબ બટનો બતાવો</string>
     <string name="show_large_answer_buttons_summ">Show answer button in 2 rows</string>
+    <string name="remove_animations" maxLength="41">Remove animations</string>
+    <string name="remove_animations_summary">Also enabled if animations are removed on the system settings</string>
     <string name="show_top_bar" maxLength="41">ટોચની પટ્ટી બતાવો</string>
     <string name="show_top_bar_summary">ટોચના બારમાં કાર્ડની ગણતરી, જવાબ ટાઈમર, ધ્વજ અને આયકન બતાવો</string>
     <string name="show_progress" maxLength="41">બાકીના બતાવો</string>

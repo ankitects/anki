@@ -158,8 +158,6 @@
     <string name="select_locale_title">Piliin ang wika</string>
     <string name="software_render" maxLength="41">Hindi paganahin ang card hardware render</string>
     <string name="software_render_summ">Mas mabilis ang hardware render pero maaring magkaroon ng mga problema, lalo na sa Android 8/8.1. Kung hindi mo makita ang ibang bahagi ng user interface sa pag-repaso ng card, subukan ang setting na ito.</string>
-    <string name="safe_display" maxLength="41">Ligtas na display mode</string>
-    <string name="safe_display_summ">Hindi paganahin ang lahat ng animasyon at gumamit ng mas ligtas na paraan ng paghatak ng card. Maaaring kailanganin ito ng mga e-ink na device.</string>
     <string name="disable_extended_text_ui" maxLength="41">I-disable Ang Single-Field Edit Mode</string>
     <!--See: multimedia_editor_popup_cloze. We can\'t use format strings as this is auto-generated-->
     <string name="disable_extended_text_ui_summ">Papayagan ang context menu na \'Pagbura ng Cloze\' tuwing gagamit ng landscape mode.</string>
@@ -173,6 +171,8 @@
     <string name="show_estimates_summ">Ipakita ang susunod na oras ng pagsusuri sa mga pindutan ng sagot</string>
     <string name="show_large_answer_buttons" maxLength="41">Gumamit ng Malaking Pindutan Pangsagot</string>
     <string name="show_large_answer_buttons_summ">Show answer button in 2 rows</string>
+    <string name="remove_animations" maxLength="41">Remove animations</string>
+    <string name="remove_animations_summary">Also enabled if animations are removed on the system settings</string>
     <string name="show_top_bar" maxLength="41">Ipakita ang ibabaw na bar</string>
     <string name="show_top_bar_summary">Show card counts, answer timer, flag and mark in top bar</string>
     <string name="show_progress" maxLength="41">Ipakita ang natitira</string>

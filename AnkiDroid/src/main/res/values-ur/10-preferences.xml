@@ -158,8 +158,6 @@
     <string name="select_locale_title">زبان منتخب کریں</string>
     <string name="software_render" maxLength="41">کارڈ ہارڈویئر رینڈر کو غیر فعال کریں</string>
     <string name="software_render_summ">ہارڈ ویئر رینڈر تیز تر ہے لیکن اس میں مسائل ہو سکتے ہیں، خاص طور پر Android 8/8.1 پر۔ اگر آپ کارڈ ریویو یوزر انٹرفیس کے حصے نہیں دیکھ سکتے ہیں تو اس ترتیب کو آزمائیں۔</string>
-    <string name="safe_display" maxLength="41">محفوظ ڈسپلے موڈ</string>
-    <string name="safe_display_summ">تمام متحرک تصاویر کو غیر فعال کریں اور کارڈ بنانے کے لیے محفوظ طریقہ استعمال کریں۔ ای-انک آلات کو اس کی ضرورت ہو سکتی ہے۔</string>
     <string name="disable_extended_text_ui" maxLength="41">سنگل فیلڈ ایڈیٹ موڈ کو غیر فعال کریں</string>
     <!--See: multimedia_editor_popup_cloze. We can\'t use format strings as this is auto-generated-->
     <string name="disable_extended_text_ui_summ">لینڈ اسکیپ موڈ میں ہونے پر \'کلوز ڈیلیٹ\' سیاق و سباق کے مینو کی اجازت دیتا ہے</string>
@@ -173,6 +171,8 @@
     <string name="show_estimates_summ">Show next review time on answer buttons</string>
     <string name="show_large_answer_buttons" maxLength="41">Show large answer buttons</string>
     <string name="show_large_answer_buttons_summ">Show answer button in 2 rows</string>
+    <string name="remove_animations" maxLength="41">Remove animations</string>
+    <string name="remove_animations_summary">Also enabled if animations are removed on the system settings</string>
     <string name="show_top_bar" maxLength="41">Show top bar</string>
     <string name="show_top_bar_summary">Show card counts, answer timer, flag and mark in top bar</string>
     <string name="show_progress" maxLength="41">Show remaining</string>

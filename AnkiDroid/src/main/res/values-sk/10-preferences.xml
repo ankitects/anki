@@ -160,8 +160,6 @@
     <string name="select_locale_title">Zvoliť jazyk</string>
     <string name="software_render" maxLength="41">Vypnúť hardvérové renderovanie kartičky</string>
     <string name="software_render_summ">Hardvérové renderovanie je rýchlejšie, ale môže spôsobiť problémy, najmä na Android 8/8.1. Ak nemôžete vidieť časti užívateľského rozhrania pri opakovaní kartičiek, skúste toto nastavenie.</string>
-    <string name="safe_display" maxLength="41">Režim bezpečného zobrazenia</string>
-    <string name="safe_display_summ">Vypnuť všetky animácie a použiť bezpečnejšiu metódu na ťahanie kartičiek. Toto môže byť vyžadované E-ink zariadeniami.</string>
     <string name="disable_extended_text_ui" maxLength="41">Vypnúť mód editácie jedného poľa</string>
     <!--See: multimedia_editor_popup_cloze. We can\'t use format strings as this is auto-generated-->
     <string name="disable_extended_text_ui_summ">Povoliť kontextové menu doplňovačky pri horizontálnom zobrazení.</string>
@@ -175,6 +173,8 @@
     <string name="show_estimates_summ">Zobraziť čas ďalšieho opakovania nad tlačidlami odpovedí</string>
     <string name="show_large_answer_buttons" maxLength="41">Ukázať veľké tlačidla pre odpovede</string>
     <string name="show_large_answer_buttons_summ">Show answer button in 2 rows</string>
+    <string name="remove_animations" maxLength="41">Remove animations</string>
+    <string name="remove_animations_summary">Also enabled if animations are removed on the system settings</string>
     <string name="show_top_bar" maxLength="41">Zobraziť hornú lištu</string>
     <string name="show_top_bar_summary">Show card counts, answer timer, flag and mark in top bar</string>
     <string name="show_progress" maxLength="41">Zobraziť zostávajúce</string>

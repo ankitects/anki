@@ -157,8 +157,6 @@
     <string name="select_locale_title">Elekti lingvon</string>
     <string name="software_render" maxLength="41">Malaktivigi aparataran bildigilon de kartoj</string>
     <string name="software_render_summ">Aparatara bildigilo estas pli rapida, sed povas kaŭzi problemojn, precipe ĉe Android 8/8.1. Se parto de fasado ĉe la ekrano “ripeti karton” ne aperas, provu aktivigi tiun ĉi agordon.</string>
-    <string name="safe_display" maxLength="41">Sekura vidiga reĝimo</string>
-    <string name="safe_display_summ">Malaktivigi ĉiujn movbildojn kaj uzi pli sekuran manieron por bildigi kartojn. Elektronik-paperaj aparatoj povas bezoni tion ĉi.</string>
     <string name="disable_extended_text_ui" maxLength="41">Malaktivigi unukampan redakt‑reĝimon</string>
     <!--See: multimedia_editor_popup_cloze. We can\'t use format strings as this is auto-generated-->
     <string name="disable_extended_text_ui_summ">Montri la kuntekstan menuon “truteksta malpleno” kiam en horizontala orientiĝo.</string>
@@ -172,6 +170,8 @@
     <string name="show_estimates_summ">Montri tempon de sekva ripeto ĉe butonoj de respondoj</string>
     <string name="show_large_answer_buttons" maxLength="41">Grandaj respondobutonoj</string>
     <string name="show_large_answer_buttons_summ">Montri respondobutonojn en 2 vicoj</string>
+    <string name="remove_animations" maxLength="41">Remove animations</string>
+    <string name="remove_animations_summary">Also enabled if animations are removed on the system settings</string>
     <string name="show_top_bar" maxLength="41">Montri supran strion</string>
     <string name="show_top_bar_summary">Montri nombron da kartoj, tempon de respondo, flagon kaj markon sur la supra strio</string>
     <string name="show_progress" maxLength="41">Montri pliajn kartojn</string>

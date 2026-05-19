@@ -162,8 +162,6 @@
     <string name="select_locale_title">حدد اللغة</string>
     <string name="software_render" maxLength="41">عطِّل عارض البطاقات العَتادي</string>
     <string name="software_render_summ">عرض العتاد أسرع لكنه قد يسبب مشاكل، خصوصًا على أندرويد ٨ أو ٨٫١. إذا لم تكن ترى جزءًا من واجهة مراجعة البطاقة، جرب هذا الخيار.</string>
-    <string name="safe_display" maxLength="41">وضع العرض الآمن</string>
-    <string name="safe_display_summ">تعطيل كل التأثيرات المتحركة واستخدام طريقة أأمن لرسم البطاقات. قد تتطلب أجهزة الحبر الإلكتروني هذا.</string>
     <string name="disable_extended_text_ui" maxLength="41">تعطيل وضع تحرير الحقل الفردي</string>
     <!--See: multimedia_editor_popup_cloze. We can\'t use format strings as this is auto-generated-->
     <string name="disable_extended_text_ui_summ">السماح بقائمة سياق «ملء الفراغات» في الوضع الأفقي.</string>
@@ -177,6 +175,8 @@
     <string name="show_estimates_summ">إظهار وقت المراجعة التالية على أزرار الإجابة</string>
     <string name="show_large_answer_buttons" maxLength="41">إظهار أزرار إجابة كبيرة</string>
     <string name="show_large_answer_buttons_summ">أظهر أزرار الإجابة في صفين</string>
+    <string name="remove_animations" maxLength="41">Remove animations</string>
+    <string name="remove_animations_summary">Also enabled if animations are removed on the system settings</string>
     <string name="show_top_bar" maxLength="41">إظهار الشريط العلوي</string>
     <string name="show_top_bar_summary">أظهر عدد البطاقات ومؤقت الإجابة والعَلم والعلامة في الشريط العلوي</string>
     <string name="show_progress" maxLength="41">إظهار المتبقي</string>

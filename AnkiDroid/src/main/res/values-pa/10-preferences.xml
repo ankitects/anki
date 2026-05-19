@@ -158,8 +158,6 @@
     <string name="select_locale_title">ਭਾਸ਼ਾ ਚੁਣੋ</string>
     <string name="software_render" maxLength="41">ਕਾਰਡ ਹਾਰਡਵੇਅਰ ਰੈਂਡਰ ਨੂੰ ਅਸਮਰੱਥ ਬਣਾਓ</string>
     <string name="software_render_summ">ਹਾਰਡਵੇਅਰ ਰੈਂਡਰ ਤੇਜ਼ ਹੈ ਪਰ ਸਮੱਸਿਆ ਹੋ ਸਕਦੀ ਹੈ, ਖਾਸ ਕਰਕੇ Android 8/8.1 \'ਤੇ। ਜੇਕਰ ਤੁਸੀਂ ਕਾਰਡ ਸਮੀਖਿਆ ਯੂਜ਼ਰ ਇੰਟਰਫੇਸ ਦੇ ਹਿੱਸੇ ਨਹੀਂ ਦੇਖ ਸਕਦੇ, ਤਾਂ ਇਸ ਸੈਟਿੰਗ ਨੂੰ ਅਜ਼ਮਾਓ।</string>
-    <string name="safe_display" maxLength="41">ਸੁਰੱਖਿਅਤ ਡਿਸਪਲੇ ਮੋਡ</string>
-    <string name="safe_display_summ">ਸਾਰੇ ਐਨੀਮੇਸ਼ਨਾਂ ਨੂੰ ਅਸਮਰੱਥ ਬਣਾਓ ਅਤੇ ਕਾਰਡ ਬਣਾਉਣ ਲਈ ਸੁਰੱਖਿਅਤ ਮੋਡ ਦੀ ਵਰਤੋਂ ਕਰੋ। ਈ-ਸਿਆਹੀ ਡਿਵਾਈਸਾਂ ਨੂੰ ਇਸਦੀ ਲੋੜ ਹੋ ਸਕਦੀ ਹੈ।</string>
     <string name="disable_extended_text_ui" maxLength="41">ਸਿੰਗਲ-ਫੀਲਡ ਸੰਪਾਦਨ ਮੋਡ ਨੂੰ ਅਸਮਰੱਥ ਬਣਾਓ</string>
     <!--See: multimedia_editor_popup_cloze. We can\'t use format strings as this is auto-generated-->
     <string name="disable_extended_text_ui_summ">ਲੈਂਡਸਕੇਪ ਮੋਡ ਵਿੱਚ ਹੋਣ \'ਤੇ \'ਕਲੋਜ਼ ਡਿਲੀਸ਼ਨ\' ਸੰਦਰਭ ਮੀਨੂ ਦੀ ਆਗਿਆ ਦਿੰਦਾ ਹੈ।</string>
@@ -173,6 +171,8 @@
     <string name="show_estimates_summ">ਜਵਾਬ ਬਟਨਾਂ \'ਤੇ ਅਗਲੀ ਸਮੀਖਿਆ ਸਮਾਂ ਦਿਖਾਓ</string>
     <string name="show_large_answer_buttons" maxLength="41">ਵੱਡੇ ਜਵਾਬ ਬਟਨ ਦਿਖਾਓ</string>
     <string name="show_large_answer_buttons_summ">Show answer button in 2 rows</string>
+    <string name="remove_animations" maxLength="41">Remove animations</string>
+    <string name="remove_animations_summary">Also enabled if animations are removed on the system settings</string>
     <string name="show_top_bar" maxLength="41">ਸਿਖਰ ਪੱਟੀ ਦਿਖਾਓ</string>
     <string name="show_top_bar_summary">ਸਿਖਰ ਪੱਟੀ ਵਿੱਚ ਕਾਰਡ ਗਿਣਤੀ, ਉੱਤਰ ਟਾਈਮਰ, ਝੰਡਾ ਅਤੇ ਨਿਸ਼ਾਨ ਦਿਖਾਓ</string>
     <string name="show_progress" maxLength="41">ਬਾਕੀ ਦਿਖਾਓ</string>

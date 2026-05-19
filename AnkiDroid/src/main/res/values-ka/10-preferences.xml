@@ -157,8 +157,6 @@
     <string name="select_locale_title">ენის არჩევა</string>
     <string name="software_render" maxLength="41">ბარათების აპარატული ვიზუალიზაციის გამორთვა</string>
     <string name="software_render_summ">აპარატული ვიზუალიზაცია უფრო სწრაფია, მაგრამ შეიძლება ხარვეზები ჰქონდეს, განსაკუთრებით Android 8/8.1-ს შემთხვევაში. სცადეთ ეს პარამეტრი, თუკი ვერ ხედავთ ბარათების გადამხედველის ინტერფეისის გარკვეულ ნაწილებს.</string>
-    <string name="safe_display" maxLength="41">უსაფრთხო ჩვენების რეჟიმი</string>
-    <string name="safe_display_summ">ყველა ანიმაციის გამორთვა და ბარათების საჩვენებლად უფრო უსაფრთხო მეთოდის გამოყენება. ელ-წამკითხველებისთვის ეს შეიძლება აუცილებელი იყოს.</string>
     <string name="disable_extended_text_ui" maxLength="41">ცალკე ველის რედაქტირების რეჟიმის გამორთვა</string>
     <!--See: multimedia_editor_popup_cloze. We can\'t use format strings as this is auto-generated-->
     <string name="disable_extended_text_ui_summ">შესაძლებელს ხდის, გამოიყენოთ „გამოტოვებული ადგილის“ კონტექსტური მენიუ ჰორიზონტალურ რეჟიმში.</string>
@@ -172,6 +170,8 @@
     <string name="show_estimates_summ">აჩვენებს შემდეგი გადახედვის დროს პასუხის ღილაკებზე</string>
     <string name="show_large_answer_buttons" maxLength="41">დიდი პასუხის ღილაკების ჩვენება</string>
     <string name="show_large_answer_buttons_summ">Show answer button in 2 rows</string>
+    <string name="remove_animations" maxLength="41">Remove animations</string>
+    <string name="remove_animations_summary">Also enabled if animations are removed on the system settings</string>
     <string name="show_top_bar" maxLength="41">ზედა ზოლის ჩვენება</string>
     <string name="show_top_bar_summary">Show card counts, answer timer, flag and mark in top bar</string>
     <string name="show_progress" maxLength="41">დარჩენილის ჩვენება</string>

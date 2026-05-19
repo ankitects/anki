@@ -158,8 +158,6 @@
     <string name="select_locale_title">Nyelv kiválasztása</string>
     <string name="software_render" maxLength="41">Kártya hw megjelenítő (render) tiltása</string>
     <string name="software_render_summ">A hw renderelés gyorsabb, de okozhat problémát, különösen az Android 8/8.1-en. Ha nem látod a kártya ismétléskor a kezelőfelület egy részét, próbáld meg ezt a beállítást.</string>
-    <string name="safe_display" maxLength="41">Biztonságos megjelenítési mód</string>
-    <string name="safe_display_summ">Kapcsolja ki az összes animációt, és biztonságosabb módszereket használjon a kártya rajzok számára. Az e-tintaeszközök igényelhetik ezt.</string>
     <string name="disable_extended_text_ui" maxLength="41">Egy-Mezőnyi Szerkesztési Mód Kikapcsolása</string>
     <!--See: multimedia_editor_popup_cloze. We can\'t use format strings as this is auto-generated-->
     <string name="disable_extended_text_ui_summ">Engedélyezi a \'Részleges Törlés\' lehetőséget tájkép módban.</string>
@@ -173,6 +171,8 @@
     <string name="show_estimates_summ">A gombokon látszódjon a következő esedékesség időpontja</string>
     <string name="show_large_answer_buttons" maxLength="41">Nagy válasz gombok megjelenítése</string>
     <string name="show_large_answer_buttons_summ">Show answer button in 2 rows</string>
+    <string name="remove_animations" maxLength="41">Remove animations</string>
+    <string name="remove_animations_summary">Also enabled if animations are removed on the system settings</string>
     <string name="show_top_bar" maxLength="41">Felső Bár mutatása</string>
     <string name="show_top_bar_summary">Kártya számlálók, válaszidőzítő, jelölők és jelölések mutatása a felső sávban</string>
     <string name="show_progress" maxLength="41">Hátralévő mutatása</string>

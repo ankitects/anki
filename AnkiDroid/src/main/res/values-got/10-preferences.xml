@@ -158,8 +158,6 @@
     <string name="select_locale_title">𐍂𐌰𐌶𐌳𐌰 𐍅𐌰𐌻𐌾𐌰𐌽</string>
     <string name="software_render" maxLength="41">Disable card hardware render</string>
     <string name="software_render_summ">𐌷𐌰𐍂𐌳𐌿𐍅𐌰𐍂𐍉𐍃 𐌰𐍄𐌰𐌿𐌲𐌾𐌰 𐍃𐍀𐍂𐌰𐌿𐍄𐌹𐌶𐌰 𐌹𐍃𐍄 𐌹𐌸 𐌼𐌰𐌲 𐌿𐌽𐍂𐌰𐌹𐌷𐍄𐌰𐌱𐌰 𐍅𐌰𐌿𐍂𐌺𐌾𐌰𐌽, 𐌸𐌹𐍃𐌷𐌿𐌽 𐌰𐌽𐌰 𐌰𐌽𐌳𐍂𐌰𐌿𐌳 8/8.1. 𐌾𐌰𐌱𐌰𐌹 𐌽𐌹 𐌼𐌰𐌲𐍄 𐌳𐌰𐌹𐌻𐌹𐌽𐍃 𐍃𐌰𐌹𐍈𐌰𐌽 𐌹𐌽𐍄𐌰𐌹𐍂𐍆𐌰𐌺𐌹𐍉𐍃 𐌱𐍂𐌿𐌺𐌾𐌰𐌽𐌴 𐌰𐍆𐍄𐍂𐌰𐍃𐌹𐌿𐌽𐌰𐌹𐍃 𐌺𐌰𐍂𐍄𐍉, 𐌺𐌹𐌿𐍃𐌰𐌹 𐌸𐍉 𐌻𐌰𐌲𐌴𐌹𐌽.</string>
-    <string name="safe_display" maxLength="41">𐌼𐍉𐌳𐌿𐍃 𐌱𐌰𐌽𐌳𐍅𐌴𐌹𐌽𐌰𐌹𐍃 𐌸𐍅𐌰𐍃𐍄𐌹𐌸𐍉𐍃</string>
-    <string name="safe_display_summ">Disable all animations and use safer method for drawing cards. E-ink devices may require this.</string>
     <string name="disable_extended_text_ui" maxLength="41">Disable Single-Field Edit Mode</string>
     <!--See: multimedia_editor_popup_cloze. We can\'t use format strings as this is auto-generated-->
     <string name="disable_extended_text_ui_summ">Allows \'Cloze Deletion\' context menu when in landscape mode.</string>
@@ -173,6 +171,8 @@
     <string name="show_estimates_summ">Show next review time on answer buttons</string>
     <string name="show_large_answer_buttons" maxLength="41">𐌼𐌹𐌺𐌹𐌻𐍉𐍃 𐌷𐌰𐌿𐌱𐌹𐌳𐌹𐌻𐍉𐌽𐍃 𐌰𐌽𐌳𐌰𐌷𐌰𐍆𐍄𐌴 𐌱𐌰𐌽𐌳𐍅𐌾𐌰𐌽</string>
     <string name="show_large_answer_buttons_summ">𐌷𐌰𐌿𐌱𐌹𐌳𐌹𐌻𐍉𐌽𐍃 𐌰𐌽𐌳𐌰𐌷𐌰𐍆𐍄𐌴 𐌹𐌽 𐍄𐍅𐌰𐌹𐌼 𐍅𐌹𐌺𐍉𐌼 𐌱𐌰𐌽𐌳𐍅𐌾𐌰𐌽</string>
+    <string name="remove_animations" maxLength="41">Remove animations</string>
+    <string name="remove_animations_summary">Also enabled if animations are removed on the system settings</string>
     <string name="show_top_bar" maxLength="41">𐌰𐌽𐍃 𐌰𐌿𐌷𐌿𐌼𐌹𐍃𐍄𐌰𐌽𐌰 𐌱𐌰𐌽𐌳𐍅𐌾𐌰𐌽</string>
     <string name="show_top_bar_summary">𐌺𐌰𐍂𐍄𐍉 𐍂𐌰𐌸𐌾𐍉𐌽𐍃, 𐌰𐌽𐌳𐌰𐌷𐌰𐍆𐍄𐌰𐌹𐍃 𐌸𐌴𐌹𐌷𐍃, 𐍆𐌰𐌽𐌰𐌽 𐌾𐌰𐌷 𐌱𐌰𐌽𐌳𐍅𐍉𐌽 𐌹𐌽 𐌰𐌽𐍃𐌰 𐌰𐌿𐌷𐌿𐌼𐌹𐍃𐍄𐌰𐌽𐌰 𐌱𐌰𐌽𐌳𐍅𐌾𐌰𐌽</string>
     <string name="show_progress" maxLength="41">𐌱𐌹𐌻𐌴𐌹𐌱𐌰𐌽𐌳𐍉𐌽𐌰 𐌱𐌰𐌽𐌳𐍅𐌾𐌰𐌽</string>

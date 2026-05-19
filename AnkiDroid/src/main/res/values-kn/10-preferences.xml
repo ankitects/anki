@@ -157,8 +157,6 @@
     <string name="select_locale_title">ಒಂದು ಭಾಷೆಯನ್ನು ಆಯ್ಕೆಮಾಡಿ</string>
     <string name="software_render" maxLength="41">ಕಾರ್ಡ್ ಹಾರ್ಡ್‌ವೇರ್ ರೆಂಡರ್ ಅನ್ನು ನಿಷ್ಕ್ರಿಯಗೊಳಿಸಿ</string>
     <string name="software_render_summ">ಹಾರ್ಡ್‌ವೇರ್ ರೆಂಡರ್ ವೇಗವಾಗಿದೆ ಆದರೆ ವಿಶೇಷವಾಗಿ Android 8/8.1 ನಲ್ಲಿ ಸಮಸ್ಯೆಗಳನ್ನು ಹೊಂದಿರಬಹುದು. ಕಾರ್ಡ್ ವಿಮರ್ಶೆ ಬಳಕೆದಾರ ಇಂಟರ್ಫೇಸ್‌ನ ಭಾಗಗಳನ್ನು ನೀವು ನೋಡಲು ಸಾಧ್ಯವಾಗದಿದ್ದರೆ, ಈ ಸೆಟ್ಟಿಂಗ್ ಅನ್ನು ಪ್ರಯತ್ನಿಸಿ.</string>
-    <string name="safe_display" maxLength="41">ಸುರಕ್ಷಿತ ಪ್ರದರ್ಶನ ಮೋಡ್</string>
-    <string name="safe_display_summ">ಎಲ್ಲಾ ಅನಿಮೇಷನ್‌ಗಳನ್ನು ನಿಷ್ಕ್ರಿಯಗೊಳಿಸಿ ಮತ್ತು ಕಾರ್ಡ್‌ಗಳನ್ನು ಸೆಳೆಯಲು ಸುರಕ್ಷಿತ ವಿಧಾನವನ್ನು ಬಳಸಿ. ಇ-ಇಂಕ್ ಸಾಧನಗಳಿಗೆ ಇದು ಅಗತ್ಯವಾಗಬಹುದು.</string>
     <string name="disable_extended_text_ui" maxLength="41">ಏಕ-ಕ್ಷೇತ್ರ ಸಂಪಾದನೆ ಮೋಡ್ ಅನ್ನು ನಿಷ್ಕ್ರಿಯಗೊಳಿಸಿ</string>
     <!--See: multimedia_editor_popup_cloze. We can\'t use format strings as this is auto-generated-->
     <string name="disable_extended_text_ui_summ">ಲ್ಯಾಂಡ್‌ಸ್ಕೇಪ್ ಮೋಡ್‌ನಲ್ಲಿರುವಾಗ \'ಮುಚ್ಚು ಅಳಿಸು\' ಸಂದರ್ಭ ಮೆನುವನ್ನು ಅನುಮತಿಸುತ್ತದೆ.</string>
@@ -172,6 +170,8 @@
     <string name="show_estimates_summ">ಉತ್ತರ ಬಟನ್‌ಗಳಲ್ಲಿ ಮುಂದಿನ ವಿಮರ್ಶೆ ಸಮಯವನ್ನು ತೋರಿಸಿ</string>
     <string name="show_large_answer_buttons" maxLength="41">ದೊಡ್ಡ ಉತ್ತರ ಬಟನ್‌ಗಳನ್ನು ತೋರಿಸಿ</string>
     <string name="show_large_answer_buttons_summ">Show answer button in 2 rows</string>
+    <string name="remove_animations" maxLength="41">Remove animations</string>
+    <string name="remove_animations_summary">Also enabled if animations are removed on the system settings</string>
     <string name="show_top_bar" maxLength="41">ಮೇಲಿನ ಪಟ್ಟಿಯನ್ನು ತೋರಿಸಿ</string>
     <string name="show_top_bar_summary">Show card counts, answer timer, flag and mark in top bar</string>
     <string name="show_progress" maxLength="41">ಏನು ಉಳಿದಿದೆ ಎಂಬುದನ್ನು ತೋರಿಸಿ</string>

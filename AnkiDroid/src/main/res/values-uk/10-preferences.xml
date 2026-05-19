@@ -160,8 +160,6 @@
     <string name="select_locale_title">Виберіть мову</string>
     <string name="software_render" maxLength="41">Вимкнути апаратний рендеринг карток</string>
     <string name="software_render_summ">Апаратний рендеринг буде швидшим, але матиме проблеми, зокрема на Android 8/8.1. Якщо Ви не бачите частини інтерфейсу карток, спробуйте це налаштування.</string>
-    <string name="safe_display" maxLength="41">Статичний режим екрану</string>
-    <string name="safe_display_summ">Вимкнути всю анімацію та використовувати безпечні методи для відображення карток. Це може бути потрібно для E-ink пристроїв</string>
     <string name="disable_extended_text_ui" maxLength="41">Вимкнути режим редагування одиничного поля</string>
     <!--See: multimedia_editor_popup_cloze. We can\'t use format strings as this is auto-generated-->
     <string name="disable_extended_text_ui_summ">Включає контекстне меню «Завдання з пропусками» в альбомному (горизонтальному) режимі</string>
@@ -175,6 +173,8 @@
     <string name="show_estimates_summ">Показувати час наступного повторення над кнопками відповіді</string>
     <string name="show_large_answer_buttons" maxLength="41">Показувати великі кнопки відповідей</string>
     <string name="show_large_answer_buttons_summ">Показувати кнопку відповіді в 2 рядках</string>
+    <string name="remove_animations" maxLength="41">Remove animations</string>
+    <string name="remove_animations_summary">Also enabled if animations are removed on the system settings</string>
     <string name="show_top_bar" maxLength="41">Показувати верхню панель</string>
     <string name="show_top_bar_summary">Показувати кількість карток, таймер відповіді, прапорець і позначку у верхній панелі</string>
     <string name="show_progress" maxLength="41">Показувати ті, що залишилися</string>

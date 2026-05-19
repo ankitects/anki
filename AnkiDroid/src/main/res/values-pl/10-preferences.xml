@@ -159,8 +159,6 @@
     <string name="select_locale_title">Wybór języka</string>
     <string name="software_render" maxLength="41">Wyłącz renderowanie sprzętowe kart</string>
     <string name="software_render_summ">Renderowanie sprzętowe jest szybsze, lecz mogą pojawić się problemy, zwłaszcza na Androidzie 8/8.1. Jeżeli nie widzisz części interfejsu przy powtarzaniu kart, spróbuj tego ustawienia.</string>
-    <string name="safe_display" maxLength="41">Tryb bezpiecznego wyświetlania</string>
-    <string name="safe_display_summ">Wyłącz wszystkie animacje i użyj bezpieczniejszej metody rysowania kart. Urządzenia E-ink mogą tego wymagać.</string>
     <string name="disable_extended_text_ui" maxLength="41">Wyłącz tryb edycji pojedynczego pola</string>
     <!--See: multimedia_editor_popup_cloze. We can\'t use format strings as this is auto-generated-->
     <string name="disable_extended_text_ui_summ">Zezwala na menu kontekstowe luk do wypełnienia w trybie poziomym.</string>
@@ -174,6 +172,8 @@
     <string name="show_estimates_summ">Pokazuj czas kolejnej powtórki na przyciskach odpowiedzi</string>
     <string name="show_large_answer_buttons" maxLength="41">Pokaż duże przyciski odpowiedzi</string>
     <string name="show_large_answer_buttons_summ">Pokaż przycisk odpowiedzi w 2 wierszach</string>
+    <string name="remove_animations" maxLength="41">Remove animations</string>
+    <string name="remove_animations_summary">Also enabled if animations are removed on the system settings</string>
     <string name="show_top_bar" maxLength="41">Pokaż górny pasek</string>
     <string name="show_top_bar_summary">Pokaż liczniki kart, czas odpowiedzi, flagę i znacznik w górnym pasku</string>
     <string name="show_progress" maxLength="41">Pokaż pozostałe</string>

@@ -158,8 +158,6 @@
     <string name="select_locale_title">تىل تاللىنىدۇ</string>
     <string name="software_render" maxLength="41">كارتىنى قاتتىق دېتالدا رەڭلەشنى چەكلەيدۇ</string>
     <string name="software_render_summ">قاتتىق دېتالدا رەڭلەشنىڭ سۈرئىتى تېز ئەمما مەسىلە بولۇشى مۇمكىن، بولۇپمۇ ‪Android 8/8.1 ‬نەشرىدە. ئەگەر كارتا تەكرارلايدىغان ئىشلەتكۈچى ئارايۈزىنىڭ بىر قىسمىنى كۆرەلمىسىڭىز، بۇ تەڭشەكنى سىناپ بېقىڭ.</string>
-    <string name="safe_display" maxLength="41">بىخەتەر كۆرسىتىش ھالىتى</string>
-    <string name="safe_display_summ">بارلىق جانلاندۇرۇمنى چەكلەپ كارتا سىزىشتا بىخەتەر ئۇسۇلنى ئىشلىتىدۇ. E-ink ئۈسكۈنىسى بۇنىڭغا ئېھتىياجلىق بولۇشى مۇمكىن.</string>
     <string name="disable_extended_text_ui" maxLength="41">تاق بۆلەك تەھرىرلەش ھالىتىنى چەكلەيدۇ</string>
     <!--See: multimedia_editor_popup_cloze. We can\'t use format strings as this is auto-generated-->
     <string name="disable_extended_text_ui_summ">توغرىسىغا ھالەتتە مەزمۇن تىزىملىكىدە «بوش ئورۇن تولدۇرۇش» قا يول قويىدۇ.</string>
@@ -173,6 +171,8 @@
     <string name="show_estimates_summ">جاۋاب توپچىنىڭ ئۈستىدە كېيىنكى قېتىم تەكرارلايدىغان ۋاقىتنى كۆرسىتىدۇ</string>
     <string name="show_large_answer_buttons" maxLength="41">چوڭ جاۋاب توپچىنى كۆرسىتىدۇ</string>
     <string name="show_large_answer_buttons_summ">جاۋاب توپچىنى 2 قۇر كۆرسىتىدۇ</string>
+    <string name="remove_animations" maxLength="41">Remove animations</string>
+    <string name="remove_animations_summary">Also enabled if animations are removed on the system settings</string>
     <string name="show_top_bar" maxLength="41">چوققا بالداقنى كۆرسەت</string>
     <string name="show_top_bar_summary">چوققا بالداقتا كارتا سانى، جاۋاب سانىغۇچ، بايراق ۋە بەلگىنى كۆرسىتىدۇ</string>
     <string name="show_progress" maxLength="41">قالغانلىرىنى كۆرسەت</string>

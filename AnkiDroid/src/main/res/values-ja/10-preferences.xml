@@ -156,8 +156,6 @@
     <string name="select_locale_title">言語を選択</string>
     <string name="software_render" maxLength="41">カードのハードウェアレンダリングを無効にする</string>
     <string name="software_render_summ">ハードウェアによるレンダリングは高速ですが、問題が発生する可能性があります（特にAndroid 8/8.1において）。 カード学習画面のユーザーインターフェースの一部が表示されない場合は、この設定を試してみてください</string>
-    <string name="safe_display" maxLength="41">安全表示モード</string>
-    <string name="safe_display_summ">アニメーションを無効にし、より不具合が起こりにくい方法でカードを表示します。電子ペーパー端末ではこの設定が必要となる場合があります</string>
     <string name="disable_extended_text_ui" maxLength="41">単一フィールド編集モードを無効にする</string>
     <!--See: multimedia_editor_popup_cloze. We can\'t use format strings as this is auto-generated-->
     <string name="disable_extended_text_ui_summ">ランドスケープモード時に「穴埋め問題箇所」のコンテキストメニューを許可します</string>
@@ -171,6 +169,8 @@
     <string name="show_estimates_summ">次の学習までの時間の間隔を回答ボタンの中に表示します</string>
     <string name="show_large_answer_buttons" maxLength="41">回答ボタンを幅広に表示</string>
     <string name="show_large_answer_buttons_summ">「解答を表示」ボタンの縦幅を２倍にし、回答ボタンを縦２列で表示します</string>
+    <string name="remove_animations" maxLength="41">Remove animations</string>
+    <string name="remove_animations_summary">Also enabled if animations are removed on the system settings</string>
     <string name="show_top_bar" maxLength="41">トップバーを表示</string>
     <string name="show_top_bar_summary">カードの残り枚数、回答時間測定タイマー、フラグ、マークをトップバーに表示する</string>
     <string name="show_progress" maxLength="41">残りのカード枚数を表示</string>

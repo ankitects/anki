@@ -156,8 +156,6 @@
     <string name="select_locale_title">选择语言</string>
     <string name="software_render" maxLength="41">禁用卡牌硬件渲染</string>
     <string name="software_render_summ">硬件渲染速度较快，但可能有问题，特别是在 Android 8/8.1。如果您看不到部分卡片复习用户界面，请尝试此设置。</string>
-    <string name="safe_display" maxLength="41">安全显示模式</string>
-    <string name="safe_display_summ">禁用所有动画并使用更安全的方法绘制卡牌。使用墨水屏（E-ink）的设备可能需要此功能。</string>
     <string name="disable_extended_text_ui" maxLength="41">禁用单字段编辑模式</string>
     <!--See: multimedia_editor_popup_cloze. We can\'t use format strings as this is auto-generated-->
     <string name="disable_extended_text_ui_summ">旋转至横屏时允许上下文菜单中选择「创建填空题」。</string>
@@ -171,6 +169,8 @@
     <string name="show_estimates_summ">在答案按钮上方显示下次复习的时间</string>
     <string name="show_large_answer_buttons" maxLength="41">增加答题按钮大小</string>
     <string name="show_large_answer_buttons_summ">以两行显示回答按钮</string>
+    <string name="remove_animations" maxLength="41">Remove animations</string>
+    <string name="remove_animations_summary">Also enabled if animations are removed on the system settings</string>
     <string name="show_top_bar" maxLength="41">显示顶部栏</string>
     <string name="show_top_bar_summary">在顶部栏显示卡牌计数、回答计时器、标记和记号</string>
     <string name="show_progress" maxLength="41">显示剩余数量</string>

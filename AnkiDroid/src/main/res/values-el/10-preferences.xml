@@ -158,8 +158,6 @@
     <string name="select_locale_title">Επιλογή Γλώσσας</string>
     <string name="software_render" maxLength="41">Disable card hardware render</string>
     <string name="software_render_summ">Hardware render is faster but may have problems, specifically on Android 8/8.1. If you cannot see parts of the card review user interface, try this setting.</string>
-    <string name="safe_display" maxLength="41">Ασφαλής λειτουργία οθόνης</string>
-    <string name="safe_display_summ">Disable all animations and use safer method for drawing cards. E-ink devices may require this.</string>
     <string name="disable_extended_text_ui" maxLength="41">Disable Single-Field Edit Mode</string>
     <!--See: multimedia_editor_popup_cloze. We can\'t use format strings as this is auto-generated-->
     <string name="disable_extended_text_ui_summ">Allows \'Cloze Deletion\' context menu when in landscape mode.</string>
@@ -173,6 +171,8 @@
     <string name="show_estimates_summ">Εμφάνιση διαστήματος επανάληψης στα κουμπιά απάντησης</string>
     <string name="show_large_answer_buttons" maxLength="41">Εμφάνιση μεγάλων κουμπιών απάντησης</string>
     <string name="show_large_answer_buttons_summ">Εμφάνιση κουμπιού απάντησης σε 2 γραμμές</string>
+    <string name="remove_animations" maxLength="41">Remove animations</string>
+    <string name="remove_animations_summary">Also enabled if animations are removed on the system settings</string>
     <string name="show_top_bar" maxLength="41">Εμφάνιση πάνω γραμμής</string>
     <string name="show_top_bar_summary">Show card counts, answer timer, flag and mark in top bar</string>
     <string name="show_progress" maxLength="41">Εμφάνιση υπολειπόμενων</string>

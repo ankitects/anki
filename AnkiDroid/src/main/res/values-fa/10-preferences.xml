@@ -157,8 +157,6 @@
     <string name="select_locale_title">انتخاب زبان</string>
     <string name="software_render" maxLength="41">غیر فعال کردن رندر سخت‌افزار کارت</string>
     <string name="software_render_summ">رندر سخت افزاری سریع تر است ولی ممکن است مشکل داشته باشد، مخصوصا روی اندروید 8 یا 8.1. اگر بعضی از دکمه های مرور کارت ها را نمیبینید، این تنظیمات را امتحان کنید.</string>
-    <string name="safe_display" maxLength="41">حالت نمایش محتاطانه</string>
-    <string name="safe_display_summ">غیرفعال کردن همۀ انیمیشن‌ها و استفاده از حالت امن‌تر برای نقاشی روی کارت‌ها. دستگاه‌های E-ink ممکن است نیازمند از گزینه باشند.</string>
     <string name="disable_extended_text_ui" maxLength="41">غیرفعال کردن حالت ویرایش یک فیلد</string>
     <!--See: multimedia_editor_popup_cloze. We can\'t use format strings as this is auto-generated-->
     <string name="disable_extended_text_ui_summ">فعالسازی فهرست امکانات کارت کلوز در حالت لندسکیپ.</string>
@@ -172,6 +170,8 @@
     <string name="show_estimates_summ">نمایش زمان مرور بعدی در بالای دکمه پاسخ</string>
     <string name="show_large_answer_buttons" maxLength="41">دکمه های بزرگ جواب نشان بده</string>
     <string name="show_large_answer_buttons_summ">نمایش دکمه پاسخ در ۲ ردیف</string>
+    <string name="remove_animations" maxLength="41">Remove animations</string>
+    <string name="remove_animations_summary">Also enabled if animations are removed on the system settings</string>
     <string name="show_top_bar" maxLength="41">نمایش نوار بالا</string>
     <string name="show_top_bar_summary">نمایش تعداد کارت ها، ساعت شمار پاسخ، پرچم و علامت در نوار بالا</string>
     <string name="show_progress" maxLength="41">نمایش باقیمانده</string>

@@ -157,8 +157,6 @@
     <string name="select_locale_title">Seleccionar idioma</string>
     <string name="software_render" maxLength="41">Desactivar el hardware de la tarjeta</string>
     <string name="software_render_summ">El procesamiento de hardware es más rápido, pero puede tener problemas, específicamente en Android 8/8.1. Si no puede ver partes de la interfaz de usuario de la tarjeta, prueba esta opción.</string>
-    <string name="safe_display" maxLength="41">Modo de visualización segura</string>
-    <string name="safe_display_summ">Desactiva todas las animaciones y utiliza un método más seguro para presentar las tarjetas. Los dspositivos de tinta electrónica (e-ink) podrían requerir esta opción.</string>
     <string name="disable_extended_text_ui" maxLength="41">Desactivar modo de edición de un campo</string>
     <!--See: multimedia_editor_popup_cloze. We can\'t use format strings as this is auto-generated-->
     <string name="disable_extended_text_ui_summ">Permite el menú contextual \'huecos\' cuando está en modo horizontal.</string>
@@ -172,6 +170,8 @@
     <string name="show_estimates_summ">Mostrar el tiempo para el próximo repaso encima de los botones de respuesta</string>
     <string name="show_large_answer_buttons" maxLength="41">Mostrar botones de respuestas grandes</string>
     <string name="show_large_answer_buttons_summ">Mostrar botón de respuesta en 2 filas</string>
+    <string name="remove_animations" maxLength="41">Remove animations</string>
+    <string name="remove_animations_summary">Also enabled if animations are removed on the system settings</string>
     <string name="show_top_bar" maxLength="41">Mostrar Barra Superior</string>
     <string name="show_top_bar_summary">Mostrar recuento de cartas, temporizador de respuesta, bandera y marca en la barra superior</string>
     <string name="show_progress" maxLength="41">Mostar restantes</string>

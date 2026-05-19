@@ -157,8 +157,6 @@
     <string name="select_locale_title">Pilih bahasa</string>
     <string name="software_render" maxLength="41">Lumpuhkan pemapar perkakasan kad</string>
     <string name="software_render_summ">Pemapar perkakasan lebih pantas namun mungkin terdapat kesulitan, khususnya pada Android 8/8.1. Jika anda tidak dapat melihat sebahagian daripada antara muka semakan kad, cuba tetapan ini.</string>
-    <string name="safe_display" maxLength="41">Mod paparan selamat</string>
-    <string name="safe_display_summ">Lumpuhkan semua animasi dan gunakan kaedah lebih selamat untuk membentuk kad. Peranti e-dakwat mungkin memerlukannya.</string>
     <string name="disable_extended_text_ui" maxLength="41">Lumpuhkan Mod Sunting Medan Tunggal</string>
     <!--See: multimedia_editor_popup_cloze. We can\'t use format strings as this is auto-generated-->
     <string name="disable_extended_text_ui_summ">Benarkan menu konteks \'Penghapusan Kloz\' ketika mod landskap.</string>
@@ -172,6 +170,8 @@
     <string name="show_estimates_summ">Tunjuk masa semakan seterusnya pada butang jawapan</string>
     <string name="show_large_answer_buttons" maxLength="41">Tunjuk butang jawapan besar</string>
     <string name="show_large_answer_buttons_summ">Show answer button in 2 rows</string>
+    <string name="remove_animations" maxLength="41">Remove animations</string>
+    <string name="remove_animations_summary">Also enabled if animations are removed on the system settings</string>
     <string name="show_top_bar" maxLength="41">Tunjuk bar atas</string>
     <string name="show_top_bar_summary">Show card counts, answer timer, flag and mark in top bar</string>
     <string name="show_progress" maxLength="41">Tunjuk baki</string>

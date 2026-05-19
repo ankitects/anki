@@ -157,8 +157,6 @@
     <string name="select_locale_title">Pilih bahasa</string>
     <string name="software_render" maxLength="41">Matikan perangkat keras pe-render kartu</string>
     <string name="software_render_summ">Render menggunakan perangkat keras lebih cepat namun dapat mengakibatkan masalah, terutama pada Android 8/8.1. Jika Anda tidak dapat melihat bagian peninjauan kartu dari antarmuka pengguna, coba pengaturan berikut ini.</string>
-    <string name="safe_display" maxLength="41">Mode tampilan aman</string>
-    <string name="safe_display_summ">Nonaktifkan semua animasi dan gunakan metode yang lebih aman untuk menggambar kartu. Perangkat E-ink mungkin memerlukan ini.</string>
     <string name="disable_extended_text_ui" maxLength="41">Nonaktifkan mode edit kolom tunggal</string>
     <!--See: multimedia_editor_popup_cloze. We can\'t use format strings as this is auto-generated-->
     <string name="disable_extended_text_ui_summ">Membolehkan konteks menu \'titik-titik\' saat mode lanskap</string>
@@ -172,6 +170,8 @@
     <string name="show_estimates_summ">Tampilkan waktu ulasan berikutnya di tombol jawab</string>
     <string name="show_large_answer_buttons" maxLength="41">Tunjukkan tombol jawaban berukuran besar</string>
     <string name="show_large_answer_buttons_summ">Show answer button in 2 rows</string>
+    <string name="remove_animations" maxLength="41">Remove animations</string>
+    <string name="remove_animations_summary">Also enabled if animations are removed on the system settings</string>
     <string name="show_top_bar" maxLength="41">Tampilkan bar atas</string>
     <string name="show_top_bar_summary">Show card counts, answer timer, flag and mark in top bar</string>
     <string name="show_progress" maxLength="41">Tampilkan kartu yang tersisa</string>

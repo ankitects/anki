@@ -160,8 +160,6 @@
     <string name="select_locale_title">בחר שפה</string>
     <string name="software_render" maxLength="41">השבת את עיבוד החומרה של הכרטיס</string>
     <string name="software_render_summ">עיבוד החומרה מהיר יותר אך עשוי ליצור בעיות, במיוחד באנדרואיד 8/8.1. אם אינך יכול לראות חלקים מממשק המשתמש של סקירת הכרטיסים, נסה את ההגדרה הזו.</string>
-    <string name="safe_display" maxLength="41">מצב תצוגה בטוח</string>
-    <string name="safe_display_summ">השבת את כל האנימציות והשתמש בשיטה בטוחה יותר לציור כרטיסים. התקני דיו אלקטרוני עשויים לדרוש זאת.</string>
     <string name="disable_extended_text_ui" maxLength="41">השבת את מצב עריכה של שדה יחיד</string>
     <!--See: multimedia_editor_popup_cloze. We can\'t use format strings as this is auto-generated-->
     <string name="disable_extended_text_ui_summ">מאפשר תפריט ההקשר \'מחיקת Cloze\' במצב לרוחב.</string>
@@ -175,6 +173,8 @@
     <string name="show_estimates_summ">הצג את זמן הסקירה הבאה על כפתורי התשובה</string>
     <string name="show_large_answer_buttons" maxLength="41">לחצני תשובה גדולים</string>
     <string name="show_large_answer_buttons_summ">הצג כפתורי תשובה בשתי שורות</string>
+    <string name="remove_animations" maxLength="41">Remove animations</string>
+    <string name="remove_animations_summary">Also enabled if animations are removed on the system settings</string>
     <string name="show_top_bar" maxLength="41">הצג סרגל עליון</string>
     <string name="show_top_bar_summary">הצג ספירת כרטיסים, טיימר תשובה, דגל וסימון בסרגל העליון</string>
     <string name="show_progress" maxLength="41">הצג נותרים</string>

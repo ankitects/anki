@@ -157,8 +157,6 @@
     <string name="select_locale_title">ഭാഷ തിരഞ്ഞെടുക്കുക</string>
     <string name="software_render" maxLength="41">കാർഡ് ഹാർഡ്‌വെയർ റെൻഡർ പ്രവർത്തനരഹിതമാക്കുക</string>
     <string name="software_render_summ">ഹാർഡ്‌വെയർ റെൻഡർ വേഗതയേറിയതാണെങ്കിലും പ്രശ്‌നങ്ങളുണ്ടാകാം, പ്രത്യേകിച്ചും Android 8 / 8.1. കാർഡ് അവലോകന ഉപയോക്തൃ ഇന്റർഫേസിന്റെ ഭാഗങ്ങൾ നിങ്ങൾക്ക് കാണാൻ കഴിയുന്നില്ലെങ്കിൽ, ഈ ക്രമീകരണം പരീക്ഷിക്കുക.</string>
-    <string name="safe_display" maxLength="41">സുരക്ഷിത പ്രദർശന മോഡ്</string>
-    <string name="safe_display_summ">എല്ലാ ആനിമേഷനുകളും അപ്രാപ്‌തമാക്കി കാർഡുകൾ വരയ്‌ക്കുന്നതിന് സുരക്ഷിതമായ രീതി ഉപയോഗിക്കുക. ഇ-മഷി ഉപകരണങ്ങൾക്ക് ഇത് ആവശ്യമായി വന്നേക്കാം.</string>
     <string name="disable_extended_text_ui" maxLength="41">സിംഗിൾ-ഫീൽഡ് എഡിറ്റ് മോഡ് അപ്രാപ്തമാക്കുക</string>
     <!--See: multimedia_editor_popup_cloze. We can\'t use format strings as this is auto-generated-->
     <string name="disable_extended_text_ui_summ">ലാൻഡ്‌സ്‌കേപ്പ് മോഡിലായിരിക്കുമ്പോൾ \'ക്ലോസ് ഡിലീറ്റ്\' സന്ദർഭ മെനു അനുവദിക്കുന്നു.</string>
@@ -172,6 +170,8 @@
     <string name="show_estimates_summ">ഉത്തര ബട്ടണുകളിൽ അടുത്ത അവലോകന സമയം കാണിക്കുക</string>
     <string name="show_large_answer_buttons" maxLength="41">വലിയ ഉത്തര ബട്ടണുകൾ കാണിക്കുക</string>
     <string name="show_large_answer_buttons_summ">Show answer button in 2 rows</string>
+    <string name="remove_animations" maxLength="41">Remove animations</string>
+    <string name="remove_animations_summary">Also enabled if animations are removed on the system settings</string>
     <string name="show_top_bar" maxLength="41">മുകളിലെ ബാർ കാണിക്കുക</string>
     <string name="show_top_bar_summary">കാർഡുകളുടെ എണ്ണം കാണിക്കുക, ഉത്തരം ടൈമർ, ഫ്ലാഗ്, മുകളിലെ ബാറിൽ അടയാളപ്പെടുത്തുക</string>
     <string name="show_progress" maxLength="41">ബാക്കി കാണിക്കുക</string>

@@ -157,8 +157,6 @@
     <string name="select_locale_title">ᱟᱲᱟᱝ ᱵᱟᱪᱷᱟᱣ</string>
     <string name="software_render" maxLength="41">ᱠᱟᱰ ᱦᱟᱰᱣᱮᱨ ᱥᱤᱡᱚᱱᱤᱭᱟᱹ ᱴᱷᱟᱠᱮᱫ ᱮᱢᱮ</string>
     <string name="software_render_summ">ᱦᱟᱰᱣᱮᱨ ᱵᱮᱱᱟᱣ ᱩᱥᱟᱹᱨᱟ ᱜᱮᱭᱟ ᱢᱮᱱᱠᱟᱷᱟᱱ ᱵᱤᱥᱮᱥ ᱞᱮᱠᱟᱛᱮ Android 8/8.1. ᱮᱴᱠᱮᱴᱚᱬᱮ ᱦᱩᱭᱫᱟᱲᱮᱟᱫ-ᱟ।ᱡᱩᱫᱤ ᱟᱢ ᱤᱸᱴᱚᱨᱯᱷᱮᱥ  ᱠᱟᱰ ᱨᱤᱵᱷᱭᱩ ᱟᱜ ᱵᱟᱢ ᱧᱮᱞᱧᱟᱢᱮᱫ-ᱟ, ᱮᱱᱠᱷᱟᱱ ᱥᱮᱴᱤᱝ ᱨᱮ ᱪᱮᱥᱴᱟᱭᱢᱮ</string>
-    <string name="safe_display" maxLength="41">ᱡᱟᱹᱯᱛᱤ ᱚᱵᱚᱥᱛᱷᱟ ᱩᱫᱩᱜᱽ ᱢᱚᱰ</string>
-    <string name="safe_display_summ">ᱡᱷᱚᱛᱚ ᱮᱱᱤᱢᱮᱥᱚᱱ ᱵᱚᱱᱫᱽ ᱠᱟᱛᱮ ᱟᱨ ᱴᱷᱤᱠ ᱛᱚᱨᱤᱠᱟ ᱛᱮ ᱠᱟᱰ ᱤᱫᱤ ᱢᱮ ᱾ ᱤᱼᱠᱟᱲᱤ ᱰᱤᱵᱷᱟᱤᱥ ᱫᱚᱨᱠᱟᱨ ᱯᱟᱲᱟᱣ ᱜᱮᱭᱟ ᱾</string>
     <string name="disable_extended_text_ui" maxLength="41">ᱢᱤᱫᱴᱟᱹᱝ ᱡᱟᱭᱜᱟ ᱥᱟᱯᱰᱟᱣ ᱢᱚᱰ ᱵᱸᱫᱚ</string>
     <!--See: multimedia_editor_popup_cloze. We can\'t use format strings as this is auto-generated-->
     <string name="disable_extended_text_ui_summ">\'ᱠᱞᱚᱡ ᱢᱮᱴᱟᱣ\' ᱠᱚᱱᱴᱮᱠᱥᱴ ᱢᱮᱱᱩ ᱚᱛᱱᱚᱜ ᱧᱮᱸᱞ ᱢᱚᱰ ᱨᱮ ᱵᱟᱛᱟᱣ ᱢᱮ ᱾.</string>
@@ -172,6 +170,8 @@
     <string name="show_estimates_summ">ᱛᱮᱞᱟ ᱵᱟᱹᱴᱚᱱ ᱨᱮ ᱞᱟᱦᱟ ᱫᱩᱦᱲᱟ ᱧᱮᱞ ᱥᱚᱢᱚᱭ ᱫᱮᱠᱷᱟᱣᱢᱮ</string>
     <string name="show_large_answer_buttons" maxLength="41">ᱢᱟᱨᱟᱝ ᱞᱟᱹᱱᱟᱹᱭ ᱵᱚᱴᱚᱱ ᱧᱮ ᱚᱪᱚᱭ ᱢᱮ</string>
     <string name="show_large_answer_buttons_summ">Show answer button in 2 rows</string>
+    <string name="remove_animations" maxLength="41">Remove animations</string>
+    <string name="remove_animations_summary">Also enabled if animations are removed on the system settings</string>
     <string name="show_top_bar" maxLength="41">ᱪᱮᱛᱟᱱ ᱵᱟᱨ ᱫᱮᱠᱷᱟᱣᱢᱮ</string>
     <string name="show_top_bar_summary">ᱪᱮᱛᱟᱱ ᱵᱟᱨ ᱨᱮ ᱠᱟᱨᱰ ᱠᱚᱢᱮᱰ, ᱚᱯᱷᱚᱨ ᱴᱟᱭᱢᱟᱨ, ᱯᱷᱞᱟᱜ ᱟᱨ ᱢᱟᱨᱠ ᱮᱢ ᱢᱮ</string>
     <string name="show_progress" maxLength="41">ᱵᱟᱹᱠᱤ ᱠᱚ ᱫᱮᱠᱷᱟᱣᱢᱮ</string>

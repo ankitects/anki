@@ -157,8 +157,6 @@
     <string name="select_locale_title">மொழியைத் தேர்ந்தெடுக்கவும்</string>
     <string name="software_render" maxLength="41">கார்டு வன்பொருள் ரெண்டரிங்கை முடக்கு</string>
     <string name="software_render_summ">ஹார்டுவேர் ரெண்டர் வேகமானது ஆனால் சிக்கல்கள் இருக்கலாம், குறிப்பாக Android 8/8.1 இல். கார்டு மதிப்பாய்வு பயனர் இடைமுகத்தின் பகுதிகளை உங்களால் பார்க்க முடியவில்லை என்றால், இந்த அமைப்பை முயற்சிக்கவும்.</string>
-    <string name="safe_display" maxLength="41">பாதுகாப்பான காட்சி முறை</string>
-    <string name="safe_display_summ">அனைத்து அனிமேஷன்களையும் முடக்கி, அட்டைகளை வரைவதற்கு பாதுகாப்பான முறையைப் பயன்படுத்தவும். மின் மை சாதனங்களுக்கு இது தேவைப்படலாம்.</string>
     <string name="disable_extended_text_ui" maxLength="41">ஒற்றை-புலம் எடிட்டிங் பயன்முறையை முடக்கு</string>
     <!--See: multimedia_editor_popup_cloze. We can\'t use format strings as this is auto-generated-->
     <string name="disable_extended_text_ui_summ">லேண்ட்ஸ்கேப் பயன்முறையில் இருக்கும்போது \'அழித்தலை மூடவும்\' சூழல் மெனுவை அனுமதிக்கிறது.</string>
@@ -172,6 +170,8 @@
     <string name="show_estimates_summ">பதில் பொத்தான்களில் அடுத்த மதிப்பாய்வு நேரத்தைக் காட்டு</string>
     <string name="show_large_answer_buttons" maxLength="41">பெரிய பதில் பொத்தான்களைக் காட்டு</string>
     <string name="show_large_answer_buttons_summ">Show answer button in 2 rows</string>
+    <string name="remove_animations" maxLength="41">Remove animations</string>
+    <string name="remove_animations_summary">Also enabled if animations are removed on the system settings</string>
     <string name="show_top_bar" maxLength="41">மேல் பட்டியைக் காட்டு</string>
     <string name="show_top_bar_summary">அட்டை எண்ணிக்கை, பதில் டைமர், கொடி மற்றும் மேல் பட்டியில் குறிக்கவும்</string>
     <string name="show_progress" maxLength="41">மீதமுள்ளதைக் காட்டு</string>

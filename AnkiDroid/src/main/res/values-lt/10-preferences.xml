@@ -160,8 +160,6 @@
     <string name="select_locale_title">Pasirinkite kalbą</string>
     <string name="software_render" maxLength="41">Išjungti kortelės techninės įrangos atvaizdavimą</string>
     <string name="software_render_summ">Techninė įranga atvaizduoja greičiau, tačiau gali kilti problemų, ypač naudojant \"Android 8/8.1\". Jei nematote kortelių peržiūros naudotojo sąsajos dalių, išbandykite šį nustatymą.</string>
-    <string name="safe_display" maxLength="41">Ribotoji ekrano veiksena</string>
-    <string name="safe_display_summ">Išjungti visą animaciją ir naudoti saugesnį kortelių piešimo būdą. To gali reikėti įrenginiams, kurių veikimas paremtas „E-ink“ technologija.</string>
     <string name="disable_extended_text_ui" maxLength="41">Išjungti vieno lauko redagavimo režimą</string>
     <!--See: multimedia_editor_popup_cloze. We can\'t use format strings as this is auto-generated-->
     <string name="disable_extended_text_ui_summ">Leidžia naudoti kontekstinį meniu \"Cloze Deletion\", kai naudojamas kraštovaizdžio režimas.</string>
@@ -175,6 +173,8 @@
     <string name="show_estimates_summ">Ant atsakymo mygtukų rodyti kiek liko laiko iki sekančios peržiūros</string>
     <string name="show_large_answer_buttons" maxLength="41">Show large answer buttons</string>
     <string name="show_large_answer_buttons_summ">Rodyti atsakymo mygtuką 2 eilutėse</string>
+    <string name="remove_animations" maxLength="41">Remove animations</string>
+    <string name="remove_animations_summary">Also enabled if animations are removed on the system settings</string>
     <string name="show_top_bar" maxLength="41">Rodyti viršutinę juostą</string>
     <string name="show_top_bar_summary">Viršutinėje juostoje rodyti kortelių skaičių, atsakymų laikmatį, vėliavėlę ir ženklą</string>
     <string name="show_progress" maxLength="41">Likusių kortelių rodymas</string>

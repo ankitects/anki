@@ -157,8 +157,6 @@
     <string name="select_locale_title">Seleccioneu l\'idioma</string>
     <string name="software_render" maxLength="41">Desactiva hardware de mostrar carta</string>
     <string name="software_render_summ">La mostra per hardware és més ràpida, però pot tenir problemes, concretament a Android 8 / 8.1. Si no podeu veure parts de la carta, proveu aquesta configuració.</string>
-    <string name="safe_display" maxLength="41">Mode d\'exhibició segur</string>
-    <string name="safe_display_summ">Desactiveu totes les animacions i utilitzeu un mètode més segur per dibuixar cartes. Els dispositius de tinta electrònica poden requerir-ho.</string>
     <string name="disable_extended_text_ui" maxLength="41">Desactiva mode d\'edició d\'un sol camp</string>
     <!--See: multimedia_editor_popup_cloze. We can\'t use format strings as this is auto-generated-->
     <string name="disable_extended_text_ui_summ">Permet el menú \'Supressió Parcial\' quan som en mode apaisat</string>
@@ -172,6 +170,8 @@
     <string name="show_estimates_summ">Mostra el temps de la pròxima revisió al botons de resposta</string>
     <string name="show_large_answer_buttons" maxLength="41">Mostra botons de resposta grans</string>
     <string name="show_large_answer_buttons_summ">Show answer button in 2 rows</string>
+    <string name="remove_animations" maxLength="41">Remove animations</string>
+    <string name="remove_animations_summary">Also enabled if animations are removed on the system settings</string>
     <string name="show_top_bar" maxLength="41">Mostra la barra de dalt</string>
     <string name="show_top_bar_summary">Show card counts, answer timer, flag and mark in top bar</string>
     <string name="show_progress" maxLength="41">Mostra el romanent</string>
