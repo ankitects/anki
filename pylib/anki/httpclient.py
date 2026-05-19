@@ -22,37 +22,13 @@ HTTP_BUF_SIZE = 64 * 1024
 ProgressCallback = Callable[[int, int], None]
 
 
-class SystemStoreHTTPAdapter(requests.adapters.HTTPAdapter):
+class _SystemStoreHTTPAdapter(requests.adapters.HTTPAdapter):
     """Opt out of Requests' default certifi bundle."""
 
     def cert_verify(self, conn: Any, url: str, verify: bool | str, cert: Any) -> None:
-        if verify is True and url.lower().startswith("https"):
-            conn.cert_reqs = "CERT_REQUIRED"
-            conn.ca_certs = None
-            conn.ca_cert_dir = None
-            self._configure_client_cert(conn, cert)
-        else:
-            super().cert_verify(conn, url, verify, cert)
-
-    def _configure_client_cert(self, conn: Any, cert: Any) -> None:
-        if not cert:
-            return
-
-        if isinstance(cert, tuple):
-            conn.cert_file = cert[0]
-            conn.key_file = cert[1]
-        else:
-            conn.cert_file = cert
-            conn.key_file = None
-
-        if conn.cert_file and not os.path.exists(conn.cert_file):
-            raise OSError(
-                f"Could not find the TLS certificate file, invalid path: {conn.cert_file}"
-            )
-        if conn.key_file and not os.path.exists(conn.key_file):
-            raise OSError(
-                f"Could not find the TLS key file, invalid path: {conn.key_file}"
-            )
+        conn.cert_reqs = "CERT_REQUIRED"
+        conn.ca_certs = None
+        conn.ca_cert_dir = None
 
 
 class HttpClient(DeprecatedNamesMixin):
@@ -64,7 +40,7 @@ class HttpClient(DeprecatedNamesMixin):
     def __init__(self, progress_hook: ProgressCallback | None = None) -> None:
         self.progress_hook = progress_hook
         self.session = requests.Session()
-        self.session.mount("https://", SystemStoreHTTPAdapter())
+        self.session.mount("https://", _SystemStoreHTTPAdapter())
 
     def __enter__(self) -> HttpClient:
         return self
