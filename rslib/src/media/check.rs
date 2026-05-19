@@ -943,4 +943,31 @@ Unused: unused.jpg
 
         Ok(())
     }
+
+    #[test]
+    fn unused_check_accounts_for_case_insensitivity() -> Result<()> {
+        let (_dir, mgr, mut col) = common_setup()?;
+
+        let ref_fname = "ABC.mp3".to_owned();
+        let disk_fname = ref_fname.to_lowercase();
+
+        NoteAdder::basic(&mut col)
+            .fields(&["abc", &format!("[sound:{}]", ref_fname)])
+            .add(&mut col);
+
+        write_file(mgr.media_folder.join(&disk_fname), "blah")?;
+
+        let output = {
+            let mut checker = col.media_checker()?;
+            checker.check()?
+        };
+
+        // only considered missing if the media folder is case sensitive
+        assert_eq!(
+            output.missing.contains(&ref_fname),
+            anki_io::is_case_sensitive(&mgr.media_folder)
+        );
+
+        Ok(())
+    }
 }
