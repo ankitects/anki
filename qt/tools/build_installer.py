@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import argparse
+import compileall
 import os
 import platform
 import shutil
@@ -12,8 +13,6 @@ import sys
 from pathlib import Path
 
 sys.path.extend(["pylib", "out/pylib"])
-
-from anki.lang import lang_to_disk_lang, langs
 
 installer_dir = Path("qt/installer")
 app_dir = installer_dir / "app"
@@ -29,6 +28,8 @@ def normalize_wheel_path(out_dir: Path, path: str) -> str:
 
 
 def chromium_paks_to_keep() -> set[str]:
+    from anki.lang import lang_to_disk_lang, langs
+
     keep = {"en-US"}
     for _name, code in langs:
         disk = lang_to_disk_lang(code)
@@ -38,9 +39,9 @@ def chromium_paks_to_keep() -> set[str]:
     return keep
 
 
-def prune_webengine_locales(bundle_root: Path) -> None:
+def prune_webengine_locales(out_dir: Path) -> None:
     keep = chromium_paks_to_keep()
-    for pak in bundle_root.rglob("qtwebengine_locales/*.pak"):
+    for pak in out_dir.rglob("qtwebengine_locales/*.pak"):
         if pak.stem not in keep:
             pak.unlink()
 
@@ -60,6 +61,29 @@ def get_briefcase_output_format() -> list[str]:
         return ["linux", "zip"]
     # Use default format for platform
     return []
+
+
+def get_briefcase_sources_path(out_dir: Path, version: str) -> Path | None:
+    """
+    Get the directory where Briefcase's `app`/`app_packages` directories are written.
+    Make sure to update this if output formats or templates ever change.
+    """
+    if sys.platform == "win32":
+        return out_dir / "build" / "anki" / "windows" / "app" / "src"
+    elif sys.platform == "darwin":
+        return (
+            out_dir
+            / "build"
+            / "anki"
+            / "darwin"
+            / "app"
+            / "Anki.app"
+            / "Contents"
+            / "Resources"
+        )
+    elif sys.platform == "linux":
+        return out_dir / "build" / "anki" / "linux" / "zip" / f"anki-{version}"
+    return None
 
 
 def get_briefcase_config_args(args: argparse.Namespace) -> list[str]:
@@ -83,7 +107,23 @@ def get_briefcase_config_args(args: argparse.Namespace) -> list[str]:
     return config_args
 
 
+def compile_sources(out_dir: Path, version: str) -> None:
+    """Compile Python sources to .pyc"""
+
+    sources_root = get_briefcase_sources_path(out_dir, version)
+    if not sources_root:
+        return
+    for src_dir in (sources_root / "app", sources_root / "app_packages"):
+        # legacy=True is needed to write .pyc to the same location as .py
+        # so no __pycache__, which is not loaded with no sources
+        if not compileall.compile_dir(src_dir, legacy=True, quiet=1):
+            raise RuntimeError(f"Failed to compile Python sources in {src_dir}")
+        for path in src_dir.rglob("*.py"):
+            path.unlink()
+
+
 def build(args: argparse.Namespace) -> None:
+    version = args.version
     shutil.copytree(app_dir, out_dir, dirs_exist_ok=True)
     config_args = get_briefcase_config_args(args)
     shutil.copy("LICENSE", out_dir / "LICENSE")
@@ -107,6 +147,7 @@ def build(args: argparse.Namespace) -> None:
         cwd=out_dir,
     )
     prune_webengine_locales(out_dir)
+    compile_sources(out_dir, version)
 
 
 def package(args: argparse.Namespace) -> None:
