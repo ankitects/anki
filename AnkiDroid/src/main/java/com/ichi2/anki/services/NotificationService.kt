@@ -24,7 +24,6 @@ import androidx.annotation.VisibleForTesting
 import androidx.core.app.NotificationCompat
 import androidx.core.app.PendingIntentCompat
 import androidx.core.content.getSystemService
-import androidx.core.os.BundleCompat
 import com.ichi2.anki.Channel
 import com.ichi2.anki.CollectionManager.withCol
 import com.ichi2.anki.DeckPicker
@@ -46,6 +45,7 @@ import com.ichi2.anki.services.NotificationService.Companion.addAction
 import com.ichi2.anki.services.NotificationService.Companion.getIntent
 import com.ichi2.anki.settings.Prefs
 import com.ichi2.anki.utils.ext.allDecksCounts
+import com.ichi2.anki.utils.ext.getParcelableCompat
 import com.ichi2.anki.utils.remainingTime
 import com.ichi2.widget.WidgetStatus
 import net.ankiweb.rsdroid.BackendException
@@ -460,11 +460,7 @@ class NotificationService : AnkiBroadcastReceiver() {
             val extras = intent.extras ?: return
             val reviewReminder =
                 try {
-                    BundleCompat.getParcelable(
-                        extras,
-                        EXTRA_REVIEW_REMINDER,
-                        ReviewReminder::class.java,
-                    ) ?: return
+                    extras.getParcelableCompat<ReviewReminder>(EXTRA_REVIEW_REMINDER) ?: return
                 } catch (e: BadParcelableException) {
                     // #20782: If the extra's review reminder has an invalid schema, attempt a full re-schedule of all
                     // review reminder notifications, as that will retrieve reminders from Shared Preferences

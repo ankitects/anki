@@ -22,7 +22,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.annotation.RequiresApi
-import androidx.core.os.BundleCompat
 import androidx.core.os.bundleOf
 import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.commit
@@ -32,6 +31,7 @@ import com.ichi2.anki.PermissionSet
 import com.ichi2.anki.R
 import com.ichi2.anki.databinding.FragmentPermissionsBottomSheetBinding
 import com.ichi2.anki.utils.ext.behavior
+import com.ichi2.anki.utils.ext.getParcelableCompat
 import dev.androidbroadcast.vbpd.viewBinding
 
 /**
@@ -69,7 +69,7 @@ class PermissionsBottomSheet : BottomSheetDialogFragment() {
         }
 
         val permissionSet =
-            requireNotNull(BundleCompat.getParcelable(requireArguments(), PERMISSION_SET_ARGUMENT_KEY, PermissionSet::class.java)) {
+            requireNotNull(requireArguments().getParcelableCompat<PermissionSet>(PERMISSION_SET_ARGUMENT_KEY)) {
                 "Permission set cannot be null"
             }
         val permissionsFragment =

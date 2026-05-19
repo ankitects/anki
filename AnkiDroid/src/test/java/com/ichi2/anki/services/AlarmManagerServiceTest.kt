@@ -36,6 +36,7 @@ import com.ichi2.anki.reviewreminders.ReviewReminderScope
 import com.ichi2.anki.reviewreminders.ReviewReminderTime
 import com.ichi2.anki.reviewreminders.ReviewRemindersDatabase
 import com.ichi2.anki.services.NotificationService.Companion.EXTRA_REVIEW_REMINDER
+import com.ichi2.anki.utils.ext.getParcelableCompat
 import com.ichi2.testutils.ext.storeReminders
 import io.mockk.every
 import io.mockk.mockk
@@ -221,11 +222,7 @@ class AlarmManagerServiceTest : RobolectricTest() {
         val actuallyFired =
             capturedIntents
                 .map { intent ->
-                    BundleCompat.getParcelable(
-                        intent.extras!!,
-                        EXTRA_REVIEW_REMINDER,
-                        ReviewReminder::class.java,
-                    )!!
+                    intent.extras!!.getParcelableCompat<ReviewReminder>(EXTRA_REVIEW_REMINDER)!!
                 }.toSet()
         val actuallyFiredIds = actuallyFired.map { it.id }.toSet()
         val notFired = testCases.map { it.reminder }.filterNot { it.id in actuallyFiredIds }.toSet()

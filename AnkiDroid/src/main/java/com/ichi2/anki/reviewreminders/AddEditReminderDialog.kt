@@ -22,7 +22,6 @@ import android.os.Bundle
 import android.os.Parcelable
 import android.text.format.DateFormat
 import androidx.appcompat.app.AlertDialog
-import androidx.core.os.BundleCompat
 import androidx.core.view.isVisible
 import androidx.core.widget.doOnTextChanged
 import androidx.fragment.app.DialogFragment
@@ -93,7 +92,7 @@ class AddEditReminderDialog : DialogFragment() {
      */
     private val dialogMode: DialogMode by lazy {
         requireNotNull(
-            BundleCompat.getParcelable(requireArguments(), ARGS_DIALOG_MODE, DialogMode::class.java),
+            requireArguments().getParcelableCompat<DialogMode>(ARGS_DIALOG_MODE),
         ) {
             "Dialog mode cannot be null"
         }

@@ -24,7 +24,6 @@ import android.view.MenuInflater
 import android.view.MenuItem
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.os.BundleCompat
 import androidx.core.view.MenuProvider
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
@@ -48,6 +47,7 @@ import com.ichi2.anki.services.AlarmManagerService
 import com.ichi2.anki.snackbar.BaseSnackbarBuilderProvider
 import com.ichi2.anki.snackbar.SnackbarBuilder
 import com.ichi2.anki.snackbar.showSnackbar
+import com.ichi2.anki.utils.ext.getParcelableCompat
 import com.ichi2.anki.utils.ext.showDialogFragment
 import com.ichi2.anki.withProgress
 import dev.androidbroadcast.vbpd.viewBinding
@@ -65,11 +65,8 @@ class ScheduleRemindersFragment :
      * @see ReviewReminderScope
      */
     private val scheduleRemindersScope: ReviewReminderScope by lazy {
-        BundleCompat.getParcelable(
-            requireArguments(),
-            ARGS_SCOPE,
-            ReviewReminderScope::class.java,
-        ) ?: ReviewReminderScope.Global
+        requireArguments().getParcelableCompat<ReviewReminderScope>(ARGS_SCOPE)
+            ?: ReviewReminderScope.Global
     }
 
     private val binding by viewBinding(FragmentScheduleRemindersBinding::bind)
