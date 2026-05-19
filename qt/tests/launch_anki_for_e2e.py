@@ -14,21 +14,24 @@ import signal
 import subprocess
 import sys
 import tempfile
+from pathlib import Path
 
 API_PORT = os.environ.get("ANKI_API_PORT", "40000")
 
 
 def main() -> None:
-    with tempfile.TemporaryDirectory() as base_dir:
+    with tempfile.TemporaryDirectory(prefix="anki-e2e-") as base_str:
+        base = Path(base_str)
+
         env = os.environ.copy()
         env.update(
             {
-                "ANKI_BASE": base_dir,
+                "ANKI_BASE": str(base),
                 "ANKI_API_PORT": API_PORT,
                 "ANKI_API_HOST": "0.0.0.0",
                 "ANKIDEV": "1",
                 "ANKI_TEST_MODE": "1",
-                "ANKI_SINGLE_INSTANCE_KEY": f"e2e-{API_PORT}",
+                "ANKI_SINGLE_INSTANCE_KEY": base.name,
                 "QT_QPA_PLATFORM": "offscreen",
             }
         )

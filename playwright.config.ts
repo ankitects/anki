@@ -23,7 +23,7 @@ export default defineConfig({
     },
     webServer: {
         command: `${PYENV_PYTHON} qt/tests/launch_anki_for_e2e.py`,
-        url: `http://127.0.0.1:${MEDIASRV_PORT}/editor/?mode=add`,
+        url: `http://127.0.0.1:${MEDIASRV_PORT}/favicon.ico`,
         timeout: 60_000,
         reuseExistingServer: process.env.ANKI_E2E_REUSE_SERVER === "1",
         stdout: "pipe",
