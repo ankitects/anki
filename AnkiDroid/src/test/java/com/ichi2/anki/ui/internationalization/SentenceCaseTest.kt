@@ -70,6 +70,13 @@ class SentenceCaseTest : RobolectricTest() {
                 assertThat(TR.sentenceCase.deleteDeck, equalTo("Delete deck"))
                 assertThat(TR.sentenceCase.logIn, equalTo("Log in"))
                 assertThat(TR.sentenceCase.logOut, equalTo("Log out"))
+                assertThat(TR.sentenceCase.cardInfo, equalTo("Card info"))
+                assertThat(TR.sentenceCase.buryNote, equalTo("Bury note"))
+                assertThat(TR.sentenceCase.buryCard, equalTo("Bury card"))
+                assertThat(TR.sentenceCase.suspendNote, equalTo("Suspend note"))
+                assertThat(TR.sentenceCase.suspendCard, equalTo("Suspend card"))
+                assertThat(TR.sentenceCase.markNote, equalTo("Mark note"))
+                assertThat(TR.sentenceCase.previousCardInfo, equalTo("Previous card info"))
 
                 assertThat("syncMediaLogTitle", TR.syncMediaLogTitle(), equalTo("Media Sync Log"))
                 assertThat(TR.sentenceCase.mediaSyncLog, equalTo("Media sync log"))

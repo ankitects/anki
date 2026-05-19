@@ -35,7 +35,6 @@ import com.ichi2.anki.reviewer.CardSide
 import com.ichi2.anki.reviewer.MappableAction
 import com.ichi2.anki.reviewer.ReviewerBinding
 import com.ichi2.anki.ui.internationalization.sentenceCase
-import com.ichi2.anki.ui.internationalization.toSentenceCase
 
 /**
  * @param menuId menu Id of the action
@@ -257,68 +256,70 @@ enum class ViewerAction(
     fun isSubMenu() = ViewerAction.entries.any { it.parentMenu == this }
 
     fun title(context: Context): String =
-        when (this) {
-            BROWSE -> TR.qtMiscBrowse()
-            STATISTICS -> TR.statisticsTitle()
-            RESCHEDULE_NOTE -> with(context) { TR.sentenceCase.setDueDate }
-            PREVIOUS_CARD_INFO -> TR.actionsPreviousCardInfo().toSentenceCase(context, R.string.sentence_actions_previous_card_info)
-            UNDO -> context.getString(R.string.undo)
-            REDO -> context.getString(R.string.redo)
-            FLAG_MENU -> context.getString(R.string.menu_flag)
-            MARK -> context.getString(R.string.menu_mark_note)
-            EDIT -> context.getString(R.string.cardeditor_title_edit_card)
-            BURY_MENU -> context.getString(R.string.menu_bury)
-            SUSPEND_MENU -> context.getString(R.string.menu_suspend)
-            DELETE -> context.getString(R.string.menu_delete_note)
-            TOGGLE_WHITEBOARD -> context.getString(R.string.gesture_toggle_whiteboard)
-            DECK_OPTIONS -> context.getString(R.string.menu__deck_options)
-            CARD_INFO -> context.getString(R.string.card_info_title)
-            ADD_NOTE -> context.getString(R.string.menu_add_note)
-            TAG -> context.getString(R.string.menu_edit_tags)
-            RESET_PROGRESS -> context.getString(R.string.card_editor_reset_card)
-            TOGGLE_AUTO_ADVANCE -> context.getString(R.string.toggle_auto_advance)
-            RECORD_VOICE -> context.getString(R.string.record_voice)
-            PLAY_MEDIA -> context.getString(R.string.replay_media)
-            USER_ACTION_1 -> context.getString(R.string.user_action_1)
-            USER_ACTION_2 -> context.getString(R.string.user_action_2)
-            USER_ACTION_3 -> context.getString(R.string.user_action_3)
-            USER_ACTION_4 -> context.getString(R.string.user_action_4)
-            USER_ACTION_5 -> context.getString(R.string.user_action_5)
-            USER_ACTION_6 -> context.getString(R.string.user_action_6)
-            USER_ACTION_7 -> context.getString(R.string.user_action_7)
-            USER_ACTION_8 -> context.getString(R.string.user_action_8)
-            USER_ACTION_9 -> context.getString(R.string.user_action_9)
-            BURY_NOTE -> context.getString(R.string.menu_bury_note)
-            BURY_CARD -> context.getString(R.string.menu_bury_card)
-            SUSPEND_NOTE -> context.getString(R.string.menu_suspend_note)
-            SUSPEND_CARD -> context.getString(R.string.menu_suspend_card)
-            UNSET_FLAG,
-            FLAG_RED,
-            FLAG_ORANGE,
-            FLAG_GREEN,
-            FLAG_BLUE,
-            FLAG_PINK,
-            FLAG_TURQUOISE,
-            FLAG_PURPLE,
-            SHOW_ANSWER,
-            ANSWER_AGAIN,
-            ANSWER_HARD,
-            ANSWER_GOOD,
-            ANSWER_EASY,
-            TOGGLE_FLAG_RED,
-            TOGGLE_FLAG_ORANGE,
-            TOGGLE_FLAG_GREEN,
-            TOGGLE_FLAG_BLUE,
-            TOGGLE_FLAG_PINK,
-            TOGGLE_FLAG_TURQUOISE,
-            TOGGLE_FLAG_PURPLE,
-            SHOW_HINT,
-            SHOW_ALL_HINTS,
-            REPLAY_VOICE,
-            PAGE_UP,
-            PAGE_DOWN,
-            EXIT,
-            -> context.getString(R.string.empty_string)
+        with(context) {
+            when (this@ViewerAction) {
+                BROWSE -> TR.qtMiscBrowse()
+                STATISTICS -> TR.statisticsTitle()
+                RESCHEDULE_NOTE -> TR.sentenceCase.setDueDate
+                PREVIOUS_CARD_INFO -> TR.sentenceCase.previousCardInfo
+                UNDO -> getString(R.string.undo)
+                REDO -> getString(R.string.redo)
+                FLAG_MENU -> TR.browsingFlag()
+                MARK -> TR.sentenceCase.markNote
+                EDIT -> getString(R.string.cardeditor_title_edit_card)
+                BURY_MENU -> TR.studyingBury()
+                SUSPEND_MENU -> TR.studyingSuspend()
+                DELETE -> getString(R.string.menu_delete_note)
+                TOGGLE_WHITEBOARD -> getString(R.string.gesture_toggle_whiteboard)
+                DECK_OPTIONS -> getString(R.string.menu__deck_options)
+                CARD_INFO -> TR.sentenceCase.cardInfo
+                ADD_NOTE -> getString(R.string.menu_add_note)
+                TAG -> getString(R.string.menu_edit_tags)
+                RESET_PROGRESS -> getString(R.string.card_editor_reset_card)
+                TOGGLE_AUTO_ADVANCE -> getString(R.string.toggle_auto_advance)
+                RECORD_VOICE -> getString(R.string.record_voice)
+                PLAY_MEDIA -> getString(R.string.replay_media)
+                USER_ACTION_1 -> getString(R.string.user_action_1)
+                USER_ACTION_2 -> getString(R.string.user_action_2)
+                USER_ACTION_3 -> getString(R.string.user_action_3)
+                USER_ACTION_4 -> getString(R.string.user_action_4)
+                USER_ACTION_5 -> getString(R.string.user_action_5)
+                USER_ACTION_6 -> getString(R.string.user_action_6)
+                USER_ACTION_7 -> getString(R.string.user_action_7)
+                USER_ACTION_8 -> getString(R.string.user_action_8)
+                USER_ACTION_9 -> getString(R.string.user_action_9)
+                BURY_NOTE -> TR.sentenceCase.buryNote
+                BURY_CARD -> TR.sentenceCase.buryCard
+                SUSPEND_NOTE -> TR.sentenceCase.suspendNote
+                SUSPEND_CARD -> TR.sentenceCase.suspendCard
+                UNSET_FLAG,
+                FLAG_RED,
+                FLAG_ORANGE,
+                FLAG_GREEN,
+                FLAG_BLUE,
+                FLAG_PINK,
+                FLAG_TURQUOISE,
+                FLAG_PURPLE,
+                SHOW_ANSWER,
+                ANSWER_AGAIN,
+                ANSWER_HARD,
+                ANSWER_GOOD,
+                ANSWER_EASY,
+                TOGGLE_FLAG_RED,
+                TOGGLE_FLAG_ORANGE,
+                TOGGLE_FLAG_GREEN,
+                TOGGLE_FLAG_BLUE,
+                TOGGLE_FLAG_PINK,
+                TOGGLE_FLAG_TURQUOISE,
+                TOGGLE_FLAG_PURPLE,
+                SHOW_HINT,
+                SHOW_ALL_HINTS,
+                REPLAY_VOICE,
+                PAGE_UP,
+                PAGE_DOWN,
+                EXIT,
+                -> getString(R.string.empty_string)
+            }
         }
 
     private fun keycode(

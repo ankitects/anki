@@ -69,4 +69,10 @@ undoActionUndone()
     <string name="sentence_delete_deck">Delete deck</string>
     <string name="sentence_log_in">Log in</string>
     <string name="sentence_log_out">Log out</string>
+    <string name="sentence_card_info">Card info</string>
+    <string name="sentence_bury_note">Bury note</string>
+    <string name="sentence_bury_card">Bury card</string>
+    <string name="sentence_suspend_note">Suspend note</string>
+    <string name="sentence_suspend_card">Suspend card</string>
+    <string name="sentence_mark_note">Mark note</string>
 </resources>

@@ -32,6 +32,7 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import com.google.android.material.slider.Slider
+import com.ichi2.anki.CollectionManager.TR
 import com.ichi2.anki.DispatchKeyEventListener
 import com.ichi2.anki.Flag
 import com.ichi2.anki.R
@@ -44,6 +45,7 @@ import com.ichi2.anki.reviewer.BindingProcessor
 import com.ichi2.anki.reviewer.MappableBinding
 import com.ichi2.anki.snackbar.BaseSnackbarBuilderProvider
 import com.ichi2.anki.snackbar.SnackbarBuilder
+import com.ichi2.anki.ui.internationalization.sentenceCase
 import com.ichi2.anki.utils.ext.collectIn
 import com.ichi2.anki.utils.ext.setIconRes
 import com.ichi2.anki.utils.ext.sharedPrefs
@@ -114,7 +116,7 @@ class PreviewerFragment :
                             setTitle(R.string.menu_unmark_note)
                         } else {
                             setIcon(R.drawable.ic_star_border_white)
-                            setTitle(R.string.menu_mark_note)
+                            title = TR.sentenceCase.markNote
                         }
                     }
                 }

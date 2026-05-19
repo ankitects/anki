@@ -18,8 +18,11 @@ package com.ichi2.anki.preferences
 import androidx.annotation.VisibleForTesting
 import androidx.appcompat.app.AlertDialog
 import androidx.core.content.edit
+import androidx.preference.ListPreference
 import androidx.preference.Preference
+import com.ichi2.anki.CollectionManager.TR
 import com.ichi2.anki.R
+import com.ichi2.anki.ui.internationalization.sentenceCase
 import com.ichi2.utils.negativeButton
 import com.ichi2.utils.positiveButton
 import com.ichi2.utils.show
@@ -32,6 +35,8 @@ class CustomButtonsSettingsFragment : SettingsFragment() {
         get() = "prefs.custom_buttons"
 
     override fun initSubscreen() {
+        setDynamicTitles()
+
         // Reset toolbar button customizations
         val resetCustomButtons = requirePreference<Preference>("reset_custom_buttons")
         resetCustomButtons.onPreferenceClickListener =
@@ -54,6 +59,15 @@ class CustomButtonsSettingsFragment : SettingsFragment() {
                 }
                 true
             }
+    }
+
+    private fun setDynamicTitles() {
+        findPreference<ListPreference>(getString(R.string.custom_button_flag_key))?.title = TR.browsingFlag()
+        findPreference<ListPreference>(getString(R.string.custom_button_card_info_key))?.title = TR.sentenceCase.cardInfo
+        findPreference<ListPreference>(getString(R.string.custom_button_bury_key))?.title = TR.studyingBury()
+        findPreference<ListPreference>(getString(R.string.custom_button_suspend_key))?.title = TR.studyingSuspend()
+        findPreference<ListPreference>(getString(R.string.custom_button_mark_card_key))?.title = TR.sentenceCase.markNote
+        findPreference<ListPreference>(getString(R.string.custom_button_previous_card_info_key))?.title = TR.sentenceCase.previousCardInfo
     }
 
     @VisibleForTesting(otherwise = VisibleForTesting.NONE)

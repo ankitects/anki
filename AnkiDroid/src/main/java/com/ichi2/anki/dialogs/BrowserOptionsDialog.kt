@@ -95,6 +95,7 @@ class BrowserOptionsDialog : AppCompatDialogFragment(R.layout.dialog_browser_opt
 
         binding.truncateCheckBox.isChecked = isTruncated
         binding.toggleCardsNotesTitle.text = TR.sentenceCase.toggleCardsNotes
+        binding.flagTitle.text = TR.browsingFlag()
 
         binding.renameFlag.setOnClickListener {
             Timber.d("Rename flag clicked")

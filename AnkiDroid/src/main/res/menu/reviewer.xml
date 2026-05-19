@@ -111,12 +111,12 @@
     <item
         android:id="@+id/action_card_info"
         android:icon="@drawable/ic_dialog_info"
-        android:title="@string/card_info_title"
+        tools:title="Card info"
         ankidroid:showAsAction="never"/>
     <item
         android:id="@+id/action_previous_card_info"
         android:icon="@drawable/ic_outline_info_24"
-        android:title="@string/previous_card_info_title"
+        tools:title="Previous card info"
         ankidroid:showAsAction="never"/>
     <item
         android:id="@+id/action_tag"
@@ -125,39 +125,39 @@
         ankidroid:showAsAction="never"/>
     <item
         android:id="@+id/action_bury_card"
-        android:title="@string/menu_bury_card"
+        tools:title="Bury card"
         android:icon="@drawable/ic_flip_to_back_white"
         android:visible="false"
         />
     <item
         android:id="@+id/action_bury"
-        android:title="@string/menu_bury"
+        tools:title="Bury"
         android:icon="@drawable/ic_flip_to_back_white">
         <menu>
             <item
                 android:id="@+id/action_bury_card"
-                android:title="@string/menu_bury_card" />
+                tools:title="Bury card" />
             <item
                 android:id="@+id/action_bury_note"
-                android:title="@string/menu_bury_note" />
+                tools:title="Bury note" />
         </menu>
 
     </item>
     <item android:id="@+id/action_suspend_card"
-        android:title="@string/menu_suspend_card"
+        tools:title="Suspend card"
         android:icon="@drawable/ic_suspend"
         android:visible="false"/>
     <item
         android:id="@+id/action_suspend"
-        android:title="@string/menu_suspend"
+        tools:title="Suspend"
         android:icon="@drawable/ic_suspend">
         <menu>
             <item
                 android:id="@+id/action_suspend_card"
-                android:title="@string/menu_suspend_card" />
+                tools:title="Suspend card" />
             <item
                 android:id="@+id/action_suspend_note"
-                android:title="@string/menu_suspend_note" />
+                tools:title="Suspend note" />
         </menu>
     </item>
 
@@ -168,7 +168,7 @@
     <item
         android:id="@+id/action_mark_card"
         android:icon="@drawable/ic_star_border_white"
-        android:title="@string/menu_mark_note"
+        tools:title="Mark note"
         ankidroid:showAsAction="ifRoom"/>
     <item
         android:id="@+id/action_schedule"

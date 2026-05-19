@@ -27,6 +27,7 @@ TODO: Add a unit test
 -->
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:title="@string/custom_buttons"
     android:key="@string/pref_app_bar_buttons_screen_key">
     <Preference
@@ -59,7 +60,7 @@ TODO: Add a unit test
             android:entries="@array/custom_button_labels"
             android:entryValues="@array/custom_button_values"
             android:key="@string/custom_button_flag_key"
-            android:title="@string/menu_flag"
+            tools:title="Flag"
             app:useSimpleSummaryProvider="true"/>
         <ListPreference
             android:defaultValue="1"
@@ -94,14 +95,14 @@ TODO: Add a unit test
             android:entries="@array/custom_button_labels"
             android:entryValues="@array/custom_button_values"
             android:key="@string/custom_button_card_info_key"
-            android:title="@string/card_info_title"
+            tools:title="Card info"
             app:useSimpleSummaryProvider="true"/>
         <ListPreference
             android:defaultValue="3"
             android:entries="@array/custom_button_labels"
             android:entryValues="@array/custom_button_values"
             android:key="@string/custom_button_previous_card_info_key"
-            android:title="@string/previous_card_info_title"
+            tools:title="Previous card info"
             app:useSimpleSummaryProvider="true"/>
         <ListPreference
             android:defaultValue="0"
@@ -122,7 +123,7 @@ TODO: Add a unit test
             android:entries="@array/custom_button_labels"
             android:entryValues="@array/custom_button_values"
             android:key="@string/custom_button_mark_card_key"
-            android:title="@string/menu_mark_note"
+            tools:title="Mark note"
             app:useSimpleSummaryProvider="true"/>
         <ListPreference
             android:defaultValue="0"
@@ -145,14 +146,14 @@ TODO: Add a unit test
             android:entries="@array/custom_button_labels"
             android:entryValues="@array/custom_button_values"
             android:key="@string/custom_button_bury_key"
-            android:title="@string/menu_bury"
+            tools:title="Bury"
             app:useSimpleSummaryProvider="true"/>
         <ListPreference
             android:defaultValue="0"
             android:entries="@array/custom_button_labels"
             android:entryValues="@array/custom_button_values"
             android:key="@string/custom_button_suspend_key"
-            android:title="@string/menu_suspend"
+            tools:title="Suspend"
             app:useSimpleSummaryProvider="true"/>
         <ListPreference
             android:defaultValue="0"

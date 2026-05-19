@@ -182,7 +182,6 @@ class TranslationTest : RobolectricTest() {
                 "Appearance", // R.string.pref_cat_appearance | TR.preferencesAppearance()
                 "Back", // R.string.back_field_name, R.string.previewer_back
                 // TR.notetypesBackField()
-                "Bury", // R.string.menu_bury | TR.studyingBury()
                 "Cancel", // R.string.dialog_cancel
                 // TR.actionsCancel()
                 // TR.syncCancelButton()
@@ -232,7 +231,6 @@ class TranslationTest : RobolectricTest() {
                 // TR.editingFields()
                 // TR.notetypesFields()
                 // TR.changeNotetypeFields()
-                "Flag", // R.string.menu_flag | TR.browsingFlag()
                 "Flags", // R.string.filter_by_flags | TR.browsingSidebarFlags()
                 "Flip", // R.string.image_cropper_action_flip | TR.cardTemplatesFlip()
                 "Front", // R.string.front_field_name | TR.notetypesFrontField()
@@ -301,7 +299,6 @@ class TranslationTest : RobolectricTest() {
                 "Show remaining card count", // R.string.show_progress_summ | TR.preferencesShowRemainingCardCount()
                 "Statistics", // R.string.statistics | TR.statisticsTitle()
                 "Study", // R.string.studyoptions_start | TR.decksStudy()
-                "Suspend", // R.string.menu_suspend | TR.studyingSuspend()
                 "Sync", // R.string.button_sync, R.string.pref_cat_sync
                 // TR.qtMiscSync()
                 "Synchronization", // R.string.sync_title | TR.preferencesTabSynchronisation()
@@ -347,9 +344,6 @@ class TranslationTest : RobolectricTest() {
                 "Blank", // R.string.reviewer_tts_cloze_spoken_replacement | TR.cardTemplatesBlank()
                 "Browser appearance", // R.string.card_template_browser_appearance_title | TR.browsingBrowserAppearance()
                 "Browser options", // R.string.browser_options_dialog_heading | TR.browsingBrowserOptions()
-                "Bury card", // R.string.menu_bury_card | TR.studyingBuryCard()
-                "Bury note", // R.string.menu_bury_note | TR.studyingBuryNote()
-                "Card info", // R.string.card_info_title | TR.actionsCardInfo()
                 "Change deck", // R.string.card_browser_change_deck | TR.browsingChangeDeck()
                 "Copy debug info", // R.string.feedback_copy_debug
                 // TR.aboutCopyDebugInfo()
@@ -365,8 +359,6 @@ class TranslationTest : RobolectricTest() {
                 "Manage note types", // R.string.model_browser_label
                 // TR.browsingManageNoteTypes()
                 // TR.qtMiscManageNoteTypes()
-                "Mark note", // R.string.menu_mark_note | TR.studyingMarkNote()
-                "Previous card info", // R.string.previous_card_info_title | TR.actionsPreviousCardInfo()
                 "Rename deck", // R.string.rename_deck | TR.actionsRenameDeck()
                 "Select all", // R.string.card_browser_select_all | TR.editingImageOcclusionSelectAll()
                 "Select deck", // R.string.select_deck | TR.browsingSelectDeck()
@@ -374,8 +366,6 @@ class TranslationTest : RobolectricTest() {
                 "Show answer", // R.string.show_answer
                 // TR.studyingShowAnswer()
                 // TR.deckConfigQuestionActionShowAnswer()
-                "Suspend card", // R.string.menu_suspend_card | TR.actionsSuspendCard()
-                "Suspend note", // R.string.menu_suspend_note | TR.studyingSuspendNote()
             )
     }
 }

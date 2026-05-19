@@ -163,6 +163,48 @@ object SentenceCase {
 
     context(_: Fragment)
     val logOut get() = TR.syncLogOutButton().toSentenceCase(R.string.sentence_log_out)
+
+    context(_: Context)
+    val cardInfo get() = TR.actionsCardInfo().toSentenceCase(R.string.sentence_card_info)
+
+    context(_: Fragment)
+    val cardInfo get() = TR.actionsCardInfo().toSentenceCase(R.string.sentence_card_info)
+
+    context(_: Context)
+    val buryNote get() = TR.studyingBuryNote().toSentenceCase(R.string.sentence_bury_note)
+
+    context(_: Fragment)
+    val buryNote get() = TR.studyingBuryNote().toSentenceCase(R.string.sentence_bury_note)
+
+    context(_: Context)
+    val buryCard get() = TR.studyingBuryCard().toSentenceCase(R.string.sentence_bury_card)
+
+    context(_: Fragment)
+    val buryCard get() = TR.studyingBuryCard().toSentenceCase(R.string.sentence_bury_card)
+
+    context(_: Context)
+    val suspendNote get() = TR.studyingSuspendNote().toSentenceCase(R.string.sentence_suspend_note)
+
+    context(_: Fragment)
+    val suspendNote get() = TR.studyingSuspendNote().toSentenceCase(R.string.sentence_suspend_note)
+
+    context(_: Context)
+    val suspendCard get() = TR.actionsSuspendCard().toSentenceCase(R.string.sentence_suspend_card)
+
+    context(_: Fragment)
+    val suspendCard get() = TR.actionsSuspendCard().toSentenceCase(R.string.sentence_suspend_card)
+
+    context(_: Context)
+    val markNote get() = TR.studyingMarkNote().toSentenceCase(R.string.sentence_mark_note)
+
+    context(_: Fragment)
+    val markNote get() = TR.studyingMarkNote().toSentenceCase(R.string.sentence_mark_note)
+
+    context(_: Context)
+    val previousCardInfo get() = TR.actionsPreviousCardInfo().toSentenceCase(R.string.sentence_actions_previous_card_info)
+
+    context(_: Fragment)
+    val previousCardInfo get() = TR.actionsPreviousCardInfo().toSentenceCase(R.string.sentence_actions_previous_card_info)
 }
 
 /**

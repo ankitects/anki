@@ -34,7 +34,7 @@
     <item
         android:id="@+id/action_mark"
         android:icon="@drawable/ic_star_border_white"
-        android:title="@string/menu_mark_note"
+        tools:title="Mark note"
         app:showAsAction="always"/>
     <item
         android:id="@+id/action_edit"

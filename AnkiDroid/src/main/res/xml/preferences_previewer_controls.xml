@@ -16,7 +16,7 @@
         />
     <com.ichi2.preferences.ControlPreference
         android:key="@string/previewer_mark_key"
-        android:title="@string/menu_mark_note"
+        tools:title="Mark note"
         android:icon="@drawable/ic_star_border_white"
         />
     <com.ichi2.preferences.ControlPreference

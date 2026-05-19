@@ -172,6 +172,30 @@ class ControlsSettingsFragment :
         findPreference<ControlPreference>(getString(R.string.remove_flag_command_key))?.let {
             it.title = getString(R.string.gesture_flag_remove).toSentenceCase(R.string.sentence_gesture_flag_remove)
         }
+        findPreference<ControlPreference>(getString(R.string.bury_card_command_key))?.let {
+            it.title = TR.sentenceCase.buryCard
+        }
+        findPreference<ControlPreference>(getString(R.string.suspend_card_command_key))?.let {
+            it.title = TR.sentenceCase.suspendCard
+        }
+        findPreference<ControlPreference>(getString(R.string.card_info_command_key))?.let {
+            it.title = TR.sentenceCase.cardInfo
+        }
+        findPreference<ControlPreference>(getString(R.string.bury_note_command_key))?.let {
+            it.title = TR.sentenceCase.buryNote
+        }
+        findPreference<ControlPreference>(getString(R.string.suspend_note_command_key))?.let {
+            it.title = TR.sentenceCase.suspendNote
+        }
+        findPreference<ControlPreference>(getString(R.string.mark_command_key))?.let {
+            it.title = TR.sentenceCase.markNote
+        }
+        findPreference<ControlPreference>(getString(R.string.previewer_mark_key))?.let {
+            it.title = TR.sentenceCase.markNote
+        }
+        findPreference<ControlPreference>(getString(R.string.previous_card_info_command_key))?.let {
+            it.title = TR.sentenceCase.previousCardInfo
+        }
     }
 
     private fun setupNewStudyScreenSettings() {

@@ -618,6 +618,7 @@ class CardBrowserFragment :
 
                     menu.findItem(R.id.action_reschedule_cards).title = TR.sentenceCase.setDueDate
                     menu.findItem(R.id.action_grade_now).title = TR.sentenceCase.gradeNow
+                    menu.findItem(R.id.action_view_card_info).title = TR.sentenceCase.cardInfo
 
                     // note: this menu item is available with and without a selection of items
                     menu.findItem(R.id.action_find_replace)?.title = TR.sentenceCase.findAndReplace

@@ -22,9 +22,11 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.coroutineScope
 import androidx.lifecycle.flowWithLifecycle
 import com.ichi2.anki.CollectionManager
+import com.ichi2.anki.CollectionManager.TR
 import com.ichi2.anki.R
 import com.ichi2.anki.preferences.reviewer.ReviewerMenuView
 import com.ichi2.anki.preferences.reviewer.ViewerAction
+import com.ichi2.anki.ui.internationalization.sentenceCase
 import com.ichi2.anki.utils.ext.collectLatestIn
 import com.ichi2.anki.utils.ext.menu
 import com.ichi2.anki.utils.ext.removeSubMenu
@@ -56,7 +58,7 @@ fun ReviewerMenuView.setup(
                     markItem.setTitle(R.string.menu_unmark_note)
                 } else {
                     markItem.setPaddedIcon(context, R.drawable.ic_star_border_white)
-                    markItem.setTitle(R.string.menu_mark_note)
+                    markItem.title = with(context) { TR.sentenceCase.markNote }
                 }
             }
     }

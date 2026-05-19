@@ -84,12 +84,12 @@
     <PreferenceCategory android:title="@string/card">
         <com.ichi2.preferences.ReviewerControlPreference
             android:key="@string/bury_card_command_key"
-            android:title="@string/menu_bury_card"
+            tools:title="Bury card"
             android:icon="@drawable/ic_flip_to_back_white"
             />
         <com.ichi2.preferences.ReviewerControlPreference
             android:key="@string/suspend_card_command_key"
-            android:title="@string/menu_suspend_card"
+            tools:title="Suspend card"
             android:icon="@drawable/ic_suspend"
             />
         <com.ichi2.preferences.ReviewerControlPreference
@@ -99,12 +99,12 @@
             />
         <com.ichi2.preferences.ReviewerControlPreference
             android:key="@string/card_info_command_key"
-            android:title="@string/card_info_title"
+            tools:title="Card info"
             android:icon="@drawable/ic_dialog_info"
             />
         <com.ichi2.preferences.ReviewerControlPreference
             android:key="@string/previous_card_info_command_key"
-            android:title="@string/previous_card_info_title"
+            tools:title="Previous card info"
             android:icon="@drawable/ic_outline_info_24"
             />
     </PreferenceCategory>
@@ -112,12 +112,12 @@
     <PreferenceCategory android:title="@string/note">
         <com.ichi2.preferences.ReviewerControlPreference
             android:key="@string/bury_note_command_key"
-            android:title="@string/menu_bury_note"
+            tools:title="Bury note"
             android:icon="@drawable/ic_flip_to_back_white"
             />
         <com.ichi2.preferences.ReviewerControlPreference
             android:key="@string/suspend_note_command_key"
-            android:title="@string/menu_suspend_note"
+            tools:title="Suspend note"
             android:icon="@drawable/ic_suspend"
             />
         <com.ichi2.preferences.ReviewerControlPreference
@@ -127,7 +127,7 @@
             />
         <com.ichi2.preferences.ReviewerControlPreference
             android:key="@string/mark_command_key"
-            android:title="@string/menu_mark_note"
+            tools:title="Mark note"
             android:icon="@drawable/ic_star_border_white"
             />
         <com.ichi2.preferences.ReviewerControlPreference
