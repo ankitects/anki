@@ -31,6 +31,7 @@ import androidx.appcompat.widget.SearchView
 import androidx.appcompat.widget.Toolbar
 import androidx.core.content.res.getDrawableOrThrow
 import androidx.core.content.res.use
+import androidx.core.os.BundleCompat
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
@@ -118,7 +119,8 @@ class DeckSelectionDialog : AnalyticsDialogFragment() {
         )
     }
 
-    private fun getDeckNames(): ArrayList<SelectableDeck> = requireNotNull(requireArguments().getParcelableCompat(DECK_NAMES))
+    private fun getDeckNames(): ArrayList<SelectableDeck> =
+        BundleCompat.getParcelableArrayList(requireArguments(), DECK_NAMES, SelectableDeck::class.java)!!
 
     private fun setupMenu() {
         val toolbar: Toolbar = binding.toolbar
