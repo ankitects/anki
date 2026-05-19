@@ -77,5 +77,5 @@
     <string name="reselect" maxLength="28">Alterar seleção</string>
     <string name="waveform_button_description">Show audio waveform</string>
     <string name="field_content_description">Show field content</string>
-    <string name="delete_audio_button_description">Delete recording</string>
+    <string name="delete_audio_button_description">Apagar gravação</string>
 </resources>

@@ -45,7 +45,7 @@
 -->
 <resources xmlns:tools="http://schemas.android.com/tools">
     <!-- Navigation drawer items-->
-    <string name="decks" maxLength="28" comment="Open the Deck Picker">డెక్స్</string>
+    <string name="decks" maxLength="28" comment="Open the Deck Picker">డెక్లు</string>
     <string name="card_browser" maxLength="28" comment="Title of the Card Browser, and button to open it.">చీటీల బ్రౌజర్</string>
     <string name="statistics" maxLength="28" comment="Title of the Statistics page and button to open it.">గణాంకాలు</string>
     <string name="settings" maxLength="28" comment="Title of the Settings page, and button to open it.">సెట్టింగులు</string>
@@ -76,7 +76,7 @@
         <item quantity="one">%1$d రోజు %2$dh మిగిలి ఉంది</item>
         <item quantity="other">%1$d రోజులు %2$dh మిగిలి ఉన్నాయి</item>
     </plurals>
-    <string name="type_answer_hint" comment="In the reviewer. When the user use note type with hint. It\'s the default content of the text field in which the user is invited to type their answer. It disappears as soon as the user start to type.">సమాధానం టైప్</string>
+    <string name="type_answer_hint" comment="In the reviewer. When the user use note type with hint. It\'s the default content of the text field in which the user is invited to type their answer. It disappears as soon as the user start to type.">సమాధానం రాయండి</string>
     <string name="show_answer" maxLength="41" comment="When displaying the question side of a card. This is the label of a button that display the answer side.">సమాధానం చూపించు</string>
     <string name="hide_answer" comment="In the previewer, when the answer side is displayed. This is the label of the button that sends back to the question side.">సమాధానం దాచండి</string>
     <string name="ease_button_again" maxLength="41" comment="In the reviewer, in the answer side. Label of the button that request the card to be shown again soon.">మళ్ళీ</string>
@@ -199,9 +199,9 @@
     <string name="image_occlusion">చిత్రం ముగింపు</string>
     <string name="microphone" comment="Title of the microphone permission in the permissions explanation screen.">మైక్రోఫోన్</string>
     <string name="microphone_permission_explanation" comment="Description explaining why AnkiDroid needs the microphone permission, shown on the permissions explanation screen.">మీ కార్డులకు సౌండ్ జోడించడానికి అనుమతిస్తది ఇంకా రివ్యూ చేసేటప్పుడు వాయిస్ ప్లేబాక్ కి అనుమతిస్తది</string>
-    <string name="notifications_permission_explanation" comment="Description explaining why AnkiDroid needs the notification permission.">Enables background media syncing and allows you to create review reminders</string>
+    <string name="notifications_permission_explanation" comment="Description explaining why AnkiDroid needs the notification permission.">బ్యాక్గ్రౌండ్ మీడియా సింకింగ్ ను ప్రారంభింస్తుంది మరియు రివ్యూ రిమైండర్‌లను సృష్టించడానికి మిమ్మల్ని అనుమతిస్తుంది</string>
     <string name="heading_required_permissions" comment="Heading for the section of required permissions that the app needs to function, shown in the permissions explanation screen.">అవర్సరం ఉంది</string>
-    <string name="heading_optional_permissions" comment="Heading for the section of optional permissions that the app needs to function, shown in the permissions explanation screen.">Optional</string>
+    <string name="heading_optional_permissions" comment="Heading for the section of optional permissions that the app needs to function, shown in the permissions explanation screen.">ఐచ్ఛికం</string>
     <string name="manually_grant_permissions" comment="Pop-up message that is shown to the user when they want to grant an app permission that must be granted via the OS settings screen.">This permission must be manually granted from Settings</string>
     <string name="revoke_permissions" comment="Pop-up message that is shown to the user when they are revoking an app permission.">This permission must be manually revoked from Settings</string>
     <string name="remove_account" comment="open a website to start the deletion of an AnkiWeb account">ఖాతాను తీసివేయండి</string>

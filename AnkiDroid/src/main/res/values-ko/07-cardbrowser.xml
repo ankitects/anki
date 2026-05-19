@@ -120,6 +120,6 @@
     <string name="save_changes_message">변경사항을 먼저 저장하세요</string>
     <string name="browser_find_replace_loading_fields">필드 이름 검색 중&#8230;</string>
     <!-- Search history -->
-    <string name="card_browser_see_more">See more</string>
-    <string name="card_browser_see_less">See less</string>
+    <string name="card_browser_see_more">더보기</string>
+    <string name="card_browser_see_less">간략히 보기</string>
 </resources>

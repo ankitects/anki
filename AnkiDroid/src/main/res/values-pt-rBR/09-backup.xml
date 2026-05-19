@@ -51,7 +51,7 @@
     <string name="backup_del_collection">Excluir coleção e criar uma nova</string>
     <string name="backup_del_collection_question">Excluir a coleção e criar uma nova? Isto vai apagar todo seu progresso de aprendizado e excluir todos os cards.</string>
     <string name="backup_one_way_sync_from_server">Sincronizar com o servidor</string>
-    <string name="backup_use_default_folder">Use default collection folder</string>
+    <string name="backup_use_default_folder">Usar pasta de coleção padrão</string>
     <string name="backup_full_sync_from_server_question">Deseja mesmo substituir sua coleção pela da AnkiWeb? Isso vai apagar todo o seu progreso de aprendizado e informações adicionadas desde sua ultima sincronização!</string>
     <string name="error_handling_title">Tratamento de erros</string>
     <string name="error_handling_options" comment="In a warning message, the label of the suggested action that the user should take">Opções</string>

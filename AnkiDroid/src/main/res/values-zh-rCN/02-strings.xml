@@ -348,7 +348,7 @@
     <string name="shared_decks_login_required">请登录以下载更多牌组</string>
     <string name="deck_description_field_hint">描述</string>
     <string name="deck_description_saved">描述已更新</string>
-    <string name="format_deck_description_as_markdown">Format as Markdown</string>
+    <string name="format_deck_description_as_markdown">转换为 Markdown 格式</string>
     <string name="help_button_content_description">打开 ‘%s’ 的帮助</string>
     <string name="failed_to_copy">复制失败</string>
     <plurals name="unbury_cards_feedback">
@@ -386,7 +386,7 @@
     <!-- Whitespace is OK -->
     <string name="list_separator" comment="The character and spacing to display between elements of a list, for example \', \' in \'Apple, Banana, Cherry" tools:ignore="TranslationTypo">、</string>
     <!--Set up date-->
-    <string name="set_due_date_day" comment="Used for setting due date">Day</string>
-    <string name="set_due_date_date_range">Date range</string>
+    <string name="set_due_date_day" comment="Used for setting due date">日期</string>
+    <string name="set_due_date_date_range">日期范围</string>
     <string comment="Shown when retrying a running action" name="already_in_progress">已在进行中</string>
 </resources>

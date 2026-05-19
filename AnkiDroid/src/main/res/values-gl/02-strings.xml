@@ -353,7 +353,7 @@
     <string name="shared_decks_login_required">Inicia sesión para descargar máis barallas</string>
     <string name="deck_description_field_hint">Descrición</string>
     <string name="deck_description_saved">Actualizouse a descrición</string>
-    <string name="format_deck_description_as_markdown">Format as Markdown</string>
+    <string name="format_deck_description_as_markdown">Dar formato Markdown</string>
     <string name="help_button_content_description">Abrir axuda para \"%s\"</string>
     <string name="failed_to_copy">Non se puido copiar</string>
     <plurals name="unbury_cards_feedback">
@@ -392,7 +392,7 @@
     <!-- Whitespace is OK -->
     <string name="list_separator" comment="The character and spacing to display between elements of a list, for example \', \' in \'Apple, Banana, Cherry" tools:ignore="TranslationTypo">, </string>
     <!--Set up date-->
-    <string name="set_due_date_day" comment="Used for setting due date">Day</string>
-    <string name="set_due_date_date_range">Date range</string>
+    <string name="set_due_date_day" comment="Used for setting due date">Día</string>
+    <string name="set_due_date_date_range">Intervalo de datas</string>
     <string comment="Shown when retrying a running action" name="already_in_progress">Xa en progreso</string>
 </resources>

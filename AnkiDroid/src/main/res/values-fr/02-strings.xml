@@ -100,8 +100,8 @@
     <string name="filter_by_flags" maxLength="41">Marqueurs</string>
     <!-- filtered deck options -->
     <string name="filtered_option_delay_again">Retarder encore pour</string>
-    <string name="filtered_option_delay_hard">Delay for hard</string>
-    <string name="filtered_option_delay_good">Delay for good</string>
+    <string name="filtered_option_delay_hard">Délai pour difficile</string>
+    <string name="filtered_option_delay_good">Délai pour bon</string>
     <!-- Custom study options -->
     <string name="custom_study_loading_tags">Création de la liste des labels en cours&#8230;</string>
     <!-- Study options -->
@@ -194,7 +194,7 @@
     <string name="tag_editor_add_feedback_existing">Étiquette existante «%1$s» sélectionnée</string>
     <string name="tag_already_exists">Le mot-clé existe déjà</string>
     <string name="error_name_exists">Le nom existe déjà</string>
-    <string name="warning_find_and_replace">Consider backing up your collection from DeckPicker before using this option!</string>
+    <string name="warning_find_and_replace">Envisagez de sauvegarder votre collection DeckPicker avant d\'utiliser cette option !</string>
     <!-- Time spans -->
     <!-- Currently only used if exporting APKG fails -->
     <string name="apk_share_error">Erreur lors du partage du fichier apkg</string>
@@ -353,7 +353,7 @@
     <string name="shared_decks_login_required">Veuillez vous connecter pour télécharger plus de decks</string>
     <string name="deck_description_field_hint">Description</string>
     <string name="deck_description_saved">Description mise à jour</string>
-    <string name="format_deck_description_as_markdown">Format as Markdown</string>
+    <string name="format_deck_description_as_markdown">Formater en Markdown</string>
     <string name="help_button_content_description">Ouvrir l\'aide pour \'%s\'</string>
     <string name="failed_to_copy">Échec de la copie</string>
     <plurals name="unbury_cards_feedback">
@@ -392,7 +392,7 @@
     <!-- Whitespace is OK -->
     <string name="list_separator" comment="The character and spacing to display between elements of a list, for example \', \' in \'Apple, Banana, Cherry" tools:ignore="TranslationTypo">, </string>
     <!--Set up date-->
-    <string name="set_due_date_day" comment="Used for setting due date">Day</string>
-    <string name="set_due_date_date_range">Date range</string>
+    <string name="set_due_date_day" comment="Used for setting due date">Jour</string>
+    <string name="set_due_date_date_range">Plage de dates</string>
     <string comment="Shown when retrying a running action" name="already_in_progress">Déjà en cours</string>
 </resources>

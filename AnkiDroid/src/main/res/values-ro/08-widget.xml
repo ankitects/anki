@@ -65,8 +65,8 @@
     <string name="deck_picker_widget_description" comment="Title of the Deck Picker Widget. Displayed to the user in Android\'s Widget Selection menu">Deck Picker</string>
     <string name="card_analysis_extra_widget_description">Card Analysis</string>
     <!-- Strings to explain usage in Deck Picker and Card Analysis Widget Configuration screen -->
-    <string name="select_decks_title" comment="Title for Deck Selection Dialog">Select decks</string>
-    <string name="select_deck_title" comment="Title for Deck Selection Dialog">Select a deck</string>
+    <string name="select_decks_title" comment="Title for Deck Selection Dialog">Selectează pachete</string>
+    <string name="select_deck_title" comment="Title for Deck Selection Dialog">Selectează un pachet</string>
     <string name="no_selected_deck_placeholder_title" comment="Placeholder title when no decks are selected">Select decks to display in the widget. Select decks with the + icon.</string>
     <string name="deck_removed_from_widget" comment="Snackbar when deck is removed from widget">Deck removed</string>
     <string name="deck_already_selected_message" comment="Snackbar when user try to select the same deck again">This deck is already selected</string>

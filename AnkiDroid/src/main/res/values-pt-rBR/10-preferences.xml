@@ -222,7 +222,7 @@
         Se não for definido, o servidor AnkiWeb padrão será usado.
         <a href="%s">Saiba mais</a>
         ]]></string>
-    <string name="custom_sync_server_base_url_title" maxLength="41">Sync URL</string>
+    <string name="custom_sync_server_base_url_title" maxLength="41">URL de sincronização</string>
     <string name="custom_sync_certificate_title" maxLength="41">Certificado personalizado (PEM)</string>
     <!-- Key Bindings -->
     <string name="keyboard">Teclado</string>
@@ -380,9 +380,9 @@
     <string name="new_study_screen_summ"><![CDATA[Nova tela de estudo aprimorada que substituirá a atual. Alguns recursos da tela antiga foram alterados ou removidos. Por favor, envie qualquer <a href="%1$s">sugestão</a> ou <a href="%2$s">relato de erro</a>.]]></string>
     <string name="show_answer_feedback" maxLength="41">Mostre feedback da resposta</string>
     <string name="screen" maxLength="41">Tela</string>
-    <string name="only_answer" maxLength="41" comment="Configuration of the \'Answer\' commands to only answer the card">Only answer</string>
-    <string name="flip_and_answer" maxLength="41" comment="Configuration of the \'Answer\' commands to answer the card if on the answer side, and flip it if on the question side">Flip and answer</string>
+    <string name="only_answer" maxLength="41" comment="Configuration of the \'Answer\' commands to only answer the card">Somente responder</string>
+    <string name="flip_and_answer" maxLength="41" comment="Configuration of the \'Answer\' commands to answer the card if on the answer side, and flip it if on the question side">Virar e responder</string>
     <!--Keyboard shortcuts dialog-->
     <string name="open_settings" comment="Description of the shortcut that opens the app settings">Abrir configurações</string>
-    <string name="related_settings_title" comment="Title of the section for related settings">Related settings</string>
+    <string name="related_settings_title" comment="Title of the section for related settings">Configurações relacionadas</string>
 </resources>

@@ -219,7 +219,7 @@
 사용자의 서버와 동기화 할 수 있습니다.
 설정하지 않으면 기본 AnkiWeb 서버가 사용됩니다.
 <a href="%s">더 알아보기</a>]]></string>
-    <string name="custom_sync_server_base_url_title" maxLength="41">Sync URL</string>
+    <string name="custom_sync_server_base_url_title" maxLength="41">동기화 URL</string>
     <string name="custom_sync_certificate_title" maxLength="41">사용자 지정 루트 인증서 (PEM)</string>
     <!-- Key Bindings -->
     <string name="keyboard">키보드</string>
@@ -379,5 +379,5 @@
     <string name="flip_and_answer" maxLength="41" comment="Configuration of the \'Answer\' commands to answer the card if on the answer side, and flip it if on the question side">Flip and answer</string>
     <!--Keyboard shortcuts dialog-->
     <string name="open_settings" comment="Description of the shortcut that opens the app settings">설정 열기</string>
-    <string name="related_settings_title" comment="Title of the section for related settings">Related settings</string>
+    <string name="related_settings_title" comment="Title of the section for related settings">관련 설정</string>
 </resources>

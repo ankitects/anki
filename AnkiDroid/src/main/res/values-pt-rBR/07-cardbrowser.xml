@@ -71,7 +71,7 @@
     <string name="card_browser_list_my_searches_new_search_error_empty_name">Você não pode salvar uma pesquisa sem um nome</string>
     <string name="card_browser_list_my_searches_new_search_error_dup">O nome já existe</string>
     <string name="card_browser_list_my_searches_successful_save">A pesquisa foi salva</string>
-    <string name="card_browser_list_my_searches_successful_deleted">Search deleted</string>
+    <string name="card_browser_list_my_searches_successful_deleted">Pesquisar excluídos</string>
     <string name="no_note_to_edit">Nenhuma nota para editar</string>
     <string name="card_browser_list_my_searches_remove_content">Excluir \"%1$s\"?</string>
     <string name="card_browser_change_display_order" maxLength="28">Alterar a ordem de exibição</string>
@@ -126,6 +126,6 @@
     <string name="save_changes_message">Por favor, salve as alterações primeiro</string>
     <string name="browser_find_replace_loading_fields">Recuperando nomes de campos&#8230;</string>
     <!-- Search history -->
-    <string name="card_browser_see_more">See more</string>
-    <string name="card_browser_see_less">See less</string>
+    <string name="card_browser_see_more">Ver mais</string>
+    <string name="card_browser_see_less">Ver menos</string>
 </resources>

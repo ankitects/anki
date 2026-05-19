@@ -263,7 +263,7 @@
     <string name="note_editor_audio_too_large">O arquivo de áudio é muito grande, por favor insira o áudio manualmente</string>
     <string name="ankidroid_cannot_open_after_backup_try_again" comment="After an Android backup is restored, AnkiDroid opens and shows this message.         Opening AnkiDroid again will work correctly">Backup do Android em progresso. Por favor, tente novamente</string>
     <string name="create_shortcut_error_vivo" comment="iManager is an app on Vivo phones">Por favor use o iManager para que AnkiDroid possa adicionar atalhos</string>
-    <string name="create_shortcut_error_miui" comment="Keep the message as short, as this is shown in a toast. %s is the app name: \'AnkiDroid\'">Allow ‘Home screen shortcuts’ in system settings for %s to add shortcuts</string>
+    <string name="create_shortcut_error_miui" comment="Keep the message as short, as this is shown in a toast. %s is the app name: \'AnkiDroid\'">Permitir \'Atalhos da tela inicial\' nas configurações do sistema para %s adicionar atalhos</string>
     <string name="create_shortcut_failed" comment="home screen == launcher">Sua tela de início não permite que AnkiDroid adicione atalhos</string>
     <string name="create_shortcut_error">Erro ao adicionar atalho: %s</string>
     <string name="note_editor_capitalize" comment="This is for a switch with a checkbox - on: enabled" maxLength="28">Iniciar frases em letra maíuscula</string>
@@ -392,7 +392,7 @@
     <!-- Whitespace is OK -->
     <string name="list_separator" comment="The character and spacing to display between elements of a list, for example \', \' in \'Apple, Banana, Cherry" tools:ignore="TranslationTypo">, </string>
     <!--Set up date-->
-    <string name="set_due_date_day" comment="Used for setting due date">Day</string>
-    <string name="set_due_date_date_range">Date range</string>
-    <string comment="Shown when retrying a running action" name="already_in_progress">Already in progress</string>
+    <string name="set_due_date_day" comment="Used for setting due date">Dia</string>
+    <string name="set_due_date_date_range">Intervalo de datas</string>
+    <string comment="Shown when retrying a running action" name="already_in_progress">Já em progresso</string>
 </resources>

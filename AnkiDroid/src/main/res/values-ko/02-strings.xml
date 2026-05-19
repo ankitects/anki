@@ -73,10 +73,10 @@
     <string name="whiteboard_align_right" comment="Option to align the whiteboard toolbar on the right" maxLength="28">오른쪽</string>
     <string name="whiteboard_more_options" comment="Tooltip of the whiteboard \'More\' button" maxLength="28">옵션 더 보기</string>
     <string name="whiteboard_remove_brush_message">팔레트에서 이 브러시를 삭제하시겠습니까?</string>
-    <string name="whiteboard_ink_eraser" comment="Title of the whiteboard Ink eraser">Ink</string>
+    <string name="whiteboard_ink_eraser" comment="Title of the whiteboard Ink eraser">점</string>
     <string name="whiteboard_stroke_eraser" comment="Title of the whiteboard Stroke eraser">Stroke</string>
     <string name="stylus_mode" comment="Title of the menu item that toggles the whiteboard stylus mode" maxLength="28">펜 전용 모드</string>
-    <string name="cannot_remove_last_brush_message">The last brush may not be removed</string>
+    <string name="cannot_remove_last_brush_message">마지막 브러시는 지워지지 않을 수 있습니다</string>
     <string name="enable_whiteboard" maxLength="28">화이트보드 활성화하기</string>
     <string name="disable_whiteboard">화이트보드 비활성화하기</string>
     <string name="show_whiteboard">화이트보드 표시하기</string>
@@ -165,7 +165,7 @@
     <string name="import_error_load_imported_database">Anki 데이터베이스 (.anki2)의 덮어쓰기는 아직 지원되지 않습니다. 덮어쓰려면 설명서를 참조해주십시오.</string>
     <string name="import_error_content_provider">선택된 파일은 AnkiDroid가 자동적으로 가져올 수 없습니다. Anki 파일을 수동으로 가져오는 방법은 사용자 설명서를 참조하세요. \n %s</string>
     <string name="import_error_copy_to_cache_title">파일 캐시 실패</string>
-    <string name="import_error_copy_to_cache_explanation" comment="The substitution is a list of suggested fixes in bullet point form">This is often caused by a bug in the app you used to select the file. Please try the following fixes:\n\n%s</string>
+    <string name="import_error_copy_to_cache_explanation" comment="The substitution is a list of suggested fixes in bullet point form">파일 선택 앱의 버그로 인한 경우가 많습니다. 다음을 시도해 보세요:\n\n%s</string>
     <string name="import_interrupted">불러오기 중단됨: AnkiDroid가 닫힘</string>
     <string name="export_ready_title">내보내기 준비 완료</string>
     <string name="export_send_no_handlers">apkg. 파일을 처리할 수 있는 응용 프로그램이 없습니다. 저장 중&#8230;</string>
@@ -192,7 +192,7 @@ Context | Request Context    [1]</string>
     <string name="dyn_deck_desc">이것은 평상시 일정 이상으로 학습하기 위한 특별한 카드 덱입니다. 카드들은 복습 후 자동으로 원래의 카드 덱으로 돌아가게 됩니다. 카드 덱 목록에서 이 카드 덱을 지운다면 남아 있는 모든 카드는 원래의 카드 덱으로 돌아가게 됩니다.</string>
     <string name="tag_editor_add_feedback">\"%1$s\" 추가를 확인하려면 \"%2$s\" 누르세요</string>
     <string name="tag_editor_add_feedback_existing">기존 태그 \"%1$s\" 선택됨</string>
-    <string name="tag_already_exists">Tag already exists</string>
+    <string name="tag_already_exists">태그가 이미 존재합니다</string>
     <string name="error_name_exists">Name already exists</string>
     <string name="warning_find_and_replace">Consider backing up your collection from DeckPicker before using this option!</string>
     <!-- Time spans -->
@@ -210,15 +210,15 @@ Context | Request Context    [1]</string>
     <string name="remove_wallpaper_image" maxLength="41">배경 제거하기</string>
     <string name="remove_background_image">Are you sure you wish to remove the background?</string>
     <!-- Card Template Browser Appearance -->
-    <string name="restore_default" maxLength="28">Restore default</string>
+    <string name="restore_default" maxLength="28">기본값으로 복원</string>
     <string name="reviewer_tts_cloze_spoken_replacement">공백</string>
     <!-- Whiteboard eraser mode toggle message in Reviewer -->
     <string name="white_board_eraser_enabled">지우개 활성화 됨</string>
     <string name="white_board_eraser_disabled">지우개 비활성화 됨</string>
     <string comment="Progress amount e.g. \'28 MB/141 MB\'. %1$s is the current amount, %2$s is the max." name="progress_amount_bytes">%1$s/%2$s</string>
-    <string name="media_file_size_warning_title">Media too large</string>
-    <string name="media_file_size_warning_message" comment="1$s: File name, 2$s: File size, 3$s: The size limit (e.g. 100MB)">The file \"%1$s\" (%2$s) exceeds the AnkiWeb limit of %3$s and cannot be synced. Add anyway?</string>
-    <string name="media_file_size_add_anyway">Add anyway</string>
+    <string name="media_file_size_warning_title">미디어 사이즈가 너무 큽니다</string>
+    <string name="media_file_size_warning_message" comment="1$s: File name, 2$s: File size, 3$s: The size limit (e.g. 100MB)">\"%1$s\" 파일(%2$s)의 크기가 AnkiWeb의 제한인 %3$s를 초과하여 동기화되지 않습니다. 그래도 추가하시겠습니까?</string>
+    <string name="media_file_size_add_anyway">그냥 추가하기</string>
     <!-- Whiteboard save image message in the Study Screen -->
     <string name="white_board_image_save_failed">화이트보드 이미지 저장에 실패했습니다. %s</string>
     <string name="white_board_image_saved">%s에 화이트보드 이미지가 저장되었습니다.</string>
@@ -240,47 +240,47 @@ Context | Request Context    [1]</string>
     <string name="search_decks" maxLength="28">덱 검색하기</string>
     <string name="ankidroid_init_failed_webview_title">심각한 오류</string>
     <string name="ankidroid_init_failed_webview">AnkiDroid이 필요한 시스템 WebView를 사용할 수 없습니다. 이 문제는 시스템이 업데이트를 설치하는 경우 발생할 수도 있습니다. 잠시 후 다시 시도하십시오.\n\n%s</string>
-    <string name="ankidroid_init_failed_storage">AnkiDroid cannot access storage due to an Android error.\n\n%s</string>
+    <string name="ankidroid_init_failed_storage">Android 오류로 인해 AnkiDroid가 저장소에 접근할 수 없습니다.\n\n%s</string>
     <!-- A Menu item to change the Font Size (currently in the Note Editor) -->
     <string name="menu_font_size" maxLength="28">글꼴 크기</string>
     <string name="menu_show_toolbar" comment="Checkable item stating whether the note editor toolbar should be shown" maxLength="28">도구 모음 표시</string>
-    <string name="format_insert_bold">Format as bold</string>
-    <string name="format_insert_italic">Format as italic</string>
-    <string name="format_insert_underline">Format as underline</string>
-    <string name="insert_horizontal_line">Insert horizontal line</string>
-    <string name="insert_heading">Insert heading</string>
-    <string name="format_font_size">Change font size</string>
-    <string name="insert_mathjax">Insert MathJax equation</string>
+    <string name="format_insert_bold">굵게</string>
+    <string name="format_insert_italic">기울임꼴</string>
+    <string name="format_insert_underline">밑줄</string>
+    <string name="insert_horizontal_line">구분선 삽입</string>
+    <string name="insert_heading">제목 삽입</string>
+    <string name="format_font_size">글꼴 크기 변경</string>
+    <string name="insert_mathjax">MathJax 수식 삽입</string>
     <string name="note_editor_toolbar_icon">버튼 텍스트</string>
-    <string name="before_text">HTML before selection</string>
-    <string name="after_text">HTML after selection</string>
-    <string name="add_toolbar_item">Create toolbar item</string>
+    <string name="before_text">선택 전 HTML</string>
+    <string name="after_text">선택 후 HTML</string>
+    <string name="add_toolbar_item">도구 모음 추가</string>
     <string name="edit_toolbar_item">도구 모음 항목 편집</string>
     <string name="toolbar_item_explain_edit_or_remove">선택된 텍스트 앞뒤로 삽입할 HTML을 입력해주십시오\n\n도구 모음 항목을 길게 눌러 편집 또는 제거합니다.</string>
-    <string name="remove_toolbar_item">Remove toolbar item?</string>
+    <string name="remove_toolbar_item">도구 모음에서 제거할까요?</string>
     <string name="note_editor_image_too_large">이미지가 너무 큽니다. 수동으로 넣어 주세요.</string>
     <string name="note_editor_video_too_large">영상 파일이 너무 큽니다. 수동으로 넣어 주세요.</string>
     <string name="note_editor_audio_too_large">오디오 파일이 너무 큽니다. 수동으로 넣어 주세요.</string>
     <string name="ankidroid_cannot_open_after_backup_try_again" comment="After an Android backup is restored, AnkiDroid opens and shows this message.         Opening AnkiDroid again will work correctly">Android 백업중입니다. 다시 시도하십시오.</string>
     <string name="create_shortcut_error_vivo" comment="iManager is an app on Vivo phones">AnkiDroid 바로가기를 추가하려면 iManager가 필요할 수 있습니다.</string>
-    <string name="create_shortcut_error_miui" comment="Keep the message as short, as this is shown in a toast. %s is the app name: \'AnkiDroid\'">Allow ‘Home screen shortcuts’ in system settings for %s to add shortcuts</string>
+    <string name="create_shortcut_error_miui" comment="Keep the message as short, as this is shown in a toast. %s is the app name: \'AnkiDroid\'">%s의 \'홈 화면 바로가기\'를 시스템 설정에서 허용하세요</string>
     <string name="create_shortcut_failed" comment="home screen == launcher">홈 화면에 AnkiDroid 바로 가기를 추가할 수 없습니다.</string>
     <string name="create_shortcut_error">바로가기 생성 오류: %s</string>
     <string name="note_editor_capitalize" comment="This is for a switch with a checkbox - on: enabled" maxLength="28">대문자로 시작</string>
     <string name="menu_scroll_toolbar" comment="Checkbox stating whether note editor toolbar is scrollable or stacked. Checked: Scroll" maxLength="28">도구 모음 스크롤</string>
     <!-- Dialog hints -->
     <string name="dialog_hint_url">URL</string>
-    <string name="dialog_hint_certificate">Certificate</string>
+    <string name="dialog_hint_certificate">인증서</string>
     <!-- IncrementNumberRangePreference -->
     <string name="plus_sign" comment="Label for increment button in IncrementerNumberRangePreference">+</string>
     <string name="minus_sign" comment="Label for decrement button in IncrementerNumberRangePreference">-</string>
-    <string name="invalid_value" comment="Error message in IncrementerNumberRangePreference when input is not a valid number">Invalid value</string>
-    <string name="maximum_value_is" comment="Error message in IncrementerNumberRangePreference. %d is the maximum allowed value">Maximum value is %d</string>
-    <string name="minimum_value_is" comment="Error message in IncrementerNumberRangePreference. %d is the minimum allowed value">Minimum value is %d</string>
+    <string name="invalid_value" comment="Error message in IncrementerNumberRangePreference when input is not a valid number">잘못된 값입니다</string>
+    <string name="maximum_value_is" comment="Error message in IncrementerNumberRangePreference. %d is the maximum allowed value">최댓값은 %d입니다</string>
+    <string name="minimum_value_is" comment="Error message in IncrementerNumberRangePreference. %d is the minimum allowed value">최솟값은 %d입니다</string>
     <!-- Used for credential empty warning message -->
     <string name="invalid_email">유효한 이메일을 입력하세요.</string>
     <string name="password_empty">비밀번호를 입력하십시오</string>
-    <string name="back_pressed_once">Go back again to exit</string>
+    <string name="back_pressed_once">나가려면 다시 한 번 누르세요</string>
     <!-- %% is required to display % symbol. Reference: https://stackoverflow.com/a/16834358 -->
     <string name="percentage">%s%%</string>
     <string name="download_deck">카드 덱 다운로드하기</string>
@@ -318,7 +318,7 @@ Context | Request Context    [1]</string>
     <string name="field_editor_model_not_available">컬렉션 액세스에 실패했습니다. 다시 시도해 주세요!</string>
     <string name="cd_manage_notetypes_add">새로운 노트 유형 추가</string>
     <plurals name="note_types_selected">
-        <item quantity="other">%d note types selected</item>
+        <item quantity="other">%d 노트 타입 선택됨</item>
     </plurals>
     <!-- App Intro -->
     <string name="intro_ankidroid_tagline_one">공부 시간은 줄이고</string>
@@ -351,7 +351,7 @@ Context | Request Context    [1]</string>
     <string name="shared_decks_login_required">카드 덱을 더 다운로드하려면 로그인해 주세요</string>
     <string name="deck_description_field_hint">설명</string>
     <string name="deck_description_saved">설명이 업데이트되었습니다.</string>
-    <string name="format_deck_description_as_markdown">Format as Markdown</string>
+    <string name="format_deck_description_as_markdown">마크다운 형식</string>
     <string name="help_button_content_description">%s 도움말 열기</string>
     <string name="failed_to_copy">복사 실패</string>
     <plurals name="unbury_cards_feedback">
@@ -365,7 +365,7 @@ Context | Request Context    [1]</string>
     <string name="play_recording">재생</string>
     <string name="next_recording" comment="Description of a button to go to the next recording">다음</string>
     <!--  AlertDialog in the deleteCardTemplate  -->
-    <string name="orphan_note_title">Cannot delete card type</string>
+    <string name="orphan_note_title">카드 유형을 삭제할 수 없습니다</string>
     <string name="orphan_note_message">이 카드 유형을 삭제하면 카드 없이 일부 메모만 남습니다</string>
     <string name="voice_not_supported">음성을 지원하지 않습니다. 다른 것으로 시도하거나 음성 엔진을 설치하세요.</string>
     <!--Keyboard shortcuts dialog-->
@@ -382,7 +382,7 @@ Context | Request Context    [1]</string>
     <string name="copy_the_template" comment="Description of the shortcut that copy the template as markdown">마크다운으로 템플릿 복사</string>
     <string name="edit_browser_appearance" comment="Description of the shortcut that edits the browser appearance of card template">브라우저 외관 편집</string>
     <string name="missing_user_action_dialog_message" comment="%s is the user action number">이 노트 유형에는 사용자 행동 %s이(가) 설정되어 있지 않습니다. 설정을 확인해 주세요.</string>
-    <string name="feature_not_supported_by_study_screen">This card has features that are not yet supported by the new study screen.</string>
+    <string name="feature_not_supported_by_study_screen">이 카드에는 새 학습 화면에서 아직 지원하지 않는 기능이 있습니다</string>
     <string name="directory_inaccessible_info">여기에서 액세스를 복원하는 방법에 대해 자세히 알아보세요 %s 또는 설정으로 이동하여 컬렉션 폴더를 업데이트하세요.</string>
     <!-- Scheduler Upgrade Required Dialog title-->
     <string name="scheduler_upgrade_required_dialog_title" comment="Shown in a dialog when user has imported a collection using a very old version of the Anki spaced repetition scheduler">스케줄러 업데이트가 필요합니다</string>
@@ -390,6 +390,6 @@ Context | Request Context    [1]</string>
     <string name="list_separator" comment="The character and spacing to display between elements of a list, for example \', \' in \'Apple, Banana, Cherry" tools:ignore="TranslationTypo">, </string>
     <!--Set up date-->
     <string name="set_due_date_day" comment="Used for setting due date">Day</string>
-    <string name="set_due_date_date_range">Date range</string>
+    <string name="set_due_date_date_range">날짜 범위</string>
     <string comment="Shown when retrying a running action" name="already_in_progress">Already in progress</string>
 </resources>

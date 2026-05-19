@@ -67,7 +67,7 @@
         Delete the note types below?
         Basic, Basic (and reversed card), Cloze
      -->
-    <string name="model_delete_multiple_warning">Delete the note types below?\n %s</string>
+    <string name="model_delete_multiple_warning">다음 노트 유형을 삭제할까요?\n %s</string>
     <string name="field_delete_warning">이 필드를 삭제하시겠습니까?</string>
     <!--Model Add Suffixes-->
     <string name="model_browser_add_add">추가: %1$s</string>
@@ -76,7 +76,7 @@
     <!--Browser Appearance-->
     <string name="card_template_browser_appearance_summary">카드 브라우저에서 카드에 표시할 템플릿을 입력하세요.\n\n예를 들어, 앞면 템플릿이 다음과 같다면,\n\"The capital of {{Country}}\"\n카드 브라우저에는 다음과 같이 간략히 표시할 수 있습니다.\n\"Capital: {{Country}}\"</string>
     <string name="card_template_browser_appearance_question_format">Question format</string>
-    <string name="card_template_browser_appearance_answer_format">Answer format</string>
+    <string name="card_template_browser_appearance_answer_format">답 형식</string>
     <string name="card_template_browser_appearance_restore_default_dialog">Are you sure you want to restore the browser appearance to default?</string>
     <string name="card_template_browser_appearance_saving_note">이 변경사항은 카드 템플릿이 저장될 때 적용됩니다</string>
     <!-- Deck Override -->

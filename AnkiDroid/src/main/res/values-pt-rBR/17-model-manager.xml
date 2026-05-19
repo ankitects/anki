@@ -60,8 +60,8 @@
     <string name="model_field_editor_changing">Atualizando os campos</string>
     <string name="model_field_editor_sort_field">Ordenar por esse campo</string>
     <!-- Card type -->
-    <string name="delete_card_type" maxLength="28">Delete card type</string>
-    <string name="add_card_type" maxLength="28">Add card type</string>
+    <string name="delete_card_type" maxLength="28">Deletar modelo de cartão</string>
+    <string name="add_card_type" maxLength="28">Adicionar modelo de cartão</string>
     <!--Warnings-->
     <string name="model_delete_warning">Tem certeza de que deseja excluir essa categoria de notas?</string>
     <!--
@@ -77,9 +77,9 @@
     <string name="model_browser_add_clone">Clonar: %1$s</string>
     <!--Browser Appearance-->
     <string name="card_template_browser_appearance_summary">Digite o modelo que o navegador de cards usará para exibir seus cards. Use isto para exibir uma resposta mais concisa.\n\nUm modelo frontal de\n\"A capital do {{Country}} é:\"\npode ser comprimido para\n\"Capital: {{Country}}\"</string>
-    <string name="card_template_browser_appearance_question_format">Question format</string>
-    <string name="card_template_browser_appearance_answer_format">Answer format</string>
-    <string name="card_template_browser_appearance_restore_default_dialog">Are you sure you want to restore the browser appearance to default?</string>
+    <string name="card_template_browser_appearance_question_format">Formato da questão</string>
+    <string name="card_template_browser_appearance_answer_format">Formato da resposta</string>
+    <string name="card_template_browser_appearance_restore_default_dialog">Você tem certeza de que deseja restaurar a aparência do navegador para o padrão?</string>
     <string name="card_template_browser_appearance_saving_note">Estas alterações são aplicadas quando o modelo de card é salvo</string>
     <!-- Deck Override -->
     <string name="card_template_editor_deck_override_on">Sobreposição do baralho (ativada)</string>
