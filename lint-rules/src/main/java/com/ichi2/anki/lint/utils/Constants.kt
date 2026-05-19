@@ -1,8 +1,6 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // SPDX-FileCopyrightText: Copyright (c) 2020 lukstbit <52494258+lukstbit@users.noreply.github.com>
 
-@file:Suppress("UnstableApiUsage")
-
 package com.ichi2.anki.lint.utils
 
 import com.android.tools.lint.detector.api.Category

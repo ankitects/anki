@@ -8,7 +8,6 @@ import org.intellij.lang.annotations.Language
 import org.junit.Assert.assertTrue
 import org.junit.Test
 
-@Suppress("UnstableApiUsage") // .issues() is unstable
 class PrintStackTraceUsageTest {
     @Suppress("EmptyTryBlock") // in code samples
     companion object {

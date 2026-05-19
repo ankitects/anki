@@ -5,13 +5,10 @@ package com.ichi2.anki.lint.rules
 
 import com.android.tools.lint.checks.infrastructure.TestFile.JavaTestFile
 import com.android.tools.lint.checks.infrastructure.TestLintTask
-import com.google.common.annotations.Beta
 import org.intellij.lang.annotations.Language
 import org.junit.Assert
 import org.junit.Test
 
-@Suppress("UnstableApiUsage")
-@Beta
 class DirectCalendarInstanceUsageTest {
     @Language("JAVA")
     private val stubCalendar = """                                   

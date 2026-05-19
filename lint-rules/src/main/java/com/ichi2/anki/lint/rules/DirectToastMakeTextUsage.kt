@@ -1,8 +1,6 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // SPDX-FileCopyrightText: Copyright (c) 2021 Nicola Dardanis <nicdard@gmail.com>
 
-@file:Suppress("UnstableApiUsage")
-
 package com.ichi2.anki.lint.rules
 
 import com.android.tools.lint.detector.api.Detector

@@ -1,8 +1,6 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // SPDX-FileCopyrightText: Copyright (c) 2021 Almas Ahmad <ahmadalmas.786.aa@gmail.com>
 
-@file:Suppress("UnstableApiUsage")
-
 package com.ichi2.anki.lint.rules
 
 import com.android.tools.lint.detector.api.Context
@@ -13,7 +11,6 @@ import com.android.tools.lint.detector.api.LintFix
 import com.android.tools.lint.detector.api.Location
 import com.android.tools.lint.detector.api.Scope
 import com.android.tools.lint.detector.api.SourceCodeScanner
-import com.google.common.annotations.Beta
 import com.google.common.annotations.VisibleForTesting
 import com.ichi2.anki.lint.utils.Constants
 import org.jetbrains.uast.UClass
@@ -28,7 +25,6 @@ import java.util.regex.Pattern
  *
  * @see .EXPLANATION
  */
-@Beta
 class LicenseHeaderExists :
     Detector(),
     SourceCodeScanner {
