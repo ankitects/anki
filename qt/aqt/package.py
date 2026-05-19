@@ -13,7 +13,6 @@ from pathlib import Path
 
 from anki.collection import GithubRelease, Progress
 from anki.utils import is_mac, is_win
-from aqt.operations import QueryOp
 from aqt.progress import ProgressUpdate
 from aqt.utils import openLink, tr
 
@@ -177,6 +176,13 @@ def update_and_restart() -> None:
     mw.app.quit()
 
 
+def _fix_win_taskbar_pinning() -> None:
+    if sys.platform == "win32" and os.environ.get("ANKI_LAUNCHER"):
+        from win32com.shell import shell
+
+        shell.SetCurrentProcessExplicitAppUserModelID("Ankitects.Anki")
+
+
 def download_github_update_and_install(release: GithubRelease) -> None:
     from aqt import mw
 
@@ -217,6 +223,8 @@ def download_github_update_and_install(release: GithubRelease) -> None:
             update.max = download_update.total_bytes
         if update.user_wants_abort:
             update.abort = True
+
+    from aqt.operations import QueryOp
 
     QueryOp(
         parent=mw,

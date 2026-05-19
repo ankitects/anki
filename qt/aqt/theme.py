@@ -14,8 +14,9 @@ import anki.lang
 import aqt
 from anki.lang import is_rtl
 from anki.utils import is_lin, is_mac, is_win
-from aqt import QApplication, colors, gui_hooks
+from aqt import colors, gui_hooks
 from aqt.qt import (
+    QApplication,
     QColor,
     QIcon,
     QPainter,
