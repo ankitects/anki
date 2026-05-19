@@ -113,6 +113,17 @@ jobs:
             just test
           fi
 
+      - name: Run e2e tests
+        run: just test-e2e
+
+      - name: Upload Playwright report
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: out/e2e-report/
+          retention-days: 7
+
       - name: Ensure libs importable
         env:
           SKIP_RUN: "1"

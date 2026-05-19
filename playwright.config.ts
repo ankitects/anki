@@ -11,11 +11,14 @@ const PYENV_PYTHON = process.platform === "win32"
 
 export default defineConfig({
     testDir: "./ts/tests/e2e",
+    outputDir: "./out/e2e-report/",
     fullyParallel: false,
     workers: 1,
     forbidOnly: !!process.env.CI,
     retries: 0,
-    reporter: process.env.CI ? "github" : "list",
+    reporter: process.env.CI
+        ? [["github"], ["html", { open: "never", outputFolder: "out/e2e-report" }]]
+        : "list",
     use: {
         baseURL: `http://127.0.0.1:${MEDIASRV_PORT}`,
         trace: "retain-on-failure",
