@@ -16,7 +16,9 @@ import sys
 import tempfile
 from pathlib import Path
 
+REPO_ROOT = Path(__file__).resolve().parent.parent.parent
 API_PORT = os.environ.get("ANKI_API_PORT", "40000")
+TEST_PROFILE = "test"
 
 
 def main() -> None:
@@ -28,26 +30,36 @@ def main() -> None:
             {
                 "ANKI_BASE": str(base),
                 "ANKI_API_PORT": API_PORT,
+                "ANKI_SINGLE_INSTANCE_KEY": base.name,
                 "ANKI_API_HOST": "0.0.0.0",
                 "ANKIDEV": "1",
                 "ANKI_TEST_MODE": "1",
-                "ANKI_SINGLE_INSTANCE_KEY": base.name,
+                "PYTHONPYCACHEPREFIX": str(REPO_ROOT / "out" / "pycache"),
+                "RUST_BACKTRACE": "1",
                 "QT_QPA_PLATFORM": "offscreen",
+                "PYTHONUNBUFFERED": "1",
             }
         )
+        env.pop("QTWEBENGINE_REMOTE_DEBUGGING", None)
+        env.pop("QTWEBENGINE_CHROMIUM_FLAGS", None)
+        python = REPO_ROOT / "out" / "pyenv" / "bin" / "python"
 
         proc = subprocess.Popen(
-            [sys.executable, "tools/run.py"],
+            [str(python), str(REPO_ROOT / "tools" / "run.py"), "-p", TEST_PROFILE],
             env=env,
         )
 
         def forward_signal(signum: int, _frame: object) -> None:
-            proc.send_signal(signum)
+            proc.terminate()
 
         signal.signal(signal.SIGTERM, forward_signal)
         signal.signal(signal.SIGINT, forward_signal)
 
-        sys.exit(proc.wait())
+        try:
+            return proc.wait()
+        except KeyboardInterrupt:
+            proc.terminate()
+            return proc.wait()
 
 
 if __name__ == "__main__":
