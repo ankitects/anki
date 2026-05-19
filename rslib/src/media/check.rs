@@ -394,11 +394,9 @@ impl MediaChecker<'_> {
     }
 
     /// Find all media references in notes, fixing as necessary.
-    fn check_media_references(
-        &mut self,
-        renamed: &HashMap<String, String>,
-    ) -> Result<HashMap<String, Vec<NoteId>>> {
-        let mut referenced_files = HashMap::new();
+    fn check_media_references(&mut self, renamed: &HashMap<String, String>) -> Result<References> {
+        let is_case_sensitive = anki_io::is_case_sensitive(&self.media.media_folder);
+        let mut referenced_files = References::new(is_case_sensitive);
         let notetypes = self.col.get_all_notetypes()?;
         let mut collection_modified = false;
 
@@ -413,12 +411,7 @@ impl MediaChecker<'_> {
                 .ok_or_else(|| {
                     AnkiError::db_error("missing note type", DbErrorKind::MissingEntity)
                 })?;
-            let mut tracker = |fname| {
-                referenced_files
-                    .entry(fname)
-                    .or_insert_with(Vec::new)
-                    .push(nid)
-            };
+            let mut tracker = |fname| referenced_files.add(fname, nid);
             if self.fix_and_extract_media_refs(&mut note, &mut tracker, renamed)? {
                 // note was modified, needs saving
                 note.prepare_for_update(nt, false)?;
@@ -554,22 +547,22 @@ struct UnusedAndMissingFiles {
 }
 
 impl UnusedAndMissingFiles {
-    fn new(files: Vec<String>, mut references: HashMap<String, Vec<NoteId>>) -> Self {
+    fn new(files: Vec<String>, mut references: References) -> Self {
         let mut unused = vec![];
         for file in files {
             if !file.starts_with('_') && !references.contains_key(&file) {
                 unused.push(file);
             } else {
-                references.remove(&file);
+                references.remove(file);
             }
         }
 
         let mut missing = Vec::new();
         let mut notes = HashSet::new();
-        for (fname, nids) in references {
-            missing.push(fname);
+        references.for_each(|(fname, nids)| {
+            missing.push(fname.to_string());
             notes.extend(nids);
-        }
+        });
 
         Self {
             unused,
