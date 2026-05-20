@@ -106,20 +106,15 @@ sealed interface NoteEditorLauncher : Destination {
     data class AddNoteFromCardBrowser(
         val viewModel: CardBrowserViewModel,
     ) : NoteEditorLauncher {
-        override fun toBundle(): Bundle {
-            val fragmentArgs =
-                bundleOf(
-                    NoteEditorFragment.EXTRA_CALLER to NoteEditorCaller.CARDBROWSER_ADD.value,
-                    NoteEditorFragment.EXTRA_TEXT_FROM_SEARCH_VIEW to viewModel.searchTerms,
-                    NoteEditorFragment.IN_CARD_BROWSER_ACTIVITY to false,
-                )
-            if (viewModel.lastDeckId?.let { id -> id > 0 } == true) {
-                fragmentArgs.putLong(NoteEditorFragment.EXTRA_DID, viewModel.lastDeckId!!)
+        override fun toBundle(): Bundle =
+            Bundle().apply {
+                putInt(NoteEditorFragment.EXTRA_CALLER, NoteEditorCaller.CARDBROWSER_ADD.value)
+                putString(NoteEditorFragment.EXTRA_TEXT_FROM_SEARCH_VIEW, viewModel.searchTerms)
+                putBoolean(NoteEditorFragment.IN_CARD_BROWSER_ACTIVITY, false)
+                if (viewModel.lastDeckId?.let { id -> id > 0 } == true) {
+                    putLong(NoteEditorFragment.EXTRA_DID, viewModel.lastDeckId!!)
+                }
             }
-            return bundleOf(
-                NoteEditorActivity.FRAGMENT_ARGS_EXTRA to fragmentArgs,
-            )
-        }
     }
 
     /**
@@ -129,23 +124,11 @@ sealed interface NoteEditorLauncher : Destination {
     data class AddNoteFromReviewer(
         val animation: ActivityTransitionAnimation.Direction? = null,
     ) : NoteEditorLauncher {
-        override fun toBundle(): Bundle {
-            val fragmentArgs =
-                bundleOf(
-                    NoteEditorFragment.EXTRA_CALLER to NoteEditorCaller.REVIEWER_ADD.value,
-                ).also { bundle ->
-                    animation?.let { animation ->
-                        bundle.putParcelable(
-                            AnkiActivity.FINISH_ANIMATION_EXTRA,
-                            animation as Parcelable,
-                        )
-                    }
-                }
-
-            return bundleOf(
-                NoteEditorActivity.FRAGMENT_ARGS_EXTRA to fragmentArgs,
-            )
-        }
+        override fun toBundle(): Bundle =
+            Bundle().apply {
+                putInt(NoteEditorFragment.EXTRA_CALLER, NoteEditorCaller.REVIEWER_ADD.value)
+                animation?.let { putParcelable(AnkiActivity.FINISH_ANIMATION_EXTRA, it as Parcelable) }
+            }
     }
 
     /**
