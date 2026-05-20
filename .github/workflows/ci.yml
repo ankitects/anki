@@ -101,17 +101,30 @@ jobs:
       - name: Symlink node_modules
         run: ln -sf out/node_modules .
 
+      - name: Restore coverage baseline
+        uses: actions/cache/restore@v4
+        with:
+          path: out/coverage
+          key: coverage-baseline-linux-${{ github.sha }}
+          restore-keys: coverage-baseline-linux-
+
+      - name: Move restored baseline aside
+        run: test -d out/coverage && mv out/coverage out/coverage-baseline || true
+
       - name: Build, lint, and test
         env:
           ONLINE_TESTS: "1"
         run: |
           just build
           just lint
-          if [ "${{ github.event_name }}" = "pull_request" ]; then
-            just test --coverage
-          else
-            just test
-          fi
+          just test --coverage
+
+      - name: Cache coverage baseline
+        if: github.ref_name == 'main'
+        uses: actions/cache/save@v4
+        with:
+          path: out/coverage
+          key: coverage-baseline-linux-${{ github.sha }}
 
       - name: Ensure libs importable
         env:
