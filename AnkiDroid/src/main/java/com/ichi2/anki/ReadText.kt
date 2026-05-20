@@ -24,6 +24,7 @@ import android.view.WindowManager.BadTokenException
 import androidx.annotation.StringRes
 import androidx.annotation.VisibleForTesting
 import androidx.appcompat.app.AlertDialog
+import com.ichi2.anki.CollectionManager.TR
 import com.ichi2.anki.cardviewer.SingleCardSide
 import com.ichi2.anki.i18n.getIso3LanguageOrNull
 import com.ichi2.anki.libanki.Card
@@ -405,12 +406,11 @@ fun legacyGetTtsTags(
     col: Collection,
     card: Card,
     cardSide: SingleCardSide,
-    context: Context,
 ): List<TTSTag> {
     val cardSideContent: String =
         when (cardSide) {
             SingleCardSide.FRONT -> card.question(col)
             SingleCardSide.BACK -> card.pureAnswer(col)
         }
-    return TtsParser.getTextsToRead(cardSideContent, context.getString(R.string.reviewer_tts_cloze_spoken_replacement))
+    return TtsParser.getTextsToRead(cardSideContent, TR.cardTemplatesBlank())
 }

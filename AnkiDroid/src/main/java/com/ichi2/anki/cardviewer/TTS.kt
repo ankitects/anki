@@ -20,7 +20,7 @@ package com.ichi2.anki.cardviewer
 
 import android.content.Context
 import com.ichi2.anki.CardUtils
-import com.ichi2.anki.R
+import com.ichi2.anki.CollectionManager.TR
 import com.ichi2.anki.ReadText
 import com.ichi2.anki.backend.stripHTML
 import com.ichi2.anki.libanki.Card
@@ -78,26 +78,21 @@ class TTS {
      */
     fun selectTts(
         col: Collection,
-        context: Context,
         card: Card,
         qa: CardSide,
     ) {
         val textToRead = if (qa == CardSide.QUESTION) card.question(col, true) else card.pureAnswer(col)
         // get the text from the card
         ReadText.selectTts(
-            getTextForTts(context, textToRead),
+            getTextForTts(textToRead),
             CardUtils.getDeckIdForCard(card),
             getOrdUsingCardType(card, col),
             qa,
         )
     }
 
-    private fun getTextForTts(
-        context: Context,
-        text: String,
-    ): String {
-        val clozeReplacement = context.getString(R.string.reviewer_tts_cloze_spoken_replacement)
-        val clozeReplaced = text.replace(TemplateFilters.CLOZE_DELETION_REPLACEMENT, clozeReplacement)
+    private fun getTextForTts(text: String): String {
+        val clozeReplaced = text.replace(TemplateFilters.CLOZE_DELETION_REPLACEMENT, TR.cardTemplatesBlank())
         return stripHTML(clozeReplaced)
     }
 

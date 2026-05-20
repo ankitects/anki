@@ -1506,7 +1506,7 @@ abstract class AbstractFlashcardViewer :
 
     @VisibleForTesting
     fun readCardTts(side: SingleCardSide) {
-        val tags = legacyGetTtsTags(getColUnsafe, currentCard!!, side, this)
+        val tags = legacyGetTtsTags(getColUnsafe, currentCard!!, side)
         tts.readCardText(getColUnsafe, tags, currentCard!!, side.toCardSide())
     }
 
@@ -1533,7 +1533,6 @@ abstract class AbstractFlashcardViewer :
         if (ttsInitialized) {
             tts.selectTts(
                 getColUnsafe,
-                this,
                 currentCard!!,
                 if (displayAnswer) CardSide.ANSWER else CardSide.QUESTION,
             )

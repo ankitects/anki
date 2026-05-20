@@ -340,7 +340,6 @@ class TranslationTest : RobolectricTest() {
                 "Answer buttons", // R.string.answer_buttons | TR.statisticsAnswerButtonsTitle()
                 "Answer good", // R.string.answer_good | TR.deckConfigAnswerGood()
                 "Answer hard", // R.string.answer_hard | TR.deckConfigAnswerHard()
-                "Blank", // R.string.reviewer_tts_cloze_spoken_replacement | TR.cardTemplatesBlank()
                 "Browser appearance", // R.string.card_template_browser_appearance_title | TR.browsingBrowserAppearance()
                 "Browser options", // R.string.browser_options_dialog_heading | TR.browsingBrowserOptions()
                 "Change deck", // R.string.card_browser_change_deck | TR.browsingChangeDeck()
