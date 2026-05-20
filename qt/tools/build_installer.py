@@ -75,7 +75,7 @@ def get_briefcase_sources_path(out_dir: Path, version: str) -> Path | None:
             out_dir
             / "build"
             / "anki"
-            / "darwin"
+            / "macos"
             / "app"
             / "Anki.app"
             / "Contents"
