@@ -122,7 +122,7 @@
             />
         <com.ichi2.preferences.ReviewerControlPreference
             android:key="@string/delete_command_key"
-            android:title="@string/menu_delete_note"
+            tools:title="Delete note"
             android:icon="@drawable/ic_delete_white"
             />
         <com.ichi2.preferences.ReviewerControlPreference

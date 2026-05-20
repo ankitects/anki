@@ -269,7 +269,7 @@ enum class ViewerAction(
                 EDIT -> getString(R.string.cardeditor_title_edit_card)
                 BURY_MENU -> TR.studyingBury()
                 SUSPEND_MENU -> TR.studyingSuspend()
-                DELETE -> getString(R.string.menu_delete_note)
+                DELETE -> TR.sentenceCase.deleteNote
                 TOGGLE_WHITEBOARD -> getString(R.string.gesture_toggle_whiteboard)
                 DECK_OPTIONS -> getString(R.string.menu__deck_options)
                 CARD_INFO -> TR.sentenceCase.cardInfo

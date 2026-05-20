@@ -862,6 +862,7 @@ open class Reviewer :
         menu.findItem(R.id.action_reschedule_card).title = TR.sentenceCase.setDueDate
         menu.findItem(R.id.action_card_info)?.title = TR.sentenceCase.cardInfo
         menu.findItem(R.id.action_previous_card_info)?.title = TR.sentenceCase.previousCardInfo
+        menu.findItem(R.id.action_delete)?.title = TR.sentenceCase.deleteNote
         // top-level (visible=false in XML) items, shown when only the card-level action is available
         menu.findItem(R.id.action_bury_card)?.title = TR.sentenceCase.buryCard
         menu.findItem(R.id.action_suspend_card)?.title = TR.sentenceCase.suspendCard

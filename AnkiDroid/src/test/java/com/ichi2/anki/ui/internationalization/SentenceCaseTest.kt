@@ -76,6 +76,7 @@ class SentenceCaseTest : RobolectricTest() {
                 assertThat(TR.sentenceCase.suspendNote, equalTo("Suspend note"))
                 assertThat(TR.sentenceCase.suspendCard, equalTo("Suspend card"))
                 assertThat(TR.sentenceCase.markNote, equalTo("Mark note"))
+                assertThat(TR.sentenceCase.deleteNote, equalTo("Delete note"))
                 assertThat(TR.sentenceCase.previousCardInfo, equalTo("Previous card info"))
 
                 assertThat("syncMediaLogTitle", TR.syncMediaLogTitle(), equalTo("Media Sync Log"))

@@ -70,7 +70,6 @@
     <string name="menu_add_note" maxLength="28">Add note</string>
     <string name="menu_my_account" comment="Label of the window in which the user should enter their account. This text can't be found in AnkiDroid directly.">Sync account</string>
     <string name="menu_dismiss_note" maxLength="41" >Hide / delete</string>
-    <string name="menu_delete_note" maxLength="28">Delete note</string>
     <string name="rename_flag">Rename flags</string>
     <string name="menu_flag_card" maxLength="28">Flag card</string>
     <string name="menu_edit_tags" maxLength="28">Edit tags</string>

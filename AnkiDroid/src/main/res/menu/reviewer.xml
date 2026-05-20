@@ -163,7 +163,7 @@
 
     <item
         android:id="@+id/action_delete"
-        android:title="@string/menu_delete_note"
+        tools:title="Delete note"
         android:icon="@drawable/ic_delete_white"/>
     <item
         android:id="@+id/action_mark_card"

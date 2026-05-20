@@ -160,7 +160,7 @@ TODO: Add a unit test
             android:entries="@array/custom_button_labels"
             android:entryValues="@array/custom_button_values"
             android:key="@string/custom_button_delete_key"
-            android:title="@string/menu_delete_note"
+            tools:title="Delete note"
             app:useSimpleSummaryProvider="true"/>
     </PreferenceCategory>
     <PreferenceCategory android:title="@string/pref_cat_whiteboard" >

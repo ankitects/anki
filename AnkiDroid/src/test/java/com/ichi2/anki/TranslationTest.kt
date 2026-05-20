@@ -350,7 +350,6 @@ class TranslationTest : RobolectricTest() {
                 // TR.errorsCopyDebugInfoButton()
                 "Create deck", // R.string.new_deck | TR.decksCreateDeck()
                 "Deck options", // R.string.menu__deck_options | TR.deckConfigTitle()
-                "Delete note", // R.string.menu_delete_note | TR.studyingDeleteNote()
                 "Empty cards", // R.string.empty_cards
                 // TR.actionsEmptyCards()
                 // TR.emptyCardsWindowTitle()
