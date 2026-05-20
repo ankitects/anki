@@ -188,7 +188,6 @@ import timber.log.Timber
 import java.io.File
 import java.util.LinkedList
 import java.util.Locale
-import java.util.function.Consumer
 import kotlin.math.max
 import kotlin.math.min
 import kotlin.math.roundToInt
@@ -1544,22 +1543,15 @@ class NoteEditorFragment :
         }
 
     private fun addNewNote() {
-        launchNoteEditor(NoteEditorLauncher.AddNote(deckId)) { }
+        launchNoteEditor(NoteEditorLauncher.AddNote(deckId))
     }
 
     fun copyNote() {
-        launchNoteEditor(NoteEditorLauncher.CopyNote(deckId, fieldsText, selectedTags)) { }
+        launchNoteEditor(NoteEditorLauncher.CopyNote(deckId, fieldsText, selectedTags))
     }
 
-    private fun launchNoteEditor(
-        arguments: NoteEditorLauncher,
-        intentEnricher: Consumer<Bundle>,
-    ) {
-        val intent = arguments.toIntent(requireContext())
-        val bundle = arguments.toBundle()
-        // Mutate event with additional properties
-        intentEnricher.accept(bundle)
-        requestAddLauncher.launch(intent)
+    private fun launchNoteEditor(arguments: NoteEditorLauncher) {
+        requestAddLauncher.launch(arguments.toIntent(requireContext()))
     }
 
     // ----------------------------------------------------------------------------
