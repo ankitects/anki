@@ -50,7 +50,6 @@ import com.ichi2.anki.browser.CardBrowserLaunchOptions
 import com.ichi2.anki.browser.CardBrowserViewModel
 import com.ichi2.anki.browser.CardBrowserViewModel.ChangeMultiSelectMode
 import com.ichi2.anki.browser.CardBrowserViewModel.ChangeMultiSelectMode.SingleSelectCause
-import com.ichi2.anki.browser.CardBrowserViewModel.ChangeNoteTypeResponse
 import com.ichi2.anki.browser.CardBrowserViewModel.NoteEditorCommand
 import com.ichi2.anki.browser.CardBrowserViewModel.SearchState
 import com.ichi2.anki.browser.CardBrowserViewModel.SearchState.Initializing
@@ -67,7 +66,6 @@ import com.ichi2.anki.common.ALL_DECKS_ID
 import com.ichi2.anki.common.annotations.NeedsTest
 import com.ichi2.anki.common.utils.annotation.KotlinCleanup
 import com.ichi2.anki.databinding.ActivityCardBrowserBinding
-import com.ichi2.anki.dialogs.ChangeNoteTypeDialog
 import com.ichi2.anki.dialogs.DiscardChangesDialog
 import com.ichi2.anki.dialogs.SaveBrowserSearchDialogFragment
 import com.ichi2.anki.dialogs.SavedBrowserSearchesDialogFragment
@@ -540,19 +538,6 @@ open class CardBrowser :
             showDialogFragment(dialog)
         }
 
-        fun onChangeNoteType(result: ChangeNoteTypeResponse) {
-            when (result) {
-                ChangeNoteTypeResponse.NoSelection -> {
-                    Timber.w("change note type: no selection")
-                }
-                ChangeNoteTypeResponse.MixedSelection -> showSnackbar(R.string.different_note_types_selected)
-                is ChangeNoteTypeResponse.ChangeNoteType -> {
-                    val dialog = ChangeNoteTypeDialog.newInstance(result.noteIds)
-                    showDialogFragment(dialog)
-                }
-            }
-        }
-
         viewModel.flowOfSearchQueryExpanded.launchCollectionInLifecycleScope(::onSearchQueryExpanded)
         viewModel.flowOfSelectedRows.launchCollectionInLifecycleScope(::onSelectedRowsChanged)
         viewModel.flowOfFilterQuery.launchCollectionInLifecycleScope(::onFilterQueryChanged)
@@ -561,7 +546,6 @@ open class CardBrowser :
         viewModel.flowOfSearchState.launchCollectionInLifecycleScope(::searchStateChanged)
         viewModel.flowOfNoteEditorCommand.launchCollectionInLifecycleScope(::onNoteEditorCommand)
         viewModel.flowOfSaveSearchNamePrompt.launchCollectionInLifecycleScope(::onSaveSearchNamePrompt)
-        viewModel.flowOfChangeNoteType.launchCollectionInLifecycleScope(::onChangeNoteType)
     }
 
     private fun hideKeyboard() {
@@ -642,13 +626,6 @@ open class CardBrowser :
                 } else if (event.isCtrlPressed) {
                     Timber.i("Ctrl+S: Save search")
                     viewModel.saveCurrentSearch()
-                    return true
-                }
-            }
-            KeyEvent.KEYCODE_M -> {
-                if (event.isCtrlPressed && event.isShiftPressed) {
-                    Timber.i("Ctrl+Shift+M: Change Note Type")
-                    viewModel.requestChangeNoteType()
                     return true
                 }
             }
