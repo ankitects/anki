@@ -12,6 +12,7 @@ dev = [
   "mypy-protobuf",
   "ruff",
   "pytest",
+  "pytest-mock",
   "PyChromeDevTools",
   "wheel",
   "hatchling", # for type checking hatch_build.py files
