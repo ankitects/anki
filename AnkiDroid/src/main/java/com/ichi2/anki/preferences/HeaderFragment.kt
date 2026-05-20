@@ -49,6 +49,12 @@ class HeaderFragment : SettingsFragment() {
         requirePreference<HeaderPreference>(R.string.pref_backup_limits_screen_key)
             .title = TR.preferencesBackups()
 
+        requirePreference<HeaderPreference>(R.string.pref_sync_screen_key).summary =
+            HeaderPreference.buildHeaderSummary(
+                TR.sentenceCase.ankiWebAccount,
+                getString(R.string.automatic_sync_choice),
+            )
+
         requirePreference<Preference>(R.string.pref_advanced_screen_key).apply {
             if (AdaptionUtil.isXiaomiRestrictedLearningDevice) {
                 isVisible = false

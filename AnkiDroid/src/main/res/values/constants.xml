@@ -282,7 +282,6 @@
     </string-array>
 
     <string-array name="sync_summary_entries">
-        <item>@string/sync_account</item>
         <item>@string/automatic_sync_choice</item>
     </string-array>
 

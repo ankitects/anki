@@ -76,4 +76,5 @@ undoActionUndone()
     <string name="sentence_suspend_card">Suspend card</string>
     <string name="sentence_mark_note">Mark note</string>
     <string name="sentence_delete_note">Delete note</string>
+    <string name="sentence_ankiweb_account" maxLength="41">AnkiWeb account</string>
 </resources>

@@ -21,10 +21,9 @@
     android:key="@string/pref_sync_screen_key"
     xmlns:tools="http://schemas.android.com/tools">
     <Preference
-        android:dialogTitle="@string/sync_account"
         android:key="@string/sync_account_key"
         android:summary="@string/sync_account_summ_logged_out"
-        android:title="@string/sync_account" >
+        tools:title="AnkiWeb account" >
     </Preference>
     <ListPreference
         android:defaultValue="@string/sync_media_always_value"

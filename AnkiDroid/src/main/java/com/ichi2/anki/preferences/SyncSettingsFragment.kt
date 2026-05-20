@@ -27,6 +27,7 @@ import com.ichi2.anki.common.crashreporting.runCatchingWithReport
 import com.ichi2.anki.launchCatchingTask
 import com.ichi2.anki.settings.Prefs
 import com.ichi2.anki.snackbar.showSnackbar
+import com.ichi2.anki.ui.internationalization.sentenceCase
 import com.ichi2.anki.utils.ext.ifNullOrEmpty
 import com.ichi2.preferences.NumberRangePreferenceCompat
 import com.ichi2.utils.show
@@ -79,6 +80,7 @@ class SyncSettingsFragment : SettingsFragment() {
         }
 
         requirePreference<Preference>(R.string.sync_account_key).apply {
+            title = TR.sentenceCase.ankiWebAccount
             setOnPreferenceClickListener {
                 val accountActivityIntent = AccountActivity.getIntent(requireContext())
                 startActivity(accountActivityIntent)

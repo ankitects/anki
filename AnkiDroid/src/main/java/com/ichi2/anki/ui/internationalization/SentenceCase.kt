@@ -211,6 +211,12 @@ object SentenceCase {
 
     context(_: Fragment)
     val previousCardInfo get() = TR.actionsPreviousCardInfo().toSentenceCase(R.string.sentence_actions_previous_card_info)
+
+    context(_: Context)
+    val ankiWebAccount get() = TR.preferencesAccount().toSentenceCase(R.string.sentence_ankiweb_account)
+
+    context(_: Fragment)
+    val ankiWebAccount get() = TR.preferencesAccount().toSentenceCase(R.string.sentence_ankiweb_account)
 }
 
 /**

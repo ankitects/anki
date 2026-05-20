@@ -336,7 +336,6 @@ class TranslationTest : RobolectricTest() {
                 "Add field", // R.string.model_field_editor_add | TR.fieldsAddField()
                 "Add note", // R.string.menu_add_note | TR.actionsAddNote()
                 "All decks", // R.string.card_browser_all_decks | TR.exportingAllDecks()
-                "AnkiWeb account", // R.string.sync_account | TR.preferencesAccount()
                 "Answer again", // R.string.answer_again | TR.deckConfigAnswerAgain()
                 "Answer buttons", // R.string.answer_buttons | TR.statisticsAnswerButtonsTitle()
                 "Answer good", // R.string.answer_good | TR.deckConfigAnswerGood()

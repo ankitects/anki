@@ -37,7 +37,6 @@ import com.ichi2.anki.dialogs.help.HelpDialog
 import com.ichi2.anki.pages.RemoveAccountFragment
 import com.ichi2.anki.settings.Prefs
 import com.ichi2.anki.ui.internationalization.sentenceCase
-import com.ichi2.anki.ui.internationalization.toSentenceCase
 import com.ichi2.anki.utils.ext.isCompactWidth
 import com.ichi2.anki.utils.ext.removeFragmentFromContainer
 import com.ichi2.anki.utils.ext.showDialogFragment
@@ -67,7 +66,7 @@ class LoggedInFragment : Fragment(R.layout.fragment_my_account_logged_in) {
         activity.setSupportActionBar(toolbar)
 
         activity.supportActionBar?.apply {
-            title = TR.preferencesAccount().toSentenceCase(R.string.sync_account)
+            title = TR.sentenceCase.ankiWebAccount
             setDisplayHomeAsUpEnabled(true)
             setDisplayShowHomeEnabled(true)
         }
