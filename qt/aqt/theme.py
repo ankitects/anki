@@ -268,6 +268,8 @@ class ThemeManager:
 
         else:
             app.setStyle(QStyleFactory.create(self._default_style))  # type: ignore
+            # Qt 6.10+ reads this from the system's theme
+            buf += f"QTableView {{ gridline-color: {self.var(colors.BORDER_SUBTLE)}; }}"
 
         # allow addons to modify the styling
         buf = gui_hooks.style_did_init(buf)
