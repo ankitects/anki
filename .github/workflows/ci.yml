@@ -126,6 +126,10 @@ jobs:
           path: out/coverage
           key: coverage-baseline-linux-${{ github.sha }}
 
+      - name: Check coverage regression
+        if: github.event_name == 'pull_request'
+        run: python3 tools/coverage/check-coverage-regression.py out/coverage-baseline out/coverage
+
       - name: Ensure libs importable
         env:
           SKIP_RUN: "1"
