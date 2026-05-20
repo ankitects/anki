@@ -53,9 +53,8 @@ fun navigate(destination: Destination) {
 }
 
 /** Launches [destination] via an [ActivityResultLauncher], so the caller can observe the result. */
-context(launcher: ActivityResultLauncher<Intent>)
-fun navigate(destination: Destination) {
-    launcher.launch(navigatorInstance.toIntent(destination))
+fun ActivityResultLauncher<Intent>.navigate(destination: Destination) {
+    launch(navigatorInstance.toIntent(destination))
 }
 
 /**
