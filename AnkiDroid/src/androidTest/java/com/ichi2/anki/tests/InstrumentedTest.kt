@@ -26,6 +26,7 @@ import androidx.test.uiautomator.UiDevice
 import androidx.test.uiautomator.UiSelector
 import com.ichi2.anki.CollectionManager
 import com.ichi2.anki.common.annotations.DuplicatedCode
+import com.ichi2.anki.common.destinations.DeferredNavigation
 import com.ichi2.anki.common.time.TimeManager
 import com.ichi2.anki.libanki.Card
 import com.ichi2.anki.libanki.CardType
@@ -50,7 +51,7 @@ import java.util.Locale
 import java.util.concurrent.TimeUnit
 import kotlin.test.fail
 
-abstract class InstrumentedTest {
+abstract class InstrumentedTest : DeferredNavigation {
     internal val col: Collection
         get() = CollectionManager.getColUnsafe()
 

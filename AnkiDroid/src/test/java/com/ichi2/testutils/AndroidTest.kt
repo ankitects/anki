@@ -21,6 +21,7 @@ import android.content.SharedPreferences
 import androidx.core.content.edit
 import androidx.test.core.app.ApplicationProvider
 import com.ichi2.anki.RobolectricTest
+import com.ichi2.anki.common.destinations.DeferredNavigation
 import com.ichi2.anki.common.preferences.sharedPrefs
 
 /**
@@ -34,7 +35,7 @@ import com.ichi2.anki.common.preferences.sharedPrefs
  *
  * Use [RobolectricTest] if access the collection is necessary
  */
-interface AndroidTest
+interface AndroidTest : DeferredNavigation
 
 val AndroidTest.targetContext: Context
     get() {

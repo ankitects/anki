@@ -5,6 +5,7 @@ package com.ichi2.anki.common.destinations
 import android.app.Activity
 import android.content.Intent
 import androidx.activity.result.ActivityResultLauncher
+import androidx.annotation.CheckResult
 import androidx.fragment.app.Fragment
 
 // TODO: Move this into anki-common:android after libanki becomes a java-library
@@ -56,3 +57,30 @@ context(launcher: ActivityResultLauncher<Intent>)
 fun navigate(destination: Destination) {
     launcher.launch(navigatorInstance.toIntent(destination))
 }
+
+/**
+ * Opt-in marker for callers that are not launching navigation immediately, but
+ * handing an [Intent] to the framework to launch later ([android.app.PendingIntent] etc...).
+ *
+ * Regular navigation should use [navigate].
+ *
+ * Opt in either:
+ * - per call site with `with(DeferredNavigation) { destination.toIntent() }`, or
+ * - per class by implementing this interface (typical for tests and harness code).
+ */
+interface DeferredNavigation {
+    companion object : DeferredNavigation
+}
+
+/**
+ * Resolves the calling [Destination] to an [Intent] without launching it.
+ *
+ * Requires explicit opt-in via [DeferredNavigation]; most navigation should use [navigate].
+ *
+ * ```kt
+ * with(DeferredNavigation) { destination.toIntent() }
+ * ```
+ */
+@CheckResult
+context(_: DeferredNavigation)
+fun Destination.toIntent(): Intent = navigatorInstance.toIntent(this)
