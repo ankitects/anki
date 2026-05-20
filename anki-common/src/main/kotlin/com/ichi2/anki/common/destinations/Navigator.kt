@@ -6,6 +6,7 @@ import android.app.Activity
 import android.content.Intent
 import androidx.activity.result.ActivityResultLauncher
 import androidx.annotation.CheckResult
+import androidx.core.app.TaskStackBuilder
 import androidx.fragment.app.Fragment
 
 // TODO: Move this into anki-common:android after libanki becomes a java-library
@@ -56,6 +57,13 @@ fun navigate(destination: Destination) {
 fun ActivityResultLauncher<Intent>.navigate(destination: Destination) {
     launch(navigatorInstance.toIntent(destination))
 }
+
+/**
+ * Adds the Intent for [destination] to this [TaskStackBuilder]'s stack.
+ *
+ * @see TaskStackBuilder.addNextIntent
+ */
+fun TaskStackBuilder.addNextIntent(destination: Destination): TaskStackBuilder = addNextIntent(navigatorInstance.toIntent(destination))
 
 /**
  * Opt-in marker for callers that are not launching navigation immediately, but
