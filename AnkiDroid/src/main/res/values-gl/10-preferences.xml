@@ -160,8 +160,8 @@
     <string name="show_estimates_summ">Amosar o próximo repaso nos botóns de resposta</string>
     <string name="show_large_answer_buttons" maxLength="41">Amosar botóns de resposta grandes</string>
     <string name="show_large_answer_buttons_summ">Amosar botóns de resposta en dúas filas</string>
-    <string name="remove_animations" maxLength="41">Remove animations</string>
-    <string name="remove_animations_summary">Also enabled if animations are removed on the system settings</string>
+    <string name="remove_animations" maxLength="41">Eliminar animacións</string>
+    <string name="remove_animations_summary">Tamén se activará ao eliminar as animacións na configuración do sistema</string>
     <string name="show_top_bar" maxLength="41">Amosar barra superior</string>
     <string name="show_top_bar_summary">Amosar contador de tarxetas, temporizador, bandeira e marca na barra superior</string>
     <string name="show_progress" maxLength="41">Amosar restantes</string>
