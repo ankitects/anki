@@ -79,6 +79,7 @@ class SentenceCaseTest : RobolectricTest() {
                 assertThat(TR.sentenceCase.deleteNote, equalTo("Delete note"))
                 assertThat(TR.sentenceCase.previousCardInfo, equalTo("Previous card info"))
                 assertThat(TR.sentenceCase.ankiWebAccount, equalTo("AnkiWeb account"))
+                assertThat(TR.sentenceCase.browserAppearance, equalTo("Browser appearance"))
 
                 assertThat("syncMediaLogTitle", TR.syncMediaLogTitle(), equalTo("Media Sync Log"))
                 assertThat(TR.sentenceCase.mediaSyncLog, equalTo("Media sync log"))

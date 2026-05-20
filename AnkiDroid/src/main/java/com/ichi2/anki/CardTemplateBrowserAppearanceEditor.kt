@@ -139,7 +139,7 @@ class CardTemplateBrowserAppearanceEditor : AnkiActivity(R.layout.activity_card_
         discardChangesCallback.isEnabled = hasChanges()
 
         enableToolbar()
-        setTitle(R.string.card_template_browser_appearance_title)
+        title = TR.sentenceCase.browserAppearance
     }
 
     private fun answerHasChanged(intent: Intent): Boolean = intent.getStringExtra(INTENT_ANSWER_FORMAT) != answerFormat

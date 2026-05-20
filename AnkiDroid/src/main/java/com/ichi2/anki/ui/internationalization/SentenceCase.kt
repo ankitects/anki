@@ -217,6 +217,12 @@ object SentenceCase {
 
     context(_: Fragment)
     val ankiWebAccount get() = TR.preferencesAccount().toSentenceCase(R.string.sentence_ankiweb_account)
+
+    context(_: Context)
+    val browserAppearance get() = TR.browsingBrowserAppearance().toSentenceCase(R.string.sentence_browser_appearance)
+
+    context(_: Fragment)
+    val browserAppearance get() = TR.browsingBrowserAppearance().toSentenceCase(R.string.sentence_browser_appearance)
 }
 
 /**

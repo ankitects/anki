@@ -77,4 +77,5 @@ undoActionUndone()
     <string name="sentence_mark_note">Mark note</string>
     <string name="sentence_delete_note">Delete note</string>
     <string name="sentence_ankiweb_account" maxLength="41">AnkiWeb account</string>
+    <string name="sentence_browser_appearance">Browser appearance</string>
 </resources>

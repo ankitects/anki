@@ -488,7 +488,6 @@
         </activity>
         <activity
             android:name=".CardTemplateBrowserAppearanceEditor"
-            android:label="@string/card_template_browser_appearance_title"
             android:exported="false"
             android:configChanges="keyboardHidden|orientation|screenSize"
             />

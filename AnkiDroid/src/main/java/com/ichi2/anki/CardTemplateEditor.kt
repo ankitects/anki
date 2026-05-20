@@ -1040,7 +1040,8 @@ open class CardTemplateEditor : AnkiActivity(R.layout.activity_card_template_edi
          * Setups the part of the menu that can be used either in template editor or in previewer fragment.
          */
         fun setupCommonMenu(menu: Menu) {
-            menu.findItem(R.id.action_restore_to_default).title = CollectionManager.TR.cardTemplatesRestoreToDefault()
+            menu.findItem(R.id.action_restore_to_default).title = TR.cardTemplatesRestoreToDefault()
+            menu.findItem(R.id.action_card_browser_appearance).title = TR.sentenceCase.browserAppearance
             if (noteTypeCreatesDynamicNumberOfNotes()) {
                 Timber.d("Editing cloze/occlusion note type, disabling add/delete card template and deck override functionality")
                 menu.findItem(R.id.action_add).isVisible = false
