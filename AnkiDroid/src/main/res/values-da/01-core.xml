@@ -87,20 +87,12 @@
     <string name="menu_add_note" maxLength="28">Tilføj note</string>
     <string name="menu_my_account" comment="Label of the window in which the user should enter their account. This text can\'t be found in AnkiDroid directly.">Synkronisér konto</string>
     <string name="menu_dismiss_note" maxLength="41">Skjul / slet</string>
-    <string name="menu_bury_card" maxLength="28">Begrav kort</string>
-    <string name="menu_bury_note" maxLength="28">Begrav note</string>
-    <string name="menu_suspend_card" maxLength="28">Udeluk kort</string>
-    <string name="menu_suspend_note" maxLength="28">Udeluk note</string>
-    <string name="menu_bury" maxLength="28">Begrav</string>
-    <string name="menu_suspend" maxLength="28">Suspendér</string>
     <string name="menu_delete_note" maxLength="28">Slet note</string>
-    <string name="menu_flag" maxLength="41">Markér</string>
     <string name="rename_flag">Rename flags</string>
     <string name="menu_flag_card" maxLength="28">Markér kort</string>
     <string name="menu_edit_tags" maxLength="28">Redigér tags</string>
     <string name="delete_note_message">Vil du virkelig slette denne note og alle dens kort?\n%s</string>
     <string name="menu_search" maxLength="28">Slå op i %1$s</string>
-    <string name="menu_mark_note" maxLength="28">Markér note</string>
     <string name="menu_unmark_note">Afmarkér note</string>
     <string name="menu_enable_voice_playback" maxLength="28">Enable voice playback</string>
     <string name="menu_disable_voice_playback">Disable voice playback</string>
@@ -152,8 +144,6 @@
     <!-- Card Browser Appearance -->
     <string name="card_template_browser_appearance_title">Browserudseende</string>
     <!-- card Info -->
-    <string name="card_info_title" maxLength="28">Kortinformation</string>
-    <string name="previous_card_info_title" maxLength="28">Previous card info</string>
     <!-- Permissions -->
     <string name="read_write_permission_label">Læse og skrive til AnkiDroid-databasen</string>
     <string name="read_write_permission_description">tilgå eksisterende noter, kort, notetyper og stakke, og skabe nye</string>

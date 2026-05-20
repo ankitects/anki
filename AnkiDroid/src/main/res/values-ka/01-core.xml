@@ -87,20 +87,12 @@
     <string name="menu_add_note" maxLength="28">დაამატე შენიშვნა</string>
     <string name="menu_my_account" comment="Label of the window in which the user should enter their account. This text can\'t be found in AnkiDroid directly.">ანგარიშის სინქრონიზაცია</string>
     <string name="menu_dismiss_note" maxLength="41">დამალვა / წაშლა</string>
-    <string name="menu_bury_card" maxLength="28">ბარათის დამალვა</string>
-    <string name="menu_bury_note" maxLength="28">შენიშვნის დამალვა</string>
-    <string name="menu_suspend_card" maxLength="28">ბარათის გამოტოვება</string>
-    <string name="menu_suspend_note" maxLength="28">შენიშვნის გამოტოვება</string>
-    <string name="menu_bury" maxLength="28">დამალვა</string>
-    <string name="menu_suspend" maxLength="28">გამოტოვება</string>
     <string name="menu_delete_note" maxLength="28">შენიშვნის წაშლა</string>
-    <string name="menu_flag" maxLength="41">დროშა</string>
     <string name="rename_flag">დროშების სახელების გადარქმევა</string>
     <string name="menu_flag_card" maxLength="28">დროშის მიმაგრება</string>
     <string name="menu_edit_tags" maxLength="28">იარლიყის რედაქტირება</string>
     <string name="delete_note_message">ნამდვილად წავშალო ეს შენიშვნა და ყველა მისი ბარათი?\n%s</string>
     <string name="menu_search" maxLength="28">მონახულება %1$s-ში</string>
-    <string name="menu_mark_note" maxLength="28">მონიშნე შენიშვნა</string>
     <string name="menu_unmark_note">შენიშვნის გაუქმება</string>
     <string name="menu_enable_voice_playback" maxLength="28">ხმის გამოშვების ჩართვა</string>
     <string name="menu_disable_voice_playback">ხმის გამოშვების გამორთვა</string>
@@ -152,8 +144,6 @@
     <!-- Card Browser Appearance -->
     <string name="card_template_browser_appearance_title">იერსახე საძიებოში</string>
     <!-- card Info -->
-    <string name="card_info_title" maxLength="28">ბარათის ინფო</string>
-    <string name="previous_card_info_title" maxLength="28">Previous card info</string>
     <!-- Permissions -->
     <string name="read_write_permission_label">წაკითხვა და ჩაწერა AnkiDroid-ის მონაცემთა ბაზაში</string>
     <string name="read_write_permission_description">წვდომა არსებულ შენიშვნებთან, ბარათებთან, შენიშვნის ტიპებთან და დასტებთან, ასევე ახალი ბარათების შექმნასთან</string>

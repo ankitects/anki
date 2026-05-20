@@ -87,20 +87,12 @@
     <string name="menu_add_note" maxLength="28">خاتىرە قوش</string>
     <string name="menu_my_account" comment="Label of the window in which the user should enter their account. This text can\'t be found in AnkiDroid directly.">ھېساباتنى قەدەمداشلا</string>
     <string name="menu_dismiss_note" maxLength="41">يوشۇر/ئۆچۈر</string>
-    <string name="menu_bury_card" maxLength="28">يوشۇرغان كارتا</string>
-    <string name="menu_bury_note" maxLength="28">يوشۇرغان خاتىرە</string>
-    <string name="menu_suspend_card" maxLength="28">كارتىنى كېچىكتۈر</string>
-    <string name="menu_suspend_note" maxLength="28">خاتىرەنى كېچىكتۈر</string>
-    <string name="menu_bury" maxLength="28">يوشۇر</string>
-    <string name="menu_suspend" maxLength="28">كېچىكتۈر</string>
     <string name="menu_delete_note" maxLength="28">خاتىرە ئۆچۈر</string>
-    <string name="menu_flag" maxLength="41">بايراق</string>
     <string name="rename_flag">بايراقنى ئاتىنى ئۆزگەرت</string>
     <string name="menu_flag_card" maxLength="28">كارتىغا بايراق قوش</string>
     <string name="menu_edit_tags" maxLength="28">بەلگە تەھرىر</string>
     <string name="delete_note_message">بۇ خاتىرە ۋە ئۇنىڭ بارلىق كارتىلىرىنى ئۆچۈرەمدۇ؟\n%s</string>
     <string name="menu_search" maxLength="28">%1$s دا ئىزدە</string>
-    <string name="menu_mark_note" maxLength="28">خاتىرەگە بەلگە سال</string>
     <string name="menu_unmark_note">خاتىرەگە بەلگە سالما</string>
     <string name="menu_enable_voice_playback" maxLength="28">ئاۋاز قويۇشنى قوزغات</string>
     <string name="menu_disable_voice_playback">ئاۋاز قويۇشنى چەكلە</string>
@@ -152,8 +144,6 @@
     <!-- Card Browser Appearance -->
     <string name="card_template_browser_appearance_title">كۆرگۈچ كۆرۈنۈشى</string>
     <!-- card Info -->
-    <string name="card_info_title" maxLength="28">كارتا ئۇچۇرى</string>
-    <string name="previous_card_info_title" maxLength="28">ئالدىنقى كارتا ئۇچۇرى</string>
     <!-- Permissions -->
     <string name="read_write_permission_label">AnkiDroid ساندانىنى ئوقۇيدۇ ۋە يازىدۇ</string>
     <string name="read_write_permission_description">مەۋجۇت خاتىرە، كارتا، خاتىرە تۈرى ۋە دەستىنى زىيارەت قىلىپلا قالماي يەنە يېڭىسىنى قۇرىدۇ</string>

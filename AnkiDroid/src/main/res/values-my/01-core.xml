@@ -85,23 +85,12 @@
     <string name="menu_my_account" comment="Label of the window in which the user should enter their account. This text can\'t be found in AnkiDroid directly.">အကောင့်အားတိုက်ဆိုင်ညှိယူပါ</string>
     <string name="menu_dismiss_note" maxLength="41">ဖျောက်ထား /
 ဖျက်ပါ</string>
-    <string name="menu_bury_card" maxLength="28">ကဒ်မြှုပ်ပါ  (or)
-ကဒ်ဖုံးကွယ်ပါ</string>
-    <string name="menu_bury_note" maxLength="28">မှတ်စုကိုဝှက်ပါ</string>
-    <string name="menu_suspend_card" maxLength="28">ကဒ်ကိုရပ်ဆိုင်းထားပါ</string>
-    <string name="menu_suspend_note" maxLength="28">မှတ်စုကိုဆိုင်းငံ့ထားပါ</string>
-    <string name="menu_bury" maxLength="28">သင်္ဂြိုဟ် (သို့မဟုတ်)
-
-ထားသို့မဟုတ်မြေပြင်အောက်မှာပုန်းရှောင်။</string>
-    <string name="menu_suspend" maxLength="28">ဆိုင်းငံ့</string>
     <string name="menu_delete_note" maxLength="28">မှတ်စုကို ဖျက်ပစ်ပါ</string>
-    <string name="menu_flag" maxLength="41">အလံ</string>
     <string name="rename_flag">Rename flags</string>
     <string name="menu_flag_card" maxLength="28">ကဒ်အလံ</string>
     <string name="menu_edit_tags" maxLength="28">ကတ်ပြားပြင်ဆင်</string>
     <string name="delete_note_message">မှတ်စု နဲ့ ကတ်တွေဖြတ်မှာကျိန်းသေလား\n%s</string>
     <string name="menu_search" maxLength="28">%1$s တိုးတက်လာ</string>
-    <string name="menu_mark_note" maxLength="28">မှတ်သား</string>
     <string name="menu_unmark_note">မှတ်သားမှုဖျက်</string>
     <string name="menu_enable_voice_playback" maxLength="28">Enable voice playback</string>
     <string name="menu_disable_voice_playback">Disable voice playback</string>
@@ -152,8 +141,6 @@
     <!-- Card Browser Appearance -->
     <string name="card_template_browser_appearance_title">Browser appearance</string>
     <!-- card Info -->
-    <string name="card_info_title" maxLength="28">Card info</string>
-    <string name="previous_card_info_title" maxLength="28">Previous card info</string>
     <!-- Permissions -->
     <string name="read_write_permission_label">Read and write to the AnkiDroid database</string>
     <string name="read_write_permission_description">access existing notes, cards, note types, and decks, as well as create new ones</string>

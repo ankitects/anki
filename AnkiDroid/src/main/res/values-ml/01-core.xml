@@ -87,20 +87,12 @@
     <string name="menu_add_note" maxLength="28">കുറിപ്പ് ചേർക്കുക</string>
     <string name="menu_my_account" comment="Label of the window in which the user should enter their account. This text can\'t be found in AnkiDroid directly.">അക്കൗണ്ട് സമന്വയിപ്പിക്കുക</string>
     <string name="menu_dismiss_note" maxLength="41">മറയ്‌ക്കുക / ഇല്ലാതാക്കുക</string>
-    <string name="menu_bury_card" maxLength="28">കാർഡ് അടക്കം</string>
-    <string name="menu_bury_note" maxLength="28">കുറിപ്പ് അടക്കം ചെയ്യുക</string>
-    <string name="menu_suspend_card" maxLength="28">കാർഡ് താൽക്കാലികമായി നിർത്തുക</string>
-    <string name="menu_suspend_note" maxLength="28">കുറിപ്പ് താൽക്കാലികമായി നിർത്തുക</string>
-    <string name="menu_bury" maxLength="28">അടക്കം ചെയ്യുക</string>
-    <string name="menu_suspend" maxLength="28">സസ്പെൻഡ് ചെയ്യുക</string>
     <string name="menu_delete_note" maxLength="28">കുറിപ്പ് മായ്ക്കുക</string>
-    <string name="menu_flag" maxLength="41">ഫ്ലാഗ്</string>
     <string name="rename_flag">പതാകകളുടെ പേരുമാറ്റുക</string>
     <string name="menu_flag_card" maxLength="28">ഫ്ലാഗ് കാർഡ്</string>
     <string name="menu_edit_tags" maxLength="28">ടാഗുകൾ എഡിറ്റുചെയ്യുക</string>
     <string name="delete_note_message">ഈ കുറിപ്പും അതിന്റെ എല്ലാ കാർഡുകളും ശരിക്കും ഇല്ലാതാക്കുക?\n%s</string>
     <string name="menu_search" maxLength="28">%1$s ൽ തിരയുക</string>
-    <string name="menu_mark_note" maxLength="28">കുറിപ്പ് അടയാളപ്പെടുത്തുക</string>
     <string name="menu_unmark_note">കുറിപ്പ് അടയാളപ്പെടുത്തുക</string>
     <string name="menu_enable_voice_playback" maxLength="28">വോയ്‌സ് പ്ലേബാക്ക് പ്രവർത്തനക്ഷമമാക്കുക</string>
     <string name="menu_disable_voice_playback">വോയ്‌സ് പ്ലേബാക്ക് പ്രവർത്തനരഹിതമാക്കുക</string>
@@ -152,8 +144,6 @@
     <!-- Card Browser Appearance -->
     <string name="card_template_browser_appearance_title">ബ്രൗസർ രൂപം</string>
     <!-- card Info -->
-    <string name="card_info_title" maxLength="28">കാർഡ് വിവരം</string>
-    <string name="previous_card_info_title" maxLength="28">Previous card info</string>
     <!-- Permissions -->
     <string name="read_write_permission_label">AnkiDroid ഡാറ്റാബേസ് വായിച്ച് എഴുതുക</string>
     <string name="read_write_permission_description">നിലവിലുള്ള കുറിപ്പുകൾ, കാർഡുകൾ, കുറിപ്പ് തരങ്ങൾ, ഡെക്കുകൾ എന്നിവ ആക്സസ് ചെയ്യുന്നതിനൊപ്പം പുതിയവ സൃഷ്ടിക്കുക</string>

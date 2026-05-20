@@ -87,20 +87,12 @@
     <string name="menu_add_note" maxLength="28">Lisa märge</string>
     <string name="menu_my_account" comment="Label of the window in which the user should enter their account. This text can\'t be found in AnkiDroid directly.">Sünkrooni konto</string>
     <string name="menu_dismiss_note" maxLength="41">Peida / kustuta</string>
-    <string name="menu_bury_card" maxLength="28">Peida kaart</string>
-    <string name="menu_bury_note" maxLength="28">Peida märge</string>
-    <string name="menu_suspend_card" maxLength="28">Seiska kaart</string>
-    <string name="menu_suspend_note" maxLength="28">Seiska märge</string>
-    <string name="menu_bury" maxLength="28">Peida</string>
-    <string name="menu_suspend" maxLength="28">Seiska</string>
     <string name="menu_delete_note" maxLength="28">Kustuta märge</string>
-    <string name="menu_flag" maxLength="41">Lipp</string>
     <string name="rename_flag">Rename flags</string>
     <string name="menu_flag_card" maxLength="28">Pane kaardile lipp</string>
     <string name="menu_edit_tags" maxLength="28">Muuda silte</string>
     <string name="delete_note_message">Kas tõesti kustutada see märge ja kõik selle kaardid?\n%s</string>
     <string name="menu_search" maxLength="28">Otsi %1$s</string>
-    <string name="menu_mark_note" maxLength="28">Tähista märge</string>
     <string name="menu_unmark_note">Eemalda tähistus märkelt</string>
     <string name="menu_enable_voice_playback" maxLength="28">Lülita heli taasesitamine sisse</string>
     <string name="menu_disable_voice_playback">Lülita heli taasesitamine välja</string>
@@ -152,8 +144,6 @@
     <!-- Card Browser Appearance -->
     <string name="card_template_browser_appearance_title">Brauseri välimus</string>
     <!-- card Info -->
-    <string name="card_info_title" maxLength="28">Kaardi info</string>
-    <string name="previous_card_info_title" maxLength="28">Eelmise kaardi info</string>
     <!-- Permissions -->
     <string name="read_write_permission_label">Loe ja kirjuta AnkiDroid andmebaasi</string>
     <string name="read_write_permission_description">ligi pääseda olemasolevatele ja luua uusi märkmeid, kaarte, märketüüpe ja kaardipakke.</string>

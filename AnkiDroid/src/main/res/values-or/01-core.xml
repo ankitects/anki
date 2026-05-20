@@ -87,20 +87,12 @@
     <string name="menu_add_note" maxLength="28">ନୋଟ୍ ଯୋଡ଼ିବା</string>
     <string name="menu_my_account" comment="Label of the window in which the user should enter their account. This text can\'t be found in AnkiDroid directly.">ସୀଙ୍କ୍ ଖାତା</string>
     <string name="menu_dismiss_note" maxLength="41">ଲୁଚାଇବା / ଵିଲୋପ କରିବା</string>
-    <string name="menu_bury_card" maxLength="28">ପତ୍ର ସ୍ଥଗିତ କରନ୍ତୁ</string>
-    <string name="menu_bury_note" maxLength="28">ନୋଟ୍ ସ୍ଥଗିତ କରନ୍ତୁ</string>
-    <string name="menu_suspend_card" maxLength="28">ପତ୍ର ନିଲମ୍ବିତ କରନ୍ତୁ</string>
-    <string name="menu_suspend_note" maxLength="28">ନୋଟ୍ ନିଲମ୍ବିତ କରନ୍ତୁ</string>
-    <string name="menu_bury" maxLength="28">ସ୍ଥଗିତ ରଖନ୍ତୁ</string>
-    <string name="menu_suspend" maxLength="28">ନିଲମ୍ବନ କରନ୍ତୁ</string>
     <string name="menu_delete_note" maxLength="28">ନୋଟ୍ ଵିଲୋପ କରିବା</string>
-    <string name="menu_flag" maxLength="41">ପତାକା</string>
     <string name="rename_flag">ପତାକାର ନାମ ବଦଳାଇବା</string>
     <string name="menu_flag_card" maxLength="28">ପତ୍ରକୁ ଏକ ପତାକା ନ୍ୟସ୍ତ କରନ୍ତୁ</string>
     <string name="menu_edit_tags" maxLength="28">ଟ୍ୟାଗ୍ ସମ୍ପାଦନା</string>
     <string name="delete_note_message">ଆପଣ ପ୍ରକୃତରେ ଏହି ନୋଟ୍ ଏଵଂ ଏହାର ସମସ୍ତ ପତ୍ର ଵିଲୋପ କରିବାକୁ ଚାହୁଁଛନ୍ତି କି?\n%s</string>
     <string name="menu_search" maxLength="28">%1$s ରେ ଦୃଷ୍ଟିପାତ</string>
-    <string name="menu_mark_note" maxLength="28">ନୋଟ ଚିନ୍ହିତ କରନ୍ତୁ</string>
     <string name="menu_unmark_note">ନୋଟ ଅଣଚିନ୍ହିତ କରନ୍ତୁ</string>
     <string name="menu_enable_voice_playback" maxLength="28">Enable voice playback</string>
     <string name="menu_disable_voice_playback">Disable voice playback</string>
@@ -152,8 +144,6 @@
     <!-- Card Browser Appearance -->
     <string name="card_template_browser_appearance_title">ବ୍ରାଉଜର ରୂପ</string>
     <!-- card Info -->
-    <string name="card_info_title" maxLength="28">ପତ୍ର ସୂଚନା</string>
-    <string name="previous_card_info_title" maxLength="28">ପୂର୍ବ ପତ୍ରର ସୂଚନା</string>
     <!-- Permissions -->
     <string name="read_write_permission_label">AnkiDroid ଡାଟାବେସ୍ କୁ ପଢ଼ିବା ଓ ଲେଖିବା</string>
     <string name="read_write_permission_description">ଵିଦ୍ୟମାନ ନୋଟ୍, ପତ୍ର, ନୋଟ୍ ପ୍ରକାର ଓ କେରୀ ଅଧ୍ୟୟନ କରିବା ଵ୍ୟତୀତ ନୂଆରେ ସୃଷ୍ଟି କରିବା</string>

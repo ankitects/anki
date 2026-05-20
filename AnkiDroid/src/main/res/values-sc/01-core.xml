@@ -88,21 +88,13 @@
     <string name="menu_add_note" maxLength="28">Annanghe una nota</string>
     <string name="menu_my_account" comment="Label of the window in which the user should enter their account. This text can\'t be found in AnkiDroid directly.">Sincroniza unu contu</string>
     <string name="menu_dismiss_note" maxLength="41">Cua / iscantzella</string>
-    <string name="menu_bury_card" maxLength="28">Interra sa carta</string>
-    <string name="menu_bury_note" maxLength="28">Interra sa nota</string>
-    <string name="menu_suspend_card" maxLength="28">Suspende sa carta</string>
-    <string name="menu_suspend_note" maxLength="28">Suspende sa nota</string>
-    <string name="menu_bury" maxLength="28">Interra</string>
-    <string name="menu_suspend" maxLength="28">Suspende</string>
     <string name="menu_delete_note" maxLength="28">Iscantzella sa nota</string>
-    <string name="menu_flag" maxLength="41">Bandera</string>
     <string name="rename_flag">Càmbia su nùmene a sas banderas</string>
     <string name="menu_flag_card" maxLength="28">Marca sa carta cun una bandera</string>
     <string name="menu_edit_tags" maxLength="28">Modìfica sas etichetas</string>
     <string name="delete_note_message">Boles a beru iscantzellare custa nota e totu sas cartas suas?\n
                                              %s</string>
     <string name="menu_search" maxLength="28">Chirca in %1$s</string>
-    <string name="menu_mark_note" maxLength="28">Marca sa nota</string>
     <string name="menu_unmark_note">Boga sa marcadura a sa nota</string>
     <string name="menu_enable_voice_playback" maxLength="28">Abìlita sa riprodutzione vocale</string>
     <string name="menu_disable_voice_playback">Disabìlita sa riprodutzione vocale</string>
@@ -155,8 +147,6 @@
     <!-- Card Browser Appearance -->
     <string name="card_template_browser_appearance_title">Aparèntzia de su navigadore</string>
     <!-- card Info -->
-    <string name="card_info_title" maxLength="28">Info de sa carta</string>
-    <string name="previous_card_info_title" maxLength="28">Previous card info</string>
     <!-- Permissions -->
     <string name="read_write_permission_label">Leghe e iscrie in sa base de datos de AnkiDroid</string>
     <string name="read_write_permission_description">atzede a sas notas, a sas cartas, a sas castas de notas e a sos matzos chi esistint giai, e crea·nde de noos</string>

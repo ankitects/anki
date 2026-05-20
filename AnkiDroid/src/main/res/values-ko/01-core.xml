@@ -84,20 +84,12 @@
     <string name="menu_add_note" maxLength="28">노트 추가</string>
     <string name="menu_my_account" comment="Label of the window in which the user should enter their account. This text can\'t be found in AnkiDroid directly.">계정 동기화</string>
     <string name="menu_dismiss_note" maxLength="41">숨김 / 삭제</string>
-    <string name="menu_bury_card" maxLength="28">카드 나중에 보기</string>
-    <string name="menu_bury_note" maxLength="28">노트 나중에 보기</string>
-    <string name="menu_suspend_card" maxLength="28">카드 비활성화하기</string>
-    <string name="menu_suspend_note" maxLength="28">노트 미뤄두기</string>
-    <string name="menu_bury" maxLength="28">나중에 보기</string>
-    <string name="menu_suspend" maxLength="28">미뤄두기</string>
     <string name="menu_delete_note" maxLength="28">노트 삭제하기</string>
-    <string name="menu_flag" maxLength="41">플래그</string>
     <string name="rename_flag">플래그 이름 변경하기</string>
     <string name="menu_flag_card" maxLength="28">카드에 플래그 달기</string>
     <string name="menu_edit_tags" maxLength="28">태그 수정</string>
     <string name="delete_note_message">다음 노트와 그 노트의 모든 카드를 정말로 삭제하시겠습니까?\n%s</string>
     <string name="menu_search" maxLength="28">%1$s에서 찾아보기</string>
-    <string name="menu_mark_note" maxLength="28">노트에 표시하기</string>
     <string name="menu_unmark_note">노트 표시 해제</string>
     <string name="menu_enable_voice_playback" maxLength="28">목소리 재생 켜기</string>
     <string name="menu_disable_voice_playback">목소리 재생 끄기</string>
@@ -147,8 +139,6 @@
     <!-- Card Browser Appearance -->
     <string name="card_template_browser_appearance_title">카드 모양 설정</string>
     <!-- card Info -->
-    <string name="card_info_title" maxLength="28">카드 정보</string>
-    <string name="previous_card_info_title" maxLength="28">이전 카드 정보</string>
     <!-- Permissions -->
     <string name="read_write_permission_label">AnkiDroid 데이터베이스 읽고 쓰기</string>
     <string name="read_write_permission_description">기존의 노트, 카드, 노트 유형, 덱에 접근하여 새로운 항목 생성하기</string>

@@ -87,20 +87,12 @@
     <string name="menu_add_note" maxLength="28">ᱠᱷᱟᱴᱚ ᱵᱤᱪᱟᱹᱨ ᱥᱮᱞᱮᱫ ᱢᱮ</string>
     <string name="menu_my_account" comment="Label of the window in which the user should enter their account. This text can\'t be found in AnkiDroid directly.">ᱠᱷᱟᱛᱟ ᱟᱹᱭᱩᱨ ᱢᱤᱫ ᱢᱮ</string>
     <string name="menu_dismiss_note" maxLength="41">ᱩᱠᱩᱭ ᱢᱮ/ᱜᱫ ᱜᱤᱰᱤ</string>
-    <string name="menu_bury_card" maxLength="28">ᱠᱟᱰ ᱛᱚᱯᱟᱭ ᱢᱮ</string>
-    <string name="menu_bury_note" maxLength="28">ᱠᱷᱟᱴᱚ ᱵᱤᱪᱟᱹᱨ ᱛᱚᱯᱟᱭ ᱢᱮ</string>
-    <string name="menu_suspend_card" maxLength="28">ᱠᱟᱰ ᱵᱚᱸᱫᱚᱭ ᱢᱮ</string>
-    <string name="menu_suspend_note" maxLength="28">ᱠᱷᱟᱴᱚ ᱵᱤᱪᱟᱹᱨ ᱵᱚᱸᱫᱚᱭ ᱢᱮ</string>
-    <string name="menu_bury" maxLength="28">ᱛᱚᱯᱟ</string>
-    <string name="menu_suspend" maxLength="28">ᱵᱚᱸᱫᱚᱭ ᱢᱮ</string>
     <string name="menu_delete_note" maxLength="28">ᱠᱷᱟᱴᱚ ᱵᱤᱪᱟᱹᱨ ᱜᱮᱫ ᱜᱤᱰᱤ</string>
-    <string name="menu_flag" maxLength="41">ᱯᱚᱛᱠᱟ</string>
     <string name="rename_flag">ᱧᱩᱛᱩᱢ ᱵᱚᱫᱚᱞ ᱢᱮ</string>
     <string name="menu_flag_card" maxLength="28">ᱠᱟᱰ ᱯᱚᱛᱠᱟᱭ ᱢᱮ</string>
     <string name="menu_edit_tags" maxLength="28">ᱴᱮᱜᱥ ᱥᱟᱯᱲᱟᱣ</string>
     <string name="delete_note_message">ᱱᱚᱛᱴ ᱥᱟᱞᱟᱜ ᱛᱮ ᱡᱷᱚᱛᱚ ᱠᱟᱰ ᱨᱮᱭᱟᱜ ᱡᱤᱱᱥᱚ ᱠᱚ ᱜᱮᱫ ᱜᱤᱰᱤᱭᱟ ᱥᱮ?\n%s</string>
     <string name="menu_search" maxLength="28">%1$s ᱨᱮ ᱧᱮᱞ ᱵᱤᱰᱟᱣ ᱢᱮ</string>
-    <string name="menu_mark_note" maxLength="28">ᱠᱷᱟᱴᱚ ᱵᱤᱪᱟᱹᱨ ᱪᱤᱱᱦᱟᱹᱭ ᱢᱮ</string>
     <string name="menu_unmark_note">ᱠᱷᱟᱴᱚ ᱵᱤᱪᱟᱹᱨ ᱚ-ᱪᱤᱱᱦᱟᱹᱭ ᱢᱮ</string>
     <string name="menu_enable_voice_playback" maxLength="28">ᱥᱮᱨᱮᱧ ᱯᱷᱟᱭᱞᱟᱣ ᱮᱱᱮᱡ</string>
     <string name="menu_disable_voice_playback">ᱥᱮᱨᱮᱧ ᱯᱷᱟᱭᱞᱟᱣ ᱵᱚᱫᱚᱞ</string>
@@ -152,8 +144,6 @@
     <!-- Card Browser Appearance -->
     <string name="card_template_browser_appearance_title">ᱵᱨᱟᱩᱡᱚᱨ ᱧᱮᱞᱚᱜ ᱠᱚ</string>
     <!-- card Info -->
-    <string name="card_info_title" maxLength="28">ᱠᱟᱰ ᱵᱟᱵᱚᱛ</string>
-    <string name="previous_card_info_title" maxLength="28">ᱢᱟᱲᱟᱝ ᱠᱟᱨᱰ ᱵᱟᱵᱚᱛ ᱚᱞ ᱢᱮ</string>
     <!-- Permissions -->
     <string name="read_write_permission_label">AnkiDroid ᱥᱟᱫᱠᱷᱤᱭᱟᱽ ᱵᱟᱹᱭᱥᱟᱣ ᱨᱮ ᱯᱟᱲᱦᱟᱣ ᱟᱨ ᱚᱞ ᱪᱷᱚᱭ ᱢᱮ</string>
     <string name="read_write_permission_description">ᱢᱟᱲᱟᱝ ᱠᱷᱚᱱ ᱢᱮᱱᱟᱜ ᱠᱷᱟᱴᱚ ᱵᱤᱪᱟᱹᱨᱥ, ᱠᱟᱰ, ᱠᱷᱟᱴᱚ ᱵᱤᱪᱟᱹᱨᱥ ᱯᱨᱚᱠᱟᱨ ᱟᱨ ᱰᱮᱠ ᱠᱚ ᱦᱚᱠ ᱫᱟᱲᱮᱭᱟᱼᱜᱢ ᱚᱱᱟ ᱥᱟᱞᱟᱜ ᱛᱮ ᱱᱟᱶᱟ ᱠᱟᱰ ᱦᱚᱸ ᱛᱮᱭᱟᱨ ᱫᱟᱲᱮᱭᱟᱼᱜᱢ</string>

@@ -87,20 +87,12 @@
     <string name="menu_add_note" maxLength="28">नोट जोड़ें</string>
     <string name="menu_my_account" comment="Label of the window in which the user should enter their account. This text can\'t be found in AnkiDroid directly.">खाते को सिंक करें</string>
     <string name="menu_dismiss_note" maxLength="41">छुपाएं/हटाएं</string>
-    <string name="menu_bury_card" maxLength="28">पत्ता स्थगित करें</string>
-    <string name="menu_bury_note" maxLength="28">नोट स्थगित करें</string>
-    <string name="menu_suspend_card" maxLength="28">पत्ता निलंबित करें</string>
-    <string name="menu_suspend_note" maxLength="28">नोट निलंबित करें</string>
-    <string name="menu_bury" maxLength="28">स्थगित करें</string>
-    <string name="menu_suspend" maxLength="28">निलंबित</string>
     <string name="menu_delete_note" maxLength="28">नोट हटाएँ</string>
-    <string name="menu_flag" maxLength="41">ध्वज</string>
     <string name="rename_flag">झंडों का नाम बदलें</string>
     <string name="menu_flag_card" maxLength="28">कार्ड को ध्वजांकित करें</string>
     <string name="menu_edit_tags" maxLength="28">टैग संपादित करें</string>
     <string name="delete_note_message">वास्तव में इस नोट और उसके सभी cards?\n%s को हटाना</string>
     <string name="menu_search" maxLength="28">लुकअप में %1$s</string>
-    <string name="menu_mark_note" maxLength="28">नोट चिह्नित करें</string>
     <string name="menu_unmark_note">नोट अचिह्नित करें</string>
     <string name="menu_enable_voice_playback" maxLength="28">ध्वनि प्लेबैक सक्षम करें</string>
     <string name="menu_disable_voice_playback">ध्वनि प्लेबैक अक्षम करें</string>
@@ -154,8 +146,6 @@ Back - बैक</string>
     <!-- Card Browser Appearance -->
     <string name="card_template_browser_appearance_title">ब्राउज़र का दिखाव</string>
     <!-- card Info -->
-    <string name="card_info_title" maxLength="28">कार्ड की जानकारी</string>
-    <string name="previous_card_info_title" maxLength="28">पिछले कार्ड की जानकारी</string>
     <!-- Permissions -->
     <string name="read_write_permission_label">पढ़ें और AnkiDroid डेटाबेस के लिए लिखें</string>
     <string name="read_write_permission_description">मौजूदा नोट्स, कार्ड, नोट प्रकार, और डेक तक पहुंचें, साथ ही नए बनाएं</string>

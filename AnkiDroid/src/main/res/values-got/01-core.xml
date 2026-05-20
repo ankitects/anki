@@ -87,20 +87,12 @@
     <string name="menu_add_note" maxLength="28">𐌼𐌴𐌻𐌴𐌹𐌽 𐌱𐌹𐌰𐌹𐌺𐌰𐌽</string>
     <string name="menu_my_account" comment="Label of the window in which the user should enter their account. This text can\'t be found in AnkiDroid directly.">𐌲𐌰𐌻𐌴𐌹𐌺 𐍂𐌰𐌷𐌽𐌴𐌹𐌽𐌰𐌹𐍃</string>
     <string name="menu_dismiss_note" maxLength="41">𐌰𐍆𐍆𐌹𐌻𐌷𐌰𐌽 / 𐌿𐍃𐌵𐌹𐍃𐍄𐌾𐌰𐌽</string>
-    <string name="menu_bury_card" maxLength="28">𐌺𐌰𐍂𐍄𐌰 𐌽𐌰𐍅𐌹𐍃𐍄𐍂𐍉𐌽</string>
-    <string name="menu_bury_note" maxLength="28">𐌼𐌴𐌻𐌴𐌹𐌽 𐌽𐌰𐍅𐌹𐍃𐍄𐍂𐍉𐌽</string>
-    <string name="menu_suspend_card" maxLength="28">𐌺𐌰𐍂𐍄𐌰 𐌷𐌰𐌷𐌰𐌽</string>
-    <string name="menu_suspend_note" maxLength="28">𐌼𐌴𐌻𐌴𐌹𐌽𐍃 𐌷𐌰𐌷𐌰𐌽𐌰</string>
-    <string name="menu_bury" maxLength="28">𐌽𐌰𐍅𐌹𐍃𐍄𐍂𐍉𐌽</string>
-    <string name="menu_suspend" maxLength="28">𐌷𐌰𐌷𐌰𐌽</string>
     <string name="menu_delete_note" maxLength="28">𐌼𐌴𐌻𐌴𐌹𐌽𐌰𐌹 𐌿𐍃𐌵𐌹𐍃𐍄𐌾𐌰𐌽</string>
-    <string name="menu_flag" maxLength="41">𐍆𐌰𐌽𐌰</string>
     <string name="rename_flag">𐍆𐌰𐌽𐌰𐌽𐍃 𐌰𐍆𐍄𐍂𐌰𐌷𐌰𐌹𐍄𐌰𐌽</string>
     <string name="menu_flag_card" maxLength="28">𐍆𐌰𐌽𐌹𐌽𐍃 𐌺𐌰𐍂𐍄𐌰</string>
     <string name="menu_edit_tags" maxLength="28">𐍃𐍉𐌺𐌽𐌹𐍅𐌰𐌿𐍂𐌳𐌰 𐌹𐌽𐌼𐌰𐌹𐌳𐌾𐌰𐌽</string>
     <string name="delete_note_message">𐍅𐌹𐌻𐌴𐌹𐌶𐌿 𐌱𐌹 𐍃𐌿𐌽𐌾𐌰𐌹 𐌸𐌹𐌶𐌰𐌹 𐌼𐌴𐌻𐌴𐌹𐌽𐌰𐌹 𐌾𐌰𐌷 𐌰𐌻𐌻𐌰𐌹𐌼 𐌺𐌰𐍂𐍄𐍉𐌼 𐍃𐌴𐌹𐌽𐌰𐌹𐌼 𐌿𐍃𐌵𐌹𐍃𐍄𐌾𐌰𐌽?\n%s</string>
     <string name="menu_search" maxLength="28">𐌲𐌰𐍃𐍉𐌺𐌾𐌰𐌽 𐌹𐌽 %1$s</string>
-    <string name="menu_mark_note" maxLength="28">𐌼𐌴𐌻𐌴𐌹𐌽 𐌲𐌰𐍄𐌰𐍂𐌷𐌾𐌰𐌽</string>
     <string name="menu_unmark_note">𐌼𐌴𐌻𐌴𐌹𐌽 𐌿𐌽𐌲𐌰𐍄𐌰𐍂𐌷𐌾𐌰𐌽</string>
     <string name="menu_enable_voice_playback" maxLength="28">𐍃𐍄𐌹𐌱𐌽𐍉𐍃 𐌰𐍆𐍄𐍂𐌰𐍃𐍀𐌹𐌻𐍉𐌽 𐌲𐌰𐌻𐌰𐌲𐌾𐌰𐌽</string>
     <string name="menu_disable_voice_playback">𐍃𐍄𐌹𐌱𐌽𐍉𐍃 𐌰𐍆𐍄𐍂𐌰𐍃𐍀𐌹𐌻𐍉𐌽 𐌿𐌽𐌲𐌰𐌻𐌰𐌲𐌾𐌰𐌽</string>
@@ -152,8 +144,6 @@
     <!-- Card Browser Appearance -->
     <string name="card_template_browser_appearance_title">𐍅𐌻𐌹𐍄𐍃 𐌱𐍂𐌰𐍅𐍃𐌰𐌹𐍂𐍃</string>
     <!-- card Info -->
-    <string name="card_info_title" maxLength="28">𐌺𐌿𐌽𐌸𐌹 𐌺𐌰𐍂𐍄𐍉𐍃</string>
-    <string name="previous_card_info_title" maxLength="28">𐌰𐍆𐍄𐌿𐌼𐌹𐍃𐍄𐌰𐍄𐌰 𐌺𐌿𐌽𐌸𐌹 𐍇𐌰𐍂𐍄𐍉𐍃</string>
     <!-- Permissions -->
     <string name="read_write_permission_label">𐌳𐌿 𐌰𐌽𐌺𐌴𐌹𐌳𐍂𐌰𐌿𐌳 𐌳𐌰𐍄𐌰𐌱𐌿𐍃𐌰 𐌰𐌽𐌰𐌺𐌿𐌽𐌽𐌰𐌽 𐌾𐌰𐌷 𐌼𐌴𐌻𐌾𐌰𐌽</string>
     <string name="read_write_permission_description">𐌰𐍄𐌲𐌰𐌲𐌲 𐌹𐌽 𐍅𐌹𐍃𐌰𐌽𐌳𐌴𐌹𐌽𐍃 𐌼𐌴𐌻𐌴𐌹𐌽𐌹𐌽𐍃, 𐌺𐌰𐍂𐍄𐍉𐍃, 𐌷𐌰𐌹𐌳𐌿𐌽𐍃 𐌼𐌴𐌻𐌴𐌹𐌽𐍉, 𐌾𐌰𐌷 𐌺𐌰𐍂𐍄𐌰𐌷𐌿𐌶𐌳𐌰, 𐌾𐌰𐌷 𐌽𐌹𐌿𐌾𐌰 𐍃𐌺𐌰𐍀𐌾𐌰𐌽</string>

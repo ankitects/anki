@@ -87,20 +87,12 @@
     <string name="menu_add_note" maxLength="28">Додави забелешка</string>
     <string name="menu_my_account" comment="Label of the window in which the user should enter their account. This text can\'t be found in AnkiDroid directly.">Синхронизирајте сметка</string>
     <string name="menu_dismiss_note" maxLength="41">Скриј / избриши</string>
-    <string name="menu_bury_card" maxLength="28">Погребете картичката</string>
-    <string name="menu_bury_note" maxLength="28">Погребете белешка</string>
-    <string name="menu_suspend_card" maxLength="28">Суспендирај ја картичката</string>
-    <string name="menu_suspend_note" maxLength="28">Суспендирај белешка</string>
-    <string name="menu_bury" maxLength="28">Погребете</string>
-    <string name="menu_suspend" maxLength="28">Суспендирај</string>
     <string name="menu_delete_note" maxLength="28">Бриши белешка</string>
-    <string name="menu_flag" maxLength="41">Знаме</string>
     <string name="rename_flag">Rename flags</string>
     <string name="menu_flag_card" maxLength="28">Постави знаме на карта</string>
     <string name="menu_edit_tags" maxLength="28">Edit tags</string>
     <string name="delete_note_message">Навистина избришете ја оваа белешка и сите нејзини картички?\n%s</string>
     <string name="menu_search" maxLength="28">Пребарување во %1$s</string>
-    <string name="menu_mark_note" maxLength="28">Означите белешка</string>
     <string name="menu_unmark_note">Отштиклирај ја белешката</string>
     <string name="menu_enable_voice_playback" maxLength="28">Enable voice playback</string>
     <string name="menu_disable_voice_playback">Disable voice playback</string>
@@ -152,8 +144,6 @@
     <!-- Card Browser Appearance -->
     <string name="card_template_browser_appearance_title">Изглед на пребарувач</string>
     <!-- card Info -->
-    <string name="card_info_title" maxLength="28">Card info</string>
-    <string name="previous_card_info_title" maxLength="28">Previous card info</string>
     <!-- Permissions -->
     <string name="read_write_permission_label">Читајте и пишувајте на базата на податоци на AnkiDroid</string>
     <string name="read_write_permission_description">да пристапите до постоечките белешки, картички, типови белешки и decks, како и креирање нови</string>

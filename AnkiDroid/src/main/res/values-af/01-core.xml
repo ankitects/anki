@@ -87,20 +87,12 @@
     <string name="menu_add_note" maxLength="28">Voeg nota by</string>
     <string name="menu_my_account" comment="Label of the window in which the user should enter their account. This text can\'t be found in AnkiDroid directly.">Gesinchroniseerde rekening</string>
     <string name="menu_dismiss_note" maxLength="41">Steek weg / verwyder</string>
-    <string name="menu_bury_card" maxLength="28">Begrawe kaart</string>
-    <string name="menu_bury_note" maxLength="28">Begrawe nota</string>
-    <string name="menu_suspend_card" maxLength="28">Skort kaart op</string>
-    <string name="menu_suspend_note" maxLength="28">Skort nota op</string>
-    <string name="menu_bury" maxLength="28">Bedek</string>
-    <string name="menu_suspend" maxLength="28">Opskort</string>
     <string name="menu_delete_note" maxLength="28">Verwyder nota</string>
-    <string name="menu_flag" maxLength="41">Merk</string>
     <string name="rename_flag">Hernoem merke</string>
     <string name="menu_flag_card" maxLength="28">Merk kaart</string>
     <string name="menu_edit_tags" maxLength="28">Bewerk hegplaatjie</string>
     <string name="delete_note_message">Verwyder regtig hierdie nota en al die samegaande karte?\n%s</string>
     <string name="menu_search" maxLength="28">Soek in %1$s</string>
-    <string name="menu_mark_note" maxLength="28">Merk nota</string>
     <string name="menu_unmark_note">Ontmerk</string>
     <string name="menu_enable_voice_playback" maxLength="28">Aktiveer stemweergawe</string>
     <string name="menu_disable_voice_playback">Deaktiveer stemweergawe</string>
@@ -152,8 +144,6 @@
     <!-- Card Browser Appearance -->
     <string name="card_template_browser_appearance_title">Kaartblaaier voorkoms</string>
     <!-- card Info -->
-    <string name="card_info_title" maxLength="28">Kaart inligting</string>
-    <string name="previous_card_info_title" maxLength="28">Previous card info</string>
     <!-- Permissions -->
     <string name="read_write_permission_label">Lees en skryf na die AnkiDroid databasis</string>
     <string name="read_write_permission_description">toegang tot bestaande notas, kaarte, notatipes en pakke, sowel as om nuwe te skep</string>

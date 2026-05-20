@@ -84,20 +84,12 @@
     <string name="menu_add_note" maxLength="28">Tambah catatan</string>
     <string name="menu_my_account" comment="Label of the window in which the user should enter their account. This text can\'t be found in AnkiDroid directly.">Sinkronisasi akun</string>
     <string name="menu_dismiss_note" maxLength="41">Sembunyikan / hapus</string>
-    <string name="menu_bury_card" maxLength="28">Pendam kartu</string>
-    <string name="menu_bury_note" maxLength="28">Pendam catatan</string>
-    <string name="menu_suspend_card" maxLength="28">Tangguhkan kartu</string>
-    <string name="menu_suspend_note" maxLength="28">Tangguhkan catatan</string>
-    <string name="menu_bury" maxLength="28">Pendam</string>
-    <string name="menu_suspend" maxLength="28">Tangguhkan</string>
     <string name="menu_delete_note" maxLength="28">Hapus catatan</string>
-    <string name="menu_flag" maxLength="41">Panji</string>
     <string name="rename_flag">Ubah nama panji</string>
     <string name="menu_flag_card" maxLength="28">Beri kartu panji</string>
     <string name="menu_edit_tags" maxLength="28">Edit tag</string>
     <string name="delete_note_message">Yakin akan menghapus catatan ini dan semua kartunya?\n%s</string>
     <string name="menu_search" maxLength="28">Pencarian di %1$s</string>
-    <string name="menu_mark_note" maxLength="28">Tandai catatan</string>
     <string name="menu_unmark_note">Batal tandai catatan</string>
     <string name="menu_enable_voice_playback" maxLength="28">Mengaktifkan pemutaran suara</string>
     <string name="menu_disable_voice_playback">Menonaktifkan pemutaran suara</string>
@@ -147,8 +139,6 @@
     <!-- Card Browser Appearance -->
     <string name="card_template_browser_appearance_title">Tampilan Peramban</string>
     <!-- card Info -->
-    <string name="card_info_title" maxLength="28">Info kartu</string>
-    <string name="previous_card_info_title" maxLength="28">Informasi kartu sebelumnya</string>
     <!-- Permissions -->
     <string name="read_write_permission_label">Baca dan tulis ke basisdata AnkiDroid</string>
     <string name="read_write_permission_description">mengakses catatan yang ada, kartu, tipe catatan, dan dek, serta membuat yang baru</string>

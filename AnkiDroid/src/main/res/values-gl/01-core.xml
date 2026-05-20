@@ -87,20 +87,12 @@
     <string name="menu_add_note" maxLength="28">Engadir nota</string>
     <string name="menu_my_account" comment="Label of the window in which the user should enter their account. This text can\'t be found in AnkiDroid directly.">Sincronizar conta</string>
     <string name="menu_dismiss_note" maxLength="41">Ocultar / eliminar</string>
-    <string name="menu_bury_card" maxLength="28">Agochar tarxeta</string>
-    <string name="menu_bury_note" maxLength="28">Agochar nota</string>
-    <string name="menu_suspend_card" maxLength="28">Suspender tarxeta</string>
-    <string name="menu_suspend_note" maxLength="28">Suspender nota</string>
-    <string name="menu_bury" maxLength="28">Agochar</string>
-    <string name="menu_suspend" maxLength="28">Suspender</string>
     <string name="menu_delete_note" maxLength="28">Eliminar nota</string>
-    <string name="menu_flag" maxLength="41">Bandeira</string>
     <string name="rename_flag">Renomear bandeiras</string>
     <string name="menu_flag_card" maxLength="28">Abandeirar tarxeta</string>
     <string name="menu_edit_tags" maxLength="28">Editar etiquetas</string>
     <string name="delete_note_message">Tes a certeza de querer eliminar esta nota e tódalas súas tarxetas?\n%s</string>
     <string name="menu_search" maxLength="28">Procurar en %1$s</string>
-    <string name="menu_mark_note" maxLength="28">Marcar nota</string>
     <string name="menu_unmark_note">Desmarcar nota</string>
     <string name="menu_enable_voice_playback" maxLength="28">Activar reprodución de voz</string>
     <string name="menu_disable_voice_playback">Desactivar reprodución de voz</string>
@@ -152,8 +144,6 @@
     <!-- Card Browser Appearance -->
     <string name="card_template_browser_appearance_title">Aparencia do explorador</string>
     <!-- card Info -->
-    <string name="card_info_title" maxLength="28">Información da tarxeta</string>
-    <string name="previous_card_info_title" maxLength="28">Información tarxeta previa</string>
     <!-- Permissions -->
     <string name="read_write_permission_label">Ler e escribir na base de datos do AnkiDroid</string>
     <string name="read_write_permission_description">acceder ás notas, tarxetas, tipos de notas e barallas existentes, así como crear novas</string>

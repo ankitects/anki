@@ -87,20 +87,12 @@
     <string name="menu_add_note" maxLength="28">Notiz hinzufügen</string>
     <string name="menu_my_account" comment="Label of the window in which the user should enter their account. This text can\'t be found in AnkiDroid directly.">Synchronisierungskonto</string>
     <string name="menu_dismiss_note" maxLength="41">Aussetzen / Löschen</string>
-    <string name="menu_bury_card" maxLength="28">Karte aufschieben</string>
-    <string name="menu_bury_note" maxLength="28">Notiz aufschieben</string>
-    <string name="menu_suspend_card" maxLength="28">Karte ausschließen</string>
-    <string name="menu_suspend_note" maxLength="28">Notiz ausschließen</string>
-    <string name="menu_bury" maxLength="28">Aufschieben</string>
-    <string name="menu_suspend" maxLength="28">Ausschließen</string>
     <string name="menu_delete_note" maxLength="28">Notiz löschen</string>
-    <string name="menu_flag" maxLength="41">Flagge</string>
     <string name="rename_flag">Flaggen umbenennen</string>
     <string name="menu_flag_card" maxLength="28">Karte markieren</string>
     <string name="menu_edit_tags" maxLength="28">Schlagwörter bearbeiten</string>
     <string name="delete_note_message">Diese Notiz und alle ihre Karten tatsächlich löschen?\n%s</string>
     <string name="menu_search" maxLength="28">In %1$s nachschlagen</string>
-    <string name="menu_mark_note" maxLength="28">Notiz markieren</string>
     <string name="menu_unmark_note">Markierung entfernen</string>
     <string name="menu_enable_voice_playback" maxLength="28">Sprachausgabe aktivieren</string>
     <string name="menu_disable_voice_playback">Sprachausgabe deaktivieren</string>
@@ -152,8 +144,6 @@
     <!-- Card Browser Appearance -->
     <string name="card_template_browser_appearance_title">Aussehen der Kartenübersicht</string>
     <!-- card Info -->
-    <string name="card_info_title" maxLength="28">Karteninfos</string>
-    <string name="previous_card_info_title" maxLength="28">Vorherige Karteninfo</string>
     <!-- Permissions -->
     <string name="read_write_permission_label">AnkiDroid-Datenbank lesen und schreiben</string>
     <string name="read_write_permission_description">Zugriff auf bereits vorhandene Notizen, Karten, Notiztypen und Stapel, sowie deren Neuerstellung</string>

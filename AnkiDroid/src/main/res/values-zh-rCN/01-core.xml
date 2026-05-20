@@ -84,20 +84,12 @@
     <string name="menu_add_note" maxLength="28">添加笔记</string>
     <string name="menu_my_account" comment="Label of the window in which the user should enter their account. This text can\'t be found in AnkiDroid directly.">同步帐户</string>
     <string name="menu_dismiss_note" maxLength="41">隐藏/删除</string>
-    <string name="menu_bury_card" maxLength="28">搁置卡片</string>
-    <string name="menu_bury_note" maxLength="28">搁置笔记</string>
-    <string name="menu_suspend_card" maxLength="28">暂停卡片</string>
-    <string name="menu_suspend_note" maxLength="28">暂停笔记</string>
-    <string name="menu_bury" maxLength="28">搁置</string>
-    <string name="menu_suspend" maxLength="28">暂停</string>
     <string name="menu_delete_note" maxLength="28">删除笔记</string>
-    <string name="menu_flag" maxLength="41">旗标</string>
     <string name="rename_flag">重命名旗标</string>
     <string name="menu_flag_card" maxLength="28">为卡片设置旗标</string>
     <string name="menu_edit_tags" maxLength="28">编辑标签​​​​​</string>
     <string name="delete_note_message">确定要删除此笔记及生成的卡片？\n%s</string>
     <string name="menu_search" maxLength="28">在%1$s中查找</string>
-    <string name="menu_mark_note" maxLength="28">标记笔记</string>
     <string name="menu_unmark_note">取消标记</string>
     <string name="menu_enable_voice_playback" maxLength="28">启用语音播放</string>
     <string name="menu_disable_voice_playback">禁用语音播放</string>
@@ -147,8 +139,6 @@
     <!-- Card Browser Appearance -->
     <string name="card_template_browser_appearance_title">浏览器外观</string>
     <!-- card Info -->
-    <string name="card_info_title" maxLength="28">卡片信息</string>
-    <string name="previous_card_info_title" maxLength="28">上一个卡片信息</string>
     <!-- Permissions -->
     <string name="read_write_permission_label">读取并写入 AnkiDroid 数据库</string>
     <string name="read_write_permission_description">创建或访问现有的笔记、卡片、笔记模板和牌组</string>

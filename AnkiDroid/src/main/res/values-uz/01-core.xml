@@ -87,20 +87,12 @@
     <string name="menu_add_note" maxLength="28">Qayd qoʻshish</string>
     <string name="menu_my_account" comment="Label of the window in which the user should enter their account. This text can\'t be found in AnkiDroid directly.">Akkauntni sinxronlash</string>
     <string name="menu_dismiss_note" maxLength="41">Yashirish / Oʻchirish</string>
-    <string name="menu_bury_card" maxLength="28">Kartani koʻmish</string>
-    <string name="menu_bury_note" maxLength="28">Qaydni koʻmish</string>
-    <string name="menu_suspend_card" maxLength="28">Kartani to\'xtatib turish</string>
-    <string name="menu_suspend_note" maxLength="28">Qaydni toʻxtatib turish</string>
-    <string name="menu_bury" maxLength="28">Koʻmish</string>
-    <string name="menu_suspend" maxLength="28">Toʻxtatib turish</string>
     <string name="menu_delete_note" maxLength="28">Qaydni oʻchirish</string>
-    <string name="menu_flag" maxLength="41">Bayroq</string>
     <string name="rename_flag">Bayroqlar nomini oʻzgartirish</string>
     <string name="menu_flag_card" maxLength="28">Kartaga bayroq qoʻyish</string>
     <string name="menu_edit_tags" maxLength="28">Teglarni tahrirlash</string>
     <string name="delete_note_message">Rostdan ham bu qayd va uning barcha kartalarini oʻchirmoqchimisiz?\n%s</string>
     <string name="menu_search" maxLength="28">%1$s dan izlab koʻrish</string>
-    <string name="menu_mark_note" maxLength="28">Qaydni belgilash</string>
     <string name="menu_unmark_note">Qayddan belgini olib tashlash</string>
     <string name="menu_enable_voice_playback" maxLength="28">Ovoz ijrosini yoqish</string>
     <string name="menu_disable_voice_playback">Ovoz ijrosini oʻchirish</string>
@@ -152,8 +144,6 @@
     <!-- Card Browser Appearance -->
     <string name="card_template_browser_appearance_title">Karta brauzeri koʻrinishi</string>
     <!-- card Info -->
-    <string name="card_info_title" maxLength="28">Karta maʼlumotlari</string>
-    <string name="previous_card_info_title" maxLength="28">Oldingi karta maʼlumotlari</string>
     <!-- Permissions -->
     <string name="read_write_permission_label">AnkiDroid maʼlumotlar bazasidan oʼqish va yozish</string>
     <string name="read_write_permission_description">mavjud qaydlarga, kartalarga, qayd turlariga va dastalarga, shuningdek, yangilarini yaratishga ruxsat</string>

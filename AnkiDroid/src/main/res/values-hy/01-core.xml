@@ -87,20 +87,12 @@
     <string name="menu_add_note" maxLength="28">Ավելացնել գրառում</string>
     <string name="menu_my_account" comment="Label of the window in which the user should enter their account. This text can\'t be found in AnkiDroid directly.">Համաժամեցնել հաշիվը</string>
     <string name="menu_dismiss_note" maxLength="41">Թաքցնել / ջնջել</string>
-    <string name="menu_bury_card" maxLength="28">Առանձնացնել քարտը</string>
-    <string name="menu_bury_note" maxLength="28">Առանձնացնել գրառումը</string>
-    <string name="menu_suspend_card" maxLength="28">Հեռացնել քարտը</string>
-    <string name="menu_suspend_note" maxLength="28">Հեռացնել գրառումը</string>
-    <string name="menu_bury" maxLength="28">Առանձնացնել</string>
-    <string name="menu_suspend" maxLength="28">Հեռացնել</string>
     <string name="menu_delete_note" maxLength="28">Ջնջել գրառումը</string>
-    <string name="menu_flag" maxLength="41">Դրոշ</string>
     <string name="rename_flag">Վերանվանել դրոշները</string>
     <string name="menu_flag_card" maxLength="28">Ավելացնել դրոշ</string>
     <string name="menu_edit_tags" maxLength="28">Խմբագրել պիտակները</string>
     <string name="delete_note_message">Ջնջե՞լ այս գրառումը և նրա բոլոր քարտերը:\n%s</string>
     <string name="menu_search" maxLength="28">Որոնում %1$s-ում</string>
-    <string name="menu_mark_note" maxLength="28">Նշել գրառումը</string>
     <string name="menu_unmark_note">Ապանշել գրառումը</string>
     <string name="menu_enable_voice_playback" maxLength="28">Միացնել ձայնի նվագարկումը</string>
     <string name="menu_disable_voice_playback">Անջատել ձայնի նվագարկումը</string>
@@ -152,8 +144,6 @@
     <!-- Card Browser Appearance -->
     <string name="card_template_browser_appearance_title">Զննիչի տեսք</string>
     <!-- card Info -->
-    <string name="card_info_title" maxLength="28">Քարտի մասին տեղեկություն</string>
-    <string name="previous_card_info_title" maxLength="28">Անցած քարտի ինֆոռմացիան</string>
     <!-- Permissions -->
     <string name="read_write_permission_label">Կարդալ և գրել AnkiDroid-ի շտեմարանի մեջ</string>
     <string name="read_write_permission_description">մատչել առկա գրառումները, քարտերը, գրառումների տեսակները և կապուկները, ինչպես նաև նորերը ստեղծելը</string>

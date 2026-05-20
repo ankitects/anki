@@ -90,20 +90,12 @@
     <string name="menu_add_note" maxLength="28">Adaugă nota</string>
     <string name="menu_my_account" comment="Label of the window in which the user should enter their account. This text can\'t be found in AnkiDroid directly.">Sincronizare cont</string>
     <string name="menu_dismiss_note" maxLength="41">Ascunde / Elimină</string>
-    <string name="menu_bury_card" maxLength="28">Îngroapă Card</string>
-    <string name="menu_bury_note" maxLength="28">Îngroapă nota</string>
-    <string name="menu_suspend_card" maxLength="28">Suspendă Card</string>
-    <string name="menu_suspend_note" maxLength="28">Suspenda Notă</string>
-    <string name="menu_bury" maxLength="28">Îngropați</string>
-    <string name="menu_suspend" maxLength="28">Suspendă</string>
     <string name="menu_delete_note" maxLength="28">Ștergere notă</string>
-    <string name="menu_flag" maxLength="41">Marcaj</string>
     <string name="rename_flag">Redenumește steagurile</string>
     <string name="menu_flag_card" maxLength="28">Marchează card</string>
     <string name="menu_edit_tags" maxLength="28">Editează etichete</string>
     <string name="delete_note_message">Doriți sigur să ștergeți această notă și toate cardurile sale?\n%s</string>
     <string name="menu_search" maxLength="28">Căutare în %1$s</string>
-    <string name="menu_mark_note" maxLength="28">Marchează nota</string>
     <string name="menu_unmark_note">Demarchează nota</string>
     <string name="menu_enable_voice_playback" maxLength="28">Activează redarea vocii</string>
     <string name="menu_disable_voice_playback">Dezactivează redarea vocii</string>
@@ -157,8 +149,6 @@
     <!-- Card Browser Appearance -->
     <string name="card_template_browser_appearance_title">Aspect browser</string>
     <!-- card Info -->
-    <string name="card_info_title" maxLength="28">Informații despre cartonaș</string>
-    <string name="previous_card_info_title" maxLength="28">Informații despre cartonașul anterior</string>
     <!-- Permissions -->
     <string name="read_write_permission_label">Citește și scrie în baza de date a AnkiDroid</string>
     <string name="read_write_permission_description">accesați notițe, cărți, tipuri de notițe, și pachete și creați altele noi</string>

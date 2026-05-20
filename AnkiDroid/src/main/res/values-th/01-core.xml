@@ -84,20 +84,12 @@
     <string name="menu_add_note" maxLength="28">เพิ่มโน้ต</string>
     <string name="menu_my_account" comment="Label of the window in which the user should enter their account. This text can\'t be found in AnkiDroid directly.">เชื่อมบัญชีผู้ใช้</string>
     <string name="menu_dismiss_note" maxLength="41">ซ่อน / ลบ</string>
-    <string name="menu_bury_card" maxLength="28">ซ่อนการ์ด</string>
-    <string name="menu_bury_note" maxLength="28">ซ่อนโน้ต</string>
-    <string name="menu_suspend_card" maxLength="28">ระงับบัตร</string>
-    <string name="menu_suspend_note" maxLength="28">ระงับโน้ต</string>
-    <string name="menu_bury" maxLength="28">ซ่อน</string>
-    <string name="menu_suspend" maxLength="28">ระงับ</string>
     <string name="menu_delete_note" maxLength="28">ลบโน้ต</string>
-    <string name="menu_flag" maxLength="41">เครื่องหมาย</string>
     <string name="rename_flag">ตั้งชื่อธง</string>
     <string name="menu_flag_card" maxLength="28">เครื่องหมายการ์ด</string>
     <string name="menu_edit_tags" maxLength="28">แก้ไขแท็ก</string>
     <string name="delete_note_message">คุณต้องการจะลบโน้ตนี้และการ์ดภายในทั้งหมดหรือไม่?\n%s</string>
     <string name="menu_search" maxLength="28">ค้นหาใน %1$s</string>
-    <string name="menu_mark_note" maxLength="28">ทำเครื่องหมายโน้ต</string>
     <string name="menu_unmark_note">ยกเลิกการทำเครื่องหมายโน้ต</string>
     <string name="menu_enable_voice_playback" maxLength="28">เปิดใช้งานการเล่นเสียง</string>
     <string name="menu_disable_voice_playback">ปิดการเล่นเสียง</string>
@@ -147,8 +139,6 @@
     <!-- Card Browser Appearance -->
     <string name="card_template_browser_appearance_title">ลักษณะตัวเรียกดู</string>
     <!-- card Info -->
-    <string name="card_info_title" maxLength="28">ข้อมูลของการ์ด</string>
-    <string name="previous_card_info_title" maxLength="28">ข้อมูลการ์ดก่อนหน้า</string>
     <!-- Permissions -->
     <string name="read_write_permission_label">อ่านและเขียน ลงใน ฐานข้อมูล AnkiDroid\"</string>
     <string name="read_write_permission_description">เข้าถึงโน้ต, การ์ด, ชนิดโน้ต และชุดการ์ดที่มีอยู่ รวมถึงสร้างรายการใหม่ๆ ได้</string>

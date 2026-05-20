@@ -87,20 +87,12 @@
     <string name="menu_add_note" maxLength="28">Memo toevoegen</string>
     <string name="menu_my_account" comment="Label of the window in which the user should enter their account. This text can\'t be found in AnkiDroid directly.">Account synchroniseren</string>
     <string name="menu_dismiss_note" maxLength="41">Verbergen / Verwijderen</string>
-    <string name="menu_bury_card" maxLength="28">Kaart verbergen</string>
-    <string name="menu_bury_note" maxLength="28">Notitie verbergen</string>
-    <string name="menu_suspend_card" maxLength="28">Kaart opschorten</string>
-    <string name="menu_suspend_note" maxLength="28">Notitie opschorten</string>
-    <string name="menu_bury" maxLength="28">Verbergen</string>
-    <string name="menu_suspend" maxLength="28">Opschorten</string>
     <string name="menu_delete_note" maxLength="28">Notitie verwijderen</string>
-    <string name="menu_flag" maxLength="41">Vlag</string>
     <string name="rename_flag">Vlaggen hernoemen</string>
     <string name="menu_flag_card" maxLength="28">Markeer kaart</string>
     <string name="menu_edit_tags" maxLength="28">Tags bewerken</string>
     <string name="delete_note_message">Deze memo en al zijn kaarten verwijderen?\n%s</string>
     <string name="menu_search" maxLength="28">Opzoeken in %1$s</string>
-    <string name="menu_mark_note" maxLength="28">Notitie markeren</string>
     <string name="menu_unmark_note">Notitie onmarkeren</string>
     <string name="menu_enable_voice_playback" maxLength="28">Spraakweergave inschakelen</string>
     <string name="menu_disable_voice_playback">Spraakweergave uitschakelen</string>
@@ -152,8 +144,6 @@
     <!-- Card Browser Appearance -->
     <string name="card_template_browser_appearance_title">Verkenner uiterlijk</string>
     <!-- card Info -->
-    <string name="card_info_title" maxLength="28">Kaartinformatie</string>
-    <string name="previous_card_info_title" maxLength="28">Vorige kaartinfo</string>
     <!-- Permissions -->
     <string name="read_write_permission_label">Lees en schrijf naar de AnkiDroid database</string>
     <string name="read_write_permission_description">toegang tot bestaande notities, kaarten, notitietypen en sets, eventueel nieuwe aanmaken</string>

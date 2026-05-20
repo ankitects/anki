@@ -87,20 +87,12 @@
     <string name="menu_add_note" maxLength="28">افزودن یادداشت</string>
     <string name="menu_my_account" comment="Label of the window in which the user should enter their account. This text can\'t be found in AnkiDroid directly.">همگام‌سازی حساب</string>
     <string name="menu_dismiss_note" maxLength="41">پنهان‌کردن / حذف‌کردن</string>
-    <string name="menu_bury_card" maxLength="28">مخفی‌کردن کارت</string>
-    <string name="menu_bury_note" maxLength="28">مخفی کردن یادداشت</string>
-    <string name="menu_suspend_card" maxLength="28">تعلیق کارت</string>
-    <string name="menu_suspend_note" maxLength="28">تعلیق یادداشت</string>
-    <string name="menu_bury" maxLength="28">مخفی‌کردن</string>
-    <string name="menu_suspend" maxLength="28">تعلیق</string>
     <string name="menu_delete_note" maxLength="28">حذف یادداشت</string>
-    <string name="menu_flag" maxLength="41">نشانه</string>
     <string name="rename_flag">تغییر نام نشانه‌ها</string>
     <string name="menu_flag_card" maxLength="28">نشانه‌گذاری کارت</string>
     <string name="menu_edit_tags" maxLength="28">ویرایش برچسب‌ها</string>
     <string name="delete_note_message">مطمئنید می خواهید این یادداشت و همه کارتهایش را پاک کنید؟\n%s</string>
     <string name="menu_search" maxLength="28">جستجو در %1$s</string>
-    <string name="menu_mark_note" maxLength="28">نشانه‌گذاری یادداشت</string>
     <string name="menu_unmark_note">برداشتن علامت یادداشت</string>
     <string name="menu_enable_voice_playback" maxLength="28">فعال کردن پخش صدا</string>
     <string name="menu_disable_voice_playback">غیرفعال کردن پخش صدا</string>
@@ -152,8 +144,6 @@
     <!-- Card Browser Appearance -->
     <string name="card_template_browser_appearance_title">ظاهر مرورگر کارت</string>
     <!-- card Info -->
-    <string name="card_info_title" maxLength="28">مشخصات کارت</string>
-    <string name="previous_card_info_title" maxLength="28">اطلاعات کارت قبلی</string>
     <!-- Permissions -->
     <string name="read_write_permission_label">بخوان و به پایگاه داده AnkiDroid پیام بده</string>
     <string name="read_write_permission_description">دسترسی به یادداشت‌ها، کارت‌ها، انواع یادداشت‌ها و دسته‌های موجود، و همچنین ایجاد موارد جدید</string>

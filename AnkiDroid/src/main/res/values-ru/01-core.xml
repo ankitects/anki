@@ -93,20 +93,12 @@
     <string name="menu_add_note" maxLength="28">Добавить запись</string>
     <string name="menu_my_account" comment="Label of the window in which the user should enter their account. This text can\'t be found in AnkiDroid directly.">Учётная запись синхронизации</string>
     <string name="menu_dismiss_note" maxLength="41">Спрятать или удалить</string>
-    <string name="menu_bury_card" maxLength="28">Отложить карточку</string>
-    <string name="menu_bury_note" maxLength="28">Отложить запись</string>
-    <string name="menu_suspend_card" maxLength="28">Исключить карточку</string>
-    <string name="menu_suspend_note" maxLength="28">Исключить запись</string>
-    <string name="menu_bury" maxLength="28">Отложить</string>
-    <string name="menu_suspend" maxLength="28">Исключить</string>
     <string name="menu_delete_note" maxLength="28">Удалить запись</string>
-    <string name="menu_flag" maxLength="41">Флажок</string>
     <string name="rename_flag">Переименовать флажки</string>
     <string name="menu_flag_card" maxLength="28">Поставить флажок</string>
     <string name="menu_edit_tags" maxLength="28">Редактировать метки</string>
     <string name="delete_note_message">Удалить эту запись и все связанные карточки?\n%s</string>
     <string name="menu_search" maxLength="28">Посмотреть в %1$s</string>
-    <string name="menu_mark_note" maxLength="28">Отметить запись</string>
     <string name="menu_unmark_note">Снять отметку</string>
     <string name="menu_enable_voice_playback" maxLength="28">Включить воспроизведение голоса</string>
     <string name="menu_disable_voice_playback">Выключить воспроизведение голоса</string>
@@ -162,8 +154,6 @@
     <!-- Card Browser Appearance -->
     <string name="card_template_browser_appearance_title">Вид списка</string>
     <!-- card Info -->
-    <string name="card_info_title" maxLength="28">Информация о карточке</string>
-    <string name="previous_card_info_title" maxLength="28">Информация о предыдущей</string>
     <!-- Permissions -->
     <string name="read_write_permission_label">Чтение и запись в базу данных AnkiDroid</string>
     <string name="read_write_permission_description">доступ к колодам, карточкам, записям, их типам, а также создание новых</string>

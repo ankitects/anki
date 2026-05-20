@@ -90,20 +90,12 @@
     <string name="menu_add_note" maxLength="28">Dodaj bilješku</string>
     <string name="menu_my_account" comment="Label of the window in which the user should enter their account. This text can\'t be found in AnkiDroid directly.">Sinkroniziraj račun</string>
     <string name="menu_dismiss_note" maxLength="41">Sakrij / izbriši</string>
-    <string name="menu_bury_card" maxLength="28">Zakopaj karticu</string>
-    <string name="menu_bury_note" maxLength="28">Zakopaj bilješku</string>
-    <string name="menu_suspend_card" maxLength="28">Suspendiraj kartu</string>
-    <string name="menu_suspend_note" maxLength="28">Obustavi bilješku</string>
-    <string name="menu_bury" maxLength="28">Zakopaj</string>
-    <string name="menu_suspend" maxLength="28">Obustavi</string>
     <string name="menu_delete_note" maxLength="28">Izbriši bilješku</string>
-    <string name="menu_flag" maxLength="41">Označi</string>
     <string name="rename_flag">Preimenuj zastavice</string>
     <string name="menu_flag_card" maxLength="28">Označi kartu</string>
     <string name="menu_edit_tags" maxLength="28">Uredi oznake</string>
     <string name="delete_note_message">Zaista izbrisati ovu bilješku i sve njezine kartice?\n%s</string>
     <string name="menu_search" maxLength="28">Traži u %1$s</string>
-    <string name="menu_mark_note" maxLength="28">Označi bilješku</string>
     <string name="menu_unmark_note">Odznači bilješku</string>
     <string name="menu_enable_voice_playback" maxLength="28">Omogući reprodukciju glasa</string>
     <string name="menu_disable_voice_playback">Onemogući reprodukciju glasa</string>
@@ -157,8 +149,6 @@
     <!-- Card Browser Appearance -->
     <string name="card_template_browser_appearance_title">Izgled preglednika</string>
     <!-- card Info -->
-    <string name="card_info_title" maxLength="28">Informacije o kartici</string>
-    <string name="previous_card_info_title" maxLength="28">Informacije o prethodnoj kartici</string>
     <!-- Permissions -->
     <string name="read_write_permission_label">Čitanje i pisanje u AnkiDroid bazu podataka</string>
     <string name="read_write_permission_description">Pristupi postojećim bilješkama, karticama, tipovima kartica i špilovima, te kreiranju novih</string>

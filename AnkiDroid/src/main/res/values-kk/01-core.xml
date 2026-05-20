@@ -87,20 +87,12 @@
     <string name="menu_add_note" maxLength="28">Жазба қосу</string>
     <string name="menu_my_account" comment="Label of the window in which the user should enter their account. This text can\'t be found in AnkiDroid directly.">Тіркелгіні үйлестіру</string>
     <string name="menu_dismiss_note" maxLength="41">Жасыру / жою</string>
-    <string name="menu_bury_card" maxLength="28">Bury card</string>
-    <string name="menu_bury_note" maxLength="28">Bury note</string>
-    <string name="menu_suspend_card" maxLength="28">Картаны кідірту</string>
-    <string name="menu_suspend_note" maxLength="28">Жазбаны кідірту</string>
-    <string name="menu_bury" maxLength="28">Bury</string>
-    <string name="menu_suspend" maxLength="28">Кідірту</string>
     <string name="menu_delete_note" maxLength="28">Жазбаны жою</string>
-    <string name="menu_flag" maxLength="41">Белгі</string>
     <string name="rename_flag">Rename flags</string>
     <string name="menu_flag_card" maxLength="28">Картаны белгілеу</string>
     <string name="menu_edit_tags" maxLength="28">Edit tags</string>
     <string name="delete_note_message">Really delete this note and all its cards?\n%s</string>
     <string name="menu_search" maxLength="28">Lookup in %1$s</string>
-    <string name="menu_mark_note" maxLength="28">Жазбаны белгілеу</string>
     <string name="menu_unmark_note">Жазбаны белгісіздеу</string>
     <string name="menu_enable_voice_playback" maxLength="28">Enable voice playback</string>
     <string name="menu_disable_voice_playback">Disable voice playback</string>
@@ -152,8 +144,6 @@
     <!-- Card Browser Appearance -->
     <string name="card_template_browser_appearance_title">Browser appearance</string>
     <!-- card Info -->
-    <string name="card_info_title" maxLength="28">Card info</string>
-    <string name="previous_card_info_title" maxLength="28">Previous card info</string>
     <!-- Permissions -->
     <string name="read_write_permission_label">Read and write to the AnkiDroid database</string>
     <string name="read_write_permission_description">access existing notes, cards, note types, and decks, as well as create new ones</string>

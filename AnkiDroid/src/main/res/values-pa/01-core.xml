@@ -87,20 +87,12 @@
     <string name="menu_add_note" maxLength="28">ਨੋਟਸ ਸ਼ਾਮਲ ਕਰੋ</string>
     <string name="menu_my_account" comment="Label of the window in which the user should enter their account. This text can\'t be found in AnkiDroid directly.">ਖਾਤਾ ਸਿੰਕ ਕਰੋ</string>
     <string name="menu_dismiss_note" maxLength="41">ਓਹਲੇ/ਮਿਟਾਓ</string>
-    <string name="menu_bury_card" maxLength="28">ਕਾਰਡ ਨੂੰ ਦਫ਼ਨਾਓ</string>
-    <string name="menu_bury_note" maxLength="28">ਨੋਟ ਨੂੰ ਦਫ਼ਨਾਓ</string>
-    <string name="menu_suspend_card" maxLength="28">ਕਾਰਡ ਨੂੰ ਸਸਪੈਂਡ ਕਰੋ</string>
-    <string name="menu_suspend_note" maxLength="28">ਸਸਪੈਂਡ ਨੋਟ</string>
-    <string name="menu_bury" maxLength="28">ਦਫ਼ਨਾਉਣਾ</string>
-    <string name="menu_suspend" maxLength="28">ਮੁਅੱਤਲ</string>
     <string name="menu_delete_note" maxLength="28">ਨੋਟ ਮਿਟਾਓ</string>
-    <string name="menu_flag" maxLength="41">ਝੰਡਾ</string>
     <string name="rename_flag">ਝੰਡਿਆਂ ਦਾ ਨਾਮ ਬਦਲੋ</string>
     <string name="menu_flag_card" maxLength="28">ਫਲੈਗ ਕਾਰਡ</string>
     <string name="menu_edit_tags" maxLength="28">ਟੈਗਾਂ ਦਾ ਸੰਪਾਦਨ ਕਰੋ</string>
     <string name="delete_note_message">ਕੀ ਤੁਸੀਂ ਯਕੀਨੀ ਤੌਰ \'ਤੇ ਇਸ ਨੋਟ ਅਤੇ ਇਸਦੇ ਸਾਰੇ ਕਾਰਡਾਂ ਨੂੰ ਮਿਟਾਉਣਾ ਚਾਹੁੰਦੇ ਹੋ?\n%s</string>
     <string name="menu_search" maxLength="28">%1$s ਵਿੱਚ ਖੋਜੋ</string>
-    <string name="menu_mark_note" maxLength="28">ਨੋਟ \'ਤੇ ਨਿਸ਼ਾਨ ਲਗਾਓ</string>
     <string name="menu_unmark_note">ਨੋਟ ਤੋਂ ਨਿਸ਼ਾਨ ਹਟਾਓ</string>
     <string name="menu_enable_voice_playback" maxLength="28">ਵੌਇਸ ਪਲੇਬੈਕ ਨੂੰ ਸਮਰੱਥ ਬਣਾਓ</string>
     <string name="menu_disable_voice_playback">ਵੌਇਸ ਪਲੇਬੈਕ ਨੂੰ ਅਸਮਰੱਥ ਬਣਾਓ</string>
@@ -152,8 +144,6 @@
     <!-- Card Browser Appearance -->
     <string name="card_template_browser_appearance_title">ਬਰਾਊਜ਼ਰ ਦੀ ਦਿੱਖ</string>
     <!-- card Info -->
-    <string name="card_info_title" maxLength="28">ਕਾਰਡ ਦੀ ਜਾਣਕਾਰੀ</string>
-    <string name="previous_card_info_title" maxLength="28">Previous card info</string>
     <!-- Permissions -->
     <string name="read_write_permission_label">AnkiDroid ਡੇਟਾਬੇਸ ਨੂੰ ਪੜ੍ਹੋ ਅਤੇ ਲਿਖੋ</string>
     <string name="read_write_permission_description">ਮੌਜੂਦਾ ਨੋਟਸ, ਕਾਰਡ, ਨੋਟ ਕਿਸਮਾਂ ਅਤੇ ਡੇਕ ਤੱਕ ਪਹੁੰਚ ਕਰੋ, ਨਾਲ ਹੀ ਨਵੇਂ ਬਣਾਓ</string>

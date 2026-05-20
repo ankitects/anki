@@ -87,20 +87,12 @@
     <string name="menu_add_note" maxLength="28">Magdagdag ng tala</string>
     <string name="menu_my_account" comment="Label of the window in which the user should enter their account. This text can\'t be found in AnkiDroid directly.">I-sync ang account</string>
     <string name="menu_dismiss_note" maxLength="41">Itago / burahin</string>
-    <string name="menu_bury_card" maxLength="28">Ibaon ang card</string>
-    <string name="menu_bury_note" maxLength="28">Ibaon ang tala</string>
-    <string name="menu_suspend_card" maxLength="28">Suspendihin ang card</string>
-    <string name="menu_suspend_note" maxLength="28">Suspendihin ang tala</string>
-    <string name="menu_bury" maxLength="28">Ibaon</string>
-    <string name="menu_suspend" maxLength="28">Suspindihin</string>
     <string name="menu_delete_note" maxLength="28">Burahin ang tala</string>
-    <string name="menu_flag" maxLength="41">Watawat</string>
     <string name="rename_flag">Pangalanan ulit ang mga flag</string>
     <string name="menu_flag_card" maxLength="28">Lagyan ng watawat ang card</string>
     <string name="menu_edit_tags" maxLength="28">Baguhin ang mga tag</string>
     <string name="delete_note_message">Talaga bang gusto mong burahin ang talang ito at pati na rin ang lahat nang mga kard?\n%s</string>
     <string name="menu_search" maxLength="28">Hanapin sa %1$s</string>
-    <string name="menu_mark_note" maxLength="28">Markahan ang tala</string>
     <string name="menu_unmark_note">Alisin ang marka sa tala</string>
     <string name="menu_enable_voice_playback" maxLength="28">Buksan ang voice playback</string>
     <string name="menu_disable_voice_playback">Ipatay ang voice playback</string>
@@ -152,8 +144,6 @@
     <!-- Card Browser Appearance -->
     <string name="card_template_browser_appearance_title">Hitsura ng Browser</string>
     <!-- card Info -->
-    <string name="card_info_title" maxLength="28">Detalye ng card</string>
-    <string name="previous_card_info_title" maxLength="28">Previous card info</string>
     <!-- Permissions -->
     <string name="read_write_permission_label">Basahin at isulat sa database ng AnkiDroid</string>
     <string name="read_write_permission_description">i-access ang mga umiiral na tala, kard, mga uri ng tala, at mga deck, pati na rin ang gumawa ng mga bago</string>

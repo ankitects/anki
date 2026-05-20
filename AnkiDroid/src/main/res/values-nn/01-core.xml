@@ -87,20 +87,12 @@
     <string name="menu_add_note" maxLength="28">Legg tl notat</string>
     <string name="menu_my_account" comment="Label of the window in which the user should enter their account. This text can\'t be found in AnkiDroid directly.">Synkroniser konto</string>
     <string name="menu_dismiss_note" maxLength="41">Skjul / slett</string>
-    <string name="menu_bury_card" maxLength="28">Gravlegg kort</string>
-    <string name="menu_bury_note" maxLength="28">Gravlegg notat</string>
-    <string name="menu_suspend_card" maxLength="28">Suspender kort</string>
-    <string name="menu_suspend_note" maxLength="28">Suspender notat</string>
-    <string name="menu_bury" maxLength="28">Gravlegg</string>
-    <string name="menu_suspend" maxLength="28">Suspender</string>
     <string name="menu_delete_note" maxLength="28">Slett notat</string>
-    <string name="menu_flag" maxLength="41">Flagg</string>
     <string name="rename_flag">Brigda flaggnamn</string>
     <string name="menu_flag_card" maxLength="28">Flagg kort</string>
     <string name="menu_edit_tags" maxLength="28">Rediger taggar</string>
     <string name="delete_note_message">Vil du verkeleg sletta dette notatet og alle korta dess?\n%s</string>
     <string name="menu_search" maxLength="28">Slå opp i %1$s</string>
-    <string name="menu_mark_note" maxLength="28">Marker notat</string>
     <string name="menu_unmark_note">Fjern markering på notat</string>
     <string name="menu_enable_voice_playback" maxLength="28">Slå på røystavspeling</string>
     <string name="menu_disable_voice_playback">Slå av røystavspeling</string>
@@ -152,8 +144,6 @@
     <!-- Card Browser Appearance -->
     <string name="card_template_browser_appearance_title">Utforskarutsjånad</string>
     <!-- card Info -->
-    <string name="card_info_title" maxLength="28">Kortopplysingar</string>
-    <string name="previous_card_info_title" maxLength="28">Opplysingar om førre kort</string>
     <!-- Permissions -->
     <string name="read_write_permission_label">Les og skriv til AnkiDroid-databasen</string>
     <string name="read_write_permission_description">tilgang til eksisterande notat, kort, notattypar og kortstokkar, og dessutan løyve til å laga nye</string>

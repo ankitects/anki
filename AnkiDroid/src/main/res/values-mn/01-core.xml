@@ -87,20 +87,12 @@
     <string name="menu_add_note" maxLength="28">Тэмдэг оруулах</string>
     <string name="menu_my_account" comment="Label of the window in which the user should enter their account. This text can\'t be found in AnkiDroid directly.">Бүртгэл(аккаунт)- ээ тааруулах</string>
     <string name="menu_dismiss_note" maxLength="41">нуух \ устгах</string>
-    <string name="menu_bury_card" maxLength="28">Картыг дараа болох</string>
-    <string name="menu_bury_note" maxLength="28">Картын хэсгийг дараа болох</string>
-    <string name="menu_suspend_card" maxLength="28">Картыг хасах</string>
-    <string name="menu_suspend_note" maxLength="28">Картын хэсгийг хасах</string>
-    <string name="menu_bury" maxLength="28">Дараа болох</string>
-    <string name="menu_suspend" maxLength="28">Хасах</string>
     <string name="menu_delete_note" maxLength="28">Картын хэсгийг устгах</string>
-    <string name="menu_flag" maxLength="41">Дарцаг</string>
     <string name="rename_flag">Rename flags</string>
     <string name="menu_flag_card" maxLength="28">Картыг дарцаглах</string>
     <string name="menu_edit_tags" maxLength="28">Шошгийг солих</string>
     <string name="delete_note_message">Та үнэхээр энэ картыг, хэсгүүдтэй нь цуг устгамаар байна уу?\n%s</string>
     <string name="menu_search" maxLength="28">%1$s ын дараа дахин харагдана</string>
-    <string name="menu_mark_note" maxLength="28">Картын хэсэгт тэмдэглэл нэмэх</string>
     <string name="menu_unmark_note">Картын хэсгийн тэмдэглэлийг хасах</string>
     <string name="menu_enable_voice_playback" maxLength="28">Enable voice playback</string>
     <string name="menu_disable_voice_playback">Disable voice playback</string>
@@ -152,8 +144,6 @@
     <!-- Card Browser Appearance -->
     <string name="card_template_browser_appearance_title">Карт хайгчийн харагдах байдал</string>
     <!-- card Info -->
-    <string name="card_info_title" maxLength="28">Картын тухай мэдээлэл</string>
-    <string name="previous_card_info_title" maxLength="28">Previous card info</string>
     <!-- Permissions -->
     <string name="read_write_permission_label">Read and write to the AnkiDroid database</string>
     <string name="read_write_permission_description">оршин буй тэмдэглэлүүд, картууд, тэмдэглэлүүдийн загварууд, болон багцуудыг ашиглах мөн шинийг бүтээх</string>

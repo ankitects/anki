@@ -84,20 +84,12 @@
     <string name="menu_add_note" maxLength="28">ノートを追加</string>
     <string name="menu_my_account" comment="Label of the window in which the user should enter their account. This text can\'t be found in AnkiDroid directly.">アカウントの設定と同期</string>
     <string name="menu_dismiss_note" maxLength="41">非表示 / 削除</string>
-    <string name="menu_bury_card" maxLength="28">カードを今日は非表示</string>
-    <string name="menu_bury_note" maxLength="28">ノートを今日は非表示</string>
-    <string name="menu_suspend_card" maxLength="28">カードを休止</string>
-    <string name="menu_suspend_note" maxLength="28">ノートを休止</string>
-    <string name="menu_bury" maxLength="28">今日は非表示</string>
-    <string name="menu_suspend" maxLength="28">休止</string>
     <string name="menu_delete_note" maxLength="28">ノートを削除</string>
-    <string name="menu_flag" maxLength="41">フラグ</string>
     <string name="rename_flag">フラグの名前を変更</string>
     <string name="menu_flag_card" maxLength="28">カードにフラグを付ける</string>
     <string name="menu_edit_tags" maxLength="28">タグを編集</string>
     <string name="delete_note_message">このカードの元となるノートを削除してもよろしいですか？　同じノートから作られたカード（例：裏表反転カード）があれば、それらもすべて削除されます。\n%s</string>
     <string name="menu_search" maxLength="28">%1$s で検索</string>
-    <string name="menu_mark_note" maxLength="28">ノートにマークを付ける</string>
     <string name="menu_unmark_note">ノートのマークをはずす</string>
     <string name="menu_enable_voice_playback" maxLength="28">発音チェック機能をオン</string>
     <string name="menu_disable_voice_playback">発音チェック機能をオフ</string>
@@ -147,8 +139,6 @@
     <!-- Card Browser Appearance -->
     <string name="card_template_browser_appearance_title">ブラウザ表示設定</string>
     <!-- card Info -->
-    <string name="card_info_title" maxLength="28">カード情報</string>
-    <string name="previous_card_info_title" maxLength="28">直前カード情報</string>
     <!-- Permissions -->
     <string name="read_write_permission_label">AnkiDroidデータベースの読み取りと書き込み</string>
     <string name="read_write_permission_description">ノート、カード、ノートタイプ、デッキへのアクセスや、それらの新規作成を行います。</string>

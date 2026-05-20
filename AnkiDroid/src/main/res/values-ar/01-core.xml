@@ -99,20 +99,12 @@
     <string name="menu_add_note" maxLength="28">إضافة ملحوظة</string>
     <string name="menu_my_account" comment="Label of the window in which the user should enter their account. This text can\'t be found in AnkiDroid directly.">مزامنة الحساب</string>
     <string name="menu_dismiss_note" maxLength="41">إخفاء / حذف</string>
-    <string name="menu_bury_card" maxLength="28">دفن البطاقة</string>
-    <string name="menu_bury_note" maxLength="28">دفن الملحوظة</string>
-    <string name="menu_suspend_card" maxLength="28">تعليق البطاقة</string>
-    <string name="menu_suspend_note" maxLength="28">تعليق الملحوظة</string>
-    <string name="menu_bury" maxLength="28">دفن</string>
-    <string name="menu_suspend" maxLength="28">تعليق</string>
     <string name="menu_delete_note" maxLength="28">حذف الملحوظة</string>
-    <string name="menu_flag" maxLength="41">العَلَم</string>
     <string name="rename_flag">تغيير أسماء الأعلام</string>
     <string name="menu_flag_card" maxLength="28">أضف عَلَمًا للبطاقة</string>
     <string name="menu_edit_tags" maxLength="28">تعديل الوسوم</string>
     <string name="delete_note_message">هل تريد حقًا حذف هذه الملحوظة وكل بطاقاتها؟\n%s</string>
     <string name="menu_search" maxLength="28">البحث في %1$s</string>
-    <string name="menu_mark_note" maxLength="28">علِّم الملحوظة</string>
     <string name="menu_unmark_note">إلغاء تعليم الملحوظة</string>
     <string name="menu_enable_voice_playback" maxLength="28">تفعيل مسجل الصوت</string>
     <string name="menu_disable_voice_playback">تعطيل مسجل الصوت</string>
@@ -172,8 +164,6 @@
     <!-- Card Browser Appearance -->
     <string name="card_template_browser_appearance_title">قالب المتصفح</string>
     <!-- card Info -->
-    <string name="card_info_title" maxLength="28">معلومات البطاقة</string>
-    <string name="previous_card_info_title" maxLength="28">معلومات البطاقة السابقة</string>
     <!-- Permissions -->
     <string name="read_write_permission_label">القراءة والكتابة إلى قاعدة بيانات آنكي درويد</string>
     <string name="read_write_permission_description">الوصول إلى الملحوظات والبطاقات وأنواع الملحوظات والرزم الموجودة بالإضافة إلى إنشاء أخرى</string>

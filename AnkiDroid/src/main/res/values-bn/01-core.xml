@@ -87,20 +87,12 @@
     <string name="menu_add_note" maxLength="28">নোট যোগ করুন</string>
     <string name="menu_my_account" comment="Label of the window in which the user should enter their account. This text can\'t be found in AnkiDroid directly.">হিসাব সিঙ্ক করুন</string>
     <string name="menu_dismiss_note" maxLength="41">গোপন / মুছে ফেলুন</string>
-    <string name="menu_bury_card" maxLength="28">কার্ড দাফন</string>
-    <string name="menu_bury_note" maxLength="28">নোট দাফন</string>
-    <string name="menu_suspend_card" maxLength="28">কার্ড স্থগিত</string>
-    <string name="menu_suspend_note" maxLength="28">নোট স্থগিত</string>
-    <string name="menu_bury" maxLength="28">দাফন</string>
-    <string name="menu_suspend" maxLength="28">স্থগিত</string>
     <string name="menu_delete_note" maxLength="28">নোট মুছে ফেলুন</string>
-    <string name="menu_flag" maxLength="41">ফ্ল্যাগ</string>
     <string name="rename_flag">পতাকার নাম পরিবর্তন করুন</string>
     <string name="menu_flag_card" maxLength="28">ফ্ল্যাগ কার্ড</string>
     <string name="menu_edit_tags" maxLength="28">এডিট ফ্ল্যাগ</string>
     <string name="delete_note_message">সত্যি এই নোট এবং এর কার্ড মুছবেন? \n%s</string>
     <string name="menu_search" maxLength="28">অনুসন্ধান করুন %1$s</string>
-    <string name="menu_mark_note" maxLength="28">টীকা চিহ্ন</string>
     <string name="menu_unmark_note">নোটের টীকা চিহ্ন মুছুন</string>
     <string name="menu_enable_voice_playback" maxLength="28">ভয়েস প্লেব্যাক সক্ষম করুন</string>
     <string name="menu_disable_voice_playback">ভয়েস প্লেব্যাক অক্ষম করুন</string>
@@ -152,8 +144,6 @@
     <!-- Card Browser Appearance -->
     <string name="card_template_browser_appearance_title">ব্রাউজারের চেহারা</string>
     <!-- card Info -->
-    <string name="card_info_title" maxLength="28">কার্ডের বিবরণী</string>
-    <string name="previous_card_info_title" maxLength="28">Previous card info</string>
     <!-- Permissions -->
     <string name="read_write_permission_label">AnkiDroid ডাটাবেস থেকে পড়ুন এবং লিখুন</string>
     <string name="read_write_permission_description">বিদ্যমান নোট, কার্ড, নোটের ধরন এবং ডেক এ প্রবেশের পাশাপাশি নতুন একটি তৈরি করুন</string>

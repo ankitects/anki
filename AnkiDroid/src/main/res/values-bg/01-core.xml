@@ -87,20 +87,12 @@
     <string name="menu_add_note" maxLength="28">Добави бележка</string>
     <string name="menu_my_account" comment="Label of the window in which the user should enter their account. This text can\'t be found in AnkiDroid directly.">Акаунт за синхронизириране</string>
     <string name="menu_dismiss_note" maxLength="41">Скриване / изтриване</string>
-    <string name="menu_bury_card" maxLength="28">Зарови карта</string>
-    <string name="menu_bury_note" maxLength="28">Зарови бележка</string>
-    <string name="menu_suspend_card" maxLength="28">Прекрати картата</string>
-    <string name="menu_suspend_note" maxLength="28">Отлагане на бележка</string>
-    <string name="menu_bury" maxLength="28">Скрий</string>
-    <string name="menu_suspend" maxLength="28">Спиране</string>
     <string name="menu_delete_note" maxLength="28">Изтрий бележка</string>
-    <string name="menu_flag" maxLength="41">Знаме</string>
     <string name="rename_flag">Преименувай флаговеге</string>
     <string name="menu_flag_card" maxLength="28">Маркиране на карта</string>
     <string name="menu_edit_tags" maxLength="28">Редакция на етикети</string>
     <string name="delete_note_message">Наистина изтрий тази бележка и всичките и карти? \n%s</string>
     <string name="menu_search" maxLength="28">Търсене в %1$s</string>
-    <string name="menu_mark_note" maxLength="28">Маркирай бележка</string>
     <string name="menu_unmark_note">Размаркирай бележка</string>
     <string name="menu_enable_voice_playback" maxLength="28">Включи гласов плейбек</string>
     <string name="menu_disable_voice_playback">Изключи гласов плейбек</string>
@@ -152,8 +144,6 @@
     <!-- Card Browser Appearance -->
     <string name="card_template_browser_appearance_title">Външен вид на браузъра</string>
     <!-- card Info -->
-    <string name="card_info_title" maxLength="28">Инфо за картата</string>
-    <string name="previous_card_info_title" maxLength="28">Previous card info</string>
     <!-- Permissions -->
     <string name="read_write_permission_label">Четене и писане в базата от данни на AnkiDroid</string>
     <string name="read_write_permission_description">достъп до съществуващи бележки, карти, типове бележки и тестета, както и създаване на нови</string>

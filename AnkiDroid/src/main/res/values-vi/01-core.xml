@@ -84,20 +84,12 @@
     <string name="menu_add_note" maxLength="28">Thêm ghi chú</string>
     <string name="menu_my_account" comment="Label of the window in which the user should enter their account. This text can\'t be found in AnkiDroid directly.">Tài khoản đồng bộ</string>
     <string name="menu_dismiss_note" maxLength="41">Ẩn / xoá</string>
-    <string name="menu_bury_card" maxLength="28">Tạm ẩn thẻ</string>
-    <string name="menu_bury_note" maxLength="28">Tạm ẩn ghi chú</string>
-    <string name="menu_suspend_card" maxLength="28">Tạm dừng thẻ</string>
-    <string name="menu_suspend_note" maxLength="28">Tạm dừng ghi chú</string>
-    <string name="menu_bury" maxLength="28">Tạm ẩn</string>
-    <string name="menu_suspend" maxLength="28">Tạm hoãn</string>
     <string name="menu_delete_note" maxLength="28">Xoá ghi chú</string>
-    <string name="menu_flag" maxLength="41">Gắn cờ</string>
     <string name="rename_flag">Đổi tên nhãn đánh dấu</string>
     <string name="menu_flag_card" maxLength="28">Gắn cờ thẻ</string>
     <string name="menu_edit_tags" maxLength="28">Sửa tag</string>
     <string name="delete_note_message">Bạn thực sự muốn xoá ghi chú này cùng toàn bộ thẻ của nó?\n%s</string>
     <string name="menu_search" maxLength="28">Tra cứu trong %1$s</string>
-    <string name="menu_mark_note" maxLength="28">Đánh dấu ghi chú</string>
     <string name="menu_unmark_note">Bỏ đánh dấu ghi chú</string>
     <string name="menu_enable_voice_playback" maxLength="28">Kích hoạt phát âm thanh</string>
     <string name="menu_disable_voice_playback">Tắt phát âm thanh</string>
@@ -147,8 +139,6 @@
     <!-- Card Browser Appearance -->
     <string name="card_template_browser_appearance_title">Giao diện trình duyệt</string>
     <!-- card Info -->
-    <string name="card_info_title" maxLength="28">Thông tin thẻ</string>
-    <string name="previous_card_info_title" maxLength="28">Thông tin thẻ trước</string>
     <!-- Permissions -->
     <string name="read_write_permission_label">Đọc và ghi vào cơ sở dữ liệu AnkiDroid</string>
     <string name="read_write_permission_description">truy cập các ghi chú, thẻ, loại ghi chú và các bộ thẻ hiện có, cũng như tạo mới chúng</string>

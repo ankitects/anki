@@ -93,20 +93,12 @@
     <string name="menu_add_note" maxLength="28">Дадаць нататку</string>
     <string name="menu_my_account" comment="Label of the window in which the user should enter their account. This text can\'t be found in AnkiDroid directly.">Сінхранізаваць уліковы запіс</string>
     <string name="menu_dismiss_note" maxLength="41">Схаваць / выдаліць</string>
-    <string name="menu_bury_card" maxLength="28">Адкласці картку</string>
-    <string name="menu_bury_note" maxLength="28">Адкласці нататку</string>
-    <string name="menu_suspend_card" maxLength="28">Прыпыніць картку</string>
-    <string name="menu_suspend_note" maxLength="28">Прыпыніць нататку</string>
-    <string name="menu_bury" maxLength="28">Адкласці</string>
-    <string name="menu_suspend" maxLength="28">Прыпыніць</string>
     <string name="menu_delete_note" maxLength="28">Выдаліць нататку</string>
-    <string name="menu_flag" maxLength="41">Пазнака</string>
     <string name="rename_flag">Перайменаваць пазнакі</string>
     <string name="menu_flag_card" maxLength="28">Пазначыць картку</string>
     <string name="menu_edit_tags" maxLength="28">Адрэдагаваць меткі</string>
     <string name="delete_note_message">Сапраўды выдаліць гэту нататку і ўсе яе карткі?\n%s</string>
     <string name="menu_search" maxLength="28">Шукаць у %1$s</string>
-    <string name="menu_mark_note" maxLength="28">Пазначыць нататку</string>
     <string name="menu_unmark_note">Зняць пазнаку з нататкі</string>
     <string name="menu_enable_voice_playback" maxLength="28">Уключыць прайграванне голасу</string>
     <string name="menu_disable_voice_playback">Адключыць прайграванне голасу</string>
@@ -162,8 +154,6 @@
     <!-- Card Browser Appearance -->
     <string name="card_template_browser_appearance_title">Выгляд аглядальніка</string>
     <!-- card Info -->
-    <string name="card_info_title" maxLength="28">Звесткі пра картку</string>
-    <string name="previous_card_info_title" maxLength="28">Звесткі папярэдняй карткі</string>
     <!-- Permissions -->
     <string name="read_write_permission_label">Чытанне і запіс у базу даных AnkiDroid</string>
     <string name="read_write_permission_description">доступ да існуючых нататак, картак, тыпаў нататак і калод, а таксама стварэнне новых</string>

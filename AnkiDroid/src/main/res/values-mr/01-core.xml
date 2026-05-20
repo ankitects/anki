@@ -87,20 +87,12 @@
     <string name="menu_add_note" maxLength="28">नोंदी जोडा</string>
     <string name="menu_my_account" comment="Label of the window in which the user should enter their account. This text can\'t be found in AnkiDroid directly.">खाते समक्रमित करा</string>
     <string name="menu_dismiss_note" maxLength="41">लपवा / हटवा</string>
-    <string name="menu_bury_card" maxLength="28">बरी कार्ड</string>
-    <string name="menu_bury_note" maxLength="28">बरी नोट</string>
-    <string name="menu_suspend_card" maxLength="28">निलंबन कार्ड</string>
-    <string name="menu_suspend_note" maxLength="28">निलंबित नोट</string>
-    <string name="menu_bury" maxLength="28">दफन</string>
-    <string name="menu_suspend" maxLength="28">निलंबित करा</string>
     <string name="menu_delete_note" maxLength="28">टीप हटवा</string>
-    <string name="menu_flag" maxLength="41">झेंडा</string>
     <string name="rename_flag">ध्वजांचे नाव बदला</string>
     <string name="menu_flag_card" maxLength="28">फ्लॅग कार्ड</string>
     <string name="menu_edit_tags" maxLength="28">टॅग संपादित करा</string>
     <string name="delete_note_message">खरोखर ही टीप आणि त्याची सर्व कार्ड हटवायची?\n%s</string>
     <string name="menu_search" maxLength="28">%1$s मध्ये पहा</string>
-    <string name="menu_mark_note" maxLength="28">चिन्हांकित करा</string>
     <string name="menu_unmark_note">अचिन्हांची नोंद</string>
     <string name="menu_enable_voice_playback" maxLength="28">व्हॉइस प्लेबॅक सक्षम करा</string>
     <string name="menu_disable_voice_playback">व्हॉइस प्लेबॅक अक्षम करा</string>
@@ -152,8 +144,6 @@
     <!-- Card Browser Appearance -->
     <string name="card_template_browser_appearance_title">ब्राउझर देखावा</string>
     <!-- card Info -->
-    <string name="card_info_title" maxLength="28">कार्ड माहिती</string>
-    <string name="previous_card_info_title" maxLength="28">मागील कार्डची माहिती</string>
     <!-- Permissions -->
     <string name="read_write_permission_label">AnkiDroid डेटाबेस वाचा आणि लिहा</string>
     <string name="read_write_permission_description">विद्यमान नोट्स, कार्डे, नोट्स प्रकार आणि डेकमध्ये प्रवेश करा तसेच नवीन तयार करा</string>

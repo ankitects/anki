@@ -93,20 +93,12 @@
     <string name="menu_add_note" maxLength="28">Pridėti užrašą</string>
     <string name="menu_my_account" comment="Label of the window in which the user should enter their account. This text can\'t be found in AnkiDroid directly.">Sinchronizuoti paskyrą</string>
     <string name="menu_dismiss_note" maxLength="41">Paslėpti / ištrinti</string>
-    <string name="menu_bury_card" maxLength="28">Paslėpti kortelę</string>
-    <string name="menu_bury_note" maxLength="28">Paslėpti užrašą</string>
-    <string name="menu_suspend_card" maxLength="28">Atidėti kortelę</string>
-    <string name="menu_suspend_note" maxLength="28">Atidėti užrašą</string>
-    <string name="menu_bury" maxLength="28">Slėpti</string>
-    <string name="menu_suspend" maxLength="28">Atidėti</string>
     <string name="menu_delete_note" maxLength="28">Ištrinti užrašą</string>
-    <string name="menu_flag" maxLength="41">Pažymėti</string>
     <string name="rename_flag">Pervardinti žymeklį</string>
     <string name="menu_flag_card" maxLength="28">Pažymėti su vėliava</string>
     <string name="menu_edit_tags" maxLength="28">Redaguoti žymes</string>
     <string name="delete_note_message">Ar tikrai norite ištrinti šį užrašą ir visas su juo susijusias korteles?\n%s</string>
     <string name="menu_search" maxLength="28">Ieškoti: %1$s</string>
-    <string name="menu_mark_note" maxLength="28">Žymėti užrašą</string>
     <string name="menu_unmark_note">Atžymėti užrašą</string>
     <string name="menu_enable_voice_playback" maxLength="28">Leisti balso atkartojimą</string>
     <string name="menu_disable_voice_playback">Neleisti garso atkartojimo</string>
@@ -162,8 +154,6 @@
     <!-- Card Browser Appearance -->
     <string name="card_template_browser_appearance_title">Naršyklės išvaizda</string>
     <!-- card Info -->
-    <string name="card_info_title" maxLength="28">Kortelės informacija</string>
-    <string name="previous_card_info_title" maxLength="28">Previous card info</string>
     <!-- Permissions -->
     <string name="read_write_permission_label">Skaitykite ir rašykite į „AnkiDroid“ duomenų bazę</string>
     <string name="read_write_permission_description">prisijunkite prie turimų užrašų, kortelių, užrašų tipų ir rinkinių bei kurkite naujus</string>

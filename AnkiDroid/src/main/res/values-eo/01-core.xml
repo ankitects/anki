@@ -87,20 +87,12 @@
     <string name="menu_add_note" maxLength="28">Aldoni noton</string>
     <string name="menu_my_account" comment="Label of the window in which the user should enter their account. This text can\'t be found in AnkiDroid directly.">Samtempigi konton</string>
     <string name="menu_dismiss_note" maxLength="41">Kaŝi / forigi</string>
-    <string name="menu_bury_card" maxLength="28">Kaŝi karton por tago</string>
-    <string name="menu_bury_note" maxLength="28">Kaŝi noton por tago</string>
-    <string name="menu_suspend_card" maxLength="28">Kaŝi karton daŭre</string>
-    <string name="menu_suspend_note" maxLength="28">Kaŝi noton daŭre</string>
-    <string name="menu_bury" maxLength="28">Kaŝi por tago</string>
-    <string name="menu_suspend" maxLength="28">Kaŝi daŭre</string>
     <string name="menu_delete_note" maxLength="28">Forigi noton</string>
-    <string name="menu_flag" maxLength="41">Flagi</string>
     <string name="rename_flag">Renomi flagojn</string>
     <string name="menu_flag_card" maxLength="28">Flagi karton</string>
     <string name="menu_edit_tags" maxLength="28">Redakti etikedojn</string>
     <string name="delete_note_message">Ĉu vi certe volas forigi tiun ĉi noton kaj ĉiujn ĝiajn kartojn?\n%s</string>
     <string name="menu_search" maxLength="28">Serĉi en %1$s</string>
-    <string name="menu_mark_note" maxLength="28">Marki noton</string>
     <string name="menu_unmark_note">Malmarki noton</string>
     <string name="menu_enable_voice_playback" maxLength="28">Aktivigi ludadon de voĉo</string>
     <string name="menu_disable_voice_playback">Malebligi la ludadon de la voĉoj</string>
@@ -152,8 +144,6 @@
     <!-- Card Browser Appearance -->
     <string name="card_template_browser_appearance_title">Aspekto de la foliumilo</string>
     <!-- card Info -->
-    <string name="card_info_title" maxLength="28">Informoj pri la karto</string>
-    <string name="previous_card_info_title" maxLength="28">Informoj pri antaŭa karto</string>
     <!-- Permissions -->
     <string name="read_write_permission_label">Legi kaj skribi al la datumbazo de AnkiDroid</string>
     <string name="read_write_permission_description">aliri ekzistajn notojn, kartojn, nototipojn kaj kartarojn, kaj krei novajn</string>

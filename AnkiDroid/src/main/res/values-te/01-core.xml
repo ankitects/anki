@@ -87,20 +87,12 @@
     <string name="menu_add_note" maxLength="28">గమనిక చేర్చు</string>
     <string name="menu_my_account" comment="Label of the window in which the user should enter their account. This text can\'t be found in AnkiDroid directly.">ఖాతాను సమకాలీకరించండి</string>
     <string name="menu_dismiss_note" maxLength="41">దాచు / తొలగించు</string>
-    <string name="menu_bury_card" maxLength="28">గమనిక బరీ</string>
-    <string name="menu_bury_note" maxLength="28">బరీ గమనిక</string>
-    <string name="menu_suspend_card" maxLength="28">కార్డ్ను ఆపివేయి</string>
-    <string name="menu_suspend_note" maxLength="28">గమనికని ఆపివేయి</string>
-    <string name="menu_bury" maxLength="28">దాయు</string>
-    <string name="menu_suspend" maxLength="28">సస్పెండ్</string>
     <string name="menu_delete_note" maxLength="28">గమనికను తొలగించండి</string>
-    <string name="menu_flag" maxLength="41">జెండా</string>
     <string name="rename_flag">జెండాల పేరు మార్చండి</string>
     <string name="menu_flag_card" maxLength="28">ఫ్లాగ్ కార్డ్</string>
     <string name="menu_edit_tags" maxLength="28">ట్యాగ్‌లను సవరించండి</string>
     <string name="delete_note_message">ఈ గమనికను మరియు దాని అన్ని కార్డ్లను నిజంగా తొలగించాలా?\n%s</string>
     <string name="menu_search" maxLength="28">లో చూడండి%1$s</string>
-    <string name="menu_mark_note" maxLength="28">గమనికను గుర్తు పెట్టుకోండి</string>
     <string name="menu_unmark_note">గమనిక నుండి గుర్తు తీసివేయండి</string>
     <string name="menu_enable_voice_playback" maxLength="28">వాయిస్ ప్లేబ్యాక్‌ని ప్రారంభించండి</string>
     <string name="menu_disable_voice_playback">వాయిస్ ప్లేబ్యాక్‌ని నిలిపివేయండి</string>
@@ -152,8 +144,6 @@
     <!-- Card Browser Appearance -->
     <string name="card_template_browser_appearance_title">Browser appearance</string>
     <!-- card Info -->
-    <string name="card_info_title" maxLength="28">కార్డ్ సమాచారం</string>
-    <string name="previous_card_info_title" maxLength="28">ముందు కార్డు సమాచారం</string>
     <!-- Permissions -->
     <string name="read_write_permission_label">AnkiDroid డేటాబేస్కు చదవండి మరియు వ్రాయండి</string>
     <string name="read_write_permission_description">పొందు ప్రస్తుతం ఉన్న గమనికలు, కార్డులు, నోట్ రకాలు మరియు డెక్స్, కొత్త వాటిని సృష్టించడం</string>

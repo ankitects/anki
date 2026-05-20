@@ -87,20 +87,12 @@
     <string name="menu_add_note" maxLength="28">Not ekle</string>
     <string name="menu_my_account" comment="Label of the window in which the user should enter their account. This text can\'t be found in AnkiDroid directly.">Hesabı senkronize et</string>
     <string name="menu_dismiss_note" maxLength="41">Gizle / Sil</string>
-    <string name="menu_bury_card" maxLength="28">Kartı göm</string>
-    <string name="menu_bury_note" maxLength="28">Notu göm</string>
-    <string name="menu_suspend_card" maxLength="28">Kartı askıya al</string>
-    <string name="menu_suspend_note" maxLength="28">Notu Askıya Al</string>
-    <string name="menu_bury" maxLength="28">Göm</string>
-    <string name="menu_suspend" maxLength="28">Askıya Al</string>
     <string name="menu_delete_note" maxLength="28">Notu sil</string>
-    <string name="menu_flag" maxLength="41">Bayrakla işaretle</string>
     <string name="rename_flag">Bayrakların adını değiştir</string>
     <string name="menu_flag_card" maxLength="28">Kartı bayrakla işaretle</string>
     <string name="menu_edit_tags" maxLength="28">Etiketleri düzenle</string>
     <string name="delete_note_message">Bu not ve bütün kartları gerçekten silinsin mi?\n%s</string>
     <string name="menu_search" maxLength="28">%1$s\'de Ara</string>
-    <string name="menu_mark_note" maxLength="28">Notu işaretle</string>
     <string name="menu_unmark_note">İşareti kaldır</string>
     <string name="menu_enable_voice_playback" maxLength="28">Ses yeniden oynatmayı aç</string>
     <string name="menu_disable_voice_playback">Ses yeniden oynatmayı kapat</string>
@@ -152,8 +144,6 @@
     <!-- Card Browser Appearance -->
     <string name="card_template_browser_appearance_title">Tarayıcı görünümü</string>
     <!-- card Info -->
-    <string name="card_info_title" maxLength="28">Kart bilgileri</string>
-    <string name="previous_card_info_title" maxLength="28">Önceki kart bilgisi</string>
     <!-- Permissions -->
     <string name="read_write_permission_label">AnkiDroid veritabanına okut ve yaz</string>
     <string name="read_write_permission_description">varolan notlara, kartlara, not türlerine ve destelere erişmek, ve yenilerini oluşturmak</string>

@@ -90,20 +90,12 @@
     <string name="menu_add_note" maxLength="28">Pievienot piezīmi</string>
     <string name="menu_my_account" comment="Label of the window in which the user should enter their account. This text can\'t be found in AnkiDroid directly.">Vienādot kontu</string>
     <string name="menu_dismiss_note" maxLength="41">Paslēpt / izdzēst</string>
-    <string name="menu_bury_card" maxLength="28">Paslēpt kartīti</string>
-    <string name="menu_bury_note" maxLength="28">Paslēpt piezīmi</string>
-    <string name="menu_suspend_card" maxLength="28">Nolikt kartīti malā</string>
-    <string name="menu_suspend_note" maxLength="28">Nolikt piezīmi malā</string>
-    <string name="menu_bury" maxLength="28">Paslēpt</string>
-    <string name="menu_suspend" maxLength="28">Apturēt</string>
     <string name="menu_delete_note" maxLength="28">Izdzēst piezīmi</string>
-    <string name="menu_flag" maxLength="41">Karogs</string>
     <string name="rename_flag">Pārdēvēt karogus</string>
     <string name="menu_flag_card" maxLength="28">Atzīmēt kartīti</string>
     <string name="menu_edit_tags" maxLength="28">Labot birkas</string>
     <string name="delete_note_message">Tiešām izdzēst šo piezīmi un visas tās kartītes?\n%s</string>
     <string name="menu_search" maxLength="28">Uzmeklēt %1$s</string>
-    <string name="menu_mark_note" maxLength="28">Atzīmēt piezīmi</string>
     <string name="menu_unmark_note">Noņemt piezīmes atzīmi</string>
     <string name="menu_enable_voice_playback" maxLength="28">Iespējot balss atskaņošanu</string>
     <string name="menu_disable_voice_playback">Atspējot balss atskaņošanu</string>
@@ -157,8 +149,6 @@
     <!-- Card Browser Appearance -->
     <string name="card_template_browser_appearance_title">Pārlūka izskats</string>
     <!-- card Info -->
-    <string name="card_info_title" maxLength="28">Kartītes apkopojums</string>
-    <string name="previous_card_info_title" maxLength="28">Previous card info</string>
     <!-- Permissions -->
     <string name="read_write_permission_label">Lasīt un rakstīt AnkiDroid datubāzē</string>
     <string name="read_write_permission_description">Piekļūt esošajām piezīmēm, kartītēm, piezīmju veidiem un kavām, kā arī izveidot jaunas</string>

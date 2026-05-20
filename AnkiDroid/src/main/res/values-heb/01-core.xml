@@ -94,20 +94,12 @@
     <string name="menu_add_note" maxLength="28">הוספת רשומה</string>
     <string name="menu_my_account" comment="Label of the window in which the user should enter their account. This text can\'t be found in AnkiDroid directly.">סנכרון חשבון</string>
     <string name="menu_dismiss_note" maxLength="41">הסתרה / מחיקה</string>
-    <string name="menu_bury_card" maxLength="28">הטמן כרטיס</string>
-    <string name="menu_bury_note" maxLength="28">הטמן רשומה</string>
-    <string name="menu_suspend_card" maxLength="28">הקפא כרטיס</string>
-    <string name="menu_suspend_note" maxLength="28">הקפאת רשומה</string>
-    <string name="menu_bury" maxLength="28">הטמנה</string>
-    <string name="menu_suspend" maxLength="28">הקפאה</string>
     <string name="menu_delete_note" maxLength="28">מחיקת רשומה</string>
-    <string name="menu_flag" maxLength="41">דגל</string>
     <string name="rename_flag">שנה שמות דגלים</string>
     <string name="menu_flag_card" maxLength="28">דגל כרטיס</string>
     <string name="menu_edit_tags" maxLength="28">ערוך תגיות</string>
     <string name="delete_note_message">למחוק את הרשומה הזאת ואת כל הקלפים שלה?‏\n%s</string>
     <string name="menu_search" maxLength="28">חפש ב%1$s</string>
-    <string name="menu_mark_note" maxLength="28">סמן רשומה</string>
     <string name="menu_unmark_note">הסר סימון רשומה</string>
     <string name="menu_enable_voice_playback" maxLength="28">אפשר הפעלה קולית</string>
     <string name="menu_disable_voice_playback">השבת השמעה קולית</string>
@@ -163,8 +155,6 @@
     <!-- Card Browser Appearance -->
     <string name="card_template_browser_appearance_title">מראה הדפדפן</string>
     <!-- card Info -->
-    <string name="card_info_title" maxLength="28">מידע על הכרטיס</string>
-    <string name="previous_card_info_title" maxLength="28">מידע על הכרטיס הקודם</string>
     <!-- Permissions -->
     <string name="read_write_permission_label">קרא ושמור למסד הנתונים של AnkiDroid</string>
     <string name="read_write_permission_description">לגשת להערות, כרטיס, סוגי רשומות וחפיסות וגם ליצור חדשים</string>

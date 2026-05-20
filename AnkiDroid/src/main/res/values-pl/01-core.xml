@@ -93,20 +93,12 @@
     <string name="menu_add_note" maxLength="28">Dodaj notatkę</string>
     <string name="menu_my_account" comment="Label of the window in which the user should enter their account. This text can\'t be found in AnkiDroid directly.">Synchronizacja konta</string>
     <string name="menu_dismiss_note" maxLength="41">Ukryj / Usuń</string>
-    <string name="menu_bury_card" maxLength="28">Zakop kartę</string>
-    <string name="menu_bury_note" maxLength="28">Zakop notatkę</string>
-    <string name="menu_suspend_card" maxLength="28">Zawieś kartę</string>
-    <string name="menu_suspend_note" maxLength="28">Zawieś notatkę</string>
-    <string name="menu_bury" maxLength="28">Zakop</string>
-    <string name="menu_suspend" maxLength="28">Zawieś</string>
     <string name="menu_delete_note" maxLength="28">Usuń notatkę</string>
-    <string name="menu_flag" maxLength="41">Oflaguj</string>
     <string name="rename_flag">Zmień flagi</string>
     <string name="menu_flag_card" maxLength="28">Oflaguj kartę</string>
     <string name="menu_edit_tags" maxLength="28">Edytuj tagi</string>
     <string name="delete_note_message">Jesteś pewny, że chcesz usunąć tę notatkę i wszystkie jej karty?\n%s</string>
     <string name="menu_search" maxLength="28">Wyszukiwanie w %1$s</string>
-    <string name="menu_mark_note" maxLength="28">Wyróżnij notatkę</string>
     <string name="menu_unmark_note">Cofnij wyróżnienie notatki</string>
     <string name="menu_enable_voice_playback" maxLength="28">Włącz odtwarzanie głosu</string>
     <string name="menu_disable_voice_playback">Wyłącz odtwarzanie dźwięku</string>
@@ -162,8 +154,6 @@
     <!-- Card Browser Appearance -->
     <string name="card_template_browser_appearance_title">Wygląd przeglądarki</string>
     <!-- card Info -->
-    <string name="card_info_title" maxLength="28">Informacje o karcie</string>
-    <string name="previous_card_info_title" maxLength="28">Informacje o poprz. karcie</string>
     <!-- Permissions -->
     <string name="read_write_permission_label">Odczyt i zapis do bazy danych AnkiDroid</string>
     <string name="read_write_permission_description">dostęp do istniejących notatek, kart, typów notatek i talii, a także tworzenia nowych</string>

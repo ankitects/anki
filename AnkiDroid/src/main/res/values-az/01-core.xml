@@ -87,20 +87,12 @@
     <string name="menu_add_note" maxLength="28">Qeyd əlavə et</string>
     <string name="menu_my_account" comment="Label of the window in which the user should enter their account. This text can\'t be found in AnkiDroid directly.">Hesabı sinxron et</string>
     <string name="menu_dismiss_note" maxLength="41">Gizlə / sil</string>
-    <string name="menu_bury_card" maxLength="28">Kartı gizlət</string>
-    <string name="menu_bury_note" maxLength="28">Qeydi gizlə</string>
-    <string name="menu_suspend_card" maxLength="28">Kartı təxirə sal</string>
-    <string name="menu_suspend_note" maxLength="28">Qeydi təxirə sal</string>
-    <string name="menu_bury" maxLength="28">Gizlət</string>
-    <string name="menu_suspend" maxLength="28">Dayandır</string>
     <string name="menu_delete_note" maxLength="28">Qeydi sil</string>
-    <string name="menu_flag" maxLength="41">İşarələ</string>
     <string name="rename_flag">Rename flags</string>
     <string name="menu_flag_card" maxLength="28">İşarələnmiş kart</string>
     <string name="menu_edit_tags" maxLength="28">Etiketlərə düzəliş et</string>
     <string name="delete_note_message">Bu qeyd və bütün kartlar həqiqətən də silinsin?\n%s</string>
     <string name="menu_search" maxLength="28">%1$s içində axtar</string>
-    <string name="menu_mark_note" maxLength="28">Qeydi işarələ</string>
     <string name="menu_unmark_note">İşarəni götür</string>
     <string name="menu_enable_voice_playback" maxLength="28">Enable voice playback</string>
     <string name="menu_disable_voice_playback">Disable voice playback</string>
@@ -152,8 +144,6 @@
     <!-- Card Browser Appearance -->
     <string name="card_template_browser_appearance_title">Browser appearance</string>
     <!-- card Info -->
-    <string name="card_info_title" maxLength="28">Card info</string>
-    <string name="previous_card_info_title" maxLength="28">Previous card info</string>
     <!-- Permissions -->
     <string name="read_write_permission_label">Read and write to the AnkiDroid database</string>
     <string name="read_write_permission_description">access existing notes, cards, note types, and decks, as well as create new ones</string>

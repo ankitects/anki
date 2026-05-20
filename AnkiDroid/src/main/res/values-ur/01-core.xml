@@ -87,20 +87,12 @@
     <string name="menu_add_note" maxLength="28">نوٹ شامل کریں</string>
     <string name="menu_my_account" comment="Label of the window in which the user should enter their account. This text can\'t be found in AnkiDroid directly.">اکاؤنٹس کی مطابقت پذیری</string>
     <string name="menu_dismiss_note" maxLength="41">چھپائیں / حذف کریں</string>
-    <string name="menu_bury_card" maxLength="28">کارڈ دفن کریں</string>
-    <string name="menu_bury_note" maxLength="28">نوٹ دفن کریں</string>
-    <string name="menu_suspend_card" maxLength="28">کارڈ معطل کریں</string>
-    <string name="menu_suspend_note" maxLength="28">نوٹ معطل کریں</string>
-    <string name="menu_bury" maxLength="28">دفن</string>
-    <string name="menu_suspend" maxLength="28">معطل</string>
     <string name="menu_delete_note" maxLength="28">نوٹ حذف کریں</string>
-    <string name="menu_flag" maxLength="41">فلیگ</string>
     <string name="rename_flag">جھنڈوں کا نام تبدیل کریں</string>
     <string name="menu_flag_card" maxLength="28">پرچم کارڈ</string>
     <string name="menu_edit_tags" maxLength="28">کارڈز میں ترمیم کریں</string>
     <string name="delete_note_message">واقعی یہ نوٹ اور اس کے تمام کارڈز حذف کریں؟ \n%s</string>
     <string name="menu_search" maxLength="28">%1$s میں تلاش کریں</string>
-    <string name="menu_mark_note" maxLength="28">نوٹ کو نشان زد کریں</string>
     <string name="menu_unmark_note">نوٹ بے نشان کریں</string>
     <string name="menu_enable_voice_playback" maxLength="28">صوتی پلے بیک کو فعال کریں</string>
     <string name="menu_disable_voice_playback">صوتی پلے بیک کو غیر فعال کریں</string>
@@ -152,8 +144,6 @@
     <!-- Card Browser Appearance -->
     <string name="card_template_browser_appearance_title">براؤزر کی ظاہری شکل</string>
     <!-- card Info -->
-    <string name="card_info_title" maxLength="28">کارڈ کی معلومات</string>
-    <string name="previous_card_info_title" maxLength="28">Previous card info</string>
     <!-- Permissions -->
     <string name="read_write_permission_label">AnkiDroid ڈیٹا بیس کو پڑھیں اور لکھیں۔</string>
     <string name="read_write_permission_description">موجودہ نوٹوں، کارڈز، نوٹ کی اقسام، اور ڈیک تک رسائی حاصل کریں، اور ساتھ ہی نئے بنائیں</string>

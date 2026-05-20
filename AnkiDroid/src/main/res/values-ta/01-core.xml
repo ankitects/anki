@@ -87,20 +87,12 @@
     <string name="menu_add_note" maxLength="28">குறிப்பு சேர்க்க</string>
     <string name="menu_my_account" comment="Label of the window in which the user should enter their account. This text can\'t be found in AnkiDroid directly.">ஒத்திசைக்க</string>
     <string name="menu_dismiss_note" maxLength="41">மறைக்க/அழி</string>
-    <string name="menu_bury_card" maxLength="28">அட்டை அடங்கும்</string>
-    <string name="menu_bury_note" maxLength="28">குறிப்பு அடங்கும்</string>
-    <string name="menu_suspend_card" maxLength="28">கார்டை நிறுத்து</string>
-    <string name="menu_suspend_note" maxLength="28">குறிப்பு நிறுத்து</string>
-    <string name="menu_bury" maxLength="28">புதைத்து</string>
-    <string name="menu_suspend" maxLength="28">இடைநிறுத்த</string>
     <string name="menu_delete_note" maxLength="28">குறிப்பு நீக்கவும்</string>
-    <string name="menu_flag" maxLength="41">கொடிகள்</string>
     <string name="rename_flag">கொடிகளை மறுபெயரிடவும்</string>
     <string name="menu_flag_card" maxLength="28">கொடி அட்டை</string>
     <string name="menu_edit_tags" maxLength="28">Tags-ஐ திருத்து</string>
     <string name="delete_note_message">உண்மையில் இந்த குறிப்பையும் அதன் அனைத்து அட்டைகளையும் நீக்கவா?\n%s</string>
     <string name="menu_search" maxLength="28">இங்கே பாருங்கள் %1$s</string>
-    <string name="menu_mark_note" maxLength="28">குறிப்பு குறிக்கவும்</string>
     <string name="menu_unmark_note">குறிப்பு குறிக்கப்படாது</string>
     <string name="menu_enable_voice_playback" maxLength="28">குரல் பின்னணியை இயக்கு</string>
     <string name="menu_disable_voice_playback">குரல் பின்னணியை முடக்கு</string>
@@ -152,8 +144,6 @@
     <!-- Card Browser Appearance -->
     <string name="card_template_browser_appearance_title">உலாவித் தோற்றம்</string>
     <!-- card Info -->
-    <string name="card_info_title" maxLength="28">அட்டை தகவல்</string>
-    <string name="previous_card_info_title" maxLength="28">Previous card info</string>
     <!-- Permissions -->
     <string name="read_write_permission_label">AnkiDroid டேட்டாபேஸ் எழுதப்</string>
     <string name="read_write_permission_description">தற்போதுள்ள குறிப்புகள், அட்டைகள், குறிப்பு வகைகள் மற்றும் அடுக்குகள் அணுக, அத்துடன் புதிய ஒன்றை உருவாக்க</string>

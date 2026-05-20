@@ -87,20 +87,12 @@
     <string name="menu_add_note" maxLength="28">નોંધ ઉમેરો</string>
     <string name="menu_my_account" comment="Label of the window in which the user should enter their account. This text can\'t be found in AnkiDroid directly.">ખાતું સિંક્રનાઇઝ કરો</string>
     <string name="menu_dismiss_note" maxLength="41">છુપાવો / કાઢો</string>
-    <string name="menu_bury_card" maxLength="28">કાર્ડ કાઢો</string>
-    <string name="menu_bury_note" maxLength="28">નોંધ કાઢો</string>
-    <string name="menu_suspend_card" maxLength="28">કાર્ડ સસ્પેન્ડ કરો</string>
-    <string name="menu_suspend_note" maxLength="28">નોંધ સસ્પેન્ડ કરો</string>
-    <string name="menu_bury" maxLength="28">કાઢો</string>
-    <string name="menu_suspend" maxLength="28">સસ્પેન્ડ</string>
     <string name="menu_delete_note" maxLength="28">નોંધ કાયમ માટે કાઢી નાખો</string>
-    <string name="menu_flag" maxLength="41">ધ્વજ</string>
     <string name="rename_flag">ફ્લેગોનું નામ બદલો</string>
     <string name="menu_flag_card" maxLength="28">કાર્ડને ચિહ્નિત કરો</string>
     <string name="menu_edit_tags" maxLength="28">ચિહ્નો બદલો</string>
     <string name="delete_note_message">આ નોંધ અને તેના તમામ કાડઁ ખરેખર કાઢી નાખીએ ?\n%s</string>
     <string name="menu_search" maxLength="28">%1$s માં જુઓ</string>
-    <string name="menu_mark_note" maxLength="28">નોંધ ચિહ્નિત કરો</string>
     <string name="menu_unmark_note">ચિહ્નિત નોંધોમાથી કાઢો</string>
     <string name="menu_enable_voice_playback" maxLength="28">વૉઇસ પ્લેબેક સક્ષમ કરો</string>
     <string name="menu_disable_voice_playback">વૉઇસ પ્લેબેક અક્ષમ કરો</string>
@@ -152,8 +144,6 @@
     <!-- Card Browser Appearance -->
     <string name="card_template_browser_appearance_title">બ્રાઉઝર દેખાવ</string>
     <!-- card Info -->
-    <string name="card_info_title" maxLength="28">કાર્ડ માહિતી</string>
-    <string name="previous_card_info_title" maxLength="28">Previous card info</string>
     <!-- Permissions -->
     <string name="read_write_permission_label">AnkiDroid ડેટાબેઝ વાંચો અને લખો</string>
     <string name="read_write_permission_description">હાલની નોંધો, કાર્ડ્સ, નોંધના પ્રકારો અને ડેકને ઍક્સેસ કરો તેમજ નવી બનાવો</string>
