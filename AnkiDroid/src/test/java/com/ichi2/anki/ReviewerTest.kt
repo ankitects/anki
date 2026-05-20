@@ -142,10 +142,9 @@ class ReviewerTest : RobolectricTest() {
         // Assert
         val shadowApplication = Shadows.shadowOf(ApplicationProvider.getApplicationContext<Application>())
         val intent = shadowApplication.nextStartedActivity
-        val fragmentBundle = intent.getBundleExtra(NoteEditorActivity.FRAGMENT_ARGS_EXTRA)
         val actualAnimation =
             BundleCompat.getParcelable(
-                fragmentBundle!!,
+                intent.extras!!,
                 AnkiActivity.FINISH_ANIMATION_EXTRA,
                 ActivityTransitionAnimation.Direction::class.java,
             )

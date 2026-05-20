@@ -16,18 +16,11 @@
 
 package com.ichi2.anki
 
-import android.content.Context
-import android.content.Intent
 import android.os.Bundle
-import androidx.core.os.bundleOf
 import androidx.core.view.isVisible
-import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentContainerView
 import androidx.fragment.app.commit
 import com.google.android.material.tabs.TabLayout
-import com.ichi2.anki.NoteEditorActivity.Companion.FRAGMENT_ARGS_EXTRA
-import com.ichi2.anki.NoteEditorActivity.Companion.FRAGMENT_NAME_EXTRA
-import com.ichi2.anki.NoteEditorFragment.Companion.NoteEditorCaller
 import com.ichi2.anki.android.input.ShortcutGroup
 import com.ichi2.anki.android.input.ShortcutGroupProvider
 import com.ichi2.anki.databinding.ActivityNoteEditorBinding
@@ -44,8 +37,6 @@ import com.ichi2.anki.utils.ext.doOnTabSelected
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import timber.log.Timber
-import kotlin.reflect.KClass
-import kotlin.reflect.jvm.jvmName
 import kotlin.time.Duration.Companion.milliseconds
 
 /**
@@ -105,7 +96,8 @@ class NoteEditorActivity :
         previewerFrame = binding.previewerFrame
         Timber.i("Note Editor is in %s mode", if (fragmented) "split" else "single-pane")
 
-        val fragmentArgs = NoteIntentParser.parse(intent)
+        // TODO: specify how non-null but invalid extras are handled
+        val fragmentArgs = intent.extras ?: NoteEditorFragment.addNoteArgs()
 
         val existingFragment = supportFragmentManager.findFragmentByTag(FRAGMENT_TAG)
 
@@ -381,8 +373,6 @@ class NoteEditorActivity :
     //endregion
 
     companion object {
-        const val FRAGMENT_ARGS_EXTRA = "fragmentArgs"
-        const val FRAGMENT_NAME_EXTRA = "fragmentName"
         const val FRAGMENT_TAG = "NoteEditorFragmentTag"
 
         // Keys for saving pane weights in SharedPreferences
@@ -390,62 +380,5 @@ class NoteEditorActivity :
         private const val PREF_PREVIEWER_PANE_WEIGHT = "previewerPaneWeight"
 
         private val REFRESH_NOTE_EDITOR_PREVIEW_DELAY = 100.milliseconds
-
-        /**
-         * Creates an Intent to launch the NoteEditor activity with a specific fragment class and arguments.
-         *
-         * @param context The context from which the intent will be launched
-         * @param fragmentClass The Kotlin class of the Fragment to instantiate
-         * @param arguments Optional bundle of arguments to pass to the fragment
-         * @param intentAction Optional action to set on the intent
-         * @return An Intent configured to launch NoteEditor with the specified fragment
-         */
-        fun getIntent(
-            context: Context,
-            fragmentClass: KClass<out Fragment>,
-            arguments: Bundle? = null,
-            intentAction: String? = null,
-        ): Intent =
-            Intent(context, NoteEditorActivity::class.java).apply {
-                putExtra(FRAGMENT_NAME_EXTRA, fragmentClass.jvmName)
-                putExtra(FRAGMENT_ARGS_EXTRA, arguments)
-                action = intentAction
-            }
     }
-}
-
-/**
- * Helper to parse Intents for [NoteEditorActivity] into the [Bundle] used as
- * [NoteEditorFragment] arguments.
- *
- * Supports multiple note editing workflows by inspecting intent extras:
- *
- * - [NoteEditorActivity.Companion.FRAGMENT_NAME_EXTRA]: Fully qualified name of the fragment class.
- *   If set to [NoteEditorFragment], the bundle in [NoteEditorActivity.Companion.FRAGMENT_ARGS_EXTRA] is used.
- *
- * - [NoteEditorActivity.Companion.FRAGMENT_ARGS_EXTRA]: Bundle containing parameters (note ID, deck ID, etc.).
- */
-// TODO: This is over-complex, caused by dab784f22e
-//  To fix: Remove `FRAGMENT_` keys and return to a flat bundle
-//  This would have been useful for SingleFragmentActivity, but NoteEditorActivity replaced it
-private object NoteIntentParser {
-    fun parse(intent: Intent): Bundle =
-        if (intent.hasExtra(FRAGMENT_NAME_EXTRA)) {
-            handleFragmentIntent(intent)
-        } else {
-            handleLegacyIntent(intent)
-        }
-
-    private fun handleFragmentIntent(intent: Intent): Bundle =
-        intent.getStringExtra(FRAGMENT_NAME_EXTRA)?.let { fragmentName ->
-            when (fragmentName) {
-                NoteEditorFragment::class.java.name ->
-                    intent.getBundleExtra(FRAGMENT_ARGS_EXTRA) ?: addNoteArgs()
-                else -> addNoteArgs()
-            }
-        } ?: addNoteArgs()
-
-    private fun handleLegacyIntent(intent: Intent): Bundle = intent.getBundleExtra(FRAGMENT_ARGS_EXTRA) ?: intent.extras ?: addNoteArgs()
-
-    private fun addNoteArgs(): Bundle = bundleOf(NoteEditorFragment.EXTRA_CALLER to NoteEditorCaller.DECKPICKER.value)
 }

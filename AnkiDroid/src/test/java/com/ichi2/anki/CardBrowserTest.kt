@@ -554,8 +554,7 @@ class CardBrowserTest : RobolectricTest() {
             assertThat("The target deck should be selected", b.lastDeckId, equalTo(targetDid))
 
             val addIntent = b.addNoteLauncher.toIntent(targetContext)
-            val bundle = addIntent.getBundleExtra(NoteEditorActivity.FRAGMENT_ARGS_EXTRA)
-            IntentAssert.hasExtra(bundle, NoteEditorFragment.EXTRA_DID, targetDid)
+            IntentAssert.hasExtra(addIntent.extras, NoteEditorFragment.EXTRA_DID, targetDid)
         }
 
     /** 7420  */
@@ -568,8 +567,7 @@ class CardBrowserTest : RobolectricTest() {
         assertThat("The initial deck should be selected", b.lastDeckId, equalTo(initialDid))
 
         val addIntent = b.addNoteLauncher.toIntent(targetContext)
-        val bundle = addIntent.getBundleExtra(NoteEditorActivity.FRAGMENT_ARGS_EXTRA)
-        IntentAssert.hasExtra(bundle, NoteEditorFragment.EXTRA_DID, initialDid)
+        IntentAssert.hasExtra(addIntent.extras, NoteEditorFragment.EXTRA_DID, initialDid)
     }
 
     @Test
