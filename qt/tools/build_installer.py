@@ -11,6 +11,7 @@ import shutil
 import subprocess
 import sys
 from pathlib import Path
+from typing import Sequence
 
 sys.path.extend(["pylib", "out/pylib"])
 
@@ -22,9 +23,8 @@ out_dir = Path("out/installer").resolve()
 _CHROMIUM_PAK_LANG_REMAP = {"tl": "fil"}
 
 
-def normalize_wheel_path(out_dir: Path, path: str) -> str:
-    path = Path(path).absolute().relative_to(out_dir.parent).as_posix()
-    return f"../{path}"
+def normalize_wheel_path(path: str | Path) -> str:
+    return Path(path).absolute().as_posix()
 
 
 def chromium_paks_to_keep() -> set[str]:
@@ -75,7 +75,7 @@ def get_briefcase_sources_path(out_dir: Path, version: str) -> Path | None:
             out_dir
             / "build"
             / "anki"
-            / "darwin"
+            / "macos"
             / "app"
             / "Anki.app"
             / "Contents"
@@ -89,17 +89,22 @@ def get_briefcase_sources_path(out_dir: Path, version: str) -> Path | None:
 def get_briefcase_config_args(args: argparse.Namespace) -> list[str]:
     version = args.version
     if aqt_wheel := getattr(args, "aqt_wheel", None):
-        aqt_wheel = normalize_wheel_path(out_dir, args.aqt_wheel)
-    if anki_wheel := getattr(args, "aqt_wheel", None):
-        anki_wheel = normalize_wheel_path(out_dir, args.anki_wheel)
+        aqt_wheel = normalize_wheel_path(args.aqt_wheel)
+    if anki_wheel := getattr(args, "anki_wheel", None):
+        anki_wheel = normalize_wheel_path(args.anki_wheel)
     template_path = get_briefcase_template_path()
     config_args = [
         "-C",
         f'version="{version}"',
     ]
+    requires = []
     if aqt_wheel:
+        requires.append(f"{aqt_wheel}[qt,audio]")
+    if anki_wheel:
+        requires.append(anki_wheel)
+    if requires:
         config_args.extend(
-            ["-C", f'requires=["{aqt_wheel}[qt,audio]", "{anki_wheel}"]']
+            ["-C", "requires=[" + ",".join(f'"{dep}"' for dep in requires) + "]"]
         )
     if template_path:
         config_args.extend(["-C", f'template="{template_path.absolute().as_posix()}"'])
@@ -107,12 +112,12 @@ def get_briefcase_config_args(args: argparse.Namespace) -> list[str]:
     return config_args
 
 
-def compile_sources(out_dir: Path, version: str) -> None:
+def compile_sources(out_dir: Path, version: str) -> bool:
     """Compile Python sources to .pyc"""
 
     sources_root = get_briefcase_sources_path(out_dir, version)
     if not sources_root:
-        return
+        return False
     for src_dir in (sources_root / "app", sources_root / "app_packages"):
         # legacy=True is needed to write .pyc to the same location as .py
         # so no __pycache__, which is not loaded with no sources
@@ -120,6 +125,7 @@ def compile_sources(out_dir: Path, version: str) -> None:
             raise RuntimeError(f"Failed to compile Python sources in {src_dir}")
         for path in src_dir.rglob("*.py"):
             path.unlink()
+    return True
 
 
 def build(args: argparse.Namespace) -> None:
@@ -150,25 +156,7 @@ def build(args: argparse.Namespace) -> None:
     compile_sources(out_dir, version)
 
 
-def package(args: argparse.Namespace) -> None:
-    version = args.version
-    config_args = get_briefcase_config_args(args)
-    shutil.rmtree(out_dir / "dist", ignore_errors=True)
-    identity = os.environ.get("SIGN_IDENTITY")
-    identity_args = ["--identity", identity] if identity else ["--adhoc-sign"]
-    subprocess.check_call(
-        [
-            sys.executable,
-            "-m",
-            "briefcase",
-            "package",
-            *get_briefcase_output_format(),
-            *config_args,
-            "--log",
-            *identity_args,
-        ],
-        cwd=out_dir,
-    )
+def get_platform_suffix() -> str:
     platform_suffix = ""
     if sys.platform == "win32":
         arch = "arm64" if platform.machine() == "ARM64" else "x64"
@@ -179,12 +167,42 @@ def package(args: argparse.Namespace) -> None:
     elif sys.platform == "linux":
         arch = platform.machine()
         platform_suffix = f"-linux-{arch}"
+    return platform_suffix
+
+
+def get_signing_args() -> list[str]:
+    identity = os.environ.get("SIGN_IDENTITY")
+    return ["--identity", identity] if identity else ["--adhoc-sign"]
+
+
+def package(args: argparse.Namespace) -> None:
+    version = args.version
+    config_args = get_briefcase_config_args(args)
+    shutil.rmtree(out_dir / "dist", ignore_errors=True)
+    subprocess.check_call(
+        [
+            sys.executable,
+            "-m",
+            "briefcase",
+            "package",
+            *get_briefcase_output_format(),
+            *config_args,
+            "--log",
+            *get_signing_args(),
+        ],
+        cwd=out_dir,
+    )
     package_path = next((out_dir / "dist").iterdir())
-    package_path.rename(package_path.with_stem(f"anki-{version}{platform_suffix}"))
+    package_path.rename(
+        package_path.with_stem(f"anki-{version}{get_platform_suffix()}")
+    )
 
 
-def parse_args() -> argparse.Namespace:
-    parser = argparse.ArgumentParser(description="Build the Briefcase installer.")
+def main(args: Sequence[str] | None = None) -> argparse.Namespace:
+    out_dir.mkdir(exist_ok=True)
+    parser = argparse.ArgumentParser(
+        prog="build_installer", description="Build the Briefcase installer."
+    )
     parser.add_argument("--version", help="Anki version")
     subparsers = parser.add_subparsers(help="Briefcase command (build/package)")
     build_parser = subparsers.add_parser("build", help="Compile/build app")
@@ -194,10 +212,11 @@ def parse_args() -> argparse.Namespace:
     package_parser = subparsers.add_parser("package", help="Package installer")
     package_parser.set_defaults(func=package)
 
-    return parser.parse_args()
+    parsed = parser.parse_args(args)
+    parsed.func(parsed)
+
+    return parsed
 
 
-if __name__ == "__main__":
-    args = parse_args()
-    out_dir.mkdir(exist_ok=True)
-    args.func(args)
+if __name__ == "__main__":  # pragma: no cover
+    main()

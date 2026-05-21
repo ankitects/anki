@@ -168,6 +168,8 @@ jobs:
     name: check (macos)
     steps:
       - uses: actions/checkout@v4
+        with:
+          submodules: true
 
       - name: Restore cargo cache
         uses: actions/cache@v4
@@ -238,6 +240,8 @@ jobs:
       TMP: D:\tmp
     steps:
       - uses: actions/checkout@v4
+        with:
+          submodules: true
 
       - name: Prepare D:\ directories
         shell: bash
