@@ -546,6 +546,7 @@ jobs:
             cmake extra-cmake-modules \
             libfcitx5core-dev \
             qt6-base-dev \
+            qt6-base-private-dev \
             libgl-dev \
             libxkbcommon-dev \
             libx11-dev \
