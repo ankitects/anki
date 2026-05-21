@@ -54,9 +54,6 @@ import androidx.viewbinding.ViewBinding
 import com.google.android.material.color.MaterialColors
 import com.google.android.material.snackbar.Snackbar
 import com.ichi2.anim.ActivityTransitionAnimation
-import com.ichi2.anim.ActivityTransitionAnimation.Direction
-import com.ichi2.anim.ActivityTransitionAnimation.Direction.DEFAULT
-import com.ichi2.anim.ActivityTransitionAnimation.Direction.NONE
 import com.ichi2.anki.analytics.UsageAnalytics
 import com.ichi2.anki.android.input.ShortcutGroup
 import com.ichi2.anki.android.input.ShortcutGroupProvider
@@ -68,6 +65,9 @@ import com.ichi2.anki.common.annotations.LegacyNotifications
 import com.ichi2.anki.common.annotations.NeedsTest
 import com.ichi2.anki.common.crashreporting.CrashReportService
 import com.ichi2.anki.common.preferences.sharedPrefs
+import com.ichi2.anki.common.ui.TransitionDirection
+import com.ichi2.anki.common.ui.TransitionDirection.DEFAULT
+import com.ichi2.anki.common.ui.TransitionDirection.NONE
 import com.ichi2.anki.common.utils.android.getColorFromAttr
 import com.ichi2.anki.common.utils.android.showThemedToast
 import com.ichi2.anki.common.utils.annotation.KotlinCleanup
@@ -329,7 +329,7 @@ open class AnkiActivity(
 
     fun startActivityWithAnimation(
         intent: Intent,
-        animation: Direction,
+        animation: TransitionDirection,
     ) {
         enableIntentAnimation(intent)
         super.startActivity(intent)
@@ -340,7 +340,7 @@ open class AnkiActivity(
         finishWithAnimation(DEFAULT)
     }
 
-    fun finishWithAnimation(animation: Direction) {
+    fun finishWithAnimation(animation: TransitionDirection) {
         Timber.i("finishWithAnimation %s", animation)
         super.finish()
         enableActivityAnimation(animation, open = false)
@@ -370,7 +370,7 @@ open class AnkiActivity(
      * When `false`, overrides the animation for closing this activity
      */
     private fun enableActivityAnimation(
-        animation: Direction,
+        animation: TransitionDirection,
         open: Boolean,
     ) {
         if (animationDisabled()) {

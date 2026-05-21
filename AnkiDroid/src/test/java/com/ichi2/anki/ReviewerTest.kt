@@ -38,6 +38,7 @@ import com.ichi2.anki.cardviewer.ViewerCommand.MARK
 import com.ichi2.anki.common.preferences.sharedPrefs
 import com.ichi2.anki.common.time.MockTime
 import com.ichi2.anki.common.time.TimeManager
+import com.ichi2.anki.common.ui.TransitionDirection
 import com.ichi2.anki.common.utils.annotation.KotlinCleanup
 import com.ichi2.anki.libanki.Card
 import com.ichi2.anki.libanki.CardType
@@ -146,7 +147,7 @@ class ReviewerTest : RobolectricTest() {
             BundleCompat.getParcelable(
                 intent.extras!!,
                 AnkiActivity.FINISH_ANIMATION_EXTRA,
-                ActivityTransitionAnimation.Direction::class.java,
+                TransitionDirection::class.java,
             )
         val expectedAnimation =
             ActivityTransitionAnimation.getInverseTransition(

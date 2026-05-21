@@ -4,6 +4,7 @@ import com.android.build.api.dsl.LibraryExtension
 
 plugins {
     id("ankidroid.android.library")
+    id("org.jetbrains.kotlin.plugin.parcelize")
 }
 
 configure<LibraryExtension> {
