@@ -14,8 +14,8 @@ case "$target" in
         threshold=65
         ;;
     qt)
-        pythonpath="pylib:out/pylib:out/qt"
-        source="qt/aqt"
+        pythonpath="pylib:out/pylib:out/qt:qt/tools"
+        source="qt/aqt,qt/tools"
         outdir="out/coverage/python-qt"
         tests="qt/tests"
         threshold=20
