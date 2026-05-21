@@ -32,5 +32,7 @@ If you want to use a string in your code that can't be translated, please use:
     <!-- TODO: Move this to a proper string resource file and collect all other strings associated with this feature once it is stable. -->
     <string name="schedule_reminders_do_not_translate" maxLength="28" comment="Do not translate this string, this feature is still in development. Name of the screen that appears when review reminders are being scheduled.">Schedule reminders</string>
     <string name="review_reminders_do_not_translate" comment="Do not translate this string, this feature is still in development. Name of the notification channel for review reminders.">Review Reminders</string>
+    <!-- Bottom Nav Bar: In progress for GSoC 2026 -->
+    <string name="bottom_nav_more" maxLength="28">More</string>
 </resources>
 

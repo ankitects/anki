@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+~ SPDX-FileCopyrightText: 2026 Shaan Narendran <shaannaren06@gmail.com>
+~ SPDX-License-Identifier: GPL-3.0-or-later
+-->
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:ignore="UnusedResources">
+<item
+        android:id="@+id/nav_home"
+        android:icon="@drawable/ic_list_black"
+        android:title="@string/decks" />
+    <item
+        android:id="@+id/nav_browser"
+        android:icon="@drawable/ic_flashcard_black"
+        android:title="@string/card_browser" />
+    <item
+        android:id="@+id/nav_stats"
+        android:icon="@drawable/ic_bar_chart_black"
+        android:title="@string/statistics" />
+    <item
+        android:id="@+id/nav_more"
+        android:icon="@drawable/ic_menu_24"
+        android:title="@string/bottom_nav_more" />
+</menu>
