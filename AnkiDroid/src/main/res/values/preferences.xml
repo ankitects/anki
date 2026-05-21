@@ -237,6 +237,7 @@
     <string name="use_fixed_port_pref_key">useFixedPort</string>
     <string name="dev_card_browser_fragmented">cardBrowserFragmented</string>
     <string name="dev_card_browser_search_view">cardBrowserSearchView</string>
+    <string name="dev_bottom_nav_key">devBottomNav</string>
     <string name="dev_open_tts_voices">openTtsVoices</string>
     <!-- Developer options > Create fake notes -->
     <string name="pref_fill_default_deck_number_key">FillDefaultNumberDeck</string>
