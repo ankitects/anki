@@ -82,7 +82,7 @@ def get_briefcase_sources_path(out_dir: Path, version: str) -> Path | None:
             / "Resources"
         )
     elif sys.platform == "linux":
-        return out_dir / "build" / "anki" / "linux" / "zip" / f"anki-{version}"
+        return next((out_dir / "build" / "anki" / "linux" / "zip").glob("anki-*"), None)
     return None
 
 
@@ -154,13 +154,9 @@ def bundle_fcitx(out_dir: Path, version: str) -> None:
 
     pic_plugin = _find_fcitx_file(pic_dirs, "libfcitx5platforminputcontextplugin.so")
     if pic_plugin is None:
-        print("fcitx5-qt6 plugin not found — skipping fcitx bundling")
-        return
+        raise RuntimeError("fcitx5-qt6 plugin not found")
 
-    pyqt6_qt6 = next((sources / "app_packages").rglob("PyQt6/Qt6"), None)
-    if pyqt6_qt6 is None:
-        raise RuntimeError("Could not find PyQt6/Qt6 in built package")
-
+    pyqt6_qt6 = sources / "app_packages" / "PyQt6" / "Qt6"
     pic_dest = pyqt6_qt6 / "plugins" / "platforminputcontexts"
     dbus_dest = pyqt6_qt6 / "plugins" / "dbusaddons"
     dbus_dest.mkdir(exist_ok=True)
