@@ -189,7 +189,7 @@
     <string name="tag_editor_add_feedback_existing">Wybrano istniejący tag “%1$s”</string>
     <string name="tag_already_exists">Znacznik już istnieje</string>
     <string name="error_name_exists">Nazwa już istnieje</string>
-    <string name="warning_find_and_replace">Consider backing up your collection from DeckPicker before using this option!</string>
+    <string name="warning_find_and_replace">Rozważ wykonanie kopii zapasowej swojej kolekcji z DeckPicker przed użyciem tej opcji!</string>
     <!-- Time spans -->
     <!-- Currently only used if exporting APKG fails -->
     <string name="apk_share_error">Błąd udostępniania pliku apkg</string>
@@ -211,7 +211,7 @@
     <string name="white_board_eraser_enabled">Tryb gumkowania aktywowany</string>
     <string name="white_board_eraser_disabled">Tryb gumkowania zdezaktywowany</string>
     <string comment="Progress amount e.g. \'28 MB/141 MB\'. %1$s is the current amount, %2$s is the max." name="progress_amount_bytes">%1$s/%2$s</string>
-    <string name="media_file_size_warning_title">Media too large</string>
+    <string name="media_file_size_warning_title">Wybrane media są za duże</string>
     <string name="media_file_size_warning_message" comment="1$s: File name, 2$s: File size, 3$s: The size limit (e.g. 100MB)">Plik \"%1$s\" (%2$s) przekracza limit AnkiWeb %3$s i nie może być zsynchronizowany. Dodać mimo to?</string>
     <string name="media_file_size_add_anyway">Dodaj mimo to</string>
     <!-- Whiteboard save image message in the Study Screen -->
@@ -258,7 +258,7 @@
     <string name="note_editor_audio_too_large">Plik audio jest za duży, wstaw go ręcznie</string>
     <string name="ankidroid_cannot_open_after_backup_try_again" comment="After an Android backup is restored, AnkiDroid opens and shows this message.         Opening AnkiDroid again will work correctly">Kopia zapasowa Androida w toku. Spróbuj ponownie.</string>
     <string name="create_shortcut_error_vivo" comment="iManager is an app on Vivo phones">Może być konieczne użycie iManager, by umożliwić AnkiDroid dodawanie skrótów</string>
-    <string name="create_shortcut_error_miui" comment="Keep the message as short, as this is shown in a toast. %s is the app name: \'AnkiDroid\'">Allow ‘Home screen shortcuts’ in system settings for %s to add shortcuts</string>
+    <string name="create_shortcut_error_miui" comment="Keep the message as short, as this is shown in a toast. %s is the app name: \'AnkiDroid\'">Pozwól skrótom ekranu głównego w ustawieniach systemowych dla %s dodawać skróty</string>
     <string name="create_shortcut_failed" comment="home screen == launcher">Twój launcher nie pozwala AnkiDroid dodawać skrótów</string>
     <string name="create_shortcut_error">Błąd dodawania skrótu: %s</string>
     <string name="note_editor_capitalize" comment="This is for a switch with a checkbox - on: enabled" maxLength="28">Zaczynaj zdania dużą literą</string>
@@ -352,7 +352,7 @@
     <string name="shared_decks_login_required">Zaloguj się, aby pobrać więcej talii</string>
     <string name="deck_description_field_hint">Opis</string>
     <string name="deck_description_saved">Opis zaktualizowany</string>
-    <string name="format_deck_description_as_markdown">Format as Markdown</string>
+    <string name="format_deck_description_as_markdown">Formatuj jako Markdown</string>
     <string name="help_button_content_description">Otwórz pomoc dla \'%s\'</string>
     <string name="failed_to_copy">Kopiowanie nieudane</string>
     <plurals name="unbury_cards_feedback">
@@ -393,7 +393,7 @@
     <!-- Whitespace is OK -->
     <string name="list_separator" comment="The character and spacing to display between elements of a list, for example \', \' in \'Apple, Banana, Cherry" tools:ignore="TranslationTypo">, </string>
     <!--Set up date-->
-    <string name="set_due_date_day" comment="Used for setting due date">Day</string>
-    <string name="set_due_date_date_range">Date range</string>
-    <string comment="Shown when retrying a running action" name="already_in_progress">Already in progress</string>
+    <string name="set_due_date_day" comment="Used for setting due date">Dzień</string>
+    <string name="set_due_date_date_range">Zakres dat</string>
+    <string comment="Shown when retrying a running action" name="already_in_progress">Obecnie w toku</string>
 </resources>

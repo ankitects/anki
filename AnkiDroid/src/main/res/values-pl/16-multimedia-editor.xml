@@ -66,6 +66,6 @@
     <string name="crop_image_size_notice">Obraz jest zbyt duży, aby mógł być obsługiwany przez edytor przycinania. Zmień rozmiar i spróbuj ponownie!</string>
     <string name="reselect" maxLength="28">Wybierz ponownie</string>
     <string name="waveform_button_description">Pokaż falę dźwięku</string>
-    <string name="field_content_description">Show field content</string>
+    <string name="field_content_description">Pokaż zawartość pola</string>
     <string name="delete_audio_button_description">Usuń nagranie</string>
 </resources>

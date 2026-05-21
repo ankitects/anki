@@ -161,8 +161,8 @@
     <string name="show_estimates_summ">Pokazuj czas kolejnej powtórki na przyciskach odpowiedzi</string>
     <string name="show_large_answer_buttons" maxLength="41">Pokaż duże przyciski odpowiedzi</string>
     <string name="show_large_answer_buttons_summ">Pokaż przycisk odpowiedzi w 2 wierszach</string>
-    <string name="remove_animations" maxLength="41">Remove animations</string>
-    <string name="remove_animations_summary">Also enabled if animations are removed on the system settings</string>
+    <string name="remove_animations" maxLength="41">Usuń animacje</string>
+    <string name="remove_animations_summary">Włączone również, jeśli animacje są usuwane w ustawieniach systemu</string>
     <string name="show_top_bar" maxLength="41">Pokaż górny pasek</string>
     <string name="show_top_bar_summary">Pokaż liczniki kart, czas odpowiedzi, flagę i znacznik w górnym pasku</string>
     <string name="show_progress" maxLength="41">Pokaż pozostałe</string>
