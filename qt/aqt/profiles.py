@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import errno
+import enum
 import io
 import os
 import pickle
@@ -123,6 +124,11 @@ profileConf: dict[str, Any] = dict(
 class LoadMetaResult:
     firstTime: bool
     loadError: bool
+
+
+class ReviewerType(enum.IntEnum):
+    default = 0
+    flexible = 1
 
 
 class ProfileManager:
@@ -614,6 +620,18 @@ create table if not exists profiles
 
     def set_theme(self, theme: Theme) -> None:
         self.meta["theme"] = theme.value
+
+    def reviewer(self) -> ReviewerType:
+        return ReviewerType(self.meta.get("reviewer_type", 0))
+
+    def set_reviewer(self, reviewer: ReviewerType) -> None:
+        self.meta["reviewer_type"] = reviewer.value
+
+    def reviewer_show_reps_done_today(self) -> bool:
+        return bool(self.meta.get("reviewer_show_reps_done_today", True))
+
+    def set_reviewer_show_reps_done_today(self, enabled: bool) -> None:
+        self.meta["reviewer_show_reps_done_today"] = bool(enabled)
 
     def set_widget_style(self, style: WidgetStyle) -> None:
         self.meta["widget_style"] = style
