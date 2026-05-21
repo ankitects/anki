@@ -547,6 +547,9 @@ jobs:
             libfcitx5core-dev \
             qt6-base-dev \
             libgl-dev \
+            libxkbcommon-dev \
+            libx11-dev \
+            gettext \
             patchelf
           git clone --depth 1 --branch 5.1.13 \
             https://github.com/fcitx/fcitx5-qt.git /tmp/fcitx5-qt
