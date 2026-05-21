@@ -16,6 +16,7 @@ class Source:
     target: Path
     summary: Path | None = None
     files: tuple[str, ...] = ("*.md",)
+    archive_text: bool = False
 
 
 @dataclass(frozen=True)
@@ -45,10 +46,13 @@ def frontmatter(title: str, source: Source) -> str:
         "title": title,
         "description": f"Migrated from {source.repo} for the Mintlify documentation POC.",
     }
-    return "---\n" + "\n".join(f'{key}: "{value}"' for key, value in data.items()) + "\n---\n\n"
+    return "---\n" + "\n".join(f"{key}: {json.dumps(value)}" for key, value in data.items()) + "\n---\n\n"
 
 
 def normalize_content(content: str) -> str:
+    content = re.sub(r"<!--.*?-->", "", content, flags=re.DOTALL)
+    content = re.sub(r"<(https?://[^>\s]+)>", r"[\1](\1)", content)
+    content = fence_indented_code(content)
     replacements = {
         "{{#title ": "",
         "}}": "",
@@ -56,10 +60,66 @@ def normalize_content(content: str) -> str:
     normalized = content
     for old, new in replacements.items():
         normalized = normalized.replace(old, new)
-    return normalized
+    return escape_mdx_expressions(normalized)
+
+
+def fence_indented_code(content: str) -> str:
+    lines = content.splitlines()
+    fenced = []
+    block = []
+    in_fence = False
+    for line in lines:
+        if line.startswith("```") or line.startswith("~~~"):
+            if block:
+                fenced.extend(["```text", *block, "```"])
+                block = []
+            in_fence = not in_fence
+            fenced.append(line)
+            continue
+        if in_fence:
+            fenced.append(line)
+            continue
+        if line.startswith("    "):
+            block.append(line[4:])
+            continue
+        if block:
+            fenced.extend(["```text", *block, "```"])
+            block = []
+        fenced.append(line)
+    if block:
+        fenced.extend(["```text", *block, "```"])
+    return "\n".join(fenced) + "\n"
+
+
+def escape_mdx_expressions(content: str) -> str:
+    escaped_lines = []
+    in_fence = False
+    for line in content.splitlines():
+        if line.startswith("```") or line.startswith("~~~"):
+            in_fence = not in_fence
+            escaped_lines.append(line)
+            continue
+        if in_fence:
+            escaped_lines.append(line)
+            continue
+        escaped_lines.append(
+            line.replace("{", "&#123;")
+            .replace("}", "&#125;")
+            .replace("<", "&lt;")
+            .replace(">", "&gt;")
+        )
+    return "\n".join(escaped_lines) + "\n"
+
+
+def archive_content(path: Path, source: Source) -> str:
+    title = slug_title(path)
+    content = path.read_text()
+    return f"{frontmatter(title, source)}# {title}\n\n```text\n{content}\n```\n"
 
 
 def migrated_content(path: Path, source: Source) -> str:
+    if source.archive_text and path.suffix == ".txt":
+        return archive_content(path, source)
     content = normalize_content(path.read_text())
     title = heading_title(content, slug_title(path))
     return content if has_frontmatter(content) else frontmatter(title, source) + content
@@ -218,7 +278,7 @@ def sources(repo_root: Path, source_root: Path, docs_root: Path) -> tuple[Source
         Source("Changes", "ankitects/anki-changes", source_root / "anki-changes/src", docs_root / "releases/changes", source_root / "anki-changes/src/SUMMARY.md"),
         Source("Betas", "ankitects/anki-betas", source_root / "anki-betas/src", docs_root / "releases/betas", source_root / "anki-betas/src/SUMMARY.md"),
         Source("Developers", "ankitects/anki", repo_root / "docs", docs_root / "developers", None, ("*.md",)),
-        Source("Legacy", "ankitects/anki-docs", source_root / "anki-docs", docs_root / "legacy/anki-docs", None, ("*.txt", "*.md")),
+        Source("Legacy", "ankitects/anki-docs", source_root / "anki-docs", docs_root / "legacy/anki-docs", None, ("*.txt", "*.md"), True),
     )
 
 
