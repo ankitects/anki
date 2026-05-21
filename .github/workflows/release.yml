@@ -551,7 +551,7 @@ jobs:
             libx11-dev \
             gettext \
             patchelf
-          git clone --depth 1 --branch 5.1.13 \
+          git clone --depth 1 --branch 5.0.10 \
             https://github.com/fcitx/fcitx5-qt.git /tmp/fcitx5-qt
           cmake -S /tmp/fcitx5-qt -B /tmp/fcitx5-qt-build \
             -DCMAKE_BUILD_TYPE=Release \
