@@ -27,7 +27,6 @@ import androidx.test.core.app.ActivityScenario
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import anki.scheduler.CardAnswer.Rating
-import com.ichi2.anim.ActivityTransitionAnimation
 import com.ichi2.anki.AnkiDroidJsAPITest.Companion.formatApiResult
 import com.ichi2.anki.AnkiDroidJsAPITest.Companion.getDataFromRequest
 import com.ichi2.anki.AnkiDroidJsAPITest.Companion.jsApiContract
@@ -150,9 +149,7 @@ class ReviewerTest : RobolectricTest() {
                 TransitionDirection::class.java,
             )
         val expectedAnimation =
-            ActivityTransitionAnimation.getInverseTransition(
-                AbstractFlashcardViewer.getAnimationTransitionFromGesture(fromGesture),
-            )
+            AbstractFlashcardViewer.getAnimationTransitionFromGesture(fromGesture).invert()
 
         assertEquals("Animation from swipe should be inverse to the finishing one", expectedAnimation, actualAnimation)
     }

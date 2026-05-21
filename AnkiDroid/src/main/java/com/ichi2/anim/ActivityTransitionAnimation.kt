@@ -51,10 +51,4 @@ object ActivityTransitionAnimation {
     }
 
     private fun isRightToLeft(c: Context): Boolean = c.resources.configuration.layoutDirection == LayoutDirection.RTL
-
-    /**
-     * @return inverse transition of [direction]
-     * if there isn't one, return the same [direction]
-     */
-    fun getInverseTransition(direction: TransitionDirection): TransitionDirection = direction.invert()
 }

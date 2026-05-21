@@ -48,7 +48,6 @@ import anki.frontend.SetSchedulingStatesRequest
 import anki.scheduler.CardAnswer.Rating
 import com.google.android.material.color.MaterialColors
 import com.google.android.material.snackbar.Snackbar
-import com.ichi2.anim.ActivityTransitionAnimation.getInverseTransition
 import com.ichi2.anki.CollectionManager.TR
 import com.ichi2.anki.CollectionManager.withCol
 import com.ichi2.anki.Whiteboard.Companion.createInstance
@@ -785,7 +784,7 @@ open class Reviewer :
 
     fun addNote(fromGesture: Gesture? = null) {
         val animation = getAnimationTransitionFromGesture(fromGesture)
-        val inverseAnimation = getInverseTransition(animation)
+        val inverseAnimation = animation.invert()
         Timber.i("launching 'add note'")
         val intent = NoteEditorLauncher.AddNoteFromReviewer(inverseAnimation).toIntent(this)
         addNoteLauncher.launch(intent)
@@ -800,7 +799,7 @@ open class Reviewer :
         Timber.i("opening card info")
         val intent = CardInfoDestination(currentCard!!.id, EntryPoint.CURRENT_CARD_STUDY).toIntent(this)
         val animation = getAnimationTransitionFromGesture(fromGesture)
-        intent.putExtra(FINISH_ANIMATION_EXTRA, getInverseTransition(animation) as Parcelable)
+        intent.putExtra(FINISH_ANIMATION_EXTRA, animation.invert() as Parcelable)
         startActivityWithAnimation(intent, animation)
     }
 
@@ -813,7 +812,7 @@ open class Reviewer :
         Timber.i("opening previous card info")
         val intent = CardInfoDestination(previousCardId!!, EntryPoint.PREVIOUS_CARD_STUDY).toIntent(this)
         val animation = getAnimationTransitionFromGesture(fromGesture)
-        intent.putExtra(FINISH_ANIMATION_EXTRA, getInverseTransition(animation) as Parcelable)
+        intent.putExtra(FINISH_ANIMATION_EXTRA, animation.invert() as Parcelable)
         startActivityWithAnimation(intent, animation)
     }
 

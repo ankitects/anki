@@ -13,7 +13,6 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SdkSuppress
 import anki.config.ConfigKey
 import anki.scheduler.CardAnswer.Rating
-import com.ichi2.anim.ActivityTransitionAnimation
 import com.ichi2.anki.AbstractFlashcardViewer.Companion.toAnimationTransition
 import com.ichi2.anki.AbstractFlashcardViewer.Signal
 import com.ichi2.anki.AbstractFlashcardViewer.Signal.Companion.toSignal
@@ -210,7 +209,7 @@ class AbstractFlashcardViewerTest : RobolectricTest() {
             val expectedAnimation =
                 AbstractFlashcardViewer.getAnimationTransitionFromGesture(gesture)
             val expectedInverseAnimation =
-                ActivityTransitionAnimation.getInverseTransition(expectedAnimation)
+                expectedAnimation.invert()
 
             val animation = gesture.toAnimationTransition().invert()
             val bundle =
