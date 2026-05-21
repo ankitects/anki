@@ -3,11 +3,18 @@
   "name": "Anki Docs",
   "theme": "mint",
   "colors": {
-    "primary": "#0F766E",
-    "light": "#14B8A6",
-    "dark": "#0F172A"
+    "primary": "#4B94D8",
+    "light": "#6BADE8",
+    "dark": "#2F75B5"
   },
-  "favicon": "/images/favicon.svg",
+  "favicon": "/images/anki-logo.svg",
+  "logo": {
+    "light": "/images/anki-logo.svg",
+    "dark": "/images/anki-logo.svg"
+  },
+  "fonts": {
+    "family": "Hanken Grotesk"
+  },
   "navigation": {
     "tabs": [
       {

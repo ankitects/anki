@@ -173,6 +173,87 @@ def copy_assets(source: Path, target: Path) -> None:
     shutil.copytree(source, target, dirs_exist_ok=True)
 
 
+def copy_landing_assets(source_root: Path, docs_root: Path) -> None:
+    logo = source_root / "anki-landing-page/static/logo.svg"
+    if logo.exists():
+        shutil.copyfile(logo, docs_root / "images/anki-logo.svg")
+
+
+def stylesheet() -> str:
+    return """/* Minimal Anki landing-page styling for the Mintlify POC. */
+:root {
+  --anki-foreground: hsl(248 8% 20%);
+  --anki-subtle: hsl(0 1% 33%);
+  --anki-background: hsl(0 0% 100%);
+  --anki-primary: hsl(208 65% 55%);
+  --anki-primary-darker: hsl(208 65% 52%);
+  --anki-subtle-surface: hsl(0 1% 33% / 8%);
+}
+
+.dark {
+  --anki-foreground: hsl(0 0% 100%);
+  --anki-subtle: hsl(0 0% 85%);
+  --anki-background: hsl(0 0% 3%);
+  --anki-primary: hsl(205 67% 62%);
+  --anki-primary-darker: hsl(205 67% 54%);
+  --anki-subtle-surface: hsl(0 0% 85% / 10%);
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background: var(--anki-background);
+  color: var(--anki-foreground);
+}
+
+#navbar {
+  border-bottom: 1px solid hsl(0 1% 33% / 12%);
+  background: color-mix(in srgb, var(--anki-background) 92%, transparent);
+  backdrop-filter: blur(16px);
+}
+
+nav-logo,
+#page-title,
+mdx-content h1,
+mdx-content h2,
+mdx-content h3 {
+  letter-spacing: 0;
+}
+
+#page-title,
+mdx-content h1 {
+  color: var(--anki-foreground);
+}
+
+mdx-content p,
+mdx-content li {
+  color: color-mix(in srgb, var(--anki-foreground) 82%, var(--anki-subtle));
+}
+
+card {
+  border: 1px solid hsl(0 1% 33% / 14%);
+  border-radius: 8px;
+  background: var(--anki-subtle-surface);
+}
+
+card:hover {
+  border-color: var(--anki-primary);
+}
+
+#search-bar-entry,
+#search-bar-entry-mobile {
+  border-radius: 6px;
+}
+
+#sidebar-content li[data-active],
+.nav-tabs-item[data-active] {
+  color: var(--anki-primary);
+}
+"""
+
+
 def index_page(title: str, description: str, pages: list[Page]) -> str:
     links = "\n".join(f"- [{page.title}](/{page.path})" for page in pages[:12])
     more = "\n\nMore pages are available in the sidebar." if len(pages) > 12 else ""
@@ -215,8 +296,10 @@ def docs_json(groups: dict[str, tuple[Page, list[Page]]]) -> dict[str, object]:
         "$schema": "https://mintlify.com/docs.json",
         "name": "Anki Docs",
         "theme": "mint",
-        "colors": {"primary": "#0F766E", "light": "#14B8A6", "dark": "#0F172A"},
-        "favicon": "/images/favicon.svg",
+        "colors": {"primary": "#4B94D8", "light": "#6BADE8", "dark": "#2F75B5"},
+        "favicon": "/images/anki-logo.svg",
+        "logo": {"light": "/images/anki-logo.svg", "dark": "/images/anki-logo.svg"},
+        "fonts": {"family": "Hanken Grotesk"},
         "navigation": {
             "tabs": [
                 {
@@ -296,6 +379,8 @@ def main() -> None:
 
     copied = {source.label: copy_markdown(source, docs_root) for source in sources(repo_root, args.source_root, docs_root)}
     copy_assets(repo_root / "docs/_static", docs_root / "images")
+    copy_landing_assets(args.source_root, docs_root)
+    (docs_root / "style.css").write_text(stylesheet())
 
     release_pages = [*copied["Changes"], *copied["Betas"]]
     legacy_pages = copied["Legacy"]
