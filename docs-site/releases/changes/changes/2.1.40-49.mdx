@@ -1,0 +1,436 @@
+---
+title: "Changes in 2.1.40 to 49"
+description: "Migrated from ankitects/anki-changes for the Mintlify documentation POC."
+---
+
+# Changes in 2.1.40 to 49
+
+
+
+## Changes in 2.1.49
+
+Released 2021-10-26.
+
+- Fixed cards not being automatically unburied when v3 scheduler enabled.
+- Fixed incorrect learning count in v3 scheduler when interday learning cards
+  were queued (thanks to Rumo).
+- Work around an AnkiDroid inconsistency causing deck config to be reset if options
+edited on AnkiDroid.
+- Fixed a memory leak in the Preview screen (thanks to Hikaru).
+- Fixed an issue copying filenames from the Check Media screen (thanks to Abdo).
+- Fixed deck changing when toggling sticky fields (thanks to Abdo).
+- Fixed invalid default column in notes mode in the Browse screen (thanks to Abdo).
+- The bury command ignores suspended cards now (thanks to Rumo).
+- Anki no longer migrates any files from the old ~/Documents/Anki and ~/Anki folders.
+- Increased number of card templates shown in card templates screen dropdown (thanks to Evando).
+- Added a new example Dockerfile (thanks to Jakub).
+- Handle spaces in Linux install location (thanks to lolilo).
+- Work around a PyQt error on Python 3.10.
+- Other minor changes.
+
+## Changes in 2.1.48
+
+Released 2021-09-21.
+
+- Add "Previous Card Info" action to review screen (thanks to Evandro).
+- Fix flag names not updating on profile switch (thanks to Rumo).
+- Hide "Rename with Parents" for top-level items (thanks to Rumo).
+- "Add Field" action now correctly handles multi-word font names.
+- Fix newline being added when coloring text (thanks to Henrik).
+- Fix incorrect system font when running Anki in some non-English languages.
+- Fix learning count sometimes jumping to a large number in the v3 scheduler.
+- Another fix for Reposition command not working on buried/suspended cards.
+- Preserve focus when changing notetype in the Add screen.
+- Wayland can now be optionally enabled with an env var in the packaged builds,
+  but remains off by default due to a number of bugs.
+- Fix an error message that could appear when deleting notes (thanks to Rumo).
+- The card templates screen no longer defaults to filling empty fields when
+opened from the Add screen (thanks to BlueGreenMagick).
+- Miscellaneous other fixes.
+
+## Changes in 2.1.47
+
+Released 2021-08-29.
+
+Changes to the [v3 scheduler](https://faqs.ankiweb.net/the-2021-scheduler.html):
+
+- Interday learning cards are included in the learning count again, instead of
+  the review count.
+- Interday learning cards are still affected by the review limit. Interday
+  learning cards are fetched first, then reviews, and finally new cards.
+- Filtered decks with rescheduling disabled now log reviews, so the reviews will
+  appear in your graphs.
+- Added an option to sort reviews by ascending/descending ease.
+- Fixed an issue where an error message could appear after undoing/redoing a mix
+  of reviews and other changes.
+- Fixed custom scheduling not working.
+
+Other changes:
+
+- The "timebox finished" message is now shown on card answer, instead of after
+  revealing the next card. This should also address an issue where the message
+  popped up outside of review.
+- Added shortcut for Forget in the Browse screen.
+- Fixed an error being shown when there was no current deck.
+- Fixed incorrect quoting in duplicate search (thanks to Abdo).
+- Fixed deck options inverting the "replay question when showing answer" option.
+- Fixed an issue with ampersands in the Add Cards history button (thanks to
+  Arthur).
+- Fixed handling of audio/video tags (thanks to Hikaru).
+- Fixed errors playing audio when computer was slow to respond (thanks to Kelciour).
+- Fixed preferences screen not updating undo menu, and causing an error when
+subsequently reviewing a card in the v3 scheduler.
+- Fixed case changes being ignored in tag rename.
+- Fixed error shown when DB check run on corrupt collection.
+- Fixed deck options prompt showing the default deck, instead of the correct one.
+- Fixed reposition command ignoring suspended cards.
+- Fixed answer button highlight on Windows (thanks to Henrik).
+- Fixed calendar graph day labels showing incorrectly in some timezones.
+- Improved validation of add-on package names (thanks to BlueGreenMagick for the
+  report and initial fix).
+
+For add-on developers:
+
+- The Svelte components Anki exports should now work correctly in add-ons,
+provided they exclude Svelte when bundling.
+- WithShortcut is now also available.
+
+## Changes in 2.1.46
+
+Released 2021-08-04.
+
+- Fix duplicate text when pasting with Ctrl+Shift+V (thanks to Henrik).
+- Remember last colors in editing window (thanks to Henrik).
+- Show flag and mark icons in preview window (thanks to Hikaru).
+- Center first match when searching in sidebar (thanks to Abdo).
+- Added F9/Shift+F9 shortcuts for sticky fields, and increase opacity (thanks to
+  Henrik).
+- Fixed starting ease specified in deck options not being used by v3 scheduler.
+- Fixed learning cutoff not updating during review, and some learning cards
+  remaining at the end of review in the v3 scheduler.
+- Fixed Change Notetype not mapping fields correctly when count differed.
+- The congrats screen now updates periodically again.
+- Fixed Redo menu item showing Undo action name.
+- Fixed notetype selection in the import screen.
+- Fixed error in overview/congrats screen when there is no current deck.
+
+## Changes in 2.1.45
+
+Released 2021-07-30.
+
+Undo handling:
+
+- Most actions now support multiple undo steps. You can change a card template,
+  delete some notes, bury a card, then undo each of those steps if you wish.
+- Actions that support multiple undo steps will now save the changes
+  immediately, meaning that if Anki crashes, the changes you made in the last
+  few minutes will no longer be lost.
+- Most undoable actions can now be redone, so you can undo an accidental undo.
+- Actions that don't support the new undo handling (eg, Check Database), will
+  clear the undo history.
+- Add-ons will clear the undo history if they modify the database directly, or
+  use routines that don't support undoing. There are some new routines available
+  to add-ons to make operations undoable, but add-ons may need to be updated
+  to use them.
+
+Scheduling changes:
+
+- A new scheduler is available, with a number of improvements. Please see the
+  [2021 scheduler page](https://faqs.ankiweb.net/the-2021-scheduler.html) for
+  more information.
+- The deck list now shows the learning count separately.
+- On new collections, the v2 scheduler is now the default.
+- Set due date uses the deck's configured starting ease (thanks to cyphar).
+
+Browser changes, mostly thanks to Rumo:
+
+- The sidebar now has two modes. The default allows clicking on items to search
+  for them. The other mode allows you to select multiple items at once, so you
+  can drag & drop or delete multiple items.
+- The browse screen can now be toggled between showing cards,
+  and showing notes.
+- When showing notes, some columns will show an aggregate over all the
+  cards of a note.
+- Added an introduced:x search to locate cards first studied in the last x days.
+- Column rendering has been moved into the backend, and will be faster than
+  before (but is still limited by the speed of the graphics toolkit).
+- A fair bit of the browser code has been changed, and some add-ons like the
+  "Advanced Browser" add-on will need to be updated to support the new approach.
+- New tag icons and associated backend work (thanks to Henrik).
+- Added an option in the Preferences screen to customize the starting
+  search text (eg, to start with "deck:current").
+- More reliably scroll to the current card.
+- When opening the Browse screen with an active study card, the whole
+  deck is now shown.
+- Added 3 new flag colours.
+- Flags can now be renamed in the sidebar.
+- Horizontal scrolling in the browse screen is less jumpy.
+- Sidebar items can be dragged onto the Saved Searches area to add them as a favourite.
+
+Editor changes, mostly thanks to Henrik:
+
+- A new editor toolbar implementation, with improved icons and handling.
+- The editor now provides bullet and numbered list buttons.
+- The editor now provides buttons to control text alignment and indent.
+- Sticky fields can now be toggled on/off from the editing screen.
+- A new API is available for add-ons, and the existing API should continue
+  to work.
+- The HTML editor is now shown inline, and supports syntax highlighting,
+  and showing opening/closing tags.
+- Warn user when they attempt to use cloze markers inappropriately
+  (thanks to Rumo).
+
+State handling:
+
+- When you make changes, the user interface should update more consistently now.
+  Adding a new tag to a note will update the sidebar in the Browse screen for
+  example, and when you review a card that is shown there, the columns will
+  update.
+- The Browse screen no longer refreshes a search automatically. When you make a
+  change, the column text may update, but the number of rows will not change.
+  Deleted cards show "(deleted)" until you search again.
+- The main window no longer shows a "waiting for editing to finish" screen. When
+  you make changes such as editing a note, the main window will dim, and will
+  automatically refresh when you return to it.
+
+The deck options screen has been reimplemented:
+
+- (Re)learning steps are now shown with units, eg 10m or 4d.
+- Deck options are now shown on one scrollable page.
+- Extra help is available for most options.
+- It is easy to see at a glance which options have been changed from the
+  default, and individual options can be reverted to the default setting.
+- Warnings will be shown for some common issues (eg, review limit too low
+  compared to new cards).
+- Some of the more advanced options have been moved to a separate "Advanced"
+  section.
+- The old options can be accessed with a Shift+click, since it will take a while
+  for add-ons to be updated to support the new screen. A new API is available,
+  thanks to Henrik.
+- The deck description is now accessible via a button in the overview screen,
+  instead of via the deck options.
+
+Other features:
+
+- An updated Change Notetype implementation, that can match fields by name, and
+  allows you to map a source field to multiple destination fields in order to
+  clone a field.
+- Pre-load images on answer side (thanks to Hikaru).
+- The `[...]` in cloze deletions is now read as "blank" by TTS (thanks to Rumo).
+- The Find&Replace option in the Browse screen can now be used on tags as well.
+- Added a Card Info option to the review screen.
+- When opening deck option from the study screen, you'll now be asked which deck
+  you want if the card is in a subdeck.
+- You can now choose which add-ons you want to update (thanks to BlueGreenMagick).
+- Support system SSL certs on Linux.
+- Extra checks are now done when updating a card template, such as detecting when
+  a cloze notetype is missing a cloze directive, or two templates have identical question sides (thanks to Rumo).
+- Support Ctrl+Numpad Enter to add cards.
+- Added night mode styling to 'type in the answer' box, and improve legibility
+  of comparison.
+- Sidebar search now scrolls to first match (thanks to Abdo & Rumo).
+- F3/F4 in card layout screen go to next/previous template (thanks to Evandro).
+
+Fixes:
+
+- Custom study now limits the tag selection to 100 tags or fewer, to prevent errors caused by exceeding database limits.
+- Fixed an issue compiling on recent Python 3.9 installs.
+- Fixed audio getting stuck when pausing near end (thanks to kelciour).
+- Fixed building on linux-arm64 (thanks to qubist-pixel-ux).
+- Fixed Card Info screen not ignoring manual rescheduling when calculating the average time.
+- Fixed crash when pressing the copy shortcut with no active selection.
+- Fixed current review card sometimes changing when making edits.
+- Fixed deck options tooltip appearance (thanks to Matthias).
+- Fixed escaping of hyphens in searches (thanks to Rumo).
+- Fixed field pin status being forgotten when opening Cards screen (thanks to Henrik).
+- Fixed incorrect card count when removing multiple templates.
+- Fixed incorrect font on Windows (thanks to Kelciour).
+- Fixed resource leak in sound code (thanks to Kelciour).
+- Fixed some instances of a flash when revealing answer on cards with images.
+- Fixed text with single quote not being escaped in export (thanks to Ryan).
+- Fixed various links to the manual (thanks to cherryblossom000).
+- Fixed red duplicate background being included in copy+paste (thanks to Hikaru).
+- Fixed flags not being excluded on export (thanks to Alex).
+- Force x11 mode when the packaged build is run on a system that tells Qt to use
+  Wayland, as Wayland is not currently supported by the packaged build.
+- Numerous behind-the-scenes improvements from Henrik and Rumo.
+- Other fixes and improvements, thanks to Abdo, Glutanimate, Arthur, Shaun,
+  hkr and others.
+- Strip invalid unicode from filenames in media check.
+- Performance improvements and other miscellaneous fixes.
+
+A big thank you to everyone who contributed, including people who contributed translations,
+and those who helped test out the beta releases and provided feedback.
+
+Add-on authors, there are [some notes](https://forums.ankiweb.net/t/add-on-porting-notes-for-anki-2-1-45/11212) on porting add-ons to 2.1.45 available.
+
+## Changes in 2.1.44
+
+Released 2021-05-04.
+
+- Search text is no longer automatically quoted/interspersed with ANDs.
+- Fix two backslashes being treated as one in MathJax.
+
+## Changes in 2.1.43
+
+Released 2021-04-03.
+
+- The reviewing screen will now wait for up to 100ms
+  for images to load before showing, and waits until images
+  have been loaded before scrolling to the answer.
+- The default fade-in on the review screen has been removed.
+- Fix DB check incorrectly identifying an issue after
+  lapsing a card with a non-zero interval % in the V1 scheduler.
+- Fix editing toolbar being initially active (thanks to Henrik).
+- Fix some error messages (thanks to Rumo).
+- Fix expand/collapse triggering click in sidebar (thanks to BlueGreenMagick).
+- Update translations, thanks to the translators.
+- Fix "Forgot Card" message.
+- Fix deck list not updating after deleting.
+
+## Changes in 2.1.42
+
+Released 2021-03-10.
+
+- Fix sync downloads failing when temp folder on separate partition.
+- Fix RTL fields (thanks to Abdo).
+- Fix issues with field focusing and caret positioning (thanks to Henrik).
+- Strip comments when pasting HTML (thanks to Abdo).
+- Don't forget CSV delimeter when canceling dialog (thanks to Benjamin).
+- Fix stale caches after rolling back to a checkpoint (thanks to Rumo).
+
+For build hashes, please see the [GitHub releases
+page](https://github.com/ankitects/anki/releases).
+
+## Changes in 2.1.41
+
+Released 2021-03-07, build 312fa278.
+
+Browser improvements:
+
+- Tags now show in a tree (thanks to Abdo).
+- Added a search bar to the sidebar (thanks to Abdo).
+- New context menu actions to rename or remove tags and their children, rename
+  decks, manage notetypes, and rename/remove saved searches (thanks to Abdo
+  and BlueGreenMagick).
+- The preview button in the browse screen has moved into the editing area (thanks to Henrik).
+- With the improved sidebar, a number of options have been removed from the Filter button.
+- The remaining items in the Filter button have been moved into the sidebar, and
+  the Filter button removed.
+- Tags and decks can now be dragged and dropped in the sidebar.
+- Each section can now be expanded/collapsed.
+- "Due" now shows only cards due that day.
+- Added "Overdue" item.
+- Click on Decks to show whole collection.
+- Click on Flags to show any flag.
+- Click on Tags to show all non-empty tags.
+- Added "Untagged" under Tags.
+
+Editing improvements:
+
+- `&lt;br&gt;` tags will now be used by default instead of the previous `&lt;div&gt;`
+  tags, which solves some issues with multiple lines in cloze deletions and
+  MathJax (thanks to Henrik).
+- The tags field in the editor now autocompletes from anywhere in a tag name,
+  not only the start.
+- Invalid field content can no longer spill out into the editing area (thanks to Henrik).
+
+Search improvements:
+
+- Searches are now rewritten into a canonical format (eg `one two` becomes
+  `"one" AND "two"`) (thanks to Rumo).
+- Search error messages are now much more specific (thanks to Rumo).
+- is:learn, is:due and prop:due now handle more cases, such as suspended cards
+  (thanks to Henrik).
+- Added prop:pos search to search for new card position (thanks to Abdo).
+- Added a shortcut to replace part of a search with a different search
+  (eg changing the selected deck) (thanks to Rumo).
+- Support resched:x for searching for cards that were manually rescheduled
+  in x days (thanks to Henrik).
+- Support prop:rated/resched to search for rated/rescheduled cards over
+  specific time periods (thanks to Henrik).
+- Filtered decks can now be created from a browser search, and vice versa (thanks to Rumo).
+- Filtered deck screen now has a link to show cards not matched by search (thanks to Rumo, Abdo).
+- Better ergonomics for developers (thanks to Rumo).
+
+Graph improvements:
+
+- A number of the graphs can now be clicked on to search for the cards
+  displayed by the graph (thanks to Henrik).
+- The starting day of week can now be altered in the Calendar graph (thanks to Henrik).
+- The Card Counts graph now supports toggling separate suspended/buried counts (thanks to Henrik).
+- The intervals and ease graphs now covers more cases, such as suspended cards
+  (thanks to Henrik).
+- Place less emphasis on outliers in the Calendar graph (thanks to Henrik).
+- Ignore manually scheduled cards in hour graph.
+
+Scheduler improvements:
+
+- The V2 scheduler no longer applies parent review limits to child decks.
+  Previously the limits were inconsistently applied, which could lead to the
+  deck list not reflecting the actual number of cards you'd receive when you
+  clicked on a deck. AnkiMobile and AnkiWeb have been updated to match this
+  behaviour, and AnkiDroid will also be updated soon. Using 2.1.41 in
+  conjunction with older clients will not cause any problems when syncing, but
+  you may find the deck list/review counts do not match.
+- The V1-&gt;V2 upgrade process no longer resets cards that are in learning, or
+  removes cards from filtered decks.
+- Users on the old scheduler will now see a message at the top of the deck
+  list prompting them to update to the Anki 2.1 scheduler.
+- There is no option to downgrade to the V1 scheduler anymore, though you can
+  still do so by downgrading to an older Anki version first.
+
+Reworked the Reschedule tool:
+
+- Split into separate "Forget" and "Set Due Date" actions
+- "Set Due Date" defaults to not adjusting the card interval.
+- Changed the "Delete Tags" shortcut; Ctrl+Shift+D now changes the due date.
+- Added the action to the review screen as well.
+- Input now remembered.
+
+Other changes:
+
+- A basic sync server is now built into Anki. It does not yet support
+  media. Docs are in the docs/ folder of the source tree.
+- The title bar on Macs will now turn dark when night mode is activated.
+- Deck descriptions of the congratulations screen can be enabled by turning markdown
+  on in the deck options, but only 2.1.41+ will be able to render the markdown.
+- Add opus to media list in editor.
+- Edit/More buttons auto-hide when window is small (thanks to Henrik).
+- Support Alt+number to switch between clozes in the card layout screen (thanks to Abdo).
+- Use monospace font in HTML editor.
+- Improve error message when trying to nest under a filtered deck (thanks to Rumo).
+- Reposition dialog's "shift cards" option now defaults to off.
+- Other fixes and improvements thanks to Henrik, Rumo, Abdo, Arthur, Maksim, Guillem,
+  stayingpeachy, Daniel, khonkhortisan and Kerrick.
+
+Fixes:
+
+- Fix the Reposition command not preserving the browser sort order.
+- Fix some issues causing the sync indicator to show unnecessarily (thanks to Rumo).
+- Fix slowdown after large "check media" report.
+- Fix a spurious warning about a full sync when renaming card templates.
+- Fix a freeze when answering a card with a missing parent deck.
+- Fix Anki not working after installing on Linux over a previous install.
+- Don't log card resets when exporting.
+- Fix congrats screen not showing when learning cards were due soon.
+- Updated bundled lame and mpv on Windows and Mac builds.
+
+For developers:
+
+- Add-on authors, please see
+  [https://forums.ankiweb.net/t/add-on-porting-notes-for-anki-2-1-41/7390](https://forums.ankiweb.net/t/add-on-porting-notes-for-anki-2-1-41/7390)
+- Almost all of the Python codebase now has type hints. 🎉
+- JS libraries like jQuery have been updated (thanks to Henrik).
+- Add (untested) support for ARM64 Linux.
+- orjson is turned back into an optional requirement (though is still
+  recommended, as it's faster).
+- The sidebar code has been moved from from browser.py into sidebar.py, which
+  may break some add-ons.
+
+## Changes in 2.1.40
+
+Released 2021-02-07, build cf446733.
+
+- Fixed backup not being made when choosing "Download" when syncing.
+- Fixed a slowdown after importing.

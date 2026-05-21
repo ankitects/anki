@@ -1,0 +1,218 @@
+---
+title: "Changes in 2.1.60 to 69"
+description: "Migrated from ankitects/anki-changes for the Mintlify documentation POC."
+---
+
+# Changes in 2.1.60 to 69
+
+
+
+## Changes in 2.1.66
+
+- Windows and Mac builds have been updated to the latest toolkit version,
+which will hopefully fix some crashes/bugs.
+- The v3 scheduler is now the default for new users.
+- When imports complete, a summary window is now shown (thanks to Abdo).
+- Use a different approach for detecting copy+paste from Anki fields, which may fix some crashes.
+- The minimalist/reduce motion toggles should no longer affect card content.
+- Media check now automatically extracts images that have been embedded in fields.
+- Handle importing of legacy AnkiDroid backups.
+- The built-in sync server can now be built without Python if you prefer.
+- Add keyboard shortcut for legacy stats (thanks to Luc).
+- Accessibility improvements (thanks to Derek and Kenny).
+- Fix addon update dialog showing twice (thanks to Rumo).
+- Fix bold toggle not working in certain circumstances (thanks to mmjang).
+- Align code blocks to left (thanks to shunlog).
+- Make weekday font smaller for Chinese locale (thanks to mmjang).
+- Improve performance of invalid ID fix in DB check.
+- Fix main window geometry/state not being restored in some cases (thanks to Abdo).
+- Handle invalid float mtimes in DB check.
+- Fix total note count not being logged in apkg import.
+- Report actual error when DbError occurs.
+- Fix two issues with MathJax editor (thanks to Hikaru).
+- Don't fail silently when an empty csv is imported.
+- Fix two issues that can cause editor fields to behave incorrectly (thanks to Hikaru).
+- When cards are in intraday learning queue, don't use original due.
+- Fix "Add-ons possibly involved" message never appearing on Windows (thanks to Abdo).
+- Add partial support for Hangul keyboard shortcuts during review (thanks to Christopher).
+- Disable add-on buttons when no field is focused by default (thanks to Abdo).
+- Fix toggleable editor button styles (thanks to Abdo).
+- Fixed a sporadic error in the review screen (thanks to mjuhanne).
+- Fixed an error that could occur when syncing between newer and older clients.
+- Fixed tab order in find&replace screen (thanks to Gabriel).
+- Various other minor fixes and behind-the-scenes changes.
+
+Dev related:
+
+- Fix incorrect handling of locals in debug console (thanks to Rumo).
+- Add did-add-field-hook analogous to did-delete-field (thanks to 3ter).
+- Fix run-qt5.15.bat (thanks to Hikaru).
+- Support more mime types for add_extension_based_on_mime (thanks to BenYip).
+- Make set_config_help_action work with submodules (thanks to Abdo).
+- Exclude Fabric's large canvas dependency (thanks to Kavel).
+
+## Changes in 2.1.65
+
+- Default to current deck in csv import if settings allow it.
+- Disable Toggle Bury when nothing is selected (thanks to Abdo).
+- Fix broken window styling when installation path includes certain Latin1 chars on Windows.
+- Fix illegible tooltips when system in dark mode on some Linux installs.
+- Fix incorrect font sizes on X11 when fractional scaling in use.
+- If the old Anki uninstaller fails, allow installation to proceed.
+- Improve phrasing in dialog that asks which deck's options should be shown (thanks to chrissy0).
+- Fix some add-on installation errors not being reported (thanks to Abdo)
+- Add add-on installation hooks (thanks to Abdo).
+
+## Changes in 2.1.64
+
+Functional changes:
+
+- The Windows installer no longer requires admin access (thanks to Martin). The first time you
+  update, you'll need to run the installer again after uninstall completes.
+- Allow the user to configure answer keys in the preferences, fixing conflicts (thanks to Ren).
+- Preload embedded fonts to prevent flicker, and tweak wait time for image preloading (thanks to Hikaru).
+- Add the ability to search for FSRS scheduling properties, eg. `prop:cdn:d&gt;0.5` to search
+  for the difficulty &gt; 0.5.
+- Window positions, state and browser headers are now reset each time the Qt version changes,
+  which should fix a number of crashes that users were reporting.
+- Add-on shortcuts will now override Anki defaults (thanks to Ren).
+
+Fixes:
+
+- Fix media files being imported incorrectly when importing an .apkg file exported without support for older
+  Anki versions.
+- Increase the number of supported fields in the editor (thanks to Hikaru).
+- Attempt to work around intermittent color setting failures in Qt6.5 on macOS.
+- Fix ugly text rendering on Wayland when using fractional scaling.
+- Fix inability to import csv when path contains single quote.
+- Show an error pop-up when csv import screen fails to load.
+- Don't disable animations on card templates when reduce motion is on.
+- Fix an error in the console when resizing windows (thanks to Austin)
+- Fix a panic when user sets a huge learning step.
+- Fix page scrolling when input box loses focus (thanks to Hikaru).
+- Fix failure to start on Windows when path contains non-Latin text.
+- Fix due/ivl prop queries not working in filtered decks.
+- Make some collection methods public in the Rust API (thanks to Joel).
+
+## Changes in 2.1.63
+
+- Add alternative review shortcuts (h,j,k,l,u) (thanks to Ren).
+- Add an option in the preferences to stop spacebar from rating card (thanks to Ren).
+- Prevent change in image aspect ratio in editor when images have an explicit size set (thanks to Matthias).
+- Fix custom sync URL not working with subpaths (thanks to XeR).
+- Fix fcitx5 failing to work in Linux Qt6 build.
+- Fix some buttons in the deck options screen being illegible when hovering.
+
+## Changes in 2.1.62
+
+- Update macOS/Linux builds to Qt 6.5, and update Windows build to Qt 6.4.3.
+  - The minimum macOS version for the Qt6 build is now macOS 11.
+  - If you are on Linux and don't have ANKI_WAYLAND set, you may need to install
+```text
+libxcb-cursor or Anki will fail to start. Eg on Debian/Ubuntu:
+```
+
+```text
+sudo apt install libxcb-cursor0
+```
+
+- Add an option to fully randomize reviews in the V3 scheduler.
+- Add a new option to the card templates screen to restore a notetype to the
+  default fields/templates/styling.
+- Add clearer tooltip to hourly breakdown graph (thanks to Rumo).
+- Fix focus loss when closing HTML editor (thanks to Hikaru).
+- Prevent MathJax editor from closing when you selected text with the mouse and
+  released the mouse button outside the window (thanks to Hikaru).
+- Pass original deck name to custom scheduling code, instead of filtered deck
+  name.
+- When importing an .apkg where notetypes have changed, display a clearer
+  message, and only if the notes in the incoming collection are newer.
+- Fix MathJax editor not being sized correctly (thanks to Hikaru).
+- Fix a flicker when dropdowns shown with reduce motion on (thanks to Hikaru).
+
+## Changes in 2.1.61
+
+Improvements to the V3 scheduler:
+
+- Added a global option to stop the review limit from limiting new cards (thanks
+  to Rumo).
+- You can now enable review burying without new burying again (thanks to Rumo).
+  There are some caveats - please see the bury tooltips in the deck options.
+- Ensure good is at least previous+1 even if low hard factor set.
+
+Other features/improvements:
+
+- You can now exclude certain fields from unqualified searches via the Fields
+  screen (thanks to Abdo).
+- The tag area in the editor is now shown with a dropdown instead of a splitter
+  (thanks to Matthias).
+- You can now adjust the current deck in the stats screen (thanks to yellowjello).
+- Add a button in the preferences to reset window sizes (thanks to Abdo).
+- Passing an invalid profile name on the commandline will now show profile
+  picker instead of an error.
+- You can shift-click on a deck to select it as the current deck (thanks to
+  Tobias).
+- You can now import decks with broken timestamps - they'll automatically be
+  fixed on import (thanks to Rumo).
+- A DB check will now fix broken timestamps (thanks to Rumo).
+- Add time of date to browser date.
+- Allow Shift+Tab to move focus from tag area to last field (thanks to Hikaru).
+- Custom schedulers now have the deck name and random seed passed in to them, so
+  they don't need to extract the info from the DOM (thanks to Rumo).
+- Improve debug console (thanks to Rumo).
+
+Fixes:
+
+- Fix stats calendar incorrect due to daylight savings time (thanks to Kieran).
+- Prevent the top bar from hiding in the stats page as you scroll down (thanks
+  to Fabricio).
+- Reduce motion is now on by default, as it fixes an issue with the bottom bar
+  failing to appear for some users.
+- Fix new limit in v3 decreasing more than it should (thanks to Rumo).
+- Fix current tag text not being saved when changing note via shortcut key
+  (thanks to Hikaru).
+- Fix tags popover becoming separated from the tags field (thanks to Fabricio).
+- Ensure the bottom buttons aren't displayed until the custom scheduling code
+  has finished running (thanks to Rumo).
+- Refresh study screen if the user toggles the v3 scheduler (thanks to Rumo).
+- Fix notetypes screen not being closable after adding a notetype on Mac.
+- Check for division by zero when calculating browser aspect ratio, which fixes
+  an issue with i3 (thanks to Ben).
+- Fallback to Wayland if X11 is not available (thanks to Ingemar).
+- Tweaks to the build scripts to make packaging in distros easier (thanks to
+  Euan).
+- Fix silent file save failures and bad default save path in Flatpak (thanks to
+  Jack).
+- Fix HTML editor sometimes not properly sized when opening editor (thanks to
+  Hikaru).
+- Fix error showing if user clicks in sidebar before it's rendered.
+- Fix backup creation for collections &gt; 1 GiB (thanks to Rumo).
+- Fix black on grey minimalist buttons in Qt5 (thanks to Daniel).
+- Fix black on grey deck options on Qt5 (thanks to Daniel).
+- Export static references from sound tags (thanks to Rumo).
+- Fix packaged audio tools path on Windows (thanks to Abdo).
+- Fix a case where 'reduce motion' and 'minimalist mode' were switched (thanks
+  to Daniel).
+- Fix panic with invalid sync server URL with port (thanks to Daniel).
+- Fix double scrollbars in deck options (thanks to Fabricio).
+- Fix images with non-Latin text and commas failing to display.
+- Fix editor text possibly being transfer to different notetypes (thanks to
+  Fabricio).
+- Improve hover appearance of buttons (thanks to Matthias).
+- Fix inability to activate search in graphs screen on Android (thanks to
+  yellowjello).
+- Fix an issue building on Windows (thanks to Kieran).
+
+## Changes in 2.1.60
+
+If updating from 2.1.57 or earlier, please see the important note in the 2.1.58 change notes.
+
+- Add button to tag notes with missing media (thanks to Rumo).
+- Fix slow editor startup for users with lots of fields (thanks to Hikaru).
+- Fix a regression in 2.1.58 that broke TTS add-ons (thanks to Rumo).
+- Fix HTML editor hiding when shown by default (thanks to Fabricio).
+- Fix some widgets not indicating they're disabled (thanks to Matthias).
+- Fix deck options selector not updating the current entry sometimes (thanks to Fabricio).
+- Fix type box losing focus when switching IMEs (thanks to Hikaru).
+- Fix 'toggle bury' not updating for automatically-buried cards.
+- Improvements to lifecycle handling for add-ons accessing Svelte components (thanks to Matthias).

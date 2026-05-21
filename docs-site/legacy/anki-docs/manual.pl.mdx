@@ -1,0 +1,2650 @@
+---
+title: "Manual.Pl"
+description: "Migrated from ankitects/anki-docs for the Mintlify documentation POC."
+---
+
+# Manual.Pl
+
+```text
+++++++++++++++++++++++++++++++
+<h1>Anki 2.0 Podręcznik użytkownika</h1>
+
+<script>
+    document.getElementById("navmanual").className += " active";
+</script>
+++++++++++++++++++++++++++++++
+
+Filmy instruktażowe
+===================
+
+ * http://www.youtube.com/watch?v=QS2G-k2hQyg&feature=plcp[Udostępniane talie i podstawy powtórek]
+ * http://www.youtube.com/watch?v=DnbKwHEQ1mA[Zmiana kolejności kart]
+ * http://www.youtube.com/watch?v=F1j1Zx0mXME[Ostylowywanie kart]
+ * http://www.youtube.com/watch?v=5tYObQ3ocrw[Pisanie odpowiedzi w czasie powtórki]
+
+Tłumaczenia
+===========
+
+Ta strona została również przetłumaczona na:
+
+ * https://web.archive.org/web/20160423223801/http://192.167.9.6/Anki_ITA/Manual_ITA.htm[Włoski]
+ * http://wikiwiki.jp/rage2050/?FrontPage[Japoński]
+ * https://apps.ankiweb.net/docs/manual.fr.html/[Francuski]
+
+Wprowadzenie
+============
+
+:website: https://apps.ankiweb.net/[Oficjalna strona Anki]
+:ankiweb: https://ankiweb.net/
+
+Anki jest programem, który sprawia, że zapamiętywanie różnych rzeczy staje się łatwe. Anki posługuje się metodą nauki, która jest dużo bardziej wydajna niż metody tradycyjne i sprawi, że spędzisz na nauce dużo mniej czasu albo w tym samym czasie co dotąd nauczysz się dużo więcej. 
+
+Anki przeznaczone jest dla każdego, kto w codziennym życiu musi lub chce zapamiętać dużo ilość informacji. Anki potrafi przechowywać nie tylko tekst, ale także zdjęcia, dźwięki, filmy i dane w języku LaTeX, więc jego możliwości są tak naprawdę nieograniczone. Przykładowo:
+
+ - nauka języków obcych,
+ - nauka na egzamin z medycyny czy prawa,
+ - zapamiętywanie imion i twarzy nowopoznanych osób,
+ - nauka geografii,
+ - nauka długich wierszy,
+ - a nawet ćwiczenie akordów gitarowych!
+
+Anki opiera się na dwóch prostych koncepcjach jest to tzw. active recall testing (aktywne przywoływanie) oraz SRS (powtórki w interwałach). Koncepcje te nie są znane większości uczących się, pomimo tego, że zostały opisane w literaturze naukowej już wiele lat temu. Zrozumienie sposobu ich działania ułatwi ci efektywną naukę.
+
+[[active-recall]]
+Active Recall Testing
+---------------------
+
+'Active recall testing' polega na zwyczajnym odpytywaniu i udzielaniu odpowiedzi na dane pytanie, a następnie. W przypadku podania błędnej odpowiedzi użytkownik stara się zapamiętać tę poprawną. Metodę tę można określić mianem nauki aktywnej. Nauka pasywna polega na czytaniu, oglądaniu i słuchaniu bez przerw na udzielenie odpowiedzi lub zastanowienie czy znamy odpowiedź na dane pytanie. Badania wskazują, że 'Active recall testing' jest metodą bardzo efektywną i tworzy w pamięci silne związki pomiędzy informacjami, dużo mocniejsze niż w przypadku nauki metodami pasywnymi. Dwie główne przyczyny takiego stanu:
+
+ - czynność przywoływania czegoś w pamięci wzmacnia ją, tym samym wzrastają szansą na przypomnienie sobie danej informacji w przyszłości
+ - w przypadku, gdy nie potrafisz udzielić poprawnej odpowiedzi na zadane pytanie, powrócimy do niego za jakiś czas 
+
+Całkiem możliwe, że choć nieświadomie, używałeś już tej metody nauki w szkole. Przykładowo, gdy nauczyciel w szkole zadawał serię pytań do jakiegoś tekstu. Podobną rolę pełnią tradycyjne sprawdziany. Mają na celu nie tylko sprawdzenie postępów w nauce, ale również po raz kolejny przypomnienie pewnych informacji, tak ażeby łatwiej powrócić do nich w przyszłości.
+
+Dobrym sposobem na włączenie metody 'Active recall testing' do nauki jest zastosowanie 'fiszek'. Na tradycyjnych, papierowych fiszkach z jednej strony piszesz pytanie, z drugiej zaś - odpowiedź. Fiszkę obraca się dopiero w momencie udzielenia odpowiedzi na zadane pytanie, tym samym nauka jest dużo bardziej efektywna niż zwykła pasywna obserwacja.
+
+Używaj lub porzuć
+-----------------
+
+Mózg stara się pracować jak najwydajniej, dlatego też ignoruje informacje, które wydają się być bezużyteczne. Dlatego najpewniej nie pamiętasz kompletnie co jadłeś na obiad tydzień temu w poniedziałek. Ta informacja jest po prostu, w tej chwili, bezużyteczna. Jeśli jednak tego dnia byłeś w rewelacyjnej restauracji, a potem przez dwa tygodnie opowiadałeś o niej znajomym to dzisiaj będziesz pamiętał większość szczegółów związanych z tym wydarzeniem.
+
+Mózg działa właśnie na zasadzie 'używaj lub porzuć' i takie działanie stosowane jest względem wszystkiego co dotąd poznałeś i nauczyłeś się. Gdybyś dzisiaj spędził całe popołudnie bez przerwy zakuwając terminy naukowe do jutrzejszego egzaminu, ale przez następne dwa tygodnie w ogóle o nich nie myślał, prawdopodobnie zapomniałbyś już większość materiału. Badania wskazują, że w ciągu 48 godzin od nauki możemy zapomnieć nawet 75% poznanych wtedy informacji. Fakt ten jest tym bardziej przygnębiający, gdy trzeba nauczyć się jakiegoś obszernego materiału.
+
+Rozwiązanie tego problemy jest stosunkowo proste: powtórki. Poprzez powtarzanie nowo poznanych informacji jesteśmy w stanie znacząco ograniczyć proces zapominania.
+
+Problemem w przypadku użycia papierowych fiszek jest zazwyczaj ich nieporęczność. Oczywiście talia posiadająca 30 kart nie sprawia żadnych trudności w użyciu. Jednak zazwyczaj nasza talia zaczyna szybko rosnąć i z 30 robi się 300, a potem 3000 kart.
+
+[[spaced-repetition]]
+Spaced Repetition
+-----------------
+
+'Efekt interwałów' został pierwszy raz opisany w 1885 roku przez niemieckiego psychologa Hermanna Ebbinghausa w książce 'Über das Gedächtnis. Untersuchungen zur experimentellen Psychologie' ('O pamięci. Eksperymentalne badania psychologiczne.'). Ebbinghaus w swoich badaniach zauważył, że informacje zapamiętywane są efektywniej, gdy powtórki rozproszone są na przestrzeni czasu, zamiast skonsolidowane do jednej, ciągłej sesji nauki. Do lat 30. XX wieku powstało wiele różnych teorii na temat wykorzystania tego faktu. Najpopularniejszą metodą, która wykrystalizowała się w tamtym czasie jest 'spaced repetition' czyli 'powtórki w interwałach'.
+
+W 1972 roku niemiecki naukowiec i publicysta Sebastian Leitner zasłynął dzięki opracowaniu naukowej systematyki psychodydaktycznej bazującej na fiszkach. Metoda ta polega na podziale fiszek pomiędzy osobne pudełka w zależności od stopnia opanowania danego pytania. Karty w każdym z pudełek powtarzane są w różnych interwałach. Dzięki takiemu podziałowi możliwa jest szybka, zgrubna ocena stopnia opanowania materiału. Takie rozwiązanie stanowiło duży postęp w stosunku do wcześniej stosowanego jednego pudełka i zostało ono szybko zaadoptowane i przekształcone do postaci prostego oprogramowania komputerowego. Wykorzystanie trzech 'pudełek' jest jednak stosunkowo niedokładne i nie daje możliwości precyzyjnego określenia dnia, w którym powinna nastąpić kolejna powtórka.
+
+Na przestrzeni ostatnich 30 lat największy postęp w dziedzinie 'powtórek w interwałach' dokonał się dzięki twórcom programu SuperMemo, płatnego oprogramowania do nauki fiszek z wykorzystaniem interwałów. 
+
+-----
+SuperMemo jest rozwijane od 1985 r. Autorami modelu teoretycznego, na którym została oparta ta metoda, byli dwaj polscy naukowcy z Akademii Medycznej w Poznaniu: dr Piotr Woźniak (biolog i informatyk) oraz dr Edward Jacek Gorzelańczyk (lekarz i biochemik, obecnie dr hab., profesor UKW w Bydgoszczy). Implementacją i komercyjnym zastosowaniem metody zajął się jednak wyłącznie Piotr Woźniak, do którego dołączył fizyk dr Janusz Murakowski.
+
+Źródło: Wikipedia.pl
+-----
+
+SuperMemo wdrożyło system, który na bieżąco śledzi postęp w nauce każdej karty, określa dokładny czas, w którym powinna nastąpić powtórka oraz optymalizuje go w odniesieniu do wcześniejszych wyników w nauce.
+
+Za każdym razem, gdy powtarzasz informacje z wykorzystaniem SuperMemo określasz jak dobrze je zapamiętałeś - całkowicie zapomniałeś, zrobiłeś mały błąd, zapamiętałeś, ale z pewną trudnością czy zapamiętałeś bez żadnego problemu itd. Program przetwarza te informacje i określa optymalny moment, w którym powinna zostać ponownie wyświetlona dana fiszka. Przy każdej poprawnej odpowiedzi informacja coraz bardziej utrwala się w pamięci, a czas pomiędzy kolejnymi powtórkami zwiększa się - najpierw widzisz fiszkę pierwszy raz, następnie powtarzasz ją za 3 dni, potem za 15, 45 i tak dalej. 
+
+Takie podejście było swego rodzaju rewolucją w uczeniu. Ograniczało ono czas nauki i zapamiętywania informacji do absolutnego minimum. Slogan SuperMemo to: 'ucz się szybko i zapomnij o zapominaniu'.
+
+Dlaczego właśnie Anki?
+----------------------
+
+Na pewno nie można zaprzeczyć wielkiemu wkładowi SuperMemo do nauki z wykorzystaniem fiszek. Program ten jest jednak często krytykowany za błędy i skomplikowaną obsługę. Poza tym działa jedynie pod kontrolą systemu Windows. Jest to oprogramowanie komercyjne i zamknięte. Oznacza to, że użytkownik końcowy nie może w nim dokonywać zmian i nie ma dostępu do kodu źródłowego. Starsze wersje są co prawda darmowe jednak nie posiadają one wielu nowoczesnych funkcji, tym samym ograniczone jest ich zastosowanie. 
+
+W Anki uwzględnione zostały właśnie wspomniane kwestie. Program udostępniony jest za darmo, bez żadnych dodatkowych opłat, dla wielu systemów operacyjnych. Dzięki licencji open-source możliwe było stworzenie całej biblioteki dodatków i rozszerzeń tworzonych przez użytkowników, które dodatkowo dostosowują Anki do ich konkretnych potrzeb. Anki działa pod kontrolą systemów Windows, Mac OSX, Linux/FreeBSD i na większości współczesnych urządzeń mobilnych - smartfonach oraz tabletach. W dodatku, jego obsługa jest o wiele prostsza niż SuperMemo.
+
+System powtórek w interwałach Anki jest oparty na wcześniejszej wersji algorytmu Supermemo o nazwie SM2. Późniejsze wersje 'wycisnęły' trochę więcej w kwestii efektywności nauki, niestety kosztem wzrastającej złożoności i podatności na błędy w harmonogramowaniu powtórek. Jeśli chcesz poznać więcej informacji na ten temat zajrzyj do linków umieszczonych na dole tego podręcznika. 
+
+[[basics]]
+Podstawy
+========
+
+Karty
+-----
+
+Para odpowiedź - pytanie nazywa się kartą. Taka nazwa odnosi się do zwykłej, papierowej fiszki z pytaniem po jednej i odpowiedzią po drugiej stronie. W Anki karta nie ma wyglądu fizycznej kartki papieru, ale jeśli w czasie powtórki wyświetlisz pytanie i odpowiedź, to ich układ będzie przypominał właśnie taką papierową fiszkę. Przykładowo ucząc się podstaw chemii, możesz mieć następujące pytanie:
+
+-----
+Pytanie: Symbol chemiczny tlenu?
+-----
+
+Po namyśle, że prawidłową odpowiedzią jest O, klikniesz przycisk odpowiedzi a Anki wyświetli wtedy:
+
+-----
+Pytanie: Symbol chemiczny tlenu?
+Odpowiedź: O
+-----
+
+Po wyświetleniu odpowiedzi ocenisz jak dobrze ją pamiętałeś. Na tej podstawie Anki sam określi czas za jaki ma być ponownie wyświetlona ta fiszka.
+
+Talie
+-----
+
+Talia to zbiór kart. Możesz umieszczać karty w różnych taliach, w ten sposób możesz uczyć się jedynie wybranej części kart w swojej kolekcji, zamiast uczyć się wszystkiego na raz. Każda talia może posiadać swoje własne ustawienia np. liczbę nowych kart w danym dniu, albo czas oczekiwania na ponowne pojawienie się karty np. jeśli popełniłeś błąd.
+
+Talie mogą zawierać w sobie inne talie, pozwoli ci to stworzyć strukturę drzewa.
+Aby tworzyć różne poziomy talii Anki używa podwójnego dwukropka "::". Talia o nazwie "Chiński::Hanzi::Lekcja 1" odnosi się do talii "Lekcja 1", która jest częścią talii "Hanzi", która z kolei jest częścią talii "Chiński". Wybierając "Lekcję 1" przejrzysz tylko te karty, które należą bezpośrednio do niej. Jeśli wybierzesz talię "Chiński", będziesz wtedy przeglądał kolejne lekcje.
+
+Aby stworzyć strukturę drzewa, możesz nazywać talię z wykorzystaniem znaku "::" na każdym z poziomów lub po prostu przesuwając talie kursorem metodą "chwyć i upuść".
+
+Pierwszą dostępną po instalacji Anki talią jest "default"; wszystkie karty, które w jakiś sposób nie zostały zaszeregowane do innych talii będą domyślnie zapisywane właśnie w talii "default". W sytuacji, gdy dodasz do Anki nowe talie, a talia domyślna nie będzie zawierała żadnych kart zostanie ona ukryta. Możesz także dowolnie dostosować nazwę talii domyślnej do własnych potrzeb.
+
+Talie służą do przechowywania jak najszerszego zakresu informacji, nie zaś po to, by przechowywać w nich specyficzne tematy np. "jedzenie rzeczowniki" lub "lekcja 1". Więcej informacji na ten temat znajduje się w rozdziale dotyczącym <<manydecks, prawidłowego używania talii>>.
+
+Jeśli chcesz się dowiedzieć jak talie oddziaływują na kolejność wyświetlania kart, proszę zapoznaj się z <<displayorder, odpowiednim rozdziałem>>.
+
+Notatki
+-------
+
+Podczas tworzenia fiszek, często niezbędne jest stworzenie więcej niż jednej karty, która będzie odnosiła się do tej samej informacji. Przykładowo, ucząc się francuskiego poznasz słowo "bonjour" oznaczające "cześć". W tym przypadku możesz chcieć stworzyć jedną kartę, która pokaże ci słowo "bonjour" i zapyta o jego tłumaczenie oraz drugą kartę, pokazującą słowo "cześć" pytającą o tłumaczenie na język francuski. Jedna karta ćwiczy twoją zdolność rozpoznawania obcych słów, zaś druga, przeciwnie, na przypisywanie polskim słowom ich obcego znaczenia.
+
+Używając do nauki papierowych fiszek jedynym sensownym rozwiązaniem jest napisanie tych samych informacji na dwóch osobnych kartach, tak żeby móc podzielić twoją naukę na tę związaną z rozpoznawaniem i przypisywaniem. Niektóre programy komputerowe do obsługi fiszek ułatwiają ten proces poprzez funkcje 'odwrócenia' karty. Tym samym tworzona jest karta 'standardowa' i 'odwrotna'. Jest to co prawda postęp w stosunku do papierowej wersji, ale takie rozwiązanie posiada dwie podstawowe wady: 
+
+ * Karta 'standardowa' i 'odwrotna' będą posiadały takie same interwały powtórki, ze względu na brak ich rozgraniczenia. Oznacza to, że karty nie będą powtarzane w optymalnym czasie tzn. będziesz się łatwiej zapomniał informacje albo uczył się danej informacji więcej razy niż to konieczne.
+ * Odwrócenie karty ma sens tylko, gdy na obu kartach- 'standardowej' i 'odwrotnej', chcesz mieć dokładnie te same informacje. Oznacza to, że nie ma możliwości na dodanie jakichś dodatkowych informacji na którejś z kart.
+
+Anki rozwiązuje te problemy poprzez podział informacji zawartych w karcie na 'kawałki' informacji. Możesz określić Anki które z tych kawałków mają być wyświetlane na każdej karcie. Program wygeneruje wtedy dokładnie taką kartę jaką określiłeś , a także zaktualizuje ją w przypadku wprowadzenia jakichkolwiek poprawek w przyszłości. 
+
+Notatkę można zatem zdefiniować jak zbiór pól, w których przechowywane są informacje. Na podstawie pól tworzone są karty, które przy zastosowaniu Szablonu (mowa o nim będzie w kolejnym podrozdziale) mogą posiadać różną budową.
+
+Wyobraź sobie, że uczysz się francuskich słówek i na każdej 'tylnej' stronie karty chcesz umieścić numer strony, z której pochodzi dane słówko. Karty 'standardowa' i 'odwrotna' będą wyglądały zatem w taki sposób:
+
+-----
+P: Bonjour
+O: Cześć
+   Strona 12
+-----
+
+Oraz:
+
+-----
+P: Cześć
+O: Bonjour
+   Strona 12
+-----
+
+W tym przykładzie mamy trzy 'kawałki' powiązanych ze sobą informacji: słówko francuskie, znaczenie polskie oraz numer strony. Jeśli złożymy je razem będą prezentowane w następujący sposób:
+
+-----
+Francuski: Bonjour
+Polski: Cześć
+Strona: 12
+-----
+
+W Anki taki zbiór informacji nazywany jest notatką, a każdy z tych kawałków tworzących notatkę 'polem'. Tak więc w tym typie notatki mamy utworzone trzy pola: Francuski, Polski i Strona.
+
+Szablon karty
+-------------
+
+Aby stworzyć karty, musimy zaprojektować pewien szablon, który wskaże jakie informacje mają być wyświetlane na przedniej i tylnej stronie każdej karty. Innymi słowy, będzie określał w jaki sposób na karcie będą prezentowane pola notatki. Różne typy notatek mogą posiadać różne szablony.
+
+W powyższym przykładzie z językiem francuskim chcieliśmy aby karta standardowa wyglądała w ten sposób: 
+
+-----
+P: Bonjour
+O: Cześć
+   Strona 12
+-----
+
+Aby to zrobić, musimy stworzyć szablon pytania i odpowiedzi:
+
+-----
+P: {{Francuski}}
+O: {{Polski}}<br>
+   Strona {{Strona}}
+-----
+
+Nazwa pola umieszczona w nawiasie klamrowym jest sygnałem dla Anki, że w tym miejscu ma zostać wyświetlona informacja, która jest przechowywana w tym polu. Tekst znajdujący się poza nawiasami klamrowymi będzie taki sam dla każdej karty.
+
+Symbol <br> pochodzi z języka HTML, Anki interpretuje go jako komendę wstawienia nowej linii. Więcej informacji na ten temat dostępnych jest w sekcji Karty i szablony.
+
+Zauważ proszę, że nie musimy wpisywać "Strona 12" podczas tworzenia szablonu - informacja o stronie pobierana będzie z pola 'Strona' w przypadku każdej karty z osobna i automatycznie wyświetlana razem z odpowiedzią.
+
+Szablon karty odwrotnej tworzymy w bardzo podobny sposób co karty standardowej. Zamieniamy jedynie kolejność pól.
+
+-----
+P: {{Polski}}
+O: {{Francuski}}<br>
+   Strona {{Strona}}
+-----
+
+Gdy raz stworzymy szablon i zaczniemy dodawać notatki to wszystkie powstałe na ich podstawie karty będą opierały się na tym samym szablonie. Dzięki szablonom nie trzeba formatować wyglądu każdej z kart, takie podejście znacząco zmniejsza wysiłek związany z wprowadzaniem informacji. Taki sposób tworzenia kart sprawia, że Anki wie o ich spokrewnieniu i podczas powtórki odsuwa je od siebie w czasie. Jeśli przy wprowadzaniu informacji do pól w notatce popełnimy jakiś błąd, to wystarczy poprawić go tylko raz, aby wszystkie karty wygenerowane na podstawie tej notatki także zostały poprawione.
+
+Aby dodać lub edytować szablon kliknij przycisk "Karty..." podczas dodawania lub edytowania notatki.
+
+Typy notatek
+------------
+
+Anki pozwala na stworzenie różnych typów notatek dla różnego rodzaju materiału do nauki. Każdy typ notatki posiada własne pola i szablony. Najlepszym rozwiązaniem jest tworzenie nowego rodzaju notatki dla każdego z obszernych tematów do nauki. Na powyższym przykładzie moglibyśmy stworzyć typ notatki o nazwie "Francuski". Jeżeli chcielibyśmy się uczyć stolic państw świata stworzylibyśmy osobny typ notatki z polami o nazwie "Kraj" i "Stolica".
+
+Anki posiada funkcje wyszukiwania duplikatów notatek. Są one jednak porównywane tylko w obrębie tego samego typu notatki. Oznacza to, że jeżeli dodałbyś notatkę ze stolicą o nazwie Pomarańcza (typ notatki Kraj-Stolica), to nie zostałby wykazany duplikat w stosunku do notatki odpytującej cię o słowo Pomarańcza w języku francuskim (typ notatki Francuski). 
+
+Przy tworzeniu nowej talii Anki prawdopodobnie połączy ją ze standardowym typem notatki. Taki typ notatki ma na celu przede wszystkim łatwiejsze wprowadzenie do programu nowych użytkowników. Jeżeli jednak zaczniesz wykorzystywać Anki w bardzie intensywny sposób najlepszym rozwiązaniem jest zdefiniowanie nowych, własnych typów notatek dopasowanych do treści zawartych w taliach. Do standardowych typów notatek należą:
+
+ Podstawowy :: Posiada pola Przód oraz Tył  i tworzy jedną kartę. Tekst wprowadzony do pola Przód (Front) pojawi się na przedniej stronie karty, zaś tekst z pola Tył na jego tylnej stronie.
+
+ Podstawowy (z kartą odwrotną) :: Tworzy dwie karty z wprowadzonym tekstem. Pierwszą jako Przód->Tył i drugą jako Tył->Przód.
+
+ Podstawowy (z opcjonalną kartą odwrotną) :: Karta Przód->Tył i opcjonalna karta Tył->Przód. Aby włączyć kartę Tył->Przód należy wpisać jakikolwiek znak lub słowo do ostatniego pola Dodaj rewers. Więcej informacji na ten temat dostępnych jest w sekcji Karty i szablony.
+
+ Luka :: typ notatki który ułatwia wybór tekstu i zamianę go na tekst z luką (np. "Człowiek wylądował na księżycu w [...] roku" -> "Człowiek wylądował na księżycu w [1969] roku"). Więcej informacji na ten temat znajduje się w dalszych rozdziałach.
+
+Aby dodać własny typ notatki lub zmodyfikować już istniejący wybierz menu Narzędzia>Zarządzaj typami notatek, w oknie głównym Anki.
+
+UWAGA: Notatki i typy notatek przechowywane są w całej kolekcji, nie w poszczególnych taliach. Oznacza to, że w jednej talii możesz używać wielu różnych typów notatek. Kiedy dodajesz notatki w oknie Dodaj, możesz wybrać typ notatki, którego chcesz użyć i talię, w której tę notatkę chcesz umieścić. Ustawienia te są od siebie całkowicie niezależne. Możesz również zmieniać typ notatek, które <<browsermisc, dodałeś już wcześniej>>.
+
+Kolekcja
+--------
+
+Kolekcja przechowuje cały materiał, który znajduje się w twoim Anki - karty, notatki, talie, szablony itd.
+
+Dodawanie materiału
+===================
+
+Pobieranie udostępnionych talii
+-------------------------------
+
+To najprostsza droga aby rozpocząć naukę z Anki, wystarczy pobrać którąś z udostępnionych talii
+
+ 1. Otwórz Anki i kliknij przycisk "Podziel się", który znajduje się na dole głównego okna.
+ 2. Jeśli chcesz pobrać, którąś z talii naciśnij przycisk "Download", który znajduje się na stronie każdej z udostępnianych talii.
+ 3. Kliknij dwukrotnie na pobranym pliku aby załadować go do Anki, lub wybierz Plik>Importuj w głównym oknie Anki.
+
+Obecnie nie jest niestety możliwe zaimportowanie udostępnionej talii bezpośrednio do konta na AnkiWeb. Talię należy najpierw importować do Anki, a potem synchronizować talię z AnkiWeb.
+
+Wszystkie informacje nt. udostępniania własnych talii znajdują się na stronie Udostępnionych talii (przycisk Podziel się w oknie głównym Anki)
+
+.Własne talie a talie gotowe
+**********************************************************************
+
+Tworzenie własnej talii jest najbardziej efektywnym sposobem nauki rozbudowanego materiału.
+Nie zrozumiemy obcego języka po prostu przez powtarzanie słówek - do tego wymagane są przede wszystkim objaśnienia i kontekst, które sprawią, że nauka będzie bardziej efektywna.
+Co więcej, wprowadzanie danych do programu sprawi, że będziesz musiał zdecydować co np. w danym zdaniu jest najistotniejsze, a to z kolei prowadzi do lepszego zrozumienia opanowywanego materiału.
+
+Tak samo jak bezmyślne zakuwanie długiej listy słówek nie zrobi z ciebie poligloty, tak samo ucząc się samych wzorów fizycznych nie staniesz się fizykiem. Do prawidłowej nauki potrzebujesz tekstów, nauczycieli albo przebywania w danym obszarze językowym.
+
+ Jeśli czegoś nie rozumiesz, nie ucz się tego.
+ -- SuperMemo
+
+Większość udostępnionych talii została stworzona przez ludzi, którzy uczą się materiału również poza Anki - z tekstów, na lekcjach, w telewizji itd. Z tych źródeł wybierają najbardziej interesujące ich fragmenty i dodają je do Anki. Nie dodają do notatek dodatkowych informacji na temat np. kontekstu danej sytuacji językowej, bo po prostu sami go znają. Opanowanie takiego materiału, z powodu np. braku objaśnień, będzie sprawiło trudność komuś kto go pobrał.
+
+Nie oznacza to oczywiście, że udostępniane talie są bezużyteczne - po prostu przy nauce pewnych obszernych zagadnień udostępniane talie nie powinny być traktowane jako główne źródło wiedzy, ale raczej jako dodatkowe narzędzie. Jeśli uczysz się z podręcznika ABC i ktoś udostępnił talię ze słowami z tego podręcznika, to użycie takiej talii jest świetnym sposobem na zaoszczędzenie czasu. Tak samo w sytuacji, gdy uczymy się podstawowej wiedzy np. z zakresu geografii - stolic państw świata. Nie jest tutaj potrzebny żaden dodatkowy, zewnętrzny materiał. Rozczarujesz się jednak, gdy będziesz chciał opanować jakiś obszerny zakres tematyczny. Tutaj będzie potrzebna też pomoc z zewnątrz.
+**********************************************************************
+
+[[addingnotes]]
+Dodawanie kart i notatek
+------------------------
+
+Jak zostało to opisane w rozdziale na temat <<basics,podstaw>> w Anki użytkownik tworzy notatki, a na ich podstawie program generuje automatycznie karty. Aby dodać nową notatkę w oknie głównym naciśnij przycisk Dodaj. Pojawi się wtedy nowe okno.
+
+W lewym górnym rogu okna "Dodaj" znajduje się informacja o aktualnie używanym typie notatki. Jeśli widnieje tam inna nazwa niż "Podstawowy" (czyli podstawowy typ notatki) to prawdopodobnie poprzez import którejś z udostępnionych talii dodałeś nowy typ notatki. W dalszej części tego opisu będziemy omawiać tylko typ "Basic".
+
+W prawym górnym rogu okna "Dodaj" wyświetlana jest nazwa talii do której zostanie dodana notatka. Żeby dodać notatkę do innej tali, wystarczy kliknąć przycisk z nazwą obecnej talii a następnie wybrać "Dodaj".
+
+Poniżej przycisku z typem notatki znajdują się dwa pola tekstowe o nazwie "Przód" oraz "Tył". Przód i Tył to właśnie pola notatki, możesz dodawać nowe pola, usuwać je i zmieniać ich nazwy. Aby wykonać, którąś z tych czynności wybierz przycisk "Pola...", który znajduje się pod przyciskiem z typem notatki.
+
+Poniżej pól notatki znajduje się pole tekstowe oznaczone jako "Etykiety" są to tzw. tagi. Etykiety to słowa, które będą charakteryzowały notatki w celu ich lepszej organizacji lub po to by ułatwić ich wyszukiwanie. Dana notatka może być scharakteryzowana przez więcej niż jedną etykietę. Nadawanie etykiet notatkom nie jest obowiązkowe, to pole może pozostać puste. Etykiety oddzielane są znakiem spacji. Przykładowo jeśli nadamy notatce etykiety:
+
+ słownictwo do_sprawdzenia
+
+...wtedy notatka będzie posiadała dwie etykiety.
+
+Aby dodać notatkę do kolekcji wypełnij najpierw pola Przód i Tył, a następnie wybierz przycisk Dodaj (u dołu okna) lub naciśnij Ctrl + Enter (Command + Enter na komputerach Mac). Razem z notatką wygeneruje się karta, która zostanie umieszczona we wcześniej wybranej przez ciebie talii. Aby edytować wcześniej dodaną kartę, wystarczy że klikniesz przycisk Historia, wyświetli się wtedy lista dodanych przed chwilą kart.
+
+Pamiętaj, pierwsze pole notatki nigdy nie może pozostać puste, a jego treść musi być niepowtarzalna tzn. nie można stworzyć dwóch notatek, które w polu Przód będą zawierały słowo "jabłko". Ta niepowtarzalność treści jest jednak ograniczona tylko do jednego typu notatki, przykładowo: jeśli uczysz się wielu języków i dla każdego z nich stworzony jest inny typ notatki, to dane słowo w polu Przód może się powtarzać o ile notatki z tym słowem należą do różnych typów.
+
+W czasie dodawania notatki Anki, ze względu na wydajność programu, nie sprawdza innych pól pod kątem niepowtarzalności. Jednakże w przeglądarce kart znajduje się przycisk "Znajdź duplikaty..." (Przeglądaj>Edytuj>Znajdź duplikaty...). Funkcja ta przeszukuje wszystkie pola wszystkich notatek pod względem duplikatów. Warto jest od czasu do czasu takie przeszukanie wykonać.
+
+Aby dowiedzieć się więcej na temat przycisków, które znajdują się pomiędzy polami notatki a przyciskiem typu notatki zajrzyj proszę do rozdziału na temat <<editor,edytora>>. 
+
+.Najlepsze praktyki
+**********************************************************************
+Kart można się uczyć w różny sposób, jednak należy zawsze należy pamiętać o pewnych ogólnych zasadach. Dobre wprowadzenie stanowi http://www.supermemo.com/articles/20rules.htm[artykuł] na stronie SuperMemo.
+ Zasadniczo:
+
+ * *Pamiętaj o prostocie.* 
+	Im prostsze są karty tym łatwiej ich się uczyć. Czasami może cię kusić, żeby dodać więcej treści do jednej karty, tak na wszelki wypadek, jednak w takim przypadku bardzo szybko nauka stanie się męczarnią.
+
+ * *Nie ucz się rzeczy których nie rozumiesz.* 
+	Jeśli uczysz się języka obcego unikaj tworzenia w jednej karcie długich list wyrazów. Najlepszym sposobem nauki języka obcego jest wstawienie wyrazów w pewien kontekst, który pokaże słowa w ich prawidłowym zastosowaniu. Jeśli będziesz starał się zapamiętać całą górę znaczeń różnych skrótów, bardzo szybko zauważysz jak trudno jest zrobić jakikolwiek postęp przy takim sposobie nauki. Ale jeśli włożysz trochę więcej pracy i postarasz się zrozumieć co tak naprawdę stoi za tymi skrótami, nauka będzie wtedy dużo prostsza i efektywniejsza.
+**********************************************************************
+
+[[notetypes]]
+Dodawanie typu notatki
+----------------------
+
+Podstawowy typ notatki w zupełności wystarcza do tworzenia prostych kart z jednym słowem po każdej ze stron karty. Jednak jeśli stwierdzisz, że chciałbyś umieścić w notatce więcej niż jedną informację na przodzie i tyle karty, to najlepszym wyjściem jest podzielenie takiej informacji na więcej pól.
+
+Możesz sobie jednak pomyśleć "przecież ja chcę tylko jedną kartę, umieszczę obrazek, podpowiedź i wymowę słowa na przodzie karty, a na tylnej stronie odpowiedź". Oczywiście bez problemu możesz stworzyć taką kartę.
+Jednak takie podejście ma jedną główną wadę, wszystkie informacje są zbite w jedno pole. W takiej sytuacji nie ma możliwości np. posortowania kart pod kątem treści podpowiedzi albo treści pytania. Nie da się wtedy przenieść np. pliku audio z przodu karty na jej tył, no chyba, że ręcznie kopiując go w każdej notatce. Trzymanie informacji w osobnych polach sprawia, że zmiana układu karty jest znacznie prostsza.
+
+Aby utworzyć nowy typ notatki w oknie Dodaj wybierz przycisk obok słowa "Typ", a następnie przycisk "Zarządzaj". Kliknij "Dodaj" aby dodać nowy typ notatki. Pojawi się teraz następne okno, które pokaże Ci typy notatek na podstawie których możesz stworzyć nowy typ notatki. "Dodaj" tworzy nowy typ notatki na podstawie, któregoś ze standardowych typów Anki. "Klonuj" odnosi się do typów notatek stworzonych wcześniej przez użytkownika. Przykładowo na tym samym typie notatki możesz uczyć się zarówno francuskiego jak i niemieckiego.
+
+Po wybraniu przycisku "OK" Anki poprosi o podanie nazwy dla tego nowego typu. Dobrze wybrać nazwę, która wprost odnosi się do materiału, do nauki którego będzie wykorzystywany dany typ notatki np. japoński, geografia. Po nadaniu nazwy nowemu typowi notatki można zamknąć okno Typ notatki i powrócić do okna dodawania notatki.
+
+[[fields]]
+Dostosowywanie pól
+-------------------
+
+Aby dostosować pola do własnych potrzeb kliknij przycisk "Pola..." podczas dodawania lub edycji notatki
+
+Możesz dodawać, usuwać lub zmieniać nazwy pól po prostu klikając odpowiednie przyciski po prawej stronie okna. Aby zmienić kolejność, w której pola pokazywane są w oknie dodawania notatki użyj przycisku "Zmień pozycję". Pojawi się okno, w którym zostaniesz poproszony o podanie kolejności w formie numerów. Przykładowo, jeśli chcesz aby dane pole w oknie dodawania notatki wyświetlane było jako pierwsze wpisujesz po prostu "1".
+
+Opcje zlokalizowane w dolnej części okna "Pola..." pozwalają na dodatkową edycję ustawień pól, ale tylko w oknie dodawania notatki. Uwaga! Nie jest to miejsce, w którym dostosujesz sposób wyświetlania pól na karcie podczas nauki. Te ustawienia opisane są w sekcji dotyczącej <<templates,kart i szablonów>>.
+
+*Czcionka Edycji* pozwala na wybranie czcionki, która będzie wykorzystywana w polu podczas dodawania i edycji notatki. W ten sposób mniej istotne informacje w notatce mogą być pisane mniejszą czcionką, a te ważniejsze jak np. trudne do odczytania znaki języka japońskiego - większą. Zauważ proszę, że nie mówimy tutaj o rozmiarze tekstu w karcie, tylko o rozmiarze tekstu podczas wprowadzania informacji do notatki w oknie "Dodaj". Ustawienia czcionki w kartach są szerzej opisane w sekcji <<templates,Karty i szablony>>. Jeśli jednak włączyłeś funkcję *pisanie w odpowiedzi*, to odpowiedź zostanie wyświetlona właśnie przy pomocy tutaj ustawionej czcionki.
+
+*Sortuj w przeglądarce według tego pola* mówi Anki, że to pole powinno znajdować się w kolumnie Pole sortowania w przeglądarce. Kart w przeglądarce mogą być sortowane jednocześnie tylko według jednego pola.
+
+Zaznaczając opcję *Zapamiętuj ostatnią wartość przy dodawaniu* Anki przy dodawaniu kolejnej notatki pozostawi w polach informacje z poprzednio dodanej notatki. Jest to funkcja użyteczna przy dodawaniu wielu notatek, które w którymś z pól posiadają tę samą informację.
+
+Opcja *Odwrotny kierunek tekstu" służy do wprowadzania tekstu pisanego z prawej do lewej strony (arabski, hebrajski). Jak zostało to wspomniane powyżej, opisywane tutaj ustawienia służą jedynie do kontroli wyświetlanego tekstu podczas edycji lub dodawania nowej notatki. W celu ustawienia czcionki wyświetlanej w kartach należy edytować <<templatesrtl,ustawienia szablonów>>.
+
+Po dodaniu wszystkich pól będziesz chciał najpewniej dodać te pola do przedniej lub tylnej strony karty. Więcej informacji na ten temat znajduje się w sekcji dotyczącej <<templates,szablonów>>.
+
+UWAGA: Nie używaj nazw etykiet, typów, talii czy kart jako nazw pól, gdyż są one <<specialfields,polami specjalnymi>> i nie będą działać poprawnie.
+
+Zmiana talii / typu notatki
+---------------------------
+
+Aby zmienić talię lub typ notatki podczas dodawania notatki kliknij w oknie "Dodaj" odpowiednio prawy górny lub lewy górny przycisk. Okno zmiany talii i zmiany typu notatki pozwalają również na utworzenie nowej talii lub nowego typu notatki, a także na zarządzanie już istniejącymi.
+
+[[manydecks]]
+Prawidłowe używanie talii
+-------------------------
+
+Celem talii jest przede wszystkim oddzielenie od siebie dużych zakresów tematycznych np. języka angielskiego, geografii itd. Tworząc talie możesz stwierdzić, że chciałbyś mieć każdy z mniejszych tematów w osobnej talii, dla lepszej organizacji np. "mój podręcznik geografii rozdział 1" albo "angielski zwierzęta", wbrew pozorom taki układ kolekcji nie jest dobrym rozwiązaniem, przynajmniej z trzech powodów:
+
+  * Wiele małych talii oznacza, że nauka będzie odbywała się w pewnej kolejności. Choćby ze względu na to, że będziesz   klikał po kolei poszczególne talie, albo nawet, gdy talie będą uporządkowane w strukturze drzewa to talie prezentowane będą w całości tzn. wszystkie karty z talii "angielski zwierzęta", a następnie z talii "...rozdział 1". Takie przeglądanie kart znacząco ułatwia naukę, co z kolei ma wpływ na jakość zapamiętanych informacji. W sytuacji, w której będziesz zmuszony przypomnieć sobie daną informację nie będziesz miał przecież możliwości przywołania w głowie kolejności, w której ta karta się pojawiła podczas nauki.
+  * Anki nie jest zaprojektowane do obsługi bardzo wielu talii (więcej niż kilku tuzinów) i prawdopodobnie może dojść do spowolnienia całego programu - szczególnie jeśli uczysz się na kliencie mobilnym. Kilka dodatkowych talii nie sprawi wielkiej różnicy, jednak jeżeli stworzysz ich zbyt dużo opóźnie może stać się odczuwalne.
+
+Lepszym pomysłem od tworzenia wielu małych talii jest użycie Etykiet czyli tzw. tagów i/lub pól do klasyfikacji zawartości kolekcji. Przykładowo zamiast tworzyć talię "angielski zwierzęta", możesz dodać te notatki do głównej talii "angielski" i otagować je jako "zwierzęta" i "rzeczowniki". Notatki mogą posiadać wiele różnych tagów, co w przyszłości, po szybkim przefiltrowaniu zwartości talii lub nawet całej kolekcji umożliwi ci np. naukę tylko rzeczowników albo tylko nazw zwierząt albo rzeczowników związanych ze zwierzętami.
+
+Dla tych którzy chcą być naprawdę dobrze zorganizowani do tego celu przeznaczyć można również pola notatek. Stwórz pole o nazwie "książka" lub "strona" i dodawaj w nich tytuły książek i numery stron z których pochodzą dane informacje. Takie działanie jest możliwe bo Anki w pełni wspiera przeszukiwanie pól, co oznacza że możesz przeszukiwać talię na przykład w taki sposób: "książka: 'moja książka' strona:63" i natychmiast znajdziesz to czego szukasz. 
+
+Szczególnie użyteczne są funkcje "Niestandardowa nauka" oraz "Stwórz filtrowaną talię...", przy użyciu których możesz tworzyć tymczasowe talie na podstawie określonych kryteriów przeszukiwania. Funkcje te pozwalają na naukę różnego rodzaju informacji wymieszanych ze sobą w jedną talię, ale mogą również tworzyć bardzo szczegółowe talie, kiedy musisz przygotować się z jakiegoś konkretnego zakresu materiału.
+
+Ogólna zasada jest taka, że jeżeli danych informacji chcesz zawsze uczyć się oddzielnie, powinny one być zebrane w jednej talii. Jeżeli jednak tych informacji chcesz uczyć się tylko od czasu do czasu oddzielnie (np. mając zaległości z jakiegoś materiału do testu) do tego celu powienieneś wykorzystać tagi i talie filtrowane.
+
+Nauka
+=====
+
+Czas zacząć naukę pobranej lub samodzielnie stworzonej talii.
+
+Talie
+-----
+
+W Anki można uczyć się jednocześnie tylko jednej talii oraz talii, które wchodzą w jej skład. Aby zmienić talię należy wybrać przycisk "Talie" w oknie głównym Anki.
+
+W oknie głównym talie wyświetlane są w formie listy. Są tam widoczne dwie kolumny 'Oczekujące' oraz 'Nowe'. W kolumnie 'Oczekujące' pokazana jest liczba kart do nauki w poszczególnych taliach. W kolumnie 'Nowe' wyświetlana jest liczba nowych kart oczekujących do nauki tego dnia.
+
+Po kliknięciu na nazwę danej talii w oknie głównym pojawi się ekran nauki. 
+
+Aby zmienić nazwę talii, usunąć talię lub dostosować jej ustawienia wybierz przycisk koła zębatego po prawej stronie nazwy talii w oknie *Talie*.
+
+Powtórka
+--------
+
+Po kliknięciu na nazwę talii, której chcesz się uczyć, wyświetli się ekran pokazujący liczbę kart oczekujących dzisiaj do nauki. Są ich trzy typy:
+
+ * *Nowe* czyli karty pobrane lub samodzielnie wprowadzone, których jeszcze nigdy się nie uczyłeś.
+ * *Nienauczone* to karty, które widziałeś po raz pierwszy, ale jeszcze się ich nie nauczyłeś.
+ * *Do przejrzenia* to karty, których się już uczyłeś, a teraz będą powtarzane, żebyś ich nie zapomniał.
+
+Aby rozpocząć naukę kliknij przycisk *Ucz się teraz*. Anki rozpocznie wyświetlanie kart. Nauka będzie trwała do momentu wyczerpania się wszystkich kart przeznaczonych do nauki danego dnia.
+
+Pytania
+-------
+
+W momencie wyświetlenia karty, jako pierwsze pokazywane jest pytanie. Po tym jak pomyślisz o odpowiedzi możesz albo kliknąć przycisk *Pokaż odpowiedź* albo nacisnąć spację. Zostanie wtedy wyświetlona odpowiedź. Normalną sytuacją jest, że przypomnienie sobie odpowiedzi na dane pytanie wymaga chwili namysłu. Jeśli jednak po 10 sekundach dalej nie będziesz umiał podać prawidłowej odpowiedzi lepiej jest się poddać i wyświetlić odpowiedź niż w nieskończoność próbować ją wymyślić. 
+
+Po wyświetleniu odpowiedzi porównaj z nią swoją odpowiedź, a następnie oceń jak dobrze ci poszło. Jeśli nie jesteś pewien swoich odpowiedzi w myślach, możesz tak ustawić Anki, żeby odpowiedzi były przez ciebie wpisywane, a nie tylko pokazywane. Jak to zrobić opisane jest w sekcji <<templates,Karty i szablony>>.
+
+Liczba przycisków do oceny twojej odpowiedzi zależna jest od tego czy karta była już wcześniej przeglądana czy nie.
+
+[[learning]]
+Nauka nowych kart
+-----------------
+
+Podczas uczenia się nowych kart lub takich, które już wcześniej widziałeś, ale zapomniałeś ich odpowiedzi, Anki wyświetli je raz lub kilka razy, w pewnych odstępach czasu - tzw. interwałach. Standardowo dla takich kart ustawione są dwa interwały: 1 minuta oraz 10 minut. Możesz zmienić ich liczbę oraz wartości klikając *Opcje* podczas powtórki.
+
+Standardowo dla nowych kart w Anki wyświetlane są trzy przyciski oceny:
+
+*Znowu* cofa kartę do pierwszego kroku.
+
+*Dobra* przenosi kartę do następnego kroku. Jeżeli w poprzednim kroku karta została już wcześniej oceniona jako *Dobra*, to w tym kroku stanie się ona kartą powtórkową. Domyślnie zostanie ona wyświetlona następnego dnia, a potem co pewien narastający czas. The easy button will not be shown if it would
+ +give the same interval as "good."
+
+*Łatwa* natychmiast przekształca nową kartę w kartę powtórkową, nawet jeśli nie zostały dla niej wykonane inne kroki. Domyślnie karta ta zostanie wyświetlona za 4 dni, a potem co pewien narastający czas.
+
+Karta wyświetlana po raz pierwszy znajduje się w pierwszym kroku (1 minuta). Dla takiej karty odpowiedź *Dobra* będzie oznaczać, że zostanie ona wyświetlona za 10 minut, a początkowy krok - 1 minuta - zostanie pominięty.
+
+Do oceny karty możesz również używać przycisków 1, 2 oraz 3 znajdujących się na klawiaturze, przy czym 1 = *Znowu*. Wybranie spacji oceni kartę na *Dobra*. 
+
+W sytuacji, gdy danego dnia nie ma już innych kart do nauki Anki domyślnie pokaże nowe karty, nawet kiedy, gdy nie upłynął jeszcze czas oczekiwania na nie. Jeśli jednak chciałbyś/chciałabyś czekać pełen czas na kartę, to w <<preferences,ustawieniach>> możesz zmienić ich zachowanie.
+
+Powtórka znanych kart
+---------------------
+
+Jeżeli karta została już kiedyś wyświetlona w którejś z wcześniejszych powtórek będzie ona posiadała cztery przyciski oceny:
+
+*Znowu* oznacza, że podana odpowiedź była błędna, w przyszłości Anki będzie częściej pokazywał tę kartę. Przejdź do rozdziału nt. <<lapses,pomyłek>> aby dowiedzieć się wiecej na temat obsługi kart na które udzieliłeś błędnej odpowiedzi.
+
+*Trudna* karta zostanie wyświetlona po czasie niewiele dłuższym od tego przy ocenie Znowu, w przyszłości Anki będzie ostrożniej harmonogramowało powtórki tej karty.
+
+*Dobra* oznacza dla Anki, że ostatnio ustawiony interwał powtórki był bliski poprawnego i trudność karty nie powinien on być zmieniany ani w górę ani w dół. Przy standardowym, początkowym stopniu trudności karta zostałaby pokazana po 2,5-krotnie dłuższym interwale niż dotąd. Co dla karty z interwałem 10 dni oznacza kolejną powtórkę za około 25 dni.
+
+*Łatwa* karta, że karta jest dla użytkownika zbyt łatwa i należy zdecydowanie wydłużyć interwał powtórek. Karta otrzyma interwał dłuższy niż w przypadku oceny *Dobra*, a Anki w przyszłym harmonogramowaniu karty będzie zdecydowanie bardziej 'agresywny'. Ponieważ ocena *Łatwa* gwałtownie wpływa na zwiększenie się interwału powtórki najlepszym rozwiązaniem jest stosowanie jej tylko względem kart co do których jesteśmy w 100% pewni. W przypadku prawidłowej odpowiedzi najczęściej stosowaną oceną powinna być *Dobra*.
+
+Podczas nauki kart zamiast przycisków na ekranie możesz użyć skrótów klawiszowych. Przyciski od 1-4 na klawiaturze numerycznej odpowiadają rosnąco poszczególnym ocenom. Gdy naciśniesz klawisz spacji nadasz karcie ocenę *Dobra*.
+
+Liczba oczekujących i czas następnej powtórki
+---------------------------------------------
+
+W momencie pojawienia się karty z pytaniem na ekranie, u dołu wyświetlane są również trzy liczby np. 12 + 34 + 56. Reprezentują one: nowe karty, karty nienauczone oraz karty powtarzane. Jeśli chcesz, możesz ukryć te liczby w ustawieniach Anki.
+
+UWAGA: Domyślnie, kiedy oznaczysz kartę jako 'Znowu' zostanie ona wyświetlona po 1 minucie, a następnie po 10 minutach. Wymagane są zatem dwie powtórki, dlatego licznik kart nienauczonych (środkowy, pomarańczowy) wzrośnie o 2 jednostki.
+
+Po wyświetleniu odpowiedzi Anki pokaże również przybliżony, szacowany czas kolejnej powtórki danej karty. Jeśli chcesz, możesz ukryć ten wskaźnik w ustawieniach Anki.
+
+UWAGA: Anki dodatkowo dodaje do czasu kolejnej powtórki pewną niewielką, losową liczbę, aby nowowprowadzone karty nie pojawiały się przy okazji kolejnych powtórek obok siebie. Ta losowość nie jest pokazywana w szacowanym czasie kolejnej powtórki danej karty, ale mimo tego algorytm Anki ją uwzględnia. This variation is not shown on the time estimates but will be applied after selecting the button.
+
+[[editmore]]
+Przyciski Edytuj i Więcej
+-------------------------
+
+W czasie nauki, w celu edycji notatki możesz kliknąć przycisk *Edytuj*, który znajduje się po lewej stronie ekranu nauki. Po ukończeniu edycji powrócisz od razu do poprzedniego ekranu. Okno 'Edytuj aktualną' jest bardzo podobne do standardowego okna <<addingnotes,dodawania notatki>>.
+
+W prawym dolnym rogu ekranu nauki znajduje się przycisk *Więcej*, za pomocą którego możliwe jest wykonanie na danej karcie lub notatce dodatkowych operacji:
+
+ Wyróżnij notatkę ::
+  Dodaje tag "marked" do aktualnej notatki. W przyszłości będzie można łatwiej odszukać daną notatkę w przeglądarce. Opcja ta jest użyteczna jeśli chcesz w późniejszym czasie na tej szczególnej notatce wykonać jakąś czynność np. poszukanie danego słowa w słowniku kiedy wrócisz do domu. Wyróżnione karty w czasie powtórki będą posiadały małą gwiazdkę w prawym górnym rogu okna powtórki.
+ Zakop kartę / notatkę ::
+  Ukrywa kartę lub wszystkie karty danej notatki do momentu "odkopania" na ekranie głównym talii oraz automatycznie kolejnego dnia. Opcja ta jest użyteczna gdy niedługo chcemy wrócić do karty. Zakopywanie odbywa się także <<siblings, automatycznie>> podczas powtórki kart pochodzących z tej samej notatki.  
+ Zawieś kartę / notatkę ::
+  Ukrywa kartę lub wszystkie karty danej notatki. Nie będą one wyświetlane aż do momentu ręcznego 'odwieszenia' notatki przez użytkownika (poprzez wybranie notatki i klikniecie na przycisk Zawieś w oknie przeglądarki). Użyteczne, gdy chcesz wyłączyć na jakiś czas pokazywanie danej notatki, ale nie chcesz jej usuwać.
+ Usuń notatkę ::
+  Usuwa notatkę i wszystkiej jej karty.
+ Opcje ::
+  Edycja ustawień aktualnej karty.
+ Odtwórz audio ::
+  Odtwarza nagranie audio, jeśli notatka posiada je na stronie tylnej lub przedniej.
+ Nagraj swój głos ::
+  Nagrywa twój głos w celu sprawdzenia wymowy. (Nagranie to jest tymczasowe i zostanie skasowane po przejściu do kolejnej karty. Aby do karty nagranie na stałe musisz wykorzystać funkcję nagrywania w oknie Edycji).
+ Odtwórz swój głos ::
+  Odtwarza twój nagrany głos.
+
+[[displayorder]]
+Kolejność wyświetlania
+----------------------
+
+W czasie nauki zostaną wyświetlone karty z aktualnie wybranej talii oraz talii, które w znajdują się pod nią. Jeżeli wybierzesz talię "Francuski", do której należą talie "Francuski::Słówka" oraz "Francuski::Mój Podręcznik::Lekcja 1" to także one zostaną wyświetlone w czasie nauki.
+
+Jeżeli posiadasz talie zorganizowane w strukturze 'drzewa' to powtórka i nauka zawartego w nich materiału będzie przebiegać w kolejności alfabetycznej nazw tych talii. Dla powyższego przykładu w pierwszej kolejności pojawią się karty talii "Francuski", następnie "Mój podręcznik", a na końcu "Słówka". Opisana zasada może zostać wykorzystana do prioretyzowania poszczególnych talii. Do tego celu można również użyć symbolu myślnika "-", który interpretowany jest przed znakami liter oraz symboli "\" i "~" interpretowanych po tych znakach. Jeśli zatem talię nazwiesz "-Słówka" to karty w niej zawarte zostaną wyświetlone jako pierwsze, zaś talia "~Mój Podręcznik" będzie w takim przypadku wyświetlona jako ostatnia.
+
+Nowe karty i karty powtarzane zużywane są niezależnie w trakcie powtórki. Oznacza to, że w jej trakcie możesz natrafić na nową kartę, która będzie pochodzić z kolejnej talii, gdy nowe karty z talii aktualnej zostały już wykorzystane. Sposobem na to aby karty nowe i powtarzane były wyświetlane jedynie w ramach powtórki tej samej talii jest nauka bezpośrednio tej szczególnej talii, zamiast wykorzystywania do tego celu 'rodzica'.
+
+Karty nienauczone, to znaczy takie które zostały wyświetlone po raz pierwszy i/lub oznaczone jako *Znowu*, są wyświetlane niezależnie od aktualnie powtarzanej talii, zgodnie z przypisanym im interwałem.
+
+For more fine-grained ordering of new cards, you can change the order in the <<browser,browser>>.
+
+To control the order reviews from a given deck appear in, or change new cards from ordered to random order, please see the <<deckoptions,deck options>>.
+
+[[siblings]]
+== Bliźnięta i zawieszanie ==
+
+Z <<basics, Podstaw>> przypomnij sobie, że z jednej notatki Anki może stworzyć wiele kart, np. Przód->Tył i Tył-Przód, albo dwie różne luki w tym samym tekście. Karty, które powstają w ten sposób nazywają się 'bliźniętami'. Anki, w czasie powtórki, jak dotąd starało się rozsunąć w czasie takie karty. Taka metoda była jednak niezbyt skuteczna w nauce.
+
+Obecnie bliźnięta traktowane są w inny sposób. Aby zapobiec pokazaniu bliźniaka w czasie tej samej powtórki Anki zakopuje bliźniaczą kartę. Zakopana karta nie będzie wyświetlana do kolejnego dnia lub do momentu kiedy sam ją ręcznie odblokujesz przy pomocy przycisku "Odkop", widocznego na dole okna po otwarciu danej talii w oknie głównym Anki.
+
+Anki zakopie jedynie bliźnięta kart nowych i powtarzanych. Nie zakopie za to kart nienauczonych.
+
+Jeżeli jednak w czasie powtórki chcesz widzieć więcej niż jedną kartę z danej notatki, możesz zatrzymać zakopywanie bliźniaczych kart w <<newopts, opcjach talii>>.
+
+[[studyshortcuts]]
+== Skróty klawiszowe  ==
+
+Wiele z operacji wykonywanych w Anki posiada przypisane do siebie skróty klawiszowe. Większość z tych skrótów widoczna jest bezpośrednio w oknie Anki np. w rozwijanych menu kontekstowych obok nazwy funkcji lub po najechaniu na dany przycisk kursorem myszy.
+
+Najczęściej używanym skrótem klawiszowym w czasie powtórki jest przycisk spacji lub Enter, które wyświetlają odpowiedź na zadane pytanie. Kolejne kliknięcie spacji lub Enter'a spowoduje przypisanie do karty oceny *Dobra*. Wszystkie oceny dostępne są pod klawiszami 1-4, w kolejności rosnącej od *Znowu*. Wiele osób używa jedynie dwóch klawiszy tzn. spacja dla oceny *Dobra* i w celu wyświetlenia odpowiedzi oraz 1 jeżeli odpowiedzi nie znali.
+
+[[studydeck]]
+Przydatnym skrótem klawiszowym może okazać się też przycisk ukośnika "/", po wybraniu którego wyświetlane jest okno "Nauka tali..." dostępne standardowo w menu Narzędzia. W oknie tym pokazane są wszystkie talie w twojej kolekcji oraz pole filtrowania u góry. Po wpisaniu tekstu w polu filtrowania, poniżej wylistowane zostaną tylko te talie, które spełniają jego warunki. Co więcej, za pomocą spacji możesz nadawać kolejne warunki dla filtru. W ten sposób wyświetlą się tylko te talie, które spełniają wszystkie wstawione warunki. Przykładowo zarówno "ja 1" jak i "ad1 ja" wskażą na talię o nazwie "Japoński::Wykład1". 
+
+== Zaległości ==
+
+Jeżeli z czasem zaczynasz zostawać w tyle z powtórkami Anki będzie nadawał najwyższy priorytet tym kartom, które oczekują najdłużej na powtórkę. Branych pod uwagę jest 200 najdłużej oczekujących kart, które w trakcie powtórki wyświetlane będą w sposób losowy do momentu wyczerpania dziennego limitu powtórek. Taka procedura gwarantuje, że żadna z kart nie będzie oczekiwała na wyświetlenie w nieskończoność. Jeśli jednak postanowisz wprowadzić do powtórki nowe karty, to nie będą one pokazywane do momentu, w którym nie powtórzysz wszystkich pozostałych kart.
+
+Możesz również zmienić zachowanie długo oczekujących kart poprzez stworzenie talii filtrowanej. Więcej informacji na ten temat dostępnych jest w dalszej części tego podręcznika.
+
+Gdy przeglądasz karty, które oczekiwały już jakiś czas na powtórkę Anki uwzględnia to oczekiwanie w przyszłym harmonogramowaniu powtórek karty. Więcej informacji na ten temat dostępnych jest w części FAQ - Najczęściej Zadawane Pytania znajdującej się na końcu tego podręcznika.
+
+[[editor]]
+Edytowanie
+==========
+
+Funkcje
+-------
+
+Okno edycji wyświetlane jest w trakcie <<addingnotes,dodawania notatki>, <<editmore,edycji notatki>> w czasie powtórki lub w <<browser,przeglądarce>>.
+
+W jego górnym lewym rogu znajdują się dwa przyciski, które otwierają okna <<fields,Pola...>> oraz <<templates,Karty...>>.
+
+Po prawej stronie umieszczone są przyciski edycji tekstu. Pogrubienie, kursywa oraz podkreślenie działają dokładnie w ten sam sposób co w standardowych edytorach tekstu. Kolejne dwa przyciski pozwalają na dodanie przypisu dolnego i górnego, które są szczególnie przydatne w czasie wpisywania wzorów chemicznych w postaci sumarycznej np. H~2~O lub prostych wzorów matematycznych np. x^2^.
+
+Przycisk z ikoną czerwonego krzyżyka odpowiedzialny za czyszczenie formatowania aktualnie zaznaczonego tekstu, włącznie z kolorem, pogrubieniem itd.
+
+Kolejny przycisk umożliwia zmianę koloru tekstu.
+
+Spinacz umożliwia załączenie nagrania audio, obrazków oraz plików video do twoich notatek. Więcej informacji na ten temat dostępnych jest w podrozdziale <<media,media>>.
+
+Przycisk z czerwonym kółkiem umożliwia nagranie twojego głosu i załączenie go do notatki.
+
+Ostatni przycisk umożliwia dodanie do notatki i edycję zaawansowanych równań matematycznych przy użyciu języka znaczników <<latex,LaTeX>> oraz edycję kodu HTML danego pola.
+
+Większość z opisanych tutaj przycisków posiada własne skróty klawiszowe. Aby je zobaczyć wystarczy, że najdziesz kursorem myszy na dany przycisk. Aby wyświetlić menu języka LaTeX naciśnij najpierw Ctrl+t, a następnie t, e lub m żeby wybrać jednej z trzech typów LaTeXa. Menu języka HTML dostępne jest pod skrótem klawiszowym Ctrl+Shift+x.
+
+[[cloze]]
+Nauka z lukami
+--------------
+
+Nauka z lukami polega na ukryciu jednego lub większej liczby słów w zdaniu. Przykład: 
+
+-----
+Mieszko I przyjął chrzest Polski w 966 roku.
+-----
+
+Tworzymy teraz lukę dla roku 966. Zdanie będzie więc wyglądało następująco:
+
+-----
+Mieszko I przyjął chrzest Polski w [...] roku.
+-----
+
+Więcej informacji nt. zasadności używania luki znajduje się http://www.supermemo.com/articles/20rules.htm[tutaj]. Patrz punkt 5.
+
+Anki posiada wbudowany typ notatki o nawie 'Luka', dzięki któremu możliwe jest tworzenie luki w notatce. Aby stworzyć taką właśnie notatkę, w oknie Dodaj wybierz typ notatki Luka i w polu Tekst wpisz jakieś zdanie. Następnie zaznacz myszą słowo lub słowa, które chcesz ukryć i naciśnij przycisk [...] znajdujący się na belce edycji tekstu. Anki zastąpi tym samym zaznaczony tekst w następującą formułą:
+
+-----
+Mieszko I przyjął chrzest Polski w {{c1::966}} roku.
+-----
+
+Symbol "c1" oznacza, że stworzyłeś w tym zdaniu jedną lukę. Możesz oczywiście stworzyć ich więcej. Przykładowo jeśli wybierzesz słowo "Mieszko" i znowu naciśniesz [...], zdanie to będzie wyglądało tak:
+
+-----
+{{c2::Mieszko I}} przyjął chrzest Polski w {{c1::966}} roku.
+-----
+
+Jeśli dodasz powyższą notatkę do talii, Anki wygeneruje dwie karty. Pierwsza z nich to: 
+
+-----
+Mieszko I przyjął chrzest Polski w [...] roku.
+-----
+
+...jako pytanie, a jako odpowiedź - pełne zdanie z uzupełnionym rokiem. Pytanie drugiej karty będzie wyglądało tak:
+
+-----
+[...] przyjął chrzest Polski w 966 roku.
+-----
+
+Możliwe jest też pominięcie stopniowego ujawniania luk tzn. zarówna pierwsza jak i druga luka mogą zostać zakryte i odkryte równocześnie. Jeśli na powyższym przykładzie zmienimy c2 na c1, stworzymy tylko jedną kartę z dwoma ukrytymi słowami Mieszko I i 966. Gdy podczas tworzenia luki naciśniesz klawisz Alt (Option na komputerach Mac) Anki nie będzie wtedy zwiększał numeracji kolejnych luk i uzyskasz opisany wyżej efekt jednoczesnego ujawnienia kilku luk.
+
+Luki nie muszą się jednak ograniczać do całych słów. W słowie Mieszko I możesz wybierać tylko "ieszko I", a na powyższym przykładzie pojawi się luka w postaci "M[...] przyjął chrzest Polski w 966 roku.", dając ci tym samym podpowiedź.
+
+Możesz także ustawić takie podpowiedzi, które nie będą bezpośrednio odnosić się do słowa, ale jedynie sugerować jakiego rodzaju jest to słowo. 
+
+-----
+Mieszko I::książę przyjął chrzest Polski w 966 roku.
+-----
+
+... następnie zaznacz kursorem Mieszko I::książę i wybierz przycisk [...]. Słowo po podwójnym dwukropku zostanie przez Anki zinterpretowane jako podpowiedź. W czasie powtórki karta będzie wyglądała w następujący sposób:
+
+-----
+[książę] przyjął chrzest Polski w 966 roku.
+-----
+
+Jeśli chcesz dowiedzieć się czegoś więcej na temat możliwości wpisywania odpowiedzi do luki zajrzyj proszę do rozdziału <<typinganswers,Pisanie odpowiedzi>>.
+
+Zauważ, że w Anki nie ma możliwości 'wkładania' luk jednej w drugą. Przykładowo błędem jest następująca konstrukcja: 
+
+-----
+{{c1:Mieszko I przyjął chrzest {{c2::Polski}}}} w 966 roku.
+-----
+
+Najprostszym rozwiązaniem na ominięcie braku możliwości wkładania luk jednej w drugą jest dodanie do notatki nowego pola, następnie dodanie go do <<temapltes,szablonu karty>>, a potem podczas tworzenia notatki, wklejenie tekstu w dwa osobne pola, jak niżej:
+
+-----
+Pole Tekst: {{c1::Mieszko I przyjął chrzest}} Polski w 966 roku.
+
+Pole Tekst1: {{c2::Mieszko I}} przyjął chrzest Polski w 966 roku.
+-----
+
+Domyślnie typ notatki Luka posiada pole o nazwie Dodatkowe, którego treść wyświetlana jest po każdej ze stron karty. Może ono zostać wykorzystane jako miejsce na dodatkowe notatki nt. przechowywanej informacji.
+
+Wstawienie obcych symboli oraz akcentów
+---------------------------------------
+
+Systemy Windows, Mac oraz Linux posiadają wbudowaną obsługę języków obcych. Nie ma więc potrzeby kupowania np. osobnej klawiatury. Niektóre programy do nauki fiszek nie wymagają włączania dodatkowych klawiatur i umożliwiają wybieranie obcych znaków za pomocą przycisków na ekranie. Jednakże, taki sposób wpisywania symboli jest bardzo wolny. Pewien bloger http://www.glowingfaceman.com/2008/12/french-revolution-day-7.html[napisał]:
+
+[quote]
+Poza tym, jeśli uczysz się jakiegokolwiek języka obcego posiadającego jakieś egzotyczne znaki, nawet jeśli jest to tylko hiszpański z jego charakterystycznym n, zachęcam Cię do pisania tych znaków w sposób możliwie najefektywniejszy. Kiedy zacząłem uczyć się języka japońskiego nie miałem zielonego pojęcia jak wpisywać japońskie symbole. Po prostu kopiowałem i wklejałem je do fiszek albo maili. W tej sposób pisanie nowego tekstu wymagało ode mnie każdorazowego i czasochłonnego szukania, następnie kopiowania i wklejania poszczególnych symboli. W przypadku mojego, kupionego w USA, komputera instalacja obsługi japońskich symboli wymagała trochę zachodu (łącznie z pożyczeniem od kolegi płyty instalacyjnej Windows XP), ale wysiłek ten był w pełni uzasadniony. Innymi słowy, powinienem to zrobić zaraz na samym początku mojej przygody z językiem japońskim.
+
+Jeżeli uczysz się języków z pisownią z prawej do lewej strony, musisz wziąć pod uwagę kilka innych ustawień. Zapoznaj się proszę z http://dotancohen.com/howto/rtl_right_to_left.html[tą stroną].
+
+Aby dowiedzieć się więcej na ten temat wpisz w Google coś w rodzaju "japońska klawiatura windows" albo "niemiecka klawiatura windows". Na ten temat dostępnych jest naprawdę sporo informacji.
+
+[[templates]]
+Karty i szablony
+================
+
+Jak zostało to wspomniane w rozdziale <<basics,Podstawy>> w Anki karty tworzone są automatycznie na podstawie informacji przechowywanych w notatkach. Klikając przycisk "Karty..." w oknie edycji możesz dowolnie określić sposób wyświetlania kart w czasie powtórki. Jeśli jeszcze tego nie zrobiłeś, zapoznaj się najpierw z rozdziałem dotyczącym podstaw obsługi Anki, gdyż wiedza ta będzie ci potrzebna w dalszej części tej sekcji.
+
+Na górze okna "Karty..." znajdują się zakładki z nazwami generowanych kart. Żeby dodać kolejną kartę do aktualnego typu notatki kliknij przycisk z symbolem plusa znajdujący się w prawym górnym rogu okna. Żeby usunąć kartę po prostu kliknij krzyżyk znajdujący się na zakładce z nazwą danej karty.
+
+Górnym białe pole po lewej stronie odnosi się do zawartości Przodu karty, zaś dolne białe pole po lewej stronie odnosi się do Tyłu karty. Pomiędzy nimi zlokalizowane jest pole Styl, przeznaczone na kod języka CSS.
+
+W Anki szablony tworzone są w języku HTML, będącym jednym z podstawowych języków tworzenia stron www. Wspomniany wcześniej język CSS, służy do nadawania wyglądu treściom opisanym językiem HTML.
+
+Aby lepiej poznać sposób w jaki nadaje się wygląd kartom zapoznaj się z http://www.youtube.com/watch?v=F1j1Zx0mXME[wideo na Youtube].
+
+W prawnym górnym oknie widoczny jest podgląd tego jak będzie wyglądała zawartość Przodu aktualnie wybranej karty. Jeżeli otworzysz to okno w czasie dodawania nowej notatki, to jego treść będzie zgodna z tym co wpisałeś w polach notatki w oknie Dodaj. Jeśli okno Karty... otworzysz w trakcie edycji notatki, to zawartość podglądu również będzie zgodna z tym co zawierają pola edytowanej notatki.
+
+Na dole okna Karty... znajduje się przycisk Więcej, który umożliwia zmianę nazwy karty oraz pozycji karty na liście na górnej belce. Funkcja Wymuś talię umożliwia zmianę talii, do której zostanie zapisana aktualnie edytowana karta. Domyślnie karty umieszczane są w talii, której nazwa widnieje w oknie Dodaj. Jeżeli przy pomocy tej funkcji zmienisz talię, karta ta zostanie zapisana nie w aktualnej talii, ale właśnie w tej wybranej. 
+
+== Karty odwrotne ==
+
+http://www.youtube.com/watch?v=DnbKwHEQ1mA[Obejrzyj wideo] na temat kart odwrotnych.
+
+Aby odwrócić istniejącą już kartę, podczas edycji notatki kliknij przycisk Karty..., a następnie Odwróć.
+
+Jeżeli chcesz stworzyć notatkę, która będzie cię odpytywać w dwóch kierunkach (np. "ookii"->"duży" oraz "duży"->"ookii") masz kilka możliwości by to zrobić. Najprostszym sposobem jest wykorzystanie typu notatki Podstawowy (z odwrotną kartą), który jest już wbudowany w Anki. Typ ten automatycznie wygeneruje kartę w obu kierunkach.
+
+Jeśli chcesz wygenerować karty odwrotne tylko dla części notatek (np. tylko dla najważniejszych informacji z całej talii lub, gdy dla niektórych notatek karta podwójna po prostu nie ma sensu), możesz użyć do tego celu typu notatki Podstawowy (z opcjonalną odwrotną kartą). Ten typ notatki stworzy standardową kartę jeśli wypełnisz tylko dwa pierwsze pola. Aby uzyskać również kartę odwrotną wystarczyć wpisać dowolny znak do trzeciego pola o nazwie Dodaj rewers. Należy podkreślić, że zawartość ostatniego pola nie będzie wyświetlana na kartach podczas powtórki.
+
+Gdybyś później stwierdził, że jednak nie chcesz kart odwrotnych możesz po prostu usunąć znaki z pola Dodaj rewers w wybranych notatkach lub zmienić ich typ np. na Podstawowy. Zawartość pól Przód i Tył pozostanie wtedy bez zmian. Czynność tę można wykonać również w drugą stronę tzn. typ Podstawowy zmienić na Podstawowy (z opcjonalną odwrotną kartą) i wypełnić pole Dodaj rewers, treść pozostałych dwóch pól Przód i Tył również nie ulegnie zmianie.
+
+Istnieje oczywiście możliwość tworzenia rozbudowanych kart np. w ściśle określonych sytuacjach przy użyciu bardziej skomplikowanych typów notatek. (np. z trzema kartami różnego rodzaju). Aby dowiedzieć się więcej na ten temat przejdź do rozdziału <<conditionalreplacement,Zmiana warunkowa>>.
+
+== Podstawowe szablony ==
+
+Podstawowy szablon wygląda w następujący sposób:
+
+-----
+{{Front}}
+-----
+
+Gdy w nawiasy klamrowe wpiszesz jakiś tekst, Anki uzna to za odniesienie do któregoś z istniejących pól o tej samej nazwie. Przy wyświetlaniu danej karty zastąpi ten tekst zawartością danego pola. W szablonie możesz umieścić odwołania do dowolnej liczby pól.
+
+Zawartość szablonu nie ogranicza się jedynie do pól. Przykładowo możesz umieścić w szablonie stały tekst, który będzie wyświetlany na każdej karcie notatki danego typu. Gdy uczysz się stolic państw świata i stworzyłeś typ notatki z polem "kraj" możesz wtedy dodatkowo i na stałe dodać następujący tekst:
+
+-----
+Jaka jest stolica {{kraj}}?
+-----
+
+Standardowy szablon tyłu karty wygląda w następujący sposób:
+
+-----
+{{FrontSide}}
+
+<hr id=answer>
+
+{{Tył}}
+-----
+
+Kod ten należy interpretować w następujący sposób: "pokaż mi pytanie, narysuj linię i pokaż pole Tył"
+
+[[typinganswers]]
+== Pisanie odpowiedzi ==
+
+Obejrzyj http://www.youtube.com/watch?v=5tYObQ3ocrw[materiał wideo] na ten temat.
+
+Jeśli chcesz mieć możliwość wpisywania odpowiedzi w karcie i potem automatycznego porównania twojej odpowiedzi z pytaniem, musisz przede wszystkim dokonać pewnych zmian w swoim szablonie. Weźmy typ notatki, której Przód i Tył w szablonie wyglądają tak:
+
+-----
+{{Polskie słowo}}
+-----
+
+-----
+{{FrontSide}}
+
+<hr id=answer>
+
+{{Obce słowo}}
+-----
+
+Żeby mieć możliwość pisania w odpowiedzi musisz dokonać edycji szablonu przodu i tyłu, tak by wyglądały w ten sposób: 
+
+-----
+{{Polskie słowo}}
+{{type:Obce słowo}}
+-----
+
+Bardzo ważne, by powyższy kod był skopiowany zarówno do szablonu przód jak i tył. Jeśli jednak nie chcesz na karcie tylnej widzieć pytania wystarczy, że usuniesz z szablonu tyłu znacznik pola z pytaniem.
+
+Podczas powtórki, pod pytaniem Anki wyświetli puste pole tekstowe, które służy właśnie do wpisania twojej odpowiedzi. Następnie wystarczy, że zatwierdzisz swoją odpowiedź przyciskiem Enter na klawiaturze lub Pokaż odpowiedź na ekranie nauki. Anki wskaże, które części odpowiedzi są błędne. Rozmiar czcionki w pustym polu przeznaczonym do podania odpowiedzi jest zgodnym z tym, który ustawiony jest dla tego pola w oknie "Pole...".
+
+Zauważ, że choć w twojej odpowiedzi mogą pojawić się błędy to nie wpływają one na ocenę karty. W dalszym ciągu sam oceniasz swoją odpowiedź. Anki nie zrobi tego automatycznie za ciebie na podstawie wpisanego tekstu.
+
+UWAGA: Na karcie może być użyte tylko jedno pole tekstowe służące do wpisywania odpowiedzi. Jeżeli umieścisz ich więcej wpisywanie odpowiedzi nie zadziała poprawnie. Ponadto odpowiedź może zostać podana w polu tekstowym o wysokości tylko jednej linii, co oznacza, że nie ma sensu porównywanie odpowiedzi z kartami posiadającymi pytanie w wielu liniach.
+
+Zarówno pytanie i jak i odpowiedź wyświetlane są przy użyciu czcionki o stałej szerokości znaków, dzięki czemu możliwe jest czytelne porównywanie wprowadzonych w odpowiedzi znaków z tym co jest napisane w pytaniu. Możesz również zmienić tę czcionkę. Wystarczy, że w oknie Karty...->Styl umieścisz następujący kod:
+
+-----
+code#typeans { font-family: "nazwa_mojej_czcionki"; }
+-----
+
+Bardziej zaawansowani użytkownicy mogą również zmienić kolor prostokątów oznaczających błędne i poprawne znaki. Klasy CSS odpowiedzialne za nie to typeGood, typeBad i typeMissed. Tych klas używa jedynie wersja desktopowa Anki.
+
+Możliwe jest również pisanie odpowiedzi w kartach z lukami. Aby to zrobić dodaj \{\{type:cloze:Text}} do obu stron szablonu. Szablon tyłu powinien wyglądać następująco: 
+
+BŁĄD!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! coś jest nie tak z tym kodem do wpisywania luki !!!!!!
+
+-----
+{{FrontSide}}
+
+<hr id=answer>
+
+{{cloze:Tekst}}
+{{type:cloze:Tekst}}
+-----
+
+Zauważ, że kod ten, w przeciwieństwie do standardowych kart, musi zostać dodany po obu stronach notatki (typu Luka).
+
+== Nowy wiersz ==
+
+Aby szablon przodu lub tyłu wyświetlał tekst w wielu wierszach niezbędne jest użycie specjalnej komendy, która wprowadzi nowy wiersz. Przykładowo, jeśli w szablonie napiszę: 
+
+-----
+jeden
+dwa
+-----
+
+W podglądzie karty zobaczę:
+
+-----
+jeden dwa
+-----
+
+Aby dodać nową linię, wystarczy, że pomiędzy dwoma słowami wstawiamy znacznik <br />, jak poniżej:
+
+-----
+jeden<br />
+dwa
+-----
+
+Znacznik ten pochodzi z języka HTML i jest skrótem od angielskiego wyrażenia "(line) br(eak)" czyli "łamanie wiersza".
+
+W ten sam sposób można wyświetlać pola notatki. Jeżeli chciałbyś, żeby jedno pole znajdowało sie zaraz pod drugim:
+
+-----
+{{Pole 1}}<br />
+{{Pole 2}}
+-----
+
+== Arkusze stylów CSS ==
+
+Pomiędzy obszarem edycji szablonu przodu i tyłu znajduje się obszar Styl. Możesz w nim zmieniać kolor tła karty, standardową czcionkę, wyrównanie tekstu itd. 
+
+Standardowe polecenia to:
+
+ font-family ::
+  Nazwa czcionki, którą będą wyświetlane informacje na karcie podczas powtórki. Jeżeli czcionka w nazwie posiada spację np. "MS Unicode", jej nazwę należy ująć w cudzysłów. Możliwe jest także użycie wielu różnych czcionek na jednej karcie. Informacje na ten temat znajdują się <<fieldstyling,poniżej>>. 
+ font-size ::
+  Rozmiar czcionki określany w liczbie pikseli. Zmieniając rozmiar upewnij się, że po liczbie określiłeś jednostkę "px".
+ text-align ::
+  Wyrównanie tekstu: wycentrowanie (center), do lewej (left), do prawej (right).
+ color ::
+  Kolor tekstu. Może być określony po prostu przez wpisanie angielskich nazw kolorów podstawowych np. blue (niebieski), lightyellow (jasno żółty) itd. Możliwe jest także użycie kodów kolorów wg modelu RGB. Kody kolorów zapisane w tej postaci odnaleźć można http://htmlcolorcodes.org/[na tej stronie].
+ background-color ::
+  Kolor tła. Ustawia kolor tła. Podobnie jak w przypadku koloru czcionki, do tego celu można użyć kolorów podstawowych lub w kodowaniu RGB.
+
+Bardziej zaawansowani użytkownicy mogą również ustawić w tle obraz lub gradient kolorów.
+
+Dany styl nadawany jest jednocześnie wszystkim kartom należącym do tego samego typu notatki. Możliwe jest jednak nadawanie wyjątków. Przykładowo poniższy kod nada wszystkim kartom tło koloru żółtego, z wyjątkiem pierwszej karty, która będzie miała tło niebieskie:
+
+-----
+.card { background-color: yellow; }
+.card1 { background-color: blue; }
+-----
+
+Jeżeli jako tło ustawisz obrazek, zostanie on domyślnie dopasowany do całej szerokości okna. Aby zmienić to ustawienie na końcu kodu CSS należy dodać linijkę:
+
+-----
+img { max-width: none; max-height: none; }
+-----
+
+[[fieldstyling]]
+== Style CSS pól ==
+
+Domyślnie styl CSS ustawiony w szablonie obejmuje całą zawartość karty. Możliwe jest jednak nadanie poszczególnym polom ich własnych stylów czcionki, koloru itd. Funkcja ta jest szczególnie istotna podczas nauki języków obcych kiedy dla danego tekstu musi zostać użyta specyficzna czcionka np. hebrajska lub arabska, gdyż w przeciwnym razie tekst nie zostanie poprawnie wyświetlony.
+
+Powiedzmy, że masz w notatce pole o nazwie "Wyrażenie" i chcesz aby jego treść na karcie była wyświetlana przy pomocy tajskiej czcionki "Ayuthaya" (działa tylko na systemach Mac OSX). Twój szablon wygląda na razie w taki sposób: 
+
+-----
+Co oznacza {{Wyrażenie}}?
+
+{{Notatki}}
+-----
+
+Pierwszym krokiem będzie umieszczenie zawartości Szablonu przodu w znacznikach HTML. Przed tekstem umieścimy:
+
+-----
+<div class=mojstyl1>
+-----
+
+A po nim:
+
+-----
+</div>
+-----
+
+Zastosowanie tych znaczników mówi Anki, żeby w stosunku do zawartego pomiędzy nimi tekstu został zastosowany jakiś styl, w tym przypadku o nazwie "mojstyl1". Styl ten utworzymy za chwilę.
+
+Jeśli chcemy, żeby cały tekst Przodu posiadał dany styl to nasz Szablon przodu będzie wyglądał następująco:
+
+-----
+<div class=mystyle1>Co oznacza {{Wyrażenie}}?</div>
+
+{{Notatki}}
+-----
+
+A jeśli chcemy, żeby tylko nasze pole "Wyrażenie" posiadało dany styl czy daną czcionkę to użyjemy takiego kodu: 
+
+-----
+Co oznacza <div class=mystyle1>{{Wyrażenie}}</div>?
+
+{{Notatki}}
+-----
+
+Po edycji Szablonu przodu musimy przejść teraz do środkowego obszaru Styl, zlokalizowanego pomiędzy obszarami Szablon przodu i Szablon tyłu. Standardowo zawartość obszaru Styl powinna wyglądąć tak:
+
+-----
+.card {
+ font-family: arial;
+ font-size: 20px;
+ text-align: center;
+ color: black;
+ background-color: white;
+}
+-----
+
+Na dole tego kodu dodaj trzy linijki jak poniżej:
+
+-----
+.card {
+ font-family: arial;
+ font-size: 20px;
+ text-align: center;
+ color: black;
+ background-color: white;
+}
+
+.mojstyl1 {
+ font-family: ayuthaya;
+}
+-----
+
+Do Stylu możesz oczywiście dodawać dowolny kod zgodny z językiem CSS. Jeśli chciałbyś np. zwiększyć rozmiar czcionki, dodaj kolejna linijkę kodu:
+
+-----
+.mojstyl1 {
+ font-family: ayuthaya;
+ font-size: 30px;
+}
+-----
+
+Możliwa jest również wykorzystywanie zewnętrznych czcionek bez ich instalacji na komputerze czy urządzeniu mobilnym. Więcej informacji na ten temat znajduje się w rozdziale na temat <<installingfonts,instalacji czcionek>>.
+
+== Podpowiedzi ==
+
+Anki umożliwia dodanie do przodu lub tyłu karty własnej podpowiedzi, która wyświetlana będzie tylko po kliknięciu na nią przez użytkownika. Przed dodaniem takiej podpowiedzi należy najpierw rozważyć czy ma ona sens, gdyż takie rozwiązanie znacząco ułatwia naukę. Może się ona stać mało efektywna i trudniej będzie ci zapamiętać w przyszłości daną informację np. jeśli nie przypomnisz sobie podpowiedzi. Przed użyciem podpowiedzi zapoznaj się proszę z 'podstawowymi zasadami' znajdującymi się na stronie: http://www.supermemo.com/articles/20rules.htm .
+
+Aby utworzyć podpowiedź w pierwszej kolejności musisz dodać do notatki nowe pole, w którym podpowiedź będzie przechowywana. Jego nazwa nie ma znaczenia. Jeżeli nie umiesz jeszcze dodawać nowych pól, zapoznaj się z rozdziałem <<fields,na ich temat>>.
+
+Jeśli stworzyłeś już pole podpowiedzi możesz teraz nakazać Anki aby pole to zostało automatycznie zakryte. Do szablonu przodu dodaj następujący kod:
+
+-----
+{{hint:Podpowiedź}}
+-----
+
+Jeżeli pole Podpowiedź jest puste, nic nie zostanie wyświetlone.
+
+Jeśli odsłonisz podpowiedź, a następnie wyświetlisz odpowiedź to podpowiedź zostanie ponownie zakryta. Jeżeli chcesz aby mimo wszystko podpowiedź cały czas pozostała widoczna musisz usunąć \{\{FrontSide}} z szablonu tyłu i ręcznie dodać pola, które mają się pojawić.
+
+[[specialfields]]
+== Pola specjalne ==
+
+Istnieje kilka rodzajów pól specjalnych, których możesz użyć w twoim szablonie:
+
+-----
+Znacznik etykiety: {{Tags}}
+
+Znacznik typu notatki: {{Type}}
+
+Znacznik nazwy talii: {{Deck}}
+
+Znacznik typu karty ("Przód", etc): {{Card}}
+
+Znacznik zawartości przodu karty (poprawna tylko w szablonie tyłu karty): {{FrontSide}}
+-----
+
+Znacznik zawartości przodu karty FrontSide nie skopiuje na jej tył nagrania audio. Jeśli chcesz mieć to samo nagranie na przodzie i tyle karty musisz je tam ręcznie dodać.
+
+[[cardgeneration]]
+== Generowanie i usuwanie kart ==
+
+Anki nie wygeneruje "żadnej" karty jeżeli jej przód będzie pusty. Przykładowo jeżeli w podstawowym typie notatki pole Przód będzie puste, a szablon przodu będzie zawierał tylko to pole, to karta nie zostanie wygenerowana.
+
+W takim przypadku w oknie Dodaj pojawi się ostrzeżenie, o tym, że karta nie powstanie dopóki nie pole to nie zostanie wypełnione informacją.
+
+Jeżeli w trakcie edycji notatki usunąłeś treść z pola obowiązkowego, Anki nie usunie wygenerowanych wcześniej kart, gdyż mogłoby to doprowadzić do błędu programu. Aby usunąć te karty przejdź w oknie głównym programu do menu Narzędzie i wybierz opcję Wyczyść karty. Zostanie wtedy wyświetlona list pustych kart oraz przycisk służący do ich usunięcia.
+
+Jeżeli edytujesz wcześniej dodaną kartę, która po edycji zawiera puste pole i ponownie wypełnisz je treścią Anki uzupełni tą informacją wszystkie wygenerowane wcześniej karty.
+
+Nie ma możliwości usuwania pojedynczych kart, ponieważ i tak zostałyby one odtworzone w momencie kolejnej edycji notatki. Zamiast tego, możesz usunąć informacje z niektórych pól lub po prostu zawiesić niechciane karty. Jeżeli chcesz edytować wiele pól jednocześnie możesz do tego celu użyć funkcji Znajdź i zamień, która znajduje się na górnej belce okna Przeglądarka.
+
+Anki przy generowaniu kart nie uwzględnia pól specjalnych oraz zwykłego tekstu, który nie jest odnośnikiem do pola tzn. na ich podstawie nie zostaną stworzone żadne nowe karty. Przykładowo jeżeli pole Kraj z poniższego przykładu będzie puste, to karta nie powstanie, pomimo tego, że w szablon zawiera jeszcze zwykły tekst 'Gdzie na mapie jest'.
+
+-----
+Gdzie na mapie jest {{kraj}} ?
+-----
+
+== Generowanie kart opcjonalnych ==
+
+Zanim przejdziesz do tego rozdziału zapoznaj się najpierw z rozdziałem wcześniejszym.
+
+W niektórych sytuacjach możesz mieć potrzebę wygenerowania dodatkowych kart w celu nauki obcych znaczeń polski słów, ale tylko niektórych, tych przez ciebie wybranych. Aby móc stworzyć takie opcjonalne, dla niektórych notatek, karty musisz w pierwszej kolejności dla danego typu notatki utworzyć nowe pole. Jeżeli w polu tym będzie znajdował się jakikolwiek tekst - wystarczy jedna litera lub cyfra, to zostanie wygenerowania dodatkowa karta. Następnym krokiem jest dokonanie odpowiednich zmian w szablonie notatki. Więcej informacji na ten temat znajduje się w rozdziale poświęconym <<conditionalreplacement,poleceniom warunkowym>>.
+
+== Odnośniki do plików audio/wideo oraz LateXa ==
+
+Anki nie przegląda szablonów w poszukiwaniu odnośników do plików multimedialnych oraz plików LateXa, ze względu na powolność takiego procesu. Ma to pewne następstwa przy załączaniu plików do szablonu.
+
+=== Stałe pliki audio i obrazy ===
+
+Aby dodać plik audio lub obraz, który będzie taki sam na każdej karcie (np. logo firmy w rogu każdej karty):
+
+ 1. Zmień nazwę pliku, tak żeby rozpoczynała się od znaku podkreślenia np. "_logo.jpg". Znak ten informuje program, że plik używany jest przez szablon i powinien być eksportowany i synchronizowany podczas udostępniania talii.
+ 2. Dodaj odnośnik do pliku w szablonie przodu lub tyłu, przykładowo:
+
+-----
+<img src="_logo.jpg">
+-----
+
+=== Odnośniki do pól w nazwach plików ===
+
+Anki nie obsługuje odnośników do pól w nazwach plików. Takie pliki prawdopodobnie nie będą wyświetlane na karcie ani importowane/eksportowane do Ankiweb. Przykład błędnego zastosowania pola w nazwach plików wstawianych do kart:
+
+-----
+<img src="{{Wyrażenie}}.jpg">
+
+[sound:{{Słowo}}]
+
+[latex]{{Pole 1}}[/latex]
+-----
+
+Jedyną możliwością jest bezpośrednie wstawienie pliku w danym polu. Plik ten powinien posiadać stałą i niezmienną nazwę. Więcej informacji na ten temat znajduje się w rozdziale dotyczącym <<importing,importowania>>
+
+[[conditionalreplacement]]
+== Polecenia warunkowe ==
+
+W Anki istnieje możliwość dodawania do karty określonego tekstu w zależności czy dane pole jest pełne lub puste. Przykład:
+
+-----
+Ten tekst będzie zawsze widoczny.
+
+{{#NazwaPola}}
+Ten tekst będzie widoczny tylko, gdy pole NazwaPola będzie pełna.
+{{/NazwaPola}}
+
+{{^NazwaPola}}
+Ten tekst będzie widoczny tylko, gdy pole NazwaPola będzie puste.
+{{/NazwaPola}}
+-----
+
+Przykład poniżej pokazuje etykiety, gdy pole etykiet zawiera jakąś treść.
+
+-----
+{{#Tags}}Etykiety: {{Tags}}{{/Tags}}
+-----
+
+Poleceń warunkowych możesz także użyć do kontrolowania generowania kart. Przykład - karta z dwoma polami z przodu:
+
+-----
+{{Wyrażenie}}
+{{Notatki}}
+-----
+
+Standardowo kart zostałaby wygenerowana, gdy któreś z tych dwóch pól posiadałoby jakąkolwiek treść. Jeżeli chcesz jednak aby karta generowana była tylko w sytuacji, gdy pole Wyrażenie jest niepuste musisz zmienić szablon przodu w następujący sposób:
+
+-----
+{{#Wyrażenie}}
+{{Wyrażenie}}
+{{Notatki}}
+{{/Wyrażenie}}
+-----
+
+Innymi słowy, kart powstanie, gdy Wyrażenie posiada treść, w przeciwnym razie karta nie będzie generowana. Taki sam warunek możesz nałożyć na obydwa pola, tzn. treść musi posiadać pole Wyrażenie i Notatki, aby wygenerować kartę. Możesz to zrobić w następujący sposób:
+
+-----
+{{#Wyrażenie}}
+{{#Notatki}}
+{{Wyrażenie}}
+{{Notatki}}
+{{/Notatki}}
+{{/Wyrażenie}}
+-----
+
+Jak zostało to wspomniane w rozdziale o <<cardgeneration,generowaniu kart>>, karty są generowane lub nie jedynie w zależności od zawartości przedniej strony karty. Gdy zastosujesz ten kod na tyle karty i przykładowo nie wypełnisz, któregoś z pól to karta zostanie mimo to wygenerowana. Na jej tyle będzie, czyli w odpowiedzi, nie będzie jednak żadnego tekstu.
+
+Standardowe zachowanie Anki w procesie generowania kart można określić jako warunek "LUB" - karta zostanie utworzona jeżeli pierwsze pole jest niepuste lub drugie pole jest niepuste i tak dalej. Zachowanie opisane na powyższym przykładzie można interpretować jako warunek "I" tzn. stwórz kartę, gdy pierwsze pole jest niepuste i drugie pole jest niepuste itd.
+
+Zastrzeżenie: obecnie Anki nie obsługuje jeszcze mieszania warunków "I" oraz "LUB" tzn. że na powyższym przykładzie nie byłoby możliwe działanie "wymagaj pola Wyrażenie i Notatka lub Pole 3":
+
+-----
+{{#Wyrażenie}}
+{{#Notatki}}
+{{Wyrażenie}}
+{{Notatki}}
+{{/Notatki}}
+{{/Wyrażenie}}
+
+{{Pole 3}}
+-----
+
+Poza tym do kontroli tworzenia kart nie można używać negacji. Nie zadziała w takim razie znacznik \{\{^Field}}.
+
+[[clozetemplates]]
+== Szablon luki ==
+
+Podstawowe informacje na ten temat zawarte są w rozdziale o <<cloze,lukach>>. 
+
+Budowa notatki typu luka różni się od budowy notatki standardowego typu. Zamiast pewnej liczby kart generowanych na podstawie notatki mamy tutaj do czynienia z tylko jedną kartą. Co więcej, wszystkie karty z luką generowane są na podstawie tego samego szablonu notatki.
+
+Jak zostało to wspomniane w rozdziale dotyczącym generowania kart, standardowe karty tworzone są na podstawie jednego lub więcej pól, przy czym pole znajdujące się w pytanie nie może być puste. Generowanie kart wygląda trochę inaczej w przypadku notatki typu luka:
+
+ * Anki najpierw przeszukuje szablon przodu pod kątem polecenia \{\{cloze:NazwaPola}}.
+ * Następnie w polu NazwaPola wyszukuje luki w postaci \{\{c1::tekst}}.
+ * Na końcu dla każdej luki tworzona jest osobna karta.
+
+W kartach typu luka możliwe jest również używanie poleceń warunkowych. Przykładowo dla każdej luki możemy wstawić niezależne podpowiedzi. Aby to zrobić, w szablonie przodu powinien znaleźć się następujący kod:
+
+-----
+{{cloze:Text}}
+
+{{#c1}}
+{{Podpowiedź1}}
+{{/c1}}
+
+{{#c2}}
+{{Podpowiedź2}}
+{{/c2}}
+-----
+
+== Kod HTML ==
+
+Szablony kart obsługują znaczniki języka HTML. Oznacza to, że wygląd kart może być dostosowany w ten sam sposób, w którym pisane są strony internetowe. Wspierane są tabele, listy, obrazy i odnośniki do zewnętrznych stron internetowych. Przykładowo, stosując odpowiedni układ tabeli możesz stworzyć szablon, w którym pytanie wyświetlane będzie po lewej stronie karty, zaś odpowiedź po prawej, zamiast standardowo na górze i na dole.
+
+Nie ma sensu opisywać w tym podręczniku wszystkich możliwych zastosowań języka HTML, gdyż internecie dostępnych jest wiele bardzo dobrych kursów na ten temat.
+
+== Linki do słowników ==
+
+Ciekawą funkcją jest używanie nazw pól do wstawiania odnośników do słowników. Przykładowo, słownik danego języka posługuje się odnośnikami w formie:
+
+-----
+http://moj-slownik.com/search?q=mojeslowo
+-----
+
+Dzięki takiej standardowej formie i przy użyciu nazwy pola możesz stworzyć odnośnik do słowa w danym słowniku, który będzie automatycznie uzupełniany o zawartość pola:
+
+-----
+{{Wyrażenie}}
+
+<a href="http://moj-slownik.com/search?q={{Wyrażenie}}">Sprawdź w słowniku</a>
+-----
+
+Powyższa linijka kodu umożliwi ci sprawdzenie znaczenia danego wyrazu w słowniku podczas powtórki. W tej metodzie jest jednak pewien haczyk. Został on opisany poniżej.
+
+== Pomijanie HTML ==
+
+Podobnie jak w szablonach, tak i w ramach pól możliwe jest użycie znaczników języka HTML. Aby edytować kod HTML danego pola w konkretnej karcie. W oknie 'Dodaj' lub 'Edytuj aktualną' należy wybrać ostatni przycisk z belki edycji tekstu. W menu rozsuwanym znajduje się pozycja Edytuj HTML, dostępna również poprzez skrót klawiszowy Ctrl+Shift+X.
+
+Używając kodu HTML w polu karty należy zwrócić uwagę na jeden problem. Powróćmy do powyższego przykładu z odnośnikiem do słownika. Jeżeli pole {{Wyrażenie}} będzie zawierało jedynie czysty tekst np. Moje słowo, to tekst zawarty w linku będzie identyczny z tym przechowywanym w polu. Jeśli jednak do pola {{Wyrażenie}}, w tej konkretnej karcie dodamy kod HTML: <b>Moje słowo</b> to link przejmie również znaki języka HTML. Odnośnik w szablonie będzie wyglądał w standardowy sposób... 
+
+-----
+<a href="http://moj-slownik.com/search?q={{Wyrażenie}}">Sprawdź w słowniku</a>
+-----
+
+...jednak na karcie w czasie powtórki otrzymamy taki adres:
+
+-----
+<a href="http://moj-slownik.com/search?q=<b>Moje słowo</b>">Sprawdź w słowniku</a>
+-----
+
+W ten sposób odnośnik najpewniej nie wyświetli żadnej strony, gdyż kod HTML nie jest stosowany w adresach URL.
+
+Aby rozwiązać ten problem Anki posiada funkcję pomijania kodu HTML znajdującego się w polach notatki. Jeżeli nazwę pola użytą w szablonie poprzedzisz prefiksem 'text:' Anki, w momencie podstawiania zawartości pola do karty, pominie całkowicie jego formatowanie określone przy pomocy HTML. Kod HTML przycisku zawarty w szablonie notatki będzie zatem wyglądał w następujący sposób:
+
+-----
+<a href="http://moj-slownik.com/search?q={{text:Wyrażenie}}">Sprawdź w słowniku</a>
+-----
+
+[[columntemplates]]
+== Wygląd w przeglądarce ==
+
+Czasami niektóre z twoich kart mogą mieć dość skomplikowaną strukturę przez co sposób ich wyświetlenia w Przeglądarce może być nieczytelny. Aby temu zapobiec w oknie Przeglądarka>Karty...>Więcej>Wygląd przeglądarki możliwe jest zdefiniowanie uproszczonego sposobu wyświetlania kart danego typu w Przeglądarce. W obszarach 'Zmień szablon przodu' oraz 'Zmień szablon tyłu' możemy określić jakie pola mają być pokazane w przeglądarce, tak aby łatwiej zarządzać kartami.
+
+Aby wyświetlić zawartość obszarów 'Zmień szablon przodu' oraz 'Zmień szablon tyłu' w Przeglądarce, należy w jej głównym oknie nacisnąć prawym przyciskiem myszy na górnej belce z nazwami kolumn i z listy rozwijanej wybrać 'Pytanie' lub/i 'Odpowiedź'. W oknie 'Wygląd przeglądarki' można również określić czcionkę (krój i wielkość), przy pomocy której będzie pokazywany tekst z kolumn 'Pytanie' i 'Odpowiedź'.
+
+[[templatertl]]
+== Pisanie z prawej do lewej ==
+
+Do nauki języków pisanych z prawej do lewej niezbędne stosowanie w szablonie następującego formatowania pól:
+
+-----
+<div dir=rtl>{{PoleZtekstemZprawejDoLewej}}</div>
+-----
+
+Jeżeli trafiłeś tutaj bezpośrednio ze spisu treści zapoznaj się proszę najpierw z pozostałą częścią tego rozdziału. 
+
+[[platformcss]]
+== Wbudowane klasy CSS ==
+
+Anki posiada wbudowane klasy CSS, które pozwalają na różne wyświetlanie symboli japońskich w zależności od systemu operacyjnego:
+
+-----
+.win .jp { font-family: "MS Mincho"; }
+.mac .jp { font-family: "Hiragino Mincho Pro"; }
+.linux .jp { font-family: "Kochi Mincho"; }
+.mobile .jp { font-family: "Hiragino Mincho ProN"; }
+-----
+
+Zastosowanie w szablonie karty:
+
+-----
+<div class=jp>{{NazwaPola}}</div>
+-----
+
+Możliwe jest również zastosowanie takich klas jak .gecko, .opera oraz .ie, które będą wyświetlane w zależności od użytej przeglądarki dla AnkiWeb. Więcej funkcji opisanych jest na stronie http://rafael.adm.br/css_browser_selector/ .
+
+[[installingfonts]]
+== Instalacja czcionek ==
+
+Jeżeli Anki używasz na komuterze w pracy lub w szkole, albo na urządzeniu mobilnym, gdzie nie masz możliwości bezpośredniej instalacji czcionki w systemie istnieje możliwość dodania czciocnki tylko do Anki, bez jej instalacji w systemie komputera czy komórki.
+
+Aby czcionka mogła zostać użyta przez Anki musi być ona zapisana w formacie TrueType. Nazwa pliku czcionki w formacie TrueType powinna posiadać końcówkę .ttf, przykładowo: "Arial.ttf". Plik ten powinien zostać umieszczony w folderze z plikami multimedialnymi, znajdującym się w folderze profilu użytkownika:
+
+ . Zmień nazwę pliku, tak żeby na jej początku znajdował się znak podkreślnika, przykładowo "_arial.ttf". Podkreślnik sygnalizuje Anki, że plik ten będzie używany w szablonie i nie powinien zostać usunięty w przypadku wyszukiwaniu nieużywanych plików multimedialnych.
+ . W swoim systemie przejdź do folderu, w którym przechowywane są Dokumenty (Windows: Moje dokumenty), następnie odnajdź folder Anki, a w nim folder o nazwie "Użytkownik 1" (lub o nazwie zgodnej z nazwą twojego profilu w Anki).
+ . Wewnątrz tego folderu znajduje się kolejny, o nazwie collection.media. Tam umieść swój plik z czcionką (pamiętaj o podkreślniku na początku nazwy pliku).
+
+Następnie zaktualizuj szablon notatki:
+
+ . Kliknij *Dodaj* w oknie głównym Anki, a następnie wybierz typ notatki, w którym zamierzasz zmienić czcionkę.
+ . Kliknij *Karty...*.
+ . W polu Styl, na dole, dodaj następujący kod, zastępując "_arial.ttf" nazwę czcionki, którą skopiowałeś wczesniej do folderu z multimediami:
+
+-----
+@font-face { font-family: myfont; src: url('_arial.ttf'); }
+-----
+
+Możesz teraz, zmienić czcionkę dla całej karty, lub tylko dla pojedynczych pól. Aby zmienić czcionkę, w której wyświetlana jest cała karta po prostu umieść kod:
+
+-----
+font-family: myfont; src: url('_arial.ttf');
+-----
+
+w klasie .card , zaś zamiast nazwy czcionki wpisz "myfont". Aby dowiedzieć się jak zmienia się czcionkę dla pojedynczego pola, przejdź prosżę do rozdziału <<fieldstyling, Style CSS pól>>.
+
+UWAGA: Upewniej się proszę, że nazwa czcionki dokładnie zgadza się z tym co wpisałeś w kodzie. Jeżeli plik czcionki nosi nazwę arial.TTF, a w kodzie wpiszesz arial.ttf, czcionka ta nie zadziała w Anki.
+
+UWAGA: Z uwagi na toolikt, którego używa Anki wstawiane czcionki mogą powodować błędy w systemie OS X. Obejście tego problemu zostało opisane tutaj: https://anki.tenderapp.com/discussions/ankidesktop/4161-crash-when-showing-answer-with-custom-font-mac-109anki-2018#comment_30164833
+
+[[profileprefs]]
+= Profile i ustawienia =
+
+[[profiles]]
+Profile
+-------
+
+Jeżeli Anki na danym komputerze używane jest przez więcej niż jedną osobę, możliwe jest utworzenie dla nich osobnych profili. Każdy z tych profili będzie posiadał własną kolekcję i własne ustawienia programu. Zarządzanie profilami użytkowników możliwe jest w menu Plik>Zmień profil... .
+
+Profile użytkowników można również zabezpieczyć hasłem, w oknie Preferencje. Pamiętaj jednak, że twoja kolekcja nie jest w żaden sposób szyfrowana. Inni użytkownicy mają swobodny dostęp do jej plików w folderze na dysku twardym komputera. Ochrona hasłem ma być przede wszystkim utrudnieniem dla uczniów szkół, aby utrudnić im dostęp do kolekcji i ustawień kolegów. 
+
+Większość użytkowników wykorzystuje tylko jeden własny profil, można jednak założyć dodatkowy profil na potrzeby testowania niektórych z ustawień, tak aby zmian tych nie dokonywać najpierw w głównej kolekcji.
+
+[[preferences]]
+Preferencje
+------------
+
+Preferncje programu dostępne są w menu Narzędzia. Jeżeli posiadasz kilka różnych profili użytkownika to zmiany, których dokonujesz w Preferencjach będą odnosić się tylko do profilu, do którego jesteś obecnie zalogowany.
+
+*Podstawowy*
+
+Opcja *Usuń HTML przy wklejaniu tekstu* kontroluje sposób w jaki Anki powinien obchodzić się ze sformatowanym już tekstem wklejanym w oknie Edycja lub Dodaj. Domyślnie Anki pomija,"nie widzi" formatującego kodu HTML. Oznacza to, że formatowanie informacji zawartych w polach będzie odbywać się przy użyciu kodu zawartego w Szablonie notatki. Aby zachować formatowanie tekstu wklejanego do pól w oknie Edycji lub Dodaj wystarczy odznaczyć tę opcję.
+
+Domyślni Anki kleja do pól zdjęcia w formacie JPG, w celu redukcji miejsca na dysku zajmowanego przez obrazy. Zaznaczając opcję *Wklej zdjęcia ze schowka jak PNG* sprawisz, że obrazy będą zapisywane w formacie PNG. Format ten wspiera przezroczystość w obrazach. Lepsza jest także ich jakość co jednak przekłada się na większy rozmiar pliku.
+
+Pierwsze  menu rozwijane kontroluje sposób oddziaływania na siebie typów notatek i talii. Domyślnie wybrana jest opcja "Dodawaj domyślnie do aktualnej talii", dzięki temu Anki zapamiętuje talię i typ notatki, do których ostatnio zostały dodane notatki i wybiera ten sam typ notatki jeżeli dodajesz nowe notatki do danej talii. Dodatkowo ten typ notatki i tali będą pokazywane jako pierwszy zawsze gdy otworzysz okna Dodaj lub Edycja. Drugą opcją jest "Zmień talię na podstawie typu notatki". Opcja ta zapisuje w trakcie dodawania łączy talię z ostatnio używanym dla niej typem notatki. Ustawienie to jest wygodne, jeżeli dla danej talii używasz tylko jednego typu notatki.
+
+Drugie menu rozwijane kontroluje sposób pokazywania nowych i powtarzanych kart. Mogą być one wymieszane pomiędzy sobą, nowe karty mogą być pokazywane w pierwszej kolejności lub jako ostatnie.
+
+Opcja *Nowy dzień rozpoczyna się...* kontroluje godzinę, o której Anki powinno pokazywać karty na kolejny dzień. Domyślnie opcja ta ustawiona jest na godzinę 04:00. To gwarantuje, że w trakcie powtórki np. w okolicach północy nie zostaną ci wyświetlone notatki z dwóch dni. Jeżeli wstajesz bardzo późno albo kładziesz się spać bardzo wcześnie, możesz tutaj odpowiedno dostosować czas nowego dnia, tak żeby odpowiadał on godzinom, w których idziesz spać.
+
+Opcja *Nauka ponad limit* określa Anki w jaki sposób ma...
+
+The *Learn ahead limit* tells Anki how to behave when there is nothing left to study in the current deck but cards in learning. The default setting of 20 minutes tells Anki that cards should be shown early if they have a delay of less than 20 minutes and there's nothing else to do. If you set this to 0, Anki will always wait the full delay, showing the congratulations screen until the remaining cards are ready to be reviewed.
+
+ Limit czasowy - Timebox to technika, która pomaga podzielić długie sesje nauki (np. półgodzinne) na krótsze bloki. Jeżeli ustawisz *limit czasowy* na wartość inną od 0, Anki co tyle minut będzie pokazywał ile kart udało ci się przejrzeć, nauczyć w tym limicie czasowym. 
+
+[[deckoptions]]
+= Opcje talii =
+
+Opcje talii dostępne są po wybraniu odpowiedniej talii w oknie głównym, pod przyciskim 'Opcje' na dole ekranu.
+
+Anki pozwala na wspóldzielenie tych samych opcji pomiędzy różnymi taliami. Dzięki temu możliwa jest zmiana ustawień wielu talii jednokrotnie zmieniając opcje. Aby to zrobić, opcje umieszczone są w 'grupach opcji'. Domyślnie, wszystkie nowopowstałe talie używają tej samej grupy opcji, zaś talie zaimportowane z poprzedniej wersji Anki będą posiadały oddzielne grupy opcji. Aby zmienić ustawienia tylko jednej talii, ale nie innych, kliknij ikonę koła zębatego w prawnym górnym rogu okna i dodaj nową grupę opcji. 
+
+Pamiętaj, żeby dokonywać zmian w ustawieniach, których działanie w pełni rozumiesz. Nieodpowiednie ustawienia mogą doprowadzić do zmniejszenia efektywności nauki.
+
+UWAGA: Opcje programu nie działają wstecznie. Jeśli zmienisz opcję, która określa po jakim czasie karta ma być wyświetlona po błędnej odpowiedzi, a następnie powrócisz do dawnych ustawień, to karty z poprzednim ustawieniem zachowają nadany im już wcześniej czas oczekiwania.
+
+[[newopts]]
+Nowe karty
+-----------
+
+*Kroki* kontrolują liczbę wyświetleń nauki nowej karty i opóźnienie pomiędzy tymi wyświetleniami. Aby dowiedzieć się więcej o tym jak działają kroki, zajrzyj do rozdziału o <<learning, nauce>>.
+
+Domyślnie jednostką kroków jest minuta, możliwe jest jednak ustawienie kroków wyrażonych w dniach, a więc nie tylko: 10 minut, ale również 1 dzień (1440 minut), trzy dni (4320 minut) lub 7 dni itd.
+
+UWAGA: If there's nothing else to study, Anki will show cards up to 20 minutes early by default. The amount of time to look ahead is configurable in the <<preferences,preferences>>. One thing to be aware of is that the due counts will differ between the deck screen and study screens in this case. The deck screen will not count cards that are not ready, but the study screen will. This is done so that you can tell which decks need your attention.
+
+UWAGA: Anki treats small steps and steps that cross a day boundary differently. With small steps, the cards are shown as soon as the delay has passed, in preference to other waiting cards like reviews. This is done so that you can answer the card as closely to your requested delay as possible. In contrast, cards that cross a day boundary are scheduled on a per-day basis like reviews are. When you return to study the next day, the per-day learning cards will not be shown first, as that can make the first half of a review session frustratingly difficult. Instead, the cards will be shown after reviews are completed. They are included in the review count rather than the learning count, due to the way they are handled internally.
+
+*Kolejność* to funkcja, która kontroluje sposób wyświetlania nowych kart w trakcie powtórki. Mogą być one pokazywane w losowej kolejności lub wg kolejności ich dodania do talii. Pierwsze z tych ustawień sprawi, że nowe karty zostaną "przetasowane" przy użyciu aktualnej grupy opcji. W przypadku kiedy wybierzesz opcję "Pokaż nowe karty w kolejności losowej", a do swoich talii dodajesz dużo nowych kart, to karty najnowsze, będą wyświetlane trochę częściej niż te wcześniej dodane. Wyjściem z tej sytuacji jest zmiana ustawienia na "Pokaż nowe karty w kolejności losowej", a następnie powrót do opcji "Pokaż nowe karty w kolejności losowej". Nastąpi wtedy ponowne "przetasowanie" nowych kart.
+
+UWAGA: When you select random order, Anki will randomize your notes, keeping the cards of a given note close together. The cards of a given note are shown in the order their card templates appear in, so that siblings are introduced consistently - otherwise you could end up in a state where some notes had all their cards introduced and other notes had only one or two. Please see the "bury related" option below for more info.
+
+*Nowe karty/dzień* określa Anki ile nowych kart będzie wprowadzanych do powtórki każdego dnia, kiedy otwierasz program. Jeżeli, któregoś dnia ominiesz powtórkę liczba nowych kart nie wzrośnie, codziennie pozostaje na tym samym poziomie. Limit odnosi się do talii i talii zależnych. To oznacza, że jeżeli talia "Francuski" posiada limit 20 nowych kart dziennie, zaś "Francuski::Lekcja 1" oraz "Francuski::Lekcja 2" limit 15 nowych kart dziennie to ucząc się talii "Francuski" otrzymasz 15 kart z lekcji pierwszej i 5 kart z lekcji drugiej.
+
+UWAGA: Nauka nowych kart spowoduje tymczasowy wzrost liczby kart w dziennej powtórce. Świeży materiał musi być powtarzany częściej, w późniejszym okresie odstępy czasowe staną się dłuższe. Jeżeli każdego dnia uczysz się 20 nowych kart, możesz oczekiwać, że do codziennej powtórki będzie ok 200 kart. Liczbę tę możesz zmniejszyć wprowadzając mniejszą liczbę nowych kart lub w ogóle wyłączyć wprowadzanie nowych kart do momentu gdy spadnie liczba kart powtarzanych.More than one Anki user has excitedly studied hundreds of new cards over their first few days of using the program, and then become overwhelmed by the reviews required.
+
+*Przerwa kart absolwentów* is the delay between answering 'Good' on a card with no steps left, and seeing the card again.
+
+*Przerwa dla łatwych* is the delay between answering 'easy' on a card and seeing it again.
+
+*Początkowa trudność* controls the easiness that cards start out with. It is set when you see a card for the first time. It defaults to 250%, meaning that once you've finished learning a card, answering "Good" on subsequent reviews will increase the delay by approximately 2.5x (eg if the last delay was 10 days, the next delay would be 25 days). Based upon how you rate the card in subsequent reviews, the easiness may increase or decrease from what it starts out as.
+
+Wyłączając opcje *zakop powiązane...* spowoduje, że <<siblings, bliźnięta>> nie będą zakopywane. Zamiast tego Anki będzie starał się odsuwać pokazywanie bliźniaczych kart w czasie, ale jeszcze w czasie tej samej powtórki. Aby ta funkcja zadziałała liczba nowych kart na dzień musi być odpowiednio duża, tak żeby możliwe było odpowiednie rozsunięcie kart. 
+
+Powtórki
+---------
+*maksymalnie powtórek/dzień* pozwala na ustawienie dziennego limitu powtarzanych kart. Kiedy limit zostanie osiągnięty Anki nie pokaże następnych kart tego dnia, nawet jeśli są karty oczekujące. Funkcja ta jest przydatna przy systematycznej nauce, gdyż pomaga uniknąć tzw. górek, czyli nagromadzenia się dużej liczby kart do powtórki jednego dnia. Dzięki tej funkcji również po powrocie z wakacji nie zaczynasz od odkopywania się z ogromnej liczby zaległych kart. Jeżeli po ukończeniu powtórki pozostają jakieś karty oczekujące, to informacja o tym zostanie wyświetlona na ekraniu z gratulacjami po skończonej powtórce.
+
+*Premia odpowiedzi łatwa* umożliwia na ustawienie wzrostu interwału pomiędzy odpowiedziami 'Dobra' i 'Łatwa'.
+
+*Modyfikator przerw* pozwala na ustawienie mnożnika przerw. Domyślnie ustawiona jest wartość 100%, która nie modyfikuje w żaden sposób długości interwału. Jeżeli modyfikator będzie miał wartość 80% to przerwa będzie wynosiła 80% czasu standardowej (zamiast 10 dni przerwy będzie to 8 dni). Zmieniając to ustawienie żonglujemy odstępami w pokazywaniu kart.
+
+Przeciętny użytkownik uczący się materiału o umiarkowanej trudności zapamiętuje ok 90% dojrzałych kart. Swój własny wynik w powtóce dojrzałych kart możesz znaleźć w statystykach danej talii na wykresie Przyciski odpowiedzi - procentowa skuteczność odpowiedzi udzielonych do potwórki kart dojrzałych pokazana jest na w czterech kolumnach po prawej stronie. Jeżeli nie uczysz się danej talii dostatecznie długo, możesz jeszcze nie mieć żadnych dojrzałych kart. Analizę wynikó warto jednak odłożyć na pewien czas, gdy uzbiera się już odpowiednia liczba wyników, które będą w reprezentatywny sposób określały stan twojej wiedzy.
+ 
+Twórcy SuperMemo sugerują użycie wzoru do obliczenia właściwego modyfikatora przerw. Wzór sprowadza się do:
+
+-----
+log(docelowe zapamiętanie%) / log(obecne zapamiętanie%)
+-----
+
+Wyobraź sobie, że obecne zapamiętanie to 85% i chcemy je zwiększyć do 90%. Policzmy zatem modyfikator:
+
+-----
+log(90%) / log(85%) = 0.65
+-----
+
+Do obliczeń możesz https://www.google.com/search?q=log(90%25)+%2F+log(85%25)[użyć Google].
+
+Zatem jeśli ustawisz modyfikator przerw na poziomie 65% po pewnym czasie twoje zapamiętywanie powinno zbliżyć się do zakładanego, docelowego poziomu.
+
+Zauważ proszę, że zależność pomiędzy czasem spędzonym przy nauce a poprawą zapamiętania jest nieliniowa: zapamiętanie poprawiasz o 5%, zaś wzrost częstotliwości nauki to aż 35%. Jeżeli uczysz się czegoś ważnego, to dodatkowy wysiłek rzeczywiście może się opłacić - sam musisz zdecydować. Jeżeli jednak po prostu jesteś niezadowolony z faktu, że dużo zapominasz, to będzie dla ciebie lepiej jeśli spędzisz więcej czasu nad nauką przy pierwotnym modyfikatorze przerw lub do nauki wykorystasz mnemotechniki.
+
+Po zwiększeniu modyfikatora przerwa zwiększy się co najmniej o 1 dzień.
+
+*Maksymalna przerwa* określa górny limit czasu, który Anki może nie pokazywać danej karty. Wartość domyślna to 100 lat. Możesz ją jednak zmniejszyć, aby dodać więcej powtórek i uzyskać tym samym lepsze zapamiętanie.
+
+Wyłączając opcje *zakop powiązane...* spowoduje, że <<siblings, bliźnięta>> nie będą zakopywane. Zamiast tego Anki będzie starał się odsuwać pokazywanie bliźniaczych kart w czasie, ale jeszcze w czasie tej samej powtórki.
+
+[[lapses]]
+Pomyłki
+-------
+
+Jeżeli podczas powtórki nie będziesz potrafił odpowiedź na zadane pytanie i ocenisz ją jako *Znowu* zostanie ona określona jako 'pomyłka'. Domyślnym zachowaniem pomyłek jest zresetowanie ich interwału powtórki do 1 i wrzucenie jej do kolejki kart do nauki za 10 minut. To zachowanie może zostać zmodyfikowane poprzez zastosowanie opisanych poniżej opcji.
+
+If you leave the steps blank, Anki will not place the card back in the learning queue, and it will be rescheduled as a review with its new interval determined by the settings below.
+
+UWAGA: The new interval is determined when you answer "Again" to a review card, not when the card finishes its relearning steps. For this reason, the "Good" and "Easy" buttons during relearing do not alter the interval again - they only control which step you are on. If there is only a single step (the default), the "Easy" button will be hidden, since it would accomplish the same thing as the "Good" button. If you have 2 or more steps, "Easy" is not hidden, to allow you to graduate cards from the queue before all of their steps are finished.
+
+'Przerwa nowej karty' controls how much Anki should reduce the previous interval by. If the card had a 100 day interval, the default of 0% would reduce the interval to 0 (but see the next option). If you set this option to 20%, the card would have its interval reduced to 20 days instead.
+ 
+'Minimalna przerwa' allows you to apply a minimum limit to the above option. The default setting says that lapses should be reviewed one day later. The interval must be 1 day or more.
+
+The leech options control the way Anki handles leeches. Please see the leech section for more information.
+
+Ogólne
+-------
+
+Anki monitoruje czas twojej odpowiedzi, pozwala to między innymi na obliczenie czasu jaki spędzasz powtarzając i ucząc się kart każdego dnia. Czas ten nie wpływa na harmonogram powtórek. Jeżeli nie udzielisz odpowiedzi na kartę w ciągu 60 sekund Anki przyjmuje, że odszedłeś od komputera lub rozproszyłeś się na tyle, że nie jesteś w stanie udzielić poprawnej odpowiedzi. Twoja ocena w takim przypadku nie zostaje uznana i nie wpłynie niekorzystanie na statystki powtórki. 'Ignoruj odpowiedzi z czasem dłuższym niż...' pozwala na kontrolę czasu odcięcia. Minimalnie wynosi on 30 sekund.
+
+Jeżeli zaznaczone jest 'Pokaż czas odpowiedzi', Anki będzie wyświetlał aktualny czas, który potrzebujesz na odpowiedź w czasie powtórki danej karty.
+
+Domyślanie Anki automatycznie odtwarza pliki audio zarówno na przodzie jaki i tyle karty. Jeżeli odznaczysz 'Automatycznie odtwórz pliki audio', Anki odtworzy plik audio dopiero w przypadku kiedy naciśniesz przycisk 'powtórz'.
+
+'Kiedy widoczna odpowiedź, odtwórz pytanie i odpowiedź' opcja ta określa co dzieje się kiedy naciśniesz przycisk 'powtórz' gdy pokazana jest odpowiedź. Opcja ta nie kontroluje tego co dzieje się po pokazaniu odpowiedzi; więcej informacji na ten temat znajduje się w <<specialfields, tym rozdziale>>.
+
+Opis
+-----
+
+Możesz tu edytować opis talii, który będzie pokazywany po wejściu do danej talii w oknie głównym Anki. Opis pobierany jest automatycznie pobierany z taliami udostępnionymi przez społeczność Anki. Opis można w każdej chwili dowolnie edytować, również w przypadku talii udostępnionych.
+
+[[syncing]]
+= AnkiWeb i synchronizacja =
+
+Ankiweb to usługa, która pozwala na synchronizację twojej kolekcji pomiędzy wieloma urządzeniami, a tym samym umożliwia posiadanie zawsze aktualnej talii na każdym z tych urządzeń. Założ {ankiweb}[darmowe konto] zanim przejdziesz do dalszej lektury tego rozdziału.
+
+Ustawienia
+-----------
+
+Aby rozpocząć synchronizację kolekcji, naciśnij przycisk Synchronizuj znajdujący się w prawym górnym rogu głownego okna Anki lub naciśnij klawisz 'y' na klawiaturze. Zostaniesz poproszony o swoj identyfikator AnkiWeb ID oraz hasło, które określiłeś w procesie rejestracji.
+
+Podczas pierwszej synchronizacji kolekcji, Anki nie będzie w stanie połączyć danych znajdujących się na Ankiweb z tymi, które masz na swoim komputerze, dlatego zostaniesz poproszony o wybranie danych, które chcesz przesłać. Po tym kroku Anki bez problemu będzie mogło łączyć zmiany w talii pochodzące z różnych lokalizacji, z kilkoma wyjątkami.
+
+Automatyczna synchronizacja
+----------------------------
+
+Po pierwszej synchronizacji, każda kolejna wykonywana będzie automatycznie po otwarciu lub zamknięciu kolekcji. Jeżeli jednak chcesz synchronizować kolekcję ręcznie, wyłącz opcję automatycznego sychronizowania w Preferencjach Anki.
+
+Media
+------
+
+Anki synchronizuje również dźwięki oraz zdjęcia znajdujące się w notatkach. Zauważone i zschynchronizowane zostaną wszystkie nowo dodane lub usunięte pliki, jednakże jeżeli edytowałeś któryś z plików dodanych do notatki to Anki tej zmiany nie zauważy. Należy zatem usunąć stary plik z notatki i dodać go ponownie, już w wersji po edycji. 
+
+UWAGA: Jeżeli masz Anki na pamięci USB pamiętaj o  sformatowaniu jej do systemu plików NTFS, zmiany plików multimedialnych w systemie plików FAT32 mogą nie zostać zauważone.
+
+Konflikty
+----------
+
+Reviews and note edits can be merged, so if you review or edit on two different devices before syncing, Anki will preserve your changes from both locations. If the same card has been reviewed in two different locations, both reviews will be marked in the revision history, and the card will be kept in the state it was when it was most recently answered.
+
+There are certain changes that Anki is unable to merge. These mainly relate to the format of notes: things like adding a new field, or removing a card template. When you perform an operation that can't be merged, Anki will warn you, and give you the option of aborting the operation. If you choose to continue, you'll be asked to choose whether to keep the local copy or the copy on AnkiWeb when your collection is next synchronized.
+
+If you wish to force a full upload or download (for example, because you accidentally deleted a deck on one side and want to restore the deck rather than having its deletion synchronized), you can check the "On next sync, force changes in one direction" box in Tools>Preferences>Network, then sync as usual. (You'll be given the option to choose which side you want to use.)
+
+Połączenie przez Proxy
+-----------------------
+
+Anki syncs over secure HTTP connections. If you need a proxy to access the internet, Anki should automatically pick up your system proxy settings if you're on Windows or OS X, and will honour the HTTP_PROXY environment variable if you're on another platform.
+
+Please note that advanced proxy setup via .pac or .wpad files is not supported in Anki.
+
+To override the system proxy settings on Windows or OS X, define a HTTP_PROXY environmental variable that points to the proxy server. It will look like:
+
+-----
+http://user:pass@proxy.company.com:8080
+-----
+
+If your username or password contains an @ (eg user@workdomain.com), you need to change it to %40, like so:
+
+-----
+http://user%40workdomain.com:pass@proxy.company.com:8080
+-----
+
+If for some reason Anki is unable to pick up your system settings on Windows, please use an http://www.itechtalk.com/thread3595.html[environmental variable] instead, as described above.
+
+[[browser]]
+= Przeglądarka =
+
+The browser (which has nothing to do with web browsers such as Mozilla Firefox) allows you to search through your cards and notes and edit them. It is opened by clicking on 'Browse' in the main window, or by pressing 'b' on your keyboard. It is comprised of three sections: the 'sidebar' on the left, the 'card list' on the top right, and the 'current note' on the bottom right. By positioning the mouse between two sections, it is possible to click and drag to expand one section and shrink another.
+
+Sidebar
+--------
+
+The sidebar on the left allows quick access to common search terms. Various search terms as described below are listed, along with all deck names and tag names. Clicking on an item will search for it.
+
+You can hold down ctrl (command on a Mac) and click in order to append the clicked item to the current search with an AND condition, instead of starting a new search. If you wanted to show learning cards that were also in the German deck for instance, you could click on "Learning", then ctrl+click on "German".
+
+You can hold down shift to create an OR search instead of an AND (for example, you could click one deck, then shift-click another to show cards from either of the decks in the same view).
+
+You can hold down alt (option on a Mac) in order to reverse the search (prepend a '-') (for instance, to show all cards in a current deck that do _not_ have a certain tag).
+
+[[searching]]
+Wyszukiwanie
+-------------
+
+Nad listą kart znajduje się wyszukiwarka. Możesz w niej wpisać różnego rodzaju formuły i warunki, aby odnaleźć szukane karty.
+
+=== Szukanie proste ===
+
+Gdy wpiszesz coś w wyszkiwarce Anki odnajdzie odpowiadające temu notatki oraz karty. Przykładowo:
+
+ pies :: wyszuka "pies" - znajdzie zatem słowa "piesi" i "pieski".
+ pies kot :: wyszuka notatki ze słowami "pies" i "kot", na przykład "pies i kot".
+ pies or kot :: wyszuka notatki ze słowem "pies" lub "kot".
+ pies (kot or mysz) :: wyszuka notatki ze słowami pies i kot, lub pies i mysz.
+ -kot :: wyszuka notatki bez słowa "kot".
+ -kot -mysz :: wyszuka notatki bez słów "kot" oraz "mysz".
+ -(kot or mysz) :: jak wyżej.
+ "ten pies" :: wyszuka notatki dokładnie z wyrażeniem "ten pies".
+ -"ten pies" :: wyszuka notatki dokładnie bez wyrażenia "ten pies.
+ k_t :: wyszuka notatki z literami: d, <dowolną literą>, t, przykładowo: kat, kit itd.
+ k*t :: wyszuka notatki ze słowami rozpoczynającymi się od litery k i kończącymi się literą t, przykładowo: koloryt, kapitanat itd.
+
+Z powyższych przykładów wynika, że:
+
+ * Szukane słowa oddzielone są zawsze spacją
+ * When multiple search terms are provided, Anki looks for notes that match all of the terms
+ * You can use "or" if you only need one of the terms to match
+ * You can prepend a minus sign to a term to find notes that don't match
+ * If you want to search for something including a space or parenthese, enclose it in quotes.
+ * Anki is only able to search within formatting in the <<fields,sort field>> you've configured. For example, if you add "**exa**mple" to one of your fields, this will not be matched when searching for "example" unless that field is the sort field.
+
+=== Ograniczenie do pola ===
+
+Możliwe jest również przeszkiwanie tylko wybranego pola karty. Pamiętaj jednak o tym, że szukana przez Ciebie fraza musi dokładnie zgadzaćsię z zawartością pola.
+
+ nazwa_pola:pies :: find notes with a Front field of exactly "dog". A field that says "a dog" will not match.
+ nazwa_pola:*pies* :: find notes with Front field containing dog somewhere
+ nazwa_pola: :: find notes that have an empty Front field
+ -nazwa_pola: :: find notes that have a non-empty Front field
+ nazwa_pola:* :: find notes that have a Front field, empty or not
+
+=== Tagi, talie, karty, notatki ===
+
+ tag:zwierzę :: find notes with the tag "animal"
+ tag:none :: find notes with no tags
+ tag:ani* :: find notes with tags starting with ani
+
+ deck:francuski :: find cards in a French deck, or subdecks like French::Vocab
+ deck:francuski -deck:francuski::* :: find cards in French, but not subdecks
+ deck:"francuski słownictwo" :: searching when a deck has a space
+ "deck:francuski słownictwo" :: also ok
+ deck:filtered :: filtered decks only
+ -deck:filtered :: normal decks only
+
+ card:przód :: search for Forward cards
+ card:1 :: search for cards by template number - eg, to find the second cloze deletion for a note, you'd use card:2
+
+ note:basic :: search for cards with a Basic note type
+
+=== Typy kart ===
+
+ is:due :: review cards and learning cards waiting to be studied
+ is:new :: new cards
+ is:learn :: cards in learning
+ is:review :: reviews (both due and not due)
+ is:suspended :: cards that have been manually suspended
+
+=== Właściwości kart ===
+
+ prop:ivl>=10 :: cards with interval of 10 days or more
+ prop:due=1 :: cards due tomorrow
+ prop:due=-1 :: cards due yesterday that haven't been answered yet
+ prop:due>-1 prop:due<1 :: cards due between yesterday and tomorrow
+ prop:reps<10 :: cards that have been answered less than 10 times
+ prop:lapses>3 :: cards that have moved into relearning more than 3 times
+ prop:ease!=2.5 :: cards easier or harder than default
+
+Note that due only matches review cards and learning cards with an interval of a day or more: cards in learning with small intervals like 10 minutes are not included.
+
+=== Ostatnio dodane ===
+
+ added:1 :: karty dodane dzisiaj
+ added:7 :: karty dodane tydzień temu
+
+The check is made against card creation time rather than note creation time, so cards that were generated within the time frame will be included even if their notes were added a long time ago.
+
+=== Ostatnio odpowiadane ===
+
+ rated:1 :: karty przeglądane dzisiaj
+ rated:1:2 :: cards answered Hard (2) today
+ rated:7:1 :: cards answered Again (1) over the last 7 days
+ rated:31:4 :: cards answered Easy (4) in the last month
+
+For speed, rating searches are limited to 31 days.
+
+=== Identyfikatory notatek i kart ===
+
+ nid:1000000000000 :: all cards of the note with given note ID
+ cid:1000000000000 :: the card with given card ID
+
+Note and card IDs can be found in the <<stats,card info>> dialog in the browser. These searches may also be helpful when doing add-on development or otherwise working closely with the database.
+
+
+[[cardlist]]
+Lista kart 
+-----------
+
+The card list displays cards that match the current search.
+
+The columns are configurable: right click on one (or ctrl+click on a Mac) to choose which columns you'd like to see. You can drag columns to reorder them. Clicking on a column will sort by that column; click again to reverse the sort order. Not all columns can be sorted on.
+
+UWAGA: The due column behaves differently for different types of cards. New cards show a number rather than a due date, which indicates the order the new cards will be presented in. Cards in (re)learning and reviews will both show a due date, but when sorting they are first grouped by type and then sorted by date.
+
+UWAGA: The "edited" and "changed" columns sound the same but track different things. "Edited" tracks the last time changes were made to the 'note' (e.g., when the content of a field was edited), while "changed" tracks the last time changes were made to the 'card' (e.g., when you reviewed the card and the review history and interval were updated).
+
+When you click on a card, its note will be shown in the bottom section. If you drag the mouse or hold ctrl or command to select multiple cards, the editor will be temporarily hidden. Various operations (such as changing the deck) can operate on multiple cards at once.
+
+The background colour will change depending on the card. Marked cards are a shade of purple. Suspended cards are a shade of yellow. For more information about marked and suspended cards, please see <<editmore,editing and more>>.
+
+One of the available columns is called the 'sort field'. Anki allows you to choose one field from each type of note to be used for sorting. You can change the sort field by clicking on "Fields..." in the current note section.
+
+The question and answer columns display what you'd see on the question and answer while reviewing, except the answer column will strip the question part for clarity. You can also choose a <<columntemplates,custom format>> in the card template editor instead of showing what would be seen during review.
+
+Current Note
+--------------
+
+The bottom right area displays the currently selected card's note. For more information about cards and notes, please see <<basics,the basics>>. For more information on formatting buttons, please see <<editor,editing>>.
+
+You can see a preview of what the currently selected card would look like when reviewing by clicking the "preview" button next to the search box.
+
+Pasek narzędzi
+---------------
+
+Up the top of the browser window is the toolbar.
+
+'Info' shows various information about the currently selected card, including its review history. For more information, see the <<stats,statistics>> section.
+
+'Mark' and 'Suspend' are documented in <<editmore,editing and more>>.
+
+'Change Deck' allows you to move cards to a different deck. Cards can be placed in different decks, so if you want to move all cards in a note, you should first use Edit > Select Notes.
+
+'Add Tags' and 'Remove Tags' allow you to add or remove tags in bulk.
+
+'Delete' removes the selected card(s) and their notes. It is not possible to remove individual cards, as individual cards are controlled by the <<templates,templates>>.
+
+[[findreplace]]
+Find and Replace
+--------------
+
+This option (Edit>Find and Replace) allows you to replace text in the cards you have selected. The regular expression option allows you to perform complex replacements. For example, given the following text on a card:
+
+-----
+<img src="pic.jpg">
+-----
+
+Searching for:
+
+-----
+<img src="(.+)">
+-----
+
+And replacing with the regexp:
+
+-----
+\1
+-----
+
+Will change the card to:
+
+-----
+pic.jpg
+-----
+
+A full discussion on regular expressions is outside the scope of this document. There are a number of tutorials available on the web. Please see http://docs.python.org/library/re.html for the particular format Anki uses.
+
+Finding Duplicates
+-------------------
+
+You can use the Edit>Find Duplicates option to search for notes that have the same content. When you open the window, Anki will look at all of your note types and present a list of all possible fields. If you want to look for duplicates in the "Back" field, you'd select it from the list and then click "Search".
+
+Unlike the check that happens when you add cards manually, the duplicate finding feature is not limited to a single note type. This means that by default, it will search in all note types that have the field you provided.
+
+The search area allows you to narrow down where Anki will look for duplicates. If you only want to search for duplicates in the "French Vocab" and "French Verbs" note types, you would enter:
+
+-----
+note:'french vocab' or note:'french verbs'
+-----
+
+The search syntax is the same as used when searching in the browser. Please see the <<searching,searching>> section for more information.
+
+You can click one of the links in the search results list to display the duplicate notes in that set. If the search brings up a large number of duplicates, you may wish to instead click the Tag Duplicates button, which will tag all matching notes with "duplicate." You can then search for this tag in the browser and handle them all from the same screen.
+
+[[browsermisc]]
+Other Menu Items
+-----------------
+
+Some other items in the Edit menu:
+
+'Reschedule' allows you to move cards to the end of the new card queue, or reschedule them as a review card on a given date. The second option is useful if you have imported already-learnt material, and you want to start it off with higher initial intervals. For example, choosing 60 and 90 will give all the imported cards an initial interval of 2 to 3 months.
+
+The card's revision history is not cleared when rescheduling: rescheduling changes the current state of a card, but not its history. If you want to hide the history, you will need to export your notes as a text file, delete the notes, and then import the text file again, creating new notes.
+
+'Reposition' allows you to change the order new cards will appear in. You can find out the existing positions by enabling the 'due' column, as described in the card list section above. If you run the reposition command when multiple cards are selected, it will apply increasing numbers to each card in turn. By default the number increases by one for each card, but this can be adjusted by changing the "step" setting.
+
+'Change Note Type' allows you to convert the selected notes from one type to another type, and/or convert between card templates. For example, imagine you have a Russian note type and a Computer note type, and you accidentally added some computer-related text into a Russian note. You can use this option to fix that mistake. The progress of cards is not reset.
+
+'Select Notes' takes the currently selected cards, finds their notes, and then selects all cards of those notes. If your notes have only one card, this does nothing.
+
+////
+'Browser options' lets you alter the card list font, and turn on full searching. Full searching is necessary if your words are partially formatted. For example, if you have the word "hello" and you have bolded only the first three characters, a regular search for "hello" will not be able to find the word, as there is formatting in the middle of it. Full searching works around this problem, but it is considerably slower. Note that searching is able to find partially formatted text if it's in the current sort field.
+////
+
+The 'Go' menu exists to provide keyboard shortcuts to jump to various parts of the browser, and to go up and down the card list.
+
+[[cramming]]
+[[filtered]]
+= Filtered Decks & Cramming =
+
+When you study a regular deck in Anki, only a limited number of cards are shown: the cards Anki thinks you're about to forget, and a daily limit of new cards. This is generally useful, as it ensures you don't spend more time studying than necessary. But sometimes it can be useful to step outside of these normal limits, such as when you need to revise for a test, focus on particular material, and so on. To make this possible, Anki provides a different type of deck called a 'filtered deck'.
+
+Filtered decks offer a lot of possibilities. They can be used for previewing cards, cramming cards before a test, studying particular tags, catching up on a backlog with a particular sort order, reviewing ahead of schedule, going over the day’s failed cards, and more.
+
+== Custom Study ==
+
+The easiest way to create a filtered deck is with the Custom Study button, which appears at the bottom of the screen when you click on a deck. It offers some convenient presets for common tasks like reviewing the cards you've failed that day. It will create a filtered deck called "Custom Study Session" and automatically open it for you.
+
+If an existing "Custom Study Session" deck exists, it will be emptied before a new one is created. If you wish to keep a custom study deck, you can rename it from the deck list.
+
+Here is a summary of each of the options:
+
+ Increase today's new card limit ::
+  Add more new cards to the deck you are currently studying. Note that unlike other options, this does 'not' create a new filtered deck, it modifies the existing deck.
+ Increase today's review card limit ::
+  If not all reviews due today were shown due to the daily review limit, this option allows you to show more of them. Like with the new cards option, this modifies the existing deck.
+ Review forgotten cards ::
+  Show all cards that you've answered Again (1) to within a number of days you specify.
+ Review ahead ::
+  Show cards that will be due in the near future (a number of days you specify). This is useful for working through some of your older cards before a vacation, but it will not help with cards you have learnt recently. Please see the <<reviewingahead,reviewing ahead>> section below for more info.
+ Preview new cards ::
+  Show cards that you have recently added.
+ Study by card state or tag ::
+  Select a certain number of cards from the current deck to study. You can choose to select new cards only, due cards only, or all cards; after you click "Choose Tags", you can also limit the selected cards by tags. If you wish to see all the cards in the deck (for instance, to study before a big test), you can set the number of cards to more than the number of cards in the deck.
+
+== Home Decks ==
+
+When a card is moved to a filtered deck, it retains a link to the deck it was in previously. That previous deck is said to be the card's 'home deck'.
+
+Cards automatically return to their home deck after they are studied in the filtered deck. This can be after a single review, or after multiple reviews, depending on your settings.
+
+It is also possible to move all cards back to their home decks at once:
+
+ * The "Empty" button in the study overview moves all cards in the filtered deck back to their home deck, but does not delete the empty filtered deck. This can be useful if you want to fill it again later (using the Rebuild button).
+ * Deleting a filtered deck does the same thing as "Empty" does, but also removes the emptied deck from the deck list. No cards are deleted when you delete a filtered deck.
+
+UWAGA: In the current implementation, if you empty or delete a filtered deck while cards are still in learning, they will be turned back into new cards.
+
+== Creating Manually ==
+
+Advanced users can create filtered decks with arbitrary search strings, instead of relying on set presets. To create a filtered deck manually, choose Create Filtered Deck from the Tools menu.
+
+When you click the Build button, Anki finds cards that match the settings you specified, and temporarily moves them from their existing decks into your new filtered deck for study.
+
+If you wish to fetch cards again using the same filter options (for instance, if you want to study all cards with a particular tag every day), you can use the Rebuild button at the bottom of the deck's overview screen.
+
+The *search* area controls what cards Anki will gather. All of the searches possible in the browser are also possible for filtered decks, such as limiting to tags, finding cards forgotten a certain number of times, and so on. Please see the <<searching,searching>> section of the manual for more information on the different possibilities.
+
+The *limit* option controls how many cards will be gathered into the deck. The order you select controls both the order cards are gathered in, and the order they will be reviewed in. If you select "most lapses" and a limit of 20 for example, then Anki will show you only the 20 most lapsed cards.
+
+For efficiency reasons, if your cram deck contains more than 1000 cards, only 1000 cards will be shown as due on the deck list and study screens.
+
+== Order ==
+The "cards selected by" option controls the order that cards will appear in. If the maximum number of cards you select is lower than the number of cards that match the filter criteria, Anki will exclude the cards at the end of this sorted list first.
+
+ Oldest seen first ::
+  Display cards that you haven't seen in reviews for the longest time first.
+ Random ::
+  Randomize the order of all cards that match the filter criteria (use no set
+  order).
+ Increasing intervals ::
+  Display cards that have the smallest interval first.
+ Decreasing intervals ::
+  Display cards that have the largest interval first.
+ Most lapses ::
+  Display cards that you have failed the most times first.
+ Order added ::
+  Display cards that you added first (have the earliest creation date) first.
+ Order due ::
+  Display cards with the earliest due date first.
+ Latest seen first ::
+  Display cards that you've seen most recently in reviews first.
+ Relative overdueness ::
+  Display cards that are most overdue in relation to their current interval first (for instance, a card with a current interval of 5 days overdue by 2 days displays before a card with a current interval of 5 years overdue by a week). This is useful if you have a large backlog that may take some time to get through and want to review the cards you're most in danger of forgetting first.
+
+== Steps & Returning ==
+
+Please see the section on <<learning,learning>> as a reminder of how steps work.
+
+By default, Anki will use the steps of a card's home deck. If a new card would normally be reviewed twice when being learnt, the same thing will happen when you study it in a filtered deck.
+
+Cards return to their home deck when (re)learning is complete. Thus if you have 3 learning steps, a new card will return to its home deck upon three presses of "Good" or a single press of "Easy".
+
+The *custom steps* option allows you to override the home deck's steps and provide your own steps instead. The provided steps apply to both cards being learnt, lapsed reviews, and reviews ahead of time.
+
+== Counts ==
+
+In a filtered deck, reviews that were already due are displayed as the review count as normal. Learning cards and non-due reviews are counted in the new card count, due to how the underlying implementation works.
+
+== Due Reviews ==
+
+If the filtered deck includes cards that were due for review, they will be shown like they would have been in their original deck - they appear in the review card count at the bottom of the screen, and there are four choices for how well you remembered. Upon a correct answer, the card will be moved back to its home deck, and its next delay adjusted using the home deck's settings. If you forget the card, it will be shown according to the relearning steps defined in the home deck.
+
+[[reviewingahead]]
+== Reviewing Ahead ==
+
+If your search included cards that are not due, Anki will show the reviews ahead of time. 
+
+Anki uses a special algorithm for these reviews that takes into account how early you are reviewing. If the cards were almost due to be shown, they will be given a new delay similar to what they would have received if you  had reviewed them on time. If the cards are reviewed soon after they were scheduled however, their new delay will be similar to their previous delay. This calculation works on a sliding scale.
+
+UWAGA: Because reviewing a card shortly after it is scheduled has little impact on scheduling (eg, a card due tomorrow with a one day interval will remain due tomorrow if reviewed early), *the "review early" custom study setting is not appropriate for repeated use*. If used to go through a week's worth of cards before a trip, the mature cards will be rescheduled into the future and the new cards will remain at small intervals, because you don't know them well enough for them to be rescheduled further. If you review early again the next day, all you'll end up doing is going through those same new cards again, to little benefit.
+
+Early reviews are included in the new card count rather than the review count, and will be shown according to the number of relearning steps defined in the home deck (unless you have provided custom steps). This means that if you have customized the number of relearning steps in the home deck, the non-due card may be shown more than once.
+
+If you have multiple steps, Anki will only consider the first answer when deciding the next delay, and like relearning in normal decks, "Good" and "Easy" differ only in the step change and not the resulting delay.
+
+== Rescheduling ==
+
+By default, Anki will return cards to their home decks with altered scheduling based on your performance in the filtered deck. If you disable the *reschedule cards based on my answers* option, Anki will return the cards in the same state they were in when they were moved into the filtered deck. This is useful for quickly flipping through material.
+
+If you have disabled rescheduling, the "Good" and "Easy" buttons will display no time above them when pressing them would cause the card to return to its home deck with its original scheduling.
+
+Please note that new cards are returned to the end of the new card queue, rather than the start of it.
+
+== Catching Up ==
+
+Filtered decks can be useful for catching up when you've fallen behind in your reviews. One Anki user describes the way they use the filtered decks to catch up as follows:
+
+++++
+<i>
+<p>I did this for a backlog of 800 cards with filtered subdecks. Worked very
+well for me.
+
+ <ol><li>Just Due filter with: "is:due prop:due>-7"
+ <li>Over Due filter with: "is:due prop:due<=-7"</ol>
+
+<p>The Just Due deck will then contain cards that became due in the past week. That's the deck you should study every day as it gets the cards that become due regularly. With this you can study as if there wasn't any backlog.
+
+<p>The Over Due deck will contain your backlog, cards which you didn't study in time. You can study them the same way you would study new cards. They go back into the regular cards, so the number of overdue will never grow as long as you keep your Just Due deck in check.
+
+<p>How long it takes depends on how many overdue cards you study each day in addition to the ones that become due regularly. You can still motor through them when you feel like it - or you can do a specific number per day like you would for new cards. Up to you.
+</i>
+++++
+
+= Pijawki =
+
+Pijawki to karty, które w kółko powtarzasz. Pomimo tego nie możesz się ich nauczyć, a ich powtórki zabierają ci dużo więcej czasu niż inne karty.
+
+Anki pomogą użytkownikowi w rozpoznaniu takich pijawek. Jeżeli na dane pytanie udzieliłeś błędnej odpowiedzi Anki zarejestruje ten fakt. Po 8 błędnych odpowiedziach karta otrzyma etykietę 'Pijawka' (ang. 'Leech') i zostanie zawieszona. Liczbę błędnych odpowiedzi, po której karta otrzymuje ww. etykietę można dowolnie dostosować w <<deckoptions,ustawieniach talii>>.
+
+Anki will continue to issue leech warnings periodically for a difficult card. The warning interval is half the initial leech threshold. That is, if you have Anki configured to warn at 8 lapses, future warnings will happen every 4 lapses. (12, 16, etc)
+
+Once a leech is found, there are a number of ways you can handle it.
+
+Oczekiwanie
+-----------
+
+Some leeches are caused by 'interference'. For example, an English learner may have recently learnt the words "disappoint" and "disappear". As they look similar, the learner may find themselves confusing the two when trying to answer. In these situations, it's often productive to concentrate on just one idea. When that idea is firmly ingrained in your mind, you can then return to learning the other idea. So in these situations, you may want to leave one of the words suspended until you have learnt the other one well, and then unsuspend it in the browser.
+
+Usunięcie
+---------
+
+Another way to manage leeches is to delete them. Consider if the material you're struggling with is important enough to make it worth your while. By selectively deleting difficult and obscure items, you can dedicate more time to learning other material, and studying becomes a lot more fun.
+
+Edycja
+------
+
+Another approach is to change the way the information is presented. Perhaps the cards you have created have too much information on them, or perhaps you're trying to memorize something without fully understanding it. Sometimes spending some time changing the way the card is phrased can help. It's also agood time to think about making a mnemonic to help you remember.
+
+[[importing]]
+= Importowanie =
+
+Anki can import text files, packaged Anki decks created by the export feature, Mnemosyne 2.0 .db files, and SuperMemo .xml files. To import a file, click the File menu and then "Import".
+
+== Importowanie z plików tekstowych ==
+
+Każdy *czysty plik tekstowy*, w którym pola oddzielone są od siebie przecinkami, średnikami lub tabulatorami może zostać zaimportowany do Anki. Aby import tych danych przebiegł prawidłowo należy spełnić następujące warunki:
+
+ * Plik musi być zapisany w formacie tekstowym .txt . Inne formaty plików jak .xls, .rtf, .doc muszą najpierw zostać zapisane jako plik tekstowy.
+ * Plik tekstowy musi być zakodowany w UTF-8 (patrz niżej).
+ * Anki określa liczę pól w pliku na podstawie pierwszego wiersza pliku (nie będącego komentarzem). Wszystkie pozostałe linie, które nie posiadają tej samej liczby pól są ignorowane.
+ * Pierwszy wiersz definiuje również rodzaj sepratora - jeżeli Anki odnajdzie ';' w pierwszym wierszu, w kolejnych również będzie poszukiwał tego sepratora, nawet jeśli wystąpi w nim przecinek lub tabulator.
+
+Pola znajdujące się w pliku tekstowym mogą zostać przekształcone w dowolne pole notatki, także w tagi. Możesz wybrać, które pole w pliku odpowiada któremu polu w notatce.
+
+Podczas importu pliku tekstowego możesz oczywiście określić, do której talii zostaną zaimportowane notatki. Pamiętaj jednak 
+
+When you import a text file, you can choose what deck to put the cards in. Keep in mind that if you have the deck override option set for one or more of your templates, the cards will go to that deck rather than the one you've selected.
+
+This is an example of a valid file:
+
+-----
+foo bar; bar baz; baz quux
+field1; field2; field3
+-----
+
+There are two ways to include newlines in fields.
+
+*Escape the multi-lines*:
+
+-----
+hello [tab] "this is
+a two line answer"
+two [tab] this is a one line one
+-----
+
+*Use HTML new lines*:
+
+-----
+hello [tab] this is<br>a two line answer
+two [tab] this is a one line one
+-----
+
+Note that you need to turn on the "allow HTML in fields" checkbox in the import dialog for this to work.
+
+You can also include tags in another field and select it as a tags field in the import dialog:
+
+-----
+first field; second field; tags
+-----
+
+This is an example of a valid file where the first line is ignored (#):
+
+-----
+# this is a comment and is ignored
+foo bar; bar baz; baz quux
+field1; field2; field3
+-----
+
+== Arkusze kalkulacyjne i UTF-8 ==
+
+If you have non-Latin characters in your file (such as accents, Japanese and so on), Anki expects files to be saved in a 'UTF-8 encoding'. The easiest way to do this is to use the free LibreOffice spreadsheet program instead of Excel to edit your file, as it supports UTF-8 easily, and also exports multi-line content properly, unlike Excel. If you wish to keep using Excel, please see
+ https://docs.google.com/document/d/12YE_FS6A9ANLTESJNtPP116ti4nNmCBghyoJBRtno_k/edit?usp=sharing[this forum post] for more information.
+
+To save your spreadsheet to a file Anki can read with LibreOffice, go to File>Save As, and then select CSV for the type of file. After accepting the default options, LibreOffice will save the file and you can then import the saved file into Anki.
+
+== HTML ==
+
+Anki can treat text imported from text files as HTML (the language used for web pages). This means that text with bold, italics and other formatting can be exported to a text file and imported again. If you want to include HTML formatting, you can check the "allow HTML in fields" checkbox when importing. You may wish to turn this off if you're trying to import cards whose content contains angle brackets or other HTML syntax.
+
+If you wish to use HTML for formatting your file but also wish to include angle brackets, you may write them differently:
+
+ * For "<", use "&amp;lt;"
+ * For ">", use "&amp;gt;"
+
+== Importing Media ==
+
+If you want to include audio and pictures from a text file import, copy the files into the <<files,collection.media folder>>. *Do not put subdirectories in the media folder, or some features will not work.*
+
+After you've copied the files, change one of the fields in your text file as follows.
+
+-----
+<img src="myimage.jpg">
+-----
+
+or
+
+-----
+[sound:myaudio.mp3]
+-----
+
+Alternatively, you can use the find & replace feature to update all the fields at once. If each field contains text like "myaudio", and you wish to make it play a sound, you'd search for (.*) and replace it with "[sound:\1.mp3]", with the 'regular expressions' option enabled.
+
+UWAGA: When importing a text file with these references, you must make sure to enable the "Allow HTML" option.
+
+You might be tempted to do this in a template, like:
+
+-----
+<img src="{{field name}}">
+-----
+
+Anki doesn't support this for two reasons: searching for used media is expensive, as each card has to be rendered, and such functionality isn't obvious to shared deck users. Please use the find & replace technique instead.
+
+=== Bulk media imports ===
+
+Another option for importing large amounts of media at once is to use the https://ankiweb.net/shared/info/1531997860[media import add-on]. This add-on will automatically create notes for all files in a folder you select, with the filenames on the front (minus the file extension, so if you have a file named apple.jpg, the front would say 'apple') and the images or audio on the back. If you would like a different arrangement of media and filenames, you can <<browsermisc,change the note type>> of the created cards afterwards.
+
+== Adding Tags ==
+
+If you want to add 'tag1' and 'tag2' to every line you're importing, add the following to the top of the text file:
+
+-----
+tags:tag1 tag2
+-----
+
+== Duplicates and Updating ==
+
+When importing text files, Anki uses the first field to determine if a note is unique. By default, if the file you are importing has a first field that matches one of the existing notes in your collection and that existing note is the same type as the type you're importing, the existing note's other fields will be updated based on content of the imported file. A drop-down box in the import screen allows you to change this behaviour, to either ignore duplicates completely, or import them as new notes instead of updating existing ones.
+
+For info on how duplicates are handled in .apkg files, please see the <<apkg-export,Deck Packages>> section below.
+
+= Eksportowanie =
+
+Exporting allows you to save part of your collection as a text file or packaged Anki deck. To export, click the File menu and choose 'Export'.
+
+== Eksportowanie do pliku tekstowego ==
+
+If you choose "Notes in Plain Text", Anki will write the contents of the notes into a text file. Each field is separated by a tab. If you edit the resulting file and don't modify the first field, you can later import that file back into Anki and Anki will update your notes based on your edits, provided you import back into the same note type.
+
+If you find yourself needing to edit the first field as well, you'll need to change the format of your note type so that the first field is an ID number rather than actual text. (You can install the "Add note id" plugin to make this easier.)
+
+In order for formatting to be preserved when you import text back in, the text is exported with all the HTML formatting embedded in it.
+
+== Exporting Packaged Decks ==
+
+A 'packaged deck' consists of cards, notes, note types and any sounds or images bundled up into a file ending with .apkg. You can use packaged decks to transfer cards between people, or for backing up parts of your collection. A packaged deck is compressed, so it will be smaller than the sum of the files in your profile folder.
+
+There are two different kinds of packaged decks.
+
+=== Collection Package ===
+
+When you export all decks with scheduling included, this is called a 'collection package'. Anki will copy your entire collection into a file called "collection.apkg", and place it on your desktop. A collection package is used to back up your collection or to synchronize to AnkiMobile via iTunes.
+
+When this file is later imported, Anki will delete all the current cards in the collection, and replace the collection with the items in the collection.apkg file. This is useful for copying your collection back and forth between devices.
+
+UWAGA: Existing media in your collection is not deleted when you import a collection.apkg. To delete unused media, use Tools>Unused Media.
+
+UWAGA: Anki's automatic backups are also collection packages. Simply double click on one to restore your collection to that backup.
+
+[[apkg-export]]
+=== Deck Package ===
+
+Deck packages contain a single deck (and any child decks it may have). They have a filename ending with .apkg, but a filename other than collection.apkg. When you import a deck package, Anki will add the contents into your collection, rather than overwriting your collection.
+
+If some notes in the deck package have previously been imported, Anki will keep the version with the most recent modification time. So if you download an updated deck, the edits that have been made in the updated version will be made in your collection as well, but if you re-import an unchanged deck after making edits in your collection, the changes in your collection will be kept.
+
+= Managing Files and Your Collection =
+
+Checking Your Collection
+------------------------
+
+It's a good idea to occasionally check your collection file for problems. You can do this via the Tools>Check Database menu item. Checking the database ensures the file is not corrupted, rebuilds some internal structures, and optimizes the file.
+
+When you check the database, your tag list is also rebuilt. When you delete individual decks or cards, Anki does not update the list of used tags, as it's inefficient to do so. If you want to clear old tags out from the list that are no longer in use, checking your database is the way to do it.
+
+Please note that Anki will automatically optimize your collection once every 2 weeks. This optimization ensures the collection performs well, but it does not check for errors or rebuild the tag list when automatically optimizing.
+
+[[files]]
+Lokalizacja plików
+------------------
+
+On Windows and OSX, Anki stores all of its files in an Anki folder, located in your Documents folder. On other operating systems, your files are stored in ~/Anki by default.
+
+Within the Anki folder, the program-level and profile-level preferences are stored in a file called prefs.db.
+
+There is also a separate folder for each profile. The folder contains:
+
+ * Your notes, decks, cards and so on in a file called collection.anki2
+ * Your audio and images in a collection.media folder
+ * A backups folder
+ * Some system files
+
+OSTRZEŻENIE: You should never copy or move your collection while Anki is open. Doing so could cause your collection to become corrupted. Please don't move or modify the other files in the folder either.
+
+UWAGA: On Unix systems, Anki deliberately uses ~/Anki rather than a hidden folder. The bulk of the data stored in that folder is important user data rather than easily restored preferences, and it would be a disaster if a user lost it because they overlooked it when backing up files. There are also more and more Linux users who are not familiar with hidden folders. If you're an advanced user, you can specify a custom folder with a command line argument, described in the next section.
+
+[[startupopts]]
+Atrybuty uruchamiania
+---------------------
+
+Jeżeli kopia programu na twoim komputerze uległa zniszczeniu lub uruchamia się z błędami, a na innym komputerze posiadasz działające Anki, możesz dokonać pełnej synchronizacji tej kopii bez pobierania plików z serwera. Takie działanie uchroni sprawną kopię przed pobraniem z konta AnkiWeb uszkodzonych danych i umożliwi wprowadzenie do niego działającej kopii. Możesz sprawdzić również czy któryś z zainstalowanych dodatków jest przyczyną błędów. Obydwie z wymienionych wyżej czynności możesz wykonać uruchamiając Anki z jednocześnie wciśniętym klawiszem Shift. 
+
+You can specify a custom folder location by starting Anki with a command line like so:
+
+-----
+anki -b /path/to/anki/folder
+-----
+
+* If you have multiple profiles, you can pass -p to load a specific profile.
+* To change the interface language, use -l <iso 639-1 language code>, such as "-l ja" for Japanese.
+
+If you always want to use a custom folder location, you can modify your shortcut to Anki. On Windows, right-click on the shortcut, choose Properties, select the Shortcut tab, and add "-b \path\to\data\folder" after the path to the program, which should leave you with something like
+
+-----
+"C:\Program Files\Anki\anki.exe" -b "C:\AnkiDataFolder"
+-----
+
+You can also use this technique with the -l option to easily use Anki in different languages.
+
+UWAGA: On Windows, you should use a backslash (\) not a forward slash (/).
+
+OSTRZEŻENIE: If you place the Anki folder on a network drive or synced folder like Dropbox or Google Drive, if the synced service makes a mistake, your collection is likely to become corrupted. Regular DB checks are recommended, or better yet, make a script which copies the collection from the shared folder to the local disk before running Anki, and moves it back when you're done.
+
+UWAGA: If you want to permanently change the interface language, delete Documents/Anki/prefs.db and the initial startup screen will be shown again. After doing so, you'll need to add any profiles you were using again. As long as you use the same profile name as before, Anki will pick up the files from before.
+
+Uruchamianie z pendrivea
+------------------------
+
+Anki can be installed on a flash drive and run as a portable application:
+
+ * Copy the \Program Files\Anki folder to the flash drive, so you have a
+   folder like G:\Anki.
+ * Create a text file called G:\anki.bat with the following text:
+
+-----
+\anki\anki.exe -b \ankidata
+-----
+
+If you would like to prevent the black command prompt window from remaining open, you can instead use:
+
+-----
+start /b \anki\anki.exe -b \ankidata
+-----
+
+ * Double-clicking on anki.bat should start Anki with the user data stored in
+   G:\ankidata.
+
+UWAGA: Media syncing with AnkiWeb may not work if your flash drive is formatted as FAT32. Please format the drive as NTFS to ensure media syncs correctly.
+
+Kopie zapasowe
+--------------
+
+Each time your collection is closed (when closing Anki, switching profiles, or synchronizing your deck), Anki exports your collection into the backups folder. By default Anki will store up to 30 backups; you can adjust this in the <<preferences,preferences>>.
+
+Automatic backups do not protect against disk or computer failure, and do not extend to your media. To keep your collections safe, please consider making manual backups too.
+
+The easiest way to take a manual backup is to back up your entire Anki folder. Please make sure you close Anki first, as backups may be corrupt if run while Anki is open.
+
+To restore from a backup, simply close Anki, open Documents/Anki/<profile name>/backups, and double-click on the most recent backup in order to import it. This will overwrite your whole collection with the backup copy. If you need to import only part of a backup (for instance, a single deck you messed up), you can do so by creating a new <<profiles,profile>> and importing the backup into there, then exporting the deck you want to restore and importing it into the other profile.
+
+Anki also logs deleted notes to a text file called deleted.txt in your profile folder. These notes are in a text format that can be read by File>Import, though please note the import feature only supports a single note type at one time, so if you have deleted notes from different note types, you'll need to split the file into separate files for each note type first.
+
+Brak dostępu do dysku twardego
+------------------------------
+
+If Anki can't write to files in the <<files,Anki folder>>, a message will be displayed on startup saying that Anki can't write to the harddisk, and Anki will close. If you're unsure how to fix the permissions, please contact someone near you who is knowledgable about computers and can help you out.
+
+Permissions of Temp Folder
+--------------------------
+
+Anki uses the system's temporary folder to store temporary data. If the permissions of this folder have been changed from the default settings by a rogue app or buggy antivirus app, Anki will not function properly.
+
+If you're on a Windows 7 machine, the general steps to fix the problem are listed below. As this is somewhat complicated, please ask someone knowledgeable about Windows if you are not sure.
+
+. Click on the start bar, and type in %temp% (including the percents), then hit enter.
+. Go up one folder, and locate the temp folder. Right click on it, and choose Properties.
+. In the security tab, click on Advanced.
+. Click on the Owner tab. If you're not listed as the owner, click the button to take ownership.
+. On the permissions tab, ensure that you have full control. On a default W7 install the control will actually be inherited from c:\users\your-username.
+
+Zepsuta kolekcja
+----------------
+
+Anki uses a file format that is robust against program and computer crashes, but it's still possible for your collection to become corrupt if the files are modified while Anki is open, stored on a network drive, or corrupted by a bug.
+
+When you run Tools>Check Database, you will receive a message if Anki detects the file has been corrupted. The best way to recover from this is to restore from the most recent automatic backup, but if your backup is too old, then you can attempt to repair the corruption instead.
+
+On Linux, make sure sqlite3 is installed. On a Mac, it should be installed already. On Windows, download http://www.sqlite.org/sqlite-3_6_23.zip.
+
+Next, create a backup of your collection.anki2 file, in case something goes wrong with the steps below.
+
+*Linux/OSX*
+
+Open a terminal, change to the folder your collection is located in, and type:
+
+-----
+sqlite3 collection.anki2 .dump > dump.txt
+-----
+
+Open the resulting dump.txt file in a text editor, and look at the final line.
+If it reads "rollback;", change it to "commit;"
+
+Then run the following in a terminal:
+
+-----
+cat dump.txt | sqlite3 temp.file
+-----
+
+Make sure you use temp.file - do not put collection.anki2 on the right, or you will blank out the file. When you're done, proceed to the final step.
+
+*Windows*
+
+Copy the `sqlite3.exe` program and your deck to your desktop. Then go to *Start>Run* and type in `cmd.exe`.
+
+If you're on a recent Windows, the command prompt may not start on your desktop. If you don't see desktop displayed in the command prompt, type something like the following, replacing 'administrator' with your login name.
+
+-----
+cd C:\Users\Administrator\Desktop
+-----
+
+Then type:
+
+-----
+sqlite3 collection.anki2 .dump > dump.txt
+-----
+
+Open the resulting dump.txt file in a text editor, and look at the final line.
+If it reads "rollback;", change it to "commit;"
+
+Then run the following in a terminal:
+
+-----
+type dump.txt | sqlite3 temp.file
+-----
+
+Make sure you use temp.file - do not put collection.anki2 on the right, or you will blank out the file. When you're done, proceed to the final step.
+
+*Final Step*
+
+Check that you didn't get an error message, and that temp.file is not empty. The procedure optimizes the collection in the process, so it's normal for the new file to be somewhat smaller than the old one.
+
+When you've confirmed the file is not empty, copy it over collection.anki2, making sure you still have a backup of the original version. Then start Anki and go to Tools>Check Database to make sure the collection has been successfully restored.
+
+[[stats]]
+Wykresy i statystki
+===================
+
+Informacje o karcie
+-------------------
+
+You can display information about a card by clicking the Info button in the toolbar while browsing. Most of the displayed information should be self-explanatory. A few notes:
+
+ Position ::
+  Only shown when the card is new, it shows the order the card will appear in relative to other new cards. The position can be changed in the browser.
+ Interval ::
+  The delay from one review to the next. Times are abbreviated; "0s, 1m, 3h, 4d, 5mo, 6y" refers to seconds, minutes, hours, days, months and years respectively.
+ Ease ::
+  The approximate amount the interval will grow when you answer a review card with the "Good" button.
+
+Statystki
+---------
+
+Okno statystyk dostępne jest pod przyciskiem znajdującym się w prawym górnym rogu okna głównego Anki lub za pomocą kombinacji klawiszy Shift+S. Okno statystyk pokaże statystki z aktualnie wybranej talii i talii podrzędnych. Dane dotyczące całej kolekcji dostępne są po wybraniu "kolekcja" u dołu okna statystk.
+
+Domyślnie Anki pokazuje statystyki z ostatniego miesiąca. Horyzont czasowy możesz zmienić u dołu okna statystyk, inne możliwe opcje to rok lub cały okres życia talii.
+
+Przycisk "Zapisz obraz" umożliwia zapisanie widocznego okna statystk to pliku na komputerze. Dzięki temu będziesz mógł udostępnić swoje statystki innym użytkownikom.
+
+UWAGA: Jeżeli usuniesz któreś z notatek ich ślad cały czas pozostaje w statystykach życia całej kolekcji. Jednak w przypadku oglądania statystyk tylko wybranej talii usunięte notatki zostaną z nich również usunięte. 
+
+[[cardtypedefinitions]]
+Typy kart
+---------
+W oknie Statystki czasami mogą być użyte terminy i nazwy, których jeszcze nie znasz:
+
+ Dojrzałe ::
+  Karty, których interwał przerwy wynosi 21 dni lub więcej.
+ Młode ::
+  Karta młoda to taka, której interwał przerwy jest krótszy niż 21 dni i nie uczysz się jej, a jedynie powtarzasz.
+ Nienauczone ::
+  Karty nowe, których jeszcze się nie nauczyłeś. 
+ Uczone ponownie ::
+  Karty dojrzałe lub młode, które w czasie powtórki otrzymały ocenę 'Znowu' i będziesz się ich uczył ponownie.
+ Niewidziane ::
+  Karty, które zostały niedawno dodane do twojej kolekcji, ale nie zostały ci jeszcze wyświetlone do nauki. Można je nazywać również kartami 'nowymi'. 
+
+Wykresy
+-------
+ Prognoza ::
+  Wykres wyświetla przybliżoną liczbę kart, które będą powtarzane w przyszłości, bez uwzględnienia kart nowych i uczonych na nowo. Do osi pionowej z lewej strony odnosi się wykres słupkowy. Kolumny oznaczają liczbę kart, które zostaną wyświetlone do powtórki w kolejnych dniach. Do osi pionowej z prawej strony odnosi się wykres ciągły, na którym przedstawiona jest skumulowana liczba powtórek. Wykres prognozy nie uwzględnia kart zaległych, które nagromadziły się w wyniku np. kilkudniowej przerwy w pracy z Anki. Te karty nie są widoczne na wykresie.
+ Liczba powtórek ::
+  Wykres przedstawia liczbę kart powtórzonych przeszłości. Słupki mogą odpowiadać dniom, tygodniom lub miesiącom, w zależności od okresu jaki wybrałeś na dole okrenu statystyk. Poszczególne kolory pokazują ile z kart, na które udzieliłeś odpowiedzi było <<cardtypedefinitions,dojrzałe>>, młode, nienauczone i uczone ponownie. Jest także oddzielna grupa kart, na które udzieliłeś odpowiedzi w ramach talii filtrowanej. Prawa pionowa oś, do której przypisany jest wykres liniowy wskazuje skumulowaną liczbę odpowiedzi na karty od daty początku wykresu.
+ Czas powtórki ::
+  Wykres ten należy interpretować w ten sam sposób co Liczba powtórek jednakże jednostką jest tutaj czas spędzony na powtórce.
+ Przerwy ::
+  Wykres pokazuje liczbę kart o określonym interwale (czyli przerwie, odsunięciu w czasie pomiędzy dwoma powtórkami). Na prawej osi wyrażono procentowo liczbę kart, które mają interwał równy lub mniejszy od wartości na  tej osi. Zauważ, że pozioma oś czasu w przypadku tego wykresu rośnie od zera do wybranego horyzontu czasowego w przód, a nie tak jak w przypadku pozostałych wykresów maleje od zera. Innymi słowy, na tym wykresie nie są przedstawione dane historyczne, ale dane o przyszłości.
+ Podział godzinowy ::
+  Wykres przedstawia odsetek poprawnych odpowiedzi na powtarzane karty w różnych porach dnia. Większe, ciemniejsze słupki i lewa oś określają liczbę poprawnie odpowiedziany kart w danej godzinie, zaś cieńszy, szary słupek i prawda oś odpowiadają za ogólną liczbę powtórek w danej godzinie (wiesz tym samym na ile wydajne są powtórki w poszczególnych godzinach dnia).
+ Przyciski odpowiedzi ::
+  Wykres pokazuje ile razy wybrałeś Znowu, Trudna, Dobra i Łatwa w stosunku do kart nienauczonych, młodych i <<cardtypedefinitions,dojrzałych>>. Anki wyświetla również procent poprawnych odpowiedzi dla każdego typu kart.
+ Typy kart ::
+  Wykres kołowy przedstawia udział procentowy kart dojrzałych, niewidzianych, młodych/nienauczonych i zawieszonych w twojej talii. W legendzie wykresu określona jest dokładna liczba kart każdego z typów jeżeli chciałbyś dokładniej policzyć te wartości. Liczba wszystkich kart w talii znajduje się po prawej stronie wykresu.  
+
+[[media]]
+= Media =
+
+Anki stores the sounds and images used in your notes in a folder next to the collection. For more on the folder location, please see the <<files,file locations>> section. When you add media within Anki, Anki will copy it from its original location into the media folder. This makes it easy to back up your collection's media or move it to another computer.
+
+You can use the Tools>Unused Media menu option to scan your notes and media folder. It will generate a report of files in the media folder that are not used by any notes, and media referenced in notes but missing from your media folder. It does not scan question or answer templates, which is why you can't place media references to fields in the template. If you need a static image or sound on every card, name it with a leading _ (eg _dog.jpg) to tell Anki to ignore it when checking for media. If you delete media using the unused media check, Anki will move it into your operating system's trash folder, so you can
+recover if you accidentally delete media that shouldn't have been deleted.
+
+Anki uses a program called mplayer in order to support sounds and videos. A wide variety of file formats are supported, but not all of these formats will work on AnkiWeb and the mobile clients. MP3 audio and MP4 video seems to be the most universally supported.
+
+[[latex]]
+== LaTeX support ==
+
+LaTeX is a powerful typesetting system, which is ideal for entering mathematical formulas, chemical formulas, musical notation and so on. Anki provides some support for LaTeX, allowing you to enter LaTeX code in your notes. When you review a card, Anki will call LaTeX and display the generated image instead.
+
+Installing and Assumed Knowledge
+---------------------------------
+Anki's LaTeX support is not turn-key: it is assumed that you know how to use LaTeX already, and that you have it installed. If you have no experience with LaTeX, please consult one of the many guides available on the internet. If you are having trouble with markup, please ask on a LaTeX forum.
+
+To install LaTeX, on Windows use MiKTeX; on OSX use MacTex, and on Linux use your distro's package manager. Dvipng must also be installed.
+
+UWAGA: On Windows, go to Settings in MikTek's maintenance window, and make sure "Install missing packages on the fly" is set to "No", not to "Ask me first". If you continue to have difficulties, one user reported that running Anki as an administrator until all the packages were fetched helped.
+
+UWAGA: On OSX, LaTeX has only been tested with MacTex and BasicTex. If you use BasicTex, you need to install dvipng separately, with the following command: tlmgr update --self && tlmgr install dvipng
+
+NOTE: If you are not using the above LaTeX packages, you will need to use the "edit LaTeX" add-on to specify the full path to latex and dvipng.
+
+LaTeX w AnkiMobile i AnkiWeb
+----------------------------
+
+When you review a card with LaTeX on it, Anki will generate an image for that LaTeX and place the image in your collection's media folder for future use.
+The web & mobile clients will display these images if they already exist, but can not generate the images on their own.
+
+To avoid having to review all your cards at least once before you can study on the other clients, Anki can generate the images in bulk for you. To generate all the images, please go to Tools>Unused Media. After that, syncing should upload the generated media to AnkiWeb and the other clients.
+
+Przykład
+--------
+
+The most general way to input LaTeX content is to surround it with [latex][/latex] tags. There's a shortcut button for this documented in the <<editor,editor>> section.
+
+For example, entering the following on the front of an Anki flashcard:
+
+-----
+Does [latex]\begin{math}\sum_{k = 1}^{\infty}\frac{1}{k}\end{math}[/latex] converge?
+-----
+
+will produce this when the flashcard is viewed:
+
+image:img/convergence_question.png[]
+
+The formula in the example above is called a 'text formula', because it is displayed right within the non-mathematical text.  In contrast, the following example shows a 'displayed formula':
+
+-----
+Does the sum below converge?
+
+[latex]\begin{displaymath}\sum_{k = 1}^{\infty}\frac{1}{k}\end{displaymath}[/latex]
+-----
+
+image:img/convergence_question_2.png[]
+
+'Text formulas' and 'display formulas' are the most common type of LaTeX expressions, so Anki provides abbreviated versions of them.  Expressions of the form:
+
+-----
+[latex]\begin{math}...\end{math}[/latex]
+-----
+
+can be shortened to
+
+-----
+[$]...[/$]
+-----
+
+and expressions of the form
+
+-----
+[latex]\begin{displaymath}...\end{displaymath}[/latex]
+-----
+
+can be shortened to
+
+----
+[$$]...[/$$]
+----
+
+For example, the two LaTeX snippets shown before are equivalent to
+
+-----
+Does [$]\sum_{k = 1}^{\infty}\frac{1}{k}[/$] converge?
+-----
+
+and
+
+-----
+Does the sum below converge?
+
+[$$]\sum_{k = 1}^{\infty}\frac{1}{k}[/$$]
+-----
+
+respectively.
+
+LaTeX packages
+---------------
+
+Anki allows you to customize the LaTeX preamble so you can import custom packages for chemistry, music and so on. For example, imagine you find an example file for chemtex on the internet:
+
+-----
+\documentclass[a4paper,12pt]{report}
+\usepackage{chemtex}
+\begin{document}
+
+\initial
+\begin{figure}[h]\centering
+\parbox{.3\textwidth}{\ethene{H}{H$_3$C}{CH$_3$}{Br}}
+\hfil
+\parbox{.3\textwidth}{\cbranch{H}{S}{H}{S}{C}{S}{}{S}{H}
+  \xi=-200 \cright{}{Q}{C}{D}{O}{S}{OH}}
+\hfil
+\parbox{.3\textwidth}{\hetisix{Q}{Q}{Q}{Q}{Q}{Q}{O}{Q}{O}
+  \xi=-171 \fuseup{Q}{Q}{Q}{Q}{D}{Q}{D}{Q}{D}}
+\caption{Chemie mit {\tt CHEMTEX}\label{a1}}
+\end{figure}
+
+\end{document}
+-----
+
+Firstly, follow the documentation of the package and MiKTeX/MacTex in order to install the package. To check the package is working, you'll want to put code like the above into a .latex file and test you can compile it from the command line. Once you've confirmed that the package is available and working, we can integrate it with Anki.
+
+To use the package with Anki, click "Add" in the main window, then click the note type selection button. Click the "Manage" button, then select the note type you plan to use and click "Options". The LaTeX header and footer are shown. The header will look something like:
+
+-----
+\documentclass[12pt]{article}
+\special{papersize=3in,5in}
+\usepackage{amssymb,amsmath}
+\pagestyle{empty}
+\setlength{\parindent}{0in}
+\begin{document}
+-----
+
+To use chemtex, you'd add the usepackage line in the earlier example, so it looks like:
+
+-----
+\documentclass[12pt]{article}
+\special{papersize=3in,5in}
+\usepackage{amssymb,amsmath}
+\usepackage{chemtex}
+\pagestyle{empty}
+\setlength{\parindent}{0in}
+\begin{document}
+-----
+
+After that, you should be able to include lines like the following in your Anki cards:
+
+-----
+[latex]\ethene{H}{H$_3$C}{CH$_3$}{Br}[/latex]
+-----
+
+== Konflikty LaTeXa ==
+
+W LaTeXu jednym ze standardowych znaczników jest podwójny nawias klamry {{ oraz }}. Aby uniknąć konfliktów znaczników pól ze znacznikami LaTeXa niezbędne jest wprowadzenie pewnych zmian:  
+
+Standardowo pole z kodem LaTeXa wyglądałoby w ten sposób:
+
+-----
+{{pole latexa}}
+-----
+
+Jeżeli w kod LateXa zawiera podwójne nawiasy klamrowe niezbędne jest wprowadzenie następujących zmian w szablonie karty: 
+
+-----
+{{=<% %>=}}
+<%pole latexa%>
+-----
+
+Zmiana ta zadziała nie tylko dla kodu LaTeXa, ale również wszędzie tam gdzie w treści karty wyświetlany jest symbol podwójnego nawiasu klamrowego.
+
+When using cloze deletions, you cannot change the double braces used to mark cloze deletions; instead, you can put a space between any double closing braces that do not indicate the end of the cloze, so
+
+-----
+{{c1::[$]\frac{foo}{\frac{bar}{baz}}[/$] blah blah blah.}}
+-----
+
+will not work, but
+
+-----
+{{c1::[$]\frac{foo}{\frac{bar}{baz} }[/$] blah blah blah.}}
+-----
+
+will (and LaTeX ignores spaces in math mode, so your equation will render the same).
+
+Niebezpieczne komendy
+---------------------
+
+Anki prohibits certain commands like \input from being used on cards or in templates, because to allow them could allow malicious shared decks to damage your system. If you need these commands, please add them to a system package, and import that package as described in the previous section.
+
+= Różne =
+
+== Menu Shortcuts ==
+
+Aby wyświetlić skróty klawiszowe do poszczególnych menu w systemie Windows/Linus przytrzymaj klawisz alt. W nazwach menu podświetlą się wtedy litery.
+
+Funkcja ta nie jest dostępnach w systemie OS X, ale w opcjach systemu możliwe jest przypisanie własnych skrótów klawiszych do poszczególnych pozycji w menu kontekstowym, w jakimkolwiek programie. Więcej informacji na ten temat znajduje się w http://lifehacker.com/343328/create-a-keyboard-shortcut-for-any-menu-action-in-any-program[tutaj].
+
+[[debug]]
+== Wiersz poleceń ==
+
+Czasami program może wyświetlić komunikat z prośbą o użycie wiersza poleceń w celu zmiany jakichś ustawień. Zaawansowani użytkownicy znajdą więcej informacji na ten temat w stronie dotyczącej Dodatkó, do której link znajduje się w poniżej.
+
+Aby w Anki uruchomić wiersz poleceń naciśnij przycisk Ctrl+: (klawisz dwukropka) lub w systemach Mac Command+: (klawisz dwukropka). Po wybraniu tej kombinacji klawiszy na ekranie powinno pojawić się nowe okno. 
+
+W oknie wiersza poleceń wklej tekst, o podanie którego zostałeś poproszony we wcześniejszym komunikacie. Następnie wybierz Ctrl+Enter (Command+Enter w systemie OS X). W dolnej części okna wyświetlą się pewne informacje. Są one szczególne przydatne np. w sytuacji niespodziewanych błędów. Możesz ich wtedy użyć w prośbie o pomoc na forum Anki. 
+
+= Dodatki =
+
+Funkcjonalność Anki może być zmieniana i ulepszana przy pomocy dodatków nazywanych czasem rozszerzeniami. Mogą one przykładowo dodawać obsługę nowych języków, dodatkowe funkcje kontroli harmonogramowania powtórek itd.
+
+Aby przejrzeć listę aktualnie dostępnych dodatków przejdź do menu Narzędzie>Dodatki>Przeglądaj i zainstaluj... w oknie głównym programu. By sprawdzić jakie rozszerzenia są obecnie zainstalowane w programie należy wybrać menu Narzędzia>Dodatki>Otwórz folder z dodatkami...
+
+Niektóre rozszerzenia posiadają dodatkową możliwość konfiguracji, która dostępna jest w menu Narzędzia->Dodatki->[nazwa dodatku]>Edycja. Zachowaj proszę ostrożność podczas edycji dodatków. Zwróć szczególną uwagę na tzw. białe znaki, czyli spacje i tabulatory, których brak (jak w poniższym przykładzie) może spowodować błąd dodatku:
+
+Prawidłowy układ kodu...
+
+-----
+    linia1
+    linia2
+    linia3
+-----
+
+...możesz przez przypadek zmienić w coś takiego:
+
+-----
+    linia1
+   linia2
+    linia3
+-----
+
+Przez powyższy, błędny układ treści Anki po restarcie zwróci błąd programu.
+
+Wielu autorów dodatków złącza na podstronie z dodatkiem swój adres e-mail. Dlatego, jeżeli masz jakiekolwiek pytania czy wątpliwości najlepiej będzie jeżeli skontaktujesz się bezpośrednio z nimi.
+
+Jeżeli którykolwiek z zainstalowanych przez ciebie dodatków nie działa poprawnie, powoduje błędy, albo przez przypadek w czasie jego edycji popełniłeś jakiś błąd, zawsze masz możliwość usunięcia dodatku z Anki i ewentualnej ponownej instalacji. Możesz to zrobić w menu Narzędzie>Dodatki>[nazwa dodatku>Usuń.
+
+Aby dowiedzieć się w jaki sposób napisać swój własny dodatek zajrzyj proszę na link:addons.html[tę stronę]
+
+== Współtworzenie ==
+
+[[sharingdecks]]
+Udostępnianie talii
+-------------------
+
+Aby udostępnić talię innym osobom najpierw należy ją <<syncing,zsynchronizować>> z Ankiweb.  Następnie zaloguj się do AnkiWeb i naciśnij przycisk "Share" z menu obok talii, którą chciałbyś udostępnić. 
+
+Jeżeli udostępniałeś już wcześniej swoją talię (także dla wcześniejszych wersji Anki), możesz ją zaktualizować po prostu poprzez ponowne udostępnienie jej przy pomocy AnkiWeb. Pamiętaj jednak, żeby nazwa talii była dokładnie taka sama jak poprzednio importowanej. W przeciwnym razie zamiast zaktualizować, utworzysz nową talię. Aktualizacja nie resetuje licznika pobrań widocznego oraz rankingu. Aby usunąć daną talię z listy udostępnionych wystarczy kliknąć przycisk Delete znajdujący się przy niej. 
+
+UWAGA: Podczas aktualizacji udostępnionej talii, Anki oczekuje, że w twojej kolekcji będzie się ona znajdowała w tym samym miejscu co poprzednia wersja. Oznacza to, że jeżeli, posiadasz talię "Słówka koreańskie" i wcześniej ją udostępniałeś, a teraz talia ta w strukturze drzewa nosi nazwę "Koreański::Słówka koreańskie" to utworzysz nową, niezależną talię.
+
+Udostępnianie talii - prywatne 
+------------------------------
+
+Taliami można dzielić się również prywatnie. Do tego celu wystarczy eksportować daną talię do pliku (Plik->Eksportuj...) w formacie .apkg, który automatycznie uwzględni również wszystkie pliki multimedialne dołączone do talii. Powstałą w ten sposób paczkę możesz umieścić na swojej stronie internetowej albo po prostu przesłać ją e-mailem do wybranych osób.
+
+Import do programu zarówno w wersji desktopowej jak i mobilnej odbywa się po prostu przez otwarcie spakowanej talii. Na razie nie ma możliwości bezpośredniego importowania plików .apkg do AnkiWeb, jednak po wgraniu pliku do komputera lub smartfona możesz tę talię od razu zsynchronizować ze swoim kontem AnkiWeb.
+
+Po wgraniu importowanej talii do Anki, do programu dodawana jest jej cała zawartość. Co ważne, nie są jednak importowane żadne informacje pochodzące od autora talii o przerwach i interwałach pomiędzy powtórkami kart. Taka talia, co oczywiste, staje się odrębną kopia i nie zostanie zaktualizowana np. w sytuacji gdy jej autor na swoim komputerze dokona w niej jakichkolwiek zmian.
+Są to dwie niezależne kopie tego samego materiału.
+
+Udostępnianie rozszerzeń
+------------------------
+
+Zapoznaj się proszę z rozdziałem na temat rozszerzeń.
+
+Tłumaczenie Anki na inne języki
+-------------------------------
+
+Tłumaczenia mogą być wykonywane bezpośrednio na tej https://translations.launchpad.net/anki/trunk[stronie].
+
+Launchpad automatycznie rozpozna na jaki język chcesz zrobić tłumaczenie po kraju, z którego się łączysz. Jeżeli jednak język zostanie błędnie określony, zaloguj się do swojego profilu Launchpad kliknij '!' obok preferowanych języków.
+
+W czasie tłumaczenia szczególną uwagę należy zwrócić na znaki specjalne:
+
+ * String w postaci `Cards: %d` lub `Error: %s` oznacza, że symbole %d/%s są zmiennymi i w programie zostaną zastąpione konkretną wartością. W tłumaczeniu znaki muszą one pozostać na swoim miejscu.
+ * To samo dotyczy stringów w postaci `%(a)d of %(b)d` - które mogą zostać przetłumaczone jedynie w taki sposób: `%(a)d z %(b)d`.
+ * Pozycje menu posiadają znak &, który stoi obok litery będącej skrótem klawiszowym tej funkcji np.`$Narzędzia`. W językach z alfabetem romańskim symbol & nie musi stać przy pierwszej literze danego słowa. W przypadku języków używających innego alfabetu skrót klawiszowy oznaczany jest w nawiasie z przypisaną do niego literą alfabetu romańskiego, przykład `słowo japońskie (&F)`.
+ * Niektóre słowa w stringach posiadają dodatkową odmianę w danym języku, w takim przypadku wymagane jest wprowadzenie wszystkich niezbędnych odmian.
+
+Czasami trudno jest jednoznacznie przetłumaczyć dane słowo bez znajomości kontekstu, w którym ono występuje. Dlatego poniżej każdego tłumaczonego stringu zobaczysz taką linijkę kodu:
+
+-----
+Located in ../dtop/aqt/deckbrowser.py:299
+-----
+
+Jeśli pominiesz pierwszą część tej ścieżki "../dtop" pozostanie tylko "aqt/deckbrowser.py:299". Możesz teraz wejść na https://github.com/dae/anki/ i odnaleźć plik o nazwie 'deckbrowser' w folderze 'aqt'. Wyświetlony plik po lewej stronie posiada numerację wierszy. Na powyższym przykładzie odnajdując linię kodu o numerze 299 odnajdziesz kontekst, w którym występuje wspomniane wyżej słowa. 
+
+Jeżeli jednak odnajdziesz string, którego tłumaczenia ciągle nie jesteś pewien, najlepszym wyjściem w tej sytuacji będzie założenie nowego wątku na forum Anki. 
+
+Wszystkie tłumaczenia, które pojawią się najpóźniej kilka godzin przed wydaniem nowej wersji Anki, zostaną w niej uwzględnione. Jeżeli chcesz, aby twoje imię i nazwisko znalazło się podziękowaniach w zakładce O programie... napisz maila do Damiena Elmes'a - autora Anki.
+
+Aby wypróbować tłumaczenie jeszcze przed wydaniem oficjalnej wersji przez Damiena, możesz eksportować plik z tłumaczeniem (o rozszerzeniu .mo) do głównego folderu Anki i podmienić już istniejący. Po włączeniu aplikacji Anki wyświetli wtedy wszystkie dokonane zmiany w pliku tłumaczenia.
+
+Tłumaczenie podręcznika
+-----------------------
+
+Jeśli masz już pewne doświadczenie w pracy z Githubem, możesz zacząć tłumaczyć ten podręcznik na podstawie https://raw.github.com/dae/ankidocs/master/manual.txt[pliku źródłowego], a następnie skompilować go w formacie AsciiDoc. Możesz również użyć repozytoriów Github do śledzenia przyszłych zmian w oryginale tego podręcznika.
+
+Jeśli powyższy akapit brzmi trochę skomplikowanie, jest też łatwiejszy sposób. Po prostu skopiuj treść tej strony do jakiegokolwiek edytora tekstowego i zacznij ją tłumaczyć.
+
+Jeżeli jesteś już w pełni zadowolony ze swojego tłumaczenia, możesz je wstawić na swoją stronę internetową, a link do niej przesłać do Damiena Elmes'a, albo od razu całe tłumaczenie przesłać do niego na e-mail XXX@YYY.ZZZ. Wtedy zostanie ono wstawione na oficjalną stronę Anki. W przypadku, gdy zamierzasz często uaktualniać treść podręcznika lepszym wyjściem jest jednak pierwsze z trzech wymienionych rozwiązań.
+
+Poprawki w kodzie
+------------------
+
+Kod źródłowy Anki dostępny jest pod adresem http://github.com/dae
+
+Jeżeli zauważyłeś w kodzie jakiekolwiek błędy albo masz pomysł jak usprawnić którąś z funkcji programu, zapoznaj się proszę z Licencją. Jeśli się z nią zgadasz, możesz wtedy podesłać swoje poprawki e-mailem Damienowi lub wrzucić je na Github. 
+
+FAQ - Najczęściej Zadawane Pytania
+===================================
+
+== Nie używałem Anki przez jakiś czas i proponowane czasy interwałów są zbyt długie! ==
+
+Przy codziennej nauce z wykorzystaniem Anki, za każdym razem, gdy odpowiesz poprawnie, karty otrzymują coraz dłuższy interwał powtórki tzn. ponownie pojawią się po coraz dłuższym czasie. Przykładowo odpowiedź "Dobra" podwoi długość interwału. W takim przypadku, gdy na kartę czekałeś dotąd 5 dni, teraz będziesz czekał 10, następnie 20, a potem 40 dni itd.
+
+Czasami użytkownicy wracają do Anki po kilku tygodniach lub nawet miesiącach przerwy. Zaskakiwani są wtedy przez bardzo długie interwały przy większości kart. Powodem tego jest fakt, że Anki wlicza do długości interwału również czas, w którym dana karta nie była powtarzana. I analogicznie do przypadku codziennej powtórki, gdy karta posiadała początkowy interwał 5 dni, po jednym miesiącu przerwy jej kolejny interwał będzie bliższy 60 dniom czyli podwojone 5 i 30 dni.
+
+Wbrew pozorom taki sposób liczenia interwałów nie jest zły. Jeśli zapamiętałeś prawidłową odpowiedź dla danej karty, a następnie zrobiłeś sobie przerwę od nauki i po miesiącu wróciłeś ponownie do karty i twoja odpowiedź jest cały czas poprawna, oznacza to, że również za 60 dni będziesz pamiętał tę prawidłową odpowiedź. W takim przypadku sensownym jest nawet oznaczanie karty jako bardzo dobrze znaną, skoro zapamiętałeś ją przez miesiąc to także po dłuższym czasie nie powinna ci ona sprawić większych trudności.
+
+Najgorszym możliwym rozwiązaniem w takim przypadku jest resetowanie talii. Po powrocie do niej po długiej przerwie, rzeczywiście możesz nie pamiętać odpowiedzi na wiele kart, ale nikłe szanse są, że zapomnisz odpowiedzi do nich wszystkich. Reset całej talii oznacza jedynie stratę czasu, który ponownie poświęcisz na naukę kart, które już i tak znasz.
+
+Po przerwie natrafisz na pewno na karty, na które odpowiedzi nie znasz albo przypomnisz ją sobie z pewnym wysiłkiem. Aby uniknąć kolejnych problemów z powtórkami Anki zastosuje odpowiedni algorytm wyznaczania interwału kolejnej powtórki. Gdy kartę oznaczysz jako Łatwa nowy interwał będzie równy sumie przerwy oraz poprzedniego interwału. Karta oceniona jako Dobra otrzyma interwał równy sumie poprzedniego interwału i połowie przerwy. Karta oznaczona statusem Trudna odłożona zostanie w czasie równym poprzedniemu interwałowi i ćwierci przerwy. Przykładowo, gdy interwał równy był 5 dniom, zaś przerwa wynosiła 20 dni otrzymamy następujące propozycje:
+
+!!! PORÓWNAĆ Z TYM WYŻEJ !! TO JEST TO SAMO ALE Z JAKIMIŚ ZMIANAMI !!!
+Now you may find overdue cards that you were able to recall, but not comfortably, since they were not reviewed when they should have been. To counter this, Anki treats the delay differently depending on your answer. If you find a card easy, the last interval plus the full delay are added together, and then used to calculate the next interval. When you answer good, only half the delay is used. And when you answer hard, only a quarter of the delay is used. So if a card was due in 5 days, and it's answered 20 days late, the next times you'd end up with are approximately:
+
+ * Trudna: (5 + 20/4) * 1.2 = 12 dni
+ * Dobra: (5 + 20/2) * 2.5 = 37.5 dnia
+ * Łatwa: (5 + 20) * 3.25 = 81.25 dnia
+
+(liczby te w rzeczywistości mogą się jednak różnić w zależności od twoich wcześniejszych wyników w nauce)
+
+Jeśli więc natrafisz na trudną kartę następny interwał będzie raczej krótki, mniejszy niż ostatnia przerwa (25 dni). Jeśli kartę tę ocenisz jako Dobra, następny interwał będzie tylko o 50% dłuższy, zaś karta oceniona jako Łatwa otrzyma jak zwykle 'agresywny' interwał.
+
+Podsumowując, w przypadku dłuższej przerwy w pracy z Anki zalecane jest po prostu kontynuowanie powtórek zgodnie z harmonogramem, który wyznaczył program. Jeśli koniecznie chcesz zresetować talię, wybierz po prostu dane karty w przeglądarce i przejdź do funkcji Edycja->Zmień plan.
+
+== Czy mogę stworzyć test wielokrotnego wyboru? ==
+
+Test wielokrotnego wyboru jest zasadniczo niezbyt przydatnym narzędziem w nauce. Powodem dla którego jest on tak często wykorzystywany w szkolnictwie jest przede wszystkim łatwość wyboru odpowiedzi i ich sprawdzania. Zaś główną ich wadą jest fakt, że można udzielić prawidłowej odpowiedzi de facto wcale jej nie znając i nie potrafiąc jej stworzyć samemu.
+
+Jeśli uczysz się pod kątem testu wielokrotnego wyboru i przykładowo masz pytanie:
+
+-----
+P: Które z niżej podanych zwierząt ma naprawdę dłuuugą szyję?
+
+O: 1. Małpa. 2. Żyrafa. 3. Osioł. 4. Wąż.
+-----
+
+W takim przypadku pytanie to można przebudować na potrzeby Anki w następujący sposób:
+
+-----
+P: Które z niżej podanych zwierząt ma naprawdę dłuuugą szyję?
+
+O: Żyrafa.
+-----
+
+Możesz też dodać swoje podpowiedzi:
+
+-----
+P: Które z niżej podanych zwierząt ma naprawdę dłuuugą szyję? (pies/kot/żyrafa/pingwin)
+
+A: Żyrafa.
+-----
+
+== Czy mogę łączyć karty? Dodawać zależności pomiędzy nimi? Jak powinienem obchodzić się z synonimami? ==
+
+Anki tworzy połączenia jedynie pomiędzy kartami wywodzącymi się z tej samej notatki. Nie tworzy zależności pomiędzy osobnymi kartami czy notatkami. Wyobraź sobie, że uczysz się japońskiego i chcesz tym językiem posługiwać się zarówno w sposób bierny jak i aktywny. Tworzysz zatem notatkę ze słowem "ookii", które oznacza tyle co "duży". Anki generuje dwie karty - ookii->duży oraz duzy->ookii.
+
+W powyższej sytuacji Anki odseparuje powtórki obydwu kart w taki sposób aby nie pojawiały się w kolejności jedna po drugiej. 
+
+Niektórzy użytkownicy chcieliby zapewne utworzyć swoje własne zależności pomiędzy kartami, na zasadzie "po tej karcie pokaż mi tę kartę" albo "zanim dobrze nie poznam tej karty nie pokazuj mi innej karty". Takie pomysły brzmią generalnie całkiem sensownie, jednak ich zastosowanie w praktyce byłoby dość karkołomne.
+
+Po pierwsze dodawanie notatek do talii stałoby się bardzo żmudne. Do każdego z takich 'bliźniaków' zacząłbyś dodawać różnego rodzaju zależności, co dodatkowo wymagałoby czasu związanego z przeszukiwaniem talii.
+
+Po drugie, musisz pamiętać, że głównym narzędziem Anki jest algorytm, który wyznacza optymalny czas wyświetlenia karty użytkownikowi, na krótko przed zapomnieniem danej informacji. Dodanie do kart zależności spowodowałoby przede wszystkim nałożenie na algorytm wielu rodzajów ograniczeń, przez co okazałoby się, że czas wyświetlenia kart nie jest już optymalny. Karty pokazywane byłyby wcześniej lub później przez co nauka i powtórki nie byłyby tak efektywne. Uczyłbyś się większej liczby kart niż to jest wymagane albo je po prostu zapominał.
+
+Dlatego właśnie najlepszym sposobem jest tworzenie notatek, które nie będą ze sobą związane w żaden sposób. Zamiast tworzyć dodatkowe relacje utwórz takie notatki i karty, które będą jasno określały sposób użycia danego słowa, na przykład poprzez wpasowanie słowa w konkretny kontekst. Dzięki temu łatwiej będzie ci określić w przyszłości różnice w ich znaczeniach. Synonimy rzadko są słowami w pełni zastosowalnymi. Najczęściej w ich znaczeniu występują pewne drobne różnice, które nie pozwalają użyć danego słowa w sytuacji, gdy wymagane jest inne. 
+
+Wróćmy do wcześniej wspomnianego przykładu z językiem japońskim. Wyobraź sobie, że uczysz się nowego słowa "dekai", które oznacza mniej więcej to samo co "duży", ale w bardziej potocznym użyciu. Jeśli chciałbyś powtarzać to słowo w przyszłości, w obydwu kierunkach - standardowym i odwrotnym, to warto dodać do niego dodatkowy podpis w np. takiej formie: "duży (potoczniej)". Prawda jest taka, że im lepiej poznajesz język, którego się uczysz, tym więcej pojawi się problemów tego rodzaju. Dlatego ważne, żebyś rozróżniał znaczenie słów już na początkowych etapach nauki. W przyszłości pozwoli ci to łatwiej przyswajać kolejne synonimy. 
+
+== Can I give my notes an arbitrary number of fields? ==
+
+Notes are designed to represent 'closely' related information, and to make it easy to reorganize where that information appears on a card. In the context of language learning, notes are useful for representing things like a phrase-translation pair, a phrase-translation-reading triplet, and so on. All of these relationships are 1:1 - a given phrase has only one reading,
+and one translation. (1)
+
+Because of their ability to tie related pieces of information together, some people try to use notes to tie less closely related information in their deck together. For example, if they come across two sentences with the word "completely":
+
+ * He was completely confused.
+ * That was completely uncalled for.
+
+Then they put those two sentences in the same note, under the rationale that since they share a word, they are related. But what if the user comes across another example sentence?
+
+ * The book confused her.
+
+That sentence shares the word "confused" with a previous sentence. So should it be in the note for "confused"? Or the note for "completely"? Or both?
+
+Unlike the phrase-translation pairs mentioned above, if you say sentences are related if they share a word, then sentences have a many:many relationship. That is, sentence A may be related to sentence B and C, sentence B may be related to A and D, and so on. Because the relationships are complex and overlapping, notes are not a good way to represent them.
+
+There seem to be two main reasons people try to represent such relationships in notes:
+
+ * "Because it's neater to keep all the information in one place". This may seem to be the case, but in reality you really don't save much. If you want to see all example sentences that contain the word "completely" and each sentence is in a different note, all you have to do is search for "completely".
+
+ * "Because I want Anki to separate reviews of cards that share the same word". This is related to the previous FAQ question. Defining the links between cards is time consuming, and if it were done automatically and every card that shared a word were separated from other cards that shared a word, it would be both computationally prohibitive, and would likely lead to a situation where nothing could be shown because it was all related to something else. Yes, it's not ideal for two sentences containing the same word to be shown right after each other, but if you add new cards in a random order such a situation is unlikely, and the downsides of trying to prevent such a situation aren't worth it. And even if such a solution were introduced, it wouldn't stop you from encountering the words in the real world.
+
+(1) It is possible for different people to translate the same phrase in different ways, and different dialects may read the same word differently, but that is not relevant to the discussion.
+
+== Czy mogę zainstalować AnkiWeb na swoim własnym serwerze? ==
+
+Nie, niestety nie ma obecnie takiej możliwości. 
+
+== Dlaczego wersja na Androida jest darmowa, a na iPhone płatna? ==
+
+Twórcą Anki jest Damien Elmes. Praca nad Anki, AnkiWeb oraz AnkiMobile jest jego głównym zajęciem i jak każdy człowiek także i on musi po prostu płacić rachunki. Oznacza to także, że dochód pochodzący ze sprzedaży AnkiMobile dla iPhone finansuje rozwój programu, tak żeby mógł on stawać się coraz lepszy. 
+
+AnkiDroid napisany został przez osobną grupę deweloperów oprogramowania. Wersja na Androida w dużej mierze bazuje na wersji na komputery PC (i AnkiWeb w celu synchronizacji talii), która jest darmowa. Stąd też darmowa dystrybucja aplikacji na Andoida.
+
+== What spaced repetition algorithm does Anki use? ==
+
+Anki was originally based on the SuperMemo SM5 algorithm. However, Anki's default behaviour of revealing the next interval before answering a card revealed some fundamental problems with the SM5 algorithm. The key difference between SM2 and later revisions of the algorithm is this:
+
+ * SM2 uses your performance on a card to determine the next time to schedule that card
+ * SM3+ use your performance on a card to determine the next time to schedule that card, and similar cards
+
+The latter approach promises to choose more accurate intervals by factoring in not just a single card's performance, but the performance as a group. If you are very consistent in your studies and all cards are of a very similar difficulty, this approach can work quite well. However, once inconsistencies are introduced into the equation (cards of varying difficulty, not studying at the same time every day), SM3+ is more prone to incorrect guesses at the next interval - resulting in cards being scheduled too often or too far in the future.
+
+Furthermore, as SM3+ dynamically adjusts the "optimum factors" table, a situation can often arise where answering "hard" on a card can result in a longer interval than answering "easy" would give. The next times are hidden from you in SuperMemo so the user is never aware of this.
+
+After evaluating the alternatives, the Anki author decided that near-optimum intervals yielded by an SM2 derivative are better than trying to obtain optimum intervals at the risk of incorrect guesses. An SM2 approach is predictable and intuitive to end users, whereas an SM3+ approach hides the details from the user and requires users to trust the system (even when the system may make mistakes in the scheduling).
+
+Anki's algorithm is based on SM2, but differs from it in some respects.
+
+ * SM2 defines an initial interval of 1 day then 6 days. With Anki, you have full control over the length of the initial learning steps. Anki understands that it can be necessary to see a new card a number of times before you're able to memorize it, and those initial "failures" don't mean you need to be punished by being shown the failed card many times over the course of a few days. Performance during the learning stage does not reflect performance in the retaining stage.
+
+ * Anki uses 4 choices for answering review cards, not 6. There is only one 'fail' choice, not 3. The reason for this is that failure comprises a small amount of total reviews, and thus adjusting a card's ease can be sufficiently done by simply varying the positive answers.
+
+ * Answering cards later than scheduled will be factored into the next interval calculation, so you receive a boost to cards that you were late in answering but still remembered.
+
+ * Like SM2, Anki's failure button resets the card interval by default. But the user can choose to make the card take some steps back rather than being reset completely. Also, you can elect to review failed mature cards on a different day, instead of the same day.
+
+ * 'Remembered easily' not only increments the ease factor, but adds an extra bonus to the current interval calculation. Thus, answering 'remembered easily' is a little more aggressive than the standard SM2 algorithm.
+
+ * Successive failures while cards are in learning do not result in further decreases to the card's ease. A common complaint with the standard SM algorithms is that repeated failings of a card cause the card to get stuck in "low interval hell". In Anki, the initial acquisition process does not influence a card's ease.
+
+For a description of the SM2 algorithm, please see
+http://www.supermemo.com/english/ol/sm2.htm
+
+== Resources ==
+
+The SuperMemo site has a lot of good information about spaced repetition and memory: http://www.supermemo.com/
+
+```

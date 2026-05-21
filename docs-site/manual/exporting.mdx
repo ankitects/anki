@@ -1,0 +1,121 @@
+---
+title: "Exporting"
+description: "Migrated from ankitects/anki-manual for the Mintlify documentation POC."
+---
+
+# Exporting
+
+
+
+Exporting allows you to save part of your collection as a text file or
+packaged Anki deck. To export, click the File menu and choose **Export**.
+
+## Text Files
+
+If you choose "Notes in Plain Text", Anki will write the contents of the
+notes into a text file. Each field is separated by a tab. If you edit
+the resulting file and don't modify the first field, you can later
+import that file back into Anki and Anki will update your notes based on
+your edits, provided you import back into the same note type.
+
+If you find yourself needing to edit the first field as well, you'll
+need to change the format of your note type so that the first field is
+an ID number rather than actual text. (You can install
+the [Add note id](https://ankiweb.net/shared/info/8897764)
+add-on to make this easier.)
+
+In order for formatting to be preserved when you import text back in,
+the text is exported with all the HTML formatting embedded in it.
+
+## Packaged Decks
+
+A "packaged deck" consists of cards, notes, note types, and any sounds or
+images bundled up into a file ending with .apkg or .colpkg. You can use
+packaged decks to transfer cards between people, or for backing up parts
+of your collection.
+
+There are two different kinds of packaged decks.
+
+### Collection (.colpkg)
+
+`.colpkg` stands for "Anki Collection Package". Exporting it will export your
+entire collection. The collection contains all decks with scheduling included.
+You can use the collection package to back up your collection, or copy it to
+another device.
+
+```admonish info
+Collection packages created with previous versions of Anki were called
+`collection.apkg`.
+```
+
+#### What Happens on Import?
+
+If you import a `.colpkg` file, then all of your current cards in Anki will be
+deleted and replaced by the cards from the `.colpkg` file. This is useful for
+copying your collection back and forth between devices.
+
+Existing media in your collection is not deleted when you import a
+collection package. To delete unused media, use **Tools &gt; Check Media**.
+
+#### Export Options
+
+##### Include Media
+If true, local media will be included.
+If false, the `.colpkg` will not contain any audio, images or other media.
+
+##### Support older Anki versions (slower/larger files)
+If true, a legacy version of the file is created. Turn this on if you need to
+support older clients.
+If false, a modern version of the file is created. Imports and exports will be
+faster, and media files will be compressed, but the resulting file will not be
+readable by older Anki clients.
+
+### Deck (.apkg)
+
+`.apkg` stands for "Anki Deck Package". You can use it to export a single deck
+(and any child decks it may have).
+
+```admonish note
+If the filename is `collection.apkg`, then it is a collection package instead.
+All other filenames ending with `.apkg` are deck packages.
+```
+
+#### What Happens on Import?
+
+When you import a deck package, Anki will add the contents into your collection,
+rather than overwriting your collection.
+
+If some notes in the deck package have previously been imported, Anki
+will keep the version with the most recent modification time.
+
+```admonish example
+You have a deck with the name _Biology_ and use it in Anki. You now download an
+updated version of that same deck. If you import the updated deck, then Anki
+will incorporate all the edits into your own Anki collection.
+
+If you re-import an unchanged `.apkg` after making changes in your own
+collection (e.g. editing cards), then Anki will keep the changes in your
+collection instead of overwriting them.
+```
+
+#### Export Options
+
+##### Include Scheduling Information
+If true, scheduling information such as your review history will be exported.
+If false, Anki will assume that you are sharing the deck with other people, and
+will remove the entire scheduling information, including marked and leech tags.
+That way users will have a clean copy of your deck.
+
+##### Include Deck Presets
+If true, deck presets will be included.
+
+##### Include Media
+If true, local media will be included.
+If false, the `.apkg` will not contain any audio, images or other media.
+
+##### Support older Anki versions (slower/larger files)
+If true, a legacy version of the file is created. Turn this on if you need to
+support older clients.
+If false, a modern version of the file is created. Imports and exports will be
+faster, and media files will be compressed, but the resulting file will not be
+readable by older Anki clients.

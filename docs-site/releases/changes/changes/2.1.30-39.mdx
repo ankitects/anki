@@ -1,0 +1,226 @@
+---
+title: "Changes in 2.1.30 to 39"
+description: "Migrated from ankitects/anki-changes for the Mintlify documentation POC."
+---
+
+# Changes in 2.1.30 to 39
+
+
+
+## Changes in 2.1.39
+
+Released 2021-02-02, build 576f0043.
+
+- Fix the Reposition command not preserving the browser sort order.
+- Fix some issues causing the sync indicator to show unnecessarily (thanks to Rumo).
+- Fix a spurious warning about a full sync when renaming card templates.
+- Fix Anki not working after installing on Linux over a previous install.
+- Don't log card resets when exporting.
+- Fix congrats screen not showing when learning cards were due soon.
+- Updated bundled lame and mpv on Windows and Mac builds.
+- Other fixes and improvements, with thanks to Henrik, Rumo, Abdo, Arthur, Guillem, Meredith, Gustavo, and Daniel.
+
+## Changes in 2.1.38
+
+Released 2020-12-26, build 355e4cd5.
+
+- Use a new approach for recording audio. If you encounter any issues,
+  the old PyAudio driver can be selected in the Preferences screen. The old
+  driver will likely be retired in the future, so please let us know
+  if the default system does not work for you.
+- All built-in Windows TTS voices should now be supported on recent Windows 10
+  releases (thanks to Ryan).
+- Fix the Reposition tool in the Browse screen not following the sort
+  order.
+- Reduce the default fade time in the review screen.
+- The ANGLE video driver can now be selected in the Preferences on Windows.
+- Fix some instances of the sync indicator remaining on after sync (thanks to Rumo).
+- Work around --text-fg appearing in fields.
+- Fix link in about screen (thanks to Abdo).
+- Fix '1' being shown instead of the correct number in some Russian translations.
+- Fixed invisible characters when adding new card templates (thanks to Henrik).
+- Fixed duplicate check getting confused by non-breaking spaces (thanks to abdo).
+- Don't throw error when computer hostname is invalid.
+- Other minor changes (thanks to Henrik & k12sh)
+
+For developers:
+
+- Protobuf binaries are now used to speed up the initial build.
+- Fixed Python code completion, and added some info to docs/development.md
+- ./run now runs Anki with Python warnings enabled - PRs that fix any that come
+  up would be welcome (thanks cecini for the first!)
+
+## Changes in 2.1.37
+
+Released 2020-12-12, build 6d596c8f.
+
+- Fixed filtered decks not honoring sort order.
+- Fixed review screen not automatically scrolling to answer (thanks to Henrik).
+- The deck options screen now limits minimum ease to 131%.
+
+For developers:
+
+- Added a scripts/build command to build the redistributable wheels.
+- The Rust worker is disabled by default, as some users had trouble building with it.
+
+## Changes in 2.1.36
+
+Released 2020-12-09, build c505894b.
+
+Notable changes:
+
+- Alternate builds have been discontinued. If you are using a 32 bit system, or
+  a macOS version older than 10.13, Anki 2.1.35 is the last release you will be able
+  to update to.
+- MathJax has been updated to version 3, thanks to Henrik. It should render faster
+  than before. If you were customizing the MathJax configuration using Javascript,
+  you will need to
+  [use a new method](https://github.com/ankitects/anki/pull/809#issuecomment-721438738).
+- A separate mpv process is now used to play videos on Windows, which should
+  solve issues with playing getting stuck, thanks to Kelciour.
+- The handling of wildcards and escape characters in search [has been
+  reworked](https://docs.ankiweb.net/searching.html#matching-special-characters)
+  to be more consistent, thanks to Rumo.
+- Early startup messages are now translable, thanks to Abdo.
+- When cards are rescheduled in the browse screen, a review entry log is now created.
+- The main card area is now focused instead of the bottom area during review,
+  which allows using the keyboard to scroll, thanks to Henrik.
+
+Bugfixes:
+
+- Fixed corrupt indexes when checking database.
+- Fixed duplicate search when sort field is not first field (thanks to Abdo).
+- Fixed error when switching to note type with fewer fields.
+- Fixed invalid utf8 in notes when checking database.
+- Fixed invisible scrollbar in night mode + browser.
+- Fixed issues with "find duplicates" (thanks to Abdo)
+- Fixed some issues with adding/renaming decks (thanks to Cecini).
+- Other minor fixes.
+
+For developers:
+
+- Anki is now built using Bazel. This leads to more reliable builds, and reduces
+  the number of dependencies you need to manually install. Please see docs/ for
+  updated build instructions, and report any issues you encounter on the user
+  forums.
+- The minimum Python version has been updated to 3.8.
+- The wheels available on PyPI support both Python 3.8 and 3.9.
+- All translations have been migrated to [Fluent](https://translating.ankiweb.net/anki/developers.html).
+- Normal and night mode theming now uses CSS variables, making it easier to override in add-ons.
+- The congrats screen, burying/suspending, filtered deck building/emptying, browser sidebar, and card
+  reposition/reset have been reworked. If you were modifying them in an add-on, your add-on
+  may need updating. For the congratulations screen, see the new webview_did_inject_style_into_page
+  hook
+
+Thanks to all the people who have contributed bugfixes and code/doc updates:
+Abdo, Lukkea, Akshara, Kelciour, David, Henrik, Colin, Johan, Piotr, Andreas,
+Arthur, Alan, RumovZ, Cecini, Soren, Krish, ianki, Cyphar and kaczmarj, in no
+particular order.
+
+Thanks also to all of the people who have contributed translations for this
+and previous releases: [https://i18n.ankiweb.net/contributors/](https://i18n.ankiweb.net/contributors/)
+
+## Changes in 2.1.35
+
+Released 2020-10-02, build 84dcaa86.
+
+- Fix a bug in Anki 2.1.29+ that caused excessive memory and CPU usage
+  on long-running operations that show a progress bar, such as importing.
+- Roll back Mac and Windows builds to Qt 5.14 again,
+  as there are still issues with 5.15.
+- Fix display issue in graphs on alternate Mac build.
+- Fix preview not updating on multiple selection (thanks to abdo).
+- Fix old content appearing when flagging immediately
+  after typing.
+- Fix some handling of `*` in searches.
+- Sidebar now correctly escapes some characters (thanks to abdo).
+
+## Changes in 2.1.34
+
+Released 2020-09-24, build 8af8f565.
+
+- Fix a bug in Anki 2.1.28+ where a newly created deck config would default to
+  an ease of 130%. When updating, Anki will automatically change any deck
+  configs with an ease of 130% back to 250%, and change any cards using those
+  deck configs with a low ease back to an ease of 250%. Users who updated from
+  an older Anki version and did not add new deck configurations should not be
+  affected. If you have deliberately set an initial ease of 130%, please change
+  it to 131% or greater prior to upgrading, so that Anki leaves your settings
+  alone. Thanks to Aleksa for discovering the issue.
+- Update the standard builds to the latest GUI toolkit version.
+  Please report any improvements or regressions you notice.
+- Dropped audio plays automatically again (thanks to abdo).
+- Revert to older sound playing behaviour to work around issues
+  (thanks to kelciour).
+- is:due now stops at now+learn ahead limit, instead of end of day.
+- Various improvements/fixes, some thanks Aleksa & Henrik.
+
+## Changes in 2.1.33
+
+Released 2020-08-30, build 3f403040.
+
+- Access More button in review screen with 'm' (thanks to ANH).
+- Audio no longer plays when dropped/pasted (thanks to ANH).
+- Fix bulk tag adding not adding tags if tag is a substring of an existing tag (thanks to Soren)
+- Fix cards not being unburied if leaving Anki open and the first action of a new day is a sync.
+- Fix drag&drop into existing content (thanks to ANH).
+- Fix error when add-ons tried to access note/template in card template screen.
+- Fix next learn message in congrats screen.
+- Fix nonbreaking spaces in filenames not being handled properly.
+- Fix text in export file selector (thanks to ANH).
+- Fix timeouts in full syncs and media syncs again.
+
+## Changes in 2.1.32
+
+Released 2020-08-25, build dee7d45d.
+
+- Roll back a change in the previous update that could cause syncs to time out.
+- Fix sign up link in login screen.
+
+## Changes in 2.1.31
+
+Released 2020-08-23, build 13476503.
+
+- Show card counts in pie graph, and other minor graph tweaks.
+- Fix sync error+lost review when undoing in v2 filtered deck with scheduling off.
+- Fix crash when dragging & dropping, thanks to ANH25.
+- Fix 'stale notetype' error after sync+add.
+- Close "edit current" when current card deleted.
+- Code improvements thanks to ANH, Arthur, Evandro, Henrik and Thomas.
+- Find&Replace completion is now case sensitive.
+- Fix crash when recovering notes with missing notetype.
+- Fix duplicate detection when input text is not normalized.
+- Fix Empty Cards not ignoring BR tags.
+- Fix Find&Replace window sizing.
+- Fix handling of nested legacy template directives.
+- Fix issues with bulk tag removal.
+- Fix mpv failing to play audio after it's restarted, thanks to Kelciour.
+- Fix some (rare) crashes.
+- Full syncs and media syncs now terminate more quickly when the connection breaks.
+- Improve support for getting proxies from Windows registry.
+- Remove embedded direction markers in RTL cloze deletions.
+- Strip nul characters from tags.
+
+## Changes in 2.1.30
+
+Released 2020-08-09, build 06a69c25.
+
+- Work around a failure to start on some Windows 10 May 2020 installations.
+- Fix "show windows in tabs" not working on standard macOS build.
+- Fix move into/out of filtered decks not syncing.
+- Add right axis to graphs.
+- Add night mode and mobile class toggles in card layout screen (thanks to ANH25).
+- Card counts graph now always shows table.
+- Catch negative review times in DB check.
+- Code improvements (thanks to Matt, phwoo, Evandro and aplaice).
+- Fix a crash in the DB check when a note type was missing.
+- Fix automatic logout not working when auth failure occurs.
+- Fix deck list and graphs not including v2 scheduler cards with rescheduling disabled.
+- Fix early reviews not appearing in review graph.
+- Fix hour graph problem in timezones west of UTC.
+- Fix negated conditonals being non-negated when renamed.
+- Fix some syncing errors that could happen until Check Database was run.
+- Fix some young cards being shown as mature in reviews graph.
+- Handle multiple same-numbered clozes in cloze-only filter.
+- Refresh tag list after clearing empty tags.
+- Other minor fixes.
