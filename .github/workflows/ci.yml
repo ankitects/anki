@@ -102,6 +102,7 @@ jobs:
         run: ln -sf out/node_modules .
 
       - name: Restore coverage baseline
+        if: github.event_name == 'pull_request'
         uses: actions/cache/restore@v4
         with:
           path: out/coverage
@@ -109,6 +110,7 @@ jobs:
           restore-keys: coverage-baseline-linux-
 
       - name: Move restored baseline aside
+        if: github.event_name == 'pull_request'
         run: test -d out/coverage && mv out/coverage out/coverage-baseline || true
 
       - name: Build, lint, and test
