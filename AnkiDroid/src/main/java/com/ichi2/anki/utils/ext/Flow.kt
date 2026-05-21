@@ -20,8 +20,8 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import com.ichi2.anki.AnkiActivity
+import com.ichi2.anki.common.utils.android.HandlerUtils
 import com.ichi2.anki.common.utils.android.isRobolectric
-import com.ichi2.utils.HandlerUtils
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.Flow

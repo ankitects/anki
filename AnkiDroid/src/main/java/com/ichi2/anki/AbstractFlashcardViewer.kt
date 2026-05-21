@@ -111,6 +111,7 @@ import com.ichi2.anki.cardviewer.ViewerRefresh
 import com.ichi2.anki.cardviewer.handledGamepadKeyDown
 import com.ichi2.anki.cardviewer.handledGamepadKeyUp
 import com.ichi2.anki.common.annotations.NeedsTest
+import com.ichi2.anki.common.utils.android.HandlerUtils.newHandler
 import com.ichi2.anki.compat.CompatHelper.Companion.resolveActivityCompat
 import com.ichi2.anki.compat.ResolveInfoFlagsCompat
 import com.ichi2.anki.dialogs.TtsPlaybackErrorDialog
@@ -161,7 +162,6 @@ import com.ichi2.anki.utils.ext.showDialogFragment
 import com.ichi2.themes.Themes
 import com.ichi2.themes.Themes.getResFromAttr
 import com.ichi2.ui.FixedEditText
-import com.ichi2.utils.HandlerUtils.newHandler
 import com.ichi2.utils.HashUtil.hashSetInit
 import com.ichi2.utils.Stopwatch
 import com.ichi2.utils.message

@@ -24,6 +24,7 @@ import com.ichi2.anki.CollectionManager.TR
 import com.ichi2.anki.Reviewer
 import com.ichi2.anki.cardviewer.ViewerCommand
 import com.ichi2.anki.common.annotations.NeedsTest
+import com.ichi2.anki.common.utils.android.HandlerUtils
 import com.ichi2.anki.libanki.Collection
 import com.ichi2.anki.libanki.DeckConfig
 import com.ichi2.anki.libanki.DeckConfig.Companion.ANSWER_ACTION
@@ -33,7 +34,6 @@ import com.ichi2.anki.reviewer.AnswerButtons.GOOD
 import com.ichi2.anki.reviewer.AnswerButtons.HARD
 import com.ichi2.anki.reviewer.AutomaticAnswerAction.Companion.answerAction
 import com.ichi2.anki.snackbar.showSnackbar
-import com.ichi2.utils.HandlerUtils
 import timber.log.Timber
 
 /**

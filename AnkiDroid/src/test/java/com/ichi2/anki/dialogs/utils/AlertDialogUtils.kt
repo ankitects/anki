@@ -22,7 +22,7 @@ import androidx.appcompat.app.AlertDialog
 import androidx.core.view.isVisible
 import androidx.test.platform.app.InstrumentationRegistry
 import com.ichi2.anki.R
-import com.ichi2.utils.HandlerUtils.executeFunctionUsingHandler
+import com.ichi2.anki.common.utils.android.HandlerUtils.executeFunctionUsingHandler
 import com.ichi2.utils.getInputField
 import org.hamcrest.MatcherAssert.assertThat
 import kotlin.test.assertNotNull

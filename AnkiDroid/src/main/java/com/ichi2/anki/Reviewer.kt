@@ -71,6 +71,8 @@ import com.ichi2.anki.cardviewer.ViewerCommand
 import com.ichi2.anki.common.annotations.NeedsTest
 import com.ichi2.anki.common.crashreporting.CrashReportService
 import com.ichi2.anki.common.time.TimeManager
+import com.ichi2.anki.common.utils.android.HandlerUtils.executeFunctionWithDelay
+import com.ichi2.anki.common.utils.android.HandlerUtils.getDefaultLooper
 import com.ichi2.anki.libanki.Card
 import com.ichi2.anki.libanki.CardId
 import com.ichi2.anki.libanki.Collection
@@ -129,8 +131,6 @@ import com.ichi2.anki.utils.navBarNeedsScrim
 import com.ichi2.anki.utils.remainingTime
 import com.ichi2.themes.Themes
 import com.ichi2.themes.Themes.currentTheme
-import com.ichi2.utils.HandlerUtils.executeFunctionWithDelay
-import com.ichi2.utils.HandlerUtils.getDefaultLooper
 import com.ichi2.utils.Permissions.canRecordAudio
 import com.ichi2.utils.ViewGroupUtils.setRenderWorkaround
 import com.ichi2.utils.cancelable

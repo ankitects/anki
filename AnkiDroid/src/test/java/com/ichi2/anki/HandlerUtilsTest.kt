@@ -18,8 +18,8 @@ package com.ichi2.anki
 
 import android.os.SystemClock
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import com.ichi2.anki.common.utils.android.HandlerUtils
 import com.ichi2.testutils.EmptyApplication
-import com.ichi2.utils.HandlerUtils
 import org.hamcrest.MatcherAssert.assertThat
 import org.hamcrest.Matchers.closeTo
 import org.hamcrest.Matchers.equalTo

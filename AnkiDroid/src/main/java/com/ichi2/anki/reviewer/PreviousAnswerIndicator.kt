@@ -19,7 +19,7 @@ package com.ichi2.anki.reviewer
 import android.widget.TextView
 import anki.scheduler.CardAnswer.Rating
 import com.ichi2.anki.R
-import com.ichi2.utils.HandlerUtils.newHandler
+import com.ichi2.anki.common.utils.android.HandlerUtils.newHandler
 
 /**
  * A visual element in the top bar showing a number of colored dots based on the previous answer

@@ -26,9 +26,9 @@ import com.ichi2.anki.DeckPicker
 import com.ichi2.anki.IntentHandler
 import com.ichi2.anki.R
 import com.ichi2.anki.analytics.UsageAnalytics
+import com.ichi2.anki.common.utils.android.HandlerUtils.getDefaultLooper
 import com.ichi2.anki.dialogs.DialogHandler.Companion.storeMessage
 import com.ichi2.anki.showError
-import com.ichi2.utils.HandlerUtils.getDefaultLooper
 import com.ichi2.utils.ImportUtils
 import timber.log.Timber
 import java.lang.ref.WeakReference

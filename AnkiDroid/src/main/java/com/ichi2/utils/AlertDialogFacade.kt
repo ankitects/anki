@@ -41,12 +41,12 @@ import androidx.recyclerview.widget.RecyclerView
 import androidx.viewbinding.ViewBinding
 import com.google.android.material.textfield.TextInputLayout
 import com.ichi2.anki.R
+import com.ichi2.anki.common.utils.android.HandlerUtils.executeOnMainThread
 import com.ichi2.anki.databinding.DialogAlertDialogCheckboxBinding
 import com.ichi2.anki.databinding.DialogAlertDialogTitleWithHelpBinding
 import com.ichi2.anki.databinding.DialogGenericRecyclerViewBinding
 import com.ichi2.anki.databinding.DialogListviewMessageBinding
 import com.ichi2.themes.Themes
-import com.ichi2.utils.HandlerUtils.executeOnMainThread
 import timber.log.Timber
 
 /** Wraps [DialogInterface.OnClickListener] as we don't need the `which` parameter */
