@@ -128,6 +128,65 @@ def compile_sources(out_dir: Path, version: str) -> bool:
     return True
 
 
+def _find_fcitx_file(dirs: list[Path], pattern: str) -> Path | None:
+    for d in dirs:
+        for f in d.glob(pattern):
+            if f.is_file():
+                return f
+    return None
+
+
+def bundle_fcitx(out_dir: Path, version: str) -> None:
+    sources = get_briefcase_sources_path(out_dir, version)
+    if not sources:
+        return
+
+    machine = platform.machine()
+    # Cover Debian/Ubuntu multiarch (apt or cmake with -DCMAKE_INSTALL_PREFIX=/usr)
+    # and cmake's default /usr/local prefix.
+    lib_dirs = [
+        Path(f"/usr/lib/{machine}-linux-gnu"),
+        Path("/usr/lib"),
+        Path(f"/usr/local/lib/{machine}-linux-gnu"),
+        Path("/usr/local/lib"),
+    ]
+    pic_dirs = [d / "qt6" / "plugins" / "platforminputcontexts" for d in lib_dirs]
+
+    pic_plugin = _find_fcitx_file(pic_dirs, "libfcitx5platforminputcontextplugin.so")
+    if pic_plugin is None:
+        print("fcitx5-qt6 plugin not found — skipping fcitx bundling")
+        return
+
+    pyqt6_qt6 = next((sources / "app_packages").rglob("PyQt6/Qt6"), None)
+    if pyqt6_qt6 is None:
+        raise RuntimeError("Could not find PyQt6/Qt6 in built package")
+
+    pic_dest = pyqt6_qt6 / "plugins" / "platforminputcontexts"
+    dbus_dest = pyqt6_qt6 / "plugins" / "dbusaddons"
+    dbus_dest.mkdir(exist_ok=True)
+
+    shutil.copy2(pic_plugin, pic_dest)
+    for lib_dir in lib_dirs:
+        for lib in lib_dir.glob("libFcitx5Qt6DBusAddons.so*"):
+            shutil.copy2(lib, dbus_dest)
+
+    # libfcitx5core / libfcitx5utils are NOT bundled: they are resolved from the
+    # system path and are only present when the user has fcitx5 installed.
+    subprocess.check_call(
+        [
+            "patchelf",
+            "--set-rpath",
+            "$ORIGIN/../dbusaddons:$ORIGIN/../../lib",
+            str(pic_dest / "libfcitx5platforminputcontextplugin.so"),
+        ]
+    )
+    for lib in dbus_dest.iterdir():
+        if lib.is_file():
+            subprocess.check_call(
+                ["patchelf", "--set-rpath", "$ORIGIN/../../lib", str(lib)]
+            )
+
+
 def build(args: argparse.Namespace) -> None:
     version = args.version
     shutil.copytree(app_dir, out_dir, dirs_exist_ok=True)
@@ -154,6 +213,8 @@ def build(args: argparse.Namespace) -> None:
     )
     prune_webengine_locales(out_dir)
     compile_sources(out_dir, version)
+    if sys.platform == "linux":
+        bundle_fcitx(out_dir, version)
 
 
 def get_platform_suffix() -> str:
