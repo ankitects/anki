@@ -1,0 +1,728 @@
+name: Release
+run-name: "Release ${{ inputs.version }} (sign=${{ inputs.sign }}, draft=${{ inputs['draft-release'] }}, testpypi=${{ inputs['publish-testpypi'] }}, pypi=${{ inputs['publish-pypi'] }})"
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Version for draft release/PyPI (must match .version)"
+        required: true
+        type: string
+      skip-ci-check:
+        description: "Skip the CI status check (for hotfix releases from non-main branches)"
+        default: false
+        required: false
+        type: boolean
+      sign:
+        description: "Sign macOS and Windows artifacts (requires release environment)"
+        default: false
+        required: false
+        type: boolean
+      draft-release:
+        description: "Create a draft GitHub release (requires sign)"
+        default: false
+        required: false
+        type: boolean
+      publish-testpypi:
+        description: "Publish wheels to TestPyPI"
+        default: false
+        required: false
+        type: boolean
+      publish-pypi:
+        description: "Publish wheels to PyPI after TestPyPI"
+        default: false
+        required: false
+        type: boolean
+
+permissions:
+  contents: write
+  actions: read
+
+env:
+  # Build profile: 1 = Release, 2 = ReleaseWithLto (see build/ninja_gen/src/build.rs)
+  RELEASE: 2
+  N2_OUTPUT_PROGRESS: "1"
+  N2_OUTPUT_SUCCESS: "1"
+
+concurrency:
+  group: release
+  cancel-in-progress: false
+
+jobs:
+  prepare:
+    runs-on: ubuntu-latest
+    outputs:
+      public_release: ${{ steps.validate.outputs.public_release }}
+      pep440_version: ${{ steps.validate.outputs.pep440_version }}
+      tag_name: ${{ steps.validate.outputs.tag_name }}
+      release_name: ${{ steps.validate.outputs.release_name }}
+      is_prerelease: ${{ steps.validate.outputs.is_prerelease }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 0
+
+      - name: Reject incompatible inputs
+        run: |
+          if [ "$DRAFT_RELEASE" = "true" ] && [ "$SIGN" != "true" ]; then
+            echo "::error::Draft releases must be signed"
+            exit 1
+          fi
+        env:
+          DRAFT_RELEASE: ${{ inputs['draft-release'] }}
+          SIGN: ${{ inputs.sign }}
+
+      - name: Validate version and compute metadata
+        id: validate
+        run: |
+          pip install --break-system-packages 'packaging>=24,<26'
+          file_version=$(cat .version)
+
+          public_release=false
+          if [ "$DRAFT_RELEASE" = "true" ] || [ "$PUBLISH_PYPI" = "true" ]; then
+            public_release=true
+          fi
+
+          if [ "$public_release" = "true" ] && [ "$file_version" != "$INPUT_VERSION" ]; then
+            echo "::error::Input version '$INPUT_VERSION' does not match .version '$file_version'"
+            exit 1
+          fi
+
+          # Use .version for non-release runs so builds work without a prepare step
+          version="$INPUT_VERSION"
+          if [ "$public_release" != "true" ]; then
+            echo "::notice::Non-release run — ignoring version input '$INPUT_VERSION', using .version='$file_version'"
+            version="$file_version"
+          fi
+
+          # "0.0" skips the ordering check — non-release builds only need format validation
+          is_prerelease=$(python3 .github/scripts/validate_version.py "$version" "0.0")
+          echo "Version check passed: $version (prerelease=$is_prerelease)"
+
+          {
+            echo "pep440_version=$version"
+            echo "tag_name=$version"
+            echo "release_name=Anki $version"
+            echo "public_release=$public_release"
+            echo "is_prerelease=$is_prerelease"
+          } >> "$GITHUB_OUTPUT"
+        env:
+          INPUT_VERSION: ${{ inputs.version }}
+          DRAFT_RELEASE: ${{ inputs['draft-release'] }}
+          PUBLISH_PYPI: ${{ inputs['publish-pypi'] }}
+
+      - name: Check CI passed
+        if: ${{ steps.validate.outputs.public_release == 'true' && inputs.skip-ci-check != true }}
+        run: |
+          conclusion=$(gh run list \
+            --workflow=ci.yml \
+            --commit "$COMMIT_SHA" \
+            --limit 5 \
+            --json conclusion,event \
+            --jq '[.[] | select(.event == "push" or .event == "workflow_dispatch")][0].conclusion')
+
+          if [[ -z "$conclusion" ]]; then
+            echo "::error::Could not determine CI status for commit $COMMIT_SHA"
+            exit 1
+          elif [[ "$conclusion" != "success" ]]; then
+            echo "::error::CI for commit $COMMIT_SHA concluded with '$conclusion'"
+            exit 1
+          fi
+        env:
+          GH_TOKEN: ${{ github.token }}
+          COMMIT_SHA: ${{ github.sha }}
+
+      - name: Check for duplicate tag or release
+        if: ${{ inputs['draft-release'] == true }}
+        run: |
+          git fetch --tags origin
+          if git rev-parse "refs/tags/$TAG_NAME" >/dev/null 2>&1; then
+            echo "::error::Tag '$TAG_NAME' already exists"
+            exit 1
+          fi
+
+          if gh release view "$TAG_NAME" >/dev/null 2>&1; then
+            echo "::error::GitHub release '$TAG_NAME' already exists"
+            exit 1
+          fi
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG_NAME: ${{ steps.validate.outputs.tag_name }}
+
+  # macOS ARM and Intel are kept as separate jobs rather than a matrix because
+  # they are likely to diverge (signing quirks, Xcode versions, cross-compilation
+  # flags, Rosetta workarounds), and the conditional environment expression is
+  # already complex enough without adding matrix dimensions.
+  build-and-sign-mac:
+    needs: prepare
+    runs-on: macos-14
+    timeout-minutes: 90
+    environment: ${{ inputs.sign == true && 'release' || '' }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+
+      - name: Setup build environment
+        uses: ./.github/actions/setup-anki
+
+      - name: Set up Apple code signing
+        if: inputs.sign == true
+        run: .github/scripts/setup_apple_signing.sh
+        env:
+          APPLE_CERTIFICATE_P12: ${{ secrets.APPLE_CERTIFICATE_P12 }}
+          APPLE_CERTIFICATE_PASSWORD: ${{ secrets.APPLE_CERTIFICATE_PASSWORD }}
+          APPLE_SIGNING_IDENTITY: ${{ secrets.APPLE_SIGNING_IDENTITY }}
+          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+          APPLE_NOTARY_KEY: ${{ secrets.APPLE_NOTARY_KEY }}
+          APPLE_NOTARY_KEY_ID: ${{ secrets.APPLE_NOTARY_KEY_ID }}
+          APPLE_NOTARY_ISSUER_ID: ${{ secrets.APPLE_NOTARY_ISSUER_ID }}
+
+      - name: Build installer
+        run: ./tools/build-installer
+        env:
+          SIGN_IDENTITY: ${{ inputs.sign == true && secrets.APPLE_SIGNING_IDENTITY || '' }}
+
+      - name: Clean up signing credentials
+        if: always()
+        run: |
+          KEYCHAIN_PATH="$RUNNER_TEMP/app-signing.keychain-db"
+          security delete-keychain "$KEYCHAIN_PATH" 2>/dev/null || true
+          rm -f "$RUNNER_TEMP/certificate.p12" "$RUNNER_TEMP/AuthKey.p8"
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: logs-installer-macos
+          path: out/installer/logs/
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: installer-macos
+          path: out/installer/dist/
+
+      - name: Build wheels
+        run: ./ninja wheels:anki
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: wheels-macos
+          path: out/wheels/anki-*.whl
+
+  build-and-sign-mac-intel:
+    needs: prepare
+    runs-on: macos-15-intel
+    timeout-minutes: 90
+    environment: ${{ inputs.sign == true && 'release' || '' }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+
+      - name: Setup build environment
+        uses: ./.github/actions/setup-anki
+
+      - name: Set up Apple code signing
+        if: inputs.sign == true
+        run: .github/scripts/setup_apple_signing.sh
+        env:
+          APPLE_CERTIFICATE_P12: ${{ secrets.APPLE_CERTIFICATE_P12 }}
+          APPLE_CERTIFICATE_PASSWORD: ${{ secrets.APPLE_CERTIFICATE_PASSWORD }}
+          APPLE_SIGNING_IDENTITY: ${{ secrets.APPLE_SIGNING_IDENTITY }}
+          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+          APPLE_NOTARY_KEY: ${{ secrets.APPLE_NOTARY_KEY }}
+          APPLE_NOTARY_KEY_ID: ${{ secrets.APPLE_NOTARY_KEY_ID }}
+          APPLE_NOTARY_ISSUER_ID: ${{ secrets.APPLE_NOTARY_ISSUER_ID }}
+
+      - name: Build installer
+        run: ./tools/build-installer
+        env:
+          SIGN_IDENTITY: ${{ inputs.sign == true && secrets.APPLE_SIGNING_IDENTITY || '' }}
+
+      - name: Clean up signing credentials
+        if: always()
+        run: |
+          KEYCHAIN_PATH="$RUNNER_TEMP/app-signing.keychain-db"
+          security delete-keychain "$KEYCHAIN_PATH" 2>/dev/null || true
+          rm -f "$RUNNER_TEMP/certificate.p12" "$RUNNER_TEMP/AuthKey.p8"
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: logs-installer-macos-intel
+          path: out/installer/logs/
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: installer-macos-intel
+          path: out/installer/dist/
+
+      - name: Build wheels
+        run: ./ninja wheels:anki
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: wheels-macos-intel
+          path: out/wheels/anki-*.whl
+
+  build-and-sign-windows:
+    needs: prepare
+    runs-on: windows-latest
+    timeout-minutes: 90
+    environment: ${{ inputs.sign == true && 'release' || '' }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+
+      - name: Setup build environment
+        uses: ./.github/actions/setup-anki
+
+      - name: Build app
+        run: tools\ninja installer:build
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: logs-installer-windows
+          path: out/installer/logs/
+
+      - name: Azure login
+        if: inputs.sign == true
+        uses: azure/login@v3
+        with:
+          creds: '{"clientId":"${{ secrets.AZURE_CLIENT_ID }}","clientSecret":"${{ secrets.AZURE_CLIENT_SECRET }}","subscriptionId":"${{ secrets.AZURE_SUBSCRIPTION_ID }}","tenantId":"${{ secrets.AZURE_TENANT_ID }}"}'
+
+      - name: Sign app binary
+        if: inputs.sign == true
+        uses: azure/artifact-signing-action@v1
+        with:
+          endpoint: https://eus.codesigning.azure.net/
+          signing-account-name: anki-signing
+          certificate-profile-name: ${{ secrets.AZURE_CERT_PROFILE_NAME }}
+          # Path derived from Briefcase conventions + qt/installer/app/pyproject.toml.template:
+          # {out_dir}/build/{app_name}/{platform}/{output_format}/{packaging_root}/{formal_name}.exe
+          files: ${{ github.workspace }}\out\installer\build\anki\windows\app\src\Anki.exe
+          file-digest: SHA256
+          timestamp-rfc3161: http://timestamp.acs.microsoft.com
+          timestamp-digest: SHA256
+
+      - name: Verify app binary signature
+        if: inputs.sign == true
+        shell: pwsh
+        run: |
+          $sig = Get-AuthenticodeSignature "out\installer\build\anki\windows\app\src\Anki.exe"
+          if ($sig.Status -ne "Valid") {
+            Write-Error "Anki.exe signature status: $($sig.Status)"
+            exit 1
+          }
+          Write-Host "Anki.exe signed successfully: $($sig.SignerCertificate.Subject)"
+
+      - name: Package installer
+        # NOTE: we bypass the build system here to ensure installer:build is not run again (e.g. due to submodule clones),
+        # which will remove the Anki.exe signature
+        run: out\pyenv\scripts\python.exe qt\tools\build_installer.py --version ${{ needs.prepare.outputs.pep440_version }} package
+
+      - name: Sign MSI
+        if: inputs.sign == true
+        uses: azure/artifact-signing-action@v1
+        with:
+          endpoint: https://eus.codesigning.azure.net/
+          signing-account-name: anki-signing
+          certificate-profile-name: ${{ secrets.AZURE_CERT_PROFILE_NAME }}
+          files-folder: out/installer/dist/
+          files-folder-filter: msi
+          file-digest: SHA256
+          timestamp-rfc3161: http://timestamp.acs.microsoft.com
+          timestamp-digest: SHA256
+
+      - name: Verify MSI signature
+        if: inputs.sign == true
+        shell: pwsh
+        run: |
+          $msi = Get-ChildItem "out/installer/dist/*.msi" | Select-Object -First 1
+          $sig = Get-AuthenticodeSignature $msi.FullName
+          if ($sig.Status -ne "Valid") {
+            Write-Error "MSI signature status: $($sig.Status)"
+            exit 1
+          }
+          Write-Host "MSI signed successfully: $($sig.SignerCertificate.Subject)"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: installer-windows
+          path: out/installer/dist/
+
+      - name: Build wheels
+        run: tools\ninja wheels:anki
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: wheels-windows
+          path: out/wheels/anki-*.whl
+
+  # Windows ARM uses a 4-job chain because azure/artifact-signing-action does not
+  # support ARM runners: build on ARM → sign EXE on x64 → package MSI on ARM → sign MSI on x64.
+  build-windows-arm:
+    needs: prepare
+    runs-on: windows-11-arm
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+
+      - name: Setup build environment
+        uses: ./.github/actions/setup-anki
+
+      - name: Build app
+        run: tools\ninja installer:build
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: logs-installer-windows-arm-build
+          path: out/installer/logs/
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: build-windows-arm
+          path: |
+            out/installer/
+            !out/installer/logs/
+
+      - name: Build wheels
+        run: tools\ninja wheels:anki
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: wheels-windows-arm
+          path: out/wheels/anki-*.whl
+
+  sign-exe-windows-arm:
+    needs: [prepare, build-windows-arm]
+    runs-on: windows-latest
+    timeout-minutes: 15
+    environment: ${{ inputs.sign == true && 'release' || '' }}
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: build-windows-arm
+          path: out/installer/
+
+      - name: Azure login
+        if: inputs.sign == true
+        uses: azure/login@v3
+        with:
+          creds: '{"clientId":"${{ secrets.AZURE_CLIENT_ID }}","clientSecret":"${{ secrets.AZURE_CLIENT_SECRET }}","subscriptionId":"${{ secrets.AZURE_SUBSCRIPTION_ID }}","tenantId":"${{ secrets.AZURE_TENANT_ID }}"}'
+
+      - name: Sign app binary
+        if: inputs.sign == true
+        uses: azure/artifact-signing-action@v1
+        with:
+          endpoint: https://eus.codesigning.azure.net/
+          signing-account-name: anki-signing
+          certificate-profile-name: ${{ secrets.AZURE_CERT_PROFILE_NAME }}
+          files: ${{ github.workspace }}\out\installer\build\anki\windows\app\src\Anki.exe
+          file-digest: SHA256
+          timestamp-rfc3161: http://timestamp.acs.microsoft.com
+          timestamp-digest: SHA256
+
+      - name: Verify app binary signature
+        if: inputs.sign == true
+        shell: pwsh
+        run: |
+          $sig = Get-AuthenticodeSignature "out\installer\build\anki\windows\app\src\Anki.exe"
+          if ($sig.Status -ne "Valid") {
+            Write-Error "Anki.exe signature status: $($sig.Status)"
+            exit 1
+          }
+          Write-Host "Anki.exe signed successfully: $($sig.SignerCertificate.Subject)"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: signed-build-windows-arm
+          path: out/installer/
+
+  package-windows-arm:
+    needs: [prepare, build-windows-arm, sign-exe-windows-arm]
+    runs-on: windows-11-arm
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+
+      - name: Setup build environment
+        uses: ./.github/actions/setup-anki
+
+      - uses: actions/download-artifact@v4
+        with:
+          name: signed-build-windows-arm
+          path: out/installer/
+
+      - name: Package installer
+        run: |
+          tools\ninja pyenv
+          out\pyenv\scripts\python.exe qt\tools\build_installer.py --version ${{ needs.prepare.outputs.pep440_version }} package
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: logs-installer-windows-arm-package
+          path: out/installer/logs/
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: unsigned-installer-windows-arm
+          path: out/installer/dist/
+
+  sign-msi-windows-arm:
+    needs: [prepare, package-windows-arm]
+    runs-on: windows-latest
+    timeout-minutes: 15
+    environment: ${{ inputs.sign == true && 'release' || '' }}
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: unsigned-installer-windows-arm
+          path: dist/
+
+      - name: Azure login
+        if: inputs.sign == true
+        uses: azure/login@v3
+        with:
+          creds: '{"clientId":"${{ secrets.AZURE_CLIENT_ID }}","clientSecret":"${{ secrets.AZURE_CLIENT_SECRET }}","subscriptionId":"${{ secrets.AZURE_SUBSCRIPTION_ID }}","tenantId":"${{ secrets.AZURE_TENANT_ID }}"}'
+
+      - name: Sign MSI
+        if: inputs.sign == true
+        uses: azure/artifact-signing-action@v1
+        with:
+          endpoint: https://eus.codesigning.azure.net/
+          signing-account-name: anki-signing
+          certificate-profile-name: ${{ secrets.AZURE_CERT_PROFILE_NAME }}
+          files-folder: dist/
+          files-folder-filter: msi
+          file-digest: SHA256
+          timestamp-rfc3161: http://timestamp.acs.microsoft.com
+          timestamp-digest: SHA256
+
+      - name: Verify MSI signature
+        if: inputs.sign == true
+        shell: pwsh
+        run: |
+          $msi = Get-ChildItem "dist/*.msi" | Select-Object -First 1
+          $sig = Get-AuthenticodeSignature $msi.FullName
+          if ($sig.Status -ne "Valid") {
+            Write-Error "MSI signature status: $($sig.Status)"
+            exit 1
+          }
+          Write-Host "MSI signed successfully: $($sig.SignerCertificate.Subject)"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: installer-windows-arm
+          path: dist/
+
+  # Linux x86 and ARM are kept as separate jobs rather than a matrix because the ARM
+  # build requires different runners for wheels vs installer: ubuntu-22.04
+  # for wheels (to target glibc 2.35) and ubuntu-24.04-arm for the installer (the Qt wheels require it).
+  build-linux-x86:
+    needs: prepare
+    runs-on: ubuntu-22.04
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+
+      - name: Setup build environment
+        uses: ./.github/actions/setup-anki
+
+      - name: Build installer
+        run: ./tools/build-installer
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: logs-installer-linux-x86
+          path: out/installer/logs/
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: installer-linux-x86
+          path: out/installer/dist/
+
+      # Upload both anki and aqt wheels; the pure-Python aqt wheel is the same on all platforms
+      - name: Build wheels
+        run: ./ninja wheels
+
+      - name: Build anki-release wheel
+        run: cd qt/release && bash build.sh
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: wheels-linux-x86
+          path: out/wheels/*.whl
+
+  build-linux-arm-wheels:
+    needs: prepare
+    runs-on: ubuntu-22.04
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+
+      - name: Setup build environment
+        uses: ./.github/actions/setup-anki
+
+      - name: Build wheels
+        run: |
+          sudo apt-get install --yes --no-install-recommends libc6-dev-arm64-cross gcc-aarch64-linux-gnu
+          ./tools/build-arm-lin
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: wheels-linux-arm
+          path: out/wheels/anki-*.whl
+
+  build-linux-arm-installer:
+    needs: prepare
+    # Ubuntu 24.04 (glibc 2.39) is required because the Qt wheels only
+    # provide ARM packages for 24.04+. Since Briefcase does not bundle
+    # glibc, the resulting installer requires glibc 2.39+ at runtime —
+    # higher than the x86 installer (built on 22.04, glibc 2.35).
+    runs-on: ubuntu-24.04-arm
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+
+      - name: Setup build environment
+        uses: ./.github/actions/setup-anki
+
+      - name: Build installer
+        run: ./tools/build-installer
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: logs-installer-linux-arm
+          path: out/installer/logs/
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: installer-linux-arm
+          path: out/installer/dist/
+
+  release:
+    needs: [prepare, build-and-sign-mac, build-and-sign-mac-intel, build-and-sign-windows, sign-msi-windows-arm, build-linux-x86, build-linux-arm-wheels, build-linux-arm-installer]
+    if: >-
+      ${{ always()
+      && inputs['draft-release'] == true
+      && needs.prepare.result == 'success'
+      && needs.build-and-sign-mac.result == 'success'
+      && needs.build-and-sign-mac-intel.result == 'success'
+      && needs.build-linux-x86.result == 'success'
+      && needs.build-linux-arm-wheels.result == 'success'
+      && needs.build-linux-arm-installer.result == 'success'
+      && needs.build-and-sign-windows.result == 'success'
+      && needs.sign-msi-windows-arm.result == 'success'
+      }}
+    runs-on: ubuntu-latest
+    environment: release
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: installer-*
+          path: dist
+          merge-multiple: true
+
+      - name: Create draft release
+        run: |
+          prerelease_flag=""
+          if [ "$IS_PRERELEASE" = "true" ]; then
+            prerelease_flag="--prerelease"
+          fi
+
+          notes_start_tag=$(gh release list --exclude-drafts --limit 1 --json tagName --jq '.[0].tagName // empty')
+
+          gh release create "$TAG_NAME" \
+            dist/* \
+            --draft \
+            --target "$RELEASE_SHA" \
+            --title "$RELEASE_NAME" \
+            --generate-notes \
+            ${notes_start_tag:+--notes-start-tag "$notes_start_tag"} \
+            ${prerelease_flag:+"$prerelease_flag"}
+        env:
+          GH_TOKEN: ${{ secrets.RELEASE_TOKEN }}
+          TAG_NAME: ${{ needs.prepare.outputs.tag_name }}
+          RELEASE_NAME: ${{ needs.prepare.outputs.release_name }}
+          IS_PRERELEASE: ${{ needs.prepare.outputs.is_prerelease }}
+          RELEASE_SHA: ${{ github.sha }}
+
+  publish-testpypi:
+    needs: [prepare, build-and-sign-mac, build-and-sign-mac-intel, build-and-sign-windows, build-windows-arm, build-linux-x86, build-linux-arm-wheels]
+    if: >-
+      ${{ always()
+      && (inputs['publish-testpypi'] == true || inputs['publish-pypi'] == true)
+      && needs.prepare.result == 'success'
+      && needs.build-and-sign-mac.result == 'success'
+      && needs.build-and-sign-mac-intel.result == 'success'
+      && needs.build-and-sign-windows.result == 'success'
+      && needs.build-windows-arm.result == 'success'
+      && needs.build-linux-x86.result == 'success'
+      && needs.build-linux-arm-wheels.result == 'success'
+      }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    environment: release
+    permissions:
+      id-token: write
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: wheels-*
+          path: wheels
+          merge-multiple: true
+
+      - name: Publish to TestPyPI
+        uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          packages-dir: wheels/
+          repository-url: https://test.pypi.org/legacy/
+          skip-existing: true
+
+  publish-pypi:
+    needs: [prepare, release, publish-testpypi]
+    if: >-
+      ${{ always()
+      && inputs['publish-pypi'] == true
+      && needs.prepare.result == 'success'
+      && needs.publish-testpypi.result == 'success'
+      && (inputs['draft-release'] != true || needs.release.result == 'success')
+      }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    environment: release
+    permissions:
+      id-token: write
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: wheels-*
+          path: wheels
+          merge-multiple: true
+
+      - name: Publish to PyPI
+        uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          packages-dir: wheels/

@@ -168,6 +168,7 @@ class DeckManager(DeprecatedNamesMixin):
         return self.col._backend.new_deck()
 
     def add_deck(self, deck: Deck) -> OpChangesWithId:
+        "Deck needs to be fetched from DB after adding."
         return self.col._backend.add_deck(message=deck)
 
     def new_deck_legacy(self, filtered: bool) -> DeckDict:

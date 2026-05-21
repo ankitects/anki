@@ -736,12 +736,7 @@ impl ParsedTemplate {
     }
 
     pub(crate) fn contains_cloze_replacement(&self) -> bool {
-        self.0.iter().any(|node| {
-            matches!(
-                node,
-                ParsedNode::Replacement {key:_, filters} if filters.iter().any(|f| f=="cloze")
-            )
-        })
+        !self.all_referenced_cloze_field_names().is_empty()
     }
 
     pub(crate) fn contains_field_replacement(&self) -> bool {

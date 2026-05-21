@@ -1,0 +1,132 @@
+[project]
+requires-python = ">=3.10"
+
+# This project was generated with 0.3.26 using template: https://github.com/beeware/briefcase-template @ v0.3.26
+[tool.briefcase]
+project_name = "Anki"
+bundle = "net.ankiweb"
+url = "https://apps.ankiweb.net"
+license = "AGPL-3.0-or-later"
+license-files = ["LICENSE"]
+author = "Damien Elmes"
+
+[tool.briefcase.app.anki]
+formal_name = "Anki"
+description = "An intelligent spaced-repetition learning system"
+long_description = """Anki is a flashcard program that helps you spend more time on challenging material, and less on what you already know."""
+sources = [
+  "src/anki",
+]
+icon = "resources/anki"
+cleanup_paths = [
+  # document_type icons
+  "anki-*.ico",
+  "**/anki-*.icns",
+  # Qt WebEngine debug-symbol resources
+  "**/*.debug.pak",
+  "**/*.debug.bin",
+  # Type-checker stubs / markers
+  "**/*.pyi",
+  "**/py.typed",
+  # PyQt6 binding sources / API completion files
+  "**/*.sip",
+  "**/PyQt6/bindings/**/*.toml",
+  "**/PyQt6/Qt6/qsci",
+  # pywin32 dev/help bundles
+  "**/PyWin32.chm",
+  "**/pythonwin",
+  "**/adodbapi",
+  "**/isapi",
+  "**/win32com/HTML",
+  "**/win32com/demos",
+  "**/win32com/makegw",
+  "**/win32com/include",
+  "**/win32com/libs",
+  "**/win32com/readme.html",
+  # Vendored test suites
+  "**/test",
+  "**/tests",
+  # Packaging metadata
+  "**/*.dist-info/INSTALLER",
+  "**/*.dist-info/RECORD",
+  "**/*.dist-info/WHEEL",
+  # Console scripts
+  "**/app_packages/bin/*",
+]
+console_app = false
+use_full_install_path = false
+
+permission.microphone = "The microphone will only be used when you tap the record button."
+permission.camera = "Add-ons may access your camera."
+
+[tool.briefcase.app.anki.macOS]
+universal_build = false
+min_os_version = "12.0"
+entitlement."com.apple.security.cs.allow-jit" = true
+entitlement."com.apple.security.cs.disable-executable-page-protection" = true
+entitlement."com.apple.security.cs.allow-dyld-environment-variables" = true
+entitlement."com.apple.security.device.audio-input" = true
+
+[tool.briefcase.app.anki.linux]
+system_runtime_requires = [
+  "libdbus-1-3",
+  "libfontconfig1",
+  "libfreetype6",
+  "libgl1",
+  "libglib2.0-0",
+  "libnss3",
+  "libxcb-icccm4",
+  "libxcb-image0",
+  "libxcb-keysyms1",
+  "libxcb-randr0",
+  "libxcb-render-util0",
+  "libxcb-shape0",
+  "libxcb-xinerama0",
+  "libxcb-xkb1",
+  "libxcomposite1",
+  "libxcursor1",
+  "libxi6",
+  "libxkbcommon0",
+  "libxkbcommon-x11-0",
+  "libxrandr2",
+  "libxrender1",
+  "libxtst6",
+]
+
+[tool.briefcase.app.anki.linux.flatpak]
+supported = false
+
+[tool.briefcase.app.anki.windows]
+
+[tool.briefcase.app.anki.iOS]
+supported = false
+
+[tool.briefcase.app.anki.android]
+supported = false
+
+[tool.briefcase.app.anki.web]
+supported = false
+
+[tool.briefcase.app.anki.document_type.apkg]
+description = "Anki deck package"
+extension = "apkg"
+icon = "resources/anki"
+mime_type = "application/x-apkg"
+url = "https://docs.ankiweb.net/exporting.html#deck-apkg"
+macOS.CFBundleTypeRole = "Editor"
+
+[tool.briefcase.app.anki.document_type.colpkg]
+description = "Anki collection package"
+extension = "colpkg"
+icon = "resources/anki"
+mime_type = "application/x-colpkg"
+url = "https://docs.ankiweb.net/exporting.html#collection-colpkg"
+macOS.CFBundleTypeRole = "Editor"
+
+[tool.briefcase.app.anki.document_type.ankiaddon]
+description = "Anki add-on package"
+extension = "ankiaddon"
+icon = "resources/anki"
+mime_type = "application/x-ankiaddon"
+url = "https://addon-docs.ankiweb.net/sharing.html"
+macOS.CFBundleTypeRole = "Editor"

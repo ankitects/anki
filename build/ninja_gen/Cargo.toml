@@ -13,6 +13,7 @@ anyhow.workspace = true
 camino.workspace = true
 dunce.workspace = true
 globset.workspace = true
+hex.workspace = true
 itertools.workspace = true
 maplit.workspace = true
 num_cpus.workspace = true
@@ -21,6 +22,9 @@ serde_json.workspace = true
 sha2.workspace = true
 walkdir.workspace = true
 which.workspace = true
+
+[build-dependencies]
+embed-resource.workspace = true
 
 [target.'cfg(windows)'.dependencies]
 reqwest = { workspace = true, features = ["blocking", "json", "native-tls"] }

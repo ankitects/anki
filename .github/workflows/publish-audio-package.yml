@@ -1,0 +1,150 @@
+name: Publish anki-audio to PyPI
+run-name: "Publish anki-audio (sign-macos=${{ inputs.sign-macos }}, testpypi=${{ inputs['publish-testpypi'] }}, pypi=${{ inputs['publish-pypi'] }})"
+
+on:
+  workflow_dispatch:
+    inputs:
+      sign-macos:
+        description: "Sign macOS artifacts (requires release environment)"
+        default: false
+        required: false
+        type: boolean
+      publish-testpypi:
+        description: "Publish wheels to TestPyPI"
+        default: false
+        required: false
+        type: boolean
+      publish-pypi:
+        description: "Publish wheels to PyPI after TestPyPI"
+        default: false
+        required: false
+        type: boolean
+
+env:
+  RELEASE: 2
+  N2_OUTPUT_PROGRESS: "1"
+  N2_OUTPUT_SUCCESS: "1"
+
+jobs:
+  prepare:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Reject incompatible inputs
+        run: |
+          if [ "$PUBLISH_PYPI" = "true" ] && [ "$SIGN" != "true" ]; then
+            echo "::error::macOS binaries must be signed"
+            exit 1
+          fi
+        env:
+          PUBLISH_PYPI: ${{ inputs['publish-pypi'] }}
+          SIGN: ${{ inputs.sign-macos }}
+
+  build:
+    needs: prepare
+    strategy:
+      matrix:
+        include:
+          - runner: macos-14
+            artifact: wheel-macos-arm
+            build_cmd: ./qt/audio/build.sh
+            needs_signing: true
+          - runner: macos-15-intel
+            artifact: wheel-macos-intel
+            build_cmd: ./qt/audio/build.sh
+            needs_signing: true
+          - runner: windows-latest
+            artifact: wheel-windows-x64
+            build_cmd: tools\ninja audio_wheel
+            needs_signing: false
+          - runner: windows-11-arm
+            artifact: wheel-windows-arm
+            build_cmd: tools\ninja audio_wheel
+            needs_signing: false
+    runs-on: ${{ matrix.runner }}
+    environment: ${{ matrix.needs_signing && inputs.sign-macos == true && 'release' || '' }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup build environment
+        uses: ./.github/actions/setup-anki
+
+      - name: Set up Apple code signing
+        if: matrix.needs_signing && inputs.sign-macos == true
+        run: .github/scripts/setup_apple_signing.sh
+        env:
+          APPLE_CERTIFICATE_P12: ${{ secrets.APPLE_CERTIFICATE_P12 }}
+          APPLE_CERTIFICATE_PASSWORD: ${{ secrets.APPLE_CERTIFICATE_PASSWORD }}
+          APPLE_SIGNING_IDENTITY: ${{ secrets.APPLE_SIGNING_IDENTITY }}
+          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+          APPLE_NOTARY_KEY: ${{ secrets.APPLE_NOTARY_KEY }}
+          APPLE_NOTARY_KEY_ID: ${{ secrets.APPLE_NOTARY_KEY_ID }}
+          APPLE_NOTARY_ISSUER_ID: ${{ secrets.APPLE_NOTARY_ISSUER_ID }}
+
+      - name: Build wheel
+        run: ${{ matrix.build_cmd }}
+        env:
+          SIGN_IDENTITY: ${{ matrix.needs_signing && inputs.sign-macos == true && secrets.APPLE_SIGNING_IDENTITY || '' }}
+
+      - name: Clean up signing credentials
+        if: always() && matrix.needs_signing && inputs.sign-macos == true
+        run: |
+          KEYCHAIN_PATH="$RUNNER_TEMP/app-signing.keychain-db"
+          security delete-keychain "$KEYCHAIN_PATH" 2>/dev/null || true
+          rm -f "$RUNNER_TEMP/certificate.p12" "$RUNNER_TEMP/AuthKey.p8"
+
+      - name: Upload wheel
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.artifact }}
+          path: out/wheels/anki_audio-*.whl
+
+  publish-testpypi:
+    needs: [prepare, build]
+    if: >-
+      ${{ always()
+      && (inputs['publish-testpypi'] == true || inputs['publish-pypi'] == true)
+      && needs.prepare.result == 'success'
+      && needs.build.result == 'success'
+      }}
+    runs-on: ubuntu-latest
+    environment: release
+    permissions:
+      id-token: write
+    steps:
+      - name: Download all wheels
+        uses: actions/download-artifact@v4
+        with:
+          pattern: wheel-*
+          path: dist
+          merge-multiple: true
+
+      - name: Publish to TestPyPI
+        uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          packages-dir: dist/
+          repository-url: https://test.pypi.org/legacy/
+          skip-existing: true
+
+  publish-pypi:
+    needs: publish-testpypi
+    if: >-
+      ${{ always()
+      && inputs['publish-pypi'] == true
+      && needs.publish-testpypi.result == 'success'
+      }}
+    runs-on: ubuntu-latest
+    environment: release
+    permissions:
+      id-token: write
+    steps:
+      - name: Download all wheels
+        uses: actions/download-artifact@v4
+        with:
+          pattern: wheel-*
+          path: dist
+          merge-multiple: true
+
+      - name: Publish to PyPI
+        uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          packages-dir: dist/
