@@ -36,12 +36,12 @@ import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.ichi2.anki.AndroidTtsVoice
 import com.ichi2.anki.R
+import com.ichi2.anki.common.utils.android.showThemedToast
 import com.ichi2.anki.databinding.DialogTtsVoicesBinding
 import com.ichi2.anki.databinding.ItemTtsVoiceBinding
 import com.ichi2.anki.dialogs.viewmodel.TtsVoicesViewModel
 import com.ichi2.anki.libanki.TtsVoice
 import com.ichi2.anki.localizedErrorMessage
-import com.ichi2.anki.showThemedToast
 import com.ichi2.anki.snackbar.showSnackbar
 import com.ichi2.anki.utils.openUrl
 import com.ichi2.themes.Themes

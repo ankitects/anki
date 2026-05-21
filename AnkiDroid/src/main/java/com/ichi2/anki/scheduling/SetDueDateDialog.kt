@@ -46,6 +46,7 @@ import com.ichi2.anki.AnkiActivity
 import com.ichi2.anki.CollectionManager.TR
 import com.ichi2.anki.R
 import com.ichi2.anki.asyncCatching
+import com.ichi2.anki.common.utils.android.showThemedToast
 import com.ichi2.anki.databinding.DialogSetDueDateBinding
 import com.ichi2.anki.databinding.FragmentSetDueDateRangeBinding
 import com.ichi2.anki.databinding.FragmentSetDueDateSingleBinding
@@ -55,7 +56,6 @@ import com.ichi2.anki.libanki.sched.Scheduler
 import com.ichi2.anki.requireAnkiActivity
 import com.ichi2.anki.scheduling.SetDueDateViewModel.Tab
 import com.ichi2.anki.servicelayer.getFSRSStatus
-import com.ichi2.anki.showThemedToast
 import com.ichi2.anki.snackbar.showSnackbar
 import com.ichi2.anki.ui.internationalization.sentenceCase
 import com.ichi2.anki.utils.doOnImeHidden

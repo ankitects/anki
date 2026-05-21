@@ -25,8 +25,8 @@ import androidx.fragment.app.commit
 import com.ichi2.anki.AnkiActivity
 import com.ichi2.anki.PermissionSet
 import com.ichi2.anki.R
+import com.ichi2.anki.common.utils.android.showThemedToast
 import com.ichi2.anki.databinding.ActivityPermissionsBinding
-import com.ichi2.anki.showThemedToast
 import com.ichi2.anki.ui.windows.permissions.PermissionsFragment.Companion.HAS_ALL_PERMISSIONS_KEY
 import com.ichi2.anki.ui.windows.permissions.PermissionsFragment.Companion.PERMISSIONS_FRAGMENT_RESULT_KEY
 import com.ichi2.anki.utils.ext.setFragmentResultListener

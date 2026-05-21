@@ -25,7 +25,7 @@ import android.os.Build
 import androidx.annotation.CheckResult
 import androidx.annotation.StringRes
 import com.ichi2.anki.R
-import com.ichi2.anki.showThemedToast
+import com.ichi2.anki.common.utils.android.showThemedToast
 import com.ichi2.anki.snackbar.canProperlyShowSnackbars
 import com.ichi2.anki.snackbar.showSnackbar
 import timber.log.Timber

@@ -26,6 +26,7 @@ import androidx.annotation.CheckResult
 import androidx.appcompat.app.AlertDialog
 import androidx.core.widget.doAfterTextChanged
 import com.ichi2.anki.CollectionManager.TR
+import com.ichi2.anki.common.utils.android.showThemedToast
 import com.ichi2.anki.databinding.ActivityCardBrowserAppearanceBinding
 import com.ichi2.anki.dialogs.DiscardChangesDialog
 import com.ichi2.anki.libanki.CardTemplate

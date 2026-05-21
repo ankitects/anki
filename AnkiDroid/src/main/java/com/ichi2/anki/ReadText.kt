@@ -27,6 +27,7 @@ import androidx.appcompat.app.AlertDialog
 import com.ichi2.anki.CollectionManager.TR
 import com.ichi2.anki.cardviewer.SingleCardSide
 import com.ichi2.anki.common.utils.android.HandlerUtils.postDelayedOnNewHandler
+import com.ichi2.anki.common.utils.android.showThemedToast
 import com.ichi2.anki.i18n.getIso3LanguageOrNull
 import com.ichi2.anki.libanki.Card
 import com.ichi2.anki.libanki.Collection

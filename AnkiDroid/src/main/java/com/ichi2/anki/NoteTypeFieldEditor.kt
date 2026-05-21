@@ -33,6 +33,7 @@ import com.google.android.material.snackbar.Snackbar
 import com.ichi2.anki.CollectionManager.TR
 import com.ichi2.anki.CollectionManager.withCol
 import com.ichi2.anki.common.annotations.NeedsTest
+import com.ichi2.anki.common.utils.android.showThemedToast
 import com.ichi2.anki.databinding.ActivityNoteTypeFieldEditorBinding
 import com.ichi2.anki.databinding.ItemNotetypeFieldBinding
 import com.ichi2.anki.dialogs.ConfirmationDialog

@@ -36,8 +36,8 @@ package com.ichi2.anki.jsaddons
 import android.content.Context
 import android.text.format.Formatter
 import com.ichi2.anki.R
+import com.ichi2.anki.common.utils.android.showThemedToast
 import com.ichi2.anki.compat.CompatHelper.Companion.compat
-import com.ichi2.anki.showThemedToast
 import com.ichi2.utils.FileUtil
 import org.apache.commons.compress.archivers.ArchiveException
 import org.apache.commons.compress.archivers.ArchiveStreamFactory

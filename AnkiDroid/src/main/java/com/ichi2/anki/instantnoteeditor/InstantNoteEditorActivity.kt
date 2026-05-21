@@ -43,6 +43,7 @@ import com.ichi2.anki.CollectionManager.TR
 import com.ichi2.anki.CollectionManager.withCol
 import com.ichi2.anki.CustomActionModeCallback
 import com.ichi2.anki.R
+import com.ichi2.anki.common.utils.android.showThemedToast
 import com.ichi2.anki.common.utils.annotation.KotlinCleanup
 import com.ichi2.anki.databinding.ActivityInstantNoteEditorBinding
 import com.ichi2.anki.databinding.DialogInstantEditorBinding
@@ -54,7 +55,6 @@ import com.ichi2.anki.libanki.NotetypeJson
 import com.ichi2.anki.model.SelectableDeck
 import com.ichi2.anki.noteeditor.NoteEditorLauncher
 import com.ichi2.anki.servicelayer.NoteService
-import com.ichi2.anki.showThemedToast
 import com.ichi2.anki.startDeckSelection
 import com.ichi2.anki.withProgress
 import com.ichi2.themes.setTransparentBackground

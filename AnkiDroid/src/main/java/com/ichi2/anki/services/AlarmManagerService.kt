@@ -27,6 +27,7 @@ import androidx.core.content.getSystemService
 import com.ichi2.anki.R
 import com.ichi2.anki.android.AnkiBroadcastReceiver
 import com.ichi2.anki.common.time.TimeManager
+import com.ichi2.anki.common.utils.android.showThemedToast
 import com.ichi2.anki.reviewreminders.ReviewReminder
 import com.ichi2.anki.reviewreminders.ReviewReminderScope
 import com.ichi2.anki.reviewreminders.ReviewRemindersDatabase
@@ -35,7 +36,6 @@ import com.ichi2.anki.services.AlarmManagerService.Companion.WINDOW_LENGTH_MS
 import com.ichi2.anki.services.AlarmManagerService.Companion.getIntent
 import com.ichi2.anki.services.AlarmManagerService.Companion.scheduleAllEnabledReviewReminderNotifications
 import com.ichi2.anki.services.AlarmManagerService.Companion.unscheduleReviewReminderNotifications
-import com.ichi2.anki.showThemedToast
 import com.ichi2.anki.utils.ext.getParcelableCompat
 import timber.log.Timber
 import java.util.Calendar

@@ -36,6 +36,7 @@ import com.ichi2.anki.CollectionManager.withCol
 import com.ichi2.anki.browser.search.SearchString
 import com.ichi2.anki.cardviewer.ViewerCommand
 import com.ichi2.anki.common.annotations.NeedsTest
+import com.ichi2.anki.common.utils.android.showThemedToast
 import com.ichi2.anki.common.utils.ext.stringIterable
 import com.ichi2.anki.libanki.Card
 import com.ichi2.anki.libanki.Collection

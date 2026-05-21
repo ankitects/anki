@@ -1,6 +1,6 @@
-//noinspection MissingCopyrightHeader #8659
-
-package com.ichi2.anki
+// SPDX-FileCopyrightText: 2026 Ashish Yadav <mailtoashish693@gmail.com>
+// SPDX-License-Identifier: GPL-3.0-or-later
+package com.ichi2.anki.common.utils.android
 
 import android.content.Context
 import android.widget.Toast
@@ -29,8 +29,3 @@ fun showThemedToast(
 ) {
     Toast.makeText(context, textResource, if (shortLength) Toast.LENGTH_SHORT else Toast.LENGTH_LONG).show()
 }
-
-fun getDensityAdjustedValue(
-    context: Context,
-    value: Float,
-): Float = context.resources.displayMetrics.density * value

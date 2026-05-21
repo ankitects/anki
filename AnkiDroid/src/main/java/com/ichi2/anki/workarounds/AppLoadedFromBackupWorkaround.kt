@@ -23,7 +23,7 @@ import com.ichi2.anki.AnkiDroidApp
 import com.ichi2.anki.R
 import com.ichi2.anki.common.crashreporting.CrashReportService
 import com.ichi2.anki.common.exception.ManuallyReportedException
-import com.ichi2.anki.showThemedToast
+import com.ichi2.anki.common.utils.android.showThemedToast
 import com.ichi2.themes.Themes
 import timber.log.Timber
 

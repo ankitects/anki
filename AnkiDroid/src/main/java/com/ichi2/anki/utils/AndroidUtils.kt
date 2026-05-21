@@ -32,7 +32,7 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
 import com.ichi2.anki.AnkiDroidApp
 import com.ichi2.anki.R
-import com.ichi2.anki.showThemedToast
+import com.ichi2.anki.common.utils.android.showThemedToast
 import com.ichi2.anki.snackbar.showSnackbar
 import com.ichi2.utils.AdaptionUtil
 import com.ichi2.utils.copyToClipboard

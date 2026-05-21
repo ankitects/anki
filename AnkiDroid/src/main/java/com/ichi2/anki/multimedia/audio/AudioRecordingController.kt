@@ -42,6 +42,7 @@ import com.ichi2.anki.R
 import com.ichi2.anki.Reviewer
 import com.ichi2.anki.common.annotations.NeedsTest
 import com.ichi2.anki.common.time.formatAsString
+import com.ichi2.anki.common.utils.android.showThemedToast
 import com.ichi2.anki.compat.Compat
 import com.ichi2.anki.compat.CompatHelper.Companion.compat
 import com.ichi2.anki.compat.USAGE_TOUCH
@@ -52,7 +53,6 @@ import com.ichi2.anki.multimedia.audio.AudioRecordingController.RecordingState.I
 import com.ichi2.anki.multimediacard.IMultimediaEditableNote
 import com.ichi2.anki.recorder.AudioRecorder
 import com.ichi2.anki.recorder.AudioTimer
-import com.ichi2.anki.showThemedToast
 import com.ichi2.anki.snackbar.showSnackbar
 import com.ichi2.anki.ui.OnHoldListener
 import com.ichi2.anki.ui.setOnHoldListener
