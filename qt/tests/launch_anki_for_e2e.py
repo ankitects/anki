@@ -108,9 +108,8 @@ def main() -> int:
         }
         env.pop("QTWEBENGINE_REMOTE_DEBUGGING", None)
         env.pop("QTWEBENGINE_CHROMIUM_FLAGS", None)
-        python = REPO_ROOT / "out" / "pyenv" / "bin" / "python"
         proc = subprocess.Popen(
-            [str(python), str(REPO_ROOT / "tools" / "run.py"), "-p", TEST_PROFILE],
+            [sys.executable, str(REPO_ROOT / "tools" / "run.py"), "-p", TEST_PROFILE],
             env=env,
         )
 
