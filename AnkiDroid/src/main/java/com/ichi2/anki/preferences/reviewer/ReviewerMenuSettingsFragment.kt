@@ -107,7 +107,8 @@ class ReviewerMenuSettingsFragment :
             disabledActions = disabledActions,
         )
 
-        lifecycleScope.launch {
+        if (view == null) return
+        viewLifecycleOwner.lifecycleScope.launch {
             val menu = binding.reviewerMenuView
             menu.clear()
             menu.addActions(alwaysShowActions, menuOnlyActions)
