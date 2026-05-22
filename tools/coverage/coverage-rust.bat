@@ -17,10 +17,15 @@ if not exist %LLVMCOVPATH% mkdir %LLVMCOVPATH%
 if not exist %LLVMCOVPATH%\cargo-llvm-cov.exe (
     cargo install cargo-llvm-cov --version 0.8.4 --locked --root out || exit /b 1
 )
+if not exist %LLVMCOVPATH%\cargo-nextest.exe (
+    cargo install cargo-nextest --version 0.9.99 --locked --no-default-features --features default-no-update --root out || exit /b 1
+)
 
 set "ANKI_TEST_MODE=1"
-%LLVMCOVPATH%\cargo-llvm-cov llvm-cov --workspace --locked --json --summary-only ^
-    --output-path %outdir%\coverage-summary.json --fail-under-lines 60 || exit /b 1
+set "PATH=%LLVMCOVPATH%;%PATH%"
+%LLVMCOVPATH%\cargo-llvm-cov llvm-cov nextest --workspace --locked --json --summary-only ^
+    --output-path %outdir%\coverage-summary.json --fail-under-lines 60 ^
+    --color=always --failure-output=final --status-level=none || exit /b 1
 
 if "%1"=="--html" (
     %LLVMCOVPATH%\cargo-llvm-cov llvm-cov report --html --output-dir %outdir%\html || exit /b 1
