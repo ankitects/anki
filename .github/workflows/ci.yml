@@ -102,6 +102,7 @@ jobs:
         run: ln -sf out/node_modules .
 
       - name: Restore coverage baseline
+        if: github.event_name == 'pull_request'
         uses: actions/cache/restore@v4
         with:
           path: out/coverage
@@ -109,6 +110,7 @@ jobs:
           restore-keys: coverage-baseline-linux-
 
       - name: Move restored baseline aside
+        if: github.event_name == 'pull_request'
         run: test -d out/coverage && mv out/coverage out/coverage-baseline || true
 
       - name: Build, lint, and test
@@ -130,6 +132,17 @@ jobs:
         if: github.event_name == 'pull_request'
         run: python3 tools/coverage/check-coverage-regression.py out/coverage-baseline out/coverage
 
+      - name: Run e2e tests
+        run: just test-e2e
+
+      - name: Upload Playwright report
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: out/e2e-report/
+          retention-days: 7
+
       - name: Ensure libs importable
         env:
           SKIP_RUN: "1"
@@ -144,6 +157,7 @@ jobs:
             Cargo.lock
             **/Cargo.toml
             .deny.toml
+
       - uses: EmbarkStudios/cargo-deny-action@v2
         if: github.event_name != 'pull_request' || steps.rust-deps.outputs.any_changed == 'true'
 
@@ -174,6 +188,8 @@ jobs:
     name: check (macos)
     steps:
       - uses: actions/checkout@v4
+        with:
+          submodules: true
 
       - name: Restore cargo cache
         uses: actions/cache@v4
@@ -244,6 +260,8 @@ jobs:
       TMP: D:\tmp
     steps:
       - uses: actions/checkout@v4
+        with:
+          submodules: true
 
       - name: Prepare D:\ directories
         shell: bash
