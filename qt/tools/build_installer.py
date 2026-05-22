@@ -46,14 +46,13 @@ def prune_webengine_locales(out_dir: Path) -> None:
             pak.unlink()
 
 
-def get_briefcase_template_path() -> Path | None:
+def get_briefcase_template_path() -> Path:
     if sys.platform == "win32":
         return installer_dir / "windows-template"
     elif sys.platform == "darwin":
         return installer_dir / "mac-template"
-    elif sys.platform == "linux":
+    else:
         return installer_dir / "linux-template"
-    return None
 
 
 def get_briefcase_output_format() -> list[str]:
@@ -63,15 +62,16 @@ def get_briefcase_output_format() -> list[str]:
     return []
 
 
-def get_briefcase_sources_path(out_dir: Path, version: str) -> Path | None:
+def get_briefcase_sources_path(out_dir: Path) -> Path:
     """
     Get the directory where Briefcase's `app`/`app_packages` directories are written.
     Make sure to update this if output formats or templates ever change.
     """
+    path: Path
     if sys.platform == "win32":
-        return out_dir / "build" / "anki" / "windows" / "app" / "src"
+        path = out_dir / "build" / "anki" / "windows" / "app" / "src"
     elif sys.platform == "darwin":
-        return (
+        path = (
             out_dir
             / "build"
             / "anki"
@@ -81,9 +81,9 @@ def get_briefcase_sources_path(out_dir: Path, version: str) -> Path | None:
             / "Contents"
             / "Resources"
         )
-    elif sys.platform == "linux":
-        return next((out_dir / "build" / "anki" / "linux" / "zip").glob("anki-*"), None)
-    return None
+    else:
+        path = out_dir / "build" / "anki" / "linux" / "zip" / "anki"
+    return path
 
 
 def get_briefcase_config_args(args: argparse.Namespace) -> list[str]:
@@ -106,8 +106,7 @@ def get_briefcase_config_args(args: argparse.Namespace) -> list[str]:
         config_args.extend(
             ["-C", "requires=[" + ",".join(f'"{dep}"' for dep in requires) + "]"]
         )
-    if template_path:
-        config_args.extend(["-C", f'template="{template_path.absolute().as_posix()}"'])
+    config_args.extend(["-C", f'template="{template_path.absolute().as_posix()}"'])
 
     return config_args
 
@@ -115,9 +114,7 @@ def get_briefcase_config_args(args: argparse.Namespace) -> list[str]:
 def compile_sources(out_dir: Path, version: str) -> bool:
     """Compile Python sources to .pyc"""
 
-    sources_root = get_briefcase_sources_path(out_dir, version)
-    if not sources_root:
-        return False
+    sources_root = get_briefcase_sources_path(out_dir)
     for src_dir in (sources_root / "app", sources_root / "app_packages"):
         # legacy=True is needed to write .pyc to the same location as .py
         # so no __pycache__, which is not loaded with no sources
@@ -136,11 +133,10 @@ def _find_fcitx_file(dirs: list[Path], pattern: str) -> Path | None:
     return None
 
 
-def bundle_fcitx(out_dir: Path, version: str) -> None:
-    sources = get_briefcase_sources_path(out_dir, version)
-    if not sources:
+def bundle_fcitx(out_dir: Path) -> None:
+    if sys.platform != "linux":
         return
-
+    sources = get_briefcase_sources_path(out_dir)
     machine = platform.machine()
     # Cover Debian/Ubuntu multiarch (apt or cmake with -DCMAKE_INSTALL_PREFIX=/usr)
     # and cmake's default /usr/local prefix.
@@ -209,8 +205,7 @@ def build(args: argparse.Namespace) -> None:
     )
     prune_webengine_locales(out_dir)
     compile_sources(out_dir, version)
-    if sys.platform == "linux":
-        bundle_fcitx(out_dir, version)
+    bundle_fcitx(out_dir)
 
 
 def get_platform_suffix() -> str:
