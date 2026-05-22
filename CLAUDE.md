@@ -35,6 +35,10 @@ Language-specific tests are also available: `just test-rust`, `just test-py`,
 `just test-ts`. Use `just fmt` / `just fix-fmt` for formatting and
 `just fix-lint` to auto-fix lint issues.
 
+TypeScript/Svelte browser e2e tests live in `ts/tests/e2e/` and run with
+`just test-e2e`. The harness launches a temporary Anki instance and drives
+mediasrv pages with Playwright's Chromium.
+
 Be mindful that some changes (such as modifications to .proto files) may
 need a full build with `just check` first.
 
@@ -56,7 +60,7 @@ first, and try to match the existing style.
 ## Protobuf and IPC
 
 Our build scripts use the .proto files to define our Rust library's
-non-Rust API. pylib/rsbridge exposes that API, and _backend.py exposes
+non-Rust API. pylib/rsbridge exposes that API, and \_backend.py exposes
 snake_case methods for each protobuf RPC that call into the API.
 Similar tooling creates a @generated/backend TypeScript module for
 communicating with the Rust backend (which happens over POST requests).
@@ -71,7 +75,7 @@ don't attempt to grep the codebase.
 ## Ignores
 
 The files in out/ are auto-generated. Mostly you should ignore that folder,
-though you may sometimes find it useful to view out/{pylib/anki,qt/_aqt,ts/lib/generated} when dealing with cross-language communication or our other generated sourcecode.
+though you may sometimes find it useful to view out/{pylib/anki,qt/\_aqt,ts/lib/generated} when dealing with cross-language communication or our other generated sourcecode.
 
 ## Launcher/installer
 

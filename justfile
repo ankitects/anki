@@ -49,6 +49,12 @@ test-py coverage='' html='':
 test-ts coverage='' html='':
     just {{ if coverage == "--coverage" { "_coverage-ts " + html } else { "_test-ts" } }}
 
+# Run Playwright end-to-end tests. Pass --ui to open the interactive UI.
+[arg("ui", long="ui", value="--ui")]
+test-e2e ui='': _install-playwright-browsers
+    {{ ninja }} pyenv ts:generated pylib qt
+    {{ playwright_env }} {{ yarn }} test:e2e {{ ui }}
+
 [private]
 _test:
     {{ ninja }} check:rust_test check:pytest check:vitest
@@ -87,6 +93,11 @@ _coverage-py-qt html='':
 _coverage-ts html='':
     {{ ninja }} node_modules ts:generated
     {{ if os_family() == "windows" { "tools\\coverage\\coverage-ts" } else { "tools/coverage/coverage-ts" } }} {{ html }}
+
+[private]
+_install-playwright-browsers:
+    {{ ninja }} node_modules
+    {{ playwright_env }} {{ yarn }} playwright install chromium
 
 # Check formatting (fast, no build needed)
 fmt:
@@ -146,4 +157,5 @@ ci branch:
 # Helpers to get the right commands for the platform
 
 ninja := if os() == "windows" { "tools\\ninja" } else { "./ninja" }
+playwright_env := if os() == "windows" { "set PLAYWRIGHT_BROWSERS_PATH=out\\playwright-browsers&&" } else { "PLAYWRIGHT_BROWSERS_PATH=out/playwright-browsers" }
 yarn := if os() == "windows" { "out\\extracted\\node\\yarn.cmd" } else { "out/extracted/node/bin/yarn" }
