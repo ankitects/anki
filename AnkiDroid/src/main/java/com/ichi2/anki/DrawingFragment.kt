@@ -18,7 +18,6 @@ package com.ichi2.anki
 import android.app.Activity
 import android.content.Context
 import android.content.Intent
-import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.Color
 import android.net.Uri
@@ -84,6 +83,9 @@ class DrawingFragment : Fragment(R.layout.fragment_drawing) {
         val bitmap = createBitmap(view.width, view.height)
         val canvas = Canvas(bitmap)
 
+        // TODO: drop the baked-in background and save with a transparent canvas, so the drawing
+        //  adapts to whichever theme the card is reviewed under and empty space costs nothing
+        //  in the file.
         val backgroundColor =
             if (Themes.isNightTheme) {
                 Color.BLACK
@@ -95,7 +97,14 @@ class DrawingFragment : Fragment(R.layout.fragment_drawing) {
         view.draw(canvas)
 
         val baseFileName = "Whiteboard" + getTimestamp(TimeManager.time)
-        return CompatHelper.compat.saveImage(requireContext(), bitmap, baseFileName, "jpg", Bitmap.CompressFormat.JPEG, 95)
+        return CompatHelper.compat.saveImage(
+            requireContext(),
+            bitmap,
+            baseFileName,
+            "webp",
+            CompatHelper.compat.webpLossyFormat,
+            90,
+        )
     }
 
     companion object {
