@@ -45,6 +45,7 @@ autoapi_python_use_implicit_namespaces = True
 autoapi_options = [
     "members",
     "undoc-members",
+    "private-members",
     "show-inheritance",
     "show-module-summary",
 ]
