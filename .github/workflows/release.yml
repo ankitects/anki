@@ -540,6 +540,29 @@ jobs:
       - name: Setup build environment
         uses: ./.github/actions/setup-anki
 
+      - name: Build and install fcitx5-qt for bundling
+        run: |
+          sudo apt-get install --yes --no-install-recommends \
+            cmake extra-cmake-modules \
+            libfcitx5core-dev \
+            qt6-base-dev \
+            qt6-base-private-dev \
+            libgl-dev \
+            libxkbcommon-dev \
+            libx11-dev \
+            gettext \
+            patchelf
+          git clone --depth 1 --branch 5.0.10 \
+            https://github.com/fcitx/fcitx5-qt.git /tmp/fcitx5-qt
+          cmake -S /tmp/fcitx5-qt -B /tmp/fcitx5-qt-build \
+            -DCMAKE_BUILD_TYPE=Release \
+            -DENABLE_QT4=no \
+            -DENABLE_QT5=no \
+            -DENABLE_QT6=yes \
+            -DCMAKE_INSTALL_PREFIX=/usr
+          cmake --build /tmp/fcitx5-qt-build -j$(nproc)
+          sudo cmake --install /tmp/fcitx5-qt-build
+
       - name: Build installer
         run: ./tools/build-installer
 
@@ -603,6 +626,12 @@ jobs:
 
       - name: Setup build environment
         uses: ./.github/actions/setup-anki
+
+      - name: Install fcitx5 dependencies for bundling
+        run: |
+          sudo apt-get update
+          sudo apt-get install --yes --no-install-recommends \
+            fcitx5-frontend-qt6 libfcitx5-qt6-1 patchelf
 
       - name: Build installer
         run: ./tools/build-installer
