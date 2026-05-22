@@ -41,6 +41,7 @@ import com.ichi2.anki.browser.CardBrowserColumn.SFLD
 import com.ichi2.anki.browser.CardBrowserColumn.TAGS
 import com.ichi2.anki.cardviewer.Gesture
 import com.ichi2.anki.common.annotations.NeedsTest
+import com.ichi2.anki.common.utils.HashUtil.hashSetInit
 import com.ichi2.anki.libanki.Consts
 import com.ichi2.anki.libanki.utils.append
 import com.ichi2.anki.model.CardsOrNotes
@@ -55,7 +56,6 @@ import com.ichi2.anki.reviewer.MappableBinding
 import com.ichi2.anki.reviewer.MappableBinding.Companion.toPreferenceString
 import com.ichi2.anki.reviewer.ReviewerBinding
 import com.ichi2.anki.reviewer.ReviewerBinding.Companion.fromPreferenceString
-import com.ichi2.utils.HashUtil.hashSetInit
 import timber.log.Timber
 import java.util.Locale
 import kotlin.collections.ArrayList

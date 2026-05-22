@@ -91,6 +91,7 @@ import com.ichi2.anki.android.input.ShortcutGroupProvider
 import com.ichi2.anki.android.input.shortcut
 import com.ichi2.anki.common.annotations.NeedsTest
 import com.ichi2.anki.common.crashreporting.CrashReportService
+import com.ichi2.anki.common.utils.HashUtil
 import com.ichi2.anki.common.utils.android.showThemedToast
 import com.ichi2.anki.common.utils.annotation.KotlinCleanup
 import com.ichi2.anki.common.utils.ext.ifZero
@@ -167,7 +168,6 @@ import com.ichi2.utils.ClipboardUtil
 import com.ichi2.utils.ClipboardUtil.MEDIA_MIME_TYPES
 import com.ichi2.utils.ClipboardUtil.hasMedia
 import com.ichi2.utils.ClipboardUtil.items
-import com.ichi2.utils.HashUtil
 import com.ichi2.utils.ImportUtils
 import com.ichi2.utils.IntentUtil.resolveMimeType
 import com.ichi2.utils.KeyUtils

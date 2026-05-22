@@ -22,6 +22,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.ichi2.anki.R
 import com.ichi2.anki.RobolectricTest
 import com.ichi2.anki.cardviewer.Gesture
+import com.ichi2.anki.common.utils.HashUtil
 import com.ichi2.anki.libanki.Consts
 import com.ichi2.anki.noteeditor.CustomToolbarButton
 import com.ichi2.anki.preferences.sharedPrefs
@@ -33,7 +34,6 @@ import com.ichi2.anki.servicelayer.PreferenceUpgradeService
 import com.ichi2.anki.servicelayer.PreferenceUpgradeService.PreferenceUpgrade
 import com.ichi2.anki.servicelayer.PreferenceUpgradeService.PreferenceUpgrade.UpgradeThemes
 import com.ichi2.anki.servicelayer.RemovedPreferences
-import com.ichi2.utils.HashUtil
 import com.ichi2.utils.LanguageUtil
 import org.hamcrest.CoreMatchers.equalTo
 import org.hamcrest.MatcherAssert.assertThat

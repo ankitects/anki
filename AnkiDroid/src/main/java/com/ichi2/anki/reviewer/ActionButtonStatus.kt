@@ -21,7 +21,7 @@ import android.view.Menu
 import android.view.MenuItem
 import androidx.annotation.IdRes
 import com.ichi2.anki.R
-import com.ichi2.utils.HashUtil.hashMapInit
+import com.ichi2.anki.common.utils.HashUtil.hashMapInit
 
 // loads of unboxing issues, which are safe
 class ActionButtonStatus {
