@@ -5,6 +5,7 @@ import argparse
 import shutil
 from pathlib import Path
 from typing import Any
+from unittest.mock import MagicMock
 
 import pytest
 from tools.build_installer import (
@@ -40,13 +41,50 @@ def wheel_path(out_dir: Path) -> Path:
 
 
 def build_args(wheel_path: Path) -> dict[str, Any]:
-    return dict(aqt_wheel=wheel_path, anki_wheel=wheel_path)
+    return dict(aqt_wheel=wheel_path, anki_wheel=wheel_path, skip_fcitx=True)
 
 
 @pytest.fixture
 def cmd_args(wheel_path: Path) -> argparse.Namespace:
     version = "0.0.1"
     return argparse.Namespace(version=version, **build_args(wheel_path))
+
+
+@pytest.fixture
+def bundle_dir_with_fcitx(
+    monkeypatch, mocker, tmp_path: Path
+) -> tuple[Path, MagicMock]:
+    sources = tmp_path / "sources"
+    pyqt6_qt6 = sources / "app_packages" / "PyQt6" / "Qt6"
+    pic_dest = pyqt6_qt6 / "plugins" / "platforminputcontexts"
+    pic_dest.mkdir(parents=True)
+
+    fake_plugin = tmp_path / "libfcitx5platforminputcontextplugin.so"
+    fake_plugin.touch()
+    fake_dbus = tmp_path / "libFcitx5Qt6DBusAddons.so.1"
+    fake_dbus.touch()
+
+    monkeypatch.setattr("sys.platform", "linux")
+    mocker.patch(
+        "tools.build_installer.get_briefcase_sources_path", return_value=sources
+    )
+    mocker.patch("tools.build_installer._find_fcitx_file", return_value=fake_plugin)
+
+    def mock_copy2(src: Path, dst: Path) -> None:
+        dst = Path(dst)
+        if dst.is_dir():
+            (dst / Path(src).name).touch()
+
+    mocker.patch("tools.build_installer.shutil.copy2", side_effect=mock_copy2)
+
+    def intercept_glob(_, pattern: str):
+        if "libFcitx5Qt6DBusAddons" in pattern:
+            return iter([fake_dbus])
+        return iter([])
+
+    mocker.patch.object(Path, "glob", intercept_glob)
+    mock_patchelf = mocker.patch("subprocess.check_call")
+    return (tmp_path, mock_patchelf)
 
 
 @pytest.mark.parametrize(
@@ -130,8 +168,13 @@ def test_platform_suffix(monkeypatch, platform: str, machine: str, suffix: str) 
 def _to_cmd_list(parsed: dict[str, str]) -> list[str]:
     cmd_list = []
     for k, v in parsed.items():
-        cmd_list.append(f"--{k}")
-        cmd_list.append(str(v))
+        print(k, v)
+        if isinstance(v, bool):
+            if v is True:
+                cmd_list.append(f"--{k}")
+        else:
+            cmd_list.append(f"--{k}")
+            cmd_list.append(str(v))
     return cmd_list
 
 
@@ -169,41 +212,32 @@ def test_bundle_fcitx_raises_when_plugin_missing(
         bundle_fcitx(tmp_path)
 
 
-def test_bundle_fcitx_copies_and_patches(monkeypatch, mocker, tmp_path: Path) -> None:
-    sources = tmp_path / "sources"
-    pyqt6_qt6 = sources / "app_packages" / "PyQt6" / "Qt6"
-    pic_dest = pyqt6_qt6 / "plugins" / "platforminputcontexts"
-    pic_dest.mkdir(parents=True)
-
-    fake_plugin = tmp_path / "libfcitx5platforminputcontextplugin.so"
-    fake_plugin.touch()
-    fake_dbus = tmp_path / "libFcitx5Qt6DBusAddons.so.1"
-    fake_dbus.touch()
-
-    monkeypatch.setattr("sys.platform", "linux")
-    mocker.patch(
-        "tools.build_installer.get_briefcase_sources_path", return_value=sources
-    )
-    mocker.patch("tools.build_installer._find_fcitx_file", return_value=fake_plugin)
-
-    def mock_copy2(src: Path, dst: Path) -> None:
-        dst = Path(dst)
-        if dst.is_dir():
-            (dst / Path(src).name).touch()
-
-    mocker.patch("tools.build_installer.shutil.copy2", side_effect=mock_copy2)
-
-    def intercept_glob(_, pattern: str):
-        if "libFcitx5Qt6DBusAddons" in pattern:
-            return iter([fake_dbus])
-        return iter([])
-
-    mocker.patch.object(Path, "glob", intercept_glob)
-    mock_patchelf = mocker.patch("subprocess.check_call")
-
-    bundle_fcitx(tmp_path)
-
+def test_bundle_fcitx_copies_and_patches(
+    monkeypatch, mocker, bundle_dir_with_fcitx: tuple[Path, MagicMock]
+) -> None:
+    bundle_dir, mock_patchelf = bundle_dir_with_fcitx
+    bundle_fcitx(bundle_dir)
     assert mock_patchelf.call_count == 2
+
+
+@pytest.mark.parametrize(
+    "platform, called", [("linux", True), ("darwin", False), ("win32", False)]
+)
+def test_bundle_fcitx_skipped_if_not_linux(
+    monkeypatch,
+    mocker,
+    bundle_dir_with_fcitx: tuple[Path, MagicMock],
+    platform: str,
+    called: bool,
+) -> None:
+    monkeypatch.setattr("sys.platform", platform)
+    mock = mocker.patch("tools.build_installer.get_briefcase_sources_path")
+    bundle_dir, _ = bundle_dir_with_fcitx
+    bundle_fcitx(bundle_dir)
+    if called:
+        mock.assert_called_once()
+    else:
+        mock.assert_not_called()
 
 
 def test_build_and_package(out_dir: Path, cmd_args: argparse.Namespace) -> None:
