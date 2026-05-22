@@ -13,20 +13,16 @@
  *  You should have received a copy of the GNU General Public License along with
  *  this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.ichi2.utils
+package com.ichi2.anki.common.utils.android
 
 import android.view.KeyEvent
-import androidx.annotation.VisibleForTesting
 
-object KeyUtils {
-    @VisibleForTesting
-    fun isDigit(event: KeyEvent): Boolean {
-        val unicodeChar = event.getUnicodeChar(0)
-        return unicodeChar >= '0'.code && unicodeChar <= '9'.code
+/**
+ * The decimal digit (0..9) represented by this [KeyEvent], or `null` if the event
+ * does not represent a digit.
+ */
+val KeyEvent.digit: Int?
+    get() {
+        val unicodeChar = getUnicodeChar(0)
+        return if (unicodeChar in '0'.code..'9'.code) unicodeChar - '0'.code else null
     }
-
-    fun getDigit(event: KeyEvent): Int? {
-        val unicodeChar = event.getUnicodeChar(0)
-        return if (isDigit(event)) unicodeChar - '0'.code else null
-    }
-}

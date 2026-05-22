@@ -92,6 +92,7 @@ import com.ichi2.anki.android.input.shortcut
 import com.ichi2.anki.common.annotations.NeedsTest
 import com.ichi2.anki.common.crashreporting.CrashReportService
 import com.ichi2.anki.common.utils.HashUtil
+import com.ichi2.anki.common.utils.android.digit
 import com.ichi2.anki.common.utils.android.showThemedToast
 import com.ichi2.anki.common.utils.annotation.KotlinCleanup
 import com.ichi2.anki.common.utils.ext.ifZero
@@ -170,7 +171,6 @@ import com.ichi2.utils.ClipboardUtil.hasMedia
 import com.ichi2.utils.ClipboardUtil.items
 import com.ichi2.utils.ImportUtils
 import com.ichi2.utils.IntentUtil.resolveMimeType
-import com.ichi2.utils.KeyUtils
 import com.ichi2.utils.NoteFieldDecorator
 import com.ichi2.utils.TextViewUtil
 import com.ichi2.utils.configureView
@@ -984,7 +984,6 @@ class NoteEditorFragment :
         textBox.setSelection(start + newStart, start + newEnd)
     }
 
-    @KotlinCleanup("convert KeyUtils to extension functions")
     override fun dispatchKeyEvent(event: KeyEvent): Boolean {
         // We want to behave as onKeyUp and thus only react to ACTION_UP
         if (event.action != KeyEvent.ACTION_UP) return false
@@ -1055,7 +1054,7 @@ class NoteEditorFragment :
 
         // 7573: Ctrl+Shift+[Num] to select a field
         if (event.isCtrlPressed && event.isShiftPressed) {
-            val digit = KeyUtils.getDigit(event) ?: return false
+            val digit = event.digit ?: return false
             // '0' is after '9' on the keyboard, so a user expects '10'
             val humanReadableDigit = if (digit == 0) 10 else digit
             // Subtract 1 to map to field index. '1' is the first field (index 0)
