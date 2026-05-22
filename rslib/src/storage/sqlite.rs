@@ -60,7 +60,7 @@ fn open_or_create_collection_db(path: &Path) -> Result<Connection> {
         );
     }
 
-    db.busy_timeout(std::time::Duration::from_secs(0))?;
+    db.busy_timeout(std::time::Duration::from_secs(5))?; // Allow 5 seconds for lock contention;
 
     db.pragma_update(None, "locking_mode", "exclusive")?;
     db.pragma_update(None, "page_size", 4096)?;
