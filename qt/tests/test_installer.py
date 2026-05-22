@@ -108,9 +108,9 @@ def test_template_path(monkeypatch, platform: str, template: str) -> None:
         ("linux", "anki"),
     ],
 )
-def test_sources_path(monkeypatch, out_dir: Path, platform: str, root: str) -> None:
+def test_sources_path(monkeypatch, tmp_path: Path, platform: str, root: str) -> None:
     monkeypatch.setattr("sys.platform", platform)
-    sources_path = get_briefcase_sources_path(out_dir)
+    sources_path = get_briefcase_sources_path(tmp_path)
     assert sources_path.name == root
 
 
@@ -178,7 +178,7 @@ def _to_cmd_list(parsed: dict[str, str]) -> list[str]:
     return cmd_list
 
 
-def test_main(mocker, out_dir: Path, wheel_path: Path) -> None:
+def test_main(mocker, wheel_path: Path) -> None:
     version_args = ["--version", "0.0.1"]
 
     build_mock = mocker.patch("tools.build_installer.build")
@@ -213,7 +213,7 @@ def test_bundle_fcitx_raises_when_plugin_missing(
 
 
 def test_bundle_fcitx_copies_and_patches(
-    monkeypatch, mocker, bundle_dir_with_fcitx: tuple[Path, MagicMock]
+    bundle_dir_with_fcitx: tuple[Path, MagicMock],
 ) -> None:
     bundle_dir, mock_patchelf = bundle_dir_with_fcitx
     bundle_fcitx(bundle_dir)
