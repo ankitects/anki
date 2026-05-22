@@ -1,0 +1,18 @@
+# Generated using Briefcase {{ cookiecutter.briefcase_version }} for Python {{ cookiecutter.python_version|py_tag }}
+[paths]
+app_path = "{{ cookiecutter.app_name }}-{{ cookiecutter.version }}/app"
+app_packages_path = "{{ cookiecutter.app_name }}-{{ cookiecutter.version }}/app_packages"
+support_path = "{{ cookiecutter.app_name }}-{{ cookiecutter.version }}"
+{{ {
+    "3.10": 'support_revision = "3.10.18+20251007"',
+    "3.11": 'support_revision = "3.11.13+20251007"',
+    "3.12": 'support_revision = "3.12.11+20251007"',
+    "3.13": 'support_revision = "3.13.8+20251007"',
+    "3.14": 'support_revision = "3.14.0+20251007"',
+}.get(cookiecutter.python_version|py_tag, "") }}
+cleanup_paths = [
+    "{{ cookiecutter.app_name }}-{{ cookiecutter.version }}/python/bin/2to3*",
+    "{{ cookiecutter.app_name }}-{{ cookiecutter.version }}/python/bin/idle3*",
+    "{{ cookiecutter.app_name }}-{{ cookiecutter.version }}/python/bin/pydoc*",
+    "{{ cookiecutter.app_name }}-{{ cookiecutter.version }}/python/bin/pip*",
+]

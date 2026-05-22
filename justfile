@@ -1,5 +1,7 @@
 set windows-shell := ["cmd.exe", "/c"]
 
+mod release
+
 # Show available commands
 default:
     @just --list
@@ -70,6 +72,10 @@ docs-serve:
 # Build Rust API docs
 docs-rust:
     cargo doc --open
+
+# Dispatch CI workflow on a given branch or tag
+ci branch:
+    gh workflow run ci.yml --ref {{ branch }}
 
 # Helper to get the right ninja command for the platform
 ninja := if os() == "windows" { "tools\\ninja" } else { "./ninja" }

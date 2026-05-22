@@ -27,38 +27,38 @@ pub fn uv_archive(platform: Platform) -> OnlineArchive {
     match platform {
         Platform::LinuxX64 => {
             OnlineArchive {
-                url: "https://github.com/astral-sh/uv/releases/download/0.7.13/uv-x86_64-unknown-linux-gnu.tar.gz",
-                sha256: "909278eb197c5ed0e9b5f16317d1255270d1f9ea4196e7179ce934d48c4c2545",
+                url: "https://github.com/astral-sh/uv/releases/download/0.11.8/uv-x86_64-unknown-linux-gnu.tar.gz",
+                sha256: "56dd1b66701ecb62fe896abb919444e4b83c5e8645cca953e6ddd496ff8a0feb",
             }
         },
         Platform::LinuxArm => {
             OnlineArchive {
-                url: "https://github.com/astral-sh/uv/releases/download/0.7.13/uv-aarch64-unknown-linux-gnu.tar.gz",
-                sha256: "0b2ad9fe4295881615295add8cc5daa02549d29cc9a61f0578e397efcf12f08f",
+                url: "https://github.com/astral-sh/uv/releases/download/0.11.8/uv-aarch64-unknown-linux-gnu.tar.gz",
+                sha256: "eee8dd658d20e5ac85fec9c2326b6cbc9d83a1eef09ef07433e58698ac849591",
             }
         },
         Platform::MacX64 => {
             OnlineArchive {
-                url: "https://github.com/astral-sh/uv/releases/download/0.7.13/uv-x86_64-apple-darwin.tar.gz",
-                sha256: "d785753ac092e25316180626aa691c5dfe1fb075290457ba4fdb72c7c5661321",
+                url: "https://github.com/astral-sh/uv/releases/download/0.11.8/uv-x86_64-apple-darwin.tar.gz",
+                sha256: "c59d73bf34b58bc8e33a11629f7a255c11789fd00f03cd3e68ab2d1603645de9",
             }
         },
         Platform::MacArm => {
             OnlineArchive {
-                url: "https://github.com/astral-sh/uv/releases/download/0.7.13/uv-aarch64-apple-darwin.tar.gz",
-                sha256: "721f532b73171586574298d4311a91d5ea2c802ef4db3ebafc434239330090c6",
+                url: "https://github.com/astral-sh/uv/releases/download/0.11.8/uv-aarch64-apple-darwin.tar.gz",
+                sha256: "c729adb365114e844dd7f9316313a7ed6443b89bb5681d409eebac78b0bd06c8",
             }
         },
         Platform::WindowsX64 => {
             OnlineArchive {
-                url: "https://github.com/astral-sh/uv/releases/download/0.7.13/uv-x86_64-pc-windows-msvc.zip",
-                sha256: "e199b10bef1a7cc540014483e7f60f825a174988f41020e9d2a6b01bd60f0669",
+                url: "https://github.com/astral-sh/uv/releases/download/0.11.8/uv-x86_64-pc-windows-msvc.zip",
+                sha256: "c84629a56e0706b69a47ea35862208af827cb6fbfa1d0ca763c52c67594637e8",
             }
         },
         Platform::WindowsArm => {
             OnlineArchive {
-                url: "https://github.com/astral-sh/uv/releases/download/0.7.13/uv-aarch64-pc-windows-msvc.zip",
-                sha256: "bb40708ad549ad6a12209cb139dd751bf0ede41deb679ce7513ce197bd9ef234",
+                url: "https://github.com/astral-sh/uv/releases/download/0.11.8/uv-aarch64-pc-windows-msvc.zip",
+                sha256: "bb48716e74e4998993f15bc57a55e4d0d73ccbd27a66d7cbed37605f7c67d747",
             }
         }
     }
@@ -153,7 +153,14 @@ impl BuildAction for PythonEnvironment {
                     read_file(".python-version").expect("No .python-version in cwd");
                 let python_version_str =
                     String::from_utf8(python_version).expect("Invalid UTF-8 in .python-version");
-                python_version_str.trim().to_string()
+                let version = python_version_str.trim();
+                // On Windows ARM64, uv defaults to x64 interpreters
+                // (astral-sh/uv#12906), so request the native build explicitly.
+                if cfg!(all(windows, target_arch = "aarch64")) {
+                    format!("cpython-{version}-windows-aarch64-none")
+                } else {
+                    version.to_string()
+                }
             });
             build.add_variable("python", python);
             build.add_variable("extra_args", self.extra_args);

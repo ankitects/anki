@@ -1,0 +1,13 @@
+[project]
+name = "briefcase_plugins"
+version = "0.0.1"
+requires-python = ">=3.10"
+license = "AGPL-3.0-or-later"
+dependencies = []
+
+[project.entry-points."briefcase.formats.linux"]
+zip = "briefcase_plugins.platforms.linux.zip"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"

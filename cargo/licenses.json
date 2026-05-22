@@ -344,6 +344,14 @@
     "repository": "https://github.com/RustCrypto/utils"
   },
   {
+    "authors": "RustCrypto Developers",
+    "description": "Buffer types for block processing of data",
+    "license": "Apache-2.0 OR MIT",
+    "license_file": null,
+    "name": "block-buffer",
+    "repository": "https://github.com/RustCrypto/utils"
+  },
+  {
     "authors": "Nick Fitzgerald <fitzgen@gmail.com>",
     "description": "A fast bump allocation arena for Rust.",
     "license": "Apache-2.0 OR MIT",
@@ -624,6 +632,14 @@
     "repository": "https://github.com/smol-rs/concurrent-queue"
   },
   {
+    "authors": "RustCrypto Developers",
+    "description": "Const-friendly implementation of the ISO/IEC Object Identifier (OID) standard as defined in ITU X.660, with support for BER/DER encoding/decoding as well as heapless no_std (i.e. embedded) support",
+    "license": "Apache-2.0 OR MIT",
+    "license_file": null,
+    "name": "const-oid",
+    "repository": "https://github.com/RustCrypto/formats"
+  },
+  {
     "authors": "Cesar Eduardo Barros <cesarb@cesarb.eti.br>",
     "description": "Compares two equal-sized byte strings in constant time.",
     "license": "Apache-2.0 OR CC0-1.0 OR MIT-0",
@@ -680,6 +696,14 @@
     "repository": "https://github.com/RustCrypto/utils"
   },
   {
+    "authors": "RustCrypto Developers",
+    "description": "Lightweight runtime CPU feature detection for aarch64, loongarch64, and x86/x86_64 targets, with no_std support and support for mobile targets including Android and iOS",
+    "license": "Apache-2.0 OR MIT",
+    "license_file": null,
+    "name": "cpufeatures",
+    "repository": "https://github.com/RustCrypto/utils"
+  },
+  {
     "authors": "Sam Rijs <srijs@airpost.net>|Alex Crichton <alex@alexcrichton.com>",
     "description": "Fast, SIMD-accelerated CRC32 (IEEE) checksum computation",
     "license": "Apache-2.0 OR MIT",
@@ -730,6 +754,14 @@
   {
     "authors": "RustCrypto Developers",
     "description": "Common cryptographic traits",
+    "license": "Apache-2.0 OR MIT",
+    "license_file": null,
+    "name": "crypto-common",
+    "repository": "https://github.com/RustCrypto/traits"
+  },
+  {
+    "authors": "RustCrypto Developers",
+    "description": "Common traits used by cryptographic algorithms",
     "license": "Apache-2.0 OR MIT",
     "license_file": null,
     "name": "crypto-common",
@@ -998,6 +1030,14 @@
     "license_file": null,
     "name": "difflib",
     "repository": "https://github.com/DimaKudosh/difflib"
+  },
+  {
+    "authors": "RustCrypto Developers",
+    "description": "Traits for cryptographic hash functions and message authentication codes",
+    "license": "Apache-2.0 OR MIT",
+    "license_file": null,
+    "name": "digest",
+    "repository": "https://github.com/RustCrypto/traits"
   },
   {
     "authors": "RustCrypto Developers",
@@ -1800,6 +1840,14 @@
     "repository": "https://github.com/pyfisch/httpdate"
   },
   {
+    "authors": "RustCrypto Developers",
+    "description": "Hybrid typenum-based and const generic array types designed to provide the flexibility of typenum-based expressions while also allowing interoperability and a transition path to const generics",
+    "license": "Apache-2.0 OR MIT",
+    "license_file": null,
+    "name": "hybrid-array",
+    "repository": "https://github.com/RustCrypto/hybrid-array"
+  },
+  {
     "authors": "Sean McArthur <sean@seanmonstar.com>",
     "description": "A protective and efficient HTTP library for all.",
     "license": "MIT",
@@ -2549,7 +2597,7 @@
     "license": "Apache-2.0",
     "license_file": null,
     "name": "openssl",
-    "repository": "https://github.com/sfackler/rust-openssl"
+    "repository": "https://github.com/rust-openssl/rust-openssl"
   },
   {
     "authors": null,
@@ -2573,7 +2621,7 @@
     "license": "MIT",
     "license_file": null,
     "name": "openssl-sys",
-    "repository": "https://github.com/sfackler/rust-openssl"
+    "repository": "https://github.com/rust-openssl/rust-openssl"
   },
   {
     "authors": "Simon Ochsenreither <simon@ochsenreither.de>",
@@ -3509,6 +3557,14 @@
     "license": "Apache-2.0 OR MIT",
     "license_file": null,
     "name": "sha1",
+    "repository": "https://github.com/RustCrypto/hashes"
+  },
+  {
+    "authors": "RustCrypto Developers",
+    "description": "Pure Rust implementation of the SHA-2 hash function family including SHA-224, SHA-256, SHA-384, and SHA-512.",
+    "license": "Apache-2.0 OR MIT",
+    "license_file": null,
+    "name": "sha2",
     "repository": "https://github.com/RustCrypto/hashes"
   },
   {
