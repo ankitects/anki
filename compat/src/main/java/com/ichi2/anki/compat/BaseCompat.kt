@@ -185,6 +185,8 @@ open class BaseCompat : Compat {
         }
     }
 
+    override val webpLossyFormat: Bitmap.CompressFormat = Bitmap.CompressFormat.WEBP
+
     // Until API 29
     @Throws(FileNotFoundException::class)
     override fun saveImage(

@@ -4,6 +4,7 @@
 package com.ichi2.anki.compat
 
 import android.content.Context
+import android.graphics.Bitmap
 import android.media.MediaRecorder
 import android.os.VibrationEffect
 import android.os.VibratorManager
@@ -25,4 +26,6 @@ open class CompatV31 : CompatV29() {
     }
 
     override fun getMediaRecorder(context: Context): MediaRecorder = MediaRecorder(context)
+
+    override val webpLossyFormat: Bitmap.CompressFormat = Bitmap.CompressFormat.WEBP_LOSSY
 }

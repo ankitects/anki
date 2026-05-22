@@ -208,6 +208,11 @@ interface Compat {
     fun hasVideoThumbnail(path: String): Boolean?
 
     /**
+     * The [CompressFormat] constant to use for lossy WebP encoding.
+     */
+    val webpLossyFormat: CompressFormat
+
+    /**
      * Writes an image represented by bitmap to the Pictures/AnkiDroid directory under the primary
      * external storage directory. Requires the WRITE_EXTERNAL_STORAGE permission to be obtained on devices running
      * API <= 28. If this condition isn't satisfied, this method will throw a [FileNotFoundException].
