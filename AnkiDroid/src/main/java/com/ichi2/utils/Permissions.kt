@@ -23,7 +23,6 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Build
-import android.os.Environment
 import android.provider.Settings
 import androidx.activity.result.ActivityResultLauncher
 import androidx.annotation.RequiresApi
@@ -35,6 +34,8 @@ import androidx.fragment.app.FragmentActivity
 import androidx.fragment.app.FragmentManager
 import com.ichi2.anki.PermissionSet
 import com.ichi2.anki.R
+import com.ichi2.anki.common.permissions.MANAGE_EXTERNAL_STORAGE
+import com.ichi2.anki.common.permissions.hasPermission
 import com.ichi2.anki.common.utils.android.isRobolectric
 import com.ichi2.anki.common.utils.android.showThemedToast
 import com.ichi2.anki.compat.CompatHelper.Companion.getPackageInfoCompat
@@ -42,15 +43,11 @@ import com.ichi2.anki.compat.GET_PERMISSIONS_L
 import com.ichi2.anki.compat.PackageInfoFlagsCompat
 import com.ichi2.anki.settings.Prefs
 import com.ichi2.anki.ui.windows.permissions.PermissionsBottomSheet
-import com.ichi2.utils.Permissions.MANAGE_EXTERNAL_STORAGE
 import com.ichi2.utils.Permissions.arePermissionsDefinedInManifest
-import com.ichi2.utils.Permissions.isExternalStorageManager
 import timber.log.Timber
 import kotlin.reflect.KMutableProperty
 
 object Permissions {
-    const val MANAGE_EXTERNAL_STORAGE = "android.permission.MANAGE_EXTERNAL_STORAGE"
-
     @RequiresApi(Build.VERSION_CODES.TIRAMISU)
     val tiramisuPhotosAndVideosPermissions =
         listOf(
@@ -191,85 +188,6 @@ object Permissions {
     const val RECORD_AUDIO_PERMISSION = Manifest.permission.RECORD_AUDIO
 
     fun canRecordAudio(context: Context): Boolean = hasPermission(context, RECORD_AUDIO_PERMISSION)
-
-    /**
-     * Whether the app is granted [permission]
-     *
-     * Same as [androidx.core.content.ContextCompat.checkSelfPermission] except it corrects a bug related to [MANAGE_EXTERNAL_STORAGE].
-     */
-    fun hasPermission(
-        context: Context,
-        permission: String,
-    ): Boolean {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R && permission == MANAGE_EXTERNAL_STORAGE) {
-            // checkSelfPermission doesn't return PERMISSION_GRANTED, even if it's granted.
-            return isExternalStorageManager()
-        }
-
-        return ContextCompat.checkSelfPermission(context, permission) == PackageManager.PERMISSION_GRANTED
-    }
-
-    /**
-     * Whether the app is granted all permission of [permissions]
-     */
-    fun hasAllPermissions(
-        context: Context,
-        permissions: Collection<String>,
-    ): Boolean = permissions.all { hasPermission(context, it) }
-
-    @RequiresApi(Build.VERSION_CODES.R)
-    fun isExternalStorageManager(): Boolean {
-        // BUG: Environment.isExternalStorageManager() crashes under robolectric
-        // https://github.com/robolectric/robolectric/issues/7300
-        if (isRobolectric) {
-            return false // TODO: handle tests with both 'true' and 'false'
-        }
-        return Environment.isExternalStorageManager()
-    }
-
-    /**
-     * On < Android 11, returns false.
-     * On >= Android 11, returns [isExternalStorageManager]
-     */
-    fun isExternalStorageManagerCompat(): Boolean {
-        return if (Build.VERSION.SDK_INT < Build.VERSION_CODES.R) {
-            return false
-        } else {
-            isExternalStorageManager()
-        }
-    }
-
-    /**
-     * Check if we have write access permission to the external storage
-     * @param context
-     * @return
-     */
-    @JvmStatic // unit tests were flaky - maybe remove later
-    private fun hasStorageWriteAccessPermission(
-        context: Context,
-    ): Boolean = hasPermission(context, Manifest.permission.WRITE_EXTERNAL_STORAGE)
-
-    /**
-     * Check if we have read access permission to the external storage
-     * @param context
-     * @return
-     */
-    @JvmStatic // unit tests were flaky - maybe remove later
-    private fun hasStorageReadAccessPermission(
-        context: Context,
-    ): Boolean = hasPermission(context, Manifest.permission.READ_EXTERNAL_STORAGE)
-
-    /**
-     * Check if we have read and write access permission to the external storage
-     * Note: This can return true >= R on a debug build or if storage is preserved
-     *
-     * @see IntentHandler.grantedStoragePermissions
-     *
-     * @param context
-     */
-    @JvmStatic // unit tests were flaky - maybe remove later
-    fun hasLegacyStorageAccessPermission(context: Context): Boolean =
-        hasStorageReadAccessPermission(context) && hasStorageWriteAccessPermission(context)
 
     /**
      * Detects if permissions are defined via <uses-permission> in the Manifest.

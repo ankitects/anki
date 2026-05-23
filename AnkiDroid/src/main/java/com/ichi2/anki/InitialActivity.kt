@@ -28,6 +28,7 @@ import androidx.annotation.CheckResult
 import androidx.annotation.RequiresApi
 import androidx.core.content.edit
 import com.ichi2.anki.common.crashreporting.CrashReportService
+import com.ichi2.anki.common.permissions.hasAllPermissions
 import com.ichi2.anki.common.utils.android.SdCard
 import com.ichi2.anki.compat.CompatHelper.Companion.sdkVersion
 import com.ichi2.anki.dialogs.DatabaseErrorDialog
@@ -210,7 +211,7 @@ sealed class AnkiDroidFolder(
      */
     data object AppPrivateFolder : AnkiDroidFolder(PermissionSet.APP_PRIVATE)
 
-    fun hasRequiredPermissions(context: Context): Boolean = Permissions.hasAllPermissions(context, permissionSet.permissions)
+    fun hasRequiredPermissions(context: Context): Boolean = hasAllPermissions(context, permissionSet.permissions)
 }
 
 @Parcelize

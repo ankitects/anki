@@ -29,6 +29,8 @@ import androidx.core.content.IntentCompat
 import androidx.work.WorkManager
 import com.ichi2.anki.common.annotations.NeedsTest
 import com.ichi2.anki.common.coroutines.applicationScope
+import com.ichi2.anki.common.permissions.hasLegacyStorageAccessPermission
+import com.ichi2.anki.common.permissions.isExternalStorageManagerCompat
 import com.ichi2.anki.common.utils.android.showThemedToast
 import com.ichi2.anki.common.utils.trimToLength
 import com.ichi2.anki.dialogs.DialogHandler.Companion.storeMessage
@@ -49,8 +51,6 @@ import com.ichi2.utils.ImportUtils.isInvalidViewIntent
 import com.ichi2.utils.ImportUtils.showImportUnsuccessfulDialog
 import com.ichi2.utils.IntentUtil.resolveMimeType
 import com.ichi2.utils.NetworkUtils
-import com.ichi2.utils.Permissions
-import com.ichi2.utils.Permissions.hasLegacyStorageAccessPermission
 import com.ichi2.utils.copyToClipboard
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -357,7 +357,7 @@ class IntentHandler : AbstractIntentHandler() {
             val granted =
                 !ScopedStorageService.isLegacyStorage(context) ||
                     hasLegacyStorageAccessPermission(context) ||
-                    Permissions.isExternalStorageManagerCompat()
+                    isExternalStorageManagerCompat()
 
             if (!granted && showToast) {
                 showThemedToast(context, context.getString(R.string.intent_handler_failed_no_storage_permission), false)

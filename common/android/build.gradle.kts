@@ -28,6 +28,7 @@ dependencies {
     implementation(project(":common"))
 
     implementation(libs.androidx.annotation)
+    implementation(libs.androidx.core.ktx)
     implementation(libs.jakewharton.timber)
     implementation(libs.kotlinx.coroutines.core)
 

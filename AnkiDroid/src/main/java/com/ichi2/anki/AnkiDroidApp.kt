@@ -40,6 +40,7 @@ import com.ichi2.anki.common.annotations.LegacyNotifications
 import com.ichi2.anki.common.annotations.NeedsTest
 import com.ichi2.anki.common.coroutines.applicationScope
 import com.ichi2.anki.common.crashreporting.CrashReportService.sendExceptionReport
+import com.ichi2.anki.common.permissions.hasLegacyStorageAccessPermission
 import com.ichi2.anki.common.utils.android.SdCard
 import com.ichi2.anki.common.utils.android.showThemedToast
 import com.ichi2.anki.common.utils.annotation.KotlinCleanup
@@ -66,7 +67,6 @@ import com.ichi2.utils.AdaptionUtil
 import com.ichi2.utils.ExceptionUtil
 import com.ichi2.utils.LanguageUtil
 import com.ichi2.utils.LanguageUtil.withAppLocale
-import com.ichi2.utils.Permissions
 import com.ichi2.utils.measureTime
 import com.ichi2.utils.setWebContentsDebuggingEnabled
 import com.ichi2.widget.DayRolloverAlarm
@@ -311,7 +311,7 @@ open class AnkiDroidApp :
 
     /**
      * Manually initializes the collection directory and `.nomedia` if
-     * [Permissions.hasLegacyStorageAccessPermission] is set
+     * [hasLegacyStorageAccessPermission] is set
      *
      * On failure, sets [fatalInitializationError] to [storageError][FatalInitializationError.StorageError]
      *
@@ -332,7 +332,7 @@ open class AnkiDroidApp :
 
         // TODO: This line is questionable, as it doesn't work on most post-scoped-storage
         //  builds/Android versions, but we call initializeAnkiDroidDirectory later on startup
-        if (!Permissions.hasLegacyStorageAccessPermission(this)) return
+        if (!hasLegacyStorageAccessPermission(this)) return
 
         try {
             CollectionHelper.initializeAnkiDroidDirectory(ankiDroidDir)
