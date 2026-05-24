@@ -104,14 +104,15 @@ class DeckPickerWidgetConfig :
 
         registerDeckSelectedHandler(action = ::onDeckSelected)
 
-        // Check if the collection is empty before proceeding and if the collection is empty, show a toast instead of the configuration view.
+        // The widget can only be configured against an existing deck. If the collection has
+        // none, show the same message the widget itself displays and close the config screen.
         this.initTask =
             lifecycleScope.launch {
                 if (isCollectionEmpty()) {
                     Timber.w("Closing: Collection is empty")
                     showThemedToast(
                         this@DeckPickerWidgetConfig,
-                        R.string.app_not_initialized_new,
+                        R.string.empty_collection_state_in_widget,
                         false,
                     )
                     finish()
