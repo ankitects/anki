@@ -365,8 +365,20 @@ pub fn write_file_if_changed(path: impl AsRef<Path>, contents: impl AsRef<[u8]>)
     }
 }
 
-pub fn is_case_sensitive(_dir: &Path) -> bool {
-    // TODO: make robust?
+pub fn is_case_sensitive(dir: &Path) -> bool {
+    let opt = OpenOptions::new().write(true).create_new(true).to_owned();
+    for _ in 0..100 {
+        let fname = format!("__case-test-{}", rand::random::<u128>());
+        let fname_upper = fname.to_uppercase();
+        if open_file_ext(dir.join(&fname), opt.to_owned()).is_ok() {
+            let sensitive = open_file_ext(dir.join(&fname_upper), opt.to_owned()).is_ok();
+            let _ = std::fs::remove_file(dir.join(fname));
+            if sensitive {
+                let _ = std::fs::remove_file(dir.join(fname_upper));
+            }
+            return sensitive;
+        }
+    }
     cfg!(unix) && !cfg!(target_os = "macos")
 }
 
