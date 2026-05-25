@@ -13,6 +13,7 @@ use crate::card::CardId;
 use crate::collection::Collection;
 use crate::error::Result;
 use crate::notes::NoteId;
+use crate::text::strip_html;
 
 pub struct EmptyCardsForNote {
     pub nid: NoteId,
@@ -81,7 +82,7 @@ impl Collection {
                 write!(
                     buf,
                     "<div><b>{}</b></div><ol>",
-                    self.tr.empty_cards_for_note_type(nt.name.clone())
+                    self.tr.empty_cards_for_note_type(strip_html(&nt.name))
                 )
                 .unwrap();
 
@@ -124,7 +125,7 @@ impl Collection {
                         self.tr.empty_cards_count_line(
                             note.empty.len(),
                             note.current_count,
-                            templates
+                            strip_html(&templates),
                         )
                     )
                     .unwrap();
