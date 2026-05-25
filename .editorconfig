@@ -27,3 +27,9 @@ ktlint_standard_when-entry-bracing = disabled
 # https://pinterest.github.io/ktlint/latest/rules/standard/#blank-line-between-when-conditions
 ktlint_standard_blank-line-between-when-conditions = disabled
 
+# Jetpack Compose convention: @Composable functions are named in PascalCase
+# (they return Unit and behave like UI declarations rather than regular functions).
+# Tell ktlint's function-naming rule to skip any function annotated @Composable.
+# https://pinterest.github.io/ktlint/latest/rules/standard/#function-naming
+ktlint_function_naming_ignore_when_annotated_with = Composable
+

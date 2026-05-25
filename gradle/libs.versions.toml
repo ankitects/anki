@@ -33,6 +33,8 @@ androidxAppCompat = "1.7.1"
 androidxBenchmark = "1.4.1"
 # https://developer.android.com/jetpack/androidx/releases/browser
 androidxBrowser = "1.10.0"
+# https://developer.android.com/jetpack/compose/bom/bom-mapping
+androidxComposeBillOfMaterials = "2026.06.00"
 # https://developer.android.com/jetpack/androidx/releases/constraintlayout
 androidxConstraintlayout = "2.2.1"
 # https://developer.android.com/jetpack/androidx/releases/core
@@ -148,6 +150,19 @@ androidx-appcompat = { module = "androidx.appcompat:appcompat", version.ref = "a
 androidx-benchmark-macro-junit4 = { module = "androidx.benchmark:benchmark-macro-junit4", version.ref = "androidxBenchmark" }
 androidx-annotation = { module = "androidx.annotation:annotation", version.ref = "androidxAnnotation" }
 androidx-activity = { module = "androidx.activity:activity", version.ref = "androidxActivity" }
+androidx-activity-compose = { module = "androidx.activity:activity-compose", version.ref = "androidxActivity" }
+# The Compose libraries below intentionally omit `version.ref`: their versions are
+# pinned by `androidx-compose-bom` (a Bill of Materials), so the BoM resolves them
+# to a mutually-compatible set. Bump `androidxComposeBillOfMaterials` to upgrade
+# them all in lock-step.
+androidx-compose-bom = { module = "androidx.compose:compose-bom", version.ref = "androidxComposeBillOfMaterials" }
+androidx-compose-ui = { module = "androidx.compose.ui:ui" }
+androidx-compose-ui-tooling = { module = "androidx.compose.ui:ui-tooling" }
+androidx-compose-ui-tooling-preview = { module = "androidx.compose.ui:ui-tooling-preview" }
+androidx-compose-material3 = { module = "androidx.compose.material3:material3" }
+androidx-compose-runtime = { module = "androidx.compose.runtime:runtime" }
+androidx-lifecycle-viewmodel-compose = { module = "androidx.lifecycle:lifecycle-viewmodel-compose", version.ref = "androidxLifecycleProcess" }
+androidx-lifecycle-runtime-compose = { module = "androidx.lifecycle:lifecycle-runtime-compose", version.ref = "androidxLifecycleProcess" }
 androidx-lifecycle-process = { group = "androidx.lifecycle", name = "lifecycle-process", version.ref = "androidxLifecycleProcess" }
 androidx-media3-ui = { module = "androidx.media3:media3-ui", version.ref = "androidxMedia3" }
 androidx-media3-exoplayer-dash = { module = "androidx.media3:media3-exoplayer-dash", version.ref = "androidxMedia3" }
@@ -240,6 +255,7 @@ kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
 kotlin-parcelize = { id = "org.jetbrains.kotlin.plugin.parcelize", version.ref = "kotlin" }
 kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
 kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
+kotlin-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
 
 
 ktlint-gradle-plugin = { id = "org.jlleitschuh.gradle.ktlint", version.ref = "ktlintGradlePlugin" }

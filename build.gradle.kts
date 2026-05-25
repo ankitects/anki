@@ -29,6 +29,8 @@ plugins {
     alias(libs.plugins.androidx.baselineprofile) apply false
     // Serialization is a separate artifact, not pinned transitively by AGP.
     alias(libs.plugins.kotlin.serialization) apply false
+    // Compose Compiler plugin (required since Kotlin 2.0); applied per-module that opts in.
+    alias(libs.plugins.kotlin.compose) apply false
     alias(libs.plugins.ktlint.gradle.plugin) apply false
     alias(libs.plugins.keeper) apply false
 }
@@ -121,6 +123,7 @@ subprojects {
             // This workaround safely feeds the unsafe flag *only* to the IDE during Gradle sync,
             // while passing the standard, crash-free flag to the compiler during the actual build.
             val isInIdeaSync = System.getProperty("idea.sync.active").toBoolean()
+            val taskName = name
 
             compilerOptions {
                 allWarningsAsErrors = fatalWarnings
@@ -140,6 +143,14 @@ subprojects {
                 }
                 if (project.path != ":api") {
                     compilerArgs += "-Xcontext-parameters"
+                }
+                // Opt in to Material3 APIs marked experimental once at the module level
+                // (currently only :AnkiDroid uses Compose Material3). Avoids littering
+                // composables with @OptIn(ExperimentalMaterial3Api::class).
+                // Skipped for testFixtures since that source set only carries
+                // compose-runtime on compileOnly, not material3.
+                if (project.path == ":AnkiDroid" && !taskName.contains("TestFixtures")) {
+                    compilerArgs += "-opt-in=androidx.compose.material3.ExperimentalMaterial3Api"
                 }
                 freeCompilerArgs = compilerArgs
             }
