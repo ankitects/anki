@@ -22,6 +22,15 @@ HTTP_BUF_SIZE = 64 * 1024
 ProgressCallback = Callable[[int, int], None]
 
 
+class _SystemStoreHTTPAdapter(requests.adapters.HTTPAdapter):
+    """Opt out of Requests' default certifi bundle."""
+
+    def cert_verify(self, conn: Any, url: str, verify: bool | str, cert: Any) -> None:
+        conn.cert_reqs = "CERT_REQUIRED"
+        conn.ca_certs = None
+        conn.ca_cert_dir = None
+
+
 class HttpClient(DeprecatedNamesMixin):
     verify = True
     timeout = 60
@@ -31,6 +40,7 @@ class HttpClient(DeprecatedNamesMixin):
     def __init__(self, progress_hook: ProgressCallback | None = None) -> None:
         self.progress_hook = progress_hook
         self.session = requests.Session()
+        self.session.mount("https://", _SystemStoreHTTPAdapter())
 
     def __enter__(self) -> HttpClient:
         return self

@@ -197,6 +197,7 @@ name = "anki_io"
 version = "0.0.0"
 dependencies = [
  "camino",
+ "rand 0.9.4",
  "snafu",
  "tempfile",
 ]

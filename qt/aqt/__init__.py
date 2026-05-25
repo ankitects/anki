@@ -312,7 +312,10 @@ class AnkiApp(QApplication):
 
     appMsg = pyqtSignal(str)
 
-    KEY = f"anki{checksum(getpass.getuser())}"
+    KEY = (
+        os.environ.get("ANKI_SINGLE_INSTANCE_KEY")
+        or f"anki{checksum(getpass.getuser())}"
+    )
     TMOUT = 30000
 
     def __init__(self, argv: list[str]) -> None:

@@ -101,17 +101,43 @@ jobs:
       - name: Symlink node_modules
         run: ln -sf out/node_modules .
 
+      - name: Restore coverage baseline
+        if: github.event_name == 'pull_request'
+        uses: actions/cache/restore@v4
+        with:
+          path: out/coverage
+          key: coverage-baseline-linux-${{ github.sha }}
+          restore-keys: coverage-baseline-linux-
+
+      - name: Move restored baseline aside
+        if: github.event_name == 'pull_request'
+        run: test -d out/coverage && mv out/coverage out/coverage-baseline || true
+
       - name: Build, lint, and test
         env:
           ONLINE_TESTS: "1"
         run: |
           just build
           just lint
-          if [ "${{ github.event_name }}" = "pull_request" ]; then
-            just test --coverage
-          else
-            just test
-          fi
+          just test --coverage
+
+      - name: Cache coverage baseline
+        if: github.ref_name == 'main'
+        uses: actions/cache/save@v4
+        with:
+          path: out/coverage
+          key: coverage-baseline-linux-${{ github.sha }}
+
+      - name: Run e2e tests
+        run: just test-e2e
+
+      - name: Upload Playwright report
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: out/e2e-report/
+          retention-days: 7
 
       - name: Ensure libs importable
         env:
@@ -157,6 +183,8 @@ jobs:
     name: check (macos)
     steps:
       - uses: actions/checkout@v4
+        with:
+          submodules: true
 
       - name: Restore cargo cache
         uses: actions/cache@v4
@@ -227,6 +255,8 @@ jobs:
       TMP: D:\tmp
     steps:
       - uses: actions/checkout@v4
+        with:
+          submodules: true
 
       - name: Prepare D:\ directories
         shell: bash
