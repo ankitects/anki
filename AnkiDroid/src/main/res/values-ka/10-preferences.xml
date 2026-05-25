@@ -118,7 +118,6 @@
     <string name="tts_summ">ხმამაღლა კითხულობს კითხვასა და პასუხს, როცა მოცემული არაა აუდიოფაილი</string>
     <!-- Sync -->
     <string name="sync_fetch_missing_media" maxLength="41">მედიაფაილების სინქრონიზაცია</string>
-    <string name="sync_account" maxLength="41">AnkiWeb ანგარიში</string>
     <string name="sync_account_summ_logged_out">არ ხართ შესული</string>
     <string name="automatic_sync_choice" maxLength="41">ავტომატური სინქრონიზაცია</string>
     <string name="automatic_sync_choice_summ">ავტომატური სინქრონიზაცია აპლიკაციის გახსნისას/აპლიკაციიდან გამოსვლისას, თუკი ბოლო სინქრონიზაცია 10-ზე მეტი წუთის წინ იყო.</string>

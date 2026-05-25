@@ -35,9 +35,6 @@
     <string name="toast_empty_name">名前を入力してください</string>
     <string name="toast_duplicate_field">そのフィールド名はすでに使用されています</string>
     <!--Plurals-->
-    <plurals name="model_browser_types_available">
-        <item quantity="other">%d種類のノートタイプ</item>
-    </plurals>
     <plurals name="model_browser_of_type">
         <item quantity="other">%d枚のノート</item>
     </plurals>

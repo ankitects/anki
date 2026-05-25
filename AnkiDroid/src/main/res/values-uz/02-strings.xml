@@ -200,7 +200,6 @@
     <string name="remove_background_image">Rostan ham orqa fonni oʻchirmoqchimisiz?</string>
     <!-- Card Template Browser Appearance -->
     <string name="restore_default" maxLength="28">Birlamchiga qaytarish</string>
-    <string name="reviewer_tts_cloze_spoken_replacement">Boʻshliq</string>
     <!-- Whiteboard eraser mode toggle message in Reviewer -->
     <string name="white_board_eraser_enabled">Oʻchirgʻich rejimi yoqildi</string>
     <string name="white_board_eraser_disabled">Oʻchirgʻich rejimi oʻchirildi</string>

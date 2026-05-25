@@ -118,7 +118,6 @@
     <string name="tts_summ">ᱟᱱᱡᱚᱢ ᱨᱮᱫ ᱵᱟᱝ ᱛᱟᱦᱮᱱ ᱠᱷᱟᱱ ᱠᱩᱠᱞᱤ ᱟᱨ ᱛᱮᱞᱟ ᱡᱩᱨ ᱛᱮ ᱯᱟᱲᱦᱟᱣᱢᱮ</string>
     <!-- Sync -->
     <string name="sync_fetch_missing_media" maxLength="41">ᱟᱹᱭ-ᱢᱤ. ᱡᱷᱚᱜ ᱢᱮᱰ. ᱟᱹᱜᱩᱭᱼᱟ</string>
-    <string name="sync_account" maxLength="41">AnkiWeb ᱠᱷᱟᱛᱟ</string>
     <string name="sync_account_summ_logged_out">ᱵᱟᱝ ᱵᱚᱞᱚᱣᱟᱠ</string>
     <string name="automatic_sync_choice" maxLength="41">ᱟᱡ ᱛᱮᱜᱮ ᱟᱹᱭᱩᱨ ᱢᱤᱫ</string>
     <string name="automatic_sync_choice_summ">ᱟᱭᱩᱨ ᱢᱤᱫ ᱢᱮ ᱡᱚᱫᱤ ᱑᱐ ᱴᱤᱡ ᱠᱷᱚᱱ ᱡᱟᱹᱥᱛᱤ ᱥᱚᱢᱚᱭ ᱤᱫᱤᱮᱫ ᱠᱷᱟᱱ ᱮᱯ ᱮᱛᱚᱦᱚ ᱟᱨ ᱵᱚᱸᱫ ᱢᱟᱲᱟᱝ ᱨᱮ</string>

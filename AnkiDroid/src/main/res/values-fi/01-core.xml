@@ -87,7 +87,6 @@
     <string name="menu_add_note" maxLength="28">Lisää merkintä</string>
     <string name="menu_my_account" comment="Label of the window in which the user should enter their account. This text can\'t be found in AnkiDroid directly.">Synkronoi tili</string>
     <string name="menu_dismiss_note" maxLength="41">Piilota / Poista</string>
-    <string name="menu_delete_note" maxLength="28">Poista merkintä</string>
     <string name="rename_flag">Nimeä liput uudelleen</string>
     <string name="menu_flag_card" maxLength="28">Lisää lippu</string>
     <string name="menu_edit_tags" maxLength="28">Muokkaa tageja</string>
@@ -126,7 +125,6 @@
     <string name="export_collection">Vie kokoelma</string>
     <!-- Card template editor -->
     <string name="title_activity_template_editor">Korttityyppi</string>
-    <string name="card_template_editor_menu_card_browser_appearance" maxLength="28">Kortti Selaimen ulkonäkö</string>
     <string name="card_template_editor_deck_override" maxLength="28">Pakan Ohitus</string>
     <string name="card_template_editor_insert_field" maxLength="28">Lisää kenttä</string>
     <string name="card_template_editor_select_field">Valitse kenttä</string>
@@ -141,9 +139,6 @@
     </plurals>
     <string name="card_template_editor_save_error">Korttimallin muutoksia ei voitu tallentaa: %s</string>
     <string name="template_for_current_card_deleted">Tämän kortin korttityyppi poistettiin.</string>
-    <!-- Card Browser Appearance -->
-    <string name="card_template_browser_appearance_title">Selaimen ulkoasu</string>
-    <!-- card Info -->
     <!-- Permissions -->
     <string name="read_write_permission_label">Lue ja kirjoita AnkiDroidi-tietokantaan</string>
     <string name="read_write_permission_description">lupa päästä olemassaoleviin merkintöihin, kortteihin, merkintätyyppeihin ja pakkoihin, sekä luoda uusia</string>

@@ -35,10 +35,6 @@
     <string name="toast_empty_name">ଆପଣ ଗୋଟିଏ ନାମ ପ୍ରବେଶ କରିବା ଜରୁରୀ</string>
     <string name="toast_duplicate_field">କ୍ଷେତ୍ର ନାଁଟି ଆଗରୁ ଵ୍ୟଵହାର ହୋଇଛି</string>
     <!--Plurals-->
-    <plurals name="model_browser_types_available">
-        <item quantity="one">%dଟିଏ ନୋଟ୍ ପ୍ରକାର ଉପଲବ୍ଧ</item>
-        <item quantity="other">%dଟି ନୋଟ୍ ପ୍ରକାର ଉପଲବ୍ଧ</item>
-    </plurals>
     <plurals name="model_browser_of_type">
         <item quantity="one">%dଟିଏ ନୋଟ୍‌</item>
         <item quantity="other">%dଟି ନୋଟ୍‌</item>

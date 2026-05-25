@@ -35,10 +35,6 @@
     <string name="toast_empty_name">Դուք պետք է մուտքագրեք անվանում</string>
     <string name="toast_duplicate_field">Դաշտի անունը արդեն օգտագործվել է</string>
     <!--Plurals-->
-    <plurals name="model_browser_types_available">
-        <item quantity="one">%d տեսակ է հասանելի</item>
-        <item quantity="other">%d տեսակ է հասանելի</item>
-    </plurals>
     <plurals name="model_browser_of_type">
         <item quantity="one">%d գրառում</item>
         <item quantity="other">%d գրառում</item>

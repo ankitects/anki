@@ -87,7 +87,6 @@
     <string name="menu_add_note" maxLength="28">নোট যোগ করুন</string>
     <string name="menu_my_account" comment="Label of the window in which the user should enter their account. This text can\'t be found in AnkiDroid directly.">হিসাব সিঙ্ক করুন</string>
     <string name="menu_dismiss_note" maxLength="41">গোপন / মুছে ফেলুন</string>
-    <string name="menu_delete_note" maxLength="28">নোট মুছে ফেলুন</string>
     <string name="rename_flag">পতাকার নাম পরিবর্তন করুন</string>
     <string name="menu_flag_card" maxLength="28">ফ্ল্যাগ কার্ড</string>
     <string name="menu_edit_tags" maxLength="28">এডিট ফ্ল্যাগ</string>
@@ -126,7 +125,6 @@
     <string name="export_collection">রপ্তানি সংগ্রহ</string>
     <!-- Card template editor -->
     <string name="title_activity_template_editor">কার্ডের ধরন</string>
-    <string name="card_template_editor_menu_card_browser_appearance" maxLength="28">কার্ড ব্রাউজারের চেহারা</string>
     <string name="card_template_editor_deck_override" maxLength="28">ডেকের অগ্রাহ্য</string>
     <string name="card_template_editor_insert_field" maxLength="28">ফিল্ড যোগ-করুন</string>
     <string name="card_template_editor_select_field">ফিল্ভ বেছে নিন</string>
@@ -141,9 +139,6 @@
     </plurals>
     <string name="card_template_editor_save_error">কার্ড-টেমপ্লেট এর পরিবর্তন সংরক্ষণ করা সম্ভব হচ্ছেনা: %s</string>
     <string name="template_for_current_card_deleted">এই কার্ড সংশ্লিষ্ট কার্ড-টেমপ্লেট মুছে ফেলা হয়েছে।</string>
-    <!-- Card Browser Appearance -->
-    <string name="card_template_browser_appearance_title">ব্রাউজারের চেহারা</string>
-    <!-- card Info -->
     <!-- Permissions -->
     <string name="read_write_permission_label">AnkiDroid ডাটাবেস থেকে পড়ুন এবং লিখুন</string>
     <string name="read_write_permission_description">বিদ্যমান নোট, কার্ড, নোটের ধরন এবং ডেক এ প্রবেশের পাশাপাশি নতুন একটি তৈরি করুন</string>

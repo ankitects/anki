@@ -87,7 +87,6 @@
     <string name="menu_add_note" maxLength="28">Προσθήκη σημείωσης</string>
     <string name="menu_my_account" comment="Label of the window in which the user should enter their account. This text can\'t be found in AnkiDroid directly.">Συγχρονισμός λογαριασμού</string>
     <string name="menu_dismiss_note" maxLength="41">Απόκρυψη / διαγραφή</string>
-    <string name="menu_delete_note" maxLength="28">Διαγραφή Σημείωσης</string>
     <string name="rename_flag">Μετονομασία σημαιών</string>
     <string name="menu_flag_card" maxLength="28">Σήμανση κάρτας</string>
     <string name="menu_edit_tags" maxLength="28">Επεξεργασία ετικετών</string>
@@ -126,7 +125,6 @@
     <string name="export_collection">Εξαγωγή συλλογής</string>
     <!-- Card template editor -->
     <string name="title_activity_template_editor">Τύποι κάρτας</string>
-    <string name="card_template_editor_menu_card_browser_appearance" maxLength="28">Εμφάνιση Περιηγητή Κάρτας</string>
     <string name="card_template_editor_deck_override" maxLength="28">Παράκαμψη τράπουλας</string>
     <string name="card_template_editor_insert_field" maxLength="28">Εισάγετε πεδίο</string>
     <string name="card_template_editor_select_field">Επιλέξτε πεδίο</string>
@@ -141,9 +139,6 @@
     </plurals>
     <string name="card_template_editor_save_error">Δεν είναι δυνατή η αποθήκευση αλλαγών προτύπου κάρτας: %s</string>
     <string name="template_for_current_card_deleted">Ο τύπος κάρτας για την τρέχουσα κάρτα έχει διαγραφεί.</string>
-    <!-- Card Browser Appearance -->
-    <string name="card_template_browser_appearance_title">Εμφάνιση περιηγητή</string>
-    <!-- card Info -->
     <!-- Permissions -->
     <string name="read_write_permission_label">Ανάγνωση και εγγραφή στη βάση δεδομένων του AnkiDroid</string>
     <string name="read_write_permission_description">πρόσβαση σε υπάρχουσες σημειώσεις, κάρτες, τύπους σημειώσεων και τράπουλες, καθώς και δημιουργία νέων</string>

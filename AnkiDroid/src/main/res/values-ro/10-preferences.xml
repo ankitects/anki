@@ -119,7 +119,6 @@
     <string name="tts_summ">Reads out question and answer if no sound file is included</string>
     <!-- Sync -->
     <string name="sync_fetch_missing_media" maxLength="41">Fetch media on sync</string>
-    <string name="sync_account" maxLength="41">AnkiWeb account</string>
     <string name="sync_account_summ_logged_out">Not logged in</string>
     <string name="automatic_sync_choice" maxLength="41">Automatic synchronization</string>
     <string name="automatic_sync_choice_summ">Sync automatically on app start/exit if the last sync was more than 10

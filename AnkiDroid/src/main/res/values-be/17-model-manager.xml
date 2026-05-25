@@ -35,12 +35,6 @@
     <string name="toast_empty_name">Вы павінны ўвесці назву поля</string>
     <string name="toast_duplicate_field">Такая назва поля ўжо існуе</string>
     <!--Plurals-->
-    <plurals name="model_browser_types_available">
-        <item quantity="one">Даступны %d тып нататкі</item>
-        <item quantity="few">Даступны %d тыпы нататак</item>
-        <item quantity="many">Даступны %d тыпаў нататак</item>
-        <item quantity="other">Даступны %d тыпаў нататак</item>
-    </plurals>
     <plurals name="model_browser_of_type">
         <item quantity="one">%d нататка</item>
         <item quantity="few">%d нататкі</item>

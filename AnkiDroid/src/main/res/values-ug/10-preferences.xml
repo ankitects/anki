@@ -118,7 +118,6 @@
     <string name="tts_summ">ئەگەر ئاۋاز ھۆججىتى بولمىسا سوئال ۋە جاۋابنى ئۈنلۈك ئوقۇيدۇ</string>
     <!-- Sync -->
     <string name="sync_fetch_missing_media" maxLength="41">قەدەمداشلىغاندا ۋاسىتىگە ئېرىشىدۇ</string>
-    <string name="sync_account" maxLength="41">AnkiWeb ھېساباتى</string>
     <string name="sync_account_summ_logged_out">تىزىملىنىپ كىرمىگەن</string>
     <string name="automatic_sync_choice" maxLength="41">ئۆزلۈكىدىن قەدەمداش</string>
     <string name="automatic_sync_choice_summ">ئەگەر ئاخىرقى قەدەمداشلىغان ۋاقىت 10 مىنۇتتىن ئاشقان بولسا ئەپ قوزغالغان/چېكىنگەندە ئۆزلۈكىدىن قەدەمداشلايدۇ.

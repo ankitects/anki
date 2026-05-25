@@ -200,7 +200,6 @@
     <string name="remove_background_image">Are you sure you wish to remove the background?</string>
     <!-- Card Template Browser Appearance -->
     <string name="restore_default" maxLength="28">Restore default</string>
-    <string name="reviewer_tts_cloze_spoken_replacement">Tom</string>
     <!-- Whiteboard eraser mode toggle message in Reviewer -->
     <string name="white_board_eraser_enabled">Eraser mode activated</string>
     <string name="white_board_eraser_disabled">Eraser mode deactivated</string>

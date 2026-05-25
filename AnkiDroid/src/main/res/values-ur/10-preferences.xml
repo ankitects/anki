@@ -118,7 +118,6 @@
     <string name="tts_summ">اگر کوئی آواز فائل شامل نہیں ہے تو سوال و جواب پڑھتا ہے</string>
     <!-- Sync -->
     <string name="sync_fetch_missing_media" maxLength="41">مطابقت پذیری پر میڈیا بازیافت کریں</string>
-    <string name="sync_account" maxLength="41">انکی ویب اکاؤنٹ</string>
     <string name="sync_account_summ_logged_out">لاگ ان نہیں ہے</string>
     <string name="automatic_sync_choice" maxLength="41">خودکار مطابقت پذیری</string>
     <string name="automatic_sync_choice_summ">اگر آخری مطابقت پذیری 10 سے زیادہ تھی تو ایپ اسٹارٹ/ایگزٹ پر خود بخود مطابقت پذیری کریں

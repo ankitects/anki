@@ -35,10 +35,6 @@
     <string name="toast_empty_name">Sie müssen einen Namen eingeben</string>
     <string name="toast_duplicate_field">Feldname bereits verwendet</string>
     <!--Plurals-->
-    <plurals name="model_browser_types_available">
-        <item quantity="one">%d Notiztyp verfügbar</item>
-        <item quantity="other">%d Notiztypen verfügbar</item>
-    </plurals>
     <plurals name="model_browser_of_type">
         <item quantity="one">%d Notiz</item>
         <item quantity="other">%d Notizen</item>
@@ -60,8 +56,8 @@
     <string name="model_field_editor_changing">Felder werden aktualisiert</string>
     <string name="model_field_editor_sort_field">Nach diesem Feld sortieren</string>
     <!-- Card type -->
-    <string name="delete_card_type" maxLength="28">Delete card type</string>
-    <string name="add_card_type" maxLength="28">Add card type</string>
+    <string name="delete_card_type" maxLength="28">Kartentyp löschen</string>
+    <string name="add_card_type" maxLength="28">Kartentyp hinzufügen</string>
     <!--Warnings-->
     <string name="model_delete_warning">Möchten Sie diesen Notiztyp wirklich löschen?</string>
     <!--
@@ -77,8 +73,8 @@
     <string name="model_browser_add_clone">Klonen: %1$s</string>
     <!--Browser Appearance-->
     <string name="card_template_browser_appearance_summary">Geben Sie die Vorlage ein, die die Kartenübersicht zum Anzeigen Ihrer Karten verwendet, um eine kürzere Antwort anzuzeigen.\n\nEine Vorderseitenvorlage von\n»Die Hauptstadt von {{Country}} ist:«\nkönnte in der Kartenübersicht komprimiert werden zu\n»Hauptstadt: {{Country}}«</string>
-    <string name="card_template_browser_appearance_question_format">Question format</string>
-    <string name="card_template_browser_appearance_answer_format">Answer format</string>
+    <string name="card_template_browser_appearance_question_format">Fragenformat</string>
+    <string name="card_template_browser_appearance_answer_format">Antwortformat</string>
     <string name="card_template_browser_appearance_restore_default_dialog">Are you sure you want to restore the browser appearance to default?</string>
     <string name="card_template_browser_appearance_saving_note">Diese Änderungen werden beim Speichern der Kartenvorlage angewendet</string>
     <!-- Deck Override -->

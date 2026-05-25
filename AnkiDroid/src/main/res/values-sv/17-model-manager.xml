@@ -35,10 +35,6 @@
     <string name="toast_empty_name">Du måste ange ett namn</string>
     <string name="toast_duplicate_field">Fältnamnet används redan</string>
     <!--Plurals-->
-    <plurals name="model_browser_types_available">
-        <item quantity="one">%d nottyp tillgänglig</item>
-        <item quantity="other">%d nottyper tillgängliga</item>
-    </plurals>
     <plurals name="model_browser_of_type">
         <item quantity="one">%d not</item>
         <item quantity="other">%d noter</item>

@@ -87,7 +87,6 @@
     <string name="menu_add_note" maxLength="28">Adicionar nota</string>
     <string name="menu_my_account" comment="Label of the window in which the user should enter their account. This text can\'t be found in AnkiDroid directly.">Sincronizar conta</string>
     <string name="menu_dismiss_note" maxLength="41">Ocultar / excluir</string>
-    <string name="menu_delete_note" maxLength="28">Excluir nota</string>
     <string name="rename_flag">Renomear bandeiras</string>
     <string name="menu_flag_card" maxLength="28">Sinalizar cartão</string>
     <string name="menu_edit_tags" maxLength="28">Editar etiquetas</string>
@@ -126,7 +125,6 @@
     <string name="export_collection">Exportar coleção</string>
     <!-- Card template editor -->
     <string name="title_activity_template_editor">Tipos de cartões</string>
-    <string name="card_template_editor_menu_card_browser_appearance" maxLength="28">Aparência do navegador de cartões</string>
     <string name="card_template_editor_deck_override" maxLength="28">Substituição de baralho</string>
     <string name="card_template_editor_insert_field" maxLength="28">Inserir campo</string>
     <string name="card_template_editor_select_field">Selecionar campo</string>
@@ -141,9 +139,6 @@
     </plurals>
     <string name="card_template_editor_save_error">Não foi possível salvar as alterações do modelo do cartão: %s</string>
     <string name="template_for_current_card_deleted">O tipo de cartão para o cartão atual foi excluído.</string>
-    <!-- Card Browser Appearance -->
-    <string name="card_template_browser_appearance_title">Aparência do navegador</string>
-    <!-- card Info -->
     <!-- Permissions -->
     <string name="read_write_permission_label">Ler e escrever para o banco de dados do AnkiDroid</string>
     <string name="read_write_permission_description">acessar notas, cartões, tipos de notas e baralhos existentes, bem como criar novos</string>

@@ -35,10 +35,6 @@
     <string name="toast_empty_name">Πρέπει να εισαγάγετε ένα όνομα</string>
     <string name="toast_duplicate_field">Το όνομα του πεδίου χρησιμοποιείται ήδη</string>
     <!--Plurals-->
-    <plurals name="model_browser_types_available">
-        <item quantity="one">%d τύπος σημείωσης διαθέσιμος</item>
-        <item quantity="other">%d τύποι σημειώσεων διαθέσιμοι</item>
-    </plurals>
     <plurals name="model_browser_of_type">
         <item quantity="one">%d σημείωση</item>
         <item quantity="other">%d σημειώσεις</item>

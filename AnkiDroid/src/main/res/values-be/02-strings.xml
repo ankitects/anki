@@ -204,7 +204,6 @@
     <string name="remove_background_image">Вы сапраўды хочаце выдаліць фон?</string>
     <!-- Card Template Browser Appearance -->
     <string name="restore_default" maxLength="28">Аднавіць да прадвызначаных</string>
-    <string name="reviewer_tts_cloze_spoken_replacement">Пуста</string>
     <!-- Whiteboard eraser mode toggle message in Reviewer -->
     <string name="white_board_eraser_enabled">Рэжым гумкі актываваны</string>
     <string name="white_board_eraser_disabled">Рэжым гумкі дэактываваны</string>

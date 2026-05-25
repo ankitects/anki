@@ -87,7 +87,6 @@
     <string name="menu_add_note" maxLength="28">𐌼𐌴𐌻𐌴𐌹𐌽 𐌱𐌹𐌰𐌹𐌺𐌰𐌽</string>
     <string name="menu_my_account" comment="Label of the window in which the user should enter their account. This text can\'t be found in AnkiDroid directly.">𐌲𐌰𐌻𐌴𐌹𐌺 𐍂𐌰𐌷𐌽𐌴𐌹𐌽𐌰𐌹𐍃</string>
     <string name="menu_dismiss_note" maxLength="41">𐌰𐍆𐍆𐌹𐌻𐌷𐌰𐌽 / 𐌿𐍃𐌵𐌹𐍃𐍄𐌾𐌰𐌽</string>
-    <string name="menu_delete_note" maxLength="28">𐌼𐌴𐌻𐌴𐌹𐌽𐌰𐌹 𐌿𐍃𐌵𐌹𐍃𐍄𐌾𐌰𐌽</string>
     <string name="rename_flag">𐍆𐌰𐌽𐌰𐌽𐍃 𐌰𐍆𐍄𐍂𐌰𐌷𐌰𐌹𐍄𐌰𐌽</string>
     <string name="menu_flag_card" maxLength="28">𐍆𐌰𐌽𐌹𐌽𐍃 𐌺𐌰𐍂𐍄𐌰</string>
     <string name="menu_edit_tags" maxLength="28">𐍃𐍉𐌺𐌽𐌹𐍅𐌰𐌿𐍂𐌳𐌰 𐌹𐌽𐌼𐌰𐌹𐌳𐌾𐌰𐌽</string>
@@ -126,7 +125,6 @@
     <string name="export_collection">𐌿𐍄𐌱𐌰𐌹𐍂 𐌷𐌿𐌶𐌳</string>
     <!-- Card template editor -->
     <string name="title_activity_template_editor">𐌺𐌰𐍂𐍄𐌰𐌷𐌰𐌹𐌳𐌾𐌿𐍃</string>
-    <string name="card_template_editor_menu_card_browser_appearance" maxLength="28">𐍅𐌻𐌹𐍄𐍃 𐍃𐍉𐌺𐌾𐌹𐌽𐍃 𐌺𐌰𐍂𐍄𐍉</string>
     <string name="card_template_editor_deck_override" maxLength="28">𐌺𐌰𐍂𐍄𐌰𐌷𐌿𐌶𐌳 𐌿𐍆𐌰𐍂𐌼𐌴𐌻𐌾𐌰𐌽</string>
     <string name="card_template_editor_insert_field" maxLength="28">𐍅𐌰𐌹𐍂𐌸 𐌱𐌹𐌰𐌿𐌺𐌰𐌽</string>
     <string name="card_template_editor_select_field">𐍅𐌰𐌹𐍂𐌸 𐍅𐌰𐌻𐌾𐌰𐌽</string>
@@ -141,9 +139,6 @@
     </plurals>
     <string name="card_template_editor_save_error">𐌽𐌹 𐌼𐌰𐌷𐍄𐌰 𐌲𐌰𐍆𐌰𐍃𐍄𐌰𐌽 𐌹𐌽𐌼𐌰𐌹𐌳𐌴𐌹𐌽𐌹𐌽𐍃 𐌺𐌰𐍂𐍄𐌰𐍆𐌰𐌿𐍂𐌰𐌼𐌴𐌻𐌴𐌹𐌽𐌴: %s</string>
     <string name="template_for_current_card_deleted">𐌷𐌰𐌹𐌳𐌿𐍃 𐌺𐌰𐍂𐍄𐍉 𐌺𐌰𐍂𐍄𐌰𐌹 𐌰𐌽𐌳𐍅𐌰𐌹𐍂𐌸𐌰𐌹 𐌿𐍃𐌵𐌹𐍃𐍄𐌹𐌸𐍃 𐌹𐍃𐍄.</string>
-    <!-- Card Browser Appearance -->
-    <string name="card_template_browser_appearance_title">𐍅𐌻𐌹𐍄𐍃 𐌱𐍂𐌰𐍅𐍃𐌰𐌹𐍂𐍃</string>
-    <!-- card Info -->
     <!-- Permissions -->
     <string name="read_write_permission_label">𐌳𐌿 𐌰𐌽𐌺𐌴𐌹𐌳𐍂𐌰𐌿𐌳 𐌳𐌰𐍄𐌰𐌱𐌿𐍃𐌰 𐌰𐌽𐌰𐌺𐌿𐌽𐌽𐌰𐌽 𐌾𐌰𐌷 𐌼𐌴𐌻𐌾𐌰𐌽</string>
     <string name="read_write_permission_description">𐌰𐍄𐌲𐌰𐌲𐌲 𐌹𐌽 𐍅𐌹𐍃𐌰𐌽𐌳𐌴𐌹𐌽𐍃 𐌼𐌴𐌻𐌴𐌹𐌽𐌹𐌽𐍃, 𐌺𐌰𐍂𐍄𐍉𐍃, 𐌷𐌰𐌹𐌳𐌿𐌽𐍃 𐌼𐌴𐌻𐌴𐌹𐌽𐍉, 𐌾𐌰𐌷 𐌺𐌰𐍂𐍄𐌰𐌷𐌿𐌶𐌳𐌰, 𐌾𐌰𐌷 𐌽𐌹𐌿𐌾𐌰 𐍃𐌺𐌰𐍀𐌾𐌰𐌽</string>

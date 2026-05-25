@@ -118,7 +118,6 @@
     <string name="tts_summ">Liest Frage und Antwort vor, wenn keine anderen Sounds enthalten sind</string>
     <!-- Sync -->
     <string name="sync_fetch_missing_media" maxLength="41">Mediadaten synchronisieren</string>
-    <string name="sync_account" maxLength="41">AnkiWeb-Konto</string>
     <string name="sync_account_summ_logged_out">Nicht eingeloggt</string>
     <string name="automatic_sync_choice" maxLength="41">Automatische Synchronisierung</string>
     <string name="automatic_sync_choice_summ">Bei Programmstart/-ende automatisch synchronisieren, falls die letzte Synchronisation mehr als 10 Minuten zurückliegt.</string>
@@ -159,8 +158,8 @@
     <string name="show_estimates_summ">Zeigt Zeiten bis zur nächsten Wiederholung auf den Antwortschaltflächen</string>
     <string name="show_large_answer_buttons" maxLength="41">Große Antwortschaltflächen anzeigen</string>
     <string name="show_large_answer_buttons_summ">Antwort-Fläche in 2 Zeilen anzeigen</string>
-    <string name="remove_animations" maxLength="41">Remove animations</string>
-    <string name="remove_animations_summary">Also enabled if animations are removed on the system settings</string>
+    <string name="remove_animations" maxLength="41">Animationen entfernen</string>
+    <string name="remove_animations_summary">Auch Aktiviert wenn Animationen in den Systemeinstellungen entfernt wurden</string>
     <string name="show_top_bar" maxLength="41">Obere Leiste anzeigen</string>
     <string name="show_top_bar_summary">Kartenzähler, Antwort-Timer, Flagge und Markierung in der oberen Leiste anzeigen</string>
     <string name="show_progress" maxLength="41">Fällige anzeigen</string>
@@ -211,7 +210,7 @@
         Falls nicht gesetzt, wird der Standard AnkiWeb Server verwendet.
         <a href="%s">Mehr erfahren</a>
         ]]></string>
-    <string name="custom_sync_server_base_url_title" maxLength="41">Sync URL</string>
+    <string name="custom_sync_server_base_url_title" maxLength="41">Synchronisierungs URL</string>
     <string name="custom_sync_certificate_title" maxLength="41">Benutzerdefiniertes Root-Zertifikat (PEM)</string>
     <!-- Key Bindings -->
     <string name="keyboard">Tastatur</string>
@@ -373,5 +372,5 @@
     <string name="flip_and_answer" maxLength="41" comment="Configuration of the \'Answer\' commands to answer the card if on the answer side, and flip it if on the question side">Umdrehen und Antworten</string>
     <!--Keyboard shortcuts dialog-->
     <string name="open_settings" comment="Description of the shortcut that opens the app settings">Einstellungen öffnen</string>
-    <string name="related_settings_title" comment="Title of the section for related settings">Related settings</string>
+    <string name="related_settings_title" comment="Title of the section for related settings">Verwandte Einstellungen</string>
 </resources>

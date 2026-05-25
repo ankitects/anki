@@ -119,7 +119,6 @@
     <string name="tts_summ">Nolasa jautājumu un atbildi, ja nav iekļauta skaņas datne</string>
     <!-- Sync -->
     <string name="sync_fetch_missing_media" maxLength="41">Iegūt informācijas nesējus vienādošanas laikā</string>
-    <string name="sync_account" maxLength="41">AnkiWeb konts</string>
     <string name="sync_account_summ_logged_out">Nav veikta pieteikšanās</string>
     <string name="automatic_sync_choice" maxLength="41">Automātiska vienādošana</string>
     <string name="automatic_sync_choice_summ">Automātiski vienādot pēc lietotnes palaišanas vai pirms iziešanas no tās, ja pēdējā vienādošana bija

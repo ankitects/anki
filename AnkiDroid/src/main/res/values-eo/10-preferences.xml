@@ -118,7 +118,6 @@
     <string name="tts_summ">Elparoli demandon kaj respondon se neniu sonaĵo estas inkluzivita</string>
     <!-- Sync -->
     <string name="sync_fetch_missing_media" maxLength="41">Elŝuti aŭdvidaĵojn dum samtempigado</string>
-    <string name="sync_account" maxLength="41">AnkiWeb-konto</string>
     <string name="sync_account_summ_logged_out">Ne ensalutinta</string>
     <string name="automatic_sync_choice" maxLength="41">Aŭtomata samtempigo</string>
     <string name="automatic_sync_choice_summ">Aŭtomate samtempigi je aplikaĵa starto/ĉeso nur se la antaŭa samtempigo okazis antaŭ pli ol 10 minutoj.</string>

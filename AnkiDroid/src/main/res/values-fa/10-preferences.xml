@@ -118,7 +118,6 @@
     <string name="tts_summ">اگر هیچ فایل صدایی نبود پرسش و پاسخ را بخوان</string>
     <!-- Sync -->
     <string name="sync_fetch_missing_media" maxLength="41">آوردن رسانه ها در همگام سازی</string>
-    <string name="sync_account" maxLength="41">حساب کاربری آنکی وب</string>
     <string name="sync_account_summ_logged_out">هنوز وارد سایت نشده</string>
     <string name="automatic_sync_choice" maxLength="41">همگام سازی خودکار</string>
     <string name="automatic_sync_choice_summ">همگام سازی خودکار موقع ورود و خروج از برنامه اگر از آخرین همگام سازی بیشتر از 10 دقیقه گذشته باشد.</string>

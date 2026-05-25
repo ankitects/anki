@@ -35,10 +35,6 @@
     <string name="toast_empty_name">आपको एक नाम दर्ज करना होगा</string>
     <string name="toast_duplicate_field">फ़ील्ड का नाम पहले से उपयोग में है</string>
     <!--Plurals-->
-    <plurals name="model_browser_types_available">
-        <item quantity="one">%d नोट प्रकार उपलब्ध</item>
-        <item quantity="other">%d नोट प्रकार उपलब्ध</item>
-    </plurals>
     <plurals name="model_browser_of_type">
         <item quantity="one">%d नोट</item>
         <item quantity="other">%d नोट</item>

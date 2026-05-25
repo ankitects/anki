@@ -35,10 +35,6 @@
     <string name="toast_empty_name">Nom kiritishingiz kerak</string>
     <string name="toast_duplicate_field">Maydon nomi allaqachon ishlatilgan</string>
     <!--Plurals-->
-    <plurals name="model_browser_types_available">
-        <item quantity="one">%d ta qayd turi mavjud</item>
-        <item quantity="other">%d ta qayd turi mavjud</item>
-    </plurals>
     <plurals name="model_browser_of_type">
         <item quantity="one">%d ta qayd</item>
         <item quantity="other">%d ta qayd</item>

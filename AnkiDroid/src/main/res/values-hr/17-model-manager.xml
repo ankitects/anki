@@ -35,11 +35,6 @@
     <string name="toast_empty_name">Morate navesti naziv</string>
     <string name="toast_duplicate_field">Naziv polja već se koristi</string>
     <!--Plurals-->
-    <plurals name="model_browser_types_available">
-        <item quantity="one">%d tip bilješki dostupan</item>
-        <item quantity="few">%d tipa bilješki dostupna</item>
-        <item quantity="other">%d tipova bilješki dostupno</item>
-    </plurals>
     <plurals name="model_browser_of_type">
         <item quantity="one">%d bilješka</item>
         <item quantity="few">%d bilješke</item>

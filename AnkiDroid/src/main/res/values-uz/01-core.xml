@@ -87,7 +87,6 @@
     <string name="menu_add_note" maxLength="28">Qayd qoʻshish</string>
     <string name="menu_my_account" comment="Label of the window in which the user should enter their account. This text can\'t be found in AnkiDroid directly.">Akkauntni sinxronlash</string>
     <string name="menu_dismiss_note" maxLength="41">Yashirish / Oʻchirish</string>
-    <string name="menu_delete_note" maxLength="28">Qaydni oʻchirish</string>
     <string name="rename_flag">Bayroqlar nomini oʻzgartirish</string>
     <string name="menu_flag_card" maxLength="28">Kartaga bayroq qoʻyish</string>
     <string name="menu_edit_tags" maxLength="28">Teglarni tahrirlash</string>
@@ -126,7 +125,6 @@
     <string name="export_collection">Kolleksiyani eksport qilish</string>
     <!-- Card template editor -->
     <string name="title_activity_template_editor">Karta turlari</string>
-    <string name="card_template_editor_menu_card_browser_appearance" maxLength="28">Karta brauzeri koʻrinishi</string>
     <string name="card_template_editor_deck_override" maxLength="28">Dastani oʻzgartirish</string>
     <string name="card_template_editor_insert_field" maxLength="28">Maydon qoʻshish</string>
     <string name="card_template_editor_select_field">Maydonni tanlash</string>
@@ -141,9 +139,6 @@
     </plurals>
     <string name="card_template_editor_save_error">Karta shablon oʻzgarishlarini saqlab boʻlmadi: %s</string>
     <string name="template_for_current_card_deleted">Joriy kartaning karta turi oʻchirilgan.</string>
-    <!-- Card Browser Appearance -->
-    <string name="card_template_browser_appearance_title">Karta brauzeri koʻrinishi</string>
-    <!-- card Info -->
     <!-- Permissions -->
     <string name="read_write_permission_label">AnkiDroid maʼlumotlar bazasidan oʼqish va yozish</string>
     <string name="read_write_permission_description">mavjud qaydlarga, kartalarga, qayd turlariga va dastalarga, shuningdek, yangilarini yaratishga ruxsat</string>

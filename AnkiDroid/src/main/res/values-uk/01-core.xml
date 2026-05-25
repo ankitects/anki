@@ -93,7 +93,6 @@
     <string name="menu_add_note" maxLength="28">Додати запис</string>
     <string name="menu_my_account" comment="Label of the window in which the user should enter their account. This text can\'t be found in AnkiDroid directly.">Синхронізувати обліковий запис</string>
     <string name="menu_dismiss_note" maxLength="41">Сховати / видалити</string>
-    <string name="menu_delete_note" maxLength="28">Видалити запис</string>
     <string name="rename_flag">Перейменувати прапорці</string>
     <string name="menu_flag_card" maxLength="28">Додати прапорець</string>
     <string name="menu_edit_tags" maxLength="28">Редагувати теги</string>
@@ -132,7 +131,6 @@
     <string name="export_collection">Експортувати колекцію</string>
     <!-- Card template editor -->
     <string name="title_activity_template_editor">Типи карток</string>
-    <string name="card_template_editor_menu_card_browser_appearance" maxLength="28">Вигляд переглядача карток</string>
     <string name="card_template_editor_deck_override" maxLength="28">Перевизначення колоди</string>
     <string name="card_template_editor_insert_field" maxLength="28">Вставити поле</string>
     <string name="card_template_editor_select_field">Виберіть поле</string>
@@ -151,9 +149,6 @@
     </plurals>
     <string name="card_template_editor_save_error">Не вдалося зберегти зміни шаблону картки: %s</string>
     <string name="template_for_current_card_deleted">Тип картки для поточної картки було видалено.</string>
-    <!-- Card Browser Appearance -->
-    <string name="card_template_browser_appearance_title">Зовнішній вигляд переглядача</string>
-    <!-- card Info -->
     <!-- Permissions -->
     <string name="read_write_permission_label">Читати й записувати в базу даних AnkiDroid</string>
     <string name="read_write_permission_description">доступ до наявних карток, колод, записів та їх типів, а також створення нових</string>

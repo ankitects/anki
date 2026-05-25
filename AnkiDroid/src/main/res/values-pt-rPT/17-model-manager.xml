@@ -35,10 +35,6 @@
     <string name="toast_empty_name">Tem de digitar um nome</string>
     <string name="toast_duplicate_field">Nome de campo já utilizado</string>
     <!--Plurals-->
-    <plurals name="model_browser_types_available">
-        <item quantity="one">%d tipo de nota disponível</item>
-        <item quantity="other">%d tipos de nota disponíveis</item>
-    </plurals>
     <plurals name="model_browser_of_type">
         <item quantity="one">%d nota</item>
         <item quantity="other">%d notas</item>

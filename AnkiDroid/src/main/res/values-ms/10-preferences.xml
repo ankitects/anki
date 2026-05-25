@@ -117,7 +117,6 @@
     <string name="tts_summ">Bacakan soalan dan jawapan jika tiada fail suara disediakan</string>
     <!-- Sync -->
     <string name="sync_fetch_missing_media" maxLength="41">Peroleh media bila segerak</string>
-    <string name="sync_account" maxLength="41">Akaun AnkiWeb</string>
     <string name="sync_account_summ_logged_out">Belum log masuk</string>
     <string name="automatic_sync_choice" maxLength="41">Penyegerakan automatik</string>
     <string name="automatic_sync_choice_summ">Segerak automatik bila aplikasi mula/keluar jika penyegerakan terakhir lebih dari 10

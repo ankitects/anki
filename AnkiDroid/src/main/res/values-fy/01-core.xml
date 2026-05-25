@@ -87,7 +87,6 @@
     <string name="menu_add_note" maxLength="28">Memo tafoegje</string>
     <string name="menu_my_account" comment="Label of the window in which the user should enter their account. This text can\'t be found in AnkiDroid directly.">Sync account</string>
     <string name="menu_dismiss_note" maxLength="41">Ferbergje / Fuortsmite</string>
-    <string name="menu_delete_note" maxLength="28">Memo fuortsmite</string>
     <string name="rename_flag">Rename flags</string>
     <string name="menu_flag_card" maxLength="28">Flag card</string>
     <string name="menu_edit_tags" maxLength="28">Edit tags</string>
@@ -126,7 +125,6 @@
     <string name="export_collection">Export collection</string>
     <!-- Card template editor -->
     <string name="title_activity_template_editor">Card types</string>
-    <string name="card_template_editor_menu_card_browser_appearance" maxLength="28">Card Browser Appearance</string>
     <string name="card_template_editor_deck_override" maxLength="28">Deck override</string>
     <string name="card_template_editor_insert_field" maxLength="28">Insert field</string>
     <string name="card_template_editor_select_field">Select field</string>
@@ -141,9 +139,6 @@
     </plurals>
     <string name="card_template_editor_save_error">Unable to save card template changes: %s</string>
     <string name="template_for_current_card_deleted">The card type for the current card was deleted.</string>
-    <!-- Card Browser Appearance -->
-    <string name="card_template_browser_appearance_title">Browser appearance</string>
-    <!-- card Info -->
     <!-- Permissions -->
     <string name="read_write_permission_label">Read and write to the AnkiDroid database</string>
     <string name="read_write_permission_description">access existing notes, cards, note types, and decks, as well as create new ones</string>

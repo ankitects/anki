@@ -35,11 +35,6 @@
     <string name="toast_empty_name">Морате да унесете име</string>
     <string name="toast_duplicate_field">Назив поља се већ користи</string>
     <!--Plurals-->
-    <plurals name="model_browser_types_available">
-        <item quantity="one">%d типова бележака доступно</item>
-        <item quantity="few">%d note types available</item>
-        <item quantity="other">%d типова бележака доступно</item>
-    </plurals>
     <plurals name="model_browser_of_type">
         <item quantity="one">%d белешка</item>
         <item quantity="few">%d белешке</item>

@@ -118,7 +118,6 @@
     <string name="tts_summ">ਸਵਾਲ-ਜਵਾਬ ਪੜ੍ਹਦਾ ਹੈ ਜੇਕਰ ਕੋਈ ਸਾਊਂਡ ਫਾਈਲ ਸ਼ਾਮਲ ਨਹੀਂ ਹੈ</string>
     <!-- Sync -->
     <string name="sync_fetch_missing_media" maxLength="41">ਸਮਕਾਲੀਕਰਨ \'ਤੇ ਮੀਡੀਆ ਪ੍ਰਾਪਤ ਕਰੋ</string>
-    <string name="sync_account" maxLength="41">AnkiWeb ਖਾਤਾ</string>
     <string name="sync_account_summ_logged_out">ਲੌਗ ਇਨ ਨਹੀਂ ਕੀਤਾ</string>
     <string name="automatic_sync_choice" maxLength="41">ਆਟੋਮੈਟਿਕ ਸਿੰਕ੍ਰੋਨਾਈਜ਼ੇਸ਼ਨ</string>
     <string name="automatic_sync_choice_summ">ਐਪ ਸਟਾਰਟ/ਐਗਜ਼ਿਟ \'ਤੇ ਆਪਣੇ ਆਪ ਸਿੰਕ ਕਰੋ ਜੇਕਰ ਆਖਰੀ ਸਮਕਾਲੀਕਰਨ 10 ਤੋਂ ਵੱਧ ਸੀ

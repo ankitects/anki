@@ -117,7 +117,6 @@
     <string name="tts_summ">Đọc ra câu hỏi và câu trả lời nếu không có tập tin âm thanh nào được kèm theo</string>
     <!-- Sync -->
     <string name="sync_fetch_missing_media" maxLength="41">Tìm nạp phương tiện truyền thông trên đồng bộ</string>
-    <string name="sync_account" maxLength="41">tài khoản AnkiWeb</string>
     <string name="sync_account_summ_logged_out">Chưa đăng nhập</string>
     <string name="automatic_sync_choice" maxLength="41">Đồng bộ hóa tự động</string>
     <string name="automatic_sync_choice_summ">Đồng bộ hóa tự động khi khởi động / thoát ứng dụng nếu lần đồng bộ hóa cuối cùng nhiều hơn 10         phút trước.</string>

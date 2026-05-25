@@ -118,7 +118,6 @@
     <string name="tts_summ">𐌿𐍃𐍃𐌹𐌲𐌲𐍅𐌹𐌸 𐌱𐌹𐌳𐌰 𐌾𐌰𐌷 𐌰𐌽𐌳𐌰𐌷𐌰𐍆𐍄 𐌾𐌰𐌱𐌰𐌹 𐌽𐌹 𐌷𐌰𐌱𐌰𐌹𐌸 𐌷𐌻𐌹𐌿𐌸𐌹𐍃 𐍆𐌰𐌾𐌻</string>
     <!-- Sync -->
     <string name="sync_fetch_missing_media" maxLength="41">𐌼𐌰𐌹𐌳𐌾𐌰 𐌽𐌹𐌼𐌰𐌽 𐌸𐌰𐌽𐌿𐌷 𐌲𐌰𐌲𐌰𐌻𐌴𐌹𐌺𐍉𐌸</string>
-    <string name="sync_account" maxLength="41">𐌰𐌽𐌺𐌴𐌹𐍅𐌰𐌱𐌹 𐍂𐌰𐌷𐌽𐌴𐌹𐌽𐍃</string>
     <string name="sync_account_summ_logged_out">𐌽𐌹 𐌰𐍄𐌲𐌰𐌲𐌲𐌰𐌽</string>
     <string name="automatic_sync_choice" maxLength="41">𐍃𐌹𐌻𐌱𐌰𐍄𐌰𐌿𐌾𐌰𐌽𐌳𐍉 𐌲𐌰𐌲𐌰𐌻𐌴𐌹𐌺𐍉𐌽𐍃</string>
     <string name="automatic_sync_choice_summ">Sync automatically on app start/exit if the last sync was more than 10

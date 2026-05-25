@@ -84,7 +84,6 @@
     <string name="menu_add_note" maxLength="28">Thêm ghi chú</string>
     <string name="menu_my_account" comment="Label of the window in which the user should enter their account. This text can\'t be found in AnkiDroid directly.">Tài khoản đồng bộ</string>
     <string name="menu_dismiss_note" maxLength="41">Ẩn / xoá</string>
-    <string name="menu_delete_note" maxLength="28">Xoá ghi chú</string>
     <string name="rename_flag">Đổi tên nhãn đánh dấu</string>
     <string name="menu_flag_card" maxLength="28">Gắn cờ thẻ</string>
     <string name="menu_edit_tags" maxLength="28">Sửa tag</string>
@@ -123,7 +122,6 @@
     <string name="export_collection">Xuất bộ sưu tập</string>
     <!-- Card template editor -->
     <string name="title_activity_template_editor">Các loại thẻ</string>
-    <string name="card_template_editor_menu_card_browser_appearance" maxLength="28">Giao diện Trình duyệt Thẻ</string>
     <string name="card_template_editor_deck_override" maxLength="28">Ghi đè bộ thẻ</string>
     <string name="card_template_editor_insert_field" maxLength="28">Thêm trường</string>
     <string name="card_template_editor_select_field">Chọn trường</string>
@@ -136,9 +134,6 @@
     </plurals>
     <string name="card_template_editor_save_error">Không thể lưu thay đổi mẫu thẻ: %s</string>
     <string name="template_for_current_card_deleted">Loại thẻ cho thẻ hiện tại đã bị xóa</string>
-    <!-- Card Browser Appearance -->
-    <string name="card_template_browser_appearance_title">Giao diện trình duyệt</string>
-    <!-- card Info -->
     <!-- Permissions -->
     <string name="read_write_permission_label">Đọc và ghi vào cơ sở dữ liệu AnkiDroid</string>
     <string name="read_write_permission_description">truy cập các ghi chú, thẻ, loại ghi chú và các bộ thẻ hiện có, cũng như tạo mới chúng</string>

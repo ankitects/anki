@@ -118,7 +118,6 @@
     <string name="tts_summ">ശബ്‌ദ ഫയലുകളൊന്നും ഉൾപ്പെടുത്തിയിട്ടില്ലെങ്കിൽ ചോദ്യോത്തരങ്ങൾ വായിക്കുന്നു</string>
     <!-- Sync -->
     <string name="sync_fetch_missing_media" maxLength="41">സമന്വയത്തിൽ മീഡിയ ലഭ്യമാക്കുക</string>
-    <string name="sync_account" maxLength="41">AnkiWeb അക്കൗണ്ട്</string>
     <string name="sync_account_summ_logged_out">ലോഗിൻ ചെയ്തിട്ടില്ല</string>
     <string name="automatic_sync_choice" maxLength="41">യാന്ത്രിക സമന്വയം</string>
     <string name="automatic_sync_choice_summ">അവസാന സമന്വയം 10 ​​ൽ കൂടുതലാണെങ്കിൽ അപ്ലിക്കേഷൻ ആരംഭത്തിൽ / പുറത്തുകടക്കുമ്പോൾ യാന്ത്രികമായി സമന്വയിപ്പിക്കുക</string>

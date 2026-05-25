@@ -43,7 +43,7 @@
     <string name="CardEditorModel">Typ:</string>
     <string name="CardEditorTags">Schlagwörter: %1$s</string>
     <string name="CardEditorCards">Karten: %1$s</string>
-    <string name="edit_occlusions">Edit occlusions</string>
+    <string name="edit_occlusions">Okklusionen bearbeiten</string>
     <string name="paste_from_clipboard" maxLength="28">Aus Zwischenablage einfügen</string>
     <string name="add_new_filter_tags">Schlagwörter hinzufügen/filtern</string>
     <string name="add_tag" maxLength="28">Schlagwort hinzufügen</string>
@@ -89,8 +89,8 @@
     <string name="filter_by_flags" maxLength="41">Fahnen</string>
     <!-- filtered deck options -->
     <string name="filtered_option_delay_again">Delay for again</string>
-    <string name="filtered_option_delay_hard">Delay for hard</string>
-    <string name="filtered_option_delay_good">Delay for good</string>
+    <string name="filtered_option_delay_hard">Verzögerung für Schwer</string>
+    <string name="filtered_option_delay_good">Verzögerung für gut</string>
     <!-- Custom study options -->
     <string name="custom_study_loading_tags">Erstelle Schlagwortliste&#8230;</string>
     <!-- Study options -->
@@ -181,9 +181,9 @@
     <string name="dyn_deck_desc">Dies ist ein besonderer Stapel, um außerhalb des regulären Zeitplans zu lernen. Karten werden nach dem Wiederholen automatisch in ihren ursprünglichen Stapel zurückgelegt. Beim Löschen dieses Stapels aus der Stapelliste werden alle verbleibenden Karten in ihren ursprünglichen Stapel zurückgelegt.</string>
     <string name="tag_editor_add_feedback">Tippen Sie auf »%2$s«, um das Hinzufügen von »%1$s« zu bestätigen</string>
     <string name="tag_editor_add_feedback_existing">Existierendes Schlagwort »%1$s« ausgewählt</string>
-    <string name="tag_already_exists">Tag already exists</string>
-    <string name="error_name_exists">Name already exists</string>
-    <string name="warning_find_and_replace">Consider backing up your collection from DeckPicker before using this option!</string>
+    <string name="tag_already_exists">Tag existiert bereits</string>
+    <string name="error_name_exists">Name existiert bereits</string>
+    <string name="warning_find_and_replace">Denken Sie darüber nach ihre Sammlung über den DeckPicker zu sichern bevor Sie diese Option nutzen!</string>
     <!-- Time spans -->
     <!-- Currently only used if exporting APKG fails -->
     <string name="apk_share_error">Fehler beim Teilen der APKG-Datei</string>
@@ -197,17 +197,16 @@
     <string name="background_image_title" maxLength="41">Hintergrund</string>
     <string name="choose_an_image" maxLength="41">Bild auswählen</string>
     <string name="remove_wallpaper_image" maxLength="41">Hintergrund entfernen</string>
-    <string name="remove_background_image">Are you sure you wish to remove the background?</string>
+    <string name="remove_background_image">Sind Sie sicher dass sie den Hintergrund entfernen wollen?</string>
     <!-- Card Template Browser Appearance -->
-    <string name="restore_default" maxLength="28">Restore default</string>
-    <string name="reviewer_tts_cloze_spoken_replacement">Auslassung</string>
+    <string name="restore_default" maxLength="28">Standards wiederherstellen</string>
     <!-- Whiteboard eraser mode toggle message in Reviewer -->
     <string name="white_board_eraser_enabled">Radier-Modus aktiviert</string>
     <string name="white_board_eraser_disabled">Radier-Modus deaktiviert</string>
     <string comment="Progress amount e.g. \'28 MB/141 MB\'. %1$s is the current amount, %2$s is the max." name="progress_amount_bytes">%1$s/%2$s</string>
-    <string name="media_file_size_warning_title">Media too large</string>
-    <string name="media_file_size_warning_message" comment="1$s: File name, 2$s: File size, 3$s: The size limit (e.g. 100MB)">The file \"%1$s\" (%2$s) exceeds the AnkiWeb limit of %3$s and cannot be synced. Add anyway?</string>
-    <string name="media_file_size_add_anyway">Add anyway</string>
+    <string name="media_file_size_warning_title">Medium zu groß</string>
+    <string name="media_file_size_warning_message" comment="1$s: File name, 2$s: File size, 3$s: The size limit (e.g. 100MB)">Die Datei \"%1$s\" (%2$s) überschreitet das Limit von %3$s für AnkiWeb und kann nicht synchronisiert werden. Trotzdem hinzufügen?</string>
+    <string name="media_file_size_add_anyway">Trotzdem hinzufügen?</string>
     <!-- Whiteboard save image message in the Study Screen -->
     <string name="white_board_image_save_failed">Whiteboardbild konnte nicht gespeichert werden. %s</string>
     <string name="white_board_image_saved">Whiteboardbild in %s gespeichert</string>
@@ -233,33 +232,33 @@
     <!-- A Menu item to change the Font Size (currently in the Note Editor) -->
     <string name="menu_font_size" maxLength="28">Schriftgröße</string>
     <string name="menu_show_toolbar" comment="Checkable item stating whether the note editor toolbar should be shown" maxLength="28">Werkzeug zeigen</string>
-    <string name="format_insert_bold">Format as bold</string>
-    <string name="format_insert_italic">Format as italic</string>
-    <string name="format_insert_underline">Format as underline</string>
-    <string name="insert_horizontal_line">Insert horizontal line</string>
-    <string name="insert_heading">Insert heading</string>
-    <string name="format_font_size">Change font size</string>
-    <string name="insert_mathjax">Insert MathJax equation</string>
+    <string name="format_insert_bold">Als fett formatieren</string>
+    <string name="format_insert_italic">Kursiv formatieren</string>
+    <string name="format_insert_underline">Als Unterstrichen formatieren</string>
+    <string name="insert_horizontal_line">Horizontale Linie einfügen</string>
+    <string name="insert_heading">Überschift einfügen</string>
+    <string name="format_font_size">Schriftgröße ändern</string>
+    <string name="insert_mathjax">Mathjax Formel Eingeben</string>
     <string name="note_editor_toolbar_icon">Schaltflächentext</string>
-    <string name="before_text">HTML before selection</string>
-    <string name="after_text">HTML after selection</string>
-    <string name="add_toolbar_item">Create toolbar item</string>
-    <string name="edit_toolbar_item">Edit toolbar item</string>
+    <string name="before_text">HTML vor Auswahl</string>
+    <string name="after_text">HTML nach Auswahl</string>
+    <string name="add_toolbar_item">Erstelle Werkzeugleisten Element</string>
+    <string name="edit_toolbar_item">Werkzeugleisten Element bearbeiten</string>
     <string name="toolbar_item_explain_edit_or_remove">Geben Sie den HTML-Code ein, der vor und nach dem ausgewählten Text eingefügt werden soll\n\nDrücken Sie lange auf ein Symbol in der Symbolleiste, um es zu entfernen</string>
-    <string name="remove_toolbar_item">Remove toolbar item?</string>
+    <string name="remove_toolbar_item">Werkzeugleisten Element entfernen?</string>
     <string name="note_editor_image_too_large">Das Bild ist zu groß, bitte fügen Sie das Bild manuell ein</string>
     <string name="note_editor_video_too_large">Die Videodatei ist zu groß, bitte fügen Sie das Video manuell ein</string>
     <string name="note_editor_audio_too_large">Die Audiodatei ist zu groß, bitte fügen Sie das Audio manuell ein</string>
     <string name="ankidroid_cannot_open_after_backup_try_again" comment="After an Android backup is restored, AnkiDroid opens and shows this message.         Opening AnkiDroid again will work correctly">Android-Backup im Gange. Bitte versuchen Sie es erneut</string>
     <string name="create_shortcut_error_vivo" comment="iManager is an app on Vivo phones">Bitte verwenden Sie iManager, um AnkiDroid das Hinzufügen von Verknüpfungen zu erlauben</string>
-    <string name="create_shortcut_error_miui" comment="Keep the message as short, as this is shown in a toast. %s is the app name: \'AnkiDroid\'">Allow ‘Home screen shortcuts’ in system settings for %s to add shortcuts</string>
+    <string name="create_shortcut_error_miui" comment="Keep the message as short, as this is shown in a toast. %s is the app name: \'AnkiDroid\'">Erlauben Sie \"Startbildschrim-Verknüpfungen\" in den Systemeinstellungen damit %s Verknüpfungen hinzufügen kann</string>
     <string name="create_shortcut_failed" comment="home screen == launcher">Ihr Startbildschirm erlaubt AnkiDroid nicht, Verknüpfungen hinzuzufügen</string>
     <string name="create_shortcut_error">Fehler beim Hinzufügen der Verknüpfung: %s</string>
     <string name="note_editor_capitalize" comment="This is for a switch with a checkbox - on: enabled" maxLength="28">Sätze groß schreiben</string>
     <string name="menu_scroll_toolbar" comment="Checkbox stating whether note editor toolbar is scrollable or stacked. Checked: Scroll" maxLength="28">Scroll-Werkzeugleiste</string>
     <!-- Dialog hints -->
     <string name="dialog_hint_url">URL</string>
-    <string name="dialog_hint_certificate">Certificate</string>
+    <string name="dialog_hint_certificate">Zertifikat</string>
     <!-- IncrementNumberRangePreference -->
     <string name="plus_sign" comment="Label for increment button in IncrementerNumberRangePreference">+</string>
     <string name="minus_sign" comment="Label for decrement button in IncrementerNumberRangePreference">-</string>
@@ -269,7 +268,7 @@
     <!-- Used for credential empty warning message -->
     <string name="invalid_email">Geben Sie eine gültige E-Mail ein</string>
     <string name="password_empty">Das Passwort ist erforderlich</string>
-    <string name="back_pressed_once">Go back again to exit</string>
+    <string name="back_pressed_once">Zum Beenden erneut Zurück drücken</string>
     <!-- %% is required to display % symbol. Reference: https://stackoverflow.com/a/16834358 -->
     <string name="percentage">%s%%</string>
     <string name="download_deck">Stapel herunterladen</string>
@@ -342,7 +341,7 @@
     <string name="shared_decks_login_required">Bitte melde dich an, um weitere Stapel herunterzuladen</string>
     <string name="deck_description_field_hint">Beschreibung</string>
     <string name="deck_description_saved">Beschreibung aktualisiert</string>
-    <string name="format_deck_description_as_markdown">Format as Markdown</string>
+    <string name="format_deck_description_as_markdown">Als Markdown formatieren</string>
     <string name="help_button_content_description">Hilfe für ‘%s ’ öffnen</string>
     <string name="failed_to_copy">Kopieren fehlgeschlagen</string>
     <plurals name="unbury_cards_feedback">
@@ -357,7 +356,7 @@
     <string name="play_recording">Play</string>
     <string name="next_recording" comment="Description of a button to go to the next recording">Weiter</string>
     <!--  AlertDialog in the deleteCardTemplate  -->
-    <string name="orphan_note_title">Cannot delete card type</string>
+    <string name="orphan_note_title">Kartentyp kann nicht gelöscht werden</string>
     <string name="orphan_note_message">Das Löschen dieses Kartentyps wird einige Notizen ohne Karten hinterlassen.</string>
     <string name="voice_not_supported">Stimme nicht unterstützt. Versuchen Sie eine andere oder installieren Sie eine Sprach-Engine.</string>
     <!--Keyboard shortcuts dialog-->
@@ -381,7 +380,7 @@
     <!-- Whitespace is OK -->
     <string name="list_separator" comment="The character and spacing to display between elements of a list, for example \', \' in \'Apple, Banana, Cherry" tools:ignore="TranslationTypo">, </string>
     <!--Set up date-->
-    <string name="set_due_date_day" comment="Used for setting due date">Day</string>
-    <string name="set_due_date_date_range">Date range</string>
-    <string comment="Shown when retrying a running action" name="already_in_progress">Already in progress</string>
+    <string name="set_due_date_day" comment="Used for setting due date">Tag</string>
+    <string name="set_due_date_date_range">Datumsbereich</string>
+    <string comment="Shown when retrying a running action" name="already_in_progress">Schon in Arbeit</string>
 </resources>

@@ -87,7 +87,6 @@
     <string name="menu_add_note" maxLength="28">Memo toevoegen</string>
     <string name="menu_my_account" comment="Label of the window in which the user should enter their account. This text can\'t be found in AnkiDroid directly.">Account synchroniseren</string>
     <string name="menu_dismiss_note" maxLength="41">Verbergen / Verwijderen</string>
-    <string name="menu_delete_note" maxLength="28">Notitie verwijderen</string>
     <string name="rename_flag">Vlaggen hernoemen</string>
     <string name="menu_flag_card" maxLength="28">Markeer kaart</string>
     <string name="menu_edit_tags" maxLength="28">Tags bewerken</string>
@@ -126,7 +125,6 @@
     <string name="export_collection">Verzameling exporteren</string>
     <!-- Card template editor -->
     <string name="title_activity_template_editor">Kaarttypes</string>
-    <string name="card_template_editor_menu_card_browser_appearance" maxLength="28">Kaartenverkenner Uiterlijk</string>
     <string name="card_template_editor_deck_override" maxLength="28">Set overschrijven</string>
     <string name="card_template_editor_insert_field" maxLength="28">Veld invoegen</string>
     <string name="card_template_editor_select_field">Veld selecteren</string>
@@ -141,9 +139,6 @@
     </plurals>
     <string name="card_template_editor_save_error">Kan de wijzigingen aan het kaartsjabloon niet opslaan: %s</string>
     <string name="template_for_current_card_deleted">Het kaarttype voor de huidige kaart is verwijderd.</string>
-    <!-- Card Browser Appearance -->
-    <string name="card_template_browser_appearance_title">Verkenner uiterlijk</string>
-    <!-- card Info -->
     <!-- Permissions -->
     <string name="read_write_permission_label">Lees en schrijf naar de AnkiDroid database</string>
     <string name="read_write_permission_description">toegang tot bestaande notities, kaarten, notitietypen en sets, eventueel nieuwe aanmaken</string>

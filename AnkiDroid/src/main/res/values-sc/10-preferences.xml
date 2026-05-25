@@ -118,7 +118,6 @@
     <string name="tts_summ">Leghet sa pregunta e sa risposta si non b\'est unu documentu sonoru inclùdidu</string>
     <!-- Sync -->
     <string name="sync_fetch_missing_media" maxLength="41">Recùpera sos mèdios cun sa sincronizatzione</string>
-    <string name="sync_account" maxLength="41">Contu de AnkiWeb</string>
     <string name="sync_account_summ_logged_out">Non ses intradu</string>
     <string name="automatic_sync_choice" maxLength="41">Sincronizatzione automàtica</string>
     <string name="automatic_sync_choice_summ">Sincroniza in manera automàtica a s\'allughidura/serrada de s\'aplicatzione si s\'ùrtima sincronizatzione est prus betza de 10 minutos.</string>

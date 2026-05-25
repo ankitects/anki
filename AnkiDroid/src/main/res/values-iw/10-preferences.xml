@@ -120,7 +120,6 @@
     <string name="tts_summ">מקריא את השאלה ואת התשובה אם אין קובץ קול</string>
     <!-- Sync -->
     <string name="sync_fetch_missing_media" maxLength="41">הורדת קבצי מדיה בסנכרון</string>
-    <string name="sync_account" maxLength="41">חשבון AnkiWeb</string>
     <string name="sync_account_summ_logged_out">לא התחברת לחשבון</string>
     <string name="automatic_sync_choice" maxLength="41">סנכרון אוטומטי</string>
     <string name="automatic_sync_choice_summ">סנכרון אוטומטי עם התחלה/יציאה של האפליקציה אם הסנכרון האחרון היה יותר מלפני-10

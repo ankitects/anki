@@ -87,7 +87,6 @@
     <string name="menu_add_note" maxLength="28">ନୋଟ୍ ଯୋଡ଼ିବା</string>
     <string name="menu_my_account" comment="Label of the window in which the user should enter their account. This text can\'t be found in AnkiDroid directly.">ସୀଙ୍କ୍ ଖାତା</string>
     <string name="menu_dismiss_note" maxLength="41">ଲୁଚାଇବା / ଵିଲୋପ କରିବା</string>
-    <string name="menu_delete_note" maxLength="28">ନୋଟ୍ ଵିଲୋପ କରିବା</string>
     <string name="rename_flag">ପତାକାର ନାମ ବଦଳାଇବା</string>
     <string name="menu_flag_card" maxLength="28">ପତ୍ରକୁ ଏକ ପତାକା ନ୍ୟସ୍ତ କରନ୍ତୁ</string>
     <string name="menu_edit_tags" maxLength="28">ଟ୍ୟାଗ୍ ସମ୍ପାଦନା</string>
@@ -126,7 +125,6 @@
     <string name="export_collection">ସଂଗ୍ରହ ରପ୍ତାନି କରିବା</string>
     <!-- Card template editor -->
     <string name="title_activity_template_editor">ପତ୍ର ପ୍ରକାର</string>
-    <string name="card_template_editor_menu_card_browser_appearance" maxLength="28">ପତ୍ର ବ୍ରାଉଜର୍‌ର ରୂପ</string>
     <string name="card_template_editor_deck_override" maxLength="28">କେରୀର ନବଲିଖନ</string>
     <string name="card_template_editor_insert_field" maxLength="28">କ୍ଷେତ୍ର ସନ୍ନିବେଶ କରନ୍ତୁ</string>
     <string name="card_template_editor_select_field">କ୍ଷେତ୍ର ଚୟନ କରନ୍ତୁ</string>
@@ -141,9 +139,6 @@
     </plurals>
     <string name="card_template_editor_save_error">ପତ୍ର ଟେମ୍ପଲେଟ୍ ପରିବର୍ତ୍ତନଗୁଡ଼ିକୁ ସଞ୍ଚୟ କରିବାରେ ଅସମର୍ଥ: %s</string>
     <string name="template_for_current_card_deleted">ସାମ୍ପ୍ରତିକ ପତ୍ରର ପତ୍ର ପ୍ରକାର ବିଲୋପ ହେଇଯାଇଛି।</string>
-    <!-- Card Browser Appearance -->
-    <string name="card_template_browser_appearance_title">ବ୍ରାଉଜର ରୂପ</string>
-    <!-- card Info -->
     <!-- Permissions -->
     <string name="read_write_permission_label">AnkiDroid ଡାଟାବେସ୍ କୁ ପଢ଼ିବା ଓ ଲେଖିବା</string>
     <string name="read_write_permission_description">ଵିଦ୍ୟମାନ ନୋଟ୍, ପତ୍ର, ନୋଟ୍ ପ୍ରକାର ଓ କେରୀ ଅଧ୍ୟୟନ କରିବା ଵ୍ୟତୀତ ନୂଆରେ ସୃଷ୍ଟି କରିବା</string>

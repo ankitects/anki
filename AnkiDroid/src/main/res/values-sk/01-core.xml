@@ -93,7 +93,6 @@
     <string name="menu_add_note" maxLength="28">Pridať poznámku</string>
     <string name="menu_my_account" comment="Label of the window in which the user should enter their account. This text can\'t be found in AnkiDroid directly.">Synchronizácia účtu</string>
     <string name="menu_dismiss_note" maxLength="41">Skryt / vymazať</string>
-    <string name="menu_delete_note" maxLength="28">Vymazať poznámku</string>
     <string name="rename_flag">Premenovať príznaky</string>
     <string name="menu_flag_card" maxLength="28">Červená vlajočka</string>
     <string name="menu_edit_tags" maxLength="28">Upraviť štítky</string>
@@ -132,7 +131,6 @@
     <string name="export_collection">Export collection</string>
     <!-- Card template editor -->
     <string name="title_activity_template_editor">Typy kartičiek</string>
-    <string name="card_template_editor_menu_card_browser_appearance" maxLength="28">Vzhľad prehliadača kartičiek</string>
     <string name="card_template_editor_deck_override" maxLength="28">Prepísanie balíčka</string>
     <string name="card_template_editor_insert_field" maxLength="28">Vložiť pole</string>
     <string name="card_template_editor_select_field">Vybrať pole</string>
@@ -151,9 +149,6 @@
     </plurals>
     <string name="card_template_editor_save_error">Nepodarilo sa uložiť zmeny pre šablóny kartičiek: %s</string>
     <string name="template_for_current_card_deleted">Typ kartičky pre aktuálnu kartičku bol vymazaný.</string>
-    <!-- Card Browser Appearance -->
-    <string name="card_template_browser_appearance_title">Vzhľad prehliadača</string>
-    <!-- card Info -->
     <!-- Permissions -->
     <string name="read_write_permission_label">Čítať a písať do databázy AnkiDroid</string>
     <string name="read_write_permission_description">prístup k existujúcim poznámkam, kartičkám, typom poznámok, balíčkom ako aj vytváranie nových</string>

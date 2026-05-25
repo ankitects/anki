@@ -118,7 +118,6 @@
     <string name="tts_summ">Läser upp fråga och svar om ingen ljudfil ingår</string>
     <!-- Sync -->
     <string name="sync_fetch_missing_media" maxLength="41">Hämta media vid synkronisering</string>
-    <string name="sync_account" maxLength="41">AnkiWeb-konto</string>
     <string name="sync_account_summ_logged_out">Ej inloggad</string>
     <string name="automatic_sync_choice" maxLength="41">Automatisk synkronering</string>
     <string name="automatic_sync_choice_summ">Synka automatiskt på app start/avstängning om den senaste synkningen var mer än 10        minuter sedan.</string>

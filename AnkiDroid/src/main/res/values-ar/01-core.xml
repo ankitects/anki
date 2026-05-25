@@ -99,7 +99,6 @@
     <string name="menu_add_note" maxLength="28">إضافة ملحوظة</string>
     <string name="menu_my_account" comment="Label of the window in which the user should enter their account. This text can\'t be found in AnkiDroid directly.">مزامنة الحساب</string>
     <string name="menu_dismiss_note" maxLength="41">إخفاء / حذف</string>
-    <string name="menu_delete_note" maxLength="28">حذف الملحوظة</string>
     <string name="rename_flag">تغيير أسماء الأعلام</string>
     <string name="menu_flag_card" maxLength="28">أضف عَلَمًا للبطاقة</string>
     <string name="menu_edit_tags" maxLength="28">تعديل الوسوم</string>
@@ -138,7 +137,6 @@
     <string name="export_collection">صدِّر المجموعة</string>
     <!-- Card template editor -->
     <string name="title_activity_template_editor">أنواع البطاقات</string>
-    <string name="card_template_editor_menu_card_browser_appearance" maxLength="28">مظهر متصفح البطاقات</string>
     <string name="card_template_editor_deck_override" maxLength="28">الرزمة المهيمنة</string>
     <string name="card_template_editor_insert_field" maxLength="28">إدراج حقل</string>
     <string name="card_template_editor_select_field">تحديد حقل</string>
@@ -161,9 +159,6 @@
     </plurals>
     <string name="card_template_editor_save_error">يتعذر حفظ تغييرات قالب البطاقة: %s</string>
     <string name="template_for_current_card_deleted">تم حذف نوع البطاقة للبطاقة الحالية.</string>
-    <!-- Card Browser Appearance -->
-    <string name="card_template_browser_appearance_title">قالب المتصفح</string>
-    <!-- card Info -->
     <!-- Permissions -->
     <string name="read_write_permission_label">القراءة والكتابة إلى قاعدة بيانات آنكي درويد</string>
     <string name="read_write_permission_description">الوصول إلى الملحوظات والبطاقات وأنواع الملحوظات والرزم الموجودة بالإضافة إلى إنشاء أخرى</string>

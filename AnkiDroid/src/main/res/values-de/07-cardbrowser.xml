@@ -60,7 +60,7 @@
     <string name="card_browser_list_my_searches_new_search_error_empty_name">Sie können keine unbenannte Suche speichern</string>
     <string name="card_browser_list_my_searches_new_search_error_dup">Name bereits vorhanden</string>
     <string name="card_browser_list_my_searches_successful_save">Suche wurde gespeichert</string>
-    <string name="card_browser_list_my_searches_successful_deleted">Search deleted</string>
+    <string name="card_browser_list_my_searches_successful_deleted">Suche gelöscht</string>
     <string name="no_note_to_edit">Keine notiz zum bearbeiten</string>
     <string name="card_browser_list_my_searches_remove_content">»%1$s« löschen?</string>
     <string name="card_browser_change_display_order" maxLength="28">Anzeigereihenfolge ändern</string>
@@ -115,6 +115,6 @@
     <string name="save_changes_message">Bitte speichere deine Änderungen zuerst</string>
     <string name="browser_find_replace_loading_fields">Abrufen der Feldnamen&#8230;</string>
     <!-- Search history -->
-    <string name="card_browser_see_more">See more</string>
-    <string name="card_browser_see_less">See less</string>
+    <string name="card_browser_see_more">Mehr Anzeigen</string>
+    <string name="card_browser_see_less">Weniger Anzeigen</string>
 </resources>

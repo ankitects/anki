@@ -118,7 +118,6 @@
     <string name="tts_summ">Ses dosyası bulunmuyorsa soruyu ve cevabı sesli okur</string>
     <!-- Sync -->
     <string name="sync_fetch_missing_media" maxLength="41">Eşitlemede medyayı aktar</string>
-    <string name="sync_account" maxLength="41">AnkiWeb hesabı</string>
     <string name="sync_account_summ_logged_out">Giriş yapılmamış</string>
     <string name="automatic_sync_choice" maxLength="41">Otomatik eşleme</string>
     <string name="automatic_sync_choice_summ">Uygulama açılış/kapanışında son eşleme 10 dakikadan daha önce idiyse otomatik olarak eşle.</string>
@@ -159,8 +158,8 @@
     <string name="show_estimates_summ">Cevap düğmelerinin üzerinde sonraki çıkma zamanını göster</string>
     <string name="show_large_answer_buttons" maxLength="41">Büyük cevap düğmelerini göster</string>
     <string name="show_large_answer_buttons_summ">Cevap düğmesini 2 satırda göster</string>
-    <string name="remove_animations" maxLength="41">Remove animations</string>
-    <string name="remove_animations_summary">Also enabled if animations are removed on the system settings</string>
+    <string name="remove_animations" maxLength="41">Animasyonları kaldır</string>
+    <string name="remove_animations_summary">Sistem ayarlarında animasyonlar kaldırılırsa da etkinleştirilir</string>
     <string name="show_top_bar" maxLength="41">Üst Çubuğu Göster</string>
     <string name="show_top_bar_summary">Kart sayılarını, cevap kronometresini, bayrağı ve işareti üst çubukta göster</string>
     <string name="show_progress" maxLength="41">Kalanı göster</string>

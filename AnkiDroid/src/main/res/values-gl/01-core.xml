@@ -87,7 +87,6 @@
     <string name="menu_add_note" maxLength="28">Engadir nota</string>
     <string name="menu_my_account" comment="Label of the window in which the user should enter their account. This text can\'t be found in AnkiDroid directly.">Sincronizar conta</string>
     <string name="menu_dismiss_note" maxLength="41">Ocultar / eliminar</string>
-    <string name="menu_delete_note" maxLength="28">Eliminar nota</string>
     <string name="rename_flag">Renomear bandeiras</string>
     <string name="menu_flag_card" maxLength="28">Abandeirar tarxeta</string>
     <string name="menu_edit_tags" maxLength="28">Editar etiquetas</string>
@@ -126,7 +125,6 @@
     <string name="export_collection">Exportar colección</string>
     <!-- Card template editor -->
     <string name="title_activity_template_editor">Tipos de tarxetas</string>
-    <string name="card_template_editor_menu_card_browser_appearance" maxLength="28">Aparencia do explorador</string>
     <string name="card_template_editor_deck_override" maxLength="28">Baralla por defecto</string>
     <string name="card_template_editor_insert_field" maxLength="28">Inserir campo</string>
     <string name="card_template_editor_select_field">Seleccionar campo</string>
@@ -141,9 +139,6 @@
     </plurals>
     <string name="card_template_editor_save_error">Non se puideron gardar os cambios no modelo de tarxetas: %s</string>
     <string name="template_for_current_card_deleted">Eliminouse o modelo de tarxeta desta tarxeta.</string>
-    <!-- Card Browser Appearance -->
-    <string name="card_template_browser_appearance_title">Aparencia do explorador</string>
-    <!-- card Info -->
     <!-- Permissions -->
     <string name="read_write_permission_label">Ler e escribir na base de datos do AnkiDroid</string>
     <string name="read_write_permission_description">acceder ás notas, tarxetas, tipos de notas e barallas existentes, así como crear novas</string>

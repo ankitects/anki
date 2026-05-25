@@ -35,10 +35,6 @@
     <string name="toast_empty_name">ਤੁਹਾਨੂੰ ਇੱਕ ਨਾਮ ਦਰਜ ਕਰਨਾ ਚਾਹੀਦਾ ਹੈ</string>
     <string name="toast_duplicate_field">ਖੇਤਰ ਦਾ ਨਾਮ ਪਹਿਲਾਂ ਹੀ ਵਰਤਿਆ ਗਿਆ ਹੈ</string>
     <!--Plurals-->
-    <plurals name="model_browser_types_available">
-        <item quantity="one">%d ਨੋਟ ਕਿਸਮਾਂ ਉਪਲਬਧ ਹਨ</item>
-        <item quantity="other">%d ਨੋਟ ਕਿਸਮਾਂ ਉਪਲਬਧ ਹਨ</item>
-    </plurals>
     <plurals name="model_browser_of_type">
         <item quantity="one">%d ਨੋਟਸ</item>
         <item quantity="other">%d ਨੋਟਸ</item>

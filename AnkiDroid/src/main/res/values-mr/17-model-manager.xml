@@ -35,10 +35,6 @@
     <string name="toast_empty_name">आपण नाव प्रविष्ट केलेच पाहिजे</string>
     <string name="toast_duplicate_field">फील्ड नाव आधीपासून वापरलेले आहे</string>
     <!--Plurals-->
-    <plurals name="model_browser_types_available">
-        <item quantity="one">%d टीप प्रकार उपलब्ध</item>
-        <item quantity="other">%d टीप प्रकार उपलब्ध</item>
-    </plurals>
     <plurals name="model_browser_of_type">
         <item quantity="one">%d टीप</item>
         <item quantity="other">%d टिपा</item>

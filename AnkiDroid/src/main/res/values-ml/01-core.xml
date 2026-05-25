@@ -87,7 +87,6 @@
     <string name="menu_add_note" maxLength="28">കുറിപ്പ് ചേർക്കുക</string>
     <string name="menu_my_account" comment="Label of the window in which the user should enter their account. This text can\'t be found in AnkiDroid directly.">അക്കൗണ്ട് സമന്വയിപ്പിക്കുക</string>
     <string name="menu_dismiss_note" maxLength="41">മറയ്‌ക്കുക / ഇല്ലാതാക്കുക</string>
-    <string name="menu_delete_note" maxLength="28">കുറിപ്പ് മായ്ക്കുക</string>
     <string name="rename_flag">പതാകകളുടെ പേരുമാറ്റുക</string>
     <string name="menu_flag_card" maxLength="28">ഫ്ലാഗ് കാർഡ്</string>
     <string name="menu_edit_tags" maxLength="28">ടാഗുകൾ എഡിറ്റുചെയ്യുക</string>
@@ -126,7 +125,6 @@
     <string name="export_collection">കയറ്റുമതി ശേഖരം</string>
     <!-- Card template editor -->
     <string name="title_activity_template_editor">കാർഡ് തരങ്ങൾ</string>
-    <string name="card_template_editor_menu_card_browser_appearance" maxLength="28">കാർഡ്  ബ്രൗസർ  സർ രൂപം</string>
     <string name="card_template_editor_deck_override" maxLength="28">ഡെക്ക് അസാധുവാക്കൽ</string>
     <string name="card_template_editor_insert_field" maxLength="28">ഫീൽഡ് തിരുകുക</string>
     <string name="card_template_editor_select_field">ഫീൽഡ് തിരഞ്ഞെടുക്കുക</string>
@@ -141,9 +139,6 @@
     </plurals>
     <string name="card_template_editor_save_error">കാർഡ് ടെംപ്ലേറ്റ് മാറ്റങ്ങൾ സംരക്ഷിക്കാൻ കഴിയില്ല: %s</string>
     <string name="template_for_current_card_deleted">നിലവിലെ കാർഡിനായുള്ള കാർഡ് തരം ഇല്ലാതാക്കി.</string>
-    <!-- Card Browser Appearance -->
-    <string name="card_template_browser_appearance_title">ബ്രൗസർ രൂപം</string>
-    <!-- card Info -->
     <!-- Permissions -->
     <string name="read_write_permission_label">AnkiDroid ഡാറ്റാബേസ് വായിച്ച് എഴുതുക</string>
     <string name="read_write_permission_description">നിലവിലുള്ള കുറിപ്പുകൾ, കാർഡുകൾ, കുറിപ്പ് തരങ്ങൾ, ഡെക്കുകൾ എന്നിവ ആക്സസ് ചെയ്യുന്നതിനൊപ്പം പുതിയവ സൃഷ്ടിക്കുക</string>

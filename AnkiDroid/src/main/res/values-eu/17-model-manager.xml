@@ -35,10 +35,6 @@
     <string name="toast_empty_name">Izen bat sartu behar duzu</string>
     <string name="toast_duplicate_field">Eremu izena dagoeneko erabilia izan da</string>
     <!--Plurals-->
-    <plurals name="model_browser_types_available">
-        <item quantity="one">%d ohar mota eskuragarri</item>
-        <item quantity="other">%d note types available</item>
-    </plurals>
     <plurals name="model_browser_of_type">
         <item quantity="one">%d ohar</item>
         <item quantity="other">%d ohar</item>

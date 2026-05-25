@@ -87,7 +87,6 @@
     <string name="menu_add_note" maxLength="28">Magdagdag ng tala</string>
     <string name="menu_my_account" comment="Label of the window in which the user should enter their account. This text can\'t be found in AnkiDroid directly.">I-sync ang account</string>
     <string name="menu_dismiss_note" maxLength="41">Itago / burahin</string>
-    <string name="menu_delete_note" maxLength="28">Burahin ang tala</string>
     <string name="rename_flag">Pangalanan ulit ang mga flag</string>
     <string name="menu_flag_card" maxLength="28">Lagyan ng watawat ang card</string>
     <string name="menu_edit_tags" maxLength="28">Baguhin ang mga tag</string>
@@ -126,7 +125,6 @@
     <string name="export_collection">I-export and koleksyon</string>
     <!-- Card template editor -->
     <string name="title_activity_template_editor">Uri ng mga kard</string>
-    <string name="card_template_editor_menu_card_browser_appearance" maxLength="28">Hitsura ng Card Browser</string>
     <string name="card_template_editor_deck_override" maxLength="28">I-override ang deck</string>
     <string name="card_template_editor_insert_field" maxLength="28">Maglagay ng patlang</string>
     <string name="card_template_editor_select_field">Pumili ng patlang</string>
@@ -141,9 +139,6 @@
     </plurals>
     <string name="card_template_editor_save_error">Hindi ma-i-save ang mga binago sa padron ng card: %s</string>
     <string name="template_for_current_card_deleted">Nabura ang uri ng card sa kasalukuyang card.</string>
-    <!-- Card Browser Appearance -->
-    <string name="card_template_browser_appearance_title">Hitsura ng Browser</string>
-    <!-- card Info -->
     <!-- Permissions -->
     <string name="read_write_permission_label">Basahin at isulat sa database ng AnkiDroid</string>
     <string name="read_write_permission_description">i-access ang mga umiiral na tala, kard, mga uri ng tala, at mga deck, pati na rin ang gumawa ng mga bago</string>

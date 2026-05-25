@@ -93,7 +93,6 @@
     <string name="menu_add_note" maxLength="28">Přidat poznámku</string>
     <string name="menu_my_account" comment="Label of the window in which the user should enter their account. This text can\'t be found in AnkiDroid directly.">Synchronizovat účet</string>
     <string name="menu_dismiss_note" maxLength="41">Skrýt / Vymazat</string>
-    <string name="menu_delete_note" maxLength="28">Odstranit poznámku</string>
     <string name="rename_flag">Přejmenovat příznaky</string>
     <string name="menu_flag_card" maxLength="28">Příznak</string>
     <string name="menu_edit_tags" maxLength="28">Upravit štítky</string>
@@ -132,7 +131,6 @@
     <string name="export_collection">Exportovat kolekci</string>
     <!-- Card template editor -->
     <string name="title_activity_template_editor">Typ karet</string>
-    <string name="card_template_editor_menu_card_browser_appearance" maxLength="28">Vzhled prohlížeče karet</string>
     <string name="card_template_editor_deck_override" maxLength="28">Přepsat balíček</string>
     <string name="card_template_editor_insert_field" maxLength="28">Vložit pole</string>
     <string name="card_template_editor_select_field">Vybrat pole</string>
@@ -151,9 +149,6 @@
     </plurals>
     <string name="card_template_editor_save_error">Změny šablony karty nelze uložit: %s</string>
     <string name="template_for_current_card_deleted">Typ karty současné karty byl odstraněn.</string>
-    <!-- Card Browser Appearance -->
-    <string name="card_template_browser_appearance_title">Vzhled prohlížeče</string>
-    <!-- card Info -->
     <!-- Permissions -->
     <string name="read_write_permission_label">Čtení a zápis do AnkiDroid databáze</string>
     <string name="read_write_permission_description">spravovat stávající poznámky, karty, typy poznámek a balíčky, a také vytvářet nové</string>

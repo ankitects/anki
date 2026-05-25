@@ -87,7 +87,6 @@
     <string name="menu_add_note" maxLength="28">დაამატე შენიშვნა</string>
     <string name="menu_my_account" comment="Label of the window in which the user should enter their account. This text can\'t be found in AnkiDroid directly.">ანგარიშის სინქრონიზაცია</string>
     <string name="menu_dismiss_note" maxLength="41">დამალვა / წაშლა</string>
-    <string name="menu_delete_note" maxLength="28">შენიშვნის წაშლა</string>
     <string name="rename_flag">დროშების სახელების გადარქმევა</string>
     <string name="menu_flag_card" maxLength="28">დროშის მიმაგრება</string>
     <string name="menu_edit_tags" maxLength="28">იარლიყის რედაქტირება</string>
@@ -126,7 +125,6 @@
     <string name="export_collection">კოლექციის ექსპორტი</string>
     <!-- Card template editor -->
     <string name="title_activity_template_editor">ბარათის ტიპები</string>
-    <string name="card_template_editor_menu_card_browser_appearance" maxLength="28">იერსახე ბარათების საძიებოში</string>
     <string name="card_template_editor_deck_override" maxLength="28">დასტის გადატანა</string>
     <string name="card_template_editor_insert_field" maxLength="28">ველის ჩასმა</string>
     <string name="card_template_editor_select_field">ველის არჩევა</string>
@@ -141,9 +139,6 @@
     </plurals>
     <string name="card_template_editor_save_error">ბარათის შაბლონის შენახვა შეუძლებელია: %s</string>
     <string name="template_for_current_card_deleted">ბარათის ტიპი ამ ბარათიდან წაიშალა.</string>
-    <!-- Card Browser Appearance -->
-    <string name="card_template_browser_appearance_title">იერსახე საძიებოში</string>
-    <!-- card Info -->
     <!-- Permissions -->
     <string name="read_write_permission_label">წაკითხვა და ჩაწერა AnkiDroid-ის მონაცემთა ბაზაში</string>
     <string name="read_write_permission_description">წვდომა არსებულ შენიშვნებთან, ბარათებთან, შენიშვნის ტიპებთან და დასტებთან, ასევე ახალი ბარათების შექმნასთან</string>

@@ -117,7 +117,6 @@
     <string name="tts_summ">如果沒有內含音訊檔案，則讀出問題和答案</string>
     <!-- Sync -->
     <string name="sync_fetch_missing_media" maxLength="41">同步時取得媒體檔案</string>
-    <string name="sync_account" maxLength="41">AnkiWeb 帳號</string>
     <string name="sync_account_summ_logged_out">未登入</string>
     <string name="automatic_sync_choice" maxLength="41">自動同步</string>
     <string name="automatic_sync_choice_summ">如果距離上次同步超過 10 分鐘，則在開啟/關閉程式時自動同步。</string>

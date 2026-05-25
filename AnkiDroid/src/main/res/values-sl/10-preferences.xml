@@ -120,7 +120,6 @@
     <string name="tts_summ">Prebere vprašanje in odgovor, če ni zvočne datoteke</string>
     <!-- Sync -->
     <string name="sync_fetch_missing_media" maxLength="41">Pridobi predst. ob sinhr.</string>
-    <string name="sync_account" maxLength="41">Račun AnkiWeb</string>
     <string name="sync_account_summ_logged_out">Niste prijavljeni</string>
     <string name="automatic_sync_choice" maxLength="41">Samodejna sinhronizacija</string>
     <string name="automatic_sync_choice_summ">Samodejni sinhroniziraj ob zagonu/zapiranju programa, če je bila

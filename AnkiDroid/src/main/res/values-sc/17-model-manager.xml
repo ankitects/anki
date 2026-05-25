@@ -35,10 +35,6 @@
     <string name="toast_empty_name">Depes insertare unu nùmene</string>
     <string name="toast_duplicate_field">Nùmene de su campu giai impreadu</string>
     <!--Plurals-->
-    <plurals name="model_browser_types_available">
-        <item quantity="one">%d casta de nota a disponimentu</item>
-        <item quantity="other">%d castas de nota a disponimentu</item>
-    </plurals>
     <plurals name="model_browser_of_type">
         <item quantity="one">%d nota</item>
         <item quantity="other">%d notas</item>

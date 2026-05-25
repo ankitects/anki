@@ -122,7 +122,6 @@
     <string name="tts_summ">يقرأ السؤال والجواب إذا لم يكن هناك ملف صوتي</string>
     <!-- Sync -->
     <string name="sync_fetch_missing_media" maxLength="41">اجلب الوسائط عند المزامنة</string>
-    <string name="sync_account" maxLength="41">حساب آنكي ويب</string>
     <string name="sync_account_summ_logged_out">لست مسجلًا الدخول</string>
     <string name="automatic_sync_choice" maxLength="41">المزامنة التلقائية</string>
     <string name="automatic_sync_choice_summ">زامِن تلقائيًا عند فتح أو إغلاق التطبيق إذا مضى على المزامنة الأخيرة
@@ -164,8 +163,8 @@
     <string name="show_estimates_summ">إظهار وقت المراجعة التالية على أزرار الإجابة</string>
     <string name="show_large_answer_buttons" maxLength="41">إظهار أزرار إجابة كبيرة</string>
     <string name="show_large_answer_buttons_summ">أظهر أزرار الإجابة في صفين</string>
-    <string name="remove_animations" maxLength="41">Remove animations</string>
-    <string name="remove_animations_summary">Also enabled if animations are removed on the system settings</string>
+    <string name="remove_animations" maxLength="41">إزالة تأثيرات الحركة</string>
+    <string name="remove_animations_summary">يُفعل هذا الخِيار أيضا إذا كانت تأثيرات الحركة مزالة من إعدادات النظام</string>
     <string name="show_top_bar" maxLength="41">إظهار الشريط العلوي</string>
     <string name="show_top_bar_summary">أظهر عدد البطاقات ومؤقت الإجابة والعَلم والعلامة في الشريط العلوي</string>
     <string name="show_progress" maxLength="41">إظهار المتبقي</string>

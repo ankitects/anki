@@ -118,7 +118,6 @@
     <string name="tts_summ">Lê em voz alta a pergunta e resposta, se não for incluído nenhum ficheiro de som</string>
     <!-- Sync -->
     <string name="sync_fetch_missing_media" maxLength="41">Obter multimédia durante a sincronização</string>
-    <string name="sync_account" maxLength="41">Conta AnkiWeb</string>
     <string name="sync_account_summ_logged_out">Sem sessão iniciada</string>
     <string name="automatic_sync_choice" maxLength="41">Sincronização automática</string>
     <string name="automatic_sync_choice_summ">Sincronizar automaticalmente ao iniciar/sair da aplicação, se a última sicnronização foi há mais 

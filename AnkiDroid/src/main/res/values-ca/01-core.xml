@@ -87,7 +87,6 @@
     <string name="menu_add_note" maxLength="28">Afegeix una nota</string>
     <string name="menu_my_account" comment="Label of the window in which the user should enter their account. This text can\'t be found in AnkiDroid directly.">Compte de sincronització</string>
     <string name="menu_dismiss_note" maxLength="41">Amaga / elimina</string>
-    <string name="menu_delete_note" maxLength="28">Suprimeix la nota</string>
     <string name="rename_flag">Canvia el nom de les etiquetes</string>
     <string name="menu_flag_card" maxLength="28">Marcar tarjeta</string>
     <string name="menu_edit_tags" maxLength="28">Edita etiquetes</string>
@@ -96,7 +95,7 @@
     <string name="menu_unmark_note">Desmarcar</string>
     <string name="menu_enable_voice_playback" maxLength="28">Activa la veu</string>
     <string name="menu_disable_voice_playback">Desactiva la veu</string>
-    <string name="menu_create_backup" maxLength="28">Create backup</string>
+    <string name="menu_create_backup" maxLength="28">Crear còpia de seguretat</string>
     <string name="new_deck">Crea un paquet</string>
     <string name="new_dynamic_deck">Crear un paquet filtrat</string>
     <string name="directory_inaccessible">El directori d\'AnkiDroid és inaccessible</string>
@@ -126,7 +125,6 @@
     <string name="export_collection">Exporta la col·lecció</string>
     <!-- Card template editor -->
     <string name="title_activity_template_editor">Tipus de cartes</string>
-    <string name="card_template_editor_menu_card_browser_appearance" maxLength="28">Aspecte del navegador de cartes</string>
     <string name="card_template_editor_deck_override" maxLength="28">Anul·la el paquet</string>
     <string name="card_template_editor_insert_field" maxLength="28">Inseriu un camp</string>
     <string name="card_template_editor_select_field">Trieu un camp</string>
@@ -141,9 +139,6 @@
     </plurals>
     <string name="card_template_editor_save_error">No es poden desar els canvis a la plantilla de carta: %s</string>
     <string name="template_for_current_card_deleted">S\'ha esborrat el tipus de carta per la carta actual.</string>
-    <!-- Card Browser Appearance -->
-    <string name="card_template_browser_appearance_title">Aspecte del navegador</string>
-    <!-- card Info -->
     <!-- Permissions -->
     <string name="read_write_permission_label">Llegir i escriure a la base de dades d\'AnkiDroid</string>
     <string name="read_write_permission_description">accés a notes, targetes, tipus de nota i malls existents, així com crear-ne de nous</string>
@@ -180,7 +175,7 @@
     <string name="microphone_permission_explanation" comment="Description explaining why AnkiDroid needs the microphone permission, shown on the permissions explanation screen.">Permet afegir sons a fitxes i activa la reproducció de veu durant les revisions</string>
     <string name="notifications_permission_explanation" comment="Description explaining why AnkiDroid needs the notification permission.">Activa la sincronització multimèdia en segon pla i et permet crear recordatoris de revisió</string>
     <string name="heading_required_permissions" comment="Heading for the section of required permissions that the app needs to function, shown in the permissions explanation screen.">Requerit</string>
-    <string name="heading_optional_permissions" comment="Heading for the section of optional permissions that the app needs to function, shown in the permissions explanation screen.">Optional</string>
+    <string name="heading_optional_permissions" comment="Heading for the section of optional permissions that the app needs to function, shown in the permissions explanation screen.">Opcional</string>
     <string name="manually_grant_permissions" comment="Pop-up message that is shown to the user when they want to grant an app permission that must be granted via the OS settings screen.">Aquest permís s\'ha de concedir des de la configuració del dispositiu</string>
     <string name="revoke_permissions" comment="Pop-up message that is shown to the user when they are revoking an app permission.">Aquest permís s\'ha de revocar des de la configuració del dispositiu</string>
     <string name="remove_account" comment="open a website to start the deletion of an AnkiWeb account">Esborra el compte</string>
@@ -188,8 +183,8 @@
     <string name="instant_card" comment="Used in the Android system context menu/share dialog to quickly create a note. This does not need to be translated literally, translate the concept of quickly adding a Cloze note with a popup. ">Carta instantània</string>
     <!-- Internet Permissions -->
     <string name="internet_access_title" comment="used for notifying user to unable internet access">Internet</string>
-    <string name="permission_access_summary">Required for the app to work</string>
-    <string name="permission_required_message">Please grant AnkiDroid the ‘%s’ permission to continue</string>
+    <string name="permission_access_summary">Necessari perquè l\'app funcioni</string>
+    <string name="permission_required_message">Cal que doneu el permís \'%s\' per continuar.</string>
     <!-- Multiple profile -->
     <string name="add_profile">Afegir perfil</string>
 </resources>

@@ -35,10 +35,6 @@
     <string name="toast_empty_name">Du må angi et navn</string>
     <string name="toast_duplicate_field">Feltnavn allerede brukt</string>
     <!--Plurals-->
-    <plurals name="model_browser_types_available">
-        <item quantity="one">%d notattype tilgjengelig</item>
-        <item quantity="other">%d notattyper tilgjengelig</item>
-    </plurals>
     <plurals name="model_browser_of_type">
         <item quantity="one">%d notat</item>
         <item quantity="other">%d notater</item>

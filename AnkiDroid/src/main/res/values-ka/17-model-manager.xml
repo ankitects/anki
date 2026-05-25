@@ -35,10 +35,6 @@
     <string name="toast_empty_name">უნდა შეიყვანოთ სახელი</string>
     <string name="toast_duplicate_field">ველის სახელი უკვე გამოყენებულია</string>
     <!--Plurals-->
-    <plurals name="model_browser_types_available">
-        <item quantity="one">ხელმისაწვდომია %d შენიშვნის ტიპი</item>
-        <item quantity="other">ხელმისაწვდომია %d შენიშვნის ტიპი</item>
-    </plurals>
     <plurals name="model_browser_of_type">
         <item quantity="one">%d შენიშვნა</item>
         <item quantity="other">%d შენიშვნა</item>

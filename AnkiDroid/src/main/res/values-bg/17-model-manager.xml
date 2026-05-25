@@ -35,10 +35,6 @@
     <string name="toast_empty_name">Трябва да въведете име</string>
     <string name="toast_duplicate_field">Името на полето вече е използвано</string>
     <!--Plurals-->
-    <plurals name="model_browser_types_available">
-        <item quantity="one">Наличен е %d тип на бележка</item>
-        <item quantity="other">Налични са %d типа на бележка</item>
-    </plurals>
     <plurals name="model_browser_of_type">
         <item quantity="one">%d бележка</item>
         <item quantity="other">%d бележки</item>

@@ -94,7 +94,6 @@
     <string name="menu_add_note" maxLength="28">הוספת רשומה</string>
     <string name="menu_my_account" comment="Label of the window in which the user should enter their account. This text can\'t be found in AnkiDroid directly.">סנכרון חשבון</string>
     <string name="menu_dismiss_note" maxLength="41">הסתרה / מחיקה</string>
-    <string name="menu_delete_note" maxLength="28">מחיקת רשומה</string>
     <string name="rename_flag">שנה שמות דגלים</string>
     <string name="menu_flag_card" maxLength="28">דגל כרטיס</string>
     <string name="menu_edit_tags" maxLength="28">ערוך תגיות</string>
@@ -133,7 +132,6 @@
     <string name="export_collection">ייצא אוסף</string>
     <!-- Card template editor -->
     <string name="title_activity_template_editor">סוגי כרטיסים</string>
-    <string name="card_template_editor_menu_card_browser_appearance" maxLength="28">מראה דפדפן הקלפים</string>
     <string name="card_template_editor_deck_override" maxLength="28">שכתוב חפיסה</string>
     <string name="card_template_editor_insert_field" maxLength="28">הוסף שדה</string>
     <string name="card_template_editor_select_field">בחר שדה</string>
@@ -152,9 +150,6 @@
     </plurals>
     <string name="card_template_editor_save_error">לא ניתן לשמור שינויים לתבנית הכרטיס: %s</string>
     <string name="template_for_current_card_deleted">התבנית של הכרטיס הנוכחי נמחקה.</string>
-    <!-- Card Browser Appearance -->
-    <string name="card_template_browser_appearance_title">מראה הדפדפן</string>
-    <!-- card Info -->
     <!-- Permissions -->
     <string name="read_write_permission_label">קרא ושמור למסד הנתונים של AnkiDroid</string>
     <string name="read_write_permission_description">לגשת להערות, כרטיס, סוגי רשומות וחפיסות וגם ליצור חדשים</string>

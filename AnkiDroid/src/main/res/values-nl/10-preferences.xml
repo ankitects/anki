@@ -118,7 +118,6 @@
     <string name="tts_summ">Vraag en antwoord voorlezen als er geen geluidsbestand is opgenomen</string>
     <!-- Sync -->
     <string name="sync_fetch_missing_media" maxLength="41">Media downloaden</string>
-    <string name="sync_account" maxLength="41">AnkiWeb account</string>
     <string name="sync_account_summ_logged_out">Niet aangemeld</string>
     <string name="automatic_sync_choice" maxLength="41">Automatische synchronisatie</string>
     <string name="automatic_sync_choice_summ">Synchronizeer automatisch bij het starten en sluiten van de app indien de laatste synchronisatie meer dan 10 minuten geleden was.</string>

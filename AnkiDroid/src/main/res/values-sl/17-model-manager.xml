@@ -35,12 +35,6 @@
     <string name="toast_empty_name">Vnesti morate ime</string>
     <string name="toast_duplicate_field">Ime polja je že uporabljeno</string>
     <!--Plurals-->
-    <plurals name="model_browser_types_available">
-        <item quantity="one">Na voljo je %d vrsta zapiskov</item>
-        <item quantity="two">Na voljo sta %d vrsti zapiskov</item>
-        <item quantity="few">Na voljo so %d vrste zapiskov</item>
-        <item quantity="other">Na voljo je %d vrst zapiskov</item>
-    </plurals>
     <plurals name="model_browser_of_type">
         <item quantity="one">%d zapisek</item>
         <item quantity="two">%d zapiska</item>

@@ -117,7 +117,6 @@
     <string name="tts_summ">질문과 정답에 사운드 파일이 없을 경우 자동으로 읽어주기</string>
     <!-- Sync -->
     <string name="sync_fetch_missing_media" maxLength="41">동기화할 때 미디어파일 가져오기</string>
-    <string name="sync_account" maxLength="41">AnkiWeb 계정</string>
     <string name="sync_account_summ_logged_out">로그인 하지 않음</string>
     <string name="automatic_sync_choice" maxLength="41">자동 동기화</string>
     <string name="automatic_sync_choice_summ">마지막 동기화로부터 10분이 넘었을 경우 앱 시작 및 종료시 자동으로 동기화</string>

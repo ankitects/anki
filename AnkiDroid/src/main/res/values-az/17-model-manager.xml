@@ -35,10 +35,6 @@
     <string name="toast_empty_name">Ad daxil etməlisiniz</string>
     <string name="toast_duplicate_field">Sahə adı artıq istifadədədir</string>
     <!--Plurals-->
-    <plurals name="model_browser_types_available">
-        <item quantity="one">%d qeyd növü mövcuddur</item>
-        <item quantity="other">%d qeyd növü mövcuddur</item>
-    </plurals>
     <plurals name="model_browser_of_type">
         <item quantity="one">%d qeyd</item>
         <item quantity="other">%d qeyd</item>

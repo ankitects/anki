@@ -118,7 +118,6 @@
     <string name="tts_summ">Εκφόνηση των ερωτήσεως και απαντήσεων εάν δεν περιλαμβάνεται αρχείο ήχου</string>
     <!-- Sync -->
     <string name="sync_fetch_missing_media" maxLength="41">Λήψη μέσων με συγχρονισμό</string>
-    <string name="sync_account" maxLength="41">Λογαριασμός AnkiWeb</string>
     <string name="sync_account_summ_logged_out">Εκτός σύνδεσης</string>
     <string name="automatic_sync_choice" maxLength="41">Αυτόματος συγχρονισμός</string>
     <string name="automatic_sync_choice_summ">Αυτόματος συγχρονισμός κατά την εκκίνηση/έξοδο της εφαρμογής, αν ο τελευταίος συγχρονισμός ήταν πάνω από 10

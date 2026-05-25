@@ -87,7 +87,6 @@
     <string name="menu_add_note" maxLength="28">ਨੋਟਸ ਸ਼ਾਮਲ ਕਰੋ</string>
     <string name="menu_my_account" comment="Label of the window in which the user should enter their account. This text can\'t be found in AnkiDroid directly.">ਖਾਤਾ ਸਿੰਕ ਕਰੋ</string>
     <string name="menu_dismiss_note" maxLength="41">ਓਹਲੇ/ਮਿਟਾਓ</string>
-    <string name="menu_delete_note" maxLength="28">ਨੋਟ ਮਿਟਾਓ</string>
     <string name="rename_flag">ਝੰਡਿਆਂ ਦਾ ਨਾਮ ਬਦਲੋ</string>
     <string name="menu_flag_card" maxLength="28">ਫਲੈਗ ਕਾਰਡ</string>
     <string name="menu_edit_tags" maxLength="28">ਟੈਗਾਂ ਦਾ ਸੰਪਾਦਨ ਕਰੋ</string>
@@ -126,7 +125,6 @@
     <string name="export_collection">ਨਿਰਯਾਤ ਸੰਗ੍ਰਹਿ</string>
     <!-- Card template editor -->
     <string name="title_activity_template_editor">ਕਾਰਡ ਦੀਆਂ ਕਿਸਮਾਂ</string>
-    <string name="card_template_editor_menu_card_browser_appearance" maxLength="28">ਕਾਰਡ ਬ੍ਰਾਊਜ਼ਰ ਦੀ ਦਿੱਖ</string>
     <string name="card_template_editor_deck_override" maxLength="28">ਡੈੱਕ ਓਵਰਰਾਈਡ</string>
     <string name="card_template_editor_insert_field" maxLength="28">ਖੇਤਰ ਸ਼ਾਮਲ ਕਰੋ</string>
     <string name="card_template_editor_select_field">ਖੇਤਰ ਚੁਣੋ</string>
@@ -141,9 +139,6 @@
     </plurals>
     <string name="card_template_editor_save_error">ਕਾਰਡ ਟੈਮਪਲੇਟ ਤਬਦੀਲੀਆਂ ਨੂੰ ਸੁਰੱਖਿਅਤ ਕਰਨ ਵਿੱਚ ਅਸਮਰੱਥ: %s</string>
     <string name="template_for_current_card_deleted">ਮੌਜੂਦਾ ਕਾਰਡ ਲਈ ਕਾਰਡ ਦੀ ਕਿਸਮ ਮਿਟਾ ਦਿੱਤੀ ਗਈ ਸੀ।</string>
-    <!-- Card Browser Appearance -->
-    <string name="card_template_browser_appearance_title">ਬਰਾਊਜ਼ਰ ਦੀ ਦਿੱਖ</string>
-    <!-- card Info -->
     <!-- Permissions -->
     <string name="read_write_permission_label">AnkiDroid ਡੇਟਾਬੇਸ ਨੂੰ ਪੜ੍ਹੋ ਅਤੇ ਲਿਖੋ</string>
     <string name="read_write_permission_description">ਮੌਜੂਦਾ ਨੋਟਸ, ਕਾਰਡ, ਨੋਟ ਕਿਸਮਾਂ ਅਤੇ ਡੇਕ ਤੱਕ ਪਹੁੰਚ ਕਰੋ, ਨਾਲ ਹੀ ਨਵੇਂ ਬਣਾਓ</string>

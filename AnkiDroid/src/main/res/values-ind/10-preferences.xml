@@ -117,7 +117,6 @@
     <string name="tts_summ">Membaca pertanyaan dan jawaban jika tidak ada berkas audio</string>
     <!-- Sync -->
     <string name="sync_fetch_missing_media" maxLength="41">Ambil media saat sinkronisasi</string>
-    <string name="sync_account" maxLength="41">Akun AnkiWeb</string>
     <string name="sync_account_summ_logged_out">Belum masuk</string>
     <string name="automatic_sync_choice" maxLength="41">Sinkronisasi otomatis</string>
     <string name="automatic_sync_choice_summ">Sinkronkan secara otomatis saat masuk/keluar aplikasi jika sinkronisasi terakhir lebih dari 10

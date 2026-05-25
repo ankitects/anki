@@ -206,7 +206,6 @@
     <string name="remove_background_image">Czy na pewno chcesz usunąć tło?</string>
     <!-- Card Template Browser Appearance -->
     <string name="restore_default" maxLength="28">Przywróć domyślne</string>
-    <string name="reviewer_tts_cloze_spoken_replacement">Pusto</string>
     <!-- Whiteboard eraser mode toggle message in Reviewer -->
     <string name="white_board_eraser_enabled">Tryb gumkowania aktywowany</string>
     <string name="white_board_eraser_disabled">Tryb gumkowania zdezaktywowany</string>

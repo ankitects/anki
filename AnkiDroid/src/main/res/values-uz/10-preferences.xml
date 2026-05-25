@@ -118,7 +118,6 @@
     <string name="tts_summ">Agar ovoz fayli kiritilmagan boʻlsa, savol va javobni oʻqib beradi</string>
     <!-- Sync -->
     <string name="sync_fetch_missing_media" maxLength="41">Media fayllarni sinxronlashda olib kelish</string>
-    <string name="sync_account" maxLength="41">AnkiWeb akkaunti</string>
     <string name="sync_account_summ_logged_out">Tizimga kirilmagan</string>
     <string name="automatic_sync_choice" maxLength="41">Avtomatik sinxronizatsiya</string>
     <string name="automatic_sync_choice_summ">Agar oxirgi sinxronlash 10 daqiqadan oldinroq amalga oshirilgan boʻlsa, ilovani ishga tushirish/chiqish vaqtida avtomatik sinxronlash.</string>

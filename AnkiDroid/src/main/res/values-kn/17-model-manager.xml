@@ -35,10 +35,6 @@
     <string name="toast_empty_name">ನೀವು ಹೆಸರನ್ನು ನಮೂದಿಸಬೇಕು</string>
     <string name="toast_duplicate_field">ಕ್ಷೇತ್ರದ ಹೆಸರನ್ನು ಈಗಾಗಲೇ ಬಳಸಲಾಗಿದೆ</string>
     <!--Plurals-->
-    <plurals name="model_browser_types_available">
-        <item quantity="one">%d ಟಿಪ್ಪಣಿ ಪ್ರಕಾರ ಲಭ್ಯವಿದೆ</item>
-        <item quantity="other">%d ಟಿಪ್ಪಣಿ ಪ್ರಕಾರಗಳು ಲಭ್ಯವಿದೆ</item>
-    </plurals>
     <plurals name="model_browser_of_type">
         <item quantity="one">%d ಟಿಪ್ಪಣಿ</item>
         <item quantity="other">%d ಟಿಪ್ಪಣಿಗಳು</item>

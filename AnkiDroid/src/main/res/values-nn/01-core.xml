@@ -87,7 +87,6 @@
     <string name="menu_add_note" maxLength="28">Legg tl notat</string>
     <string name="menu_my_account" comment="Label of the window in which the user should enter their account. This text can\'t be found in AnkiDroid directly.">Synkroniser konto</string>
     <string name="menu_dismiss_note" maxLength="41">Skjul / slett</string>
-    <string name="menu_delete_note" maxLength="28">Slett notat</string>
     <string name="rename_flag">Brigda flaggnamn</string>
     <string name="menu_flag_card" maxLength="28">Flagg kort</string>
     <string name="menu_edit_tags" maxLength="28">Rediger taggar</string>
@@ -126,7 +125,6 @@
     <string name="export_collection">Eksporter samling</string>
     <!-- Card template editor -->
     <string name="title_activity_template_editor">Kortslag</string>
-    <string name="card_template_editor_menu_card_browser_appearance" maxLength="28">Utsjånad i kortutforskar</string>
     <string name="card_template_editor_deck_override" maxLength="28">Kortstokksoverstyring</string>
     <string name="card_template_editor_insert_field" maxLength="28">Legg til felt</string>
     <string name="card_template_editor_select_field">Vel felt</string>
@@ -141,9 +139,6 @@
     </plurals>
     <string name="card_template_editor_save_error">Mislukkast i å lagra endringar i kortmal: %s</string>
     <string name="template_for_current_card_deleted">Korttypen for det noverande kortet vart sletta.</string>
-    <!-- Card Browser Appearance -->
-    <string name="card_template_browser_appearance_title">Utforskarutsjånad</string>
-    <!-- card Info -->
     <!-- Permissions -->
     <string name="read_write_permission_label">Les og skriv til AnkiDroid-databasen</string>
     <string name="read_write_permission_description">tilgang til eksisterande notat, kort, notattypar og kortstokkar, og dessutan løyve til å laga nye</string>

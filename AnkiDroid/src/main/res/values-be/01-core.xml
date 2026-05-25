@@ -93,7 +93,6 @@
     <string name="menu_add_note" maxLength="28">Дадаць нататку</string>
     <string name="menu_my_account" comment="Label of the window in which the user should enter their account. This text can\'t be found in AnkiDroid directly.">Сінхранізаваць уліковы запіс</string>
     <string name="menu_dismiss_note" maxLength="41">Схаваць / выдаліць</string>
-    <string name="menu_delete_note" maxLength="28">Выдаліць нататку</string>
     <string name="rename_flag">Перайменаваць пазнакі</string>
     <string name="menu_flag_card" maxLength="28">Пазначыць картку</string>
     <string name="menu_edit_tags" maxLength="28">Адрэдагаваць меткі</string>
@@ -132,7 +131,6 @@
     <string name="export_collection">Экспартаваць калекцыю</string>
     <!-- Card template editor -->
     <string name="title_activity_template_editor">Тыпы картак</string>
-    <string name="card_template_editor_menu_card_browser_appearance" maxLength="28">Выгляд аглядальніка картак</string>
     <string name="card_template_editor_deck_override" maxLength="28">Перавызначэнне калоды</string>
     <string name="card_template_editor_insert_field" maxLength="28">Уставіць поле</string>
     <string name="card_template_editor_select_field">Выбраць поле</string>
@@ -151,9 +149,6 @@
     </plurals>
     <string name="card_template_editor_save_error">Немагчыма захаваць змены ў шаблоне карткі: %s</string>
     <string name="template_for_current_card_deleted">Тып карткі для бягучай карткі быў выдалены.</string>
-    <!-- Card Browser Appearance -->
-    <string name="card_template_browser_appearance_title">Выгляд аглядальніка</string>
-    <!-- card Info -->
     <!-- Permissions -->
     <string name="read_write_permission_label">Чытанне і запіс у базу даных AnkiDroid</string>
     <string name="read_write_permission_description">доступ да існуючых нататак, картак, тыпаў нататак і калод, а таксама стварэнне новых</string>

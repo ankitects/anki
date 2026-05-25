@@ -118,7 +118,6 @@
     <string name="tts_summ">Lue kysymys ja vausta, jos äänitiedosto ei tule mukana</string>
     <!-- Sync -->
     <string name="sync_fetch_missing_media" maxLength="41">Hae media synkronointi</string>
-    <string name="sync_account" maxLength="41">AnkiWeb tili</string>
     <string name="sync_account_summ_logged_out">Ei kirjautuneena</string>
     <string name="automatic_sync_choice" maxLength="41">Automaattinen synkronointi</string>
     <string name="automatic_sync_choice_summ">Synkronoi automaattisesti sovelluksen auetessa tai suljetessam, jos viimeistä synkronoinnista on enemmän kuin 10         minuuttia.</string>

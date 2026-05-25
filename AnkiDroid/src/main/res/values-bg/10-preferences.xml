@@ -118,7 +118,6 @@
     <string name="tts_summ">Въпрос и отговор се четат, ако няма звуков файл е включен</string>
     <!-- Sync -->
     <string name="sync_fetch_missing_media" maxLength="41">Привличам медия за синхронизиране</string>
-    <string name="sync_account" maxLength="41">AnkiWeb профил</string>
     <string name="sync_account_summ_logged_out">Не сте влезнали в профила</string>
     <string name="automatic_sync_choice" maxLength="41">Автоматична синхронизация</string>
     <string name="automatic_sync_choice_summ">Автоматично синхронизиране пи стариране/изход от приложението, ако последното синхронизиране е от повече от 10        минути.</string>

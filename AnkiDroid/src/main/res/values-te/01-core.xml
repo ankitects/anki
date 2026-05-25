@@ -87,7 +87,6 @@
     <string name="menu_add_note" maxLength="28">గమనిక చేర్చు</string>
     <string name="menu_my_account" comment="Label of the window in which the user should enter their account. This text can\'t be found in AnkiDroid directly.">ఖాతాను సమకాలీకరించండి</string>
     <string name="menu_dismiss_note" maxLength="41">దాచు / తొలగించు</string>
-    <string name="menu_delete_note" maxLength="28">గమనికను తొలగించండి</string>
     <string name="rename_flag">జెండాల పేరు మార్చండి</string>
     <string name="menu_flag_card" maxLength="28">ఫ్లాగ్ కార్డ్</string>
     <string name="menu_edit_tags" maxLength="28">ట్యాగ్‌లను సవరించండి</string>
@@ -126,7 +125,6 @@
     <string name="export_collection">ఎగుమతి సేకరణ</string>
     <!-- Card template editor -->
     <string name="title_activity_template_editor">కార్డ్ రకాలు</string>
-    <string name="card_template_editor_menu_card_browser_appearance" maxLength="28">కార్డ్ బ్రౌజర్ ఫార్మాట్</string>
     <string name="card_template_editor_deck_override" maxLength="28">డెక్ ఓవర్‌రైడ్</string>
     <string name="card_template_editor_insert_field" maxLength="28">ఫీల్డ్‌ను చొప్పించండి</string>
     <string name="card_template_editor_select_field">ఫీల్డ్‌ను ఎంచుకోండి</string>
@@ -141,9 +139,6 @@
     </plurals>
     <string name="card_template_editor_save_error">కార్డ్ టెంప్లేట్ మార్పులను సేవ్ చేయడం సాధ్యపడలేదు: %s</string>
     <string name="template_for_current_card_deleted">ప్రస్తుత కార్డ్ కోసం కార్డ్ రకం తొలగించబడింది.</string>
-    <!-- Card Browser Appearance -->
-    <string name="card_template_browser_appearance_title">Browser appearance</string>
-    <!-- card Info -->
     <!-- Permissions -->
     <string name="read_write_permission_label">AnkiDroid డేటాబేస్కు చదవండి మరియు వ్రాయండి</string>
     <string name="read_write_permission_description">పొందు ప్రస్తుతం ఉన్న గమనికలు, కార్డులు, నోట్ రకాలు మరియు డెక్స్, కొత్త వాటిని సృష్టించడం</string>

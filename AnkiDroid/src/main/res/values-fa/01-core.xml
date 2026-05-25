@@ -87,7 +87,6 @@
     <string name="menu_add_note" maxLength="28">افزودن یادداشت</string>
     <string name="menu_my_account" comment="Label of the window in which the user should enter their account. This text can\'t be found in AnkiDroid directly.">همگام‌سازی حساب</string>
     <string name="menu_dismiss_note" maxLength="41">پنهان‌کردن / حذف‌کردن</string>
-    <string name="menu_delete_note" maxLength="28">حذف یادداشت</string>
     <string name="rename_flag">تغییر نام نشانه‌ها</string>
     <string name="menu_flag_card" maxLength="28">نشانه‌گذاری کارت</string>
     <string name="menu_edit_tags" maxLength="28">ویرایش برچسب‌ها</string>
@@ -126,7 +125,6 @@
     <string name="export_collection">صدور مجموعه</string>
     <!-- Card template editor -->
     <string name="title_activity_template_editor">انواع کارت</string>
-    <string name="card_template_editor_menu_card_browser_appearance" maxLength="28">ظاهر مرورگر کارت</string>
     <string name="card_template_editor_deck_override" maxLength="28">لغو دسته</string>
     <string name="card_template_editor_insert_field" maxLength="28">اضافه کردن فیلد</string>
     <string name="card_template_editor_select_field">انتخاب فیلد</string>
@@ -141,9 +139,6 @@
     </plurals>
     <string name="card_template_editor_save_error">نمیتوان تغییرات قالب کارت را ذخیره کرد: %s</string>
     <string name="template_for_current_card_deleted">نوع کارت برای کارت فعلی حذف شد.</string>
-    <!-- Card Browser Appearance -->
-    <string name="card_template_browser_appearance_title">ظاهر مرورگر کارت</string>
-    <!-- card Info -->
     <!-- Permissions -->
     <string name="read_write_permission_label">بخوان و به پایگاه داده AnkiDroid پیام بده</string>
     <string name="read_write_permission_description">دسترسی به یادداشت‌ها، کارت‌ها، انواع یادداشت‌ها و دسته‌های موجود، و همچنین ایجاد موارد جدید</string>

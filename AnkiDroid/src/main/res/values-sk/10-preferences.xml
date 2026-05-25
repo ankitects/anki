@@ -120,7 +120,6 @@
     <string name="tts_summ">Prečíta otázku a odpoveď, ak nie je priložený žiaden zvukový súbor</string>
     <!-- Sync -->
     <string name="sync_fetch_missing_media" maxLength="41">Prevziať multimédiá počas synchronizácie</string>
-    <string name="sync_account" maxLength="41">AnkiWeb účet</string>
     <string name="sync_account_summ_logged_out">Neprihlásený</string>
     <string name="automatic_sync_choice" maxLength="41">Automatická synchronizácia</string>
     <string name="automatic_sync_choice_summ">Synchronizovať automaticky pri štarte/ukončení aplikácie, ak posledná synchronizácia bola pred viac než 10

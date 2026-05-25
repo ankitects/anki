@@ -118,7 +118,6 @@
     <string name="tts_summ">જો કોઈ ધ્વનિ ફાઇલ શામેલ ન હોય તો પ્રશ્ન અને જવાબ વાંચે છે</string>
     <!-- Sync -->
     <string name="sync_fetch_missing_media" maxLength="41">સમન્વયન પર મીડિયા મેળવો</string>
-    <string name="sync_account" maxLength="41">AnkiWeb એકાઉન્ટ</string>
     <string name="sync_account_summ_logged_out">લૉગ ઇન નથી</string>
     <string name="automatic_sync_choice" maxLength="41">આપોઆપ સિંક્રનાઇઝેશન</string>
     <string name="automatic_sync_choice_summ">જો છેલ્લું સમન્વયન 10 થી વધુ હોય તો એપ્લિકેશન પ્રારંભ/બહાર નીકળવા પર આપમેળે સમન્વયિત થાય છે</string>

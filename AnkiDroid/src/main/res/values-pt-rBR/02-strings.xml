@@ -200,7 +200,6 @@
     <string name="remove_background_image">Tem certeza de que deseja remover o plano de fundo?</string>
     <!-- Card Template Browser Appearance -->
     <string name="restore_default" maxLength="28">Restaurar padrão</string>
-    <string name="reviewer_tts_cloze_spoken_replacement">Vazio</string>
     <!-- Whiteboard eraser mode toggle message in Reviewer -->
     <string name="white_board_eraser_enabled">Borracha ativada</string>
     <string name="white_board_eraser_disabled">Borracha desativada</string>

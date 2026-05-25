@@ -118,7 +118,6 @@
     <string name="tts_summ">Binabasa ang tanong at sagot kung walang sound file na kasama</string>
     <!-- Sync -->
     <string name="sync_fetch_missing_media" maxLength="41">Kunin ang media sa sync</string>
-    <string name="sync_account" maxLength="41">AnkiWeb account</string>
     <string name="sync_account_summ_logged_out">Hindi naka-log in</string>
     <string name="automatic_sync_choice" maxLength="41">Awtomatikong pag-synchronize</string>
     <string name="automatic_sync_choice_summ">Awtomatikong i-sync sa start / exit ng app kung ang huling pag-sync ay higit sa 10

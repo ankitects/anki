@@ -197,7 +197,6 @@
     <string name="remove_background_image">デッキリスト画面に設定した背景画像を削除してもよろしいですか？</string>
     <!-- Card Template Browser Appearance -->
     <string name="restore_default" maxLength="28">デフォルトに戻す</string>
-    <string name="reviewer_tts_cloze_spoken_replacement">空白</string>
     <!-- Whiteboard eraser mode toggle message in Reviewer -->
     <string name="white_board_eraser_enabled">消しゴム機能をオンにしました</string>
     <string name="white_board_eraser_disabled">消しゴム機能をオフにしました</string>

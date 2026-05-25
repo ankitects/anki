@@ -40,7 +40,7 @@
     <string name="backup_del_collection">Sammlung löschen und neue erstellen</string>
     <string name="backup_del_collection_question">Sammlung löschen und neue erstellen? Alle Ihre Karten und Ihr gesamter Lernfortschritt werden gelöscht.</string>
     <string name="backup_one_way_sync_from_server">Einweg-Synchronisierung vom Server</string>
-    <string name="backup_use_default_folder">Use default collection folder</string>
+    <string name="backup_use_default_folder">Standard Sammlungsordner verwenden</string>
     <string name="backup_full_sync_from_server_question">Sammlung mit der Version von AnkiWeb überschreiben? Dies setzt den Lernfortschritt und die hinzugefügten Informationen seit der letzten Synchronisierung zurück.</string>
     <string name="error_handling_title">Fehlerbehandlung</string>
     <string name="error_handling_options" comment="In a warning message, the label of the suggested action that the user should take">Optionen</string>

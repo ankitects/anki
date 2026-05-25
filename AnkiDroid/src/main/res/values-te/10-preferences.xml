@@ -118,7 +118,6 @@
     <string name="tts_summ">ధ్వని ఫైల్ చేర్చబడకపోతే ప్రశ్న మరియు సమాధానాన్ని చదవండి</string>
     <!-- Sync -->
     <string name="sync_fetch_missing_media" maxLength="41">మీడియా సమకాలీకరణలో పొందండి</string>
-    <string name="sync_account" maxLength="41">AnkiWeb ఖాతా</string>
     <string name="sync_account_summ_logged_out">లాగిన్ చేయలేదు</string>
     <string name="automatic_sync_choice" maxLength="41">స్వయంచాలక సమకాలీకరణ</string>
     <string name="automatic_sync_choice_summ">గత సమకాలీకరణ 10         నిముషాల కంటే ఎక్కువగా ఉంటే అనువర్తనం ప్రారంభించండి / నిష్క్రమణలో స్వయంచాలకంగా సమకాలీకరించండి.</string>

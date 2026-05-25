@@ -117,7 +117,6 @@
     <string name="tts_summ">音声ファイルが含まれていない場合でも、質問と解答を読み上げることができます</string>
     <!-- Sync -->
     <string name="sync_fetch_missing_media" maxLength="41">メディアの同期</string>
-    <string name="sync_account" maxLength="41">AnkiWebアカウント</string>
     <string name="sync_account_summ_logged_out">ログインしていません</string>
     <string name="automatic_sync_choice" maxLength="41">自動同期</string>
     <string name="automatic_sync_choice_summ">最後に同期したのが10分以上前であった場合、アプリ起動/終了時に自動的に同期します</string>

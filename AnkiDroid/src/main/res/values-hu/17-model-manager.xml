@@ -35,10 +35,6 @@
     <string name="toast_empty_name">Meg kell adnod egy nevet</string>
     <string name="toast_duplicate_field">Már használt mezőnév</string>
     <!--Plurals-->
-    <plurals name="model_browser_types_available">
-        <item quantity="one">%d féle jegyzettípus</item>
-        <item quantity="other">%d jegyzettípus elérhető</item>
-    </plurals>
     <plurals name="model_browser_of_type">
         <item quantity="one">%d jegyzet</item>
         <item quantity="other">%d jegyzet</item>

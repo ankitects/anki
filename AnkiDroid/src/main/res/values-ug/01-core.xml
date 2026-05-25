@@ -87,7 +87,6 @@
     <string name="menu_add_note" maxLength="28">خاتىرە قوش</string>
     <string name="menu_my_account" comment="Label of the window in which the user should enter their account. This text can\'t be found in AnkiDroid directly.">ھېساباتنى قەدەمداشلا</string>
     <string name="menu_dismiss_note" maxLength="41">يوشۇر/ئۆچۈر</string>
-    <string name="menu_delete_note" maxLength="28">خاتىرە ئۆچۈر</string>
     <string name="rename_flag">بايراقنى ئاتىنى ئۆزگەرت</string>
     <string name="menu_flag_card" maxLength="28">كارتىغا بايراق قوش</string>
     <string name="menu_edit_tags" maxLength="28">بەلگە تەھرىر</string>
@@ -126,7 +125,6 @@
     <string name="export_collection">توپلامنى چىقار</string>
     <!-- Card template editor -->
     <string name="title_activity_template_editor">كارتا تۈرى</string>
-    <string name="card_template_editor_menu_card_browser_appearance" maxLength="28">كارتا كۆرگۈچ كۆرۈنۈشى</string>
     <string name="card_template_editor_deck_override" maxLength="28">دەستە قاپلا</string>
     <string name="card_template_editor_insert_field" maxLength="28">بۆلەك قىستۇر</string>
     <string name="card_template_editor_select_field">بۆلەك تاللا</string>
@@ -141,9 +139,6 @@
     </plurals>
     <string name="card_template_editor_save_error">كارتا قېلىپ ئۆزگىرىشىنى ساقلىيالمايدۇ: %s</string>
     <string name="template_for_current_card_deleted">نۆۋەتتىكى كارتىنىڭ كارتا تۈرى ئۆچۈرۈلگەن.</string>
-    <!-- Card Browser Appearance -->
-    <string name="card_template_browser_appearance_title">كۆرگۈچ كۆرۈنۈشى</string>
-    <!-- card Info -->
     <!-- Permissions -->
     <string name="read_write_permission_label">AnkiDroid ساندانىنى ئوقۇيدۇ ۋە يازىدۇ</string>
     <string name="read_write_permission_description">مەۋجۇت خاتىرە، كارتا، خاتىرە تۈرى ۋە دەستىنى زىيارەت قىلىپلا قالماي يەنە يېڭىسىنى قۇرىدۇ</string>

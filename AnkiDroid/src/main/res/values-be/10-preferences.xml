@@ -120,7 +120,6 @@
     <string name="tts_summ">Чытае пытанні і адказы, калі аўдыяфайл адсутнічае</string>
     <!-- Sync -->
     <string name="sync_fetch_missing_media" maxLength="41">Спампоўваць медыяфайлы</string>
-    <string name="sync_account" maxLength="41">Уліковы запіс AnkiWeb</string>
     <string name="sync_account_summ_logged_out">Вы не ўвайшлі ў сістэму</string>
     <string name="automatic_sync_choice" maxLength="41">Аўтаматычная сінхранізацыя</string>
     <string name="automatic_sync_choice_summ">Аўтаматычна сінхранізаваць, калі адбываецца адкрыццё/закрыццё праграмы,

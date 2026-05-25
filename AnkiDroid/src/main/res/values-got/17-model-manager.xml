@@ -35,10 +35,6 @@
     <string name="toast_empty_name">𐌼𐌴𐌻𐌴𐌹 𐌽𐌰𐌼𐍉 𐌸𐌴𐌹𐌽</string>
     <string name="toast_duplicate_field">𐍅𐌰𐌹𐍂𐌸𐌹𐍃 𐌽𐌰𐌼𐍉 𐌾𐌿 𐌱𐍂𐌿𐌷𐍄 𐌹𐍃𐍄</string>
     <!--Plurals-->
-    <plurals name="model_browser_types_available">
-        <item quantity="one">%d 𐌼𐌴𐌻𐌴𐌹𐌽𐌰𐌹𐍃 𐌺𐌹𐌽𐌸𐍃 𐌹𐍃𐍄</item>
-        <item quantity="other">%d 𐌼𐌴𐌻𐌴𐌹𐌽𐌰𐌹𐍃 𐌺𐌹𐌽𐌸𐌴𐌹𐍃 𐍃𐌹𐌽𐌳</item>
-    </plurals>
     <plurals name="model_browser_of_type">
         <item quantity="one">%d 𐌼𐌴𐌻𐌴𐌹𐌽𐍃</item>
         <item quantity="other">%d 𐌼𐌴𐌻𐌴𐌹𐌽𐍉𐍃</item>

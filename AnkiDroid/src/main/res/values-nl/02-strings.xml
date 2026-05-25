@@ -200,7 +200,6 @@
     <string name="remove_background_image">Weet je zeker dat je de achtergrond wilt verwijderen?</string>
     <!-- Card Template Browser Appearance -->
     <string name="restore_default" maxLength="28">Standaardinstellingen herstellen</string>
-    <string name="reviewer_tts_cloze_spoken_replacement">Leeg</string>
     <!-- Whiteboard eraser mode toggle message in Reviewer -->
     <string name="white_board_eraser_enabled">Wis-modus geactiveerd</string>
     <string name="white_board_eraser_disabled">Wis-modus gedeactiveerd</string>

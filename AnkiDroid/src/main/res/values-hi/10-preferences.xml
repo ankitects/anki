@@ -118,7 +118,6 @@
     <string name="tts_summ">कोई ध्वनि फ़ाइल शामिल है, तो प्रश्न और उत्तर बाहर पढ़ता है</string>
     <!-- Sync -->
     <string name="sync_fetch_missing_media" maxLength="41">मीडिया को सिंक पर लाएं</string>
-    <string name="sync_account" maxLength="41">AnkiWeb खाता</string>
     <string name="sync_account_summ_logged_out">लॉगिन नहीं हैं</string>
     <string name="automatic_sync_choice" maxLength="41">स्वचालित सिंक्रनाइज़ेशन</string>
     <string name="automatic_sync_choice_summ">यदि अंतिम सिंक्रनाइज़ेशन 10 मिनट पहले से अधिक था, तो अनुप्रयोग प्रारंभ/निकास पर स्वचालित रूप से सिंक्रनाइज़ करें ।</string>

@@ -88,7 +88,6 @@
     <string name="menu_add_note" maxLength="28">Annanghe una nota</string>
     <string name="menu_my_account" comment="Label of the window in which the user should enter their account. This text can\'t be found in AnkiDroid directly.">Sincroniza unu contu</string>
     <string name="menu_dismiss_note" maxLength="41">Cua / iscantzella</string>
-    <string name="menu_delete_note" maxLength="28">Iscantzella sa nota</string>
     <string name="rename_flag">Càmbia su nùmene a sas banderas</string>
     <string name="menu_flag_card" maxLength="28">Marca sa carta cun una bandera</string>
     <string name="menu_edit_tags" maxLength="28">Modìfica sas etichetas</string>
@@ -129,7 +128,6 @@
     <string name="export_collection">Esporta sa colletzione</string>
     <!-- Card template editor -->
     <string name="title_activity_template_editor">Castas de cartas</string>
-    <string name="card_template_editor_menu_card_browser_appearance" maxLength="28">Aparèntzia de su navigadore de cartas</string>
     <string name="card_template_editor_deck_override" maxLength="28">Subraiscritura de su matzu</string>
     <string name="card_template_editor_insert_field" maxLength="28">Inserta unu campu</string>
     <string name="card_template_editor_select_field">Seletziona unu campu</string>
@@ -144,9 +142,6 @@
     </plurals>
     <string name="card_template_editor_save_error">Impossìbile sarvare sas modìficas a su mollu de carta: %s</string>
     <string name="template_for_current_card_deleted">Sa casta de carta pro sa carta atuale est istada iscantzellada.</string>
-    <!-- Card Browser Appearance -->
-    <string name="card_template_browser_appearance_title">Aparèntzia de su navigadore</string>
-    <!-- card Info -->
     <!-- Permissions -->
     <string name="read_write_permission_label">Leghe e iscrie in sa base de datos de AnkiDroid</string>
     <string name="read_write_permission_description">atzede a sas notas, a sas cartas, a sas castas de notas e a sos matzos chi esistint giai, e crea·nde de noos</string>

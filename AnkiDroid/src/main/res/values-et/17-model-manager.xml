@@ -35,10 +35,6 @@
     <string name="toast_empty_name">Sa pead sisestama nime</string>
     <string name="toast_duplicate_field">Välja nimi on juba kasutuses</string>
     <!--Plurals-->
-    <plurals name="model_browser_types_available">
-        <item quantity="one">Saadaval on %d märkmeliik</item>
-        <item quantity="other">Saadaval on %d märkmeliiki</item>
-    </plurals>
     <plurals name="model_browser_of_type">
         <item quantity="one">%d märge</item>
         <item quantity="other">%d märget</item>

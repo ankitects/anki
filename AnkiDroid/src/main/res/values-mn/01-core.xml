@@ -87,7 +87,6 @@
     <string name="menu_add_note" maxLength="28">Тэмдэг оруулах</string>
     <string name="menu_my_account" comment="Label of the window in which the user should enter their account. This text can\'t be found in AnkiDroid directly.">Бүртгэл(аккаунт)- ээ тааруулах</string>
     <string name="menu_dismiss_note" maxLength="41">нуух \ устгах</string>
-    <string name="menu_delete_note" maxLength="28">Картын хэсгийг устгах</string>
     <string name="rename_flag">Rename flags</string>
     <string name="menu_flag_card" maxLength="28">Картыг дарцаглах</string>
     <string name="menu_edit_tags" maxLength="28">Шошгийг солих</string>
@@ -126,7 +125,6 @@
     <string name="export_collection">Export collection</string>
     <!-- Card template editor -->
     <string name="title_activity_template_editor">Картын төрлүүд</string>
-    <string name="card_template_editor_menu_card_browser_appearance" maxLength="28">Карт хайгчид харагдах байдал</string>
     <string name="card_template_editor_deck_override" maxLength="28">Багцыг шууд сонгох</string>
     <string name="card_template_editor_insert_field" maxLength="28">Талбар оруулах</string>
     <string name="card_template_editor_select_field">Талбараа сонгох</string>
@@ -141,9 +139,6 @@
     </plurals>
     <string name="card_template_editor_save_error">Картны загварын өөрчлөлтүүдийг хадгалах боломжгүй байна:%s</string>
     <string name="template_for_current_card_deleted">Энэ картны төрөл нь устгагдсан байна</string>
-    <!-- Card Browser Appearance -->
-    <string name="card_template_browser_appearance_title">Карт хайгчийн харагдах байдал</string>
-    <!-- card Info -->
     <!-- Permissions -->
     <string name="read_write_permission_label">Read and write to the AnkiDroid database</string>
     <string name="read_write_permission_description">оршин буй тэмдэглэлүүд, картууд, тэмдэглэлүүдийн загварууд, болон багцуудыг ашиглах мөн шинийг бүтээх</string>

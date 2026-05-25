@@ -197,7 +197,6 @@
     <string name="remove_background_image">您确定要删除背景吗？</string>
     <!-- Card Template Browser Appearance -->
     <string name="restore_default" maxLength="28">恢复默认</string>
-    <string name="reviewer_tts_cloze_spoken_replacement">空白</string>
     <!-- Whiteboard eraser mode toggle message in Reviewer -->
     <string name="white_board_eraser_enabled">擦除模式已激活</string>
     <string name="white_board_eraser_disabled">擦除模式已停用</string>

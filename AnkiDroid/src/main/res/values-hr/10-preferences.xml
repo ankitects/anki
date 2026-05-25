@@ -119,7 +119,6 @@
     <string name="tts_summ">Reads out question and answer if no sound file is included</string>
     <!-- Sync -->
     <string name="sync_fetch_missing_media" maxLength="41">Fetch media on sync</string>
-    <string name="sync_account" maxLength="41">AnkiWeb account</string>
     <string name="sync_account_summ_logged_out">Niste prijavljeni</string>
     <string name="automatic_sync_choice" maxLength="41">Automatska sinkronizacija</string>
     <string name="automatic_sync_choice_summ">Automatski sinkroniziraj pri ulasku/izlasku iz aplikacije ako je zadnja sinkronizacija provedena pred više od 10 minuta.</string>

@@ -118,7 +118,6 @@
     <string name="tts_summ">Llegeix en veu alta les preguntes i respostes si no s\'inclou arxiu de so</string>
     <!-- Sync -->
     <string name="sync_fetch_missing_media" maxLength="41">Recupera els media en sincronitzar</string>
-    <string name="sync_account" maxLength="41">Compte d\'AnkiWeb</string>
     <string name="sync_account_summ_logged_out">No heu iniciat sessió</string>
     <string name="automatic_sync_choice" maxLength="41">Sincronització automàtica</string>
     <string name="automatic_sync_choice_summ">Sincronitza automàticament en l\'app al Inici/sortir si el sync anterior va ser fa més de 10 minuts.</string>

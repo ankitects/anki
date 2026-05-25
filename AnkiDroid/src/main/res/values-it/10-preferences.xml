@@ -118,7 +118,6 @@
     <string name="tts_summ">Leggi a voce alta la domanda e la risposta se nessun file audio è incluso</string>
     <!-- Sync -->
     <string name="sync_fetch_missing_media" maxLength="41">Recuperare i media con sincronizzazione</string>
-    <string name="sync_account" maxLength="41">Account AnkiWeb</string>
     <string name="sync_account_summ_logged_out">Non connesso</string>
     <string name="automatic_sync_choice" maxLength="41">Sincronizzazione automatica</string>
     <string name="automatic_sync_choice_summ">Sincronizza automaticamente all\'avvio/uscita se l\'ultima sincronizzazione è stata più di 10 minuti fa.</string>

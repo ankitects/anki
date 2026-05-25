@@ -35,9 +35,6 @@
     <string name="toast_empty_name">Bạn phải nhập tên</string>
     <string name="toast_duplicate_field">Tên trường đã được sử dụng</string>
     <!--Plurals-->
-    <plurals name="model_browser_types_available">
-        <item quantity="other">%d loại ghi chú có sẵn</item>
-    </plurals>
     <plurals name="model_browser_of_type">
         <item quantity="other">%d ghi chú</item>
     </plurals>

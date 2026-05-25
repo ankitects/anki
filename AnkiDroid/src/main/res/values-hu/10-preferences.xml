@@ -118,7 +118,6 @@
     <string name="tts_summ">Felolvassa a kérdést és a választ, ha nincs csatolt hangfájl</string>
     <!-- Sync -->
     <string name="sync_fetch_missing_media" maxLength="41">Média letöltése szinkronizáláskor</string>
-    <string name="sync_account" maxLength="41">AnkiWeb fiók</string>
     <string name="sync_account_summ_logged_out">Nem vagy bejelentkezve</string>
     <string name="automatic_sync_choice" maxLength="41">Automatikus szinkronizálás</string>
     <string name="automatic_sync_choice_summ">Automatikus szinkronizálás az applikáció indításakor/kilépéskor, ha az utolsó több mint 10

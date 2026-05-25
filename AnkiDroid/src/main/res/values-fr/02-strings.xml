@@ -200,7 +200,6 @@
     <string name="remove_background_image">Êtes-vous sûr de vouloir supprimer l\'arrière-plan ?</string>
     <!-- Card Template Browser Appearance -->
     <string name="restore_default" maxLength="28">Restaurer les valeurs par défaut</string>
-    <string name="reviewer_tts_cloze_spoken_replacement">Vide</string>
     <!-- Whiteboard eraser mode toggle message in Reviewer -->
     <string name="white_board_eraser_enabled">Mode efface activé</string>
     <string name="white_board_eraser_disabled">Mode efface désactivé</string>

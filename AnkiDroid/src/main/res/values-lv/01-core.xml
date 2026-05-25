@@ -90,7 +90,6 @@
     <string name="menu_add_note" maxLength="28">Pievienot piezīmi</string>
     <string name="menu_my_account" comment="Label of the window in which the user should enter their account. This text can\'t be found in AnkiDroid directly.">Vienādot kontu</string>
     <string name="menu_dismiss_note" maxLength="41">Paslēpt / izdzēst</string>
-    <string name="menu_delete_note" maxLength="28">Izdzēst piezīmi</string>
     <string name="rename_flag">Pārdēvēt karogus</string>
     <string name="menu_flag_card" maxLength="28">Atzīmēt kartīti</string>
     <string name="menu_edit_tags" maxLength="28">Labot birkas</string>
@@ -129,7 +128,6 @@
     <string name="export_collection">Izgūt krājumu</string>
     <!-- Card template editor -->
     <string name="title_activity_template_editor">Kartīšu veidi</string>
-    <string name="card_template_editor_menu_card_browser_appearance" maxLength="28">Kartīšu pārlūka izskats</string>
     <string name="card_template_editor_deck_override" maxLength="28">Kavas aizvietošana</string>
     <string name="card_template_editor_insert_field" maxLength="28">Ievietot lauku</string>
     <string name="card_template_editor_select_field">Atlasīt lauku</string>
@@ -146,9 +144,6 @@
     </plurals>
     <string name="card_template_editor_save_error">Nav iespējams saglabāt kartīšu veidnes izmaiņas: %s</string>
     <string name="template_for_current_card_deleted">Pašreizējās kartītes veids tika izdzēsts.</string>
-    <!-- Card Browser Appearance -->
-    <string name="card_template_browser_appearance_title">Pārlūka izskats</string>
-    <!-- card Info -->
     <!-- Permissions -->
     <string name="read_write_permission_label">Lasīt un rakstīt AnkiDroid datubāzē</string>
     <string name="read_write_permission_description">Piekļūt esošajām piezīmēm, kartītēm, piezīmju veidiem un kavām, kā arī izveidot jaunas</string>

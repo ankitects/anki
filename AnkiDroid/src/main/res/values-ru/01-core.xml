@@ -93,7 +93,6 @@
     <string name="menu_add_note" maxLength="28">Добавить запись</string>
     <string name="menu_my_account" comment="Label of the window in which the user should enter their account. This text can\'t be found in AnkiDroid directly.">Учётная запись синхронизации</string>
     <string name="menu_dismiss_note" maxLength="41">Спрятать или удалить</string>
-    <string name="menu_delete_note" maxLength="28">Удалить запись</string>
     <string name="rename_flag">Переименовать флажки</string>
     <string name="menu_flag_card" maxLength="28">Поставить флажок</string>
     <string name="menu_edit_tags" maxLength="28">Редактировать метки</string>
@@ -132,7 +131,6 @@
     <string name="export_collection">Экспортировать коллекцию</string>
     <!-- Card template editor -->
     <string name="title_activity_template_editor">Типы карточек</string>
-    <string name="card_template_editor_menu_card_browser_appearance" maxLength="28">Вид списка карточек</string>
     <string name="card_template_editor_deck_override" maxLength="28">Переопределение колоды</string>
     <string name="card_template_editor_insert_field" maxLength="28">Вставить поле</string>
     <string name="card_template_editor_select_field">Выбрать поле</string>
@@ -151,9 +149,6 @@
     </plurals>
     <string name="card_template_editor_save_error">Не удаётся сохранить изменения в шаблоне: %s</string>
     <string name="template_for_current_card_deleted">Тип карточек текущей карточки был удалён.</string>
-    <!-- Card Browser Appearance -->
-    <string name="card_template_browser_appearance_title">Вид списка</string>
-    <!-- card Info -->
     <!-- Permissions -->
     <string name="read_write_permission_label">Чтение и запись в базу данных AnkiDroid</string>
     <string name="read_write_permission_description">доступ к колодам, карточкам, записям, их типам, а также создание новых</string>

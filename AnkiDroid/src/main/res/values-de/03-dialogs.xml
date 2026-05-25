@@ -33,10 +33,10 @@
   ~ SPDX-FileCopyrightText: Copyright (c) 2010 Norbert Nagold <norbert.nagold@gmail.com>
   -->
 <resources xmlns:tools="http://schemas.android.com/tools">
-    <string name="check_db_warning">This may take a long time. Proceed?</string>
+    <string name="check_db_warning">Das kann eine lange Zeit dauern. Fortfahren?</string>
     <string name="delete_deck_title">Stapel löschen?</string>
     <plurals name="delete_deck_message">
-        <item quantity="one">Alle karten in %1$s löschen? Es enthält %2$d karte</item>
+        <item quantity="one">Alle Karten in %1$s löschen? Es enthält %2$d Karte</item>
         <item quantity="other">Alle Karten in %1$s löschen? Es enthält %2$d Karten</item>
     </plurals>
     <string name="delete_cram_deck_message">Gefilterten Stapel „%s“ löschen und alle Karten zurück in ihre ursprünglichen Stapel senden?</string>
@@ -70,14 +70,14 @@
     <string name="restore_backup_choose_another">Eine andere auswählen</string>
     <string name="dialog_cancel">Abbrechen</string>
     <string name="dialog_ok">OK</string>
-    <string name="dialog_add" comment="Positive dialog action button label to add \'something\'">Add</string>
-    <string name="restore">Restore</string>
+    <string name="dialog_add" comment="Positive dialog action button label to add \'something\'">Hinzufügen</string>
+    <string name="restore">Wiederherstellen</string>
     <string name="dialog_confirm" tools:ignore="UnusedResources">Bestätigen</string>
     <string name="dialog_no">Nein</string>
     <string name="dialog_yes">Ja</string>
     <string name="dialog_keep">Behalten</string>
     <string name="dialog_remove">Entfernen</string>
-    <string name="dialog_exit" comment="Label for a button which will exit/finish the current screen">Exit</string>
+    <string name="dialog_exit" comment="Label for a button which will exit/finish the current screen">Verlassen</string>
     <string name="dialog_continue">Weiter</string>
     <string name="dialog_processing">Wird verarbeitet &#8230;</string>
     <string name="dialog_positive_create" comment="Create a new collection, probably erasing the previous one, may be necessary in case of error.">Erstellen</string>
@@ -92,7 +92,7 @@
     <string name="dialog_invalid_custom_certificate_title">Fehler beim parsen des Zertifikats</string>
     <string name="dialog_updated_custom_certificate">Zertifikat aktualisiert</string>
     <!-- Media checking -->
-    <string name="check_media_warning">This may take a long time with large media collections. Proceed?</string>
+    <string name="check_media_warning">Das kann mit großen Mediensammlungen lange dauern. Fortfahren?</string>
     <string name="check_media_message">Medien werden überprüft &#8230;</string>
     <string name="check_media_adding_missing_tag">Schlagworte werden hinzugefügt&#8230;</string>
     <string name="check_media_tags_added">Schlagworte hinzugefügt</string>
@@ -256,15 +256,15 @@
     <string name="error_no_changes_to_save">Keine Änderungen zum Speichern</string>
     <string name="choose_color">Farbe wählen</string>
     <!-- Special Fields -->
-    <string name="standard_fields_tab_header" comment="Tab header for inserting non-special fields: {{Front}}">Fields</string>
-    <string name="special_fields_tab_header" comment="Tab header for inserting special fields: {{Deck}}">Special</string>
-    <string name="special_field_example_suffix"><![CDATA[: ‘<b>%1$s</b>’]]></string>
-    <string name="special_field_front_side_help">The front template content. Audio is not automatically played</string>
-    <string name="special_field_deck_help" comment="%s: either blank or \' %s\'">The full deck of the card, including parent decks%s</string>
-    <string name="special_field_subdeck_help" comment="%s: either blank or \' %s\'">The current deck of the card, excluding parent decks%s</string>
-    <string name="special_field_flag_help">Outputs ‘%1$s’, where %2$s is the flag code (%3$s\–%4$s\)</string>
-    <string name="special_field_tags_help" comment="%s: either blank or \' %s\'">The tags of the note%s</string>
-    <string name="special_field_card_id_help" comment="%s: either blank or \' %s\'">The ID of the card%s</string>
-    <string name="special_field_card_help" comment="%s: either blank or \' %s\'">The name of the card template%s</string>
-    <string name="special_field_type_help" comment="%s: either blank or \' %s\'">The name of the note type%s</string>
+    <string name="standard_fields_tab_header" comment="Tab header for inserting non-special fields: {{Front}}">Felder</string>
+    <string name="special_fields_tab_header" comment="Tab header for inserting special fields: {{Deck}}">Spezial</string>
+    <string name="special_field_example_suffix"><![CDATA[:´<b>%1$s</b>´]]></string>
+    <string name="special_field_front_side_help">Der Inhalt der Vorderseitenvorlage. Audio wird nicht automatisch abgespielt</string>
+    <string name="special_field_deck_help" comment="%s: either blank or \' %s\'">Das Komplette Deck der Karte, inklusive der übergeordneten Decks%s</string>
+    <string name="special_field_subdeck_help" comment="%s: either blank or \' %s\'">Das Deck der Karte, ohne übergeordneten Decks%s</string>
+    <string name="special_field_flag_help">Ausgabe \'%1$s\', wobei %2$s der markierte code (%3$s\-%4$s\) ist</string>
+    <string name="special_field_tags_help" comment="%s: either blank or \' %s\'">Der Tag der Notiz%s</string>
+    <string name="special_field_card_id_help" comment="%s: either blank or \' %s\'">Die ID der Karte%s</string>
+    <string name="special_field_card_help" comment="%s: either blank or \' %s\'">Der Name der Karten Vorlage%s</string>
+    <string name="special_field_type_help" comment="%s: either blank or \' %s\'">Der Name des Notiztypen%s</string>
 </resources>

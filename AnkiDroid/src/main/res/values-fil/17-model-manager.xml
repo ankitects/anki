@@ -35,10 +35,6 @@
     <string name="toast_empty_name">Dapat kang magpasok ng pangalan</string>
     <string name="toast_duplicate_field">Ginamit na ang pangalan ng patlang</string>
     <!--Plurals-->
-    <plurals name="model_browser_types_available">
-        <item quantity="one">%d uri ng tala na magagamit</item>
-        <item quantity="other">%d uri ng mga tala na magagamit</item>
-    </plurals>
     <plurals name="model_browser_of_type">
         <item quantity="one">%d tala</item>
         <item quantity="other">%d na mga tala</item>

@@ -118,7 +118,6 @@
     <string name="tts_summ">ஒலி கோப்பு சேர்க்கப்படவில்லை என்றால் கேள்வி மற்றும் பதிலைப் படிக்கும்</string>
     <!-- Sync -->
     <string name="sync_fetch_missing_media" maxLength="41">மீடியாவை ஒத்திசைக்கவும்</string>
-    <string name="sync_account" maxLength="41">AnkiWeb கணக்கு</string>
     <string name="sync_account_summ_logged_out">உள்நுழையவில்லை</string>
     <string name="automatic_sync_choice" maxLength="41">தானியங்கி ஒத்திசைவு</string>
     <string name="automatic_sync_choice_summ">கடைசி ஒத்திசைவு 10 க்கும் அதிகமாக இருந்தால், தொடக்க/வெளியேறும்போது ஆப்ஸ் தானாகவே ஒத்திசைக்கப்படும் நிமிடங்களுக்கு முன்பு.</string>

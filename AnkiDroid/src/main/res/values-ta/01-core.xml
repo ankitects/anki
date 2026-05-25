@@ -87,7 +87,6 @@
     <string name="menu_add_note" maxLength="28">குறிப்பு சேர்க்க</string>
     <string name="menu_my_account" comment="Label of the window in which the user should enter their account. This text can\'t be found in AnkiDroid directly.">ஒத்திசைக்க</string>
     <string name="menu_dismiss_note" maxLength="41">மறைக்க/அழி</string>
-    <string name="menu_delete_note" maxLength="28">குறிப்பு நீக்கவும்</string>
     <string name="rename_flag">கொடிகளை மறுபெயரிடவும்</string>
     <string name="menu_flag_card" maxLength="28">கொடி அட்டை</string>
     <string name="menu_edit_tags" maxLength="28">Tags-ஐ திருத்து</string>
@@ -126,7 +125,6 @@
     <string name="export_collection">ஏற்றுமதி சேகரிப்பு</string>
     <!-- Card template editor -->
     <string name="title_activity_template_editor">அட்டை வகைகள்</string>
-    <string name="card_template_editor_menu_card_browser_appearance" maxLength="28">அட்டை உலாவியின் தோற்றம்</string>
     <string name="card_template_editor_deck_override" maxLength="28">டெக் மேலெழுதுதல்</string>
     <string name="card_template_editor_insert_field" maxLength="28">புலத்தைச் செருகவும்</string>
     <string name="card_template_editor_select_field">புலத்தைத் தேர்ந்தெடுக்கவும்</string>
@@ -141,9 +139,6 @@
     </plurals>
     <string name="card_template_editor_save_error">அட்டை டெம்ப்ளேட் மாற்றங்களைச் சேமிக்க முடியவில்லை: %s</string>
     <string name="template_for_current_card_deleted">தற்போதைய அட்டைக்கான அட்டை வகை நீக்கப்பட்டது.</string>
-    <!-- Card Browser Appearance -->
-    <string name="card_template_browser_appearance_title">உலாவித் தோற்றம்</string>
-    <!-- card Info -->
     <!-- Permissions -->
     <string name="read_write_permission_label">AnkiDroid டேட்டாபேஸ் எழுதப்</string>
     <string name="read_write_permission_description">தற்போதுள்ள குறிப்புகள், அட்டைகள், குறிப்பு வகைகள் மற்றும் அடுக்குகள் அணுக, அத்துடன் புதிய ஒன்றை உருவாக்க</string>

@@ -120,7 +120,6 @@
     <string name="tts_summ">Зачитывает вопрос и ответ, если нет прикреплённого аудиофайла</string>
     <!-- Sync -->
     <string name="sync_fetch_missing_media" maxLength="41">Загружать медиафайлы</string>
-    <string name="sync_account" maxLength="41">Учётная запись AnkiWeb</string>
     <string name="sync_account_summ_logged_out">Вы не вошли в учётную запись</string>
     <string name="automatic_sync_choice" maxLength="41">Автоматическая синхронизация</string>
     <string name="automatic_sync_choice_summ">Автоматически синхронизирует при запуске и выходе, но не чаще, чем раз в 10 минут.</string>

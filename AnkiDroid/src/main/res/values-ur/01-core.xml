@@ -87,7 +87,6 @@
     <string name="menu_add_note" maxLength="28">نوٹ شامل کریں</string>
     <string name="menu_my_account" comment="Label of the window in which the user should enter their account. This text can\'t be found in AnkiDroid directly.">اکاؤنٹس کی مطابقت پذیری</string>
     <string name="menu_dismiss_note" maxLength="41">چھپائیں / حذف کریں</string>
-    <string name="menu_delete_note" maxLength="28">نوٹ حذف کریں</string>
     <string name="rename_flag">جھنڈوں کا نام تبدیل کریں</string>
     <string name="menu_flag_card" maxLength="28">پرچم کارڈ</string>
     <string name="menu_edit_tags" maxLength="28">کارڈز میں ترمیم کریں</string>
@@ -126,7 +125,6 @@
     <string name="export_collection">ایکسپورٹ کلیکشن</string>
     <!-- Card template editor -->
     <string name="title_activity_template_editor">کارڈ کی اقسام</string>
-    <string name="card_template_editor_menu_card_browser_appearance" maxLength="28">کارڈ براؤزر کی ظاہری شکل</string>
     <string name="card_template_editor_deck_override" maxLength="28">ڈیک اوور رائڈ</string>
     <string name="card_template_editor_insert_field" maxLength="28">فیلڈ داخل کریں</string>
     <string name="card_template_editor_select_field">فیلڈ منتخب کریں</string>
@@ -141,9 +139,6 @@
     </plurals>
     <string name="card_template_editor_save_error">کارڈ ٹیمپلیٹ کی تبدیلیاں محفوظ کرنے سے قاصر: %s</string>
     <string name="template_for_current_card_deleted">موجودہ کارڈ کے لیے کارڈ کی قسم کو حذف کر دیا گیا تھا۔</string>
-    <!-- Card Browser Appearance -->
-    <string name="card_template_browser_appearance_title">براؤزر کی ظاہری شکل</string>
-    <!-- card Info -->
     <!-- Permissions -->
     <string name="read_write_permission_label">AnkiDroid ڈیٹا بیس کو پڑھیں اور لکھیں۔</string>
     <string name="read_write_permission_description">موجودہ نوٹوں، کارڈز، نوٹ کی اقسام، اور ڈیک تک رسائی حاصل کریں، اور ساتھ ہی نئے بنائیں</string>

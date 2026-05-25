@@ -87,7 +87,6 @@
     <string name="menu_add_note" maxLength="28">Добави бележка</string>
     <string name="menu_my_account" comment="Label of the window in which the user should enter their account. This text can\'t be found in AnkiDroid directly.">Акаунт за синхронизириране</string>
     <string name="menu_dismiss_note" maxLength="41">Скриване / изтриване</string>
-    <string name="menu_delete_note" maxLength="28">Изтрий бележка</string>
     <string name="rename_flag">Преименувай флаговеге</string>
     <string name="menu_flag_card" maxLength="28">Маркиране на карта</string>
     <string name="menu_edit_tags" maxLength="28">Редакция на етикети</string>
@@ -126,7 +125,6 @@
     <string name="export_collection">Експортирай колекцията</string>
     <!-- Card template editor -->
     <string name="title_activity_template_editor">Видове карта</string>
-    <string name="card_template_editor_menu_card_browser_appearance" maxLength="28">Външен вид на браузъра на карти</string>
     <string name="card_template_editor_deck_override" maxLength="28">Предефениране на тестето</string>
     <string name="card_template_editor_insert_field" maxLength="28">Вмъкване на поле</string>
     <string name="card_template_editor_select_field">Избор на поле</string>
@@ -141,9 +139,6 @@
     </plurals>
     <string name="card_template_editor_save_error">Не може да се запазят промените в шаблона на картата: %s</string>
     <string name="template_for_current_card_deleted">Видът карта за текущата карта беше изтрит.</string>
-    <!-- Card Browser Appearance -->
-    <string name="card_template_browser_appearance_title">Външен вид на браузъра</string>
-    <!-- card Info -->
     <!-- Permissions -->
     <string name="read_write_permission_label">Четене и писане в базата от данни на AnkiDroid</string>
     <string name="read_write_permission_description">достъп до съществуващи бележки, карти, типове бележки и тестета, както и създаване на нови</string>

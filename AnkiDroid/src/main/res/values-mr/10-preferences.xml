@@ -118,7 +118,6 @@
     <string name="tts_summ">कोणतीही ध्वनी फाइल समाविष्ट नसल्यास प्रश्न आणि उत्तर वाचते</string>
     <!-- Sync -->
     <string name="sync_fetch_missing_media" maxLength="41">सिंक करण्यासाठी मीडिया आणा</string>
-    <string name="sync_account" maxLength="41">अंकीवेब खाते</string>
     <string name="sync_account_summ_logged_out">लॉग इन नाही</string>
     <string name="automatic_sync_choice" maxLength="41">स्वयंचलित सिंक्रोनाइझेशन</string>
     <string name="automatic_sync_choice_summ">शेवटचे सिंक १० पेक्षा जास्त असल्यास ॲप स्टार्ट/बाहेर पडल्यावर आपोआप सिंक करा</string>

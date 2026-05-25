@@ -35,10 +35,6 @@
     <string name="toast_empty_name">ئىسىم چوقۇم كىرگۈزۈلىدۇ</string>
     <string name="toast_duplicate_field">بۆلەك ئاتى ئىشلىتىلگەن</string>
     <!--Plurals-->
-    <plurals name="model_browser_types_available">
-        <item quantity="one">%d خاتىرە تۈرى بار</item>
-        <item quantity="other">%d خاتىرە تۈرى بار</item>
-    </plurals>
     <plurals name="model_browser_of_type">
         <item quantity="one">%d خاتىرە</item>
         <item quantity="other">%d خاتىرە</item>

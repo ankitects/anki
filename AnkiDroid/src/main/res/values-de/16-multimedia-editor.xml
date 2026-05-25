@@ -65,7 +65,7 @@
     <string name="audio_recording_field_list" comment="Displays a list of the field data in the note editor while audio recording is taking place">Feldinhalte</string>
     <string name="crop_image_size_notice">Das Bild ist zu groß, um vom Zuschneide-Editor bearbeitet zu werden. Bitte skaliere es und versuche es erneut!</string>
     <string name="reselect" maxLength="28">Erneut Auswählen</string>
-    <string name="waveform_button_description">Show audio waveform</string>
-    <string name="field_content_description">Show field content</string>
-    <string name="delete_audio_button_description">Delete recording</string>
+    <string name="waveform_button_description">Audio-Wellenform anzeigen</string>
+    <string name="field_content_description">Feldinhalt anzeigen</string>
+    <string name="delete_audio_button_description">Aufnahme löschen</string>
 </resources>

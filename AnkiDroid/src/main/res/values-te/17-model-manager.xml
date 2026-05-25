@@ -35,10 +35,6 @@
     <string name="toast_empty_name">మీరు తప్పనిసరిగా పేరు నమోదు చేయాలి</string>
     <string name="toast_duplicate_field">ఫీల్డ్ పేరు ఇప్పటికే ఉపయోగించబడింది</string>
     <!--Plurals-->
-    <plurals name="model_browser_types_available">
-        <item quantity="one">%d గమనిక రకం అందుబాటులో ఉంది</item>
-        <item quantity="other">%d గమనిక రకాలు అందుబాటులో ఉన్నాయి</item>
-    </plurals>
     <plurals name="model_browser_of_type">
         <item quantity="one">%d గమనిక</item>
         <item quantity="other">%d గమనికలు</item>

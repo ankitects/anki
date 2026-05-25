@@ -87,7 +87,6 @@
     <string name="menu_add_note" maxLength="28">Lägg till not</string>
     <string name="menu_my_account" comment="Label of the window in which the user should enter their account. This text can\'t be found in AnkiDroid directly.">Synkronisera konto</string>
     <string name="menu_dismiss_note" maxLength="41">Dölj / ta bort</string>
-    <string name="menu_delete_note" maxLength="28">Ta bort not</string>
     <string name="rename_flag">Byt namn på flaggor</string>
     <string name="menu_flag_card" maxLength="28">Flagga kort</string>
     <string name="menu_edit_tags" maxLength="28">Redigera taggar</string>
@@ -126,7 +125,6 @@
     <string name="export_collection">Exportera samling</string>
     <!-- Card template editor -->
     <string name="title_activity_template_editor">Korttyper</string>
-    <string name="card_template_editor_menu_card_browser_appearance" maxLength="28">Utseende i kortbläddrare</string>
     <string name="card_template_editor_deck_override" maxLength="28">Åsidosätt kortlek</string>
     <string name="card_template_editor_insert_field" maxLength="28">Lägg till fält</string>
     <string name="card_template_editor_select_field">Välj fält</string>
@@ -141,10 +139,6 @@
     </plurals>
     <string name="card_template_editor_save_error">Det går inte att spara ändringar i kortmallen: %s</string>
     <string name="template_for_current_card_deleted">Korttypen för det aktuella kortet har tagits bort.</string>
-    <!-- Card Browser Appearance -->
-    <string name="card_template_browser_appearance_title">Läsarens utseende
-Webbläsare utseende</string>
-    <!-- card Info -->
     <!-- Permissions -->
     <string name="read_write_permission_label">Läs och skriv till AnkiDroid-databasen</string>
     <string name="read_write_permission_description">åtkomst till befintliga noter, kort, nottyper och kortlekar, samt att skapa nya</string>

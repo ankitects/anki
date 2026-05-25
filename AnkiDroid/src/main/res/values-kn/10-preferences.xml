@@ -118,7 +118,6 @@
     <string name="tts_summ">ಯಾವುದೇ ಧ್ವನಿ ಫೈಲ್ ಅನ್ನು ಸೇರಿಸದಿದ್ದರೆ ಪ್ರಶ್ನೆ ಮತ್ತು ಉತ್ತರವನ್ನು ಓದುತ್ತದೆ</string>
     <!-- Sync -->
     <string name="sync_fetch_missing_media" maxLength="41">ಮಾಧ್ಯಮವನ್ನು ಸಿಂಕ್‌ನಲ್ಲಿ ಪಡೆಯಿರಿ</string>
-    <string name="sync_account" maxLength="41">ಅಂಕಿವೆಬ್ ಖಾತೆ</string>
     <string name="sync_account_summ_logged_out">ಲಾಗಿನ್ ಆಗಿಲ್ಲ</string>
     <string name="automatic_sync_choice" maxLength="41">ಸ್ವಯಂಚಾಲಿತ ಸಿಂಕ್ರೊನೈಸೇಶನ್</string>
     <string name="automatic_sync_choice_summ">ಕೊನೆಯ ಸಿಂಕ್ 10 ನಿಮಿಷಗಳ ಹಿಂದೆ ಆಗಿದ್ದರೆ ಅಪ್ಲಿಕೇಶನ್ ಪ್ರಾರಂಭ/ನಿರ್ಗಮನದಲ್ಲಿ ಸ್ವಯಂಚಾಲಿತವಾಗಿ ಸಿಂಕ್ ಮಾಡಿ.</string>
