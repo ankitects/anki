@@ -137,6 +137,7 @@ dependencies = [
  "reqwest 0.12.23",
  "rusqlite",
  "rustls-pemfile 2.2.0",
+ "same-file",
  "scopeguard",
  "serde",
  "serde-aux",
