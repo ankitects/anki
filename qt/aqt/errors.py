@@ -207,12 +207,12 @@ def _init_message_box(
         debug_info = _mbox.addButton(
             tr.errors_copy_debug_info_button(), QMessageBox.ButtonRole.ActionRole
         )
-        debug_info.disconnect()
+        debug_info.clicked.disconnect()
         debug_info.clicked.connect(copy_debug_info)
     cancel = _mbox.addButton(QMessageBox.StandardButton.Cancel)
     cancel.setText(tr.actions_close())
 
-    help.disconnect()
+    help.clicked.disconnect()
     help.clicked.connect(show_help)
 
     return _mbox
