@@ -14,6 +14,7 @@ use data_encoding::BASE64;
 use regex::Regex;
 use tracing::debug;
 use tracing::info;
+use unicase::UniCase;
 
 use crate::error::DbErrorKind;
 use crate::latex::extract_latex_expanding_clozes;
@@ -57,6 +58,58 @@ struct MediaFolderCheck {
 impl Collection {
     pub fn media_checker(&mut self) -> Result<MediaChecker<'_>> {
         MediaChecker::new(self)
+    }
+}
+
+/// If the media folder is case-insensitive, `[sound:blah.mp3]` and
+/// `[sound:BLAH.Mp3]` are identical
+enum References {
+    Sensitive(HashMap<String, Vec<NoteId>>),
+    Insensitive(HashMap<UniCase<String>, Vec<NoteId>>),
+}
+
+impl References {
+    fn new(is_case_sensitive: bool) -> Self {
+        if is_case_sensitive {
+            Self::Sensitive(HashMap::new())
+        } else {
+            Self::Insensitive(HashMap::new())
+        }
+    }
+
+    fn add(&mut self, fname: String, nid: NoteId) {
+        match self {
+            References::Sensitive(refs) => refs.entry(fname).or_insert_with(Vec::new).push(nid),
+            References::Insensitive(refs) => refs
+                .entry(UniCase::new(fname))
+                .or_insert_with(Vec::new)
+                .push(nid),
+        }
+    }
+
+    fn contains_key(&self, fname: &str) -> bool {
+        match self {
+            References::Sensitive(refs) => refs.contains_key(fname),
+            References::Insensitive(refs) => refs.contains_key(&UniCase::new(fname.to_string())),
+        }
+    }
+
+    fn remove(&mut self, fname: String) {
+        match self {
+            References::Sensitive(refs) => refs.remove(&fname),
+            References::Insensitive(refs) => refs.remove(&UniCase::new(fname)),
+        };
+    }
+
+    fn for_each(&self, mut f: impl FnMut((&String, &Vec<NoteId>))) {
+        match self {
+            References::Sensitive(refs) => {
+                refs.iter().for_each(f);
+            }
+            References::Insensitive(refs) => {
+                refs.iter().for_each(|(fname, notes)| f((fname, notes)));
+            }
+        }
     }
 }
 
@@ -341,11 +394,9 @@ impl MediaChecker<'_> {
     }
 
     /// Find all media references in notes, fixing as necessary.
-    fn check_media_references(
-        &mut self,
-        renamed: &HashMap<String, String>,
-    ) -> Result<HashMap<String, Vec<NoteId>>> {
-        let mut referenced_files = HashMap::new();
+    fn check_media_references(&mut self, renamed: &HashMap<String, String>) -> Result<References> {
+        let is_case_sensitive = anki_io::is_case_sensitive(&self.media.media_folder);
+        let mut referenced_files = References::new(is_case_sensitive);
         let notetypes = self.col.get_all_notetypes()?;
         let mut collection_modified = false;
 
@@ -360,12 +411,7 @@ impl MediaChecker<'_> {
                 .ok_or_else(|| {
                     AnkiError::db_error("missing note type", DbErrorKind::MissingEntity)
                 })?;
-            let mut tracker = |fname| {
-                referenced_files
-                    .entry(fname)
-                    .or_insert_with(Vec::new)
-                    .push(nid)
-            };
+            let mut tracker = |fname| referenced_files.add(fname, nid);
             if self.fix_and_extract_media_refs(&mut note, &mut tracker, renamed)? {
                 // note was modified, needs saving
                 note.prepare_for_update(nt, false)?;
@@ -501,22 +547,22 @@ struct UnusedAndMissingFiles {
 }
 
 impl UnusedAndMissingFiles {
-    fn new(files: Vec<String>, mut references: HashMap<String, Vec<NoteId>>) -> Self {
+    fn new(files: Vec<String>, mut references: References) -> Self {
         let mut unused = vec![];
         for file in files {
             if !file.starts_with('_') && !references.contains_key(&file) {
                 unused.push(file);
             } else {
-                references.remove(&file);
+                references.remove(file);
             }
         }
 
         let mut missing = Vec::new();
         let mut notes = HashSet::new();
-        for (fname, nids) in references {
-            missing.push(fname);
+        references.for_each(|(fname, nids)| {
+            missing.push(fname.to_string());
             notes.extend(nids);
-        }
+        });
 
         Self {
             unused,
@@ -894,6 +940,33 @@ Unused: unused.jpg
         assert!(new_filename.len() <= MAX_MEDIA_FILENAME_LENGTH);
         assert!(!output.unused.contains(new_filename));
         assert!(!output.missing.contains(new_filename));
+
+        Ok(())
+    }
+
+    #[test]
+    fn unused_check_accounts_for_case_insensitivity() -> Result<()> {
+        let (_dir, mgr, mut col) = common_setup()?;
+
+        let ref_fname = "ABC.mp3".to_owned();
+        let disk_fname = ref_fname.to_lowercase();
+
+        NoteAdder::basic(&mut col)
+            .fields(&["abc", &format!("[sound:{}]", ref_fname)])
+            .add(&mut col);
+
+        write_file(mgr.media_folder.join(&disk_fname), "blah")?;
+
+        let output = {
+            let mut checker = col.media_checker()?;
+            checker.check()?
+        };
+
+        // only considered missing if the media folder is case sensitive
+        assert_eq!(
+            output.missing.contains(&ref_fname),
+            anki_io::is_case_sensitive(&mgr.media_folder)
+        );
 
         Ok(())
     }
