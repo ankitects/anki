@@ -997,4 +997,45 @@ Unused: unused.jpg
 
         Ok(())
     }
+
+    #[test]
+    fn case_insensitively_dedup_media() -> Result<()> {
+        let (_dir, mgr, mut col) = common_setup()?;
+        let case_sensitive = anki_io::is_case_sensitive(&mgr.media_folder);
+
+        let fname = "a.jpg";
+        let fname1 = "A.JPG";
+        let fname1_hash = "a-da4b9237bacccdf19c0760cab7aec4a8359010b0.jpg";
+        let fname2 = "a.JPG";
+        let field_content = |f1, f2, f3| format!("[sound:{}] [sound:{}] [sound:{}]", f1, f2, f3);
+
+        let note = NoteAdder::basic(&mut col)
+            .fields(&["a", &field_content(fname, fname1, fname2)])
+            .add(&mut col);
+
+        write_file(mgr.media_folder.join(fname), "1")?;
+        if case_sensitive {
+            write_file(mgr.media_folder.join(fname1), "2")?;
+        }
+
+        let output = {
+            let mut checker = col.media_checker()?;
+            checker.check()?
+        };
+
+        let note = col.storage.get_note(note.id)?.unwrap();
+        let field = note.fields().get(1).unwrap();
+
+        if case_sensitive {
+            // a.JPG considered distinct, not renamed
+            assert!(output.missing.contains(&fname2.to_string()));
+            assert_eq!(field, &field_content(fname, fname1_hash, fname2));
+        } else {
+            // nothing to be done here since the singular
+            // file is already on a case-insensitive fs
+            assert_eq!(field, &field_content(fname, fname1, fname2));
+        }
+
+        Ok(())
+    }
 }
