@@ -44,10 +44,9 @@ if "--syncserver" in sys.argv:
     # does not return
     run_sync_server()
 
-if sys.platform == "win32":
-    from win32com.shell import shell
+from .package import _fix_win_taskbar_pinning
 
-    shell.SetCurrentProcessExplicitAppUserModelID("Ankitects.Anki")
+_fix_win_taskbar_pinning()
 
 import argparse
 import builtins
