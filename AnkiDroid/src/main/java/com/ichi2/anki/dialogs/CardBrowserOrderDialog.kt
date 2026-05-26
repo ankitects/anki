@@ -17,7 +17,6 @@
 package com.ichi2.anki.dialogs
 
 import android.app.Dialog
-import android.content.DialogInterface
 import android.os.Bundle
 import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.activityViewModels
@@ -50,19 +49,14 @@ class CardBrowserOrderDialog : AnalyticsDialogFragment() {
         return AlertDialog
             .Builder(requireContext())
             .setTitle(R.string.card_browser_change_display_order_title)
-            .setSingleChoiceItems(items, viewModel.order.cardBrowserLabelIndex, orderSingleChoiceDialogListener)
-            .create()
+            .setSingleChoiceItems(items, viewModel.order.cardBrowserLabelIndex) { dialog, which ->
+                dialog.dismiss()
+                viewModel.changeCardOrder(LegacySortType.fromCardBrowserLabelIndex(which))
+            }.create()
     }
 
     companion object {
-        private var orderSingleChoiceDialogListener: DialogInterface.OnClickListener? = null
-
         // SortType.NO_SORTING.cardBrowserLabelIndex
         private const val CARD_ORDER_NONE = 0
-
-        fun newInstance(orderSingleChoiceDialogListener: DialogInterface.OnClickListener): CardBrowserOrderDialog {
-            this.orderSingleChoiceDialogListener = orderSingleChoiceDialogListener
-            return CardBrowserOrderDialog()
-        }
     }
 }
