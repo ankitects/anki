@@ -72,7 +72,6 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import androidx.work.WorkInfo
 import androidx.work.WorkManager
 import anki.collection.OpChanges
-import anki.decks.deckId
 import anki.sync.SyncStatusResponse
 import com.google.android.material.progressindicator.LinearProgressIndicator
 import com.google.android.material.snackbar.BaseTransientBottomBar
@@ -529,18 +528,7 @@ open class DeckPicker :
 
         lifecycleScope.launch { applyDeckPickerBackground() }
 
-        pullToSyncWrapper =
-            deckPickerBinding.pullToSyncWrapper.apply {
-                setDistanceToTriggerSync(SWIPE_TO_SYNC_TRIGGER_DISTANCE)
-                setOnRefreshListener {
-                    Timber.i("Pull to Sync: Syncing")
-                    pullToSyncWrapper.isRefreshing = false
-                    sync()
-                }
-                viewTreeObserver.addOnScrollChangedListener {
-                    pullToSyncWrapper.isEnabled = decksLayoutManager.findFirstCompletelyVisibleItemPosition() == 0
-                }
-            }
+        setupPullToSync()
         // Setup the FloatingActionButtons
         floatingActionMenu =
             DeckPickerFloatingActionMenu(this, binding, this).apply {
@@ -601,6 +589,22 @@ open class DeckPicker :
         onBackPressedDispatcher.addCallback(this, exitViaDoubleTapBackCallback())
         onBackPressedDispatcher.addCallback(this, closeFloatingActionBarBackPressCallback)
         super.setupBackPressedCallbacks()
+    }
+
+    private fun setupPullToSync() {
+        pullToSyncWrapper =
+            deckPickerBinding.pullToSyncWrapper.apply {
+                setDistanceToTriggerSync(SWIPE_TO_SYNC_TRIGGER_DISTANCE)
+                setOnRefreshListener {
+                    Timber.i("Pull to Sync: Syncing")
+                    pullToSyncWrapper.isRefreshing = false
+                    sync()
+                }
+                viewTreeObserver.addOnScrollChangedListener {
+                    pullToSyncWrapper.isEnabled =
+                        decksLayoutManager.findFirstCompletelyVisibleItemPosition() == 0
+                }
+            }
     }
 
     @Suppress("UNUSED_PARAMETER")
