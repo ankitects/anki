@@ -317,30 +317,6 @@
             ]
           }
         ]
-      },
-      {
-        "tab": "Legacy",
-        "groups": [
-          {
-            "group": "Legacy Archive",
-            "pages": [
-              "legacy/index",
-              "legacy/anki-docs/AnkiMobile",
-              "legacy/anki-docs/addons",
-              "legacy/anki-docs/am-manual",
-              "legacy/anki-docs/beta",
-              "legacy/anki-docs/changes",
-              "legacy/anki-docs/help",
-              "legacy/anki-docs/knownissues21",
-              "legacy/anki-docs/manual.es",
-              "legacy/anki-docs/manual.fr",
-              "legacy/anki-docs/manual.id",
-              "legacy/anki-docs/manual.pl",
-              "legacy/anki-docs/manual",
-              "legacy/anki-docs/manual20"
-            ]
-          }
-        ]
       }
     ],
     "global": {
