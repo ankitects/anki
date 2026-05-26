@@ -24,7 +24,8 @@
         ".mypy_cache",
         "extra",
         "ts/.svelte-kit",
-        "ts/vite.config.ts.timestamp*"
+        "ts/vite.config.ts.timestamp*",
+        "qt/installer/*-template"
     ],
     "plugins": [
         "https://plugins.dprint.dev/typescript-0.91.6.wasm",

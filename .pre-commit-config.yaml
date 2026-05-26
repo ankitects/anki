@@ -1,0 +1,12 @@
+default_install_hook_types: [pre-push]
+
+repos:
+    - repo: local
+      hooks:
+          - id: ninja-check
+            name: ninja check
+            entry: bash -c 'if [ "$OS" = "Windows_NT" ]; then ./tools/ninja.bat check; else ./ninja check; fi'
+            language: system
+            pass_filenames: false
+            always_run: true
+            stages: [pre-push]

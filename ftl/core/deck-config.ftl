@@ -472,7 +472,7 @@ deck-config-compute-optimal-weights-tooltip2 =
 deck-config-please-save-your-changes-first = Please save your changes first.
 deck-config-workload-factor-change = Approximate workload: {$factor}x
     (compared to {$previousDR}% desired retention)
-deck-config-workload-factor-unchanged = The higher this value, the more frequently cards will be shown to you.
+deck-config-workload-factor-unchanged = The higher your desired retention, the more frequently cards will be shown to you.
 deck-config-desired-retention-too-low = Your desired retention is very low, which can lead to very long intervals.
 deck-config-desired-retention-too-high = Your desired retention is very high, which can lead to very short intervals.
 
@@ -517,9 +517,8 @@ deck-config-save-options-to-preset-confirm = Overwrite the options in your curre
 # to show the total number of cards that can be recalled or retrieved on a
 # specific date.
 deck-config-fsrs-simulator-radio-memorized = Memorized
-deck-config-fsrs-simulator-radio-ratio = Time / Memorized Ratio
-# $time here is pre-formatted e.g. "10 Seconds" 
-deck-config-fsrs-simulator-ratio-tooltip = { $time } per memorized card
+deck-config-fsrs-simulator-radio-efficiency = Efficiency
+deck-config-fsrs-simulator-ratio-tooltip2 = { $time } memorized cards per hour
 
 ## Messages related to the FSRS scheduler’s health check. The health check determines whether the correlation between FSRS predictions and your memory is good or bad. It can be optionally triggered as part of the "Optimize" function.
 
@@ -540,6 +539,9 @@ deck-config-fsrs-good-fit = Health Check:
 
 ## NO NEED TO TRANSLATE. This text is no longer used by Anki, and will be removed in the future.
 
+deck-config-fsrs-simulator-radio-ratio = Time / Memorized Ratio
+# $time here is pre-formatted e.g. "10 Seconds" 
+deck-config-fsrs-simulator-ratio-tooltip = { $time } per memorized card
 deck-config-unable-to-determine-desired-retention =
     Unable to determine a minimum recommended retention.
 deck-config-predicted-minimum-recommended-retention = Minimum recommended retention: { $num }

@@ -39,8 +39,19 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     export let state: DeckOptionsState;
     export let openHelpModal: (String) => void;
-    export let onPresetChange: () => void;
     export let newlyEnabled = false;
+
+    export function onPresetChange() {
+        desiredRetentionTabs[0] = new ValueTab(
+            tr.deckConfigSharedPreset(),
+            $config.desiredRetention,
+            (value) => ($config.desiredRetention = value!),
+            $config.desiredRetention,
+            null,
+        );
+        effectiveDesiredRetention =
+            $limits.desiredRetention ?? $config.desiredRetention;
+    }
 
     const config = state.currentConfig;
     const defaults = state.defaults;

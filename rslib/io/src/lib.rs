@@ -262,12 +262,25 @@ pub fn atomic_rename(file: NamedTempFile, target: &Path, fsync: bool) -> Result<
     file.persist(target)?;
     #[cfg(not(windows))]
     if fsync {
-        if let Some(parent) = target.parent() {
-            open_file(parent)?.sync_all().context(FileIoSnafu {
-                path: parent,
-                op: FileOp::Sync,
-            })?;
-        }
+        let abs_path;
+        let parent = match target.parent() {
+            Some(p) if !p.as_os_str().is_empty() => p,
+            _ => {
+                abs_path = std::path::absolute(target).context(FileIoSnafu {
+                    path: target,
+                    op: FileOp::Absolute,
+                })?;
+                abs_path.parent().ok_or(FileIoError {
+                    path: abs_path.to_path_buf(),
+                    op: FileOp::Parent,
+                    source: std::io::Error::other("path has no parent"),
+                })?
+            }
+        };
+        open_file(parent)?.sync_all().context(FileIoSnafu {
+            path: parent,
+            op: FileOp::Sync,
+        })?;
     }
     Ok(())
 }
@@ -352,6 +365,23 @@ pub fn write_file_if_changed(path: impl AsRef<Path>, contents: impl AsRef<[u8]>)
     }
 }
 
+pub fn is_case_sensitive(dir: &Path) -> bool {
+    let opt = OpenOptions::new().write(true).create_new(true).to_owned();
+    for _ in 0..100 {
+        let fname = format!("__case-test-{}", rand::random::<u128>());
+        let fname_upper = fname.to_uppercase();
+        if open_file_ext(dir.join(&fname), opt.to_owned()).is_ok() {
+            let sensitive = open_file_ext(dir.join(&fname_upper), opt.to_owned()).is_ok();
+            let _ = std::fs::remove_file(dir.join(fname));
+            if sensitive {
+                let _ = std::fs::remove_file(dir.join(fname_upper));
+            }
+            return sensitive;
+        }
+    }
+    cfg!(unix) && !cfg!(target_os = "macos")
+}
+
 pub trait ToUtf8PathBuf {
     fn utf8(self) -> Result<Utf8PathBuf>;
 }
@@ -382,6 +412,11 @@ impl ToUtf8Path for Path {
 
 #[cfg(test)]
 mod test {
+    use std::env;
+
+    use tempfile::tempdir;
+    use tempfile::TempDir;
+
     use super::*;
 
     #[test]
@@ -398,5 +433,41 @@ mod test {
             assert!(!filename_is_safe("c:\\foo"));
             assert!(!filename_is_safe("\\foo"));
         }
+    }
+
+    struct TempCurrentDirectory {
+        old_cwd: PathBuf,
+
+        // We must hold ontop the TempDir reference so the directory doesn't get deleted. We don't
+        // actually need to read it, though.
+        #[allow(dead_code)]
+        tmp_cwd: TempDir,
+    }
+
+    impl TempCurrentDirectory {
+        fn new() -> Self {
+            let old_cwd = env::current_dir().unwrap();
+            let tmp_cwd = tempdir().unwrap();
+            env::set_current_dir(&tmp_cwd).unwrap();
+            Self { old_cwd, tmp_cwd }
+        }
+    }
+
+    impl Drop for TempCurrentDirectory {
+        fn drop(&mut self) {
+            env::set_current_dir(&self.old_cwd).unwrap()
+        }
+    }
+
+    #[test]
+    fn test_atomic_rename_target_relative_path_one_component() {
+        let tmp_cwd = TempCurrentDirectory::new();
+
+        let tempfile = new_tempfile().unwrap();
+        let target = Path::new("new-file.txt");
+        atomic_rename(tempfile, target, true).unwrap();
+        assert!(target.exists());
+
+        drop(tmp_cwd);
     }
 }
