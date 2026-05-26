@@ -60,7 +60,7 @@ suspend fun ensureOpWithHandler(
 }
 
 // used to ensure a strong reference to the subscription is held
-private class ChangeCounter : ChangeManager.Subscriber {
+internal class ChangeCounter : ChangeManager.Subscriber {
     private var changes = 0
     val changeCount get() = changes
     val hasChanges get() = changes > 0
@@ -84,4 +84,15 @@ private class ExtractOpHandler : ChangeManager.Subscriber {
     ) {
         this.handler = handler
     }
+}
+
+/**
+ * Produces a [ChangeCounter] which is subscribed to [ChangeManager].
+ *
+ * Query the result via [.changeCount][ChangeCounter.changeCount] or [.hasChanges][ChangeCounter.hasChanges]
+ */
+internal fun subscriberChangeCounter(): ChangeCounter {
+    val counter = ChangeCounter()
+    ChangeManager.subscribe(counter)
+    return counter
 }
