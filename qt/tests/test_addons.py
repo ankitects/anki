@@ -75,3 +75,24 @@ def test_package_name_validation():
     assert not package_name_valid("a/b")
     assert not package_name_valid("..")
     assert package_name_valid("ab")
+
+
+def _make_addon_manager(addon_folder: str) -> AddonManager:
+    adm = AddonManager(MagicMock())
+    adm.mw.pm.addonFolder.return_value = addon_folder
+    return adm
+
+
+def test_install_extracts_safe_files(tmp_path):
+    adm = _make_addon_manager(tmp_path)
+    zfn = os.path.join(tmp_path, "addon.zip")
+    with ZipFile(zfn, "w") as zfile:
+        zfile.writestr("main.py", "content")
+        zfile.writestr("../unsafe.txt", "content")
+        zfile.writestr("subdir/helper.py", "content")
+    with ZipFile(zfn) as zfile:
+        adm._install("12345", zfile)
+    addon_dir = os.path.join(tmp_path, "12345")
+    assert os.path.exists(os.path.join(addon_dir, "main.py"))
+    assert os.path.exists(os.path.join(addon_dir, "subdir", "helper.py"))
+    assert not os.path.exists(os.path.join(tmp_path, "unsafe.txt"))
