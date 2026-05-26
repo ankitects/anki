@@ -409,18 +409,19 @@ impl SqlWriter<'_> {
             }
             PropertyKind::Rated(days, ease) => self.write_rated(op, i64::from(*days), ease)?,
             PropertyKind::CustomDataNumber { key, value } => {
+                self.args.push(key.clone());
                 write!(
                     self.sql,
-                    "cast(extract_custom_data(c.data, '{key}') as float) {op} {value}"
+                    "cast(extract_custom_data(c.data, ?) as float) {op} {value}",
+                    op = op,
+                    value = value
                 )
                 .unwrap();
             }
             PropertyKind::CustomDataString { key, value } => {
-                write!(
-                    self.sql,
-                    "extract_custom_data(c.data, '{key}') {op} '{value}'"
-                )
-                .unwrap();
+                self.args.push(key.clone());
+                self.args.push(value.clone());
+                write!(self.sql, "extract_custom_data(c.data, ?) {op} ?").unwrap();
             }
             PropertyKind::Stability(s) => {
                 write!(self.sql, "extract_fsrs_variable(c.data, 's') {op} {s}").unwrap()
@@ -447,7 +448,8 @@ impl SqlWriter<'_> {
     }
 
     fn write_custom_data(&mut self, key: &str) -> Result<()> {
-        write!(self.sql, "extract_custom_data(c.data, '{key}') is not null").unwrap();
+        self.args.push(key.to_owned());
+        write!(self.sql, "extract_custom_data(c.data, ?) is not null").unwrap();
 
         Ok(())
     }
@@ -1358,12 +1360,18 @@ c.odue != 0 then c.odue else c.due end) != {days}) or (c.queue in (1,4) and
         );
         assert_eq!(s(ctx, "prop:rated>-5:3").0, s(ctx, "rated:5:3").0);
         assert_eq!(
-            &s(ctx, "prop:cdn:r=1").0,
-            "(cast(extract_custom_data(c.data, 'r') as float) = 1)"
+            s(ctx, "prop:cdn:r=1"),
+            (
+                "(cast(extract_custom_data(c.data, ?) as float) = 1)".into(),
+                vec!["r".into()]
+            )
         );
         assert_eq!(
-            &s(ctx, "prop:cds:r=s").0,
-            "(extract_custom_data(c.data, 'r') = 's')"
+            s(ctx, "prop:cds:r=s"),
+            (
+                "(extract_custom_data(c.data, ?) = ?)".into(),
+                vec!["r".into(), "s".into()]
+            )
         );
 
         // note types by name
@@ -1408,8 +1416,11 @@ c.odue != 0 then c.odue else c.due end) != {days}) or (c.queue in (1,4) and
 
         // has-cd
         assert_eq!(
-            &s(ctx, "has-cd:r").0,
-            "(extract_custom_data(c.data, 'r') is not null)"
+            s(ctx, "has-cd:r"),
+            (
+                "(extract_custom_data(c.data, ?) is not null)".into(),
+                vec!["r".into()]
+            )
         );
 
         // preset search
