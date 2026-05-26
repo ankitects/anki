@@ -12,6 +12,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.remember
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
@@ -36,7 +37,9 @@ import com.ichi2.anki.R
 fun AnkiDroidTheme(content: @Composable () -> Unit) {
     val context = LocalContext.current
     val colorScheme = remember(context) { context.toMaterial3ColorScheme() }
-    MaterialTheme(colorScheme = colorScheme, content = content)
+    CompositionLocalProvider(LocalDimensions provides Dimensions()) {
+        MaterialTheme(colorScheme = colorScheme, content = content)
+    }
 }
 
 @VisibleForTesting
