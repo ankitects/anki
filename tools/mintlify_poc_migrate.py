@@ -290,7 +290,6 @@ def docs_json(groups: dict[str, tuple[Page, list[Page]]]) -> dict[str, object]:
         ("Developers", "Core Development", "developers"),
         ("Translators", "Translation Guide", "translators"),
         ("Releases", "Release Notes", "releases"),
-        ("Legacy", "Legacy Archive", "legacy"),
     ]
     return {
         "$schema": "https://mintlify.com/docs.json",
@@ -361,7 +360,6 @@ def sources(repo_root: Path, source_root: Path, docs_root: Path) -> tuple[Source
         Source("Changes", "ankitects/anki-changes", source_root / "anki-changes/src", docs_root / "releases/changes", source_root / "anki-changes/src/SUMMARY.md"),
         Source("Betas", "ankitects/anki-betas", source_root / "anki-betas/src", docs_root / "releases/betas", source_root / "anki-betas/src/SUMMARY.md"),
         Source("Developers", "ankitects/anki", repo_root / "docs", docs_root / "developers", None, ("*.md",)),
-        Source("Legacy", "ankitects/anki-docs", source_root / "anki-docs", docs_root / "legacy/anki-docs", None, ("*.txt", "*.md"), True),
     )
 
 
@@ -383,7 +381,6 @@ def main() -> None:
     (docs_root / "style.css").write_text(stylesheet())
 
     release_pages = [*copied["Changes"], *copied["Betas"]]
-    legacy_pages = copied["Legacy"]
     groups = {
         "manual": (write_index(docs_root, "manual", "Desktop Manual", "User documentation for desktop Anki.", copied["Manual"]), copied["Manual"]),
         "ankimobile": (write_index(docs_root, "ankimobile", "AnkiMobile Manual", "User documentation for AnkiMobile on iPhone and iPad.", copied["AnkiMobile"]), copied["AnkiMobile"]),
@@ -392,7 +389,6 @@ def main() -> None:
         "developers": (write_index(docs_root, "developers", "Core Development", "Build, contribution, architecture, and generated API documentation.", copied["Developers"]), copied["Developers"]),
         "translators": (write_index(docs_root, "translators", "Translation Guide", "Documentation for translating Anki and related docs.", copied["Translators"]), copied["Translators"]),
         "releases": (write_index(docs_root, "releases", "Release Notes", "Stable change notes and beta documentation.", release_pages), release_pages),
-        "legacy": (write_index(docs_root, "legacy", "Legacy Archive", "Older documentation sources kept for migration reference.", legacy_pages), legacy_pages),
     }
     (docs_root / "docs.json").write_text(json.dumps(docs_json(groups), indent=2) + "\n")
 
