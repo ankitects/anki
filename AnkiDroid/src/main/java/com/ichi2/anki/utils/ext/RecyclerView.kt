@@ -24,3 +24,23 @@ import androidx.recyclerview.widget.RecyclerView
 fun <T : View> RecyclerView.ViewHolder.findViewById(
     @IdRes id: Int,
 ) = itemView.findViewById<T>(id)
+
+/**
+ * Adds a listener invoked whenever the [RecyclerView] has completed scrolling.
+ *
+ * - `dx` - The amount of horizontal scroll.
+ * - `dy` - The amount of vertical scroll.
+ *
+ * @see RecyclerView.OnScrollListener.onScrolled
+ */
+inline fun RecyclerView.doOnScrolled(crossinline action: (dx: Int, dy: Int) -> Unit) {
+    addOnScrollListener(
+        object : RecyclerView.OnScrollListener() {
+            override fun onScrolled(
+                recyclerView: RecyclerView,
+                dx: Int,
+                dy: Int,
+            ) = action(dx, dy)
+        },
+    )
+}

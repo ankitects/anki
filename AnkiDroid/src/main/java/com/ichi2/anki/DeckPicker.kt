@@ -170,6 +170,7 @@ import com.ichi2.anki.ui.windows.permissions.PermissionsActivity
 import com.ichi2.anki.utils.Destination
 import com.ichi2.anki.utils.ShortcutUtils
 import com.ichi2.anki.utils.ext.dismissAllDialogFragments
+import com.ichi2.anki.utils.ext.doOnScrolled
 import com.ichi2.anki.utils.ext.launchCollectionInLifecycleScope
 import com.ichi2.anki.utils.ext.positionIsVisible
 import com.ichi2.anki.utils.ext.setFragmentResultListener
@@ -600,11 +601,11 @@ open class DeckPicker :
                     pullToSyncWrapper.isRefreshing = false
                     sync()
                 }
-                viewTreeObserver.addOnScrollChangedListener {
-                    pullToSyncWrapper.isEnabled =
-                        decksLayoutManager.findFirstCompletelyVisibleItemPosition() == 0
-                }
             }
+        // Only allow pull-to-sync when the deck list is scrolled to the top.
+        deckPickerBinding.decks.doOnScrolled { _, _ ->
+            pullToSyncWrapper.isEnabled = decksLayoutManager.findFirstCompletelyVisibleItemPosition() == 0
+        }
     }
 
     @Suppress("UNUSED_PARAMETER")
