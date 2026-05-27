@@ -53,6 +53,10 @@ object ChangeManager {
          * Called after a backend method invoked via col.op() or col.opWithProgress()
          * has modified the collection. Subscriber should inspect the changes, and update
          * the UI if necessary.
+         *
+         * @param changes see [OpChanges].
+         * @param handler the initiator of the change. A subscriber may compare this against itself
+         * to detect changes it caused, and skip its default handling in favour of more specific updates.
          */
         fun opExecuted(
             changes: OpChanges,
