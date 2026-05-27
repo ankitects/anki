@@ -34,7 +34,7 @@ open class JvmTest : InMemoryAnkiTest() {
     @CallSuper
     override fun setUp() {
         super.setUp()
-        ChangeManager.clearSubscribers()
+        ChangeManager.resetForTesting()
     }
 
     override fun setupTestDispatcher(dispatcher: TestDispatcher) {

@@ -148,7 +148,7 @@ open class RobolectricTest :
                 // W/ShadowLegacyPath: android.graphics.Path#op() not supported yet.
                 .filter("^(?!(W/ShadowLegacyPath|D/LifecycleMonitor)).*$")
 
-        ChangeManager.clearSubscribers()
+        ChangeManager.resetForTesting()
 
         validateRunWithAnnotationPresent()
 

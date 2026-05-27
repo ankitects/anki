@@ -20,7 +20,6 @@ import com.ichi2.testutils.JvmTest
 import org.hamcrest.MatcherAssert.assertThat
 import org.hamcrest.Matchers.equalTo
 import org.hamcrest.Matchers.greaterThan
-import org.junit.After
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
@@ -32,12 +31,6 @@ import kotlin.reflect.jvm.isAccessible
 
 @RunWith(RobolectricTestRunner::class)
 class ChangeManagerExceptionHandlingTest : JvmTest() {
-    @After
-    override fun tearDown() {
-        super.tearDown()
-        ChangeManager.clearSubscribers()
-    }
-
     @Test
     fun `all subscribers notified even if one throws exception`() {
         var firstCalled = false
