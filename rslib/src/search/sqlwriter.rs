@@ -1373,6 +1373,22 @@ c.odue != 0 then c.odue else c.due end) != {days}) or (c.queue in (1,4) and
                 vec!["r".into(), "s".into()]
             )
         );
+        // Single quote in value: before parameterization this produced invalid SQL.
+        assert_eq!(
+            s(ctx, "prop:cds:foo=bar'baz"),
+            (
+                "(extract_custom_data(c.data, ?) = ?)".into(),
+                vec!["foo".into(), "bar'baz".into()]
+            )
+        );
+        // SQL injection attempt: payload must be fully contained in args.
+        assert_eq!(
+            s(ctx, r#""prop:cds:key=x';DROP TABLE cards;--""#),
+            (
+                "(extract_custom_data(c.data, ?) = ?)".into(),
+                vec!["key".into(), "x';DROP TABLE cards;--".into()]
+            )
+        );
 
         // note types by name
         assert_eq!(
