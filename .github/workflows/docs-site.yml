@@ -1,0 +1,49 @@
+name: Docs Site
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [mintlify-docs-poc]
+  pull_request:
+    branches: [mintlify-docs-poc]
+    paths:
+      - ".github/workflows/docs-site.yml"
+      - "docs-site/**"
+      - "pylib/tools/genhooks.py"
+      - "pylib/tools/hookslib.py"
+      - "qt/tools/genhooks_gui.py"
+      - "tools/mintlify_hooks.py"
+      - "tools/tests/test_mintlify_hooks.py"
+
+jobs:
+  validate:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v7
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22.15.0"
+
+      - name: Install Mintlify CLI
+        run: npm install -g mintlify
+
+      - name: Check generated hooks reference
+        run: >-
+          uv run --with cogapp python -m cogapp
+          --markers "<<<cog >>> <<<end>>>"
+          --check
+          --diff
+          --check-fail-msg "Run: uv run --with cogapp python -m cogapp --markers '<<<cog >>> <<<end>>>' -r docs-site/addons/hooks-reference.mdx"
+          docs-site/addons/hooks-reference.mdx
+
+      - name: Test docs generation
+        run: uv run python -m pytest tools/tests/test_mintlify_hooks.py
+
+      - name: Validate Mintlify docs
+        run: mint validate
+        working-directory: docs-site
