@@ -493,7 +493,7 @@ class AddonManager:
 
     def _install(self, module: str, zfile: ZipFile) -> None:
         # previously installed?
-        base = self.addonsFolder(module)
+        base = os.path.realpath(self.addonsFolder(module))
         if os.path.exists(base):
             self.backupUserFiles(module)
             try:
@@ -510,7 +510,11 @@ class AddonManager:
                 # folder; ignore
                 continue
 
-            path = os.path.join(base, n)
+            # skip unsafe paths
+            path = os.path.realpath(os.path.join(base, n))
+            if not path.startswith(base + os.sep):
+                continue
+
             # skip existing user files
             if os.path.exists(path) and n.startswith("user_files/"):
                 continue
