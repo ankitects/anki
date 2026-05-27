@@ -650,6 +650,40 @@ class CardBrowserViewModelTest : JvmTest() {
     }
 
     @Test
+    fun `refreshColumnsFromPrefs - reloads when SharedPreferences changed externally`() =
+        runViewModelTest {
+            flowOfActiveColumns.test {
+                ignoreEventsDuringViewModelInit()
+
+                // simulate another CardBrowser instance (e.g. one launched via the
+                // system PROCESS_TEXT context menu) saving a different column set
+                val externalColumns = listOf(QUESTION, ANSWER, DECK)
+                BrowserColumnCollection.save(
+                    sharedPrefs(),
+                    cardsOrNotes,
+                    BrowserColumnCollection(externalColumns),
+                )
+
+                refreshColumnsFromPrefs().join()
+
+                assertThat("flowOfActiveColumns emits external columns", awaitItem().columns, equalTo(externalColumns))
+                assertThat("activeColumns matches", activeColumns, equalTo(externalColumns))
+            }
+        }
+
+    @Test
+    fun `refreshColumnsFromPrefs - no event when SharedPreferences unchanged`() =
+        runViewModelTest {
+            flowOfActiveColumns.test {
+                ignoreEventsDuringViewModelInit()
+
+                refreshColumnsFromPrefs().join()
+
+                expectNoEvents()
+            }
+        }
+
+    @Test
     fun `change card order to NO_SORTING is a no-op if done twice`() =
         runViewModelTest {
             flowOfSearchState.test {

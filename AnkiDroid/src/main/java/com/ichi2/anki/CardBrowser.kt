@@ -568,6 +568,7 @@ open class CardBrowser :
         searchView?.post {
             hideKeyboard()
         }
+        viewModel.refreshColumnsFromPrefs()
     }
 
     override fun onNavigationPressed() {

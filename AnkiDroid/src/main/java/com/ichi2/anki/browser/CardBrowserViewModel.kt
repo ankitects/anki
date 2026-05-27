@@ -643,6 +643,18 @@ class CardBrowserViewModel(
         flowOfActiveColumns.update { columns }
     }
 
+    /**
+     * Reloads active columns from SharedPreferences if they differ from the in-memory copy.
+     */
+    fun refreshColumnsFromPrefs() =
+        viewModelScope.launch {
+            if (!initCompleted) return@launch
+            val stored = BrowserColumnCollection.load(sharedPrefs(), cardsOrNotes)
+            if (stored.columns == activeColumns) return@launch
+            Timber.d("refreshColumnsFromPrefs: columns changed externally, reloading")
+            updateActiveColumns(stored)
+        }
+
     @VisibleForTesting
     fun manualInit() {
         require(manualInit) { "'manualInit' should be true" }
