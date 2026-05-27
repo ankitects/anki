@@ -209,6 +209,7 @@
               "addons/command-line-use",
               "addons/hooks-and-filters",
               "addons/console-output",
+              "addons/hooks-reference",
               "addons/background-ops",
               "addons/qt",
               "addons/python-modules",

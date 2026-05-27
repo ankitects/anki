@@ -1,0 +1,1805 @@
+---
+title: "Hooks Reference"
+description: "A generated reference of all hooks and filters available in Anki for add-on development."
+---
+
+This page lists all available hooks in Anki. It is generated from [`pylib/tools/genhooks.py`](https://github.com/ankitects/anki/blob/main/pylib/tools/genhooks.py) and [`qt/tools/genhooks_gui.py`](https://github.com/ankitects/anki/blob/main/qt/tools/genhooks_gui.py).
+
+See [Hooks & Filters](/addons/hooks-and-filters) for usage instructions.
+
+## Backend Hooks (`anki.hooks`)
+
+{/* <<<cog
+from tools.mintlify_hooks import render_hooks
+cog.out(render_hooks("pylib/tools/genhooks.py"))
+>>> */}
+### `card_odue_was_invalid`
+
+No arguments.
+
+No docstring.
+
+---
+
+### `schema_will_change`
+
+**Args:** `proceed: bool`\
+**Returns:** `bool`
+
+No docstring.
+
+---
+
+### `notes_will_be_deleted`
+
+**Args:** `col: anki.collection.Collection`, `ids: Sequence[anki.notes.NoteId]`
+
+No docstring.
+
+---
+
+### `note_will_be_added`
+
+**Args:** `col: anki.collection.Collection`, `note: anki.notes.Note`, `deck_id: anki.decks.DeckId`
+
+Allows modifying a note before it's added to the collection.
+
+This hook may be called both when users use the Add screen, and when
+add-ons like AnkiConnect add notes. It is not called when importing. If
+you wish to alter the Add screen, use gui_hooks.add_cards_will_add_note
+instead.
+
+---
+
+### `media_files_did_export`
+
+**Args:** `count: int`
+
+Only used by legacy .apkg exporter. Will be deprecated in the future.
+
+---
+
+### `legacy_export_progress`
+
+**Args:** `progress: str`
+
+Temporary hook used in transition to new import/export code.
+
+---
+
+### `exporters_list_created`
+
+**Args:** `exporters: list[tuple[str, Any]]`
+
+No docstring.
+
+---
+
+### `media_file_filter`
+
+**Args:** `txt: str`\
+**Returns:** `str`
+
+Allows manipulating the file path that media will be read from
+
+---
+
+### `field_filter`
+
+**Args:** `field_text: str`, `field_name: str`, `filter_name: str`, `ctx: anki.template.TemplateRenderContext`\
+**Returns:** `str`
+
+Allows you to define custom `{{filters:..}}`
+
+Your add-on can check filter_name to decide whether it should modify
+field_text or not before returning it.
+
+---
+
+### `note_will_flush`
+
+**Args:** `note: Note`
+
+Allow to change a note before it is added/updated in the database.
+
+---
+
+### `card_will_flush`
+
+**Args:** `card: Card`
+
+Allow to change a card before it is added/updated in the database.
+
+---
+
+### `card_did_render`
+
+**Args:** `output: anki.template.TemplateRenderOutput`, `ctx: anki.template.TemplateRenderContext`
+
+Can modify the resulting text after rendering completes.
+
+---
+
+### `importing_importers`
+
+**Args:** `importers: list[tuple[str, Any]]`
+
+Allows updating the list of importers.
+The resulting list is not saved and should be changed each time the
+filter is called.
+
+NOTE: Updates to the import/export code are expected in the coming
+months, and this hook may be replaced with another solution at that
+time. Tracked on https://github.com/ankitects/anki/issues/1018
+
+---
+
+### `deck_added` _(Obsolete)_
+
+**Args:** `deck: anki.decks.DeckDict`
+
+<Warning>
+  Obsolete, do not use.
+</Warning>
+
+---
+
+### `note_type_added` _(Obsolete)_
+
+**Args:** `notetype: anki.models.NotetypeDict`
+
+<Warning>
+  Obsolete, do not use.
+</Warning>
+
+---
+
+### `sync_stage_did_change` _(Obsolete)_
+
+**Args:** `stage: str`
+
+<Warning>
+  Obsolete, do not use.
+</Warning>
+
+---
+
+### `sync_progress_did_change` _(Obsolete)_
+
+**Args:** `msg: str`
+
+<Warning>
+  Obsolete, do not use.
+</Warning>
+{/* <<<end>>> */}
+
+## GUI Hooks (`aqt.gui_hooks`)
+
+{/* <<<cog
+from tools.mintlify_hooks import render_hooks
+cog.out(render_hooks("qt/tools/genhooks_gui.py"))
+>>> */}
+### `overview_did_refresh`
+
+**Args:** `overview: aqt.overview.Overview`
+
+Allow to update the overview window. E.g. add the deck name in the
+title.
+
+---
+
+### `overview_will_render_content`
+
+**Args:** `overview: aqt.overview.Overview`, `content: aqt.overview.OverviewContent`
+
+Used to modify HTML content sections in the overview body
+
+        'content' contains the sections of HTML content the overview body
+        will be updated with.
+
+        When modifying the content of a particular section, please make sure your
+        changes only perform the minimum required edits to make your add-on work.
+        You should avoid overwriting or interfering with existing data as much
+        as possible, instead opting to append your own changes, e.g.:
+
+            def on_overview_will_render_content(overview, content):
+                content.table += "
+&lt;div&gt;my html&lt;/div&gt;"
+
+
+---
+
+### `overview_will_render_bottom`
+
+**Args:** `link_handler: Callable[[str], bool]`, `links: list[list[str]]`\
+**Returns:** `Callable[[str], bool]`
+
+Allows adding buttons to the Overview bottom bar.
+
+Append a list of strings to 'links' argument to add new buttons.
+- The first value is the shortcut to appear in the tooltip.
+- The second value is the url to be triggered.
+- The third value is the text of the new button.
+
+Extend the callable 'link_handler' to handle new urls. This callable
+accepts one argument: the triggered url.
+Make a check of the triggered url, call any functions related to
+that trigger, and return the new link_handler.
+
+Example:
+links.append(['H', 'hello', 'Click me!'])
+def custom_link_handler(url):
+    if url == 'hello':
+        print('Hello World!')
+    return link_handler(url=url)
+return custom_link_handler
+
+---
+
+### `reviewer_did_show_question`
+
+**Args:** `card: Card`
+
+No docstring.
+
+---
+
+### `reviewer_will_compare_answer`
+
+**Args:** `expected_provided_tuple: tuple[str, str]`, `type_pattern: str`\
+**Returns:** `tuple[str, str]`
+
+Modify expected answer and provided answer before comparing
+
+expected_provided_tuple is a tuple composed of:
+- expected answer
+- provided answer
+type_pattern is the detail of the type tag on the card
+
+Return a tuple composed of:
+- modified expected answer
+- modified provided answer
+
+---
+
+### `reviewer_will_render_compared_answer`
+
+**Args:** `output: str`, `initial_expected: str`, `initial_provided: str`, `type_pattern: str`\
+**Returns:** `str`
+
+Modify the output of default compare answer feature
+
+output is the result of default compare answer function
+initial_expected is the expected answer from the card
+initial_provided is the answer provided during review
+type_pattern is the detail of the type tag on the card
+
+Return a string comparing expected and provided answers
+
+---
+
+### `reviewer_did_show_answer`
+
+**Args:** `card: Card`
+
+No docstring.
+
+---
+
+### `reviewer_will_init_answer_buttons`
+
+**Args:** `buttons_tuple: tuple[tuple[int, str], ...]`, `reviewer: aqt.reviewer.Reviewer`, `card: Card`\
+**Returns:** `tuple[tuple[int, str], ...]`
+
+Used to modify list of answer buttons
+
+buttons_tuple is a tuple of buttons, with each button represented by a
+tuple containing an int for the button's ease and a string for the
+button's label.
+
+Return a tuple of the form ((int, str), ...), e.g.:
+    ((1, "Label1"), (2, "Label2"), ...)
+
+Note: import _ from anki.lang to support translation, using, e.g.,
+    ((1, _("Label1")), ...)
+
+---
+
+### `reviewer_will_answer_card`
+
+**Args:** `ease_tuple: tuple[bool, Literal[1, 2, 3, 4]]`, `reviewer: aqt.reviewer.Reviewer`, `card: Card`\
+**Returns:** `tuple[bool, Literal[1, 2, 3, 4]]`
+
+Used to modify the ease at which a card is rated or to bypass
+rating the card completely.
+
+ease_tuple is a tuple consisting of a boolean expressing whether the reviewer
+should continue with rating the card, and an integer expressing the ease at
+which the card should be rated.
+
+If your code just needs to be notified of the card rating event, you should use
+the reviewer_did_answer_card hook instead.
+
+---
+
+### `reviewer_did_answer_card`
+
+**Args:** `reviewer: aqt.reviewer.Reviewer`, `card: Card`, `ease: Literal[1, 2, 3, 4]`
+
+No docstring.
+
+---
+
+### `reviewer_will_show_context_menu`
+
+**Args:** `reviewer: aqt.reviewer.Reviewer`, `menu: QMenu`
+
+No docstring.
+
+---
+
+### `reviewer_will_end`
+
+No arguments.
+
+Called before Anki transitions from the review screen to another screen.
+
+---
+
+### `reviewer_will_play_question_sounds`
+
+**Args:** `card: Card`, `tags: list[anki.sound.AVTag]`
+
+Called before showing the question/front side.
+
+`tags` can be used to inspect and manipulate the sounds
+that will be played (if any).
+
+This won't be called when the user manually plays sounds
+using `Replay Audio`.
+
+Note that this hook is called even when the `Automatically play audio`
+option is unchecked; This is so as to allow playing custom
+sounds regardless of that option.
+
+---
+
+### `reviewer_will_play_answer_sounds`
+
+**Args:** `card: Card`, `tags: list[anki.sound.AVTag]`
+
+Called before showing the answer/back side.
+
+`tags` can be used to inspect and manipulate the sounds
+that will be played (if any).
+
+This won't be called when the user manually plays sounds
+using `Replay Audio`.
+
+Note that this hook is called even when the `Automatically play audio`
+option is unchecked; This is so as to allow playing custom
+sounds regardless of that option.
+
+---
+
+### `reviewer_will_replay_recording`
+
+**Args:** `path: str`\
+**Returns:** `str`
+
+Used to inspect and modify a recording recorded by "Record Own Voice" before replaying.
+
+---
+
+### `reviewer_will_suspend_note`
+
+**Args:** `nid: int`
+
+No docstring.
+
+---
+
+### `reviewer_will_suspend_card`
+
+**Args:** `id: int`
+
+No docstring.
+
+---
+
+### `reviewer_will_bury_note`
+
+**Args:** `nid: int`
+
+No docstring.
+
+---
+
+### `reviewer_will_bury_card`
+
+**Args:** `id: int`
+
+No docstring.
+
+---
+
+### `audio_did_pause_or_unpause`
+
+**Args:** `webview: aqt.webview.AnkiWebView`
+
+Called when the audio is paused or unpaused.
+This hook is triggered by the action in Anki's More menu or the related key binding.
+The webview is provided in case you wish to use this hook with web-based audio.
+
+---
+
+### `audio_did_seek_relative`
+
+**Args:** `webview: aqt.webview.AnkiWebView`, `seek_seconds: int`
+
+Called when the audio is sought forward (positive seek) or backwards (negative seek).
+This hook is triggered by the action in Anki's More menu or the related key binding.
+The webview is provided in case you wish to use this hook with web-based audio.
+
+---
+
+### `debug_console_will_show`
+
+**Args:** `debug_window: QDialog`
+
+Allows editing the debug window. E.g. setting a default code, or
+previous code.
+
+---
+
+### `debug_console_did_evaluate_python`
+
+**Args:** `output: str`, `query: str`, `debug_window: aqt.forms.debug.Ui_Dialog`\
+**Returns:** `str`
+
+Allows processing the debug result. E.g. logging queries and
+result, saving last query to display it later...
+
+---
+
+### `card_layout_will_show`
+
+**Args:** `clayout: aqt.clayout.CardLayout`
+
+Allow to change the display of the card layout. After most values are
+set and before the window is actually shown.
+
+---
+
+### `reviewer_did_init`
+
+**Args:** `reviewer: aqt.reviewer.Reviewer`
+
+Called after the reviewer is initialized.
+
+---
+
+### `audio_will_replay`
+
+**Args:** `webview: aqt.webview.AnkiWebView`, `card: Card`, `is_front_side: bool`
+
+Called when the user uses the 'replay audio' action, but not when they click on a play button.
+
+---
+
+### `card_will_show`
+
+**Args:** `text: str`, `card: Card`, `kind: str`\
+**Returns:** `str`
+
+Can modify card text before review/preview.
+
+---
+
+### `card_review_webview_did_init`
+
+**Args:** `webview: aqt.webview.AnkiWebView`, `kind: aqt.webview.AnkiWebViewKind`
+
+Called when initializing the webview for the review screen, the card layout screen, and the preview screen.
+
+---
+
+### `deck_browser_did_render`
+
+**Args:** `deck_browser: aqt.deckbrowser.DeckBrowser`
+
+Allow to update the deck browser window. E.g. change its title.
+
+---
+
+### `deck_browser_will_render_content`
+
+**Args:** `deck_browser: aqt.deckbrowser.DeckBrowser`, `content: aqt.deckbrowser.DeckBrowserContent`
+
+Used to modify HTML content sections in the deck browser body
+
+'content' contains the sections of HTML content the deck browser body
+will be updated with.
+
+When modifying the content of a particular section, please make sure your
+changes only perform the minimum required edits to make your add-on work.
+You should avoid overwriting or interfering with existing data as much
+as possible, instead opting to append your own changes, e.g.:
+
+    def on_deck_browser_will_render_content(deck_browser, content):
+        content.stats += "\n&lt;div&gt;my html&lt;/div&gt;"
+
+---
+
+### `deck_conf_did_setup_ui_form`
+
+**Args:** `deck_conf: aqt.deckconf.DeckConf`
+
+Allows modifying or adding widgets in the deck options UI form
+
+---
+
+### `deck_conf_will_show`
+
+**Args:** `deck_conf: aqt.deckconf.DeckConf`
+
+Allows modifying the deck options dialog before it is shown
+
+---
+
+### `deck_conf_did_load_config`
+
+**Args:** `deck_conf: aqt.deckconf.DeckConf`, `deck: DeckDict`, `config: DeckConfigDict`
+
+Called once widget state has been set from deck config
+
+---
+
+### `deck_conf_will_save_config`
+
+**Args:** `deck_conf: aqt.deckconf.DeckConf`, `deck: DeckDict`, `config: DeckConfigDict`
+
+Called before widget state is saved to config
+
+---
+
+### `deck_conf_did_add_config`
+
+**Args:** `deck_conf: aqt.deckconf.DeckConf`, `deck: DeckDict`, `config: DeckConfigDict`, `new_name: str`, `new_conf_id: int`
+
+Allows modification of a newly created config group
+
+This hook is called after the config group was created, but
+before initializing the widget state.
+
+`deck_conf` will point to the old config group, `new_conf_id` will
+point to the newly created config group.
+
+Config groups are created as clones of the current one.
+
+---
+
+### `deck_conf_will_remove_config`
+
+**Args:** `deck_conf: aqt.deckconf.DeckConf`, `deck: DeckDict`, `config: DeckConfigDict`
+
+Called before current config group is removed
+
+---
+
+### `deck_conf_will_rename_config`
+
+**Args:** `deck_conf: aqt.deckconf.DeckConf`, `deck: DeckDict`, `config: DeckConfigDict`, `new_name: str`
+
+Called before config group is renamed
+
+---
+
+### `deck_options_did_load`
+
+**Args:** `deck_options: aqt.deckoptions.DeckOptionsDialog`
+
+Can be used to inject extra options into the config screen.
+
+See the example add-ons at:
+https://github.com/ankitects/anki-addons/tree/main/demos/deckoptions_svelte
+https://github.com/ankitects/anki-addons/tree/main/demos/deckoptions_raw_html
+
+---
+
+### `filtered_deck_dialog_did_load_deck`
+
+**Args:** `filtered_deck_dialog: aqt.filtered_deck.FilteredDeckConfigDialog`, `filtered_deck: anki.scheduler.FilteredDeckForUpdate`
+
+Allows updating widget state once the filtered deck config is loaded
+
+---
+
+### `filtered_deck_dialog_will_add_or_update_deck`
+
+**Args:** `filtered_deck_dialog: aqt.filtered_deck.FilteredDeckConfigDialog`, `filtered_deck: anki.scheduler.FilteredDeckForUpdate`
+
+Allows modifying the filtered deck config object before it is written
+
+---
+
+### `filtered_deck_dialog_did_add_or_update_deck`
+
+**Args:** `filtered_deck_dialog: aqt.filtered_deck.FilteredDeckConfigDialog`, `filtered_deck: anki.scheduler.FilteredDeckForUpdate`, `deck_id: int`
+
+Allows performing changes after a filtered deck has been added or updated
+
+---
+
+### `default_search`
+
+**Args:** `current_search: str`, `c: Card`\
+**Returns:** `str`
+
+Change the default search when the card browser is opened with card `c`.
+
+---
+
+### `browser_will_show`
+
+**Args:** `browser: aqt.browser.Browser`
+
+No docstring.
+
+---
+
+### `browser_menus_did_init`
+
+**Args:** `browser: aqt.browser.Browser`
+
+No docstring.
+
+---
+
+### `browser_will_show_context_menu`
+
+**Args:** `browser: aqt.browser.Browser`, `menu: QMenu`
+
+No docstring.
+
+---
+
+### `browser_sidebar_will_show_context_menu`
+
+**Args:** `sidebar: aqt.browser.SidebarTreeView`, `menu: QMenu`, `item: aqt.browser.SidebarItem`, `index: QModelIndex`
+
+No docstring.
+
+---
+
+### `browser_header_will_show_context_menu`
+
+**Args:** `browser: aqt.browser.Browser`, `menu: QMenu`
+
+No docstring.
+
+---
+
+### `browser_did_change_row`
+
+**Args:** `browser: aqt.browser.Browser`
+
+No docstring.
+
+---
+
+### `browser_will_build_tree`
+
+**Args:** `handled: bool`, `tree: aqt.browser.SidebarItem`, `stage: aqt.browser.SidebarStage`, `browser: aqt.browser.Browser`\
+**Returns:** `bool`
+
+Used to add or replace items in the browser sidebar tree
+
+'tree' is the root SidebarItem that all other items are added to.
+
+'stage' is an enum describing the different construction stages of
+the sidebar tree at which you can interject your changes.
+The different values can be inspected by looking at
+aqt.browser.SidebarStage.
+
+If you want Anki to proceed with the construction of the tree stage
+in question after your have performed your changes or additions,
+return the 'handled' boolean unchanged.
+
+On the other hand, if you want to prevent Anki from adding its own
+items at a particular construction stage (e.g. in case your add-on
+implements its own version of that particular stage), return 'True'.
+
+If you return 'True' at SidebarStage.ROOT, the sidebar will not be
+populated by any of the other construction stages. For any other stage
+the tree construction will just continue as usual.
+
+For example, if your code wishes to replace the tag tree, you could do:
+
+    def on_browser_will_build_tree(handled, root, stage, browser):
+        if stage != SidebarStage.TAGS:
+            # not at tag tree building stage, pass on
+            return handled
+
+        # your tag tree construction code
+        # root.addChild(...)
+
+        # your code handled tag tree construction, no need for Anki
+        # or other add-ons to build the tag tree
+        return True
+
+---
+
+### `browser_will_search`
+
+**Args:** `context: aqt.browser.SearchContext`
+
+Allows you to modify the search text, or perform your own search.
+
+You can modify context.search to change the text that is sent to the
+searching backend.
+
+If you need to pass metadata to the browser_did_search hook, you can
+do it with context.addon_metadata. For example, to trigger filtering
+based on a new custom filter.
+
+If you set context.ids to a list of ids, the regular search will
+not be performed, and the provided ids will be used instead.
+
+Your add-on should check if context.ids is not None, and return
+without making changes if it has been set.
+
+In versions of Anki lower than 2.1.45 the field to check is
+context.card_ids rather than context.ids
+
+---
+
+### `browser_did_search`
+
+**Args:** `context: aqt.browser.SearchContext`
+
+Allows you to modify the list of returned card ids from a search.
+
+---
+
+### `browser_did_fetch_row`
+
+**Args:** `card_or_note_id: aqt.browser.ItemId`, `is_note: bool`, `row: aqt.browser.CellRow`, `columns: Sequence[str]`
+
+Allows you to add or modify content to a row in the browser.
+
+You can mutate the row object to change what is displayed. Any columns the
+backend did not recognize will be returned as an empty string, and can be
+replaced with custom content.
+
+You can retrieve metadata passed from browser_will_search with
+context.addon_metadata (for example to trigger post-processing filtering).
+
+Columns is a list of string values identifying what each column in the row
+represents.
+
+---
+
+### `browser_did_fetch_columns`
+
+**Args:** `columns: dict[str, aqt.browser.Column]`
+
+Allows you to add custom columns to the browser.
+
+columns is a dictionary of data objects. You can add an entry with a custom
+column to describe how it should be displayed in the browser or modify
+existing entries.
+
+Every column in the dictionary will be toggleable by the user.
+
+---
+
+### `previewer_did_init`
+
+**Args:** `previewer: aqt.browser.previewer.Previewer`
+
+Called after the previewer is initialized.
+
+---
+
+### `previewer_will_redraw_after_show_both_sides_toggled`
+
+**Args:** `webview: aqt.webview.AnkiWebView`, `card: Card`, `is_front_side: bool`, `show_both_sides: bool`
+
+Called when the checkbox &lt;show both sides&gt; is toggled by the user.
+
+---
+
+### `state_will_change`
+
+**Args:** `new_state: aqt.main.MainWindowState`, `old_state: aqt.main.MainWindowState`
+
+No docstring.
+
+---
+
+### `state_did_change`
+
+**Args:** `new_state: aqt.main.MainWindowState`, `old_state: aqt.main.MainWindowState`
+
+No docstring.
+
+---
+
+### `state_shortcuts_will_change`
+
+**Args:** `state: aqt.main.MainWindowState`, `shortcuts: list[tuple[str, Callable]]`
+
+No docstring.
+
+---
+
+### `state_did_undo`
+
+**Args:** `changes: OpChangesAfterUndo`
+
+Called after backend undoes a change.
+
+---
+
+### `state_did_reset`
+
+No arguments.
+
+Legacy 'reset' hook. Called by mw.reset() and CollectionOp() to redraw the UI.
+
+New code should use `operation_did_execute` instead.
+
+---
+
+### `operation_did_execute`
+
+**Args:** `changes: anki.collection.OpChanges`, `handler: object | None`
+
+Called after an operation completes.
+Changes can be inspected to determine whether the UI needs updating.
+
+This will also be called when the legacy mw.reset() is used.
+
+---
+
+### `focus_did_change`
+
+**Args:** `new: QWidget | None`, `old: QWidget | None`
+
+Called each time the focus changes. Can be used to defer updates from
+`operation_did_execute` until a window is brought to the front.
+
+---
+
+### `backend_will_block`
+
+No arguments.
+
+Called before one or more DB tasks are run in the background.
+
+Subscribers can use this to set a flag to avoid DB queries until the operation
+completes, as doing so will freeze the UI until the long-running operation
+completes.
+
+---
+
+### `backend_did_block`
+
+No arguments.
+
+Called after one or more DB tasks finish running in the background.
+Called regardless of the success of individual operations, and only called when
+there are no outstanding ops.
+
+---
+
+### `theme_did_change`
+
+No arguments.
+
+Called after night mode is toggled.
+
+---
+
+### `body_classes_need_update`
+
+No arguments.
+
+Called when a setting involving a webview body class is toggled.
+
+---
+
+### `webview_did_receive_js_message`
+
+**Args:** `handled: tuple[bool, Any]`, `message: str`, `context: Any`\
+**Returns:** `tuple[bool, Any]`
+
+Used to handle pycmd() messages sent from Javascript.
+
+Message is the string passed to pycmd().
+
+For messages you don't want to handle, return 'handled' unchanged.
+
+If you handle a message and don't want it passed to the original
+bridge command handler, return (True, None).
+
+If you want to pass a value to pycmd's result callback, you can
+return it with (True, some_value).
+
+Context is the instance that was passed to set_bridge_command().
+It can be inspected to check which screen this hook is firing
+in, and to get a reference to the screen. For example, if your
+code wishes to function only in the review screen, you could do:
+
+    if not isinstance(context, aqt.reviewer.Reviewer):
+        # not reviewer, pass on message
+        return handled
+
+    if message == "my-mark-action":
+        # our message, call onMark() on the reviewer instance
+        context.onMark()
+        # and don't pass message to other handlers
+        return (True, None)
+    else:
+        # some other command, pass it on
+        return handled
+
+---
+
+### `webview_will_set_content`
+
+**Args:** `web_content: aqt.webview.WebContent`, `context: object | None`
+
+Used to modify web content before it is rendered.
+
+Web_content contains the HTML, JS, and CSS the web view will be
+populated with.
+
+Context is the instance that was passed to stdHtml().
+It can be inspected to check which screen this hook is firing
+in, and to get a reference to the screen. For example, if your
+code wishes to function only in the review screen, you could do:
+
+    def on_webview_will_set_content(web_content: WebContent, context):
+
+        if not isinstance(context, aqt.reviewer.Reviewer):
+            # not reviewer, do not modify content
+            return
+
+        # reviewer, perform changes to content
+
+        context: aqt.reviewer.Reviewer
+
+        addon_package = mw.addonManager.addonFromModule(__name__)
+
+        web_content.css.append(
+            f"/_addons/{addon_package}/web/my-addon.css")
+        web_content.js.append(
+            f"/_addons/{addon_package}/web/my-addon.js")
+
+        web_content.head += "&lt;script&gt;console.log('my-addon')&lt;/script&gt;"
+        web_content.body += "&lt;div id='my-addon'&gt;&lt;/div&gt;"
+
+---
+
+### `webview_will_show_context_menu`
+
+**Args:** `webview: aqt.webview.AnkiWebView`, `menu: QMenu`
+
+No docstring.
+
+---
+
+### `webview_did_inject_style_into_page`
+
+**Args:** `webview: aqt.webview.AnkiWebView`
+
+Called after standard styling is injected into an external
+html file, such as when loading the new graphs. You can use this hook to
+mutate the DOM before the page is revealed.
+
+For example:
+
+def mytest(webview: AnkiWebView):
+    if webview.kind != AnkiWebViewKind.DECK_STATS:
+        return
+    webview.eval(
+        """
+        div = document.createElement("div");
+        div.innerHTML = 'hello';
+        document.body.appendChild(div);
+        """
+    )
+
+gui_hooks.webview_did_inject_style_into_page.append(mytest)
+
+---
+
+### `main_window_did_init`
+
+No arguments.
+
+Executed after the main window is fully initialized
+
+A sample use case for this hook would be to delay actions until Anki objects
+like the profile or collection are fully initialized. In contrast to
+`profile_did_open`, this hook will only fire once per Anki session and
+is thus suitable for single-shot subscribers.
+
+---
+
+### `main_window_should_require_reset`
+
+**Args:** `will_reset: bool`, `reason: aqt.main.ResetReason | str`, `context: object | None`\
+**Returns:** `bool`
+
+Executed before the main window will require a reset
+
+This hook can be used to change the behavior of the main window,
+when other dialogs, like the AddCards or Browser, require a reset
+from the main window.
+If you decide to use this hook, make you sure you check the reason for the reset.
+Some reasons require more attention than others, and skipping important ones might
+put the main window into an invalid state (e.g. display a deleted note).
+
+---
+
+### `backup_did_complete`
+
+No arguments.
+
+No docstring.
+
+---
+
+### `profile_did_open`
+
+No arguments.
+
+Executed whenever a user profile has been opened
+
+Please note that this hook will also be called on profile switches, so if you
+are looking to simply delay an add-on action in a single-shot manner,
+`main_window_did_init` is likely the more suitable choice.
+
+---
+
+### `profile_will_close`
+
+No arguments.
+
+No docstring.
+
+---
+
+### `collection_will_temporarily_close`
+
+**Args:** `col: anki.collection.Collection`
+
+Called before one-way syncs and colpkg imports/exports.
+
+---
+
+### `collection_did_temporarily_close`
+
+**Args:** `col: anki.collection.Collection`
+
+Called after one-way syncs and colpkg imports/exports.
+
+---
+
+### `collection_did_load`
+
+**Args:** `col: anki.collection.Collection`
+
+No docstring.
+
+---
+
+### `undo_state_did_change`
+
+**Args:** `info: UndoActionsInfo`
+
+No docstring.
+
+---
+
+### `style_did_init`
+
+**Args:** `style: str`\
+**Returns:** `str`
+
+No docstring.
+
+---
+
+### `top_toolbar_did_init_links`
+
+**Args:** `links: list[str]`, `top_toolbar: aqt.toolbar.Toolbar`
+
+Used to modify or add links in the top toolbar of Anki's main window
+
+'links' is a list of HTML link elements. Add-ons can generate their own links
+by using aqt.toolbar.Toolbar.create_link. Links created in that way can then be
+appended to the link list, e.g.:
+
+    def on_top_toolbar_did_init_links(links, toolbar):
+        my_link = toolbar.create_link(...)
+        links.append(my_link)
+
+---
+
+### `top_toolbar_will_set_left_tray_content`
+
+**Args:** `content: list[str]`, `top_toolbar: aqt.toolbar.Toolbar`
+
+Used to add custom add-on components to the *left* area of Anki's main
+window toolbar
+
+'content' is a list of HTML strings added by add-ons which you can append your
+own components or elements to. To equip your components with logic and styling
+please see `webview_will_set_content` and `webview_did_receive_js_message`.
+
+Please note that Anki's main screen is due to undergo a significant refactor
+in the future and, as a result, add-ons subscribing to this hook will likely
+require changes to continue working.
+
+---
+
+### `top_toolbar_will_set_right_tray_content`
+
+**Args:** `content: list[str]`, `top_toolbar: aqt.toolbar.Toolbar`
+
+Used to add custom add-on components to the *right* area of Anki's main
+window toolbar
+
+'content' is a list of HTML strings added by add-ons which you can append your
+own components or elements to. To equip your components with logic and styling
+please see `webview_will_set_content` and `webview_did_receive_js_message`.
+
+Please note that Anki's main screen is due to undergo a significant refactor
+in the future and, as a result, add-ons subscribing to this hook will likely
+require changes to continue working.
+
+---
+
+### `top_toolbar_did_redraw`
+
+**Args:** `top_toolbar: aqt.toolbar.Toolbar`
+
+Executed when the top toolbar is redrawn
+
+---
+
+### `media_sync_did_progress`
+
+**Args:** `entry: str`
+
+No docstring.
+
+---
+
+### `media_sync_did_start_or_stop`
+
+**Args:** `running: bool`
+
+No docstring.
+
+---
+
+### `empty_cards_will_show`
+
+**Args:** `diag: aqt.emptycards.EmptyCardsDialog`
+
+Allows changing the list of cards to delete.
+
+---
+
+### `sync_will_start`
+
+No arguments.
+
+No docstring.
+
+---
+
+### `sync_did_finish`
+
+No arguments.
+
+Executes after the sync of the collection concluded.
+
+Note that the media sync did not necessarily finish at this point.
+
+---
+
+### `media_check_will_start`
+
+No arguments.
+
+No docstring.
+
+---
+
+### `media_check_did_finish`
+
+**Args:** `output: anki.media.CheckMediaResponse`
+
+Called after Media Check finishes.
+
+`output` provides access to the unused/missing file lists and the text output that will be shown in the Check Media screen.
+
+---
+
+### `day_did_change`
+
+No arguments.
+
+Called when Anki moves to the next day.
+
+---
+
+### `exporter_will_export`
+
+**Args:** `export_options: aqt.import_export.exporting.ExportOptions`, `exporter: aqt.import_export.exporting.Exporter`\
+**Returns:** `aqt.import_export.exporting.ExportOptions`
+
+Called before collection and deck exports.
+
+Allows add-ons to be notified of impending deck exports and potentially
+modify the export options. To perform the export unaltered, please return
+`export_options` as is, e.g.:
+
+    def on_exporter_will_export(export_options: ExportOptions, exporter: Exporter):
+        if not isinstance(exporter, ApkgExporter):
+            return export_options
+        export_options.limit = ...
+        return export_options
+
+---
+
+### `exporter_did_export`
+
+**Args:** `export_options: aqt.import_export.exporting.ExportOptions`, `exporter: aqt.import_export.exporting.Exporter`
+
+Called after collection and deck exports.
+
+---
+
+### `legacy_exporter_will_export`
+
+**Args:** `legacy_exporter: anki.exporting.Exporter`
+
+Called before collection and deck exports performed by legacy exporters.
+
+---
+
+### `legacy_exporter_did_export`
+
+**Args:** `legacy_exporter: anki.exporting.Exporter`
+
+Called after collection and deck exports performed by legacy exporters.
+
+---
+
+### `exporters_list_did_initialize`
+
+**Args:** `exporters: list[Type[aqt.import_export.exporting.Exporter]]`
+
+Called after the list of exporter classes is created.
+
+Allows you to register custom exporters and/or replace existing ones by
+modifying the exporter list.
+
+---
+
+### `dialog_manager_did_open_dialog`
+
+**Args:** `dialog_manager: aqt.DialogManager`, `dialog_name: str`, `dialog_instance: QWidget`
+
+Executed after aqt.dialogs creates a dialog window
+
+---
+
+### `add_cards_will_show_history_menu`
+
+**Args:** `addcards: aqt.addcards.AddCards`, `menu: QMenu`
+
+No docstring.
+
+---
+
+### `add_cards_did_init`
+
+**Args:** `addcards: aqt.addcards.AddCards`
+
+No docstring.
+
+---
+
+### `add_cards_did_add_note`
+
+**Args:** `note: anki.notes.Note`
+
+No docstring.
+
+---
+
+### `add_cards_will_add_note`
+
+**Args:** `problem: str | None`, `note: anki.notes.Note`\
+**Returns:** `str | None`
+
+Decides whether the note should be added to the collection or
+not. It is assumed to come from the addCards window.
+
+reason_to_already_reject is the first reason to reject that
+was found, or None. If your filter wants to reject, it should
+replace return the reason to reject. Otherwise return the
+input.
+
+---
+
+### `add_cards_might_add_note`
+
+**Args:** `optional_problems: list[str]`, `note: anki.notes.Note`
+
+Allows you to provide an optional reason to reject a note. A
+yes / no dialog will open displaying the problem, to which the
+user can decide if they would like to add the note anyway.
+
+optional_problems is a list containing the optional reasons for which
+you might reject a note. If your add-on wants to add a reason,
+it should append the reason to the list.
+
+An example add-on that asks the user for confirmation before adding a
+card without tags:
+
+def might_reject_empty_tag(optional_problems, note):
+    if not any(note.tags):
+        optional_problems.append("Add cards without tags?")
+
+---
+
+### `addcards_will_add_history_entry`
+
+**Args:** `line: str`, `note: anki.notes.Note`\
+**Returns:** `str`
+
+Allows changing the history line in the add-card window.
+
+---
+
+### `add_cards_did_change_note_type` _(Deprecated)_
+
+**Args:** `old: anki.models.NoteType`, `new: anki.models.NoteType`
+
+<Warning>
+  Deprecated. Use `addcards_did_change_note_type` instead.
+</Warning>
+
+Executed after the user selects a new note type when adding
+cards.
+
+---
+
+### `addcards_did_change_note_type`
+
+**Args:** `addcards: aqt.addcards.AddCards`, `old: anki.models.NoteType`, `new: anki.models.NoteType`
+
+Executed after the user selects a new note type when adding
+cards.
+
+---
+
+### `add_cards_did_change_deck`
+
+**Args:** `new_deck_id: int`
+
+Executed after the user selects a new different deck when
+adding cards.
+
+---
+
+### `editor_did_init_left_buttons`
+
+**Args:** `buttons: list[str]`, `editor: aqt.editor.Editor`
+
+No docstring.
+
+---
+
+### `editor_did_init_buttons`
+
+**Args:** `buttons: list[str]`, `editor: aqt.editor.Editor`
+
+No docstring.
+
+---
+
+### `editor_did_init_shortcuts`
+
+**Args:** `shortcuts: list[tuple]`, `editor: aqt.editor.Editor`
+
+No docstring.
+
+---
+
+### `editor_will_show_context_menu`
+
+**Args:** `editor_webview: aqt.editor.EditorWebView`, `menu: QMenu`
+
+No docstring.
+
+---
+
+### `editor_did_fire_typing_timer`
+
+**Args:** `note: anki.notes.Note`
+
+No docstring.
+
+---
+
+### `editor_did_focus_field`
+
+**Args:** `note: anki.notes.Note`, `current_field_idx: int`
+
+No docstring.
+
+---
+
+### `editor_did_unfocus_field`
+
+**Args:** `changed: bool`, `note: anki.notes.Note`, `current_field_idx: int`\
+**Returns:** `bool`
+
+No docstring.
+
+---
+
+### `editor_did_load_note`
+
+**Args:** `editor: aqt.editor.Editor`
+
+No docstring.
+
+---
+
+### `editor_did_update_tags`
+
+**Args:** `note: anki.notes.Note`
+
+No docstring.
+
+---
+
+### `editor_will_munge_html`
+
+**Args:** `txt: str`, `editor: aqt.editor.Editor`\
+**Returns:** `str`
+
+Allows manipulating the text that will be saved by the editor
+
+---
+
+### `editor_will_use_font_for_field`
+
+**Args:** `font: str`\
+**Returns:** `str`
+
+No docstring.
+
+---
+
+### `editor_web_view_did_init`
+
+**Args:** `editor_web_view: aqt.editor.EditorWebView`
+
+No docstring.
+
+---
+
+### `editor_did_init`
+
+**Args:** `editor: aqt.editor.Editor`
+
+No docstring.
+
+---
+
+### `editor_will_load_note`
+
+**Args:** `js: str`, `note: anki.notes.Note`, `editor: aqt.editor.Editor`\
+**Returns:** `str`
+
+Allows changing the javascript commands to load note before
+executing it and do change in the QT editor.
+
+---
+
+### `editor_did_paste`
+
+**Args:** `editor: aqt.editor.Editor`, `html: str`, `internal: bool`, `extended: bool`
+
+Called after some data is pasted by python into an editor field.
+
+---
+
+### `editor_will_process_mime`
+
+**Args:** `mime: QMimeData`, `editor_web_view: aqt.editor.EditorWebView`, `internal: bool`, `extended: bool`, `drop_event: bool`\
+**Returns:** `QMimeData`
+
+Used to modify MIME data stored in the clipboard after a drop or a paste.
+Called after the user pastes or drag-and-drops something to Anki
+before Anki processes the data.
+
+The function should return a new or existing QMimeData object.
+
+"mime" contains the corresponding QMimeData object.
+"internal" indicates whether the drop or paste is performed between Anki fields.
+Most likely you want to skip processing if "internal" was set to True.
+"extended" indicates whether the user requested an extended paste.
+"drop_event" indicates whether the event was triggered by a drag-and-drop
+or by a right-click paste.
+
+---
+
+### `editor_state_did_change`
+
+**Args:** `editor: aqt.editor.Editor`, `new_state: aqt.editor.EditorState`, `old_state: aqt.editor.EditorState`
+
+Called when the input state of the editor changes, e.g. when
+switching to an image occlusion note type.
+
+---
+
+### `editor_mask_editor_did_load_image`
+
+**Args:** `editor: aqt.editor.Editor`, `path_or_nid: str | anki.notes.NoteId`
+
+Called when the image occlusion mask editor has completed
+loading an image.
+
+When adding new notes `path_or_nid` will be the path to the image file.
+When editing existing notes `path_or_nid` will be the note id.
+
+---
+
+### `tag_editor_did_process_key`
+
+**Args:** `tag_edit: TagEdit`, `evt: QEvent`
+
+No docstring.
+
+---
+
+### `av_player_will_play`
+
+**Args:** `tag: anki.sound.AVTag`
+
+No docstring.
+
+---
+
+### `av_player_did_begin_playing`
+
+**Args:** `player: aqt.sound.Player`, `tag: anki.sound.AVTag`
+
+No docstring.
+
+---
+
+### `av_player_did_end_playing`
+
+**Args:** `player: aqt.sound.Player`
+
+No docstring.
+
+---
+
+### `av_player_will_play_tags`
+
+**Args:** `tags: list[anki.sound.AVTag]`, `side: str`, `context: Any`
+
+Called before playing a card side's sounds.
+
+`tags` can be used to inspect and manipulate the sounds
+that will be played (if any).
+
+`side` can either be "question" or "answer".
+
+`context` is the screen where the sounds will be played (e.g., Reviewer, Previewer, and CardLayout).
+
+This won't be called when the user manually plays sounds
+using `Replay Audio`.
+
+Note that this hook is called even when the `Automatically play audio`
+option is unchecked; This is so as to allow playing custom
+sounds regardless of that option.
+
+---
+
+### `addon_config_editor_will_display_json`
+
+**Args:** `text: str`\
+**Returns:** `str`
+
+Allows changing the text of the json configuration before actually
+displaying it to the user. For example, you can replace "\\n" by
+some actual new line. Then you can replace the new lines by "\\n"
+while reading the file and let the user uses real new line in
+string instead of its encoding.
+
+---
+
+### `addon_config_editor_will_save_json` _(Deprecated)_
+
+**Args:** `text: str`\
+**Returns:** `str`
+
+<Warning>
+  Deprecated. Use `addon_config_editor_will_update_json` instead.
+</Warning>
+
+Allows changing the text of the json configuration that was
+received from the user before actually reading it. For
+example, you can replace new line in strings by some "\\n".
+
+---
+
+### `addon_config_editor_will_update_json`
+
+**Args:** `text: str`, `addon: str`\
+**Returns:** `str`
+
+Allows changing the text of the json configuration that was
+received from the user before actually reading it. For
+example, you can replace new line in strings by some "\\n".
+
+---
+
+### `addons_dialog_will_show`
+
+**Args:** `dialog: aqt.addons.AddonsDialog`
+
+Allows changing the add-on dialog before it is shown. E.g. add
+buttons.
+
+---
+
+### `addons_dialog_did_change_selected_addon`
+
+**Args:** `dialog: aqt.addons.AddonsDialog`, `add_on: aqt.addons.AddonMeta`
+
+Allows doing an action when a single add-on is selected.
+
+---
+
+### `addons_dialog_will_delete_addons`
+
+**Args:** `dialog: aqt.addons.AddonsDialog`, `ids: list[str]`
+
+Allows doing an action before an add-on is deleted.
+
+---
+
+### `addon_manager_will_install_addon`
+
+**Args:** `manager: aqt.addons.AddonManager`, `module: str`
+
+Called before installing or updating an addon.
+
+Can be used to release DB connections or open files that
+would prevent an update from succeeding.
+
+---
+
+### `addon_manager_did_install_addon`
+
+**Args:** `manager: aqt.addons.AddonManager`, `module: str`
+
+Called after installing or updating an addon.
+
+Can be used to restore DB connections or open files after
+an add-on has been updated.
+
+---
+
+### `models_advanced_will_show`
+
+**Args:** `advanced: QDialog`
+
+No docstring.
+
+---
+
+### `models_did_init_buttons`
+
+**Args:** `buttons: list[tuple[str, Callable[[], None]]]`, `models: aqt.models.Models`\
+**Returns:** `list[tuple[str, Callable[[], None]]]`
+
+Allows adding buttons to the Model dialog
+
+---
+
+### `fields_did_add_field`
+
+**Args:** `dialog: aqt.fields.FieldDialog`, `field: anki.models.FieldDict`
+
+No docstring.
+
+---
+
+### `fields_did_rename_field`
+
+**Args:** `dialog: aqt.fields.FieldDialog`, `field: anki.models.FieldDict`, `old_name: str`
+
+No docstring.
+
+---
+
+### `fields_did_delete_field`
+
+**Args:** `dialog: aqt.fields.FieldDialog`, `field: anki.models.FieldDict`
+
+No docstring.
+
+---
+
+### `stats_dialog_will_show`
+
+**Args:** `dialog: aqt.stats.NewDeckStats`
+
+Allows changing the stats dialog before it is shown.
+
+---
+
+### `stats_dialog_old_will_show`
+
+**Args:** `dialog: aqt.stats.DeckStats`
+
+Allows changing the old stats dialog before it is shown.
+
+---
+
+### `current_note_type_did_change`
+
+**Args:** `notetype: NotetypeDict`
+
+No docstring.
+
+---
+
+### `sidebar_should_refresh_decks`
+
+No arguments.
+
+Legacy, do not use.
+
+---
+
+### `sidebar_should_refresh_notetypes`
+
+No arguments.
+
+Legacy, do not use.
+
+---
+
+### `deck_browser_will_show_options_menu`
+
+**Args:** `menu: QMenu`, `deck_id: int`
+
+No docstring.
+
+---
+
+### `flag_label_did_change`
+
+No arguments.
+
+Used to update the GUI when a new flag label is assigned.
+{/* <<<end>>> */}
