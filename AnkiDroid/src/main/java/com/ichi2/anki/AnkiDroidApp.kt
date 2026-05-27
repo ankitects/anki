@@ -190,7 +190,7 @@ open class AnkiDroidApp :
         setupContextMenus()
         setupNotificationChannels(applicationContext)
 
-        makeBackendUsable(this)
+        setup("makeBackendUsable") { makeBackendUsable(this) }
 
         // Probe WebView availability before any other init touches it (#5794).
         if (!checkWebViewAvailable()) {
@@ -259,41 +259,42 @@ open class AnkiDroidApp :
      * In most cases the Anki Backend now creates the collection and [initializeAnkiDroidDirectory]
      *  is called on startup of the activity.
      */
-    private fun initializeAnkiDroidDirectory() {
-        // #13207: `getCurrentAnkiDroidDirectory` failing is an unconditional be a fatal error
-        // TODO: For now, a null getExternalFilesDir, but a valid AnkiDroid Directory in prefs
-        //  is not considered to be a fatal error, unless the directory itself is not writable.
-        val ankiDroidDir =
-            try {
-                CollectionHelper.getCurrentAnkiDroidDirectory(this)
-            } catch (e: SystemStorageException) {
-                fatalInitializationError = FatalInitializationError.StorageError(e)
-                return
-            }
-
-        // TODO: This line is questionable, as it doesn't work on most post-scoped-storage
-        //  builds/Android versions, but we call initializeAnkiDroidDirectory later on startup
-        if (!hasLegacyStorageAccessPermission(this)) return
-
-        try {
-            CollectionHelper.initializeAnkiDroidDirectory(ankiDroidDir)
-            return
-        } catch (e: StorageAccessException) {
-            Timber.e(e, "Could not initialize AnkiDroid directory")
-            try {
-                val defaultDir = CollectionHelper.getDefaultAnkiDroidDirectory(this)
-                if (SdCard.isMounted && CollectionHelper.getCurrentAnkiDroidDirectory(this) == defaultDir) {
-                    // Don't send report if the user is using a custom directory as SD cards trip up here a lot
-                    sendExceptionReport(e, "AnkiDroidApp.onCreate")
+    private fun initializeAnkiDroidDirectory() =
+        setup("initializeAnkiDroidDirectory") {
+            // #13207: `getCurrentAnkiDroidDirectory` failing is an unconditional be a fatal error
+            // TODO: For now, a null getExternalFilesDir, but a valid AnkiDroid Directory in prefs
+            //  is not considered to be a fatal error, unless the directory itself is not writable.
+            val ankiDroidDir =
+                try {
+                    CollectionHelper.getCurrentAnkiDroidDirectory(this)
+                } catch (e: SystemStorageException) {
+                    fatalInitializationError = FatalInitializationError.StorageError(e)
+                    return@setup
                 }
-            } catch (e: SystemStorageException) {
-                // The user can't write to the AnkiDroid directory (=> cant write to the collection)
-                // AND getExternalFilesDir is null - file permissions are likely corrupted (Android 16 bug)
-                // => show the 'fatal storage error' screen
-                fatalInitializationError = FatalInitializationError.StorageError(e)
+
+            // TODO: This line is questionable, as it doesn't work on most post-scoped-storage
+            //  builds/Android versions, but we call initializeAnkiDroidDirectory later on startup
+            if (!hasLegacyStorageAccessPermission(this)) return@setup
+
+            try {
+                CollectionHelper.initializeAnkiDroidDirectory(ankiDroidDir)
+                return@setup
+            } catch (e: StorageAccessException) {
+                Timber.e(e, "Could not initialize AnkiDroid directory")
+                try {
+                    val defaultDir = CollectionHelper.getDefaultAnkiDroidDirectory(this)
+                    if (SdCard.isMounted && CollectionHelper.getCurrentAnkiDroidDirectory(this) == defaultDir) {
+                        // Don't send report if the user is using a custom directory as SD cards trip up here a lot
+                        sendExceptionReport(e, "AnkiDroidApp.onCreate")
+                    }
+                } catch (e: SystemStorageException) {
+                    // The user can't write to the AnkiDroid directory (=> cant write to the collection)
+                    // AND getExternalFilesDir is null - file permissions are likely corrupted (Android 16 bug)
+                    // => show the 'fatal storage error' screen
+                    fatalInitializationError = FatalInitializationError.StorageError(e)
+                }
             }
         }
-    }
 
     /**
      * Sets up display of the context menus which appear when long pressing text on external apps,
