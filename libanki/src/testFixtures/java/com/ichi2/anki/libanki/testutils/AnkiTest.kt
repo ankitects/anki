@@ -38,12 +38,14 @@ import com.ichi2.anki.libanki.getNotetype
 import com.ichi2.anki.libanki.testutils.ext.addNote
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.test.StandardTestDispatcher
+import kotlinx.coroutines.test.TestCoroutineScheduler
 import kotlinx.coroutines.test.TestDispatcher
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.setMain
 import net.ankiweb.rsdroid.exceptions.BackendDeckIsFilteredException
 import timber.log.Timber
+import kotlin.coroutines.ContinuationInterceptor
 import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.EmptyCoroutineContext
 import kotlin.time.Duration
@@ -396,12 +398,18 @@ interface AnkiTest {
         times: Int = 1,
         testBody: suspend TestScope.() -> Unit,
     ) {
-        val dispatcher = UnconfinedTestDispatcher()
+        // Use a unified scheduler on `Dispatchers.Main` and runTest uses, so
+        // advanceUntilIdle()/runCurrent() handle coroutines launched on `Main`.
+        val scheduler =
+            (context[ContinuationInterceptor] as? TestDispatcher)?.scheduler
+                ?: TestCoroutineScheduler()
+        val dispatcher = UnconfinedTestDispatcher(scheduler)
         Dispatchers.setMain(dispatcher)
         setupTestDispatcher(dispatcher)
+
         repeat(times) {
             if (times != 1) Timber.d("------ Executing test $it/$times ------")
-            kotlinx.coroutines.test.runTest(context, dispatchTimeout) {
+            kotlinx.coroutines.test.runTest(context + scheduler, dispatchTimeout) {
                 runTestInner(testBody)
             }
         }
