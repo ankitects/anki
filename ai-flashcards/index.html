@@ -1,0 +1,1268 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FlashAI – AI-Powered Flashcards</title>
+<style>
+  /* ── Reset & Variables ────────────────────────────────────────────────── */
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --primary:    #5C6BC0;
+    --primary-dk: #3949AB;
+    --success:    #43A047;
+    --warn:       #FB8C00;
+    --danger:     #E53935;
+    --again:      #EF5350;
+    --hard:       #FFA726;
+    --good:       #66BB6A;
+    --easy:       #42A5F5;
+    --bg:         #F0F2F8;
+    --surface:    #FFFFFF;
+    --border:     #E0E0E0;
+    --text:       #212121;
+    --text-2:     #757575;
+    --radius:     12px;
+    --shadow:     0 2px 12px rgba(0,0,0,.10);
+    --shadow-lg:  0 8px 32px rgba(0,0,0,.15);
+    --transition: .18s ease;
+  }
+  body.dark {
+    --bg:      #121212;
+    --surface: #1E1E1E;
+    --border:  #333;
+    --text:    #EEEEEE;
+    --text-2:  #9E9E9E;
+    --shadow:  0 2px 12px rgba(0,0,0,.4);
+  }
+
+  /* ── Layout ───────────────────────────────────────────────────────────── */
+  body {
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+  }
+  header {
+    background: var(--primary);
+    color: #fff;
+    padding: 0 24px;
+    display: flex;
+    align-items: center;
+    gap: 24px;
+    height: 56px;
+    box-shadow: 0 2px 8px rgba(0,0,0,.2);
+    position: sticky; top: 0; z-index: 100;
+  }
+  header h1 { font-size: 1.3rem; font-weight: 700; letter-spacing: .5px; flex: none; }
+  header h1 span { opacity: .7; font-weight: 400; }
+  nav { display: flex; gap: 4px; flex: 1; }
+  nav button {
+    background: transparent; border: none; color: rgba(255,255,255,.75);
+    padding: 6px 14px; border-radius: 6px; cursor: pointer;
+    font-size: .9rem; font-weight: 500; transition: var(--transition);
+  }
+  nav button:hover  { background: rgba(255,255,255,.15); color: #fff; }
+  nav button.active { background: rgba(255,255,255,.25); color: #fff; }
+  #dark-toggle {
+    margin-left: auto; background: transparent; border: none;
+    color: rgba(255,255,255,.8); cursor: pointer; font-size: 1.2rem;
+    padding: 4px 8px; border-radius: 6px; transition: var(--transition);
+  }
+  #dark-toggle:hover { background: rgba(255,255,255,.15); }
+
+  main { flex: 1; padding: 32px 24px; max-width: 900px; margin: 0 auto; width: 100%; }
+
+  /* ── Screen visibility ───────────────────────────────────────────────── */
+  .screen { display: none; }
+  .screen.active { display: block; }
+
+  /* ── Cards / Surfaces ────────────────────────────────────────────────── */
+  .card {
+    background: var(--surface);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    padding: 28px;
+    margin-bottom: 20px;
+  }
+  .card-sm { padding: 16px 20px; }
+
+  /* ── Buttons ─────────────────────────────────────────────────────────── */
+  .btn {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 9px 20px; border-radius: 8px; font-size: .9rem;
+    font-weight: 600; border: none; cursor: pointer;
+    transition: var(--transition); text-decoration: none;
+  }
+  .btn-primary  { background: var(--primary);  color: #fff; }
+  .btn-primary:hover  { background: var(--primary-dk); }
+  .btn-success  { background: var(--success);  color: #fff; }
+  .btn-success:hover  { filter: brightness(1.1); }
+  .btn-danger   { background: var(--danger);   color: #fff; }
+  .btn-danger:hover   { filter: brightness(1.1); }
+  .btn-ghost {
+    background: transparent; color: var(--primary);
+    border: 2px solid var(--primary);
+  }
+  .btn-ghost:hover { background: var(--primary); color: #fff; }
+  .btn:disabled { opacity: .5; cursor: not-allowed; }
+
+  /* ── Forms ───────────────────────────────────────────────────────────── */
+  label { font-size: .85rem; font-weight: 600; color: var(--text-2); display: block; margin-bottom: 5px; }
+  input[type=text], input[type=password], textarea, select {
+    width: 100%; padding: 10px 14px; border: 1.5px solid var(--border);
+    border-radius: 8px; font-size: .95rem; background: var(--bg);
+    color: var(--text); font-family: inherit; transition: var(--transition);
+    resize: vertical;
+  }
+  input:focus, textarea:focus, select:focus {
+    outline: none; border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(92,107,192,.15);
+  }
+  .form-row { margin-bottom: 16px; }
+  .row { display: flex; gap: 12px; align-items: flex-end; flex-wrap: wrap; }
+
+  /* ── Review screen ───────────────────────────────────────────────────── */
+  #review-wrap { text-align: center; }
+  #review-empty { color: var(--text-2); font-size: 1.1rem; padding: 60px 0; }
+  #deck-picker-row { display: flex; justify-content: center; align-items: center; gap: 12px; margin-bottom: 24px; }
+  #deck-picker-row select { max-width: 260px; }
+  #review-stats {
+    display: flex; justify-content: center; gap: 24px; margin-bottom: 20px;
+    font-size: .9rem; font-weight: 600; color: var(--text-2);
+  }
+  #review-stats span { display: flex; align-items: center; gap: 5px; }
+  #review-stats .dot {
+    width: 10px; height: 10px; border-radius: 50%; display: inline-block;
+  }
+
+  /* Flashcard flip */
+  .flashcard-scene { perspective: 1000px; margin: 0 auto 24px; max-width: 640px; height: 240px; }
+  .flashcard {
+    width: 100%; height: 100%; position: relative;
+    transform-style: preserve-3d; transition: transform .45s ease;
+    cursor: pointer;
+  }
+  .flashcard.flipped { transform: rotateY(180deg); }
+  .fc-face {
+    position: absolute; inset: 0;
+    background: var(--surface); border-radius: var(--radius);
+    box-shadow: var(--shadow-lg);
+    display: flex; flex-direction: column; align-items: center;
+    justify-content: center; padding: 32px;
+    backface-visibility: hidden; -webkit-backface-visibility: hidden;
+  }
+  .fc-front { border-top: 5px solid var(--primary); }
+  .fc-back  { border-top: 5px solid var(--success); transform: rotateY(180deg); }
+  .fc-label { font-size: .75rem; font-weight: 700; text-transform: uppercase;
+    letter-spacing: 1px; color: var(--text-2); margin-bottom: 12px; }
+  .fc-text  { font-size: 1.3rem; line-height: 1.5; color: var(--text);
+    text-align: center; word-break: break-word; }
+  .fc-img { max-width: 100%; max-height: 160px; border-radius: 8px; margin-top: 12px; object-fit: contain; }
+
+  #flip-hint { color: var(--text-2); font-size: .85rem; margin-bottom: 16px; }
+
+  #answer-btns {
+    display: flex; gap: 10px; justify-content: center; flex-wrap: wrap;
+    margin-top: 4px;
+  }
+  .rate-btn {
+    flex: 1; min-width: 90px; max-width: 140px;
+    padding: 12px 8px; border: none; border-radius: 10px;
+    font-size: .9rem; font-weight: 700; cursor: pointer;
+    transition: var(--transition); color: #fff;
+    display: flex; flex-direction: column; align-items: center; gap: 2px;
+  }
+  .rate-btn small { font-size: .7rem; font-weight: 400; opacity: .85; }
+  .rate-btn.again { background: var(--again); }
+  .rate-btn.hard  { background: var(--hard); }
+  .rate-btn.good  { background: var(--good); }
+  .rate-btn.easy  { background: var(--easy); }
+  .rate-btn:hover { filter: brightness(1.1); transform: translateY(-2px); }
+
+  /* ── Generate screen ─────────────────────────────────────────────────── */
+  .step-bar { display: flex; gap: 0; margin-bottom: 28px; border-radius: 8px; overflow: hidden; }
+  .step { flex: 1; padding: 10px; text-align: center; font-size: .85rem;
+    font-weight: 600; background: var(--border); color: var(--text-2);
+    transition: var(--transition); }
+  .step.active { background: var(--primary); color: #fff; }
+  .step.done   { background: var(--success);  color: #fff; }
+
+  #preview-grid {
+    display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 14px; margin: 20px 0;
+  }
+  .preview-card {
+    background: var(--surface); border-radius: 10px;
+    border: 1.5px solid var(--border); padding: 14px;
+    position: relative;
+  }
+  .preview-card .pf { font-weight: 600; color: var(--text); margin-bottom: 6px; font-size: .9rem; }
+  .preview-card .pb { color: var(--text-2); font-size: .85rem; }
+  .preview-card button.del {
+    position: absolute; top: 8px; right: 8px;
+    background: none; border: none; color: var(--text-2);
+    cursor: pointer; font-size: 1rem; padding: 2px 6px;
+    border-radius: 4px; transition: var(--transition);
+  }
+  .preview-card button.del:hover { color: var(--danger); background: rgba(229,57,53,.1); }
+  #ai-spinner { display: none; text-align: center; padding: 30px; color: var(--text-2); }
+  .spinner {
+    display: inline-block; width: 36px; height: 36px;
+    border: 4px solid var(--border); border-top-color: var(--primary);
+    border-radius: 50%; animation: spin 0.8s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* ── Browse / Decks / Settings ───────────────────────────────────────── */
+  .section-title {
+    font-size: 1.2rem; font-weight: 700; margin-bottom: 16px;
+    color: var(--text);
+  }
+  table { width: 100%; border-collapse: collapse; font-size: .9rem; }
+  th { text-align: left; padding: 10px 12px; color: var(--text-2);
+    font-weight: 600; font-size: .8rem; text-transform: uppercase;
+    letter-spacing: .5px; border-bottom: 2px solid var(--border); }
+  td { padding: 10px 12px; border-bottom: 1px solid var(--border); vertical-align: middle; }
+  tr:last-child td { border-bottom: none; }
+  tr:hover td { background: rgba(92,107,192,.05); }
+
+  .badge {
+    display: inline-block; padding: 2px 10px; border-radius: 20px;
+    font-size: .75rem; font-weight: 700;
+  }
+  .badge-blue   { background: rgba(92,107,192,.15);  color: var(--primary); }
+  .badge-green  { background: rgba(67,160,71,.15);   color: var(--success); }
+  .badge-orange { background: rgba(251,140,0,.15);   color: var(--warn); }
+
+  .deck-grid {
+    display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 14px;
+  }
+  .deck-tile {
+    background: var(--surface); border-radius: var(--radius);
+    box-shadow: var(--shadow); padding: 20px; cursor: pointer;
+    transition: var(--transition); border: 2px solid transparent;
+    display: flex; flex-direction: column; gap: 8px;
+  }
+  .deck-tile:hover { border-color: var(--primary); transform: translateY(-2px); }
+  .deck-tile.selected { border-color: var(--primary); background: rgba(92,107,192,.06); }
+  .deck-tile h3 { font-size: 1rem; font-weight: 700; }
+  .deck-tile small { color: var(--text-2); font-size: .8rem; }
+  .deck-actions { display: flex; gap: 8px; margin-top: auto; }
+  .deck-actions button {
+    flex: 1; padding: 5px; border: none; border-radius: 6px;
+    font-size: .75rem; font-weight: 600; cursor: pointer;
+    transition: var(--transition);
+  }
+  .deck-actions .d-study { background: var(--primary); color: #fff; }
+  .deck-actions .d-del   { background: rgba(229,57,53,.1); color: var(--danger); }
+  .deck-actions button:hover { filter: brightness(1.1); }
+
+  .info-box {
+    background: rgba(92,107,192,.09); border-radius: 8px; padding: 14px 18px;
+    font-size: .9rem; color: var(--primary); margin-bottom: 20px;
+    border-left: 4px solid var(--primary);
+  }
+  .alert { padding: 12px 16px; border-radius: 8px; font-size: .9rem; margin-bottom: 14px; }
+  .alert-err { background: rgba(229,57,53,.1); color: var(--danger); }
+  .alert-ok  { background: rgba(67,160,71,.1);  color: var(--success); }
+
+  #prog-bar-wrap { background: var(--border); border-radius: 20px; height: 6px; margin-bottom: 20px; }
+  #prog-bar { height: 100%; border-radius: 20px; background: var(--primary); transition: width .3s; }
+
+  /* ── Responsive ──────────────────────────────────────────────────────── */
+  @media (max-width: 600px) {
+    header { padding: 0 12px; }
+    nav button { padding: 5px 9px; font-size: .8rem; }
+    main { padding: 16px 12px; }
+    .rate-btn { min-width: 70px; font-size: .8rem; }
+    .flashcard-scene { height: 200px; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Flash<span>AI</span></h1>
+  <nav>
+    <button class="active" data-screen="review">📖 Review</button>
+    <button data-screen="generate">✨ Generate</button>
+    <button data-screen="browse">🗂 Browse</button>
+    <button data-screen="decks">📚 Decks</button>
+    <button data-screen="settings">⚙️ Settings</button>
+  </nav>
+  <button id="dark-toggle" title="Toggle dark mode">🌙</button>
+</header>
+
+<main>
+  <!-- ── REVIEW ──────────────────────────────────────────────────────── -->
+  <div id="screen-review" class="screen active">
+    <div id="deck-picker-row">
+      <label for="review-deck-sel" style="margin:0;white-space:nowrap">Deck:</label>
+      <select id="review-deck-sel"></select>
+    </div>
+    <div id="review-stats"></div>
+    <div id="prog-bar-wrap"><div id="prog-bar" style="width:0%"></div></div>
+    <div id="review-wrap">
+      <div id="review-empty">🎉 No cards due right now! Come back later or add more cards.</div>
+      <div id="review-card-ui" style="display:none">
+        <div class="flashcard-scene">
+          <div class="flashcard" id="flashcard" onclick="flipCard()">
+            <div class="fc-face fc-front">
+              <div class="fc-label">Question</div>
+              <div class="fc-text" id="fc-front-text"></div>
+              <img id="fc-front-img" class="fc-img" style="display:none" alt="">
+            </div>
+            <div class="fc-face fc-back">
+              <div class="fc-label">Answer</div>
+              <div class="fc-text" id="fc-back-text"></div>
+              <img id="fc-back-img" class="fc-img" style="display:none" alt="">
+            </div>
+          </div>
+        </div>
+        <div id="flip-hint">👆 Click the card to reveal the answer</div>
+        <div id="answer-btns" style="display:none">
+          <button class="rate-btn again" onclick="rateCard(1)">Again<small>~1d</small></button>
+          <button class="rate-btn hard"  onclick="rateCard(2)">Hard<small id="hint-hard"></small></button>
+          <button class="rate-btn good"  onclick="rateCard(3)">Good<small id="hint-good"></small></button>
+          <button class="rate-btn easy"  onclick="rateCard(4)">Easy<small id="hint-easy"></small></button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── GENERATE ────────────────────────────────────────────────────── -->
+  <div id="screen-generate" class="screen">
+    <div class="step-bar">
+      <div class="step active" id="step1">1 · Paste Text</div>
+      <div class="step"        id="step2">2 · Review Cards</div>
+      <div class="step"        id="step3">3 · Add to Deck</div>
+    </div>
+
+    <!-- Step 1 -->
+    <div id="gen-step1">
+      <div class="card">
+        <div class="info-box">
+          ✨ Paste any text below and Claude will generate flashcard pairs from it automatically.
+          Make sure your API key is saved in Settings first.
+        </div>
+        <div class="form-row">
+          <label for="gen-text">Source Text</label>
+          <textarea id="gen-text" rows="8" placeholder="Paste a textbook excerpt, article, study notes, vocabulary list…"></textarea>
+        </div>
+        <div class="row">
+          <div style="flex:1" class="form-row">
+            <label for="gen-deck-sel">Add cards to deck</label>
+            <select id="gen-deck-sel"></select>
+          </div>
+          <div class="form-row">
+            <label for="gen-count">Max cards</label>
+            <select id="gen-count" style="width:90px">
+              <option>5</option><option selected>10</option>
+              <option>15</option><option>20</option>
+            </select>
+          </div>
+        </div>
+        <button class="btn btn-primary" onclick="runGenerate()">✨ Generate Cards</button>
+      </div>
+      <div id="gen-err"></div>
+      <div id="ai-spinner"><div class="spinner"></div><p style="margin-top:12px">Asking Claude…</p></div>
+    </div>
+
+    <!-- Step 2 -->
+    <div id="gen-step2" style="display:none">
+      <div class="card card-sm">
+        <strong id="gen-count-label"></strong>
+        <span style="color:var(--text-2); font-size:.85rem"> — click ✕ to remove any you don't want</span>
+      </div>
+      <div id="preview-grid"></div>
+      <div style="display:flex;gap:10px">
+        <button class="btn btn-ghost" onclick="backToStep1()">← Back</button>
+        <button class="btn btn-success" onclick="addGeneratedCards()">✅ Add to Deck</button>
+      </div>
+    </div>
+
+    <!-- Step 3 -->
+    <div id="gen-step3" style="display:none">
+      <div class="card" style="text-align:center;padding:48px">
+        <div style="font-size:3rem">🎉</div>
+        <h2 style="margin:12px 0 6px">Cards added!</h2>
+        <p style="color:var(--text-2);margin-bottom:24px" id="gen-done-msg"></p>
+        <div style="display:flex;gap:10px;justify-content:center">
+          <button class="btn btn-primary" onclick="showScreen('review')">📖 Start Reviewing</button>
+          <button class="btn btn-ghost"   onclick="resetGenerator()">✨ Generate More</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── BROWSE ──────────────────────────────────────────────────────── -->
+  <div id="screen-browse" class="screen">
+    <div class="row" style="margin-bottom:18px">
+      <div style="flex:1" class="form-row" style="margin:0">
+        <input type="text" id="browse-search" placeholder="🔍 Search cards…" oninput="renderBrowse()">
+      </div>
+      <div class="form-row" style="margin:0">
+        <select id="browse-deck-filter" onchange="renderBrowse()"></select>
+      </div>
+      <button class="btn btn-ghost" onclick="openAddCardModal()">+ Add Card</button>
+    </div>
+    <div class="card" style="padding:0;overflow:hidden">
+      <table id="browse-table">
+        <thead><tr><th>Front</th><th>Back</th><th>Deck</th><th>Due</th><th>Interval</th><th></th></tr></thead>
+        <tbody id="browse-body"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ── DECKS ───────────────────────────────────────────────────────── -->
+  <div id="screen-decks" class="screen">
+    <div class="row" style="margin-bottom:20px;align-items:center">
+      <h2 class="section-title" style="margin:0;flex:1">Your Decks</h2>
+      <button class="btn btn-primary" onclick="openNewDeckModal()">+ New Deck</button>
+    </div>
+    <div class="deck-grid" id="deck-grid"></div>
+    <div style="margin-top:28px">
+      <h3 style="margin-bottom:12px;font-size:1rem">Import / Export</h3>
+      <div style="display:flex;gap:10px;flex-wrap:wrap">
+        <button class="btn btn-ghost" onclick="exportData()">⬇️ Export All (JSON)</button>
+        <label class="btn btn-ghost" style="cursor:pointer">
+          ⬆️ Import JSON <input type="file" accept=".json" style="display:none" onchange="importData(event)">
+        </label>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── SETTINGS ────────────────────────────────────────────────────── -->
+  <div id="screen-settings" class="screen">
+    <div class="card">
+      <h2 class="section-title">Settings</h2>
+      <div class="info-box">
+        Your API key is stored only in your browser's localStorage — it never leaves your device
+        except when making direct calls to api.anthropic.com.
+      </div>
+      <div class="form-row">
+        <label for="api-key-input">Anthropic API Key</label>
+        <input type="password" id="api-key-input" placeholder="sk-ant-…">
+      </div>
+      <div class="form-row">
+        <label for="model-sel">Claude model</label>
+        <select id="model-sel">
+          <option value="claude-haiku-4-5-20251001">Claude Haiku 4.5 (fast &amp; cheap)</option>
+          <option value="claude-sonnet-4-6" selected>Claude Sonnet 4.6 (balanced)</option>
+          <option value="claude-opus-4-7">Claude Opus 4.7 (most capable)</option>
+        </select>
+      </div>
+      <div class="form-row">
+        <label for="new-per-day">New cards per day (per deck)</label>
+        <input type="text" id="new-per-day" style="max-width:80px" value="20">
+      </div>
+      <button class="btn btn-primary" onclick="saveSettings()">Save Settings</button>
+      <span id="settings-saved" style="margin-left:12px;color:var(--success);font-size:.9rem;display:none">✓ Saved</span>
+    </div>
+    <div class="card">
+      <h3 style="margin-bottom:12px">About SRS Scheduling</h3>
+      <p style="color:var(--text-2);line-height:1.7;font-size:.9rem">
+        FlashAI uses a simplified <strong>SM-2</strong> algorithm for spaced repetition.<br><br>
+        Each card tracks an <em>interval</em> (days until next review) and an <em>ease factor</em> (default 2.5×).<br><br>
+        • <strong>Again</strong> — resets the card; ease drops slightly.<br>
+        • <strong>Hard</strong> — interval × 1.2; ease drops slightly.<br>
+        • <strong>Good</strong> — interval × ease (the sweet spot).<br>
+        • <strong>Easy</strong> — interval × ease × 1.3; ease increases.<br><br>
+        Cards start at 1-day intervals and grow exponentially — showing them right before
+        you'd forget them to maximise long-term retention.
+      </p>
+    </div>
+  </div>
+</main>
+
+<!-- ── MODALS ──────────────────────────────────────────────────────────── -->
+<div id="modal-overlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:200;display:none;align-items:center;justify-content:center" onclick="closeModal(event)">
+  <div id="modal-box" style="background:var(--surface);border-radius:16px;padding:28px;min-width:340px;max-width:520px;width:90%;box-shadow:var(--shadow-lg);position:relative" onclick="event.stopPropagation()">
+    <button onclick="closeModal()" style="position:absolute;top:14px;right:16px;background:none;border:none;font-size:1.3rem;cursor:pointer;color:var(--text-2)">✕</button>
+    <div id="modal-content"></div>
+  </div>
+</div>
+
+<script>
+'use strict';
+// ─────────────────────────────────────────────────────────────────────────────
+// IMAGE STORAGE  (IndexedDB — no localStorage size limit)
+// ─────────────────────────────────────────────────────────────────────────────
+let _imgDB = null;
+
+function openImageDB() {
+  if (_imgDB) return Promise.resolve(_imgDB);
+  return new Promise((res, rej) => {
+    const req = indexedDB.open('flashai_images', 1);
+    req.onupgradeneeded = e => e.target.result.createObjectStore('imgs');
+    req.onsuccess  = e => {
+      _imgDB = e.target.result;
+      // Reset the cache if the browser forces the connection closed (e.g. storage pressure)
+      _imgDB.onclose = () => { _imgDB = null; };
+      res(_imgDB);
+    };
+    req.onerror    = e => rej(e.target.error);
+  });
+}
+
+async function saveImage(blob) {
+  const db = await openImageDB();
+  const key = uid();
+  await new Promise((res, rej) => {
+    const tx = db.transaction('imgs', 'readwrite');
+    tx.objectStore('imgs').put(blob, key);
+    tx.oncomplete = res; tx.onerror = e => rej(e.target.error);
+  });
+  return key;
+}
+
+async function loadImage(key) {
+  if (!key) return null;
+  const db = await openImageDB();
+  return new Promise((res, rej) => {
+    const tx = db.transaction('imgs', 'readonly');
+    const req = tx.objectStore('imgs').get(key);
+    req.onsuccess = e => res(e.target.result || null);
+    req.onerror   = e => rej(e.target.error);
+  });
+}
+
+async function deleteImage(key) {
+  if (!key) return;
+  const db = await openImageDB();
+  return new Promise((res, rej) => {
+    const tx = db.transaction('imgs', 'readwrite');
+    tx.objectStore('imgs').delete(key);
+    tx.oncomplete = res; tx.onerror = e => rej(e.target.error);
+  });
+}
+
+// Revoke a blob object URL when card changes
+let _currentBlobURLs = [];
+function clearBlobURLs() {
+  _currentBlobURLs.forEach(u => URL.revokeObjectURL(u));
+  _currentBlobURLs = [];
+}
+function blobToURL(blob) {
+  const u = URL.createObjectURL(blob);
+  _currentBlobURLs.push(u);
+  return u;
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// DATA LAYER
+// ─────────────────────────────────────────────────────────────────────────────
+const STORAGE_KEY = 'flashai_data';
+
+function loadData() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (raw) return JSON.parse(raw);
+  } catch(e) {}
+  return { decks: {}, settings: { apiKey:'', model:'claude-sonnet-4-6', newPerDay:20 } };
+}
+function saveData() { localStorage.setItem(STORAGE_KEY, JSON.stringify(db)); }
+
+let db = loadData();
+
+// Seed a demo deck if the user has no data
+if (Object.keys(db.decks).length === 0) {
+  const id = uid();
+  db.decks[id] = {
+    id, name: 'Sample Deck',
+    cards: [
+      makeCard('What is spaced repetition?', 'A learning technique that schedules reviews at increasing intervals to maximise long-term retention.', id),
+      makeCard('What does SRS stand for?', 'Spaced Repetition System', id),
+      makeCard('Who invented the SM-2 algorithm?', 'Piotr Woźniak, in 1987, for the SuperMemo software.', id),
+      makeCard('What is the "forgetting curve"?', 'A graph showing how memory retention decays exponentially over time without review — discovered by Ebbinghaus.', id),
+      makeCard('What is a "lapse" in SRS?', 'When a card that was in the review queue is answered "Again" — it resets to a short interval.', id),
+    ]
+  };
+  saveData();
+}
+
+function uid() { return Math.random().toString(36).slice(2) + Date.now().toString(36); }
+
+function makeCard(front, back, deckId) {
+  return {
+    id: uid(), deckId,
+    front, back,
+    frontImageKey: null, backImageKey: null,
+    interval: 1,      // days
+    ease: 2.5,        // ease factor
+    due: Date.now(),  // due immediately
+    reps: 0,
+    lapses: 0,
+  };
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// SRS ALGORITHM (simplified SM-2)
+// ─────────────────────────────────────────────────────────────────────────────
+function scheduleCard(card, rating) {
+  // rating: 1=Again  2=Hard  3=Good  4=Easy
+  const DAY = 86400000;
+  if (rating === 1) {
+    card.lapses++;
+    card.ease = Math.max(1.3, card.ease - 0.20);
+    card.interval = 1;
+    card.reps = 0;
+  } else {
+    if (card.reps < 2) {
+      // Bootstrapping phase
+      card.interval = rating >= 3 ? (card.reps === 0 ? 1 : 4) : 1;
+    } else {
+      if (rating === 2) {
+        card.interval = Math.max(1, Math.round(card.interval * 1.2));
+        card.ease = Math.max(1.3, card.ease - 0.15);
+      } else if (rating === 3) {
+        card.interval = Math.max(1, Math.round(card.interval * card.ease));
+      } else { // Easy
+        card.interval = Math.max(1, Math.round(card.interval * card.ease * 1.3));
+        card.ease = Math.min(4.0, card.ease + 0.15);
+      }
+    }
+    card.reps++;
+  }
+  card.due = Date.now() + card.interval * DAY;
+  return card;
+}
+
+function intervalLabel(days) {
+  if (days < 1)  return '<1d';
+  if (days < 30) return days + 'd';
+  if (days < 365) return Math.round(days/30) + 'mo';
+  return (days/365).toFixed(1) + 'y';
+}
+
+function previewIntervals(card) {
+  const sim = (r) => {
+    const c = JSON.parse(JSON.stringify(card));
+    scheduleCard(c, r);
+    return intervalLabel(c.interval);
+  };
+  return { hard: sim(2), good: sim(3), easy: sim(4) };
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// REVIEW SESSION
+// ─────────────────────────────────────────────────────────────────────────────
+let session = { queue: [], current: 0, doneCount: 0, totalDue: 0, deckId: null };
+let isFlipped = false;
+
+function buildQueue(deckId) {
+  const now = Date.now();
+  const maxNew = db.settings.newPerDay || 20;
+  let newCount = 0;
+
+  const deck = db.decks[deckId];
+  if (!deck) return [];
+
+  const due = [];
+  for (const c of deck.cards) {
+    const isNew = c.reps === 0;
+    if (isNew) {
+      if (newCount < maxNew) { due.push(c); newCount++; }
+    } else if (c.due <= now) {
+      due.push(c);
+    }
+  }
+  // Shuffle
+  for (let i = due.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [due[i], due[j]] = [due[j], due[i]];
+  }
+  return due;
+}
+
+function startReview(deckId) {
+  deckId = deckId || document.getElementById('review-deck-sel').value;
+  session.deckId = deckId;
+  session.queue = buildQueue(deckId);
+  session.current = 0;
+  session.doneCount = 0;
+  session.totalDue = session.queue.length;
+  renderReviewCard().catch(console.error);
+}
+
+async function renderReviewCard() {
+  const ui = document.getElementById('review-card-ui');
+  const empty = document.getElementById('review-empty');
+  const progressBar = document.getElementById('prog-bar');
+
+  // Stats
+  const done = session.doneCount;
+  const total = session.totalDue;
+  const pct = total ? Math.round((done / total) * 100) : 0;
+  progressBar.style.width = pct + '%';
+
+  const newCards = session.queue.filter(c => c.reps === 0).length;
+  const reviewCards = session.queue.length - newCards;
+  document.getElementById('review-stats').innerHTML =
+    `<span><span class="dot" style="background:var(--easy)"></span>${newCards} new</span>` +
+    `<span><span class="dot" style="background:var(--good)"></span>${reviewCards} review</span>` +
+    `<span><span class="dot" style="background:var(--text-2)"></span>${done} done</span>`;
+
+  if (session.current >= session.queue.length) {
+    clearBlobURLs(); // revoke any URLs from the last card shown
+    ui.style.display = 'none';
+    empty.style.display = '';
+    empty.textContent = session.totalDue > 0
+      ? `✅ Session complete! You reviewed ${session.doneCount} card${session.doneCount !== 1 ? 's' : ''}.`
+      : '🎉 No cards due right now! Come back later or add more cards.';
+    return;
+  }
+
+  const card = session.queue[session.current];
+  document.getElementById('fc-front-text').textContent = card.front;
+  document.getElementById('fc-back-text').textContent  = card.back;
+
+  // Load card images
+  clearBlobURLs();
+  const fImg = document.getElementById('fc-front-img');
+  const bImg = document.getElementById('fc-back-img');
+  const frontBlob = await loadImage(card.frontImageKey);
+  if (frontBlob) { fImg.src = blobToURL(frontBlob); fImg.style.display = 'block'; }
+  else { fImg.style.display = 'none'; fImg.src = ''; }
+  const backBlob = await loadImage(card.backImageKey);
+  if (backBlob) { bImg.src = blobToURL(backBlob); bImg.style.display = 'block'; }
+  else { bImg.style.display = 'none'; bImg.src = ''; }
+
+  isFlipped = false;
+  document.getElementById('flashcard').classList.remove('flipped');
+  document.getElementById('flip-hint').style.display = '';
+  document.getElementById('answer-btns').style.display = 'none';
+
+  ui.style.display = '';
+  empty.style.display = 'none';
+}
+
+function flipCard() {
+  if (isFlipped) return;
+  isFlipped = true;
+  document.getElementById('flashcard').classList.add('flipped');
+  document.getElementById('flip-hint').style.display = 'none';
+  document.getElementById('answer-btns').style.display = 'flex';
+
+  const card = session.queue[session.current];
+  const iv = previewIntervals(card);
+  document.getElementById('hint-hard').textContent = '~' + iv.hard;
+  document.getElementById('hint-good').textContent = '~' + iv.good;
+  document.getElementById('hint-easy').textContent = '~' + iv.easy;
+}
+
+function rateCard(rating) {
+  const card = session.queue[session.current];
+  scheduleCard(card, rating);
+
+  // Persist to deck
+  const deck = db.decks[session.deckId];
+  const idx = deck.cards.findIndex(c => c.id === card.id);
+  if (idx !== -1) deck.cards[idx] = card;
+  saveData();
+
+  session.doneCount++;
+  session.current++;
+  renderReviewCard().catch(console.error);
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// AI CARD GENERATION  (Claude API, direct browser call)
+// ─────────────────────────────────────────────────────────────────────────────
+let generatedCards = [];
+let genTargetDeckId = '';
+
+async function runGenerate() {
+  const text = document.getElementById('gen-text').value.trim();
+  if (!text) { showGenErr('Please paste some text first.'); return; }
+  const apiKey = db.settings.apiKey;
+  if (!apiKey) { showGenErr('No API key found — please add it in ⚙️ Settings.'); return; }
+
+  const model   = db.settings.model || 'claude-sonnet-4-6';
+  const maxCards = parseInt(document.getElementById('gen-count').value) || 10;
+  genTargetDeckId = document.getElementById('gen-deck-sel').value;
+
+  document.getElementById('gen-err').innerHTML = '';
+  document.getElementById('ai-spinner').style.display = 'block';
+  document.getElementById('gen-step1').querySelector('button').disabled = true;
+
+  const prompt = `You are a flashcard generation assistant.
+
+Given the text below, create up to ${maxCards} high-quality flashcard pairs.
+Each card should test a single, clear concept.
+Prefer question-and-answer format with concise answers (1-2 sentences max).
+
+Return ONLY valid JSON — an array of objects with "front" and "back" keys.
+No markdown, no code fences, no commentary — just the JSON array.
+
+Text:
+"""
+${text}
+"""`;
+
+  try {
+    const resp = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': apiKey,
+        'anthropic-version': '2023-06-01',
+        'anthropic-dangerous-allow-browser': 'true',
+      },
+      body: JSON.stringify({
+        model,
+        max_tokens: 2048,
+        messages: [{ role: 'user', content: prompt }],
+      }),
+    });
+
+    if (!resp.ok) {
+      const err = await resp.json().catch(() => ({}));
+      throw new Error(err?.error?.message || `API error ${resp.status}`);
+    }
+
+    const data = await resp.json();
+    const raw = data.content?.[0]?.text || '';
+
+    // Parse JSON — strip any accidental markdown fences
+    const cleaned = raw.replace(/^```[a-z]*\n?/i, '').replace(/```$/,'').trim();
+    generatedCards = JSON.parse(cleaned);
+    if (!Array.isArray(generatedCards)) throw new Error('Model did not return an array.');
+
+    showStep2();
+  } catch(e) {
+    showGenErr('Error: ' + e.message);
+  } finally {
+    document.getElementById('ai-spinner').style.display = 'none';
+    document.getElementById('gen-step1').querySelector('button').disabled = false;
+  }
+}
+
+function showGenErr(msg) {
+  document.getElementById('gen-err').innerHTML = `<div class="alert alert-err">${escHtml(msg)}</div>`;
+}
+
+function showStep2() {
+  document.getElementById('gen-step1').style.display = 'none';
+  document.getElementById('gen-step2').style.display = '';
+  document.getElementById('gen-step3').style.display = 'none';
+  markStep(2);
+  document.getElementById('gen-count-label').textContent = generatedCards.length + ' cards generated';
+  renderPreviewGrid();
+}
+
+function renderPreviewGrid() {
+  const grid = document.getElementById('preview-grid');
+  grid.innerHTML = generatedCards.map((c, i) => `
+    <div class="preview-card" id="pc-${i}">
+      <div class="pf">${escHtml(c.front)}</div>
+      <div class="pb">${escHtml(c.back)}</div>
+      <button class="del" onclick="removePreviewCard(${i})" title="Remove">✕</button>
+    </div>
+  `).join('');
+}
+
+function removePreviewCard(i) {
+  generatedCards.splice(i, 1);
+  if (generatedCards.length === 0) { backToStep1(); return; }
+  document.getElementById('gen-count-label').textContent = generatedCards.length + ' cards generated';
+  renderPreviewGrid();
+}
+
+function addGeneratedCards() {
+  const deck = db.decks[genTargetDeckId];
+  if (!deck) { alert('Deck not found.'); return; }
+  for (const c of generatedCards) {
+    deck.cards.push(makeCard(c.front.trim(), c.back.trim(), genTargetDeckId));
+  }
+  saveData();
+
+  document.getElementById('gen-step1').style.display = 'none';
+  document.getElementById('gen-step2').style.display = 'none';
+  document.getElementById('gen-step3').style.display = '';
+  markStep(3);
+  document.getElementById('gen-done-msg').textContent =
+    `${generatedCards.length} card${generatedCards.length !== 1 ? 's' : ''} added to "${deck.name}".`;
+}
+
+function backToStep1() {
+  document.getElementById('gen-step1').style.display = '';
+  document.getElementById('gen-step2').style.display = 'none';
+  document.getElementById('gen-step3').style.display = 'none';
+  markStep(1);
+}
+
+function resetGenerator() {
+  document.getElementById('gen-text').value = '';
+  document.getElementById('gen-err').innerHTML = '';
+  generatedCards = [];
+  backToStep1();
+}
+
+function markStep(n) {
+  ['step1','step2','step3'].forEach((id, i) => {
+    const el = document.getElementById(id);
+    el.className = 'step' + (i+1 < n ? ' done' : i+1 === n ? ' active' : '');
+  });
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// BROWSE SCREEN
+// ─────────────────────────────────────────────────────────────────────────────
+function renderBrowse() {
+  const q  = document.getElementById('browse-search').value.toLowerCase();
+  const df = document.getElementById('browse-deck-filter').value;
+  const tbody = document.getElementById('browse-body');
+  const now = Date.now();
+
+  let rows = [];
+  for (const deck of Object.values(db.decks)) {
+    for (const card of deck.cards) {
+      if (df && df !== deck.id) continue;
+      if (q && !card.front.toLowerCase().includes(q) && !card.back.toLowerCase().includes(q)) continue;
+      rows.push({ card, deck });
+    }
+  }
+
+  tbody.innerHTML = rows.map(({ card, deck }) => {
+    const overdue = card.due < now && card.reps > 0;
+    const isNew   = card.reps === 0;
+    const badge = isNew
+      ? `<span class="badge badge-blue">new</span>`
+      : overdue
+        ? `<span class="badge badge-orange">${fmtDue(card.due, now)}</span>`
+        : `<span class="badge badge-green">${fmtDue(card.due, now)}</span>`;
+    const hasImg = card.frontImageKey || card.backImageKey;
+    const frontDisplay = (hasImg ? '📷 ' : '') + escHtml(card.front);
+    return `<tr>
+      <td>${frontDisplay}</td>
+      <td>${escHtml(card.back)}</td>
+      <td>${escHtml(deck.name)}</td>
+      <td>${badge}</td>
+      <td>${intervalLabel(card.interval)}</td>
+      <td>
+        <button style="background:none;border:none;cursor:pointer;color:var(--text-2);font-size:1rem"
+          onclick="deleteCard('${deck.id}','${card.id}')" title="Delete">🗑</button>
+      </td>
+    </tr>`;
+  }).join('') || '<tr><td colspan="6" style="text-align:center;color:var(--text-2);padding:24px">No cards found.</td></tr>';
+}
+
+function fmtDue(due, now) {
+  const diff = due - now;
+  const d = Math.round(Math.abs(diff) / 86400000);
+  if (d === 0) return 'today';
+  return diff < 0 ? `${d}d ago` : `in ${d}d`;
+}
+
+async function deleteCard(deckId, cardId) {
+  if (!confirm('Delete this card?')) return;
+  const deck = db.decks[deckId];
+  if (!deck) return; // deck may have been removed in another tab
+  const card = deck.cards.find(c => c.id === cardId);
+  if (card) {
+    await deleteImage(card.frontImageKey);
+    await deleteImage(card.backImageKey);
+  }
+  deck.cards = deck.cards.filter(c => c.id !== cardId);
+  saveData(); renderBrowse();
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// DECKS SCREEN
+// ─────────────────────────────────────────────────────────────────────────────
+function renderDecks() {
+  const grid = document.getElementById('deck-grid');
+  const now = Date.now();
+  const decks = Object.values(db.decks);
+
+  if (decks.length === 0) {
+    grid.innerHTML = '<p style="color:var(--text-2)">No decks yet. Create one!</p>';
+    return;
+  }
+
+  grid.innerHTML = decks.map(deck => {
+    const total  = deck.cards.length;
+    const dueNow = deck.cards.filter(c => c.reps === 0 || c.due <= now).length;
+    return `<div class="deck-tile">
+      <h3>${escHtml(deck.name)}</h3>
+      <small>${total} card${total !== 1 ? 's' : ''} · <strong>${dueNow} due</strong></small>
+      <div class="deck-actions">
+        <button class="d-study" onclick="showScreen('review');selectDeck('${deck.id}')">📖 Study</button>
+        <button class="d-del"   onclick="deleteDeck('${deck.id}')">🗑</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function selectDeck(id) {
+  const sel = document.getElementById('review-deck-sel');
+  sel.value = id;
+  startReview(id);
+}
+
+function deleteDeck(id) {
+  const deck = db.decks[id];
+  if (!deck) return;
+  if (!confirm(`Delete deck "${deck.name}" and all ${deck.cards.length} cards?`)) return;
+  delete db.decks[id];
+  saveData(); populateAllSelects(); renderDecks();
+}
+
+function openNewDeckModal() {
+  showModal(`
+    <h3 style="margin-bottom:16px">New Deck</h3>
+    <div class="form-row">
+      <label>Deck Name</label>
+      <input type="text" id="new-deck-name" placeholder="e.g. Spanish Vocabulary" autofocus>
+    </div>
+    <div style="display:flex;gap:10px;margin-top:4px">
+      <button class="btn btn-primary" onclick="createDeck()">Create</button>
+      <button class="btn btn-ghost" onclick="closeModal()">Cancel</button>
+    </div>
+  `);
+  setTimeout(() => document.getElementById('new-deck-name')?.focus(), 50);
+}
+
+function createDeck() {
+  const name = document.getElementById('new-deck-name').value.trim();
+  if (!name) return;
+  const id = uid();
+  db.decks[id] = { id, name, cards: [] };
+  saveData(); populateAllSelects(); renderDecks(); closeModal();
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// ADD CARD MODAL
+// ─────────────────────────────────────────────────────────────────────────────
+let _pendingImages = { front: null, back: null };
+
+function clearImgPick(side) {
+  _pendingImages[side] = null;
+  document.getElementById(`img-${side}-name`).textContent = 'No image';
+  document.getElementById(`img-${side}-clear`).style.display = 'none';
+  document.getElementById(`img-${side}-picker`).value = '';
+}
+
+function openAddCardModal() {
+  const deckOptions = Object.values(db.decks).map(d =>
+    `<option value="${d.id}">${escHtml(d.name)}</option>`).join('');
+  showModal(`
+    <h3 style="margin-bottom:16px">Add Card</h3>
+    <div class="form-row">
+      <label>Deck</label>
+      <select id="add-card-deck">${deckOptions}</select>
+    </div>
+    <div class="form-row">
+      <label>Front (question)</label>
+      <textarea id="add-card-front" rows="3"></textarea>
+    </div>
+    <div class="form-row">
+      <label>Back (answer)</label>
+      <textarea id="add-card-back" rows="3"></textarea>
+    </div>
+    <div class="form-row">
+      <label>Front image (optional)</label>
+      <div style="display:flex;gap:8px;align-items:center">
+        <label class="btn btn-ghost" style="padding:6px 14px;font-size:.8rem;cursor:pointer">
+          📎 Browse <input type="file" accept="image/*" id="img-front-picker" style="display:none">
+        </label>
+        <span id="img-front-name" style="font-size:.8rem;color:var(--text-2)">No image</span>
+        <button id="img-front-clear" onclick="clearImgPick('front')" style="display:none;background:none;border:none;cursor:pointer;color:var(--danger)">✕</button>
+      </div>
+    </div>
+    <div class="form-row">
+      <label>Back image (optional)</label>
+      <div style="display:flex;gap:8px;align-items:center">
+        <label class="btn btn-ghost" style="padding:6px 14px;font-size:.8rem;cursor:pointer">
+          📎 Browse <input type="file" accept="image/*" id="img-back-picker" style="display:none">
+        </label>
+        <span id="img-back-name" style="font-size:.8rem;color:var(--text-2)">No image</span>
+        <button id="img-back-clear" onclick="clearImgPick('back')" style="display:none;background:none;border:none;cursor:pointer;color:var(--danger)">✕</button>
+      </div>
+    </div>
+    <div style="display:flex;gap:10px;margin-top:4px">
+      <button class="btn btn-primary" onclick="addCardFromModal()">Add Card</button>
+      <button class="btn btn-ghost" onclick="closeModal()">Cancel</button>
+    </div>
+  `);
+
+  // Wire image pickers synchronously — innerHTML is already in the DOM at this point
+  _pendingImages = { front: null, back: null };
+  ['front','back'].forEach(side => {
+    const picker = document.getElementById(`img-${side}-picker`);
+    if (!picker) return;
+    picker.addEventListener('change', async () => {
+      const file = picker.files[0];
+      if (!file) return;
+      const buf = await file.arrayBuffer();
+      _pendingImages[side] = new Blob([buf], { type: file.type });
+      document.getElementById(`img-${side}-name`).textContent = file.name;
+      document.getElementById(`img-${side}-clear`).style.display = 'inline';
+    });
+  });
+}
+
+let _addCardInFlight = false;
+async function addCardFromModal() {
+  if (_addCardInFlight) return; // prevent double-submit
+  const deckId = document.getElementById('add-card-deck').value;
+  const front  = document.getElementById('add-card-front').value.trim();
+  const back   = document.getElementById('add-card-back').value.trim();
+  if (!front || !back) { alert('Both fields are required.'); return; }
+  const btn = document.querySelector('#modal-box .btn-primary');
+  if (btn) btn.disabled = true;
+  _addCardInFlight = true;
+  const card = makeCard(front, back, deckId);
+  try {
+    if (_pendingImages.front) card.frontImageKey = await saveImage(_pendingImages.front);
+    if (_pendingImages.back)  card.backImageKey  = await saveImage(_pendingImages.back);
+    db.decks[deckId].cards.push(card);
+    saveData(); closeModal(); renderBrowse();
+  } catch(err) {
+    // Clean up any image already written before re-throwing to the user
+    await deleteImage(card.frontImageKey).catch(() => {});
+    await deleteImage(card.backImageKey).catch(() => {});
+    alert('Failed to save card: ' + err.message);
+    if (btn) btn.disabled = false;
+  } finally {
+    _addCardInFlight = false;
+  }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// SETTINGS
+// ─────────────────────────────────────────────────────────────────────────────
+function loadSettingsUI() {
+  document.getElementById('api-key-input').value = db.settings.apiKey || '';
+  document.getElementById('model-sel').value = db.settings.model || 'claude-sonnet-4-6';
+  document.getElementById('new-per-day').value = db.settings.newPerDay || 20;
+}
+
+function saveSettings() {
+  db.settings.apiKey    = document.getElementById('api-key-input').value.trim();
+  db.settings.model     = document.getElementById('model-sel').value;
+  db.settings.newPerDay = parseInt(document.getElementById('new-per-day').value) || 20;
+  saveData();
+  const msg = document.getElementById('settings-saved');
+  msg.style.display = 'inline';
+  setTimeout(() => { msg.style.display = 'none'; }, 2000);
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// IMPORT / EXPORT
+// ─────────────────────────────────────────────────────────────────────────────
+function exportData() {
+  const blob = new Blob([JSON.stringify(db, null, 2)], { type: 'application/json' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'flashai-backup.json';
+  a.click();
+}
+
+function importData(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    try {
+      const imported = JSON.parse(e.target.result);
+      if (!imported.decks) throw new Error('Invalid file.');
+      // Merge decks (add new, skip existing IDs)
+      for (const [id, deck] of Object.entries(imported.decks)) {
+        if (!db.decks[id]) db.decks[id] = deck;
+        else {
+          // Merge cards
+          const existing = new Set(db.decks[id].cards.map(c => c.id));
+          for (const card of deck.cards) {
+            if (!existing.has(card.id)) db.decks[id].cards.push(card);
+          }
+        }
+      }
+      saveData(); populateAllSelects(); renderDecks();
+      alert('Import complete!');
+    } catch(err) { alert('Import failed: ' + err.message); }
+    event.target.value = '';
+  };
+  reader.readAsText(file);
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// NAV / SCREEN ROUTING
+// ─────────────────────────────────────────────────────────────────────────────
+function showScreen(name) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('nav button').forEach(b => b.classList.remove('active'));
+  document.getElementById('screen-' + name).classList.add('active');
+  document.querySelector(`nav button[data-screen="${name}"]`).classList.add('active');
+
+  if (name === 'review')   { populateAllSelects(); startReview(); }
+  if (name === 'generate') { populateAllSelects(); resetGenerator(); }
+  if (name === 'browse')   { populateAllSelects(); renderBrowse(); }
+  if (name === 'decks')    renderDecks();
+  if (name === 'settings') loadSettingsUI();
+}
+
+document.querySelectorAll('nav button').forEach(btn => {
+  btn.addEventListener('click', () => showScreen(btn.dataset.screen));
+});
+
+// ─────────────────────────────────────────────────────────────────────────────
+// SHARED HELPERS
+// ─────────────────────────────────────────────────────────────────────────────
+function populateAllSelects() {
+  const decks = Object.values(db.decks);
+  const options = decks.map(d => `<option value="${d.id}">${escHtml(d.name)}</option>`).join('');
+  const withAll = `<option value="">All Decks</option>` + options;
+
+  const rdSel = document.getElementById('review-deck-sel');
+  const prev  = rdSel.value;
+  rdSel.innerHTML = options;
+  if (prev && db.decks[prev]) rdSel.value = prev;
+
+  document.getElementById('gen-deck-sel').innerHTML   = options;
+  document.getElementById('browse-deck-filter').innerHTML = withAll;
+}
+
+function escHtml(str) {
+  return String(str)
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+    .replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// MODAL
+// ─────────────────────────────────────────────────────────────────────────────
+function showModal(html) {
+  document.getElementById('modal-content').innerHTML = html;
+  document.getElementById('modal-overlay').style.display = 'flex';
+}
+function closeModal(e) {
+  if (e && e.target !== document.getElementById('modal-overlay')) return;
+  document.getElementById('modal-overlay').style.display = 'none';
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// DARK MODE
+// ─────────────────────────────────────────────────────────────────────────────
+const darkToggle = document.getElementById('dark-toggle');
+const darkPref = localStorage.getItem('flashai_dark');
+if (darkPref === '1') document.body.classList.add('dark');
+darkToggle.addEventListener('click', () => {
+  document.body.classList.toggle('dark');
+  localStorage.setItem('flashai_dark', document.body.classList.contains('dark') ? '1' : '0');
+});
+
+// ─────────────────────────────────────────────────────────────────────────────
+// INIT
+// ─────────────────────────────────────────────────────────────────────────────
+populateAllSelects();
+startReview();
+openImageDB().catch(console.error);
+</script>
+</body>
+</html>
