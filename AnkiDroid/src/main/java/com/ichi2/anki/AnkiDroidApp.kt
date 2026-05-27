@@ -188,9 +188,9 @@ open class AnkiDroidApp :
         setWebContentsDebuggingEnabled(Prefs.isWebDebugEnabled)
 
         setupContextMenus()
-        setupNotificationChannels(applicationContext)
 
         setup("makeBackendUsable") { makeBackendUsable(this) }
+        setupNotifications()
 
         // Probe WebView availability before any other init touches it (#5794).
         if (!checkWebViewAvailable()) {
@@ -202,16 +202,6 @@ open class AnkiDroidApp :
         LanguageUtil.setDefaultBackendLanguages()
 
         initializeAnkiDroidDirectory()
-
-        val context = this.withAppLocale()
-        if (Prefs.newReviewRemindersEnabled) {
-            Timber.i("Setting review reminder notifications if they have not already been set")
-            AlarmManagerService.scheduleAllNotifications(context)
-        } else {
-            // Register for notifications
-            Timber.i("AnkiDroidApp: Starting Services")
-            notifications.observeForever { NotificationService.triggerNotificationFor(context) }
-        }
 
         // listen for day rollover: time + timezone changes
         DayRolloverHandler.listenForRolloverEvents(this)
@@ -322,6 +312,21 @@ open class AnkiDroidApp :
                 this,
                 preferences.getBoolean(getString(R.string.anki_card_external_context_menu_key), true),
             )
+        }
+
+    private fun setupNotifications() =
+        setup("setupNotifications") {
+            setupNotificationChannels(applicationContext)
+
+            val context = this.withAppLocale()
+            if (Prefs.newReviewRemindersEnabled) {
+                Timber.i("Setting review reminder notifications if they have not already been set")
+                AlarmManagerService.scheduleAllNotifications(context)
+            } else {
+                // Register for notifications
+                Timber.i("AnkiDroidApp: Starting Services")
+                notifications.observeForever { NotificationService.triggerNotificationFor(context) }
+            }
         }
 
     private fun setupLifecycleLogging() =
