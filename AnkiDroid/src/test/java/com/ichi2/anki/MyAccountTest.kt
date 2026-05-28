@@ -39,43 +39,43 @@ class MyAccountTest : RobolectricTest() {
 
     @Test
     fun testLoginEmailPasswordProvided() {
-        val scenario = launchFragmentInContainer<LoginFragment>()
+        launchFragmentInContainer<LoginFragment>().use { scenario ->
+            scenario.onFragment { fragment ->
+                val testPassword = "randomStrongPassword"
+                val testEmail = "random.email@example.com"
 
-        scenario.onFragment { fragment ->
-            val testPassword = "randomStrongPassword"
-            val testEmail = "random.email@example.com"
+                fragment.view?.findViewById<TextInputEditText>(R.id.username)?.setText(testEmail)
+                fragment.view?.findViewById<TextInputEditText>(R.id.password)?.setText(testPassword)
 
-            fragment.view?.findViewById<TextInputEditText>(R.id.username)?.setText(testEmail)
-            fragment.view?.findViewById<TextInputEditText>(R.id.password)?.setText(testPassword)
-
-            val loginButton = fragment.view?.findViewById<Button>(R.id.login_button)
-            assertEquals(loginButton?.isEnabled, true)
+                val loginButton = fragment.view?.findViewById<Button>(R.id.login_button)
+                assertEquals(loginButton?.isEnabled, true)
+            }
         }
     }
 
     @Test
     fun testLoginFailsNoEmailProvided() {
-        val scenario = launchFragmentInContainer<LoginFragment>()
+        launchFragmentInContainer<LoginFragment>().use { scenario ->
+            scenario.onFragment { fragment ->
+                val testPassword = "randomStrongPassword"
 
-        scenario.onFragment { fragment ->
-            val testPassword = "randomStrongPassword"
-
-            fragment.view?.findViewById<TextInputEditText>(R.id.password)?.setText(testPassword)
-            val loginButton = fragment.view?.findViewById<Button>(R.id.login_button)
-            assertFalse(loginButton?.isEnabled == true)
+                fragment.view?.findViewById<TextInputEditText>(R.id.password)?.setText(testPassword)
+                val loginButton = fragment.view?.findViewById<Button>(R.id.login_button)
+                assertFalse(loginButton?.isEnabled == true)
+            }
         }
     }
 
     @Test
     fun testLoginFailsNoPasswordProvided() {
-        val scenario = launchFragmentInContainer<LoginFragment>()
+        launchFragmentInContainer<LoginFragment>().use { scenario ->
+            scenario.onFragment { fragment ->
+                val testEmail = "random.email@example.com"
 
-        scenario.onFragment { fragment ->
-            val testEmail = "random.email@example.com"
-
-            fragment.view?.findViewById<TextInputEditText>(R.id.username)?.setText(testEmail)
-            val loginButton = fragment.view?.findViewById<Button>(R.id.login_button)
-            assertFalse(loginButton?.isEnabled == true)
+                fragment.view?.findViewById<TextInputEditText>(R.id.username)?.setText(testEmail)
+                val loginButton = fragment.view?.findViewById<Button>(R.id.login_button)
+                assertFalse(loginButton?.isEnabled == true)
+            }
         }
     }
 }

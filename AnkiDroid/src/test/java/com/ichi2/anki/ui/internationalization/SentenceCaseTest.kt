@@ -41,52 +41,55 @@ class SentenceCaseTest : RobolectricTest() {
     fun `English is converted to sentence case`() {
         ensureCollectionLoadIsSynchronous()
 
-        launchFragmentInContainer<Fragment>().onFragment { fragment ->
-            with(fragment) {
-                assertThat(TR.sentenceCase.toggleSuspend, equalTo("Toggle suspend"))
-                assertThat(TR.sentenceCase.toggleBury, equalTo("Toggle bury"))
-                assertThat(TR.sentenceCase.customStudy, equalTo("Custom study"))
-                assertThat(TR.sentenceCase.emptyCards, equalTo("Empty cards"))
-                assertThat(TR.sentenceCase.emptyTrash, equalTo("Empty trash"))
-                assertThat(TR.sentenceCase.restoreDeleted, equalTo("Restore deleted"))
-                assertThat(TR.sentenceCase.changeNoteType, equalTo("Change note type"))
-                assertThat(TR.sentenceCase.gradeNow, equalTo("Grade now"))
-            }
-        }
+        launchFragmentInContainer<Fragment>()
+            .onFragment { fragment ->
+                with(fragment) {
+                    assertThat(TR.sentenceCase.toggleSuspend, equalTo("Toggle suspend"))
+                    assertThat(TR.sentenceCase.toggleBury, equalTo("Toggle bury"))
+                    assertThat(TR.sentenceCase.customStudy, equalTo("Custom study"))
+                    assertThat(TR.sentenceCase.emptyCards, equalTo("Empty cards"))
+                    assertThat(TR.sentenceCase.emptyTrash, equalTo("Empty trash"))
+                    assertThat(TR.sentenceCase.restoreDeleted, equalTo("Restore deleted"))
+                    assertThat(TR.sentenceCase.changeNoteType, equalTo("Change note type"))
+                    assertThat(TR.sentenceCase.gradeNow, equalTo("Grade now"))
+                }
+            }.close()
 
-        ActivityScenario.launch(EmptyAnkiActivity::class.java).onActivity { activity ->
-            with(activity) {
-                assertThat(TR.sentenceCase.setDueDate, equalTo("Set due date"))
-                assertThat(TR.sentenceCase.addNoteType, equalTo("Add note type"))
-                assertThat(TR.sentenceCase.restoreToDefault, equalTo("Restore to default"))
-                assertThat(TR.sentenceCase.checkDatabase, equalTo("Check database"))
-                assertThat(TR.sentenceCase.checkMediaTitle, equalTo("Check media"))
-                assertThat(TR.sentenceCase.checkMediaAction, equalTo("Check media"))
-                assertThat(TR.sentenceCase.frontTemplate, equalTo("Front template"))
-                assertThat(TR.sentenceCase.backTemplate, equalTo("Back template"))
-                assertThat(TR.sentenceCase.renameDeck, equalTo("Rename deck"))
-                assertThat(TR.sentenceCase.customStudy, equalTo("Custom study"))
-                assertThat(TR.sentenceCase.deckOptions, equalTo("Deck options"))
-                assertThat(TR.sentenceCase.deleteDeck, equalTo("Delete deck"))
-                assertThat(TR.sentenceCase.logIn, equalTo("Log in"))
-                assertThat(TR.sentenceCase.logOut, equalTo("Log out"))
-                assertThat(TR.sentenceCase.cardInfo, equalTo("Card info"))
-                assertThat(TR.sentenceCase.buryNote, equalTo("Bury note"))
-                assertThat(TR.sentenceCase.buryCard, equalTo("Bury card"))
-                assertThat(TR.sentenceCase.suspendNote, equalTo("Suspend note"))
-                assertThat(TR.sentenceCase.suspendCard, equalTo("Suspend card"))
-                assertThat(TR.sentenceCase.markNote, equalTo("Mark note"))
-                assertThat(TR.sentenceCase.deleteNote, equalTo("Delete note"))
-                assertThat(TR.sentenceCase.previousCardInfo, equalTo("Previous card info"))
-                assertThat(TR.sentenceCase.ankiWebAccount, equalTo("AnkiWeb account"))
-                assertThat(TR.sentenceCase.browserAppearance, equalTo("Browser appearance"))
+        ActivityScenario
+            .launch(EmptyAnkiActivity::class.java)
+            .onActivity { activity ->
+                with(activity) {
+                    assertThat(TR.sentenceCase.setDueDate, equalTo("Set due date"))
+                    assertThat(TR.sentenceCase.addNoteType, equalTo("Add note type"))
+                    assertThat(TR.sentenceCase.restoreToDefault, equalTo("Restore to default"))
+                    assertThat(TR.sentenceCase.checkDatabase, equalTo("Check database"))
+                    assertThat(TR.sentenceCase.checkMediaTitle, equalTo("Check media"))
+                    assertThat(TR.sentenceCase.checkMediaAction, equalTo("Check media"))
+                    assertThat(TR.sentenceCase.frontTemplate, equalTo("Front template"))
+                    assertThat(TR.sentenceCase.backTemplate, equalTo("Back template"))
+                    assertThat(TR.sentenceCase.renameDeck, equalTo("Rename deck"))
+                    assertThat(TR.sentenceCase.customStudy, equalTo("Custom study"))
+                    assertThat(TR.sentenceCase.deckOptions, equalTo("Deck options"))
+                    assertThat(TR.sentenceCase.deleteDeck, equalTo("Delete deck"))
+                    assertThat(TR.sentenceCase.logIn, equalTo("Log in"))
+                    assertThat(TR.sentenceCase.logOut, equalTo("Log out"))
+                    assertThat(TR.sentenceCase.cardInfo, equalTo("Card info"))
+                    assertThat(TR.sentenceCase.buryNote, equalTo("Bury note"))
+                    assertThat(TR.sentenceCase.buryCard, equalTo("Bury card"))
+                    assertThat(TR.sentenceCase.suspendNote, equalTo("Suspend note"))
+                    assertThat(TR.sentenceCase.suspendCard, equalTo("Suspend card"))
+                    assertThat(TR.sentenceCase.markNote, equalTo("Mark note"))
+                    assertThat(TR.sentenceCase.deleteNote, equalTo("Delete note"))
+                    assertThat(TR.sentenceCase.previousCardInfo, equalTo("Previous card info"))
+                    assertThat(TR.sentenceCase.ankiWebAccount, equalTo("AnkiWeb account"))
+                    assertThat(TR.sentenceCase.browserAppearance, equalTo("Browser appearance"))
 
-                assertThat("syncMediaLogTitle", TR.syncMediaLogTitle(), equalTo("Media Sync Log"))
-                assertThat(TR.sentenceCase.mediaSyncLog, equalTo("Media sync log"))
+                    assertThat("syncMediaLogTitle", TR.syncMediaLogTitle(), equalTo("Media Sync Log"))
+                    assertThat(TR.sentenceCase.mediaSyncLog, equalTo("Media sync log"))
 
-                assertThat("Toggle Suspend".toSentenceCase(this, R.string.sentence_toggle_suspend), equalTo("Toggle suspend"))
-                assertThat("Ook? Ook?".toSentenceCase(this, R.string.sentence_toggle_suspend), equalTo("Ook? Ook?"))
-            }
-        }
+                    assertThat("Toggle Suspend".toSentenceCase(this, R.string.sentence_toggle_suspend), equalTo("Toggle suspend"))
+                    assertThat("Ook? Ook?".toSentenceCase(this, R.string.sentence_toggle_suspend), equalTo("Ook? Ook?"))
+                }
+            }.close()
     }
 }
