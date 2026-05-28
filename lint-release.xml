@@ -163,6 +163,20 @@
     <!--          Revert lint rule changes [UnusedQuantity, MissingQuantity] from fatal to ignore             -->
     <issue id="UnusedQuantity" severity="ignore" />
     <issue id="MissingQuantity" severity="ignore" />
+
+    <issue id="TrustAllX509TrustManager" severity="fatal" />
+    <issue id="AllowAllHostnameVerifier" severity="fatal" />
+    <issue id="BadHostnameVerifier" severity="fatal" />
+    <issue id="UnsafeDynamicallyLoadedCode" severity="fatal" />
+    <issue id="UnsafeNativeCodeLocation" severity="fatal" />
+    <issue id="UnpackedNativeCode" severity="fatal" />
+    <issue id="PackagedPrivateKey" severity="fatal" />
+    <issue id="HardcodedDebugMode" severity="fatal" />
+    <issue id="HandlerLeak" severity="fatal" />
+    <issue id="ServiceCast" severity="fatal" />
+    <issue id="CutPasteId" severity="fatal" />
+    <issue id="WrongCall" severity="fatal" />
+
     <issue id="ExportedPreferenceActivity" severity="fatal" />
     <issue id="PrivateApi" severity="fatal" />
     <issue id="ProguardSplit" severity="fatal" />
@@ -211,7 +225,6 @@
     <issue id="AddJavascriptInterface" severity="ignore" />
     <issue id="ShortAlarm" severity="ignore" />
     <issue id="AllCaps" severity="ignore" />
-    <issue id="AllowAllHostnameVerifier" severity="ignore" />
     <issue id="AlwaysShowAction" severity="ignore" />
     <issue id="InvalidUsesTagAttribute" severity="ignore" />
     <issue id="MissingIntentFilterForMediaSearch" severity="ignore" />
@@ -241,7 +254,6 @@
     <issue id="TestAppLink" severity="ignore" />
     <issue id="InconsistentArrays" severity="ignore" />
     <issue id="Assert" severity="ignore" />
-    <issue id="BadHostnameVerifier" severity="ignore" />
     <issue id="BatteryLife" severity="ignore" />
     <issue id="BackButton" severity="ignore" />
     <issue id="ButtonCase" severity="ignore" />
@@ -263,7 +275,6 @@
     <issue id="MissingConstraints" severity="ignore" />
     <issue id="VulnerableCordovaVersion" severity="ignore" />
     <issue id="CustomViewStyleable" severity="ignore" />
-    <issue id="CutPasteId" severity="ignore" />
     <issue id="SimpleDateFormat" severity="ignore" />
     <issue id="SetTextI18n" severity="ignore" />
     <issue id="Deprecated" severity="ignore" />
@@ -274,9 +285,6 @@
     <issue id="DuplicateDefinition" severity="ignore" />
     <issue id="ReferenceType" severity="ignore" />
     <issue id="StringEscaping" severity="ignore" />
-    <issue id="UnpackedNativeCode" severity="ignore" />
-    <issue id="UnsafeDynamicallyLoadedCode" severity="ignore" />
-    <issue id="UnsafeNativeCodeLocation" severity="ignore" />
     <issue id="EllipsizeMaxLines" severity="ignore" />
     <issue id="ExifInterface" severity="ignore" />
     <issue id="ExtraText" severity="ignore" />
@@ -308,8 +316,6 @@
     <issue id="NewerVersionAvailable" severity="ignore" />
     <issue id="MinSdkTooLow" severity="ignore" />
     <issue id="GridLayout" severity="ignore" />
-    <issue id="HandlerLeak" severity="ignore" />
-    <issue id="HardcodedDebugMode" severity="ignore" />
     <issue id="HardwareIds" severity="ignore" />
     <issue id="IconDuplicatesConfig" severity="ignore" />
     <issue id="IconDuplicates" severity="ignore" />
@@ -335,7 +341,6 @@
     <issue id="Suspicious0dp" severity="ignore" />
     <issue id="InstantApps" severity="ignore" />
     <issue id="DuplicateDivider" severity="ignore" />
-    <issue id="TrustAllX509TrustManager" severity="ignore" />
     <issue id="InvalidImeActionId" severity="ignore" />
     <issue id="InvalidPackage" severity="ignore" />
     <issue id="UseSparseArrays" severity="ignore" />
@@ -401,7 +406,6 @@
     <issue id="ParcelCreator" severity="ignore" />
     <!-- ImpliedQuantity: 03-dialogs should be tools:ignore, 07-dialogs has actual problems -->
     <issue id="ImpliedQuantity" severity="ignore" />
-    <issue id="PackagedPrivateKey" severity="ignore" />
     <issue id="PrivateResource" severity="ignore" />
     <issue id="PropertyEscape" severity="ignore" />
     <issue id="SpUsage" severity="ignore" />
@@ -418,7 +422,6 @@
     <issue id="ResourceName" severity="ignore" />
     <issue id="ValidRestrictions" severity="ignore" />
     <issue id="ScrollViewSize" severity="ignore" />
-    <issue id="ServiceCast" severity="ignore" />
     <issue id="SetJavaScriptEnabled" severity="ignore" />
     <issue id="PluralsCandidate" severity="ignore" />
     <issue id="ResourceAsColor" severity="ignore" />
@@ -456,7 +459,6 @@
     <issue id="InvalidWearFeatureAttribute" severity="ignore" />
     <issue id="WearStandaloneAppFlag" severity="ignore" />
     <issue id="WebViewLayout" severity="ignore" />
-    <issue id="WrongCall" severity="ignore" />
     <issue id="WrongCase" severity="ignore" />
     <issue id="InvalidId" severity="ignore" />
     <issue id="NotSibling" severity="ignore" />
