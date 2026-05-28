@@ -38,17 +38,17 @@ public class TestJavaClass {
 """
 
     @Language("JAVA")
-    private val javaFileWithUIUtils = """                            
-package com.ichi2.anki.lint.rules;                             
-                                                               
-import android.widget.Toast;                                   
-                                                               
-public class UIUtilsKt {
-                                                               
-    public static void main(String[] args) {                   
-        Toast.makeText();                                      
-    }                                                          
-}                                                              
+    private val javaFileWithToastWrapper = """
+package com.ichi2.anki.lint.rules;
+
+import android.widget.Toast;
+
+public class ToastKt {
+
+    public static void main(String[] args) {
+        Toast.makeText();
+    }
+}
 """
 
     @Test
@@ -67,11 +67,11 @@ public class UIUtilsKt {
     }
 
     @Test
-    fun allowsUsageForUIUtils() {
+    fun allowsUsageForToastWrapper() {
         lint()
             .allowMissingSdk()
             .allowCompilationErrors()
-            .files(create(stubToast), create(javaFileWithUIUtils))
+            .files(create(stubToast), create(javaFileWithToastWrapper))
             .issues(DirectToastMakeTextUsage.ISSUE)
             .run()
             .expectClean()

@@ -17,7 +17,7 @@ import org.jetbrains.uast.UCallExpression
 
 /**
  * This custom Lint rules will raise an error if a developer uses the {android.widget.Toast#makeText(...)} method instead
- * of using the top level method {com.ichi2.anki.showThemedToast(...)} provided by the UIUtils file.
+ * of using the top level method {com.ichi2.anki.common.utils.android.showThemedToast(...)} provided by the Toast file.
  */
 class DirectToastMakeTextUsage :
     Detector(),
@@ -54,7 +54,7 @@ class DirectToastMakeTextUsage :
         super.visitMethodCall(context, node, method)
         val evaluator = context.evaluator
         val foundClasses = context.uastFile!!.classes
-        if (!LintUtils.isAnAllowedClass(foundClasses, "UIUtilsKt") && evaluator.isMemberInClass(method, "android.widget.Toast")) {
+        if (!LintUtils.isAnAllowedClass(foundClasses, "ToastKt") && evaluator.isMemberInClass(method, "android.widget.Toast")) {
             context.report(
                 ISSUE,
                 node,
