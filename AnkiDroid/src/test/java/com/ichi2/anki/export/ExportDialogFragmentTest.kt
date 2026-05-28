@@ -36,9 +36,7 @@ import org.junit.runner.RunWith
 class ExportDialogFragmentTest : RobolectricTest() {
     @Test
     fun `collection export options are initialized correctly`() {
-        launchFragment<ExportDialogFragment>(
-            themeResId = R.style.Theme_Light,
-        ).onFragment {
+        onExportDialog {
             // Select export type as anki collection package.
             onView(withId(R.id.export_type_selector)).inRoot(isDialog()).perform(click())
             onData(containsString(TR.exportingAnkiCollectionPackage()))
@@ -62,9 +60,7 @@ class ExportDialogFragmentTest : RobolectricTest() {
 
     @Test
     fun `apkg export options are initialized correctly`() {
-        launchFragment<ExportDialogFragment>(
-            themeResId = R.style.Theme_Light,
-        ).onFragment {
+        onExportDialog {
             // Select export type as anki deck package.
             onView(withId(R.id.export_type_selector)).inRoot(isDialog()).perform(click())
             onData(containsString(TR.exportingAnkiDeckPackage()))
@@ -100,9 +96,7 @@ class ExportDialogFragmentTest : RobolectricTest() {
 
     @Test
     fun `Legacy export checkbox(default false) is shown only for collection and apkg`() {
-        launchFragment<ExportDialogFragment>(
-            themeResId = R.style.Theme_Light,
-        ).onFragment {
+        onExportDialog {
             // check legacy checkboxes status for collection export
             onView(withId(R.id.export_type_selector)).inRoot(isDialog()).perform(click())
             onData(containsString(TR.exportingAnkiCollectionPackage()))
@@ -158,4 +152,10 @@ class ExportDialogFragmentTest : RobolectricTest() {
                 .check(matches(not(isDisplayed())))
         }
     }
+
+    /** Launches [ExportDialogFragment] and executes [action] on the fragment. */
+    private fun onExportDialog(action: ExportDialogFragment.() -> Unit) =
+        launchFragment<ExportDialogFragment>(
+            themeResId = R.style.Theme_Light,
+        ).use { scenario -> scenario.onFragment { action(it) } }
 }

@@ -89,38 +89,39 @@ class FindAndReplaceDialogFragmentTest : RobolectricTest() {
         runTest {
             val note = createFindReplaceTestNote("A", "kart", "kilogram")
             val file = IdsFile(targetContext.cacheDir, listOf(note.id))
-            val scenario =
-                FragmentScenario.launch(
+            FragmentScenario
+                .launch(
                     fragmentClass = FindAndReplaceDialogFragment::class.java,
                     fragmentArgs = bundleOf(FindAndReplaceDialogFragment.ARG_IDS to file),
                     themeResId = R.style.Theme_Light,
-                )
-            scenario.onFragment { fragment ->
-                advanceUntilIdle()
-                onView(withId(R.id.only_selected_notes_check_box))
-                    .inRoot(isDialog())
-                    .check(matches(isEnabled()))
-                onView(withId(R.id.only_selected_notes_check_box))
-                    .inRoot(isDialog())
-                    .check(matches(isChecked()))
-                // 2 default field options + 2 fields from the only note selected
-                val allTargets =
-                    targetContext.getDefaultTargets() + listOf("Afield0", "Afield1")
-                assertThat(fragment.adapter.items, equalTo(allTargets))
-            }
-            scenario.recreate()
-            scenario.onFragment { fragment ->
-                advanceUntilIdle()
-                onView(withId(R.id.only_selected_notes_check_box))
-                    .inRoot(isDialog())
-                    .check(matches(isEnabled()))
-                onView(withId(R.id.only_selected_notes_check_box))
-                    .inRoot(isDialog())
-                    .check(matches(isChecked()))
-                // check that the target list from before the recreate call wasn't reset
-                val allTargets = targetContext.getDefaultTargets() + listOf("Afield0", "Afield1")
-                assertThat(fragment.adapter.items, equalTo(allTargets))
-            }
+                ).use { scenario ->
+                    scenario.onFragment { fragment ->
+                        advanceUntilIdle()
+                        onView(withId(R.id.only_selected_notes_check_box))
+                            .inRoot(isDialog())
+                            .check(matches(isEnabled()))
+                        onView(withId(R.id.only_selected_notes_check_box))
+                            .inRoot(isDialog())
+                            .check(matches(isChecked()))
+                        // 2 default field options + 2 fields from the only note selected
+                        val allTargets =
+                            targetContext.getDefaultTargets() + listOf("Afield0", "Afield1")
+                        assertThat(fragment.adapter.items, equalTo(allTargets))
+                    }
+                    scenario.recreate()
+                    scenario.onFragment { fragment ->
+                        advanceUntilIdle()
+                        onView(withId(R.id.only_selected_notes_check_box))
+                            .inRoot(isDialog())
+                            .check(matches(isEnabled()))
+                        onView(withId(R.id.only_selected_notes_check_box))
+                            .inRoot(isDialog())
+                            .check(matches(isChecked()))
+                        // check that the target list from before the recreate call wasn't reset
+                        val allTargets = targetContext.getDefaultTargets() + listOf("Afield0", "Afield1")
+                        assertThat(fragment.adapter.items, equalTo(allTargets))
+                    }
+                }
         }
 
     private fun onFindReplaceFragment(
@@ -133,7 +134,7 @@ class FindAndReplaceDialogFragmentTest : RobolectricTest() {
                 fragmentClass = FindAndReplaceDialogFragment::class.java,
                 fragmentArgs = bundleOf(FindAndReplaceDialogFragment.ARG_IDS to file),
                 themeResId = R.style.Theme_Light,
-            ).onFragment { fragment -> fragment.action() }
+            ).use { scenario -> scenario.onFragment { fragment -> fragment.action() } }
     }
 
     /**

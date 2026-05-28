@@ -152,10 +152,10 @@ class SetDueDateDialogTest : RobolectricTest() {
             fragmentArgs = dialog.arguments,
         ) {
             return@launchFragment dialog
-        }.apply {
-            moveToState(Lifecycle.State.RESUMED)
+        }.use { scenario ->
+            scenario.moveToState(Lifecycle.State.RESUMED)
             advanceRobolectricLooper()
-            this.onFragment {
+            scenario.onFragment {
                 action(it)
             }
         }
