@@ -181,6 +181,24 @@ if (jvmVersion !in jvmVersionLowerBound..jvmVersionUpperBound && !aligningDaemon
     throw GradleException(message.trimEnd())
 }
 
+// define ANKIDROID_JVM as a guard, to be sure the Gradle Daemon Toolchain was pinned correctly
+// A multi-project alias using `JAVA_HOME` can flag that the env var is no longer sufficient.
+val requestedJvm = System.getenv("ANKIDROID_JVM")?.toIntOrNull()
+if (requestedJvm != null && requestedJvm != jvmVersion && !aligningDaemon) {
+    throw GradleException(
+        """
+        ANKIDROID_JVM=$requestedJvm, but the Gradle daemon is running on JVM $jvmVersion.
+        The daemon JVM is set by gradle/gradle-daemon-jvm.properties; JAVA_HOME does not override it.
+
+        To build on JVM $requestedJvm, align the daemon and re-run:
+            ./gradlew updateDaemonJvm --jvm-version=$requestedJvm
+
+        Revert when finished:
+            git checkout gradle/gradle-daemon-jvm.properties
+        """.trimIndent(),
+    )
+}
+
 val ciBuild by extra(System.getenv("CI") == "true") // true when running on GitHub Actions
 val isMacOs = System.getProperty("os.name") == "Mac OS X"
 // allows for -Dpre-dex=false to be set
