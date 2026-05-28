@@ -158,14 +158,12 @@ class ReminderTroubleshootingFragment : Fragment(R.layout.fragment_reminder_trou
  * [ScheduleRemindersFragment] and [ReminderTroubleshootingFragment] use this with
  * `by activityViewModels { … }` so they observe a single VM + repository instance.
  */
-internal fun reminderTroubleshootingViewModelFactory(context: Context): ViewModelProvider.Factory {
-    val appContext = context.applicationContext
-    return viewModelFactory {
+internal fun reminderTroubleshootingViewModelFactory(context: Context): ViewModelProvider.Factory =
+    viewModelFactory {
         initializer {
-            ReminderTroubleshootingViewModel(ReminderTroubleshootingRepository(appContext))
+            ReminderTroubleshootingViewModel(ReminderTroubleshootingRepository(context))
         }
     }
-}
 
 private class TroubleshootingChecksAdapter(
     private val getResolveAction: (TroubleshootingCheck) -> ResolveCheckAction?,

@@ -53,10 +53,10 @@ object AnkiDroidUsageAnalytics {
      * be uninitialized in rare Android scenarios (e.g. BackupManager) and
      * analytics is a startup concern that must not crash.
      */
-    private lateinit var appContext: Context
+    private lateinit var analyticsContext: Context
 
     private val serviceScope = CoroutineScope(Dispatchers.IO + SupervisorJob())
-    private val clientId: String by lazy { getOrCreateClientId(appContext) }
+    private val clientId: String by lazy { getOrCreateClientId(analyticsContext) }
 
     private val sharedPrefsListener =
         SharedPreferences.OnSharedPreferenceChangeListener { prefs, key ->
@@ -87,28 +87,28 @@ object AnkiDroidUsageAnalytics {
         private set
 
     fun initialize(context: Context) {
-        appContext = context.applicationContext
+        analyticsContext = context.applicationContext
 
         Timber.i("AnkiDroidUsageAnalytics:: initialize()")
 
         // Read opt-in before building the client so `enabled` reflects the
         // user's choice rather than the default.
-        handlePreferences(appContext)
+        handlePreferences(analyticsContext)
 
         if (analytics == null) {
             analytics =
                 GoogleAnalytics.builder {
-                    measurementId = appContext.getString(R.string.ga_trackingId)
+                    measurementId = analyticsContext.getString(R.string.ga_trackingId)
                     apiSecret = BuildConfig.ANALYTICS_API_KEY
-                    appName = appContext.getString(R.string.app_name)
+                    appName = analyticsContext.getString(R.string.app_name)
                     appVersion = BuildConfig.VERSION_NAME
                     enabled = optIn
-                    samplePercentage = getAnalyticsSamplePercentage(appContext)
+                    samplePercentage = getAnalyticsSamplePercentage(analyticsContext)
                     debug = false
                 }
         }
 
-        initializePrefKeys(appContext)
+        initializePrefKeys(analyticsContext)
 
         AnalyticsExceptionHandler.install(this::sendAnalyticsException)
     }
@@ -228,8 +228,8 @@ object AnkiDroidUsageAnalytics {
             }
             // Rebuild the underlying client so its own `enabled` flag picks
             // up the new opt-in state without waiting for the next launch.
-            if (::appContext.isInitialized) {
-                reinitialize(appContext)
+            if (::analyticsContext.isInitialized) {
+                reinitialize(analyticsContext)
             }
         }
 

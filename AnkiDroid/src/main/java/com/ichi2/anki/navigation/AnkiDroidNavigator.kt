@@ -12,15 +12,15 @@ import com.ichi2.anki.common.destinations.Navigator
 
 /** AnkiDroid's [Navigator] implementation. */
 object AnkiDroidNavigator : Navigator {
-    private lateinit var appContext: Context
+    private lateinit var navContext: Context
 
     fun initialize(application: Application) {
-        appContext = application
+        navContext = application
     }
 
     override fun toIntent(destination: Destination): Intent =
         when (destination) {
-            is BrowserDestination -> destination.toIntent(appContext)
+            is BrowserDestination -> destination.toIntent(navContext)
         }
 }
 

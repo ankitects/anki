@@ -43,7 +43,7 @@ import java.io.File
 class ProfileManager private constructor(
     context: Context,
 ) {
-    private val appContext = context.applicationContext
+    private val profileContext = context.applicationContext
 
     lateinit var activeProfileContext: Context
         private set
@@ -53,7 +53,7 @@ class ProfileManager private constructor(
      * ID of the currently active profile.
      */
     private val globalProfilePrefs by lazy {
-        appContext.getSharedPreferences(PROFILE_REGISTRY_FILENAME, Context.MODE_PRIVATE)
+        profileContext.getSharedPreferences(PROFILE_REGISTRY_FILENAME, Context.MODE_PRIVATE)
     }
 
     private val profileRegistry by lazy { ProfileRegistry(globalProfilePrefs) }
@@ -171,7 +171,7 @@ class ProfileManager private constructor(
         try {
             val wrapper =
                 ProfileContextWrapper.create(
-                    context = appContext,
+                    context = profileContext,
                     profileId = profileId,
                     profileBaseDir = profileBaseDir.file,
                 )
@@ -208,7 +208,7 @@ class ProfileManager private constructor(
         if (prefs.getString(PREF_COLLECTION_PATH, null) != null) return
 
         val profileCollectionDir =
-            getDefaultAnkiDroidDirectory(appContext, directoryName = profileId.value).apply { mkdirs() }
+            getDefaultAnkiDroidDirectory(profileContext, directoryName = profileId.value).apply { mkdirs() }
 
         prefs.edit { putString(PREF_COLLECTION_PATH, profileCollectionDir.absolutePath) }
     }
@@ -243,8 +243,8 @@ class ProfileManager private constructor(
      */
     private fun resolveProfileDirectory(profileId: ProfileId): ProfileRestrictedDirectory {
         val appDataRoot =
-            ContextCompat.getDataDir(appContext)
-                ?: appContext.filesDir.parentFile
+            ContextCompat.getDataDir(profileContext)
+                ?: profileContext.filesDir.parentFile
 
         if (appDataRoot == null) {
             val e = IllegalStateException("Cannot resolve Application Data Directory")
@@ -333,7 +333,7 @@ class ProfileManager private constructor(
 
         Timber.i("deleteProfile: starting deletion of %s", profileId)
 
-        val appDataRoot = ContextCompat.getDataDir(appContext)
+        val appDataRoot = ContextCompat.getDataDir(profileContext)
 
         if (profileId.isDefault()) {
             Timber.d("deleteProfile: wiping legacy default-profile data under %s", appDataRoot)
@@ -405,13 +405,13 @@ class ProfileManager private constructor(
      * The default-location fallback used when the profile has never written `PREF_COLLECTION_PATH`.
      *
      * TODO: consolidate with the profile-creation path this should delegate to
-     * `CollectionHelper.getDefaultAnkiDroidDirectory(appContext, directoryName = ...)`
+     * `CollectionHelper.getDefaultAnkiDroidDirectory(profileContext, directoryName = ...)`
      * that gives us legacy-storage handling and `SystemStorageException`-on-null for free, and keeps
      * the "where does a profile collection live" decision in a single place shared with
      * `ensureProfileCollectionPath`.
      */
     private fun defaultCollectionDirFor(profileId: ProfileId): File? {
-        val externalFilesDir = appContext.getExternalFilesDir(null) ?: return null
+        val externalFilesDir = profileContext.getExternalFilesDir(null) ?: return null
         return if (profileId.isDefault()) {
             File(externalFilesDir, "AnkiDroid")
         } else {
@@ -430,10 +430,10 @@ class ProfileManager private constructor(
      * TODO: extract a `ProfilePreferences` accessor (e.g. `prefsForProfile(profileId).collectionPath`)
      */
     private fun readStoredCollectionPath(profileId: ProfileId): String? {
-        val defaultPrefsName = "${appContext.packageName}_preferences"
+        val defaultPrefsName = "${profileContext.packageName}_preferences"
         val prefsName =
             if (profileId.isDefault()) defaultPrefsName else "profile_${profileId.value}_$defaultPrefsName"
-        return appContext
+        return profileContext
             .getSharedPreferences(prefsName, Context.MODE_PRIVATE)
             .getString(PREF_COLLECTION_PATH, null)
     }
