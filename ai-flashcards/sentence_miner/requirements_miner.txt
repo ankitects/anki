@@ -1,0 +1,4 @@
+anthropic>=0.40.0
+youtube-transcript-api>=0.6.3
+yt-dlp>=2024.1.0
+keyring>=24.0.0
