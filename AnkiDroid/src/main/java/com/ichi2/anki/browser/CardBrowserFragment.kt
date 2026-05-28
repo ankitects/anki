@@ -134,6 +134,7 @@ import com.ichi2.anki.requireAnkiActivity
 import com.ichi2.anki.requireNavigationDrawerActivity
 import com.ichi2.anki.scheduling.ForgetCardsDialog
 import com.ichi2.anki.scheduling.SetDueDateDialog
+import com.ichi2.anki.settings.Prefs
 import com.ichi2.anki.snackbar.showSnackbar
 import com.ichi2.anki.ui.attachFastScroller
 import com.ichi2.anki.ui.internationalization.sentenceCase
@@ -204,7 +205,7 @@ class CardBrowserFragment :
 
     // Dev option for Issue 18709
     private val useSearchView: Boolean
-        get() = requireCardBrowserActivity().useSearchView
+        get() = Prefs.devUsingCardBrowserSearchView
 
     // only usable if 'useSearchView' is set
     override var searchBar: SearchBar? = null
@@ -235,6 +236,13 @@ class CardBrowserFragment :
     @get:LayoutRes
     private val layout: Int
         get() = if (useSearchView) R.layout.fragment_card_browser_searchview else R.layout.fragment_card_browser
+
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+        if (!useSearchView) {
+            require(context is MenuHost) { "Host activity must implement MenuHost when useSearchView is disabled" }
+        }
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -397,7 +405,7 @@ class CardBrowserFragment :
     }
 
     private fun setupMenu() {
-        val menuHost: MenuHost = requireCardBrowserActivity()
+        val menuHost: MenuHost = if (useSearchView) this else (requireActivity() as MenuHost)
 
         fun MenuItem.setupUndo() {
             isVisible = getColUnsafe().undoAvailable()
