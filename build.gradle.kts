@@ -11,7 +11,6 @@ import org.jlleitschuh.gradle.ktlint.KtlintExtension
 import java.lang.management.ManagementFactory
 import java.util.Properties
 import kotlin.math.max
-import kotlin.system.exitProcess
 
 
 // Top-level build file where you can add configuration options common to all subprojects/modules.
@@ -165,23 +164,18 @@ val minSdk: String = libs.versions.minSdk.get()
 val jvmVersionLowerBound = 21
 val jvmVersionUpperBound = 25
 if (jvmVersion !in jvmVersionLowerBound..jvmVersionUpperBound) {
-    println("\n\n\n")
-    println("**************************************************************************************************************")
-    println("\n\n\n")
-    println("ERROR: AnkiDroid builds with JVM versions between $jvmVersionLowerBound and $jvmVersionUpperBound.")
-    println("  Incompatible major version detected: '$jvmVersion'")
-    println("\n\n\n")
-    if (jvmVersion > jvmVersionUpperBound) {
-        println("  If you receive this error because you want to use a newer JDK, we may accept PRs to support new versions.")
-        println("  Edit the main build.gradle file, find this message in the file, and add support for the new version.")
-        println("  Please make sure the `jacocoTestReport` target works on an emulator with our minSdk (currently $minSdk).")
-    } else {
-        println("  Please update: Settings - Build, Execution, Deployment - Build Tools - Gradle - Gradle JDK")
+    val message = buildString {
+        appendLine("ERROR: AnkiDroid builds with JVM versions between $jvmVersionLowerBound and $jvmVersionUpperBound.")
+        appendLine("  Incompatible major version detected: '$jvmVersion'")
+        if (jvmVersion > jvmVersionUpperBound) {
+            appendLine("  If you receive this error because you want to use a newer JDK, we may accept PRs to support new versions.")
+            appendLine("  Edit the main build.gradle file, find this message in the file, and add support for the new version.")
+            appendLine("  Please make sure the `jacocoTestReport` target works on an emulator with our minSdk (currently $minSdk).")
+        } else {
+            appendLine("  Please update: Settings - Build, Execution, Deployment - Build Tools - Gradle - Gradle JDK")
+        }
     }
-    println("\n\n\n")
-    println("**************************************************************************************************************")
-    println("\n\n\n")
-    exitProcess(1)
+    throw GradleException(message.trimEnd())
 }
 
 val ciBuild by extra(System.getenv("CI") == "true") // true when running on GitHub Actions
