@@ -28,11 +28,8 @@ import android.view.WindowManager
 import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.activity.OnBackPressedCallback
-import androidx.activity.result.ActivityResult
-import androidx.activity.result.contract.ActivityResultContracts.StartActivityForResult
 import androidx.annotation.LayoutRes
 import androidx.annotation.MainThread
-import androidx.annotation.VisibleForTesting
 import androidx.core.view.MenuHost
 import androidx.core.view.MenuProvider
 import androidx.core.view.isVisible
@@ -101,13 +98,6 @@ open class CardBrowser :
     NavigationDrawerActivity(),
     ChangeManager.Subscriber,
     MenuHost {
-    /**
-     * Provides an instance of NoteEditorLauncher for adding a note
-     */
-    @get:VisibleForTesting
-    val addNoteLauncher: NoteEditorLauncher
-        get() = createAddNoteLauncher(viewModel)
-
     fun onDeckSelected(deck: SelectableDeck?) {
         deck?.let { deck -> viewModel.setSelectedDeck(deck) }
     }
@@ -151,14 +141,6 @@ open class CardBrowser :
     @get:LayoutRes
     private val layout: Int
         get() = if (useSearchView) R.layout.activity_card_browser_searchview else R.layout.activity_card_browser
-
-    private var onAddNoteActivityResult =
-        registerForActivityResult(StartActivityForResult()) { result: ActivityResult ->
-            Timber.d("onAddNoteActivityResult: resultCode=%d", result.resultCode)
-            if (result.resultCode == RESULT_OK) {
-                forceRefreshSearch(useSearchTextValue = true)
-            }
-        }
 
     init {
         ChangeManager.subscribe(this)
@@ -561,13 +543,6 @@ open class CardBrowser :
         // So we must ensure that all shortcuts uses a modifier.
         // A shortcut without modifier would be triggered while the user types, which is not what we want.
         when (keyCode) {
-            KeyEvent.KEYCODE_E -> {
-                if (event.isCtrlPressed) {
-                    Timber.i("Ctrl+E: Add Note")
-                    launchCatchingTask { addNoteFromCardBrowser() }
-                    return true
-                }
-            }
             KeyEvent.KEYCODE_F -> {
                 if (event.isCtrlPressed) {
                     Timber.i("Ctrl+F - Find notes")
@@ -600,10 +575,6 @@ open class CardBrowser :
         } else {
             super.onNavigationPressed()
         }
-    }
-
-    fun addNoteFromCardBrowser() {
-        onAddNoteActivityResult.launch(addNoteLauncher.toIntent(this))
     }
 
     public override fun onSaveInstanceState(outState: Bundle) {
@@ -755,10 +726,6 @@ open class CardBrowser :
 
         // Values related to persistent state data
         fun clearLastDeckId() = SharedPreferencesLastDeckIdRepository.clearLastDeckId()
-
-        @VisibleForTesting
-        fun createAddNoteLauncher(viewModel: CardBrowserViewModel): NoteEditorLauncher =
-            NoteEditorLauncher.AddNoteFromCardBrowser(viewModel)
     }
 }
 

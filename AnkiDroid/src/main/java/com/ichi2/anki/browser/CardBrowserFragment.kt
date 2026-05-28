@@ -16,6 +16,7 @@
 
 package com.ichi2.anki.browser
 
+import android.app.Activity
 import android.content.Context
 import android.graphics.Color
 import android.os.Bundle
@@ -35,6 +36,8 @@ import android.view.inputmethod.EditorInfo
 import android.widget.Button
 import android.widget.ImageButton
 import android.widget.TextView
+import androidx.activity.result.ActivityResult
+import androidx.activity.result.contract.ActivityResultContracts.StartActivityForResult
 import androidx.annotation.CheckResult
 import androidx.annotation.LayoutRes
 import androidx.annotation.VisibleForTesting
@@ -127,6 +130,7 @@ import com.ichi2.anki.libanki.undoLabel
 import com.ichi2.anki.model.CardStateFilter
 import com.ichi2.anki.model.CardsOrNotes.CARDS
 import com.ichi2.anki.model.SelectableDeck
+import com.ichi2.anki.noteeditor.NoteEditorLauncher
 import com.ichi2.anki.observability.ChangeManager
 import com.ichi2.anki.observability.undoableOp
 import com.ichi2.anki.previewer.PreviewerFragment
@@ -199,6 +203,16 @@ class CardBrowserFragment :
     private lateinit var tagsDialogFactory: TagsDialogFactory
 
     private var undoSnackbar: Snackbar? = null
+
+    private val onAddNoteActivityResult =
+        registerForActivityResult(StartActivityForResult()) { result: ActivityResult ->
+            Timber.d("onAddNoteActivityResult: resultCode=%d", result.resultCode)
+            if (result.resultCode == Activity.RESULT_OK) {
+                // The old forceRefreshSearch called setQuery(searchView.text) before searching,
+                // but the ViewModel already holds the submitted query, so we just re-run the search directly.
+                activityViewModel.launchSearchForCards()
+            }
+        }
 
     /** The focused row, should only be used for efficient `notifyItemChanged` calls */
     private var focusedRow: CardOrNoteId? = null
@@ -548,7 +562,7 @@ class CardBrowserFragment :
 
                     when (menuItem.itemId) {
                         R.id.action_add_note_from_card_browser -> {
-                            requireCardBrowserActivity().addNoteFromCardBrowser()
+                            addNote()
                             return true
                         }
                         R.id.action_save_search -> {
@@ -1180,10 +1194,13 @@ class CardBrowserFragment :
                 }
             }
             KeyEvent.KEYCODE_E -> {
-                // NOTE: Ctrl+E is 'Add Note', set in the Activity
                 if (event.isCtrlPressed && event.isShiftPressed) {
                     Timber.i("Ctrl+Shift+E: Export selected cards")
                     exportSelected()
+                    return true
+                } else if (event.isCtrlPressed) {
+                    Timber.i("Ctrl+E: Add Note")
+                    addNote()
                     return true
                 } else if (!event.isCtrlPressed) {
                     if (legacySearchView?.isIconified == true) {
@@ -1725,6 +1742,14 @@ class CardBrowserFragment :
 
     private fun CardOrNoteId.toRowSelection() =
         RowSelection(rowId = this, topOffset = calculateTopOffset(activityViewModel.getPositionOfId(this)!!))
+
+    @VisibleForTesting
+    val addNoteLauncher: NoteEditorLauncher
+        get() = NoteEditorLauncher.AddNoteFromCardBrowser(activityViewModel)
+
+    private fun addNote() {
+        onAddNoteActivityResult.launch(addNoteLauncher.toIntent(requireContext()))
+    }
 
     private fun requireCardBrowserActivity(): CardBrowser = requireActivity() as CardBrowser
 
