@@ -72,12 +72,9 @@ import com.ichi2.anki.dialogs.registerDeckSelectedHandler
 import com.ichi2.anki.dialogs.registerSaveSearchHandler
 import com.ichi2.anki.dialogs.registerSavedSearchActionHandler
 import com.ichi2.anki.dialogs.startDeckSelection
-import com.ichi2.anki.dialogs.tags.TagsDialogFactory
-import com.ichi2.anki.dialogs.tags.TagsDialogListener
 import com.ichi2.anki.libanki.Collection
 import com.ichi2.anki.libanki.DeckId
 import com.ichi2.anki.libanki.SortOrder
-import com.ichi2.anki.model.CardStateFilter
 import com.ichi2.anki.model.CardsOrNotes
 import com.ichi2.anki.model.CardsOrNotes.CARDS
 import com.ichi2.anki.model.CardsOrNotes.NOTES
@@ -102,7 +99,6 @@ import timber.log.Timber
 @KotlinCleanup("scan through this class and add attributes - in process")
 open class CardBrowser :
     NavigationDrawerActivity(),
-    TagsDialogListener,
     ChangeManager.Subscriber,
     MenuHost {
     /**
@@ -133,7 +129,6 @@ open class CardBrowser :
     private val searchView: CardBrowserSearchView?
         get() = cardBrowserFragment.legacySearchView
 
-    lateinit var tagsDialogFactory: TagsDialogFactory
     private val searchItem: MenuItem? get() = cardBrowserFragment.searchItem
     private val mySearchesItem: MenuItem? get() = cardBrowserFragment.mySearchesItem
 
@@ -212,7 +207,6 @@ open class CardBrowser :
         if (showedActivityFailedScreen(savedInstanceState)) {
             return
         }
-        tagsDialogFactory = TagsDialogFactory(this).attachToActivity<TagsDialogFactory>(this)
         super.onCreate(savedInstanceState)
         binding = ActivityCardBrowserBinding.inflate(layoutInflater)
         if (!ensureStoragePermissions()) {
@@ -633,15 +627,6 @@ open class CardBrowser :
         } else {
             viewModel.launchSearchForCards()
         }
-    }
-
-    @RustCleanup("this isn't how Desktop Anki does it")
-    override fun onSelectedTags(
-        selectedTags: List<String>,
-        indeterminateTags: List<String>,
-        stateFilter: CardStateFilter,
-    ) {
-        cardBrowserFragment.onSelectedTags(selectedTags, indeterminateTags, stateFilter)
     }
 
     private fun refreshBrowserUI() {

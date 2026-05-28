@@ -156,6 +156,7 @@ import com.ichi2.utils.replaceText
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.launch
+import net.ankiweb.rsdroid.RustCleanup
 import net.ankiweb.rsdroid.Translations
 import timber.log.Timber
 
@@ -194,8 +195,7 @@ class CardBrowserFragment :
 
     // DEFECT: Doesn't need to be a local
     private var tagsDialogListenerAction: TagsDialogListenerAction? = null
-    private val tagsDialogFactory: TagsDialogFactory
-        get() = ankiActivity.tagsDialogFactory
+    private lateinit var tagsDialogFactory: TagsDialogFactory
 
     private var undoSnackbar: Snackbar? = null
 
@@ -235,6 +235,11 @@ class CardBrowserFragment :
     @get:LayoutRes
     private val layout: Int
         get() = if (useSearchView) R.layout.fragment_card_browser_searchview else R.layout.fragment_card_browser
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        tagsDialogFactory = TagsDialogFactory(listener = this).attachToActivity<TagsDialogFactory>(requireActivity())
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -1632,6 +1637,7 @@ class CardBrowserFragment :
         }
     }
 
+    @RustCleanup("this isn't how Desktop Anki does it")
     override fun onSelectedTags(
         selectedTags: List<String>,
         indeterminateTags: List<String>,
