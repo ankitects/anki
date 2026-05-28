@@ -871,6 +871,8 @@ class ContentProviderTest : InstrumentedTest() {
     }
 
     @Test
+    // query is expected to throw, so no Cursor is returned to close
+    @Suppress("Recycle")
     fun testQueryCardById_invalidIdThrows() {
         val invalidCardUri =
             Uri.withAppendedPath(
@@ -893,6 +895,8 @@ class ContentProviderTest : InstrumentedTest() {
     }
 
     @Test
+    // query is expected to throw, so no Cursor is returned to close
+    @Suppress("Recycle")
     fun testSearchCards_invalidQueryAndThrows() {
         val exception =
             assertThrows<IllegalArgumentException> {
@@ -2211,7 +2215,7 @@ class ContentProviderTest : InstrumentedTest() {
                 null,
                 // sortOrder is ignored for this URI
                 null,
-            )?.let { cursor ->
+            )?.use { cursor ->
                 if (!cursor.moveToFirst()) {
                     fail("no rows in cursor")
                 }

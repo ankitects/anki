@@ -204,6 +204,7 @@
     <issue id="UnprotectedSMSBroadcastReceiver" severity="fatal" />
     <issue id="WrongFolder" severity="fatal" />
     <issue id="CustomX509TrustManager" severity="fatal" />
+    <issue id="Recycle" severity="fatal" />
 
     <!-- this is temporary - needed to work with android gradle plugin 8.1 -->
     <!-- ideally commits to fix this are completed, such as in https://github.com/ankidroid/Anki-Android/pull/14158 -->
@@ -266,7 +267,6 @@
     <issue id="UnsupportedChromeOsHardware" severity="ignore" />
     <issue id="GetInstance" severity="ignore" />
     <issue id="CommitTransaction" severity="ignore" />
-    <issue id="Recycle" severity="ignore" />
     <issue id="CommitPrefEdits" severity="ignore" />
     <issue id="ApplySharedPref" severity="ignore" />
     <issue id="ClickableViewAccessibility" severity="ignore" />
