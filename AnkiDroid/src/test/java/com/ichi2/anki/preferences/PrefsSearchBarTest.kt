@@ -88,11 +88,13 @@ class PrefsSearchBarTest : RobolectricTest() {
 
     private fun getPreferencesActivity(): PreferencesActivity {
         val intent = PreferencesActivity.getIntent(targetContext)
-        return Robolectric
-            .buildActivity(PreferencesActivity::class.java, intent)
-            .create()
-            .start()
-            .resume()
-            .get()
+        val controller =
+            Robolectric
+                .buildActivity(PreferencesActivity::class.java, intent)
+                .create()
+                .start()
+                .resume()
+        saveControllerForCleanup(controller)
+        return controller.get()
     }
 }

@@ -36,6 +36,7 @@ class StateFlowLifecycleCollectionTest : RobolectricTest() {
     @Test
     fun `concurrent value change does not skip UI update`() {
         val controller = Robolectric.buildActivity(AnkiActivity::class.java, Intent())
+        saveControllerForCleanup(controller)
         val flow = MutableStateFlow(0)
         val concurrentFlow =
             ConcurrentStateFlow(flow) { emitted ->

@@ -42,13 +42,15 @@ class StatisticsTest : RobolectricTest() {
     @Test
     fun `shows 'Default' deck when collection is empty`() =
         runTest {
-            ActivityScenario.launch<SingleFragmentActivity>(
-                StatisticsDestination().toIntent(
-                    targetContext,
-                ),
-            )
-            advanceUntilIdle()
-            onView(withText("Default")).check(matches(isDisplayed()))
+            ActivityScenario
+                .launch<SingleFragmentActivity>(
+                    StatisticsDestination().toIntent(
+                        targetContext,
+                    ),
+                ).use {
+                    advanceUntilIdle()
+                    onView(withText("Default")).check(matches(isDisplayed()))
+                }
         }
 
     @Test
@@ -59,19 +61,21 @@ class StatisticsTest : RobolectricTest() {
             val testDeck1 = addDeck(testDeckName1)
             withCol { decks.select(testDeck1) }
             addDeck(testDeckName2)
-            ActivityScenario.launch<SingleFragmentActivity>(
-                StatisticsDestination().toIntent(
-                    targetContext,
-                ),
-            )
-            advanceUntilIdle()
-            onView(withId(R.id.deck_name)).check(matches(withText(testDeckName1)))
-            onView(withId(R.id.deck_name)).perform(click())
-            advanceUntilIdle()
-            // select test deck 2
-            onView(withText(testDeckName2)).inRoot(isDialog()).perform(click())
-            // check the activity that it has the new deck name
-            onView(withId(R.id.deck_name)).check(matches(withText(testDeckName2)))
+            ActivityScenario
+                .launch<SingleFragmentActivity>(
+                    StatisticsDestination().toIntent(
+                        targetContext,
+                    ),
+                ).use {
+                    advanceUntilIdle()
+                    onView(withId(R.id.deck_name)).check(matches(withText(testDeckName1)))
+                    onView(withId(R.id.deck_name)).perform(click())
+                    advanceUntilIdle()
+                    // select test deck 2
+                    onView(withText(testDeckName2)).inRoot(isDialog()).perform(click())
+                    // check the activity that it has the new deck name
+                    onView(withId(R.id.deck_name)).check(matches(withText(testDeckName2)))
+                }
         }
 
     @Test
@@ -93,6 +97,6 @@ class StatisticsTest : RobolectricTest() {
                     assertFalse(deckSelectionDialog.requireArguments().getBoolean(DeckSelectionDialog.ARG_ALLOW_ALL, true))
                     assertFalse(deckSelectionDialog.requireArguments().getBoolean(DeckSelectionDialog.ARG_ALLOW_FILTERED, true))
                     assertTrue(deckSelectionDialog.requireArguments().getBoolean(DeckSelectionDialog.ARG_SKIP_EMPTY_DEFAULT, false))
-                }
+                }.close()
         }
 }

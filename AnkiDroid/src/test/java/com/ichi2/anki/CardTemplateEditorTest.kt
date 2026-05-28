@@ -485,6 +485,7 @@ class CardTemplateEditorTest : RobolectricTest() {
                     .start()
                     .resume()
                     .visible()
+            saveControllerForCleanup(templateEditorController)
             testEditor = templateEditorController.get()
             shadowTestEditor = shadowOf(testEditor)
             assertFalse("Note type should not have changed yet", testEditor.noteTypeHasChanged())

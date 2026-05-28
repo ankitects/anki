@@ -80,12 +80,12 @@ class PreferencesTest : RobolectricTest() {
     /** checks if any of the Preferences fragments throws while being created */
     @Test
     fun fragmentsDoNotThrowOnCreation() {
-        val activityScenario = ActivityScenario.launch<PreferencesActivity>(PreferencesActivity.getIntent(targetContext))
-
-        activityScenario.onActivity { activity ->
-            PreferenceTestUtils.getAllPreferencesFragments(activity).forEach {
-                activity.supportFragmentManager.commitNow {
-                    add(R.id.settings_container, it)
+        ActivityScenario.launch<PreferencesActivity>(PreferencesActivity.getIntent(targetContext)).use { activityScenario ->
+            activityScenario.onActivity { activity ->
+                PreferenceTestUtils.getAllPreferencesFragments(activity).forEach {
+                    activity.supportFragmentManager.commitNow {
+                        add(R.id.settings_container, it)
+                    }
                 }
             }
         }
