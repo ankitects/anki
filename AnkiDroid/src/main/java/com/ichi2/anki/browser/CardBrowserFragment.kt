@@ -221,6 +221,18 @@ class CardBrowserFragment :
     private val useSearchView: Boolean
         get() = Prefs.devUsingCardBrowserSearchView
 
+    /**
+     * Returns the current deck name, "All Decks" if all decks are selected, or "Unknown"
+     * Do not use this for any business logic, as this will return inconsistent data
+     * with the collection.
+     */
+    private val selectedDeckNameForUi: String
+        get() =
+            activityViewModel.searchRequestFlow.value.filters.decks
+                .firstOrNull()
+                ?.name
+                ?: getString(R.string.card_browser_all_decks)
+
     // only usable if 'useSearchView' is set
     override var searchBar: SearchBar? = null
 
@@ -889,8 +901,6 @@ class CardBrowserFragment :
         }
 
         fun onSearchCompleted(state: SearchState.Completed) {
-            val activity = requireCardBrowserActivity()
-
             // #3592: show the number of cards found the number of cards is not visible in the menu
             val isMenuSubtitleVisible = legacySearchView != null && legacySearchView!!.isIconified
 
@@ -904,7 +914,9 @@ class CardBrowserFragment :
 
                 showSnackbar(message, Snackbar.LENGTH_SHORT) {
                     if (!searchAllDecks) return@showSnackbar
-                    setAction(R.string.card_browser_search_all_decks) { activity.searchAllDecks() }
+                    setAction(R.string.card_browser_search_all_decks) {
+                        activityViewModel.setSelectedDeck(SelectableDeck.AllDecks)
+                    }
                 }
             }
 
@@ -916,7 +928,7 @@ class CardBrowserFragment :
                     )
                 SearchResultMessage.NoCardsInSelectedDeck ->
                     showSnackbar(
-                        getString(R.string.card_browser_no_cards_in_deck, activity.selectedDeckNameForUi),
+                        getString(R.string.card_browser_no_cards_in_deck, selectedDeckNameForUi),
                         searchAllDecks = true,
                     )
             }

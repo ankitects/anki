@@ -608,27 +608,6 @@ open class CardBrowser :
         invalidateOptionsMenu() // maybe the availability of undo changed
     }
 
-    // all we need to do is select all decks
-    fun searchAllDecks() = viewModel.setSelectedDeck(SelectableDeck.AllDecks)
-
-    /**
-     * Returns the current deck name, "All Decks" if all decks are selected, or "Unknown"
-     * Do not use this for any business logic, as this will return inconsistent data
-     * with the collection.
-     */
-    val selectedDeckNameForUi: String
-        get() =
-            try {
-                when (val deckId = viewModel.lastDeckId) {
-                    null -> getString(R.string.card_browser_unknown_deck_name)
-                    ALL_DECKS_ID -> getString(R.string.card_browser_all_decks)
-                    else -> getColUnsafe.decks.name(deckId)
-                }
-            } catch (e: Exception) {
-                Timber.w(e, "Unable to get selected deck name")
-                getString(R.string.card_browser_unknown_deck_name)
-            }
-
     /**
      * Implementation of `by viewModels()` for use in [onCreate]
      *
