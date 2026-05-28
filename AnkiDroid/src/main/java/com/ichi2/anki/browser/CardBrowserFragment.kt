@@ -68,8 +68,8 @@ import com.google.android.material.progressindicator.LinearProgressIndicator
 import com.google.android.material.search.SearchBar
 import com.google.android.material.search.SearchView
 import com.google.android.material.snackbar.Snackbar
+import com.ichi2.anki.AnkiActivity
 import com.ichi2.anki.AnkiActivityProvider
-import com.ichi2.anki.CardBrowser
 import com.ichi2.anki.CollectionManager.TR
 import com.ichi2.anki.CollectionManager.getColUnsafe
 import com.ichi2.anki.CollectionManager.withCol
@@ -178,8 +178,9 @@ class CardBrowserFragment :
     val viewModel: CardBrowserFragmentViewModel by viewModels()
     val searchViewModel: CardBrowserSearchViewModel by activityViewModels()
 
-    override val ankiActivity: CardBrowser
-        get() = requireAnkiActivity() as CardBrowser
+    // TODO: remove AnkiActivityProvider, use context parameters instead
+    override val ankiActivity: AnkiActivity
+        get() = requireAnkiActivity()
 
     @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
     lateinit var cardsAdapter: BrowserMultiColumnAdapter
@@ -1762,8 +1763,6 @@ class CardBrowserFragment :
     private fun addNote() {
         onAddNoteActivityResult.launch(addNoteLauncher.toIntent(requireContext()))
     }
-
-    private fun requireCardBrowserActivity(): CardBrowser = requireActivity() as CardBrowser
 
     /**
      * Updates the tags of selected/checked notes and saves them to the disk
