@@ -35,6 +35,7 @@ import anki.collection.OpChanges
 import anki.collection.opChanges
 import com.ichi2.anki.CollectionManager.withOpenColOrNull
 import com.ichi2.anki.android.AnkiBroadcastReceiver
+import com.ichi2.anki.common.android.appContext
 import com.ichi2.anki.common.coroutines.applicationScope
 import com.ichi2.anki.common.crashreporting.CrashReportService
 import com.ichi2.anki.common.exception.ManuallyReportedException
@@ -110,7 +111,7 @@ object DayRolloverHandler : AnkiBroadcastReceiver() {
 
         Timber.i("day cutoff changed %d -> %d", lastCutoff, currentCutoff)
         // Re-arm the wall-clock alarm whenever the cutoff changes
-        DayRolloverAlarm.scheduleNext(AnkiDroidApp.instance)
+        DayRolloverAlarm.scheduleNext(appContext)
         // we do not want to send a "study queues changes" message initially
         if (lastCutoff != null) {
             handleDayRollover()
@@ -126,7 +127,7 @@ object DayRolloverHandler : AnkiBroadcastReceiver() {
 
         Timber.i("day rollover: updating widgets")
         try {
-            WidgetStatus.updateInBackground(AnkiDroidApp.instance)
+            WidgetStatus.updateInBackground(appContext)
         } catch (e: Exception) {
             Timber.w(e, "failed to update widgets")
         }

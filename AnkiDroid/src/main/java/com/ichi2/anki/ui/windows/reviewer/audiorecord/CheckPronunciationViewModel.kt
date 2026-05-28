@@ -17,7 +17,7 @@ package com.ichi2.anki.ui.windows.reviewer.audiorecord
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.ichi2.anki.AnkiDroidApp
+import com.ichi2.anki.common.android.appContext
 import com.ichi2.anki.recorder.AudioRecorder
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
@@ -26,7 +26,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 
 class CheckPronunciationViewModel(
-    private val audioRecorder: AudioRecorder = AudioRecorder(AnkiDroidApp.instance),
+    private val audioRecorder: AudioRecorder = AudioRecorder(appContext),
     private val audioPlayer: AudioPlayer = AudioPlayer(),
 ) : ViewModel() {
     init {

@@ -40,6 +40,7 @@ import androidx.annotation.CheckResult
 import androidx.annotation.VisibleForTesting
 import androidx.core.content.edit
 import androidx.core.graphics.scale
+import com.ichi2.anki.common.android.appContext
 import com.ichi2.anki.common.annotations.NeedsTest
 import com.ichi2.anki.common.time.Time
 import com.ichi2.anki.common.time.getTimestamp
@@ -585,7 +586,7 @@ class Whiteboard(
         }
 
         private val displayDimensions: Point
-            get() = getDisplayDimensions(AnkiDroidApp.instance.applicationContext)
+            get() = getDisplayDimensions(appContext)
     }
 
     init {

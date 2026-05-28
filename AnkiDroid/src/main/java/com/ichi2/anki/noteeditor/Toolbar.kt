@@ -47,9 +47,9 @@ import androidx.core.graphics.drawable.toDrawable
 import androidx.core.view.children
 import androidx.core.view.isVisible
 import androidx.vectordrawable.graphics.drawable.VectorDrawableCompat
-import com.ichi2.anki.AnkiDroidApp
 import com.ichi2.anki.NoteEditorFragment
 import com.ichi2.anki.R
+import com.ichi2.anki.common.android.appContext
 import com.ichi2.anki.compat.CompatHelper
 import com.ichi2.anki.preferences.sharedPrefs
 import com.ichi2.utils.AndroidUiUtils.showSoftInput
@@ -224,7 +224,7 @@ class Toolbar : FrameLayout {
         button.setPaddingRelative(twoDp, twoDp, twoDp, twoDp)
         // end apply style
         val shouldScroll =
-            AnkiDroidApp.instance
+            appContext
                 .sharedPrefs()
                 .getBoolean(NoteEditorFragment.PREF_NOTE_EDITOR_SCROLL_TOOLBAR, true)
         if (shouldScroll) {

@@ -36,6 +36,8 @@ import anki.collection.OpChanges
 import com.ichi2.anki.AnkiDroidApp.Companion.sharedPreferencesTestingOverride
 import com.ichi2.anki.analytics.UsageAnalytics
 import com.ichi2.anki.browser.SharedPreferencesLastDeckIdRepository
+import com.ichi2.anki.common.android.ApplicationContextInitializer
+import com.ichi2.anki.common.android.appContext
 import com.ichi2.anki.common.annotations.LegacyNotifications
 import com.ichi2.anki.common.annotations.NeedsTest
 import com.ichi2.anki.common.coroutines.applicationScope
@@ -141,6 +143,7 @@ open class AnkiDroidApp :
             }
         }
         instance = this
+        ApplicationContextInitializer.setInstance(this)
 
         // Ensures any change is propagated to widgets
         ChangeManager.subscribe(this)
@@ -492,6 +495,9 @@ open class AnkiDroidApp :
                 isAccessible = true
                 set(field, null)
             }
+            // Mirror reality: when AnkiDroidApp.onCreate doesn't run (the bmgr-restore
+            // scenario), appContext is also uninitialized.
+            ApplicationContextInitializer.clearForTesting()
         }
 
         @VisibleForTesting(otherwise = VisibleForTesting.NONE)
@@ -502,6 +508,10 @@ open class AnkiDroidApp :
                 isAccessible = true
                 set(field, value)
             }
+            // Production code (AnkiDroidApp.onCreate) sets appContext
+            // right after AnkiDroidApp.instance. Mirror that in tests so callers using the
+            // common-side accessor see the same mock.
+            ApplicationContextInitializer.setInstance(value)
         }
 
         /** Load the libraries to allow access to Anki-Android-Backend */

@@ -24,6 +24,7 @@ package com.ichi2.anki
 
 import android.speech.tts.TextToSpeech
 import android.speech.tts.Voice
+import com.ichi2.anki.common.android.appContext
 import com.ichi2.anki.common.coroutines.applicationScope
 import com.ichi2.anki.i18n.normalize
 import com.ichi2.anki.i18n.toAnkiTwoLetterCode
@@ -202,7 +203,7 @@ object TtsVoices {
                 // TextToSpeech retains the context. So we can't give it any context that
                 // may be expected to disappear, as it would cause a memory leak. Hence
                 // we pass it the application as context.
-                TextToSpeech(AnkiDroidApp.instance) { status ->
+                TextToSpeech(appContext) { status ->
                     if (status == TextToSpeech.SUCCESS) {
                         Timber.v("TTS creation success")
                         ttsEngine = textToSpeech?.defaultEngine

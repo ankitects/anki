@@ -63,6 +63,7 @@ import com.ichi2.anki.CollectionManager.withCol
 import com.ichi2.anki.android.input.ShortcutGroup
 import com.ichi2.anki.android.input.shortcut
 import com.ichi2.anki.cardviewer.SingleCardSide
+import com.ichi2.anki.common.android.appContext
 import com.ichi2.anki.common.annotations.NeedsTest
 import com.ichi2.anki.common.utils.android.getColorFromAttr
 import com.ichi2.anki.common.utils.android.showThemedToast
@@ -1278,7 +1279,7 @@ open class CardTemplateEditor : AnkiActivity(R.layout.activity_card_template_edi
             }
 
         private fun launchCardBrowserAppearance(currentTemplate: BackendCardTemplate) {
-            val context = AnkiDroidApp.instance.baseContext
+            val context = appContext
             val browserAppearanceIntent = CardTemplateBrowserAppearanceEditor.getIntentFromTemplate(context, currentTemplate)
             onCardBrowserAppearanceActivityResult.launch(browserAppearanceIntent)
         }

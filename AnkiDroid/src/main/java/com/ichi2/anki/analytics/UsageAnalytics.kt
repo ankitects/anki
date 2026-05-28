@@ -26,10 +26,10 @@ import com.brsanthu.googleanalytics.GoogleAnalytics
 import com.brsanthu.googleanalytics.GoogleAnalyticsConfig
 import com.brsanthu.googleanalytics.httpclient.OkHttpClientImpl
 import com.brsanthu.googleanalytics.request.DefaultRequest
-import com.ichi2.anki.AnkiDroidApp
 import com.ichi2.anki.BuildConfig
 import com.ichi2.anki.R
 import com.ichi2.anki.analytics.AnalyticsConstants.reportablePrefKeys
+import com.ichi2.anki.common.android.appContext
 import com.ichi2.anki.common.utils.annotation.KotlinCleanup
 import com.ichi2.anki.preferences.sharedPrefs
 import com.ichi2.utils.DisplayUtils
@@ -190,7 +190,7 @@ object UsageAnalytics {
         sAnalytics!!.flush()
         sAnalytics = null
         unInstallDefaultExceptionHandler()
-        initialize(AnkiDroidApp.instance.applicationContext)
+        initialize(appContext)
     }
 
     /**
@@ -306,12 +306,12 @@ object UsageAnalytics {
     // A listener on this preference handles the rest
     var isEnabled: Boolean
         get() {
-            val userPrefs = AnkiDroidApp.instance.sharedPrefs()
+            val userPrefs = appContext.sharedPrefs()
             return userPrefs.getBoolean(ANALYTICS_OPTIN_KEY, false)
         }
         set(value) {
             // A listener on this preference handles the rest
-            AnkiDroidApp.instance.sharedPrefs().edit {
+            appContext.sharedPrefs().edit {
                 putBoolean(ANALYTICS_OPTIN_KEY, value)
             }
         }

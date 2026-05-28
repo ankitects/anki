@@ -17,10 +17,10 @@ package com.ichi2.anki.reviewer
 
 import android.content.SharedPreferences
 import android.view.ViewConfiguration
-import com.ichi2.anki.AnkiDroidApp
 import com.ichi2.anki.cardviewer.Gesture
 import com.ichi2.anki.cardviewer.TapGestureMode
 import com.ichi2.anki.cardviewer.TapGestureMode.Companion.fromPreference
+import com.ichi2.anki.common.android.appContext
 import timber.log.Timber
 import kotlin.math.abs
 import kotlin.math.floor
@@ -39,7 +39,7 @@ class GestureMapper {
         // Else, when Robolectric executes in the CI it accesses AnkiDroidApp.getInstance before it exists #9173
         if (VIEW_CONFIGURATION == null) {
             // Set good default values for swipe detection
-            VIEW_CONFIGURATION = ViewConfiguration.get(AnkiDroidApp.instance)
+            VIEW_CONFIGURATION = ViewConfiguration.get(appContext)
             DEFAULT_SWIPE_MIN_DISTANCE = VIEW_CONFIGURATION!!.scaledPagingTouchSlop
             DEFAULT_SWIPE_THRESHOLD_VELOCITY = VIEW_CONFIGURATION!!.scaledMinimumFlingVelocity
         }

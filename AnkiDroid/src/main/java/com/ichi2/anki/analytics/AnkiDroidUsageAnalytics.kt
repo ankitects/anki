@@ -8,9 +8,9 @@ import android.content.Context
 import android.content.SharedPreferences
 import androidx.core.content.edit
 import com.criticalay.GoogleAnalytics
-import com.ichi2.anki.AnkiDroidApp
 import com.ichi2.anki.BuildConfig
 import com.ichi2.anki.R
+import com.ichi2.anki.common.android.appContext
 import com.ichi2.anki.common.annotations.NeedsTest
 import com.ichi2.anki.common.utils.ext.getRootCause
 import com.ichi2.anki.preferences.sharedPrefs
@@ -50,7 +50,7 @@ object AnkiDroidUsageAnalytics {
 
     /**
      * Application context captured during [initialize]. Held here so we don't
-     * rely on [AnkiDroidApp.instance] from background paths the singleton can
+     * rely on [appContext] from background paths the singleton can
      * be uninitialized in rare Android scenarios (e.g. BackupManager) and
      * analytics is a startup concern that must not crash.
      */
@@ -224,7 +224,7 @@ object AnkiDroidUsageAnalytics {
         get() = optIn
         set(value) {
             optIn = value
-            AnkiDroidApp.instance.sharedPrefs().edit {
+            appContext.sharedPrefs().edit {
                 putBoolean(ANALYTICS_OPTIN_KEY, value)
             }
             // Rebuild the underlying client so its own `enabled` flag picks

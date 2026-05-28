@@ -21,8 +21,8 @@ import androidx.activity.OnBackPressedCallback
 import androidx.preference.PreferenceManager
 import com.google.android.material.snackbar.Snackbar
 import com.ichi2.anki.AnkiActivity
-import com.ichi2.anki.AnkiDroidApp
 import com.ichi2.anki.R
+import com.ichi2.anki.common.android.appContext
 import com.ichi2.anki.common.utils.android.HandlerUtils
 import com.ichi2.anki.settings.Prefs
 import com.ichi2.anki.snackbar.showSnackbar
@@ -91,6 +91,6 @@ fun AnkiActivity.exitViaDoubleTapBackCallback(): OnBackPressedCallback =
             }
 
         PreferenceManager
-            .getDefaultSharedPreferences(AnkiDroidApp.instance)
+            .getDefaultSharedPreferences(appContext)
             .registerOnSharedPreferenceChangeListener(callback.strongListenerReference)
     }

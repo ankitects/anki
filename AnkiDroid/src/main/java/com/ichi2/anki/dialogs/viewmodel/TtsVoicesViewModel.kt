@@ -20,8 +20,8 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.ichi2.anki.AndroidTtsPlayer
 import com.ichi2.anki.AndroidTtsVoice
-import com.ichi2.anki.AnkiDroidApp
 import com.ichi2.anki.TtsVoices
+import com.ichi2.anki.common.android.appContext
 import com.ichi2.anki.dialogs.tryDisplayLocalizedName
 import com.ichi2.anki.libanki.TTSTag
 import com.ichi2.anki.libanki.TtsPlayer
@@ -197,7 +197,7 @@ class TtsVoicesViewModel : ViewModel() {
     fun copyToClipboard(voice: TtsVoice) {
         // At least in API 33, we do not need to display a snackbar, as the Android OS already
         // displays the copied text
-        AnkiDroidApp.instance.copyToClipboard(
+        appContext.copyToClipboard(
             text = voice.toString(),
         )
     }

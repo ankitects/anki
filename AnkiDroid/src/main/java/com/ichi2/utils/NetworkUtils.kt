@@ -19,15 +19,11 @@ import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
 import android.os.Build
 import androidx.core.content.getSystemService
-import com.ichi2.anki.AnkiDroidApp
+import com.ichi2.anki.common.android.appContext
 
 object NetworkUtils {
     private val connectivityManager: ConnectivityManager?
-        get() =
-            AnkiDroidApp
-                .instance
-                .applicationContext
-                .getSystemService()
+        get() = appContext.getSystemService()
 
     /**
      * @return whether the active network is metered

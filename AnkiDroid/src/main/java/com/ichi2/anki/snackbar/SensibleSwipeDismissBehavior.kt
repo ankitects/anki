@@ -24,7 +24,7 @@ import androidx.core.view.marginRight
 import androidx.customview.widget.ViewDragHelper
 import com.google.android.material.snackbar.BaseTransientBottomBar
 import com.google.android.material.snackbar.Snackbar
-import com.ichi2.anki.AnkiDroidApp
+import com.ichi2.anki.common.android.appContext
 import com.ichi2.utils.dp
 import kotlin.math.absoluteValue
 import kotlin.math.sign
@@ -210,6 +210,6 @@ open class SensibleSwipeDismissBehavior : BaseTransientBottomBar.Behavior() {
 
 @VisibleForTesting enum class Dismiss { DoNotDismiss, ToTheLeft, ToTheRight }
 
-private val FLING_TO_DISMISS_SPEED_THRESHOLD = 1000.dp.toPx(AnkiDroidApp.instance.applicationContext)
+private val FLING_TO_DISMISS_SPEED_THRESHOLD = 1000.dp.toPx(appContext)
 
 private const val DRAG_TO_DISMISS_DISTANCE_RATIO = .5f

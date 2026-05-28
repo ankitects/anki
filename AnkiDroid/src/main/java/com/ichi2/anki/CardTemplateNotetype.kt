@@ -22,6 +22,7 @@ import android.os.Parcel
 import android.os.Parcelable
 import androidx.core.os.bundleOf
 import com.ichi2.anki.CollectionManager.withCol
+import com.ichi2.anki.common.android.appContext
 import com.ichi2.anki.common.annotations.NeedsTest
 import com.ichi2.anki.compat.CompatHelper.Companion.compat
 import com.ichi2.anki.compat.CompatHelper.Companion.getSerializableCompat
@@ -55,7 +56,7 @@ class CardTemplateNotetype(
 
     fun toBundle(): Bundle =
         bundleOf(
-            INTENT_MODEL_FILENAME to saveTempNoteType(AnkiDroidApp.instance.applicationContext, notetype),
+            INTENT_MODEL_FILENAME to saveTempNoteType(appContext, notetype),
             "mTemplateChanges" to templateChanges,
         )
 
@@ -406,7 +407,7 @@ class CardTemplateNotetype(
         /** Clear any temp note type files saved into internal cache directory  */
         fun clearTempNoteTypeFiles(): Int {
             var deleteCount = 0
-            for (c in AnkiDroidApp.instance.cacheDir.listFiles() ?: arrayOf()) {
+            for (c in appContext.cacheDir.listFiles() ?: arrayOf()) {
                 val absolutePath = c.absolutePath
                 if (absolutePath.contains("editedTemplate") && absolutePath.endsWith("json")) {
                     if (!c.delete()) {

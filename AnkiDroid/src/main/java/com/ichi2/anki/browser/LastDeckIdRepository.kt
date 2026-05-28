@@ -18,7 +18,7 @@ package com.ichi2.anki.browser
 
 import android.content.Context
 import androidx.core.content.edit
-import com.ichi2.anki.AnkiDroidApp
+import com.ichi2.anki.common.android.appContext
 import com.ichi2.anki.libanki.DeckId
 import com.ichi2.anki.libanki.Decks
 
@@ -37,7 +37,7 @@ interface LastDeckIdRepository {
 class SharedPreferencesLastDeckIdRepository : LastDeckIdRepository {
     override var lastDeckId: DeckId?
         get() =
-            AnkiDroidApp.instance
+            appContext
                 .getSharedPreferences(PERSISTENT_STATE_FILE, 0)
                 .getLong(LAST_DECK_ID_KEY, Decks.NOT_FOUND_DECK_ID)
                 .takeUnless { it == Decks.NOT_FOUND_DECK_ID }
@@ -45,14 +45,14 @@ class SharedPreferencesLastDeckIdRepository : LastDeckIdRepository {
             if (value == null) {
                 clearLastDeckId()
             } else {
-                AnkiDroidApp.instance.getSharedPreferences(PERSISTENT_STATE_FILE, 0).edit {
+                appContext.getSharedPreferences(PERSISTENT_STATE_FILE, 0).edit {
                     putLong(LAST_DECK_ID_KEY, value)
                 }
             }
 
     companion object {
         fun clearLastDeckId() {
-            val context: Context = AnkiDroidApp.instance
+            val context: Context = appContext
             context.getSharedPreferences(PERSISTENT_STATE_FILE, 0).edit {
                 remove(LAST_DECK_ID_KEY)
             }

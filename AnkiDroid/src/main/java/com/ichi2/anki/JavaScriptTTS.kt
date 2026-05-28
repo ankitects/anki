@@ -20,6 +20,7 @@ import android.os.Bundle
 import android.speech.tts.TextToSpeech
 import android.speech.tts.TextToSpeech.OnInitListener
 import androidx.annotation.IntDef
+import com.ichi2.anki.common.android.appContext
 
 /**
  * Since it is assumed that only advanced users will use the JavaScript api,
@@ -136,7 +137,7 @@ class JavaScriptTTS internal constructor() : OnInitListener {
     }
 
     init {
-        val context = AnkiDroidApp.instance.applicationContext
+        val context = appContext
         tts = TextToSpeech(context, this)
     }
 }

@@ -288,7 +288,7 @@ object CollectionHelper {
      *
      * @return the absolute path to the AnkiDroid directory.
      */
-    // This uses a lambda as we typically depends on the `lateinit` AnkiDroidApp.instance
+    // This uses a lambda as we typically depends on the `lateinit` appContext
     // If we remove all Android references, we get a significant unit test speedup
     @VisibleForTesting(otherwise = VisibleForTesting.NONE)
     internal fun getCurrentAnkiDroidDirectoryOptionalContext(

@@ -30,8 +30,8 @@ import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
-import com.ichi2.anki.AnkiDroidApp
 import com.ichi2.anki.R
+import com.ichi2.anki.common.android.appContext
 import com.ichi2.anki.common.utils.android.showThemedToast
 import com.ichi2.anki.snackbar.showSnackbar
 import com.ichi2.utils.AdaptionUtil
@@ -53,7 +53,7 @@ inline fun <T> withWakeLock(
     tag: String,
     block: () -> T,
 ): T {
-    val context = AnkiDroidApp.instance
+    val context = appContext
     val wakeLock =
         ContextCompat
             .getSystemService(context, PowerManager::class.java)!!

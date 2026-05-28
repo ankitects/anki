@@ -613,7 +613,7 @@ open class CardBrowser :
     /**
      * Implementation of `by viewModels()` for use in [onCreate]
      *
-     * @see showedActivityFailedScreen - we may not have AnkiDroidApp.instance and therefore can't
+     * @see showedActivityFailedScreen - we may not have appContext and therefore can't
      * create the ViewModel
      *
      * @param fragmented True if `noteEditorFrame` is non-null (x-large displays)

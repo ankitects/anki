@@ -89,6 +89,7 @@ import com.ichi2.anki.OnContextAndLongClickListener.Companion.setOnContextAndLon
 import com.ichi2.anki.android.input.ShortcutGroup
 import com.ichi2.anki.android.input.ShortcutGroupProvider
 import com.ichi2.anki.android.input.shortcut
+import com.ichi2.anki.common.android.appContext
 import com.ichi2.anki.common.annotations.NeedsTest
 import com.ichi2.anki.common.crashreporting.CrashReportService
 import com.ichi2.anki.common.utils.HashUtil
@@ -2729,7 +2730,7 @@ class NoteEditorFragment :
         fun addNoteArgs(): Bundle = Bundle().apply { putInt(EXTRA_CALLER, NoteEditorCaller.DECKPICKER.value) }
 
         fun shouldReplaceNewlines(): Boolean =
-            AnkiDroidApp.instance
+            appContext
                 .sharedPrefs()
                 .getBoolean(PREF_NOTE_EDITOR_NEWLINE_REPLACE, true)
 
@@ -2742,7 +2743,7 @@ class NoteEditorFragment :
         }
 
         private fun shouldHideToolbar(): Boolean =
-            !AnkiDroidApp.instance
+            !appContext
                 .sharedPrefs()
                 .getBoolean(PREF_NOTE_EDITOR_SHOW_TOOLBAR, true)
     }

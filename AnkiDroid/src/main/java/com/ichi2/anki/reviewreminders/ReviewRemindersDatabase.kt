@@ -20,7 +20,7 @@ import android.content.Context
 import android.content.SharedPreferences
 import androidx.annotation.VisibleForTesting
 import androidx.core.content.edit
-import com.ichi2.anki.AnkiDroidApp
+import com.ichi2.anki.common.android.appContext
 import com.ichi2.anki.common.crashreporting.CrashReportService
 import com.ichi2.anki.libanki.DeckId
 import com.ichi2.anki.settings.Prefs
@@ -62,7 +62,7 @@ object ReviewRemindersDatabase {
      */
     @VisibleForTesting
     val remindersSharedPrefs: SharedPreferences =
-        AnkiDroidApp.instance.getSharedPreferences(
+        appContext.getSharedPreferences(
             SHARED_PREFS_FILE_KEY,
             Context.MODE_PRIVATE,
         )

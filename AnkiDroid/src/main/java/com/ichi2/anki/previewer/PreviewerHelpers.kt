@@ -21,8 +21,8 @@ import androidx.appcompat.widget.ThemeUtils
 import androidx.core.view.updateLayoutParams
 import com.google.android.material.card.MaterialCardView
 import com.google.android.material.shape.ShapeAppearanceModel
-import com.ichi2.anki.AnkiDroidApp
 import com.ichi2.anki.LanguageUtils
+import com.ichi2.anki.common.android.appContext
 import com.ichi2.anki.libanki.CardOrdinal
 import com.ichi2.anki.settings.Prefs
 import com.ichi2.anki.settings.enums.FrameStyle
@@ -41,7 +41,7 @@ import org.intellij.lang.annotations.Language
  */
 @Language("HTML")
 fun stdHtml(
-    context: Context = AnkiDroidApp.instance,
+    context: Context = appContext,
     extraJsAssets: List<String> = emptyList(),
     nightMode: Boolean = false,
 ): String {
