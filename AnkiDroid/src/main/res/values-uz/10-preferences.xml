@@ -158,7 +158,7 @@
     <string name="show_estimates_summ">Javob tugmalarida keyingi takrorlash vaqtini koʻrsatish</string>
     <string name="show_large_answer_buttons" maxLength="41">Katta javob tugmalarini koʻrsatish</string>
     <string name="show_large_answer_buttons_summ">Javob tugmalarini 2 qatorda koʻrsatish</string>
-    <string name="remove_animations" maxLength="41">Remove animations</string>
+    <string name="remove_animations" maxLength="41">Animatsiyalarni o\'chirish</string>
     <string name="remove_animations_summary">Also enabled if animations are removed on the system settings</string>
     <string name="show_top_bar" maxLength="41">Yuqorigi panelni koʻrsatish</string>
     <string name="show_top_bar_summary">Kartalar soni, javob vaqti, bayroq va belgini yuqorigi panelda koʻrsatish</string>

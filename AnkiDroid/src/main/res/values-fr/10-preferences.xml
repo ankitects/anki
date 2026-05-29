@@ -158,8 +158,8 @@
     <string name="show_estimates_summ">Afficher le temps avant la prochaine révision sur les boutons de réponse</string>
     <string name="show_large_answer_buttons" maxLength="41">Afficher de gros boutons de réponse</string>
     <string name="show_large_answer_buttons_summ">Montrer le bouton de réponse en deux lignes</string>
-    <string name="remove_animations" maxLength="41">Remove animations</string>
-    <string name="remove_animations_summary">Also enabled if animations are removed on the system settings</string>
+    <string name="remove_animations" maxLength="41">Supprimer les animations</string>
+    <string name="remove_animations_summary">Également activé si les animations sont supprimées dans les paramètres système</string>
     <string name="show_top_bar" maxLength="41">Afficher la barre supérieure</string>
     <string name="show_top_bar_summary">Afficher le nombre de cartes, le chronomètre, la balise et la marque dans la barre supérieure</string>
     <string name="show_progress" maxLength="41">Afficher le nombre restant de révision</string>

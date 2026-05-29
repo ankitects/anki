@@ -262,7 +262,7 @@
     <string name="special_field_front_side_help">Contenu du template avant. L\'audio n\'est pas automatiquement lu</string>
     <string name="special_field_deck_help" comment="%s: either blank or \' %s\'">Le jeu complet de la carte, y compris les decks parents%s</string>
     <string name="special_field_subdeck_help" comment="%s: either blank or \' %s\'">Le jeu actuel de la carte, excluant les decks parents%s</string>
-    <string name="special_field_flag_help">Outputs ‘%1$s’, where %2$s is the flag code (%3$s\–%4$s\)</string>
+    <string name="special_field_flag_help">Donne en sortie ‘%1$s’, où %2$s est le code du drapeau (%3$s\–%4$s\)</string>
     <string name="special_field_tags_help" comment="%s: either blank or \' %s\'">Les tags de la note%s</string>
     <string name="special_field_card_id_help" comment="%s: either blank or \' %s\'">L\'ID de la carte%s</string>
     <string name="special_field_card_help" comment="%s: either blank or \' %s\'">Le nom du modèle de carte%s</string>
