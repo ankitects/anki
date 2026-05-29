@@ -3,6 +3,7 @@
 
 package com.ichi2.anki.analytics
 
+import android.app.Application
 import android.content.Context
 import android.content.SharedPreferences
 import androidx.core.content.edit
@@ -53,7 +54,7 @@ object AnkiDroidUsageAnalytics {
      * be uninitialized in rare Android scenarios (e.g. BackupManager) and
      * analytics is a startup concern that must not crash.
      */
-    private lateinit var analyticsContext: Context
+    private lateinit var analyticsContext: Application
 
     private val serviceScope = CoroutineScope(Dispatchers.IO + SupervisorJob())
     private val clientId: String by lazy { getOrCreateClientId(analyticsContext) }
@@ -87,7 +88,7 @@ object AnkiDroidUsageAnalytics {
         private set
 
     fun initialize(context: Context) {
-        analyticsContext = context.applicationContext
+        analyticsContext = context.applicationContext as Application
 
         Timber.i("AnkiDroidUsageAnalytics:: initialize()")
 

@@ -173,6 +173,7 @@
     <issue id="PackagedPrivateKey" severity="fatal" />
     <issue id="HardcodedDebugMode" severity="fatal" />
     <issue id="HandlerLeak" severity="fatal" />
+    <issue id="StaticFieldLeak" severity="fatal" />
     <issue id="ServiceCast" severity="fatal" />
     <issue id="CutPasteId" severity="fatal" />
     <issue id="WrongCall" severity="fatal" />
@@ -351,7 +352,6 @@
     <issue id="LabelFor" severity="ignore" />
     <issue id="InconsistentLayout" severity="ignore" />
     <issue id="InflateParams" severity="ignore" />
-    <issue id="StaticFieldLeak" severity="ignore" />
     <issue id="DefaultLocale" severity="error" />
     <issue id="LocaleFolder" severity="ignore" />
     <issue id="LocaleRootUsage" severity="error" />
