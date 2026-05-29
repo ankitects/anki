@@ -19,7 +19,6 @@
         <item quantity="other">%d notes shown</item>
     </plurals>
 
-    <string name="card_browser_all_decks">All decks</string>
     <plurals name="card_browser_delete_notes">
         <item quantity="one">Delete note</item>
         <item quantity="other">Delete notes</item>

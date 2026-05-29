@@ -31,6 +31,7 @@ import androidx.fragment.app.setFragmentResultListener
 import androidx.fragment.app.viewModels
 import com.google.android.material.timepicker.MaterialTimePicker
 import com.google.android.material.timepicker.TimeFormat
+import com.ichi2.anki.CollectionManager.TR
 import com.ichi2.anki.CollectionManager.withCol
 import com.ichi2.anki.R
 import com.ichi2.anki.common.ALL_DECKS_ID
@@ -46,6 +47,7 @@ import com.ichi2.anki.model.SelectableDeck
 import com.ichi2.anki.reviewreminders.AddEditReminderDialog.Companion.getInstance
 import com.ichi2.anki.settings.Prefs
 import com.ichi2.anki.snackbar.showSnackbar
+import com.ichi2.anki.ui.internationalization.sentenceCase
 import com.ichi2.anki.utils.ext.getParcelableCompat
 import com.ichi2.anki.utils.ext.showDialogFragment
 import com.ichi2.utils.DisplayUtils.resizeWhenSoftInputShown
@@ -182,13 +184,13 @@ class AddEditReminderDialog : DialogFragment() {
     private suspend fun getValidDeckSelection(): Pair<DeckId, String> {
         suspend fun getFallbackSelection(): Pair<DeckId, String> =
             if (isDefaultDeckEmpty()) {
-                Pair(ALL_DECKS_ID, getString(R.string.card_browser_all_decks))
+                Pair(ALL_DECKS_ID, TR.sentenceCase.allDecks)
             } else {
                 Pair(Consts.DEFAULT_DECK_ID, withCol { decks.name(Consts.DEFAULT_DECK_ID) })
             }
 
         return when (val currentlySelectedDeckID = viewModel.deckSelected.value) {
-            ALL_DECKS_ID -> Pair(ALL_DECKS_ID, getString(R.string.card_browser_all_decks))
+            ALL_DECKS_ID -> Pair(ALL_DECKS_ID, TR.sentenceCase.allDecks)
             Consts.DEFAULT_DECK_ID -> getFallbackSelection()
             null -> getFallbackSelection()
             else -> {

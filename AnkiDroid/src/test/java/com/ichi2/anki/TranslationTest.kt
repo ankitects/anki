@@ -334,7 +334,6 @@ class TranslationTest : RobolectricTest() {
                 //                       // TR.mediaCheckCheckMediaAction()
                 //                       // TR.mediaCheckWindowTitle()
                 "Add note", // R.string.menu_add_note | TR.actionsAddNote()
-                "All decks", // R.string.card_browser_all_decks | TR.exportingAllDecks()
                 "Answer again", // R.string.answer_again | TR.deckConfigAnswerAgain()
                 "Answer buttons", // R.string.answer_buttons | TR.statisticsAnswerButtonsTitle()
                 "Answer good", // R.string.answer_good | TR.deckConfigAnswerGood()

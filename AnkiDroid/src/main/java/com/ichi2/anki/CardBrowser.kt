@@ -82,6 +82,7 @@ import com.ichi2.anki.scheduling.registerOnForgetHandler
 import com.ichi2.anki.settings.Prefs
 import com.ichi2.anki.snackbar.showSnackbar
 import com.ichi2.anki.ui.ResizablePaneManager
+import com.ichi2.anki.ui.internationalization.sentenceCase
 import com.ichi2.anki.utils.ext.addPrepareMenuProvider
 import com.ichi2.anki.utils.ext.launchCollectionInLifecycleScope
 import com.ichi2.anki.utils.ext.onAllFragmentsLoaded
@@ -433,8 +434,8 @@ open class CardBrowser :
             launchCatchingTask {
                 findViewById<TextView>(R.id.deck_name)?.text =
                     when (deckId) {
-                        null -> getString(R.string.card_browser_all_decks)
-                        ALL_DECKS_ID -> getString(R.string.card_browser_all_decks)
+                        null -> TR.sentenceCase.allDecks
+                        ALL_DECKS_ID -> TR.sentenceCase.allDecks
                         else -> withCol { decks.getLegacy(deckId)?.name }
                     }
             }

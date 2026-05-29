@@ -19,10 +19,11 @@ package com.ichi2.anki.model
 import android.content.Context
 import android.os.Parcelable
 import com.ichi2.anki.CollectionManager
+import com.ichi2.anki.CollectionManager.TR
 import com.ichi2.anki.CollectionManager.withCol
-import com.ichi2.anki.R
 import com.ichi2.anki.libanki.DeckId
 import com.ichi2.anki.libanki.DeckNameId
+import com.ichi2.anki.ui.internationalization.sentenceCase
 import kotlinx.parcelize.Parcelize
 
 /**
@@ -54,7 +55,7 @@ sealed class SelectableDeck : Parcelable {
     fun getDisplayName(context: Context) =
         when (this) {
             is Deck -> name.substringAfterLast("::")
-            is AllDecks -> context.getString(R.string.card_browser_all_decks)
+            is AllDecks -> with(context) { TR.sentenceCase.allDecks }
         }
 
     /**
@@ -63,7 +64,7 @@ sealed class SelectableDeck : Parcelable {
     fun getFullDisplayName(context: Context) =
         when (this) {
             is Deck -> name
-            is AllDecks -> context.getString(R.string.card_browser_all_decks)
+            is AllDecks -> with(context) { TR.sentenceCase.allDecks }
         }
 
     override fun toString() =

@@ -85,6 +85,7 @@ class SentenceCaseTest : RobolectricTest() {
                     assertThat(TR.sentenceCase.browserAppearance, equalTo("Browser appearance"))
                     assertThat(TR.sentenceCase.copyDebugInfo, equalTo("Copy debug info"))
                     assertThat(TR.sentenceCase.addField, equalTo("Add field"))
+                    assertThat(TR.sentenceCase.allDecks, equalTo("All decks"))
 
                     assertThat("syncMediaLogTitle", TR.syncMediaLogTitle(), equalTo("Media Sync Log"))
                     assertThat(TR.sentenceCase.mediaSyncLog, equalTo("Media sync log"))

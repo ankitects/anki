@@ -233,6 +233,12 @@ object SentenceCase {
 
     context(_: Context)
     val addField get() = TR.fieldsAddField().toSentenceCase(R.string.sentence_add_field)
+
+    context(_: Context)
+    val allDecks get() = TR.exportingAllDecks().toSentenceCase(R.string.sentence_all_decks)
+
+    context(_: Fragment)
+    val allDecks get() = TR.exportingAllDecks().toSentenceCase(R.string.sentence_all_decks)
 }
 
 /**

@@ -232,7 +232,7 @@ class CardBrowserFragment :
             activityViewModel.searchRequestFlow.value.filters.decks
                 .firstOrNull()
                 ?.name
-                ?: getString(R.string.card_browser_all_decks)
+                ?: TR.sentenceCase.allDecks
 
     // only usable if 'useSearchView' is set
     override var searchBar: SearchBar? = null
@@ -1073,7 +1073,7 @@ class CardBrowserFragment :
             Timber.d("syncing searchview state from chip updates")
             val filters = search.filters
 
-            decksChip?.text = filters.decks.firstOrNull()?.name ?: getString(R.string.card_browser_all_decks)
+            decksChip?.text = filters.decks.firstOrNull()?.name ?: TR.sentenceCase.allDecks
             decksChip?.hasCheckedBackground = filters.decks.any()
 
             tagsChip?.text = formatChipDescription(filters.tags, emptyValue = "Tags")

@@ -53,6 +53,7 @@ import com.ichi2.anki.launchCatchingTask
 import com.ichi2.anki.libanki.DeckNameId
 import com.ichi2.anki.model.CardStateFilter
 import com.ichi2.anki.model.SelectableDeck
+import com.ichi2.anki.ui.internationalization.sentenceCase
 import com.ichi2.anki.utils.ext.hasCheckedBackground
 import com.ichi2.anki.utils.ext.launchCollectionInLifecycleScope
 import com.ichi2.anki.utils.ext.showDialogFragment
@@ -145,7 +146,7 @@ class StandardSearchFragment :
             binding.cardStateChip.hasCheckedBackground = it.cardStates.any()
             binding.flagsChip.hasCheckedBackground = it.flags.any()
 
-            binding.decksChip.text = it.decks.firstOrNull()?.name ?: getString(R.string.card_browser_all_decks)
+            binding.decksChip.text = it.decks.firstOrNull()?.name ?: TR.sentenceCase.allDecks
             binding.tagsChip.text = formatChipDescription(it.tags, emptyValue = "Tags")
             binding.cardStateChip.text = formatChipDescription(it.cardStates.map { it.label }, emptyValue = "Card state")
             binding.cardStateChip.chipIcon =

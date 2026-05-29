@@ -27,9 +27,11 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.materialswitch.MaterialSwitch
+import com.ichi2.anki.CollectionManager.TR
 import com.ichi2.anki.R
 import com.ichi2.anki.databinding.ItemScheduleRemindersBinding
 import com.ichi2.anki.libanki.DeckId
+import com.ichi2.anki.ui.internationalization.sentenceCase
 
 class ScheduleRemindersAdapter(
     private val retrieveDeckNameFromID: (DeckId, callback: (deckName: String) -> Unit) -> Unit,
@@ -95,7 +97,7 @@ class ScheduleRemindersAdapter(
 
         when (scope) {
             is ReviewReminderScope.Global -> {
-                holder.deckTextView.text = holder.context.getString(R.string.card_browser_all_decks)
+                holder.deckTextView.text = with(holder.context) { TR.sentenceCase.allDecks }
                 setTextViewStrikethrough(holder.timeTextView, false)
                 setViewHolderColors(holder, activeTextColor, activeTrackColor)
             }
