@@ -162,13 +162,24 @@ class DeckSelectionDialog : AnalyticsDialogFragment() {
      */
     private fun showSubDeckDialog(parentDeck: SelectableDeck.Deck) {
         val createDeckDialog =
-            CreateDeckDialog(requireActivity(), R.string.create_subdeck, CreateDeckDialog.DeckDialogType.SUB_DECK, parentDeck.deckId)
+            CreateDeckDialog(
+                context = requireActivity(),
+                title = getString(R.string.create_subdeck),
+                deckDialogType = CreateDeckDialog.DeckDialogType.SUB_DECK,
+                parentId = parentDeck.deckId,
+            )
         createDeckDialog.onNewDeckCreated = { did: DeckId -> onNewDeckCreated(did) }
         createDeckDialog.showDialog()
     }
 
     private fun showDeckDialog() {
-        val createDeckDialog = CreateDeckDialog(requireActivity(), R.string.new_deck, CreateDeckDialog.DeckDialogType.DECK, null)
+        val createDeckDialog =
+            CreateDeckDialog(
+                context = requireActivity(),
+                title = getString(R.string.new_deck),
+                deckDialogType = CreateDeckDialog.DeckDialogType.DECK,
+                parentId = null,
+            )
         createDeckDialog.onNewDeckCreated = { did: DeckId -> onNewDeckCreated(did) }
         createDeckDialog.showDialog()
     }

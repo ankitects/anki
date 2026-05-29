@@ -37,7 +37,6 @@ import com.ichi2.utils.input
 import com.ichi2.utils.negativeButton
 import com.ichi2.utils.positiveButton
 import com.ichi2.utils.show
-import com.ichi2.utils.title
 import net.ankiweb.rsdroid.exceptions.BackendDeckIsFilteredException
 import timber.log.Timber
 
@@ -50,7 +49,7 @@ import timber.log.Timber
  */
 class CreateDeckDialog(
     private val context: Context,
-    private val title: Int,
+    private val title: CharSequence,
     private val deckDialogType: DeckDialogType,
     private val parentId: DeckId?,
 ) {
@@ -89,7 +88,7 @@ class CreateDeckDialog(
             AlertDialog
                 .Builder(context)
                 .show {
-                    title(title)
+                    setTitle(title)
                     // Resource ID for the dialog's positive action button text.
                     // Uses "Rename" for rename deck dialogs and "Create" for all other deck-related dialogs.
                     val positiveButtonTextRes =

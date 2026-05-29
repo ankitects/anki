@@ -2103,7 +2103,12 @@ open class DeckPicker :
         launchCatchingTask {
             val currentName = withCol { decks.name(did) }
             val createDeckDialog =
-                CreateDeckDialog(this@DeckPicker, R.string.rename_deck, CreateDeckDialog.DeckDialogType.RENAME_DECK, null)
+                CreateDeckDialog(
+                    context = this@DeckPicker,
+                    title = getString(R.string.rename_deck),
+                    deckDialogType = CreateDeckDialog.DeckDialogType.RENAME_DECK,
+                    parentId = null,
+                )
             createDeckDialog.deckName = currentName
             createDeckDialog.onNewDeckCreated = {
                 dismissAllDialogFragments()
@@ -2121,7 +2126,13 @@ open class DeckPicker :
      * @see CreateDeckDialog
      */
     fun showCreateDeckDialog() {
-        val createDeckDialog = CreateDeckDialog(this@DeckPicker, R.string.new_deck, CreateDeckDialog.DeckDialogType.DECK, null)
+        val createDeckDialog =
+            CreateDeckDialog(
+                context = this@DeckPicker,
+                title = getString(R.string.new_deck),
+                deckDialogType = CreateDeckDialog.DeckDialogType.DECK,
+                parentId = null,
+            )
         createDeckDialog.onNewDeckCreated = {
             updateDeckList()
             invalidateOptionsMenu()
@@ -2173,7 +2184,13 @@ open class DeckPicker :
     }
 
     private fun createSubDeckDialog(did: DeckId) {
-        val createDeckDialog = CreateDeckDialog(this@DeckPicker, R.string.create_subdeck, CreateDeckDialog.DeckDialogType.SUB_DECK, did)
+        val createDeckDialog =
+            CreateDeckDialog(
+                context = this@DeckPicker,
+                title = getString(R.string.create_subdeck),
+                deckDialogType = CreateDeckDialog.DeckDialogType.SUB_DECK,
+                parentId = did,
+            )
         createDeckDialog.onNewDeckCreated = {
             // a deck was created
             dismissAllDialogFragments()

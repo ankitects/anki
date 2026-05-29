@@ -201,10 +201,10 @@ class CreateDeckDialogTest : RobolectricTest() {
             for (i in 0 until 10) {
                 val createDeckDialog =
                     CreateDeckDialog(
-                        deckPicker,
-                        R.string.new_deck,
-                        DeckDialogType.DECK,
-                        null,
+                        context = deckPicker,
+                        title = getResourceString(R.string.new_deck),
+                        deckDialogType = DeckDialogType.DECK,
+                        parentId = null,
                     )
                 val did =
                     suspendCoroutine { coro ->
@@ -288,7 +288,13 @@ class CreateDeckDialogTest : RobolectricTest() {
         callback: (CreateDeckDialog.() -> Unit),
     ) {
         activityScenario.onActivity { activity: DeckPicker ->
-            val createDeckDialog = CreateDeckDialog(activity, R.string.new_deck, deckDialogType, parentId)
+            val createDeckDialog =
+                CreateDeckDialog(
+                    context = activity,
+                    title = getResourceString(R.string.new_deck),
+                    deckDialogType = deckDialogType,
+                    parentId = parentId,
+                )
             callback(createDeckDialog)
         }
     }
@@ -319,7 +325,7 @@ class CreateDeckDialogTest : RobolectricTest() {
     @Test
     fun `createDeck with activity context shows snackbar for invalid name`() {
         activityScenario.onActivity { activity ->
-            val dialog = CreateDeckDialog(activity, R.string.new_deck, DeckDialogType.DECK, null)
+            val dialog = CreateDeckDialog(activity, getResourceString(R.string.new_deck), DeckDialogType.DECK, null)
             dialog.onNewDeckCreated = { _: DeckId -> }
             dialog.createDeck("   ")
             Shadows.shadowOf(Looper.getMainLooper()).idle()
@@ -335,7 +341,7 @@ class CreateDeckDialogTest : RobolectricTest() {
     @Test
     fun `createDeck with non-activity context shows toast for valid name`() {
         activityScenario.onActivity { activity ->
-            val dialog = CreateDeckDialog(ContextWrapper(activity), R.string.new_deck, DeckDialogType.DECK, null)
+            val dialog = CreateDeckDialog(ContextWrapper(activity), getResourceString(R.string.new_deck), DeckDialogType.DECK, null)
             dialog.onNewDeckCreated = { _: DeckId -> }
             dialog.createDeck("Create Deck")
 
@@ -350,7 +356,7 @@ class CreateDeckDialogTest : RobolectricTest() {
     @Test
     fun `createDeck with non-activity context shows toast for invalid name`() {
         activityScenario.onActivity { activity ->
-            val dialog = CreateDeckDialog(ContextWrapper(activity), R.string.new_deck, DeckDialogType.DECK, null)
+            val dialog = CreateDeckDialog(ContextWrapper(activity), getResourceString(R.string.new_deck), DeckDialogType.DECK, null)
             dialog.onNewDeckCreated = { _: DeckId -> }
             dialog.createDeck("   ")
 
@@ -382,7 +388,7 @@ class CreateDeckDialogTest : RobolectricTest() {
     @Test
     fun `renameDeck with activity context shows snackbar for invalid name`() {
         activityScenario.onActivity { activity ->
-            val dialog = CreateDeckDialog(activity, R.string.new_deck, DeckDialogType.RENAME_DECK, null)
+            val dialog = CreateDeckDialog(activity, getResourceString(R.string.new_deck), DeckDialogType.RENAME_DECK, null)
             dialog.deckName = "Old Deck"
             dialog.onNewDeckCreated = { _: DeckId -> }
             dialog.renameDeck("   ")
@@ -399,7 +405,7 @@ class CreateDeckDialogTest : RobolectricTest() {
     @Test
     fun `renameDeck with non-activity context shows toast for valid name`() {
         activityScenario.onActivity { activity ->
-            val dialog = CreateDeckDialog(ContextWrapper(activity), R.string.new_deck, DeckDialogType.RENAME_DECK, null)
+            val dialog = CreateDeckDialog(ContextWrapper(activity), getResourceString(R.string.new_deck), DeckDialogType.RENAME_DECK, null)
             dialog.deckName = "Old Deck"
             dialog.onNewDeckCreated = { _: DeckId -> }
             dialog.renameDeck("Rename Deck")
@@ -415,7 +421,7 @@ class CreateDeckDialogTest : RobolectricTest() {
     @Test
     fun `renameDeck with non-activity context shows toast for invalid name`() {
         activityScenario.onActivity { activity ->
-            val dialog = CreateDeckDialog(ContextWrapper(activity), R.string.new_deck, DeckDialogType.RENAME_DECK, null)
+            val dialog = CreateDeckDialog(ContextWrapper(activity), getResourceString(R.string.new_deck), DeckDialogType.RENAME_DECK, null)
             dialog.deckName = "Old Deck"
             dialog.onNewDeckCreated = { _: DeckId -> }
             dialog.renameDeck("   ")
@@ -439,7 +445,7 @@ class CreateDeckDialogTest : RobolectricTest() {
     ) {
         activityScenario.onActivity { activity: DeckPicker ->
             val assertionCalled = AtomicReference(false)
-            callback(CreateDeckDialog(activity, R.string.new_deck, deckDialogType, parentId)) {
+            callback(CreateDeckDialog(activity, getResourceString(R.string.new_deck), deckDialogType, parentId)) {
                 assertionCalled.set(true)
             }
             assertThat("no call to assertionCalled()", assertionCalled.get(), equalTo(true))
