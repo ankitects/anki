@@ -242,6 +242,9 @@ object SentenceCase {
 
     context(_: Fragment)
     val browserOptions get() = TR.browsingBrowserOptions().toSentenceCase(R.string.sentence_browser_options)
+
+    context(_: Fragment)
+    val changeDeck get() = TR.browsingChangeDeck().toSentenceCase(R.string.sentence_change_deck)
 }
 
 /**

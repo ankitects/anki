@@ -50,7 +50,7 @@
 
     <item
         android:id="@+id/action_change_deck"
-        android:title="@string/card_browser_change_deck"/>
+        tools:title="Change deck"/>
 
     <item
         android:id="@+id/action_reposition_cards"

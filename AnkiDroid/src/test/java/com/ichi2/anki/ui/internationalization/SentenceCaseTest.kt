@@ -53,6 +53,7 @@ class SentenceCaseTest : RobolectricTest() {
                     assertThat(TR.sentenceCase.changeNoteType, equalTo("Change note type"))
                     assertThat(TR.sentenceCase.gradeNow, equalTo("Grade now"))
                     assertThat(TR.sentenceCase.browserOptions, equalTo("Browser options"))
+                    assertThat(TR.sentenceCase.changeDeck, equalTo("Change deck"))
                 }
             }.close()
 

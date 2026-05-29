@@ -685,7 +685,10 @@ class CardBrowserFragment :
                         title = TR.sentenceCase.changeNoteType
                         isVisible = vm.hasSelectedAnyRows()
                     }
-                    menu.findItem(R.id.action_change_deck).isVisible = vm.hasSelectedAnyRows()
+                    menu.findItem(R.id.action_change_deck).apply {
+                        title = TR.sentenceCase.changeDeck
+                        isVisible = vm.hasSelectedAnyRows()
+                    }
                     menu.findItem(R.id.action_reposition_cards).isVisible = vm.hasSelectedAnyRows()
                     menu.findItem(R.id.action_grade_now).isVisible = vm.hasSelectedAnyRows()
                     menu.findItem(R.id.action_reschedule_cards).isVisible = vm.hasSelectedAnyRows()
@@ -1823,7 +1826,7 @@ class CardBrowserFragment :
                 shortcut("Ctrl+Shift+E", Translations::exportingExport),
                 shortcut("Ctrl+E", R.string.menu_add_note),
                 shortcut("E", R.string.cardeditor_title_edit_card),
-                shortcut("Ctrl+D", R.string.card_browser_change_deck),
+                shortcut("Ctrl+D", Translations::browsingChangeDeck),
                 shortcut("Ctrl+K", Translations::browsingToggleMark),
                 shortcut("Ctrl+Alt+R", Translations::browsingReschedule),
                 shortcut("DEL", R.string.delete_card_title),
