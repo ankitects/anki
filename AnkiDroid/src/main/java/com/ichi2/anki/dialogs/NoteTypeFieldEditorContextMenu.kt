@@ -21,7 +21,6 @@ import timber.log.Timber
 class NoteTypeFieldEditorContextMenu : AnalyticsDialogFragment() {
     @SuppressLint("CheckResult")
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
-        super.onCreate(savedInstanceState)
         val availableItems = NoteTypeFieldEditorContextMenuAction.entries.sortedBy { it.order }
 
         return AlertDialog.Builder(requireActivity()).create {

@@ -67,7 +67,6 @@ class SyncErrorDialog : AsyncDialogFragment() {
         get() = Type.fromCode(requireArguments().getInt(SYNC_ERROR_DIALOG_TYPE_KEY))
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
-        super.onCreate(savedInstanceState)
         val dialog =
             AlertDialog
                 .Builder(requireContext())

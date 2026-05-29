@@ -49,7 +49,6 @@ import timber.log.Timber
 //  dialog(or maybe even add an option to remove all entries directly)
 class SavedBrowserSearchesDialogFragment : AnalyticsDialogFragment() {
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
-        super.onCreate(savedInstanceState)
         val savedFilters: HashMap<String, String>? =
             requireArguments().getSerializableCompat(ARG_SAVED_FILTERS)
         val data =

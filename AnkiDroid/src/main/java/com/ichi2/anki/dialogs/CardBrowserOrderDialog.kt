@@ -33,7 +33,6 @@ class CardBrowserOrderDialog : AnalyticsDialogFragment() {
     private val viewModel: CardBrowserViewModel by activityViewModels()
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
-        super.onCreate(savedInstanceState)
         val items = resources.getStringArray(R.array.card_browser_order_labels)
         // Set sort order arrow
         for (i in items.indices) {

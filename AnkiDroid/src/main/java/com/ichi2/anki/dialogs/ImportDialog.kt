@@ -43,7 +43,6 @@ class ImportDialog : AsyncDialogFragment() {
         get() = requireArguments().getString(IMPORT_DIALOG_PACKAGE_PATH_KEY)!!
 
     override fun onCreateDialog(savedInstanceState: Bundle?): AlertDialog {
-        super.onCreate(savedInstanceState)
         val dialog = AlertDialog.Builder(requireActivity())
         dialog.setCancelable(true)
         val displayFileName = filenameFromPath(convertToDisplayName(packagePath))

@@ -179,7 +179,6 @@ class CustomStudyDialog : AnalyticsDialogFragment() {
     }
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
-        super.onCreate(savedInstanceState)
         val option = selectedSubDialog
         return if (option == null || !defaultsAreInitialized()) {
             Timber.i("Showing Custom Study main menu")

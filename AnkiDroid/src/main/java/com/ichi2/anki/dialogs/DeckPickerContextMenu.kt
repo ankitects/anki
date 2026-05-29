@@ -37,7 +37,6 @@ import com.ichi2.utils.title
 
 class DeckPickerContextMenu : AnalyticsDialogFragment() {
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
-        super.onCreate(savedInstanceState)
         require(requireArguments().containsKey(ARG_DECK_ID)) { "Missing argument deck id" }
         require(requireArguments().containsKey(ARG_DECK_NAME)) { "Missing argument deck name" }
         require(requireArguments().containsKey(ARG_DECK_IS_DYN)) { "Missing argument deck is dynamic" }

@@ -85,16 +85,13 @@ class ConfirmationDialog : DialogFragment() {
         this.cancel = cancel
     }
 
-    override fun onCreateDialog(savedInstanceState: Bundle?): AlertDialog {
-        super.onCreate(savedInstanceState)
-
-        return AlertDialog.Builder(requireContext()).create {
+    override fun onCreateDialog(savedInstanceState: Bundle?): AlertDialog =
+        AlertDialog.Builder(requireContext()).create {
             title(text = title)
             message(text = message)
             positiveButton(text = positiveButtonText) { confirm.run() }
             negativeButton(R.string.dialog_cancel) { cancel.run() }
         }
-    }
 
     companion object {
         /** The dialog message (required) */
