@@ -29,6 +29,7 @@ import com.ichi2.anki.dialogs.customstudy.CustomStudyDialog.CustomStudyAction
 import com.ichi2.anki.snackbar.BaseSnackbarBuilderProvider
 import com.ichi2.anki.snackbar.SnackbarBuilder
 import com.ichi2.anki.ui.windows.managespace.ManageSpaceActivity
+import com.ichi2.anki.utils.ConfigAwareSingleFragmentActivity
 import com.ichi2.anki.utils.ext.setFragmentResultListener
 import com.ichi2.themes.setTransparentStatusBar
 import com.ichi2.utils.FragmentFactoryUtils
@@ -44,6 +45,8 @@ import kotlin.reflect.jvm.jvmName
  * while being able to reuse the fragment on other places.
  *
  * [getIntent] can be used as an easy way to build a [SingleFragmentActivity]
+ *
+ * See also: [ConfigAwareSingleFragmentActivity]
  */
 open class SingleFragmentActivity :
     AnkiActivity(R.layout.activity_single_fragment),
