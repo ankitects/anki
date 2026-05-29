@@ -8,6 +8,7 @@ import org.gradle.api.tasks.testing.logging.TestExceptionFormat
 import org.gradle.internal.jvm.Jvm
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import org.jlleitschuh.gradle.ktlint.KtlintExtension
+import java.lang.management.ManagementFactory
 import java.util.Properties
 import kotlin.math.max
 import kotlin.system.exitProcess
@@ -44,6 +45,12 @@ val testSummaryService = System.getenv("GITHUB_STEP_SUMMARY")?.let { path ->
     }
 }
 
+/**
+ * Per-fork JVM heap for unit tests.
+ * See [Test.setMaxHeapSize]
+ */
+val unitTestForkMaxHeapGb = 2
+
 // Here we extract per-module "best practices" settings to a single top-level evaluation
 subprojects {
     apply(plugin = "org.jlleitschuh.gradle.ktlint")
@@ -61,7 +68,7 @@ subprojects {
                 // tell backend to avoid rollover time, and disable interval fuzzing
                 it.environment("ANKI_TEST_MODE", "1")
 
-                it.maxHeapSize = "2g"
+                it.maxHeapSize = "${unitTestForkMaxHeapGb}g"
                 it.minHeapSize = "1g"
 
                 it.useJUnitPlatform()
@@ -158,6 +165,7 @@ if (jvmVersion !in jvmVersionLowerBound..jvmVersionUpperBound) {
 }
 
 val ciBuild by extra(System.getenv("CI") == "true") // true when running on GitHub Actions
+val isMacOs = System.getProperty("os.name") == "Mac OS X"
 // allows for -Dpre-dex=false to be set
 val preDexEnabled by extra("true" == System.getProperty("pre-dex", "true"))
 // allows for universal APKs to be generated
@@ -168,12 +176,48 @@ var androidTestVariantName by extra(
     if (testReleaseBuild) "Release" else "Debug"
 )
 
+private fun sysctl(key: String): Long =
+    providers.exec {
+        commandLine("sysctl", "-n", key)
+    }.standardOutput.asText.get().trim().toLong()
+
+/**
+ * The Gradle daemon's `-Xmx` max heap, in bytes.
+ *
+ * Reads from the launch flags as `getRuntime().maxMemory()` is GC-dependent.
+ *
+ * @throws IllegalStateException if `-Xmx` is missing or invalid.
+ */
+private fun gradleDaemonHeapBytes(): Long {
+    val xmx = ManagementFactory.getRuntimeMXBean().inputArguments
+        .lastOrNull { it.startsWith("-Xmx") } // last -Xmx wins, as in the JVM
+        ?: error("Gradle daemon has no -Xmx flag")
+    val match = Regex("-Xmx(\\d+)([MG])", RegexOption.IGNORE_CASE).matchEntire(xmx)
+        ?: error("Cannot parse Gradle daemon heap from '$xmx'; expected -Xmx<n>M or -Xmx<n>G")
+    val size = match.groupValues[1].toLong()
+    val byteMultiplier = when (match.groupValues[2].uppercase()) {
+        "G" -> 1024L * 1024 * 1024
+        else -> 1024L * 1024 // M
+    }
+    return size * byteMultiplier
+}
+
 val gradleTestMaxParallelForks by extra(
-    if (System.getProperty("os.name") == "Mac OS X") {
-        // macOS reports hardware cores. This is accurate for CI, Intel (halved due to SMT) and Apple Silicon
-        providers.exec {
-            commandLine("sysctl", "-n", "hw.physicalcpu")
-        }.standardOutput.asText.get().trim().toInt()
+    if (isMacOs) {
+        // macOS reports hardware cores.
+        // This is accurate for CI, Intel (halved due to SMT) and Apple Silicon
+        val physicalCpus = sysctl("hw.physicalcpu")
+
+        if (ciBuild) {
+            // #21168: The `macos-14` CI runner has only 7GB RAM and OOMs (exit 134) so bound by RAM.
+            // Reserve the daemon's own heap (the OS shares its slack); split the rest into forks.
+            val forkHeapBytes = unitTestForkMaxHeapGb * 1024L * 1024 * 1024
+            val availableBytes = sysctl("hw.memsize") - gradleDaemonHeapBytes()
+            val memoryBoundForkProcesses = max(1L, availableBytes / forkHeapBytes)
+            minOf(physicalCpus, memoryBoundForkProcesses).toInt()
+        } else {
+            physicalCpus.toInt()
+        }
     } else if (ciBuild) {
         // GitHub Actions run on Standard_D4ads_v5 Azure Compute Units with 4 vCPUs
         // They appear to be 2:1 vCPU to CPU on Linux/Windows with two vCPU cores but with performance 1:1-similar
