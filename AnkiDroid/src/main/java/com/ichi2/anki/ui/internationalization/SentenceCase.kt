@@ -223,6 +223,13 @@ object SentenceCase {
 
     context(_: Fragment)
     val browserAppearance get() = TR.browsingBrowserAppearance().toSentenceCase(R.string.sentence_browser_appearance)
+
+    // TR aboutCopyDebugInfo() is a duplicate
+    context(_: Context)
+    val copyDebugInfo get() = TR.errorsCopyDebugInfoButton().toSentenceCase(R.string.sentence_copy_debug_info)
+
+    context(_: Fragment)
+    val copyDebugInfo get() = TR.errorsCopyDebugInfoButton().toSentenceCase(R.string.sentence_copy_debug_info)
 }
 
 /**

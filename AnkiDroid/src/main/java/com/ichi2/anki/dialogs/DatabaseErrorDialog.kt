@@ -195,7 +195,7 @@ class DatabaseErrorDialog : AsyncDialogFragment() {
                 options.add(res.getString(R.string.backup_del_collection))
                 values.add(ErrorHandlingEntries.NEW)
                 // copy stack trace and debug info
-                options.add(res.getString(R.string.feedback_copy_debug))
+                options.add(TR.sentenceCase.copyDebugInfo)
                 values.add(ErrorHandlingEntries.DEBUG_INFO)
 
                 alertDialog.show {

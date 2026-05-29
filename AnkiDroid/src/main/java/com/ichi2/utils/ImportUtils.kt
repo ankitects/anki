@@ -29,6 +29,7 @@ import androidx.appcompat.app.AlertDialog
 import androidx.core.os.bundleOf
 import com.ichi2.anki.AnkiActivity
 import com.ichi2.anki.AnkiDroidApp
+import com.ichi2.anki.CollectionManager.TR
 import com.ichi2.anki.R
 import com.ichi2.anki.common.annotations.NeedsTest
 import com.ichi2.anki.common.coroutines.applicationScope
@@ -42,6 +43,7 @@ import com.ichi2.anki.dialogs.ImportDialog
 import com.ichi2.anki.onSelectedCsvForImport
 import com.ichi2.anki.servicelayer.DebugInfoService
 import com.ichi2.anki.showImportDialog
+import com.ichi2.anki.ui.internationalization.sentenceCase
 import kotlinx.coroutines.launch
 import org.jetbrains.annotations.Contract
 import timber.log.Timber
@@ -352,7 +354,7 @@ object ImportUtils {
                         }
                     }
                     if (failure.toDebugInfo() != null) {
-                        negativeButton(R.string.feedback_copy_debug)
+                        negativeButton(text = with(activity) { TR.sentenceCase.copyDebugInfo })
                     }
                 }
             // 'copy' should not close the dialog

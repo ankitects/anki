@@ -158,7 +158,7 @@
                         android:id="@+id/copy_debug_info"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="@string/feedback_copy_debug"
+                        tools:text="Copy debug info"
                         android:textColor="?attr/colorAccent"
                         style="@style/Widget.Material3.Button.TextButton"
                         android:layout_marginBottom="16dp"/>
