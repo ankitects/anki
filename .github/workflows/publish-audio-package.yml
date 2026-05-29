@@ -107,7 +107,7 @@ jobs:
       && needs.build.result == 'success'
       }}
     runs-on: ubuntu-latest
-    environment: release
+    environment: testpypi
     permissions:
       id-token: write
     steps:
@@ -133,7 +133,7 @@ jobs:
       && needs.publish-testpypi.result == 'success'
       }}
     runs-on: ubuntu-latest
-    environment: release
+    environment: pypi
     permissions:
       id-token: write
     steps:
