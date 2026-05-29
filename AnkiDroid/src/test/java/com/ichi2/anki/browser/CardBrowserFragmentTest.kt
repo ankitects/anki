@@ -29,6 +29,7 @@ import com.ichi2.anki.settings.Prefs
 import kotlinx.coroutines.runBlocking
 import org.hamcrest.CoreMatchers.equalTo
 import org.hamcrest.MatcherAssert.assertThat
+import org.hamcrest.Matchers.empty
 import org.junit.Test
 import org.junit.runner.RunWith
 
@@ -54,7 +55,20 @@ class CardBrowserFragmentTest : RobolectricTest() {
                 expectMostRecentItem()
             }
         }
+
+    @Test
+    fun `shortcut labels use Sentence case`() =
+        withCardBrowserFragment {
+            val offenders = shortcuts.shortcuts.map { it.label }.filterNot { it.isSentenceCase }
+            assertThat("shortcut labels should be Sentence case, not Title Case", offenders, empty())
+        }
 }
+
+private val capitalizedFollowingWord = Regex("""\s\p{Lu}\p{Ll}""")
+
+// Material Design sentence case: the first word is capitalized; later words are not
+private val String.isSentenceCase: Boolean
+    get() = first().isUpperCase() && !capitalizedFollowingWord.containsMatchIn(this)
 
 context(test: RobolectricTest)
 fun withCardBrowserFragment(
