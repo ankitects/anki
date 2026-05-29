@@ -1,0 +1,88 @@
+name: Check Linked Issue
+
+on:
+  pull_request:
+    types: [opened, edited]
+
+jobs:
+  check-linked-issue:
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write
+      issues: write
+
+    steps:
+      - name: Check for linked issue
+        id: check
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const pr = context.payload.pull_request;
+            const body = pr.body || '';
+            const author = pr.user.login;
+            const labels = pr.labels.map(l => l.name);
+
+            const isExempt =
+              labels.includes('hotfix') ||
+              author === 'dependabot[bot]' ||
+              labels.includes('dependencies');
+
+            if (isExempt) {
+              core.setOutput('exempt', 'true');
+              core.setOutput('has_linked_issue', 'true');
+              return;
+            }
+            core.setOutput('exempt', 'false');
+
+            const linkedIssuePattern = /\b(closes|fixes|resolves|close|fix|resolve)\s+#\d+/i;
+            const hasLinkedIssue = linkedIssuePattern.test(body);
+            core.setOutput('has_linked_issue', hasLinkedIssue);
+
+      - name: Apply missing-issue label and comment
+        if: steps.check.outputs.has_linked_issue == 'false'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const { owner, repo } = context.repo;
+            const issue_number = context.payload.pull_request.number;
+
+            // Apply label
+            await github.rest.issues.addLabels({
+              owner,
+              repo,
+              issue_number,
+              labels: ['missing-issue']
+            });
+
+            // Post comment
+            await github.rest.issues.createComment({
+              owner,
+              repo,
+              issue_number,
+              body: `Thanks for the PR! To ensure we're solving the right problems, we require all PRs to be linked to an open issue. Please open one describing the problem this PR addresses so we can discuss the implementation there first.\n\nYou have 4 days to link an issue before this PR is automatically closed, it can be reopened at any time after that. Looking forward to the discussion!\n\n> To link an issue, edit the PR description and add a line like \`Closes #123\`.`
+            });
+
+      - name: Remove missing-issue label if issue is now linked
+        if: steps.check.outputs.has_linked_issue == 'true'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const { owner, repo } = context.repo;
+            const issue_number = context.payload.pull_request.number;
+
+            const labels = await github.rest.issues.listLabelsOnIssue({
+              owner,
+              repo,
+              issue_number
+            });
+
+            const hasMissingLabel = labels.data.some(l => l.name === 'missing-issue');
+
+            if (hasMissingLabel) {
+              await github.rest.issues.removeLabel({
+                owner,
+                repo,
+                issue_number,
+                name: 'missing-issue'
+              });
+            }
