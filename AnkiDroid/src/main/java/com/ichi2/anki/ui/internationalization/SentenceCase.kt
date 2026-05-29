@@ -239,6 +239,9 @@ object SentenceCase {
 
     context(_: Fragment)
     val allDecks get() = TR.exportingAllDecks().toSentenceCase(R.string.sentence_all_decks)
+
+    context(_: Fragment)
+    val browserOptions get() = TR.browsingBrowserOptions().toSentenceCase(R.string.sentence_browser_options)
 }
 
 /**

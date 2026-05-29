@@ -52,6 +52,7 @@ class SentenceCaseTest : RobolectricTest() {
                     assertThat(TR.sentenceCase.restoreDeleted, equalTo("Restore deleted"))
                     assertThat(TR.sentenceCase.changeNoteType, equalTo("Change note type"))
                     assertThat(TR.sentenceCase.gradeNow, equalTo("Grade now"))
+                    assertThat(TR.sentenceCase.browserOptions, equalTo("Browser options"))
                 }
             }.close()
 

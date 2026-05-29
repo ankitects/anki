@@ -81,4 +81,5 @@ undoActionUndone()
     <string name="sentence_copy_debug_info">Copy debug info</string>
     <string name="sentence_add_field" maxLength="28">Add field</string>
     <string name="sentence_all_decks">All decks</string>
+    <string name="sentence_browser_options">Browser options</string>
 </resources>
