@@ -31,7 +31,7 @@ jobs:
               if (!pr.pull_request) continue;
 
               const isExempt =
-                /hotfix/i.test(pr.title) ||
+                pr.labels.some(l => l.name === 'hotfix') ||
                 pr.user.login === 'dependabot[bot]' ||
                 pr.labels.some(l => l.name === 'dependencies');
 

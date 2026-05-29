@@ -18,13 +18,12 @@ jobs:
         with:
           script: |
             const pr = context.payload.pull_request;
-            const title = pr.title || '';
             const body = pr.body || '';
             const author = pr.user.login;
             const labels = pr.labels.map(l => l.name);
 
             const isExempt =
-              /hotfix/i.test(title) ||
+              labels.includes('hotfix') ||
               author === 'dependabot[bot]' ||
               labels.includes('dependencies');
 
