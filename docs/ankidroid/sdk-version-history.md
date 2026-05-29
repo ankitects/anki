@@ -2,7 +2,7 @@
 
 Use https://apilevels.com/ to lookup Android version numbers/codenames.
 
-See https://ankidroid.org/changelog.html for user-facing changelogs.
+See https://docs.ankidroid.org/changelog.html for user-facing changelogs.
 
 | Version                                                                                      | minSdk | targetSdk   |
 |----------------------------------------------------------------------------------------------|--------|-------------|

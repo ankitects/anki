@@ -61,7 +61,7 @@ body:
       label: Research
       description: Confirm the points below
       options:
-        - label: I have checked the [manual](https://ankidroid.org/docs/manual.html) and the [FAQ](https://github.com/ankidroid/Anki-Android/wiki/FAQ) and could not find a solution to my issue
+        - label: I have checked the [manual](https://docs.ankidroid.org/) and the [FAQ](https://github.com/ankidroid/Anki-Android/wiki/FAQ) and could not find a solution to my issue
           required: true
         - label: (Optional) I have confirmed the issue is not resolved in the latest alpha release ([instructions](https://docs.ankidroid.org/manual.html#betaTesting))
           required: false

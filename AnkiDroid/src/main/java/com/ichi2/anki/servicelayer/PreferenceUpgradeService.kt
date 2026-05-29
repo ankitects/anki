@@ -58,7 +58,6 @@ import com.ichi2.anki.reviewer.ReviewerBinding
 import com.ichi2.anki.reviewer.ReviewerBinding.Companion.fromPreferenceString
 import timber.log.Timber
 import java.util.Locale
-import kotlin.collections.ArrayList
 import kotlin.math.round
 
 private typealias VersionIdentifier = Int
@@ -595,7 +594,7 @@ object PreferenceUpgradeService {
          * Universal Analytics to Google Analytics 4, we want analytics to STRICTLY be opt-in
          *
          * As we likely have inadvertent opt-ins, we stated that we would opt everyone out:
-         * https://ankidroid.org/docs/changelog.html#_version_2_16_5_20230906
+         * https://docs.ankidroid.org/changelog.html#_version_2_16_5_20230906
          *
          * We now use "analytics_opt_in"
          *

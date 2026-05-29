@@ -66,7 +66,7 @@ View [Wiki](https://github.com/ankidroid/Anki-Android/wiki)
 
 Help
 ----
-Check the [user manual](https://ankidroid.org/docs/manual.html) and the wiki for usage instructions. See the [help page](https://ankidroid.org/docs/help.html) 
+Check the [user manual](https://docs.ankidroid.org/) and the wiki for usage instructions. See the [help page](https://docs.ankidroid.org/help.html) 
 for how to submit a bug report or contact a project member, etc.
 
 Contribute
