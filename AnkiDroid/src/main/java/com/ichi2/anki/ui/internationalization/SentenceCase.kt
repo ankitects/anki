@@ -230,6 +230,9 @@ object SentenceCase {
 
     context(_: Fragment)
     val copyDebugInfo get() = TR.errorsCopyDebugInfoButton().toSentenceCase(R.string.sentence_copy_debug_info)
+
+    context(_: Context)
+    val addField get() = TR.fieldsAddField().toSentenceCase(R.string.sentence_add_field)
 }
 
 /**

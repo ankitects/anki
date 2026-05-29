@@ -333,7 +333,6 @@ class TranslationTest : RobolectricTest() {
                 // "Check media",        // R.string.check_media
                 //                       // TR.mediaCheckCheckMediaAction()
                 //                       // TR.mediaCheckWindowTitle()
-                "Add field", // R.string.model_field_editor_add | TR.fieldsAddField()
                 "Add note", // R.string.menu_add_note | TR.actionsAddNote()
                 "All decks", // R.string.card_browser_all_decks | TR.exportingAllDecks()
                 "Answer again", // R.string.answer_again | TR.deckConfigAnswerAgain()
