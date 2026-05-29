@@ -677,7 +677,7 @@ class CardBrowserFragment :
                         isVisible = vm.hasSelectedAnyRows()
                     }
                     menu.findItem(R.id.action_mark_card).apply {
-                        title = TR.browsingToggleMark()
+                        title = TR.sentenceCase.toggleMark
                         setIcon(R.drawable.ic_star_border_white)
                         isVisible = vm.hasSelectedAnyRows()
                     }

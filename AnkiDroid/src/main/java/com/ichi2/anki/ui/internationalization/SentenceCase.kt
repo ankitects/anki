@@ -245,6 +245,9 @@ object SentenceCase {
 
     context(_: Fragment)
     val changeDeck get() = TR.browsingChangeDeck().toSentenceCase(R.string.sentence_change_deck)
+
+    context(_: Fragment)
+    val toggleMark get() = TR.browsingToggleMark().toSentenceCase(R.string.sentence_toggle_mark)
 }
 
 /**
