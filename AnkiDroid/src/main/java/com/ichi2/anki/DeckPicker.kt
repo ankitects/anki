@@ -2129,7 +2129,7 @@ open class DeckPicker :
         val createDeckDialog =
             CreateDeckDialog(
                 context = this@DeckPicker,
-                title = getString(R.string.new_deck),
+                title = TR.sentenceCase.createDeck,
                 deckDialogType = CreateDeckDialog.DeckDialogType.DECK,
                 parentId = null,
             )
@@ -2237,7 +2237,7 @@ open class DeckPicker :
                     shortcut("S", Translations::decksStudyDeck),
                     shortcut("T", R.string.open_statistics),
                     shortcut("C") { this.sentenceCase.checkDatabase },
-                    shortcut("D", R.string.new_deck),
+                    shortcut("D") { sentenceCase.createDeck },
                     shortcut("F", R.string.new_dynamic_deck),
                     if (fragmented) shortcut("DEL") { this.sentenceCase.deleteDeck } else null,
                     if (fragmented) shortcut("Shift+DEL", R.string.delete_deck_without_confirmation) else null,

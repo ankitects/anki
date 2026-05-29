@@ -176,7 +176,7 @@ class DeckSelectionDialog : AnalyticsDialogFragment() {
         val createDeckDialog =
             CreateDeckDialog(
                 context = requireActivity(),
-                title = getString(R.string.new_deck),
+                title = TR.sentenceCase.createDeck,
                 deckDialogType = CreateDeckDialog.DeckDialogType.DECK,
                 parentId = null,
             )

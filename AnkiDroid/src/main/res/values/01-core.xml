@@ -79,7 +79,6 @@
     <string name="menu_enable_voice_playback" maxLength="28">Enable voice playback</string>
     <string name="menu_disable_voice_playback">Disable voice playback</string>
     <string name="menu_create_backup" maxLength="28">Create backup</string>
-    <string name="new_deck">Create deck</string>
     <string name="new_dynamic_deck">Create filtered deck</string>
     <string name="directory_inaccessible">AnkiDroid directory is inaccessible</string>
     <!--This is shown when AnkiDroid starts up with no storage permissions.

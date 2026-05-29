@@ -24,9 +24,11 @@ import android.view.View
 import android.widget.LinearLayout
 import androidx.annotation.VisibleForTesting
 import com.google.android.material.color.MaterialColors
+import com.ichi2.anki.CollectionManager.TR
 import com.ichi2.anki.databinding.ActivityHomescreenBinding
 import com.ichi2.anki.databinding.IncludeFloatingAddButtonBinding
 import com.ichi2.anki.ui.DoubleTapListener
+import com.ichi2.anki.ui.internationalization.sentenceCase
 import timber.log.Timber
 
 class DeckPickerFloatingActionMenu(
@@ -343,6 +345,10 @@ class DeckPickerFloatingActionMenu(
                     deckPicker.showCreateDeckDialog()
                 }
             }
+        binding.addDeckButton.apply {
+            text = with(context) { TR.sentenceCase.createDeck }
+            contentDescription = text
+        }
         binding.addDeckButton.setOnClickListener(addDeckListener)
 
         // Enable keyboard activation for Enter/DPAD_CENTER keys

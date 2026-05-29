@@ -248,6 +248,12 @@ object SentenceCase {
 
     context(_: Fragment)
     val toggleMark get() = TR.browsingToggleMark().toSentenceCase(R.string.sentence_toggle_mark)
+
+    context(_: Context)
+    val createDeck get() = TR.decksCreateDeck().toSentenceCase(R.string.sentence_create_deck)
+
+    context(_: Fragment)
+    val createDeck get() = TR.decksCreateDeck().toSentenceCase(R.string.sentence_create_deck)
 }
 
 /**

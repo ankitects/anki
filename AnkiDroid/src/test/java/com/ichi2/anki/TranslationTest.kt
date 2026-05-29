@@ -338,7 +338,6 @@ class TranslationTest : RobolectricTest() {
                 "Answer buttons", // R.string.answer_buttons | TR.statisticsAnswerButtonsTitle()
                 "Answer good", // R.string.answer_good | TR.deckConfigAnswerGood()
                 "Answer hard", // R.string.answer_hard | TR.deckConfigAnswerHard()
-                "Create deck", // R.string.new_deck | TR.decksCreateDeck()
                 "Deck options", // R.string.menu__deck_options | TR.deckConfigTitle()
                 "Empty cards", // R.string.empty_cards
                 // TR.actionsEmptyCards()
