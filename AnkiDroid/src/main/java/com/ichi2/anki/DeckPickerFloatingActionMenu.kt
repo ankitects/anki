@@ -13,6 +13,7 @@ import android.widget.LinearLayout
 import androidx.annotation.VisibleForTesting
 import com.google.android.material.color.MaterialColors
 import com.ichi2.anki.CollectionManager.TR
+import com.ichi2.anki.common.android.animationEnabled
 import com.ichi2.anki.databinding.ActivityHomescreenBinding
 import com.ichi2.anki.databinding.IncludeFloatingAddButtonBinding
 import com.ichi2.anki.ui.DoubleTapListener

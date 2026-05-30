@@ -61,8 +61,8 @@ import com.ichi2.anki.analytics.UsageAnalytics
 import com.ichi2.anki.android.input.ShortcutGroup
 import com.ichi2.anki.android.input.ShortcutGroupProvider
 import com.ichi2.anki.android.input.shortcut
-import com.ichi2.anki.common.android.Animations
 import com.ichi2.anki.common.android.AnkiBroadcastReceiver
+import com.ichi2.anki.common.android.animationDisabled
 import com.ichi2.anki.common.annotations.LegacyNotifications
 import com.ichi2.anki.common.annotations.NeedsTest
 import com.ichi2.anki.common.crashreporting.CrashReportService
@@ -293,24 +293,6 @@ open class AnkiActivity(
         get() = CollectionManager.getColUnsafe()
 
     fun colIsOpenUnsafe(): Boolean = CollectionManager.isOpenUnsafe()
-
-    /**
-     * Whether animations should not be displayed
-     * This is used to improve the UX for e-ink devices
-     * Can be tested via Settings - Advanced - Safe display mode
-     *
-     * @see .animationEnabled
-     */
-    fun animationDisabled(): Boolean = !Animations.areAnimationsEnabled(this)
-
-    /**
-     * Whether animations should be displayed
-     * This is used to improve the UX for e-ink devices
-     * Can be tested via Settings - Advanced - Safe display mode
-     *
-     * @see .animationDisabled
-     */
-    fun animationEnabled(): Boolean = !animationDisabled()
 
     override fun setContentView(view: View?) {
         if (animationDisabled()) {

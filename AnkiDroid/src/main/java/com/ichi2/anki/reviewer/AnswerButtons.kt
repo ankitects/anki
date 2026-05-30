@@ -20,6 +20,7 @@ import android.content.Context
 import com.ichi2.anki.AnkiActivity
 import com.ichi2.anki.R
 import com.ichi2.anki.cardviewer.ViewerCommand
+import com.ichi2.anki.common.android.animationEnabled
 import com.ichi2.anki.common.utils.android.getColorsFromAttrs
 import com.ichi2.anki.common.utils.android.getResFromAttr
 

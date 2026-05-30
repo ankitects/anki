@@ -6,6 +6,7 @@ package com.ichi2.anki.common.android
 import android.app.Application
 import android.content.Context
 import android.provider.Settings
+import androidx.fragment.app.FragmentActivity
 import com.ichi2.anki.common.preferences.AnimationPreferences
 
 /**
@@ -44,3 +45,21 @@ object Animations {
     fun areAnimationsEnabled(context: Context): Boolean =
         areSystemAnimationsEnabled(context) && !preferencesProvider(context).removeAppAnimations
 }
+
+/**
+ * Whether animations should not be displayed
+ * This is used to improve the UX for e-ink devices
+ * Can be tested via Settings - Advanced - Safe display mode
+ *
+ * @see animationEnabled
+ */
+fun FragmentActivity.animationDisabled(): Boolean = !Animations.areAnimationsEnabled(this)
+
+/**
+ * Whether animations should be displayed
+ * This is used to improve the UX for e-ink devices
+ * Can be tested via Settings - Advanced - Safe display mode
+ *
+ * @see animationDisabled
+ */
+fun FragmentActivity.animationEnabled(): Boolean = !animationDisabled()
