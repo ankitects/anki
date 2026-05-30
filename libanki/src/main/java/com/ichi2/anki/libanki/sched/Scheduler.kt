@@ -153,9 +153,10 @@ open class Scheduler(
         card: Card,
         rating: Rating,
     ) {
-        val top = queuedCards.cardsList.first()
-        val answer = buildAnswer(card, top.states, rating)
-        col.backend.answerCard(answer)
+        val states = col.backend.getSchedulingStates(card.id)
+        col.backend.answerCard(
+            buildAnswer(card = card, states = states, rating = rating),
+        )
         numberOfAnswersRecorded += 1
         // tests assume the card was mutated
         card.load(col)
