@@ -44,6 +44,8 @@ class CustomBuildHook(BuildHookInterface):
                 mpv_dir / "vulkan-1.dll",
                 lame_dir / "lame.exe",
                 lame_dir / "lame_enc.dll",
+                lame_dir / "libmp3lame-0.dll",
+                lame_dir / "libiconv-2.dll",
             ]
             lib_files = []
         else:

@@ -12,10 +12,13 @@
         "svelte-check:once": "cd ts && svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --fail-on-warnings --threshold warning",
         "svelte-check": "cd ts && svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch",
         "vitest:once": "cd ts && vitest run",
-        "vitest": "cd ts && vitest"
+        "vitest": "cd ts && vitest",
+        "test:e2e": "playwright test",
+        "test:e2e:ui": "playwright test --ui"
     },
     "devDependencies": {
         "@bufbuild/protoc-gen-es": "^1.8.0",
+        "@playwright/test": "^1.49.0",
         "@poppanator/sveltekit-svg": "^5.0.0",
         "@sqltools/formatter": "^1.2.2",
         "@sveltejs/adapter-static": "^3.0.0",
@@ -33,6 +36,7 @@
         "@types/node": "^22",
         "@typescript-eslint/eslint-plugin": "^5.60.1",
         "@typescript-eslint/parser": "^5.60.1",
+        "@vitest/coverage-v8": "3.2.4",
         "caniuse-lite": "^1.0.30001431",
         "cross-env": "^7.0.2",
         "diff": "^5.0.0",
