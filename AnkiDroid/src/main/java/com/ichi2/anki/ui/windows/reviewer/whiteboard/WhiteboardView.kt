@@ -30,6 +30,7 @@ import android.view.ViewConfiguration
 import androidx.core.graphics.createBitmap
 import com.ichi2.anki.R
 import com.ichi2.anki.ui.windows.reviewer.whiteboard.SmoothPath.Companion.drawPath
+import timber.log.Timber
 
 /**
  * A custom view for the whiteboard that handles drawing and touch events.
@@ -89,6 +90,11 @@ class WhiteboardView : View {
         oldh: Int,
     ) {
         super.onSizeChanged(w, h, oldw, oldh)
+        // createBitmap requires a width and height > 0; #21096
+        if (w <= 0 || h <= 0) {
+            Timber.w("Width or height <= 0: w: $w h: $h Bitmap couldn't be created with the new size")
+            return
+        }
         if (::bufferBitmap.isInitialized) bufferBitmap.recycle()
         bufferBitmap = createBitmap(w, h)
         bufferCanvas = Canvas(bufferBitmap)
