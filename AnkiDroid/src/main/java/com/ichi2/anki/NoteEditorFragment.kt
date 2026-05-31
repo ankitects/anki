@@ -180,6 +180,7 @@ import java.util.Locale
 import kotlin.math.max
 import kotlin.math.min
 import kotlin.math.roundToInt
+import com.ichi2.anki.common.android.R as CommonR
 
 const val CALLER_KEY = "caller"
 
@@ -1824,7 +1825,7 @@ class NoteEditorFragment :
                 MEDIA_MIME_TYPES,
                 DropHelper.Options
                     .Builder()
-                    .setHighlightColor(R.color.material_lime_green_A700)
+                    .setHighlightColor(CommonR.color.material_lime_green_A700)
                     .setHighlightCornerRadiusPx(0)
                     .addInnerEditTexts(newEditText)
                     .build(),

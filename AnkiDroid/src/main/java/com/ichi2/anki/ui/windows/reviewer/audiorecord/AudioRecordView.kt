@@ -41,6 +41,7 @@ import com.ichi2.utils.Permissions
 import kotlin.math.abs
 import kotlin.math.max
 import kotlin.time.Duration.Companion.milliseconds
+import com.ichi2.anki.common.android.R as CommonR
 
 /**
  * A view that can serve as an audio recorder.
@@ -67,7 +68,7 @@ class AudioRecordView : ConstraintLayout {
     private var state = ViewState.IDLE
     private var stopTrackingAction = false
     private var chronometerBase: Long = 0
-    private val recordEnabledColor = context.getColor(R.color.material_red_600)
+    private val recordEnabledColor = context.getColor(CommonR.color.material_red_600)
     private val recordDisabledColor = ThemeUtils.getThemeAttrColor(context, R.attr.editTextDisabled)
 
     private var firstX = 0f

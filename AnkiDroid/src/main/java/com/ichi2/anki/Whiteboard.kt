@@ -43,6 +43,7 @@ import timber.log.Timber
 import java.io.FileNotFoundException
 import kotlin.math.abs
 import kotlin.math.max
+import com.ichi2.anki.common.android.R as CommonR
 
 /**
  * Whiteboard allowing the user to draw the card's answer on the touchscreen.
@@ -369,19 +370,19 @@ class Whiteboard(
                 penColor = Color.BLACK
             }
             R.id.pen_color_red -> {
-                val redPenColor = context.getColor(R.color.material_red_500)
+                val redPenColor = context.getColor(CommonR.color.material_red_500)
                 penColor = redPenColor
             }
             R.id.pen_color_green -> {
-                val greenPenColor = context.getColor(R.color.material_green_500)
+                val greenPenColor = context.getColor(CommonR.color.material_green_500)
                 penColor = greenPenColor
             }
             R.id.pen_color_blue -> {
-                val bluePenColor = context.getColor(R.color.material_blue_500)
+                val bluePenColor = context.getColor(CommonR.color.material_blue_500)
                 penColor = bluePenColor
             }
             R.id.pen_color_yellow -> {
-                val yellowPenColor = context.getColor(R.color.material_yellow_500)
+                val yellowPenColor = context.getColor(CommonR.color.material_yellow_500)
                 penColor = yellowPenColor
             }
             R.id.pen_color_custom -> {

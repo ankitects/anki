@@ -210,6 +210,7 @@ import timber.log.Timber
 import java.io.File
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.minutes
+import com.ichi2.anki.common.android.R as CommonR
 
 /**
  * The current entry point for AnkiDroid. Displays decks, allowing users to study. Many other functions.
@@ -585,7 +586,7 @@ open class DeckPicker :
             IMPORT_MIME_TYPES,
             DropHelper.Options
                 .Builder()
-                .setHighlightColor(R.color.material_lime_green_A700)
+                .setHighlightColor(CommonR.color.material_lime_green_A700)
                 .setHighlightCornerRadiusPx(0)
                 .build(),
             onReceiveContentListener,

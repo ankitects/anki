@@ -33,6 +33,7 @@ import com.ichi2.anki.deckpicker.DisplayDeckNode
 import com.ichi2.anki.libanki.DeckId
 import kotlinx.coroutines.runBlocking
 import net.ankiweb.rsdroid.RustCleanup
+import com.ichi2.anki.common.android.R as CommonR
 
 /**
  * A [RecyclerView.Adapter] used to show the list of decks inside [com.ichi2.anki.DeckPicker].
@@ -243,7 +244,7 @@ class DeckAdapter(
         reviewCountColor = ta.getColor(3, context.getColor(R.color.black))
         rowCurrentDrawable = ta.getResourceId(4, 0)
         deckNameDefaultColor = ta.getColor(5, context.getColor(R.color.black))
-        deckNameDynColor = ta.getColor(6, context.getColor(R.color.material_blue_A700))
+        deckNameDynColor = ta.getColor(6, context.getColor(CommonR.color.material_blue_A700))
         expandImage = ta.getDrawableOrThrow(7)
         expandImage.isAutoMirrored = true
         collapseImage = ta.getDrawableOrThrow(8)

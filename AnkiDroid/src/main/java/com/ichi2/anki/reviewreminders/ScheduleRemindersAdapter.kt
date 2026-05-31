@@ -28,10 +28,10 @@ import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.materialswitch.MaterialSwitch
 import com.ichi2.anki.CollectionManager.TR
-import com.ichi2.anki.R
 import com.ichi2.anki.databinding.ItemScheduleRemindersBinding
 import com.ichi2.anki.libanki.DeckId
 import com.ichi2.anki.ui.internationalization.sentenceCase
+import com.ichi2.anki.common.android.R as CommonR
 
 class ScheduleRemindersAdapter(
     private val retrieveDeckNameFromID: (DeckId, callback: (deckName: String) -> Unit) -> Unit,
@@ -191,7 +191,7 @@ class ScheduleRemindersAdapter(
          * Color of the activated switch and text of an element in the review reminder UI list when its review reminder
          * is errored-out. A deck-specific review reminder can become errored-out if its corresponding deck cannot be found.
          */
-        private val erroredReviewReminderColor: Int = R.color.material_grey_500
+        private val erroredReviewReminderColor: Int = CommonR.color.material_grey_500
 
         private val diffCallback =
             object : DiffUtil.ItemCallback<ReviewReminder>() {

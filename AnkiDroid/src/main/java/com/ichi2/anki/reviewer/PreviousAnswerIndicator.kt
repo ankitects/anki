@@ -18,8 +18,8 @@ package com.ichi2.anki.reviewer
 
 import android.widget.TextView
 import anki.scheduler.CardAnswer.Rating
-import com.ichi2.anki.R
 import com.ichi2.anki.common.utils.android.HandlerUtils.newHandler
+import com.ichi2.anki.common.android.R as CommonR
 
 /**
  * A visual element in the top bar showing a number of colored dots based on the previous answer
@@ -52,19 +52,19 @@ class PreviousAnswerIndicator(
         when (rating) {
             Rating.AGAIN -> {
                 chosenAnswerText.text = "\u2022"
-                chosenAnswerText.setTextColor(getColor(R.color.material_red_500))
+                chosenAnswerText.setTextColor(getColor(CommonR.color.material_red_500))
             }
             Rating.HARD -> {
                 chosenAnswerText.text = "\u2022\u2022"
-                chosenAnswerText.setTextColor(getColor(R.color.material_blue_grey_600))
+                chosenAnswerText.setTextColor(getColor(CommonR.color.material_blue_grey_600))
             }
             Rating.GOOD -> {
                 chosenAnswerText.text = "\u2022\u2022\u2022"
-                chosenAnswerText.setTextColor(getColor(R.color.material_green_500))
+                chosenAnswerText.setTextColor(getColor(CommonR.color.material_green_500))
             }
             Rating.EASY -> {
                 chosenAnswerText.text = "\u2022\u2022\u2022\u2022"
-                chosenAnswerText.setTextColor(getColor(R.color.material_light_blue_500))
+                chosenAnswerText.setTextColor(getColor(CommonR.color.material_light_blue_500))
             }
             Rating.UNRECOGNIZED -> {}
         }

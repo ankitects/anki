@@ -105,6 +105,7 @@ import timber.log.Timber
 import java.io.File
 import java.io.FileOutputStream
 import androidx.browser.customtabs.CustomTabsIntent.Builder as CustomTabsIntentBuilder
+import com.ichi2.anki.common.android.R as CommonR
 
 @UiThread
 open class AnkiActivity(
@@ -580,7 +581,7 @@ open class AnkiActivity(
                 ).setSmallIcon(R.drawable.ic_star_notify)
                 .setContentTitle(title)
                 .setContentText(message)
-                .setColor(getColor(R.color.material_light_blue_500))
+                .setColor(getColor(CommonR.color.material_light_blue_500))
                 .setStyle(NotificationCompat.BigTextStyle().bigText(message))
                 .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
                 .setTicker(ticker)
