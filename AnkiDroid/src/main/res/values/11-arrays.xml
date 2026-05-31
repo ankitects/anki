@@ -3,6 +3,7 @@
   ~ SPDX-License-Identifier: GPL-3.0-or-later
   ~ SPDX-FileCopyrightText: Copyright (c) 2009 Casey Link <unnamedrambler@gmail.com>
   -->
+
 <resources>
 
     <!-- 11-arrays.xml used to contain arrays. This caused problems when changing the ordering.

@@ -3,6 +3,7 @@
   ~ SPDX-License-Identifier: GPL-3.0-or-later
   ~ SPDX-FileCopyrightText: Zaur Molotnikov & Bibek Shrestha
   -->
+
 <resources>
     <!-- Main editor popup menu items -->
     <string name="multimedia_editor_popup_image">Add image</string>
