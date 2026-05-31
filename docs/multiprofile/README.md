@@ -35,6 +35,31 @@ Everything else about a profile (its files, its settings, its collection) is der
 > Upstream Anki stores them at the profile level, and it would let us show the associated
 > AnkiWeb account on the profile-select screen without loading the namespaced prefs.
 
+## Per-profile vs global preferences
+
+All user preferences are per-profile. Everything written through `ProfileContextWrapper`
+ends up in `profile_<profileId>_*.xml`, so each profile keeps its own values. There is no
+global SharedPreferences for user settings.
+
+This is on purpose. The question came up because `Prefs.removeAppAnimations` is also a
+device-level accessibility toggle, so you could argue the user should set it once for the
+whole app rather than per profile. On reflection it is actually a fine per-profile setting
+(most users do not disable animations at the system level), but the same tension can
+appear for any pref that is conceptually device-scoped. We chose not to split prefs into
+two scopes because the win is small and the cost is real: extra UI to explain which is
+which (see the globe icons in deck options), more bugs around resolution, and more
+conceptual surface for anyone reading the code.
+
+The Global Profile Registry (`profiles_prefs.xml`) is the only file that is truly
+global, and it stores bookkeeping about profiles themselves, not user settings.
+
+> **TODO:** decide whether some preference defaults should be copied from the
+> previously-active profile when a new profile is created. Today every new profile starts
+> with AnkiDroid's factory defaults, so a user with carefully-tuned settings has to redo
+> them for each profile. Selective copying gets fiddly fast: some prefs (sync key,
+> deckPath, last-active-deck) clearly should *not* copy. Worth a separate design pass
+> before implementing.
+
 ## Internal storage (`/data/data/<pkg>/`)
 
 Profile IDs are used as folder names. Display names are **not** used on disk they're only stored inside `ProfileMetadata` in the registry. This avoids collisions with reserved folder names (e.g. a user named "shared_prefs" or "databases"), illegal filesystem characters, and renames breaking paths.
