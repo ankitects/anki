@@ -20,13 +20,13 @@ jobs:
   minilints:
     runs-on: ubuntu-24.04
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 #v4
         with:
           fetch-depth: 0
           filter: blob:none
 
       - name: Install Rust toolchain
-        uses: actions-rust-lang/setup-rust-toolchain@v1
+        uses: actions-rust-lang/setup-rust-toolchain@46268bd060767258de96ed93c1251119784f2ab6 #v1
 
       - name: Run minilints
         run: cargo run -p minilints -- check /tmp/minilints.stamp
@@ -38,16 +38,16 @@ jobs:
   format:
     runs-on: ubuntu-24.04
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 #v4
 
       - name: Install Rust toolchain
-        uses: actions-rust-lang/setup-rust-toolchain@v1
+        uses: actions-rust-lang/setup-rust-toolchain@46268bd060767258de96ed93c1251119784f2ab6 #v1
 
       - name: Install uv
-        uses: astral-sh/setup-uv@v7
+        uses: astral-sh/setup-uv@94527f2e458b27549849d47d273a16bec83a01e9 #v7
 
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 #v4
         with:
           node-version: '20'
 
@@ -57,7 +57,7 @@ jobs:
           RUSTFLAGS: "--cap-lints warn"
 
       - name: Install just
-        uses: extractions/setup-just@v3
+        uses: extractions/setup-just@f8a3cce218d9f83db3a2ecd90e41ac3de6cdfd9b #v3
 
       - name: Run format checks
         run: just fmt
@@ -67,10 +67,10 @@ jobs:
     runs-on: ubuntu-24.04
     name: check (linux)
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 #v4
 
       - name: Restore cargo cache
-        uses: actions/cache@v4
+        uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 #v4
         with:
           path: |
             ~/.cargo/registry/index
@@ -96,7 +96,7 @@ jobs:
         uses: ./.github/actions/setup-anki
 
       - name: Install just
-        uses: extractions/setup-just@v3
+        uses: extractions/setup-just@f8a3cce218d9f83db3a2ecd90e41ac3de6cdfd9b #v3
 
       - name: Symlink node_modules
         run: ln -sf out/node_modules .
@@ -137,7 +137,7 @@ jobs:
 
       - name: Upload Playwright report
         if: failure()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 #v4
         with:
           name: playwright-report
           path: out/e2e-report/
@@ -151,14 +151,14 @@ jobs:
       - name: Check Rust dependencies
         if: github.event_name == 'pull_request'
         id: rust-deps
-        uses: tj-actions/changed-files@v47.0.5
+        uses: tj-actions/changed-files@24d32ffd492484c1d75e0c0b894501ddb9d30d62 #v47.0.5
         with:
           files: |
             Cargo.lock
             **/Cargo.toml
             .deny.toml
 
-      - uses: EmbarkStudios/cargo-deny-action@v2
+      - uses: EmbarkStudios/cargo-deny-action@8f84122a46a358a27cb0625d85ad60ab436a1b87 #v2
         if: github.event_name != 'pull_request' || steps.rust-deps.outputs.any_changed == 'true'
 
       # out/pyenv contains a venv with absolute Python paths that break
@@ -187,12 +187,12 @@ jobs:
     runs-on: macos-latest
     name: check (macos)
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 #v4
         with:
           submodules: true
 
       - name: Restore cargo cache
-        uses: actions/cache@v4
+        uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 #v4
         with:
           path: |
             ~/.cargo/registry/index
@@ -218,7 +218,7 @@ jobs:
         uses: ./.github/actions/setup-anki
 
       - name: Install just
-        uses: extractions/setup-just@v3
+        uses: extractions/setup-just@f8a3cce218d9f83db3a2ecd90e41ac3de6cdfd9b #v3
 
       - name: Symlink node_modules
         run: ln -sf out/node_modules .
@@ -259,7 +259,7 @@ jobs:
       TEMP: D:\tmp
       TMP: D:\tmp
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 #v4
         with:
           submodules: true
 
@@ -268,7 +268,7 @@ jobs:
         run: mkdir -p /d/cargo-home /d/tmp
 
       - name: Restore cargo cache
-        uses: actions/cache@v4
+        uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 #v4
         with:
           path: |
             D:\cargo-home\registry\index
@@ -294,7 +294,7 @@ jobs:
         uses: ./.github/actions/setup-anki
 
       - name: Install just
-        uses: extractions/setup-just@v3
+        uses: extractions/setup-just@f8a3cce218d9f83db3a2ecd90e41ac3de6cdfd9b #v3
 
       - name: Build, lint, and test
         run: |
