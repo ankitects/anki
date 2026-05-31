@@ -26,11 +26,11 @@ import android.webkit.WebResourceRequest
 import android.webkit.WebView
 import android.webkit.WebViewClient
 import androidx.activity.OnBackPressedCallback
+import com.ichi2.anki.common.utils.android.getColorFromAttr
 import com.ichi2.anki.databinding.ActivityInfoBinding
 import com.ichi2.anki.preferences.sharedPrefs
 import com.ichi2.anki.snackbar.BaseSnackbarBuilderProvider
 import com.ichi2.anki.snackbar.SnackbarBuilder
-import com.ichi2.themes.Themes
 import com.ichi2.utils.IntentUtil.canOpenIntent
 import com.ichi2.utils.IntentUtil.tryOpenIntent
 import com.ichi2.utils.VersionUtils.appName
@@ -109,7 +109,7 @@ class Info :
         val backgroundColor = typedArray.getColor(0, -1)
         val textColor = typedArray.getColor(1, -1).toRGBHex()
 
-        val anchorTextThemeColor = Themes.getColorFromAttr(this, android.R.attr.colorAccent)
+        val anchorTextThemeColor = getColorFromAttr(this, android.R.attr.colorAccent)
         val anchorTextColor = anchorTextThemeColor.toRGBHex()
 
         binding.webView.setBackgroundColor(backgroundColor)

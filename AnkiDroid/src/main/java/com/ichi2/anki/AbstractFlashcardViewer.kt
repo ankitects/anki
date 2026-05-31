@@ -113,6 +113,7 @@ import com.ichi2.anki.cardviewer.handledGamepadKeyUp
 import com.ichi2.anki.common.annotations.NeedsTest
 import com.ichi2.anki.common.utils.HashUtil.hashSetInit
 import com.ichi2.anki.common.utils.android.HandlerUtils.newHandler
+import com.ichi2.anki.common.utils.android.getResFromAttr
 import com.ichi2.anki.common.utils.android.showThemedToast
 import com.ichi2.anki.compat.CompatHelper.Companion.resolveActivityCompat
 import com.ichi2.anki.compat.ResolveInfoFlagsCompat
@@ -162,7 +163,6 @@ import com.ichi2.anki.utils.OnlyOnce.preventSimultaneousExecutions
 import com.ichi2.anki.utils.ext.isTouchWithinBounds
 import com.ichi2.anki.utils.ext.showDialogFragment
 import com.ichi2.themes.Themes
-import com.ichi2.themes.Themes.getResFromAttr
 import com.ichi2.ui.FixedEditText
 import com.ichi2.utils.Stopwatch
 import com.ichi2.utils.message

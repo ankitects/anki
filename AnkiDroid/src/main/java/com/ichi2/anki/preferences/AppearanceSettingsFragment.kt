@@ -26,6 +26,7 @@ import androidx.preference.SwitchPreferenceCompat
 import com.ichi2.anki.CollectionManager
 import com.ichi2.anki.R
 import com.ichi2.anki.common.utils.android.showThemedToast
+import com.ichi2.anki.common.utils.android.systemIsInNightMode
 import com.ichi2.anki.deckpicker.BackgroundImage
 import com.ichi2.anki.deckpicker.BackgroundImage.FileSizeResult
 import com.ichi2.anki.launchCatchingTask
@@ -34,7 +35,6 @@ import com.ichi2.anki.settings.enums.AppTheme
 import com.ichi2.anki.snackbar.showSnackbar
 import com.ichi2.anki.utils.CollectionPreferences
 import com.ichi2.themes.Themes
-import com.ichi2.themes.Themes.systemIsInNightMode
 import com.ichi2.themes.Themes.updateCurrentTheme
 import com.ichi2.utils.negativeButton
 import com.ichi2.utils.positiveButton

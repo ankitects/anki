@@ -20,7 +20,8 @@ import android.content.Context
 import com.ichi2.anki.AnkiActivity
 import com.ichi2.anki.R
 import com.ichi2.anki.cardviewer.ViewerCommand
-import com.ichi2.themes.Themes
+import com.ichi2.anki.common.utils.android.getColorsFromAttrs
+import com.ichi2.anki.common.utils.android.getResFromAttr
 
 /**
  * Handles mapping from an answer button to its position.
@@ -97,11 +98,11 @@ enum class AnswerButtons {
                         R.attr.easyButtonRef,
                     )
                 }
-            return Themes.getResFromAttr(ctx, backgroundIds)
+            return getResFromAttr(ctx, backgroundIds)
         }
 
         fun getTextColors(ctx: Context): IntArray =
-            Themes.getColorsFromAttrs(
+            getColorsFromAttrs(
                 ctx,
                 intArrayOf(
                     R.attr.againButtonTextColor,

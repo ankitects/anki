@@ -68,6 +68,7 @@ import com.ichi2.anki.android.input.shortcut
 import com.ichi2.anki.common.annotations.LegacyNotifications
 import com.ichi2.anki.common.annotations.NeedsTest
 import com.ichi2.anki.common.crashreporting.CrashReportService
+import com.ichi2.anki.common.utils.android.getColorFromAttr
 import com.ichi2.anki.common.utils.android.showThemedToast
 import com.ichi2.anki.common.utils.annotation.KotlinCleanup
 import com.ichi2.anki.compat.CompatHelper
@@ -671,7 +672,7 @@ open class AnkiActivity(
     fun setNavigationBarColor(
         @AttrRes attr: Int,
     ) {
-        window.navigationBarColor = Themes.getColorFromAttr(this, attr)
+        window.navigationBarColor = getColorFromAttr(this, attr)
     }
 
     fun closeCollectionAndFinish() {

@@ -43,12 +43,12 @@ import com.google.android.material.appbar.MaterialToolbar
 import com.ichi2.anki.R
 import com.ichi2.anki.SingleFragmentActivity
 import com.ichi2.anki.common.annotations.LegacyNotifications
+import com.ichi2.anki.common.utils.android.getResFromAttr
 import com.ichi2.anki.preferences.HeaderFragment.Companion.getHeaderKeyForFragment
 import com.ichi2.anki.reviewreminders.ReviewReminderScope
 import com.ichi2.anki.reviewreminders.ScheduleRemindersFragment
 import com.ichi2.anki.utils.AnimUtils
 import com.ichi2.anki.utils.isWindowCompact
-import com.ichi2.themes.Themes
 import com.ichi2.utils.FragmentFactoryUtils
 import timber.log.Timber
 import kotlin.reflect.KClass
@@ -166,7 +166,7 @@ class PreferencesFragment :
                     view.findViewById<CollapsingToolbarLayout>(R.id.collapsingToolbarLayout)?.apply {
                         updateLayoutParams<AppBarLayout.LayoutParams> {
                             scrollFlags = 0
-                            val resId = Themes.getResFromAttr(requireContext(), android.R.attr.actionBarSize)
+                            val resId = getResFromAttr(requireContext(), android.R.attr.actionBarSize)
                             height = resources.getDimensionPixelSize(resId)
                         }
                         isTitleEnabled = false

@@ -93,6 +93,7 @@ import com.ichi2.anki.common.annotations.NeedsTest
 import com.ichi2.anki.common.crashreporting.CrashReportService
 import com.ichi2.anki.common.utils.HashUtil
 import com.ichi2.anki.common.utils.android.digit
+import com.ichi2.anki.common.utils.android.getColorFromAttr
 import com.ichi2.anki.common.utils.android.showThemedToast
 import com.ichi2.anki.common.utils.annotation.KotlinCleanup
 import com.ichi2.anki.common.utils.ext.ifZero
@@ -130,7 +131,6 @@ import com.ichi2.anki.multimedia.MultimediaResult
 import com.ichi2.anki.multimedia.MultimediaResultContract
 import com.ichi2.anki.multimedia.MultimediaUtils.createImageFile
 import com.ichi2.anki.multimedia.MultimediaViewModel
-import com.ichi2.anki.multimediacard.IMultimediaEditableNote
 import com.ichi2.anki.multimediacard.impl.MultimediaEditableNote
 import com.ichi2.anki.noteeditor.CustomToolbarButton
 import com.ichi2.anki.noteeditor.FieldState
@@ -163,7 +163,6 @@ import com.ichi2.anki.utils.openUrl
 import com.ichi2.imagecropper.ImageCropper
 import com.ichi2.imagecropper.ImageCropper.Companion.CROP_IMAGE_RESULT
 import com.ichi2.imagecropper.ImageCropperLauncher
-import com.ichi2.themes.Themes
 import com.ichi2.utils.AndroidUiUtils.showSoftInput
 import com.ichi2.utils.ClipboardUtil
 import com.ichi2.utils.ClipboardUtil.MEDIA_MIME_TYPES
@@ -536,7 +535,7 @@ class NoteEditorFragment :
     ) {
         WindowInsetsControllerCompat(window, window.decorView).isAppearanceLightStatusBars = false
         @Suppress("deprecation", "API35 properly handle edge-to-edge")
-        requireActivity().window.statusBarColor = Themes.getColorFromAttr(requireContext(), R.attr.appBarColor)
+        requireActivity().window.statusBarColor = getColorFromAttr(requireContext(), R.attr.appBarColor)
         super.onViewCreated(view, savedInstanceState)
         // Set up toolbar
         toolbar = view.findViewById(R.id.editor_toolbar)
@@ -573,7 +572,7 @@ class NoteEditorFragment :
 
         @Suppress("deprecation", "API35 properly handle edge-to-edge")
         requireActivity().window.navigationBarColor =
-            Themes.getColorFromAttr(requireContext(), R.attr.toolbarBackgroundColor)
+            getColorFromAttr(requireContext(), R.attr.toolbarBackgroundColor)
 
         // Register this fragment as a menu provider with the activity
         (requireActivity() as MenuHost).addMenuProvider(

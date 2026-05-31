@@ -64,6 +64,7 @@ import com.ichi2.anki.android.input.ShortcutGroup
 import com.ichi2.anki.android.input.shortcut
 import com.ichi2.anki.cardviewer.SingleCardSide
 import com.ichi2.anki.common.annotations.NeedsTest
+import com.ichi2.anki.common.utils.android.getColorFromAttr
 import com.ichi2.anki.common.utils.android.showThemedToast
 import com.ichi2.anki.common.utils.annotation.KotlinCleanup
 import com.ichi2.anki.compat.CompatHelper.Companion.getSerializableCompat
@@ -599,7 +600,7 @@ open class CardTemplateEditor : AnkiActivity(R.layout.activity_card_template_edi
             if (templateEditor.fragmented) {
                 // Set the background color of the main layout to match the previewer
                 binding.mainLayout.setBackgroundColor(
-                    Themes.getColorFromAttr(
+                    getColorFromAttr(
                         requireContext(),
                         R.attr.alternativeBackgroundColor,
                     ),

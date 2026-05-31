@@ -20,18 +20,15 @@ package com.ichi2.themes
 
 import android.app.Activity
 import android.content.Context
-import android.content.res.Configuration
 import android.graphics.Color
 import android.util.TypedValue
-import androidx.annotation.ColorInt
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.appcompat.content.res.AppCompatResources
-import androidx.core.content.withStyledAttributes
 import androidx.core.graphics.drawable.toDrawable
 import androidx.core.view.WindowInsetsControllerCompat
 import androidx.fragment.app.FragmentActivity
-import com.google.android.material.color.MaterialColors
 import com.ichi2.anki.R
+import com.ichi2.anki.common.utils.android.systemIsInNightMode
 import com.ichi2.anki.settings.PrefsRepository
 import com.ichi2.anki.settings.enums.AppTheme
 import com.ichi2.anki.settings.enums.DayTheme
@@ -110,49 +107,6 @@ object Themes {
         // Setting a theme is an additive operation, so this adds a single property.
         context.setTheme(R.style.ThemeOverlay_Xiaomi)
     }
-
-    fun getResFromAttr(
-        context: Context,
-        resAttr: Int,
-    ): Int {
-        val attrs = intArrayOf(resAttr)
-        return getResFromAttr(context, attrs)[0]
-    }
-
-    /**
-     * NOTE: dangerous function, it mutates the input array and returns it!
-     */
-    fun getResFromAttr(
-        context: Context,
-        attrs: IntArray,
-    ): IntArray {
-        context.withStyledAttributes(attrs = attrs) {
-            for (i in attrs.indices) {
-                attrs[i] = getResourceId(i, 0)
-            }
-        }
-        return attrs
-    }
-
-    @JvmStatic // tests failed when removing, maybe try later
-    @ColorInt
-    fun getColorFromAttr(context: Context, attr: Int): Int = MaterialColors.getColor(context, attr, 0)
-
-    /**
-     * NOTE: dangerous function, it mutates the input array and returns it!
-     */
-    @JvmStatic // tests failed when removing, maybe try later
-    @ColorInt
-    fun getColorsFromAttrs(context: Context, attrs: IntArray): IntArray {
-        for (i in attrs.indices) {
-            attrs[i] = getColorFromAttr(context, attrs[i])
-        }
-        return attrs
-    }
-
-    fun systemIsInNightMode(context: Context): Boolean =
-        context.resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK ==
-            Configuration.UI_MODE_NIGHT_YES
 }
 
 @Suppress("deprecation", "API35 properly handle edge-to-edge")

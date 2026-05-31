@@ -16,9 +16,31 @@
 
 package com.ichi2.anki.common.utils.android
 
+import android.content.Context
 import android.graphics.Color
 import androidx.annotation.ColorInt
+import com.google.android.material.color.MaterialColors
 import com.ichi2.anki.common.utils.ext.clamp
+
+@ColorInt
+fun getColorFromAttr(
+    context: Context,
+    attr: Int,
+): Int = MaterialColors.getColor(context, attr, 0)
+
+/**
+ * NOTE: dangerous function, it mutates the input array and returns it!
+ */
+@ColorInt
+fun getColorsFromAttrs(
+    context: Context,
+    attrs: IntArray,
+): IntArray {
+    for (i in attrs.indices) {
+        attrs[i] = getColorFromAttr(context, attrs[i])
+    }
+    return attrs
+}
 
 /**
  * Darkens the provided ARGB color by a provided [factor]

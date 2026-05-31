@@ -42,6 +42,7 @@ import com.ichi2.anki.DispatchKeyEventListener
 import com.ichi2.anki.R
 import com.ichi2.anki.android.back.doubleBackPressCallback
 import com.ichi2.anki.cardviewer.Gesture
+import com.ichi2.anki.common.utils.android.systemIsInNightMode
 import com.ichi2.anki.compat.CompatHelper.Companion.compat
 import com.ichi2.anki.databinding.FragmentWhiteboardBinding
 import com.ichi2.anki.databinding.PopupBrushOptionsBinding
@@ -51,7 +52,6 @@ import com.ichi2.anki.reviewer.BindingMap
 import com.ichi2.anki.reviewer.ReviewerBinding
 import com.ichi2.anki.snackbar.showSnackbar
 import com.ichi2.anki.utils.ext.sharedPrefs
-import com.ichi2.themes.Themes
 import com.ichi2.utils.dp
 import com.ichi2.utils.increaseHorizontalPaddingOfMenuIcons
 import com.ichi2.utils.toRGBAHex
@@ -89,7 +89,7 @@ class WhiteboardFragment :
     ) {
         super.onViewCreated(view, savedInstanceState)
 
-        val isNightMode = Themes.systemIsInNightMode(requireContext())
+        val isNightMode = systemIsInNightMode(requireContext())
         viewModel.loadState(isNightMode)
 
         setupUI()

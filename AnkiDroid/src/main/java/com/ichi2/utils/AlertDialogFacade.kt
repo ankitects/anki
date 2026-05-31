@@ -42,11 +42,11 @@ import androidx.viewbinding.ViewBinding
 import com.google.android.material.textfield.TextInputLayout
 import com.ichi2.anki.R
 import com.ichi2.anki.common.utils.android.HandlerUtils.executeOnMainThread
+import com.ichi2.anki.common.utils.android.getResFromAttr
 import com.ichi2.anki.databinding.DialogAlertDialogCheckboxBinding
 import com.ichi2.anki.databinding.DialogAlertDialogTitleWithHelpBinding
 import com.ichi2.anki.databinding.DialogGenericRecyclerViewBinding
 import com.ichi2.anki.databinding.DialogListviewMessageBinding
-import com.ichi2.themes.Themes
 import timber.log.Timber
 
 /** Wraps [DialogInterface.OnClickListener] as we don't need the `which` parameter */
@@ -115,7 +115,7 @@ fun AlertDialog.Builder.message(
  */
 fun AlertDialog.Builder.iconAttr(
     @DrawableRes res: Int,
-): AlertDialog.Builder = this.setIcon(Themes.getResFromAttr(this.context, res))
+): AlertDialog.Builder = this.setIcon(getResFromAttr(this.context, res))
 
 fun AlertDialog.Builder.positiveButton(
     @StringRes stringRes: Int? = null,
