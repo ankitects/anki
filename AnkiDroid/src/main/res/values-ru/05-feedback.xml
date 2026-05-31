@@ -41,7 +41,6 @@
     <string name="feedback_default_text">Напишите отзыв или опишите, как и когда появляется ошибка.</string>
     <string name="feedback_auto_toast_text">У AnkiDroid возникла проблема. Отправляется отчёт&#8230;</string>
     <string name="feedback_for_manual_toast_text">Подготавливается отчет об ошибке для разработчиков&#8230;</string>
-    <string name="feedback_copy_debug">Копировать отладочные данные</string>
     <string name="feedback_report">Отправить</string>
     <string name="feedback_report_automatically">Автоматически отправлять отчёты об ошибках</string>
     <string name="feedback_no_suitable_app_found">Подходящие приложения не найдены</string>

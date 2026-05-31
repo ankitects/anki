@@ -48,7 +48,6 @@
     <!--Language Hint-->
     <string name="model_field_editor_language_hint_dialog_success_result">Imposta suggerimento lingua a %s</string>
     <!--Field Editing-->
-    <string name="model_field_editor_add" maxLength="28">Aggiungi campo</string>
     <string name="model_field_editor_delete">Elimina campo</string>
     <string name="model_field_editor_rename">Rinomina il campo</string>
     <string name="model_field_editor_language_hint">Imposta suggerimento lingua tastiera</string>

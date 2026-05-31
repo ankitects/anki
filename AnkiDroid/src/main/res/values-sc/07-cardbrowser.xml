@@ -42,12 +42,10 @@
         <item quantity="one">%d nota ammustrada</item>
         <item quantity="other">%d notas ammustradas</item>
     </plurals>
-    <string name="card_browser_all_decks">Totu sos matzos</string>
     <plurals name="card_browser_delete_notes">
         <item quantity="one">Iscantzella sa nota</item>
         <item quantity="other">Iscantzella sas notas</item>
     </plurals>
-    <string name="card_browser_change_deck" maxLength="28">Càmbia matzu</string>
     <string name="delete_card_title">Iscantzellare sa nota?</string>
     <string name="card_browser_show_marked" maxLength="28">Filtra sas marcadas</string>
     <string name="card_browser_show_suspended" maxLength="28">Filtra sas suspèndidas</string>

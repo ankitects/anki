@@ -42,12 +42,10 @@
         <item quantity="one">%d గమనిక చూపబడింది</item>
         <item quantity="other">%d గమనికలు చూపబడ్డాయి</item>
     </plurals>
-    <string name="card_browser_all_decks">అన్ని డెక్స్</string>
     <plurals name="card_browser_delete_notes">
         <item quantity="one">గమనికను తొలగించండి</item>
         <item quantity="other">గమనికలను తొలగించండి</item>
     </plurals>
-    <string name="card_browser_change_deck" maxLength="28">డెక్ మార్చండి</string>
     <string name="delete_card_title">గమనికను తొలగించాలా?</string>
     <string name="card_browser_show_marked" maxLength="28">ఫిల్టర్ మార్క్ చేయబడింది</string>
     <string name="card_browser_show_suspended" maxLength="28">ఫిల్టర్ సస్పెండ్ చేయబడింది</string>

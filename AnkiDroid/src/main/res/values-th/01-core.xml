@@ -93,7 +93,6 @@
     <string name="menu_enable_voice_playback" maxLength="28">เปิดใช้งานการเล่นเสียง</string>
     <string name="menu_disable_voice_playback">ปิดการเล่นเสียง</string>
     <string name="menu_create_backup" maxLength="28">Create backup</string>
-    <string name="new_deck">สร้างสำรับใหม่</string>
     <string name="new_dynamic_deck">สร้าง สำรับแบบกรอง</string>
     <string name="directory_inaccessible">เข้าถึงที่เก็บข้อมูล AnkiDroid ไม่ได้</string>
     <!--This is shown when AnkiDroid starts up with no storage permissions.

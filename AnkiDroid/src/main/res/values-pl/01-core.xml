@@ -102,7 +102,6 @@
     <string name="menu_enable_voice_playback" maxLength="28">Włącz odtwarzanie głosu</string>
     <string name="menu_disable_voice_playback">Wyłącz odtwarzanie dźwięku</string>
     <string name="menu_create_backup" maxLength="28">Utwórz kopię zapasową</string>
-    <string name="new_deck">Stwórz talię</string>
     <string name="new_dynamic_deck">Stwórz talię filtrowaną</string>
     <string name="directory_inaccessible">Katalog AnkiDroid jest niedostępny</string>
     <!--This is shown when AnkiDroid starts up with no storage permissions.

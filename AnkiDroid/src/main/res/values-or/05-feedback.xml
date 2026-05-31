@@ -41,7 +41,6 @@
     <string name="feedback_default_text">ଆପଣ ରିପୋର୍ଟ କରୁଥିବା କୌଣସି ତ୍ରୁଟିର ପ୍ରକୃତି ବିଷୟରେ ଆପଣଙ୍କର ମତାମତ କିମ୍ବା ସୂଚନା ପ୍ରବେଶ କରନ୍ତୁ।</string>
     <string name="feedback_auto_toast_text">AnkiDroid ଏକ ସମସ୍ୟାର ସମ୍ମୁଖୀନ ହୋଇଛି; ବିକାଶକାରୀମାନଙ୍କୁ ଗୋଟିଏ ରିପୋର୍ଟ ପଠାଯାଉଛି&#8230;</string>
     <string name="feedback_for_manual_toast_text">ବିକାଶକାରୀଙ୍କ ପାଇଁ ଏକ ତ୍ରୁଟି ରିପୋର୍ଟ୍ ପ୍ରସ୍ତୁତ କରାଯାଉଛି&#8230;</string>
-    <string name="feedback_copy_debug">ତ୍ରୁଟି ନିବାରଣ ସୂଚନା କପି କରନ୍ତୁ</string>
     <string name="feedback_report">ରିପୋର୍ଟ କରନ୍ତୁ</string>
     <string name="feedback_report_automatically">ତ୍ରୁଟି ରିପୋର୍ଟ ସ୍ୱଚାଳିତ ଭାଵେ ପଠାଇବା</string>
     <string name="feedback_no_suitable_app_found">କୌଣସି ଉପଯୁକ୍ତ ଆପ୍ ମିଳିଲା ନାହିଁ</string>

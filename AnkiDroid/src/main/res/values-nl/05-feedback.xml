@@ -41,7 +41,6 @@
     <string name="feedback_default_text">Voer alstublieft uw feedback in, of informatie over de aard van de fouten die u rapporteert.</string>
     <string name="feedback_auto_toast_text">AnkiDroid heeft een probleem ondervonden; een rapport wordt verstuurd naar de ontwikkelaars&#8230;</string>
     <string name="feedback_for_manual_toast_text">Een foutrapport wordt voorbereid voor de ontwikkelaars&#8230;</string>
-    <string name="feedback_copy_debug">Kopieer debuginformatie</string>
     <string name="feedback_report">Meld een probleem</string>
     <string name="feedback_report_automatically">Foutmeldingen automatisch versturen</string>
     <string name="feedback_no_suitable_app_found">Geen geschikte app gevonden</string>

@@ -96,7 +96,6 @@
     <string name="menu_enable_voice_playback" maxLength="28">Enable voice playback</string>
     <string name="menu_disable_voice_playback">Disable voice playback</string>
     <string name="menu_create_backup" maxLength="28">Create backup</string>
-    <string name="new_deck">ಸಂಗ್ರಹವನ್ನು ರಚಿಸಿ</string>
     <string name="new_dynamic_deck">ಫಿಲ್ಟರ್ ಮಾಡಿದ ಸಂಗ್ರಹ ರಚಿಸಿ</string>
     <string name="directory_inaccessible">ಆಂಕಿಡ್ರಾಯ್ಡ್ ಡೈರೆಕ್ಟರಿ ಪ್ರವೇಶಿಸಲಾಗುವುದಿಲ್ಲ</string>
     <!--This is shown when AnkiDroid starts up with no storage permissions.

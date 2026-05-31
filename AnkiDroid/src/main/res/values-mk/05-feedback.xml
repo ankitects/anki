@@ -41,7 +41,6 @@
     <string name="feedback_default_text">Внесете ги вашите повратни информации или информациите за природата на сите грешки кои ги пријавувате.</string>
     <string name="feedback_auto_toast_text">AnkiDroid наиде на проблем; извештајот се испраќа до програмерите&#8230;</string>
     <string name="feedback_for_manual_toast_text">An error report is being prepared for the developers&#8230;</string>
-    <string name="feedback_copy_debug">Копирајте ги отстранетите неисправности на информациите</string>
     <string name="feedback_report">Извештај</string>
     <string name="feedback_report_automatically">Испрати ги грешните извештаи автоматски</string>
     <string name="feedback_no_suitable_app_found">No suitable app found</string>

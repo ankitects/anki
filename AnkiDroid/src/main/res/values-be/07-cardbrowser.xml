@@ -46,14 +46,12 @@
         <item quantity="many">Паказана %d нататак</item>
         <item quantity="other">Паказана %d нататак</item>
     </plurals>
-    <string name="card_browser_all_decks">Усе калоды</string>
     <plurals name="card_browser_delete_notes">
         <item quantity="one">Выдаліць нататку</item>
         <item quantity="few">Выдаліць нататкі</item>
         <item quantity="many">Выдаліць нататкі</item>
         <item quantity="other">Выдаліць нататкі</item>
     </plurals>
-    <string name="card_browser_change_deck" maxLength="28">Змяніць калоду</string>
     <string name="delete_card_title">Выдаліць нататку?</string>
     <string name="card_browser_show_marked" maxLength="28">Фільтраваць пазначаныя</string>
     <string name="card_browser_show_suspended" maxLength="28">Фільтраваць прыпыненыя</string>

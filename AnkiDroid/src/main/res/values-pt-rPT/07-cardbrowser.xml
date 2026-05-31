@@ -42,12 +42,10 @@
         <item quantity="one">%d nota apresentada</item>
         <item quantity="other">%d notas apresentadas</item>
     </plurals>
-    <string name="card_browser_all_decks">Todos os baralhos</string>
     <plurals name="card_browser_delete_notes">
         <item quantity="one">Apagar nota</item>
         <item quantity="other">Apagar notas</item>
     </plurals>
-    <string name="card_browser_change_deck" maxLength="28">Mudar de baralho</string>
     <string name="delete_card_title">Apagar nota?</string>
     <string name="card_browser_show_marked" maxLength="28">Filtro marcado</string>
     <string name="card_browser_show_suspended" maxLength="28">Filtro suspenso</string>

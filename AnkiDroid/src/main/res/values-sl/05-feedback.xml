@@ -41,7 +41,6 @@
     <string name="feedback_default_text">Vnesite povratne informacije ali informacije o naravi napak, ki jih prijavljate.</string>
     <string name="feedback_auto_toast_text">AnkiDroid je naletel na težavo; poročilo se pošilja razvijalcem &#8230;</string>
     <string name="feedback_for_manual_toast_text">An error report is being prepared for the developers&#8230;</string>
-    <string name="feedback_copy_debug">Kopiraj pod. o razhroščevanju</string>
     <string name="feedback_report">Prijavi</string>
     <string name="feedback_report_automatically">Samodejno pošlji poročila o napakah</string>
     <string name="feedback_no_suitable_app_found">No suitable app found</string>

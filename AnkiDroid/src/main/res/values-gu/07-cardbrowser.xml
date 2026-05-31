@@ -42,12 +42,10 @@
         <item quantity="one">%d નોંધ બતાવવામાં આવી</item>
         <item quantity="other">%d નોંધો બતાવવામાં આવી</item>
     </plurals>
-    <string name="card_browser_all_decks">બધા ડેક</string>
     <plurals name="card_browser_delete_notes">
         <item quantity="one">નોંધ કાઢી નાખો</item>
         <item quantity="other">નોંધો કાઢી નાખો</item>
     </plurals>
-    <string name="card_browser_change_deck" maxLength="28">ડેક બદલો</string>
     <string name="delete_card_title">નોંધ કાઢી નાખીએ?</string>
     <string name="card_browser_show_marked" maxLength="28">ફિલ્ટર ચિહ્નિત</string>
     <string name="card_browser_show_suspended" maxLength="28">ફિલ્ટર સસ્પેન્ડ કર્યું</string>

@@ -48,7 +48,6 @@
     <!--Language Hint-->
     <string name="model_field_editor_language_hint_dialog_success_result">ભાષા સંકેતને %s પર સેટ કરો</string>
     <!--Field Editing-->
-    <string name="model_field_editor_add" maxLength="28">ક્ષેત્ર ઉમેરો</string>
     <string name="model_field_editor_delete">ક્ષેત્ર કાઢી નાખો</string>
     <string name="model_field_editor_rename">ક્ષેત્રનું નામ બદલો</string>
     <string name="model_field_editor_language_hint">કીબોર્ડ ભાષા સંકેત સેટ કરો</string>

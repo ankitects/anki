@@ -42,12 +42,10 @@
         <item quantity="one">%d குறிப்பு காட்டப்பட்டுள்ளது</item>
         <item quantity="other">%d குறிப்புகள் காட்டப்பட்டுள்ளன</item>
     </plurals>
-    <string name="card_browser_all_decks">அனைத்து தளங்களும்</string>
     <plurals name="card_browser_delete_notes">
         <item quantity="one">குறிப்பை நீக்கு</item>
         <item quantity="other">குறிப்புகளை நீக்கு</item>
     </plurals>
-    <string name="card_browser_change_deck" maxLength="28">தளத்தை மாற்றவும்</string>
     <string name="delete_card_title">குறிப்பை நீக்கவா?</string>
     <string name="card_browser_show_marked" maxLength="28">வடிகட்டி குறிக்கப்பட்டுள்ளது</string>
     <string name="card_browser_show_suspended" maxLength="28">வடிகட்டி இடைநிறுத்தப்பட்டுள்ளது</string>

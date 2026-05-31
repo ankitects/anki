@@ -42,12 +42,10 @@
         <item quantity="one">%d noto montrita</item>
         <item quantity="other">%d notoj montrita</item>
     </plurals>
-    <string name="card_browser_all_decks">Ĉiuj kartaroj</string>
     <plurals name="card_browser_delete_notes">
         <item quantity="one">Forgi noton</item>
         <item quantity="other">Forigi notojn</item>
     </plurals>
-    <string name="card_browser_change_deck" maxLength="28">Ŝanĝi kartaron</string>
     <string name="delete_card_title">Ĉu forigi noton?</string>
     <string name="card_browser_show_marked" maxLength="28">Filtri markitajn</string>
     <string name="card_browser_show_suspended" maxLength="28">Filtri daŭre kaŝitajn</string>

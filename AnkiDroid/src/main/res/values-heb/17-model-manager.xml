@@ -50,7 +50,6 @@
     <!--Language Hint-->
     <string name="model_field_editor_language_hint_dialog_success_result">הגדר רמז שפה ל-%s</string>
     <!--Field Editing-->
-    <string name="model_field_editor_add" maxLength="28">הוספת שדה</string>
     <string name="model_field_editor_delete">מחיקת שדה</string>
     <string name="model_field_editor_rename">שינוי שם שדה</string>
     <string name="model_field_editor_language_hint">הגדר שפת המקלדת לרמז</string>

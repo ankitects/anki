@@ -327,7 +327,6 @@
     <string name="show_cards" comment="Label for toggle cards button in BrowserOptionsDialog">𐌺𐌰𐍂𐍄𐍉𐍃</string>
     <string name="show_notes" comment="Label for toggle notes button in BrowserOptionsDialog">𐌼𐌴𐌻𐌴𐌹𐌽𐍉𐍃</string>
     <string name="truncate_content_help">Truncate the height of each row of the Browser to show only first 3 lines of content</string>
-    <string name="browser_options_dialog_heading">𐌼𐌰𐌷𐍄𐌴𐌹𐍃 𐌱𐍂𐌰𐍅𐍃𐌰𐌹𐍂𐍃</string>
     <string name="audio_saved">𐌲𐌰𐌼𐌰𐌿𐌳𐌴𐌹𐌽 𐌲𐌰𐍆𐌰𐍃𐍄𐌰𐌹𐌳𐌰</string>
     <string name="deleting_selected_notes">𐌲𐌰𐍅𐌰𐌻𐌹𐌳𐌰𐌹𐌼 𐌼𐌴𐌻𐌴𐌹𐌽𐌹𐌼 𐌿𐍃𐌵𐌹𐍃𐍄𐌾𐌰𐌽𐌳𐌰</string>
     <string name="tts_voices_default_text" comment="The default text to speak when selecting     Text to speech voices">𐍄𐌴𐌺 𐌰𐌽𐌰 𐍃𐍄𐌹𐌱𐌽𐌰𐌹 𐌳𐌿 𐌷𐌰𐌿𐍃𐌾𐌰𐌽</string>

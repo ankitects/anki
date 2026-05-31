@@ -335,7 +335,6 @@
     <string name="show_cards" comment="Label for toggle cards button in BrowserOptionsDialog">Карткі</string>
     <string name="show_notes" comment="Label for toggle notes button in BrowserOptionsDialog">Нататкі</string>
     <string name="truncate_content_help">Скараціць вышыню кожнага радка браўзера для адлюстравання толькі першых 3 радкоў змесціва</string>
-    <string name="browser_options_dialog_heading">Параметры браўзера</string>
     <string name="audio_saved">Запіс захаваны</string>
     <string name="deleting_selected_notes">Выдаленне выбраных нататак</string>
     <string name="tts_voices_default_text" comment="The default text to speak when selecting     Text to speech voices">Націсніце на голас, каб паслухаць</string>

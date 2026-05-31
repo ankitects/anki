@@ -42,12 +42,10 @@
         <item quantity="one">%d not visas</item>
         <item quantity="other">%d noter visas</item>
     </plurals>
-    <string name="card_browser_all_decks">Alla kortlekar</string>
     <plurals name="card_browser_delete_notes">
         <item quantity="one">Radera not</item>
         <item quantity="other">Radera noter</item>
     </plurals>
-    <string name="card_browser_change_deck" maxLength="28">Byt kortlek</string>
     <string name="delete_card_title">Radera not?</string>
     <string name="card_browser_show_marked" maxLength="28">Filtrera markerade</string>
     <string name="card_browser_show_suspended" maxLength="28">Filtrera låsta</string>

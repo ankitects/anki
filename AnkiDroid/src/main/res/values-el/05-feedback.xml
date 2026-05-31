@@ -41,7 +41,6 @@
     <string name="feedback_default_text">Παρακαλώ εισάγετε τα σχόλιά σας ή πληροφορίες σχετικά με τη φύση των τυχών λάθών που αναφέρετε.</string>
     <string name="feedback_auto_toast_text">Το AnkiDroid αντιμετώπισε ένα πρόβλημα. Μια αναφορά αποστέλλεται στους προγραμματιστές&#8230;</string>
     <string name="feedback_for_manual_toast_text">Προετοιμάζεται μια αναφορά σφάλματος για τους προγραμματιστές&#8230;</string>
-    <string name="feedback_copy_debug">Αντιγραφή πληροφοριών ελέγχου σφαλμάτων</string>
     <string name="feedback_report">Αναφορά</string>
     <string name="feedback_report_automatically">Αυτόματη αποστολή αναφορών σφαλμάτων</string>
     <string name="feedback_no_suitable_app_found">Δεν βρέθηκε κατάλληλη εφαρμογή</string>

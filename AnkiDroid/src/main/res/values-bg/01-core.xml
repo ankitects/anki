@@ -96,7 +96,6 @@
     <string name="menu_enable_voice_playback" maxLength="28">Включи гласов плейбек</string>
     <string name="menu_disable_voice_playback">Изключи гласов плейбек</string>
     <string name="menu_create_backup" maxLength="28">Create backup</string>
-    <string name="new_deck">Създай тесте</string>
     <string name="new_dynamic_deck">Създайте филтрирано тесте</string>
     <string name="directory_inaccessible">AnkiDroid директорията е недостъпна</string>
     <!--This is shown when AnkiDroid starts up with no storage permissions.

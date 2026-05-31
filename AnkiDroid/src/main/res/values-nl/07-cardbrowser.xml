@@ -42,12 +42,10 @@
         <item quantity="one">%d notitie getoond</item>
         <item quantity="other">%d notities weergegeven</item>
     </plurals>
-    <string name="card_browser_all_decks">Alle leersets</string>
     <plurals name="card_browser_delete_notes">
         <item quantity="one">Notitie verwijderen</item>
         <item quantity="other">Notities verwijderen</item>
     </plurals>
-    <string name="card_browser_change_deck" maxLength="28">Wijzig leerset</string>
     <string name="delete_card_title">Memo verwijderen</string>
     <string name="card_browser_show_marked" maxLength="28">Filteren op gemarkeerd</string>
     <string name="card_browser_show_suspended" maxLength="28">Filteren op verwijderd</string>

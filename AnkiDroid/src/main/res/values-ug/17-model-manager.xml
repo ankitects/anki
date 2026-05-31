@@ -48,7 +48,6 @@
     <!--Language Hint-->
     <string name="model_field_editor_language_hint_dialog_success_result">تىل كۆرسەتمىسىنى %s غا تەڭشەيدۇ</string>
     <!--Field Editing-->
-    <string name="model_field_editor_add" maxLength="28">بۆلەك قوش</string>
     <string name="model_field_editor_delete">بۆلەك ئۆچۈر</string>
     <string name="model_field_editor_rename">بۆلەك ئاتىنى ئۆزگەرت</string>
     <string name="model_field_editor_language_hint">ھەرپتاختا تىل كۆرسەتمىسىنى تەڭشەيدۇ</string>

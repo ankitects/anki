@@ -41,7 +41,6 @@
     <string name="feedback_default_text">قايتۇرما ئىنكاس ياكى مەلۇم قىلىشقا تېگىشلىك خاتالىق ئۇچۇرلىرىنى كىرگۈزۈڭ.</string>
     <string name="feedback_auto_toast_text">AnkiDroid مەسىلىگە يولۇقتى؛ دوكلات ئىجادكارغا يوللاندى&#8230;</string>
     <string name="feedback_for_manual_toast_text">ئىجادكارغا خاتالىق دوكلاتى تەييارلىنىۋاتىدۇ&#8230;</string>
-    <string name="feedback_copy_debug">سازلاش ئۇچۇرىنى كۆچۈر</string>
     <string name="feedback_report">دوكلات</string>
     <string name="feedback_report_automatically">خاتالىق دوكلاتىنى ئۆزلۈكىدىن يوللايدۇ</string>
     <string name="feedback_no_suitable_app_found">مۇۋاپىق ئەپ تېپىلمىدى</string>

@@ -41,7 +41,6 @@
     <string name="feedback_default_text">Fikr-mulohazalaringiz yoki duch kelayotgan xatoliklaringiz haqida maʼlumot kiriting.</string>
     <string name="feedback_auto_toast_text">AnkiDroid muammoga duch keldi; hisobot dasturchilarga joʻnatilmoqda&#8230;</string>
     <string name="feedback_for_manual_toast_text">Dasturchilar uchun xatolik haqida hisobot tayyorlanmoqda&#8230;</string>
-    <string name="feedback_copy_debug">Debag maʼlumotlaridan nusxa olish</string>
     <string name="feedback_report">Xabar berish</string>
     <string name="feedback_report_automatically">Xatolik haqida hisobotlar avtomatik tarzda yuborilsin</string>
     <string name="feedback_no_suitable_app_found">Mos ilova topilmadi</string>

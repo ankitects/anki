@@ -99,7 +99,6 @@
     <string name="menu_enable_voice_playback" maxLength="28">Activează redarea vocii</string>
     <string name="menu_disable_voice_playback">Dezactivează redarea vocii</string>
     <string name="menu_create_backup" maxLength="28">Creează copie de siguranță</string>
-    <string name="new_deck">Crează punte</string>
     <string name="new_dynamic_deck">Crează punte filtrată</string>
     <string name="directory_inaccessible">Directorul AnkiDroid este inaccesibil</string>
     <!--This is shown when AnkiDroid starts up with no storage permissions.

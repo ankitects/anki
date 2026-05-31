@@ -40,11 +40,9 @@
     <plurals name="card_browser_subtitle_notes_mode">
         <item quantity="other">显示了 %d 条笔记</item>
     </plurals>
-    <string name="card_browser_all_decks">所有牌组</string>
     <plurals name="card_browser_delete_notes">
         <item quantity="other">删除笔记</item>
     </plurals>
-    <string name="card_browser_change_deck" maxLength="28">更换牌组</string>
     <string name="delete_card_title">确认删除笔记？</string>
     <string name="card_browser_show_marked" maxLength="28">筛选已标记卡牌</string>
     <string name="card_browser_show_suspended" maxLength="28">筛选已暂停卡牌</string>

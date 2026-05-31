@@ -40,11 +40,9 @@
     <plurals name="card_browser_subtitle_notes_mode">
         <item quantity="other">%d notes shown</item>
     </plurals>
-    <string name="card_browser_all_decks">ជាន់ទាំងអស់</string>
     <plurals name="card_browser_delete_notes">
         <item quantity="other">លុបកំណត់ត្រា</item>
     </plurals>
-    <string name="card_browser_change_deck" maxLength="28">ប្ដូរជាន់</string>
     <string name="delete_card_title">លុបកំណត់ត្រា?</string>
     <string name="card_browser_show_marked" maxLength="28">Filter marked</string>
     <string name="card_browser_show_suspended" maxLength="28">Filter suspended</string>

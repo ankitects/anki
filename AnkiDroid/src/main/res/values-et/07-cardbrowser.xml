@@ -42,12 +42,10 @@
         <item quantity="one">Näidatakse %d märkust</item>
         <item quantity="other">Näidatakse %d märkust</item>
     </plurals>
-    <string name="card_browser_all_decks">Kõik kaardipakid</string>
     <plurals name="card_browser_delete_notes">
         <item quantity="one">Kustuta märkus</item>
         <item quantity="other">Kustuta märkused</item>
     </plurals>
-    <string name="card_browser_change_deck" maxLength="28">Muuda kaardipakki</string>
     <string name="delete_card_title">Kustutada märge?</string>
     <string name="card_browser_show_marked" maxLength="28">Filtreeri märgitud</string>
     <string name="card_browser_show_suspended" maxLength="28">Filter suspended</string>

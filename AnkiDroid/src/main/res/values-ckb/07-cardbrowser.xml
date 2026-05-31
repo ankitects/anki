@@ -42,12 +42,10 @@
         <item quantity="one">%d یاداشت نیشاندراوە</item>
         <item quantity="other">%d یاداشت نیشاندراوە</item>
     </plurals>
-    <string name="card_browser_all_decks">گشت دەستەکان</string>
     <plurals name="card_browser_delete_notes">
         <item quantity="one">Delete note</item>
         <item quantity="other">Delete notes</item>
     </plurals>
-    <string name="card_browser_change_deck" maxLength="28">دەستە بگۆڕە</string>
     <string name="delete_card_title">یاداشت ڕەشبکرێتەوە؟</string>
     <string name="card_browser_show_marked" maxLength="28">تاگکراوەکان بپاڵێوە</string>
     <string name="card_browser_show_suspended" maxLength="28">ڕاگیراوەکان بپاڵێوە</string>

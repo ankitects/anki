@@ -48,7 +48,6 @@
     <!--Language Hint-->
     <string name="model_field_editor_language_hint_dialog_success_result">%s-თან ენის მინიშნების დაყენება</string>
     <!--Field Editing-->
-    <string name="model_field_editor_add" maxLength="28">ველის დამატება</string>
     <string name="model_field_editor_delete">ველის წაშლა</string>
     <string name="model_field_editor_rename">ველის სახელის შეცვლა</string>
     <string name="model_field_editor_language_hint">კლავიატურის ენის მინიშნების დაყენება</string>

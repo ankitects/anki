@@ -96,7 +96,6 @@
     <string name="menu_enable_voice_playback" maxLength="28">വോയ്‌സ് പ്ലേബാക്ക് പ്രവർത്തനക്ഷമമാക്കുക</string>
     <string name="menu_disable_voice_playback">വോയ്‌സ് പ്ലേബാക്ക് പ്രവർത്തനരഹിതമാക്കുക</string>
     <string name="menu_create_backup" maxLength="28">Create backup</string>
-    <string name="new_deck">ഡെക്ക് സൃഷ്ടിക്കുക</string>
     <string name="new_dynamic_deck">ഫിൽട്ടർ ചെയ്ത ഡെക്ക് സൃഷ്ടിക്കുക</string>
     <string name="directory_inaccessible">AnkiDroid ഡയറക്‌ടറി ആക്‌സസ്സുചെയ്യാനാകില്ല</string>
     <!--This is shown when AnkiDroid starts up with no storage permissions.

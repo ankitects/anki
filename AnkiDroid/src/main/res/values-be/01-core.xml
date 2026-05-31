@@ -102,7 +102,6 @@
     <string name="menu_enable_voice_playback" maxLength="28">Уключыць прайграванне голасу</string>
     <string name="menu_disable_voice_playback">Адключыць прайграванне голасу</string>
     <string name="menu_create_backup" maxLength="28">Стварыць рэзервовую копію</string>
-    <string name="new_deck">Стварыць калоду</string>
     <string name="new_dynamic_deck">Стварыць фільтраваную калоду</string>
     <string name="directory_inaccessible">Каталог AnkiDroid недаступны</string>
     <!--This is shown when AnkiDroid starts up with no storage permissions.

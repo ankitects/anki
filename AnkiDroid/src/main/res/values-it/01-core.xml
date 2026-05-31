@@ -96,7 +96,6 @@
     <string name="menu_enable_voice_playback" maxLength="28">Abilita riproduzione vocale</string>
     <string name="menu_disable_voice_playback">Disabilita riproduzione vocale</string>
     <string name="menu_create_backup" maxLength="28">Crea backup</string>
-    <string name="new_deck">Crea mazzo</string>
     <string name="new_dynamic_deck">Crea mazzo filtrato</string>
     <string name="directory_inaccessible">La directory AnkiDroid è inaccessibile</string>
     <!--This is shown when AnkiDroid starts up with no storage permissions.

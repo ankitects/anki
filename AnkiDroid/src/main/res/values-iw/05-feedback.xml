@@ -41,7 +41,6 @@
     <string name="feedback_default_text">יש להזין משוב ומידע על טיב התקלות המדווחות.</string>
     <string name="feedback_auto_toast_text">AnkiDroid נתקלה בבעיה; דו״ח תקלה נשלח כעת אל צוות הפיתוח&#8230;</string>
     <string name="feedback_for_manual_toast_text">מכין דוח שגיאה עבור המפתחים&#8230;</string>
-    <string name="feedback_copy_debug">העתקת נתוני ניפוי שגיאות</string>
     <string name="feedback_report">דיווח</string>
     <string name="feedback_report_automatically">שליחת דיווח על תקלות באופן אוטומטי</string>
     <string name="feedback_no_suitable_app_found">לא נמצאו יישומים מתאימים.</string>

@@ -50,7 +50,6 @@
     <!--Language Hint-->
     <string name="model_field_editor_language_hint_dialog_success_result">Ustaw podpowiedź językową na %s</string>
     <!--Field Editing-->
-    <string name="model_field_editor_add" maxLength="28">Dodaj pole</string>
     <string name="model_field_editor_delete">Usuń pole</string>
     <string name="model_field_editor_rename">Zmień nazwę pola</string>
     <string name="model_field_editor_language_hint">Ustaw podpowiedź języka klawiatury</string>

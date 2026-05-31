@@ -325,7 +325,6 @@ Context | Request Context    [1]</string>
     <string name="show_cards" comment="Label for toggle cards button in BrowserOptionsDialog">카드</string>
     <string name="show_notes" comment="Label for toggle notes button in BrowserOptionsDialog">메모</string>
     <string name="truncate_content_help">목록 화면에서 카드 또는 노트의 내용을 하나당 최대 3줄까지만 표시하도록 제한합니다.</string>
-    <string name="browser_options_dialog_heading">브라우저 옵션</string>
     <string name="audio_saved">녹음 파일 저장됨</string>
     <string name="deleting_selected_notes">선택한 메모 삭제 중</string>
     <string name="tts_voices_default_text" comment="The default text to speak when selecting     Text to speech voices">음성을 들으려면 탭하세요</string>

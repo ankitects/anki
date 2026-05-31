@@ -96,7 +96,6 @@
     <string name="menu_enable_voice_playback" maxLength="28">Ovoz ijrosini yoqish</string>
     <string name="menu_disable_voice_playback">Ovoz ijrosini oʻchirish</string>
     <string name="menu_create_backup" maxLength="28">Zaxira yaratish</string>
-    <string name="new_deck">Dasta yaratish</string>
     <string name="new_dynamic_deck">Filtrlangan dasta yaratish</string>
     <string name="directory_inaccessible">AnkiDroid katalogiga kirish imkonsiz</string>
     <!--This is shown when AnkiDroid starts up with no storage permissions.

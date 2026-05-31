@@ -47,7 +47,6 @@
     <!--Language Hint-->
     <string name="model_field_editor_language_hint_dialog_success_result">设置语言提示为 %s</string>
     <!--Field Editing-->
-    <string name="model_field_editor_add" maxLength="28">添加字段</string>
     <string name="model_field_editor_delete">删除字段</string>
     <string name="model_field_editor_rename">重命名字段</string>
     <string name="model_field_editor_language_hint">设置键盘语言提示</string>

@@ -41,7 +41,6 @@
     <string name="feedback_default_text">Introduïu els comentaris o la informació sobre els errors dels que voleu informar.</string>
     <string name="feedback_auto_toast_text">S\'ha produït un problema; s\'està enviant un informe als desenvolupadors&#8230;</string>
     <string name="feedback_for_manual_toast_text">S\'ha preparat un informe per als desenvolupadors</string>
-    <string name="feedback_copy_debug">Copia les dades de depuració</string>
     <string name="feedback_report">Informa</string>
     <string name="feedback_report_automatically">Envia automàticament informes d\'error</string>
     <string name="feedback_no_suitable_app_found">No s\'ha trobat cap aplicació adient.</string>

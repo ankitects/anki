@@ -93,7 +93,6 @@
     <string name="menu_enable_voice_playback" maxLength="28">Kích hoạt phát âm thanh</string>
     <string name="menu_disable_voice_playback">Tắt phát âm thanh</string>
     <string name="menu_create_backup" maxLength="28">Tạo bản sao lưu</string>
-    <string name="new_deck">Tạo bộ thẻ</string>
     <string name="new_dynamic_deck">Tạo bộ thẻ đã lọc</string>
     <string name="directory_inaccessible">Không thể truy cập thư mục AnkiDroid</string>
     <!--This is shown when AnkiDroid starts up with no storage permissions.

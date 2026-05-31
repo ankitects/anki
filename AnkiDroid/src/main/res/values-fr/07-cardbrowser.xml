@@ -42,12 +42,10 @@
         <item quantity="one">%d note affichée</item>
         <item quantity="other">%d notes affichées</item>
     </plurals>
-    <string name="card_browser_all_decks">Tous les jeux de cartes</string>
     <plurals name="card_browser_delete_notes">
         <item quantity="one">Supprimer la note</item>
         <item quantity="other">Supprimer les notes</item>
     </plurals>
-    <string name="card_browser_change_deck" maxLength="28">Changer de paquet</string>
     <string name="delete_card_title">Supprimer la note ?</string>
     <string name="card_browser_show_marked" maxLength="28">Filtrer les notes marquées</string>
     <string name="card_browser_show_suspended" maxLength="28">Filtrer les cartes suspendues</string>

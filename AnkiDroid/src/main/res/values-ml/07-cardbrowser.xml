@@ -42,12 +42,10 @@
         <item quantity="one">%d കുറിപ്പ് കാണിച്ചിരിക്കുന്നു</item>
         <item quantity="other">%d കുറിപ്പുകൾ കാണിച്ചിരിക്കുന്നു</item>
     </plurals>
-    <string name="card_browser_all_decks">എല്ലാ ഡെക്കുകളും</string>
     <plurals name="card_browser_delete_notes">
         <item quantity="one">കുറിപ്പ് ഇല്ലാതാക്കുക</item>
         <item quantity="other">കുറിപ്പുകൾ ഇല്ലാതാക്കുക</item>
     </plurals>
-    <string name="card_browser_change_deck" maxLength="28">Change deck</string>
     <string name="delete_card_title">കുറിപ്പ് ഇല്ലാതാക്കണോ?</string>
     <string name="card_browser_show_marked" maxLength="28">ഫിൽട്ടർ അടയാളപ്പെടുത്തി</string>
     <string name="card_browser_show_suspended" maxLength="28">Filter suspended</string>

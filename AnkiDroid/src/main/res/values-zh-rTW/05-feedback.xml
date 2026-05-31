@@ -41,7 +41,6 @@
     <string name="feedback_default_text">請輸入你的報告，或關於此錯誤的任何資訊。</string>
     <string name="feedback_auto_toast_text">AnkiDroid 遇上了問題; 正在寄出報告給開發者&#8230;</string>
     <string name="feedback_for_manual_toast_text">一份錯誤報告正在被準備於開發人員&#8230;</string>
-    <string name="feedback_copy_debug">複製偵錯資訊</string>
     <string name="feedback_report">回報</string>
     <string name="feedback_report_automatically">自動送出錯誤回報</string>
     <string name="feedback_no_suitable_app_found">找不到合適的應用程式</string>

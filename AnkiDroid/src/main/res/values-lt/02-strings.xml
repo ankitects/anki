@@ -337,7 +337,6 @@
     <string name="show_cards" comment="Label for toggle cards button in BrowserOptionsDialog">Kortelės</string>
     <string name="show_notes" comment="Label for toggle notes button in BrowserOptionsDialog">Pastabos</string>
     <string name="truncate_content_help">Kiekvienos naršyklės eilutės aukščio sutrumpinimas, kad būtų rodomos tik pirmosios 3 turinio eilutės</string>
-    <string name="browser_options_dialog_heading">Naršyklės parinktys</string>
     <string name="audio_saved">Įrašas išsaugotas</string>
     <string name="deleting_selected_notes">Pasirinktų užrašų šalinimas</string>
     <string name="tts_voices_default_text" comment="The default text to speak when selecting     Text to speech voices">Bakstelėkite balsą ir klausykitės</string>

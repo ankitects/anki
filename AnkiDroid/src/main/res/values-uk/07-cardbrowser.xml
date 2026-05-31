@@ -46,14 +46,12 @@
         <item quantity="many">Показано %d записів</item>
         <item quantity="other">Показано %d записів</item>
     </plurals>
-    <string name="card_browser_all_decks">Всі колоди</string>
     <plurals name="card_browser_delete_notes">
         <item quantity="one">Видалити запис</item>
         <item quantity="few">Видалити записи</item>
         <item quantity="many">Видалити записи</item>
         <item quantity="other">Видалити записи</item>
     </plurals>
-    <string name="card_browser_change_deck" maxLength="28">Змінити колоду</string>
     <string name="delete_card_title">Видалити запис?</string>
     <string name="card_browser_show_marked" maxLength="28">Тільки з зірочокою</string>
     <string name="card_browser_show_suspended" maxLength="28">Тільки призупинені</string>

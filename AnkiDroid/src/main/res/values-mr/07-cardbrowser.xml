@@ -42,12 +42,10 @@
         <item quantity="one">%d टीप दाखवली</item>
         <item quantity="other">%d टिपा दाखवल्या</item>
     </plurals>
-    <string name="card_browser_all_decks">सर्व डेक</string>
     <plurals name="card_browser_delete_notes">
         <item quantity="one">टीप हटवा</item>
         <item quantity="other">नोट्स हटवा</item>
     </plurals>
-    <string name="card_browser_change_deck" maxLength="28">डेक बदला</string>
     <string name="delete_card_title">टीप हटवायची?</string>
     <string name="card_browser_show_marked" maxLength="28">फिल्टर चिन्हांकित</string>
     <string name="card_browser_show_suspended" maxLength="28">फिल्टर निलंबित</string>

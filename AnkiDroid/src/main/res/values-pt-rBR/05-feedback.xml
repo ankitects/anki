@@ -41,7 +41,6 @@
     <string name="feedback_default_text">Por favor, envie seu comentário ou informações sobre os erros que está relatando.</string>
     <string name="feedback_auto_toast_text">AnkiDroid encontrou um problema; um relatório está sendo enviado aos desenvolvedores&#8230;</string>
     <string name="feedback_for_manual_toast_text">Gerando relatório de erro para os desenvolvedores&#8230;</string>
-    <string name="feedback_copy_debug">Copiar informações de depuração</string>
     <string name="feedback_report">Relatar</string>
     <string name="feedback_report_automatically">Enviar relatórios de erros automaticamente</string>
     <string name="feedback_no_suitable_app_found">Nenhum aplicativo apropriado encontrado.</string>

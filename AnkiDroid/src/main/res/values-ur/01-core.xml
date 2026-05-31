@@ -96,7 +96,6 @@
     <string name="menu_enable_voice_playback" maxLength="28">صوتی پلے بیک کو فعال کریں</string>
     <string name="menu_disable_voice_playback">صوتی پلے بیک کو غیر فعال کریں</string>
     <string name="menu_create_backup" maxLength="28">Create backup</string>
-    <string name="new_deck">ڈیک بنائیں</string>
     <string name="new_dynamic_deck">فلٹر شدہ ڈیک بنائیں</string>
     <string name="directory_inaccessible">آنکی ڈیرائڈ ڈائریکٹری ناقابل رسائی ہے</string>
     <!--This is shown when AnkiDroid starts up with no storage permissions.

@@ -41,7 +41,6 @@
     <string name="feedback_default_text">Anna palautetta tai tietoja raportoimiesi virheiden luonteesta.</string>
     <string name="feedback_auto_toast_text">AnkiDroid on kohdannut ongelman; tästä lähetetään raportti kehittäjille&#8230;</string>
     <string name="feedback_for_manual_toast_text">Laaditaan virheraporttia kehittäjille&#8230;</string>
-    <string name="feedback_copy_debug">Kopioi vianmääritystiedot</string>
     <string name="feedback_report">Lähetä raportti</string>
     <string name="feedback_report_automatically">Lähetä virheraportit automaattisesti</string>
     <string name="feedback_no_suitable_app_found">Sopivaa sovellusta ei löytynyt</string>

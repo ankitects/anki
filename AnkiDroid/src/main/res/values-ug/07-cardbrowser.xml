@@ -42,12 +42,10 @@
         <item quantity="one">%d خاتىرە كۆرسىتىلدى</item>
         <item quantity="other">%d خاتىرە كۆرسىتىلدى</item>
     </plurals>
-    <string name="card_browser_all_decks">ھەممە دەستە</string>
     <plurals name="card_browser_delete_notes">
         <item quantity="one">خاتىرە ئۆچۈر</item>
         <item quantity="other">خاتىرە ئۆچۈر</item>
     </plurals>
-    <string name="card_browser_change_deck" maxLength="28">دەستە ئۆزگەرت</string>
     <string name="delete_card_title">خاتىرە ئۆچۈرەمدۇ؟</string>
     <string name="card_browser_show_marked" maxLength="28">بەلگە قويۇلغاننى سۈزىدۇ</string>
     <string name="card_browser_show_suspended" maxLength="28">كېچىكتۈرۈلگەننى سۈزىدۇ</string>

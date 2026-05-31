@@ -42,12 +42,10 @@
         <item quantity="one">%d nota mostrata</item>
         <item quantity="other">%d note mostrate</item>
     </plurals>
-    <string name="card_browser_all_decks">Tutti i mazzi</string>
     <plurals name="card_browser_delete_notes">
         <item quantity="one">Elimina nota</item>
         <item quantity="other">Elimina note</item>
     </plurals>
-    <string name="card_browser_change_deck" maxLength="28">Cambia mazzo</string>
     <string name="delete_card_title">Elimina nota</string>
     <string name="card_browser_show_marked" maxLength="28">Filtra contrassegnate</string>
     <string name="card_browser_show_suspended" maxLength="28">Filtra sospese</string>

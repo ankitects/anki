@@ -96,7 +96,6 @@
     <string name="menu_enable_voice_playback" maxLength="28">குரல் பின்னணியை இயக்கு</string>
     <string name="menu_disable_voice_playback">குரல் பின்னணியை முடக்கு</string>
     <string name="menu_create_backup" maxLength="28">Create backup</string>
-    <string name="new_deck">டெக் உருவாக்கவும்</string>
     <string name="new_dynamic_deck">வடிகட்டப்பட்ட டெக் உருவாக்கவும்</string>
     <string name="directory_inaccessible">AnkiDroid அடைவு அணுகக்கூடியதாக</string>
     <!--This is shown when AnkiDroid starts up with no storage permissions.

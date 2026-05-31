@@ -337,7 +337,6 @@
     <string name="show_cards" comment="Label for toggle cards button in BrowserOptionsDialog">Karty</string>
     <string name="show_notes" comment="Label for toggle notes button in BrowserOptionsDialog">Poznámky</string>
     <string name="truncate_content_help">Zkrátit výšku každého řádku prohlížeče, aby se zobrazily pouze první 3 řádky obsahu</string>
-    <string name="browser_options_dialog_heading">Možnosti prohlížeče</string>
     <string name="audio_saved">Nahrávka uložena</string>
     <string name="deleting_selected_notes">Mažou se vybrané poznámky</string>
     <string name="tts_voices_default_text" comment="The default text to speak when selecting     Text to speech voices">Klepnutím na hlas poslechnout</string>

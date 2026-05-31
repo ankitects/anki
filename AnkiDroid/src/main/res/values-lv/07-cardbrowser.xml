@@ -44,13 +44,11 @@
         <item quantity="one">Tiek rādīta %d piezīme</item>
         <item quantity="other">Tiek rādītas %d piezīmes</item>
     </plurals>
-    <string name="card_browser_all_decks">Visas kavas</string>
     <plurals name="card_browser_delete_notes">
         <item quantity="zero">Izdzēst piezīmes</item>
         <item quantity="one">Izdzēst piezīmi</item>
         <item quantity="other">Izdzēst piezīmes</item>
     </plurals>
-    <string name="card_browser_change_deck" maxLength="28">Mainīt kavu</string>
     <string name="delete_card_title">Dzēst piezīmi?</string>
     <string name="card_browser_show_marked" maxLength="28">Atlasīt atzīmētās</string>
     <string name="card_browser_show_suspended" maxLength="28">Atlasīt atliktās</string>

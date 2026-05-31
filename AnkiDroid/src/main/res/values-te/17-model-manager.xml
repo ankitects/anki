@@ -48,7 +48,6 @@
     <!--Language Hint-->
     <string name="model_field_editor_language_hint_dialog_success_result">భాష సూచనను %sకి సెట్ చేయండి</string>
     <!--Field Editing-->
-    <string name="model_field_editor_add" maxLength="28">ఫీల్డ్ను జోడించండి</string>
     <string name="model_field_editor_delete">ఫీల్డ్ను తొలగించు</string>
     <string name="model_field_editor_rename">ఫీల్డ్ పేరు మార్చండి</string>
     <string name="model_field_editor_language_hint">కీబోర్డ్ భాష సూచనను సెట్ చేయండి</string>

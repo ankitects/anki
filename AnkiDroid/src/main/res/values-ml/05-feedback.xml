@@ -41,7 +41,6 @@
     <string name="feedback_default_text">നിങ്ങൾ റിപ്പോർട്ടുചെയ്യുന്ന പിശകുകളുടെ സ്വഭാവത്തെക്കുറിച്ചുള്ള നിങ്ങളുടെ ഫീഡ്‌ബാക്കോ വിവരമോ നൽകുക.</string>
     <string name="feedback_auto_toast_text">AnkiDroid ഒരു പ്രശ്നം നേരിട്ടു; ഡവലപ്പർമാർക്ക് ഒരു റിപ്പോർട്ട് അയയ്ക്കുന്നു&#8230;</string>
     <string name="feedback_for_manual_toast_text">An error report is being prepared for the developers&#8230;</string>
-    <string name="feedback_copy_debug">ഡീബഗ് വിവരം പകർത്തുക</string>
     <string name="feedback_report">റിപ്പോർട്ട്</string>
     <string name="feedback_report_automatically">പിശക് റിപ്പോർട്ടുകൾ യാന്ത്രികമായി അയയ്‌ക്കുക</string>
     <string name="feedback_no_suitable_app_found">അനുയോജ്യമായ അപ്ലിക്കേഷനുകളൊന്നും കണ്ടെത്തിയില്ല</string>

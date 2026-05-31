@@ -47,7 +47,6 @@
     <!--Language Hint-->
     <string name="model_field_editor_language_hint_dialog_success_result">Atur petunjuk bahasa menjadi %s</string>
     <!--Field Editing-->
-    <string name="model_field_editor_add" maxLength="28">Tambah kolom</string>
     <string name="model_field_editor_delete">Hapus kolom</string>
     <string name="model_field_editor_rename">Ubah nama kolom</string>
     <string name="model_field_editor_language_hint">Atur petunjuk bahasa papan tik</string>

@@ -337,7 +337,6 @@
     <string name="show_cards" comment="Label for toggle cards button in BrowserOptionsDialog">Карточки</string>
     <string name="show_notes" comment="Label for toggle notes button in BrowserOptionsDialog">Записи</string>
     <string name="truncate_content_help">Показывать только 3 строки в каждом ряду</string>
-    <string name="browser_options_dialog_heading">Параметры списка карточек</string>
     <string name="audio_saved">Запись сохранена</string>
     <string name="deleting_selected_notes">Выбранные записи удаляются</string>
     <string name="tts_voices_default_text" comment="The default text to speak when selecting     Text to speech voices">Нажмите, чтобы послушать</string>

@@ -41,7 +41,6 @@
     <string name="feedback_default_text">ਤੁਹਾਡੇ ਦੁਆਰਾ ਰਿਪੋਰਟ ਕੀਤੀ ਜਾ ਰਹੀ ਕਿਸੇ ਵੀ ਤਰੁਟੀ ਦੀ ਪ੍ਰਕਿਰਤੀ ਬਾਰੇ ਆਪਣਾ ਫੀਡਬੈਕ ਜਾਂ ਜਾਣਕਾਰੀ ਦਰਜ ਕਰੋ।</string>
     <string name="feedback_auto_toast_text">AnkiDroid ਨੂੰ ਇੱਕ ਸਮੱਸਿਆ ਆਈ ਹੈ; ਡਿਵੈਲਪਰਾਂ ਨੂੰ ਰਿਪੋਰਟ ਭੇਜੀ ਜਾ ਰਹੀ ਹੈ&#8230;</string>
     <string name="feedback_for_manual_toast_text">ਡਿਵੈਲਪਰਾਂ ਲਈ ਇੱਕ ਤਰੁੱਟੀ ਰਿਪੋਰਟ ਤਿਆਰ ਕੀਤੀ ਜਾ ਰਹੀ ਹੈ&#8230;</string>
-    <string name="feedback_copy_debug">ਡੀਬੱਗ ਜਾਣਕਾਰੀ ਕਾਪੀ ਕਰੋ</string>
     <string name="feedback_report">ਰਿਪੋਰਟ</string>
     <string name="feedback_report_automatically">ਗਲਤੀ ਰਿਪੋਰਟਾਂ ਆਟੋਮੈਟਿਕ ਹੀ ਭੇਜੋ</string>
     <string name="feedback_no_suitable_app_found">ਕੋਈ ਢੁਕਵੀਂ ਐਪ ਨਹੀਂ ਮਿਲੀ</string>

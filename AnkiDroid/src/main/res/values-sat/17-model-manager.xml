@@ -48,7 +48,6 @@
     <!--Language Hint-->
     <string name="model_field_editor_language_hint_dialog_success_result">%s ᱛᱮ ᱯᱟᱹᱨᱥᱤ ᱦᱤᱸᱴ ᱥᱮᱴ ᱢᱮ</string>
     <!--Field Editing-->
-    <string name="model_field_editor_add" maxLength="28">ᱡᱟᱭᱜᱟ ᱥᱮᱞᱮᱫ ᱢᱮ</string>
     <string name="model_field_editor_delete">ᱡᱟᱭᱜᱟ ᱜᱮᱫ ᱜᱤᱰᱤ</string>
     <string name="model_field_editor_rename">ᱡᱟᱭᱜᱟ ᱫᱩᱦᱲᱟ ᱧᱩᱛᱩᱢᱟᱱ</string>
     <string name="model_field_editor_language_hint">ᱠᱤᱵᱚᱰ ᱯᱟᱹᱨᱥᱤ ᱦᱤᱸᱴ ᱥᱮᱴ ᱢᱮ</string>

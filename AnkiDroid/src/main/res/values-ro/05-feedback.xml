@@ -41,7 +41,6 @@
     <string name="feedback_default_text">Introduceți feedback-ul sau informații despre natura erorii pe care o raportați.</string>
     <string name="feedback_auto_toast_text">AnkiDroid a întâlnit o problemă; un raport este trimis la dezvoltatori&#8230;</string>
     <string name="feedback_for_manual_toast_text">Un raport al erorii este în curs de pregătire pentru dezvoltatori&#8230;</string>
-    <string name="feedback_copy_debug">Copiați informațiile de depanare</string>
     <string name="feedback_report">Raport</string>
     <string name="feedback_report_automatically">Trimite automat rapoarte de eroare</string>
     <string name="feedback_no_suitable_app_found">Nu a fost găsită o aplicație potrivită</string>

@@ -332,7 +332,6 @@
     <string name="show_cards" comment="Label for toggle cards button in BrowserOptionsDialog">Kartītes</string>
     <string name="show_notes" comment="Label for toggle notes button in BrowserOptionsDialog">Piezīmes</string>
     <string name="truncate_content_help">Samazināt katras pārlūka rindas augstumu, lai rādītu tikai pirmās 3 satura rindas</string>
-    <string name="browser_options_dialog_heading">Pārlūka iespējas</string>
     <string name="audio_saved">Ieraksts saglabāts</string>
     <string name="deleting_selected_notes">Izdzēš atlasītās piezīmes</string>
     <string name="tts_voices_default_text" comment="The default text to speak when selecting     Text to speech voices">Piesist balsij, lai klausītos</string>

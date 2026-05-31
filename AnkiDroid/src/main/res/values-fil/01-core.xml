@@ -96,7 +96,6 @@
     <string name="menu_enable_voice_playback" maxLength="28">Buksan ang voice playback</string>
     <string name="menu_disable_voice_playback">Ipatay ang voice playback</string>
     <string name="menu_create_backup" maxLength="28">Create backup</string>
-    <string name="new_deck">Gumawa ng deck</string>
     <string name="new_dynamic_deck">Gumawa ng na-filter na deck</string>
     <string name="directory_inaccessible">Hindi mapuntahan ang AnkiDroid directory</string>
     <!--This is shown when AnkiDroid starts up with no storage permissions.

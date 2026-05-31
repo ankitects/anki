@@ -41,7 +41,6 @@
     <string name="feedback_default_text">Angiv venligst din feedback eller oplysninger om arten af eventuelle fejl du rapporterer.</string>
     <string name="feedback_auto_toast_text">AnkiDroid er stødt på et problem; en rapport bliver sendt til udviklerne&#8230;</string>
     <string name="feedback_for_manual_toast_text">En fejlrapport udarbejdes til udviklerne&#8230;</string>
-    <string name="feedback_copy_debug">Copy debug info</string>
     <string name="feedback_report">Rapportér</string>
     <string name="feedback_report_automatically">Send fejlmeldinger automatisk</string>
     <string name="feedback_no_suitable_app_found">No suitable app found</string>

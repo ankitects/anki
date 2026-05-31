@@ -41,7 +41,6 @@
     <string name="feedback_default_text">Írd be a visszajelzésedet, vagy a jelentett hiba természetére vonatkozó információkat.</string>
     <string name="feedback_auto_toast_text">Probléma volt az AnkiDroidban; egy jelentést küldünk a fejlesztőknek&#8230;</string>
     <string name="feedback_for_manual_toast_text">Hiba riport készül a fejlesztőknek&#8230;</string>
-    <string name="feedback_copy_debug">A hibakeresési adatok másolása</string>
     <string name="feedback_report">Probléma bejelentése</string>
     <string name="feedback_report_automatically">Hibajelentések automatikus küldése</string>
     <string name="feedback_no_suitable_app_found">Nem található megfelelő alkalmazás</string>

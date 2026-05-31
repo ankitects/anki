@@ -48,7 +48,6 @@
     <!--Language Hint-->
     <string name="model_field_editor_language_hint_dialog_success_result">Aseta kielen vihjeeksi %s</string>
     <!--Field Editing-->
-    <string name="model_field_editor_add" maxLength="28">Lisää kenttä</string>
     <string name="model_field_editor_delete">Poista kenttä</string>
     <string name="model_field_editor_rename">Uudelleennimeä kenttä</string>
     <string name="model_field_editor_language_hint">Aseta näppäimistön kielen vihje</string>

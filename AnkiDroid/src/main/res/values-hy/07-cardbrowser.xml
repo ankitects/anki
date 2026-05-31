@@ -42,12 +42,10 @@
         <item quantity="one">%d գրառում է ցուցադրված</item>
         <item quantity="other">%d գրառում է ցուցադրված</item>
     </plurals>
-    <string name="card_browser_all_decks">Բոլոր կապուկները</string>
     <plurals name="card_browser_delete_notes">
         <item quantity="one">Ջնջել գրառումը</item>
         <item quantity="other">Ջնջել գրառումները</item>
     </plurals>
-    <string name="card_browser_change_deck" maxLength="28">Փոխել կապուկը</string>
     <string name="delete_card_title">Ջնջե՞լ գրառումը:</string>
     <string name="card_browser_show_marked" maxLength="28">Զտել նշվածները</string>
     <string name="card_browser_show_suspended" maxLength="28">Ցուցադրել հեռացվածները</string>

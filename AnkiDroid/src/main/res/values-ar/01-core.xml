@@ -108,7 +108,6 @@
     <string name="menu_enable_voice_playback" maxLength="28">تفعيل مسجل الصوت</string>
     <string name="menu_disable_voice_playback">تعطيل مسجل الصوت</string>
     <string name="menu_create_backup" maxLength="28">إنشاء نسخة احتياطية</string>
-    <string name="new_deck">إنشاء رِزمة</string>
     <string name="new_dynamic_deck">إنشاء رِزمة مفروزة</string>
     <string name="directory_inaccessible">تعذر الوصول إلى مجلد آنكي درويد</string>
     <!--This is shown when AnkiDroid starts up with no storage permissions.

@@ -48,7 +48,6 @@
     <!--Language Hint-->
     <string name="model_field_editor_language_hint_dialog_success_result">ভাষার ইঙ্গিতটি %s এ সেট করুন</string>
     <!--Field Editing-->
-    <string name="model_field_editor_add" maxLength="28">ক্ষেত্র যোগ করুন</string>
     <string name="model_field_editor_delete">ক্ষেত্রটি মুছুন</string>
     <string name="model_field_editor_rename">ক্ষেত্রের নাম পরিবর্তন করুন</string>
     <string name="model_field_editor_language_hint">কীবোর্ড ভাষার ইঙ্গিত সেট করুন</string>

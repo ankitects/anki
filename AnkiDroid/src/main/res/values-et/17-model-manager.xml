@@ -48,7 +48,6 @@
     <!--Language Hint-->
     <string name="model_field_editor_language_hint_dialog_success_result">Lisa keele vihje keelele %s</string>
     <!--Field Editing-->
-    <string name="model_field_editor_add" maxLength="28">Lisa väli</string>
     <string name="model_field_editor_delete">Kustuta väli</string>
     <string name="model_field_editor_rename">Nimeta ümber väli</string>
     <string name="model_field_editor_language_hint">Määra klaviatuuri keele vihje</string>

@@ -41,7 +41,6 @@
     <string name="feedback_default_text">Lütfen geribildiriminizi veya bildirdiğiniz hatalarla ilgili sahip olduğunuz bilgiyi girin.</string>
     <string name="feedback_auto_toast_text">AnkiDroid bir sorunla karşılaştı; Program geliştiricilerine için bir rapor gönderiliyor&#8230;</string>
     <string name="feedback_for_manual_toast_text">Geliştiriciler için bir hata raporu hazırlanıyor&#8230;</string>
-    <string name="feedback_copy_debug">Hata ayıklama bilgisini kopyala</string>
     <string name="feedback_report">Bildir</string>
     <string name="feedback_report_automatically">Hata raporlarını otomatik olarak gönder</string>
     <string name="feedback_no_suitable_app_found">Uygun uygulama bulunamadı</string>

@@ -337,7 +337,6 @@
     <string name="show_cards" comment="Label for toggle cards button in BrowserOptionsDialog">Karty</string>
     <string name="show_notes" comment="Label for toggle notes button in BrowserOptionsDialog">Notatki</string>
     <string name="truncate_content_help">Przycinaj wysokość każdego wiersza przeglądarki, aby pokazać tylko pierwsze 3 linie treści</string>
-    <string name="browser_options_dialog_heading">Opcje przeglądarki</string>
     <string name="audio_saved">Nagranie zapisane</string>
     <string name="deleting_selected_notes">Usuwanie zaznaczonych notatek</string>
     <string name="tts_voices_default_text" comment="The default text to speak when selecting     Text to speech voices">Dotnij głosu, aby słuchać</string>

@@ -332,7 +332,6 @@
     <string name="show_cards" comment="Label for toggle cards button in BrowserOptionsDialog">Kartice</string>
     <string name="show_notes" comment="Label for toggle notes button in BrowserOptionsDialog">Bilješke</string>
     <string name="truncate_content_help">Skrati visinu svakog retka u pregledniku da se prikazuju samo prve 3 linije sadržaja</string>
-    <string name="browser_options_dialog_heading">Postavke preglednika</string>
     <string name="audio_saved">Snimka spremljena</string>
     <string name="deleting_selected_notes">Brisanje odabranih bilješki</string>
     <string name="tts_voices_default_text" comment="The default text to speak when selecting     Text to speech voices">Pritisnite glas da poslušate</string>

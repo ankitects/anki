@@ -42,12 +42,10 @@
         <item quantity="one">%d টি নোট দেখাচ্ছি</item>
         <item quantity="other">%d টি নোট</item>
     </plurals>
-    <string name="card_browser_all_decks">সকল ডেক</string>
     <plurals name="card_browser_delete_notes">
         <item quantity="one">নোট মুছুন</item>
         <item quantity="other">নোট ডিলিট করুন</item>
     </plurals>
-    <string name="card_browser_change_deck" maxLength="28">ডেক পরিবর্তন</string>
     <string name="delete_card_title">নোট মুছব?</string>
     <string name="card_browser_show_marked" maxLength="28">চিহ্নিতগুলো বাছো</string>
     <string name="card_browser_show_suspended" maxLength="28">চিহ্নিতগুলো স্থগিত কর</string>

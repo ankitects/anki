@@ -94,7 +94,6 @@
     <string name="menu_enable_voice_playback" maxLength="28">啟動聲音重放功能</string>
     <string name="menu_disable_voice_playback">關閉聲音重放功能</string>
     <string name="menu_create_backup" maxLength="28">Create backup</string>
-    <string name="new_deck">建立牌組</string>
     <string name="new_dynamic_deck">新增篩選牌組</string>
     <string name="directory_inaccessible">無法存取 AnkiDroid 目錄</string>
     <!--This is shown when AnkiDroid starts up with no storage permissions.

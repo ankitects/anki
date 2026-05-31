@@ -96,7 +96,6 @@
     <string name="menu_enable_voice_playback" maxLength="28">వాయిస్ ప్లేబ్యాక్‌ని ప్రారంభించండి</string>
     <string name="menu_disable_voice_playback">వాయిస్ ప్లేబ్యాక్‌ని నిలిపివేయండి</string>
     <string name="menu_create_backup" maxLength="28">బ్యాకప్ను సృష్టించు</string>
-    <string name="new_deck">ఒక డెక్ సృష్టించండి</string>
     <string name="new_dynamic_deck">ఫిల్టర్ డెక్ను సృష్టించండి</string>
     <string name="directory_inaccessible">AnkiDroid డైరెక్టరీ అందుబాటులో లేదు</string>
     <!--This is shown when AnkiDroid starts up with no storage permissions.

@@ -94,7 +94,6 @@
     <string name="menu_enable_voice_playback" maxLength="28">Enable voice playback</string>
     <string name="menu_disable_voice_playback">Disable voice playback</string>
     <string name="menu_create_backup" maxLength="28">Create backup</string>
-    <string name="new_deck">လုပ်ငန်းအသစ်ဖန်တီး</string>
     <string name="new_dynamic_deck">ထပ်ဆင့်လုပ်ငန်းဖန်းတီး</string>
     <string name="directory_inaccessible">AnkiDroidအဘိဓာန်မရနိုင်ပါ</string>
     <!--This is shown when AnkiDroid starts up with no storage permissions.

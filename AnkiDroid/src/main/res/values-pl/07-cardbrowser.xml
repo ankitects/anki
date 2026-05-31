@@ -46,14 +46,12 @@
         <item quantity="many">%d notatek pokazanych</item>
         <item quantity="other">%d notatek pokazanych</item>
     </plurals>
-    <string name="card_browser_all_decks">Wszystkie talie</string>
     <plurals name="card_browser_delete_notes">
         <item quantity="one">Usuń notatkę</item>
         <item quantity="few">Usuń notatki</item>
         <item quantity="many">Usuń notatki</item>
         <item quantity="other">Usuń notatki</item>
     </plurals>
-    <string name="card_browser_change_deck" maxLength="28">Zmień talię</string>
     <string name="delete_card_title">Usunąć notatkę?</string>
     <string name="card_browser_show_marked" maxLength="28">Filtruj zaznaczone</string>
     <string name="card_browser_show_suspended" maxLength="28">Filtruj zawieszone</string>

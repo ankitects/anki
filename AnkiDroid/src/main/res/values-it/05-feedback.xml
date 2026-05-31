@@ -41,7 +41,6 @@
     <string name="feedback_default_text">Per favore inserisci i tuoi commenti o informazioni sulla natura di eventuali errori che stai riportando.</string>
     <string name="feedback_auto_toast_text">AnkiDroid ha riscontrato un problema; una segnalazione viene inviata agli sviluppatori&#8230;</string>
     <string name="feedback_for_manual_toast_text">È in preparazione una rapporto di errore per gli sviluppatori</string>
-    <string name="feedback_copy_debug">Copia le informazioni di debugging</string>
     <string name="feedback_report">Segnala</string>
     <string name="feedback_report_automatically">Invia segnalazioni di errori automaticamente</string>
     <string name="feedback_no_suitable_app_found">Nessuna applicazione adatta trovata</string>

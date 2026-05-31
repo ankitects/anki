@@ -41,7 +41,6 @@
     <string name="feedback_default_text">Մուտքագրեք Ձեր արձագանքը կամ զեկուցվող սխաների բնույթի մասին տեղեկությունները:</string>
     <string name="feedback_auto_toast_text">AnkiDroid-ում սխալ առաջացավ. մշակողներին զեկույց է ուղարկվում&#8230;</string>
     <string name="feedback_for_manual_toast_text">Խնդրի մասին զեկույցը պատրաստվում է&#8230;</string>
-    <string name="feedback_copy_debug">Պատճենել վրիպազերծման տեղեկությունները</string>
     <string name="feedback_report">Զեկուցել</string>
     <string name="feedback_report_automatically">Ինքնաշխատորեն ուղարկել զեկույցները</string>
     <string name="feedback_no_suitable_app_found">Համապատասխան հավելված չի գտնվել</string>

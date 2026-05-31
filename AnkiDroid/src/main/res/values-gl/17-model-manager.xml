@@ -48,7 +48,6 @@
     <!--Language Hint-->
     <string name="model_field_editor_language_hint_dialog_success_result">Estabeleceuse a pista do idioma a %s</string>
     <!--Field Editing-->
-    <string name="model_field_editor_add" maxLength="28">Engadir campo</string>
     <string name="model_field_editor_delete">Eliminar campo</string>
     <string name="model_field_editor_rename">Renomear campo</string>
     <string name="model_field_editor_language_hint">Estabelecer pista do idioma do teclado</string>

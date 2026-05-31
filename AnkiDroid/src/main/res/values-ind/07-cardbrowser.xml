@@ -40,11 +40,9 @@
     <plurals name="card_browser_subtitle_notes_mode">
         <item quantity="other">%d catatan ditampilkan</item>
     </plurals>
-    <string name="card_browser_all_decks">Semua dek</string>
     <plurals name="card_browser_delete_notes">
         <item quantity="other">Hapus catatan</item>
     </plurals>
-    <string name="card_browser_change_deck" maxLength="28">Ganti dek</string>
     <string name="delete_card_title">Hapus catatan?</string>
     <string name="card_browser_show_marked" maxLength="28">Filter ditandai</string>
     <string name="card_browser_show_suspended" maxLength="28">Filter ditangguhkan</string>

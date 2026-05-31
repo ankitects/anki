@@ -322,7 +322,6 @@
     <string name="show_cards" comment="Label for toggle cards button in BrowserOptionsDialog">Các thẻ</string>
     <string name="show_notes" comment="Label for toggle notes button in BrowserOptionsDialog">Ghi chú</string>
     <string name="truncate_content_help">Cắt bớt chiều cao của mỗi hàng của Trình duyệt để chỉ hiển thị 3 dòng nội dung đầu tiên</string>
-    <string name="browser_options_dialog_heading">Tuỳ chọn trình duyệt</string>
     <string name="audio_saved">Đã lưu bản ghi âm</string>
     <string name="deleting_selected_notes">Xoá ghi chú đã chọn</string>
     <string name="tts_voices_default_text" comment="The default text to speak when selecting     Text to speech voices">Nhấn vào một giọng nói để nghe</string>

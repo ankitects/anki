@@ -41,7 +41,6 @@
     <string name="feedback_default_text">Ilagay ang iyong mga kuro-kuro o impormasyon ukol sa katangian ng mga error na iyong iniuulat.</string>
     <string name="feedback_auto_toast_text">Ang AnkiDroid ay nakaranas ng problema; ang isang ulat ay pinadadala sa mga developer&#8230;</string>
     <string name="feedback_for_manual_toast_text">An error report is being prepared for the developers&#8230;</string>
-    <string name="feedback_copy_debug">Kopyahin ang impormasyon sa pag-debug</string>
     <string name="feedback_report">Ulat</string>
     <string name="feedback_report_automatically">Awtomatikong ipadala ang mga ulat tungkol sa error</string>
     <string name="feedback_no_suitable_app_found">No suitable app found</string>

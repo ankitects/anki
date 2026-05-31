@@ -93,7 +93,6 @@
     <string name="menu_enable_voice_playback" maxLength="28">発音チェック機能をオン</string>
     <string name="menu_disable_voice_playback">発音チェック機能をオフ</string>
     <string name="menu_create_backup" maxLength="28">バックアップを作成</string>
-    <string name="new_deck">デッキを新規作成</string>
     <string name="new_dynamic_deck">フィルターデッキを作成</string>
     <string name="directory_inaccessible">AnkiDroidディレクトリにアクセスできません</string>
     <!--This is shown when AnkiDroid starts up with no storage permissions.

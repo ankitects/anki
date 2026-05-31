@@ -42,12 +42,10 @@
         <item quantity="one">%d Notiz angezeigt</item>
         <item quantity="other">%d Notizen angezeigt</item>
     </plurals>
-    <string name="card_browser_all_decks">Alle Stapel</string>
     <plurals name="card_browser_delete_notes">
         <item quantity="one">Notiz löschen</item>
         <item quantity="other">Notizen löschen</item>
     </plurals>
-    <string name="card_browser_change_deck" maxLength="28">Stapel wechseln</string>
     <string name="delete_card_title">Notiz löschen?</string>
     <string name="card_browser_show_marked" maxLength="28">Markierte herausfiltern</string>
     <string name="card_browser_show_suspended" maxLength="28">Nach Ausgeschlossenen filtern</string>

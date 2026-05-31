@@ -40,11 +40,9 @@
     <plurals name="card_browser_subtitle_notes_mode">
         <item quantity="other">%d ghi chú hiển thị</item>
     </plurals>
-    <string name="card_browser_all_decks">Tất cả bộ thẻ</string>
     <plurals name="card_browser_delete_notes">
         <item quantity="other">Xoá ghi chú</item>
     </plurals>
-    <string name="card_browser_change_deck" maxLength="28">Thay đổi bộ thẻ</string>
     <string name="delete_card_title">Xoá ghi chú?</string>
     <string name="card_browser_show_marked" maxLength="28">Bộ lọc được đánh dấu</string>
     <string name="card_browser_show_suspended" maxLength="28">Bộ lọc bị tạm dừng</string>

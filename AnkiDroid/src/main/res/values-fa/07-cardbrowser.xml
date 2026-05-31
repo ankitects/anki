@@ -42,12 +42,10 @@
         <item quantity="one">%d یادداشت نمایش داده‌شده</item>
         <item quantity="other">%d یادداشت نمایش داده شده</item>
     </plurals>
-    <string name="card_browser_all_decks">همه دسته ها</string>
     <plurals name="card_browser_delete_notes">
         <item quantity="one">حذف یادداشت</item>
         <item quantity="other">حذف یادداشت‌ها</item>
     </plurals>
-    <string name="card_browser_change_deck" maxLength="28">تغییر دسته</string>
     <string name="delete_card_title">حذف یادداشت</string>
     <string name="card_browser_show_marked" maxLength="28">فیلتر علامتگذاری شد</string>
     <string name="card_browser_show_suspended" maxLength="28">فیلتر معلق شد</string>

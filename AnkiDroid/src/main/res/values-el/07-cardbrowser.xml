@@ -42,12 +42,10 @@
         <item quantity="one">%d note shown</item>
         <item quantity="other">%d notes shown</item>
     </plurals>
-    <string name="card_browser_all_decks">Όλες οι τράπουλες</string>
     <plurals name="card_browser_delete_notes">
         <item quantity="one">Διαγραφή σημείωσης</item>
         <item quantity="other">Διαγραφή σημειώσεων</item>
     </plurals>
-    <string name="card_browser_change_deck" maxLength="28">Αλλαγή τράπουλας</string>
     <string name="delete_card_title">Διαγραφή σημείωσης;</string>
     <string name="card_browser_show_marked" maxLength="28">Δείξε μαρκαρισμένες</string>
     <string name="card_browser_show_suspended" maxLength="28">Δείξε ανεσταλμένες</string>

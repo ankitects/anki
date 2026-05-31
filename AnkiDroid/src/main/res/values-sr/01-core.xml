@@ -99,7 +99,6 @@
     <string name="menu_enable_voice_playback" maxLength="28">Омогући аудио репродукцију</string>
     <string name="menu_disable_voice_playback">Онемогући аудио репродукцију</string>
     <string name="menu_create_backup" maxLength="28">Create backup</string>
-    <string name="new_deck">Направи шпил</string>
     <string name="new_dynamic_deck">Направи филтриран шпил</string>
     <string name="directory_inaccessible">Недоступан каталог AnkiDroid</string>
     <!--This is shown when AnkiDroid starts up with no storage permissions.

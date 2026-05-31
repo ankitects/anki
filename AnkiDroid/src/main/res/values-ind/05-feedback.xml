@@ -41,7 +41,6 @@
     <string name="feedback_default_text">Silakan tulis umpan balik atau informasi tentang galat yang kamu laporkan.</string>
     <string name="feedback_auto_toast_text">AnkiDroid mengalami masalah; sebuah laporan dikirim ke pengembang&#8230;</string>
     <string name="feedback_for_manual_toast_text">Sebuah laporan eror sedang disiapkan untuk para pengembang&#8230;</string>
-    <string name="feedback_copy_debug">Salin info debug</string>
     <string name="feedback_report">Laporkan</string>
     <string name="feedback_report_automatically">Kirim laporan galat secara otomatis</string>
     <string name="feedback_no_suitable_app_found">Aplikasi yang cocok tidak ditemukan.</string>

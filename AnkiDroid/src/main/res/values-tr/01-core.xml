@@ -96,7 +96,6 @@
     <string name="menu_enable_voice_playback" maxLength="28">Ses yeniden oynatmayı aç</string>
     <string name="menu_disable_voice_playback">Ses yeniden oynatmayı kapat</string>
     <string name="menu_create_backup" maxLength="28">Yedekle</string>
-    <string name="new_deck">Deste oluştur</string>
     <string name="new_dynamic_deck">Filtreli deste oluştur</string>
     <string name="directory_inaccessible">AnkiDroid dizinine ulaşılamıyor</string>
     <!--This is shown when AnkiDroid starts up with no storage permissions.

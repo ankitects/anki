@@ -41,7 +41,6 @@
     <string name="feedback_default_text">Будь ласка, введіть ваш відгук, або інформацію про природу помилки.</string>
     <string name="feedback_auto_toast_text">AnkiDroid зіткнувся з проблемою. Звіт відсилається до розробників&#8230;</string>
     <string name="feedback_for_manual_toast_text">Готується звіт про помилки для розробників&#8230;</string>
-    <string name="feedback_copy_debug">Копіювати дані зневадження</string>
     <string name="feedback_report">Звіт</string>
     <string name="feedback_report_automatically">Відправляти звіти про помилки автоматично</string>
     <string name="feedback_no_suitable_app_found">Відповідного додатку не знайдено</string>

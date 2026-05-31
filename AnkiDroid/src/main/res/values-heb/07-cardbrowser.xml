@@ -46,14 +46,12 @@
         <item quantity="many">מוצגים %d קלפים</item>
         <item quantity="other">מוצגים %d כרטיסים</item>
     </plurals>
-    <string name="card_browser_all_decks">כל החפיסות</string>
     <plurals name="card_browser_delete_notes">
         <item quantity="one">מחק רשומה</item>
         <item quantity="two">מחק הערות</item>
         <item quantity="many">מחק הערות</item>
         <item quantity="other">מחק הערות</item>
     </plurals>
-    <string name="card_browser_change_deck" maxLength="28">החלפת חפיסה</string>
     <string name="delete_card_title">למחוק את הרשומה?</string>
     <string name="card_browser_show_marked" maxLength="28">סינון לפי סימון</string>
     <string name="card_browser_show_suspended" maxLength="28">סינון לפי השהייה</string>

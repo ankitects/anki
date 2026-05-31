@@ -328,7 +328,6 @@
     <string name="show_cards" comment="Label for toggle cards button in BrowserOptionsDialog">کارڈز</string>
     <string name="show_notes" comment="Label for toggle notes button in BrowserOptionsDialog">نوٹس</string>
     <string name="truncate_content_help">Truncate the height of each row of the Browser to show only first 3 lines of content</string>
-    <string name="browser_options_dialog_heading">Browser options</string>
     <string name="audio_saved">ریکارڈنگ محفوظ ہو گئی</string>
     <string name="deleting_selected_notes">منتخب نوٹوں کو حذف کیا جا رہا ہے</string>
     <string name="tts_voices_default_text" comment="The default text to speak when selecting     Text to speech voices">Tap a voice to listen</string>

@@ -41,7 +41,6 @@
     <string name="feedback_default_text">Enigu komenton aŭ informojn pri ecaro de la raportataj eraroj.</string>
     <string name="feedback_auto_toast_text">Eraro okazis al AnkiDroid; sendado de raporto al ĝiaj programistoj&#8230;</string>
     <string name="feedback_for_manual_toast_text">Preparado de erar-raporto por la programistoj&#8230;</string>
-    <string name="feedback_copy_debug">Kopii senerarigajn informojn</string>
     <string name="feedback_report">Raporti</string>
     <string name="feedback_report_automatically">Aŭtomate sendi erar-raportojn</string>
     <string name="feedback_no_suitable_app_found">Ne trovis kongruan aplikaĵon</string>

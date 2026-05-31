@@ -42,12 +42,10 @@
         <item quantity="one">%d ਨੋਟ ਦਿਖਾਏ ਗਏ</item>
         <item quantity="other">%d ਨੋਟ ਦਿਖਾਏ ਗਏ</item>
     </plurals>
-    <string name="card_browser_all_decks">ਸਾਰੇ ਡੇਕ</string>
     <plurals name="card_browser_delete_notes">
         <item quantity="one">ਨੋਟ ਮਿਟਾਓ</item>
         <item quantity="other">ਨੋਟਸ ਮਿਟਾਓ</item>
     </plurals>
-    <string name="card_browser_change_deck" maxLength="28">ਡੇਕ ਬਦਲੋ</string>
     <string name="delete_card_title">ਕੀ ਨੋਟ ਮਿਟਾਉਣਾ ਹੈ?</string>
     <string name="card_browser_show_marked" maxLength="28">ਫਿਲਟਰ ਚਿੰਨ੍ਹਿਤ ਕੀਤਾ ਗਿਆ</string>
     <string name="card_browser_show_suspended" maxLength="28">ਫਿਲਟਰ ਮੁਅੱਤਲ ਕੀਤਾ ਗਿਆ</string>

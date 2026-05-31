@@ -347,7 +347,6 @@
     <string name="show_cards" comment="Label for toggle cards button in BrowserOptionsDialog">بطاقات</string>
     <string name="show_notes" comment="Label for toggle notes button in BrowserOptionsDialog">ملحوظات</string>
     <string name="truncate_content_help">يقتطع كل صف في المتصفح لتظهر أول 3 سطور من المحتوى فقط</string>
-    <string name="browser_options_dialog_heading">خيارات المتصفح</string>
     <string name="audio_saved">تم حفظ التسجيل</string>
     <string name="deleting_selected_notes">حذف الملحوظات المحددة</string>
     <string name="tts_voices_default_text" comment="The default text to speak when selecting     Text to speech voices">أنقر على صوت لتسمعه</string>

@@ -327,7 +327,6 @@
     <string name="show_cards" comment="Label for toggle cards button in BrowserOptionsDialog">કાર્ડ</string>
     <string name="show_notes" comment="Label for toggle notes button in BrowserOptionsDialog">નોંધો</string>
     <string name="truncate_content_help">Truncate the height of each row of the Browser to show only first 3 lines of content</string>
-    <string name="browser_options_dialog_heading">બ્રાઉઝર ઓપ્શન્સ</string>
     <string name="audio_saved">રેકોર્ડિંગ સાચવ્યું</string>
     <string name="deleting_selected_notes">પસંદ કરેલી નોંધો કાઢી નાખી રહ્યાં છીએ</string>
     <string name="tts_voices_default_text" comment="The default text to speak when selecting     Text to speech voices">અવાજ સંભાભડવા માટે દબાવો</string>

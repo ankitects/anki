@@ -50,7 +50,6 @@
         <item quantity="many">%d ملحوظة معروضة</item>
         <item quantity="other">%d ملحوظة معروضة</item>
     </plurals>
-    <string name="card_browser_all_decks">كل الرزم</string>
     <plurals name="card_browser_delete_notes">
         <item quantity="zero">حذف الملحوظة</item>
         <item quantity="one">حذف الملحوظة</item>
@@ -59,7 +58,6 @@
         <item quantity="many">حذف الملحوظات</item>
         <item quantity="other">حذف الملحوظات</item>
     </plurals>
-    <string name="card_browser_change_deck" maxLength="28">تغيير الرزمة</string>
     <string name="delete_card_title">أتُريدُ حذف الملحوظة؟</string>
     <string name="card_browser_show_marked" maxLength="28">فَرْز البطاقات المُعَلَّمة</string>
     <string name="card_browser_show_suspended" maxLength="28">فَرْز البطاقات المُعَلَّقة</string>

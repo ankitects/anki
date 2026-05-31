@@ -96,7 +96,6 @@
     <string name="menu_enable_voice_playback" maxLength="28">Slå på røystavspeling</string>
     <string name="menu_disable_voice_playback">Slå av røystavspeling</string>
     <string name="menu_create_backup" maxLength="28">Create backup</string>
-    <string name="new_deck">Lag ein kortleik</string>
     <string name="new_dynamic_deck">Oppretta filtrert kortstokk</string>
     <string name="directory_inaccessible">AnkiDroid-mappa er utilgjengeleg</string>
     <!--This is shown when AnkiDroid starts up with no storage permissions.

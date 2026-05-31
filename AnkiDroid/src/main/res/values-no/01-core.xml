@@ -96,7 +96,6 @@
     <string name="menu_enable_voice_playback" maxLength="28">Aktiver stemmeavspilling</string>
     <string name="menu_disable_voice_playback">Deaktiver stemmeavspilling</string>
     <string name="menu_create_backup" maxLength="28">Create backup</string>
-    <string name="new_deck">Lag kortstokk</string>
     <string name="new_dynamic_deck">Lag en filtrert kortstokk</string>
     <string name="directory_inaccessible">AnkiDroid-mappen er utilgjengelig</string>
     <!--This is shown when AnkiDroid starts up with no storage permissions.

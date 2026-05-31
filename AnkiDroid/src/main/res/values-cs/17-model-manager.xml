@@ -50,7 +50,6 @@
     <!--Language Hint-->
     <string name="model_field_editor_language_hint_dialog_success_result">Jazyk nápovědy nastaven na %s</string>
     <!--Field Editing-->
-    <string name="model_field_editor_add" maxLength="28">Přidat pole</string>
     <string name="model_field_editor_delete">Odstranit pole</string>
     <string name="model_field_editor_rename">Přejmenovat pole</string>
     <string name="model_field_editor_language_hint">Nastavit jazyk nápovědy klávesnice</string>

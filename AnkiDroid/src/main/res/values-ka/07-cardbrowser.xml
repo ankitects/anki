@@ -42,12 +42,10 @@
         <item quantity="one">ნაჩვენებია %d შენიშვნა</item>
         <item quantity="other">ნაჩვენებია %d შენიშვნა</item>
     </plurals>
-    <string name="card_browser_all_decks">ყველა დასტა</string>
     <plurals name="card_browser_delete_notes">
         <item quantity="one">შენიშვნის წაშლა</item>
         <item quantity="other">შენიშვნების წაშლა</item>
     </plurals>
-    <string name="card_browser_change_deck" maxLength="28">დასტის შეცვლა</string>
     <string name="delete_card_title">წაიშალოს შენიშვნა?</string>
     <string name="card_browser_show_marked" maxLength="28">მონიშნულების გამოფილტვრა</string>
     <string name="card_browser_show_suspended" maxLength="28">გამოტოვებულების გამოფილტვრა</string>

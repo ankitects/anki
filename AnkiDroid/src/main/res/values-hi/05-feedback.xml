@@ -41,7 +41,6 @@
     <string name="feedback_default_text">आप जिन त्रुटियों की सूचना दे रहे हैं उनके स्वरूप पर जानकारी या सुझाव दें।</string>
     <string name="feedback_auto_toast_text">AnkiDroid को एक समस्या का सामना करना पड़ा है; विकासकों को सूचना भेजी जा रही है&#8230;</string>
     <string name="feedback_for_manual_toast_text">डेवलपर्स के लिए एक एरर  रिपोर्ट तैयार की जा रही है&#8230;</string>
-    <string name="feedback_copy_debug">डीबग जानकारी की प्रतिलिपि बनाएँ</string>
     <string name="feedback_report">सूचित करें</string>
     <string name="feedback_report_automatically">स्वतः त्रुटि सूचनाएँ भेजें</string>
     <string name="feedback_no_suitable_app_found">कोई उपयुक्त ऐप नहीं पाया गया</string>

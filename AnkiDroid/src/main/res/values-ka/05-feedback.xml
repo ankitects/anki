@@ -41,7 +41,6 @@
     <string name="feedback_default_text">Enter your feedback or information about the nature of any errors you’re reporting.</string>
     <string name="feedback_auto_toast_text">AnkiDroid შეცდომას წააწყდა; იგზავნება შეტყობინება დეველოპერებთან&#8230;</string>
     <string name="feedback_for_manual_toast_text">მზადდება შეცდომის შეტყობინებება დეველოპერებისთვის&#8230;</string>
-    <string name="feedback_copy_debug">გამართვის ინფორ&#173;მა&#173;ცი&#173;ის კოპირება</string>
     <string name="feedback_report">შეტყობინება</string>
     <string name="feedback_report_automatically">შეცდომის შეტყობინებების ავტომატურად გაგზავნა</string>
     <string name="feedback_no_suitable_app_found">გამოსადეგი აპლიკაცია ვერ მოიძებნა</string>

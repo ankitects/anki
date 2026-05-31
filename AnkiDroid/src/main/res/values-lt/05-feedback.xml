@@ -41,7 +41,6 @@
     <string name="feedback_default_text">Parašykite atsiliepimą arba pateikite informacija apie pranešamų klaidų pobūdį.</string>
     <string name="feedback_auto_toast_text">„AnkiDroid“ iškilo problema. Ataskaita siunčiama kūrėjams&#8230;</string>
     <string name="feedback_for_manual_toast_text">Kūrėjams rengiama klaidos ataskaita&#8230;</string>
-    <string name="feedback_copy_debug">Kopijuoti derinimo informaciją</string>
     <string name="feedback_report">Pranešti</string>
     <string name="feedback_report_automatically">Siųsti pranešimus apie klaidas automatiškai</string>
     <string name="feedback_no_suitable_app_found">Tinkamų programų nerasta</string>

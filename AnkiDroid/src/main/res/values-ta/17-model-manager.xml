@@ -48,7 +48,6 @@
     <!--Language Hint-->
     <string name="model_field_editor_language_hint_dialog_success_result">மொழி குறிப்பை %s ஆக அமைக்கவும்</string>
     <!--Field Editing-->
-    <string name="model_field_editor_add" maxLength="28">ஒரு புலத்தைச் சேர்க்கவும்</string>
     <string name="model_field_editor_delete">புலத்தை நீக்கு</string>
     <string name="model_field_editor_rename">புலத்தை மறுபெயரிடவும்</string>
     <string name="model_field_editor_language_hint">விசைப்பலகை மொழி குறிப்பை அமைக்கவும்</string>

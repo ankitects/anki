@@ -41,7 +41,6 @@
     <string name="feedback_default_text">Bildirdiyiniz hər hansı xətaların xarakterinə dair rəyinizi və ya məlumatınızı daxil edin.</string>
     <string name="feedback_auto_toast_text">AnkiDroid bir problemlə qarşılaşdı; inkişaf etdiricilərə hesabat göndərilir&#8230;</string>
     <string name="feedback_for_manual_toast_text">An error report is being prepared for the developers&#8230;</string>
-    <string name="feedback_copy_debug">Xəta düzəltmə məlumatını kopyalayın</string>
     <string name="feedback_report">Bildir</string>
     <string name="feedback_report_automatically">Xəta hesabatlarını avtomatik göndər</string>
     <string name="feedback_no_suitable_app_found">Uyğun tətbiqetmələr tapılmadı</string>

@@ -322,7 +322,6 @@
     <string name="show_cards" comment="Label for toggle cards button in BrowserOptionsDialog">Kartu</string>
     <string name="show_notes" comment="Label for toggle notes button in BrowserOptionsDialog">Catatan</string>
     <string name="truncate_content_help">Kurangi ketinggian setiap baris dari Browser untuk hanya menampilkan 3 baris pertama dari konten</string>
-    <string name="browser_options_dialog_heading">Opsi browser</string>
     <string name="audio_saved">Rekaman disimpan</string>
     <string name="deleting_selected_notes">Menghapus catatan yang dipilih</string>
     <string name="tts_voices_default_text" comment="The default text to speak when selecting     Text to speech voices">Ketuk sebuah suara untuk didengarkan</string>

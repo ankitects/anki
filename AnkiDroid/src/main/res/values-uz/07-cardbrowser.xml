@@ -42,12 +42,10 @@
         <item quantity="one">%d ta qayd koʻrsatilgan</item>
         <item quantity="other">%d ta qayd koʻrsatilgan</item>
     </plurals>
-    <string name="card_browser_all_decks">Barcha dastalar</string>
     <plurals name="card_browser_delete_notes">
         <item quantity="one">Qaydni oʻchirish</item>
         <item quantity="other">Qaydlarni oʻchirish</item>
     </plurals>
-    <string name="card_browser_change_deck" maxLength="28">Dastasini oʻzgartirish</string>
     <string name="delete_card_title">Qayd oʻchirilsinmi?</string>
     <string name="card_browser_show_marked" maxLength="28">Belgilanganlarni filtrlash</string>
     <string name="card_browser_show_suspended" maxLength="28">Toʻxtatilganlarni filtrlash</string>

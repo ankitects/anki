@@ -42,12 +42,10 @@
         <item quantity="one">%d kort vist</item>
         <item quantity="other">%d kort vist</item>
     </plurals>
-    <string name="card_browser_all_decks">Alle dæk</string>
     <plurals name="card_browser_delete_notes">
         <item quantity="one">Slet note</item>
         <item quantity="other">Slet noter</item>
     </plurals>
-    <string name="card_browser_change_deck" maxLength="28">Change deck</string>
     <string name="delete_card_title">Slet note?</string>
     <string name="card_browser_show_marked" maxLength="28">Filter marked</string>
     <string name="card_browser_show_suspended" maxLength="28">Filter suspended</string>

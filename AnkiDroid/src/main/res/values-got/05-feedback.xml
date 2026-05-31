@@ -41,7 +41,6 @@
     <string name="feedback_default_text">Enter your feedback or information about the nature of any errors you’re reporting.</string>
     <string name="feedback_auto_toast_text">𐌰𐌽𐌺𐌴𐌹𐌳𐍂𐌰𐌿𐌳 𐌱𐌹𐌲𐌰𐍄 𐌰𐌹𐍂𐌶𐌴𐌹𐌽: 𐌱𐍉𐌺𐍉𐍃 𐌱𐌹 𐌰𐌹𐍂𐌶𐌴𐌹𐌽𐍃 𐌹𐌽𐍃𐌰𐌽𐌳𐌹𐌳𐍉𐍃 𐍃𐌹𐌽𐌳 𐌳𐌿 𐌰𐌽𐌳𐍅𐌰𐌹𐌱𐌾𐌰𐌽𐌳𐌰𐌼&#8230;</string>
     <string name="feedback_for_manual_toast_text">𐌰𐌹𐍂𐌶𐌴𐌹𐌽𐍃 𐌼𐌴𐍂𐌹𐌸𐌰 𐌼𐌰𐌽𐍅𐌾𐌰𐌳𐌰 𐌰𐌽𐌳𐍅𐌰𐌹𐌱𐌾𐌰𐌽𐌳𐌰𐌼&#8230;</string>
-    <string name="feedback_copy_debug">Copy debug info</string>
     <string name="feedback_report">𐌼𐌴𐍂𐌴𐌹𐌽𐍃</string>
     <string name="feedback_report_automatically">𐌰𐌹𐍂𐌶𐌴𐌹𐌽𐍃 𐌼𐌴𐍂𐌹𐌸𐍉𐍃 𐍃𐌹𐌻𐌱𐌰𐍄𐌰𐌿𐌾𐌰𐌽𐌳𐌹𐌽 𐌷𐌰𐌹𐌳𐌰𐌿 𐌹𐌽𐍃𐌰𐌽𐌳𐌾𐌰𐌽</string>
     <string name="feedback_no_suitable_app_found">𐌽𐌹 𐌱𐌹𐌲𐌰𐍄 𐌲𐌰𐍄𐌹𐌻 𐌰𐍀𐍀</string>

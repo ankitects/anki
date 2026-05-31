@@ -41,7 +41,6 @@
     <string name="feedback_default_text">Калі ласка, увядзіце ваш водгук або інфармацыю пра характар памылкі.</string>
     <string name="feedback_auto_toast_text">У AnkiDroid узнікла праблема; справаздача адпраўлена распрацоўшчыкам&#8230;</string>
     <string name="feedback_for_manual_toast_text">Справаздача з памылкай падрыхтавана для распрацоўшчыкаў&#8230;</string>
-    <string name="feedback_copy_debug">Капіяваць звесткі адладкі</string>
     <string name="feedback_report">Справаздача</string>
     <string name="feedback_report_automatically">Аўтаматычна адпраўляць справаздачы пра памылкі</string>
     <string name="feedback_no_suitable_app_found">Адпаведнай праграмы не знойдзена</string>

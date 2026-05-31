@@ -41,7 +41,6 @@
     <string name="feedback_default_text">أدخِل ملاحظاتك أو أدخِل معلومات عن طبيعة أي عُطل تُبلِّغ عنه.</string>
     <string name="feedback_auto_toast_text">واجه آنكي درويد مشكلةً؛ يُجرى إرسال تقرير إلى المطورين&#8230;</string>
     <string name="feedback_for_manual_toast_text">يتم إعداد تقرير خطأ للمطورين&#8230;</string>
-    <string name="feedback_copy_debug">نسخ معلومات التصحيح</string>
     <string name="feedback_report">إبلاغ</string>
     <string name="feedback_report_automatically">إرسال تقارير الأخطاء تلقائيًا</string>
     <string name="feedback_no_suitable_app_found">لا توجد تطبيقات مناسبة</string>

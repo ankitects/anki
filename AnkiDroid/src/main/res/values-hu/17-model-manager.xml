@@ -48,7 +48,6 @@
     <!--Language Hint-->
     <string name="model_field_editor_language_hint_dialog_success_result">Nyelvi javaslat beállítás %s</string>
     <!--Field Editing-->
-    <string name="model_field_editor_add" maxLength="28">Mező hozzáadása</string>
     <string name="model_field_editor_delete">Mező törlése</string>
     <string name="model_field_editor_rename">Mező átnevezése</string>
     <string name="model_field_editor_language_hint">Billentyűzet nyelvi javaslat beállítás</string>

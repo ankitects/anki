@@ -42,12 +42,10 @@
         <item quantity="one">%d nota amosada</item>
         <item quantity="other">%d notas amosadas</item>
     </plurals>
-    <string name="card_browser_all_decks">Todas as barallas</string>
     <plurals name="card_browser_delete_notes">
         <item quantity="one">Eliminar nota</item>
         <item quantity="other">Eliminar notas</item>
     </plurals>
-    <string name="card_browser_change_deck" maxLength="28">Cambiar baralla</string>
     <string name="delete_card_title">Eliminar nota?</string>
     <string name="card_browser_show_marked" maxLength="28">Filtrar marcadas</string>
     <string name="card_browser_show_suspended" maxLength="28">Filtrar suspendidas</string>

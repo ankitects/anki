@@ -96,7 +96,6 @@
     <string name="menu_enable_voice_playback" maxLength="28">Activa la veu</string>
     <string name="menu_disable_voice_playback">Desactiva la veu</string>
     <string name="menu_create_backup" maxLength="28">Crear còpia de seguretat</string>
-    <string name="new_deck">Crea un paquet</string>
     <string name="new_dynamic_deck">Crear un paquet filtrat</string>
     <string name="directory_inaccessible">El directori d\'AnkiDroid és inaccessible</string>
     <!--This is shown when AnkiDroid starts up with no storage permissions.

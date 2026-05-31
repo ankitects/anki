@@ -96,7 +96,6 @@
     <string name="menu_enable_voice_playback" maxLength="28">فعال کردن پخش صدا</string>
     <string name="menu_disable_voice_playback">غیرفعال کردن پخش صدا</string>
     <string name="menu_create_backup" maxLength="28">ایجاد پشتیبان</string>
-    <string name="new_deck">ایجاد دسته</string>
     <string name="new_dynamic_deck">ایجاد دسته فیلتر شده</string>
     <string name="directory_inaccessible">فهرست AnkiDroid غیر قابل دسترس است</string>
     <!--This is shown when AnkiDroid starts up with no storage permissions.

@@ -48,7 +48,6 @@
     <!--Language Hint-->
     <string name="model_field_editor_language_hint_dialog_success_result">I-set ang hint sa wika sa %s</string>
     <!--Field Editing-->
-    <string name="model_field_editor_add" maxLength="28">Magdagdag ng field</string>
     <string name="model_field_editor_delete">Tanggalin ang patlang</string>
     <string name="model_field_editor_rename">Palitan ang pangalan ng patlang</string>
     <string name="model_field_editor_language_hint">I-set ang hint ng wika ng keyboard</string>

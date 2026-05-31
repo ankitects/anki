@@ -41,7 +41,6 @@
     <string name="feedback_default_text">Prosím napíšte spätnú väzbu alebo informácie o chybe, ktorú chcete nahlásiť.</string>
     <string name="feedback_auto_toast_text">AnkiDroid narazil na problém; zasiela sa správa vývojárom&#8230;</string>
     <string name="feedback_for_manual_toast_text">An error report is being prepared for the developers&#8230;</string>
-    <string name="feedback_copy_debug">Kopírovať informácie o ladení</string>
     <string name="feedback_report">Ohlásiť</string>
     <string name="feedback_report_automatically">Odosielať hlásenia o chybách automaticky</string>
     <string name="feedback_no_suitable_app_found">Nenašla sa vhodná aplikácia</string>

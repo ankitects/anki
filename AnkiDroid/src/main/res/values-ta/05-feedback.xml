@@ -41,7 +41,6 @@
     <string name="feedback_default_text">நீங்கள் புகாரளிக்கும் பிழைகளின் தன்மை பற்றிய உங்கள் கருத்து அல்லது தகவலை உள்ளிடவும்.</string>
     <string name="feedback_auto_toast_text">AnkiDroid ஒரு சிக்கலை எதிர்கொண்டது; டெவலப்பர்களுக்கு அறிக்கை அனுப்பப்பட்டது&#8230;</string>
     <string name="feedback_for_manual_toast_text">டெவலப்பர்களுக்காக ஒரு பிழை அறிக்கை உருவாக்கப்பட்டுள்ளது&#8230;</string>
-    <string name="feedback_copy_debug">பிழைத்திருத்தத் தகவலை நகலெடுக்கவும்</string>
     <string name="feedback_report">அறிக்கை</string>
     <string name="feedback_report_automatically">பிழை அறிக்கைகளை தானாக அனுப்பவும்</string>
     <string name="feedback_no_suitable_app_found">பொருத்தமான விண்ணப்பம் இல்லை</string>

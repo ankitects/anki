@@ -40,11 +40,9 @@
     <plurals name="card_browser_subtitle_notes_mode">
         <item quantity="other">%d枚のノート</item>
     </plurals>
-    <string name="card_browser_all_decks">すべてのデッキ</string>
     <plurals name="card_browser_delete_notes">
         <item quantity="other">ノートを削除</item>
     </plurals>
-    <string name="card_browser_change_deck" maxLength="28">デッキを変更</string>
     <string name="delete_card_title">ノートの削除</string>
     <string name="card_browser_show_marked" maxLength="28">マーク付きカードを抽出</string>
     <string name="card_browser_show_suspended" maxLength="28">休止中カードを抽出</string>

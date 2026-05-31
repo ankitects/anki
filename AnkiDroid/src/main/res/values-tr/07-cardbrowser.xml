@@ -42,12 +42,10 @@
         <item quantity="one">%d not gösteriliyor</item>
         <item quantity="other">%d not gösteriliyor</item>
     </plurals>
-    <string name="card_browser_all_decks">Bütün desteler</string>
     <plurals name="card_browser_delete_notes">
         <item quantity="one">Notu sil</item>
         <item quantity="other">Notları sil</item>
     </plurals>
-    <string name="card_browser_change_deck" maxLength="28">Desteyi değiştir</string>
     <string name="delete_card_title">Notu sil</string>
     <string name="card_browser_show_marked" maxLength="28">İşâretlileri göster</string>
     <string name="card_browser_show_suspended" maxLength="28">Askıdakileri göster</string>

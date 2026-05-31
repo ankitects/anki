@@ -47,7 +47,6 @@
     <!--Language Hint-->
     <string name="model_field_editor_language_hint_dialog_success_result">Tetapkan petunjuk bahasa kepada %s</string>
     <!--Field Editing-->
-    <string name="model_field_editor_add" maxLength="28">Tambah Medan</string>
     <string name="model_field_editor_delete">Hapuskan medan</string>
     <string name="model_field_editor_rename">Nama semula medan</string>
     <string name="model_field_editor_language_hint">Tetapkan petunjuk bahasa papan kekunci</string>

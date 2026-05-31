@@ -41,7 +41,6 @@
     <string name="feedback_default_text">మీరు రిపోర్ట్ చేస్తున్న ఏదైనా లోపాల స్వభావం గురించి మీ అభిప్రాయాన్ని లేదా సమాచారాన్ని నమోదు చేయండి.</string>
     <string name="feedback_auto_toast_text">AnkiDroid ఒక సమస్య ఎదుర్కొంది; డెవలపర్లకు నివేదికను పంపుతోంది&#8230;</string>
     <string name="feedback_for_manual_toast_text">డెవలపర్‌ల కోసం ఎర్రర్ రిపోర్ట్‌ను సిద్ధం చేస్తోంది&#8230;</string>
-    <string name="feedback_copy_debug">డీబగ్ సమాచారాన్ని కాపీ చేయండి</string>
     <string name="feedback_report">నివేదిక</string>
     <string name="feedback_report_automatically">స్వయంచాలకంగా లోపం నివేదికలను పంపండి</string>
     <string name="feedback_no_suitable_app_found">తగిన యాప్ ఏదీ కనుగొనబడలేదు</string>

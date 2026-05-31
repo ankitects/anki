@@ -42,12 +42,10 @@
         <item quantity="one">%d jegyzetet mutat</item>
         <item quantity="other">%d jegyzetet mutat</item>
     </plurals>
-    <string name="card_browser_all_decks">Minden pakli</string>
     <plurals name="card_browser_delete_notes">
         <item quantity="one">Jegyzet törlése</item>
         <item quantity="other">Jegyzet törlése</item>
     </plurals>
-    <string name="card_browser_change_deck" maxLength="28">Pakli csere</string>
     <string name="delete_card_title">Jegyzet törlése?</string>
     <string name="card_browser_show_marked" maxLength="28">Megjelöltek szűrése</string>
     <string name="card_browser_show_suspended" maxLength="28">Szűrés felfüggesztve</string>

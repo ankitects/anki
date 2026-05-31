@@ -96,7 +96,6 @@
     <string name="menu_enable_voice_playback" maxLength="28">𐍃𐍄𐌹𐌱𐌽𐍉𐍃 𐌰𐍆𐍄𐍂𐌰𐍃𐍀𐌹𐌻𐍉𐌽 𐌲𐌰𐌻𐌰𐌲𐌾𐌰𐌽</string>
     <string name="menu_disable_voice_playback">𐍃𐍄𐌹𐌱𐌽𐍉𐍃 𐌰𐍆𐍄𐍂𐌰𐍃𐍀𐌹𐌻𐍉𐌽 𐌿𐌽𐌲𐌰𐌻𐌰𐌲𐌾𐌰𐌽</string>
     <string name="menu_create_backup" maxLength="28">Create backup</string>
-    <string name="new_deck">𐌺𐌰𐍂𐍄𐌰𐌷𐌿𐌶𐌳 𐍃𐌺𐌰𐍀𐌾𐌰𐌽</string>
     <string name="new_dynamic_deck">𐌺𐌰𐍂𐍄𐌰𐌷𐌿𐌶𐌳 𐌼𐌹𐌸 𐍆𐌹𐌻𐍄𐍂𐌰 𐍃𐌺𐌰𐍀𐌾𐌰𐌽</string>
     <string name="directory_inaccessible">𐌰𐌽𐌺𐌴𐌹𐌳𐍂𐌰𐌿𐌳 𐍃𐍄𐌰𐌸 𐌰𐍄𐌲𐌰𐌲𐌲𐌰𐌽 𐌼𐌰𐌷𐍄𐍃 𐌽𐌹𐍃𐍄</string>
     <!--This is shown when AnkiDroid starts up with no storage permissions.

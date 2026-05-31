@@ -102,7 +102,6 @@
     <string name="menu_enable_voice_playback" maxLength="28">Увімкнути запис голосу</string>
     <string name="menu_disable_voice_playback">Вимкнути запис голосу</string>
     <string name="menu_create_backup" maxLength="28">Створити резервну копію</string>
-    <string name="new_deck">Створити колоду</string>
     <string name="new_dynamic_deck">Створити фільтровану колоду</string>
     <string name="directory_inaccessible">Тека AnkiDroid недоступна</string>
     <!--This is shown when AnkiDroid starts up with no storage permissions.

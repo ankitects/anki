@@ -41,7 +41,6 @@
     <string name="feedback_default_text">आपण नोंदवित असलेल्या कोणत्याही त्रुटींच्या स्वरूपाबद्दल आपला अभिप्राय किंवा माहिती प्रविष्ट करा.</string>
     <string name="feedback_auto_toast_text">AnkiDroid ला एक समस्या आली आहे; विकासकांना अहवाल पाठविला जात आहे&#8230;</string>
     <string name="feedback_for_manual_toast_text">विकसकांसाठी बग अहवाल व्युत्पन्न करत आहे&#8230;</string>
-    <string name="feedback_copy_debug">डीबग माहिती कॉपी करा</string>
     <string name="feedback_report">अहवाल द्या</string>
     <string name="feedback_report_automatically">त्रुटी अहवाल स्वयंचलितपणे पाठवा</string>
     <string name="feedback_no_suitable_app_found">योग्य अॅप आढळला नाही</string>

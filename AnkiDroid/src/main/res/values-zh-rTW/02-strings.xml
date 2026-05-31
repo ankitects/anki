@@ -322,7 +322,6 @@
     <string name="show_cards" comment="Label for toggle cards button in BrowserOptionsDialog">卡片</string>
     <string name="show_notes" comment="Label for toggle notes button in BrowserOptionsDialog">筆記</string>
     <string name="truncate_content_help">Truncate the height of each row of the Browser to show only first 3 lines of content</string>
-    <string name="browser_options_dialog_heading">瀏覽器選擇</string>
     <string name="audio_saved">錄音已儲存</string>
     <string name="deleting_selected_notes">刪除選取的筆記</string>
     <string name="tts_voices_default_text" comment="The default text to speak when selecting     Text to speech voices">按任意聲線以選擇</string>

@@ -42,12 +42,10 @@
         <item quantity="one">%d ᱧᱮᱞᱚᱜ ᱟᱠᱟᱱ ᱱᱳᱴ</item>
         <item quantity="other">%d ᱧᱮᱞ ᱟᱠᱟᱱ ᱱᱳᱴᱥ</item>
     </plurals>
-    <string name="card_browser_all_decks">ᱡᱷᱚᱛᱚ ᱰᱮᱠ ᱠᱚ</string>
     <plurals name="card_browser_delete_notes">
         <item quantity="one">ᱥᱟᱦᱴᱟ ᱵᱚᱫᱚᱞ ᱢᱮ</item>
         <item quantity="other">ᱱᱳᱴᱥ ᱵᱚᱫᱚᱞ ᱢᱮ</item>
     </plurals>
-    <string name="card_browser_change_deck" maxLength="28">ᱰᱮᱠ ᱠᱚ ᱵᱚᱫᱚᱞ ᱢᱮ</string>
     <string name="delete_card_title">ᱠᱷᱟᱴᱚ ᱵᱤᱪᱟᱹᱨ ᱜᱮᱫ ᱜᱤᱰᱤᱼᱟᱢ?</string>
     <string name="card_browser_show_marked" maxLength="28">ᱪᱷᱟᱱᱤᱭᱟᱜ ᱢᱮᱨᱠᱼᱠᱟᱱᱟ</string>
     <string name="card_browser_show_suspended" maxLength="28">ᱪᱷᱟᱱᱤᱭᱟᱜ ᱵᱚᱸᱫ ᱜᱤᱰᱤ ᱠᱟᱱᱟ</string>

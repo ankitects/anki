@@ -41,7 +41,6 @@
     <string name="feedback_default_text">Sisesta oma tagasiside või info vigade kohta, mille kohta sa soovid tagasisidet anda.</string>
     <string name="feedback_auto_toast_text">AnkiDroidis tekkis tõrge; vea aruanne saadetakse arendajatele&#8230;</string>
     <string name="feedback_for_manual_toast_text">Arendajate jaoks valmistatakse ette vea aruannet&#8230;</string>
-    <string name="feedback_copy_debug">Kopeeri veateate info</string>
     <string name="feedback_report">Teavita</string>
     <string name="feedback_report_automatically">Saada veateated automaatselt</string>
     <string name="feedback_no_suitable_app_found">Sobivat rakendust ei leitud</string>

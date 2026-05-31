@@ -41,7 +41,6 @@
     <string name="feedback_default_text">Prosím, zadejte svůj názor nebo informaci o povaze jakékoliv chyby, kterou chcete nahlásit.</string>
     <string name="feedback_auto_toast_text">V AnkiDroid došlo k problému; zpráva je odesílána vývojářům&#8230;</string>
     <string name="feedback_for_manual_toast_text">Pro vývojáře se připravuje zpráva o chybách&#8230;</string>
-    <string name="feedback_copy_debug">Zkopírovat ladicí informace</string>
     <string name="feedback_report">Nahlásit</string>
     <string name="feedback_report_automatically">Automaticky odesílat zprávy o chybách</string>
     <string name="feedback_no_suitable_app_found">Nenalezena žádná vhodná aplikace</string>

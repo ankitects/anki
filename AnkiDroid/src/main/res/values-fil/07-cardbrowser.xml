@@ -42,12 +42,10 @@
         <item quantity="one">%d tala ang pinapakita</item>
         <item quantity="other">%d tala ang pinapakita</item>
     </plurals>
-    <string name="card_browser_all_decks">Lahat ng decks</string>
     <plurals name="card_browser_delete_notes">
         <item quantity="one">Burahin ang tala</item>
         <item quantity="other">Burahin ang mga tala</item>
     </plurals>
-    <string name="card_browser_change_deck" maxLength="28">Palitan ang deck</string>
     <string name="delete_card_title">Burahin ang tala?</string>
     <string name="card_browser_show_marked" maxLength="28">I-filter ang mga minarkahan</string>
     <string name="card_browser_show_suspended" maxLength="28">I-filter ang mga suspendido</string>

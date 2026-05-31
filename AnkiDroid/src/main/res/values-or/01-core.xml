@@ -96,7 +96,6 @@
     <string name="menu_enable_voice_playback" maxLength="28">Enable voice playback</string>
     <string name="menu_disable_voice_playback">Disable voice playback</string>
     <string name="menu_create_backup" maxLength="28">Create backup</string>
-    <string name="new_deck">କେରୀ ସୃଷ୍ଟି କରିବା</string>
     <string name="new_dynamic_deck">ଶୋଧିତ କେରୀ ସୃଷ୍ଟି କରିବା</string>
     <string name="directory_inaccessible">AnkiDroid directory ଅଗମ୍ୟ ଅଟେ</string>
     <!--This is shown when AnkiDroid starts up with no storage permissions.

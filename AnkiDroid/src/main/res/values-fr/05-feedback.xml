@@ -41,7 +41,6 @@
     <string name="feedback_default_text">Veuillez entrer vos commentaires ou informations sur la nature de toute erreur que vous puissiez rapporter.</string>
     <string name="feedback_auto_toast_text">AnkiDroid a rencontré un problème ; un rapport est envoyé aux développeurs&#8230;</string>
     <string name="feedback_for_manual_toast_text">Un rapport d\'erreur est en cours de préparation pour les développeurs&#8230;</string>
-    <string name="feedback_copy_debug">Copier les informations de débogage</string>
     <string name="feedback_report">Signaler un problème</string>
     <string name="feedback_report_automatically">Envoyer des rapports d’erreur automatiquement</string>
     <string name="feedback_no_suitable_app_found">Aucune application compatible trouvée</string>

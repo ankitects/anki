@@ -48,7 +48,6 @@
     <!--Language Hint-->
     <string name="model_field_editor_language_hint_dialog_success_result">ਭਾਸ਼ਾ ਸੰਕੇਤਕ ਨੂੰ %s \'ਤੇ ਸੈੱਟ ਕਰੋ</string>
     <!--Field Editing-->
-    <string name="model_field_editor_add" maxLength="28">ਖੇਤਰ ਸ਼ਾਮਲ ਕਰੋ</string>
     <string name="model_field_editor_delete">ਖੇਤਰ ਮਿਟਾਓ</string>
     <string name="model_field_editor_rename">ਖੇਤਰ ਦਾ ਨਾਮ ਬਦਲੋ</string>
     <string name="model_field_editor_language_hint">ਕੀਬੋਰਡ ਭਾਸ਼ਾ ਸੰਕੇਤ ਸੈੱਟ ਕਰੋ</string>

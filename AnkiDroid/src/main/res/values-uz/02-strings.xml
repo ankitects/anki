@@ -327,7 +327,6 @@
     <string name="show_cards" comment="Label for toggle cards button in BrowserOptionsDialog">Kartalar</string>
     <string name="show_notes" comment="Label for toggle notes button in BrowserOptionsDialog">Qaydlar</string>
     <string name="truncate_content_help">Karta brauzerini har bir qator balandligini faqat dastlabki 3 ta tarkib qatorini koʻrsatish uchun qisqartirish</string>
-    <string name="browser_options_dialog_heading">Karta brauzeri parametrlari</string>
     <string name="audio_saved">Ovoz yozuvi saqlandi</string>
     <string name="deleting_selected_notes">Tanlangan qaydlar oʻchirilmoqda</string>
     <string name="tts_voices_default_text" comment="The default text to speak when selecting     Text to speech voices">Tinglash uchun ovozni tanlang</string>

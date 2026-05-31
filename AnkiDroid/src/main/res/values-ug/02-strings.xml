@@ -327,7 +327,6 @@
     <string name="show_cards" comment="Label for toggle cards button in BrowserOptionsDialog">كارتا</string>
     <string name="show_notes" comment="Label for toggle notes button in BrowserOptionsDialog">خاتىرە</string>
     <string name="truncate_content_help">توركۆرگۈ قۇر ئېگىزلىكىنى قىسقارتىپ پەقەت ئالدىنقى 3 قۇردىكى مەزمۇننىلا كۆرسىتىدۇ</string>
-    <string name="browser_options_dialog_heading">توركۆرگۈ تاللانما</string>
     <string name="audio_saved">خاتىرە ساقلاندى</string>
     <string name="deleting_selected_notes">تاللانغان خاتىرىنى ئۆچۈرۈۋاتىدۇ</string>
     <string name="tts_voices_default_text" comment="The default text to speak when selecting     Text to speech voices">ئاۋاز چېكىلسە ئاڭلىنىدۇ</string>

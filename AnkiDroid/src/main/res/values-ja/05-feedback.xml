@@ -41,7 +41,6 @@
     <string name="feedback_default_text">エラーについての情報やご意見をご入力ください</string>
     <string name="feedback_auto_toast_text">AnkiDroidで問題が発生しました。開発者にレポートを送信しています&#8230;</string>
     <string name="feedback_for_manual_toast_text">開発者に送信するエラーレポートを準備しています&#8230;</string>
-    <string name="feedback_copy_debug">デバッグ情報をコピー</string>
     <string name="feedback_report">報告</string>
     <string name="feedback_report_automatically">エラーレポートを自動的に送信する</string>
     <string name="feedback_no_suitable_app_found">適切なアプリが見つかりません</string>

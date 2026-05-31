@@ -48,7 +48,6 @@
     <!--Language Hint-->
     <string name="model_field_editor_language_hint_dialog_success_result">تنظیم زبان راهنمایی به %s</string>
     <!--Field Editing-->
-    <string name="model_field_editor_add" maxLength="28">افزودن فیلد</string>
     <string name="model_field_editor_delete">حذف فیلد</string>
     <string name="model_field_editor_rename">تغییر نام فیلد</string>
     <string name="model_field_editor_language_hint">راهنمایی زبان کیبورد را تنظیم کن</string>

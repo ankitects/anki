@@ -42,12 +42,10 @@
         <item quantity="one">%d نوٹ دکھایا گیا</item>
         <item quantity="other">%d نوٹس دکھائے گئے</item>
     </plurals>
-    <string name="card_browser_all_decks">تمام ڈیک</string>
     <plurals name="card_browser_delete_notes">
         <item quantity="one">نوٹ حذف کریں</item>
         <item quantity="other">نوٹ حذف کریں</item>
     </plurals>
-    <string name="card_browser_change_deck" maxLength="28">ڈیک کو تبدیل کریں</string>
     <string name="delete_card_title">نوٹ حذف کریں?</string>
     <string name="card_browser_show_marked" maxLength="28">فلٹر نشان زد</string>
     <string name="card_browser_show_suspended" maxLength="28">فلٹر معطل</string>

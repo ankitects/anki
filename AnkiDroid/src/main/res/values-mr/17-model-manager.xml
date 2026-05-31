@@ -48,7 +48,6 @@
     <!--Language Hint-->
     <string name="model_field_editor_language_hint_dialog_success_result">भाषेचा संकेत%s वर सेट करा</string>
     <!--Field Editing-->
-    <string name="model_field_editor_add" maxLength="28">फील्ड जोडा</string>
     <string name="model_field_editor_delete">फील्ड हटवा</string>
     <string name="model_field_editor_rename">फील्ड पुनर्नामित करा</string>
     <string name="model_field_editor_language_hint">कीबोर्ड भाषेचा संकेत सेट करा</string>

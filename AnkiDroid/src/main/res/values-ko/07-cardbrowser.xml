@@ -40,11 +40,9 @@
     <plurals name="card_browser_subtitle_notes_mode">
         <item quantity="other">%d개 노트 표시됨</item>
     </plurals>
-    <string name="card_browser_all_decks">모든 카드 덱</string>
     <plurals name="card_browser_delete_notes">
         <item quantity="other">노트 삭제하기</item>
     </plurals>
-    <string name="card_browser_change_deck" maxLength="28">덱 변경하기</string>
     <string name="delete_card_title">노트를 삭제할까요?</string>
     <string name="card_browser_show_marked" maxLength="28">표시한 카드</string>
     <string name="card_browser_show_suspended" maxLength="28">비활성화된 카드 필터링</string>

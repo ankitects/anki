@@ -42,7 +42,6 @@
 সম্পর্কে তথ্য অথবা আপনার মতামত লিখুন।</string>
     <string name="feedback_auto_toast_text">AnkiDroid সমস্যার সম্মুখীন হয়েছে; ডেভেলপারদের কাছে একটি প্রতিবেদন পাঠানো হচ্ছে&#8230;</string>
     <string name="feedback_for_manual_toast_text">ডেভেলপারদের জন্য একটি ত্রুটি রিপোর্ট প্রস্তুত করা হচ্ছে&#8230;</string>
-    <string name="feedback_copy_debug">ডিবাগ তথ্য কপি করুন</string>
     <string name="feedback_report">রিপোর্ট</string>
     <string name="feedback_report_automatically">স্বয়ংক্রিয়ভাবে ত্রুটি সূচনা পাঠান</string>
     <string name="feedback_no_suitable_app_found">উপযুক্ত কোন অ্যাপ নেই</string>

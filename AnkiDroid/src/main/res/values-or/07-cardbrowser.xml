@@ -42,12 +42,10 @@
         <item quantity="one">%dଟିଏ ନୋଟ୍ ଦର୍ଶାଯାଉଛି</item>
         <item quantity="other">%dଟି ନୋଟ୍ ଦର୍ଶାଯାଉଛି</item>
     </plurals>
-    <string name="card_browser_all_decks">ସମସ୍ତ କେରୀ</string>
     <plurals name="card_browser_delete_notes">
         <item quantity="one">ନୋଟ୍ ବିଲୋପ କରିବା</item>
         <item quantity="other">ନୋଟଗୁଡ଼ିକୁ ବିଲୋପ କରିବା</item>
     </plurals>
-    <string name="card_browser_change_deck" maxLength="28">କେରୀ ବଦଳାଇବା</string>
     <string name="delete_card_title">ନୋଟ୍ ଵିଲୋପ କରିବେ ତ?</string>
     <string name="card_browser_show_marked" maxLength="28">ଚିହ୍ନିତ (ପତ୍ର) ଶୋଧନ କରନ୍ତୁ</string>
     <string name="card_browser_show_suspended" maxLength="28">ନିଲମ୍ବିତ (ପତ୍ର) ଶୋଧନ କରନ୍ତୁ</string>

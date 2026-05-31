@@ -42,12 +42,10 @@
         <item quantity="one">%d note shown</item>
         <item quantity="other">%d notes shown</item>
     </plurals>
-    <string name="card_browser_all_decks">Всички тестета</string>
     <plurals name="card_browser_delete_notes">
         <item quantity="one">Delete note</item>
         <item quantity="other">Delete notes</item>
     </plurals>
-    <string name="card_browser_change_deck" maxLength="28">Change deck</string>
     <string name="delete_card_title">Изтриване на бележка?</string>
     <string name="card_browser_show_marked" maxLength="28">Филтриране на маркираните</string>
     <string name="card_browser_show_suspended" maxLength="28">Филтърът е спрян</string>

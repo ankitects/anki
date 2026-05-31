@@ -41,7 +41,6 @@
     <string name="feedback_default_text">Masukkan maklum balas anda atau maklumat tentang sifat apa-apa ralat yang anda melaporkan.</string>
     <string name="feedback_auto_toast_text">AnkiDroid menghadapi masalah; laporan sedang dihantar ke para pengusaha&#8230;</string>
     <string name="feedback_for_manual_toast_text">Laporan ralat sedang disediakan untuk para pembangun&#8230;</string>
-    <string name="feedback_copy_debug">Salin maklumat nyahpepijat</string>
     <string name="feedback_report">Lapor</string>
     <string name="feedback_report_automatically">Menghantar laporan ralat secara automatik</string>
     <string name="feedback_no_suitable_app_found">Tiada aplikasi bersesuaian ditemui</string>

@@ -41,7 +41,6 @@
     <string name="feedback_default_text">Wpisz swoje uwagi lub opisz błędy, które chcesz zgłosić.</string>
     <string name="feedback_auto_toast_text">Wystąpił problem w AnkiDroid. Wysyłanie raportu do programistów&#8230;</string>
     <string name="feedback_for_manual_toast_text">Raport o błędzie jest przygotowywany dla programistów&#8230;</string>
-    <string name="feedback_copy_debug">Kopiuj informacje debugowania</string>
     <string name="feedback_report">Zgłoś</string>
     <string name="feedback_report_automatically">Automatycznie wysyłaj raporty o błędach</string>
     <string name="feedback_no_suitable_app_found">Nie znaleziono odpowiedniej aplikacji</string>

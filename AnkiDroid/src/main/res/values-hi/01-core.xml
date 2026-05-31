@@ -96,7 +96,6 @@
     <string name="menu_enable_voice_playback" maxLength="28">ध्वनि प्लेबैक सक्षम करें</string>
     <string name="menu_disable_voice_playback">ध्वनि प्लेबैक अक्षम करें</string>
     <string name="menu_create_backup" maxLength="28">Create backup</string>
-    <string name="new_deck">डेक बनाने</string>
     <string name="new_dynamic_deck">फ़िल्टर्ड डेक बनाएं</string>
     <string name="directory_inaccessible">AnkiDroid निर्देशिका पहुंच योग्य नहीं है</string>
     <!--This is shown when AnkiDroid starts up with no storage permissions.

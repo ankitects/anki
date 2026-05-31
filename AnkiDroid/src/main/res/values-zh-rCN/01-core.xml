@@ -93,7 +93,6 @@
     <string name="menu_enable_voice_playback" maxLength="28">启用语音播放</string>
     <string name="menu_disable_voice_playback">禁用语音播放</string>
     <string name="menu_create_backup" maxLength="28">创建备份</string>
-    <string name="new_deck">创建牌组</string>
     <string name="new_dynamic_deck">创建筛选牌组</string>
     <string name="directory_inaccessible">无法访问AnkiDroid目录</string>
     <!--This is shown when AnkiDroid starts up with no storage permissions.

@@ -42,12 +42,10 @@
         <item quantity="one">%d notat vist</item>
         <item quantity="other">%d notater vist</item>
     </plurals>
-    <string name="card_browser_all_decks">Alle kortleikar</string>
     <plurals name="card_browser_delete_notes">
         <item quantity="one">Delete note</item>
         <item quantity="other">Delete notes</item>
     </plurals>
-    <string name="card_browser_change_deck" maxLength="28">Byt kortleik</string>
     <string name="delete_card_title">Slett notat</string>
     <string name="card_browser_show_marked" maxLength="28">Filtrer merkede</string>
     <string name="card_browser_show_suspended" maxLength="28">Filtrer suspenderte</string>

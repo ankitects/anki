@@ -48,7 +48,6 @@
     <!--Language Hint-->
     <string name="model_field_editor_language_hint_dialog_success_result">زبان کے اشارے کو %s پر سیٹ کریں۔</string>
     <!--Field Editing-->
-    <string name="model_field_editor_add" maxLength="28">فیلڈ شامل کریں</string>
     <string name="model_field_editor_delete">فیلڈ کو حذف کریں۔</string>
     <string name="model_field_editor_rename">فیلڈ کا نام تبدیل کریں۔</string>
     <string name="model_field_editor_language_hint">کی بورڈ کی زبان کا اشارہ سیٹ کریں</string>

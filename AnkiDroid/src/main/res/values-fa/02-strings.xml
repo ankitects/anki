@@ -329,7 +329,6 @@
     <string name="show_cards" comment="Label for toggle cards button in BrowserOptionsDialog">کارتها</string>
     <string name="show_notes" comment="Label for toggle notes button in BrowserOptionsDialog">یادداشت‌ها</string>
     <string name="truncate_content_help">ارتفاع هر ردیف از مرورگر را کوتاه کن تا فقط ۳ خط اول محتوا نشان داده شود</string>
-    <string name="browser_options_dialog_heading">تنظیمات مرورگر</string>
     <string name="audio_saved">مورد ضبط شده ذخیره شد</string>
     <string name="deleting_selected_notes">در حال حذف یادداشت های انتخاب شده</string>
     <string name="tts_voices_default_text" comment="The default text to speak when selecting     Text to speech voices">برای شنیدن رو صدا کلیک کنید</string>

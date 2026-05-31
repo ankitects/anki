@@ -44,13 +44,11 @@
         <item quantity="few">%d bilješke prikazane</item>
         <item quantity="other">%d bilješki prikazano</item>
     </plurals>
-    <string name="card_browser_all_decks">Svi špilovi</string>
     <plurals name="card_browser_delete_notes">
         <item quantity="one">Izbriši bilješku</item>
         <item quantity="few">Izbriši bilješke</item>
         <item quantity="other">Izbriši bilješke</item>
     </plurals>
-    <string name="card_browser_change_deck" maxLength="28">Promijeni špil</string>
     <string name="delete_card_title">Izbriši bilješku?</string>
     <string name="card_browser_show_marked" maxLength="28">Filtriraj označene</string>
     <string name="card_browser_show_suspended" maxLength="28">Filtriraj suspendirane</string>
