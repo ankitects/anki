@@ -266,6 +266,12 @@ object SentenceCase {
 
     context(_: Fragment)
     val selectDeck get() = TR.browsingSelectDeck().toSentenceCase(R.string.sentence_select_deck)
+
+    context(_: Context)
+    val flagCard get() = TR.studyingFlagCard().toSentenceCase(R.string.sentence_flag_card)
+
+    context(_: Fragment)
+    val flagCard get() = TR.studyingFlagCard().toSentenceCase(R.string.sentence_flag_card)
 }
 
 /**

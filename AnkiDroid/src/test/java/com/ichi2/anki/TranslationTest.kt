@@ -339,7 +339,6 @@ class TranslationTest : RobolectricTest() {
                 "Answer good", // R.string.answer_good | TR.deckConfigAnswerGood()
                 "Answer hard", // R.string.answer_hard | TR.deckConfigAnswerHard()
                 "Deck options", // R.string.menu__deck_options | TR.deckConfigTitle()
-                "Flag card", // R.string.menu_flag_card | TR.studyingFlagCard()
                 "Follow system", // R.string.theme_follow_system | TR.preferencesThemeFollowSystem()
                 "Manage note types", // R.string.model_browser_label
                 // TR.browsingManageNoteTypes()

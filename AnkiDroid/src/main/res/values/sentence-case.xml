@@ -86,4 +86,5 @@ undoActionUndone()
     <string name="sentence_toggle_mark">Toggle mark</string>
     <string name="sentence_create_deck">Create deck</string>
     <string name="sentence_select_deck">Select deck</string>
+    <string name="sentence_flag_card" maxLength="28">Flag card</string>
 </resources>

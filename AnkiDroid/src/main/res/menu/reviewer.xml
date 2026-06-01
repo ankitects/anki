@@ -63,7 +63,7 @@
         ankidroid:showAsAction="never"/>
     <item
         android:id="@+id/action_flag"
-        android:title="@string/menu_flag_card"
+        tools:title="Flag card"
         android:icon="@drawable/ic_flag_transparent"
         ankidroid:showAsAction="always" >
         <menu>

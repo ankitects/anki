@@ -21,7 +21,7 @@
     <item
         ankidroid:showAsAction="ifRoom"
         android:id="@+id/action_flag"
-        android:title="@string/menu_flag_card"
+        tools:title="Flag card"
         android:icon="@drawable/ic_flag_transparent">
       <menu>
           <!-- flags are dynamically added -->

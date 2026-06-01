@@ -665,7 +665,10 @@ class CardBrowserFragment :
 
                     menu.findItem(R.id.action_undo).setupUndo()
 
-                    menu.findItem(R.id.action_flag).isVisible = vm.hasSelectedAnyRows()
+                    menu.findItem(R.id.action_flag).apply {
+                        title = TR.sentenceCase.flagCard
+                        isVisible = vm.hasSelectedAnyRows()
+                    }
                     menu.findItem(R.id.action_suspend_card).apply {
                         title = TR.sentenceCase.toggleSuspend
                         // TODO: I don't think this icon is necessary

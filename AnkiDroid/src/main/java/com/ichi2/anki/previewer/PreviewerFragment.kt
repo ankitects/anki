@@ -204,6 +204,7 @@ class PreviewerFragment :
     }
 
     private fun setupFlagMenu(menu: Menu) {
+        menu.findItem(R.id.action_flag).title = TR.sentenceCase.flagCard
         val submenu = menu.findItem(R.id.action_flag).subMenu
         lifecycleScope.launch {
             for ((flag, name) in Flag.queryDisplayNames()) {
