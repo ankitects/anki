@@ -18,8 +18,8 @@ package com.ichi2.anki
 
 import android.app.Activity
 import android.os.Bundle
+import com.ichi2.anki.common.android.themes.disableXiaomiForceDarkMode
 import com.ichi2.themes.Themes
-import com.ichi2.themes.Themes.disableXiaomiForceDarkMode
 
 /**
  * This class is an abstract base class that extends Activity and provides common initialization logic for [IntentHandler] and [IntentHandler2].

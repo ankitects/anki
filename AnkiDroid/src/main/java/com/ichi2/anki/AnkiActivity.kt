@@ -63,6 +63,7 @@ import com.ichi2.anki.android.input.ShortcutGroupProvider
 import com.ichi2.anki.android.input.shortcut
 import com.ichi2.anki.common.android.AnkiBroadcastReceiver
 import com.ichi2.anki.common.android.animationDisabled
+import com.ichi2.anki.common.android.themes.disableXiaomiForceDarkMode
 import com.ichi2.anki.common.annotations.LegacyNotifications
 import com.ichi2.anki.common.annotations.NeedsTest
 import com.ichi2.anki.common.crashreporting.CrashReportService
@@ -145,7 +146,7 @@ open class AnkiActivity(
         volumeControlStream = AudioManager.STREAM_MUSIC
         // Set the theme
         Themes.setTheme(this)
-        Themes.disableXiaomiForceDarkMode(this)
+        disableXiaomiForceDarkMode(this)
         super.onCreate(savedInstanceState)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O_MR1) {
             @Suppress("deprecation")

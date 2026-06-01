@@ -99,14 +99,6 @@ object Themes {
             }
         AppCompatDelegate.setDefaultNightMode(defaultNightMode)
     }
-
-    /**
-     * #8150: Fix icons not appearing in Note Editor due to MIUI 12's "force dark" mode
-     */
-    fun disableXiaomiForceDarkMode(context: Context) {
-        // Setting a theme is an additive operation, so this adds a single property.
-        context.setTheme(R.style.ThemeOverlay_Xiaomi)
-    }
 }
 
 @Suppress("deprecation", "API35 properly handle edge-to-edge")
