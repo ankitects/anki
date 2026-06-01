@@ -142,6 +142,7 @@ import com.ichi2.anki.servicelayer.NoteService.convertToHtmlNewline
 import com.ichi2.anki.snackbar.BaseSnackbarBuilderProvider
 import com.ichi2.anki.snackbar.SnackbarBuilder
 import com.ichi2.anki.snackbar.showSnackbar
+import com.ichi2.anki.ui.internationalization.sentenceCase
 import com.ichi2.anki.ui.setupNoteTypeSpinner
 import com.ichi2.anki.utils.RunOnlyOnce
 import com.ichi2.anki.utils.ext.sharedPrefs
@@ -2393,7 +2394,7 @@ class NoteEditorFragment :
             ShortcutGroup(
                 listOf(
                     shortcut("Ctrl+ENTER") { getString(R.string.save) },
-                    shortcut("Ctrl+D") { getString(R.string.select_deck) },
+                    shortcut("Ctrl+D") { TR.sentenceCase.selectDeck },
                     shortcut("Ctrl+L") { getString(R.string.card_template_editor_group) },
                     shortcut("Ctrl+N") { getString(R.string.select_note_type) },
                     shortcut("Ctrl+Shift+T") { getString(R.string.tag_editor) },

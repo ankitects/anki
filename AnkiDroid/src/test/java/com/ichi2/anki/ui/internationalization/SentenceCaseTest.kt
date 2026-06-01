@@ -75,6 +75,7 @@ class SentenceCaseTest : RobolectricTest() {
                     assertThat(TR.sentenceCase.deckOptions, equalTo("Deck options"))
                     assertThat(TR.sentenceCase.deleteDeck, equalTo("Delete deck"))
                     assertThat(TR.sentenceCase.createDeck, equalTo("Create deck"))
+                    assertThat(TR.sentenceCase.selectDeck, equalTo("Select deck"))
                     assertThat(TR.sentenceCase.logIn, equalTo("Log in"))
                     assertThat(TR.sentenceCase.logOut, equalTo("Log out"))
                     assertThat(TR.sentenceCase.cardInfo, equalTo("Card info"))

@@ -348,7 +348,6 @@ class TranslationTest : RobolectricTest() {
                 // TR.browsingManageNoteTypes()
                 // TR.qtMiscManageNoteTypes()
                 "Select all", // R.string.card_browser_select_all | TR.editingImageOcclusionSelectAll()
-                "Select deck", // R.string.select_deck | TR.browsingSelectDeck()
                 "Select image", // R.string.choose_an_image | TR.notetypesIoSelectImage()
                 "Show answer", // R.string.show_answer
                 // TR.studyingShowAnswer()

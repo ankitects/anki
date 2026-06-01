@@ -254,6 +254,12 @@ object SentenceCase {
 
     context(_: Fragment)
     val createDeck get() = TR.decksCreateDeck().toSentenceCase(R.string.sentence_create_deck)
+
+    context(_: Context)
+    val selectDeck get() = TR.browsingSelectDeck().toSentenceCase(R.string.sentence_select_deck)
+
+    context(_: Fragment)
+    val selectDeck get() = TR.browsingSelectDeck().toSentenceCase(R.string.sentence_select_deck)
 }
 
 /**
