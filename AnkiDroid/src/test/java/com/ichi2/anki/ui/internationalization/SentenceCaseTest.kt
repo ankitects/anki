@@ -55,6 +55,7 @@ class SentenceCaseTest : RobolectricTest() {
                     assertThat(TR.sentenceCase.browserOptions, equalTo("Browser options"))
                     assertThat(TR.sentenceCase.changeDeck, equalTo("Change deck"))
                     assertThat(TR.sentenceCase.toggleMark, equalTo("Toggle mark"))
+                    assertThat(TR.sentenceCase.selectImage, equalTo("Select image"))
                 }
             }.close()
 

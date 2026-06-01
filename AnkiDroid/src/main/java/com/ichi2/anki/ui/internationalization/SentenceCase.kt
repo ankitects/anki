@@ -272,6 +272,9 @@ object SentenceCase {
 
     context(_: Fragment)
     val flagCard get() = TR.studyingFlagCard().toSentenceCase(R.string.sentence_flag_card)
+
+    context(_: Fragment)
+    val selectImage get() = TR.notetypesIoSelectImage().toSentenceCase(R.string.sentence_select_image)
 }
 
 /**

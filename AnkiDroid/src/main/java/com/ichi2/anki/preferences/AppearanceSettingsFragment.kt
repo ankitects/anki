@@ -24,6 +24,7 @@ import androidx.preference.ListPreference
 import androidx.preference.Preference
 import androidx.preference.SwitchPreferenceCompat
 import com.ichi2.anki.CollectionManager
+import com.ichi2.anki.CollectionManager.TR
 import com.ichi2.anki.R
 import com.ichi2.anki.common.utils.android.showThemedToast
 import com.ichi2.anki.common.utils.android.systemIsInNightMode
@@ -33,6 +34,7 @@ import com.ichi2.anki.launchCatchingTask
 import com.ichi2.anki.settings.Prefs
 import com.ichi2.anki.settings.enums.AppTheme
 import com.ichi2.anki.snackbar.showSnackbar
+import com.ichi2.anki.ui.internationalization.sentenceCase
 import com.ichi2.anki.utils.CollectionPreferences
 import com.ichi2.themes.Themes
 import com.ichi2.themes.Themes.updateCurrentTheme
@@ -53,6 +55,7 @@ class AppearanceSettingsFragment : SettingsFragment() {
     override fun initSubscreen() {
         // Configure background
         backgroundImage = requirePreference<Preference>("deckPickerBackground")
+        backgroundImage!!.title = TR.sentenceCase.selectImage
         removeBackgroundPref = requirePreference<Preference>("removeWallPaper")
         backgroundImage!!.onPreferenceClickListener =
             Preference.OnPreferenceClickListener {

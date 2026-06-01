@@ -63,7 +63,7 @@
             android:key="@string/pref_deck_picker_background_key"
             android:shouldDisableView="true"
             android:icon="@drawable/wallpaper_icon"
-            android:title="@string/choose_an_image" />
+            tools:title="Select image" />
         <Preference
             android:key="@string/pref_remove_wallpaper_key"
             android:icon="@drawable/ic_delete_white"
