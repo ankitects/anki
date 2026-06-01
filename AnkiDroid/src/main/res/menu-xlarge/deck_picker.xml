@@ -17,7 +17,7 @@
     <item
         android:id="@+id/action_deck_rename"
         android:icon="@drawable/ic_popup_menu_item_editor"
-        android:title="@string/rename_deck"
+        tools:title="Rename deck"
         app:showAsAction="always"/>
     <item
         android:id="@+id/action_deck_delete"

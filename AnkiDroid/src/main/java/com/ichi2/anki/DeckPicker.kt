@@ -1096,6 +1096,7 @@ open class DeckPicker :
         menu.findItem(R.id.action_export_collection)?.title = TR.actionsExport()
         menu.findItem(R.id.action_check_database)?.title = TR.sentenceCase.checkDatabase
         menu.findItem(R.id.action_check_media)?.title = TR.sentenceCase.checkMediaAction
+        menu.findItem(R.id.action_deck_rename)?.title = TR.sentenceCase.renameDeck
         menu.findItem(R.id.action_deck_delete)?.title = TR.sentenceCase.deleteDeck
         setupMediaSyncMenuItem(menu)
         // redraw menu synchronously to avoid flicker
@@ -2093,7 +2094,7 @@ open class DeckPicker :
             val createDeckDialog =
                 CreateDeckDialog(
                     context = this@DeckPicker,
-                    title = getString(R.string.rename_deck),
+                    title = TR.sentenceCase.renameDeck,
                     deckDialogType = CreateDeckDialog.DeckDialogType.RENAME_DECK,
                     parentId = null,
                 )
@@ -2229,7 +2230,7 @@ open class DeckPicker :
                     shortcut("F", R.string.new_dynamic_deck),
                     if (fragmented) shortcut("DEL") { this.sentenceCase.deleteDeck } else null,
                     if (fragmented) shortcut("Shift+DEL", R.string.delete_deck_without_confirmation) else null,
-                    if (fragmented) shortcut("R", R.string.rename_deck) else null,
+                    if (fragmented) shortcut("R") { this.sentenceCase.renameDeck } else null,
                     shortcut("P", R.string.open_settings),
                     shortcut("M") { this.sentenceCase.checkMediaAction },
                     shortcut("Ctrl+E", R.string.export_collection),

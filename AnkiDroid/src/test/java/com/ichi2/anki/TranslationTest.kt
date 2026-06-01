@@ -347,7 +347,6 @@ class TranslationTest : RobolectricTest() {
                 "Manage note types", // R.string.model_browser_label
                 // TR.browsingManageNoteTypes()
                 // TR.qtMiscManageNoteTypes()
-                "Rename deck", // R.string.rename_deck | TR.actionsRenameDeck()
                 "Select all", // R.string.card_browser_select_all | TR.editingImageOcclusionSelectAll()
                 "Select deck", // R.string.select_deck | TR.browsingSelectDeck()
                 "Select image", // R.string.choose_an_image | TR.notetypesIoSelectImage()
