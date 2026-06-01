@@ -28,6 +28,7 @@ import com.ichi2.anki.CollectionHelper.getCurrentAnkiDroidDirectory
 import com.ichi2.anki.CollectionManager
 import com.ichi2.anki.DeckPicker
 import com.ichi2.anki.R
+import com.ichi2.anki.backend.DatabaseCorruption
 import com.ichi2.anki.tests.InstrumentedTest
 import com.ichi2.anki.tests.Shared
 import com.ichi2.anki.testutil.discardPreliminaryViews
@@ -63,7 +64,7 @@ class DatabaseCorruptDialogTest : InstrumentedTest() {
 
     @Test
     fun testCorruptDialogFlagSet() {
-        Assert.assertTrue(DatabaseErrorDialog.databaseCorruptFlag)
+        Assert.assertTrue(DatabaseCorruption.isDetected)
     }
 
     @Test

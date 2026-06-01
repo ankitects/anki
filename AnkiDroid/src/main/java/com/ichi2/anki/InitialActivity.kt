@@ -27,11 +27,11 @@ import android.os.Parcelable
 import androidx.annotation.CheckResult
 import androidx.annotation.RequiresApi
 import androidx.core.content.edit
+import com.ichi2.anki.backend.DatabaseCorruption
 import com.ichi2.anki.common.crashreporting.CrashReportService
 import com.ichi2.anki.common.permissions.hasAllPermissions
 import com.ichi2.anki.common.utils.android.SdCard
 import com.ichi2.anki.compat.CompatHelper.Companion.sdkVersion
-import com.ichi2.anki.dialogs.DatabaseErrorDialog
 import com.ichi2.anki.exception.StorageAccessException
 import com.ichi2.anki.servicelayer.PreferenceUpgradeService
 import com.ichi2.anki.servicelayer.PreferenceUpgradeService.setPreferencesUpToDate
@@ -76,7 +76,7 @@ object InitialActivity {
                 StartupFailure.DiskFull
             } catch (e: SQLiteDatabaseCorruptException) {
                 Timber.w(e)
-                DatabaseErrorDialog.databaseCorruptFlag = true
+                DatabaseCorruption.isDetected = true
                 StartupFailure.DBError(e)
             } catch (e: StorageAccessException) {
                 // Same handling as the fall through, but without the exception report
