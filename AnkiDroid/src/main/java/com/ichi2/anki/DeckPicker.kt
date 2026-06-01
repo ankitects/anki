@@ -499,7 +499,7 @@ open class DeckPicker :
         setViewBinding(binding)
         enableToolbar()
         // TODO This method is run on every activity recreation, which can happen often.
-        //  It seems that the original idea was for for this to only run once, on app start.
+        //  It seems that the original idea was for this to only run once, on app start.
         //  This method triggers backups, sync, and may re-show dialogs
         //  that may have been dismissed. Make this run only once?
         handleStartup()
