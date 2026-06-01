@@ -21,7 +21,7 @@ import android.content.Context
 import androidx.test.runner.AndroidJUnitRunner
 
 /**
- * A test runner which sets [com.ichi2.anki.AnkiDroidApp.INSTRUMENTATION_TESTING] to true
+ * A test runner which sets [com.ichi2.anki.common.utils.android.isInstrumentationTest] to true
  * so a test collection path is used
  */
 @Suppress("unused") // referenced by build.gradle

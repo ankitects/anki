@@ -12,6 +12,7 @@ import androidx.core.content.edit
 import com.ichi2.anki.CollectionHelper.PREF_COLLECTION_PATH
 import com.ichi2.anki.CollectionHelper.getCurrentAnkiDroidDirectory
 import com.ichi2.anki.common.preferences.sharedPrefs
+import com.ichi2.anki.common.utils.android.isInstrumentationTest
 import com.ichi2.anki.exception.StorageAccessException
 import com.ichi2.anki.exception.SystemStorageException
 import com.ichi2.anki.libanki.Collection
@@ -288,7 +289,7 @@ object CollectionHelper {
         preferences: SharedPreferences,
         context: () -> Context,
     ): File =
-        if (AnkiDroidApp.INSTRUMENTATION_TESTING) {
+        if (isInstrumentationTest) {
             // create an "androidTest" directory inside the current collection directory which contains the test data
             // "/AnkiDroid/androidTest" would be a new collection path
             val currentCollectionDirectory =
