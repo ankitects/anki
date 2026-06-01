@@ -19,4 +19,5 @@ dependencies {
 
     implementation(libs.androidx.activity)
     implementation(libs.androidx.fragment.ktx)
+    implementation(libs.jakewharton.timber)
 }
