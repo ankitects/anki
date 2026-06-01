@@ -1,8 +1,9 @@
 # Claude Code Configuration
 
-> **Note:** Commands for building, testing, linting, and formatting are
-> defined as recipes in the project `justfile`. Run `just --list` to see
-> them. Do not invoke `./ninja` directly — use the `just` recipes instead.
+> **Note:** Every command you need — building, running, testing, linting,
+> formatting — is defined as a recipe in the project `justfile`. Run
+> `just --list` to see them. Do not invoke `./ninja`, `./run`, or scripts
+> under `./tools` directly — use the `just` recipes instead.
 
 ## Project Overview
 
@@ -20,14 +21,15 @@ Anki is a spaced repetition flashcard program with a multi-layered architecture.
 To build and run Anki in development mode:
 
 ```
-./run
+just run
 ```
 
 This builds pylib and qt, then launches Anki with debugging enabled. Web
 views are served at http://localhost:40000/_anki/pages/ (e.g.,
-deckconfig.html). For live-reloading during web development, run
-`./tools/web-watch` in a separate terminal — it monitors ts/, sass/, and
-qt/aqt/data/web/ and auto-rebuilds on changes.
+deckconfig.html). Use `just run-optimized` for a release-optimized build.
+For live-reloading during web development, run `just web-watch` in a
+separate terminal — it monitors ts/, sass/, and qt/aqt/data/web/ and
+auto-rebuilds on changes (`just rebuild-web` triggers a one-off rebuild).
 
 ## Building/checking
 
