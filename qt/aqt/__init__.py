@@ -270,11 +270,16 @@ def setupLangAndBackend(
     else:
         app.setLayoutDirection(Qt.LayoutDirection.LeftToRight)
 
+    qt_lang = lang.replace("-", "_")
+
+    # sync default QLocale lang with anki (for webview and native controls)
+    q_locale = QLocale(qt_lang)
+    QLocale.setDefault(q_locale)
+
     # load qt translations
     _qtrans = QTranslator()
 
     qt_dir = QLibraryInfo.path(QLibraryInfo.LibraryPath.TranslationsPath)
-    qt_lang = lang.replace("-", "_")
     if _qtrans.load(f"qtbase_{qt_lang}", qt_dir):
         app.installTranslator(_qtrans)
 
