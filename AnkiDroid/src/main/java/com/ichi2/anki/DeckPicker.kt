@@ -1096,6 +1096,7 @@ open class DeckPicker :
         menu.findItem(R.id.action_export_collection)?.title = TR.actionsExport()
         menu.findItem(R.id.action_check_database)?.title = TR.sentenceCase.checkDatabase
         menu.findItem(R.id.action_check_media)?.title = TR.sentenceCase.checkMediaAction
+        menu.findItem(R.id.action_empty_cards)?.title = TR.sentenceCase.emptyCards
         menu.findItem(R.id.action_deck_rename)?.title = TR.sentenceCase.renameDeck
         menu.findItem(R.id.action_deck_delete)?.title = TR.sentenceCase.deleteDeck
         setupMediaSyncMenuItem(menu)

@@ -100,8 +100,14 @@ object SentenceCase {
     context(_: Fragment)
     val customStudy get() = TR.actionsCustomStudy().toSentenceCase(R.string.sentence_custom_study)
 
+    /** The 'Empty Cards' menu action. For the window/dialog title, use [emptyCardsTitle]. */
+    context(_: Context)
+    val emptyCards get() = TR.actionsEmptyCards().toSentenceCase(R.string.sentence_empty_cards)
+
+    /** The 'Empty Cards' window/dialog title. For the menu action, use [emptyCards]. */
     context(_: Fragment)
-    val emptyCards get() = TR.emptyCardsWindowTitle().toSentenceCase(R.string.sentence_empty_cards)
+    val emptyCardsTitle get() = TR.emptyCardsWindowTitle().toSentenceCase(R.string.sentence_empty_cards)
+
     context(_: Fragment)
     val emptyTrash get() = TR.mediaCheckEmptyTrash().toSentenceCase(R.string.sentence_empty_trash)
 

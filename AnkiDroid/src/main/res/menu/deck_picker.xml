@@ -38,10 +38,11 @@
                 android:id="@+id/action_check_media"
                 android:menuCategory="secondary"
                 tools:title="Check media"/>
+            <!-- TR.actionsEmptyCards() -->
             <item
                 android:id="@+id/action_empty_cards"
                 android:menuCategory="secondary"
-                android:title="@string/empty_cards"/>
+                tools:title="Empty cards"/>
         </menu>
     </item>
     <!-- Backend string TR.qtAccelCreateBackup() has an & in it -->

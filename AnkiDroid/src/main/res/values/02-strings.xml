@@ -135,7 +135,6 @@
     <string name="rename" comment="Confirm that the renaming action should be processed." maxLength="28">Rename</string>
 
     <string name="checks_action" maxLength="28">Check</string>
-    <string name="empty_cards" maxLength="28">Empty cards</string>
     <string name="unknown_type_field_warning">Type answer: unknown field %s</string>
     <string name="delete_deck" comment="Message on a progress bar starting a deck is being deleted.">Deleting deck…</string>
 
