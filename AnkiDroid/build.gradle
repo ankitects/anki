@@ -472,6 +472,7 @@ dependencies {
 
     implementation libs.protobuf.kotlin.lite // This is required when loading from a file
 
+    // TODO: migrate to `addAnkiBackendDependencies(...)` when this is a gradle.kts file
     Properties localProperties = new Properties()
     if (project.rootProject.file('local.properties').exists()) {
         localProperties.load(project.rootProject.file('local.properties').newDataInputStream())

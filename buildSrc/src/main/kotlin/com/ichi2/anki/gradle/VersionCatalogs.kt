@@ -3,8 +3,10 @@
 package com.ichi2.anki.gradle
 
 import org.gradle.api.Project
+import org.gradle.api.artifacts.MinimalExternalModuleDependency
 import org.gradle.api.artifacts.VersionCatalog
 import org.gradle.api.artifacts.VersionCatalogsExtension
+import org.gradle.api.provider.Provider
 import org.gradle.kotlin.dsl.getByType
 
 // Type-safe `libs` accessors aren't available in precompiled script plugins,
@@ -22,3 +24,12 @@ private fun Project.libs(): VersionCatalog =
 
 fun Project.libsVersionFor(alias: String): String =
     libs().findVersion(alias).get().requiredVersion
+
+// Provider<MinimalExternalModuleDependency> is tied to build-scoped services
+// so must not come from cachedLibs.
+fun Project.libsLibrary(alias: String): Provider<MinimalExternalModuleDependency> =
+    extensions
+        .getByType<VersionCatalogsExtension>()
+        .named("libs")
+        .findLibrary(alias)
+        .get()
