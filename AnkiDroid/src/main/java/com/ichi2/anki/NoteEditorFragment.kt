@@ -526,7 +526,7 @@ class NoteEditorFragment :
     ) {
         WindowInsetsControllerCompat(window, window.decorView).isAppearanceLightStatusBars = false
         @Suppress("deprecation", "API35 properly handle edge-to-edge")
-        requireActivity().window.statusBarColor = getColorFromAttr(requireContext(), R.attr.appBarColor)
+        requireActivity().window.statusBarColor = getColorFromAttr(requireContext(), CommonR.attr.appBarColor)
         super.onViewCreated(view, savedInstanceState)
         // Set up toolbar
         toolbar = view.findViewById(R.id.editor_toolbar)

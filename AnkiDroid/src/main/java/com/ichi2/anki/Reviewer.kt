@@ -134,6 +134,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.suspendCancellableCoroutine
 import timber.log.Timber
 import kotlin.coroutines.resume
+import com.ichi2.anki.common.android.R as CommonR
 
 @Suppress("LeakingThis")
 @NeedsTest("#14709: Timebox shouldn't appear instantly when the Reviewer is opened")
@@ -1560,7 +1561,7 @@ open class Reviewer :
         // Show / hide the Action bar together with the status bar
         val prefs = a.sharedPrefs()
         val fullscreenMode = fromPreference(prefs)
-        a.window.statusBarColor = MaterialColors.getColor(a, R.attr.appBarColor, 0)
+        a.window.statusBarColor = MaterialColors.getColor(a, CommonR.attr.appBarColor, 0)
         val decorView = a.window.decorView
         decorView.setOnSystemUiVisibilityChangeListener { flags: Int ->
             val toolbar = a.findViewById<View>(R.id.toolbar)

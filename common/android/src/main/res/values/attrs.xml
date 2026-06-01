@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- SPDX-License-Identifier: GPL-3.0-or-later -->
+
+<!-- Theme attributes resolved by shared activity code (e.g. AnkiActivity). -->
+<resources>
+    <attr name="appBarColor" format="color"/>
+    <attr name="customTabNavBarColor" format="color"/>
+</resources>

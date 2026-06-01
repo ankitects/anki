@@ -109,7 +109,7 @@
         <attr name="nextTime" format="string"/>
     </declare-styleable>
 
-    <attr name="appBarColor" format="color"/>
+    <!-- appBarColor and customTabNavBarColor are declared in :common:android (shared activity code resolves them) -->
     <attr name="widgetColorActivated" format="color"/>
     <!-- Deck list colors, divider, and expander -->
     <attr name="currentDeckBackground" format="reference"/>
@@ -193,8 +193,6 @@
     <!-- FAB -->
     <attr name="fab_normal" format="color"/> <!-- Also color of the Study button in StudyOptions -->
     <attr name="fab_pressed" format="color"/>
-    <!--Custom Tabs colors-->
-    <attr name="customTabNavBarColor" format="color"/>
     <!-- Popup menus' background color -->
     <attr name="popupBackgroundColor" format="reference"/>
     <attr name="overflowAndPopupMenuIconColor" format="color"/>

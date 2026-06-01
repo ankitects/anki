@@ -462,8 +462,8 @@ open class AnkiActivity(
             showSnackbar(getString(R.string.no_browser_msg, url.toString()))
             return
         }
-        val toolbarColor = MaterialColors.getColor(this, R.attr.appBarColor, 0)
-        val navBarColor = MaterialColors.getColor(this, R.attr.customTabNavBarColor, 0)
+        val toolbarColor = MaterialColors.getColor(this, CommonR.attr.appBarColor, 0)
+        val navBarColor = MaterialColors.getColor(this, CommonR.attr.customTabNavBarColor, 0)
         val colorSchemeParams =
             CustomTabColorSchemeParams
                 .Builder()
