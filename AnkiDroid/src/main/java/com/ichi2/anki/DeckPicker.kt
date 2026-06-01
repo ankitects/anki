@@ -981,12 +981,12 @@ open class DeckPicker :
 
         val environment: AnkiDroidEnvironment =
             object : AnkiDroidEnvironment {
-                private val folder = selectAnkiDroidFolder(context)
+                private val permissions = selectStoragePermissions(context)
 
-                override fun hasRequiredPermissions(): Boolean = folder.hasRequiredPermissions(context)
+                override fun hasRequiredPermissions(): Boolean = permissions.hasRequiredPermissions(context)
 
                 override val requiredPermissions: PermissionSet
-                    get() = folder.permissionSet
+                    get() = permissions
 
                 override fun initializeAnkiDroidFolder(): Boolean = CollectionHelper.isCurrentAnkiDroidDirAccessible(context)
             }

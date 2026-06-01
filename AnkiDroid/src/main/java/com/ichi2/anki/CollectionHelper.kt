@@ -9,7 +9,6 @@ import android.os.Environment
 import androidx.annotation.CheckResult
 import androidx.annotation.VisibleForTesting
 import androidx.core.content.edit
-import com.ichi2.anki.AnkiDroidFolder.AppPrivateFolder
 import com.ichi2.anki.CollectionHelper.PREF_COLLECTION_PATH
 import com.ichi2.anki.CollectionHelper.getCurrentAnkiDroidDirectory
 import com.ichi2.anki.backend.createDatabaseUsingAndroidFramework
@@ -20,6 +19,7 @@ import com.ichi2.anki.exception.UnknownDatabaseVersionException
 import com.ichi2.anki.libanki.Collection
 import com.ichi2.anki.libanki.CollectionFiles
 import com.ichi2.anki.libanki.DB
+import com.ichi2.anki.storage.AnkiDroidFolder
 import com.ichi2.preferences.getOrSetString
 import timber.log.Timber
 import java.io.File
@@ -174,7 +174,7 @@ object CollectionHelper {
         context: Context,
         directoryName: String = "AnkiDroid",
     ): File {
-        val legacyStorage = selectAnkiDroidFolder(context) != AppPrivateFolder
+        val legacyStorage = selectAnkiDroidFolder(context) != AnkiDroidFolder.APP_PRIVATE
         return if (legacyStorage) {
             legacyAnkiDroidDirectory(directoryName)
         } else {

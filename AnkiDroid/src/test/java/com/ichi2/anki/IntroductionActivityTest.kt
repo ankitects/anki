@@ -42,8 +42,8 @@ class IntroductionActivityTest : RobolectricTest() {
     @Test
     fun `Sync without storage permission opens PermissionsActivity`() =
         runTest {
-            // Robolectric runs at API 35 where selectAnkiDroidFolder returns AppPrivateFolder,
-            // whose required PermissionSet is just [INTERNET]. Denying INTERNET is the cheapest
+            // Robolectric runs at API 35 where selectStoragePermissions returns PermissionSet.APP_PRIVATE,
+            // which is just [INTERNET]. Denying INTERNET is the cheapest
             // way to make hasCollectionStoragePermissions() return false in this environment.
             withDeniedPermissions(INTERNET) {
                 val activity = startRegularActivity<IntroductionActivity>(Intent())

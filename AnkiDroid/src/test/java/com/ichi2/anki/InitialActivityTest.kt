@@ -23,15 +23,12 @@ import android.os.Build
 import androidx.core.content.edit
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import com.ichi2.anki.AnkiDroidFolder.AppPrivateFolder
-import com.ichi2.anki.AnkiDroidFolder.PublicFolder
 import com.ichi2.anki.common.preferences.sharedPrefs
 import com.ichi2.anki.servicelayer.PreferenceUpgradeService
 import com.ichi2.testutils.EmptyApplication
 import org.hamcrest.CoreMatchers.equalTo
 import org.hamcrest.MatcherAssert.assertThat
 import org.hamcrest.Matchers.contains
-import org.hamcrest.core.IsInstanceOf.instanceOf
 import org.junit.Before
 import org.junit.Test
 import org.junit.experimental.categories.Category
@@ -133,11 +130,11 @@ class InitialActivityTest : RobolectricTest() {
 
         // force a safe startup before Q
         assertThat(
-            (selectAnkiDroidFolder(false) as PublicFolder).requiredPermissions.asIterable(),
+            selectStoragePermissions(canManageExternalStorage = false).permissions.asIterable(),
             contains(*expectedPermissions),
         )
         assertThat(
-            (selectAnkiDroidFolder(true) as PublicFolder).requiredPermissions.asIterable(),
+            selectStoragePermissions(canManageExternalStorage = true).permissions.asIterable(),
             contains(*expectedPermissions),
         )
     }
@@ -145,14 +142,8 @@ class InitialActivityTest : RobolectricTest() {
     @Config(sdk = [Q])
     @Test
     fun startupQ() {
-        assertThat(
-            selectAnkiDroidFolder(false),
-            instanceOf(PublicFolder::class.java),
-        )
-        assertThat(
-            selectAnkiDroidFolder(true),
-            instanceOf(PublicFolder::class.java),
-        )
+        assertThat(selectStoragePermissions(canManageExternalStorage = false), equalTo(PermissionSet.LEGACY_ACCESS))
+        assertThat(selectStoragePermissions(canManageExternalStorage = true), equalTo(PermissionSet.LEGACY_ACCESS))
     }
 
     @SuppressLint("InlinedApi")
@@ -167,12 +158,12 @@ class InitialActivityTest : RobolectricTest() {
                 android.Manifest.permission.INTERNET,
             )
 
-        selectAnkiDroidFolder(
+        selectStoragePermissions(
             canManageExternalStorage = true,
             currentFolderIsAccessibleAndLegacy = true,
         ).let {
             assertThat(
-                (it as PublicFolder).requiredPermissions.asIterable(),
+                it.permissions.asIterable(),
                 contains(*expectedPermissions),
             )
         }
@@ -182,35 +173,32 @@ class InitialActivityTest : RobolectricTest() {
     @Config(sdk = [R_OR_AFTER])
     @Test
     fun `Android 11 - After reinstall (with MANAGE_EXTERNAL_STORAGE)`() {
-        val ankiDroidFolder =
-            selectAnkiDroidFolder(
+        val permissions =
+            selectStoragePermissions(
                 canManageExternalStorage = true,
                 currentFolderIsAccessibleAndLegacy = false,
-            ) as PublicFolder
+            )
 
-        assertTrue(android.Manifest.permission.MANAGE_EXTERNAL_STORAGE in ankiDroidFolder.requiredPermissions)
+        assertTrue(android.Manifest.permission.MANAGE_EXTERNAL_STORAGE in permissions.permissions)
     }
 
     @Config(sdk = [R_OR_AFTER])
     @Test
     fun startupAfterQWithoutManageExternalStorage() {
         assertThat(
-            selectAnkiDroidFolder(canManageExternalStorage = false),
-            instanceOf(AppPrivateFolder::class.java),
+            selectStoragePermissions(canManageExternalStorage = false),
+            equalTo(PermissionSet.APP_PRIVATE),
         )
     }
 
-    private val AnkiDroidFolder.requiredPermissions
-        get() = permissionSet.permissions
-
     /**
-     * Helper for [com.ichi2.anki.selectAnkiDroidFolder], making `currentFolderIsAccessibleAndLegacy` optional
+     * Helper for [com.ichi2.anki.selectStoragePermissions], making `currentFolderIsAccessibleAndLegacy` optional
      */
-    private fun selectAnkiDroidFolder(
+    private fun selectStoragePermissions(
         canManageExternalStorage: Boolean,
         currentFolderIsAccessibleAndLegacy: Boolean = false,
-    ): AnkiDroidFolder =
-        com.ichi2.anki.selectAnkiDroidFolder(
+    ): PermissionSet =
+        com.ichi2.anki.selectStoragePermissions(
             canManageExternalStorage = canManageExternalStorage,
             currentFolderIsAccessibleAndLegacy = currentFolderIsAccessibleAndLegacy,
         )

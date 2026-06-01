@@ -21,7 +21,7 @@ import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.app.ActivityCompat
 import com.ichi2.anki.AnkiActivity
-import com.ichi2.anki.selectAnkiDroidFolder
+import com.ichi2.anki.selectStoragePermissions
 import com.ichi2.anki.ui.windows.permissions.PermissionsActivity
 import timber.log.Timber
 
@@ -44,10 +44,10 @@ interface CollectionPermissionScreenLauncher {
      * @return `true` if the screen was opened
      */
     fun AnkiActivity.collectionPermissionScreenWasOpened(): Boolean {
-        val ankiDroidFolder = selectAnkiDroidFolder(this)
-        if (!ankiDroidFolder.hasRequiredPermissions(this)) {
+        val permissions = selectStoragePermissions(this)
+        if (!permissions.hasRequiredPermissions(this)) {
             Timber.i("${this.javaClass.simpleName}: postponing startup code - permission screen shown")
-            permissionScreenLauncher.launch(PermissionsActivity.getIntent(this, ankiDroidFolder.permissionSet))
+            permissionScreenLauncher.launch(PermissionsActivity.getIntent(this, permissions))
             return true
         }
         return false
@@ -55,6 +55,6 @@ interface CollectionPermissionScreenLauncher {
 }
 
 fun AnkiActivity.hasCollectionStoragePermissions(): Boolean {
-    val ankiDroidFolder = selectAnkiDroidFolder(this)
-    return ankiDroidFolder.hasRequiredPermissions(this)
+    val permissions = selectStoragePermissions(this)
+    return permissions.hasRequiredPermissions(this)
 }
