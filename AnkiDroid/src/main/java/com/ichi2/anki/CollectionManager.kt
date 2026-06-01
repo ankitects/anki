@@ -32,6 +32,7 @@ import com.ichi2.anki.CollectionManager.withOpenColOrNull
 import com.ichi2.anki.CollectionManager.withQueue
 import com.ichi2.anki.backend.createDatabaseUsingRustBackend
 import com.ichi2.anki.common.android.appContext
+import com.ichi2.anki.common.utils.android.Threads
 import com.ichi2.anki.common.utils.android.isRobolectric
 import com.ichi2.anki.exception.StorageNotConfiguredException
 import com.ichi2.anki.libanki.Collection
@@ -40,7 +41,6 @@ import com.ichi2.anki.libanki.LibAnki
 import com.ichi2.anki.libanki.Storage.collection
 import com.ichi2.anki.libanki.importCollectionPackage
 import com.ichi2.anki.storage.StorageDecision
-import com.ichi2.utils.Threads
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
