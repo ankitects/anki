@@ -64,6 +64,17 @@ class IntentHandlerTest {
     }
 
     @Test
+    fun browserDeepLinkReturnsOpenBrowser() {
+        // `anki://x-callback-url/browser` is routed through IntentHandler (via a manifest alias) so it
+        // passes the storage-decision gate before CardBrowser is opened.
+        val intent = Intent(Intent.ACTION_VIEW, "anki://x-callback-url/browser?search=dog".toUri())
+
+        val expected = getLaunchType(intent)
+
+        assertThat(expected, equalTo(LaunchType.OPEN_BROWSER))
+    }
+
+    @Test
     fun mainIntentStartsApp() {
         val intent = Intent(Intent.ACTION_MAIN)
 

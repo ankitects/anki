@@ -51,7 +51,6 @@ import androidx.test.espresso.matcher.ViewMatchers.withText
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import anki.search.BrowserRow
 import anki.search.BrowserRow.Color
-import com.ichi2.anki.CollectionManager
 import com.ichi2.anki.CollectionManager.TR
 import com.ichi2.anki.CollectionManager.withCol
 import com.ichi2.anki.IntentHandler.Companion.grantedStoragePermissions
@@ -501,7 +500,11 @@ class CardBrowserTest : RobolectricTest() {
         addBasicNote("dog", "barks")
         addBasicNote("cat", "meows")
 
-        val deepLink = Intent(Intent.ACTION_VIEW, "anki://x-callback-url/browser?search=dog".toUri())
+        val deepLink =
+            Intent(targetContext, CardBrowser::class.java).apply {
+                action = Intent.ACTION_VIEW
+                data = "anki://x-callback-url/browser?search=dog".toUri()
+            }
 
         ActivityScenario.launch<CardBrowser>(deepLink).use { scenario ->
             advanceRobolectricLooper()

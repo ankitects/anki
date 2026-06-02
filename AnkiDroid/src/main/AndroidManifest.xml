@@ -329,17 +329,22 @@
             android:name="com.ichi2.anki.CardBrowser"
             android:label="@string/card_browser"
             android:theme="@style/Theme_Dark.Launcher"
-            android:exported="true"
+            android:exported="false"
             android:parentActivityName=".DeckPicker"
-            >
-            <intent-filter android:label="@string/card_browser">
+            />
+        <!-- `anki://x-callback-url/browser` deep link. -->
+        <activity-alias
+            android:name="com.ichi2.anki.CardBrowserDeepLink"
+            android:label="@string/card_browser"
+            android:targetActivity="com.ichi2.anki.IntentHandler"
+            android:exported="true">
+            <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
-                <!-- Accepts URIs that begin with "anki://x-callback-url/browser” -->
                 <data android:scheme="anki" android:host="x-callback-url" android:path="/browser"/>
             </intent-filter>
-        </activity>
+        </activity-alias>
         <activity
             android:name=".notetype.ManageNotetypes"
             android:label="@string/model_browser_label"

@@ -12,6 +12,8 @@ import com.ichi2.anki.tests.InstrumentedTest
 import com.ichi2.anki.testutil.GrantStoragePermission
 import org.hamcrest.MatcherAssert.assertThat
 import org.hamcrest.Matchers.equalTo
+import org.hamcrest.Matchers.instanceOf
+import org.hamcrest.Matchers.not
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -50,28 +52,64 @@ class CardBrowserDeepLinkTest : InstrumentedTest() {
     }
 
     /**
+     * The deep link opens [CardBrowser] standalone, so pressing 'back' closes it.
+     */
+    @Test
+    fun backFromBrowserClosesTheActivity() {
+        addNoteUsingBasicNoteType("dog", "barks")
+
+        val deepLink =
+            Intent(Intent.ACTION_VIEW, "anki://x-callback-url/browser?search=dog".toUri()).apply {
+                setPackage(testContext.packageName)
+                addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            }
+        testContext.startActivity(deepLink)
+
+        val browser = awaitResumed<CardBrowser>()
+        val instrumentation = InstrumentationRegistry.getInstrumentation()
+        instrumentation.runOnMainSync { browser.onBackPressedDispatcher.onBackPressed() }
+        instrumentation.waitForIdleSync()
+
+        assertThat("'back' closes the browser", browser.isFinishing, equalTo(true))
+        assertThat(
+            "'back' does not surface DeckPicker beneath the browser",
+            TestUtils.activityInstance,
+            not(instanceOf(DeckPicker::class.java)),
+        )
+    }
+
+    /**
      * Waits for an activity of type [T] to resume (the end of the deep-link chain), runs [block]
-     * against it on the main thread, then finishes it. Fails if [T] does not resume in time.
+     * against it on the main thread, then finishes its task. Fails if [T] does not resume in time.
      */
     private inline fun <reified T : Activity> waitForActivity(
         timeout: Duration = 10.seconds,
         crossinline block: T.() -> Unit,
     ) {
-        val deadline = SystemClock.uptimeMillis() + timeout.inWholeMilliseconds
-        var activity = TestUtils.activityInstance as? T
+        val resolved = awaitResumed<T>(timeout)
         val instrumentation = InstrumentationRegistry.getInstrumentation()
+        try {
+            instrumentation.runOnMainSync { resolved.block() }
+        } finally {
+            instrumentation.runOnMainSync { resolved.finishAndRemoveTask() }
+        }
+    }
+
+    /**
+     * Polls until an activity of type [T] is resumed and returns it. Fails if [T] does not resume
+     * within [timeout].
+     */
+    private inline fun <reified T : Activity> awaitResumed(timeout: Duration = 10.seconds): T {
+        val deadline = SystemClock.uptimeMillis() + timeout.inWholeMilliseconds
+        val instrumentation = InstrumentationRegistry.getInstrumentation()
+        var activity = TestUtils.activityInstance as? T
 
         while (activity == null && SystemClock.uptimeMillis() < deadline) {
             instrumentation.waitForIdleSync()
             SystemClock.sleep(50)
             activity = TestUtils.activityInstance as? T
         }
-        val resolved =
-            activity ?: fail("Timed out waiting for ${T::class.java.simpleName}; resumed = ${TestUtils.activityInstance}")
-        try {
-            instrumentation.runOnMainSync { resolved.block() }
-        } finally {
-            instrumentation.runOnMainSync { resolved.finish() }
-        }
+        return activity
+            ?: fail("Timed out waiting for ${T::class.java.simpleName}; resumed = ${TestUtils.activityInstance}")
     }
 }

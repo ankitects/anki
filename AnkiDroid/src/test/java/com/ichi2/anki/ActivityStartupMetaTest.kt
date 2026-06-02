@@ -42,7 +42,10 @@ class ActivityStartupMetaTest : RobolectricTest() {
             manifestActivities
                 .map { it.name }
                 .filter { it != "com.ichi2.anki.TestCardTemplatePreviewer" }
+                // activity aliases
                 .filter { it != "com.ichi2.anki.AnkiCardContextMenuAction" }
+                .filter { it != "com.ichi2.anki.CardBrowserDeepLink" }
+                // ACRA-specific
                 .filter { it != "com.ichi2.anki.analytics.AnkiDroidCrashReportDialog" }
                 .filter { !it.startsWith("androidx") }
                 .filter { !it.startsWith("org.acra") }
