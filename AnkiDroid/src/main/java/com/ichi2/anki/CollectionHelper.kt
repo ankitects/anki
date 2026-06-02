@@ -20,6 +20,7 @@ import com.ichi2.anki.libanki.Collection
 import com.ichi2.anki.libanki.CollectionFiles
 import com.ichi2.anki.libanki.DB
 import com.ichi2.anki.storage.AnkiDroidFolder
+import com.ichi2.anki.storage.StorageDecision
 import com.ichi2.preferences.getOrSetString
 import timber.log.Timber
 import java.io.File
@@ -258,6 +259,15 @@ object CollectionHelper {
     var ankiDroidDirectoryOverride: File? = null
 
     /**
+     * Whether the user has chosen where the collection is stored.
+     *
+     * TODO: real implementation based on whether [PREF_COLLECTION_PATH] is set.
+     *  TODO: What is a user revokes full storage?
+     *  This currently returns [StorageDecision.Decided], so callers that gate on it are no-ops.
+     */
+    fun storageDecision(): StorageDecision = storageDecisionTestOverride ?: StorageDecision.Decided
+
+    /**
      * @return the absolute path to the AnkiDroid directory.
      *
      * @throws SystemStorageException if `getExternalFilesDir` returns null
@@ -337,4 +347,8 @@ object CollectionHelper {
             db?.close()
         }
     }
+
+    /** Test-only override for [storageDecision]. @see ankiDroidDirectoryOverride */
+    @VisibleForTesting
+    var storageDecisionTestOverride: StorageDecision? = null
 }
