@@ -136,7 +136,7 @@ jobs:
         run: python3 tools/coverage/check-coverage-regression.py out/coverage-baseline out/coverage
 
       - name: Upload SARIF results for complexipy
-        uses: github/codeql-action/upload-sarif@v4
+        uses: github/codeql-action/upload-sarif@a6fd1787519fd23e68309fad43738e41a6ff2a9d #v4
         with:
             sarif_file: out/complexipy/complexipy-results.sarif
             category: complexipy
