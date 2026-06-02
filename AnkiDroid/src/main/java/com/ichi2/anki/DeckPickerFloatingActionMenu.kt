@@ -309,6 +309,7 @@ class DeckPickerFloatingActionMenu(
                         if (!isFABOpen) {
                             showFloatingActionMenu()
                         } else {
+                            closeFloatingActionMenu(applyRiseAndShrinkAnimation = false)
                             addNote()
                         }
                         return@setOnKeyListener true
@@ -399,16 +400,6 @@ class DeckPickerFloatingActionMenu(
                 }
             }
         binding.fabMain.setOnClickListener(fabMainClickListener)
-
-        // Enable keyboard activation for Enter/DPAD_CENTER keys
-        binding.fabMain.setOnKeyListener(
-            createActivationKeyListener("Add Note label: ENTER key pressed") {
-                if (isFABOpen) {
-                    closeFloatingActionMenu(applyRiseAndShrinkAnimation = false)
-                    addNote()
-                }
-            },
-        )
     }
 
     /**

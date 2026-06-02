@@ -7,6 +7,7 @@ import android.content.Intent
 import android.content.SharedPreferences
 import android.content.pm.PackageManager
 import android.database.sqlite.SQLiteDatabaseCorruptException
+import android.view.KeyEvent
 import android.view.Menu
 import android.view.View
 import android.widget.TextView
@@ -688,6 +689,30 @@ class DeckPickerTest : RobolectricTest() {
             // TalkBack activate a focused control, which routes to [View.performClick]
             fab.performClick()
             assertThat("FAB menu opens on click", floatingActionMenu.isFABOpen, equalTo(true))
+        }
+
+    @Test
+    fun `FAB menu opens on ENTER key`() =
+        deckPicker {
+            val fab = findViewById<View>(R.id.fab_main)
+
+            assertThat("menu starts closed", floatingActionMenu.isFABOpen, equalTo(false))
+
+            fab.dispatchKeyEvent(KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_ENTER))
+
+            assertThat("ENTER key opens the FAB menu", floatingActionMenu.isFABOpen, equalTo(true))
+        }
+
+    @Test
+    fun `FAB menu closes on ESCAPE key`() =
+        deckPicker {
+            val fab = findViewById<View>(R.id.fab_main)
+            floatingActionMenu.showFloatingActionMenu()
+            assertThat("menu is open", floatingActionMenu.isFABOpen, equalTo(true))
+
+            fab.dispatchKeyEvent(KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_ESCAPE))
+
+            assertThat("ESCAPE key closes the FAB menu", floatingActionMenu.isFABOpen, equalTo(false))
         }
 
     @Test
