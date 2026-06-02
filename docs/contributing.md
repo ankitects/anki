@@ -152,8 +152,9 @@ example if tools such as `ninja` are installed outside standard locations),
 because pre-commit does not use a login shell and a different path can cause
 extra rebuilds.
 
-If your change is non-trivial and not covered by the existing unit tests, please
-consider adding a unit test at the same time.
+New or changed behavior must be covered by tests. Exceptions where tests are not
+required: version bumps, documentation-only changes, translation updates, dependency
+updates, and CI/build housekeeping (chore).
 
 ## Code Style
 
