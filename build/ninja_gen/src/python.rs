@@ -314,7 +314,7 @@ pub struct Complexipy {
 
 impl BuildAction for Complexipy {
     fn command(&self) -> &str {
-        "$complexipy $folders"
+        "$complexipy $folders --suggest-refactors"
     }
 
     fn files(&mut self, build: &mut impl crate::build::FilesHandle) {

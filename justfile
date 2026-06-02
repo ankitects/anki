@@ -156,7 +156,7 @@ ci branch:
 
 # Run Complexipy in regression-only mode for CI
 complexipy-diff branch:
-    complexipy --diff {{ branch }} -R -mx 15
+    complexipy --diff {{ branch }} -R -mx 15 --suggest-refactors
 
 # Helpers to get the right commands for the platform
 
