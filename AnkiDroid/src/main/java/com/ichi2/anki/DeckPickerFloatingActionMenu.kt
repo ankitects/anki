@@ -397,15 +397,20 @@ class DeckPickerFloatingActionMenu(
                 }
             }
         binding.addSharedButton.setOnKeyListener(addSharedKeyListener)
-        val addNoteLabelListener =
+        // Mirrors the touch DoubleTapListener above: TalkBack and hardware keyboards activate via
+        // ACTION_CLICK -> performClick(), which bypasses the touch GestureDetector. Opening the menu
+        // must live here too, otherwise the FAB is inoperable when a screen reader is enabled.
+        val fabMainClickListener =
             View.OnClickListener {
-                if (isFABOpen) {
+                if (!isFABOpen) {
+                    showFloatingActionMenu()
+                } else {
                     closeFloatingActionMenu(applyRiseAndShrinkAnimation = false)
-                    Timber.d("configureFloatingActionsMenu::addNoteLabel::onClickListener - Adding Note")
+                    Timber.d("configureFloatingActionsMenu::fabMain::onClickListener - Adding Note")
                     addNote()
                 }
             }
-        binding.fabMain.setOnClickListener(addNoteLabelListener)
+        binding.fabMain.setOnClickListener(fabMainClickListener)
 
         // Enable keyboard activation for Enter/DPAD_CENTER keys
         binding.fabMain.setOnKeyListener(

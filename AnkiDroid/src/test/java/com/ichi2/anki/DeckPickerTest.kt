@@ -681,6 +681,16 @@ class DeckPickerTest : RobolectricTest() {
         }
 
     @Test
+    fun `FAB opens menu on accessibility click`() =
+        deckPicker {
+            val fab = findViewById<View>(R.id.fab_main)
+            assertThat("menu starts closed", floatingActionMenu.isFABOpen, equalTo(false))
+            // TalkBack activate a focused control, which routes to [View.performClick]
+            fab.performClick()
+            assertThat("FAB menu opens on click", floatingActionMenu.isFABOpen, equalTo(true))
+        }
+
+    @Test
     fun `On a new startup, the App Intro is displayed`() =
         deckPicker(skipIntroduction = false) {
             val nextIntent = Shadows.shadowOf(this).nextStartedActivity
