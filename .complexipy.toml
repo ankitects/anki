@@ -1,3 +1,4 @@
+paths = ["qt", "pylib"]
 # TODO: lower threshold incrementally
 max-complexity-allowed = 50
 snapshot-create = false

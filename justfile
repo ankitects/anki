@@ -154,6 +154,10 @@ docs-rust:
 ci branch:
     gh workflow run ci.yml --ref {{ branch }}
 
+# Run Complexipy in regression-only mode for CI
+complexipy-diff branch:
+    complexipy --diff {{ branch }} -R -mx 15
+
 # Helpers to get the right commands for the platform
 
 ninja := if os() == "windows" { "tools\\ninja" } else { "./ninja" }
