@@ -23,6 +23,7 @@ import anki.collection.OpChangesOnly
 import anki.import_export.ImportAnkiPackageRequest
 import anki.search.SearchNode
 import com.ichi2.anki.CollectionManager.withCol
+import com.ichi2.anki.browser.CardBrowserViewModel
 import com.ichi2.anki.libanki.importCsvRaw
 import com.ichi2.anki.observability.undoableOp
 import kotlinx.coroutines.Dispatchers
@@ -74,8 +75,8 @@ suspend fun FragmentActivity.searchInBrowser(input: ByteArray): ByteArray {
     val searchString = withCol { buildSearchString(listOf(SearchNode.parseFrom(input))) }
     val starterIntent =
         Intent(this, CardBrowser::class.java).apply {
-            putExtra("search_query", searchString)
-            putExtra("all_decks", true)
+            putExtra(CardBrowserViewModel.EXTRA_SEARCH_QUERY, searchString)
+            putExtra(CardBrowserViewModel.EXTRA_ALL_DECKS, true)
         }
     startActivity(starterIntent)
     return input

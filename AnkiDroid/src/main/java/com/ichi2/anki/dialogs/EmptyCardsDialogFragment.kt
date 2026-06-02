@@ -50,6 +50,7 @@ import com.ichi2.anki.CardBrowser
 import com.ichi2.anki.CollectionManager.TR
 import com.ichi2.anki.DeckPicker
 import com.ichi2.anki.R
+import com.ichi2.anki.browser.CardBrowserViewModel
 import com.ichi2.anki.databinding.DialogEmptyCardsBinding
 import com.ichi2.anki.dialogs.EmptyCardsUiState.EmptyCardsSearchFailure
 import com.ichi2.anki.dialogs.EmptyCardsUiState.EmptyCardsSearchResult
@@ -254,8 +255,8 @@ class EmptyCardsDialogFragment : DialogFragment() {
     ) : ClickableSpan() {
         override fun onClick(widget: View) {
             val browserSearchIntent = Intent(context, CardBrowser::class.java)
-            browserSearchIntent.putExtra("search_query", "nid:$nid")
-            browserSearchIntent.putExtra("all_decks", true)
+            browserSearchIntent.putExtra(CardBrowserViewModel.EXTRA_SEARCH_QUERY, "nid:$nid")
+            browserSearchIntent.putExtra(CardBrowserViewModel.EXTRA_ALL_DECKS, true)
             context.startActivity(browserSearchIntent)
         }
     }

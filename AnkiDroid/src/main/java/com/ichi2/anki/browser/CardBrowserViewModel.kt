@@ -1557,6 +1557,12 @@ class CardBrowserViewModel(
         /** Intent extra carrying a [CardId] to auto-scroll to once the browser opens. */
         const val EXTRA_CARD_ID_KEY = "cardId"
 
+        /** Intent extra (`String`) carrying the search to run. */
+        const val EXTRA_SEARCH_QUERY = "search_query"
+
+        /** Intent extra (`Boolean`) for whether [EXTRA_SEARCH_QUERY] should search all decks. */
+        const val EXTRA_ALL_DECKS = "all_decks"
+
         /** Prevents one-shot extras from being re-applied after process death. */
         private const val STATE_LAUNCH_INTENT_CONSUMED = "launchIntentConsumed"
 

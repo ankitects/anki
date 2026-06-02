@@ -50,8 +50,8 @@ fun Intent.toCardBrowserLaunchOptions(): CardBrowserLaunchOptions? {
     }
 
     // for intent coming from search query js api
-    getStringExtra("search_query")?.let {
-        return CardBrowserLaunchOptions.SearchQueryJs(it, getBooleanExtra("all_decks", false))
+    getStringExtra(CardBrowserViewModel.EXTRA_SEARCH_QUERY)?.let {
+        return CardBrowserLaunchOptions.SearchQueryJs(it, getBooleanExtra(CardBrowserViewModel.EXTRA_ALL_DECKS, false))
     }
 
     getLongExtra(CardBrowserViewModel.EXTRA_CARD_ID_KEY)?.let { cardId ->

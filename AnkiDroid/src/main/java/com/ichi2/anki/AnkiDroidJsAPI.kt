@@ -33,6 +33,7 @@ import com.ichi2.anki.AnkiDroidJsAPIConstants.ANKI_JS_ERROR_CODE_SUSPEND_CARD
 import com.ichi2.anki.AnkiDroidJsAPIConstants.ANKI_JS_ERROR_CODE_SUSPEND_NOTE
 import com.ichi2.anki.AnkiDroidJsAPIConstants.flagCommands
 import com.ichi2.anki.CollectionManager.withCol
+import com.ichi2.anki.browser.CardBrowserViewModel
 import com.ichi2.anki.browser.search.SearchString
 import com.ichi2.anki.cardviewer.ViewerCommand
 import com.ichi2.anki.common.annotations.NeedsTest
@@ -307,7 +308,7 @@ open class AnkiDroidJsAPI(
                 val intent =
                     Intent(context, CardBrowser::class.java).apply {
                         putExtra("currentCard", currentCard.id)
-                        putExtra("search_query", apiParams)
+                        putExtra(CardBrowserViewModel.EXTRA_SEARCH_QUERY, apiParams)
                     }
                 activity.startActivity(intent)
                 convertToByteArray(apiContract, true)

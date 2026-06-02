@@ -41,6 +41,7 @@ import com.google.android.material.textfield.TextInputLayout
 import com.ichi2.anki.CardBrowser
 import com.ichi2.anki.CollectionManager.TR
 import com.ichi2.anki.R
+import com.ichi2.anki.browser.CardBrowserViewModel
 import com.ichi2.anki.databinding.FragmentFilteredDeckOptionsBinding
 import com.ichi2.anki.dialogs.DiscardChangesDialog
 import com.ichi2.anki.libanki.DeckId
@@ -151,7 +152,7 @@ class FilteredDeckOptionsFragment : Fragment(R.layout.fragment_filtered_deck_opt
                             }
                             if (state.browserQuery != null) {
                                 val browserSearchIntent = Intent(context, CardBrowser::class.java)
-                                browserSearchIntent.putExtra("search_query", state.browserQuery)
+                                browserSearchIntent.putExtra(CardBrowserViewModel.EXTRA_SEARCH_QUERY, state.browserQuery)
                                 startActivity(browserSearchIntent)
                                 viewModel.clearSearchInBrowser()
                             }
