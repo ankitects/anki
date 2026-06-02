@@ -156,7 +156,7 @@ ci branch:
 
 # Run Complexipy in regression-only mode for CI
 complexipy-diff branch:
-    {{ uv }} run complexipy qt --diff {{ branch }} -R -mx 15
+    {{ uv }} run complexipy --diff {{ branch }} -R -mx 15
 
 # Helpers to get the right commands for the platform
 
