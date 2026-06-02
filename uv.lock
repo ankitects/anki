@@ -76,13 +76,13 @@ requires-dist = [
 
 [[package]]
 name = "anki-audio"
-version = "0.2.0"
+version = "0.2.1"
 source = { registry = "https://pypi.org/simple" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/c5/20/f36c6710f690a2ac86663aa1d39dd739f945625887bd295dad52afda8431/anki_audio-0.2.0-cp310-abi3-macosx_12_0_arm64.whl", hash = "sha256:3f87f361f49a996b1a45c97b2c595fc077afa7d5243b366a3aa78ce07e4242f1", size = 26792095, upload-time = "2026-05-29T17:56:31.221Z" },
-    { url = "https://files.pythonhosted.org/packages/af/0f/59483c61b6a0540cecf8575ebb37229733404f2d648e109af6aae5945b4e/anki_audio-0.2.0-cp310-abi3-macosx_12_0_x86_64.whl", hash = "sha256:1901d53e818702cf9558d106bf2db2c61c30fbf5f0f054c421ef349a10647985", size = 30045998, upload-time = "2026-05-29T17:56:34.875Z" },
-    { url = "https://files.pythonhosted.org/packages/63/c9/a112a6cea4f9b7f02922c0d049894de4f37dab5e86caf177786fc5f9841b/anki_audio-0.2.0-cp310-abi3-win_amd64.whl", hash = "sha256:e089cb449767470a86a24924fd758d9daccb77781acaf2066ed708af22725009", size = 24728252, upload-time = "2026-05-29T17:56:38.016Z" },
-    { url = "https://files.pythonhosted.org/packages/da/35/0d6bbfaa20eb20eb34566a25b72b8b9f7665460db3b31818865cbabba9f3/anki_audio-0.2.0-cp310-abi3-win_arm64.whl", hash = "sha256:7694c9eecce5e12d6f9e62ef79db7e81ee3e9caaf281bad1dfa212f7c4325cb1", size = 21655280, upload-time = "2026-05-29T17:56:41.036Z" },
+    { url = "https://files.pythonhosted.org/packages/55/dd/aa965e7e80417ebfc4f61c88059de43b2c2186b26780a2128a9e959cb98e/anki_audio-0.2.1-cp310-abi3-macosx_12_0_arm64.whl", hash = "sha256:b49267d92edcf5bb0d0805ef234353c1d566a5beb0bf0d0ba9ebebe9a2b6c13b", size = 26792276, upload-time = "2026-06-02T16:23:41.633Z" },
+    { url = "https://files.pythonhosted.org/packages/32/cb/d94befc3839d6dd179b66ab3a176585510723d0946563c855ab34431b326/anki_audio-0.2.1-cp310-abi3-macosx_12_0_x86_64.whl", hash = "sha256:5bf896134e08aea942e723d0e8b19c3c5e93a1272cf04946d7b7d89b14f230db", size = 30046173, upload-time = "2026-06-02T16:23:44.731Z" },
+    { url = "https://files.pythonhosted.org/packages/21/83/cc9c646cd7e76421e355c7cb976870b833ad36f0f276ea71aea84bdead88/anki_audio-0.2.1-cp310-abi3-win_amd64.whl", hash = "sha256:64c0f935ad66d4e6d2149158ffcb9e432d563f7cfe7efbf91e0efa77ffd5f7d4", size = 24728251, upload-time = "2026-06-02T16:23:47.547Z" },
+    { url = "https://files.pythonhosted.org/packages/d9/b2/af9492011abd483a1fd473e18958b1ae4451c9ae0dc96ec3d9cf5e09e343/anki_audio-0.2.1-cp310-abi3-win_arm64.whl", hash = "sha256:b45f85ec2ca7a833ee503702e1ac6a9898fbd1451409b6cbe8eca0ef4e99cbb9", size = 21655283, upload-time = "2026-06-02T16:23:50.334Z" },
 ]
 
 [[package]]
@@ -241,7 +241,7 @@ qt69 = [
 
 [package.metadata]
 requires-dist = [
-    { name = "anki-audio", marker = "(sys_platform == 'darwin' and extra == 'audio') or (sys_platform == 'win32' and extra == 'audio')", specifier = "==0.2.0" },
+    { name = "anki-audio", marker = "(sys_platform == 'darwin' and extra == 'audio') or (sys_platform == 'win32' and extra == 'audio')", specifier = "==0.2.1" },
     { name = "anki-mac-helper", marker = "sys_platform == 'darwin'", specifier = ">=0.1.1" },
     { name = "beautifulsoup4" },
     { name = "flask" },
