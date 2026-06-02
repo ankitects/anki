@@ -1,4 +1,4 @@
-set windows-shell := ["cmd.exe", "/c"]
+set windows-shell := ["pwsh", "-NoLogo", "-NoProfileLoadTime", "-Command"]
 
 mod release
 
