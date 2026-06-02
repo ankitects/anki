@@ -139,12 +139,12 @@ ftl-deprecate:
 
 # Build documentation site
 docs:
-    uv run --group docs sphinx-build -b html docs out/docs/html
+    {{ uv }} run --group docs sphinx-build -b html docs out/docs/html
     @echo "Docs built at out/docs/html/index.html"
 
 # Build and serve documentation site
 docs-serve:
-    uv run --group docs sphinx-autobuild docs out/docs/html --host 127.0.0.1 --port 8000
+    {{ uv }} run --group docs sphinx-autobuild docs out/docs/html --host 127.0.0.1 --port 8000
 
 # Build Rust API docs
 docs-rust:
@@ -156,10 +156,11 @@ ci branch:
 
 # Run Complexipy in regression-only mode for CI
 complexipy-diff branch:
-    uv run complexipy --diff {{ branch }} -R -mx 15 --suggest-refactors
+    {{ uv }} run complexipy qt --diff {{ branch }} -R -mx 15
 
 # Helpers to get the right commands for the platform
 
 ninja := if os() == "windows" { "tools\\ninja" } else { "./ninja" }
 playwright_env := if os() == "windows" { "set PLAYWRIGHT_BROWSERS_PATH=out\\playwright-browsers&&" } else { "PLAYWRIGHT_BROWSERS_PATH=out/playwright-browsers" }
 yarn := if os() == "windows" { "out\\extracted\\node\\yarn.cmd" } else { "out/extracted/node/bin/yarn" }
+uv := env("UV_BINARY", if os() == "windows" { "out\\extracted\\uv\\uv" } else { "out/extracted/uv/uv" })
