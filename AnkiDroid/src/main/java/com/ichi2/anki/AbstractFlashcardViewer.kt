@@ -111,6 +111,7 @@ import com.ichi2.anki.cardviewer.ViewerRefresh
 import com.ichi2.anki.cardviewer.handledGamepadKeyDown
 import com.ichi2.anki.cardviewer.handledGamepadKeyUp
 import com.ichi2.anki.common.annotations.NeedsTest
+import com.ichi2.anki.common.preferences.sharedPrefs
 import com.ichi2.anki.common.utils.HashUtil.hashSetInit
 import com.ichi2.anki.common.utils.android.HandlerUtils.newHandler
 import com.ichi2.anki.common.utils.android.getResFromAttr
@@ -141,7 +142,6 @@ import com.ichi2.anki.pages.PostRequestHandler
 import com.ichi2.anki.pages.PostRequestUri
 import com.ichi2.anki.preferences.AccessibilitySettingsFragment
 import com.ichi2.anki.preferences.PreferencesActivity
-import com.ichi2.anki.preferences.sharedPrefs
 import com.ichi2.anki.reviewer.AutomaticAnswer
 import com.ichi2.anki.reviewer.AutomaticAnswer.AutomaticallyAnswered
 import com.ichi2.anki.reviewer.AutomaticAnswerAction

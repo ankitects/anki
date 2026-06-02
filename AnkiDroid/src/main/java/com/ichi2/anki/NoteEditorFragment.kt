@@ -92,6 +92,7 @@ import com.ichi2.anki.android.input.shortcut
 import com.ichi2.anki.common.android.appContext
 import com.ichi2.anki.common.annotations.NeedsTest
 import com.ichi2.anki.common.crashreporting.CrashReportService
+import com.ichi2.anki.common.preferences.sharedPrefs
 import com.ichi2.anki.common.utils.HashUtil
 import com.ichi2.anki.common.utils.android.digit
 import com.ichi2.anki.common.utils.android.getColorFromAttr
@@ -146,7 +147,6 @@ import com.ichi2.anki.noteeditor.Toolbar.TextWrapper
 import com.ichi2.anki.observability.undoableOp
 import com.ichi2.anki.pages.ImageOcclusion
 import com.ichi2.anki.pages.viewmodel.ImageOcclusionArgs
-import com.ichi2.anki.preferences.sharedPrefs
 import com.ichi2.anki.previewer.TemplatePreviewerArguments
 import com.ichi2.anki.previewer.TemplatePreviewerPage
 import com.ichi2.anki.servicelayer.LanguageHintService.languageHint

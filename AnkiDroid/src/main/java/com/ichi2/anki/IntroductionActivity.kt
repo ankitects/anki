@@ -27,13 +27,13 @@ import androidx.core.os.BundleCompat
 import com.ichi2.anki.account.AccountActivity
 import com.ichi2.anki.account.LoginFragment
 import com.ichi2.anki.common.annotations.NeedsTest
+import com.ichi2.anki.common.preferences.sharedPrefs
 import com.ichi2.anki.introduction.CollectionPermissionScreenLauncher
 import com.ichi2.anki.introduction.SetupCollectionFragment
 import com.ichi2.anki.introduction.SetupCollectionFragment.CollectionSetupOption
 import com.ichi2.anki.introduction.SetupCollectionFragment.Companion.FRAGMENT_KEY
 import com.ichi2.anki.introduction.SetupCollectionFragment.Companion.RESULT_KEY
 import com.ichi2.anki.introduction.hasCollectionStoragePermissions
-import com.ichi2.anki.preferences.sharedPrefs
 import com.ichi2.anki.utils.ext.setFragmentResultListener
 import timber.log.Timber
 

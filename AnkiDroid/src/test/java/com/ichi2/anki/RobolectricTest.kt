@@ -39,6 +39,7 @@ import com.ichi2.anki.RobolectricTest.CollectionStorageMode.IN_MEMORY_NO_FOLDERS
 import com.ichi2.anki.RobolectricTest.CollectionStorageMode.IN_MEMORY_WITH_MEDIA
 import com.ichi2.anki.RobolectricTest.CollectionStorageMode.ON_DISK
 import com.ichi2.anki.common.annotations.UseContextParameter
+import com.ichi2.anki.common.preferences.sharedPrefs
 import com.ichi2.anki.common.time.MockTime
 import com.ichi2.anki.common.time.TimeManager
 import com.ichi2.anki.dialogs.DialogHandler
@@ -52,7 +53,6 @@ import com.ichi2.anki.libanki.testutils.InMemoryCollectionManagerWithMediaFolder
 import com.ichi2.anki.libanki.testutils.TestCollectionManager
 import com.ichi2.anki.observability.ChangeManager
 import com.ichi2.anki.observability.undoableOp
-import com.ichi2.anki.preferences.sharedPrefs
 import com.ichi2.compat.customtabs.CustomTabActivityHelper
 import com.ichi2.testutils.AndroidTest
 import com.ichi2.testutils.ProductionCollectionManager

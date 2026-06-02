@@ -106,6 +106,7 @@ import com.ichi2.anki.common.android.appContext
 import com.ichi2.anki.common.annotations.NeedsTest
 import com.ichi2.anki.common.crashreporting.CrashReportService
 import com.ichi2.anki.common.destinations.navigate
+import com.ichi2.anki.common.preferences.sharedPrefs
 import com.ichi2.anki.common.time.TimeManager
 import com.ichi2.anki.common.utils.android.isRobolectric
 import com.ichi2.anki.common.utils.android.showThemedToast
@@ -164,7 +165,6 @@ import com.ichi2.anki.pages.CongratsPage
 import com.ichi2.anki.pages.CongratsPage.Companion.onDeckCompleted
 import com.ichi2.anki.preferences.AdvancedSettingsFragment
 import com.ichi2.anki.preferences.PreferencesActivity
-import com.ichi2.anki.preferences.sharedPrefs
 import com.ichi2.anki.receiver.SdCardReceiver
 import com.ichi2.anki.reviewreminders.ReviewRemindersDatabase
 import com.ichi2.anki.servicelayer.ScopedStorageService

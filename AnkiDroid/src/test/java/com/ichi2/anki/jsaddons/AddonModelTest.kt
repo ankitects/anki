@@ -20,8 +20,8 @@ import android.content.SharedPreferences
 import android.os.Looper.getMainLooper
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.ichi2.anki.RobolectricTest
+import com.ichi2.anki.common.preferences.sharedPrefs
 import com.ichi2.anki.jsaddons.AddonsConst.REVIEWER_ADDON
-import com.ichi2.anki.preferences.sharedPrefs
 import com.ichi2.utils.FileOperation
 import junit.framework.TestCase.assertEquals
 import junit.framework.TestCase.assertFalse

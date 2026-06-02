@@ -43,6 +43,7 @@ import com.ichi2.anki.common.annotations.NeedsTest
 import com.ichi2.anki.common.coroutines.applicationScope
 import com.ichi2.anki.common.crashreporting.CrashReportService.sendExceptionReport
 import com.ichi2.anki.common.permissions.hasLegacyStorageAccessPermission
+import com.ichi2.anki.common.preferences.sharedPrefs
 import com.ichi2.anki.common.utils.android.SdCard
 import com.ichi2.anki.common.utils.android.showThemedToast
 import com.ichi2.anki.common.utils.annotation.KotlinCleanup
@@ -58,7 +59,6 @@ import com.ichi2.anki.logging.RobolectricDebugTree
 import com.ichi2.anki.navigation.initializeNavigator
 import com.ichi2.anki.observability.ChangeManager
 import com.ichi2.anki.preferences.SharedPreferencesProvider
-import com.ichi2.anki.preferences.sharedPrefs
 import com.ichi2.anki.servicelayer.DebugInfoService
 import com.ichi2.anki.servicelayer.ThrowableFilterService
 import com.ichi2.anki.services.AlarmManagerService

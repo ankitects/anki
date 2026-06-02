@@ -68,6 +68,7 @@ import com.ichi2.anki.android.input.shortcut
 import com.ichi2.anki.common.annotations.LegacyNotifications
 import com.ichi2.anki.common.annotations.NeedsTest
 import com.ichi2.anki.common.crashreporting.CrashReportService
+import com.ichi2.anki.common.preferences.sharedPrefs
 import com.ichi2.anki.common.utils.android.getColorFromAttr
 import com.ichi2.anki.common.utils.android.showThemedToast
 import com.ichi2.anki.common.utils.annotation.KotlinCleanup
@@ -87,7 +88,6 @@ import com.ichi2.anki.dialogs.handleExportReadyRequest
 import com.ichi2.anki.dialogs.viewmodel.ExportReadyViewModel
 import com.ichi2.anki.exception.SystemStorageException
 import com.ichi2.anki.libanki.Collection
-import com.ichi2.anki.preferences.sharedPrefs
 import com.ichi2.anki.receiver.SdCardReceiver
 import com.ichi2.anki.settings.Prefs
 import com.ichi2.anki.snackbar.showSnackbar

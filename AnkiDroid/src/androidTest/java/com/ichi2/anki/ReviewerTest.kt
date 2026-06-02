@@ -29,7 +29,7 @@ import androidx.test.espresso.matcher.ViewMatchers.withResourceName
 import androidx.test.espresso.matcher.ViewMatchers.withText
 import androidx.test.ext.junit.rules.ActivityScenarioRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import com.ichi2.anki.preferences.sharedPrefs
+import com.ichi2.anki.common.preferences.sharedPrefs
 import com.ichi2.anki.tests.InstrumentedTest
 import com.ichi2.anki.tests.checkWithTimeout
 import com.ichi2.anki.tests.libanki.RetryRule

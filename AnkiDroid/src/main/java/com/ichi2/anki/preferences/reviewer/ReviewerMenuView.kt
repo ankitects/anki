@@ -31,8 +31,8 @@ import androidx.lifecycle.findViewTreeLifecycleOwner
 import androidx.lifecycle.lifecycleScope
 import com.ichi2.anki.Flag
 import com.ichi2.anki.R
+import com.ichi2.anki.common.preferences.sharedPrefs
 import com.ichi2.anki.databinding.ViewReviewerMenuBinding
-import com.ichi2.anki.preferences.sharedPrefs
 import com.ichi2.anki.utils.ext.setIconRes
 import com.ichi2.utils.increaseHorizontalPaddingOfMenuIcons
 import kotlinx.coroutines.launch

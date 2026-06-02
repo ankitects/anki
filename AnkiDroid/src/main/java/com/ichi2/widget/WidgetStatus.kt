@@ -19,8 +19,8 @@ import com.ichi2.anki.AnkiDroidApp
 import com.ichi2.anki.CollectionManager.withCol
 import com.ichi2.anki.MetaDB
 import com.ichi2.anki.R
+import com.ichi2.anki.common.preferences.sharedPrefs
 import com.ichi2.anki.common.utils.android.SdCard
-import com.ichi2.anki.preferences.sharedPrefs
 import com.ichi2.anki.settings.Prefs
 import com.ichi2.anki.utils.ext.allDecksCounts
 import kotlinx.coroutines.DelicateCoroutinesApi

@@ -50,8 +50,8 @@ import androidx.vectordrawable.graphics.drawable.VectorDrawableCompat
 import com.ichi2.anki.NoteEditorFragment
 import com.ichi2.anki.R
 import com.ichi2.anki.common.android.appContext
+import com.ichi2.anki.common.preferences.sharedPrefs
 import com.ichi2.anki.compat.CompatHelper
-import com.ichi2.anki.preferences.sharedPrefs
 import com.ichi2.utils.AndroidUiUtils.showSoftInput
 import com.ichi2.utils.ViewGroupUtils
 import com.ichi2.utils.ViewGroupUtils.getAllChildrenRecursive

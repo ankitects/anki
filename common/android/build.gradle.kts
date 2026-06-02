@@ -15,6 +15,7 @@ dependencies {
 
     implementation(libs.androidx.annotation)
     implementation(libs.androidx.core.ktx)
+    implementation(libs.androidx.preference.ktx)
     implementation(libs.google.material)
     implementation(libs.jakewharton.timber)
     implementation(libs.kotlinx.coroutines.core)

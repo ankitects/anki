@@ -26,13 +26,13 @@ import com.ichi2.anki.AnkiDroidFolder.AppPrivateFolder
 import com.ichi2.anki.CollectionHelper.PREF_COLLECTION_PATH
 import com.ichi2.anki.CollectionHelper.getCurrentAnkiDroidDirectory
 import com.ichi2.anki.backend.createDatabaseUsingAndroidFramework
+import com.ichi2.anki.common.preferences.sharedPrefs
 import com.ichi2.anki.exception.StorageAccessException
 import com.ichi2.anki.exception.SystemStorageException
 import com.ichi2.anki.exception.UnknownDatabaseVersionException
 import com.ichi2.anki.libanki.Collection
 import com.ichi2.anki.libanki.CollectionFiles
 import com.ichi2.anki.libanki.DB
-import com.ichi2.anki.preferences.sharedPrefs
 import com.ichi2.preferences.getOrSetString
 import timber.log.Timber
 import java.io.File

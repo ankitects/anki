@@ -24,8 +24,8 @@ import androidx.core.os.ConfigurationCompat
 import androidx.fragment.app.Fragment
 import com.ichi2.anki.R
 import com.ichi2.anki.common.android.appContext
+import com.ichi2.anki.common.preferences.sharedPrefs
 import com.ichi2.anki.compat.CompatHelper
-import com.ichi2.anki.preferences.sharedPrefs
 import net.ankiweb.rsdroid.BackendFactory
 import timber.log.Timber
 import java.util.Locale

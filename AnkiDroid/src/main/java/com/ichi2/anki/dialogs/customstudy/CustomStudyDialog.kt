@@ -53,6 +53,7 @@ import com.ichi2.anki.R
 import com.ichi2.anki.analytics.AnalyticsDialogFragment
 import com.ichi2.anki.asyncIO
 import com.ichi2.anki.common.annotations.NeedsTest
+import com.ichi2.anki.common.preferences.sharedPrefs
 import com.ichi2.anki.common.utils.annotation.KotlinCleanup
 import com.ichi2.anki.databinding.FragmentCustomStudyBinding
 import com.ichi2.anki.dialogs.customstudy.CustomStudyDialog.Companion.deferredDefaults
@@ -69,7 +70,6 @@ import com.ichi2.anki.dialogs.tags.TagsDialogListener.Companion.ON_SELECTED_TAGS
 import com.ichi2.anki.launchCatchingTask
 import com.ichi2.anki.libanki.DeckId
 import com.ichi2.anki.observability.undoableOp
-import com.ichi2.anki.preferences.sharedPrefs
 import com.ichi2.anki.snackbar.showSnackbar
 import com.ichi2.anki.ui.internationalization.sentenceCase
 import com.ichi2.anki.ui.internationalization.toSentenceCase

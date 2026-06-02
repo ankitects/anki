@@ -22,6 +22,7 @@ import androidx.preference.ListPreference
 import androidx.preference.Preference
 import com.ichi2.anki.CollectionManager.TR
 import com.ichi2.anki.R
+import com.ichi2.anki.common.preferences.sharedPrefs
 import com.ichi2.anki.ui.internationalization.sentenceCase
 import com.ichi2.utils.negativeButton
 import com.ichi2.utils.positiveButton

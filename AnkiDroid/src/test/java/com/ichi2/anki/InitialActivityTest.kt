@@ -25,7 +25,7 @@ import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.ichi2.anki.AnkiDroidFolder.AppPrivateFolder
 import com.ichi2.anki.AnkiDroidFolder.PublicFolder
-import com.ichi2.anki.preferences.sharedPrefs
+import com.ichi2.anki.common.preferences.sharedPrefs
 import com.ichi2.anki.servicelayer.PreferenceUpgradeService
 import com.ichi2.testutils.EmptyApplication
 import org.hamcrest.CoreMatchers.equalTo

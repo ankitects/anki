@@ -29,12 +29,12 @@ import com.google.android.material.snackbar.Snackbar
 import com.ichi2.anki.CollectionManager.TR
 import com.ichi2.anki.R
 import com.ichi2.anki.common.annotations.NeedsTest
+import com.ichi2.anki.common.preferences.sharedPrefs
 import com.ichi2.anki.databinding.DialogForgetCardsBinding
 import com.ichi2.anki.launchCatchingTask
 import com.ichi2.anki.libanki.CardId
 import com.ichi2.anki.libanki.sched.Scheduler
 import com.ichi2.anki.observability.undoableOp
-import com.ichi2.anki.preferences.sharedPrefs
 import com.ichi2.anki.snackbar.showSnackbar
 import com.ichi2.anki.utils.ext.setFragmentResultListener
 import com.ichi2.anki.utils.openUrl

@@ -4,7 +4,7 @@
 package com.ichi2.anki
 
 import androidx.core.content.edit
-import com.ichi2.anki.preferences.sharedPrefs
+import com.ichi2.anki.common.preferences.sharedPrefs
 import com.ichi2.testutils.BackupManagerTestUtilities
 import org.junit.After
 import org.junit.Before

@@ -21,7 +21,7 @@ import android.content.Context
 import android.os.Build
 import android.os.Environment
 import com.ichi2.anki.CollectionHelper
-import com.ichi2.anki.preferences.sharedPrefs
+import com.ichi2.anki.common.preferences.sharedPrefs
 import com.ichi2.anki.ui.windows.managespace.isInsideDirectoriesRemovedWithTheApp
 import com.ichi2.utils.Permissions
 import timber.log.Timber

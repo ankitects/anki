@@ -35,6 +35,7 @@ import com.ichi2.anki.CollectionManager.TR
 import com.ichi2.anki.cardviewer.Gesture
 import com.ichi2.anki.cardviewer.ViewerCommand.ANSWER_AGAIN
 import com.ichi2.anki.cardviewer.ViewerCommand.MARK
+import com.ichi2.anki.common.preferences.sharedPrefs
 import com.ichi2.anki.common.time.MockTime
 import com.ichi2.anki.common.time.TimeManager
 import com.ichi2.anki.common.utils.annotation.KotlinCleanup
@@ -51,7 +52,6 @@ import com.ichi2.anki.libanki.testutils.ext.newNote
 import com.ichi2.anki.model.CardStateFilter
 import com.ichi2.anki.observability.undoableOp
 import com.ichi2.anki.preferences.PreferenceTestUtils
-import com.ichi2.anki.preferences.sharedPrefs
 import com.ichi2.anki.reviewer.ActionButtonStatus
 import com.ichi2.anki.snackbar.showSnackbar
 import com.ichi2.testutils.common.Flaky

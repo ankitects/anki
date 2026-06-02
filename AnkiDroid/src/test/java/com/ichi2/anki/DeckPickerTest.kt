@@ -19,6 +19,7 @@ import androidx.test.core.app.ActivityScenario
 import anki.collection.opChanges
 import anki.scheduler.CardAnswer.Rating
 import app.cash.turbine.test
+import com.ichi2.anki.common.preferences.sharedPrefs
 import com.ichi2.anki.common.time.TimeManager
 import com.ichi2.anki.common.utils.annotation.KotlinCleanup
 import com.ichi2.anki.deckpicker.DeckPickerViewModel
@@ -31,7 +32,6 @@ import com.ichi2.anki.dialogs.utils.title
 import com.ichi2.anki.libanki.DeckId
 import com.ichi2.anki.navigation.AnkiDroidNavigator
 import com.ichi2.anki.observability.ChangeManager
-import com.ichi2.anki.preferences.sharedPrefs
 import com.ichi2.anki.settings.Prefs
 import com.ichi2.anki.snackbar.showSnackbar
 import com.ichi2.anki.ui.windows.permissions.PermissionsActivity

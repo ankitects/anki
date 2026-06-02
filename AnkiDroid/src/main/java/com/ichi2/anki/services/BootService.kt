@@ -27,12 +27,12 @@ import com.ichi2.anki.R
 import com.ichi2.anki.android.AnkiBroadcastReceiver
 import com.ichi2.anki.common.annotations.LegacyNotifications
 import com.ichi2.anki.common.annotations.NeedsTest
+import com.ichi2.anki.common.preferences.sharedPrefs
 import com.ichi2.anki.common.time.Time
 import com.ichi2.anki.common.time.TimeManager
 import com.ichi2.anki.common.utils.android.showThemedToast
 import com.ichi2.anki.libanki.Collection
 import com.ichi2.anki.preferences.PENDING_NOTIFICATIONS_ONLY
-import com.ichi2.anki.preferences.sharedPrefs
 import com.ichi2.anki.settings.Prefs
 import com.ichi2.widget.DayRolloverAlarm
 import com.ichi2.widget.restoreRecurringAlarms

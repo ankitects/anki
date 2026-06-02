@@ -26,9 +26,9 @@ import android.webkit.WebResourceRequest
 import android.webkit.WebView
 import android.webkit.WebViewClient
 import androidx.activity.OnBackPressedCallback
+import com.ichi2.anki.common.preferences.sharedPrefs
 import com.ichi2.anki.common.utils.android.getColorFromAttr
 import com.ichi2.anki.databinding.ActivityInfoBinding
-import com.ichi2.anki.preferences.sharedPrefs
 import com.ichi2.anki.snackbar.BaseSnackbarBuilderProvider
 import com.ichi2.anki.snackbar.SnackbarBuilder
 import com.ichi2.utils.IntentUtil.canOpenIntent

@@ -20,10 +20,10 @@ import android.content.Intent
 import androidx.core.content.edit
 import com.ichi2.anki.DeckPickerTest.CollectionType
 import com.ichi2.anki.DeckPickerTest.DeckPickerEx
+import com.ichi2.anki.common.preferences.sharedPrefs
 import com.ichi2.anki.common.utils.annotation.KotlinCleanup
 import com.ichi2.anki.dialogs.DatabaseErrorDialog.DatabaseErrorDialogType
 import com.ichi2.anki.exception.UnknownDatabaseVersionException
-import com.ichi2.anki.preferences.sharedPrefs
 import com.ichi2.testutils.DbUtils
 import com.ichi2.testutils.common.Flaky
 import com.ichi2.testutils.common.OS

@@ -25,8 +25,8 @@ import com.ichi2.anki.AnkiDroidApp
 import com.ichi2.anki.BuildConfig
 import com.ichi2.anki.R
 import com.ichi2.anki.cardviewer.TapGestureMode
+import com.ichi2.anki.common.preferences.sharedPrefs
 import com.ichi2.anki.common.utils.isRunningAsUnitTest
-import com.ichi2.anki.preferences.sharedPrefs
 import com.ichi2.anki.settings.enums.AppTheme
 import com.ichi2.anki.settings.enums.DayTheme
 import com.ichi2.anki.settings.enums.FrameStyle

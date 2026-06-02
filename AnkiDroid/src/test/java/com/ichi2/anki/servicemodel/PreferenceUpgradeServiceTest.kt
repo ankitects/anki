@@ -22,10 +22,10 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.ichi2.anki.R
 import com.ichi2.anki.RobolectricTest
 import com.ichi2.anki.cardviewer.Gesture
+import com.ichi2.anki.common.preferences.sharedPrefs
 import com.ichi2.anki.common.utils.HashUtil
 import com.ichi2.anki.libanki.Consts
 import com.ichi2.anki.noteeditor.CustomToolbarButton
-import com.ichi2.anki.preferences.sharedPrefs
 import com.ichi2.anki.reviewer.Binding
 import com.ichi2.anki.reviewer.CardSide
 import com.ichi2.anki.reviewer.MappableBinding.Companion.toPreferenceString

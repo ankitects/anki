@@ -22,12 +22,12 @@ import androidx.core.app.TaskStackBuilder
 import androidx.core.content.edit
 import androidx.lifecycle.Lifecycle
 import com.ichi2.anki.common.annotations.NeedsTest
+import com.ichi2.anki.common.preferences.sharedPrefs
 import com.ichi2.anki.dialogs.AsyncDialogFragment
 import com.ichi2.anki.dialogs.ImportDialog
 import com.ichi2.anki.dialogs.ImportFileSelectionFragment
 import com.ichi2.anki.dialogs.ImportFileSelectionFragment.ImportOptions
 import com.ichi2.anki.pages.CsvImporter
-import com.ichi2.anki.preferences.sharedPrefs
 import com.ichi2.anki.utils.ext.dismissAllDialogFragments
 import com.ichi2.anki.utils.ext.showDialogFragment
 import com.ichi2.utils.ImportResult

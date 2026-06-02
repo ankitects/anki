@@ -22,12 +22,12 @@ import com.ichi2.anki.AnkiActivity.Companion.FINISH_ANIMATION_EXTRA
 import com.ichi2.anki.NoteEditorFragment.Companion.NoteEditorCaller
 import com.ichi2.anki.cardviewer.Gesture
 import com.ichi2.anki.cardviewer.ViewerCommand
+import com.ichi2.anki.common.preferences.sharedPrefs
 import com.ichi2.anki.libanki.testutils.ext.addNote
 import com.ichi2.anki.libanki.testutils.ext.createBasicTypingNoteType
 import com.ichi2.anki.libanki.testutils.ext.newNote
 import com.ichi2.anki.noteeditor.openNoteEditorWithArgs
 import com.ichi2.anki.observability.undoableOp
-import com.ichi2.anki.preferences.sharedPrefs
 import com.ichi2.anki.reviewer.AutomaticAnswer
 import com.ichi2.anki.reviewer.AutomaticAnswerAction
 import com.ichi2.anki.reviewer.AutomaticAnswerSettings

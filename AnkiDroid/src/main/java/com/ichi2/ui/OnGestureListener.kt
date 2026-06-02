@@ -19,7 +19,7 @@ import android.view.GestureDetector
 import android.view.MotionEvent
 import android.view.View
 import com.ichi2.anki.cardviewer.Gesture
-import com.ichi2.anki.preferences.sharedPrefs
+import com.ichi2.anki.common.preferences.sharedPrefs
 import com.ichi2.anki.reviewer.GestureMapper
 import java.util.function.Consumer
 

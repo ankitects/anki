@@ -21,7 +21,7 @@ import android.content.SharedPreferences
 import androidx.core.content.edit
 import androidx.test.core.app.ApplicationProvider
 import com.ichi2.anki.RobolectricTest
-import com.ichi2.anki.preferences.sharedPrefs
+import com.ichi2.anki.common.preferences.sharedPrefs
 
 /**
  * Marker interface for classes annotated with `@RunWith(AndroidJUnit4.class)` which do

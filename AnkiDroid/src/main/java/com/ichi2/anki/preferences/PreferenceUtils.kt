@@ -15,14 +15,12 @@
  */
 package com.ichi2.anki.preferences
 
-import android.content.Context
 import android.content.SharedPreferences
 import androidx.annotation.StringRes
 import androidx.preference.ListPreference
 import androidx.preference.Preference
 import androidx.preference.PreferenceFragmentCompat
 import androidx.preference.PreferenceGroup
-import androidx.preference.PreferenceManager
 import androidx.preference.PreferenceScreen
 import androidx.preference.SwitchPreferenceCompat
 
@@ -84,9 +82,6 @@ inline fun <reified T : Preference> PreferenceFragmentCompat.findPreference(
     val key = getString(resId)
     return findPreference(key)
 }
-
-/** shorthand method to get the default [SharedPreferences] instance */
-fun Context.sharedPrefs(): SharedPreferences = PreferenceManager.getDefaultSharedPreferences(this)
 
 fun PreferenceScreen.allPreferences(): List<Preference> {
     val allPreferences = mutableListOf<Preference>()

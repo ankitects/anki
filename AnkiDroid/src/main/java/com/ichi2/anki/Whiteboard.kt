@@ -42,11 +42,11 @@ import androidx.core.content.edit
 import androidx.core.graphics.scale
 import com.ichi2.anki.common.android.appContext
 import com.ichi2.anki.common.annotations.NeedsTest
+import com.ichi2.anki.common.preferences.sharedPrefs
 import com.ichi2.anki.common.time.Time
 import com.ichi2.anki.common.time.getTimestamp
 import com.ichi2.anki.compat.CompatHelper
 import com.ichi2.anki.dialogs.WhiteBoardWidthDialog
-import com.ichi2.anki.preferences.sharedPrefs
 import com.ichi2.anki.settings.enums.NightTheme
 import com.ichi2.anki.ui.windows.reviewer.whiteboard.showColorPickerDialog
 import com.ichi2.themes.Themes.currentTheme

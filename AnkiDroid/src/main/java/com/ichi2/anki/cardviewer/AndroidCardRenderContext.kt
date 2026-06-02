@@ -19,13 +19,13 @@ package com.ichi2.anki.cardviewer
 import android.content.Context
 import androidx.annotation.CheckResult
 import anki.config.ConfigKey
+import com.ichi2.anki.common.preferences.sharedPrefs
 import com.ichi2.anki.libanki.Card
 import com.ichi2.anki.libanki.CardOrdinal
 import com.ichi2.anki.libanki.Collection
 import com.ichi2.anki.libanki.TemplateManager.TemplateRenderContext.TemplateRenderOutput
 import com.ichi2.anki.libanki.template.MathJax
 import com.ichi2.anki.multimedia.expandSounds
-import com.ichi2.anki.preferences.sharedPrefs
 import com.ichi2.anki.reviewer.ReviewerCustomFonts
 import timber.log.Timber
 

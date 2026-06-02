@@ -27,10 +27,10 @@ import com.ichi2.anki.cardviewer.Gesture.SWIPE_RIGHT
 import com.ichi2.anki.cardviewer.Gesture.SWIPE_UP
 import com.ichi2.anki.cardviewer.GestureProcessor
 import com.ichi2.anki.cardviewer.ViewerCommand
+import com.ichi2.anki.common.preferences.sharedPrefs
 import com.ichi2.anki.libanki.Consts
 import com.ichi2.anki.libanki.DeckId
 import com.ichi2.anki.model.WhiteboardPenColor
-import com.ichi2.anki.preferences.sharedPrefs
 import com.ichi2.anki.reviewer.Binding
 import com.ichi2.anki.reviewer.FullScreenMode
 import com.ichi2.anki.reviewer.FullScreenMode.Companion.setPreference

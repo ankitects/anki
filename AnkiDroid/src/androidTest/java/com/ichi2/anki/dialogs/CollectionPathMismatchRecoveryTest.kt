@@ -30,7 +30,7 @@ import com.ichi2.anki.CollectionHelper.getDefaultAnkiDroidDirectory
 import com.ichi2.anki.CollectionManager
 import com.ichi2.anki.DeckPicker
 import com.ichi2.anki.R
-import com.ichi2.anki.preferences.sharedPrefs
+import com.ichi2.anki.common.preferences.sharedPrefs
 import com.ichi2.anki.tests.InstrumentedTest
 import com.ichi2.anki.testutil.disableIntroductionSlide
 import com.ichi2.anki.testutil.discardPreliminaryViews

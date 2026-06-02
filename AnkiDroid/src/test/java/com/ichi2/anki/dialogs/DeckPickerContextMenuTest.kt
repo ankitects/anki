@@ -28,8 +28,8 @@ import com.ichi2.anki.AnkiDroidApp
 import com.ichi2.anki.CollectionManager.TR
 import com.ichi2.anki.IntroductionActivity
 import com.ichi2.anki.R
+import com.ichi2.anki.common.preferences.sharedPrefs
 import com.ichi2.anki.libanki.DeckId
-import com.ichi2.anki.preferences.sharedPrefs
 import com.ichi2.anki.ui.internationalization.sentenceCase
 import com.ichi2.testutils.BackupManagerTestUtilities.setupSpaceForBackup
 import org.hamcrest.CoreMatchers.equalTo

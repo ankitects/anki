@@ -41,13 +41,13 @@ import com.ichi2.anki.browser.CardBrowserColumn.SFLD
 import com.ichi2.anki.browser.CardBrowserColumn.TAGS
 import com.ichi2.anki.cardviewer.Gesture
 import com.ichi2.anki.common.annotations.NeedsTest
+import com.ichi2.anki.common.preferences.sharedPrefs
 import com.ichi2.anki.common.utils.HashUtil.hashSetInit
 import com.ichi2.anki.libanki.Consts
 import com.ichi2.anki.libanki.utils.append
 import com.ichi2.anki.model.CardsOrNotes
 import com.ichi2.anki.noteeditor.CustomToolbarButton
 import com.ichi2.anki.preferences.reviewer.ViewerAction
-import com.ichi2.anki.preferences.sharedPrefs
 import com.ichi2.anki.reviewer.Binding
 import com.ichi2.anki.reviewer.Binding.Companion.keyCode
 import com.ichi2.anki.reviewer.CardSide

@@ -29,9 +29,9 @@ import androidx.core.content.edit
 import com.ichi2.anki.CollectionHelper.PREF_COLLECTION_PATH
 import com.ichi2.anki.CollectionHelper.getDefaultAnkiDroidDirectory
 import com.ichi2.anki.common.crashreporting.CrashReportService
+import com.ichi2.anki.common.preferences.sharedPrefs
 import com.ichi2.anki.common.time.TimeManager
 import com.ichi2.anki.common.time.getTimestamp
-import com.ichi2.anki.preferences.sharedPrefs
 import org.json.JSONObject
 import timber.log.Timber
 import java.io.File

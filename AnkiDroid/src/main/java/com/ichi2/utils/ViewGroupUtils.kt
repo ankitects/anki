@@ -20,7 +20,7 @@ import android.app.Activity
 import android.view.View
 import android.view.ViewGroup
 import androidx.core.view.children
-import com.ichi2.anki.preferences.sharedPrefs
+import com.ichi2.anki.common.preferences.sharedPrefs
 import timber.log.Timber
 import java.util.ArrayList
 

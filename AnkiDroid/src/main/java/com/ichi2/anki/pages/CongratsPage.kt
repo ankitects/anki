@@ -36,6 +36,7 @@ import com.ichi2.anki.OnErrorListener
 import com.ichi2.anki.R
 import com.ichi2.anki.SingleFragmentActivity
 import com.ichi2.anki.StudyOptionsActivity
+import com.ichi2.anki.common.preferences.sharedPrefs
 import com.ichi2.anki.common.time.SECONDS_PER_DAY
 import com.ichi2.anki.common.time.TIME_HOUR
 import com.ichi2.anki.common.time.TIME_MINUTE
@@ -46,7 +47,6 @@ import com.ichi2.anki.launchCatchingIO
 import com.ichi2.anki.launchCatchingTask
 import com.ichi2.anki.observability.ChangeManager
 import com.ichi2.anki.observability.undoableOp
-import com.ichi2.anki.preferences.sharedPrefs
 import com.ichi2.anki.snackbar.showSnackbar
 import com.ichi2.utils.listItemsAndMessage
 import com.ichi2.utils.negativeButton

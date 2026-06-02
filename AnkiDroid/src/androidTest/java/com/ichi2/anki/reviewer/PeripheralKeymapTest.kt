@@ -18,7 +18,7 @@ package com.ichi2.anki.reviewer
 import android.view.KeyEvent
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.ichi2.anki.cardviewer.ViewerCommand
-import com.ichi2.anki.preferences.sharedPrefs
+import com.ichi2.anki.common.preferences.sharedPrefs
 import com.ichi2.anki.tests.InstrumentedTest
 import org.hamcrest.MatcherAssert.assertThat
 import org.hamcrest.Matchers.equalTo

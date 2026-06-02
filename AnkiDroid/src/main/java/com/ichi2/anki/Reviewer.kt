@@ -70,6 +70,7 @@ import com.ichi2.anki.cardviewer.Gesture
 import com.ichi2.anki.cardviewer.ViewerCommand
 import com.ichi2.anki.common.annotations.NeedsTest
 import com.ichi2.anki.common.crashreporting.CrashReportService
+import com.ichi2.anki.common.preferences.sharedPrefs
 import com.ichi2.anki.common.time.TimeManager
 import com.ichi2.anki.common.utils.android.HandlerUtils.executeFunctionWithDelay
 import com.ichi2.anki.common.utils.android.HandlerUtils.getDefaultLooper
@@ -95,7 +96,6 @@ import com.ichi2.anki.noteeditor.NoteEditorLauncher
 import com.ichi2.anki.observability.undoableOp
 import com.ichi2.anki.pages.CardInfoDestination
 import com.ichi2.anki.pages.PostRequestUri
-import com.ichi2.anki.preferences.sharedPrefs
 import com.ichi2.anki.reviewer.ActionButtons
 import com.ichi2.anki.reviewer.AnswerButtons.Companion.getBackgroundColors
 import com.ichi2.anki.reviewer.AnswerButtons.Companion.getTextColors

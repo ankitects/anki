@@ -29,8 +29,8 @@ import com.ichi2.anki.common.crashreporting.CrashReportService
 import com.ichi2.anki.common.crashreporting.CrashReporter
 import com.ichi2.anki.common.crashreporting.CrashReporter.Companion.FEEDBACK_REPORT_ALWAYS
 import com.ichi2.anki.common.crashreporting.CrashReporter.Companion.FEEDBACK_REPORT_ASK
+import com.ichi2.anki.common.preferences.sharedPrefs
 import com.ichi2.anki.logging.ProductionCrashReportingTree
-import com.ichi2.anki.preferences.sharedPrefs
 import com.ichi2.anki.servicelayer.ThrowableFilterService
 import com.ichi2.anki.setDebugACRAConfig
 import com.ichi2.anki.setProductionACRAConfig
