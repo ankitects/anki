@@ -1,0 +1,13 @@
+# TODO: lower threshold incrementally
+max-complexity-allowed = 50
+snapshot-create = false
+snapshot-ignore = false
+quiet = false
+ignore-complexity = false
+failed = true
+color = "auto"
+sort = "asc"
+exclude = []
+check-script = false
+output-format = ["sarif"]
+output = "out/complexipy/"

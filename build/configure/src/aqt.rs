@@ -13,6 +13,7 @@ use ninja_gen::node::CompileSass;
 use ninja_gen::node::EsbuildScript;
 use ninja_gen::node::TypescriptCheck;
 use ninja_gen::python::python_format;
+use ninja_gen::python::Complexipy;
 use ninja_gen::python::PythonTest;
 use ninja_gen::rsync::RsyncFiles;
 use ninja_gen::Build;
@@ -371,6 +372,14 @@ fn check_python(build: &mut Build) -> Result<()> {
                 "$builddir/qt/tools",
             ],
             deps: inputs![":pylib:anki", ":qt:aqt", glob!["qt/tests/**"]],
+        },
+    )?;
+
+    build.add_action(
+        "check:complexity:aqt",
+        Complexipy {
+            folders: &["qt"],
+            deps: inputs![":qt"],
         },
     )
 }

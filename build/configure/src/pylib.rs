@@ -10,6 +10,7 @@ use ninja_gen::glob;
 use ninja_gen::hashmap;
 use ninja_gen::inputs;
 use ninja_gen::python::python_format;
+use ninja_gen::python::Complexipy;
 use ninja_gen::python::PythonTest;
 use ninja_gen::Build;
 
@@ -86,6 +87,14 @@ pub fn check_pylib(build: &mut Build) -> Result<()> {
             folder: "pylib/tests",
             python_path: &["$builddir/pylib"],
             deps: inputs![":pylib:anki", glob!["pylib/{anki,tests}/**"]],
+        },
+    )?;
+
+    build.add_action(
+        "check:complexity:pylib",
+        Complexipy {
+            folders: &["pylib"],
+            deps: inputs![":pylib"],
         },
     )
 }
