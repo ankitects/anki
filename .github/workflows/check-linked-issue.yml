@@ -54,13 +54,24 @@ jobs:
               labels: ['missing-issue']
             });
 
-            // Post comment
-            await github.rest.issues.createComment({
+            // Only post comment if we haven't already
+            const comments = await github.rest.issues.listComments({
               owner,
               repo,
               issue_number,
-              body: `Thanks for the PR! To ensure we're solving the right problems, we require all PRs to be linked to an open issue. Please open one describing the problem this PR addresses so we can discuss the implementation there first.\n\nYou have 4 days to link an issue before this PR is automatically closed, it can be reopened at any time after that. Looking forward to the discussion!\n\n> To link an issue, edit the PR description and add a line like \`Closes #123\`.`
+              per_page: 100
             });
+            const alreadyCommented = comments.data.some(
+              c => c.user.type === 'Bot' && c.body.includes('To link an issue, edit the PR description')
+            );
+            if (!alreadyCommented) {
+              await github.rest.issues.createComment({
+                owner,
+                repo,
+                issue_number,
+                body: `Thanks for the PR! To ensure we're solving the right problems, we require all PRs to be linked to an open issue. Please open one describing the problem this PR addresses so we can discuss the implementation there first.\n\nYou have 4 days to link an issue before this PR is automatically closed, it can be reopened at any time after that. Looking forward to the discussion!\n\n> To link an issue, edit the PR description and add a line like \`Closes #123\`.`
+              });
+            }
 
       - name: Remove missing-issue label if issue is now linked
         if: steps.check.outputs.has_linked_issue == 'true'
