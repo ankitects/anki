@@ -14,7 +14,7 @@ jobs:
     steps:
       - name: Check for linked issue
         id: check
-        uses: actions/github-script@v7
+        uses: actions/github-script@v9
         with:
           script: |
             const pr = context.payload.pull_request;
@@ -40,7 +40,7 @@ jobs:
 
       - name: Apply missing-issue label and comment
         if: steps.check.outputs.has_linked_issue == 'false'
-        uses: actions/github-script@v7
+        uses: actions/github-script@v9
         with:
           script: |
             const { owner, repo } = context.repo;
@@ -64,7 +64,7 @@ jobs:
 
       - name: Remove missing-issue label if issue is now linked
         if: steps.check.outputs.has_linked_issue == 'true'
-        uses: actions/github-script@v7
+        uses: actions/github-script@v9
         with:
           script: |
             const { owner, repo } = context.repo;
