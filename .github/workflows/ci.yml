@@ -83,7 +83,7 @@ jobs:
           restore-keys: cargo-${{ runner.os }}-
 
       - name: Restore build output cache
-        uses: actions/cache/restore@v4
+        uses: actions/cache/restore@0057852bfaa89a56745cba8c7296529d2fc39830 #v4
         with:
           path: out
           key: build-Linux-${{ github.event.pull_request.number || 'main' }}-${{ github.run_id }}
@@ -103,7 +103,7 @@ jobs:
 
       - name: Restore coverage baseline
         if: github.event_name == 'pull_request'
-        uses: actions/cache/restore@v4
+        uses: actions/cache/restore@0057852bfaa89a56745cba8c7296529d2fc39830 #v4
         with:
           path: out/coverage
           key: coverage-baseline-linux-${{ github.sha }}
@@ -123,7 +123,7 @@ jobs:
 
       - name: Cache coverage baseline
         if: github.ref_name == 'main'
-        uses: actions/cache/save@v4
+        uses: actions/cache/save@0057852bfaa89a56745cba8c7296529d2fc39830 #v4
         with:
           path: out/coverage
           key: coverage-baseline-linux-${{ github.sha }}
@@ -173,7 +173,7 @@ jobs:
 
       - name: Save build output cache
         if: always()
-        uses: actions/cache/save@v4
+        uses: actions/cache/save@0057852bfaa89a56745cba8c7296529d2fc39830 #v4
         with:
           path: out
           key: build-Linux-${{ github.event.pull_request.number || 'main' }}-${{ github.run_id }}
@@ -205,7 +205,7 @@ jobs:
           restore-keys: cargo-macOS-
 
       - name: Restore build output cache
-        uses: actions/cache/restore@v4
+        uses: actions/cache/restore@0057852bfaa89a56745cba8c7296529d2fc39830 #v4
         with:
           path: out
           key: build-macOS-${{ github.event.pull_request.number || 'main' }}-${{ github.run_id }}
@@ -239,7 +239,7 @@ jobs:
 
       - name: Save build output cache
         if: always()
-        uses: actions/cache/save@v4
+        uses: actions/cache/save@0057852bfaa89a56745cba8c7296529d2fc39830 #v4
         with:
           path: out
           key: build-macOS-${{ github.event.pull_request.number || 'main' }}-${{ github.run_id }}
@@ -281,7 +281,7 @@ jobs:
           restore-keys: cargo-Windows-
 
       - name: Restore build output cache
-        uses: actions/cache/restore@v4
+        uses: actions/cache/restore@0057852bfaa89a56745cba8c7296529d2fc39830 #v4
         with:
           path: out
           key: build-Windows-${{ github.event.pull_request.number || 'main' }}-${{ github.run_id }}
@@ -312,7 +312,7 @@ jobs:
 
       - name: Save build output cache
         if: always()
-        uses: actions/cache/save@v4
+        uses: actions/cache/save@0057852bfaa89a56745cba8c7296529d2fc39830 #v4
         with:
           path: out
           key: build-Windows-${{ github.event.pull_request.number || 'main' }}-${{ github.run_id }}
