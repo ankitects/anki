@@ -1,9 +1,9 @@
 # Claude Code Configuration
 
-> **Note:** All commands you need for building, testing, linting, and
-> formatting are defined as recipes in the project `justfile`. Run
-> `just --list` to see them. Do not invoke `./ninja` or scripts under
-> `./tools` directly — use the `just` recipes instead.
+> **Note:** Every command you need — building, running, testing, linting,
+> formatting — is defined as a recipe in the project `justfile`. Run
+> `just --list` to see them. Do not invoke `./ninja`, `./run`, or scripts
+> under `./tools` directly — use the `just` recipes instead.
 
 ## Project Overview
 
@@ -15,6 +15,21 @@ Anki is a spaced repetition flashcard program with a multi-layered architecture.
 - Core Rust layer in rslib/
 - Protobuf definitions in proto/ that are used by the different layers to
   talk to each other.
+
+## Running Anki
+
+To build and run Anki in development mode:
+
+```
+just run
+```
+
+This builds pylib and qt, then launches Anki with debugging enabled. Web
+views are served at http://localhost:40000/_anki/pages/ (e.g.,
+deckconfig.html). Use `just run-optimized` for a release-optimized build.
+For live-reloading during web development, run `just web-watch` in a
+separate terminal — it monitors ts/, sass/, and qt/aqt/data/web/ and
+auto-rebuilds on changes (`just rebuild-web` triggers a one-off rebuild).
 
 ## Building/checking
 
@@ -80,7 +95,8 @@ though you may sometimes find it useful to view out/{pylib/anki,qt/\_aqt,ts/lib/
 ## Launcher/installer
 
 The code for our launcher is in qt/launcher, with separate code for each
-platform.
+platform. Release recipes are in the `release` just module — run
+`just --list release` to see them.
 
 ## Rust dependencies
 
