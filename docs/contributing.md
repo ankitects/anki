@@ -26,6 +26,12 @@ can iterate faster and serve specific user needs without affecting all users.
 See the [Add-on API documentation](https://addon-docs.ankiweb.net/) for
 guidance on building add-ons.
 
+## Pull Request Description
+
+When opening a pull request, fill in the provided template
+(`.github/pull_request_template.md`). It covers the required fields: linked
+issue, summary/motivation, how to test, and UI evidence for visual changes.
+
 ## Linked Issues
 
 Every pull request, except hotfixes and dependency updates, must be linked
