@@ -13,20 +13,30 @@
  * You should have received a copy of the GNU General Public License along with
  * this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.ichi2.anki.utils
+package com.ichi2.anki.common.android
 
+import android.app.Application
 import android.content.Context
 import android.provider.Settings
-import com.ichi2.anki.settings.PrefsRepository
+import com.ichi2.anki.common.preferences.AnimationPreferences
 
 /**
  * Utility class for animation-related helper functions
  */
-object AnimUtils {
+object Animations {
+    /** resolved against the supplied [Context] so the result uses the active profile */
+    private lateinit var preferencesProvider: (Context) -> AnimationPreferences
+
+    /** Use during app startup to register the source of [AnimationPreferences]. */
+    context(_: Application)
+    fun setPreferencesProvider(provider: (Context) -> AnimationPreferences) {
+        preferencesProvider = provider
+    }
+
     /**
      * @return whether the animations are enabled by the system settings,
      * i.e. the 'Remove animations' setting is disabled.
-     * On most cases, using [AnimUtils.areAnimationsEnabled] is preferred
+     * On most cases, using [Animations.areAnimationsEnabled] is preferred
      * because it considers the app's own 'Remove animations' setting
      */
     fun areSystemAnimationsEnabled(context: Context): Boolean =
@@ -44,5 +54,5 @@ object AnimUtils {
      * @return whether animations are enabled on the system and app settings
      */
     fun areAnimationsEnabled(context: Context): Boolean =
-        areSystemAnimationsEnabled(context) && !PrefsRepository(context).removeAppAnimations
+        areSystemAnimationsEnabled(context) && !preferencesProvider(context).removeAppAnimations
 }

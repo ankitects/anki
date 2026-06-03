@@ -24,6 +24,7 @@ import anki.collection.OpChanges
 import com.ichi2.anki.AnkiDroidApp.Companion.sharedPreferencesTestingOverride
 import com.ichi2.anki.analytics.UsageAnalytics
 import com.ichi2.anki.browser.SharedPreferencesLastDeckIdRepository
+import com.ichi2.anki.common.android.Animations
 import com.ichi2.anki.common.android.ApplicationContextInitializer
 import com.ichi2.anki.common.android.getCurrentLocaleTag
 import com.ichi2.anki.common.android.withAppLocale
@@ -53,6 +54,7 @@ import com.ichi2.anki.servicelayer.ThrowableFilterService
 import com.ichi2.anki.services.AlarmManagerService
 import com.ichi2.anki.services.NotificationService
 import com.ichi2.anki.settings.Prefs
+import com.ichi2.anki.settings.PrefsRepository
 import com.ichi2.anki.ui.dialogs.ActivityAgnosticDialogs
 import com.ichi2.utils.AdaptionUtil
 import com.ichi2.utils.ExceptionUtil
@@ -138,6 +140,7 @@ open class AnkiDroidApp :
 
         initializeAcraCrashReporter()
         initializeNavigator()
+        Animations.setPreferencesProvider { context -> PrefsRepository(context) }
         val logType = LogType.value
         when (logType) {
             LogType.DEBUG -> Timber.plant(DebugTree())

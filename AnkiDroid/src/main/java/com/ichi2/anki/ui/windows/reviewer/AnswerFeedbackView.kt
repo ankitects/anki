@@ -23,7 +23,7 @@ import android.view.animation.Animation
 import android.view.animation.AnimationUtils
 import androidx.appcompat.widget.AppCompatImageView
 import com.ichi2.anki.R
-import com.ichi2.anki.utils.AnimUtils
+import com.ichi2.anki.common.android.Animations
 import com.ichi2.anki.utils.postDelayed
 import kotlin.time.Duration.Companion.milliseconds
 
@@ -47,7 +47,7 @@ class AnswerFeedbackView : AppCompatImageView {
             fadeOutRunnable = null
         }
 
-        if (!AnimUtils.areAnimationsEnabled(context)) {
+        if (!Animations.areAnimationsEnabled(context)) {
             visibility = VISIBLE
             fadeOutRunnable =
                 Runnable {

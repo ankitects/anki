@@ -41,12 +41,12 @@ import com.google.android.material.appbar.CollapsingToolbarLayout
 import com.google.android.material.appbar.MaterialToolbar
 import com.ichi2.anki.R
 import com.ichi2.anki.SingleFragmentActivity
+import com.ichi2.anki.common.android.Animations
 import com.ichi2.anki.common.annotations.LegacyNotifications
 import com.ichi2.anki.common.utils.android.getResFromAttr
 import com.ichi2.anki.preferences.HeaderFragment.Companion.getHeaderKeyForFragment
 import com.ichi2.anki.reviewreminders.ReviewReminderScope
 import com.ichi2.anki.reviewreminders.ScheduleRemindersFragment
-import com.ichi2.anki.utils.AnimUtils
 import com.ichi2.anki.utils.isWindowCompact
 import com.ichi2.utils.FragmentFactoryUtils
 import timber.log.Timber
@@ -208,7 +208,7 @@ class PreferencesFragment :
     }
 
     private fun setFadeTransition(fragmentTransaction: FragmentTransaction) {
-        if (AnimUtils.areAnimationsEnabled(requireContext())) {
+        if (Animations.areAnimationsEnabled(requireContext())) {
             fragmentTransaction.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE)
         }
     }

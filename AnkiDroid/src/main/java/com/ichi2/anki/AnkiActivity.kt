@@ -61,6 +61,7 @@ import com.ichi2.anki.analytics.UsageAnalytics
 import com.ichi2.anki.android.input.ShortcutGroup
 import com.ichi2.anki.android.input.ShortcutGroupProvider
 import com.ichi2.anki.android.input.shortcut
+import com.ichi2.anki.common.android.Animations
 import com.ichi2.anki.common.android.AnkiBroadcastReceiver
 import com.ichi2.anki.common.annotations.LegacyNotifications
 import com.ichi2.anki.common.annotations.NeedsTest
@@ -88,7 +89,6 @@ import com.ichi2.anki.libanki.Collection
 import com.ichi2.anki.receiver.SdCardReceiver
 import com.ichi2.anki.settings.Prefs
 import com.ichi2.anki.snackbar.showSnackbar
-import com.ichi2.anki.utils.AnimUtils
 import com.ichi2.anki.utils.ext.requireString
 import com.ichi2.anki.utils.ext.showDialogFragment
 import com.ichi2.anki.workarounds.AppLoadedFromBackupWorkaround.showedActivityFailedScreen
@@ -301,7 +301,7 @@ open class AnkiActivity(
      *
      * @see .animationEnabled
      */
-    fun animationDisabled(): Boolean = !AnimUtils.areAnimationsEnabled(this)
+    fun animationDisabled(): Boolean = !Animations.areAnimationsEnabled(this)
 
     /**
      * Whether animations should be displayed
