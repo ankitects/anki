@@ -92,11 +92,11 @@ don't attempt to grep the codebase.
 The files in out/ are auto-generated. Mostly you should ignore that folder,
 though you may sometimes find it useful to view out/{pylib/anki,qt/\_aqt,ts/lib/generated} when dealing with cross-language communication or our other generated sourcecode.
 
-## Launcher/installer
+## Installer
 
-The code for our launcher is in qt/launcher, with separate code for each
-platform. Release recipes are in the `release` just module — run
-`just --list release` to see them.
+The code for our Briefcase-based installer is in qt/installer, with
+separate templates for each platform (mac-template/, linux-template/,
+windows-template/).
 
 ## Rust dependencies
 
