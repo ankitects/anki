@@ -61,7 +61,7 @@
         "tsx": "^4.22.0",
         "typescript": "^5.0.4",
         "vite": "6",
-        "vitest": "^3"
+        "vitest": "^4"
     },
     "dependencies": {
         "@bufbuild/protobuf": "^1.2.1",
