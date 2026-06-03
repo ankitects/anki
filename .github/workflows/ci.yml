@@ -116,13 +116,12 @@ jobs:
       - name: Build, lint, and test
         env:
           ONLINE_TESTS: "1"
-          BRANCH: ${{ github.base_ref }}
         run: |
           just build
           just lint
           just test --coverage
-          git fetch origin ${BRANCH}:${BRANCH} 2>/dev/null || true
-          just complexipy-diff $BRANCH
+          git fetch origin main:main 2>/dev/null || true
+          just complexipy-diff main
 
       - name: Cache coverage baseline
         if: github.ref_name == 'main'
