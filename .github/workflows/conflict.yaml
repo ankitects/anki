@@ -120,13 +120,17 @@ jobs:
                                 await wait(1000);
                                 iterations++;
 
-                                // Check for terminal conditions
-                                if (pullRequestData.data.mergeable_state !== 'unknown' || iterations >= maxIterations) {
+                                // 'mergeable' is null while GitHub computes mergeability
+                                if (pullRequestData.data.mergeable !== null || iterations >= maxIterations) {
                                   break;
                                 }
-                            } while (pullRequestData.data.mergeable_state === 'unknown');
+                            } while (pullRequestData.data.mergeable === null);
 
-                            if (pullRequestData.data.mergeable_state === 'dirty') {
+                            // 'mergeable' is a nullable boolean; true = no conflicts,
+                            // https://docs.github.com/en/rest/pulls/pulls?apiVersion=2026-03-10#get-a-pull-request
+                            const mergeable = pullRequestData.data.mergeable;
+
+                            if (mergeable === false) {
                                 console.log(`Conflict exists in PR #${prNumber}`);
                                 if (pullRequestData.data.labels.find(label => label.name === 'Has Conflicts')) {
                                     console.log(`'Has Conflicts' label already exists on PR #${prNumber}`);
@@ -139,32 +143,23 @@ jobs:
                                         console.warn(`PR #${prNumber} is stale, skipping label addition to prevent timer reset`);
                                     }
                                 }
-                            } else if (pullRequestData.data.mergeable_state === 'clean') {
+                            } else if (mergeable === true) {
                                 // if PR has no conflicts, remove the label
                                 if (pullRequestData.data.labels.find(label => label.name === 'Has Conflicts')) {
                                     console.log(`Removing 'Has Conflicts' label from PR #${prNumber}`);
-                                    await removeLabel(['Has Conflicts'], prNumber);
-                                }
-                            } else if (pullRequestData.data.mergeable_state === 'unstable') {
-                                console.log(`PR #${prNumber} is unstable`);
-                                const mergeable = pullRequestData.data.mergeable;
-                                if (mergeable) {
-                                    console.log(`PR #${prNumber} is mergeable`);
-                                    // if PR has no conflicts, remove the label
-                                    if (pullRequestData.data.labels.find(label => label.name === 'Has Conflicts')) {
-                                        console.log(`Removing 'Has Conflicts' label from PR #${prNumber}`);
-                                        try {
-                                            await removeLabel(['Has Conflicts'], prNumber);
-                                        } catch(err) {
-                                            if (err.status === 404) {
-                                                console.warn("(Has Conflicts) label no longer found when trying to remove it");
-                                            } else {
-                                                console.log("Unexpected error while removing (Has Conflicts) label: " + err);
-                                                throw err;
-                                            }
+                                    try {
+                                        await removeLabel(['Has Conflicts'], prNumber);
+                                    } catch(err) {
+                                        if (err.status === 404) {
+                                            console.warn("(Has Conflicts) label no longer found when trying to remove it");
+                                        } else {
+                                            console.log("Unexpected error while removing (Has Conflicts) label: " + err);
+                                            throw err;
                                         }
                                     }
                                 }
+                            } else {
+                                console.warn(`PR #${prNumber} mergeability is unknown; skipping`);
                             }
                         } catch (err) {
                             console.error(`Error while processing PR #${prNumber}`);
