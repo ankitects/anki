@@ -21,12 +21,12 @@
         }
         @if type-of($value) == "map" {
             @if $key == "default" {
-                $output: map-merge(
+                $output: map.merge(
                     $output,
                     create-vars-from-map($value, $theme, #{$name}, $output)
                 );
             } @else {
-                $output: map-merge(
+                $output: map.merge(
                     $output,
                     create-vars-from-map($value, $theme, #{$name}-#{$key}, $output)
                 );
@@ -36,11 +36,11 @@
             @if $key == "default" {
                 $next-name: $name;
             }
-            $output: map-merge(
+            $output: map.merge(
                 $output,
                 (#{"comment"}#{$next-name}: list.nth($value, 1))
             );
-            $output: map-merge(
+            $output: map.merge(
                 $output,
                 create-vars-from-map(
                     list.nth($value, 2),
@@ -57,9 +57,9 @@
 @function map-deep-get($map, $keys) {
     @each $key in $keys {
         @if type-of($map) == "list" and list.length($map) > 1 {
-            $map: map-get(list.nth($map, 2), $key);
+            $map: map.get(list.nth($map, 2), $key);
         } @else {
-            $map: map-get($map, $key);
+            $map: map.get($map, $key);
         }
     }
     @return $map;
