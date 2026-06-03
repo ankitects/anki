@@ -154,7 +154,6 @@ impl LintContext {
             "49699333+dependabot[bot]@users.noreply.github.com",
             "41898282+github-actions[bot]@users.noreply.github.com",
             "github-actions[bot]@users.noreply.github.com",
-            "Claude <noreply@anthropic.com>",
         ];
 
         if BOT_EMAILS.contains(&last_author.as_str())
