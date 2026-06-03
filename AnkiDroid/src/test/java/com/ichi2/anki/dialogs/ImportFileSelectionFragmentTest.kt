@@ -25,7 +25,6 @@ import com.ichi2.anki.dialogs.ImportFileSelectionFragment.ImportOptions
 import com.ichi2.anki.utils.MimeTypeUtils
 import com.ichi2.testutils.launchFragment
 import org.hamcrest.CoreMatchers.equalTo
-import org.hamcrest.CoreMatchers.notNullValue
 import org.hamcrest.MatcherAssert.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith

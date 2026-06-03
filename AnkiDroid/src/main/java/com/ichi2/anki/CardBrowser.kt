@@ -89,7 +89,6 @@ import com.ichi2.anki.utils.ext.onAllFragmentsLoaded
 import com.ichi2.ui.CardBrowserSearchView
 import com.ichi2.utils.AndroidUiUtils.hideKeyboard
 import com.ichi2.utils.LanguageUtil
-import net.ankiweb.rsdroid.RustCleanup
 import timber.log.Timber
 
 @Suppress("LeakingThis")

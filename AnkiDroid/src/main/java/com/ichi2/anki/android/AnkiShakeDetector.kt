@@ -18,7 +18,6 @@ package com.ichi2.anki.android
 import android.content.Context
 import android.hardware.SensorManager
 import android.os.SystemClock
-import androidx.core.content.ContextCompat
 import androidx.core.content.getSystemService
 import com.squareup.seismic.ShakeDetector
 import timber.log.Timber

@@ -37,7 +37,6 @@ import com.ichi2.anki.AnkiDroidApp.Companion.sharedPreferencesTestingOverride
 import com.ichi2.anki.analytics.UsageAnalytics
 import com.ichi2.anki.browser.SharedPreferencesLastDeckIdRepository
 import com.ichi2.anki.common.android.ApplicationContextInitializer
-import com.ichi2.anki.common.android.appContext
 import com.ichi2.anki.common.annotations.LegacyNotifications
 import com.ichi2.anki.common.annotations.NeedsTest
 import com.ichi2.anki.common.coroutines.applicationScope

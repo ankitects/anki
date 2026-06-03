@@ -9,6 +9,9 @@ end_of_line = crlf
 # This feels like an acceptable commenting strategy
 ktlint_standard_no-consecutive-comments = disabled
 
+# TODO: move this to detekt when 2.0.0 is stable (handles Kotlin 2.3.21)
+ktlint_standard_no-unused-imports = enabled
+
 # These lines add significant verbosity to the codebase. The PR introducing these rules (19817)
 # added 2k LOC to the codebase, often quadrupling the number of lines:
 #

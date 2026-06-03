@@ -21,7 +21,6 @@ import anki.decks.deckTreeNode
 import com.ichi2.anki.deckpicker.DeckFilters
 import com.ichi2.anki.deckpicker.filterAndFlattenDisplay
 import com.ichi2.anki.libanki.sched.DeckNode
-import org.apache.commons.collections4.map.ListOrderedMap
 import org.junit.Assert.assertEquals
 import org.junit.Test
 

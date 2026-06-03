@@ -66,7 +66,6 @@ import com.ichi2.utils.AndroidUiUtils
 import com.ichi2.utils.create
 import com.ichi2.utils.dp
 import com.ichi2.utils.negativeButton
-import com.ichi2.utils.neutralButton
 import com.ichi2.utils.positiveButton
 import com.ichi2.utils.title
 import com.ichi2.utils.titleWithHelpIcon

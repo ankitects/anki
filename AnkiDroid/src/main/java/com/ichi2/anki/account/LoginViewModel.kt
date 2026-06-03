@@ -28,7 +28,6 @@ import com.ichi2.anki.common.annotations.NeedsTest
 import com.ichi2.anki.settings.Prefs
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import net.ankiweb.rsdroid.exceptions.BackendSyncException
 import timber.log.Timber

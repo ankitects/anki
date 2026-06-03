@@ -108,7 +108,6 @@ import com.ichi2.anki.utils.ext.dismissAllDialogFragments
 import com.ichi2.anki.utils.ext.doOnTabSelected
 import com.ichi2.anki.utils.ext.showDialogFragment
 import com.ichi2.anki.utils.postDelayed
-import com.ichi2.themes.Themes
 import com.ichi2.utils.copyToClipboard
 import com.ichi2.utils.dp
 import com.ichi2.utils.listItems

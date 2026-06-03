@@ -23,8 +23,6 @@ import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import android.view.Window
-import android.view.WindowInsetsController
-import android.view.WindowManager
 import android.widget.ProgressBar
 import androidx.activity.result.ActivityResult
 import androidx.activity.result.ActivityResultLauncher
@@ -48,7 +46,6 @@ import androidx.core.app.ShareCompat
 import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
 import androidx.core.net.toUri
-import androidx.core.view.WindowInsetsCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
