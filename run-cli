@@ -1,0 +1,10 @@
+#!/bin/bash
+
+set -e
+
+export PYTHONPYCACHEPREFIX=out/pycache
+export PYENV=${PYENV-out/pyenv}
+
+./ninja pylib >&2
+PYTHONPATH="pylib:out/pylib${PYTHONPATH:+:$PYTHONPATH}" \
+    ${PYENV}/bin/python -m anki.cli "$@"
