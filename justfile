@@ -1,4 +1,4 @@
-set windows-shell := ["cmd.exe", "/c"]
+set windows-shell := ["pwsh", "-NoLogo", "-NoProfileLoadTime", "-Command"]
 
 mod release
 
@@ -9,6 +9,22 @@ default:
 # Build the project
 build:
     {{ ninja }} pylib qt
+
+# Build and run Anki in development mode
+run *args:
+    {{ run_script }} {{ args }}
+
+# Build and run Anki in optimized (release) mode
+run-optimized *args:
+    {{ if os() == "windows" { "$env:RELEASE='1'; .\\run.bat" } else { "RELEASE=1 ./run" } }} {{ args }}
+
+# Watch web sources and rebuild/reload Anki's web stack on change (macOS/Linux)
+web-watch:
+    ./tools/web-watch
+
+# Rebuild and reload Anki's web stack without restarting (macOS/Linux)
+rebuild-web:
+    ./tools/rebuild-web
 
 # Build wheels (needed for some platforms)
 wheels:
@@ -154,8 +170,13 @@ docs-rust:
 ci branch:
     gh workflow run ci.yml --ref {{ branch }}
 
+# Remove build outputs from out/ (pass keep-env to keep node_modules/pyenv); macOS/Linux
+clean *args:
+    ./tools/clean {{ args }}
+
 # Helpers to get the right commands for the platform
 
 ninja := if os() == "windows" { "tools\\ninja" } else { "./ninja" }
+run_script := if os() == "windows" { ".\\run.bat" } else { "./run" }
 playwright_env := if os() == "windows" { "set PLAYWRIGHT_BROWSERS_PATH=out\\playwright-browsers&&" } else { "PLAYWRIGHT_BROWSERS_PATH=out/playwright-browsers" }
 yarn := if os() == "windows" { "out\\extracted\\node\\yarn.cmd" } else { "out/extracted/node/bin/yarn" }
