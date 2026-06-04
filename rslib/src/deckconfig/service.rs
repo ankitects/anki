@@ -13,6 +13,7 @@ use crate::deckconfig::DeckConfigId;
 use crate::deckconfig::UpdateDeckConfigsRequest;
 use crate::error::Result;
 use crate::scheduler::fsrs::params::ignore_revlogs_before_date_to_ms;
+use crate::scheduler::fsrs::simulator::filled_fsrs_parameters;
 use crate::scheduler::fsrs::simulator::is_included_card;
 
 impl crate::services::DeckConfigService for Collection {
@@ -116,13 +117,23 @@ impl crate::services::DeckConfigService for Collection {
             .get_revlog_entries_for_searched_cards_in_card_order()?;
 
         let mut config = guard.col.get_optimal_retention_parameters(revlogs)?;
+        let fsrs_card_params = filled_fsrs_parameters(&input.w)?;
         let cards = guard
             .col
             .storage
             .all_searched_cards()?
             .into_iter()
             .filter(is_included_card)
-            .filter_map(|c| crate::card::Card::convert(c.clone(), days_elapsed, c.memory_state?))
+            .filter_map(|c| {
+                let desired_retention = c.desired_retention.unwrap_or(0.9);
+                crate::card::Card::convert(
+                    c.clone(),
+                    days_elapsed,
+                    c.memory_state?,
+                    desired_retention,
+                    fsrs_card_params.clone(),
+                )
+            })
             .collect::<Vec<fsrs::Card>>();
 
         config.deck_size = guard.cards;

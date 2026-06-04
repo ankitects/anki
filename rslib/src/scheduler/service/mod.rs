@@ -20,7 +20,6 @@ use anki_proto::scheduler::SimulateFsrsWorkloadResponse;
 use fsrs::ComputeParametersInput;
 use fsrs::FSRSItem;
 use fsrs::FSRSReview;
-use fsrs::FSRS;
 
 use crate::backend::Backend;
 use crate::prelude::*;
@@ -389,10 +388,10 @@ impl crate::services::BackendSchedulerService for Backend {
         &self,
         req: scheduler::ComputeFsrsParamsFromItemsRequest,
     ) -> Result<scheduler::ComputeFsrsParamsResponse> {
-        let fsrs = FSRS::new(None)?;
         let fsrs_items = req.items.len() as u32;
-        let params = fsrs.compute_parameters(ComputeParametersInput {
+        let params = fsrs::compute_parameters(ComputeParametersInput {
             train_set: req.items.into_iter().map(fsrs_item_proto_to_fsrs).collect(),
+            card_ids: None,
             progress: None,
             enable_short_term: true,
             num_relearning_steps: None,
@@ -408,14 +407,14 @@ impl crate::services::BackendSchedulerService for Backend {
         &self,
         req: scheduler::FsrsBenchmarkRequest,
     ) -> Result<scheduler::FsrsBenchmarkResponse> {
-        let fsrs = FSRS::new(None)?;
         let train_set = req
             .train_set
             .into_iter()
             .map(fsrs_item_proto_to_fsrs)
             .collect();
-        let params = fsrs.benchmark(ComputeParametersInput {
+        let params = fsrs::benchmark(ComputeParametersInput {
             train_set,
+            card_ids: None,
             progress: None,
             enable_short_term: true,
             num_relearning_steps: None,

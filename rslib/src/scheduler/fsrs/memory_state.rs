@@ -96,7 +96,7 @@ impl Collection {
 
             let Some(req) = &req else {
                 let items = fsrs_items_for_memory_states(
-                    &FSRS::new(Some(&[]))?,
+                    &FSRS::new(&[])?,
                     revlog,
                     timing.next_day_at,
                     0.9,
@@ -114,7 +114,7 @@ impl Collection {
                 continue;
             };
 
-            let fsrs = FSRS::new(Some(&req.params[..]))?;
+            let fsrs = FSRS::new(&req.params[..])?;
             let last_revlog_info = req.reschedule.then(|| get_last_revlog_info(&revlog));
 
             let items = fsrs_items_for_memory_states(
@@ -374,7 +374,7 @@ impl Collection {
         let historical_retention = config.inner.historical_retention;
         let params = config.fsrs_params();
         let decay = get_decay_from_params(params);
-        let fsrs = FSRS::new(Some(params))?;
+        let fsrs = FSRS::new(params)?;
         let revlog = self.revlog_for_srs(SearchNode::CardIds(card.id.to_string()))?;
         let item = fsrs_item_for_memory_state(
             &fsrs,
@@ -589,7 +589,7 @@ mod tests {
     fn bypassed_learning_is_handled() -> Result<()> {
         // cards without any learning steps due to truncated history still have memory
         // state calculated
-        let fsrs = FSRS::new(Some(&[])).unwrap();
+        let fsrs = FSRS::new(&[]).unwrap();
         let item = fsrs_item_for_memory_state(
             &fsrs,
             vec![
@@ -662,7 +662,7 @@ mod tests {
             reps: 1,
             ..Default::default()
         };
-        card.set_memory_state(&FSRS::new(Some(&[])).unwrap(), None, 0.9)?;
+        card.set_memory_state(&FSRS::new(&[]).unwrap(), None, 0.9)?;
         assert_int_eq(
             card.memory_state,
             Some(

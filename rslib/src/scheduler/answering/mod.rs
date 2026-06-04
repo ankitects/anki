@@ -461,7 +461,7 @@ impl Collection {
         let fsrs_enabled = self.get_config_bool(BoolKey::Fsrs);
         let fsrs_next_states = if fsrs_enabled {
             let params = config.fsrs_params();
-            let fsrs = FSRS::new(Some(params))?;
+            let fsrs = FSRS::new(params)?;
             card.decay = Some(get_decay_from_params(params));
             if card.memory_state.is_none() && card.ctype != CardType::New {
                 // Card has been moved or imported into an FSRS deck after params were set,

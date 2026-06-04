@@ -135,18 +135,18 @@ impl Collection {
         };
 
         let (progress, progress_thread) = create_progress_thread()?;
-        let fsrs = FSRS::new(None)?;
         let input = ComputeParametersInput {
             train_set: items.clone(),
+            card_ids: None,
             progress: Some(progress.clone()),
             enable_short_term: true,
             num_relearning_steps: Some(num_of_relearning_steps),
         };
-        let mut params = fsrs.compute_parameters(input.clone())?;
+        let mut params = fsrs::compute_parameters(input.clone())?;
         progress_thread.join().ok();
-        if let Ok(current_fsrs) = FSRS::new(Some(current_params)) {
+        if let Ok(current_fsrs) = FSRS::new(current_params) {
             let current_log_loss = current_fsrs.evaluate(items.clone(), |_| true)?.log_loss;
-            let optimized_fsrs = FSRS::new(Some(&params))?;
+            let optimized_fsrs = FSRS::new(&params)?;
             let optimized_log_loss = optimized_fsrs.evaluate(items.clone(), |_| true)?.log_loss;
             if current_log_loss <= optimized_log_loss {
                 if num_of_relearning_steps <= 1 {
@@ -175,8 +175,7 @@ impl Collection {
         }
 
         let health_check_passed = if health_check && input.train_set.len() > 300 {
-            let fsrs = FSRS::new(None)?;
-            fsrs.evaluate_with_time_series_splits(input, |_| true)
+            fsrs::evaluate_with_time_series_splits(input, |_| true)
                 .ok()
                 .map(|eval| {
                     let r = items.iter().fold(0, |p, item| {
@@ -283,14 +282,14 @@ impl Collection {
             fsrs_items_for_training(revlogs, timing.next_day_at, ignore_revlogs_before);
         let mut anki_progress = self.new_progress_handler::<ComputeParamsProgress>();
         anki_progress.state.reviews = review_count as u32;
-        let fsrs = FSRS::new(None)?;
         let input = ComputeParametersInput {
             train_set: items.clone(),
+            card_ids: None,
             progress: None,
             enable_short_term: true,
             num_relearning_steps: Some(num_of_relearning_steps),
         };
-        Ok(fsrs.evaluate_with_time_series_splits(input, |ip| {
+        Ok(fsrs::evaluate_with_time_series_splits(input, |ip| {
             anki_progress
                 .update(false, |p| {
                     p.total_iterations = ip.total as u32;
@@ -316,7 +315,7 @@ impl Collection {
         let (items, review_count) =
             fsrs_items_for_training(revlogs, timing.next_day_at, ignore_revlogs_before);
         anki_progress.state.reviews = review_count as u32;
-        let fsrs = FSRS::new(Some(params))?;
+        let fsrs = FSRS::new(params)?;
         Ok(fsrs.evaluate(items, |ip| {
             anki_progress
                 .update(false, |p| {
