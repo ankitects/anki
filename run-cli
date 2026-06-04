@@ -5,6 +5,13 @@ set -e
 export PYTHONPYCACHEPREFIX=out/pycache
 export PYENV=${PYENV-out/pyenv}
 
-./ninja pylib >&2
+build_log="$(mktemp "${TMPDIR:-/tmp}/anki-cli-build.XXXXXX")"
+trap 'rm -f "$build_log"' EXIT
+
+if ! ./ninja pylib >"$build_log" 2>&1; then
+    cat "$build_log" >&2
+    exit 1
+fi
+
 PYTHONPATH="pylib:out/pylib${PYTHONPATH:+:$PYTHONPATH}" \
     ${PYENV}/bin/python -m anki.cli "$@"
