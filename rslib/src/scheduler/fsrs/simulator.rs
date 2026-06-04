@@ -12,9 +12,7 @@ use fsrs::simulate;
 use fsrs::PostSchedulingFn;
 use fsrs::ReviewPriorityFn;
 use fsrs::SimulatorConfig;
-use fsrs::DEFAULT_PARAMETERS;
 use fsrs::FSRS;
-use fsrs::FSRS5_DEFAULT_DECAY;
 use itertools::Itertools;
 use rand::Rng;
 use rayon::iter::IntoParallelIterator;
@@ -32,31 +30,6 @@ use crate::scheduler::states::load_balancer::select_weighted_interval;
 use crate::scheduler::states::load_balancer::EasyDay;
 use crate::scheduler::states::load_balancer::LoadBalancerInterval;
 use crate::search::SortMode;
-
-pub(crate) fn filled_fsrs_parameters(parameters: &[f32]) -> Result<Arc<Vec<f32>>> {
-    let parameters = match parameters.len() {
-        0 => DEFAULT_PARAMETERS.to_vec(),
-        17 => {
-            let mut parameters = parameters.to_vec();
-            parameters[4] = parameters[5].mul_add(2.0, parameters[4]);
-            parameters[5] = parameters[5].mul_add(3.0, 1.0).ln() / 3.0;
-            parameters[6] += 0.5;
-            parameters.extend_from_slice(&[0.0, 0.0, 0.0, FSRS5_DEFAULT_DECAY]);
-            parameters
-        }
-        19 => {
-            let mut parameters = parameters.to_vec();
-            parameters.extend_from_slice(&[0.0, FSRS5_DEFAULT_DECAY]);
-            parameters
-        }
-        21 => parameters.to_vec(),
-        _ => return Err(fsrs::FSRSError::InvalidParameters.into()),
-    };
-    if parameters.iter().any(|&w| !w.is_finite()) {
-        return Err(fsrs::FSRSError::InvalidParameters.into());
-    }
-    Ok(Arc::new(parameters))
-}
 
 pub(crate) fn apply_load_balance_and_easy_days(
     interval: f32,
@@ -180,7 +153,7 @@ impl Collection {
             .count()
             + req.deck_size as usize;
         let fsrs = FSRS::new(&req.params)?;
-        let fsrs_card_params = filled_fsrs_parameters(&req.params)?;
+        let fsrs_card_params = Arc::new(fsrs::check_and_fill_parameters(&req.params)?);
         let mut converted_cards = cards
             .into_iter()
             .filter(is_included_card)
