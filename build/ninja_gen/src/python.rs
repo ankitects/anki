@@ -306,3 +306,23 @@ impl BuildAction for PythonTest {
         true
     }
 }
+
+pub struct Complexipy {
+    pub folders: &'static [&'static str],
+    pub deps: BuildInput,
+}
+
+impl BuildAction for Complexipy {
+    fn command(&self) -> &str {
+        "$complexipy $folders --suggest-refactors"
+    }
+
+    fn files(&mut self, build: &mut impl crate::build::FilesHandle) {
+        build.add_inputs("", &self.deps);
+        build.add_inputs("", inputs![".complexipy.toml"]);
+        build.add_inputs("complexipy", inputs![":pyenv:complexipy"]);
+        build.add_variable("folders", self.folders.join(" "));
+        let hash = simple_hash(&self.deps);
+        build.add_output_stamp(format!("tests/complexipy.{hash}"));
+    }
+}
