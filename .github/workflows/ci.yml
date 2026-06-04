@@ -120,6 +120,8 @@ jobs:
           just build
           just lint
           just test --coverage
+          git fetch origin main:main 2>/dev/null || true
+          just complexipy-diff main
 
       - name: Cache coverage baseline
         if: github.ref_name == 'main'
@@ -131,6 +133,12 @@ jobs:
       - name: Check coverage regression
         if: github.event_name == 'pull_request'
         run: python3 tools/coverage/check-coverage-regression.py out/coverage-baseline out/coverage
+
+      - name: Upload SARIF results for complexipy
+        uses: github/codeql-action/upload-sarif@a6fd1787519fd23e68309fad43738e41a6ff2a9d #v4
+        with:
+            sarif_file: out/complexipy/complexipy-results.sarif
+            category: complexipy
 
       - name: Run e2e tests
         run: just test-e2e
