@@ -63,7 +63,7 @@ hooks = [
         as possible, instead opting to append your own changes, e.g.:
 
             def on_overview_will_render_content(overview, content):
-                content.table += "\n<div>my html</div>"
+                content.table += "\\n<div>my html</div>"
         """,
     ),
     Hook(
