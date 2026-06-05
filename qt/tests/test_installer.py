@@ -154,8 +154,8 @@ def test_signing_args(monkeypatch) -> None:
         ("win32", "ARM64", "-win-arm64"),
         ("darwin", "arm64", "-mac-apple"),
         ("darwin", "x86_64", "-mac-intel"),
-        ("linux", "x86_64", "-linux-x86_64"),
-        ("linux", "aarch64", "-linux-aarch64"),
+        ("linux", "x86_64", "-linux-x86_64.tar"),
+        ("linux", "aarch64", "-linux-aarch64.tar"),
         ("unknown", "unknown", ""),
     ],
 )
