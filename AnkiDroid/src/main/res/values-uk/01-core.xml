@@ -75,7 +75,6 @@
     <!-- flashcard_portrait.xml -->
     <string name="undo_action_whiteboard_last_stroke" comment="One of the display patterns of \'Undo\' item on the action menu in the Study Screen. It is shown as the title of the item when the whiteboard (handwriting) feature is enabled and visible and has any strokes (handwritten lines)" maxLength="28">Скасувати штрих</string>
     <string name="move_all_to_deck">Перемістити все до колоди</string>
-    <string name="rename_deck" maxLength="28">Перейменувати колоду</string>
     <string name="create_shortcut">Створити значок</string>
     <string name="browse_cards">Переглянути картки</string>
     <string name="edit_deck_description" comment="edit the deck description">Редагувати опис</string>
@@ -84,7 +83,6 @@
     <string name="menu_my_account" comment="Label of the window in which the user should enter their account. This text can\'t be found in AnkiDroid directly.">Синхронізувати обліковий запис</string>
     <string name="menu_dismiss_note" maxLength="41">Сховати / видалити</string>
     <string name="rename_flag">Перейменувати прапорці</string>
-    <string name="menu_flag_card" maxLength="28">Додати прапорець</string>
     <string name="menu_edit_tags" maxLength="28">Редагувати теги</string>
     <string name="delete_note_message">Дійсно видалити цей запис разом з усіма його картками?\n%s</string>
     <string name="menu_search" maxLength="28">Пошук у %1$s</string>

@@ -127,7 +127,6 @@
     <string name="preview_progress_bar_text" comment="What card we are on out of how many in card previewer progress bar">%2$d 中的 %1$d</string>
     <string name="rename" comment="Confirm that the renaming action should be processed." maxLength="28">重命名</string>
     <string name="checks_action" maxLength="28">检查</string>
-    <string name="empty_cards" maxLength="28">空白卡片</string>
     <string name="unknown_type_field_warning">输入答案：未知字段 %s</string>
     <string name="delete_deck" comment="Message on a progress bar starting a deck is being deleted.">删除牌组\n请稍等&#8230;&#8230;</string>
     <string name="info_rate">给 AnkiDroid 评分</string>
@@ -182,7 +181,6 @@
     <!-- The name of the deck which corrupt cards will be moved to -->
     <!-- Deckpicker Background -->
     <string name="background_image_title" maxLength="41">背景</string>
-    <string name="choose_an_image" maxLength="41">选择图片</string>
     <string name="remove_wallpaper_image" maxLength="41">删除背景</string>
     <string name="remove_background_image">您确定要删除背景吗？</string>
     <!-- Card Template Browser Appearance -->
@@ -346,7 +344,6 @@
     <string name="deck_picker_group" comment="Label for the group of shortcuts related to the deck picker">牌组选择器</string>
     <string name="delete_deck_without_confirmation" comment="Description of the shortcut that deletes the deck without asking for confirmation">不经确认删除牌组</string>
     <string name="note_editor_group" comment="Label for the group of shortcuts related to the note editor">笔记编辑器</string>
-    <string name="select_deck" comment="Description of the shortcut that opens the deck selection dialog">选择牌组</string>
     <string name="select_note_type" comment="Description of the shortcut that shows the note selection spinner">选择笔记类型</string>
     <string name="tag_editor" comment="Description of the shortcut that opens the tags dialog">标签编辑器</string>
     <string name="card_template_editor_group" comment="Label for the group of shortcuts related to the card template editor">卡片模板编辑器</string>

@@ -69,7 +69,6 @@
     <!-- flashcard_portrait.xml -->
     <string name="undo_action_whiteboard_last_stroke" comment="One of the display patterns of \'Undo\' item on the action menu in the Study Screen. It is shown as the title of the item when the whiteboard (handwriting) feature is enabled and visible and has any strokes (handwritten lines)" maxLength="28">आघात पूर्ववत करें</string>
     <string name="move_all_to_deck">सभी को डेक में ले जाएं</string>
-    <string name="rename_deck" maxLength="28">डेक का नाम बदलें</string>
     <string name="create_shortcut">क्षुद्र मार्ग बनाएँ</string>
     <string name="browse_cards">कार्ड ढुंढे</string>
     <string name="edit_deck_description" comment="edit the deck description">संपादित करें] वर्णन</string>
@@ -78,7 +77,6 @@
     <string name="menu_my_account" comment="Label of the window in which the user should enter their account. This text can\'t be found in AnkiDroid directly.">खाते को सिंक करें</string>
     <string name="menu_dismiss_note" maxLength="41">छुपाएं/हटाएं</string>
     <string name="rename_flag">झंडों का नाम बदलें</string>
-    <string name="menu_flag_card" maxLength="28">कार्ड को ध्वजांकित करें</string>
     <string name="menu_edit_tags" maxLength="28">टैग संपादित करें</string>
     <string name="delete_note_message">वास्तव में इस नोट और उसके सभी cards?\n%s को हटाना</string>
     <string name="menu_search" maxLength="28">लुकअप में %1$s</string>

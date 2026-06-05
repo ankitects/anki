@@ -72,7 +72,6 @@
     <!-- flashcard_portrait.xml -->
     <string name="undo_action_whiteboard_last_stroke" comment="One of the display patterns of \'Undo\' item on the action menu in the Study Screen. It is shown as the title of the item when the whiteboard (handwriting) feature is enabled and visible and has any strokes (handwritten lines)" maxLength="28">Опозови потез</string>
     <string name="move_all_to_deck">Додај све у сет картица</string>
-    <string name="rename_deck" maxLength="28">Преименуј шпил</string>
     <string name="create_shortcut">Направи пречицу</string>
     <string name="browse_cards">Претражи картице</string>
     <string name="edit_deck_description" comment="edit the deck description">Измени опис</string>
@@ -81,7 +80,6 @@
     <string name="menu_my_account" comment="Label of the window in which the user should enter their account. This text can\'t be found in AnkiDroid directly.">Налог за синхронизацију</string>
     <string name="menu_dismiss_note" maxLength="41">Сакриј / Избриши</string>
     <string name="rename_flag">Промени називе ознака</string>
-    <string name="menu_flag_card" maxLength="28">Означи картицу</string>
     <string name="menu_edit_tags" maxLength="28">Уреди ознаке</string>
     <string name="delete_note_message">Да ли заисте желите да избришете белешку и све повезане карте?\n%s</string>
     <string name="menu_search" maxLength="28">Потражи у %1$s</string>

@@ -69,7 +69,6 @@
     <!-- flashcard_portrait.xml -->
     <string name="undo_action_whiteboard_last_stroke" comment="One of the display patterns of \'Undo\' item on the action menu in the Study Screen. It is shown as the title of the item when the whiteboard (handwriting) feature is enabled and visible and has any strokes (handwritten lines)" maxLength="28">Indietro</string>
     <string name="move_all_to_deck">Sposta tutto nel mazzo</string>
-    <string name="rename_deck" maxLength="28">Rinomina mazzo</string>
     <string name="create_shortcut">Crea scorciatoia</string>
     <string name="browse_cards">Sfoglia le carte</string>
     <string name="edit_deck_description" comment="edit the deck description">Modifica descrizione</string>
@@ -78,7 +77,6 @@
     <string name="menu_my_account" comment="Label of the window in which the user should enter their account. This text can\'t be found in AnkiDroid directly.">Sincronizza account</string>
     <string name="menu_dismiss_note" maxLength="41">Nascondi / Cancella</string>
     <string name="rename_flag">Rinomina bandiera</string>
-    <string name="menu_flag_card" maxLength="28">Assegna bandiera</string>
     <string name="menu_edit_tags" maxLength="28">Modifica etichette</string>
     <string name="delete_note_message">Vuoi veramente eliminare questa nota e tutte le sue carte?\n%s</string>
     <string name="menu_search" maxLength="28">Ricerca in %1$s</string>

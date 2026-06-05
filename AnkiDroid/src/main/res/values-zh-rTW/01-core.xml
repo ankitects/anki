@@ -67,7 +67,6 @@
     <!-- flashcard_portrait.xml -->
     <string name="undo_action_whiteboard_last_stroke" comment="One of the display patterns of \'Undo\' item on the action menu in the Study Screen. It is shown as the title of the item when the whiteboard (handwriting) feature is enabled and visible and has any strokes (handwritten lines)" maxLength="28">復原筆觸</string>
     <string name="move_all_to_deck">全部移動到牌組</string>
-    <string name="rename_deck" maxLength="28">重命名牌組</string>
     <string name="create_shortcut">創建捷徑</string>
     <string name="browse_cards">瀏覽卡片</string>
     <string name="edit_deck_description" comment="edit the deck description">編輯描述</string>
@@ -76,7 +75,6 @@
     <string name="menu_my_account" comment="Label of the window in which the user should enter their account. This text can\'t be found in AnkiDroid directly.">同步帳戶</string>
     <string name="menu_dismiss_note" maxLength="41">隐藏/删除</string>
     <string name="rename_flag">重命名標記</string>
-    <string name="menu_flag_card" maxLength="28">標記卡片</string>
     <string name="menu_edit_tags" maxLength="28">編輯標籤</string>
     <string name="delete_note_message">確認刪除這個筆記跟它的卡片嗎？\n%s</string>
     <string name="menu_search" maxLength="28">在%1$s中查詢</string>

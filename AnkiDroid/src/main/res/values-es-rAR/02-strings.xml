@@ -130,7 +130,6 @@
     <string name="preview_progress_bar_text" comment="What card we are on out of how many in card previewer progress bar">%1$d de %2$d</string>
     <string name="rename" comment="Confirm that the renaming action should be processed." maxLength="28">Renombrar</string>
     <string name="checks_action" maxLength="28">Verificar</string>
-    <string name="empty_cards" maxLength="28">Tarjetas vacías</string>
     <string name="unknown_type_field_warning">Tipear respuesta: campo desconocido %s</string>
     <string name="delete_deck" comment="Message on a progress bar starting a deck is being deleted.">Eliminando mazo&#8230;\nPor favor aguarde.</string>
     <string name="info_rate">Puntúe AnkiDroid</string>
@@ -185,7 +184,6 @@
     <!-- The name of the deck which corrupt cards will be moved to -->
     <!-- Deckpicker Background -->
     <string name="background_image_title" maxLength="41">Fondo</string>
-    <string name="choose_an_image" maxLength="41">Elige una imagen</string>
     <string name="remove_wallpaper_image" maxLength="41">Eliminar fondo</string>
     <string name="remove_background_image">Are you sure you wish to remove the background?</string>
     <!-- Card Template Browser Appearance -->
@@ -352,7 +350,6 @@
     <string name="deck_picker_group" comment="Label for the group of shortcuts related to the deck picker">Selector de Mazos</string>
     <string name="delete_deck_without_confirmation" comment="Description of the shortcut that deletes the deck without asking for confirmation">Eliminar mazo sin confirmación</string>
     <string name="note_editor_group" comment="Label for the group of shortcuts related to the note editor">Editor de Notas</string>
-    <string name="select_deck" comment="Description of the shortcut that opens the deck selection dialog">Seleccionar mazo</string>
     <string name="select_note_type" comment="Description of the shortcut that shows the note selection spinner">Seleccionar tipo de nota</string>
     <string name="tag_editor" comment="Description of the shortcut that opens the tags dialog">Editor de etiquetas</string>
     <string name="card_template_editor_group" comment="Label for the group of shortcuts related to the card template editor">Editor de Plantillas de Tarjeta</string>

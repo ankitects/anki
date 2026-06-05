@@ -66,7 +66,6 @@
     <!-- flashcard_portrait.xml -->
     <string name="undo_action_whiteboard_last_stroke" comment="One of the display patterns of \'Undo\' item on the action menu in the Study Screen. It is shown as the title of the item when the whiteboard (handwriting) feature is enabled and visible and has any strokes (handwritten lines)" maxLength="28">Undo stroke</string>
     <string name="move_all_to_deck">Deckကိုရွှေ့ပါ</string>
-    <string name="rename_deck" maxLength="28">ကုန်းပတ်အမည်ပြောင်းပါ</string>
     <string name="create_shortcut">ဖြတ်လမ်းဖန်တီ</string>
     <string name="browse_cards">ကတ်ရှာဖွေ</string>
     <string name="edit_deck_description" comment="edit the deck description">အညွှန်းစာသားပြင်ဆင်</string>
@@ -76,7 +75,6 @@
     <string name="menu_dismiss_note" maxLength="41">ဖျောက်ထား /
 ဖျက်ပါ</string>
     <string name="rename_flag">Rename flags</string>
-    <string name="menu_flag_card" maxLength="28">ကဒ်အလံ</string>
     <string name="menu_edit_tags" maxLength="28">ကတ်ပြားပြင်ဆင်</string>
     <string name="delete_note_message">မှတ်စု နဲ့ ကတ်တွေဖြတ်မှာကျိန်းသေလား\n%s</string>
     <string name="menu_search" maxLength="28">%1$s တိုးတက်လာ</string>

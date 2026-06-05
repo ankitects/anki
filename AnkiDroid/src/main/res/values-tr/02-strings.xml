@@ -130,7 +130,6 @@
     <string name="preview_progress_bar_text" comment="What card we are on out of how many in card previewer progress bar">%2$d içinden %1$d tanesi</string>
     <string name="rename" comment="Confirm that the renaming action should be processed." maxLength="28">Yeniden adlandır</string>
     <string name="checks_action" maxLength="28">Kontrol et</string>
-    <string name="empty_cards" maxLength="28">Boş kartlar</string>
     <string name="unknown_type_field_warning">Cevabı yaz: bilinmeyen alan %s</string>
     <string name="delete_deck" comment="Message on a progress bar starting a deck is being deleted.">Deste siliniyor&#8230;</string>
     <string name="info_rate">AnkiDroid\'e oy ver</string>
@@ -185,7 +184,6 @@
     <!-- The name of the deck which corrupt cards will be moved to -->
     <!-- Deckpicker Background -->
     <string name="background_image_title" maxLength="41">Arkaplan</string>
-    <string name="choose_an_image" maxLength="41">Bir resim seç</string>
     <string name="remove_wallpaper_image" maxLength="41">Arkaplanı kaldır</string>
     <string name="remove_background_image">Arkaplanı kaldırmak istediğinize emin misiniz?</string>
     <!-- Card Template Browser Appearance -->
@@ -352,7 +350,6 @@
     <string name="deck_picker_group" comment="Label for the group of shortcuts related to the deck picker">Deste Seçici</string>
     <string name="delete_deck_without_confirmation" comment="Description of the shortcut that deletes the deck without asking for confirmation">Desteyi onay sormadan sil</string>
     <string name="note_editor_group" comment="Label for the group of shortcuts related to the note editor">Not Düzenleyici</string>
-    <string name="select_deck" comment="Description of the shortcut that opens the deck selection dialog">Deste seç</string>
     <string name="select_note_type" comment="Description of the shortcut that shows the note selection spinner">Not türü seç</string>
     <string name="tag_editor" comment="Description of the shortcut that opens the tags dialog">Etiket düzenleyici</string>
     <string name="card_template_editor_group" comment="Label for the group of shortcuts related to the card template editor">Kart Şablonu Düzenleyici</string>

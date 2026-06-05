@@ -142,7 +142,6 @@
     <string name="preview_progress_bar_text" comment="What card we are on out of how many in card previewer progress bar">%1$d من %2$d</string>
     <string name="rename" comment="Confirm that the renaming action should be processed." maxLength="28">إعادة تسمية</string>
     <string name="checks_action" maxLength="28">تحقق</string>
-    <string name="empty_cards" maxLength="28">بطاقات فارغة</string>
     <string name="unknown_type_field_warning">إدخال الجواب: حقل مجهول %s</string>
     <string name="delete_deck" comment="Message on a progress bar starting a deck is being deleted.">جارٍ حذف الرزمة&#8230;</string>
     <string name="info_rate">قيِّم آنكي درويد</string>
@@ -197,7 +196,6 @@
     <!-- The name of the deck which corrupt cards will be moved to -->
     <!-- Deckpicker Background -->
     <string name="background_image_title" maxLength="41">الخلفية</string>
-    <string name="choose_an_image" maxLength="41">اختيار صورة</string>
     <string name="remove_wallpaper_image" maxLength="41">إزالة الخلفية</string>
     <string name="remove_background_image">ءأنت واثق من إزالة الخلفية؟</string>
     <!-- Card Template Browser Appearance -->
@@ -376,7 +374,6 @@
     <string name="deck_picker_group" comment="Label for the group of shortcuts related to the deck picker">مُخيِّر الرِزم</string>
     <string name="delete_deck_without_confirmation" comment="Description of the shortcut that deletes the deck without asking for confirmation">إحذف الرزم بلا تأكيد</string>
     <string name="note_editor_group" comment="Label for the group of shortcuts related to the note editor">محرر الملحوظات</string>
-    <string name="select_deck" comment="Description of the shortcut that opens the deck selection dialog">اختيار رِزمة</string>
     <string name="select_note_type" comment="Description of the shortcut that shows the note selection spinner">إختر نوع الملحوظة</string>
     <string name="tag_editor" comment="Description of the shortcut that opens the tags dialog">محرر الوسوم</string>
     <string name="card_template_editor_group" comment="Label for the group of shortcuts related to the card template editor">محرر قوالب البطاقات</string>

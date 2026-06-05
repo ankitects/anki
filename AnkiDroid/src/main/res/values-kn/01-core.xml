@@ -69,7 +69,6 @@
     <!-- flashcard_portrait.xml -->
     <string name="undo_action_whiteboard_last_stroke" comment="One of the display patterns of \'Undo\' item on the action menu in the Study Screen. It is shown as the title of the item when the whiteboard (handwriting) feature is enabled and visible and has any strokes (handwritten lines)" maxLength="28">ಸ್ಟ್ರೋಕ್ ರದ್ದುಗೊಳಿಸಿ</string>
     <string name="move_all_to_deck">ಎಲ್ಲವನ್ನೂ ಡೆಕ್‌ಗೆ ಸರಿಸಿ</string>
-    <string name="rename_deck" maxLength="28">ಸಂಗ್ರಹಣೆಗೆ ಮರುಹೆಸರಿಸಿ</string>
     <string name="create_shortcut">ಕಿರುದಾರಿ ರಚಿಸಿ</string>
     <string name="browse_cards">ಕಾರ್ಡ್‌ಗಳನ್ನು ಬ್ರೌಸ್ ಮಾಡಿ</string>
     <string name="edit_deck_description" comment="edit the deck description">ವಿವರಣೆಯನ್ನು ಸಂಪಾದಿಸಿ</string>
@@ -78,7 +77,6 @@
     <string name="menu_my_account" comment="Label of the window in which the user should enter their account. This text can\'t be found in AnkiDroid directly.">ಖಾತೆಯನ್ನು ಸಿಂಕ್ ಮಾಡಿ</string>
     <string name="menu_dismiss_note" maxLength="41">ಮರೆಮಾಡು / ಅಳಿಸಿ</string>
     <string name="rename_flag">Rename flags</string>
-    <string name="menu_flag_card" maxLength="28">ಫ್ಲ್ಯಾಗ್ ಕಾರ್ಡ್</string>
     <string name="menu_edit_tags" maxLength="28">ಟ್ಯಾಗ್‌ಗಳನ್ನು ಸಂಪಾದಿಸಿ</string>
     <string name="delete_note_message">ಈ ಟಿಪ್ಪಣಿ ಮತ್ತು ಅದರ ಎಲ್ಲಾ ಕಾರ್ಡ್‌ಗಳನ್ನು ನಿಜವಾಗಿಯೂ ಅಳಿಸಿ? \n%s</string>
     <string name="menu_search" maxLength="28">%1$s ನಲ್ಲಿ ಹುಡುಕಿ</string>

@@ -130,7 +130,6 @@
     <string name="preview_progress_bar_text" comment="What card we are on out of how many in card previewer progress bar">%1$d ennyiből %2$d</string>
     <string name="rename" comment="Confirm that the renaming action should be processed." maxLength="28">Átnevezés</string>
     <string name="checks_action" maxLength="28">Ellenőrzés</string>
-    <string name="empty_cards" maxLength="28">Üres kártyák listája</string>
     <string name="unknown_type_field_warning">Válaszadás: ismeretlen mező: %s</string>
     <string name="delete_deck" comment="Message on a progress bar starting a deck is being deleted.">Pakli törlése&#8230;\nKérlek, várj&#8230;</string>
     <string name="info_rate">AnkiDroid értékelése</string>
@@ -185,7 +184,6 @@
     <!-- The name of the deck which corrupt cards will be moved to -->
     <!-- Deckpicker Background -->
     <string name="background_image_title" maxLength="41">Háttér</string>
-    <string name="choose_an_image" maxLength="41">Válasszon egy képet</string>
     <string name="remove_wallpaper_image" maxLength="41">Háttérkép eltávolítása</string>
     <string name="remove_background_image">Are you sure you wish to remove the background?</string>
     <!-- Card Template Browser Appearance -->
@@ -353,7 +351,6 @@
     <string name="deck_picker_group" comment="Label for the group of shortcuts related to the deck picker">Deck Picker</string>
     <string name="delete_deck_without_confirmation" comment="Description of the shortcut that deletes the deck without asking for confirmation">Delete deck without confirmation</string>
     <string name="note_editor_group" comment="Label for the group of shortcuts related to the note editor">Note Editor</string>
-    <string name="select_deck" comment="Description of the shortcut that opens the deck selection dialog">Select deck</string>
     <string name="select_note_type" comment="Description of the shortcut that shows the note selection spinner">Select note type</string>
     <string name="tag_editor" comment="Description of the shortcut that opens the tags dialog">Cimkeszerkesztő</string>
     <string name="card_template_editor_group" comment="Label for the group of shortcuts related to the card template editor">Kártyaszablon szerkesztő</string>
