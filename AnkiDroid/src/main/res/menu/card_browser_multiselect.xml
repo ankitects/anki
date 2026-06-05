@@ -93,6 +93,7 @@
     <item
         android:id="@+id/action_find_replace"
         app:showAsAction="never"
+        android:icon="@drawable/ic_find_replace"
         tools:title="Find and replace"
         />
 
