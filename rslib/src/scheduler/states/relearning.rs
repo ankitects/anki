@@ -208,12 +208,23 @@ mod tests {
     use super::super::steps::LearningSteps;
     use super::*;
     use crate::scheduler::states::NormalState;
+    use fsrs::{ItemState, MemoryState, NextStates as FsrsNextStates};
 
     // defaults_for_testing: relearn_steps=[10.0min=600s], lapse_multiplier=0.0,
     // minimum_lapse_interval=1, fuzz_factor=None (deterministic)
     //   remaining_steps=1 → only relearn step (10min = 600s)
     //   hard delay for single step = 150% of 600 = 900s
     //   good_delay_secs(1) = None → only 1 step, no next step
+
+    fn fsrs_states(again: f32, hard: f32, good: f32, easy: f32) -> FsrsNextStates {
+        let mem = MemoryState { stability: 4.0, difficulty: 5.0 };
+        FsrsNextStates {
+            again: ItemState { memory: mem, interval: again },
+            hard:  ItemState { memory: mem, interval: hard },
+            good:  ItemState { memory: mem, interval: good },
+            easy:  ItemState { memory: mem, interval: easy },
+        }
+    }
 
     fn relearn_state() -> RelearnState {
         RelearnState {
@@ -348,5 +359,126 @@ mod tests {
         } else {
             panic!("easy should produce a ReviewState");
         }
+    }
+
+    #[test]
+    fn again_fsrs_exits_to_review_with_algorithm_interval() {
+        let ctx = StateContext {
+            relearn_steps: LearningSteps::new(&[]),
+            fsrs_next_states: Some(fsrs_states(2.0, 3.0, 5.0, 7.0)),
+            ..StateContext::defaults_for_testing()
+        };
+        let state = relearn_state();
+        let states = state.next_states(&ctx);
+        // SM-2 without steps gives self.review (scheduled_days=3); FSRS gives again.interval=2
+        let CardState::Normal(NormalState::Review(r)) = states.again else {
+            panic!("expected Review, got: {:?}", states.again);
+        };
+        assert_eq!(r.scheduled_days, 2, "FSRS again should use algorithm interval (2d)");
+    }
+
+    #[test]
+    fn again_fsrs_short_term_stays_in_relearning() {
+        let ctx = StateContext {
+            relearn_steps: LearningSteps::new(&[]),
+            fsrs_next_states: Some(fsrs_states(0.2, 0.3, 0.4, 7.0)),
+            fsrs_allow_short_term: true,
+            ..StateContext::defaults_for_testing()
+        };
+        let state = relearn_state();
+        let states = state.next_states(&ctx);
+        // interval=0.2 < 0.5, fsrs_allow_short_term=true, relearn_steps empty
+        // → stays in Relearning with scheduled_secs = (0.2 * 86_400.0) as u32 = 17280
+        let CardState::Normal(NormalState::Relearning(r)) = states.again else {
+            panic!("expected Relearning, got: {:?}", states.again);
+        };
+        assert_eq!(r.learning.scheduled_secs, 17280);
+    }
+
+    #[test]
+    fn hard_fsrs_exits_to_review_with_algorithm_interval() {
+        let ctx = StateContext {
+            relearn_steps: LearningSteps::new(&[]),
+            fsrs_next_states: Some(fsrs_states(2.0, 3.0, 5.0, 7.0)),
+            ..StateContext::defaults_for_testing()
+        };
+        let state = relearn_state();
+        let states = state.next_states(&ctx);
+        // SM-2 without steps gives self.review (scheduled_days=3); FSRS gives hard.interval=3
+        let CardState::Normal(NormalState::Review(r)) = states.hard else {
+            panic!("expected Review, got: {:?}", states.hard);
+        };
+        assert_eq!(r.scheduled_days, 3, "FSRS hard should use algorithm interval (3d)");
+    }
+
+    #[test]
+    fn hard_fsrs_short_term_stays_in_relearning() {
+        let ctx = StateContext {
+            relearn_steps: LearningSteps::new(&[]),
+            fsrs_next_states: Some(fsrs_states(0.2, 0.3, 0.4, 7.0)),
+            fsrs_allow_short_term: true,
+            ..StateContext::defaults_for_testing()
+        };
+        let state = relearn_state();
+        let states = state.next_states(&ctx);
+        // interval=0.3 < 0.5, fsrs_allow_short_term=true, relearn_steps empty
+        // → stays in Relearning with scheduled_secs = (0.3 * 86_400.0) as u32 = 25920
+        let CardState::Normal(NormalState::Relearning(r)) = states.hard else {
+            panic!("expected Relearning, got: {:?}", states.hard);
+        };
+        assert_eq!(r.learning.scheduled_secs, 25920);
+    }
+
+    #[test]
+    fn good_fsrs_exits_to_review_with_algorithm_interval() {
+        let ctx = StateContext {
+            relearn_steps: LearningSteps::new(&[]),
+            fsrs_next_states: Some(fsrs_states(2.0, 3.0, 5.0, 7.0)),
+            ..StateContext::defaults_for_testing()
+        };
+        let state = relearn_state();
+        let states = state.next_states(&ctx);
+        // SM-2 without steps gives self.review (scheduled_days=3); FSRS gives good.interval=5
+        let CardState::Normal(NormalState::Review(r)) = states.good else {
+            panic!("expected Review, got: {:?}", states.good);
+        };
+        assert_eq!(r.scheduled_days, 5, "FSRS good should use algorithm interval (5d)");
+    }
+
+    #[test]
+    fn good_fsrs_short_term_stays_in_relearning() {
+        let ctx = StateContext {
+            relearn_steps: LearningSteps::new(&[]),
+            fsrs_next_states: Some(fsrs_states(0.2, 0.3, 0.4, 7.0)),
+            fsrs_allow_short_term: true,
+            ..StateContext::defaults_for_testing()
+        };
+        let state = relearn_state();
+        let states = state.next_states(&ctx);
+        // interval=0.4 < 0.5, fsrs_allow_short_term=true, relearn_steps empty
+        // → stays in Relearning with scheduled_secs = (0.4 * 86_400.0) as u32 = 34560
+        let CardState::Normal(NormalState::Relearning(r)) = states.good else {
+            panic!("expected Relearning, got: {:?}", states.good);
+        };
+        assert_eq!(r.learning.scheduled_secs, 34560);
+    }
+
+    #[test]
+    fn easy_fsrs_uses_algorithm_interval_not_plus_one() {
+        let ctx = StateContext {
+            // easy.interval=7: clamped above good(3)+1=4 minimum → 7 days
+            fsrs_next_states: Some(fsrs_states(1.0, 2.0, 3.0, 7.0)),
+            ..StateContext::defaults_for_testing()
+        };
+        let state = relearn_state(); // review.scheduled_days = 3
+        let states = state.next_states(&ctx);
+        // SM-2 would give 3 + 1 = 4 days; FSRS should give easy.interval = 7 days
+        let CardState::Normal(NormalState::Review(r)) = states.easy else {
+            panic!("easy should produce a ReviewState, got: {:?}", states.easy);
+        };
+        assert_eq!(
+            r.scheduled_days, 7,
+            "FSRS easy should use algorithm interval (7d), not scheduled_days+1 (4d)"
+        );
     }
 }
