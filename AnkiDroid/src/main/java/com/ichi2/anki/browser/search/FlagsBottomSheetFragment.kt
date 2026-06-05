@@ -23,7 +23,6 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.annotation.DrawableRes
 import androidx.core.os.BundleCompat
-import androidx.core.os.bundleOf
 import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.activityViewModels
 import androidx.recyclerview.widget.RecyclerView
@@ -176,7 +175,7 @@ class FlagsBottomSheetFragment : BottomSheetDialogFragment(R.layout.fragment_bot
                         FlagUiModel(it, label = userDefinedNames.getValue(it))
                     }
 
-                arguments = bundleOf(ARG_FLAGS to ArrayList(flags))
+                arguments = Bundle().apply { putParcelableArrayList(ARG_FLAGS, ArrayList(flags)) }
             }
     }
 }

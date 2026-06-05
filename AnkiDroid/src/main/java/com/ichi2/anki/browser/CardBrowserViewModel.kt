@@ -22,7 +22,6 @@ import android.os.Parcelable
 import androidx.annotation.CheckResult
 import androidx.core.content.edit
 import androidx.core.os.BundleCompat
-import androidx.core.os.bundleOf
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.createSavedStateHandle
@@ -602,9 +601,9 @@ class CardBrowserViewModel(
 
     @VisibleForTesting // far too complicated to mock setSavedStateProvider
     fun generateExpensiveSavedState() =
-        bundleOf(
-            STATE_MULTISELECT_VALUES to IdsFile(cacheDir, selectedRows.map { it.cardOrNoteId }, "multiselect-values"),
-        )
+        Bundle().apply {
+            putParcelable(STATE_MULTISELECT_VALUES, IdsFile(cacheDir, selectedRows.map { it.cardOrNoteId }, "multiselect-values"))
+        }
 
     /**
      * Called if `onCreate` is called again, which may be due to the collection being reopened

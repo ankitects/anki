@@ -21,7 +21,6 @@ import android.os.Parcelable
 import android.view.View
 import android.view.ViewGroup
 import androidx.core.os.BundleCompat
-import androidx.core.os.bundleOf
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -350,9 +349,9 @@ class AdvancedSearchFragment : Fragment(R.layout.fragment_advanced_search) {
             fun createInstance(data: List<OptionData>) =
                 SelectAdvancedSearchFragment().apply {
                     arguments =
-                        bundleOf(
-                            ARG_OPTION_DATA to ArrayList(data),
-                        )
+                        Bundle().apply {
+                            putParcelableArrayList(ARG_OPTION_DATA, ArrayList(data))
+                        }
                 }
         }
     }

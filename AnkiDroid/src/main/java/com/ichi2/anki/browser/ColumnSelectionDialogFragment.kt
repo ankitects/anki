@@ -24,7 +24,6 @@ import android.widget.LinearLayout
 import android.widget.ListView
 import androidx.appcompat.app.AlertDialog
 import androidx.core.os.BundleCompat
-import androidx.core.os.bundleOf
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
@@ -140,7 +139,7 @@ class ColumnSelectionDialogFragment : DialogFragment() {
 
         fun newInstance(selectedColumn: ColumnHeading): ColumnSelectionDialogFragment =
             ColumnSelectionDialogFragment().apply {
-                arguments = bundleOf(SELECTED_COLUMN to selectedColumn)
+                arguments = Bundle().apply { putParcelable(SELECTED_COLUMN, selectedColumn) }
             }
     }
 }
