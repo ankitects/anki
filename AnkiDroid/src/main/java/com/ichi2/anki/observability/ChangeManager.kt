@@ -204,6 +204,10 @@ object ChangeManager {
         notifySubscribers(ALL, handler)
     }
 
+    fun publishAllValuesChanged(handler: Any? = null) {
+        publish(ALL, handler)
+    }
+
     /**
      * An OpChanges that ensures that all data should be considered as potentially changed.
      */
