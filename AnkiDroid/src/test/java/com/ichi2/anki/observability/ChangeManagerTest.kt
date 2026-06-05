@@ -121,9 +121,9 @@ class ChangeManagerPublishTest : JvmTest() {
             val counter1 = subscriberChangeCounter()
             val counter2 = subscriberChangeCounter()
 
-            ChangeManager.publish(ChangeManager.ALL)
+            ChangeManager.publishAllValuesChanged()
 
-            assertThat("not notified synchronously by publish", counter1.hasChanges, equalTo(false))
+            assertThat("not notified synchronously by publishAllValuesChanged", counter1.hasChanges, equalTo(false))
 
             advanceUntilIdle()
 

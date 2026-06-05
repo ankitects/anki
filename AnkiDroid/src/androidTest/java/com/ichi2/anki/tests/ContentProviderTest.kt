@@ -24,9 +24,11 @@ import android.database.Cursor
 import android.database.CursorWindow
 import android.net.Uri
 import anki.cards.FsrsMemoryState
+import anki.collection.OpChanges
 import anki.notetypes.StockNotetype
 import com.ichi2.anki.CollectionManager
 import com.ichi2.anki.FlashCardsContract
+import com.ichi2.anki.common.time.TimeManager
 import com.ichi2.anki.common.utils.annotation.KotlinCleanup
 import com.ichi2.anki.common.utils.emptyStringArray
 import com.ichi2.anki.libanki.Card
@@ -44,6 +46,7 @@ import com.ichi2.anki.libanki.backend.BackendUtils
 import com.ichi2.anki.libanki.exception.ConfirmModSchemaException
 import com.ichi2.anki.libanki.getStockNotetype
 import com.ichi2.anki.libanki.sched.Scheduler
+import com.ichi2.anki.observability.ChangeManager
 import com.ichi2.anki.provider.pureAnswer
 import com.ichi2.anki.testutil.DatabaseUtils.cursorFillWindow
 import com.ichi2.anki.testutil.GrantStoragePermission.storagePermission
@@ -70,6 +73,7 @@ import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import timber.log.Timber
+import kotlin.test.assertFailsWith
 import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
 import kotlin.test.junit.JUnitAsserter.assertNotNull
@@ -2460,6 +2464,160 @@ class ContentProviderTest : InstrumentedTest() {
         Timber.i("closeCollection: %s", "ContentProviderTest: reopenCol")
         CollectionManager.closeCollectionBlocking()
         return col
+    }
+
+    @Test
+    fun testInsertNotifiesUI() {
+        val counter = TestSubscriber()
+        ChangeManager.subscribe(counter)
+        try {
+            val mid = noteTypeId
+            val noteType = col.notetypes.get(mid)!!
+            val fieldCount = noteType.fields.length()
+            val emptyFields = Array(fieldCount) { "" }.joinToString(separator = "\u001f")
+
+            val values =
+                ContentValues().apply {
+                    put(FlashCardsContract.Note.MID, mid)
+                    put(FlashCardsContract.Note.FLDS, emptyFields)
+                }
+
+            contentResolver.insert(FlashCardsContract.Note.CONTENT_URI, values)
+            assertNotificationReceived(counter)
+        } finally {
+            ChangeManager.unsubscribe(counter)
+        }
+    }
+
+    @Test
+    fun testUpdateNotifiesUI() {
+        val noteId = createdNotes.first().lastPathSegment!!.toLong()
+        val uri = Uri.withAppendedPath(FlashCardsContract.Note.CONTENT_URI, noteId.toString())
+        val values =
+            ContentValues().apply {
+                put(FlashCardsContract.Note.TAGS, "new_tag")
+            }
+        val counter = TestSubscriber()
+        ChangeManager.subscribe(counter)
+        try {
+            contentResolver.update(uri, values, null, null)
+            assertNotificationReceived(counter)
+        } finally {
+            ChangeManager.unsubscribe(counter)
+        }
+    }
+
+    @Test
+    fun testUpdateNonExistentNoteDoesNotNotifyUI() {
+        val counter = TestSubscriber()
+        ChangeManager.subscribe(counter)
+        try {
+            val values =
+                ContentValues().apply {
+                    put(FlashCardsContract.Note.TAGS, "new_tag")
+                }
+            val uri = Uri.withAppendedPath(FlashCardsContract.Note.CONTENT_URI, "999999")
+
+            assertFailsWith<Exception> {
+                contentResolver.update(uri, values, null, null)
+            }
+
+            Thread.sleep(1000)
+            assertEquals("UI should not be notified if update is failed", 0, counter.count)
+        } finally {
+            ChangeManager.unsubscribe(counter)
+        }
+    }
+
+    @Test
+    fun testDeleteNotifiesUI() {
+        val noteId = createdNotes.first().lastPathSegment!!.toLong()
+        val uri = Uri.withAppendedPath(FlashCardsContract.Note.CONTENT_URI, noteId.toString())
+        val counter = TestSubscriber()
+        ChangeManager.subscribe(counter)
+        try {
+            contentResolver.delete(uri, null, null)
+            assertNotificationReceived(counter)
+        } finally {
+            ChangeManager.unsubscribe(counter)
+        }
+    }
+
+    @Test
+    fun testDeleteNonExistentNoteDoesNotNotifyUI() {
+        val counter = TestSubscriber()
+        ChangeManager.subscribe(counter)
+        try {
+            val uri = Uri.withAppendedPath(FlashCardsContract.Note.CONTENT_URI, "999999")
+            val deletedCount = contentResolver.delete(uri, null, null)
+            assertEquals("It should return 0 for non-existent note", 0, deletedCount)
+
+            Thread.sleep(1000)
+            assertEquals("UI should not be notify if nothing was deleted", 0, counter.count)
+        } finally {
+            ChangeManager.unsubscribe(counter)
+        }
+    }
+
+    @Test
+    fun testBulkInsertNotifiesUI() {
+        val counter = TestSubscriber()
+        ChangeManager.subscribe(counter)
+        try {
+            val mid = noteTypeId
+            val noteType = col.notetypes.get(mid)!!
+            val fieldCount = noteType.fields.length()
+            val emptyFields = Array(fieldCount) { "" }.joinToString(separator = "\u001f")
+
+            val values =
+                arrayOf(
+                    ContentValues().apply {
+                        put(FlashCardsContract.Note.MID, mid)
+                        put(FlashCardsContract.Note.FLDS, emptyFields)
+                    },
+                )
+
+            contentResolver.bulkInsert(FlashCardsContract.Note.CONTENT_URI, values)
+            assertNotificationReceived(counter)
+        } finally {
+            ChangeManager.unsubscribe(counter)
+        }
+    }
+
+    @Test
+    fun testBulkInsertEmptyListDoesNotNotifyUI() {
+        val counter = TestSubscriber()
+        ChangeManager.subscribe(counter)
+        try {
+            contentResolver.bulkInsert(FlashCardsContract.Note.CONTENT_URI, emptyArray())
+
+            Thread.sleep(1000)
+            assertEquals("UI should not be notified for empty bulk insert", 0, counter.count)
+        } finally {
+            ChangeManager.unsubscribe(counter)
+        }
+    }
+
+    // TODO: PERF: use TestChangeSubscriber once we've moved to testFixtures
+    private class TestSubscriber : ChangeManager.Subscriber {
+        var count = 0
+
+        override fun opExecuted(
+            changes: OpChanges,
+            handler: Any?,
+        ) {
+            count++
+        }
+    }
+
+    private fun assertNotificationReceived(subscriber: TestSubscriber) {
+        val timeout = 5000L
+        val startTime = TimeManager.time.intTimeMS()
+        while (subscriber.count == 0 && TimeManager.time.intTimeMS() - startTime < timeout) {
+            Thread.sleep(100)
+        }
+
+        assertTrue("UI should be notified of the change", subscriber.count > 0)
     }
 
     private val contentResolver: ContentResolver
