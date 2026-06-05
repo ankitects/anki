@@ -61,10 +61,12 @@
 
     <item
         android:id="@+id/action_reschedule_cards"
+        android:icon="@drawable/ic_reschedule"
         tools:title="Set due date" />
 
     <item
         android:id="@+id/action_edit_tags"
+        android:icon="@drawable/ic_tag"
         android:title="@string/menu_edit_tags"/>
 
     <item
@@ -73,6 +75,7 @@
 
     <item
         android:id="@+id/action_reset_cards_progress"
+        android:icon="@drawable/ic_backup_restore"
         android:title="@string/card_editor_reset_card"/>
 
     <!-- TODO: ankidroid:showAsAction="ifRoom" once 'no hamburger' padding issues are resolved -->
