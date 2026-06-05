@@ -1047,9 +1047,9 @@ hooks = [
             An example add-on that asks the user for confirmation before adding a
             card without tags:
 
-            def might_reject_empty_tag(optional_problems, note):
-                if not any(note.tags):
-                    optional_problems.append("Add cards without tags?")
+                def might_reject_empty_tag(optional_problems, note):
+                    if not any(note.tags):
+                        optional_problems.append("Add cards without tags?")
         """,
     ),
     Hook(

@@ -193,19 +193,22 @@ title.
 **Args:** `overview: aqt.overview.Overview`, `content: aqt.overview.OverviewContent`
 
 Used to modify HTML content sections in the overview body
+```python
+'content' contains the sections of HTML content the overview body
+will be updated with.
 
-        'content' contains the sections of HTML content the overview body
-        will be updated with.
+When modifying the content of a particular section, please make sure your
+changes only perform the minimum required edits to make your add-on work.
+You should avoid overwriting or interfering with existing data as much
+as possible, instead opting to append your own changes, e.g.:
 
-        When modifying the content of a particular section, please make sure your
-        changes only perform the minimum required edits to make your add-on work.
-        You should avoid overwriting or interfering with existing data as much
-        as possible, instead opting to append your own changes, e.g.:
-
-            def on_overview_will_render_content(overview, content):
-                content.table += "
+    def on_overview_will_render_content(overview, content):
+        content.table += "
+```
 &lt;div&gt;my html&lt;/div&gt;"
+```python
 
+```
 
 ---
 
@@ -229,9 +232,11 @@ that trigger, and return the new link_handler.
 Example:
 links.append(['H', 'hello', 'Click me!'])
 def custom_link_handler(url):
-    if url == 'hello':
-        print('Hello World!')
-    return link_handler(url=url)
+```python
+if url == 'hello':
+    print('Hello World!')
+return link_handler(url=url)
+```
 return custom_link_handler
 
 ---
@@ -298,10 +303,14 @@ tuple containing an int for the button's ease and a string for the
 button's label.
 
 Return a tuple of the form ((int, str), ...), e.g.:
-    ((1, "Label1"), (2, "Label2"), ...)
+```python
+((1, "Label1"), (2, "Label2"), ...)
+```
 
 Note: import _ from anki.lang to support translation, using, e.g.,
-    ((1, _("Label1")), ...)
+```python
+((1, _("Label1")), ...)
+```
 
 ---
 
@@ -525,9 +534,10 @@ When modifying the content of a particular section, please make sure your
 changes only perform the minimum required edits to make your add-on work.
 You should avoid overwriting or interfering with existing data as much
 as possible, instead opting to append your own changes, e.g.:
-
-    def on_deck_browser_will_render_content(deck_browser, content):
-        content.stats += "\n&lt;div&gt;my html&lt;/div&gt;"
+```python
+def on_deck_browser_will_render_content(deck_browser, content):
+    content.stats += "\n&lt;div&gt;my html&lt;/div&gt;"
+```
 
 ---
 
@@ -715,18 +725,19 @@ populated by any of the other construction stages. For any other stage
 the tree construction will just continue as usual.
 
 For example, if your code wishes to replace the tag tree, you could do:
+```python
+def on_browser_will_build_tree(handled, root, stage, browser):
+    if stage != SidebarStage.TAGS:
+        # not at tag tree building stage, pass on
+        return handled
 
-    def on_browser_will_build_tree(handled, root, stage, browser):
-        if stage != SidebarStage.TAGS:
-            # not at tag tree building stage, pass on
-            return handled
+    # your tag tree construction code
+    # root.addChild(...)
 
-        # your tag tree construction code
-        # root.addChild(...)
-
-        # your code handled tag tree construction, no need for Anki
-        # or other add-ons to build the tag tree
-        return True
+    # your code handled tag tree construction, no need for Anki
+    # or other add-ons to build the tag tree
+    return True
+```
 
 ---
 
@@ -931,19 +942,20 @@ Context is the instance that was passed to set_bridge_command().
 It can be inspected to check which screen this hook is firing
 in, and to get a reference to the screen. For example, if your
 code wishes to function only in the review screen, you could do:
+```python
+if not isinstance(context, aqt.reviewer.Reviewer):
+    # not reviewer, pass on message
+    return handled
 
-    if not isinstance(context, aqt.reviewer.Reviewer):
-        # not reviewer, pass on message
-        return handled
-
-    if message == "my-mark-action":
-        # our message, call onMark() on the reviewer instance
-        context.onMark()
-        # and don't pass message to other handlers
-        return (True, None)
-    else:
-        # some other command, pass it on
-        return handled
+if message == "my-mark-action":
+    # our message, call onMark() on the reviewer instance
+    context.onMark()
+    # and don't pass message to other handlers
+    return (True, None)
+else:
+    # some other command, pass it on
+    return handled
+```
 
 ---
 
@@ -960,26 +972,27 @@ Context is the instance that was passed to stdHtml().
 It can be inspected to check which screen this hook is firing
 in, and to get a reference to the screen. For example, if your
 code wishes to function only in the review screen, you could do:
+```python
+def on_webview_will_set_content(web_content: WebContent, context):
 
-    def on_webview_will_set_content(web_content: WebContent, context):
+    if not isinstance(context, aqt.reviewer.Reviewer):
+        # not reviewer, do not modify content
+        return
 
-        if not isinstance(context, aqt.reviewer.Reviewer):
-            # not reviewer, do not modify content
-            return
+    # reviewer, perform changes to content
 
-        # reviewer, perform changes to content
+    context: aqt.reviewer.Reviewer
 
-        context: aqt.reviewer.Reviewer
+    addon_package = mw.addonManager.addonFromModule(__name__)
 
-        addon_package = mw.addonManager.addonFromModule(__name__)
+    web_content.css.append(
+        f"/_addons/{addon_package}/web/my-addon.css")
+    web_content.js.append(
+        f"/_addons/{addon_package}/web/my-addon.js")
 
-        web_content.css.append(
-            f"/_addons/{addon_package}/web/my-addon.css")
-        web_content.js.append(
-            f"/_addons/{addon_package}/web/my-addon.js")
-
-        web_content.head += "&lt;script&gt;console.log('my-addon')&lt;/script&gt;"
-        web_content.body += "&lt;div id='my-addon'&gt;&lt;/div&gt;"
+    web_content.head += "&lt;script&gt;console.log('my-addon')&lt;/script&gt;"
+    web_content.body += "&lt;div id='my-addon'&gt;&lt;/div&gt;"
+```
 
 ---
 
@@ -1002,15 +1015,17 @@ mutate the DOM before the page is revealed.
 For example:
 
 def mytest(webview: AnkiWebView):
-    if webview.kind != AnkiWebViewKind.DECK_STATS:
-        return
-    webview.eval(
-        """
-        div = document.createElement("div");
-        div.innerHTML = 'hello';
-        document.body.appendChild(div);
-        """
-    )
+```python
+if webview.kind != AnkiWebViewKind.DECK_STATS:
+    return
+webview.eval(
+    """
+    div = document.createElement("div");
+    div.innerHTML = 'hello';
+    document.body.appendChild(div);
+    """
+)
+```
 
 gui_hooks.webview_did_inject_style_into_page.append(mytest)
 
@@ -1123,10 +1138,11 @@ Used to modify or add links in the top toolbar of Anki's main window
 'links' is a list of HTML link elements. Add-ons can generate their own links
 by using aqt.toolbar.Toolbar.create_link. Links created in that way can then be
 appended to the link list, e.g.:
-
-    def on_top_toolbar_did_init_links(links, toolbar):
-        my_link = toolbar.create_link(...)
-        links.append(my_link)
+```python
+def on_top_toolbar_did_init_links(links, toolbar):
+    my_link = toolbar.create_link(...)
+    links.append(my_link)
+```
 
 ---
 
@@ -1250,12 +1266,13 @@ Called before collection and deck exports.
 Allows add-ons to be notified of impending deck exports and potentially
 modify the export options. To perform the export unaltered, please return
 `export_options` as is, e.g.:
-
-    def on_exporter_will_export(export_options: ExportOptions, exporter: Exporter):
-        if not isinstance(exporter, ApkgExporter):
-            return export_options
-        export_options.limit = ...
+```python
+def on_exporter_will_export(export_options: ExportOptions, exporter: Exporter):
+    if not isinstance(exporter, ApkgExporter):
         return export_options
+    export_options.limit = ...
+    return export_options
+```
 
 ---
 
@@ -1355,10 +1372,11 @@ it should append the reason to the list.
 
 An example add-on that asks the user for confirmation before adding a
 card without tags:
-
+```python
 def might_reject_empty_tag(optional_problems, note):
     if not any(note.tags):
         optional_problems.append("Add cards without tags?")
+```
 
 ---
 

@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import inspect
+import re
 import runpy
 import sys
 from pathlib import Path
@@ -19,7 +20,19 @@ def hooks(path: str) -> list[Any]:
 
 
 def doc(text: str | None) -> str:
-    return inspect.cleandoc(text or "") or "No docstring."
+    text = inspect.cleandoc(text or "")
+    if not text:
+        return "No docstring."
+
+    # Convert tab-indented blocks to ```python fences
+    text = re.sub(
+        r'(?:^|\n)((?:(?: {4}|\t|\n {4}).*(?:\n|$))+)',
+        lambda m: f'\n```python\n{inspect.cleandoc(m.group(1).replace(chr(9), ""))}\n```\n',
+        text,
+        flags=re.MULTILINE,
+    )
+
+    return text
 
 
 def safe(text: str) -> str:
