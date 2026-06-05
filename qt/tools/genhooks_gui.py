@@ -86,12 +86,12 @@ hooks = [
         that trigger, and return the new link_handler.
 
         Example:
-        links.append(['H', 'hello', 'Click me!'])
-        def custom_link_handler(url):
-            if url == 'hello':
-                print('Hello World!')
-            return link_handler(url=url)
-        return custom_link_handler
+            links.append(['H', 'hello', 'Click me!'])
+            def custom_link_handler(url):
+                if url == 'hello':
+                    print('Hello World!')
+                return link_handler(url=url)
+            return custom_link_handler
         """,
     ),
     Hook(
@@ -790,18 +790,18 @@ hooks = [
         
         For example:
         
-        def mytest(webview: AnkiWebView):
-            if webview.kind != AnkiWebViewKind.DECK_STATS:
-                return
-            webview.eval(
-                """
-                div = document.createElement("div");
-                div.innerHTML = 'hello';
-                document.body.appendChild(div);
-                """
-            )
-        
-        gui_hooks.webview_did_inject_style_into_page.append(mytest)
+            def mytest(webview: AnkiWebView):
+                if webview.kind != AnkiWebViewKind.DECK_STATS:
+                    return
+                webview.eval(
+                    """
+                    div = document.createElement("div");
+                    div.innerHTML = 'hello';
+                    document.body.appendChild(div);
+                    """
+                )
+            
+            gui_hooks.webview_did_inject_style_into_page.append(mytest)
         ''',
     ),
     # Main
