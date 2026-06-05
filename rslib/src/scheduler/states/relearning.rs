@@ -205,10 +205,13 @@ impl RelearnState {
 
 #[cfg(test)]
 mod tests {
+    use fsrs::ItemState;
+    use fsrs::MemoryState;
+    use fsrs::NextStates as FsrsNextStates;
+
     use super::super::steps::LearningSteps;
     use super::*;
     use crate::scheduler::states::NormalState;
-    use fsrs::{ItemState, MemoryState, NextStates as FsrsNextStates};
 
     // defaults_for_testing: relearn_steps=[10.0min=600s], lapse_multiplier=0.0,
     // minimum_lapse_interval=1, fuzz_factor=None (deterministic)
@@ -217,12 +220,27 @@ mod tests {
     //   good_delay_secs(1) = None → only 1 step, no next step
 
     fn fsrs_states(again: f32, hard: f32, good: f32, easy: f32) -> FsrsNextStates {
-        let mem = MemoryState { stability: 4.0, difficulty: 5.0 };
+        let mem = MemoryState {
+            stability: 4.0,
+            difficulty: 5.0,
+        };
         FsrsNextStates {
-            again: ItemState { memory: mem, interval: again },
-            hard:  ItemState { memory: mem, interval: hard },
-            good:  ItemState { memory: mem, interval: good },
-            easy:  ItemState { memory: mem, interval: easy },
+            again: ItemState {
+                memory: mem,
+                interval: again,
+            },
+            hard: ItemState {
+                memory: mem,
+                interval: hard,
+            },
+            good: ItemState {
+                memory: mem,
+                interval: good,
+            },
+            easy: ItemState {
+                memory: mem,
+                interval: easy,
+            },
         }
     }
 
@@ -263,11 +281,15 @@ mod tests {
         let state = relearn_state(); // review.scheduled_days = 3
         let current_scheduled_days = state.review.scheduled_days;
         let states = state.next_states(&ctx);
-        // failing_review_interval: 3 * lapse_multiplier(0.0) = 0, clamped to minimum_lapse_interval(1) → 1
+        // failing_review_interval: 3 * lapse_multiplier(0.0) = 0, clamped to
+        // minimum_lapse_interval(1) → 1
         assert_eq!(current_scheduled_days, 3);
 
         let CardState::Normal(NormalState::Relearning(relearn)) = states.again else {
-            panic!("again should produce a RelearnState, got: {:?}", states.again);
+            panic!(
+                "again should produce a RelearnState, got: {:?}",
+                states.again
+            );
         };
 
         assert_eq!(
@@ -370,11 +392,15 @@ mod tests {
         };
         let state = relearn_state();
         let states = state.next_states(&ctx);
-        // SM-2 without steps gives self.review (scheduled_days=3); FSRS gives again.interval=2
+        // SM-2 without steps gives self.review (scheduled_days=3); FSRS gives
+        // again.interval=2
         let CardState::Normal(NormalState::Review(r)) = states.again else {
             panic!("expected Review, got: {:?}", states.again);
         };
-        assert_eq!(r.scheduled_days, 2, "FSRS again should use algorithm interval (2d)");
+        assert_eq!(
+            r.scheduled_days, 2,
+            "FSRS again should use algorithm interval (2d)"
+        );
     }
 
     #[test]
@@ -404,11 +430,15 @@ mod tests {
         };
         let state = relearn_state();
         let states = state.next_states(&ctx);
-        // SM-2 without steps gives self.review (scheduled_days=3); FSRS gives hard.interval=3
+        // SM-2 without steps gives self.review (scheduled_days=3); FSRS gives
+        // hard.interval=3
         let CardState::Normal(NormalState::Review(r)) = states.hard else {
             panic!("expected Review, got: {:?}", states.hard);
         };
-        assert_eq!(r.scheduled_days, 3, "FSRS hard should use algorithm interval (3d)");
+        assert_eq!(
+            r.scheduled_days, 3,
+            "FSRS hard should use algorithm interval (3d)"
+        );
     }
 
     #[test]
@@ -438,11 +468,15 @@ mod tests {
         };
         let state = relearn_state();
         let states = state.next_states(&ctx);
-        // SM-2 without steps gives self.review (scheduled_days=3); FSRS gives good.interval=5
+        // SM-2 without steps gives self.review (scheduled_days=3); FSRS gives
+        // good.interval=5
         let CardState::Normal(NormalState::Review(r)) = states.good else {
             panic!("expected Review, got: {:?}", states.good);
         };
-        assert_eq!(r.scheduled_days, 5, "FSRS good should use algorithm interval (5d)");
+        assert_eq!(
+            r.scheduled_days, 5,
+            "FSRS good should use algorithm interval (5d)"
+        );
     }
 
     #[test]
