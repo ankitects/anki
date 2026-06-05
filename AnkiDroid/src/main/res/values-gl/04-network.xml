@@ -38,7 +38,7 @@
     <string name="sign_up_not_affiliated">Nota: AnkiWeb non está afiliada a AnkiDroid</string>
     <string name="sign_up">Rexistrarse</string>
     <string name="logged_as">Conectado como</string>
-    <string name="reset_password">Restablecer contrasinal</string>
+    <string name="reset_password">Restabelecer contrasinal</string>
     <string name="lost_mail_instructions">Esqueciches o correo electrónico?</string>
     <string name="sign_in">Accedendo</string>
     <!-- AndroidManifest.xml -->

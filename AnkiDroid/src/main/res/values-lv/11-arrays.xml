@@ -30,8 +30,8 @@
     <string name="add_to_deck_decide_by_note_type">Izlemt pēc piezīmes veida</string>
     <!-- theme labels -->
     <string name="theme_follow_system">Izmantot sistēmas</string>
-    <string name="theme_day" comment="Day/Light theme color scheme">Day</string>
-    <string name="theme_night" comment="Night/Dark theme color scheme">Night</string>
+    <string name="theme_day" comment="Day/Light theme color scheme">Diena</string>
+    <string name="theme_night" comment="Night/Dark theme color scheme">Nakts</string>
     <!-- day_theme_labels -->
     <string name="day_theme_light">Gaišs</string>
     <string name="day_theme_plain">Vienkāršs</string>
@@ -63,7 +63,7 @@
     <string name="gesture_page_up" maxLength="41">Augšupšķirt</string>
     <string name="gesture_page_down" maxLength="41">Lejupšķirt</string>
     <string name="gesture_toggle_whiteboard" maxLength="41">Pārslēgt tāfeli</string>
-    <string name="gesture_toggle_eraser" maxLength="41">Toggle eraser</string>
+    <string name="gesture_toggle_eraser" maxLength="41">Pārslēgt dzēšgumiju</string>
     <string name="gesture_show_hint" maxLength="41">Parādīt mājienu</string>
     <string name="gesture_show_all_hints" maxLength="41">Parādīt visus mājienus</string>
     <string name="record_voice" maxLength="41">Ierakstīt balsi</string>

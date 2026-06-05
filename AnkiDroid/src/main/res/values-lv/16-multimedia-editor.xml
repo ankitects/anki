@@ -56,6 +56,6 @@
     <string name="crop_image_size_notice">Attēls ir pārāk liels, lai apcirpšanas redaktors to varētu apstrādāt. Lūgums mainīt tā izmēru un mēģināt vēlreiz.</string>
     <string name="reselect" maxLength="28">Atlasīt atkārtoti</string>
     <string name="waveform_button_description">Show audio waveform</string>
-    <string name="field_content_description">Show field content</string>
-    <string name="delete_audio_button_description">Delete recording</string>
+    <string name="field_content_description">Rādīt laika saturu</string>
+    <string name="delete_audio_button_description">Izdzēst ierakstu</string>
 </resources>

@@ -36,7 +36,7 @@
     <string name="model_browser_template">Labot kartītes</string>
     <!--Rename-->
     <string name="rename_model">Pārdēvēt piezīmju veidu</string>
-    <string name="rename_card_type" maxLength="28">Rename card type</string>
+    <string name="rename_card_type" maxLength="28">Pārdēvēt kartīšu veidu</string>
     <!--Language Hint-->
     <string name="model_field_editor_language_hint_dialog_success_result">Iestatīt valodas norādi %s</string>
     <!--Field Editing-->
@@ -47,8 +47,8 @@
     <string name="model_field_editor_changing">Atjaunina laukus</string>
     <string name="model_field_editor_sort_field">Kārtot pēc šī lauka</string>
     <!-- Card type -->
-    <string name="delete_card_type" maxLength="28">Delete card type</string>
-    <string name="add_card_type" maxLength="28">Add card type</string>
+    <string name="delete_card_type" maxLength="28">Izdzēst kartīšu veidu</string>
+    <string name="add_card_type" maxLength="28">Pievienot kartīšu veidu</string>
     <!--Warnings-->
     <string name="model_delete_warning">Vai tiešām izdzēst šo piezīmju veidu?</string>
     <!--
@@ -56,7 +56,7 @@
         Delete the note types below?
         Basic, Basic (and reversed card), Cloze
      -->
-    <string name="model_delete_multiple_warning">Delete the note types below?\n %s</string>
+    <string name="model_delete_multiple_warning">Izdzēst zemāk esošos piezīmju veidus?\n %s</string>
     <string name="field_delete_warning">Vai tiešām izdzēst šo lauku?</string>
     <!--Model Add Suffixes-->
     <string name="model_browser_add_add">Pievienot: %1$s</string>
@@ -64,9 +64,9 @@
     <string name="model_browser_add_clone">Pavairot: %1$s</string>
     <!--Browser Appearance-->
     <string name="card_template_browser_appearance_summary">Ievadīt veidni, ko kartīšu pārlūks izmantos, lai attēlotu kartītes. Tas ir izmantojams, lai attēlotu kodolīgāku atbildi.\n\nPriekšpuses veidne\n\"{{Valsts}} iedzīvotāju skaits\"\nkartīšu pārlūkā var saīsināt līdz\n\"Iedzīvotāji: {{Valsts}}\"</string>
-    <string name="card_template_browser_appearance_question_format">Question format</string>
-    <string name="card_template_browser_appearance_answer_format">Answer format</string>
-    <string name="card_template_browser_appearance_restore_default_dialog">Are you sure you want to restore the browser appearance to default?</string>
+    <string name="card_template_browser_appearance_question_format">Jautājuma veidols</string>
+    <string name="card_template_browser_appearance_answer_format">Atbildes veidols</string>
+    <string name="card_template_browser_appearance_restore_default_dialog">Vai tiešām atjaunot pārlūka izskatu uz noklusējumu?</string>
     <string name="card_template_browser_appearance_saving_note">Šīs izmaiņas tiek pielietotas, kad tiek saglabāta kartītes veidne</string>
     <!-- Deck Override -->
     <string name="card_template_editor_deck_override_on">Kavas aizvietošana (ieslēgta)</string>

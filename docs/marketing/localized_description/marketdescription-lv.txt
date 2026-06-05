@@ -1,6 +1,6 @@
 Iegaumē jebko ar AnkiDroid!
 
-AnkiDroid ļauj ļoti iedarbīgi apgūt zibkartītes, rādot tās tieši pirms tās tiks aizmirstas. It is fully compatible with the spaced repetition software Anki (including synchronization), which is available for Windows, Linux and macOS.
+AnkiDroid ļauj ļoti iedarbīgi apgūt zibkartītes, rādot tās tieši pirms tās tiks aizmirstas. Tā ir pilnībā saderīga ar izkliedētāts atkārtošanas programmatūru Anki (tostarp vienādošana), kas ir pieejama Windows, Linux un macOS.
 
 Apgūsti visāda veida zināšanas kur un kad vien vēlies! Lietderīgi izmanto dīkstāvē pavadīto laiku pārbraucienos ar sabiedrisko transportu, lielveikalu rindās vai jebkuros citos gadījumos, kuros jāgaida!
 

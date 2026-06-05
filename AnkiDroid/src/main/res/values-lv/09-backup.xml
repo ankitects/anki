@@ -30,7 +30,7 @@
     <string name="backup_del_collection">Izdzēst krājumu un izveidot jaunu</string>
     <string name="backup_del_collection_question">Izdzēst krājumu un izveidot jaunu? Tiks zaudēts visa apguves virzība un izdzēstas visas kartītes.</string>
     <string name="backup_one_way_sync_from_server">Vienvirziena vienādošana no servera</string>
-    <string name="backup_use_default_folder">Use default collection folder</string>
+    <string name="backup_use_default_folder">Izmantot noklusējuma krājumu mapi</string>
     <string name="backup_full_sync_from_server_question">Pārrakstīt krājumu no AnkiWeb? Tiks zaudēta visa apguves virzība un kopš pēdējās vienādošanas pievienotā informācija.</string>
     <string name="error_handling_title">Kļūdu apstrāde</string>
     <string name="error_handling_options" comment="In a warning message, the label of the suggested action that the user should take">Iespējas</string>

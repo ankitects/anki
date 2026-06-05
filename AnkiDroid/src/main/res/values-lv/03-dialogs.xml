@@ -62,14 +62,14 @@
     <string name="restore_backup_choose_another">Izvēlēties citu</string>
     <string name="dialog_cancel">Atcelt</string>
     <string name="dialog_ok">Labi</string>
-    <string name="dialog_add" comment="Positive dialog action button label to add \'something\'">Add</string>
-    <string name="restore">Restore</string>
+    <string name="dialog_add" comment="Positive dialog action button label to add \'something\'">Pievienot</string>
+    <string name="restore">Atjaunot</string>
     <string name="dialog_confirm" tools:ignore="UnusedResources">Apstiprināt</string>
     <string name="dialog_no">Nē</string>
     <string name="dialog_yes">Jā</string>
     <string name="dialog_keep">Paturēt</string>
     <string name="dialog_remove">Noņemt</string>
-    <string name="dialog_exit" comment="Label for a button which will exit/finish the current screen">Exit</string>
+    <string name="dialog_exit" comment="Label for a button which will exit/finish the current screen">Iziet</string>
     <string name="dialog_continue">Turpināt</string>
     <string name="dialog_processing">Apstrādā&#8230;</string>
     <string name="dialog_positive_create" comment="Create a new collection, probably erasing the previous one, may be necessary in case of error.">Izveidot</string>
@@ -84,7 +84,7 @@
     <string name="dialog_invalid_custom_certificate_title">Kļūda sertifikāta apstrādāšanā</string>
     <string name="dialog_updated_custom_certificate">Sertifikāts atjaunināts</string>
     <!-- Media checking -->
-    <string name="check_media_warning">This may take a long time with large media collections. Proceed?</string>
+    <string name="check_media_warning">Tas var aizņemt ilgu laiku, ja ir lieli informācijas nesēju krājumi. Turpināt?</string>
     <string name="check_media_message">Pārbauda informācijas nesējus&#8230;</string>
     <string name="check_media_adding_missing_tag">Pievieno birkas&#8230;</string>
     <string name="check_media_tags_added">Birkas pievienotas</string>
@@ -106,7 +106,7 @@
     <string name="multimedia_editor_failed">Neizdevās atvērt multimediju redaktoru</string>
     <!-- Multimedia - Audio View -->
     <string name="multimedia_editor_audio_permission_denied">Noraidīta skaņas ierakstīšanas atļauja</string>
-    <string name="permission_denied">Permission denied</string>
+    <string name="permission_denied">Atļauja noraidīta</string>
     <string name="recording_permission_denied_message">Microphone permission is necessary for the “Record voice” feature. Please grant it in the app settings.</string>
     <!-- Database Integrity Check -->
     <string name="integrity_check_continue_anyway">Vienalga turpināt</string>

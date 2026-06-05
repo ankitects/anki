@@ -50,8 +50,8 @@
     <string name="card_browser_list_my_searches_new_name">Pašreizējā meklējuma nosaukums</string>
     <string name="card_browser_list_my_searches_new_search_error_empty_name">Nevar saglabāt meklējumu bez nosaukuma</string>
     <string name="card_browser_list_my_searches_new_search_error_dup">Nosaukums pastāv</string>
-    <string name="card_browser_list_my_searches_successful_save">Search was saved</string>
-    <string name="card_browser_list_my_searches_successful_deleted">Search deleted</string>
+    <string name="card_browser_list_my_searches_successful_save">Meklēšana tika saglabāta</string>
+    <string name="card_browser_list_my_searches_successful_deleted">Meklēšana izdzēsta</string>
     <string name="no_note_to_edit">Nav piezīmes, ko labot</string>
     <string name="card_browser_list_my_searches_remove_content">Izdzēst \"%1$s\"?</string>
     <string name="card_browser_change_display_order" maxLength="28">Mainīt attēlošanas secību</string>
@@ -72,7 +72,7 @@
         <item>Pēc atmešanu skaita</item>
         <item>Pēc kavas nosaukuma</item>
     </string-array>
-    <string name="manage_browser_column">Manage column</string>
+    <string name="manage_browser_column">Pārvaldīt sleju</string>
     <string name="no_columns_available">Nav pieejama neviena sleja</string>
     <string name="card_browser_select_all" maxLength="28">Atlasīt visu</string>
     <string name="card_browser_select_none" maxLength="28">Neatlasīt neko</string>
@@ -109,6 +109,6 @@
     <string name="save_changes_message">Lūgums vispirms saglabāt savas izmaiņas</string>
     <string name="browser_find_replace_loading_fields">Iegūst lauku nosaukumus&#8230;</string>
     <!-- Search history -->
-    <string name="card_browser_see_more">See more</string>
-    <string name="card_browser_see_less">See less</string>
+    <string name="card_browser_see_more">Skatīt vairāk</string>
+    <string name="card_browser_see_less">Skatīt mazāk</string>
 </resources>
