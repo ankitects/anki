@@ -4,11 +4,11 @@ package com.ichi2.anki
 
 import android.content.Intent
 import android.os.Build
+import android.os.Bundle
 import android.os.Parcelable
 import android.webkit.RenderProcessGoneDetail
 import androidx.annotation.CheckResult
 import androidx.core.os.BundleCompat
-import androidx.core.os.bundleOf
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SdkSuppress
 import anki.config.ConfigKey
@@ -214,11 +214,11 @@ class AbstractFlashcardViewerTest : RobolectricTest() {
 
             val animation = gesture.toAnimationTransition().invert()
             val bundle =
-                bundleOf(
-                    NoteEditorFragment.EXTRA_CALLER to NoteEditorCaller.EDIT.value,
-                    NoteEditorFragment.EXTRA_CARD_ID to viewer.currentCard!!.id,
-                    FINISH_ANIMATION_EXTRA to animation as Parcelable,
-                )
+                Bundle().apply {
+                    putInt(NoteEditorFragment.EXTRA_CALLER, NoteEditorCaller.EDIT.value)
+                    putLong(NoteEditorFragment.EXTRA_CARD_ID, viewer.currentCard!!.id)
+                    putParcelable(FINISH_ANIMATION_EXTRA, animation as Parcelable)
+                }
             val noteEditor = openNoteEditorWithArgs(bundle)
             val actualInverseAnimation =
                 BundleCompat.getParcelable(

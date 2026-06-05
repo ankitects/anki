@@ -26,7 +26,6 @@ import android.widget.SpinnerAdapter
 import android.widget.TextView
 import androidx.core.app.ActivityCompat
 import androidx.core.content.edit
-import androidx.core.os.bundleOf
 import androidx.core.view.children
 import androidx.core.view.get
 import androidx.core.view.size
@@ -708,10 +707,10 @@ class CardBrowserTest : RobolectricTest() {
             // simulate the user using the ForgetCardsDialog to start the cards reset process
             b.supportFragmentManager.setFragmentResult(
                 ForgetCardsDialog.REQUEST_KEY_FORGET,
-                bundleOf(
-                    ForgetCardsDialog.ARG_RESTORE_ORIGINAL to true,
-                    ForgetCardsDialog.ARG_RESET_REPETITION to false,
-                ),
+                Bundle().apply {
+                    putBoolean(ForgetCardsDialog.ARG_RESTORE_ORIGINAL, true)
+                    putBoolean(ForgetCardsDialog.ARG_RESET_REPETITION, false)
+                },
             )
 
             assertThat(
@@ -1930,15 +1929,15 @@ class CardBrowserTest : RobolectricTest() {
     ) {
         supportFragmentManager.setFragmentResult(
             REQUEST_FIND_AND_REPLACE,
-            bundleOf(
-                ARG_SEARCH to search,
-                ARG_REPLACEMENT to replacement,
-                ARG_FIELD to field,
-                ARG_ONLY_SELECTED_NOTES to onlyInSelectedNotes,
+            Bundle().apply {
+                putString(ARG_SEARCH, search)
+                putString(ARG_REPLACEMENT, replacement)
+                putString(ARG_FIELD, field)
+                putBoolean(ARG_ONLY_SELECTED_NOTES, onlyInSelectedNotes)
                 // "Ignore case" checkbox text => when it's checked we pass false to the backend
-                ARG_MATCH_CASE to matchCase,
-                ARG_REGEX to regex,
-            ),
+                putBoolean(ARG_MATCH_CASE, matchCase)
+                putBoolean(ARG_REGEX, regex)
+            },
         )
     }
 

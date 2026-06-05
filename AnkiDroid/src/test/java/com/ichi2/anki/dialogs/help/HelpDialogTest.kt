@@ -13,7 +13,7 @@
  */
 package com.ichi2.anki.dialogs.help
 
-import androidx.core.os.bundleOf
+import android.os.Bundle
 import androidx.fragment.app.testing.launchFragment
 import androidx.lifecycle.Lifecycle
 import androidx.test.espresso.Espresso.onView
@@ -125,10 +125,10 @@ class HelpDialogTest {
         // simulate a help menu start
         launchFragment<HelpDialog>(
             fragmentArgs =
-                bundleOf(
-                    HelpDialog.ARG_MENU_TITLE to R.string.help,
-                    ARG_MENU_ITEMS to mainHelpMenuItems,
-                ),
+                Bundle().apply {
+                    putInt(HelpDialog.ARG_MENU_TITLE, R.string.help)
+                    putParcelableArray(ARG_MENU_ITEMS, mainHelpMenuItems)
+                },
             themeResId = R.style.Theme_Light,
             initialState = Lifecycle.State.RESUMED,
         ).onFragment {
@@ -175,10 +175,10 @@ class HelpDialogTest {
         // simulate a help menu start
         launchFragment<HelpDialog>(
             fragmentArgs =
-                bundleOf(
-                    HelpDialog.ARG_MENU_TITLE to R.string.help,
-                    ARG_MENU_ITEMS to mainHelpMenuItems,
-                ),
+                Bundle().apply {
+                    putInt(HelpDialog.ARG_MENU_TITLE, R.string.help)
+                    putParcelableArray(ARG_MENU_ITEMS, mainHelpMenuItems)
+                },
             themeResId = R.style.Theme_Light,
             initialState = Lifecycle.State.RESUMED,
         ).onFragment { fragment ->

@@ -16,7 +16,7 @@
 package com.ichi2.anki
 
 import android.content.Intent
-import androidx.core.os.bundleOf
+import android.os.Bundle
 import androidx.lifecycle.Lifecycle
 import androidx.test.ext.junit.rules.ActivityScenarioRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -74,7 +74,7 @@ class NoteEditorIntentTest : InstrumentedTest() {
 
     private val noteEditorTextIntent: Intent
         get() {
-            val bundle = bundleOf(Intent.EXTRA_TEXT to "sample text")
+            val bundle = Bundle().apply { putString(Intent.EXTRA_TEXT, "sample text") }
             return NoteEditorLauncher.PassArguments(bundle).toIntent(testContext, Intent.ACTION_SEND)
         }
 }

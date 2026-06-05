@@ -15,7 +15,7 @@
  */
 package com.ichi2.anki.dialogs
 
-import androidx.core.os.bundleOf
+import android.os.Bundle
 import androidx.fragment.app.testing.launchFragment
 import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.assertion.ViewAssertions.matches
@@ -39,7 +39,7 @@ class NoteTypeFieldEditorContextMenuTest : InstrumentedTest() {
     @Ignore("flaky")
     fun showsAllOptions() {
         launchFragment(
-            fragmentArgs = bundleOf(NoteTypeFieldEditorContextMenu.KEY_LABEL to testDialogTitle),
+            fragmentArgs = Bundle().apply { putString(NoteTypeFieldEditorContextMenu.KEY_LABEL, testDialogTitle) },
             themeResId = R.style.Theme_Light,
         ) { NoteTypeFieldEditorContextMenu() }
         onView(withText(testDialogTitle))

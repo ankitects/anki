@@ -28,7 +28,7 @@ import org.junit.runner.RunWith
 class DatabaseErrorDialogTest {
     @Test
     fun `ShowDatabaseErrorDialog serialization`() {
-        // concerns with 'bundleOf' + '@Parcelize'
+        // concerns with 'Bundle()' + '@Parcelize'
         val error = ShowDatabaseErrorDialog(DatabaseErrorDialogType.DIALOG_DB_ERROR)
         val message = error.toMessage()
         val deserialized = ShowDatabaseErrorDialog.fromMessage(message)

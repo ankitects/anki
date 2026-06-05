@@ -18,7 +18,6 @@ package com.ichi2.anki.dialogs
 import android.os.Bundle
 import android.widget.ListView
 import androidx.appcompat.app.AlertDialog
-import androidx.core.os.bundleOf
 import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.action.ViewActions.replaceText
 import androidx.test.espresso.assertion.ViewAssertions.matches
@@ -230,7 +229,7 @@ class CustomStudyDialogTest : RobolectricTest() {
                 // simulate tag selection
                 studyDialog.parentFragmentManager.setFragmentResult(
                     ON_SELECTED_TAGS_KEY,
-                    bundleOf(ON_SELECTED_TAGS__SELECTED_TAGS to selectedTags),
+                    Bundle().apply { putStringArrayList(ON_SELECTED_TAGS__SELECTED_TAGS, selectedTags) },
                 )
                 val customStudyDeck = col.decks.customStudySession
                 assertNotNull(customStudyDeck)

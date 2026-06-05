@@ -19,7 +19,6 @@ package com.ichi2.anki.dialogs
 import android.os.Bundle
 import androidx.appcompat.app.AlertDialog
 import androidx.core.content.edit
-import androidx.core.os.bundleOf
 import androidx.fragment.app.testing.FragmentScenario
 import androidx.fragment.app.testing.FragmentScenario.Companion.launch
 import androidx.test.core.app.ApplicationProvider
@@ -194,10 +193,10 @@ class DeckPickerContextMenuTest {
         deckName: String = "Deck 1",
         isDynamic: Boolean = false,
         hasBuriedCards: Boolean = false,
-    ) = bundleOf(
-        DeckPickerContextMenu.ARG_DECK_ID to deckId,
-        DeckPickerContextMenu.ARG_DECK_NAME to deckName,
-        DeckPickerContextMenu.ARG_DECK_IS_DYN to isDynamic,
-        DeckPickerContextMenu.ARG_DECK_HAS_BURIED_IN_DECK to hasBuriedCards,
-    )
+    ) = Bundle().apply {
+        putLong(DeckPickerContextMenu.ARG_DECK_ID, deckId)
+        putString(DeckPickerContextMenu.ARG_DECK_NAME, deckName)
+        putBoolean(DeckPickerContextMenu.ARG_DECK_IS_DYN, isDynamic)
+        putBoolean(DeckPickerContextMenu.ARG_DECK_HAS_BURIED_IN_DECK, hasBuriedCards)
+    }
 }

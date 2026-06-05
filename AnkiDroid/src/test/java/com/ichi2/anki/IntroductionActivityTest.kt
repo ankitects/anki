@@ -18,7 +18,7 @@ package com.ichi2.anki
 
 import android.Manifest.permission.INTERNET
 import android.content.Intent
-import androidx.core.os.bundleOf
+import android.os.Bundle
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.ichi2.anki.SingleFragmentActivity.Companion.FRAGMENT_NAME_EXTRA
 import com.ichi2.anki.account.LoginFragment
@@ -85,7 +85,7 @@ class IntroductionActivityTest : RobolectricTest() {
 
             activity.supportFragmentManager.setFragmentResult(
                 SetupCollectionFragment.FRAGMENT_KEY,
-                bundleOf(SetupCollectionFragment.RESULT_KEY to DeckPickerWithNewCollection),
+                Bundle().apply { putParcelable(SetupCollectionFragment.RESULT_KEY, DeckPickerWithNewCollection) },
             )
 
             val intent = assertNotNull(shadowOf(activity).nextStartedActivity)
@@ -108,7 +108,7 @@ class IntroductionActivityTest : RobolectricTest() {
     private fun IntroductionActivity.clickSync() {
         supportFragmentManager.setFragmentResult(
             SetupCollectionFragment.FRAGMENT_KEY,
-            bundleOf(SetupCollectionFragment.RESULT_KEY to SyncFromExistingAccount),
+            Bundle().apply { putParcelable(SetupCollectionFragment.RESULT_KEY, SyncFromExistingAccount) },
         )
     }
 }
