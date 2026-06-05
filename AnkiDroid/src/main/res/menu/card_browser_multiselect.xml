@@ -88,6 +88,7 @@
 
     <item
         android:id="@+id/action_export_selected"
+        android:icon="@drawable/ic_export_notes"
         tools:title="Export cards"/>
 
 
