@@ -159,6 +159,7 @@ import com.ichi2.utils.TagsUtil.getUpdatedTags
 import com.ichi2.utils.increaseHorizontalPaddingOfOverflowMenuIcons
 import com.ichi2.utils.moveCursorToEnd
 import com.ichi2.utils.replaceText
+import com.ichi2.utils.setPaddedIcon
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.launch
@@ -672,8 +673,6 @@ class CardBrowserFragment :
                     }
                     menu.findItem(R.id.action_suspend_card).apply {
                         title = TR.sentenceCase.toggleSuspend
-                        // TODO: I don't think this icon is necessary
-                        setIcon(R.drawable.ic_suspend)
                         isVisible = vm.hasSelectedAnyRows()
                     }
                     menu.findItem(R.id.action_toggle_bury).apply {
@@ -682,7 +681,7 @@ class CardBrowserFragment :
                     }
                     menu.findItem(R.id.action_mark_card).apply {
                         title = TR.sentenceCase.toggleMark
-                        setIcon(R.drawable.ic_star_border_white)
+                        setPaddedIcon(requireContext(), R.drawable.ic_star_border_white)
                         isVisible = vm.hasSelectedAnyRows()
                     }
                     menu.findItem(R.id.action_change_note_type).apply {
