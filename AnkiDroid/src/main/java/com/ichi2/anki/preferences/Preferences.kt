@@ -25,7 +25,6 @@ import android.os.Bundle
 import android.view.View
 import androidx.activity.OnBackPressedCallback
 import androidx.annotation.XmlRes
-import androidx.core.os.bundleOf
 import androidx.core.view.updateLayoutParams
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentFactory
@@ -254,7 +253,7 @@ class PreferencesActivity :
             context: Context,
             initialFragment: KClass<out Fragment>? = null,
         ): Intent {
-            val arguments = bundleOf(INITIAL_FRAGMENT_EXTRA to initialFragment?.jvmName)
+            val arguments = Bundle().apply { putString(INITIAL_FRAGMENT_EXTRA, initialFragment?.jvmName) }
             return Intent(context, PreferencesActivity::class.java).apply {
                 putExtra(FRAGMENT_NAME_EXTRA, PreferencesFragment::class.jvmName)
                 putExtra(FRAGMENT_ARGS_EXTRA, arguments)

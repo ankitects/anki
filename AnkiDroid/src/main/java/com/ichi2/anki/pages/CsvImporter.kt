@@ -21,7 +21,6 @@ import android.os.Bundle
 import android.view.View
 import android.webkit.WebView
 import androidx.activity.OnBackPressedCallback
-import androidx.core.os.bundleOf
 import com.google.android.material.appbar.MaterialToolbar
 import com.ichi2.anki.CollectionManager
 import com.ichi2.anki.R
@@ -112,7 +111,7 @@ class CsvImporter : PageFragment() {
             context: Context,
             filePath: String,
         ): Intent {
-            val arguments = bundleOf(KEY_FILE_PATH to filePath)
+            val arguments = Bundle().apply { putString(KEY_FILE_PATH, filePath) }
             return SingleFragmentActivity.getIntent(context, fragmentClass = CsvImporter::class, arguments)
         }
     }

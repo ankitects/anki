@@ -23,7 +23,6 @@ import android.webkit.JavascriptInterface
 import android.webkit.WebResourceRequest
 import android.webkit.WebView
 import androidx.activity.OnBackPressedCallback
-import androidx.core.os.bundleOf
 import androidx.core.view.isVisible
 import androidx.fragment.app.FragmentActivity
 import anki.collection.OpChanges
@@ -257,7 +256,11 @@ class DeckOptions : PageFragment() {
             context: Context,
             deckId: DeckId,
         ): Intent =
-            SingleFragmentActivity.getIntent(context, fragmentClass = DeckOptions::class, arguments = bundleOf(KEY_DECK_ID to deckId))
+            SingleFragmentActivity.getIntent(
+                context,
+                fragmentClass = DeckOptions::class,
+                arguments = Bundle().apply { putLong(KEY_DECK_ID, deckId) },
+            )
     }
 }
 

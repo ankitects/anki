@@ -24,7 +24,6 @@ import android.webkit.WebView
 import android.widget.TextView
 import androidx.activity.addCallback
 import androidx.core.os.BundleCompat
-import androidx.core.os.bundleOf
 import androidx.core.view.isVisible
 import androidx.fragment.app.viewModels
 import com.google.android.material.appbar.MaterialToolbar
@@ -152,7 +151,7 @@ class ImageOcclusion : PageFragment(R.layout.page_image_occlusion) {
             context: Context,
             args: ImageOcclusionArgs,
         ): Intent {
-            val arguments = bundleOf(IO_ARGS_KEY to args)
+            val arguments = Bundle().apply { putParcelable(IO_ARGS_KEY, args) }
             return SingleFragmentActivity.getIntent(context, ImageOcclusion::class, arguments)
         }
     }

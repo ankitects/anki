@@ -24,7 +24,6 @@ import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import androidx.appcompat.widget.Toolbar
-import androidx.core.os.bundleOf
 import androidx.core.view.ViewCompat
 import androidx.core.view.doOnLayout
 import androidx.core.view.isVisible
@@ -295,10 +294,10 @@ class PreviewerFragment :
             currentIndex: Int,
         ): Intent {
             val arguments =
-                bundleOf(
-                    CURRENT_INDEX_ARG to currentIndex,
-                    CARD_IDS_FILE_ARG to idsFile,
-                )
+                Bundle().apply {
+                    putInt(CURRENT_INDEX_ARG, currentIndex)
+                    putParcelable(CARD_IDS_FILE_ARG, idsFile)
+                }
             return CardViewerActivity.getIntent(context, PreviewerFragment::class, arguments)
         }
     }

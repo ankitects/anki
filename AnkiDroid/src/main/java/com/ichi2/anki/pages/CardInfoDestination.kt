@@ -17,7 +17,7 @@ package com.ichi2.anki.pages
 
 import android.content.Context
 import android.content.Intent
-import androidx.core.os.bundleOf
+import android.os.Bundle
 import com.ichi2.anki.R
 import com.ichi2.anki.SingleFragmentActivity
 import com.ichi2.anki.libanki.CardId
@@ -39,7 +39,11 @@ data class CardInfoDestination(
                 simplifiedTitle.toSentenceCase(context, R.string.sentence_card_stats_previous_card_study),
             )
         val cardInfoTitle = sentenceStrings.firstOrNull { it != simplifiedTitle } ?: title
-        val arguments = bundleOf(CardInfoFragment.KEY_TITLE to cardInfoTitle, CardInfoFragment.KEY_CARD_ID to cardId)
+        val arguments =
+            Bundle().apply {
+                putString(CardInfoFragment.KEY_TITLE, cardInfoTitle)
+                putLong(CardInfoFragment.KEY_CARD_ID, cardId)
+            }
         return SingleFragmentActivity.getIntent(
             context,
             fragmentClass = CardInfoFragment::class,
