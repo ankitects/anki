@@ -29,8 +29,8 @@ import com.ichi2.anki.CollectionManager.withCol
 import com.ichi2.anki.DeckPicker
 import com.ichi2.anki.IntentHandler
 import com.ichi2.anki.R
-import com.ichi2.anki.android.AnkiBroadcastReceiver
 import com.ichi2.anki.canUserAccessDeck
+import com.ichi2.anki.common.android.AnkiBroadcastReceiver
 import com.ichi2.anki.common.annotations.LegacyNotifications
 import com.ichi2.anki.common.preferences.sharedPrefs
 import com.ichi2.anki.libanki.Decks

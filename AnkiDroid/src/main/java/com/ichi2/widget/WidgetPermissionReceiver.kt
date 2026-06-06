@@ -21,7 +21,7 @@ import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import com.ichi2.anki.IntentHandler
-import com.ichi2.anki.android.AnkiBroadcastReceiver
+import com.ichi2.anki.common.android.AnkiBroadcastReceiver
 
 /**
  * BroadcastReceiver to handle the scenario where storage permissions are granted,

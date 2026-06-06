@@ -14,12 +14,11 @@
  *  this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.ichi2.anki.android
+package com.ichi2.anki.common.android
 
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
-import com.ichi2.anki.common.android.withAppLocale
 
 /**
  * A base class for all [BroadcastReceiver] instances in the app

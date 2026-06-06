@@ -19,7 +19,7 @@ package com.ichi2.anki.receiver
 import android.content.Context
 import android.content.Intent
 import com.ichi2.anki.CollectionManager
-import com.ichi2.anki.android.AnkiBroadcastReceiver
+import com.ichi2.anki.common.android.AnkiBroadcastReceiver
 import timber.log.Timber
 
 /**
