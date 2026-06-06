@@ -53,6 +53,7 @@
 
     <item
         android:id="@+id/action_change_deck"
+        android:icon="@drawable/ic_change_deck"
         tools:title="Change deck"/>
 
     <item
