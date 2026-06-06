@@ -22,6 +22,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.ichi2.anki.R
 import com.ichi2.anki.RobolectricTest
 import com.ichi2.anki.cardviewer.Gesture
+import com.ichi2.anki.common.android.getCurrentLocaleTag
 import com.ichi2.anki.common.preferences.sharedPrefs
 import com.ichi2.anki.common.utils.HashUtil
 import com.ichi2.anki.libanki.Consts
@@ -217,7 +218,7 @@ class PreferenceUpgradeServiceTest : RobolectricTest() {
             // - follow app use path: get help / using / ankidroid manual -> it should send you to English manual
             // - manual is translated in Japanese, so set app language preference to Japanese
             // - set app language back to english, verify it goes to english manual again
-            // assertThat(LanguageUtil.getCurrentLocaleTag(), equalTo(languageTag))
+            // assertThat(getCurrentLocaleTag(), equalTo(languageTag))
         }
     }
 
@@ -226,7 +227,7 @@ class PreferenceUpgradeServiceTest : RobolectricTest() {
         PreferenceUpgrade.UpgradeAppLocale().performUpgrade(prefs)
 
         assertNotNull(prefs.getString("language", null))
-        assertThat(LanguageUtil.getCurrentLocaleTag(), equalTo(""))
+        assertThat(getCurrentLocaleTag(), equalTo(""))
     }
 
     @Test
@@ -235,7 +236,7 @@ class PreferenceUpgradeServiceTest : RobolectricTest() {
         PreferenceUpgrade.UpgradeAppLocale().performUpgrade(prefs)
 
         assertThat(prefs.getString("language", null), equalTo(""))
-        assertThat(LanguageUtil.getCurrentLocaleTag(), equalTo(""))
+        assertThat(getCurrentLocaleTag(), equalTo(""))
     }
 
     @Test

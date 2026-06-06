@@ -19,7 +19,7 @@ package com.ichi2.anki.android
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
-import com.ichi2.utils.LanguageUtil.withAppLocale
+import com.ichi2.anki.common.android.withAppLocale
 
 /**
  * A base class for all [BroadcastReceiver] instances in the app

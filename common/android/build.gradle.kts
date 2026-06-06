@@ -14,6 +14,7 @@ dependencies {
     implementation(project(":common"))
 
     implementation(libs.androidx.annotation)
+    implementation(libs.androidx.appcompat)
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.preference.ktx)
     implementation(libs.google.material)

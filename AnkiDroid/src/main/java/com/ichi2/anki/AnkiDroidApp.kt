@@ -25,6 +25,8 @@ import com.ichi2.anki.AnkiDroidApp.Companion.sharedPreferencesTestingOverride
 import com.ichi2.anki.analytics.UsageAnalytics
 import com.ichi2.anki.browser.SharedPreferencesLastDeckIdRepository
 import com.ichi2.anki.common.android.ApplicationContextInitializer
+import com.ichi2.anki.common.android.getCurrentLocaleTag
+import com.ichi2.anki.common.android.withAppLocale
 import com.ichi2.anki.common.annotations.LegacyNotifications
 import com.ichi2.anki.common.annotations.NeedsTest
 import com.ichi2.anki.common.coroutines.applicationScope
@@ -55,7 +57,6 @@ import com.ichi2.anki.ui.dialogs.ActivityAgnosticDialogs
 import com.ichi2.utils.AdaptionUtil
 import com.ichi2.utils.ExceptionUtil
 import com.ichi2.utils.LanguageUtil
-import com.ichi2.utils.LanguageUtil.withAppLocale
 import com.ichi2.utils.measureTime
 import com.ichi2.utils.setWebContentsDebuggingEnabled
 import com.ichi2.widget.DayRolloverAlarm
@@ -535,7 +536,7 @@ open class AnkiDroidApp :
         val feedbackUrl: String
             get() = // TODO actually this can be done by translating "link_help" string for each language when the App is
                 // properly translated
-                when (LanguageUtil.getCurrentLocaleTag()) {
+                when (getCurrentLocaleTag()) {
                     "ja" -> appResources.getString(R.string.link_help_ja)
                     "zh" -> appResources.getString(R.string.link_help_zh)
                     "ar" -> appResources.getString(R.string.link_help_ar)
@@ -549,7 +550,7 @@ open class AnkiDroidApp :
         val manualUrl: String
             get() = // TODO actually this can be done by translating "link_manual" string for each language when the App is
                 // properly translated
-                when (LanguageUtil.getCurrentLocaleTag()) {
+                when (getCurrentLocaleTag()) {
                     "ja" -> appResources.getString(R.string.link_manual_ja)
                     "zh" -> appResources.getString(R.string.link_manual_zh)
                     "ar" -> appResources.getString(R.string.link_manual_ar)
