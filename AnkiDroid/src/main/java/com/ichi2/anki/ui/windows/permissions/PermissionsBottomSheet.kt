@@ -22,7 +22,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.annotation.RequiresApi
-import androidx.core.os.bundleOf
 import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.commit
 import com.google.android.material.bottomsheet.BottomSheetBehavior
@@ -109,7 +108,7 @@ class PermissionsBottomSheet : BottomSheetDialogFragment() {
         ) {
             val bottomSheet =
                 PermissionsBottomSheet().apply {
-                    arguments = bundleOf(PERMISSION_SET_ARGUMENT_KEY to permissionsSet)
+                    arguments = Bundle().apply { putParcelable(PERMISSION_SET_ARGUMENT_KEY, permissionsSet) }
                 }
             bottomSheet.show(fragmentManager, FRAGMENT_TAG)
         }

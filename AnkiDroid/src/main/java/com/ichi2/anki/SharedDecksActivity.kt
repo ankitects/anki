@@ -30,7 +30,6 @@ import android.webkit.WebView
 import android.webkit.WebViewClient
 import androidx.activity.OnBackPressedCallback
 import androidx.annotation.VisibleForTesting
-import androidx.core.os.bundleOf
 import androidx.fragment.app.commit
 import com.google.android.material.snackbar.BaseTransientBottomBar.LENGTH_INDEFINITE
 import com.ichi2.anki.databinding.ActivitySharedDecksBinding
@@ -238,9 +237,9 @@ class SharedDecksActivity : AnkiActivity(R.layout.activity_shared_decks) {
             if (!supportFragmentManager.isStateSaved) {
                 val sharedDecksDownloadFragment = SharedDecksDownloadFragment()
                 sharedDecksDownloadFragment.arguments =
-                    bundleOf(
-                        DOWNLOAD_FILE to DownloadFile(url, userAgent, contentDisposition, mimetype),
-                    )
+                    Bundle().apply {
+                        putSerializable(DOWNLOAD_FILE, DownloadFile(url, userAgent, contentDisposition, mimetype))
+                    }
                 supportFragmentManager.commit {
                     add(
                         R.id.shared_decks_fragment_container,

@@ -20,7 +20,6 @@ package com.ichi2.imagecropper
 import android.content.Context
 import android.net.Uri
 import android.os.Bundle
-import androidx.core.os.bundleOf
 import com.ichi2.anki.SingleFragmentActivity
 
 /**
@@ -50,8 +49,8 @@ sealed interface ImageCropperLauncher {
         val imageUri: Uri?,
     ) : ImageCropperLauncher {
         override fun toBundle(): Bundle =
-            bundleOf(
-                ImageCropper.CROP_IMAGE_URI to imageUri,
-            )
+            Bundle().apply {
+                putParcelable(ImageCropper.CROP_IMAGE_URI, imageUri)
+            }
     }
 }

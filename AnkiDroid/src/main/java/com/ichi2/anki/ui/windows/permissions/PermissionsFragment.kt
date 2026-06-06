@@ -19,12 +19,12 @@ import android.Manifest
 import android.content.Intent
 import android.net.Uri
 import android.os.Build
+import android.os.Bundle
 import android.provider.Settings
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.LayoutRes
 import androidx.annotation.RequiresApi
-import androidx.core.os.bundleOf
 import androidx.core.view.allViews
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
@@ -71,7 +71,10 @@ abstract class PermissionsFragment(
     override fun onResume() {
         super.onResume()
         permissionsItems.forEach { it.updateSwitchCheckedStatus() }
-        setFragmentResult(PERMISSIONS_FRAGMENT_RESULT_KEY, bundleOf(HAS_ALL_PERMISSIONS_KEY to hasAllPermissions()))
+        setFragmentResult(
+            PERMISSIONS_FRAGMENT_RESULT_KEY,
+            Bundle().apply { putBoolean(HAS_ALL_PERMISSIONS_KEY, hasAllPermissions()) },
+        )
     }
 
     /** Opens the Android 'MANAGE_ALL_FILES' page if the device provides this feature */
