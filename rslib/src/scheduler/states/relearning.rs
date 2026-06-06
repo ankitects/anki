@@ -314,16 +314,17 @@ mod tests {
     }
 
     #[test]
-    fn hard_stays_in_relearning() {
-        let ctx = StateContext::defaults_for_testing();
+    fn hard_stays_in_relearning_and_keeps_same_step() {
+        let ctx = StateContext::defaults_for_testing(); // relearn_steps=[10.0], remaining=1
         let state = relearn_state();
         let states = state.next_states(&ctx);
-        // Hard with active relearn steps → stays in RelearnState
-        // single-step hard delay = 150% of 600s = 900s
-        assert!(matches!(
-            states.hard,
-            CardState::Normal(NormalState::Relearning(_))
-        ));
+        let CardState::Normal(NormalState::Relearning(r)) = states.hard else {
+            panic!("hard should produce a RelearnState, got: {:?}", states.hard);
+        };
+        assert_eq!(
+            r.learning.remaining_steps, 1,
+            "hard must keep current step (remaining=1), not reset or advance"
+        );
     }
 
     #[test]
@@ -513,6 +514,116 @@ mod tests {
         assert_eq!(
             r.scheduled_days, 7,
             "FSRS easy should use algorithm interval (7d), not scheduled_days+1 (4d)"
+        );
+    }
+
+    // Multi-step relearning tests.
+    // Two relearn steps [5.0, 10.0]min: remaining=2 → first step, remaining=1 →
+    // last step.
+
+    fn relearn_state_at_last_of_two_steps() -> RelearnState {
+        RelearnState {
+            learning: LearnState {
+                remaining_steps: 1, // at the last step of two
+                scheduled_secs: 600,
+                elapsed_secs: 0,
+                memory_state: None,
+            },
+            review: ReviewState {
+                scheduled_days: 3,
+                elapsed_days: 3,
+                ease_factor: 2.5,
+                lapses: 1,
+                leeched: false,
+                memory_state: None,
+            },
+        }
+    }
+
+    #[test]
+    fn again_with_two_steps_resets_to_first_step() {
+        // Card is at the last step (remaining=1). Again should jump back to the
+        // first step (remaining=2), not stay at remaining=1.
+        let ctx = StateContext {
+            relearn_steps: LearningSteps::new(&[5.0, 10.0]),
+            ..StateContext::defaults_for_testing()
+        };
+        let state = relearn_state_at_last_of_two_steps();
+        let states = state.next_states(&ctx);
+        let CardState::Normal(NormalState::Relearning(r)) = states.again else {
+            panic!(
+                "again should produce a RelearnState, got: {:?}",
+                states.again
+            );
+        };
+        assert_eq!(
+            r.learning.remaining_steps, 2,
+            "again must reset to first step (remaining=2), not stay at remaining=1"
+        );
+    }
+
+    #[test]
+    fn hard_with_two_steps_keeps_same_remaining_steps() {
+        // Hard should keep the card on the current step without advancing or resetting.
+        let ctx = StateContext {
+            relearn_steps: LearningSteps::new(&[5.0, 10.0]),
+            ..StateContext::defaults_for_testing()
+        };
+        let state = relearn_state_at_last_of_two_steps(); // remaining=1
+        let states = state.next_states(&ctx);
+        let CardState::Normal(NormalState::Relearning(r)) = states.hard else {
+            panic!("hard should produce a RelearnState, got: {:?}", states.hard);
+        };
+        assert_eq!(
+            r.learning.remaining_steps, 1,
+            "hard must keep current step (remaining=1), not reset or advance"
+        );
+    }
+
+    #[test]
+    fn good_from_non_last_step_stays_in_relearning() {
+        // Card is at remaining=2 (first of two steps). Good advances to next step
+        // but should NOT graduate to Review yet.
+        let ctx = StateContext {
+            relearn_steps: LearningSteps::new(&[5.0, 10.0]),
+            ..StateContext::defaults_for_testing()
+        };
+        let state = RelearnState {
+            learning: LearnState {
+                remaining_steps: 2,
+                ..relearn_state_at_last_of_two_steps().learning
+            },
+            ..relearn_state_at_last_of_two_steps()
+        };
+        let states = state.next_states(&ctx);
+        assert!(
+            matches!(states.good, CardState::Normal(NormalState::Relearning(_))),
+            "good from non-last step must stay in Relearning, got: {:?}",
+            states.good
+        );
+    }
+
+    #[test]
+    fn good_from_non_last_step_advances_remaining_steps() {
+        // Good must decrease remaining_steps by 1, not reset it.
+        let ctx = StateContext {
+            relearn_steps: LearningSteps::new(&[5.0, 10.0]),
+            ..StateContext::defaults_for_testing()
+        };
+        let state = RelearnState {
+            learning: LearnState {
+                remaining_steps: 2,
+                ..relearn_state_at_last_of_two_steps().learning
+            },
+            ..relearn_state_at_last_of_two_steps()
+        };
+        let states = state.next_states(&ctx);
+        let CardState::Normal(NormalState::Relearning(r)) = states.good else {
+            panic!("good should produce a RelearnState, got: {:?}", states.good);
+        };
+        assert_eq!(
+            r.learning.remaining_steps, 1,
+            "good must advance remaining_steps from 2 to 1, not reset or stay"
         );
     }
 }
