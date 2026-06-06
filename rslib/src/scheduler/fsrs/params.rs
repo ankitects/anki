@@ -283,13 +283,13 @@ impl Collection {
     ) -> Result<ModelEvaluation> {
         let timing = self.timing_today()?;
         let revlogs = self.revlog_for_srs(search)?;
-        let (items, _, review_count) =
+        let (items, card_ids, review_count) =
             fsrs_items_for_training(revlogs, timing.next_day_at, ignore_revlogs_before);
         let mut anki_progress = self.new_progress_handler::<ComputeParamsProgress>();
         anki_progress.state.reviews = review_count as u32;
         let input = ComputeParametersInput {
             train_set: items.clone(),
-            card_ids: None,
+            card_ids: Some(card_ids),
             progress: None,
             enable_short_term: true,
             num_relearning_steps: Some(num_of_relearning_steps),
