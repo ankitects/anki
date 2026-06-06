@@ -395,6 +395,7 @@ impl crate::services::BackendSchedulerService for Backend {
             progress: None,
             enable_short_term: true,
             num_relearning_steps: None,
+            training_config: None,
         })?;
         Ok(ComputeFsrsParamsResponse {
             params,
@@ -418,6 +419,7 @@ impl crate::services::BackendSchedulerService for Backend {
             progress: None,
             enable_short_term: true,
             num_relearning_steps: None,
+            training_config: None,
         });
         Ok(FsrsBenchmarkResponse { params })
     }
