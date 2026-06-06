@@ -49,6 +49,7 @@
 
     <item
         android:id="@+id/action_change_note_type"
+        android:icon="@drawable/ic_change_notetype"
         tools:title="Change note type"/>
 
     <item
