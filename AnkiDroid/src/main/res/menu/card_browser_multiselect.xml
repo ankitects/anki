@@ -57,6 +57,7 @@
 
     <item
         android:id="@+id/action_reposition_cards"
+        android:icon="@drawable/ic_reposition"
         android:title="@string/card_editor_reposition_card"/>
 
     <item
