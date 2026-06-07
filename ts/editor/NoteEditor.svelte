@@ -802,7 +802,11 @@ the AddCards dialog) should be implemented in the user of this component.
             tooltip={$tagsCollapsed ? tr.editingExpand() : tr.editingCollapse()}
             on:toggle={() => updateTagsCollapsed(!$tagsCollapsed)}
         >
-            {@html `${tagAmount > 0 ? tagAmount : ""} ${tr.editingTags()}`}
+            {#if tagAmount == 0}
+                {@html `${tr.editingTags()}`}
+            {:else}
+                {@html `${tr.editingNumberTags({ numberOfTags: tagAmount })}`}
+            {/if}
         </CollapseLabel>
         <Collapsible toggleDisplay collapse={$tagsCollapsed}>
             <TagEditor {tags} on:tagsupdate={saveTags} />
