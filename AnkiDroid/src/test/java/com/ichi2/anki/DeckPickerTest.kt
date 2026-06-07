@@ -20,6 +20,7 @@ import androidx.test.core.app.ActivityScenario
 import anki.collection.opChanges
 import anki.scheduler.CardAnswer.Rating
 import app.cash.turbine.test
+import com.ichi2.anki.CollectionManager.TR
 import com.ichi2.anki.common.preferences.sharedPrefs
 import com.ichi2.anki.common.time.TimeManager
 import com.ichi2.anki.common.utils.annotation.KotlinCleanup
@@ -35,6 +36,7 @@ import com.ichi2.anki.navigation.AnkiDroidNavigator
 import com.ichi2.anki.observability.ChangeManager
 import com.ichi2.anki.settings.Prefs
 import com.ichi2.anki.snackbar.showSnackbar
+import com.ichi2.anki.ui.internationalization.sentenceCase
 import com.ichi2.anki.ui.windows.permissions.PermissionsActivity
 import com.ichi2.anki.ui.windows.permissions.PermissionsActivity.Companion.PERMISSIONS_SET_EXTRA
 import com.ichi2.anki.utils.Destination
@@ -712,7 +714,50 @@ class DeckPickerTest : RobolectricTest() {
 
             fab.dispatchKeyEvent(KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_ESCAPE))
 
-            assertThat("ESCAPE key closes the FAB menu", floatingActionMenu.isFABOpen, equalTo(false))
+            assertThat(
+                "ESCAPE key closes the FAB menu",
+                floatingActionMenu.isFABOpen,
+                equalTo(false),
+            )
+        }
+
+    @Test
+    fun `expanding the FAB menu shows the correct labels`() =
+        deckPicker {
+            floatingActionMenu.showFloatingActionMenu()
+            advanceRobolectricLooper()
+
+            val binding = floatingActionButtonBinding
+            assertThat(binding.fabMain.text.toString(), equalTo(getString(R.string.menu_add)))
+            assertThat(
+                binding.addSharedButton.text.toString(),
+                equalTo(getString(R.string.menu_get_shared_decks)),
+            )
+            assertThat(
+                binding.addFilteredDeckButton.text.toString(),
+                equalTo(getString(R.string.new_dynamic_deck)),
+            )
+            // 'Create deck' uses a backend string rather than an android:text resource
+            assertThat(
+                binding.addDeckButton.text.toString(),
+                equalTo(with(targetContext) { TR.sentenceCase.createDeck }),
+            )
+        }
+
+    @Test
+    fun `expanding the FAB menu re-extends the Create deck button`() =
+        deckPicker {
+            val addDeckButton = floatingActionButtonBinding.addDeckButton
+            addDeckButton.isExtended = false
+
+            floatingActionMenu.showFloatingActionMenu()
+            advanceRobolectricLooper()
+
+            assertTrue(!addDeckButton.text.isNullOrBlank(), "Create deck button must have a label")
+            assertTrue(
+                addDeckButton.isExtended,
+                "Create deck button must be extended so its label is visible",
+            )
         }
 
     @Test

@@ -56,6 +56,9 @@ class DeckPickerFloatingActionMenu(
         linearLayout.alpha = 0.5f
         studyOptionsFrame?.let { it.alpha = 0.5f }
         isFABOpen = true
+
+        setCreateDeckButtonLabel()
+
         if (deckPicker.animationEnabled()) {
             // Show with animation
             binding.addSharedButton.visibility = View.VISIBLE
@@ -334,10 +337,7 @@ class DeckPickerFloatingActionMenu(
                     deckPicker.showCreateDeckDialog()
                 }
             }
-        binding.addDeckButton.apply {
-            text = with(context) { TR.sentenceCase.createDeck }
-            contentDescription = text
-        }
+        setCreateDeckButtonLabel()
         binding.addDeckButton.setOnClickListener(addDeckListener)
 
         // Enable keyboard activation for Enter/DPAD_CENTER keys
@@ -408,6 +408,17 @@ class DeckPickerFloatingActionMenu(
      */
     private fun addNote() {
         deckPicker.addNote()
+    }
+
+    /**
+     * Sets the label of the 'Create deck' button from the backend translation.
+     */
+    private fun setCreateDeckButtonLabel() {
+        binding.addDeckButton.apply {
+            text = with(context) { TR.sentenceCase.createDeck }
+            contentDescription = text
+            isExtended = true
+        }
     }
 
     fun interface FloatingActionBarToggleListener {
