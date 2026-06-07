@@ -47,4 +47,48 @@ describe("filterHTML", () => {
             ),
         ).toBe("<span style=\"background-color: transparent;\"></span>");
     });
+
+    test("event handler attributes are stripped", () => {
+        expect(filterHTML("<p onclick=\"alert(1)\">hi</p>", false, false)).toBe(
+            "<p>hi</p>",
+        );
+        expect(filterHTML("<div onclick=\"alert(1)\">hi</div>", false, false)).toBe(
+            "<div>hi</div>",
+        );
+        expect(
+            filterHTML("<img src=\"a.png\" onerror=\"alert(1)\">", false, false),
+        ).toBe("<img src=\"a.png\">");
+    });
+
+    test("script tags are removed, including in nested contexts", () => {
+        expect(filterHTML("<script></script>", false, false)).toBe("");
+        expect(
+            filterHTML("<div><script></script>hello</div>", false, false),
+        ).toBe("<div>hello</div>");
+        expect(
+            filterHTML("<div><script>alert(1)</script>hello</div>", false, false),
+        ).toBe("<div>alert(1)hello</div>");
+    });
+
+    test("unknown or disallowed tags are removed", () => {
+        expect(filterHTML("<foo></foo>", false, false)).toBe("");
+        expect(filterHTML("<foo>bar</foo>", false, false)).toBe("bar");
+        expect(filterHTML("<marquee>x</marquee>", false, false)).toBe("x");
+    });
+
+    test("span styling honours night mode", () => {
+        document.body.classList.add("nightMode");
+
+        try {
+            expect(
+                filterHTML(
+                    "<span style=\"font-weight: bold; background-color: blue;\"></span>",
+                    false,
+                    true,
+                ),
+            ).toBe("<span style=\"font-weight: bold;\"></span>");
+        } finally {
+            document.body.classList.remove("nightMode");
+        }
+    });
 });
