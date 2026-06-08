@@ -25,6 +25,7 @@ import com.google.android.material.appbar.MaterialToolbar
 import com.ichi2.anki.CollectionManager
 import com.ichi2.anki.R
 import com.ichi2.anki.SingleFragmentActivity
+import com.ichi2.anki.common.destinations.CsvImporterDestination
 import com.ichi2.anki.hideShowButtonCss
 import com.ichi2.utils.OLDEST_WORKING_WEBVIEW_VERSION
 import com.ichi2.utils.WebViewVersion
@@ -116,3 +117,6 @@ class CsvImporter : PageFragment() {
         }
     }
 }
+
+/** Builds the [Intent] that opens the CSV importer for this destination. */
+fun CsvImporterDestination.toIntent(context: Context): Intent = CsvImporter.getIntent(context, filePath)
