@@ -103,7 +103,7 @@ jobs:
           {
             echo "pep440_version=$version"
             echo "tag_name=$version"
-            echo "release_name=Anki $version"
+            echo "release_name=$version"
             echo "public_release=$public_release"
             echo "is_prerelease=$is_prerelease"
           } >> "$GITHUB_OUTPUT"
