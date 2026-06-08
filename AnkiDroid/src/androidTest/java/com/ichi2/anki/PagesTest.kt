@@ -23,11 +23,12 @@ import android.content.Intent
 import androidx.lifecycle.Lifecycle
 import androidx.test.core.app.ActivityScenario
 import com.ichi2.anki.common.annotations.NeedsTest
+import com.ichi2.anki.common.destinations.CardInfoDestination
 import com.ichi2.anki.libanki.Card
-import com.ichi2.anki.pages.CardInfoDestination
 import com.ichi2.anki.pages.DeckOptions
 import com.ichi2.anki.pages.PageFragment
 import com.ichi2.anki.pages.StatisticsDestination
+import com.ichi2.anki.pages.toIntent
 import com.ichi2.anki.tests.InstrumentedTest
 import org.hamcrest.MatcherAssert.assertThat
 import org.hamcrest.Matchers.equalTo

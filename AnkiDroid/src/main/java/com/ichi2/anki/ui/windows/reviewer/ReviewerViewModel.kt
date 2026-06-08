@@ -30,6 +30,7 @@ import com.ichi2.anki.asyncIO
 import com.ichi2.anki.cardviewer.SingleCardSide
 import com.ichi2.anki.common.annotations.NeedsTest
 import com.ichi2.anki.common.destinations.BrowserDestination
+import com.ichi2.anki.common.destinations.CardInfoDestination
 import com.ichi2.anki.launchCatchingIO
 import com.ichi2.anki.libanki.Card
 import com.ichi2.anki.libanki.CardId
@@ -43,7 +44,6 @@ import com.ichi2.anki.noteeditor.NoteEditorLauncher
 import com.ichi2.anki.observability.ChangeManager
 import com.ichi2.anki.observability.undoableOp
 import com.ichi2.anki.pages.AnkiServer
-import com.ichi2.anki.pages.CardInfoDestination
 import com.ichi2.anki.pages.DeckOptionsDestination
 import com.ichi2.anki.pages.DeckOptionsEntry
 import com.ichi2.anki.pages.PostRequestUri
@@ -287,7 +287,7 @@ class ReviewerViewModel(
         val cardId = currentCard.await().id
         val destination = CardInfoDestination(cardId, TR.currentCardStudy())
         Timber.i("Launching 'card info' for card %d", cardId)
-        destinationFlow.emit(destination)
+        navigateFlow.emit(destination)
     }
 
     private suspend fun emitPreviousCardInfoDestination() {
@@ -299,7 +299,7 @@ class ReviewerViewModel(
         }
         val destination = CardInfoDestination(previousCardId, TR.previousCardStudy())
         Timber.i("Launching 'previous card info' for card %d", previousCardId)
-        destinationFlow.emit(destination)
+        navigateFlow.emit(destination)
     }
 
     @NeedsTest("verify that we show the proper deck option targets for the current card")

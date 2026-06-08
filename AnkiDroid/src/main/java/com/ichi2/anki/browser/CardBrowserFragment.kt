@@ -106,6 +106,7 @@ import com.ichi2.anki.browser.search.iconRes
 import com.ichi2.anki.browser.search.savedFilters
 import com.ichi2.anki.common.ALL_DECKS_ID
 import com.ichi2.anki.common.annotations.NeedsTest
+import com.ichi2.anki.common.destinations.navigate
 import com.ichi2.anki.common.utils.ext.ifNotZero
 import com.ichi2.anki.dialogs.BrowserOptionsDialog
 import com.ichi2.anki.dialogs.CardBrowserOrderDialog
@@ -1423,7 +1424,7 @@ class CardBrowserFragment :
     fun displayCardInfo() =
         launchCatchingTask {
             activityViewModel.queryCardInfoDestination()?.let { destination ->
-                startActivity(destination.toIntent(requireContext()))
+                navigate(destination)
             }
         }
 
