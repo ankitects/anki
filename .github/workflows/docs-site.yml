@@ -34,12 +34,7 @@ jobs:
 
       - name: Check generated hooks reference
         run: >-
-          uv run --with cogapp python -m cogapp
-          --markers "<<<cog >>> <<<end>>>"
-          --check
-          --diff
-          --check-fail-msg "Run: uv run --with cogapp python -m cogapp --markers '<<<cog >>> <<<end>>>' -r docs-site/addons/hooks-reference.mdx"
-          docs-site/addons/hooks-reference.mdx
+          ./ninja check:format:cog
 
       - name: Test docs generation
         run: uv run python -m pytest tools/tests/test_mintlify_hooks.py
