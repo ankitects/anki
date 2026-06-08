@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from types import SimpleNamespace
 
-from tools.mintlify_hooks import render_hook, safe, signature
+from mintlify_hooks import render_hook, safe, signature
 
 
 def test_signature_includes_arguments_and_return_type() -> None:
