@@ -219,7 +219,8 @@ def get_platform_suffix() -> str:
         platform_suffix = f"-mac-{arch}"
     elif sys.platform == "linux":
         arch = platform.machine()
-        platform_suffix = f"-linux-{arch}"
+        # Preserve .tar.zst suffix after file is renamed
+        platform_suffix = f"-linux-{arch}.tar"
     return platform_suffix
 
 
