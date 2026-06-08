@@ -100,9 +100,9 @@ android {
         //
         // This ensures the correct ordering between the various types of releases (dev < alpha < beta < release) which is
         // needed for upgrades to be offered correctly.
-        versionCode=22400300
+        versionCode=22500100
         // If you change this to a new version, you probably also want to update .gradle/workflows/milestone.yml for the new version...
-        versionName="2.24.0"
+        versionName="2.25.0alpha0"
         minSdk = libs.versions.minSdk.get().toInteger()
 
         // After #13695: change .tests_emulator.yml
@@ -330,7 +330,7 @@ android {
 
 play {
     serviceAccountCredentials.set(file("${homePath}/src/AnkiDroid-GCP-Publish-Credentials.json"))
-    track.set('beta')
+    track.set('alpha')
 
     // any time we bump minSdk we want Play Store to retain the old artifacts by version code,
     // so that they remain available for older devices
