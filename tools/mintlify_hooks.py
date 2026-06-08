@@ -34,7 +34,7 @@ def doc(text: str | None) -> str:
 
     # Convert tab-indented blocks to ```python fences
     text = re.sub(
-        r'(?:^|\n)((?:(?: {4}|\t|\n {4}).*(?:\n|$))+)',
+        r"(?:^|\n)((?:(?: {4}|\t|\n {4}).*(?:\n|$))+)",
         addFences,
         text,
         flags=re.MULTILINE,
