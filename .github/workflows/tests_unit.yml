@@ -199,7 +199,3 @@ jobs:
         with:
           verbose: true
           fail_ci_if_error: ${{ github.repository == 'ankidroid/Anki-Android' }} # optional (default = false)
-          # See https://github.com/codecov/codecov-action/issues/1940#issuecomment-4639834138
-          # ...and related commits. This uses a different install path to get the artifact so it has a valid signature
-          # without this as of 20260607 codecov fails signature verification and fails the build
-          use_pypi: true
