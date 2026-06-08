@@ -25,36 +25,66 @@
                         "pages": [
                             "manual/index",
                             "manual/background",
-                            "manual/platform/intro",
-                            "manual/platform/windows/intro",
-                            "manual/platform/windows/installing",
-                            "manual/platform/windows/installation-issues",
-                            "manual/platform/windows/startup-issues",
-                            "manual/platform/windows/display-issues",
-                            "manual/platform/windows/copy-and-paste",
-                            "manual/platform/windows/text-size",
-                            "manual/platform/windows/permission-problems",
-                            "manual/platform/mac/intro",
-                            "manual/platform/mac/installing",
-                            "manual/platform/mac/display-issues",
-                            "manual/platform/linux/intro",
-                            "manual/platform/linux/installing",
-                            "manual/platform/linux/missing-libraries",
-                            "manual/platform/linux/display-issues",
-                            "manual/platform/linux/blank-window",
+                            {
+                              "group": "Platform Notes",
+                              "icon": "computer",
+                              "pages": [
+                                "manual/platform/intro",
+                                "manual/platform/mac/installing",
+                                {
+                                  "group": "Windows",
+                                  "icon": "microsoft",
+                                  "pages": [
+                                    "manual/platform/windows/intro",
+                                    "manual/platform/windows/installing",
+                                    "manual/platform/windows/installation-issues",
+                                    "manual/platform/windows/startup-issues",
+                                    "manual/platform/windows/display-issues",
+                                    "manual/platform/windows/copy-and-paste",
+                                    "manual/platform/windows/text-size",
+                                    "manual/platform/windows/permission-problems"
+                                  ]
+                                },
+                                {
+                                  "group": "MacOS",
+                                  "icon": "apple",
+                                  "pages": [
+                                    "manual/platform/mac/intro",
+                                    "manual/platform/mac/display-issues"
+                                  ]
+                                },
+                                {
+                                  "group": "Linux",
+                                  "icon": "bird",
+                                  "pages": [
+                                    "manual/platform/linux/intro",
+                                    "manual/platform/linux/installing",
+                                    "manual/platform/linux/missing-libraries",
+                                    "manual/platform/linux/display-issues",
+                                    "manual/platform/linux/blank-window",
+                                    "manual/platform/linux/gtk-theme",
+                                    "manual/platform/linux/wayland",
+                                    "manual/platform/linux/input-methods"
+                                  ]
+                                }
+                              ]
+                            },
                             "manual/platform/linux/distro-packages",
-                            "manual/platform/linux/gtk-theme",
-                            "manual/platform/linux/wayland",
-                            "manual/platform/linux/input-methods",
                             "manual/getting-started",
                             "manual/getting-help",
                             "manual/studying",
                             "manual/editing",
-                            "manual/templates/intro",
-                            "manual/templates/fields",
-                            "manual/templates/generation",
-                            "manual/templates/styling",
-                            "manual/templates/errors",
+                            {
+                              "group": "Card Templates",
+                              "icon": "cards-blank",
+                              "pages": [
+                                "manual/templates/intro",
+                                "manual/templates/fields",
+                                "manual/templates/generation",
+                                "manual/templates/styling",
+                                "manual/templates/errors"
+                              ]
+                            },
                             "manual/preferences",
                             "manual/deck-options",
                             "manual/syncing",
@@ -62,9 +92,15 @@
                             "manual/browsing",
                             "manual/filtered-decks",
                             "manual/searching",
-                            "manual/importing/intro",
-                            "manual/importing/text-files",
-                            "manual/importing/packaged-decks",
+                            {
+                              "group": "Importing",
+                              "icon": "down-from-bracket",
+                              "pages": [
+                                "manual/importing/intro",
+                                "manual/importing/text-files",
+                                "manual/importing/packaged-decks"
+                              ]
+                            },
                             "manual/exporting",
                             "manual/backups",
                             "manual/files",
