@@ -1,3 +1,5 @@
+# Copyright: Ankitects Pty Ltd and contributors
+# License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 from __future__ import annotations
 
 import argparse
@@ -46,7 +48,11 @@ def frontmatter(title: str, source: Source) -> str:
         "title": title,
         "description": f"Migrated from {source.repo} for the Mintlify documentation POC.",
     }
-    return "---\n" + "\n".join(f"{key}: {json.dumps(value)}" for key, value in data.items()) + "\n---\n\n"
+    return (
+        "---\n"
+        + "\n".join(f"{key}: {json.dumps(value)}" for key, value in data.items())
+        + "\n---\n\n"
+    )
 
 
 def normalize_content(content: str) -> str:
@@ -163,7 +169,12 @@ def copy_markdown(source: Source, root: Path) -> list[Page]:
             target = source.target / relative
             target.parent.mkdir(parents=True, exist_ok=True)
             target.write_text(migrated_content(path, source))
-            pages.append(Page(heading_title(target.read_text(), slug_title(target)), relative_page(root, target)))
+            pages.append(
+                Page(
+                    heading_title(target.read_text(), slug_title(target)),
+                    relative_page(root, target),
+                )
+            )
     return parse_summary(source, root) or pages
 
 
@@ -270,7 +281,9 @@ description: "{description}"
 """
 
 
-def write_index(root: Path, section: str, title: str, description: str, pages: list[Page]) -> Page:
+def write_index(
+    root: Path, section: str, title: str, description: str, pages: list[Page]
+) -> Page:
     path = root / section / "index.mdx"
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(index_page(title, description, pages))
@@ -309,8 +322,16 @@ def docs_json(groups: dict[str, tuple[Page, list[Page]]]) -> dict[str, object]:
             ],
             "global": {
                 "anchors": [
-                    {"anchor": "Anki", "href": "https://apps.ankiweb.net", "icon": "house"},
-                    {"anchor": "GitHub", "href": "https://github.com/ankitects/anki", "icon": "github"},
+                    {
+                        "anchor": "Anki",
+                        "href": "https://apps.ankiweb.net",
+                        "icon": "house",
+                    },
+                    {
+                        "anchor": "GitHub",
+                        "href": "https://github.com/ankitects/anki",
+                        "icon": "github",
+                    },
                 ]
             },
         },
@@ -352,14 +373,63 @@ This proof of concept brings Ankitects documentation sources into a single Mintl
 
 def sources(repo_root: Path, source_root: Path, docs_root: Path) -> tuple[Source, ...]:
     return (
-        Source("Manual", "ankitects/anki-manual", source_root / "anki-manual/src", docs_root / "manual", source_root / "anki-manual/src/SUMMARY.md"),
-        Source("AnkiMobile", "ankitects/ankimobile-docs", source_root / "ankimobile-docs/src", docs_root / "ankimobile", source_root / "ankimobile-docs/src/SUMMARY.md"),
-        Source("FAQs", "ankitects/faqs", source_root / "faqs/src", docs_root / "faqs", source_root / "faqs/src/SUMMARY.md"),
-        Source("Add-ons", "ankitects/addon-docs", source_root / "addon-docs/src", docs_root / "addons", source_root / "addon-docs/src/SUMMARY.md"),
-        Source("Translators", "ankitects/translating", source_root / "translating/src", docs_root / "translators", source_root / "translating/src/SUMMARY.md"),
-        Source("Changes", "ankitects/anki-changes", source_root / "anki-changes/src", docs_root / "releases/changes", source_root / "anki-changes/src/SUMMARY.md"),
-        Source("Betas", "ankitects/anki-betas", source_root / "anki-betas/src", docs_root / "releases/betas", source_root / "anki-betas/src/SUMMARY.md"),
-        Source("Developers", "ankitects/anki", repo_root / "docs", docs_root / "developers", None, ("*.md",)),
+        Source(
+            "Manual",
+            "ankitects/anki-manual",
+            source_root / "anki-manual/src",
+            docs_root / "manual",
+            source_root / "anki-manual/src/SUMMARY.md",
+        ),
+        Source(
+            "AnkiMobile",
+            "ankitects/ankimobile-docs",
+            source_root / "ankimobile-docs/src",
+            docs_root / "ankimobile",
+            source_root / "ankimobile-docs/src/SUMMARY.md",
+        ),
+        Source(
+            "FAQs",
+            "ankitects/faqs",
+            source_root / "faqs/src",
+            docs_root / "faqs",
+            source_root / "faqs/src/SUMMARY.md",
+        ),
+        Source(
+            "Add-ons",
+            "ankitects/addon-docs",
+            source_root / "addon-docs/src",
+            docs_root / "addons",
+            source_root / "addon-docs/src/SUMMARY.md",
+        ),
+        Source(
+            "Translators",
+            "ankitects/translating",
+            source_root / "translating/src",
+            docs_root / "translators",
+            source_root / "translating/src/SUMMARY.md",
+        ),
+        Source(
+            "Changes",
+            "ankitects/anki-changes",
+            source_root / "anki-changes/src",
+            docs_root / "releases/changes",
+            source_root / "anki-changes/src/SUMMARY.md",
+        ),
+        Source(
+            "Betas",
+            "ankitects/anki-betas",
+            source_root / "anki-betas/src",
+            docs_root / "releases/betas",
+            source_root / "anki-betas/src/SUMMARY.md",
+        ),
+        Source(
+            "Developers",
+            "ankitects/anki",
+            repo_root / "docs",
+            docs_root / "developers",
+            None,
+            ("*.md",),
+        ),
     )
 
 
@@ -375,20 +445,86 @@ def main() -> None:
     docs_root.mkdir()
     (docs_root / "index.mdx").write_text(top_level_index())
 
-    copied = {source.label: copy_markdown(source, docs_root) for source in sources(repo_root, args.source_root, docs_root)}
+    copied = {
+        source.label: copy_markdown(source, docs_root)
+        for source in sources(repo_root, args.source_root, docs_root)
+    }
     copy_assets(repo_root / "docs/_static", docs_root / "images")
     copy_landing_assets(args.source_root, docs_root)
     (docs_root / "style.css").write_text(stylesheet())
 
     release_pages = [*copied["Changes"], *copied["Betas"]]
     groups = {
-        "manual": (write_index(docs_root, "manual", "Desktop Manual", "User documentation for desktop Anki.", copied["Manual"]), copied["Manual"]),
-        "ankimobile": (write_index(docs_root, "ankimobile", "AnkiMobile Manual", "User documentation for AnkiMobile on iPhone and iPad.", copied["AnkiMobile"]), copied["AnkiMobile"]),
-        "faqs": (write_index(docs_root, "faqs", "Support FAQs", "Troubleshooting articles and support answers.", copied["FAQs"]), copied["FAQs"]),
-        "addons": (write_index(docs_root, "addons", "Add-on Development", "Documentation for writing and maintaining Anki add-ons.", copied["Add-ons"]), copied["Add-ons"]),
-        "developers": (write_index(docs_root, "developers", "Core Development", "Build, contribution, architecture, and generated API documentation.", copied["Developers"]), copied["Developers"]),
-        "translators": (write_index(docs_root, "translators", "Translation Guide", "Documentation for translating Anki and related docs.", copied["Translators"]), copied["Translators"]),
-        "releases": (write_index(docs_root, "releases", "Release Notes", "Stable change notes and beta documentation.", release_pages), release_pages),
+        "manual": (
+            write_index(
+                docs_root,
+                "manual",
+                "Desktop Manual",
+                "User documentation for desktop Anki.",
+                copied["Manual"],
+            ),
+            copied["Manual"],
+        ),
+        "ankimobile": (
+            write_index(
+                docs_root,
+                "ankimobile",
+                "AnkiMobile Manual",
+                "User documentation for AnkiMobile on iPhone and iPad.",
+                copied["AnkiMobile"],
+            ),
+            copied["AnkiMobile"],
+        ),
+        "faqs": (
+            write_index(
+                docs_root,
+                "faqs",
+                "Support FAQs",
+                "Troubleshooting articles and support answers.",
+                copied["FAQs"],
+            ),
+            copied["FAQs"],
+        ),
+        "addons": (
+            write_index(
+                docs_root,
+                "addons",
+                "Add-on Development",
+                "Documentation for writing and maintaining Anki add-ons.",
+                copied["Add-ons"],
+            ),
+            copied["Add-ons"],
+        ),
+        "developers": (
+            write_index(
+                docs_root,
+                "developers",
+                "Core Development",
+                "Build, contribution, architecture, and generated API documentation.",
+                copied["Developers"],
+            ),
+            copied["Developers"],
+        ),
+        "translators": (
+            write_index(
+                docs_root,
+                "translators",
+                "Translation Guide",
+                "Documentation for translating Anki and related docs.",
+                copied["Translators"],
+            ),
+            copied["Translators"],
+        ),
+        "releases": (
+            write_index(
+                docs_root,
+                "releases",
+                "Release Notes",
+                "Stable change notes and beta documentation.",
+                release_pages,
+            ),
+            release_pages,
+        ),
     }
     (docs_root / "docs.json").write_text(json.dumps(docs_json(groups), indent=2) + "\n")
 
