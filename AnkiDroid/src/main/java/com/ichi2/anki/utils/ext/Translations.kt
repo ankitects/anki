@@ -27,12 +27,3 @@ fun Translations.cardStatsNoCardClean(): String {
     // regex removes any parentheses or dots from the string
     return cardStatsNoCard().replace("[().]".toRegex(), "")
 }
-
-/** Previous Card (Study) */
-fun Translations.previousCardStudy() = cardStatsPreviousCard(decksStudy())
-
-/** Current Card (Browse) */
-fun Translations.currentCardBrowse() = cardStatsCurrentCard(qtMiscBrowse())
-
-/** Current Card (Study) */
-fun Translations.currentCardStudy() = cardStatsCurrentCard(decksStudy())

@@ -58,6 +58,7 @@ import com.ichi2.anki.cardviewer.ViewerCommand
 import com.ichi2.anki.common.annotations.NeedsTest
 import com.ichi2.anki.common.crashreporting.CrashReportService
 import com.ichi2.anki.common.destinations.CardInfoDestination
+import com.ichi2.anki.common.destinations.CardInfoDestination.EntryPoint
 import com.ichi2.anki.common.preferences.sharedPrefs
 import com.ichi2.anki.common.time.TimeManager
 import com.ichi2.anki.common.utils.android.HandlerUtils.executeFunctionWithDelay
@@ -110,10 +111,8 @@ import com.ichi2.anki.snackbar.showSnackbar
 import com.ichi2.anki.ui.internationalization.sentenceCase
 import com.ichi2.anki.ui.windows.reviewer.ReviewerFragment
 import com.ichi2.anki.utils.ext.cardStatsNoCardClean
-import com.ichi2.anki.utils.ext.currentCardStudy
 import com.ichi2.anki.utils.ext.flag
 import com.ichi2.anki.utils.ext.getLongOrNull
-import com.ichi2.anki.utils.ext.previousCardStudy
 import com.ichi2.anki.utils.ext.setUserFlagForCards
 import com.ichi2.anki.utils.ext.showDialogFragment
 import com.ichi2.anki.utils.navBarNeedsScrim
@@ -799,7 +798,7 @@ open class Reviewer :
             return
         }
         Timber.i("opening card info")
-        val intent = CardInfoDestination(currentCard!!.id, TR.currentCardStudy()).toIntent(this)
+        val intent = CardInfoDestination(currentCard!!.id, EntryPoint.CURRENT_CARD_STUDY).toIntent(this)
         val animation = getAnimationTransitionFromGesture(fromGesture)
         intent.putExtra(FINISH_ANIMATION_EXTRA, getInverseTransition(animation) as Parcelable)
         startActivityWithAnimation(intent, animation)
@@ -812,7 +811,7 @@ open class Reviewer :
             return
         }
         Timber.i("opening previous card info")
-        val intent = CardInfoDestination(previousCardId!!, TR.previousCardStudy()).toIntent(this)
+        val intent = CardInfoDestination(previousCardId!!, EntryPoint.PREVIOUS_CARD_STUDY).toIntent(this)
         val animation = getAnimationTransitionFromGesture(fromGesture)
         intent.putExtra(FINISH_ANIMATION_EXTRA, getInverseTransition(animation) as Parcelable)
         startActivityWithAnimation(intent, animation)

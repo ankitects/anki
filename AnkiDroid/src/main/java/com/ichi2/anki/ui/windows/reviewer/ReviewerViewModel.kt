@@ -31,6 +31,7 @@ import com.ichi2.anki.cardviewer.SingleCardSide
 import com.ichi2.anki.common.annotations.NeedsTest
 import com.ichi2.anki.common.destinations.BrowserDestination
 import com.ichi2.anki.common.destinations.CardInfoDestination
+import com.ichi2.anki.common.destinations.CardInfoDestination.EntryPoint
 import com.ichi2.anki.launchCatchingIO
 import com.ichi2.anki.libanki.Card
 import com.ichi2.anki.libanki.CardId
@@ -68,10 +69,8 @@ import com.ichi2.anki.ui.windows.reviewer.autoadvance.QuestionAction
 import com.ichi2.anki.utils.Destination
 import com.ichi2.anki.utils.ext.answerCard
 import com.ichi2.anki.utils.ext.cardStatsNoCardClean
-import com.ichi2.anki.utils.ext.currentCardStudy
 import com.ichi2.anki.utils.ext.flag
 import com.ichi2.anki.utils.ext.getLongOrNull
-import com.ichi2.anki.utils.ext.previousCardStudy
 import com.ichi2.anki.utils.ext.setUserFlagForCards
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Deferred
@@ -285,7 +284,7 @@ class ReviewerViewModel(
 
     private suspend fun emitCardInfoDestination() {
         val cardId = currentCard.await().id
-        val destination = CardInfoDestination(cardId, TR.currentCardStudy())
+        val destination = CardInfoDestination(cardId, EntryPoint.CURRENT_CARD_STUDY)
         Timber.i("Launching 'card info' for card %d", cardId)
         navigateFlow.emit(destination)
     }
@@ -297,7 +296,7 @@ class ReviewerViewModel(
             actionFeedbackFlow.emit(TR.cardStatsNoCardClean())
             return
         }
-        val destination = CardInfoDestination(previousCardId, TR.previousCardStudy())
+        val destination = CardInfoDestination(previousCardId, EntryPoint.PREVIOUS_CARD_STUDY)
         Timber.i("Launching 'previous card info' for card %d", previousCardId)
         navigateFlow.emit(destination)
     }

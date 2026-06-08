@@ -24,6 +24,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.test.core.app.ActivityScenario
 import com.ichi2.anki.common.annotations.NeedsTest
 import com.ichi2.anki.common.destinations.CardInfoDestination
+import com.ichi2.anki.common.destinations.CardInfoDestination.EntryPoint
 import com.ichi2.anki.libanki.Card
 import com.ichi2.anki.pages.DeckOptions
 import com.ichi2.anki.pages.PageFragment
@@ -89,13 +90,13 @@ fun PagesTest.getStatistics(context: Context): Intent = StatisticsDestination().
 fun PagesTest.getCardInfo(context: Context): Intent =
     addNoteUsingBasicNoteType().firstCard(col).let { card ->
         this.card = card
-        CardInfoDestination(card.id, "Unused").toIntent(context)
+        CardInfoDestination(card.id, EntryPoint.CURRENT_CARD_STUDY).toIntent(context)
     }
 
 fun PagesTest.getCongratsPage(context: Context): Intent =
     addNoteUsingBasicNoteType().firstCard(col).let { card ->
         this.card = card
-        CardInfoDestination(card.id, "Unused").toIntent(context)
+        CardInfoDestination(card.id, EntryPoint.CURRENT_CARD_STUDY).toIntent(context)
     }
 
 fun PagesTest.getDeckOptions(context: Context): Intent =

@@ -54,6 +54,7 @@ import com.ichi2.anki.common.ALL_DECKS_ID
 import com.ichi2.anki.common.annotations.NeedsTest
 import com.ichi2.anki.common.crashreporting.CrashReportService
 import com.ichi2.anki.common.destinations.CardInfoDestination
+import com.ichi2.anki.common.destinations.CardInfoDestination.EntryPoint
 import com.ichi2.anki.common.utils.ext.indexOfOrNull
 import com.ichi2.anki.export.ExportDialogFragment.ExportType
 import com.ichi2.anki.launchCatchingIO
@@ -80,7 +81,6 @@ import com.ichi2.anki.observability.undoableOp
 import com.ichi2.anki.preferences.SharedPreferencesProvider
 import com.ichi2.anki.settings.Prefs
 import com.ichi2.anki.settings.PrefsRepository
-import com.ichi2.anki.utils.ext.currentCardBrowse
 import com.ichi2.anki.utils.ext.getCardOrNull
 import com.ichi2.anki.utils.ext.ignoreAccentsInSearch
 import com.ichi2.anki.utils.ext.setUserFlagForCards
@@ -433,7 +433,7 @@ class CardBrowserViewModel(
 
     suspend fun queryCardInfoDestination(): CardInfoDestination? {
         val firstSelectedCard = selectedRows.firstOrNull()?.toCardId(cardsOrNotes) ?: return null
-        return CardInfoDestination(firstSelectedCard, TR.currentCardBrowse())
+        return CardInfoDestination(firstSelectedCard, EntryPoint.CURRENT_CARD_BROWSE)
     }
 
     private suspend fun getInitialDeck(): SelectableDeck {
