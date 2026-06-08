@@ -70,10 +70,28 @@ describe("filterHTML", () => {
         ).toBe("<div>alert(1)hello</div>");
     });
 
+    test("title tag is removed entirely, including its content", () => {
+        // TITLE is an explicitly allowed tag mapped to removeElement, so unlike
+        // unknown tags (which unwrap their content), the title content is discarded.
+        expect(filterHTML("<title>page title</title>", false, false)).toBe("");
+        expect(filterHTML("<title>page title</title>", false, true)).toBe("");
+    });
+
     test("unknown or disallowed tags are removed", () => {
         expect(filterHTML("<foo></foo>", false, false)).toBe("");
         expect(filterHTML("<foo>bar</foo>", false, false)).toBe("bar");
         expect(filterHTML("<marquee>x</marquee>", false, false)).toBe("x");
+    });
+
+    test("extended-only tags are unwrapped in basic mode but kept in extended mode", () => {
+        // <b> exists only in tagsAllowedExtended; in basic mode it is treated as
+        // an unknown tag and its content is unwrapped.
+        expect(filterHTML("<b>bold</b>", false, false)).toBe("bold");
+        expect(filterHTML("<b>bold</b>", false, true)).toBe("<b>bold</b>");
+
+        // <a> keeps href in extended mode; in basic mode the tag is unwrapped.
+        expect(filterHTML("<a href=\"x\">link</a>", false, false)).toBe("link");
+        expect(filterHTML("<a href=\"x\">link</a>", false, true)).toBe("<a href=\"x\">link</a>");
     });
 
     test("span styling honours night mode", () => {
