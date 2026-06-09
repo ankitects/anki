@@ -32,6 +32,8 @@ import com.ichi2.anki.common.annotations.NeedsTest
 import com.ichi2.anki.common.destinations.BrowserDestination
 import com.ichi2.anki.common.destinations.CardInfoDestination
 import com.ichi2.anki.common.destinations.CardInfoDestination.EntryPoint
+import com.ichi2.anki.common.destinations.DeckOptionsDestination
+import com.ichi2.anki.common.destinations.DeckOptionsEntry
 import com.ichi2.anki.launchCatchingIO
 import com.ichi2.anki.libanki.Card
 import com.ichi2.anki.libanki.CardId
@@ -45,8 +47,6 @@ import com.ichi2.anki.noteeditor.NoteEditorLauncher
 import com.ichi2.anki.observability.ChangeManager
 import com.ichi2.anki.observability.undoableOp
 import com.ichi2.anki.pages.AnkiServer
-import com.ichi2.anki.pages.DeckOptionsDestination
-import com.ichi2.anki.pages.DeckOptionsEntry
 import com.ichi2.anki.pages.PostRequestUri
 import com.ichi2.anki.pages.StatisticsDestination
 import com.ichi2.anki.preferences.reviewer.ViewerAction
@@ -310,7 +310,7 @@ class ReviewerViewModel(
         val isFiltered = options.first { it.deckId == deckId }.isFiltered
         val destination = DeckOptionsDestination(deckId, isFiltered, options)
         Timber.i("Launching 'deck options' for deck %d", deckId)
-        destinationFlow.emit(destination)
+        navigateFlow.emit(destination)
     }
 
     /**

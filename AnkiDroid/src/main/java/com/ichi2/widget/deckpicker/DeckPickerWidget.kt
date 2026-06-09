@@ -30,9 +30,12 @@ import com.ichi2.anki.R
 import com.ichi2.anki.analytics.UsageAnalytics
 import com.ichi2.anki.common.coroutines.applicationScope
 import com.ichi2.anki.common.crashreporting.CrashReportService
+import com.ichi2.anki.common.destinations.DeckOptionsDestination
+import com.ichi2.anki.common.destinations.DeferredNavigation
+import com.ichi2.anki.common.destinations.toIntent
 import com.ichi2.anki.isCollectionEmpty
 import com.ichi2.anki.libanki.DeckId
-import com.ichi2.anki.pages.DeckOptionsDestination
+import com.ichi2.anki.pages.fromDeckId
 import com.ichi2.widget.ACTION_UPDATE_WIDGET
 import com.ichi2.widget.AnalyticsWidgetProvider
 import com.ichi2.widget.AppWidgetId
@@ -147,7 +150,7 @@ class DeckPickerWidget : AnalyticsWidgetProvider() {
                     if (!isEmptyDeck) {
                         intentToReviewDeckFromShortcuts(context, deck.deckId)
                     } else {
-                        DeckOptionsDestination.fromDeckId(deck.deckId).toIntent(context)
+                        with(DeferredNavigation) { DeckOptionsDestination.fromDeckId(deck.deckId).toIntent() }
                     }
 
                 val pendingIntent =

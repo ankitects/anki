@@ -43,11 +43,13 @@ import com.ichi2.anki.common.android.AnkiBroadcastReceiver
 import com.ichi2.anki.common.annotations.UseContextParameter
 import com.ichi2.anki.common.coroutines.applicationScope
 import com.ichi2.anki.common.crashreporting.CrashReportService
+import com.ichi2.anki.common.destinations.DeckOptionsDestination
 import com.ichi2.anki.dialogs.DatabaseErrorDialog
 import com.ichi2.anki.dialogs.DatabaseErrorDialog.DatabaseErrorDialogType
 import com.ichi2.anki.exception.StorageAccessException
 import com.ichi2.anki.libanki.exception.InvalidSearchException
-import com.ichi2.anki.pages.DeckOptionsDestination
+import com.ichi2.anki.pages.fromCurrentDeck
+import com.ichi2.anki.pages.toIntent
 import com.ichi2.anki.snackbar.showSnackbar
 import com.ichi2.anki.ui.internationalization.sentenceCase
 import com.ichi2.anki.utils.openUrl

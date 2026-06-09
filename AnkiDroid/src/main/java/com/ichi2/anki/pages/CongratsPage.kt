@@ -24,6 +24,8 @@ import com.ichi2.anki.OnErrorListener
 import com.ichi2.anki.R
 import com.ichi2.anki.SingleFragmentActivity
 import com.ichi2.anki.StudyOptionsActivity
+import com.ichi2.anki.common.destinations.DeckOptionsDestination
+import com.ichi2.anki.common.destinations.navigate
 import com.ichi2.anki.common.preferences.sharedPrefs
 import com.ichi2.anki.common.time.SECONDS_PER_DAY
 import com.ichi2.anki.common.time.TIME_HOUR
@@ -118,8 +120,7 @@ class CongratsPage :
         viewModel.deckOptionsDestination
             .flowWithLifecycle(lifecycle)
             .onEach { destination ->
-                val intent = destination.toIntent(requireContext())
-                startActivity(intent, null)
+                navigate(destination)
             }.launchIn(lifecycleScope)
 
         with(view.findViewById<MaterialToolbar>(R.id.toolbar)) {

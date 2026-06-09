@@ -26,8 +26,8 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.ichi2.anki.CollectionManager.TR
 import com.ichi2.anki.R
 import com.ichi2.anki.common.annotations.NeedsTest
+import com.ichi2.anki.common.destinations.DeckOptionsEntry
 import com.ichi2.anki.databinding.DialogDeckOptionsSelectionBinding
-import com.ichi2.anki.pages.DeckOptionsEntry
 import com.ichi2.anki.ui.windows.reviewer.ReviewerFragment
 import com.ichi2.anki.ui.windows.reviewer.ReviewerViewModel
 import com.ichi2.anki.utils.ext.usingStyledAttributes

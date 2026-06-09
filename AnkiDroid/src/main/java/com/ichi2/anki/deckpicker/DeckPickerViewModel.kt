@@ -36,6 +36,7 @@ import com.ichi2.anki.InitialActivity
 import com.ichi2.anki.OnErrorListener
 import com.ichi2.anki.PermissionSet
 import com.ichi2.anki.common.destinations.BrowserDestination
+import com.ichi2.anki.common.destinations.DeckOptionsDestination
 import com.ichi2.anki.configureRenderingMode
 import com.ichi2.anki.launchCatchingIO
 import com.ichi2.anki.libanki.CardId
@@ -50,7 +51,6 @@ import com.ichi2.anki.libanki.utils.extend
 import com.ichi2.anki.noteeditor.NoteEditorLauncher
 import com.ichi2.anki.notetype.ManageNoteTypesDestination
 import com.ichi2.anki.observability.undoableOp
-import com.ichi2.anki.pages.DeckOptionsDestination
 import com.ichi2.anki.performBackupInBackground
 import com.ichi2.anki.reviewreminders.ScheduleRemindersDestination
 import com.ichi2.anki.settings.Prefs
@@ -348,7 +348,7 @@ class DeckPickerViewModel :
     ) = launchCatchingIO {
         // open cram options if filtered deck, otherwise open regular options
         val filtered = isFiltered ?: withCol { decks.isFiltered(deckId) }
-        flowOfDestination.emit(DeckOptionsDestination(deckId = deckId, isFiltered = filtered))
+        flowOfNavigate.emit(DeckOptionsDestination(deckId = deckId, isFiltered = filtered))
     }
 
     fun unburyDeck(deckId: DeckId) =

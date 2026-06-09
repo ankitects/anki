@@ -55,6 +55,7 @@ import com.ichi2.anki.R
 import com.ichi2.anki.android.AnkiShakeDetector
 import com.ichi2.anki.cardviewer.Gesture
 import com.ichi2.anki.common.annotations.NeedsTest
+import com.ichi2.anki.common.destinations.DeckOptionsDestination
 import com.ichi2.anki.common.destinations.navigate
 import com.ichi2.anki.common.utils.android.isRobolectric
 import com.ichi2.anki.databinding.FragmentReviewerBinding
@@ -63,7 +64,6 @@ import com.ichi2.anki.dialogs.tags.TagsDialog
 import com.ichi2.anki.dialogs.tags.TagsDialogFactory
 import com.ichi2.anki.dialogs.tags.TagsDialogListener
 import com.ichi2.anki.model.CardStateFilter
-import com.ichi2.anki.pages.DeckOptionsDestination
 import com.ichi2.anki.preferences.reviewer.ViewerAction
 import com.ichi2.anki.previewer.CardViewerActivity
 import com.ichi2.anki.previewer.CardViewerFragment
@@ -206,22 +206,22 @@ class ReviewerFragment :
         }
 
         viewModel.navigateFlow.collectIn(lifecycleScope) { destination ->
+            if (destination is DeckOptionsDestination && destination.options.size > 1) {
+                requireContext().showDeckOptionsSelectionDialog(destination.options) { selectedOption ->
+                    Timber.i("Deck options target selected: ${selectedOption.deckId}")
+                    navigate(
+                        destination.copy(
+                            deckId = selectedOption.deckId,
+                            isFiltered = selectedOption.isFiltered,
+                        ),
+                    )
+                }
+                return@collectIn
+            }
             navigate(destination)
         }
 
         viewModel.destinationFlow.collectIn(lifecycleScope) { destination ->
-            if (destination is DeckOptionsDestination && destination.options.size > 1) {
-                requireContext().showDeckOptionsSelectionDialog(destination.options) { selectedOption ->
-                    Timber.i("Deck options target selected: ${selectedOption.deckId}")
-                    val updatedDestination =
-                        destination.copy(
-                            deckId = selectedOption.deckId,
-                            isFiltered = selectedOption.isFiltered,
-                        )
-                    startActivity(updatedDestination.toIntent(requireContext()))
-                }
-                return@collectIn
-            }
             startActivity(destination.toIntent(requireContext()))
         }
 
