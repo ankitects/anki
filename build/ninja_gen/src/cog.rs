@@ -49,7 +49,7 @@ pub fn cog_render(
         },
     )?;
     build.add_action(
-        format!("check:cog:{group}"),
+        format!("format:cog:{group}"),
         CogRender {
             inputs: &inputs,
             deps: &deps,
