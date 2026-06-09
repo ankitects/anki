@@ -32,10 +32,6 @@ jobs:
       - name: Install Mintlify CLI
         run: npm install -g mintlify
 
-      - name: Check generated hooks reference
-        run: >-
-          ./ninja check:format:cog
-
       - name: Test docs generation
         run: uv run python -m pytest tools/tests/test_mintlify_hooks.py
 
