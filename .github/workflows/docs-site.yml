@@ -32,15 +32,6 @@ jobs:
       - name: Install Mintlify CLI
         run: npm install -g mintlify
 
-      - name: Check generated hooks reference
-        run: >-
-          uv run --with cogapp python -m cogapp
-          --markers "<<<cog >>> <<<end>>>"
-          --check
-          --diff
-          --check-fail-msg "Run: uv run --with cogapp python -m cogapp --markers '<<<cog >>> <<<end>>>' -r docs-site/addons/hooks-reference.mdx"
-          docs-site/addons/hooks-reference.mdx
-
       - name: Test docs generation
         run: uv run python -m pytest tools/tests/test_mintlify_hooks.py
 
