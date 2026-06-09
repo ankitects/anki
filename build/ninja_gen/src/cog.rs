@@ -17,13 +17,13 @@ struct CogRender<'a> {
 
 impl BuildAction for CogRender<'_> {
     fn command(&self) -> &str {
-        "$uv run --with cogapp python -m cogapp --markers \"<<<cog >>> <<<end>>>\" $mode $in"
+        "$cog -I . --markers \"<<<cog >>> <<<end>>>\" $mode $in"
     }
 
     fn files(&mut self, build: &mut impl FilesHandle) {
         build.add_inputs("", self.deps);
-        build.add_inputs("uv", inputs![":uv_binary"]);
         build.add_inputs("in", self.inputs);
+        build.add_inputs("cog", inputs![":pyenv:cog"]);
         build.add_variable("mode", if self.check_only { "--check" } else { "-r $in" });
 
         let hash = simple_hash(self.inputs);

@@ -55,7 +55,7 @@ fn normalize_version(version: &str) -> String {
 }
 
 pub fn setup_venv(build: &mut Build) -> Result<()> {
-    let extra_binary_exports = &["mypy", "ruff", "pytest", "protoc-gen-mypy"];
+    let extra_binary_exports = &["mypy", "ruff", "pytest", "protoc-gen-mypy", "cog"];
     build.add_action(
         "pyenv",
         PythonEnvironment {

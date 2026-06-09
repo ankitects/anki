@@ -92,6 +92,7 @@ source = { virtual = "." }
 [package.dev-dependencies]
 dev = [
     { name = "briefcase" },
+    { name = "cogapp" },
     { name = "coverage" },
     { name = "hatchling" },
     { name = "mock" },
@@ -128,6 +129,7 @@ docs = [
 [package.metadata.requires-dev]
 dev = [
     { name = "briefcase", specifier = ">=0.4.2" },
+    { name = "cogapp", specifier = ">=3.6.0" },
     { name = "coverage", specifier = ">=7.13.5" },
     { name = "hatchling" },
     { name = "mock" },
@@ -184,6 +186,7 @@ wheels = [
 name = "aqt"
 source = { editable = "qt" }
 dependencies = [
+    { name = "anki" },
     { name = "anki-mac-helper", marker = "sys_platform == 'darwin' or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt610') or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt68') or (extra == 'extra-3-aqt-qt' and extra == 'extra-3-aqt-qt69') or (extra == 'extra-3-aqt-qt610' and extra == 'extra-3-aqt-qt68') or (extra == 'extra-3-aqt-qt610' and extra == 'extra-3-aqt-qt69') or (extra == 'extra-3-aqt-qt68' and extra == 'extra-3-aqt-qt69')" },
     { name = "beautifulsoup4" },
     { name = "flask" },
@@ -240,6 +243,7 @@ qt69 = [
 
 [package.metadata]
 requires-dist = [
+    { name = "anki", editable = "pylib" },
     { name = "anki-audio", marker = "(platform_machine == 'AMD64' and sys_platform == 'win32' and extra == 'audio') or (sys_platform == 'darwin' and extra == 'audio')", specifier = "==0.1.0" },
     { name = "anki-mac-helper", marker = "sys_platform == 'darwin'", specifier = ">=0.1.1" },
     { name = "beautifulsoup4" },
@@ -528,6 +532,15 @@ dependencies = [
 sdist = { url = "https://files.pythonhosted.org/packages/46/cf/09a31f0f51b5c8ef2343baf37c35a5feb4f6dfdcbd0592a014baf837f2e4/cloup-3.0.8.tar.gz", hash = "sha256:f91c080a725196ddf74feabd6250266f466e97fc16dfe21a762cf6bc6beb3ecb", size = 229657, upload-time = "2025-08-05T02:25:02.83Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/45/0a/494a923f90cd97cdf4fb989cfd06ac0c6745f6dfb8adcef1b7f99d3c7834/cloup-3.0.8-py2.py3-none-any.whl", hash = "sha256:6fe9474dc44fa06f8870e9c797f005de1e3ef891ddc1a9612d9b58598a038323", size = 54647, upload-time = "2025-08-05T02:25:01.536Z" },
+]
+
+[[package]]
+name = "cogapp"
+version = "3.6.0"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/64/ea/4ffa8095e0b675e9961cbdcad002c09d35d4ab76ff99d61a014e9e6bcd53/cogapp-3.6.0.tar.gz", hash = "sha256:ec2a9170bfa644bf0d91996fdb5576c13d7e5e848bb2378a6f92727b48f92604", size = 59742, upload-time = "2025-09-21T15:54:13.553Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/05/1c/23b5110b7cb305f0fe3a5d6809d6804c1cb57d57b59516dbb5e24aaf95fc/cogapp-3.6.0-py3-none-any.whl", hash = "sha256:6ea11c63221f92978d37d8d76208eadeae2a6e4641d323f165738a5464a19d32", size = 30550, upload-time = "2025-09-21T15:54:12.205Z" },
 ]
 
 [[package]]
