@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import inspect
+import re
 import runpy
 import sys
 from pathlib import Path
@@ -21,7 +22,25 @@ def hooks(path: str) -> list[Any]:
 
 
 def doc(text: str | None) -> str:
-    return inspect.cleandoc(text or "") or "No docstring."
+    text = inspect.cleandoc(text or "")
+    if not text:
+        return "No docstring."
+
+    def addFences(match: re.Match) -> str:
+        code = match.group(1).replace(chr(9), "")
+        code = code.replace("<", "&SAFEBYPASSlt;").replace(">", "&SAFEBYPASSgt;")
+        code = inspect.cleandoc(code)
+        return f"\n```python\n{code}\n```\n"
+
+    # Convert tab-indented blocks to ```python fences
+    text = re.sub(
+        r"(?:^|\n)((?:(?: {4}|\t|\n {4}).*(?:\n|$))+)",
+        addFences,
+        text,
+        flags=re.MULTILINE,
+    )
+
+    return text
 
 
 def safe(text: str) -> str:
@@ -29,6 +48,8 @@ def safe(text: str) -> str:
         text.replace("{{filters:..}}", "`{{filters:..}}`")
         .replace("<", "&lt;")
         .replace(">", "&gt;")
+        .replace("&SAFEBYPASSlt;", "<")
+        .replace("&SAFEBYPASSgt;", ">")
     )
     return "\n".join(line.rstrip() for line in safe_text.splitlines())
 
