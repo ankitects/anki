@@ -19,7 +19,6 @@ package com.ichi2.anki.scheduling
 import android.app.Dialog
 import android.os.Bundle
 import androidx.core.content.edit
-import androidx.core.os.bundleOf
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
@@ -127,10 +126,10 @@ class ForgetCardsDialog : DialogFragment() {
                 }
                 parentFragmentManager.setFragmentResult(
                     REQUEST_KEY_FORGET,
-                    bundleOf(
-                        ARG_RESTORE_ORIGINAL to restoreOriginalPositionIfPossible,
-                        ARG_RESET_REPETITION to resetRepetitionAndLapseCounts,
-                    ),
+                    Bundle().apply {
+                        putBoolean(ARG_RESTORE_ORIGINAL, restoreOriginalPositionIfPossible)
+                        putBoolean(ARG_RESET_REPETITION, resetRepetitionAndLapseCounts)
+                    },
                 )
             }
             negativeButton(R.string.dialog_cancel)

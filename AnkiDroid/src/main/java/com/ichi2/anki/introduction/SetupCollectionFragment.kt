@@ -20,7 +20,6 @@ package com.ichi2.anki.introduction
 import android.os.Bundle
 import android.os.Parcelable
 import android.view.View
-import androidx.core.os.bundleOf
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.setFragmentResult
 import com.ichi2.anki.R
@@ -56,7 +55,7 @@ class SetupCollectionFragment : Fragment(R.layout.fragment_introduction) {
     }
 
     private fun setResult(option: CollectionSetupOption) {
-        setFragmentResult(FRAGMENT_KEY, bundleOf(RESULT_KEY to option))
+        setFragmentResult(FRAGMENT_KEY, Bundle().apply { putParcelable(RESULT_KEY, option) })
     }
 
     @Parcelize

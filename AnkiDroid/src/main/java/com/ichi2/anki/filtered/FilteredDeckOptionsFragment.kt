@@ -28,7 +28,6 @@ import android.widget.CheckBox
 import android.widget.Spinner
 import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.app.AlertDialog
-import androidx.core.os.bundleOf
 import androidx.core.view.isVisible
 import androidx.core.widget.doOnTextChanged
 import androidx.fragment.app.Fragment
@@ -405,11 +404,11 @@ class FilteredDeckOptionsFragment : Fragment(R.layout.fragment_filtered_deck_opt
                 context = context,
                 fragmentClass = FilteredDeckOptionsFragment::class,
                 arguments =
-                    bundleOf(
-                        ARG_DECK_ID to did,
-                        ARG_SEARCH to search,
-                        ARG_SEARCH_2 to search2,
-                    ),
+                    Bundle().apply {
+                        putLong(ARG_DECK_ID, did)
+                        putString(ARG_SEARCH, search)
+                        putString(ARG_SEARCH_2, search2)
+                    },
             )
     }
 }

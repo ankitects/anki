@@ -19,7 +19,7 @@ package com.ichi2.anki.account
 
 import android.content.Context
 import android.content.Intent
-import androidx.core.os.bundleOf
+import android.os.Bundle
 import com.ichi2.anki.SingleFragmentActivity
 import com.ichi2.anki.isLoggedIn
 
@@ -47,9 +47,9 @@ class AccountActivity : SingleFragmentActivity() {
                 context = context,
                 fragmentClass = if (isLoggedIn()) LoggedInFragment::class else LoginFragment::class,
                 arguments =
-                    bundleOf(
-                        START_FROM_DECKPICKER to forResult,
-                    ),
+                    Bundle().apply {
+                        putBoolean(START_FROM_DECKPICKER, forResult)
+                    },
             )
     }
 }

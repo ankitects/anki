@@ -18,7 +18,6 @@ package com.ichi2.anki.dialogs
 
 import android.os.Bundle
 import androidx.appcompat.app.AlertDialog
-import androidx.core.os.bundleOf
 import androidx.fragment.app.DialogFragment
 import com.ichi2.anki.AnkiActivity
 import com.ichi2.anki.R
@@ -42,7 +41,7 @@ class ExportReadyDialog : DialogFragment() {
             .positiveButton(R.string.export_choice_save_to) {
                 parentFragmentManager.setFragmentResult(
                     REQUEST_EXPORT_SAVE,
-                    bundleOf(KEY_EXPORT_PATH to exportPath),
+                    Bundle().apply { putString(KEY_EXPORT_PATH, exportPath) },
                 )
             }.negativeButton(R.string.export_choice_share) {
                 parentFragmentManager.setFragmentResult(

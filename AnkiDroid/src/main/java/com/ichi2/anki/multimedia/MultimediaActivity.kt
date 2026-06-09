@@ -20,7 +20,6 @@ package com.ichi2.anki.multimedia
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
-import androidx.core.os.bundleOf
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.commit
 import com.google.android.material.button.MaterialButton
@@ -92,10 +91,10 @@ class MultimediaActivity :
         val fragment =
             FragmentFactoryUtils.instantiate<Fragment>(this, fragmentClassName).apply {
                 arguments =
-                    bundleOf(
-                        MULTIMEDIA_ARGS_EXTRA to intent.multimediaArgsExtra,
-                        EXTRA_MEDIA_OPTIONS to intent.mediaOptionsExtra,
-                    )
+                    Bundle().apply {
+                        putSerializable(MULTIMEDIA_ARGS_EXTRA, intent.multimediaArgsExtra)
+                        putSerializable(EXTRA_MEDIA_OPTIONS, intent.mediaOptionsExtra)
+                    }
             }
 
         supportFragmentManager.commit {

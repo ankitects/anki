@@ -29,7 +29,6 @@ import android.view.inputmethod.EditorInfo
 import android.widget.EditText
 import androidx.annotation.CheckResult
 import androidx.core.content.ContextCompat
-import androidx.core.os.bundleOf
 import androidx.core.view.isVisible
 import androidx.core.widget.doOnTextChanged
 import androidx.fragment.app.DialogFragment
@@ -250,13 +249,14 @@ class SetDueDateDialog : DialogFragment() {
         suspend fun newInstance(cardIds: List<CardId>) =
             SetDueDateDialog().apply {
                 arguments =
-                    bundleOf(
-                        ARG_CARD_IDS to cardIds.toLongArray(),
-                        ARG_FSRS to (
+                    Bundle().apply {
+                        putLongArray(ARG_CARD_IDS, cardIds.toLongArray())
+                        putBoolean(
+                            ARG_FSRS,
                             getFSRSStatus()
-                                ?: false.also { Timber.w("FSRS Status error") }
-                        ),
-                    )
+                                ?: false.also { Timber.w("FSRS Status error") },
+                        )
+                    }
                 Timber.i("Showing 'set due date' dialog for %d cards", cardIds.size)
             }
     }
@@ -313,7 +313,7 @@ class SetDueDateDialog : DialogFragment() {
                         ) {
                             parentFragmentManager.setFragmentResult(
                                 RESULT_SUBMIT_DUE_DATE,
-                                bundleOf(),
+                                Bundle(),
                             )
                             true
                         } else {
@@ -388,7 +388,7 @@ class SetDueDateDialog : DialogFragment() {
                         ) {
                             parentFragmentManager.setFragmentResult(
                                 RESULT_SUBMIT_DUE_DATE,
-                                bundleOf(),
+                                Bundle(),
                             )
                             true
                         } else {

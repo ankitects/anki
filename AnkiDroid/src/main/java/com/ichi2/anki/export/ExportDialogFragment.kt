@@ -24,7 +24,6 @@ import android.widget.TextView
 import androidx.annotation.IdRes
 import androidx.annotation.LayoutRes
 import androidx.appcompat.app.AlertDialog
-import androidx.core.os.bundleOf
 import androidx.core.text.HtmlCompat
 import androidx.core.view.isVisible
 import androidx.fragment.app.DialogFragment
@@ -450,7 +449,7 @@ class ExportDialogFragment : DialogFragment() {
          */
         fun newInstance(did: DeckId) =
             ExportDialogFragment().apply {
-                arguments = bundleOf(ARG_DECK_ID to did)
+                arguments = Bundle().apply { putLong(ARG_DECK_ID, did) }
             }
 
         /**
