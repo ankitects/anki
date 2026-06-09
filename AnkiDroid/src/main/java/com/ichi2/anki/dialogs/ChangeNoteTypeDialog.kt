@@ -34,7 +34,6 @@ import android.widget.Spinner
 import androidx.annotation.CheckResult
 import androidx.annotation.StringRes
 import androidx.annotation.VisibleForTesting
-import androidx.core.os.bundleOf
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
@@ -146,7 +145,7 @@ class ChangeNoteTypeDialog : AnalyticsDialogFragment(R.layout.dialog_change_note
         launchCatchingTask {
             viewModel.closeDialogFlow.filterNotNull().collect {
                 Timber.i("Dismissing dialog")
-                parentFragmentManager.setFragmentResult(REQUEST_KEY_NOTE_TYPE_CHANGED, bundleOf())
+                parentFragmentManager.setFragmentResult(REQUEST_KEY_NOTE_TYPE_CHANGED, Bundle())
                 dismiss()
             }
         }
@@ -315,9 +314,9 @@ class ChangeNoteTypeDialog : AnalyticsDialogFragment(R.layout.dialog_change_note
             ChangeNoteTypeDialog().apply {
                 val ids = noteIds.distinct()
                 arguments =
-                    bundleOf(
-                        ARG_NOTE_IDS to ids.toLongArray(),
-                    )
+                    Bundle().apply {
+                        putLongArray(ARG_NOTE_IDS, ids.toLongArray())
+                    }
                 Timber.i("Showing 'change note type' dialog for %d notes", ids.size)
             }
     }

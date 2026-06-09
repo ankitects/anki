@@ -19,7 +19,6 @@ import android.app.Dialog
 import android.content.Context
 import android.os.Bundle
 import androidx.appcompat.app.AlertDialog
-import androidx.core.os.bundleOf
 import androidx.core.view.isVisible
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.setFragmentResult
@@ -115,10 +114,10 @@ class TagLimitFragment : DialogFragment() {
                 // send the selection to the custom study dialog to setup the session
                 setFragmentResult(
                     REQUEST_CUSTOM_STUDY_TAGS,
-                    bundleOf(
-                        KEY_INCLUDED_TAGS to ArrayList(tagsToInclude),
-                        KEY_EXCLUDED_TAGS to ArrayList(tagsToExclude),
-                    ),
+                    Bundle().apply {
+                        putStringArrayList(KEY_INCLUDED_TAGS, ArrayList(tagsToInclude))
+                        putStringArrayList(KEY_EXCLUDED_TAGS, ArrayList(tagsToExclude))
+                    },
                 )
                 dismiss()
             }
@@ -157,7 +156,7 @@ class TagLimitFragment : DialogFragment() {
 
         fun newInstance(deckId: DeckId) =
             TagLimitFragment().apply {
-                arguments = bundleOf(ARG_DECK_ID to deckId)
+                arguments = Bundle().apply { putLong(ARG_DECK_ID, deckId) }
             }
     }
 }

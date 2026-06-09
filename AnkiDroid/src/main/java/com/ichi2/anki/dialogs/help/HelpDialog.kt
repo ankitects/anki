@@ -22,7 +22,6 @@ import androidx.activity.addCallback
 import androidx.annotation.VisibleForTesting
 import androidx.appcompat.app.AlertDialog
 import androidx.core.os.BundleCompat
-import androidx.core.os.bundleOf
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.commit
@@ -111,7 +110,7 @@ class HelpDialog : DialogFragment() {
     private fun newHelpPage(items: Array<HelpItem>) {
         val menuPage =
             HelpPageFragment().apply {
-                arguments = bundleOf(ARG_MENU_ITEMS to items)
+                arguments = Bundle().apply { putParcelableArray(ARG_MENU_ITEMS, items) }
             }
         childFragmentManager.commit {
             replace(R.id.fragment_container, menuPage, PAGE_TAG).addToBackStack(null)
@@ -127,10 +126,10 @@ class HelpDialog : DialogFragment() {
             UsageAnalytics.sendAnalyticsEvent(Category.LINK_CLICKED, Actions.OPENED_HELP_DIALOG)
             return HelpDialog().apply {
                 arguments =
-                    bundleOf(
-                        ARG_MENU_TITLE to R.string.help,
-                        ARG_MENU_ITEMS to mainHelpMenuItems,
-                    )
+                    Bundle().apply {
+                        putInt(ARG_MENU_TITLE, R.string.help)
+                        putParcelableArray(ARG_MENU_ITEMS, mainHelpMenuItems)
+                    }
             }
         }
 
@@ -140,10 +139,10 @@ class HelpDialog : DialogFragment() {
             val privacyItems = childHelpMenuItems.filter { it.parentId == privacyId }
             return HelpDialog().apply {
                 arguments =
-                    bundleOf(
-                        ARG_MENU_TITLE to R.string.help_title_privacy,
-                        ARG_MENU_ITEMS to privacyItems.toTypedArray(),
-                    )
+                    Bundle().apply {
+                        putInt(ARG_MENU_TITLE, R.string.help_title_privacy)
+                        putParcelableArray(ARG_MENU_ITEMS, privacyItems.toTypedArray())
+                    }
             }
         }
 
@@ -158,10 +157,10 @@ class HelpDialog : DialogFragment() {
             val actualMenuItems = supportMenuItems.filterNot { it.action is Rate && !canRateApp }
             return HelpDialog().apply {
                 arguments =
-                    bundleOf(
-                        ARG_MENU_TITLE to R.string.help_title_support_ankidroid,
-                        ARG_MENU_ITEMS to actualMenuItems.toTypedArray(),
-                    )
+                    Bundle().apply {
+                        putInt(ARG_MENU_TITLE, R.string.help_title_support_ankidroid)
+                        putParcelableArray(ARG_MENU_ITEMS, actualMenuItems.toTypedArray())
+                    }
             }
         }
     }
@@ -204,7 +203,7 @@ class HelpPageFragment : Fragment(R.layout.fragment_help_page) {
                     UsageAnalytics.sendAnalyticsEvent(Category.LINK_CLICKED, menuItem.analyticsId)
                     parentFragmentManager.setFragmentResult(
                         REQUEST_HELP_PAGE,
-                        bundleOf(ARG_SELECTED_MENU_ITEM to menuItem),
+                        Bundle().apply { putParcelable(ARG_SELECTED_MENU_ITEM, menuItem) },
                     )
                 }
                 binding.pageContent.addView(this)
