@@ -1222,6 +1222,7 @@ class CardBrowserViewModel(
     fun setQuery(
         query: String,
         forceRefresh: Boolean = true,
+        fromUserSearch: Boolean = false,
     ) = viewModelScope.launch {
         val newValue = searchRequestFlow.value.copy(query = query)
         if (!forceRefresh && withCol { searchRequestFlow.value.toSearchString() == newValue.toSearchString() }) {
@@ -1230,7 +1231,7 @@ class CardBrowserViewModel(
         }
 
         searchRequestFlow.value = newValue
-        launchSearchForCards()
+        launchSearchForCards(fromUserSearch = fromUserSearch)
     }
 
     /**
@@ -1365,10 +1366,13 @@ class CardBrowserViewModel(
 
     /**
      * @param forceRefresh if `true`, perform a search even if the search query is unchanged
+     * @param fromUserSearch whether the user explicitly searched for something; controls whether a
+     * result message (snackbar) is surfaced. See [SearchState.Completed.resultMessage]
      */
     fun launchSearchForCards(
         searchRequest: SearchRequest,
         forceRefresh: Boolean,
+        fromUserSearch: Boolean = false,
     ) = viewModelScope.launch {
         Timber.d("launching search [new syntax]: '%s'", searchRequest)
 
@@ -1380,7 +1384,7 @@ class CardBrowserViewModel(
         }
 
         searchRequestFlow.value = searchRequest
-        launchSearchForCards()
+        launchSearchForCards(fromUserSearch = fromUserSearch)
     }
 
     /**
@@ -1390,7 +1394,10 @@ class CardBrowserViewModel(
      * @see com.ichi2.anki.searchForRows
      */
     @NeedsTest("Invalid searches are handled. For instance: 'and'")
-    fun launchSearchForCards(cardOrNoteIdsToSelect: List<CardOrNoteId> = emptyList()) {
+    fun launchSearchForCards(
+        cardOrNoteIdsToSelect: List<CardOrNoteId> = emptyList(),
+        fromUserSearch: Boolean = false,
+    ) {
         if (!initCompleted) return
 
         viewModelScope.launch {
@@ -1413,7 +1420,7 @@ class CardBrowserViewModel(
                     this@CardBrowserViewModel.cards.replaceWith(cardsOrNotes, cards)
                     ensureFocusedRowValid()
                     if (isFragmented) flowOfNoteEditorCommand.emit(NoteEditorCommand.fromCurrentSearchState())
-                    flowOfSearchState.emit(SearchState.Completed.fromCurrentState())
+                    flowOfSearchState.emit(SearchState.Completed.fromCurrentState(fromUserSearch))
                     selectUnvalidatedRowIds(cardOrNoteIdsToSelect)
                 }
 
@@ -1520,13 +1527,18 @@ class CardBrowserViewModel(
 
     suspend fun getAvailableDecks(): List<SelectableDeck.Deck> = SelectableDeck.fromCollection(includeFiltered = false)
 
-    /** Builds a [SearchState.Completed] event reflecting the current ViewModel state. */
-    private fun SearchState.Completed.Companion.fromCurrentState(): SearchState.Completed =
+    /**
+     * Builds a [SearchState.Completed] event reflecting the current ViewModel state.
+     *
+     * @param fromUserSearch whether this search was triggered by the user searching for something.
+     */
+    private fun SearchState.Completed.Companion.fromCurrentState(fromUserSearch: Boolean = false): SearchState.Completed =
         SearchState.Completed(
             rowCount = rowCount,
             cardsOrNotes = cardsOrNotes,
             resultMessage =
                 when {
+                    !fromUserSearch -> null
                     // TODO: better message if rowCount == 0 AND hasSelectedAllDecks
                     hasSelectedAllDecks() -> SearchResultMessage.CardCount(includeSearchAllDecksAction = false)
                     rowCount == 0 -> SearchResultMessage.NoCardsInSelectedDeck
@@ -1657,7 +1669,13 @@ class CardBrowserViewModel(
         data class Completed(
             val rowCount: Int,
             val cardsOrNotes: CardsOrNotes,
-            val resultMessage: SearchResultMessage,
+            /**
+             * The message (snackbar) to surface for this search, or `null` if none should be shown.
+             *
+             * Only populated for explicit user searches; `null` for browser open, deck change and
+             * order/direction changes.
+             */
+            val resultMessage: SearchResultMessage?,
         ) : SearchState {
             companion object
         }

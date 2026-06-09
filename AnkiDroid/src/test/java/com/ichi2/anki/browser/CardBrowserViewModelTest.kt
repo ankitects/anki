@@ -1571,11 +1571,13 @@ class CardBrowserViewModelTest : JvmTest() {
         }
 
     @Test
-    fun `searchResultMessage - all decks selected, with rows`() =
+    fun `searchResultMessage - user search, all decks selected, with rows`() =
         runViewModelTest(notes = 3) {
             flowOfSearchState.test {
                 ignoreEventsDuringViewModelInit()
                 setSelectedDeck(SelectableDeck.AllDecks)
+                awaitSearchCompleted()
+                setQuery("", fromUserSearch = true)
                 val completed = awaitSearchCompleted()
                 val card = completed.resultMessage as CardBrowserViewModel.SearchResultMessage.CardCount
                 assertThat("count", completed.rowCount, equalTo(3))
@@ -1585,29 +1587,49 @@ class CardBrowserViewModelTest : JvmTest() {
         }
 
     @Test
-    fun `searchResultMessage - specific deck with cards has all-decks action`() =
+    fun `searchResultMessage - user search, specific deck with cards has all-decks action`() =
         runViewModelTest {
             val deck = addDeck("Specific")
             addNoteToDeck(deck)
             flowOfSearchState.test {
                 ignoreEventsDuringViewModelInit()
                 setSelectedDeck(deck)
+                awaitSearchCompleted()
+                setQuery("", fromUserSearch = true)
                 val card = awaitSearchCompleted().resultMessage as CardBrowserViewModel.SearchResultMessage.CardCount
                 assertThat("includes all-decks action", card.includeSearchAllDecksAction, equalTo(true))
             }
         }
 
     @Test
-    fun `searchResultMessage - specific deck with no cards`() =
+    fun `searchResultMessage - user search, specific deck with no cards`() =
         runViewModelTest {
             val deck = addDeck("Empty")
             flowOfSearchState.test {
                 ignoreEventsDuringViewModelInit()
                 setSelectedDeck(deck)
+                awaitSearchCompleted()
+                setQuery("", fromUserSearch = true)
                 assertThat(
                     "empty deck → no-cards-in-selected-deck",
                     awaitSearchCompleted().resultMessage,
                     equalTo(CardBrowserViewModel.SearchResultMessage.NoCardsInSelectedDeck),
+                )
+            }
+        }
+
+    @Test
+    fun `searchResultMessage - no message on deck change`() =
+        runViewModelTest {
+            val deck = addDeck("Specific")
+            addNoteToDeck(deck)
+            flowOfSearchState.test {
+                ignoreEventsDuringViewModelInit()
+                setSelectedDeck(deck)
+                assertThat(
+                    "changing deck does not surface a result message",
+                    awaitSearchCompleted().resultMessage,
+                    nullValue(),
                 )
             }
         }
