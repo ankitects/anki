@@ -20,7 +20,7 @@
         "ftl/usage",
         "licenses.json",
         ".dmypy.json",
-        "docs-site/docs.json",
+        "docs-site",
         "target",
         ".mypy_cache",
         "extra",
