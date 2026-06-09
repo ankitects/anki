@@ -121,3 +121,72 @@ impl From<ExportLimit> for SearchNode {
         }
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use anki_proto::generic;
+    us e anki_proto::import_export::export_limit::Limit;
+    use anki_proto::import_export::import_response::Log as NoteLog;
+    use anki_proto::import_export::CsvMetadataRequest;
+    use anki_proto::import_export::ExportAnkiPackageRequest;
+    use anki_proto::import_export::ExportCardCsvRequest;
+    use anki_proto::import_export::ExportLimit;
+    use anki_proto::import_export::ExportNoteCsvRequest;
+    use anki_proto::import_export::ImportAnkiPackageRequest;
+    use anki_proto::import_export::ImportCsvRequest;
+    use tempfile::tempdir;
+
+    use super::*;
+    use crate::ops::Op;
+    use crate::ops::OpChanges;
+    use crate::ops::OpOutput;
+    use crate::ops::StateChanges;
+    use crate::services::ImportExportService;
+    use crate::tests::NoteAdder;
+    use crate::tests::open_fs_test_collection;
+
+    // --- From<ExportLimit> for SearchNode ---
+
+    #[test]
+    fn export_limit_none_becomes_whole_collection() {
+        let node = SearchNode::from(ExportLimit { limit: None });
+        assert_eq!(node, SearchNode::WholeCollection);
+    }
+
+    #[test]
+    fn export_limit_note_ids_becomes_note_id_search() {
+        use anki_proto::notes::NoteIds;
+        let node = SearchNode::from(ExportLimit {
+            limit: Some(Limit::NoteIds(NoteIds {
+                note_ids: vec![1, 2, 3],
+            })),
+        });
+        assert!(
+            matches!(node, SearchNode::NoteIds(_)),
+            "expected NoteIds search node, got: {node:?}"
+        );
+    }
+
+    #[test]
+    fn export_limit_card_ids_becomes_card_id_search() {
+        use anki_proto::cards::CardIds;
+        let node = SearchNode::from(ExportLimit {
+            limit: Some(Limit::CardIds(CardIds { cids: vec![10, 20] })),
+        });
+        assert!(
+            matches!(node, SearchNode::CardIds(_)),
+            "expected CardIds search node, got: {node:?}"
+        );
+    }
+
+    #[test]
+    fn export_limit_deck_id_becomes_deck_id_with_children() {
+        let node = SearchNode::from(ExportLimit {
+            limit: Some(Limit::DeckId(42)),
+        });
+        assert!(
+            matches!(node, SearchNode::DeckIdWithChildren(_)),
+            "expected DeckIdWithChildren, got: {node:?}"
+        );
+    }
+}
