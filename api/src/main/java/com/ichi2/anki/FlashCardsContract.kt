@@ -978,7 +978,7 @@ public object FlashCardsContract {
      *            |                   |            | com.ichi2.anki.api.Ease.EASE_3.value
      *            |                   |            | com.ichi2.anki.api.Ease.EASE_4.value
      * --------------------------------------------------------------------------------------------------------------------
-     * String     | TIME_TAKEN        | write_only | The it took to answer the card (in milliseconds). Used when answering the card.
+     * String     | TIME_TAKEN        | write_only | The time it took to answer the card (in milliseconds). Used when answering the card.
      * --------------------------------------------------------------------------------------------------------------------
      * int        | BURY              | write-only | Set to 1 to bury the card. Mutually exclusive with setting EASE/TIME_TAKEN/SUSPEND
      * --------------------------------------------------------------------------------------------------------------------
