@@ -10,10 +10,3 @@ repos:
             pass_filenames: false
             always_run: true
             stages: [pre-push]
-          - id: complexipy
-            name: complexipy
-            entry: just complexipy-diff main
-            language: system
-            pass_filenames: false
-            always_run: true
-            stages: [pre-push]
