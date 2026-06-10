@@ -23,6 +23,7 @@ import com.ichi2.anki.TranslationTest.Companion.BASELINE_CASE_INSENSITIVE_DUPLIC
 import com.ichi2.anki.TranslationTest.Companion.BASELINE_DUPLICATES
 import com.ichi2.testutils.BackendTranslation
 import com.ichi2.testutils.XmlStringResource
+import com.ichi2.testutils.getAndroidManifestStringResourceNames
 import com.ichi2.testutils.getBackendNonArgStrings
 import com.ichi2.testutils.getTranslatableXmlStrings
 import org.junit.Test
@@ -44,9 +45,13 @@ class TranslationTest : RobolectricTest() {
             val backendByTextLower = backendStrings.groupBy { it.text.lowercase() }
             val xmlStrings = getTranslatableXmlStrings()
 
+            // strings referenced from AndroidManifest.xml cannot be converted to use the backend
+            val manifestStringsLower = ANDROID_MANIFEST_STRINGS.mapTo(mutableSetOf()) { it.lowercase() }
+
             val exactDuplicates =
                 xmlStrings
                     .filter { it.text !in BASELINE_DUPLICATES }
+                    .filter { it.text.lowercase() !in manifestStringsLower }
                     .filter { it.text in backendByText }
 
             if (exactDuplicates.isNotEmpty()) {
@@ -62,6 +67,7 @@ class TranslationTest : RobolectricTest() {
                 fail(
                     "${exactDuplicates.size} XML string(s) duplicate a backend translation.\n" +
                         "If caused by a backend update, add to BASELINE_DUPLICATES:\n$entries\n\n" +
+                        "If referenced from AndroidManifest.xml, add to ANDROID_MANIFEST_STRINGS.\n" +
                         "If manually added, use a string from `TR`.",
                 )
             }
@@ -72,6 +78,7 @@ class TranslationTest : RobolectricTest() {
                 xmlStrings
                     .filter { it.text !in BASELINE_DUPLICATES }
                     .filter { it.text.lowercase() !in caseInsensitiveBaseline }
+                    .filter { it.text.lowercase() !in manifestStringsLower }
                     .filter { it.text !in backendByText } // not an exact match
                     .filter { it.text.lowercase() in backendByTextLower }
 
@@ -88,6 +95,7 @@ class TranslationTest : RobolectricTest() {
                 fail(
                     "${caseInsensitiveDuplicates.size} XML string(s) case-insensitively duplicate a backend translation.\n" +
                         "If caused by a backend update, add to BASELINE_CASE_INSENSITIVE_DUPLICATES:\n$entries\n\n" +
+                        "If referenced from AndroidManifest.xml, add to ANDROID_MANIFEST_STRINGS.\n" +
                         "If caused by a manually added XML string, use TR instead of defining a new string resource.",
                 )
             }
@@ -100,7 +108,15 @@ class TranslationTest : RobolectricTest() {
                 BASELINE_CASE_INSENSITIVE_DUPLICATES.filter {
                     it.lowercase() !in xmlTextsLower || it.lowercase() !in backendByTextLower
                 }
-            if (unusedExact.isNotEmpty() || unusedCaseInsensitive.isNotEmpty()) {
+            val manifestXmlTextsLower =
+                xmlStrings
+                    .filter { it.name in getAndroidManifestStringResourceNames() }
+                    .mapTo(mutableSetOf()) { it.text.lowercase() }
+            val unusedManifest =
+                ANDROID_MANIFEST_STRINGS.filter {
+                    it.lowercase() !in manifestXmlTextsLower || it.lowercase() !in backendByTextLower
+                }
+            if (unusedExact.isNotEmpty() || unusedCaseInsensitive.isNotEmpty() || unusedManifest.isNotEmpty()) {
                 val details =
                     buildString {
                         if (unusedExact.isNotEmpty()) {
@@ -110,6 +126,10 @@ class TranslationTest : RobolectricTest() {
                         if (unusedCaseInsensitive.isNotEmpty()) {
                             appendLine("Unused BASELINE_CASE_INSENSITIVE_DUPLICATES (remove these):")
                             unusedCaseInsensitive.sorted().forEach { appendLine("  \"$it\"") }
+                        }
+                        if (unusedManifest.isNotEmpty()) {
+                            appendLine("Unused ANDROID_MANIFEST_STRINGS (remove these):")
+                            unusedManifest.sorted().forEach { appendLine("  \"$it\"") }
                         }
                     }
                 fail(details.trim())
@@ -240,7 +260,6 @@ class TranslationTest : RobolectricTest() {
                 "Good", // R.string.ease_button_good | TR.studyingGood()
                 "Hard", // R.string.ease_button_hard | TR.studyingHard()
                 "Help", // R.string.help | TR.actionsHelp()
-                "Image Occlusion", // R.string.image_occlusion | TR.notetypesImageOcclusionName()
                 "Import", // R.string.menu_import | TR.actionsImport()
                 "Language", // R.string.language | TR.preferencesLanguage()
                 "Later", // R.string.button_backup_later | TR.schedulingUpdateLaterButton()
@@ -333,17 +352,32 @@ class TranslationTest : RobolectricTest() {
                 // "Check media",        // R.string.check_media
                 //                       // TR.mediaCheckCheckMediaAction()
                 //                       // TR.mediaCheckWindowTitle()
-                "Add note", // R.string.menu_add_note | TR.actionsAddNote()
                 "Answer buttons", // R.string.answer_buttons | TR.statisticsAnswerButtonsTitle()
                 "Deck options", // R.string.menu__deck_options | TR.deckConfigTitle()
                 "Follow system", // R.string.theme_follow_system | TR.preferencesThemeFollowSystem()
-                "Manage note types", // R.string.model_browser_label
-                // TR.browsingManageNoteTypes()
-                // TR.qtMiscManageNoteTypes()
                 "Select all", // R.string.card_browser_select_all | TR.editingImageOcclusionSelectAll()
                 "Show answer", // R.string.show_answer
                 // TR.studyingShowAnswer()
                 // TR.deckConfigQuestionActionShowAnswer()
+            )
+
+        /**
+         * English string values which match a [GeneratedTranslations] value, but are referenced
+         * from `AndroidManifest.xml`.
+         *
+         * These cannot be converted until we extract the backend resources at build time/
+         *
+         *
+         * ept for reference, alternate framing of [getAndroidManifestStringResourceNames].
+         *
+         */
+        private val ANDROID_MANIFEST_STRINGS =
+            setOf(
+                "Add note", // R.string.menu_add_note | TR.actionsAddNote()
+                "Image Occlusion", // R.string.image_occlusion | TR.notetypesImageOcclusionName()
+                "Manage note types", // R.string.model_browser_label
+                // TR.browsingManageNoteTypes()
+                // TR.qtMiscManageNoteTypes()
             )
     }
 }

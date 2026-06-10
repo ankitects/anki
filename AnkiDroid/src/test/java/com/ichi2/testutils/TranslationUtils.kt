@@ -59,6 +59,15 @@ fun getBackendNonArgStrings(): List<BackendTranslation> {
 }
 
 /**
+ * Returns the names of the string resources referenced from `AndroidManifest.xml`
+ * (`@string/app_name` -> `app_name`).
+ */
+fun getAndroidManifestStringResourceNames(): Set<String> =
+    Regex("@string/(\\w+)")
+        .findAll(File("src/main/AndroidManifest.xml").readText())
+        .mapTo(mutableSetOf()) { it.groupValues[1] }
+
+/**
  * Parses all translatable XML files from `res/values/` and extracts
  * `<string>` element names and their text values.
  */
