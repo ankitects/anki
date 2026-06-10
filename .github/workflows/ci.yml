@@ -126,7 +126,7 @@ jobs:
         continue-on-error: true
         run: |
           git fetch origin main:main 2>/dev/null || true
-          just complexipy-diff main
+          just complexipy-diff
 
       - name: Upload SARIF results for complexipy
         if: steps.complexipy.outcome == 'failure'
