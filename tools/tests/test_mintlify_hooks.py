@@ -14,7 +14,8 @@ def test_signature_includes_arguments_and_return_type() -> None:
     )
 
     assert (
-        signature(hook) == "**Args:** `text: str`, `count: int`\\\n**Returns:** `str`"
+        signature(hook)
+        == "**Args:** <code>text: str</code>, <code>count: int</code>\\\n**Returns:** <code>str</code>"
     )
 
 

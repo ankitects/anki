@@ -23,8 +23,8 @@ No docstring.
 
 ### `schema_will_change`
 
-**Args:** `proceed: bool`\
-**Returns:** `bool`
+**Args:** <code>proceed: bool</code>\
+**Returns:** <code>bool</code>
 
 No docstring.
 
@@ -32,7 +32,7 @@ No docstring.
 
 ### `notes_will_be_deleted`
 
-**Args:** `col: anki.collection.Collection`, `ids: Sequence[anki.notes.NoteId]`
+**Args:** <code>col: <a href='https://dev-docs.ankiweb.net/en/latest/autoapi/anki/collection#anki.collection.Collection'>anki.collection.Collection</a></code>, <code>ids: Sequence[<a href='https://dev-docs.ankiweb.net/en/latest/autoapi/anki/notes#anki.notes.NoteId'>anki.notes.NoteId</a>]</code>
 
 No docstring.
 
@@ -40,7 +40,7 @@ No docstring.
 
 ### `note_will_be_added`
 
-**Args:** `col: anki.collection.Collection`, `note: anki.notes.Note`, `deck_id: anki.decks.DeckId`
+**Args:** <code>col: <a href='https://dev-docs.ankiweb.net/en/latest/autoapi/anki/collection#anki.collection.Collection'>anki.collection.Collection</a></code>, <code>note: <a href='https://dev-docs.ankiweb.net/en/latest/autoapi/anki/notes#anki.notes.Note'>anki.notes.Note</a></code>, <code>deck_id: <a href='https://dev-docs.ankiweb.net/en/latest/autoapi/anki/decks#anki.decks.DeckId'>anki.decks.DeckId</a></code>
 
 Allows modifying a note before it's added to the collection.
 
@@ -53,7 +53,7 @@ instead.
 
 ### `media_files_did_export`
 
-**Args:** `count: int`
+**Args:** <code>count: int</code>
 
 Only used by legacy .apkg exporter. Will be deprecated in the future.
 
@@ -61,7 +61,7 @@ Only used by legacy .apkg exporter. Will be deprecated in the future.
 
 ### `legacy_export_progress`
 
-**Args:** `progress: str`
+**Args:** <code>progress: str</code>
 
 Temporary hook used in transition to new import/export code.
 
@@ -69,7 +69,7 @@ Temporary hook used in transition to new import/export code.
 
 ### `exporters_list_created`
 
-**Args:** `exporters: list[tuple[str, Any]]`
+**Args:** <code>exporters: list[tuple[str, Any]]</code>
 
 No docstring.
 
@@ -77,8 +77,8 @@ No docstring.
 
 ### `media_file_filter`
 
-**Args:** `txt: str`\
-**Returns:** `str`
+**Args:** <code>txt: str</code>\
+**Returns:** <code>str</code>
 
 Allows manipulating the file path that media will be read from
 
@@ -86,8 +86,8 @@ Allows manipulating the file path that media will be read from
 
 ### `field_filter`
 
-**Args:** `field_text: str`, `field_name: str`, `filter_name: str`, `ctx: anki.template.TemplateRenderContext`\
-**Returns:** `str`
+**Args:** <code>field_text: str</code>, <code>field_name: str</code>, <code>filter_name: str</code>, <code>ctx: <a href='https://dev-docs.ankiweb.net/en/latest/autoapi/anki/template#anki.template.TemplateRenderContext'>anki.template.TemplateRenderContext</a></code>\
+**Returns:** <code>str</code>
 
 Allows you to define custom `{{filters:..}}`
 
@@ -98,7 +98,7 @@ field_text or not before returning it.
 
 ### `note_will_flush`
 
-**Args:** `note: Note`
+**Args:** <code>note: Note</code>
 
 Allow to change a note before it is added/updated in the database.
 
@@ -106,7 +106,7 @@ Allow to change a note before it is added/updated in the database.
 
 ### `card_will_flush`
 
-**Args:** `card: Card`
+**Args:** <code>card: Card</code>
 
 Allow to change a card before it is added/updated in the database.
 
@@ -114,7 +114,7 @@ Allow to change a card before it is added/updated in the database.
 
 ### `card_did_render`
 
-**Args:** `output: anki.template.TemplateRenderOutput`, `ctx: anki.template.TemplateRenderContext`
+**Args:** <code>output: <a href='https://dev-docs.ankiweb.net/en/latest/autoapi/anki/template#anki.template.TemplateRenderOutput'>anki.template.TemplateRenderOutput</a></code>, <code>ctx: <a href='https://dev-docs.ankiweb.net/en/latest/autoapi/anki/template#anki.template.TemplateRenderContext'>anki.template.TemplateRenderContext</a></code>
 
 Can modify the resulting text after rendering completes.
 
@@ -122,7 +122,7 @@ Can modify the resulting text after rendering completes.
 
 ### `importing_importers`
 
-**Args:** `importers: list[tuple[str, Any]]`
+**Args:** <code>importers: list[tuple[str, Any]]</code>
 
 Allows updating the list of importers.
 The resulting list is not saved and should be changed each time the
@@ -136,7 +136,7 @@ time. Tracked on https://github.com/ankitects/anki/issues/1018
 
 ### `deck_added` _(Obsolete)_
 
-**Args:** `deck: anki.decks.DeckDict`
+**Args:** <code>deck: <a href='https://dev-docs.ankiweb.net/en/latest/autoapi/anki/decks#anki.decks.DeckDict'>anki.decks.DeckDict</a></code>
 
 <Warning>
   Obsolete, do not use.
@@ -146,7 +146,7 @@ time. Tracked on https://github.com/ankitects/anki/issues/1018
 
 ### `note_type_added` _(Obsolete)_
 
-**Args:** `notetype: anki.models.NotetypeDict`
+**Args:** <code>notetype: <a href='https://dev-docs.ankiweb.net/en/latest/autoapi/anki/models#anki.models.NotetypeDict'>anki.models.NotetypeDict</a></code>
 
 <Warning>
   Obsolete, do not use.
@@ -156,7 +156,7 @@ time. Tracked on https://github.com/ankitects/anki/issues/1018
 
 ### `sync_stage_did_change` _(Obsolete)_
 
-**Args:** `stage: str`
+**Args:** <code>stage: str</code>
 
 <Warning>
   Obsolete, do not use.
@@ -166,7 +166,7 @@ time. Tracked on https://github.com/ankitects/anki/issues/1018
 
 ### `sync_progress_did_change` _(Obsolete)_
 
-**Args:** `msg: str`
+**Args:** <code>msg: str</code>
 
 <Warning>
   Obsolete, do not use.
@@ -181,7 +181,7 @@ cog.out(render_hooks("qt/tools/genhooks_gui.py"))
 >>> */}
 ### `overview_did_refresh`
 
-**Args:** `overview: aqt.overview.Overview`
+**Args:** <code>overview: <a href='https://dev-docs.ankiweb.net/en/latest/autoapi/aqt/overview#aqt.overview.Overview'>aqt.overview.Overview</a></code>
 
 Allow to update the overview window. E.g. add the deck name in the
 title.
@@ -190,7 +190,7 @@ title.
 
 ### `overview_will_render_content`
 
-**Args:** `overview: aqt.overview.Overview`, `content: aqt.overview.OverviewContent`
+**Args:** <code>overview: <a href='https://dev-docs.ankiweb.net/en/latest/autoapi/aqt/overview#aqt.overview.Overview'>aqt.overview.Overview</a></code>, <code>content: <a href='https://dev-docs.ankiweb.net/en/latest/autoapi/aqt/overview#aqt.overview.OverviewContent'>aqt.overview.OverviewContent</a></code>
 
 Used to modify HTML content sections in the overview body
 
@@ -210,8 +210,8 @@ def on_overview_will_render_content(overview, content):
 
 ### `overview_will_render_bottom`
 
-**Args:** `link_handler: Callable[[str], bool]`, `links: list[list[str]]`\
-**Returns:** `Callable[[str], bool]`
+**Args:** <code>link_handler: Callable[[str], bool]</code>, <code>links: list[list[str]]</code>\
+**Returns:** <code>Callable[[str], bool]</code>
 
 Allows adding buttons to the Overview bottom bar.
 
@@ -239,7 +239,7 @@ return custom_link_handler
 
 ### `reviewer_did_show_question`
 
-**Args:** `card: Card`
+**Args:** <code>card: Card</code>
 
 No docstring.
 
@@ -247,8 +247,8 @@ No docstring.
 
 ### `reviewer_will_compare_answer`
 
-**Args:** `expected_provided_tuple: tuple[str, str]`, `type_pattern: str`\
-**Returns:** `tuple[str, str]`
+**Args:** <code>expected_provided_tuple: tuple[str, str]</code>, <code>type_pattern: str</code>\
+**Returns:** <code>tuple[str, str]</code>
 
 Modify expected answer and provided answer before comparing
 
@@ -265,8 +265,8 @@ Return a tuple composed of:
 
 ### `reviewer_will_render_compared_answer`
 
-**Args:** `output: str`, `initial_expected: str`, `initial_provided: str`, `type_pattern: str`\
-**Returns:** `str`
+**Args:** <code>output: str</code>, <code>initial_expected: str</code>, <code>initial_provided: str</code>, <code>type_pattern: str</code>\
+**Returns:** <code>str</code>
 
 Modify the output of default compare answer feature
 
@@ -281,7 +281,7 @@ Return a string comparing expected and provided answers
 
 ### `reviewer_did_show_answer`
 
-**Args:** `card: Card`
+**Args:** <code>card: Card</code>
 
 No docstring.
 
@@ -289,8 +289,8 @@ No docstring.
 
 ### `reviewer_will_init_answer_buttons`
 
-**Args:** `buttons_tuple: tuple[tuple[int, str], ...]`, `reviewer: aqt.reviewer.Reviewer`, `card: Card`\
-**Returns:** `tuple[tuple[int, str], ...]`
+**Args:** <code>buttons_tuple: tuple[tuple[int, str], ...]</code>, <code>reviewer: <a href='https://dev-docs.ankiweb.net/en/latest/autoapi/aqt/reviewer#aqt.reviewer.Reviewer'>aqt.reviewer.Reviewer</a></code>, <code>card: Card</code>\
+**Returns:** <code>tuple[tuple[int, str], ...]</code>
 
 Used to modify list of answer buttons
 
@@ -312,8 +312,8 @@ Note: import _ from anki.lang to support translation, using, e.g.,
 
 ### `reviewer_will_answer_card`
 
-**Args:** `ease_tuple: tuple[bool, Literal[1, 2, 3, 4]]`, `reviewer: aqt.reviewer.Reviewer`, `card: Card`\
-**Returns:** `tuple[bool, Literal[1, 2, 3, 4]]`
+**Args:** <code>ease_tuple: tuple[bool, Literal[1, 2, 3, 4]]</code>, <code>reviewer: <a href='https://dev-docs.ankiweb.net/en/latest/autoapi/aqt/reviewer#aqt.reviewer.Reviewer'>aqt.reviewer.Reviewer</a></code>, <code>card: Card</code>\
+**Returns:** <code>tuple[bool, Literal[1, 2, 3, 4]]</code>
 
 Used to modify the ease at which a card is rated or to bypass
 rating the card completely.
@@ -329,7 +329,7 @@ the reviewer_did_answer_card hook instead.
 
 ### `reviewer_did_answer_card`
 
-**Args:** `reviewer: aqt.reviewer.Reviewer`, `card: Card`, `ease: Literal[1, 2, 3, 4]`
+**Args:** <code>reviewer: <a href='https://dev-docs.ankiweb.net/en/latest/autoapi/aqt/reviewer#aqt.reviewer.Reviewer'>aqt.reviewer.Reviewer</a></code>, <code>card: Card</code>, <code>ease: Literal[1, 2, 3, 4]</code>
 
 No docstring.
 
@@ -337,7 +337,7 @@ No docstring.
 
 ### `reviewer_will_show_context_menu`
 
-**Args:** `reviewer: aqt.reviewer.Reviewer`, `menu: QMenu`
+**Args:** <code>reviewer: <a href='https://dev-docs.ankiweb.net/en/latest/autoapi/aqt/reviewer#aqt.reviewer.Reviewer'>aqt.reviewer.Reviewer</a></code>, <code>menu: QMenu</code>
 
 No docstring.
 
@@ -353,7 +353,7 @@ Called before Anki transitions from the review screen to another screen.
 
 ### `reviewer_will_play_question_sounds`
 
-**Args:** `card: Card`, `tags: list[anki.sound.AVTag]`
+**Args:** <code>card: Card</code>, <code>tags: list[<a href='https://dev-docs.ankiweb.net/en/latest/autoapi/anki/sound#anki.sound.AVTag'>anki.sound.AVTag</a>]</code>
 
 Called before showing the question/front side.
 
@@ -371,7 +371,7 @@ sounds regardless of that option.
 
 ### `reviewer_will_play_answer_sounds`
 
-**Args:** `card: Card`, `tags: list[anki.sound.AVTag]`
+**Args:** <code>card: Card</code>, <code>tags: list[<a href='https://dev-docs.ankiweb.net/en/latest/autoapi/anki/sound#anki.sound.AVTag'>anki.sound.AVTag</a>]</code>
 
 Called before showing the answer/back side.
 
@@ -389,8 +389,8 @@ sounds regardless of that option.
 
 ### `reviewer_will_replay_recording`
 
-**Args:** `path: str`\
-**Returns:** `str`
+**Args:** <code>path: str</code>\
+**Returns:** <code>str</code>
 
 Used to inspect and modify a recording recorded by "Record Own Voice" before replaying.
 
@@ -398,7 +398,7 @@ Used to inspect and modify a recording recorded by "Record Own Voice" before rep
 
 ### `reviewer_will_suspend_note`
 
-**Args:** `nid: int`
+**Args:** <code>nid: int</code>
 
 No docstring.
 
@@ -406,7 +406,7 @@ No docstring.
 
 ### `reviewer_will_suspend_card`
 
-**Args:** `id: int`
+**Args:** <code>id: int</code>
 
 No docstring.
 
@@ -414,7 +414,7 @@ No docstring.
 
 ### `reviewer_will_bury_note`
 
-**Args:** `nid: int`
+**Args:** <code>nid: int</code>
 
 No docstring.
 
@@ -422,7 +422,7 @@ No docstring.
 
 ### `reviewer_will_bury_card`
 
-**Args:** `id: int`
+**Args:** <code>id: int</code>
 
 No docstring.
 
@@ -430,7 +430,7 @@ No docstring.
 
 ### `audio_did_pause_or_unpause`
 
-**Args:** `webview: aqt.webview.AnkiWebView`
+**Args:** <code>webview: <a href='https://dev-docs.ankiweb.net/en/latest/autoapi/aqt/webview#aqt.webview.AnkiWebView'>aqt.webview.AnkiWebView</a></code>
 
 Called when the audio is paused or unpaused.
 This hook is triggered by the action in Anki's More menu or the related key binding.
@@ -440,7 +440,7 @@ The webview is provided in case you wish to use this hook with web-based audio.
 
 ### `audio_did_seek_relative`
 
-**Args:** `webview: aqt.webview.AnkiWebView`, `seek_seconds: int`
+**Args:** <code>webview: <a href='https://dev-docs.ankiweb.net/en/latest/autoapi/aqt/webview#aqt.webview.AnkiWebView'>aqt.webview.AnkiWebView</a></code>, <code>seek_seconds: int</code>
 
 Called when the audio is sought forward (positive seek) or backwards (negative seek).
 This hook is triggered by the action in Anki's More menu or the related key binding.
@@ -450,7 +450,7 @@ The webview is provided in case you wish to use this hook with web-based audio.
 
 ### `debug_console_will_show`
 
-**Args:** `debug_window: QDialog`
+**Args:** <code>debug_window: QDialog</code>
 
 Allows editing the debug window. E.g. setting a default code, or
 previous code.
@@ -459,8 +459,8 @@ previous code.
 
 ### `debug_console_did_evaluate_python`
 
-**Args:** `output: str`, `query: str`, `debug_window: aqt.forms.debug.Ui_Dialog`\
-**Returns:** `str`
+**Args:** <code>output: str</code>, <code>query: str</code>, <code>debug_window: <a href='https://dev-docs.ankiweb.net/en/latest/autoapi/aqt/forms/debug#aqt.forms.debug.Ui_Dialog'>aqt.forms.debug.Ui_Dialog</a></code>\
+**Returns:** <code>str</code>
 
 Allows processing the debug result. E.g. logging queries and
 result, saving last query to display it later...
@@ -469,7 +469,7 @@ result, saving last query to display it later...
 
 ### `card_layout_will_show`
 
-**Args:** `clayout: aqt.clayout.CardLayout`
+**Args:** <code>clayout: <a href='https://dev-docs.ankiweb.net/en/latest/autoapi/aqt/clayout#aqt.clayout.CardLayout'>aqt.clayout.CardLayout</a></code>
 
 Allow to change the display of the card layout. After most values are
 set and before the window is actually shown.
@@ -478,7 +478,7 @@ set and before the window is actually shown.
 
 ### `reviewer_did_init`
 
-**Args:** `reviewer: aqt.reviewer.Reviewer`
+**Args:** <code>reviewer: <a href='https://dev-docs.ankiweb.net/en/latest/autoapi/aqt/reviewer#aqt.reviewer.Reviewer'>aqt.reviewer.Reviewer</a></code>
 
 Called after the reviewer is initialized.
 
@@ -486,7 +486,7 @@ Called after the reviewer is initialized.
 
 ### `audio_will_replay`
 
-**Args:** `webview: aqt.webview.AnkiWebView`, `card: Card`, `is_front_side: bool`
+**Args:** <code>webview: <a href='https://dev-docs.ankiweb.net/en/latest/autoapi/aqt/webview#aqt.webview.AnkiWebView'>aqt.webview.AnkiWebView</a></code>, <code>card: Card</code>, <code>is_front_side: bool</code>
 
 Called when the user uses the 'replay audio' action, but not when they click on a play button.
 
@@ -494,8 +494,8 @@ Called when the user uses the 'replay audio' action, but not when they click on 
 
 ### `card_will_show`
 
-**Args:** `text: str`, `card: Card`, `kind: str`\
-**Returns:** `str`
+**Args:** <code>text: str</code>, <code>card: Card</code>, <code>kind: str</code>\
+**Returns:** <code>str</code>
 
 Can modify card text before review/preview.
 
@@ -503,7 +503,7 @@ Can modify card text before review/preview.
 
 ### `card_review_webview_did_init`
 
-**Args:** `webview: aqt.webview.AnkiWebView`, `kind: aqt.webview.AnkiWebViewKind`
+**Args:** <code>webview: <a href='https://dev-docs.ankiweb.net/en/latest/autoapi/aqt/webview#aqt.webview.AnkiWebView'>aqt.webview.AnkiWebView</a></code>, <code>kind: <a href='https://dev-docs.ankiweb.net/en/latest/autoapi/aqt/webview#aqt.webview.AnkiWebViewKind'>aqt.webview.AnkiWebViewKind</a></code>
 
 Called when initializing the webview for the review screen, the card layout screen, and the preview screen.
 
@@ -511,7 +511,7 @@ Called when initializing the webview for the review screen, the card layout scre
 
 ### `deck_browser_did_render`
 
-**Args:** `deck_browser: aqt.deckbrowser.DeckBrowser`
+**Args:** <code>deck_browser: <a href='https://dev-docs.ankiweb.net/en/latest/autoapi/aqt/deckbrowser#aqt.deckbrowser.DeckBrowser'>aqt.deckbrowser.DeckBrowser</a></code>
 
 Allow to update the deck browser window. E.g. change its title.
 
@@ -519,7 +519,7 @@ Allow to update the deck browser window. E.g. change its title.
 
 ### `deck_browser_will_render_content`
 
-**Args:** `deck_browser: aqt.deckbrowser.DeckBrowser`, `content: aqt.deckbrowser.DeckBrowserContent`
+**Args:** <code>deck_browser: <a href='https://dev-docs.ankiweb.net/en/latest/autoapi/aqt/deckbrowser#aqt.deckbrowser.DeckBrowser'>aqt.deckbrowser.DeckBrowser</a></code>, <code>content: <a href='https://dev-docs.ankiweb.net/en/latest/autoapi/aqt/deckbrowser#aqt.deckbrowser.DeckBrowserContent'>aqt.deckbrowser.DeckBrowserContent</a></code>
 
 Used to modify HTML content sections in the deck browser body
 
@@ -539,7 +539,7 @@ def on_deck_browser_will_render_content(deck_browser, content):
 
 ### `deck_conf_did_setup_ui_form`
 
-**Args:** `deck_conf: aqt.deckconf.DeckConf`
+**Args:** <code>deck_conf: <a href='https://dev-docs.ankiweb.net/en/latest/autoapi/aqt/deckconf#aqt.deckconf.DeckConf'>aqt.deckconf.DeckConf</a></code>
 
 Allows modifying or adding widgets in the deck options UI form
 
@@ -547,7 +547,7 @@ Allows modifying or adding widgets in the deck options UI form
 
 ### `deck_conf_will_show`
 
-**Args:** `deck_conf: aqt.deckconf.DeckConf`
+**Args:** <code>deck_conf: <a href='https://dev-docs.ankiweb.net/en/latest/autoapi/aqt/deckconf#aqt.deckconf.DeckConf'>aqt.deckconf.DeckConf</a></code>
 
 Allows modifying the deck options dialog before it is shown
 
@@ -555,7 +555,7 @@ Allows modifying the deck options dialog before it is shown
 
 ### `deck_conf_did_load_config`
 
-**Args:** `deck_conf: aqt.deckconf.DeckConf`, `deck: DeckDict`, `config: DeckConfigDict`
+**Args:** <code>deck_conf: <a href='https://dev-docs.ankiweb.net/en/latest/autoapi/aqt/deckconf#aqt.deckconf.DeckConf'>aqt.deckconf.DeckConf</a></code>, <code>deck: DeckDict</code>, <code>config: DeckConfigDict</code>
 
 Called once widget state has been set from deck config
 
@@ -563,7 +563,7 @@ Called once widget state has been set from deck config
 
 ### `deck_conf_will_save_config`
 
-**Args:** `deck_conf: aqt.deckconf.DeckConf`, `deck: DeckDict`, `config: DeckConfigDict`
+**Args:** <code>deck_conf: <a href='https://dev-docs.ankiweb.net/en/latest/autoapi/aqt/deckconf#aqt.deckconf.DeckConf'>aqt.deckconf.DeckConf</a></code>, <code>deck: DeckDict</code>, <code>config: DeckConfigDict</code>
 
 Called before widget state is saved to config
 
@@ -571,7 +571,7 @@ Called before widget state is saved to config
 
 ### `deck_conf_did_add_config`
 
-**Args:** `deck_conf: aqt.deckconf.DeckConf`, `deck: DeckDict`, `config: DeckConfigDict`, `new_name: str`, `new_conf_id: int`
+**Args:** <code>deck_conf: <a href='https://dev-docs.ankiweb.net/en/latest/autoapi/aqt/deckconf#aqt.deckconf.DeckConf'>aqt.deckconf.DeckConf</a></code>, <code>deck: DeckDict</code>, <code>config: DeckConfigDict</code>, <code>new_name: str</code>, <code>new_conf_id: int</code>
 
 Allows modification of a newly created config group
 
@@ -587,7 +587,7 @@ Config groups are created as clones of the current one.
 
 ### `deck_conf_will_remove_config`
 
-**Args:** `deck_conf: aqt.deckconf.DeckConf`, `deck: DeckDict`, `config: DeckConfigDict`
+**Args:** <code>deck_conf: <a href='https://dev-docs.ankiweb.net/en/latest/autoapi/aqt/deckconf#aqt.deckconf.DeckConf'>aqt.deckconf.DeckConf</a></code>, <code>deck: DeckDict</code>, <code>config: DeckConfigDict</code>
 
 Called before current config group is removed
 
@@ -595,7 +595,7 @@ Called before current config group is removed
 
 ### `deck_conf_will_rename_config`
 
-**Args:** `deck_conf: aqt.deckconf.DeckConf`, `deck: DeckDict`, `config: DeckConfigDict`, `new_name: str`
+**Args:** <code>deck_conf: <a href='https://dev-docs.ankiweb.net/en/latest/autoapi/aqt/deckconf#aqt.deckconf.DeckConf'>aqt.deckconf.DeckConf</a></code>, <code>deck: DeckDict</code>, <code>config: DeckConfigDict</code>, <code>new_name: str</code>
 
 Called before config group is renamed
 
@@ -603,7 +603,7 @@ Called before config group is renamed
 
 ### `deck_options_did_load`
 
-**Args:** `deck_options: aqt.deckoptions.DeckOptionsDialog`
+**Args:** <code>deck_options: <a href='https://dev-docs.ankiweb.net/en/latest/autoapi/aqt/deckoptions#aqt.deckoptions.DeckOptionsDialog'>aqt.deckoptions.DeckOptionsDialog</a></code>
 
 Can be used to inject extra options into the config screen.
 
@@ -615,7 +615,7 @@ https://github.com/ankitects/anki-addons/tree/main/demos/deckoptions_raw_html
 
 ### `filtered_deck_dialog_did_load_deck`
 
-**Args:** `filtered_deck_dialog: aqt.filtered_deck.FilteredDeckConfigDialog`, `filtered_deck: anki.scheduler.FilteredDeckForUpdate`
+**Args:** <code>filtered_deck_dialog: <a href='https://dev-docs.ankiweb.net/en/latest/autoapi/aqt/filtered_deck#aqt.filtered_deck.FilteredDeckConfigDialog'>aqt.filtered_deck.FilteredDeckConfigDialog</a></code>, <code>filtered_deck: <a href='https://dev-docs.ankiweb.net/en/latest/autoapi/anki/scheduler#anki.scheduler.FilteredDeckForUpdate'>anki.scheduler.FilteredDeckForUpdate</a></code>
 
 Allows updating widget state once the filtered deck config is loaded
 
@@ -623,7 +623,7 @@ Allows updating widget state once the filtered deck config is loaded
 
 ### `filtered_deck_dialog_will_add_or_update_deck`
 
-**Args:** `filtered_deck_dialog: aqt.filtered_deck.FilteredDeckConfigDialog`, `filtered_deck: anki.scheduler.FilteredDeckForUpdate`
+**Args:** <code>filtered_deck_dialog: <a href='https://dev-docs.ankiweb.net/en/latest/autoapi/aqt/filtered_deck#aqt.filtered_deck.FilteredDeckConfigDialog'>aqt.filtered_deck.FilteredDeckConfigDialog</a></code>, <code>filtered_deck: <a href='https://dev-docs.ankiweb.net/en/latest/autoapi/anki/scheduler#anki.scheduler.FilteredDeckForUpdate'>anki.scheduler.FilteredDeckForUpdate</a></code>
 
 Allows modifying the filtered deck config object before it is written
 
@@ -631,7 +631,7 @@ Allows modifying the filtered deck config object before it is written
 
 ### `filtered_deck_dialog_did_add_or_update_deck`
 
-**Args:** `filtered_deck_dialog: aqt.filtered_deck.FilteredDeckConfigDialog`, `filtered_deck: anki.scheduler.FilteredDeckForUpdate`, `deck_id: int`
+**Args:** <code>filtered_deck_dialog: <a href='https://dev-docs.ankiweb.net/en/latest/autoapi/aqt/filtered_deck#aqt.filtered_deck.FilteredDeckConfigDialog'>aqt.filtered_deck.FilteredDeckConfigDialog</a></code>, <code>filtered_deck: <a href='https://dev-docs.ankiweb.net/en/latest/autoapi/anki/scheduler#anki.scheduler.FilteredDeckForUpdate'>anki.scheduler.FilteredDeckForUpdate</a></code>, <code>deck_id: int</code>
 
 Allows performing changes after a filtered deck has been added or updated
 
@@ -639,8 +639,8 @@ Allows performing changes after a filtered deck has been added or updated
 
 ### `default_search`
 
-**Args:** `current_search: str`, `c: Card`\
-**Returns:** `str`
+**Args:** <code>current_search: str</code>, <code>c: Card</code>\
+**Returns:** <code>str</code>
 
 Change the default search when the card browser is opened with card `c`.
 
@@ -648,7 +648,7 @@ Change the default search when the card browser is opened with card `c`.
 
 ### `browser_will_show`
 
-**Args:** `browser: aqt.browser.Browser`
+**Args:** <code>browser: <a href='https://dev-docs.ankiweb.net/en/latest/autoapi/aqt/browser#aqt.browser.Browser'>aqt.browser.Browser</a></code>
 
 No docstring.
 
@@ -656,7 +656,7 @@ No docstring.
 
 ### `browser_menus_did_init`
 
-**Args:** `browser: aqt.browser.Browser`
+**Args:** <code>browser: <a href='https://dev-docs.ankiweb.net/en/latest/autoapi/aqt/browser#aqt.browser.Browser'>aqt.browser.Browser</a></code>
 
 No docstring.
 
@@ -664,7 +664,7 @@ No docstring.
 
 ### `browser_will_show_context_menu`
 
-**Args:** `browser: aqt.browser.Browser`, `menu: QMenu`
+**Args:** <code>browser: <a href='https://dev-docs.ankiweb.net/en/latest/autoapi/aqt/browser#aqt.browser.Browser'>aqt.browser.Browser</a></code>, <code>menu: QMenu</code>
 
 No docstring.
 
@@ -672,7 +672,7 @@ No docstring.
 
 ### `browser_sidebar_will_show_context_menu`
 
-**Args:** `sidebar: aqt.browser.SidebarTreeView`, `menu: QMenu`, `item: aqt.browser.SidebarItem`, `index: QModelIndex`
+**Args:** <code>sidebar: <a href='https://dev-docs.ankiweb.net/en/latest/autoapi/aqt/browser#aqt.browser.SidebarTreeView'>aqt.browser.SidebarTreeView</a></code>, <code>menu: QMenu</code>, <code>item: <a href='https://dev-docs.ankiweb.net/en/latest/autoapi/aqt/browser#aqt.browser.SidebarItem'>aqt.browser.SidebarItem</a></code>, <code>index: QModelIndex</code>
 
 No docstring.
 
@@ -680,7 +680,7 @@ No docstring.
 
 ### `browser_header_will_show_context_menu`
 
-**Args:** `browser: aqt.browser.Browser`, `menu: QMenu`
+**Args:** <code>browser: <a href='https://dev-docs.ankiweb.net/en/latest/autoapi/aqt/browser#aqt.browser.Browser'>aqt.browser.Browser</a></code>, <code>menu: QMenu</code>
 
 No docstring.
 
@@ -688,7 +688,7 @@ No docstring.
 
 ### `browser_did_change_row`
 
-**Args:** `browser: aqt.browser.Browser`
+**Args:** <code>browser: <a href='https://dev-docs.ankiweb.net/en/latest/autoapi/aqt/browser#aqt.browser.Browser'>aqt.browser.Browser</a></code>
 
 No docstring.
 
@@ -696,8 +696,8 @@ No docstring.
 
 ### `browser_will_build_tree`
 
-**Args:** `handled: bool`, `tree: aqt.browser.SidebarItem`, `stage: aqt.browser.SidebarStage`, `browser: aqt.browser.Browser`\
-**Returns:** `bool`
+**Args:** <code>handled: bool</code>, <code>tree: <a href='https://dev-docs.ankiweb.net/en/latest/autoapi/aqt/browser#aqt.browser.SidebarItem'>aqt.browser.SidebarItem</a></code>, <code>stage: <a href='https://dev-docs.ankiweb.net/en/latest/autoapi/aqt/browser#aqt.browser.SidebarStage'>aqt.browser.SidebarStage</a></code>, <code>browser: <a href='https://dev-docs.ankiweb.net/en/latest/autoapi/aqt/browser#aqt.browser.Browser'>aqt.browser.Browser</a></code>\
+**Returns:** <code>bool</code>
 
 Used to add or replace items in the browser sidebar tree
 
@@ -739,7 +739,7 @@ def on_browser_will_build_tree(handled, root, stage, browser):
 
 ### `browser_will_search`
 
-**Args:** `context: aqt.browser.SearchContext`
+**Args:** <code>context: <a href='https://dev-docs.ankiweb.net/en/latest/autoapi/aqt/browser#aqt.browser.SearchContext'>aqt.browser.SearchContext</a></code>
 
 Allows you to modify the search text, or perform your own search.
 
@@ -763,7 +763,7 @@ context.card_ids rather than context.ids
 
 ### `browser_did_search`
 
-**Args:** `context: aqt.browser.SearchContext`
+**Args:** <code>context: <a href='https://dev-docs.ankiweb.net/en/latest/autoapi/aqt/browser#aqt.browser.SearchContext'>aqt.browser.SearchContext</a></code>
 
 Allows you to modify the list of returned card ids from a search.
 
@@ -771,7 +771,7 @@ Allows you to modify the list of returned card ids from a search.
 
 ### `browser_did_fetch_row`
 
-**Args:** `card_or_note_id: aqt.browser.ItemId`, `is_note: bool`, `row: aqt.browser.CellRow`, `columns: Sequence[str]`
+**Args:** <code>card_or_note_id: <a href='https://dev-docs.ankiweb.net/en/latest/autoapi/aqt/browser#aqt.browser.ItemId'>aqt.browser.ItemId</a></code>, <code>is_note: bool</code>, <code>row: <a href='https://dev-docs.ankiweb.net/en/latest/autoapi/aqt/browser#aqt.browser.CellRow'>aqt.browser.CellRow</a></code>, <code>columns: Sequence[str]</code>
 
 Allows you to add or modify content to a row in the browser.
 
@@ -789,7 +789,7 @@ represents.
 
 ### `browser_did_fetch_columns`
 
-**Args:** `columns: dict[str, aqt.browser.Column]`
+**Args:** <code>columns: dict[str, <a href='https://dev-docs.ankiweb.net/en/latest/autoapi/aqt/browser#aqt.browser.Column'>aqt.browser.Column</a>]</code>
 
 Allows you to add custom columns to the browser.
 
@@ -803,7 +803,7 @@ Every column in the dictionary will be toggleable by the user.
 
 ### `previewer_did_init`
 
-**Args:** `previewer: aqt.browser.previewer.Previewer`
+**Args:** <code>previewer: <a href='https://dev-docs.ankiweb.net/en/latest/autoapi/aqt/browser/previewer#aqt.browser.previewer.Previewer'>aqt.browser.previewer.Previewer</a></code>
 
 Called after the previewer is initialized.
 
@@ -811,7 +811,7 @@ Called after the previewer is initialized.
 
 ### `previewer_will_redraw_after_show_both_sides_toggled`
 
-**Args:** `webview: aqt.webview.AnkiWebView`, `card: Card`, `is_front_side: bool`, `show_both_sides: bool`
+**Args:** <code>webview: <a href='https://dev-docs.ankiweb.net/en/latest/autoapi/aqt/webview#aqt.webview.AnkiWebView'>aqt.webview.AnkiWebView</a></code>, <code>card: Card</code>, <code>is_front_side: bool</code>, <code>show_both_sides: bool</code>
 
 Called when the checkbox &lt;show both sides&gt; is toggled by the user.
 
@@ -819,7 +819,7 @@ Called when the checkbox &lt;show both sides&gt; is toggled by the user.
 
 ### `state_will_change`
 
-**Args:** `new_state: aqt.main.MainWindowState`, `old_state: aqt.main.MainWindowState`
+**Args:** <code>new_state: <a href='https://dev-docs.ankiweb.net/en/latest/autoapi/aqt/main#aqt.main.MainWindowState'>aqt.main.MainWindowState</a></code>, <code>old_state: <a href='https://dev-docs.ankiweb.net/en/latest/autoapi/aqt/main#aqt.main.MainWindowState'>aqt.main.MainWindowState</a></code>
 
 No docstring.
 
@@ -827,7 +827,7 @@ No docstring.
 
 ### `state_did_change`
 
-**Args:** `new_state: aqt.main.MainWindowState`, `old_state: aqt.main.MainWindowState`
+**Args:** <code>new_state: <a href='https://dev-docs.ankiweb.net/en/latest/autoapi/aqt/main#aqt.main.MainWindowState'>aqt.main.MainWindowState</a></code>, <code>old_state: <a href='https://dev-docs.ankiweb.net/en/latest/autoapi/aqt/main#aqt.main.MainWindowState'>aqt.main.MainWindowState</a></code>
 
 No docstring.
 
@@ -835,7 +835,7 @@ No docstring.
 
 ### `state_shortcuts_will_change`
 
-**Args:** `state: aqt.main.MainWindowState`, `shortcuts: list[tuple[str, Callable]]`
+**Args:** <code>state: <a href='https://dev-docs.ankiweb.net/en/latest/autoapi/aqt/main#aqt.main.MainWindowState'>aqt.main.MainWindowState</a></code>, <code>shortcuts: list[tuple[str, Callable]]</code>
 
 No docstring.
 
@@ -843,7 +843,7 @@ No docstring.
 
 ### `state_did_undo`
 
-**Args:** `changes: OpChangesAfterUndo`
+**Args:** <code>changes: OpChangesAfterUndo</code>
 
 Called after backend undoes a change.
 
@@ -861,7 +861,7 @@ New code should use `operation_did_execute` instead.
 
 ### `operation_did_execute`
 
-**Args:** `changes: anki.collection.OpChanges`, `handler: object | None`
+**Args:** <code>changes: <a href='https://dev-docs.ankiweb.net/en/latest/autoapi/anki/collection#anki.collection.OpChanges'>anki.collection.OpChanges</a></code>, <code>handler: object | None</code>
 
 Called after an operation completes.
 Changes can be inspected to determine whether the UI needs updating.
@@ -872,7 +872,7 @@ This will also be called when the legacy mw.reset() is used.
 
 ### `focus_did_change`
 
-**Args:** `new: QWidget | None`, `old: QWidget | None`
+**Args:** <code>new: QWidget | None</code>, <code>old: QWidget | None</code>
 
 Called each time the focus changes. Can be used to defer updates from
 `operation_did_execute` until a window is brought to the front.
@@ -919,8 +919,8 @@ Called when a setting involving a webview body class is toggled.
 
 ### `webview_did_receive_js_message`
 
-**Args:** `handled: tuple[bool, Any]`, `message: str`, `context: Any`\
-**Returns:** `tuple[bool, Any]`
+**Args:** <code>handled: tuple[bool, Any]</code>, <code>message: str</code>, <code>context: Any</code>\
+**Returns:** <code>tuple[bool, Any]</code>
 
 Used to handle pycmd() messages sent from Javascript.
 
@@ -957,7 +957,7 @@ else:
 
 ### `webview_will_set_content`
 
-**Args:** `web_content: aqt.webview.WebContent`, `context: object | None`
+**Args:** <code>web_content: <a href='https://dev-docs.ankiweb.net/en/latest/autoapi/aqt/webview#aqt.webview.WebContent'>aqt.webview.WebContent</a></code>, <code>context: object | None</code>
 
 Used to modify web content before it is rendered.
 
@@ -994,7 +994,7 @@ def on_webview_will_set_content(web_content: WebContent, context):
 
 ### `webview_will_show_context_menu`
 
-**Args:** `webview: aqt.webview.AnkiWebView`, `menu: QMenu`
+**Args:** <code>webview: <a href='https://dev-docs.ankiweb.net/en/latest/autoapi/aqt/webview#aqt.webview.AnkiWebView'>aqt.webview.AnkiWebView</a></code>, <code>menu: QMenu</code>
 
 No docstring.
 
@@ -1002,7 +1002,7 @@ No docstring.
 
 ### `webview_did_inject_style_into_page`
 
-**Args:** `webview: aqt.webview.AnkiWebView`
+**Args:** <code>webview: <a href='https://dev-docs.ankiweb.net/en/latest/autoapi/aqt/webview#aqt.webview.AnkiWebView'>aqt.webview.AnkiWebView</a></code>
 
 Called after standard styling is injected into an external
 html file, such as when loading the new graphs. You can use this hook to
@@ -1041,8 +1041,8 @@ is thus suitable for single-shot subscribers.
 
 ### `main_window_should_require_reset`
 
-**Args:** `will_reset: bool`, `reason: aqt.main.ResetReason | str`, `context: object | None`\
-**Returns:** `bool`
+**Args:** <code>will_reset: bool</code>, <code>reason: <a href='https://dev-docs.ankiweb.net/en/latest/autoapi/aqt/main#aqt.main.ResetReason'>aqt.main.ResetReason</a> | str</code>, <code>context: object | None</code>\
+**Returns:** <code>bool</code>
 
 Executed before the main window will require a reset
 
@@ -1085,7 +1085,7 @@ No docstring.
 
 ### `collection_will_temporarily_close`
 
-**Args:** `col: anki.collection.Collection`
+**Args:** <code>col: <a href='https://dev-docs.ankiweb.net/en/latest/autoapi/anki/collection#anki.collection.Collection'>anki.collection.Collection</a></code>
 
 Called before one-way syncs and colpkg imports/exports.
 
@@ -1093,7 +1093,7 @@ Called before one-way syncs and colpkg imports/exports.
 
 ### `collection_did_temporarily_close`
 
-**Args:** `col: anki.collection.Collection`
+**Args:** <code>col: <a href='https://dev-docs.ankiweb.net/en/latest/autoapi/anki/collection#anki.collection.Collection'>anki.collection.Collection</a></code>
 
 Called after one-way syncs and colpkg imports/exports.
 
@@ -1101,7 +1101,7 @@ Called after one-way syncs and colpkg imports/exports.
 
 ### `collection_did_load`
 
-**Args:** `col: anki.collection.Collection`
+**Args:** <code>col: <a href='https://dev-docs.ankiweb.net/en/latest/autoapi/anki/collection#anki.collection.Collection'>anki.collection.Collection</a></code>
 
 No docstring.
 
@@ -1109,7 +1109,7 @@ No docstring.
 
 ### `undo_state_did_change`
 
-**Args:** `info: UndoActionsInfo`
+**Args:** <code>info: UndoActionsInfo</code>
 
 No docstring.
 
@@ -1117,8 +1117,8 @@ No docstring.
 
 ### `style_did_init`
 
-**Args:** `style: str`\
-**Returns:** `str`
+**Args:** <code>style: str</code>\
+**Returns:** <code>str</code>
 
 No docstring.
 
@@ -1126,7 +1126,7 @@ No docstring.
 
 ### `top_toolbar_did_init_links`
 
-**Args:** `links: list[str]`, `top_toolbar: aqt.toolbar.Toolbar`
+**Args:** <code>links: list[str]</code>, <code>top_toolbar: <a href='https://dev-docs.ankiweb.net/en/latest/autoapi/aqt/toolbar#aqt.toolbar.Toolbar'>aqt.toolbar.Toolbar</a></code>
 
 Used to modify or add links in the top toolbar of Anki's main window
 
@@ -1143,7 +1143,7 @@ def on_top_toolbar_did_init_links(links, toolbar):
 
 ### `top_toolbar_will_set_left_tray_content`
 
-**Args:** `content: list[str]`, `top_toolbar: aqt.toolbar.Toolbar`
+**Args:** <code>content: list[str]</code>, <code>top_toolbar: <a href='https://dev-docs.ankiweb.net/en/latest/autoapi/aqt/toolbar#aqt.toolbar.Toolbar'>aqt.toolbar.Toolbar</a></code>
 
 Used to add custom add-on components to the *left* area of Anki's main
 window toolbar
@@ -1160,7 +1160,7 @@ require changes to continue working.
 
 ### `top_toolbar_will_set_right_tray_content`
 
-**Args:** `content: list[str]`, `top_toolbar: aqt.toolbar.Toolbar`
+**Args:** <code>content: list[str]</code>, <code>top_toolbar: <a href='https://dev-docs.ankiweb.net/en/latest/autoapi/aqt/toolbar#aqt.toolbar.Toolbar'>aqt.toolbar.Toolbar</a></code>
 
 Used to add custom add-on components to the *right* area of Anki's main
 window toolbar
@@ -1177,7 +1177,7 @@ require changes to continue working.
 
 ### `top_toolbar_did_redraw`
 
-**Args:** `top_toolbar: aqt.toolbar.Toolbar`
+**Args:** <code>top_toolbar: <a href='https://dev-docs.ankiweb.net/en/latest/autoapi/aqt/toolbar#aqt.toolbar.Toolbar'>aqt.toolbar.Toolbar</a></code>
 
 Executed when the top toolbar is redrawn
 
@@ -1185,7 +1185,7 @@ Executed when the top toolbar is redrawn
 
 ### `media_sync_did_progress`
 
-**Args:** `entry: str`
+**Args:** <code>entry: str</code>
 
 No docstring.
 
@@ -1193,7 +1193,7 @@ No docstring.
 
 ### `media_sync_did_start_or_stop`
 
-**Args:** `running: bool`
+**Args:** <code>running: bool</code>
 
 No docstring.
 
@@ -1201,7 +1201,7 @@ No docstring.
 
 ### `empty_cards_will_show`
 
-**Args:** `diag: aqt.emptycards.EmptyCardsDialog`
+**Args:** <code>diag: <a href='https://dev-docs.ankiweb.net/en/latest/autoapi/aqt/emptycards#aqt.emptycards.EmptyCardsDialog'>aqt.emptycards.EmptyCardsDialog</a></code>
 
 Allows changing the list of cards to delete.
 
@@ -1235,7 +1235,7 @@ No docstring.
 
 ### `media_check_did_finish`
 
-**Args:** `output: anki.media.CheckMediaResponse`
+**Args:** <code>output: <a href='https://dev-docs.ankiweb.net/en/latest/autoapi/anki/media#anki.media.CheckMediaResponse'>anki.media.CheckMediaResponse</a></code>
 
 Called after Media Check finishes.
 
@@ -1253,8 +1253,8 @@ Called when Anki moves to the next day.
 
 ### `exporter_will_export`
 
-**Args:** `export_options: aqt.import_export.exporting.ExportOptions`, `exporter: aqt.import_export.exporting.Exporter`\
-**Returns:** `aqt.import_export.exporting.ExportOptions`
+**Args:** <code>export_options: <a href='https://dev-docs.ankiweb.net/en/latest/autoapi/aqt/import_export/exporting#aqt.import_export.exporting.ExportOptions'>aqt.import_export.exporting.ExportOptions</a></code>, <code>exporter: <a href='https://dev-docs.ankiweb.net/en/latest/autoapi/aqt/import_export/exporting#aqt.import_export.exporting.Exporter'>aqt.import_export.exporting.Exporter</a></code>\
+**Returns:** <code><a href='https://dev-docs.ankiweb.net/en/latest/autoapi/aqt/import_export/exporting#aqt.import_export.exporting.ExportOptions'>aqt.import_export.exporting.ExportOptions</a></code>
 
 Called before collection and deck exports.
 
@@ -1273,7 +1273,7 @@ def on_exporter_will_export(export_options: ExportOptions, exporter: Exporter):
 
 ### `exporter_did_export`
 
-**Args:** `export_options: aqt.import_export.exporting.ExportOptions`, `exporter: aqt.import_export.exporting.Exporter`
+**Args:** <code>export_options: <a href='https://dev-docs.ankiweb.net/en/latest/autoapi/aqt/import_export/exporting#aqt.import_export.exporting.ExportOptions'>aqt.import_export.exporting.ExportOptions</a></code>, <code>exporter: <a href='https://dev-docs.ankiweb.net/en/latest/autoapi/aqt/import_export/exporting#aqt.import_export.exporting.Exporter'>aqt.import_export.exporting.Exporter</a></code>
 
 Called after collection and deck exports.
 
@@ -1281,7 +1281,7 @@ Called after collection and deck exports.
 
 ### `legacy_exporter_will_export`
 
-**Args:** `legacy_exporter: anki.exporting.Exporter`
+**Args:** <code>legacy_exporter: <a href='https://dev-docs.ankiweb.net/en/latest/autoapi/anki/exporting#anki.exporting.Exporter'>anki.exporting.Exporter</a></code>
 
 Called before collection and deck exports performed by legacy exporters.
 
@@ -1289,7 +1289,7 @@ Called before collection and deck exports performed by legacy exporters.
 
 ### `legacy_exporter_did_export`
 
-**Args:** `legacy_exporter: anki.exporting.Exporter`
+**Args:** <code>legacy_exporter: <a href='https://dev-docs.ankiweb.net/en/latest/autoapi/anki/exporting#anki.exporting.Exporter'>anki.exporting.Exporter</a></code>
 
 Called after collection and deck exports performed by legacy exporters.
 
@@ -1297,7 +1297,7 @@ Called after collection and deck exports performed by legacy exporters.
 
 ### `exporters_list_did_initialize`
 
-**Args:** `exporters: list[Type[aqt.import_export.exporting.Exporter]]`
+**Args:** <code>exporters: list[Type[<a href='https://dev-docs.ankiweb.net/en/latest/autoapi/aqt/import_export/exporting#aqt.import_export.exporting.Exporter'>aqt.import_export.exporting.Exporter</a>]]</code>
 
 Called after the list of exporter classes is created.
 
@@ -1308,7 +1308,7 @@ modifying the exporter list.
 
 ### `dialog_manager_did_open_dialog`
 
-**Args:** `dialog_manager: aqt.DialogManager`, `dialog_name: str`, `dialog_instance: QWidget`
+**Args:** <code>dialog_manager: <a href='https://dev-docs.ankiweb.net/en/latest/autoapi/aqt#aqt.DialogManager'>aqt.DialogManager</a></code>, <code>dialog_name: str</code>, <code>dialog_instance: QWidget</code>
 
 Executed after aqt.dialogs creates a dialog window
 
@@ -1316,7 +1316,7 @@ Executed after aqt.dialogs creates a dialog window
 
 ### `add_cards_will_show_history_menu`
 
-**Args:** `addcards: aqt.addcards.AddCards`, `menu: QMenu`
+**Args:** <code>addcards: <a href='https://dev-docs.ankiweb.net/en/latest/autoapi/aqt/addcards#aqt.addcards.AddCards'>aqt.addcards.AddCards</a></code>, <code>menu: QMenu</code>
 
 No docstring.
 
@@ -1324,7 +1324,7 @@ No docstring.
 
 ### `add_cards_did_init`
 
-**Args:** `addcards: aqt.addcards.AddCards`
+**Args:** <code>addcards: <a href='https://dev-docs.ankiweb.net/en/latest/autoapi/aqt/addcards#aqt.addcards.AddCards'>aqt.addcards.AddCards</a></code>
 
 No docstring.
 
@@ -1332,7 +1332,7 @@ No docstring.
 
 ### `add_cards_did_add_note`
 
-**Args:** `note: anki.notes.Note`
+**Args:** <code>note: <a href='https://dev-docs.ankiweb.net/en/latest/autoapi/anki/notes#anki.notes.Note'>anki.notes.Note</a></code>
 
 No docstring.
 
@@ -1340,8 +1340,8 @@ No docstring.
 
 ### `add_cards_will_add_note`
 
-**Args:** `problem: str | None`, `note: anki.notes.Note`\
-**Returns:** `str | None`
+**Args:** <code>problem: str | None</code>, <code>note: <a href='https://dev-docs.ankiweb.net/en/latest/autoapi/anki/notes#anki.notes.Note'>anki.notes.Note</a></code>\
+**Returns:** <code>str | None</code>
 
 Decides whether the note should be added to the collection or
 not. It is assumed to come from the addCards window.
@@ -1355,7 +1355,7 @@ input.
 
 ### `add_cards_might_add_note`
 
-**Args:** `optional_problems: list[str]`, `note: anki.notes.Note`
+**Args:** <code>optional_problems: list[str]</code>, <code>note: <a href='https://dev-docs.ankiweb.net/en/latest/autoapi/anki/notes#anki.notes.Note'>anki.notes.Note</a></code>
 
 Allows you to provide an optional reason to reject a note. A
 yes / no dialog will open displaying the problem, to which the
@@ -1377,8 +1377,8 @@ def might_reject_empty_tag(optional_problems, note):
 
 ### `addcards_will_add_history_entry`
 
-**Args:** `line: str`, `note: anki.notes.Note`\
-**Returns:** `str`
+**Args:** <code>line: str</code>, <code>note: <a href='https://dev-docs.ankiweb.net/en/latest/autoapi/anki/notes#anki.notes.Note'>anki.notes.Note</a></code>\
+**Returns:** <code>str</code>
 
 Allows changing the history line in the add-card window.
 
@@ -1386,7 +1386,7 @@ Allows changing the history line in the add-card window.
 
 ### `add_cards_did_change_note_type` _(Deprecated)_
 
-**Args:** `old: anki.models.NoteType`, `new: anki.models.NoteType`
+**Args:** <code>old: <a href='https://dev-docs.ankiweb.net/en/latest/autoapi/anki/models#anki.models.NoteType'>anki.models.NoteType</a></code>, <code>new: <a href='https://dev-docs.ankiweb.net/en/latest/autoapi/anki/models#anki.models.NoteType'>anki.models.NoteType</a></code>
 
 <Warning>
   Deprecated. Use `addcards_did_change_note_type` instead.
@@ -1399,7 +1399,7 @@ cards.
 
 ### `addcards_did_change_note_type`
 
-**Args:** `addcards: aqt.addcards.AddCards`, `old: anki.models.NoteType`, `new: anki.models.NoteType`
+**Args:** <code>addcards: <a href='https://dev-docs.ankiweb.net/en/latest/autoapi/aqt/addcards#aqt.addcards.AddCards'>aqt.addcards.AddCards</a></code>, <code>old: <a href='https://dev-docs.ankiweb.net/en/latest/autoapi/anki/models#anki.models.NoteType'>anki.models.NoteType</a></code>, <code>new: <a href='https://dev-docs.ankiweb.net/en/latest/autoapi/anki/models#anki.models.NoteType'>anki.models.NoteType</a></code>
 
 Executed after the user selects a new note type when adding
 cards.
@@ -1408,7 +1408,7 @@ cards.
 
 ### `add_cards_did_change_deck`
 
-**Args:** `new_deck_id: int`
+**Args:** <code>new_deck_id: int</code>
 
 Executed after the user selects a new different deck when
 adding cards.
@@ -1417,7 +1417,7 @@ adding cards.
 
 ### `editor_did_init_left_buttons`
 
-**Args:** `buttons: list[str]`, `editor: aqt.editor.Editor`
+**Args:** <code>buttons: list[str]</code>, <code>editor: <a href='https://dev-docs.ankiweb.net/en/latest/autoapi/aqt/editor#aqt.editor.Editor'>aqt.editor.Editor</a></code>
 
 No docstring.
 
@@ -1425,7 +1425,7 @@ No docstring.
 
 ### `editor_did_init_buttons`
 
-**Args:** `buttons: list[str]`, `editor: aqt.editor.Editor`
+**Args:** <code>buttons: list[str]</code>, <code>editor: <a href='https://dev-docs.ankiweb.net/en/latest/autoapi/aqt/editor#aqt.editor.Editor'>aqt.editor.Editor</a></code>
 
 No docstring.
 
@@ -1433,7 +1433,7 @@ No docstring.
 
 ### `editor_did_init_shortcuts`
 
-**Args:** `shortcuts: list[tuple]`, `editor: aqt.editor.Editor`
+**Args:** <code>shortcuts: list[tuple]</code>, <code>editor: <a href='https://dev-docs.ankiweb.net/en/latest/autoapi/aqt/editor#aqt.editor.Editor'>aqt.editor.Editor</a></code>
 
 No docstring.
 
@@ -1441,7 +1441,7 @@ No docstring.
 
 ### `editor_will_show_context_menu`
 
-**Args:** `editor_webview: aqt.editor.EditorWebView`, `menu: QMenu`
+**Args:** <code>editor_webview: <a href='https://dev-docs.ankiweb.net/en/latest/autoapi/aqt/editor#aqt.editor.EditorWebView'>aqt.editor.EditorWebView</a></code>, <code>menu: QMenu</code>
 
 No docstring.
 
@@ -1449,7 +1449,7 @@ No docstring.
 
 ### `editor_did_fire_typing_timer`
 
-**Args:** `note: anki.notes.Note`
+**Args:** <code>note: <a href='https://dev-docs.ankiweb.net/en/latest/autoapi/anki/notes#anki.notes.Note'>anki.notes.Note</a></code>
 
 No docstring.
 
@@ -1457,7 +1457,7 @@ No docstring.
 
 ### `editor_did_focus_field`
 
-**Args:** `note: anki.notes.Note`, `current_field_idx: int`
+**Args:** <code>note: <a href='https://dev-docs.ankiweb.net/en/latest/autoapi/anki/notes#anki.notes.Note'>anki.notes.Note</a></code>, <code>current_field_idx: int</code>
 
 No docstring.
 
@@ -1465,8 +1465,8 @@ No docstring.
 
 ### `editor_did_unfocus_field`
 
-**Args:** `changed: bool`, `note: anki.notes.Note`, `current_field_idx: int`\
-**Returns:** `bool`
+**Args:** <code>changed: bool</code>, <code>note: <a href='https://dev-docs.ankiweb.net/en/latest/autoapi/anki/notes#anki.notes.Note'>anki.notes.Note</a></code>, <code>current_field_idx: int</code>\
+**Returns:** <code>bool</code>
 
 No docstring.
 
@@ -1474,7 +1474,7 @@ No docstring.
 
 ### `editor_did_load_note`
 
-**Args:** `editor: aqt.editor.Editor`
+**Args:** <code>editor: <a href='https://dev-docs.ankiweb.net/en/latest/autoapi/aqt/editor#aqt.editor.Editor'>aqt.editor.Editor</a></code>
 
 No docstring.
 
@@ -1482,7 +1482,7 @@ No docstring.
 
 ### `editor_did_update_tags`
 
-**Args:** `note: anki.notes.Note`
+**Args:** <code>note: <a href='https://dev-docs.ankiweb.net/en/latest/autoapi/anki/notes#anki.notes.Note'>anki.notes.Note</a></code>
 
 No docstring.
 
@@ -1490,8 +1490,8 @@ No docstring.
 
 ### `editor_will_munge_html`
 
-**Args:** `txt: str`, `editor: aqt.editor.Editor`\
-**Returns:** `str`
+**Args:** <code>txt: str</code>, <code>editor: <a href='https://dev-docs.ankiweb.net/en/latest/autoapi/aqt/editor#aqt.editor.Editor'>aqt.editor.Editor</a></code>\
+**Returns:** <code>str</code>
 
 Allows manipulating the text that will be saved by the editor
 
@@ -1499,8 +1499,8 @@ Allows manipulating the text that will be saved by the editor
 
 ### `editor_will_use_font_for_field`
 
-**Args:** `font: str`\
-**Returns:** `str`
+**Args:** <code>font: str</code>\
+**Returns:** <code>str</code>
 
 No docstring.
 
@@ -1508,7 +1508,7 @@ No docstring.
 
 ### `editor_web_view_did_init`
 
-**Args:** `editor_web_view: aqt.editor.EditorWebView`
+**Args:** <code>editor_web_view: <a href='https://dev-docs.ankiweb.net/en/latest/autoapi/aqt/editor#aqt.editor.EditorWebView'>aqt.editor.EditorWebView</a></code>
 
 No docstring.
 
@@ -1516,7 +1516,7 @@ No docstring.
 
 ### `editor_did_init`
 
-**Args:** `editor: aqt.editor.Editor`
+**Args:** <code>editor: <a href='https://dev-docs.ankiweb.net/en/latest/autoapi/aqt/editor#aqt.editor.Editor'>aqt.editor.Editor</a></code>
 
 No docstring.
 
@@ -1524,8 +1524,8 @@ No docstring.
 
 ### `editor_will_load_note`
 
-**Args:** `js: str`, `note: anki.notes.Note`, `editor: aqt.editor.Editor`\
-**Returns:** `str`
+**Args:** <code>js: str</code>, <code>note: <a href='https://dev-docs.ankiweb.net/en/latest/autoapi/anki/notes#anki.notes.Note'>anki.notes.Note</a></code>, <code>editor: <a href='https://dev-docs.ankiweb.net/en/latest/autoapi/aqt/editor#aqt.editor.Editor'>aqt.editor.Editor</a></code>\
+**Returns:** <code>str</code>
 
 Allows changing the javascript commands to load note before
 executing it and do change in the QT editor.
@@ -1534,7 +1534,7 @@ executing it and do change in the QT editor.
 
 ### `editor_did_paste`
 
-**Args:** `editor: aqt.editor.Editor`, `html: str`, `internal: bool`, `extended: bool`
+**Args:** <code>editor: <a href='https://dev-docs.ankiweb.net/en/latest/autoapi/aqt/editor#aqt.editor.Editor'>aqt.editor.Editor</a></code>, <code>html: str</code>, <code>internal: bool</code>, <code>extended: bool</code>
 
 Called after some data is pasted by python into an editor field.
 
@@ -1542,8 +1542,8 @@ Called after some data is pasted by python into an editor field.
 
 ### `editor_will_process_mime`
 
-**Args:** `mime: QMimeData`, `editor_web_view: aqt.editor.EditorWebView`, `internal: bool`, `extended: bool`, `drop_event: bool`\
-**Returns:** `QMimeData`
+**Args:** <code>mime: QMimeData</code>, <code>editor_web_view: <a href='https://dev-docs.ankiweb.net/en/latest/autoapi/aqt/editor#aqt.editor.EditorWebView'>aqt.editor.EditorWebView</a></code>, <code>internal: bool</code>, <code>extended: bool</code>, <code>drop_event: bool</code>\
+**Returns:** <code>QMimeData</code>
 
 Used to modify MIME data stored in the clipboard after a drop or a paste.
 Called after the user pastes or drag-and-drops something to Anki
@@ -1562,7 +1562,7 @@ or by a right-click paste.
 
 ### `editor_state_did_change`
 
-**Args:** `editor: aqt.editor.Editor`, `new_state: aqt.editor.EditorState`, `old_state: aqt.editor.EditorState`
+**Args:** <code>editor: <a href='https://dev-docs.ankiweb.net/en/latest/autoapi/aqt/editor#aqt.editor.Editor'>aqt.editor.Editor</a></code>, <code>new_state: <a href='https://dev-docs.ankiweb.net/en/latest/autoapi/aqt/editor#aqt.editor.EditorState'>aqt.editor.EditorState</a></code>, <code>old_state: <a href='https://dev-docs.ankiweb.net/en/latest/autoapi/aqt/editor#aqt.editor.EditorState'>aqt.editor.EditorState</a></code>
 
 Called when the input state of the editor changes, e.g. when
 switching to an image occlusion note type.
@@ -1571,7 +1571,7 @@ switching to an image occlusion note type.
 
 ### `editor_mask_editor_did_load_image`
 
-**Args:** `editor: aqt.editor.Editor`, `path_or_nid: str | anki.notes.NoteId`
+**Args:** <code>editor: <a href='https://dev-docs.ankiweb.net/en/latest/autoapi/aqt/editor#aqt.editor.Editor'>aqt.editor.Editor</a></code>, <code>path_or_nid: str | <a href='https://dev-docs.ankiweb.net/en/latest/autoapi/anki/notes#anki.notes.NoteId'>anki.notes.NoteId</a></code>
 
 Called when the image occlusion mask editor has completed
 loading an image.
@@ -1583,7 +1583,7 @@ When editing existing notes `path_or_nid` will be the note id.
 
 ### `tag_editor_did_process_key`
 
-**Args:** `tag_edit: TagEdit`, `evt: QEvent`
+**Args:** <code>tag_edit: TagEdit</code>, <code>evt: QEvent</code>
 
 No docstring.
 
@@ -1591,7 +1591,7 @@ No docstring.
 
 ### `av_player_will_play`
 
-**Args:** `tag: anki.sound.AVTag`
+**Args:** <code>tag: <a href='https://dev-docs.ankiweb.net/en/latest/autoapi/anki/sound#anki.sound.AVTag'>anki.sound.AVTag</a></code>
 
 No docstring.
 
@@ -1599,7 +1599,7 @@ No docstring.
 
 ### `av_player_did_begin_playing`
 
-**Args:** `player: aqt.sound.Player`, `tag: anki.sound.AVTag`
+**Args:** <code>player: <a href='https://dev-docs.ankiweb.net/en/latest/autoapi/aqt/sound#aqt.sound.Player'>aqt.sound.Player</a></code>, <code>tag: <a href='https://dev-docs.ankiweb.net/en/latest/autoapi/anki/sound#anki.sound.AVTag'>anki.sound.AVTag</a></code>
 
 No docstring.
 
@@ -1607,7 +1607,7 @@ No docstring.
 
 ### `av_player_did_end_playing`
 
-**Args:** `player: aqt.sound.Player`
+**Args:** <code>player: <a href='https://dev-docs.ankiweb.net/en/latest/autoapi/aqt/sound#aqt.sound.Player'>aqt.sound.Player</a></code>
 
 No docstring.
 
@@ -1615,7 +1615,7 @@ No docstring.
 
 ### `av_player_will_play_tags`
 
-**Args:** `tags: list[anki.sound.AVTag]`, `side: str`, `context: Any`
+**Args:** <code>tags: list[<a href='https://dev-docs.ankiweb.net/en/latest/autoapi/anki/sound#anki.sound.AVTag'>anki.sound.AVTag</a>]</code>, <code>side: str</code>, <code>context: Any</code>
 
 Called before playing a card side's sounds.
 
@@ -1637,8 +1637,8 @@ sounds regardless of that option.
 
 ### `addon_config_editor_will_display_json`
 
-**Args:** `text: str`\
-**Returns:** `str`
+**Args:** <code>text: str</code>\
+**Returns:** <code>str</code>
 
 Allows changing the text of the json configuration before actually
 displaying it to the user. For example, you can replace "\\n" by
@@ -1650,8 +1650,8 @@ string instead of its encoding.
 
 ### `addon_config_editor_will_save_json` _(Deprecated)_
 
-**Args:** `text: str`\
-**Returns:** `str`
+**Args:** <code>text: str</code>\
+**Returns:** <code>str</code>
 
 <Warning>
   Deprecated. Use `addon_config_editor_will_update_json` instead.
@@ -1665,8 +1665,8 @@ example, you can replace new line in strings by some "\\n".
 
 ### `addon_config_editor_will_update_json`
 
-**Args:** `text: str`, `addon: str`\
-**Returns:** `str`
+**Args:** <code>text: str</code>, <code>addon: str</code>\
+**Returns:** <code>str</code>
 
 Allows changing the text of the json configuration that was
 received from the user before actually reading it. For
@@ -1676,7 +1676,7 @@ example, you can replace new line in strings by some "\\n".
 
 ### `addons_dialog_will_show`
 
-**Args:** `dialog: aqt.addons.AddonsDialog`
+**Args:** <code>dialog: <a href='https://dev-docs.ankiweb.net/en/latest/autoapi/aqt/addons#aqt.addons.AddonsDialog'>aqt.addons.AddonsDialog</a></code>
 
 Allows changing the add-on dialog before it is shown. E.g. add
 buttons.
@@ -1685,7 +1685,7 @@ buttons.
 
 ### `addons_dialog_did_change_selected_addon`
 
-**Args:** `dialog: aqt.addons.AddonsDialog`, `add_on: aqt.addons.AddonMeta`
+**Args:** <code>dialog: <a href='https://dev-docs.ankiweb.net/en/latest/autoapi/aqt/addons#aqt.addons.AddonsDialog'>aqt.addons.AddonsDialog</a></code>, <code>add_on: <a href='https://dev-docs.ankiweb.net/en/latest/autoapi/aqt/addons#aqt.addons.AddonMeta'>aqt.addons.AddonMeta</a></code>
 
 Allows doing an action when a single add-on is selected.
 
@@ -1693,7 +1693,7 @@ Allows doing an action when a single add-on is selected.
 
 ### `addons_dialog_will_delete_addons`
 
-**Args:** `dialog: aqt.addons.AddonsDialog`, `ids: list[str]`
+**Args:** <code>dialog: <a href='https://dev-docs.ankiweb.net/en/latest/autoapi/aqt/addons#aqt.addons.AddonsDialog'>aqt.addons.AddonsDialog</a></code>, <code>ids: list[str]</code>
 
 Allows doing an action before an add-on is deleted.
 
@@ -1701,7 +1701,7 @@ Allows doing an action before an add-on is deleted.
 
 ### `addon_manager_will_install_addon`
 
-**Args:** `manager: aqt.addons.AddonManager`, `module: str`
+**Args:** <code>manager: <a href='https://dev-docs.ankiweb.net/en/latest/autoapi/aqt/addons#aqt.addons.AddonManager'>aqt.addons.AddonManager</a></code>, <code>module: str</code>
 
 Called before installing or updating an addon.
 
@@ -1712,7 +1712,7 @@ would prevent an update from succeeding.
 
 ### `addon_manager_did_install_addon`
 
-**Args:** `manager: aqt.addons.AddonManager`, `module: str`
+**Args:** <code>manager: <a href='https://dev-docs.ankiweb.net/en/latest/autoapi/aqt/addons#aqt.addons.AddonManager'>aqt.addons.AddonManager</a></code>, <code>module: str</code>
 
 Called after installing or updating an addon.
 
@@ -1723,7 +1723,7 @@ an add-on has been updated.
 
 ### `models_advanced_will_show`
 
-**Args:** `advanced: QDialog`
+**Args:** <code>advanced: QDialog</code>
 
 No docstring.
 
@@ -1731,8 +1731,8 @@ No docstring.
 
 ### `models_did_init_buttons`
 
-**Args:** `buttons: list[tuple[str, Callable[[], None]]]`, `models: aqt.models.Models`\
-**Returns:** `list[tuple[str, Callable[[], None]]]`
+**Args:** <code>buttons: list[tuple[str, Callable[[], None]]]</code>, <code>models: <a href='https://dev-docs.ankiweb.net/en/latest/autoapi/aqt/models#aqt.models.Models'>aqt.models.Models</a></code>\
+**Returns:** <code>list[tuple[str, Callable[[], None]]]</code>
 
 Allows adding buttons to the Model dialog
 
@@ -1740,7 +1740,7 @@ Allows adding buttons to the Model dialog
 
 ### `fields_did_add_field`
 
-**Args:** `dialog: aqt.fields.FieldDialog`, `field: anki.models.FieldDict`
+**Args:** <code>dialog: <a href='https://dev-docs.ankiweb.net/en/latest/autoapi/aqt/fields#aqt.fields.FieldDialog'>aqt.fields.FieldDialog</a></code>, <code>field: <a href='https://dev-docs.ankiweb.net/en/latest/autoapi/anki/models#anki.models.FieldDict'>anki.models.FieldDict</a></code>
 
 No docstring.
 
@@ -1748,7 +1748,7 @@ No docstring.
 
 ### `fields_did_rename_field`
 
-**Args:** `dialog: aqt.fields.FieldDialog`, `field: anki.models.FieldDict`, `old_name: str`
+**Args:** <code>dialog: <a href='https://dev-docs.ankiweb.net/en/latest/autoapi/aqt/fields#aqt.fields.FieldDialog'>aqt.fields.FieldDialog</a></code>, <code>field: <a href='https://dev-docs.ankiweb.net/en/latest/autoapi/anki/models#anki.models.FieldDict'>anki.models.FieldDict</a></code>, <code>old_name: str</code>
 
 No docstring.
 
@@ -1756,7 +1756,7 @@ No docstring.
 
 ### `fields_did_delete_field`
 
-**Args:** `dialog: aqt.fields.FieldDialog`, `field: anki.models.FieldDict`
+**Args:** <code>dialog: <a href='https://dev-docs.ankiweb.net/en/latest/autoapi/aqt/fields#aqt.fields.FieldDialog'>aqt.fields.FieldDialog</a></code>, <code>field: <a href='https://dev-docs.ankiweb.net/en/latest/autoapi/anki/models#anki.models.FieldDict'>anki.models.FieldDict</a></code>
 
 No docstring.
 
@@ -1764,7 +1764,7 @@ No docstring.
 
 ### `stats_dialog_will_show`
 
-**Args:** `dialog: aqt.stats.NewDeckStats`
+**Args:** <code>dialog: <a href='https://dev-docs.ankiweb.net/en/latest/autoapi/aqt/stats#aqt.stats.NewDeckStats'>aqt.stats.NewDeckStats</a></code>
 
 Allows changing the stats dialog before it is shown.
 
@@ -1772,7 +1772,7 @@ Allows changing the stats dialog before it is shown.
 
 ### `stats_dialog_old_will_show`
 
-**Args:** `dialog: aqt.stats.DeckStats`
+**Args:** <code>dialog: <a href='https://dev-docs.ankiweb.net/en/latest/autoapi/aqt/stats#aqt.stats.DeckStats'>aqt.stats.DeckStats</a></code>
 
 Allows changing the old stats dialog before it is shown.
 
@@ -1780,7 +1780,7 @@ Allows changing the old stats dialog before it is shown.
 
 ### `current_note_type_did_change`
 
-**Args:** `notetype: NotetypeDict`
+**Args:** <code>notetype: NotetypeDict</code>
 
 No docstring.
 
@@ -1804,7 +1804,7 @@ Legacy, do not use.
 
 ### `deck_browser_will_show_options_menu`
 
-**Args:** `menu: QMenu`, `deck_id: int`
+**Args:** <code>menu: QMenu</code>, <code>deck_id: int</code>
 
 No docstring.
 
