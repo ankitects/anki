@@ -36,5 +36,5 @@ jobs:
         run: uv run python -m pytest tools/tests/test_mintlify_hooks.py
 
       - name: Validate Mintlify docs
-        run: mint validate
+        run: mintlify validate
         working-directory: docs-site
