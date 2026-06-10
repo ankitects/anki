@@ -249,6 +249,11 @@ class PreferencesActivity :
     }
 
     companion object {
+        /**
+         * Builds an [Intent] which opens [PreferencesFragment], optionally at [initialFragment].
+         *
+         * Prefer navigating via `PreferencesDestination`.
+         */
         fun getIntent(
             context: Context,
             initialFragment: KClass<out Fragment>? = null,

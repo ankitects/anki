@@ -8,12 +8,13 @@ import android.view.View
 import androidx.annotation.StringRes
 import androidx.core.net.toUri
 import androidx.fragment.app.Fragment
+import com.ichi2.anki.common.destinations.PreferencesDestination
+import com.ichi2.anki.common.destinations.navigate
 import com.ichi2.anki.databinding.FragmentMoreBinding
 import com.ichi2.anki.dialogs.help.ARG_MENU_ITEMS
 import com.ichi2.anki.dialogs.help.HelpDialog
 import com.ichi2.anki.dialogs.help.childHelpMenuItems
 import com.ichi2.anki.dialogs.help.mainHelpMenuItems
-import com.ichi2.anki.preferences.PreferencesActivity
 import com.ichi2.anki.utils.ext.showDialogFragment
 import com.ichi2.utils.IntentUtil
 import dev.androidbroadcast.vbpd.viewBinding
@@ -39,7 +40,7 @@ class MoreFragment : Fragment(R.layout.fragment_more) {
         val marketIntent = AnkiDroidApp.getMarketIntent(requireContext())
 
         binding.moreSettings.setOnClickListener {
-            startActivity(PreferencesActivity.getIntent(requireContext()))
+            navigate(PreferencesDestination.Root)
         }
 
         // Help section: each opens HelpDialog with the relevant sub-items

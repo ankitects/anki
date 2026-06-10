@@ -19,6 +19,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.bytehamster.lib.preferencesearch.PreferenceItem
 import com.bytehamster.lib.preferencesearch.SearchConfiguration
 import com.ichi2.anki.RobolectricTest
+import com.ichi2.anki.common.destinations.PreferencesDestination
 import com.ichi2.testutils.requireAccessibleJavaField
 import org.hamcrest.MatcherAssert.assertThat
 import org.hamcrest.Matchers.equalTo
@@ -87,7 +88,7 @@ class PrefsSearchBarTest : RobolectricTest() {
     }
 
     private fun getPreferencesActivity(): PreferencesActivity {
-        val intent = PreferencesActivity.getIntent(targetContext)
+        val intent = PreferencesDestination.Root.toIntent(targetContext)
         val controller =
             Robolectric
                 .buildActivity(PreferencesActivity::class.java, intent)

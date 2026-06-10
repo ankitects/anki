@@ -99,6 +99,8 @@ import com.ichi2.anki.cardviewer.handledGamepadKeyUp
 import com.ichi2.anki.common.android.animationDisabled
 import com.ichi2.anki.common.android.animationEnabled
 import com.ichi2.anki.common.annotations.NeedsTest
+import com.ichi2.anki.common.destinations.PreferencesDestination
+import com.ichi2.anki.common.destinations.navigate
 import com.ichi2.anki.common.preferences.sharedPrefs
 import com.ichi2.anki.common.ui.TransitionDirection
 import com.ichi2.anki.common.utils.HashUtil.hashSetInit
@@ -129,8 +131,6 @@ import com.ichi2.anki.pages.AnkiServer
 import com.ichi2.anki.pages.CongratsPage
 import com.ichi2.anki.pages.PostRequestHandler
 import com.ichi2.anki.pages.PostRequestUri
-import com.ichi2.anki.preferences.AccessibilitySettingsFragment
-import com.ichi2.anki.preferences.PreferencesActivity
 import com.ichi2.anki.reviewer.AutomaticAnswer
 import com.ichi2.anki.reviewer.AutomaticAnswer.AutomaticallyAnswered
 import com.ichi2.anki.reviewer.AutomaticAnswerAction
@@ -1869,12 +1869,7 @@ abstract class AbstractFlashcardViewer :
             minimalClickSpeed + Reviewer.ACTION_SNACKBAR_TIME,
         ) {
             setAction(R.string.settings) {
-                val settingsIntent =
-                    PreferencesActivity.getIntent(
-                        this@AbstractFlashcardViewer,
-                        AccessibilitySettingsFragment::class,
-                    )
-                startActivity(settingsIntent)
+                navigate(PreferencesDestination.Accessibility)
             }
         }
     }
