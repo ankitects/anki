@@ -58,7 +58,7 @@ jobs:
       release_name: ${{ steps.validate.outputs.release_name }}
       is_prerelease: ${{ steps.validate.outputs.is_prerelease }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 #v4
         with:
           ref: ${{ github.sha }}
           fetch-depth: 0
@@ -103,7 +103,7 @@ jobs:
           {
             echo "pep440_version=$version"
             echo "tag_name=$version"
-            echo "release_name=Anki $version"
+            echo "release_name=$version"
             echo "public_release=$public_release"
             echo "is_prerelease=$is_prerelease"
           } >> "$GITHUB_OUTPUT"
@@ -160,7 +160,7 @@ jobs:
     timeout-minutes: 90
     environment: ${{ inputs.sign == true && 'release' || '' }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 #v4
         with:
           ref: ${{ github.sha }}
 
@@ -191,13 +191,13 @@ jobs:
           security delete-keychain "$KEYCHAIN_PATH" 2>/dev/null || true
           rm -f "$RUNNER_TEMP/certificate.p12" "$RUNNER_TEMP/AuthKey.p8"
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 #v4
         if: always()
         with:
           name: logs-installer-macos
           path: out/installer/logs/
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 #v4
         with:
           name: installer-macos
           path: out/installer/dist/
@@ -205,7 +205,7 @@ jobs:
       - name: Build wheels
         run: ./ninja wheels:anki
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 #v4
         with:
           name: wheels-macos
           path: out/wheels/anki-*.whl
@@ -216,7 +216,7 @@ jobs:
     timeout-minutes: 90
     environment: ${{ inputs.sign == true && 'release' || '' }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 #v4
         with:
           ref: ${{ github.sha }}
 
@@ -247,13 +247,13 @@ jobs:
           security delete-keychain "$KEYCHAIN_PATH" 2>/dev/null || true
           rm -f "$RUNNER_TEMP/certificate.p12" "$RUNNER_TEMP/AuthKey.p8"
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 #v4
         if: always()
         with:
           name: logs-installer-macos-intel
           path: out/installer/logs/
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 #v4
         with:
           name: installer-macos-intel
           path: out/installer/dist/
@@ -261,7 +261,7 @@ jobs:
       - name: Build wheels
         run: ./ninja wheels:anki
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 #v4
         with:
           name: wheels-macos-intel
           path: out/wheels/anki-*.whl
@@ -272,7 +272,7 @@ jobs:
     timeout-minutes: 90
     environment: ${{ inputs.sign == true && 'release' || '' }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 #v4
         with:
           ref: ${{ github.sha }}
 
@@ -282,7 +282,7 @@ jobs:
       - name: Build app
         run: tools\ninja installer:build
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 #v4
         if: always()
         with:
           name: logs-installer-windows
@@ -290,13 +290,13 @@ jobs:
 
       - name: Azure login
         if: inputs.sign == true
-        uses: azure/login@v3
+        uses: azure/login@2dd0bbf4064d5a1812889dc200bb8eed2597f82a #v3
         with:
           creds: '{"clientId":"${{ secrets.AZURE_CLIENT_ID }}","clientSecret":"${{ secrets.AZURE_CLIENT_SECRET }}","subscriptionId":"${{ secrets.AZURE_SUBSCRIPTION_ID }}","tenantId":"${{ secrets.AZURE_TENANT_ID }}"}'
 
       - name: Sign app binary
         if: inputs.sign == true
-        uses: azure/artifact-signing-action@v1
+        uses: azure/artifact-signing-action@b443cf8ea4124818d2ea9f043cba29fc3ec47b16 #v1
         with:
           endpoint: https://eus.codesigning.azure.net/
           signing-account-name: anki-signing
@@ -326,7 +326,7 @@ jobs:
 
       - name: Sign MSI
         if: inputs.sign == true
-        uses: azure/artifact-signing-action@v1
+        uses: azure/artifact-signing-action@b443cf8ea4124818d2ea9f043cba29fc3ec47b16 #v1
         with:
           endpoint: https://eus.codesigning.azure.net/
           signing-account-name: anki-signing
@@ -349,7 +349,7 @@ jobs:
           }
           Write-Host "MSI signed successfully: $($sig.SignerCertificate.Subject)"
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 #v4
         with:
           name: installer-windows
           path: out/installer/dist/
@@ -357,7 +357,7 @@ jobs:
       - name: Build wheels
         run: tools\ninja wheels:anki
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 #v4
         with:
           name: wheels-windows
           path: out/wheels/anki-*.whl
@@ -369,7 +369,7 @@ jobs:
     runs-on: windows-11-arm
     timeout-minutes: 90
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 #v4
         with:
           ref: ${{ github.sha }}
 
@@ -379,13 +379,13 @@ jobs:
       - name: Build app
         run: tools\ninja installer:build
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 #v4
         if: always()
         with:
           name: logs-installer-windows-arm-build
           path: out/installer/logs/
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 #v4
         with:
           name: build-windows-arm
           path: |
@@ -395,7 +395,7 @@ jobs:
       - name: Build wheels
         run: tools\ninja wheels:anki
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 #v4
         with:
           name: wheels-windows-arm
           path: out/wheels/anki-*.whl
@@ -406,20 +406,20 @@ jobs:
     timeout-minutes: 15
     environment: ${{ inputs.sign == true && 'release' || '' }}
     steps:
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 #v4
         with:
           name: build-windows-arm
           path: out/installer/
 
       - name: Azure login
         if: inputs.sign == true
-        uses: azure/login@v3
+        uses: azure/login@2dd0bbf4064d5a1812889dc200bb8eed2597f82a #v3
         with:
           creds: '{"clientId":"${{ secrets.AZURE_CLIENT_ID }}","clientSecret":"${{ secrets.AZURE_CLIENT_SECRET }}","subscriptionId":"${{ secrets.AZURE_SUBSCRIPTION_ID }}","tenantId":"${{ secrets.AZURE_TENANT_ID }}"}'
 
       - name: Sign app binary
         if: inputs.sign == true
-        uses: azure/artifact-signing-action@v1
+        uses: azure/artifact-signing-action@b443cf8ea4124818d2ea9f043cba29fc3ec47b16 #v1
         with:
           endpoint: https://eus.codesigning.azure.net/
           signing-account-name: anki-signing
@@ -440,7 +440,7 @@ jobs:
           }
           Write-Host "Anki.exe signed successfully: $($sig.SignerCertificate.Subject)"
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 #v4
         with:
           name: signed-build-windows-arm
           path: out/installer/
@@ -450,14 +450,14 @@ jobs:
     runs-on: windows-11-arm
     timeout-minutes: 30
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 #v4
         with:
           ref: ${{ github.sha }}
 
       - name: Setup build environment
         uses: ./.github/actions/setup-anki
 
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 #v4
         with:
           name: signed-build-windows-arm
           path: out/installer/
@@ -467,13 +467,13 @@ jobs:
           tools\ninja pyenv
           out\pyenv\scripts\python.exe qt\tools\build_installer.py --version ${{ needs.prepare.outputs.pep440_version }} package
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 #v4
         if: always()
         with:
           name: logs-installer-windows-arm-package
           path: out/installer/logs/
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 #v4
         with:
           name: unsigned-installer-windows-arm
           path: out/installer/dist/
@@ -484,20 +484,20 @@ jobs:
     timeout-minutes: 15
     environment: ${{ inputs.sign == true && 'release' || '' }}
     steps:
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 #v4
         with:
           name: unsigned-installer-windows-arm
           path: dist/
 
       - name: Azure login
         if: inputs.sign == true
-        uses: azure/login@v3
+        uses: azure/login@2dd0bbf4064d5a1812889dc200bb8eed2597f82a #v3
         with:
           creds: '{"clientId":"${{ secrets.AZURE_CLIENT_ID }}","clientSecret":"${{ secrets.AZURE_CLIENT_SECRET }}","subscriptionId":"${{ secrets.AZURE_SUBSCRIPTION_ID }}","tenantId":"${{ secrets.AZURE_TENANT_ID }}"}'
 
       - name: Sign MSI
         if: inputs.sign == true
-        uses: azure/artifact-signing-action@v1
+        uses: azure/artifact-signing-action@b443cf8ea4124818d2ea9f043cba29fc3ec47b16 #v1
         with:
           endpoint: https://eus.codesigning.azure.net/
           signing-account-name: anki-signing
@@ -520,7 +520,7 @@ jobs:
           }
           Write-Host "MSI signed successfully: $($sig.SignerCertificate.Subject)"
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 #v4
         with:
           name: installer-windows-arm
           path: dist/
@@ -533,23 +533,46 @@ jobs:
     runs-on: ubuntu-22.04
     timeout-minutes: 90
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 #v4
         with:
           ref: ${{ github.sha }}
 
       - name: Setup build environment
         uses: ./.github/actions/setup-anki
 
+      - name: Build and install fcitx5-qt for bundling
+        run: |
+          sudo apt-get install --yes --no-install-recommends \
+            cmake extra-cmake-modules \
+            libfcitx5core-dev \
+            qt6-base-dev \
+            qt6-base-private-dev \
+            libgl-dev \
+            libxkbcommon-dev \
+            libx11-dev \
+            gettext \
+            patchelf
+          git clone --depth 1 --branch 5.0.10 \
+            https://github.com/fcitx/fcitx5-qt.git /tmp/fcitx5-qt
+          cmake -S /tmp/fcitx5-qt -B /tmp/fcitx5-qt-build \
+            -DCMAKE_BUILD_TYPE=Release \
+            -DENABLE_QT4=no \
+            -DENABLE_QT5=no \
+            -DENABLE_QT6=yes \
+            -DCMAKE_INSTALL_PREFIX=/usr
+          cmake --build /tmp/fcitx5-qt-build -j$(nproc)
+          sudo cmake --install /tmp/fcitx5-qt-build
+
       - name: Build installer
         run: ./tools/build-installer
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 #v4
         if: always()
         with:
           name: logs-installer-linux-x86
           path: out/installer/logs/
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 #v4
         with:
           name: installer-linux-x86
           path: out/installer/dist/
@@ -561,7 +584,7 @@ jobs:
       - name: Build anki-release wheel
         run: cd qt/release && bash build.sh
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 #v4
         with:
           name: wheels-linux-x86
           path: out/wheels/*.whl
@@ -571,7 +594,7 @@ jobs:
     runs-on: ubuntu-22.04
     timeout-minutes: 90
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 #v4
         with:
           ref: ${{ github.sha }}
 
@@ -583,7 +606,7 @@ jobs:
           sudo apt-get install --yes --no-install-recommends libc6-dev-arm64-cross gcc-aarch64-linux-gnu
           ./tools/build-arm-lin
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 #v4
         with:
           name: wheels-linux-arm
           path: out/wheels/anki-*.whl
@@ -597,23 +620,29 @@ jobs:
     runs-on: ubuntu-24.04-arm
     timeout-minutes: 90
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 #v4
         with:
           ref: ${{ github.sha }}
 
       - name: Setup build environment
         uses: ./.github/actions/setup-anki
 
+      - name: Install fcitx5 dependencies for bundling
+        run: |
+          sudo apt-get update
+          sudo apt-get install --yes --no-install-recommends \
+            fcitx5-frontend-qt6 libfcitx5-qt6-1 patchelf
+
       - name: Build installer
         run: ./tools/build-installer
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 #v4
         if: always()
         with:
           name: logs-installer-linux-arm
           path: out/installer/logs/
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 #v4
         with:
           name: installer-linux-arm
           path: out/installer/dist/
@@ -635,11 +664,11 @@ jobs:
     runs-on: ubuntu-latest
     environment: release
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 #v4
         with:
           ref: ${{ github.sha }}
 
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 #v4
         with:
           pattern: installer-*
           path: dist
@@ -684,18 +713,18 @@ jobs:
       }}
     runs-on: ubuntu-latest
     timeout-minutes: 15
-    environment: release
+    environment: testpypi
     permissions:
       id-token: write
     steps:
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 #v4
         with:
           pattern: wheels-*
           path: wheels
           merge-multiple: true
 
       - name: Publish to TestPyPI
-        uses: pypa/gh-action-pypi-publish@release/v1
+        uses: pypa/gh-action-pypi-publish@cef221092ed1bacb1cc03d23a2d87d1d172e277b #v1
         with:
           packages-dir: wheels/
           repository-url: https://test.pypi.org/legacy/
@@ -712,17 +741,17 @@ jobs:
       }}
     runs-on: ubuntu-latest
     timeout-minutes: 15
-    environment: release
+    environment: pypi
     permissions:
       id-token: write
     steps:
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 #v4
         with:
           pattern: wheels-*
           path: wheels
           merge-multiple: true
 
       - name: Publish to PyPI
-        uses: pypa/gh-action-pypi-publish@release/v1
+        uses: pypa/gh-action-pypi-publish@cef221092ed1bacb1cc03d23a2d87d1d172e277b #v1
         with:
           packages-dir: wheels/

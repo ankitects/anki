@@ -116,6 +116,7 @@ regex = "1.11.1"
 reqwest = { version = "0.12.20", default-features = false, features = ["json", "socks", "stream", "multipart"] }
 rusqlite = { version = "0.36.0", features = ["trace", "functions", "collation", "bundled"] }
 rustls-pemfile = "2.2.0"
+same-file = "1.0.6"
 scopeguard = "1.2.0"
 serde = { version = "1.0.219", features = ["derive"] }
 serde-aux = "4.7.0"
@@ -127,7 +128,7 @@ sha2 = { version = "0.11.0" }
 snafu = { version = "0.8.6", features = ["rust_1_61"] }
 strum = { version = "0.27.1", features = ["derive"] }
 syn = { version = "2.0.103", features = ["parsing", "printing"] }
-tar = "0.4.44"
+tar = "0.4.46"
 tempfile = "3.20.0"
 termcolor = "1.4.1"
 tokio = { version = "1.45", features = ["fs", "rt-multi-thread", "macros", "signal"] }

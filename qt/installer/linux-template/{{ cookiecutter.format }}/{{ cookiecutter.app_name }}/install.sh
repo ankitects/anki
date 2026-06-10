@@ -7,6 +7,46 @@ if [ "$(dirname "$(realpath "$0")")" != "$(realpath "$PWD")" ]; then
   exit 1
 fi
 
+_install_deps() {
+  if [ ! -f /etc/os-release ]; then
+    echo "Warning: /etc/os-release not found; skipping dependency installation."
+    return
+  fi
+
+  # shellcheck disable=SC1091
+  . /etc/os-release
+
+  DEBIAN_DEPS=(
+    libdbus-1-3 libfontconfig1 libfreetype6 libgl1 libnss3
+    libxcb-icccm4 libxcb-image0 libxcb-keysyms1 libxcb-randr0
+    libxcb-render-util0 libxcb-shape0 libxcb-xinerama0 libxcb-xkb1
+    libxcomposite1 libxcursor1 libxi6 libxkbcommon0 libxkbcommon-x11-0
+    libxrandr2 libxrender1 libxtst6
+  )
+
+  _apt() {
+    # libglib2.0-0 was renamed to libglib2.0-0t64 in Ubuntu 24.04+
+    local glib_pkg=libglib2.0-0
+    apt-cache show libglib2.0-0t64 >/dev/null 2>&1 && glib_pkg=libglib2.0-0t64
+    apt-get install -y "${DEBIAN_DEPS[@]}" "$glib_pkg"
+  }
+
+  case "${ID:-}" in
+    debian|ubuntu|linuxmint|pop)      _apt    ;;
+    *)
+      case "${ID_LIKE:-}" in
+        *debian*|*ubuntu*) _apt    ;;
+        *)
+          echo "Warning: unknown distribution '${ID:-}'; skipping dependency installation."
+          echo "Please run Anki with QT_DEBUG_PLUGINS=1 to show missing Qt dependencies."
+          ;;
+      esac
+      ;;
+  esac
+}
+
+_install_deps || echo "Warning: dependency installation failed; continuing anyway."
+
 if [ "$PREFIX" = "" ]; then
 	PREFIX=/usr/local
 fi

@@ -3,9 +3,9 @@
 
 from __future__ import annotations
 
+import logging
 import sys
 import time
-import traceback
 from collections.abc import Iterable, Sequence
 from threading import current_thread, main_thread
 from typing import TYPE_CHECKING, Any
@@ -20,6 +20,8 @@ from anki._fluent import GeneratedTranslations
 from anki.dbproxy import Row as DBRow
 from anki.dbproxy import ValueForDB
 from anki.utils import from_json_bytes, to_json_bytes
+
+logger = logging.getLogger(__name__)
 
 if TYPE_CHECKING:
     from anki.collection import FsrsItem
@@ -142,9 +144,9 @@ class RustBackend(RustBackendGenerated):
         seconds: Any,
         context: Any = 2,
     ) -> str:
-        traceback.print_stack(file=sys.stdout)
-        print(
-            "please use col.format_timespan() instead of col.backend.format_time_span()"
+        logger.warning(
+            "please use col.format_timespan() instead of col.backend.format_time_span()",
+            stack_info=True,
         )
         return self.format_timespan(seconds=seconds, context=context)
 
@@ -163,8 +165,10 @@ class RustBackend(RustBackendGenerated):
         finally:
             elapsed = time.time() - start
             if current_thread() is main_thread() and elapsed > 0.2:
-                print(f"blocked main thread for {int(elapsed * 1000)}ms:")
-                print("".join(traceback.format_stack()))
+                logger.debug(
+                    f"blocked main thread for {int(elapsed * 1000)}ms",
+                    stack_info=True,
+                )
 
         err = backend_pb2.BackendError()
         err.ParseFromString(error_bytes)
@@ -178,8 +182,10 @@ class Translations(GeneratedTranslations):
     def __call__(self, key: tuple[int, int], **kwargs: Any) -> str:
         "Mimic the old col.tr / TR interface"
         if "pytest" not in sys.modules:
-            traceback.print_stack(file=sys.stdout)
-            print("please use tr.message_name() instead of tr(TR.MESSAGE_NAME)")
+            logger.warning(
+                "please use tr.message_name() instead of tr(TR.MESSAGE_NAME)",
+                stack_info=True,
+            )
 
         (module, message) = key
         return self.backend().translate(
