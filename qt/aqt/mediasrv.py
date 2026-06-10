@@ -28,7 +28,7 @@ import aqt
 import aqt.main
 import aqt.operations
 from anki import hooks
-from anki.collection import OpChanges, OpChangesOnly, Progress, SearchNode
+from anki.collection import OpChangesOnly, Progress, SearchNode
 from anki.decks import UpdateDeckConfigs, UpdateDeckConfigsMode
 from anki.scheduler.v3 import SchedulingStatesWithContext, SetSchedulingStatesRequest
 from anki.utils import dev_mode
@@ -475,6 +475,16 @@ def get_deck_configs_for_update() -> bytes:
     return aqt.mw.col._backend.get_deck_configs_for_update_raw(request.data)
 
 
+def _on_update_deck_configs_success(input: UpdateDeckConfigs) -> None:
+    is_compute_all = (
+        input.mode == UpdateDeckConfigsMode.UPDATE_DECK_CONFIGS_MODE_COMPUTE_ALL_PARAMS
+    )
+    if not is_compute_all and isinstance(
+        window := aqt.mw.app.activeModalWidget(), DeckOptionsDialog
+    ):
+        window.reject()
+
+
 def update_deck_configs() -> bytes:
     # the regular change tracking machinery expects to be started on the main
     # thread and uses a callback on success, so we need to run this op on
@@ -511,19 +521,9 @@ def update_deck_configs() -> bytes:
         if update.user_wants_abort:
             update.abort = True
 
-    def on_success(changes: OpChanges) -> None:
-        is_compute_all = (
-            input.mode
-            == UpdateDeckConfigsMode.UPDATE_DECK_CONFIGS_MODE_COMPUTE_ALL_PARAMS
-        )
-        if not is_compute_all and isinstance(
-            window := aqt.mw.app.activeModalWidget(), DeckOptionsDialog
-        ):
-            window.reject()
-
     def handle_on_main() -> None:
         update_deck_configs_op(parent=aqt.mw, input=input).success(
-            on_success
+            lambda _: _on_update_deck_configs_success(input)
         ).with_backend_progress(on_progress).run_in_background()
 
     aqt.mw.taskman.run_on_main(handle_on_main)
