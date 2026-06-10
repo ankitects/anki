@@ -348,8 +348,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     async function computeAllParams(): Promise<void> {
         await commitEditing();
 
-        state.save(UpdateDeckConfigsMode.COMPUTE_ALL_PARAMS);
-        window.location.reload();
+        if (confirm(tr.deckConfigFsrsConfirmSaveAndOptimize())) {
+            state.save(UpdateDeckConfigsMode.COMPUTE_ALL_PARAMS);
+            window.location.reload();
+        }
     }
 
     function showSimulatorModal(modal: Modal) {
