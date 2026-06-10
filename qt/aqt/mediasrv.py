@@ -512,10 +512,12 @@ def update_deck_configs() -> bytes:
             update.abort = True
 
     def on_success(changes: OpChanges) -> None:
-        if (
+        is_compute_all = (
             input.mode
-            != UpdateDeckConfigsMode.UPDATE_DECK_CONFIGS_MODE_COMPUTE_ALL_PARAMS
-            and isinstance(window := aqt.mw.app.activeModalWidget(), DeckOptionsDialog)
+            == UpdateDeckConfigsMode.UPDATE_DECK_CONFIGS_MODE_COMPUTE_ALL_PARAMS
+        )
+        if not is_compute_all and isinstance(
+            window := aqt.mw.app.activeModalWidget(), DeckOptionsDialog
         ):
             window.reject()
 
