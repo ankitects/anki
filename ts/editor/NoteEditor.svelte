@@ -805,7 +805,7 @@ the AddCards dialog) should be implemented in the user of this component.
             {#if tagAmount == 0}
                 {@html `${tr.editingTags()}`}
             {:else}
-                {@html `${tr.editingNumberTags({ numberOfTags: tagAmount })}`}
+                {@html `${tr.editingNumberTags({ count: tagAmount })}`}
             {/if}
         </CollapseLabel>
         <Collapsible toggleDisplay collapse={$tagsCollapsed}>
