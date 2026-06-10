@@ -72,12 +72,32 @@ def status_suffix(hook: Any) -> str:
     return ""
 
 
+SPHINX_SITE_URL = "https://dev-docs.ankiweb.net/en/latest/autoapi/"
+
+
+def _format_type(match: re.Match) -> str:
+    type_str = match.group(0)
+    page = "/".join(type_str.split(".")[:-1])
+    url = f"{SPHINX_SITE_URL}{page}#{type_str}"
+
+    return f"<a href='{url}'>{type_str.strip()}</a>"
+
+
+def format_type(type: str):
+    type = re.sub(r"(anki|aqt)\.[a-zA-Z0-9_\.]*", _format_type, type)
+    return type
+
+
 def signature(hook: Any) -> str:
-    args = f"**Args:** {', '.join(f'`{arg}`' for arg in hook.args or [])}"
+    def format_arg(arg: str) -> str:
+        argname, argtype = arg.split(":")
+        return f"<code>{argname.strip()}:{format_type(argtype)}</code>"
+
+    args = f"**Args:** {', '.join(format_arg(arg) for arg in hook.args or [])}"
     if not hook.args:
         args = "No arguments."
     if hook.return_type:
-        return f"{args}\\\n**Returns:** `{hook.return_type}`"
+        return f"{args}\\\n**Returns:** <code>{format_type(hook.return_type)}</code>"
     return args
 
 
