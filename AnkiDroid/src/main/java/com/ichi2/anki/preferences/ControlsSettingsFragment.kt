@@ -199,6 +199,15 @@ class ControlsSettingsFragment :
         findPreference<ControlPreference>(getString(R.string.delete_command_key))?.let {
             it.title = TR.sentenceCase.deleteNote
         }
+        findPreference<ControlPreference>(getString(R.string.answer_again_command_key))?.let {
+            it.title = TR.sentenceCase.answerAgain
+        }
+        findPreference<ControlPreference>(getString(R.string.answer_hard_command_key))?.let {
+            it.title = TR.sentenceCase.answerHard
+        }
+        findPreference<ControlPreference>(getString(R.string.answer_good_command_key))?.let {
+            it.title = TR.sentenceCase.answerGood
+        }
     }
 
     private fun setupNewStudyScreenSettings() {

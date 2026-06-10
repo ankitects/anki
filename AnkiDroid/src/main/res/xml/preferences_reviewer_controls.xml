@@ -14,22 +14,23 @@
             />
         <com.ichi2.preferences.ReviewerControlPreference
             android:key="@string/answer_again_command_key"
-            android:title="@string/answer_again"
+            tools:title="Answer again"
             android:icon="@drawable/ic_ease_again"
             app:cardSide="answer"
             />
         <com.ichi2.preferences.ReviewerControlPreference
             android:key="@string/answer_hard_command_key"
-            android:title="@string/answer_hard"
+            tools:title="Answer hard"
             android:icon="@drawable/ic_ease_hard"
             app:cardSide="answer"
             />
         <com.ichi2.preferences.ReviewerControlPreference
             android:key="@string/answer_good_command_key"
-            android:title="@string/answer_good"
+            tools:title="Answer good"
             android:icon="@drawable/ic_ease_good"
             app:cardSide="answer"
             />
+        <!-- 'Answer easy' is not provided by the backend -->
         <com.ichi2.preferences.ReviewerControlPreference
             android:key="@string/answer_easy_command_key"
             android:title="@string/answer_easy"

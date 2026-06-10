@@ -334,10 +334,7 @@ class TranslationTest : RobolectricTest() {
                 //                       // TR.mediaCheckCheckMediaAction()
                 //                       // TR.mediaCheckWindowTitle()
                 "Add note", // R.string.menu_add_note | TR.actionsAddNote()
-                "Answer again", // R.string.answer_again | TR.deckConfigAnswerAgain()
                 "Answer buttons", // R.string.answer_buttons | TR.statisticsAnswerButtonsTitle()
-                "Answer good", // R.string.answer_good | TR.deckConfigAnswerGood()
-                "Answer hard", // R.string.answer_hard | TR.deckConfigAnswerHard()
                 "Deck options", // R.string.menu__deck_options | TR.deckConfigTitle()
                 "Follow system", // R.string.theme_follow_system | TR.preferencesThemeFollowSystem()
                 "Manage note types", // R.string.model_browser_label

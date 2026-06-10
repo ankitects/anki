@@ -88,4 +88,7 @@ undoActionUndone()
     <string name="sentence_select_deck">Select deck</string>
     <string name="sentence_flag_card" maxLength="28">Flag card</string>
     <string name="sentence_select_image" maxLength="41">Select image</string>
+    <string name="sentence_answer_again" maxLength="41">Answer again</string>
+    <string name="sentence_answer_hard" maxLength="41">Answer hard</string>
+    <string name="sentence_answer_good" maxLength="41">Answer good</string>
 </resources>
