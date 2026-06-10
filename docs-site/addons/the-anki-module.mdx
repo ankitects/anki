@@ -18,7 +18,7 @@ where `mw` stands for `main window`. When using the `anki` module outside
 of Anki, you will need to create your own Collection object.
 
 Some basic examples of what you can do follow. Please note that you should put
-these in something like [testFunction()](./a-basic-addon.md). You can’t run them
+these in something like [testFunction()](./a-basic-addon). You can’t run them
 directly in an add-on, as add-ons are initialized during Anki startup, before
 any collection or profile has been loaded.
 
@@ -196,7 +196,7 @@ Add-ons should never modify the schema of existing tables, as that may
 break future versions of Anki.
 
 If you need to store addon-specific data, consider using Anki’s
-[Configuration](addon-config.md#config-json) support.
+[Configuration](addon-config#config-json) support.
 
 If you need the data to sync across devices, small options can be stored
 within mw.col.conf. Please don’t store large amounts of data there, as

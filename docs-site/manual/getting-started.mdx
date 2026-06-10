@@ -15,9 +15,9 @@ of which are linked from our [official website](https://apps.ankiweb.net).
 For instructions on how to install and upgrade Anki for your computer, please
 read the links below:
 
-- [Windows](./platform/windows/installing.md)
-- [Mac](./platform/mac/installing.md)
-- [Linux](./platform/linux/installing.md)
+- [Windows](./platform/windows/installing)
+- [Mac](./platform/mac/installing)
+- [Linux](./platform/linux/installing)
 
 ## Videos
 
@@ -103,10 +103,10 @@ will come before "My Deck 9", as 1 comes before 9. If you want "My deck 9" to ap
 
 Decks are best used to hold broad categories of cards, rather than
 specific topics such as "food verbs" or "lesson 1". For more information about
-this, please see the [using decks appropriately](editing.md#using-decks-appropriately) section.
+this, please see the [using decks appropriately](editing#using-decks-appropriately) section.
 
 For information on how the order of decks affects the order cards are studied in,
-please see the [display order](studying.md#display-order) section.
+please see the [display order](studying#display-order) section.
 
 ### Notes & Fields
 
@@ -171,7 +171,7 @@ has three fields: "French", "English", and "Page".
 
 To add and edit fields, click the **Fields...** button while adding or
 editing notes. For more information on fields, please see the
-[Customizing Fields](editing.md#customizing-fields) section.
+[Customizing Fields](editing#customizing-fields) section.
 
 ### Card Types
 
@@ -199,8 +199,8 @@ A: {{English<br>
    Page #{{Page
 ```
 
-In card templates, field names are wrapped in double curly brackets, like `&#123;&#123;French` or `&#123;&#123;English`. Anki replaces those with the actual text the fields contain. This is called a ["Field replacement"](templates/fields.md). Text not wrapped in double curly brackets appears the same on each card. For example, we won't need to add "Page \#" on every note because the template will add it automatically to every card. The `&lt;br&gt;` tag is
-a special code that tells Anki to move to the next line. For details, see the [templates](templates/intro.md) section.
+In card templates, field names are wrapped in double curly brackets, like `&#123;&#123;French` or `&#123;&#123;English`. Anki replaces those with the actual text the fields contain. This is called a ["Field replacement"](templates/fields). Text not wrapped in double curly brackets appears the same on each card. For example, we won't need to add "Page \#" on every note because the template will add it automatically to every card. The `&lt;br&gt;` tag is
+a special code that tells Anki to move to the next line. For details, see the [templates](templates/intro) section.
 
 The production card's templates will also work in a similar way:
 
@@ -219,7 +219,7 @@ allow you to fix a typing mistake or factual error once and have all the
 related cards update at once.
 
 To add and edit card types, click the **Cards...** button while adding or
-editing notes. For more information on card types, please see the [Cards and Templates](templates/intro.md) section.
+editing notes. For more information on card types, please see the [Cards and Templates](templates/intro) section.
 
 ### Note Types
 
@@ -247,22 +247,22 @@ types specifically for the content you are learning. The standard note types are
 
 - **Basic (optional reversed card)**\
   Like "Basic", but has a third field called "Add Reverse". If you enter any text into
-  that field, a reversed card (back→front) will also be created. For details, see the [Cards and Templates](templates/intro.md) section.
+  that field, a reversed card (back→front) will also be created. For details, see the [Cards and Templates](templates/intro) section.
 
 - **Basic (type in the answer)**\
   This is essentially "Basic", with an extra text box on the front where you
   can type your answer in. When you reveal the back, Anki will show you any differences between your input and the actual answer. For details, see the
-  [Checking Your Answer](templates/fields.md#checking-your-answer) section.
+  [Checking Your Answer](templates/fields#checking-your-answer) section.
 
 - **Cloze**\
   A note type that allows you to select text and turn it into a cloze
   deletion (e.g. "Humans landed on the moon in \[…​\]" → "Humans landed on the
-  moon in 1969"). For details, see the [cloze deletion](editing.md#cloze-deletion) section.
+  moon in 1969"). For details, see the [cloze deletion](editing#cloze-deletion) section.
 
 - **Image Occlusion**\
   Like the cloze note type, but it works with images instead of text,
   which is especially useful when studying material that heavily relies on images,
-  such as anatomy and geography. For details, please see the [Image Occlusion](editing.md#image-occlusion)
+  such as anatomy and geography. For details, please see the [Image Occlusion](editing#image-occlusion)
   section of the manual.
 
 To add your own note types and modify existing ones, you can use **Tools &gt; Manage Note Types**
@@ -274,7 +274,7 @@ note types in a single deck, or have cards generated from the
 same note put into different decks. When you add notes using the
 Add window, you can select what note type to use and what deck to use,
 and these choices are completely independent of each other. You can also
-[change the note type of notes](browsing.md#notes) after you've already created them.
+[change the note type of notes](browsing#notes) after you've already created them.
 
 ### Collection
 
@@ -298,7 +298,7 @@ someone else has shared:
 
 Note: It’s not currently possible to add shared decks
 directly to your AnkiWeb account. You need to first import them to the
-desktop app, AnkiMobile, or AnkiDroid, then [synchronize](./syncing.md) to upload the decks to AnkiWeb.
+desktop app, AnkiMobile, or AnkiDroid, then [synchronize](./syncing) to upload the decks to AnkiWeb.
 
 Creating your own deck is the most effective way to learn a complex
 subject. Subjects like languages and the sciences can’t be understood

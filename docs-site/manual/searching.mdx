@@ -85,7 +85,7 @@ Things to note from the above:
   parentheses, it matches either "dog cat" or "dog mouse", whereas
   without them it would match either "dog and cat" or "mouse".
 
-- Anki is only able to search within formatting in the [sort field](editing.md#customizing-fields) you’ve configured. For example, if you add
+- Anki is only able to search within formatting in the [sort field](editing#customizing-fields) you’ve configured. For example, if you add
   "**exa**mple" to one of your fields, with the "exa" part in bold, this will not be matched when
   searching for `example` unless that field is the sort field. If a
   word is not formatted, or the formatting does not change in the
@@ -260,10 +260,10 @@ cards in learning.
 reviews (both due and not due) and lapsed cards.
 
 `is:suspended`\
-cards that have been [automatically](leeches.md) or manually suspended.
+cards that have been [automatically](leeches) or manually suspended.
 
 `is:buried`\
-cards that have been either [automatically](studying.md#siblings-and-burying) or
+cards that have been either [automatically](studying#siblings-and-burying) or
 manually buried.
 
 `is:buried-sibling`\
@@ -272,7 +272,7 @@ cards that have been buried automatically.
 `is:buried-manually`\
 cards that have been manually buried.
 
-Cards that have [lapsed](deck-options.md#lapses) fall into several of the previous categories, so it may
+Cards that have [lapsed](deck-options#lapses) fall into several of the previous categories, so it may
 be useful to combine different search terms to get more precise results:
 
 `is:learn is:review`\
@@ -479,7 +479,7 @@ the note with note id 123.
 `cid:123,456,789`\
 all cards with card ids 123, 456, or 789.
 
-Note and card IDs can be found in the [card info](stats.md) dialog in the
+Note and card IDs can be found in the [card info](stats) dialog in the
 browser. These searches may also be helpful when doing add-on
 development or otherwise working closely with the database.
 

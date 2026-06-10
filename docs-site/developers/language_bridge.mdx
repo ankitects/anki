@@ -23,7 +23,7 @@ Imitating those examples should allow you to make call and create new RPCs.
 
 Let's consider the method `NewDeck` of `DecksServices`. It's declared in [decks.proto](https://github.com/ankitects/anki/blob/acaeee91fa853e4a7a78dcddbb832d009ec3529a/proto/anki/decks.proto#L14) as `rpc NewDeck(generic.Empty) returns (Deck);`. This means this methods takes no argument (technically, an argument containing no information), and returns a [`Deck`](https://github.com/ankitects/anki/blob/acaeee91fa853e4a7a78dcddbb832d009ec3529a/proto/anki/decks.proto#L54).
 
-Read [protobuf](./protobuf.md) to learn more about how those input and output types are defined.
+Read [protobuf](./protobuf) to learn more about how those input and output types are defined.
 
 If the RPC implementation is in Python, it should be declared in the service [frontend.proto](https://github.com/ankitects/anki/blob/acaeee91fa853e4a7a78dcddbb832d009ec3529a/proto/anki/frontend.proto#L24C3-L24C66)'s `FrontendService`. RPCs declared in any other services are implemented in Rust.
 

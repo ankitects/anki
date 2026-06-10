@@ -6,8 +6,8 @@ description: "Migrated from ankitects/anki-manual for the Mintlify documentation
 # Media
 
 Anki stores the sounds and images used in your notes in a folder next to
-the collection. For more on the folder location, please see the [file locations](files.md#user-data) section. When you add media within Anki, either by
-using the paperclip icon in the [editor](editing.md) or by pasting it into
+the collection. For more on the folder location, please see the [file locations](files#user-data) section. When you add media within Anki, either by
+using the paperclip icon in the [editor](editing) or by pasting it into
 a field, Anki will copy it from its original location into the media
 folder. This makes it easy to back up your collection’s media or move it
 to another computer.
@@ -17,7 +17,7 @@ as percentage signs, the way the filenames appear in the HTML editor will
 differ from the way the filenames appear on disk. For example, a file called
 `hello 100%.jpg` will appear as `hello%20100%25.jpg` in the HTML editor.
 Internally, Anki still uses the original filenames, so if you would like to
-[search](searching.md) for the file or modify the filename with [Find&Replace](browsing.md#find-and-replace), you will
+[search](searching.md) for the file or modify the filename with [Find&Replace](browsing#find-and-replace), you will
 need to use the name as it appears on disk, not as it appears in the
 HTML editor. Exporting to a text file is another way to see the underlying
 representation.
@@ -50,7 +50,7 @@ filenames are encoded in a way that should work across different devices,
 removing characters that won't work on certain operating systems,
 and truncating very long filenames.
 
-If you manually add files to your [media folder](files.md#user-data),
+If you manually add files to your [media folder](files#user-data),
 you should use Tools&gt;Check Media afterwards, to ensure the filenames are
 encoded correctly. If you skip this step, any filenames that are not compatible
 will be skipped when syncing.

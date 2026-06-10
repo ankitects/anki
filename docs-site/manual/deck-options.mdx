@@ -40,7 +40,7 @@ arrow icon in the top right of the Deck Options window. You can do the following
   want to modify some of the options but keep the rest as they are.
 - **Rename**: Change the name of the current preset.
 - **Delete**: Delete the current preset. This will make your next sync
-  a [one-way sync](./syncing.md#conflicts).
+  a [one-way sync](./syncing#conflicts).
 - **Save to All Subdecks**: Like **Save**, but also assigns the selected preset to all
   subdecks of the currently selected deck.
 
@@ -118,7 +118,7 @@ suggesting you consider increasing the limit if you have time.
 
 When studying a deck that has subdecks inside it, the review limit behaves similarly to the new card limit.
 
-Anki includes any learning cards that have [crossed the day boundary](./preferences.md#scheduler) (interday learning cards) in the review count,
+Anki includes any learning cards that have [crossed the day boundary](./preferences#scheduler) (interday learning cards) in the review count,
 so those learning cards will be subject to the review limit.
 
 ### Per-Deck Daily Limits
@@ -150,7 +150,7 @@ This option can be useful if you wish to study individual subdecks, while enforc
 ## New Cards
 
 The options here only affect new cards and
-[learning cards](getting-started.md#card-states). Once a card
+[learning cards](getting-started#card-states). Once a card
 has graduated (that is, gone through all the learning steps), the options in this section no longer apply to the card.
 
 ### Learning Steps
@@ -178,11 +178,11 @@ The **Hard** button works differently depending on which step you're on.
 - When you're on any other step, the **Hard** button repeats that step.
 
 If there’s nothing else to study, Anki will show learning cards up to 20 minutes
-early by default. To turn this off or change the amount of time to look ahead, see [Preferences](preferences.md).
+early by default. To turn this off or change the amount of time to look ahead, see [Preferences](preferences).
 
 #### Day Boundaries
 
-Anki treats small steps and steps that [cross a day boundary](./preferences.md#review) differently.
+Anki treats small steps and steps that [cross a day boundary](./preferences#review) differently.
 With small steps, the cards are shown as soon as the delay has passed,
 in preference to review cards and new cards. This is done so that
 you can answer the card as closely to your requested delay as possible.
@@ -192,7 +192,7 @@ In contrast, if the step crosses a day boundary, the delay is automatically conv
 
 The number of days to wait before showing a card again, after the Good button is used on the final learning step. This means that it is the first interval
 after the learning card graduates. Please see the example
-from [earlier in this section](deck-options.md#learning-steps).
+from [earlier in this section](deck-options#learning-steps).
 
 ### Easy Interval
 
@@ -207,7 +207,7 @@ as long as the graduating interval, and typically a few days longer.
 Controls whether Anki should add new cards into the deck randomly, or sequentially.
 When you change this option, Anki will re-sort the decks in the current preset.
 
-On recent Anki versions, you should leave this option set to `Sequential`, and adjust the [display order](deck-options.md#display-order) instead.
+On recent Anki versions, you should leave this option set to `Sequential`, and adjust the [display order](deck-options#display-order) instead.
 
 ## Lapses
 
@@ -229,7 +229,7 @@ the next day.
 
 ### Leeches
 
-Control the way Anki handles leeches. For details, see the [leeches](leeches.md)
+Control the way Anki handles leeches. For details, see the [leeches](leeches)
 section.
 
 ## Display Order
@@ -237,7 +237,7 @@ section.
 The options in this section are taken from the deck you select to study, not
 the deck of the currently displayed card.
 
-Some further information about display order is available in the [studying section](studying.md#display-order).
+Some further information about display order is available in the [studying section](studying#display-order).
 
 ### New Card Gather Order
 
@@ -254,7 +254,7 @@ Controls how Anki gathers new cards from a deck. The options are:
   prefix to place items at the top or bottom.
 
   Although position order depends initially on the insertion order option, you can manually
-  [reposition](./browsing.md#cards) cards in different
+  [reposition](./browsing#cards) cards in different
   ways.
 
 - **Deck, then random notes**: Gathers cards from each subdeck in order, starting from the top.
@@ -338,7 +338,7 @@ The options are:
 - **Bury review siblings**: Whether other review cards of the same note will be delayed until the next day.
 - **Bury interday learning siblings**: Whether other learning cards of the same note that crossed a day boundary will be delayed until the next day.
 
-For more info about burying cards, please see [this section](./studying.md#siblings-and-burying) of the manual.
+For more info about burying cards, please see [this section](./studying#siblings-and-burying) of the manual.
 
 ## Audio
 
@@ -346,7 +346,7 @@ For more info about burying cards, please see [this section](./studying.md#sibli
   cards. If you turn on this option Anki will not play audio until you press the replay audio key, &lt;kbd&gt;R&lt;/kbd&gt; or &lt;kbd&gt;F5&lt;/kbd&gt;.
 
 - **Skip question when replaying answer**: Controls whether audio from
-  the question side is played when you use replay action on the answer side. Note that, Anki [does not automatically play](./templates/fields.md#special-fields) audio from the `&#123;&#123;FrontSide` field. This option does not influence the behaviour of automatic play.
+  the question side is played when you use replay action on the answer side. Note that, Anki [does not automatically play](./templates/fields#special-fields) audio from the `&#123;&#123;FrontSide` field. This option does not influence the behaviour of automatic play.
 
 ## Timers
 
@@ -459,7 +459,7 @@ is recommended to assign them separate presets, as their optimal parameters will
 parameters frequently: once every month is sufficient.
 
 By default, parameters are calculated from the review history of all
-decks using the current preset. You can optionally [adjust the search](./searching.md)
+decks using the current preset. You can optionally [adjust the search](./searching)
 before optimizing the parameters, if you'd like to change which cards
 are used for optimization.
 
@@ -479,7 +479,7 @@ is off by 5% when predicting R. You don't need to understand these metrics to us
 Note that log loss and RMSE (bins) are not perfectly correlated,
 so two decks may have similar RMSE values but very different log-loss values, or the other way around.
 
-By default, log loss and RMSE (bins) are calculated from all decks using the current preset. You can optionally [adjust the search](./searching.md) before evaluating the parameters, if you'd like to change which cards are used for evaluation.
+By default, log loss and RMSE (bins) are calculated from all decks using the current preset. You can optionally [adjust the search](./searching) before evaluating the parameters, if you'd like to change which cards are used for evaluation.
 
 ### Reschedule Cards on Change
 
