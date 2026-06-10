@@ -49,7 +49,7 @@ editing-show-duplicates = Show Duplicates
 editing-subscript = Subscript
 editing-superscript = Superscript
 editing-tags = Tags
-editing-number-tags = {$count ->
+editing-tag-count = {$count ->
   [one] { $count } tag
   *[other] { $count } tags
 }
