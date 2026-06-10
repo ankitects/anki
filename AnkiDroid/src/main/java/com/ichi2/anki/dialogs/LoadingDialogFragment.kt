@@ -21,7 +21,6 @@ import android.os.Bundle
 import android.widget.TextView
 import androidx.annotation.MainThread
 import androidx.appcompat.app.AlertDialog
-import androidx.core.os.bundleOf
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.commitNow
 import com.google.android.material.loadingindicator.LoadingIndicator
@@ -65,10 +64,10 @@ class LoadingDialogFragment : DialogFragment() {
             cancellable: Boolean = true,
         ) = LoadingDialogFragment().apply {
             arguments =
-                bundleOf(
-                    KEY_MESSAGE to message,
-                    KEY_CANCELLABLE to cancellable,
-                )
+                Bundle().apply {
+                    putString(KEY_MESSAGE, message)
+                    putBoolean(KEY_CANCELLABLE, cancellable)
+                }
         }
     }
 }

@@ -19,7 +19,6 @@ package com.ichi2.anki.dialogs
 import android.os.Bundle
 import androidx.annotation.CheckResult
 import androidx.appcompat.app.AlertDialog
-import androidx.core.os.bundleOf
 import com.ichi2.anki.R
 import com.ichi2.anki.dialogs.ImportDialog.Type.DIALOG_IMPORT_ADD_CONFIRM
 import com.ichi2.anki.dialogs.ImportDialog.Type.DIALOG_IMPORT_REPLACE_CONFIRM
@@ -121,10 +120,10 @@ class ImportDialog : AsyncDialogFragment() {
         ): ImportDialog =
             ImportDialog().apply {
                 arguments =
-                    bundleOf(
-                        IMPORT_DIALOG_TYPE_KEY to dialogType.code,
-                        IMPORT_DIALOG_PACKAGE_PATH_KEY to packagePath,
-                    )
+                    Bundle().apply {
+                        putInt(IMPORT_DIALOG_TYPE_KEY, dialogType.code)
+                        putString(IMPORT_DIALOG_PACKAGE_PATH_KEY, packagePath)
+                    }
             }
 
         private fun filenameFromPath(path: String): String = path.split("/").toTypedArray()[path.split("/").toTypedArray().size - 1]

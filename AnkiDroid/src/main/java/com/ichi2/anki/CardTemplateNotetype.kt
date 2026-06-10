@@ -20,7 +20,6 @@ import android.content.Intent
 import android.os.Bundle
 import android.os.Parcel
 import android.os.Parcelable
-import androidx.core.os.bundleOf
 import com.ichi2.anki.CollectionManager.withCol
 import com.ichi2.anki.common.android.appContext
 import com.ichi2.anki.common.annotations.NeedsTest
@@ -55,10 +54,10 @@ class CardTemplateNotetype(
         private set
 
     fun toBundle(): Bundle =
-        bundleOf(
-            INTENT_MODEL_FILENAME to saveTempNoteType(appContext, notetype),
-            "mTemplateChanges" to templateChanges,
-        )
+        Bundle().apply {
+            putString(INTENT_MODEL_FILENAME, saveTempNoteType(appContext, notetype))
+            putSerializable("mTemplateChanges", templateChanges)
+        }
 
     private fun loadTemplateChanges(bundle: Bundle) {
         try {

@@ -21,7 +21,6 @@ import android.os.Bundle
 import android.view.View
 import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.app.AlertDialog
-import androidx.core.os.bundleOf
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.widget.doAfterTextChanged
@@ -213,9 +212,9 @@ class EditDeckDescriptionDialog : DialogFragment() {
         fun newInstance(deckId: DeckId): EditDeckDescriptionDialog =
             EditDeckDescriptionDialog().apply {
                 arguments =
-                    bundleOf(
-                        EditDeckDescriptionDialogViewModel.ARG_DECK_ID to deckId,
-                    )
+                    Bundle().apply {
+                        putLong(EditDeckDescriptionDialogViewModel.ARG_DECK_ID, deckId)
+                    }
             }
     }
 }

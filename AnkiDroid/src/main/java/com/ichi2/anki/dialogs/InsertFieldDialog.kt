@@ -25,7 +25,6 @@ import android.view.ViewGroup
 import android.widget.TextView
 import androidx.annotation.CheckResult
 import androidx.annotation.StringRes
-import androidx.core.os.bundleOf
 import androidx.core.text.HtmlCompat
 import androidx.core.text.parseAsHtml
 import androidx.fragment.app.DialogFragment
@@ -114,7 +113,7 @@ class InsertFieldDialog : DialogFragment(R.layout.dialog_insert_field) {
                 if (field == null) return@collect
                 parentFragmentManager.setFragmentResult(
                     requestKey,
-                    bundleOf(KEY_INSERTED_FIELD to field.renderToTemplateTag()),
+                    Bundle().apply { putString(KEY_INSERTED_FIELD, field.renderToTemplateTag()) },
                 )
                 dismiss()
             }
@@ -143,11 +142,11 @@ class InsertFieldDialog : DialogFragment(R.layout.dialog_insert_field) {
         ): InsertFieldDialog =
             InsertFieldDialog().apply {
                 arguments =
-                    bundleOf(
-                        KEY_FIELD_ITEMS to ArrayList(fieldItems),
-                        KEY_INSERT_FIELD_METADATA to metadata,
-                        KEY_REQUEST_KEY to requestKey,
-                    )
+                    Bundle().apply {
+                        putStringArrayList(KEY_FIELD_ITEMS, ArrayList(fieldItems))
+                        putParcelable(KEY_INSERT_FIELD_METADATA, metadata)
+                        putString(KEY_REQUEST_KEY, requestKey)
+                    }
             }
     }
 

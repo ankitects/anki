@@ -18,7 +18,6 @@ package com.ichi2.anki.dialogs
 import android.app.Dialog
 import android.os.Bundle
 import androidx.appcompat.app.AlertDialog
-import androidx.core.os.bundleOf
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.setFragmentResult
@@ -65,10 +64,10 @@ class SaveBrowserSearchDialogFragment : DialogFragment() {
                 Timber.d("Saving user search: %s with given name %s", searchQuery, name)
                 setFragmentResult(
                     REQUEST_SAVE_SEARCH,
-                    bundleOf(
-                        ARG_SEARCH_QUERY to searchQuery,
-                        ARG_SEARCH_QUERY_NAME to name,
-                    ),
+                    Bundle().apply {
+                        putString(ARG_SEARCH_QUERY, searchQuery)
+                        putCharSequence(ARG_SEARCH_QUERY_NAME, name)
+                    },
                 )
                 dialog.dismiss()
             }
@@ -90,9 +89,9 @@ class SaveBrowserSearchDialogFragment : DialogFragment() {
         fun newInstance(searchQuery: String): SaveBrowserSearchDialogFragment =
             SaveBrowserSearchDialogFragment().apply {
                 arguments =
-                    bundleOf(
-                        ARG_SEARCH_QUERY to searchQuery,
-                    )
+                    Bundle().apply {
+                        putString(ARG_SEARCH_QUERY, searchQuery)
+                    }
             }
     }
 }

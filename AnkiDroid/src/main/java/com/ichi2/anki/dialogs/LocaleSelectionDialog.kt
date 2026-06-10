@@ -27,7 +27,6 @@ import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.widget.SearchView
 import androidx.appcompat.widget.Toolbar
-import androidx.core.os.bundleOf
 import androidx.recyclerview.widget.RecyclerView
 import com.ichi2.anki.R
 import com.ichi2.anki.analytics.AnalyticsDialogFragment
@@ -95,7 +94,7 @@ class LocaleSelectionDialog : AnalyticsDialogFragment() {
     private fun sendSelectionResult(locale: Locale? = null) {
         parentFragmentManager.setFragmentResult(
             REQUEST_HINT_LOCALE_SELECTION,
-            bundleOf(KEY_SELECTED_LOCALE to locale),
+            Bundle().apply { putSerializable(KEY_SELECTED_LOCALE, locale) },
         )
     }
 
