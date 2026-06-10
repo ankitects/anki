@@ -204,7 +204,7 @@
     <item
         android:id="@+id/action_open_deck_options"
         android:icon="@drawable/ic_tune_white"
-        android:title="@string/menu__deck_options" />
+        tools:title="Deck options" />
     <item
         android:id="@+id/action_toggle_auto_advance"
         android:icon="@drawable/ic_fast_forward"

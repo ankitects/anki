@@ -55,6 +55,7 @@ class CustomButtonsSettingsFragment : SettingsFragment() {
         findPreference<ListPreference>(getString(R.string.custom_button_card_info_key))?.title = TR.sentenceCase.cardInfo
         findPreference<ListPreference>(getString(R.string.custom_button_bury_key))?.title = TR.studyingBury()
         findPreference<ListPreference>(getString(R.string.custom_button_suspend_key))?.title = TR.studyingSuspend()
+        findPreference<ListPreference>(getString(R.string.custom_button_deck_options_key))?.title = TR.sentenceCase.deckOptions
         findPreference<ListPreference>(getString(R.string.custom_button_mark_card_key))?.title = TR.sentenceCase.markNote
         findPreference<ListPreference>(getString(R.string.custom_button_previous_card_info_key))?.title = TR.sentenceCase.previousCardInfo
         findPreference<ListPreference>(getString(R.string.custom_button_delete_key))?.title = TR.sentenceCase.deleteNote

@@ -353,7 +353,6 @@ class TranslationTest : RobolectricTest() {
                 //                       // TR.mediaCheckCheckMediaAction()
                 //                       // TR.mediaCheckWindowTitle()
                 "Answer buttons", // R.string.answer_buttons | TR.statisticsAnswerButtonsTitle()
-                "Deck options", // R.string.menu__deck_options | TR.deckConfigTitle()
                 "Follow system", // R.string.theme_follow_system | TR.preferencesThemeFollowSystem()
                 "Select all", // R.string.card_browser_select_all | TR.editingImageOcclusionSelectAll()
                 "Show answer", // R.string.show_answer

@@ -116,7 +116,7 @@ TODO: Add a unit test
             android:entries="@array/custom_button_labels"
             android:entryValues="@array/custom_button_values"
             android:key="@string/custom_button_deck_options_key"
-            android:title="@string/menu__deck_options"
+            tools:title="Deck options"
             app:useSimpleSummaryProvider="true"/>
         <ListPreference
             android:defaultValue="1"

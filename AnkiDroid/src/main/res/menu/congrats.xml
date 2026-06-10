@@ -5,11 +5,12 @@
   -->
 
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto">
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
 
     <item
         android:id="@+id/action_open_deck_options"
-        android:title="@string/menu__deck_options"
+        tools:title="Deck options"
         android:icon="@drawable/ic_tune_white"
         app:showAsAction="ifRoom"/>
 </menu>

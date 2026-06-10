@@ -108,7 +108,7 @@ class DeckPickerContextMenuTest {
                 fragment.assertOptionPresent(R.string.menu_add)
                 fragment.assertOptionPresent(R.string.browse_cards)
                 fragment.assertOptionPresent(TR.sentenceCase.renameDeck)
-                fragment.assertOptionPresent(R.string.menu__deck_options)
+                fragment.assertOptionPresent(TR.sentenceCase.deckOptions)
                 fragment.assertOptionPresent(R.string.export_deck)
                 fragment.assertOptionPresent(R.string.create_shortcut)
                 fragment.assertOptionPresent(TR.sentenceCase.deleteDeck)

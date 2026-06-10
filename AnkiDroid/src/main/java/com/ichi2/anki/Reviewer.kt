@@ -849,6 +849,7 @@ open class Reviewer :
 
         // Anki Desktop Translations
         menu.findItem(R.id.action_flag)?.title = TR.sentenceCase.flagCard
+        menu.findItem(R.id.action_open_deck_options)?.title = TR.sentenceCase.deckOptions
         menu.findItem(R.id.action_reschedule_card).title = TR.sentenceCase.setDueDate
         menu.findItem(R.id.action_card_info)?.title = TR.sentenceCase.cardInfo
         menu.findItem(R.id.action_previous_card_info)?.title = TR.sentenceCase.previousCardInfo

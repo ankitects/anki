@@ -285,7 +285,7 @@ class StudyOptionsFragment :
                 menu.findItem(R.id.action_rebuild)?.isVisible = false
                 menu.findItem(R.id.action_empty)?.isVisible = false
                 menu.findItem(R.id.action_custom_study)?.isVisible = true
-                menu.findItem(R.id.action_deck_or_study_options)?.setTitle(R.string.menu__deck_options)
+                menu.findItem(R.id.action_deck_or_study_options)?.title = TR.sentenceCase.deckOptions
             }
             // Don't show custom study icon if congrats shown
             if (currentContentView == CONTENT_CONGRATS) {

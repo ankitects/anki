@@ -30,7 +30,7 @@
     <!-- the title for the following option will be set dynamically -->
     <item
         android:id="@+id/action_deck_or_study_options"
-        android:title="@string/menu__deck_options"
+        tools:title="Deck options"
         android:icon="@drawable/ic_tune_white"
         ankidroid:showAsAction="always"/>
     <item

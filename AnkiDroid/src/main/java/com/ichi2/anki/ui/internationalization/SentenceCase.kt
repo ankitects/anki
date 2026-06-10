@@ -155,6 +155,9 @@ object SentenceCase {
     context(_: Context)
     val deckOptions get() = TR.deckConfigTitle().toSentenceCase(R.string.sentence_deck_options)
 
+    context(_: Fragment)
+    val deckOptions get() = TR.deckConfigTitle().toSentenceCase(R.string.sentence_deck_options)
+
     context(_: Context)
     val deleteDeck get() = TR.decksDeleteDeck().toSentenceCase(R.string.sentence_delete_deck)
 
