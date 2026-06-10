@@ -134,6 +134,8 @@ mod tests {
     use anki_proto::import_export::ExportNoteCsvRequest;
     use anki_proto::import_export::ImportAnkiPackageRequest;
     use anki_proto::import_export::ImportCsvRequest;
+    use tempfile::tempdir;
+    use tempfile::NamedTempFile;
 
     use super::*;
     use crate::ops::Op;
@@ -141,7 +143,6 @@ mod tests {
     use crate::ops::OpOutput;
     use crate::ops::StateChanges;
     use crate::services::ImportExportService;
-    use crate::tests::open_fs_test_collection;
     use crate::tests::NoteAdder;
 
     // --- From<ExportLimit> for SearchNode ---
@@ -203,13 +204,13 @@ mod tests {
 
     #[test]
     fn export_card_csv_service_returns_uint32_count() {
-        let (mut col, dir) = open_fs_test_collection("svc_card_csv");
+        let mut col = Collection::new();
         NoteAdder::basic(&mut col).add(&mut col);
-        let path = dir.path().join("cards.csv");
+        let csv = NamedTempFile::new().unwrap();
         let result = ImportExportService::export_card_csv(
             &mut col,
             ExportCardCsvRequest {
-                out_path: path.to_str().unwrap().into(),
+                out_path: csv.path().to_str().unwrap().into(),
                 with_html: true,
                 limit: None,
             },
@@ -221,10 +222,12 @@ mod tests {
     #[test]
     fn export_card_csv_service_propagates_error_for_invalid_path() {
         let mut col = Collection::new();
+        let dir = tempdir().unwrap();
+        let bad_path = dir.path().join("no_such_subdir").join("cards.csv");
         let result = ImportExportService::export_card_csv(
             &mut col,
             ExportCardCsvRequest {
-                out_path: "/nonexistent/dir/cards.csv".into(),
+                out_path: bad_path.to_str().unwrap().into(),
                 with_html: true,
                 limit: None,
             },
@@ -234,13 +237,13 @@ mod tests {
 
     #[test]
     fn export_note_csv_service_returns_uint32_count() {
-        let (mut col, dir) = open_fs_test_collection("svc_note_csv");
+        let mut col = Collection::new();
         NoteAdder::basic(&mut col).add(&mut col);
-        let path = dir.path().join("notes.csv");
+        let csv = NamedTempFile::new().unwrap();
         let result = ImportExportService::export_note_csv(
             &mut col,
             ExportNoteCsvRequest {
-                out_path: path.to_str().unwrap().into(),
+                out_path: csv.path().to_str().unwrap().into(),
                 with_html: true,
                 with_tags: true,
                 with_deck: true,
@@ -256,10 +259,12 @@ mod tests {
     #[test]
     fn export_note_csv_service_propagates_error_for_invalid_path() {
         let mut col = Collection::new();
+        let dir = tempdir().unwrap();
+        let bad_path = dir.path().join("no_such_subdir").join("notes.csv");
         let result = ImportExportService::export_note_csv(
             &mut col,
             ExportNoteCsvRequest {
-                out_path: "/nonexistent/dir/notes.csv".into(),
+                out_path: bad_path.to_str().unwrap().into(),
                 with_html: true,
                 with_tags: false,
                 with_deck: false,
@@ -276,7 +281,7 @@ mod tests {
         // uses the pre-existing fixture from pylib/tests/support/
         let apkg_path = std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
             .join("../pylib/tests/support/update1.apkg");
-        let (mut col, _dir) = open_fs_test_collection("import_apkg_success");
+        let (mut col, _dir) = crate::tests::open_fs_test_collection("import_apkg_success");
         let result = ImportExportService::import_anki_package(
             &mut col,
             ImportAnkiPackageRequest {
@@ -292,10 +297,12 @@ mod tests {
     #[test]
     fn import_anki_package_propagates_error_for_missing_file() {
         let mut col = Collection::new();
+        let dir = tempdir().unwrap();
+        let missing = dir.path().join("missing.apkg");
         let result = ImportExportService::import_anki_package(
             &mut col,
             ImportAnkiPackageRequest {
-                package_path: "/nonexistent/file.apkg".into(),
+                package_path: missing.to_str().unwrap().into(),
                 options: None,
             },
         );
@@ -304,7 +311,8 @@ mod tests {
 
     #[test]
     fn export_anki_package_succeeds_with_empty_collection() {
-        let (mut col, dir) = open_fs_test_collection("svc_apkg");
+        let mut col = Collection::new();
+        let dir = tempdir().unwrap();
         let path = dir.path().join("out.apkg");
         let result = ImportExportService::export_anki_package(
             &mut col,
@@ -321,10 +329,12 @@ mod tests {
     #[test]
     fn export_anki_package_propagates_error_for_invalid_path() {
         let mut col = Collection::new();
+        let dir = tempdir().unwrap();
+        let bad_path = dir.path().join("no_such_subdir").join("out.apkg");
         let result = ImportExportService::export_anki_package(
             &mut col,
             ExportAnkiPackageRequest {
-                out_path: "/nonexistent/dir/out.apkg".into(),
+                out_path: bad_path.to_str().unwrap().into(),
                 options: None,
                 limit: None,
             },
@@ -334,7 +344,8 @@ mod tests {
 
     #[test]
     fn import_csv_succeeds_with_valid_csv_file() {
-        let (mut col, dir) = open_fs_test_collection("import_csv_success");
+        let mut col = Collection::new();
+        let dir = tempdir().unwrap();
         let path = dir.path().join("notes.csv");
         // tab-separated: two fields matching Basic notetype (Front, Back)
         // dir and the CSV inside are deleted automatically when dir drops at end of
@@ -370,10 +381,12 @@ mod tests {
     #[test]
     fn import_csv_propagates_error_for_missing_file() {
         let mut col = Collection::new();
+        let dir = tempdir().unwrap();
+        let missing = dir.path().join("missing.csv");
         let result = ImportExportService::import_csv(
             &mut col,
             ImportCsvRequest {
-                path: "/nonexistent/file.csv".into(),
+                path: missing.to_str().unwrap().into(),
                 metadata: None,
             },
         );
@@ -382,7 +395,8 @@ mod tests {
 
     #[test]
     fn import_json_file_succeeds_with_minimal_valid_json() {
-        let (mut col, dir) = open_fs_test_collection("import_json_file");
+        let mut col = Collection::new();
+        let dir = tempdir().unwrap();
         let path = dir.path().join("notes.json");
         // ForeignData has #[serde(default)] — empty notes list is valid JSON
         // dir and the file are deleted automatically when dir drops at end of test
@@ -399,10 +413,12 @@ mod tests {
     #[test]
     fn import_json_file_propagates_error_for_missing_file() {
         let mut col = Collection::new();
+        let dir = tempdir().unwrap();
+        let missing = dir.path().join("missing.json");
         let result = ImportExportService::import_json_file(
             &mut col,
             generic::String {
-                val: "/nonexistent/file.json".into(),
+                val: missing.to_str().unwrap().into(),
             },
         );
         assert!(result.is_err(), "expected Err for missing JSON file");

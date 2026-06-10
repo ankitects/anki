@@ -297,11 +297,17 @@ mod tests {
     use anki_proto::import_export::export_limit::Limit;
     use anki_proto::import_export::ExportLimit;
     use anki_proto::import_export::ExportNoteCsvRequest;
+    use tempfile::tempdir;
+    use tempfile::NamedTempFile;
+    use tempfile::TempDir;
 
     use super::*;
-    use crate::tests::open_fs_test_collection;
     use crate::tests::DeckAdder;
     use crate::tests::NoteAdder;
+
+    fn col_and_dir() -> (Collection, TempDir) {
+        (Collection::new(), tempdir().unwrap())
+    }
 
     fn note_csv_request(out_path: String) -> ExportNoteCsvRequest {
         ExportNoteCsvRequest {
@@ -317,7 +323,7 @@ mod tests {
 
     #[test]
     fn export_card_csv_writes_separator_and_html_header() {
-        let (mut col, dir) = open_fs_test_collection("card_csv");
+        let (mut col, dir) = col_and_dir();
         NoteAdder::basic(&mut col).add(&mut col);
         let path = dir.path().join("cards.csv");
         col.export_card_csv(path.to_str().unwrap(), SearchNode::WholeCollection, true)
@@ -331,7 +337,7 @@ mod tests {
 
     #[test]
     fn export_card_csv_html_false_writes_html_false_in_header() {
-        let (mut col, dir) = open_fs_test_collection("card_csv_nohtml");
+        let (mut col, dir) = col_and_dir();
         NoteAdder::basic(&mut col).add(&mut col);
         let path = dir.path().join("cards.csv");
         col.export_card_csv(path.to_str().unwrap(), SearchNode::WholeCollection, false)
@@ -345,7 +351,7 @@ mod tests {
 
     #[test]
     fn export_card_csv_empty_collection_still_writes_header() {
-        let (mut col, dir) = open_fs_test_collection("card_csv_empty");
+        let (mut col, dir) = col_and_dir();
         let path = dir.path().join("cards.csv");
         let count = col
             .export_card_csv(path.to_str().unwrap(), SearchNode::WholeCollection, true)
@@ -360,31 +366,39 @@ mod tests {
 
     #[test]
     fn export_card_csv_returns_card_count() {
-        let (mut col, dir) = open_fs_test_collection("card_csv_count");
+        let mut col = Collection::new();
         NoteAdder::basic(&mut col).add(&mut col);
-        let path = dir.path().join("cards.csv");
+        let csv = NamedTempFile::new().unwrap();
         let count = col
-            .export_card_csv(path.to_str().unwrap(), SearchNode::WholeCollection, true)
+            .export_card_csv(
+                csv.path().to_str().unwrap(),
+                SearchNode::WholeCollection,
+                true,
+            )
             .unwrap();
         assert_eq!(count, 1, "expected 1 card exported");
     }
 
     #[test]
     fn export_card_csv_returns_count_for_multiple_notes() {
-        let (mut col, dir) = open_fs_test_collection("card_csv_multi");
-        NoteAdder::basic(&mut col).add(&mut col);
-        NoteAdder::basic(&mut col).add(&mut col);
-        NoteAdder::basic(&mut col).add(&mut col);
-        let path = dir.path().join("cards.csv");
+        let mut col = Collection::new();
+        for _ in 0..3 {
+            NoteAdder::basic(&mut col).add(&mut col);
+        }
+        let csv = NamedTempFile::new().unwrap();
         let count = col
-            .export_card_csv(path.to_str().unwrap(), SearchNode::WholeCollection, true)
+            .export_card_csv(
+                csv.path().to_str().unwrap(),
+                SearchNode::WholeCollection,
+                true,
+            )
             .unwrap();
         assert_eq!(count, 3, "expected 3 cards exported");
     }
 
     #[test]
     fn export_card_csv_filters_by_deck() {
-        let (mut col, dir) = open_fs_test_collection("card_csv_deck_filter");
+        let mut col = Collection::new();
         let target_deck = DeckAdder::new("target").add(&mut col);
         let other_deck = DeckAdder::new("other").add(&mut col);
         NoteAdder::basic(&mut col)
@@ -394,10 +408,10 @@ mod tests {
             .deck(target_deck.id)
             .add(&mut col);
         NoteAdder::basic(&mut col).deck(other_deck.id).add(&mut col);
-        let path = dir.path().join("cards.csv");
+        let csv = NamedTempFile::new().unwrap();
         let count = col
             .export_card_csv(
-                path.to_str().unwrap(),
+                csv.path().to_str().unwrap(),
                 SearchNode::DeckIdWithChildren(target_deck.id),
                 true,
             )
@@ -407,7 +421,7 @@ mod tests {
 
     #[test]
     fn export_card_csv_front_and_back_in_correct_columns() {
-        let (mut col, dir) = open_fs_test_collection("card_csv_columns");
+        let (mut col, dir) = col_and_dir();
         NoteAdder::basic(&mut col)
             .fields(&["front text", "back text"])
             .add(&mut col);
@@ -426,7 +440,7 @@ mod tests {
 
     #[test]
     fn export_card_csv_preserves_html_when_with_html_true() {
-        let (mut col, dir) = open_fs_test_collection("card_csv_html_content");
+        let (mut col, dir) = col_and_dir();
         NoteAdder::basic(&mut col)
             .fields(&["<b>bold front</b>", "back text"])
             .add(&mut col);
@@ -442,7 +456,7 @@ mod tests {
 
     #[test]
     fn export_card_csv_strips_html_from_fields_when_with_html_false() {
-        let (mut col, dir) = open_fs_test_collection("card_csv_html_stripped");
+        let (mut col, dir) = col_and_dir();
         NoteAdder::basic(&mut col)
             .fields(&["<b>bold front</b>", "back text"])
             .add(&mut col);
@@ -462,31 +476,31 @@ mod tests {
 
     #[test]
     fn export_note_csv_returns_note_count() {
-        let (mut col, dir) = open_fs_test_collection("note_csv_count");
+        let mut col = Collection::new();
         NoteAdder::basic(&mut col).add(&mut col);
-        let path = dir.path().join("notes.csv");
+        let csv = NamedTempFile::new().unwrap();
         let count = col
-            .export_note_csv(note_csv_request(path.to_str().unwrap().into()))
+            .export_note_csv(note_csv_request(csv.path().to_str().unwrap().into()))
             .unwrap();
         assert_eq!(count, 1, "expected 1 note exported");
     }
 
     #[test]
     fn export_note_csv_returns_count_for_multiple_notes() {
-        let (mut col, dir) = open_fs_test_collection("note_csv_multi");
-        NoteAdder::basic(&mut col).add(&mut col);
-        NoteAdder::basic(&mut col).add(&mut col);
-        NoteAdder::basic(&mut col).add(&mut col);
-        let path = dir.path().join("notes.csv");
+        let mut col = Collection::new();
+        for _ in 0..3 {
+            NoteAdder::basic(&mut col).add(&mut col);
+        }
+        let csv = NamedTempFile::new().unwrap();
         let count = col
-            .export_note_csv(note_csv_request(path.to_str().unwrap().into()))
+            .export_note_csv(note_csv_request(csv.path().to_str().unwrap().into()))
             .unwrap();
         assert_eq!(count, 3, "expected 3 notes exported");
     }
 
     #[test]
     fn export_note_csv_filters_by_deck() {
-        let (mut col, dir) = open_fs_test_collection("note_csv_deck_filter");
+        let mut col = Collection::new();
         let target_deck = DeckAdder::new("target").add(&mut col);
         let other_deck = DeckAdder::new("other").add(&mut col);
         NoteAdder::basic(&mut col)
@@ -496,10 +510,10 @@ mod tests {
             .deck(target_deck.id)
             .add(&mut col);
         NoteAdder::basic(&mut col).deck(other_deck.id).add(&mut col);
-        let path = dir.path().join("notes.csv");
+        let csv = NamedTempFile::new().unwrap();
         let count = col
             .export_note_csv(ExportNoteCsvRequest {
-                out_path: path.to_str().unwrap().into(),
+                out_path: csv.path().to_str().unwrap().into(),
                 with_html: true,
                 with_tags: false,
                 with_deck: false,
@@ -521,7 +535,7 @@ mod tests {
         //   col 3: deck
         //   col 4-5: note fields
         //   col 6: tags  (1 + deck(3) + 2 fields)
-        let (mut col, dir) = open_fs_test_collection("note_csv_col_indices");
+        let (mut col, dir) = col_and_dir();
         NoteAdder::basic(&mut col).add(&mut col);
         let path = dir.path().join("notes.csv");
         col.export_note_csv(note_csv_request(path.to_str().unwrap().into()))
@@ -547,7 +561,7 @@ mod tests {
 
     #[test]
     fn export_note_csv_omits_column_headers_when_metadata_disabled() {
-        let (mut col, dir) = open_fs_test_collection("note_csv_no_meta");
+        let (mut col, dir) = col_and_dir();
         NoteAdder::basic(&mut col).add(&mut col);
         let path = dir.path().join("notes.csv");
         col.export_note_csv(ExportNoteCsvRequest {
@@ -583,7 +597,7 @@ mod tests {
     fn export_note_csv_fields_and_guid_in_correct_columns() {
         // with all metadata: guid(0) | notetype(1) | deck(2) | front(3) | back(4) |
         // tags(5)
-        let (mut col, dir) = open_fs_test_collection("note_csv_col_positions");
+        let (mut col, dir) = col_and_dir();
         let note = NoteAdder::basic(&mut col)
             .fields(&["hello", "world"])
             .add(&mut col);
@@ -603,7 +617,7 @@ mod tests {
 
     #[test]
     fn export_note_csv_omits_guid_value_when_with_guid_false() {
-        let (mut col, dir) = open_fs_test_collection("note_csv_no_guid");
+        let (mut col, dir) = col_and_dir();
         let note = NoteAdder::basic(&mut col)
             .fields(&["hello", "world"])
             .add(&mut col);
@@ -629,7 +643,7 @@ mod tests {
 
     #[test]
     fn export_note_csv_preserves_html_in_fields_when_with_html_true() {
-        let (mut col, dir) = open_fs_test_collection("note_csv_html_content");
+        let (mut col, dir) = col_and_dir();
         NoteAdder::basic(&mut col)
             .fields(&["<i>italic</i>", "plain back"])
             .add(&mut col);
@@ -645,7 +659,7 @@ mod tests {
 
     #[test]
     fn export_note_csv_with_html_false_strips_html_tags() {
-        let (mut col, dir) = open_fs_test_collection("note_csv_nohtml");
+        let (mut col, dir) = col_and_dir();
         NoteAdder::basic(&mut col)
             .fields(&["<b>bold text</b>", "world"])
             .add(&mut col);
