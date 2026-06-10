@@ -2,7 +2,7 @@ name: Check Linked Issue
 
 on:
   pull_request_target:
-    types: [opened, edited]
+    types: [opened, edited, labeled]
 
 jobs:
   check-linked-issue:
