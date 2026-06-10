@@ -8,4 +8,5 @@ The pages below are generated from Python docstrings in `qt/aqt`.
 
 autoapi/aqt/*/index
 autoapi/aqt/*/*/index
+autoapi/aqt/*/*/*/index
 ```
