@@ -6,7 +6,7 @@
     <item
         android:id="@+id/front_edit"
         android:icon="@drawable/ic_card_question"
-        android:title="@string/front_field_name" />
+        tools:title="Front" />
     <item
         android:id="@+id/back_edit"
         android:icon="@drawable/ic_card_answer"

@@ -253,7 +253,6 @@ class TranslationTest : RobolectricTest() {
                 // TR.changeNotetypeFields()
                 "Flags", // R.string.filter_by_flags | TR.browsingSidebarFlags()
                 "Flip", // R.string.image_cropper_action_flip | TR.cardTemplatesFlip()
-                "Front", // R.string.front_field_name | TR.notetypesFrontField()
                 "General", // R.string.deck_conf_general, R.string.pref_cat_general
                 // TR.preferencesGeneral()
                 // TR.schedulingGeneral()
@@ -287,7 +286,6 @@ class TranslationTest : RobolectricTest() {
                 // TR.actionsOptions()
                 // TR.notetypesOptions()
                 // TR.cardTemplatesPreviewSettings()
-                "Paste clipboard images as PNG", // R.string.paste_as_png | TR.preferencesPasteClipboardImagesAsPng()
                 "Preview", // R.string.card_editor_preview_card
                 // TR.actionsPreview()
                 // TR.cardTemplatesPreviewBox()

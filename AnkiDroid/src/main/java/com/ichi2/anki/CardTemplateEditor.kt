@@ -637,6 +637,9 @@ open class CardTemplateEditor : AnkiActivity(R.layout.activity_card_template_edi
             }
 
             binding.bottomNavigation.menu
+                .findItem(R.id.front_edit)
+                .title = TR.notetypesFrontField()
+            binding.bottomNavigation.menu
                 .findItem(R.id.styling_edit)
                 .title = TR.cardTemplatesTemplateStyling()
 

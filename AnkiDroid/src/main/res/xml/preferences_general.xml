@@ -52,7 +52,7 @@
     <PreferenceCategory android:title="@string/pref_cat_editing">
         <SwitchPreferenceCompat
             android:defaultValue="true"
-            android:title="@string/paste_as_png"
+            tools:title="Paste clipboard images as PNG"
             android:maxLength="41"
             android:key="@string/paste_png_key"/>
     </PreferenceCategory>
