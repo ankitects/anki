@@ -332,8 +332,8 @@ class SyncErrorDialog : AsyncDialogFragment() {
     }
 
     class SyncErrorDialogMessageHandler(
-        private val dialogType: Type,
-        private val dialogMessage: String?,
+        val dialogType: Type,
+        val dialogMessage: String?,
     ) : DialogHandlerMessage(WhichDialogHandler.MSG_SHOW_SYNC_ERROR_DIALOG, "SyncErrorDialog") {
         override fun handleAsyncMessage(activity: AnkiActivity) {
             // we may be called via any AnkiActivity but media check is a DeckPicker thing
@@ -347,7 +347,7 @@ class SyncErrorDialog : AsyncDialogFragment() {
                 what = this@SyncErrorDialogMessageHandler.what
                 data =
                     Bundle().apply {
-                        putSerializable(SYNC_ERROR_DIALOG_TYPE_KEY, dialogType)
+                        putInt(SYNC_ERROR_DIALOG_TYPE_KEY, dialogType.code)
                         putString(DIALOG_MESSAGE_KEY, dialogMessage)
                     }
             }
