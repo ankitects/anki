@@ -308,21 +308,53 @@ impl BuildAction for PythonTest {
 }
 
 pub struct Complexipy {
-    pub folders: &'static [&'static str],
     pub deps: BuildInput,
+    pub folder: &'static str,
+    pub diff_mode: bool,
 }
 
 impl BuildAction for Complexipy {
     fn command(&self) -> &str {
-        "$complexipy $folders --suggest-refactors"
+        "$complexipy $folder --suggest-refactors $diff_args"
     }
 
     fn files(&mut self, build: &mut impl crate::build::FilesHandle) {
         build.add_inputs("", &self.deps);
         build.add_inputs("", inputs![".complexipy.toml"]);
         build.add_inputs("complexipy", inputs![":pyenv:complexipy"]);
-        build.add_variable("folders", self.folders.join(" "));
-        let hash = simple_hash(&self.deps);
-        build.add_output_stamp(format!("tests/complexipy.{hash}"));
+        build.add_variable("folder", self.folder);
+        let diff_args = if self.diff_mode {
+            "--diff main -R -mx 15"
+        } else {
+            ""
+        };
+        build.add_variable("diff_args", diff_args);
+        let hash = simple_hash(self.folder);
+        let kind = if self.diff_mode { "diff" } else { "check" };
+        build.add_output_stamp(format!("tests/complexipy.{kind}.{hash}"));
     }
+}
+
+pub fn check_complexity(
+    build: &mut Build,
+    group: &str,
+    folder: &'static str,
+    deps: BuildInput,
+) -> Result<()> {
+    build.add_action(
+        format!("check:complexipy:{group}"),
+        Complexipy {
+            deps: deps.clone(),
+            folder,
+            diff_mode: false,
+        },
+    )?;
+    build.add_action(
+        format!("check:complexipy-diff:{group}"),
+        Complexipy {
+            deps,
+            folder,
+            diff_mode: true,
+        },
+    )
 }
