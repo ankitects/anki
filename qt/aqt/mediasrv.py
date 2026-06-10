@@ -29,7 +29,7 @@ import aqt.main
 import aqt.operations
 from anki import hooks
 from anki.collection import OpChanges, OpChangesOnly, Progress, SearchNode
-from anki.decks import UpdateDeckConfigs
+from anki.decks import UpdateDeckConfigs, UpdateDeckConfigsMode
 from anki.scheduler.v3 import SchedulingStatesWithContext, SetSchedulingStatesRequest
 from anki.utils import dev_mode
 from aqt.changenotetype import ChangeNotetypeDialog
@@ -512,7 +512,11 @@ def update_deck_configs() -> bytes:
             update.abort = True
 
     def on_success(changes: OpChanges) -> None:
-        if isinstance(window := aqt.mw.app.activeModalWidget(), DeckOptionsDialog):
+        if (
+            input.mode
+            != UpdateDeckConfigsMode.UPDATE_DECK_CONFIGS_MODE_COMPUTE_ALL_PARAMS
+            and isinstance(window := aqt.mw.app.activeModalWidget(), DeckOptionsDialog)
+        ):
             window.reject()
 
     def handle_on_main() -> None:
