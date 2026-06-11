@@ -274,7 +274,7 @@
                             "developers/build",
                             "developers/contributing",
                             "developers/development",
-                            "developers/docker/README",
+                            "developers/docker",
                             "developers/editing",
                             "developers/index",
                             "developers/language_bridge",
@@ -283,7 +283,7 @@
                             "developers/ninja",
                             "developers/protobuf",
                             "developers/releasing",
-                            "developers/syncserver/README",
+                            "developers/syncserver",
                             "developers/testing-coverage",
                             "developers/windows"
                         ]
