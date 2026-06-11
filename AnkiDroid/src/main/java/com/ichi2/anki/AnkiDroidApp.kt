@@ -119,15 +119,10 @@ open class AnkiDroidApp :
     override fun onCreate() {
         initAnkiBackend(debugTraceSqlCalls = false)
         super.onCreate()
-        if (isInitialized) {
-            Timber.i("onCreate() called multiple times")
-            // 5887 - fix crash.
-            if (instance.resources == null) {
-                Timber.w("Skipping re-initialisation - no resources. Maybe uninstalling app?")
-                return
-            }
+        if (!setupAnkiDroidApp()) {
+            return
         }
-        instance = this
+
         ApplicationContextInitializer.setInstance(this)
 
         // Ensures any change is propagated to widgets
@@ -227,6 +222,28 @@ open class AnkiDroidApp :
                     Os.setenv("TRACESQL", "1", false)
                 }
             }
+        }
+    }
+
+    /**
+     * Sets [isInitialized] to `true` ([instance] != null)
+     *
+     * [onCreate] can be called multiple times due to ACRA using a separate sender process
+     *
+     * @return false if `instance.resources` is unusable
+     */
+    private fun setupAnkiDroidApp(): Boolean {
+        return setup("setupAnkiDroidApp") {
+            if (isInitialized) {
+                Timber.i("onCreate() called multiple times")
+                // 5887 - fix crash.
+                if (instance.resources == null) {
+                    Timber.w("Skipping re-initialisation - no resources. Maybe uninstalling app?")
+                    return@setup false
+                }
+            }
+            instance = this
+            true
         }
     }
 
