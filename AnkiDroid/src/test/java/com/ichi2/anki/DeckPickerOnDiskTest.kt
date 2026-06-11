@@ -20,6 +20,7 @@ import android.content.Intent
 import androidx.core.content.edit
 import com.ichi2.anki.DeckPickerTest.CollectionType
 import com.ichi2.anki.DeckPickerTest.DeckPickerEx
+import com.ichi2.anki.backend.getDatabaseVersion
 import com.ichi2.anki.common.preferences.sharedPrefs
 import com.ichi2.anki.common.utils.annotation.KotlinCleanup
 import com.ichi2.anki.dialogs.DatabaseErrorDialog.DatabaseErrorDialogType
@@ -143,7 +144,7 @@ class DeckPickerOnDiskTest : RobolectricTest() {
                 equalTo(DatabaseErrorDialogType.INCOMPATIBLE_DB_VERSION),
             )
             assertThat(
-                CollectionHelper.getDatabaseVersion(targetContext),
+                getDatabaseVersion(targetContext, CollectionHelper.getCollectionPath(targetContext)),
                 equalTo(250),
             )
         } catch (e: UnknownDatabaseVersionException) {

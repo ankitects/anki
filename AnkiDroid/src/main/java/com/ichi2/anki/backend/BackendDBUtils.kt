@@ -21,11 +21,13 @@ import androidx.annotation.CheckResult
 import androidx.sqlite.db.SupportSQLiteDatabase
 import com.ichi2.anki.CollectionManager
 import com.ichi2.anki.common.crashreporting.CrashReportService.sendExceptionReport
+import com.ichi2.anki.exception.UnknownDatabaseVersionException
 import com.ichi2.anki.libanki.DB
 import net.ankiweb.rsdroid.Backend
 import net.ankiweb.rsdroid.database.AnkiSupportSQLiteDatabase
 import timber.log.Timber
 import java.io.File
+import java.io.FileNotFoundException
 
 /**
  * Open a connection using the system framework.
@@ -44,6 +46,33 @@ fun createDatabaseUsingAndroidFramework(
     db.disableWriteAheadLogging()
     db.query("PRAGMA synchronous = 2")
     return DB(db)
+}
+
+/**
+ * Returns the schema version of the collection database at [collectionFile].
+ *
+ * The backend can't open a schema version outside its supported range, so this falls back to a
+ * plain framework SQLite connection.
+ *
+ * @throws UnknownDatabaseVersionException
+ */
+fun getDatabaseVersion(
+    context: Context,
+    collectionFile: File,
+): Int {
+    if (!collectionFile.exists()) {
+        throw UnknownDatabaseVersionException(FileNotFoundException(collectionFile.absolutePath))
+    }
+    var db: DB? = null
+    return try {
+        db = createDatabaseUsingAndroidFramework(context, collectionFile)
+        db.queryScalar("SELECT ver FROM col")
+    } catch (e: Exception) {
+        Timber.w(e, "Couldn't open the database to obtain collection version!")
+        throw UnknownDatabaseVersionException(e)
+    } finally {
+        db?.close()
+    }
 }
 
 /**

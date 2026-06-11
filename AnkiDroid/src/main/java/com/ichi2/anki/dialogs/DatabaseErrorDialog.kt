@@ -43,6 +43,7 @@ import com.ichi2.anki.LocalizedUnambiguousBackupTimeFormatter
 import com.ichi2.anki.R
 import com.ichi2.anki.ankiActivity
 import com.ichi2.anki.backend.DatabaseCorruption
+import com.ichi2.anki.backend.getDatabaseVersion
 import com.ichi2.anki.common.time.TimeManager
 import com.ichi2.anki.dialogs.DatabaseErrorDialog.DatabaseErrorDialogType.DIALOG_CONFIRM_DATABASE_CHECK
 import com.ichi2.anki.dialogs.DatabaseErrorDialog.DatabaseErrorDialogType.DIALOG_CONFIRM_RESTORE_BACKUP
@@ -614,7 +615,7 @@ class DatabaseErrorDialog : AsyncDialogFragment() {
                 INCOMPATIBLE_DB_VERSION -> {
                     var databaseVersion = -1
                     try {
-                        databaseVersion = CollectionHelper.getDatabaseVersion(requireContext())
+                        databaseVersion = getDatabaseVersion(requireContext(), CollectionHelper.getCollectionPath(requireContext()))
                     } catch (e: Exception) {
                         Timber.w(e, "Failed to get database version, using -1")
                     }

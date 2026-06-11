@@ -11,20 +11,16 @@ import androidx.annotation.VisibleForTesting
 import androidx.core.content.edit
 import com.ichi2.anki.CollectionHelper.PREF_COLLECTION_PATH
 import com.ichi2.anki.CollectionHelper.getCurrentAnkiDroidDirectory
-import com.ichi2.anki.backend.createDatabaseUsingAndroidFramework
 import com.ichi2.anki.common.preferences.sharedPrefs
 import com.ichi2.anki.exception.StorageAccessException
 import com.ichi2.anki.exception.SystemStorageException
-import com.ichi2.anki.exception.UnknownDatabaseVersionException
 import com.ichi2.anki.libanki.Collection
 import com.ichi2.anki.libanki.CollectionFiles
-import com.ichi2.anki.libanki.DB
 import com.ichi2.anki.storage.AnkiDroidFolder
 import com.ichi2.anki.storage.StorageDecision
 import com.ichi2.preferences.getOrSetString
 import timber.log.Timber
 import java.io.File
-import java.io.FileNotFoundException
 import java.io.IOException
 
 object CollectionHelper {
@@ -327,25 +323,6 @@ object CollectionHelper {
     ) {
         Timber.d("resetting AnkiDroid directory to %s", directory)
         context.sharedPrefs().edit { putString(PREF_COLLECTION_PATH, directory.absolutePath) }
-    }
-
-    @Throws(UnknownDatabaseVersionException::class)
-    fun getDatabaseVersion(context: Context): Int {
-        // backend can't open a schema version outside range, so fall back to a pure DB implementation
-        val colPath = getCollectionPath(context)
-        if (!colPath.exists()) {
-            throw UnknownDatabaseVersionException(FileNotFoundException(colPath.absolutePath))
-        }
-        var db: DB? = null
-        return try {
-            db = createDatabaseUsingAndroidFramework(context, colPath)
-            db.queryScalar("SELECT ver FROM col")
-        } catch (e: Exception) {
-            Timber.w(e, "Couldn't open the database to obtain collection version!")
-            throw UnknownDatabaseVersionException(e)
-        } finally {
-            db?.close()
-        }
     }
 
     /** Test-only override for [storageDecision]. @see ankiDroidDirectoryOverride */
