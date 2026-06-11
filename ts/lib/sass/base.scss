@@ -44,6 +44,7 @@ html {
 }
 
 body {
+    font-family: inherit;
     overflow-x: hidden;
     &:not(.isMac),
     &:not(.isMac) * {
