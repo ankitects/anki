@@ -20,6 +20,7 @@ import androidx.annotation.VisibleForTesting
 import androidx.core.net.toUri
 import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.ProcessLifecycleOwner
 import anki.collection.OpChanges
 import com.ichi2.anki.AnkiDroidApp.Companion.sharedPreferencesTestingOverride
 import com.ichi2.anki.analytics.UsageAnalytics
@@ -118,12 +119,6 @@ open class AnkiDroidApp :
     override fun onCreate() {
         initAnkiBackend(debugTraceSqlCalls = false)
         super.onCreate()
-        val appLifecycleObserver = AppLifecycleObserver(applicationContext)
-
-        androidx.lifecycle.ProcessLifecycleOwner
-            .get()
-            .lifecycle
-            .addObserver(appLifecycleObserver)
         if (isInitialized) {
             Timber.i("onCreate() called multiple times")
             // 5887 - fix crash.
@@ -185,6 +180,7 @@ open class AnkiDroidApp :
 
         setup("makeBackendUsable") { makeBackendUsable(this) }
         setupNotifications()
+        setupAppLifecycleObserver()
 
         // Probe WebView availability before any other init touches it (#5794).
         if (!checkWebViewAvailable()) {
@@ -321,6 +317,16 @@ open class AnkiDroidApp :
                 Timber.i("AnkiDroidApp: Starting Services")
                 notifications.observeForever { NotificationService.triggerNotificationFor(context) }
             }
+        }
+
+    private fun setupAppLifecycleObserver() =
+        setup("setupAppLifecycleObserver") {
+            val appLifecycleObserver = AppLifecycleObserver(applicationContext)
+
+            ProcessLifecycleOwner
+                .get()
+                .lifecycle
+                .addObserver(appLifecycleObserver)
         }
 
     private fun setupLifecycleLogging() =
