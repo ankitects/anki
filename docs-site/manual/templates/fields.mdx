@@ -31,13 +31,9 @@ The default back template will look something like this:
 
 ```text
 {{FrontSide
-```
 
-```text
 <hr id=answer>
-```
 
-```text
 {{Back
 ```
 
@@ -171,29 +167,17 @@ There are some special fields you can include in your templates:
 
 ```text
 The note's tags: {{Tags
-```
 
-```text
 The type of note: {{Type
-```
 
-```text
 The card's deck: {{Deck
-```
 
-```text
 The card's subdeck: {{Subdeck
-```
 
-```text
 The card's flag: {{CardFlag
-```
 
-```text
 The type of card ("Forward", etc): {{Card
-```
 
-```text
 The content of the front template
 (only valid in back template): {{FrontSide
 ```
@@ -266,9 +250,7 @@ You could add an automatic link by doing the following in your template:
 
 ```text
 {{Expression
-```
 
-```text
 <a href="http://example.com/search?q={{Expression">check in dictionary</a>
 ```
 
@@ -399,13 +381,9 @@ importing/exporting, and so on. Examples that won’t work:
 
 ```text
 <img src="{{Expression.jpg">
-```
 
-```text
 [sound:{{Word]
-```
 
-```text
 [latex]{{Field 1[/latex]
 ```
 
@@ -425,17 +403,11 @@ with it, you can modify its card template. If it has a template like:
 
 ```text
 {{Native Word
-```
 
-```text
 {{FrontSide
-```
 
-```text
 <hr id=answer>
-```
 
-```text
 {{Foreign Word
 ```
 

@@ -95,9 +95,7 @@ Most objects in Anki can be read and written via methods in pylib.
 card = col.get_card(card_id)
 card.ivl += 1
 col.update_card(card)
-```
 
-```python
 note = col.get_note(note_id)
 note["Front"] += " hello"
 col.update_note(note)
@@ -110,9 +108,7 @@ col.decks.save(deck)
 
 deck = col.decks.by_name("Default hello")
 ...
-```
 
-```python
 config = col.decks.get_config(config_id)
 config["new"]["perDay"] = 20
 col.decks.save(config)

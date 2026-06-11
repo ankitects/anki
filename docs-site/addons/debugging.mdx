@@ -31,44 +31,32 @@ example session follows:
 ```text
 >>> mw
 <no output>
-```
 
-```text
 >>> print(mw)
 <aqt.main.AnkiQt object at 0x10c0ddc20>
-```
 
-```text
 >>> invalidName
 Traceback (most recent call last):
   File "/Users/dae/Lib/anki/qt/aqt/main.py", line 933, in onDebugRet
     exec text
   File "<string>", line 1, in <module>
 NameError: name 'invalidName' is not defined
-```
 
-```text
 >>> a = [a for a in dir(mw.form) if a.startswith("action")]
 ... print(a)
 ... print()
 ... pp(a)
 ['actionAbout', 'actionCheckMediaDatabase', ...]
-```
 
-```text
 ['actionAbout',
  'actionCheckMediaDatabase',
  'actionDocumentation',
  'actionDonate',
  ...]
-```
 
-```text
 >>> pp(mw.reviewer.card)
 <anki.cards.Card object at 0x112181150>
-```
 
-```text
 >>> pp(card()) # shortcut for mw.reviewer.card.__dict__
 {'_note': <anki.notes.Note object at 0x11221da90>,
  '_qa': [...]
@@ -81,9 +69,7 @@ NameError: name 'invalidName' is not defined
  'id': 1307820012852L,
  [...]
 }
-```
 
-```text
 >>> pp(bcard()) # shortcut for selected card in browser
 <as above>
 ```
