@@ -36,18 +36,17 @@ To try it out:
 4. Click the **Cards...** button. You’ll see a preview of how the
    equation will appear when the card is reviewed.
 
-```text
 $$
 \sqrt{x}
 $$
-```
+
 Anki’s MathJax support expects content in TeX format. If you’re not
 familiar with TeX formatting, please see [this cheatsheet](https://math.meta.stackexchange.com/questions/5020/mathjax-basic-tutorial-and-quick-reference).
 Please note that point 1 does not apply in Anki - Anki uses `\(` and
 `\)` for inline equations, and `\[` and `\]` for display equations.
 
 If you want to use newlines in a MathJax expression, please use
-&lt;kbd&gt;Shift&lt;/kbd&gt;+&lt;kbd&gt;Enter&lt;/kbd&gt; instead of just &lt;kbd&gt;Enter&lt;/kbd&gt;, as a normal newline will prevent
+<kbd>Shift</kbd>+<kbd>Enter</kbd> instead of just <kbd>Enter</kbd>, as a normal newline will prevent
 MathJax from working correctly.
 
 Anki includes built in support for mhchem for rendering chemical
@@ -148,7 +147,7 @@ already exist, but can not generate the images on their own.
 
 To avoid having to review all your cards at least once before you can
 study on the other clients, Anki can generate the images in bulk for
-you. To generate all the images, please go to Tools&gt;Check Media.
+you. To generate all the images, please go to Tools>Check Media.
 After that, syncing should upload the generated media to AnkiWeb and the
 other clients.
 
@@ -302,15 +301,15 @@ your Anki cards:
 ### Template Conflicts
 
 As of Anki 2.1.20 / AnkiMobile 2.0.56 / AnkiDroid 2.13, this workaround is no
-longer required, as `&#123;&#123;field` text inside fields no longer causes problems. If
+longer required, as `{{field` text inside fields no longer causes problems. If
 you need to support older versions and want to keep using this syntax, please
-make sure you place the `&#123;&#123;=&lt;% %&gt;=` string at the very top of your front and
+make sure you place the `{{=<% %>=` string at the very top of your front and
 back template, as recent Anki versions will not recognize it anywhere but the
 start.
 
 For older versions:
 
-It’s not uncommon for &#123;&#123; and  to pop up in LaTeX code when writing
+It’s not uncommon for \{\{ and \}\} to pop up in LaTeX code when writing
 mathematical equations. To ensure that your LaTeX equations don’t
 conflict with Anki’s field replacements, it’s possible to change the
 separator to something else.
@@ -318,14 +317,14 @@ separator to something else.
 For example, if you have a template:
 
 ```text
-{{latex field
+{{latex field}}
 ```
 
 Changing it to the following will make it unlikely that the LaTeX will
 conflict:
 
 ```text
-{{=<% %>=
+{{=<% %>=}}
 <%latex field%>
 ```
 
@@ -337,13 +336,13 @@ cloze marker, you can put a space between any double closing braces that do not
 indicate the end of the cloze, so
 
 ```text
-{{c1::[$]\frac{foo}{\frac{bar}{baz[/$] blah blah blah.
+{{c1::[$]\frac{foo}{\frac{bar}{baz[/$] blah blah blah.}}
 ```
 
 will not work, but
 
 ```text
-{{c1::[$]\frac{foo}{\frac{bar}{baz} }[/$] blah blah blah.
+{{c1::[$]\frac{foo}{\frac{bar}{baz} }[/$] blah blah blah.}}
 ```
 
 will (and LaTeX ignores spaces in math mode, so your equation will
@@ -353,7 +352,7 @@ programming languages), another option is to use a HTML comment when
 editing the card in HTML mode:
 
 ```text
-{{c1::[$]\frac{foo}{\frac{bar}{baz[/$] blah blah blah.
+{{c1::[$]\frac{foo}{\frac{bar}{baz[/$] blah blah blah.}}
 ```
 
 You may use either workaround if you need to use the `::` character
@@ -361,7 +360,7 @@ sequence within the Cloze-deleted text. The first card generated for the
 following note text will read `[type] in C++ is a type-safe union`:
 
 ```text
-{{c1::std::variant::~type~ in C++ is a {{c2::type-safe union
+{{c1::std::variant::~type~ in C++ is a {{c2::type-safe union}}
 ```
 
 ### Unsafe Commands

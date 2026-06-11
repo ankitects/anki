@@ -4,7 +4,7 @@ title: "No cloze found on card"
 
 # No cloze found on card
 
-&lt;h2&gt;Single empty cards&lt;/h2&gt;
+<h2>Single empty cards</h2>
 
 When making clozes, each cloze number is turned into a separate card. For example, the following will create three cards:
 
@@ -24,9 +24,9 @@ and
 {{c1::This is a {{c2::sample {{c1::sentence.
 ```
 
-are both changes that would make card 3 blank. When you view card 3, you'll see a message indicating that the card is blank, and can be cleaned up with the Empty Cards function. You can access that function via the Tools menu of the computer version's main window, and use it to remove blank cards. Please check the reported empty cards first, and if in doubt, create a backup with the File&gt;Export menu item before proceeding.
+are both changes that would make card 3 blank. When you view card 3, you'll see a message indicating that the card is blank, and can be cleaned up with the Empty Cards function. You can access that function via the Tools menu of the computer version's main window, and use it to remove blank cards. Please check the reported empty cards first, and if in doubt, create a backup with the File>Export menu item before proceeding.
 
-&lt;h2&gt;All cloze cards empty&lt;/h2&gt;
+<h2>All cloze cards empty</h2>
 
 If you accidentally modify your card template, it may prevent any cloze deletions from appearing. If that has happened, please edit one such problem card, and note down the name of the first field - it is usually called "Text". Then, please:
 
@@ -34,7 +34,7 @@ If you accidentally modify your card template, it may prevent any cloze deletion
 - Replace the front text with
 
   ```
-  &#123;&#123;cloze:Text
+  {{cloze:Text
   ```
 
 - Replace the back text with the same.

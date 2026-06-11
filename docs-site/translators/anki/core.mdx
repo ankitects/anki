@@ -31,11 +31,11 @@ as to where it is used or what it is trying to represent.
 
 ![](./variable@2x.png)
 
-When you see `&#123;$something&#125;` in the English text, it means that that text will
-be replaced with something else. You can change the position of `&#123;$something&#125;`
+When you see `{$something}` in the English text, it means that that text will
+be replaced with something else. You can change the position of `{$something}`
 in your translation, but please don't change the text inside - you should not
-attempt to translate the text inside the `&#123;...&#125;` part. You can click on the
-`&#123;$something&#125;` part of the English text to automatically copy it into your
+attempt to translate the text inside the `{...}` part. You can click on the
+`{$something}` part of the English text to automatically copy it into your
 translation.
 
 ## Plurals
@@ -72,10 +72,10 @@ seen in the "CONTEXT" label near the comments.
 The rest of the text means the following:
 
 - Check the value of amount
-- If the amount is `one`, show `&#123;$amount&#125; sekunda`
-- If the amount is `few`, show `&#123;$amount&#125; sekundy`
-- If the amount is `many`, show `&#123;$amount&#125; sekund`
-- If the amount is `other`, show `&#123;$amount&#125; sekundy`
+- If the amount is `one`, show `{$amount} sekunda`
+- If the amount is `few`, show `{$amount} sekundy`
+- If the amount is `many`, show `{$amount} sekund`
+- If the amount is `other`, show `{$amount} sekundy`
 
 The definitions of few, many and other depend on
 [your language](https://unicode.org/cldr/charts/latest/supplemental/language_plural_rules.html).
@@ -171,8 +171,8 @@ some-translation =
 ```
 
 When you need to use a `[` or `.` character at the start of a a line
-in a multi-line string, please escape it by wrapping it in `&#123;"` and
-`"&#125;` - for example:
+in a multi-line string, please escape it by wrapping it in `{"` and
+`"}` - for example:
 
 ```
 some-translation =

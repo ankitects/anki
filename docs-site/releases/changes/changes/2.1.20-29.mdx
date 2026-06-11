@@ -179,7 +179,7 @@ Released 2020-05-01, build 898801eb (PyPi 6046bbc7)
 - The media check no longer fails when files with very long filenames are in the folder.
 - More gracefully handle case where deck conf is missing.
 - Don't throw an error when cards have an invalid due number.
-- &#123;&#123;type::Field now marks the card as non-empty if Field is non-empty.
+- \{\{type::Field\}\} now marks the card as non-empty if Field is non-empty.
 - Tweak tab width in card layout screen (thanks to BlueGreenMagick).
 - Build fixes (thanks to Evandro).
 
@@ -208,7 +208,7 @@ will match "dog" and "underdog", but not "doggy".
 ```text
 find notes that have "some" or "another" on them, followed by 0 or more characters, and then "thing"
 ```
-  - `re:\d&#123;3&#125;`  
+  - `re:\d{3}`  
 ```text
 find notes that have 3 digits in a row
 ```
@@ -399,7 +399,7 @@ Released 2020-03-09, build f1734a47.
 - Fixed display of AnkiMobile drawings in night mode.
 - Fixed interrupting of current audio when autoplay is turned off.
 - Night mode defaults to dark grey instead of black card background.
-- Fixed &#123;&#123;Deck showing filtered deck instead of original deck.
+- Fixed \{\{Deck\}\} showing filtered deck instead of original deck.
 - Fixed an error that could occur with very small learning steps.
 - Fixed a negative version number being shown when add-ons incompatible.
 - Fixed some invalid HTML in the review screen (thanks to BlueGreenMagic)

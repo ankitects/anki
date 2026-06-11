@@ -61,7 +61,7 @@ remembered the answer, and Anki will choose when to show you the card again. For
 
 #### Card States
 
-&lt;div id="types-of-cards" /&gt;
+<div id="types-of-cards" />
 
 - **New:** Cards that you have downloaded or created yourself, but have never studied before.
 
@@ -198,7 +198,7 @@ A: {{English<br>
    Page #{{Page
 ```
 
-In card templates, field names are wrapped in double curly brackets, like `&#123;&#123;French` or `&#123;&#123;English`. Anki replaces those with the actual text the fields contain. This is called a ["Field replacement"](templates/fields). Text not wrapped in double curly brackets appears the same on each card. For example, we won't need to add "Page \#" on every note because the template will add it automatically to every card. The `&lt;br&gt;` tag is
+In card templates, field names are wrapped in double curly brackets, like `{{French` or `{{English`. Anki replaces those with the actual text the fields contain. This is called a ["Field replacement"](templates/fields). Text not wrapped in double curly brackets appears the same on each card. For example, we won't need to add "Page \#" on every note because the template will add it automatically to every card. The `<br>` tag is
 a special code that tells Anki to move to the next line. For details, see the [templates](templates/intro) section.
 
 The production card's templates will also work in a similar way:
@@ -264,7 +264,7 @@ types specifically for the content you are learning. The standard note types are
   such as anatomy and geography. For details, please see the [Image Occlusion](editing#image-occlusion)
   section of the manual.
 
-To add your own note types and modify existing ones, you can use **Tools &gt; Manage Note Types**
+To add your own note types and modify existing ones, you can use **Tools > Manage Note Types**
 from the main Anki window.
 
 Notes and note types are common to your whole collection rather than
@@ -293,7 +293,7 @@ someone else has shared:
    button to download a deck package.
 
 3. Double-click the downloaded package to import it into Anki, or go to
-   **File &gt; Import**.
+   **File > Import**.
 
 Note: It’s not currently possible to add shared decks
 directly to your AnkiWeb account. You need to first import them to the

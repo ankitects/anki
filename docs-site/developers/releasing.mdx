@@ -236,7 +236,7 @@ build:
 
 1. Dispatch `release.yml` from your branch with all boolean inputs left false:
    ```
-   just release::build --ref &lt;your-branch&gt;
+   just release::build --ref <your-branch>
    ```
 2. The workflow reads `.version` from the branch as-is (the version input is
    ignored for non-release runs), so no prepare step is needed.
@@ -251,15 +251,15 @@ To test the signing flow from a feature branch:
    branch to the allowed deployment branches.
 2. Dispatch the workflow:
    ```
-   just release::sign --ref &lt;your-branch&gt;
+   just release::sign --ref <your-branch>
    ```
 3. Approve the environment deployment when prompted.
 4. After testing, remove your branch from the environment's allowed branches.
 
-&gt; **Note:** `workflow_dispatch` workflows only appear in the GitHub Actions UI
-&gt; if the workflow file exists on the default branch. If `release.yml` is new or
-&gt; modified on your branch, use `gh workflow run` to trigger it — the UI
-&gt; dropdown won't show it until it's merged to main.
+> **Note:** `workflow_dispatch` workflows only appear in the GitHub Actions UI
+> if the workflow file exists on the default branch. If `release.yml` is new or
+> modified on your branch, use `gh workflow run` to trigger it — the UI
+> dropdown won't show it until it's merged to main.
 
 ## Important notes
 

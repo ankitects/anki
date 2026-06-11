@@ -45,10 +45,10 @@ as "atta dog", but not "dog a" or "adog".
 finds notes without the exact sequence of characters "a dog" in them.
 
 `d_g`\
-finds notes with d, &lt;one character&gt;, g, like dog, dig, dug, and so on.
+finds notes with d, \<one character\>, g, like dog, dig, dug, and so on.
 
 `d*g`\
-finds notes with d, &lt;zero or more characters&gt;, g, like dg, dog, dung,
+finds notes with d, \<zero or more characters\>, g, like dg, dog, dung,
 etc.
 
 `w:dog`\
@@ -195,10 +195,10 @@ You can use `sc:` (sc stands for “strip clozes”) to search through the full 
 of notes with cloze deletions, ignoring the cloze markup. For example:
 
 `sc:mnemonic`\
-matches a note containing `&#123;&#123;c1::mn&#123;&#123;c2::emonic`.
+matches a note containing `{{c1::mn{{c2::emonic`.
 
 `sc:capital of France`\
-matches a note containing `The &#123;&#123;c1::capital of &#123;&#123;c2::France`.
+matches a note containing `The {{c1::capital of {{c2::France`.
 
 Searches that strip cloze deletions are slower than regular searches.
 
@@ -215,7 +215,7 @@ Some examples:
 `"re:(some|another).*thing"`\
 finds notes that have "some" or "another" on them, followed by 0 or more characters, and then "thing".
 
-`re:\d&#123;3&#125;`\
+`re:\d{3}`\
 finds notes that have 3 digits in a row.
 
 Regular expressions can also be limited to a specific field. Please note that unlike the normal searches
@@ -311,7 +311,7 @@ cards with a purple flag.
 
 ## Card properties
 
-`prop:ivl&gt;=10`\
+`prop:ivl>=10`\
 cards with interval of 10 days or more.
 
 `prop:due=1`\
@@ -320,36 +320,36 @@ cards due tomorrow.
 `prop:due=-1`\
 cards due yesterday that haven’t been answered yet.
 
-`prop:due&gt;=1`\
+`prop:due>=1`\
 all cards due in the future, including tomorrow.
 
-`prop:due&lt;=-1`\
+`prop:due<=-1`\
 all overdue cards.
 
-`prop:due&gt;=-1 prop:due&lt;=1`\
+`prop:due>=-1 prop:due<=1`\
 cards due yesterday, today and tomorrow.
 
-`prop:reps&lt;10`\
+`prop:reps<10`\
 cards that have been answered less than 10 times.
 
-`prop:lapses&gt;3`\
+`prop:lapses>3`\
 cards that have lapsed more than 3 times.
 
 `prop:ease!=2.5`\
 cards easier or harder than default ease.
 
-`prop:pos&lt;=100`\
+`prop:pos<=100`\
 new cards with a position in the queue less than or equal to 100.
 
 The following searches require Anki 23.10+ and FSRS enabled:
 
-`prop:s&gt;21`\
+`prop:s>21`\
 cards with stability greater than 21 days.
 
-`prop:d&gt;0.3`\
+`prop:d>0.3`\
 cards with difficulty greater than 0.3.
 
-`prop:r&lt;0.9`\
+`prop:r<0.9`\
 cards with retrievability less than 0.9.
 
 ## Recent Events
@@ -452,11 +452,11 @@ you need to tell Anki not to treat them specially. This is called "escaping a ch
   For example, `w:3:30` searches for "3:30" on word boundary and doesn't require you to use a backslash.
   However, if you don't use a colon search, the colons need to be escaped like this: `3\:30`.
 
-- `&`, `&lt;`, and `&gt;`\
-  `&`, `&lt;`, and `&gt;` are treated as HTML when searching in Anki, and as such, searches
+- `&`, `<`, and `>`\
+  `&`, `<`, and `>` are treated as HTML when searching in Anki, and as such, searches
   containing them don't work as expected. However, you can search for them by using their
-  corresponding HTML entity names (`&amp;` for `&`, `&lt;` for `&lt;`, and `&gt;` for `&gt;`).
-  For example, searching `&amp;text` searches for a note with `&text` in a field.
+  corresponding HTML entity names (`&amp;` for `&`, `&lt;` for `<`, and `&gt;` for `>`).
+  For example, searching `&text` searches for a note with `&text` in a field.
 
 ### Raw input
 
@@ -492,7 +492,7 @@ are some ways to search it:
 `has-cd:v`\
 cards having the property `v` in custom data.
 
-`prop:cdn:d&gt;5`\
+`prop:cdn:d>5`\
 cards with the value of `d` in custom data (usually refers to difficulty in FSRS) greater than 5.
 
 `prop:cds:v=reschedule`\

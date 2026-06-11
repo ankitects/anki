@@ -162,7 +162,7 @@ Build 3564ece6 / 2022-02-25.
 
 Editor fixes, thanks to Henrik:
 
-- Fixed `&lt;` and `&gt;` not working correctly in the MathJax editor.
+- Fixed `<` and `>` not working correctly in the MathJax editor.
 - Fixed media files not being inserted at cursor position on Windows.
 - Cloze shortcut correctly positions cursor.
 - Adjust color picker shortcut, and apply color when different color selected.
@@ -237,7 +237,7 @@ Build 95dbf30f / 2022-02-10.
 V3 scheduler changes, thanks to Rumo:
 
 - Intermediate limits are now respected. For example, if you have a deck tree of
-  A&gt;B&gt;C&gt;D, and click on B, then deck C is limited by deck B, and deck D is
+  A>B>C>D, and click on B, then deck C is limited by deck B, and deck D is
   limited by both deck B and deck C. This is similar to the way the previous
   schedulers behaved, except the decks above the one you click on do not
   contribute to the limit.
@@ -276,7 +276,7 @@ New features:
   in the Add screen (thanks to Abdo).
 - A new TTS tag format that allows you to combine extra text and multiple
   fields, such as
-  `[anki:tts lang=en_US]Here is &#123;&#123;Field1 and &#123;&#123;Field2[/anki:tts]` (thanks to
+  `[anki:tts lang=en_US]Here is {{Field1 and {{Field2[/anki:tts]` (thanks to
   Rumo). There are no plans to deprecate the old TTS syntax - either can be
   used.
 - Apkg files can now be dragged on the main window to import them (thanks to
@@ -292,7 +292,7 @@ New features:
 Fixes and other improvements:
 
 - Compression on automatic backups has been turned off, which can make Anki much
-  faster to shut down with large collections (eg 7.9s-&gt;0.45s). Compression will
+  faster to shut down with large collections (eg 7.9s->0.45s). Compression will
   likely come back in the future when we can integrate a more efficient
   compression library.
 - Add back the missing "Show Duplicates" link in the editor (thanks to Matthias
@@ -319,7 +319,7 @@ Fixes and other improvements:
   to reappear later after actions like an edit.
 - Fixed new card position appearing as a date when cards were in preview (thanks
   to Abdo).
-- Fixed unwanted `&lt;div&gt;` being left behind when deleting field contents (thanks
+- Fixed unwanted `<div>` being left behind when deleting field contents (thanks
   to Hikaru).
 - Hide "open new window" action in GNOME (thanks to Fusion future & Felipe)
 - Improve search highlight color in templates screen (thanks to Abdo).
@@ -381,7 +381,7 @@ Linux:
 
   ```
   # eg Debian 11:
-  sudo apt install python3-pyqt5.&#123;qtwebengine,qtmultimedia&#125;
+  sudo apt install python3-pyqt5.{qtwebengine,qtmultimedia}
   ln -sf /usr/lib/python3/dist-packages/PyQt5 lib/
 
   # eg Fedora 34:

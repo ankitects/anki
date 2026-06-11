@@ -9,7 +9,7 @@ title: "Managing Files and Your Collection"
 ## Checking Your Collection
 
 It is a good idea to occasionally check your collection file for
-problems. You can do this via the Tools&gt;Check Database menu item.
+problems. You can do this via the Tools>Check Database menu item.
 Checking the database ensures the file has not been corrupted, rebuilds some
 internal structures, and optimizes the file.
 
@@ -24,7 +24,7 @@ every 2 weeks. This optimization ensures the collection performs well,
 but it does not check for errors or rebuild the tag list when
 automatically optimizing.
 
-&lt;a id="file-locations"&gt;&lt;/a&gt;
+<a id="file-locations"></a>
 
 ## User Data
 
@@ -96,7 +96,7 @@ syncing in order to use the full sync option without first downloading
 the changes. Similarly, if you are experiencing problems with Anki, you
 might need to (or might be instructed to) disable add-ons temporarily to
 see if one might be causing the problem. To do both of these things at the same time, you can
-open Anki in safe mode by holding down the &lt;kbd&gt;Shift&lt;/kbd&gt; key while starting Anki. Keep holding &lt;kbd&gt;Shift&lt;/kbd&gt; down until the on-screen message informs you that Anki has started in safe mode. If you're on Linux and that didn't work, run 'anki --safemode'.
+open Anki in safe mode by holding down the <kbd>Shift</kbd> key while starting Anki. Keep holding <kbd>Shift</kbd> down until the on-screen message informs you that Anki has started in safe mode. If you're on Linux and that didn't work, run 'anki --safemode'.
 
 It is possible to specify a custom folder location during startup. This
 is an advanced feature that is primarily intended to be used with
@@ -109,13 +109,13 @@ The syntax to specify an alternate folder is as follows:
 anki -b /path/to/anki/folder
 ```
 
-- If you have multiple profiles, you can pass -p &lt;name&gt; to load
+- If you have multiple profiles, you can pass `-p <name>` to load
   a specific profile.
-- If you pass -p some-fake-name, Anki will show the profile screen on startup.
+- If you pass `-p some-fake-name`, Anki will show the profile screen on startup.
   If no profile is provided, the last-used profile is loaded.
 
-- To change the interface language, use -l &lt;iso 639-1 language
-  code&gt;, such as "-l ja" for Japanese.
+- To change the interface language, use -l \<iso 639-1 language
+  code>, such as "-l ja" for Japanese.
 
 If you always want to use a custom folder location, you can modify your
 shortcut to Anki. On Windows, right-click on the shortcut, choose
@@ -176,7 +176,7 @@ never synchronized while they are open.
 
 We strongly recommend you have Anki store your files on a local hard
 disk, as network filesystems can lead to database corruption. If a
-network filesystem is your only option, regular use of Tools&gt;Check
+network filesystem is your only option, regular use of Tools>Check
 Database to detect corruption is recommended.
 
 ## Running from a Flash Drive
@@ -210,7 +210,7 @@ start /b %ANKI_LAUNCHER%
 4. Double-click on the .bat file you created, and install Anki as normal.
 5. You can now double-click on the .bat file to run Anki from other machines.
 
-Tools&gt;Upgrade/Downgrade will continue to function, but only when your machine
+Tools>Upgrade/Downgrade will continue to function, but only when your machine
 has access to the internet.
 
 ## Backups
@@ -236,7 +236,7 @@ are listed below. As this is somewhat complicated, please ask someone
 knowledgeable about Windows if you are not sure.
 
 1. Click on the start bar, and type in %temp% (including the percents),
-   then hit &lt;kbd&gt;Enter&lt;/kbd&gt;.
+   then hit <kbd>Enter</kbd>.
 
 2. Go up one folder, and locate the temp folder. Right click on it, and
    choose Properties.
@@ -257,7 +257,7 @@ crashes, but it's still possible for your collection to become corrupt
 if the files are modified while Anki is open, stored on a network drive,
 or corrupted by a bug.
 
-When you run Tools&gt;Check Database, you will receive a message if Anki
+When you run Tools>Check Database, you will receive a message if Anki
 detects the file has been corrupted. **The best way to recover from this
 is to restore from the most recent [automatic backup](#backups)**, but
 if your backup is too old, then you can attempt to repair the corruption
@@ -295,7 +295,7 @@ step.
 ### Windows
 
 Copy the `sqlite3.exe` program and your deck to your desktop. Then go to
-**Start&gt;Run** and type in `cmd.exe`.
+**Start>Run** and type in `cmd.exe`.
 
 If you're on a recent Windows, the command prompt may not start on your
 desktop. If you don't see desktop displayed in the command prompt, type
@@ -340,5 +340,5 @@ When you've confirmed the file is not empty:
 - move collection.anki2 back into your collection folder, overwriting
   the old version
 
-- start Anki and go to Tools&gt;Check Database to make sure the
+- start Anki and go to Tools>Check Database to make sure the
   collection has been successfully restored.

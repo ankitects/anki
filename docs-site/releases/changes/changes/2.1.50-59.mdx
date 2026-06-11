@@ -230,7 +230,7 @@ Fixes:
 - Add screen can be closed with Cmd+W on macOS (thanks to Sam).
 - Add tooltip to More button (thanks to Hikaru).
 - Cmd+Shift+C cloze shortcut should be more responsive on macOS now.
-- Fix &#123;&#123;CardFlags not working with flags 5-7
+- Fix \{\{CardFlags\}\} not working with flags 5-7
 - Fix an error showing when making network connections on macOS after leaving Anki open for a few days.
 - Fix browser sidebars appearing in wrong order in RTL mode (thanks to Abdo).
 - Fix certain installed TTS voices on Windows causing errors.
@@ -311,7 +311,7 @@ Released 2022-05-28.
 - The MathJax editor now provides buttons/shortcuts to cloze-delete selected text (thanks to Henrik).
 - MathJax preview now hides cloze markers.
 - Style tags are no longer stripped when editing (thanks to Henrik).
-- `&lt;br&gt;` tags in MathJax are now handled correctly (thanks to Henrik).
+- `<br>` tags in MathJax are now handled correctly (thanks to Henrik).
 - MathJax in the review screen now supports mathtools, and available packages in editor and review screen match (thanks to Henrik).
 - Move focus into HTML editor when hiding normal editor (thanks to Henrik).
 - Image tags now have the alt property preserved when pasting.
@@ -339,7 +339,7 @@ Released 2022-05-13.
 - Ctrl/Cmd+A in tag editing area now selects all tags (thanks to BlueGreenMagick).
 - Fixed backspace sometimes removing multiple images at once (thanks to Henrik).
 - Fixed copying and pasting MathJax on Windows (Qt6).
-- Fixed handling of `&lt;` and `&gt;` symbols in MathJax (thanks to Henrik).
+- Fixed handling of `<` and `>` symbols in MathJax (thanks to Henrik).
 - Fixed intermittent editor loading failures when add-ons have injected a large amount of code.
 - Fixed pasting of local files of unsupported types that contain spaces (thanks to Abdo).
 - Fixed some formatting being lost when copying between fields on Windows (Qt6).
@@ -388,7 +388,7 @@ To revert to the old behaviour, replace True with False.
 
 Things to note:
 
-- This is new code that has received limited testing so far, so please use `File&gt;Create Backup` before trying it out.
+- This is new code that has received limited testing so far, so please use `File>Create Backup` before trying it out.
   Any testing/feedback you can provide would be appreciated.
 - While active, it is not currently possible to import/export files other than apkg/colpkg.
 - The Special Fields add-on will not work while this functionality is enabled.
@@ -416,7 +416,7 @@ Fixes:
 - Fixed full sync not being triggered when changing sort field.
 - Fixed illegible calendar buttons in dark mode on Mac/Linux.
 - Fixed stats PDF being illegible when saving in dark mode after scrolling down (thanks to Luka).
-- Use `&lt;b&gt;` and `&lt;i&gt;` formatting tags, instead of `&lt;strong&gt;` and `&lt;em&gt;`.
+- Use `<b>` and `<i>` formatting tags, instead of `<strong>` and `<em>`.
 
 ## Changes in 2.1.50
 
@@ -555,7 +555,7 @@ resulting .colpkg will not be readable by older Anki clients.
   mode. Due to technical issues, the full screen mode is not currently available
   on Windows when graphics acceleration is enabled.
 - A new TTS tag format that allows you to combine extra text and multiple
-  fields, such as `[anki:tts lang=en_US]Here is &#123;&#123;Field1 and &#123;&#123;Field2[/anki:tts]` (thanks to Rumo). There are no plans to deprecate the
+  fields, such as `[anki:tts lang=en_US]Here is {{Field1 and {{Field2[/anki:tts]` (thanks to Rumo). There are no plans to deprecate the
   old TTS syntax - either can be used.
 - Added an option to add/remove sidebar tag to selected notes (thanks to Rumo).
 - Be smarter about mapping existing text to new fields when switching notetypes in the Add screen (thanks to Abdo).
@@ -609,7 +609,7 @@ resulting .colpkg will not be readable by older Anki clients.
 - Fixed sound failing to play after exporting a collection (thanks to Rumo and Kelciour).
 - Fixed the deck list showing up blank in collections with many expanded decks.
 - Fixed the main window sometimes failing to load properly when Anki starts (which could lead to blank windows, a giant sync icon, etc).
-- Fixed unwanted `&lt;div&gt;` being left behind when deleting field contents (thanks to Hikaru).
+- Fixed unwanted `<div>` being left behind when deleting field contents (thanks to Hikaru).
 - Fixed various memory leaks (thanks to Rumo and Hikaru).
 - Flip sidebar location in RTL mode (thanks to Abdo).
 - Hide "open new window" action in GNOME (thanks to Fusion future & Felipe)

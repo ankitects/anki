@@ -159,7 +159,7 @@ to free space.
 
 Cargo, yarn and pip all cache downloads of dependencies in a shared cache that
 other builds on your system may use as well. If you wish to clear up those caches,
-they can be found in `~/.rustup`, `~/.cargo` and `~/.cache/&#123;yarn,pip&#125;`. On
+they can be found in `~/.rustup`, `~/.cargo` and `~/.cache/{yarn,pip}`. On
 Windows, Yarn cache can be found in `%LOCALAPPDATA%\Yarn`.
 
 If you invoke Rust outside of the build scripts (eg by running cargo, or
@@ -216,7 +216,7 @@ Depending on your operating system, this produces a file under `out/installer/di
 ### UV-based launcher
 
 - The anki-release package is created/published with the scripts in qt/release.
-- The installer/launcher is created with the build scripts in qt/launcher/&#123;platform&#125;.
+- The installer/launcher is created with the build scripts in qt/launcher/{platform}.
 
 #### Building
 
@@ -270,7 +270,7 @@ See [Releasing](./releasing).
 
 # Mixing development and study
 
-You may wish to create a separate profile with File&gt;Switch Profile for use
+You may wish to create a separate profile with File>Switch Profile for use
 during development. You can pass the arguments "-p [profile name]" when starting
 Anki to load a specific profile.
 

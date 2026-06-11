@@ -30,7 +30,7 @@ the build products and runtime dependencies from the rest of your system.
 
 # Building image
 
-To proceed with building, you must specify the Anki version you want, by replacing `&lt;version&gt;` with something like `24.11` and `&lt;Dockerfile&gt;` with the chosen Dockerfile (e.g., `Dockerfile` or `Dockerfile.distroless`)
+To proceed with building, you must specify the Anki version you want, by replacing `<version>` with something like `24.11` and `<Dockerfile>` with the chosen Dockerfile (e.g., `Dockerfile` or `Dockerfile.distroless`)
 
 The `--platform` option specifies which systems the image will be able to run on after it has been built. This is helpful in scenarios where you are building the image on one architecture (eg: an M series Mac) but running the image on another architecture (eg: x86 Linux server).
 
@@ -51,7 +51,7 @@ On M-series Macs running Docker Desktop, you can build for both platforms using 
 docker buildx build -f <Dockerfile> --platform linux/amd64,linux/arm64 --no-cache --build-arg ANKI_VERSION=<version> -t anki-sync-server .
 ```
 
-If the build fails with `Resource Exhausted:.... cannot allocate memory`, go to Docker Desktop &gt; Settings &gt; Resources and increase the memory limit.
+If the build fails with `Resource Exhausted:.... cannot allocate memory`, go to Docker Desktop > Settings > Resources and increase the memory limit.
 
 If you are unsure of what platform your system is, just run the command below without the platform option.
 

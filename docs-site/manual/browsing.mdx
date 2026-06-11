@@ -8,7 +8,7 @@ title: "Browsing"
 
 The Browse window allows you to search through your cards and notes, and edit
 them. It is opened by clicking **Browse** in the main window, or by pressing
-&lt;kbd&gt;B&lt;/kbd&gt;. It is comprised of three sections: the _sidebar_ on the
+<kbd>B</kbd>. It is comprised of three sections: the _sidebar_ on the
 left, the _card/note table_ on the top right, and the _editing area_ on the bottom
 right. By positioning the mouse between two sections, it is possible to click
 and drag to expand one section and shrink the other.
@@ -19,8 +19,8 @@ and drag to expand one section and shrink the other.
 
 Anki 2.1.45+ offers two modes: either cards or notes are shown in the data table.
 You can change the current mode by clicking the switch at the top, to the left
-of the search area, or pressing &lt;kbd&gt;Ctrl&lt;/kbd&gt;+&lt;kbd&gt;Alt&lt;/kbd&gt;+&lt;kbd&gt;T&lt;/kbd&gt; or
-&lt;kbd&gt;Cmd&lt;/kbd&gt;+&lt;kbd&gt;Opt&lt;/kbd&gt;+&lt;kbd&gt;T&lt;/kbd&gt;. The switch also indicates if **C**ards
+of the search area, or pressing <kbd>Ctrl</kbd>+<kbd>Alt</kbd>+<kbd>T</kbd> or
+<kbd>Cmd</kbd>+<kbd>Opt</kbd>+<kbd>T</kbd>. The switch also indicates if **C**ards
 or **N**otes are currently shown.
 
 **Note**: For the sake of simplicity, this manual generally assumes the Cards
@@ -33,7 +33,7 @@ The _sidebar_ on the left allows quick access to common search terms. On Anki
 2.1.45+, it also provides a searchbar, facilities to edit tags and decks, and a
 choice of two different tools, which are discussed in the following sections.
 You can switch tools using the toolbar at the top of the sidebar or the shortcuts
-&lt;kbd&gt;Alt&lt;/kbd&gt;+&lt;kbd&gt;1&lt;/kbd&gt;/&lt;kbd&gt;2&lt;/kbd&gt;.
+<kbd>Alt</kbd>+<kbd>1</kbd>/<kbd>2</kbd>.
 
 ### Search Tool
 
@@ -42,29 +42,29 @@ You can switch tools using the toolbar at the top of the sidebar or the shortcut
 With this tool, the sidebar behaves as in previous versions: Clicking on an item
 will search for it.
 
-You can hold down &lt;kbd&gt;Ctrl&lt;/kbd&gt; (&lt;kbd&gt;Command&lt;/kbd&gt; on Mac) while clicking in
+You can hold down <kbd>Ctrl</kbd> (<kbd>Command</kbd> on Mac) while clicking in
 order to append the clicked item to the current search with an AND condition,
 instead of starting a new search. If you wanted to show _learning_ cards that were
 also in the German deck for instance, you could click on "Learning",
-then &lt;kbd&gt;Ctrl&lt;/kbd&gt;-click on "German".
+then <kbd>Ctrl</kbd>-click on "German".
 
-You can hold down &lt;kbd&gt;Shift&lt;/kbd&gt; to create an OR search instead of an AND. For
-example, you could click one deck, then &lt;kbd&gt;Shift&lt;/kbd&gt;-click another to show
+You can hold down <kbd>Shift</kbd> to create an OR search instead of an AND. For
+example, you could click one deck, then <kbd>Shift</kbd>-click another to show
 cards from either of the decks in the same view.
 
-You can hold down &lt;kbd&gt;Alt&lt;/kbd&gt; (&lt;kbd&gt;Option&lt;/kbd&gt; on Mac) in order to reverse the
+You can hold down <kbd>Alt</kbd> (<kbd>Option</kbd> on Mac) in order to reverse the
 search (prepend a `-`): for example, to show all cards in a current deck that
-do _not_ have a certain tag. &lt;kbd&gt;Alt&lt;/kbd&gt;/&lt;kbd&gt;Option&lt;/kbd&gt; can be combined with
-either &lt;kbd&gt;Ctrl&lt;/kbd&gt; or &lt;kbd&gt;Shift&lt;/kbd&gt; (e.g. clicking with &lt;kbd&gt;Ctrl&lt;/kbd&gt;+&lt;kbd&gt;Alt&lt;/kbd&gt;
+do _not_ have a certain tag. <kbd>Alt</kbd>/<kbd>Option</kbd> can be combined with
+either <kbd>Ctrl</kbd> or <kbd>Shift</kbd> (e.g. clicking with <kbd>Ctrl</kbd>+<kbd>Alt</kbd>
 will result in adding a new search term that is negated).
 
-On Anki 2.1.39+, you can also hold down both &lt;kbd&gt;Ctrl&lt;/kbd&gt; and
-&lt;kbd&gt;Shift&lt;/kbd&gt; together when clicking a search term to replace all occurrences of the
+On Anki 2.1.39+, you can also hold down both <kbd>Ctrl</kbd> and
+<kbd>Shift</kbd> together when clicking a search term to replace all occurrences of the
 same kind of search with the new one.
 Let's say you had previously typed in a complicated search expression like
 `deck:Swahili (is:due or tag:important)`
 and now want to perform the same search for your Urdu deck. You can hold down
-&lt;kbd&gt;Ctrl&lt;/kbd&gt;+&lt;kbd&gt;Shift&lt;/kbd&gt; while clicking the Urdu deck in the sidebar to obtain the
+<kbd>Ctrl</kbd>+<kbd>Shift</kbd> while clicking the Urdu deck in the sidebar to obtain the
 following search expression:
 `deck:Urdu (is:due or tag:important)`.
 
@@ -72,18 +72,18 @@ following search expression:
 
 ![Selection Tool](media/browser_selection_tool2.png)
 
-The Selection tool allows for selecting multiple items at the same time by holding down &lt;kbd&gt;Ctrl&lt;/kbd&gt;
-or &lt;kbd&gt;Shift&lt;/kbd&gt; while clicking. It also enables drag-and-drop to reorder decks and
+The Selection tool allows for selecting multiple items at the same time by holding down <kbd>Ctrl</kbd>
+or <kbd>Shift</kbd> while clicking. It also enables drag-and-drop to reorder decks and
 tags.
 
 Here is an example: Say you have the tags `Math`, `Calculus`, and `Algebra`.
-Click on the `Calculus` tag, then &lt;kbd&gt;Ctrl&lt;/kbd&gt;-click on the `Algebra` tag. Now both
+Click on the `Calculus` tag, then <kbd>Ctrl</kbd>-click on the `Algebra` tag. Now both
 tags are selected, click and drag any of the two onto the `Math` tag to make them
 both children of this tag. Behind the scenes, Anki has renamed the two tags to
 `Math::Calculus` and `Math::Algebra` respectively and updated your notes accordingly.
 
 Another use case for selecting multiple items is searching: If you right-click on
-a selection of items, you can choose **Search &gt; All/Any Selected**. This
+a selection of items, you can choose **Search > All/Any Selected**. This
 can be combined with keyboard modifiers as described in [Search Tool](#search-tool)
 to append the resulting search to the current search.
 
@@ -98,8 +98,8 @@ saved search, effectively pinning it at the top.
 ### Editing Items
 
 You can delete or rename tags, decks, and saved searches directly from the sidebar,
-from the right-click menu, or by using a shortcut key (&lt;kbd&gt;Del&lt;/kbd&gt; and
-&lt;kbd&gt;F2&lt;/kbd&gt; on Windows). Deletion even works for multiple items at once
+from the right-click menu, or by using a shortcut key (<kbd>Del</kbd> and
+<kbd>F2</kbd> on Windows). Deletion even works for multiple items at once
 (see [Selection Tool](#selection-tool)).
 
 ### Finding Items
@@ -120,7 +120,7 @@ When you click on a row, the corresponding note will be shown in the bottom sect
 
 ### Rows
 
-If you drag the mouse or hold &lt;kbd&gt;Ctrl&lt;/kbd&gt; or &lt;kbd&gt;Command&lt;/kbd&gt; to select multiple
+If you drag the mouse or hold <kbd>Ctrl</kbd> or <kbd>Command</kbd> to select multiple
 rows, the editor will be temporarily hidden. Various operations (such as
 changing the deck) can operate on multiple cards or notes at once, independent
 of the active mode. Therefore in Cards mode, a note is considered to be selected
@@ -145,7 +145,7 @@ For more information about marked notes and suspended cards, see [Editing and Mo
 
 ### Columns
 
-The columns are configurable: right click on one (or &lt;kbd&gt;Ctrl&lt;/kbd&gt;-click on a
+The columns are configurable: right click on one (or <kbd>Ctrl</kbd>-click on a
 Mac) to choose which columns you'd like to see.
 You can drag columns to reorder them. Clicking on a column will sort by that column;
 click again to reverse the sort order. Note that you cannot sort by the Question
@@ -202,7 +202,7 @@ turn offer various actions that can be performed in the browser.
 | Select All           | Select all rows displayed.                                                                                                                                                                                                    |
 | Select Notes         | Show only the currently selected notes and select all rows.                                                                                                                                                                   |
 | Invert Selection     | Select those rows not selected, and deselect the currently selected rows.                                                                                                                                                     |
-| Create Filtered Deck | Show the [filtered deck](filtered-decks#creating-manually) dialog and set the current browser search as a filter. Use &lt;kbd&gt;Alt&lt;/kbd&gt; / &lt;kbd&gt;Option&lt;/kbd&gt; to set the second filter instead.|
+| Create Filtered Deck | Show the [filtered deck](filtered-decks#creating-manually) dialog and set the current browser search as a filter. Use <kbd>Alt</kbd> / <kbd>Option</kbd> to set the second filter instead.|
 
 ### Notes
 
@@ -275,7 +275,7 @@ We use these settings:
 
 ![Find and Replace dialog](media/find_and_replace.png)
 
-(Note that on Anki versions prior to 2.1.28, you would need to replace `$&#123;1&#125;`
+(Note that on Anki versions prior to 2.1.28, you would need to replace `${1}`
 with `\1`.)
 
 Then the assumed field content will change to:
@@ -292,7 +292,7 @@ There are a number of syntax guides available on the web:
 
 ## Finding Duplicates
 
-You can use the **Notes &gt; Find Duplicates** option to search for notes that
+You can use the **Notes > Find Duplicates** option to search for notes that
 have the same content. When you open the window, Anki will look at all
 of your note types and present a list of all possible fields. If you
 want to look for duplicates in the _Back_ field, you’d select it from

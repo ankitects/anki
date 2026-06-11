@@ -17,14 +17,14 @@ When you correct a mistake, it will update all cards of that type - you do not n
 
 What needs changing will depend on the message you are getting.
 
-**Found '&#123;&#123;Field', but there is no field called 'Field'**
+**Found '\{\{Field\}\}', but there is no field called 'Field'**
 
 This indicates your template includes the name of a field that doesn't exist. To fix the problem, locate the
-&#123;&#123;Field inside the card template, and remove it.
+\{\{Field inside the card template, and remove it.
 
-**Missing  in &#123;&#123;Field**
+**Missing \}\} in \{\{Field\}\}**
 
-This message is shown when &#123;&#123; is found in the template without a matching . For example, if you have
+This message is shown when \{\{ is found in the template without a matching }}. For example, if you have
 
 ```
 {{Field
@@ -33,45 +33,45 @@ This message is shown when &#123;&#123; is found in the template without a match
 then this needs to be changed to
 
 ```
-{{Field
+{{Field}}
 ```
 
-**Missing &#123;&#123;/Field**
+**Missing \{\{/Field\}\}**
 
-This means Anki found `&#123;&#123;#Field` or `&#123;&#123;^Field` in your card template, without a matching `&#123;&#123;/Field`. Removing  `&#123;&#123;#Field` or `&#123;&#123;^Field` from the template will fix the error.
+This means Anki found `{{#Field}}` or `{{^Field}}` in your card template, without a matching `{{/Field}}`. Removing  `{{#Field}}` or `{{^Field}}` from the template will fix the error.
 
-**Found &#123;&#123;/One, but expected &#123;&#123;/Two**
+**Found \{\{/One\}\}, but expected \{\{/Two\}\}**
 
 Conditional replacements need to be closed in the same order they are opened. For example, the following template is incorrect:
 
 ```
-{{#One
-  {{#Two
-    {{Three
-  {{/One
-{{/Two
+{{#One}}
+  {{#Two}}
+    {{Three}}
+  {{/One}}
+{{/Two}}
 ```
 
 To fix the problem, the template should be changed like so:
 
 ```
-{{#One
-  {{#Two
-    {{Three
-  {{/Two
-{{/One
+{{#One}}
+  {{#Two}}
+    {{Three}}
+  {{/Two}}
+{{/One}}
 ```
-**Found &#123;&#123;/Field, but missing '&#123;&#123;#Field' or '&#123;&#123;^Field'**
+**Found \{\{/Field\}\}, but missing '\{\{#Field\}\}' or '\{\{^Field\}\}'**
 
-Closing tags must be matched by opening tags. For example, the following is invalid, because there is no `&#123;&#123;#Two` or `&#123;&#123;^Two` at the start:
+Closing tags must be matched by opening tags. For example, the following is invalid, because there is no `{{#Two}}` or `{{^Two}}` at the start:
 
 ```
-  {{Field
-{{/Two
+  {{Field}}
+{{/Two}}
 ```
 
 It can be fixed by removing the closing tag:
 
 ```
-{{Field
+{{Field}}
 ```

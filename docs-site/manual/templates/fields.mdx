@@ -18,7 +18,7 @@ When you place text within curly brackets, Anki looks for a field by
 that name, and replaces the text with the actual content of the field.
 
 Field names are case sensitive. If you have a field named `Front`,
-writing `&#123;&#123;front` will not work properly.
+writing `{{front` will not work properly.
 
 Your templates are not limited to a list of fields. You can also include
 arbitrary text on your templates. For example, if you’re studying
@@ -69,7 +69,7 @@ In the preview, you’d actually see:
 one two
 ```
 
-To add a new line, you need to add a &lt;br&gt; code to the end of a
+To add a new line, you need to add a `<br>` code to the end of a
 line, like so:
 
 ```text
@@ -206,7 +206,7 @@ the front and back of the card, you’ll need to manually include the audio
 fields on the back as well.
 
 As with other fields, special field names are case sensitive - you must use
-`&#123;&#123;Tags` rather than `&#123;&#123;tags` for example.
+`{{Tags` rather than `{{tags` for example.
 
 ## Hint Fields
 
@@ -236,7 +236,7 @@ empty, nothing will be shown.)
 
 If you show the hint on the question and then reveal the answer, the
 hint will be hidden again. If you want to have the hint always revealed
-when the answer is shown, you will need to remove `&#123;&#123;FrontSide` from
+when the answer is shown, you will need to remove `{{FrontSide` from
 your back template and manually add the fields you wish to appear.
 
 It is not currently possible to use a hint field for audio — the audio
@@ -285,7 +285,7 @@ example above, if the expression contained the word "myword" without any
 formatting, then the HTML would be the same: "myword". But when you
 include formatting in your fields, extra HTML is included. If "myword"
 was bolded for example, the actual HTML would be
-"&lt;b&gt;myword&lt;/b&gt;".
+"<b>myword</b>".
 
 This can present a problem for things like dictionary links. In the
 above example, the dictionary link would end up being:
@@ -329,7 +329,7 @@ Text[Ruby]
 ```
 
 Suppose the text above is written in MyField. By default, if you simply use
-`&#123;&#123;Myfield`, the field will be displayed as is. To properly position the
+`{{Myfield`, the field will be displayed as is. To properly position the
 ruby characters above the text, use the `furigana` filter in the templates
 like so:
 
@@ -342,10 +342,10 @@ Here are some examples:
 
 | Raw Text            | Rendered Text                                                                             |
 | ------------------- | ----------------------------------------------------------------------------------------- |
-| `Text[Ruby]`        | &lt;ruby&gt;&lt;rb&gt;Text&lt;/rb&gt;&lt;rt&gt;Ruby&lt;/rt&gt;&lt;/ruby&gt;                                                   |
-| `日本語[にほんご]`  | &lt;ruby&gt;&lt;rb&gt;日本語&lt;/rb&gt;&lt;rt&gt;にほんご&lt;/rt&gt;&lt;/ruby&gt;                                             |
-| `世[よ]の 中[なか]` | &lt;ruby&gt;&lt;rb&gt;世&lt;/rb&gt;&lt;rt&gt;よ&lt;/rt&gt;&lt;/ruby&gt;の&lt;ruby&gt;&lt;rb&gt;中&lt;/rb&gt;&lt;rt&gt;なか&lt;/rt&gt;&lt;/ruby&gt;                |
-| `世[よ]の中[なか]`  | &lt;ruby&gt;&lt;rb&gt;世&lt;/rb&gt;&lt;rt&gt;よ&lt;/rt&gt;&lt;/ruby&gt;&lt;ruby&gt;&lt;rb&gt;の中&lt;/rb&gt;&lt;rt&gt;なか&lt;/rt&gt;&lt;/ruby&gt; _(incorrect!)_ |
+| `Text[Ruby]`        | <ruby><rb>Text</rb><rt>Ruby</rt></ruby>                                                   |
+| `日本語[にほんご]`  | <ruby><rb>日本語</rb><rt>にほんご</rt></ruby>                                             |
+| `世[よ]の 中[なか]` | <ruby><rb>世</rb><rt>よ</rt></ruby>の<ruby><rb>中</rb><rt>なか</rt></ruby>                |
+| `世[よ]の中[なか]`  | <ruby><rb>世</rb><rt>よ</rt></ruby><ruby><rb>の中</rb><rt>なか</rt></ruby> _(incorrect!)_ |
 
 Notice how the third example has a space before the 中 character. This is
 necessary to specify that the ruby text applies only to that character.
@@ -362,9 +362,9 @@ entirely.
 
 | Raw Text           | Field Filter           | Rendered Text                                 |
 | ------------------ | ---------------------- | --------------------------------------------- |
-| `日本語[にほんご]` | `&#123;&#123;furigana:MyField` | &lt;ruby&gt;&lt;rb&gt;日本語&lt;/rb&gt;&lt;rt&gt;にほんご&lt;/rt&gt;&lt;/ruby&gt; |
-| `日本語[にほんご]` | `&#123;&#123;kana:MyField`     | にほんご                                      |
-| `日本語[にほんご]` | `&#123;&#123;kanji:MyField`    | 日本語                                        |
+| `日本語[にほんご]` | `{{furigana:MyField` | <ruby><rb>日本語</rb><rt>にほんご</rt></ruby> |
+| `日本語[にほんご]` | `{{kana:MyField`     | にほんご                                      |
+| `日本語[にほんご]` | `{{kanji:MyField`    | 日本語                                        |
 
 These names are, again, borrowed from Japanese.
 The term [kana](https://en.wikipedia.org/wiki/Kana) represents the phonetic
@@ -454,7 +454,7 @@ compare. Since FrontSide is on the back of the card, the type answer box
 will appear on the back as well.
 
 When reviewing, Anki will display a text box where you can type in the
-answer, and upon hitting &lt;kbd&gt;Enter&lt;/kbd&gt; or showing the answer, Anki will show you
+answer, and upon hitting <kbd>Enter</kbd> or showing the answer, Anki will show you
 which parts you got right and which parts you got wrong. The text box’s
 font size will be the size you configured for that field (via the
 “Fields” button when editing).
@@ -497,7 +497,7 @@ inline style using `!important`, like so:
 ```
 
 It is also possible to type in the answer for cloze deletion cards. To
-do this, add `&#123;&#123;type:cloze:Text` to both the front and back
+do this, add `{{type:cloze:Text` to both the front and back
 template, so the back looks something like this:
 
 ```text

@@ -49,7 +49,7 @@ of card generation. Thus if your front template looked like the
 following, no card would be generated if Country was empty:
 
 ```text
-Where is {{Country on the map?
+Where is {{Country on the map}}?
 ```
 
 ## Selective Card Generation
@@ -72,23 +72,23 @@ This text is always shown.
 ```
 
 ```text
-{{#FieldName
+{{#FieldName}}
     This text is only shown if FieldName has text in it
-{{/FieldName
+{{/FieldName}}
 ```
 
 ```text
-{{^FieldName
+{{^FieldName}}
     This text is only shown if FieldName is empty
-{{/FieldName
+{{/FieldName}}
 ```
 
 A real life example is only showing a label if the field is not empty:
 
 ```text
-{{#Tags
-    Tags: {{Tags
-{{/Tags
+{{#Tags}}
+    Tags: {{Tags}}
+{{/Tags}}
 ```
 
 Or say you want to display a specific field in blue on the front of your
@@ -97,19 +97,19 @@ are notes serves as a reminder that you should spend more time thinking
 about the answer). You can style the field as follows:
 
 ```text
-{{#Notes
+{{#Notes}}
     <span style="color:blue;">
-{{/Notes
+{{/Notes}}
 ```
 
 ```text
-{{FieldToFormat
+{{FieldToFormat}}
 ```
 
 ```text
-{{#Notes
+{{#Notes}}
     </span>
-{{/Notes
+{{/Notes}}
 ```
 
 You can also use conditional replacement to control which cards are
@@ -118,8 +118,8 @@ cards which would have a blank front side. For
 example, consider a card with two fields on the front:
 
 ```text
-{{Expression
-{{Notes
+{{Expression}}
+{{Notes}}
 ```
 
 Normally a card would be generated if either the expression or notes
@@ -127,22 +127,22 @@ field had text in it. If you only wanted a card generated if expression
 was not empty, then you could change the template to this:
 
 ```text
-{{#Expression
-    {{Expression
-    {{Notes
-{{/Expression
+{{#Expression}}
+    {{Expression}}
+    {{Notes}}
+{{/Expression}}
 ```
 
 And if you wanted to require both fields, you could use two conditional
 replacements:
 
 ```text
-{{#Expression
-    {{#Notes
-        {{Expression
-        {{Notes
-    {{/Notes
-{{/Expression
+{{#Expression}}
+    {{#Notes}}
+        {{Expression}}
+        {{Notes}}
+    {{/Notes}}
+{{/Expression}}
 ```
 
 Keep in mind that this only works when you place the
@@ -154,10 +154,10 @@ the conditional replacement; for instance, the following would not work
 as expected:
 
 ```text
-{{#Expression
-    {{Expression
-{{/Expression
-{{Notes
+{{#Expression}}
+    {{Expression}}
+{{/Expression}}
+{{Notes}}
 ```
 
 ## Blank Back Sides
@@ -166,13 +166,13 @@ Card generation only looks at the front side of the card. For example, if you ha
 front template:
 
 ```text
-{{Field 1
+{{Field 1}}
 ```
 
 and a back template:
 
 ```text
-{{Field 2
+{{Field 2}}
 ```
 
 Then a card will be generated if Field 1 is non-empty. If Field 2 is empty, the card
@@ -182,9 +182,9 @@ If you wish to avoid a blank back side, you will need to place a required field
 on the front template as a conditional, like so:
 
 ```text
-{{#Field 2
-    {{Field 1
-{{/Field 2
+{{#Field 2}}
+    {{Field 1}}
+{{/Field 2}}
 ```
 
 This will ensure the card is generated only if both Field 2 and Field 1 are non-empty.
@@ -210,15 +210,15 @@ cards depends on one or more fields on the question being non-empty.
 Cloze deletion note types are generated differently:
 
 - Anki looks on the front template for one or more cloze replacements,
-  like &#123;&#123;cloze:FieldName.
+  like \{\{cloze:FieldName\}\}.
 
 - It then looks in the FieldName field for all cloze references, like
-  &#123;&#123;c1::text.
+  \{\{c1::text\}\}.
 
 - For each separate number, a card will be generated.
 
 Because card generation functions differently for cloze deletion cards,
-&#123;&#123;cloze:…​ tags can not be used with a regular note type - they
+\{\{cloze:…\}\}​ tags can not be used with a regular note type - they
 will only function properly when used with a cloze note type.
 
 Conditional generation provides a special field so you can check which
@@ -227,17 +227,17 @@ the first cloze, and "hint2" field on the second cloze for example, you
 could use the following template:
 
 ```text
-{{cloze:Text
+{{cloze:Text}}
 ```
 
 ```text
-{{#c1
-    {{Hint1
-{{/c1
+{{#c1}}
+    {{Hint1}}
+{{/c1}}
 ```
 
 ```text
-{{#c2
-    {{Hint2
-{{/c2
+{{#c2}}
+    {{Hint2}}
+{{/c2}}
 ```
