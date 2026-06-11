@@ -2,8 +2,6 @@
 title: "Sounds/images are not appearing on AnkiWeb or the mobile clients"
 ---
 
-# Sounds/images are not appearing on AnkiWeb or the mobile clients
-
 If you created your deck by importing from a text file, or you downloaded a shared deck that was created in that way, it's possible the filenames in Anki do not match the filenames on the computer. Some computers treat "file.jpg", "file.JPG" and "FILE.JPG" all as the same file, but other computers do not. This means that if the deck contains a reference to "dog.jpg" but the file on disk is "dog.JPG", some devices (including AnkiWeb) will not be able to display the image.
 
 You can confirm this is a problem by editing a card that's not showing up correctly using the computer version. If audio isn't working, you'll see a link like `[sound:hello.mp3]`. If you see a broken image link, click on that field, then press the down arrow on the top right, choose "Edit HTML", and locate text that looks like:
