@@ -2,9 +2,11 @@
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 from __future__ import annotations
 
+import sys
 from types import SimpleNamespace
 
-from tools.mintlify_hooks import render_hook, safe, signature
+sys.path.append("tools")
+from mintlify_hooks import render_hook, safe, signature
 
 
 def test_signature_includes_arguments_and_return_type() -> None:
