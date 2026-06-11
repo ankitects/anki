@@ -395,6 +395,7 @@ class AnkiWebView(QWebEngineView):
         });
         """
         )
+        self.add_dynamic_styling_and_props_then_show()
 
     def page(self) -> AnkiWebPage:
         return cast(AnkiWebPage, super().page())
@@ -876,7 +877,6 @@ html {{ {font} }}
         else:
             extra = ""
         self.load_url(QUrl(f"{mw.serverURL()}_anki/pages/{name}.html{extra}"))
-        self.add_dynamic_styling_and_props_then_show()
 
     def load_sveltekit_page(self, path: str) -> None:
         from aqt import mw
@@ -893,7 +893,6 @@ html {{ {font} }}
             server = mw.serverURL()
 
         self.load_url(QUrl(f"{server}{path}{extra}"))
-        self.add_dynamic_styling_and_props_then_show()
 
     def force_load_hack(self) -> None:
         """Force process to initialize.
