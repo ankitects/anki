@@ -25,10 +25,10 @@ import androidx.test.core.app.ActivityScenario
 import com.ichi2.anki.common.annotations.NeedsTest
 import com.ichi2.anki.common.destinations.CardInfoDestination
 import com.ichi2.anki.common.destinations.CardInfoDestination.EntryPoint
+import com.ichi2.anki.common.destinations.StatisticsDestination
 import com.ichi2.anki.libanki.Card
 import com.ichi2.anki.pages.DeckOptions
 import com.ichi2.anki.pages.PageFragment
-import com.ichi2.anki.pages.StatisticsDestination
 import com.ichi2.anki.pages.toIntent
 import com.ichi2.anki.tests.InstrumentedTest
 import org.hamcrest.MatcherAssert.assertThat
@@ -85,7 +85,7 @@ class PagesTest : InstrumentedTest() {
     }
 }
 
-fun PagesTest.getStatistics(context: Context): Intent = StatisticsDestination().toIntent(context)
+fun PagesTest.getStatistics(context: Context): Intent = StatisticsDestination.toIntent(context)
 
 fun PagesTest.getCardInfo(context: Context): Intent =
     addNoteUsingBasicNoteType().firstCard(col).let { card ->

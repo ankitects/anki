@@ -29,6 +29,7 @@ import com.ichi2.anki.CollectionManager.withCol
 import com.ichi2.anki.R
 import com.ichi2.anki.RobolectricTest
 import com.ichi2.anki.SingleFragmentActivity
+import com.ichi2.anki.common.destinations.StatisticsDestination
 import com.ichi2.anki.dialogs.DeckSelectionDialog
 import kotlinx.coroutines.test.advanceUntilIdle
 import org.junit.Test
@@ -44,7 +45,7 @@ class StatisticsTest : RobolectricTest() {
         runTest {
             ActivityScenario
                 .launch<SingleFragmentActivity>(
-                    StatisticsDestination().toIntent(
+                    StatisticsDestination.toIntent(
                         targetContext,
                     ),
                 ).use {
@@ -63,7 +64,7 @@ class StatisticsTest : RobolectricTest() {
             addDeck(testDeckName2)
             ActivityScenario
                 .launch<SingleFragmentActivity>(
-                    StatisticsDestination().toIntent(
+                    StatisticsDestination.toIntent(
                         targetContext,
                     ),
                 ).use {
@@ -84,7 +85,7 @@ class StatisticsTest : RobolectricTest() {
             // the statistics screen doesn't allow the selection of 'All Decks' and filtered decks,
             // also 'Default' deck should be enabled no matter its status(empty/not empty)
             ActivityScenario
-                .launch<SingleFragmentActivity>(StatisticsDestination().toIntent(targetContext))
+                .launch<SingleFragmentActivity>(StatisticsDestination.toIntent(targetContext))
                 .onActivity { activity ->
                     val statisticsFragment =
                         activity.supportFragmentManager.findFragmentById(R.id.fragment_container)
