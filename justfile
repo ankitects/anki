@@ -170,9 +170,9 @@ docs-rust:
 ci branch:
     gh workflow run ci.yml --ref {{ branch }}
 
-# Run Complexipy in regression-only mode for CI
-complexipy-diff branch:
-    {{ uv }} run complexipy --diff {{ branch }} -R -mx 15
+# Run Complexipy in regression-only mode
+complexipy-diff:
+    {{ ninja }} check:complexipy-diff
 
 # Remove build outputs from out/ (pass keep-env to keep node_modules/pyenv); macOS/Linux
 clean *args:
