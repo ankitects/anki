@@ -99,9 +99,7 @@ col.update_card(card)
 note = col.get_note(note_id)
 note["Front"] += " hello"
 col.update_note(note)
-```
 
-```python
 deck = col.decks.get(deck_id)
 deck["name"] += " hello"
 col.decks.save(deck)
