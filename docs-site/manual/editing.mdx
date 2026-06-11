@@ -359,7 +359,7 @@ the text you want to hide to select it, and click the \[…​\] button.
 Anki will replace the text with:
 
 ```text
-Canberra was founded in {{c1::1913.
+Canberra was founded in {{c1::1913}}.
 ```
 
 The "c1" part means that you have created one cloze deletion in the
@@ -368,7 +368,7 @@ example, if you select Canberra and click \[…​\] again, the text will
 now look like:
 
 ```text
-{{c2::Canberra was founded in {{c1::1913.
+{{c2::Canberra}} was founded in {{c1::1913}}.
 ```
 
 When you add the above note, Anki will create two cards. The first card
@@ -406,7 +406,7 @@ Canberra::city was founded in 1913
 treat the text after the two colons as a hint, changing the text into:
 
 ```text
-{{c1::Canberra::city was founded in 1913
+{{c1::Canberra::city}} was founded in 1913
 ```
 
 When the card comes up for review, it will appear as:
@@ -421,7 +421,7 @@ correctly, please see the section on [typing answers](./templates/fields#checkin
 From version 2.1.56, nested cloze deletions are supported. For example, the following is valid:
 
 ```text
-{{c1::Canberra was {{c2::founded in 1913
+{{c1::Canberra was {{c2::founded}}}} in 1913
 ```
 
 The inner cloze is entirely nested within the outer. There is no support for partial overlaps, such as:
@@ -443,9 +443,9 @@ field to your cloze, add it to the [template](./templates/intro), and then when
 creating notes, paste the text into two separate fields, like so:
 
 ```text
-Text1 field: {{c1::Canberra was founded in 1913
+Text1 field: {{c1::Canberra was founded}} in 1913
 
-Text2 field: {{c2::Canberra was founded in 1913
+Text2 field: {{c2::Canberra}} was founded in 1913
 ```
 
 The default cloze note type has a second field called Extra, that is

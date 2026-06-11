@@ -113,9 +113,9 @@ Say you have an “Expression” field, and you want to give it the macOS Thai
 font “Ayuthaya”. Imagine your template already reads:
 
 ```text
-What is {{Expression?
+What is {{Expression}}?
 
-{{Notes
+{{Notes}}
 ```
 
 What we need to do is wrap the text we want to style in some HTML. We
@@ -138,9 +138,9 @@ Thus if we wanted the entire “What is …​?” expression to use the Thai
 font, we would use:
 
 ```text
-<div class=mystyle1>What is {{Expression?</div>
+<div class=mystyle1>What is {{Expression}}?</div>
 
-{{Notes
+{{Notes}}
 ```
 
 And if we wanted only the expression field itself to use the Thai font,
@@ -149,7 +149,7 @@ we’d use:
 ```text
 What is <div class=mystyle1>{{Expression</div>?
 
-{{Notes
+{{Notes}}
 ```
 
 After we’ve edited the template, we now need to move to the Styling
@@ -237,7 +237,7 @@ This will change the direction of the entire card. You can change the direction
 of only certain fields by wrapping their references in some HTML:
 
 ```text
-<div dir="rtl">{{Front</div>
+<div dir="rtl">{{Front}}</div>
 ```
 
 To change the direction of fields in the editor, please see
@@ -333,7 +333,7 @@ font depending on where you’re reviewing:
 And in the template:
 
 ```html
-<div class="example">{{Field</div>
+<div class="example">{{Field}}</div>
 ```
 
 You can also use properties like .gecko, .opera, and .ie to select

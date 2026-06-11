@@ -9,14 +9,14 @@ title: "Field Replacements"
 The most basic template looks something like this:
 
 ```text
-{{Front
+{{Front}}
 ```
 
 When you place text within curly brackets, Anki looks for a field by
 that name, and replaces the text with the actual content of the field.
 
 Field names are case sensitive. If you have a field named `Front`,
-writing `{{front` will not work properly.
+writing `{{front}}` will not work properly.
 
 Your templates are not limited to a list of fields. You can also include
 arbitrary text on your templates. For example, if you’re studying
@@ -24,17 +24,17 @@ capital cities, and you’ve created a note type with a “Country” field,
 you might create a front template like this:
 
 ```text
-What's the capital city of {{Country?
+What's the capital city of {{Country}}?
 ```
 
 The default back template will look something like this:
 
 ```text
-{{FrontSide
+{{FrontSide}}
 
 <hr id=answer>
 
-{{Back
+{{Back}}
 ```
 
 This means “show me the text that’s on the front side, then a divider
@@ -77,8 +77,8 @@ The same applies for fields. If you want to display two fields, one on
 each line, you would use
 
 ```text
-{{Field 1<br>
-{{Field 2
+{{Field 1}}<br>
+{{Field 2}}
 ```
 
 ## Text to Speech for individual fields
@@ -89,7 +89,7 @@ To have Anki read the Front field in a US English voice, you can place
 the following in your card template:
 
 ```text
-{{tts en_US:Front
+{{tts en_US:Front}}
 ```
 
 On Windows, macOS, and iOS, Anki will use the OS’s built-in voices. On
@@ -100,7 +100,7 @@ To see a list of all available languages/voices, place the following on
 your card template:
 
 ```text
-{{tts-voices:
+{{tts-voices:}}
 ```
 
 If there are multiple voices that support your chosen language, you can
@@ -108,7 +108,7 @@ specify desired voices in a list, and Anki will choose the first
 available voice. For example:
 
 ```text
-{{tts ja_JP voices=Apple_Otoya,Microsoft_Haruka:Field
+{{tts ja_JP voices=Apple_Otoya,Microsoft_Haruka:Field}}
 ```
 
 This would use Otoya when on an Apple device, and Haruka when on a
@@ -117,7 +117,7 @@ Windows PC.
 Specifying a different speed is possible in some TTS implementations:
 
 ```text
-{{tts fr_FR speed=0.8:SomeField
+{{tts fr_FR speed=0.8:SomeField}}
 ```
 
 Both speed and voices are optional, but the language must be included.
@@ -144,7 +144,7 @@ On a cloze note type, you can make Anki read only the elided sections
 using the `cloze-only` filter, like so:
 
 ```text
-{{tts en_US:cloze-only:Text
+{{tts en_US:cloze-only:Text}}
 ```
 
 The cloze-only filter is supported in Anki 2.1.29+, AnkiMobile 2.0.65+, and AnkiDroid 2.17+.
@@ -156,7 +156,7 @@ This feature requires Anki 2.1.50+, AnkiMobile 2.0.84+, or AnkiDroid 2.17+.
 If you want TTS to read multiple fields or static text included in the template, you can use the following:
 
 ```
-[anki:tts lang=en_US] This text should be read. Here is {{Field1 and {{Field2[/anki:tts]
+[anki:tts lang=en_US] This text should be read. Here is {{Field1}} and {{Field2}}[/anki:tts]
 
 This is other text on the template. It is outside of the tags so it should not be read.
 ```
@@ -166,20 +166,20 @@ This is other text on the template. It is outside of the tags so it should not b
 There are some special fields you can include in your templates:
 
 ```text
-The note's tags: {{Tags
+The note's tags: {{Tags}}
 
-The type of note: {{Type
+The type of note: {{Type}}
 
-The card's deck: {{Deck
+The card's deck: {{Deck}}
 
-The card's subdeck: {{Subdeck
+The card's subdeck: {{Subdeck}}
 
-The card's flag: {{CardFlag
+The card's flag: {{CardFlag}}
 
-The type of card ("Forward", etc): {{Card
+The type of card ("Forward", etc): {{Card}}
 
 The content of the front template
-(only valid in back template): {{FrontSide
+(only valid in back template): {{FrontSide}}
 ```
 
 FrontSide will not automatically play any audio that was on the front side
@@ -188,7 +188,7 @@ the front and back of the card, you’ll need to manually include the audio
 fields on the back as well.
 
 As with other fields, special field names are case sensitive - you must use
-`{{Tags` rather than `{{tags` for example.
+`{{Tags}}` rather than `{{tags}}` for example.
 
 ## Hint Fields
 
@@ -209,7 +209,7 @@ include it on the card but hide it by default by adding the following to
 your template:
 
 ```text
-{{hint:MyField
+{{hint:MyField}}
 ```
 
 This will show a link labeled “show hint”; when you click it, the
@@ -218,7 +218,7 @@ empty, nothing will be shown.)
 
 If you show the hint on the question and then reveal the answer, the
 hint will be hidden again. If you want to have the hint always revealed
-when the answer is shown, you will need to remove `{{FrontSide` from
+when the answer is shown, you will need to remove `{{FrontSide}}` from
 your back template and manually add the fields you wish to appear.
 
 It is not currently possible to use a hint field for audio — the audio
@@ -229,11 +229,11 @@ implement the hint field yourself. We can not provide any support for
 doing so, but the following code should get you started:
 
 ```text
-{{#Back
+{{#Back}}
 <a class=hint href="#"
 onclick="this.style.display='none';document.getElementById('hint4753594160').style.display='inline-block';return false;">
-Show Back</a><div id="hint4753594160" class=hint style="display: none">{{Back</div>
-{{/Back
+Show Back</a><div id="hint4753594160" class=hint style="display: none">{{Back}}</div>
+{{/Back}}
 ```
 
 ## Dictionary Links
@@ -249,9 +249,9 @@ http://example.com/search?q=myword
 You could add an automatic link by doing the following in your template:
 
 ```text
-{{Expression
+{{Expression}}
 
-<a href="http://example.com/search?q={{Expression">check in dictionary</a>
+<a href="http://example.com/search?q={{Expression}}">check in dictionary</a>
 ```
 
 The template above would allow you to search for each note’s expression
@@ -283,7 +283,7 @@ not include any formatting. So a dictionary link that worked even with
 formatted text would be:
 
 ```text
-<a href="http://example.com/search?q={{text:Expression">check in dictionary</a>
+<a href="http://example.com/search?q={{text:Expression}}">check in dictionary</a>
 ```
 
 ## Right To Left Text
@@ -292,7 +292,7 @@ If you’re using a language that reads from right to left, you’ll need
 to adjust the template like so:
 
 ```text
-<div dir=rtl>{{FieldThatHasRTLTextInIt</div>
+<div dir=rtl>{{FieldThatHasRTLTextInIt}}</div>
 ```
 
 ## Ruby Characters
@@ -309,12 +309,12 @@ Text[Ruby]
 ```
 
 Suppose the text above is written in MyField. By default, if you simply use
-`{{Myfield`, the field will be displayed as is. To properly position the
+`{{Myfield}}`, the field will be displayed as is. To properly position the
 ruby characters above the text, use the `furigana` filter in the templates
 like so:
 
 ```text
-{{furigana:MyField
+{{furigana:MyField}}
 ```
 
 Here are some examples:
@@ -342,9 +342,9 @@ entirely.
 
 | Raw Text           | Field Filter           | Rendered Text                                 |
 | ------------------ | ---------------------- | --------------------------------------------- |
-| `日本語[にほんご]` | `{{furigana:MyField` | <ruby><rb>日本語</rb><rt>にほんご</rt></ruby> |
-| `日本語[にほんご]` | `{{kana:MyField`     | にほんご                                      |
-| `日本語[にほんご]` | `{{kanji:MyField`    | 日本語                                        |
+| `日本語[にほんご]` | `{{furigana:MyField}}` | <ruby><rb>日本語</rb><rt>にほんご</rt></ruby> |
+| `日本語[にほんご]` | `{{kana:MyField}}`     | にほんご                                      |
+| `日本語[にほんご]` | `{{kanji:MyField}}`    | 日本語                                        |
 
 These names are, again, borrowed from Japanese.
 The term [kana](https://en.wikipedia.org/wiki/Kana) represents the phonetic
@@ -380,11 +380,11 @@ during review, and will not work when checking for unused media,
 importing/exporting, and so on. Examples that won’t work:
 
 ```text
-<img src="{{Expression.jpg">
+<img src="{{Expression}}.jpg">
 
-[sound:{{Word]
+[sound:{{Word}}]
 
-[latex]{{Field 1[/latex]
+[latex]{{Field 1}}[/latex]
 ```
 
 Instead, you should include the media references in the field. Please
@@ -402,21 +402,21 @@ If you have downloaded a shared deck and would like to type in the answer
 with it, you can modify its card template. If it has a template like:
 
 ```text
-{{Native Word
+{{Native Word}}
 
-{{FrontSide
+{{FrontSide}}
 
 <hr id=answer>
 
-{{Foreign Word
+{{Foreign Word}}
 ```
 
 To type in the foreign word and check if you are correct, you need to
 edit your front template so that it looks like this:
 
 ```text
-{{Native Word
-{{type:Foreign Word
+{{Native Word}}
+{{type:Foreign Word}}
 ```
 
 Here, we have added `type:` in front of the field we want to
@@ -467,13 +467,13 @@ inline style using `!important`, like so:
 ```
 
 It is also possible to type in the answer for cloze deletion cards. To
-do this, add `{{type:cloze:Text` to both the front and back
+do this, add `{{type:cloze:Text}}` to both the front and back
 template, so the back looks something like this:
 
 ```text
-{{cloze:Text
-{{type:cloze:Text
-{{Extra
+{{cloze:Text}}
+{{type:cloze:Text}}
+{{Extra}}
 ```
 
 
@@ -485,7 +485,7 @@ the text box with a comma.
 If you don't want Anki to compare accents on characters in your typed input with the correct answer, you can do so by using `type:nc` in your fields.
 
 ```text
-{{type:nc:Front
+{{type:nc:Front}}
 ```
 
 This makes sure a difference in accents isn't marked as incorrect by Anki. 

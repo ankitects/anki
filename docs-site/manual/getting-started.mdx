@@ -191,20 +191,20 @@ A: Hello
 To do this, we can set the answer template to:
 
 ```text
-Q: {{French
-A: {{English<br>
-   Page #{{Page
+Q: {{French}}
+A: {{English}}<br>
+   Page #{{Page}}
 ```
 
-In card templates, field names are wrapped in double curly brackets, like `{{French` or `{{English`. Anki replaces those with the actual text the fields contain. This is called a ["Field replacement"](./templates/fields). Text not wrapped in double curly brackets appears the same on each card. For example, we won't need to add "Page \#" on every note because the template will add it automatically to every card. The `<br>` tag is
+In card templates, field names are wrapped in double curly brackets, like `{{French}}` or `{{English}}`. Anki replaces those with the actual text the fields contain. This is called a ["Field replacement"](./templates/fields). Text not wrapped in double curly brackets appears the same on each card. For example, we won't need to add "Page \#" on every note because the template will add it automatically to every card. The `<br>` tag is
 a special code that tells Anki to move to the next line. For details, see the [templates](./templates/intro) section.
 
 The production card's templates will also work in a similar way:
 
 ```text
-Q: {{English
-A: {{French<br>
-   Page #{{Page
+Q: {{English}}
+A: {{French}}<br>
+   Page #{{Page}}
 ```
 
 After a card type has been created, every time you add a new note, a card

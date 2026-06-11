@@ -291,9 +291,9 @@ your Anki cards:
 ### Template Conflicts
 
 As of Anki 2.1.20 / AnkiMobile 2.0.56 / AnkiDroid 2.13, this workaround is no
-longer required, as `{{field` text inside fields no longer causes problems. If
+longer required, as `{{field}}` text inside fields no longer causes problems. If
 you need to support older versions and want to keep using this syntax, please
-make sure you place the `{{=<% %>=` string at the very top of your front and
+make sure you place the `{{=<% %>=}}` string at the very top of your front and
 back template, as recent Anki versions will not recognize it anywhere but the
 start.
 
@@ -326,7 +326,7 @@ cloze marker, you can put a space between any double closing braces that do not
 indicate the end of the cloze, so
 
 ```text
-{{c1::[$]\frac{foo}{\frac{bar}{baz[/$] blah blah blah.}}
+{{c1::[$]\frac{foo}{\frac{bar}{baz}}[/$] blah blah blah.}}
 ```
 
 will not work, but
@@ -342,7 +342,7 @@ programming languages), another option is to use a HTML comment when
 editing the card in HTML mode:
 
 ```text
-{{c1::[$]\frac{foo}{\frac{bar}{baz[/$] blah blah blah.}}
+{{c1::[$]\frac{foo}{\frac{bar}{baz}<!-- -->}[/$] blah blah blah.}}
 ```
 
 You may use either workaround if you need to use the `::` character
@@ -350,7 +350,7 @@ sequence within the Cloze-deleted text. The first card generated for the
 following note text will read `[type] in C++ is a type-safe union`:
 
 ```text
-{{c1::std::variant::~type~ in C++ is a {{c2::type-safe union}}
+{{c1::std:<!-- -->:variant::~type~}} in C++ is a {{c2::type-safe union}}
 ```
 
 ### Unsafe Commands
