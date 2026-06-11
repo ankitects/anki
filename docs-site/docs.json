@@ -153,78 +153,124 @@
                         "group": "Support FAQs",
                         "pages": [
                             "faqs/index",
-                            "faqs/linking-cards-together",
-                            "faqs/can-i-reveal-parts-of-a-card-one-at-a-time",
-                            "faqs/card-template-has-a-problem",
-                            "faqs/cards-are-reversed-appearing-twice",
-                            "faqs/characters-are-cut-off",
-                            "faqs/customizing-mathjax",
-                            "faqs/errors-when-recording",
-                            "faqs/extra-characters-appearing-on-cards",
-                            "faqs/multiple-choice-questions",
-                            "faqs/no-cloze-found-on-card",
-                            "faqs/printing-cards-in-your-collection",
-                            "faqs/removing-duplicate-note-types",
-                            "faqs/some-updates-were-ignored-because-the-note-type-has-changed",
-                            "faqs/sounds-or-images-have-gone-missing",
-                            "faqs/splitting-a-field-into-multiple-fields",
-                            "faqs/text-to-speech-support",
-                            "faqs/sticky-fields",
-                            "faqs/a-deck-i-want-has-disappeared-from-ankiweb",
-                            "faqs/a-shared-deck-is-not-showing-images-or-playing-audio",
-                            "faqs/cards-are-being-placed-in-the-default-deck",
-                            "faqs/hiding-decks",
-                            "faqs/how-can-i-work-with-someone-else-to-create-a-deck",
-                            "faqs/how-do-i-move-cards-between-decks",
-                            "faqs/merging-or-combining-two-decks",
-                            "faqs/shared-decks-with-broken-javascript",
-                            "faqs/timestamps-in-the-future",
-                            "faqs/anki-is-not-showing-me-all-my-cards",
-                            "faqs/study-in-a-particular-order",
-                            "faqs/due-times-after-a-break",
-                            "faqs/extra-copies-of-a-card-are-coming-up",
-                            "faqs/hard-good-interval-longer-than-good-easy",
-                            "faqs/i-am-going-on-vacation-can-i-pause-the-scheduler",
-                            "faqs/learning-steps-skipped-or-repeated",
-                            "faqs/resetting-progress-in-a-deck",
-                            "faqs/settings-for-using-anki-to-prepare-for-a-large-exam",
-                            "faqs/the-anki-2.1-scheduler",
-                            "faqs/the-2021-scheduler",
-                            "faqs/timezone-handling-changes",
-                            "faqs/what-spaced-repetition-algorithm",
-                            "faqs/frequently-asked-questions-about-fsrs",
-                            "faqs/ankiweb-account-removal",
-                            "faqs/are-there-limits-on-file-sizes-on-ankiweb",
-                            "faqs/can-i-sync-only-some-of-my-decks",
-                            "faqs/email-verification",
-                            "faqs/emails-not-being-received",
-                            "faqs/error-establishing-a-secure-connection-when-syncing",
-                            "faqs/media-files-may-take-time-to-sync",
-                            "faqs/outlook-silently-discards-email",
-                            "faqs/synchronizing-multiple-profiles",
-                            "faqs/syncing-failed-connection-timed-out-errors-when-syncing",
-                            "faqs/sounds-or-images-are-not-appearing-on-ankiweb-or-the-mobile-clients",
-                            "faqs/shortcut-not-working",
-                            "faqs/anki-must-be-able-to-connect-to-a-local-port",
-                            "faqs/anki-says-my-clock-is-wrong",
-                            "faqs/changing-the-font",
-                            "faqs/changing-the-interface-language",
-                            "faqs/my-antivirus-program-says-anki-is-infected",
-                            "faqs/running-from-python",
-                            "faqs/screenshots-large-and-blurry-on-retina-displays",
-                            "faqs/requesting-a-refund-for-ankimobile",
-                            "faqs/retrieving-ankimobile-crash-logs",
-                            "faqs/why-does-ankimobile-cost-more-than-a-typical-mobile-app",
-                            "faqs/anki-knockoffs",
-                            "faqs/ankiapp-is-not-part-of-the-anki-ecosystem",
-                            "faqs/ankidroid-has-a-separate-support-site",
-                            "faqs/ankiuniversal-is-not-supported-here",
-                            "faqs/we-do-not-make-robots",
-                            "faqs/anki-2.0-support-has-ended",
-                            "faqs/anki-2.0-add-ons",
-                            "faqs/can-i-use-anki-in-a-company-or-school",
-                            "faqs/how-can-i-donate"
-                        ]
+                            {
+                              "group": "Cards and Notes",
+                              "icon": "cards-blank",
+                              "pages": [
+                                "faqs/linking-cards-together",
+                                "faqs/can-i-reveal-parts-of-a-card-one-at-a-time",
+                                "faqs/card-template-has-a-problem",
+                                "faqs/cards-are-reversed-appearing-twice",
+                                "faqs/characters-are-cut-off",
+                                "faqs/customizing-mathjax",
+                                "faqs/errors-when-recording",
+                                "faqs/extra-characters-appearing-on-cards",
+                                "faqs/multiple-choice-questions",
+                                "faqs/no-cloze-found-on-card",
+                                "faqs/printing-cards-in-your-collection",
+                                "faqs/removing-duplicate-note-types",
+                                "faqs/some-updates-were-ignored-because-the-note-type-has-changed",
+                                "faqs/sounds-or-images-have-gone-missing",
+                                "faqs/splitting-a-field-into-multiple-fields",
+                                "faqs/text-to-speech-support",
+                                "faqs/sticky-fields"
+                              ]
+                            },
+                            {
+                              "group": "Decks",
+                              "icon": "book-sparkles",
+                              "pages": [
+                                "faqs/a-deck-i-want-has-disappeared-from-ankiweb",
+                                "faqs/a-shared-deck-is-not-showing-images-or-playing-audio",
+                                "faqs/cards-are-being-placed-in-the-default-deck",
+                                "faqs/hiding-decks",
+                                "faqs/how-can-i-work-with-someone-else-to-create-a-deck",
+                                "faqs/how-do-i-move-cards-between-decks",
+                                "faqs/merging-or-combining-two-decks",
+                                "faqs/shared-decks-with-broken-javascript",
+                                "faqs/timestamps-in-the-future"
+                              ]
+                            },
+                            {
+                              "group": "Scheduling",
+                              "icon": "calendar-clock",
+                              "pages": [
+                                "faqs/anki-is-not-showing-me-all-my-cards",
+                                "faqs/study-in-a-particular-order",
+                                "faqs/due-times-after-a-break",
+                                "faqs/extra-copies-of-a-card-are-coming-up",
+                                "faqs/hard-good-interval-longer-than-good-easy",
+                                "faqs/i-am-going-on-vacation-can-i-pause-the-scheduler",
+                                "faqs/learning-steps-skipped-or-repeated",
+                                "faqs/resetting-progress-in-a-deck",
+                                "faqs/settings-for-using-anki-to-prepare-for-a-large-exam",
+                                "faqs/the-anki-2.1-scheduler",
+                                "faqs/the-2021-scheduler",
+                                "faqs/timezone-handling-changes",
+                                "faqs/what-spaced-repetition-algorithm",
+                                "faqs/frequently-asked-questions-about-fsrs"
+                              ]
+                            },
+                            {
+                              "group": "Synchronising and Ankiweb",
+                              "icon": "globe-pointer",
+                              "pages": [
+                                "faqs/ankiweb-account-removal",
+                                "faqs/are-there-limits-on-file-sizes-on-ankiweb",
+                                "faqs/can-i-sync-only-some-of-my-decks",
+                                "faqs/email-verification",
+                                "faqs/emails-not-being-received",
+                                "faqs/error-establishing-a-secure-connection-when-syncing",
+                                "faqs/media-files-may-take-time-to-sync",
+                                "faqs/outlook-silently-discards-email",
+                                "faqs/synchronizing-multiple-profiles",
+                                "faqs/syncing-failed-connection-timed-out-errors-when-syncing",
+                                "faqs/sounds-or-images-are-not-appearing-on-ankiweb-or-the-mobile-clients"
+                              ]
+                            },
+                            {
+                              "group": "Anki Desktop",
+                              "icon": "computer",
+                              "pages": [
+                                "faqs/shortcut-not-working",
+                                "faqs/anki-must-be-able-to-connect-to-a-local-port",
+                                "faqs/anki-says-my-clock-is-wrong",
+                                "faqs/changing-the-font",
+                                "faqs/changing-the-interface-language",
+                                "faqs/my-antivirus-program-says-anki-is-infected",
+                                "faqs/running-from-python",
+                                "faqs/screenshots-large-and-blurry-on-retina-displays"
+                              ]
+                            },
+                            {
+                              "group": "Anki Mobile",
+                              "icon": "mobile",
+                              "pages": [
+                                "faqs/requesting-a-refund-for-ankimobile",
+                                "faqs/retrieving-ankimobile-crash-logs",
+                                "faqs/why-does-ankimobile-cost-more-than-a-typical-mobile-app"
+                              ]
+                            },
+                            {
+                              "group": "Other Apps",
+                              "pages": [
+                                "faqs/ankidroid-has-a-separate-support-site",
+                                "faqs/anki-knockoffs",
+                                "faqs/ankiapp-is-not-part-of-the-anki-ecosystem",
+                                "faqs/ankiuniversal-is-not-supported-here",
+                                "faqs/we-do-not-make-robots"
+                              ]
+                            },
+                            {
+                              "group": "Misc",
+                              "pages": [
+                                "faqs/anki-2.0-support-has-ended",
+                                "faqs/anki-2.0-add-ons",
+                                "faqs/can-i-use-anki-in-a-company-or-school",
+                                "faqs/how-can-i-donate"
+                              ]
+                            }
+                          ]
                     }
                 ]
             },
