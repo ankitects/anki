@@ -84,7 +84,7 @@ Things to note from the above:
   parentheses, it matches either "dog cat" or "dog mouse", whereas
   without them it would match either "dog and cat" or "mouse".
 
-- Anki is only able to search within formatting in the [sort field](editing#customizing-fields) you’ve configured. For example, if you add
+- Anki is only able to search within formatting in the [sort field](./editing#customizing-fields) you’ve configured. For example, if you add
   "**exa**mple" to one of your fields, with the "exa" part in bold, this will not be matched when
   searching for `example` unless that field is the sort field. If a
   word is not formatted, or the formatting does not change in the
@@ -235,14 +235,14 @@ finds notes with the exact tag "parent", disregarding any child tags like "paren
 `"tag:re:lesson-(1[7-9]|2[0-5])"`\
 finds notes with tags "lesson-17" through "lesson-25".
 
-For more information on regular expressions, see [this website]([https://regexone.com/lesson/introduction_abcs](https://regexone.com/lesson/introduction_abcs)).
+For more information on regular expressions, see [this website](https://regexone.com/lesson/introduction_abcs).
 
 Some things to be aware of:
 
 - The search is case-insensitive by default; use `(?-i)` at the start to turn on case sensitivity.
 - Some text like spaces and newlines may be represented differently in HTML - you can
   use the HTML editor in the editing screen to see the underlying HTML contents.
-- For the specifics of Anki's regex support, see the [regex crate documentation]([https://docs.rs/regex/1.3.9/regex/#syntax](https://docs.rs/regex/1.3.9/regex/#syntax)).
+- For the specifics of Anki's regex support, see the [regex crate documentation](https://docs.rs/regex/1.3.9/regex/#syntax).
 
 ## Card state
 
@@ -259,10 +259,10 @@ cards in learning.
 reviews (both due and not due) and lapsed cards.
 
 `is:suspended`\
-cards that have been [automatically](leeches) or manually suspended.
+cards that have been [automatically](./leeches) or manually suspended.
 
 `is:buried`\
-cards that have been either [automatically](studying#siblings-and-burying) or
+cards that have been either [automatically](./studying#siblings-and-burying) or
 manually buried.
 
 `is:buried-sibling`\
@@ -271,7 +271,7 @@ cards that have been buried automatically.
 `is:buried-manually`\
 cards that have been manually buried.
 
-Cards that have [lapsed](deck-options#lapses) fall into several of the previous categories, so it may
+Cards that have [lapsed](./deck-options#lapses) fall into several of the previous categories, so it may
 be useful to combine different search terms to get more precise results:
 
 `is:learn is:review`\
@@ -478,7 +478,7 @@ the note with note id 123.
 `cid:123,456,789`\
 all cards with card ids 123, 456, or 789.
 
-Note and card IDs can be found in the [card info](stats) dialog in the
+Note and card IDs can be found in the [card info](./stats) dialog in the
 browser. These searches may also be helpful when doing add-on
 development or otherwise working closely with the database.
 
