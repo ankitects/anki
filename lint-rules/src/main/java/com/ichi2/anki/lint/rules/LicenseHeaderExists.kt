@@ -33,18 +33,25 @@ class LicenseHeaderExists :
         private val COPYRIGHT_PATTERN = Pattern.compile("version 3 of the License, or \\(at")
 
         /**
-         * Matches SPDX-style headers
+         * Matches SPDX-style headers for the GPLv3-compatible licenses we allow:
          *
          * - `GPL-3.0-or-later`
          * - `LGPL-3.0-or-later`
+         * - `Apache-2.0`
          *
          *  e.g. `// SPDX-License-Identifier: GPL-3.0-or-later`.
          *
          * See https://spdx.github.io/spdx-spec/v3.0.1/annexes/spdx-license-expressions/
-         *
-         * TODO: extend this to allow for other patterns, once these patterns are agreed on
          */
-        private val SPDX_PATTERN = Pattern.compile("SPDX-License-Identifier:\\s*L?GPL-3\\.0-or-later")
+        private val SPDX_PATTERN =
+            Pattern.compile(
+                "SPDX-License-Identifier:\\s*(?:" +
+                    // [L]GPL-3.0-or-later
+                    "L?GPL-3\\.0-or-later" +
+                    // or Apache-2.0
+                    "|Apache-2\\.0" +
+                    ")",
+            )
 
         /**
          * &#64;SuppressWarnings doesn't work as it's the first statement, so allow suppression via:
