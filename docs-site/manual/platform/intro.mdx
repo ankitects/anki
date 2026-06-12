@@ -1,0 +1,11 @@
+---
+title: "Platform Notes"
+---
+
+This section explains the way Anki is installed, and the possible problems you may encounter, depending on your OS:
+
+- [Windows](./windows/intro)
+- [macOS](./mac/intro)
+- [Linux](./linux/intro)
+
+If you have already installed Anki, you can skip to the [Getting Started](../getting-started) section.
