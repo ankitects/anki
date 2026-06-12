@@ -13,6 +13,6 @@ ANKI_TEST_MODE=1 $LLVMCOVPATH/cargo-llvm-cov llvm-cov --workspace --locked --jso
     --output-path $outdir/coverage-summary.json --fail-under-lines 60
 
 if [ "$html" = "--html" ]; then
-    ANKI_TEST_MODE=1 $LLVMCOVPATH/cargo-llvm-cov llvm-cov report --html --output-dir $outdir/html
+    ANKI_TEST_MODE=1 $LLVMCOVPATH/cargo-llvm-cov llvm-cov report --html --output-dir $outdir
     echo "Rust coverage report: $outdir/html/index.html"
 fi
