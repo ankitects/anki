@@ -10,14 +10,11 @@ import android.content.ContentProvider
 import android.content.Intent
 import android.os.Build
 import androidx.core.net.toUri
-import com.ichi2.anki.instantnoteeditor.InstantNoteEditorActivity
 import com.ichi2.anki.provider.CardContentProvider
 import com.ichi2.anki.storage.StorageDecision
 import com.ichi2.testutils.ExternalEntryPoints.EntryPoint
 import com.ichi2.testutils.grantPermissions
 import com.ichi2.testutils.skipTest
-import com.ichi2.widget.cardanalysis.CardAnalysisWidgetConfig
-import com.ichi2.widget.deckpicker.DeckPickerWidgetConfig
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
@@ -57,10 +54,6 @@ class ExternalEntryPointsUndecidedStorageTest : RobolectricTest() {
 
     @Before
     fun notYetHandledEntryPoints() {
-        notYetHandled<Reviewer>("setupFlags (onCreateOptionsMenu) reads flag names from the collection; the failure is unhandled")
-        notYetHandled<InstantNoteEditorActivity>("InstantEditorViewModel opens the collection when constructed; the failure is unhandled")
-        notYetHandled<DeckPickerWidgetConfig>("onCreate calls isCollectionEmpty(); the failure is unhandled")
-        notYetHandled<CardAnalysisWidgetConfig>("onCreate calls isCollectionEmpty(); shows an error dialog, not the setup flow")
         notYetHandled<CardContentProvider>("query() opens the collection; the exception escapes over Binder, killing the process")
     }
 
@@ -131,7 +124,15 @@ class ExternalEntryPointsUndecidedStorageTest : RobolectricTest() {
         }
         val controller = Robolectric.buildActivity(activityClass, entryPoint!!.externalIntent())
         saveControllerForCleanup(controller)
-        controller.setup()
+        // mirrors Android: an activity which finishes during onCreate (e.g. redirectToMainEntryPoint)
+        // does not receive the remaining lifecycle callbacks; controller.setup() would force them
+        controller.create()
+        if (controller.get().isFinishing) return
+        controller
+            .start()
+            .postCreate(null)
+            .resume()
+            .visible()
     }
 
     private fun sendBroadcast(className: String) {

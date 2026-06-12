@@ -32,7 +32,7 @@ import com.ichi2.anki.previewer.TemplatePreviewerFragment
 import com.ichi2.anki.settings.Prefs
 import com.ichi2.anki.snackbar.BaseSnackbarBuilderProvider
 import com.ichi2.anki.snackbar.SnackbarBuilder
-import com.ichi2.anki.startup.ensureStoragePermissions
+import com.ichi2.anki.startup.ensureStorageIsReady
 import com.ichi2.anki.ui.ResizablePaneManager
 import com.ichi2.anki.utils.ext.doOnTabSelected
 import kotlinx.coroutines.Job
@@ -87,7 +87,7 @@ class NoteEditorActivity :
             return
         }
         super.onCreate(savedInstanceState)
-        if (!ensureStoragePermissions()) {
+        if (!ensureStorageIsReady()) {
             return
         }
 

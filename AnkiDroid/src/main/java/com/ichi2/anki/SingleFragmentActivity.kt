@@ -22,13 +22,12 @@ import android.view.KeyEvent
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentContainerView
 import androidx.fragment.app.commit
-import com.ichi2.anki.SingleFragmentActivity.Companion.getIntent
 import com.ichi2.anki.android.input.ShortcutGroup
 import com.ichi2.anki.android.input.ShortcutGroupProvider
 import com.ichi2.anki.dialogs.customstudy.CustomStudyDialog.CustomStudyAction
 import com.ichi2.anki.snackbar.BaseSnackbarBuilderProvider
 import com.ichi2.anki.snackbar.SnackbarBuilder
-import com.ichi2.anki.startup.ensureStoragePermissions
+import com.ichi2.anki.startup.ensureStorageIsReady
 import com.ichi2.anki.ui.windows.managespace.ManageSpaceActivity
 import com.ichi2.anki.utils.ConfigAwareSingleFragmentActivity
 import com.ichi2.anki.utils.ext.setFragmentResultListener
@@ -62,7 +61,7 @@ open class SingleFragmentActivity :
         }
 
         super.onCreate(savedInstanceState)
-        if (!ensureStoragePermissions()) {
+        if (!ensureStorageIsReady()) {
             return
         }
         setTransparentStatusBar()

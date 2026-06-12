@@ -35,7 +35,7 @@ import com.ichi2.anki.dialogs.startDeckSelection
 import com.ichi2.anki.isCollectionEmpty
 import com.ichi2.anki.launchCatchingTask
 import com.ichi2.anki.model.SelectableDeck
-import com.ichi2.anki.startup.ensureStoragePermissions
+import com.ichi2.anki.startup.ensureStorageIsReady
 import com.ichi2.anki.ui.internationalization.sentenceCase
 import com.ichi2.anki.withProgress
 import com.ichi2.widget.AppWidgetId.Companion.INVALID_APPWIDGET_ID
@@ -74,7 +74,7 @@ class CardAnalysisWidgetConfig : AnkiActivity(R.layout.activity_card_analysis_wi
         }
         super.onCreate(savedInstanceState)
 
-        if (!ensureStoragePermissions()) {
+        if (!ensureStorageIsReady()) {
             return
         }
 
