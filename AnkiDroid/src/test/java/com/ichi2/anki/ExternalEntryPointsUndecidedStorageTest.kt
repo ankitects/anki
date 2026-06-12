@@ -10,11 +10,9 @@ import android.content.ContentProvider
 import android.content.Intent
 import android.os.Build
 import androidx.core.net.toUri
-import com.ichi2.anki.provider.CardContentProvider
 import com.ichi2.anki.storage.StorageDecision
 import com.ichi2.testutils.ExternalEntryPoints.EntryPoint
 import com.ichi2.testutils.grantPermissions
-import com.ichi2.testutils.skipTest
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
@@ -23,12 +21,11 @@ import org.robolectric.ParameterizedRobolectricTestRunner
 import org.robolectric.Robolectric
 import org.robolectric.Shadows.shadowOf
 import org.robolectric.shadows.ShadowMediaPlayer
+import kotlin.test.assertFailsWith
 import kotlin.test.fail
 
 /**
  * Handles the [CollectionHelper.storageDecision] returning [StorageDecision.Undecided].
- *
- * Entry points which do not yet handle the scenario are skipped: see [notYetHandledEntryPoints].
  */
 @RunWith(ParameterizedRobolectricTestRunner::class)
 class ExternalEntryPointsUndecidedStorageTest : RobolectricTest() {
@@ -50,17 +47,6 @@ class ExternalEntryPointsUndecidedStorageTest : RobolectricTest() {
     @After
     fun resetStorageDecision() {
         CollectionHelper.storageDecisionTestOverride = null
-    }
-
-    @Before
-    fun notYetHandledEntryPoints() {
-        notYetHandled<CardContentProvider>("query() opens the collection; the exception escapes over Binder, killing the process")
-    }
-
-    private inline fun <reified T : Any> notYetHandled(reason: String) {
-        if (entryPoint!!.className == T::class.qualifiedName) {
-            skipTest("${T::class.simpleName} does not yet handle undecided storage: $reason")
-        }
     }
 
     @Test
@@ -154,7 +140,10 @@ class ExternalEntryPointsUndecidedStorageTest : RobolectricTest() {
                 .buildContentProvider(providerClass)
                 .create(FlashCardsContract.AUTHORITY)
                 .get()
-        provider.query(FlashCardsContract.Note.CONTENT_URI, null, null, null, null)?.close()
+        // IllegalStateException is expected. A custom exception kills the process
+        assertFailsWith<IllegalStateException> {
+            provider.query(FlashCardsContract.Note.CONTENT_URI, null, null, null, null)?.close()
+        }
     }
 
     companion object {

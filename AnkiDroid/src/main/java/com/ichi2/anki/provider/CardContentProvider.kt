@@ -38,6 +38,7 @@ import com.ichi2.anki.FlashCardsContract
 import com.ichi2.anki.common.crashreporting.CrashReportService
 import com.ichi2.anki.common.time.TimeManager
 import com.ichi2.anki.common.utils.annotation.KotlinCleanup
+import com.ichi2.anki.exception.StorageNotConfiguredException
 import com.ichi2.anki.libanki.Card
 import com.ichi2.anki.libanki.CardId
 import com.ichi2.anki.libanki.CardTemplate
@@ -221,6 +222,20 @@ class CardContentProvider : ContentProvider() {
      */
     private fun shouldEnforceUpdateSecurity(uri: Uri): Boolean = true
 
+    /**
+     * The collection, opened if necessary.
+     *
+     * @throws IllegalStateException if the user has not yet chosen where the collection is
+     * stored.
+     */
+    private fun getColUnsafe(): Collection =
+        try {
+            CollectionManager.getColUnsafe()
+        } catch (e: StorageNotConfiguredException) {
+            // StorageNotConfiguredException is not supported by Parcel.writeException
+            throw IllegalStateException("AnkiDroid storage is not configured", e)
+        }
+
     override fun query(
         uri: Uri,
         projection: Array<String>?,
@@ -231,7 +246,7 @@ class CardContentProvider : ContentProvider() {
         if (!hasReadWritePermission() && shouldEnforceQueryOrInsertSecurity()) {
             throwSecurityException("query", uri)
         }
-        val col = CollectionManager.getColUnsafe()
+        val col = getColUnsafe()
         Timber.d(getLogMessage("query", uri))
 
         // Find out what data the user is requesting
@@ -485,7 +500,7 @@ class CardContentProvider : ContentProvider() {
         if (!hasReadWritePermission() && shouldEnforceUpdateSecurity(uri)) {
             throwSecurityException("update", uri)
         }
-        val col = CollectionManager.getColUnsafe()
+        val col = getColUnsafe()
         Timber.d(getLogMessage("update", uri))
 
         // Find out what data the user is requesting
@@ -748,7 +763,7 @@ class CardContentProvider : ContentProvider() {
         if (!hasReadWritePermission()) {
             throwSecurityException("delete", uri)
         }
-        val col = CollectionManager.getColUnsafe()
+        val col = getColUnsafe()
         Timber.d(getLogMessage("delete", uri))
 
         val deletedCount =
@@ -827,7 +842,7 @@ class CardContentProvider : ContentProvider() {
         if (valuesArr.isNullOrEmpty()) {
             return 0
         }
-        val col = CollectionManager.getColUnsafe()
+        val col = getColUnsafe()
         if (col.decks.isFiltered(deckId)) {
             throw IllegalArgumentException("A filtered deck cannot be specified as the deck in bulkInsertNotes")
         }
@@ -878,7 +893,7 @@ class CardContentProvider : ContentProvider() {
         if (!hasReadWritePermission() && shouldEnforceQueryOrInsertSecurity()) {
             throwSecurityException("insert", uri)
         }
-        val col = CollectionManager.getColUnsafe()
+        val col = getColUnsafe()
         Timber.d(getLogMessage("insert", uri))
 
         // Find out what data the user is requesting

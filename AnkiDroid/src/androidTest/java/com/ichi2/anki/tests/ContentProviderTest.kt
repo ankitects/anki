@@ -26,6 +26,7 @@ import android.net.Uri
 import anki.cards.FsrsMemoryState
 import anki.collection.OpChanges
 import anki.notetypes.StockNotetype
+import com.ichi2.anki.CollectionHelper
 import com.ichi2.anki.CollectionManager
 import com.ichi2.anki.FlashCardsContract
 import com.ichi2.anki.common.time.TimeManager
@@ -48,6 +49,7 @@ import com.ichi2.anki.libanki.getStockNotetype
 import com.ichi2.anki.libanki.sched.Scheduler
 import com.ichi2.anki.observability.ChangeManager
 import com.ichi2.anki.provider.pureAnswer
+import com.ichi2.anki.storage.StorageDecision
 import com.ichi2.anki.testutil.DatabaseUtils.cursorFillWindow
 import com.ichi2.anki.testutil.GrantStoragePermission.storagePermission
 import com.ichi2.anki.testutil.addNote
@@ -260,6 +262,21 @@ class ContentProviderTest : InstrumentedTest() {
 
         assertThrows<RuntimeException>("RuntimeException is thrown when deleting note") {
             addedNote.load(col)
+        }
+    }
+
+    @Test
+    fun queryFailsWhenStorageIsUndecided() {
+        // regression test: must be a type Binder can marshal to the calling app
+        // (IllegalStateException), not StorageNotConfiguredException, which would
+        // kill the AnkiDroid process when a third-party app calls the API
+        CollectionHelper.storageDecisionTestOverride = StorageDecision.Undecided
+        try {
+            assertThrows<IllegalStateException>("query() while storage is undecided") {
+                contentResolver.query(FlashCardsContract.Note.CONTENT_URI, null, null, null, null)?.close()
+            }
+        } finally {
+            CollectionHelper.storageDecisionTestOverride = null
         }
     }
 
