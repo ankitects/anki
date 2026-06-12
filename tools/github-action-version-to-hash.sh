@@ -3,6 +3,8 @@
 # Example: "uses: actions/checkout@v4"
 # -> "uses: actions/checkout@11bd...683 #v4"
 
+shopt -s globstar
+
 for workflow in .github/**/*.yml; do
     grep -E "uses:[[:space:]]+[A-Za-z0-9._-]+/[A-Za-z0-9._-]+(/[A-Za-z0-9._-]+)*@v[0-9]+" "$workflow" |
     while read -r line; do
