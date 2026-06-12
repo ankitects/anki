@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 # Replace version tags with commit hashes in github actions workflows
 # Example: "uses: actions/checkout@v4"
 # -> "uses: actions/checkout@11bd...683 #v4"
