@@ -320,3 +320,25 @@ impl From<NotetypeId> for anki_proto::notetypes::NotetypeId {
         anki_proto::notetypes::NotetypeId { ntid: ntid.0 }
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    // --- From<proto::NotetypeId> for NotetypeId ---
+
+    #[test]
+    fn proto_notetype_id_converts_to_domain() {
+        let proto = anki_proto::notetypes::NotetypeId { ntid: 42 };
+        let domain: NotetypeId = proto.into();
+        assert_eq!(domain, NotetypeId(42));
+    }
+
+    #[test]
+    fn notetype_id_round_trips_through_proto() {
+        let original = NotetypeId(99);
+        let proto: anki_proto::notetypes::NotetypeId = original.into();
+        let back: NotetypeId = proto.into();
+        assert_eq!(back, original);
+    }
+}
