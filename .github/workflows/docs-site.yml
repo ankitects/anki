@@ -3,9 +3,9 @@ name: Docs Site
 on:
   workflow_dispatch:
   push:
-    branches: [mintlify-docs-poc]
+    branches: [main]
   pull_request:
-    branches: [mintlify-docs-poc]
+    branches: [main]
     paths:
       - ".github/workflows/docs-site.yml"
       - "docs-site/**"
