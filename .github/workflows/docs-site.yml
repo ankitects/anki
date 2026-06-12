@@ -38,3 +38,7 @@ jobs:
       - name: Validate Mintlify docs
         run: mintlify validate
         working-directory: docs-site
+
+      - name: Check for accessibility issues
+        run: mintlify a11y --skip-contrast
+        working-directory: docs-site
