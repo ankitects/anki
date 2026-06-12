@@ -313,7 +313,6 @@
                         "group": "Core Development",
                         "pages": [
                             "developers/index",
-                            "developers/api-python-modules",
                             "developers/api-python",
                             "developers/api-rust",
                             "developers/architecture",
