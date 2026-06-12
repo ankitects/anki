@@ -19,17 +19,11 @@ The build/ folder is made up of 4 packages:
   of the build process.
 - build/runner serves a number of purposes:
   - it's the entrypoint to the build process, taking care of generating
-```text
-the build file and then invoking Ninja
-```
+    the build file and then invoking Ninja
   - it wraps executable invocations in the build file, swallowing their output
-```text
-if they exit successfully
-```
+    if they exit successfully
   - it provides a few helpers for multi-step processes that can't be easily
-```text
-described in a cross-platform manner thanks to differences on Windows.
-```
+    described in a cross-platform manner thanks to differences on Windows.
 
 ## Tracing build problems
 
