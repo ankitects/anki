@@ -3,6 +3,7 @@
 
 mod aqt;
 mod audio;
+mod cog;
 mod installer;
 mod launcher;
 mod platform;
@@ -16,6 +17,7 @@ use std::env;
 use anyhow::Result;
 use aqt::build_and_check_aqt;
 use audio::build_audio;
+use cog::check_cog;
 use installer::build_installer;
 use launcher::build_launcher;
 use ninja_gen::glob;
@@ -67,6 +69,7 @@ fn main() -> Result<()> {
     check_rust(build)?;
     check_pylib(build)?;
     check_python(build)?;
+    check_cog(build)?;
 
     check_sql(build)?;
     check_minilints(build)?;
