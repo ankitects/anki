@@ -87,7 +87,6 @@ import com.ichi2.anki.dialogs.ExportReadyDialog.Companion.REQUEST_EXPORT_SHARE
 import com.ichi2.anki.dialogs.SimpleMessageDialog
 import com.ichi2.anki.dialogs.handleExportReadyRequest
 import com.ichi2.anki.dialogs.viewmodel.ExportReadyViewModel
-import com.ichi2.anki.exception.SystemStorageException
 import com.ichi2.anki.libanki.Collection
 import com.ichi2.anki.receiver.SdCardReceiver
 import com.ichi2.anki.settings.Prefs
@@ -687,25 +686,6 @@ open class AnkiActivity(
             ).toShortcutGroup(this)
 
         return listOfNotNull(shortcuts?.toShortcutGroup(this), generalShortcutGroup)
-    }
-
-    /**
-     * If storage permissions are not granted, shows a toast message and finishes the activity.
-     *
-     * This should be called AFTER a call to `super.`[onCreate]
-     *
-     * @return `true`: activity may continue to start, `false`: [onCreate] should stop executing
-     * as storage permissions are mot granted
-     *
-     * @throws SystemStorageException if `getExternalFilesDir` returns null
-     */
-    fun ensureStoragePermissions(): Boolean {
-        if (IntentHandler.grantedStoragePermissions(this, showToast = true)) {
-            return true
-        }
-        Timber.w("finishing activity. No storage permission")
-        finish()
-        return false
     }
 
     override val shortcuts
