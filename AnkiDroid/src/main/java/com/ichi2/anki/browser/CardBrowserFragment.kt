@@ -106,6 +106,7 @@ import com.ichi2.anki.browser.search.iconRes
 import com.ichi2.anki.browser.search.savedFilters
 import com.ichi2.anki.common.ALL_DECKS_ID
 import com.ichi2.anki.common.annotations.NeedsTest
+import com.ichi2.anki.common.utils.ext.ifNotZero
 import com.ichi2.anki.dialogs.BrowserOptionsDialog
 import com.ichi2.anki.dialogs.CardBrowserOrderDialog
 import com.ichi2.anki.dialogs.ChangeNoteTypeDialog
@@ -146,7 +147,6 @@ import com.ichi2.anki.undoAndShowSnackbar
 import com.ichi2.anki.utils.ext.addPrepareMenuProvider
 import com.ichi2.anki.utils.ext.getParcelableCompat
 import com.ichi2.anki.utils.ext.hasCheckedBackground
-import com.ichi2.anki.utils.ext.ifNotZero
 import com.ichi2.anki.utils.ext.launchCollectionInLifecycleScope
 import com.ichi2.anki.utils.ext.setFragmentResultListener
 import com.ichi2.anki.utils.ext.showDialogFragment

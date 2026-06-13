@@ -39,9 +39,9 @@ import anki.collection.OpChangesWithId
 import anki.collection.opChanges
 import anki.import_export.ImportResponse
 import com.ichi2.anki.common.crashreporting.CrashReportService
+import com.ichi2.anki.common.utils.ext.ifNotZero
 import com.ichi2.anki.observability.ChangeManager.publish
 import com.ichi2.anki.observability.ChangeManager.toOpChanges
-import com.ichi2.anki.utils.ext.ifNotZero
 import org.jetbrains.annotations.Contract
 import timber.log.Timber
 import java.lang.ref.WeakReference

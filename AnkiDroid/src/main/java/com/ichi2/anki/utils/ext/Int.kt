@@ -23,11 +23,6 @@
 
 package com.ichi2.anki.utils.ext
 
-inline fun Int.ifNotZero(block: (value: Int) -> Unit) {
-    if (this == 0) return
-    block(this)
-}
-
 /**
  * Ensures the number is within the provided range.
  *

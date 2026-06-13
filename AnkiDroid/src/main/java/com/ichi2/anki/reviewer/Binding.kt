@@ -20,8 +20,8 @@ import android.view.KeyEvent
 import androidx.annotation.VisibleForTesting
 import com.ichi2.anki.cardviewer.Gesture
 import com.ichi2.anki.common.utils.StringUtils
+import com.ichi2.anki.common.utils.ext.ifNotZero
 import com.ichi2.anki.common.utils.lastIndexOfOrNull
-import com.ichi2.anki.utils.ext.ifNotZero
 import timber.log.Timber
 import java.util.Objects
 

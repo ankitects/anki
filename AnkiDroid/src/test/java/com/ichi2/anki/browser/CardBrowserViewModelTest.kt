@@ -59,6 +59,7 @@ import com.ichi2.anki.browser.CardBrowserViewModel.ToggleSelectionState.SELECT_N
 import com.ichi2.anki.browser.RepositionCardsRequest.NoRepositionableCardsError
 import com.ichi2.anki.browser.RepositionCardsRequest.RepositionData
 import com.ichi2.anki.browser.search.SavedSearch
+import com.ichi2.anki.common.utils.ext.ifNotZero
 import com.ichi2.anki.export.ExportDialogFragment
 import com.ichi2.anki.flagCardForNote
 import com.ichi2.anki.libanki.BrowserConfig
@@ -82,7 +83,6 @@ import com.ichi2.anki.noteeditor.NoteEditorLauncher
 import com.ichi2.anki.servicelayer.NoteService
 import com.ichi2.anki.setFlagFilterSync
 import com.ichi2.anki.settings.Prefs
-import com.ichi2.anki.utils.ext.ifNotZero
 import com.ichi2.anki.utils.ext.ignoreAccentsInSearch
 import com.ichi2.testutils.IntentAssert
 import com.ichi2.testutils.JvmTest
