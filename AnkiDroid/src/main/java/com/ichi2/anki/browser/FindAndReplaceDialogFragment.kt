@@ -45,7 +45,7 @@ import com.ichi2.anki.databinding.FragmentFindReplaceBinding
 import com.ichi2.anki.libanki.NoteId
 import com.ichi2.anki.notetype.ManageNotetypes
 import com.ichi2.anki.snackbar.showSnackbar
-import com.ichi2.anki.ui.internationalization.toSentenceCase
+import com.ichi2.anki.ui.internationalization.sentenceCase
 import com.ichi2.anki.utils.ext.setFragmentResultListener
 import com.ichi2.anki.utils.openUrl
 import com.ichi2.utils.customView
@@ -84,7 +84,7 @@ class FindAndReplaceDialogFragment : AnalyticsDialogFragment() {
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
         binding = FragmentFindReplaceBinding.inflate(layoutInflater)
         setupLabels()
-        val title = TR.browsingFindAndReplace().toSentenceCase(R.string.sentence_find_and_replace)
+        val title = TR.sentenceCase.findAndReplace
         return AlertDialog
             .Builder(requireContext())
             .show {
@@ -129,7 +129,7 @@ class FindAndReplaceDialogFragment : AnalyticsDialogFragment() {
             binding.onlySelectedNotesCheckBox.isEnabled = noteIds.isNotEmpty()
             val fieldsNames =
                 buildList {
-                    add(TR.browsingAllFields().toSentenceCase(R.string.sentence_all_fields))
+                    add(TR.sentenceCase.allFields)
                     add(TR.editingTags())
                     addAll(withCol { fieldNamesForNoteIds(noteIds) })
                 }

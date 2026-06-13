@@ -39,7 +39,6 @@ import com.ichi2.anki.SingleFragmentActivity
 import com.ichi2.anki.databinding.FragmentMediaCheckBinding
 import com.ichi2.anki.launchCatchingTask
 import com.ichi2.anki.ui.internationalization.sentenceCase
-import com.ichi2.anki.ui.internationalization.toSentenceCase
 import com.ichi2.anki.withProgress
 import com.ichi2.utils.cancelable
 import com.ichi2.utils.message
@@ -110,7 +109,7 @@ class MediaCheckFragment : Fragment(R.layout.fragment_media_check) {
                     }
                     menu.findItem(R.id.action_empty_trash).apply {
                         isVisible = true
-                        title = TR.mediaCheckEmptyTrash().toSentenceCase(R.string.sentence_empty_trash)
+                        title = TR.sentenceCase.emptyTrash
                     }
                 }
 
@@ -150,10 +149,7 @@ class MediaCheckFragment : Fragment(R.layout.fragment_media_check) {
     private fun setupButtonListeners() {
         binding.tagMissingMediaButton.apply {
             // mediaCheckAddTag => "Tag Missing"
-            text =
-                TR
-                    .mediaCheckAddTag()
-                    .toSentenceCase(R.string.sentence_tag_missing)
+            text = TR.sentenceCase.tagMissing
 
             setOnClickListener {
                 launchCatchingTask {
@@ -169,7 +165,7 @@ class MediaCheckFragment : Fragment(R.layout.fragment_media_check) {
         }
 
         binding.deleteUsedMediaButton.apply {
-            text = TR.mediaCheckDeleteUnused().toSentenceCase(R.string.sentence_check_media_delete_unused)
+            text = TR.sentenceCase.checkMediaDeleteUnused
 
             setOnClickListener {
                 deleteConfirmationDialog()

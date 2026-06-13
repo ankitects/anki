@@ -31,7 +31,7 @@ import com.ichi2.anki.dialogs.customstudy.IncludedExcludedTagsAdapter.TagsSelect
 import com.ichi2.anki.dialogs.customstudy.IncludedExcludedTagsAdapter.TagsSelectionMode.Include
 import com.ichi2.anki.libanki.DeckId
 import com.ichi2.anki.snackbar.showSnackbar
-import com.ichi2.anki.ui.internationalization.toSentenceCase
+import com.ichi2.anki.ui.internationalization.sentenceCase
 import com.ichi2.utils.customView
 import com.ichi2.utils.negativeButton
 import com.ichi2.utils.positiveButton
@@ -76,14 +76,10 @@ class TagLimitFragment : DialogFragment() {
             }
         binding.excludeLabel.text =
             TR.customStudySelectTagsToExclude()
-        val title =
-            TR
-                .customStudySelectiveStudy()
-                .toSentenceCase(R.string.sentence_selective_study)
         val dialog =
             AlertDialog
                 .Builder(requireContext())
-                .title(text = title)
+                .title(text = TR.sentenceCase.selectiveStudy)
                 .customView(binding.root)
                 .negativeButton(R.string.dialog_cancel)
                 .positiveButton(R.string.dialog_ok, null)

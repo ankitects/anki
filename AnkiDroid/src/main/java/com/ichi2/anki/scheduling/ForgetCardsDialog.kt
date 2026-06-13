@@ -114,7 +114,6 @@ class ForgetCardsDialog : DialogFragment() {
 
         return MaterialAlertDialogBuilder(requireContext()).create {
             // BUG: this is 'Reset Card'/'Forget Card' in Anki Desktop (24.04)
-            // title(text = TR.actionsForgetCard().toSentenceCase(R.string.sentence_forget_cards))
             // "Reset card progress" is less explicit on the singular/plural dimension
             titleWithHelpIcon(stringRes = R.string.reset_card_dialog_title) {
                 requireContext().openUrl(R.string.link_help_forget_cards)

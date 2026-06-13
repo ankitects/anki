@@ -33,7 +33,7 @@ import com.ichi2.anki.launchCatchingTask
 import com.ichi2.anki.libanki.CardId
 import com.ichi2.anki.observability.undoableOp
 import com.ichi2.anki.snackbar.showSnackbar
-import com.ichi2.anki.ui.internationalization.toSentenceCase
+import com.ichi2.anki.ui.internationalization.sentenceCase
 import com.ichi2.anki.undoAndShowSnackbar
 import com.ichi2.anki.utils.ext.setCompoundDrawablesRelativeWithIntrinsicBoundsKt
 import com.ichi2.anki.withProgress
@@ -68,7 +68,7 @@ object GradeNowDialog {
         val adapter = GradeNowListAdapter(context, Grade.entries)
 
         MaterialAlertDialogBuilder(context).show {
-            title(text = TR.actionsGradeNow().toSentenceCase(context, R.string.sentence_grade_now))
+            title(text = with(context) { TR.sentenceCase.gradeNow })
             negativeButton(R.string.dialog_cancel)
             setAdapter(adapter) { dialog, which ->
                 val selectedGrade = adapter.getItem(which)!!

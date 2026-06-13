@@ -28,7 +28,7 @@ import com.ichi2.anki.CardBrowser
 import com.ichi2.anki.CollectionManager.TR
 import com.ichi2.anki.R
 import com.ichi2.anki.databinding.FragmentRepositionCardBinding
-import com.ichi2.anki.ui.internationalization.toSentenceCase
+import com.ichi2.anki.ui.internationalization.sentenceCase
 import com.ichi2.utils.create
 import com.ichi2.utils.customView
 import com.ichi2.utils.negativeButton
@@ -74,7 +74,7 @@ class RepositionCardFragment : DialogFragment() {
             text = TR.browsingShiftPositionOfExistingCards()
             isChecked = requireArguments().getBoolean(ARG_SHIFT)
         }
-        val title = TR.browsingRepositionNewCards().toSentenceCase(R.string.sentence_reposition_new_cards)
+        val title = TR.sentenceCase.repositionNewCards
         val dialog =
             AlertDialog.Builder(requireContext()).create {
                 title(text = title)

@@ -25,9 +25,8 @@ import androidx.test.espresso.matcher.ViewMatchers.isDisplayed
 import androidx.test.espresso.matcher.ViewMatchers.withText
 import com.ichi2.anki.CardBrowser
 import com.ichi2.anki.CollectionManager.TR
-import com.ichi2.anki.R
 import com.ichi2.anki.RobolectricTest
-import com.ichi2.anki.ui.internationalization.toSentenceCase
+import com.ichi2.anki.ui.internationalization.sentenceCase
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
@@ -40,10 +39,7 @@ class GradeNowDialogTest : RobolectricTest() {
         val cardId = addBasicNote().firstCard().id
         val cardBrowser = super.startRegularActivity<CardBrowser>()
 
-        val translatedTitle =
-            TR
-                .actionsGradeNow()
-                .toSentenceCase(cardBrowser, R.string.sentence_grade_now)
+        val translatedTitle = with(cardBrowser) { TR.sentenceCase.gradeNow }
 
         GradeNowDialog.showDialog(cardBrowser, listOf(cardId))
 
@@ -81,10 +77,7 @@ class GradeNowDialogTest : RobolectricTest() {
         val cardId = addBasicNote().firstCard().id
         val cardBrowser = super.startRegularActivity<CardBrowser>()
 
-        val translatedTitle =
-            TR
-                .actionsGradeNow()
-                .toSentenceCase(cardBrowser, R.string.sentence_grade_now)
+        val translatedTitle = with(cardBrowser) { TR.sentenceCase.gradeNow }
 
         GradeNowDialog.showDialog(cardBrowser, listOf(cardId))
 
@@ -99,10 +92,7 @@ class GradeNowDialogTest : RobolectricTest() {
     @Test
     fun dialogNotShownIfNoCardsSelected() {
         val cardBrowser = super.startRegularActivity<CardBrowser>()
-        val translatedTitle =
-            TR
-                .actionsGradeNow()
-                .toSentenceCase(cardBrowser, R.string.sentence_grade_now)
+        val translatedTitle = with(cardBrowser) { TR.sentenceCase.gradeNow }
 
         GradeNowDialog.showDialog(cardBrowser, emptyList())
 

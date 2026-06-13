@@ -111,6 +111,9 @@ object SentenceCase {
     context(_: Fragment)
     val emptyTrash get() = TR.mediaCheckEmptyTrash().toSentenceCase(R.string.sentence_empty_trash)
 
+    context(_: Context)
+    val gradeNow get() = TR.actionsGradeNow().toSentenceCase(R.string.sentence_grade_now)
+
     context(_: Fragment)
     val gradeNow get() = TR.actionsGradeNow().toSentenceCase(R.string.sentence_grade_now)
 
@@ -288,6 +291,67 @@ object SentenceCase {
 
     context(_: Fragment)
     val answerGood get() = TR.deckConfigAnswerGood().toSentenceCase(R.string.sentence_answer_good)
+
+    context(_: Fragment)
+    val selectiveStudy get() = TR.customStudySelectiveStudy().toSentenceCase(R.string.sentence_selective_study)
+
+    context(_: Fragment)
+    val chooseTags get() = TR.customStudyChooseTags().toSentenceCase(R.string.sentence_choose_tags)
+
+    context(_: Fragment)
+    val repositionNewCards get() = TR.browsingRepositionNewCards().toSentenceCase(R.string.sentence_reposition_new_cards)
+
+    context(_: Context)
+    val allFields get() = TR.browsingAllFields().toSentenceCase(R.string.sentence_all_fields)
+
+    context(_: Fragment)
+    val allFields get() = TR.browsingAllFields().toSentenceCase(R.string.sentence_all_fields)
+
+    context(_: Fragment)
+    val tagMissing get() = TR.mediaCheckAddTag().toSentenceCase(R.string.sentence_tag_missing)
+
+    context(_: Fragment)
+    val checkMediaDeleteUnused get() = TR.mediaCheckDeleteUnused().toSentenceCase(R.string.sentence_check_media_delete_unused)
+
+    // gesture preference titles: the (localized) title is provided by the caller; only the
+    // sentence-case resource is owned here.
+    // TODO: These AnkiDroid resources should be fixed
+    context(_: Fragment)
+    fun gestureToggleWhiteboard(title: String) = title.toSentenceCase(R.string.sentence_gesture_toggle_whiteboard)
+
+    context(_: Fragment)
+    fun gestureFlagRed(title: String) = title.toSentenceCase(R.string.sentence_gesture_flag_red)
+
+    context(_: Fragment)
+    fun gestureFlagOrange(title: String) = title.toSentenceCase(R.string.sentence_gesture_flag_orange)
+
+    context(_: Fragment)
+    fun gestureFlagGreen(title: String) = title.toSentenceCase(R.string.sentence_gesture_flag_green)
+
+    context(_: Fragment)
+    fun gestureFlagBlue(title: String) = title.toSentenceCase(R.string.sentence_gesture_flag_blue)
+
+    context(_: Fragment)
+    fun gestureFlagPink(title: String) = title.toSentenceCase(R.string.sentence_gesture_flag_pink)
+
+    context(_: Fragment)
+    fun gestureFlagTurquoise(title: String) = title.toSentenceCase(R.string.sentence_gesture_flag_turquoise)
+
+    context(_: Fragment)
+    fun gestureFlagPurple(title: String) = title.toSentenceCase(R.string.sentence_gesture_flag_purple)
+
+    context(_: Fragment)
+    fun gestureFlagRemove(title: String) = title.toSentenceCase(R.string.sentence_gesture_flag_remove)
+
+    // card stats window titles: the (localized) title is provided by the caller.
+    context(_: Context)
+    fun cardStatsCurrentCardStudy(title: String) = title.toSentenceCase(R.string.sentence_card_stats_current_card_study)
+
+    context(_: Context)
+    fun cardStatsCurrentCardBrowse(title: String) = title.toSentenceCase(R.string.sentence_card_stats_current_card_browse)
+
+    context(_: Context)
+    fun cardStatsPreviousCardStudy(title: String) = title.toSentenceCase(R.string.sentence_card_stats_previous_card_study)
 }
 
 /**

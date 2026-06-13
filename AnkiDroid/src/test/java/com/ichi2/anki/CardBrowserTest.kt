@@ -99,7 +99,7 @@ import com.ichi2.anki.servicelayer.PreferenceUpgradeService
 import com.ichi2.anki.servicelayer.PreferenceUpgradeService.PreferenceUpgrade.UpgradeBrowserColumns.Companion.LEGACY_COLUMN1_KEYS
 import com.ichi2.anki.servicelayer.PreferenceUpgradeService.PreferenceUpgrade.UpgradeBrowserColumns.Companion.LEGACY_COLUMN2_KEYS
 import com.ichi2.anki.settings.Prefs
-import com.ichi2.anki.ui.internationalization.toSentenceCase
+import com.ichi2.anki.ui.internationalization.sentenceCase
 import com.ichi2.testutils.IntentAssert
 import com.ichi2.testutils.common.Flaky
 import com.ichi2.testutils.common.OS
@@ -1312,7 +1312,7 @@ class CardBrowserTest : RobolectricTest() {
             assertNotNull(fieldSelectorAdapter, "Fields adapter was not set")
             assertEquals(2, fieldSelectorAdapter.count)
             assertEquals(
-                TR.browsingAllFields().toSentenceCase(targetContext, R.string.sentence_all_fields),
+                with(targetContext) { TR.sentenceCase.allFields },
                 fieldSelectorAdapter.getItem(0),
             )
             assertEquals(TR.editingTags(), fieldSelectorAdapter.getItem(1))
@@ -1339,7 +1339,7 @@ class CardBrowserTest : RobolectricTest() {
             assertEquals(4, fieldSelectorAdapter.count)
             val defaultFields =
                 listOf(
-                    TR.browsingAllFields().toSentenceCase(targetContext, R.string.sentence_all_fields),
+                    with(targetContext) { TR.sentenceCase.allFields },
                     TR.editingTags(),
                 )
             assertEquals(defaultFields + listOf("Bfield0", "Bfield1"), fieldSelectorAdapter.getAdapterData())

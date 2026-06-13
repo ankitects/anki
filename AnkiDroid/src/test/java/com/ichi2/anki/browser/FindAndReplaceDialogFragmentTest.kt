@@ -35,7 +35,7 @@ import com.ichi2.anki.R
 import com.ichi2.anki.RobolectricTest
 import com.ichi2.anki.libanki.Note
 import com.ichi2.anki.libanki.NoteId
-import com.ichi2.anki.ui.internationalization.toSentenceCase
+import com.ichi2.anki.ui.internationalization.sentenceCase
 import kotlinx.coroutines.test.advanceUntilIdle
 import org.hamcrest.CoreMatchers.equalTo
 import org.hamcrest.MatcherAssert.assertThat
@@ -167,7 +167,7 @@ class FindAndReplaceDialogFragmentTest : RobolectricTest() {
 
     private fun Context.getDefaultTargets() =
         listOf(
-            TR.browsingAllFields().toSentenceCase(this, R.string.sentence_all_fields),
+            with(this) { TR.sentenceCase.allFields },
             TR.editingTags(),
         )
 }

@@ -36,7 +36,6 @@ import com.ichi2.anki.reviewer.MappableAction
 import com.ichi2.anki.reviewer.MappableBinding.Companion.toPreferenceString
 import com.ichi2.anki.settings.Prefs
 import com.ichi2.anki.ui.internationalization.sentenceCase
-import com.ichi2.anki.ui.internationalization.toSentenceCase
 import com.ichi2.anki.utils.ext.sharedPrefs
 import com.ichi2.preferences.ControlPreference
 import com.ichi2.preferences.ReviewerControlPreference
@@ -146,31 +145,31 @@ class ControlsSettingsFragment :
             it.dialogTitle = preferenceTitle
         }
         findPreference<ControlPreference>(getString(R.string.toggle_whiteboard_command_key))?.let {
-            it.title = getString(R.string.gesture_toggle_whiteboard).toSentenceCase(R.string.sentence_gesture_toggle_whiteboard)
+            it.title = TR.sentenceCase.gestureToggleWhiteboard(getString(R.string.gesture_toggle_whiteboard))
         }
         findPreference<ControlPreference>(getString(R.string.flag_red_command_key))?.let {
-            it.title = getString(R.string.gesture_flag_red).toSentenceCase(R.string.sentence_gesture_flag_red)
+            it.title = TR.sentenceCase.gestureFlagRed(getString(R.string.gesture_flag_red))
         }
         findPreference<ControlPreference>(getString(R.string.flag_orange_command_key))?.let {
-            it.title = getString(R.string.gesture_flag_orange).toSentenceCase(R.string.sentence_gesture_flag_orange)
+            it.title = TR.sentenceCase.gestureFlagOrange(getString(R.string.gesture_flag_orange))
         }
         findPreference<ControlPreference>(getString(R.string.flag_green_command_key))?.let {
-            it.title = getString(R.string.gesture_flag_green).toSentenceCase(R.string.sentence_gesture_flag_green)
+            it.title = TR.sentenceCase.gestureFlagGreen(getString(R.string.gesture_flag_green))
         }
         findPreference<ControlPreference>(getString(R.string.flag_blue_command_key))?.let {
-            it.title = getString(R.string.gesture_flag_blue).toSentenceCase(R.string.sentence_gesture_flag_blue)
+            it.title = TR.sentenceCase.gestureFlagBlue(getString(R.string.gesture_flag_blue))
         }
         findPreference<ControlPreference>(getString(R.string.flag_pink_command_key))?.let {
-            it.title = getString(R.string.gesture_flag_pink).toSentenceCase(R.string.sentence_gesture_flag_pink)
+            it.title = TR.sentenceCase.gestureFlagPink(getString(R.string.gesture_flag_pink))
         }
         findPreference<ControlPreference>(getString(R.string.flag_turquoise_command_key))?.let {
-            it.title = getString(R.string.gesture_flag_turquoise).toSentenceCase(R.string.sentence_gesture_flag_turquoise)
+            it.title = TR.sentenceCase.gestureFlagTurquoise(getString(R.string.gesture_flag_turquoise))
         }
         findPreference<ControlPreference>(getString(R.string.flag_purple_command_key))?.let {
-            it.title = getString(R.string.gesture_flag_purple).toSentenceCase(R.string.sentence_gesture_flag_purple)
+            it.title = TR.sentenceCase.gestureFlagPurple(getString(R.string.gesture_flag_purple))
         }
         findPreference<ControlPreference>(getString(R.string.remove_flag_command_key))?.let {
-            it.title = getString(R.string.gesture_flag_remove).toSentenceCase(R.string.sentence_gesture_flag_remove)
+            it.title = TR.sentenceCase.gestureFlagRemove(getString(R.string.gesture_flag_remove))
         }
         findPreference<ControlPreference>(getString(R.string.bury_card_command_key))?.let {
             it.title = TR.sentenceCase.buryCard
