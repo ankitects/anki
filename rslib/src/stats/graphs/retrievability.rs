@@ -2,7 +2,6 @@
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 use anki_proto::stats::graphs_response::Retrievability;
-use fsrs::FSRS;
 use fsrs::FSRS5_DEFAULT_DECAY;
 
 use crate::prelude::TimestampSecs;
@@ -20,7 +19,6 @@ impl GraphsContext {
             now: TimestampSecs::now(),
             next_day_at: self.next_day_start,
         };
-        let fsrs = FSRS::new(None).unwrap();
         // note id -> (sum, count)
         let mut note_retrievability: std::collections::HashMap<i64, (f32, u32)> =
             std::collections::HashMap::new();
@@ -31,9 +29,9 @@ impl GraphsContext {
             entry.1 += 1;
             if let Some(state) = card.memory_state {
                 let elapsed_seconds = card.seconds_since_last_review(&timing).unwrap_or_default();
-                let r = fsrs.current_retrievability_seconds(
+                let r = fsrs::current_retrievability(
                     state.into(),
-                    elapsed_seconds,
+                    elapsed_seconds as f32 / 86_400.0,
                     card.decay.unwrap_or(FSRS5_DEFAULT_DECAY),
                 );
 
