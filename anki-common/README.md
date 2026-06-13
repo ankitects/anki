@@ -5,6 +5,8 @@ This module exists to break circular dependencies when `:AnkiDroid` is split int
 ## What belongs here
 
 - Common types and features which depend on `:libanki` and are not part of [`pylib`](https://github.com/ankitects/anki/blob/main/pylib/)
+- Common types which depend on `:compat`.
+  - To ensure there's no dependency from `:common` -> `:compat`.
 
 ## What does not belong here
 

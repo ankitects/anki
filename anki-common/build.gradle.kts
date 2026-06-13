@@ -16,7 +16,9 @@ configure<LibraryExtension> {
 
 dependencies {
     implementation(project(":common"))
+    implementation(project(":common:android"))
     implementation(project(":libanki"))
+    implementation(project(":compat"))
 
     addAnkiBackendDependencies(project)
 
