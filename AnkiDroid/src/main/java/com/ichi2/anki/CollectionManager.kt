@@ -49,9 +49,9 @@ import net.ankiweb.rsdroid.Backend
 import net.ankiweb.rsdroid.BackendException
 import net.ankiweb.rsdroid.BackendFactory
 import net.ankiweb.rsdroid.Translations
-import okio.withLock
 import timber.log.Timber
 import java.util.concurrent.locks.ReentrantLock
+import kotlin.concurrent.withLock
 
 object CollectionManager {
     /**
