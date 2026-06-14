@@ -12,6 +12,7 @@ configure<LibraryExtension> {
     // namespace must be unique for resources generation.
     namespace = "com.ichi2.anki.ankicommon"
     buildFeatures.buildConfig = false
+    testFixtures.enable = true
 }
 
 dependencies {
@@ -25,4 +26,6 @@ dependencies {
     implementation(libs.androidx.activity)
     implementation(libs.androidx.fragment.ktx)
     implementation(libs.jakewharton.timber)
+
+    testFixturesImplementation(libs.androidx.test.core)
 }
