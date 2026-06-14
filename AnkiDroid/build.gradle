@@ -532,6 +532,7 @@ dependencies {
     testImplementation testFixtures(project(":libanki"))
     testImplementation testFixtures(project(":common"))
     testImplementation testFixtures(project(":compat"))
+    testImplementation testFixtures(project(":anki-common"))
 
     // A path for a testing library which provide Parameterized Test
     testImplementation libs.junit.jupiter

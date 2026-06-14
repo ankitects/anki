@@ -19,11 +19,11 @@ import android.content.Context
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.commitNow
-import androidx.test.core.app.ActivityScenario
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.ichi2.anki.R
 import com.ichi2.anki.RobolectricTest
 import com.ichi2.anki.common.destinations.PreferencesDestination
+import com.ichi2.anki.common.destinations.launchActivity
 import com.ichi2.anki.libanki.exception.ConfirmModSchemaException
 import com.ichi2.anki.preferences.HeaderFragment.Companion.getHeaderKeyForFragment
 import com.ichi2.anki.preferences.PreferenceTestUtils.getAttrFromXml
@@ -81,7 +81,7 @@ class PreferencesTest : RobolectricTest() {
     /** checks if any of the Preferences fragments throws while being created */
     @Test
     fun fragmentsDoNotThrowOnCreation() {
-        ActivityScenario.launch<PreferencesActivity>(PreferencesDestination.Root.toIntent(targetContext)).use { activityScenario ->
+        launchActivity<PreferencesActivity>(PreferencesDestination.Root).use { activityScenario ->
             activityScenario.onActivity { activity ->
                 PreferenceTestUtils.getAllPreferencesFragments(activity).forEach {
                     activity.supportFragmentManager.commitNow {
