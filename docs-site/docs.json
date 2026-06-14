@@ -23,14 +23,13 @@
                     {
                         "group": "Desktop Manual",
                         "pages": [
-                            "manual/index",
+                          "manual/getting-started",
                             "manual/background",
                             {
                                 "group": "Platform Notes",
                                 "icon": "computer",
                                 "pages": [
                                     "manual/platform/intro",
-                                    "manual/platform/mac/installing",
                                     {
                                         "group": "Windows",
                                         "icon": "microsoft",
@@ -50,6 +49,7 @@
                                         "icon": "apple",
                                         "pages": [
                                             "manual/platform/mac/intro",
+                                            "manual/platform/mac/installing",
                                             "manual/platform/mac/display-issues"
                                         ]
                                     },
@@ -70,7 +70,6 @@
                                 ]
                             },
                             "manual/platform/linux/distro-packages",
-                            "manual/getting-started",
                             "manual/getting-help",
                             "manual/studying",
                             "manual/editing",
@@ -112,7 +111,8 @@
                             "manual/troubleshooting",
                             "manual/sync-server",
                             "manual/misc"
-                        ]
+                        ],
+                        "expanded": true
                     }
                 ]
             },
