@@ -286,7 +286,10 @@ class CardBrowserViewModelTest : JvmTest() {
 
             assertThat("All decks should be selected", hasSelectedAllDecks())
 
-            val addIntent = NoteEditorLauncher.AddNoteFromCardBrowser(this).toIntent(mockIt())
+            val addIntent =
+                NoteEditorLauncher
+                    .AddNoteFromCardBrowser(searchTerms = searchTerms, deckId = lastDeckId)
+                    .toIntent(mockIt())
             IntentAssert.doesNotHaveExtra(addIntent.extras, NoteEditorFragment.EXTRA_DID)
         }
 

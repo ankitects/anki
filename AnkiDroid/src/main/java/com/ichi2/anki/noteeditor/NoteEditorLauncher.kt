@@ -26,7 +26,6 @@ import com.ichi2.anki.AnkiActivity
 import com.ichi2.anki.NoteEditorActivity
 import com.ichi2.anki.NoteEditorFragment
 import com.ichi2.anki.NoteEditorFragment.Companion.NoteEditorCaller
-import com.ichi2.anki.browser.CardBrowserViewModel
 import com.ichi2.anki.libanki.CardId
 import com.ichi2.anki.libanki.DeckId
 import com.ichi2.anki.utils.Destination
@@ -99,18 +98,20 @@ sealed interface NoteEditorLauncher : Destination {
 
     /**
      * Represents adding a note to the NoteEditor from the card browser.
-     * @property viewModel The view model containing data from the card browser.
+     * @property searchTerms The current search terms from the card browser.
+     * @property deckId The card browser's last deck, used as the deck for the new note.
      */
     data class AddNoteFromCardBrowser(
-        val viewModel: CardBrowserViewModel,
+        val searchTerms: String,
+        val deckId: DeckId?,
     ) : NoteEditorLauncher {
         override fun toBundle(): Bundle =
             Bundle().apply {
                 putInt(NoteEditorFragment.EXTRA_CALLER, NoteEditorCaller.CARDBROWSER_ADD.value)
-                putString(NoteEditorFragment.EXTRA_TEXT_FROM_SEARCH_VIEW, viewModel.searchTerms)
+                putString(NoteEditorFragment.EXTRA_TEXT_FROM_SEARCH_VIEW, searchTerms)
                 putBoolean(NoteEditorFragment.IN_CARD_BROWSER_ACTIVITY, false)
-                if (viewModel.lastDeckId?.let { id -> id > 0 } == true) {
-                    putLong(NoteEditorFragment.EXTRA_DID, viewModel.lastDeckId!!)
+                if (deckId != null && deckId > 0) {
+                    putLong(NoteEditorFragment.EXTRA_DID, deckId)
                 }
             }
     }
