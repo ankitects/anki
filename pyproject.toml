@@ -28,6 +28,8 @@ dev = [
   "types-pywin32",
   "briefcase>=0.4.2",
   "coverage>=7.13.5",
+  "complexipy>=5.5.0",
+  "cogapp>=3.6.0",
 ]
 docs = [
   "sphinx",

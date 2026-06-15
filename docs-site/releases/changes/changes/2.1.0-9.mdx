@@ -1,0 +1,384 @@
+---
+title: "Changes in 2.1.0 to 2.1.9"
+---
+
+
+
+## Changes in 2.1.9
+
+Released 2019-02-20, build ae67c976.
+
+- Update standard build to latest toolkit version.
+
+- Hardware acceleration defaults to off again on Windows/Linux, due to
+  the issues it was causing some users. If you were not experiencing
+  any issues, turning hardware acceleration back on in the preferences
+  screen is recommended.
+
+- Various statistics fixes for the V2 scheduler, including an
+  automatic remapping of button 2/3 in the review history when moving
+  back and forth between scheduler versions so the "answer buttons"
+  graph displays correctly.
+
+- Fix BR tags being included in empty fields (thanks to David and
+  zjosua)
+
+- Optimize card template repositioning (thanks to Arthur)
+
+- Fix a crash when copying/cutting with an empty selection (thanks to
+  David)
+
+- Avoid screen flash when undoing reviews.
+
+- Make sure info/warning dialogs appear on top.
+
+- Fixed an issue with just-typed text not being saved when using the
+  mouse to save/add a card.
+
+- Added support for \{\{CardFlag\}\}, which is either empty, or in the
+  format "flagN" where N is 1-4.
+
+- Fix bulk flag changes in Browse screen not syncing.
+
+- Fix advanced menu in editor not showing shortcut keys.
+
+- When UI fails to load after resuming computer from sync, show a
+  tooltip and automatically refresh.
+
+- Clean up old mplayer instances after a crash so that profile
+  renaming works.
+
+- Fix add-on list not refreshing when toggling enabled in latest
+  toolkit.
+
+- Fix cursor jumping on first click in "Edit Current" area on Windows.
+
+- Preserve whitespace when pasting plain text.
+
+- Prevent errors caused by a timer firing after collection is
+  unloaded.
+
+- Ensure a full sync is forced when restoring from a backup.
+
+- Ensure full window is on screen when displaying windows on a changed
+  screen layout.
+
+- Improvements to the add-ons, debug console, and error screens
+  (thanks to Glutanimate)
+
+- Ensure \{\{Deck\}\} shows the correct deck when adding (thanks to
+  Arthur)
+
+- Ensure windows don’t get shown off-screen.
+
+- Remember add-on window size and position.
+
+## Changes in 2.1.8
+
+Released 2019-01-02, build 71e0c880.
+
+- Fix startup on Windows 8.
+
+- Fix field content appearing under editor buttons.
+
+- Better handle an error when recording.
+
+- Fix improper handling of collections with deck errors.
+
+- Fix duplicate deck names being created due to text encoding.
+
+- Fix gtk2 theme and fcitx module not being included.
+
+- Detect nouveau graphics drivers and automatically switch to software
+  rendering.
+
+## Changes in 2.1.7
+
+Released 2018-12-17.
+
+- Fix "QPushButton has been deleted" error messages after a problem
+  occurs changing note types.
+
+- Fix errors during "Check Database" that are just a byproduct of a
+  previous operation that failed.
+
+- Fix problems searching for some non-Latin text in decks/note type
+  names.
+
+- Ensure cgi and uuid modules are available to add-ons.
+
+- Improvements to the Windows installer.
+
+- Automatically restart mpv if it stops responding.
+
+- Don’t convert non-Latin characters in add-on configuration to
+  difficult-to-read escape codes.
+
+- Add a bottom border to the menubar on Windows 10.
+
+## Changes in 2.1.6
+
+Released 2018-12-10.
+
+Downloads are now split into a standard and alternate version.
+
+**The standard version**:
+
+- Is built with the latest toolkit, which fixes various issues.
+
+- Changes the undo shortcut back to Ctrl+Z or Command+Z like Anki 2.0.
+
+- Includes a separate anki-console.exe executable in the Windows build
+  that may be useful for add-on authors.
+
+- Includes support for the fcitx input method and a gtk2 theme in the
+  Linux build.
+
+You can switch between the standard and alternate 2.1.6 without
+problems. If you move back to a previous Anki 2.1 release, your sync
+login details and window positions will be lost, and will need to be set
+again.
+
+**The standard version has updated requirements**:
+
+- The Windows build only supports 64 bit Windows 7 or later, and will
+  not run on a 32 bit install.
+
+- The Mac build requires macOS 10.12 or later.
+
+- The Linux build requires a Linux distribution from approximately
+  2016 or later.
+
+The alternate version is similar to previous Anki 2.1 releases, and is
+built with an older toolkit. It will run on some older systems that the
+standard version will not, but as it is not as up to date, it may be
+missing bugfixes and security improvements that the standard version
+includes.
+
+**The alternate version will run on**:
+
+- Windows 7 32 bit or 64 bit installs
+
+- Mac 10.10 or later.
+
+- A Linux distro from around 2014 or later.
+
+**In addition to the toolkit upgrade, there have been some changes in
+Anki itself**:
+
+- Improvements to the Browse screen and flagging:
+
+  - Search text is normalized, which fixes problems searching for
+```text
+unicode characters with multiple possible encodings.
+```
+
+  - The selection is now partially transparent, allowing you to see
+```text
+the underyling colours of the rows.
+```
+
+  - The screen doesn’t scroll when performing actions that don’t
+```text
+change the selection count.
+```
+
+  - Flags now toggle on and off, and the separate clear flag action
+```text
+has been removed.
+```
+
+  - The second flag is now orange instead of purple.
+
+  - Find&replace now only shows fields relevant to the notes you’ve
+```text
+selected, and is case insensitive.
+```
+
+  - Fix card list not updating when editing HTML.
+
+- Importing apkgs is now more verbose about how notes have been
+  handled.
+
+- Prevent errors caused by the user adding a field reference to itself
+  on a field.
+
+- Better handle issues with the deck list, such as decks that are
+  missing a parent deck.
+
+- Anki should now be able to function even if a system proxy is
+  configured for localhost connections.
+
+- Fix font size being copied when pasting between Anki fields with
+  bold text.
+
+- Pasting a link with shift held down now creates a clickable link.
+
+- Fixed an issue with the bulk remove tags option where tags with
+  similar names could be removed as well.
+
+- Fixed an error that occurred with very long filenames on Windows.
+
+- Fixed an issue running latex commands on some Linux installs.
+
+- The Browse screen’s sidebar now defaults to on.
+
+- Fixed a race condition that could cause two copies of Anki to open.
+
+- When adding media to cards, Anki now will automatically rename the
+  filenames if they’re too long.
+
+- The experimental scheduler now regularly checks if new learning
+  cards have become due.
+
+- Handle invalid add-on config (thanks to Arthur).
+
+- Enforce template ordering when card templates are reordered after
+  card creation (thanks to Arthur).
+
+- Don’t change deck when Esc pressed in deck chooser (thanks to
+  David).
+
+- Fix a problem on initial startup when English not the default
+  language.
+
+- Fix busy cursor showing in import results screen.
+
+- Fix content overlap when add-ons have added many editor buttons.
+
+- Don’t change current note when reopening editor from review screen
+  (thanks to Arthur).
+
+- A fix for running on Python 3.7 (thanks to Alexey).
+
+- Restore the tooltip for the Fields and Cards buttons in editor.
+
+- A possible fix for 'database is locked' errors on Windows.
+
+## Changes in 2.1.5
+
+Released 2018-10-01.
+
+- Use selected answer button instead of default when enter/space
+  pressed.
+
+- Change undo shortcut in browse screen to avoid conflict with editing
+  functionality.
+
+- Ignore standard mpv config file location in favour of Anki data
+  folder.
+
+- Fix importing of .apkg files when interface in Dutch.
+
+- Fix translations not working on Linux after 'make install'.
+
+- Support newlines in type:cloze, and treat them as spaces.
+
+- Add browser.rowChanged hook for add-on authors.
+
+- Possible fix for some 'database is locked' errors.
+
+- Fix errors on startup when deck given an invalid name.
+
+- Fix sorting not working when field contains only a media reference.
+
+- Fix 'access denied' error not being caught properly.
+
+- Fix exporting of v2 colpkg when interface in non-English language.
+
+- Fix conditional replacement not ignoring HTML formatting.
+
+- Fix question fade time being forced when hardware acceleration on.
+
+- Add a small margin between buttons during review.
+
+- V2 scheduler now respects maximum interval even if it will lead to
+  all buttons giving the same interval.
+
+- Tweak margins in overview and answer button areas.
+
+- Ignore UI events that are received after collection has been closed.
+
+- Don’t try to import .anki(2) files as text.
+
+- Added support for Lojban (thanks to giqtaqisi)
+
+## Changes in 2.1.4
+
+Released 2018-09-05.
+
+- Fix deck list getting stuck when creating filtered deck.
+
+- Prevent local cards being overwritten when accidentally downloading
+  empty AnkiWeb collection.
+
+- Favour mark/flag colour over suspended colour in browse screen.
+
+- Fix new day calculation in experimental scheduler.
+
+- Linux theme tweaks (thanks to Glutanimate).
+
+- Disable view page button for locally added add-ons (thanks to
+  upday7).
+
+## Changes in 2.1.3
+
+Released 2018-08-30.
+
+- Hardware acceleration can now be toggled in the preferences screen
+  on Windows/Linux.
+
+- Disable question fade-in during review when hardware acceleration is
+  off.
+
+- Fix some add-ons leaving a blank space in the main window when Anki
+  restarted.
+
+- Fix file associations on macOS.
+
+- Fix some unwanted text being included when pasting.
+
+- Fix shortcut keys like space from repeatedly triggering when held
+  down.
+
+## Changes in 2.1.2
+
+Released 2018-08-20.
+
+- Add missing .apkg and .colpkg file associations.
+
+- Improve handling of images inlined in fields.
+
+## Changes in 2.1.1
+
+Released 2018-08-09.
+
+- Fixed exporting of .apkg files with regular scheduler.
+
+- Work around Anki failing to start on some Windows machines.
+
+- Fix dialogs failing to show in tabs when using macOS’s full screen
+  mode.
+
+- Extract embedded images when pasting HTML.
+
+- Fix images copied from Finder not pasting properly.
+
+- When the sort field is set to RTL, display in RTL order in the
+  browser.
+
+- Update toolkit version on Windows.
+
+## Changes in 2.1.0
+
+Released 2018-08-06.
+
+The first stable release of Anki 2.1.
+
+Changes from the previous release candidate:
+
+- Don’t unmaximize when reshowing browse screen.
+
+- Add \*.webm to attach media file selector.
+
+- Add shortcut key for MathJax mhchem support.
