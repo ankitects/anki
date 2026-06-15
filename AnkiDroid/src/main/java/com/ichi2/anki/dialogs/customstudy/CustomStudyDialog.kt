@@ -58,7 +58,6 @@ import com.ichi2.anki.observability.undoableOp
 import com.ichi2.anki.snackbar.showSnackbar
 import com.ichi2.anki.ui.internationalization.sentenceCase
 import com.ichi2.anki.ui.internationalization.toSentenceCase
-import com.ichi2.anki.utils.ext.bundleOfNotNull
 import com.ichi2.anki.utils.ext.dismissAllDialogFragments
 import com.ichi2.anki.utils.ext.getIntOrNull
 import com.ichi2.anki.utils.ext.sharedPrefs
@@ -735,9 +734,9 @@ class CustomStudyDialog : AnalyticsDialogFragment() {
         fun createInstance(deckId: DeckId): CustomStudyDialog =
             CustomStudyDialog().apply {
                 arguments =
-                    bundleOfNotNull(
-                        CustomStudyViewModel.KEY_DID to deckId,
-                    )
+                    Bundle().apply {
+                        putLong(CustomStudyViewModel.KEY_DID, deckId)
+                    }
             }
 
         /**
@@ -752,10 +751,10 @@ class CustomStudyDialog : AnalyticsDialogFragment() {
         ): CustomStudyDialog =
             CustomStudyDialog().apply {
                 arguments =
-                    bundleOfNotNull(
-                        CustomStudyViewModel.KEY_DID to deckId,
-                        ARG_SUB_DIALOG_ID to contextMenuAttribute.ordinal,
-                    )
+                    Bundle().apply {
+                        putLong(CustomStudyViewModel.KEY_DID, deckId)
+                        putInt(ARG_SUB_DIALOG_ID, contextMenuAttribute.ordinal)
+                    }
             }
 
         /**

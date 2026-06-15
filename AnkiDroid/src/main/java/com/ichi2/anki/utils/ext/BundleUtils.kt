@@ -18,7 +18,6 @@ package com.ichi2.anki.utils.ext
 
 import android.os.Bundle
 import androidx.core.os.BundleCompat
-import androidx.core.os.bundleOf
 
 /**
  * Retrieves a [Long] value from a [Bundle] using a key, returns null if not found
@@ -106,21 +105,6 @@ inline fun <reified T> Bundle.requireParcelable(key: String): T {
         "Parcelable in '$key' was null"
     }
 }
-
-/**
- * Returns a new [Bundle] with the given key/value pairs as elements.
- *
- * Convenience method, allowing a `null` pair to mean 'exclude from the bundle'
- *
- * ```kotlin
- * bundleOfNotNull(
- *     optional?.let { KEY to it }
- * )
- * ```
- *
- * @throws IllegalArgumentException When a value is not a supported type of [Bundle].
- */
-fun bundleOfNotNull(vararg pairs: Pair<String, Any>?): Bundle = bundleOf(*pairs.mapNotNull { it }.toTypedArray())
 
 /**
  * Identical behavior with [BundleCompat.getParcelable] but simplifies the call sites which are
