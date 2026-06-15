@@ -10,6 +10,7 @@ use ninja_gen::input::BuildInput;
 use ninja_gen::inputs;
 use ninja_gen::python::python_format;
 use ninja_gen::python::PythonEnvironment;
+use ninja_gen::python::PythonTest;
 use ninja_gen::python::PythonTypecheck;
 use ninja_gen::python::RuffCheck;
 use ninja_gen::Build;
@@ -54,7 +55,14 @@ fn normalize_version(version: &str) -> String {
 }
 
 pub fn setup_venv(build: &mut Build) -> Result<()> {
-    let extra_binary_exports = &["mypy", "ruff", "pytest", "protoc-gen-mypy", "complexipy"];
+    let extra_binary_exports = &[
+        "mypy",
+        "ruff",
+        "pytest",
+        "protoc-gen-mypy",
+        "complexipy",
+        "cog",
+    ];
     build.add_action(
         "pyenv",
         PythonEnvironment {
@@ -172,6 +180,14 @@ impl BuildAction for BuildWheel {
 
 pub fn check_python(build: &mut Build) -> Result<()> {
     python_format(build, "tools", inputs![glob!("tools/**/*.py")])?;
+    build.add_action(
+        "check:pytest:tools",
+        PythonTest {
+            folder: "tools/tests",
+            python_path: &["tools"],
+            deps: inputs![glob!["tools/**/*.py"]],
+        },
+    )?;
 
     build.add_action(
         "check:mypy",

@@ -1,0 +1,1818 @@
+---
+title: "Hooks Reference"
+description: "A generated reference of all hooks and filters available in Anki for add-on development."
+---
+
+This page lists all available hooks in Anki. It is generated from [`pylib/tools/genhooks.py`](https://github.com/ankitects/anki/blob/main/pylib/tools/genhooks.py) and [`qt/tools/genhooks_gui.py`](https://github.com/ankitects/anki/blob/main/qt/tools/genhooks_gui.py).
+
+See [Hooks & Filters](/addons/hooks-and-filters) for usage instructions.
+
+## Backend Hooks (`anki.hooks`)
+
+{/* <<<cog
+from tools.mintlify_hooks import render_hooks
+cog.out(render_hooks("pylib/tools/genhooks.py"))
+>>> */}
+### `card_odue_was_invalid`
+
+No arguments.
+
+No docstring.
+
+---
+
+### `schema_will_change`
+
+**Args:** <code>proceed: bool</code>\
+**Returns:** <code>bool</code>
+
+No docstring.
+
+---
+
+### `notes_will_be_deleted`
+
+**Args:** <code>col: <a href='https://dev-docs.ankiweb.net/en/latest/autoapi/anki/collection#anki.collection.Collection'>anki.collection.Collection</a></code>, <code>ids: Sequence[<a href='https://dev-docs.ankiweb.net/en/latest/autoapi/anki/notes#anki.notes.NoteId'>anki.notes.NoteId</a>]</code>
+
+No docstring.
+
+---
+
+### `note_will_be_added`
+
+**Args:** <code>col: <a href='https://dev-docs.ankiweb.net/en/latest/autoapi/anki/collection#anki.collection.Collection'>anki.collection.Collection</a></code>, <code>note: <a href='https://dev-docs.ankiweb.net/en/latest/autoapi/anki/notes#anki.notes.Note'>anki.notes.Note</a></code>, <code>deck_id: <a href='https://dev-docs.ankiweb.net/en/latest/autoapi/anki/decks#anki.decks.DeckId'>anki.decks.DeckId</a></code>
+
+Allows modifying a note before it's added to the collection.
+
+This hook may be called both when users use the Add screen, and when
+add-ons like AnkiConnect add notes. It is not called when importing. If
+you wish to alter the Add screen, use gui_hooks.add_cards_will_add_note
+instead.
+
+---
+
+### `media_files_did_export`
+
+**Args:** <code>count: int</code>
+
+Only used by legacy .apkg exporter. Will be deprecated in the future.
+
+---
+
+### `legacy_export_progress`
+
+**Args:** <code>progress: str</code>
+
+Temporary hook used in transition to new import/export code.
+
+---
+
+### `exporters_list_created`
+
+**Args:** <code>exporters: list[tuple[str, Any]]</code>
+
+No docstring.
+
+---
+
+### `media_file_filter`
+
+**Args:** <code>txt: str</code>\
+**Returns:** <code>str</code>
+
+Allows manipulating the file path that media will be read from
+
+---
+
+### `field_filter`
+
+**Args:** <code>field_text: str</code>, <code>field_name: str</code>, <code>filter_name: str</code>, <code>ctx: <a href='https://dev-docs.ankiweb.net/en/latest/autoapi/anki/template#anki.template.TemplateRenderContext'>anki.template.TemplateRenderContext</a></code>\
+**Returns:** <code>str</code>
+
+Allows you to define custom `{{filters:..}}`
+
+Your add-on can check filter_name to decide whether it should modify
+field_text or not before returning it.
+
+---
+
+### `note_will_flush`
+
+**Args:** <code>note: Note</code>
+
+Allow to change a note before it is added/updated in the database.
+
+---
+
+### `card_will_flush`
+
+**Args:** <code>card: Card</code>
+
+Allow to change a card before it is added/updated in the database.
+
+---
+
+### `card_did_render`
+
+**Args:** <code>output: <a href='https://dev-docs.ankiweb.net/en/latest/autoapi/anki/template#anki.template.TemplateRenderOutput'>anki.template.TemplateRenderOutput</a></code>, <code>ctx: <a href='https://dev-docs.ankiweb.net/en/latest/autoapi/anki/template#anki.template.TemplateRenderContext'>anki.template.TemplateRenderContext</a></code>
+
+Can modify the resulting text after rendering completes.
+
+---
+
+### `importing_importers`
+
+**Args:** <code>importers: list[tuple[str, Any]]</code>
+
+Allows updating the list of importers.
+The resulting list is not saved and should be changed each time the
+filter is called.
+
+NOTE: Updates to the import/export code are expected in the coming
+months, and this hook may be replaced with another solution at that
+time. Tracked on https://github.com/ankitects/anki/issues/1018
+
+---
+
+### `deck_added` _(Obsolete)_
+
+**Args:** <code>deck: <a href='https://dev-docs.ankiweb.net/en/latest/autoapi/anki/decks#anki.decks.DeckDict'>anki.decks.DeckDict</a></code>
+
+<Warning>
+  Obsolete, do not use.
+</Warning>
+
+---
+
+### `note_type_added` _(Obsolete)_
+
+**Args:** <code>notetype: <a href='https://dev-docs.ankiweb.net/en/latest/autoapi/anki/models#anki.models.NotetypeDict'>anki.models.NotetypeDict</a></code>
+
+<Warning>
+  Obsolete, do not use.
+</Warning>
+
+---
+
+### `sync_stage_did_change` _(Obsolete)_
+
+**Args:** <code>stage: str</code>
+
+<Warning>
+  Obsolete, do not use.
+</Warning>
+
+---
+
+### `sync_progress_did_change` _(Obsolete)_
+
+**Args:** <code>msg: str</code>
+
+<Warning>
+  Obsolete, do not use.
+</Warning>
+{/* <<<end>>> */}
+
+## GUI Hooks (`aqt.gui_hooks`)
+
+{/* <<<cog
+from tools.mintlify_hooks import render_hooks
+cog.out(render_hooks("qt/tools/genhooks_gui.py"))
+>>> */}
+### `overview_did_refresh`
+
+**Args:** <code>overview: <a href='https://dev-docs.ankiweb.net/en/latest/autoapi/aqt/overview#aqt.overview.Overview'>aqt.overview.Overview</a></code>
+
+Allow to update the overview window. E.g. add the deck name in the
+title.
+
+---
+
+### `overview_will_render_content`
+
+**Args:** <code>overview: <a href='https://dev-docs.ankiweb.net/en/latest/autoapi/aqt/overview#aqt.overview.Overview'>aqt.overview.Overview</a></code>, <code>content: <a href='https://dev-docs.ankiweb.net/en/latest/autoapi/aqt/overview#aqt.overview.OverviewContent'>aqt.overview.OverviewContent</a></code>
+
+Used to modify HTML content sections in the overview body
+
+'content' contains the sections of HTML content the overview body
+will be updated with.
+
+When modifying the content of a particular section, please make sure your
+changes only perform the minimum required edits to make your add-on work.
+You should avoid overwriting or interfering with existing data as much
+as possible, instead opting to append your own changes, e.g.:
+```python
+def on_overview_will_render_content(overview, content):
+    content.table += "\n<div>my html</div>"
+```
+
+---
+
+### `overview_will_render_bottom`
+
+**Args:** <code>link_handler: Callable[[str], bool]</code>, <code>links: list[list[str]]</code>\
+**Returns:** <code>Callable[[str], bool]</code>
+
+Allows adding buttons to the Overview bottom bar.
+
+Append a list of strings to 'links' argument to add new buttons.
+- The first value is the shortcut to appear in the tooltip.
+- The second value is the url to be triggered.
+- The third value is the text of the new button.
+
+Extend the callable 'link_handler' to handle new urls. This callable
+accepts one argument: the triggered url.
+Make a check of the triggered url, call any functions related to
+that trigger, and return the new link_handler.
+
+Example:
+```python
+links.append(['H', 'hello', 'Click me!'])
+def custom_link_handler(url):
+    if url == 'hello':
+        print('Hello World!')
+    return link_handler(url=url)
+return custom_link_handler
+```
+
+---
+
+### `reviewer_did_show_question`
+
+**Args:** <code>card: Card</code>
+
+No docstring.
+
+---
+
+### `reviewer_will_compare_answer`
+
+**Args:** <code>expected_provided_tuple: tuple[str, str]</code>, <code>type_pattern: str</code>\
+**Returns:** <code>tuple[str, str]</code>
+
+Modify expected answer and provided answer before comparing
+
+expected_provided_tuple is a tuple composed of:
+- expected answer
+- provided answer
+type_pattern is the detail of the type tag on the card
+
+Return a tuple composed of:
+- modified expected answer
+- modified provided answer
+
+---
+
+### `reviewer_will_render_compared_answer`
+
+**Args:** <code>output: str</code>, <code>initial_expected: str</code>, <code>initial_provided: str</code>, <code>type_pattern: str</code>\
+**Returns:** <code>str</code>
+
+Modify the output of default compare answer feature
+
+output is the result of default compare answer function
+initial_expected is the expected answer from the card
+initial_provided is the answer provided during review
+type_pattern is the detail of the type tag on the card
+
+Return a string comparing expected and provided answers
+
+---
+
+### `reviewer_did_show_answer`
+
+**Args:** <code>card: Card</code>
+
+No docstring.
+
+---
+
+### `reviewer_will_init_answer_buttons`
+
+**Args:** <code>buttons_tuple: tuple[tuple[int, str], ...]</code>, <code>reviewer: <a href='https://dev-docs.ankiweb.net/en/latest/autoapi/aqt/reviewer#aqt.reviewer.Reviewer'>aqt.reviewer.Reviewer</a></code>, <code>card: Card</code>\
+**Returns:** <code>tuple[tuple[int, str], ...]</code>
+
+Used to modify list of answer buttons
+
+buttons_tuple is a tuple of buttons, with each button represented by a
+tuple containing an int for the button's ease and a string for the
+button's label.
+
+Return a tuple of the form ((int, str), ...), e.g.:
+```python
+((1, "Label1"), (2, "Label2"), ...)
+```
+
+Note: import _ from anki.lang to support translation, using, e.g.,
+```python
+((1, _("Label1")), ...)
+```
+
+---
+
+### `reviewer_will_answer_card`
+
+**Args:** <code>ease_tuple: tuple[bool, Literal[1, 2, 3, 4]]</code>, <code>reviewer: <a href='https://dev-docs.ankiweb.net/en/latest/autoapi/aqt/reviewer#aqt.reviewer.Reviewer'>aqt.reviewer.Reviewer</a></code>, <code>card: Card</code>\
+**Returns:** <code>tuple[bool, Literal[1, 2, 3, 4]]</code>
+
+Used to modify the ease at which a card is rated or to bypass
+rating the card completely.
+
+ease_tuple is a tuple consisting of a boolean expressing whether the reviewer
+should continue with rating the card, and an integer expressing the ease at
+which the card should be rated.
+
+If your code just needs to be notified of the card rating event, you should use
+the reviewer_did_answer_card hook instead.
+
+---
+
+### `reviewer_did_answer_card`
+
+**Args:** <code>reviewer: <a href='https://dev-docs.ankiweb.net/en/latest/autoapi/aqt/reviewer#aqt.reviewer.Reviewer'>aqt.reviewer.Reviewer</a></code>, <code>card: Card</code>, <code>ease: Literal[1, 2, 3, 4]</code>
+
+No docstring.
+
+---
+
+### `reviewer_will_show_context_menu`
+
+**Args:** <code>reviewer: <a href='https://dev-docs.ankiweb.net/en/latest/autoapi/aqt/reviewer#aqt.reviewer.Reviewer'>aqt.reviewer.Reviewer</a></code>, <code>menu: QMenu</code>
+
+No docstring.
+
+---
+
+### `reviewer_will_end`
+
+No arguments.
+
+Called before Anki transitions from the review screen to another screen.
+
+---
+
+### `reviewer_will_play_question_sounds`
+
+**Args:** <code>card: Card</code>, <code>tags: list[<a href='https://dev-docs.ankiweb.net/en/latest/autoapi/anki/sound#anki.sound.AVTag'>anki.sound.AVTag</a>]</code>
+
+Called before showing the question/front side.
+
+`tags` can be used to inspect and manipulate the sounds
+that will be played (if any).
+
+This won't be called when the user manually plays sounds
+using `Replay Audio`.
+
+Note that this hook is called even when the `Automatically play audio`
+option is unchecked; This is so as to allow playing custom
+sounds regardless of that option.
+
+---
+
+### `reviewer_will_play_answer_sounds`
+
+**Args:** <code>card: Card</code>, <code>tags: list[<a href='https://dev-docs.ankiweb.net/en/latest/autoapi/anki/sound#anki.sound.AVTag'>anki.sound.AVTag</a>]</code>
+
+Called before showing the answer/back side.
+
+`tags` can be used to inspect and manipulate the sounds
+that will be played (if any).
+
+This won't be called when the user manually plays sounds
+using `Replay Audio`.
+
+Note that this hook is called even when the `Automatically play audio`
+option is unchecked; This is so as to allow playing custom
+sounds regardless of that option.
+
+---
+
+### `reviewer_will_replay_recording`
+
+**Args:** <code>path: str</code>\
+**Returns:** <code>str</code>
+
+Used to inspect and modify a recording recorded by "Record Own Voice" before replaying.
+
+---
+
+### `reviewer_will_suspend_note`
+
+**Args:** <code>nid: int</code>
+
+No docstring.
+
+---
+
+### `reviewer_will_suspend_card`
+
+**Args:** <code>id: int</code>
+
+No docstring.
+
+---
+
+### `reviewer_will_bury_note`
+
+**Args:** <code>nid: int</code>
+
+No docstring.
+
+---
+
+### `reviewer_will_bury_card`
+
+**Args:** <code>id: int</code>
+
+No docstring.
+
+---
+
+### `audio_did_pause_or_unpause`
+
+**Args:** <code>webview: <a href='https://dev-docs.ankiweb.net/en/latest/autoapi/aqt/webview#aqt.webview.AnkiWebView'>aqt.webview.AnkiWebView</a></code>
+
+Called when the audio is paused or unpaused.
+This hook is triggered by the action in Anki's More menu or the related key binding.
+The webview is provided in case you wish to use this hook with web-based audio.
+
+---
+
+### `audio_did_seek_relative`
+
+**Args:** <code>webview: <a href='https://dev-docs.ankiweb.net/en/latest/autoapi/aqt/webview#aqt.webview.AnkiWebView'>aqt.webview.AnkiWebView</a></code>, <code>seek_seconds: int</code>
+
+Called when the audio is sought forward (positive seek) or backwards (negative seek).
+This hook is triggered by the action in Anki's More menu or the related key binding.
+The webview is provided in case you wish to use this hook with web-based audio.
+
+---
+
+### `debug_console_will_show`
+
+**Args:** <code>debug_window: QDialog</code>
+
+Allows editing the debug window. E.g. setting a default code, or
+previous code.
+
+---
+
+### `debug_console_did_evaluate_python`
+
+**Args:** <code>output: str</code>, <code>query: str</code>, <code>debug_window: <a href='https://dev-docs.ankiweb.net/en/latest/autoapi/aqt/forms/debug#aqt.forms.debug.Ui_Dialog'>aqt.forms.debug.Ui_Dialog</a></code>\
+**Returns:** <code>str</code>
+
+Allows processing the debug result. E.g. logging queries and
+result, saving last query to display it later...
+
+---
+
+### `card_layout_will_show`
+
+**Args:** <code>clayout: <a href='https://dev-docs.ankiweb.net/en/latest/autoapi/aqt/clayout#aqt.clayout.CardLayout'>aqt.clayout.CardLayout</a></code>
+
+Allow to change the display of the card layout. After most values are
+set and before the window is actually shown.
+
+---
+
+### `reviewer_did_init`
+
+**Args:** <code>reviewer: <a href='https://dev-docs.ankiweb.net/en/latest/autoapi/aqt/reviewer#aqt.reviewer.Reviewer'>aqt.reviewer.Reviewer</a></code>
+
+Called after the reviewer is initialized.
+
+---
+
+### `audio_will_replay`
+
+**Args:** <code>webview: <a href='https://dev-docs.ankiweb.net/en/latest/autoapi/aqt/webview#aqt.webview.AnkiWebView'>aqt.webview.AnkiWebView</a></code>, <code>card: Card</code>, <code>is_front_side: bool</code>
+
+Called when the user uses the 'replay audio' action, but not when they click on a play button.
+
+---
+
+### `card_will_show`
+
+**Args:** <code>text: str</code>, <code>card: Card</code>, <code>kind: str</code>\
+**Returns:** <code>str</code>
+
+Can modify card text before review/preview.
+
+---
+
+### `card_review_webview_did_init`
+
+**Args:** <code>webview: <a href='https://dev-docs.ankiweb.net/en/latest/autoapi/aqt/webview#aqt.webview.AnkiWebView'>aqt.webview.AnkiWebView</a></code>, <code>kind: <a href='https://dev-docs.ankiweb.net/en/latest/autoapi/aqt/webview#aqt.webview.AnkiWebViewKind'>aqt.webview.AnkiWebViewKind</a></code>
+
+Called when initializing the webview for the review screen, the card layout screen, and the preview screen.
+
+---
+
+### `deck_browser_did_render`
+
+**Args:** <code>deck_browser: <a href='https://dev-docs.ankiweb.net/en/latest/autoapi/aqt/deckbrowser#aqt.deckbrowser.DeckBrowser'>aqt.deckbrowser.DeckBrowser</a></code>
+
+Allow to update the deck browser window. E.g. change its title.
+
+---
+
+### `deck_browser_will_render_content`
+
+**Args:** <code>deck_browser: <a href='https://dev-docs.ankiweb.net/en/latest/autoapi/aqt/deckbrowser#aqt.deckbrowser.DeckBrowser'>aqt.deckbrowser.DeckBrowser</a></code>, <code>content: <a href='https://dev-docs.ankiweb.net/en/latest/autoapi/aqt/deckbrowser#aqt.deckbrowser.DeckBrowserContent'>aqt.deckbrowser.DeckBrowserContent</a></code>
+
+Used to modify HTML content sections in the deck browser body
+
+'content' contains the sections of HTML content the deck browser body
+will be updated with.
+
+When modifying the content of a particular section, please make sure your
+changes only perform the minimum required edits to make your add-on work.
+You should avoid overwriting or interfering with existing data as much
+as possible, instead opting to append your own changes, e.g.:
+```python
+def on_deck_browser_will_render_content(deck_browser, content):
+    content.stats += "\n<div>my html</div>"
+```
+
+---
+
+### `deck_conf_did_setup_ui_form`
+
+**Args:** <code>deck_conf: <a href='https://dev-docs.ankiweb.net/en/latest/autoapi/aqt/deckconf#aqt.deckconf.DeckConf'>aqt.deckconf.DeckConf</a></code>
+
+Allows modifying or adding widgets in the deck options UI form
+
+---
+
+### `deck_conf_will_show`
+
+**Args:** <code>deck_conf: <a href='https://dev-docs.ankiweb.net/en/latest/autoapi/aqt/deckconf#aqt.deckconf.DeckConf'>aqt.deckconf.DeckConf</a></code>
+
+Allows modifying the deck options dialog before it is shown
+
+---
+
+### `deck_conf_did_load_config`
+
+**Args:** <code>deck_conf: <a href='https://dev-docs.ankiweb.net/en/latest/autoapi/aqt/deckconf#aqt.deckconf.DeckConf'>aqt.deckconf.DeckConf</a></code>, <code>deck: DeckDict</code>, <code>config: DeckConfigDict</code>
+
+Called once widget state has been set from deck config
+
+---
+
+### `deck_conf_will_save_config`
+
+**Args:** <code>deck_conf: <a href='https://dev-docs.ankiweb.net/en/latest/autoapi/aqt/deckconf#aqt.deckconf.DeckConf'>aqt.deckconf.DeckConf</a></code>, <code>deck: DeckDict</code>, <code>config: DeckConfigDict</code>
+
+Called before widget state is saved to config
+
+---
+
+### `deck_conf_did_add_config`
+
+**Args:** <code>deck_conf: <a href='https://dev-docs.ankiweb.net/en/latest/autoapi/aqt/deckconf#aqt.deckconf.DeckConf'>aqt.deckconf.DeckConf</a></code>, <code>deck: DeckDict</code>, <code>config: DeckConfigDict</code>, <code>new_name: str</code>, <code>new_conf_id: int</code>
+
+Allows modification of a newly created config group
+
+This hook is called after the config group was created, but
+before initializing the widget state.
+
+`deck_conf` will point to the old config group, `new_conf_id` will
+point to the newly created config group.
+
+Config groups are created as clones of the current one.
+
+---
+
+### `deck_conf_will_remove_config`
+
+**Args:** <code>deck_conf: <a href='https://dev-docs.ankiweb.net/en/latest/autoapi/aqt/deckconf#aqt.deckconf.DeckConf'>aqt.deckconf.DeckConf</a></code>, <code>deck: DeckDict</code>, <code>config: DeckConfigDict</code>
+
+Called before current config group is removed
+
+---
+
+### `deck_conf_will_rename_config`
+
+**Args:** <code>deck_conf: <a href='https://dev-docs.ankiweb.net/en/latest/autoapi/aqt/deckconf#aqt.deckconf.DeckConf'>aqt.deckconf.DeckConf</a></code>, <code>deck: DeckDict</code>, <code>config: DeckConfigDict</code>, <code>new_name: str</code>
+
+Called before config group is renamed
+
+---
+
+### `deck_options_did_load`
+
+**Args:** <code>deck_options: <a href='https://dev-docs.ankiweb.net/en/latest/autoapi/aqt/deckoptions#aqt.deckoptions.DeckOptionsDialog'>aqt.deckoptions.DeckOptionsDialog</a></code>
+
+Can be used to inject extra options into the config screen.
+
+See the example add-ons at:
+https://github.com/ankitects/anki-addons/tree/main/demos/deckoptions_svelte
+https://github.com/ankitects/anki-addons/tree/main/demos/deckoptions_raw_html
+
+---
+
+### `filtered_deck_dialog_did_load_deck`
+
+**Args:** <code>filtered_deck_dialog: <a href='https://dev-docs.ankiweb.net/en/latest/autoapi/aqt/filtered_deck#aqt.filtered_deck.FilteredDeckConfigDialog'>aqt.filtered_deck.FilteredDeckConfigDialog</a></code>, <code>filtered_deck: <a href='https://dev-docs.ankiweb.net/en/latest/autoapi/anki/scheduler#anki.scheduler.FilteredDeckForUpdate'>anki.scheduler.FilteredDeckForUpdate</a></code>
+
+Allows updating widget state once the filtered deck config is loaded
+
+---
+
+### `filtered_deck_dialog_will_add_or_update_deck`
+
+**Args:** <code>filtered_deck_dialog: <a href='https://dev-docs.ankiweb.net/en/latest/autoapi/aqt/filtered_deck#aqt.filtered_deck.FilteredDeckConfigDialog'>aqt.filtered_deck.FilteredDeckConfigDialog</a></code>, <code>filtered_deck: <a href='https://dev-docs.ankiweb.net/en/latest/autoapi/anki/scheduler#anki.scheduler.FilteredDeckForUpdate'>anki.scheduler.FilteredDeckForUpdate</a></code>
+
+Allows modifying the filtered deck config object before it is written
+
+---
+
+### `filtered_deck_dialog_did_add_or_update_deck`
+
+**Args:** <code>filtered_deck_dialog: <a href='https://dev-docs.ankiweb.net/en/latest/autoapi/aqt/filtered_deck#aqt.filtered_deck.FilteredDeckConfigDialog'>aqt.filtered_deck.FilteredDeckConfigDialog</a></code>, <code>filtered_deck: <a href='https://dev-docs.ankiweb.net/en/latest/autoapi/anki/scheduler#anki.scheduler.FilteredDeckForUpdate'>anki.scheduler.FilteredDeckForUpdate</a></code>, <code>deck_id: int</code>
+
+Allows performing changes after a filtered deck has been added or updated
+
+---
+
+### `default_search`
+
+**Args:** <code>current_search: str</code>, <code>c: Card</code>\
+**Returns:** <code>str</code>
+
+Change the default search when the card browser is opened with card `c`.
+
+---
+
+### `browser_will_show`
+
+**Args:** <code>browser: <a href='https://dev-docs.ankiweb.net/en/latest/autoapi/aqt/browser#aqt.browser.Browser'>aqt.browser.Browser</a></code>
+
+No docstring.
+
+---
+
+### `browser_menus_did_init`
+
+**Args:** <code>browser: <a href='https://dev-docs.ankiweb.net/en/latest/autoapi/aqt/browser#aqt.browser.Browser'>aqt.browser.Browser</a></code>
+
+No docstring.
+
+---
+
+### `browser_will_show_context_menu`
+
+**Args:** <code>browser: <a href='https://dev-docs.ankiweb.net/en/latest/autoapi/aqt/browser#aqt.browser.Browser'>aqt.browser.Browser</a></code>, <code>menu: QMenu</code>
+
+No docstring.
+
+---
+
+### `browser_sidebar_will_show_context_menu`
+
+**Args:** <code>sidebar: <a href='https://dev-docs.ankiweb.net/en/latest/autoapi/aqt/browser#aqt.browser.SidebarTreeView'>aqt.browser.SidebarTreeView</a></code>, <code>menu: QMenu</code>, <code>item: <a href='https://dev-docs.ankiweb.net/en/latest/autoapi/aqt/browser#aqt.browser.SidebarItem'>aqt.browser.SidebarItem</a></code>, <code>index: QModelIndex</code>
+
+No docstring.
+
+---
+
+### `browser_header_will_show_context_menu`
+
+**Args:** <code>browser: <a href='https://dev-docs.ankiweb.net/en/latest/autoapi/aqt/browser#aqt.browser.Browser'>aqt.browser.Browser</a></code>, <code>menu: QMenu</code>
+
+No docstring.
+
+---
+
+### `browser_did_change_row`
+
+**Args:** <code>browser: <a href='https://dev-docs.ankiweb.net/en/latest/autoapi/aqt/browser#aqt.browser.Browser'>aqt.browser.Browser</a></code>
+
+No docstring.
+
+---
+
+### `browser_will_build_tree`
+
+**Args:** <code>handled: bool</code>, <code>tree: <a href='https://dev-docs.ankiweb.net/en/latest/autoapi/aqt/browser#aqt.browser.SidebarItem'>aqt.browser.SidebarItem</a></code>, <code>stage: <a href='https://dev-docs.ankiweb.net/en/latest/autoapi/aqt/browser#aqt.browser.SidebarStage'>aqt.browser.SidebarStage</a></code>, <code>browser: <a href='https://dev-docs.ankiweb.net/en/latest/autoapi/aqt/browser#aqt.browser.Browser'>aqt.browser.Browser</a></code>\
+**Returns:** <code>bool</code>
+
+Used to add or replace items in the browser sidebar tree
+
+'tree' is the root SidebarItem that all other items are added to.
+
+'stage' is an enum describing the different construction stages of
+the sidebar tree at which you can interject your changes.
+The different values can be inspected by looking at
+aqt.browser.SidebarStage.
+
+If you want Anki to proceed with the construction of the tree stage
+in question after your have performed your changes or additions,
+return the 'handled' boolean unchanged.
+
+On the other hand, if you want to prevent Anki from adding its own
+items at a particular construction stage (e.g. in case your add-on
+implements its own version of that particular stage), return 'True'.
+
+If you return 'True' at SidebarStage.ROOT, the sidebar will not be
+populated by any of the other construction stages. For any other stage
+the tree construction will just continue as usual.
+
+For example, if your code wishes to replace the tag tree, you could do:
+```python
+def on_browser_will_build_tree(handled, root, stage, browser):
+    if stage != SidebarStage.TAGS:
+        # not at tag tree building stage, pass on
+        return handled
+
+    # your tag tree construction code
+    # root.addChild(...)
+
+    # your code handled tag tree construction, no need for Anki
+    # or other add-ons to build the tag tree
+    return True
+```
+
+---
+
+### `browser_will_search`
+
+**Args:** <code>context: <a href='https://dev-docs.ankiweb.net/en/latest/autoapi/aqt/browser#aqt.browser.SearchContext'>aqt.browser.SearchContext</a></code>
+
+Allows you to modify the search text, or perform your own search.
+
+You can modify context.search to change the text that is sent to the
+searching backend.
+
+If you need to pass metadata to the browser_did_search hook, you can
+do it with context.addon_metadata. For example, to trigger filtering
+based on a new custom filter.
+
+If you set context.ids to a list of ids, the regular search will
+not be performed, and the provided ids will be used instead.
+
+Your add-on should check if context.ids is not None, and return
+without making changes if it has been set.
+
+In versions of Anki lower than 2.1.45 the field to check is
+context.card_ids rather than context.ids
+
+---
+
+### `browser_did_search`
+
+**Args:** <code>context: <a href='https://dev-docs.ankiweb.net/en/latest/autoapi/aqt/browser#aqt.browser.SearchContext'>aqt.browser.SearchContext</a></code>
+
+Allows you to modify the list of returned card ids from a search.
+
+---
+
+### `browser_did_fetch_row`
+
+**Args:** <code>card_or_note_id: <a href='https://dev-docs.ankiweb.net/en/latest/autoapi/aqt/browser#aqt.browser.ItemId'>aqt.browser.ItemId</a></code>, <code>is_note: bool</code>, <code>row: <a href='https://dev-docs.ankiweb.net/en/latest/autoapi/aqt/browser#aqt.browser.CellRow'>aqt.browser.CellRow</a></code>, <code>columns: Sequence[str]</code>
+
+Allows you to add or modify content to a row in the browser.
+
+You can mutate the row object to change what is displayed. Any columns the
+backend did not recognize will be returned as an empty string, and can be
+replaced with custom content.
+
+You can retrieve metadata passed from browser_will_search with
+context.addon_metadata (for example to trigger post-processing filtering).
+
+Columns is a list of string values identifying what each column in the row
+represents.
+
+---
+
+### `browser_did_fetch_columns`
+
+**Args:** <code>columns: dict[str, <a href='https://dev-docs.ankiweb.net/en/latest/autoapi/aqt/browser#aqt.browser.Column'>aqt.browser.Column</a>]</code>
+
+Allows you to add custom columns to the browser.
+
+columns is a dictionary of data objects. You can add an entry with a custom
+column to describe how it should be displayed in the browser or modify
+existing entries.
+
+Every column in the dictionary will be toggleable by the user.
+
+---
+
+### `previewer_did_init`
+
+**Args:** <code>previewer: <a href='https://dev-docs.ankiweb.net/en/latest/autoapi/aqt/browser/previewer#aqt.browser.previewer.Previewer'>aqt.browser.previewer.Previewer</a></code>
+
+Called after the previewer is initialized.
+
+---
+
+### `previewer_will_redraw_after_show_both_sides_toggled`
+
+**Args:** <code>webview: <a href='https://dev-docs.ankiweb.net/en/latest/autoapi/aqt/webview#aqt.webview.AnkiWebView'>aqt.webview.AnkiWebView</a></code>, <code>card: Card</code>, <code>is_front_side: bool</code>, <code>show_both_sides: bool</code>
+
+Called when the checkbox &lt;show both sides&gt; is toggled by the user.
+
+---
+
+### `state_will_change`
+
+**Args:** <code>new_state: <a href='https://dev-docs.ankiweb.net/en/latest/autoapi/aqt/main#aqt.main.MainWindowState'>aqt.main.MainWindowState</a></code>, <code>old_state: <a href='https://dev-docs.ankiweb.net/en/latest/autoapi/aqt/main#aqt.main.MainWindowState'>aqt.main.MainWindowState</a></code>
+
+No docstring.
+
+---
+
+### `state_did_change`
+
+**Args:** <code>new_state: <a href='https://dev-docs.ankiweb.net/en/latest/autoapi/aqt/main#aqt.main.MainWindowState'>aqt.main.MainWindowState</a></code>, <code>old_state: <a href='https://dev-docs.ankiweb.net/en/latest/autoapi/aqt/main#aqt.main.MainWindowState'>aqt.main.MainWindowState</a></code>
+
+No docstring.
+
+---
+
+### `state_shortcuts_will_change`
+
+**Args:** <code>state: <a href='https://dev-docs.ankiweb.net/en/latest/autoapi/aqt/main#aqt.main.MainWindowState'>aqt.main.MainWindowState</a></code>, <code>shortcuts: list[tuple[str, Callable]]</code>
+
+No docstring.
+
+---
+
+### `state_did_undo`
+
+**Args:** <code>changes: OpChangesAfterUndo</code>
+
+Called after backend undoes a change.
+
+---
+
+### `state_did_reset`
+
+No arguments.
+
+Legacy 'reset' hook. Called by mw.reset() and CollectionOp() to redraw the UI.
+
+New code should use `operation_did_execute` instead.
+
+---
+
+### `operation_did_execute`
+
+**Args:** <code>changes: <a href='https://dev-docs.ankiweb.net/en/latest/autoapi/anki/collection#anki.collection.OpChanges'>anki.collection.OpChanges</a></code>, <code>handler: object | None</code>
+
+Called after an operation completes.
+Changes can be inspected to determine whether the UI needs updating.
+
+This will also be called when the legacy mw.reset() is used.
+
+---
+
+### `focus_did_change`
+
+**Args:** <code>new: QWidget | None</code>, <code>old: QWidget | None</code>
+
+Called each time the focus changes. Can be used to defer updates from
+`operation_did_execute` until a window is brought to the front.
+
+---
+
+### `backend_will_block`
+
+No arguments.
+
+Called before one or more DB tasks are run in the background.
+
+Subscribers can use this to set a flag to avoid DB queries until the operation
+completes, as doing so will freeze the UI until the long-running operation
+completes.
+
+---
+
+### `backend_did_block`
+
+No arguments.
+
+Called after one or more DB tasks finish running in the background.
+Called regardless of the success of individual operations, and only called when
+there are no outstanding ops.
+
+---
+
+### `theme_did_change`
+
+No arguments.
+
+Called after night mode is toggled.
+
+---
+
+### `body_classes_need_update`
+
+No arguments.
+
+Called when a setting involving a webview body class is toggled.
+
+---
+
+### `webview_did_receive_js_message`
+
+**Args:** <code>handled: tuple[bool, Any]</code>, <code>message: str</code>, <code>context: Any</code>\
+**Returns:** <code>tuple[bool, Any]</code>
+
+Used to handle pycmd() messages sent from Javascript.
+
+Message is the string passed to pycmd().
+
+For messages you don't want to handle, return 'handled' unchanged.
+
+If you handle a message and don't want it passed to the original
+bridge command handler, return (True, None).
+
+If you want to pass a value to pycmd's result callback, you can
+return it with (True, some_value).
+
+Context is the instance that was passed to set_bridge_command().
+It can be inspected to check which screen this hook is firing
+in, and to get a reference to the screen. For example, if your
+code wishes to function only in the review screen, you could do:
+```python
+if not isinstance(context, aqt.reviewer.Reviewer):
+    # not reviewer, pass on message
+    return handled
+
+if message == "my-mark-action":
+    # our message, call onMark() on the reviewer instance
+    context.onMark()
+    # and don't pass message to other handlers
+    return (True, None)
+else:
+    # some other command, pass it on
+    return handled
+```
+
+---
+
+### `webview_will_set_content`
+
+**Args:** <code>web_content: <a href='https://dev-docs.ankiweb.net/en/latest/autoapi/aqt/webview#aqt.webview.WebContent'>aqt.webview.WebContent</a></code>, <code>context: object | None</code>
+
+Used to modify web content before it is rendered.
+
+Web_content contains the HTML, JS, and CSS the web view will be
+populated with.
+
+Context is the instance that was passed to stdHtml().
+It can be inspected to check which screen this hook is firing
+in, and to get a reference to the screen. For example, if your
+code wishes to function only in the review screen, you could do:
+```python
+def on_webview_will_set_content(web_content: WebContent, context):
+
+    if not isinstance(context, aqt.reviewer.Reviewer):
+        # not reviewer, do not modify content
+        return
+
+    # reviewer, perform changes to content
+
+    context: aqt.reviewer.Reviewer
+
+    addon_package = mw.addonManager.addonFromModule(__name__)
+
+    web_content.css.append(
+        f"/_addons/{addon_package}/web/my-addon.css")
+    web_content.js.append(
+        f"/_addons/{addon_package}/web/my-addon.js")
+
+    web_content.head += "<script>console.log('my-addon')</script>"
+    web_content.body += "<div id='my-addon'></div>"
+```
+
+---
+
+### `webview_will_show_context_menu`
+
+**Args:** <code>webview: <a href='https://dev-docs.ankiweb.net/en/latest/autoapi/aqt/webview#aqt.webview.AnkiWebView'>aqt.webview.AnkiWebView</a></code>, <code>menu: QMenu</code>
+
+No docstring.
+
+---
+
+### `webview_did_inject_style_into_page`
+
+**Args:** <code>webview: <a href='https://dev-docs.ankiweb.net/en/latest/autoapi/aqt/webview#aqt.webview.AnkiWebView'>aqt.webview.AnkiWebView</a></code>
+
+Called after standard styling is injected into an external
+html file, such as when loading the new graphs. You can use this hook to
+mutate the DOM before the page is revealed.
+
+For example:
+```python
+def mytest(webview: AnkiWebView):
+    if webview.kind != AnkiWebViewKind.DECK_STATS:
+        return
+    webview.eval(
+        """
+        div = document.createElement("div");
+        div.innerHTML = 'hello';
+        document.body.appendChild(div);
+        """
+    )
+
+gui_hooks.webview_did_inject_style_into_page.append(mytest)
+```
+
+---
+
+### `main_window_did_init`
+
+No arguments.
+
+Executed after the main window is fully initialized
+
+A sample use case for this hook would be to delay actions until Anki objects
+like the profile or collection are fully initialized. In contrast to
+`profile_did_open`, this hook will only fire once per Anki session and
+is thus suitable for single-shot subscribers.
+
+---
+
+### `main_window_should_require_reset`
+
+**Args:** <code>will_reset: bool</code>, <code>reason: <a href='https://dev-docs.ankiweb.net/en/latest/autoapi/aqt/main#aqt.main.ResetReason'>aqt.main.ResetReason</a> | str</code>, <code>context: object | None</code>\
+**Returns:** <code>bool</code>
+
+Executed before the main window will require a reset
+
+This hook can be used to change the behavior of the main window,
+when other dialogs, like the AddCards or Browser, require a reset
+from the main window.
+If you decide to use this hook, make you sure you check the reason for the reset.
+Some reasons require more attention than others, and skipping important ones might
+put the main window into an invalid state (e.g. display a deleted note).
+
+---
+
+### `backup_did_complete`
+
+No arguments.
+
+No docstring.
+
+---
+
+### `profile_did_open`
+
+No arguments.
+
+Executed whenever a user profile has been opened
+
+Please note that this hook will also be called on profile switches, so if you
+are looking to simply delay an add-on action in a single-shot manner,
+`main_window_did_init` is likely the more suitable choice.
+
+---
+
+### `profile_will_close`
+
+No arguments.
+
+No docstring.
+
+---
+
+### `collection_will_temporarily_close`
+
+**Args:** <code>col: <a href='https://dev-docs.ankiweb.net/en/latest/autoapi/anki/collection#anki.collection.Collection'>anki.collection.Collection</a></code>
+
+Called before one-way syncs and colpkg imports/exports.
+
+---
+
+### `collection_did_temporarily_close`
+
+**Args:** <code>col: <a href='https://dev-docs.ankiweb.net/en/latest/autoapi/anki/collection#anki.collection.Collection'>anki.collection.Collection</a></code>
+
+Called after one-way syncs and colpkg imports/exports.
+
+---
+
+### `collection_did_load`
+
+**Args:** <code>col: <a href='https://dev-docs.ankiweb.net/en/latest/autoapi/anki/collection#anki.collection.Collection'>anki.collection.Collection</a></code>
+
+No docstring.
+
+---
+
+### `undo_state_did_change`
+
+**Args:** <code>info: UndoActionsInfo</code>
+
+No docstring.
+
+---
+
+### `style_did_init`
+
+**Args:** <code>style: str</code>\
+**Returns:** <code>str</code>
+
+No docstring.
+
+---
+
+### `top_toolbar_did_init_links`
+
+**Args:** <code>links: list[str]</code>, <code>top_toolbar: <a href='https://dev-docs.ankiweb.net/en/latest/autoapi/aqt/toolbar#aqt.toolbar.Toolbar'>aqt.toolbar.Toolbar</a></code>
+
+Used to modify or add links in the top toolbar of Anki's main window
+
+'links' is a list of HTML link elements. Add-ons can generate their own links
+by using aqt.toolbar.Toolbar.create_link. Links created in that way can then be
+appended to the link list, e.g.:
+```python
+def on_top_toolbar_did_init_links(links, toolbar):
+    my_link = toolbar.create_link(...)
+    links.append(my_link)
+```
+
+---
+
+### `top_toolbar_will_set_left_tray_content`
+
+**Args:** <code>content: list[str]</code>, <code>top_toolbar: <a href='https://dev-docs.ankiweb.net/en/latest/autoapi/aqt/toolbar#aqt.toolbar.Toolbar'>aqt.toolbar.Toolbar</a></code>
+
+Used to add custom add-on components to the *left* area of Anki's main
+window toolbar
+
+'content' is a list of HTML strings added by add-ons which you can append your
+own components or elements to. To equip your components with logic and styling
+please see `webview_will_set_content` and `webview_did_receive_js_message`.
+
+Please note that Anki's main screen is due to undergo a significant refactor
+in the future and, as a result, add-ons subscribing to this hook will likely
+require changes to continue working.
+
+---
+
+### `top_toolbar_will_set_right_tray_content`
+
+**Args:** <code>content: list[str]</code>, <code>top_toolbar: <a href='https://dev-docs.ankiweb.net/en/latest/autoapi/aqt/toolbar#aqt.toolbar.Toolbar'>aqt.toolbar.Toolbar</a></code>
+
+Used to add custom add-on components to the *right* area of Anki's main
+window toolbar
+
+'content' is a list of HTML strings added by add-ons which you can append your
+own components or elements to. To equip your components with logic and styling
+please see `webview_will_set_content` and `webview_did_receive_js_message`.
+
+Please note that Anki's main screen is due to undergo a significant refactor
+in the future and, as a result, add-ons subscribing to this hook will likely
+require changes to continue working.
+
+---
+
+### `top_toolbar_did_redraw`
+
+**Args:** <code>top_toolbar: <a href='https://dev-docs.ankiweb.net/en/latest/autoapi/aqt/toolbar#aqt.toolbar.Toolbar'>aqt.toolbar.Toolbar</a></code>
+
+Executed when the top toolbar is redrawn
+
+---
+
+### `media_sync_did_progress`
+
+**Args:** <code>entry: str</code>
+
+No docstring.
+
+---
+
+### `media_sync_did_start_or_stop`
+
+**Args:** <code>running: bool</code>
+
+No docstring.
+
+---
+
+### `empty_cards_will_show`
+
+**Args:** <code>diag: <a href='https://dev-docs.ankiweb.net/en/latest/autoapi/aqt/emptycards#aqt.emptycards.EmptyCardsDialog'>aqt.emptycards.EmptyCardsDialog</a></code>
+
+Allows changing the list of cards to delete.
+
+---
+
+### `sync_will_start`
+
+No arguments.
+
+No docstring.
+
+---
+
+### `sync_did_finish`
+
+No arguments.
+
+Executes after the sync of the collection concluded.
+
+Note that the media sync did not necessarily finish at this point.
+
+---
+
+### `media_check_will_start`
+
+No arguments.
+
+No docstring.
+
+---
+
+### `media_check_did_finish`
+
+**Args:** <code>output: <a href='https://dev-docs.ankiweb.net/en/latest/autoapi/anki/media#anki.media.CheckMediaResponse'>anki.media.CheckMediaResponse</a></code>
+
+Called after Media Check finishes.
+
+`output` provides access to the unused/missing file lists and the text output that will be shown in the Check Media screen.
+
+---
+
+### `day_did_change`
+
+No arguments.
+
+Called when Anki moves to the next day.
+
+---
+
+### `exporter_will_export`
+
+**Args:** <code>export_options: <a href='https://dev-docs.ankiweb.net/en/latest/autoapi/aqt/import_export/exporting#aqt.import_export.exporting.ExportOptions'>aqt.import_export.exporting.ExportOptions</a></code>, <code>exporter: <a href='https://dev-docs.ankiweb.net/en/latest/autoapi/aqt/import_export/exporting#aqt.import_export.exporting.Exporter'>aqt.import_export.exporting.Exporter</a></code>\
+**Returns:** <code><a href='https://dev-docs.ankiweb.net/en/latest/autoapi/aqt/import_export/exporting#aqt.import_export.exporting.ExportOptions'>aqt.import_export.exporting.ExportOptions</a></code>
+
+Called before collection and deck exports.
+
+Allows add-ons to be notified of impending deck exports and potentially
+modify the export options. To perform the export unaltered, please return
+`export_options` as is, e.g.:
+```python
+def on_exporter_will_export(export_options: ExportOptions, exporter: Exporter):
+    if not isinstance(exporter, ApkgExporter):
+        return export_options
+    export_options.limit = ...
+    return export_options
+```
+
+---
+
+### `exporter_did_export`
+
+**Args:** <code>export_options: <a href='https://dev-docs.ankiweb.net/en/latest/autoapi/aqt/import_export/exporting#aqt.import_export.exporting.ExportOptions'>aqt.import_export.exporting.ExportOptions</a></code>, <code>exporter: <a href='https://dev-docs.ankiweb.net/en/latest/autoapi/aqt/import_export/exporting#aqt.import_export.exporting.Exporter'>aqt.import_export.exporting.Exporter</a></code>
+
+Called after collection and deck exports.
+
+---
+
+### `legacy_exporter_will_export`
+
+**Args:** <code>legacy_exporter: <a href='https://dev-docs.ankiweb.net/en/latest/autoapi/anki/exporting#anki.exporting.Exporter'>anki.exporting.Exporter</a></code>
+
+Called before collection and deck exports performed by legacy exporters.
+
+---
+
+### `legacy_exporter_did_export`
+
+**Args:** <code>legacy_exporter: <a href='https://dev-docs.ankiweb.net/en/latest/autoapi/anki/exporting#anki.exporting.Exporter'>anki.exporting.Exporter</a></code>
+
+Called after collection and deck exports performed by legacy exporters.
+
+---
+
+### `exporters_list_did_initialize`
+
+**Args:** <code>exporters: list[Type[<a href='https://dev-docs.ankiweb.net/en/latest/autoapi/aqt/import_export/exporting#aqt.import_export.exporting.Exporter'>aqt.import_export.exporting.Exporter</a>]]</code>
+
+Called after the list of exporter classes is created.
+
+Allows you to register custom exporters and/or replace existing ones by
+modifying the exporter list.
+
+---
+
+### `dialog_manager_did_open_dialog`
+
+**Args:** <code>dialog_manager: <a href='https://dev-docs.ankiweb.net/en/latest/autoapi/aqt#aqt.DialogManager'>aqt.DialogManager</a></code>, <code>dialog_name: str</code>, <code>dialog_instance: QWidget</code>
+
+Executed after aqt.dialogs creates a dialog window
+
+---
+
+### `add_cards_will_show_history_menu`
+
+**Args:** <code>addcards: <a href='https://dev-docs.ankiweb.net/en/latest/autoapi/aqt/addcards#aqt.addcards.AddCards'>aqt.addcards.AddCards</a></code>, <code>menu: QMenu</code>
+
+No docstring.
+
+---
+
+### `add_cards_did_init`
+
+**Args:** <code>addcards: <a href='https://dev-docs.ankiweb.net/en/latest/autoapi/aqt/addcards#aqt.addcards.AddCards'>aqt.addcards.AddCards</a></code>
+
+No docstring.
+
+---
+
+### `add_cards_did_add_note`
+
+**Args:** <code>note: <a href='https://dev-docs.ankiweb.net/en/latest/autoapi/anki/notes#anki.notes.Note'>anki.notes.Note</a></code>
+
+No docstring.
+
+---
+
+### `add_cards_will_add_note`
+
+**Args:** <code>problem: str | None</code>, <code>note: <a href='https://dev-docs.ankiweb.net/en/latest/autoapi/anki/notes#anki.notes.Note'>anki.notes.Note</a></code>\
+**Returns:** <code>str | None</code>
+
+Decides whether the note should be added to the collection or
+not. It is assumed to come from the addCards window.
+
+reason_to_already_reject is the first reason to reject that
+was found, or None. If your filter wants to reject, it should
+replace return the reason to reject. Otherwise return the
+input.
+
+---
+
+### `add_cards_might_add_note`
+
+**Args:** <code>optional_problems: list[str]</code>, <code>note: <a href='https://dev-docs.ankiweb.net/en/latest/autoapi/anki/notes#anki.notes.Note'>anki.notes.Note</a></code>
+
+Allows you to provide an optional reason to reject a note. A
+yes / no dialog will open displaying the problem, to which the
+user can decide if they would like to add the note anyway.
+
+optional_problems is a list containing the optional reasons for which
+you might reject a note. If your add-on wants to add a reason,
+it should append the reason to the list.
+
+An example add-on that asks the user for confirmation before adding a
+card without tags:
+```python
+def might_reject_empty_tag(optional_problems, note):
+    if not any(note.tags):
+        optional_problems.append("Add cards without tags?")
+```
+
+---
+
+### `addcards_will_add_history_entry`
+
+**Args:** <code>line: str</code>, <code>note: <a href='https://dev-docs.ankiweb.net/en/latest/autoapi/anki/notes#anki.notes.Note'>anki.notes.Note</a></code>\
+**Returns:** <code>str</code>
+
+Allows changing the history line in the add-card window.
+
+---
+
+### `add_cards_did_change_note_type` _(Deprecated)_
+
+**Args:** <code>old: <a href='https://dev-docs.ankiweb.net/en/latest/autoapi/anki/models#anki.models.NoteType'>anki.models.NoteType</a></code>, <code>new: <a href='https://dev-docs.ankiweb.net/en/latest/autoapi/anki/models#anki.models.NoteType'>anki.models.NoteType</a></code>
+
+<Warning>
+  Deprecated. Use `addcards_did_change_note_type` instead.
+</Warning>
+
+Executed after the user selects a new note type when adding
+cards.
+
+---
+
+### `addcards_did_change_note_type`
+
+**Args:** <code>addcards: <a href='https://dev-docs.ankiweb.net/en/latest/autoapi/aqt/addcards#aqt.addcards.AddCards'>aqt.addcards.AddCards</a></code>, <code>old: <a href='https://dev-docs.ankiweb.net/en/latest/autoapi/anki/models#anki.models.NoteType'>anki.models.NoteType</a></code>, <code>new: <a href='https://dev-docs.ankiweb.net/en/latest/autoapi/anki/models#anki.models.NoteType'>anki.models.NoteType</a></code>
+
+Executed after the user selects a new note type when adding
+cards.
+
+---
+
+### `add_cards_did_change_deck`
+
+**Args:** <code>new_deck_id: int</code>
+
+Executed after the user selects a new different deck when
+adding cards.
+
+---
+
+### `editor_did_init_left_buttons`
+
+**Args:** <code>buttons: list[str]</code>, <code>editor: <a href='https://dev-docs.ankiweb.net/en/latest/autoapi/aqt/editor#aqt.editor.Editor'>aqt.editor.Editor</a></code>
+
+No docstring.
+
+---
+
+### `editor_did_init_buttons`
+
+**Args:** <code>buttons: list[str]</code>, <code>editor: <a href='https://dev-docs.ankiweb.net/en/latest/autoapi/aqt/editor#aqt.editor.Editor'>aqt.editor.Editor</a></code>
+
+No docstring.
+
+---
+
+### `editor_did_init_shortcuts`
+
+**Args:** <code>shortcuts: list[tuple]</code>, <code>editor: <a href='https://dev-docs.ankiweb.net/en/latest/autoapi/aqt/editor#aqt.editor.Editor'>aqt.editor.Editor</a></code>
+
+No docstring.
+
+---
+
+### `editor_will_show_context_menu`
+
+**Args:** <code>editor_webview: <a href='https://dev-docs.ankiweb.net/en/latest/autoapi/aqt/editor#aqt.editor.EditorWebView'>aqt.editor.EditorWebView</a></code>, <code>menu: QMenu</code>
+
+No docstring.
+
+---
+
+### `editor_did_fire_typing_timer`
+
+**Args:** <code>note: <a href='https://dev-docs.ankiweb.net/en/latest/autoapi/anki/notes#anki.notes.Note'>anki.notes.Note</a></code>
+
+No docstring.
+
+---
+
+### `editor_did_focus_field`
+
+**Args:** <code>note: <a href='https://dev-docs.ankiweb.net/en/latest/autoapi/anki/notes#anki.notes.Note'>anki.notes.Note</a></code>, <code>current_field_idx: int</code>
+
+No docstring.
+
+---
+
+### `editor_did_unfocus_field`
+
+**Args:** <code>changed: bool</code>, <code>note: <a href='https://dev-docs.ankiweb.net/en/latest/autoapi/anki/notes#anki.notes.Note'>anki.notes.Note</a></code>, <code>current_field_idx: int</code>\
+**Returns:** <code>bool</code>
+
+No docstring.
+
+---
+
+### `editor_did_load_note`
+
+**Args:** <code>editor: <a href='https://dev-docs.ankiweb.net/en/latest/autoapi/aqt/editor#aqt.editor.Editor'>aqt.editor.Editor</a></code>
+
+No docstring.
+
+---
+
+### `editor_did_update_tags`
+
+**Args:** <code>note: <a href='https://dev-docs.ankiweb.net/en/latest/autoapi/anki/notes#anki.notes.Note'>anki.notes.Note</a></code>
+
+No docstring.
+
+---
+
+### `editor_will_munge_html`
+
+**Args:** <code>txt: str</code>, <code>editor: <a href='https://dev-docs.ankiweb.net/en/latest/autoapi/aqt/editor#aqt.editor.Editor'>aqt.editor.Editor</a></code>\
+**Returns:** <code>str</code>
+
+Allows manipulating the text that will be saved by the editor
+
+---
+
+### `editor_will_use_font_for_field`
+
+**Args:** <code>font: str</code>\
+**Returns:** <code>str</code>
+
+No docstring.
+
+---
+
+### `editor_web_view_did_init`
+
+**Args:** <code>editor_web_view: <a href='https://dev-docs.ankiweb.net/en/latest/autoapi/aqt/editor#aqt.editor.EditorWebView'>aqt.editor.EditorWebView</a></code>
+
+No docstring.
+
+---
+
+### `editor_did_init`
+
+**Args:** <code>editor: <a href='https://dev-docs.ankiweb.net/en/latest/autoapi/aqt/editor#aqt.editor.Editor'>aqt.editor.Editor</a></code>
+
+No docstring.
+
+---
+
+### `editor_will_load_note`
+
+**Args:** <code>js: str</code>, <code>note: <a href='https://dev-docs.ankiweb.net/en/latest/autoapi/anki/notes#anki.notes.Note'>anki.notes.Note</a></code>, <code>editor: <a href='https://dev-docs.ankiweb.net/en/latest/autoapi/aqt/editor#aqt.editor.Editor'>aqt.editor.Editor</a></code>\
+**Returns:** <code>str</code>
+
+Allows changing the javascript commands to load note before
+executing it and do change in the QT editor.
+
+---
+
+### `editor_did_paste`
+
+**Args:** <code>editor: <a href='https://dev-docs.ankiweb.net/en/latest/autoapi/aqt/editor#aqt.editor.Editor'>aqt.editor.Editor</a></code>, <code>html: str</code>, <code>internal: bool</code>, <code>extended: bool</code>
+
+Called after some data is pasted by python into an editor field.
+
+---
+
+### `editor_will_process_mime`
+
+**Args:** <code>mime: QMimeData</code>, <code>editor_web_view: <a href='https://dev-docs.ankiweb.net/en/latest/autoapi/aqt/editor#aqt.editor.EditorWebView'>aqt.editor.EditorWebView</a></code>, <code>internal: bool</code>, <code>extended: bool</code>, <code>drop_event: bool</code>\
+**Returns:** <code>QMimeData</code>
+
+Used to modify MIME data stored in the clipboard after a drop or a paste.
+Called after the user pastes or drag-and-drops something to Anki
+before Anki processes the data.
+
+The function should return a new or existing QMimeData object.
+
+"mime" contains the corresponding QMimeData object.
+"internal" indicates whether the drop or paste is performed between Anki fields.
+Most likely you want to skip processing if "internal" was set to True.
+"extended" indicates whether the user requested an extended paste.
+"drop_event" indicates whether the event was triggered by a drag-and-drop
+or by a right-click paste.
+
+---
+
+### `editor_state_did_change`
+
+**Args:** <code>editor: <a href='https://dev-docs.ankiweb.net/en/latest/autoapi/aqt/editor#aqt.editor.Editor'>aqt.editor.Editor</a></code>, <code>new_state: <a href='https://dev-docs.ankiweb.net/en/latest/autoapi/aqt/editor#aqt.editor.EditorState'>aqt.editor.EditorState</a></code>, <code>old_state: <a href='https://dev-docs.ankiweb.net/en/latest/autoapi/aqt/editor#aqt.editor.EditorState'>aqt.editor.EditorState</a></code>
+
+Called when the input state of the editor changes, e.g. when
+switching to an image occlusion note type.
+
+---
+
+### `editor_mask_editor_did_load_image`
+
+**Args:** <code>editor: <a href='https://dev-docs.ankiweb.net/en/latest/autoapi/aqt/editor#aqt.editor.Editor'>aqt.editor.Editor</a></code>, <code>path_or_nid: str | <a href='https://dev-docs.ankiweb.net/en/latest/autoapi/anki/notes#anki.notes.NoteId'>anki.notes.NoteId</a></code>
+
+Called when the image occlusion mask editor has completed
+loading an image.
+
+When adding new notes `path_or_nid` will be the path to the image file.
+When editing existing notes `path_or_nid` will be the note id.
+
+---
+
+### `tag_editor_did_process_key`
+
+**Args:** <code>tag_edit: TagEdit</code>, <code>evt: QEvent</code>
+
+No docstring.
+
+---
+
+### `av_player_will_play`
+
+**Args:** <code>tag: <a href='https://dev-docs.ankiweb.net/en/latest/autoapi/anki/sound#anki.sound.AVTag'>anki.sound.AVTag</a></code>
+
+No docstring.
+
+---
+
+### `av_player_did_begin_playing`
+
+**Args:** <code>player: <a href='https://dev-docs.ankiweb.net/en/latest/autoapi/aqt/sound#aqt.sound.Player'>aqt.sound.Player</a></code>, <code>tag: <a href='https://dev-docs.ankiweb.net/en/latest/autoapi/anki/sound#anki.sound.AVTag'>anki.sound.AVTag</a></code>
+
+No docstring.
+
+---
+
+### `av_player_did_end_playing`
+
+**Args:** <code>player: <a href='https://dev-docs.ankiweb.net/en/latest/autoapi/aqt/sound#aqt.sound.Player'>aqt.sound.Player</a></code>
+
+No docstring.
+
+---
+
+### `av_player_will_play_tags`
+
+**Args:** <code>tags: list[<a href='https://dev-docs.ankiweb.net/en/latest/autoapi/anki/sound#anki.sound.AVTag'>anki.sound.AVTag</a>]</code>, <code>side: str</code>, <code>context: Any</code>
+
+Called before playing a card side's sounds.
+
+`tags` can be used to inspect and manipulate the sounds
+that will be played (if any).
+
+`side` can either be "question" or "answer".
+
+`context` is the screen where the sounds will be played (e.g., Reviewer, Previewer, and CardLayout).
+
+This won't be called when the user manually plays sounds
+using `Replay Audio`.
+
+Note that this hook is called even when the `Automatically play audio`
+option is unchecked; This is so as to allow playing custom
+sounds regardless of that option.
+
+---
+
+### `addon_config_editor_will_display_json`
+
+**Args:** <code>text: str</code>\
+**Returns:** <code>str</code>
+
+Allows changing the text of the json configuration before actually
+displaying it to the user. For example, you can replace "\\n" by
+some actual new line. Then you can replace the new lines by "\\n"
+while reading the file and let the user uses real new line in
+string instead of its encoding.
+
+---
+
+### `addon_config_editor_will_save_json` _(Deprecated)_
+
+**Args:** <code>text: str</code>\
+**Returns:** <code>str</code>
+
+<Warning>
+  Deprecated. Use `addon_config_editor_will_update_json` instead.
+</Warning>
+
+Allows changing the text of the json configuration that was
+received from the user before actually reading it. For
+example, you can replace new line in strings by some "\\n".
+
+---
+
+### `addon_config_editor_will_update_json`
+
+**Args:** <code>text: str</code>, <code>addon: str</code>\
+**Returns:** <code>str</code>
+
+Allows changing the text of the json configuration that was
+received from the user before actually reading it. For
+example, you can replace new line in strings by some "\\n".
+
+---
+
+### `addons_dialog_will_show`
+
+**Args:** <code>dialog: <a href='https://dev-docs.ankiweb.net/en/latest/autoapi/aqt/addons#aqt.addons.AddonsDialog'>aqt.addons.AddonsDialog</a></code>
+
+Allows changing the add-on dialog before it is shown. E.g. add
+buttons.
+
+---
+
+### `addons_dialog_did_change_selected_addon`
+
+**Args:** <code>dialog: <a href='https://dev-docs.ankiweb.net/en/latest/autoapi/aqt/addons#aqt.addons.AddonsDialog'>aqt.addons.AddonsDialog</a></code>, <code>add_on: <a href='https://dev-docs.ankiweb.net/en/latest/autoapi/aqt/addons#aqt.addons.AddonMeta'>aqt.addons.AddonMeta</a></code>
+
+Allows doing an action when a single add-on is selected.
+
+---
+
+### `addons_dialog_will_delete_addons`
+
+**Args:** <code>dialog: <a href='https://dev-docs.ankiweb.net/en/latest/autoapi/aqt/addons#aqt.addons.AddonsDialog'>aqt.addons.AddonsDialog</a></code>, <code>ids: list[str]</code>
+
+Allows doing an action before an add-on is deleted.
+
+---
+
+### `addon_manager_will_install_addon`
+
+**Args:** <code>manager: <a href='https://dev-docs.ankiweb.net/en/latest/autoapi/aqt/addons#aqt.addons.AddonManager'>aqt.addons.AddonManager</a></code>, <code>module: str</code>
+
+Called before installing or updating an addon.
+
+Can be used to release DB connections or open files that
+would prevent an update from succeeding.
+
+---
+
+### `addon_manager_did_install_addon`
+
+**Args:** <code>manager: <a href='https://dev-docs.ankiweb.net/en/latest/autoapi/aqt/addons#aqt.addons.AddonManager'>aqt.addons.AddonManager</a></code>, <code>module: str</code>
+
+Called after installing or updating an addon.
+
+Can be used to restore DB connections or open files after
+an add-on has been updated.
+
+---
+
+### `models_advanced_will_show`
+
+**Args:** <code>advanced: QDialog</code>
+
+No docstring.
+
+---
+
+### `models_did_init_buttons`
+
+**Args:** <code>buttons: list[tuple[str, Callable[[], None]]]</code>, <code>models: <a href='https://dev-docs.ankiweb.net/en/latest/autoapi/aqt/models#aqt.models.Models'>aqt.models.Models</a></code>\
+**Returns:** <code>list[tuple[str, Callable[[], None]]]</code>
+
+Allows adding buttons to the Model dialog
+
+---
+
+### `fields_did_add_field`
+
+**Args:** <code>dialog: <a href='https://dev-docs.ankiweb.net/en/latest/autoapi/aqt/fields#aqt.fields.FieldDialog'>aqt.fields.FieldDialog</a></code>, <code>field: <a href='https://dev-docs.ankiweb.net/en/latest/autoapi/anki/models#anki.models.FieldDict'>anki.models.FieldDict</a></code>
+
+No docstring.
+
+---
+
+### `fields_did_rename_field`
+
+**Args:** <code>dialog: <a href='https://dev-docs.ankiweb.net/en/latest/autoapi/aqt/fields#aqt.fields.FieldDialog'>aqt.fields.FieldDialog</a></code>, <code>field: <a href='https://dev-docs.ankiweb.net/en/latest/autoapi/anki/models#anki.models.FieldDict'>anki.models.FieldDict</a></code>, <code>old_name: str</code>
+
+No docstring.
+
+---
+
+### `fields_did_delete_field`
+
+**Args:** <code>dialog: <a href='https://dev-docs.ankiweb.net/en/latest/autoapi/aqt/fields#aqt.fields.FieldDialog'>aqt.fields.FieldDialog</a></code>, <code>field: <a href='https://dev-docs.ankiweb.net/en/latest/autoapi/anki/models#anki.models.FieldDict'>anki.models.FieldDict</a></code>
+
+No docstring.
+
+---
+
+### `stats_dialog_will_show`
+
+**Args:** <code>dialog: <a href='https://dev-docs.ankiweb.net/en/latest/autoapi/aqt/stats#aqt.stats.NewDeckStats'>aqt.stats.NewDeckStats</a></code>
+
+Allows changing the stats dialog before it is shown.
+
+---
+
+### `stats_dialog_old_will_show`
+
+**Args:** <code>dialog: <a href='https://dev-docs.ankiweb.net/en/latest/autoapi/aqt/stats#aqt.stats.DeckStats'>aqt.stats.DeckStats</a></code>
+
+Allows changing the old stats dialog before it is shown.
+
+---
+
+### `current_note_type_did_change`
+
+**Args:** <code>notetype: NotetypeDict</code>
+
+No docstring.
+
+---
+
+### `sidebar_should_refresh_decks`
+
+No arguments.
+
+Legacy, do not use.
+
+---
+
+### `sidebar_should_refresh_notetypes`
+
+No arguments.
+
+Legacy, do not use.
+
+---
+
+### `deck_browser_will_show_options_menu`
+
+**Args:** <code>menu: QMenu</code>, <code>deck_id: int</code>
+
+No docstring.
+
+---
+
+### `flag_label_did_change`
+
+No arguments.
+
+Used to update the GUI when a new flag label is assigned.
+{/* <<<end>>> */}
