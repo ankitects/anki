@@ -64,13 +64,13 @@ modify the other files in the folder either.
 
 ## Program Files
 
-Anki's launcher is installed in the following locations by default:
+Anki is installed in the following locations by default:
 
 - Windows: `%LOCALAPPDATA%\Programs\Anki`
 - macOS: `/Applications/Anki.app`
 - Linux: `/usr/local/share/anki`
 
-When you install/update Anki with the launcher, it downloads support
+When you install/update Anki in versions 25.07 to 25.09.4, it downloads support
 files and places them in the following locations:
 
 - Windows: `%LOCALAPPDATA%\AnkiProgramFiles`
@@ -183,12 +183,37 @@ On Windows, Anki can be installed on a USB / flash drive and run as a
 portable application. The following example assumes your USB drive is
 drive E; adjust as necessary.
 
-WARNING: The drive letter must be the same on all devices. If you set this up for drive E,
-it won't work for a flash drive mapped to drive D for example.
+- Copy the `%LOCALAPPDATA%\Programs\Anki` folder to the flash drive, so you
+  have a folder like `E:\\Anki`.
+- Create a text file called `E:\\anki.bat` with the following text:
+  ```bat
+  E:\anki\anki.exe -b E:\ankidata
+  ```
+- If you would like to prevent the black command prompt window from
+remaining open, you can instead use:
+  ```bat
+  start /b E:\anki\anki.exe -b E:\ankidata
+  ```
+- Double-clicking on `anki.bat` should start Anki with the user data
+  stored in `E:\\ankidata`.
 
-WARNING: Media syncing with AnkiWeb may not work if your flash drive is formatted
+The full path including drive letter is required - if you try using
+`\anki\anki.exe` instead you will find syncing stops working.
+
+<Warning>
+The drive letter must be the same on all devices. If you set this up for drive E,
+it won't work for a flash drive mapped to drive D for example.
+</Warning>
+
+<Warning>
+Media syncing with AnkiWeb may not work if your flash drive is formatted
 as FAT32. Please format the drive as NTFS to ensure media syncs
 correctly.
+</Warning>
+
+### Anki Launcher
+
+These instructions apply to Anki versions 25.07 to 25.09.4:
 
 1. Download the latest Anki launcher, and install it in a custom location:
    `E:\Anki\Launcher`. Not `E:\Anki\Launcher\Anki`.
