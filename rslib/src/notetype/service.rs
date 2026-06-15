@@ -328,6 +328,7 @@ mod tests {
     use super::*;
     use crate::prelude::*;
     use crate::services::NotetypesService;
+    use crate::tests::NoteAdder;
 
     fn basic_notetype_id(col: &mut Collection) -> i64 {
         NotetypesService::get_notetype_names(col)
@@ -566,6 +567,270 @@ mod tests {
         assert!(
             result.ntid > 0,
             "expected non-zero ID from add_or_update_notetype"
+        );
+    }
+
+    // --- Service: add_or_update_notetype (branch: id!=0, !preserve_usn_and_mtime →
+    // update) ---
+
+    #[test]
+    fn add_or_update_notetype_updates_when_id_is_nonzero() {
+        let mut col = Collection::new();
+        let basic_id = basic_notetype_id(&mut col);
+        let legacy_json = NotetypesService::get_notetype_legacy(
+            &mut col,
+            anki_proto::notetypes::NotetypeId { ntid: basic_id },
+        )
+        .unwrap();
+        let mut json: serde_json::Value = serde_json::from_slice(&legacy_json.json).unwrap();
+        json["name"] = serde_json::json!("UpdatedViaAddOrUpdate");
+        let _ = NotetypesService::add_or_update_notetype(
+            &mut col,
+            anki_proto::notetypes::AddOrUpdateNotetypeRequest {
+                json: serde_json::to_vec(&json).unwrap(),
+                preserve_usn_and_mtime: false,
+                skip_checks: false,
+            },
+        )
+        .unwrap();
+        let updated_json = NotetypesService::get_notetype_legacy(
+            &mut col,
+            anki_proto::notetypes::NotetypeId { ntid: basic_id },
+        )
+        .unwrap();
+        let updated: serde_json::Value = serde_json::from_slice(&updated_json.json).unwrap();
+        assert_eq!(updated["name"], "UpdatedViaAddOrUpdate");
+    }
+
+    // --- Service: add_or_update_notetype (branch: id!=0, preserve_usn_and_mtime →
+    // add_or_update_with_existing_id) ---
+
+    #[test]
+    fn add_or_update_notetype_preserves_usn_when_flag_is_set() {
+        let mut col = Collection::new();
+        let basic_id = basic_notetype_id(&mut col);
+        let legacy_json = NotetypesService::get_notetype_legacy(
+            &mut col,
+            anki_proto::notetypes::NotetypeId { ntid: basic_id },
+        )
+        .unwrap();
+        let mut json: serde_json::Value = serde_json::from_slice(&legacy_json.json).unwrap();
+        json["name"] = serde_json::json!("UpdatedWithPreservedUsn");
+        let _ = NotetypesService::add_or_update_notetype(
+            &mut col,
+            anki_proto::notetypes::AddOrUpdateNotetypeRequest {
+                json: serde_json::to_vec(&json).unwrap(),
+                preserve_usn_and_mtime: true,
+                skip_checks: false,
+            },
+        )
+        .unwrap();
+        let updated_json = NotetypesService::get_notetype_legacy(
+            &mut col,
+            anki_proto::notetypes::NotetypeId { ntid: basic_id },
+        )
+        .unwrap();
+        let updated: serde_json::Value = serde_json::from_slice(&updated_json.json).unwrap();
+        assert_eq!(updated["name"], "UpdatedWithPreservedUsn");
+    }
+
+    // --- Service: get_notetype_names ---
+
+    #[test]
+    fn get_notetype_names_includes_stock_notetypes() {
+        let mut col = Collection::new();
+        let names = NotetypesService::get_notetype_names(&mut col).unwrap();
+        let name_list: Vec<&str> = names.entries.iter().map(|e| e.name.as_str()).collect();
+        assert!(name_list.contains(&"Basic"), "expected Basic in names");
+        assert!(name_list.contains(&"Cloze"), "expected Cloze in names");
+    }
+
+    // --- Service: add_notetype ---
+
+    #[test]
+    fn add_notetype_returns_non_zero_id() {
+        let mut col = Collection::new();
+        let basic_id = basic_notetype_id(&mut col);
+        let mut proto = NotetypesService::get_notetype(
+            &mut col,
+            anki_proto::notetypes::NotetypeId { ntid: basic_id },
+        )
+        .unwrap();
+        proto.id = 0;
+        proto.name = "TestType".to_string();
+        let result = NotetypesService::add_notetype(&mut col, proto).unwrap();
+        assert!(result.id > 0, "expected non-zero ID after add");
+    }
+
+    #[test]
+    fn add_notetype_is_retrievable_by_id() {
+        let mut col = Collection::new();
+        let basic_id = basic_notetype_id(&mut col);
+        let mut proto = NotetypesService::get_notetype(
+            &mut col,
+            anki_proto::notetypes::NotetypeId { ntid: basic_id },
+        )
+        .unwrap();
+        proto.id = 0;
+        proto.name = "RetrieveById".to_string();
+        let result = NotetypesService::add_notetype(&mut col, proto).unwrap();
+        let fetched = NotetypesService::get_notetype(
+            &mut col,
+            anki_proto::notetypes::NotetypeId { ntid: result.id },
+        )
+        .unwrap();
+        assert_eq!(fetched.name, "RetrieveById");
+    }
+
+    #[test]
+    fn add_notetype_is_retrievable_by_name() {
+        let mut col = Collection::new();
+        let basic_id = basic_notetype_id(&mut col);
+        let mut proto = NotetypesService::get_notetype(
+            &mut col,
+            anki_proto::notetypes::NotetypeId { ntid: basic_id },
+        )
+        .unwrap();
+        proto.id = 0;
+        proto.name = "RetrieveByName".to_string();
+        let _ = NotetypesService::add_notetype(&mut col, proto).unwrap();
+        let result = NotetypesService::get_notetype_id_by_name(
+            &mut col,
+            generic::String {
+                val: "RetrieveByName".to_string(),
+            },
+        )
+        .unwrap();
+        assert!(
+            result.ntid > 0,
+            "expected non-zero ID from get_notetype_id_by_name"
+        );
+    }
+
+    // --- Service: get_notetype error path ---
+
+    #[test]
+    fn get_notetype_returns_error_for_unknown_id() {
+        let mut col = Collection::new();
+        let result = NotetypesService::get_notetype(
+            &mut col,
+            anki_proto::notetypes::NotetypeId { ntid: 999_999 },
+        );
+        assert!(result.is_err(), "expected Err for unknown notetype ID");
+    }
+
+    // --- Service: get_notetype_id_by_name error path ---
+
+    #[test]
+    fn get_notetype_id_by_name_returns_error_for_unknown_name() {
+        let mut col = Collection::new();
+        let result = NotetypesService::get_notetype_id_by_name(
+            &mut col,
+            generic::String {
+                val: "NonExistentNotetype".to_string(),
+            },
+        );
+        assert!(result.is_err(), "expected Err for unknown notetype name");
+    }
+
+    // --- Service: get_field_names ---
+
+    #[test]
+    fn get_field_names_returns_basic_fields() {
+        let mut col = Collection::new();
+        let basic_id = basic_notetype_id(&mut col);
+        let result = NotetypesService::get_field_names(
+            &mut col,
+            anki_proto::notetypes::NotetypeId { ntid: basic_id },
+        )
+        .unwrap();
+        assert_eq!(result.vals, vec!["Front", "Back"]);
+    }
+
+    // --- Service: update_notetype ---
+
+    #[test]
+    fn update_notetype_field_name_persists() {
+        let mut col = Collection::new();
+        let basic_id = basic_notetype_id(&mut col);
+        let mut proto = NotetypesService::get_notetype(
+            &mut col,
+            anki_proto::notetypes::NotetypeId { ntid: basic_id },
+        )
+        .unwrap();
+        proto.fields[0].name = "Question".to_string();
+        let _ = NotetypesService::update_notetype(&mut col, proto).unwrap();
+        let updated = NotetypesService::get_notetype(
+            &mut col,
+            anki_proto::notetypes::NotetypeId { ntid: basic_id },
+        )
+        .unwrap();
+        assert_eq!(
+            updated.fields[0].name, "Question",
+            "expected renamed field to persist after update"
+        );
+    }
+
+    #[test]
+    fn update_notetype_adding_template_generates_new_card() {
+        let mut col = Collection::new();
+        NoteAdder::basic(&mut col)
+            .fields(&["front text", "back text"])
+            .add(&mut col);
+        assert_eq!(
+            col.storage.get_all_cards().len(),
+            1,
+            "expected 1 card before adding template"
+        );
+        let basic_id = basic_notetype_id(&mut col);
+        let mut proto = NotetypesService::get_notetype(
+            &mut col,
+            anki_proto::notetypes::NotetypeId { ntid: basic_id },
+        )
+        .unwrap();
+        proto
+            .templates
+            .push(anki_proto::notetypes::notetype::Template {
+                name: "Card 2".to_string(),
+                config: Some(anki_proto::notetypes::notetype::template::Config {
+                    q_format: "{{Back}}".to_string(),
+                    a_format: "{{FrontSide}}<hr id=answer>{{Front}}".to_string(),
+                    ..Default::default()
+                }),
+                ..Default::default()
+            });
+        let _ = NotetypesService::update_notetype(&mut col, proto).unwrap();
+        assert_eq!(
+            col.storage.get_all_cards().len(),
+            2,
+            "expected 2 cards after adding template"
+        );
+    }
+
+    // --- Service: remove_notetype ---
+
+    #[test]
+    fn remove_notetype_not_in_names_list() {
+        let mut col = Collection::new();
+        let basic_id = basic_notetype_id(&mut col);
+        let mut proto = NotetypesService::get_notetype(
+            &mut col,
+            anki_proto::notetypes::NotetypeId { ntid: basic_id },
+        )
+        .unwrap();
+        proto.id = 0;
+        proto.name = "ToRemove".to_string();
+        let added = NotetypesService::add_notetype(&mut col, proto).unwrap();
+        let _ = NotetypesService::remove_notetype(
+            &mut col,
+            anki_proto::notetypes::NotetypeId { ntid: added.id },
+        )
+        .unwrap();
+        let names = NotetypesService::get_notetype_names(&mut col).unwrap();
+        let name_list: Vec<&str> = names.entries.iter().map(|e| e.name.as_str()).collect();
+        assert!(
+            !name_list.contains(&"ToRemove"),
+            "expected removed notetype to be absent from names"
         );
     }
 }
