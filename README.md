@@ -6,6 +6,10 @@
 This repo contains the source code for the computer version of
 [Anki](https://apps.ankiweb.net).
 
+## About
+
+Anki is a spaced repetition program. Please see the [website](https://apps.ankiweb.net) to learn more.
+
 ## Getting Started
 
 ### Contributing
