@@ -7,7 +7,6 @@ import android.os.Bundle
 import android.view.View
 import androidx.annotation.StringRes
 import androidx.core.net.toUri
-import androidx.core.os.bundleOf
 import androidx.fragment.app.Fragment
 import com.ichi2.anki.databinding.FragmentMoreBinding
 import com.ichi2.anki.dialogs.help.ARG_MENU_ITEMS
@@ -97,10 +96,10 @@ class MoreFragment : Fragment(R.layout.fragment_more) {
         val dialog =
             HelpDialog().apply {
                 arguments =
-                    bundleOf(
-                        HelpDialog.ARG_MENU_TITLE to titleRes,
-                        ARG_MENU_ITEMS to children.toTypedArray(),
-                    )
+                    Bundle().apply {
+                        putInt(HelpDialog.ARG_MENU_TITLE, titleRes)
+                        putParcelableArray(ARG_MENU_ITEMS, children.toTypedArray())
+                    }
             }
         requireActivity().showDialogFragment(dialog)
     }
