@@ -6,9 +6,9 @@ title: "Installing & Upgrading Anki on Linux"
 
 ## Requirements
 
-The packaged version requires a recent 64 bit Intel/AMD Linux with glibc 2.36+, and common
+The packaged version requires a recent 64 bit Intel/AMD Linux with glibc 2.35+ or ARM/AArch64 with glibc 2.39+, and common
 libraries like libwayland-client and systemd. If you are on a different
-architecture (e.g ARM/AArch64), or a barebones Linux distro, you will not be able to use the
+architecture, or a barebones Linux distro, you will not be able to use the
 packaged version, but you may be able to use the [Python wheels](https://betas.ankiweb.net/#via-pypipip)
 instead.
 
@@ -40,8 +40,8 @@ To install Anki:
 3. Open a terminal and run the following commands, replacing the filename as appropriate.
 
 ```shell
-tar xaf Downloads/anki-launcher-2XXX-linux.tar.zst
-cd anki-launcher-2XXX-linux
+tar xaf Downloads/anki-2XXX-linux-x86_64.tar.zst
+cd anki-linux
 sudo ./install.sh
 ```
 
@@ -71,32 +71,12 @@ you can download older Anki versions from the [releases page](https://github.com
 
 ## System Qt versions
 
-Anki's launcher uses the official PyQt builds by default. This makes it easier to
+Anki uses the official PyQt builds by default. This makes it easier to
 install Anki on distros that don't have the relevant Python/Qt versions, but means that
 you may not have access certain Qt features provided by your Linux distro, such as certain
 Qt themes, support for the FCITX input method, etc.
 
 If your Linux distro provides up-to-date Anki packages, you may find using them easiest.
-
-If it doesn't, advanced users may wish to combine Anki's launcher with their system's Qt version.
-To do this, your system needs to have a Python version Anki supports (soon to be 3.11+),
-and suitable PyQt libraries (6.2+).
-
-WARNING: This is an experimental feature, and your system's Qt may fix some bugs while
-introducing others.
-
-1. Install Python and the relevant PyQt packages. On Ubuntu:
-
-   > sudo apt install python3-pyqt6.qtwebengine
-
-1. If you previously used the launcher, `rm -rf ~/.local/share/AnkiProgramFiles`.
-
-1. Untar the launcher, and cd to its folder.
-
-1. Run `touch system_qt` to create a system_qt file in that folder.
-
-1. Install Anki via ./anki or ./install.sh. In the list of installed packages,
-   you should not see any mention of PyQt6.
 
 ## Problems
 
