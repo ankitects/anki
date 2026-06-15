@@ -30,7 +30,6 @@ from __future__ import annotations
 import inspect
 import json
 import os
-import platform
 import select
 import socket
 import subprocess
