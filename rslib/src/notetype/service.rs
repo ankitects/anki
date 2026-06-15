@@ -323,8 +323,21 @@ impl From<NotetypeId> for anki_proto::notetypes::NotetypeId {
 
 #[cfg(test)]
 mod tests {
+    use anki_proto::generic;
+
     use super::*;
     use crate::prelude::*;
+    use crate::services::NotetypesService;
+
+    fn basic_notetype_id(col: &mut Collection) -> i64 {
+        NotetypesService::get_notetype_names(col)
+            .unwrap()
+            .entries
+            .into_iter()
+            .find(|e| e.name == "Basic")
+            .unwrap()
+            .id
+    }
 
     // --- From<proto::NotetypeId> for NotetypeId ---
 
@@ -422,6 +435,137 @@ mod tests {
             proto.new_templates,
             vec![-1, 0],
             "None→-1 and Some(0)→0 in templates"
+        );
+    }
+
+    // --- Service: get_notetype_legacy / get_stock_notetype_legacy ---
+
+    #[test]
+    fn get_notetype_legacy_returns_json_with_expected_name() {
+        let mut col = Collection::new();
+        let basic_id = basic_notetype_id(&mut col);
+        let result = NotetypesService::get_notetype_legacy(
+            &mut col,
+            anki_proto::notetypes::NotetypeId { ntid: basic_id },
+        )
+        .unwrap();
+        let json: serde_json::Value = serde_json::from_slice(&result.json).unwrap();
+        assert_eq!(json["name"], "Basic");
+    }
+
+    #[test]
+    fn get_stock_notetype_legacy_returns_valid_json_for_all_kinds() {
+        use anki_proto::notetypes::stock_notetype::Kind;
+        let cases: &[(Kind, &str)] = &[
+            (Kind::Basic, "Basic"),
+            (Kind::BasicAndReversed, "Basic (and reversed card)"),
+            (
+                Kind::BasicOptionalReversed,
+                "Basic (optional reversed card)",
+            ),
+            (Kind::BasicTyping, "Basic (type in the answer)"),
+            (Kind::Cloze, "Cloze"),
+            (Kind::ImageOcclusion, "Image Occlusion"),
+        ];
+        for (kind, expected_name) in cases {
+            let mut col = Collection::new();
+            let result = NotetypesService::get_stock_notetype_legacy(
+                &mut col,
+                anki_proto::notetypes::StockNotetype { kind: *kind as i32 },
+            )
+            .unwrap();
+            let json: serde_json::Value = serde_json::from_slice(&result.json).unwrap();
+            assert_eq!(
+                json["name"], *expected_name,
+                "wrong name for kind {:?}",
+                kind
+            );
+        }
+    }
+
+    // --- Service: add_notetype_legacy ---
+
+    #[test]
+    fn add_notetype_legacy_assigns_non_zero_id() {
+        let mut col = Collection::new();
+        let basic_id = basic_notetype_id(&mut col);
+        let legacy_json = NotetypesService::get_notetype_legacy(
+            &mut col,
+            anki_proto::notetypes::NotetypeId { ntid: basic_id },
+        )
+        .unwrap();
+        let mut json: serde_json::Value = serde_json::from_slice(&legacy_json.json).unwrap();
+        json["id"] = serde_json::json!(0);
+        json["name"] = serde_json::json!("LegacyAdded");
+        let result = NotetypesService::add_notetype_legacy(
+            &mut col,
+            generic::Json {
+                json: serde_json::to_vec(&json).unwrap(),
+            },
+        )
+        .unwrap();
+        assert!(
+            result.id > 0,
+            "expected non-zero ID from add_notetype_legacy"
+        );
+    }
+
+    // --- Service: update_notetype_legacy ---
+
+    #[test]
+    fn update_notetype_legacy_persists_name_change() {
+        let mut col = Collection::new();
+        let basic_id = basic_notetype_id(&mut col);
+        let legacy_json = NotetypesService::get_notetype_legacy(
+            &mut col,
+            anki_proto::notetypes::NotetypeId { ntid: basic_id },
+        )
+        .unwrap();
+        let mut json: serde_json::Value = serde_json::from_slice(&legacy_json.json).unwrap();
+        json["name"] = serde_json::json!("BasicRenamed");
+        let _ = NotetypesService::update_notetype_legacy(
+            &mut col,
+            anki_proto::notetypes::UpdateNotetypeLegacyRequest {
+                json: serde_json::to_vec(&json).unwrap(),
+                skip_checks: false,
+            },
+        )
+        .unwrap();
+        let updated_json = NotetypesService::get_notetype_legacy(
+            &mut col,
+            anki_proto::notetypes::NotetypeId { ntid: basic_id },
+        )
+        .unwrap();
+        let updated: serde_json::Value = serde_json::from_slice(&updated_json.json).unwrap();
+        assert_eq!(updated["name"], "BasicRenamed");
+    }
+
+    // --- Service: add_or_update_notetype (branch: id=0 → add) ---
+
+    #[test]
+    fn add_or_update_notetype_adds_when_id_is_zero() {
+        let mut col = Collection::new();
+        let basic_id = basic_notetype_id(&mut col);
+        let legacy_json = NotetypesService::get_notetype_legacy(
+            &mut col,
+            anki_proto::notetypes::NotetypeId { ntid: basic_id },
+        )
+        .unwrap();
+        let mut json: serde_json::Value = serde_json::from_slice(&legacy_json.json).unwrap();
+        json["id"] = serde_json::json!(0);
+        json["name"] = serde_json::json!("AddOrUpdateAdded");
+        let result = NotetypesService::add_or_update_notetype(
+            &mut col,
+            anki_proto::notetypes::AddOrUpdateNotetypeRequest {
+                json: serde_json::to_vec(&json).unwrap(),
+                preserve_usn_and_mtime: false,
+                skip_checks: false,
+            },
+        )
+        .unwrap();
+        assert!(
+            result.ntid > 0,
+            "expected non-zero ID from add_or_update_notetype"
         );
     }
 }
