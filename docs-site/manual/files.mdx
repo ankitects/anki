@@ -183,20 +183,19 @@ On Windows, Anki can be installed on a USB / flash drive and run as a
 portable application. The following example assumes your USB drive is
 drive E; adjust as necessary.
 
-- Copy the %LOCALAPPDATA%\Programs\Anki folder to the flash drive, so you
-  have a folder like E:\\Anki.
-
-- Create a text file called E:\\anki.bat with the following text:
-
+- Copy the `%LOCALAPPDATA%\Programs\Anki` folder to the flash drive, so you
+  have a folder like `E:\\Anki`.
+- Create a text file called `E:\\anki.bat` with the following text:
+  ```bat
   E:\anki\anki.exe -b E:\ankidata
-
-If you would like to prevent the black command prompt window from
+  ```
+- If you would like to prevent the black command prompt window from
 remaining open, you can instead use:
-
-    start /b E:\anki\anki.exe -b E:\ankidata
-
-- Double-clicking on anki.bat should start Anki with the user data
-  stored in E:\\ankidata.
+  ```bat
+  start /b E:\anki\anki.exe -b E:\ankidata
+  ```
+- Double-clicking on `anki.bat` should start Anki with the user data
+  stored in `E:\\ankidata`.
 
 The full path including drive letter is required - if you try using
 `\anki\anki.exe` instead you will find syncing stops working.
