@@ -833,4 +833,115 @@ mod tests {
             "expected removed notetype to be absent from names"
         );
     }
+
+    // --- Service: get_notetype_names_and_counts ---
+
+    #[test]
+    fn get_notetype_names_and_counts_returns_zero_for_unused_notetypes() {
+        let mut col = Collection::new();
+        let counts = NotetypesService::get_notetype_names_and_counts(&mut col).unwrap();
+        let basic = counts
+            .entries
+            .iter()
+            .find(|e| e.name == "Basic")
+            .expect("Basic notetype not found");
+        assert_eq!(
+            basic.use_count, 0,
+            "expected use_count 0 for Basic with no notes"
+        );
+    }
+
+    #[test]
+    fn get_notetype_names_and_counts_increments_after_adding_note() {
+        let mut col = Collection::new();
+        NoteAdder::basic(&mut col).add(&mut col);
+        let counts = NotetypesService::get_notetype_names_and_counts(&mut col).unwrap();
+        let basic = counts
+            .entries
+            .iter()
+            .find(|e| e.name == "Basic")
+            .expect("Basic notetype not found");
+        assert_eq!(
+            basic.use_count, 1,
+            "expected use_count 1 after adding one Basic note"
+        );
+    }
+
+    // --- Service: get_aux_notetype_config_key ---
+
+    #[test]
+    fn get_aux_notetype_config_key_formats_key_with_notetype_id() {
+        let mut col = Collection::new();
+        let result = NotetypesService::get_aux_notetype_config_key(
+            &mut col,
+            anki_proto::notetypes::GetAuxConfigKeyRequest {
+                id: 42,
+                key: "test".to_string(),
+            },
+        )
+        .unwrap();
+        assert_eq!(result.val, "_nt_42_test");
+    }
+
+    // --- Service: get_aux_template_config_key ---
+
+    #[test]
+    fn get_aux_template_config_key_uses_card_ordinal_for_normal_notetype() {
+        let mut col = Collection::new();
+        let basic_id = basic_notetype_id(&mut col);
+        let result = NotetypesService::get_aux_template_config_key(
+            &mut col,
+            anki_proto::notetypes::GetAuxTemplateConfigKeyRequest {
+                notetype_id: basic_id,
+                card_ordinal: 1,
+                key: "test".to_string(),
+            },
+        )
+        .unwrap();
+        assert!(
+            result.val.ends_with("_test_1"),
+            "expected ordinal 1 in key for normal notetype, got: {}",
+            result.val
+        );
+    }
+
+    #[test]
+    fn get_aux_template_config_key_uses_zero_ordinal_for_cloze_notetype() {
+        let mut col = Collection::new();
+        let cloze_id = NotetypesService::get_notetype_names(&mut col)
+            .unwrap()
+            .entries
+            .into_iter()
+            .find(|e| e.name == "Cloze")
+            .unwrap()
+            .id;
+        let result = NotetypesService::get_aux_template_config_key(
+            &mut col,
+            anki_proto::notetypes::GetAuxTemplateConfigKeyRequest {
+                notetype_id: cloze_id,
+                card_ordinal: 5,
+                key: "test".to_string(),
+            },
+        )
+        .unwrap();
+        assert!(
+            result.val.ends_with("_test_0"),
+            "expected ordinal 0 in key for Cloze notetype regardless of input, got: {}",
+            result.val
+        );
+    }
+
+    #[test]
+    fn get_aux_template_config_key_returns_error_for_unknown_notetype_id() {
+        let mut col = Collection::new();
+        let result = NotetypesService::get_aux_template_config_key(
+            &mut col,
+            anki_proto::notetypes::GetAuxTemplateConfigKeyRequest {
+                notetype_id: 999_999,
+                card_ordinal: 0,
+                key: "test".to_string(),
+            },
+        );
+        assert!(result.is_err(), "expected Err for unknown notetype ID");
+    }
 }
