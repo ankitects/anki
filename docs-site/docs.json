@@ -23,6 +23,7 @@
                     {
                         "group": "Desktop Manual",
                         "pages": [
+                          "manual/intro",
                           "manual/getting-started",
                             "manual/background",
                             {
