@@ -78,7 +78,7 @@
     <string name="slide_to_cancel" comment="Message shown when pressing the record button">Wischen zum Abbrechen</string>
     <string name="filter_by_flags" maxLength="41">Fahnen</string>
     <!-- filtered deck options -->
-    <string name="filtered_option_delay_again">Delay for again</string>
+    <string name="filtered_option_delay_again">Wartezeit für ›Nochmal‹</string>
     <string name="filtered_option_delay_hard">Verzögerung für Schwer</string>
     <string name="filtered_option_delay_good">Verzögerung für gut</string>
     <!-- Custom study options -->

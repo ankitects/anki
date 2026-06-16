@@ -90,7 +90,7 @@
     <string name="menu_unmark_note">הסר סימון רשומה</string>
     <string name="menu_enable_voice_playback" maxLength="28">אפשר הפעלה קולית</string>
     <string name="menu_disable_voice_playback">השבת השמעה קולית</string>
-    <string name="menu_create_backup" maxLength="28">Create backup</string>
+    <string name="menu_create_backup" maxLength="28">צור גיבוי</string>
     <string name="new_dynamic_deck">יצירת חפיסה מסוננת</string>
     <string name="directory_inaccessible">הספרייה של AnkiDroid אינה נגישה</string>
     <!--This is shown when AnkiDroid starts up with no storage permissions.
@@ -102,7 +102,7 @@
     <string name="empty_cram_label" maxLength="28">ריקון</string>
     <string name="create_subdeck">צור חפיסת משנה</string>
     <string name="empty_filtered_deck">מרוקן חפיסה מסוננת&#8230;</string>
-    <string name="search_deck" comment="Deck search for selecting it">Deck search</string>
+    <string name="search_deck" comment="Deck search for selecting it">חיפוס חפיסות</string>
     <string name="empty_deck">החפיסה ריקה</string>
     <string name="invalid_deck_name">שם חפיסה לא חוקי</string>
     <string name="studyoptions_congrats_finished">כל הכבוד! סיימת להיום.</string>
@@ -180,7 +180,7 @@
     <!-- Instant Note Editor -->
     <string name="instant_card" comment="Used in the Android system context menu/share dialog to quickly create a note. This does not need to be translated literally, translate the concept of quickly adding a Cloze note with a popup. ">כרטיס מיידי</string>
     <!-- Internet Permissions -->
-    <string name="internet_access_title" comment="used for notifying user to unable internet access">Internet</string>
+    <string name="internet_access_title" comment="used for notifying user to unable internet access">אינטרנט</string>
     <string name="permission_access_summary">Required for the app to work</string>
     <string name="permission_required_message">Please grant AnkiDroid the ‘%s’ permission to continue</string>
     <!-- Multiple profile -->

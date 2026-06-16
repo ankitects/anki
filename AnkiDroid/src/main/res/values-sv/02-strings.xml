@@ -26,15 +26,15 @@
     <!-- Navigation drawer strings -->
     <string name="drawer_open">Öppna meny</string>
     <string name="drawer_close">Stäng meny</string>
-    <string name="note_message">Note saved</string>
+    <string name="note_message">Anteckning sparad!</string>
     <!-- Note editor screen -->
     <string name="CardEditorCardDeck">Kortlek:</string>
     <string name="CardEditorNoteDeck">Kortlek:</string>
     <string name="CardEditorModel">Typ:</string>
     <string name="CardEditorTags">Etiketter: %1$s</string>
     <string name="CardEditorCards">Kort: %1$s</string>
-    <string name="edit_occlusions">Edit occlusions</string>
-    <string name="paste_from_clipboard" maxLength="28">Paste from clipboard</string>
+    <string name="edit_occlusions">Redigera ocklusioner</string>
+    <string name="paste_from_clipboard" maxLength="28">Klistra in från urklipp</string>
     <string name="add_new_filter_tags">Lägg till/Filtrera etiketter</string>
     <string name="add_tag" maxLength="28">Lägg till etikett</string>
     <string name="check_all_tags" maxLength="28">Markera/avmarkera alla etiketter</string>
@@ -45,26 +45,26 @@
     <string name="save_whiteboard" maxLength="28">Spara whiteboarden</string>
     <string name="enable_stylus" maxLength="28">Aktivera pekpenna</string>
     <string name="disable_stylus">Inaktivera pekpenna</string>
-    <string name="eraser" maxLength="28">Eraser</string>
-    <string name="add_brush" maxLength="28">Add brush</string>
-    <string name="whiteboard_align_left" comment="Option to align the whiteboard toolbar on the left" maxLength="28">Left</string>
-    <string name="whiteboard_align_bottom" comment="Option to align the whiteboard toolbar on the bottom" maxLength="28">Bottom</string>
-    <string name="whiteboard_align_right" comment="Option to align the whiteboard toolbar on the right" maxLength="28">Right</string>
-    <string name="whiteboard_more_options" comment="Tooltip of the whiteboard \'More\' button" maxLength="28">More options</string>
-    <string name="whiteboard_remove_brush_message">Are you sure you want to remove this brush from your palette?</string>
-    <string name="whiteboard_ink_eraser" comment="Title of the whiteboard Ink eraser">Ink</string>
-    <string name="whiteboard_stroke_eraser" comment="Title of the whiteboard Stroke eraser">Stroke</string>
-    <string name="stylus_mode" comment="Title of the menu item that toggles the whiteboard stylus mode" maxLength="28">Stylus mode</string>
-    <string name="cannot_remove_last_brush_message">The last brush may not be removed</string>
+    <string name="eraser" maxLength="28">Suddgummi</string>
+    <string name="add_brush" maxLength="28">Lägg till pensel</string>
+    <string name="whiteboard_align_left" comment="Option to align the whiteboard toolbar on the left" maxLength="28">Vänster</string>
+    <string name="whiteboard_align_bottom" comment="Option to align the whiteboard toolbar on the bottom" maxLength="28">Nederkant</string>
+    <string name="whiteboard_align_right" comment="Option to align the whiteboard toolbar on the right" maxLength="28">Höger</string>
+    <string name="whiteboard_more_options" comment="Tooltip of the whiteboard \'More\' button" maxLength="28">Fler alternativ</string>
+    <string name="whiteboard_remove_brush_message">Är du säker på att du vill ta bort denna borste från din palett?</string>
+    <string name="whiteboard_ink_eraser" comment="Title of the whiteboard Ink eraser">Bläck</string>
+    <string name="whiteboard_stroke_eraser" comment="Title of the whiteboard Stroke eraser">Streck</string>
+    <string name="stylus_mode" comment="Title of the menu item that toggles the whiteboard stylus mode" maxLength="28">Pennläge</string>
+    <string name="cannot_remove_last_brush_message">Den sista penseln får inte tas bort</string>
     <string name="enable_whiteboard" maxLength="28">Aktivera whiteboard</string>
     <string name="disable_whiteboard">Avaktivera whiteboard</string>
     <string name="show_whiteboard">Aktivera whiteboard</string>
-    <string name="enable_eraser" maxLength="28">Enable eraser</string>
-    <string name="disable_eraser" maxLength="28">Disable eraser</string>
+    <string name="enable_eraser" maxLength="28">Aktivera suddgummi</string>
+    <string name="disable_eraser" maxLength="28">Inaktivera suddgummi</string>
     <string name="hide_whiteboard" maxLength="28">Stäng av whiteboard</string>
     <string name="clear_whiteboard" maxLength="28">Rensa whiteboard</string>
-    <string name="hide_toolbar" maxLength="28">Hide toolbar</string>
-    <string name="replay_media" maxLength="28">Replay media</string>
+    <string name="hide_toolbar" maxLength="28">Dölj verktygsfältet</string>
+    <string name="replay_media" maxLength="28">Spela upp media igen</string>
     <string name="leech_suspend_notification">Kort markerat som utsugarkort och låst</string>
     <string name="leech_notification">Kort markerat som igel</string>
     <string name="webview_crash_unknown">Okänt fel</string>
@@ -75,17 +75,17 @@
     <string name="webview_crash_fatal">Kritiskt fel: WebViewern kraschade. Orsak: %s</string>
     <string name="webview_crash_loop_dialog_title">Systemfel hos WebViewern</string>
     <string name="webview_crash_loop_dialog_content">WebViewern kunde inte hämta kortet \'%1$s\'.\n %2$s</string>
-    <string name="slide_to_cancel" comment="Message shown when pressing the record button">Slide to cancel</string>
+    <string name="slide_to_cancel" comment="Message shown when pressing the record button">Svep för att avbryta</string>
     <string name="filter_by_flags" maxLength="41">Flaggor</string>
     <!-- filtered deck options -->
-    <string name="filtered_option_delay_again">Delay for again</string>
-    <string name="filtered_option_delay_hard">Delay for hard</string>
-    <string name="filtered_option_delay_good">Delay for good</string>
+    <string name="filtered_option_delay_again">Fördröjning för igen</string>
+    <string name="filtered_option_delay_hard">Fördröjning för hårt</string>
+    <string name="filtered_option_delay_good">Fördröjning för bra</string>
     <!-- Custom study options -->
-    <string name="custom_study_loading_tags">Building list of tags&#8230;</string>
+    <string name="custom_study_loading_tags">Bygger lista över taggar&#8230;</string>
     <!-- Study options -->
     <plurals name="studyoptions_buried_count">
-        <item quantity="one">+%d buried</item>
+        <item quantity="one">+%d begravda</item>
         <item quantity="other">+%d buried</item>
     </plurals>
     <string name="studyoptions_total_new_label">Totalt antal nya kort</string>
@@ -105,10 +105,10 @@
     <string name="missing_note_type">Anteckningstyp saknas</string>
     <string name="card_previewer_empty_front_indicator" comment="Extra text appended onto a tab title in the card previewer so that the user can see at a glance whether a card has no front.">%1$s (tom)</string>
     <!-- Image cropper -->
-    <string name="image_cropper_action_rotate" maxLength="28" comment="Action in image cropper screen">Rotate</string>
-    <string name="image_cropper_action_flip" maxLength="28" comment="Action in image cropper screen">Flip</string>
-    <string name="image_cropper_action_flip_horizontally" maxLength="28" comment="Submenu action in image cropper screen">Flip horizontally</string>
-    <string name="image_cropper_action_flip_vertically" maxLength="28" comment="Submenu action in image cropper screen">Flip vertically</string>
+    <string name="image_cropper_action_rotate" maxLength="28" comment="Action in image cropper screen">Rotera</string>
+    <string name="image_cropper_action_flip" maxLength="28" comment="Action in image cropper screen">Vänd</string>
+    <string name="image_cropper_action_flip_horizontally" maxLength="28" comment="Submenu action in image cropper screen">Vänd horisontellt</string>
+    <string name="image_cropper_action_flip_vertically" maxLength="28" comment="Submenu action in image cropper screen">Vänd vertikalt</string>
     <!-- Timebox -->
     <string name="timebox_reached_title">Tidsruta har uppnåtts</string>
     <plurals name="timebox_reached">
@@ -145,7 +145,7 @@
     <string name="import_error_load_imported_database">Anki Database (.anki2) ersättningar stöds inte än. Se manualen för ersättningsinstruktioner.</string>
     <string name="import_error_content_provider">Den valda filen kunde inte importeras automatiskt av AnkiDroid. Vänligen se användarmanualen för information om manuell import av Anki-filer: \n %s</string>
     <string name="import_error_copy_to_cache_title">Misslyckades att cacha filen</string>
-    <string name="import_error_copy_to_cache_explanation" comment="The substitution is a list of suggested fixes in bullet point form">This is often caused by a bug in the app you used to select the file. Please try the following fixes:\n\n%s</string>
+    <string name="import_error_copy_to_cache_explanation" comment="The substitution is a list of suggested fixes in bullet point form">Detta orsakas ofta av en bugg i appen du använde för att välja filen. Försök med följande rättelser:\n\n%s</string>
     <string name="import_interrupted">Import avbruten: AnkiDroid stängdes</string>
     <string name="export_ready_title">Export redo</string>
     <string name="export_send_no_handlers">Inga program tillgängliga för att hantera apkg. Sparar&#8230;</string>
@@ -170,9 +170,9 @@
     <string name="dyn_deck_desc">Det här är en specialkortlek för studier utanför det normala schemat. Korten återförs automatiskt till sina ursprungliga kortlekar efter att du repeterat dem. Om du tar bort denna kortlek återförs alla återstående kort till sina ursprungliga kortlekar.</string>
     <string name="tag_editor_add_feedback">Tryck på “%2$s” för att bekräfta att lägga till “%1$s”</string>
     <string name="tag_editor_add_feedback_existing">Befintlig etikett “%1$s” vald</string>
-    <string name="tag_already_exists">Tag already exists</string>
-    <string name="error_name_exists">Name already exists</string>
-    <string name="warning_find_and_replace">Consider backing up your collection from DeckPicker before using this option!</string>
+    <string name="tag_already_exists">Taggen finns redan</string>
+    <string name="error_name_exists">Namnet finns redan</string>
+    <string name="warning_find_and_replace">Överväg att säkerhetskopiera din samling från DeckPicker innan du använder detta alternativ!</string>
     <!-- Time spans -->
     <!-- Currently only used if exporting APKG fails -->
     <string name="apk_share_error">Fel vid delning av apkg-fil</string>
@@ -184,17 +184,17 @@
     <!-- The name of the deck which corrupt cards will be moved to -->
     <!-- Deckpicker Background -->
     <string name="background_image_title" maxLength="41">Bakgrund</string>
-    <string name="remove_wallpaper_image" maxLength="41">Remove background</string>
-    <string name="remove_background_image">Are you sure you wish to remove the background?</string>
+    <string name="remove_wallpaper_image" maxLength="41">Ta bort bakgrund</string>
+    <string name="remove_background_image">Är du säker på att du vill ta bort bakgrund?</string>
     <!-- Card Template Browser Appearance -->
-    <string name="restore_default" maxLength="28">Restore default</string>
+    <string name="restore_default" maxLength="28">Återställ standardinställningar</string>
     <!-- Whiteboard eraser mode toggle message in Reviewer -->
-    <string name="white_board_eraser_enabled">Eraser mode activated</string>
-    <string name="white_board_eraser_disabled">Eraser mode deactivated</string>
+    <string name="white_board_eraser_enabled">Raderingläget är aktiverat</string>
+    <string name="white_board_eraser_disabled">Raderingläget är deaktiverat</string>
     <string comment="Progress amount e.g. \'28 MB/141 MB\'. %1$s is the current amount, %2$s is the max." name="progress_amount_bytes">%1$s/%2$s</string>
-    <string name="media_file_size_warning_title">Media too large</string>
-    <string name="media_file_size_warning_message" comment="1$s: File name, 2$s: File size, 3$s: The size limit (e.g. 100MB)">The file \"%1$s\" (%2$s) exceeds the AnkiWeb limit of %3$s and cannot be synced. Add anyway?</string>
-    <string name="media_file_size_add_anyway">Add anyway</string>
+    <string name="media_file_size_warning_title">Media för stor</string>
+    <string name="media_file_size_warning_message" comment="1$s: File name, 2$s: File size, 3$s: The size limit (e.g. 100MB)">Filen \"%1$s\" (%2$s) överskrider AnkiWeb gränsen för %3$s och kan inte synkroniseras. Lägg till ändå?</string>
+    <string name="media_file_size_add_anyway">Lägg till ändå</string>
     <!-- Whiteboard save image message in the Study Screen -->
     <string name="white_board_image_save_failed">Det gick inte att spara whiteboardbilden. %s</string>
     <string name="white_board_image_saved">Whiteboard-bild sparad till %s</string>
@@ -216,47 +216,47 @@
     <string name="search_decks" maxLength="28">Sök kortlekar</string>
     <string name="ankidroid_init_failed_webview_title">Kritiskt fel</string>
     <string name="ankidroid_init_failed_webview">AnkiDroid använder sig av System WebView vilket inte är tillgängligt. Detta kan hända om systemet håller på att installera uppdateringar. Försök igen om några minuter.\n\n%s</string>
-    <string name="ankidroid_init_failed_storage">AnkiDroid cannot access storage due to an Android error.\n\n%s</string>
+    <string name="ankidroid_init_failed_storage">AnkiDroid kan inte komma åt lagring på grund av ett Android-fel.\n\n%s</string>
     <!-- A Menu item to change the Font Size (currently in the Note Editor) -->
     <string name="menu_font_size" maxLength="28">Teckenstorlek</string>
     <string name="menu_show_toolbar" comment="Checkable item stating whether the note editor toolbar should be shown" maxLength="28">Visa verktygsfält</string>
-    <string name="format_insert_bold">Format as bold</string>
-    <string name="format_insert_italic">Format as italic</string>
-    <string name="format_insert_underline">Format as underline</string>
-    <string name="insert_horizontal_line">Insert horizontal line</string>
-    <string name="insert_heading">Insert heading</string>
-    <string name="format_font_size">Change font size</string>
-    <string name="insert_mathjax">Insert MathJax equation</string>
+    <string name="format_insert_bold">Formatera som fet</string>
+    <string name="format_insert_italic">Formatera som kursiv</string>
+    <string name="format_insert_underline">Formatera som understruken</string>
+    <string name="insert_horizontal_line">Infoga horisontell linje</string>
+    <string name="insert_heading">Infoga rubrik</string>
+    <string name="format_font_size">Ändra teckenstorlek</string>
+    <string name="insert_mathjax">Infoga MathJax ekvation</string>
     <string name="note_editor_toolbar_icon">Knapptext</string>
-    <string name="before_text">HTML before selection</string>
-    <string name="after_text">HTML after selection</string>
-    <string name="add_toolbar_item">Create toolbar item</string>
-    <string name="edit_toolbar_item">Edit toolbar item</string>
+    <string name="before_text">HTML före markering</string>
+    <string name="after_text">HTML efter markering</string>
+    <string name="add_toolbar_item">Skapa objekt i verktygsfältet</string>
+    <string name="edit_toolbar_item">Redigera objekt i verktygsfältet</string>
     <string name="toolbar_item_explain_edit_or_remove">Ange HTML som ska infogas före och efter den markerade texten\n\nTryck länge på ett verktyg för att redigera eller ta bort det</string>
-    <string name="remove_toolbar_item">Remove toolbar item?</string>
+    <string name="remove_toolbar_item">Ta bort objekt från verktygsfältet?</string>
     <string name="note_editor_image_too_large">Bilden är för stor, lägg till bilden manuellt</string>
     <string name="note_editor_video_too_large">Videofilen är för stor, lägg till videon manuellt</string>
     <string name="note_editor_audio_too_large">Ljudfilen är för stor, lägg till ljudet manuellt</string>
-    <string name="ankidroid_cannot_open_after_backup_try_again" comment="After an Android backup is restored, AnkiDroid opens and shows this message.         Opening AnkiDroid again will work correctly">Android backup in progress. Please try again</string>
+    <string name="ankidroid_cannot_open_after_backup_try_again" comment="After an Android backup is restored, AnkiDroid opens and shows this message.         Opening AnkiDroid again will work correctly">Säkerhetskopiering av Android pågår. Försök igen</string>
     <string name="create_shortcut_error_vivo" comment="iManager is an app on Vivo phones">Du kan behöva använda iManager för att tillåta AnkiDroid att lägga till genvägar</string>
-    <string name="create_shortcut_error_miui" comment="Keep the message as short, as this is shown in a toast. %s is the app name: \'AnkiDroid\'">Allow ‘Home screen shortcuts’ in system settings for %s to add shortcuts</string>
+    <string name="create_shortcut_error_miui" comment="Keep the message as short, as this is shown in a toast. %s is the app name: \'AnkiDroid\'">Tillåt ‘Startskärmen genvägar’ i systeminställningar för %s att lägga till genvägar</string>
     <string name="create_shortcut_failed" comment="home screen == launcher">Din startskärm tillåter inte AnkiDroid att lägga till genvägar</string>
     <string name="create_shortcut_error">Kunde inte lägga till genväg: %s</string>
     <string name="note_editor_capitalize" comment="This is for a switch with a checkbox - on: enabled" maxLength="28">Versalisera meningar</string>
     <string name="menu_scroll_toolbar" comment="Checkbox stating whether note editor toolbar is scrollable or stacked. Checked: Scroll" maxLength="28">Rulla verktygsfält</string>
     <!-- Dialog hints -->
     <string name="dialog_hint_url">URL</string>
-    <string name="dialog_hint_certificate">Certificate</string>
+    <string name="dialog_hint_certificate">Certifikat</string>
     <!-- IncrementNumberRangePreference -->
     <string name="plus_sign" comment="Label for increment button in IncrementerNumberRangePreference">+</string>
     <string name="minus_sign" comment="Label for decrement button in IncrementerNumberRangePreference">-</string>
-    <string name="invalid_value" comment="Error message in IncrementerNumberRangePreference when input is not a valid number">Invalid value</string>
-    <string name="maximum_value_is" comment="Error message in IncrementerNumberRangePreference. %d is the maximum allowed value">Maximum value is %d</string>
-    <string name="minimum_value_is" comment="Error message in IncrementerNumberRangePreference. %d is the minimum allowed value">Minimum value is %d</string>
+    <string name="invalid_value" comment="Error message in IncrementerNumberRangePreference when input is not a valid number">Ogiltigt värde</string>
+    <string name="maximum_value_is" comment="Error message in IncrementerNumberRangePreference. %d is the maximum allowed value">Maximalt värde är %d</string>
+    <string name="minimum_value_is" comment="Error message in IncrementerNumberRangePreference. %d is the minimum allowed value">Minsta värde är %d</string>
     <!-- Used for credential empty warning message -->
     <string name="invalid_email">Skriv in en giltig e-postadress</string>
     <string name="password_empty">Lösenord krävs</string>
-    <string name="back_pressed_once">Go back again to exit</string>
+    <string name="back_pressed_once">Gå tillbaka igen för att avsluta</string>
     <!-- %% is required to display % symbol. Reference: https://stackoverflow.com/a/16834358 -->
     <string name="percentage">%s%%</string>
     <string name="download_deck">Hämta kortlek</string>
@@ -296,8 +296,8 @@
     <string name="field_editor_model_not_available">Misslyckades att komma åt samling. Försök igen!</string>
     <string name="cd_manage_notetypes_add">Lägg till en ny anteckningstyp</string>
     <plurals name="note_types_selected">
-        <item quantity="one">%d note type selected</item>
-        <item quantity="other">%d note types selected</item>
+        <item quantity="one">%d anteckningstyp vald</item>
+        <item quantity="other">%d anteckningstyper valda</item>
     </plurals>
     <!-- App Intro -->
     <string name="intro_ankidroid_tagline_one">Studera mindre</string>
@@ -315,22 +315,22 @@
     <!-- Browser Options Dialog -->
     <string name="show_cards" comment="Label for toggle cards button in BrowserOptionsDialog">Kort</string>
     <string name="show_notes" comment="Label for toggle notes button in BrowserOptionsDialog">Noter</string>
-    <string name="truncate_content_help">Truncate the height of each row of the Browser to show only first 3 lines of content</string>
+    <string name="truncate_content_help">Begränsa varje rads höjd i webbläsaren till de första 3 innehållsraderna</string>
     <string name="audio_saved">Inspelning sparad</string>
     <string name="deleting_selected_notes">Raderar markerade noter</string>
-    <string name="tts_voices_default_text" comment="The default text to speak when selecting     Text to speech voices">Tap a voice to listen</string>
-    <string name="tts_voices_selected_voice_should_be_installed" comment="If a voice has been tapped, is installable but not installed, we want to inform the user that they should install it for the best experience There will also be an option to use it without downloading">Voice should be installed before use</string>
+    <string name="tts_voices_default_text" comment="The default text to speak when selecting     Text to speech voices">Tryck på en röst för att lyssna</string>
+    <string name="tts_voices_selected_voice_should_be_installed" comment="If a voice has been tapped, is installable but not installed, we want to inform the user that they should install it for the best experience There will also be an option to use it without downloading">Röst bör installeras innan den används</string>
     <string name="tts_voices_use_selected_voice_without_install" comment="A user has been informed that a voice should be installed before use. This is text on a snackbar button which allows them to use the voice without installing it">Använd ändå</string>
     <string name="tts_voices_playback_error_new" comment="an error occurred when playing a text to speech voice. The parameter is a technical error code such as \'ERROR_NOT_INSTALLED_YET\' or \'ERROR_NETWORK_TIMEOUT\'">Fel (%s) text-till-tal</string>
     <!-- Chips should probably be in a separate file, due to the additional length req -->
     <string name="tts_voices_chip_filter_to_internet" comment="     Filters a list of text to speech voices, to enable/disable voices which require the internet to     function.     This is on a chip control, so keep the text short, ideally one word">Internet</string>
     <string name="tts_voices_chip_filter_to_installable_audio" comment="     Displays a list of Text to Speech voices which should be downloaded/installed before use     This is on a chip control, so keep the text short, ideally one word">Installera</string>
-    <string name="tts_voices_failed_opening_tts_system_settings" comment="error message if opening the system text to speech settings fails">Failed to open text to speech settings</string>
+    <string name="tts_voices_failed_opening_tts_system_settings" comment="error message if opening the system text to speech settings fails">Det gick inte att öppna text till talinställningarna</string>
     <string name="shared_decks_login_required">Logga in för att ladda ner fler kortlekar</string>
     <string name="deck_description_field_hint">Beskrivning</string>
-    <string name="deck_description_saved">Description updated</string>
-    <string name="format_deck_description_as_markdown">Format as Markdown</string>
-    <string name="help_button_content_description">Open help for ‘%s’</string>
+    <string name="deck_description_saved">Beskrivningen har uppdaterats</string>
+    <string name="format_deck_description_as_markdown">Formatera som markdown</string>
+    <string name="help_button_content_description">Öppna hjälp för ‘%s’</string>
     <string name="failed_to_copy">Misslyckades att kopiera</string>
     <plurals name="unbury_cards_feedback">
         <item quantity="one">%d kort slutade gömmas</item>
@@ -344,30 +344,30 @@
     <string name="play_recording">Spela upp</string>
     <string name="next_recording" comment="Description of a button to go to the next recording">Nästa</string>
     <!--  AlertDialog in the deleteCardTemplate  -->
-    <string name="orphan_note_title">Cannot delete card type</string>
+    <string name="orphan_note_title">Kan inte ta bort korttyp</string>
     <string name="orphan_note_message">Om du tar bort denna kort typ så kommer det finnas noter utan kort.</string>
     <string name="voice_not_supported">Röstfunktionalitet är stöttas inte. Försök en annan eller installera en röst motor.</string>
     <!--Keyboard shortcuts dialog-->
     <string name="deck_picker_group" comment="Label for the group of shortcuts related to the deck picker">Kortleksväljare</string>
     <string name="delete_deck_without_confirmation" comment="Description of the shortcut that deletes the deck without asking for confirmation">Ta bort kortlek utan konfirmation</string>
-    <string name="note_editor_group" comment="Label for the group of shortcuts related to the note editor">Note Editor</string>
+    <string name="note_editor_group" comment="Label for the group of shortcuts related to the note editor">Anteckningsredigerare</string>
     <string name="select_note_type" comment="Description of the shortcut that shows the note selection spinner">Välj nottyp</string>
-    <string name="tag_editor" comment="Description of the shortcut that opens the tags dialog">Tag editor</string>
-    <string name="card_template_editor_group" comment="Label for the group of shortcuts related to the card template editor">Card Template Editor</string>
+    <string name="tag_editor" comment="Description of the shortcut that opens the tags dialog">Taggredigerare</string>
+    <string name="card_template_editor_group" comment="Label for the group of shortcuts related to the card template editor">Kortmallsredigerare</string>
     <string name="edit_front_template" comment="Description of the shortcut that shows the question side of the card template">Ändra framsidesmallen</string>
     <string name="edit_back_template" comment="Description of the shortcut that shows the answer side of the card template">Ändra baksidesmallen</string>
     <string name="edit_styling" comment="Description of the shortcut that shows the styling side of the card template">Ändra stil</string>
     <string name="copy_the_template" comment="Description of the shortcut that copy the template as markdown">Kopiera mallen som markdown</string>
-    <string name="edit_browser_appearance" comment="Description of the shortcut that edits the browser appearance of card template">Edit browser appearance</string>
-    <string name="missing_user_action_dialog_message" comment="%s is the user action number">User action %s is not set in this notetype. Please configure it</string>
-    <string name="feature_not_supported_by_study_screen">This card has features that are not yet supported by the new study screen.</string>
-    <string name="directory_inaccessible_info">Learn more about how to restore access here %s or go to settings to update collection folder.</string>
+    <string name="edit_browser_appearance" comment="Description of the shortcut that edits the browser appearance of card template">Redigera webbläsarens utseende</string>
+    <string name="missing_user_action_dialog_message" comment="%s is the user action number">Användaråtgärd %s är inte inställd i denna anteckningstyp. Vänligen konfigurera den</string>
+    <string name="feature_not_supported_by_study_screen">Det här kortet har funktioner som inte stöds än av den nya studieskärmen.</string>
+    <string name="directory_inaccessible_info">Läs mer om hur du återställer åtkomsten här: %s, eller gå till inställningarna för att uppdatera samlingsmappen.</string>
     <!-- Scheduler Upgrade Required Dialog title-->
-    <string name="scheduler_upgrade_required_dialog_title" comment="Shown in a dialog when user has imported a collection using a very old version of the Anki spaced repetition scheduler">Scheduler upgrade required</string>
+    <string name="scheduler_upgrade_required_dialog_title" comment="Shown in a dialog when user has imported a collection using a very old version of the Anki spaced repetition scheduler">Uppgradering av schemaläggare krävs</string>
     <!-- Whitespace is OK -->
     <string name="list_separator" comment="The character and spacing to display between elements of a list, for example \', \' in \'Apple, Banana, Cherry" tools:ignore="TranslationTypo">, </string>
     <!--Set up date-->
-    <string name="set_due_date_day" comment="Used for setting due date">Day</string>
-    <string name="set_due_date_date_range">Date range</string>
-    <string comment="Shown when retrying a running action" name="already_in_progress">Already in progress</string>
+    <string name="set_due_date_day" comment="Used for setting due date">Dag</string>
+    <string name="set_due_date_date_range">Datumintervall</string>
+    <string comment="Shown when retrying a running action" name="already_in_progress">Pågår redan</string>
 </resources>

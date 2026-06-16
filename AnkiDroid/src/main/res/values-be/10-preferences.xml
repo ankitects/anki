@@ -151,8 +151,8 @@
     <string name="show_estimates_summ">Паказваць наступны час паўтарэння над кнопкай адказу</string>
     <string name="show_large_answer_buttons" maxLength="41">Паказваць вялікія кнопкі адказу</string>
     <string name="show_large_answer_buttons_summ">Паказваць кнопкі адказу ў 2 радкі</string>
-    <string name="remove_animations" maxLength="41">Remove animations</string>
-    <string name="remove_animations_summary">Also enabled if animations are removed on the system settings</string>
+    <string name="remove_animations" maxLength="41">Выдаліць анімацыю</string>
+    <string name="remove_animations_summary">Таксама ўключана, калі анімацыя выдалена ў сістэмных наладах</string>
     <string name="show_top_bar" maxLength="41">Паказваць верхнюю панэль</string>
     <string name="show_top_bar_summary">Паказваць лічыльнік картак, таймер адказу і пазнакі на верхняй панэлі</string>
     <string name="show_progress" maxLength="41">Паказаць тое, што засталося</string>
@@ -205,7 +205,7 @@
         Калі не зададзена, то прадвызначана выкарыстоўваецца сервер AnkiWeb.
         <a href="%s">Даведацца больш</a>
         ]]></string>
-    <string name="custom_sync_server_base_url_title" maxLength="41">Sync URL</string>
+    <string name="custom_sync_server_base_url_title" maxLength="41">Сінхранізацыя URL-адраса</string>
     <string name="custom_sync_certificate_title" maxLength="41">Карыстальніцкі каранёвы сертыфікат (PEM)</string>
     <!-- Key Bindings -->
     <string name="keyboard">Клавіятура</string>
@@ -370,5 +370,5 @@
     <string name="flip_and_answer" maxLength="41" comment="Configuration of the \'Answer\' commands to answer the card if on the answer side, and flip it if on the question side">Перавярнуць і адказаць</string>
     <!--Keyboard shortcuts dialog-->
     <string name="open_settings" comment="Description of the shortcut that opens the app settings">Адкрыць налады</string>
-    <string name="related_settings_title" comment="Title of the section for related settings">Related settings</string>
+    <string name="related_settings_title" comment="Title of the section for related settings">Звязаныя налады</string>
 </resources>

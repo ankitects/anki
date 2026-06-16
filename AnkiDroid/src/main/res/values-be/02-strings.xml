@@ -176,7 +176,7 @@
     <string name="tag_editor_add_feedback_existing">Выбрана існуючая метка \"%1$s\"</string>
     <string name="tag_already_exists">Метка ўжо існуе</string>
     <string name="error_name_exists">Такая назва ўжо існуе</string>
-    <string name="warning_find_and_replace">Consider backing up your collection from DeckPicker before using this option!</string>
+    <string name="warning_find_and_replace">Падумайце пра тое, каб зрабіць рэзервовую копію калекцыі з DeckPicker перад выкарыстаннем гэтага параметра!</string>
     <!-- Time spans -->
     <!-- Currently only used if exporting APKG fails -->
     <string name="apk_share_error">Памылка агульнага доступу да файла apkg</string>
@@ -243,14 +243,14 @@
     <string name="note_editor_audio_too_large">Занадта вялікі аўдыяфайл, паспрабуйце ўставіць аўдыя ўручную</string>
     <string name="ankidroid_cannot_open_after_backup_try_again" comment="After an Android backup is restored, AnkiDroid opens and shows this message.         Opening AnkiDroid again will work correctly">Адбываецца рэзервовае капіяванне аперацыйнай сістэмы. Паспрабуйце яшчэ раз</string>
     <string name="create_shortcut_error_vivo" comment="iManager is an app on Vivo phones">Паспрабуйце скарыстацца праграмай iManager для таго, каб дазволіць AnkiDroid дадаваць ярлыкі</string>
-    <string name="create_shortcut_error_miui" comment="Keep the message as short, as this is shown in a toast. %s is the app name: \'AnkiDroid\'">Allow ‘Home screen shortcuts’ in system settings for %s to add shortcuts</string>
+    <string name="create_shortcut_error_miui" comment="Keep the message as short, as this is shown in a toast. %s is the app name: \'AnkiDroid\'">Дазвольце «ярлыкі на галоўным экране» ў сістэмных наладах для %s, каб дадаваць ярлыкі</string>
     <string name="create_shortcut_failed" comment="home screen == launcher">Ваш галоўны экран не дазваляе праграме дадаваць ярлыкі</string>
     <string name="create_shortcut_error">\"Памылка дабаўлення ярлыка: %s</string>
     <string name="note_editor_capitalize" comment="This is for a switch with a checkbox - on: enabled" maxLength="28">Пачынаць сказ з вялікай літары</string>
     <string name="menu_scroll_toolbar" comment="Checkbox stating whether note editor toolbar is scrollable or stacked. Checked: Scroll" maxLength="28">Панэль прагорткі</string>
     <!-- Dialog hints -->
-    <string name="dialog_hint_url">URL</string>
-    <string name="dialog_hint_certificate">Certificate</string>
+    <string name="dialog_hint_url">URL-адрас</string>
+    <string name="dialog_hint_certificate">Сертыфікат</string>
     <!-- IncrementNumberRangePreference -->
     <string name="plus_sign" comment="Label for increment button in IncrementerNumberRangePreference">+</string>
     <string name="minus_sign" comment="Label for decrement button in IncrementerNumberRangePreference">-</string>
@@ -260,7 +260,7 @@
     <!-- Used for credential empty warning message -->
     <string name="invalid_email">Увядзіце сапраўдную электронную пошту</string>
     <string name="password_empty">Патрабуецца пароль</string>
-    <string name="back_pressed_once">Go back again to exit</string>
+    <string name="back_pressed_once">Націсніце «Назад» яшчэ раз, каб выйсці</string>
     <!-- %% is required to display % symbol. Reference: https://stackoverflow.com/a/16834358 -->
     <string name="percentage">%s%%</string>
     <string name="download_deck">Спампаваць калоду</string>
@@ -336,7 +336,7 @@
     <string name="shared_decks_login_required">Увайдзіце, каб спампаваць больш калод</string>
     <string name="deck_description_field_hint">Апісанне</string>
     <string name="deck_description_saved">Апісанне абноўлена</string>
-    <string name="format_deck_description_as_markdown">Format as Markdown</string>
+    <string name="format_deck_description_as_markdown">Фармат як Markdown</string>
     <string name="help_button_content_description">Адкрыць даведку для ‘%s’</string>
     <string name="failed_to_copy">Не ўдалося скапіяваць</string>
     <plurals name="unbury_cards_feedback">
@@ -376,7 +376,7 @@
     <!-- Whitespace is OK -->
     <string name="list_separator" comment="The character and spacing to display between elements of a list, for example \', \' in \'Apple, Banana, Cherry" tools:ignore="TranslationTypo">, </string>
     <!--Set up date-->
-    <string name="set_due_date_day" comment="Used for setting due date">Day</string>
-    <string name="set_due_date_date_range">Date range</string>
-    <string comment="Shown when retrying a running action" name="already_in_progress">Already in progress</string>
+    <string name="set_due_date_day" comment="Used for setting due date">Дзень</string>
+    <string name="set_due_date_date_range">Дыяпазон даты</string>
+    <string comment="Shown when retrying a running action" name="already_in_progress">Ужо выконваецца</string>
 </resources>

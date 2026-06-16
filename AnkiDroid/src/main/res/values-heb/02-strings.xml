@@ -33,7 +33,7 @@
     <string name="CardEditorModel">סוג:</string>
     <string name="CardEditorTags">תגיות: %1$s</string>
     <string name="CardEditorCards">כרטיסים: %1$s</string>
-    <string name="edit_occlusions">Edit occlusions</string>
+    <string name="edit_occlusions">ערוך חסימות</string>
     <string name="paste_from_clipboard" maxLength="28">הדבק מן הלוח</string>
     <string name="add_new_filter_tags">הוסף/סנן תגיות</string>
     <string name="add_tag" maxLength="28">הוסף תגית</string>
@@ -63,7 +63,7 @@
     <string name="disable_eraser" maxLength="28">כבה מחק</string>
     <string name="hide_whiteboard" maxLength="28">הסתר לוח ציור</string>
     <string name="clear_whiteboard" maxLength="28">נקה לוח ציור</string>
-    <string name="hide_toolbar" maxLength="28">Hide toolbar</string>
+    <string name="hide_toolbar" maxLength="28">הסתר סרגל כלים</string>
     <string name="replay_media" maxLength="28">השמע שוב</string>
     <string name="leech_suspend_notification">כרטיס מסומן כעלוקה ומושעה</string>
     <string name="leech_notification">כרטיס מסומן כעלוקה</string>
@@ -176,8 +176,8 @@
     <string name="dyn_deck_desc">חפיסה זאת הינה חפיסה מיוחדת ללמידה מחוץ ללו\"ז הרגיל. הכרטיסים יוחזרו באופן אוטומטי לחפיסותיהם המקוריות לאחר סיום הלמידה. מחיקת החפיסה תחזיר את כל הכרטיסים שנותרו בה לחפיסותיהם המקוריות.</string>
     <string name="tag_editor_add_feedback">לחץ \"%2$s\" לאישור הוספת \"%1$s\"</string>
     <string name="tag_editor_add_feedback_existing">תגית קיימת \"%1$s\" נבחרה</string>
-    <string name="tag_already_exists">Tag already exists</string>
-    <string name="error_name_exists">Name already exists</string>
+    <string name="tag_already_exists">התגית כבר קיימת</string>
+    <string name="error_name_exists">שם כבר קיים</string>
     <string name="warning_find_and_replace">Consider backing up your collection from DeckPicker before using this option!</string>
     <!-- Time spans -->
     <!-- Currently only used if exporting APKG fails -->
@@ -191,16 +191,16 @@
     <!-- Deckpicker Background -->
     <string name="background_image_title" maxLength="41">רקע</string>
     <string name="remove_wallpaper_image" maxLength="41">הסר רקע</string>
-    <string name="remove_background_image">Are you sure you wish to remove the background?</string>
+    <string name="remove_background_image">האם אתה בטוח שאתה רוצה למחוק את הרקע?</string>
     <!-- Card Template Browser Appearance -->
-    <string name="restore_default" maxLength="28">Restore default</string>
+    <string name="restore_default" maxLength="28">החזר למקורי</string>
     <!-- Whiteboard eraser mode toggle message in Reviewer -->
     <string name="white_board_eraser_enabled">מצב מחק הופעל</string>
     <string name="white_board_eraser_disabled">מצב מחק מושבת</string>
     <string comment="Progress amount e.g. \'28 MB/141 MB\'. %1$s is the current amount, %2$s is the max." name="progress_amount_bytes">%1$s/%2$s</string>
     <string name="media_file_size_warning_title">Media too large</string>
     <string name="media_file_size_warning_message" comment="1$s: File name, 2$s: File size, 3$s: The size limit (e.g. 100MB)">The file \"%1$s\" (%2$s) exceeds the AnkiWeb limit of %3$s and cannot be synced. Add anyway?</string>
-    <string name="media_file_size_add_anyway">Add anyway</string>
+    <string name="media_file_size_add_anyway">הוסף בכל זאת</string>
     <!-- Whiteboard save image message in the Study Screen -->
     <string name="white_board_image_save_failed">נכשל לשמור תמונת לוח. %s</string>
     <string name="white_board_image_saved">תמונת לוח נשמרה ל %s</string>
@@ -226,20 +226,20 @@
     <!-- A Menu item to change the Font Size (currently in the Note Editor) -->
     <string name="menu_font_size" maxLength="28">גודל גופן</string>
     <string name="menu_show_toolbar" comment="Checkable item stating whether the note editor toolbar should be shown" maxLength="28">הצגת סרגל הכלים</string>
-    <string name="format_insert_bold">Format as bold</string>
-    <string name="format_insert_italic">Format as italic</string>
-    <string name="format_insert_underline">Format as underline</string>
-    <string name="insert_horizontal_line">Insert horizontal line</string>
-    <string name="insert_heading">Insert heading</string>
-    <string name="format_font_size">Change font size</string>
+    <string name="format_insert_bold">עצב כמודגש</string>
+    <string name="format_insert_italic">עצב כנטוי</string>
+    <string name="format_insert_underline">עצב עם קו תחתון</string>
+    <string name="insert_horizontal_line">הכנס קו אלכסוני</string>
+    <string name="insert_heading">הכנס כותרת</string>
+    <string name="format_font_size">שנה גודל גופן</string>
     <string name="insert_mathjax">Insert MathJax equation</string>
     <string name="note_editor_toolbar_icon">טקסט הלחצן</string>
     <string name="before_text">HTML before selection</string>
     <string name="after_text">HTML after selection</string>
-    <string name="add_toolbar_item">Create toolbar item</string>
-    <string name="edit_toolbar_item">Edit toolbar item</string>
+    <string name="add_toolbar_item">צור פריט בסרגל הכלים</string>
+    <string name="edit_toolbar_item">ערוך פריט מסרגל הכלים</string>
     <string name="toolbar_item_explain_edit_or_remove">הזן HTML שיוכנס לפני ואחרי הטקסט שנבחר \n\n לחץ לחיצה ארוכה על פריט בסרגל הכלים כדי לערוך או להסיר אותו</string>
-    <string name="remove_toolbar_item">Remove toolbar item?</string>
+    <string name="remove_toolbar_item">מחק פריו מסרגל הכלים</string>
     <string name="note_editor_image_too_large">התמונה גדולה מדי, אנא הכנס אותה באופן ידני</string>
     <string name="note_editor_video_too_large">קובץ הווידאו גדול מדי, אנא הכנס אותו באופן ידני</string>
     <string name="note_editor_audio_too_large">קובץ השמע גדול מדי, אנא הכנס אותו באופן ידני</string>
@@ -252,17 +252,17 @@
     <string name="menu_scroll_toolbar" comment="Checkbox stating whether note editor toolbar is scrollable or stacked. Checked: Scroll" maxLength="28">סרגל כלים נגרר</string>
     <!-- Dialog hints -->
     <string name="dialog_hint_url">URL</string>
-    <string name="dialog_hint_certificate">Certificate</string>
+    <string name="dialog_hint_certificate">תעודה</string>
     <!-- IncrementNumberRangePreference -->
     <string name="plus_sign" comment="Label for increment button in IncrementerNumberRangePreference">+</string>
     <string name="minus_sign" comment="Label for decrement button in IncrementerNumberRangePreference">-</string>
-    <string name="invalid_value" comment="Error message in IncrementerNumberRangePreference when input is not a valid number">Invalid value</string>
-    <string name="maximum_value_is" comment="Error message in IncrementerNumberRangePreference. %d is the maximum allowed value">Maximum value is %d</string>
-    <string name="minimum_value_is" comment="Error message in IncrementerNumberRangePreference. %d is the minimum allowed value">Minimum value is %d</string>
+    <string name="invalid_value" comment="Error message in IncrementerNumberRangePreference when input is not a valid number">ערך לא תקין</string>
+    <string name="maximum_value_is" comment="Error message in IncrementerNumberRangePreference. %d is the maximum allowed value">ערך מקסימלי הוא %d</string>
+    <string name="minimum_value_is" comment="Error message in IncrementerNumberRangePreference. %d is the minimum allowed value">ערך מינימלי הוא %d</string>
     <!-- Used for credential empty warning message -->
     <string name="invalid_email">נא הזן כתובת דוא\"ל תקפה</string>
     <string name="password_empty">דרושה סיסמא</string>
-    <string name="back_pressed_once">Go back again to exit</string>
+    <string name="back_pressed_once">חזור שוב כדי לצאת</string>
     <!-- %% is required to display % symbol. Reference: https://stackoverflow.com/a/16834358 -->
     <string name="percentage">%s%%</string>
     <string name="download_deck">הורדת חפיסה</string>
@@ -305,7 +305,7 @@
     <plurals name="note_types_selected">
         <item quantity="one">סוג רשומה אחד נבחר</item>
         <item quantity="two">%d note types selected</item>
-        <item quantity="many">%d note types selected</item>
+        <item quantity="many">סוגי רשומה רבים נבחרו</item>
         <item quantity="other">%d סוגי רשומה נבחרו</item>
     </plurals>
     <!-- App Intro -->
@@ -355,7 +355,7 @@
     <string name="play_recording">השמע</string>
     <string name="next_recording" comment="Description of a button to go to the next recording">הבא</string>
     <!--  AlertDialog in the deleteCardTemplate  -->
-    <string name="orphan_note_title">Cannot delete card type</string>
+    <string name="orphan_note_title">אי אפשר למחוק סוג פריט</string>
     <string name="orphan_note_message">מחיקת סוג כרטיס זה תשאיר כמה פתקים ללא כרטיס.</string>
     <string name="voice_not_supported">קול אינו נתמך. נסה אחר או התקן מנוע קול.</string>
     <!--Keyboard shortcuts dialog-->
@@ -371,14 +371,14 @@
     <string name="copy_the_template" comment="Description of the shortcut that copy the template as markdown">העתק תבנית כסימון</string>
     <string name="edit_browser_appearance" comment="Description of the shortcut that edits the browser appearance of card template">ערוך את מראה הדפדפן</string>
     <string name="missing_user_action_dialog_message" comment="%s is the user action number">פעולת המשתמש %s לא מוגדרת בסוג רשומה זה. אנא הגדר אותו</string>
-    <string name="feature_not_supported_by_study_screen">This card has features that are not yet supported by the new study screen.</string>
+    <string name="feature_not_supported_by_study_screen">לקלף זה יש תכונות שעדיין לא נתמכות על ידי מסך הלימוד החדש</string>
     <string name="directory_inaccessible_info">למד עוד על איך לשחזר גישה כאן %s או עבור להגדרות כדי לעדכן את תיקיית האוסף.</string>
     <!-- Scheduler Upgrade Required Dialog title-->
     <string name="scheduler_upgrade_required_dialog_title" comment="Shown in a dialog when user has imported a collection using a very old version of the Anki spaced repetition scheduler">נדרש שדרוג של מתזמן</string>
     <!-- Whitespace is OK -->
     <string name="list_separator" comment="The character and spacing to display between elements of a list, for example \', \' in \'Apple, Banana, Cherry" tools:ignore="TranslationTypo">, </string>
     <!--Set up date-->
-    <string name="set_due_date_day" comment="Used for setting due date">Day</string>
-    <string name="set_due_date_date_range">Date range</string>
-    <string comment="Shown when retrying a running action" name="already_in_progress">Already in progress</string>
+    <string name="set_due_date_day" comment="Used for setting due date">יום</string>
+    <string name="set_due_date_date_range">טוח תאריכים</string>
+    <string comment="Shown when retrying a running action" name="already_in_progress">כבר בפעולה</string>
 </resources>

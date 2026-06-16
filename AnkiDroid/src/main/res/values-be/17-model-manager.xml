@@ -48,8 +48,8 @@
     <string name="model_field_editor_changing">Адбываецца абнаўленне палёў</string>
     <string name="model_field_editor_sort_field">Сартаваць па гэтым полі</string>
     <!-- Card type -->
-    <string name="delete_card_type" maxLength="28">Delete card type</string>
-    <string name="add_card_type" maxLength="28">Add card type</string>
+    <string name="delete_card_type" maxLength="28">Выдаліць тып карткі</string>
+    <string name="add_card_type" maxLength="28">Дадаць тып карткі</string>
     <!--Warnings-->
     <string name="model_delete_warning">Вы сапраўды хочаце выдаліць гэты тып нататкі?</string>
     <!--

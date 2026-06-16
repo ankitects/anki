@@ -83,7 +83,7 @@
     <string name="menu_unmark_note">Avmarkera not</string>
     <string name="menu_enable_voice_playback" maxLength="28">Aktivera röstuppspelning</string>
     <string name="menu_disable_voice_playback">Avaktivera röstuppspelning</string>
-    <string name="menu_create_backup" maxLength="28">Create backup</string>
+    <string name="menu_create_backup" maxLength="28">Skapa säkerhetskopia</string>
     <string name="new_dynamic_deck">Skapa filtrerad kortlek</string>
     <string name="directory_inaccessible">AnkiDroid-mappen är inte tillgänglig</string>
     <!--This is shown when AnkiDroid starts up with no storage permissions.
@@ -153,25 +153,25 @@
     <string name="new_unsafe_collection">Den nya samlingen kommer att raderas från din telefon om du avinstallerar AnkiDroid</string>
     <!-- Permissions screen -->
     <string name="permissions_screen_headline">AnkiDroid behöver några behörigheter för att fungera</string>
-    <string name="permissions_screen_optional_headline" comment="Explains that there are optional permissions that can be granted to AnkiDroid.">AnkiDroid works best with these permissions</string>
+    <string name="permissions_screen_optional_headline" comment="Explains that there are optional permissions that can be granted to AnkiDroid.">AnkiDroid fungerar bäst med dessa behörigheter</string>
     <string name="storage_access_title">Lagringsåtkomst</string>
     <string name="storage_access_summary">Sparar din samling på en säker plats som inte raderas om appen avinstalleras</string>
     <string name="all_files_access_title" comment="Name of the “All files access” permission from Android 10 and after. See [android.permission.MANAGE_EXTERNAL_STORAGE] on https://developer.android.com/training/data-storage/manage-all-files for context.">Åtkomst till alla filer</string>
     <string name="image_occlusion">Bildövertäckning</string>
     <string name="microphone" comment="Title of the microphone permission in the permissions explanation screen.">Mikrofon</string>
-    <string name="microphone_permission_explanation" comment="Description explaining why AnkiDroid needs the microphone permission, shown on the permissions explanation screen.">Allows you to add sounds to cards and enables voice playback while reviewing</string>
-    <string name="notifications_permission_explanation" comment="Description explaining why AnkiDroid needs the notification permission.">Enables background media syncing and allows you to create review reminders</string>
+    <string name="microphone_permission_explanation" comment="Description explaining why AnkiDroid needs the microphone permission, shown on the permissions explanation screen.">Gör det möjligt att lägga till ljud på kort och spela upp röster under repetitionen</string>
+    <string name="notifications_permission_explanation" comment="Description explaining why AnkiDroid needs the notification permission.">Aktiverar bakgrundsmedia synkronisering och låter dig skapa granskningspåminnelser</string>
     <string name="heading_required_permissions" comment="Heading for the section of required permissions that the app needs to function, shown in the permissions explanation screen.">Nödvändigt</string>
-    <string name="heading_optional_permissions" comment="Heading for the section of optional permissions that the app needs to function, shown in the permissions explanation screen.">Optional</string>
-    <string name="manually_grant_permissions" comment="Pop-up message that is shown to the user when they want to grant an app permission that must be granted via the OS settings screen.">This permission must be manually granted from Settings</string>
-    <string name="revoke_permissions" comment="Pop-up message that is shown to the user when they are revoking an app permission.">This permission must be manually revoked from Settings</string>
+    <string name="heading_optional_permissions" comment="Heading for the section of optional permissions that the app needs to function, shown in the permissions explanation screen.">Valfritt</string>
+    <string name="manually_grant_permissions" comment="Pop-up message that is shown to the user when they want to grant an app permission that must be granted via the OS settings screen.">Den här behörigheten måste beviljas manuellt i Inställningar</string>
+    <string name="revoke_permissions" comment="Pop-up message that is shown to the user when they are revoking an app permission.">Den här behörigheten måste återkallas manuellt i Inställningar</string>
     <string name="remove_account" comment="open a website to start the deletion of an AnkiWeb account">Ta bort konto</string>
     <!-- Instant Note Editor -->
     <string name="instant_card" comment="Used in the Android system context menu/share dialog to quickly create a note. This does not need to be translated literally, translate the concept of quickly adding a Cloze note with a popup. ">Omedelbart kort</string>
     <!-- Internet Permissions -->
     <string name="internet_access_title" comment="used for notifying user to unable internet access">Internet</string>
-    <string name="permission_access_summary">Required for the app to work</string>
-    <string name="permission_required_message">Please grant AnkiDroid the ‘%s’ permission to continue</string>
+    <string name="permission_access_summary">Krävs för att appen ska fungera</string>
+    <string name="permission_required_message">Vänligen ge AnkiDroid behörigheten ”%s” för att fortsätta</string>
     <!-- Multiple profile -->
-    <string name="add_profile">Add profile</string>
+    <string name="add_profile">Lägg till profil</string>
 </resources>

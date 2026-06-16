@@ -40,7 +40,7 @@
     <!-- not a good message, when an unexpected error happens -->
     <string name="multimedia_editor_something_wrong">Någonting gick fel</string>
     <string name="multimedia_editor_png_paste_error">Fel vid konvertering av urklippsbild till PNG: %s</string>
-    <string name="multimedia_editor_attach_tooltip" comment="Appear when holding the finger  on the paperclip icon">Attach multimedia content</string>
+    <string name="multimedia_editor_attach_tooltip" comment="Appear when holding the finger  on the paperclip icon">Bifoga multimedieinnehåll</string>
     <string name="multimedia_editor_attach_mm_content" comment="used for screen readers. Not visible to the user">Lägg till multimedia-innehåll till fältet %1$s</string>
     <!-- Audio view -->
     <!-- Message when recording fails -->
@@ -53,9 +53,9 @@
     <string name="save_dialog_content">Den nuvarande bildstorlek är %s MB. Gränsen för bildstorlek är 1 MB. Vill du komprimera bilden?</string>
     <string name="select_image_failed">"Det gick inte att välja bild. Försök igen"</string>
     <string name="audio_recording_field_list" comment="Displays a list of the field data in the note editor while audio recording is taking place">Fältinnehåll</string>
-    <string name="crop_image_size_notice">The image is too big to be handled by the crop editor. Please resize it and try again!</string>
+    <string name="crop_image_size_notice">Bilden är för stor för att hanteras av beskärningsredigeraren. Vänligen ändra storlek och försök igen!</string>
     <string name="reselect" maxLength="28">Välja om</string>
-    <string name="waveform_button_description">Show audio waveform</string>
-    <string name="field_content_description">Show field content</string>
-    <string name="delete_audio_button_description">Delete recording</string>
+    <string name="waveform_button_description">Visa ljudvågform</string>
+    <string name="field_content_description">Visa fältets innehåll</string>
+    <string name="delete_audio_button_description">Ta bort inspelning</string>
 </resources>

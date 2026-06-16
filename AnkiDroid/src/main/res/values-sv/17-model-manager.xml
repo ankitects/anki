@@ -35,7 +35,7 @@
     <string name="model_browser_template">Redigera kort</string>
     <!--Rename-->
     <string name="rename_model">Byt namn på nottyp</string>
-    <string name="rename_card_type" maxLength="28">Rename card type</string>
+    <string name="rename_card_type" maxLength="28">Byt namn på korttyp</string>
     <!--Language Hint-->
     <string name="model_field_editor_language_hint_dialog_success_result">Ställ in språktips till %s</string>
     <!--Field Editing-->
@@ -46,8 +46,8 @@
     <string name="model_field_editor_changing">Uppdaterar fält</string>
     <string name="model_field_editor_sort_field">Sortera efter detta fält</string>
     <!-- Card type -->
-    <string name="delete_card_type" maxLength="28">Delete card type</string>
-    <string name="add_card_type" maxLength="28">Add card type</string>
+    <string name="delete_card_type" maxLength="28">Ta bort korttyp</string>
+    <string name="add_card_type" maxLength="28">Lägg till korttyp</string>
     <!--Warnings-->
     <string name="model_delete_warning">Är du säker på att du vill ta bort denna anteckningstyp?</string>
     <!--
@@ -55,17 +55,17 @@
         Delete the note types below?
         Basic, Basic (and reversed card), Cloze
      -->
-    <string name="model_delete_multiple_warning">Delete the note types below?\n %s</string>
+    <string name="model_delete_multiple_warning">Vill du ta bort följande anteckningstyper?\n %s</string>
     <string name="field_delete_warning">Är du säker på att du vill ta bort detta fält?</string>
     <!--Model Add Suffixes-->
     <string name="model_browser_add_add">Lägg till: %1$s</string>
     <!--This prefix is used for standard note types-->
-    <string name="model_browser_add_clone">Clone: %1$s</string>
+    <string name="model_browser_add_clone">Klona: %1$s</string>
     <!--Browser Appearance-->
     <string name="card_template_browser_appearance_summary">Ange den mall som kortbläddraren kommer att använda för att visa dina kort. Använd detta för att visa ett mer koncist svar.\n\nEn framsidomall \n“Huvudstaden i {{Country}} är:”\nkan i kortbläddraren komprimeras till\n“Huvudstad: {{Country}}”</string>
-    <string name="card_template_browser_appearance_question_format">Question format</string>
-    <string name="card_template_browser_appearance_answer_format">Answer format</string>
-    <string name="card_template_browser_appearance_restore_default_dialog">Are you sure you want to restore the browser appearance to default?</string>
+    <string name="card_template_browser_appearance_question_format">Frågeformat</string>
+    <string name="card_template_browser_appearance_answer_format">Svarsformat</string>
+    <string name="card_template_browser_appearance_restore_default_dialog">Är du säker på att du vill återställa webbläsarens utseende till standard?</string>
     <string name="card_template_browser_appearance_saving_note">Dessa ändringar tillämpas när kortmallen sparas</string>
     <!-- Deck Override -->
     <string name="card_template_editor_deck_override_on">Kortleksöverskrivning (på)</string>

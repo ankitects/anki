@@ -54,7 +54,7 @@
     <string name="card_browser_list_my_searches_new_search_error_empty_name">לא ניתן לשמור חיפוש ללא שם</string>
     <string name="card_browser_list_my_searches_new_search_error_dup">השם כבר קיים</string>
     <string name="card_browser_list_my_searches_successful_save">החיפוש נשמר</string>
-    <string name="card_browser_list_my_searches_successful_deleted">Search deleted</string>
+    <string name="card_browser_list_my_searches_successful_deleted">חפס מחוק</string>
     <string name="no_note_to_edit">אין רשומה לעריכה</string>
     <string name="card_browser_list_my_searches_remove_content">למחוק את ”%1$s”?</string>
     <string name="card_browser_change_display_order" maxLength="28">שינוי סדר ההצגה</string>
@@ -115,6 +115,6 @@
     <string name="save_changes_message">אנא שמור תחילה את השינויים שלך</string>
     <string name="browser_find_replace_loading_fields">מאחזר שמות שדות&#8230;</string>
     <!-- Search history -->
-    <string name="card_browser_see_more">See more</string>
-    <string name="card_browser_see_less">See less</string>
+    <string name="card_browser_see_more">ראה יותר</string>
+    <string name="card_browser_see_less">ראה פחות</string>
 </resources>

@@ -48,8 +48,8 @@
     <string name="model_field_editor_changing">השדות מעודכנים</string>
     <string name="model_field_editor_sort_field">מיין לפי שדה</string>
     <!-- Card type -->
-    <string name="delete_card_type" maxLength="28">Delete card type</string>
-    <string name="add_card_type" maxLength="28">Add card type</string>
+    <string name="delete_card_type" maxLength="28">מחק סוג קלף</string>
+    <string name="add_card_type" maxLength="28">הוסף סוג קלף</string>
     <!--Warnings-->
     <string name="model_delete_warning">האם אתה בטוח שברצונך למחוק את סוג רשומה זה?</string>
     <!--
@@ -66,8 +66,8 @@
     <!--Browser Appearance-->
     <string name="card_template_browser_appearance_summary">הזן את התבנית שבה ישתמש דפדפן הכרטיסים כדי להציג את הכרטיסים שלך. השתמש בזה כדי להציג תשובה תמציתית יותר.\n\nתבנית קדמית של\n\"בירת {{מדינה}} היא:\"\nניתן לדחוס בדפדפן הכרטיסים ל\n\"בירה: {{מדינה}}\"</string>
     <string name="card_template_browser_appearance_question_format">Question format</string>
-    <string name="card_template_browser_appearance_answer_format">Answer format</string>
-    <string name="card_template_browser_appearance_restore_default_dialog">Are you sure you want to restore the browser appearance to default?</string>
+    <string name="card_template_browser_appearance_answer_format">מבנה תשובה</string>
+    <string name="card_template_browser_appearance_restore_default_dialog">האם אתה בטוח שאתה רוצה להחזיר את מראה הדפדפן לברירת המחדל?</string>
     <string name="card_template_browser_appearance_saving_note">שינויים אלה מוחלים כאשר תבנית הכרטיס נשמרת</string>
     <!-- Deck Override -->
     <string name="card_template_editor_deck_override_on">שכתוב חפיסה (פעיל)</string>

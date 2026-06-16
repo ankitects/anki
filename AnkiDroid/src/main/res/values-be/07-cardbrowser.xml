@@ -54,7 +54,7 @@
     <string name="card_browser_list_my_searches_new_search_error_empty_name">Нельга захаваць пошук без назвы</string>
     <string name="card_browser_list_my_searches_new_search_error_dup">Такая назва ўжо існуе</string>
     <string name="card_browser_list_my_searches_successful_save">Пошук захаваны</string>
-    <string name="card_browser_list_my_searches_successful_deleted">Search deleted</string>
+    <string name="card_browser_list_my_searches_successful_deleted">Пошук выдалены</string>
     <string name="no_note_to_edit">Няма нататак для рэдагавання</string>
     <string name="card_browser_list_my_searches_remove_content">Выдаліць \"%1$s\"?</string>
     <string name="card_browser_change_display_order" maxLength="28">Змяніць парадак адлюстравання</string>
@@ -115,6 +115,6 @@
     <string name="save_changes_message">Спачатку захавайце свае змяненні</string>
     <string name="browser_find_replace_loading_fields">Атрыманне палёў з назвамі&#8230;</string>
     <!-- Search history -->
-    <string name="card_browser_see_more">See more</string>
-    <string name="card_browser_see_less">See less</string>
+    <string name="card_browser_see_more">Паказаць больш</string>
+    <string name="card_browser_see_less">Паказаць менш</string>
 </resources>

@@ -23,7 +23,7 @@
   ~ SPDX-FileCopyrightText: Copyright (c) 2010 Norbert Nagold <norbert.nagold@gmail.com>
   -->
 <resources xmlns:tools="http://schemas.android.com/tools">
-    <string name="check_db_warning">This may take a long time. Proceed?</string>
+    <string name="check_db_warning">זה יכול לקחת הרבה זמן. להמשיך?</string>
     <string name="delete_deck_title">למחוק את החפיסה?‏</string>
     <plurals name="delete_deck_message">
         <item quantity="one">למחוק את כל הכרטיסים ב-%1$s? הוא מכיל %2$d כרטיסים</item>
@@ -65,14 +65,14 @@
     <string name="restore_backup_choose_another">אחר</string>
     <string name="dialog_cancel">ביטול</string>
     <string name="dialog_ok">אישור</string>
-    <string name="dialog_add" comment="Positive dialog action button label to add \'something\'">Add</string>
-    <string name="restore">Restore</string>
+    <string name="dialog_add" comment="Positive dialog action button label to add \'something\'">להוסיף</string>
+    <string name="restore">להחזיר</string>
     <string name="dialog_confirm" tools:ignore="UnusedResources">אשר</string>
     <string name="dialog_no">לא</string>
     <string name="dialog_yes">כן</string>
     <string name="dialog_keep">שמור</string>
     <string name="dialog_remove">הסר</string>
-    <string name="dialog_exit" comment="Label for a button which will exit/finish the current screen">Exit</string>
+    <string name="dialog_exit" comment="Label for a button which will exit/finish the current screen">לצאת</string>
     <string name="dialog_continue">המשך</string>
     <string name="dialog_processing">מעבד&#8230;</string>
     <string name="dialog_positive_create" comment="Create a new collection, probably erasing the previous one, may be necessary in case of error.">יצירה</string>
@@ -248,15 +248,15 @@
     <string name="tts_error_dialog_supported_voices_button_text">אפשרויות קול</string>
     <!-- import_cache_error_resolutions -->
     <string name="import_error_resolution_try_again">Re-import the file</string>
-    <string name="import_error_resolution_free_up_space">Ensure there is sufficient free space on your device</string>
-    <string name="import_error_resolution_check_internet">Ensure you are connected to the internet</string>
-    <string name="import_error_resolution_copy_to_device">Copy the file to your device and try again with the local file</string>
-    <string name="import_error_resolution_select_file">Open the file using your device’s file browser app</string>
+    <string name="import_error_resolution_free_up_space">וודא שיש מספיק מקום פנוי על מכשירך</string>
+    <string name="import_error_resolution_check_internet">וודא שאתה מחובר לאינטרנט</string>
+    <string name="import_error_resolution_copy_to_device">העתק את הקובץ למכשירך ונסה שוב עם הקובץ המקומי</string>
+    <string name="import_error_resolution_select_file">פתח את הקובץ עם אפליקצית דפדפן הקבצים של מכשירך</string>
     <!-- Post-login dialog -->
     <string name="login_successful">Login successful</string>
-    <string name="sync_now">Sync now?</string>
+    <string name="sync_now">סנכרן עכשיו?</string>
     <!--Change Note Type Dialog Fragment-->
-    <string name="card_numbers_unchanged">Card numbers will remain unchanged</string>
+    <string name="card_numbers_unchanged">מספרי קלפים ישארו ללא שינויים</string>
     <!-- Subset of TR.changeNotetypeToFromCloze -->
     <string name="extra_cloze_deletions_removed">If changing to a regular note type, and there are more cloze deletions than available card templates, any extra cards will be removed.</string>
     <string name="different_note_types_selected">Please select notes from only one notetype.</string>
@@ -270,8 +270,8 @@
     <string name="special_field_deck_help" comment="%s: either blank or \' %s\'">The full deck of the card, including parent decks%s</string>
     <string name="special_field_subdeck_help" comment="%s: either blank or \' %s\'">The current deck of the card, excluding parent decks%s</string>
     <string name="special_field_flag_help">Outputs ‘%1$s’, where %2$s is the flag code (%3$s\–%4$s\)</string>
-    <string name="special_field_tags_help" comment="%s: either blank or \' %s\'">The tags of the note%s</string>
+    <string name="special_field_tags_help" comment="%s: either blank or \' %s\'">התגיות של הערה%s</string>
     <string name="special_field_card_id_help" comment="%s: either blank or \' %s\'">The ID of the card%s</string>
-    <string name="special_field_card_help" comment="%s: either blank or \' %s\'">The name of the card template%s</string>
+    <string name="special_field_card_help" comment="%s: either blank or \' %s\'">השם של תבנית הקלף%s</string>
     <string name="special_field_type_help" comment="%s: either blank or \' %s\'">The name of the note type%s</string>
 </resources>

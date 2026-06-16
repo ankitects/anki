@@ -55,7 +55,7 @@
     <string name="audio_recording_field_list" comment="Displays a list of the field data in the note editor while audio recording is taking place">תוכן השדה</string>
     <string name="crop_image_size_notice">התמונה גדולה מדי מכדי שעורך החיתוך יעבוד איתה. אנא שנה את גודלה ונסה שוב!</string>
     <string name="reselect" maxLength="28">בחר מחדש</string>
-    <string name="waveform_button_description">Show audio waveform</string>
-    <string name="field_content_description">Show field content</string>
-    <string name="delete_audio_button_description">Delete recording</string>
+    <string name="waveform_button_description">הצג צורת גל שמע</string>
+    <string name="field_content_description">הצג תוכן שדה</string>
+    <string name="delete_audio_button_description">מחק הקלטה</string>
 </resources>

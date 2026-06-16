@@ -30,8 +30,8 @@
     <string name="add_to_deck_decide_by_note_type">Välj efter anteckningstyp</string>
     <!-- theme labels -->
     <string name="theme_follow_system">Följ systemet</string>
-    <string name="theme_day" comment="Day/Light theme color scheme">Day</string>
-    <string name="theme_night" comment="Night/Dark theme color scheme">Night</string>
+    <string name="theme_day" comment="Day/Light theme color scheme">Dag</string>
+    <string name="theme_night" comment="Night/Dark theme color scheme">Natt</string>
     <!-- day_theme_labels -->
     <string name="day_theme_light">Ljus</string>
     <string name="day_theme_plain">Enkel</string>
@@ -45,14 +45,14 @@
     <string name="html_size_code_medium">medium</string>
     <string name="html_size_code_large">large</string>
     <string name="html_size_code_x_large">x-large</string>
-    <string name="html_size_code_xx_large">xx-large</string>
+    <string name="html_size_code_xx_large">Störst</string>
     <!-- gestures_labels -->
     <string name="answer_again" maxLength="41">Svara igen</string>
     <string name="answer_hard" maxLength="41">Svara svår</string>
     <string name="answer_good" maxLength="41">Svara bra</string>
     <string name="answer_easy" maxLength="41">Svara lätt</string>
     <string name="gesture_abort_learning" maxLength="41">Close study screen</string>
-    <string name="gesture_flag_red" maxLength="41">Toggle red flag</string>
+    <string name="gesture_flag_red" maxLength="41">Växla Röd flagga</string>
     <string name="gesture_flag_orange" maxLength="41">Toggle orange flag</string>
     <string name="gesture_flag_green" maxLength="41">Toggle green flag</string>
     <string name="gesture_flag_blue" maxLength="41">Toggle blue flag</string>
@@ -63,10 +63,10 @@
     <string name="gesture_page_up" maxLength="41">Sida upp</string>
     <string name="gesture_page_down" maxLength="41">Sida ner</string>
     <string name="gesture_toggle_whiteboard" maxLength="41">Toggle whiteboard</string>
-    <string name="gesture_toggle_eraser" maxLength="41">Toggle eraser</string>
+    <string name="gesture_toggle_eraser" maxLength="41">Växla suddgummi</string>
     <string name="gesture_show_hint" maxLength="41">Visa ledtråd</string>
     <string name="gesture_show_all_hints" maxLength="41">Visa alla ledtrådar</string>
     <string name="record_voice" maxLength="41">Spela in röst</string>
-    <string name="replay_voice" maxLength="41">Återuppspela röst</string>
+    <string name="replay_voice" maxLength="41">Spela upp igen</string>
     <string name="save_voice" maxLength="41">Spara inspelning</string>
 </resources>

@@ -65,7 +65,7 @@
     <string name="card_template_browser_appearance_summary">Geben Sie die Vorlage ein, die die Kartenübersicht zum Anzeigen Ihrer Karten verwendet, um eine kürzere Antwort anzuzeigen.\n\nEine Vorderseitenvorlage von\n»Die Hauptstadt von {{Country}} ist:«\nkönnte in der Kartenübersicht komprimiert werden zu\n»Hauptstadt: {{Country}}«</string>
     <string name="card_template_browser_appearance_question_format">Fragenformat</string>
     <string name="card_template_browser_appearance_answer_format">Antwortformat</string>
-    <string name="card_template_browser_appearance_restore_default_dialog">Are you sure you want to restore the browser appearance to default?</string>
+    <string name="card_template_browser_appearance_restore_default_dialog">Sind Sie sicher, dass Sie das Aussehen des Browsers auf Standard wiederherstellen möchten?</string>
     <string name="card_template_browser_appearance_saving_note">Diese Änderungen werden beim Speichern der Kartenvorlage angewendet</string>
     <!-- Deck Override -->
     <string name="card_template_editor_deck_override_on">Stapel übergehen (ein)</string>
