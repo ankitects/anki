@@ -338,20 +338,22 @@ mod tests {
 
     #[test]
     fn literal_text_escapes_wildcards_and_produces_unqualified_text() {
-        // "*" is an Anki wildcard; LiteralText must escape it so it is treated as a
-        // literal
-        let proto = ProtoSearchNode {
-            filter: Some(Filter::LiteralText("hello*world".to_string())),
-        };
-        let node: Node = proto.try_into().unwrap();
-        match node {
-            Node::Search(SearchNode::UnqualifiedText(text)) => {
-                assert!(
-                    !text.contains('*') || text.contains("\\*"),
-                    "wildcard should be escaped in literal text, got: {text}"
-                );
+        // escape_anki_wildcards escapes \, * and _ with a leading backslash
+        for (input, expected) in [
+            ("hello*world", "hello\\*world"),
+            ("a_b", "a\\_b"),
+            ("x\\y", "x\\\\y"),
+        ] {
+            let proto = ProtoSearchNode {
+                filter: Some(Filter::LiteralText(input.to_string())),
+            };
+            let node: Node = proto.try_into().unwrap();
+            match node {
+                Node::Search(SearchNode::UnqualifiedText(text)) => {
+                    assert_eq!(text, expected, "input: {input:?}");
+                }
+                other => panic!("expected UnqualifiedText, got {other:?}"),
             }
-            other => panic!("expected UnqualifiedText, got {other:?}"),
         }
     }
 
@@ -488,6 +490,35 @@ mod tests {
                 assert_eq!(got, want, "wrong button number for {rating:?}");
             }
         }
+    }
+
+    #[test]
+    fn invalid_flag_value_falls_back_to_flag_any() {
+        // Protobuf forward-compat: an unknown flag i32 falls back to Flag::Any,
+        // which means NOT(Flag(0)) — "card has any flag" — not an error.
+        let proto = ProtoSearchNode {
+            filter: Some(Filter::Flag(999)),
+        };
+        let node: Node = proto.try_into().unwrap();
+        assert!(
+            matches!(node, Node::Not(ref inner) if matches!(inner.as_ref(), Node::Search(SearchNode::Flag(0)))),
+            "unknown flag value should fall back to Flag::Any (Not(Flag(0))), got {node:?}"
+        );
+    }
+
+    #[test]
+    fn invalid_card_state_value_falls_back_to_new() {
+        // Protobuf forward-compat: an unknown CardState i32 falls back to
+        // CardState::New (the default variant), producing StateKind::New — not
+        // an error.
+        let proto = ProtoSearchNode {
+            filter: Some(Filter::CardState(999)),
+        };
+        let node: Node = proto.try_into().unwrap();
+        assert!(
+            matches!(node, Node::Search(SearchNode::State(StateKind::New))),
+            "unknown card state should fall back to StateKind::New, got {node:?}"
+        );
     }
 
     #[test]
