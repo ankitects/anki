@@ -88,13 +88,8 @@ runs:
           echo "UV_CACHE_DIR=$CACHE_DIR" >> "$GITHUB_ENV"
         fi
 
-    # UV_BINARY tells the build system to use our uv instead of downloading
-    # its own (see build/ninja_gen/src/python.rs). Linux-only because on
-    # macOS ARM the launcher needs the downloaded archive to build a universal
-    # binary via lipo (see build/configure/src/launcher.rs).
-    # On macOS/Windows, the downloaded uv will still use the shared cache.
-    - name: Set UV_BINARY (Linux)
-      if: runner.os == 'Linux'
+    # UV_BINARY tells the build system to use our uv instead of downloading its own
+    - name: Set UV_BINARY
       shell: bash
       run: echo "UV_BINARY=${{ steps.setup-uv.outputs.uv-path }}" >> "$GITHUB_ENV"
 
