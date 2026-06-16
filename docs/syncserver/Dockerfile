@@ -1,4 +1,4 @@
-FROM rust:1.85.0-alpine3.20 AS builder
+FROM rust:1.96.0-alpine3.21 AS builder
 
 ARG ANKI_VERSION
 
