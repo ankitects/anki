@@ -224,15 +224,17 @@ impl BuildAction for Prettier {
     fn files(&mut self, build: &mut impl build::FilesHandle) {
         build.add_inputs("yarn", inputs![":yarn:bin"]);
         build.add_inputs("prettier", inputs![":node_modules:prettier"]);
-        build.add_inputs("", &self.inputs);
-        build.add_variable("pattern", r#""**/*.svelte""#);
+        build.add_inputs("pattern", &self.inputs);
         let (file_ext, mode) = if self.check_only {
             ("fmt", "--check")
         } else {
             ("check", "--write")
         };
         build.add_variable("mode", mode);
-        build.add_output_stamp(format!("tests/prettier.{file_ext}"));
+        build.add_output_stamp(format!(
+            "tests/prettier.{}.{file_ext}",
+            simple_hash(&self.inputs)
+        ));
     }
 }
 

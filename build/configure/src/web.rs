@@ -310,7 +310,10 @@ fn build_and_check_reviewer(build: &mut Build) -> Result<()> {
 fn check_web(build: &mut Build) -> Result<()> {
     let fmt_excluded = "{target,extra,.mypy_cache,ts/.svelte-kit,node_modules,.venv}/**";
     let dprint_files = inputs![glob!["**/*.{ts,mjs,js,md,json,toml,scss}", fmt_excluded]];
-    let prettier_files = inputs![glob!["**/*.svelte", fmt_excluded]];
+    let prettier_files = inputs![
+        glob!["**/*.svelte", fmt_excluded],
+        glob!["docs-site/**/*.mdx"]
+    ];
 
     build.add_action(
         "check:format:dprint",
