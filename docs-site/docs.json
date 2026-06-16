@@ -23,14 +23,14 @@
                     {
                         "group": "Desktop Manual",
                         "pages": [
-                            "manual/index",
+                          "manual/intro",
+                          "manual/getting-started",
                             "manual/background",
                             {
                                 "group": "Platform Notes",
                                 "icon": "computer",
                                 "pages": [
                                     "manual/platform/intro",
-                                    "manual/platform/mac/installing",
                                     {
                                         "group": "Windows",
                                         "icon": "microsoft",
@@ -50,6 +50,7 @@
                                         "icon": "apple",
                                         "pages": [
                                             "manual/platform/mac/intro",
+                                            "manual/platform/mac/installing",
                                             "manual/platform/mac/display-issues"
                                         ]
                                     },
@@ -70,7 +71,6 @@
                                 ]
                             },
                             "manual/platform/linux/distro-packages",
-                            "manual/getting-started",
                             "manual/getting-help",
                             "manual/studying",
                             "manual/editing",
@@ -112,7 +112,8 @@
                             "manual/troubleshooting",
                             "manual/sync-server",
                             "manual/misc"
-                        ]
+                        ],
+                        "expanded": true
                     }
                 ]
             },
@@ -122,7 +123,6 @@
                     {
                         "group": "AnkiMobile Manual",
                         "pages": [
-                            "ankimobile/index",
                             "ankimobile/intro",
                             "ankimobile/support",
                             "ankimobile/interface-language",
@@ -152,7 +152,9 @@
                     {
                         "group": "Support FAQs",
                         "pages": [
-                            "faqs/index",
+                          "getting-help",
+                          "when-problems-occur",
+                          "automatic-backups",
                             {
                               "group": "Cards and Notes",
                               "icon": "cards-blank",
@@ -280,7 +282,6 @@
                     {
                         "group": "Add-on Development",
                         "pages": [
-                            "addons/index",
                             "addons/intro",
                             "addons/support",
                             "addons/editor-setup",
@@ -312,13 +313,12 @@
                     {
                         "group": "Core Development",
                         "pages": [
-                            "developers/index",
+                          "developers/development",
                             "developers/api-python",
                             "developers/api-rust",
                             "developers/architecture",
                             "developers/build",
                             "developers/contributing",
-                            "developers/development",
                             "developers/docker",
                             "developers/editing",
                             "developers/language_bridge",
@@ -340,7 +340,6 @@
                     {
                         "group": "Translation Guide",
                         "pages": [
-                            "translators/index",
                             "translators/intro",
                             {
                                 "group": "Translating Anki",
@@ -364,7 +363,8 @@
                     {
                         "group": "Release Notes",
                         "pages": [
-                            "releases/index",
+                          "releases/betas/intro",
+                          "releases/changes/known-issues",
                             "releases/changes/changes/intro",
                             "releases/changes/changes/github",
                             "releases/changes/changes/23.10",
@@ -376,8 +376,6 @@
                             "releases/changes/changes/2.1.10-19",
                             "releases/changes/changes/2.1.0-9",
                             "releases/changes/changes/2.1",
-                            "releases/changes/known-issues",
-                            "releases/betas/intro",
                             "releases/betas/2021-scheduler",
                             "releases/betas/github",
                             "releases/betas/anki23.10",
