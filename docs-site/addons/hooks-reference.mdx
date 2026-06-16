@@ -9,10 +9,8 @@ See [Hooks & Filters](/addons/hooks-and-filters) for usage instructions.
 
 ## Backend Hooks (`anki.hooks`)
 
-{/* <<[cog
-from tools.mintlify_hooks import render_hooks
-cog.out(render_hooks("pylib/tools/genhooks.py"))
-]>> */}
+{/* <<<cog from tools.mintlify_hooks import render_hooks; cog.out("\n" + render_hooks("pylib/tools/genhooks.py").strip())>>> */}
+
 ### `card_odue_was_invalid`
 
 No arguments.
@@ -179,4 +177,4 @@ time. Tracked on https://github.com/ankitects/anki/issues/1018
  Obsolete, do not use.
 
 </Warning>
-{/* <<[end]>> */}
+{/* <<<end>>> */}
