@@ -430,4 +430,215 @@ mod tests {
         let result = Node::try_from(proto);
         assert!(result.is_err(), "expected error for empty group");
     }
+
+    // --- From<Rating> / From<CardState> / error paths ---
+
+    #[test]
+    fn card_state_filter_converts_all_variants() {
+        use anki_proto::search::search_node::CardState;
+        let cases = [
+            (CardState::New, StateKind::New),
+            (CardState::Learn, StateKind::Learning),
+            (CardState::Review, StateKind::Review),
+            (CardState::Due, StateKind::Due),
+            (CardState::Suspended, StateKind::Suspended),
+            (CardState::Buried, StateKind::Buried),
+        ];
+        for (card_state, expected) in cases {
+            let proto = ProtoSearchNode {
+                filter: Some(Filter::CardState(card_state as i32)),
+            };
+            let node: Node = proto.try_into().unwrap();
+            match node {
+                Node::Search(SearchNode::State(kind)) => {
+                    assert_eq!(
+                        std::mem::discriminant(&kind),
+                        std::mem::discriminant(&expected),
+                        "wrong StateKind for {card_state:?}"
+                    );
+                }
+                other => panic!("expected State, got {other:?}"),
+            }
+        }
+    }
+
+    #[test]
+    fn rating_all_variants_convert_to_rating_kind() {
+        use anki_proto::search::search_node::Rating;
+        let cases: &[(Rating, RatingKind)] = &[
+            (Rating::Again, RatingKind::AnswerButton(1)),
+            (Rating::Hard, RatingKind::AnswerButton(2)),
+            (Rating::Good, RatingKind::AnswerButton(3)),
+            (Rating::Easy, RatingKind::AnswerButton(4)),
+            (Rating::Any, RatingKind::AnyAnswerButton),
+            (Rating::ByReschedule, RatingKind::ManualReschedule),
+        ];
+        for (rating, expected) in cases {
+            let result = RatingKind::from(*rating);
+            assert_eq!(
+                std::mem::discriminant(&result),
+                std::mem::discriminant(expected),
+                "wrong RatingKind for {rating:?}"
+            );
+            // for AnswerButton variants also check the button number
+            if let (RatingKind::AnswerButton(got), RatingKind::AnswerButton(want)) =
+                (&result, expected)
+            {
+                assert_eq!(got, want, "wrong button number for {rating:?}");
+            }
+        }
+    }
+
+    #[test]
+    fn parsable_text_invalid_syntax_returns_error() {
+        // A bare colon is not valid Anki search syntax
+        let proto = ProtoSearchNode {
+            filter: Some(Filter::ParsableText(":".to_string())),
+        };
+        let result = Node::try_from(proto);
+        assert!(result.is_err(), "expected error for invalid parsable text");
+    }
+
+    #[test]
+    fn added_in_days_filter_preserves_value() {
+        let proto = ProtoSearchNode {
+            filter: Some(Filter::AddedInDays(3)),
+        };
+        let node: Node = proto.try_into().unwrap();
+        assert!(
+            matches!(node, Node::Search(SearchNode::AddedInDays(3))),
+            "expected AddedInDays(3)"
+        );
+    }
+
+    #[test]
+    fn introduced_in_days_filter_preserves_value() {
+        let proto = ProtoSearchNode {
+            filter: Some(Filter::IntroducedInDays(5)),
+        };
+        let node: Node = proto.try_into().unwrap();
+        assert!(
+            matches!(node, Node::Search(SearchNode::IntroducedInDays(5))),
+            "expected IntroducedInDays(5)"
+        );
+    }
+
+    #[test]
+    fn edited_in_days_filter_preserves_value() {
+        let proto = ProtoSearchNode {
+            filter: Some(Filter::EditedInDays(2)),
+        };
+        let node: Node = proto.try_into().unwrap();
+        assert!(
+            matches!(node, Node::Search(SearchNode::EditedInDays(2))),
+            "expected EditedInDays(2)"
+        );
+    }
+
+    #[test]
+    fn due_in_days_filter_uses_lte_operator() {
+        let proto = ProtoSearchNode {
+            filter: Some(Filter::DueInDays(7)),
+        };
+        let node: Node = proto.try_into().unwrap();
+        match node {
+            Node::Search(SearchNode::Property { operator, kind }) => {
+                assert_eq!(operator, "<=");
+                assert!(matches!(kind, PropertyKind::Due(7)));
+            }
+            other => panic!("expected Property, got {other:?}"),
+        }
+    }
+
+    #[test]
+    fn due_on_day_filter_uses_eq_operator() {
+        let proto = ProtoSearchNode {
+            filter: Some(Filter::DueOnDay(1)),
+        };
+        let node: Node = proto.try_into().unwrap();
+        match node {
+            Node::Search(SearchNode::Property { operator, kind }) => {
+                assert_eq!(operator, "=");
+                assert!(matches!(kind, PropertyKind::Due(1)));
+            }
+            other => panic!("expected Property, got {other:?}"),
+        }
+    }
+
+    #[test]
+    fn rated_filter_converts_days_and_rating() {
+        use anki_proto::search::search_node::Rating;
+        let proto = ProtoSearchNode {
+            filter: Some(Filter::Rated(anki_proto::search::search_node::Rated {
+                days: 7,
+                rating: Rating::Good as i32,
+            })),
+        };
+        let node: Node = proto.try_into().unwrap();
+        match node {
+            Node::Search(SearchNode::Rated { days, ease }) => {
+                assert_eq!(days, 7);
+                assert!(matches!(ease, RatingKind::AnswerButton(3)), "Good → AnswerButton(3)");
+            }
+            other => panic!("expected Rated, got {other:?}"),
+        }
+    }
+
+    #[test]
+    fn field_name_filter_produces_wildcard_single_field() {
+        // FieldName checks whether a field exists (has any content), so text is always "_*"
+        let proto = ProtoSearchNode {
+            filter: Some(Filter::FieldName("Back".to_string())),
+        };
+        let node: Node = proto.try_into().unwrap();
+        match node {
+            Node::Search(SearchNode::SingleField { field, text, mode }) => {
+                assert_eq!(field, "Back");
+                assert_eq!(text, "_*");
+                assert!(matches!(mode, FieldSearchMode::Normal));
+            }
+            other => panic!("expected SingleField, got {other:?}"),
+        }
+    }
+
+    #[test]
+    fn dupe_filter_converts_to_duplicates_node() {
+        let proto = ProtoSearchNode {
+            filter: Some(Filter::Dupe(anki_proto::search::search_node::Dupe {
+                notetype_id: 42,
+                first_field: "hello".to_string(),
+            })),
+        };
+        let node: Node = proto.try_into().unwrap();
+        match node {
+            Node::Search(SearchNode::Duplicates { notetype_id, text }) => {
+                assert_eq!(notetype_id.0, 42);
+                assert_eq!(text, "hello");
+            }
+            other => panic!("expected Duplicates, got {other:?}"),
+        }
+    }
+
+    #[test]
+    fn group_of_two_uses_or_joiner() {
+        let proto = ProtoSearchNode {
+            filter: Some(Filter::Group(anki_proto::search::search_node::Group {
+                joiner: anki_proto::search::search_node::group::Joiner::Or as i32,
+                nodes: vec![
+                    ProtoSearchNode {
+                        filter: Some(Filter::Tag("a".to_string())),
+                    },
+                    ProtoSearchNode {
+                        filter: Some(Filter::Tag("b".to_string())),
+                    },
+                ],
+            })),
+        };
+        let node: Node = proto.try_into().unwrap();
+        // Group of 2 with OR → [Tag, Or, Tag]
+        assert!(
+            matches!(&node, Node::Group(nodes) if nodes.len() == 3 && matches!(nodes[1], Node::Or)),
+            "expected Group([Tag, Or, Tag])"
+        );
+    }
 }
