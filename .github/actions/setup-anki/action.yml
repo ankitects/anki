@@ -90,6 +90,7 @@ runs:
 
     # UV_BINARY tells the build system to use our uv instead of downloading its own
     - name: Set UV_BINARY
+      if: runner.os != 'Windows'
       shell: bash
       run: echo "UV_BINARY=${{ steps.setup-uv.outputs.uv-path }}" >> "$GITHUB_ENV"
 
