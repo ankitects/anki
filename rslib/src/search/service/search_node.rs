@@ -338,7 +338,8 @@ mod tests {
 
     #[test]
     fn literal_text_escapes_wildcards_and_produces_unqualified_text() {
-        // "*" is an Anki wildcard; LiteralText must escape it so it is treated as a literal
+        // "*" is an Anki wildcard; LiteralText must escape it so it is treated as a
+        // literal
         let proto = ProtoSearchNode {
             filter: Some(Filter::LiteralText("hello*world".to_string())),
         };
@@ -578,7 +579,10 @@ mod tests {
         match node {
             Node::Search(SearchNode::Rated { days, ease }) => {
                 assert_eq!(days, 7);
-                assert!(matches!(ease, RatingKind::AnswerButton(3)), "Good → AnswerButton(3)");
+                assert!(
+                    matches!(ease, RatingKind::AnswerButton(3)),
+                    "Good → AnswerButton(3)"
+                );
             }
             other => panic!("expected Rated, got {other:?}"),
         }
@@ -586,7 +590,8 @@ mod tests {
 
     #[test]
     fn field_name_filter_produces_wildcard_single_field() {
-        // FieldName checks whether a field exists (has any content), so text is always "_*"
+        // FieldName checks whether a field exists (has any content), so text is always
+        // "_*"
         let proto = ProtoSearchNode {
             filter: Some(Filter::FieldName("Back".to_string())),
         };

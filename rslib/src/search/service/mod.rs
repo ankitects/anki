@@ -154,8 +154,9 @@ mod tests {
 
     use crate::browser_table::Column;
     use crate::collection::Collection;
-    use crate::search::SortMode;
+    use crate::error::AnkiError;
     use crate::search::service::SortOrderProto;
+    use crate::search::SortMode;
     use crate::services::SearchService;
     use crate::tests::open_fs_test_collection;
     use crate::tests::DeckAdder;
@@ -169,6 +170,24 @@ mod tests {
         };
         let result = col.build_search_string(proto).unwrap();
         assert_eq!(result.val, "tag:mytag");
+    }
+
+    #[test]
+    fn build_search_string_returns_invalid_input_for_empty_group() {
+        let (mut col, _tempdir) = open_fs_test_collection("search_service_invalid_node");
+        let proto = ProtoSearchNode {
+            filter: Some(Filter::Group(anki_proto::search::search_node::Group {
+                joiner: anki_proto::search::search_node::group::Joiner::And as i32,
+                nodes: vec![],
+            })),
+        };
+
+        let err = col.build_search_string(proto).unwrap_err();
+
+        match err {
+            AnkiError::InvalidInput { source } => assert_eq!(source.message(), "empty group"),
+            other => panic!("expected InvalidInput, got {other:?}"),
+        }
     }
 
     // --- Service methods requiring a DB ---
@@ -236,23 +255,37 @@ mod tests {
     }
 
     #[test]
-    fn browser_row_for_id_returns_row_for_existing_card() {
+    fn browser_row_for_id_returns_requested_columns_for_existing_card() {
         let mut col = Collection::new();
-        NoteAdder::basic(&mut col).add(&mut col);
+        let deck = DeckAdder::new("TargetDeck").add(&mut col);
+        let note = NoteAdder::basic(&mut col)
+            .fields(&["front value", "back value"])
+            .deck(deck.id)
+            .add(&mut col);
         SearchService::set_active_browser_columns(
             &mut col,
             anki_proto::generic::StringList {
-                vals: vec!["noteFld".to_string()],
+                vals: vec![
+                    "noteFld".to_string(),
+                    "deck".to_string(),
+                    "note".to_string(),
+                ],
             },
         )
         .unwrap();
-        let card = col.storage.get_all_cards().pop().unwrap();
+        let card_id = col.storage.card_ids_of_notes(&[note.id]).unwrap()[0];
         let result = SearchService::browser_row_for_id(
             &mut col,
-            anki_proto::generic::Int64 { val: card.id.0 },
+            anki_proto::generic::Int64 { val: card_id.0 },
         )
         .unwrap();
-        assert!(!result.cells.is_empty(), "expected non-empty browser row");
+
+        let cell_texts: Vec<_> = result.cells.iter().map(|cell| cell.text.as_str()).collect();
+        assert_eq!(
+            cell_texts,
+            ["front value", "TargetDeck", "Basic"],
+            "browser row should match the requested column order"
+        );
     }
 
     // --- Exact-match search integration tests ---
@@ -302,9 +335,16 @@ mod tests {
         )
         .unwrap();
 
-        assert_eq!(result.ids.len(), 1, "expected exactly one card for note:Basic");
+        assert_eq!(
+            result.ids.len(),
+            1,
+            "expected exactly one card for note:Basic"
+        );
         let expected_cids = col.storage.card_ids_of_notes(&[basic_note.id]).unwrap();
-        assert_eq!(result.ids[0], expected_cids[0].0, "card id should match the Basic note");
+        assert_eq!(
+            result.ids[0], expected_cids[0].0,
+            "card id should match the Basic note"
+        );
     }
 
     #[test]
@@ -313,9 +353,7 @@ mod tests {
         // create a named deck
         let deck = DeckAdder::new("TargetDeck").add(&mut col);
         // card in TargetDeck
-        let in_deck = NoteAdder::basic(&mut col)
-            .deck(deck.id)
-            .add(&mut col);
+        let in_deck = NoteAdder::basic(&mut col).deck(deck.id).add(&mut col);
         // card in default deck (id 1) — should NOT appear
         NoteAdder::basic(&mut col)
             .fields(&["other", ""])
@@ -330,9 +368,16 @@ mod tests {
         )
         .unwrap();
 
-        assert_eq!(result.ids.len(), 1, "expected exactly one card in TargetDeck");
+        assert_eq!(
+            result.ids.len(),
+            1,
+            "expected exactly one card in TargetDeck"
+        );
         let expected_cids = col.storage.card_ids_of_notes(&[in_deck.id]).unwrap();
-        assert_eq!(result.ids[0], expected_cids[0].0, "card id should match the note in TargetDeck");
+        assert_eq!(
+            result.ids[0], expected_cids[0].0,
+            "card id should match the note in TargetDeck"
+        );
     }
 
     #[test]
@@ -341,7 +386,8 @@ mod tests {
         // note with tag "target" → 1 card
         let mut tagged = NoteAdder::basic(&mut col).note();
         tagged.tags = vec!["target".to_string()];
-        col.add_note(&mut tagged, crate::prelude::DeckId(1)).unwrap();
+        col.add_note(&mut tagged, crate::prelude::DeckId(1))
+            .unwrap();
         // untagged note → 1 card, should NOT appear
         NoteAdder::basic(&mut col)
             .fields(&["other", ""])
@@ -356,9 +402,16 @@ mod tests {
         )
         .unwrap();
 
-        assert_eq!(result.ids.len(), 1, "expected exactly one card for tag:target");
+        assert_eq!(
+            result.ids.len(),
+            1,
+            "expected exactly one card for tag:target"
+        );
         let expected_cids = col.storage.card_ids_of_notes(&[tagged.id]).unwrap();
-        assert_eq!(result.ids[0], expected_cids[0].0, "card id should match the tagged note");
+        assert_eq!(
+            result.ids[0], expected_cids[0].0,
+            "card id should match the tagged note"
+        );
     }
 
     // --- From<Option<SortOrderProto>> for SortMode ---
@@ -395,7 +448,7 @@ mod tests {
         })));
         match mode {
             SortMode::Builtin { column, reverse } => {
-                assert_ne!(column, Column::Custom, "column should be a known built-in");
+                assert_eq!(column, Column::SortField);
                 assert!(reverse, "reverse flag should be true");
             }
             other => panic!("expected Builtin, got {other:?}"),
@@ -404,8 +457,9 @@ mod tests {
 
     #[test]
     fn replace_search_node_replaces_single_node() {
-        // existing is a single Tag node (not a Group) → wraps in vec![node] before replacing
-        // replacement is also a Tag → the old tag is swapped for the new one
+        // existing is a single Tag node (not a Group) → wraps in vec![node] before
+        // replacing replacement is also a Tag → the old tag is swapped for the
+        // new one
         let (mut col, _tempdir) = open_fs_test_collection("replace_single");
         let input = anki_proto::search::ReplaceSearchNodeRequest {
             existing_node: Some(ProtoSearchNode {
@@ -445,7 +499,10 @@ mod tests {
         };
         let result = col.replace_search_node(input).unwrap();
         // Tag replaced, Deck unchanged
-        assert!(result.val.contains("tag:replaced"), "tag should be replaced");
+        assert!(
+            result.val.contains("tag:replaced"),
+            "tag should be replaced"
+        );
         assert!(result.val.contains("deck:myDeck"), "deck should remain");
     }
 
