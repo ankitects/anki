@@ -41,7 +41,7 @@ On all platforms, you will need to install:
   or `bash tools\install-n2` on Windows. If you want to use Ninja, it can be downloaded
   from https://github.com/ninja-build/ninja/releases/tag/v1.11.1 and
   placed on your path, or from your distro/homebrew if it's 1.10+.
-  - On Windows, if you have WSL installed, it may conflict with MSYS2 bash. If you are getting an error, try running `C:\msys64\usr\bin\bash.exe tools/install-n2` instead.
+    - On Windows, if you have WSL installed, it may conflict with MSYS2 bash. If you are getting an error, try running `C:\msys64\usr\bin\bash.exe tools/install-n2` instead.
 - (Optional) [just](https://just.systems/man/en/packages.html) command runner.
   Install with `brew install just` or `uv tool install just`.
   We are experimenting with `just` as the official tool for running
@@ -221,11 +221,11 @@ Depending on your operating system, this produces a file under `out/installer/di
 The steps to build the launcher vary slightly depending on your operating
 system. First, you have to navigate to the appropriate folder:
 
-| Operating System | Path               | Env variables |
-| ---------------- | ------------------ | ------------- |
-| Linux            | ./qt/launcher/lin/ | -             |
-| MacOS            | ./qt/launcher/mac/ | `NODMG=1`     |
-| Windows          | .\qt\launcher\win\ | `NOCOMP=1`    |
+| Operating System | Path                | Env variables |
+| ---------------- | ------------------- | ------------- |
+| Linux            | ./qt/launcher/lin/  | -             |
+| MacOS            | ./qt/launcher/mac/  | `NODMG=1`     |
+| Windows          | .\qt\launcher\win\  | `NOCOMP=1`    |
 
 If you are on Windows or MacOS, you will now have to set the environment
 variables as outlined in the table above. `NOCOMP=1` skips code signing

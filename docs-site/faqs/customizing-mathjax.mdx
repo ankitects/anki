@@ -8,13 +8,13 @@ For recent Anki versions, use something like this:
 
 ```html
 <script>
-MathJax.config.tex['macros'] = {
-    R: '{\\mathbb {R',
-};
-if (typeof is_already_run == 'undefined') {
-  is_already_run = true
-  MathJax.startup.getComponents();
-}
+    MathJax.config.tex["macros"] = {
+        R: "{\\mathbb {R",
+    };
+    if (typeof is_already_run == "undefined") {
+        is_already_run = true;
+        MathJax.startup.getComponents();
+    }
 </script>
 ```
 
@@ -22,10 +22,10 @@ For older Anki versions:
 
 ```html
 <script>
-  MathJax.Hub.Config({
-  ...
-  });
-  MathJax.Hub.Configured();
+    MathJax.Hub.Config({
+    ...
+    });
+    MathJax.Hub.Configured();
 </script>
 ```
 

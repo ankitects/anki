@@ -44,7 +44,8 @@ SYNC_USER1=user:pass /Applications/Anki.app/Contents/MacOS/anki --syncserver
 ```
 
 <Note>
-Replace 'anki' with 'launcher' in the above command for anki versions 25.07 to 25.09.4.
+    Replace 'anki' with 'launcher' in the above command for anki versions 25.07 to
+    25.09.4.
 </Note>
 
 Or Linux:
@@ -160,9 +161,10 @@ If using a reverse proxy to provide HTTPS access (e.g. nginx), and binding to a 
 include a trailing slash when configuring Anki. If you put `http://example.com/custom`
 instead, it will not work.
 
-If you are using a caddy, increase 
-[the http read buffer size](https://caddyserver.com/docs/caddyfile/directives/reverse_proxy#read_buffer) 
+If you are using a caddy, increase
+[the http read buffer size](https://caddyserver.com/docs/caddyfile/directives/reverse_proxy#read_buffer)
 to avoid connection problems when downloading media files.
+
 ```caddyfile
 reverse_proxy http://127.0.0.1:8080 {
 	transport http {
