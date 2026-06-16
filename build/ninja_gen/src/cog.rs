@@ -17,7 +17,7 @@ struct CogRender<'a> {
 
 impl BuildAction for CogRender<'_> {
     fn command(&self) -> &str {
-        "$cog -I . --markers \"<<<cog >>> <<<end>>>\" $mode $in"
+        "$cog -I . --markers \"<<[cog ]>> <<[end]>>\" $mode $in"
     }
 
     fn files(&mut self, build: &mut impl FilesHandle) {
