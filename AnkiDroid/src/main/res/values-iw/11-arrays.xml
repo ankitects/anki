@@ -47,10 +47,7 @@
     <string name="html_size_code_x_large">גדול מאוד</string>
     <string name="html_size_code_xx_large">הכי גדול</string>
     <!-- gestures_labels -->
-    <string name="answer_again" maxLength="41">תשובת שוב</string>
-    <string name="answer_hard" maxLength="41">תשובת קשה</string>
-    <string name="answer_good" maxLength="41">תשובת טוב</string>
-    <string name="answer_easy" maxLength="41">תשובת קל</string>
+    <string name="answer_easy" comment="Match Anki\'s translations: deckConfigAnswerAgain" maxLength="41">תשובת קל</string>
     <string name="gesture_abort_learning" maxLength="41">סגירת מסך הלימוד</string>
     <string name="gesture_flag_red" maxLength="41">החלף את הדגל האדום</string>
     <string name="gesture_flag_orange" maxLength="41">החלף את הדגל הכתום</string>

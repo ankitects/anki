@@ -165,7 +165,6 @@
     <string name="export_choice_save_to">Save to</string>
     <string name="export_saving_exported_collection">Saving exported file&#8230;</string>
     <string name="study_options" comment="Name for a preference category in Filtered deck (aka Cram deck, aka Custom study) options" maxLength="28">Options</string>
-    <string name="menu__deck_options" maxLength="28">Deck options</string>
     <string name="menu__study_options" comment="Menu item that opens options for a Filtered deck (aka Cram deck, aka Custom study)">Study options</string>
     <string name="select_tts" maxLength="28">Поставете го јазикот на TTS</string>
     <string name="dyn_deck_desc">Ова е специјална палуба за студирање надвор од секојдневен распоред. Картичките автоматски ќе бидат вратени на нивните палуби откако ќе ги прегледате. Бришењето на овој пабула од листата на палуби ќе ги врати сите останати картички во нивната оригинална палуба.</string>

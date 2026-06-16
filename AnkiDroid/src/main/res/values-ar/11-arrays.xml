@@ -47,10 +47,7 @@
     <string name="html_size_code_x_large">x-كبير</string>
     <string name="html_size_code_xx_large">xx-كبير</string>
     <!-- gestures_labels -->
-    <string name="answer_again" maxLength="41">الإجابة بمجددًا</string>
-    <string name="answer_hard" maxLength="41">الإجابة بصعب</string>
-    <string name="answer_good" maxLength="41">الإجابة بجيد</string>
-    <string name="answer_easy" maxLength="41">الإجابة بسهل</string>
+    <string name="answer_easy" comment="Match Anki\'s translations: deckConfigAnswerAgain" maxLength="41">الإجابة بسهل</string>
     <string name="gesture_abort_learning" maxLength="41">إغلاق شاشة الدراسة</string>
     <string name="gesture_flag_red" maxLength="41">تبديل بالعلم الأحمر</string>
     <string name="gesture_flag_orange" maxLength="41">تبديل بالعلم البرتقالي</string>

@@ -47,10 +47,7 @@
     <string name="html_size_code_x_large">چوڭراق</string>
     <string name="html_size_code_xx_large">زىيادە چوڭ</string>
     <!-- gestures_labels -->
-    <string name="answer_again" maxLength="41">جاۋابنى قايتىلا</string>
-    <string name="answer_hard" maxLength="41">جاۋابى تەس</string>
-    <string name="answer_good" maxLength="41">جاۋابى ياخشى</string>
-    <string name="answer_easy" maxLength="41">جاۋابى ئاسان</string>
+    <string name="answer_easy" comment="Match Anki\'s translations: deckConfigAnswerAgain" maxLength="41">جاۋابى ئاسان</string>
     <string name="gesture_abort_learning" maxLength="41">ئۆگىنىش ئېكرانىنى تقايدۇ</string>
     <string name="gesture_flag_red" maxLength="41">قىزىل بايراقنى ئالماشتۇر</string>
     <string name="gesture_flag_orange" maxLength="41">قىزغۇچ سېرىق بايراقنى ئالماشتۇر</string>

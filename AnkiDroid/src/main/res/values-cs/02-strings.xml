@@ -170,7 +170,6 @@
     <string name="export_choice_save_to">Uložit do</string>
     <string name="export_saving_exported_collection">Ukládá se exportovaný soubor&#8230;</string>
     <string name="study_options" comment="Name for a preference category in Filtered deck (aka Cram deck, aka Custom study) options" maxLength="28">Možnosti</string>
-    <string name="menu__deck_options" maxLength="28">Nastavení balíčku</string>
     <string name="menu__study_options" comment="Menu item that opens options for a Filtered deck (aka Cram deck, aka Custom study)">Možnosti studia</string>
     <string name="select_tts" maxLength="28">Nastavit jazyk TTS</string>
     <string name="dyn_deck_desc">Toto je speciální balíček pro studium mimo normální plán. Karty se po opakování automaticky vrátí do svých původních balíčků. Odstraněním tohoto balíčku ze seznamu se všechny zbývající karty vrátí do svých původních balíčků.</string>

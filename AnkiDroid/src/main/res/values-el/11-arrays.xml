@@ -47,10 +47,7 @@
     <string name="html_size_code_x_large">x-μεγάλο</string>
     <string name="html_size_code_xx_large">xx-μεγάλο</string>
     <!-- gestures_labels -->
-    <string name="answer_again" maxLength="41">Απάντηση ξανά</string>
-    <string name="answer_hard" maxLength="41">Απάντηση δύσκολο</string>
-    <string name="answer_good" maxLength="41">Απάντηση καλό</string>
-    <string name="answer_easy" maxLength="41">Απάντηση εύκολο</string>
+    <string name="answer_easy" comment="Match Anki\'s translations: deckConfigAnswerAgain" maxLength="41">Απάντηση εύκολο</string>
     <string name="gesture_abort_learning" maxLength="41">Κλείσιμο οθόνης μελέτης</string>
     <string name="gesture_flag_red" maxLength="41">Εναλλαγή Κόκκινης Σημαίας</string>
     <string name="gesture_flag_orange" maxLength="41">Εναλλαγή Πορτοκαλί Σημαίας</string>

@@ -161,7 +161,6 @@
     <string name="export_choice_save_to">儲存到&#8230;</string>
     <string name="export_saving_exported_collection">儲存已匯出的檔案&#8230;</string>
     <string name="study_options" comment="Name for a preference category in Filtered deck (aka Cram deck, aka Custom study) options" maxLength="28">選項</string>
-    <string name="menu__deck_options" maxLength="28">牌組選項</string>
     <string name="menu__study_options" comment="Menu item that opens options for a Filtered deck (aka Cram deck, aka Custom study)">學習選項</string>
     <string name="select_tts" maxLength="28">設定 TTS 語言</string>
     <string name="dyn_deck_desc">這是專門用來進行額外學習進度的牌組。卡片在你複習完以後會自動回歸原本的牌組。如果在牌組列表中刪除這個牌組，其他剩下的卡片也會回歸它們原本的牌組。</string>

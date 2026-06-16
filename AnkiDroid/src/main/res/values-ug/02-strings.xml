@@ -164,7 +164,6 @@
     <string name="export_choice_save_to">ساقلاش ئورنى</string>
     <string name="export_saving_exported_collection">چىقىرىدىغان ھۆججەتنى ساقلاۋاتىدۇ&#8230;</string>
     <string name="study_options" comment="Name for a preference category in Filtered deck (aka Cram deck, aka Custom study) options" maxLength="28">تاللانما</string>
-    <string name="menu__deck_options" maxLength="28">دەستە تاللانما</string>
     <string name="menu__study_options" comment="Menu item that opens options for a Filtered deck (aka Cram deck, aka Custom study)">ئۆگىنىش تاللانما</string>
     <string name="select_tts" maxLength="28">تېكىستتىن تىلغا تىل تەڭشىكى</string>
     <string name="dyn_deck_desc">بۇ ئادەتتىكى كۈنتەرتىپنىڭ سىرتىدىكى مەزمۇننى ئۆگىنىدىغان ئالاھىدە دەستە. كارتىنى تەكرارلىغاندىن كېيىن ئەسلىدىكى دەستەسىگە قايتۇرۇلىدۇ. ئەگەر دەستە تىزىمىدىن بۇ دەستە ئۆچۈرۈلسە، قېپقالغان كارتا دەسلەپكى دەستە ئورنىغا ئەسلىگە قايتۇرۇلىدۇ.</string>

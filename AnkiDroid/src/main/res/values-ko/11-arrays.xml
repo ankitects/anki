@@ -47,10 +47,7 @@
     <string name="html_size_code_x_large">매우 크게</string>
     <string name="html_size_code_xx_large">엄청나게 크게</string>
     <!-- gestures_labels -->
-    <string name="answer_again" maxLength="41">다시하기</string>
-    <string name="answer_hard" maxLength="41">난이도: 어려움</string>
-    <string name="answer_good" maxLength="41">난이도: 알맞음</string>
-    <string name="answer_easy" maxLength="41">난이도: 쉬움</string>
+    <string name="answer_easy" comment="Match Anki\'s translations: deckConfigAnswerAgain" maxLength="41">난이도: 쉬움</string>
     <string name="gesture_abort_learning" maxLength="41">학습 화면 닫기</string>
     <string name="gesture_flag_red" maxLength="41">빨간색 플래그 달기 / 없애기</string>
     <string name="gesture_flag_orange" maxLength="41">주황색 플래그 달기 / 없애기</string>

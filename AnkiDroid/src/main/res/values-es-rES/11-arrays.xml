@@ -47,10 +47,7 @@
     <string name="html_size_code_x_large">x-grande</string>
     <string name="html_size_code_xx_large">xx-grande</string>
     <!-- gestures_labels -->
-    <string name="answer_again" maxLength="41">Responder de nuevo</string>
-    <string name="answer_hard" maxLength="41">Respuesta difícil</string>
-    <string name="answer_good" maxLength="41">Respuesta buena</string>
-    <string name="answer_easy" maxLength="41">Respuesta fácil</string>
+    <string name="answer_easy" comment="Match Anki\'s translations: deckConfigAnswerAgain" maxLength="41">Respuesta fácil</string>
     <string name="gesture_abort_learning" maxLength="41">Cerrar pantalla de estudio</string>
     <string name="gesture_flag_red" maxLength="41">Activar/desactivar marcador rojo</string>
     <string name="gesture_flag_orange" maxLength="41">Activar/desactivar marcador naranja</string>

@@ -164,7 +164,6 @@
     <string name="export_choice_save_to">ᱞᱟᱹᱜᱤᱫ ᱫᱚᱦᱚᱭ ᱢᱮ</string>
     <string name="export_saving_exported_collection">ᱮᱠᱥᱯᱳᱨᱴ ᱟᱠᱟᱱ ᱯᱷᱤᱞᱤ ᱥᱟᱦᱟᱣ ᱠᱟᱱᱟ&#8230;</string>
     <string name="study_options" comment="Name for a preference category in Filtered deck (aka Cram deck, aka Custom study) options" maxLength="28">ᱚᱯᱥᱚᱱᱠᱚ</string>
-    <string name="menu__deck_options" maxLength="28">ᱰᱮᱠ ᱚᱯᱥᱚᱱᱠᱚ</string>
     <string name="menu__study_options" comment="Menu item that opens options for a Filtered deck (aka Cram deck, aka Custom study)">ᱯᱟᱲᱦᱟᱣ ᱚᱯᱥᱚᱱ ᱠᱚ</string>
     <string name="select_tts" maxLength="28">TTS ᱯᱟᱹᱨᱥᱤ ᱥᱮᱴ ᱢᱮ</string>
     <string name="dyn_deck_desc">ᱱᱚᱶᱟ ᱫᱚ ᱱᱚᱨᱢᱟᱞ ᱥᱮᱰᱭᱩᱞ ᱠᱷᱣᱱ ᱮᱴᱟᱜ ᱨᱮ ᱯᱟᱲᱦᱟᱣ ᱞᱟᱹᱜᱤᱫ ᱥᱯᱮᱥᱟᱞ ᱰᱮᱠ ᱠᱟᱱᱟ ᱾ ᱠᱟᱰ ᱠᱚ ᱨᱤᱵᱷᱤᱣ ᱯᱚᱨᱮ ᱟᱡ ᱛᱮᱜᱮ ᱢᱩᱞ ᱰᱮᱢᱠ ᱥᱮᱱ ᱥᱮᱱᱚᱜᱼᱟ ᱾ ᱰᱮᱠ ᱞᱤᱥᱴ ᱠᱷᱚᱱ ᱰᱮᱠᱜᱮᱫ ᱜᱤᱰᱤ ᱞᱮᱠᱷᱱᱟ ᱫᱚ ᱡᱷᱚᱛᱚ ᱠᱟᱲ ᱢᱩᱞ ᱰᱮᱠ ᱥᱮᱱ ᱥᱮᱱᱚᱜᱼᱟ</string>

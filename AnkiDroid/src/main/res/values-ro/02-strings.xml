@@ -167,7 +167,6 @@
     <string name="export_choice_save_to">Save to</string>
     <string name="export_saving_exported_collection">Saving exported file&#8230;</string>
     <string name="study_options" comment="Name for a preference category in Filtered deck (aka Cram deck, aka Custom study) options" maxLength="28">Opţiuni</string>
-    <string name="menu__deck_options" maxLength="28">Deck options</string>
     <string name="menu__study_options" comment="Menu item that opens options for a Filtered deck (aka Cram deck, aka Custom study)">Opțiuni de studiu</string>
     <string name="select_tts" maxLength="28">Setare limbă TTS</string>
     <string name="dyn_deck_desc">Acesta este un pachet special pentru a studia în afara programului normal. cardurile vor fi returnate automat la pachetele lor originale după ce le revizuiti. Şterge aceast pachet din lista de pachete va returna toate cărțile rămase in pachetele lor originale.</string>

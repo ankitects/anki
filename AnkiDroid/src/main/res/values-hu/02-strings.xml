@@ -164,7 +164,6 @@
     <string name="export_choice_save_to">Mentés ide</string>
     <string name="export_saving_exported_collection">Exportált fájl mentése</string>
     <string name="study_options" comment="Name for a preference category in Filtered deck (aka Cram deck, aka Custom study) options" maxLength="28">Beállítások</string>
-    <string name="menu__deck_options" maxLength="28">Pakli beállítások</string>
     <string name="menu__study_options" comment="Menu item that opens options for a Filtered deck (aka Cram deck, aka Custom study)">Tanulási beállítások</string>
     <string name="select_tts" maxLength="28">TTS nyelv beállítása</string>
     <string name="dyn_deck_desc">Ez egy különleges pakli a normál ütemezésen kívüli tanuláshoz. A kártyák ismétlés után automatikusan visszakerülnek belőle az eredeti paklijukba. Ha törlöd a paklit a paklilistából, a benne levő maradék kártyák visszakerülnek az eredeti pakliba.</string>

@@ -164,7 +164,6 @@
     <string name="export_choice_save_to">Opslaan in</string>
     <string name="export_saving_exported_collection">Geëxporteerd bestand opslaan&#8230;</string>
     <string name="study_options" comment="Name for a preference category in Filtered deck (aka Cram deck, aka Custom study) options" maxLength="28">Opties</string>
-    <string name="menu__deck_options" maxLength="28">Setopties</string>
     <string name="menu__study_options" comment="Menu item that opens options for a Filtered deck (aka Cram deck, aka Custom study)">Studieopties</string>
     <string name="select_tts" maxLength="28">TTS-taal instellen</string>
     <string name="dyn_deck_desc">Dit is een speciale set bedoeld om buiten het normale schema te studeren. Kaarten keren onmiddellijk terug naar hun oorspronkelijke set nadat u hen overhoord heeft. Als u deze set verwijdert, keren alle overgebleven kaarten onmiddellijk terug naar hun oorspronkelijke set.</string>

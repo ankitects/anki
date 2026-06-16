@@ -47,10 +47,7 @@
     <string name="html_size_code_x_large">çok büyük</string>
     <string name="html_size_code_xx_large">çok çok büyük</string>
     <!-- gestures_labels -->
-    <string name="answer_again" maxLength="41">Tekrar cevapla</string>
-    <string name="answer_hard" maxLength="41">Zor cevapla</string>
-    <string name="answer_good" maxLength="41">İyi cevapla</string>
-    <string name="answer_easy" maxLength="41">Kolay cevapla</string>
+    <string name="answer_easy" comment="Match Anki\'s translations: deckConfigAnswerAgain" maxLength="41">Kolay cevapla</string>
     <string name="gesture_abort_learning" maxLength="41">Çalışma ekranını kapat</string>
     <string name="gesture_flag_red" maxLength="41">Kırmızı bayrağı aç/kapat</string>
     <string name="gesture_flag_orange" maxLength="41">Turuncu bayrağı aç/kapat</string>

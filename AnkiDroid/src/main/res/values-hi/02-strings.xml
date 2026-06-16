@@ -164,7 +164,6 @@
     <string name="export_choice_save_to">यहां सेव करें</string>
     <string name="export_saving_exported_collection">निर्यात की गई फ़ाइल सहेजी जा रही है&#8230;</string>
     <string name="study_options" comment="Name for a preference category in Filtered deck (aka Cram deck, aka Custom study) options" maxLength="28">विकल्प</string>
-    <string name="menu__deck_options" maxLength="28">डेक विकल्प</string>
     <string name="menu__study_options" comment="Menu item that opens options for a Filtered deck (aka Cram deck, aka Custom study)">अध्ययन के विकल्प</string>
     <string name="select_tts" maxLength="28">टीटीएस भाषा सेट करता है</string>
     <string name="dyn_deck_desc">यह सामान्य समय के बाहर अध्ययन करने के लिए एक विशेष डेक है। तुम उन की समीक्षा करने के बाद कार्ड स्वचालित रूप से उनके मूल डेक को लौट जाएगा। इस डेक डेक सूची से हटाने के सभी शेष कार्ड उनके मूल डेक करने के लिए वापस आ जाएगी।</string>

@@ -47,10 +47,7 @@
     <string name="html_size_code_x_large">pli granda</string>
     <string name="html_size_code_xx_large">plej granda</string>
     <!-- gestures_labels -->
-    <string name="answer_again" maxLength="41">Respondi “Denove”</string>
-    <string name="answer_hard" maxLength="41">Respondi “Malfacila”</string>
-    <string name="answer_good" maxLength="41">Respondi “Bona”</string>
-    <string name="answer_easy" maxLength="41">Respondi “Facila”</string>
+    <string name="answer_easy" comment="Match Anki\'s translations: deckConfigAnswerAgain" maxLength="41">Respondi “Facila”</string>
     <string name="gesture_abort_learning" maxLength="41">Fermi lernadan ekranon</string>
     <string name="gesture_flag_red" maxLength="41">Baskuligi ruĝan flagon</string>
     <string name="gesture_flag_orange" maxLength="41">Baskuligi oranĝkoloran flagon</string>

@@ -47,10 +47,7 @@
     <string name="html_size_code_x_large">ļoti liels</string>
     <string name="html_size_code_xx_large">ļoti, ļoti liels</string>
     <!-- gestures_labels -->
-    <string name="answer_again" maxLength="41">Atbildēt ar \"Vēlreiz\"</string>
-    <string name="answer_hard" maxLength="41">Atbildēt ar \"Grūti\"</string>
-    <string name="answer_good" maxLength="41">Atbildēt ar \"Labi\"</string>
-    <string name="answer_easy" maxLength="41">Atbildēt ar \"Viegli\"</string>
+    <string name="answer_easy" comment="Match Anki\'s translations: deckConfigAnswerAgain" maxLength="41">Atbildēt ar \"Viegli\"</string>
     <string name="gesture_abort_learning" maxLength="41">Aizvērt apgūšanas ekrānu</string>
     <string name="gesture_flag_red" maxLength="41">Pārslēgt sarkano karogu</string>
     <string name="gesture_flag_orange" maxLength="41">Pārslēgt oranžo karogu</string>

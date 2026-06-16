@@ -161,7 +161,6 @@
     <string name="export_choice_save_to">Lưu tới</string>
     <string name="export_saving_exported_collection">Đang lưu tệp đã xuất&#8230;</string>
     <string name="study_options" comment="Name for a preference category in Filtered deck (aka Cram deck, aka Custom study) options" maxLength="28">Tuỳ chọn</string>
-    <string name="menu__deck_options" maxLength="28">Tùy chọn bộ thẻ</string>
     <string name="menu__study_options" comment="Menu item that opens options for a Filtered deck (aka Cram deck, aka Custom study)">Tùy chọn học tập</string>
     <string name="select_tts" maxLength="28">Thiết lập ngôn ngữ TTS</string>
     <string name="dyn_deck_desc">Đây là bộ thẻ đặc biệt phục vụ cho việc học ngoài lịch trình thông thường. Các thẻ sẽ tự động quay lại bộ thẻ ban đầu của chúng sau khi ôn tập. Xoá bộ thẻ này khỏi danh sách sẽ chuyển toàn bộ thẻ còn lại về bộ thẻ ban đầu của chúng.</string>

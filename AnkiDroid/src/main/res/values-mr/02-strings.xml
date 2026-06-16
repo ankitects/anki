@@ -164,7 +164,6 @@
     <string name="export_choice_save_to">मध्ये जतन करा</string>
     <string name="export_saving_exported_collection">निर्यात केलेली फाइल जतन करत आहे&#8230;</string>
     <string name="study_options" comment="Name for a preference category in Filtered deck (aka Cram deck, aka Custom study) options" maxLength="28">पर्याय</string>
-    <string name="menu__deck_options" maxLength="28">डेक पर्याय</string>
     <string name="menu__study_options" comment="Menu item that opens options for a Filtered deck (aka Cram deck, aka Custom study)">अभ्यासाचे पर्याय</string>
     <string name="select_tts" maxLength="28">TTS भाषा सेट करा</string>
     <string name="dyn_deck_desc">सामान्य शेड्यूलच्या बाहेर अभ्यास करण्यासाठी हा एक विशेष डेक आहे. तुम्ही त्यांचे पुनरावलोकन केल्यानंतर कार्डे आपोआप त्यांच्या मूळ डेकवर परत येतील. डेक सूचीमधून हा डेक हटवल्याने उर्वरित सर्व कार्ड त्यांच्या मूळ डेकवर परत येतील.</string>

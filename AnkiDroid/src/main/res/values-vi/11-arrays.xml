@@ -47,10 +47,7 @@
     <string name="html_size_code_x_large">lớn hon</string>
     <string name="html_size_code_xx_large">cực kỳ lớn</string>
     <!-- gestures_labels -->
-    <string name="answer_again" maxLength="41">Trả lời lại</string>
-    <string name="answer_hard" maxLength="41">Trả lời khó</string>
-    <string name="answer_good" maxLength="41">Trả lời tốt</string>
-    <string name="answer_easy" maxLength="41">Trả lời dễ</string>
+    <string name="answer_easy" comment="Match Anki\'s translations: deckConfigAnswerAgain" maxLength="41">Trả lời dễ</string>
     <string name="gesture_abort_learning" maxLength="41">Tắt màn hình học tập</string>
     <string name="gesture_flag_red" maxLength="41">Chuyển đổi cờ đỏ</string>
     <string name="gesture_flag_orange" maxLength="41">Chuyển đổi cờ màu cam</string>

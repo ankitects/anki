@@ -164,7 +164,6 @@
     <string name="export_choice_save_to">కు సేవ్ చేయండి</string>
     <string name="export_saving_exported_collection">ఎగుమతి చేసిన ఫైల్‌ను సేవ్ చేస్తోంది&#8230;</string>
     <string name="study_options" comment="Name for a preference category in Filtered deck (aka Cram deck, aka Custom study) options" maxLength="28">ఎంపికలు</string>
-    <string name="menu__deck_options" maxLength="28">డెక్ ఎంపికలు</string>
     <string name="menu__study_options" comment="Menu item that opens options for a Filtered deck (aka Cram deck, aka Custom study)">అధ్యయన ఎంపికలు</string>
     <string name="select_tts" maxLength="28">TTS భాషను సెట్ చేయండి</string>
     <string name="dyn_deck_desc">సాధారణ షెడ్యూల్ అధ్యయనం కోసం ఇది ప్రత్యేక డెక్. స్వయంచాలకంగా కార్డ్లను వాటిని సమీక్షించి, దాని అసలు డెక్స్కు వాటిని స్వయంచాలకంగా పునరుద్ధరించండి. డెక్ జాబితా నుండి ఈ డెక్ను తొలగిస్తే మిగిలిన అన్ని కార్డులను వారి అసలు డెక్కు తిరిగి పంపుతుంది.</string>

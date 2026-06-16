@@ -47,10 +47,7 @@
     <string name="html_size_code_x_large">x-velké</string>
     <string name="html_size_code_xx_large">xx-velké</string>
     <!-- gestures_labels -->
-    <string name="answer_again" maxLength="41">Odpovědět znovu</string>
-    <string name="answer_hard" maxLength="41">Odpovědět těžké</string>
-    <string name="answer_good" maxLength="41">Odpovědět dobré</string>
-    <string name="answer_easy" maxLength="41">Odpovědět snadné</string>
+    <string name="answer_easy" comment="Match Anki\'s translations: deckConfigAnswerAgain" maxLength="41">Odpovědět snadné</string>
     <string name="gesture_abort_learning" maxLength="41">Zavřít obrazovku učení</string>
     <string name="gesture_flag_red" maxLength="41">Přepnout červený příznak</string>
     <string name="gesture_flag_orange" maxLength="41">Přepnout oranžový příznak</string>

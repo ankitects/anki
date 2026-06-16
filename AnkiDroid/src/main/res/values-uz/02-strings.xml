@@ -164,7 +164,6 @@
     <string name="export_choice_save_to">Saqlash</string>
     <string name="export_saving_exported_collection">Eksport qilingan fayl saqlanmoqda&#8230;</string>
     <string name="study_options" comment="Name for a preference category in Filtered deck (aka Cram deck, aka Custom study) options" maxLength="28">Parametrlar</string>
-    <string name="menu__deck_options" maxLength="28">Dasta parametrlari</string>
     <string name="menu__study_options" comment="Menu item that opens options for a Filtered deck (aka Cram deck, aka Custom study)">Oʻqish parametrlari</string>
     <string name="select_tts" maxLength="28">TTS tilini sozlash</string>
     <string name="dyn_deck_desc">Bu odatiy kun tartibidan tashqarida oʻqish uchun maxsus dasta. Koʻrib chiqilganidan soʻng kartalar avtomatik ravishda oʻzining asl dastalariga qaytariladi. Ushbu dastani dastalar roʻyxatidan oʻchirib tashlasangiz, qolgan barcha kartalar oʻzining asl dastalariga qaytariladi.</string>

@@ -164,7 +164,6 @@
     <string name="export_choice_save_to">შენახვა</string>
     <string name="export_saving_exported_collection">ექსპორტირებული ფაილის შენახვა&#8230;</string>
     <string name="study_options" comment="Name for a preference category in Filtered deck (aka Cram deck, aka Custom study) options" maxLength="28">პარამეტრები</string>
-    <string name="menu__deck_options" maxLength="28">დასტის პარამეტრები</string>
     <string name="menu__study_options" comment="Menu item that opens options for a Filtered deck (aka Cram deck, aka Custom study)">სწავლის პარამეტრები</string>
     <string name="select_tts" maxLength="28">ხმოვანი წამკითხველის ენის არჩევა</string>
     <string name="dyn_deck_desc">ეს მიზნობრივი დასტაა, რომელიც საშუალებას გაძლევთ, ჩვეულებრივი განრიგი უგულებელყოფოთ და სურვილისამებრ ისწავლოთ. მეცადინეობის შემდეგ ბარათები საწყის დასტას ავტომატურად დაუბრუნდება. დასტის დასტების სიიდან ამოშლის შემთხვევაში ყველა დარჩენილი ბარათი შესაბამის საწყის დასტას დაუბრუნდება.</string>

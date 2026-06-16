@@ -47,10 +47,7 @@
     <string name="html_size_code_x_large">x-വലിയ</string>
     <string name="html_size_code_xx_large">xx-വലുത്</string>
     <!-- gestures_labels -->
-    <string name="answer_again" maxLength="41">വീണ്ടും ഉത്തരം</string>
-    <string name="answer_hard" maxLength="41">കഠിനമായി ഉത്തരം നൽകുക</string>
-    <string name="answer_good" maxLength="41">നല്ല ഉത്തരം</string>
-    <string name="answer_easy" maxLength="41">ഉത്തരം എളുപ്പമാണ്</string>
+    <string name="answer_easy" comment="Match Anki\'s translations: deckConfigAnswerAgain" maxLength="41">ഉത്തരം എളുപ്പമാണ്</string>
     <string name="gesture_abort_learning" maxLength="41">Close study screen</string>
     <string name="gesture_flag_red" maxLength="41">ചുവന്ന പതാക മാറ്റുക</string>
     <string name="gesture_flag_orange" maxLength="41">ഓറഞ്ച് പതാക ടോഗിൾ ചെയ്യുക</string>

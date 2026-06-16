@@ -47,10 +47,7 @@
     <string name="html_size_code_x_large">вельмі вялікі</string>
     <string name="html_size_code_xx_large">самы вялікі</string>
     <!-- gestures_labels -->
-    <string name="answer_again" maxLength="41">Адказаць яшчэ раз</string>
-    <string name="answer_hard" maxLength="41">Складаны адказ</string>
-    <string name="answer_good" maxLength="41">Добры адказ</string>
-    <string name="answer_easy" maxLength="41">Просты адказ</string>
+    <string name="answer_easy" comment="Match Anki\'s translations: deckConfigAnswerAgain" maxLength="41">Просты адказ</string>
     <string name="gesture_abort_learning" maxLength="41">Закрыць экран навучання</string>
     <string name="gesture_flag_red" maxLength="41">Пераключыць чырвоную пазнаку</string>
     <string name="gesture_flag_orange" maxLength="41">Пераключыць аранжавую пазнаку</string>

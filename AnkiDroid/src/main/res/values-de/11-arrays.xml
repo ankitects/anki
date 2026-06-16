@@ -47,10 +47,7 @@
     <string name="html_size_code_x_large">größer</string>
     <string name="html_size_code_xx_large">am größten</string>
     <!-- gestures_labels -->
-    <string name="answer_again" maxLength="41">Anwort: nochmal</string>
-    <string name="answer_hard" maxLength="41">Antwort: schwer</string>
-    <string name="answer_good" maxLength="41">Antwort: gut</string>
-    <string name="answer_easy" maxLength="41">Antwort: einfach</string>
+    <string name="answer_easy" comment="Match Anki\'s translations: deckConfigAnswerAgain" maxLength="41">Antwort: einfach</string>
     <string name="gesture_abort_learning" maxLength="41">Lernbildschirm schließen</string>
     <string name="gesture_flag_red" maxLength="41">Rote Flagge setzen/entfernen</string>
     <string name="gesture_flag_orange" maxLength="41">Orange Flagge setzen/entfernen</string>

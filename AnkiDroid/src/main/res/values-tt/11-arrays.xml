@@ -47,10 +47,7 @@
     <string name="html_size_code_x_large">бик зур</string>
     <string name="html_size_code_xx_large">бик бик зур</string>
     <!-- gestures_labels -->
-    <string name="answer_again" maxLength="41">Answer again</string>
-    <string name="answer_hard" maxLength="41">Answer hard</string>
-    <string name="answer_good" maxLength="41">Answer good</string>
-    <string name="answer_easy" maxLength="41">Answer easy</string>
+    <string name="answer_easy" comment="Match Anki\'s translations: deckConfigAnswerAgain" maxLength="41">Answer easy</string>
     <string name="gesture_abort_learning" maxLength="41">Close study screen</string>
     <string name="gesture_flag_red" maxLength="41">Toggle red flag</string>
     <string name="gesture_flag_orange" maxLength="41">Toggle orange flag</string>

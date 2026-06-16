@@ -161,7 +161,6 @@
     <string name="export_choice_save_to">Simpan ke</string>
     <string name="export_saving_exported_collection">Menyimpan file yang diekspor&#8230;</string>
     <string name="study_options" comment="Name for a preference category in Filtered deck (aka Cram deck, aka Custom study) options" maxLength="28">Opsi</string>
-    <string name="menu__deck_options" maxLength="28">Opsi dek</string>
     <string name="menu__study_options" comment="Menu item that opens options for a Filtered deck (aka Cram deck, aka Custom study)">Pilihan belajar</string>
     <string name="select_tts" maxLength="28">Tetapkan bahasa TTS</string>
     <string name="dyn_deck_desc">Ini adalah dek khusus untuk belajar di luar jadwal normal. Kartu akan otomatis dikembalikan ke dek aslinya setelah Anda mengulasnya. Menghapus dek ini dari daftar dek akan mengembalikan semua kartu yang tersisa ke dek aslinya.</string>

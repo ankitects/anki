@@ -47,10 +47,7 @@
     <string name="html_size_code_x_large">x-mannu</string>
     <string name="html_size_code_xx_large">xx-mannu</string>
     <!-- gestures_labels -->
-    <string name="answer_again" maxLength="41">Torra a rispòndere</string>
-    <string name="answer_hard" maxLength="41">Risposta difìtzile</string>
-    <string name="answer_good" maxLength="41">Risposta bona</string>
-    <string name="answer_easy" maxLength="41">Risposta fàtzile</string>
+    <string name="answer_easy" comment="Match Anki\'s translations: deckConfigAnswerAgain" maxLength="41">Risposta fàtzile</string>
     <string name="gesture_abort_learning" maxLength="41">Close study screen</string>
     <string name="gesture_flag_red" maxLength="41">Allughe/istuda sa bandera ruja</string>
     <string name="gesture_flag_orange" maxLength="41">Allughe/istuda sa bandera arantzu</string>

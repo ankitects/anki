@@ -170,7 +170,6 @@
     <string name="export_choice_save_to">שמור אל</string>
     <string name="export_saving_exported_collection">שומר את הקובץ המיוצא&#8230;</string>
     <string name="study_options" comment="Name for a preference category in Filtered deck (aka Cram deck, aka Custom study) options" maxLength="28">אפשרויות</string>
-    <string name="menu__deck_options" maxLength="28">אפשרויות חפיסה</string>
     <string name="menu__study_options" comment="Menu item that opens options for a Filtered deck (aka Cram deck, aka Custom study)">אפשרויות למידה</string>
     <string name="select_tts" maxLength="28">הגדר שפת TTS</string>
     <string name="dyn_deck_desc">חפיסה זאת הינה חפיסה מיוחדת ללמידה מחוץ ללו\"ז הרגיל. הכרטיסים יוחזרו באופן אוטומטי לחפיסותיהם המקוריות לאחר סיום הלמידה. מחיקת החפיסה תחזיר את כל הכרטיסים שנותרו בה לחפיסותיהם המקוריות.</string>

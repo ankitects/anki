@@ -47,10 +47,7 @@
     <string name="html_size_code_x_large">x-ᱢᱟᱨᱟᱝ</string>
     <string name="html_size_code_xx_large">xx-ᱢᱟᱨᱟᱝ</string>
     <!-- gestures_labels -->
-    <string name="answer_again" maxLength="41">ᱟᱨᱦᱚᱸ ᱮᱛᱦᱚᱵ ᱢᱮ</string>
-    <string name="answer_hard" maxLength="41">ᱟᱹᱰᱤ ᱜᱮ ᱨᱚᱲ ᱢᱮ</string>
-    <string name="answer_good" maxLength="41">ᱜᱟᱞᱢᱟᱨᱟᱣ</string>
-    <string name="answer_easy" maxLength="41">ᱞᱟᱹᱱᱟᱹᱭ ᱜᱮᱭᱟ</string>
+    <string name="answer_easy" comment="Match Anki\'s translations: deckConfigAnswerAgain" maxLength="41">ᱞᱟᱹᱱᱟᱹᱭ ᱜᱮᱭᱟ</string>
     <string name="gesture_abort_learning" maxLength="41">Close study screen</string>
     <string name="gesture_flag_red" maxLength="41">ᱟᱨᱟᱜ ᱯᱚᱛᱠᱟ ᱴᱚᱜᱟ.ᱞ</string>
     <string name="gesture_flag_orange" maxLength="41">ᱜᱮᱨᱩᱟ ᱯᱚᱛᱠᱟ ᱴᱚᱜᱟᱹᱞ</string>

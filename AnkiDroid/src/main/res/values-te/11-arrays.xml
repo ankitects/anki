@@ -47,10 +47,7 @@
     <string name="html_size_code_x_large">x-పెద్ద</string>
     <string name="html_size_code_xx_large">xx-పెద్ద</string>
     <!-- gestures_labels -->
-    <string name="answer_again" maxLength="41">మళ్లీ సమాధానం చెప్పండి</string>
-    <string name="answer_hard" maxLength="41">గట్టిగా సమాధానం చెప్పండి</string>
-    <string name="answer_good" maxLength="41">సమాధానం బాగుంది</string>
-    <string name="answer_easy" maxLength="41">సులభంగా సమాధానం ఇవ్వండి</string>
+    <string name="answer_easy" comment="Match Anki\'s translations: deckConfigAnswerAgain" maxLength="41">సులభంగా సమాధానం ఇవ్వండి</string>
     <string name="gesture_abort_learning" maxLength="41">Close study screen</string>
     <string name="gesture_flag_red" maxLength="41">Toggle red flag</string>
     <string name="gesture_flag_orange" maxLength="41">Toggle orange flag</string>

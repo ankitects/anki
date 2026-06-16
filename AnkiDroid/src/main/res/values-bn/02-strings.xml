@@ -164,7 +164,6 @@
     <string name="export_choice_save_to">সংরক্ষণ</string>
     <string name="export_saving_exported_collection">রপ্তানি করা ফাইল সংরক্ষণ করা হচ্ছে</string>
     <string name="study_options" comment="Name for a preference category in Filtered deck (aka Cram deck, aka Custom study) options" maxLength="28">বিকল্প</string>
-    <string name="menu__deck_options" maxLength="28">ডেক বিকল্প</string>
     <string name="menu__study_options" comment="Menu item that opens options for a Filtered deck (aka Cram deck, aka Custom study)">অধ্যয়নের বিকল্প</string>
     <string name="select_tts" maxLength="28">TTS ভাষা সেট করুন</string>
     <string name="dyn_deck_desc">স্বাভাবিক সময়সূচীর বাইরে অধ্যয়ন করার জন্য এটি একটি বিশেষ ডেক। রিভিউয়ের পর কার্ডসমূহকে স্বয়ংক্রিয়ভাবে তাদের আসল ডেকসমূহে ফিরিয়ে দেয়া হবে। এই ডেকটি মুছে ফেলা হলে বাকি থাকা কার্ডগুলিকে তাদের আসল ডেকে ফিরিয়ে দেয়া হবে।</string>

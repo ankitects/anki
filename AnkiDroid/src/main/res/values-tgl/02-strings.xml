@@ -164,7 +164,6 @@
     <string name="export_choice_save_to">Save to</string>
     <string name="export_saving_exported_collection">Saving exported file&#8230;</string>
     <string name="study_options" comment="Name for a preference category in Filtered deck (aka Cram deck, aka Custom study) options" maxLength="28">Options</string>
-    <string name="menu__deck_options" maxLength="28">Deck options</string>
     <string name="menu__study_options" comment="Menu item that opens options for a Filtered deck (aka Cram deck, aka Custom study)">Study options</string>
     <string name="select_tts" maxLength="28">Itakda ang wika ng TTS</string>
     <string name="dyn_deck_desc">Ito ay isang espesyal na deck para sa pag-aaral sa labas ng normal na iskedyul. Ang mga baraha ay awtomatikong ibabalik sa kanilang orihinal na mga deck matapos mong balik-aralan ang mga ito. Ang pagtanggal sa deck mula sa listahan ng deck ay babalik ang lahat ng natitirang mga baraha sa kanilang orihinal na deck.</string>

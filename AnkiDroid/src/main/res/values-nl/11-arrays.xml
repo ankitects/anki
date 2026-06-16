@@ -47,10 +47,7 @@
     <string name="html_size_code_x_large">x-groot</string>
     <string name="html_size_code_xx_large">xx-groot</string>
     <!-- gestures_labels -->
-    <string name="answer_again" maxLength="41">Opnieuw antwoorden</string>
-    <string name="answer_hard" maxLength="41">Moeilijk antwoord</string>
-    <string name="answer_good" maxLength="41">Goed antwoord</string>
-    <string name="answer_easy" maxLength="41">Gemakkelijk antwoord</string>
+    <string name="answer_easy" comment="Match Anki\'s translations: deckConfigAnswerAgain" maxLength="41">Gemakkelijk antwoord</string>
     <string name="gesture_abort_learning" maxLength="41">Sluit studiescherm</string>
     <string name="gesture_flag_red" maxLength="41">Rode vlag in-/uitschakelen</string>
     <string name="gesture_flag_orange" maxLength="41">Oranje vlag in-/uitschakelen</string>

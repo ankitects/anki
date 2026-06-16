@@ -164,7 +164,6 @@ Context | Request Context    [1]</string>
     <string name="export_choice_save_to">저장</string>
     <string name="export_saving_exported_collection">내보낸 파일 저장 중&#8230;</string>
     <string name="study_options" comment="Name for a preference category in Filtered deck (aka Cram deck, aka Custom study) options" maxLength="28">설정</string>
-    <string name="menu__deck_options" maxLength="28">덱 옵션</string>
     <string name="menu__study_options" comment="Menu item that opens options for a Filtered deck (aka Cram deck, aka Custom study)">학습 옵션</string>
     <string name="select_tts" maxLength="28">TTS 언어 설정</string>
     <string name="dyn_deck_desc">이것은 평상시 일정 이상으로 학습하기 위한 특별한 카드 덱입니다. 카드들은 복습 후 자동으로 원래의 카드 덱으로 돌아가게 됩니다. 카드 덱 목록에서 이 카드 덱을 지운다면 남아 있는 모든 카드는 원래의 카드 덱으로 돌아가게 됩니다.</string>

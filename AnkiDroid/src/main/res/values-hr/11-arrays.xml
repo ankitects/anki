@@ -47,10 +47,7 @@
     <string name="html_size_code_x_large">x-veliko</string>
     <string name="html_size_code_xx_large">xx-veliko</string>
     <!-- gestures_labels -->
-    <string name="answer_again" maxLength="41">Odgovori Ponovo</string>
-    <string name="answer_hard" maxLength="41">Odgovori Teško</string>
-    <string name="answer_good" maxLength="41">Odgovori Dobro</string>
-    <string name="answer_easy" maxLength="41">Odgovori Lako</string>
+    <string name="answer_easy" comment="Match Anki\'s translations: deckConfigAnswerAgain" maxLength="41">Odgovori Lako</string>
     <string name="gesture_abort_learning" maxLength="41">Zatvori ekran za učenje</string>
     <string name="gesture_flag_red" maxLength="41">Uključi/isključi crvenu zastavicu</string>
     <string name="gesture_flag_orange" maxLength="41">Uključi/isključi narančastu zastavicu</string>

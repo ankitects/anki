@@ -164,7 +164,6 @@
     <string name="export_choice_save_to">Stoor na</string>
     <string name="export_saving_exported_collection">Stoor uitgevoerde lêer&#8230;</string>
     <string name="study_options" comment="Name for a preference category in Filtered deck (aka Cram deck, aka Custom study) options" maxLength="28">Opsies</string>
-    <string name="menu__deck_options" maxLength="28">Pak-opsies</string>
     <string name="menu__study_options" comment="Menu item that opens options for a Filtered deck (aka Cram deck, aka Custom study)">Studeer Opsies</string>
     <string name="select_tts" maxLength="28">Stel TTS-taal</string>
     <string name="dyn_deck_desc">Dit is \'n spesiale dek vir studie buite die normale skedule. Kaartjies sal outomaties na hul oorspronklike dekke teruggestuur word nadat jy dit hersien het. Die verwydering van hierdie dek uit die deklys sal alle oorblywende kaartjies na hul oorspronklike dek terugstuur.</string>

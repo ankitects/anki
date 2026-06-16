@@ -47,10 +47,7 @@
     <string name="html_size_code_x_large">Дуже великий</string>
     <string name="html_size_code_xx_large">Найбільший</string>
     <!-- gestures_labels -->
-    <string name="answer_again" maxLength="41">Відповідь: знову</string>
-    <string name="answer_hard" maxLength="41">Відповідь: важко</string>
-    <string name="answer_good" maxLength="41">Відповідь: добре</string>
-    <string name="answer_easy" maxLength="41">Відповідь: легко</string>
+    <string name="answer_easy" comment="Match Anki\'s translations: deckConfigAnswerAgain" maxLength="41">Відповідь: легко</string>
     <string name="gesture_abort_learning" maxLength="41">Закрити екран навчання</string>
     <string name="gesture_flag_red" maxLength="41">Переключити червоний прапорець</string>
     <string name="gesture_flag_orange" maxLength="41">Переключити помаранчевий прапорець</string>

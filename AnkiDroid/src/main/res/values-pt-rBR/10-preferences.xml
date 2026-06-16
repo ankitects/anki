@@ -185,8 +185,6 @@
     <string name="pref_cat_reviewer" maxLength="41">Tela de Estudo</string>
     <string name="show_deck_title" maxLength="41">Mostrar título do baralho</string>
     <string name="accessibility" maxLength="41">Acessibilidade</string>
-    <!-- Paste clipboard image as png option -->
-    <string name="paste_as_png" maxLength="41">Colar imagens como PNG</string>
     <string name="exit_via_double_tap_back" maxLength="41">Duplo toque em voltar para voltar/sair</string>
     <string name="exit_via_double_tap_back_summ">Para evitar sair acidentalmente da tela de estudos ou do aplicativo</string>
     <!-- Allow all files in media imports -->
@@ -256,6 +254,10 @@
     <string name="user_action_8" maxLength="28">Ação do usuário 8</string>
     <string name="user_action_9" maxLength="28">Ação do usuário 9</string>
     <string name="toggle_auto_advance" maxLength="28">Ativar/desativar Avanço automático</string>
+    <string name="enable_auto_advance" maxLength="28">Enable auto advance</string>
+    <string name="disable_auto_advance" maxLength="28">Disable auto advance</string>
+    <string name="enable_voice_recording" maxLength="28">Enable voice recording</string>
+    <string name="disable_voice_recording" maxLength="28">Disable voice recording</string>
     <!-- Select card side -->
     <string name="card_side_selection_title">Selecionar lado da carta</string>
     <string name="card_side_question">Pergunta</string>

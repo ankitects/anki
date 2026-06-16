@@ -47,10 +47,7 @@
     <string name="html_size_code_x_large">XL</string>
     <string name="html_size_code_xx_large">XXL</string>
     <!-- gestures_labels -->
-    <string name="answer_again" maxLength="41">回答 (もう一度)</string>
-    <string name="answer_hard" maxLength="41">回答 (難しい)</string>
-    <string name="answer_good" maxLength="41">回答 (正解)</string>
-    <string name="answer_easy" maxLength="41">回答 (簡単)</string>
+    <string name="answer_easy" comment="Match Anki\'s translations: deckConfigAnswerAgain" maxLength="41">回答 (簡単)</string>
     <string name="gesture_abort_learning" maxLength="41">学習画面を閉じる</string>
     <string name="gesture_flag_red" maxLength="41">レッドフラグを付ける / 取りはずす</string>
     <string name="gesture_flag_orange" maxLength="41">オレンジフラグを付ける / 取りはずす</string>

@@ -164,7 +164,6 @@
     <string name="export_choice_save_to">இதில் சேமி</string>
     <string name="export_saving_exported_collection">ஏற்றுமதி செய்யப்பட்ட கோப்பைச் சேமிக்கிறது&#8230;</string>
     <string name="study_options" comment="Name for a preference category in Filtered deck (aka Cram deck, aka Custom study) options" maxLength="28">விருப்பங்கள்</string>
-    <string name="menu__deck_options" maxLength="28">டெக் விருப்பங்கள்</string>
     <string name="menu__study_options" comment="Menu item that opens options for a Filtered deck (aka Cram deck, aka Custom study)">படிப்பு விருப்பங்கள்</string>
     <string name="select_tts" maxLength="28">TTS மொழியை அமைக்கவும்</string>
     <string name="dyn_deck_desc">இது வழக்கமான அட்டவணைக்கு வெளியே படிப்பதற்கான ஒரு சிறப்பு தளமாகும். நீங்கள் அவற்றை மதிப்பாய்வு செய்தபிறகு, கார்டுகள் தானாகவே அவற்றின் அசல் டெக்குகளுக்குத் திரும்பும். டெக் பட்டியலிலிருந்து இந்த டெக்கை நீக்கினால், மீதமுள்ள அனைத்து கார்டுகளும் அவற்றின் அசல் டெக்கிற்கு திரும்பும்.</string>

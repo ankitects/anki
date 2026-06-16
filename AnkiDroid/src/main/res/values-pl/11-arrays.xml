@@ -47,10 +47,7 @@
     <string name="html_size_code_x_large">Bardzo duży</string>
     <string name="html_size_code_xx_large">Największy</string>
     <!-- gestures_labels -->
-    <string name="answer_again" maxLength="41">Odpowiedz \"Powtórz\"</string>
-    <string name="answer_hard" maxLength="41">Odpowiedz \"Trudna\"</string>
-    <string name="answer_good" maxLength="41">Odpowiedz \"Dobra\"</string>
-    <string name="answer_easy" maxLength="41">Odpowiedz \"Łatwa\"</string>
+    <string name="answer_easy" comment="Match Anki\'s translations: deckConfigAnswerAgain" maxLength="41">Odpowiedz \"Łatwa\"</string>
     <string name="gesture_abort_learning" maxLength="41">Zamknij ekran nauki</string>
     <string name="gesture_flag_red" maxLength="41">Włącz/wyłącz czerwoną flagę</string>
     <string name="gesture_flag_orange" maxLength="41">Włącz/wyłącz pomarańczową flagę</string>

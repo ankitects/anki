@@ -47,10 +47,7 @@
     <string name="html_size_code_x_large">很大</string>
     <string name="html_size_code_xx_large">極大</string>
     <!-- gestures_labels -->
-    <string name="answer_again" maxLength="41">再答一次</string>
-    <string name="answer_hard" maxLength="41">回答很難</string>
-    <string name="answer_good" maxLength="41">答得不錯</string>
-    <string name="answer_easy" maxLength="41">太簡單了</string>
+    <string name="answer_easy" comment="Match Anki\'s translations: deckConfigAnswerAgain" maxLength="41">太簡單了</string>
     <string name="gesture_abort_learning" maxLength="41">Close study screen</string>
     <string name="gesture_flag_red" maxLength="41">套用紅色標記</string>
     <string name="gesture_flag_orange" maxLength="41">套用橙色標記</string>

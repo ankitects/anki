@@ -47,10 +47,7 @@
     <string name="html_size_code_x_large">kattaroq</string>
     <string name="html_size_code_xx_large">eng katta</string>
     <!-- gestures_labels -->
-    <string name="answer_again" maxLength="41">Qaytadan javob berish</string>
-    <string name="answer_hard" maxLength="41">Javobi qiyin</string>
-    <string name="answer_good" maxLength="41">Javobi yaxshi</string>
-    <string name="answer_easy" maxLength="41">Javobi oson</string>
+    <string name="answer_easy" comment="Match Anki\'s translations: deckConfigAnswerAgain" maxLength="41">Javobi oson</string>
     <string name="gesture_abort_learning" maxLength="41">Oʻrganish ekranini yopish</string>
     <string name="gesture_flag_red" maxLength="41">Qizil bayroqni yoqish/oʻchirish</string>
     <string name="gesture_flag_orange" maxLength="41">Toʻq sariq bayroqni yoqish/oʻchirish</string>

@@ -164,7 +164,6 @@
     <string name="export_choice_save_to">Guardar en</string>
     <string name="export_saving_exported_collection">Guardando archivo exportado&#8230;</string>
     <string name="study_options" comment="Name for a preference category in Filtered deck (aka Cram deck, aka Custom study) options" maxLength="28">Opciones</string>
-    <string name="menu__deck_options" maxLength="28">Opciones de mazo</string>
     <string name="menu__study_options" comment="Menu item that opens options for a Filtered deck (aka Cram deck, aka Custom study)">Opciones de estudio</string>
     <string name="select_tts" maxLength="28">Setear lenguaje TTS</string>
     <string name="dyn_deck_desc">Este es un mazo especial para estudiar por fuera del cronograma normal. Las tarjetas serán automáticamente devueltas a sus mazos originales luego de que las haya repasado. Borrar este mazo de la lista de mazos devolverá todas las tarjetas restantes a sus mazos originales.</string>

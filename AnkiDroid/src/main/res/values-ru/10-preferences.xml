@@ -189,8 +189,6 @@
     <string name="pref_cat_reviewer" maxLength="41">Экран обучения</string>
     <string name="show_deck_title" maxLength="41">Показывать название колоды</string>
     <string name="accessibility" maxLength="41">Специальные возможности</string>
-    <!-- Paste clipboard image as png option -->
-    <string name="paste_as_png" maxLength="41">Вставлять изображения буфера как PNG</string>
     <string name="exit_via_double_tap_back" maxLength="41">Нажмите «Назад» дважды, чтобы выйти</string>
     <string name="exit_via_double_tap_back_summ">Предотвращать случайный выход с экрана обучения или приложения</string>
     <!-- Allow all files in media imports -->
@@ -259,6 +257,10 @@
     <string name="user_action_8" maxLength="28">Пользовательское действие 8</string>
     <string name="user_action_9" maxLength="28">Пользовательское действие 9</string>
     <string name="toggle_auto_advance" maxLength="28">Включить/выключить авто переход</string>
+    <string name="enable_auto_advance" maxLength="28">Enable auto advance</string>
+    <string name="disable_auto_advance" maxLength="28">Disable auto advance</string>
+    <string name="enable_voice_recording" maxLength="28">Enable voice recording</string>
+    <string name="disable_voice_recording" maxLength="28">Disable voice recording</string>
     <!-- Select card side -->
     <string name="card_side_selection_title">Выберите сторону карточки</string>
     <string name="card_side_question">Вопрос</string>

@@ -164,7 +164,6 @@
     <string name="export_choice_save_to">Speichern unter</string>
     <string name="export_saving_exported_collection">Exportierte Datei speichern&#8230;</string>
     <string name="study_options" comment="Name for a preference category in Filtered deck (aka Cram deck, aka Custom study) options" maxLength="28">Einstellungen</string>
-    <string name="menu__deck_options" maxLength="28">Einstellungen</string>
     <string name="menu__study_options" comment="Menu item that opens options for a Filtered deck (aka Cram deck, aka Custom study)">Lerneinstellungen</string>
     <string name="select_tts" maxLength="28">Vorlesesprache festlegen</string>
     <string name="dyn_deck_desc">Dies ist ein besonderer Stapel, um außerhalb des regulären Zeitplans zu lernen. Karten werden nach dem Wiederholen automatisch in ihren ursprünglichen Stapel zurückgelegt. Beim Löschen dieses Stapels aus der Stapelliste werden alle verbleibenden Karten in ihren ursprünglichen Stapel zurückgelegt.</string>

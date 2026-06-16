@@ -185,8 +185,6 @@
     <string name="pref_cat_reviewer" maxLength="41">Study Screen</string>
     <string name="show_deck_title" maxLength="41">डेक शीर्षक दर्शवा</string>
     <string name="accessibility" maxLength="41">प्रवेशयोग्यता</string>
-    <!-- Paste clipboard image as png option -->
-    <string name="paste_as_png" maxLength="41">क्लिपबोर्ड प्रतिमा PNG म्हणून पेस्ट करा</string>
     <string name="exit_via_double_tap_back" maxLength="41">परत जाण्यासाठी/बाहेर पडण्यासाठी दोनदा परत दाबा</string>
     <string name="exit_via_double_tap_back_summ">To avoid accidentally leaving the study screen or the app</string>
     <!-- Allow all files in media imports -->
@@ -255,6 +253,10 @@
     <string name="user_action_8" maxLength="28">वापरकर्ता क्रिया 8</string>
     <string name="user_action_9" maxLength="28">वापरकर्ता क्रिया 9</string>
     <string name="toggle_auto_advance" maxLength="28">Toggle auto advance</string>
+    <string name="enable_auto_advance" maxLength="28">Enable auto advance</string>
+    <string name="disable_auto_advance" maxLength="28">Disable auto advance</string>
+    <string name="enable_voice_recording" maxLength="28">Enable voice recording</string>
+    <string name="disable_voice_recording" maxLength="28">Disable voice recording</string>
     <!-- Select card side -->
     <string name="card_side_selection_title">कार्डची बाजू निवडा</string>
     <string name="card_side_question">प्रश्न</string>

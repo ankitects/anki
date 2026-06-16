@@ -47,10 +47,7 @@
     <string name="html_size_code_x_large">x-ବଡ଼</string>
     <string name="html_size_code_xx_large">xx-ବଡ଼</string>
     <!-- gestures_labels -->
-    <string name="answer_again" maxLength="41">ଉତ୍ତର ପୁଣି</string>
-    <string name="answer_hard" maxLength="41">ଉତ୍ତର କଠିନ</string>
-    <string name="answer_good" maxLength="41">ଉତ୍ତର ଭଲ</string>
-    <string name="answer_easy" maxLength="41">ଉତ୍ତର ସହଜ</string>
+    <string name="answer_easy" comment="Match Anki\'s translations: deckConfigAnswerAgain" maxLength="41">ଉତ୍ତର ସହଜ</string>
     <string name="gesture_abort_learning" maxLength="41">Close study screen</string>
     <string name="gesture_flag_red" maxLength="41">ନାଲି ପତାକା ଟୋଗଲ୍ କରିବା</string>
     <string name="gesture_flag_orange" maxLength="41">କମଳା ପତାକା ଟୋଗଲ୍ କରିବା</string>

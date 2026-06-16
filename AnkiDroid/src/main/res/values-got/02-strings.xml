@@ -164,7 +164,6 @@
     <string name="export_choice_save_to">𐌲𐌰𐍆𐌰𐍃𐍄𐌰𐌽 𐌳𐌿</string>
     <string name="export_saving_exported_collection">𐌲𐌰𐍆𐌰𐍃𐍄𐌰𐌳𐌰 𐌿𐍄𐌱𐌰𐌿𐍂𐌰𐌽 𐍆𐌰𐌾𐌻&#8230;</string>
     <string name="study_options" comment="Name for a preference category in Filtered deck (aka Cram deck, aka Custom study) options" maxLength="28">𐌼𐌰𐌷𐍄𐌴𐌹𐍃</string>
-    <string name="menu__deck_options" maxLength="28">𐌼𐌰𐌷𐍄𐌴𐌹𐍃 𐌷𐌿𐌶𐌳𐌹𐍃 𐌺𐌰𐍂𐍄𐍉</string>
     <string name="menu__study_options" comment="Menu item that opens options for a Filtered deck (aka Cram deck, aka Custom study)">𐌻𐌰𐌹𐍃𐌴𐌹𐌽𐌰𐌹𐍃 𐌼𐌰𐌷𐍄𐌴𐌹𐍃</string>
     <string name="select_tts" maxLength="28">𐌱𐍉𐌺𐍉-𐌳𐌿-𐍃𐍄𐌹𐌱𐌽𐌰𐌹 𐍂𐌰𐌶𐌳𐌰 𐌻𐌰𐌲𐌾𐌰𐌽</string>
     <string name="dyn_deck_desc">This is a special deck for studying outside of the normal schedule. Cards will be automatically returned to their original decks after you review them. Deleting this deck from the deck list will return all remaining cards to their original deck.</string>

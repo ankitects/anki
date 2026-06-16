@@ -47,10 +47,7 @@
     <string name="html_size_code_x_large">x-stor</string>
     <string name="html_size_code_xx_large">xx-stort</string>
     <!-- gestures_labels -->
-    <string name="answer_again" maxLength="41">Svar på nytt</string>
-    <string name="answer_hard" maxLength="41">Svar vanskelig</string>
-    <string name="answer_good" maxLength="41">Svar bra</string>
-    <string name="answer_easy" maxLength="41">Svar lett</string>
+    <string name="answer_easy" comment="Match Anki\'s translations: deckConfigAnswerAgain" maxLength="41">Svar lett</string>
     <string name="gesture_abort_learning" maxLength="41">Lukk studievisning</string>
     <string name="gesture_flag_red" maxLength="41">Slå på/av rød flagg</string>
     <string name="gesture_flag_orange" maxLength="41">Slå på/av oransj flagg</string>

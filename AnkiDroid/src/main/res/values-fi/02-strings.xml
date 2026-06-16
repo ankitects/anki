@@ -164,7 +164,6 @@
     <string name="export_choice_save_to">Tallenna&#8230;</string>
     <string name="export_saving_exported_collection">Tallennetaan viety tiedosto&#8230;</string>
     <string name="study_options" comment="Name for a preference category in Filtered deck (aka Cram deck, aka Custom study) options" maxLength="28">Valinnat</string>
-    <string name="menu__deck_options" maxLength="28">Pakan asetukset</string>
     <string name="menu__study_options" comment="Menu item that opens options for a Filtered deck (aka Cram deck, aka Custom study)">Opiskeluasetukset</string>
     <string name="select_tts" maxLength="28">Määritä teksti puheeksi -kieli</string>
     <string name="dyn_deck_desc">Tämä on erityispakka normaalin aikataulun ulkopuolella tapahtuvaan opiskeluun. Kortit palautetaan automaattisesti alkuperäisiin pakkoihinsa läpikäynnin jälkeen. Tämän pakan poistaminen palauttaa kaikki sen sisältämät kortit alkuperäisiin pakkoihin.</string>

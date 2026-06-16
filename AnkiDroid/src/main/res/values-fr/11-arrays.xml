@@ -47,10 +47,7 @@
     <string name="html_size_code_x_large">x-grande</string>
     <string name="html_size_code_xx_large">xx-grande</string>
     <!-- gestures_labels -->
-    <string name="answer_again" maxLength="41">Répondre encore</string>
-    <string name="answer_hard" maxLength="41">Réponse difficile</string>
-    <string name="answer_good" maxLength="41">Bonne réponse</string>
-    <string name="answer_easy" maxLength="41">Réponse facile</string>
+    <string name="answer_easy" comment="Match Anki\'s translations: deckConfigAnswerAgain" maxLength="41">Réponse facile</string>
     <string name="gesture_abort_learning" maxLength="41">Fermer l\'écran de révision</string>
     <string name="gesture_flag_red" maxLength="41">Activer/désactiver la balise rouge</string>
     <string name="gesture_flag_orange" maxLength="41">Activer/désactiver la balise orange</string>

@@ -164,7 +164,6 @@
     <string name="export_choice_save_to">Konservi en</string>
     <string name="export_saving_exported_collection">Konservado de elportita dosiero&#8230;</string>
     <string name="study_options" comment="Name for a preference category in Filtered deck (aka Cram deck, aka Custom study) options" maxLength="28">Agordoj</string>
-    <string name="menu__deck_options" maxLength="28">Agordoj pri kartaro</string>
     <string name="menu__study_options" comment="Menu item that opens options for a Filtered deck (aka Cram deck, aka Custom study)">Agordoj pri lernado</string>
     <string name="select_tts" maxLength="28">Agordi lingvon por parolsintezilo</string>
     <string name="dyn_deck_desc">Tio ĉi estas speciala kartaro por lerni ekster la norma lern-plano. Kartoj aŭtomate revenos al originalaj kartaroj post ripeti ilin. Forigi tiun ĉi kartaron el la listo de kartaroj redonos ĉiujn restantajn kartojn al originalaj kartaroj.</string>

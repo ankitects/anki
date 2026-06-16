@@ -194,8 +194,6 @@
     <string name="pref_cat_reviewer" maxLength="41">شاشة الدراسة</string>
     <string name="show_deck_title" maxLength="41">إظهار عنوان المجموعة</string>
     <string name="accessibility" maxLength="41">إمكانية الوصول</string>
-    <!-- Paste clipboard image as png option -->
-    <string name="paste_as_png" maxLength="41">لصق صور الحافظة كـ PNG</string>
     <string name="exit_via_double_tap_back" maxLength="41">اضغط رجوع مرتين للعودة أو الخروج</string>
     <string name="exit_via_double_tap_back_summ">لتجنب الخروج من شاشة الدراسة أو التطبيق بالخطأ</string>
     <!-- Allow all files in media imports -->
@@ -265,6 +263,10 @@
     <string name="user_action_8" maxLength="28">إجراء رقم ٨</string>
     <string name="user_action_9" maxLength="28">إجراء رقم ٩</string>
     <string name="toggle_auto_advance" maxLength="28">بدأ أو إيقاف التقدم التلقائي</string>
+    <string name="enable_auto_advance" maxLength="28">Enable auto advance</string>
+    <string name="disable_auto_advance" maxLength="28">Disable auto advance</string>
+    <string name="enable_voice_recording" maxLength="28">Enable voice recording</string>
+    <string name="disable_voice_recording" maxLength="28">Disable voice recording</string>
     <!-- Select card side -->
     <string name="card_side_selection_title">حدد جانب بطاقة</string>
     <string name="card_side_question">سؤال</string>

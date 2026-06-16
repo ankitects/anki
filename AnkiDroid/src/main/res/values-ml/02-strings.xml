@@ -164,7 +164,6 @@
     <string name="export_choice_save_to">ഇതിലേക്ക് സംരക്ഷിക്കുക</string>
     <string name="export_saving_exported_collection">കയറ്റുമതി ചെയ്ത ഫയൽ സംരക്ഷിക്കുന്നു&#8230;</string>
     <string name="study_options" comment="Name for a preference category in Filtered deck (aka Cram deck, aka Custom study) options" maxLength="28">ഓപ്ഷനുകൾ</string>
-    <string name="menu__deck_options" maxLength="28">ഡെക്ക് ഓപ്ഷനുകൾ</string>
     <string name="menu__study_options" comment="Menu item that opens options for a Filtered deck (aka Cram deck, aka Custom study)">പഠന ഓപ്ഷനുകൾ</string>
     <string name="select_tts" maxLength="28">TTS ഭാഷ സജ്ജമാക്കുക</string>
     <string name="dyn_deck_desc">സാധാരണ ഷെഡ്യൂളിന് പുറത്ത് പഠിക്കുന്നതിനുള്ള ഒരു പ്രത്യേക ഡെക്കാണിത്. കാർഡുകൾ നിങ്ങൾ അവലോകനം ചെയ്ത ശേഷം അവയുടെ യഥാർത്ഥ ഡെക്കുകളിലേക്ക് സ്വപ്രേരിതമായി മടങ്ങും. ഡെക്ക് ലിസ്റ്റിൽ നിന്ന് ഈ ഡെക്ക് ഇല്ലാതാക്കുന്നത് ശേഷിക്കുന്ന എല്ലാ കാർഡുകളും അവയുടെ യഥാർത്ഥ ഡെക്കിലേക്ക് തിരികെ നൽകും.</string>
