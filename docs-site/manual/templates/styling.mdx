@@ -2,8 +2,6 @@
 title: "Styling & HTML"
 ---
 
-
-
 ## Card Styling
 
 You can watch [a video about styling cards](http://www.youtube.com/watch?v=F1j1Zx0mXME&yt:cc=on) on YouTube.
@@ -52,10 +50,10 @@ example will use a yellow background on all cards except the first one:
 
 ```css
 .card {
-  background-color: yellow;
+    background-color: yellow;
 }
 .card1 {
-  background-color: blue;
+    background-color: blue;
 }
 ```
 
@@ -67,8 +65,8 @@ the following to the bottom of your styling section (outside of the default
 
 ```css
 img {
-  max-width: none;
-  max-height: none;
+    max-width: none;
+    max-height: none;
 }
 ```
 
@@ -80,8 +78,8 @@ example:
 
 ```css
 img {
-  max-width: 300px !important;
-  max-height: 300px !important;
+    max-width: 300px !important;
+    max-height: 300px !important;
 }
 ```
 
@@ -158,11 +156,11 @@ something like:
 
 ```css
 .card {
-  font-family: arial;
-  font-size: 20px;
-  text-align: center;
-  color: black;
-  background-color: white;
+    font-family: arial;
+    font-size: 20px;
+    text-align: center;
+    color: black;
+    background-color: white;
 }
 ```
 
@@ -170,15 +168,15 @@ Add your new style to the bottom, so it looks like:
 
 ```css
 .card {
-  font-family: arial;
-  font-size: 20px;
-  text-align: center;
-  color: black;
-  background-color: white;
+    font-family: arial;
+    font-size: 20px;
+    text-align: center;
+    color: black;
+    background-color: white;
 }
 
 .mystyle1 {
-  font-family: ayuthaya;
+    font-family: ayuthaya;
 }
 ```
 
@@ -188,8 +186,8 @@ like:
 
 ```css
 .mystyle1 {
-  font-family: ayuthaya;
-  font-size: 30px;
+    font-family: ayuthaya;
+    font-size: 30px;
 }
 ```
 
@@ -210,15 +208,15 @@ make them smaller and colored, you could use the following:
 
 ```css
 .replay-button svg {
-  width: 20px;
-  height: 20px;
+    width: 20px;
+    height: 20px;
 }
 .replay-button svg circle {
-  fill: blue;
+    fill: blue;
 }
 .replay-button svg path {
-  stroke: white;
-  fill: green;
+    stroke: white;
+    fill: green;
 }
 ```
 
@@ -229,7 +227,7 @@ you can add the CSS `direction` property to the .card section for correct displa
 
 ```css
 .card {
-  direction: rtl;
+    direction: rtl;
 }
 ```
 
@@ -301,32 +299,32 @@ font depending on where you’re reviewing:
 ```css
 /* Windows */
 .win .example {
-  font-family: "Example1";
+    font-family: "Example1";
 }
 /* macOS */
 .mac .example {
-  font-family: "Example2";
+    font-family: "Example2";
 }
 /* Linux desktops */
 .linux:not(.android) .example {
-  font-family: "Example3";
+    font-family: "Example3";
 }
 /* both Linux desktops, and Android devices */
 .linux .example {
-  font-family: "Example4";
+    font-family: "Example4";
 }
 /* both Android and iOS */
 .mobile .example {
-  font-family: "Example5";
+    font-family: "Example5";
 }
 /* iOS */
 .iphone .example,
 .ipad .example {
-  font-family: "Example6";
+    font-family: "Example6";
 }
 /* Android */
 .android .example {
-  font-family: "Example7";
+    font-family: "Example7";
 }
 ```
 
@@ -359,7 +357,8 @@ it to the media folder.
    file will be used on a template, and should not be deleted when
    checking for unused media.
 
-2.  In your computer’s file browser, go to your Anki application data folder (see [File Locations](../files#file-locations) for details),
+2. In your computer’s file browser, go to your Anki application data folder (see [File Locations](../files#file-locations) for details),
+
 ```text
 and then into your profile folder (e.g., "User 1").
 ```
@@ -383,8 +382,8 @@ template.
 
 ```css
 @font-face {
-  font-family: myfont;
-  src: url("_arial.ttf");
+    font-family: myfont;
+    src: url("_arial.ttf");
 }
 ```
 
@@ -410,7 +409,7 @@ something like:
 
 ```css
 .card.nightMode {
-  background-color: #555;
+    background-color: #555;
 }
 ```
 
@@ -419,7 +418,7 @@ yellow when night mode is enabled:
 
 ```css
 .nightMode .myclass {
-  color: yellow;
+    color: yellow;
 }
 ```
 
@@ -436,8 +435,8 @@ template:
 
 ```html
 <script>
-  qFade = 100;
-  if (typeof anki !== "undefined") anki.qFade = qFade;
+    qFade = 100;
+    if (typeof anki !== "undefined") anki.qFade = qFade;
 </script>
 ```
 

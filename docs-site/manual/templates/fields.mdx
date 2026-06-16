@@ -2,8 +2,6 @@
 title: "Field Replacements"
 ---
 
-
-
 ## Basic Replacements
 
 The most basic template looks something like this:
@@ -319,7 +317,6 @@ like so:
 
 Here are some examples:
 
-
 | Raw Text            | Rendered Text                                                                             |
 | ------------------- | ----------------------------------------------------------------------------------------- |
 | `Text[Ruby]`        | <ruby><rb>Text</rb><rt>Ruby</rt></ruby>                                                   |
@@ -338,7 +335,6 @@ In addition to the `furigana` filter, you can also only show certain parts
 of the ruby text, with the `kana` and `kanji` filters. The `kana` filter will
 only show the ruby text, while the `kanji` filter removes the ruby text
 entirely.
-
 
 | Raw Text           | Field Filter           | Rendered Text                                 |
 | ------------------ | ---------------------- | --------------------------------------------- |
@@ -366,8 +362,6 @@ for every card (e.g. a company logo at the top of each card):
    it should be exported when sharing the deck.
 
 2. Add a reference to the media on your front or back template, like:
-
-
 
 ```text
 <img src="_logo.jpg">
@@ -476,7 +470,6 @@ template, so the back looks something like this:
 {{Extra}}
 ```
 
-
 If there are multiple sections elided, you can separate the answers in
 the text box with a comma.
 
@@ -488,5 +481,5 @@ If you don't want Anki to compare accents on characters in your typed input with
 {{type:nc:Front}}
 ```
 
-This makes sure a difference in accents isn't marked as incorrect by Anki. 
+This makes sure a difference in accents isn't marked as incorrect by Anki.
 For example, `بطيخ` would be treated the same as `بَطِّيخ` or `elite` would be treated same as `élite`.
