@@ -24,7 +24,14 @@ impl BuildAction for CogRender<'_> {
         build.add_inputs("", self.deps);
         build.add_inputs("in", self.inputs);
         build.add_inputs("cog", inputs![":pyenv:cog"]);
-        build.add_variable("mode", if self.check_only { "--check" } else { "-r $in" });
+        build.add_variable(
+            "mode",
+            if self.check_only {
+                "--check --diff"
+            } else {
+                "-r $in"
+            },
+        );
 
         let hash = simple_hash(self.inputs);
         build.add_output_stamp(format!(
