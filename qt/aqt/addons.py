@@ -93,8 +93,15 @@ class DownloadError:
     exception: Exception | None = None
 
 
+@dataclass
+class SaveOk:
+    # the add-on package was saved to disk without being installed
+    path: str
+    name: str
+
+
 # first arg is add-on id
-DownloadLogEntry = tuple[int, Union[DownloadError, InstallError, InstallOk]]
+DownloadLogEntry = tuple[int, Union[DownloadError, InstallError, InstallOk, SaveOk]]
 
 
 ANKIWEB_ID_RE = re.compile(r"^\d+$")
@@ -1008,9 +1015,12 @@ class AddonsDialog(QDialog):
     def onGetAddons(self) -> None:
         obj = GetAddons(self)
         if obj.ids:
-            download_addons(
-                self, self.mgr, obj.ids, self.after_downloading, force_enable=True
-            )
+            if obj.download_only:
+                download_addons_to_disk(self, self.mgr, obj.ids)
+            else:
+                download_addons(
+                    self, self.mgr, obj.ids, self.after_downloading, force_enable=True
+                )
 
     def after_downloading(self, log: list[DownloadLogEntry]) -> None:
         self.redrawAddons()
@@ -1071,12 +1081,20 @@ class GetAddons(QDialog):
         self.mgr = dlg.mgr
         self.mw = self.mgr.mw
         self.ids: list[int] = []
+        # when True, the entered add-ons should be downloaded to disk for
+        # inspection rather than installed
+        self.download_only = False
         self.form = aqt.forms.getaddons.Ui_Dialog()
         self.form.setupUi(self)
         b = self.form.buttonBox.addButton(
             tr.addons_browse_addons(), QDialogButtonBox.ButtonRole.ActionRole
         )
         qconnect(b.clicked, self.onBrowse)
+        download = self.form.buttonBox.addButton(
+            tr.addons_download_only(), QDialogButtonBox.ButtonRole.ActionRole
+        )
+        download.setToolTip(tr.addons_download_only_tooltip())
+        qconnect(download.clicked, self.onDownloadOnly)
         disable_help_button(self)
         restoreGeom(self, "getaddons", adjustSize=True)
         self.exec()
@@ -1085,8 +1103,16 @@ class GetAddons(QDialog):
     def onBrowse(self) -> None:
         openLink(f"{aqt.appShared}addons/2.1")
 
-    def accept(self) -> None:
-        # get codes
+    def onDownloadOnly(self) -> None:
+        if not self._read_codes():
+            return
+        self.download_only = True
+        QDialog.accept(self)
+
+    def _read_codes(self) -> bool:
+        """Parse the entered codes into self.ids.
+
+        Returns False (and warns the user) if a code is invalid."""
         try:
             sids = self.form.code.text().split()
             sids = [
@@ -1096,9 +1122,14 @@ class GetAddons(QDialog):
             ids = [int(id_) for id_ in sids]
         except ValueError:
             showWarning(tr.addons_invalid_code())
-            return
+            return False
 
         self.ids = ids
+        return True
+
+    def accept(self) -> None:
+        if not self._read_codes():
+            return
         QDialog.accept(self)
 
 
@@ -1182,6 +1213,8 @@ def describe_log_entry(id_and_entry: DownloadLogEntry) -> str:
             )
     elif isinstance(entry, InstallError):
         buf += entry.errmsg
+    elif isinstance(entry, SaveOk):
+        buf += tr.addons_downloaded_fnames(fname=entry.name)
     else:
         buf += tr.addons_installed_successfully()
 
@@ -1189,7 +1222,7 @@ def describe_log_entry(id_and_entry: DownloadLogEntry) -> str:
 
 
 def download_encountered_problem(log: list[DownloadLogEntry]) -> bool:
-    return any(not isinstance(e[1], InstallOk) for e in log)
+    return any(isinstance(e[1], (DownloadError, InstallError)) for e in log)
 
 
 def download_and_install_addon(
@@ -1221,6 +1254,38 @@ def download_and_install_addon(
     return (id, result2)
 
 
+def _safe_addon_filename(server_filename: str, id: int) -> str:
+    "Return a safe .ankiaddon filename, falling back to the add-on id."
+    base = os.path.basename(server_filename).strip()
+    # guard against empty or traversal-style names sent by the server
+    if not base or base in (".", "..") or "/" in base or "\\" in base:
+        base = f"{id}.ankiaddon"
+    if not base.endswith(".ankiaddon"):
+        base += ".ankiaddon"
+    return base
+
+
+def download_and_save_addon(
+    client: HttpClient, id: int, dest_dir: str
+) -> DownloadLogEntry:
+    "Download a single add-on and save the package to disk without installing it."
+    result = download_addon(client, id)
+    if isinstance(result, DownloadError):
+        return (id, result)
+
+    display_name = os.path.splitext(result.filename.replace("_", " "))[0].strip()
+    if not display_name:
+        display_name = str(id)
+    path = os.path.join(dest_dir, _safe_addon_filename(result.filename, id))
+    try:
+        with open(path, "wb") as file:
+            file.write(result.data)
+    except OSError as e:
+        return (id, InstallError(errmsg=str(e)))
+
+    return (id, SaveOk(path=path, name=display_name))
+
+
 class DownloaderInstaller(QObject):
     progressSignal = pyqtSignal(int, int)
 
@@ -1240,6 +1305,7 @@ class DownloaderInstaller(QObject):
         ids: list[int],
         on_done: Callable[[list[DownloadLogEntry]], None],
         force_enable: bool = False,
+        handler: Callable[[HttpClient, int], DownloadLogEntry] | None = None,
     ) -> None:
         self.ids = ids
         self.log: list[DownloadLogEntry] = []
@@ -1248,13 +1314,22 @@ class DownloaderInstaller(QObject):
         self.last_tooltip = 0
 
         self.on_done = on_done
+        self._handler = handler or self._default_handler(force_enable)
 
         parent = self.parent()
         assert isinstance(parent, QWidget)
         self.mgr.mw.progress.start(immediate=True, parent=parent)
-        self.mgr.mw.taskman.run_in_background(
-            lambda: self._download_all(force_enable), self._download_done
-        )
+        self.mgr.mw.taskman.run_in_background(self._download_all, self._download_done)
+
+    def _default_handler(
+        self, force_enable: bool
+    ) -> Callable[[HttpClient, int], DownloadLogEntry]:
+        def handler(client: HttpClient, id: int) -> DownloadLogEntry:
+            return download_and_install_addon(
+                self.mgr, client, id, force_enable=force_enable
+            )
+
+        return handler
 
     def _progress_callback(self, up: int, down: int) -> None:
         self.dl_bytes += down
@@ -1266,13 +1341,9 @@ class DownloaderInstaller(QObject):
             )
         )
 
-    def _download_all(self, force_enable: bool = False) -> None:
+    def _download_all(self) -> None:
         for id in self.ids:
-            self.log.append(
-                download_and_install_addon(
-                    self.mgr, self.client, id, force_enable=force_enable
-                )
-            )
+            self.log.append(self._handler(self.client, id))
 
     def _download_done(self, future: Future) -> None:
         self.mgr.mw.progress.finish()
@@ -1311,6 +1382,53 @@ def download_addons(
         client = HttpClient()
     downloader = DownloaderInstaller(parent, mgr, client)
     downloader.download(ids, on_done=on_done, force_enable=force_enable)
+
+
+def show_save_log_to_user(
+    parent: QWidget, log: list[DownloadLogEntry], dest_dir: str
+) -> None:
+    have_problem = download_encountered_problem(log)
+
+    if have_problem:
+        text = tr.addons_one_or_more_errors_occurred()
+    else:
+        text = tr.addons_download_only_complete()
+    text += f"<br><br>{download_log_to_html(log)}"
+
+    if have_problem:
+        showWarning(text, textFormat="rich", parent=parent)
+    else:
+        showInfo(text, parent=parent)
+        # open the folder so the user can inspect the downloaded files
+        openFolder(dest_dir)
+
+
+def download_addons_to_disk(
+    parent: QWidget,
+    mgr: AddonManager,
+    ids: list[int],
+    client: HttpClient | None = None,
+) -> None:
+    """Download add-ons to a user-chosen folder without installing them.
+
+    This lets users inspect an add-on's source before deciding to run it."""
+    dest_dir = QFileDialog.getExistingDirectory(
+        parent, tr.addons_choose_download_folder()
+    )
+    if not dest_dir:
+        return
+
+    if client is None:
+        client = HttpClient()
+    downloader = DownloaderInstaller(parent, mgr, client)
+
+    def handler(client: HttpClient, id: int) -> DownloadLogEntry:
+        return download_and_save_addon(client, id, dest_dir)
+
+    def on_done(log: list[DownloadLogEntry]) -> None:
+        show_save_log_to_user(parent, log, dest_dir)
+
+    downloader.download(ids, on_done=on_done, handler=handler)
 
 
 # Update checking
