@@ -8,7 +8,19 @@ from zipfile import ZipFile
 import pytest
 from mock import MagicMock
 
-from aqt.addons import AddonManager, package_name_valid
+import aqt.addons as addons_mod
+from aqt.addons import (
+    AddonManager,
+    DownloadError,
+    DownloadOk,
+    InstallError,
+    InstallOk,
+    SaveOk,
+    _safe_addon_filename,
+    download_and_save_addon,
+    download_encountered_problem,
+    package_name_valid,
+)
 
 
 def test_readMinimalManifest():
@@ -97,3 +109,84 @@ def test_install_extracts_safe_files(tmp_path, addon_manager):
     assert os.path.exists(os.path.join(addon_dir, "main.py"))
     assert os.path.exists(os.path.join(addon_dir, "subdir", "helper.py"))
     assert not os.path.exists(os.path.join(tmp_path, "unsafe.txt"))
+
+
+def test_safe_addon_filename():
+    assert _safe_addon_filename("Cool Add-on.ankiaddon", 1) == "Cool Add-on.ankiaddon"
+    # directory components are stripped
+    assert _safe_addon_filename("../evil.ankiaddon", 1) == "evil.ankiaddon"
+    # empty/traversal names fall back to the id
+    assert _safe_addon_filename("", 7) == "7.ankiaddon"
+    assert _safe_addon_filename("..", 5) == "5.ankiaddon"
+    # a missing extension is added
+    assert _safe_addon_filename("noext", 9) == "noext.ankiaddon"
+    # characters that are invalid on Windows (incl. the NTFS ADS ':') are replaced
+    assert (
+        _safe_addon_filename("invalid:char*name?.ankiaddon", 1)
+        == "invalid_char_name_.ankiaddon"
+    )
+
+
+def _download_ok(data=b"payload", filename="My_Addon.ankiaddon"):
+    return DownloadOk(
+        data=data,
+        filename=filename,
+        mod_time=1,
+        min_point_version=0,
+        max_point_version=0,
+        branch_index=0,
+    )
+
+
+def test_download_and_save_addon_writes_file(tmp_path, monkeypatch):
+    monkeypatch.setattr(addons_mod, "download_addon", lambda client, id: _download_ok())
+
+    id_, result = download_and_save_addon(MagicMock(), 123, str(tmp_path))
+
+    assert id_ == 123
+    assert isinstance(result, SaveOk)
+    saved = os.path.join(str(tmp_path), "My_Addon.ankiaddon")
+    assert os.path.exists(saved)
+    with open(saved, "rb") as f:
+        assert f.read() == b"payload"
+    # underscores are turned into spaces and the extension dropped for display
+    assert result.name == "My Addon"
+
+
+def test_download_and_save_addon_avoids_overwrite(tmp_path, monkeypatch):
+    monkeypatch.setattr(addons_mod, "download_addon", lambda client, id: _download_ok())
+
+    first = download_and_save_addon(MagicMock(), 1, str(tmp_path))[1]
+    second = download_and_save_addon(MagicMock(), 1, str(tmp_path))[1]
+
+    assert isinstance(first, SaveOk)
+    assert isinstance(second, SaveOk)
+    # the second download must not clobber the first
+    assert first.path != second.path
+    assert os.path.exists(first.path)
+    assert os.path.exists(second.path)
+    assert os.path.basename(second.path) == "My_Addon (1).ankiaddon"
+
+
+def test_download_and_save_addon_passes_through_errors(tmp_path, monkeypatch):
+    monkeypatch.setattr(
+        addons_mod,
+        "download_addon",
+        lambda client, id: DownloadError(status_code=404),
+    )
+
+    id_, result = download_and_save_addon(MagicMock(), 5, str(tmp_path))
+
+    assert id_ == 5
+    assert isinstance(result, DownloadError)
+    assert not os.listdir(str(tmp_path))
+
+
+def test_download_encountered_problem():
+    # a saved-to-disk add-on is a success, not a problem
+    assert not download_encountered_problem([(1, SaveOk(path="p", name="n"))])
+    assert not download_encountered_problem(
+        [(1, InstallOk(name="n", conflicts=set(), compatible=True))]
+    )
+    assert download_encountered_problem([(1, DownloadError(status_code=404))])
+    assert download_encountered_problem([(1, InstallError(errmsg="x"))])

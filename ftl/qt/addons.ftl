@@ -34,6 +34,11 @@ addons-corrupt-addon-file = Corrupt add-on file.
 addons-disabled = (disabled)
 addons-disabled2 = (disabled)
 addons-download-complete-please-restart-anki-to = Download complete. Please restart Anki to apply changes.
+addons-download-only = Download Only
+# Tooltip on the "Download Only" button in the Get Add-ons dialog.
+addons-download-only-tooltip = Save the add-on's files to a folder without installing it, so you can inspect the code first.
+addons-download-only-complete = Download complete. You can inspect the files before deciding whether to install.
+addons-choose-download-folder = Choose a folder to save the add-on package(s) to
 addons-downloaded-fnames = Downloaded { $fname }
 addons-downloading-adbd-kb02fkb = Downloading { $part }/{ $total } ({ $kilobytes }KB)...
 addons-error-downloading-ids-errors = Error downloading <i>{ $id }</i>: { $error }
