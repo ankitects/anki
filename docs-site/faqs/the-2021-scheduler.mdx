@@ -142,9 +142,7 @@ For example:
 
 ```javascript
 // print the existing states
-console.log(
-  JSON.stringify(states, null, 4)
-);
+console.log(JSON.stringify(states, null, 4));
 
 // load the debugger if the web inspector is open
 debugger;
@@ -152,25 +150,23 @@ debugger;
 // if the hard button is a learning step, make it
 // a 123 minute delay
 if (states.hard.normal?.learning) {
-  states.hard.normal.learning.scheduledSecs = 123 * 60;
+    states.hard.normal.learning.scheduledSecs = 123 * 60;
 }
 
 // apply the same change in a rescheduling filtered deck
 if (states.hard.filtered?.rescheduling?.originalState?.learning) {
-  states.hard.filtered.rescheduling.originalState.learning.scheduledSecs =
-    123 * 60;
+    states.hard.filtered.rescheduling.originalState.learning.scheduledSecs = 123 * 60;
 }
 
 // increase ease factor by 0.2 when Easy used on a review
 if (states.good.normal?.review) {
-  states.easy.normal.review.easeFactor =
-    states.good.normal.review.easeFactor + 0.2;
+    states.easy.normal.review.easeFactor = states.good.normal.review.easeFactor + 0.2;
 }
 ```
 
 Because this is implemented in JavaScript, it is not limited to the computer
 version. AnkiMobile and AnkiDroid both support it as well, and AnkiWeb may also
-support it in the future. This will allow advanced users to make 
+support it in the future. This will allow advanced users to make
 adjustments to the standard scheduling behaviour, that apply on all platforms.
 
 The various scheduling states are described in [SchedulingStates](https://github.com/ankitects/anki/blob/main/proto/anki/scheduler.proto).
