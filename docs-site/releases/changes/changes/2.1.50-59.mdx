@@ -2,12 +2,9 @@
 title: "Changes in 2.1.50 to 59"
 ---
 
-
-
 ## Changes in 2.1.59
 
 Due to a packaging problem, this release was yanked.
-
 
 ## Changes in 2.1.58
 
@@ -40,7 +37,7 @@ Other changes in this update:
 ### Custom sync server
 
 - You can now customize the network timeout in the sync settings, which may be required
-if you have a large collection and/or a slower device.
+  if you have a large collection and/or a slower device.
 - Maximum sizes are no longer enforced when downloading from custom sync servers.
 
 ### Type in the answer
@@ -58,8 +55,8 @@ if you have a large collection and/or a slower device.
 ### Scheduling
 
 - It is no longer possible to enable burying of reviews without also burying new cards,
-as Anki excludes buried cards up front, and needs to do so in a particular order
-to avoid errors during review.
+  as Anki excludes buried cards up front, and needs to do so in a particular order
+  to avoid errors during review.
 - Fix v3 deck-specific limits affecting the deck list/study screen in v2 mode.
 - Show custom data from third-party schedulers in stats screen.
 - Allow burying cards in the browser (thanks to Kaben).
@@ -67,7 +64,7 @@ to avoid errors during review.
 ### Fixes
 
 - Switch to a new Windows TTS implementation, which unblocks future upgrades,
-and should perform better (thanks to Rumo).
+  and should perform better (thanks to Rumo).
 - Work around a startup error some users were receiving on Windows.
 - Fix currently-selected preset not being indicated in deck options (thanks to Fabricio).
 - Fix error shown after toggling full screen.
@@ -125,7 +122,6 @@ Dev related:
 - Make it easier to override node/protoc binaries during a build (thanks to
   Mani)
 
-
 ## Changes in 2.1.56
 
 Released 2023-01-09.
@@ -164,12 +160,12 @@ For devs:
 - Fix an issue building the code with the latest git version.
 - Fix aqt type completion not working with PyPI wheel.
 
-
 ## Changes in 2.1.55
 
 Released 2022-12-16.
 
 Known issues:
+
 - The old shift+click graphs screen is broken in this release. The regular graphs screen works correctly.
 
 Lots of UI improvements, thanks to Matthias:
@@ -183,7 +179,7 @@ Lots of UI improvements, thanks to Matthias:
 - The editor in the browse screen can now be shown on the right.
 - The tags area can now be collapsed/expanded (thanks also to Henrik).
 - On macOS, dark mode now uses the default macOS styling; you can optionally force behavior
-like the other platforms with the following in the debug console: `mw.pm.set_force_custom_styles(True)`.
+  like the other platforms with the following in the debug console: `mw.pm.set_force_custom_styles(True)`.
 - Many other small tweaks.
 
 V3 scheduler improvements, thanks to Rumo:
@@ -474,15 +470,19 @@ thanks to Rumo:
   and to reset the card's lapse and repetition counters.
 - The gathering and sorting of new cards has been reworked, trading a little performance
   for more intuitive behaviour:
-  - It is now possible to sort notes or cards randomly at gather time, ensuring a random
+    - It is now possible to sort notes or cards randomly at gather time, ensuring a random
+
 ```text
 selection is taken from all available new cards.
 ```
-  - The gather order and sort order options have been simplified, but should offer the same
+
+- The gather order and sort order options have been simplified, but should offer the same
+
 ```text
 functionality as before. Please check your deck options after upgrading, as some users
 may need to adjust their display order settings to match what they were using before.
 ```
+
 - The overview screen now shows how many cards will be buried.
 - Added a separate option to control burying of interday learning siblings.
 - Fixed interday learning siblings not being buried during review, causing them
@@ -526,24 +526,30 @@ Most of these changes are thanks to Henrik.
   system settings. You can force day or night mode in the Preferences screen.
   (thanks in large part to Rumo).
 - Reworked backup handling (mostly thanks to Rumo):
-  - Backups are created much faster than they were previously.
-  - Anki can now create backups periodically. The default is every 30 minutes; you can adjust this in the preferences screen.
-  - There are new options in the preferences to control the number of daily, weekly and
+    - Backups are created much faster than they were previously.
+    - Anki can now create backups periodically. The default is every 30 minutes; you can adjust this in the preferences screen.
+    - There are new options in the preferences to control the number of daily, weekly and
+
 ```text
 monthly backups you'd like to retain.
 ```
-  - The File menu now has an option to create a backup immediately.
-  - Because the backup storage format has changed, backups created with 2.1.50 will not be
+
+- The File menu now has an option to create a backup immediately.
+- Because the backup storage format has changed, backups created with 2.1.50 will not be
+
 ```text
 importable into older Anki versions.
 ```
+
 - Reworked .colpkg import/export (thanks to Rumo):
-  - When exporting, you can optionally target Anki 2.1.50+. When doing so,
+    - When exporting, you can optionally target Anki 2.1.50+. When doing so,
+
 ```text
 imports and exports are faster, and media files will be compressed, but the
 resulting .colpkg will not be readable by older Anki clients.
 ```
-  - Collections are now checked for corruption when importing.
+
+- Collections are now checked for corruption when importing.
 - An option to ignore accents in searches by default has been added to
   preferences screen (thanks to Abdo).
 - The Card Info screen now updates automatically as you change to a different

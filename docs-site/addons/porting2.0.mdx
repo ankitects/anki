@@ -2,8 +2,6 @@
 title: "Porting Anki 2.0 add-ons"
 ---
 
-
-
 ## Python 3
 
 Anki 2.1 requires Python 3 or later. After installing Python 3 on your
@@ -65,9 +63,9 @@ info, please see [sharing add-ons](./sharing).
 ## Folders are deleted when upgrading
 
 When an add-on is upgraded, all files in the add-on folder are deleted.
-The only exception is the special [user\_files folder](./addon-config#user-files). If
+The only exception is the special [user_files folder](./addon-config#user-files). If
 your add-on requires more than simple key/value configuration, make sure
-you store the associated files in the user\_files folder, or they will
+you store the associated files in the user_files folder, or they will
 be lost on upgrade.
 
 ## Supporting both 2.0 and 2.1 in one codebase
@@ -98,13 +96,15 @@ the two Anki versions.
 Qt 5 has dropped WebKit in favour of the Chromium-based WebEngine, so
 Anki’s webviews are now using WebEngine. Of note:
 
--   You can now debug the webviews using an external Chrome instance, by
+- You can now debug the webviews using an external Chrome instance, by
+
 ```text
 setting the env var QTWEBENGINE\_REMOTE\_DEBUGGING to 8080 prior to
 starting Anki, then surfing to localhost:8080 in Chrome.
 ```
 
--   WebEngine uses a different method of communicating back to Python.
+- WebEngine uses a different method of communicating back to Python.
+
 ```text
 AnkiWebView() is a wrapper for webviews which provides a pycmd(str)
 function in Javascript which will call the ankiwebview’s
@@ -112,12 +112,14 @@ onBridgeCmd(str) method. Various parts of Anki’s UI like reviewer.py
 and deckbrowser.py have had to be modified to use this.
 ```
 
--   Javascript is evaluated asynchronously, so if you need the result of
+- Javascript is evaluated asynchronously, so if you need the result of
+
 ```text
 a JS expression you can use ankiwebview’s evalWithCallback().
 ```
 
--   As a result of this asynchronous behaviour, editor.saveNow() now
+- As a result of this asynchronous behaviour, editor.saveNow() now
+
 ```text
 requires a callback. If your add-on performs actions in the browser,
 you likely need to call editor.saveNow() first and then run the rest
@@ -126,18 +128,21 @@ changed to .search()/.onSearchActivated() as well. See the browser’s
 .deleteNotes() for an example.
 ```
 
--   Various operations that were supported by WebKit like
+- Various operations that were supported by WebKit like
+
 ```text
 setScrollPosition() now need to be implemented in javascript.
 ```
 
--   Page actions like mw.web.triggerPageAction(QWebEnginePage.Copy) are
+- Page actions like mw.web.triggerPageAction(QWebEnginePage.Copy) are
+
 ```text
 also asynchronous, and need to be rewritten to use javascript or a
 delay.
 ```
 
--   WebEngine doesn’t provide a keyPressEvent() like WebKit did, so the
+- WebEngine doesn’t provide a keyPressEvent() like WebKit did, so the
+
 ```text
 code that catches shortcuts not attached to a menu or button has had
 to be changed. setStateShortcuts() fires a hook that can be used to

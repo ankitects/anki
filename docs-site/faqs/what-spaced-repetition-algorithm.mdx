@@ -47,46 +47,46 @@ Anki’s algorithm differs from SM-2 in some respects. Notably:
 
 ## FSRS
 
-FSRS aims to learn your memory patterns and schedule reviews 
+FSRS aims to learn your memory patterns and schedule reviews
 more efficiently than SM-2.
 
-FSRS is based on the "Three Component Model of Memory". The model asserts 
-that three variables are sufficient to describe the status of a 
+FSRS is based on the "Three Component Model of Memory". The model asserts
+that three variables are sufficient to describe the status of a
 unitary memory in a human brain.
 These three variables include:
 
-- Retrievability (R): The probability that the person can successfully 
-recall a particular information at a given moment. It depends 
-on the time elapsed since the last review and the memory stability (S).
+- Retrievability (R): The probability that the person can successfully
+  recall a particular information at a given moment. It depends
+  on the time elapsed since the last review and the memory stability (S).
 
 - Stability (S): The time, in days, required for R to decrease from
-100% to 90%. For example, S = 365 means that an entire year 
-will pass before the probability of recalling a particular card drops to 90%.
+  100% to 90%. For example, S = 365 means that an entire year
+  will pass before the probability of recalling a particular card drops to 90%.
 
 - Difficulty (D): The inherent complexity of a particular information.
-It represents how difficult it is to increase memory stability after a review.
+  It represents how difficult it is to increase memory stability after a review.
 
 In FSRS, these three values are collectively called the "memory state".
-The value of R changes daily, while D and S change only after a card 
+The value of R changes daily, while D and S change only after a card
 has been reviewed.
-Each card has its own DSR values, in other words, each card has 
+Each card has its own DSR values, in other words, each card has
 its own memory state.
-To accurately estimate the DSR values, FSRS analyzes the user's 
-review history and uses machine learning to find parameters that 
+To accurately estimate the DSR values, FSRS analyzes the user's
+review history and uses machine learning to find parameters that
 provide the best fit to the review history.
 
 Note that the users should not tweak the parameters manually.
 If you want to adjust the scheduling, all you need to do is choose an appropriate
 value of desired retention.
-With FSRS, users can target a specific value of retention, allowing them 
+With FSRS, users can target a specific value of retention, allowing them
 to balance how much they remember and how many reviews they have to do.
 Higher retention leads to more reviews per day.
 
-Aside from allowing users to easily control their retention, 
+Aside from allowing users to easily control their retention,
 FSRS has some other advantages when compared to Anki's default algorithm.
-With FSRS, users have to do fewer reviews than with Anki's default algorithm 
-to achieve the same retention level. FSRS is also much better at scheduling 
-cards that have been reviewed with a delay, for example, if the user took 
+With FSRS, users have to do fewer reviews than with Anki's default algorithm
+to achieve the same retention level. FSRS is also much better at scheduling
+cards that have been reviewed with a delay, for example, if the user took
 a break from Anki for a few weeks or months.
 
 The scheduling code can be found in `rslib/src/scheduler/states`. Here is a summary
@@ -153,19 +153,19 @@ In FSRS, once a card is reviewed at least once, it gets assigned DSR values.
 If you press…​
 
 - Again  
-  The card is placed into relearning mode, stability significantly decreases, 
+  The card is placed into relearning mode, stability significantly decreases,
   and difficulty significantly increases.
 
 - Hard  
-  The card’s stability either increases or stays the same, 
+  The card’s stability either increases or stays the same,
   and difficulty moderately increases.
 
 - Good  
-  The card’s stability increases, and difficulty may 
+  The card’s stability increases, and difficulty may
   increase or decrease very slightly.
 
 - Easy  
-  The card’s stability significantly increases, and difficulty 
+  The card’s stability significantly increases, and difficulty
   moderately decreases.
 
 ## Limitations
