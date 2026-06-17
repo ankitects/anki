@@ -12,7 +12,6 @@ members = [
   "build/runner",
   "ftl",
   "pylib/rsbridge",
-  "qt/launcher",
   "rslib",
   "rslib/i18n",
   "rslib/io",
