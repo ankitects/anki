@@ -158,13 +158,12 @@ mod tests {
     use crate::search::service::SortOrderProto;
     use crate::search::SortMode;
     use crate::services::SearchService;
-    use crate::tests::open_fs_test_collection;
     use crate::tests::DeckAdder;
     use crate::tests::NoteAdder;
 
     #[test]
     fn build_search_string_converts_tag_node_to_anki_syntax() {
-        let (mut col, _tempdir) = open_fs_test_collection("search_service");
+        let mut col = Collection::new();
         let proto = ProtoSearchNode {
             filter: Some(Filter::Tag("mytag".to_string())),
         };
@@ -174,7 +173,7 @@ mod tests {
 
     #[test]
     fn build_search_string_returns_invalid_input_for_empty_group() {
-        let (mut col, _tempdir) = open_fs_test_collection("search_service_invalid_node");
+        let mut col = Collection::new();
         let proto = ProtoSearchNode {
             filter: Some(Filter::Group(anki_proto::search::search_node::Group {
                 joiner: anki_proto::search::search_node::group::Joiner::And as i32,
@@ -460,7 +459,7 @@ mod tests {
         // existing is a single Tag node (not a Group) → wraps in vec![node] before
         // replacing replacement is also a Tag → the old tag is swapped for the
         // new one
-        let (mut col, _tempdir) = open_fs_test_collection("replace_single");
+        let mut col = Collection::new();
         let input = anki_proto::search::ReplaceSearchNodeRequest {
             existing_node: Some(ProtoSearchNode {
                 filter: Some(Filter::Tag("old".to_string())),
@@ -477,7 +476,7 @@ mod tests {
     fn replace_search_node_replaces_inside_group() {
         // existing is a Group (tag:a tag:b) → unwraps nodes before replacing
         // only the Tag node matching the replacement type is swapped
-        let (mut col, _tempdir) = open_fs_test_collection("replace_group");
+        let mut col = Collection::new();
         let group = ProtoSearchNode {
             filter: Some(Filter::Group(anki_proto::search::search_node::Group {
                 joiner: anki_proto::search::search_node::group::Joiner::And as i32,
@@ -509,7 +508,7 @@ mod tests {
     #[test]
     fn join_search_nodes_with_and_joiner() {
         use anki_proto::search::search_node::group::Joiner;
-        let (mut col, _tempdir) = open_fs_test_collection("join_and");
+        let mut col = Collection::new();
         let input = anki_proto::search::JoinSearchNodesRequest {
             joiner: Joiner::And as i32,
             existing_node: Some(ProtoSearchNode {
@@ -526,7 +525,7 @@ mod tests {
     #[test]
     fn join_search_nodes_with_or_joiner() {
         use anki_proto::search::search_node::group::Joiner;
-        let (mut col, _tempdir) = open_fs_test_collection("join_or");
+        let mut col = Collection::new();
         let input = anki_proto::search::JoinSearchNodesRequest {
             joiner: Joiner::Or as i32,
             existing_node: Some(ProtoSearchNode {
