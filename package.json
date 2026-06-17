@@ -89,7 +89,7 @@
         "devalue": "^5.8.0",
         "tar": "^7.5.7",
         "vite": "6",
-        "js-yaml": "^4.1.1",
+        "js-yaml": "^4.2.0",
         "glob": "^10.5.0"
     },
     "browserslist": [
