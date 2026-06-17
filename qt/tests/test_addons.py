@@ -120,6 +120,11 @@ def test_safe_addon_filename():
     assert _safe_addon_filename("..", 5) == "5.ankiaddon"
     # a missing extension is added
     assert _safe_addon_filename("noext", 9) == "noext.ankiaddon"
+    # characters that are invalid on Windows (incl. the NTFS ADS ':') are replaced
+    assert (
+        _safe_addon_filename("invalid:char*name?.ankiaddon", 1)
+        == "invalid_char_name_.ankiaddon"
+    )
 
 
 def _download_ok(data=b"payload", filename="My_Addon.ankiaddon"):
@@ -146,6 +151,21 @@ def test_download_and_save_addon_writes_file(tmp_path, monkeypatch):
         assert f.read() == b"payload"
     # underscores are turned into spaces and the extension dropped for display
     assert result.name == "My Addon"
+
+
+def test_download_and_save_addon_avoids_overwrite(tmp_path, monkeypatch):
+    monkeypatch.setattr(addons_mod, "download_addon", lambda client, id: _download_ok())
+
+    first = download_and_save_addon(MagicMock(), 1, str(tmp_path))[1]
+    second = download_and_save_addon(MagicMock(), 1, str(tmp_path))[1]
+
+    assert isinstance(first, SaveOk)
+    assert isinstance(second, SaveOk)
+    # the second download must not clobber the first
+    assert first.path != second.path
+    assert os.path.exists(first.path)
+    assert os.path.exists(second.path)
+    assert os.path.basename(second.path) == "My_Addon (1).ankiaddon"
 
 
 def test_download_and_save_addon_passes_through_errors(tmp_path, monkeypatch):

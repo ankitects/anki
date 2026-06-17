@@ -1254,11 +1254,16 @@ def download_and_install_addon(
     return (id, result2)
 
 
+# Characters that are invalid in filenames on Windows (':' also enables NTFS
+# alternate data streams), plus path separators and control characters.
+INVALID_FILENAME_CHARS = re.compile(r'[<>:"/\\|?*\x00-\x1f]')
+
+
 def _safe_addon_filename(server_filename: str, id: int) -> str:
     "Return a safe .ankiaddon filename, falling back to the add-on id."
-    base = os.path.basename(server_filename).strip()
-    # guard against empty or traversal-style names sent by the server
-    if not base or base in (".", "..") or "/" in base or "\\" in base:
+    base = INVALID_FILENAME_CHARS.sub("_", os.path.basename(server_filename)).strip()
+    # guard against empty or dot-only names ('.', '..') sent by the server
+    if not base.strip("."):
         base = f"{id}.ankiaddon"
     if not base.endswith(".ankiaddon"):
         base += ".ankiaddon"
@@ -1276,7 +1281,16 @@ def download_and_save_addon(
     display_name = os.path.splitext(result.filename.replace("_", " "))[0].strip()
     if not display_name:
         display_name = str(id)
-    path = os.path.join(dest_dir, _safe_addon_filename(result.filename, id))
+
+    # avoid silently overwriting an existing file in the chosen folder
+    filename = _safe_addon_filename(result.filename, id)
+    stem, ext = os.path.splitext(filename)
+    path = os.path.join(dest_dir, filename)
+    counter = 1
+    while os.path.exists(path):
+        path = os.path.join(dest_dir, f"{stem} ({counter}){ext}")
+        counter += 1
+
     try:
         with open(path, "wb") as file:
             file.write(result.data)
