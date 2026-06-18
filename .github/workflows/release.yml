@@ -280,7 +280,7 @@ jobs:
       }}
     runs-on: ubuntu-latest
     timeout-minutes: 15
-    environment: release
+    environment: testpypi
     permissions:
       id-token: write
     steps:
@@ -307,7 +307,7 @@ jobs:
       }}
     runs-on: ubuntu-latest
     timeout-minutes: 15
-    environment: release
+    environment: pypi
     permissions:
       id-token: write
     steps:
