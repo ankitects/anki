@@ -1,6 +1,8 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
+use std::collections::HashMap;
+
 use reqwest::Client;
 use tracing::debug;
 
@@ -119,6 +121,8 @@ impl NormalSyncer<'_> {
     /// Sync. Caller must have created a transaction, and should call
     /// abort on failure.
     async fn normal_sync_inner(&mut self, mut state: ClientSyncState) -> error::Result<SyncOutput> {
+        let mut cards_needing_fsrs_reconcile = HashMap::new();
+
         self.progress
             .update(false, |p| p.stage = SyncStage::Syncing)?;
 
@@ -127,7 +131,18 @@ impl NormalSyncer<'_> {
         debug!("unchunked changes");
         self.process_unchunked_changes(&state).await?;
         debug!("begin stream from server");
-        self.process_chunks_from_server(&state).await?;
+        self.process_chunks_from_server(&state, &mut cards_needing_fsrs_reconcile)
+            .await?;
+        debug!(
+            cards = cards_needing_fsrs_reconcile.len(),
+            schedule_cards = cards_needing_fsrs_reconcile
+                .values()
+                .filter(|&&needs_schedule_reconcile| needs_schedule_reconcile)
+                .count(),
+            "reconciling fsrs state"
+        );
+        self.col
+            .reconcile_fsrs_state_after_sync(cards_needing_fsrs_reconcile)?;
         debug!("begin stream to server");
         self.send_chunks_to_server(&state).await?;
 

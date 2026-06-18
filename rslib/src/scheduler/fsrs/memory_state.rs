@@ -2,6 +2,7 @@
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 use std::collections::HashMap;
+use std::collections::HashSet;
 
 use anki_proto::scheduler::ComputeMemoryStateResponse;
 use fsrs::FSRSItem;
@@ -11,6 +12,7 @@ use fsrs::FSRS5_DEFAULT_DECAY;
 use fsrs::FSRS6_DEFAULT_DECAY;
 use itertools::Either;
 use itertools::Itertools;
+use tracing::debug;
 
 use super::params::ignore_revlogs_before_ms_from_config;
 use super::rescheduler::Rescheduler;
@@ -22,9 +24,11 @@ use crate::scheduler::answering::get_fuzz_seed;
 use crate::scheduler::fsrs::params::reviews_for_fsrs;
 use crate::scheduler::fsrs::params::Params;
 use crate::scheduler::states::fuzz::with_review_fuzz;
+use crate::scheduler::SchedTimingToday;
 use crate::search::Negated;
 use crate::search::SearchNode;
 use crate::search::StateKind;
+use crate::storage::comma_separated_ids;
 
 #[derive(Debug, Clone, Copy, Default)]
 pub struct ComputeMemoryProgress {
@@ -264,6 +268,115 @@ impl Collection {
         Ok(())
     }
 
+    pub(crate) fn reconcile_fsrs_state_after_sync(
+        &mut self,
+        cards_needing_fsrs_reconcile: HashMap<CardId, bool>,
+    ) -> Result<()> {
+        if cards_needing_fsrs_reconcile.is_empty() || !self.get_config_bool(BoolKey::Fsrs) {
+            return Ok(());
+        }
+
+        let mut card_ids_by_config: HashMap<DeckConfigId, Vec<CardId>> = HashMap::new();
+        let mut deck_desired_retention: HashMap<DeckId, f32> = HashMap::new();
+        for &card_id in cards_needing_fsrs_reconcile.keys() {
+            let card = self.storage.get_card(card_id)?.or_not_found(card_id)?;
+            let deck_id = card.original_or_current_deck_id();
+            let deck = self.get_deck(deck_id)?.or_not_found(deck_id)?;
+            let config_id = deck.config_id().or_invalid("home deck is filtered")?;
+            card_ids_by_config
+                .entry(config_id)
+                .or_default()
+                .push(card_id);
+            if let Ok(normal) = deck.normal() {
+                if let Some(desired_retention) = normal.desired_retention {
+                    deck_desired_retention.insert(deck_id, desired_retention);
+                }
+            }
+        }
+
+        let timing = self.timing_today()?;
+        let usn = self.usn()?;
+        for (config_id, card_ids) in card_ids_by_config {
+            let config = self
+                .storage
+                .get_deck_config(config_id)?
+                .or_not_found(config_id)?;
+            let revlog =
+                self.revlog_for_srs(SearchNode::CardIds(comma_separated_ids(&card_ids)))?;
+            let fsrs = FSRS::new(Some(config.fsrs_params()))?;
+            let last_revlog_info = get_last_revlog_info(&revlog);
+            let items = fsrs_items_for_memory_states(
+                &fsrs,
+                revlog,
+                timing.next_day_at,
+                config.inner.historical_retention,
+                ignore_revlogs_before_ms_from_config(&config)?,
+            )?;
+
+            let (items, cards_without_items): (Vec<(CardId, FsrsItemForMemoryState)>, Vec<CardId>) =
+                items.into_iter().partition_map(|(card_id, item)| {
+                    if let Some(item) = item {
+                        Either::Left((card_id, item))
+                    } else {
+                        Either::Right(card_id)
+                    }
+                });
+
+            let decay = get_decay_from_params(config.fsrs_params());
+            let schedule_reconcile_cards: HashSet<_> = card_ids
+                .iter()
+                .copied()
+                .filter(|card_id| {
+                    cards_needing_fsrs_reconcile
+                        .get(card_id)
+                        .copied()
+                        .unwrap_or_default()
+                })
+                .collect();
+            debug!(
+                config_id = config_id.0,
+                cards = card_ids.len(),
+                cards_with_items = items.len(),
+                itemless_cards = cards_without_items.len(),
+                schedule_cards = schedule_reconcile_cards.len(),
+                "recomputing fsrs state after sync"
+            );
+
+            self.reconcile_itemless_cards_after_sync(
+                cards_without_items,
+                &last_revlog_info,
+                |card: &mut Card| {
+                    let deck_id = card.original_or_current_deck_id();
+                    let desired_retention = *deck_desired_retention
+                        .get(&deck_id)
+                        .unwrap_or(&config.inner.desired_retention);
+                    card.desired_retention = Some(desired_retention);
+                    card.decay = Some(decay);
+                },
+                usn,
+            )?;
+            self.reconcile_cards_with_items_after_sync(
+                items,
+                &fsrs,
+                &last_revlog_info,
+                &schedule_reconcile_cards,
+                timing,
+                config.inner.maximum_review_interval,
+                |card: &mut Card| {
+                    let deck_id = card.original_or_current_deck_id();
+                    let desired_retention = *deck_desired_retention
+                        .get(&deck_id)
+                        .unwrap_or(&config.inner.desired_retention);
+                    card.desired_retention = Some(desired_retention);
+                    card.decay = Some(decay);
+                },
+                usn,
+            )?;
+        }
+
+        Ok(())
+    }
+
     fn create_progress_closure(&self, item_count: usize) -> Result<impl FnMut() -> Result<()>> {
         let mut progress = self.new_progress_handler::<ComputeMemoryProgress>();
         progress.update(false, |s| {
@@ -286,6 +399,30 @@ impl Collection {
             card.clear_fsrs_data();
             self.update_card_inner(&mut card, original, usn)?;
             on_updated_card()?
+        }
+        Ok(())
+    }
+
+    fn update_reconciled_card_after_sync(&mut self, card: &mut Card, usn: Usn) -> Result<()> {
+        card.set_modified(usn);
+        self.storage.update_card(card)
+    }
+
+    fn reconcile_itemless_cards_after_sync(
+        &mut self,
+        cards: Vec<CardId>,
+        last_revlog_info: &HashMap<CardId, LastRevlogInfo>,
+        mut set_decay_and_desired_retention: impl FnMut(&mut Card),
+        usn: Usn,
+    ) -> Result<()> {
+        for card_id in cards {
+            let mut card = self.storage.get_card(card_id)?.or_not_found(card_id)?;
+            set_decay_and_desired_retention(&mut card);
+            card.memory_state = None;
+            card.last_review_time = last_revlog_info
+                .get(&card_id)
+                .and_then(|info| info.last_reviewed_at);
+            self.update_reconciled_card_after_sync(&mut card, usn)?;
         }
         Ok(())
     }
@@ -354,6 +491,142 @@ impl Collection {
                 on_updated_card()?;
             }
         }
+        Ok(())
+    }
+
+    fn reconcile_cards_with_items_after_sync(
+        &mut self,
+        items: Vec<(CardId, FsrsItemForMemoryState)>,
+        fsrs: &FSRS,
+        last_revlog_info: &HashMap<CardId, LastRevlogInfo>,
+        schedule_reconcile_cards: &HashSet<CardId>,
+        timing: SchedTimingToday,
+        max_interval: u32,
+        mut set_decay_and_desired_retention: impl FnMut(&mut Card),
+        usn: Usn,
+    ) -> Result<()> {
+        const FSRS_BATCH_SIZE: usize = 1000;
+
+        let mut to_update = Vec::new();
+        let mut fsrs_items = Vec::new();
+        let mut starting_states = Vec::new();
+
+        for (card_id, item) in items.into_iter() {
+            to_update.push(card_id);
+            fsrs_items.push(item.item);
+            starting_states.push(item.starting_state);
+        }
+
+        let mut p = permutation::sort_unstable_by_key(&fsrs_items, |item| item.reviews.len());
+        p.apply_slice_in_place(&mut to_update);
+        p.apply_slice_in_place(&mut fsrs_items);
+        p.apply_slice_in_place(&mut starting_states);
+
+        for ((to_update, fsrs_items), starting_states) in to_update
+            .chunk_into_vecs(FSRS_BATCH_SIZE)
+            .zip_eq(fsrs_items.chunk_into_vecs(FSRS_BATCH_SIZE))
+            .zip_eq(starting_states.chunk_into_vecs(FSRS_BATCH_SIZE))
+        {
+            let memory_states = fsrs.memory_state_batch(fsrs_items, starting_states)?;
+
+            for (card_id, memory_state) in to_update.into_iter().zip_eq(memory_states) {
+                let mut card = self.storage.get_card(card_id)?.or_not_found(card_id)?;
+                set_decay_and_desired_retention(&mut card);
+                card.memory_state = Some(memory_state.into());
+                card.last_review_time = last_revlog_info
+                    .get(&card_id)
+                    .and_then(|info| info.last_reviewed_at);
+                if schedule_reconcile_cards.contains(&card_id) {
+                    self.reschedule_reconciled_card_after_sync(
+                        &mut card,
+                        fsrs,
+                        last_revlog_info.get(&card_id),
+                        timing,
+                        max_interval,
+                    )?;
+                }
+                self.update_reconciled_card_after_sync(&mut card, usn)?;
+            }
+        }
+
+        Ok(())
+    }
+
+    fn reschedule_reconciled_card_after_sync(
+        &mut self,
+        card: &mut Card,
+        fsrs: &FSRS,
+        last_revlog_info: Option<&LastRevlogInfo>,
+        timing: SchedTimingToday,
+        max_interval: u32,
+    ) -> Result<()> {
+        let Some(last_info) = last_revlog_info else {
+            return Ok(());
+        };
+        let Some(last_review) = last_info.last_reviewed_at else {
+            return Ok(());
+        };
+        if !(card.ctype == CardType::Review && card.queue != CardQueue::Suspended) {
+            return Ok(());
+        }
+
+        let deck = self
+            .get_deck(card.original_or_current_deck_id())?
+            .or_not_found(card.original_or_current_deck_id())?;
+        let deckconfig_id = deck.config_id().or_invalid("home deck is filtered")?;
+        let days_elapsed = timing.next_day_at.elapsed_days_since(last_review) as i32;
+        let min_interval = |interval: u32| {
+            let previous_interval = last_info.previous_interval.unwrap_or(0);
+            if interval > previous_interval {
+                previous_interval + 1
+            } else {
+                0
+            }
+            .max(1)
+        };
+        let interval = fsrs.next_interval(
+            Some(
+                card.memory_state
+                    .expect("memory state set before rescheduling")
+                    .stability,
+            ),
+            card.desired_retention
+                .expect("desired retention set before rescheduling"),
+            0,
+        );
+        let mut rescheduler = if self.get_config_bool(BoolKey::LoadBalancerEnabled) {
+            Some(Rescheduler::new(self)?)
+        } else {
+            None
+        };
+        card.interval = rescheduler
+            .as_mut()
+            .and_then(|r| {
+                r.find_interval(
+                    interval,
+                    min_interval(interval as u32),
+                    max_interval,
+                    days_elapsed as u32,
+                    deckconfig_id,
+                    get_fuzz_seed(card, true),
+                )
+            })
+            .unwrap_or_else(|| {
+                with_review_fuzz(
+                    card.get_fuzz_factor(true),
+                    interval,
+                    min_interval(interval as u32),
+                    max_interval,
+                )
+            });
+
+        let due = if card.original_due != 0 {
+            &mut card.original_due
+        } else {
+            &mut card.due
+        };
+        *due = (timing.days_elapsed as i32) - days_elapsed + card.interval as i32;
+
         Ok(())
     }
 
