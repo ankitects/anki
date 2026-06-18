@@ -855,6 +855,37 @@ mod tests {
     }
 
     #[test]
+    fn sort_cards_with_randomize_repositions_within_expected_range() {
+        let mut col = Collection::new();
+        let note1 = NoteAdder::basic(&mut col).add(&mut col);
+        let note2 = NoteAdder::basic(&mut col).fields(&["b", ""]).add(&mut col);
+        let cid1 = col.storage.card_ids_of_notes(&[note1.id]).unwrap()[0];
+        let cid2 = col.storage.card_ids_of_notes(&[note2.id]).unwrap()[0];
+
+        // randomize=true exercises the NewCardDueOrder::Random branch; the exact
+        // positions are shuffled, so we only assert the resulting invariants.
+        let out = SchedulerService::sort_cards(
+            &mut col,
+            anki_proto::scheduler::SortCardsRequest {
+                card_ids: vec![cid1.0, cid2.0],
+                starting_from: 5,
+                step_size: 1,
+                randomize: true,
+                shift_existing: false,
+            },
+        )
+        .unwrap();
+        assert_eq!(out.count, 2, "both cards should be repositioned");
+
+        // the two cards get distinct positions drawn from {5, 6}
+        let due1 = col.storage.get_card(cid1).unwrap().unwrap().due;
+        let due2 = col.storage.get_card(cid2).unwrap().unwrap().due;
+        assert_ne!(due1, due2, "each card gets a distinct position");
+        assert!((5..=6).contains(&due1));
+        assert!((5..=6).contains(&due2));
+    }
+
+    #[test]
     fn sort_deck_repositions_new_cards_in_deck() {
         let mut col = Collection::new();
         NoteAdder::basic(&mut col).add(&mut col);
