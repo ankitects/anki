@@ -101,6 +101,7 @@ impl Collection {
             load_balancer_enabled: self.get_config_bool(BoolKey::LoadBalancerEnabled),
             fsrs_short_term_with_steps_enabled: self
                 .get_config_bool(BoolKey::FsrsShortTermWithStepsEnabled),
+            new_reviewer: self.get_config_bool(BoolKey::NewReviewer),
         })
     }
 
@@ -125,6 +126,7 @@ impl Collection {
             BoolKey::FsrsShortTermWithStepsEnabled,
             s.fsrs_short_term_with_steps_enabled,
         )?;
+        self.set_config_bool_inner(BoolKey::NewReviewer, settings.new_reviewer)?;
         Ok(())
     }
 

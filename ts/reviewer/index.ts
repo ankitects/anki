@@ -36,7 +36,7 @@ export function getTypedAnswer(): string | null {
     return typeans?.value ?? null;
 }
 
-function _runHook(
+export function _runHook(
     hooks: Array<Callback>,
 ): Promise<PromiseSettledResult<void | Promise<void>>[]> {
     const promises: (Promise<void> | void)[] = [];
@@ -104,7 +104,7 @@ async function setInnerHTML(element: Element, html: string): Promise<void> {
     }
 }
 
-const renderError = (type: string) => (error: unknown): string => {
+export const renderError = (type: string) => (error: unknown): string => {
     const errorMessage = String(error).substring(0, 2000);
     let errorStack: string;
     if (error instanceof Error) {
