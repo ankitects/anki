@@ -511,6 +511,18 @@ mod tests {
     }
 
     #[test]
+    fn answer_hard_keeps_new_card_in_learning() {
+        let mut col = Collection::new();
+        NoteAdder::basic(&mut col).add(&mut col);
+
+        let card_id = answer_top_card(&mut col, Rating::Hard);
+
+        let card = col.storage.get_card(CardId(card_id)).unwrap().unwrap();
+        assert_eq!(card.queue, CardQueue::Learn, "Hard keeps the card in learning");
+        assert_eq!(card.ctype, CardType::Learn);
+    }
+
+    #[test]
     fn answer_good_repeatedly_graduates_card_through_learning_steps() {
         let mut col = Collection::new();
         NoteAdder::basic(&mut col).add(&mut col);
@@ -762,6 +774,31 @@ mod tests {
     }
 
     #[test]
+    fn schedule_cards_as_new_accepts_explicit_context() {
+        use anki_proto::scheduler::schedule_cards_as_new_request::Context;
+        let mut col = Collection::new();
+        NoteAdder::basic(&mut col).add(&mut col);
+
+        let card_id = answer_top_card(&mut col, Rating::Easy);
+
+        // passing an explicit context exercises the context-decoding branch
+        let _ = SchedulerService::schedule_cards_as_new(
+            &mut col,
+            anki_proto::scheduler::ScheduleCardsAsNewRequest {
+                card_ids: vec![card_id],
+                log: true,
+                restore_position: true,
+                reset_counts: false,
+                context: Some(Context::Browser as i32),
+            },
+        )
+        .unwrap();
+
+        let card = col.storage.get_card(CardId(card_id)).unwrap().unwrap();
+        assert_eq!(card.ctype, CardType::New, "card should be reset to new");
+    }
+
+    #[test]
     fn schedule_cards_as_new_defaults_returns_for_both_contexts() {
         use anki_proto::scheduler::schedule_cards_as_new_request::Context;
         let mut col = Collection::new();
@@ -802,6 +839,32 @@ mod tests {
         assert_eq!(card.queue, CardQueue::Review);
         // a new card scheduled "3" days out gets an interval of 3 days
         assert_eq!(card.interval, 3, "interval should match the requested offset");
+    }
+
+    #[test]
+    fn set_due_date_with_config_key_persists_the_history() {
+        use anki_proto::config::config_key::String as StringConfigKey;
+        let mut col = Collection::new();
+        let note = NoteAdder::basic(&mut col).add(&mut col);
+        let cid = col.storage.card_ids_of_notes(&[note.id]).unwrap()[0];
+
+        // providing a config_key exercises the closure that maps it to a config
+        // key and persists the entered value as the new default.
+        let _ = SchedulerService::set_due_date(
+            &mut col,
+            anki_proto::scheduler::SetDueDateRequest {
+                card_ids: vec![cid.0],
+                days: "5".to_string(),
+                config_key: Some(anki_proto::config::OptionalStringConfigKey {
+                    key: StringConfigKey::SetDueBrowser as i32,
+                }),
+            },
+        )
+        .unwrap();
+
+        let card = col.storage.get_card(cid).unwrap().unwrap();
+        assert_eq!(card.ctype, CardType::Review);
+        assert_eq!(card.interval, 5, "the requested offset is applied");
     }
 
     #[test]
