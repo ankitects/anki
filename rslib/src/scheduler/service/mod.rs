@@ -880,4 +880,203 @@ mod tests {
         // a fresh collection defaults to non-random repositioning
         assert!(!resp.random);
     }
+
+    #[test]
+    fn describe_next_states_returns_one_label_per_button() {
+        let mut col = Collection::new();
+        let note = NoteAdder::basic(&mut col).add(&mut col);
+        let cid = col.storage.card_ids_of_notes(&[note.id]).unwrap()[0];
+
+        let states = SchedulerService::get_scheduling_states(
+            &mut col,
+            anki_proto::cards::CardId { cid: cid.0 },
+        )
+        .unwrap();
+
+        let labels = SchedulerService::describe_next_states(&mut col, states).unwrap();
+
+        // one human-readable interval label for Again/Hard/Good/Easy
+        assert_eq!(labels.vals.len(), 4);
+        assert!(labels.vals.iter().all(|s| !s.is_empty()));
+    }
+
+    #[test]
+    fn state_is_leech_reflects_review_leeched_flag() {
+        use anki_proto::scheduler::scheduling_state;
+
+        let mut col = Collection::new();
+
+        // Only `leeched` is relevant to state_is_leech; the remaining fields are
+        // required to build a valid Review state but do not affect the result.
+        let review_state = |leeched: bool| scheduling_state::Review {
+            scheduled_days: 0,
+            elapsed_days: 0,
+            ease_factor: 0.0,
+            lapses: 0,
+            leeched,
+            memory_state: None,
+        };
+        let normal_review = |leeched: bool| anki_proto::scheduler::SchedulingState {
+            kind: Some(scheduling_state::Kind::Normal(scheduling_state::Normal {
+                kind: Some(scheduling_state::normal::Kind::Review(review_state(leeched))),
+            })),
+            custom_data: None,
+        };
+
+        let leech = SchedulerService::state_is_leech(&mut col, normal_review(true)).unwrap();
+        assert!(leech.val, "a review state flagged as leeched is a leech");
+
+        let not_leech = SchedulerService::state_is_leech(&mut col, normal_review(false)).unwrap();
+        assert!(!not_leech.val, "a review state without the flag is not a leech");
+    }
+
+    #[test]
+    fn sched_timing_today_reports_no_elapsed_days_and_future_rollover() {
+        let mut col = Collection::new();
+
+        let timing = SchedulerService::sched_timing_today(&mut col).unwrap();
+
+        // A collection created today has not rolled over to a new day yet.
+        assert_eq!(timing.days_elapsed, 0);
+        // The next day-rollover must be scheduled in the future.
+        assert!(timing.next_day_at > TimestampSecs::now().0);
+    }
+
+    #[test]
+    fn studied_today_reports_nothing_studied_for_fresh_collection() {
+        let mut col = Collection::new();
+
+        let msg = SchedulerService::studied_today(&mut col).unwrap().val;
+
+        // No reviews have happened yet, so the rendered summary mentions 0 cards.
+        assert!(msg.contains('0'), "summary should report zero studied cards: {msg}");
+    }
+
+    #[test]
+    fn studied_today_message_renders_counts_from_request() {
+        let mut col = Collection::new();
+
+        let msg = SchedulerService::studied_today_message(
+            &mut col,
+            anki_proto::scheduler::StudiedTodayMessageRequest {
+                cards: 3,
+                seconds: 13.0,
+            },
+        )
+        .unwrap()
+        .val;
+
+        // template_only i18n renders a deterministic, English summary string.
+        assert_eq!(
+            msg.replace('\n', " "),
+            "Studied 3 cards in 13 seconds today (4.33s/card)"
+        );
+    }
+
+    #[test]
+    fn counts_for_deck_today_tracks_new_cards_studied() {
+        let mut col = Collection::new();
+        NoteAdder::basic(&mut col).add(&mut col);
+
+        // Nothing studied yet in the default deck.
+        let before = SchedulerService::counts_for_deck_today(
+            &mut col,
+            anki_proto::decks::DeckId { did: 1 },
+        )
+        .unwrap();
+        assert_eq!(before.new, 0);
+        assert_eq!(before.review, 0);
+
+        // Answering the new card counts it as one new card studied today.
+        answer_top_card(&mut col, Rating::Good);
+
+        let after = SchedulerService::counts_for_deck_today(
+            &mut col,
+            anki_proto::decks::DeckId { did: 1 },
+        )
+        .unwrap();
+        assert_eq!(after.new, 1, "studying a new card increments the new count");
+    }
+
+    #[test]
+    fn congrats_info_reports_nothing_remaining_for_empty_collection() {
+        let mut col = Collection::new();
+
+        let info = SchedulerService::congrats_info(&mut col).unwrap();
+
+        // An empty default deck has no work left and is not a filtered deck.
+        assert!(!info.new_remaining);
+        assert!(!info.review_remaining);
+        assert_eq!(info.learn_remaining, 0);
+        assert!(!info.is_filtered_deck);
+    }
+
+    #[test]
+    fn update_stats_adds_deltas_to_deck_counts() {
+        let mut col = Collection::new();
+
+        SchedulerService::update_stats(
+            &mut col,
+            anki_proto::scheduler::UpdateStatsRequest {
+                deck_id: 1,
+                new_delta: 2,
+                review_delta: 3,
+                millisecond_delta: 0,
+            },
+        )
+        .unwrap();
+
+        let counts = SchedulerService::counts_for_deck_today(
+            &mut col,
+            anki_proto::decks::DeckId { did: 1 },
+        )
+        .unwrap();
+        assert_eq!(counts.new, 2, "new_delta is added to the studied count");
+        assert_eq!(counts.review, 3, "review_delta is added to the studied count");
+    }
+
+    #[test]
+    fn extend_limits_subtracts_from_studied_counts() {
+        let mut col = Collection::new();
+
+        // Pretend 5 new / 5 review cards were already studied today.
+        SchedulerService::update_stats(
+            &mut col,
+            anki_proto::scheduler::UpdateStatsRequest {
+                deck_id: 1,
+                new_delta: 5,
+                review_delta: 5,
+                millisecond_delta: 0,
+            },
+        )
+        .unwrap();
+
+        // Extending the limits lowers the studied counts, freeing up more cards.
+        SchedulerService::extend_limits(
+            &mut col,
+            anki_proto::scheduler::ExtendLimitsRequest {
+                deck_id: 1,
+                new_delta: 2,
+                review_delta: 1,
+            },
+        )
+        .unwrap();
+
+        let counts = SchedulerService::counts_for_deck_today(
+            &mut col,
+            anki_proto::decks::DeckId { did: 1 },
+        )
+        .unwrap();
+        assert_eq!(counts.new, 3, "5 studied minus a limit extension of 2");
+        assert_eq!(counts.review, 4, "5 studied minus a limit extension of 1");
+    }
+
+    #[test]
+    fn upgrade_scheduler_switches_collection_to_v2() {
+        let mut col = Collection::new();
+
+        SchedulerService::upgrade_scheduler(&mut col).unwrap();
+
+        assert!(col.v2_enabled(), "scheduler should report v2 after upgrade");
+    }
 }
