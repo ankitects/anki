@@ -732,4 +732,152 @@ mod tests {
         let card = col.storage.get_card(cid).unwrap().unwrap();
         assert_eq!(card.queue, CardQueue::UserBuried);
     }
+
+    #[test]
+    fn schedule_cards_as_new_resets_graduated_card() {
+        let mut col = Collection::new();
+        NoteAdder::basic(&mut col).add(&mut col);
+
+        // graduate the card to review first
+        let card_id = answer_top_card(&mut col, Rating::Easy);
+        let card = col.storage.get_card(CardId(card_id)).unwrap().unwrap();
+        assert_eq!(card.ctype, CardType::Review, "precondition: card graduated");
+
+        // reset it back to new
+        let _ = SchedulerService::schedule_cards_as_new(
+            &mut col,
+            anki_proto::scheduler::ScheduleCardsAsNewRequest {
+                card_ids: vec![card_id],
+                log: true,
+                restore_position: true,
+                reset_counts: false,
+                context: None,
+            },
+        )
+        .unwrap();
+
+        let card = col.storage.get_card(CardId(card_id)).unwrap().unwrap();
+        assert_eq!(card.ctype, CardType::New, "card should be reset to new");
+        assert_eq!(card.queue, CardQueue::New);
+    }
+
+    #[test]
+    fn schedule_cards_as_new_defaults_returns_for_both_contexts() {
+        use anki_proto::scheduler::schedule_cards_as_new_request::Context;
+        let mut col = Collection::new();
+
+        // both contexts should resolve to a defaults response without error
+        for context in [Context::Browser, Context::Reviewer] {
+            let resp = SchedulerService::schedule_cards_as_new_defaults(
+                &mut col,
+                anki_proto::scheduler::ScheduleCardsAsNewDefaultsRequest {
+                    context: context as i32,
+                },
+            )
+            .unwrap();
+            // restore_position default is true in a fresh collection
+            assert!(resp.restore_position);
+        }
+    }
+
+    #[test]
+    fn set_due_date_moves_card_to_review_with_given_offset() {
+        let mut col = Collection::new();
+        let note = NoteAdder::basic(&mut col).add(&mut col);
+        let cid = col.storage.card_ids_of_notes(&[note.id]).unwrap()[0];
+
+        // schedule the (new) card to be due in 3 days
+        let _ = SchedulerService::set_due_date(
+            &mut col,
+            anki_proto::scheduler::SetDueDateRequest {
+                card_ids: vec![cid.0],
+                days: "3".to_string(),
+                config_key: None,
+            },
+        )
+        .unwrap();
+
+        let card = col.storage.get_card(cid).unwrap().unwrap();
+        assert_eq!(card.ctype, CardType::Review, "set_due_date turns the card into a review card");
+        assert_eq!(card.queue, CardQueue::Review);
+        // a new card scheduled "3" days out gets an interval of 3 days
+        assert_eq!(card.interval, 3, "interval should match the requested offset");
+    }
+
+    #[test]
+    fn grade_now_easy_graduates_card_by_id() {
+        let mut col = Collection::new();
+        let note = NoteAdder::basic(&mut col).add(&mut col);
+        let cid = col.storage.card_ids_of_notes(&[note.id]).unwrap()[0];
+
+        // grade the card directly by id, without pulling it from the queue
+        let _ = SchedulerService::grade_now(
+            &mut col,
+            anki_proto::scheduler::GradeNowRequest {
+                card_ids: vec![cid.0],
+                rating: Rating::Easy as i32,
+            },
+        )
+        .unwrap();
+
+        let card = col.storage.get_card(cid).unwrap().unwrap();
+        assert_eq!(card.ctype, CardType::Review, "Easy grade_now graduates the card");
+        assert_eq!(card.queue, CardQueue::Review);
+    }
+
+    #[test]
+    fn sort_cards_repositions_new_cards_from_starting_offset() {
+        let mut col = Collection::new();
+        let note1 = NoteAdder::basic(&mut col).add(&mut col);
+        let note2 = NoteAdder::basic(&mut col).fields(&["b", ""]).add(&mut col);
+        let cid1 = col.storage.card_ids_of_notes(&[note1.id]).unwrap()[0];
+        let cid2 = col.storage.card_ids_of_notes(&[note2.id]).unwrap()[0];
+
+        // reposition the two new cards starting at position 5, step 1, preserving order
+        let out = SchedulerService::sort_cards(
+            &mut col,
+            anki_proto::scheduler::SortCardsRequest {
+                card_ids: vec![cid1.0, cid2.0],
+                starting_from: 5,
+                step_size: 1,
+                randomize: false,
+                shift_existing: false,
+            },
+        )
+        .unwrap();
+        assert_eq!(out.count, 2, "both cards should be repositioned");
+
+        // new card position is stored in `due`; order preserved => 5 then 6
+        let card1 = col.storage.get_card(cid1).unwrap().unwrap();
+        let card2 = col.storage.get_card(cid2).unwrap().unwrap();
+        assert_eq!(card1.due, 5);
+        assert_eq!(card2.due, 6);
+    }
+
+    #[test]
+    fn sort_deck_repositions_new_cards_in_deck() {
+        let mut col = Collection::new();
+        NoteAdder::basic(&mut col).add(&mut col);
+        NoteAdder::basic(&mut col).fields(&["b", ""]).add(&mut col);
+
+        let out = SchedulerService::sort_deck(
+            &mut col,
+            anki_proto::scheduler::SortDeckRequest {
+                deck_id: 1,
+                randomize: false,
+            },
+        )
+        .unwrap();
+
+        assert_eq!(out.count, 2, "both new cards in the deck are repositioned");
+    }
+
+    #[test]
+    fn reposition_defaults_returns_stored_values() {
+        let mut col = Collection::new();
+        // smoke test: the call resolves the reposition dialog defaults without error
+        let resp = SchedulerService::reposition_defaults(&mut col).unwrap();
+        // a fresh collection defaults to non-random repositioning
+        assert!(!resp.random);
+    }
 }
