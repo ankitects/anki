@@ -449,3 +449,150 @@ fn fsrs_review_proto_to_fsrs(review: anki_proto::scheduler::FsrsReview) -> FSRSR
         rating: review.rating,
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use anki_proto::scheduler::card_answer::Rating;
+    use anki_proto::scheduler::CardAnswer;
+    use anki_proto::scheduler::GetQueuedCardsRequest;
+
+    use crate::card::CardQueue;
+    use crate::card::CardType;
+    use crate::prelude::*;
+    use crate::services::SchedulerService;
+    use crate::tests::NoteAdder;
+
+    /// Answers the top queued card through the SchedulerService trait with the
+    /// given rating, returning the answered card's id. Building the request from
+    /// `get_queued_cards` mirrors what the front-end does.
+    fn answer_top_card(col: &mut Collection, rating: Rating) -> i64 {
+        let queued = SchedulerService::get_queued_cards(
+            col,
+            GetQueuedCardsRequest {
+                fetch_limit: 1,
+                intraday_learning_only: false,
+            },
+        )
+        .unwrap();
+        let qc = queued.cards.first().expect("a card should be queued");
+        let card_id = qc.card.as_ref().unwrap().id;
+        let states = qc.states.clone().unwrap();
+        let new_state = match rating {
+            Rating::Again => states.again,
+            Rating::Hard => states.hard,
+            Rating::Good => states.good,
+            Rating::Easy => states.easy,
+        };
+        let _ = SchedulerService::answer_card(
+            col,
+            CardAnswer {
+                card_id,
+                current_state: states.current,
+                new_state,
+                rating: rating as i32,
+                answered_at_millis: TimestampMillis::now().0,
+                milliseconds_taken: 0,
+            },
+        )
+        .unwrap();
+        card_id
+    }
+
+    #[test]
+    fn answer_again_moves_new_card_to_learn_queue() {
+        let mut col = Collection::new();
+        NoteAdder::basic(&mut col).add(&mut col);
+
+        let card_id = answer_top_card(&mut col, Rating::Again);
+
+        let card = col.storage.get_card(CardId(card_id)).unwrap().unwrap();
+        assert_eq!(card.queue, CardQueue::Learn, "Again should send the card to learning");
+        assert_eq!(card.ctype, CardType::Learn);
+    }
+
+    #[test]
+    fn answer_good_repeatedly_graduates_card_through_learning_steps() {
+        let mut col = Collection::new();
+        NoteAdder::basic(&mut col).add(&mut col);
+
+        // First Good: new -> learning (advances one step, stays in Learn).
+        let card_id = answer_top_card(&mut col, Rating::Good);
+        let card = col.storage.get_card(CardId(card_id)).unwrap().unwrap();
+        assert_eq!(card.queue, CardQueue::Learn, "first Good keeps the card in learning");
+        assert_eq!(card.ctype, CardType::Learn);
+
+        // Force the learning card to be due now so it re-enters the queue,
+        // then answer Good again to graduate it.
+        col.storage
+            .db
+            .execute_batch("UPDATE cards SET due = 0")
+            .unwrap();
+        col.clear_study_queues();
+
+        answer_top_card(&mut col, Rating::Good);
+        let card = col.storage.get_card(CardId(card_id)).unwrap().unwrap();
+        assert_eq!(card.queue, CardQueue::Review, "second Good graduates the card");
+        assert_eq!(card.ctype, CardType::Review);
+    }
+
+    #[test]
+    fn answer_easy_graduates_new_card_to_review_queue() {
+        let mut col = Collection::new();
+        NoteAdder::basic(&mut col).add(&mut col);
+
+        let card_id = answer_top_card(&mut col, Rating::Easy);
+
+        let card = col.storage.get_card(CardId(card_id)).unwrap().unwrap();
+        assert_eq!(
+            card.queue,
+            CardQueue::Review,
+            "Easy on a new card should graduate it straight to review"
+        );
+        assert_eq!(card.ctype, CardType::Review);
+        assert!(card.interval >= 1, "graduated card should have a review interval");
+    }
+
+    #[test]
+    fn new_card_appears_in_new_queue() {
+        let mut col = Collection::new();
+        let note = NoteAdder::basic(&mut col).add(&mut col);
+
+        let queued = SchedulerService::get_queued_cards(
+            &mut col,
+            GetQueuedCardsRequest {
+                fetch_limit: 10,
+                intraday_learning_only: false,
+            },
+        )
+        .unwrap();
+
+        assert_eq!(queued.new_count, 1, "the freshly added card should be counted as new");
+        assert_eq!(queued.learning_count, 0);
+        assert_eq!(queued.review_count, 0);
+        assert_eq!(queued.cards.len(), 1);
+        // the queued card belongs to the note we just added
+        let queued_card = queued.cards[0].card.as_ref().unwrap();
+        let expected_cid = col.storage.card_ids_of_notes(&[note.id]).unwrap()[0];
+        assert_eq!(queued_card.id, expected_cid.0);
+    }
+
+    #[test]
+    fn get_scheduling_states_returns_all_rating_states_for_new_card() {
+        let mut col = Collection::new();
+        let note = NoteAdder::basic(&mut col).add(&mut col);
+        let cid = col.storage.card_ids_of_notes(&[note.id]).unwrap()[0];
+
+        let states = SchedulerService::get_scheduling_states(
+            &mut col,
+            anki_proto::cards::CardId { cid: cid.0 },
+        )
+        .unwrap();
+
+        // A new card must expose a current state plus the four rating previews.
+        assert!(states.current.is_some(), "current state should be populated");
+        assert!(states.again.is_some());
+        assert!(states.hard.is_some());
+        assert!(states.good.is_some());
+        assert!(states.easy.is_some());
+    }
+}
