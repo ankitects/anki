@@ -595,4 +595,141 @@ mod tests {
         assert!(states.good.is_some());
         assert!(states.easy.is_some());
     }
+
+    #[test]
+    fn bury_user_removes_card_from_queue() {
+        use anki_proto::scheduler::bury_or_suspend_cards_request::Mode;
+        let mut col = Collection::new();
+        let note = NoteAdder::basic(&mut col).add(&mut col);
+        let cid = col.storage.card_ids_of_notes(&[note.id]).unwrap()[0];
+
+        let out = SchedulerService::bury_or_suspend_cards(
+            &mut col,
+            anki_proto::scheduler::BuryOrSuspendCardsRequest {
+                card_ids: vec![cid.0],
+                note_ids: vec![],
+                mode: Mode::BuryUser as i32,
+            },
+        )
+        .unwrap();
+        assert_eq!(out.count, 1, "one card should have been buried");
+
+        let card = col.storage.get_card(cid).unwrap().unwrap();
+        assert_eq!(card.queue, CardQueue::UserBuried);
+        // a buried card must not appear in the study queue
+        assert_eq!(col.counts(), [0, 0, 0], "buried card should leave the queue");
+    }
+
+    #[test]
+    fn restore_buried_brings_card_back_to_queue() {
+        use anki_proto::scheduler::bury_or_suspend_cards_request::Mode;
+        let mut col = Collection::new();
+        let note = NoteAdder::basic(&mut col).add(&mut col);
+        let cid = col.storage.card_ids_of_notes(&[note.id]).unwrap()[0];
+
+        // bury first
+        let _ = SchedulerService::bury_or_suspend_cards(
+            &mut col,
+            anki_proto::scheduler::BuryOrSuspendCardsRequest {
+                card_ids: vec![cid.0],
+                note_ids: vec![],
+                mode: Mode::BuryUser as i32,
+            },
+        )
+        .unwrap();
+        assert_eq!(col.counts(), [0, 0, 0], "precondition: card is buried");
+
+        // restore it
+        let _ = SchedulerService::restore_buried_and_suspended_cards(
+            &mut col,
+            anki_proto::cards::CardIds { cids: vec![cid.0] },
+        )
+        .unwrap();
+
+        let card = col.storage.get_card(cid).unwrap().unwrap();
+        assert_eq!(card.queue, CardQueue::New, "restored card returns to the new queue");
+        assert_eq!(col.counts(), [1, 0, 0], "card is queryable again");
+    }
+
+    #[test]
+    fn unbury_deck_unburies_cards_in_that_deck() {
+        use anki_proto::scheduler::bury_or_suspend_cards_request::Mode as BuryMode;
+        use anki_proto::scheduler::unbury_deck_request::Mode as UnburyMode;
+        let mut col = Collection::new();
+        let note = NoteAdder::basic(&mut col).add(&mut col);
+        let cid = col.storage.card_ids_of_notes(&[note.id]).unwrap()[0];
+
+        // bury the card (it lives in the default deck, id 1)
+        let _ = SchedulerService::bury_or_suspend_cards(
+            &mut col,
+            anki_proto::scheduler::BuryOrSuspendCardsRequest {
+                card_ids: vec![cid.0],
+                note_ids: vec![],
+                mode: BuryMode::BuryUser as i32,
+            },
+        )
+        .unwrap();
+        assert_eq!(col.counts(), [0, 0, 0], "precondition: card is buried");
+
+        // unbury the whole default deck
+        let _ = SchedulerService::unbury_deck(
+            &mut col,
+            anki_proto::scheduler::UnburyDeckRequest {
+                deck_id: 1,
+                mode: UnburyMode::All as i32,
+            },
+        )
+        .unwrap();
+
+        let card = col.storage.get_card(cid).unwrap().unwrap();
+        assert_eq!(card.queue, CardQueue::New, "card in the deck is unburied");
+        assert_eq!(col.counts(), [1, 0, 0]);
+    }
+
+    #[test]
+    fn suspend_marks_card_as_suspended_and_removes_from_queue() {
+        use anki_proto::scheduler::bury_or_suspend_cards_request::Mode;
+        let mut col = Collection::new();
+        let note = NoteAdder::basic(&mut col).add(&mut col);
+        let cid = col.storage.card_ids_of_notes(&[note.id]).unwrap()[0];
+
+        let out = SchedulerService::bury_or_suspend_cards(
+            &mut col,
+            anki_proto::scheduler::BuryOrSuspendCardsRequest {
+                card_ids: vec![cid.0],
+                note_ids: vec![],
+                mode: Mode::Suspend as i32,
+            },
+        )
+        .unwrap();
+        assert_eq!(out.count, 1);
+
+        let card = col.storage.get_card(cid).unwrap().unwrap();
+        assert_eq!(card.queue, CardQueue::Suspended);
+        assert_eq!(col.counts(), [0, 0, 0], "suspended card leaves the queue");
+    }
+
+    #[test]
+    fn bury_via_note_ids_resolves_cards_from_notes() {
+        use anki_proto::scheduler::bury_or_suspend_cards_request::Mode;
+        let mut col = Collection::new();
+        let note = NoteAdder::basic(&mut col).add(&mut col);
+        let cid = col.storage.card_ids_of_notes(&[note.id]).unwrap()[0];
+
+        // pass note_ids and leave card_ids empty to exercise the
+        // card_ids_of_notes resolution branch in the service method
+        let out = SchedulerService::bury_or_suspend_cards(
+            &mut col,
+            anki_proto::scheduler::BuryOrSuspendCardsRequest {
+                card_ids: vec![],
+                note_ids: vec![note.id.0],
+                mode: Mode::BuryUser as i32,
+            },
+        )
+        .unwrap();
+        assert_eq!(out.count, 1, "the note's card should be buried");
+
+        let card = col.storage.get_card(cid).unwrap().unwrap();
+        assert_eq!(card.queue, CardQueue::UserBuried);
+    }
 }
