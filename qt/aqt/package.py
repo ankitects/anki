@@ -12,6 +12,7 @@ import sys
 from pathlib import Path
 
 from anki.utils import is_mac, is_win
+from aqt.utils import askUser
 
 
 # ruff: noqa: F401
@@ -141,6 +142,13 @@ def update_and_restart() -> None:
 
     launcher = launcher_executable()
     assert launcher
+
+    yes = askUser(
+        "If you're trying to upgrade to 26.05+, please visit <a href='https://apps.ankiweb.net/'>https://apps.ankiweb.net</a> and download it from there instead. "
+        "Due to packaging changes, the terminal-based update process no longer works for releases after 25.09.5 and will result in errors. Proceed?"
+    )
+    if not yes:
+        return
 
     trigger_launcher_run()
 
