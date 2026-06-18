@@ -1079,4 +1079,93 @@ mod tests {
 
         assert!(col.v2_enabled(), "scheduler should report v2 after upgrade");
     }
+
+    /// Adds a learning card that the default filtered-deck search will gather.
+    fn add_gatherable_card(col: &mut Collection) -> Card {
+        let mut card = Card {
+            deck_id: DeckId(1),
+            ctype: CardType::Learn,
+            queue: CardQueue::DayLearn,
+            remaining_steps: 1,
+            due: 0,
+            ..Default::default()
+        };
+        col.add_card(&mut card).unwrap();
+        card
+    }
+
+    #[test]
+    fn rebuild_filtered_deck_gathers_matching_cards() {
+        let mut col = Collection::new();
+        let card = add_gatherable_card(&mut col);
+
+        let mut filtered = Deck::new_filtered();
+        col.add_or_update_deck(&mut filtered).unwrap();
+
+        let out = SchedulerService::rebuild_filtered_deck(
+            &mut col,
+            anki_proto::decks::DeckId { did: filtered.id.0 },
+        )
+        .unwrap();
+
+        assert_eq!(out.count, 1, "the matching card is gathered");
+        let card = col.storage.get_card(card.id).unwrap().unwrap();
+        assert_eq!(card.deck_id, filtered.id, "card now lives in the filtered deck");
+    }
+
+    #[test]
+    fn empty_filtered_deck_returns_cards_to_home_deck() {
+        let mut col = Collection::new();
+        let card = add_gatherable_card(&mut col);
+
+        let mut filtered = Deck::new_filtered();
+        col.add_or_update_deck(&mut filtered).unwrap();
+        col.rebuild_filtered_deck(filtered.id).unwrap();
+        // sanity: the card was pulled into the filtered deck
+        assert_eq!(col.storage.get_card(card.id).unwrap().unwrap().deck_id, filtered.id);
+
+        let _ = SchedulerService::empty_filtered_deck(
+            &mut col,
+            anki_proto::decks::DeckId { did: filtered.id.0 },
+        )
+        .unwrap();
+
+        let card = col.storage.get_card(card.id).unwrap().unwrap();
+        assert_eq!(card.deck_id, DeckId(1), "card is returned to its home deck");
+    }
+
+    #[test]
+    fn custom_study_extends_new_limit() {
+        let mut col = Collection::new();
+
+        let _ = SchedulerService::custom_study(
+            &mut col,
+            anki_proto::scheduler::CustomStudyRequest {
+                deck_id: 1,
+                value: Some(anki_proto::scheduler::custom_study_request::Value::NewLimitDelta(5)),
+            },
+        )
+        .unwrap();
+
+        let defaults = SchedulerService::custom_study_defaults(
+            &mut col,
+            anki_proto::scheduler::CustomStudyDefaultsRequest { deck_id: 1 },
+        )
+        .unwrap();
+        assert_eq!(defaults.extend_new, 5, "new limit was extended by the delta");
+    }
+
+    #[test]
+    fn custom_study_defaults_reports_available_new_cards() {
+        let mut col = Collection::new();
+        NoteAdder::basic(&mut col).add(&mut col);
+
+        let defaults = SchedulerService::custom_study_defaults(
+            &mut col,
+            anki_proto::scheduler::CustomStudyDefaultsRequest { deck_id: 1 },
+        )
+        .unwrap();
+
+        assert_eq!(defaults.available_new, 1, "the new card is available to study");
+    }
 }
