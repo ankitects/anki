@@ -67,6 +67,8 @@ def test_exception_in_hook_does_not_silently_swallow():
     addHook("error_hook", bad_cb)
     with pytest.raises(ValueError, match="boom"):
         runHook("error_hook")
+        
+        assert bad_cb not in hooks_module._hooks.get("error_hook", [])
 
 
 def test_exception_in_hook_does_not_crash_unrelated_hooks():
