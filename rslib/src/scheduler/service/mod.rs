@@ -462,14 +462,14 @@ mod tests {
     use crate::services::SchedulerService;
     use crate::tests::NoteAdder;
 
-    /// Answers the top queued card through the SchedulerService trait with the
-    /// given rating, returning the answered card's id. Building the request from
-    /// `get_queued_cards` mirrors what the front-end does.
     fn add_basic_card(col: &mut Collection) -> CardId {
         let note = NoteAdder::basic(col).add(col);
         col.storage.card_ids_of_notes(&[note.id]).unwrap()[0]
     }
 
+    /// Answers the top queued card through the SchedulerService trait with the
+    /// given rating, returning the answered card's id. Building the request from
+    /// `get_queued_cards` mirrors what the front-end does.
     fn answer_top_card(col: &mut Collection, rating: Rating) -> i64 {
         let queued = SchedulerService::get_queued_cards(
             col,
@@ -715,6 +715,52 @@ mod tests {
 
         let card = col.storage.get_card(cid).unwrap().unwrap();
         assert_eq!(card.queue, CardQueue::New, "card in the deck is unburied");
+        assert_eq!(col.counts(), [1, 0, 0]);
+    }
+
+    #[test]
+    fn unbury_deck_sched_only_leaves_user_buried_cards_alone() {
+        use anki_proto::scheduler::bury_or_suspend_cards_request::Mode as BuryMode;
+        use anki_proto::scheduler::unbury_deck_request::Mode as UnburyMode;
+        let mut col = Collection::new();
+        let cid_sched = add_basic_card(&mut col);
+        let cid_user = add_basic_card(&mut col);
+
+        // Bury one card via the scheduler (sibling auto-bury) and one by the user.
+        let _ = SchedulerService::bury_or_suspend_cards(
+            &mut col,
+            anki_proto::scheduler::BuryOrSuspendCardsRequest {
+                card_ids: vec![cid_sched.0],
+                note_ids: vec![],
+                mode: BuryMode::BurySched as i32,
+            },
+        )
+        .unwrap();
+        let _ = SchedulerService::bury_or_suspend_cards(
+            &mut col,
+            anki_proto::scheduler::BuryOrSuspendCardsRequest {
+                card_ids: vec![cid_user.0],
+                note_ids: vec![],
+                mode: BuryMode::BuryUser as i32,
+            },
+        )
+        .unwrap();
+        assert_eq!(col.counts(), [0, 0, 0], "precondition: both cards buried");
+
+        // SchedOnly must restore only the sched-buried card.
+        let _ = SchedulerService::unbury_deck(
+            &mut col,
+            anki_proto::scheduler::UnburyDeckRequest {
+                deck_id: 1,
+                mode: UnburyMode::SchedOnly as i32,
+            },
+        )
+        .unwrap();
+
+        let sched = col.storage.get_card(cid_sched).unwrap().unwrap();
+        let user = col.storage.get_card(cid_user).unwrap().unwrap();
+        assert_eq!(sched.queue, CardQueue::New, "sched-buried card is restored");
+        assert_eq!(user.queue, CardQueue::UserBuried, "user-buried card remains buried");
         assert_eq!(col.counts(), [1, 0, 0]);
     }
 
