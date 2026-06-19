@@ -2,8 +2,6 @@
 title: "Changes in 2.1.20 to 29"
 ---
 
-
-
 ## Changes in 2.1.29
 
 Released 2020-07-28, build bbff62bf.
@@ -31,83 +29,87 @@ Released 2020-07-20, build 7d8818f8.
 2.1.28 is a big update with changes in a number of areas.
 
 - A reworked graphs screen:
+    - Rewritten with new graphing tools for more interactivity.
+    - Graphs can now be displayed for arbitrary searches.
+    - Added a calendar/heatmap view.
+    - If you need them for add-ons, the old graphs are currently still
 
-  - Rewritten with new graphing tools for more interactivity.
-  - Graphs can now be displayed for arbitrary searches.
-  - Added a calendar/heatmap view.
-  - If you need them for add-ons, the old graphs are currently still
 ```text
 accessible with a shift+click on the Stats button.
 ```
 
 - Reworked syncing:
+    - Normal syncs and media syncs can operate in parallel, speeding up startup and shutdown.
+    - Normal syncs no longer need to close open windows like the Browse screen, or close & re-open
 
-  - Normal syncs and media syncs can operate in parallel, speeding up startup and shutdown.
-  - Normal syncs no longer need to close open windows like the Browse screen, or close & re-open
 ```text
 the collection.
 ```
-  - Full syncs now show a progress bar.
-  - Full syncs can now be cancelled, and both normal and full syncs cancel more quickly.
+
+- Full syncs now show a progress bar.
+- Full syncs can now be cancelled, and both normal and full syncs cancel more quickly.
 
 - Card generation changes:
+    - Card generation now supports negated conditionals, and a mix of required
 
-  - Card generation now supports negated conditionals, and a mix of required
 ```text
 and optional fields.
 ```
-  - When adding/importing, if a normal note doesn't generate any cards, Anki
+
+- When adding/importing, if a normal note doesn't generate any cards, Anki
+
 ```text
 will now add a blank card 1 instead of refusing to add the note.
 ```
-  - Please bear in mind that if you take advantage of these features, older Anki
+
+- Please bear in mind that if you take advantage of these features, older Anki
+
 ```text
 clients may report the cards are blank, or try to clean them up when you
 use the Empty Cards feature.
 ```
-  - Cloze numbers over 499 are no longer supported.
+
+- Cloze numbers over 499 are no longer supported.
 
 - Card template screen:
+    - Changes are now accumulated, and can be saved or discarded when you close the screen.
+    - The front, back, and styling are no longer shown at the same time. You can switch between them with ctrl+1/2/3 or cmd+1/2/3.
+    - Added a search bar to search for text in the template or styling.
+    - Added a dropdown to change the previewed cloze number.
+    - Added a checkbox to toggle the filling of empty fields for preview.
+    - You can now delete a card template even if some notes are only using that
 
-  - Changes are now accumulated, and can be saved or discarded when you close the screen.
-  - The front, back, and styling are no longer shown at the same time. You can switch between them with ctrl+1/2/3 or cmd+1/2/3.
-  - Added a search bar to search for text in the template or styling.
-  - Added a dropdown to change the previewed cloze number.
-  - Added a checkbox to toggle the filling of empty fields for preview.
-  - You can now delete a card template even if some notes are only using that
 ```text
 template - they will be given a blank card 1 instead.
 ```
 
 - Scheduling:
+    - The deck list no longer caps counts to 1000.
+    - The overview and study screen no longer cap counts to 1000.
+    - The deck list will no longer show a parent count higher than the limit
 
-  - The deck list no longer caps counts to 1000.
-  - The overview and study screen no longer cap counts to 1000.
-  - The deck list will no longer show a parent count higher than the limit
 ```text
 set on the parent.
 ```
 
 - Empty cards screen:
-
-  - Notes will not be deleted by default.
-  - Empty cards are grouped by note type.
-  - Empty cards can be clicked on to reveal them in the browse screen.
+    - Notes will not be deleted by default.
+    - Empty cards are grouped by note type.
+    - Empty cards can be clicked on to reveal them in the browse screen.
 
 - Database check:
-
-  - Notes with the wrong field count are now recovered instead of being deleted.
-  - Notes with missing note types are now recovered instead of being deleted.
-  - Notes with missing cards are now recovered instead of being deleted.
+    - Notes with the wrong field count are now recovered instead of being deleted.
+    - Notes with missing note types are now recovered instead of being deleted.
+    - Notes with missing cards are now recovered instead of being deleted.
 
 - Unicode normalization:
 
-  If you are studying rare CJK characters and wish to prevent them from being converted into
-  modern equivalents, the following in the debug console will stop Anki from normalizing note text.
+    If you are studying rare CJK characters and wish to prevent them from being converted into
+    modern equivalents, the following in the debug console will stop Anki from normalizing note text.
 
-  ```py
-  mw.col.conf["normalize_note_text"] = False
-  ```
+    ```py
+    mw.col.conf["normalize_note_text"] = False
+    ```
 
 - The standard Windows build has troubles with the AltGr key. This is fixed
   in the 2.1.29 beta, or [a workaround is available](https://forums.ankiweb.net/t/altgr-shortcuts/67).
@@ -116,9 +118,9 @@ set on the parent.
   previously enabled it from the terminal, please either try the 2.1.29 beta, or
   undo the change with the following terminal command:
 
-  ```py
-  defaults write net.ankiweb.dtop NSRequiresAquaSystemAppearance -bool yes
-  ```
+    ```py
+    defaults write net.ankiweb.dtop NSRequiresAquaSystemAppearance -bool yes
+    ```
 
 Other changes:
 
@@ -188,32 +190,44 @@ Released 2020-04-28, build 359b9f5c.
 Searching:
 
 - You can use `w:something` to search on word boundaries, eg:
-  - `w:dog`  
+    - `w:dog`
+
 ```text
 search for "dog" on a word boundary - will match "dog", but not "doggy"
 or "underdog".
 ```
-  - `w:dog*`  
+
+- `w:dog*`
+
 ```text
 will match "dog" and "doggy", but not "underdog".
 ```
-  - `w:*dog`  
+
+- `w:*dog`
+
 ```text
 will match "dog" and "underdog", but not "doggy".
 ```
+
 - You can now use `re:something` to search via regular expression, eg:
-  - `"re:(some|another).*thing"`  
+    - `"re:(some|another).*thing"`
+
 ```text
 find notes that have "some" or "another" on them, followed by 0 or more characters, and then "thing"
 ```
-  - `re:\d{3}`  
+
+- `re:\d{3}`
+
 ```text
 find notes that have 3 digits in a row
 ```
-  - When searching by regex, unicode case folding is used, so searching for `re:über` will
+
+- When searching by regex, unicode case folding is used, so searching for `re:über` will
+
 ```text
 show a card that has "Über" on it.
 ```
+
 - `nc:something` (short for "no combining (characters)") can be used to search while
   ignoring accents, eg `nc:uber` will match both "über" and "Über". This behaves the same way as the "Ignore Accents" add-on, but is about 16x faster.
 - You can now sort on the deck, card template, note type and tags columns.
@@ -243,18 +257,18 @@ macOS dark mode handling:
   mode, can achieve the previous appearance by running the following command in
   the terminal:
 
-  :warning: This will only work if your system is permanently in dark mode!
-  If you switch between dark and light mode, the interface will render incorrectly.
+    :warning: This will only work if your system is permanently in dark mode!
+    If you switch between dark and light mode, the interface will render incorrectly.
 
-  ```shell
-  defaults write net.ankiweb.dtop NSRequiresAquaSystemAppearance -bool no
-  ```
+    ```shell
+    defaults write net.ankiweb.dtop NSRequiresAquaSystemAppearance -bool no
+    ```
 
-  And the following in the debug console:
+    And the following in the debug console:
 
-  ```py
-  mw.pm.meta["dark_mode_widgets"] = True
-  ```
+    ```py
+    mw.pm.meta["dark_mode_widgets"] = True
+    ```
 
 Database changes (mainly of interest to add-on developers):
 
