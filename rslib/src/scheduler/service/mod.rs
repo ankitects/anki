@@ -918,34 +918,73 @@ mod tests {
     }
 
     #[test]
-    fn sort_cards_with_randomize_repositions_within_expected_range() {
+    fn sort_cards_with_randomize_produces_different_ordering_than_preserve() {
+        // With N=8 cards the probability that a random shuffle happens to match
+        // the preserve ordering exactly is 1/8! ≈ 1/40_000, an acceptable
+        // flake risk. Two cards cannot distinguish the two orderings at all.
+        const N: usize = 8;
         let mut col = Collection::new();
-        let note1 = NoteAdder::basic(&mut col).add(&mut col);
-        let note2 = NoteAdder::basic(&mut col).fields(&["b", ""]).add(&mut col);
-        let cid1 = col.storage.card_ids_of_notes(&[note1.id]).unwrap()[0];
-        let cid2 = col.storage.card_ids_of_notes(&[note2.id]).unwrap()[0];
 
-        // randomize=true exercises the NewCardDueOrder::Random branch; the exact
-        // positions are shuffled, so we only assert the resulting invariants.
+        let cids: Vec<CardId> = (0..N)
+            .map(|i| {
+                let note = NoteAdder::basic(&mut col)
+                    .fields(&[&i.to_string(), ""])
+                    .add(&mut col);
+                col.storage.card_ids_of_notes(&[note.id]).unwrap()[0]
+            })
+            .collect();
+        let cid_ints: Vec<i64> = cids.iter().map(|c| c.0).collect();
+
+        // Establish the deterministic baseline: cids[i].due == i.
+        let _ = SchedulerService::sort_cards(
+            &mut col,
+            anki_proto::scheduler::SortCardsRequest {
+                card_ids: cid_ints.clone(),
+                starting_from: 0,
+                step_size: 1,
+                randomize: false,
+                shift_existing: false,
+            },
+        )
+        .unwrap();
+        let preserve_dues: Vec<i32> = cids
+            .iter()
+            .map(|&id| col.storage.get_card(id).unwrap().unwrap().due)
+            .collect();
+
+        // Apply randomized sort and collect the resulting positions.
         let out = SchedulerService::sort_cards(
             &mut col,
             anki_proto::scheduler::SortCardsRequest {
-                card_ids: vec![cid1.0, cid2.0],
-                starting_from: 5,
+                card_ids: cid_ints.clone(),
+                starting_from: 0,
                 step_size: 1,
                 randomize: true,
                 shift_existing: false,
             },
         )
         .unwrap();
-        assert_eq!(out.count, 2, "both cards should be repositioned");
+        assert_eq!(out.count, N as u32);
 
-        // the two cards get distinct positions drawn from {5, 6}
-        let due1 = col.storage.get_card(cid1).unwrap().unwrap().due;
-        let due2 = col.storage.get_card(cid2).unwrap().unwrap().due;
-        assert_ne!(due1, due2, "each card gets a distinct position");
-        assert!((5..=6).contains(&due1));
-        assert!((5..=6).contains(&due2));
+        let random_dues: Vec<i32> = cids
+            .iter()
+            .map(|&id| col.storage.get_card(id).unwrap().unwrap().due)
+            .collect();
+
+        // Every card must receive a unique position within [0, N).
+        let mut sorted = random_dues.clone();
+        sorted.sort_unstable();
+        assert_eq!(
+            sorted,
+            (0..N as i32).collect::<Vec<_>>(),
+            "positions must be a permutation of [0, N)"
+        );
+
+        // The random ordering must differ from the preserve ordering.
+        assert_ne!(
+            random_dues, preserve_dues,
+            "randomized sort should produce a different ordering than preserve"
+        );
     }
 
     #[test]
