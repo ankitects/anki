@@ -6,23 +6,24 @@ Release: 2023-11-01
 
 ## Notable changes
 
-* Anki's version numbering scheme has changed to year.month(.patch).
-* Quite a few add-ons will need updates to support this release. Some [porting notes](https://forums.ankiweb.net/t/porting-tips-for-anki-23-10/35916) are available.
-* Support for FSRS (which improves upon the scheduling provided by SM-2) is now integrated into Anki. You can compute the model weights directly inside Anki, and no longer need to use custom scheduling. If you have previously used FSRS, please delete the text in the custom scheduling section before enabling FSRS, and ensure the helper add-on has been updated to the 23.10 version if you are using it. By @L-M-Sherlock with help from @dae and @asukaminato0721 in https://github.com/ankitects/anki/pull/2633, #2654 and https://github.com/open-spaced-repetition/fsrs-rs.
-* Anki now has built-in support for creating image occlusions. Select the automatically-added "Image Occlusion" notetype in the add screen to use it. Glutanimate intends to update his add-on soon to work with the new system. By @krmanik, with help from @glutanimate, @hikaru-y, @abdnh and @dae in [#2367](https://github.com/ankitects/anki/pull/2367), #2485, #2600, #2602, #2649, #2689, #2705 and more.
-* .apkg imports are able to merge changed notetypes, and can exclude scheduling data. By @RumovZ in https://github.com/ankitects/anki/pull/2612
-* Performance improvements to things like browser loading in the official builds.
-* You can now customize the video driver in Qt6 in the preferences, which can help to work around graphical issues. @abdnh in https://github.com/ankitects/anki/pull/2643
-* Add an option to stop the timer on answer by @abdnh in https://github.com/ankitects/anki/pull/2673
-* Allow searching for missing custom data properties by @abdnh in https://github.com/ankitects/anki/pull/2626
-* Support searching for custom data strings by @abdnh in https://github.com/ankitects/anki/pull/2634
-* Support for the v2 scheduler has been dropped. 
-* .apkg exports now default to the new format.
-* New cards can now be gathered by deck then random note.
+- Anki's version numbering scheme has changed to year.month(.patch).
+- Quite a few add-ons will need updates to support this release. Some [porting notes](https://forums.ankiweb.net/t/porting-tips-for-anki-23-10/35916) are available.
+- Support for FSRS (which improves upon the scheduling provided by SM-2) is now integrated into Anki. You can compute the model weights directly inside Anki, and no longer need to use custom scheduling. If you have previously used FSRS, please delete the text in the custom scheduling section before enabling FSRS, and ensure the helper add-on has been updated to the 23.10 version if you are using it. By @L-M-Sherlock with help from @dae and @asukaminato0721 in https://github.com/ankitects/anki/pull/2633, #2654 and https://github.com/open-spaced-repetition/fsrs-rs.
+- Anki now has built-in support for creating image occlusions. Select the automatically-added "Image Occlusion" notetype in the add screen to use it. Glutanimate intends to update his add-on soon to work with the new system. By @krmanik, with help from @glutanimate, @hikaru-y, @abdnh and @dae in [#2367](https://github.com/ankitects/anki/pull/2367), #2485, #2600, #2602, #2649, #2689, #2705 and more.
+- .apkg imports are able to merge changed notetypes, and can exclude scheduling data. By @RumovZ in https://github.com/ankitects/anki/pull/2612
+- Performance improvements to things like browser loading in the official builds.
+- You can now customize the video driver in Qt6 in the preferences, which can help to work around graphical issues. @abdnh in https://github.com/ankitects/anki/pull/2643
+- Add an option to stop the timer on answer by @abdnh in https://github.com/ankitects/anki/pull/2673
+- Allow searching for missing custom data properties by @abdnh in https://github.com/ankitects/anki/pull/2626
+- Support searching for custom data strings by @abdnh in https://github.com/ankitects/anki/pull/2634
+- Support for the v2 scheduler has been dropped.
+- .apkg exports now default to the new format.
+- New cards can now be gathered by deck then random note.
 
 ## Smaller tweaks/fixes
 
 - Check DB now fixes invalid UTF-8 in tags.
+
 * Create Python entry points for creating and editing IO notes by @glutanimate in https://github.com/ankitects/anki/pull/2598
 * Add a backend method to add notes in bulk by @abdnh in https://github.com/ankitects/anki/pull/2659
 * Add ability to tab to DuplicateLink by @SteelColossus in https://github.com/ankitects/anki/pull/2646
@@ -53,7 +54,7 @@ Release: 2023-11-01
 * Fix unescaped HTML in type-in-the-answer by @abdnh in https://github.com/ankitects/anki/pull/2658
 * Implemented support to audio_did_seek_relative by @evandrocoan in https://github.com/ankitects/anki/pull/2632
 * Reduce shaking of bottom bar by @abdnh in https://github.com/ankitects/anki/pull/2734
-* Rework media syncing to make it a little faster, and avoid duplicate errors when your password has changed.  https://github.com/ankitects/anki/pull/2647
+* Rework media syncing to make it a little faster, and avoid duplicate errors when your password has changed. https://github.com/ankitects/anki/pull/2647
 * Skip template checks in Fields screen by @abdnh in https://github.com/ankitects/anki/pull/2670
 * Support AVIF by @nihil-admirari in https://github.com/ankitects/anki/pull/2630
 * Support Qt.TextFormat.MarkdownText in aqt.utils by @abdnh in https://github.com/ankitects/anki/pull/2675
@@ -67,19 +68,20 @@ Release: 2023-11-01
 - If you wish to build Anki and have installed n2 in the past, please run tools/install-n2 before building.
 
 ## New Contributors
-* @montyevans made their first contribution in https://github.com/ankitects/anki/pull/2614
-* @nihil-admirari made their first contribution in https://github.com/ankitects/anki/pull/2630
-* @SteelColossus made their first contribution in https://github.com/ankitects/anki/pull/2646
-* @platynowy made their first contribution in https://github.com/ankitects/anki/pull/2653
-* @swektr made their first contribution in https://github.com/ankitects/anki/pull/2663
-* @meliache made their first contribution in https://github.com/ankitects/anki/pull/2684
-* @martinetd made their first contribution in https://github.com/ankitects/anki/pull/2703
-* @CarloQuick made their first contribution in https://github.com/ankitects/anki/pull/2718
-* @virinci made their first contribution in https://github.com/ankitects/anki/pull/2723
-* @chandraiyengar made their first contribution in https://github.com/ankitects/anki/pull/2722
-* @gsingh93 made their first contribution in https://github.com/ankitects/anki/pull/2720
-* @user1823 made their first contribution in https://github.com/ankitects/anki/pull/2741
-* @Gustaf-C made their first contribution in https://github.com/ankitects/anki/pull/2751
+
+- @montyevans made their first contribution in https://github.com/ankitects/anki/pull/2614
+- @nihil-admirari made their first contribution in https://github.com/ankitects/anki/pull/2630
+- @SteelColossus made their first contribution in https://github.com/ankitects/anki/pull/2646
+- @platynowy made their first contribution in https://github.com/ankitects/anki/pull/2653
+- @swektr made their first contribution in https://github.com/ankitects/anki/pull/2663
+- @meliache made their first contribution in https://github.com/ankitects/anki/pull/2684
+- @martinetd made their first contribution in https://github.com/ankitects/anki/pull/2703
+- @CarloQuick made their first contribution in https://github.com/ankitects/anki/pull/2718
+- @virinci made their first contribution in https://github.com/ankitects/anki/pull/2723
+- @chandraiyengar made their first contribution in https://github.com/ankitects/anki/pull/2722
+- @gsingh93 made their first contribution in https://github.com/ankitects/anki/pull/2720
+- @user1823 made their first contribution in https://github.com/ankitects/anki/pull/2741
+- @Gustaf-C made their first contribution in https://github.com/ankitects/anki/pull/2751
 
 # Changes in 23.10.1
 
@@ -87,27 +89,27 @@ Release: 2023-11-10
 
 General:
 
-* Update all platforms to Qt 6.6. This change fixes Japanese input on macOS.
-* Fix Anki failing to run on older macOS versions.
-* The Linux Qt6 build requires a newer glibc, so older distros like Debian 11 won't work with it.
-* Fix syncserver failing to run in macOS packaged build.
-* Fix some potential security issues.
-* Fix 'creating backup' showing for longer than necessary.
-* Add tooltip to mask editor button.
-* Allow creation of empty filtered decks by @Gustaf-C in https://github.com/ankitects/anki/pull/2788
-* Add confirmation for upload when AnkiWeb collection determined empty.
-* Fix add-ons screen showing 'requires Anki >= 2.1.231000'.
-* Fix overflowing filenames displacing import button by @RumovZ in https://github.com/ankitects/anki/pull/2806
-* Fix Anki closing before 'your clock is wrong' message appears.
-* Hide "toggle masks" in "Hide One, Guess One" mode by @abdnh in https://github.com/ankitects/anki/pull/2817
-* Change tooltip strings for image occlusion center alignments by @snowtimeglass in https://github.com/ankitects/anki/pull/2815
-* Check video tags in media check.
+- Update all platforms to Qt 6.6. This change fixes Japanese input on macOS.
+- Fix Anki failing to run on older macOS versions.
+- The Linux Qt6 build requires a newer glibc, so older distros like Debian 11 won't work with it.
+- Fix syncserver failing to run in macOS packaged build.
+- Fix some potential security issues.
+- Fix 'creating backup' showing for longer than necessary.
+- Add tooltip to mask editor button.
+- Allow creation of empty filtered decks by @Gustaf-C in https://github.com/ankitects/anki/pull/2788
+- Add confirmation for upload when AnkiWeb collection determined empty.
+- Fix add-ons screen showing 'requires Anki >= 2.1.231000'.
+- Fix overflowing filenames displacing import button by @RumovZ in https://github.com/ankitects/anki/pull/2806
+- Fix Anki closing before 'your clock is wrong' message appears.
+- Hide "toggle masks" in "Hide One, Guess One" mode by @abdnh in https://github.com/ankitects/anki/pull/2817
+- Change tooltip strings for image occlusion center alignments by @snowtimeglass in https://github.com/ankitects/anki/pull/2815
+- Check video tags in media check.
 
 FSRS:
 
-* Prompt user to save preset changes before they compute FSRS weights.
-* Fix panic when enabling FSRS with add-on-rescheduled cards.
-* Add an info box so the non-linear nature of desired retention can be seen
-* Improve presentation of log loss and RMSE by @user1823 in https://github.com/ankitects/anki/pull/2805
-* Rename FSRS weights to parameters
-* Handle stability < 0.5 in stability graph
+- Prompt user to save preset changes before they compute FSRS weights.
+- Fix panic when enabling FSRS with add-on-rescheduled cards.
+- Add an info box so the non-linear nature of desired retention can be seen
+- Improve presentation of log loss and RMSE by @user1823 in https://github.com/ankitects/anki/pull/2805
+- Rename FSRS weights to parameters
+- Handle stability < 0.5 in stability graph

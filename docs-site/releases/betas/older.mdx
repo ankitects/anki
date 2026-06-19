@@ -34,61 +34,85 @@ Build 32278813 / 2021-01-26.
 New features:
 
 - Browser improvements:
-  - Tags now show in a tree (thanks to Abdo).
-  - New context menu actions to rename or remove tags and their children, rename
+    - Tags now show in a tree (thanks to Abdo).
+    - New context menu actions to rename or remove tags and their children, rename
+
 ```text
 decks, manage notetypes, and rename/remove saved searches (thanks to Abdo
 and BlueGreenMagick).
 ```
-  - The preview button in the browse screen has moved into the editing area
+
+- The preview button in the browse screen has moved into the editing area
+
 ```text
 (thanks to Henrik).
 ```
-  - With the improved sidebar, a number of options have been removed from the
+
+- With the improved sidebar, a number of options have been removed from the
+
 ```text
 Filter button.
 ```
+
 - Search improvements:
-  - Searches are new rewritten into a canonical format (eg `one two` becomes
+    - Searches are new rewritten into a canonical format (eg `one two` becomes
+
 ```text
 `"one" AND "two"`) (thanks to Rumo).
 ```
-  - Search error messages are now much more specific (thanks to Rumo).
-  - is:learn, is:due and prop:due now handle more cases, such as suspended cards
+
+- Search error messages are now much more specific (thanks to Rumo).
+- is:learn, is:due and prop:due now handle more cases, such as suspended cards
+
 ```text
 (thanks to Henrik).
 ```
-  - Added prop:pos search to search for new card position (thanks to Abdo).
-  - Added a shortcut to replace part of a search with a different search (eg
+
+- Added prop:pos search to search for new card position (thanks to Abdo).
+- Added a shortcut to replace part of a search with a different search (eg
+
 ```text
 changing the selected deck) (thanks to Rumo).
 ```
-  - Support resched:x for searching for cards that were manually rescheduled in
+
+- Support resched:x for searching for cards that were manually rescheduled in
+
 ```text
 x days (thanks to Henrik).
 ```
-  - Support prop:rated/resched to search for rated/rescheduled cards over
+
+- Support prop:rated/resched to search for rated/rescheduled cards over
+
 ```text
 specific time periods (thanks to Henrik).
 ```
+
 - Graph improvements:
-  - A number of the graphs can now be clicked on to search for the cards
+    - A number of the graphs can now be clicked on to search for the cards
+
 ```text
 displayed by the graph (thanks to Henrik).
 ```
-  - The starting day of week can now be altered in the Calendar graph (thanks to
+
+- The starting day of week can now be altered in the Calendar graph (thanks to
+
 ```text
 Henrik).
 ```
-  - The Card Counts graph now supports toggling separate suspended/buried counts
+
+- The Card Counts graph now supports toggling separate suspended/buried counts
+
 ```text
 (thanks to Henrik).
 ```
-  - The intervals and ease graphs now covers more cases, such as suspended cards
+
+- The intervals and ease graphs now covers more cases, such as suspended cards
+
 ```text
 (thanks to Henrik).
 ```
-  - Place less emphasis on outliers in the Calendar graph (thanks to Henrik).
+
+- Place less emphasis on outliers in the Calendar graph (thanks to Henrik).
 - Edit/More buttons auto-hide when window is small (thanks to Henrik).
 - The editor will now favour BR tags over DIVs (thanks to Henrik).
 - A basic sync server is now built into Anki. It does not yet support media.
@@ -584,82 +608,90 @@ Other changes:
 Build 97eadb78.
 
 - Performance improvements to:
+    - Startup and shutdown (the first startup will be slow as your collection is
 
-  - Startup and shutdown (the first startup will be slow as your collection is
 ```text
 updated).
 ```
-  - The Browse screen.
-  - The deck list.
-  - The note types screen.
-  - The card templates screen.
-  - The database check.
+
+- The Browse screen.
+- The deck list.
+- The note types screen.
+- The card templates screen.
+- The database check.
 
 - Card generation changes:
+    - Card generation now supports negated conditionals, and a mix of required and
 
-  - Card generation now supports negated conditionals, and a mix of required and
 ```text
 optional fields.
 ```
-  - When adding/importing, if a normal note doesn't generate any cards, Anki
+
+- When adding/importing, if a normal note doesn't generate any cards, Anki
+
 ```text
 will now add a blank card 1 instead of refusing to add the note.
 ```
-  - Please bear in mind that if you take advantage of these features, older Anki
+
+- Please bear in mind that if you take advantage of these features, older Anki
+
 ```text
 clients may report the cards are blank, or try to clean them up when you use
 the Empty Cards feature.
 ```
-  - Cloze numbers over 499 are no longer supported.
+
+- Cloze numbers over 499 are no longer supported.
 
 - Card template screen:
+    - Changes are now accumulated, and can be saved or discarded when you close
 
-  - Changes are now accumulated, and can be saved or discarded when you close
 ```text
 the screen.
 ```
-  - The front, back, and styling are no longer shown at the same time. You can
+
+- The front, back, and styling are no longer shown at the same time. You can
+
 ```text
 switch between them with ctrl+1/2/3 or cmd+1/2/3.
 ```
-  - Added a search bar to search for text in the template or styling.
-  - Added a dropdown to change the previewed cloze number.
-  - Added a checkbox to toggle the filling of empty fields for preview.
-  - You can now delete a card template even if some notes are only using that
+
+- Added a search bar to search for text in the template or styling.
+- Added a dropdown to change the previewed cloze number.
+- Added a checkbox to toggle the filling of empty fields for preview.
+- You can now delete a card template even if some notes are only using that
+
 ```text
 template - they will be given a blank card 1 instead.
 ```
 
 - Scheduling:
+    - The deck list no longer caps counts to 1000.
+    - The overview and study screen no longer caps counts to 1000.
+    - The deck list will no longer show a parent count higher than the limit set
 
-  - The deck list no longer caps counts to 1000.
-  - The overview and study screen no longer caps counts to 1000.
-  - The deck list will no longer show a parent count higher than the limit set
 ```text
 on the parent.
 ```
 
 - Empty cards screen:
-
-  - Notes will not be deleted by default.
-  - Empty cards are grouped by note type.
-  - Empty cards can be clicked on to reveal them in the browse screen.
+    - Notes will not be deleted by default.
+    - Empty cards are grouped by note type.
+    - Empty cards can be clicked on to reveal them in the browse screen.
 
 - Database check:
-
-  - Notes with the wrong field count are now recovered instead of being deleted.
-  - Notes with missing note types are now recovered instead of being deleted.
-  - Notes with missing cards are now recovered instead of being deleted.
+    - Notes with the wrong field count are now recovered instead of being deleted.
+    - Notes with missing note types are now recovered instead of being deleted.
+    - Notes with missing cards are now recovered instead of being deleted.
 
 - Unicode normalization:
 
-  If you are studying rare CJK characters and wish to prevent them from being
-  converted into modern equivalents, the following in the debug console will
-  stop Anki from normalizing note text.
+    If you are studying rare CJK characters and wish to prevent them from being
+    converted into modern equivalents, the following in the debug console will
+    stop Anki from normalizing note text.
 
-  ```
-  mw.col.conf["normalize_note_text"] = False
-  ```
+    ```
+    mw.col.conf["normalize_note_text"] = False
+    ```
 
 Other changes:
 
@@ -672,22 +704,28 @@ Other changes:
 Build 359b9f5c.
 
 - You can use `w:something` to search on word boundaries, eg:
-  - `w:dog`
+    - `w:dog`
+
 ```text
 \
 search for "dog" on a word boundary - will match "dog", but not "doggy" or
 "underdog".
 ```
-  - `w:dog*`
+
+- `w:dog*`
+
 ```text
 \
 will match "dog" and "doggy", but not "underdog".
 ```
-  - `w:*dog`
+
+- `w:*dog`
+
 ```text
 \
 will match "dog" and "underdog", but not "doggy".
 ```
+
 - Fixed clicking on links in add-on configuration documentation.
 
 ### Changes in 2.1.24beta8
@@ -719,18 +757,18 @@ This beta changes the macOS dark mode handling of the standard build:
   mode, can achieve the previous appearance by running the following command in
   the terminal:
 
-  ```
-  defaults write net.ankiweb.dtop NSRequiresAquaSystemAppearance -bool no
-  ```
+    ```
+    defaults write net.ankiweb.dtop NSRequiresAquaSystemAppearance -bool no
+    ```
 
-  And the following in the debug console:
+    And the following in the debug console:
 
-  ```
-  mw.pm.meta["dark_mode_widgets"] = True
-  ```
+    ```
+    mw.pm.meta["dark_mode_widgets"] = True
+    ```
 
-  This is hidden behind a debug console command because it requires the user
-  ensure their system is always set to the same light/dark mode as Anki.
+    This is hidden behind a debug console command because it requires the user
+    ensure their system is always set to the same light/dark mode as Anki.
 
 Other changes:
 
@@ -772,12 +810,14 @@ Build 0c5f22f4.
 Build 16ab351b.
 
 - Updated tag handling:
-  - non-wildcard searches now do full unicode case folding (eg 'tag:masse'
+    - non-wildcard searches now do full unicode case folding (eg 'tag:masse'
+
 ```text
 matches 'Maße').
 ```
-  - wildcard searches do simple unicode case folding.
-  - tag list in browse screen now uses unicode case folding.
+
+- wildcard searches do simple unicode case folding.
+- tag list in browse screen now uses unicode case folding.
 - Fix 'is:due' search not combining with other searches properly.
 - Fix searches for things like deck:current not reflecting current state.
 - Fix duplicate searches.
@@ -846,16 +886,20 @@ Build 9dda5cf6.
 Searching:
 
 - You can now use `re:something` to search via regular expression, eg:
-  - `re:\bdog\b` will search for the word 'dog'. It has a word boundary
+    - `re:\bdog\b` will search for the word 'dog'. It has a word boundary
+
 ```text
 character (`\b`) at the start and end, so it will match 'a dog', but not 'a
 doggy'.
 ```
-  - `front:re:t+1` would match "t1", "tt1" and so on in the Front field
-  - When searching by regex, unicode case folding is used, so searching for
+
+- `front:re:t+1` would match "t1", "tt1" and so on in the Front field
+- When searching by regex, unicode case folding is used, so searching for
+
 ```text
 `re:über` will show a card that has "Über" on it.
 ```
+
 - `nc:something` (short for "no combining") can be used to search while ignoring
   accents, eg `nc:uber` will match both "über" and "Über". This behaves the same
   way as the "Ignore Accents" add-on, but is about 16x faster.

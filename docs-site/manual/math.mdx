@@ -2,8 +2,6 @@
 title: "Math and Symbols"
 ---
 
-
-
 ## MathJax
 
 [MathJax](https://www.mathjax.org) is a modern, browser-based
@@ -44,8 +42,9 @@ Please note that point 1 does not apply in Anki - Anki uses `\(` and
 `\)` for inline equations, and `\[` and `\]` for display equations.
 
 If you want to use newlines in a MathJax expression, please use
-<kbd>Shift</kbd>+<kbd>Enter</kbd> instead of just <kbd>Enter</kbd>, as a normal newline will prevent
-MathJax from working correctly.
+
+<kbd>Shift</kbd>+<kbd>Enter</kbd> instead of just <kbd>Enter</kbd>, as a normal newline
+will prevent MathJax from working correctly.
 
 Anki includes built in support for mhchem for rendering chemical
 equations. Please see the "chemical equations" section and the following
@@ -69,7 +68,8 @@ if (typeof is_already_run == 'undefined') {
 ```
 
 <Note>
-Anki has special logic for cloze deletions that might not work if you change the standard delimiters for MathJax equations.
+    Anki has special logic for cloze deletions that might not work if you change the
+    standard delimiters for MathJax equations.
 </Note>
 
 ## LaTeX
@@ -96,6 +96,7 @@ generate LaTeX images by default.
 **We strongly recommend you do not enable this option if you use shared decks, or think
 you will import shared decks in the future, as you are potentially giving any shared
 deck author access to your computer**.
+
 </Danger>
 
 If you wish to use LaTeX on your own cards, you will need to enable the **Generate LaTeX images** option in the preferences screen.
@@ -320,7 +321,7 @@ conflict:
 
 ### Cloze Conflicts
 
-Cloze deletions are terminated with ``, which can conflict with a ``
+Cloze deletions are terminated with `, which can conflict with a `
 appearing in your LaTeX. To prevent LaTeX from being interpreted as a closing
 cloze marker, you can put a space between any double closing braces that do not
 indicate the end of the cloze, so

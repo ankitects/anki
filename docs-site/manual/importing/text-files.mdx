@@ -2,8 +2,6 @@
 title: "Text Files"
 ---
 
-
-
 Any **plain text** file that contains fields separated by commas,
 semicolons or tabs can be imported into Anki, provided some conditions
 are met.
@@ -19,8 +17,8 @@ are met.
   fields, Anki will treat the missing fields as if they were blank. If some of your
   records contain extra fields, the extra content will not be imported.
 
-- Anki tries to guess which field separator (commas, tabs, etc.) your file uses. 
-  If it guesses wrongly, you can change it in the import options window and preview 
+- Anki tries to guess which field separator (commas, tabs, etc.) your file uses.
+  If it guesses wrongly, you can change it in the import options window and preview
   the results. Or you can add [file headers](#file-headers) to force a specific field separator.
 
 Fields in your text file can be mapped to any field in your notes,
@@ -122,9 +120,9 @@ include angle brackets or ampersands, you may use the following replacements:
 
 | Character | Replacement |
 | --------- | ----------- |
-| \<      | `&lt;`      |
-| \>      | `&gt;`      |
-| &     | `&amp;`     |
+| \<        | `&lt;`      |
+| \>        | `&gt;`      |
+| &         | `&amp;`     |
 
 ## Importing Media
 
@@ -207,24 +205,24 @@ Anki 2.1.54+ supports certain headers that can be included in the text file to
 make importing more powerful or convenient. They consist of `#key:value` pairs
 and must be listed in separate lines at the top of the file.
 
-| Key               | Allowed Values                                                                             | Behaviour                                                                                                       |
-| ----------------- | ------------------------------------------------------------------------------------------ | --------------------------------------------------------------------------------------------------------------- |
-| `separator`       | `Comma`, `Semicolon`, `Tab`, `Space`, `Pipe`, `Colon`, or the corresponding literal characters | Determines the field separator.                                                                                 |
-| `html`            | `true`, `false`                                                                            | Determines whether the file is treated as HTML.                                                                 |
-| `tags`            | List of tags, separated by spaces                                                          | Adds the listed tags to every imported note.                                                                      |
-| `columns`         | List of names, separated by the previously set separator                                   | Determines the number of columns and shows their given names when importing.                                    |
-| `notetype`        | Note type name or id                                                                        | Presets the note type, if it exists.                                                                             |
-| `deck`            | Deck name or id                                                                            | Presets the deck, if it exists.                                                                                 |
-| `notetype column` | `1`, `2`, `3`, ...                                                                         | Determines which column contains the note type name or id of each note, see [Notetype Column](#notetype-column). |
-| `deck column`     | `1`, `2`, `3`, ...                                                                         | Determines which column contains the deck name or id of each note, see [Deck Column](#deck-column).             |
-| `tags column`     | `1`, `2`, `3`, ...                                                                         | Determines which column contains the tags of each note.                                                         |
-| `guid column`     | `1`, `2`, `3`, ...                                                                         | Determines which column contains the GUID of each note, see [GUID Column](#guid-column).                        |
+| Key               | Allowed Values                                                                                 | Behaviour                                                                                                        |
+| ----------------- | ---------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------- |
+| `separator`       | `Comma`, `Semicolon`, `Tab`, `Space`, `Pipe`, `Colon`, or the corresponding literal characters | Determines the field separator.                                                                                  |
+| `html`            | `true`, `false`                                                                                | Determines whether the file is treated as HTML.                                                                  |
+| `tags`            | List of tags, separated by spaces                                                              | Adds the listed tags to every imported note.                                                                     |
+| `columns`         | List of names, separated by the previously set separator                                       | Determines the number of columns and shows their given names when importing.                                     |
+| `notetype`        | Note type name or id                                                                           | Presets the note type, if it exists.                                                                             |
+| `deck`            | Deck name or id                                                                                | Presets the deck, if it exists.                                                                                  |
+| `notetype column` | `1`, `2`, `3`, ...                                                                             | Determines which column contains the note type name or id of each note, see [Notetype Column](#notetype-column). |
+| `deck column`     | `1`, `2`, `3`, ...                                                                             | Determines which column contains the deck name or id of each note, see [Deck Column](#deck-column).              |
+| `tags column`     | `1`, `2`, `3`, ...                                                                             | Determines which column contains the tags of each note.                                                          |
+| `guid column`     | `1`, `2`, `3`, ...                                                                             | Determines which column contains the GUID of each note, see [GUID Column](#guid-column).                         |
 
 Some headers have further implications.
 
 ### Notetype Column
 
-Usually, all notes from a file will be mapped to a single note type. That changes, if there is a column with note type names or ids. 
+Usually, all notes from a file will be mapped to a single note type. That changes, if there is a column with note type names or ids.
 
 This allows you to
 import notes with different note types, and their fields will be mapped implicitly:
