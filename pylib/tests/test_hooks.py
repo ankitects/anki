@@ -24,10 +24,11 @@ def test_hook_callback_is_retrievable_by_name():
 
 
 def test_run_filter_transforms_and_returns_value():
-    addHook("double_filter", lambda x: x * 2)
+    double_func = lambda x: x * 2
+    addHook("double_filter", double_func)
     result = runFilter("double_filter", 5)
     assert result == 10
-    remHook("double_filter", lambda x: x * 2)
+    remHook("double_filter", double_func)
 
 
 def test_run_filter_chains_multiple_functions():
