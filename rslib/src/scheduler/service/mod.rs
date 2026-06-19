@@ -468,8 +468,8 @@ mod tests {
     }
 
     /// Answers the top queued card through the SchedulerService trait with the
-    /// given rating, returning the answered card's id. Building the request from
-    /// `get_queued_cards` mirrors what the front-end does.
+    /// given rating, returning the answered card's id. Building the request
+    /// from `get_queued_cards` mirrors what the front-end does.
     fn answer_top_card(col: &mut Collection, rating: Rating) -> i64 {
         let queued = SchedulerService::get_queued_cards(
             col,
@@ -511,7 +511,11 @@ mod tests {
         let card_id = answer_top_card(&mut col, Rating::Again);
 
         let card = col.storage.get_card(CardId(card_id)).unwrap().unwrap();
-        assert_eq!(card.queue, CardQueue::Learn, "Again should send the card to learning");
+        assert_eq!(
+            card.queue,
+            CardQueue::Learn,
+            "Again should send the card to learning"
+        );
         assert_eq!(card.ctype, CardType::Learn);
     }
 
@@ -554,7 +558,11 @@ mod tests {
         // First Good: new -> learning (advances one step, stays in Learn).
         let card_id = answer_top_card(&mut col, Rating::Good);
         let card = col.storage.get_card(CardId(card_id)).unwrap().unwrap();
-        assert_eq!(card.queue, CardQueue::Learn, "first Good keeps the card in learning");
+        assert_eq!(
+            card.queue,
+            CardQueue::Learn,
+            "first Good keeps the card in learning"
+        );
         assert_eq!(card.ctype, CardType::Learn);
 
         // Force the learning card to be due now so it re-enters the queue,
@@ -567,7 +575,11 @@ mod tests {
 
         answer_top_card(&mut col, Rating::Good);
         let card = col.storage.get_card(CardId(card_id)).unwrap().unwrap();
-        assert_eq!(card.queue, CardQueue::Review, "second Good graduates the card");
+        assert_eq!(
+            card.queue,
+            CardQueue::Review,
+            "second Good graduates the card"
+        );
         assert_eq!(card.ctype, CardType::Review);
     }
 
@@ -585,7 +597,10 @@ mod tests {
             "Easy on a new card should graduate it straight to review"
         );
         assert_eq!(card.ctype, CardType::Review);
-        assert!(card.interval >= 1, "graduated card should have a review interval");
+        assert!(
+            card.interval >= 1,
+            "graduated card should have a review interval"
+        );
     }
 
     #[test]
@@ -602,7 +617,10 @@ mod tests {
         )
         .unwrap();
 
-        assert_eq!(queued.new_count, 1, "the freshly added card should be counted as new");
+        assert_eq!(
+            queued.new_count, 1,
+            "the freshly added card should be counted as new"
+        );
         assert_eq!(queued.learning_count, 0);
         assert_eq!(queued.review_count, 0);
         assert_eq!(queued.cards.len(), 1);
@@ -624,7 +642,10 @@ mod tests {
         .unwrap();
 
         // A new card must expose a current state plus the four rating previews.
-        assert!(states.current.is_some(), "current state should be populated");
+        assert!(
+            states.current.is_some(),
+            "current state should be populated"
+        );
         assert!(states.again.is_some());
         assert!(states.hard.is_some());
         assert!(states.good.is_some());
@@ -651,7 +672,11 @@ mod tests {
         let card = col.storage.get_card(cid).unwrap().unwrap();
         assert_eq!(card.queue, CardQueue::UserBuried);
         // a buried card must not appear in the study queue
-        assert_eq!(col.counts(), [0, 0, 0], "buried card should leave the queue");
+        assert_eq!(
+            col.counts(),
+            [0, 0, 0],
+            "buried card should leave the queue"
+        );
     }
 
     #[test]
@@ -680,7 +705,11 @@ mod tests {
         .unwrap();
 
         let card = col.storage.get_card(cid).unwrap().unwrap();
-        assert_eq!(card.queue, CardQueue::New, "restored card returns to the new queue");
+        assert_eq!(
+            card.queue,
+            CardQueue::New,
+            "restored card returns to the new queue"
+        );
         assert_eq!(col.counts(), [1, 0, 0], "card is queryable again");
     }
 
@@ -760,7 +789,11 @@ mod tests {
         let sched = col.storage.get_card(cid_sched).unwrap().unwrap();
         let user = col.storage.get_card(cid_user).unwrap().unwrap();
         assert_eq!(sched.queue, CardQueue::New, "sched-buried card is restored");
-        assert_eq!(user.queue, CardQueue::UserBuried, "user-buried card remains buried");
+        assert_eq!(
+            user.queue,
+            CardQueue::UserBuried,
+            "user-buried card remains buried"
+        );
         assert_eq!(col.counts(), [1, 0, 0]);
     }
 
@@ -832,7 +865,11 @@ mod tests {
         // conflated with UserBuried (-3) because they have separate recovery
         // paths (unbury_deck SchedOnly vs UserOnly).
         assert_eq!(card.queue, CardQueue::SchedBuried);
-        assert_eq!(col.counts(), [0, 0, 0], "sched-buried card leaves the queue");
+        assert_eq!(
+            col.counts(),
+            [0, 0, 0],
+            "sched-buried card leaves the queue"
+        );
 
         // congrats_info must report sched_buried, not user_buried
         let info = SchedulerService::congrats_info(&mut col).unwrap();
@@ -1022,15 +1059,23 @@ mod tests {
         .unwrap();
 
         let card = col.storage.get_card(cid).unwrap().unwrap();
-        assert_eq!(card.ctype, CardType::Review, "set_due_date turns the card into a review card");
+        assert_eq!(
+            card.ctype,
+            CardType::Review,
+            "set_due_date turns the card into a review card"
+        );
         assert_eq!(card.queue, CardQueue::Review);
         // a new card scheduled "3" days out gets an interval of 3 days
-        assert_eq!(card.interval, 3, "interval should match the requested offset");
+        assert_eq!(
+            card.interval, 3,
+            "interval should match the requested offset"
+        );
     }
 
     #[test]
     fn set_due_date_with_config_key_persists_the_history() {
         use anki_proto::config::config_key::String as StringConfigKey;
+
         use crate::config::StringKey;
         let mut col = Collection::new();
         let cid = add_basic_card(&mut col);
@@ -1054,7 +1099,10 @@ mod tests {
         // The days string must be written back to config so the dialog
         // can pre-populate it on the next open.
         let stored = col.get_config_string(StringKey::SetDueBrowser);
-        assert_eq!(stored, "5", "days value should be persisted under SetDueBrowser");
+        assert_eq!(
+            stored, "5",
+            "days value should be persisted under SetDueBrowser"
+        );
     }
 
     #[test]
@@ -1073,7 +1121,11 @@ mod tests {
         .unwrap();
 
         let card = col.storage.get_card(cid).unwrap().unwrap();
-        assert_eq!(card.ctype, CardType::Review, "Easy grade_now graduates the card");
+        assert_eq!(
+            card.ctype,
+            CardType::Review,
+            "Easy grade_now graduates the card"
+        );
         assert_eq!(card.queue, CardQueue::Review);
     }
 
@@ -1149,8 +1201,14 @@ mod tests {
         let inc1 = col.storage.get_card(incoming1).unwrap().unwrap();
         let inc2 = col.storage.get_card(incoming2).unwrap().unwrap();
         assert_eq!(inc1.due, 5, "first incoming card lands at starting_from");
-        assert_eq!(inc2.due, 6, "second incoming card lands at starting_from + step");
-        assert_eq!(occ.due, 7, "pre-existing card is shifted past the inserted range");
+        assert_eq!(
+            inc2.due, 6,
+            "second incoming card lands at starting_from + step"
+        );
+        assert_eq!(
+            occ.due, 7,
+            "pre-existing card is shifted past the inserted range"
+        );
     }
 
     #[test]
@@ -1266,8 +1324,14 @@ mod tests {
         .unwrap();
 
         let stored = SchedulerService::reposition_defaults(&mut col).unwrap();
-        assert!(stored.random, "random should be persisted after sort_cards with randomize=true");
-        assert!(stored.shift, "shift should be persisted after sort_cards with shift_existing=true");
+        assert!(
+            stored.random,
+            "random should be persisted after sort_cards with randomize=true"
+        );
+        assert!(
+            stored.shift,
+            "shift should be persisted after sort_cards with shift_existing=true"
+        );
     }
 
     #[test]
@@ -1306,7 +1370,9 @@ mod tests {
         };
         let normal_review = |leeched: bool| anki_proto::scheduler::SchedulingState {
             kind: Some(scheduling_state::Kind::Normal(scheduling_state::Normal {
-                kind: Some(scheduling_state::normal::Kind::Review(review_state(leeched))),
+                kind: Some(scheduling_state::normal::Kind::Review(review_state(
+                    leeched,
+                ))),
             })),
             custom_data: None,
         };
@@ -1315,7 +1381,10 @@ mod tests {
         assert!(leech.val, "a review state flagged as leeched is a leech");
 
         let not_leech = SchedulerService::state_is_leech(&mut col, normal_review(false)).unwrap();
-        assert!(!not_leech.val, "a review state without the flag is not a leech");
+        assert!(
+            !not_leech.val,
+            "a review state without the flag is not a leech"
+        );
     }
 
     #[test]
@@ -1369,22 +1438,18 @@ mod tests {
         NoteAdder::basic(&mut col).add(&mut col);
 
         // Nothing studied yet in the default deck.
-        let before = SchedulerService::counts_for_deck_today(
-            &mut col,
-            anki_proto::decks::DeckId { did: 1 },
-        )
-        .unwrap();
+        let before =
+            SchedulerService::counts_for_deck_today(&mut col, anki_proto::decks::DeckId { did: 1 })
+                .unwrap();
         assert_eq!(before.new, 0);
         assert_eq!(before.review, 0);
 
         // Answering the new card counts it as one new card studied today.
         answer_top_card(&mut col, Rating::Good);
 
-        let after = SchedulerService::counts_for_deck_today(
-            &mut col,
-            anki_proto::decks::DeckId { did: 1 },
-        )
-        .unwrap();
+        let after =
+            SchedulerService::counts_for_deck_today(&mut col, anki_proto::decks::DeckId { did: 1 })
+                .unwrap();
         assert_eq!(after.new, 1, "studying a new card increments the new count");
     }
 
@@ -1408,7 +1473,10 @@ mod tests {
 
         let info = SchedulerService::congrats_info(&mut col).unwrap();
 
-        assert!(info.new_remaining, "new card should be reported as remaining");
+        assert!(
+            info.new_remaining,
+            "new card should be reported as remaining"
+        );
         assert!(!info.review_remaining);
         assert_eq!(info.learn_remaining, 0);
     }
@@ -1432,7 +1500,10 @@ mod tests {
 
         let info = SchedulerService::congrats_info(&mut col).unwrap();
 
-        assert!(info.review_remaining, "review card due today should be reported");
+        assert!(
+            info.review_remaining,
+            "review card due today should be reported"
+        );
         assert!(!info.new_remaining, "card is no longer in the new queue");
     }
 
@@ -1455,7 +1526,10 @@ mod tests {
         let info = SchedulerService::congrats_info(&mut col).unwrap();
 
         assert!(info.have_user_buried, "user-buried card should be reported");
-        assert!(!info.new_remaining, "buried card is no longer in the new queue");
+        assert!(
+            !info.new_remaining,
+            "buried card is no longer in the new queue"
+        );
     }
 
     #[test]
@@ -1473,13 +1547,14 @@ mod tests {
         )
         .unwrap();
 
-        let counts = SchedulerService::counts_for_deck_today(
-            &mut col,
-            anki_proto::decks::DeckId { did: 1 },
-        )
-        .unwrap();
+        let counts =
+            SchedulerService::counts_for_deck_today(&mut col, anki_proto::decks::DeckId { did: 1 })
+                .unwrap();
         assert_eq!(counts.new, 2, "new_delta is added to the studied count");
-        assert_eq!(counts.review, 3, "review_delta is added to the studied count");
+        assert_eq!(
+            counts.review, 3,
+            "review_delta is added to the studied count"
+        );
     }
 
     #[test]
@@ -1509,11 +1584,9 @@ mod tests {
         )
         .unwrap();
 
-        let counts = SchedulerService::counts_for_deck_today(
-            &mut col,
-            anki_proto::decks::DeckId { did: 1 },
-        )
-        .unwrap();
+        let counts =
+            SchedulerService::counts_for_deck_today(&mut col, anki_proto::decks::DeckId { did: 1 })
+                .unwrap();
         assert_eq!(counts.new, 3, "5 studied minus a limit extension of 2");
         assert_eq!(counts.review, 4, "5 studied minus a limit extension of 1");
     }
@@ -1556,7 +1629,10 @@ mod tests {
 
         assert_eq!(out.count, 1, "the matching card is gathered");
         let card = col.storage.get_card(card.id).unwrap().unwrap();
-        assert_eq!(card.deck_id, filtered.id, "card now lives in the filtered deck");
+        assert_eq!(
+            card.deck_id, filtered.id,
+            "card now lives in the filtered deck"
+        );
     }
 
     #[test]
@@ -1568,7 +1644,10 @@ mod tests {
         col.add_or_update_deck(&mut filtered).unwrap();
         col.rebuild_filtered_deck(filtered.id).unwrap();
         // sanity: the card was pulled into the filtered deck
-        assert_eq!(col.storage.get_card(card.id).unwrap().unwrap().deck_id, filtered.id);
+        assert_eq!(
+            col.storage.get_card(card.id).unwrap().unwrap().deck_id,
+            filtered.id
+        );
 
         let _ = SchedulerService::empty_filtered_deck(
             &mut col,
@@ -1598,7 +1677,10 @@ mod tests {
             anki_proto::scheduler::CustomStudyDefaultsRequest { deck_id: 1 },
         )
         .unwrap();
-        assert_eq!(defaults.extend_new, 5, "new limit was extended by the delta");
+        assert_eq!(
+            defaults.extend_new, 5,
+            "new limit was extended by the delta"
+        );
     }
 
     #[test]
@@ -1612,6 +1694,9 @@ mod tests {
         )
         .unwrap();
 
-        assert_eq!(defaults.available_new, 1, "the new card is available to study");
+        assert_eq!(
+            defaults.available_new, 1,
+            "the new card is available to study"
+        );
     }
 }
