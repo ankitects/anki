@@ -465,6 +465,11 @@ mod tests {
     /// Answers the top queued card through the SchedulerService trait with the
     /// given rating, returning the answered card's id. Building the request from
     /// `get_queued_cards` mirrors what the front-end does.
+    fn add_basic_card(col: &mut Collection) -> CardId {
+        let note = NoteAdder::basic(col).add(col);
+        col.storage.card_ids_of_notes(&[note.id]).unwrap()[0]
+    }
+
     fn answer_top_card(col: &mut Collection, rating: Rating) -> i64 {
         let queued = SchedulerService::get_queued_cards(
             col,
@@ -610,8 +615,7 @@ mod tests {
     #[test]
     fn get_scheduling_states_returns_all_rating_states_for_new_card() {
         let mut col = Collection::new();
-        let note = NoteAdder::basic(&mut col).add(&mut col);
-        let cid = col.storage.card_ids_of_notes(&[note.id]).unwrap()[0];
+        let cid = add_basic_card(&mut col);
 
         let states = SchedulerService::get_scheduling_states(
             &mut col,
@@ -631,8 +635,7 @@ mod tests {
     fn bury_user_removes_card_from_queue() {
         use anki_proto::scheduler::bury_or_suspend_cards_request::Mode;
         let mut col = Collection::new();
-        let note = NoteAdder::basic(&mut col).add(&mut col);
-        let cid = col.storage.card_ids_of_notes(&[note.id]).unwrap()[0];
+        let cid = add_basic_card(&mut col);
 
         let out = SchedulerService::bury_or_suspend_cards(
             &mut col,
@@ -655,8 +658,7 @@ mod tests {
     fn restore_buried_brings_card_back_to_queue() {
         use anki_proto::scheduler::bury_or_suspend_cards_request::Mode;
         let mut col = Collection::new();
-        let note = NoteAdder::basic(&mut col).add(&mut col);
-        let cid = col.storage.card_ids_of_notes(&[note.id]).unwrap()[0];
+        let cid = add_basic_card(&mut col);
 
         // bury first
         let _ = SchedulerService::bury_or_suspend_cards(
@@ -687,8 +689,7 @@ mod tests {
         use anki_proto::scheduler::bury_or_suspend_cards_request::Mode as BuryMode;
         use anki_proto::scheduler::unbury_deck_request::Mode as UnburyMode;
         let mut col = Collection::new();
-        let note = NoteAdder::basic(&mut col).add(&mut col);
-        let cid = col.storage.card_ids_of_notes(&[note.id]).unwrap()[0];
+        let cid = add_basic_card(&mut col);
 
         // bury the card (it lives in the default deck, id 1)
         let _ = SchedulerService::bury_or_suspend_cards(
@@ -721,8 +722,7 @@ mod tests {
     fn suspend_marks_card_as_suspended_and_removes_from_queue() {
         use anki_proto::scheduler::bury_or_suspend_cards_request::Mode;
         let mut col = Collection::new();
-        let note = NoteAdder::basic(&mut col).add(&mut col);
-        let cid = col.storage.card_ids_of_notes(&[note.id]).unwrap()[0];
+        let cid = add_basic_card(&mut col);
 
         let out = SchedulerService::bury_or_suspend_cards(
             &mut col,
@@ -768,8 +768,7 @@ mod tests {
     fn bury_sched_marks_card_as_sched_buried_not_user_buried() {
         use anki_proto::scheduler::bury_or_suspend_cards_request::Mode;
         let mut col = Collection::new();
-        let note = NoteAdder::basic(&mut col).add(&mut col);
-        let cid = col.storage.card_ids_of_notes(&[note.id]).unwrap()[0];
+        let cid = add_basic_card(&mut col);
 
         let out = SchedulerService::bury_or_suspend_cards(
             &mut col,
@@ -898,8 +897,7 @@ mod tests {
     #[test]
     fn set_due_date_moves_card_to_review_with_given_offset() {
         let mut col = Collection::new();
-        let note = NoteAdder::basic(&mut col).add(&mut col);
-        let cid = col.storage.card_ids_of_notes(&[note.id]).unwrap()[0];
+        let cid = add_basic_card(&mut col);
 
         // schedule the (new) card to be due in 3 days
         let _ = SchedulerService::set_due_date(
@@ -923,8 +921,7 @@ mod tests {
     fn set_due_date_with_config_key_persists_the_history() {
         use anki_proto::config::config_key::String as StringConfigKey;
         let mut col = Collection::new();
-        let note = NoteAdder::basic(&mut col).add(&mut col);
-        let cid = col.storage.card_ids_of_notes(&[note.id]).unwrap()[0];
+        let cid = add_basic_card(&mut col);
 
         // providing a config_key exercises the closure that maps it to a config
         // key and persists the entered value as the new default.
@@ -948,8 +945,7 @@ mod tests {
     #[test]
     fn grade_now_easy_graduates_card_by_id() {
         let mut col = Collection::new();
-        let note = NoteAdder::basic(&mut col).add(&mut col);
-        let cid = col.storage.card_ids_of_notes(&[note.id]).unwrap()[0];
+        let cid = add_basic_card(&mut col);
 
         // grade the card directly by id, without pulling it from the queue
         let _ = SchedulerService::grade_now(
@@ -1095,8 +1091,7 @@ mod tests {
     #[test]
     fn describe_next_states_returns_one_label_per_button() {
         let mut col = Collection::new();
-        let note = NoteAdder::basic(&mut col).add(&mut col);
-        let cid = col.storage.card_ids_of_notes(&[note.id]).unwrap()[0];
+        let cid = add_basic_card(&mut col);
 
         let states = SchedulerService::get_scheduling_states(
             &mut col,
@@ -1239,8 +1234,7 @@ mod tests {
     #[test]
     fn congrats_info_shows_review_remaining_when_review_card_is_due_today() {
         let mut col = Collection::new();
-        let note = NoteAdder::basic(&mut col).add(&mut col);
-        let cid = col.storage.card_ids_of_notes(&[note.id]).unwrap()[0];
+        let cid = add_basic_card(&mut col);
 
         // days="0" schedules the card as a review card due today (offset 0 from
         // the collection's days_elapsed, which is 0 for a fresh collection).
@@ -1264,8 +1258,7 @@ mod tests {
     fn congrats_info_shows_have_user_buried_when_card_is_buried() {
         use anki_proto::scheduler::bury_or_suspend_cards_request::Mode;
         let mut col = Collection::new();
-        let note = NoteAdder::basic(&mut col).add(&mut col);
-        let cid = col.storage.card_ids_of_notes(&[note.id]).unwrap()[0];
+        let cid = add_basic_card(&mut col);
 
         let _ = SchedulerService::bury_or_suspend_cards(
             &mut col,
