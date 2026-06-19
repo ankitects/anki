@@ -32,13 +32,15 @@ def test_run_filter_transforms_and_returns_value():
 
 
 def test_run_filter_chains_multiple_functions():
-    addHook("chain_filter", lambda x: x + 1)
-    addHook("chain_filter", lambda x: x * 3)
+    plus_one_func = lambda x: x + 1
+    multiply_three_func = lambda x: x * 3
+    addHook("chain_filter", plus_one_func)
+    addHook("chain_filter", multiply_three_func)
     result = runFilter("chain_filter", 2)
     # (2 + 1) * 3 = 9
     assert result == 9
-    remHook("chain_filter", lambda x: x + 1)
-    remHook("chain_filter", lambda x: x * 3)
+    remHook("chain_filter", plus_one_func)
+    remHook("chain_filter", multiply_three_func)
 
 
 def test_rem_hook_prevents_callback_from_being_called():
