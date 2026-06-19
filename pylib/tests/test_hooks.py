@@ -71,7 +71,7 @@ def test_exception_in_hook_does_not_silently_swallow():
         assert bad_cb not in hooks_module._hooks.get("error_hook", [])
 
 
-def test_exception_in_hook_does_not_crash_unrelated_hooks():
+def test_exception_in_hook_stops_subsequent_hooks():
     results = []
 
     def bad_cb():
