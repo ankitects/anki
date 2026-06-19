@@ -941,11 +941,10 @@ mod tests {
     #[test]
     fn set_due_date_with_config_key_persists_the_history() {
         use anki_proto::config::config_key::String as StringConfigKey;
+        use crate::config::StringKey;
         let mut col = Collection::new();
         let cid = add_basic_card(&mut col);
 
-        // providing a config_key exercises the closure that maps it to a config
-        // key and persists the entered value as the new default.
         let _ = SchedulerService::set_due_date(
             &mut col,
             anki_proto::scheduler::SetDueDateRequest {
@@ -961,6 +960,11 @@ mod tests {
         let card = col.storage.get_card(cid).unwrap().unwrap();
         assert_eq!(card.ctype, CardType::Review);
         assert_eq!(card.interval, 5, "the requested offset is applied");
+
+        // The days string must be written back to config so the dialog
+        // can pre-populate it on the next open.
+        let stored = col.get_config_string(StringKey::SetDueBrowser);
+        assert_eq!(stored, "5", "days value should be persisted under SetDueBrowser");
     }
 
     #[test]
