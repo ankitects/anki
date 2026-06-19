@@ -16,10 +16,11 @@ def cleanup_hooks():
 
 def test_run_hook_calls_registered_callback():
     called_with = []
-    addHook("test_hook", lambda x: called_with.append(x))
+    cb = lambda x: called_with.append(x)
+    addHook("test_hook", cb)
     runHook("test_hook", 42)
     assert called_with == [42]
-    remHook("test_hook", called_with.append)
+    remHook("test_hook", cb)
 
 
 def test_hook_callback_is_retrievable_by_name():
