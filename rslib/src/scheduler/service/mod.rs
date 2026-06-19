@@ -798,6 +798,55 @@ mod tests {
     }
 
     #[test]
+    fn unbury_deck_user_only_leaves_sched_buried_cards_alone() {
+        use anki_proto::scheduler::bury_or_suspend_cards_request::Mode as BuryMode;
+        use anki_proto::scheduler::unbury_deck_request::Mode as UnburyMode;
+        let mut col = Collection::new();
+        let cid_sched = add_basic_card(&mut col);
+        let cid_user = add_basic_card(&mut col);
+
+        let _ = SchedulerService::bury_or_suspend_cards(
+            &mut col,
+            anki_proto::scheduler::BuryOrSuspendCardsRequest {
+                card_ids: vec![cid_sched.0],
+                note_ids: vec![],
+                mode: BuryMode::BurySched as i32,
+            },
+        )
+        .unwrap();
+        let _ = SchedulerService::bury_or_suspend_cards(
+            &mut col,
+            anki_proto::scheduler::BuryOrSuspendCardsRequest {
+                card_ids: vec![cid_user.0],
+                note_ids: vec![],
+                mode: BuryMode::BuryUser as i32,
+            },
+        )
+        .unwrap();
+        assert_eq!(col.counts(), [0, 0, 0], "precondition: both cards buried");
+
+        // UserOnly must restore only the user-buried card.
+        let _ = SchedulerService::unbury_deck(
+            &mut col,
+            anki_proto::scheduler::UnburyDeckRequest {
+                deck_id: 1,
+                mode: UnburyMode::UserOnly as i32,
+            },
+        )
+        .unwrap();
+
+        let sched = col.storage.get_card(cid_sched).unwrap().unwrap();
+        let user = col.storage.get_card(cid_user).unwrap().unwrap();
+        assert_eq!(
+            sched.queue,
+            CardQueue::SchedBuried,
+            "sched-buried card remains buried"
+        );
+        assert_eq!(user.queue, CardQueue::New, "user-buried card is restored");
+        assert_eq!(col.counts(), [1, 0, 0]);
+    }
+
+    #[test]
     fn suspend_marks_card_as_suspended_and_removes_from_queue() {
         use anki_proto::scheduler::bury_or_suspend_cards_request::Mode;
         let mut col = Collection::new();
@@ -1181,8 +1230,10 @@ mod tests {
             "precondition: occupant sits at position 5"
         );
 
-        // Now reposition two new cards into positions 5 and 6 with shift_existing=true.
-        // The occupant at position 5 must be pushed forward by 2 (step * count).
+        // Reposition two new cards starting at 5 with step_size=2 and
+        // shift_existing=true. Using step_size=2 (not 1) ensures the shift
+        // amount is step*count=4, which differs from a buggy implementation
+        // that used count alone (shift=2).
         let incoming1 = add_basic_card(&mut col);
         let incoming2 = add_basic_card(&mut col);
         let _ = SchedulerService::sort_cards(
@@ -1190,7 +1241,7 @@ mod tests {
             anki_proto::scheduler::SortCardsRequest {
                 card_ids: vec![incoming1.0, incoming2.0],
                 starting_from: 5,
-                step_size: 1,
+                step_size: 2,
                 randomize: false,
                 shift_existing: true,
             },
@@ -1202,12 +1253,13 @@ mod tests {
         let inc2 = col.storage.get_card(incoming2).unwrap().unwrap();
         assert_eq!(inc1.due, 5, "first incoming card lands at starting_from");
         assert_eq!(
-            inc2.due, 6,
-            "second incoming card lands at starting_from + step"
+            inc2.due, 7,
+            "second incoming card lands at starting_from + step_size"
         );
+        // shift = step_size * count = 2 * 2 = 4; occupant moves from 5 to 9
         assert_eq!(
-            occ.due, 7,
-            "pre-existing card is shifted past the inserted range"
+            occ.due, 9,
+            "pre-existing card is shifted by step_size * incoming_count"
         );
     }
 
