@@ -84,6 +84,8 @@ def test_exception_in_hook_stops_subsequent_hooks():
     addHook("mixed_hook", good_cb)
     with pytest.raises(RuntimeError):
         runHook("mixed_hook")
+        
+    assert results == []
 
 
 def test_exception_in_filter_does_not_silently_swallow():
