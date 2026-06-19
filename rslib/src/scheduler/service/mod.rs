@@ -1392,15 +1392,14 @@ mod tests {
 
     /// Adds a learning card that the default filtered-deck search will gather.
     fn add_gatherable_card(col: &mut Collection) -> Card {
-        let mut card = Card {
-            deck_id: DeckId(1),
-            ctype: CardType::Learn,
-            queue: CardQueue::DayLearn,
-            remaining_steps: 1,
-            due: 0,
-            ..Default::default()
-        };
-        col.add_card(&mut card).unwrap();
+        let note = NoteAdder::basic(col).add(col);
+        let cid = col.storage.card_ids_of_notes(&[note.id]).unwrap()[0];
+        let mut card = col.storage.get_card(cid).unwrap().unwrap();
+        card.ctype = CardType::Learn;
+        card.queue = CardQueue::DayLearn;
+        card.remaining_steps = 1;
+        card.due = 0;
+        col.storage.update_card(&card).unwrap();
         card
     }
 
