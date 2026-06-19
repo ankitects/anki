@@ -1018,9 +1018,6 @@ mod tests {
 
     #[test]
     fn sort_cards_with_randomize_produces_different_ordering_than_preserve() {
-        // With N=8 cards the probability that a random shuffle happens to match
-        // the preserve ordering exactly is 1/8! ≈ 1/40_000, an acceptable
-        // flake risk. Two cards cannot distinguish the two orderings at all.
         const N: usize = 8;
         let mut col = Collection::new();
 
@@ -1051,39 +1048,42 @@ mod tests {
             .map(|&id| col.storage.get_card(id).unwrap().unwrap().due)
             .collect();
 
-        // Apply randomized sort and collect the resulting positions.
-        let out = SchedulerService::sort_cards(
-            &mut col,
-            anki_proto::scheduler::SortCardsRequest {
-                card_ids: cid_ints.clone(),
-                starting_from: 0,
-                step_size: 1,
-                randomize: true,
-                shift_existing: false,
-            },
-        )
-        .unwrap();
-        assert_eq!(out.count, N as u32);
+        // Loop until the RNG produces an ordering that differs from preserve.
+        // One different result out of 100 attempts is sufficient to confirm randomness;
+        // the probability of 100 consecutive identical shuffles is (1/N!)^100 ≈ 0.
+        for _ in 0..100 {
+            let out = SchedulerService::sort_cards(
+                &mut col,
+                anki_proto::scheduler::SortCardsRequest {
+                    card_ids: cid_ints.clone(),
+                    starting_from: 0,
+                    step_size: 1,
+                    randomize: true,
+                    shift_existing: false,
+                },
+            )
+            .unwrap();
+            assert_eq!(out.count, N as u32);
 
-        let random_dues: Vec<i32> = cids
-            .iter()
-            .map(|&id| col.storage.get_card(id).unwrap().unwrap().due)
-            .collect();
+            let random_dues: Vec<i32> = cids
+                .iter()
+                .map(|&id| col.storage.get_card(id).unwrap().unwrap().due)
+                .collect();
 
-        // Every card must receive a unique position within [0, N).
-        let mut sorted = random_dues.clone();
-        sorted.sort_unstable();
-        assert_eq!(
-            sorted,
-            (0..N as i32).collect::<Vec<_>>(),
-            "positions must be a permutation of [0, N)"
-        );
+            // Every card must receive a unique position within [0, N).
+            let mut sorted = random_dues.clone();
+            sorted.sort_unstable();
+            assert_eq!(
+                sorted,
+                (0..N as i32).collect::<Vec<_>>(),
+                "positions must be a permutation of [0, N)"
+            );
 
-        // The random ordering must differ from the preserve ordering.
-        assert_ne!(
-            random_dues, preserve_dues,
-            "randomized sort should produce a different ordering than preserve"
-        );
+            if random_dues != preserve_dues {
+                return;
+            }
+        }
+        unreachable!("randomized sort never produced a different ordering than preserve");
     }
 
     #[test]
