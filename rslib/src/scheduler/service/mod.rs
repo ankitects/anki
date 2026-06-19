@@ -1103,10 +1103,30 @@ mod tests {
     #[test]
     fn reposition_defaults_returns_stored_values() {
         let mut col = Collection::new();
-        // smoke test: the call resolves the reposition dialog defaults without error
-        let resp = SchedulerService::reposition_defaults(&mut col).unwrap();
-        // a fresh collection defaults to non-random repositioning
-        assert!(!resp.random);
+
+        // Verify out-of-box defaults.
+        let defaults = SchedulerService::reposition_defaults(&mut col).unwrap();
+        assert!(!defaults.random);
+        assert!(!defaults.shift);
+
+        // sort_cards persists randomize and shift_existing to config; a subsequent
+        // reposition_defaults call must reflect those stored values.
+        let cid = add_basic_card(&mut col);
+        let _ = SchedulerService::sort_cards(
+            &mut col,
+            anki_proto::scheduler::SortCardsRequest {
+                card_ids: vec![cid.0],
+                starting_from: 0,
+                step_size: 1,
+                randomize: true,
+                shift_existing: true,
+            },
+        )
+        .unwrap();
+
+        let stored = SchedulerService::reposition_defaults(&mut col).unwrap();
+        assert!(stored.random, "random should be persisted after sort_cards with randomize=true");
+        assert!(stored.shift, "shift should be persisted after sort_cards with shift_existing=true");
     }
 
     #[test]
