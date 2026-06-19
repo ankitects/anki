@@ -849,22 +849,50 @@ mod tests {
     }
 
     #[test]
-    fn schedule_cards_as_new_defaults_returns_for_both_contexts() {
+    fn schedule_cards_as_new_defaults_are_stored_and_read_back_per_context() {
         use anki_proto::scheduler::schedule_cards_as_new_request::Context;
         let mut col = Collection::new();
+        NoteAdder::basic(&mut col).add(&mut col);
 
-        // both contexts should resolve to a defaults response without error
-        for context in [Context::Browser, Context::Reviewer] {
-            let resp = SchedulerService::schedule_cards_as_new_defaults(
-                &mut col,
-                anki_proto::scheduler::ScheduleCardsAsNewDefaultsRequest {
-                    context: context as i32,
-                },
-            )
-            .unwrap();
-            // restore_position default is true in a fresh collection
-            assert!(resp.restore_position);
-        }
+        // Graduate the card so we have something to reschedule.
+        let card_id = answer_top_card(&mut col, Rating::Easy);
+
+        // Persist non-default values for the Browser context only.
+        let _ = SchedulerService::schedule_cards_as_new(
+            &mut col,
+            anki_proto::scheduler::ScheduleCardsAsNewRequest {
+                card_ids: vec![card_id],
+                log: false,
+                restore_position: false,
+                reset_counts: true,
+                context: Some(Context::Browser as i32),
+            },
+        )
+        .unwrap();
+
+        let browser = SchedulerService::schedule_cards_as_new_defaults(
+            &mut col,
+            anki_proto::scheduler::ScheduleCardsAsNewDefaultsRequest {
+                context: Context::Browser as i32,
+            },
+        )
+        .unwrap();
+
+        let reviewer = SchedulerService::schedule_cards_as_new_defaults(
+            &mut col,
+            anki_proto::scheduler::ScheduleCardsAsNewDefaultsRequest {
+                context: Context::Reviewer as i32,
+            },
+        )
+        .unwrap();
+
+        // Browser picked up the values we just stored.
+        assert!(!browser.restore_position);
+        assert!(browser.reset_counts);
+
+        // Reviewer config is independent and still at its defaults.
+        assert!(reviewer.restore_position);
+        assert!(!reviewer.reset_counts);
     }
 
     #[test]
