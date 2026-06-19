@@ -1063,6 +1063,53 @@ mod tests {
     }
 
     #[test]
+    fn sort_cards_with_shift_existing_pushes_pre_existing_cards_forward() {
+        let mut col = Collection::new();
+
+        // Place an existing card at position 5 via a first sort.
+        let occupant = add_basic_card(&mut col);
+        let _ = SchedulerService::sort_cards(
+            &mut col,
+            anki_proto::scheduler::SortCardsRequest {
+                card_ids: vec![occupant.0],
+                starting_from: 5,
+                step_size: 1,
+                randomize: false,
+                shift_existing: false,
+            },
+        )
+        .unwrap();
+        assert_eq!(
+            col.storage.get_card(occupant).unwrap().unwrap().due,
+            5,
+            "precondition: occupant sits at position 5"
+        );
+
+        // Now reposition two new cards into positions 5 and 6 with shift_existing=true.
+        // The occupant at position 5 must be pushed forward by 2 (step * count).
+        let incoming1 = add_basic_card(&mut col);
+        let incoming2 = add_basic_card(&mut col);
+        let _ = SchedulerService::sort_cards(
+            &mut col,
+            anki_proto::scheduler::SortCardsRequest {
+                card_ids: vec![incoming1.0, incoming2.0],
+                starting_from: 5,
+                step_size: 1,
+                randomize: false,
+                shift_existing: true,
+            },
+        )
+        .unwrap();
+
+        let occ = col.storage.get_card(occupant).unwrap().unwrap();
+        let inc1 = col.storage.get_card(incoming1).unwrap().unwrap();
+        let inc2 = col.storage.get_card(incoming2).unwrap().unwrap();
+        assert_eq!(inc1.due, 5, "first incoming card lands at starting_from");
+        assert_eq!(inc2.due, 6, "second incoming card lands at starting_from + step");
+        assert_eq!(occ.due, 7, "pre-existing card is shifted past the inserted range");
+    }
+
+    #[test]
     fn sort_cards_with_randomize_produces_different_ordering_than_preserve() {
         const N: usize = 8;
         let mut col = Collection::new();
