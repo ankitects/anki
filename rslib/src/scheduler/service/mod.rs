@@ -823,28 +823,49 @@ mod tests {
     }
 
     #[test]
-    fn schedule_cards_as_new_accepts_explicit_context() {
+    fn schedule_cards_as_new_reviewer_context_stores_independently_of_browser() {
         use anki_proto::scheduler::schedule_cards_as_new_request::Context;
         let mut col = Collection::new();
         NoteAdder::basic(&mut col).add(&mut col);
 
         let card_id = answer_top_card(&mut col, Rating::Easy);
 
-        // passing an explicit context exercises the context-decoding branch
+        // Write non-default values via the Reviewer context.
         let _ = SchedulerService::schedule_cards_as_new(
             &mut col,
             anki_proto::scheduler::ScheduleCardsAsNewRequest {
                 card_ids: vec![card_id],
-                log: true,
-                restore_position: true,
-                reset_counts: false,
-                context: Some(Context::Browser as i32),
+                log: false,
+                restore_position: false,
+                reset_counts: true,
+                context: Some(Context::Reviewer as i32),
             },
         )
         .unwrap();
 
-        let card = col.storage.get_card(CardId(card_id)).unwrap().unwrap();
-        assert_eq!(card.ctype, CardType::New, "card should be reset to new");
+        let reviewer = SchedulerService::schedule_cards_as_new_defaults(
+            &mut col,
+            anki_proto::scheduler::ScheduleCardsAsNewDefaultsRequest {
+                context: Context::Reviewer as i32,
+            },
+        )
+        .unwrap();
+
+        let browser = SchedulerService::schedule_cards_as_new_defaults(
+            &mut col,
+            anki_proto::scheduler::ScheduleCardsAsNewDefaultsRequest {
+                context: Context::Browser as i32,
+            },
+        )
+        .unwrap();
+
+        // Reviewer picked up the values we stored.
+        assert!(!reviewer.restore_position);
+        assert!(reviewer.reset_counts);
+
+        // Browser config is independent and still at its defaults.
+        assert!(browser.restore_position);
+        assert!(!browser.reset_counts);
     }
 
     #[test]
