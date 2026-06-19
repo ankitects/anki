@@ -16,6 +16,7 @@ from collections.abc import Callable
 from dataclasses import dataclass
 from errno import EPROTOTYPE
 from http import HTTPStatus
+from typing import Any
 
 import flask
 import flask_cors
@@ -28,7 +29,13 @@ import aqt
 import aqt.main
 import aqt.operations
 from anki import hooks
-from anki.collection import OpChanges, OpChangesOnly, Progress, SearchNode
+from anki.collection import (
+    NestedOpChanges,
+    OpChanges,
+    OpChangesOnly,
+    Progress,
+    SearchNode,
+)
 from anki.decks import UpdateDeckConfigs
 from anki.scheduler.v3 import SchedulingStatesWithContext, SetSchedulingStatesRequest
 from anki.utils import dev_mode
@@ -707,7 +714,28 @@ def raw_backend_request(endpoint: str) -> Callable[[], bytes]:
 
     assert hasattr(RustBackend, f"{endpoint}_raw")
 
-    return lambda: getattr(aqt.mw.col._backend, f"{endpoint}_raw")(request.data)
+    def wrapped() -> bytes:
+        output = getattr(aqt.mw.col._backend, f"{endpoint}_raw")(request.data)
+        if op_changes_type := int(request.headers.get("Anki-Op-Changes", "0")):
+            op_message_types = (OpChanges, OpChangesOnly, NestedOpChanges)
+            try:
+                response = op_message_types[op_changes_type - 1]()
+                response.ParseFromString(output)
+                changes: Any = response
+                for _ in range(op_changes_type - 1):
+                    changes = changes.changes
+            except IndexError:
+                raise ValueError(f"unhandled op changes level: {op_changes_type}")
+
+            def handle_on_main() -> None:
+                handler = aqt.mw.app.activeWindow()
+                on_op_finished(aqt.mw, changes, handler)
+
+            aqt.mw.taskman.run_on_main(handle_on_main)
+
+        return output
+
+    return wrapped
 
 
 # all methods in here require a collection
