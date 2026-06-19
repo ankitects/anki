@@ -511,15 +511,34 @@ mod tests {
     }
 
     #[test]
-    fn answer_hard_keeps_new_card_in_learning() {
-        let mut col = Collection::new();
-        NoteAdder::basic(&mut col).add(&mut col);
+    fn answer_hard_keeps_new_card_in_learning_with_longer_delay_than_again() {
+        // Hard stays on the same learning step but applies a longer delay than
+        // Again: for the default steps [1min, 10min], Again uses step-1 (60s)
+        // while Hard uses the average of step-1 and step-2 (330s).
+        let (due_again, queue_again, ctype_again) = {
+            let mut col = Collection::new();
+            NoteAdder::basic(&mut col).add(&mut col);
+            let cid = CardId(answer_top_card(&mut col, Rating::Again));
+            let card = col.storage.get_card(cid).unwrap().unwrap();
+            (card.due, card.queue, card.ctype)
+        };
 
-        let card_id = answer_top_card(&mut col, Rating::Hard);
+        let (due_hard, queue_hard, ctype_hard) = {
+            let mut col = Collection::new();
+            NoteAdder::basic(&mut col).add(&mut col);
+            let cid = CardId(answer_top_card(&mut col, Rating::Hard));
+            let card = col.storage.get_card(cid).unwrap().unwrap();
+            (card.due, card.queue, card.ctype)
+        };
 
-        let card = col.storage.get_card(CardId(card_id)).unwrap().unwrap();
-        assert_eq!(card.queue, CardQueue::Learn, "Hard keeps the card in learning");
-        assert_eq!(card.ctype, CardType::Learn);
+        assert_eq!(queue_again, CardQueue::Learn);
+        assert_eq!(ctype_again, CardType::Learn);
+        assert_eq!(queue_hard, CardQueue::Learn);
+        assert_eq!(ctype_hard, CardType::Learn);
+        assert!(
+            due_hard > due_again,
+            "Hard delay ({due_hard}s) should be longer than Again delay ({due_again}s)"
+        );
     }
 
     #[test]
