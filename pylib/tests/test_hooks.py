@@ -3,8 +3,8 @@
 
 import pytest
 
-from anki.hooks import addHook, remHook, runFilter, runHook, wrap
 import anki.hooks as hooks_module
+from anki.hooks import addHook, remHook, runFilter, runHook, wrap
 
 
 @pytest.fixture(autouse=True)
