@@ -4,6 +4,14 @@
 import pytest
 
 from anki.hooks import addHook, remHook, runFilter, runHook, wrap
+import anki.hooks as hooks_module
+
+
+@pytest.fixture(autouse=True)
+def cleanup_hooks():
+    hooks_module._hooks.clear()
+    yield
+    hooks_module._hooks.clear()
 
 
 def test_run_hook_calls_registered_callback():
