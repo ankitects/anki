@@ -1145,6 +1145,65 @@ mod tests {
     }
 
     #[test]
+    fn congrats_info_shows_new_remaining_when_new_cards_exist() {
+        let mut col = Collection::new();
+        NoteAdder::basic(&mut col).add(&mut col);
+
+        let info = SchedulerService::congrats_info(&mut col).unwrap();
+
+        assert!(info.new_remaining, "new card should be reported as remaining");
+        assert!(!info.review_remaining);
+        assert_eq!(info.learn_remaining, 0);
+    }
+
+    #[test]
+    fn congrats_info_shows_review_remaining_when_review_card_is_due_today() {
+        let mut col = Collection::new();
+        let note = NoteAdder::basic(&mut col).add(&mut col);
+        let cid = col.storage.card_ids_of_notes(&[note.id]).unwrap()[0];
+
+        // days="0" schedules the card as a review card due today (offset 0 from
+        // the collection's days_elapsed, which is 0 for a fresh collection).
+        let _ = SchedulerService::set_due_date(
+            &mut col,
+            anki_proto::scheduler::SetDueDateRequest {
+                card_ids: vec![cid.0],
+                days: "0".to_string(),
+                config_key: None,
+            },
+        )
+        .unwrap();
+
+        let info = SchedulerService::congrats_info(&mut col).unwrap();
+
+        assert!(info.review_remaining, "review card due today should be reported");
+        assert!(!info.new_remaining, "card is no longer in the new queue");
+    }
+
+    #[test]
+    fn congrats_info_shows_have_user_buried_when_card_is_buried() {
+        use anki_proto::scheduler::bury_or_suspend_cards_request::Mode;
+        let mut col = Collection::new();
+        let note = NoteAdder::basic(&mut col).add(&mut col);
+        let cid = col.storage.card_ids_of_notes(&[note.id]).unwrap()[0];
+
+        let _ = SchedulerService::bury_or_suspend_cards(
+            &mut col,
+            anki_proto::scheduler::BuryOrSuspendCardsRequest {
+                card_ids: vec![cid.0],
+                note_ids: vec![],
+                mode: Mode::BuryUser as i32,
+            },
+        )
+        .unwrap();
+
+        let info = SchedulerService::congrats_info(&mut col).unwrap();
+
+        assert!(info.have_user_buried, "user-buried card should be reported");
+        assert!(!info.new_remaining, "buried card is no longer in the new queue");
+    }
+
+    #[test]
     fn update_stats_adds_deltas_to_deck_counts() {
         let mut col = Collection::new();
 
