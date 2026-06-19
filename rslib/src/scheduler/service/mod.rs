@@ -746,6 +746,37 @@ mod tests {
     }
 
     #[test]
+    fn bury_sched_marks_card_as_sched_buried_not_user_buried() {
+        use anki_proto::scheduler::bury_or_suspend_cards_request::Mode;
+        let mut col = Collection::new();
+        let note = NoteAdder::basic(&mut col).add(&mut col);
+        let cid = col.storage.card_ids_of_notes(&[note.id]).unwrap()[0];
+
+        let out = SchedulerService::bury_or_suspend_cards(
+            &mut col,
+            anki_proto::scheduler::BuryOrSuspendCardsRequest {
+                card_ids: vec![cid.0],
+                note_ids: vec![],
+                mode: Mode::BurySched as i32,
+            },
+        )
+        .unwrap();
+        assert_eq!(out.count, 1);
+
+        let card = col.storage.get_card(cid).unwrap().unwrap();
+        // SchedBuried (-2) is the sibling-auto-bury queue; it must not be
+        // conflated with UserBuried (-3) because they have separate recovery
+        // paths (unbury_deck SchedOnly vs UserOnly).
+        assert_eq!(card.queue, CardQueue::SchedBuried);
+        assert_eq!(col.counts(), [0, 0, 0], "sched-buried card leaves the queue");
+
+        // congrats_info must report sched_buried, not user_buried
+        let info = SchedulerService::congrats_info(&mut col).unwrap();
+        assert!(info.have_sched_buried);
+        assert!(!info.have_user_buried);
+    }
+
+    #[test]
     fn schedule_cards_as_new_resets_graduated_card() {
         let mut col = Collection::new();
         NoteAdder::basic(&mut col).add(&mut col);
@@ -1081,8 +1112,10 @@ mod tests {
 
         let msg = SchedulerService::studied_today(&mut col).unwrap().val;
 
-        // No reviews have happened yet, so the rendered summary mentions 0 cards.
-        assert!(msg.contains('0'), "summary should report zero studied cards: {msg}");
+        assert_eq!(
+            msg.replace('\n', " "),
+            "Studied 0 cards in 0 seconds today (0s/card)"
+        );
     }
 
     #[test]
