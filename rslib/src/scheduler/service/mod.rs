@@ -841,6 +841,50 @@ mod tests {
     }
 
     #[test]
+    fn bury_leaves_suspended_card_untouched() {
+        use anki_proto::scheduler::bury_or_suspend_cards_request::Mode;
+        let mut col = Collection::new();
+        let cid = add_basic_card(&mut col);
+
+        // Suspend the card first.
+        let _ = SchedulerService::bury_or_suspend_cards(
+            &mut col,
+            anki_proto::scheduler::BuryOrSuspendCardsRequest {
+                card_ids: vec![cid.0],
+                note_ids: vec![],
+                mode: Mode::Suspend as i32,
+            },
+        )
+        .unwrap();
+        assert_eq!(
+            col.storage.get_card(cid).unwrap().unwrap().queue,
+            CardQueue::Suspended,
+            "precondition: card is suspended"
+        );
+
+        // A subsequent bury request must not change the queue — burying a
+        // suspended card would silently convert it to SchedBuried/UserBuried,
+        // causing it to auto-unbury on the next day rollover and losing the
+        // explicit suspension.
+        let _ = SchedulerService::bury_or_suspend_cards(
+            &mut col,
+            anki_proto::scheduler::BuryOrSuspendCardsRequest {
+                card_ids: vec![cid.0],
+                note_ids: vec![],
+                mode: Mode::BuryUser as i32,
+            },
+        )
+        .unwrap();
+
+        let card = col.storage.get_card(cid).unwrap().unwrap();
+        assert_eq!(
+            card.queue,
+            CardQueue::Suspended,
+            "suspended card must remain suspended after a bury request"
+        );
+    }
+
+    #[test]
     fn schedule_cards_as_new_resets_graduated_card() {
         let mut col = Collection::new();
         NoteAdder::basic(&mut col).add(&mut col);
