@@ -36,16 +36,16 @@ import timber.log.Timber
 import java.util.Locale
 
 object AdaptionUtil {
-    private var sHasRunWebBrowserCheck = false
-    private var sHasWebBrowser = true
+    private var hasRunWebBrowserCheck = false
+    private var hasWebBrowser = true
 
     fun hasWebBrowser(context: Context): Boolean {
-        if (sHasRunWebBrowserCheck) {
-            return sHasWebBrowser
+        if (hasRunWebBrowserCheck) {
+            return hasWebBrowser
         }
-        sHasWebBrowser = checkHasWebBrowser(context)
-        sHasRunWebBrowserCheck = true
-        return sHasWebBrowser
+        hasWebBrowser = checkHasWebBrowser(context)
+        hasRunWebBrowserCheck = true
+        return hasWebBrowser
     }
 
     val isUserATestClient: Boolean
