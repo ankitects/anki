@@ -58,6 +58,7 @@ import com.ichi2.anki.analytics.UsageAnalytics
 import com.ichi2.anki.android.input.ShortcutGroup
 import com.ichi2.anki.android.input.ShortcutGroupProvider
 import com.ichi2.anki.android.input.shortcut
+import com.ichi2.anki.common.android.AdaptionUtil
 import com.ichi2.anki.common.android.AnkiBroadcastReceiver
 import com.ichi2.anki.common.android.animationDisabled
 import com.ichi2.anki.common.android.themes.disableXiaomiForceDarkMode
@@ -97,7 +98,6 @@ import com.ichi2.compat.customtabs.CustomTabActivityHelper
 import com.ichi2.compat.customtabs.CustomTabsFallback
 import com.ichi2.compat.customtabs.CustomTabsHelper
 import com.ichi2.themes.Themes
-import com.ichi2.utils.AdaptionUtil
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.launch

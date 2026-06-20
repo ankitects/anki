@@ -21,8 +21,8 @@ import androidx.appcompat.app.AppCompatActivity
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.ichi2.anki.CollectionManager.TR
 import com.ichi2.anki.R
+import com.ichi2.anki.common.android.AdaptionUtil
 import com.ichi2.anki.utils.openUrl
-import com.ichi2.utils.AdaptionUtil
 
 /**
  * A reusable, non-dismissible dialog that prompts the user to upgrade the scheduler.

@@ -24,6 +24,7 @@ import anki.collection.OpChanges
 import com.ichi2.anki.AnkiDroidApp.Companion.sharedPreferencesTestingOverride
 import com.ichi2.anki.analytics.UsageAnalytics
 import com.ichi2.anki.browser.SharedPreferencesLastDeckIdRepository
+import com.ichi2.anki.common.android.AdaptionUtil
 import com.ichi2.anki.common.android.Animations
 import com.ichi2.anki.common.android.ApplicationContextInitializer
 import com.ichi2.anki.common.android.getCurrentLocaleTag
@@ -56,7 +57,6 @@ import com.ichi2.anki.services.NotificationService
 import com.ichi2.anki.settings.Prefs
 import com.ichi2.anki.settings.PrefsRepository
 import com.ichi2.anki.ui.dialogs.ActivityAgnosticDialogs
-import com.ichi2.utils.AdaptionUtil
 import com.ichi2.utils.ExceptionUtil
 import com.ichi2.utils.LanguageUtil
 import com.ichi2.utils.measureTime

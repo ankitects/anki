@@ -13,7 +13,7 @@
  * You should have received a copy of the GNU General Public License along with
  * this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.ichi2.utils
+package com.ichi2.anki.common.android
 
 import android.annotation.SuppressLint
 import android.app.ActivityManager
@@ -27,7 +27,6 @@ import android.content.pm.ResolveInfo
 import android.os.Build
 import android.provider.Settings
 import androidx.core.net.toUri
-import com.ichi2.anki.common.android.appContext
 import com.ichi2.anki.compat.CompatHelper.Companion.getPackageInfoCompat
 import com.ichi2.anki.compat.CompatHelper.Companion.queryIntentActivitiesCompat
 import com.ichi2.anki.compat.MATCH_DEFAULT_ONLY_L

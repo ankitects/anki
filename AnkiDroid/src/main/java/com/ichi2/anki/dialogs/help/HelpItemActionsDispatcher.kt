@@ -17,9 +17,9 @@ import androidx.annotation.StringRes
 import com.ichi2.anki.AnkiActivity
 import com.ichi2.anki.AnkiDroidApp
 import com.ichi2.anki.R
+import com.ichi2.anki.common.android.AdaptionUtil
 import com.ichi2.anki.common.crashreporting.CrashReportService
 import com.ichi2.anki.snackbar.showSnackbar
-import com.ichi2.utils.AdaptionUtil
 import com.ichi2.utils.IntentUtil
 
 /**

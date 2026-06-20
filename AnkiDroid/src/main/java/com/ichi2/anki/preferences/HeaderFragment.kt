@@ -26,6 +26,7 @@ import com.bytehamster.lib.preferencesearch.SearchPreference
 import com.ichi2.anki.BuildConfig
 import com.ichi2.anki.CollectionManager.TR
 import com.ichi2.anki.R
+import com.ichi2.anki.common.android.AdaptionUtil
 import com.ichi2.anki.compat.CompatHelper
 import com.ichi2.anki.preferences.profiles.SwitchProfilesFragment
 import com.ichi2.anki.preferences.reviewer.ReviewerMenuSettingsFragment
@@ -34,7 +35,6 @@ import com.ichi2.anki.reviewreminders.ScheduleRemindersFragment
 import com.ichi2.anki.settings.Prefs
 import com.ichi2.anki.ui.internationalization.sentenceCase
 import com.ichi2.preferences.HeaderPreference
-import com.ichi2.utils.AdaptionUtil
 import timber.log.Timber
 
 class HeaderFragment : SettingsFragment() {

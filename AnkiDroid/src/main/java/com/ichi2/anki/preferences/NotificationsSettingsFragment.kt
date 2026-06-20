@@ -22,10 +22,10 @@ import androidx.core.app.PendingIntentCompat
 import androidx.preference.ListPreference
 import androidx.preference.SwitchPreferenceCompat
 import com.ichi2.anki.R
+import com.ichi2.anki.common.android.AdaptionUtil
 import com.ichi2.anki.common.time.TimeManager
 import com.ichi2.anki.services.BootService.Companion.scheduleNotification
 import com.ichi2.anki.services.NotificationService
-import com.ichi2.utils.AdaptionUtil
 
 /**
  * Fragment with preferences related to notifications
