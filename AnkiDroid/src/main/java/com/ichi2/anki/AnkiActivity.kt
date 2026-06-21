@@ -1,4 +1,5 @@
-//noinspection MissingCopyrightHeader #8659
+// SPDX-License-Identifier: GPL-3.0-or-later
+
 @file:Suppress("LeakingThis") // fine - used as WeakReference
 
 package com.ichi2.anki
