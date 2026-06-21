@@ -1,1 +1,0 @@
-See: https://developer.android.com/about/versions/11/privacy/storage
