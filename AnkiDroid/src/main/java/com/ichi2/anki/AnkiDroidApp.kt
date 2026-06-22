@@ -184,10 +184,7 @@ open class AnkiDroidApp :
         CardBrowser.clearLastDeckId()
         val anki = AnkiContext.apply { setupAnkiBackend() }
         with(anki) { initializeAnkiDroidDirectory() }
-
-        // listen for day rollover: time + timezone changes
-        DayRolloverHandler.listenForRolloverEvents(this)
-        DayRolloverAlarm.scheduleNext(this)
+        with(anki) { setupDayRollover() }
 
         restoreRecurringAlarms(this)
 
@@ -360,6 +357,14 @@ open class AnkiDroidApp :
     private fun setupAnkiBackend() =
         setup("setupAnkiBackend") {
             LanguageUtil.setDefaultBackendLanguages()
+        }
+
+    /** Listen for day rollover: time + timezone changes and refresh on the day cutoff. */
+    context(_: AnkiContext)
+    private fun setupDayRollover() =
+        setup("setupDayRollover") {
+            DayRolloverHandler.listenForRolloverEvents(this)
+            DayRolloverAlarm.scheduleNext(this)
         }
 
     private fun setupLifecycleLogging() =
