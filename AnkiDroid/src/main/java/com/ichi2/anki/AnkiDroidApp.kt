@@ -190,9 +190,7 @@ open class AnkiDroidApp :
 
         setupLifecycleLogging()
         activityAgnosticDialogs = ActivityAgnosticDialogs.register(this)
-        TtsVoices.launchBuildLocalesJob()
-        // enable {{tts-voices:}} field filter
-        TtsVoicesFieldFilter.ensureApplied()
+        setupTextToSpeech()
     }
 
     /**
@@ -416,6 +414,14 @@ open class AnkiDroidApp :
                 },
             )
         }
+
+    private fun setupTextToSpeech() {
+        setup("setupTextToSpeech") {
+            TtsVoices.launchBuildLocalesJob()
+            // enable {{tts-voices:}} field filter
+            TtsVoicesFieldFilter.ensureApplied()
+        }
+    }
 
     /**
      * @return the app version, OS version and device model, provided when syncing.
