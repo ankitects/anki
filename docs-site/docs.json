@@ -111,7 +111,10 @@
                             "manual/addons",
                             "manual/troubleshooting",
                             "manual/sync-server",
-                            "manual/misc"
+                            "manual/misc",
+                            "manual/contrib",
+                            "manual/faqs",
+                            "manual/resources"
                         ],
                         "expanded": true
                     }
