@@ -182,9 +182,8 @@ open class AnkiDroidApp :
 
         // Forget the last deck that was used in the CardBrowser
         CardBrowser.clearLastDeckId()
-        LanguageUtil.setDefaultBackendLanguages()
-
-        initializeAnkiDroidDirectory()
+        val anki = AnkiContext.apply { setupAnkiBackend() }
+        with(anki) { initializeAnkiDroidDirectory() }
 
         // listen for day rollover: time + timezone changes
         DayRolloverHandler.listenForRolloverEvents(this)
@@ -254,6 +253,7 @@ open class AnkiDroidApp :
      * In most cases the Anki Backend now creates the collection and [initializeAnkiDroidDirectory]
      *  is called on startup of the activity.
      */
+    context(_: AnkiContext)
     private fun initializeAnkiDroidDirectory() =
         setup("initializeAnkiDroidDirectory") {
             // #13207: `getCurrentAnkiDroidDirectory` failing is an unconditional be a fatal error
@@ -352,11 +352,15 @@ open class AnkiDroidApp :
      * @see opExecuted
      * @see ChangeManager
      */
-    private fun setupBackendChangeManager() {
+    private fun setupBackendChangeManager() =
         setup("setupBackendChangeManager") {
             ChangeManager.subscribe(this)
         }
-    }
+
+    private fun setupAnkiBackend() =
+        setup("setupAnkiBackend") {
+            LanguageUtil.setDefaultBackendLanguages()
+        }
 
     private fun setupLifecycleLogging() =
         setup("setupLifecycleLogging") {
@@ -465,6 +469,16 @@ open class AnkiDroidApp :
             Timber.d("No relevant changes to update the widget")
         }
     }
+
+    /**
+     * Initialization for the Anki Backend has completed:
+     * - [initAnkiBackend] - platform environment variables/logging
+     * - [makeBackendUsable] - load rsdroid.so
+     * - [setupBackendChangeManager] - change manager is subscribed
+     * - [setupAnkiBackend] - i18n is set up
+     */
+
+    object AnkiContext
 
     companion object {
         /**
