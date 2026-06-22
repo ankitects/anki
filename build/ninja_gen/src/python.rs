@@ -301,7 +301,7 @@ impl BuildAction for Complexipy {
         build.add_inputs("complexipy", inputs![":pyenv:complexipy"]);
         build.add_variable("folder", self.folder);
         let diff_args = if self.diff_mode {
-            "--diff main -R -mx 15"
+            "--diff main -R -mx 20"
         } else {
             ""
         };
