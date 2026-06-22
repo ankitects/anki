@@ -84,6 +84,7 @@ preferences-ankihub-not-logged-in = Not currently logged in to AnkiHub.
 preferences-ankiweb-intro = AnkiWeb is a free service that lets you keep your flashcard data in sync across your devices, and provides a way to recover the data if your device breaks or is lost.
 preferences-ankihub-intro = AnkiHub provides collaborative deck editing and additional study tools. A paid subscription is required to access certain features.
 preferences-third-party-description = Third-party services are unaffiliated with and not endorsed by Anki. Use of these services may require payment.
+preferences-labs = Labs
 
 ## URL scheme related
 preferences-url-schemes = URL Schemes

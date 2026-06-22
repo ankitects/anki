@@ -32,6 +32,7 @@ from aqt.utils import (
     showWarning,
     tr,
 )
+from aqt.webview import AnkiWebView, AnkiWebViewKind
 
 
 class Preferences(QDialog):
@@ -61,12 +62,19 @@ class Preferences(QDialog):
         qconnect(
             self.form.buttonBox.helpRequested, lambda: openHelp(HelpPage.PREFERENCES)
         )
+
+        self._setup_webview()
         self.silentlyClose = True
         self.setup_collection()
         self.setup_profile()
         self.setup_global()
         self.setup_configurable_answer_keys()
         self.show()
+
+    def _setup_webview(self) -> None:
+        self.web = AnkiWebView(kind=AnkiWebViewKind.PREFERENCES)
+        self.form.labsTab.layout().addWidget(self.web)
+        self.web.load_sveltekit_page("preferences")
 
     def setup_configurable_answer_keys(self):
         """
