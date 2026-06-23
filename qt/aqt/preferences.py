@@ -73,7 +73,9 @@ class Preferences(QDialog):
 
     def _setup_webview(self) -> None:
         self.web = AnkiWebView(kind=AnkiWebViewKind.PREFERENCES)
-        self.form.labsTab.layout().addWidget(self.web)
+        layout = self.form.labsTab.layout()
+        assert layout is not None
+        layout.addWidget(self.web)
         self.web.load_sveltekit_page("preferences")
 
     def setup_configurable_answer_keys(self):
