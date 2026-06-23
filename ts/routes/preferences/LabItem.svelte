@@ -12,7 +12,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <label>
     <div class="header">
         <b>{title}</b>
-        <Switch id={title} value={false}></Switch>
+        <div class="switch">
+            <Switch id={title} value={false}></Switch>
+        </div>
     </div>
     {description}
 </label>
@@ -20,12 +22,16 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <style>
     label {
         padding: 1em;
-        background-color: var(--bs-secondary-bg);
+        background-color: var(--canvas);
         border-radius: 1em;
     }
     div {
         display: flex;
         justify-content: space-between;
-        align-items: center;
+        align-items: start;
+        margin-bottom: 0.25em;
+    }
+    .switch {
+        font-size: 1.25rem;
     }
 </style>
