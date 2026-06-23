@@ -15,8 +15,12 @@
     "fonts": {
         "family": "Hanken Grotesk"
     },
+    
     "navigation": {
-        "tabs": [
+            "languages": [
+      {
+        "language": "en",
+                "tabs": [
             {
                 "tab": "Manual",
                 "groups": [
@@ -111,7 +115,10 @@
                             "manual/addons",
                             "manual/troubleshooting",
                             "manual/sync-server",
-                            "manual/misc"
+                            "manual/misc",
+                            "manual/contrib",
+                            "manual/faqs",
+                            "manual/resources"
                         ],
                         "expanded": true
                     }
@@ -401,7 +408,191 @@
                     }
                 ]
             }
-        ],
+        ]
+      },
+      {
+        "language": "de",
+        "tabs": [
+          {
+            "tab": "Manual",
+            "groups": [
+              {
+                "group": "Desktop Manual",
+                "pages": ["de/manual/intro"]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "language": "es",
+        "tabs": [
+          {
+            "tab": "Manual",
+            "groups": [
+              {
+                "group": "Desktop Manual",
+                "pages": ["es/manual/intro"]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "language": "fr",
+        "tabs": [
+          {
+            "tab": "Manual",
+            "groups": [
+              {
+                "group": "Desktop Manual",
+                "pages": ["fr/manual/intro"]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "language": "it",
+        "tabs": [
+          {
+            "tab": "Manual",
+            "groups": [
+              {
+                "group": "Desktop Manual",
+                "pages": ["it/manual/intro"]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "language": "id",
+        "tabs": [
+          {
+            "tab": "Manual",
+            "groups": [
+              {
+                "group": "Desktop Manual",
+                "pages": ["id/manual/intro"]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "language": "uz",
+        "tabs": [
+          {
+            "tab": "Manual",
+            "groups": [
+              {
+                "group": "Desktop Manual",
+                "pages": ["uz/manual/intro"]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "language": "pl",
+        "tabs": [
+          {
+            "tab": "Manual",
+            "groups": [
+              {
+                "group": "Desktop Manual",
+                "pages": ["pl/manual/intro"]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "language": "pt",
+        "tabs": [
+          {
+            "tab": "Manual",
+            "groups": [
+              {
+                "group": "Desktop Manual",
+                "pages": ["pt/manual/intro"]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "language": "ru",
+        "tabs": [
+          {
+            "tab": "Manual",
+            "groups": [
+              {
+                "group": "Desktop Manual",
+                "pages": ["ru/manual/intro"]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "language": "uk",
+        "tabs": [
+          {
+            "tab": "Manual",
+            "groups": [
+              {
+                "group": "Desktop Manual",
+                "pages": ["uk/manual/intro"]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "language": "ar",
+        "tabs": [
+          {
+            "tab": "Manual",
+            "groups": [
+              {
+                "group": "Desktop Manual",
+                "pages": ["ar/manual/intro"]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "language": "ja",
+        "tabs": [
+          {
+            "tab": "Manual",
+            "groups": [
+              {
+                "group": "Desktop Manual",
+                "pages": ["ja/manual/intro"]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "language": "zh-Hans",
+        "tabs": [
+          {
+            "tab": "Manual",
+            "groups": [
+              {
+                "group": "Desktop Manual",
+                "pages": ["zh-Hans/manual/intro"]
+              }
+            ]
+          }
+        ]
+      }
+    ],
         "global": {
             "anchors": [
                 {
