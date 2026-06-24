@@ -1,6 +1,28 @@
 {
     "$schema": "https://mintlify.com/docs.json",
     "name": "Anki Docs",
+    "redirects": [
+      {
+        "source": "/getting-help",
+        "destination": "/manual/getting-help"
+      },
+      {
+        "source": "/when-problems-occur",
+        "destination": "/manual/troubleshooting"
+      },
+      {
+        "source": "/faqs/ankiapp-is-not-part-of-the-anki-ecosystem",
+        "destination": "/faqs/anki-knockoffs"
+      },
+      {
+        "source": "/manual/faqs",
+        "destination": "/faqs/"
+      },
+      {
+        "source": "/faqs/when-problems-occur",
+        "destination": "/manual/troubleshooting"
+      }
+    ],
     "theme": "mint",
     "colors": {
         "primary": "#4B94D8",
@@ -117,7 +139,6 @@
                             "manual/sync-server",
                             "manual/misc",
                             "manual/contrib",
-                            "manual/faqs",
                             "manual/resources"
                         ],
                         "expanded": true
@@ -159,8 +180,6 @@
                     {
                         "group": "Support FAQs",
                         "pages": [
-                          "getting-help",
-                          "when-problems-occur",
                           "automatic-backups",
                             {
                               "group": "Cards and Notes",
