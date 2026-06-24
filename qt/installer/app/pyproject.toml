@@ -68,7 +68,11 @@ entitlement."com.apple.security.cs.allow-dyld-environment-variables" = true
 entitlement."com.apple.security.device.audio-input" = true
 
 [tool.briefcase.app.anki.linux.flatpak]
-supported = false
+flatpak_runtime = "org.kde.Platform"
+flatpak_runtime_version = "6.10"
+flatpak_sdk = "org.kde.Sdk"
+flatpak_base = "com.riverbankcomputing.PyQt.BaseApp"
+flatpak_base_version = "6.10"
 
 [tool.briefcase.app.anki.windows]
 

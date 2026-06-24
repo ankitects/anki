@@ -52,12 +52,14 @@ def get_briefcase_template_path() -> Path:
     elif sys.platform == "darwin":
         return installer_dir / "mac-template"
     else:
-        return installer_dir / "linux-template"
+        # return installer_dir / "linux-template"
+        return installer_dir / "flatpak-template"
 
 
 def get_briefcase_output_format() -> list[str]:
     if sys.platform == "linux":
-        return ["linux", "zip"]
+        # return ["linux", "zip"]
+        return ["linux", "flatpak"]
     # Use default format for platform
     return []
 

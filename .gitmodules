@@ -16,3 +16,7 @@
 	url = https://github.com/ankitects/briefcase-macOS-app-template
 	branch = anki
 	shallow = true
+[submodule "briefcase-flatpak-template"]
+	path = qt/installer/flatpak-template
+	url = https://github.com/ankitects/briefcase-linux-flatpak-template
+	branch = anki

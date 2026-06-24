@@ -64,6 +64,13 @@ pub fn build_installer(build: &mut Build) -> Result<()> {
             offline_build: false,
         },
     )?;
+    build.add_action(
+        "installer:template:flatpak",
+        SyncSubmodule {
+            path: "qt/installer/flatpak-template",
+            offline_build: false,
+        },
+    )?;
     let version = anki_version();
     build.add_action(
         "installer:build",
