@@ -32,14 +32,14 @@ import kotlinx.coroutines.withContext
 /**
  * Adapter class for displaying and managing a list of selectable decks in a RecyclerView.
  *
- * @property decks the list of selectable decks to display
+ * @property coroutineScope lifecycle-bound scope used for deck name lookups
  * @property onDeleteDeck a function to call when a deck is removed
  */
 class WidgetConfigScreenAdapter(
+    private val coroutineScope: CoroutineScope,
     private val onDeleteDeck: (SelectableDeck.Deck, Int) -> Unit,
 ) : RecyclerView.Adapter<WidgetConfigScreenAdapter.DeckViewHolder>() {
     private val decks: MutableList<SelectableDeck.Deck> = mutableListOf()
-    private val coroutineScope = CoroutineScope(Dispatchers.Main)
 
     // Property to get the list of deck IDs
     val deckIds: List<Long> get() = decks.map { it.deckId }

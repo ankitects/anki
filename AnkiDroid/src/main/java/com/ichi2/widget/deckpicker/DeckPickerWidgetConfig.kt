@@ -138,7 +138,7 @@ class DeckPickerWidgetConfig :
 
     private fun initializeUIComponents() {
         deckAdapter =
-            WidgetConfigScreenAdapter { deck, _ ->
+            WidgetConfigScreenAdapter(lifecycleScope) { deck, _ ->
                 deckAdapter.removeDeck(deck.deckId)
                 // Removal always frees at least one slot, so the FAB is going
                 // to be visible. Show it now (synchronously) so the snackbar
