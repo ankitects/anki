@@ -226,7 +226,7 @@ impl Collection {
         let config = SimulatorConfig {
             deck_size,
             learn_span: req.days_to_simulate as usize,
-            max_cost_perday: f32::MAX,
+            max_cost_perday: 60.0 * 60.0 * 24.0, // 24 hours
             max_ivl: req.max_interval as f32,
             first_rating_prob: p.first_rating_prob,
             review_rating_prob: p.review_rating_prob,
