@@ -2,8 +2,6 @@
 title: "Managing Files and Your Collection"
 ---
 
-
-
 ## Checking Your Collection
 
 It is a good idea to occasionally check your collection file for
@@ -186,14 +184,14 @@ drive E; adjust as necessary.
 - Copy the `%LOCALAPPDATA%\Programs\Anki` folder to the flash drive, so you
   have a folder like `E:\\Anki`.
 - Create a text file called `E:\\anki.bat` with the following text:
-  ```bat
-  E:\anki\anki.exe -b E:\ankidata
-  ```
+    ```bat
+    E:\anki\anki.exe -b E:\ankidata
+    ```
 - If you would like to prevent the black command prompt window from
-remaining open, you can instead use:
-  ```bat
-  start /b E:\anki\anki.exe -b E:\ankidata
-  ```
+  remaining open, you can instead use:
+    ```bat
+    start /b E:\anki\anki.exe -b E:\ankidata
+    ```
 - Double-clicking on `anki.bat` should start Anki with the user data
   stored in `E:\\ankidata`.
 
@@ -201,14 +199,13 @@ The full path including drive letter is required - if you try using
 `\anki\anki.exe` instead you will find syncing stops working.
 
 <Warning>
-The drive letter must be the same on all devices. If you set this up for drive E,
-it won't work for a flash drive mapped to drive D for example.
+    The drive letter must be the same on all devices. If you set this up for drive E, it
+    won't work for a flash drive mapped to drive D for example.
 </Warning>
 
 <Warning>
-Media syncing with AnkiWeb may not work if your flash drive is formatted
-as FAT32. Please format the drive as NTFS to ensure media syncs
-correctly.
+    Media syncing with AnkiWeb may not work if your flash drive is formatted as FAT32.
+    Please format the drive as NTFS to ensure media syncs correctly.
 </Warning>
 
 ### Anki Launcher

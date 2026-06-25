@@ -5,7 +5,6 @@ mod aqt;
 mod audio;
 mod cog;
 mod installer;
-mod launcher;
 mod platform;
 mod pylib;
 mod python;
@@ -19,7 +18,6 @@ use aqt::build_and_check_aqt;
 use audio::build_audio;
 use cog::check_cog;
 use installer::build_installer;
-use launcher::build_launcher;
 use ninja_gen::glob;
 use ninja_gen::inputs;
 use ninja_gen::protobuf::check_proto;
@@ -61,7 +59,6 @@ fn main() -> Result<()> {
     build_and_check_aqt(build)?;
 
     if env::var("OFFLINE_BUILD").is_err() {
-        build_launcher(build)?;
         build_installer(build)?;
         build_audio(build)?;
     }

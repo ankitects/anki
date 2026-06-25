@@ -4,11 +4,11 @@ title: "Text to speech support"
 
 <h1>For Anki 2.1.20+</h1>
 
-Please see [https://docs.ankiweb.net/templates/fields.html#text-to-speech-for-individual-fields](https://docs.ankiweb.net/templates/fields.html#text-to-speech-for-individual-fields)
+Please see [Text to Speech for individual fields](/manual/templates/fields#text-to-speech-for-individual-fields)
 
 <h1>For AnkiMobile 2.0.56+</h1>
 
-Please see [https://docs.ankimobile.net/tts.html](https://docs.ankimobile.net/tts.html)
+Please see [Text to Speech](/ankimobile/tts)
 
 <h1>For AnkiDroid</h1>
 
@@ -30,21 +30,21 @@ While AnkiMobile \<2.0.56 has no official support for on-device TTS, Apple intro
 <span id="word">{{Word}}</span>
 
 <script>
-  var w = document.getElementById("word");
-  window.setTimeout("speak(w.innerHTML)", 500);
+    var w = document.getElementById("word");
+    window.setTimeout("speak(w.innerHTML)", 500);
 
-  function speak(word) {
-    var speech = new SpeechSynthesisUtterance();
-    speech.text = word;
-    speech.volume = 1; // 0 to 1
-    speech.rate = 1; // 0.1 to 9
-    speech.pitch = 1; // 0 to 2, 1=normal
-    speech.voice = window.speechSynthesis
-      .getVoices()
-      .filter((v) => v.lang == "en-GB")[0];
-    speechSynthesis.cancel();
-    speechSynthesis.speak(speech);
-  }
+    function speak(word) {
+        var speech = new SpeechSynthesisUtterance();
+        speech.text = word;
+        speech.volume = 1; // 0 to 1
+        speech.rate = 1; // 0.1 to 9
+        speech.pitch = 1; // 0 to 2, 1=normal
+        speech.voice = window.speechSynthesis
+            .getVoices()
+            .filter((v) => v.lang == "en-GB")[0];
+        speechSynthesis.cancel();
+        speechSynthesis.speak(speech);
+    }
 </script>
 ```
 
