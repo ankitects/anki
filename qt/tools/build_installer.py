@@ -181,6 +181,26 @@ def bundle_fcitx(out_dir: Path) -> None:
             )
 
 
+ICON_SIZES = (16, 32, 48, 64, 128, 256, 512)
+
+
+def generate_scaled_icons(out_dir: Path) -> None:
+    """Generate scaled PNG icons from anki.png into out_dir/resources."""
+
+    if sys.platform != "linux":
+        return
+
+    from PIL import Image
+
+    src = app_dir / "resources" / "anki.png"
+    resources_dir = out_dir / "resources"
+    with Image.open(src) as img:
+        img.load()
+        for size in ICON_SIZES:
+            scaled = img.resize((size, size), Image.Resampling.LANCZOS)
+            scaled.save(resources_dir / f"anki-{size}.png", "PNG")
+
+
 def build(args: argparse.Namespace) -> None:
     version = args.version
     shutil.copytree(app_dir, out_dir, dirs_exist_ok=True)
@@ -189,6 +209,7 @@ def build(args: argparse.Namespace) -> None:
     (out_dir / "CHANGELOG").write_text(
         "Please see https://apps.ankiweb.net/", encoding="utf-8"
     )
+    generate_scaled_icons(out_dir)
     subprocess.check_call(
         [
             sys.executable,
