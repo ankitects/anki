@@ -46,20 +46,26 @@ def prune_webengine_locales(out_dir: Path) -> None:
             pak.unlink()
 
 
+def wants_flatpak() -> bool:
+    return os.environ.get("ANKI_FLATPAK", "0") == "1"
+
+
 def get_briefcase_template_path() -> Path:
+    template: str
     if sys.platform == "win32":
-        return installer_dir / "windows-template"
+        template = "windows"
     elif sys.platform == "darwin":
-        return installer_dir / "mac-template"
+        template = "mac"
+    elif wants_flatpak():
+        template = "flatpak"
     else:
-        # return installer_dir / "linux-template"
-        return installer_dir / "flatpak-template"
+        template = "linux"
+    return installer_dir / f"{template}-template"
 
 
 def get_briefcase_output_format() -> list[str]:
     if sys.platform == "linux":
-        # return ["linux", "zip"]
-        return ["linux", "flatpak"]
+        return ["linux", "flatpak" if wants_flatpak() else "zip"]
     # Use default format for platform
     return []
 
@@ -136,7 +142,7 @@ def _find_fcitx_file(dirs: list[Path], pattern: str) -> Path | None:
 
 
 def bundle_fcitx(out_dir: Path) -> None:
-    if sys.platform != "linux":
+    if sys.platform != "linux" or wants_flatpak():
         return
     sources = get_briefcase_sources_path(out_dir)
     machine = platform.machine()
