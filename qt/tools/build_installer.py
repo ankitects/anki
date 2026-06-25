@@ -94,6 +94,13 @@ def get_briefcase_sources_path(out_dir: Path) -> Path:
     return path
 
 
+def aqt_extras() -> str:
+    if wants_flatpak():
+        qt = "qt610"
+    else:
+        qt = "qt"
+    return f"[{qt},audio]"
+
 def get_briefcase_config_args(args: argparse.Namespace) -> list[str]:
     version = args.version
     if aqt_wheel := getattr(args, "aqt_wheel", None):
@@ -107,7 +114,7 @@ def get_briefcase_config_args(args: argparse.Namespace) -> list[str]:
     ]
     requires = []
     if aqt_wheel:
-        requires.append(f"{aqt_wheel}[qt,audio]")
+        requires.append(f"{aqt_wheel}{aqt_extras()}")
     if anki_wheel:
         requires.append(anki_wheel)
     if requires:
