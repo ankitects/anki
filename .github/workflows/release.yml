@@ -581,6 +581,7 @@ jobs:
         run: |
           sudo apt-get install --yes --no-install-recommends flatpak flatpak-builder
           flatpak remote-add --user --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
+          flatpak install --assumeyes --user com.riverbankcomputing.PyQt.BaseApp/x86_64/6.10
 
       - name: Build Flatpak installer
         run: |
@@ -671,6 +672,7 @@ jobs:
         run: |
           sudo apt-get install --yes --no-install-recommends flatpak flatpak-builder
           flatpak remote-add --user --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
+          flatpak install --assumeyes --user com.riverbankcomputing.PyQt.BaseApp/aarch64/6.10
 
       - name: Build Flatpak installer
         run: |
