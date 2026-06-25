@@ -46,10 +46,6 @@ cleanup_paths = [
   # Vendored test suites
   "**/test",
   "**/tests",
-  # Packaging metadata
-  "**/*.dist-info/INSTALLER",
-  "**/*.dist-info/RECORD",
-  "**/*.dist-info/WHEEL",
   # Console scripts
   "**/app_packages/bin/*",
 ]
