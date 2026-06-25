@@ -228,8 +228,7 @@ def build(args: argparse.Namespace) -> None:
     )
     prune_webengine_locales(out_dir)
     compile_sources(out_dir, version)
-    if not args.skip_fcitx:
-        bundle_fcitx(out_dir)  # pragma: no cover
+    bundle_fcitx(out_dir)  # pragma: no cover
 
 
 def get_platform_suffix() -> str:
@@ -285,9 +284,6 @@ def main(args: Sequence[str] | None = None) -> argparse.Namespace:
     build_parser = subparsers.add_parser("build", help="Compile/build app")
     build_parser.add_argument("--aqt_wheel", help="Path to the aqt wheel file")
     build_parser.add_argument("--anki_wheel", help="Path to the anki wheel file")
-    build_parser.add_argument(
-        "--skip_fcitx", help="Skip bundling fcitx", action="store_true"
-    )
     build_parser.set_defaults(func=build)
     package_parser = subparsers.add_parser("package", help="Package installer")
     package_parser.set_defaults(func=package)

@@ -40,14 +40,15 @@ def wheel_path(out_dir: Path) -> Path:
     return out_dir / dummy_wheel_path.name
 
 
-def build_args(wheel_path: Path) -> dict[str, Any]:
-    return dict(aqt_wheel=wheel_path, anki_wheel=wheel_path, skip_fcitx=True)
+def build_args(mocker, wheel_path: Path) -> dict[str, Any]:
+    mocker.patch("tools.build_installer.bundle_fcitx")
+    return dict(aqt_wheel=wheel_path, anki_wheel=wheel_path)
 
 
 @pytest.fixture
-def cmd_args(wheel_path: Path) -> argparse.Namespace:
+def cmd_args(mocker, wheel_path: Path) -> argparse.Namespace:
     version = "0.0.1"
-    return argparse.Namespace(version=version, **build_args(wheel_path))
+    return argparse.Namespace(version=version, **build_args(mocker, wheel_path))
 
 
 @pytest.fixture
@@ -182,7 +183,7 @@ def test_main(mocker, wheel_path: Path) -> None:
     version_args = ["--version", "0.0.1"]
 
     build_mock = mocker.patch("tools.build_installer.build")
-    args = main([*version_args, "build", *_to_cmd_list(build_args(wheel_path))])
+    args = main([*version_args, "build", *_to_cmd_list(build_args(mocker, wheel_path))])
     build_mock.assert_called_once_with(args)
 
     package_mock = mocker.patch("tools.build_installer.package")
