@@ -449,3 +449,1306 @@ fn fsrs_review_proto_to_fsrs(review: anki_proto::scheduler::FsrsReview) -> FSRSR
         rating: review.rating,
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use anki_proto::scheduler::card_answer::Rating;
+    use anki_proto::scheduler::CardAnswer;
+    use anki_proto::scheduler::GetQueuedCardsRequest;
+
+    use crate::card::CardQueue;
+    use crate::card::CardType;
+    use crate::prelude::*;
+    use crate::services::SchedulerService;
+    use crate::tests::NoteAdder;
+
+    fn add_basic_card(col: &mut Collection) -> CardId {
+        let note = NoteAdder::basic(col).add(col);
+        col.storage.card_ids_of_notes(&[note.id]).unwrap()[0]
+    }
+
+    /// Answers the top queued card through the SchedulerService trait with the
+    /// given rating, returning the answered card's id. Building the request
+    /// from `get_queued_cards` mirrors what the front-end does.
+    fn answer_top_card(col: &mut Collection, rating: Rating) -> i64 {
+        let queued = SchedulerService::get_queued_cards(
+            col,
+            GetQueuedCardsRequest {
+                fetch_limit: 1,
+                intraday_learning_only: false,
+            },
+        )
+        .unwrap();
+        let qc = queued.cards.first().expect("a card should be queued");
+        let card_id = qc.card.as_ref().unwrap().id;
+        let states = qc.states.clone().unwrap();
+        let new_state = match rating {
+            Rating::Again => states.again,
+            Rating::Hard => states.hard,
+            Rating::Good => states.good,
+            Rating::Easy => states.easy,
+        };
+        let _ = SchedulerService::answer_card(
+            col,
+            CardAnswer {
+                card_id,
+                current_state: states.current,
+                new_state,
+                rating: rating as i32,
+                answered_at_millis: TimestampMillis::now().0,
+                milliseconds_taken: 0,
+            },
+        )
+        .unwrap();
+        card_id
+    }
+
+    #[test]
+    fn answer_again_moves_new_card_to_learn_queue() {
+        let mut col = Collection::new();
+        NoteAdder::basic(&mut col).add(&mut col);
+
+        let card_id = answer_top_card(&mut col, Rating::Again);
+
+        let card = col.storage.get_card(CardId(card_id)).unwrap().unwrap();
+        assert_eq!(
+            card.queue,
+            CardQueue::Learn,
+            "Again should send the card to learning"
+        );
+        assert_eq!(card.ctype, CardType::Learn);
+    }
+
+    #[test]
+    fn answer_hard_keeps_new_card_in_learning_with_longer_delay_than_again() {
+        // Hard stays on the same learning step but applies a longer delay than
+        // Again: for the default steps [1min, 10min], Again uses step-1 (60s)
+        // while Hard uses the average of step-1 and step-2 (330s).
+        let (due_again, queue_again, ctype_again) = {
+            let mut col = Collection::new();
+            NoteAdder::basic(&mut col).add(&mut col);
+            let cid = CardId(answer_top_card(&mut col, Rating::Again));
+            let card = col.storage.get_card(cid).unwrap().unwrap();
+            (card.due, card.queue, card.ctype)
+        };
+
+        let (due_hard, queue_hard, ctype_hard) = {
+            let mut col = Collection::new();
+            NoteAdder::basic(&mut col).add(&mut col);
+            let cid = CardId(answer_top_card(&mut col, Rating::Hard));
+            let card = col.storage.get_card(cid).unwrap().unwrap();
+            (card.due, card.queue, card.ctype)
+        };
+
+        assert_eq!(queue_again, CardQueue::Learn);
+        assert_eq!(ctype_again, CardType::Learn);
+        assert_eq!(queue_hard, CardQueue::Learn);
+        assert_eq!(ctype_hard, CardType::Learn);
+        assert!(
+            due_hard > due_again,
+            "Hard delay ({due_hard}s) should be longer than Again delay ({due_again}s)"
+        );
+    }
+
+    #[test]
+    fn answer_good_repeatedly_graduates_card_through_learning_steps() {
+        let mut col = Collection::new();
+        NoteAdder::basic(&mut col).add(&mut col);
+
+        // First Good: new -> learning (advances one step, stays in Learn).
+        let card_id = answer_top_card(&mut col, Rating::Good);
+        let card = col.storage.get_card(CardId(card_id)).unwrap().unwrap();
+        assert_eq!(
+            card.queue,
+            CardQueue::Learn,
+            "first Good keeps the card in learning"
+        );
+        assert_eq!(card.ctype, CardType::Learn);
+
+        // Force the learning card to be due now so it re-enters the queue,
+        // then answer Good again to graduate it.
+        col.storage
+            .db
+            .execute_batch("UPDATE cards SET due = 0")
+            .unwrap();
+        col.clear_study_queues();
+
+        answer_top_card(&mut col, Rating::Good);
+        let card = col.storage.get_card(CardId(card_id)).unwrap().unwrap();
+        assert_eq!(
+            card.queue,
+            CardQueue::Review,
+            "second Good graduates the card"
+        );
+        assert_eq!(card.ctype, CardType::Review);
+    }
+
+    #[test]
+    fn answer_easy_graduates_new_card_to_review_queue() {
+        let mut col = Collection::new();
+        NoteAdder::basic(&mut col).add(&mut col);
+
+        let card_id = answer_top_card(&mut col, Rating::Easy);
+
+        let card = col.storage.get_card(CardId(card_id)).unwrap().unwrap();
+        assert_eq!(
+            card.queue,
+            CardQueue::Review,
+            "Easy on a new card should graduate it straight to review"
+        );
+        assert_eq!(card.ctype, CardType::Review);
+        assert!(
+            card.interval >= 1,
+            "graduated card should have a review interval"
+        );
+    }
+
+    #[test]
+    fn new_card_appears_in_new_queue() {
+        let mut col = Collection::new();
+        let note = NoteAdder::basic(&mut col).add(&mut col);
+
+        let queued = SchedulerService::get_queued_cards(
+            &mut col,
+            GetQueuedCardsRequest {
+                fetch_limit: 10,
+                intraday_learning_only: false,
+            },
+        )
+        .unwrap();
+
+        assert_eq!(
+            queued.new_count, 1,
+            "the freshly added card should be counted as new"
+        );
+        assert_eq!(queued.learning_count, 0);
+        assert_eq!(queued.review_count, 0);
+        assert_eq!(queued.cards.len(), 1);
+        // the queued card belongs to the note we just added
+        let queued_card = queued.cards[0].card.as_ref().unwrap();
+        let expected_cid = col.storage.card_ids_of_notes(&[note.id]).unwrap()[0];
+        assert_eq!(queued_card.id, expected_cid.0);
+    }
+
+    #[test]
+    fn get_scheduling_states_returns_all_rating_states_for_new_card() {
+        let mut col = Collection::new();
+        let cid = add_basic_card(&mut col);
+
+        let states = SchedulerService::get_scheduling_states(
+            &mut col,
+            anki_proto::cards::CardId { cid: cid.0 },
+        )
+        .unwrap();
+
+        // A new card must expose a current state plus the four rating previews.
+        assert!(
+            states.current.is_some(),
+            "current state should be populated"
+        );
+        assert!(states.again.is_some());
+        assert!(states.hard.is_some());
+        assert!(states.good.is_some());
+        assert!(states.easy.is_some());
+    }
+
+    #[test]
+    fn bury_user_removes_card_from_queue() {
+        use anki_proto::scheduler::bury_or_suspend_cards_request::Mode;
+        let mut col = Collection::new();
+        let cid = add_basic_card(&mut col);
+
+        let out = SchedulerService::bury_or_suspend_cards(
+            &mut col,
+            anki_proto::scheduler::BuryOrSuspendCardsRequest {
+                card_ids: vec![cid.0],
+                note_ids: vec![],
+                mode: Mode::BuryUser as i32,
+            },
+        )
+        .unwrap();
+        assert_eq!(out.count, 1, "one card should have been buried");
+
+        let card = col.storage.get_card(cid).unwrap().unwrap();
+        assert_eq!(card.queue, CardQueue::UserBuried);
+        // a buried card must not appear in the study queue
+        assert_eq!(
+            col.counts(),
+            [0, 0, 0],
+            "buried card should leave the queue"
+        );
+    }
+
+    #[test]
+    fn restore_buried_brings_card_back_to_queue() {
+        use anki_proto::scheduler::bury_or_suspend_cards_request::Mode;
+        let mut col = Collection::new();
+        let cid = add_basic_card(&mut col);
+
+        // bury first
+        let _ = SchedulerService::bury_or_suspend_cards(
+            &mut col,
+            anki_proto::scheduler::BuryOrSuspendCardsRequest {
+                card_ids: vec![cid.0],
+                note_ids: vec![],
+                mode: Mode::BuryUser as i32,
+            },
+        )
+        .unwrap();
+        assert_eq!(col.counts(), [0, 0, 0], "precondition: card is buried");
+
+        // restore it
+        let _ = SchedulerService::restore_buried_and_suspended_cards(
+            &mut col,
+            anki_proto::cards::CardIds { cids: vec![cid.0] },
+        )
+        .unwrap();
+
+        let card = col.storage.get_card(cid).unwrap().unwrap();
+        assert_eq!(
+            card.queue,
+            CardQueue::New,
+            "restored card returns to the new queue"
+        );
+        assert_eq!(col.counts(), [1, 0, 0], "card is queryable again");
+    }
+
+    #[test]
+    fn unbury_deck_unburies_cards_in_that_deck() {
+        use anki_proto::scheduler::bury_or_suspend_cards_request::Mode as BuryMode;
+        use anki_proto::scheduler::unbury_deck_request::Mode as UnburyMode;
+        let mut col = Collection::new();
+        let cid = add_basic_card(&mut col);
+
+        // bury the card (it lives in the default deck, id 1)
+        let _ = SchedulerService::bury_or_suspend_cards(
+            &mut col,
+            anki_proto::scheduler::BuryOrSuspendCardsRequest {
+                card_ids: vec![cid.0],
+                note_ids: vec![],
+                mode: BuryMode::BuryUser as i32,
+            },
+        )
+        .unwrap();
+        assert_eq!(col.counts(), [0, 0, 0], "precondition: card is buried");
+
+        // unbury the whole default deck
+        let _ = SchedulerService::unbury_deck(
+            &mut col,
+            anki_proto::scheduler::UnburyDeckRequest {
+                deck_id: 1,
+                mode: UnburyMode::All as i32,
+            },
+        )
+        .unwrap();
+
+        let card = col.storage.get_card(cid).unwrap().unwrap();
+        assert_eq!(card.queue, CardQueue::New, "card in the deck is unburied");
+        assert_eq!(col.counts(), [1, 0, 0]);
+    }
+
+    #[test]
+    fn unbury_deck_sched_only_leaves_user_buried_cards_alone() {
+        use anki_proto::scheduler::bury_or_suspend_cards_request::Mode as BuryMode;
+        use anki_proto::scheduler::unbury_deck_request::Mode as UnburyMode;
+        let mut col = Collection::new();
+        let cid_sched = add_basic_card(&mut col);
+        let cid_user = add_basic_card(&mut col);
+
+        // Bury one card via the scheduler (sibling auto-bury) and one by the user.
+        let _ = SchedulerService::bury_or_suspend_cards(
+            &mut col,
+            anki_proto::scheduler::BuryOrSuspendCardsRequest {
+                card_ids: vec![cid_sched.0],
+                note_ids: vec![],
+                mode: BuryMode::BurySched as i32,
+            },
+        )
+        .unwrap();
+        let _ = SchedulerService::bury_or_suspend_cards(
+            &mut col,
+            anki_proto::scheduler::BuryOrSuspendCardsRequest {
+                card_ids: vec![cid_user.0],
+                note_ids: vec![],
+                mode: BuryMode::BuryUser as i32,
+            },
+        )
+        .unwrap();
+        assert_eq!(col.counts(), [0, 0, 0], "precondition: both cards buried");
+
+        // SchedOnly must restore only the sched-buried card.
+        let _ = SchedulerService::unbury_deck(
+            &mut col,
+            anki_proto::scheduler::UnburyDeckRequest {
+                deck_id: 1,
+                mode: UnburyMode::SchedOnly as i32,
+            },
+        )
+        .unwrap();
+
+        let sched = col.storage.get_card(cid_sched).unwrap().unwrap();
+        let user = col.storage.get_card(cid_user).unwrap().unwrap();
+        assert_eq!(sched.queue, CardQueue::New, "sched-buried card is restored");
+        assert_eq!(
+            user.queue,
+            CardQueue::UserBuried,
+            "user-buried card remains buried"
+        );
+        assert_eq!(col.counts(), [1, 0, 0]);
+    }
+
+    #[test]
+    fn unbury_deck_user_only_leaves_sched_buried_cards_alone() {
+        use anki_proto::scheduler::bury_or_suspend_cards_request::Mode as BuryMode;
+        use anki_proto::scheduler::unbury_deck_request::Mode as UnburyMode;
+        let mut col = Collection::new();
+        let cid_sched = add_basic_card(&mut col);
+        let cid_user = add_basic_card(&mut col);
+
+        let _ = SchedulerService::bury_or_suspend_cards(
+            &mut col,
+            anki_proto::scheduler::BuryOrSuspendCardsRequest {
+                card_ids: vec![cid_sched.0],
+                note_ids: vec![],
+                mode: BuryMode::BurySched as i32,
+            },
+        )
+        .unwrap();
+        let _ = SchedulerService::bury_or_suspend_cards(
+            &mut col,
+            anki_proto::scheduler::BuryOrSuspendCardsRequest {
+                card_ids: vec![cid_user.0],
+                note_ids: vec![],
+                mode: BuryMode::BuryUser as i32,
+            },
+        )
+        .unwrap();
+        assert_eq!(col.counts(), [0, 0, 0], "precondition: both cards buried");
+
+        // UserOnly must restore only the user-buried card.
+        let _ = SchedulerService::unbury_deck(
+            &mut col,
+            anki_proto::scheduler::UnburyDeckRequest {
+                deck_id: 1,
+                mode: UnburyMode::UserOnly as i32,
+            },
+        )
+        .unwrap();
+
+        let sched = col.storage.get_card(cid_sched).unwrap().unwrap();
+        let user = col.storage.get_card(cid_user).unwrap().unwrap();
+        assert_eq!(
+            sched.queue,
+            CardQueue::SchedBuried,
+            "sched-buried card remains buried"
+        );
+        assert_eq!(user.queue, CardQueue::New, "user-buried card is restored");
+        assert_eq!(col.counts(), [1, 0, 0]);
+    }
+
+    #[test]
+    fn suspend_marks_card_as_suspended_and_removes_from_queue() {
+        use anki_proto::scheduler::bury_or_suspend_cards_request::Mode;
+        let mut col = Collection::new();
+        let cid = add_basic_card(&mut col);
+
+        let out = SchedulerService::bury_or_suspend_cards(
+            &mut col,
+            anki_proto::scheduler::BuryOrSuspendCardsRequest {
+                card_ids: vec![cid.0],
+                note_ids: vec![],
+                mode: Mode::Suspend as i32,
+            },
+        )
+        .unwrap();
+        assert_eq!(out.count, 1);
+
+        let card = col.storage.get_card(cid).unwrap().unwrap();
+        assert_eq!(card.queue, CardQueue::Suspended);
+        assert_eq!(col.counts(), [0, 0, 0], "suspended card leaves the queue");
+    }
+
+    #[test]
+    fn bury_via_note_ids_resolves_cards_from_notes() {
+        use anki_proto::scheduler::bury_or_suspend_cards_request::Mode;
+        let mut col = Collection::new();
+        let note = NoteAdder::basic(&mut col).add(&mut col);
+        let cid = col.storage.card_ids_of_notes(&[note.id]).unwrap()[0];
+
+        // pass note_ids and leave card_ids empty to exercise the
+        // card_ids_of_notes resolution branch in the service method
+        let out = SchedulerService::bury_or_suspend_cards(
+            &mut col,
+            anki_proto::scheduler::BuryOrSuspendCardsRequest {
+                card_ids: vec![],
+                note_ids: vec![note.id.0],
+                mode: Mode::BuryUser as i32,
+            },
+        )
+        .unwrap();
+        assert_eq!(out.count, 1, "the note's card should be buried");
+
+        let card = col.storage.get_card(cid).unwrap().unwrap();
+        assert_eq!(card.queue, CardQueue::UserBuried);
+    }
+
+    #[test]
+    fn bury_sched_marks_card_as_sched_buried_not_user_buried() {
+        use anki_proto::scheduler::bury_or_suspend_cards_request::Mode;
+        let mut col = Collection::new();
+        let cid = add_basic_card(&mut col);
+
+        let out = SchedulerService::bury_or_suspend_cards(
+            &mut col,
+            anki_proto::scheduler::BuryOrSuspendCardsRequest {
+                card_ids: vec![cid.0],
+                note_ids: vec![],
+                mode: Mode::BurySched as i32,
+            },
+        )
+        .unwrap();
+        assert_eq!(out.count, 1);
+
+        let card = col.storage.get_card(cid).unwrap().unwrap();
+        // SchedBuried (-2) is the sibling-auto-bury queue; it must not be
+        // conflated with UserBuried (-3) because they have separate recovery
+        // paths (unbury_deck SchedOnly vs UserOnly).
+        assert_eq!(card.queue, CardQueue::SchedBuried);
+        assert_eq!(
+            col.counts(),
+            [0, 0, 0],
+            "sched-buried card leaves the queue"
+        );
+
+        // congrats_info must report sched_buried, not user_buried
+        let info = SchedulerService::congrats_info(&mut col).unwrap();
+        assert!(info.have_sched_buried);
+        assert!(!info.have_user_buried);
+    }
+
+    #[test]
+    fn bury_leaves_suspended_card_untouched() {
+        use anki_proto::scheduler::bury_or_suspend_cards_request::Mode;
+        let mut col = Collection::new();
+        let cid = add_basic_card(&mut col);
+
+        // Suspend the card first.
+        let _ = SchedulerService::bury_or_suspend_cards(
+            &mut col,
+            anki_proto::scheduler::BuryOrSuspendCardsRequest {
+                card_ids: vec![cid.0],
+                note_ids: vec![],
+                mode: Mode::Suspend as i32,
+            },
+        )
+        .unwrap();
+        assert_eq!(
+            col.storage.get_card(cid).unwrap().unwrap().queue,
+            CardQueue::Suspended,
+            "precondition: card is suspended"
+        );
+
+        // A subsequent bury request must not change the queue — burying a
+        // suspended card would silently convert it to SchedBuried/UserBuried,
+        // causing it to auto-unbury on the next day rollover and losing the
+        // explicit suspension.
+        let _ = SchedulerService::bury_or_suspend_cards(
+            &mut col,
+            anki_proto::scheduler::BuryOrSuspendCardsRequest {
+                card_ids: vec![cid.0],
+                note_ids: vec![],
+                mode: Mode::BuryUser as i32,
+            },
+        )
+        .unwrap();
+
+        let card = col.storage.get_card(cid).unwrap().unwrap();
+        assert_eq!(
+            card.queue,
+            CardQueue::Suspended,
+            "suspended card must remain suspended after a bury request"
+        );
+    }
+
+    #[test]
+    fn schedule_cards_as_new_resets_graduated_card() {
+        let mut col = Collection::new();
+        NoteAdder::basic(&mut col).add(&mut col);
+
+        // graduate the card to review first
+        let card_id = answer_top_card(&mut col, Rating::Easy);
+        let card = col.storage.get_card(CardId(card_id)).unwrap().unwrap();
+        assert_eq!(card.ctype, CardType::Review, "precondition: card graduated");
+
+        // reset it back to new
+        let _ = SchedulerService::schedule_cards_as_new(
+            &mut col,
+            anki_proto::scheduler::ScheduleCardsAsNewRequest {
+                card_ids: vec![card_id],
+                log: true,
+                restore_position: true,
+                reset_counts: false,
+                context: None,
+            },
+        )
+        .unwrap();
+
+        let card = col.storage.get_card(CardId(card_id)).unwrap().unwrap();
+        assert_eq!(card.ctype, CardType::New, "card should be reset to new");
+        assert_eq!(card.queue, CardQueue::New);
+    }
+
+    #[test]
+    fn schedule_cards_as_new_reviewer_context_stores_independently_of_browser() {
+        use anki_proto::scheduler::schedule_cards_as_new_request::Context;
+        let mut col = Collection::new();
+        NoteAdder::basic(&mut col).add(&mut col);
+
+        let card_id = answer_top_card(&mut col, Rating::Easy);
+
+        // Write non-default values via the Reviewer context.
+        let _ = SchedulerService::schedule_cards_as_new(
+            &mut col,
+            anki_proto::scheduler::ScheduleCardsAsNewRequest {
+                card_ids: vec![card_id],
+                log: false,
+                restore_position: false,
+                reset_counts: true,
+                context: Some(Context::Reviewer as i32),
+            },
+        )
+        .unwrap();
+
+        let reviewer = SchedulerService::schedule_cards_as_new_defaults(
+            &mut col,
+            anki_proto::scheduler::ScheduleCardsAsNewDefaultsRequest {
+                context: Context::Reviewer as i32,
+            },
+        )
+        .unwrap();
+
+        let browser = SchedulerService::schedule_cards_as_new_defaults(
+            &mut col,
+            anki_proto::scheduler::ScheduleCardsAsNewDefaultsRequest {
+                context: Context::Browser as i32,
+            },
+        )
+        .unwrap();
+
+        // Reviewer picked up the values we stored.
+        assert!(!reviewer.restore_position);
+        assert!(reviewer.reset_counts);
+
+        // Browser config is independent and still at its defaults.
+        assert!(browser.restore_position);
+        assert!(!browser.reset_counts);
+    }
+
+    #[test]
+    fn schedule_cards_as_new_defaults_are_stored_and_read_back_per_context() {
+        use anki_proto::scheduler::schedule_cards_as_new_request::Context;
+        let mut col = Collection::new();
+        NoteAdder::basic(&mut col).add(&mut col);
+
+        // Graduate the card so we have something to reschedule.
+        let card_id = answer_top_card(&mut col, Rating::Easy);
+
+        // Persist non-default values for the Browser context only.
+        let _ = SchedulerService::schedule_cards_as_new(
+            &mut col,
+            anki_proto::scheduler::ScheduleCardsAsNewRequest {
+                card_ids: vec![card_id],
+                log: false,
+                restore_position: false,
+                reset_counts: true,
+                context: Some(Context::Browser as i32),
+            },
+        )
+        .unwrap();
+
+        let browser = SchedulerService::schedule_cards_as_new_defaults(
+            &mut col,
+            anki_proto::scheduler::ScheduleCardsAsNewDefaultsRequest {
+                context: Context::Browser as i32,
+            },
+        )
+        .unwrap();
+
+        let reviewer = SchedulerService::schedule_cards_as_new_defaults(
+            &mut col,
+            anki_proto::scheduler::ScheduleCardsAsNewDefaultsRequest {
+                context: Context::Reviewer as i32,
+            },
+        )
+        .unwrap();
+
+        // Browser picked up the values we just stored.
+        assert!(!browser.restore_position);
+        assert!(browser.reset_counts);
+
+        // Reviewer config is independent and still at its defaults.
+        assert!(reviewer.restore_position);
+        assert!(!reviewer.reset_counts);
+    }
+
+    #[test]
+    fn set_due_date_moves_card_to_review_with_given_offset() {
+        let mut col = Collection::new();
+        let cid = add_basic_card(&mut col);
+
+        // schedule the (new) card to be due in 3 days
+        let _ = SchedulerService::set_due_date(
+            &mut col,
+            anki_proto::scheduler::SetDueDateRequest {
+                card_ids: vec![cid.0],
+                days: "3".to_string(),
+                config_key: None,
+            },
+        )
+        .unwrap();
+
+        let card = col.storage.get_card(cid).unwrap().unwrap();
+        assert_eq!(
+            card.ctype,
+            CardType::Review,
+            "set_due_date turns the card into a review card"
+        );
+        assert_eq!(card.queue, CardQueue::Review);
+        // a new card scheduled "3" days out gets an interval of 3 days
+        assert_eq!(
+            card.interval, 3,
+            "interval should match the requested offset"
+        );
+    }
+
+    #[test]
+    fn set_due_date_with_config_key_persists_the_history() {
+        use anki_proto::config::config_key::String as StringConfigKey;
+
+        use crate::config::StringKey;
+        let mut col = Collection::new();
+        let cid = add_basic_card(&mut col);
+
+        let _ = SchedulerService::set_due_date(
+            &mut col,
+            anki_proto::scheduler::SetDueDateRequest {
+                card_ids: vec![cid.0],
+                days: "5".to_string(),
+                config_key: Some(anki_proto::config::OptionalStringConfigKey {
+                    key: StringConfigKey::SetDueBrowser as i32,
+                }),
+            },
+        )
+        .unwrap();
+
+        let card = col.storage.get_card(cid).unwrap().unwrap();
+        assert_eq!(card.ctype, CardType::Review);
+        assert_eq!(card.interval, 5, "the requested offset is applied");
+
+        // The days string must be written back to config so the dialog
+        // can pre-populate it on the next open.
+        let stored = col.get_config_string(StringKey::SetDueBrowser);
+        assert_eq!(
+            stored, "5",
+            "days value should be persisted under SetDueBrowser"
+        );
+    }
+
+    #[test]
+    fn grade_now_easy_graduates_card_by_id() {
+        let mut col = Collection::new();
+        let cid = add_basic_card(&mut col);
+
+        // grade the card directly by id, without pulling it from the queue
+        let _ = SchedulerService::grade_now(
+            &mut col,
+            anki_proto::scheduler::GradeNowRequest {
+                card_ids: vec![cid.0],
+                rating: Rating::Easy as i32,
+            },
+        )
+        .unwrap();
+
+        let card = col.storage.get_card(cid).unwrap().unwrap();
+        assert_eq!(
+            card.ctype,
+            CardType::Review,
+            "Easy grade_now graduates the card"
+        );
+        assert_eq!(card.queue, CardQueue::Review);
+    }
+
+    #[test]
+    fn sort_cards_repositions_new_cards_from_starting_offset() {
+        let mut col = Collection::new();
+        let note1 = NoteAdder::basic(&mut col).add(&mut col);
+        let note2 = NoteAdder::basic(&mut col).fields(&["b", ""]).add(&mut col);
+        let cid1 = col.storage.card_ids_of_notes(&[note1.id]).unwrap()[0];
+        let cid2 = col.storage.card_ids_of_notes(&[note2.id]).unwrap()[0];
+
+        // reposition the two new cards starting at position 5, step 1, preserving order
+        let out = SchedulerService::sort_cards(
+            &mut col,
+            anki_proto::scheduler::SortCardsRequest {
+                card_ids: vec![cid1.0, cid2.0],
+                starting_from: 5,
+                step_size: 1,
+                randomize: false,
+                shift_existing: false,
+            },
+        )
+        .unwrap();
+        assert_eq!(out.count, 2, "both cards should be repositioned");
+
+        // new card position is stored in `due`; order preserved => 5 then 6
+        let card1 = col.storage.get_card(cid1).unwrap().unwrap();
+        let card2 = col.storage.get_card(cid2).unwrap().unwrap();
+        assert_eq!(card1.due, 5);
+        assert_eq!(card2.due, 6);
+    }
+
+    #[test]
+    fn sort_cards_with_shift_existing_pushes_pre_existing_cards_forward() {
+        let mut col = Collection::new();
+
+        // Place an existing card at position 5 via a first sort.
+        let occupant = add_basic_card(&mut col);
+        let _ = SchedulerService::sort_cards(
+            &mut col,
+            anki_proto::scheduler::SortCardsRequest {
+                card_ids: vec![occupant.0],
+                starting_from: 5,
+                step_size: 1,
+                randomize: false,
+                shift_existing: false,
+            },
+        )
+        .unwrap();
+        assert_eq!(
+            col.storage.get_card(occupant).unwrap().unwrap().due,
+            5,
+            "precondition: occupant sits at position 5"
+        );
+
+        // Reposition two new cards starting at 5 with step_size=2 and
+        // shift_existing=true. Using step_size=2 (not 1) ensures the shift
+        // amount is step*count=4, which differs from a buggy implementation
+        // that used count alone (shift=2).
+        let incoming1 = add_basic_card(&mut col);
+        let incoming2 = add_basic_card(&mut col);
+        let _ = SchedulerService::sort_cards(
+            &mut col,
+            anki_proto::scheduler::SortCardsRequest {
+                card_ids: vec![incoming1.0, incoming2.0],
+                starting_from: 5,
+                step_size: 2,
+                randomize: false,
+                shift_existing: true,
+            },
+        )
+        .unwrap();
+
+        let occ = col.storage.get_card(occupant).unwrap().unwrap();
+        let inc1 = col.storage.get_card(incoming1).unwrap().unwrap();
+        let inc2 = col.storage.get_card(incoming2).unwrap().unwrap();
+        assert_eq!(inc1.due, 5, "first incoming card lands at starting_from");
+        assert_eq!(
+            inc2.due, 7,
+            "second incoming card lands at starting_from + step_size"
+        );
+        // shift = step_size * count = 2 * 2 = 4; occupant moves from 5 to 9
+        assert_eq!(
+            occ.due, 9,
+            "pre-existing card is shifted by step_size * incoming_count"
+        );
+    }
+
+    #[test]
+    fn sort_cards_with_randomize_produces_different_ordering_than_preserve() {
+        const N: usize = 8;
+        let mut col = Collection::new();
+
+        let cids: Vec<CardId> = (0..N)
+            .map(|i| {
+                let note = NoteAdder::basic(&mut col)
+                    .fields(&[&i.to_string(), ""])
+                    .add(&mut col);
+                col.storage.card_ids_of_notes(&[note.id]).unwrap()[0]
+            })
+            .collect();
+        let cid_ints: Vec<i64> = cids.iter().map(|c| c.0).collect();
+
+        // Establish the deterministic baseline: cids[i].due == i.
+        let _ = SchedulerService::sort_cards(
+            &mut col,
+            anki_proto::scheduler::SortCardsRequest {
+                card_ids: cid_ints.clone(),
+                starting_from: 0,
+                step_size: 1,
+                randomize: false,
+                shift_existing: false,
+            },
+        )
+        .unwrap();
+        let preserve_dues: Vec<i32> = cids
+            .iter()
+            .map(|&id| col.storage.get_card(id).unwrap().unwrap().due)
+            .collect();
+
+        // Loop until the RNG produces an ordering that differs from preserve.
+        // One different result out of 100 attempts is sufficient to confirm randomness;
+        // the probability of 100 consecutive identical shuffles is (1/N!)^100 ≈ 0.
+        for _ in 0..100 {
+            let out = SchedulerService::sort_cards(
+                &mut col,
+                anki_proto::scheduler::SortCardsRequest {
+                    card_ids: cid_ints.clone(),
+                    starting_from: 0,
+                    step_size: 1,
+                    randomize: true,
+                    shift_existing: false,
+                },
+            )
+            .unwrap();
+            assert_eq!(out.count, N as u32);
+
+            let random_dues: Vec<i32> = cids
+                .iter()
+                .map(|&id| col.storage.get_card(id).unwrap().unwrap().due)
+                .collect();
+
+            // Every card must receive a unique position within [0, N).
+            let mut sorted = random_dues.clone();
+            sorted.sort_unstable();
+            assert_eq!(
+                sorted,
+                (0..N as i32).collect::<Vec<_>>(),
+                "positions must be a permutation of [0, N)"
+            );
+
+            if random_dues != preserve_dues {
+                return;
+            }
+        }
+        unreachable!("randomized sort never produced a different ordering than preserve");
+    }
+
+    #[test]
+    fn sort_deck_repositions_new_cards_in_deck() {
+        let mut col = Collection::new();
+        NoteAdder::basic(&mut col).add(&mut col);
+        NoteAdder::basic(&mut col).fields(&["b", ""]).add(&mut col);
+
+        let out = SchedulerService::sort_deck(
+            &mut col,
+            anki_proto::scheduler::SortDeckRequest {
+                deck_id: 1,
+                randomize: false,
+            },
+        )
+        .unwrap();
+
+        assert_eq!(out.count, 2, "both new cards in the deck are repositioned");
+    }
+
+    #[test]
+    fn reposition_defaults_returns_stored_values() {
+        let mut col = Collection::new();
+
+        // Verify out-of-box defaults.
+        let defaults = SchedulerService::reposition_defaults(&mut col).unwrap();
+        assert!(!defaults.random);
+        assert!(!defaults.shift);
+
+        // sort_cards persists randomize and shift_existing to config; a subsequent
+        // reposition_defaults call must reflect those stored values.
+        let cid = add_basic_card(&mut col);
+        let _ = SchedulerService::sort_cards(
+            &mut col,
+            anki_proto::scheduler::SortCardsRequest {
+                card_ids: vec![cid.0],
+                starting_from: 0,
+                step_size: 1,
+                randomize: true,
+                shift_existing: true,
+            },
+        )
+        .unwrap();
+
+        let stored = SchedulerService::reposition_defaults(&mut col).unwrap();
+        assert!(
+            stored.random,
+            "random should be persisted after sort_cards with randomize=true"
+        );
+        assert!(
+            stored.shift,
+            "shift should be persisted after sort_cards with shift_existing=true"
+        );
+    }
+
+    #[test]
+    fn describe_next_states_returns_one_label_per_button() {
+        let mut col = Collection::new();
+        let cid = add_basic_card(&mut col);
+
+        let states = SchedulerService::get_scheduling_states(
+            &mut col,
+            anki_proto::cards::CardId { cid: cid.0 },
+        )
+        .unwrap();
+
+        let labels = SchedulerService::describe_next_states(&mut col, states).unwrap();
+
+        // one human-readable interval label for Again/Hard/Good/Easy
+        assert_eq!(labels.vals.len(), 4);
+        assert!(labels.vals.iter().all(|s| !s.is_empty()));
+    }
+
+    #[test]
+    fn state_is_leech_reflects_review_leeched_flag() {
+        use anki_proto::scheduler::scheduling_state;
+
+        let mut col = Collection::new();
+
+        // Only `leeched` is relevant to state_is_leech; the remaining fields are
+        // required to build a valid Review state but do not affect the result.
+        let review_state = |leeched: bool| scheduling_state::Review {
+            scheduled_days: 0,
+            elapsed_days: 0,
+            ease_factor: 0.0,
+            lapses: 0,
+            leeched,
+            memory_state: None,
+        };
+        let normal_review = |leeched: bool| anki_proto::scheduler::SchedulingState {
+            kind: Some(scheduling_state::Kind::Normal(scheduling_state::Normal {
+                kind: Some(scheduling_state::normal::Kind::Review(review_state(
+                    leeched,
+                ))),
+            })),
+            custom_data: None,
+        };
+
+        let leech = SchedulerService::state_is_leech(&mut col, normal_review(true)).unwrap();
+        assert!(leech.val, "a review state flagged as leeched is a leech");
+
+        let not_leech = SchedulerService::state_is_leech(&mut col, normal_review(false)).unwrap();
+        assert!(
+            !not_leech.val,
+            "a review state without the flag is not a leech"
+        );
+    }
+
+    #[test]
+    fn sched_timing_today_reports_no_elapsed_days_and_future_rollover() {
+        let mut col = Collection::new();
+
+        let timing = SchedulerService::sched_timing_today(&mut col).unwrap();
+
+        // A collection created today has not rolled over to a new day yet.
+        assert_eq!(timing.days_elapsed, 0);
+        // The next day-rollover must be scheduled in the future.
+        assert!(timing.next_day_at > TimestampSecs::now().0);
+    }
+
+    #[test]
+    fn studied_today_reports_nothing_studied_for_fresh_collection() {
+        let mut col = Collection::new();
+
+        let msg = SchedulerService::studied_today(&mut col).unwrap().val;
+
+        assert_eq!(
+            msg.replace('\n', " "),
+            "Studied 0 cards in 0 seconds today (0s/card)"
+        );
+    }
+
+    #[test]
+    fn studied_today_message_renders_counts_from_request() {
+        let mut col = Collection::new();
+
+        let msg = SchedulerService::studied_today_message(
+            &mut col,
+            anki_proto::scheduler::StudiedTodayMessageRequest {
+                cards: 3,
+                seconds: 13.0,
+            },
+        )
+        .unwrap()
+        .val;
+
+        // template_only i18n renders a deterministic, English summary string.
+        assert_eq!(
+            msg.replace('\n', " "),
+            "Studied 3 cards in 13 seconds today (4.33s/card)"
+        );
+    }
+
+    #[test]
+    fn counts_for_deck_today_tracks_new_cards_studied() {
+        let mut col = Collection::new();
+        NoteAdder::basic(&mut col).add(&mut col);
+
+        // Nothing studied yet in the default deck.
+        let before =
+            SchedulerService::counts_for_deck_today(&mut col, anki_proto::decks::DeckId { did: 1 })
+                .unwrap();
+        assert_eq!(before.new, 0);
+        assert_eq!(before.review, 0);
+
+        // Answering the new card counts it as one new card studied today.
+        answer_top_card(&mut col, Rating::Good);
+
+        let after =
+            SchedulerService::counts_for_deck_today(&mut col, anki_proto::decks::DeckId { did: 1 })
+                .unwrap();
+        assert_eq!(after.new, 1, "studying a new card increments the new count");
+    }
+
+    #[test]
+    fn congrats_info_reports_nothing_remaining_for_empty_collection() {
+        let mut col = Collection::new();
+
+        let info = SchedulerService::congrats_info(&mut col).unwrap();
+
+        // An empty default deck has no work left and is not a filtered deck.
+        assert!(!info.new_remaining);
+        assert!(!info.review_remaining);
+        assert_eq!(info.learn_remaining, 0);
+        assert!(!info.is_filtered_deck);
+    }
+
+    #[test]
+    fn congrats_info_shows_new_remaining_when_new_cards_exist() {
+        let mut col = Collection::new();
+        NoteAdder::basic(&mut col).add(&mut col);
+
+        let info = SchedulerService::congrats_info(&mut col).unwrap();
+
+        assert!(
+            info.new_remaining,
+            "new card should be reported as remaining"
+        );
+        assert!(!info.review_remaining);
+        assert_eq!(info.learn_remaining, 0);
+    }
+
+    #[test]
+    fn congrats_info_shows_review_remaining_when_review_card_is_due_today() {
+        let mut col = Collection::new();
+        let cid = add_basic_card(&mut col);
+
+        // days="0" schedules the card as a review card due today (offset 0 from
+        // the collection's days_elapsed, which is 0 for a fresh collection).
+        let _ = SchedulerService::set_due_date(
+            &mut col,
+            anki_proto::scheduler::SetDueDateRequest {
+                card_ids: vec![cid.0],
+                days: "0".to_string(),
+                config_key: None,
+            },
+        )
+        .unwrap();
+
+        let info = SchedulerService::congrats_info(&mut col).unwrap();
+
+        assert!(
+            info.review_remaining,
+            "review card due today should be reported"
+        );
+        assert!(!info.new_remaining, "card is no longer in the new queue");
+    }
+
+    #[test]
+    fn congrats_info_shows_have_user_buried_when_card_is_buried() {
+        use anki_proto::scheduler::bury_or_suspend_cards_request::Mode;
+        let mut col = Collection::new();
+        let cid = add_basic_card(&mut col);
+
+        let _ = SchedulerService::bury_or_suspend_cards(
+            &mut col,
+            anki_proto::scheduler::BuryOrSuspendCardsRequest {
+                card_ids: vec![cid.0],
+                note_ids: vec![],
+                mode: Mode::BuryUser as i32,
+            },
+        )
+        .unwrap();
+
+        let info = SchedulerService::congrats_info(&mut col).unwrap();
+
+        assert!(info.have_user_buried, "user-buried card should be reported");
+        assert!(
+            !info.new_remaining,
+            "buried card is no longer in the new queue"
+        );
+    }
+
+    #[test]
+    fn update_stats_adds_deltas_to_deck_counts() {
+        let mut col = Collection::new();
+
+        SchedulerService::update_stats(
+            &mut col,
+            anki_proto::scheduler::UpdateStatsRequest {
+                deck_id: 1,
+                new_delta: 2,
+                review_delta: 3,
+                millisecond_delta: 0,
+            },
+        )
+        .unwrap();
+
+        let counts =
+            SchedulerService::counts_for_deck_today(&mut col, anki_proto::decks::DeckId { did: 1 })
+                .unwrap();
+        assert_eq!(counts.new, 2, "new_delta is added to the studied count");
+        assert_eq!(
+            counts.review, 3,
+            "review_delta is added to the studied count"
+        );
+    }
+
+    #[test]
+    fn extend_limits_subtracts_from_studied_counts() {
+        let mut col = Collection::new();
+
+        // Pretend 5 new / 5 review cards were already studied today.
+        SchedulerService::update_stats(
+            &mut col,
+            anki_proto::scheduler::UpdateStatsRequest {
+                deck_id: 1,
+                new_delta: 5,
+                review_delta: 5,
+                millisecond_delta: 0,
+            },
+        )
+        .unwrap();
+
+        // Extending the limits lowers the studied counts, freeing up more cards.
+        SchedulerService::extend_limits(
+            &mut col,
+            anki_proto::scheduler::ExtendLimitsRequest {
+                deck_id: 1,
+                new_delta: 2,
+                review_delta: 1,
+            },
+        )
+        .unwrap();
+
+        let counts =
+            SchedulerService::counts_for_deck_today(&mut col, anki_proto::decks::DeckId { did: 1 })
+                .unwrap();
+        assert_eq!(counts.new, 3, "5 studied minus a limit extension of 2");
+        assert_eq!(counts.review, 4, "5 studied minus a limit extension of 1");
+    }
+
+    #[test]
+    fn upgrade_scheduler_switches_collection_to_v2() {
+        let mut col = Collection::new();
+
+        SchedulerService::upgrade_scheduler(&mut col).unwrap();
+
+        assert!(col.v2_enabled(), "scheduler should report v2 after upgrade");
+    }
+
+    /// Adds a learning card that the default filtered-deck search will gather.
+    fn add_gatherable_card(col: &mut Collection) -> Card {
+        let note = NoteAdder::basic(col).add(col);
+        let cid = col.storage.card_ids_of_notes(&[note.id]).unwrap()[0];
+        let mut card = col.storage.get_card(cid).unwrap().unwrap();
+        card.ctype = CardType::Learn;
+        card.queue = CardQueue::DayLearn;
+        card.remaining_steps = 1;
+        card.due = 0;
+        col.storage.update_card(&card).unwrap();
+        card
+    }
+
+    #[test]
+    fn rebuild_filtered_deck_gathers_matching_cards() {
+        let mut col = Collection::new();
+        let card = add_gatherable_card(&mut col);
+
+        let mut filtered = Deck::new_filtered();
+        col.add_or_update_deck(&mut filtered).unwrap();
+
+        let out = SchedulerService::rebuild_filtered_deck(
+            &mut col,
+            anki_proto::decks::DeckId { did: filtered.id.0 },
+        )
+        .unwrap();
+
+        assert_eq!(out.count, 1, "the matching card is gathered");
+        let card = col.storage.get_card(card.id).unwrap().unwrap();
+        assert_eq!(
+            card.deck_id, filtered.id,
+            "card now lives in the filtered deck"
+        );
+    }
+
+    #[test]
+    fn empty_filtered_deck_returns_cards_to_home_deck() {
+        let mut col = Collection::new();
+        let card = add_gatherable_card(&mut col);
+
+        let mut filtered = Deck::new_filtered();
+        col.add_or_update_deck(&mut filtered).unwrap();
+        col.rebuild_filtered_deck(filtered.id).unwrap();
+        // sanity: the card was pulled into the filtered deck
+        assert_eq!(
+            col.storage.get_card(card.id).unwrap().unwrap().deck_id,
+            filtered.id
+        );
+
+        let _ = SchedulerService::empty_filtered_deck(
+            &mut col,
+            anki_proto::decks::DeckId { did: filtered.id.0 },
+        )
+        .unwrap();
+
+        let card = col.storage.get_card(card.id).unwrap().unwrap();
+        assert_eq!(card.deck_id, DeckId(1), "card is returned to its home deck");
+    }
+
+    #[test]
+    fn custom_study_extends_new_limit() {
+        let mut col = Collection::new();
+
+        let _ = SchedulerService::custom_study(
+            &mut col,
+            anki_proto::scheduler::CustomStudyRequest {
+                deck_id: 1,
+                value: Some(anki_proto::scheduler::custom_study_request::Value::NewLimitDelta(5)),
+            },
+        )
+        .unwrap();
+
+        let defaults = SchedulerService::custom_study_defaults(
+            &mut col,
+            anki_proto::scheduler::CustomStudyDefaultsRequest { deck_id: 1 },
+        )
+        .unwrap();
+        assert_eq!(
+            defaults.extend_new, 5,
+            "new limit was extended by the delta"
+        );
+    }
+
+    #[test]
+    fn custom_study_defaults_reports_available_new_cards() {
+        let mut col = Collection::new();
+        NoteAdder::basic(&mut col).add(&mut col);
+
+        let defaults = SchedulerService::custom_study_defaults(
+            &mut col,
+            anki_proto::scheduler::CustomStudyDefaultsRequest { deck_id: 1 },
+        )
+        .unwrap();
+
+        assert_eq!(
+            defaults.available_new, 1,
+            "the new card is available to study"
+        );
+    }
+}

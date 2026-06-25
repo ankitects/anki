@@ -856,10 +856,17 @@ pub(crate) mod test {
         }};
     }
 
-    // FIXME: This fails between 3:50-4:00 GMT
     #[test]
     fn new_limited_by_reviews() -> Result<()> {
         let (mut col, cids) = v3_test_collection(4)?;
+        // The final answer schedules a learning card a 10-minute step ahead. Run
+        // shortly before the daily cutoff (e.g. 3:50-4:00 GMT with the default 4am
+        // rollover), that step crosses into the next day and the card is no longer
+        // counted as intraday learning, so the expected counts break. Skip in that
+        // window, as the sibling timing-sensitive tests do.
+        if col.timing_today()?.near_cutoff() {
+            return Ok(());
+        }
         col.set_due_date(&cids[0..2], "0", None)?;
         // set a limit of 3 reviews, which should give us 2 reviews and 1 new card
         let mut conf = col.get_deck_config(DeckConfigId(1), false)?.unwrap();
