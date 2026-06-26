@@ -1,7 +1,7 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-import { test as base, type Page } from "@playwright/test";
+import { type Page, test as base } from "@playwright/test";
 
 export { expect } from "@playwright/test";
 
@@ -47,9 +47,7 @@ export const test = base.extend<AnkiFixtures>({
         );
         // initial: true triggers defaultsForAdding() so the deck/notetype
         // choosers are populated from the backend.
-        await editorPage.evaluate(() =>
-            (window as any).loadNote({ initial: true }),
-        );
+        await editorPage.evaluate(() => (window as any).loadNote({ initial: true }));
         // At least one field container signals that the note loaded.
         await editorPage.waitForSelector(".field-container", { timeout: 15_000 });
         await use(editorPage);
