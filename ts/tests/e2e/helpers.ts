@@ -11,6 +11,16 @@ export function rpcUrl(method: string): string {
     return `/_anki/${method}`;
 }
 
+/**
+ * Returns a Playwright request predicate that matches only this exact RPC
+ * endpoint. Uses endsWith() so "addNote" never accidentally matches
+ * "addNoteBulk" or similar future methods.
+ */
+export function isRpc(method: string): (req: import("@playwright/test").Request) => boolean {
+    const suffix = rpcUrl(method);
+    return (req) => req.url().endsWith(suffix);
+}
+
 // ---------------------------------------------------------------------------
 // Field locators
 //
@@ -67,7 +77,11 @@ export function decodeRequestBody<T>(
     if (!body) {
         throw new Error(`Request to ${request.url()} had no postData`);
     }
-    return messageType.fromBinary(new Uint8Array(body));
+    try {
+        return messageType.fromBinary(new Uint8Array(body));
+    } catch (e) {
+        throw new Error(`Failed to decode protobuf from ${request.url()}: ${e}`);
+    }
 }
 
 // ---------------------------------------------------------------------------
