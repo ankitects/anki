@@ -22,6 +22,12 @@
  *           .decompose(), documented in index.test.ts:63-71)
  *   Legacy: editor_legacy.py:1060  `removeTags = ["script", ...]`
  *
+ * Test case 3 – event handler attributes stripped (no XSS via onclick/onerror)
+ *   Source: element.ts:14-25  filterAttributes() with allowlist — any attribute
+ *           not in the allowlist is removed, including all on* handlers.
+ *   Legacy: editor_legacy.py:1062-1107  _pastePreFilter via BeautifulSoup
+ *           (attribute removal was handled by the JS layer via execCommand).
+ *
  * Note: The paste event must be constructed inside page.evaluate() so that
  * DataTransfer is a real browser API (the Node-side constructor does not
  * populate clipboardData). See helpers.pasteData().
@@ -108,4 +114,40 @@ test("pasted <script> tags are stripped and do not execute", async ({ editor: pa
     const decoded = decodeRequestBody(await addNoteReqPromise, AddNoteRequest);
     expect(decoded.note?.fields[0]).not.toMatch(/<script/i);
     expect(decoded.note?.fields[0]).not.toContain("window.__xssRan");
+});
+
+test("event handler attributes in pasted HTML are stripped and never execute", async ({
+    editor: page,
+}) => {
+    const field = editableField(page, 0);
+    await expect(field).toBeAttached({ timeout: 10_000 });
+
+    // Arm XSS sentinel before paste.
+    await page.evaluate(() => {
+        (window as unknown as { __xssRan?: boolean }).__xssRan = false;
+    });
+
+    await field.click();
+    await pasteData(field, {
+        // onclick on a div and onerror on an img — both are on* event handlers
+        // that the allowlist-based filter (element.ts:14-25) must strip.
+        "text/html":
+            '<div onclick="window.__xssRan = true">Safe Content</div>' +
+            '<img src="x" onerror="window.__xssRan = true">',
+    });
+
+    // The safe text content must appear.
+    await expect(field).toContainText("Safe Content", { timeout: 5_000 });
+
+    // No on* attribute may survive in the DOM.
+    const innerHTML = await field.evaluate((el) => el.innerHTML);
+    expect(innerHTML).not.toMatch(/\bon\w+=/i);
+
+    // Handlers must never have executed.
+    expect(
+        await page.evaluate(
+            () => (window as unknown as { __xssRan?: boolean }).__xssRan,
+        ),
+        "pasted event handlers must never execute",
+    ).toBe(false);
 });

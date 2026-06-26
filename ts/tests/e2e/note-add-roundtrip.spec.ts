@@ -17,6 +17,11 @@
  *  - window.__bridgeCalls contains "saved" (NoteEditor.svelte:438).
  *
  * This test mutates the collection — a note is persisted on every run.
+ *
+ * Suite 1b – empty field validation (issue #4930)
+ *
+ * Verifies that clicking Add with an empty first field does NOT fire the
+ * addNote RPC, matching the legacy noteCanBeAdded() guard in editor_legacy.py.
  */
 
 import { AddNoteRequest } from "@generated/anki/notes_pb";
@@ -84,4 +89,20 @@ test("typing into fields and clicking Add sends correct addNote payload", async 
 
     // updateNotes must never fire during an add flow.
     expect(updateNotesFired).toBe(false);
+});
+
+test("clicking Add with empty fields does not fire addNote", async ({ editor: page }) => {
+    // Fields are empty after loadNote({ initial: true }) — do not type anything.
+
+    // Set up listener BEFORE clicking so no fire can be missed.
+    // waitForRequest rejects with TimeoutError if no match arrives within the
+    // timeout — that rejection IS the passing condition here.
+    const addNotePromise = page.waitForRequest(isRpc("addNote"), { timeout: 2_000 });
+
+    await page.getByRole("button", { name: "Add", exact: true }).click();
+
+    // If addNote fires the promise resolves and rejects.toThrow() fails — which
+    // is the correct failure signal. If it does not fire within 2 s the promise
+    // rejects with TimeoutError and the assertion passes.
+    await expect(addNotePromise).rejects.toThrow();
 });
