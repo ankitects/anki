@@ -20,12 +20,18 @@
  * This test mutates the notetype configuration. It toggles twice so the final
  * state matches the initial state. If a downstream test depends on a specific
  * sticky state, set it explicitly.
+ *
+ * Suite 2b – sticky field value preservation (issue #4930)
+ *
+ * Verifies that a sticky field retains its value after a note is added,
+ * matching the legacy _get_sticky_fields() copy in editor_legacy.py.
+ * Non-sticky fields must clear as usual.
  */
 
 import { Notetype } from "@generated/anki/notetypes_pb";
 
 import { expect, test } from "./fixtures";
-import { bridgeCalls, decodeRequestBody, fieldContainer, isRpc } from "./helpers";
+import { bridgeCalls, decodeRequestBody, editableField, fieldContainer, isRpc } from "./helpers";
 
 test("clicking sticky badge uses getNotetype+updateNotetype, not legacy bridgeCommand", async ({ editor: page }) => {
     const container = fieldContainer(page, 0);
@@ -79,4 +85,43 @@ test("clicking sticky badge uses getNotetype+updateNotetype, not legacy bridgeCo
     const notetype2 = decodeRequestBody(updateNotetypeReq2, Notetype);
     expect(notetype2.fields[0].config?.sticky).toBe(false);
     await expect(badge).not.toHaveClass(/highlighted/, { timeout: 5_000 });
+});
+
+test("sticky field value is preserved after add, non-sticky field clears", async ({
+    editor: page,
+}) => {
+    const container = fieldContainer(page, 0);
+    await container.hover();
+    const badge = container.locator('.field-state [role="button"]').first();
+    await expect(badge).toBeVisible({ timeout: 5_000 });
+
+    // Enable sticky on field 0.
+    const enablePromise = page.waitForRequest(isRpc("updateNotetype"), { timeout: 10_000 });
+    await badge.click();
+    await enablePromise;
+
+    // Type into both fields.
+    const field0 = editableField(page, 0);
+    const field1 = editableField(page, 1);
+    await field0.click();
+    await field0.pressSequentially("Sticky Value");
+    await field1.click();
+    await field1.pressSequentially("Non-sticky Value");
+
+    // Add the note and wait for form reset.
+    const addNotePromise = page.waitForRequest(isRpc("addNote"), { timeout: 10_000 });
+    await page.getByRole("button", { name: "Add", exact: true }).click();
+    await addNotePromise;
+    await page.waitForRequest(isRpc("newNote"), { timeout: 10_000 });
+
+    // Field 0 (sticky) must preserve its value; field 1 must clear.
+    await expect(field0).toHaveText("Sticky Value", { timeout: 5_000 });
+    await expect(field1).toHaveText("", { timeout: 5_000 });
+
+    // Restore: disable sticky on field 0.
+    await container.hover();
+    await expect(badge).toBeVisible({ timeout: 5_000 });
+    const disablePromise = page.waitForRequest(isRpc("updateNotetype"), { timeout: 10_000 });
+    await badge.click();
+    await disablePromise;
 });
