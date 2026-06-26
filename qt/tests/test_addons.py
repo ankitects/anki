@@ -5,6 +5,7 @@ import os.path
 from tempfile import TemporaryDirectory
 from zipfile import ZipFile
 
+import pytest
 from mock import MagicMock
 
 from aqt.addons import AddonManager, package_name_valid
@@ -75,3 +76,24 @@ def test_package_name_validation():
     assert not package_name_valid("a/b")
     assert not package_name_valid("..")
     assert package_name_valid("ab")
+
+
+@pytest.fixture
+def addon_manager(tmp_path) -> AddonManager:
+    adm = AddonManager(MagicMock())
+    adm.mw.pm.addonFolder.return_value = tmp_path
+    return adm
+
+
+def test_install_extracts_safe_files(tmp_path, addon_manager):
+    zfn = os.path.join(tmp_path, "addon.zip")
+    with ZipFile(zfn, "w") as zfile:
+        zfile.writestr("main.py", "content")
+        zfile.writestr("../unsafe.txt", "content")
+        zfile.writestr("subdir/helper.py", "content")
+    with ZipFile(zfn) as zfile:
+        addon_manager._install("12345", zfile)
+    addon_dir = os.path.join(tmp_path, "12345")
+    assert os.path.exists(os.path.join(addon_dir, "main.py"))
+    assert os.path.exists(os.path.join(addon_dir, "subdir", "helper.py"))
+    assert not os.path.exists(os.path.join(tmp_path, "unsafe.txt"))

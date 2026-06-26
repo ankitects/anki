@@ -16,21 +16,12 @@ from collections.abc import Callable, Sequence
 from concurrent.futures import Future
 from typing import Any, Literal, TypeVar, cast
 
-from packaging.version import Version
-
 import anki
-import anki.cards
 import anki.sound
 import aqt
 import aqt.forms
-import aqt.mediasrv
-import aqt.mpv
-import aqt.operations
 import aqt.progress
 import aqt.sound
-import aqt.stats
-import aqt.toolbar
-import aqt.webview
 from anki import hooks
 from anki._backend import RustBackend as _RustBackend
 from anki._legacy import deprecated
@@ -52,18 +43,9 @@ from anki.utils import (
 )
 from aqt import gui_hooks
 from aqt.addons import DownloadLogEntry, check_and_prompt_for_updates, show_log_to_user
-from aqt.dbcheck import check_db
 from aqt.debug_console import show_debug_console
-from aqt.emptycards import show_empty_cards
 from aqt.flags import FlagManager
-from aqt.import_export.exporting import ExportDialog
-from aqt.import_export.importing import (
-    import_collection_package_op,
-    import_file,
-    prompt_for_file_then_import,
-)
 from aqt.legacy import install_pylib_legacy
-from aqt.mediacheck import check_media_db
 from aqt.mediasync import MediaSyncer
 from aqt.operations import QueryOp
 from aqt.operations.collection import redo, undo
@@ -76,7 +58,6 @@ from aqt.taskman import TaskManager
 from aqt.theme import Theme, theme_manager
 from aqt.toolbar import BottomWebView, Toolbar, TopWebView
 from aqt.undo import UndoActionsInfo
-from aqt.update import get_latest_release_op, prompt_and_install_github_update
 from aqt.utils import (
     HelpPage,
     KeyboardModifiersPressed,
@@ -134,6 +115,7 @@ class MainWebView(AnkiWebView):
 
     def dropEvent(self, event: QDropEvent) -> None:
         import aqt.importing
+        from aqt.import_export.importing import import_file
 
         if self.mw.state != "deckBrowser":
             return super().dropEvent(event)
@@ -484,6 +466,8 @@ class AnkiQt(QMainWindow):
 
     def _start_restore_backup(self, path: str):
         self.restoring_backup = True
+
+        from aqt.import_export.importing import import_collection_package_op
 
         import_collection_package_op(
             self, path, success=self._handle_load_backup_success
@@ -1330,15 +1314,11 @@ title="{}" {}>{}</button>""".format(
     def onPrefs(self) -> None:
         aqt.dialogs.open("Preferences", self)
 
-    def on_upgrade_downgrade(self) -> None:
-        if not askUser(tr.qt_misc_open_anki_launcher()):
-            return
-
-        from aqt.package import update_and_restart
-
-        update_and_restart()
-
     def on_check_for_updates(self) -> None:
+        from packaging.version import Version
+
+        from aqt.update import get_latest_release_op, prompt_and_install_github_update
+
         version = Version(version_str)
 
         def on_success(release: GithubRelease) -> None:
@@ -1375,7 +1355,7 @@ title="{}" {}>{}</button>""".format(
 
     def handleImport(self, path: str) -> None:
         "Importing triggered via file double-click, or dragging file onto Anki icon."
-        import aqt.importing
+        from aqt.import_export.importing import import_file
 
         if not os.path.exists(path):
             # there were instances in the distant past where the received filename was not
@@ -1387,11 +1367,14 @@ title="{}" {}>{}</button>""".format(
         if not self.pm.legacy_import_export():
             import_file(self, path)
         else:
+            import aqt.importing
+
             aqt.importing.importFile(self, path)
 
     def onImport(self) -> None:
         "Importing triggered via File>Import."
         import aqt.importing
+        from aqt.import_export.importing import prompt_for_file_then_import
 
         if not self.pm.legacy_import_export():
             prompt_for_file_then_import(self)
@@ -1400,6 +1383,7 @@ title="{}" {}>{}</button>""".format(
 
     def onExport(self, did: DeckId | None = None) -> None:
         import aqt.exporting
+        from aqt.import_export.exporting import ExportDialog
 
         if not self.pm.legacy_import_export():
             ExportDialog(self, did=did)
@@ -1432,8 +1416,6 @@ title="{}" {}>{}</button>""".format(
     ##########################################################################
 
     def setupMenus(self) -> None:
-        from aqt.package import launcher_executable
-
         m = self.form
 
         # File
@@ -1463,12 +1445,7 @@ title="{}" {}>{}</button>""".format(
         qconnect(m.actionCreateFiltered.triggered, self.onCram)
         qconnect(m.actionEmptyCards.triggered, self.onEmptyCards)
         qconnect(m.actionNoteTypes.triggered, self.onNoteTypes)
-        qconnect(m.action_upgrade_downgrade.triggered, self.on_upgrade_downgrade)
         qconnect(m.action_check_for_updates.triggered, self.on_check_for_updates)
-        if launcher_executable():
-            m.action_check_for_updates.setVisible(False)
-        else:
-            m.action_upgrade_downgrade.setVisible(False)
         qconnect(m.actionPreferences.triggered, self.onPrefs)
 
         # View
@@ -1721,9 +1698,13 @@ title="{}" {}>{}</button>""".format(
     ##########################################################################
 
     def onCheckDB(self) -> None:
+        from aqt.dbcheck import check_db
+
         check_db(self)
 
     def on_check_media_db(self) -> None:
+        from aqt.mediacheck import check_media_db
+
         gui_hooks.media_check_will_start()
         check_media_db(self)
 
@@ -1747,6 +1728,8 @@ title="{}" {}>{}</button>""".format(
         )
 
     def onEmptyCards(self) -> None:
+        from aqt.emptycards import show_empty_cards
+
         show_empty_cards(self)
 
     # System specific code
@@ -1761,38 +1744,6 @@ title="{}" {}>{}</button>""".format(
             self.hideMenuAccels = True
             self.maybeHideAccelerators()
             self.hideStatusTips()
-        elif is_win:
-            self._setupWin32()
-
-    def _setupWin32(self):
-        """Fix taskbar display/pinning"""
-        if sys.platform != "win32":
-            return
-
-        launcher_path = os.environ.get("ANKI_LAUNCHER")
-        if not launcher_path:
-            return
-
-        from win32com.propsys import propsys, pscon
-        from win32com.propsys.propsys import PROPVARIANTType
-
-        hwnd = int(self.winId())
-        prop_store = propsys.SHGetPropertyStoreForWindow(hwnd)  # type: ignore[call-arg]
-        prop_store.SetValue(
-            pscon.PKEY_AppUserModel_ID, PROPVARIANTType("Ankitects.Anki")
-        )
-        prop_store.SetValue(
-            pscon.PKEY_AppUserModel_RelaunchCommand,
-            PROPVARIANTType(f'"{launcher_path}"'),
-        )
-        prop_store.SetValue(
-            pscon.PKEY_AppUserModel_RelaunchDisplayNameResource, PROPVARIANTType("Anki")
-        )
-        prop_store.SetValue(
-            pscon.PKEY_AppUserModel_RelaunchIconResource,
-            PROPVARIANTType(f"{launcher_path},0"),
-        )
-        prop_store.Commit()
 
     def maybeHideAccelerators(self, tgt: Any | None = None) -> None:
         if not self.hideMenuAccels:
@@ -1916,6 +1867,8 @@ title="{}" {}>{}</button>""".format(
     ##########################################################################
 
     def setupMediaServer(self) -> None:
+        import aqt.mediasrv
+
         self.mediaServer = aqt.mediasrv.MediaServer(self)
         self.mediaServer.start()
 

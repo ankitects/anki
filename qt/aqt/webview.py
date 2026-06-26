@@ -377,6 +377,7 @@ class AnkiWebView(QWebEngineView):
         self._pendingActions: list[tuple[str, Sequence[Any]]] = []
         self.requiresCol = True
         self._disable_zoom = False
+        self._uses_dynamic_styling = False
 
         self.resetHandlers()
         self._filterSet = False
@@ -395,6 +396,8 @@ class AnkiWebView(QWebEngineView):
         });
         """
         )
+        if self._uses_dynamic_styling:
+            self.add_dynamic_styling_and_props_then_show()
 
     def page(self) -> AnkiWebPage:
         return cast(AnkiWebPage, super().page())
@@ -876,7 +879,7 @@ html {{ {font} }}
         else:
             extra = ""
         self.load_url(QUrl(f"{mw.serverURL()}_anki/pages/{name}.html{extra}"))
-        self.add_dynamic_styling_and_props_then_show()
+        self._uses_dynamic_styling = True
 
     def load_sveltekit_page(self, path: str) -> None:
         from aqt import mw
@@ -893,7 +896,7 @@ html {{ {font} }}
             server = mw.serverURL()
 
         self.load_url(QUrl(f"{server}{path}{extra}"))
-        self.add_dynamic_styling_and_props_then_show()
+        self._uses_dynamic_styling = True
 
     def force_load_hack(self) -> None:
         """Force process to initialize.

@@ -13,6 +13,7 @@ use crate::card::CardId;
 use crate::collection::Collection;
 use crate::error::Result;
 use crate::notes::NoteId;
+use crate::text::strip_html;
 
 pub struct EmptyCardsForNote {
     pub nid: NoteId,
@@ -81,7 +82,7 @@ impl Collection {
                 write!(
                     buf,
                     "<div><b>{}</b></div><ol>",
-                    self.tr.empty_cards_for_note_type(nt.name.clone())
+                    self.tr.empty_cards_for_note_type(strip_html(&nt.name))
                 )
                 .unwrap();
 
@@ -124,7 +125,7 @@ impl Collection {
                         self.tr.empty_cards_count_line(
                             note.empty.len(),
                             note.current_count,
-                            templates
+                            strip_html(&templates),
                         )
                     )
                     .unwrap();
@@ -135,5 +136,87 @@ impl Collection {
         }
 
         Ok(buf)
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::EmptyCardsForNote;
+    use crate::collection::CollectionBuilder;
+    use crate::prelude::*;
+
+    fn col_with_basic_notetype() -> (crate::collection::Collection, Notetype) {
+        let mut col = CollectionBuilder::default().build().unwrap();
+        let notetype = (*col.get_notetype_by_name("Basic").unwrap().unwrap()).clone();
+        (col, notetype)
+    }
+
+    /// Builds the minimal input for empty_cards_report: one empty card at
+    /// ordinal 0 for a given note type.
+    fn one_empty_card(ntid: NotetypeId) -> Vec<(NotetypeId, Vec<EmptyCardsForNote>)> {
+        vec![(
+            ntid,
+            vec![EmptyCardsForNote {
+                nid: NoteId(1),
+                empty: vec![(0, CardId(1))],
+                current_count: 1,
+            }],
+        )]
+    }
+
+    /// HTML/JS injected into note type or template names must not appear in the
+    /// report.
+    #[test]
+    fn xss_in_names_is_stripped_from_report() {
+        let (mut col, mut notetype) = col_with_basic_notetype();
+        let notetype_id = notetype.id;
+        notetype.name = "<script>alert('xss')</script>My Notetype".to_string();
+        notetype.templates[0].name = "<script>alert('xss')</script>My Card".to_string();
+        col.update_notetype(&mut notetype, false).unwrap();
+
+        let mut empty = one_empty_card(notetype_id);
+        let report = col.empty_cards_report(&mut empty).unwrap();
+
+        assert!(!report.contains("<script>"), "script tag must be stripped");
+        assert!(
+            report.contains("My Notetype"),
+            "safe text must be preserved"
+        );
+        assert!(report.contains("My Card"), "safe text must be preserved");
+    }
+
+    /// Safe names must pass through unchanged.
+    #[test]
+    fn safe_names_are_not_modified_in_report() {
+        let (mut col, mut notetype) = col_with_basic_notetype();
+        let notetype_id = notetype.id;
+        notetype.name = "My Safe Notetype".to_string();
+        notetype.templates[0].name = "My Safe Card".to_string();
+        col.update_notetype(&mut notetype, false).unwrap();
+
+        let mut empty = one_empty_card(notetype_id);
+        let report = col.empty_cards_report(&mut empty).unwrap();
+
+        assert!(report.contains("My Safe Notetype"));
+        assert!(report.contains("My Safe Card"));
+    }
+
+    /// A script that exfiltrates local files via fetch must be stripped from
+    /// both the note type name and template name positions.
+    #[test]
+    fn fetch_script_in_name_is_stripped_from_report() {
+        let payload =
+            "</li><script>fetch('/poc.jpg').then(r=>r.arrayBuffer())</script><li>".to_string();
+
+        let (mut col, mut notetype) = col_with_basic_notetype();
+        let notetype_id = notetype.id;
+        notetype.name = payload.clone();
+        notetype.templates[0].name = payload;
+        col.update_notetype(&mut notetype, false).unwrap();
+
+        let mut empty = one_empty_card(notetype_id);
+        let report = col.empty_cards_report(&mut empty).unwrap();
+        assert!(!report.contains("<script>"));
+        assert!(!report.contains("fetch("));
     }
 }
