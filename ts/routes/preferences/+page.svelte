@@ -2,10 +2,14 @@
 Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
-<script>
+<script lang="ts">
     import "../deck-options/deck-options-base.scss";
     import Warning from "../deck-options/Warning.svelte";
     import LabItem from "./LabItem.svelte";
+    import type { PreferenceStore } from "$lib/sveltelib/preferences";
+
+    export let data: { labPerfs: PreferenceStore<any> };
+    const labPerfs = data.labPerfs;
 </script>
 
 <div class="container">
@@ -17,13 +21,15 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         <LabItem
             title="Svelte note editor"
             description="Replaces the legacy editor with a new Svelte-based implementation. May affect addon compatibility."
+            key="svelte-editor"
+            {labPerfs}
         ></LabItem>
-        <LabItem title="Example 2"></LabItem>
         <LabItem
-            title="Example 3"
+            title="Example 2"
             description="This is a long winded description to help demonstrate the tiling of these elements. They should remain in line because I have used the css grid rather than flex boxes for easy use."
+            key="example-2"
+            {labPerfs}
         ></LabItem>
-        <LabItem title="Example 4"></LabItem>
     </div>
 </div>
 

@@ -760,6 +760,9 @@ exposed_backend_list = [
     # DeckConfigService
     "get_ignored_before_count",
     "get_retention_workload",
+    # ConfigService
+    "set_config_json",
+    "get_config_json",
 ]
 
 
