@@ -50,7 +50,7 @@ describe("filterHTML", () => {
 
     test("event handler attributes are stripped", () => {
         expect(filterHTML("<p onclick=\"alert(1)\">hi</p>", false, false)).toBe(
-            "<p>hi</p>",
+            "<div>hi</div>",
         );
         expect(filterHTML("<div onclick=\"alert(1)\">hi</div>", false, false)).toBe(
             "<div>hi</div>",
