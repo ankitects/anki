@@ -22,11 +22,9 @@
 import { AddNoteRequest } from "@generated/anki/notes_pb";
 
 import { expect, test } from "./fixtures";
-import { bridgeCalls, decodeRequestBody, editableField, rpcUrl } from "./helpers";
+import { bridgeCalls, decodeRequestBody, editableField, isRpc, rpcUrl } from "./helpers";
 
-test("typing into fields and clicking Add sends correct addNote payload", async ({
-    editor: page,
-}) => {
+test("typing into fields and clicking Add sends correct addNote payload", async ({ editor: page }) => {
     const field0 = editableField(page, 0);
     const field1 = editableField(page, 1);
 
@@ -42,7 +40,7 @@ test("typing into fields and clicking Add sends correct addNote payload", async 
     // Track whether the forbidden updateNotes RPC fires at any point.
     let updateNotesFired = false;
     page.on("request", (req) => {
-        if (req.url().includes(rpcUrl("updateNotes"))) {
+        if (isRpc("updateNotes")(req)) {
             updateNotesFired = true;
         }
     });
@@ -50,10 +48,7 @@ test("typing into fields and clicking Add sends correct addNote payload", async 
     // Set up addNote capture BEFORE clicking Add.
     // waitForRequest resolves on the next matching request, so it is safe to
     // set it up here without racing against earlier background RPCs.
-    const addNoteReqPromise = page.waitForRequest(
-        (req) => req.url().includes(rpcUrl("addNote")),
-        { timeout: 10_000 },
-    );
+    const addNoteReqPromise = page.waitForRequest(isRpc("addNote"), { timeout: 10_000 });
 
     // exact: true avoids matching the "Add tag" button in the tag editor.
     await page.getByRole("button", { name: "Add", exact: true }).click();
@@ -67,24 +62,23 @@ test("typing into fields and clicking Add sends correct addNote payload", async 
 
     // Response must be successful.
     await page.waitForResponse(
-        (resp) =>
-            resp.url().includes(rpcUrl("addNote")) && resp.status() < 400,
+        (resp) => resp.url().includes(rpcUrl("addNote")) && resp.status() < 400,
         { timeout: 10_000 },
     );
 
     // After a successful add, the editor calls loadNote({ stickyFieldsFrom:
     // note }) which in turn calls newNote. This is the reliable "form was
     // reset" signal (the 500 ms toast is too short to assert reliably).
-    await page.waitForRequest(
-        (req) => req.url().includes(rpcUrl("newNote")),
-        { timeout: 10_000 },
-    );
+    await page.waitForRequest(isRpc("newNote"), { timeout: 10_000 });
 
-    // Field 0 must clear after the add.
+    // Both fields must clear after the add (addCurrentNoteInner calls
+    // loadNote({ stickyFieldsFrom }) which resets non-sticky fields).
     await expect(field0).toHaveText("", { timeout: 5_000 });
+    await expect(field1).toHaveText("", { timeout: 5_000 });
 
-    // NoteEditor.svelte:578-579 calls saveNow() before addNote; saveNow sends
-    // bridgeCommand("saved") when !isLegacy.
+    // addCurrentNoteInner() calls saveNow() before addNote; saveNow sends
+    // bridgeCommand("saved") when !isLegacy. The test environment loads
+    // without Qt so isLegacy is always false here.
     const calls = await bridgeCalls(page);
     expect(calls).toContain("saved");
 
