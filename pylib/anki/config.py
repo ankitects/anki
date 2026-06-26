@@ -37,12 +37,17 @@ Config = config_pb2.ConfigKey
 class ConfigManager:
     def __init__(self, col: anki.collection.Collection):
         self.col = col.weakref()
+        # Saved when the collection is loaded to prevent changes before restart.
+        self._experiments: dict[str, bool] = self.get_immutable("experimentalFeatures")
 
     def get_immutable(self, key: str) -> Any:
         try:
             return from_json_bytes(self.col._backend.get_config_json(key))
         except NotFoundError as exc:
             raise KeyError from exc
+
+    def experiment_enabled(self, key: str) -> bool:
+        return self._experiments.get(key, False)
 
     def set(self, key: str, val: Any) -> None:
         self.col._backend.set_config_json_no_undo(

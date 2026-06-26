@@ -25,9 +25,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             {labPerfs}
         ></LabItem>
         <LabItem
-            title="Example 2"
-            description="This is a long winded description to help demonstrate the tiling of these elements. They should remain in line because I have used the css grid rather than flex boxes for easy use."
-            key="example-2"
+            title="Ping"
+            description="Enable this experiment and see an alert every time you load this profile. Used for testing the experiment interface."
+            key="ping"
             {labPerfs}
         ></LabItem>
     </div>
