@@ -160,8 +160,7 @@ pub enum RatingKind {
 
 /// Parse the input string into a list of nodes.
 pub fn parse(input: &str) -> Result<Vec<Node>> {
-    let normalized = input.replace('\u{a0}', " ");
-    let input = normalized.trim();
+    let input = normalize_whitespace(input).trim();
     if input.is_empty() {
         return Ok(vec![Node::Search(SearchNode::WholeCollection)]);
     }
@@ -174,6 +173,13 @@ pub fn parse(input: &str) -> Result<Vec<Node>> {
     }
 }
 
+fn normalize_whitespace(input: &str) -> String {
+    input
+        .chars()
+        .map(|c| if c.is_whitespace() { ' ' } else { c })
+        .collect()
+}
+    
 /// Zero or more nodes inside brackets, eg 'one OR two -three'.
 /// Empty vec must be handled by caller.
 fn group_inner(input: &str) -> IResult<'_, Vec<Node>> {
@@ -804,9 +810,25 @@ mod test {
         assert_eq!(parse("")?, vec![Search(WholeCollection)]);
         assert_eq!(parse("  ")?, vec![Search(WholeCollection)]);
 
-        // non-breaking spaces should be treated as regular spaces
+        // // all whitespace should be treated as regular spaces
         assert_eq!(
             parse("foo\u{a0}bar")?,
+            vec![
+                Search(UnqualifiedText("foo".into())),
+                And,
+                Search(UnqualifiedText("bar".into()))
+            ]
+        );
+        assert_eq!(
+            parse("foo\tbar")?,
+            vec![
+                Search(UnqualifiedText("foo".into())),
+                And,
+                Search(UnqualifiedText("bar".into()))
+            ]
+        );
+        assert_eq!(
+            parse("foo\nbar")?,
             vec![
                 Search(UnqualifiedText("foo".into())),
                 And,
