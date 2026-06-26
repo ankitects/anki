@@ -17,13 +17,18 @@ pub(crate) struct DueCounts {
 }
 
 impl Deck {
-    /// Return the studied counts if studied today.
+    /// Return (new_studied, interday_learn_studied, review_studied) if studied
+    /// today. `interday_learn_studied` is a subset of review_studied.
     /// May be negative if user has extended limits.
-    pub(crate) fn new_rev_counts(&self, today: u32) -> (i32, i32) {
+    pub(crate) fn new_rev_counts(&self, today: u32) -> (i32, i32, i32) {
         if self.common.last_day_studied == today {
-            (self.common.new_studied, self.common.review_studied)
+            (
+                self.common.new_studied,
+                self.common.learning_studied,
+                self.common.review_studied,
+            )
         } else {
-            (0, 0)
+            (0, 0, 0)
         }
     }
 }

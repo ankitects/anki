@@ -168,6 +168,7 @@ message StudiedTodayMessageRequest {
 message UpdateStatsRequest {
   int64 deck_id = 1;
   int32 new_delta = 2;
+  int32 interday_learning_delta = 3;
   int32 review_delta = 4;
   int32 millisecond_delta = 5;
 }

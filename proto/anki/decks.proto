@@ -59,11 +59,8 @@ message Deck {
     uint32 last_day_studied = 3;
     int32 new_studied = 4;
     int32 review_studied = 5;
-    int32 milliseconds_studied = 7;
-
-    // previously set in the v1 scheduler,
-    // but not currently used for anything
     int32 learning_studied = 6;
+    int32 milliseconds_studied = 7;
 
     reserved 8 to 13;
 
