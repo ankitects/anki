@@ -41,7 +41,7 @@
         "cross-env": "^7.0.2",
         "diff": "^5.0.0",
         "dprint": "^0.54.0",
-        "esbuild": "^0.28.0",
+        "esbuild": "^0.28.1",
         "esbuild-sass-plugin": "^3.7.0",
         "esbuild-svelte": "^0.9.5",
         "eslint": "^8.44.0",
