@@ -8,6 +8,11 @@ import functools
 import json
 import mimetypes
 import os
+import re
+import urllib.error
+import urllib.parse
+import urllib.request
+import warnings
 from collections.abc import Callable
 from dataclasses import dataclass
 from random import randrange
@@ -23,14 +28,16 @@ from anki._legacy import deprecated
 from anki.cards import Card
 from anki.decks import DeckId
 from anki.hooks import runFilter
-from anki.models import NotetypeId
+from anki.httpclient import HttpClient
+from anki.models import NotetypeDict, NotetypeId
 from anki.notes import Note, NoteId
-from anki.utils import is_win
+from anki.utils import checksum, is_win
 from aqt import AnkiQt, gui_hooks
 from aqt.editor_legacy import *
+from aqt.operations.note import update_note
 from aqt.qt import *
 from aqt.sound import av_player
-from aqt.utils import shortcut, showWarning
+from aqt.utils import shortcut, showWarning, tr
 from aqt.webview import AnkiWebView, AnkiWebViewKind
 
 
@@ -83,6 +90,7 @@ class NewEditor:
         self.widget = widget
         self.parentWindow = parentWindow
         self.nid: NoteId | None = None
+        self.note: Note | None = None
         # legacy argument provided?
         if addMode is not None:
             editor_mode = EditorMode.ADD_CARDS if addMode else EditorMode.EDIT_CURRENT
@@ -413,6 +421,7 @@ require("anki/ui").loaded.then(() => require("anki/NoteEditor").instances[0].too
         focusTo: int | None = None,
     ) -> None:
         "Make NOTE the current note."
+        self.note = note
         self.currentField = None
         if note:
             self.nid = note.id
@@ -577,6 +586,84 @@ require("anki/ui").loaded.then(() => require("anki/NoteEditor").instances[0].too
     def onCopy(self) -> None:
         self.web.onCopy()
 
+    # Media downloads and paste helpers
+    ######################################################################
+
+    def isURL(self, s: str) -> bool:
+        s = s.lower()
+        return (
+            s.startswith("http://")
+            or s.startswith("https://")
+            or s.startswith("ftp://")
+            or s.startswith("file://")
+        )
+
+    def _retrieveURL(self, url: str) -> str | None:
+        "Download file into media folder and return local filename or None."
+        local = url.lower().startswith("file://")
+        self.mw.progress.start(immediate=not local, parent=self.parentWindow)
+        content_type = None
+        error_msg: str | None = None
+        try:
+            if local:
+                url = urllib.parse.unquote(url)
+                url = url.replace("%", "%25")
+                url = url.replace("#", "%23")
+                req = urllib.request.Request(
+                    url, None, {"User-Agent": "Mozilla/5.0 (compatible; Anki)"}
+                )
+                with urllib.request.urlopen(req) as response:
+                    filecontents = response.read()
+            else:
+                with HttpClient() as client:
+                    client.timeout = 30
+                    with client.get(url) as response:
+                        if response.status_code != 200:
+                            error_msg = tr.qt_misc_unexpected_response_code(
+                                val=response.status_code,
+                            )
+                            return None
+                        filecontents = response.content
+                        content_type = response.headers.get("content-type")
+        except (urllib.error.URLError, requests.exceptions.RequestException) as e:
+            error_msg = tr.editing_an_error_occurred_while_opening(val=str(e))
+            return None
+        finally:
+            self.mw.progress.finish()
+            if error_msg:
+                showWarning(error_msg)
+        url = re.sub(r"\?.*?$", "", url)
+        fname = os.path.basename(urllib.parse.unquote(url))
+        if not fname.strip():
+            fname = "paste"
+        if content_type:
+            fname = self.mw.col.media.add_extension_based_on_mime(fname, content_type)
+        return self.mw.col.media.write_data(fname, filecontents)
+
+    def inlinedImageToFilename(self, txt: str) -> str:
+        prefix = "data:image/"
+        suffix = ";base64,"
+        for ext in ("jpg", "jpeg", "png", "gif"):
+            fullPrefix = prefix + ext + suffix
+            if txt.startswith(fullPrefix):
+                b64data = txt[len(fullPrefix) :].strip()
+                data = base64.b64decode(b64data, validate=True)
+                if ext == "jpeg":
+                    ext = "jpg"
+                return self._addPastedImage(data, ext)
+        return ""
+
+    def _pasted_image_filename(self, data: bytes, ext: str) -> str:
+        csum = checksum(data)
+        return f"paste-{csum}.{ext}"
+
+    def _addPastedImage(self, data: bytes, ext: str) -> str:
+        fname = self._pasted_image_filename(data, ext)
+        return self._addMediaFromData(fname, data)
+
+    def _addMediaFromData(self, fname: str, data: bytes) -> str:
+        return self.mw.col.media._legacy_write_data(fname, data)
+
     # Image occlusion
     ######################################################################
 
@@ -613,31 +700,34 @@ require("anki/ui").loaded.then(() => require("anki/NoteEditor").instances[0].too
             f"setupMaskEditorForExistingNote({json.dumps(image_path)})"
             "); "
         )
-        font = QFont("Courier")
-        font.setStyleHint(QFont.StyleHint.TypeWriter)
-        form.textEdit.setFont(font)
-        form.textEdit.setPlainText(self.note.fields[field])
-        d.show()
-        form.textEdit.moveCursor(QTextCursor.MoveOperation.End)
-        d.exec()
-        html = form.textEdit.toPlainText()
-        if html.find(">") > -1:
-            from bs4 import BeautifulSoup
 
-            # filter html through beautifulsoup so we can strip out things like a
-            # leading </div>
-            html_escaped = self.mw.col.media.escape_media_filenames(html)
-            with warnings.catch_warnings():
-                warnings.simplefilter("ignore", UserWarning)
-                html_escaped = str(BeautifulSoup(html_escaped, "html.parser"))
-                html = self.mw.col.media.escape_media_filenames(
-                    html_escaped, unescape=True
-                )
-        self.note.fields[field] = html
-        if not self.addMode:
-            self._save_current_note()
-        self.loadNote(focusTo=field)
-        saveGeom(d, "htmlEditor")
+    # Legacy editing routines
+    ######################################################################
+
+    _js_legacy = "this routine has been moved into JS, and will be removed soon"
+
+    def note_type(self) -> NotetypeDict:
+        assert self.note is not None
+        nt = self.note.note_type()
+        assert nt is not None
+        return nt
+
+    def _save_current_note(self) -> None:
+        if not self.note:
+            return
+        update_note(parent=self.widget, note=self.note).run_in_background(
+            initiator=self
+        )
+
+    def loadNote(self, focusTo: int | None = None) -> None:
+        self.load_note(focus_to=focusTo)
+
+    def loadNoteKeepingFocus(self) -> None:
+        self.load_note(focus_to=self.currentField)
+
+    @deprecated(info=_js_legacy)
+    def onHtmlEdit(self) -> None:
+        self.web.eval("triggerHtmlEdit()")
 
     @deprecated(info=_js_legacy)
     def toggleBold(self) -> None:
