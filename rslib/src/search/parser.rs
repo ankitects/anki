@@ -160,7 +160,8 @@ pub enum RatingKind {
 
 /// Parse the input string into a list of nodes.
 pub fn parse(input: &str) -> Result<Vec<Node>> {
-    let input = normalize_whitespace(input).trim();
+    let normalized = normalize_whitespace(input);
+    let input = normalized.trim();
     if input.is_empty() {
         return Ok(vec![Node::Search(SearchNode::WholeCollection)]);
     }
@@ -179,7 +180,7 @@ fn normalize_whitespace(input: &str) -> String {
         .map(|c| if c.is_whitespace() { ' ' } else { c })
         .collect()
 }
-    
+
 /// Zero or more nodes inside brackets, eg 'one OR two -three'.
 /// Empty vec must be handled by caller.
 fn group_inner(input: &str) -> IResult<'_, Vec<Node>> {
