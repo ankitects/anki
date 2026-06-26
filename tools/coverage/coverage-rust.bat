@@ -21,6 +21,8 @@ if not exist %LLVMCOVPATH%\cargo-llvm-cov.exe (
 set "ANKI_TEST_MODE=1"
 %LLVMCOVPATH%\cargo-llvm-cov llvm-cov --workspace --locked --json --summary-only ^
     --output-path %outdir%\coverage-summary.json --fail-under-lines 64 || exit /b 1
+%LLVMCOVPATH%\cargo-llvm-cov llvm-cov report --lcov --output-path %outdir%\lcov.info || exit /b 1
+
 
 if "%1"=="--html" (
     %LLVMCOVPATH%\cargo-llvm-cov llvm-cov report --html --output-dir %outdir% || exit /b 1
