@@ -34,5 +34,6 @@ pub fn server_finish(col: &mut Collection) -> Result<TimestampMillis> {
     col.storage.increment_usn()?;
     col.storage.commit_rust_trx()?;
     col.storage.set_modified_time(now)?;
+    col.storage.checkpoint()?; // Force WAL checkpoint to release database lock
     Ok(now)
 }
