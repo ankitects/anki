@@ -21,8 +21,13 @@ const configure = (proxy: any, _options: any) => {
 const viteConfig = defineViteConfig({
     plugins: [
         sveltekit(),
-        svg({ svgoOptions: { plugins: [{ name: "cleanupIds", params: { remove: false } }] } }),
+        svg({
+            svgoOptions: {
+                plugins: [{ name: "cleanupIds", params: { remove: false } }],
+            },
+        }),
     ],
+    cacheDir: "../node_modules/.vite",
     build: {
         reportCompressedSize: false,
         // defaults use chrome87, but we need 77 for qt 5.14
@@ -53,9 +58,17 @@ const viteConfig = defineViteConfig({
 const vitestConfig = defineVitestConfig({
     test: {
         include: ["**/*.{test,spec}.{js,ts}"],
-        cache: {
-            // prevent vitest from creating ts/node_modules/.vitest
-            dir: "../node_modules/.vitest",
+        exclude: ["tests/e2e/**", "node_modules/**"],
+        coverage: {
+            include: [
+                "lib/**",
+                "routes/**",
+                "editable/**",
+                "editor/**",
+                "html-filter/**",
+                "reviewer/**",
+                "tools/**",
+            ],
         },
     },
 });
