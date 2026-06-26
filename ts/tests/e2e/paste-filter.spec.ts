@@ -30,16 +30,9 @@
 import { AddNoteRequest } from "@generated/anki/notes_pb";
 
 import { expect, test } from "./fixtures";
-import {
-    decodeRequestBody,
-    editableField,
-    pasteData,
-    rpcUrl,
-} from "./helpers";
+import { decodeRequestBody, editableField, isRpc, pasteData, rpcUrl } from "./helpers";
 
-test("<p> tags in pasted HTML are converted to <div> by the TS filter", async ({
-    editor: page,
-}) => {
+test("<p> tags in pasted HTML are converted to <div> by the TS filter", async ({ editor: page }) => {
     const field = editableField(page, 0);
     await expect(field).toBeAttached({ timeout: 10_000 });
     await field.click();
@@ -55,14 +48,10 @@ test("<p> tags in pasted HTML are converted to <div> by the TS filter", async ({
     expect(innerHTML).not.toMatch(/<p/i);
 
     // The saved payload must also contain <div> and not <p>.
-    const addNoteReqPromise = page.waitForRequest(
-        (req) => req.url().includes(rpcUrl("addNote")),
-        { timeout: 10_000 },
-    );
+    const addNoteReqPromise = page.waitForRequest(isRpc("addNote"), { timeout: 10_000 });
     await page.getByRole("button", { name: "Add", exact: true }).click();
     await page.waitForResponse(
-        (resp) =>
-            resp.url().includes(rpcUrl("addNote")) && resp.status() < 400,
+        (resp) => isRpc("addNote")(resp.request()) && resp.status() < 400,
         { timeout: 10_000 },
     );
     const decoded = decodeRequestBody(await addNoteReqPromise, AddNoteRequest);
@@ -70,9 +59,7 @@ test("<p> tags in pasted HTML are converted to <div> by the TS filter", async ({
     expect(decoded.note?.fields[0]).not.toMatch(/<p/i);
 });
 
-test("pasted <script> tags are stripped and do not execute", async ({
-    editor: page,
-}) => {
+test("pasted <script> tags are stripped and do not execute", async ({ editor: page }) => {
     const field = editableField(page, 0);
     await expect(field).toBeAttached({ timeout: 10_000 });
 
@@ -83,8 +70,7 @@ test("pasted <script> tags are stripped and do not execute", async ({
 
     await field.click();
     await pasteData(field, {
-        "text/html":
-            "<p>Safe Content</p><script>window.__xssRan = true;<\/script>",
+        "text/html": "<p>Safe Content</p><script>window.__xssRan = true;<\/script>",
     });
 
     // The text from the safe paragraph must appear.
@@ -102,17 +88,24 @@ test("pasted <script> tags are stripped and do not execute", async ({
         "pasted <script> must never execute",
     ).toBe(false);
 
-    // The saved note payload must also be free of <script>.
-    const addNoteReqPromise = page.waitForRequest(
-        (req) => req.url().includes(rpcUrl("addNote")),
-        { timeout: 10_000 },
-    );
+    // The script content must NOT appear as visible text in the field.
+    // The legacy Python filter (editor_legacy.py:1072-1074) used BeautifulSoup
+    // .decompose() which removes tag + content entirely. The TS filter
+    // (html-filter/element.ts:101-105) currently uses unwrapElement(), which
+    // keeps content as a text node. This assertion enforces parity with the
+    // legacy behavior: script text must be fully discarded.
+    // FIX REQUIRED: change the SCRIPT handling in element.ts from
+    // unwrapElement to removeElement (same as TITLE) so content is dropped.
+    await expect(field).not.toContainText("window.__xssRan", { timeout: 5_000 });
+
+    // The saved note payload must also be free of <script> tags and content.
+    const addNoteReqPromise = page.waitForRequest(isRpc("addNote"), { timeout: 10_000 });
     await page.getByRole("button", { name: "Add", exact: true }).click();
     await page.waitForResponse(
-        (resp) =>
-            resp.url().includes(rpcUrl("addNote")) && resp.status() < 400,
+        (resp) => isRpc("addNote")(resp.request()) && resp.status() < 400,
         { timeout: 10_000 },
     );
     const decoded = decodeRequestBody(await addNoteReqPromise, AddNoteRequest);
     expect(decoded.note?.fields[0]).not.toMatch(/<script/i);
+    expect(decoded.note?.fields[0]).not.toContain("window.__xssRan");
 });
