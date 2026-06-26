@@ -25,15 +25,13 @@
 import { Notetype } from "@generated/anki/notetypes_pb";
 
 import { expect, test } from "./fixtures";
-import { bridgeCalls, decodeRequestBody, fieldContainer, rpcUrl } from "./helpers";
+import { bridgeCalls, decodeRequestBody, fieldContainer, isRpc } from "./helpers";
 
-test("clicking sticky badge uses getNotetype+updateNotetype, not legacy bridgeCommand", async ({
-    editor: page,
-}) => {
+test("clicking sticky badge uses getNotetype+updateNotetype, not legacy bridgeCommand", async ({ editor: page }) => {
     const container = fieldContainer(page, 0);
 
-    // StickyBadge is visible only when its parent field is hovered or focused
-    // (NoteEditor.svelte:1543-1544). Hover first so show=true.
+    // StickyBadge is visible only when its parent field is hovered or focused.
+    // Hover first so show=true.
     await container.hover();
 
     // DOM layout inside .field-container (LabelContainer.svelte):
@@ -47,14 +45,8 @@ test("clicking sticky badge uses getNotetype+updateNotetype, not legacy bridgeCo
     await expect(badge).toBeVisible({ timeout: 5_000 });
 
     // Capture both RPCs BEFORE clicking so no race condition.
-    const getNotetypeReqPromise = page.waitForRequest(
-        (req) => req.url().includes(rpcUrl("getNotetype")),
-        { timeout: 10_000 },
-    );
-    const updateNotetypeReqPromise = page.waitForRequest(
-        (req) => req.url().includes(rpcUrl("updateNotetype")),
-        { timeout: 10_000 },
-    );
+    const getNotetypeReqPromise = page.waitForRequest(isRpc("getNotetype"), { timeout: 10_000 });
+    const updateNotetypeReqPromise = page.waitForRequest(isRpc("updateNotetype"), { timeout: 10_000 });
 
     await badge.click();
 
@@ -79,10 +71,7 @@ test("clicking sticky badge uses getNotetype+updateNotetype, not legacy bridgeCo
     await container.hover();
     await expect(badge).toBeVisible({ timeout: 5_000 });
 
-    const updateNotetypeReq2Promise = page.waitForRequest(
-        (req) => req.url().includes(rpcUrl("updateNotetype")),
-        { timeout: 10_000 },
-    );
+    const updateNotetypeReq2Promise = page.waitForRequest(isRpc("updateNotetype"), { timeout: 10_000 });
 
     await badge.click();
 
