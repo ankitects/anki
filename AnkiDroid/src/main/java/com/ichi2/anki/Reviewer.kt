@@ -222,6 +222,9 @@ open class Reviewer :
         if (!ensureStoragePermissions()) {
             return
         }
+        if (Prefs.devBottomNavEnabled) {
+            showBackIcon()
+        }
         colorPalette = findViewById(R.id.whiteboard_editor)
         answerTimer = AnswerTimer(findViewById(R.id.card_time))
         textBarNew = findViewById(R.id.new_number)
