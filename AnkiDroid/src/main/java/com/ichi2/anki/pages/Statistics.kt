@@ -51,13 +51,14 @@ class Statistics : PageFragment(R.layout.page_statistics) {
     ) {
         super.onViewCreated(view, savedInstanceState)
 
+        // Hide the back arrow when requested (e.g. hosted in bottom nav)
+        if (arguments?.getBoolean(ARG_HIDE_BACK_BUTTON) == true) {
+            binding.toolbar.navigationIcon = null
+        }
+
         binding.deckName.setOnClickListener {
             startDeckSelection(allowAll = false, allowFiltered = false, skipEmptyDefault = true)
         }
-        binding.appBar
-            .addLiftOnScrollListener { _, backgroundColor ->
-                activity?.window?.statusBarColor = backgroundColor
-            }
 
         binding.toolbar.apply {
             menu.findItem(R.id.action_export_stats).title = CollectionManager.TR.statisticsSavePdf()
@@ -131,6 +132,7 @@ class Statistics : PageFragment(R.layout.page_statistics) {
     }
 
     companion object {
+        const val ARG_HIDE_BACK_BUTTON = "hideBackButton"
         private const val KEY_DECK_NAME = "key_deck_name"
     }
 }

@@ -13,7 +13,7 @@
     <item
         android:id="@+id/nav_browser"
         android:icon="@drawable/ic_flashcard_black"
-        android:title="@string/card_browser" />
+        android:title="@string/bottom_nav_browse" />
     <item
         android:id="@+id/nav_stats"
         android:icon="@drawable/ic_bar_chart_black"

@@ -509,6 +509,8 @@ open class DeckPicker :
 
         // create inherited navigation drawer layout here so that it can be used by parent class
         initNavigationDrawer()
+        if (Prefs.devBottomNavEnabled && !fragmented) disableDrawerSwipe()
+        setupBottomNavigation()
         setupEdgeToEdge()
         title = resources.getString(R.string.app_name)
 
@@ -639,7 +641,9 @@ open class DeckPicker :
 
             // hack for Roborazzi screenshot tests
             val fabBottomOffset = if (isRobolectric) 12.dp.toPx(this) else -12.dp.toPx(this)
-            floatingActionButtonBinding.root.updatePadding(bottom = bars.bottom + fabBottomOffset)
+            val bottomNavView = findViewById<View?>(R.id.bottom_navigation)
+            val bottomNavOffset = if (bottomNavView?.isVisible == true) BOTTOM_NAV_HEIGHT_DP.dp.toPx(this) else 0
+            floatingActionButtonBinding.root.updatePadding(bottom = bars.bottom + fabBottomOffset + bottomNavOffset)
 
             setRecyclerViewBottomPaddingAbove(floatingActionButtonBinding.fabMain)
             insets
@@ -2242,6 +2246,15 @@ open class DeckPicker :
             )
 
     companion object {
+        /**
+         * Material 3 BottomNavigationView content height in dp, *excluding* the system
+         * navigation-bar inset (that inset is added separately here via `bars.bottom`).
+         * Used to offset the FAB above the bar. The hosted-fragment container instead uses
+         * the bar's measured height, which already includes the inset so the two must not
+         * be swapped for one another.
+         */
+        private const val BOTTOM_NAV_HEIGHT_DP = 80
+
         /**
          * Result codes from other activities
          */

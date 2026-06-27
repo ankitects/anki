@@ -34,5 +34,6 @@ If you want to use a string in your code that can't be translated, please use:
     <string name="review_reminders_do_not_translate" comment="Do not translate this string, this feature is still in development. Name of the notification channel for review reminders.">Review Reminders</string>
     <!-- Bottom Nav Bar: In progress for GSoC 2026 -->
     <string name="bottom_nav_more" maxLength="28">More</string>
+    <string name="bottom_nav_browse" maxLength="28">Browse</string>
 </resources>
 

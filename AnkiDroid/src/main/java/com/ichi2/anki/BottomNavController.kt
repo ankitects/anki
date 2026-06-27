@@ -47,11 +47,29 @@ class BottomNavController(
         fun onMoreSelected()
     }
 
-    enum class NavigationItem {
-        HOME,
-        BROWSER,
-        STATS,
-        MORE,
+    enum class NavigationItem(
+        @IdRes val id: Int,
+        /** Fragment tag used to find and reuse this destination's fragment across tab switches. */
+        val tag: String,
+    ) {
+        HOME(R.id.nav_home, "home"),
+        BROWSER(R.id.nav_browser, "browser"),
+        STATS(R.id.nav_stats, "stats"),
+        MORE(R.id.nav_more, "more"),
+        ;
+
+        companion object {
+            fun fromId(
+                @IdRes id: Int,
+            ): NavigationItem? =
+                when (id) {
+                    R.id.nav_home -> HOME
+                    R.id.nav_browser -> BROWSER
+                    R.id.nav_stats -> STATS
+                    R.id.nav_more -> MORE
+                    else -> null
+                }
+        }
     }
 
     private var currentNavigationItem: NavigationItem = NavigationItem.HOME
