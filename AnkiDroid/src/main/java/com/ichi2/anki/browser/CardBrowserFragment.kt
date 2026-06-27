@@ -70,6 +70,7 @@ import com.google.android.material.search.SearchView
 import com.google.android.material.snackbar.Snackbar
 import com.ichi2.anki.AnkiActivity
 import com.ichi2.anki.AnkiActivityProvider
+import com.ichi2.anki.CardBrowser
 import com.ichi2.anki.CollectionManager.TR
 import com.ichi2.anki.CollectionManager.getColUnsafe
 import com.ichi2.anki.CollectionManager.withCol
@@ -221,8 +222,12 @@ class CardBrowserFragment :
     private var focusedRow: CardOrNoteId? = null
 
     // Dev option for Issue 18709
+    // The old layout's MenuProvider is coupled to the activity's toolbar, which causes
+    // menu bleeding when hosted in DeckPicker's bottom nav. The SearchView layout is
+    // self-contained and works in any host.
+    // TODO: decouple old layout via ContentHostFragment so this fallback isn't needed
     private val useSearchView: Boolean
-        get() = Prefs.devUsingCardBrowserSearchView
+        get() = Prefs.devUsingCardBrowserSearchView || activity !is CardBrowser
 
     /**
      * Returns the current deck name, "All Decks" if all decks are selected, or "Unknown"
