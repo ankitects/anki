@@ -9,6 +9,8 @@
         android:id="@+id/app_bar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:background="?attr/colorSurface"
+        app:statusBarForeground="?attr/appBarColor"
         android:fitsSystemWindows="true">
 
         <com.google.android.material.appbar.MaterialToolbar
@@ -19,7 +21,6 @@
             app:navigationContentDescription="@string/abc_action_bar_up_description"
             app:navigationIcon="?attr/homeAsUpIndicator"
             app:layout_scrollFlags="scroll|enterAlways|snap"
-            android:fitsSystemWindows="true"
             app:menu="@menu/statistics">
 
             <com.ichi2.ui.FixedTextView
