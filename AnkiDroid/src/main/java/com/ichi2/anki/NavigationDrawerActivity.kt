@@ -405,6 +405,16 @@ abstract class NavigationDrawerActivity(
     protected open val currentCardId: CardId?
         get() = null
 
+    /**
+     * Hides the navigation drawer indicator (hamburger icon) and any back arrows
+     * from the toolbar. Used when bottom navigation is active.
+     */
+    protected fun disableDrawerIndicator() {
+        drawerToggle.isDrawerIndicatorEnabled = false
+        supportActionBar?.setDisplayHomeAsUpEnabled(false)
+        navButtonGoesBack = false
+    }
+
     protected fun showBackIcon() {
         drawerToggle.isDrawerIndicatorEnabled = false
         if (supportActionBar != null) {

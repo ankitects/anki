@@ -509,7 +509,10 @@ open class DeckPicker :
 
         // create inherited navigation drawer layout here so that it can be used by parent class
         initNavigationDrawer()
-        if (Prefs.devBottomNavEnabled && !fragmented) disableDrawerSwipe()
+        if (Prefs.devBottomNavEnabled && !fragmented) {
+            disableDrawerSwipe()
+            disableDrawerIndicator()
+        }
         setupBottomNavigation()
         setupEdgeToEdge()
         title = resources.getString(R.string.app_name)
