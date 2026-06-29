@@ -10,7 +10,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 <div class="container">
     <Warning
-        warning="These features may change, break, or be removed without notice, use at your own risk."
+        warning="⚠️ These features may change, break, or be removed without notice, use at your own risk."
     ></Warning>
 
     <div class="lab-grid">
