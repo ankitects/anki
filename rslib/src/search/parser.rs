@@ -1,6 +1,7 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
+use std::borrow::Cow;
 use std::sync::LazyLock;
 
 use anki_proto::search::search_node::FieldSearchMode as FieldSearchModeProto;
@@ -174,11 +175,9 @@ pub fn parse(input: &str) -> Result<Vec<Node>> {
     }
 }
 
-fn normalize_whitespace(input: &str) -> String {
-    input
-        .chars()
-        .map(|c| if c.is_whitespace() { ' ' } else { c })
-        .collect()
+fn normalize_whitespace(input: &str) -> Cow<'_, str> {
+    static WHITESPACE_RE: LazyLock<Regex> = LazyLock::new(|| Regex::new(r"\s").unwrap());
+    WHITESPACE_RE.replace_all(input, " ")
 }
 
 /// Zero or more nodes inside brackets, eg 'one OR two -three'.
