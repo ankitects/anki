@@ -29,6 +29,26 @@ import { AddNoteRequest } from "@generated/anki/notes_pb";
 import { expect, test } from "./fixtures";
 import { bridgeCalls, decodeRequestBody, editableField, isRpc, rpcUrl } from "./helpers";
 
+test("immediately clicking Add while second field is focused includes its latest value", async ({ editor: page }) => {
+    const field0 = editableField(page, 0);
+    const field1 = editableField(page, 1);
+
+    await field0.click();
+    await field0.pressSequentially("Committed Front");
+
+    await field1.click();
+    await field1.pressSequentially("Focused Back");
+
+    const addNoteReqPromise = page.waitForRequest(isRpc("addNote"), { timeout: 10_000 });
+
+    await page.getByRole("button", { name: "Add", exact: true }).click();
+
+    const decoded = decodeRequestBody(await addNoteReqPromise, AddNoteRequest);
+
+    expect(decoded.note?.fields[0]).toBe("Committed Front");
+    expect(decoded.note?.fields[1]).toBe("Focused Back");
+});
+
 test("typing into fields and clicking Add sends correct addNote payload", async ({ editor: page }) => {
     const field0 = editableField(page, 0);
     const field1 = editableField(page, 1);
@@ -41,6 +61,11 @@ test("typing into fields and clicking Add sends correct addNote payload", async 
 
     await field1.click();
     await field1.pressSequentially("Goodbye World");
+
+    // Move focus away from field 1 so this test verifies the ordinary
+    // committed-field roundtrip. A separate test below covers the focused-field
+    // add race.
+    await field0.click();
 
     // Track whether the forbidden updateNotes RPC fires at any point.
     let updateNotesFired = false;
