@@ -404,7 +404,7 @@ class Preferences(QDialog):
             restart_required = True
 
         conf = self.mw.col.conf
-        if conf._get_unapplied_experiments() != conf._experiments:
+        if conf._get_experiments_dirty() != conf._experiments:
             restart_required = True
 
         if restart_required:
