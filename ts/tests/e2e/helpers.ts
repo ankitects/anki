@@ -16,7 +16,7 @@ export function rpcUrl(method: string): string {
  * endpoint. Uses endsWith() so "addNote" never accidentally matches
  * "addNoteBulk" or similar future methods.
  */
-export function isRpc(method: string): (req: import("@playwright/test").Request) => boolean {
+export function isRpc(method: string): (req: Request) => boolean {
     const suffix = rpcUrl(method);
     return (req) => req.url().endsWith(suffix);
 }

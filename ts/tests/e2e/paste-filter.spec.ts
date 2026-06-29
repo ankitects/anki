@@ -36,7 +36,7 @@
 import { AddNoteRequest } from "@generated/anki/notes_pb";
 
 import { expect, test } from "./fixtures";
-import { decodeRequestBody, editableField, isRpc, pasteData, rpcUrl } from "./helpers";
+import { decodeRequestBody, editableField, isRpc, pasteData } from "./helpers";
 
 test("<p> tags in pasted HTML are converted to <div> by the TS filter", async ({ editor: page }) => {
     const field = editableField(page, 0);
@@ -54,7 +54,9 @@ test("<p> tags in pasted HTML are converted to <div> by the TS filter", async ({
     expect(innerHTML).not.toMatch(/<p/i);
 
     // The saved payload must also contain <div> and not <p>.
-    const addNoteReqPromise = page.waitForRequest(isRpc("addNote"), { timeout: 10_000 });
+    const addNoteReqPromise = page.waitForRequest(isRpc("addNote"), {
+        timeout: 10_000,
+    });
     await page.getByRole("button", { name: "Add", exact: true }).click();
     await page.waitForResponse(
         (resp) => isRpc("addNote")(resp.request()) && resp.status() < 400,
@@ -76,7 +78,7 @@ test("pasted <script> tags are stripped and do not execute", async ({ editor: pa
 
     await field.click();
     await pasteData(field, {
-        "text/html": "<p>Safe Content</p><script>window.__xssRan = true;<\/script>",
+        "text/html": "<p>Safe Content</p><script>window.__xssRan = true;</script>",
     });
 
     // The text from the safe paragraph must appear.
@@ -105,7 +107,9 @@ test("pasted <script> tags are stripped and do not execute", async ({ editor: pa
     await expect(field).not.toContainText("window.__xssRan", { timeout: 5_000 });
 
     // The saved note payload must also be free of <script> tags and content.
-    const addNoteReqPromise = page.waitForRequest(isRpc("addNote"), { timeout: 10_000 });
+    const addNoteReqPromise = page.waitForRequest(isRpc("addNote"), {
+        timeout: 10_000,
+    });
     await page.getByRole("button", { name: "Add", exact: true }).click();
     await page.waitForResponse(
         (resp) => isRpc("addNote")(resp.request()) && resp.status() < 400,
@@ -116,9 +120,7 @@ test("pasted <script> tags are stripped and do not execute", async ({ editor: pa
     expect(decoded.note?.fields[0]).not.toContain("window.__xssRan");
 });
 
-test("event handler attributes in pasted HTML are stripped and never execute", async ({
-    editor: page,
-}) => {
+test("event handler attributes in pasted HTML are stripped and never execute", async ({ editor: page }) => {
     const field = editableField(page, 0);
     await expect(field).toBeAttached({ timeout: 10_000 });
 
@@ -131,9 +133,8 @@ test("event handler attributes in pasted HTML are stripped and never execute", a
     await pasteData(field, {
         // onclick on a div and onerror on an img — both are on* event handlers
         // that the allowlist-based filter (element.ts:14-25) must strip.
-        "text/html":
-            '<div onclick="window.__xssRan = true">Safe Content</div>' +
-            '<img src="x" onerror="window.__xssRan = true">',
+        "text/html": "<div onclick=\"window.__xssRan = true\">Safe Content</div>"
+            + "<img src=\"x\" onerror=\"window.__xssRan = true\">",
     });
 
     // The safe text content must appear.
