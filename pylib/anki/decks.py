@@ -26,6 +26,7 @@ FilteredDeckConfig = decks_pb2.Deck.Filtered
 DeckCollapseScope = decks_pb2.SetDeckCollapsedRequest.Scope
 DeckConfigsForUpdate = deck_config_pb2.DeckConfigsForUpdate
 UpdateDeckConfigs = deck_config_pb2.UpdateDeckConfigsRequest
+UpdateDeckConfigsMode = deck_config_pb2.UpdateDeckConfigsMode
 Deck = decks_pb2.Deck
 
 # type aliases until we can move away from dicts
