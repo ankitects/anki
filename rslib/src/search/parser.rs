@@ -1,6 +1,7 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
+use std::borrow::Cow;
 use std::sync::LazyLock;
 
 use anki_proto::search::search_node::FieldSearchMode as FieldSearchModeProto;
@@ -160,7 +161,8 @@ pub enum RatingKind {
 
 /// Parse the input string into a list of nodes.
 pub fn parse(input: &str) -> Result<Vec<Node>> {
-    let input = input.trim();
+    let normalized = normalize_whitespace(input);
+    let input = normalized.trim();
     if input.is_empty() {
         return Ok(vec![Node::Search(SearchNode::WholeCollection)]);
     }
@@ -171,6 +173,11 @@ pub fn parse(input: &str) -> Result<Vec<Node>> {
         Ok((remaining, _)) => Err(parse_failure(remaining, FailKind::UnopenedGroup).into()),
         Err(err) => Err(err.into()),
     }
+}
+
+fn normalize_whitespace(input: &str) -> Cow<'_, str> {
+    static WHITESPACE_RE: LazyLock<Regex> = LazyLock::new(|| Regex::new(r"\s").unwrap());
+    WHITESPACE_RE.replace_all(input, " ")
 }
 
 /// Zero or more nodes inside brackets, eg 'one OR two -three'.
@@ -802,6 +809,32 @@ mod test {
 
         assert_eq!(parse("")?, vec![Search(WholeCollection)]);
         assert_eq!(parse("  ")?, vec![Search(WholeCollection)]);
+
+        // // all whitespace should be treated as regular spaces
+        assert_eq!(
+            parse("foo\u{a0}bar")?,
+            vec![
+                Search(UnqualifiedText("foo".into())),
+                And,
+                Search(UnqualifiedText("bar".into()))
+            ]
+        );
+        assert_eq!(
+            parse("foo\tbar")?,
+            vec![
+                Search(UnqualifiedText("foo".into())),
+                And,
+                Search(UnqualifiedText("bar".into()))
+            ]
+        );
+        assert_eq!(
+            parse("foo\nbar")?,
+            vec![
+                Search(UnqualifiedText("foo".into())),
+                And,
+                Search(UnqualifiedText("bar".into()))
+            ]
+        );
 
         // leading/trailing/interspersed whitespace
         assert_eq!(
