@@ -171,7 +171,7 @@
     <!-- Internet Permissions -->
     <string name="internet_access_title" comment="used for notifying user to unable internet access">Internet</string>
     <string name="permission_access_summary">Requerido para que la aplicación funcione</string>
-    <string name="permission_required_message">Please grant AnkiDroid the ‘%s’ permission to continue</string>
+    <string name="permission_required_message">Por favor, concede a AnkiDroid el permiso «%s» para continuar</string>
     <!-- Multiple profile -->
     <string name="add_profile">Añadir perfil</string>
 </resources>

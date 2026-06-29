@@ -48,18 +48,18 @@
     <string name="html_size_code_xx_large">Störst</string>
     <!-- gestures_labels -->
     <string name="answer_easy" comment="Match Anki\'s translations: deckConfigAnswerAgain" maxLength="41">Svara lätt</string>
-    <string name="gesture_abort_learning" maxLength="41">Close study screen</string>
-    <string name="gesture_flag_red" maxLength="41">Växla Röd flagga</string>
-    <string name="gesture_flag_orange" maxLength="41">Toggle orange flag</string>
-    <string name="gesture_flag_green" maxLength="41">Toggle green flag</string>
-    <string name="gesture_flag_blue" maxLength="41">Toggle blue flag</string>
-    <string name="gesture_flag_pink" maxLength="41">Toggle pink flag</string>
-    <string name="gesture_flag_turquoise" maxLength="41">Toggle turquoise flag</string>
-    <string name="gesture_flag_purple" maxLength="41">Toggle purple flag</string>
+    <string name="gesture_abort_learning" maxLength="41">Stäng studieskärmen</string>
+    <string name="gesture_flag_red" maxLength="41">Växla röd flagga</string>
+    <string name="gesture_flag_orange" maxLength="41">Växla orange flagga</string>
+    <string name="gesture_flag_green" maxLength="41">Växla grön flagga</string>
+    <string name="gesture_flag_blue" maxLength="41">Växla blå flagga</string>
+    <string name="gesture_flag_pink" maxLength="41">Växa rosa flagga</string>
+    <string name="gesture_flag_turquoise" maxLength="41">Växla turkos flagga</string>
+    <string name="gesture_flag_purple" maxLength="41">Växla lila flagga</string>
     <string name="gesture_flag_remove" maxLength="41">Ta bort flagga</string>
     <string name="gesture_page_up" maxLength="41">Sida upp</string>
     <string name="gesture_page_down" maxLength="41">Sida ner</string>
-    <string name="gesture_toggle_whiteboard" maxLength="41">Toggle whiteboard</string>
+    <string name="gesture_toggle_whiteboard" maxLength="41">Växla whiteboard</string>
     <string name="gesture_toggle_eraser" maxLength="41">Växla suddgummi</string>
     <string name="gesture_show_hint" maxLength="41">Visa ledtråd</string>
     <string name="gesture_show_all_hints" maxLength="41">Visa alla ledtrådar</string>

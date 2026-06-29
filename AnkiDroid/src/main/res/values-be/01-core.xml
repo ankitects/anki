@@ -68,7 +68,7 @@
     <string name="ease_button_hard" maxLength="41" comment="In the reviewer, in the answer side. Label of the button that used by the user to state finding the correct answer was hard.">Цяжка</string>
     <string name="ease_button_good" maxLength="41" comment="In the reviewer, in the answer side. Label of the button that used by the user to state their answer was good.">Добра</string>
     <string name="ease_button_easy" maxLength="41" comment="In the reviewer, in the answer side. Label of the button that used by the user to state that finding the answer to the question was easy.">Лёгка</string>
-    <string name="show_answer_hint_long_press" comment="In the reviewer, hint is shown when touching the show answer button and the user has the long-press accessibility setting enabled">\'%s\' уключаны</string>
+    <string name="show_answer_hint_long_press" comment="In the reviewer, hint is shown when touching the show answer button and the user has the long-press accessibility setting enabled">«%s» уключаны</string>
     <!-- General -->
     <string name="undo" maxLength="28" comment="When tapping on this text, the last action is undone.">Адрабіць</string>
     <string name="redo" maxLength="28" comment="Menu entry that allows to redo action that was just undone.">Узнавіць</string>
@@ -105,13 +105,13 @@
     <string name="empty_deck">Гэта калода пустая</string>
     <string name="invalid_deck_name">Памылковая назва калоды</string>
     <string name="studyoptions_congrats_finished">Віншуем! На сёння ўсе карткі вывучаны.</string>
-    <string name="studyoptions_congrats_next_due_in" comment="The param will be replaced with \'The next card will be ready in X time\'">Калода скончана! %s</string>
+    <string name="studyoptions_congrats_next_due_in" comment="The param will be replaced with \'The next card will be ready in X time\'">Калода завершана! %s</string>
     <string name="studyoptions_no_cards_due">На сёння картак не засталося.</string>
     <string name="sd_card_not_mounted">Картка памяці не падключаная</string>
     <string name="button_sync" comment="Text of the sync button" maxLength="28">Сінхранізаваць</string>
     <string name="cancel_sync_confirm" tools:ignore="UnusedResources">Вы сапраўды хочаце скасаваць сінхранізацыю?</string>
     <string name="continue_sync" tools:ignore="UnusedResources">Працягнуць сiнхранiзацыю</string>
-    <string name="sync_cancelled" tools:ignore="UnusedResources">Сiнхранiзацыя скасаваная</string>
+    <string name="sync_cancelled" tools:ignore="UnusedResources">Сінхранізацыя скасавана</string>
     <string name="sync_cancel_message" tools:ignore="UnusedResources">Адбываецца скасаванне сінхранізацыі&#8230;\nГэта можа заняць некаторы час.</string>
     <string name="syncing_media">Сінхранізацыя медыяфайлаў</string>
     <string name="export_deck" maxLength="28">Экспартаваць калоду</string>
@@ -177,11 +177,11 @@
     <string name="revoke_permissions" comment="Pop-up message that is shown to the user when they are revoking an app permission.">Гэтыя дазволы неабходна ўручную адклікаць з налад</string>
     <string name="remove_account" comment="open a website to start the deletion of an AnkiWeb account">Выдаліць уліковы запіс</string>
     <!-- Instant Note Editor -->
-    <string name="instant_card" comment="Used in the Android system context menu/share dialog to quickly create a note. This does not need to be translated literally, translate the concept of quickly adding a Cloze note with a popup. ">Імгненнае дабаўленне карткі</string>
+    <string name="instant_card" comment="Used in the Android system context menu/share dialog to quickly create a note. This does not need to be translated literally, translate the concept of quickly adding a Cloze note with a popup. ">Імгненнае дадаванне карткі</string>
     <!-- Internet Permissions -->
     <string name="internet_access_title" comment="used for notifying user to unable internet access">Інтэрнэт</string>
     <string name="permission_access_summary">Абавязкова, каб праграма працавала</string>
-    <string name="permission_required_message">Дазвольце AnkiDroid атрымаць доступ ‘%s’, каб працягнуць</string>
+    <string name="permission_required_message">Дазвольце AnkiDroid атрымаць доступ «%s», каб працягнуць</string>
     <!-- Multiple profile -->
     <string name="add_profile">Дадаць профіль</string>
 </resources>

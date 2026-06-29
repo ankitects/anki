@@ -51,7 +51,7 @@
     <!-- preferences.xml entries-->
     <string name="whiteboard_stroke_width" maxLength="41">Grosor do trazo</string>
     <string name="use_input_tag" maxLength="41">Escribir resposta na tarxeta</string>
-    <string name="use_input_tag_summ">Empregar unha caixa de texto dentro da tarxeta para escribir a resposta</string>
+    <string name="use_input_tag_summ">Emprega unha caixa de texto dentro da tarxeta para escribir a resposta</string>
     <string name="reset_languages" maxLength="41">Restabelecer idiomas</string>
     <string name="reset_languages_summ">Restabelecer as asignacións de idioma (para texto a voz e dicionarios) en tódalas barallas</string>
     <string name="reset_languages_question">Queres reiniciar todas as asignacións de idiomas?</string>
@@ -135,10 +135,10 @@
     <string name="notification_minimum_cards_due_blink" maxLength="41">Luz intermitente</string>
     <string name="select_locale_title">Seleccionar idioma</string>
     <string name="software_render" maxLength="41">Desactivar a representación por hardware das tarxetas</string>
-    <string name="software_render_summ">A representación por hardware é máis rápida pero pode dar problemas, especialmente en Android 8/8.1. Se non podes ver algunhas partes da interface de repaso das tarxetas, proba esta opción</string>
+    <string name="software_render_summ">A representación por hardware é máis rápida pero pode dar problemas, especialmente en Android 8/8.1. Proba esta opción se non podes ver algunhas partes da interface de repaso das tarxetas.</string>
     <string name="disable_extended_text_ui" maxLength="41">Desactivar o modo de edición de campo único</string>
     <!--See: multimedia_editor_popup_cloze. We can\'t use format strings as this is auto-generated-->
-    <string name="disable_extended_text_ui_summ">Permite o menú contextual \"Preguntas aniñadas\" cando se está en modo horizontal</string>
+    <string name="disable_extended_text_ui_summ">Permite o menú contextual «Preguntas aniñadas» cando se está en modo horizontal.</string>
     <string name="vertical_centering" maxLength="41">Aliñar ao centro</string>
     <string name="vertical_centering_summ">Centrar o contido das tarxetas verticalmente</string>
     <string name="pref_double_tap_time_interval" maxLength="41">Intervalo de tempo do dobre toque</string>
@@ -178,7 +178,7 @@
     <string name="reset_settings_to_default">Restabelecer a configuración por defecto</string>
     <string name="reset">Restabelecer</string>
     <string name="thirdparty_apps_title" maxLength="41">Aplicacións API de terceiros</string>
-    <string name="thirdparty_apps_summary">Consulta unha lista de aplicacións que usan a API do AnkiDroid, como dicionarios ou ferramentas</string>
+    <string name="thirdparty_apps_summary">Consulta unha lista de aplicacións que usan a API do AnkiDroid, como dicionarios ou ferramentas.</string>
     <string name="pref_controls_reviews_tab" maxLength="41" comment="Name of the tab to configure controls for the reviews screen">Repasos</string>
     <string name="pref_controls_previews_tab" maxLength="41" comment="Name of the tab to configure controls for the previews screen">Previsualizacións</string>
     <string name="toggle_backside_only" maxLength="41" comment="Control setting that toggles \'Backside only\' in the previews screen">Alternar só reverso</string>
@@ -224,10 +224,10 @@
     <string name="analytics_dialog_title">Axuda a mellorar AnkiDroid!</string>
     <string name="analytics_title" maxLength="41">Compartir o uso das funcións</string>
     <string name="analytics_summ">Podes contribuír ao AnkiDroid axudando ao equipo de desenvolvedores a saber que funcións se usan máis</string>
-    <string name="note_editor_replace_newlines" maxLength="41">Reemplazar os saltos de liña por HTML</string>
-    <string name="note_editor_replace_newlines_summ">No editor de notas, converte os casos de &lt;br&gt; en novas liñas ao editar unha tarxeta</string>
+    <string name="note_editor_replace_newlines" maxLength="41">Substituír os saltos de liña por HTML</string>
+    <string name="note_editor_replace_newlines_summ">No editor de notas, converte os casos de &lt;br&gt; en novas liñas ao editar unha tarxeta.</string>
     <string name="type_in_answer_focus" maxLength="41">Resaltar \"escribe a resposta\"</string>
-    <string name="type_in_answer_focus_summ">Resaltar automaticamente o campo \"escribe a resposta\" na pantalla de estudo</string>
+    <string name="type_in_answer_focus_summ">Resaltar automaticamente o campo «escribe a resposta» na pantalla de estudo.</string>
     <!-- About -->
     <string name="open_changelog">Abrir historial de cambios</string>
     <string name="pref_cat_about_title" maxLength="41">Sobre</string>
@@ -255,10 +255,10 @@
     <string name="user_action_8" maxLength="28">Acción do usuario 8</string>
     <string name="user_action_9" maxLength="28">Acción do usuario 9</string>
     <string name="toggle_auto_advance" maxLength="28">Alternar avance automático</string>
-    <string name="enable_auto_advance" maxLength="28">Enable auto advance</string>
-    <string name="disable_auto_advance" maxLength="28">Disable auto advance</string>
-    <string name="enable_voice_recording" maxLength="28">Enable voice recording</string>
-    <string name="disable_voice_recording" maxLength="28">Disable voice recording</string>
+    <string name="enable_auto_advance" maxLength="28">Activar avance automático</string>
+    <string name="disable_auto_advance" maxLength="28">Desactivar avance automático</string>
+    <string name="enable_voice_recording" maxLength="28">Activar gravación de son</string>
+    <string name="disable_voice_recording" maxLength="28">Desactivar gravación de son</string>
     <!-- Select card side -->
     <string name="card_side_selection_title">Seleccionar o lado da tarxeta</string>
     <string name="card_side_question">Pregunta</string>
@@ -290,7 +290,7 @@
         Ten en conta que os ficheiros multimedia non se gardan nas copias de seguridade.
         Para garantir a seguridade dos teus datos, sincroniza a túa colección periodicamente ou exporta copias de seguridade.
         <br><br>
-        Podes restaurar dende unha copia e exportar a túa colección no menú da lista de barallas.    ]]></string>
+        Podes restaurar a túa colección dende unha copia de seguranza ou exportala no menú da lista de barallas.    ]]></string>
     <string name="pref__minutes_between_automatic_backups__title" maxLength="41">Minutos entre copias automáticas</string>
     <string name="pref__daily_backups_to_keep__title" maxLength="41">Copias de seguranza diarias a manter</string>
     <string name="pref__weekly_backups_to_keep__title" maxLength="41">Copias de seguranza semanais a manter</string>

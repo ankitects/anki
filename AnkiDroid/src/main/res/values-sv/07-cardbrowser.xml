@@ -47,7 +47,7 @@
     <string name="card_browser_list_my_searches_new_name">Namn på aktuell sökning</string>
     <string name="card_browser_list_my_searches_new_search_error_empty_name">Du kan inte spara en sökning utan ett namn</string>
     <string name="card_browser_list_my_searches_new_search_error_dup">Namnet finns</string>
-    <string name="card_browser_list_my_searches_successful_save">Search was saved</string>
+    <string name="card_browser_list_my_searches_successful_save">Sökningen har sparats</string>
     <string name="card_browser_list_my_searches_successful_deleted">Search deleted</string>
     <string name="no_note_to_edit">Ingen not att ändra</string>
     <string name="card_browser_list_my_searches_remove_content">Ta bort ”%1$s”?</string>

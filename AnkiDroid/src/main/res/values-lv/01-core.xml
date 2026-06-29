@@ -158,12 +158,12 @@
     <string name="new_unsafe_collection">Jaunais krājums tiks izdzēsts no tālruņa, ja AnkiDroid tiks noņemta</string>
     <!-- Permissions screen -->
     <string name="permissions_screen_headline">AnkiDroid ir nepiciešamas dažas atļaujas, lai darbotos</string>
-    <string name="permissions_screen_optional_headline" comment="Explains that there are optional permissions that can be granted to AnkiDroid.">AnkiDroid works best with these permissions</string>
+    <string name="permissions_screen_optional_headline" comment="Explains that there are optional permissions that can be granted to AnkiDroid.">AnkiDroid vislabāk darbojas ar šīm atļaujām</string>
     <string name="storage_access_title">Piekļuve krātuvei</string>
     <string name="storage_access_summary">Saglabā krājumu drošā vietā, kas netiks izdzēsta, ja lietotne tiks noņemta</string>
     <string name="all_files_access_title" comment="Name of the “All files access” permission from Android 10 and after. See [android.permission.MANAGE_EXTERNAL_STORAGE] on https://developer.android.com/training/data-storage/manage-all-files for context.">Piekļuve visām datnēm</string>
     <string name="image_occlusion">Attēla aizklāšana</string>
-    <string name="microphone" comment="Title of the microphone permission in the permissions explanation screen.">Microphone</string>
+    <string name="microphone" comment="Title of the microphone permission in the permissions explanation screen.">Mikrofons</string>
     <string name="microphone_permission_explanation" comment="Description explaining why AnkiDroid needs the microphone permission, shown on the permissions explanation screen.">Allows you to add sounds to cards and enables voice playback while reviewing</string>
     <string name="notifications_permission_explanation" comment="Description explaining why AnkiDroid needs the notification permission.">Enables background media syncing and allows you to create review reminders</string>
     <string name="heading_required_permissions" comment="Heading for the section of required permissions that the app needs to function, shown in the permissions explanation screen.">Required</string>

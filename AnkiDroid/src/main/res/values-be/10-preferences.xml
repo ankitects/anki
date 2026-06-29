@@ -155,7 +155,7 @@
     <string name="remove_animations_summary">Таксама ўключана, калі анімацыя выдалена ў сістэмных наладах</string>
     <string name="show_top_bar" maxLength="41">Паказваць верхнюю панэль</string>
     <string name="show_top_bar_summary">Паказваць лічыльнік картак, таймер адказу і пазнакі на верхняй панэлі</string>
-    <string name="show_progress" maxLength="41">Паказаць тое, што засталося</string>
+    <string name="show_progress" maxLength="41">Паказваць тое, што засталося</string>
     <string name="show_progress_summ">Паказваць лічыльнік картак, якія засталіся</string>
     <string name="show_eta" maxLength="41">Паказваць прыблізны час</string>
     <string name="show_eta_summ">Паказваць колькі часу засталося</string>
@@ -230,13 +230,13 @@
     <string name="analytics_summ">Вы можаце зрабіць свой унёсак у AnkiDroid дапамагаючы камандзе распрацоўшчыкаў зразумець, якія функцыі выкарыстоўваюць карыстальнікі праграмы.</string>
     <string name="note_editor_replace_newlines" maxLength="41">Замяняць новыя радкі на HTML</string>
     <string name="note_editor_replace_newlines_summ">Змяняць у рэдактары нататак любыя выпадкі &lt;br&gt; на новыя радкі падчас рэдагавання карткі.</string>
-    <string name="type_in_answer_focus" maxLength="41">Пераключацца на поле \"Увесці адказ\"</string>
+    <string name="type_in_answer_focus" maxLength="41">Пераключацца на поле «Увесці адказ»</string>
     <string name="type_in_answer_focus_summ">Аўтаматычна пераключацца на поле «Увесці адказ» у экране навучання</string>
     <!-- About -->
     <string name="open_changelog">Адкрыць спіс змен</string>
     <string name="pref_cat_about_title" maxLength="41">Аб праграме</string>
     <string name="contributors_title">Удзельнікі</string>
-    <string name="about_contributors_description"><![CDATA[Гэта нашы ашаламляльныя <a href=\"%1$s\">удзельнікі</a>. Вы таксама можаце дапамагчы AnkiDroid з праграмаваннем, перакладамі, ахвяраваннямі і <a href=\"%2$s\">іншым</a>!]]></string>
+    <string name="about_contributors_description"><![CDATA[Гэта нашы ашаламляльныя <a href=\"%1$s\">ўдзельнікі</a>. Вы таксама можаце дапамагчы AnkiDroid з праграмаваннем, перакладамі, ахвяраваннямі і <a href=\"%2$s\">іншымі рэчамі</a>!]]></string>
     <string name="license">Ліцэнзія</string>
     <string name="license_description"><![CDATA[AnkiDroid выпушчаны на ўмовах ліцэнзій <a href=\"%1$s\">GPL-3.0</a> і <a href=\"%2$s\">AGPL-3.0</a>, а таксама зыходным кодам, які даступны <a href=\"%3$s\">на GitHub</a>]]></string>
     <string name="other_licenses"><![CDATA[AnkiDroid таксама выкарыстоўвае староннія бібліятэкі і значкі, якія ліцэнзуюцца пад рознымі <a href=\"%1$s\">ліцэнзіямі</a> з адкрытым зыходным кодам]]></string>
@@ -259,10 +259,10 @@
     <string name="user_action_8" maxLength="28">Дзеянне карыстальніка 8</string>
     <string name="user_action_9" maxLength="28">Дзеянне карыстальніка 9</string>
     <string name="toggle_auto_advance" maxLength="28">Уключыць/выключыць аўтапераход</string>
-    <string name="enable_auto_advance" maxLength="28">Enable auto advance</string>
-    <string name="disable_auto_advance" maxLength="28">Disable auto advance</string>
-    <string name="enable_voice_recording" maxLength="28">Enable voice recording</string>
-    <string name="disable_voice_recording" maxLength="28">Disable voice recording</string>
+    <string name="enable_auto_advance" maxLength="28">Уключыць аўтапераход</string>
+    <string name="disable_auto_advance" maxLength="28">Адключыць аўтапераход</string>
+    <string name="enable_voice_recording" maxLength="28">Уключыць запіс голасу</string>
+    <string name="disable_voice_recording" maxLength="28">Адключыць запіс голасу</string>
     <!-- Select card side -->
     <string name="card_side_selection_title">Выберыце бок карткі</string>
     <string name="card_side_question">Пытанне</string>
@@ -271,8 +271,8 @@
     <string name="display_binding_card_side_question" comment="When displaying a key bind on a preference this formatter is used if the bind only applies to the question">П: %s</string>
     <string name="display_binding_card_side_answer" comment="When displaying a key bind on a preference this formatter is used if the bind only applies to the answer">А: %s</string>
     <!-- Binding Preference -->
-    <string name="binding_remove_binding" comment="The parameter is the name of the key/gesture.     Keys cannot be translated yet.">Выдаліць “%s”</string>
-    <string name="bindings_already_bound">Ужо прызначана \"%s\"</string>
+    <string name="binding_remove_binding" comment="The parameter is the name of the key/gesture.     Keys cannot be translated yet.">Выдаліць «%s»</string>
+    <string name="bindings_already_bound">Ужо прызначана «%s»</string>
     <!-- Advanced -->
     <string name="pref_cat_experimental" maxLength="41" tools:ignore="UnusedResources">Эксперыментальныя</string>
     <string name="readtext_deprecation_warn">У AnkiDroid з\'явіўся палепшаны механізм сінтэзу маўлення (TTS), які сумяшчальны з іншымі кліентамі Anki і ўключае больш галасоў і паляпшэнні пры ўзнаўленні мовы!\n\nЗнайдзіце час для абнаўлення праграмы, бо гэта налада будзе неўзабаве выдалена.</string>
@@ -287,15 +287,15 @@
     <!-- #######################################################################################
          #################################### Backup options ###################################
          ####################################################################################### -->
-    <string name="pref__backups_help__summary"><![CDATA[        AnkiDroid перыядычна робіць рэзервовую копію вашай калекцыі.
-        AnkiDroid выдаляе рэзервовыя копіі, якія старэйшыя за два дні, 
+    <string name="pref__backups_help__summary"><![CDATA[        AnkiDroid перыядычна робіць рэзервовыя копіі вашай калекцыі.
+        Праграма таксама выдаляе рэзервовыя копіі, якія старэйшыя за два дні, 
         каб вызваліць месца на дыску.
         <br><br>
         Заўважце, што мультымедыйныя файлы не рэзервуюцца.
         Перыядычна сінхранізуйце сваю калекцыю або экспартуйце рэзервовыя копіі,                 
         каб пазбегнуць страты даных.
         <br><br>
-        Вы можаце аднавіць з рэзервовай копіі і экспартаваць сваю калекцыю ў меню спісу калод.
+        Вы можаце аднавіць з рэзервовай копіі і экспартаваць сваю калекцыю ў меню спіса калод.
     ]]></string>
     <string name="pref__minutes_between_automatic_backups__title" maxLength="41">Хвілін паміж аўтаматычнымі рэзервовымі копіямі</string>
     <string name="pref__daily_backups_to_keep__title" maxLength="41">Колькасць рэзервовых копій у дзень</string>
@@ -354,7 +354,7 @@
     <string name="hide_system_bars_all_bars" comment="Setting option to hide all the system bars">Усе</string>
     <string name="ignore_display_cutout" maxLength="41">Ігнараваць выраз экрана</string>
     <string name="show_answer_buttons" maxLength="41">Паказваць кнопкі адказу</string>
-    <string name="hide_hard_and_easy" maxLength="41">Схаваць кнопкі ‘Цяжкі’ і ‘Лёгкі’</string>
+    <string name="hide_hard_and_easy" maxLength="41">Схаваць кнопкі «Цяжкі» і «Лёгкі»</string>
     <string name="reviewer_frame_style" maxLength="41">Стыль рамкі</string>
     <string name="reviewer_frame_style_card" maxLength="41" comment="Style name of the \'Card\' card frame of the Study Screen">Картка</string>
     <string name="reviewer_frame_style_box" maxLength="41" comment="Style name of the \'Box\' card frame of the Study Screen">Скрынка</string>

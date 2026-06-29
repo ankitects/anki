@@ -105,7 +105,7 @@
     <string name="empty_deck">Ta talia jest pusta</string>
     <string name="invalid_deck_name">Nieprawidłowa nazwa talii</string>
     <string name="studyoptions_congrats_finished">Gratulacje! Zakończono powtórki na dziś.</string>
-    <string name="studyoptions_congrats_next_due_in" comment="The param will be replaced with \'The next card will be ready in X time\'">Zakończono powtórki na dziś! %s</string>
+    <string name="studyoptions_congrats_next_due_in" comment="The param will be replaced with \'The next card will be ready in X time\'">To koniec powtórek na teraz! %s</string>
     <string name="studyoptions_no_cards_due">Nie ma żadnych kart do przejrzenia.</string>
     <string name="sd_card_not_mounted">Urządzenie pamięci masowej nie zostało zamontowane</string>
     <string name="button_sync" comment="Text of the sync button" maxLength="28">Synchronizuj</string>

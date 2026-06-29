@@ -135,7 +135,7 @@
     <string name="checks_action" maxLength="28">Pārbaudīt</string>
     <string name="unknown_type_field_warning">Atbildes ievadīšana: nezināms lauks %s</string>
     <string name="delete_deck" comment="Message on a progress bar starting a deck is being deleted.">Izdzēš kavu&#8230;</string>
-    <string name="info_rate">Novērtēd AnkiDroid</string>
+    <string name="info_rate">Novērtēt AnkiDroid</string>
     <string name="import_title">Ievieto</string>
     <string name="import_preparing_file">Sagatavo datni ievietošanai&#8230;</string>
     <string name="import_message_add" comment="Adding a new deck to the collection (import)">Pievienot</string>

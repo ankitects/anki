@@ -79,11 +79,11 @@
     <string name="no_columns_available">Няма даступных слупкоў</string>
     <string name="card_browser_select_all" maxLength="28">Выбраць усё</string>
     <string name="card_browser_select_none" maxLength="28">Адмяніць выбар</string>
-    <string name="card_browser_no_cards_in_deck">У калодзе \'%s\' не знойдзена картак</string>
+    <string name="card_browser_no_cards_in_deck">У калодзе «%s» не знойдзена картак</string>
     <string name="card_browser_search_all_decks">Шукаць ва ўсіх калодах</string>
     <string name="card_browser_unknown_deck_name">Невядома</string>
     <string name="card_browser_truncate" comment="allows users to show less of a field value">Скарачаць змест</string>
-    <string name="set_due_date_hintText" comment="plural set_due_date_label_suffix is used for parameters, parameter 1 is the plural for 0, parameter 2 is the plural for 1">Сёння ‘0 %1$s’, заўтра ‘1 %2$s’ і г.д&#8230;</string>
+    <string name="set_due_date_hintText" comment="plural set_due_date_label_suffix is used for parameters, parameter 1 is the plural for 0, parameter 2 is the plural for 1">Сёння «0 %1$s», заўтра «1 %2$s» і г.д&#8230;</string>
     <plurals name="card_browser_export_cards">
         <item quantity="one">Экспартаваць картку</item>
         <item quantity="few">Экспартаваць карткі</item>

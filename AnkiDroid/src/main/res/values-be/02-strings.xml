@@ -96,7 +96,7 @@
     <string name="cardeditor_title_edit_card" maxLength="28">Рэдагаваць нататку</string>
     <string name="discard">Адхіліць</string>
     <string name="note_editor_no_cards_created">Карткі не створаныя. Калі ласка, запоўніце больш палёў.</string>
-    <string name="note_editor_no_cards_created_all_fields">Бягучы тып нататкі не мае ніводнай карткі.\nВыберыце іншы тып нататкі або націсніце \"Карткі\" і дадайце поле падстаноўкі.</string>
+    <string name="note_editor_no_cards_created_all_fields">Бягучы тып нататкі не мае ніводнай карткі.\nВыберыце іншы тып нататкі або націсніце «Карткі» і дадайце поле падстаноўкі.</string>
     <string name="note_editor_insert_cloze_no_cloze_note_type">Заданні з пропускамі будуць працаваць толькі ў тыпе нататкі з пропускамі</string>
     <string name="saving_facts">Захаванне нататкі</string>
     <string name="saving_model">Захоўваецца тып нататкі</string>
@@ -142,12 +142,12 @@
     <string name="import_title">Імпартаванне</string>
     <string name="import_preparing_file">Падрыхтоўка файла для імпартавання&#8230;</string>
     <string name="import_message_add" comment="Adding a new deck to the collection (import)">Дадаць</string>
-    <string name="import_message_replace_confirm">Ваша бягучая калекцыя будзе выдаленая і яе заменяць даныя з файла %s</string>
-    <string name="import_dialog_message_add">Дадаць \"%s\" у калекцыю? Гэта можа заняць шмат часу</string>
+    <string name="import_message_replace_confirm">Ваша бягучая калекцыя будзе выдалена і яе заменяць даныя з файла %s</string>
+    <string name="import_dialog_message_add">Дадаць «%s» у калекцыю? Гэта можа заняць шмат часу</string>
     <string name="import_log_no_apkg">Пашкоджаны файл праграмы Anki</string>
     <string name="import_title_error" comment="Title of error dialog">Памылка</string>
     <string name="import_error_handle_exception">Не атрымалася імпартаваць файл\n\n%s</string>
-    <string name="import_error_not_apkg_extension">Назва файла \"%s\" не мае пашырэння .apkg або .colpkg</string>
+    <string name="import_error_not_apkg_extension">Назва файла «%s» не мае пашырэння .apkg або .colpkg</string>
     <string name="import_error_load_imported_database">Замена базы даных Anki (.anki2) пакуль не падтрымліваецца. Звярніцеся да даведніка для інструкцыі па замене.</string>
     <string name="import_error_content_provider">Выбраны файл немагчыма імпартаваць аўтаматычна ў праграму. Звярніцеся да даведніка карыстальніка для імпартавання файлаў Anki уручную: \n%s</string>
     <string name="import_error_copy_to_cache_title">Не атрымалася кэшыраваць файл</string>
@@ -214,7 +214,7 @@
     <string name="about_ankidroid_successfully_copied_debug_info">Скапіявана ў буфер абмену</string>
     <string name="about_ankidroid_error_copy_debug_info">Памылка капіявання адладачнай інфармацыі ў буфер абмену</string>
     <!-- Card Viewer -->
-    <string name="card_viewer_could_not_find_image">Памылка змесціва карткі: немагчыма загрузіць ‘%s’</string>
+    <string name="card_viewer_could_not_find_image">Памылка змесціва карткі: немагчыма загрузіць «%s»</string>
     <!-- Deck Picker -->
     <string name="search_decks" maxLength="28">Пошук калод</string>
     <string name="ankidroid_init_failed_webview_title">Крытычная памылка</string>
@@ -244,7 +244,7 @@
     <string name="create_shortcut_error_vivo" comment="iManager is an app on Vivo phones">Паспрабуйце скарыстацца праграмай iManager для таго, каб дазволіць AnkiDroid дадаваць ярлыкі</string>
     <string name="create_shortcut_error_miui" comment="Keep the message as short, as this is shown in a toast. %s is the app name: \'AnkiDroid\'">Дазвольце «ярлыкі на галоўным экране» ў сістэмных наладах для %s, каб дадаваць ярлыкі</string>
     <string name="create_shortcut_failed" comment="home screen == launcher">Ваш галоўны экран не дазваляе праграме дадаваць ярлыкі</string>
-    <string name="create_shortcut_error">\"Памылка дабаўлення ярлыка: %s</string>
+    <string name="create_shortcut_error">Памылка дадавання ярлыка: %s</string>
     <string name="note_editor_capitalize" comment="This is for a switch with a checkbox - on: enabled" maxLength="28">Пачынаць сказ з вялікай літары</string>
     <string name="menu_scroll_toolbar" comment="Checkbox stating whether note editor toolbar is scrollable or stacked. Checked: Scroll" maxLength="28">Панэль прагорткі</string>
     <!-- Dialog hints -->
@@ -336,7 +336,7 @@
     <string name="deck_description_field_hint">Апісанне</string>
     <string name="deck_description_saved">Апісанне абноўлена</string>
     <string name="format_deck_description_as_markdown">Фармат як Markdown</string>
-    <string name="help_button_content_description">Адкрыць даведку для ‘%s’</string>
+    <string name="help_button_content_description">Адкрыць даведку для «%s»</string>
     <string name="failed_to_copy">Не ўдалося скапіяваць</string>
     <plurals name="unbury_cards_feedback">
         <item quantity="one">%d картка вернута</item>

@@ -62,7 +62,7 @@
     <string name="restore_backup_title">Аднавіць з рэзервовай копіі?</string>
     <string name="restore_backup">Ваша калекцыя будзе заменена больш старой копіяй. Незахаваныя дасягненні будуць страчаныя.</string>
     <string name="restore_backup_choose_another">Выбраць іншую</string>
-    <string name="dialog_cancel">Адмяніць</string>
+    <string name="dialog_cancel">Скасаваць</string>
     <string name="dialog_ok">Добра</string>
     <string name="dialog_add" comment="Positive dialog action button label to add \'something\'">Дадаць</string>
     <string name="restore">Аднавіць</string>
@@ -198,7 +198,7 @@
     <string name="dismiss_backup_warning_title">Папярэджанне пра страту даных</string>
     <string name="dismiss_backup_warning_new_user">У сувязі са змяненнямі палітыкі прыватнасці Android, пасля выдалення праграмы вашы даныя і аўтаматычныя рэзервовыя копіі будуць выдалены з вашай прылады</string>
     <string name="dismiss_backup_warning_upgrade">У сувязі са змяненнямі палітыкі прыватнасці Android, пасля выдалення праграмы вашы даныя і аўтаматычныя рэзервовыя копіі стануць недаступны</string>
-    <string name="create_deck_numeric_hint">Калі ў вас ёсць праблемы з парадкам калод (напрыклад, ‘10’  калода стаіць перад ‘2’), замяніце ‘2’ на ‘02’</string>
+    <string name="create_deck_numeric_hint">Калі ў вас ёсць праблемы з парадкам калод (напрыклад, «10»  калода стаіць перад «2»), замяніце «2» на «02»</string>
     <!-- Set Due Date -->
     <string name="set_due_date_match_interval" comment="when setting a card\'s due date, this checkbox also changes the interval of the card">Задаць інтэрвал на тое ж самае значэнне</string>
     <plurals name="set_due_date_single_day_label" comment="a date control is provided afterwards">
@@ -264,11 +264,11 @@
     <!-- Special Fields -->
     <string name="standard_fields_tab_header" comment="Tab header for inserting non-special fields: {{Front}}">Палі</string>
     <string name="special_fields_tab_header" comment="Tab header for inserting special fields: {{Deck}}">Спецыяльныя</string>
-    <string name="special_field_example_suffix"><![CDATA[: ‘<b>%1$s</b>’]]></string>
+    <string name="special_field_example_suffix"><![CDATA[: «<b>%1$s</b>»]]></string>
     <string name="special_field_front_side_help">Змесціва пярэдняга шаблона. Аўдыя не будзе прайгравацца аўтаматычна</string>
     <string name="special_field_deck_help" comment="%s: either blank or \' %s\'">Поўная калода картак, якая ўключае бацькоўскія калоды%s</string>
     <string name="special_field_subdeck_help" comment="%s: either blank or \' %s\'">Бягучая калода картак, якая выключае бацькоўскія калоды%s</string>
-    <string name="special_field_flag_help">Выводзіць ‘%1$s’, дзе %2$s код пазнакі (%3$s\–%4$s\)</string>
+    <string name="special_field_flag_help">Выводзіць «%1$s», дзе %2$s код пазнакі (%3$s\–%4$s\)</string>
     <string name="special_field_tags_help" comment="%s: either blank or \' %s\'">Меткі нататкі%s</string>
     <string name="special_field_card_id_help" comment="%s: either blank or \' %s\'">Ідэнтыфікатар карткі%s</string>
     <string name="special_field_card_help" comment="%s: either blank or \' %s\'">Назва шаблону карткі%s</string>

@@ -79,8 +79,8 @@
     <string name="filter_by_flags" maxLength="41">Flagi</string>
     <!-- filtered deck options -->
     <string name="filtered_option_delay_again">Opóźnij na</string>
-    <string name="filtered_option_delay_hard">Delay for hard</string>
-    <string name="filtered_option_delay_good">Delay for good</string>
+    <string name="filtered_option_delay_hard">Przerwa dla trudnych</string>
+    <string name="filtered_option_delay_good">Przerwa dla łatwych</string>
     <!-- Custom study options -->
     <string name="custom_study_loading_tags">Tworzenie listy tagów&#8230;</string>
     <!-- Study options -->

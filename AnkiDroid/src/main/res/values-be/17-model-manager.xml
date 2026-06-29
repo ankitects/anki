@@ -72,8 +72,8 @@
     <!-- Deck Override -->
     <string name="card_template_editor_deck_override_on">Перавызначэнне калоды (укл.)</string>
     <string name="card_template_editor_deck_override_off">Перавызначэнне калоды (выкл.)</string>
-    <string name="model_manager_deck_override_added_message">‘%2$s’ прызначана стандартнай калодай для ‘%1$s’</string>
-    <string name="model_manager_deck_override_removed_message">Стандартная калода для ‘%s’ была выдалена</string>
-    <string name="deck_override_explanation">Выберыце калоду для размяшчэння новых ‘%s’ картак</string>
+    <string name="model_manager_deck_override_added_message">«%2$s» прызначана стандартнай калодай для «%1$s»</string>
+    <string name="model_manager_deck_override_removed_message">Стандартная калода для «%s» была выдалена</string>
+    <string name="deck_override_explanation">Выберыце калоду для размяшчэння новых «%s» картак</string>
     <string name="deck_picker_dialog_filter_decks" maxLength="28">Фільтраваць калоды</string>
 </resources>
