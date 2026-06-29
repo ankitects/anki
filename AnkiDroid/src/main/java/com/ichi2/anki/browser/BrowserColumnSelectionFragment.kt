@@ -38,10 +38,11 @@ import com.ichi2.anki.browser.ColumnUsage.AVAILABLE
 import com.ichi2.anki.common.annotations.NeedsTest
 import com.ichi2.anki.databinding.DialogBrowserColumnsSelectionBinding
 import com.ichi2.anki.dialogs.DiscardChangesDialog
+import com.ichi2.anki.launchCatchingTask
 import com.ichi2.anki.model.CardsOrNotes
 import com.ichi2.anki.snackbar.showSnackbar
+import com.ichi2.anki.withProgress
 import dev.androidbroadcast.vbpd.viewBinding
-import kotlinx.coroutines.runBlocking
 import timber.log.Timber
 
 /**
@@ -110,16 +111,18 @@ class BrowserColumnSelectionFragment : DialogFragment(R.layout.dialog_browser_co
     ) {
         super.onViewCreated(view, savedInstanceState)
 
-        val (active, available) =
-            if (savedInstanceState == null) {
-                // TODO: runBlocking shouldn't be necessary here.
-                runBlocking { viewModel.previewColumnHeadings(cardsOrNotes) }
-            } else {
-                fun getSavedList(key: String) = BundleCompat.getParcelableArrayList(savedInstanceState, key, ColumnWithSample::class.java)!!
-
-                Pair(getSavedList(STATE_ACTIVE), getSavedList(STATE_AVAILABLE))
+        if (savedInstanceState == null) {
+            launchCatchingTask {
+                val (active, available) =
+                    withProgress {
+                        viewModel.previewColumnHeadings(cardsOrNotes)
+                    }
+                setupRecyclerView(active, available)
             }
-        setupRecyclerView(active, available)
+        } else {
+            fun getSavedList(key: String) = BundleCompat.getParcelableArrayList(savedInstanceState, key, ColumnWithSample::class.java)!!
+            setupRecyclerView(getSavedList(STATE_ACTIVE), getSavedList(STATE_AVAILABLE))
+        }
 
         binding.toolbar.setOnMenuItemClickListener { menuItem ->
             Timber.d("menu item click: %s", menuItem.title)
