@@ -96,17 +96,7 @@ test("pasted <script> tags are stripped and do not execute", async ({ editor: pa
         "pasted <script> must never execute",
     ).toBe(false);
 
-    // The script content must NOT appear as visible text in the field.
-    // The legacy Python filter (editor_legacy.py:1072-1074) used BeautifulSoup
-    // .decompose() which removes tag + content entirely. The TS filter
-    // (html-filter/element.ts:101-105) currently uses unwrapElement(), which
-    // keeps content as a text node. This assertion enforces parity with the
-    // legacy behavior: script text must be fully discarded.
-    // FIX REQUIRED: change the SCRIPT handling in element.ts from
-    // unwrapElement to removeElement (same as TITLE) so content is dropped.
-    await expect(field).not.toContainText("window.__xssRan", { timeout: 5_000 });
-
-    // The saved note payload must also be free of <script> tags and content.
+    // The saved note payload must also be free of <script> tags.
     const addNoteReqPromise = page.waitForRequest(isRpc("addNote"), {
         timeout: 10_000,
     });
@@ -117,6 +107,33 @@ test("pasted <script> tags are stripped and do not execute", async ({ editor: pa
     );
     const decoded = decodeRequestBody(await addNoteReqPromise, AddNoteRequest);
     expect(decoded.note?.fields[0]).not.toMatch(/<script/i);
+});
+
+test("pasted <script> contents are discarded instead of becoming visible text", async ({ editor: page }) => {
+    const field = editableField(page, 0);
+    await expect(field).toBeAttached({ timeout: 10_000 });
+
+    await field.click();
+    await pasteData(field, {
+        "text/html": "<p>Safe Content</p><script>window.__xssRan = true;</script>",
+    });
+
+    // Legacy Qt parity: editor.py/editor_legacy.py call BeautifulSoup
+    // .decompose() for script tags, removing the tag and its content. The
+    // Svelte filter must not unwrap the script body into visible/saved text.
+    await expect(field).toContainText("Safe Content", { timeout: 5_000 });
+    await expect(field).not.toContainText("window.__xssRan", { timeout: 5_000 });
+
+    const addNoteReqPromise = page.waitForRequest(isRpc("addNote"), {
+        timeout: 10_000,
+    });
+    await page.getByRole("button", { name: "Add", exact: true }).click();
+    await page.waitForResponse(
+        (resp) => isRpc("addNote")(resp.request()) && resp.status() < 400,
+        { timeout: 10_000 },
+    );
+
+    const decoded = decodeRequestBody(await addNoteReqPromise, AddNoteRequest);
     expect(decoded.note?.fields[0]).not.toContain("window.__xssRan");
 });
 
