@@ -403,6 +403,10 @@ class Preferences(QDialog):
             self.mw.pm.setUiScale(newScale)
             restart_required = True
 
+        conf = self.mw.col.conf
+        if conf._get_unapplied_experiments() != conf._experiments:
+            restart_required = True
+
         if restart_required:
             showInfo(tr.preferences_changes_will_take_effect_when_you())
 

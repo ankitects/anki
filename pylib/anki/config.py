@@ -38,7 +38,7 @@ class ConfigManager:
     def __init__(self, col: anki.collection.Collection):
         self.col = col.weakref()
         # Saved when the collection is loaded to prevent changes before restart.
-        self._experiments: dict[str, bool] = self.get_immutable("experimentalFeatures")
+        self._experiments = self._get_unapplied_experiments()
 
     def get_immutable(self, key: str) -> Any:
         try:
@@ -48,6 +48,13 @@ class ConfigManager:
 
     def experiment_enabled(self, key: str) -> bool:
         return self._experiments.get(key, False)
+
+    def _get_unapplied_experiments(self) -> dict[str, bool]:
+        """This fetches the experments in the state that they are saved in the database.
+        This should not be used to check if an experement is enabled because this will update immidiately without a restart
+
+        use "experiment_enabled" to fetch an active experiment instead"""
+        return self.get_immutable("experimentalFeatures")
 
     def set(self, key: str, val: Any) -> None:
         self.col._backend.set_config_json_no_undo(
