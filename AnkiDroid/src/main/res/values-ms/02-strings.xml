@@ -69,11 +69,11 @@
     <string name="leech_notification">Kad ditanda lintah</string>
     <string name="webview_crash_unknown">Ralat tidak diketahui</string>
     <string name="webview_crash_unknwon_detailed">Ini disebabkan oleh ralat dalaman dalam WebView</string>
-    <string name="webview_crash_oom">Kehabisan Memori</string>
+    <string name="webview_crash_oom">Out of memory</string>
     <string name="webview_crash_oom_details">WebView ditamatkan oleh sistem. Ini selalu berlaku apabila aplikasi kehabisan memori, disebabkan oleh fon atau media besar.</string>
     <string name="webview_crash_nonfatal">Pemapar WebView ranap. Punca: %s</string>
-    <string name="webview_crash_fatal">Ralat Maut: Pemapar WebView ranap. Punca: %s</string>
-    <string name="webview_crash_loop_dialog_title">Kegagalan Pemaparan Sistem WebView</string>
+    <string name="webview_crash_fatal">Fatal error: WebView renderer crashed. Cause: %s</string>
+    <string name="webview_crash_loop_dialog_title">System WebView rendering failure</string>
     <string name="webview_crash_loop_dialog_content">WebView Sistem gagal memapar kad \'%1$s\'.\n %2$s</string>
     <string name="slide_to_cancel" comment="Message shown when pressing the record button">Slide to cancel</string>
     <string name="filter_by_flags" maxLength="41">Tanda</string>
@@ -202,7 +202,7 @@
     <string name="valid_js_api_version">Versi AnkiDroid JS API tidak sah. Hubungi pembangun %s, atau layari wiki</string>
     <string name="update_js_api_version">Tersedia pembaruan AnkiDroid JS API. Hubungi pembangun %s, atau layari wiki</string>
     <string name="reviewer_invalid_api_version_visit_documentation">Lihat</string>
-    <string name="anki_js_error_code">(Kod Ralat: %d)</string>
+    <string name="anki_js_error_code">(Error code: %d)</string>
     <!-- About AnkiDroid screen -->
     <string name="about_ankidroid_successfully_copied_debug_info">Disalin ke papan keratan</string>
     <string name="about_ankidroid_error_copy_debug_info">Ralat menyalin maklumat nyahpepijat ke papan keratan</string>
@@ -210,7 +210,7 @@
     <string name="card_viewer_could_not_find_image">Ralat Kandungan Kad: Gagal memuatkan ‘%s’</string>
     <!-- Deck Picker -->
     <string name="search_decks" maxLength="28">Cari dek</string>
-    <string name="ankidroid_init_failed_webview_title">Ralat Maut</string>
+    <string name="ankidroid_init_failed_webview_title">Fatal error</string>
     <string name="ankidroid_init_failed_webview">AnkiDroid bergantung kepada WebView Sistem yang tidak tersedia. Ini boleh berlaku jika sistem sedang kemas kini. Sila cuba lagi dalam beberapa minit.\n\n%s</string>
     <string name="ankidroid_init_failed_storage">AnkiDroid cannot access storage due to an Android error.\n\n%s</string>
     <!-- A Menu item to change the Font Size (currently in the Note Editor) -->
@@ -257,11 +257,11 @@
     <string name="percentage">%s%%</string>
     <string name="download_deck">Muat turun dek</string>
     <string name="open_in_browser" comment="Label of a button inviting to open ankiweb\'s shared deck page if automated download failed">Open in browser</string>
-    <string name="try_again">Cuba Lagi</string>
+    <string name="try_again">Try again</string>
     <string name="cancel_download">Batal muat turun</string>
     <string name="cancel_download_question_title">Batal muat turun?</string>
     <string name="downloading_file">Memuat turun %s</string>
-    <string name="import_deck">Import Dek</string>
+    <string name="import_deck">Import deck</string>
     <string name="something_wrong">kesulitan berlaku, sila cuba lagi</string>
     <string name="download_failed">Memuat turun gagal</string>
     <string name="deck_download_progress_message">Anda boleh guna aplikasi lain sementara memuat turun</string>
@@ -296,7 +296,7 @@
     <string name="intro_ankidroid_tagline_one">Kurangkan ulang kaji</string>
     <string name="intro_ankidroid_tagline_two">Ingat lebih</string>
     <string name="intro_short_ankidroid_explanation">Penjadual kad Anki jimat masa dengan memperkasakan memori paling lemah dan memelihara memori paling kuat</string>
-    <string name="intro_get_started" comment="Action to start AnkiDroid for the first time without syncing from AnkiWeb">Mari Mulakan</string>
+    <string name="intro_get_started" comment="Action to start AnkiDroid for the first time without syncing from AnkiWeb">Get started</string>
     <string name="intro_sync_from_ankiweb">Segerakkan dari AnkiWeb</string>
     <!-- IntentHandler -->
     <string name="app_not_initialized_new">AnkiDroid is not initialized yet. Please open AnkiDroid and try again</string>
@@ -340,12 +340,12 @@
     <string name="orphan_note_message">Deleting this card type will leave some notes without any cards.</string>
     <string name="voice_not_supported">Voice not supported. Try another or install a voice engine.</string>
     <!--Keyboard shortcuts dialog-->
-    <string name="deck_picker_group" comment="Label for the group of shortcuts related to the deck picker">Deck Picker</string>
+    <string name="deck_picker_group" comment="Label for the group of shortcuts related to the deck picker">Deck picker</string>
     <string name="delete_deck_without_confirmation" comment="Description of the shortcut that deletes the deck without asking for confirmation">Delete deck without confirmation</string>
-    <string name="note_editor_group" comment="Label for the group of shortcuts related to the note editor">Note Editor</string>
+    <string name="note_editor_group" comment="Label for the group of shortcuts related to the note editor">Note editor</string>
     <string name="select_note_type" comment="Description of the shortcut that shows the note selection spinner">Select note type</string>
     <string name="tag_editor" comment="Description of the shortcut that opens the tags dialog">Tag editor</string>
-    <string name="card_template_editor_group" comment="Label for the group of shortcuts related to the card template editor">Card Template Editor</string>
+    <string name="card_template_editor_group" comment="Label for the group of shortcuts related to the card template editor">Card template editor</string>
     <string name="edit_front_template" comment="Description of the shortcut that shows the question side of the card template">Edit front template</string>
     <string name="edit_back_template" comment="Description of the shortcut that shows the answer side of the card template">Edit back template</string>
     <string name="edit_styling" comment="Description of the shortcut that shows the styling side of the card template">Edit styling</string>

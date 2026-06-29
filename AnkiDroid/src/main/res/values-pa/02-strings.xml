@@ -69,11 +69,11 @@
     <string name="leech_notification">ਲੀਚ ਵਜੋਂ ਚਿੰਨ੍ਹਿਤ ਕਾਰਡ</string>
     <string name="webview_crash_unknown">Unknown error</string>
     <string name="webview_crash_unknwon_detailed">ਇਹ WebView ਵਿੱਚ ਇੱਕ ਅੰਦਰੂਨੀ ਗੜਬੜ ਕਾਰਨ ਹੋਇਆ ਸੀ</string>
-    <string name="webview_crash_oom">ਯਾਦਦਾਸ਼ਤ ਤੋਂ ਬਾਹਰ</string>
+    <string name="webview_crash_oom">Out of memory</string>
     <string name="webview_crash_oom_details">WebView ਸਿਸਟਮ ਦੁਆਰਾ ਬੰਦ ਕੀਤਾ ਗਿਆ ਸੀ। ਇਹ ਆਮ ਤੌਰ \'ਤੇ ਉਦੋਂ ਵਾਪਰਦਾ ਹੈ ਜਦੋਂ ਐਪਲੀਕੇਸ਼ਨ ਦੀ ਮੈਮੋਰੀ ਖਤਮ ਹੋ ਜਾਂਦੀ ਹੈ, ਅਕਸਰ ਵੱਡੇ ਫੌਂਟਾਂ ਜਾਂ ਮੀਡੀਆ ਦੇ ਕਾਰਨ।</string>
     <string name="webview_crash_nonfatal">WebView ਰੈਂਡਰਰ ਕ੍ਰੈਸ਼ ਹੋ ਗਿਆ। ਕਾਰਨ: %s</string>
-    <string name="webview_crash_fatal">ਘਾਤਕ ਗੜਬੜ: WebView ਰੈਂਡਰਰ ਕ੍ਰੈਸ਼ ਹੋ ਗਿਆ। ਕਾਰਨ: %s</string>
-    <string name="webview_crash_loop_dialog_title">ਸਿਸਟਮ WebView ਰੈਂਡਰਿੰਗ ਅਸਫਲਤਾ</string>
+    <string name="webview_crash_fatal">Fatal error: WebView renderer crashed. Cause: %s</string>
+    <string name="webview_crash_loop_dialog_title">System WebView rendering failure</string>
     <string name="webview_crash_loop_dialog_content">System WebView failed to render card \'%1$s\'.\n %2$s</string>
     <string name="slide_to_cancel" comment="Message shown when pressing the record button">Slide to cancel</string>
     <string name="filter_by_flags" maxLength="41">Flags</string>
@@ -205,7 +205,7 @@
     <string name="valid_js_api_version">ਅਵੈਧ AnkiDroid JS API ਸੰਸਕਰਣ। ਡਿਵੈਲਪਰ %s ਨਾਲ ਸੰਪਰਕ ਕਰੋ, ਜਾਂ ਵਿਕੀ ਵੇਖੋ</string>
     <string name="update_js_api_version">AnkiDroid JS API ਅੱਪਡੇਟ ਉਪਲਬਧ ਹੈ। ਡਿਵੈਲਪਰ %s ਨਾਲ ਸੰਪਰਕ ਕਰੋ, ਜਾਂ ਵਿਕੀ ਵੇਖੋ</string>
     <string name="reviewer_invalid_api_version_visit_documentation">ਦੇਖੋ</string>
-    <string name="anki_js_error_code">(ਗਲਤੀ ਕੋਡ: %d)</string>
+    <string name="anki_js_error_code">(Error code: %d)</string>
     <!-- About AnkiDroid screen -->
     <string name="about_ankidroid_successfully_copied_debug_info">ਕਲਿੱਪਬੋਰਡ \'ਤੇ ਕਾਪੀ ਕੀਤਾ ਗਿਆ</string>
     <string name="about_ankidroid_error_copy_debug_info">ਡੀਬੱਗ ਜਾਣਕਾਰੀ ਨੂੰ ਕਲਿੱਪਬੋਰਡ ਵਿੱਚ ਕਾਪੀ ਕਰਨ ਵਿੱਚ ਤਰੁੱਟੀ</string>
@@ -213,7 +213,7 @@
     <string name="card_viewer_could_not_find_image">ਕਾਰਡ ਸਮੱਗਰੀ ਅਸ਼ੁੱਧੀ: \'%s\' ਲੋਡ ਕਰਨ ਵਿੱਚ ਅਸਫਲ</string>
     <!-- Deck Picker -->
     <string name="search_decks" maxLength="28">ਖੋਜ ਡੈੱਕ</string>
-    <string name="ankidroid_init_failed_webview_title">ਘਾਤਕ ਗਲਤੀ</string>
+    <string name="ankidroid_init_failed_webview_title">Fatal error</string>
     <string name="ankidroid_init_failed_webview">AnkiDroid ਸਿਸਟਮ WebView \'ਤੇ ਨਿਰਭਰ ਕਰਦਾ ਹੈ ਜੋ ਕਿ ਉਪਲਬਧ ਨਹੀਂ ਹੈ। ਇਹ ਉਦੋਂ ਹੋ ਸਕਦਾ ਹੈ ਜੇਕਰ ਸਿਸਟਮ ਅੱਪਡੇਟ ਸਥਾਪਤ ਕਰ ਰਿਹਾ ਹੈ। ਕਿਰਪਾ ਕਰਕੇ ਕੁਝ ਮਿੰਟਾਂ ਵਿੱਚ ਦੁਬਾਰਾ ਕੋਸ਼ਿਸ਼ ਕਰੋ।\n\n%s</string>
     <string name="ankidroid_init_failed_storage">AnkiDroid cannot access storage due to an Android error.\n\n%s</string>
     <!-- A Menu item to change the Font Size (currently in the Note Editor) -->
@@ -260,11 +260,11 @@
     <string name="percentage">%s%%</string>
     <string name="download_deck">ਡੇਕ ਨੂੰ ਡਾਊਨਲੋਡ ਕਰੋ</string>
     <string name="open_in_browser" comment="Label of a button inviting to open ankiweb\'s shared deck page if automated download failed">Open in browser</string>
-    <string name="try_again">ਫਿਰ ਕੋਸ਼ਿਸ਼ ਕਰੋ</string>
+    <string name="try_again">Try again</string>
     <string name="cancel_download">ਡਾਊਨਲੋਡ ਰੱਦ ਕਰੋ</string>
     <string name="cancel_download_question_title">ਕੀ ਡਾਊਨਲੋਡ ਰੱਦ ਕਰਨਾ ਹੈ?</string>
     <string name="downloading_file">%s ਨੂੰ ਡਾਊਨਲੋਡ ਕੀਤਾ ਜਾ ਰਿਹਾ ਹੈ</string>
-    <string name="import_deck">ਡੈੱਕ ਆਯਾਤ ਕਰੋ</string>
+    <string name="import_deck">Import deck</string>
     <string name="something_wrong">ਕੁਝ ਗਲਤ ਹੋ ਗਿਆ, ਕਿਰਪਾ ਕਰਕੇ ਦੁਬਾਰਾ ਕੋਸ਼ਿਸ਼ ਕਰੋ</string>
     <string name="download_failed">ਡਾਊਨਲੋਡ ਅਸਫਲ ਰਿਹਾ</string>
     <string name="deck_download_progress_message">ਜਦੋਂ ਡਾਊਨਲੋਡ ਚੱਲ ਰਿਹਾ ਹੋਵੇ ਤਾਂ ਤੁਸੀਂ ਹੋਰ ਐਪਸ ਦੀ ਵਰਤੋਂ ਕਰ ਸਕਦੇ ਹੋ</string>
@@ -301,7 +301,7 @@
     <string name="intro_ankidroid_tagline_one">Study less</string>
     <string name="intro_ankidroid_tagline_two">ਹੋਰ ਯਾਦ ਰੱਖੋ</string>
     <string name="intro_short_ankidroid_explanation">ਅੰਕੀ ਦਾ ਕਾਰਡ ਸ਼ਡਿਊਲਰ ਤੁਹਾਡੀਆਂ ਸਭ ਤੋਂ ਕਮਜ਼ੋਰ ਯਾਦਾਂ ਨੂੰ ਮਜ਼ਬੂਤ ​​ਕਰਕੇ ਅਤੇ ਤੁਹਾਡੀਆਂ ਸਭ ਤੋਂ ਮਜ਼ਬੂਤ ​​ਯਾਦਾਂ ਨੂੰ ਸੁਰੱਖਿਅਤ ਰੱਖ ਕੇ ਸਮਾਂ ਬਚਾਉਂਦਾ ਹੈ।</string>
-    <string name="intro_get_started" comment="Action to start AnkiDroid for the first time without syncing from AnkiWeb">ਸ਼ੁਰੂ ਕਰੋ</string>
+    <string name="intro_get_started" comment="Action to start AnkiDroid for the first time without syncing from AnkiWeb">Get started</string>
     <string name="intro_sync_from_ankiweb">AnkiWeb ਤੋਂ ਸਿੰਕ ਕਰੋ</string>
     <!-- IntentHandler -->
     <string name="app_not_initialized_new">AnkiDroid ਨੂੰ ਅਜੇ ਲਾਂਚ ਨਹੀਂ ਕੀਤਾ ਗਿਆ ਹੈ। ਕਿਰਪਾ ਕਰਕੇ AnkiDroid ਖੋਲ੍ਹੋ ਅਤੇ ਦੁਬਾਰਾ ਕੋਸ਼ਿਸ਼ ਕਰੋ</string>
@@ -346,12 +346,12 @@
     <string name="orphan_note_message">ਇਸ ਕਾਰਡ ਦੀ ਕਿਸਮ ਨੂੰ ਮਿਟਾਉਣ ਨਾਲ ਕੁਝ ਨੋਟ ਬਿਨਾਂ ਕਿਸੇ ਕਾਰਡ ਦੇ ਰਹਿ ਜਾਣਗੇ।</string>
     <string name="voice_not_supported">ਵੌਇਸ ਸਮਰਥਿਤ ਨਹੀਂ ਹੈ। ਕੋਈ ਹੋਰ ਅਜ਼ਮਾਓ ਜਾਂ ਇੱਕ ਵੌਇਸ ਇੰਜਣ ਸਥਾਪਤ ਕਰੋ।</string>
     <!--Keyboard shortcuts dialog-->
-    <string name="deck_picker_group" comment="Label for the group of shortcuts related to the deck picker">ਡੈੱਕ ਚੋਣਕਾਰ</string>
+    <string name="deck_picker_group" comment="Label for the group of shortcuts related to the deck picker">Deck picker</string>
     <string name="delete_deck_without_confirmation" comment="Description of the shortcut that deletes the deck without asking for confirmation">ਅਪ੍ਰਮਾਣਿਤ ਡੇਕ ਮਿਟਾਓ</string>
-    <string name="note_editor_group" comment="Label for the group of shortcuts related to the note editor">ਨੋਟ ਸੰਪਾਦਕ</string>
+    <string name="note_editor_group" comment="Label for the group of shortcuts related to the note editor">Note editor</string>
     <string name="select_note_type" comment="Description of the shortcut that shows the note selection spinner">ਨੋਟ ਦੀ ਕਿਸਮ ਚੁਣੋ</string>
     <string name="tag_editor" comment="Description of the shortcut that opens the tags dialog">ਟੈਗ ਸੰਪਾਦਕ</string>
-    <string name="card_template_editor_group" comment="Label for the group of shortcuts related to the card template editor">ਕਾਰਡ ਟੈਮਪਲੇਟ ਸੰਪਾਦਕ</string>
+    <string name="card_template_editor_group" comment="Label for the group of shortcuts related to the card template editor">Card template editor</string>
     <string name="edit_front_template" comment="Description of the shortcut that shows the question side of the card template">ਸਾਹਮਣੇ ਵਾਲੇ ਟੈਂਪਲੇਟ ਨੂੰ ਸੰਪਾਦਿਤ ਕਰੋ</string>
     <string name="edit_back_template" comment="Description of the shortcut that shows the answer side of the card template">ਪਿਛਲੇ ਟੈਂਪਲੇਟ ਨੂੰ ਸੰਪਾਦਿਤ ਕਰੋ</string>
     <string name="edit_styling" comment="Description of the shortcut that shows the styling side of the card template">ਸਟਾਈਲ ਦਾ ਸੰਪਾਦਨ ਕਰੋ</string>

@@ -69,11 +69,11 @@
     <string name="leech_notification">Kortelė buvo pažymėta kaip sunkiai įsimenama</string>
     <string name="webview_crash_unknown">Nežinoma klaida</string>
     <string name="webview_crash_unknwon_detailed">Taip nutiko dėl vidinės \"WebView\" klaidos</string>
-    <string name="webview_crash_oom">Nepakanka atminties</string>
+    <string name="webview_crash_oom">Out of memory</string>
     <string name="webview_crash_oom_details">Sistema nutraukė \"WebView\". Taip paprastai nutinka, kai programai pritrūksta atminties, dažnai dėl didelių šriftų ar laikmenų.</string>
     <string name="webview_crash_nonfatal">Sugedo \"WebView\" atvaizdavimo priemonė. Priežastis: %s</string>
-    <string name="webview_crash_fatal">Fatališka klaida: Klaida: WebView rendereris sugedo. Priežastis: %s</string>
-    <string name="webview_crash_loop_dialog_title">Sistemos \"WebView\" atvaizdavimo sutrikimas</string>
+    <string name="webview_crash_fatal">Fatal error: WebView renderer crashed. Cause: %s</string>
+    <string name="webview_crash_loop_dialog_title">System WebView rendering failure</string>
     <string name="webview_crash_loop_dialog_content">System WebView failed to render card \'%1$s\'.\n %2$s</string>
     <string name="slide_to_cancel" comment="Message shown when pressing the record button">Slide to cancel</string>
     <string name="filter_by_flags" maxLength="41">Žymos</string>
@@ -211,7 +211,7 @@
     <string name="valid_js_api_version">Netinkama \"AnkiDroid JS API\" versija. Susisiekite su kūrėju %s arba peržiūrėkite wiki</string>
     <string name="update_js_api_version">\"AnkiDroid JS API\" atnaujinimas. Susisiekite su kūrėju %s arba peržiūrėkite vikipediją</string>
     <string name="reviewer_invalid_api_version_visit_documentation">Peržiūrėti</string>
-    <string name="anki_js_error_code">(Klaidos kodas: %d)</string>
+    <string name="anki_js_error_code">(Error code: %d)</string>
     <!-- About AnkiDroid screen -->
     <string name="about_ankidroid_successfully_copied_debug_info">Nukopijuota į iškarpinę (atmintį)</string>
     <string name="about_ankidroid_error_copy_debug_info">Klaida kopijuojant derinimo informaciją į iškarpinę (atmintį)</string>
@@ -219,7 +219,7 @@
     <string name="card_viewer_could_not_find_image">Kortelės turinio klaida: Nepavyko įkelti \'%s\'</string>
     <!-- Deck Picker -->
     <string name="search_decks" maxLength="28">kortelių rinkinių paieška</string>
-    <string name="ankidroid_init_failed_webview_title">Fatališka klaida</string>
+    <string name="ankidroid_init_failed_webview_title">Fatal error</string>
     <string name="ankidroid_init_failed_webview">\"AnkiDroid\" remiasi sistemos žiniatinklio peržiūra, kuri yra neprieinama. Taip gali atsitikti, jei sistema diegia naujinius. Prašome pabandyti dar kartą po kelių minučių.\n\n%s</string>
     <string name="ankidroid_init_failed_storage">AnkiDroid cannot access storage due to an Android error.\n\n%s</string>
     <!-- A Menu item to change the Font Size (currently in the Note Editor) -->
@@ -266,11 +266,11 @@
     <string name="percentage">%s%%</string>
     <string name="download_deck">Atsisiųsti kortelių rinkinį</string>
     <string name="open_in_browser" comment="Label of a button inviting to open ankiweb\'s shared deck page if automated download failed">Atidaryti naršyklėje</string>
-    <string name="try_again">Pabandykite dar kartą</string>
+    <string name="try_again">Try again</string>
     <string name="cancel_download">Atšaukti atsisiuntimą</string>
     <string name="cancel_download_question_title">Ar tikrai norite atšaukti atsisiuntimą?</string>
     <string name="downloading_file">Atsisiuntimas %s</string>
-    <string name="import_deck">Importavimas kortelių rinkinio</string>
+    <string name="import_deck">Import deck</string>
     <string name="something_wrong">Kažkas nepavyko, pabandykite dar kartą</string>
     <string name="download_failed">Atsisiųsti nepavyko</string>
     <string name="deck_download_progress_message">Atsisiuntimo metu galite naudoti kitas programas</string>
@@ -311,7 +311,7 @@
     <string name="intro_ankidroid_tagline_one">Studijuokite mažiau</string>
     <string name="intro_ankidroid_tagline_two">Prisiminti daugiau</string>
     <string name="intro_short_ankidroid_explanation">\"Anki\" kortelių planuoklis taupo laiką stiprindamas silpniausią atmintį ir išsaugodamas stipriausią.</string>
-    <string name="intro_get_started" comment="Action to start AnkiDroid for the first time without syncing from AnkiWeb">Pradėkite</string>
+    <string name="intro_get_started" comment="Action to start AnkiDroid for the first time without syncing from AnkiWeb">Get started</string>
     <string name="intro_sync_from_ankiweb">Sinchronizavimas iš \"AnkiWeb</string>
     <!-- IntentHandler -->
     <string name="app_not_initialized_new">AnkiDroid is not initialized yet. Please open AnkiDroid and try again</string>
@@ -358,12 +358,12 @@
     <string name="orphan_note_message">Pašalinus šio tipo korteles, kai kurie užrašai liks be kortelių.</string>
     <string name="voice_not_supported">Balsas nepalaikomas. Išbandykite kitą arba įdiekite balso variklį.</string>
     <!--Keyboard shortcuts dialog-->
-    <string name="deck_picker_group" comment="Label for the group of shortcuts related to the deck picker">Kortelių rinkinio rinktuvas</string>
+    <string name="deck_picker_group" comment="Label for the group of shortcuts related to the deck picker">Deck picker</string>
     <string name="delete_deck_without_confirmation" comment="Description of the shortcut that deletes the deck without asking for confirmation">Ištrinti kortelių rinkinį be patvirtinimo</string>
-    <string name="note_editor_group" comment="Label for the group of shortcuts related to the note editor">Pastabos redaktorius</string>
+    <string name="note_editor_group" comment="Label for the group of shortcuts related to the note editor">Note editor</string>
     <string name="select_note_type" comment="Description of the shortcut that shows the note selection spinner">Pasirinkite pastabos tipą</string>
     <string name="tag_editor" comment="Description of the shortcut that opens the tags dialog">Žymos redaktorius</string>
-    <string name="card_template_editor_group" comment="Label for the group of shortcuts related to the card template editor">Kortelių šablonų redaktorius</string>
+    <string name="card_template_editor_group" comment="Label for the group of shortcuts related to the card template editor">Card template editor</string>
     <string name="edit_front_template" comment="Description of the shortcut that shows the question side of the card template">Redaguoti priekinį šabloną</string>
     <string name="edit_back_template" comment="Description of the shortcut that shows the answer side of the card template">Redaguoti nugarinį šabloną</string>
     <string name="edit_styling" comment="Description of the shortcut that shows the styling side of the card template">Redaguoti stilių</string>

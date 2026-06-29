@@ -69,11 +69,11 @@
     <string name="leech_notification">Thẻ được đánh dấu là thẻ khó</string>
     <string name="webview_crash_unknown">Lỗi không xác định</string>
     <string name="webview_crash_unknwon_detailed">Lỗi nội bộ trong webview</string>
-    <string name="webview_crash_oom">Không đủ bộ nhớ</string>
+    <string name="webview_crash_oom">Out of memory</string>
     <string name="webview_crash_oom_details">WebView đã bị ngắt bởi hệ thống. Việc này thường xảy ra khi ứng dụng hết bộ nhớ vì font chữ hoặc file media quá lớn.</string>
     <string name="webview_crash_nonfatal">Trình kết xuất WebView bị lỗi. Nguyên nhân: %s</string>
-    <string name="webview_crash_fatal">Lỗi nghiêm trọng: Trình kết xuất WebView bị lỗi. Nguyên nhân: %s</string>
-    <string name="webview_crash_loop_dialog_title">Hệ thống hiển thị WebView không thành công</string>
+    <string name="webview_crash_fatal">Fatal error: WebView renderer crashed. Cause: %s</string>
+    <string name="webview_crash_loop_dialog_title">System WebView rendering failure</string>
     <string name="webview_crash_loop_dialog_content">Hệ thống WebView không thể hiển thị thẻ \'%1$s\'.\ n%2$s</string>
     <string name="slide_to_cancel" comment="Message shown when pressing the record button">Slide to cancel</string>
     <string name="filter_by_flags" maxLength="41">Cờ</string>
@@ -202,7 +202,7 @@
     <string name="valid_js_api_version">Phiên bản API AnkiDroid JS không hợp lệ. Liên hệ với nhà phát triển %s hoặc xem wiki</string>
     <string name="update_js_api_version">Đã có bản cập nhật AnkiDroid JS API. Liên hệ với nhà phát triển %s hoặc xem wiki</string>
     <string name="reviewer_invalid_api_version_visit_documentation">Hiển thị</string>
-    <string name="anki_js_error_code">(Mã lỗi: %d)</string>
+    <string name="anki_js_error_code">(Error code: %d)</string>
     <!-- About AnkiDroid screen -->
     <string name="about_ankidroid_successfully_copied_debug_info">Đã sao chép vào bộ nhớ tạm</string>
     <string name="about_ankidroid_error_copy_debug_info">Không thể sao chép thông tin debug.</string>
@@ -210,7 +210,7 @@
     <string name="card_viewer_could_not_find_image">Lỗi hiện thị nội dung thẻ: Không thể mở ‘%s’</string>
     <!-- Deck Picker -->
     <string name="search_decks" maxLength="28">Tìm kiếm bộ thẻ</string>
-    <string name="ankidroid_init_failed_webview_title">Lỗi nghiêm trọng</string>
+    <string name="ankidroid_init_failed_webview_title">Fatal error</string>
     <string name="ankidroid_init_failed_webview">AnkiDroid dựa trên WebView hệ thống không khả dụng. Điều này có thể xảy ra nếu hệ thống đang cài đặt các bản cập nhật. Vui lòng thử lại sau vài phút.\n\n%s</string>
     <string name="ankidroid_init_failed_storage">AnkiDroid cannot access storage due to an Android error.\n\n%s</string>
     <!-- A Menu item to change the Font Size (currently in the Note Editor) -->
@@ -257,11 +257,11 @@
     <string name="percentage">%s%%</string>
     <string name="download_deck">Tải bộ thẻ xuống</string>
     <string name="open_in_browser" comment="Label of a button inviting to open ankiweb\'s shared deck page if automated download failed">Mở trong trình duyệt</string>
-    <string name="try_again">Thử lại</string>
+    <string name="try_again">Try again</string>
     <string name="cancel_download">Hủy tải xuống</string>
     <string name="cancel_download_question_title">Hủy tải xuống?</string>
     <string name="downloading_file">Đang tải xuống %s</string>
-    <string name="import_deck">Nhập bộ thẻ</string>
+    <string name="import_deck">Import deck</string>
     <string name="something_wrong">Đã xảy ra lỗi, vui lòng thử lại</string>
     <string name="download_failed">Tải xuống thất bại</string>
     <string name="deck_download_progress_message">Bạn được phép sử dụng những ứng dụng khác khi đang tải.</string>
@@ -296,7 +296,7 @@
     <string name="intro_ankidroid_tagline_one">Học ít</string>
     <string name="intro_ankidroid_tagline_two">Nhớ nhiều hơn</string>
     <string name="intro_short_ankidroid_explanation">Trình lập lịch thẻ Anki giúp bạn học hiệu quả hơn bằng cách tập trung vào những kiến thức bạn còn chưa vững và ghi nhớ những kiến thức bạn đã nắm vững</string>
-    <string name="intro_get_started" comment="Action to start AnkiDroid for the first time without syncing from AnkiWeb">Bắt đầu</string>
+    <string name="intro_get_started" comment="Action to start AnkiDroid for the first time without syncing from AnkiWeb">Get started</string>
     <string name="intro_sync_from_ankiweb">Đồng bộ từ AnkiWeb</string>
     <!-- IntentHandler -->
     <string name="app_not_initialized_new">AnkiDroid chưa được khởi tạo. Vui lòng mở AnkiDroid và thử lại</string>
@@ -340,12 +340,12 @@
     <string name="orphan_note_message">Việc xóa loại thẻ này sẽ để lại một số ghi chú không có thẻ nào liên kết.</string>
     <string name="voice_not_supported">Giọng nói không được hỗ trợ. Hãy thử cái khác hoặc cài đặt một công cụ giọng nói.</string>
     <!--Keyboard shortcuts dialog-->
-    <string name="deck_picker_group" comment="Label for the group of shortcuts related to the deck picker">Trình chọn bộ thẻ</string>
+    <string name="deck_picker_group" comment="Label for the group of shortcuts related to the deck picker">Deck picker</string>
     <string name="delete_deck_without_confirmation" comment="Description of the shortcut that deletes the deck without asking for confirmation">Xoá bộ thẻ mà không cần xác nhận</string>
-    <string name="note_editor_group" comment="Label for the group of shortcuts related to the note editor">Trình ghi chú</string>
+    <string name="note_editor_group" comment="Label for the group of shortcuts related to the note editor">Note editor</string>
     <string name="select_note_type" comment="Description of the shortcut that shows the note selection spinner">Chọn loại ghi chú</string>
     <string name="tag_editor" comment="Description of the shortcut that opens the tags dialog">Trình chỉnh sửa Tag</string>
-    <string name="card_template_editor_group" comment="Label for the group of shortcuts related to the card template editor">Card Template Editor</string>
+    <string name="card_template_editor_group" comment="Label for the group of shortcuts related to the card template editor">Card template editor</string>
     <string name="edit_front_template" comment="Description of the shortcut that shows the question side of the card template">Chỉnh sửa mẫu mặt trước</string>
     <string name="edit_back_template" comment="Description of the shortcut that shows the answer side of the card template">Chỉnh sửa mẫu mặt sau</string>
     <string name="edit_styling" comment="Description of the shortcut that shows the styling side of the card template">Edit styling</string>

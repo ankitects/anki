@@ -69,11 +69,11 @@
     <string name="leech_notification">כרטיס מסומן כעלוקה</string>
     <string name="webview_crash_unknown">שגיאה לא מוכרת</string>
     <string name="webview_crash_unknwon_detailed">זה נגרם בגלל שגיאה פנימית בWebView</string>
-    <string name="webview_crash_oom">אין זיכרון פנוי</string>
+    <string name="webview_crash_oom">Out of memory</string>
     <string name="webview_crash_oom_details">ה - WebView נסגר על ידי המערכת. זה קורה בדרך כלל כשנגמר למערכת הזכרון הפנוי, לעיתים קרובות עקב פונטים או מדיה גדולים מדי.</string>
     <string name="webview_crash_nonfatal">הדמיית ה WebView קרסה. הסיבה: %s</string>
-    <string name="webview_crash_fatal">שגיאה קריטית: הדמיית ה WebView קרסה. הסיבה: %s</string>
-    <string name="webview_crash_loop_dialog_title">נכשלה הדמיית WebView של המערכת.</string>
+    <string name="webview_crash_fatal">Fatal error: WebView renderer crashed. Cause: %s</string>
+    <string name="webview_crash_loop_dialog_title">System WebView rendering failure</string>
     <string name="webview_crash_loop_dialog_content">מנוע התצוגה נכשל להציג את הכרטיס: %1$s. \n %2$s</string>
     <string name="slide_to_cancel" comment="Message shown when pressing the record button">החלק כדי לבטל</string>
     <string name="filter_by_flags" maxLength="41">דגלים</string>
@@ -211,7 +211,7 @@
     <string name="valid_js_api_version">גרסת AnkiDroid JS API לא תקינה.צור קשר עם המפתח %s, או קרא בויקי</string>
     <string name="update_js_api_version">קיים עדכון ל AnkiDroid JS API. צור קשר עם המפתח %s, או קרא בויקי</string>
     <string name="reviewer_invalid_api_version_visit_documentation">תצוגה</string>
-    <string name="anki_js_error_code">(קוד שגיאה: %d)</string>
+    <string name="anki_js_error_code">(Error code: %d)</string>
     <!-- About AnkiDroid screen -->
     <string name="about_ankidroid_successfully_copied_debug_info">הועתק מהלוח</string>
     <string name="about_ankidroid_error_copy_debug_info">תקלה בהעתקת הודעת השגיאה</string>
@@ -219,7 +219,7 @@
     <string name="card_viewer_could_not_find_image">תקלה בתוכן הכרטיס: נכשל בטעינת %s</string>
     <!-- Deck Picker -->
     <string name="search_decks" maxLength="28">חיפוש בחפיסות</string>
-    <string name="ankidroid_init_failed_webview_title">שגיאה מכרעת</string>
+    <string name="ankidroid_init_failed_webview_title">Fatal error</string>
     <string name="ankidroid_init_failed_webview">AnkiDroid משתמש בדפדפן המערכת שאינו זמין. זה קורה לפעמים אם המערכת מתקינה עדכונים. נא נסה שנית בעוד כמה דקות. \n\n%s</string>
     <string name="ankidroid_init_failed_storage">ל-AnkiDroid אין גישה לאחסון עקב שגיאת אנדרואיד.\n\n%s</string>
     <!-- A Menu item to change the Font Size (currently in the Note Editor) -->
@@ -266,11 +266,11 @@
     <string name="percentage">%s%%</string>
     <string name="download_deck">הורדת חפיסה</string>
     <string name="open_in_browser" comment="Label of a button inviting to open ankiweb\'s shared deck page if automated download failed">פתיחה בדפדפן</string>
-    <string name="try_again">נסה שוב</string>
+    <string name="try_again">Try again</string>
     <string name="cancel_download">בטל הורדה</string>
     <string name="cancel_download_question_title">בטל הורדה?</string>
     <string name="downloading_file">מוריד %s</string>
-    <string name="import_deck">ייבוא חפיסה</string>
+    <string name="import_deck">Import deck</string>
     <string name="something_wrong">משהו השתבש, אנא נסה שוב</string>
     <string name="download_failed">ההורדה נכשלה</string>
     <string name="deck_download_progress_message">ניתן לעבור ליישומים אחרים בזמן ההורדה</string>
@@ -311,7 +311,7 @@
     <string name="intro_ankidroid_tagline_one">למד פחות</string>
     <string name="intro_ankidroid_tagline_two">זכור יותר</string>
     <string name="intro_short_ankidroid_explanation">מתזמן הכרטיסים של אנקי חוסך זמן על ידי חיזוק הזיכרונות החלשים ביותר שלך ושימור החזקים ביותר שלך</string>
-    <string name="intro_get_started" comment="Action to start AnkiDroid for the first time without syncing from AnkiWeb">התחל</string>
+    <string name="intro_get_started" comment="Action to start AnkiDroid for the first time without syncing from AnkiWeb">Get started</string>
     <string name="intro_sync_from_ankiweb">סנכרון מ-AnkiWeb</string>
     <!-- IntentHandler -->
     <string name="app_not_initialized_new">AnkiDroid עדיין לא אתחול. פתח את AnkiDroid ונסה שוב</string>
@@ -358,12 +358,12 @@
     <string name="orphan_note_message">מחיקת סוג כרטיס זה תשאיר כמה פתקים ללא כרטיס.</string>
     <string name="voice_not_supported">קול אינו נתמך. נסה אחר או התקן מנוע קול.</string>
     <!--Keyboard shortcuts dialog-->
-    <string name="deck_picker_group" comment="Label for the group of shortcuts related to the deck picker">בוחר החפיסה</string>
+    <string name="deck_picker_group" comment="Label for the group of shortcuts related to the deck picker">Deck picker</string>
     <string name="delete_deck_without_confirmation" comment="Description of the shortcut that deletes the deck without asking for confirmation">מחק את החפיסה ללא אישור</string>
-    <string name="note_editor_group" comment="Label for the group of shortcuts related to the note editor">עורך רשומות</string>
+    <string name="note_editor_group" comment="Label for the group of shortcuts related to the note editor">Note editor</string>
     <string name="select_note_type" comment="Description of the shortcut that shows the note selection spinner">מחיקת סוג רשומה</string>
     <string name="tag_editor" comment="Description of the shortcut that opens the tags dialog">עורך תגיות</string>
-    <string name="card_template_editor_group" comment="Label for the group of shortcuts related to the card template editor">עורך תבניות כרטיסים</string>
+    <string name="card_template_editor_group" comment="Label for the group of shortcuts related to the card template editor">Card template editor</string>
     <string name="edit_front_template" comment="Description of the shortcut that shows the question side of the card template">ערוך תבנית קדמית</string>
     <string name="edit_back_template" comment="Description of the shortcut that shows the answer side of the card template">ערוך תבנית אחורית</string>
     <string name="edit_styling" comment="Description of the shortcut that shows the styling side of the card template">ערוך סגנון</string>

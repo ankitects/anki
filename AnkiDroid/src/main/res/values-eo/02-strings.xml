@@ -69,11 +69,11 @@
     <string name="leech_notification">Karto markita kiel forgesema</string>
     <string name="webview_crash_unknown">Nekonata eraro</string>
     <string name="webview_crash_unknwon_detailed">Eraro kaŭzita pro interna eraro en WebView</string>
-    <string name="webview_crash_oom">Memormanko</string>
+    <string name="webview_crash_oom">Out of memory</string>
     <string name="webview_crash_oom_details">La komponanto WebView estis ĉesigita de la operaciumo. Tio ĉi kutime okazas kiam mankas memoro al la aplikaĵo, ofte pro grandaj tiparoj aŭ aŭdvidaĵoj.</string>
     <string name="webview_crash_nonfatal">Eraro pri WebView. Kaŭzo: %s</string>
-    <string name="webview_crash_fatal">Neriparebla eraro pri WebView. Kaŭzo: %s</string>
-    <string name="webview_crash_loop_dialog_title">Eraro bildigi per operaciuma WebView</string>
+    <string name="webview_crash_fatal">Fatal error: WebView renderer crashed. Cause: %s</string>
+    <string name="webview_crash_loop_dialog_title">System WebView rendering failure</string>
     <string name="webview_crash_loop_dialog_content">La operciuma komponanto WebView malsukcesis bildigi la karton “%1$s”.\n%2$s</string>
     <string name="slide_to_cancel" comment="Message shown when pressing the record button">Deŝovu por nuligi</string>
     <string name="filter_by_flags" maxLength="41">Flagoj</string>
@@ -205,7 +205,7 @@
     <string name="valid_js_api_version">Malĝusta versio de JS API AnkiDroid. Kontaktu la programiston %s aŭ legu la vikion</string>
     <string name="update_js_api_version">Disponebla ĝisdatigo por JS API AnkiDroid. Kontaktu la programiston %s aŭ legu la vikion</string>
     <string name="reviewer_invalid_api_version_visit_documentation">Montri</string>
-    <string name="anki_js_error_code">(Erar-kodo: %d)</string>
+    <string name="anki_js_error_code">(Error code: %d)</string>
     <!-- About AnkiDroid screen -->
     <string name="about_ankidroid_successfully_copied_debug_info">Kopiis al dosierujo</string>
     <string name="about_ankidroid_error_copy_debug_info">Eraro okazis dum kopii senerarigajn informojn al tondujo</string>
@@ -213,7 +213,7 @@
     <string name="card_viewer_could_not_find_image">Eraro pri enhavo de karto, fiaskis enlegi “%s”</string>
     <!-- Deck Picker -->
     <string name="search_decks" maxLength="28">Serĉi en kartaroj</string>
-    <string name="ankidroid_init_failed_webview_title">Neriparebla eraro</string>
+    <string name="ankidroid_init_failed_webview_title">Fatal error</string>
     <string name="ankidroid_init_failed_webview">AnkiDroid necesas la komponanton System WebView, kiu estas nedisponebla. Tio ĉi povas okazi, kiam la operaciumo instalas ĝisdatigojn. Reprovu post kelkaj minutoj.\n\n%s</string>
     <string name="ankidroid_init_failed_storage">AnkiDroid ne povas aliri konservejon pro eraro rilata al Android.\n\n%s</string>
     <!-- A Menu item to change the Font Size (currently in the Note Editor) -->
@@ -260,11 +260,11 @@
     <string name="percentage">%s%%</string>
     <string name="download_deck">Elŝuti kartaron</string>
     <string name="open_in_browser" comment="Label of a button inviting to open ankiweb\'s shared deck page if automated download failed">Malfermi en retfoliumilo</string>
-    <string name="try_again">Reprovi</string>
+    <string name="try_again">Try again</string>
     <string name="cancel_download">Rezigni elŝuton</string>
     <string name="cancel_download_question_title">Ĉu rezigni elŝuton?</string>
     <string name="downloading_file">Elŝutado de %s</string>
-    <string name="import_deck">Enporti kartaron</string>
+    <string name="import_deck">Import deck</string>
     <string name="something_wrong">Problemo okazis, reprovu</string>
     <string name="download_failed">Elŝuto malsukcesis</string>
     <string name="deck_download_progress_message">Vi povas uzi aliajn aplikaĵojn kiam la dosiero(j) estas elŝutata(j)</string>
@@ -301,7 +301,7 @@
     <string name="intro_ankidroid_tagline_one">Lernu malpli</string>
     <string name="intro_ankidroid_tagline_two">Memoru pli</string>
     <string name="intro_short_ankidroid_explanation">Kart-planilo Anki ŝparas vian tempon per plifortigi viajn plej malfortajn memorojn kaj prizorgi viajn plej fortajn</string>
-    <string name="intro_get_started" comment="Action to start AnkiDroid for the first time without syncing from AnkiWeb">Komenci</string>
+    <string name="intro_get_started" comment="Action to start AnkiDroid for the first time without syncing from AnkiWeb">Get started</string>
     <string name="intro_sync_from_ankiweb">Samtempigi kun AnkiWeb</string>
     <!-- IntentHandler -->
     <string name="app_not_initialized_new">AnkiDroid ankoraŭ ne estas preta. Remalfermu AnkiDroid kaj reprovu</string>
@@ -346,12 +346,12 @@
     <string name="orphan_note_message">Forigi tiun ĉi kartotipon kaŭzos, ke kelkaj notoj havos neniun karton.</string>
     <string name="voice_not_supported">Voĉo ne estas subtenata. Elektu alian aŭ instalu parolsintezilon.</string>
     <!--Keyboard shortcuts dialog-->
-    <string name="deck_picker_group" comment="Label for the group of shortcuts related to the deck picker">Kartar-elektilo</string>
+    <string name="deck_picker_group" comment="Label for the group of shortcuts related to the deck picker">Deck picker</string>
     <string name="delete_deck_without_confirmation" comment="Description of the shortcut that deletes the deck without asking for confirmation">Forigi kartaron senkonfirme</string>
-    <string name="note_editor_group" comment="Label for the group of shortcuts related to the note editor">Redaktilo de notoj</string>
+    <string name="note_editor_group" comment="Label for the group of shortcuts related to the note editor">Note editor</string>
     <string name="select_note_type" comment="Description of the shortcut that shows the note selection spinner">Elekti nototipon</string>
     <string name="tag_editor" comment="Description of the shortcut that opens the tags dialog">Redaktilo de etikedoj</string>
-    <string name="card_template_editor_group" comment="Label for the group of shortcuts related to the card template editor">Redaktilo de kart-ŝablonoj</string>
+    <string name="card_template_editor_group" comment="Label for the group of shortcuts related to the card template editor">Card template editor</string>
     <string name="edit_front_template" comment="Description of the shortcut that shows the question side of the card template">Redakti frontan ŝablonon</string>
     <string name="edit_back_template" comment="Description of the shortcut that shows the answer side of the card template">Redakti dorsan ŝablonon</string>
     <string name="edit_styling" comment="Description of the shortcut that shows the styling side of the card template">Redakti stilon</string>

@@ -69,11 +69,11 @@
     <string name="leech_notification">Картку позначено як набридливу</string>
     <string name="webview_crash_unknown">Невідома помилка</string>
     <string name="webview_crash_unknwon_detailed">Викликано внутрішньою помилкою в WebView</string>
-    <string name="webview_crash_oom">Недостатньо пам\'яті</string>
+    <string name="webview_crash_oom">Out of memory</string>
     <string name="webview_crash_oom_details">WebView припинено системою. Зазвичай таке буває коли додаток використовує забагато пам\'яті, часто через великий розмір шрифтів та медіа.</string>
     <string name="webview_crash_nonfatal">Помилка WebView. Причина: %s</string>
-    <string name="webview_crash_fatal">Критична помилка WebView. Причина: %s</string>
-    <string name="webview_crash_loop_dialog_title">Збій системного WebView</string>
+    <string name="webview_crash_fatal">Fatal error: WebView renderer crashed. Cause: %s</string>
+    <string name="webview_crash_loop_dialog_title">System WebView rendering failure</string>
     <string name="webview_crash_loop_dialog_content">Системою WebView не вдалося показати картку \'%1$s\'.\n %2$s</string>
     <string name="slide_to_cancel" comment="Message shown when pressing the record button">Проведіть, щоб скасувати</string>
     <string name="filter_by_flags" maxLength="41">Прапорці</string>
@@ -211,7 +211,7 @@
     <string name="valid_js_api_version">Неправильна версія API AnkiDroid JS. Зверніться до розробника %s або перегляньте вікі</string>
     <string name="update_js_api_version">Доступне оновлення JS API. Зверніться до розробника %s або перегляньте вікі</string>
     <string name="reviewer_invalid_api_version_visit_documentation">Перегляд</string>
-    <string name="anki_js_error_code">(Код помилки: %d)</string>
+    <string name="anki_js_error_code">(Error code: %d)</string>
     <!-- About AnkiDroid screen -->
     <string name="about_ankidroid_successfully_copied_debug_info">Скопійовано в буфер обміну</string>
     <string name="about_ankidroid_error_copy_debug_info">Помилка копіювання даних зневадження до буфера обміну</string>
@@ -219,7 +219,7 @@
     <string name="card_viewer_could_not_find_image">Не вдалося завантажити «\'%s»</string>
     <!-- Deck Picker -->
     <string name="search_decks" maxLength="28">Шукати колоди</string>
-    <string name="ankidroid_init_failed_webview_title">Критична помилка</string>
+    <string name="ankidroid_init_failed_webview_title">Fatal error</string>
     <string name="ankidroid_init_failed_webview">AnkiDroid використовує системний WebView, який недоступний. Це можливе, якщо система встановлює оновлення. Будь ласка, спробуйте знову за кілька хвилин.\n\n%s</string>
     <string name="ankidroid_init_failed_storage">AnkiDroid не може отримати доступ до сховища через помилку Android.\n\n%s</string>
     <!-- A Menu item to change the Font Size (currently in the Note Editor) -->
@@ -266,11 +266,11 @@
     <string name="percentage">%s%%</string>
     <string name="download_deck">Завантажити колоду</string>
     <string name="open_in_browser" comment="Label of a button inviting to open ankiweb\'s shared deck page if automated download failed">Відкрити в переглядачі карток</string>
-    <string name="try_again">Спробувати ще раз</string>
+    <string name="try_again">Try again</string>
     <string name="cancel_download">Скасувати завантаження</string>
     <string name="cancel_download_question_title">Скасувати завантаження?</string>
     <string name="downloading_file">Завантаження %s</string>
-    <string name="import_deck">Імпортувати колоду</string>
+    <string name="import_deck">Import deck</string>
     <string name="something_wrong">Щось пішло не так. Будь ласка, спробуйте ще раз</string>
     <string name="download_failed">Не вдалося завантажити</string>
     <string name="deck_download_progress_message">Ви можете використовувати інші додатки під час завантаження</string>
@@ -311,7 +311,7 @@
     <string name="intro_ankidroid_tagline_one">Вчіться менше</string>
     <string name="intro_ankidroid_tagline_two">Запам\'ятовуйте більше</string>
     <string name="intro_short_ankidroid_explanation">Планувальник карток Anki заощаджує час, посилюючи найслабші спогади й зберігаючи найсильніші.</string>
-    <string name="intro_get_started" comment="Action to start AnkiDroid for the first time without syncing from AnkiWeb">Почнемо</string>
+    <string name="intro_get_started" comment="Action to start AnkiDroid for the first time without syncing from AnkiWeb">Get started</string>
     <string name="intro_sync_from_ankiweb">Синхронізувати з AnkiWeb</string>
     <!-- IntentHandler -->
     <string name="app_not_initialized_new">AnkiDroid ще не ініціалізовано. Будь ласка, відкрийте AnkiDroid і спробуйте знову</string>
@@ -358,12 +358,12 @@
     <string name="orphan_note_message">Якщо видалити цей тип картки, деякі записи залишаться без карток.</string>
     <string name="voice_not_supported">Голос не підтримується. Спробуйте інший або встановіть голосовий рушій.</string>
     <!--Keyboard shortcuts dialog-->
-    <string name="deck_picker_group" comment="Label for the group of shortcuts related to the deck picker">Вибір колод</string>
+    <string name="deck_picker_group" comment="Label for the group of shortcuts related to the deck picker">Deck picker</string>
     <string name="delete_deck_without_confirmation" comment="Description of the shortcut that deletes the deck without asking for confirmation">Видалити колоду без підтвердження</string>
-    <string name="note_editor_group" comment="Label for the group of shortcuts related to the note editor">Редактор записів</string>
+    <string name="note_editor_group" comment="Label for the group of shortcuts related to the note editor">Note editor</string>
     <string name="select_note_type" comment="Description of the shortcut that shows the note selection spinner">Виберіть тип запису</string>
     <string name="tag_editor" comment="Description of the shortcut that opens the tags dialog">Редактор тегів</string>
-    <string name="card_template_editor_group" comment="Label for the group of shortcuts related to the card template editor">Редактор шаблонів карток</string>
+    <string name="card_template_editor_group" comment="Label for the group of shortcuts related to the card template editor">Card template editor</string>
     <string name="edit_front_template" comment="Description of the shortcut that shows the question side of the card template">Редагувати шаблон передньої сторони</string>
     <string name="edit_back_template" comment="Description of the shortcut that shows the answer side of the card template">Редагувати шаблон задньої сторони</string>
     <string name="edit_styling" comment="Description of the shortcut that shows the styling side of the card template">Редагувати стиль</string>

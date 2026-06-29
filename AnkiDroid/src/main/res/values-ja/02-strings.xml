@@ -69,11 +69,11 @@
     <string name="leech_notification">このカードに \"leech\" (苦戦、忘却多発) というタグを付けました</string>
     <string name="webview_crash_unknown">原因不明のエラー</string>
     <string name="webview_crash_unknwon_detailed">これはWebViewの内部エラーによって引き起こされました。</string>
-    <string name="webview_crash_oom">メモリ不足</string>
+    <string name="webview_crash_oom">Out of memory</string>
     <string name="webview_crash_oom_details">WebViewはシステムによって終了されました。これは通常、アプリケーションがメモリ不足時に発生します。多くの場合、データ量の多いフォントやメディアが原因です。</string>
     <string name="webview_crash_nonfatal">WebViewレンダラーがクラッシュしました。原因: %s</string>
-    <string name="webview_crash_fatal">重大なエラー: WebViewレンダラーがクラッシュしました。原因: %s</string>
-    <string name="webview_crash_loop_dialog_title">システムのWebViewのレンダリング失敗</string>
+    <string name="webview_crash_fatal">Fatal error: WebView renderer crashed. Cause: %s</string>
+    <string name="webview_crash_loop_dialog_title">System WebView rendering failure</string>
     <string name="webview_crash_loop_dialog_content">AndroidシステムのWebViewがカード \'%1$s\' のレンダリングに失敗しました。\n %2$s</string>
     <string name="slide_to_cancel" comment="Message shown when pressing the record button">左にｽﾗｲﾄﾞでｷｬﾝｾﾙ</string>
     <string name="filter_by_flags" maxLength="41">フラグ</string>
@@ -202,7 +202,7 @@
     <string name="valid_js_api_version">AnkiDroid JS API のバージョンが無効です。開発者の %s に連絡するか、Wikiで確認してみてください。</string>
     <string name="update_js_api_version">AnkiDroid JS API が更新されました。開発者の %s に連絡するか、Wikiで確認してみてください。</string>
     <string name="reviewer_invalid_api_version_visit_documentation">ビュー</string>
-    <string name="anki_js_error_code">(エラーコード: %d)</string>
+    <string name="anki_js_error_code">(Error code: %d)</string>
     <!-- About AnkiDroid screen -->
     <string name="about_ankidroid_successfully_copied_debug_info">クリップボードにコピーしました</string>
     <string name="about_ankidroid_error_copy_debug_info">デバッグ情報をクリップボードにコピー中にエラーが発生しました</string>
@@ -210,7 +210,7 @@
     <string name="card_viewer_could_not_find_image">カードコンテンツエラー: ’%s’ の読み込みに失敗しました</string>
     <!-- Deck Picker -->
     <string name="search_decks" maxLength="28">デッキ名を検索</string>
-    <string name="ankidroid_init_failed_webview_title">重大なエラー</string>
+    <string name="ankidroid_init_failed_webview_title">Fatal error</string>
     <string name="ankidroid_init_failed_webview">AnkiDroidはAndroidシステムのWebViewに依存していますが、このWebViewが現在使用できません。この状況は、システムがアップデートプログラムをインストールしている場合に発生する可能性があります。数分後に再試行してください。\n\n%s</string>
     <string name="ankidroid_init_failed_storage">Androidのエラーのため、AnkiDroidはストレージにアクセスできません。\n\n%s</string>
     <!-- A Menu item to change the Font Size (currently in the Note Editor) -->
@@ -257,11 +257,11 @@
     <string name="percentage">%s%%</string>
     <string name="download_deck">デッキをダウンロード</string>
     <string name="open_in_browser" comment="Label of a button inviting to open ankiweb\'s shared deck page if automated download failed">ﾌﾞﾗｳｻﾞｱﾌﾟﾘで開く</string>
-    <string name="try_again">再試行</string>
+    <string name="try_again">Try again</string>
     <string name="cancel_download">ダウンロードをキャンセル</string>
     <string name="cancel_download_question_title">ダウンロードをキャンセルしますか？</string>
     <string name="downloading_file">%s をダウンロード中</string>
-    <string name="import_deck">デッキをインポート</string>
+    <string name="import_deck">Import deck</string>
     <string name="something_wrong">問題が発生しました。もう一度やり直してください。</string>
     <string name="download_failed">ダウンロードに失敗しました</string>
     <string name="deck_download_progress_message">ダウンロード中、他のアプリを使用できます</string>
@@ -296,7 +296,7 @@
     <string name="intro_ankidroid_tagline_one">負担は小さく</string>
     <string name="intro_ankidroid_tagline_two">成果は大きく</string>
     <string name="intro_short_ankidroid_explanation">Ankiは、記憶を定着させ強化するのに適したスケジュールでカードを表示する間隔反復学習システムです。AnkiDroidでAnkiの効率的な学習をお楽しみください</string>
-    <string name="intro_get_started" comment="Action to start AnkiDroid for the first time without syncing from AnkiWeb">開始する</string>
+    <string name="intro_get_started" comment="Action to start AnkiDroid for the first time without syncing from AnkiWeb">Get started</string>
     <string name="intro_sync_from_ankiweb">AnkiWebから同期</string>
     <!-- IntentHandler -->
     <string name="app_not_initialized_new">AnkiDroidがまだ起動していません。AnkiDroidを開いてから、もう一度やり直してください</string>
@@ -340,12 +340,12 @@
     <string name="orphan_note_message">このカードタイプを削除すると、カードが無いノートが生じます。</string>
     <string name="voice_not_supported">読み上げ音声がサポートされていません。別の音声を試すか、音声エンジンをインストールしてください。</string>
     <!--Keyboard shortcuts dialog-->
-    <string name="deck_picker_group" comment="Label for the group of shortcuts related to the deck picker">デッキリスト</string>
+    <string name="deck_picker_group" comment="Label for the group of shortcuts related to the deck picker">Deck picker</string>
     <string name="delete_deck_without_confirmation" comment="Description of the shortcut that deletes the deck without asking for confirmation">デッキを削除（確認なし）</string>
-    <string name="note_editor_group" comment="Label for the group of shortcuts related to the note editor">ノート編集画面</string>
+    <string name="note_editor_group" comment="Label for the group of shortcuts related to the note editor">Note editor</string>
     <string name="select_note_type" comment="Description of the shortcut that shows the note selection spinner">ノートタイプを選択</string>
     <string name="tag_editor" comment="Description of the shortcut that opens the tags dialog">タグを編集</string>
-    <string name="card_template_editor_group" comment="Label for the group of shortcuts related to the card template editor">カードテンプレートエディタ</string>
+    <string name="card_template_editor_group" comment="Label for the group of shortcuts related to the card template editor">Card template editor</string>
     <string name="edit_front_template" comment="Description of the shortcut that shows the question side of the card template">表面テンプレートを編集</string>
     <string name="edit_back_template" comment="Description of the shortcut that shows the answer side of the card template">裏面テンプレートを編集</string>
     <string name="edit_styling" comment="Description of the shortcut that shows the styling side of the card template">スタイルを編集</string>

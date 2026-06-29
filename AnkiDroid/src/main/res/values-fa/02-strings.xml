@@ -69,11 +69,11 @@
     <string name="leech_notification">کارت به عنوان مزاحم مشخص شده است</string>
     <string name="webview_crash_unknown">خطای ناشناخته</string>
     <string name="webview_crash_unknwon_detailed">خطای داخلی در نمایش web باعث این خطا شده است</string>
-    <string name="webview_crash_oom">حافظه کافی نیست</string>
+    <string name="webview_crash_oom">Out of memory</string>
     <string name="webview_crash_oom_details">WebView توسط سیستم متوقف شد. این معمولاً زمانی اتفاق می‌افتد که برنامه حافظه کافی ندارد، اغلب به دلیل قلم‌های بزرگ یا فایل‌های رسانه‌ای.</string>
     <string name="webview_crash_nonfatal">تنظیم‌کنندۀ ظاهر برنامه دچار مشکل شد. دلیل: %s</string>
-    <string name="webview_crash_fatal">خطای وخیم: تنظیم‌کنندۀ ظاهر برنامه دچار مشکل شد. دلیل: %s</string>
-    <string name="webview_crash_loop_dialog_title">مشکل در سیستم تنظیم‌کنندۀ ظاهر برنامه</string>
+    <string name="webview_crash_fatal">Fatal error: WebView renderer crashed. Cause: %s</string>
+    <string name="webview_crash_loop_dialog_title">System WebView rendering failure</string>
     <string name="webview_crash_loop_dialog_content">سیستم در تنظیم ظاهر کارت %1$s با خطا مواجه شد.\n%2$s</string>
     <string name="slide_to_cancel" comment="Message shown when pressing the record button">برای لغو، صفحه و بکشید.</string>
     <string name="filter_by_flags" maxLength="41">پرچم ها</string>
@@ -205,7 +205,7 @@
     <string name="valid_js_api_version">نسخه رابط های برنامه نویسی کاربردی جاوا اسکریپت AnkiDroid نامعتبر است. با توسعه دهنده %s ارتباط برقرار کنید، یا wiki را ببینید.</string>
     <string name="update_js_api_version">به روز رسانی رابط های برنامه نویسی کاربردی جاوا اسکریپت AnkiDroid در دسترس است. با توسعه دهنده %s ارتباط برقرار کنید، یا wiki را ببینید</string>
     <string name="reviewer_invalid_api_version_visit_documentation">نما</string>
-    <string name="anki_js_error_code">(شماره خطا: %d)</string>
+    <string name="anki_js_error_code">(Error code: %d)</string>
     <!-- About AnkiDroid screen -->
     <string name="about_ankidroid_successfully_copied_debug_info">در حافظه موقت کپی شد</string>
     <string name="about_ankidroid_error_copy_debug_info">خطا در کپی کردن اطلاعات debug به کلیپ بورد</string>
@@ -213,7 +213,7 @@
     <string name="card_viewer_could_not_find_image">خطا در محتویات کارت:‌ بارگیری \'%s\' ناموفق بود</string>
     <!-- Deck Picker -->
     <string name="search_decks" maxLength="28">جستجو در تمام دسته‌ها</string>
-    <string name="ankidroid_init_failed_webview_title">خطای مخرب</string>
+    <string name="ankidroid_init_failed_webview_title">Fatal error</string>
     <string name="ankidroid_init_failed_webview">AnkiDroid بر روی سیستم WebView تکیه میکند که غیرقابل دسترسی است. این میتواند اتفاق بیفتد اگر سیستم در حال نسب کردن آپدیت باشد. لطفا دقایقی دیگر تلاش کنید.\n\n%s</string>
     <string name="ankidroid_init_failed_storage">آنکی‌دروید به دلیل خطای اندروید نمی‌تواند به فضای ذخیره‌سازی دسترسی داشته باشد
 
@@ -262,11 +262,11 @@
     <string name="percentage">%s%%</string>
     <string name="download_deck">دانلود دسته</string>
     <string name="open_in_browser" comment="Label of a button inviting to open ankiweb\'s shared deck page if automated download failed">باز کردن در مرورگر</string>
-    <string name="try_again">دوباره تلاش کنید</string>
+    <string name="try_again">Try again</string>
     <string name="cancel_download">لغو دانلود</string>
     <string name="cancel_download_question_title">لغو دانلود؟</string>
     <string name="downloading_file">در حال دانلود %s</string>
-    <string name="import_deck">وارد کردن دسته</string>
+    <string name="import_deck">Import deck</string>
     <string name="something_wrong">مشکلی پیش آمد، لطفا دوباره تلاش کنید</string>
     <string name="download_failed">دانلود نشد</string>
     <string name="deck_download_progress_message">شما می‌توانید زمانی که این در حال دانلود است از برنامه‌های دیگر استفاده کنید</string>
@@ -303,7 +303,7 @@
     <string name="intro_ankidroid_tagline_one">کمتر مطالعه کنید</string>
     <string name="intro_ankidroid_tagline_two">بیشتر به خاطر بسپارید</string>
     <string name="intro_short_ankidroid_explanation">برنامه زمانی کارت‌های انکی، با تقویت مواردی که فراموش کرده‌اید و گذر از مواردی که به یاد دارید، زمان شما را ذخیره خواهد کرد.</string>
-    <string name="intro_get_started" comment="Action to start AnkiDroid for the first time without syncing from AnkiWeb">از اول شروع کنید</string>
+    <string name="intro_get_started" comment="Action to start AnkiDroid for the first time without syncing from AnkiWeb">Get started</string>
     <string name="intro_sync_from_ankiweb">با AnkiWeb همگام سازی کن</string>
     <!-- IntentHandler -->
     <string name="app_not_initialized_new">انکی‌دروید هنوز راه‌اندازی نشده است. لطفاً انکی‌دروید را باز کرده و دوباره تلاش کنید</string>
@@ -348,12 +348,12 @@
     <string name="orphan_note_message">حذف این نوع کارت باعث بی کارت شدن بعضی یادداشت ها می شود</string>
     <string name="voice_not_supported">صدای انتخاب شده همایت شده نیست. یکی دیگر را انتخاب کنید یا یک موتور صدا نصب کنید.</string>
     <!--Keyboard shortcuts dialog-->
-    <string name="deck_picker_group" comment="Label for the group of shortcuts related to the deck picker">انتخاب کننده دسته</string>
+    <string name="deck_picker_group" comment="Label for the group of shortcuts related to the deck picker">Deck picker</string>
     <string name="delete_deck_without_confirmation" comment="Description of the shortcut that deletes the deck without asking for confirmation">دسته را بدون تایید حذف کن</string>
-    <string name="note_editor_group" comment="Label for the group of shortcuts related to the note editor">ویرایشگر یادداشت</string>
+    <string name="note_editor_group" comment="Label for the group of shortcuts related to the note editor">Note editor</string>
     <string name="select_note_type" comment="Description of the shortcut that shows the note selection spinner">انتخاب نوع یادداشت</string>
     <string name="tag_editor" comment="Description of the shortcut that opens the tags dialog">ویرایشگر یادداشت</string>
-    <string name="card_template_editor_group" comment="Label for the group of shortcuts related to the card template editor">ویرایشگر قالب کارت</string>
+    <string name="card_template_editor_group" comment="Label for the group of shortcuts related to the card template editor">Card template editor</string>
     <string name="edit_front_template" comment="Description of the shortcut that shows the question side of the card template">ویرایش قالب جلو</string>
     <string name="edit_back_template" comment="Description of the shortcut that shows the answer side of the card template">ویرایش قالب عقب</string>
     <string name="edit_styling" comment="Description of the shortcut that shows the styling side of the card template">ویرایش طراحی</string>

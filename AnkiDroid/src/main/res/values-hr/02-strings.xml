@@ -69,11 +69,11 @@
     <string name="leech_notification">Karta označena kao preteška</string>
     <string name="webview_crash_unknown">Nepoznata greška</string>
     <string name="webview_crash_unknwon_detailed">Ovo je uzrokovano internom greškom u WebView</string>
-    <string name="webview_crash_oom">Nema dovoljno memorije</string>
+    <string name="webview_crash_oom">Out of memory</string>
     <string name="webview_crash_oom_details">WebView je ugašen od strane sustava. Ovo se tipično dešava kad aplikacija ostane bez memorije, zbog velikih fontova, filmova, zvukova ili slika</string>
     <string name="webview_crash_nonfatal">WebView render greška. Razlog: %s</string>
-    <string name="webview_crash_fatal">Pogreška: Webview se srušio. Razlog: %s</string>
-    <string name="webview_crash_loop_dialog_title">Sistemski WebView render  greška.</string>
+    <string name="webview_crash_fatal">Fatal error: WebView renderer crashed. Cause: %s</string>
+    <string name="webview_crash_loop_dialog_title">System WebView rendering failure</string>
     <string name="webview_crash_loop_dialog_content">System WebView failed to render card \'%1$s\'.\n %2$s</string>
     <string name="slide_to_cancel" comment="Message shown when pressing the record button">Povuci za odustajanje</string>
     <string name="filter_by_flags" maxLength="41">Zastavice</string>
@@ -208,7 +208,7 @@
     <string name="valid_js_api_version">Neispravna verzija AnkiDroid JS API. Kontaktirajte razvijatelja %s ili pogledajte wiki</string>
     <string name="update_js_api_version">Dostupno ažuriranje za AnkiDroid JS API. Kontaktirajte razvijatelja %s, ili pogledajte wiki</string>
     <string name="reviewer_invalid_api_version_visit_documentation">Pogledaj</string>
-    <string name="anki_js_error_code">(Kod greške: %d)</string>
+    <string name="anki_js_error_code">(Error code: %d)</string>
     <!-- About AnkiDroid screen -->
     <string name="about_ankidroid_successfully_copied_debug_info">Kopirano u međuspremnik</string>
     <string name="about_ankidroid_error_copy_debug_info">Greška pri kopiranju informacija o uklanjanju greške u međuspremnik</string>
@@ -216,7 +216,7 @@
     <string name="card_viewer_could_not_find_image">Greška sadržaja kartice: nije se uspio učitati ‘%s’</string>
     <!-- Deck Picker -->
     <string name="search_decks" maxLength="28">Pretraži špilove</string>
-    <string name="ankidroid_init_failed_webview_title">Fatalna greška</string>
+    <string name="ankidroid_init_failed_webview_title">Fatal error</string>
     <string name="ankidroid_init_failed_webview">Android se oslanja na System WebView koji nije dostupan. Ovo se može dogoditi pri ažuriranju sustava. Pokušajte ponovno za par minuta.\n\n%s</string>
     <string name="ankidroid_init_failed_storage">AnkiDroid ne može pristupiti prostoru za pohranu zbog greške u Androidu:\n\n%s</string>
     <!-- A Menu item to change the Font Size (currently in the Note Editor) -->
@@ -263,11 +263,11 @@
     <string name="percentage">%s%%</string>
     <string name="download_deck">Preuzmi špil</string>
     <string name="open_in_browser" comment="Label of a button inviting to open ankiweb\'s shared deck page if automated download failed">Otvori u pregledniku</string>
-    <string name="try_again">Pokušaj ponovno</string>
+    <string name="try_again">Try again</string>
     <string name="cancel_download">Otkaži preuzimanje</string>
     <string name="cancel_download_question_title">Otkazati preuzimanje?</string>
     <string name="downloading_file">Preuzimanje %s</string>
-    <string name="import_deck">Uvezi špil</string>
+    <string name="import_deck">Import deck</string>
     <string name="something_wrong">Nešto je krenulo po krivu, pokušajte ponovno</string>
     <string name="download_failed">Preuzimanje neuspješno</string>
     <string name="deck_download_progress_message">Možete koristi druge aplikacije za vrijeme preuzimanja</string>
@@ -306,7 +306,7 @@
     <string name="intro_ankidroid_tagline_one">Učite manje</string>
     <string name="intro_ankidroid_tagline_two">Zapamtite više</string>
     <string name="intro_short_ankidroid_explanation">Ankijev raspoređivač kartica štedi vrijeme tako što ojačava Vaša najslabija sjećanja i čuva Vaša najjača</string>
-    <string name="intro_get_started" comment="Action to start AnkiDroid for the first time without syncing from AnkiWeb">Započni</string>
+    <string name="intro_get_started" comment="Action to start AnkiDroid for the first time without syncing from AnkiWeb">Get started</string>
     <string name="intro_sync_from_ankiweb">Sinkroniziraj s AnkiWeba</string>
     <!-- IntentHandler -->
     <string name="app_not_initialized_new">AnkiDroid još nije inicijaliziran. Otvorite AnkiDroid te zatim pokušajte ponovno</string>
@@ -352,12 +352,12 @@
     <string name="orphan_note_message">Brisanjem ovog tipa kartice će neke bilješke ostati bez ijedne kartice</string>
     <string name="voice_not_supported">Glas nije podržan. Pokušajte drugi ili instalirajte glasovni pogon.</string>
     <!--Keyboard shortcuts dialog-->
-    <string name="deck_picker_group" comment="Label for the group of shortcuts related to the deck picker">Izbor špila</string>
+    <string name="deck_picker_group" comment="Label for the group of shortcuts related to the deck picker">Deck picker</string>
     <string name="delete_deck_without_confirmation" comment="Description of the shortcut that deletes the deck without asking for confirmation">Izbriši špil bez potvrđivanja</string>
-    <string name="note_editor_group" comment="Label for the group of shortcuts related to the note editor">Uređivač bilješki</string>
+    <string name="note_editor_group" comment="Label for the group of shortcuts related to the note editor">Note editor</string>
     <string name="select_note_type" comment="Description of the shortcut that shows the note selection spinner">Odaberi tip bilješke</string>
     <string name="tag_editor" comment="Description of the shortcut that opens the tags dialog">Uređivač oznaka</string>
-    <string name="card_template_editor_group" comment="Label for the group of shortcuts related to the card template editor">Uređivač predložaka kartica</string>
+    <string name="card_template_editor_group" comment="Label for the group of shortcuts related to the card template editor">Card template editor</string>
     <string name="edit_front_template" comment="Description of the shortcut that shows the question side of the card template">Uredi predložak prednje strane</string>
     <string name="edit_back_template" comment="Description of the shortcut that shows the answer side of the card template">Uredi predložak poleđine</string>
     <string name="edit_styling" comment="Description of the shortcut that shows the styling side of the card template">Uredi formatiranje</string>

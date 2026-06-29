@@ -69,11 +69,11 @@
     <string name="leech_notification">كارتىغا ئۇنتۇلغاق دەپ بەلگىسى قويۇلغان</string>
     <string name="webview_crash_unknown">يوچۇن خاتالىق</string>
     <string name="webview_crash_unknwon_detailed">بۇنى WebView دىكى ئىچكى خاتالىق كەلتۈرۈپ چىقارغان</string>
-    <string name="webview_crash_oom">ئەسلەك يېتىشمىدى</string>
+    <string name="webview_crash_oom">Out of memory</string>
     <string name="webview_crash_oom_details">WebView نى سىستېما توختاتقان. بۇ ئادەتتە چوڭ خەت نۇسخىسى ياكى ۋاسىتە سەۋەبىدىن ئەپ ئىجرا قىلىنىدىغان ئەسلەك يېتىشمىگەندە يۈز بېرىدۇ.</string>
     <string name="webview_crash_nonfatal">WebView ھاسىللىغۇچ يىمىرىلدى. سەۋەبى: %s</string>
-    <string name="webview_crash_fatal">ئېغىر خاتالىق: WebView ھاسىللىغۇچ يىمىرىلدى. سەۋەبى: %s</string>
-    <string name="webview_crash_loop_dialog_title">سىستېما WebView ھاسىللىيالمىدى</string>
+    <string name="webview_crash_fatal">Fatal error: WebView renderer crashed. Cause: %s</string>
+    <string name="webview_crash_loop_dialog_title">System WebView rendering failure</string>
     <string name="webview_crash_loop_dialog_content">سىستېما WebView دا «%1$s» كارتىنى ھاسىللىيالمىدى.\n %2$s</string>
     <string name="slide_to_cancel" comment="Message shown when pressing the record button">سۈرۈلسە ۋاز كەچ</string>
     <string name="filter_by_flags" maxLength="41">بايراق</string>
@@ -205,7 +205,7 @@
     <string name="valid_js_api_version">ئىناۋەتسىز AnkiDroid JS API نەشرى. ئىجادكار %s بىلەن ئالاقىلىشىڭ ياكى ۋىكىنى زىيارەت قىلىڭ</string>
     <string name="update_js_api_version">AnkiDroid JS API يېڭىلانمىسى بار. ئىجادكار %s بىلەن ئالاقىلىشىڭ ياكى ۋىكىنى زىيارەت قىلىڭ</string>
     <string name="reviewer_invalid_api_version_visit_documentation">كۆرۈنۈش</string>
-    <string name="anki_js_error_code">(خاتالىق كودى: %d)</string>
+    <string name="anki_js_error_code">(Error code: %d)</string>
     <!-- About AnkiDroid screen -->
     <string name="about_ankidroid_successfully_copied_debug_info">چاپلاش تاختىسىغا كۆچۈرۈلدى</string>
     <string name="about_ankidroid_error_copy_debug_info">سازلاش ئۇچۇرىنى چاپلاش تاختىسىغا كۆچۈرۈۋاتقاندا خاتالىق كۆرۈلدى</string>
@@ -213,7 +213,7 @@
     <string name="card_viewer_could_not_find_image">كارتا مەزمۇنىدىكى خاتالىق: «%s» نى يۈكلىيەلمىدى</string>
     <!-- Deck Picker -->
     <string name="search_decks" maxLength="28">دەستە ئىزدە</string>
-    <string name="ankidroid_init_failed_webview_title">ئېغىر خاتالىق</string>
+    <string name="ankidroid_init_failed_webview_title">Fatal error</string>
     <string name="ankidroid_init_failed_webview">AnkiDroid سىستېمىدىكى WebView غا تايىنىدۇ ئەمما ئۇنى ئىشلەتكىلى بولمايدۇ. بۇ سىستېما يېڭىلانمىنى ئورنىتىۋاتقاندا يۈز بېرىشى مۇمكىن. بىر قانچە مىنۇتتىن كېيىن قايتا سىناڭ.\n\n%s</string>
     <string name="ankidroid_init_failed_storage">Android خاتالىقى سەۋەبىدىن AnkiDroid ساقلىغۇچنى زىيارەت قىلالمايدۇ.\n\n%s</string>
     <!-- A Menu item to change the Font Size (currently in the Note Editor) -->
@@ -260,11 +260,11 @@
     <string name="percentage">%s%%</string>
     <string name="download_deck">دەستە چۈشۈر</string>
     <string name="open_in_browser" comment="Label of a button inviting to open ankiweb\'s shared deck page if automated download failed">توركۆرگۈدە ئاچ</string>
-    <string name="try_again">قايتا سىنا</string>
+    <string name="try_again">Try again</string>
     <string name="cancel_download">چۈشۈرۈشتىن ۋاز كەچ</string>
     <string name="cancel_download_question_title">چۈشۈرۈشتىن ۋاز كېچەمدۇ؟</string>
     <string name="downloading_file">%s نى چۈشۈرۈۋاتىدۇ ‏‎‎‏</string>
-    <string name="import_deck">دەستە ئەكىر</string>
+    <string name="import_deck">Import deck</string>
     <string name="something_wrong">مەسىلە كۆرۈلدى، قايتا سىناڭ</string>
     <string name="download_failed">چۈشۈرەلمىدى</string>
     <string name="deck_download_progress_message">اچۈشۈرۈۋاتقاندا باشقا ئەپنى ئىشلىتەلەيسىز</string>
@@ -301,7 +301,7 @@
     <string name="intro_ankidroid_tagline_one">ئازراق ئۆگىنىدۇ</string>
     <string name="intro_ankidroid_tagline_two">تېخىمۇ كۆپ ئەستە تۇتىدۇ</string>
     <string name="intro_short_ankidroid_explanation">Anki نىڭ كارتا كۈنتەرتىپلىگۈچىسى ئەستە تۇتۇشتىكى ئاجىز ھالقىڭىزنى كۈچەيتىپ ۋە كۈچلۈك ئەستە تۇتۇشىڭىزنى ساقلاپ ۋاقتىڭىزنى تېجەيدۇ</string>
-    <string name="intro_get_started" comment="Action to start AnkiDroid for the first time without syncing from AnkiWeb">باشلاش</string>
+    <string name="intro_get_started" comment="Action to start AnkiDroid for the first time without syncing from AnkiWeb">Get started</string>
     <string name="intro_sync_from_ankiweb">AnkiWeb دىن قەدەمداشلا</string>
     <!-- IntentHandler -->
     <string name="app_not_initialized_new">AnkiDroid تېخى دەسلەپلەشتۈرۈلمىدى. AnkiDroid نى ئېچىپ قايتا سىناڭ</string>
@@ -346,12 +346,12 @@
     <string name="orphan_note_message">بۇ كارتا تۈرى ئۆچۈرۈلسە بەزى كارتىسىز خاتىرە قېپقالىدۇ.</string>
     <string name="voice_not_supported">ئاۋازنى قوللىمايدۇ. باشقا بىرىنى سىناڭ ياكى ئاۋاز موتورىدىن بىرنى ئورنىتىڭ.</string>
     <!--Keyboard shortcuts dialog-->
-    <string name="deck_picker_group" comment="Label for the group of shortcuts related to the deck picker">دەستە تاللىغۇچ</string>
+    <string name="deck_picker_group" comment="Label for the group of shortcuts related to the deck picker">Deck picker</string>
     <string name="delete_deck_without_confirmation" comment="Description of the shortcut that deletes the deck without asking for confirmation">دەستىنى سورىمايلا ئۆچۈرىدۇ</string>
-    <string name="note_editor_group" comment="Label for the group of shortcuts related to the note editor">خاتىرە تەھرىرلىگۈچ</string>
+    <string name="note_editor_group" comment="Label for the group of shortcuts related to the note editor">Note editor</string>
     <string name="select_note_type" comment="Description of the shortcut that shows the note selection spinner">خاتىرە تۈرى تاللىنىدۇ</string>
     <string name="tag_editor" comment="Description of the shortcut that opens the tags dialog">بەلگە تەھرىرلىگۈچ</string>
-    <string name="card_template_editor_group" comment="Label for the group of shortcuts related to the card template editor">كارتا قېلىپ تەھرىرلىگۈچ</string>
+    <string name="card_template_editor_group" comment="Label for the group of shortcuts related to the card template editor">Card template editor</string>
     <string name="edit_front_template" comment="Description of the shortcut that shows the question side of the card template">ئالدى قېلىپ تەھرىر</string>
     <string name="edit_back_template" comment="Description of the shortcut that shows the answer side of the card template">كەينى قېلىپ تەھرىر</string>
     <string name="edit_styling" comment="Description of the shortcut that shows the styling side of the card template">ئۇسلۇب تەھرىر</string>

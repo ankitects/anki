@@ -69,11 +69,11 @@
     <string name="leech_notification">Carta marcada comente sambisua</string>
     <string name="webview_crash_unknown">Faddina disconnota</string>
     <string name="webview_crash_unknwon_detailed">Custu est istadu causadu dae una faddina interna de su renderizadore WebView</string>
-    <string name="webview_crash_oom">Memòria agabbada</string>
+    <string name="webview_crash_oom">Out of memory</string>
     <string name="webview_crash_oom_details">Su renderizadore WebView est istadu blocadu dae su sistema. Custu de sòlitu acontessit cando s\'aplicatzione non tenet prus memòria lìbera, fatu-fatu pro neghe de caràteres o documentos multimediales mannos.</string>
     <string name="webview_crash_nonfatal">Su renderizadore WebView s\'est blocadu. Càusa: %s</string>
-    <string name="webview_crash_fatal">Faddina fatale: su renderizadore WebView s\'est blocadu. Càusa: %s</string>
-    <string name="webview_crash_loop_dialog_title">Fallimentu de sa renderizatzione WebView de sistema</string>
+    <string name="webview_crash_fatal">Fatal error: WebView renderer crashed. Cause: %s</string>
+    <string name="webview_crash_loop_dialog_title">System WebView rendering failure</string>
     <string name="webview_crash_loop_dialog_content">Su renderizadore WebView de sistema no est resèssidu a renderizare sa carta \'%1$s\'.\n
    %2$s</string>
     <string name="slide_to_cancel" comment="Message shown when pressing the record button">Slide to cancel</string>
@@ -207,7 +207,7 @@
     <string name="valid_js_api_version">Versione de s\'API JS de AnkiDroid non vàlida. Cuntata s\'isvilupadore %s o pòmpia·ti sa wiki</string>
     <string name="update_js_api_version">Atualizatzione de s\'API JS de AnkiDroid a disponimentu. Cuntata s\'isvilupadore %s, or pòmpia·ti sa wiki</string>
     <string name="reviewer_invalid_api_version_visit_documentation">Pòmpia</string>
-    <string name="anki_js_error_code">(Còdighe de errore: %d)</string>
+    <string name="anki_js_error_code">(Error code: %d)</string>
     <!-- About AnkiDroid screen -->
     <string name="about_ankidroid_successfully_copied_debug_info">Copiadu in punta de billete</string>
     <string name="about_ankidroid_error_copy_debug_info">B\'at àpidu una faddina copiende sas informatziones de depuratzione in punta de billete</string>
@@ -215,7 +215,7 @@
     <string name="card_viewer_could_not_find_image">Errore de cuntenutu de sa carta: carrigamentu de ‘%s’ fallidu</string>
     <!-- Deck Picker -->
     <string name="search_decks" maxLength="28">Chirca matzos</string>
-    <string name="ankidroid_init_failed_webview_title">Faddina fatale</string>
+    <string name="ankidroid_init_failed_webview_title">Fatal error</string>
     <string name="ankidroid_init_failed_webview">AnkiDroid si basat in subrade sa WebView de sistema chi no est a disponimentu. Custu podet acontèssere si su sistema est installende atualizatziones. Torra a proare a pustis de una paja de minutos.\n\n%s</string>
     <string name="ankidroid_init_failed_storage">AnkiDroid cannot access storage due to an Android error.\n\n%s</string>
     <!-- A Menu item to change the Font Size (currently in the Note Editor) -->
@@ -262,11 +262,11 @@
     <string name="percentage">%s%%</string>
     <string name="download_deck">Iscàrriga su matzu</string>
     <string name="open_in_browser" comment="Label of a button inviting to open ankiweb\'s shared deck page if automated download failed">Open in browser</string>
-    <string name="try_again">Torra a proare</string>
+    <string name="try_again">Try again</string>
     <string name="cancel_download">Annulla s\'iscarrigamentu</string>
     <string name="cancel_download_question_title">Annullare s\'iscarrigamentu?</string>
     <string name="downloading_file">Iscarrighende %s</string>
-    <string name="import_deck">Importa su matzu</string>
+    <string name="import_deck">Import deck</string>
     <string name="something_wrong">B\'at àpidu carchi problema. Torra a proare</string>
     <string name="download_failed">Iscarrigamentu fallidu</string>
     <string name="deck_download_progress_message">Podes impreare àteras aplicatziones in su mentres chi s\'iscarrigamentu est in cursu</string>
@@ -303,7 +303,7 @@
     <string name="intro_ankidroid_tagline_one">Istùdia de mancu</string>
     <string name="intro_ankidroid_tagline_two">Ammenta de prus</string>
     <string name="intro_short_ankidroid_explanation">Su pranificadore de cartas de Anki rispàrmiat tempus afortiende sos ammentos prus dèbiles tuos e preservende sos prus fortes</string>
-    <string name="intro_get_started" comment="Action to start AnkiDroid for the first time without syncing from AnkiWeb">Incumintza</string>
+    <string name="intro_get_started" comment="Action to start AnkiDroid for the first time without syncing from AnkiWeb">Get started</string>
     <string name="intro_sync_from_ankiweb">Sincroniza dae AnkiWeb</string>
     <!-- IntentHandler -->
     <string name="app_not_initialized_new">AnkiDroid no est galu aviadu. Torra a abèrrere AnkiDroid e a proare</string>
@@ -348,12 +348,12 @@
     <string name="orphan_note_message">S\'iscantzelladura de custa casta de carta at a lassare unas cantas notas chene carta peruna.</string>
     <string name="voice_not_supported">Boghe non suportada. Proa·nde un\'àtera o installa unu motore vocale.</string>
     <!--Keyboard shortcuts dialog-->
-    <string name="deck_picker_group" comment="Label for the group of shortcuts related to the deck picker">Seletzionadore de matzu</string>
+    <string name="deck_picker_group" comment="Label for the group of shortcuts related to the deck picker">Deck picker</string>
     <string name="delete_deck_without_confirmation" comment="Description of the shortcut that deletes the deck without asking for confirmation">Iscantzella su matzu chene cunfirma</string>
-    <string name="note_editor_group" comment="Label for the group of shortcuts related to the note editor">Editore de notas</string>
+    <string name="note_editor_group" comment="Label for the group of shortcuts related to the note editor">Note editor</string>
     <string name="select_note_type" comment="Description of the shortcut that shows the note selection spinner">Seletziona casta de nota</string>
     <string name="tag_editor" comment="Description of the shortcut that opens the tags dialog">Editore de etichetas</string>
-    <string name="card_template_editor_group" comment="Label for the group of shortcuts related to the card template editor">Editore de modellos de carta</string>
+    <string name="card_template_editor_group" comment="Label for the group of shortcuts related to the card template editor">Card template editor</string>
     <string name="edit_front_template" comment="Description of the shortcut that shows the question side of the card template">Modìfica su modellu frontale</string>
     <string name="edit_back_template" comment="Description of the shortcut that shows the answer side of the card template">Modìfica su modellu de palas</string>
     <string name="edit_styling" comment="Description of the shortcut that shows the styling side of the card template">Modìfica s\'istile</string>

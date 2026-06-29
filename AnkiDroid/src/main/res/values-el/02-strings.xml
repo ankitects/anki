@@ -69,11 +69,11 @@
     <string name="leech_notification">Κάρτα σημαδεμένη ως βδέλλα</string>
     <string name="webview_crash_unknown">Άγνωστο σφάλμα</string>
     <string name="webview_crash_unknwon_detailed">Αυτό προκλήθηκε από ένα εσωτερικό σφάλμα στο WebView</string>
-    <string name="webview_crash_oom">Η μνήμη εξαντλήθηκε</string>
+    <string name="webview_crash_oom">Out of memory</string>
     <string name="webview_crash_oom_details">Το WebView τερματίστηκε από το σύστημα. Αυτό συμβαίνει συνήθως όταν η εφαρμογή δεν έχει αρκετή μνήμη, συχνά λόγω μεγάλων γραμματοσειρών ή πολυμέσων.</string>
     <string name="webview_crash_nonfatal">WebView renderer κατέρρευσε. Αιτία: %s</string>
-    <string name="webview_crash_fatal">Μοιραίο σφάλμα: Η συσκευή αναπαραγωγής WebView κατέρρευσε. Αιτία: %s</string>
-    <string name="webview_crash_loop_dialog_title">Αποτυχία Απόδοσης WebView Συστήματος</string>
+    <string name="webview_crash_fatal">Fatal error: WebView renderer crashed. Cause: %s</string>
+    <string name="webview_crash_loop_dialog_title">System WebView rendering failure</string>
     <string name="webview_crash_loop_dialog_content">Το σύστημα WebView απέτυχε να αποδώσει την κάρτα \'%1$s\'.\n %2$s</string>
     <string name="slide_to_cancel" comment="Message shown when pressing the record button">Slide to cancel</string>
     <string name="filter_by_flags" maxLength="41">Σημαίες</string>
@@ -205,7 +205,7 @@
     <string name="valid_js_api_version">Μη έγκυρη έκδοση του AnkiDroid JS API. Επικοινωνήστε με τον προγραμματιστή %s ή δείτε το wiki</string>
     <string name="update_js_api_version">Διαθέσιμη ενημέρωση του AnkiDroid JS API. Επικοινωνήστε με τον προγραμματιστή %s ή δείτε το wiki</string>
     <string name="reviewer_invalid_api_version_visit_documentation">Προβολή</string>
-    <string name="anki_js_error_code">(Κωδικός σφάλματος: %d)</string>
+    <string name="anki_js_error_code">(Error code: %d)</string>
     <!-- About AnkiDroid screen -->
     <string name="about_ankidroid_successfully_copied_debug_info">Αντιγράφηκε στο πρόχειρο</string>
     <string name="about_ankidroid_error_copy_debug_info">Σφάλμα αντιγραφής πληροφοριών αποσφαλμάτωσης στο πρόχειρο</string>
@@ -213,7 +213,7 @@
     <string name="card_viewer_could_not_find_image">Σφάλμα περιεχομένου κάρτας: Αποτυχία φόρτωσης του ‘%s’</string>
     <!-- Deck Picker -->
     <string name="search_decks" maxLength="28">Αναζήτηση τραπουλών</string>
-    <string name="ankidroid_init_failed_webview_title">Κρίσιμο σφάλμα</string>
+    <string name="ankidroid_init_failed_webview_title">Fatal error</string>
     <string name="ankidroid_init_failed_webview">Το AnkiDroid βασίζεται στο System WebView το οποίο δεν είναι διαθέσιμο. Αυτό μπορεί να συμβεί αν το σύστημα εγκαθιστά ενημερώσεις. Δοκιμάστε ξανά σε λίγα λεπτά.\n\n%s</string>
     <string name="ankidroid_init_failed_storage">AnkiDroid cannot access storage due to an Android error.\n\n%s</string>
     <!-- A Menu item to change the Font Size (currently in the Note Editor) -->
@@ -260,11 +260,11 @@
     <string name="percentage">%s%%</string>
     <string name="download_deck">Λήψη τράπουλας</string>
     <string name="open_in_browser" comment="Label of a button inviting to open ankiweb\'s shared deck page if automated download failed">Open in browser</string>
-    <string name="try_again">Προσπαθήστε ξανά</string>
+    <string name="try_again">Try again</string>
     <string name="cancel_download">Ακύρωση λήψης</string>
     <string name="cancel_download_question_title">Ακύρωση λήψης?</string>
     <string name="downloading_file">Γίνεται λήψη του %s</string>
-    <string name="import_deck">Εισαγωγή Τράπουλας</string>
+    <string name="import_deck">Import deck</string>
     <string name="something_wrong">Κάτι πήγε στραβά, παρακαλώ προσπαθήστε ξανά</string>
     <string name="download_failed">Αποτυχία λήψης</string>
     <string name="deck_download_progress_message">Μπορείτε να χρησιμοποιήσετε άλλες εφαρμογές ενώ εκτελείται η λήψη</string>
@@ -301,7 +301,7 @@
     <string name="intro_ankidroid_tagline_one">Διαβάστε λιγότερο</string>
     <string name="intro_ankidroid_tagline_two">Απομνημόνευση περισσότερων</string>
     <string name="intro_short_ankidroid_explanation">Ο προγραμματιστής του Anki εξοικονομεί χρόνο ενισχύοντας τις πιο αδύναμες μνήμες σας και διατηρώντας τις δυνατές</string>
-    <string name="intro_get_started" comment="Action to start AnkiDroid for the first time without syncing from AnkiWeb">Ξεκινήστε</string>
+    <string name="intro_get_started" comment="Action to start AnkiDroid for the first time without syncing from AnkiWeb">Get started</string>
     <string name="intro_sync_from_ankiweb">Συγχρονισμός απο το AnkiWeb</string>
     <!-- IntentHandler -->
     <string name="app_not_initialized_new">Το AnkiDroid δεν έχει αρχικοποιηθεί ακόμα. Ανοίξτε το AnkiDroid και δοκιμάστε ξανά</string>
@@ -346,12 +346,12 @@
     <string name="orphan_note_message">Διαγράφοντας αυτόν τον τύπο κάρτας θα αφήσετε κάποιες σημειώσεις χωρίς κάρτες.</string>
     <string name="voice_not_supported">Η φωνή δεν υποστηρίζεται. Δοκιμάστε μια άλλη ή εγκαταστήστε μια μηχανή φωνής.</string>
     <!--Keyboard shortcuts dialog-->
-    <string name="deck_picker_group" comment="Label for the group of shortcuts related to the deck picker">Επιλογή τράπουλας</string>
+    <string name="deck_picker_group" comment="Label for the group of shortcuts related to the deck picker">Deck picker</string>
     <string name="delete_deck_without_confirmation" comment="Description of the shortcut that deletes the deck without asking for confirmation">Διαγραφή τράπουλας χωρίς επιβεβαίωση</string>
-    <string name="note_editor_group" comment="Label for the group of shortcuts related to the note editor">Επεξεργασία Σημείωσης</string>
+    <string name="note_editor_group" comment="Label for the group of shortcuts related to the note editor">Note editor</string>
     <string name="select_note_type" comment="Description of the shortcut that shows the note selection spinner">Επιλογή τύπου σημείωσης</string>
     <string name="tag_editor" comment="Description of the shortcut that opens the tags dialog">Επεξεργασία ετικετών</string>
-    <string name="card_template_editor_group" comment="Label for the group of shortcuts related to the card template editor">Επεξεργασία Προτύπου Κάρτας</string>
+    <string name="card_template_editor_group" comment="Label for the group of shortcuts related to the card template editor">Card template editor</string>
     <string name="edit_front_template" comment="Description of the shortcut that shows the question side of the card template">Επεξεργασία μπροστινού προτύπου</string>
     <string name="edit_back_template" comment="Description of the shortcut that shows the answer side of the card template">Επεξεργασία πίσω προτύπου</string>
     <string name="edit_styling" comment="Description of the shortcut that shows the styling side of the card template">Επεξεργασία μορφοποίησης</string>

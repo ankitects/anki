@@ -69,11 +69,11 @@
     <string name="leech_notification">Card marked as leech</string>
     <string name="webview_crash_unknown">Tundmatu viga</string>
     <string name="webview_crash_unknwon_detailed">Selle põhjustas WebView\'i siseviga</string>
-    <string name="webview_crash_oom">Mälu on otsas</string>
+    <string name="webview_crash_oom">Out of memory</string>
     <string name="webview_crash_oom_details">The WebView was terminated by the system. This typically happens when the application runs out of memory, often due to large fonts or media.</string>
     <string name="webview_crash_nonfatal">WebView renderer crashed. Cause: %s</string>
-    <string name="webview_crash_fatal">Fatal Error: WebView renderer crashed. Cause: %s</string>
-    <string name="webview_crash_loop_dialog_title">System WebView Rendering Failure</string>
+    <string name="webview_crash_fatal">Fatal error: WebView renderer crashed. Cause: %s</string>
+    <string name="webview_crash_loop_dialog_title">System WebView rendering failure</string>
     <string name="webview_crash_loop_dialog_content">System WebView failed to render card \'%1$s\'.\n %2$s</string>
     <string name="slide_to_cancel" comment="Message shown when pressing the record button">Tühistamiseks libista</string>
     <string name="filter_by_flags" maxLength="41">Flags</string>
@@ -205,7 +205,7 @@
     <string name="valid_js_api_version">Invalid AnkiDroid JS API version. Contact developer %s, or view wiki</string>
     <string name="update_js_api_version">AnkiDroid JS API update available. Contact developer %s, or view wiki</string>
     <string name="reviewer_invalid_api_version_visit_documentation">Vaade</string>
-    <string name="anki_js_error_code">(Veakood: %d)</string>
+    <string name="anki_js_error_code">(Error code: %d)</string>
     <!-- About AnkiDroid screen -->
     <string name="about_ankidroid_successfully_copied_debug_info">Kopeeritud lõikelaualt</string>
     <string name="about_ankidroid_error_copy_debug_info">Error copying debug information to clipboard</string>
@@ -213,7 +213,7 @@
     <string name="card_viewer_could_not_find_image">Card Content Error: Failed to load ‘%s’</string>
     <!-- Deck Picker -->
     <string name="search_decks" maxLength="28">Otsi kaardipakke</string>
-    <string name="ankidroid_init_failed_webview_title">Kriitiline tõrge</string>
+    <string name="ankidroid_init_failed_webview_title">Fatal error</string>
     <string name="ankidroid_init_failed_webview">AnkiDroid relies on the System WebView which is unavailable. This can happen if the system is installing updates. Please try again in a few minutes.\n\n%s</string>
     <string name="ankidroid_init_failed_storage">AnkiDroid cannot access storage due to an Android error.\n\n%s</string>
     <!-- A Menu item to change the Font Size (currently in the Note Editor) -->
@@ -260,11 +260,11 @@
     <string name="percentage">%s%%</string>
     <string name="download_deck">Laadi alla kaardipakk</string>
     <string name="open_in_browser" comment="Label of a button inviting to open ankiweb\'s shared deck page if automated download failed">Ava brauseris</string>
-    <string name="try_again">Proovi uuesti</string>
+    <string name="try_again">Try again</string>
     <string name="cancel_download">Katkesta allalaadimine</string>
     <string name="cancel_download_question_title">Katkestada allalaadimine?</string>
     <string name="downloading_file">Allalaadimine %s</string>
-    <string name="import_deck">Impordi kaardipakk</string>
+    <string name="import_deck">Import deck</string>
     <string name="something_wrong">Midagi läks valesti. Palun proovi uuesti</string>
     <string name="download_failed">Allalaadimine ebaõnnestus</string>
     <string name="deck_download_progress_message">You can use other apps while the download is running</string>
@@ -301,7 +301,7 @@
     <string name="intro_ankidroid_tagline_one">Õpi vähem</string>
     <string name="intro_ankidroid_tagline_two">Mäleta rohkem</string>
     <string name="intro_short_ankidroid_explanation">Anki kaarditega saad säästa aega oma nõrgimate mälestuste tugevdamiseks ja tugevamate mälestuste säilitamiseks</string>
-    <string name="intro_get_started" comment="Action to start AnkiDroid for the first time without syncing from AnkiWeb">Alustamine</string>
+    <string name="intro_get_started" comment="Action to start AnkiDroid for the first time without syncing from AnkiWeb">Get started</string>
     <string name="intro_sync_from_ankiweb">Sünkrooni AnkiWebist</string>
     <!-- IntentHandler -->
     <string name="app_not_initialized_new">AnkiDroid is not initialized yet. Please open AnkiDroid and try again</string>
@@ -346,12 +346,12 @@
     <string name="orphan_note_message">Deleting this card type will leave some notes without any cards.</string>
     <string name="voice_not_supported">Voice not supported. Try another or install a voice engine.</string>
     <!--Keyboard shortcuts dialog-->
-    <string name="deck_picker_group" comment="Label for the group of shortcuts related to the deck picker">Kaardipaki valija</string>
+    <string name="deck_picker_group" comment="Label for the group of shortcuts related to the deck picker">Deck picker</string>
     <string name="delete_deck_without_confirmation" comment="Description of the shortcut that deletes the deck without asking for confirmation">Kustuta kaardipakk ilma kinnitust küsimata</string>
-    <string name="note_editor_group" comment="Label for the group of shortcuts related to the note editor">Märkmete redaktor</string>
+    <string name="note_editor_group" comment="Label for the group of shortcuts related to the note editor">Note editor</string>
     <string name="select_note_type" comment="Description of the shortcut that shows the note selection spinner">Vali märkme liik</string>
     <string name="tag_editor" comment="Description of the shortcut that opens the tags dialog">Siltide redaktor</string>
-    <string name="card_template_editor_group" comment="Label for the group of shortcuts related to the card template editor">Kaardi mallide redaktor</string>
+    <string name="card_template_editor_group" comment="Label for the group of shortcuts related to the card template editor">Card template editor</string>
     <string name="edit_front_template" comment="Description of the shortcut that shows the question side of the card template">Muuda esikülje malli</string>
     <string name="edit_back_template" comment="Description of the shortcut that shows the answer side of the card template">Muuda tagakülje malli</string>
     <string name="edit_styling" comment="Description of the shortcut that shows the styling side of the card template">Muuda stiili</string>

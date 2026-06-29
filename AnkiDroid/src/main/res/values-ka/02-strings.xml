@@ -69,11 +69,11 @@
     <string name="leech_notification">ბარათი შემაფერხებლად მოინიშნა</string>
     <string name="webview_crash_unknown">უცნობი შეცდომა</string>
     <string name="webview_crash_unknwon_detailed">ეს იყო გამოწვეული WebWiew-ის შიდა შეცდომით</string>
-    <string name="webview_crash_oom">მეხსიერება აღარ არის</string>
+    <string name="webview_crash_oom">Out of memory</string>
     <string name="webview_crash_oom_details">სისტემამ WebView შეწყვიტა. ზოგადად, ეს აპლიკაციის მეხსიერების ამოწურვის შემთხვევაში ხდება, ხშირად დიდი შრიფტების ან მედიაფაილების გამო.</string>
     <string name="webview_crash_nonfatal">WebView მიმღები ავარიულად გაითიშა. მიზეზი: %s</string>
-    <string name="webview_crash_fatal">ფატალური შეცდომა: WebView მიმღები ავარიულად გაითიშა. მიზეზი: %s</string>
-    <string name="webview_crash_loop_dialog_title">შეცდომა WebView სისტემის დამუშავებისას</string>
+    <string name="webview_crash_fatal">Fatal error: WebView renderer crashed. Cause: %s</string>
+    <string name="webview_crash_loop_dialog_title">System WebView rendering failure</string>
     <string name="webview_crash_loop_dialog_content">WebView სისტემამ ვერ დაამუშავა ბარათი „%1$s“.\n %2$s</string>
     <string name="slide_to_cancel" comment="Message shown when pressing the record button">Slide to cancel</string>
     <string name="filter_by_flags" maxLength="41">დროშები</string>
@@ -205,7 +205,7 @@
     <string name="valid_js_api_version">AnkiDroid JS API-ს არასწორი ვერსიაა. დაუკავშირდით დეველოპერს %s ან გადახედეთ ვიკის</string>
     <string name="update_js_api_version">ხელმისაწვდომია AnkiDroid JS API-ს განახლება. დაუკავშირდით დეველოპერს %s ან გადახედეთ ვიკის</string>
     <string name="reviewer_invalid_api_version_visit_documentation">ხედი</string>
-    <string name="anki_js_error_code">(შეცდომის კოდი: %d)</string>
+    <string name="anki_js_error_code">(Error code: %d)</string>
     <!-- About AnkiDroid screen -->
     <string name="about_ankidroid_successfully_copied_debug_info">დაკოპირდა გაცვლის ბუფერზე</string>
     <string name="about_ankidroid_error_copy_debug_info">შეცდომა გამართვის ინფორმაციის გაცვლის ბუფერზე დაკოპირებისას</string>
@@ -213,7 +213,7 @@
     <string name="card_viewer_could_not_find_image">ბარათის შიგთავსის შეცდომა: „%s“ ვერ ჩაიტვირთა</string>
     <!-- Deck Picker -->
     <string name="search_decks" maxLength="28">დასტების მოძიება</string>
-    <string name="ankidroid_init_failed_webview_title">ფატალური შეცდომა</string>
+    <string name="ankidroid_init_failed_webview_title">Fatal error</string>
     <string name="ankidroid_init_failed_webview">AnkiDroid relies on the System WebView which is unavailable. This can happen if the system is installing updates. Please try again in a few minutes.\n\n%s</string>
     <string name="ankidroid_init_failed_storage">AnkiDroid cannot access storage due to an Android error.\n\n%s</string>
     <!-- A Menu item to change the Font Size (currently in the Note Editor) -->
@@ -260,11 +260,11 @@
     <string name="percentage">%s%%</string>
     <string name="download_deck">დასტის ჩამოტვირთვა</string>
     <string name="open_in_browser" comment="Label of a button inviting to open ankiweb\'s shared deck page if automated download failed">Open in browser</string>
-    <string name="try_again">ხელახლა სცადეთ</string>
+    <string name="try_again">Try again</string>
     <string name="cancel_download">ჩამოტვირთვის გაუქმება</string>
     <string name="cancel_download_question_title">გაუქმდეს ჩამოტვირთვა?</string>
     <string name="downloading_file">იტვირთება %s</string>
-    <string name="import_deck">დასტის იმპორტი</string>
+    <string name="import_deck">Import deck</string>
     <string name="something_wrong">შეცდომა მოხდა, გთხოვთ თავიდან სცადოთ</string>
     <string name="download_failed">ჩამოტვირთვა წარუმატებელია</string>
     <string name="deck_download_progress_message">ჩამოტვირთვისას შეგიძლიათ სხვა აპლიკაციებიც გამოიყენოთ</string>
@@ -301,7 +301,7 @@
     <string name="intro_ankidroid_tagline_one">ნაკლები მეცადინეობა</string>
     <string name="intro_ankidroid_tagline_two">მეტის დამახსოვრება</string>
     <string name="intro_short_ankidroid_explanation">Anki-ს განრიგის მგეგმავი რთულად დასახსომებელი ცოდნის უკეთ დასწავლასა და ღრმა ცოდნის შენარჩუნებაში გეხმარებათ, რათა დაზოგოთ ძვირფასი დრო</string>
-    <string name="intro_get_started" comment="Action to start AnkiDroid for the first time without syncing from AnkiWeb">დაწყება</string>
+    <string name="intro_get_started" comment="Action to start AnkiDroid for the first time without syncing from AnkiWeb">Get started</string>
     <string name="intro_sync_from_ankiweb">სინქრონიზაცია AnkiWeb-თან</string>
     <!-- IntentHandler -->
     <string name="app_not_initialized_new">AnkiDroid is not initialized yet. Please open AnkiDroid and try again</string>
@@ -346,12 +346,12 @@
     <string name="orphan_note_message">Deleting this card type will leave some notes without any cards.</string>
     <string name="voice_not_supported">Voice not supported. Try another or install a voice engine.</string>
     <!--Keyboard shortcuts dialog-->
-    <string name="deck_picker_group" comment="Label for the group of shortcuts related to the deck picker">დასტის ამრჩეველი</string>
+    <string name="deck_picker_group" comment="Label for the group of shortcuts related to the deck picker">Deck picker</string>
     <string name="delete_deck_without_confirmation" comment="Description of the shortcut that deletes the deck without asking for confirmation">დასტის წაშლა დადასტურების გარეშე</string>
-    <string name="note_editor_group" comment="Label for the group of shortcuts related to the note editor">შენიშვნების რედაქტორი</string>
+    <string name="note_editor_group" comment="Label for the group of shortcuts related to the note editor">Note editor</string>
     <string name="select_note_type" comment="Description of the shortcut that shows the note selection spinner">შენიშვნის ტიპის არჩევა</string>
     <string name="tag_editor" comment="Description of the shortcut that opens the tags dialog">იარლიყების რედაქტორი</string>
-    <string name="card_template_editor_group" comment="Label for the group of shortcuts related to the card template editor">ბარათის შაბლონის რედაქტორი</string>
+    <string name="card_template_editor_group" comment="Label for the group of shortcuts related to the card template editor">Card template editor</string>
     <string name="edit_front_template" comment="Description of the shortcut that shows the question side of the card template">წინა მხარის შაბლონის რედაქტირება</string>
     <string name="edit_back_template" comment="Description of the shortcut that shows the answer side of the card template">უკანა მხარის შაბლონის რედაქტირება</string>
     <string name="edit_styling" comment="Description of the shortcut that shows the styling side of the card template">სტილის რედაქტირება</string>

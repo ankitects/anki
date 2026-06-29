@@ -69,11 +69,11 @@
     <string name="leech_notification">Kartīte atzīmēta kā izsūcoša</string>
     <string name="webview_crash_unknown">Nezināma kļūda</string>
     <string name="webview_crash_unknwon_detailed">Šo izraisīja iekšēja WebView kļūda.</string>
-    <string name="webview_crash_oom">Pietrūkst atmiņas</string>
+    <string name="webview_crash_oom">Out of memory</string>
     <string name="webview_crash_oom_details">Sistēma apturēja WebView. Tas parasti notiek, kad lietotnei pietrūkst atmiņas, bieži vien lielu fonta vai informācijas nesēju datņu dēļ.</string>
     <string name="webview_crash_nonfatal">WebView atveidotājs avarēja. Iemesls: %s</string>
-    <string name="webview_crash_fatal">Nenovēršama kļūda: WebView atveidotājs avarēja. Cēlonis: %s</string>
-    <string name="webview_crash_loop_dialog_title">Sistēmas WebView atveidotāja atteice</string>
+    <string name="webview_crash_fatal">Fatal error: WebView renderer crashed. Cause: %s</string>
+    <string name="webview_crash_loop_dialog_title">System WebView rendering failure</string>
     <string name="webview_crash_loop_dialog_content">Sistēmas WebView neizdevās attēlot kartīti \"%1$s\".\n %2$s</string>
     <string name="slide_to_cancel" comment="Message shown when pressing the record button">Slide to cancel</string>
     <string name="filter_by_flags" maxLength="41">Karogi</string>
@@ -208,7 +208,7 @@
     <string name="valid_js_api_version">Nederīga AnkiDroid JS API versija. Jāsazinās ar izstrādātāju %s vai jāapmeklē vikivietne</string>
     <string name="update_js_api_version">Pieejams AnkiDroid JS API atjauninājums. Jāsazinās ar izstrādātāju %s vai jāapskata vikivietne</string>
     <string name="reviewer_invalid_api_version_visit_documentation">Apskatīt</string>
-    <string name="anki_js_error_code">(Kļūdas kods: %d)</string>
+    <string name="anki_js_error_code">(Error code: %d)</string>
     <!-- About AnkiDroid screen -->
     <string name="about_ankidroid_successfully_copied_debug_info">Ievietots starpliktuvē</string>
     <string name="about_ankidroid_error_copy_debug_info">Kļūda atkļūdošanas informācijas ievietošanas starpliktuvē laikā</string>
@@ -216,7 +216,7 @@
     <string name="card_viewer_could_not_find_image">Kartītes satura kļūda: neizdevās ielādēt ’%s’</string>
     <!-- Deck Picker -->
     <string name="search_decks" maxLength="28">Meklēt kavas</string>
-    <string name="ankidroid_init_failed_webview_title">Nenovēršama kļūda</string>
+    <string name="ankidroid_init_failed_webview_title">Fatal error</string>
     <string name="ankidroid_init_failed_webview">AnkiDroid paļaujas uz sistēmas WebView, kas nav pieejams. Tas var notikt, ja sistēma uzstāda atjauninājumus. Lūgums pēc dažām minūtēm mēģināt vēlreiz.\n\n%s</string>
     <string name="ankidroid_init_failed_storage">AnkiDroid cannot access storage due to an Android error.\n\n%s</string>
     <!-- A Menu item to change the Font Size (currently in the Note Editor) -->
@@ -263,11 +263,11 @@
     <string name="percentage">%s%%</string>
     <string name="download_deck">Lejuplādēt kavu</string>
     <string name="open_in_browser" comment="Label of a button inviting to open ankiweb\'s shared deck page if automated download failed">Atvērt pārlūkā</string>
-    <string name="try_again">Mēģināt vēlreiz</string>
+    <string name="try_again">Try again</string>
     <string name="cancel_download">Atcelt lejupielādi</string>
     <string name="cancel_download_question_title">Atcelt lejupielādi?</string>
     <string name="downloading_file">Lejupielādē %s</string>
-    <string name="import_deck">Ievietot kavu</string>
+    <string name="import_deck">Import deck</string>
     <string name="something_wrong">Kaut kas nogāja greizi, lūgums mēģināt vēlreiz</string>
     <string name="download_failed">Lejupielāde neizdevās</string>
     <string name="deck_download_progress_message">Var izmantot citas lietotnes, kamēr notiek lejupielāde</string>
@@ -306,7 +306,7 @@
     <string name="intro_ankidroid_tagline_one">Mācies mazāk</string>
     <string name="intro_ankidroid_tagline_two">Apgūsti vairāk</string>
     <string name="intro_short_ankidroid_explanation">Anki kartīšu plānotājs ietaupa laiku ar vājāko atmiņu stiprināšanu un stripāko atmiņu saglabāšanu</string>
-    <string name="intro_get_started" comment="Action to start AnkiDroid for the first time without syncing from AnkiWeb">Uzsākt</string>
+    <string name="intro_get_started" comment="Action to start AnkiDroid for the first time without syncing from AnkiWeb">Get started</string>
     <string name="intro_sync_from_ankiweb">Vienādot no AnkiWeb</string>
     <!-- IntentHandler -->
     <string name="app_not_initialized_new">AnkiDroid vēl nav sāknēta. Lūgums atvērt AnkiDroid un mēģināt vēlreiz</string>
@@ -352,12 +352,12 @@
     <string name="orphan_note_message">Šī kartīšu veida izdzēšana atstās atsevišķas piezīmes bez nevienas kartītes.</string>
     <string name="voice_not_supported">Balss nav atbalstīta. Jāmēģina cits vai jāuzstāda balss dzinējs.</string>
     <!--Keyboard shortcuts dialog-->
-    <string name="deck_picker_group" comment="Label for the group of shortcuts related to the deck picker">Kavu atlasītājs</string>
+    <string name="deck_picker_group" comment="Label for the group of shortcuts related to the deck picker">Deck picker</string>
     <string name="delete_deck_without_confirmation" comment="Description of the shortcut that deletes the deck without asking for confirmation">Izdzēst kavu bez apliecināšanas</string>
-    <string name="note_editor_group" comment="Label for the group of shortcuts related to the note editor">Piezīmju redaktors</string>
+    <string name="note_editor_group" comment="Label for the group of shortcuts related to the note editor">Note editor</string>
     <string name="select_note_type" comment="Description of the shortcut that shows the note selection spinner">Atlasīt piezīmju veidu</string>
     <string name="tag_editor" comment="Description of the shortcut that opens the tags dialog">Birku redaktors</string>
-    <string name="card_template_editor_group" comment="Label for the group of shortcuts related to the card template editor">Kartīšu veidņu redaktors</string>
+    <string name="card_template_editor_group" comment="Label for the group of shortcuts related to the card template editor">Card template editor</string>
     <string name="edit_front_template" comment="Description of the shortcut that shows the question side of the card template">Labot priekšpuses veidni</string>
     <string name="edit_back_template" comment="Description of the shortcut that shows the answer side of the card template">Labot aizmugures veidni</string>
     <string name="edit_styling" comment="Description of the shortcut that shows the styling side of the card template">Labot izskata pielāgojumus</string>

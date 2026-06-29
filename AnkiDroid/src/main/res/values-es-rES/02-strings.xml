@@ -69,11 +69,11 @@
     <string name="leech_notification">Tarjeta marcada como sanguijuela</string>
     <string name="webview_crash_unknown">Error desconocido</string>
     <string name="webview_crash_unknwon_detailed">Esto fue causado por un error interno en WebView</string>
-    <string name="webview_crash_oom">Memoria Insuficiente</string>
+    <string name="webview_crash_oom">Out of memory</string>
     <string name="webview_crash_oom_details">El sistema terminó el WebView, eso suele ocurrir cuando la aplicación se queda con memoria insuficiente, a menudo debido a fuentes o multimedias grandes.</string>
     <string name="webview_crash_nonfatal">El renderizador de WebView se cayó. Causa: %s</string>
-    <string name="webview_crash_fatal">Error fatal: El renderizador de WebView se cayó. Causa: %s</string>
-    <string name="webview_crash_loop_dialog_title">Fallo de procesamiento de WebView del sistema</string>
+    <string name="webview_crash_fatal">Fatal error: WebView renderer crashed. Cause: %s</string>
+    <string name="webview_crash_loop_dialog_title">System WebView rendering failure</string>
     <string name="webview_crash_loop_dialog_content">WebView del sistema no pudo procesar la tarjeta \'%1$s\'.\n %2$s</string>
     <string name="slide_to_cancel" comment="Message shown when pressing the record button">Deslizar para cancelar</string>
     <string name="filter_by_flags" maxLength="41">Banderas</string>
@@ -205,7 +205,7 @@
     <string name="valid_js_api_version">Versión de la API de AnkiDroid JS no válida. Contacte con el desarrollador %so vea la wiki</string>
     <string name="update_js_api_version">Actualización de la API de AnkiDroid JS disponible. Contacte con el desarrollador %so vea la wiki</string>
     <string name="reviewer_invalid_api_version_visit_documentation">Ver</string>
-    <string name="anki_js_error_code">(Código de error: %d)</string>
+    <string name="anki_js_error_code">(Error code: %d)</string>
     <!-- About AnkiDroid screen -->
     <string name="about_ankidroid_successfully_copied_debug_info">Copiado al portapapeles</string>
     <string name="about_ankidroid_error_copy_debug_info">Error al copiar información de depuración al portapapeles</string>
@@ -213,7 +213,7 @@
     <string name="card_viewer_could_not_find_image">Error de contenido de la tarjeta: Error al cargar ‘%s’</string>
     <!-- Deck Picker -->
     <string name="search_decks" maxLength="28">Buscar mazos</string>
-    <string name="ankidroid_init_failed_webview_title">Error fatal</string>
+    <string name="ankidroid_init_failed_webview_title">Fatal error</string>
     <string name="ankidroid_init_failed_webview">AnkiDroid confía en la WebView del sistema, que no está disponible. Esto puede suceder si el sistema está instalando actualizaciones. Por favor, inténtalo de nuevo en unos minutos.\n\n%s</string>
     <string name="ankidroid_init_failed_storage">AnkiDroid no puede acceder al almacenamiento debido a un error de Android.\n\n%s</string>
     <!-- A Menu item to change the Font Size (currently in the Note Editor) -->
@@ -260,11 +260,11 @@
     <string name="percentage">%s%%</string>
     <string name="download_deck">Descargar mazo</string>
     <string name="open_in_browser" comment="Label of a button inviting to open ankiweb\'s shared deck page if automated download failed">Abrir en el navegador</string>
-    <string name="try_again">Inténtalo de nuevo</string>
+    <string name="try_again">Try again</string>
     <string name="cancel_download">Cancelar descarga</string>
     <string name="cancel_download_question_title">¿Cancelar descarga?</string>
     <string name="downloading_file">Descargando %s</string>
-    <string name="import_deck">Importar mazo</string>
+    <string name="import_deck">Import deck</string>
     <string name="something_wrong">Ha ocurrido un error, por favor inténtalo de nuevo</string>
     <string name="download_failed">Descarga fallida</string>
     <string name="deck_download_progress_message">Puedes usar otras aplicaciones mientras se ejecuta la descarga</string>
@@ -301,7 +301,7 @@
     <string name="intro_ankidroid_tagline_one">Estudia menos</string>
     <string name="intro_ankidroid_tagline_two">Recuerda más</string>
     <string name="intro_short_ankidroid_explanation">El planificador de tarjetas Anki ahorra tiempo fortaleciendo tus recuerdos más débiles y preservando los más fuertes</string>
-    <string name="intro_get_started" comment="Action to start AnkiDroid for the first time without syncing from AnkiWeb">Empieza</string>
+    <string name="intro_get_started" comment="Action to start AnkiDroid for the first time without syncing from AnkiWeb">Get started</string>
     <string name="intro_sync_from_ankiweb">Sincronizar desde AnkiWeb</string>
     <!-- IntentHandler -->
     <string name="app_not_initialized_new">AnkiDroid aún no está inicializado. Por favor, abre AnkiDroid e inténtalo de nuevo</string>
@@ -346,12 +346,12 @@
     <string name="orphan_note_message">Eliminar este tipo de tarjeta dejará algunas notas sin ninguna tarjeta.</string>
     <string name="voice_not_supported">Voice not supported. Try another or install a voice engine.</string>
     <!--Keyboard shortcuts dialog-->
-    <string name="deck_picker_group" comment="Label for the group of shortcuts related to the deck picker">Selector de Mazos</string>
+    <string name="deck_picker_group" comment="Label for the group of shortcuts related to the deck picker">Deck picker</string>
     <string name="delete_deck_without_confirmation" comment="Description of the shortcut that deletes the deck without asking for confirmation">Eliminar mazo sin confirmación</string>
-    <string name="note_editor_group" comment="Label for the group of shortcuts related to the note editor">Editor de Notas</string>
+    <string name="note_editor_group" comment="Label for the group of shortcuts related to the note editor">Note editor</string>
     <string name="select_note_type" comment="Description of the shortcut that shows the note selection spinner">Seleccionar tipo de nota</string>
     <string name="tag_editor" comment="Description of the shortcut that opens the tags dialog">Editor de etiquetas</string>
-    <string name="card_template_editor_group" comment="Label for the group of shortcuts related to the card template editor">Editor de Plantillas de Tarjeta</string>
+    <string name="card_template_editor_group" comment="Label for the group of shortcuts related to the card template editor">Card template editor</string>
     <string name="edit_front_template" comment="Description of the shortcut that shows the question side of the card template">Editar plantilla frontal</string>
     <string name="edit_back_template" comment="Description of the shortcut that shows the answer side of the card template">Editar plantilla trasera</string>
     <string name="edit_styling" comment="Description of the shortcut that shows the styling side of the card template">Editar estilo</string>

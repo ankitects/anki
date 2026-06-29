@@ -69,11 +69,11 @@
     <string name="leech_notification">Cartão marcado como sanguessuga</string>
     <string name="webview_crash_unknown">Erro desconhecido</string>
     <string name="webview_crash_unknwon_detailed">Isso foi causado por um erro interno no WebView</string>
-    <string name="webview_crash_oom">Memória Insuficiente</string>
+    <string name="webview_crash_oom">Out of memory</string>
     <string name="webview_crash_oom_details">O WebView foi encerrado pelo sistema. Isso normalmente acontece quando o aplicativo fica sem memória, muitas vezes devido a fontes ou mídias grandes.</string>
     <string name="webview_crash_nonfatal">WebView renderer crashou. Causa: %s</string>
-    <string name="webview_crash_fatal">Erro Fatal: WebView renderer crashou. Causa: %s</string>
-    <string name="webview_crash_loop_dialog_title">Falha no System Rendering WebView</string>
+    <string name="webview_crash_fatal">Fatal error: WebView renderer crashed. Cause: %s</string>
+    <string name="webview_crash_loop_dialog_title">System WebView rendering failure</string>
     <string name="webview_crash_loop_dialog_content">O System WebView falhou ao renderizar o card \'%1$s\'.\n %2$s</string>
     <string name="slide_to_cancel" comment="Message shown when pressing the record button">Deslize para cancelar</string>
     <string name="filter_by_flags" maxLength="41">Bandeiras</string>
@@ -205,7 +205,7 @@
     <string name="valid_js_api_version">Versão inválida da API AnkiDroid JS. Entre em contato com o desenvolvedor %s, ou veja a wiki.</string>
     <string name="update_js_api_version">Atualização da API AnkiDroid JS disponível. Contate desenvolvedor %s, ou veja a wiki.</string>
     <string name="reviewer_invalid_api_version_visit_documentation">Visualizar</string>
-    <string name="anki_js_error_code">(Código de erro: %d)</string>
+    <string name="anki_js_error_code">(Error code: %d)</string>
     <!-- About AnkiDroid screen -->
     <string name="about_ankidroid_successfully_copied_debug_info">Copiado para a área de transferência</string>
     <string name="about_ankidroid_error_copy_debug_info">Erro ao copiar informações de debug para a área de transferência.</string>
@@ -213,7 +213,7 @@
     <string name="card_viewer_could_not_find_image">Erro de Conteúdo do Card: Falha ao carregar ‘%s\'</string>
     <!-- Deck Picker -->
     <string name="search_decks" maxLength="28">Pesquisar baralhos</string>
-    <string name="ankidroid_init_failed_webview_title">Erro Fatal</string>
+    <string name="ankidroid_init_failed_webview_title">Fatal error</string>
     <string name="ankidroid_init_failed_webview">AnkiDroid depende do System WebView que não está disponível. Isso pode acontecer se o sistema está instalando atualizações. Por favor, tente novamente em alguns minutos.\n\n%s</string>
     <string name="ankidroid_init_failed_storage">AnkiDroid não pode acessar o armazenamento devido a um erro do Android.\n\n%s</string>
     <!-- A Menu item to change the Font Size (currently in the Note Editor) -->
@@ -260,11 +260,11 @@
     <string name="percentage">%s%%</string>
     <string name="download_deck">Baixar baralho</string>
     <string name="open_in_browser" comment="Label of a button inviting to open ankiweb\'s shared deck page if automated download failed">Abrir no navegador</string>
-    <string name="try_again">Tentar Novamente</string>
+    <string name="try_again">Try again</string>
     <string name="cancel_download">Cancelar download</string>
     <string name="cancel_download_question_title">Cancelar download?</string>
     <string name="downloading_file">Baixando %s</string>
-    <string name="import_deck">Importar Baralho</string>
+    <string name="import_deck">Import deck</string>
     <string name="something_wrong">Algo deu errado. Por favor, tente novamente</string>
     <string name="download_failed">Download falhou</string>
     <string name="deck_download_progress_message">Você pode usar outros apps enquanto o download está rodando</string>
@@ -301,7 +301,7 @@
     <string name="intro_ankidroid_tagline_one">Estude menos</string>
     <string name="intro_ankidroid_tagline_two">Lembre mais</string>
     <string name="intro_short_ankidroid_explanation">O agendador de cartões de Anki economiza tempo, fortalecendo suas memórias mais fracas e preservando suas mais fortes</string>
-    <string name="intro_get_started" comment="Action to start AnkiDroid for the first time without syncing from AnkiWeb">Comece Agora</string>
+    <string name="intro_get_started" comment="Action to start AnkiDroid for the first time without syncing from AnkiWeb">Get started</string>
     <string name="intro_sync_from_ankiweb">Sincronizar do AnkiWeb</string>
     <!-- IntentHandler -->
     <string name="app_not_initialized_new">O AnkiDroid ainda não foi inicializado.  Por favor, abra o AnkiDroid e tente novamente</string>
@@ -346,12 +346,12 @@
     <string name="orphan_note_message">Deletar essa categoria de cartão deixará algumas notas sem cartão</string>
     <string name="voice_not_supported">Voz não suportada. Tente outra ou instale um mecanismo de voz.</string>
     <!--Keyboard shortcuts dialog-->
-    <string name="deck_picker_group" comment="Label for the group of shortcuts related to the deck picker">Selecionador de baralho</string>
+    <string name="deck_picker_group" comment="Label for the group of shortcuts related to the deck picker">Deck picker</string>
     <string name="delete_deck_without_confirmation" comment="Description of the shortcut that deletes the deck without asking for confirmation">Deletar baralho sem confirmação</string>
-    <string name="note_editor_group" comment="Label for the group of shortcuts related to the note editor">Editor de Notas</string>
+    <string name="note_editor_group" comment="Label for the group of shortcuts related to the note editor">Note editor</string>
     <string name="select_note_type" comment="Description of the shortcut that shows the note selection spinner">Selecionar tipo de nota</string>
     <string name="tag_editor" comment="Description of the shortcut that opens the tags dialog">Editor de Tag</string>
-    <string name="card_template_editor_group" comment="Label for the group of shortcuts related to the card template editor">Editor de Cartão Modelo</string>
+    <string name="card_template_editor_group" comment="Label for the group of shortcuts related to the card template editor">Card template editor</string>
     <string name="edit_front_template" comment="Description of the shortcut that shows the question side of the card template">Editar modelo frontal</string>
     <string name="edit_back_template" comment="Description of the shortcut that shows the answer side of the card template">Editar modelo do verso</string>
     <string name="edit_styling" comment="Description of the shortcut that shows the styling side of the card template">Editar estilo</string>

@@ -69,11 +69,11 @@
     <string name="leech_notification">Kaart gemerk as bloedsuier</string>
     <string name="webview_crash_unknown">Onbekende fout</string>
     <string name="webview_crash_unknwon_detailed">Dit is veroorsaak deur \'n interne fout in die WebView.</string>
-    <string name="webview_crash_oom">Uit geheue</string>
+    <string name="webview_crash_oom">Out of memory</string>
     <string name="webview_crash_oom_details">Die WebView is deur die stelsel beëindig. Dit gebeur gewoonlik wanneer die toepassing uit geheue hardloop, dikwels as gevolg van groot lettertipes of media.</string>
     <string name="webview_crash_nonfatal">WebView-weergawe het gecrash. Oorsaak: %s</string>
-    <string name="webview_crash_fatal">Fataal Fout: WebView-renderer het gecrash. Oorsaak: %s</string>
-    <string name="webview_crash_loop_dialog_title">Stelsel WebView Weergawes Fout</string>
+    <string name="webview_crash_fatal">Fatal error: WebView renderer crashed. Cause: %s</string>
+    <string name="webview_crash_loop_dialog_title">System WebView rendering failure</string>
     <string name="webview_crash_loop_dialog_content">Stelsel webaansig kon nie kaart verbeeld nie \'%1$s\'.\n%2$s</string>
     <string name="slide_to_cancel" comment="Message shown when pressing the record button">Slide to cancel</string>
     <string name="filter_by_flags" maxLength="41">Etikette</string>
@@ -205,7 +205,7 @@
     <string name="valid_js_api_version">Ongeldige AnkiDroid JS API-weergawe. Kontak ontwikkelaar %s, of sien wiki</string>
     <string name="update_js_api_version">AnkiDroid JS API-opdatering beskikbaar. Kontak ontwikkelaar %s, of sien wiki</string>
     <string name="reviewer_invalid_api_version_visit_documentation">Sien</string>
-    <string name="anki_js_error_code">(Foutkode: %d)</string>
+    <string name="anki_js_error_code">(Error code: %d)</string>
     <!-- About AnkiDroid screen -->
     <string name="about_ankidroid_successfully_copied_debug_info">Gekopieer Na Knipbord</string>
     <string name="about_ankidroid_error_copy_debug_info">Fout Met Kopiëring Van Ontfoutinligting Na Knipbord</string>
@@ -213,7 +213,7 @@
     <string name="card_viewer_could_not_find_image">Kaartinhoud Fout: Kon nie ‘%s’ laai nie</string>
     <!-- Deck Picker -->
     <string name="search_decks" maxLength="28">Soek pakke</string>
-    <string name="ankidroid_init_failed_webview_title">Fatale fout</string>
+    <string name="ankidroid_init_failed_webview_title">Fatal error</string>
     <string name="ankidroid_init_failed_webview">AnkiDroid maak staat op die Stelsel WebView wat nie beskikbaar is nie. Dit kan gebeur as die stelsel opdaterings installeer. Probeer asseblief weer oor \'n paar minute.\n\n%s</string>
     <string name="ankidroid_init_failed_storage">AnkiDroid cannot access storage due to an Android error.\n\n%s</string>
     <!-- A Menu item to change the Font Size (currently in the Note Editor) -->
@@ -260,11 +260,11 @@
     <string name="percentage">%s%%</string>
     <string name="download_deck">Laai pak af</string>
     <string name="open_in_browser" comment="Label of a button inviting to open ankiweb\'s shared deck page if automated download failed">Open in browser</string>
-    <string name="try_again">Probeer weer</string>
+    <string name="try_again">Try again</string>
     <string name="cancel_download">Kanselleer aflaai</string>
     <string name="cancel_download_question_title">Kanselleer aflaai?</string>
     <string name="downloading_file">Laai %s Af</string>
-    <string name="import_deck">Voer Pak In</string>
+    <string name="import_deck">Import deck</string>
     <string name="something_wrong">Something went wrong, please try again</string>
     <string name="download_failed">Aflaai het misluk</string>
     <string name="deck_download_progress_message">Jy kan ander toepassings gebruik terwyl die aflaai loop</string>
@@ -301,7 +301,7 @@
     <string name="intro_ankidroid_tagline_one">Minder studeer</string>
     <string name="intro_ankidroid_tagline_two">Onthou meer</string>
     <string name="intro_short_ankidroid_explanation">Anki se kaartkeduler bespaar tyd deur jou swakste herinneringe te versterk en jou sterkste te bewaar</string>
-    <string name="intro_get_started" comment="Action to start AnkiDroid for the first time without syncing from AnkiWeb">Begin</string>
+    <string name="intro_get_started" comment="Action to start AnkiDroid for the first time without syncing from AnkiWeb">Get started</string>
     <string name="intro_sync_from_ankiweb">Sinkroniseer Van AnkiWeb</string>
     <!-- IntentHandler -->
     <string name="app_not_initialized_new">AnkiDroid Is Nog Nie Geïnisialiseer Nie. Maak Asseblief AnkiDroid Oop En Probeer Weer.</string>
@@ -346,12 +346,12 @@
     <string name="orphan_note_message">Die verwydering van hierdie kaarttipe sal sommige notas sonder enige kaarte laat.</string>
     <string name="voice_not_supported">Stem word nie ondersteun nie. Probeer \'n ander of installeer \'n stem-enjin</string>
     <!--Keyboard shortcuts dialog-->
-    <string name="deck_picker_group" comment="Label for the group of shortcuts related to the deck picker">Pak-Selektor</string>
+    <string name="deck_picker_group" comment="Label for the group of shortcuts related to the deck picker">Deck picker</string>
     <string name="delete_deck_without_confirmation" comment="Description of the shortcut that deletes the deck without asking for confirmation">Verwyder dek sonder bevestiging</string>
-    <string name="note_editor_group" comment="Label for the group of shortcuts related to the note editor">NotaRedakteur</string>
+    <string name="note_editor_group" comment="Label for the group of shortcuts related to the note editor">Note editor</string>
     <string name="select_note_type" comment="Description of the shortcut that shows the note selection spinner">Kies nota tipe</string>
     <string name="tag_editor" comment="Description of the shortcut that opens the tags dialog">Etiketredakteur</string>
-    <string name="card_template_editor_group" comment="Label for the group of shortcuts related to the card template editor">KaartSjabloonRedakteur</string>
+    <string name="card_template_editor_group" comment="Label for the group of shortcuts related to the card template editor">Card template editor</string>
     <string name="edit_front_template" comment="Description of the shortcut that shows the question side of the card template">Wysig voorste sjabloon</string>
     <string name="edit_back_template" comment="Description of the shortcut that shows the answer side of the card template">Wysig agterste sjabloon</string>
     <string name="edit_styling" comment="Description of the shortcut that shows the styling side of the card template">Wysig stilering</string>

@@ -69,11 +69,11 @@
     <string name="leech_notification">卡片被标记为「记忆难点」</string>
     <string name="webview_crash_unknown">未知错误</string>
     <string name="webview_crash_unknwon_detailed">这是由 WebView 内部错误导致的</string>
-    <string name="webview_crash_oom">内存不足</string>
+    <string name="webview_crash_oom">Out of memory</string>
     <string name="webview_crash_oom_details">WebView 被系统终止。这种情况通常发生在应用程序内存不足时，往往是由于使用了大型字体或媒体文件所导致。</string>
     <string name="webview_crash_nonfatal">WebView 渲染器崩溃。原因：%s</string>
-    <string name="webview_crash_fatal">严重错误：WebView 渲染器崩溃。原因：%s</string>
-    <string name="webview_crash_loop_dialog_title">系统 WebView 渲染失败</string>
+    <string name="webview_crash_fatal">Fatal error: WebView renderer crashed. Cause: %s</string>
+    <string name="webview_crash_loop_dialog_title">System WebView rendering failure</string>
     <string name="webview_crash_loop_dialog_content">系统 WebView 渲染卡片 “%1$s” 失败。\n %2$s</string>
     <string name="slide_to_cancel" comment="Message shown when pressing the record button">滑动取消</string>
     <string name="filter_by_flags" maxLength="41">旗标</string>
@@ -202,7 +202,7 @@
     <string name="valid_js_api_version">无效的 AnkiDroid JS API 版本。请联系开发者 %s，或查看 wiki</string>
     <string name="update_js_api_version">AnkiDroid JS API 更新可用。请联系开发者 %s，或查看 wiki</string>
     <string name="reviewer_invalid_api_version_visit_documentation">查看</string>
-    <string name="anki_js_error_code">（错误代码：%d）</string>
+    <string name="anki_js_error_code">(Error code: %d)</string>
     <!-- About AnkiDroid screen -->
     <string name="about_ankidroid_successfully_copied_debug_info">已复制到剪贴板</string>
     <string name="about_ankidroid_error_copy_debug_info">复制调试信息到剪贴板时出错</string>
@@ -210,7 +210,7 @@
     <string name="card_viewer_could_not_find_image">卡片内容错误：加载「%s」失败</string>
     <!-- Deck Picker -->
     <string name="search_decks" maxLength="28">搜索牌组</string>
-    <string name="ankidroid_init_failed_webview_title">严重错误</string>
+    <string name="ankidroid_init_failed_webview_title">Fatal error</string>
     <string name="ankidroid_init_failed_webview">AnkiDroid 依赖的系统 WebView 不可用。如果系统正在安装更新，可能会发生这种情况。请几分钟后再试。\n\n%s</string>
     <string name="ankidroid_init_failed_storage">由于 Android 系统错误，AnkiDroid 无法访问存储。\n\n%s</string>
     <!-- A Menu item to change the Font Size (currently in the Note Editor) -->
@@ -257,11 +257,11 @@
     <string name="percentage">%s%%</string>
     <string name="download_deck">下载牌组</string>
     <string name="open_in_browser" comment="Label of a button inviting to open ankiweb\'s shared deck page if automated download failed">在浏览器中打开</string>
-    <string name="try_again">再试一次</string>
+    <string name="try_again">Try again</string>
     <string name="cancel_download">取消下载</string>
     <string name="cancel_download_question_title">是否取消下载？</string>
     <string name="downloading_file">正在下载 %s</string>
-    <string name="import_deck">导入牌组</string>
+    <string name="import_deck">Import deck</string>
     <string name="something_wrong">出错了，请重试</string>
     <string name="download_failed">下载失败</string>
     <string name="deck_download_progress_message">您可以在下载过程中使用其他应用</string>
@@ -296,7 +296,7 @@
     <string name="intro_ankidroid_tagline_one">学得更少</string>
     <string name="intro_ankidroid_tagline_two">记得更牢</string>
     <string name="intro_short_ankidroid_explanation">使用 Anki 的卡片调度系统，强化并巩固远近记忆，从而节省您的学习时间</string>
-    <string name="intro_get_started" comment="Action to start AnkiDroid for the first time without syncing from AnkiWeb">开始</string>
+    <string name="intro_get_started" comment="Action to start AnkiDroid for the first time without syncing from AnkiWeb">Get started</string>
     <string name="intro_sync_from_ankiweb">从 AnkiWeb 同步</string>
     <!-- IntentHandler -->
     <string name="app_not_initialized_new">AnkiDroid 尚未初始化。请打开 AnkiDroid，然后再试</string>
@@ -340,12 +340,12 @@
     <string name="orphan_note_message">删除此卡片类型将留使一些附注没有任何卡片。</string>
     <string name="voice_not_supported">语音不支持。请尝试另一个或安装一个语音引擎。</string>
     <!--Keyboard shortcuts dialog-->
-    <string name="deck_picker_group" comment="Label for the group of shortcuts related to the deck picker">牌组选择器</string>
+    <string name="deck_picker_group" comment="Label for the group of shortcuts related to the deck picker">Deck picker</string>
     <string name="delete_deck_without_confirmation" comment="Description of the shortcut that deletes the deck without asking for confirmation">不经确认删除牌组</string>
-    <string name="note_editor_group" comment="Label for the group of shortcuts related to the note editor">笔记编辑器</string>
+    <string name="note_editor_group" comment="Label for the group of shortcuts related to the note editor">Note editor</string>
     <string name="select_note_type" comment="Description of the shortcut that shows the note selection spinner">选择笔记类型</string>
     <string name="tag_editor" comment="Description of the shortcut that opens the tags dialog">标签编辑器</string>
-    <string name="card_template_editor_group" comment="Label for the group of shortcuts related to the card template editor">卡片模板编辑器</string>
+    <string name="card_template_editor_group" comment="Label for the group of shortcuts related to the card template editor">Card template editor</string>
     <string name="edit_front_template" comment="Description of the shortcut that shows the question side of the card template">编辑正面模板</string>
     <string name="edit_back_template" comment="Description of the shortcut that shows the answer side of the card template">编辑背面模板</string>
     <string name="edit_styling" comment="Description of the shortcut that shows the styling side of the card template">编辑样式</string>

@@ -69,11 +69,11 @@
     <string name="leech_notification">Kartu ditandai sebagai lintah</string>
     <string name="webview_crash_unknown">Galat Tidak Diketahui</string>
     <string name="webview_crash_unknwon_detailed">Ini disebabkan oleh galat internal dalam WebView</string>
-    <string name="webview_crash_oom">Kehabisan memori</string>
+    <string name="webview_crash_oom">Out of memory</string>
     <string name="webview_crash_oom_details">WebView dihentikan oleh sistem. Ini biasa terjadi saat aplikasi kehabisan memori, terkadang karena fon atau media yang besar</string>
     <string name="webview_crash_nonfatal">Perender WebView mogok. Sebab: %s</string>
-    <string name="webview_crash_fatal">Galat Fatal: Perender WebView mogok. Sebab: %s</string>
-    <string name="webview_crash_loop_dialog_title">Sistem WebView Gagal Merender</string>
+    <string name="webview_crash_fatal">Fatal error: WebView renderer crashed. Cause: %s</string>
+    <string name="webview_crash_loop_dialog_title">System WebView rendering failure</string>
     <string name="webview_crash_loop_dialog_content">Sistem WebView gagal merender kartu \'%1$s\'.\n %2$s</string>
     <string name="slide_to_cancel" comment="Message shown when pressing the record button">Geser untuk membatalkan</string>
     <string name="filter_by_flags" maxLength="41">Bendera</string>
@@ -202,7 +202,7 @@
     <string name="valid_js_api_version">Versi API JS AnkiDroid tidak valid. Kontak pengembang %s, atau kunjungi wiki</string>
     <string name="update_js_api_version">Pembaruan API JS AnkiDroid tersedia. Kontak pengembang %s, atau kunjungi wiki</string>
     <string name="reviewer_invalid_api_version_visit_documentation">Lihat</string>
-    <string name="anki_js_error_code">(Kode Galat: %d)</string>
+    <string name="anki_js_error_code">(Error code: %d)</string>
     <!-- About AnkiDroid screen -->
     <string name="about_ankidroid_successfully_copied_debug_info">Tersalin ke papan klip</string>
     <string name="about_ankidroid_error_copy_debug_info">Galat menyalin informasi debug ke papan klip</string>
@@ -210,7 +210,7 @@
     <string name="card_viewer_could_not_find_image">Isi Kartu Gagal: Gagal memuat \'%s\'</string>
     <!-- Deck Picker -->
     <string name="search_decks" maxLength="28">Cari dek</string>
-    <string name="ankidroid_init_failed_webview_title">Kegagalan fatal</string>
+    <string name="ankidroid_init_failed_webview_title">Fatal error</string>
     <string name="ankidroid_init_failed_webview">AnkiDroid membutuhkan System Webview yang sekarang sedang tidak ada. Hal ini dapat terjadi karena sistem sedang meng-install pembaruan. Mohon mencoba lagi dalam beberapa menit.\n\n%s</string>
     <string name="ankidroid_init_failed_storage">AnkiDroid tidak dapat mengakses penyimpanan karena kesalahan Android.\n\n%s</string>
     <!-- A Menu item to change the Font Size (currently in the Note Editor) -->
@@ -257,11 +257,11 @@
     <string name="percentage">%s%%</string>
     <string name="download_deck">Unduh dek</string>
     <string name="open_in_browser" comment="Label of a button inviting to open ankiweb\'s shared deck page if automated download failed">Buka di browser</string>
-    <string name="try_again">Coba Lagi</string>
+    <string name="try_again">Try again</string>
     <string name="cancel_download">Batalkan pengunduhan</string>
     <string name="cancel_download_question_title">Batalkan pengunduhan?</string>
     <string name="downloading_file">Mengunduh %s</string>
-    <string name="import_deck">Impor Dek</string>
+    <string name="import_deck">Import deck</string>
     <string name="something_wrong">Ada yang tidak beres, coba lagi</string>
     <string name="download_failed">Gagal mengunduh</string>
     <string name="deck_download_progress_message">Anda dapat menggunakan aplikasi lain selagi unduhan berjalan</string>
@@ -296,7 +296,7 @@
     <string name="intro_ankidroid_tagline_one">Belajar lebih sedikit</string>
     <string name="intro_ankidroid_tagline_two">Ingat lebih banyak</string>
     <string name="intro_short_ankidroid_explanation">Penjadwal kartu Anki menghemat waktu dengan memperkuat ingatan terlemah dan menjaga ingatan terkuat Anda</string>
-    <string name="intro_get_started" comment="Action to start AnkiDroid for the first time without syncing from AnkiWeb">Mulai</string>
+    <string name="intro_get_started" comment="Action to start AnkiDroid for the first time without syncing from AnkiWeb">Get started</string>
     <string name="intro_sync_from_ankiweb">Sinkronkan dari AnkiWeb</string>
     <!-- IntentHandler -->
     <string name="app_not_initialized_new">AnkiDroid belum dimulai. Silakan buka AnkiDroid dan coba lagi</string>
@@ -340,12 +340,12 @@
     <string name="orphan_note_message">Menghapus jenis kartu ini akan membuat beberapa catatan tidak memiliki kartu sama sekali.</string>
     <string name="voice_not_supported">Suara tidak didukung. Coba gunakan suara lain atau instal voice engine.</string>
     <!--Keyboard shortcuts dialog-->
-    <string name="deck_picker_group" comment="Label for the group of shortcuts related to the deck picker">Pemilih dek</string>
+    <string name="deck_picker_group" comment="Label for the group of shortcuts related to the deck picker">Deck picker</string>
     <string name="delete_deck_without_confirmation" comment="Description of the shortcut that deletes the deck without asking for confirmation">Hapus dek tanpa konfirmasi</string>
-    <string name="note_editor_group" comment="Label for the group of shortcuts related to the note editor">Editor Catatan</string>
+    <string name="note_editor_group" comment="Label for the group of shortcuts related to the note editor">Note editor</string>
     <string name="select_note_type" comment="Description of the shortcut that shows the note selection spinner">Pilih tipe catatan</string>
     <string name="tag_editor" comment="Description of the shortcut that opens the tags dialog">Pengubah label</string>
-    <string name="card_template_editor_group" comment="Label for the group of shortcuts related to the card template editor">Editor Template Kartu</string>
+    <string name="card_template_editor_group" comment="Label for the group of shortcuts related to the card template editor">Card template editor</string>
     <string name="edit_front_template" comment="Description of the shortcut that shows the question side of the card template">Edit template depan</string>
     <string name="edit_back_template" comment="Description of the shortcut that shows the answer side of the card template">Edit template belakang</string>
     <string name="edit_styling" comment="Description of the shortcut that shows the styling side of the card template">Ubah gaya</string>

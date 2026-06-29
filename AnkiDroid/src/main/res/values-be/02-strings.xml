@@ -69,11 +69,11 @@
     <string name="leech_notification">Картка пазначаная як надакучлівая</string>
     <string name="webview_crash_unknown">Невядомая памылка</string>
     <string name="webview_crash_unknwon_detailed">Выклікана ўнутранай памылкай у WebView</string>
-    <string name="webview_crash_oom">Недастаткова памяці</string>
+    <string name="webview_crash_oom">Out of memory</string>
     <string name="webview_crash_oom_details">WebView завершаны сістэмай. Звычайны гэта здараецца, калі праграме пачынае не хапаць сістэмнай памяці з-за вялікіх шрыфтоў або медыяфайлаў.</string>
     <string name="webview_crash_nonfatal">Збой апрацоўшчыка WebView. Прычына: %s</string>
-    <string name="webview_crash_fatal">Крытычная памылка: збой апрацоўшчыка WebView. Прычына: %s</string>
-    <string name="webview_crash_loop_dialog_title">Памылка апрацоўшчыка сістэмнага WebView</string>
+    <string name="webview_crash_fatal">Fatal error: WebView renderer crashed. Cause: %s</string>
+    <string name="webview_crash_loop_dialog_title">System WebView rendering failure</string>
     <string name="webview_crash_loop_dialog_content">Сістэмнаму WebView не атрымалася апрацаваць картку \'%1$s\'.\n %2$s</string>
     <string name="slide_to_cancel" comment="Message shown when pressing the record button">Правядзіце, каб скасаваць</string>
     <string name="filter_by_flags" maxLength="41">Пазнакі</string>
@@ -209,7 +209,7 @@
     <string name="valid_js_api_version">Памылковая версія AnkiDroid JS API. Звярніцеся да распрацоўшчыка %s або паспрабуйце знайсці неабходную інфармацыю ў Wikipedia.</string>
     <string name="update_js_api_version">З\'явілася новая версія AnkiDroid JS API. Звярніцеся да распрацоўшчыка %s або паспрабуйце знайсці неабходную інфармацыю ў Wikipedia.</string>
     <string name="reviewer_invalid_api_version_visit_documentation">Выгляд</string>
-    <string name="anki_js_error_code">(Код памылкі: %d)</string>
+    <string name="anki_js_error_code">(Error code: %d)</string>
     <!-- About AnkiDroid screen -->
     <string name="about_ankidroid_successfully_copied_debug_info">Скапіявана ў буфер абмену</string>
     <string name="about_ankidroid_error_copy_debug_info">Памылка капіявання адладачнай інфармацыі ў буфер абмену</string>
@@ -217,7 +217,7 @@
     <string name="card_viewer_could_not_find_image">Памылка змесціва карткі: немагчыма загрузіць «%s»</string>
     <!-- Deck Picker -->
     <string name="search_decks" maxLength="28">Пошук калод</string>
-    <string name="ankidroid_init_failed_webview_title">Крытычная памылка</string>
+    <string name="ankidroid_init_failed_webview_title">Fatal error</string>
     <string name="ankidroid_init_failed_webview">AnkiDroid выкарыстоўвае сістэмныя WebView, якія зараз недаступныя. Гэта можа здарыцца таму, што ў дадзены момант адбываюцца ўсталяванне абнаўленняў. Паспрабуйце, калі ласка, пачакаць і паўтарыць спробу праз некалькі хвілін.\n\n%s</string>
     <string name="ankidroid_init_failed_storage">AnkiDroid не можа атрымаць доступ да сховішча з-за памылкі ў аперацыйнай сістэме.\n\n%s</string>
     <!-- A Menu item to change the Font Size (currently in the Note Editor) -->
@@ -264,11 +264,11 @@
     <string name="percentage">%s%%</string>
     <string name="download_deck">Спампаваць калоду</string>
     <string name="open_in_browser" comment="Label of a button inviting to open ankiweb\'s shared deck page if automated download failed">Адкрыць у браўзеры</string>
-    <string name="try_again">Паспрабуйце яшчэ</string>
+    <string name="try_again">Try again</string>
     <string name="cancel_download">Скасаваць спампоўванне</string>
     <string name="cancel_download_question_title">Скасаваць спампоўванне?</string>
     <string name="downloading_file">Спампоўванне %s</string>
-    <string name="import_deck">Імпартаваць калоду</string>
+    <string name="import_deck">Import deck</string>
     <string name="something_wrong">Нешта пайшло не так, калі ласка, паспрабуйце яшчэ раз</string>
     <string name="download_failed">Збой спампоўвання</string>
     <string name="deck_download_progress_message">Можаце карыстацца іншымі праграмамі падчас спампоўвання</string>
@@ -309,7 +309,7 @@
     <string name="intro_ankidroid_tagline_one">Вучыцеся менш,</string>
     <string name="intro_ankidroid_tagline_two">а запамінайце больш</string>
     <string name="intro_short_ankidroid_explanation">Запланаваныя карткі Anki ашчаджаюць час узмацняючы вашу ненадзейную памяць і трымаюць яе ў тонусе</string>
-    <string name="intro_get_started" comment="Action to start AnkiDroid for the first time without syncing from AnkiWeb">Пачаць працу</string>
+    <string name="intro_get_started" comment="Action to start AnkiDroid for the first time without syncing from AnkiWeb">Get started</string>
     <string name="intro_sync_from_ankiweb">Сінхранізаваць з AnkiWeb</string>
     <!-- IntentHandler -->
     <string name="app_not_initialized_new">AnkiDroid пакуль не ініцыялізаваны. Адкрыйце праграму і паспрабуйце яшчэ раз</string>
@@ -356,12 +356,12 @@
     <string name="orphan_note_message">Выдаленне гэтага тыпу карткі пакіне некаторыя нататкі без ніводнай карткі.</string>
     <string name="voice_not_supported">Падтрымка голасу адсутнічае. Паспрабуйце іншы рухавік голасу або пераўсталюйце бягучы.</string>
     <!--Keyboard shortcuts dialog-->
-    <string name="deck_picker_group" comment="Label for the group of shortcuts related to the deck picker">Выбар калоды</string>
+    <string name="deck_picker_group" comment="Label for the group of shortcuts related to the deck picker">Deck picker</string>
     <string name="delete_deck_without_confirmation" comment="Description of the shortcut that deletes the deck without asking for confirmation">Выдаліць калоду без пацвярджэння</string>
-    <string name="note_editor_group" comment="Label for the group of shortcuts related to the note editor">Рэдактар запісу</string>
+    <string name="note_editor_group" comment="Label for the group of shortcuts related to the note editor">Note editor</string>
     <string name="select_note_type" comment="Description of the shortcut that shows the note selection spinner">Выберыце тып запісу</string>
     <string name="tag_editor" comment="Description of the shortcut that opens the tags dialog">Рэдактар метак</string>
-    <string name="card_template_editor_group" comment="Label for the group of shortcuts related to the card template editor">Рэдактар шаблонаў картак</string>
+    <string name="card_template_editor_group" comment="Label for the group of shortcuts related to the card template editor">Card template editor</string>
     <string name="edit_front_template" comment="Description of the shortcut that shows the question side of the card template">Рэдагаваць пярэдні шаблон</string>
     <string name="edit_back_template" comment="Description of the shortcut that shows the answer side of the card template">Рэдагаваць задні шаблон</string>
     <string name="edit_styling" comment="Description of the shortcut that shows the styling side of the card template">Рэдагаваць стыль</string>

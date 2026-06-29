@@ -69,11 +69,11 @@
     <string name="leech_notification">Card marked as leech</string>
     <string name="webview_crash_unknown">𐌿𐌽𐌺𐌿𐌽𐌸𐌰 𐌰𐌹𐍂𐌶𐌴𐌹</string>
     <string name="webview_crash_unknwon_detailed">𐌸𐌰𐍄𐌰 𐍅𐌰𐍂𐌸 𐌹𐌽 𐌰𐌹𐍂𐌶𐌴𐌹𐌽 𐌹𐌽𐌽𐌰𐌽𐌰 𐌹𐌽 𐍅𐌰𐌱𐌾𐌰𐍃𐌹𐌿𐌽𐌰𐌹</string>
-    <string name="webview_crash_oom">𐌿𐍄𐌰 𐌲𐌰𐌼𐌹𐌽𐌸𐌾𐌰</string>
+    <string name="webview_crash_oom">Out of memory</string>
     <string name="webview_crash_oom_details">𐍅𐌰𐌱𐌾𐌰𐍃𐌹𐌿𐌽𐍃 𐌿𐍃𐍄𐌰𐌿𐌷 𐍆𐍂𐌰𐌼 𐍃𐍅𐍃𐍄𐌴𐌼𐌰𐌹. 𐌸𐌰𐍄𐌰 𐌿𐍆𐍄𐌰 𐍅𐌰𐌹𐍂𐌸𐌹𐌸 𐌾𐌰𐌱𐌰𐌹 𐍃𐍉 𐌰𐍀𐍀𐌻𐌴𐌹𐌺𐌰𐍄𐍃𐌾𐍉 𐌽𐌹 𐌸𐌰𐌽𐌰𐍃𐌴𐌹𐌸𐍃 𐌷𐌰𐌱𐌰𐌹𐌸 𐌲𐌰𐌼𐌹𐌽𐌸𐌹, 𐌿𐍆𐍄𐌰 𐌹𐌽 𐍆𐌰𐌿𐌽𐍄𐌴 𐌼𐌹𐌺𐌹𐌻𐌰𐌹𐌶𐌴 𐌸𐌰𐌿 𐌼𐌰𐌹𐌳𐌾𐌴.</string>
     <string name="webview_crash_nonfatal">𐍅𐌰𐌱𐌾𐌰𐍃𐌹𐌿𐌽𐌰𐌹𐍃 𐌰𐍄𐌰𐌿𐌲𐌾𐍉 𐌱𐍂𐌰𐌺. 𐌲𐍂𐌿𐌽𐌳𐌿𐍃: %s</string>
-    <string name="webview_crash_fatal">𐌿𐍃𐍄𐌹𐌿𐌷𐌰𐌽𐌳𐌴𐌹 𐌰𐌹𐍂𐌶𐌴𐌹: 𐍅𐌰𐌱𐌾𐌰𐍃𐌹𐌿𐌽𐌰𐌹𐍃 𐌰𐍄𐌰𐌿𐌲𐌾𐍉 𐌱𐍂𐌰𐌺. 𐌲𐍂𐌿𐌽𐌳𐌿𐍃: %s</string>
-    <string name="webview_crash_loop_dialog_title">System WebView Rendering Failure</string>
+    <string name="webview_crash_fatal">Fatal error: WebView renderer crashed. Cause: %s</string>
+    <string name="webview_crash_loop_dialog_title">System WebView rendering failure</string>
     <string name="webview_crash_loop_dialog_content">System WebView failed to render card \'%1$s\'.\n %2$s</string>
     <string name="slide_to_cancel" comment="Message shown when pressing the record button">𐍃𐌻𐌴𐌹𐌳𐌰𐌽 𐌳𐌿 𐍃𐍅𐌴𐌹𐌱𐌰𐌽</string>
     <string name="filter_by_flags" maxLength="41">𐍆𐌰𐌽𐌰𐌽𐍃</string>
@@ -205,7 +205,7 @@
     <string name="valid_js_api_version">Invalid AnkiDroid JS API version. Contact developer %s, or view wiki</string>
     <string name="update_js_api_version">AnkiDroid JS API update available. Contact developer %s, or view wiki</string>
     <string name="reviewer_invalid_api_version_visit_documentation">𐍃𐌰𐌹𐍈𐌰𐌽</string>
-    <string name="anki_js_error_code">(𐌺𐍉𐌳𐌿𐍃 𐌰𐌹𐍂𐌶𐌴𐌹𐌽𐍃: %d)</string>
+    <string name="anki_js_error_code">(Error code: %d)</string>
     <!-- About AnkiDroid screen -->
     <string name="about_ankidroid_successfully_copied_debug_info">𐌲𐌰𐌲𐌰𐌻𐌴𐌹𐌺𐍉𐌳𐌰 𐌳𐌿 𐌺𐍂𐌰𐌼𐍀𐌰𐌱𐌰𐌿𐍂𐌳𐌰</string>
     <string name="about_ankidroid_error_copy_debug_info">𐌰𐌹𐍂𐌶𐌴𐌹 𐍅𐌰𐍂𐌸 𐌲𐌰𐌲𐌰𐌻𐌴𐌹𐌺𐍉𐌽𐌳𐍉 𐌹𐌽𐍆𐌰𐌿𐍂𐌼𐌰𐍄𐍃𐌾𐍉𐌽 𐌱𐍉𐍄𐌴𐌹𐌽𐌰𐌹𐍃 𐌳𐌿 𐌺𐍂𐌰𐌼𐍀𐌰𐌱𐌰𐌿𐍂𐌳𐌰</string>
@@ -213,7 +213,7 @@
     <string name="card_viewer_could_not_find_image">Card Content Error: Failed to load ‘%s’</string>
     <!-- Deck Picker -->
     <string name="search_decks" maxLength="28">𐌺𐌰𐍂𐍄𐌰𐌷𐌿𐌶𐌳𐌰 𐍃𐍉𐌺𐌾𐌰𐌽</string>
-    <string name="ankidroid_init_failed_webview_title">𐌿𐍃𐍄𐌹𐌿𐌷𐌰𐌽𐌳𐌴𐌹 𐌰𐌹𐍂𐌶𐌴𐌹</string>
+    <string name="ankidroid_init_failed_webview_title">Fatal error</string>
     <string name="ankidroid_init_failed_webview">AnkiDroid relies on the System WebView which is unavailable. This can happen if the system is installing updates. Please try again in a few minutes.\n\n%s</string>
     <string name="ankidroid_init_failed_storage">AnkiDroid cannot access storage due to an Android error.\n\n%s</string>
     <!-- A Menu item to change the Font Size (currently in the Note Editor) -->
@@ -260,11 +260,11 @@
     <string name="percentage">%s%%</string>
     <string name="download_deck">𐌺𐌰𐍂𐍄𐌰𐌷𐌿𐌶𐌳 𐌰𐍄𐌳𐍂𐌰𐌲𐌰𐌽</string>
     <string name="open_in_browser" comment="Label of a button inviting to open ankiweb\'s shared deck page if automated download failed">𐌿𐍃𐌻𐌿𐌺𐌰𐌽 𐌹𐌽 𐌱𐍂𐌰𐍅𐍃𐌰𐌹𐍂</string>
-    <string name="try_again">𐌰𐍆𐍄𐍂𐌰 𐍃𐍉𐌺𐌾𐌰𐌽</string>
+    <string name="try_again">Try again</string>
     <string name="cancel_download">Cancel download</string>
     <string name="cancel_download_question_title">Cancel download?</string>
     <string name="downloading_file">𐌰𐍄𐌳𐍂𐌰𐌲𐌰𐌳𐌰 %s</string>
-    <string name="import_deck">𐌷𐌿𐌶𐌳 𐌺𐌰𐍂𐍄𐍉 𐌹𐌽𐌽𐌰𐍄𐌱𐌰𐌹𐍂𐌰𐌽</string>
+    <string name="import_deck">Import deck</string>
     <string name="something_wrong">Something went wrong, please try again</string>
     <string name="download_failed">𐌽𐌹 𐌼𐌰𐌷𐍄𐌰 𐌰𐍄𐌳𐍂𐌰𐌲𐌰𐌽</string>
     <string name="deck_download_progress_message">𐌼𐌰𐌲𐍄 𐌰𐌽𐌸𐌰𐍂𐌰𐌹𐌶𐌴 𐌰𐍀𐍀𐌴 𐌱𐍂𐌿𐌺𐌾𐌰𐌽 𐌼𐌹𐌸𐌸𐌰𐌽𐌴𐌹 𐌰𐍄𐌳𐍂𐌰𐌲𐌰𐌳𐌰</string>
@@ -301,7 +301,7 @@
     <string name="intro_ankidroid_tagline_one">𐌻𐌰𐌹𐍃𐌴𐌹 𐌸𐌿𐌺 𐌼𐌹𐌽𐌽𐌹𐌶𐍉</string>
     <string name="intro_ankidroid_tagline_two">𐌼𐌰𐌹𐍃 𐌲𐌰𐌼𐌰𐌿𐌳𐌾𐌰𐌽</string>
     <string name="intro_short_ankidroid_explanation">Anki\'s card scheduler saves time by strengthening your weakest memories and preserving your strongest</string>
-    <string name="intro_get_started" comment="Action to start AnkiDroid for the first time without syncing from AnkiWeb">𐌳𐌿𐌲𐌹𐌽𐌽𐌰𐌽</string>
+    <string name="intro_get_started" comment="Action to start AnkiDroid for the first time without syncing from AnkiWeb">Get started</string>
     <string name="intro_sync_from_ankiweb">𐌲𐌰𐌲𐌰𐌻𐌴𐌹𐌺𐍉 𐍆𐍂𐌰𐌼 𐌰𐌽𐌺𐌴𐌹𐍅𐌰𐌱𐌾𐌰</string>
     <!-- IntentHandler -->
     <string name="app_not_initialized_new">AnkiDroid is not initialized yet. Please open AnkiDroid and try again</string>
@@ -346,12 +346,12 @@
     <string name="orphan_note_message">𐌸𐌹𐌶𐌰𐌹 𐌺𐌹𐌽𐌸𐌰𐌹 𐌺𐌰𐍂𐍄𐍉 𐌿𐍃𐌵𐌹𐍃𐍄𐌾𐌰𐌽 𐌱𐌹𐌻𐌴𐌹𐌸𐌹𐌸 𐍃𐌿𐌼𐌰𐌹𐌼 𐌼𐌴𐌻𐌴𐌹𐌽𐍉 𐌹𐌽𐌿𐌷 𐌺𐌰𐍂𐍄𐍉𐍃 𐌰𐌻𐌻𐌹𐍃.</string>
     <string name="voice_not_supported">𐍃𐍄𐌹𐌱𐌽𐌰 𐌽𐌹 𐍃𐍄𐍉𐌳𐌹𐌳𐌰. 𐍃𐍉𐌺𐌴𐌹 𐌰𐌽𐌸𐌰𐍂 𐌸𐌰𐌿 𐌲𐌰𐍃𐌿𐌻𐌴𐌹 𐌰𐌹𐌽𐌳𐌶𐌹𐌽 𐍃𐍄𐌹𐌱𐌽𐍉𐍃.</string>
     <!--Keyboard shortcuts dialog-->
-    <string name="deck_picker_group" comment="Label for the group of shortcuts related to the deck picker">𐌽𐌹𐌼𐌰𐌽𐌳𐍃 𐌺𐌰𐍂𐍄𐌰𐌷𐌿𐌶𐌳𐌹𐍃</string>
+    <string name="deck_picker_group" comment="Label for the group of shortcuts related to the deck picker">Deck picker</string>
     <string name="delete_deck_without_confirmation" comment="Description of the shortcut that deletes the deck without asking for confirmation">𐌺𐌰𐍂𐍄𐌰𐌷𐌿𐌶𐌳𐌰 𐌿𐍃𐌵𐌹𐍃𐍄𐌾𐌰𐌽 𐌹𐌽𐌿𐌷 𐌲𐌰𐍄𐌿𐌻𐌲𐌴𐌹𐌽</string>
-    <string name="note_editor_group" comment="Label for the group of shortcuts related to the note editor">𐌹𐌽𐌼𐌰𐌹𐌳𐌾𐍉 𐌼𐌴𐌻𐌴𐌹𐌽𐍉</string>
+    <string name="note_editor_group" comment="Label for the group of shortcuts related to the note editor">Note editor</string>
     <string name="select_note_type" comment="Description of the shortcut that shows the note selection spinner">𐌼𐌴𐌻𐌴𐌹𐌽𐌰𐌹𐍃 𐌺𐌹𐌽𐌸 𐍅𐌰𐌻𐌾𐌰𐌽</string>
     <string name="tag_editor" comment="Description of the shortcut that opens the tags dialog">𐌹𐌽𐌼𐌰𐌹𐌳𐌾𐍉 𐍃𐍉𐌺𐌽𐌹𐍅𐌰𐌿𐍂𐌳𐌴</string>
-    <string name="card_template_editor_group" comment="Label for the group of shortcuts related to the card template editor">𐌺𐌰𐍂𐍄𐍉 𐍆𐌰𐌿𐍂𐌰𐌼𐌴𐌻𐌴𐌹𐌽𐍉 𐌹𐌽𐌼𐌰𐌹𐌳𐌾𐍉</string>
+    <string name="card_template_editor_group" comment="Label for the group of shortcuts related to the card template editor">Card template editor</string>
     <string name="edit_front_template" comment="Description of the shortcut that shows the question side of the card template">Edit front template</string>
     <string name="edit_back_template" comment="Description of the shortcut that shows the answer side of the card template">Edit back template</string>
     <string name="edit_styling" comment="Description of the shortcut that shows the styling side of the card template">𐍃𐍄𐌴𐌹𐌻𐌰 𐌹𐌽𐌼𐌰𐌹𐌳𐌾𐌰𐌽</string>

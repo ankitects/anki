@@ -69,11 +69,11 @@
     <string name="leech_notification">Karta byla označena jako pijavice</string>
     <string name="webview_crash_unknown">Neznámá chyba</string>
     <string name="webview_crash_unknwon_detailed">To bylo způsobeno vnitřní chybou WebView</string>
-    <string name="webview_crash_oom">Nedostatek paměti</string>
+    <string name="webview_crash_oom">Out of memory</string>
     <string name="webview_crash_oom_details">WebView byl ukončen systémem. To se obvykle stává, když má aplikace nedostatek paměti, často kvůli velkému písmu nebo multimédiím.</string>
     <string name="webview_crash_nonfatal">Vykreslování WebView selhalo. Příčina: %s</string>
-    <string name="webview_crash_fatal">Kritická chyba: Vykreslování WebView selhalo. Příčina: %s</string>
-    <string name="webview_crash_loop_dialog_title">Selhání vykreslování systémového webView</string>
+    <string name="webview_crash_fatal">Fatal error: WebView renderer crashed. Cause: %s</string>
+    <string name="webview_crash_loop_dialog_title">System WebView rendering failure</string>
     <string name="webview_crash_loop_dialog_content">Systémovému WebView se nepodařilo vykreslit kartu „%1$s“.\n %2$s</string>
     <string name="slide_to_cancel" comment="Message shown when pressing the record button">Posunutím zrušíte</string>
     <string name="filter_by_flags" maxLength="41">Příznaky</string>
@@ -211,7 +211,7 @@
     <string name="valid_js_api_version">Neplatná verze AnkiDroid JS API. Kontaktujte vývojáře %s, nebo se podívejte na wiki</string>
     <string name="update_js_api_version">Je dostupná aktualizace AnkiDroid JS API. Kontaktujte vývojáře %s, nebo se podívejte na wiki</string>
     <string name="reviewer_invalid_api_version_visit_documentation">Zobrazit</string>
-    <string name="anki_js_error_code">(Kód chyby: %d)</string>
+    <string name="anki_js_error_code">(Error code: %d)</string>
     <!-- About AnkiDroid screen -->
     <string name="about_ankidroid_successfully_copied_debug_info">Zkopírováno do schránky</string>
     <string name="about_ankidroid_error_copy_debug_info">Chyba při kopírování ladicích informací do schránky</string>
@@ -219,7 +219,7 @@
     <string name="card_viewer_could_not_find_image">Chyba obsahu karty: Nepodařilo se načíst „%s“</string>
     <!-- Deck Picker -->
     <string name="search_decks" maxLength="28">Hledat balíčky</string>
-    <string name="ankidroid_init_failed_webview_title">Kritická chyba</string>
+    <string name="ankidroid_init_failed_webview_title">Fatal error</string>
     <string name="ankidroid_init_failed_webview">AnkiDroid spoléhá na systémový WebView, který je nedostupný. K tomu může dojít, jestliže systém instaluje aktualizace. Zkuste to prosím znovu za pár minut.\n\n%s</string>
     <string name="ankidroid_init_failed_storage">AnkiDroid nemůže přistupovat k úložišti kvůli chybě Androidu.\n\n%s</string>
     <!-- A Menu item to change the Font Size (currently in the Note Editor) -->
@@ -266,11 +266,11 @@
     <string name="percentage">%s%%</string>
     <string name="download_deck">Stáhnout balíček</string>
     <string name="open_in_browser" comment="Label of a button inviting to open ankiweb\'s shared deck page if automated download failed">Otevřít v prohlížeči</string>
-    <string name="try_again">Zkusit znovu</string>
+    <string name="try_again">Try again</string>
     <string name="cancel_download">Zrušit stahování</string>
     <string name="cancel_download_question_title">Zrušit stahování?</string>
     <string name="downloading_file">Stahuje se %s</string>
-    <string name="import_deck">Importovat balíček</string>
+    <string name="import_deck">Import deck</string>
     <string name="something_wrong">Něco se pokazilo, zkuste to prosím znovu</string>
     <string name="download_failed">Stahování se nezdařilo</string>
     <string name="deck_download_progress_message">Během stahování můžete používat jiné aplikace</string>
@@ -311,7 +311,7 @@
     <string name="intro_ankidroid_tagline_one">Studujte méně</string>
     <string name="intro_ankidroid_tagline_two">Pamatujte si více</string>
     <string name="intro_short_ankidroid_explanation">Plánovač karet Anki šetří čas posílením vašich nejslabších vzpomínek a zachováním těch nejsilnějších</string>
-    <string name="intro_get_started" comment="Action to start AnkiDroid for the first time without syncing from AnkiWeb">Začínáme</string>
+    <string name="intro_get_started" comment="Action to start AnkiDroid for the first time without syncing from AnkiWeb">Get started</string>
     <string name="intro_sync_from_ankiweb">Synchronizovat z AnkiWebu</string>
     <!-- IntentHandler -->
     <string name="app_not_initialized_new">AnkiDroid ještě není inicializován. Otevřete prosím AnkiDroid a zkuste to znovu</string>
@@ -358,12 +358,12 @@
     <string name="orphan_note_message">Smazání tohoto typu karty zanechá některé poznámky bez jakýchkoliv karet.</string>
     <string name="voice_not_supported">Hlas není podporován. Zkuste jiný nebo nainstalujte hlasový modul.</string>
     <!--Keyboard shortcuts dialog-->
-    <string name="deck_picker_group" comment="Label for the group of shortcuts related to the deck picker">Výběr balíčků</string>
+    <string name="deck_picker_group" comment="Label for the group of shortcuts related to the deck picker">Deck picker</string>
     <string name="delete_deck_without_confirmation" comment="Description of the shortcut that deletes the deck without asking for confirmation">Odstranit balíček bez potvrzení</string>
-    <string name="note_editor_group" comment="Label for the group of shortcuts related to the note editor">Editor poznámek</string>
+    <string name="note_editor_group" comment="Label for the group of shortcuts related to the note editor">Note editor</string>
     <string name="select_note_type" comment="Description of the shortcut that shows the note selection spinner">Vybrat typ poznámky</string>
     <string name="tag_editor" comment="Description of the shortcut that opens the tags dialog">Editor štítků</string>
-    <string name="card_template_editor_group" comment="Label for the group of shortcuts related to the card template editor">Editor šablon karet</string>
+    <string name="card_template_editor_group" comment="Label for the group of shortcuts related to the card template editor">Card template editor</string>
     <string name="edit_front_template" comment="Description of the shortcut that shows the question side of the card template">Upravit šablonu přední strany</string>
     <string name="edit_back_template" comment="Description of the shortcut that shows the answer side of the card template">Upravit šablonu zadní strany</string>
     <string name="edit_styling" comment="Description of the shortcut that shows the styling side of the card template">Upravit formátování</string>

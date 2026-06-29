@@ -69,11 +69,11 @@
     <string name="leech_notification">카드에 leech 태그를 붙임</string>
     <string name="webview_crash_unknown">알 수 없는 오류</string>
     <string name="webview_crash_unknwon_detailed">WebView의 내부적인 오류입니다.</string>
-    <string name="webview_crash_oom">메모리 부족</string>
+    <string name="webview_crash_oom">Out of memory</string>
     <string name="webview_crash_oom_details">WebView이 시스템에 의해 강제종료 되었습니다. 보통 용랑이 큰 사진, 음성, 글꼴 등 미디어 파일 때문에 메모리가 부족해서 이런 일이 생길 수 있습니다.</string>
     <string name="webview_crash_nonfatal">WebView 렌더러가 다음 이유 때문에 강제종료되었습니다: %s</string>
-    <string name="webview_crash_fatal">심각한 오류: WebView 렌더러가 다음 이유 때문에 강제종료되었습니다: %s</string>
-    <string name="webview_crash_loop_dialog_title">WebView 렌더링이 실패했습니다.</string>
+    <string name="webview_crash_fatal">Fatal error: WebView renderer crashed. Cause: %s</string>
+    <string name="webview_crash_loop_dialog_title">System WebView rendering failure</string>
     <string name="webview_crash_loop_dialog_content">WebView가 \'%1$s\' 카드를 렌더링하지 못했습니다.
 %2$s</string>
     <string name="slide_to_cancel" comment="Message shown when pressing the record button">밀어서 취소</string>
@@ -205,7 +205,7 @@ Context | Request Context    [1]</string>
     <string name="valid_js_api_version">잘못된 AnkiDroid JS API 버전. 개발자에게 문의하거나(%s), wiki를 확인해주십시오.</string>
     <string name="update_js_api_version">AnkiDroid JS API를 업데이트할 수 있습니다. 개발자에게 문의하거나(%s), wiki를 확인해주십시오.</string>
     <string name="reviewer_invalid_api_version_visit_documentation">보기</string>
-    <string name="anki_js_error_code">(오류 코드: %d)</string>
+    <string name="anki_js_error_code">(Error code: %d)</string>
     <!-- About AnkiDroid screen -->
     <string name="about_ankidroid_successfully_copied_debug_info">클립보드에 복사됨</string>
     <string name="about_ankidroid_error_copy_debug_info">디버그 정보를 클립보드에 복사하는 도중 오류가 발생했습니다.</string>
@@ -213,7 +213,7 @@ Context | Request Context    [1]</string>
     <string name="card_viewer_could_not_find_image">카드 내용 오류: \'%s\' 읽기 실패</string>
     <!-- Deck Picker -->
     <string name="search_decks" maxLength="28">덱 검색하기</string>
-    <string name="ankidroid_init_failed_webview_title">심각한 오류</string>
+    <string name="ankidroid_init_failed_webview_title">Fatal error</string>
     <string name="ankidroid_init_failed_webview">AnkiDroid이 필요한 시스템 WebView를 사용할 수 없습니다. 이 문제는 시스템이 업데이트를 설치하는 경우 발생할 수도 있습니다. 잠시 후 다시 시도하십시오.\n\n%s</string>
     <string name="ankidroid_init_failed_storage">Android 오류로 인해 AnkiDroid가 저장소에 접근할 수 없습니다.\n\n%s</string>
     <!-- A Menu item to change the Font Size (currently in the Note Editor) -->
@@ -260,11 +260,11 @@ Context | Request Context    [1]</string>
     <string name="percentage">%s%%</string>
     <string name="download_deck">카드 덱 다운로드하기</string>
     <string name="open_in_browser" comment="Label of a button inviting to open ankiweb\'s shared deck page if automated download failed">브라우저에서 열기</string>
-    <string name="try_again">다시 시도하세요.</string>
+    <string name="try_again">Try again</string>
     <string name="cancel_download">다운로드 취소</string>
     <string name="cancel_download_question_title">다운로드를 취소하시겠습니까?</string>
     <string name="downloading_file">다운로드 중 %s</string>
-    <string name="import_deck">카드 덱 가져오기</string>
+    <string name="import_deck">Import deck</string>
     <string name="something_wrong">오류가 발생했습니다. 다시 시도해 주세요.</string>
     <string name="download_failed">다운로드 실패</string>
     <string name="deck_download_progress_message">다운로드하는 동안 다른 앱을 이용하실 수 있습니다.</string>
@@ -299,7 +299,7 @@ Context | Request Context    [1]</string>
     <string name="intro_ankidroid_tagline_one">공부 시간은 줄이고</string>
     <string name="intro_ankidroid_tagline_two">더 많이 기억하세요</string>
     <string name="intro_short_ankidroid_explanation">Anki의 카드 스케줄러는 가장 희미한 기억을 강화하고 또렷한 기억은 보존시켜 시간을 절약해 줍니다.</string>
-    <string name="intro_get_started" comment="Action to start AnkiDroid for the first time without syncing from AnkiWeb">시작하기</string>
+    <string name="intro_get_started" comment="Action to start AnkiDroid for the first time without syncing from AnkiWeb">Get started</string>
     <string name="intro_sync_from_ankiweb">AnkiWeb과 동기화</string>
     <!-- IntentHandler -->
     <string name="app_not_initialized_new">AnkiDroid가 초기화되지 않았습니다. AnkiDroid를 열어 다시 시도해 주세요.</string>
@@ -343,12 +343,12 @@ Context | Request Context    [1]</string>
     <string name="orphan_note_message">이 카드 유형을 삭제하면 카드 없이 일부 메모만 남습니다</string>
     <string name="voice_not_supported">음성을 지원하지 않습니다. 다른 것으로 시도하거나 음성 엔진을 설치하세요.</string>
     <!--Keyboard shortcuts dialog-->
-    <string name="deck_picker_group" comment="Label for the group of shortcuts related to the deck picker">덱 선택기</string>
+    <string name="deck_picker_group" comment="Label for the group of shortcuts related to the deck picker">Deck picker</string>
     <string name="delete_deck_without_confirmation" comment="Description of the shortcut that deletes the deck without asking for confirmation">확인 없이 덱 삭제하기</string>
-    <string name="note_editor_group" comment="Label for the group of shortcuts related to the note editor">노트 편집기</string>
+    <string name="note_editor_group" comment="Label for the group of shortcuts related to the note editor">Note editor</string>
     <string name="select_note_type" comment="Description of the shortcut that shows the note selection spinner">노트 유형 선택</string>
     <string name="tag_editor" comment="Description of the shortcut that opens the tags dialog">태그 편집기</string>
-    <string name="card_template_editor_group" comment="Label for the group of shortcuts related to the card template editor">카드 템플릿 편집기</string>
+    <string name="card_template_editor_group" comment="Label for the group of shortcuts related to the card template editor">Card template editor</string>
     <string name="edit_front_template" comment="Description of the shortcut that shows the question side of the card template">앞면 템플릿 편집</string>
     <string name="edit_back_template" comment="Description of the shortcut that shows the answer side of the card template">뒷면 템플릿 편집</string>
     <string name="edit_styling" comment="Description of the shortcut that shows the styling side of the card template">스타일 편집</string>
