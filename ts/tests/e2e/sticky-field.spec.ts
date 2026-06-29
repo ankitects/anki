@@ -47,7 +47,7 @@ test("clicking sticky badge uses getNotetype+updateNotetype, not legacy bridgeCo
     //     span[role="button"]                ← PlainTextBadge/RichTextBadge
     //
     // Scoping to .field-state skips the CollapseLabel and picks StickyBadge.
-    const badge = container.locator('.field-state [role="button"]').first();
+    const badge = container.locator(".field-state [role=\"button\"]").first();
     await expect(badge).toBeVisible({ timeout: 5_000 });
 
     // Capture both RPCs BEFORE clicking so no race condition.
@@ -87,12 +87,10 @@ test("clicking sticky badge uses getNotetype+updateNotetype, not legacy bridgeCo
     await expect(badge).not.toHaveClass(/highlighted/, { timeout: 5_000 });
 });
 
-test("sticky field value is preserved after add, non-sticky field clears", async ({
-    editor: page,
-}) => {
+test("sticky field value is preserved after add, non-sticky field clears", async ({ editor: page }) => {
     const container = fieldContainer(page, 0);
     await container.hover();
-    const badge = container.locator('.field-state [role="button"]').first();
+    const badge = container.locator(".field-state [role=\"button\"]").first();
     await expect(badge).toBeVisible({ timeout: 5_000 });
 
     // Enable sticky on field 0.
