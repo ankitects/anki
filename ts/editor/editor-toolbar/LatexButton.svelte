@@ -38,7 +38,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     function onMathjaxBlock(): void {
         if (mathjaxConfig.enabled) {
-            surround('<anki-mathjax block="true" focusonmount>', "</anki-matjax>");
+            surround('<anki-mathjax block="true" focusonmount>', "</anki-mathjax>");
         } else {
             surround("\\[", "\\]");
         }
