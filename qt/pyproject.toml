@@ -15,7 +15,6 @@ urls.homepage = "https://github.com/ankitects/anki"
 dependencies = [
   "beautifulsoup4",
   "flask[async]",
-  "flask_cors",
   "jsonschema",
   "requests",
   "send2trash",
@@ -31,7 +30,7 @@ dependencies = [
 
 [project.optional-dependencies]
 audio = [
-  "anki-audio==0.1.0; (sys.platform == 'win32' and platform_machine == 'AMD64') or sys.platform == 'darwin'",
+  "anki-audio==0.2.2; sys.platform == 'win32' or sys.platform == 'darwin'",
 ]
 qt = [
   "pyqt6==6.11.0",

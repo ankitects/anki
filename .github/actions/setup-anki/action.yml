@@ -50,7 +50,7 @@ runs:
     - name: Install rsync (Windows)
       if: runner.os == 'Windows'
       id: setup-msys2
-      uses: msys2/setup-msys2@v2
+      uses: msys2/setup-msys2@e9898307ac31d1a803454791be09ab9973336e1c #v2
       with:
         update: false
         install: rsync
@@ -63,15 +63,15 @@ runs:
 
     # Reads toolchain version from rust-toolchain.toml automatically.
     - name: Install Rust toolchain
-      uses: actions-rust-lang/setup-rust-toolchain@v1
+      uses: actions-rust-lang/setup-rust-toolchain@46268bd060767258de96ed93c1251119784f2ab6 #v1
       with:
-        components: clippy
+        components: clippy, llvm-tools-preview
         cache: false # ci.yml manages its own cargo cache
         rustflags: "" # don't inject -D warnings; the build system handles this
 
     - name: Install uv
       id: setup-uv
-      uses: astral-sh/setup-uv@v7
+      uses: astral-sh/setup-uv@94527f2e458b27549849d47d273a16bec83a01e9 #v7
       with:
         version: "0.11.8"
         enable-cache: true
@@ -88,13 +88,9 @@ runs:
           echo "UV_CACHE_DIR=$CACHE_DIR" >> "$GITHUB_ENV"
         fi
 
-    # UV_BINARY tells the build system to use our uv instead of downloading
-    # its own (see build/ninja_gen/src/python.rs). Linux-only because on
-    # macOS ARM the launcher needs the downloaded archive to build a universal
-    # binary via lipo (see build/configure/src/launcher.rs).
-    # On macOS/Windows, the downloaded uv will still use the shared cache.
-    - name: Set UV_BINARY (Linux)
-      if: runner.os == 'Linux'
+    # UV_BINARY tells the build system to use our uv instead of downloading its own
+    - name: Set UV_BINARY
+      if: runner.os != 'Windows'
       shell: bash
       run: echo "UV_BINARY=${{ steps.setup-uv.outputs.uv-path }}" >> "$GITHUB_ENV"
 

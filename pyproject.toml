@@ -12,6 +12,7 @@ dev = [
   "mypy-protobuf",
   "ruff",
   "pytest",
+  "pytest-mock",
   "PyChromeDevTools",
   "wheel",
   "hatchling", # for type checking hatch_build.py files
@@ -26,6 +27,9 @@ dev = [
   "types-waitress",
   "types-pywin32",
   "briefcase>=0.4.2",
+  "coverage>=7.13.5",
+  "complexipy>=5.6.0",
+  "cogapp>=3.6.0",
 ]
 docs = [
   "sphinx",

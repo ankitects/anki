@@ -1,4 +1,4 @@
-PBS_PREFIX=../{{ cookiecutter.app_name }}-{{ cookiecutter.version }}/python
+PBS_PREFIX=../{{ cookiecutter.app_name }}/python
 CFLAGS=$(shell $(PBS_PREFIX)/bin/python{{ cookiecutter.python_version|py_tag }}-config --cflags --embed) -DAPP_NAME=\"{{ cookiecutter.app_name }}\"
 LDFLAGS=$(shell $(PBS_PREFIX)/bin/python{{ cookiecutter.python_version|py_tag }}-config --ldflags --embed) -Wl,-rpath,\$$ORIGIN/python/lib
 
@@ -14,6 +14,6 @@ clean:
 	rm -f {{ cookiecutter.app_name }} pyversion.h
 
 install: all
-	cp {{ cookiecutter.app_name }} ../{{ cookiecutter.app_name }}-{{ cookiecutter.version }}/
+	cp {{ cookiecutter.app_name }} ../{{ cookiecutter.app_name }}/
 
 .PHONY: all clean install
