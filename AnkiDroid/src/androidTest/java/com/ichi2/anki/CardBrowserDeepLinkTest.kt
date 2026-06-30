@@ -56,6 +56,7 @@ class CardBrowserDeepLinkTest : InstrumentedTest() {
      */
     @Test
     fun backFromBrowserClosesTheActivity() {
+        // TODO: make the 'back' experience consistent once we move to the M3 SearchBar
         addNoteUsingBasicNoteType("dog", "barks")
 
         val deepLink =
@@ -67,8 +68,13 @@ class CardBrowserDeepLinkTest : InstrumentedTest() {
 
         val browser = awaitResumed<CardBrowser>()
         val instrumentation = InstrumentationRegistry.getInstrumentation()
-        instrumentation.runOnMainSync { browser.onBackPressedDispatcher.onBackPressed() }
-        instrumentation.waitForIdleSync()
+
+        // The SearchBar & keyboard may need to be collapsed before 'back' finishes the activity
+        val deadline = SystemClock.uptimeMillis() + 3.seconds.inWholeMilliseconds
+        while (!browser.isFinishing && SystemClock.uptimeMillis() < deadline) {
+            instrumentation.runOnMainSync { browser.onBackPressedDispatcher.onBackPressed() }
+            instrumentation.waitForIdleSync()
+        }
 
         assertThat("'back' closes the browser", browser.isFinishing, equalTo(true))
         assertThat(
