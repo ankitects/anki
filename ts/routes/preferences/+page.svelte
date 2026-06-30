@@ -7,6 +7,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import "../deck-options/deck-options-base.scss";
     import LabItem from "./LabItem.svelte";
     import type { PreferenceStore } from "$lib/sveltelib/preferences";
+    import { ExperimentalFeatureFlag } from "@generated/anki/config_pb";
 
     export let data: { labPerfs: PreferenceStore<any> };
     const labPerfs = data.labPerfs;
@@ -26,13 +27,13 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         <LabItem
             title="Svelte note editor"
             description="Replaces the legacy editor with a new Svelte-based implementation. May affect addon compatibility."
-            key="svelte-editor"
+            key={ExperimentalFeatureFlag.SVELTE_EDITOR}
             {labPerfs}
         ></LabItem>
         <LabItem
             title="Ping"
             description="Enable this experiment and see an alert every time you load this profile. Used for testing the experiment interface."
-            key="ping"
+            key={ExperimentalFeatureFlag.TEST_FLAG}
             {labPerfs}
         ></LabItem>
     </div>

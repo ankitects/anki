@@ -32,6 +32,7 @@ from anki.errors import NotFoundError
 from anki.utils import from_json_bytes, to_json_bytes
 
 Config = config_pb2.ConfigKey
+ExperimentFlag = config_pb2.ExperimentalFeatureFlag
 
 
 class ConfigManager:
@@ -46,8 +47,8 @@ class ConfigManager:
         except NotFoundError as exc:
             raise KeyError from exc
 
-    def experiment_enabled(self, key: str) -> bool:
-        return self._experiments.get(key, False)
+    def experiment_enabled(self, key: ExperimentFlag.ValueType) -> bool:
+        return self._experiments.get(str(key), False)
 
     def _get_experiments_dirty(self) -> dict[str, bool]:
         """This fetches the experiments in the state that they are saved in the database.
