@@ -34,6 +34,12 @@ wheels:
 check:
     {{ ninja }} pylib qt check
 
+# MCAT fork: one-command 50k-card engine benchmark (spec §7h). Builds pylib,
+# generates the synthetic deck if absent, then times the concept RPCs.
+bench *args:
+    {{ ninja }} pylib
+    {{ if os() == "windows" { "pwsh -NoProfile -File mcat/bench.ps1" } else { "bash mcat/bench.sh" } }} {{ args }}
+
 # Run all tests (Rust, Python, TypeScript). Pass --coverage to enforce coverage, and --html to include HTML reports.
 [arg("coverage", long="coverage", value="--coverage")]
 [arg("html", long="html", value="--html")]

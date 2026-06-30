@@ -1,0 +1,6 @@
+# Large generated synthetic decks — reproducible via make_synthetic_deck.py,
+# so we don't commit them (the 50k deck is ~24 MB).
+fixtures/synthetic_*.anki2
+fixtures/synthetic_*.anki2-shm
+fixtures/synthetic_*.anki2-wal
+fixtures/synthetic_*.media/

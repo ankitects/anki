@@ -1448,6 +1448,17 @@ title="{}" {}>{}</button>""".format(
         qconnect(m.action_check_for_updates.triggered, self.on_check_for_updates)
         qconnect(m.actionPreferences.triggered, self.onPrefs)
 
+        # MCAT fork: Memory-score panel (FR-6). Added programmatically so it is
+        # purely additive (no .ui change) and easy to carry across upstream merges.
+        from aqt.qt import QAction
+
+        mcat_memory_action = QAction("MCAT Memory Score", self)
+        qconnect(
+            mcat_memory_action.triggered,
+            lambda: self._on_mcat_memory_score(),
+        )
+        m.menuTools.addAction(mcat_memory_action)
+
         # View
         qconnect(
             m.actionZoomIn.triggered,
@@ -1464,6 +1475,12 @@ title="{}" {}>{}</button>""".format(
             QKeySequence("F11") if is_lin else QKeySequence.StandardKey.FullScreen
         )
         m.actionFullScreen.setShortcutContext(Qt.ShortcutContext.ApplicationShortcut)
+
+    def _on_mcat_memory_score(self) -> None:
+        # MCAT fork (FR-6): show the honest deterministic Memory score panel.
+        from aqt.mcat.panel import show_memory_panel
+
+        show_memory_panel(self)
 
     def updateTitleBar(self) -> None:
         self.setWindowTitle("Anki")

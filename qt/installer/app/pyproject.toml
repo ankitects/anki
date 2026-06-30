@@ -2,8 +2,14 @@
 requires-python = ">=3.10"
 
 # This project was generated with 0.3.26 using template: https://github.com/beeware/briefcase-template @ v0.3.26
+# NOTE (MCAT fork): this is an independent AGPL-3.0-or-later fork of Anki.
+# project_name below is the human-facing product name and is safe to rebrand.
+# Do NOT rename the [tool.briefcase.app.anki] key, `bundle`, or `formal_name`
+# without coordinating: those cascade into the cookiecutter-rendered template
+# filenames (e.g. linux anki.desktop / anki.1) and the app module path.
+# See qt/installer/MCAT_FORK_NOTES.md.
 [tool.briefcase]
-project_name = "Anki"
+project_name = "MCAT Study (Anki fork)"
 bundle = "net.ankiweb"
 url = "https://apps.ankiweb.net"
 license = "AGPL-3.0-or-later"

@@ -12,6 +12,7 @@ pub mod card;
 pub mod card_rendering;
 pub mod cloze;
 pub mod collection;
+pub mod concepts;
 pub mod config;
 pub mod dbcheck;
 pub mod deckconfig;

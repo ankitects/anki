@@ -1,0 +1,421 @@
+{
+    "version": "mcat-aamc-2015-v1",
+    "source": "AAMC MCAT content outline (2015 exam onward): 10 Foundational Concepts and their content categories across Bio/Biochem, Chem/Phys, and Psych/Soc. CARS has no content outline. Tag patterns are derived from the AnKing MCAT (AK_MCAT) hierarchical tag scheme; see mcat/README.md for assumptions.",
+    "tag_pattern_syntax": "Case-insensitive glob. '*' matches any run of characters (including '::' separators). A pattern with no '*' is treated as a substring match. Patterns are matched against each full hierarchical tag string on a card.",
+    "concepts": [
+        {
+            "id": "1A",
+            "name": "Structure and function of proteins and their constituent amino acids",
+            "section": "Bio/Biochem",
+            "foundational_concept": "1",
+            "topic_weight": 1.3,
+            "tag_patterns": [
+                "*Amino*Acid*",
+                "*Protein*Structure*",
+                "*Protein*Function*",
+                "*Enzyme*",
+                "*Biochemistry*Amino*",
+                "*B&B*Biochemistry*Protein*"
+            ]
+        },
+        {
+            "id": "1B",
+            "name": "Transmission of genetic information from the gene to the protein",
+            "section": "Bio/Biochem",
+            "foundational_concept": "1",
+            "topic_weight": 1.2,
+            "tag_patterns": [
+                "*Nucleic*Acid*",
+                "*DNA*Replication*",
+                "*Transcription*",
+                "*Translation*",
+                "*Genetic*Code*",
+                "*Genetics*Molecular*",
+                "*Central*Dogma*"
+            ]
+        },
+        {
+            "id": "1C",
+            "name": "Transmission of heritable information from generation to generation and the processes that increase genetic diversity",
+            "section": "Bio/Biochem",
+            "foundational_concept": "1",
+            "topic_weight": 1.0,
+            "tag_patterns": [
+                "*Mendelian*",
+                "*Meiosis*",
+                "*Genetic*Variability*",
+                "*Evolution*",
+                "*Mutation*",
+                "*Heredity*",
+                "*Genetics*Inheritance*"
+            ]
+        },
+        {
+            "id": "1D",
+            "name": "Principles of bioenergetics and fuel molecule metabolism",
+            "section": "Bio/Biochem",
+            "foundational_concept": "1",
+            "topic_weight": 1.3,
+            "tag_patterns": [
+                "*Bioenergetics*",
+                "*Metabolism*",
+                "*Glycolysis*",
+                "*Citric*Acid*Cycle*",
+                "*Krebs*",
+                "*Oxidative*Phosphorylation*",
+                "*Gluconeogenesis*",
+                "*Fatty*Acid*Metabolism*",
+                "*Carbohydrate*Metabolism*"
+            ]
+        },
+        {
+            "id": "2A",
+            "name": "Assemblies of molecules, cells, and groups of cells within single cellular and multicellular organisms",
+            "section": "Bio/Biochem",
+            "foundational_concept": "2",
+            "topic_weight": 1.1,
+            "tag_patterns": [
+                "*Plasma*Membrane*",
+                "*Membrane*Transport*",
+                "*Cell*Membrane*",
+                "*Cytoskeleton*",
+                "*Organelle*",
+                "*Cell*Biology*"
+            ]
+        },
+        {
+            "id": "2B",
+            "name": "The structure, growth, physiology, and genetics of prokaryotes and viruses",
+            "section": "Bio/Biochem",
+            "foundational_concept": "2",
+            "topic_weight": 0.9,
+            "tag_patterns": ["*Prokaryote*", "*Bacteria*", "*Virus*", "*Viral*", "*Microbiology*"]
+        },
+        {
+            "id": "2C",
+            "name": "Processes of cell division, differentiation, and specialization",
+            "section": "Bio/Biochem",
+            "foundational_concept": "2",
+            "topic_weight": 1.0,
+            "tag_patterns": [
+                "*Mitosis*",
+                "*Cell*Cycle*",
+                "*Cell*Division*",
+                "*Differentiation*",
+                "*Stem*Cell*",
+                "*Apoptosis*"
+            ]
+        },
+        {
+            "id": "3A",
+            "name": "Structure and functions of the nervous and endocrine systems and ways these systems coordinate the organ systems",
+            "section": "Bio/Biochem",
+            "foundational_concept": "3",
+            "topic_weight": 1.2,
+            "tag_patterns": [
+                "*Nervous*System*",
+                "*Neuron*",
+                "*Endocrine*",
+                "*Hormone*",
+                "*Neurotransmitter*",
+                "*Action*Potential*"
+            ]
+        },
+        {
+            "id": "3B",
+            "name": "Structure and integrative functions of the main organ systems",
+            "section": "Bio/Biochem",
+            "foundational_concept": "3",
+            "topic_weight": 1.2,
+            "tag_patterns": [
+                "*Cardiovascular*",
+                "*Respiratory*System*",
+                "*Digestive*",
+                "*Renal*",
+                "*Excretory*",
+                "*Immune*System*",
+                "*Reproductive*System*",
+                "*Musculoskeletal*",
+                "*Skin*",
+                "*Organ*System*",
+                "*Physiology*"
+            ]
+        },
+        {
+            "id": "4A",
+            "name": "Translational motion, forces, work, energy, and equilibrium in living systems",
+            "section": "Chem/Phys",
+            "foundational_concept": "4",
+            "topic_weight": 1.1,
+            "tag_patterns": [
+                "*Kinematics*",
+                "*Newton*Law*",
+                "*Force*",
+                "*Work*Energy*",
+                "*Translational*Motion*",
+                "*Equilibrium*Physics*",
+                "*Mechanics*"
+            ]
+        },
+        {
+            "id": "4B",
+            "name": "Importance of fluids for the circulation of blood, gas movement, and gas exchange",
+            "section": "Chem/Phys",
+            "foundational_concept": "4",
+            "topic_weight": 1.0,
+            "tag_patterns": ["*Fluids*", "*Fluid*Dynamics*", "*Hydrostatic*", "*Bernoulli*", "*Gas*Phase*", "*Gas*Law*"]
+        },
+        {
+            "id": "4C",
+            "name": "Electrochemistry and electrical circuits and their elements",
+            "section": "Chem/Phys",
+            "foundational_concept": "4",
+            "topic_weight": 1.0,
+            "tag_patterns": [
+                "*Electrostatics*",
+                "*Circuit*",
+                "*Electrochemistry*",
+                "*Magnetism*",
+                "*Electric*Field*",
+                "*Electricity*"
+            ]
+        },
+        {
+            "id": "4D",
+            "name": "How light and sound interact with matter",
+            "section": "Chem/Phys",
+            "foundational_concept": "4",
+            "topic_weight": 0.9,
+            "tag_patterns": ["*Optics*", "*Light*", "*Sound*", "*Wave*", "*Geometric*Optics*", "*Doppler*"]
+        },
+        {
+            "id": "4E",
+            "name": "Atoms, nuclear decay, electronic structure, and atomic chemical behavior",
+            "section": "Chem/Phys",
+            "foundational_concept": "4",
+            "topic_weight": 1.0,
+            "tag_patterns": [
+                "*Atomic*Structure*",
+                "*Nuclear*",
+                "*Periodic*Table*",
+                "*Electronic*Structure*",
+                "*Quantum*",
+                "*Atomic*Theory*"
+            ]
+        },
+        {
+            "id": "5A",
+            "name": "Unique nature of water and its solutions",
+            "section": "Chem/Phys",
+            "foundational_concept": "5",
+            "topic_weight": 1.0,
+            "tag_patterns": ["*Acid*Base*", "*Solution*Chemistry*", "*Solubility*", "*Titration*", "*Buffer*", "*pH*"]
+        },
+        {
+            "id": "5B",
+            "name": "Nature of molecules and intermolecular interactions",
+            "section": "Chem/Phys",
+            "foundational_concept": "5",
+            "topic_weight": 1.0,
+            "tag_patterns": [
+                "*Bonding*",
+                "*Intermolecular*",
+                "*Lewis*Structure*",
+                "*Molecular*Geometry*",
+                "*VSEPR*",
+                "*Covalent*"
+            ]
+        },
+        {
+            "id": "5C",
+            "name": "Separation and purification methods",
+            "section": "Chem/Phys",
+            "foundational_concept": "5",
+            "topic_weight": 0.9,
+            "tag_patterns": [
+                "*Separation*",
+                "*Chromatography*",
+                "*Distillation*",
+                "*Extraction*",
+                "*Purification*",
+                "*Spectroscopy*"
+            ]
+        },
+        {
+            "id": "5D",
+            "name": "Structure, function, and reactivity of biologically relevant molecules",
+            "section": "Chem/Phys",
+            "foundational_concept": "5",
+            "topic_weight": 1.2,
+            "tag_patterns": [
+                "*Organic*Chemistry*",
+                "*Functional*Group*",
+                "*Carbonyl*",
+                "*Aldehyde*",
+                "*Ketone*",
+                "*Carboxylic*Acid*",
+                "*Alcohol*",
+                "*Reaction*Mechanism*",
+                "*Stereochemistry*",
+                "*Orgo*"
+            ]
+        },
+        {
+            "id": "5E",
+            "name": "Principles of chemical thermodynamics and kinetics",
+            "section": "Chem/Phys",
+            "foundational_concept": "5",
+            "topic_weight": 1.1,
+            "tag_patterns": [
+                "*Thermodynamics*",
+                "*Kinetics*",
+                "*Enthalpy*",
+                "*Entropy*",
+                "*Gibbs*",
+                "*Reaction*Rate*",
+                "*Chemical*Equilibrium*"
+            ]
+        },
+        {
+            "id": "6A",
+            "name": "Sensing the environment",
+            "section": "Psych/Soc",
+            "foundational_concept": "6",
+            "topic_weight": 1.0,
+            "tag_patterns": ["*Sensation*", "*Perception*", "*Sensory*", "*Vision*", "*Hearing*", "*Signal*Detection*"]
+        },
+        {
+            "id": "6B",
+            "name": "Making sense of the environment",
+            "section": "Psych/Soc",
+            "foundational_concept": "6",
+            "topic_weight": 1.1,
+            "tag_patterns": [
+                "*Cognition*",
+                "*Memory*Psych*",
+                "*Consciousness*",
+                "*Attention*",
+                "*Problem*Solving*",
+                "*Cognitive*",
+                "*Intelligence*"
+            ]
+        },
+        {
+            "id": "6C",
+            "name": "Responding to the world",
+            "section": "Psych/Soc",
+            "foundational_concept": "6",
+            "topic_weight": 1.0,
+            "tag_patterns": ["*Emotion*", "*Stress*", "*Motivation*", "*Theories*Emotion*"]
+        },
+        {
+            "id": "7A",
+            "name": "Individual influences on behavior",
+            "section": "Psych/Soc",
+            "foundational_concept": "7",
+            "topic_weight": 1.0,
+            "tag_patterns": [
+                "*Behavior*Biological*",
+                "*Personality*",
+                "*Psychological*Disorder*",
+                "*Nervous*System*Behavior*",
+                "*Genetics*Behavior*"
+            ]
+        },
+        {
+            "id": "7B",
+            "name": "Social processes that influence human behavior",
+            "section": "Psych/Soc",
+            "foundational_concept": "7",
+            "topic_weight": 1.0,
+            "tag_patterns": [
+                "*Group*Behavior*",
+                "*Socialization*",
+                "*Conformity*",
+                "*Group*Psychology*",
+                "*Social*Influence*"
+            ]
+        },
+        {
+            "id": "7C",
+            "name": "Attitude and behavior change",
+            "section": "Psych/Soc",
+            "foundational_concept": "7",
+            "topic_weight": 1.0,
+            "tag_patterns": [
+                "*Learning*Psych*",
+                "*Conditioning*",
+                "*Attitude*",
+                "*Behavior*Change*",
+                "*Classical*Conditioning*",
+                "*Operant*"
+            ]
+        },
+        {
+            "id": "8A",
+            "name": "Self-identity",
+            "section": "Psych/Soc",
+            "foundational_concept": "8",
+            "topic_weight": 0.9,
+            "tag_patterns": ["*Self*Concept*", "*Identity*", "*Self*Identity*", "*Self*Esteem*"]
+        },
+        {
+            "id": "8B",
+            "name": "Social thinking",
+            "section": "Psych/Soc",
+            "foundational_concept": "8",
+            "topic_weight": 0.9,
+            "tag_patterns": ["*Attribution*", "*Prejudice*", "*Stereotype*", "*Social*Cognition*", "*Bias*Social*"]
+        },
+        {
+            "id": "8C",
+            "name": "Social interactions",
+            "section": "Psych/Soc",
+            "foundational_concept": "8",
+            "topic_weight": 0.9,
+            "tag_patterns": [
+                "*Social*Interaction*",
+                "*Attraction*",
+                "*Aggression*",
+                "*Altruism*",
+                "*Self*Presentation*"
+            ]
+        },
+        {
+            "id": "9A",
+            "name": "Understanding social structure",
+            "section": "Psych/Soc",
+            "foundational_concept": "9",
+            "topic_weight": 1.0,
+            "tag_patterns": [
+                "*Sociology*",
+                "*Social*Institution*",
+                "*Social*Structure*",
+                "*Culture*",
+                "*Demographic*Theory*"
+            ]
+        },
+        {
+            "id": "9B",
+            "name": "Demographic characteristics and processes",
+            "section": "Psych/Soc",
+            "foundational_concept": "9",
+            "topic_weight": 1.0,
+            "tag_patterns": ["*Demographic*", "*Population*", "*Urbanization*", "*Migration*", "*Social*Movement*"]
+        },
+        {
+            "id": "10A",
+            "name": "Social inequality",
+            "section": "Psych/Soc",
+            "foundational_concept": "10",
+            "topic_weight": 1.0,
+            "tag_patterns": [
+                "*Social*Inequality*",
+                "*Social*Stratification*",
+                "*Health*Disparities*",
+                "*Social*Class*",
+                "*Discrimination*Structural*"
+            ]
+        }
+    ]
+}

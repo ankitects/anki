@@ -20,6 +20,7 @@ protobuf!(backend, "backend");
 protobuf!(card_rendering, "card_rendering");
 protobuf!(cards, "cards");
 protobuf!(collection, "collection");
+protobuf!(concepts, "concepts");
 protobuf!(config, "config");
 protobuf!(deck_config, "deck_config");
 protobuf!(decks, "decks");

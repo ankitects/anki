@@ -1,0 +1,89 @@
+// Copyright: Ankitects Pty Ltd and contributors
+// License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
+
+// MCAT fork addition (AGPL-3.0-or-later, credit to Anki).
+//
+// Concept-aware Need-to-Review (NTR) engine. A "concept" is a string id (e.g.
+// "1A") derived from a card's hierarchical tags using a caller-supplied
+// taxonomy. The engine is deterministic and contains NO AI: it layers a
+// per-concept priority on top of FSRS's existing memory state. FSRS intervals
+// are never modified; these RPCs are read-only queries / re-orderings.
+
+syntax = "proto3";
+
+option java_multiple_files = true;
+
+package anki.concepts;
+
+service ConceptsService {
+  // Re-order the due cards in a scope by concept-aware NTR priority. Does not
+  // mutate the collection or FSRS intervals.
+  rpc ConceptAwareQueue(ConceptAwareQueueRequest)
+      returns (ConceptAwareQueueResponse);
+  // Per-concept mastery summary, fast enough to power a dashboard on 50k cards.
+  rpc ConceptMastery(ConceptMasteryRequest) returns (ConceptMasteryResponse);
+}
+
+// Implicitly includes any of the above methods that are not listed here, so
+// they are delegated to the Backend automatically.
+service BackendConceptsService {}
+
+// A single concept rule from the caller-owned taxonomy. The engine never reads
+// a taxonomy file; rules are always passed in by the caller.
+message ConceptRule {
+  // Concept id, e.g. "1A".
+  string id = 1;
+  // Topic weight (importance multiplier). Defaults to 1.0 when <= 0.
+  double topic_weight = 2;
+  // Glob/prefix patterns matched against a card's tags. A pattern ending in
+  // '*' matches by prefix; '*' anywhere is treated as a wildcard; otherwise an
+  // exact (case-insensitive) tag match or hierarchical-prefix match is used.
+  repeated string tag_patterns = 3;
+}
+
+message ConceptTaxonomy {
+  repeated ConceptRule rules = 1;
+}
+
+message ConceptAwareQueueRequest {
+  ConceptTaxonomy taxonomy = 1;
+  // Anki search defining the scope (e.g. "deck:MCAT is:due"). Empty = whole
+  // collection. Only currently-due cards are returned.
+  string search = 2;
+}
+
+message ConceptAwareQueueEntry {
+  int64 card_id = 1;
+  // Highest NTR among the card's concepts (the sort key). 0 if no concept.
+  double priority = 2;
+  // The concept ids matched for this card.
+  repeated string concepts = 3;
+}
+
+message ConceptAwareQueueResponse {
+  // Ordered highest-priority first.
+  repeated ConceptAwareQueueEntry entries = 1;
+}
+
+message ConceptMasteryRequest {
+  ConceptTaxonomy taxonomy = 1;
+  // Optional scope search; empty = whole collection.
+  string search = 2;
+}
+
+message ConceptMasteryEntry {
+  string concept_id = 1;
+  // Total cards mapped to this concept within scope.
+  uint32 cards_total = 2;
+  // Cards whose retrievability >= mastery threshold (0.9).
+  uint32 cards_mastered = 3;
+  // Mean retrievability over cards with a memory state. 0 if none.
+  double avg_recall = 4;
+  // Need-to-Review = topic_weight * weakness, where
+  // weakness = 1 - avg_recall (1.0 when no cards have memory state).
+  double ntr = 5;
+}
+
+message ConceptMasteryResponse {
+  repeated ConceptMasteryEntry entries = 1;
+}

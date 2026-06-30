@@ -1,0 +1,325 @@
+{
+  "taxonomy_version": "mcat-aamc-2015-v1",
+  "total_cards": 50000,
+  "mapped_cards": 50000,
+  "unmapped_cards": 0,
+  "overall": {
+    "total_concepts": 31,
+    "covered_concepts": 24,
+    "coverage_pct": 77.42,
+    "weighted_coverage_pct": 79.19
+  },
+  "per_section": [
+    {
+      "section": "Bio/Biochem",
+      "total_concepts": 9,
+      "covered_concepts": 9,
+      "card_count": 33140,
+      "coverage_pct": 100.0
+    },
+    {
+      "section": "Chem/Phys",
+      "total_concepts": 10,
+      "covered_concepts": 10,
+      "card_count": 41465,
+      "coverage_pct": 100.0
+    },
+    {
+      "section": "Psych/Soc",
+      "total_concepts": 12,
+      "covered_concepts": 5,
+      "card_count": 8726,
+      "coverage_pct": 41.67
+    }
+  ],
+  "per_concept": [
+    {
+      "id": "1A",
+      "name": "Structure and function of proteins and their constituent amino acids",
+      "section": "Bio/Biochem",
+      "foundational_concept": "1",
+      "topic_weight": 1.3,
+      "card_count": 5754,
+      "covered": true
+    },
+    {
+      "id": "1B",
+      "name": "Transmission of genetic information from the gene to the protein",
+      "section": "Bio/Biochem",
+      "foundational_concept": "1",
+      "topic_weight": 1.2,
+      "card_count": 3486,
+      "covered": true
+    },
+    {
+      "id": "1C",
+      "name": "Transmission of heritable information from generation to generation and the processes that increase genetic diversity",
+      "section": "Bio/Biochem",
+      "foundational_concept": "1",
+      "topic_weight": 1.0,
+      "card_count": 2936,
+      "covered": true
+    },
+    {
+      "id": "1D",
+      "name": "Principles of bioenergetics and fuel molecule metabolism",
+      "section": "Bio/Biochem",
+      "foundational_concept": "1",
+      "topic_weight": 1.3,
+      "card_count": 2299,
+      "covered": true
+    },
+    {
+      "id": "2A",
+      "name": "Assemblies of molecules, cells, and groups of cells within single cellular and multicellular organisms",
+      "section": "Bio/Biochem",
+      "foundational_concept": "2",
+      "topic_weight": 1.1,
+      "card_count": 4115,
+      "covered": true
+    },
+    {
+      "id": "2B",
+      "name": "The structure, growth, physiology, and genetics of prokaryotes and viruses",
+      "section": "Bio/Biochem",
+      "foundational_concept": "2",
+      "topic_weight": 0.9,
+      "card_count": 940,
+      "covered": true
+    },
+    {
+      "id": "2C",
+      "name": "Processes of cell division, differentiation, and specialization",
+      "section": "Bio/Biochem",
+      "foundational_concept": "2",
+      "topic_weight": 1.0,
+      "card_count": 687,
+      "covered": true
+    },
+    {
+      "id": "3A",
+      "name": "Structure and functions of the nervous and endocrine systems and ways these systems coordinate the organ systems",
+      "section": "Bio/Biochem",
+      "foundational_concept": "3",
+      "topic_weight": 1.2,
+      "card_count": 3258,
+      "covered": true
+    },
+    {
+      "id": "3B",
+      "name": "Structure and integrative functions of the main organ systems",
+      "section": "Bio/Biochem",
+      "foundational_concept": "3",
+      "topic_weight": 1.2,
+      "card_count": 9665,
+      "covered": true
+    },
+    {
+      "id": "4A",
+      "name": "Translational motion, forces, work, energy, and equilibrium in living systems",
+      "section": "Chem/Phys",
+      "foundational_concept": "4",
+      "topic_weight": 1.1,
+      "card_count": 2832,
+      "covered": true
+    },
+    {
+      "id": "4B",
+      "name": "Importance of fluids for the circulation of blood, gas movement, and gas exchange",
+      "section": "Chem/Phys",
+      "foundational_concept": "4",
+      "topic_weight": 1.0,
+      "card_count": 1439,
+      "covered": true
+    },
+    {
+      "id": "4C",
+      "name": "Electrochemistry and electrical circuits and their elements",
+      "section": "Chem/Phys",
+      "foundational_concept": "4",
+      "topic_weight": 1.0,
+      "card_count": 966,
+      "covered": true
+    },
+    {
+      "id": "4D",
+      "name": "How light and sound interact with matter",
+      "section": "Chem/Phys",
+      "foundational_concept": "4",
+      "topic_weight": 0.9,
+      "card_count": 2111,
+      "covered": true
+    },
+    {
+      "id": "4E",
+      "name": "Atoms, nuclear decay, electronic structure, and atomic chemical behavior",
+      "section": "Chem/Phys",
+      "foundational_concept": "4",
+      "topic_weight": 1.0,
+      "card_count": 1127,
+      "covered": true
+    },
+    {
+      "id": "5A",
+      "name": "Unique nature of water and its solutions",
+      "section": "Chem/Phys",
+      "foundational_concept": "5",
+      "topic_weight": 1.0,
+      "card_count": 21202,
+      "covered": true
+    },
+    {
+      "id": "5B",
+      "name": "Nature of molecules and intermolecular interactions",
+      "section": "Chem/Phys",
+      "foundational_concept": "5",
+      "topic_weight": 1.0,
+      "card_count": 1897,
+      "covered": true
+    },
+    {
+      "id": "5C",
+      "name": "Separation and purification methods",
+      "section": "Chem/Phys",
+      "foundational_concept": "5",
+      "topic_weight": 0.9,
+      "card_count": 1891,
+      "covered": true
+    },
+    {
+      "id": "5D",
+      "name": "Structure, function, and reactivity of biologically relevant molecules",
+      "section": "Chem/Phys",
+      "foundational_concept": "5",
+      "topic_weight": 1.2,
+      "card_count": 6395,
+      "covered": true
+    },
+    {
+      "id": "5E",
+      "name": "Principles of chemical thermodynamics and kinetics",
+      "section": "Chem/Phys",
+      "foundational_concept": "5",
+      "topic_weight": 1.1,
+      "card_count": 1605,
+      "covered": true
+    },
+    {
+      "id": "6A",
+      "name": "Sensing the environment",
+      "section": "Psych/Soc",
+      "foundational_concept": "6",
+      "topic_weight": 1.0,
+      "card_count": 1301,
+      "covered": true
+    },
+    {
+      "id": "6B",
+      "name": "Making sense of the environment",
+      "section": "Psych/Soc",
+      "foundational_concept": "6",
+      "topic_weight": 1.1,
+      "card_count": 3846,
+      "covered": true
+    },
+    {
+      "id": "6C",
+      "name": "Responding to the world",
+      "section": "Psych/Soc",
+      "foundational_concept": "6",
+      "topic_weight": 1.0,
+      "card_count": 0,
+      "covered": false
+    },
+    {
+      "id": "7A",
+      "name": "Individual influences on behavior",
+      "section": "Psych/Soc",
+      "foundational_concept": "7",
+      "topic_weight": 1.0,
+      "card_count": 0,
+      "covered": false
+    },
+    {
+      "id": "7B",
+      "name": "Social processes that influence human behavior",
+      "section": "Psych/Soc",
+      "foundational_concept": "7",
+      "topic_weight": 1.0,
+      "card_count": 735,
+      "covered": true
+    },
+    {
+      "id": "7C",
+      "name": "Attitude and behavior change",
+      "section": "Psych/Soc",
+      "foundational_concept": "7",
+      "topic_weight": 1.0,
+      "card_count": 2126,
+      "covered": true
+    },
+    {
+      "id": "8A",
+      "name": "Self-identity",
+      "section": "Psych/Soc",
+      "foundational_concept": "8",
+      "topic_weight": 0.9,
+      "card_count": 0,
+      "covered": false
+    },
+    {
+      "id": "8B",
+      "name": "Social thinking",
+      "section": "Psych/Soc",
+      "foundational_concept": "8",
+      "topic_weight": 0.9,
+      "card_count": 0,
+      "covered": false
+    },
+    {
+      "id": "8C",
+      "name": "Social interactions",
+      "section": "Psych/Soc",
+      "foundational_concept": "8",
+      "topic_weight": 0.9,
+      "card_count": 0,
+      "covered": false
+    },
+    {
+      "id": "9A",
+      "name": "Understanding social structure",
+      "section": "Psych/Soc",
+      "foundational_concept": "9",
+      "topic_weight": 1.0,
+      "card_count": 718,
+      "covered": true
+    },
+    {
+      "id": "9B",
+      "name": "Demographic characteristics and processes",
+      "section": "Psych/Soc",
+      "foundational_concept": "9",
+      "topic_weight": 1.0,
+      "card_count": 0,
+      "covered": false
+    },
+    {
+      "id": "10A",
+      "name": "Social inequality",
+      "section": "Psych/Soc",
+      "foundational_concept": "10",
+      "topic_weight": 1.0,
+      "card_count": 0,
+      "covered": false
+    }
+  ],
+  "uncovered_concepts": [
+    "6C",
+    "7A",
+    "8A",
+    "8B",
+    "8C",
+    "9B",
+    "10A"
+  ]
+}
