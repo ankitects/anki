@@ -7,10 +7,15 @@ const decoder = new TextDecoder();
 
 export async function getConfigJsonObject(key: string) {
     const resp = await getConfigJson({ val: key });
-    const json_string = decoder.decode(resp.json);
-    if (json_string.length > 0) {
-        return JSON.parse(json_string);
-    } else {
+    try {
+        const json_string = decoder.decode(resp.json);
+        if (json_string.length > 0) {
+            return JSON.parse(json_string);
+        } else {
+            return {};
+        }
+    } catch (e) {
+        console.error("Resetting experiment config due to error: ", e);
         return {};
     }
 }
