@@ -1,7 +1,7 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-import type { Locator, Page, Request } from "@playwright/test";
+import type { Locator, Page, Request, Response } from "@playwright/test";
 
 // ---------------------------------------------------------------------------
 // RPC URL helpers
@@ -19,6 +19,10 @@ export function rpcUrl(method: string): string {
 export function isRpc(method: string): (req: Request) => boolean {
     const suffix = rpcUrl(method);
     return (req) => req.url().endsWith(suffix);
+}
+
+export function isRpcResponse(method: string): (resp: Response) => boolean {
+    return (resp) => isRpc(method)(resp.request());
 }
 
 // ---------------------------------------------------------------------------
@@ -48,6 +52,30 @@ export function editableField(page: Page, index: number): Locator {
 }
 
 // ---------------------------------------------------------------------------
+// Chooser helpers
+// ---------------------------------------------------------------------------
+
+export function chooserButton(page: Page, kind: "notetype" | "deck"): Locator {
+    return page.locator("button.chooser-button").nth(kind === "notetype" ? 0 : 1);
+}
+
+export async function openChooserAndSelect(
+    page: Page,
+    kind: "notetype" | "deck",
+    itemName: string,
+): Promise<void> {
+    await chooserButton(page, kind).click();
+    const modal = page.locator(".modal.show");
+    await modal.waitFor({ state: "visible", timeout: 5_000 });
+    await modal.getByRole("button", { name: `Select ${itemName}` }).click();
+    await modal.waitFor({ state: "hidden", timeout: 5_000 });
+    await chooserButton(page, kind).filter({ hasText: itemName }).waitFor({
+        state: "visible",
+        timeout: 5_000,
+    });
+}
+
+// ---------------------------------------------------------------------------
 // Bridge call inspection
 // ---------------------------------------------------------------------------
 
@@ -69,6 +97,10 @@ type BinaryDecodable<T> = {
     fromBinary(bytes: Uint8Array): T;
 };
 
+type BinaryEncodable = {
+    toBinary(): Uint8Array;
+};
+
 export function decodeRequestBody<T>(
     request: Request,
     messageType: BinaryDecodable<T>,
@@ -82,6 +114,34 @@ export function decodeRequestBody<T>(
     } catch (e) {
         throw new Error(`Failed to decode protobuf from ${request.url()}: ${e}`);
     }
+}
+
+export async function callRpc(
+    page: Page,
+    method: string,
+    message: BinaryEncodable,
+    opChangesType = 0,
+): Promise<Uint8Array> {
+    const responseBytes = await page.evaluate(
+        async ({ method, body, opChangesType }) => {
+            const response = await fetch(`/_anki/${method}`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/binary",
+                    "Anki-Op-Changes": opChangesType.toString(),
+                },
+                body: new Uint8Array(body),
+            });
+            if (!response.ok) {
+                throw new Error(
+                    `RPC ${method} failed with ${response.status}: ${await response.text()}`,
+                );
+            }
+            return Array.from(new Uint8Array(await response.arrayBuffer()));
+        },
+        { method, body: Array.from(message.toBinary()), opChangesType },
+    );
+    return new Uint8Array(responseBytes);
 }
 
 // ---------------------------------------------------------------------------
