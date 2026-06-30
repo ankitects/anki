@@ -3,15 +3,19 @@ Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script>
+    import Row from "$lib/components/Row.svelte";
     import "../deck-options/deck-options-base.scss";
     import Warning from "../deck-options/Warning.svelte";
     import LabItem from "./LabItem.svelte";
 </script>
 
 <div class="container">
-    <Warning
-        warning="⚠️ These features may change, break, or be removed without notice, use at your own risk."
-    ></Warning>
+    <Row>
+        <div class="col-12 alert alert-warning mb-0">
+            <b>⚠️ Experimental Features</b> <br>
+            These features may change, break, or be removed without notice, use at your own risk.
+        </div>
+    </Row>
 
     <div class="lab-grid">
         <LabItem
