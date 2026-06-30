@@ -60,7 +60,9 @@ impl ExchangeData {
         };
 
         if with_deck_configs {
-            self.deck_configs = guard.col.gather_deck_configs(&self.decks)?;
+            self.deck_configs = guard
+                .col
+                .gather_deck_configs(&self.decks, with_scheduling)?;
         }
         self.reset_decks(!with_deck_configs, !with_scheduling, allow_filtered);
 
@@ -307,15 +309,26 @@ impl Collection {
         self.storage.get_revlog_entries_for_searched_cards()
     }
 
-    fn gather_deck_configs(&mut self, decks: &[Deck]) -> Result<Vec<DeckConfig>> {
+    fn gather_deck_configs(
+        &mut self,
+        decks: &[Deck],
+        with_scheduling: bool,
+    ) -> Result<Vec<DeckConfig>> {
         decks
             .iter()
             .filter_map(|deck| deck.config_id())
             .unique()
             .map(|config_id| {
-                self.storage
+                let mut config = self
+                    .storage
                     .get_deck_config(config_id)?
-                    .or_not_found(config_id)
+                    .or_not_found(config_id)?;
+                if !with_scheduling {
+                    config.inner.fsrs_params_4.clear();
+                    config.inner.fsrs_params_5.clear();
+                    config.inner.fsrs_params_6.clear();
+                }
+                Ok(config)
             })
             .collect()
     }
@@ -351,5 +364,46 @@ mod test {
         assert!(data
             .gather_data(&mut col, SearchNode::WholeCollection, true, true)
             .is_err());
+    }
+
+    fn add_note_to_deck_with_fsrs_params(col: &mut Collection) {
+        let deck = DeckAdder::new("fsrs")
+            .with_config(|c| {
+                c.inner.fsrs_params_4 = vec![0.1; 17];
+                c.inner.fsrs_params_5 = vec![0.2; 19];
+                c.inner.fsrs_params_6 = vec![0.3; 21];
+            })
+            .add(col);
+        NoteAdder::basic(col).deck(deck.id).add(col);
+    }
+
+    #[test]
+    fn should_preserve_fsrs_params_when_exporting_with_scheduling() {
+        let mut data = ExchangeData::default();
+        let mut col = Collection::new();
+        add_note_to_deck_with_fsrs_params(&mut col);
+
+        data.gather_data(&mut col, SearchNode::WholeCollection, true, true)
+            .unwrap();
+
+        let conf = data.deck_configs.iter().find(|c| c.id.0 != 1).unwrap();
+        assert_eq!(conf.inner.fsrs_params_4.len(), 17);
+        assert_eq!(conf.inner.fsrs_params_5.len(), 19);
+        assert_eq!(conf.inner.fsrs_params_6.len(), 21);
+    }
+
+    #[test]
+    fn should_strip_fsrs_params_when_exporting_without_scheduling() {
+        let mut data = ExchangeData::default();
+        let mut col = Collection::new();
+        add_note_to_deck_with_fsrs_params(&mut col);
+
+        data.gather_data(&mut col, SearchNode::WholeCollection, false, true)
+            .unwrap();
+
+        let conf = data.deck_configs.iter().find(|c| c.id.0 != 1).unwrap();
+        assert!(conf.inner.fsrs_params_4.is_empty());
+        assert!(conf.inner.fsrs_params_5.is_empty());
+        assert!(conf.inner.fsrs_params_6.is_empty());
     }
 }
