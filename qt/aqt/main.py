@@ -659,6 +659,7 @@ class AnkiQt(QMainWindow):
         # make sure we don't get into an inconsistent state if an add-on
         # has broken the deck browser or the did_load hook
         try:
+            self._ensure_fsrs_enabled()
             self.update_undo_actions()
             gui_hooks.collection_did_load(self.col)
             self.apply_collection_options()
@@ -668,6 +669,16 @@ class AnkiQt(QMainWindow):
             traceback.print_exc()
 
         return True
+
+    def _ensure_fsrs_enabled(self) -> None:
+        """MCAT fork: always run FSRS so memory-readiness data is available.
+
+        Upstream leaves FSRS off by default (`BoolKey::Fsrs`, config key
+        "fsrs"). New reviews then populate FSRS memory state; pre-existing
+        cards gain state once FSRS is optimized. See specs/PRD1.md §0.5.
+        """
+        if self.col and not self.col.get_config("fsrs", False):
+            self.col.set_config("fsrs", True)
 
     def _loadCollection(self) -> None:
         cpath = self.pm.collectionPath()
@@ -1311,6 +1322,9 @@ title="{}" {}>{}</button>""".format(
         else:
             aqt.dialogs.open("NewDeckStats", self)
 
+    def onMastery(self) -> None:
+        aqt.dialogs.open("MasteryStats", self)
+
     def onPrefs(self) -> None:
         aqt.dialogs.open("Preferences", self)
 
@@ -1447,6 +1461,11 @@ title="{}" {}>{}</button>""".format(
         qconnect(m.actionNoteTypes.triggered, self.onNoteTypes)
         qconnect(m.action_check_for_updates.triggered, self.on_check_for_updates)
         qconnect(m.actionPreferences.triggered, self.onPrefs)
+
+        # Tools — topic-mastery dashboard (MCAT fork)
+        action_mastery = QAction(tr.statistics_mastery_title(), self)
+        qconnect(action_mastery.triggered, self.onMastery)
+        m.menuTools.addAction(action_mastery)
 
         # View
         qconnect(

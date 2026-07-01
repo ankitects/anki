@@ -414,6 +414,7 @@ def is_sveltekit_page(path: str) -> bool:
     page_name = path.split("/")[0]
     return page_name in [
         "graphs",
+        "mastery",
         "congrats",
         "card-info",
         "change-notetype",
@@ -746,6 +747,7 @@ exposed_backend_list = [
     "graphs",
     "get_graph_preferences",
     "set_graph_preferences",
+    "tag_mastery",
     # TagsService
     "complete_tag",
     # ImageOcclusionService

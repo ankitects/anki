@@ -298,6 +298,25 @@ statistics-saved = Saved.
 statistics-stats = stats
 statistics-title = Statistics
 
+## Topic-mastery dashboard
+
+statistics-mastery-title = Topic mastery
+statistics-mastery-readiness = Memory readiness
+statistics-mastery-not-enough-data = Not enough data yet
+statistics-mastery-based-on =
+    { $cards ->
+        [one] Based on { $cards } scored card
+       *[other] Based on { $cards } scored cards
+    }
+statistics-mastery-likely-range = Likely range (90% confidence)
+statistics-mastery-topic = Topic
+statistics-mastery-cards = Cards
+statistics-mastery-scored = Scored
+statistics-mastery-mastered = Mastered
+statistics-mastery-average-recall = Avg recall
+statistics-mastery-reviews = Reviews
+statistics-mastery-cutoff = Mastered = recall ≥ { $percent }%
+
 ## These strings are no longer used - you do not need to translate them if they
 ## are not already translated.
 

@@ -116,3 +116,31 @@ in build scripts/tests is fine.
 ## Individual preferences
 
 See @.claude/user.md
+
+## Domain scopes (used by the software factory)
+
+The factory uses these globs to keep parallel agents from colliding. Each domain
+agent and its workers may ONLY edit files inside its folders. Anki's layers don't
+map perfectly onto the generic domain names, so the mapping is:
+
+- **backend**: `rslib/**` (except `rslib/src/storage/**`), `pylib/**`, `proto/**` — Rust core, Python wrapper, protobuf RPC definitions
+- **frontend**: `ts/**`, `sass/**`, `qt/aqt/**` — Svelte/TypeScript web components and the embedding PyQt GUI
+- **database**: `rslib/src/storage/**` — SQLite storage layer & schema/migrations (owns `contracts/data-model.md`)
+- **devops**: `.github/**`, `build/**`, `tools/**`, `justfile`, `*.just`, `Dockerfile*`, `*.bazelrc`, `cargo/**`, `.cargo/**`
+- **testing**: `ts/tests/**`, `pylib/tests/**`, `qt/tests/**`, `rslib/**/*tests*` (acceptance/integration only)
+
+Note: `ftl/**` (translations) and generated `out/**` are shared/cross-cutting — touch via
+the owning domain and the i18n scripts described above, not by editing generated files.
+
+## Factory capabilities (set by install detection; the testing domain reads these)
+
+- **visual-testing**: enabled — Svelte/PyQt UI with Playwright e2e in `ts/tests/e2e/` (`just test-e2e`); `visual-worker` is installed.
+- **api-testing**: disabled — Anki has no conventional HTTP/GraphQL API; backend RPC is internal protobuf over POST. `api-test-worker` is not installed.
+
+## The factory
+
+This repo has a software factory installed (`factory-version: 1`) — `.claude/skills/factory`,
+`.claude/agents/*`, `.factory/PROTOCOL.md`. Update it later by re-running `/install-factory`;
+it detects this install and updates in place. Run it with **/factory <what you want>**. It
+classifies the request (project-init / feature / bugfix), runs research → story → spec with
+your approval, then builds via parallel domain agents coordinated through `.factory/runs/<run-id>/`.

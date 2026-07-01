@@ -36,6 +36,13 @@ impl crate::services::StatsService for Collection {
     ) -> error::Result<()> {
         self.set_graph_preferences(input)
     }
+
+    fn tag_mastery(
+        &mut self,
+        input: anki_proto::stats::TagMasteryRequest,
+    ) -> error::Result<anki_proto::stats::TagMasteryResponse> {
+        self.tag_mastery(input)
+    }
 }
 
 impl From<RevlogReviewKind> for i32 {

@@ -16,11 +16,60 @@ service StatsService {
   rpc Graphs(GraphsRequest) returns (GraphsResponse);
   rpc GetGraphPreferences(generic.Empty) returns (GraphPreferences);
   rpc SetGraphPreferences(GraphPreferences) returns (generic.Empty);
+  // Per-tag mastery + an overall memory-readiness band. Read-only.
+  rpc TagMastery(TagMasteryRequest) returns (TagMasteryResponse);
 }
 
 // Implicitly includes any of the above methods that are not listed in the
 // backend service.
 service BackendStatsService {}
+
+message TagMasteryRequest {
+  // Group by the first N components of each `::` tag hierarchy.
+  // 1 = top-level tag (good default for AAMC sections). 0 = whole tag.
+  uint32 group_depth = 1;
+  // Current retrievability at/above which a card counts as "mastered".
+  // 0 means "use the server default".
+  double mastered_threshold = 2;
+  // Optional Anki search to scope the query (e.g. "deck:MileDown").
+  // Empty = whole collection.
+  string search = 3;
+}
+
+message TagMasteryResponse {
+  message Group {
+    // The tag (or tag prefix) this row aggregates.
+    string tag = 1;
+    // Cards mapped into this group.
+    uint32 total_cards = 2;
+    // Cards that had FSRS memory state (the honest denominator).
+    uint32 cards_with_state = 3;
+    // Cards with current retrievability >= threshold.
+    uint32 mastered_cards = 4;
+    // Mean current retrievability over cards_with_state.
+    double average_recall = 5;
+    // Graded reviews on this group's cards (give-up rule).
+    uint32 graded_reviews = 6;
+  }
+  // The effective threshold actually used (echoes the request or the default).
+  double threshold_used = 1;
+  // Collection-wide give-up-rule inputs.
+  uint32 total_graded_reviews = 2;
+  uint32 topics_with_reviews = 3;
+  repeated Group groups = 4;
+  // Overall memory-readiness band: mean current retrievability and its 90%
+  // confidence interval over the cards that have FSRS memory state.
+  double overall_mean_recall = 5;
+  double overall_ci_low = 6;
+  double overall_ci_high = 7;
+  // Sample size behind the band (the "how-sure" base).
+  uint32 overall_n = 8;
+  // Give-up rule: false until the collection has enough evidence to show a
+  // readiness number (>= a minimum number of graded reviews spanning a
+  // minimum number of distinct topics). When false the UI must abstain
+  // ("Not enough data yet") regardless of the band above.
+  bool enough_data = 9;
+}
 
 message ReviewLogs {
   repeated CardStatsResponse.StatsRevlogEntry entries = 1;
