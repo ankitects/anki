@@ -87,7 +87,7 @@ UNTRUSTED_MEDIA_CSP = "; ".join(
 )
 
 
-def _editor_content_security_policy(port: int) -> str:
+def _legacy_editor_content_security_policy(port: int) -> str:
     csp_paths = (
         f"http://127.0.0.1:{port}/_anki/",
         f"http://127.0.0.1:{port}/_addons/",
@@ -95,10 +95,36 @@ def _editor_content_security_policy(port: int) -> str:
     return "; ".join((f"script-src {' '.join(csp_paths)}",))
 
 
+_SVELTEKIT_SCRIPT_HASH_RE = re.compile(rb"'sha256-[A-Za-z0-9+/=]+'")
+
+
+def _sveltekit_render_script_hash(html: bytes) -> str | None:
+    """Extract the hash SvelteKit computed for its inline render script.
+
+    SvelteKit (csp.mode = 'hash' in svelte.config.js) bakes this into a
+    <meta http-equiv="content-security-policy"> tag in the built HTML.
+    """
+    match = _SVELTEKIT_SCRIPT_HASH_RE.search(html)
+    return match.group(0).decode("utf-8") if match else None
+
+
+def _sveltekit_content_security_policy(port: int, script_hash: str | None) -> str:
+    csp_paths = [
+        f"http://127.0.0.1:{port}/_anki/",
+        f"http://127.0.0.1:{port}/_app/",
+        f"http://127.0.0.1:{port}/_addons/",
+    ]
+    if script_hash:
+        csp_paths.append(script_hash)
+    return "; ".join((f"script-src {' '.join(csp_paths)}",))
+
+
 @dataclass
 class BundledFileRequest:
     # path relative to aqt data folder
     path: str
+    # set for SvelteKit routes
+    is_sveltekit: bool = False
 
 
 @dataclass
@@ -371,6 +397,17 @@ def _handle_builtin_file_request(request: BundledFileRequest) -> Response:
         response = Response(data, mimetype=mimetype)
         if immutable:
             response.headers["Cache-Control"] = "max-age=31536000"
+        if request.is_sveltekit:
+            script_hash = (
+                _sveltekit_render_script_hash(data)
+                if path.endswith("index.html")
+                else None
+            )
+            response.headers["Content-Security-Policy"] = (
+                _sveltekit_content_security_policy(
+                    aqt.mw.mediaServer.getPort(), script_hash
+                )
+            )
         return response
     except FileNotFoundError:
         if dev_mode:
@@ -445,7 +482,8 @@ def _extract_internal_request(
     path: str,
 ) -> BundledFileRequest | DynamicRequest | NotFound | None:
     "Catch /_anki references and rewrite them to web export folder."
-    if is_sveltekit_page(path):
+    is_sveltekit = is_sveltekit_page(path)
+    if is_sveltekit:
         path = f"_anki/sveltekit/_app/{path}"
     if path.startswith("_app/"):
         path = path.replace("_app", "_anki/sveltekit/_app")
@@ -490,7 +528,7 @@ def _extract_internal_request(
         path = f"{prefix}{additional_prefix}{base}{ext}"
         print(f"legacy {oldpath} remapped to {path}")
 
-    return BundledFileRequest(path=path[len(prefix) :])
+    return BundledFileRequest(path=path[len(prefix) :], is_sveltekit=is_sveltekit)
 
 
 def _extract_addon_request(path: str) -> LocalFileRequest | NotFound | None:
@@ -1211,7 +1249,7 @@ def legacy_page_data() -> Response:
         # have access to our internal API, and is a security risk.
         if page.context == PageContext.EDITOR:
             response.headers["Content-Security-Policy"] = (
-                _editor_content_security_policy(aqt.mw.mediaServer.getPort())
+                _legacy_editor_content_security_policy(aqt.mw.mediaServer.getPort())
             )
         return response
     else:

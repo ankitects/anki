@@ -15,6 +15,7 @@ import {
     writeClipboard,
 } from "@generated/backend";
 import * as tr from "@generated/ftl";
+import { bridgeCommand } from "@tslib/bridgecommand";
 import { shiftPressed } from "@tslib/keys";
 import { pasteHTML } from "../old-editor-adapter";
 
@@ -368,8 +369,13 @@ async function handlePasteOrDrop(event: ClipboardEvent | DragEvent) {
     }
 }
 
-export async function handlePaste(event: ClipboardEvent) {
-    await handlePasteOrDrop(event);
+export async function handlePaste(event: ClipboardEvent, isLegacy: boolean) {
+    if (isLegacy) {
+        event.preventDefault();
+        bridgeCommand("paste");
+    } else {
+        await handlePasteOrDrop(event);
+    }
 }
 
 export async function handleDrop(event: DragEvent) {
@@ -385,8 +391,12 @@ export async function handleKeydown(event: KeyboardEvent) {
     isShiftPressed = shiftPressed(event);
 }
 
-export function handleCutOrCopy(event: ClipboardEvent) {
-    lastInternalFieldText = getHtml(event.clipboardData!);
+export function handleCutOrCopy(event: ClipboardEvent, isLegacy: boolean) {
+    if (isLegacy) {
+        bridgeCommand("cutOrCopy");
+    } else {
+        lastInternalFieldText = getHtml(event.clipboardData!);
+    }
 }
 
 const FILE_PICKER_MEDIA_KEY = "media";
