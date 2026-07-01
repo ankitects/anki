@@ -3,10 +3,12 @@
 
 import shutil
 import subprocess
+import wave
 from pathlib import Path
 
 import pytest
 
+from anki.utils import is_mac, is_win
 from aqt.sound import _packagedCmd, is_audio_file
 
 
@@ -15,18 +17,86 @@ def test_is_audio_file_recognizes_common_formats():
         assert is_audio_file(f"test.{ext}")
 
 
+def test_is_audio_file_is_case_insensitive():
+    for ext in ("MP3", "WAV", "OGG", "FLAC"):
+        assert is_audio_file(f"test.{ext}")
+
+
 def test_is_audio_file_rejects_non_audio():
+    # mp4/avi are video-only; jpg/png/pdf are not media Anki plays via mpv.
     for ext in ("mp4", "avi", "jpg", "png", "pdf"):
         assert not is_audio_file(f"test.{ext}")
 
 
-def test_mpv_binary_runs():
-    cmd, env = _packagedCmd(["mpv"])
+def test_is_audio_file_rejects_no_extension():
+    assert not is_audio_file("audiofile")
+
+
+def test_packagedcmd_returns_absolute_path_when_anki_audio_available():
+    # _packagedCmd should prefer the binary bundled in anki_audio over a
+    # system-wide one on macOS and Windows. This is the regression caught by
+    # issue #5015: an updated anki_audio build was not being picked up.
+    if not (is_mac or is_win):
+        pytest.skip("anki_audio binary preference is only used on macOS/Windows")
+
+    try:
+        from pathlib import Path as _Path
+
+        import anki_audio
+
+        audio_pkg_path = _Path(anki_audio.__file__).parent
+    except ImportError:
+        pytest.skip("anki_audio package not installed")
+
+    cmd, _env = _packagedCmd(["mpv"])
+    mpv_path = Path(cmd[0])
+
+    assert mpv_path.is_absolute(), "expected an absolute path to the packaged binary"
+    assert str(audio_pkg_path) in str(mpv_path), (
+        f"expected binary inside anki_audio package at {audio_pkg_path}, got {mpv_path}"
+    )
+
+
+def _resolved_mpv_command(args: list[str]) -> tuple[list[str], dict[str, str]]:
+    cmd, env = _packagedCmd(args)
     mpv = cmd[0]
     if not Path(mpv).is_absolute():
         mpv = shutil.which(mpv)
         if mpv is None:
             pytest.skip("mpv not found")
+        cmd[0] = mpv
 
-    result = subprocess.run([mpv, "--version"], env=env, capture_output=True)
+    return cmd, env
+
+
+def test_mpv_binary_runs():
+    cmd, env = _resolved_mpv_command(["mpv"])
+    result = subprocess.run(cmd + ["--version"], env=env, capture_output=True)
+    assert result.returncode == 0, result.stderr.decode()
+
+
+def test_mpv_can_play_generated_wav(tmp_path: Path):
+    wav_path = tmp_path / "silence.wav"
+    with wave.open(str(wav_path), "wb") as wav:
+        wav.setnchannels(1)
+        wav.setsampwidth(2)
+        wav.setframerate(44_100)
+        wav.writeframes(b"\0\0" * 4_410)
+
+    cmd, env = _resolved_mpv_command(
+        [
+            "mpv",
+            "--no-terminal",
+            "--force-window=no",
+            "--audio-display=no",
+            "--keep-open=no",
+            "--autoload-files=no",
+            "--ao=null",
+            "--vo=null",
+            "--",
+            str(wav_path),
+        ]
+    )
+
+    result = subprocess.run(cmd, env=env, capture_output=True, timeout=10)
     assert result.returncode == 0, result.stderr.decode()
