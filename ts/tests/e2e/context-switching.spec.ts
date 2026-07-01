@@ -2,8 +2,7 @@
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 /**
- * Context switching coverage for issue #4948.
- *
+ * Context switching coverage.
  * These tests exercise the Svelte editor's add-mode deck/notetype choosers
  * end-to-end: chooser UI, reload-on-notetype-change, addNote payloads, and the
  * backend default-context persistence that is written only after a successful
@@ -56,10 +55,8 @@ async function ensureContextFixtures(page): Promise<void> {
         new Empty(),
         NotetypeNames,
     );
-    basicNotetypeId = notetypeNames.entries.find((entry) => entry.name === "Basic")
-        ?.id ?? null;
-    clozeNotetypeId = notetypeNames.entries.find((entry) => entry.name === "Cloze")
-        ?.id ?? null;
+    basicNotetypeId = notetypeNames.entries.find((entry) => entry.name === "Basic")?.id ?? null;
+    clozeNotetypeId = notetypeNames.entries.find((entry) => entry.name === "Cloze")?.id ?? null;
 
     if (basicNotetypeId === null || clozeNotetypeId === null) {
         throw new Error("Expected stock Basic and Cloze notetypes in e2e profile");
@@ -83,18 +80,16 @@ async function ensureContextFixtures(page): Promise<void> {
         new GetDeckNamesRequest(),
         DeckNames,
     );
-    testDeckId = deckNames.entries.find((entry) => entry.name === TEST_DECK_NAME)?.id
-        ?? null;
+    testDeckId = deckNames.entries.find((entry) => entry.name === TEST_DECK_NAME)?.id ?? null;
     if (testDeckId === null) {
         throw new Error(`Expected imported test deck "${TEST_DECK_NAME}"`);
     }
 }
 
 async function loadEditorInitial(page): Promise<void> {
-    await page.waitForFunction(
-        () => typeof (window as any).loadNote === "function",
-        { timeout: 15_000 },
-    );
+    await page.waitForFunction(() => typeof (window as any).loadNote === "function", {
+        timeout: 15_000,
+    });
     await page.evaluate(() => (window as any).loadNote({ initial: true }));
     await page.waitForSelector(".field-container", { timeout: 15_000 });
 }
@@ -179,19 +174,22 @@ test("switching notetype updates the editor fields through the Svelte path", asy
     await newNoteReqPromise;
 
     await expect(chooserButton(page, "notetype")).toHaveText("Cloze");
-    await expect(fieldContainer(page, 0).getByText("Text", { exact: true }))
-        .toBeVisible();
+    await expect(
+        fieldContainer(page, 0).getByText("Text", { exact: true }),
+    ).toBeVisible();
     await expect(
         fieldContainer(page, 1).getByText("Back Extra", { exact: true }),
     ).toBeVisible();
-    await expect(page.getByRole("button", { name: "Front", exact: true }))
-        .toHaveCount(0);
-    await expect(page.getByRole("button", { name: "Back", exact: true }))
-        .toHaveCount(0);
+    await expect(page.getByRole("button", { name: "Front", exact: true })).toHaveCount(
+        0,
+    );
+    await expect(page.getByRole("button", { name: "Back", exact: true })).toHaveCount(
+        0,
+    );
 });
 
 test("selected notetype and deck persist as context for the next note after add", async ({ editor: page }) => {
-    // Criterion 1 (issue #4948): assert notetype and deck persist on reopen.
+    // Criterion 1: assert notetype and deck persist on reopen.
     // Using a non-default deck so the test exercises the real
     // _nt_{ntid}_lastDeck persistence path rather than the fallback to the
     // Default deck that would pass even with broken persistence logic.
@@ -199,7 +197,9 @@ test("selected notetype and deck persist as context for the next note after add"
         await openChooserAndSelect(page, "notetype", "Cloze");
         await openChooserAndSelect(page, "deck", TEST_DECK_NAME);
 
-        const newNotePromise = page.waitForRequest(isRpc("newNote"), { timeout: 10_000 });
+        const newNotePromise = page.waitForRequest(isRpc("newNote"), {
+            timeout: 10_000,
+        });
         await fillAndAdd(page, "{{c1::notetype persist}}");
         await newNotePromise;
 
@@ -229,14 +229,16 @@ test("switching deck sends addNote to the selected deck", async ({ editor: page 
 });
 
 test("switching deck and notetype sends addNote with both selected ids", async ({ editor: page }) => {
-    // Criterion 3 (issue #4948): both choices persist correctly in the same session.
+    // Criterion 3: both choices persist correctly in the same session.
     // "Same session" means the choosers still reflect the selection immediately
     // after the add — before any explicit reopen.
     try {
         await openChooserAndSelect(page, "notetype", "Cloze");
         await openChooserAndSelect(page, "deck", TEST_DECK_NAME);
 
-        const newNotePromise = page.waitForRequest(isRpc("newNote"), { timeout: 10_000 });
+        const newNotePromise = page.waitForRequest(isRpc("newNote"), {
+            timeout: 10_000,
+        });
         const decoded = await fillAndAdd(page, "{{c1::context answer}}");
 
         // Payload must carry both selected ids.
@@ -288,13 +290,15 @@ test("mode B: switching notetype auto-selects the last deck used with that notet
 });
 
 test("reopening add mode remembers the last added deck and notetype context", async ({ editor: page }) => {
-    // Criterion 4 (issue #4948): assert the last used notetype and deck are
+    // Criterion 4: assert the last used notetype and deck are
     // pre-selected when the editor is reopened.
     try {
         await openChooserAndSelect(page, "notetype", "Cloze");
         await openChooserAndSelect(page, "deck", TEST_DECK_NAME);
 
-        const newNotePromise = page.waitForRequest(isRpc("newNote"), { timeout: 10_000 });
+        const newNotePromise = page.waitForRequest(isRpc("newNote"), {
+            timeout: 10_000,
+        });
         await fillAndAdd(page, "{{c1::remembered context}}");
         await newNotePromise;
 
@@ -337,7 +341,9 @@ test("mode A: last notetype used for the current deck is restored on reopen", as
         await expect(chooserButton(page, "deck")).toHaveText("Default");
 
         // Add Cloze + Default → writes _deck_{Default}_lastNotetype = Cloze.
-        const newNotePromise = page.waitForRequest(isRpc("newNote"), { timeout: 10_000 });
+        const newNotePromise = page.waitForRequest(isRpc("newNote"), {
+            timeout: 10_000,
+        });
         await fillAndAdd(page, "{{c1::mode A test}}");
         await newNotePromise;
 
