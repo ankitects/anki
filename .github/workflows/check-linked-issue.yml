@@ -34,7 +34,7 @@ jobs:
             }
             core.setOutput('exempt', 'false');
 
-            const linkedIssuePattern = /\b(closes|fixes|resolves|close|fix|resolve)\s+#\d+/i;
+            const linkedIssuePattern = /\b(closes|close|fixes|fix|resolves|resolve|refs|ref|references)\s+#\d+/i;
             const hasLinkedIssue = linkedIssuePattern.test(body);
             core.setOutput('has_linked_issue', hasLinkedIssue);
 
