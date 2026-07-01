@@ -2,11 +2,16 @@
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 /**
- * Context switching coverage.
- * These tests exercise the Svelte editor's add-mode deck/notetype choosers
- * end-to-end: chooser UI, reload-on-notetype-change, addNote payloads, and the
- * backend default-context persistence that is written only after a successful
- * add.
+ * Context switching coverage — grouped by concern:
+ *   1. Chooser UI and session behaviour — live chooser interactions within a
+ *      single add session.
+ *   2. addNote payload — the IDs carried to the backend match the chooser state.
+ *   3. Mode B (default): each notetype remembers its own last-used deck; the
+ *      notetype drives deck selection both live (session) and on reopen.
+ *   4. Mode A (AddingDefaultsToCurrentDeck=true): the current deck is fixed
+ *      and each deck remembers the last notetype used with it.
+ *
+ * See rslib/src/adding.rs for the backend logic exercised here.
  */
 
 import { SetConfigJsonRequest } from "@generated/anki/config_pb";
@@ -160,284 +165,286 @@ test.beforeEach(async ({ editor: page }) => {
     await reloadEditorAfterSetup(page);
 });
 
-test("switching notetype updates the editor fields through the Svelte path", async ({ editor: page }) => {
-    const getNotetypeReqPromise = page.waitForRequest(isRpc("getNotetype"), {
-        timeout: 10_000,
-    });
-    const newNoteReqPromise = page.waitForRequest(isRpc("newNote"), {
-        timeout: 10_000,
-    });
+// ─── 1. Chooser UI and session behaviour ─────────────────────────────────────
 
-    await openChooserAndSelect(page, "notetype", "Cloze");
+test.describe("chooser UI and session behaviour", () => {
+    test("notetype chooser updates field list via the Svelte path", async ({ editor: page }) => {
+        const getNotetypeReqPromise = page.waitForRequest(isRpc("getNotetype"), {
+            timeout: 10_000,
+        });
+        const newNoteReqPromise = page.waitForRequest(isRpc("newNote"), {
+            timeout: 10_000,
+        });
 
-    await getNotetypeReqPromise;
-    await newNoteReqPromise;
-
-    await expect(chooserButton(page, "notetype")).toHaveText("Cloze");
-    await expect(
-        fieldContainer(page, 0).getByText("Text", { exact: true }),
-    ).toBeVisible();
-    await expect(
-        fieldContainer(page, 1).getByText("Back Extra", { exact: true }),
-    ).toBeVisible();
-    await expect(page.getByRole("button", { name: "Front", exact: true })).toHaveCount(
-        0,
-    );
-    await expect(page.getByRole("button", { name: "Back", exact: true })).toHaveCount(
-        0,
-    );
-});
-
-test("selected notetype and deck persist as context for the next note after add", async ({ editor: page }) => {
-    // Criterion 1: assert notetype and deck persist on reopen.
-    // Using a non-default deck so the test exercises the real
-    // _nt_{ntid}_lastDeck persistence path rather than the fallback to the
-    // Default deck that would pass even with broken persistence logic.
-    try {
         await openChooserAndSelect(page, "notetype", "Cloze");
-        await openChooserAndSelect(page, "deck", TEST_DECK_NAME);
 
-        const newNotePromise = page.waitForRequest(isRpc("newNote"), {
-            timeout: 10_000,
-        });
-        await fillAndAdd(page, "{{c1::notetype persist}}");
-        await newNotePromise;
+        await getNotetypeReqPromise;
+        await newNoteReqPromise;
 
-        const defaultsReqPromise = page.waitForRequest(isRpc("defaultsForAdding"), {
-            timeout: 10_000,
-        });
-        await page.evaluate(() => (window as any).loadNote({ initial: true }));
-        await defaultsReqPromise;
-
-        // currentNotetypeId = Cloze; _nt_{cloze}_lastDeck = testDeckId.
-        // Both must be restored through real persistence, not the Default fallback.
         await expect(chooserButton(page, "notetype")).toHaveText("Cloze");
-        await expect(chooserButton(page, "deck")).toHaveText(TEST_DECK_NAME);
-    } finally {
-        await restoreBasicDefault(page);
-    }
+        await expect(
+            fieldContainer(page, 0).getByText("Text", { exact: true }),
+        ).toBeVisible();
+        await expect(
+            fieldContainer(page, 1).getByText("Back Extra", { exact: true }),
+        ).toBeVisible();
+        await expect(
+            page.getByRole("button", { name: "Front", exact: true }),
+        ).toHaveCount(0);
+        await expect(
+            page.getByRole("button", { name: "Back", exact: true }),
+        ).toHaveCount(0);
+    });
 });
 
-test("switching deck sends addNote to the selected deck", async ({ editor: page }) => {
-    await openChooserAndSelect(page, "deck", TEST_DECK_NAME);
-    await expect(chooserButton(page, "deck")).toHaveText(TEST_DECK_NAME);
+// ─── 2. addNote payload ───────────────────────────────────────────────────────
 
-    const decoded = await fillAndAdd(page, "Deck switch payload");
-
-    expect(decoded.deckId).toBe(testDeckId);
-    expect(decoded.note?.notetypeId).toBe(basicNotetypeId);
-});
-
-test("switching deck and notetype sends addNote with both selected ids", async ({ editor: page }) => {
-    // Criterion 3: both choices persist correctly in the same session.
-    // "Same session" means the choosers still reflect the selection immediately
-    // after the add — before any explicit reopen.
-    try {
-        await openChooserAndSelect(page, "notetype", "Cloze");
+test.describe("addNote payload", () => {
+    test("deck chooser selection is reflected in the addNote payload", async ({ editor: page }) => {
         await openChooserAndSelect(page, "deck", TEST_DECK_NAME);
+        await expect(chooserButton(page, "deck")).toHaveText(TEST_DECK_NAME);
 
-        const newNotePromise = page.waitForRequest(isRpc("newNote"), {
-            timeout: 10_000,
-        });
-        const decoded = await fillAndAdd(page, "{{c1::context answer}}");
+        const decoded = await fillAndAdd(page, "Deck switch payload");
 
-        // Payload must carry both selected ids.
         expect(decoded.deckId).toBe(testDeckId);
-        expect(decoded.note?.notetypeId).toBe(clozeNotetypeId);
+        expect(decoded.note?.notetypeId).toBe(basicNotetypeId);
+    });
 
-        // Wait for the post-add reload to settle before checking chooser state.
-        await newNotePromise;
+    test("notetype and deck chooser selections both appear in the addNote payload", async ({ editor: page }) => {
+        // "Same session" means the choosers still reflect the selection immediately
+        // after the add — before any explicit reopen.
+        try {
+            await openChooserAndSelect(page, "notetype", "Cloze");
+            await openChooserAndSelect(page, "deck", TEST_DECK_NAME);
 
-        // Within-session context: both choosers must still reflect the selection
-        // immediately after the add (before any reopen).
-        await expect(chooserButton(page, "notetype")).toHaveText("Cloze");
-        await expect(chooserButton(page, "deck")).toHaveText(TEST_DECK_NAME);
-    } finally {
-        await restoreBasicDefault(page);
-    }
+            const newNotePromise = page.waitForRequest(isRpc("newNote"), {
+                timeout: 10_000,
+            });
+            const decoded = await fillAndAdd(page, "{{c1::context answer}}");
+
+            // Payload must carry both selected ids.
+            expect(decoded.deckId).toBe(testDeckId);
+            expect(decoded.note?.notetypeId).toBe(clozeNotetypeId);
+
+            // Wait for the post-add reload to settle before checking chooser state.
+            await newNotePromise;
+
+            // Within-session context: both choosers must still reflect the selection
+            // immediately after the add (before any reopen).
+            await expect(chooserButton(page, "notetype")).toHaveText("Cloze");
+            await expect(chooserButton(page, "deck")).toHaveText(TEST_DECK_NAME);
+        } finally {
+            await restoreBasicDefault(page);
+        }
+    });
 });
 
-test("mode B: switching notetype auto-selects the last deck used with that notetype", async ({ editor: page }) => {
-    // Adding.rs Mode B: each notetype remembers the last deck it was added to.
-    // When the user switches notetype via the chooser, onNotetypeChange calls
-    // defaultDeckForNotetype({ ntid }) and auto-selects the deck via
-    // deckChooser.select — without the user touching the deck chooser at all.
-    try {
-        // Step 1: Establish _nt_{cloze}_lastDeck = testDeckId.
-        await openChooserAndSelect(page, "notetype", "Cloze");
-        await openChooserAndSelect(page, "deck", TEST_DECK_NAME);
-        const newNote1 = page.waitForRequest(isRpc("newNote"), { timeout: 10_000 });
-        await fillAndAdd(page, "{{c1::deck mapping}}");
-        await newNote1;
+// ─── 3. Mode B: context behaviour (default) ──────────────────────────────────
 
-        // Step 2: Reset to Basic + Default so the starting state is deterministic.
-        await restoreBasicDefault(page);
-        await reloadEditorAfterSetup(page);
-        await expect(chooserButton(page, "notetype")).toHaveText("Basic");
-        await expect(chooserButton(page, "deck")).toHaveText("Default");
+test.describe("mode B: context behaviour (default)", () => {
+    test("notetype switch auto-selects the last deck used with that notetype", async ({ editor: page }) => {
+        // adding.rs Mode B: each notetype remembers the last deck it was added to.
+        // When the user switches notetype via the chooser, onNotetypeChange calls
+        // defaultDeckForNotetype({ ntid }) and auto-selects the deck via
+        // deckChooser.select — without the user touching the deck chooser at all.
+        try {
+            // Step 1: Establish _nt_{cloze}_lastDeck = testDeckId.
+            await openChooserAndSelect(page, "notetype", "Cloze");
+            await openChooserAndSelect(page, "deck", TEST_DECK_NAME);
+            const newNote1 = page.waitForRequest(isRpc("newNote"), { timeout: 10_000 });
+            await fillAndAdd(page, "{{c1::deck mapping}}");
+            await newNote1;
 
-        // Step 3: Switch to Cloze. NoteEditor reads _nt_{cloze}_lastDeck and
-        // auto-calls deckChooser.select(testDeckId) without user interaction.
-        await openChooserAndSelect(page, "notetype", "Cloze");
+            // Step 2: Reset to Basic + Default so the starting state is deterministic.
+            await restoreBasicDefault(page);
+            await reloadEditorAfterSetup(page);
+            await expect(chooserButton(page, "notetype")).toHaveText("Basic");
+            await expect(chooserButton(page, "deck")).toHaveText("Default");
 
-        // Step 4: Deck chooser must update on its own.
-        await expect(chooserButton(page, "deck")).toHaveText(TEST_DECK_NAME, {
-            timeout: 8_000,
-        });
-    } finally {
-        await restoreBasicDefault(page);
-    }
+            // Step 3: Switch to Cloze. NoteEditor reads _nt_{cloze}_lastDeck and
+            // auto-calls deckChooser.select(testDeckId) without user interaction.
+            await openChooserAndSelect(page, "notetype", "Cloze");
+
+            // Step 4: Deck chooser must update on its own.
+            await expect(chooserButton(page, "deck")).toHaveText(TEST_DECK_NAME, {
+                timeout: 8_000,
+            });
+        } finally {
+            await restoreBasicDefault(page);
+        }
+    });
+
+    test("notetype and deck context persists after add and across reopen", async ({ editor: page }) => {
+        // Using a non-default deck exercises the real _nt_{ntid}_lastDeck persistence
+        // path rather than the Default fallback that would pass even with broken logic.
+        try {
+            await openChooserAndSelect(page, "notetype", "Cloze");
+            await openChooserAndSelect(page, "deck", TEST_DECK_NAME);
+
+            const newNotePromise = page.waitForRequest(isRpc("newNote"), {
+                timeout: 10_000,
+            });
+            await fillAndAdd(page, "{{c1::notetype persist}}");
+            await newNotePromise;
+
+            const defaultsReqPromise = page.waitForRequest(isRpc("defaultsForAdding"), {
+                timeout: 10_000,
+            });
+            await page.evaluate(() => (window as any).loadNote({ initial: true }));
+            await defaultsReqPromise;
+
+            // currentNotetypeId = Cloze; _nt_{cloze}_lastDeck = testDeckId.
+            // Both must be restored through real persistence, not the Default fallback.
+            await expect(chooserButton(page, "notetype")).toHaveText("Cloze");
+            await expect(chooserButton(page, "deck")).toHaveText(TEST_DECK_NAME);
+        } finally {
+            await restoreBasicDefault(page);
+        }
+    });
+
+    test("notetype and deck remain selected within session and after explicit reopen", async ({ editor: page }) => {
+        try {
+            await openChooserAndSelect(page, "notetype", "Cloze");
+            await openChooserAndSelect(page, "deck", TEST_DECK_NAME);
+
+            const newNotePromise = page.waitForRequest(isRpc("newNote"), {
+                timeout: 10_000,
+            });
+            await fillAndAdd(page, "{{c1::remembered context}}");
+            await newNotePromise;
+
+            // Within-session check: context must be intact immediately after the add,
+            // before any explicit reopen.
+            await expect(chooserButton(page, "notetype")).toHaveText("Cloze");
+            await expect(chooserButton(page, "deck")).toHaveText(TEST_DECK_NAME);
+
+            // Reopen check: simulate re-entering Add mode (e.g. closing and
+            // reopening the Add Cards window).
+            const defaultsReqPromise = page.waitForRequest(isRpc("defaultsForAdding"), {
+                timeout: 10_000,
+            });
+            await page.evaluate(() => (window as any).loadNote({ initial: true }));
+            await defaultsReqPromise;
+
+            // Using soft assertions so both chooser states are reported even if one
+            // fails — the combined notetype+deck reopen scenario is the primary
+            // indicator of the persistence bug documented in PR #4029.
+            await expect.soft(chooserButton(page, "notetype")).toHaveText("Cloze");
+            await expect.soft(chooserButton(page, "deck")).toHaveText(TEST_DECK_NAME);
+        } finally {
+            await restoreBasicDefault(page);
+        }
+    });
+
+    test("missing lastDeck history falls back to the current deck on reopen", async ({ editor: page }) => {
+        // adding.rs: when _nt_{ntid}_lastDeck is absent, default_deck_for_notetype
+        // returns None and defaults_for_adding falls back to get_current_deck_for_adding().
+        // curDeck is set to testDeck so a broken fallback (e.g. always Default) is detectable.
+        try {
+            // Point _nt_{basicNotetypeId}_lastDeck at a non-existent deck — same effect
+            // as the key being absent: get_deck() returns None, triggering the curDeck fallback.
+            await setConfigJson(page, `_nt_${basicNotetypeId}_lastDeck`, 999_999_999);
+            await setConfigJson(page, "curDeck", Number(testDeckId));
+
+            const defaultsReqPromise = page.waitForRequest(isRpc("defaultsForAdding"), {
+                timeout: 10_000,
+            });
+            await page.evaluate(() => (window as any).loadNote({ initial: true }));
+            await defaultsReqPromise;
+
+            // Deck must be testDeck (the current deck), not Default.
+            await expect(chooserButton(page, "notetype")).toHaveText("Basic");
+            await expect(chooserButton(page, "deck")).toHaveText(TEST_DECK_NAME);
+        } finally {
+            await setConfigJson(page, "curDeck", 1);
+            await restoreBasicDefault(page);
+        }
+    });
+
+    test("stale lastDeck reference falls back to the current deck on reopen", async ({ editor: page }) => {
+        // adding.rs: default_deck_for_notetype calls get_deck(last_deck_id) and returns
+        // None when the deck no longer exists. The fallback must produce curDeck, not Default.
+        try {
+            await setConfigJson(page, `_nt_${basicNotetypeId}_lastDeck`, 999_999_999);
+            await setConfigJson(page, "curDeck", Number(testDeckId));
+
+            const defaultsReqPromise = page.waitForRequest(isRpc("defaultsForAdding"), {
+                timeout: 10_000,
+            });
+            await page.evaluate(() => (window as any).loadNote({ initial: true }));
+            await defaultsReqPromise;
+
+            await expect(chooserButton(page, "notetype")).toHaveText("Basic");
+            await expect(chooserButton(page, "deck")).toHaveText(TEST_DECK_NAME);
+        } finally {
+            await setConfigJson(page, "curDeck", 1);
+            await restoreBasicDefault(page);
+        }
+    });
 });
 
-test("reopening add mode remembers the last added deck and notetype context", async ({ editor: page }) => {
-    // Criterion 4: assert the last used notetype and deck are
-    // pre-selected when the editor is reopened.
-    try {
-        await openChooserAndSelect(page, "notetype", "Cloze");
-        await openChooserAndSelect(page, "deck", TEST_DECK_NAME);
+// ─── 4. Mode A: reopen context (deck-centric) ────────────────────────────────
 
-        const newNotePromise = page.waitForRequest(isRpc("newNote"), {
-            timeout: 10_000,
-        });
-        await fillAndAdd(page, "{{c1::remembered context}}");
-        await newNotePromise;
+test.describe("mode A: reopen context (deck-centric)", () => {
+    test("last notetype for the current deck is restored on reopen", async ({ editor: page }) => {
+        // adding.rs Mode A (AddingDefaultsToCurrentDeck = true): deck = collection's
+        // current deck, notetype = last notetype used with that deck (_deck_{did}_lastNotetype).
+        // Contrasts with Mode B where the notetype drives the deck selection.
+        try {
+            // Re-enable Mode A (beforeEach forced Mode B).
+            await setConfigJson(page, "addToCur", true);
 
-        // Intermediate check: context is intact immediately after the add,
-        // before any explicit reopen.
-        await expect(chooserButton(page, "notetype")).toHaveText("Cloze");
-        await expect(chooserButton(page, "deck")).toHaveText(TEST_DECK_NAME);
+            // In Mode A, switching notetype does NOT auto-update the deck chooser
+            // (the onNotetypeChange guard skips defaultDeckForNotetype when mode is A).
+            await openChooserAndSelect(page, "notetype", "Cloze");
+            await expect(chooserButton(page, "deck")).toHaveText("Default");
 
-        // Reopen check: simulate re-entering Add mode (e.g. closing and
-        // reopening the Add Cards window).
-        const defaultsReqPromise = page.waitForRequest(isRpc("defaultsForAdding"), {
-            timeout: 10_000,
-        });
-        await page.evaluate(() => (window as any).loadNote({ initial: true }));
-        await defaultsReqPromise;
+            // Add Cloze + Default → writes _deck_{Default}_lastNotetype = Cloze.
+            const newNotePromise = page.waitForRequest(isRpc("newNote"), {
+                timeout: 10_000,
+            });
+            await fillAndAdd(page, "{{c1::mode A test}}");
+            await newNotePromise;
 
-        // Both must be remembered after reopen (FIX REQUIRED in PR #4029).
-        // Using soft assertions so both chooser states are reported even when
-        // the first one fails — the combined notetype+deck reopen scenario is
-        // known to not restore context correctly.
-        await expect.soft(chooserButton(page, "notetype")).toHaveText("Cloze");
-        await expect.soft(chooserButton(page, "deck")).toHaveText(TEST_DECK_NAME);
-    } finally {
-        await restoreBasicDefault(page);
-    }
-});
+            const defaultsReqPromise = page.waitForRequest(isRpc("defaultsForAdding"), {
+                timeout: 10_000,
+            });
+            await page.evaluate(() => (window as any).loadNote({ initial: true }));
+            await defaultsReqPromise;
 
-test("mode A: last notetype used for the current deck is restored on reopen", async ({ editor: page }) => {
-    // Adding.rs Mode A (AddingDefaultsToCurrentDeck = true): the deck is the
-    // collection's current deck, and the notetype is the last one used with
-    // that deck (_deck_{did}_lastNotetype).
-    // Contrasts with Mode B where the notetype drives the deck selection.
-    try {
-        // Re-enable Mode A (beforeEach forced Mode B).
-        await setConfigJson(page, "addToCur", true);
+            // Mode A: deck = current deck (Default), notetype = _deck_{Default}_lastNotetype = Cloze.
+            await expect(chooserButton(page, "deck")).toHaveText("Default");
+            await expect(chooserButton(page, "notetype")).toHaveText("Cloze");
+        } finally {
+            // Restore Mode B so the next test's beforeEach starts cleanly.
+            await setConfigJson(page, "addToCur", false);
+            await restoreBasicDefault(page);
+        }
+    });
 
-        // In Mode A, switching notetype does NOT auto-update the deck chooser
-        // (the onNotetypeChange guard skips defaultDeckForNotetype when mode is A).
-        await openChooserAndSelect(page, "notetype", "Cloze");
-        await expect(chooserButton(page, "deck")).toHaveText("Default");
+    test("missing deck–notetype history falls back to the global notetype on reopen", async ({ editor: page }) => {
+        // adding.rs Mode A fallback: when _deck_{did}_lastNotetype is absent,
+        // default_notetype_for_deck falls back to get_current_notetype_for_adding().
+        // restoreBasicDefault() leaves the global notetype as Basic.
+        try {
+            await setConfigJson(page, "addToCur", true);
+            // NotetypeId 0 does not exist → get_notetype(0) returns None → fallback.
+            await setConfigJson(page, `_deck_${testDeckId}_lastNotetype`, 0);
+            await setConfigJson(page, "curDeck", Number(testDeckId));
 
-        // Add Cloze + Default → writes _deck_{Default}_lastNotetype = Cloze.
-        const newNotePromise = page.waitForRequest(isRpc("newNote"), {
-            timeout: 10_000,
-        });
-        await fillAndAdd(page, "{{c1::mode A test}}");
-        await newNotePromise;
+            const defaultsReqPromise = page.waitForRequest(isRpc("defaultsForAdding"), {
+                timeout: 10_000,
+            });
+            await page.evaluate(() => (window as any).loadNote({ initial: true }));
+            await defaultsReqPromise;
 
-        // Simulate reopen.
-        const defaultsReqPromise = page.waitForRequest(isRpc("defaultsForAdding"), {
-            timeout: 10_000,
-        });
-        await page.evaluate(() => (window as any).loadNote({ initial: true }));
-        await defaultsReqPromise;
-
-        // Mode A: deck = current deck (Default), notetype = _deck_{Default}_lastNotetype = Cloze.
-        await expect(chooserButton(page, "deck")).toHaveText("Default");
-        await expect(chooserButton(page, "notetype")).toHaveText("Cloze");
-    } finally {
-        // Restore Mode B so the next test's beforeEach starts cleanly.
-        await setConfigJson(page, "addToCur", false);
-        await restoreBasicDefault(page);
-    }
-});
-
-test("mode B: notetype with no lastDeck falls back to the collection's current deck", async ({ editor: page }) => {
-    // adding.rs Mode B fallback path: when _nt_{ntid}_lastDeck is absent,
-    // default_deck_for_notetype returns None and defaults_for_adding falls back to
-    // get_current_deck_for_adding(), which returns the collection's current deck.
-    // The test changes curDeck so that a broken fallback (e.g. always returning
-    // Default) is detectable.
-    try {
-        // Point _nt_{basicNotetypeId}_lastDeck at a non-existent deck — this has
-        // the same effect as the key being absent: get_deck() returns None and
-        // default_deck_for_notetype returns None, triggering the curDeck fallback.
-        await setConfigJson(page, `_nt_${basicNotetypeId}_lastDeck`, 999_999_999);
-        // Set the collection's current deck (curDeck) to the non-Default testDeck.
-        await setConfigJson(page, "curDeck", Number(testDeckId));
-
-        const defaultsReqPromise = page.waitForRequest(isRpc("defaultsForAdding"), {
-            timeout: 10_000,
-        });
-        await page.evaluate(() => (window as any).loadNote({ initial: true }));
-        await defaultsReqPromise;
-
-        // Deck must be testDeck (the current deck), not Default — confirming the
-        // fallback path reads get_current_deck_for_adding() correctly.
-        await expect(chooserButton(page, "notetype")).toHaveText("Basic");
-        await expect(chooserButton(page, "deck")).toHaveText(TEST_DECK_NAME);
-    } finally {
-        await setConfigJson(page, "curDeck", 1);
-        await restoreBasicDefault(page);
-    }
-});
-
-test("mode B: deleted lastDeck is ignored and current deck is used instead", async ({ editor: page }) => {
-    // adding.rs: default_deck_for_notetype calls get_deck(last_deck_id) and skips
-    // if None (deck was deleted). The fallback must produce curDeck, not Default.
-    try {
-        await setConfigJson(page, `_nt_${basicNotetypeId}_lastDeck`, 999_999_999);
-        await setConfigJson(page, "curDeck", Number(testDeckId));
-
-        const defaultsReqPromise = page.waitForRequest(isRpc("defaultsForAdding"), {
-            timeout: 10_000,
-        });
-        await page.evaluate(() => (window as any).loadNote({ initial: true }));
-        await defaultsReqPromise;
-
-        await expect(chooserButton(page, "notetype")).toHaveText("Basic");
-        await expect(chooserButton(page, "deck")).toHaveText(TEST_DECK_NAME);
-    } finally {
-        await setConfigJson(page, "curDeck", 1);
-        await restoreBasicDefault(page);
-    }
-});
-
-test("mode A: deck with no lastNotetype falls back to the global current notetype", async ({ editor: page }) => {
-    // adding.rs Mode A fallback: when _deck_{did}_lastNotetype is absent,
-    // default_notetype_for_deck falls back to get_current_notetype_for_adding(),
-    // which returns the global current notetype. restoreBasicDefault() (run by
-    // previous tests and in finally blocks) leaves that global notetype as Basic.
-    try {
-        await setConfigJson(page, "addToCur", true);
-        // NotetypeId 0 does not exist → get_notetype(0) returns None → fallback.
-        await setConfigJson(page, `_deck_${testDeckId}_lastNotetype`, 0);
-        await setConfigJson(page, "curDeck", Number(testDeckId));
-
-        const defaultsReqPromise = page.waitForRequest(isRpc("defaultsForAdding"), {
-            timeout: 10_000,
-        });
-        await page.evaluate(() => (window as any).loadNote({ initial: true }));
-        await defaultsReqPromise;
-
-        // Mode A: deck = testDeck (curDeck), notetype = Basic (global current notetype fallback).
-        await expect(chooserButton(page, "deck")).toHaveText(TEST_DECK_NAME);
-        await expect(chooserButton(page, "notetype")).toHaveText("Basic");
-    } finally {
-        await setConfigJson(page, "addToCur", false);
-        await setConfigJson(page, "curDeck", 1);
-        await restoreBasicDefault(page);
-    }
+            // Mode A: deck = testDeck (curDeck), notetype = Basic (global fallback).
+            await expect(chooserButton(page, "deck")).toHaveText(TEST_DECK_NAME);
+            await expect(chooserButton(page, "notetype")).toHaveText("Basic");
+        } finally {
+            await setConfigJson(page, "addToCur", false);
+            await setConfigJson(page, "curDeck", 1);
+            await restoreBasicDefault(page);
+        }
+    });
 });
