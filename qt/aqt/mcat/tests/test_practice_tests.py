@@ -1,7 +1,7 @@
 # Copyright: Aryan Verma and contributors
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-"""Standalone tests for the concept-coded practice questions (FR-3 "Applying").
+"""Standalone tests for practice-test ingestion (the kernel's input signal).
 
 Runnable with plain pytest (no Anki/Qt build needed):
 
@@ -9,17 +9,18 @@ Runnable with plain pytest (no Anki/Qt build needed):
 
 or with no pytest at all:
 
-    python qt/aqt/mcat/tests/test_questions.py
+    python qt/aqt/mcat/tests/test_practice_tests.py
 
-Covers the three things that matter:
-  * the bank loads and every question is coded to a real taxonomy concept,
-  * attempt storage accumulates and stays self-consistent (correct <= attempts),
+Covers the things that matter for ingestion:
+  * concept choices load from the taxonomy,
+  * a practice-test CSV parses tolerantly (bad rows skipped, not fatal), and
+    every parsed concept is a real taxonomy concept,
+  * attempt storage accumulates, batches, and stays self-consistent, and
   * malformed/garbage stored config never crashes the reader.
 """
 
 from __future__ import annotations
 
-import json
 import os
 import sys
 
@@ -28,16 +29,17 @@ import sys
 _MCAT_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, _MCAT_DIR)
 
-from questions import (  # type: ignore[import-not-found]  # noqa: E402
+from practice_tests import (  # type: ignore[import-not-found]  # noqa: E402
+    IngestedAttempt,
     _normalize,
-    concept_question_stats,
+    concept_attempt_stats,
     get_stats,
-    load_questions,
+    load_concept_choices,
+    parse_practice_test_csv,
     record_attempt,
+    record_batch,
     reset_stats,
 )
-
-_REPO_ROOT = os.path.dirname(os.path.dirname(os.path.dirname(_MCAT_DIR)))
 
 
 class _FakeCol:
@@ -54,32 +56,74 @@ class _FakeCol:
 
 
 def _taxonomy_ids() -> set[str]:
-    path = os.path.join(_REPO_ROOT, "mcat", "taxonomy.json")
-    data = json.loads(open(path, encoding="utf-8").read())
-    return {c["id"] for c in data.get("concepts", [])}
+    return {c.concept_id for c in load_concept_choices()}
 
 
 # --------------------------------------------------------------------------
-# Bank loads and is coded to real concepts
+# Concept choices load from the taxonomy
 # --------------------------------------------------------------------------
 
 
-def test_bank_loads_and_is_nonempty():
-    qs = load_questions()
-    assert len(qs) >= 10
+def test_concept_choices_load_and_are_labelled():
+    choices = load_concept_choices()
+    assert len(choices) >= 10
+    c = choices[0]
+    assert c.concept_id and c.name
+    assert c.label().startswith(c.concept_id)
 
 
-def test_every_question_codes_to_a_real_concept():
+# --------------------------------------------------------------------------
+# CSV parsing
+# --------------------------------------------------------------------------
+
+
+def test_parse_csv_basic():
+    ids = sorted(_taxonomy_ids())
+    a, b = ids[0], ids[1]
+    text = f"question,concept,correct\nQ1,{a},right\nQ2,{b},wrong\n"
+    attempts, warnings = parse_practice_test_csv(text)
+    assert warnings == []
+    assert attempts == [
+        IngestedAttempt(concept_id=a, correct=True, label="Q1"),
+        IngestedAttempt(concept_id=b, correct=False, label="Q2"),
+    ]
+
+
+def test_parse_csv_is_case_insensitive_and_flexible_headers():
+    a = sorted(_taxonomy_ids())[0]
+    # Alternative header names + varied truthy tokens, header in mixed case.
+    text = f"Concept_ID,Result\n{a},1\n{a},0\n{a},Correct\n"
+    attempts, warnings = parse_practice_test_csv(text)
+    assert warnings == []
+    assert [x.correct for x in attempts] == [True, False, True]
+
+
+def test_parse_csv_skips_bad_rows_without_crashing():
+    a = sorted(_taxonomy_ids())[0]
+    text = (
+        "concept,correct\n"
+        f"{a},yes\n"
+        "NOTACONCEPT,yes\n"  # unknown concept -> skipped
+        f",yes\n"  # missing concept -> skipped
+        f"{a},maybe\n"  # unrecognised result -> skipped
+    )
+    attempts, warnings = parse_practice_test_csv(text)
+    assert len(attempts) == 1
+    assert len(warnings) == 3
+
+
+def test_parse_csv_missing_columns_reports_error():
+    attempts, warnings = parse_practice_test_csv("foo,bar\n1,2\n")
+    assert attempts == []
+    assert warnings and "concept" in warnings[0].lower()
+
+
+def test_every_parsed_concept_is_real():
     ids = _taxonomy_ids()
-    for q in load_questions():
-        assert q.concept_id in ids, f"{q.id} -> unknown concept {q.concept_id}"
-
-
-def test_answer_index_in_range_and_gradable():
-    for q in load_questions():
-        assert 0 <= q.answer_index < len(q.choices)
-        assert q.is_correct(q.answer_index)
-        assert not q.is_correct((q.answer_index + 1) % len(q.choices))
+    a = sorted(ids)[0]
+    attempts, _ = parse_practice_test_csv(f"concept,correct\n{a},right\n")
+    for x in attempts:
+        assert x.concept_id in ids
 
 
 # --------------------------------------------------------------------------
@@ -97,6 +141,21 @@ def test_record_attempt_accumulates():
     assert stats["4C"] == {"attempts": 1, "correct": 1}
 
 
+def test_record_batch_writes_once_and_accumulates():
+    col = _FakeCol()
+    record_batch(
+        col,
+        [
+            ("1A", True),
+            ("1A", False),
+            IngestedAttempt("4C", True, "Q3"),
+        ],
+    )
+    stats = get_stats(col)
+    assert stats["1A"] == {"attempts": 2, "correct": 1}
+    assert stats["4C"] == {"attempts": 1, "correct": 1}
+
+
 def test_reset_clears_stats():
     col = _FakeCol()
     record_attempt(col, "1A", correct=True)
@@ -104,12 +163,12 @@ def test_reset_clears_stats():
     assert get_stats(col) == {}
 
 
-def test_concept_question_stats_accuracy():
+def test_concept_attempt_stats_accuracy():
     col = _FakeCol()
     for _ in range(3):
         record_attempt(col, "1A", correct=True)
     record_attempt(col, "1A", correct=False)
-    (row,) = [r for r in concept_question_stats(col) if r.concept_id == "1A"]
+    (row,) = [r for r in concept_attempt_stats(col) if r.concept_id == "1A"]
     assert row.attempts == 4
     assert row.correct == 3
     assert abs(row.accuracy - 0.75) < 1e-9

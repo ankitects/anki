@@ -23,7 +23,7 @@ from functools import lru_cache
 from pathlib import Path
 
 from anki import concepts_pb2
-from aqt.mcat import questions
+from aqt.mcat import practice_tests
 from aqt.mcat.memory_score import ConceptMastery
 
 
@@ -93,13 +93,13 @@ class NtrRow:
 
 
 def _fetch_entries(col):
-    """Single ConceptMastery RPC, with the student's question stats blended in.
+    """Single ConceptMastery RPC, with the student's ingested-test stats blended in.
 
     Returns ``(entries, concept_ids)``. Centralised so mastery and the NTR
     breakdown come from one scan and can never disagree.
     """
     taxonomy, ids = load_taxonomy()
-    stats = questions.question_stat_protos(col)
+    stats = practice_tests.question_stat_protos(col)
     entries = col._backend.concept_mastery(
         taxonomy=taxonomy, search="", question_stats=stats
     )
@@ -110,8 +110,8 @@ def fetch_mastery(col) -> tuple[list[ConceptMastery], int]:
     """Call the ConceptMastery RPC over the whole collection.
 
     Returns ``(rows, concepts_total)`` where ``concepts_total`` is the size of
-    the taxonomy (denominator for topic coverage). Question performance does not
-    change these card-recall rows; it only moves NTR (see :func:`fetch_ntr`).
+    the taxonomy (denominator for topic coverage). Ingested-test performance does
+    not change these card-recall rows; it only moves NTR (see :func:`fetch_ntr`).
     """
     entries, ids = _fetch_entries(col)
     rows = [
@@ -127,11 +127,11 @@ def fetch_mastery(col) -> tuple[list[ConceptMastery], int]:
 
 
 def fetch_ntr(col) -> list[NtrRow]:
-    """Per-concept NTR breakdown, highest NTR first (the dashboard diagram).
+    """Per-concept NTR breakdown, highest NTR first (the recommendations chart).
 
-    Reflects both card recall and practice-question performance, exactly as the
-    Rust engine blends them. Concepts with no evidence at all are dropped so the
-    diagram shows actionable rows, not a wall of max-NTR placeholders.
+    Reflects both card recall and ingested practice-test performance, exactly as
+    the Rust engine blends them. Concepts with no evidence at all are dropped so
+    the chart shows actionable rows, not a wall of max-NTR placeholders.
     """
     entries, _ids = _fetch_entries(col)
     meta = _taxonomy_meta()

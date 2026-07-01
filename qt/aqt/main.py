@@ -1448,39 +1448,29 @@ title="{}" {}>{}</button>""".format(
         qconnect(m.action_check_for_updates.triggered, self.on_check_for_updates)
         qconnect(m.actionPreferences.triggered, self.onPrefs)
 
-        # MCAT fork: dashboard + score/quiz surfaces. Added programmatically so
-        # they are purely additive (no .ui change) and easy to carry across
-        # upstream merges.
+        # MCAT kernel: practice-test ingestion + the prediction/recommendations
+        # surface. Added programmatically so they are purely additive (no .ui
+        # change) and easy to carry across upstream merges. Anki itself is left
+        # unchanged -- these are two extra Tools entries, nothing more.
         from aqt.qt import QAction
 
-        mcat_dashboard_action = QAction("MCAT Dashboard", self)
+        # Ingest a past practice test: tag each question's concept + right/wrong,
+        # which feeds the per-concept NTR signal and re-prioritises review.
+        mcat_ingest_action = QAction("MCAT: Ingest Practice Test", self)
         qconnect(
-            mcat_dashboard_action.triggered,
-            lambda: self._on_mcat_dashboard(),
+            mcat_ingest_action.triggered,
+            lambda: self._on_mcat_ingest(),
         )
-        m.menuTools.addAction(mcat_dashboard_action)
+        m.menuTools.addAction(mcat_ingest_action)
 
-        # Land on the dashboard at startup and add a "Dashboard" link to the
-        # flashcards toolbar (registered once via gui_hooks).
-        from aqt.mcat.navigation import setup_mcat_navigation
-
-        setup_mcat_navigation()
-
-        mcat_memory_action = QAction("MCAT Memory Score", self)
+        # Prediction & review plan: projected MCAT (Readiness), Memory score, and
+        # the per-concept NTR recommendations chart.
+        mcat_scores_action = QAction("MCAT: Prediction & Review Plan", self)
         qconnect(
-            mcat_memory_action.triggered,
-            lambda: self._on_mcat_memory_score(),
+            mcat_scores_action.triggered,
+            lambda: self._on_mcat_scores(),
         )
-        m.menuTools.addAction(mcat_memory_action)
-
-        # MCAT fork: concept-coded practice questions (the small "Applying"
-        # signal). Answering them feeds each concept's NTR.
-        mcat_quiz_action = QAction("MCAT Practice Questions", self)
-        qconnect(
-            mcat_quiz_action.triggered,
-            lambda: self._on_mcat_practice_questions(),
-        )
-        m.menuTools.addAction(mcat_quiz_action)
+        m.menuTools.addAction(mcat_scores_action)
 
         # View
         qconnect(
@@ -1499,24 +1489,19 @@ title="{}" {}>{}</button>""".format(
         )
         m.actionFullScreen.setShortcutContext(Qt.ShortcutContext.ApplicationShortcut)
 
-    def _on_mcat_dashboard(self) -> None:
-        # MCAT fork: minimal hub redirecting to Flashcards or Practice Questions.
-        from aqt.mcat.dashboard import show_dashboard
+    def _on_mcat_ingest(self) -> None:
+        # MCAT kernel: ingest a past practice test. Annotating each question's
+        # concept + right/wrong feeds the per-concept NTR signal. No AI.
+        from aqt.mcat.ingest import show_ingest
 
-        show_dashboard(self)
+        show_ingest(self)
 
-    def _on_mcat_memory_score(self) -> None:
-        # MCAT fork (FR-6): show the honest deterministic Memory score panel.
+    def _on_mcat_scores(self) -> None:
+        # MCAT kernel: the prediction/recommendations panel (Readiness + Memory
+        # + per-concept NTR). Deterministic, no AI.
         from aqt.mcat.panel import show_memory_panel
 
         show_memory_panel(self)
-
-    def _on_mcat_practice_questions(self) -> None:
-        # MCAT fork (FR-3): concept-coded practice questions whose results feed
-        # the per-concept NTR signal. Deterministic, no AI.
-        from aqt.mcat.quiz import show_quiz
-
-        show_quiz(self)
 
     def updateTitleBar(self) -> None:
         self.setWindowTitle("Anki")

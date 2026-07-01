@@ -199,8 +199,8 @@ mod test {
         assert_eq!(col.can_undo().cloned(), undo_before);
     }
 
-    /// Practice-question performance flows through the RPC and changes NTR even
-    /// though the card has no memory state. The displayed card recall stays 0.
+    /// Ingested practice-test performance flows through the RPC and changes NTR
+    /// even though the card has no memory state. The displayed card recall stays 0.
     #[test]
     fn question_stats_flow_through_mastery_rpc() {
         let mut col = Collection::new();

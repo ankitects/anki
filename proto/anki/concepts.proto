@@ -45,15 +45,16 @@ message ConceptTaxonomy {
   repeated ConceptRule rules = 1;
 }
 
-// Aggregated practice-question performance for a single concept. This is the
-// MCAT fork's small "Applying" signal: concept-coded exam-style questions whose
-// results feed NTR (review prioritization), NOT the displayed Memory score.
-// The engine never stores these; the caller (Python) supplies them per request
-// from its own attempt log. Deterministic, NO AI.
+// Aggregated performance for a single concept, from the practice tests the
+// student has ingested (see the MCAT kernel's practice-test ingestion). These
+// concept-tagged, right/wrong-annotated questions feed NTR (review
+// prioritization), NOT the displayed Memory score. The engine never stores
+// these; the caller (Python) supplies them per request from its own ingested
+// attempt log. Deterministic, NO AI.
 message ConceptQuestionStat {
   // Concept id this stat belongs to (must match a taxonomy rule id).
   string concept_id = 1;
-  // Total graded question attempts for the concept.
+  // Total ingested practice-test questions annotated for the concept.
   uint32 attempts = 2;
   // Of those, how many were answered correctly.
   uint32 correct = 3;
@@ -64,8 +65,8 @@ message ConceptAwareQueueRequest {
   // Anki search defining the scope (e.g. "deck:MCAT is:due"). Empty = whole
   // collection. Only currently-due cards are returned.
   string search = 2;
-  // Optional per-concept practice-question performance. Blended into NTR so the
-  // queue surfaces concepts the student gets wrong on questions, not just
+  // Optional per-concept ingested practice-test performance. Blended into NTR
+  // so the queue surfaces concepts the student gets wrong on tests, not just
   // cards.
   repeated ConceptQuestionStat question_stats = 3;
 }
@@ -87,7 +88,7 @@ message ConceptMasteryRequest {
   ConceptTaxonomy taxonomy = 1;
   // Optional scope search; empty = whole collection.
   string search = 2;
-  // Optional per-concept practice-question performance, blended into NTR.
+  // Optional per-concept ingested practice-test performance, blended into NTR.
   repeated ConceptQuestionStat question_stats = 3;
 }
 

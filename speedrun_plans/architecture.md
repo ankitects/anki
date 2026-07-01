@@ -147,3 +147,68 @@ flowchart TB
 ```
 
 ## New Architecture
+
+This fork is the **kernel** of an MCAT study tool, not an all-in-one app. The guiding
+constraint is: **leave Anki's architecture intact** and add the smallest set of pieces that turn
+review history + the student's own practice tests into predictions and recommendations.
+
+Three additions sit on top of the layers above, all additive:
+
+1. **Concept/NTR engine (Rust core, `rslib/src/concepts/`).** A new, self-contained module and a
+   new protobuf service (`proto/anki/concepts.proto` → `ConceptsService`) exposing two read-only
+   RPCs: `ConceptAwareQueue` (re-orders due cards by `topic_weight × weakness`) and `ConceptMastery`
+   (per-concept recall + NTR). It reads a caller-supplied taxonomy and optional per-concept
+   `question_stats`; it never mutates cards, FSRS intervals, or the revlog, so undo and
+   collection-integrity guarantees still hold. Because it lives in the shared Rust core, it ships to
+   both desktop and any AnkiDroid-based phone build unchanged.
+
+2. **Practice-test ingestion (Python/Qt, `qt/aqt/mcat/ingest.py` + `practice_tests.py`).** The
+   kernel's one **input**. The student uploads/annotates the practice tests they already took —
+   concept tag + right/wrong per question, via CSV import or manual entry. Aggregated per-concept
+   tallies are stored in the collection config and handed to the two RPCs above as `question_stats`,
+   blending ingested-test performance into NTR. Deterministic, no AI, no PDF/OCR parsing.
+
+3. **Prediction & recommendations panel (Python/Qt, `qt/aqt/mcat/panel.py`, backed by
+   `memory_score.py` + `readiness.py` + `integration.py`).** The kernel's **output**: three
+   separate, never-blended surfaces — a projected MCAT **Readiness** score (from ingested tests), an
+   honest FSRS **Memory** score (with a give-up rule + coverage map), and the per-concept **NTR**
+   recommendations chart. Reached directly from the Tools menu.
+
+The taxonomy + coverage map live in `mcat/` (fork data; `taxonomy.json`, `coverage.py`), decoupled
+from the engine (passed in per request). What is **not** here, by design: no in-app quizzing/question
+bank, no lessons viewer, no onboarding, and no all-in-one dashboard/home hub — Anki opens normally to
+its deck list.
+
+```mermaid
+%% MCAT kernel — additions on top of unchanged Anki
+flowchart TB
+    student(["Student"])
+
+    subgraph ANKI["Anki (unchanged)"]
+        review["Spaced-repetition review\n(FSRS scheduler, deck browser)"]
+        revlog[("revlog / cards\n(memory state)")]
+    end
+
+    subgraph KERNEL["MCAT kernel additions (additive)"]
+        ingest["Ingest Practice Test\n(qt/aqt/mcat/ingest.py)\nconcept tag + right/wrong"]
+        store["Practice-test store\n(practice_tests.py → collection config)"]
+        panel["Prediction & Review Plan\n(panel.py: Readiness · Memory · NTR)"]
+    end
+
+    subgraph CORE["Rust core addition"]
+        concepts["concepts module + ConceptsService\n(NTR queue + mastery, read-only)"]
+        taxonomy["mcat/taxonomy.json\n(caller-supplied)"]
+    end
+
+    student --> review
+    student --> ingest
+    ingest --> store
+    review --> revlog
+
+    store -->|question_stats| concepts
+    revlog -->|memory state| concepts
+    taxonomy -->|rules| concepts
+    concepts -->|NTR, mastery| panel
+    concepts -->|concept-aware order| review
+    panel --> student
+```

@@ -2,7 +2,7 @@
 
 | Field        | Value                                                            |
 | ------------ | ---------------------------------------------------------------- |
-| **Product**  | MCAT all-in-one study app, forked from Anki                      |
+| **Product**  | MCAT study **kernel**, forked from Anki                          |
 | **Exam**     | MCAT (scored 472–528; four sections each 118–132)                |
 | **Phase**    | 1 of 3 — "The core works on both screens, no AI"                 |
 | **Deadline** | Wednesday                                                        |
@@ -13,6 +13,25 @@
 **Source docs:** [speedrun_spec.txt](speedrun_spec.txt) · [architecture.md](architecture.md) · [Brainlift_ MCAT Preparation.pdf](Brainlift_%20MCAT%20Preparation.pdf)
 
 ---
+
+> ## ⚠️ Refocus: kernel, not all-in-one app
+>
+> Per the (updated) Brainlift — *"I can't do this in one week, but I think that I can create the
+> **kernel** for predictions and recommendations by having my app create a schedule by **ingesting
+> practice tests** and re-prioritizing review by topic weakness"* — this project is **no longer an
+> all-in-one MCAT app**. It is the **kernel** of one:
+>
+> - **Anki stays essentially unchanged** — spaced-repetition review is the core.
+> - The one new **input** is **practice-test ingestion**: the student uploads/annotates the tests
+>   they already took (concept tag + right/wrong per question), feeding the per-concept NTR signal.
+> - The **outputs** are predictions (projected MCAT / Readiness) and recommendations (per-concept
+>   NTR: what to review next).
+>
+> **Removed from the earlier all-in-one plan** (and from the codebase): the in-app **quizzing
+> section** with a built-in question bank (old FR-9), and the all-in-one **dashboard/home hub** with
+> startup redirect (old FR-6 hub stand-in). The sections below are annotated where they changed;
+> "quiz/question bank" now means **ingested practice tests**, and the FR-6 panel is reached directly
+> from the Tools menu rather than via a dashboard hub.
 
 ## 1. Summary
 
@@ -28,11 +47,12 @@ job is to prove the foundation is real: a forked Anki that builds from source on
 running on a real MCAT deck, an honest **Memory** score with a stated give-up rule, and a desktop
 installer plus a phone build that both run on a clean device.
 
-To make NTR more than a card-only statistic, Phase 1 also pulls a **small, deliberate slice of the
-"applying" phase forward**: a set of concept-coded, exam-style practice questions whose results feed
-each concept's NTR. This demonstrates the unifying mechanism (concept annotation across card _and_
-question surfaces) end-to-end, while staying deterministic and AI-free. Crucially, question
-performance feeds **NTR only**, never the displayed **Memory** score — Memory stays a pure function
+To make NTR more than a card-only statistic, the kernel adds its one input surface: **practice-test
+ingestion** (FR-9). The student annotates the concept-coded, right/wrong results of tests they
+already took, and those results feed each concept's NTR. This demonstrates the unifying mechanism
+(concept annotation across card _and_ ingested-test surfaces) end-to-end, while staying deterministic
+and AI-free. Crucially, ingested-test performance feeds **NTR only**, never the displayed **Memory**
+score — Memory stays a pure function
 of FSRS card recall.
 
 The spec (§1, §4) also asks for a **Readiness** score: a _projected MCAT total on the real 472–528
@@ -67,14 +87,15 @@ reimagined dashboard, and onboarding remain **out of scope for Phase 1** and are
 **Non-Goals (Phase 1)**
 
 - No AI of any kind (no model calls, generated cards, or chatbot) — banned before Friday.
-- No **validated** Performance or Readiness model. Phase 1 shows a Readiness (projected MCAT) score
-  and a Performance (question-accuracy) number, but both are **unvalidated deterministic heuristics**
-  over a tiny in-app question set — no held-out testing, no calibration, no real practice-test
-  validation (spec §9 Steps 2–4 remain Phase 2/3). The scores are shown separately and never blended,
-  and abstain below their give-up rules.
+- No **validated** Performance or Readiness model. The kernel shows a Readiness (projected MCAT)
+  score and a Performance (question-accuracy) number, but both are **unvalidated deterministic
+  heuristics** over the student's ingested practice-test results — no held-out testing, no
+  calibration, no longitudinal practice-test validation (spec §9 Steps 2–4 remain later work). The
+  scores are shown separately and never blended, and abstain below their give-up rules.
 - No two-way sync yet (Wednesday requires only that both apps review the same deck).
-- No lessons viewer, no onboarding flow, no reimagined dashboard. The Phase-1 quiz is a minimal
-  surface for moving NTR, not the full quizzing section.
+- No lessons viewer, no onboarding flow. **(Refocus)** No in-app quizzing section and no all-in-one
+  dashboard — the kernel's only input is practice-test ingestion (FR-9), and Anki opens normally to
+  its deck list.
 
 ## 3. Guiding Principle (full-product context)
 
@@ -193,9 +214,11 @@ uncertainty and the evidence behind it — and the app refuses to show one when 
 _As a student, I have one place to see my projected score and the scores behind it, and to
 understand which concepts the engine will prioritise and why._
 
-- A single scrollable panel (Tools → "MCAT Dashboard" → Memory & NTR) hosting, top to bottom: the
-  **Readiness** headline (FR-10), then the **Memory** score (FR-5) and **Performance** number as
-  separate sections, then the **NTR diagram**. **Not** the reimagined three-mode dashboard (Phase 2).
+- A single scrollable panel (Tools → **"MCAT: Prediction & Review Plan"**) hosting, top to bottom:
+  the **Readiness** headline (FR-10), then the **Memory** score (FR-5) and **Performance** number as
+  separate sections, then the **NTR diagram**. **(Refocus)** It is reached directly from the Tools
+  menu — there is **no** all-in-one dashboard hub or startup redirect; Anki opens normally to its
+  deck list. The panel carries an "Ingest a practice test" button linking to FR-9.
 - **NTR breakdown diagram.** A per-concept **NTR bar chart** (most-urgent first), each bar annotated
   with the numbers behind it: topic weight, card recall %, practice-question accuracy, and the
   resulting NTR. A short explanation states the formula and makes explicit that **NTR drives review
@@ -226,31 +249,34 @@ engine as desktop._
 - **Acceptance:** screen recording of a phone review session on the shared engine.
 - ⚠️ **Build approach is an open decision — see OD-3.**
 
-### FR-9 — Concept-coded practice questions feeding NTR (P1, small "Applying" slice)
+### FR-9 — Practice-test ingestion feeding NTR (P1, the kernel's input) **(Refocused)**
 
-_As a student, I can answer a small set of exam-style questions, each tied to an MCAT concept, and
-have my performance change which concepts the engine tells me to review._
+_As a student, I can **ingest a practice test I already took** — tagging each question with the
+MCAT concept it tested and whether I got it right or wrong — and have my performance change which
+concepts the engine tells me to review._
 
-This is a deliberately small slice of the "applying" phase, pulled forward to prove concept
-annotation works across **both** the card and question surfaces — the unifying mechanism behind the
-whole product. It is **not** the full question bank and **not** a graded Performance score (Phase
-2/3).
+**(Refocus)** This replaces the earlier plan's in-app quiz with a built-in question bank. The kernel
+does **not** serve its own questions; it consumes the student's **own real practice tests** (UWorld,
+AAMC, full lengths). This is the "do UWorld first, then add your weak points to Anki" workflow from
+the Brainlift, automated. It is **not** a graded Performance score (that stays deferred).
 
-- A static, **concept-coded question bank** (`mcat/questions.json`): each question carries a
-  `concept_id` matching a taxonomy rule, an exam-style stem, choices, the answer, and an
-  explanation. Content is original to the fork (not AAMC/UWorld).
-- A **minimal quiz surface** (Tools → "MCAT Practice Questions") walks the student through the bank,
-  grades each answer, shows the explanation, and **persists the attempt** (per-concept
-  attempts/correct) in the collection config.
+- **Ingestion surface** (Tools → "MCAT: Ingest Practice Test", `qt/aqt/mcat/ingest.py`): the student
+  either **loads a CSV** exported/transcribed from a past test (columns `concept` + `correct`, parsed
+  tolerantly) or **adds rows by hand**, tagging each question's concept (a taxonomy dropdown) and
+  result (right/wrong). Saving **persists the attempts** (per-concept attempts/correct) in the
+  collection config via `qt/aqt/mcat/practice_tests.py`.
+- No PDF/OCR parsing (that would need AI, which is out of scope): ingestion is deterministic manual
+  annotation / structured CSV.
 - Those per-concept tallies are passed to the FR-3 RPC as `question_stats` and **blended into NTR**
-  (see FR-3's weakness formula). Answering a concept's questions wrong raises its NTR; answering
-  right lowers it.
-- **Honesty guard:** question performance feeds **NTR only**, never the displayed Memory score.
-  Storing attempts in config (not the revlog) keeps FSRS scheduling and undo untouched.
-- **No AI** — fixed bank, deterministic grading and blending.
-- **Acceptance:** answering questions changes the per-concept NTR returned by the RPC and the
-  FR-6 diagram; ≥1 Rust unit test and ≥1 Python test cover the blend; Memory score is unchanged by
-  question answers.
+  (see FR-3's weakness formula). Missing a concept's questions raises its NTR; getting them right
+  lowers it.
+- **Honesty guard:** ingested-test performance feeds **NTR** and the separate Readiness projection
+  **only**, never the displayed Memory score. Storing attempts in config (not the revlog) keeps FSRS
+  scheduling and undo untouched.
+- **No AI** — deterministic parsing, aggregation, and blending.
+- **Acceptance:** ingesting a test changes the per-concept NTR returned by the RPC and the
+  FR-6 chart; ≥1 Rust unit test and ≥1 Python test cover the blend; Memory score is unchanged by
+  ingested results.
 
 ### FR-10 — Readiness: projected MCAT score, honestly (P1, spec §4)
 
@@ -295,12 +321,12 @@ Collect these for the checkpoint, tied to FR-3:
 These are the rest of the all-in-one vision, intentionally **out of Phase 1**. They will get their
 own PRDs. Captured here so nothing from the original brief is lost:
 
-- **Reimagined dashboard** — the full three-mode home (Learn / Test / Flashcards). _(orig. FR-1.1.)_
-  Phase 1 ships a **minimal hub stand-in**: the app **opens onto the MCAT Dashboard**, which routes
-  to **Flashcards** (the original Anki deck browser), **Practice Questions** (the FR-9 quiz), and
-  **Memory & NTR** (the FR-6 panel). Every surface has a way back: the flashcards view gets a
-  "Dashboard" link in its top toolbar, and the quiz/Memory dialogs each carry a "Dashboard" button.
-  The Learn mode and the reimagined layout remain Phase 2.
+- **All-in-one dashboard / home hub** — **(Refocus) removed, not deferred.** The earlier plan
+  shipped a minimal hub that the app opened onto at startup (routing to Flashcards / Practice
+  Questions / Memory & NTR), plus a "Dashboard" toolbar link and startup redirect. A kernel does not
+  reframe Anki's home screen: **Anki opens normally to its deck list**, and the two kernel surfaces
+  (Ingest Practice Test, Prediction & Review Plan) are plain Tools-menu entries. The reimagined
+  three-mode home (Learn / Test / Flashcards) is **not** part of the kernel.
 - **Onboarding flow** — user-state initializer: study frequency, targets, section time budgets,
   progress; experience adapts to the user. _(orig. FR-1.2)_
 - **Lessons (Understanding)** — document viewer with notes + highlighting, lessons annotated with

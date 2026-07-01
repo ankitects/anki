@@ -1,9 +1,10 @@
 # MCAT Concept Taxonomy & Coverage Map (FR-2)
 
 This directory owns the **concept taxonomy** and the **coverage map** for the
-MCAT fork of Anki. It is the canonical concept list that every later feature
-(NTR scheduling, Memory score, lessons, questions) annotates against, and it
-provides the coverage signal that gates FR-5's give-up rule.
+MCAT kernel. It is the canonical concept list that every part of the kernel
+(NTR scheduling, the Memory score, and practice-test ingestion) annotates
+against, and it provides the coverage signal that gates the Memory score's
+give-up rule.
 
 It is self-contained and standard-library only. It does **not** touch
 `proto/`, `rslib/`, `qt/`, `ts/`, or `pylib/`, and it does not invoke the
@@ -205,10 +206,10 @@ single "User 1" profile, seeding:
 
 - cards across ~21 concepts, each assigned a recall band (strong/medium/weak/very
   weak) so per-concept NTR spans a wide, ordered range;
-- **practice-question stats** that deliberately contrast card recall — some
-  strong-on-cards concepts get weak questions (NTR pushed up) and some
-  weak-on-cards concepts get strong questions (NTR pulled down), so the FR-9
-  blend is visible;
+- **ingested practice-test stats** that deliberately contrast card recall — some
+  strong-on-cards concepts get weak test results (NTR pushed up) and some
+  weak-on-cards concepts get strong results (NTR pulled down), so the
+  card/test blend is visible;
 - real `revlog` rows so `graded_reviews` clears FR-5's ≥200 threshold and the
   Memory score shows a number + range instead of abstaining.
 
@@ -229,9 +230,9 @@ Equivalent manual launch:
 $env:ANKI_BASE = "$PWD\mcat\fixtures\demo_base"; just run   # PowerShell
 ```
 
-Then open **Tools → MCAT Dashboard → Memory & NTR** (or **Tools → MCAT Memory
-Score**). The script also prints the expected coverage %, Memory score, and the
-top/bottom NTR concepts — computed with the real engine RPC — so you can confirm
-the app matches. A representative run: **67.7% coverage**, **Memory 64% (likely
-60–68%, medium confidence)**, highest NTR on weak no-question concepts, and
-strong-recall concepts pushed up the list by poor question accuracy.
+Then open **Tools → MCAT: Prediction & Review Plan**. The script also prints the
+expected coverage %, Memory score, and the top/bottom NTR concepts — computed
+with the real engine RPC — so you can confirm the app matches. A representative
+run: **67.7% coverage**, **Memory 64% (likely 60–68%, medium confidence)**,
+highest NTR on weak no-test concepts, and strong-recall concepts pushed up the
+list by poor ingested-test accuracy.

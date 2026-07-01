@@ -1,8 +1,35 @@
-# MCAT Study App (Anki fork)
+# MCAT Study Kernel (Anki fork)
 
 > An independent, AGPL-3.0-or-later fork of [Anki](https://apps.ankiweb.net),
-> being turned into an all-in-one **MCAT** study app.
+> turned into the **kernel** of an MCAT study tool: Anki's spaced-repetition
+> engine, plus the ability to **ingest your past practice tests** and get
+> **predictions and review recommendations** back.
 > This fork is **not** intended to be merged upstream. Full credit to Anki below.
+
+## The idea: a kernel, not an all-in-one app
+
+MCAT prep is fragmented across understanding (Khan Academy), memorizing (Anki),
+and applying (UWorld/AAMC practice tests), and students burn time stitching them
+together by hand. A common, evidence-backed workflow is *"do UWorld first, then
+add your weak points to Anki."* This fork does **not** try to be an all-in-one
+app that replaces all of those. Instead it builds the small, reusable **kernel**
+that automates that stitch:
+
+1. **Anki stays Anki** — spaced-repetition review is untouched and is still the
+   core of the app.
+2. **You ingest the practice tests you already took** — for each question you
+   tag the MCAT concept it tested and whether you got it right or wrong
+   (Tools → *MCAT: Ingest Practice Test*). No AI, no built-in question bank; the
+   data is your own real tests.
+3. **The engine re-prioritises review and predicts a score** — a change inside
+   Anki's Rust core turns those annotations into a per-concept **Need-to-Review
+   (NTR)** signal that surfaces weak concepts sooner, and a
+   prediction/recommendations panel (Tools → *MCAT: Prediction & Review Plan*)
+   shows a projected MCAT score, an honest Memory score, and what to study next.
+
+Deliberately **not** in this fork: an in-app quizzing section, a lessons viewer,
+and an all-in-one dashboard/home screen. Those are the parts of the "all-in-one"
+vision this kernel intentionally leaves out.
 
 ## Exam: MCAT
 
@@ -24,26 +51,37 @@ MCAT concept(s) it covers so the engine can reason per-concept (see Phase 1 scop
 > The MCAT scale and section structure above are stated here per the project spec's
 > "pick one exam / state it at the top of your README" rule.
 
-## What this is (and isn't) — Phase 1 scope
+## What the kernel does (and deliberately doesn't)
 
-**Phase 1 headline: "the core works on both screens, no AI."**
+**Headline: "the core works, no AI." The kernel is deterministic.**
 
-Phase 1 is deliberately narrow. It proves the foundation is real:
+What it delivers:
 
 - A forked Anki that **builds from source** on desktop (and a phone build, deferred — see below).
 - **One substantive change inside the Rust engine** — a concept-aware review queue + a
   per-concept Need-to-Review (NTR) signal + a mastery query — layered on top of Anki's
   FSRS scheduler.
-- A **review loop** running on a real MCAT deck (the community **AnKing MCAT** deck).
-- An honest **Memory** score (point estimate + range) with a written give-up rule, plus a
-  topic **coverage map**.
+- A **review loop** running on a real MCAT deck (the community **AnKing MCAT** deck),
+  unchanged from Anki.
+- **Practice-test ingestion** — upload/annotate your past tests (concept + right/wrong);
+  those results feed NTR and re-prioritise review toward your weak concepts.
+- A **prediction & review-plan panel**: a projected MCAT score (**Readiness**) from your
+  ingested tests, an honest **Memory** (card-recall) score with a written give-up rule and a
+  topic **coverage map**, and the per-concept **NTR** recommendations chart. The three
+  scores are shown **separately and never blended**.
 - A **desktop installer** that runs on a clean machine.
 
-**Explicitly out of scope for Phase 1 (no AI before Friday):**
+**Deliberately out of scope (the "all-in-one" parts this kernel does not build):**
 
-- No AI of any kind — no model calls, no generated cards, no chatbot.
-- No Performance or Readiness scores yet (those come later and must stay separate from Memory).
-- No two-way sync yet, no lessons viewer, no question bank, no onboarding, no reimagined dashboard.
+- No AI of any kind — no model calls, no generated cards, no chatbot. Every number is a
+  deterministic function of your review history and ingested test results.
+- No in-app **quizzing section** and no built-in question bank — you ingest your *own* real
+  practice tests instead.
+- No lessons/understanding viewer, no onboarding flow, and no all-in-one **dashboard**
+  home screen. Anki opens normally to its deck list.
+- No two-way sync yet.
+- The Readiness projection is an explicit, **unvalidated** heuristic (see the panel's
+  disclaimer), not a calibrated score model yet.
 
 See [`speedrun_plans/PRD-PHASE1.md`](speedrun_plans/PRD-PHASE1.md) for the full Phase 1 PRD
 and [`speedrun_plans/speedrun_spec.txt`](speedrun_plans/speedrun_spec.txt) for the project spec.

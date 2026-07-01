@@ -146,9 +146,10 @@ pub struct CardConcepts {
     pub retrievability: Option<f32>,
 }
 
-/// Aggregated practice-question performance for a single concept — the MCAT
-/// fork's small "Applying" signal. Supplied by the caller per request (the
-/// engine never stores it). Blended into NTR alongside card recall.
+/// Aggregated performance for a single concept, from the student's ingested
+/// practice tests — the MCAT kernel's "applying" signal. Supplied by the caller
+/// per request (the engine never stores it). Blended into NTR alongside card
+/// recall.
 #[derive(Debug, Clone, Copy, Default, PartialEq)]
 pub struct QuestionStat {
     pub attempts: u32,

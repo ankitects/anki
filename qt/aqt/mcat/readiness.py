@@ -6,20 +6,20 @@
 The spec asks for three *separate* scores (§2, §4):
 
 * **Memory** -- can the student recall a fact now? (``memory_score.py``)
-* **Performance** -- can they answer a new exam-style question? (practice-question
-  accuracy)
+* **Performance** -- can they answer a new exam-style question? (accuracy on the
+  practice tests the student has ingested)
 * **Readiness** -- *what score would they get today, on the real scale, and how
   sure are you?* This module.
 
 For the MCAT the readiness scale is the real total range **472–528** (four
 sections, each 118–132). This module turns the Performance signal (accuracy on
-the concept-coded practice questions) into a projected total, with a likely
-range and a confidence level.
+the ingested, concept-tagged practice-test questions) into a projected total,
+with a likely range and a confidence level.
 
 Honesty is mandatory (§1, §2, §9). A made-up readiness number is an automatic
 fail, so this module:
 
-* is a **documented, deterministic** map -- observed practice-question accuracy
+* is a **documented, deterministic** map -- observed practice-test accuracy
   ``p`` maps linearly onto the 472–528 scale (``472 + 56·p``); no AI, no RNG;
 * widens the range when little of the exam is covered (thin evidence → wider
   band), and reports a **confidence** level driven mostly by coverage;
@@ -47,7 +47,7 @@ WALD_Z = 1.96  # ~95% interval on the accuracy proportion
 
 # --------------------------------------------------------------------------
 # Give-up rule (§1/§4/§7c). Readiness needs *performance* evidence, so on top of
-# topic coverage it requires a floor of graded practice-question attempts spread
+# topic coverage it requires a floor of ingested practice-test questions spread
 # across several concepts. Below any line the score abstains and says why.
 # --------------------------------------------------------------------------
 MIN_QUESTION_ATTEMPTS = 30
@@ -98,7 +98,7 @@ class ReadinessScore:
 
     def headline(self) -> str:
         if self.abstained:
-            return "Projected MCAT unavailable - not enough question data yet."
+            return "Projected MCAT unavailable - not enough practice-test data yet."
         return (
             f"Projected MCAT {self.projected} "
             f"(likely {self.range_low}-{self.range_high})"
@@ -175,18 +175,18 @@ def compute_readiness(
     q_coverage_pct = concepts_with_questions / k * 100.0 if k else 0.0
 
     disclaimer = (
-        "Heuristic projection: in-app question accuracy mapped linearly to the "
-        "472-528 scale, widened for low coverage. NOT blended with the Memory "
-        "score, and NOT yet validated against real practice tests (spec Step 4 "
-        "pending); past-guess calibration is not available yet. Treat as a "
-        "rough, honest estimate."
+        "Heuristic projection: your ingested practice-test accuracy mapped "
+        "linearly to the 472-528 scale, widened for low coverage. NOT blended "
+        "with the Memory score, and NOT yet calibrated against your real "
+        "practice-test scores over time (spec Step 4 pending). Treat as a rough, "
+        "honest estimate."
     )
 
     # ----- Give-up rule -----------------------------------------------------
     reasons: list[str] = []
     if question_attempts < MIN_QUESTION_ATTEMPTS:
         reasons.append(
-            f"Need {MIN_QUESTION_ATTEMPTS} practice-question attempts "
+            f"Need {MIN_QUESTION_ATTEMPTS} ingested practice-test questions "
             f"(have {question_attempts})."
         )
     if concepts_with_questions < MIN_CONCEPTS_WITH_QUESTIONS:
@@ -238,8 +238,8 @@ def compute_readiness(
     confidence = readiness_confidence(question_attempts, q_coverage_pct, coverage)
 
     reasons = [
-        f"Based on {question_correct}/{question_attempts} practice questions "
-        f"correct across {concepts_with_questions}/{k} concepts.",
+        f"Based on {question_correct}/{question_attempts} ingested practice-test "
+        f"questions correct across {concepts_with_questions}/{k} concepts.",
         f"Deck covers {coverage:.0f}% of the exam taxonomy.",
         "Range widens with missing coverage; confidence is coverage-driven.",
     ]
@@ -262,7 +262,7 @@ def compute_readiness(
         last_updated=now,
         reasons=reasons,
         method=(
-            "projected = 472 + 56*p, p = practice-question accuracy; range = "
+            "projected = 472 + 56*p, p = ingested practice-test accuracy; range = "
             f"Wald {WALD_Z}-sigma on p (scaled) + coverage-gap widening; clamped "
             "to [472, 528]"
         ),

@@ -1,16 +1,22 @@
 # Copyright: Aryan Verma and contributors
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-"""Minimal Memory-score surface (FR-6).
+"""Prediction & review-recommendations surface (the kernel's output).
 
-A single self-contained ``QDialog`` that displays the Phase-1 Memory score
-honestly: point estimate + likely range, topic coverage %, a "how sure"
-indicator, last-updated time, and the main reasons -- or, below the give-up
-threshold, an explicit *abstain* message naming the failing condition(s).
+A single self-contained ``QDialog`` that shows the kernel's three separate,
+never-blended outputs, top to bottom:
 
-This is **not** the reimagined three-mode dashboard (that is Phase 2). It is
-just enough surface to show the Phase-1 numbers honestly, using plain Qt
-widgets so it has no web/JS dependency.
+  * **Readiness** -- a projected MCAT score (472-528) with a range and
+    confidence, driven by ingested practice-test performance;
+  * **Memory** -- honest FSRS card-recall (point estimate + likely range, a
+    "how sure" indicator, reasons), or an *abstain* message below the give-up
+    threshold;
+  * **Need-to-Review (NTR)** -- the per-concept recommendations chart that says
+    what to study next, blending card recall with ingested-test performance.
+
+This is the kernel's recommendation/prediction view -- not an all-in-one
+dashboard. It uses plain Qt widgets so it has no web/JS dependency, and the
+student feeds it by ingesting practice tests (:mod:`aqt.mcat.ingest`).
 
 ----------------------------------------------------------------------------
 Wiring (orchestrator: add ONE line to a shared aqt file; not done here so we
@@ -311,8 +317,8 @@ def _build_panel_class():  # pragma: no cover - exercised only with Qt present
 
             subtitle = QLabel(
                 "Three separate scores, never blended: Readiness is a projected "
-                "MCAT score, Memory is fact recall, and the concept map shows "
-                "what to review next."
+                "MCAT score from your ingested practice tests, Memory is fact "
+                "recall, and the concept map shows what to review next."
             )
             subtitle.setWordWrap(True)
             subtitle.setStyleSheet("color: gray; font-size: 11px;")
@@ -351,23 +357,20 @@ def _build_panel_class():  # pragma: no cover - exercised only with Qt present
             layout.addStretch(1)
 
             # Actions stay pinned below the scroll area, always visible.
-            dashboard = QPushButton("Back to Dashboard")
-            dashboard.setSizePolicy(
-                QSizePolicy.Policy.Maximum, QSizePolicy.Policy.Fixed
-            )
-            qconnect(dashboard.clicked, self._go_dashboard)
-            outer.addWidget(dashboard)
+            ingest = QPushButton("Ingest a practice test")
+            ingest.setSizePolicy(QSizePolicy.Policy.Maximum, QSizePolicy.Policy.Fixed)
+            qconnect(ingest.clicked, self._go_ingest)
+            outer.addWidget(ingest)
 
             close = QPushButton("Close")
             close.setSizePolicy(QSizePolicy.Policy.Maximum, QSizePolicy.Policy.Fixed)
             qconnect(close.clicked, self.close)
             outer.addWidget(close)
 
-        def _go_dashboard(self) -> None:
-            from aqt.mcat.dashboard import show_dashboard
+        def _go_ingest(self) -> None:
+            from aqt.mcat.ingest import show_ingest
 
-            show_dashboard(self.mw)
-            self.close()
+            show_ingest(self.mw)
 
         @staticmethod
         def _build_readiness_section(layout, r: ReadinessScore, QLabel, QFrame) -> None:
@@ -381,8 +384,8 @@ def _build_panel_class():  # pragma: no cover - exercised only with Qt present
                 big.setStyleSheet("font-size: 22px; font-weight: bold; color: #c0392b;")
                 layout.addWidget(big)
                 why = QLabel(
-                    "The app won't project a score until it has enough "
-                    "practice-question evidence to back it up:"
+                    "The app won't project a score until you've ingested enough "
+                    "practice-test evidence to back it up:"
                 )
                 why.setWordWrap(True)
                 layout.addWidget(why)
@@ -404,8 +407,8 @@ def _build_panel_class():  # pragma: no cover - exercised only with Qt present
                 layout.addWidget(sure)
 
                 perf = QLabel(
-                    f"Performance (practice questions): {r.performance_pct:.0f}% "
-                    f"correct over {r.question_attempts} attempts"
+                    f"Performance (ingested practice tests): {r.performance_pct:.0f}% "
+                    f"correct over {r.question_attempts} questions"
                 )
                 perf.setWordWrap(True)
                 perf.setStyleSheet("font-size: 13px;")
@@ -503,7 +506,7 @@ def _build_panel_class():  # pragma: no cover - exercised only with Qt present
 
             NTR is a separate engine signal from the Memory score above: it
             drives *what to review next*, and -- unlike Memory -- it folds in
-            practice-question performance. Shown here so the student can see
+            ingested practice-test performance. Shown here so the student can see
             which concepts the engine will prioritise, and exactly why.
             """
             if not rows:
@@ -519,10 +522,10 @@ def _build_panel_class():  # pragma: no cover - exercised only with Qt present
 
             explain = QLabel(
                 "NTR = topic weight x weakness. Weakness blends how much you "
-                "forget on cards (1 - recall) with how often you miss the "
-                "concept's practice questions, weighted by how much evidence "
-                "each side has. Higher NTR = reviewed sooner. NTR does not feed "
-                "the Memory score above; it only orders review."
+                "forget on cards (1 - recall) with how often you missed the "
+                "concept on your ingested practice tests, weighted by how much "
+                "evidence each side has. Higher NTR = reviewed sooner. NTR does "
+                "not feed the Memory score above; it only orders review."
             )
             explain.setWordWrap(True)
             explain.setStyleSheet("color: gray; font-size: 11px;")

@@ -13,9 +13,10 @@ designed to make the dashboard interesting and legible:
 * Each concept is assigned a recall *band* (strong / medium / weak / very weak)
   by choosing FSRS stability + last-review age, so per-concept NTR spans a wide,
   clearly-ordered range.
-* Some strong-on-cards concepts are given *weak* practice-question stats (and
-  some weak-on-cards concepts *strong* stats), so you can watch questions push
-  NTR up or down independently of card recall -- the FR-9 blend, made visible.
+* Some strong-on-cards concepts are given *weak* ingested practice-test stats
+  (and some weak-on-cards concepts *strong* stats), so you can watch ingested
+  questions push NTR up or down independently of card recall -- the blend, made
+  visible.
 * Real ``revlog`` rows are written so ``graded_reviews`` clears FR-5's give-up
   threshold and the Memory score shows a number + range instead of abstaining.
 
@@ -27,7 +28,8 @@ profile, so it never touches your real collection. Launch the app against it:
     python mcat/seed_demo.py                     # writes mcat/fixtures/demo_base
     just run -- -b <printed absolute base path>  # opens straight into the demo
 
-Then open Tools -> "MCAT Dashboard" -> Memory & NTR (or "MCAT Memory Score").
+Then open Tools -> "MCAT: Prediction & Review Plan" to see the projected score,
+Memory score, and per-concept NTR recommendations.
 """
 
 from __future__ import annotations
@@ -189,13 +191,14 @@ def generate(base: str, seed: int = 20260630) -> dict:
     # Write real revlog rows so graded_reviews clears the give-up threshold.
     graded = _write_revlog(col, reviewed_card_ids, now, rng)
 
-    # Seed per-concept practice-question stats (feeds NTR, not the Memory score).
+    # Seed per-concept ingested practice-test stats (feeds NTR, not the Memory
+    # score) -- as if the student had ingested a few practice tests.
     stats = {
         c["id"]: {"attempts": c["questions"][0], "correct": c["questions"][1]}
         for c in concepts
         if c["questions"] is not None
     }
-    col.set_config("mcatQuestionStats", stats)
+    col.set_config("mcatPracticeTestStats", stats)
 
     report = _report(col, now)
     col.close()
@@ -239,10 +242,10 @@ def _write_revlog(col, card_ids: list[int], now: int, rng) -> int:
 def _report(col, now: int) -> dict:
     """Run the real ConceptMastery RPC + Memory score so the printed numbers
     match exactly what the app will show."""
-    from anki import concepts_pb2
-
     import memory_score  # type: ignore[import-not-found]  # imported by path
     import readiness  # type: ignore[import-not-found]  # imported by path
+
+    from anki import concepts_pb2
 
     concepts = _load_concepts()
     taxonomy = concepts_pb2.ConceptTaxonomy(
@@ -255,7 +258,7 @@ def _report(col, now: int) -> dict:
             for c in concepts
         ]
     )
-    stats_cfg = col.get_config("mcatQuestionStats", default={})
+    stats_cfg = col.get_config("mcatPracticeTestStats", default={})
     question_stats = [
         concepts_pb2.ConceptQuestionStat(
             concept_id=cid, attempts=v["attempts"], correct=v["correct"]
@@ -339,8 +342,12 @@ def main(argv: list[str] | None = None) -> int:
     print(f"  graded reviews   : {stats['graded_reviews']}")
     print(f"  concepts w/ Qs   : {stats['question_stats_concepts']}")
     print(f"  topic coverage   : {stats['coverage_pct']}%")
-    print(f"\n  Readiness        : {stats['readiness_headline']}  (confidence: {stats['readiness_confidence']})")
-    print(f"  Memory score     : {stats['memory_headline']}  (how sure: {stats['memory_how_sure']})")
+    print(
+        f"\n  Readiness        : {stats['readiness_headline']}  (confidence: {stats['readiness_confidence']})"
+    )
+    print(
+        f"  Memory score     : {stats['memory_headline']}  (how sure: {stats['memory_how_sure']})"
+    )
 
     print("\n  Highest NTR (reviewed soonest):")
     for cid, ntr, r, qn, qacc in stats["top_ntr"]:
@@ -357,7 +364,7 @@ def main(argv: list[str] | None = None) -> int:
     print("\n  or, equivalently, set the base folder yourself:")
     print(f"    $env:ANKI_BASE = '{stats['base']}'; just run   # PowerShell")
     print(f"    ANKI_BASE='{stats['base']}' just run          # bash")
-    print("\nThen open Tools -> MCAT Dashboard -> Memory & NTR.")
+    print("\nThen open Tools -> 'MCAT: Prediction & Review Plan'.")
     return 0
 
 
