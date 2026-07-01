@@ -30,6 +30,10 @@ rebuild-web:
 wheels:
     {{ ninja }} wheels
 
+# Build the desktop installer (Briefcase build+package chain); depends on wheels
+installer: wheels
+    {{ ninja }} installer:package
+
 # Build and run all checks (lint + test) - lets ninja handle dependencies
 check:
     {{ ninja }} pylib qt check

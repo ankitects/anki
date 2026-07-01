@@ -69,6 +69,29 @@ message TagMasteryResponse {
   // minimum number of distinct topics). When false the UI must abstain
   // ("Not enough data yet") regardless of the band above.
   bool enough_data = 9;
+
+  // Total topic groups found (tagged + "(untagged)" sentinel). Always
+  // computable.
+  uint32 topics_total = 10;
+  // Groups with >=1 scored card (cards_with_state >= 1). Independent of give-up
+  // rule.
+  uint32 topics_covered = 11;
+  // Confidence in the overall band. See derivation below.
+  HowSure how_sure = 12;
+  // Unix seconds of the most recent graded revlog entry across searched cards.
+  // 0 == "no graded reviews yet" — frontend renders "no reviews yet", never
+  // epoch/1970.
+  int64 last_updated_secs = 13;
+  // Best next topic: lowest-average_recall covered group; if none covered,
+  // largest (by total_cards) group; if no groups (topics_total==0), "".
+  string next_topic = 14;
+
+  enum HowSure {
+    INSUFFICIENT = 0;  // n == 0
+    LOW = 1;           // n > 0, not MEDIUM/HIGH
+    MEDIUM = 2;        // half_width <= 0.05 AND n >= 30
+    HIGH = 3;          // half_width <= 0.02 AND n >= 100
+  }
 }
 
 message ReviewLogs {

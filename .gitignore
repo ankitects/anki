@@ -27,5 +27,8 @@ docs/autoapi/
 graphify-out/
 .factory/
 .claude/
+# npx skills CLI artifacts (skills live in .agents/skills, symlinked into .claude/skills)
+.agents/
+skills-lock.json
 # MCAT fork: bundled seed deck (too large for git; dropped in at repo root)
 /MCAT_Milesdown.apkg

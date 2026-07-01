@@ -316,6 +316,16 @@ statistics-mastery-mastered = Mastered
 statistics-mastery-average-recall = Avg recall
 statistics-mastery-reviews = Reviews
 statistics-mastery-cutoff = Mastered = recall ≥ { $percent }%
+statistics-mastery-coverage = Coverage: { $selected } of { $total } topics
+statistics-mastery-how-sure = How sure: { $level }
+statistics-mastery-how-sure-insufficient = Not enough data
+statistics-mastery-how-sure-low = Low confidence
+statistics-mastery-how-sure-medium = Medium confidence
+statistics-mastery-how-sure-high = High confidence
+statistics-mastery-last-updated = Last updated: { $when }
+statistics-mastery-no-reviews-yet = No reviews yet
+statistics-mastery-next-topic = Focus next: { $topic }
+statistics-mastery-reasons = Based on { $reviews } graded reviews across { $count } of { $total } topics
 
 ## These strings are no longer used - you do not need to translate them if they
 ## are not already translated.

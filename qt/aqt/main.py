@@ -659,8 +659,14 @@ class AnkiQt(QMainWindow):
         # make sure we don't get into an inconsistent state if an add-on
         # has broken the deck browser or the did_load hook
         try:
-            self._ensure_fsrs_enabled()
-            self._seed_mcat_deck_if_empty()
+            # MCAT fork hooks, isolated in their own guard: a failure here must
+            # never skip the undo/deck-browser load below (which would leave the
+            # UI blank). Best-effort — log and continue.
+            try:
+                self._ensure_fsrs_enabled()
+                self._seed_mcat_deck_if_empty()
+            except Exception:
+                traceback.print_exc()
             self.update_undo_actions()
             gui_hooks.collection_did_load(self.col)
             self.apply_collection_options()
