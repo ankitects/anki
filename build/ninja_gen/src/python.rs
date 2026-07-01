@@ -319,7 +319,7 @@ pub fn check_complexity(
     deps: BuildInput,
 ) -> Result<()> {
     build.add_action(
-        format!("check:complexipy:{group}"),
+        format!("complexipy:{group}"),
         Complexipy {
             deps: deps.clone(),
             folder,
@@ -327,7 +327,7 @@ pub fn check_complexity(
         },
     )?;
     build.add_action(
-        format!("check:complexipy-diff:{group}"),
+        format!("complexipy-diff:{group}"),
         Complexipy {
             deps,
             folder,
