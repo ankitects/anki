@@ -17,6 +17,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import HelpModal from "$lib/components/HelpModal.svelte";
     import Item from "$lib/components/Item.svelte";
     import SettingTitle from "$lib/components/SettingTitle.svelte";
+    import SwitchRow from "$lib/components/SwitchRow.svelte";
     import TitledContainer from "$lib/components/TitledContainer.svelte";
     import type { HelpItem } from "$lib/components/types";
 
@@ -95,6 +96,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         reviewSortOrder: {
             title: tr.deckConfigReviewSortOrder(),
             help: tr.deckConfigReviewSortOrderTooltip() + currentDeck,
+        },
+        contrastScheduling: {
+            title: tr.deckConfigContrastScheduling(),
+            help: tr.deckConfigContrastSchedulingTooltip(),
         },
     };
     const helpSections: HelpItem[] = Object.values(settings);
@@ -202,6 +207,22 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                     {settings.reviewSortOrder.title}
                 </SettingTitle>
             </EnumSelectorRow>
+        </Item>
+
+        <Item>
+            <SwitchRow
+                bind:value={$config.contrastScheduling}
+                defaultValue={defaults.contrastScheduling}
+            >
+                <SettingTitle
+                    on:click={() =>
+                        openHelpModal(
+                            Object.keys(settings).indexOf("contrastScheduling"),
+                        )}
+                >
+                    {settings.contrastScheduling.title}
+                </SettingTitle>
+            </SwitchRow>
         </Item>
     </DynamicallySlottable>
 </TitledContainer>

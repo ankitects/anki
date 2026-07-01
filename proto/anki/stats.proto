@@ -16,6 +16,14 @@ service StatsService {
   rpc Graphs(GraphsRequest) returns (GraphsResponse);
   rpc GetGraphPreferences(generic.Empty) returns (GraphPreferences);
   rpc SetGraphPreferences(GraphPreferences) returns (generic.Empty);
+  // CFA Speedrun: per-topic mastery/coverage over a tag taxonomy, used to power
+  // the Memory gauge + coverage map. Computed in a single SQL pass so it stays
+  // fast on large (50k+) collections.
+  rpc TopicMastery(TopicMasteryRequest) returns (TopicMasteryResponse);
+  // CFA Speedrun: concept-graph view of a deck — tags as clustered nodes, tag
+  // co-occurrence (notes sharing two tags) as edges. Read-only; backs the
+  // knowledge-map page. Single SQL pass, like TopicMastery.
+  rpc GetConceptGraph(ConceptGraphRequest) returns (ConceptGraphResponse);
 }
 
 // Implicitly includes any of the above methods that are not listed in the
@@ -202,6 +210,84 @@ message GraphPreferences {
   bool card_counts_separate_inactive = 2;
   bool browser_links_supported = 3;
   bool future_due_show_backlog = 4;
+}
+
+message TopicMasteryRequest {
+  // Tag prefix identifying topics, e.g. "cfa::topic::". When empty,
+  // "cfa::topic::" is assumed.
+  string topic_prefix = 1;
+  // A card counts as "mastered" when its FSRS retrievability is >= this value.
+  // When <= 0, a default of 0.9 is used.
+  float mastered_threshold = 2;
+  // Optional search restricting which cards are considered (e.g. a single
+  // deck). Empty considers the whole collection.
+  string search = 3;
+}
+
+message TopicMasteryResponse {
+  message Topic {
+    // The matched tag with the prefix stripped, e.g. "fixed_income".
+    string topic = 1;
+    // The full matched tag, e.g. "cfa::topic::fixed_income".
+    string tag = 2;
+    // Cards mapped to this topic.
+    uint32 total = 3;
+    // Cards whose retrievability is at or above the mastered threshold.
+    uint32 mastered = 4;
+    // Cards that have an FSRS memory state (denominator for the average).
+    uint32 with_memory_state = 5;
+    // Mean FSRS retrievability across cards with a memory state (0..1).
+    float average_retrievability = 6;
+  }
+  repeated Topic topics = 1;
+  // Considered cards that had no tag matching the prefix.
+  uint32 untagged = 2;
+  // Total cards considered (sum of per-topic totals may exceed this if a card
+  // carries more than one topic tag).
+  uint32 considered = 3;
+}
+
+message ConceptGraphRequest {
+  // Optional search restricting which cards are considered (e.g. a single deck
+  // via "deck:current"). Empty considers the whole collection.
+  string search = 1;
+  // When non-zero, restrict to this deck and its children; takes precedence
+  // over `search`.
+  int64 deck_id = 2;
+}
+
+message ConceptGraphResponse {
+  // A cluster of cards that share one tag (e.g. a "reading"). The frontend may
+  // expand a node into its cards.
+  message Node {
+    // Stable per-response cluster index, referenced by Edge.source/target.
+    uint32 id = 1;
+    // The tag this cluster represents.
+    string label = 2;
+    // Cards in the cluster.
+    uint32 card_count = 3;
+    // Cards in the cluster that have an FSRS memory state (denominator for the
+    // average; when 0 the cluster is treated as "new").
+    uint32 with_memory_state = 4;
+    // Mean FSRS retrievability across cards with a memory state (0..1).
+    float average_retrievability = 5;
+    // Cards that have graduated to review/relearn. Used to colour the cluster
+    // by study progress when no FSRS retrievability is available.
+    uint32 reviewed_count = 6;
+  }
+  // An undirected edge between two clusters that share at least one note (tag
+  // co-occurrence). `weight` is the number of co-occurring notes.
+  message Edge {
+    uint32 source = 1;
+    uint32 target = 2;
+    uint32 weight = 3;
+    // Edge kind, e.g. "co_occurrence" (reserved for future "dependency" edges).
+    string kind = 4;
+  }
+  repeated Node nodes = 1;
+  repeated Edge edges = 2;
+  // Total cards considered.
+  uint32 considered = 3;
 }
 
 message RevlogEntry {

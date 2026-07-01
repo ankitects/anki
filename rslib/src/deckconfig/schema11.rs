@@ -98,6 +98,10 @@ pub struct DeckConfSchema11 {
     sm2_retention: f32,
     #[serde(default, rename = "weightSearch")]
     param_search: String,
+    #[serde(default)]
+    contrast_scheduling: bool,
+    #[serde(default)]
+    contrast_tag_prefix: String,
 
     #[serde(flatten)]
     other: HashMap<String, Value>,
@@ -314,6 +318,8 @@ impl Default for DeckConfSchema11 {
             param_search: "".to_string(),
             ignore_revlogs_before_date: "".to_string(),
             easy_days_percentages: vec![1.0; 7],
+            contrast_scheduling: false,
+            contrast_tag_prefix: "".to_string(),
         }
     }
 }
@@ -396,6 +402,8 @@ impl From<DeckConfSchema11> for DeckConfig {
                 desired_retention: c.desired_retention,
                 historical_retention: c.sm2_retention,
                 param_search: c.param_search,
+                contrast_scheduling: c.contrast_scheduling,
+                contrast_tag_prefix: c.contrast_tag_prefix,
                 other: other_bytes,
             },
         }
@@ -510,6 +518,8 @@ impl From<DeckConfig> for DeckConfSchema11 {
             param_search: i.param_search,
             ignore_revlogs_before_date: i.ignore_revlogs_before_date,
             easy_days_percentages: i.easy_days_percentages,
+            contrast_scheduling: i.contrast_scheduling,
+            contrast_tag_prefix: i.contrast_tag_prefix,
         }
     }
 }
@@ -545,6 +555,8 @@ static RESERVED_DECKCONF_KEYS: Set<&'static str> = phf_set! {
     "weightSearch",
     "ignoreRevlogsBeforeDate",
     "easyDaysPercentages",
+    "contrastScheduling",
+    "contrastTagPrefix",
 };
 
 static RESERVED_DECKCONF_NEW_KEYS: Set<&'static str> = phf_set! {

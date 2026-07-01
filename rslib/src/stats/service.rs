@@ -36,6 +36,20 @@ impl crate::services::StatsService for Collection {
     ) -> error::Result<()> {
         self.set_graph_preferences(input)
     }
+
+    fn topic_mastery(
+        &mut self,
+        input: anki_proto::stats::TopicMasteryRequest,
+    ) -> error::Result<anki_proto::stats::TopicMasteryResponse> {
+        self.topic_mastery(input)
+    }
+
+    fn get_concept_graph(
+        &mut self,
+        input: anki_proto::stats::ConceptGraphRequest,
+    ) -> error::Result<anki_proto::stats::ConceptGraphResponse> {
+        self.concept_graph(input)
+    }
 }
 
 impl From<RevlogReviewKind> for i32 {

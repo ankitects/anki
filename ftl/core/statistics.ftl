@@ -298,6 +298,18 @@ statistics-saved = Saved.
 statistics-stats = stats
 statistics-title = Statistics
 
+## CFA Speedrun: concept-map page — a force-directed knowledge graph of the deck
+## (one node per tag/reading, edges where two tags share a note), with nodes
+## coloured by FSRS state.
+
+statistics-concept-map = Concept map
+statistics-concept-map-search = Search
+statistics-concept-map-empty = No cards match the current search.
+statistics-concept-map-mastered = Mastered
+statistics-concept-map-learning = Learning
+statistics-concept-map-weak = Weak
+statistics-concept-map-new = New
+
 ## These strings are no longer used - you do not need to translate them if they
 ## are not already translated.
 

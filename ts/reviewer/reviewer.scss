@@ -34,6 +34,30 @@ img {
     max-height: 95vh;
 }
 
+// CFA Speedrun: show the current card's tags (its topic/category) above the
+// card content on every question and answer.
+#tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.3em;
+    justify-content: center;
+    margin: 0 0 0.8em;
+    font-size: 0.8em;
+
+    &:empty {
+        display: none;
+    }
+
+    .tag {
+        padding: 0.05em 0.55em;
+        color: var(--fg-subtle);
+        background: var(--canvas-inset);
+        border: 1px solid var(--border-subtle);
+        border-radius: var(--border-radius);
+        white-space: nowrap;
+    }
+}
+
 li {
     text-align: start;
 }

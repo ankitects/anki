@@ -335,6 +335,7 @@ class Reviewer:
 <div id="_mark" hidden>&#x2605;</div>
 <div id="_flag" hidden>&#x2691;</div>
 {fade}
+<div id="tags" dir="auto"></div>
 <div id="qa" dir="auto"></div>
 {extra}
 """
@@ -398,6 +399,7 @@ class Reviewer:
         self.web.eval(
             f"_showQuestion({json.dumps(q)}, {json.dumps(a)}, '{bodyclass}');"
         )
+        self.web.eval(f"_showTags({json.dumps(c.note().tags)});")
         self._update_flag_icon()
         self._update_mark_icon()
         self._showAnswerButton()
@@ -479,6 +481,7 @@ class Reviewer:
         a = gui_hooks.card_will_show(a, c, "reviewAnswer")
         # render and update bottom
         self.web.eval(f"_showAnswer({json.dumps(a)});")
+        self.web.eval(f"_showTags({json.dumps(c.note().tags)});")
         self._showEaseButtons()
         self.mw.web.setFocus()
         # user hook

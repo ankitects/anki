@@ -314,6 +314,9 @@ class DeckBrowser:
         a = m.addAction(tr.actions_options())
         assert a is not None
         qconnect(a.triggered, lambda b, did=did: self._options(DeckId(int(did))))
+        a = m.addAction(tr.statistics_concept_map())
+        assert a is not None
+        qconnect(a.triggered, lambda b, did=did: self._concept_graph(DeckId(int(did))))
         a = m.addAction(tr.actions_export())
         assert a is not None
         qconnect(a.triggered, lambda b, did=did: self._export(DeckId(int(did))))
@@ -344,6 +347,11 @@ class DeckBrowser:
 
     def _options(self, did: DeckId) -> None:
         display_options_for_deck_id(did)
+
+    def _concept_graph(self, did: DeckId) -> None:
+        import aqt.concept_graph
+
+        aqt.concept_graph.show_concept_graph(self.mw, did)
 
     def _collapse(self, did: DeckId) -> None:
         node = self.mw.col.decks.find_deck_in_tree(self._render_data.tree, did)

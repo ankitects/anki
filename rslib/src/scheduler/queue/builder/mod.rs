@@ -2,6 +2,7 @@
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 mod burying;
+mod contrast;
 mod gathering;
 pub(crate) mod intersperser;
 pub(crate) mod sized_chain;
@@ -10,6 +11,7 @@ mod sorting;
 use std::collections::HashMap;
 use std::collections::VecDeque;
 
+use contrast::ContrastClusters;
 use intersperser::Intersperser;
 use sized_chain::SizedChain;
 
@@ -100,6 +102,10 @@ pub(super) struct QueueSortOptions {
     pub(super) review_order: ReviewCardOrder,
     pub(super) day_learn_mix: ReviewMix,
     pub(super) new_review_mix: ReviewMix,
+    /// CFA Speedrun (SPOV 1 + SPOV 3): surface confusable cards adjacently.
+    pub(super) contrast_scheduling: bool,
+    /// Tag prefix that defines a confusable cluster ("cluster::" when empty).
+    pub(super) contrast_tag_prefix: String,
 }
 
 #[derive(Debug)]
@@ -110,6 +116,9 @@ pub(super) struct QueueBuilder {
     pub(super) day_learning: Vec<DueCard>,
     limits: LimitTreeMap,
     load_balancer: Option<LoadBalancer>,
+    /// Resolved confusable clusters for the gathered cards, when contrast
+    /// scheduling is enabled. Populated after gathering, consumed during build.
+    contrast: Option<ContrastClusters>,
     context: Context,
 }
 
@@ -171,6 +180,7 @@ impl QueueBuilder {
             day_learning: Vec::new(),
             limits,
             load_balancer,
+            contrast: None,
             context: Context {
                 timing,
                 config_map,
@@ -185,6 +195,9 @@ impl QueueBuilder {
 
     pub(super) fn build(mut self, learn_ahead_secs: i64) -> CardQueues {
         self.sort_new();
+        // CFA Speedrun: cluster confusable cards adjacently. Runs after the
+        // normal sort so it has the final say on order within each pile.
+        self.apply_contrast();
 
         // intraday learning and total learn count
         let intraday_learning = sort_learning(self.learning);
@@ -233,6 +246,8 @@ fn sort_options(deck: &Deck, config_map: &HashMap<DeckConfigId, DeckConfig>) -> 
             review_order: config.inner.review_order(),
             day_learn_mix: config.inner.interday_learning_mix(),
             new_review_mix: config.inner.new_mix(),
+            contrast_scheduling: config.inner.contrast_scheduling,
+            contrast_tag_prefix: config.inner.contrast_tag_prefix.clone(),
         })
         .unwrap_or_else(|| {
             // filtered decks do not space siblings
@@ -286,6 +301,9 @@ impl Collection {
             .update_active_decks(&queues.context.root_deck)?;
 
         queues.gather_cards(self)?;
+        // CFA Speedrun: load confusable-cluster tags for the gathered cards so
+        // the contrast pass can reorder them during build().
+        queues.load_contrast_clusters(self)?;
 
         let queues = queues.build(self.learn_ahead_secs() as i64);
 
@@ -353,6 +371,31 @@ mod test {
                 .map(|entry| {
                     let card = self.storage.get_card(entry.card_id()).unwrap().unwrap();
                     (card.due, card.interval)
+                })
+                .collect()
+        }
+
+        fn add_tagged_new_note(&mut self, field: &str, tags: &[&str]) {
+            let nt = self.get_notetype_by_name("Basic").unwrap().unwrap();
+            let mut note = nt.new_note();
+            note.set_field(0, field).unwrap();
+            note.tags = tags.iter().map(ToString::to_string).collect();
+            self.add_note(&mut note, DeckId(1)).unwrap();
+        }
+
+        /// The cluster tag (or "" if none) of each queued card, in queue order.
+        fn queue_clusters(&mut self, deck_id: DeckId) -> Vec<String> {
+            self.build_queues(deck_id)
+                .unwrap()
+                .iter()
+                .map(|entry| {
+                    let card = self.storage.get_card(entry.card_id()).unwrap().unwrap();
+                    let note = self.storage.get_note(card.note_id).unwrap().unwrap();
+                    note.tags
+                        .iter()
+                        .find(|t| t.starts_with("cluster::"))
+                        .cloned()
+                        .unwrap_or_default()
                 })
                 .collect()
         }
@@ -542,5 +585,52 @@ mod test {
         CardAdder::new().deck(child.id).add(&mut col);
         col.set_current_deck(child.id).unwrap();
         assert_eq!(col.card_queue_len(), 0);
+    }
+
+    #[test]
+    fn contrast_scheduling_surfaces_confusables_adjacently() {
+        let mut col = Collection::new();
+        // Gather in a deterministic insertion order so the test is about
+        // contrast, not the gather/sort tiebreaker.
+        col.update_default_deck_config(|config| {
+            config.new_card_gather_priority = NewCardGatherPriority::LowestPosition as i32;
+            config.new_card_sort_order = NewCardSortOrder::NoSort as i32;
+        });
+        col.add_tagged_new_note("a1", &["cluster::x"]);
+        col.add_tagged_new_note("b1", &[]);
+        col.add_tagged_new_note("c1", &["cluster::y"]);
+        col.add_tagged_new_note("a2", &["cluster::x"]);
+        col.add_tagged_new_note("c2", &["cluster::y"]);
+        col.add_tagged_new_note("b2", &[]);
+
+        // OFF (vanilla): cards keep their gathered order.
+        assert_eq!(
+            col.queue_clusters(DeckId(1)),
+            vec![
+                "cluster::x",
+                "",
+                "cluster::y",
+                "cluster::x",
+                "cluster::y",
+                ""
+            ]
+        );
+
+        // ON: same-cluster cards are pulled together, in first-appearance order,
+        // while uncluttered cards keep their slots. No cards are dropped.
+        col.update_default_deck_config(|config| {
+            config.contrast_scheduling = true;
+        });
+        assert_eq!(
+            col.queue_clusters(DeckId(1)),
+            vec![
+                "cluster::x",
+                "cluster::x",
+                "",
+                "cluster::y",
+                "cluster::y",
+                ""
+            ]
+        );
     }
 }

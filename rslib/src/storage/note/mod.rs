@@ -8,6 +8,7 @@ use rusqlite::params;
 use rusqlite::Row;
 use unicase::UniCase;
 
+use super::comma_separated_ids;
 use crate::import_export::package::NoteMeta;
 use crate::notes::NoteTags;
 use crate::prelude::*;
@@ -282,6 +283,24 @@ impl super::SqliteStorage {
             ))?
             .query_and_then([], row_to_note)?
             .collect()
+    }
+
+    /// Map the given note ids to their raw (space-padded) tag strings in a
+    /// single query. Missing ids are simply absent from the result. Used by the
+    /// contrast scheduler to look up confusable clusters for gathered cards.
+    pub(crate) fn note_tags_by_id(&self, nids: &[NoteId]) -> Result<HashMap<NoteId, String>> {
+        let mut out = HashMap::with_capacity(nids.len());
+        if nids.is_empty() {
+            return Ok(out);
+        }
+        let ids = comma_separated_ids(&nids.iter().map(|nid| nid.0).collect::<Vec<_>>());
+        let sql = format!("SELECT id, tags FROM notes WHERE id IN ({ids})");
+        let mut stmt = self.db.prepare(&sql)?;
+        let mut rows = stmt.query([])?;
+        while let Some(row) = rows.next()? {
+            out.insert(NoteId(row.get(0)?), row.get(1)?);
+        }
+        Ok(out)
     }
 
     pub(crate) fn get_note_tags_by_predicate<F>(&mut self, want: F) -> Result<Vec<NoteTags>>

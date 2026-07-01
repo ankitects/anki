@@ -193,6 +193,17 @@ message DeckConfig {
     float historical_retention = 40;
     string param_search = 45;
 
+    // CFA Speedrun (SPOV 1 platform + SPOV 3): when enabled, cards whose notes
+    // share a cluster tag prefix are surfaced back-to-back in the review queue,
+    // so confusable cards are studied together. This is pure reordering of the
+    // gathered piles — no cards are added, held back, or buried.
+    bool contrast_scheduling = 47;
+    // Tag prefix that defines a confusable cluster (e.g. "cluster::"). When
+    // empty, cards are clustered by their first content tag, so decks whose
+    // tags are plain reading/topic names (like the imported CFA deck) still
+    // cluster.
+    string contrast_tag_prefix = 48;
+
     bytes other = 255;
   }
 

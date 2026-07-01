@@ -24,6 +24,41 @@ def test_stats():
     assert len(card_stats.revlog) == 2
 
 
+def test_topic_mastery():
+    col = getEmptyCol()
+
+    def add(front, tags):
+        note = col.newNote()
+        note["Front"] = front
+        note.tags = tags
+        col.addNote(note)
+
+    add("1", ["cfa::topic::ethics"])
+    add("2", ["cfa::topic::ethics"])
+    add("3", ["cfa::topic::fixed_income"])
+    add("4", ["misc"])
+    add("5", [])
+
+    res = col.topic_mastery(topic_prefix="cfa::topic::")
+    assert res.considered == 5
+    # "misc" and the untagged note don't match the topic prefix
+    assert res.untagged == 2
+    topics = {t.topic: t for t in res.topics}
+    assert set(topics) == {"ethics", "fixed_income"}
+    assert topics["ethics"].total == 2
+    assert topics["fixed_income"].total == 1
+    # fresh cards have no FSRS memory state yet
+    assert topics["ethics"].with_memory_state == 0
+    assert topics["ethics"].mastered == 0
+
+    # empty prefix falls back to the default cfa::topic:: prefix
+    assert len(col.topic_mastery().topics) == 2
+
+    # honest "give-up" rule: too little graded data -> the dashboard abstains
+    graded = sum(t.with_memory_state for t in res.topics)
+    assert graded < 300
+
+
 def test_graphs_empty():
     col = getEmptyCol()
     assert col.stats().report()

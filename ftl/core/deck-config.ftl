@@ -186,6 +186,16 @@ deck-config-review-sort-order-tooltip =
     first. If you have a large backlog that will take more than a few days to
     clear, or wish to see cards in subdeck order, you may find the alternate
     sort orders preferable.
+deck-config-contrast-scheduling = Contrast scheduling
+deck-config-contrast-scheduling-tooltip =
+    When enabled, cards whose notes share a tag are surfaced back-to-back during
+    review, so confusable cards (for example FIFO vs LIFO, or look-alike formulas)
+    are studied together and the contrast itself becomes the lesson. By default
+    cards are grouped by their first tag (its topic/reading), so decks with plain
+    reading tags work with no retagging.
+    
+    This only reorders cards that were already going to be shown — no cards are
+    added, held back, or buried, so your daily limits are unchanged.
 
 deck-config-display-order-will-use-current-deck =
     Anki will use the display order from the deck you 

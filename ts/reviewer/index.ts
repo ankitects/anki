@@ -222,6 +222,21 @@ export function _drawMark(mark: boolean): void {
     document.getElementById("_mark")!.toggleAttribute("hidden", !mark);
 }
 
+export function _showTags(tags: string[]): void {
+    const el = document.getElementById("tags");
+    if (!el) {
+        return;
+    }
+    el.replaceChildren(
+        ...tags.map((tag) => {
+            const span = document.createElement("span");
+            span.className = "tag";
+            span.textContent = tag;
+            return span;
+        }),
+    );
+}
+
 export function _typeAnsPress(): void {
     const key = (window.event as KeyboardEvent).key;
     if (key === "Enter") {

@@ -611,6 +611,62 @@ impl super::SqliteStorage {
             .collect()
     }
 
+    /// For each card currently in `search_cids`, return its note's raw tag
+    /// string together with the card's FSRS retrievability (None when the card
+    /// has no FSRS memory state). Computed in a single SQL pass — no per-card
+    /// load — so the topic-mastery RPC stays fast on large collections.
+    pub(crate) fn searched_cards_retrievability_and_tags(
+        &self,
+        timing: SchedTimingToday,
+    ) -> Result<Vec<(String, Option<f32>)>> {
+        let today = timing.days_elapsed;
+        let next_day_at = timing.next_day_at.0;
+        let now = timing.now.0;
+        let sql = format!(
+            "select n.tags, extract_fsrs_retrievability(c.data, \
+             case when c.odue != 0 then c.odue else c.due end, c.ivl, \
+             {today}, {next_day_at}, {now}) \
+             from cards c, search_cids, notes n \
+             where c.id = search_cids.cid and c.nid = n.id"
+        );
+        self.db
+            .prepare(&sql)?
+            .query_and_then([], |row| -> Result<(String, Option<f32>)> {
+                Ok((row.get(0)?, row.get::<_, Option<f64>>(1)?.map(|r| r as f32)))
+            })?
+            .collect()
+    }
+
+    /// Like [`Self::searched_cards_retrievability_and_tags`], but also returns
+    /// each card's type (New=0, Learn=1, Review=2, Relearn=3). Lets the concept
+    /// graph colour a cluster by study progress when FSRS retrievability is not
+    /// available (e.g. a non-FSRS or freshly imported deck).
+    pub(crate) fn searched_cards_graph_data(
+        &self,
+        timing: SchedTimingToday,
+    ) -> Result<Vec<(String, Option<f32>, i64)>> {
+        let today = timing.days_elapsed;
+        let next_day_at = timing.next_day_at.0;
+        let now = timing.now.0;
+        let sql = format!(
+            "select n.tags, extract_fsrs_retrievability(c.data, \
+             case when c.odue != 0 then c.odue else c.due end, c.ivl, \
+             {today}, {next_day_at}, {now}), c.type \
+             from cards c, search_cids, notes n \
+             where c.id = search_cids.cid and c.nid = n.id"
+        );
+        self.db
+            .prepare(&sql)?
+            .query_and_then([], |row| -> Result<(String, Option<f32>, i64)> {
+                Ok((
+                    row.get(0)?,
+                    row.get::<_, Option<f64>>(1)?.map(|r| r as f32),
+                    row.get(2)?,
+                ))
+            })?
+            .collect()
+    }
+
     /// Cards will arrive in card id order, not search order.
     pub(crate) fn for_each_card_in_search<F>(&self, mut func: F) -> Result<()>
     where

@@ -83,6 +83,8 @@ const DEFAULT_DECK_CONFIG_INNER: DeckConfigInner = DeckConfigInner {
     param_search: String::new(),
     ignore_revlogs_before_date: String::new(),
     easy_days_percentages: Vec::new(),
+    contrast_scheduling: false,
+    contrast_tag_prefix: String::new(),
 };
 
 impl Default for DeckConfig {

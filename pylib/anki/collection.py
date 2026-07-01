@@ -1028,6 +1028,27 @@ class Collection(DeprecatedNamesMixin):
     def studied_today(self) -> str:
         return self._backend.studied_today()
 
+    def topic_mastery(
+        self,
+        topic_prefix: str = "",
+        mastered_threshold: float = 0.0,
+        search: str = "",
+    ) -> stats_pb2.TopicMasteryResponse:
+        """Per-topic mastery/coverage over a tag taxonomy (CFA Speedrun).
+
+        Groups cards by ``topic_prefix`` (default ``cfa::topic::``) and reports,
+        per topic, how many cards there are, how many are "mastered" (FSRS
+        retrievability >= ``mastered_threshold``, default 0.9) and the mean
+        retrievability. ``search`` restricts the considered cards (empty =
+        whole collection). This is the backend for the Memory gauge and the
+        coverage map; callers apply the give-up rule before displaying a number.
+        """
+        return self._backend.topic_mastery(
+            topic_prefix=topic_prefix,
+            mastered_threshold=mastered_threshold,
+            search=search,
+        )
+
     # Undo
     ##########################################################################
 
