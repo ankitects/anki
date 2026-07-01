@@ -170,3 +170,42 @@ impl From<FsrsMemoryState> for anki_proto::cards::FsrsMemoryState {
         }
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use crate::prelude::*;
+    use crate::services::CardsService;
+    use crate::tests::DeckAdder;
+    use crate::tests::NoteAdder;
+
+    #[test]
+    fn set_deck_reassigns_card_to_target_deck() {
+        let mut col = Collection::new();
+        let note = NoteAdder::basic(&mut col).add(&mut col);
+        let cid = col.storage.card_ids_of_notes(&[note.id]).unwrap()[0];
+
+        // the card starts in the default deck
+        assert_eq!(
+            col.storage.get_card(cid).unwrap().unwrap().deck_id,
+            DeckId(1)
+        );
+
+        let target = DeckAdder::new("Target").add(&mut col);
+
+        let out = CardsService::set_deck(
+            &mut col,
+            anki_proto::cards::SetDeckRequest {
+                card_ids: vec![cid.0],
+                deck_id: target.id.0,
+            },
+        )
+        .unwrap();
+
+        assert_eq!(out.count, 1, "one card was moved");
+        assert_eq!(
+            col.storage.get_card(cid).unwrap().unwrap().deck_id,
+            target.id,
+            "card now belongs to the target deck"
+        );
+    }
+}
