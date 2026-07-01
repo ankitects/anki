@@ -73,7 +73,7 @@ jobs:
               });
             }
 
-      - name: Remove missing-issue label if issue is now linked
+      - name: Remove missing-issue label and bot comment if issue is now linked
         if: steps.check.outputs.has_linked_issue == 'true'
         uses: actions/github-script@f28e40c7f34bde8b3046d885e986cb6290c5673b #v7
         with:
@@ -87,13 +87,28 @@ jobs:
               issue_number
             });
 
-            const hasMissingLabel = labels.data.some(l => l.name === 'missing-issue');
-
-            if (hasMissingLabel) {
+            if (labels.data.some(l => l.name === 'missing-issue')) {
               await github.rest.issues.removeLabel({
                 owner,
                 repo,
                 issue_number,
                 name: 'missing-issue'
               });
+            }
+
+            const comments = await github.rest.issues.listComments({
+              owner,
+              repo,
+              issue_number,
+              per_page: 100
+            });
+
+            for (const comment of comments.data) {
+              if (comment.user.type === 'Bot' && comment.body.includes('To link an issue, edit the PR description')) {
+                await github.rest.issues.deleteComment({
+                  owner,
+                  repo,
+                  comment_id: comment.id
+                });
+              }
             }
