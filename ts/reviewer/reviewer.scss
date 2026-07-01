@@ -1,6 +1,7 @@
 /* Copyright: Ankitects Pty Ltd and contributors
  * License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html */
 
+@use "sass:string";
 @use "../lib/sass/vars";
 @use "../routes/image-occlusion/review";
 
@@ -132,5 +133,5 @@ button {
     zoom: 50%;
 }
 .nightMode img.drawing {
-    filter: unquote("invert(1) hue-rotate(180deg)");
+    filter: string.unquote("invert(1) hue-rotate(180deg)");
 }

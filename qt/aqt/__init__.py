@@ -11,11 +11,6 @@ import sys
 from collections.abc import Callable
 from typing import TYPE_CHECKING, Any, Union, cast
 
-if "ANKI_FIRST_RUN" in os.environ:
-    from .package import first_run_setup
-
-    first_run_setup()
-
 try:
     import truststore
 
@@ -43,11 +38,6 @@ if "--syncserver" in sys.argv:
 
     # does not return
     run_sync_server()
-
-if sys.platform == "win32":
-    from win32com.shell import shell
-
-    shell.SetCurrentProcessExplicitAppUserModelID("Ankitects.Anki")
 
 import argparse
 import builtins
@@ -312,7 +302,10 @@ class AnkiApp(QApplication):
 
     appMsg = pyqtSignal(str)
 
-    KEY = f"anki{checksum(getpass.getuser())}"
+    KEY = (
+        os.environ.get("ANKI_SINGLE_INSTANCE_KEY")
+        or f"anki{checksum(getpass.getuser())}"
+    )
     TMOUT = 30000
 
     def __init__(self, argv: list[str]) -> None:

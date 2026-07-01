@@ -1,12 +1,20 @@
 [project]
 name = "aqt"
 dynamic = ["version"]
+description = "Qt-based desktop GUI for Anki, the spaced repetition flashcard program"
+readme = "README.md"
 requires-python = ">=3.10"
 license = "AGPL-3.0-or-later"
+authors = [
+  { name = "Anki Team" },
+]
+urls."Bug Tracker" = "https://github.com/ankitects/anki/issues"
+urls."Source Code" = "https://github.com/ankitects/anki"
+urls.homepage = "https://github.com/ankitects/anki"
+
 dependencies = [
   "beautifulsoup4",
   "flask",
-  "flask_cors",
   "jsonschema",
   "requests",
   "send2trash",
@@ -22,7 +30,7 @@ dependencies = [
 
 [project.optional-dependencies]
 audio = [
-  "anki-audio==0.1.0; (sys.platform == 'win32' and platform_machine == 'AMD64') or sys.platform == 'darwin'",
+  "anki-audio==0.2.2; sys.platform == 'win32' or sys.platform == 'darwin'",
 ]
 qt = [
   "pyqt6==6.11.0",
