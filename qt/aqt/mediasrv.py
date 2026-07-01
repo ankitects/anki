@@ -1063,6 +1063,7 @@ exposed_backend_list = [
     # DeckService
     "get_deck_names",
     "get_deck",
+    "set_current_deck",
     # I18nService
     "i18n_resources",
     # ImportExportService
@@ -1118,7 +1119,10 @@ exposed_backend_list = [
     "html_to_text_line",
     # ConfigService
     "set_config_json",
+    "set_config_json_no_undo",
+    "set_config_bool",
     "get_config_bool",
+    "remove_config",
     # MediaService
     "add_media_file",
     "add_media_from_path",
