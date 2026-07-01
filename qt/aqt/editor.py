@@ -12,7 +12,6 @@ import re
 import urllib.error
 import urllib.parse
 import urllib.request
-import warnings
 from collections.abc import Callable
 from dataclasses import dataclass
 from random import randrange
@@ -22,12 +21,11 @@ from anki.cards import Card
 from anki.decks import DeckId
 from anki.hooks import runFilter
 from anki.httpclient import HttpClient
-from anki.models import NotetypeDict, NotetypeId
+from anki.models import NotetypeId
 from anki.notes import Note, NoteId
 from anki.utils import checksum, is_win
 from aqt import AnkiQt, gui_hooks
 from aqt.editor_legacy import *
-from aqt.operations.note import update_note
 from aqt.qt import *
 from aqt.sound import av_player
 from aqt.utils import shortcut, showWarning, tr
