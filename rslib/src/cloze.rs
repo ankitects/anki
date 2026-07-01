@@ -91,16 +91,48 @@ fn tokenize(mut text: &str) -> impl Iterator<Item = Token<'_>> {
                 nom::error::ErrorKind::Eof,
             )));
         }
-        let mut other_token = alt((open_cloze, close_cloze));
-        // start with the no-match case
         let mut index = text.len();
-        for (idx, _) in text.char_indices() {
-            if other_token.parse(&text[idx..]).is_ok() {
-                index = idx;
+        let mut i = 0;
+        let mut mathjax_end: Option<&str> = None;
+        while i < text.len() {
+            let rest = &text[i..];
+            // Cloze openings should be recognized everywhere, including inside MathJax.
+            if open_cloze(rest).is_ok() {
+                index = i;
                 break;
             }
+            // Cloze closings should only be recognized outside MathJax.
+            if mathjax_end.is_none() && close_cloze(rest).is_ok() {
+                index = i;
+                break;
+            }
+            match mathjax_end {
+                None => {
+                    // Enter MathJax when not already inside it.
+                    if rest.starts_with(r"\(") {
+                        mathjax_end = Some(r"\)");
+                        i += 2;
+                        continue;
+                    }
+                    if rest.starts_with(r"\[") {
+                        mathjax_end = Some(r"\]");
+                        i += 2;
+                        continue;
+                    }
+                }
+                Some(end) => {
+                    // Exit MathJax when we hit the matching delimiter.
+                    if rest.starts_with(end) {
+                        mathjax_end = None;
+                        i += 2;
+                        continue;
+                    }
+                }
+            }
+
+            i += rest.chars().next().unwrap().len_utf8();
         }
-        Ok((&text[index..], Token::Text(&text[0..index])))
+        Ok((&text[index..], Token::Text(&text[..index])))
     }
 
     std::iter::from_fn(move || {
@@ -662,6 +694,45 @@ mod test {
         assert_eq!(
             strip_html_inside_mathjax(r"\(<foo>&lt;&gt;</foo>\)"),
             r"\(&lt;&gt;\)"
+        );
+    }
+
+    #[test]
+    fn cloze_with_mathjax_braces() {
+        let text = r"{{c1:: \( \frac{1}{\sqrt{\pi}} \) }}";
+        assert_eq!(
+            strip_html(reveal_cloze_text(text, 1, true).as_ref()),
+            "[...]"
+        );
+        assert_eq!(
+            strip_html(reveal_cloze_text(text, 1, false).as_ref()),
+            r" \( \frac{1}{\sqrt{\pi}} \) "
+        );
+    }
+
+    #[test]
+    fn cloze_with_mathjax_square_brackets() {
+        let text = r"{{c1:: \[ \frac{1}{\sqrt{\pi}} \] }}";
+        assert_eq!(
+            strip_html(reveal_cloze_text(text, 1, true).as_ref()),
+            "[...]"
+        );
+        assert_eq!(
+            strip_html(reveal_cloze_text(text, 1, false).as_ref()),
+            r" \[ \frac{1}{\sqrt{\pi}} \] "
+        );
+    }
+
+    #[test]
+    fn cloze_with_multiple_mathjax_expressions() {
+        let text = r"{{c1:: \(\pi\) and \(\sqrt{2}\) }}";
+        assert_eq!(
+            strip_html(reveal_cloze_text(text, 1, true).as_ref()),
+            "[...]"
+        );
+        assert_eq!(
+            strip_html(reveal_cloze_text(text, 1, false).as_ref()),
+            r" \(\pi\) and \(\sqrt{2}\) "
         );
     }
 
