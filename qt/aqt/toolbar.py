@@ -378,6 +378,12 @@ class Toolbar:
                 self._masteryLinkHandler,
                 id="mastery",
             ),
+            self.create_link(
+                "to-learn",
+                tr.statistics_to_learn_title(),
+                self._toLearnLinkHandler,
+                id="to-learn",
+            ),
         ]
 
         links.append(self._create_sync_link())
@@ -458,6 +464,9 @@ class Toolbar:
 
     def _masteryLinkHandler(self) -> None:
         self.mw.onMastery()
+
+    def _toLearnLinkHandler(self) -> None:
+        self.mw.onToLearn()
 
     def _syncLinkHandler(self) -> None:
         self.mw.on_sync_button_clicked()

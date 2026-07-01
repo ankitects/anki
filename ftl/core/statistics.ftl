@@ -327,6 +327,16 @@ statistics-mastery-no-reviews-yet = No reviews yet
 statistics-mastery-next-topic = Focus next: { $topic }
 statistics-mastery-reasons = Based on { $reviews } graded reviews across { $count } of { $total } topics
 
+## To-learn view
+
+statistics-to-learn-title = To Learn
+statistics-to-learn-empty = Nothing marked yet
+statistics-to-learn-count =
+    { $count ->
+        [one] { $count } card
+       *[other] { $count } cards
+    }
+
 ## These strings are no longer used - you do not need to translate them if they
 ## are not already translated.
 

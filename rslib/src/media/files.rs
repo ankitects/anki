@@ -363,7 +363,7 @@ where
         if let Err(err) = set_file_times(&dst_path, times) {
             // The libc utimes() call fails on (some? all?) Android devices. Since we don't
             // do automatic expiry yet, we can safely ignore the error.
-            if !cfg!(target_os = "android") {
+            if !cfg!(target_os = "android") && !cfg!(target_os = "ios") {
                 return Err(err.into());
             }
         }

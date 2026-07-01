@@ -1346,6 +1346,9 @@ title="{}" {}>{}</button>""".format(
     def onMastery(self) -> None:
         aqt.dialogs.open("MasteryStats", self)
 
+    def onToLearn(self) -> None:
+        aqt.dialogs.open("ToLearnStats", self)
+
     def onPrefs(self) -> None:
         aqt.dialogs.open("Preferences", self)
 

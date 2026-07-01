@@ -415,6 +415,7 @@ def is_sveltekit_page(path: str) -> bool:
     return page_name in [
         "graphs",
         "mastery",
+        "to-learn",
         "congrats",
         "card-info",
         "change-notetype",
@@ -750,6 +751,7 @@ exposed_backend_list = [
     "tag_mastery",
     # TagsService
     "complete_tag",
+    "never_learned_list",
     # ImageOcclusionService
     "get_image_for_occlusion",
     "add_image_occlusion_note",

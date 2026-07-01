@@ -1,0 +1,18 @@
+[package]
+name = "anki-ios"
+version.workspace = true
+authors.workspace = true
+edition.workspace = true
+license.workspace = true
+publish = false
+rust-version.workspace = true
+description = "C ABI staticlib shim exposing anki's backend to iOS/Swift"
+
+[lib]
+name = "anki_ios"
+crate-type = ["staticlib"]
+path = "src/lib.rs"
+test = false
+
+[dependencies]
+anki.workspace = true

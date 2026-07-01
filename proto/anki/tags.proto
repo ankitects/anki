@@ -25,6 +25,10 @@ service TagsService {
   rpc FindAndReplaceTag(FindAndReplaceTagRequest)
       returns (collection.OpChangesWithCount);
   rpc CompleteTag(CompleteTagRequest) returns (CompleteTagResponse);
+  rpc NeverLearnedList(NeverLearnedListRequest)
+      returns (NeverLearnedListResponse);
+  rpc SetNeverLearned(SetNeverLearnedRequest)
+      returns (collection.OpChangesWithCount);
 }
 
 // Implicitly includes any of the above methods that are not listed in the
@@ -74,4 +78,38 @@ message CompleteTagRequest {
 
 message CompleteTagResponse {
   repeated string tags = 1;
+}
+
+message NeverLearnedListRequest {
+  // Topic grouping depth, matching TagMastery's group_key semantics.
+  uint32 group_depth = 1;
+  // Optional extra search scope; backend ANDs this with tag:NeverLearned.
+  // Callers must NOT include tag:NeverLearned themselves.
+  string search = 2;
+}
+
+message NeverLearnedListResponse {
+  message Card {
+    int64 card_id = 1;
+    // Note first field, split on \x1f, index 0; rendered as-is.
+    string label = 2;
+  }
+  message Group {
+    // Topic key, or the "Other" sentinel.
+    string tag = 1;
+    repeated Card cards = 2;
+  }
+  repeated Group groups = 1;
+  // Distinct card ids across all groups (a multi-topic card is counted
+  // once here, even though it appears in each of its groups).
+  uint32 total_cards = 2;
+}
+
+message SetNeverLearnedRequest {
+  // The card being reviewed; the backend derives its topic(s) from the
+  // note's tags at group_depth.
+  int64 card_id = 1;
+  uint32 group_depth = 2;
+  // true = mark the whole topic as never learned; false = unmark it.
+  bool enabled = 3;
 }

@@ -27,7 +27,7 @@ from anki.scheduler.v3 import (
     SetSchedulingStatesRequest,
 )
 from anki.scheduler.v3 import Scheduler as V3Scheduler
-from anki.tags import MARKED_TAG
+from anki.tags import MARKED_TAG, NEVER_LEARNED_TAG
 from anki.types import assert_exhaustive
 from anki.utils import is_mac
 from aqt import AnkiQt, gui_hooks
@@ -44,13 +44,18 @@ from aqt.operations.scheduling import (
     suspend_cards,
     suspend_note,
 )
-from aqt.operations.tag import add_tags_to_notes, remove_tags_from_notes
+from aqt.operations.tag import (
+    add_tags_to_notes,
+    remove_tags_from_notes,
+    set_never_learned,
+)
 from aqt.profiles import VideoDriver
 from aqt.qt import *
 from aqt.sound import av_player, play_clicked_audio, record_audio
 from aqt.theme import theme_manager
 from aqt.toolbar import BottomBar
 from aqt.utils import (
+    askUser,
     askUserDialog,
     downArrow,
     qtMenuShortcutWorkaround,
@@ -620,6 +625,7 @@ class Reviewer:
                 for flag in self.mw.flags.all()
             ),
             ("*", self.toggle_mark_on_current_note),
+            ("n", self.toggle_never_learned_on_current_topic),
             ("=", self.bury_current_note),
             ("-", self.bury_current_card),
             ("!", self.suspend_current_note),
@@ -1022,6 +1028,12 @@ timerStopped = false;
             [tr.actions_previous_card_info(), "Ctrl+Alt+I", self.on_previous_card_info],
             None,
             [tr.studying_mark_note(), "*", self.toggle_mark_on_current_note],
+            [
+                tr.studying_never_learned(),
+                "n",
+                self.toggle_never_learned_on_current_topic,
+                dict(checked=self.card.note().has_tag(NEVER_LEARNED_TAG)),
+            ],
             [tr.studying_bury_note(), "=", self.bury_current_note],
             [tr.studying_suspend_note(), "!", self.suspend_current_note],
             [
@@ -1121,6 +1133,51 @@ timerStopped = false;
                 note_ids=[note.id],
                 space_separated_tags=MARKED_TAG,
             ).success(redraw_mark).run_in_background(initiator=self)
+
+    def _never_learned_topic_label(self) -> str:
+        # Name EVERY depth-2 topic the note belongs to — marking suspends all of
+        # them (backend derives the union), so a multi-topic note must not
+        # understate the confirm dialog's scope. Case-insensitive NeverLearned
+        # exclusion mirrors the backend's eq_ignore_ascii_case check.
+        note = self.card.note()
+        topics: list[str] = []
+        for t in note.tags:
+            if "::" not in t or t.lower() == NEVER_LEARNED_TAG.lower():
+                continue
+            key = "::".join(t.split("::")[:2])
+            if key not in topics:
+                topics.append(key)
+        return ", ".join(topics) if topics else "this card"
+
+    def toggle_never_learned_on_current_topic(self) -> None:
+        note = self.card.note()
+        enabled = not note.has_tag(NEVER_LEARNED_TAG)
+
+        def do_toggle() -> None:
+            def on_done(out: OpChangesWithCount) -> None:
+                tooltip(tr.studying_never_learned_count(count=out.count))
+                # No initiator is passed to run_in_background() below, so
+                # Reviewer.op_executed() (handler is not self) will see
+                # changes.study_queues and advance to the next card via
+                # refresh_if_needed() -> nextCard(), the same mechanism
+                # suspend_current_card/bury_current_card rely on.
+
+            set_never_learned(
+                parent=self.mw,
+                card_id=self.card.id,
+                group_depth=2,
+                enabled=enabled,
+            ).success(on_done).run_in_background()
+
+        if enabled:
+            topic = self._never_learned_topic_label()
+            if not askUser(
+                tr.studying_never_learned_confirm(topic=topic),
+                parent=self.mw,
+                defaultno=True,
+            ):
+                return
+        do_toggle()
 
     def on_set_due(self) -> None:
         if self.mw.state != "review" or not self.card:

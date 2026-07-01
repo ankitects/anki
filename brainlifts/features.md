@@ -12,5 +12,11 @@ actual learning connects to some textbook or smth
 
 tutorial for how to start using
 
-if a user doesn't know a lot of stuff, suggest they go and learn the topic before coming to flashcards
+if a user doesn't know a lot of stuff, suggest they go and learn 
+the topic before coming to flashcards
 if the user does a lot of easy categorizations, ask the user if they really thought it was easy
+
+
+daily progression: N anki cards, then M passage practice problems, then X passages read, then 
+
+for passage problems, Interleave worked example solution with problem solving exercises

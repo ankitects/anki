@@ -166,6 +166,13 @@ dependencies = [
 ]
 
 [[package]]
+name = "anki-ios"
+version = "0.0.0"
+dependencies = [
+ "anki",
+]
+
+[[package]]
 name = "anki-sync-server"
 version = "0.0.0"
 dependencies = [

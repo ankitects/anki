@@ -15,6 +15,7 @@ members = [
   "rslib",
   "rslib/i18n",
   "rslib/io",
+  "rslib/ios",
   "rslib/linkchecker",
   "rslib/process",
   "rslib/proto",
@@ -130,7 +131,7 @@ syn = { version = "2.0.103", features = ["parsing", "printing"] }
 tar = "0.4.46"
 tempfile = "3.20.0"
 termcolor = "1.4.1"
-tokio = { version = "1.45", features = ["fs", "rt-multi-thread", "macros", "signal"] }
+tokio = { version = "1.45", features = ["fs", "io-util", "rt-multi-thread", "macros", "signal"] }
 tokio-util = { version = "0.7.15", features = ["io"] }
 tower-http = { version = "0.6.6", features = ["trace"] }
 tracing = { version = "0.1.41", features = ["max_level_trace", "release_max_level_debug"] }

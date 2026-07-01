@@ -29,6 +29,14 @@ studying-it-has-been-suspended = It has been suspended.
 studying-manually-buried-cards = Manually Buried Cards
 studying-mark-note = Mark Note
 studying-more = More
+studying-never-learned = Never Learned
+studying-never-learned-confirm = Mark the whole topic "{ $topic }" as never learned? This suspends its cards and moves them to To Learn.
+studying-never-learned-count =
+    { $count ->
+        [one] Suspended { $count } card
+       *[other] Suspended { $count } cards
+    }
+studying-never-learned-note = Mark note as never learned
 studying-no-cards-are-due-yet = No cards are due yet.
 studying-note-suspended = Note suspended.
 studying-pause-audio = Pause Audio

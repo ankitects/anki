@@ -5,6 +5,7 @@ from __future__ import annotations
 
 from collections.abc import Sequence
 
+from anki.cards import CardId
 from anki.collection import OpChanges, OpChangesWithCount
 from anki.notes import NoteId
 from aqt.operations import CollectionOp
@@ -22,6 +23,23 @@ def add_tags_to_notes(
         parent, lambda col: col.tags.bulk_add(note_ids, space_separated_tags)
     ).success(
         lambda out: tooltip(tr.browsing_notes_updated(count=out.count), parent=parent)
+    )
+
+
+def set_never_learned(
+    *,
+    parent: QWidget,
+    card_id: CardId,
+    group_depth: int,
+    enabled: bool,
+) -> CollectionOp[OpChangesWithCount]:
+    # No .success() attached here: the caller (reviewer) needs a topic-aware
+    # tooltip and controls whether/how the reviewer advances afterwards.
+    return CollectionOp(
+        parent,
+        lambda col: col._backend.set_never_learned(
+            card_id=card_id, group_depth=group_depth, enabled=enabled
+        ),
     )
 
 

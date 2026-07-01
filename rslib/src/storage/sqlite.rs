@@ -68,7 +68,7 @@ fn open_or_create_collection_db(path: &Path) -> Result<Connection> {
     db.pragma_update(None, "legacy_file_format", false)?;
     db.pragma_update(None, "journal_mode", "wal")?;
     // Android has no /tmp folder, and fails in the default config.
-    #[cfg(target_os = "android")]
+    #[cfg(any(target_os = "android", target_os = "ios"))]
     db.pragma_update(None, "temp_store", &"memory")?;
 
     db.set_prepared_statement_cache_capacity(50);

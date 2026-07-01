@@ -5,6 +5,7 @@ mod bulkadd;
 mod complete;
 mod findreplace;
 mod matcher;
+mod never_learned;
 mod notes;
 mod register;
 mod remove;

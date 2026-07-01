@@ -29,6 +29,7 @@ from anki.utils import ids2str
 TagTreeNode = tags_pb2.TagTreeNode
 CompleteTagRequest = tags_pb2.CompleteTagRequest
 MARKED_TAG = "marked"
+NEVER_LEARNED_TAG = "NeverLearned"
 
 
 class TagManager(DeprecatedNamesMixin):

@@ -104,4 +104,23 @@ impl crate::services::TagsService for Collection {
         let tags = Collection::complete_tag(self, &input.input, input.match_limit as usize)?;
         Ok(anki_proto::tags::CompleteTagResponse { tags })
     }
+
+    fn never_learned_list(
+        &mut self,
+        input: anki_proto::tags::NeverLearnedListRequest,
+    ) -> error::Result<anki_proto::tags::NeverLearnedListResponse> {
+        self.never_learned_list(input)
+    }
+
+    fn set_never_learned(
+        &mut self,
+        input: anki_proto::tags::SetNeverLearnedRequest,
+    ) -> error::Result<anki_proto::collection::OpChangesWithCount> {
+        self.set_never_learned(
+            crate::card::CardId(input.card_id),
+            input.group_depth,
+            input.enabled,
+        )
+        .map(Into::into)
+    }
 }
