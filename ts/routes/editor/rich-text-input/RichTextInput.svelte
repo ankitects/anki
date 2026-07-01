@@ -96,7 +96,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     const direction = getContext<Readable<"ltr" | "rtl">>(directionKey);
 
     const nodes = getNormalizingNodeStore();
-    const [richTextPromise, resolve] = useRichTextResolve();
+    const [richTextPromise, resolve] = useRichTextResolve(isLegacy);
     const { mirror, preventResubscription } = useDOMMirror();
     const [inputHandler, setupInputHandler] = useInputHandler();
     const [customStyles, stylesResolve] = promiseWithResolver<Record<string, any>>();

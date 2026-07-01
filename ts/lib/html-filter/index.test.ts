@@ -67,7 +67,7 @@ describe("filterHTML", () => {
         ).toBe("<div>hello</div>");
         expect(
             filterHTML("<div><script>alert(1)</script>hello</div>", false, false),
-        ).toBe("<div>alert(1)hello</div>");
+        ).toBe("<div>hello</div>");
     });
 
     test("title tag is removed entirely, including its content", () => {

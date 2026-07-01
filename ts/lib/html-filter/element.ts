@@ -60,6 +60,10 @@ const tagsAllowedBasic: TagsAllowed = {
     SUB: allowNone,
     SUP: allowNone,
     TITLE: removeElement,
+    SCRIPT: removeElement,
+    IFRAME: removeElement,
+    OBJECT: removeElement,
+    STYLE: removeElement,
 };
 
 const tagsAllowedExtended: TagsAllowed = {
