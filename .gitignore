@@ -27,3 +27,5 @@ docs/autoapi/
 graphify-out/
 .factory/
 .claude/
+# MCAT fork: bundled seed deck (too large for git; dropped in at repo root)
+/MCAT_Milesdown.apkg

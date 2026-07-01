@@ -372,6 +372,12 @@ class Toolbar:
                 tip=tr.actions_shortcut_key(val="T"),
                 id="stats",
             ),
+            self.create_link(
+                "mastery",
+                tr.statistics_mastery_title(),
+                self._masteryLinkHandler,
+                id="mastery",
+            ),
         ]
 
         links.append(self._create_sync_link())
@@ -449,6 +455,9 @@ class Toolbar:
 
     def _statsLinkHandler(self) -> None:
         self.mw.onStats()
+
+    def _masteryLinkHandler(self) -> None:
+        self.mw.onMastery()
 
     def _syncLinkHandler(self) -> None:
         self.mw.on_sync_button_clicked()

@@ -660,6 +660,7 @@ class AnkiQt(QMainWindow):
         # has broken the deck browser or the did_load hook
         try:
             self._ensure_fsrs_enabled()
+            self._seed_mcat_deck_if_empty()
             self.update_undo_actions()
             gui_hooks.collection_did_load(self.col)
             self.apply_collection_options()
@@ -679,6 +680,20 @@ class AnkiQt(QMainWindow):
         """
         if self.col and not self.col.get_config("fsrs", False):
             self.col.set_config("fsrs", True)
+
+    def _seed_mcat_deck_if_empty(self) -> None:
+        """MCAT fork: import the bundled MileDown deck into a fresh collection
+        and run FSRS so the mastery dashboard has data. No-op once the
+        collection has cards. See specs/PRD1.md §0.5, §11."""
+        if not self.col or self.col.card_count():
+            return
+        from aqt import mcat_seed
+
+        self.progress.start(label="Importing MCAT deck and running FSRS…")
+        try:
+            mcat_seed.seed_if_empty(self.col)
+        finally:
+            self.progress.finish()
 
     def _loadCollection(self) -> None:
         cpath = self.pm.collectionPath()
@@ -1461,11 +1476,6 @@ title="{}" {}>{}</button>""".format(
         qconnect(m.actionNoteTypes.triggered, self.onNoteTypes)
         qconnect(m.action_check_for_updates.triggered, self.on_check_for_updates)
         qconnect(m.actionPreferences.triggered, self.onPrefs)
-
-        # Tools — topic-mastery dashboard (MCAT fork)
-        action_mastery = QAction(tr.statistics_mastery_title(), self)
-        qconnect(action_mastery.triggered, self.onMastery)
-        m.menuTools.addAction(action_mastery)
 
         # View
         qconnect(
