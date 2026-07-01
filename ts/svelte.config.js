@@ -33,6 +33,7 @@ const config = {
             entries: [],
         },
         paths: {},
+        csp: { mode: "hash", directives: { "script-src": ["'self'"] } },
     },
 };
 

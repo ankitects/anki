@@ -45,7 +45,7 @@ from PyQt6.QtWebEngineCore import (
 )
 from PyQt6.QtWidgets import QApplication
 
-from aqt.mediasrv import UNTRUSTED_MEDIA_CSP, _editor_content_security_policy
+from aqt.mediasrv import UNTRUSTED_MEDIA_CSP, _legacy_editor_content_security_policy
 
 AUTH_TOKEN = "qwebengine-csp-smoke-token"
 
@@ -243,7 +243,7 @@ try {
             html.encode(),
             "text/html",
             {
-                "Content-Security-Policy": _editor_content_security_policy(
+                "Content-Security-Policy": _legacy_editor_content_security_policy(
                     self.server.server_port
                 )
             },

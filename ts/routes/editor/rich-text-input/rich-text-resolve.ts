@@ -5,10 +5,10 @@ import { on } from "@tslib/events";
 import { promiseWithResolver } from "@tslib/promise";
 import { handleCutOrCopy, handleDragover, handleDrop, handleKeydown, handlePaste } from "./data-transfer";
 
-function bridgeCopyPasteCommands(input: HTMLElement): { destroy(): void } {
-    const removePaste = on(input, "paste", handlePaste);
-    const removeCopy = on(input, "copy", handleCutOrCopy);
-    const removeCut = on(input, "cut", handleCutOrCopy);
+function bridgeCopyPasteCommands(input: HTMLElement, isLegacy: boolean): { destroy(): void } {
+    const removePaste = on(input, "paste", (evt) => handlePaste(evt, isLegacy));
+    const removeCopy = on(input, "copy", (evt) => handleCutOrCopy(evt, isLegacy));
+    const removeCut = on(input, "cut", (evt) => handleCutOrCopy(evt, isLegacy));
     const removeDragover = on(input, "dragover", handleDragover);
     const removeDrop = on(input, "drop", handleDrop);
     const removeKeydown = on(input, "keydown", handleKeydown);
@@ -24,11 +24,11 @@ function bridgeCopyPasteCommands(input: HTMLElement): { destroy(): void } {
     };
 }
 
-function useRichTextResolve(): [Promise<HTMLElement>, (input: HTMLElement) => void] {
+function useRichTextResolve(isLegacy: boolean): [Promise<HTMLElement>, (input: HTMLElement) => void] {
     const [promise, resolve] = promiseWithResolver<HTMLElement>();
 
     function richTextResolve(input: HTMLElement): { destroy(): void } {
-        const destroy = bridgeCopyPasteCommands(input);
+        const destroy = bridgeCopyPasteCommands(input, isLegacy);
         resolve(input);
         return destroy;
     }
