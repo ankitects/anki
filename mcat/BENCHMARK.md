@@ -53,10 +53,10 @@ weighted coverage figure keeps such a deck from clearing the bar.
 From `fixtures/synthetic_50k_bench.json` (measured on the dev machine — Windows
 11, debug-profile `rsbridge`):
 
-| RPC | rows | p50 | p95 | worst (max) |
-|---|---|---|---|---|
-| `ConceptAwareQueue` | 50,000 | 2879 ms | 3519 ms | 3888 ms |
-| `ConceptMastery` | 31 | 2820 ms | 3263 ms | 3471 ms |
+| RPC                 | rows   | p50     | p95     | worst (max) |
+| ------------------- | ------ | ------- | ------- | ----------- |
+| `ConceptAwareQueue` | 50,000 | 2879 ms | 3519 ms | 3888 ms     |
+| `ConceptMastery`    | 31     | 2820 ms | 3263 ms | 3471 ms     |
 
 ### Honest interpretation vs spec §10
 

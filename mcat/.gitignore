@@ -4,3 +4,6 @@ fixtures/synthetic_*.anki2
 fixtures/synthetic_*.anki2-shm
 fixtures/synthetic_*.anki2-wal
 fixtures/synthetic_*.media/
+
+# Throwaway demo base folder produced by seed_demo.py (reproducible).
+fixtures/demo_base/

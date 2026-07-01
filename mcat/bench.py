@@ -101,10 +101,14 @@ def run(deck: str, taxonomy_path: str, iterations: int, warmup: int) -> dict:
         note_count = col.note_count()
 
         def queue_fn():
-            return col._backend.concept_aware_queue(taxonomy=taxonomy, search="")
+            return col._backend.concept_aware_queue(
+                taxonomy=taxonomy, search="", question_stats=[]
+            )
 
         def mastery_fn():
-            return col._backend.concept_mastery(taxonomy=taxonomy, search="")
+            return col._backend.concept_mastery(
+                taxonomy=taxonomy, search="", question_stats=[]
+            )
 
         queue_samples, queue_rows = time_rpc(queue_fn, iterations, warmup)
         mastery_samples, mastery_rows = time_rpc(mastery_fn, iterations, warmup)

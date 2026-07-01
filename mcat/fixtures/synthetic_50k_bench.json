@@ -1,23 +1,23 @@
 {
-  "deck": "C:\\Users\\aryan\\projects\\anki\\mcat\\fixtures\\synthetic_50k.anki2",
-  "taxonomy_version": "mcat-aamc-2015-v1",
-  "concepts": 31,
-  "card_count": 50000,
-  "note_count": 50000,
-  "iterations": 40,
-  "warmup": 5,
-  "concept_aware_queue": {
-    "rows": 50000,
-    "p50_ms": 2879.34,
-    "p95_ms": 3518.95,
-    "max_ms": 3888.2,
-    "mean_ms": 2936.78
-  },
-  "concept_mastery": {
-    "rows": 31,
-    "p50_ms": 2819.72,
-    "p95_ms": 3262.91,
-    "max_ms": 3471.14,
-    "mean_ms": 2835.81
-  }
+    "deck": "C:\\Users\\aryan\\projects\\anki\\mcat\\fixtures\\synthetic_50k.anki2",
+    "taxonomy_version": "mcat-aamc-2015-v1",
+    "concepts": 31,
+    "card_count": 50000,
+    "note_count": 50000,
+    "iterations": 40,
+    "warmup": 5,
+    "concept_aware_queue": {
+        "rows": 50000,
+        "p50_ms": 2879.34,
+        "p95_ms": 3518.95,
+        "max_ms": 3888.2,
+        "mean_ms": 2936.78
+    },
+    "concept_mastery": {
+        "rows": 31,
+        "p50_ms": 2819.72,
+        "p95_ms": 3262.91,
+        "max_ms": 3471.14,
+        "mean_ms": 2835.81
+    }
 }

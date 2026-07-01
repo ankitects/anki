@@ -28,9 +28,26 @@ job is to prove the foundation is real: a forked Anki that builds from source on
 running on a real MCAT deck, an honest **Memory** score with a stated give-up rule, and a desktop
 installer plus a phone build that both run on a clean device.
 
-The "understanding" (lessons) and "applying" (questions) phases, the reimagined dashboard,
-onboarding, and the Performance/Readiness scores are **out of scope for Phase 1** and tracked in
-§7 for Phase 2/3 docs.
+To make NTR more than a card-only statistic, Phase 1 also pulls a **small, deliberate slice of the
+"applying" phase forward**: a set of concept-coded, exam-style practice questions whose results feed
+each concept's NTR. This demonstrates the unifying mechanism (concept annotation across card _and_
+question surfaces) end-to-end, while staying deterministic and AI-free. Crucially, question
+performance feeds **NTR only**, never the displayed **Memory** score — Memory stays a pure function
+of FSRS card recall.
+
+The spec (§1, §4) also asks for a **Readiness** score: a _projected MCAT total on the real 472–528
+scale_ with a range and confidence. Phase 1 shows this as the **headline prediction**, kept as three
+**separate, never-blended** scores (spec §2): **Readiness** (projected MCAT from practice-question
+performance), **Memory** (FSRS card recall), and **Performance** (raw question accuracy). Because a
+made-up readiness number is an automatic fail (§2), the Phase-1 projection is an explicitly
+**unvalidated deterministic heuristic** — a documented linear map from question accuracy onto the
+scale, widened for missing coverage, with a give-up rule and a plain disclaimer that it is not yet
+validated against real practice tests (spec §9 Step 4) and has no past-guess calibration yet. Per §9,
+saying so plainly beats a polished number we cannot back up.
+
+The full "understanding" (lessons) phase, the full question bank, a **validated/calibrated**
+Performance model and Readiness score (held-out testing, calibration charts — spec §9 Steps 2–4), the
+reimagined dashboard, and onboarding remain **out of scope for Phase 1** and are tracked in §7.
 
 ## 2. Goals & Non-Goals
 
@@ -42,14 +59,22 @@ onboarding, and the Performance/Readiness scores are **out of scope for Phase 1*
 - Run a working review loop on that deck on desktop and phone, sharing the one Rust engine.
 - Display an honest **Memory** score (point estimate + range) and a topic **coverage map**, with a
   written give-up rule that abstains when data is insufficient.
+- Show a **Readiness** projection (MCAT 472–528) as the headline prediction — a separate,
+  never-blended, explicitly unvalidated heuristic with its own give-up rule and the required honesty
+  fields (range, confidence, coverage, best next thing to study, disclaimer).
 - Ship a desktop installer and a phone build that both run with no AI.
 
 **Non-Goals (Phase 1)**
 
 - No AI of any kind (no model calls, generated cards, or chatbot) — banned before Friday.
-- No Performance or Readiness score yet (those require questions + AI; Phase 2/3).
+- No **validated** Performance or Readiness model. Phase 1 shows a Readiness (projected MCAT) score
+  and a Performance (question-accuracy) number, but both are **unvalidated deterministic heuristics**
+  over a tiny in-app question set — no held-out testing, no calibration, no real practice-test
+  validation (spec §9 Steps 2–4 remain Phase 2/3). The scores are shown separately and never blended,
+  and abstain below their give-up rules.
 - No two-way sync yet (Wednesday requires only that both apps review the same deck).
-- No lessons viewer, no quizzing section, no onboarding flow, no reimagined dashboard.
+- No lessons viewer, no onboarding flow, no reimagined dashboard. The Phase-1 quiz is a minimal
+  surface for moving NTR, not the full quizzing section.
 
 ## 3. Guiding Principle (full-product context)
 
@@ -119,15 +144,21 @@ engine signal, not a displayed score** — it is both an _input_ to and an _outp
 Difficulty/Stability/Retrievability (DSR):
 
 - **Input:** NTR seeds review prioritization — a concept-aware queue orders due cards by
-  `topic weight × concept weakness`, where weakness aggregates the DSR of the cards tagged to that
-  concept (and, later, question/lesson signals).
-- **Output:** card-level FSRS reviews update the concept's NTR, so reviewing cards in a concept
-  lowers its NTR.
+  `topic weight × concept weakness`, where weakness blends the DSR of the cards tagged to that
+  concept **and** the student's accuracy on that concept's practice questions (see FR-9).
+- **Output:** card-level FSRS reviews and question attempts both update the concept's NTR, so
+  reviewing cards or answering questions in a concept lowers its NTR.
+- **Blended weakness (implemented):** `weakness = (cards_forgotten + questions_wrong) /
+  (cards_with_memory_state + question_attempts)`, where `cards_forgotten = Σ(1 − retrievability)`.
+  With no question evidence this reduces exactly to `1 − avg_recall` (the original card-only form);
+  with no evidence at all it is the maximum, 1.0. `NTR = topic_weight × weakness`.
 - Add a new **protobuf message/RPC** for the concept-aware queue and a **mastery query** (per
-  concept: cards mastered + average recall), callable from Python and fast enough to power a
-  dashboard on 50,000 cards.
-- FSRS intervals stay valid; **undo** continues to work and the collection does not corrupt.
-- **No AI** — NTR in Phase 1 is a deterministic formula over DSR + concept/topic weights.
+  concept: cards mastered, average recall, question accuracy, and NTR with its breakdown), callable
+  from Python and fast enough to power a dashboard on 50,000 cards.
+- FSRS intervals stay valid; **undo** continues to work and the collection does not corrupt — the
+  RPCs are read-only and question attempts persist in the collection config, not the revlog.
+- **No AI** — NTR in Phase 1 is a deterministic formula over DSR + concept/topic weights + question
+  accuracy.
 - **Acceptance (per spec §7a):** the diff; ≥3 Rust unit tests + 1 test that calls it from Python;
   proof undo works and the collection is intact; a one-page note on why this belongs in Rust; a list
   of upstream files touched and expected merge difficulty. Must also work on the phone build (FR-8).
@@ -147,8 +178,8 @@ _As a student, I see an honest estimate of how likely I am to recall what I've l
 uncertainty and the evidence behind it — and the app refuses to show one when it can't back it up._
 
 - Show a **Memory** score as a **point estimate + likely range** (not a single blended number).
-  Memory is the _only_ graded score in Phase 1; Performance/Readiness come later and must stay
-  separate (blending them is an automatic fail per the spec).
+  Memory, Performance, and Readiness are shown as **three separate, never-blended** scores (blending
+  is an automatic fail per the spec); Memory is card recall only. (Readiness is FR-10.)
 - Show **topic coverage %** (from FR-2) alongside it.
 - **Give-up rule (write it down):** the app shows _no_ score until a stated threshold is met — e.g.
   _"No Memory score until ≥200 graded reviews and ≥50% topic coverage."_ Final numbers in OD-2.
@@ -157,13 +188,24 @@ uncertainty and the evidence behind it — and the app refuses to show one when 
 - **Acceptance:** score shows with range + coverage; below threshold the app abstains and explains
   why; values trace to real review data.
 
-### FR-6 — Minimal score surface (P1)
+### FR-6 — Minimal score surface + NTR diagram (P1)
 
-_As a student, I have one place to see the Memory score and coverage._
+_As a student, I have one place to see my projected score and the scores behind it, and to
+understand which concepts the engine will prioritise and why._
 
-- A minimal screen/panel hosting the FR-5 outputs. **Not** the reimagined three-mode dashboard
-  (that's Phase 2, deferred §7); just enough surface to display the Phase 1 numbers honestly.
-- **Acceptance:** Memory score + coverage map are visible in the running app.
+- A single scrollable panel (Tools → "MCAT Dashboard" → Memory & NTR) hosting, top to bottom: the
+  **Readiness** headline (FR-10), then the **Memory** score (FR-5) and **Performance** number as
+  separate sections, then the **NTR diagram**. **Not** the reimagined three-mode dashboard (Phase 2).
+- **NTR breakdown diagram.** A per-concept **NTR bar chart** (most-urgent first), each bar annotated
+  with the numbers behind it: topic weight, card recall %, practice-question accuracy, and the
+  resulting NTR. A short explanation states the formula and makes explicit that **NTR drives review
+  order only and does not feed the Memory score**. This is the visual that ties cards + questions
+  together per concept.
+- The diagram has no give-up threshold (NTR is always informative); it renders whenever any concept
+  has card or question evidence. The panel is scrollable so the full report is reachable.
+- **Acceptance:** Readiness + Memory + coverage are visible as separate scores; the NTR diagram
+  shows per-concept bars with their input numbers; answering practice questions (FR-9) visibly
+  changes the bars and moves Readiness.
 
 ### FR-7 — Desktop installer (P0)
 
@@ -184,12 +226,66 @@ engine as desktop._
 - **Acceptance:** screen recording of a phone review session on the shared engine.
 - ⚠️ **Build approach is an open decision — see OD-3.**
 
+### FR-9 — Concept-coded practice questions feeding NTR (P1, small "Applying" slice)
+
+_As a student, I can answer a small set of exam-style questions, each tied to an MCAT concept, and
+have my performance change which concepts the engine tells me to review._
+
+This is a deliberately small slice of the "applying" phase, pulled forward to prove concept
+annotation works across **both** the card and question surfaces — the unifying mechanism behind the
+whole product. It is **not** the full question bank and **not** a graded Performance score (Phase
+2/3).
+
+- A static, **concept-coded question bank** (`mcat/questions.json`): each question carries a
+  `concept_id` matching a taxonomy rule, an exam-style stem, choices, the answer, and an
+  explanation. Content is original to the fork (not AAMC/UWorld).
+- A **minimal quiz surface** (Tools → "MCAT Practice Questions") walks the student through the bank,
+  grades each answer, shows the explanation, and **persists the attempt** (per-concept
+  attempts/correct) in the collection config.
+- Those per-concept tallies are passed to the FR-3 RPC as `question_stats` and **blended into NTR**
+  (see FR-3's weakness formula). Answering a concept's questions wrong raises its NTR; answering
+  right lowers it.
+- **Honesty guard:** question performance feeds **NTR only**, never the displayed Memory score.
+  Storing attempts in config (not the revlog) keeps FSRS scheduling and undo untouched.
+- **No AI** — fixed bank, deterministic grading and blending.
+- **Acceptance:** answering questions changes the per-concept NTR returned by the RPC and the
+  FR-6 diagram; ≥1 Rust unit test and ≥1 Python test cover the blend; Memory score is unchanged by
+  question answers.
+
+### FR-10 — Readiness: projected MCAT score, honestly (P1, spec §4)
+
+_As a student, I see a projected MCAT score with a range and a confidence level, and the app refuses
+to project one — or dress up a guess as a measurement — when it can't back it up._
+
+The spec (§1, §4) wants a **Readiness** score: a projected total on the real **472–528** scale, shown
+**separately** from Memory (§2 forbids blending). A made-up readiness number is an **automatic fail**
+(§2), and §9 grades the _steps of the bridge_, not a fabricated final number — so Phase 1's Readiness
+is a documented, deterministic, **explicitly unvalidated** heuristic.
+
+- **Method (written down, reproducible):** `projected = 472 + 56 × p`, where `p` is observed accuracy
+  on the concept-coded practice questions (FR-9). The likely range = a Wald interval on `p` scaled to
+  the 56-point span **plus** a coverage-gap term that widens the band as topic/question coverage
+  falls; clamped to [472, 528]. Confidence is coverage-dominated (matching the spec's example).
+- **Honesty fields (all shown):** point estimate, likely range, % of exam covered, a confidence
+  indicator, last-updated time, the main reasons, the **single best next thing to study** (the
+  highest-NTR concept), and a plain **disclaimer** that the projection is unvalidated against real
+  practice tests (spec §9 Step 4) and has no past-guess calibration yet.
+- **Give-up rule (write it down):** no projection until **≥30 practice-question attempts across ≥3
+  concepts AND ≥50% topic coverage**; otherwise abstain and name the failing condition.
+- **Separation:** Readiness takes _no_ memory/recall input — it cannot blend with Memory by
+  construction (enforced by a test).
+- **No AI** — deterministic map, no model calls.
+- **Acceptance:** projection shows point + range + confidence + best-next-topic on the 472–528 scale;
+  below threshold it abstains and explains why; Readiness, Memory, and Performance render as three
+  separate scores; ≥1 test covers the mapping/give-up/no-blend behaviour.
+
 ## 6. The Rust Change — required artifacts (spec §7a)
 
 Collect these for the checkpoint, tied to FR-3:
 
 1. The **diff** of the engine change.
-2. **≥3 Rust unit tests** + **1 Python test** exercising the new RPC.
+2. **≥3 Rust unit tests** + **1 Python test** exercising the new RPC, including coverage of the
+   question-performance blend into NTR (FR-9).
 3. Proof **undo works** and the collection is not corrupted (crash/undo check).
 4. A **one-page note**: why NTR + the concept-aware queue belong in Rust, not Python.
 5. A **list of upstream files touched** and an estimate of future-merge difficulty.
@@ -199,19 +295,27 @@ Collect these for the checkpoint, tied to FR-3:
 These are the rest of the all-in-one vision, intentionally **out of Phase 1**. They will get their
 own PRDs. Captured here so nothing from the original brief is lost:
 
-- **Reimagined dashboard** — three modes (Learn / Test / Flashcards), with Flashcards routing to the
-  original Anki view. _(orig. FR-1.1)_
+- **Reimagined dashboard** — the full three-mode home (Learn / Test / Flashcards). _(orig. FR-1.1.)_
+  Phase 1 ships a **minimal hub stand-in**: the app **opens onto the MCAT Dashboard**, which routes
+  to **Flashcards** (the original Anki deck browser), **Practice Questions** (the FR-9 quiz), and
+  **Memory & NTR** (the FR-6 panel). Every surface has a way back: the flashcards view gets a
+  "Dashboard" link in its top toolbar, and the quiz/Memory dialogs each carry a "Dashboard" button.
+  The Learn mode and the reimagined layout remain Phase 2.
 - **Onboarding flow** — user-state initializer: study frequency, targets, section time budgets,
   progress; experience adapts to the user. _(orig. FR-1.2)_
 - **Lessons (Understanding)** — document viewer with notes + highlighting, lessons annotated with
   page-range → concept mappings, sourced from trusted free material. _(orig. FR-2)_
-- **Questions (Applying)** — quizzing by selected concepts or NTR-driven general review, sourced from
-  online banks. Feeds the **Performance** score. _(orig. FR-4)_
-- **NTR ↔ all surfaces** — NTR also driven by question performance; suggests lessons, spaces lessons
-  in-app, and recommends questions to review. _(extends orig. FR-3)_
-- **Performance & Readiness scores** — exam-style-question accuracy (Performance) and a projected
-  MCAT score with range + confidence + give-up rule (Readiness), each shown separately. _(orig.
-  FR-6; spec §4)_
+- **Questions (Applying)** — the **full** question bank: quizzing by selected concepts or NTR-driven
+  general review, sourced from online banks, feeding a graded **Performance** score. _(orig. FR-4.)_
+  Phase 1 ships only the small concept-coded slice in FR-9 (feeds NTR, no Performance score).
+- **NTR ↔ all surfaces** — NTR already driven by question performance in Phase 1 (FR-9); Phase 2+
+  extends this to suggest lessons, space lessons in-app, and recommend questions to review.
+  _(extends orig. FR-3)_
+- **Validated Performance & Readiness models** — Phase 1 already _shows_ a heuristic Performance
+  number and a heuristic Readiness projection (FR-10). Phase 2/3 makes them **real**: a performance
+  model over held-out exam-style questions, a memory-calibration chart (Brier/log-loss), a
+  documented score mapping validated against practice tests, and the leakage/paraphrase checks —
+  spec §9 Steps 1–4. _(orig. FR-6; spec §4, §9)_
 - **Full mobile app** — React Native / Expo companion on the shared Rust backend, with two-way
   offline sync and conflict resolution. _(orig. FR-5; matures FR-8)_
 - **AI layer** — RAG-grounded generation, source-traced outputs, held-out evals beating a baseline,
@@ -219,10 +323,13 @@ own PRDs. Captured here so nothing from the original brief is lost:
 
 ## 8. Open Decisions (need Aryan's input)
 
-- **OD-1 — NTR definition.** NTR is a rough draft. Proposed Phase 1 form: a deterministic per-concept
-  signal = `f(topic weight, aggregated DSR of the concept's cards)`, used as both input (queue order)
-  and output (updated by reviews). **Please review the exact formula and weighting before FR-3
-  build.**
+- **OD-1 — NTR definition.** _Resolved for Phase 1._ NTR is a deterministic per-concept signal
+  `NTR = topic_weight × weakness`, where `weakness = (cards_forgotten + questions_wrong) /
+  (cards_with_memory_state + question_attempts)` and `cards_forgotten = Σ(1 − retrievability)`. It is
+  used as both input (queue order) and output (lowered by card reviews and correct question answers).
+  Question accuracy feeds NTR only, never the Memory score. **Open for tuning:** the relative
+  weighting of card vs. question evidence is currently 1:1 per item; revisit once real question
+  volume exists.
 - **OD-2 — Give-up thresholds.** Proposed: _no Memory score until ≥200 graded reviews and ≥50% topic
   coverage._ Confirm or adjust the numbers.
 - **OD-3 — Mobile build approach.** Your full-MVP FR-5 wants **React Native + Expo on the Rust

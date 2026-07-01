@@ -43,7 +43,9 @@ def test_concept_mastery_from_python():
     _add_note(col, "optics", ["mcat::physics::optics"])
     _add_note(col, "unrelated", ["misc"])  # maps to no concept
 
-    resp = col._backend.concept_mastery(taxonomy=_taxonomy(), search="")
+    resp = col._backend.concept_mastery(
+        taxonomy=_taxonomy(), search="", question_stats=[]
+    )
     by_id = {e.concept_id: e for e in resp}
 
     # Both taxonomy concepts are reported, even with new (no-memory-state) cards.
@@ -58,6 +60,32 @@ def test_concept_mastery_from_python():
     assert abs(by_id["4C"].ntr - 3.0) < 1e-9
 
 
+def test_question_stats_change_ntr_via_python():
+    col = getEmptyCol()
+    _add_note(col, "enzyme", ["mcat::biochem::enzymes"])  # concept 1A
+
+    # Baseline: a new card has no memory state, so NTR == topic_weight (2.0).
+    base = col._backend.concept_mastery(
+        taxonomy=_taxonomy(), search="", question_stats=[]
+    )
+    assert abs({e.concept_id: e for e in base}["1A"].ntr - 2.0) < 1e-9
+
+    # Feed poor question performance for 1A; NTR must drop below the no-evidence
+    # default as the wrong/attempt error rate (3/4 = 0.75) now drives weakness.
+    stats = [concepts_pb2.ConceptQuestionStat(concept_id="1A", attempts=4, correct=1)]
+    resp = col._backend.concept_mastery(
+        taxonomy=_taxonomy(), search="", question_stats=stats
+    )
+    by_id = {e.concept_id: e for e in resp}
+    assert by_id["1A"].questions_total == 4
+    assert by_id["1A"].questions_correct == 1
+    assert abs(by_id["1A"].question_accuracy - 0.25) < 1e-9
+    # weakness 0.75 * topic_weight 2.0 = 1.5
+    assert abs(by_id["1A"].ntr - 1.5) < 1e-9
+    # Card recall is untouched -- questions feed NTR, not the Memory score.
+    assert by_id["1A"].avg_recall == 0.0
+
+
 def test_concept_aware_queue_is_read_only():
     col = getEmptyCol()
     _add_note(col, "optics", ["mcat::physics::optics"])
@@ -65,7 +93,9 @@ def test_concept_aware_queue_is_read_only():
     # capture undo/redo status before the query
     undo_before = col.undo_status()
 
-    resp = col._backend.concept_aware_queue(taxonomy=_taxonomy(), search="")
+    resp = col._backend.concept_aware_queue(
+        taxonomy=_taxonomy(), search="", question_stats=[]
+    )
 
     # the new card is due and surfaces with its concept
     assert len(resp) == 1

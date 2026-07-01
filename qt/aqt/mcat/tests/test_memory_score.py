@@ -29,7 +29,7 @@ import sys
 # pytest collects the file as a top-level module and never climbs into `aqt`.
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from memory_score import (  # noqa: E402
+from memory_score import (  # type: ignore[import-not-found]  # noqa: E402
     MIN_GRADED_REVIEWS,
     MIN_TOPIC_COVERAGE_PCT,
     WALD_Z,

@@ -18,10 +18,12 @@ from __future__ import annotations
 
 import json
 import os
+from dataclasses import dataclass
 from functools import lru_cache
 from pathlib import Path
 
 from anki import concepts_pb2
+from aqt.mcat import questions
 from aqt.mcat.memory_score import ConceptMastery
 
 
@@ -59,14 +61,59 @@ def load_taxonomy() -> tuple[concepts_pb2.ConceptTaxonomy, tuple[str, ...]]:
     return concepts_pb2.ConceptTaxonomy(rules=rules), ids
 
 
+@lru_cache(maxsize=1)
+def _taxonomy_meta() -> dict[str, tuple[str, str]]:
+    """Map concept id -> (human name, section), for labelling the NTR diagram."""
+    data = json.loads(_taxonomy_path().read_text(encoding="utf-8"))
+    return {
+        c["id"]: (c.get("name", c["id"]), c.get("section", ""))
+        for c in data.get("concepts", [])
+    }
+
+
+@dataclass(frozen=True)
+class NtrRow:
+    """One concept's NTR breakdown -- the numbers the dashboard diagram renders.
+
+    ``avg_recall`` and ``question_accuracy`` are the two inputs; ``ntr`` is the
+    engine's blended output (``topic_weight * weakness``). Carrying all of them
+    lets the panel *show its work* rather than just a bar.
+    """
+
+    concept_id: str
+    name: str
+    section: str
+    topic_weight: float
+    avg_recall: float
+    cards_total: int
+    questions_total: int
+    questions_correct: int
+    question_accuracy: float
+    ntr: float
+
+
+def _fetch_entries(col):
+    """Single ConceptMastery RPC, with the student's question stats blended in.
+
+    Returns ``(entries, concept_ids)``. Centralised so mastery and the NTR
+    breakdown come from one scan and can never disagree.
+    """
+    taxonomy, ids = load_taxonomy()
+    stats = questions.question_stat_protos(col)
+    entries = col._backend.concept_mastery(
+        taxonomy=taxonomy, search="", question_stats=stats
+    )
+    return entries, ids
+
+
 def fetch_mastery(col) -> tuple[list[ConceptMastery], int]:
     """Call the ConceptMastery RPC over the whole collection.
 
     Returns ``(rows, concepts_total)`` where ``concepts_total`` is the size of
-    the taxonomy (denominator for topic coverage).
+    the taxonomy (denominator for topic coverage). Question performance does not
+    change these card-recall rows; it only moves NTR (see :func:`fetch_ntr`).
     """
-    taxonomy, ids = load_taxonomy()
-    entries = col._backend.concept_mastery(taxonomy=taxonomy, search="")
+    entries, ids = _fetch_entries(col)
     rows = [
         ConceptMastery(
             concept=e.concept_id,
@@ -77,6 +124,35 @@ def fetch_mastery(col) -> tuple[list[ConceptMastery], int]:
         for e in entries
     ]
     return rows, len(ids)
+
+
+def fetch_ntr(col) -> list[NtrRow]:
+    """Per-concept NTR breakdown, highest NTR first (the dashboard diagram).
+
+    Reflects both card recall and practice-question performance, exactly as the
+    Rust engine blends them. Concepts with no evidence at all are dropped so the
+    diagram shows actionable rows, not a wall of max-NTR placeholders.
+    """
+    entries, _ids = _fetch_entries(col)
+    meta = _taxonomy_meta()
+    rows = [
+        NtrRow(
+            concept_id=e.concept_id,
+            name=meta.get(e.concept_id, (e.concept_id, ""))[0],
+            section=meta.get(e.concept_id, (e.concept_id, ""))[1],
+            topic_weight=e.topic_weight,
+            avg_recall=e.avg_recall,
+            cards_total=e.cards_total,
+            questions_total=e.questions_total,
+            questions_correct=e.questions_correct,
+            question_accuracy=e.question_accuracy,
+            ntr=e.ntr,
+        )
+        for e in entries
+        if e.cards_total > 0 or e.questions_total > 0
+    ]
+    rows.sort(key=lambda r: r.ntr, reverse=True)
+    return rows
 
 
 def coverage_pct_from_mastery(rows: list[ConceptMastery], concepts_total: int) -> float:

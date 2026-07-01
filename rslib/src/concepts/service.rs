@@ -10,6 +10,8 @@ use anki_proto::concepts as pb;
 use super::compute_mastery;
 use super::order_by_ntr;
 use super::ConceptRule;
+use super::QuestionStat;
+use super::QuestionStats;
 use super::Taxonomy;
 use crate::collection::Collection;
 use crate::error;
@@ -30,18 +32,37 @@ impl From<pb::ConceptTaxonomy> for Taxonomy {
     }
 }
 
+/// Collapse the caller-supplied question stats into a concept-keyed map. Later
+/// entries for the same concept overwrite earlier ones, so the caller should
+/// pre-aggregate per concept (the Python side does).
+fn question_stats(stats: Vec<pb::ConceptQuestionStat>) -> QuestionStats {
+    stats
+        .into_iter()
+        .map(|s| {
+            (
+                s.concept_id,
+                QuestionStat {
+                    attempts: s.attempts,
+                    correct: s.correct,
+                },
+            )
+        })
+        .collect()
+}
+
 impl crate::services::ConceptsService for Collection {
     fn concept_aware_queue(
         &mut self,
         input: pb::ConceptAwareQueueRequest,
     ) -> error::Result<pb::ConceptAwareQueueResponse> {
         let taxonomy: Taxonomy = input.taxonomy.unwrap_or_default().into();
+        let questions = question_stats(input.question_stats);
         // Re-order the cards the scheduler would surface now (due or new) within
         // the scope. We never mutate the collection here, so FSRS intervals and
         // undo are untouched.
         let search = scoped_study_search(&input.search);
         let cards = self.card_concepts_for_search(&taxonomy, &search)?;
-        let ordered = order_by_ntr(&taxonomy, &cards);
+        let ordered = order_by_ntr(&taxonomy, &cards, &questions);
         Ok(pb::ConceptAwareQueueResponse {
             entries: ordered
                 .into_iter()
@@ -59,8 +80,9 @@ impl crate::services::ConceptsService for Collection {
         input: pb::ConceptMasteryRequest,
     ) -> error::Result<pb::ConceptMasteryResponse> {
         let taxonomy: Taxonomy = input.taxonomy.unwrap_or_default().into();
+        let questions = question_stats(input.question_stats);
         let cards = self.card_concepts_for_search(&taxonomy, &input.search)?;
-        let mastery = compute_mastery(&taxonomy, &cards);
+        let mastery = compute_mastery(&taxonomy, &cards, &questions);
         Ok(pb::ConceptMasteryResponse {
             entries: mastery
                 .into_iter()
@@ -70,6 +92,10 @@ impl crate::services::ConceptsService for Collection {
                     cards_mastered: m.cards_mastered,
                     avg_recall: m.avg_recall,
                     ntr: m.ntr,
+                    topic_weight: m.topic_weight,
+                    questions_total: m.questions_total,
+                    questions_correct: m.questions_correct,
+                    question_accuracy: m.question_accuracy,
                 })
                 .collect(),
         })
@@ -133,6 +159,7 @@ mod test {
             .concept_mastery(pb::ConceptMasteryRequest {
                 taxonomy: Some(taxonomy_pb()),
                 search: String::new(),
+                question_stats: vec![],
             })
             .unwrap();
 
@@ -160,6 +187,7 @@ mod test {
             .concept_aware_queue(pb::ConceptAwareQueueRequest {
                 taxonomy: Some(taxonomy_pb()),
                 search: String::new(),
+                question_stats: vec![],
             })
             .unwrap();
         // New cards count as due; the card should appear with concept 4C.
@@ -169,5 +197,40 @@ mod test {
         // operation (the top of the undo stack is whatever it was before).
         assert_eq!(col.usn().unwrap(), usn_before);
         assert_eq!(col.can_undo().cloned(), undo_before);
+    }
+
+    /// Practice-question performance flows through the RPC and changes NTR even
+    /// though the card has no memory state. The displayed card recall stays 0.
+    #[test]
+    fn question_stats_flow_through_mastery_rpc() {
+        let mut col = Collection::new();
+        let mut n1 = NoteAdder::basic(&mut col).note();
+        n1.tags = vec!["mcat::biochem::enzymes".into()];
+        col.add_note(&mut n1, crate::decks::DeckId(1)).unwrap();
+
+        let resp = col
+            .concept_mastery(pb::ConceptMasteryRequest {
+                taxonomy: Some(taxonomy_pb()),
+                search: String::new(),
+                question_stats: vec![pb::ConceptQuestionStat {
+                    concept_id: "1A".into(),
+                    attempts: 4,
+                    correct: 1,
+                }],
+            })
+            .unwrap();
+        let a = resp.entries.iter().find(|e| e.concept_id == "1A").unwrap();
+        // No memory state -> card recall stays 0, but question evidence sets
+        // weakness = wrong(3)/attempts(4) = 0.75; topic_weight 2.0 -> ntr 1.5
+        // (below the no-evidence default of 2.0).
+        assert_eq!(a.avg_recall, 0.0);
+        assert_eq!(a.questions_total, 4);
+        assert_eq!(a.questions_correct, 1);
+        assert!((a.question_accuracy - 0.25).abs() < 1e-9);
+        assert!((a.ntr - 1.5).abs() < 1e-9);
+        assert!((a.topic_weight - 2.0).abs() < 1e-9);
+        // A concept with no questions keeps the maximal default NTR.
+        let c = resp.entries.iter().find(|e| e.concept_id == "4C").unwrap();
+        assert!((c.ntr - 3.0).abs() < 1e-9);
     }
 }

@@ -195,3 +195,43 @@ From `fixtures/sample_cards.json` (47 cards, 3 intentionally unmapped):
   Psych/Soc **41.67%** (5/12).
 - Uncovered: `4D, 5C, 6C, 7A, 7B, 8A, 8B, 8C, 10A`.
 - Psych/Soc < 50% demonstrates the give-up abstain condition.
+
+## Demo seed data (try NTR + the Memory score live)
+
+`seed_demo.py` builds a **small, self-contained demo collection** so you can see
+the per-concept NTR diagram and the Memory score in the running app, without
+touching your real collection. It writes a throwaway Anki _base folder_ with a
+single "User 1" profile, seeding:
+
+- cards across ~21 concepts, each assigned a recall band (strong/medium/weak/very
+  weak) so per-concept NTR spans a wide, ordered range;
+- **practice-question stats** that deliberately contrast card recall — some
+  strong-on-cards concepts get weak questions (NTR pushed up) and some
+  weak-on-cards concepts get strong questions (NTR pulled down), so the FR-9
+  blend is visible;
+- real `revlog` rows so `graded_reviews` clears FR-5's ≥200 threshold and the
+  Memory score shows a number + range instead of abstaining.
+
+Everything is deterministic (fixed seed); NO AI. Seed it, then launch the app
+against the demo base:
+
+```
+just mcat-seed
+just mcat-run-demo
+```
+
+`mcat-run-demo` points Anki at the demo base via the `ANKI_BASE` env var (more
+reliable than forwarding `-b` through `just`). It opens a **separate "User 1"
+profile inside `mcat/fixtures/demo_base`, so your real collection is untouched**.
+Equivalent manual launch:
+
+```powershell
+$env:ANKI_BASE = "$PWD\mcat\fixtures\demo_base"; just run   # PowerShell
+```
+
+Then open **Tools → MCAT Dashboard → Memory & NTR** (or **Tools → MCAT Memory
+Score**). The script also prints the expected coverage %, Memory score, and the
+top/bottom NTR concepts — computed with the real engine RPC — so you can confirm
+the app matches. A representative run: **67.7% coverage**, **Memory 64% (likely
+60–68%, medium confidence)**, highest NTR on weak no-question concepts, and
+strong-recall concepts pushed up the list by poor question accuracy.

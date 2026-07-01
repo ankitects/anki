@@ -45,11 +45,29 @@ message ConceptTaxonomy {
   repeated ConceptRule rules = 1;
 }
 
+// Aggregated practice-question performance for a single concept. This is the
+// MCAT fork's small "Applying" signal: concept-coded exam-style questions whose
+// results feed NTR (review prioritization), NOT the displayed Memory score.
+// The engine never stores these; the caller (Python) supplies them per request
+// from its own attempt log. Deterministic, NO AI.
+message ConceptQuestionStat {
+  // Concept id this stat belongs to (must match a taxonomy rule id).
+  string concept_id = 1;
+  // Total graded question attempts for the concept.
+  uint32 attempts = 2;
+  // Of those, how many were answered correctly.
+  uint32 correct = 3;
+}
+
 message ConceptAwareQueueRequest {
   ConceptTaxonomy taxonomy = 1;
   // Anki search defining the scope (e.g. "deck:MCAT is:due"). Empty = whole
   // collection. Only currently-due cards are returned.
   string search = 2;
+  // Optional per-concept practice-question performance. Blended into NTR so the
+  // queue surfaces concepts the student gets wrong on questions, not just
+  // cards.
+  repeated ConceptQuestionStat question_stats = 3;
 }
 
 message ConceptAwareQueueEntry {
@@ -69,6 +87,8 @@ message ConceptMasteryRequest {
   ConceptTaxonomy taxonomy = 1;
   // Optional scope search; empty = whole collection.
   string search = 2;
+  // Optional per-concept practice-question performance, blended into NTR.
+  repeated ConceptQuestionStat question_stats = 3;
 }
 
 message ConceptMasteryEntry {
@@ -79,9 +99,21 @@ message ConceptMasteryEntry {
   uint32 cards_mastered = 3;
   // Mean retrievability over cards with a memory state. 0 if none.
   double avg_recall = 4;
-  // Need-to-Review = topic_weight * weakness, where
-  // weakness = 1 - avg_recall (1.0 when no cards have memory state).
+  // Need-to-Review = topic_weight * weakness. Weakness is the evidence-weighted
+  // blend of card forgetting (1 - avg_recall) and question error rate; it is
+  // 1.0 when there is no evidence (no memory-state cards and no question
+  // attempts). The fields below echo the inputs so the dashboard can render the
+  // breakdown without re-deriving it.
   double ntr = 5;
+  // Topic-importance multiplier from the taxonomy (defaults to 1.0). Echoed so
+  // a client can show the NTR breakdown without re-reading the taxonomy.
+  double topic_weight = 6;
+  // Total graded question attempts for this concept (0 if none supplied).
+  uint32 questions_total = 7;
+  // Of those attempts, how many were correct.
+  uint32 questions_correct = 8;
+  // Mean question accuracy in [0, 1] over attempts. 0 when no attempts.
+  double question_accuracy = 9;
 }
 
 message ConceptMasteryResponse {

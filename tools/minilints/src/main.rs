@@ -25,6 +25,25 @@ const NONSTANDARD_HEADER: &[&str] = &[
     "./pylib/anki/statsbg.py",
     "./qt/aqt/mpv.py",
     "./qt/aqt/winpaths.py",
+    // MCAT fork: net-new files carry the fork's own copyright
+    // ("Aryan Verma and contributors"), not the upstream Ankitects header.
+    "./mcat/bench.py",
+    "./mcat/coverage.py",
+    "./mcat/make_synthetic_deck.py",
+    "./mcat/seed_demo.py",
+    "./qt/aqt/mcat/__init__.py",
+    "./qt/aqt/mcat/dashboard.py",
+    "./qt/aqt/mcat/integration.py",
+    "./qt/aqt/mcat/memory_score.py",
+    "./qt/aqt/mcat/navigation.py",
+    "./qt/aqt/mcat/panel.py",
+    "./qt/aqt/mcat/questions.py",
+    "./qt/aqt/mcat/quiz.py",
+    "./qt/aqt/mcat/readiness.py",
+    "./qt/aqt/mcat/tests/conftest.py",
+    "./qt/aqt/mcat/tests/test_memory_score.py",
+    "./qt/aqt/mcat/tests/test_questions.py",
+    "./qt/aqt/mcat/tests/test_readiness.py",
 ];
 
 const IGNORED_FOLDERS: &[&str] = &[

@@ -18,6 +18,15 @@ run *args:
 run-optimized *args:
     {{ if os() == "windows" { "$env:RELEASE='1'; .\\run.bat" } else { "RELEASE=1 ./run" } }} {{ args }}
 
+# Seed a throwaway demo collection to test NTR + the Memory score, then print how to open it
+mcat-seed *args:
+    {{ ninja }} pylib qt
+    {{ if os() == "windows" { "$env:PYTHONPATH='pylib;qt;out/pylib;out/qt'; out\\pyenv\\Scripts\\python mcat\\seed_demo.py" } else { "PYTHONPATH=pylib:qt:out/pylib:out/qt out/pyenv/bin/python mcat/seed_demo.py" } }} {{ args }}
+
+# Run Anki against the seeded demo base (run `just mcat-seed` first)
+mcat-run-demo *args:
+    {{ if os() == "windows" { "$env:ANKI_BASE = (Join-Path (Get-Location) 'mcat\\fixtures\\demo_base'); .\\run.bat" } else { "ANKI_BASE=\"$(pwd)/mcat/fixtures/demo_base\" ./run" } }} {{ args }}
+
 # Watch web sources and rebuild/reload Anki's web stack on change (macOS/Linux)
 web-watch:
     ./tools/web-watch
