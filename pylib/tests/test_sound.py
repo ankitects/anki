@@ -8,7 +8,7 @@ from anki.sound import AV_REF_RE, SoundOrVideoTag, strip_av_refs
 
 def test_sound_tag_path_relative_joins_media_folder():
     tag = SoundOrVideoTag(filename="audio.mp3")
-    assert tag.path("/media") == "/media/audio.mp3"
+    assert tag.path("/media") == os.path.join("/media", "audio.mp3")
 
 
 def test_sound_tag_path_absolute_ignores_media_folder():
@@ -35,7 +35,7 @@ def test_sound_tag_path_applies_media_file_filter(monkeypatch):
 
     monkeypatch.setattr(sound_module.hooks, "media_file_filter", fake_filter)
     tag = SoundOrVideoTag(filename="audio.mp3")
-    assert tag.path("/media") == "/media/renamed.mp3"
+    assert tag.path("/media") == os.path.join("/media", "renamed.mp3")
 
 
 def test_strip_av_refs_removes_play_tag():
