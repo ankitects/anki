@@ -6,9 +6,9 @@ import os
 from anki.sound import AV_REF_RE, SoundOrVideoTag, strip_av_refs
 
 
-def test_sound_tag_path_relative_joins_media_folder():
+def test_sound_tag_path_relative_joins_media_folder(tmp_path):
     tag = SoundOrVideoTag(filename="audio.mp3")
-    assert tag.path("/media") == os.path.join("/media", "audio.mp3")
+    assert tag.path(str(tmp_path)) == os.path.join(str(tmp_path), "audio.mp3")
 
 
 def test_sound_tag_path_absolute_ignores_media_folder():
@@ -26,7 +26,7 @@ def test_sound_tag_path_with_directory_separator_uses_abspath():
     assert result == expected
 
 
-def test_sound_tag_path_applies_media_file_filter(monkeypatch):
+def test_sound_tag_path_applies_media_file_filter(monkeypatch, tmp_path):
     # hooks.media_file_filter is applied to the tail component of the path.
     import anki.sound as sound_module
 
@@ -35,7 +35,7 @@ def test_sound_tag_path_applies_media_file_filter(monkeypatch):
 
     monkeypatch.setattr(sound_module.hooks, "media_file_filter", fake_filter)
     tag = SoundOrVideoTag(filename="audio.mp3")
-    assert tag.path("/media") == os.path.join("/media", "renamed.mp3")
+    assert tag.path(str(tmp_path)) == os.path.join(str(tmp_path), "renamed.mp3")
 
 
 def test_strip_av_refs_removes_play_tag():
