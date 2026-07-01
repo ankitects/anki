@@ -1,0 +1,4 @@
+module CAnkiIOS {
+    header "anki_ios.h"
+    export *
+}

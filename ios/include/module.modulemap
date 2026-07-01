@@ -1,0 +1,8 @@
+// Module map exposing the anki-ios C ABI (anki_ios.h) to Swift.
+// Swift `import AnkiIOS` then sees anki_open/anki_command/anki_free/
+// anki_free_backend as top-level C functions. Paired with the
+// libanki_ios.a staticlib inside Anki.xcframework (see ios/build-xcframework.sh).
+module AnkiIOS {
+    header "anki_ios.h"
+    export *
+}

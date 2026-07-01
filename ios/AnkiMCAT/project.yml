@@ -1,0 +1,78 @@
+# xcodegen spec for the AnkiMCAT iOS app.
+#
+# Generates AnkiMCAT.xcodeproj — a single SwiftUI app target that:
+#   * links out/ios/Anki.xcframework (the anki-ios C ABI staticlib; module AnkiIOS)
+#   * depends on swift-protobuf (runtime for the generated anki/*.pb.swift types)
+#   * bundles a small test .apkg (Resources/sample.apkg)
+#   * links the system frameworks the Rust staticlib pulls in
+#     (CoreFoundation / Security / SystemConfiguration + libc++)
+#
+# Regenerate with:  cd ios/AnkiMCAT && xcodegen generate
+# Build (sim):      see ios/AnkiMCAT/build-sim.sh
+
+name: AnkiMCAT
+options:
+  bundleIdPrefix: net.ankiweb.mcat
+  deploymentTarget:
+    iOS: "17.0"
+  createIntermediateGroups: true
+
+packages:
+  SwiftProtobuf:
+    url: https://github.com/apple/swift-protobuf.git
+    exactVersion: 1.28.2
+
+targets:
+  AnkiMCAT:
+    type: application
+    platform: iOS
+    deploymentTarget: "17.0"
+    sources:
+      - path: Sources/AnkiMCAT
+      - path: Resources
+        buildPhase: resources
+    dependencies:
+      - package: SwiftProtobuf
+        product: SwiftProtobuf
+      - framework: ../../out/ios/Anki.xcframework
+        embed: false
+      - sdk: libc++.tbd
+      - sdk: CoreFoundation.framework
+      - sdk: Security.framework
+      - sdk: SystemConfiguration.framework
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: net.ankiweb.mcat.AnkiMCAT
+        GENERATE_INFOPLIST_FILE: true
+        INFOPLIST_KEY_UILaunchScreen_Generation: true
+        INFOPLIST_KEY_CFBundleDisplayName: Anki MCAT
+        SWIFT_VERSION: "5.0"
+        TARGETED_DEVICE_FAMILY: "1,2"
+        # The xcframework's module map lives in its Headers dir; expose it so
+        # `import AnkiIOS` resolves.
+        SWIFT_INCLUDE_PATHS: $(inherited)
+
+  AnkiMCATUITests:
+    type: bundle.ui-testing
+    platform: iOS
+    deploymentTarget: "17.0"
+    sources:
+      - path: Tests/AnkiMCATUITests
+    dependencies:
+      - target: AnkiMCAT
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: net.ankiweb.mcat.AnkiMCATUITests
+        GENERATE_INFOPLIST_FILE: true
+        SWIFT_VERSION: "5.0"
+        TEST_TARGET_NAME: AnkiMCAT
+
+schemes:
+  AnkiMCAT:
+    build:
+      targets:
+        AnkiMCAT: all
+        AnkiMCATUITests: [test]
+    test:
+      targets:
+        - AnkiMCATUITests

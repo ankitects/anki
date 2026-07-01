@@ -32,3 +32,8 @@ graphify-out/
 skills-lock.json
 # MCAT fork: bundled seed deck (too large for git; dropped in at repo root)
 /MCAT_Milesdown.apkg
+# iOS build artifacts (regenerable: SwiftPM .build, xcodegen-generated project)
+ios/**/.build/
+ios/**/*.xcodeproj/
+ios/**/DerivedData/
+ios/**/.swiftpm/
