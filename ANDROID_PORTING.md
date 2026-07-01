@@ -5,6 +5,7 @@ desktop fork and make them work in the **AnkiDroid** app. Grounded in the actual
 this fork and in `/Users/william/Anki-Android` + `/Users/william/Anki-Android-Backend`.
 
 > **Repos referenced**
+>
 > - **Fork** (desktop engine + web UI): `/Users/william/anki-speedrun` — already contains the feature.
 > - **AnkiDroid** (Kotlin app): `/Users/william/Anki-Android`.
 > - **Backend bridge** (rsdroid): `/Users/william/Anki-Android-Backend`.
@@ -32,7 +33,7 @@ Your edges are **tags**, per the Phase-1/2 design (`cluster::*`, `rung::*`), plu
 **co-occurrence edges** the concept graph derives at query time (two readings on one note).
 Tags sync natively (they live on notes), and the co-occurrence edges are computed **on-device**
 by the shared engine (`Collection::concept_graph`). **No edge-sync work, no schema, no new
-table** — nothing extra to port for edges. The only thing to port is the *view* that displays
+table** — nothing extra to port for edges. The only thing to port is the _view_ that displays
 them.
 
 ---
@@ -80,22 +81,22 @@ GET-only), and the page's backend POSTs go through `AnkiServer` → `handleColle
 
 ## 3. What ships automatically vs. what you must wire
 
-| Piece | Reaches Android by | Action |
-|---|---|---|
-| Rust `concept_graph` / `topic_mastery` impl | compiled into the rsdroid `.aar` | ✅ automatic (rebuild `.aar`) |
-| Kotlin protobuf stubs (`backend.getConceptGraphRaw`, `topicMasteryRaw`) | rsdroid codegen from your `proto/anki/stats.proto` | ✅ automatic (rebuild `.aar`) |
-| **Card edges** (`cluster::*`/`rung::*` + co-occurrence) | tags sync natively; edges computed on-device | ✅ automatic |
-| SvelteKit `concept-graph` route assets | inside the `.aar` (`assets/backend/sveltekit/`, one SPA bundle for all routes) | ✅ automatic (rebuild `.aar`) |
-| Contrast **toggle** (deck-config field + `DisplayOrder.svelte`) | ships in the `.aar` + the existing, already-allowlisted `deck-options` page + synced deck config | ✅ automatic |
-| Page **route allowlist** (`isSvelteKitPage`) | — | ✳️ **manual edit** |
-| Backend **method dispatch** (`collectionMethods` + `*Raw`) | — | ✳️ **manual edit** |
-| Kotlin `ConceptGraph` fragment + entry point | — | ✳️ **new code** |
+| Piece                                                                   | Reaches Android by                                                                               | Action                        |
+| ----------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------ | ----------------------------- |
+| Rust `concept_graph` / `topic_mastery` impl                             | compiled into the rsdroid `.aar`                                                                 | ✅ automatic (rebuild `.aar`) |
+| Kotlin protobuf stubs (`backend.getConceptGraphRaw`, `topicMasteryRaw`) | rsdroid codegen from your `proto/anki/stats.proto`                                               | ✅ automatic (rebuild `.aar`) |
+| **Card edges** (`cluster::*`/`rung::*` + co-occurrence)                 | tags sync natively; edges computed on-device                                                     | ✅ automatic                  |
+| SvelteKit `concept-graph` route assets                                  | inside the `.aar` (`assets/backend/sveltekit/`, one SPA bundle for all routes)                   | ✅ automatic (rebuild `.aar`) |
+| Contrast **toggle** (deck-config field + `DisplayOrder.svelte`)         | ships in the `.aar` + the existing, already-allowlisted `deck-options` page + synced deck config | ✅ automatic                  |
+| Page **route allowlist** (`isSvelteKitPage`)                            | —                                                                                                | ✳️ **manual edit**             |
+| Backend **method dispatch** (`collectionMethods` + `*Raw`)              | —                                                                                                | ✳️ **manual edit**             |
+| Kotlin `ConceptGraph` fragment + entry point                            | —                                                                                                | ✳️ **new code**                |
 
 ---
 
 ## 4. Prerequisite
 
-The forked-engine build must work first (see `PHASE1_PLAN.md` → *Engine baseline & mobile* and
+The forked-engine build must work first (see `PHASE1_PLAN.md` → _Engine baseline & mobile_ and
 the setup notes): rsdroid `.aar` built from your fork @ anki `25.09.2`, with `local_backend=true`
 in `Anki-Android/local.properties`. Everything below assumes that `.aar` is being rebuilt from
 your fork (so it carries the new Rust code, proto stubs, and the SvelteKit bundle).
@@ -105,16 +106,21 @@ your fork (so it carries the new Rust code, proto stubs, and the SvelteKit bundl
 ## 5. Step-by-step
 
 ### Step 1 — Rebuild the forked `.aar`
+
 From `/Users/william/Anki-Android-Backend` (submodule pointed at your fork), rebuild:
+
 ```bash
 ./gradlew :rsdroid:assembleRelease
 ```
+
 This regenerates the Kotlin stubs from your `stats.proto` (so `backend.getConceptGraphRaw` /
 `backend.topicMasteryRaw` exist) and bundles the SvelteKit assets (including `concept-graph`).
 
 ### Step 2 — Allowlist the route (`PageWebViewClient.kt`)
+
 Without this, the WebView won't serve `index.html` for the route and you get a blank page.
 `AnkiDroid/src/main/java/com/ichi2/anki/pages/PageWebViewClient.kt`:
+
 ```kotlin
 fun isSvelteKitPage(path: String): Boolean {
     val pageName = path.substringBefore("/")
@@ -136,16 +142,21 @@ fun isSvelteKitPage(path: String): Boolean {
 ```
 
 ### Step 3 — Add libanki `*Raw` wrappers (`BackendStats.kt`)
+
 `libanki/src/main/java/com/ichi2/anki/libanki/stats/BackendStats.kt` — mirror `graphsRaw`:
+
 ```kotlin
 fun Collection.getConceptGraphRaw(input: ByteArray): ByteArray = backend.getConceptGraphRaw(input)
 fun Collection.topicMasteryRaw(input: ByteArray): ByteArray = backend.topicMasteryRaw(input)
 ```
+
 (`backend.getConceptGraphRaw` / `topicMasteryRaw` are the codegen'd stubs from Step 1.)
 
 ### Step 4 — Register the backend methods (`PostRequestHandler.kt`)
+
 `AnkiDroid/src/main/java/com/ichi2/anki/pages/PostRequestHandler.kt` — add imports + map entries.
 The map key must match the method the TS client POSTs (RPC name, lower-camelCase):
+
 ```kotlin
 import com.ichi2.anki.libanki.stats.getConceptGraphRaw
 import com.ichi2.anki.libanki.stats.topicMasteryRaw
@@ -157,11 +168,14 @@ val collectionMethods =
         "topicMastery" to { bytes -> topicMasteryRaw(bytes) },
     )
 ```
+
 Miss this and logcat shows `unhandled method: getConceptGraph`.
 
 ### Step 5 — Add the `ConceptGraph` page fragment (mirror `DeckOptions`)
+
 New file `AnkiDroid/src/main/java/com/ichi2/anki/pages/ConceptGraph.kt` (deck-scoped, like
 `DeckOptions` which uses `deck-options/$deckId`):
+
 ```kotlin
 package com.ichi2.anki.pages
 
@@ -203,21 +217,26 @@ class ConceptGraph : PageFragment() {
     }
 }
 ```
+
 (The base `PageFragment` default layout `R.layout.fragment_page` already provides the toolbar +
 WebView + loading spinner, so no new layout is required for a first pass.)
 
 ### Step 6 — Add an entry point
+
 Give users a way in — mirror how **Deck options** is launched from the DeckPicker's per-deck
 menu. In the deck long-press / overflow menu handler in `DeckPicker` (menu XML under
 `AnkiDroid/src/main/res/menu/` + its handler in `DeckPicker.kt`), add a "Concept map" item that
 starts the activity:
+
 ```kotlin
 startActivity(ConceptGraph.getIntent(this, deckId))
 ```
+
 (On desktop the equivalent entry lives in `qt/aqt/deckbrowser.py`, which opens
 `show_concept_graph(mw, deck_id)`.)
 
 ### Step 7 — Rebuild + install AnkiDroid
+
 ```bash
 cd /Users/william/Anki-Android
 ./gradlew installPlayDebug     # with local_backend=true so it uses your .aar
@@ -225,6 +244,7 @@ adb shell monkey -p com.ichi2.anki.debug -c android.intent.category.LAUNCHER 1
 ```
 
 ### Step 8 — Verify on the emulator
+
 - Open a deck's menu → **Concept map** → the graph renders (nodes = readings/clusters, edges =
   co-occurrence).
 - `adb logcat | grep -i _anki` should show a successful `POST /_anki/getConceptGraph` (no
@@ -240,12 +260,12 @@ adb shell monkey -p com.ichi2.anki.debug -c android.intent.category.LAUNCHER 1
 2. **`collectionMethods` entry** (Step 4) — missing → `unhandled method: getConceptGraph` in logcat, page loads but shows no data.
 3. **`.aar` not rebuilt from your fork** — then the SvelteKit bundle lacks the `concept-graph`
    route and/or the stubs lack `getConceptGraphRaw` → 404 asset or missing Kotlin symbol. The
-   `backend/sveltekit/` assets and the proto stubs both come *from the `.aar`*, so a stale/stock
+   `backend/sveltekit/` assets and the proto stubs both come _from the `.aar`_, so a stale/stock
    `.aar` breaks both.
 4. **Proto/rslib version parity** — build both desktop and the `.aar` from the same `25.09.2`
    commit so the generated stub signatures match (see the engine-baseline decision).
 5. **`AnkiServer` rejects GET** — this is by design; page assets are served by
-   `PageWebViewClient.shouldInterceptRequest` from APK assets, *not* by the local server. Don't
+   `PageWebViewClient.shouldInterceptRequest` from APK assets, _not_ by the local server. Don't
    try to "fix" the server to serve HTML.
 6. **Method-name casing** — the TS client POSTs the RPC name in lower-camelCase
    (`getConceptGraph`), which must exactly match the `collectionMethods` key.
@@ -256,16 +276,16 @@ adb shell monkey -p com.ichi2.anki.debug -c android.intent.category.LAUNCHER 1
 
 ## 7. File reference
 
-| Concern | Desktop (fork) | AnkiDroid / backend |
-|---|---|---|
-| Engine (clusters + edges + retrievability) | `rslib/src/stats/concept_graph.rs` | ships in rsdroid `.aar` |
-| Mastery RPC | `rslib/src/stats/mastery.rs` | ships in rsdroid `.aar` |
-| Proto (RPCs + messages) | `proto/anki/stats.proto` (`GetConceptGraph`, `TopicMastery`) | codegen'd Kotlin stubs in `.aar` |
-| Web page | `ts/routes/concept-graph/*.svelte` | served from `.aar` `assets/backend/sveltekit/` |
-| Open the page | `qt/aqt/concept_graph.py`, `qt/aqt/deckbrowser.py` | **new** `pages/ConceptGraph.kt` + DeckPicker menu |
-| Route allowlist | n/a (mediasrv serves all) | `pages/PageWebViewClient.kt` `isSvelteKitPage()` |
-| Backend dispatch | n/a (mediasrv generic) | `pages/PostRequestHandler.kt` `collectionMethods` + `libanki/.../stats/BackendStats.kt` |
-| Edges data | tags on notes (`cluster::*`/`rung::*`) + co-occurrence | tags sync natively; edges computed on-device |
+| Concern                                    | Desktop (fork)                                               | AnkiDroid / backend                                                                     |
+| ------------------------------------------ | ------------------------------------------------------------ | --------------------------------------------------------------------------------------- |
+| Engine (clusters + edges + retrievability) | `rslib/src/stats/concept_graph.rs`                           | ships in rsdroid `.aar`                                                                 |
+| Mastery RPC                                | `rslib/src/stats/mastery.rs`                                 | ships in rsdroid `.aar`                                                                 |
+| Proto (RPCs + messages)                    | `proto/anki/stats.proto` (`GetConceptGraph`, `TopicMastery`) | codegen'd Kotlin stubs in `.aar`                                                        |
+| Web page                                   | `ts/routes/concept-graph/*.svelte`                           | served from `.aar` `assets/backend/sveltekit/`                                          |
+| Open the page                              | `qt/aqt/concept_graph.py`, `qt/aqt/deckbrowser.py`           | **new** `pages/ConceptGraph.kt` + DeckPicker menu                                       |
+| Route allowlist                            | n/a (mediasrv serves all)                                    | `pages/PageWebViewClient.kt` `isSvelteKitPage()`                                        |
+| Backend dispatch                           | n/a (mediasrv generic)                                       | `pages/PostRequestHandler.kt` `collectionMethods` + `libanki/.../stats/BackendStats.kt` |
+| Edges data                                 | tags on notes (`cluster::*`/`rung::*`) + co-occurrence       | tags sync natively; edges computed on-device                                            |
 
 ---
 

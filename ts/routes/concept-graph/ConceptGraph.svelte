@@ -7,6 +7,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         Simulation,
         SimulationLinkDatum,
         SimulationNodeDatum,
+        ZoomBehavior,
         ZoomTransform,
     } from "d3";
     import {
@@ -55,11 +56,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     interface SimLink extends SimulationLinkDatum<SimNode> {
         weight: number;
     }
-    interface TopicRegion {
+    interface TopicLabel {
         topic: string;
         x: number;
         y: number;
-        labelY: number;
     }
 
     const width = 1200;
@@ -67,11 +67,12 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     let svgEl: SVGSVGElement;
     let transform: ZoomTransform = zoomIdentity;
+    let zoomBehavior: ZoomBehavior<SVGSVGElement, unknown> | undefined;
 
     let simNodes: SimNode[] = [];
     let simLinks: SimLink[] = [];
-    let regions: TopicRegion[] = [];
     let simulation: Simulation<SimNode, SimLink> | undefined;
+    let fitted = false;
 
     function bucketOf(node: InputNode): Bucket {
         // Prefer FSRS retrievability when the cluster has memory state.
@@ -86,7 +87,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             return "weak";
         }
         // No FSRS data: fall back to study progress (cards graduated to review),
-        // so colours are still meaningful on non-FSRS or fresh decks.
+        // so colours still change on non-FSRS or freshly studied decks.
         if (node.cardCount === 0 || node.reviewedCount === 0) {
             return "new";
         }
@@ -103,30 +104,25 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     function shorten(label: string): string {
         const text = readable(label);
-        return text.length > 16 ? `${text.slice(0, 15)}…` : text;
+        return text.length > 18 ? `${text.slice(0, 17)}…` : text;
     }
 
-    // Lay the topics out on a centred grid so each subject gets its own region.
-    // Nodes anchor to the lower part of the cell; the label sits above them.
-    function computeRegions(topics: string[]): Map<string, TopicRegion> {
-        const map = new Map<string, TopicRegion>();
+    // Grid of region centres so each topic is pulled into its own area.
+    function computeRegions(topics: string[]): Map<string, { x: number; y: number }> {
+        const map = new Map<string, { x: number; y: number }>();
         const n = topics.length;
         const cols = Math.max(1, Math.ceil(Math.sqrt(n)));
         const rows = Math.max(1, Math.ceil(n / cols));
         const cellW = width / cols;
         const cellH = height / rows;
-
         topics.forEach((topic, i) => {
             const row = Math.floor(i / cols);
             const col = i - row * cols;
             const itemsInRow = Math.min(cols, n - row * cols);
-            // centre each row so leftover cells don't skew the layout
             const rowStart = (width - itemsInRow * cellW) / 2;
             map.set(topic, {
-                topic,
                 x: rowStart + cellW * (col + 0.5),
-                y: cellH * row + cellH * 0.6,
-                labelY: cellH * row + cellH * 0.16,
+                y: cellH * (row + 0.5),
             });
         });
         return map;
@@ -134,6 +130,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     function rebuild(nextNodes: InputNode[], nextEdges: InputEdge[]): void {
         simulation?.stop();
+        fitted = false;
         simNodes = nextNodes.map((n) => ({
             id: n.id,
             label: n.label,
@@ -150,19 +147,16 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
         const topics = [...new Set(simNodes.map((n) => n.topic))].sort();
         const regionMap = computeRegions(topics);
-        regions = topics.map((t) => regionMap.get(t)!);
 
         simulation = forceSimulation<SimNode, SimLink>(simNodes)
-            // Weak links: co-occurrence still shows as edges, but topic anchoring
-            // dominates so subjects don't get pulled into one clump.
             .force(
                 "link",
                 forceLink<SimNode, SimLink>(simLinks)
                     .id((d) => d.id)
-                    .distance(40)
-                    .strength(0.02),
+                    .distance(55)
+                    .strength(0.15),
             )
-            .force("charge", forceManyBody<SimNode>().strength(-80))
+            .force("charge", forceManyBody<SimNode>().strength(-170))
             .force(
                 "x",
                 forceX<SimNode>((d) => regionMap.get(d.topic)!.x).strength(0.45),
@@ -173,15 +167,20 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             )
             .force(
                 "collide",
-                forceCollide<SimNode>().radius((d) => d.r + 3),
+                forceCollide<SimNode>().radius((d) => d.r + 4),
             )
             .on("tick", () => {
                 simNodes = [...simNodes];
                 simLinks = [...simLinks];
-            });
+            })
+            .on("end", fitView);
     }
 
     $: rebuild(nodes, edges);
+
+    // Show node (tag) labels when the graph is small enough not to get cluttered,
+    // or for large clusters.
+    $: showAllLabels = simNodes.length <= 30;
 
     $: resolvedLinks = simLinks
         .filter((l) => typeof l.source === "object" && typeof l.target === "object")
@@ -197,8 +196,67 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             };
         });
 
+    // Place each topic label at the top of its own cluster (skip the "Other"
+    // catch-all bucket, which isn't a real CFA topic).
+    $: topicLabels = topicLabelsFrom(simNodes);
+
+    function topicLabelsFrom(ns: SimNode[]): TopicLabel[] {
+        const groups = new Map<string, { xSum: number; count: number; minY: number }>();
+        for (const n of ns) {
+            if (n.topic === "Other") {
+                continue;
+            }
+            const g = groups.get(n.topic) ?? { xSum: 0, count: 0, minY: Infinity };
+            g.xSum += n.x ?? 0;
+            g.count += 1;
+            g.minY = Math.min(g.minY, (n.y ?? 0) - n.r);
+            groups.set(n.topic, g);
+        }
+        return [...groups].map(([topic, g]) => ({
+            topic,
+            x: g.xSum / g.count,
+            y: g.minY - 12,
+        }));
+    }
+
+    // Zoom/pan so the whole graph fits the viewport (once per dataset). Keeps
+    // small decks from rendering as tiny nodes in a huge empty canvas.
+    function fitView(): void {
+        if (fitted || !svgEl || !zoomBehavior || simNodes.length === 0) {
+            return;
+        }
+        let minX = Infinity;
+        let minY = Infinity;
+        let maxX = -Infinity;
+        let maxY = -Infinity;
+        for (const n of simNodes) {
+            const x = n.x ?? 0;
+            const y = n.y ?? 0;
+            minX = Math.min(minX, x - n.r);
+            minY = Math.min(minY, y - n.r - 18);
+            maxX = Math.max(maxX, x + n.r);
+            maxY = Math.max(maxY, y + n.r + 18);
+        }
+        if (!Number.isFinite(minX)) {
+            return;
+        }
+        const bw = Math.max(maxX - minX, 1);
+        const bh = Math.max(maxY - minY, 1);
+        const scale = Math.max(
+            0.2,
+            Math.min(3, 0.9 * Math.min(width / bw, height / bh)),
+        );
+        const tx = width / 2 - scale * (minX + bw / 2);
+        const ty = height / 2 - scale * (minY + bh / 2);
+        zoomBehavior.transform(
+            select(svgEl),
+            zoomIdentity.translate(tx, ty).scale(scale),
+        );
+        fitted = true;
+    }
+
     onMount(() => {
-        const zoomBehavior = zoom<SVGSVGElement, unknown>()
+        zoomBehavior = zoom<SVGSVGElement, unknown>()
             .scaleExtent([0.2, 8])
             .filter((event) => {
                 if (event.type === "wheel") {
@@ -283,8 +341,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                     <circle r={node.r}>
                         <title>{readable(node.label)} · {node.cardCount}</title>
                     </circle>
-                    {#if node.r >= 16}
-                        <text class="node-label" dy="0.32em">
+                    {#if node.r >= 16 || showAllLabels}
+                        <text class="node-label" y={node.r + 12}>
                             {shorten(node.label)}
                         </text>
                     {/if}
@@ -293,10 +351,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         </g>
         <!-- topic labels last so they always sit on top of the nodes -->
         <g class="topics">
-            {#each regions as region}
-                <text class="topic-label" x={region.x} y={region.labelY}>
-                    {region.topic}
-                </text>
+            {#each topicLabels as label}
+                <text class="topic-label" x={label.x} y={label.y}>{label.topic}</text>
             {/each}
         </g>
     </g>
@@ -350,6 +406,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     .node-label {
         fill: var(--fg-subtle);
+        stroke: var(--canvas-inset);
+        stroke-width: 3px;
+        paint-order: stroke;
         font-size: 10px;
         text-anchor: middle;
         pointer-events: none;

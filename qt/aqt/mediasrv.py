@@ -415,6 +415,7 @@ def is_sveltekit_page(path: str) -> bool:
     return page_name in [
         "graphs",
         "concept-graph",
+        "dashboard",
         "congrats",
         "card-info",
         "change-notetype",
@@ -748,6 +749,7 @@ exposed_backend_list = [
     "get_graph_preferences",
     "set_graph_preferences",
     "get_concept_graph",
+    "get_dashboard",
     # TagsService
     "complete_tag",
     # ImageOcclusionService

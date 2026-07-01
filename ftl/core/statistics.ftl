@@ -310,6 +310,32 @@ statistics-concept-map-learning = Learning
 statistics-concept-map-weak = Weak
 statistics-concept-map-new = New
 
+## CFA Speedrun: the CFA dashboard — per-subject progress plus the three gauges
+## (Memory / Performance / Readiness). See DASHBOARD.md.
+
+statistics-cfa-dashboard = CFA Dashboard
+statistics-dashboard-memory = Memory
+statistics-dashboard-performance = Performance
+statistics-dashboard-readiness = Readiness
+statistics-dashboard-memory-subtitle = Chance you recall a studied fact
+statistics-dashboard-performance-subtitle = Chance on a new exam-style question
+statistics-dashboard-readiness-subtitle = Projected chance of passing (CFA is pass/fail)
+statistics-dashboard-uncalibrated = Uncalibrated estimate
+statistics-dashboard-insufficient = Not enough data yet
+statistics-dashboard-coverage = Coverage
+statistics-dashboard-confidence = Confidence
+statistics-dashboard-confidence-low = Low
+statistics-dashboard-confidence-medium = Medium
+statistics-dashboard-confidence-high = High
+statistics-dashboard-study-next = Study next
+statistics-dashboard-subject = Subject
+statistics-dashboard-weight = Weight
+statistics-dashboard-studied = Studied
+statistics-dashboard-not-studied = Not studied
+statistics-dashboard-reviews-count = { $count } graded reviews
+statistics-dashboard-give-up-note = A pass estimate needs at least 15 graded reviews and 1% topic coverage.
+statistics-dashboard-needs-fsrs = FSRS is off, so these are rough estimates from your review history. Enable FSRS in Deck Options for calibrated numbers.
+
 ## These strings are no longer used - you do not need to translate them if they
 ## are not already translated.
 

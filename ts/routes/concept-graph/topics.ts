@@ -70,7 +70,71 @@ const TOPIC_BY_READING: Record<string, string> = {
     Fintech_in_Investment_Management: "Portfolio Management",
 };
 
-/** The CFA topic a reading tag belongs to, or "Other" when unknown. */
+// Short, forgiving aliases so simple tags (e.g. "derivatives", "ethics",
+// "fixed_income", "cfa::equity") map to a topic too — not just the full reading
+// names above. Keys are normalized (see normalizeTag).
+const TOPIC_BY_ALIAS: Record<string, string> = {
+    "ethics": "Ethical & Professional Standards",
+    "ethical": "Ethical & Professional Standards",
+    "ethical & professional standards": "Ethical & Professional Standards",
+    "professional standards": "Ethical & Professional Standards",
+    "standards": "Ethical & Professional Standards",
+
+    "quant": "Quantitative Methods",
+    "quantitative": "Quantitative Methods",
+    "quantitative methods": "Quantitative Methods",
+    "qm": "Quantitative Methods",
+
+    "economics": "Economics",
+    "econ": "Economics",
+
+    "fsa": "Financial Statement Analysis",
+    "financial statement analysis": "Financial Statement Analysis",
+    "financial statements": "Financial Statement Analysis",
+    "financial reporting": "Financial Statement Analysis",
+
+    "corporate issuers": "Corporate Issuers",
+    "corporate": "Corporate Issuers",
+    "corporate finance": "Corporate Issuers",
+    "issuers": "Corporate Issuers",
+
+    "equity": "Equity Investments",
+    "equities": "Equity Investments",
+    "equity investments": "Equity Investments",
+
+    "fixed income": "Fixed Income",
+    "fi": "Fixed Income",
+    "bonds": "Fixed Income",
+
+    "derivatives": "Derivatives",
+    "derivative": "Derivatives",
+    "derivs": "Derivatives",
+
+    "alternative investments": "Alternative Investments",
+    "alternatives": "Alternative Investments",
+    "alts": "Alternative Investments",
+    "alt": "Alternative Investments",
+
+    "portfolio management": "Portfolio Management",
+    "portfolio": "Portfolio Management",
+    "pm": "Portfolio Management",
+};
+
+// Normalize a tag for alias lookup: take the last "::" segment, turn
+// separators into spaces, collapse whitespace, lowercase.
+function normalizeTag(tag: string): string {
+    const last = tag.split("::").pop() ?? tag;
+    return last
+        .replace(/[_-]+/g, " ")
+        .replace(/\s+/g, " ")
+        .trim()
+        .toLowerCase();
+}
+
+/**
+ * The CFA topic a tag belongs to, or "Other" when unknown. Tries the exact
+ * reading name first, then a short-alias lookup (case/separator-insensitive).
+ */
 export function topicOf(reading: string): string {
-    return TOPIC_BY_READING[reading] ?? "Other";
+    return TOPIC_BY_READING[reading] ?? TOPIC_BY_ALIAS[normalizeTag(reading)] ?? "Other";
 }

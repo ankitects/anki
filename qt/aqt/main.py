@@ -506,7 +506,7 @@ class AnkiQt(QMainWindow):
         restoreGeom(self, "mainWindow")
         restoreState(self, "mainWindow")
         # titlebar
-        self.setWindowTitle(f"{self.pm.name} - Anki")
+        self.setWindowTitle(f"{self.pm.name} - Anki - CFA Level 1")
         # show and raise window for osx
         self.show()
         self.activateWindow()
@@ -1466,7 +1466,7 @@ title="{}" {}>{}</button>""".format(
         m.actionFullScreen.setShortcutContext(Qt.ShortcutContext.ApplicationShortcut)
 
     def updateTitleBar(self) -> None:
-        self.setWindowTitle("Anki")
+        self.setWindowTitle(f"{self.pm.name} - Anki - CFA Level 1")
 
     # View
     ##########################################################################

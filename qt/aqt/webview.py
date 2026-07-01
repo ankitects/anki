@@ -60,6 +60,7 @@ class AnkiWebViewKind(Enum):
     IMPORT_LOG = "import log"
     IMPORT_ANKI_PACKAGE = "anki package import"
     CONCEPT_GRAPH = "concept graph"
+    CFA_DASHBOARD = "cfa dashboard"
 
 
 class AuthInterceptor(QWebEngineUrlRequestInterceptor):
@@ -144,6 +145,7 @@ class AnkiWebPage(QWebEnginePage):
             AnkiWebViewKind.IMPORT_CSV,
             AnkiWebViewKind.IMPORT_LOG,
             AnkiWebViewKind.CONCEPT_GRAPH,
+            AnkiWebViewKind.CFA_DASHBOARD,
         )
 
         global _profile_with_api_access, _profile_without_api_access

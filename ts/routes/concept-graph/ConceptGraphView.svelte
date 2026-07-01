@@ -95,6 +95,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 <style lang="scss">
     .concept-map {
+        display: flex;
+        flex-direction: column;
+        box-sizing: border-box;
+        height: 100dvh;
         max-width: 60em;
         margin: 0 auto;
         padding: 1em;

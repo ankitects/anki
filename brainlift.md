@@ -33,7 +33,7 @@ and **Readiness** (a calibrated prediction of the score they'd get today).
 **In scope:** engine-level, cleanly-ablatable techniques that target transfer for CFA L1 —
 graph/cluster scheduling (`SPOV 1`), FSRS-driven faded worked examples for the formula-heavy
 topics (Quant, Fixed Income, Derivatives, Corporate, Portfolio Management; `SPOV 2`), and
-surfacing confusable siblings for contrast (`SPOV 3`); and
+surfacing confusable cards for contrast (`SPOV 3`); and
 the three-way ablation — **feature ON vs feature OFF vs unmodified Anki** — on the **same CFA
 questions** and **equal total study time**, scored on a held-out bank of CFA-style MCQs
 (Performance), delayed recall (Memory), and calibrated pass-probability (Readiness).
@@ -64,15 +64,23 @@ FSRS's **existing** stability/difficulty, not a fixed/authored schedule or a sep
 (Kalyuga 2003); generation effect (Bertsch 2007); transfer-appropriate processing (Morris 1977);
 FSRS stability/difficulty baseline.
 
-### SPOV 3 — Surface confusable siblings; don't bury them
+### SPOV 3 — Surface confusable cards; order them adjacently (don't space them apart)
 
-Anki _buries_ siblings to avoid interference; for CFA the interference **is** the lesson — the
-scheduler should place FIFO/LIFO, the duration trio, and the Ethics Standards back-to-back. These are all related ideas. This way, the user can not only memorize facts, but also see how different topics interact with each other. Furthermore, similar topics build upon each other in the user's learning experience.
+Conventional SRS schedules each card **independently** and _spaces_ related cards apart; Anki's one
+inter-card rule — **sibling-burying** — even pushes same-note cards away from each other to avoid
+interference. For CFA L1 that interference **is** the lesson: the scheduler should place confusable
+cards — FIFO/LIFO/weighted-average, the Macaulay/modified/effective duration trio, and neighbouring
+Ethics Standards — **back-to-back** so the learner is forced to _discriminate_ them. The precise
+lever is **adjacency ordering, not un-burying**: on a recall deck these confusables are _separate
+notes_ (not same-note siblings), so sibling-burying doesn't even apply — the scheduler instead
+reorders the gathered queue so cards sharing a cluster (derived from their **tags**) sit adjacent.
+This way the user doesn't just memorize isolated facts; they also see how related ideas contrast and
+build on one another.
 **Grounding:** interleaving is strongly material-dependent — overall g=0.42, perceptual
 categories ~0.67, math meta-average ~0.34 (Brunmair & Richter 2019), but _problem-type_
 discrimination (the CFA case) d=0.42→0.79 at a month (Rohrer, Dedrick & Stershic 2015; Rohrer &
 Taylor 2007). We wager CFA's confusables sit toward the upper end — an open question the ablation
-tests. Anki sibling-burying baseline.
+tests. Anki's sibling-burying (same-note only) is the baseline this departs from.
 
 ---
 

@@ -372,6 +372,12 @@ class Toolbar:
                 tip=tr.actions_shortcut_key(val="T"),
                 id="stats",
             ),
+            self.create_link(
+                "cfa_dashboard",
+                tr.statistics_cfa_dashboard(),
+                self._cfaDashboardLinkHandler,
+                id="cfa_dashboard",
+            ),
         ]
 
         links.append(self._create_sync_link())
@@ -449,6 +455,11 @@ class Toolbar:
 
     def _statsLinkHandler(self) -> None:
         self.mw.onStats()
+
+    def _cfaDashboardLinkHandler(self) -> None:
+        import aqt.cfa_dashboard
+
+        aqt.cfa_dashboard.show_dashboard(self.mw)
 
     def _syncLinkHandler(self) -> None:
         self.mw.on_sync_button_clicked()

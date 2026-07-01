@@ -50,6 +50,13 @@ impl crate::services::StatsService for Collection {
     ) -> error::Result<anki_proto::stats::ConceptGraphResponse> {
         self.concept_graph(input)
     }
+
+    fn get_dashboard(
+        &mut self,
+        input: anki_proto::stats::DashboardRequest,
+    ) -> error::Result<anki_proto::stats::DashboardResponse> {
+        self.dashboard(input)
+    }
 }
 
 impl From<RevlogReviewKind> for i32 {

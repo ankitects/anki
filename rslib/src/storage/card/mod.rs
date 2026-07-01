@@ -667,6 +667,20 @@ impl super::SqliteStorage {
             .collect()
     }
 
+    /// Number of graded reviews (revlog entries with a real button press,
+    /// `ease != 0`) for the cards currently in `search_cids`. Powers the
+    /// dashboard's give-up rule.
+    pub(crate) fn searched_cards_graded_review_count(&self) -> Result<u32> {
+        let count: i64 = self
+            .db
+            .prepare_cached(
+                "select count(*) from revlog, search_cids \
+                 where revlog.cid = search_cids.cid and revlog.ease != 0",
+            )?
+            .query_row([], |row| row.get(0))?;
+        Ok(count as u32)
+    }
+
     /// Cards will arrive in card id order, not search order.
     pub(crate) fn for_each_card_in_search<F>(&self, mut func: F) -> Result<()>
     where

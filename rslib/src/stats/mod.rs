@@ -3,6 +3,7 @@
 
 mod card;
 mod concept_graph;
+mod dashboard;
 mod graphs;
 mod mastery;
 mod service;

@@ -6,7 +6,8 @@
 //! Baseline Anki schedules every card independently and only relates cards
 //! through sibling-burying. This pass treats the deck's existing tags as an
 //! edge graph: cards whose notes share a cluster tag are confusable and are
-//! surfaced back-to-back so the interference becomes the lesson.
+//! interleaved in small groups so the interference becomes the lesson — without
+//! a broad cluster turning into one giant block the learner must slog through.
 //!
 //! The cluster key comes from `contrast_tag_prefix`:
 //! - non-empty (e.g. `cluster::`) → the first tag under that prefix, so you can
@@ -20,6 +21,7 @@
 //! limits and counts are untouched.
 
 use std::collections::HashMap;
+use std::collections::VecDeque;
 
 use super::QueueBuilder;
 use crate::prelude::*;
@@ -79,18 +81,19 @@ impl QueueBuilder {
     }
 
     /// Reorder the gathered new and review piles so cards in the same
-    /// confusable cluster are adjacent. Cards without a cluster keep their
-    /// position (relative to the first appearance of each cluster). No
-    /// cards are added or removed, so deck limits and counts are
-    /// unaffected.
+    /// confusable cluster are surfaced together — interleaved in small
+    /// groups (at most `CONTRAST_CHUNK` in a row) rather than one big
+    /// block, so a broad cluster doesn't force the learner through hundreds
+    /// of same-tag cards at once. No cards are added or removed, so deck
+    /// limits and counts are unaffected.
     pub(super) fn apply_contrast(&mut self) {
         let Some(contrast) = self.contrast.take() else {
             return;
         };
         let new = std::mem::take(&mut self.new);
-        self.new = cluster_adjacent(new, |card| contrast.cluster_of(card.note_id));
+        self.new = interleave_clusters(new, |card| contrast.cluster_of(card.note_id));
         let review = std::mem::take(&mut self.review);
-        self.review = cluster_adjacent(review, |card| contrast.cluster_of(card.note_id));
+        self.review = interleave_clusters(review, |card| contrast.cluster_of(card.note_id));
     }
 
     fn contrast_prefix(&self) -> String {
@@ -123,29 +126,55 @@ fn cluster_for_tags(tags: &str, prefix: &str) -> Option<String> {
     }
 }
 
-/// Stable grouping: items sharing a cluster key are made adjacent, in the order
-/// the cluster first appears; items without a key (None) stay as singletons in
-/// their original position. Order within a cluster is preserved.
-fn cluster_adjacent<T, F>(items: Vec<T>, key_of: F) -> Vec<T>
+/// Maximum number of same-cluster cards shown in a row before rotating to the
+/// next cluster. Small enough to keep confusables adjacent for contrast, but it
+/// stops a broad cluster (e.g. a whole reading) from becoming one long block.
+const CONTRAST_CHUNK: usize = 4;
+
+/// Interleave clusters: items sharing a cluster key are emitted in runs of at
+/// most [`CONTRAST_CHUNK`], round-robin across clusters in first-appearance
+/// order, so confusable cards stay near each other without one broad cluster
+/// forming a single huge block. Items without a key (None) are treated as
+/// singleton clusters and keep their relative order. Nothing is added or
+/// removed.
+fn interleave_clusters<T, F>(items: Vec<T>, key_of: F) -> Vec<T>
 where
     F: Fn(&T) -> Option<String>,
 {
-    let mut groups: Vec<Vec<T>> = Vec::with_capacity(items.len());
+    let count = items.len();
+    let mut groups: Vec<VecDeque<T>> = Vec::new();
     let mut index_of_cluster: HashMap<String, usize> = HashMap::new();
     for item in items {
         match key_of(&item) {
             Some(key) => {
                 if let Some(&idx) = index_of_cluster.get(&key) {
-                    groups[idx].push(item);
+                    groups[idx].push_back(item);
                 } else {
                     index_of_cluster.insert(key, groups.len());
-                    groups.push(vec![item]);
+                    groups.push(VecDeque::from([item]));
                 }
             }
-            None => groups.push(vec![item]),
+            None => groups.push(VecDeque::from([item])),
         }
     }
-    groups.into_iter().flatten().collect()
+
+    let mut out = Vec::with_capacity(count);
+    let mut any = true;
+    while any {
+        any = false;
+        for group in groups.iter_mut() {
+            for _ in 0..CONTRAST_CHUNK {
+                match group.pop_front() {
+                    Some(item) => out.push(item),
+                    None => break,
+                }
+            }
+            if !group.is_empty() {
+                any = true;
+            }
+        }
+    }
+    out
 }
 
 #[cfg(test)]
@@ -153,7 +182,7 @@ mod test {
     use super::*;
 
     fn keys(items: &[(i64, Option<&str>)]) -> Vec<i64> {
-        cluster_adjacent(items.to_vec(), |(_, key)| key.map(ToString::to_string))
+        interleave_clusters(items.to_vec(), |(_, key)| key.map(ToString::to_string))
             .into_iter()
             .map(|(id, _)| id)
             .collect()
@@ -177,6 +206,20 @@ mod test {
     fn order_preserved_when_no_clusters() {
         let items = vec![(1, None), (2, None), (3, None)];
         assert_eq!(keys(&items), vec![1, 2, 3]);
+    }
+
+    #[test]
+    fn big_clusters_are_chunked_not_one_block() {
+        // two clusters larger than CONTRAST_CHUNK (4) must interleave in chunks,
+        // never one giant run of the same cluster.
+        let mut items: Vec<(i64, Option<&str>)> = Vec::new();
+        for i in 0i64..6 {
+            items.push((i, Some("a")));
+        }
+        for i in 6i64..12 {
+            items.push((i, Some("b")));
+        }
+        assert_eq!(keys(&items), vec![0, 1, 2, 3, 6, 7, 8, 9, 4, 5, 10, 11]);
     }
 
     #[test]
