@@ -13,16 +13,21 @@ import "anki/notetypes.proto";
 service MediaService {
   rpc CheckMedia(generic.Empty) returns (CheckMediaResponse);
   rpc AddMediaFile(AddMediaFileRequest) returns (generic.String);
+  rpc AddMediaFromPath(AddMediaFromPathRequest) returns (generic.String);
   rpc TrashMediaFiles(TrashMediaFilesRequest) returns (generic.Empty);
   rpc EmptyTrash(generic.Empty) returns (generic.Empty);
   rpc RestoreTrash(generic.Empty) returns (generic.Empty);
   rpc ExtractStaticMediaFiles(notetypes.NotetypeId)
       returns (generic.StringList);
+  rpc ExtractMediaFiles(generic.String) returns (generic.StringList);
+  rpc GetAbsoluteMediaPath(generic.String) returns (generic.String);
 }
 
 // Implicitly includes any of the above methods that are not listed in the
 // backend service.
-service BackendMediaService {}
+service BackendMediaService {
+  rpc AddMediaFromUrl(AddMediaFromUrlRequest) returns (AddMediaFromUrlResponse);
+}
 
 message CheckMediaResponse {
   repeated string unused = 1;
@@ -39,4 +44,17 @@ message TrashMediaFilesRequest {
 message AddMediaFileRequest {
   string desired_name = 1;
   bytes data = 2;
+}
+
+message AddMediaFromPathRequest {
+  string path = 1;
+}
+
+message AddMediaFromUrlRequest {
+  string url = 1;
+}
+
+message AddMediaFromUrlResponse {
+  optional string filename = 1;
+  optional string error = 2;
 }

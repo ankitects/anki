@@ -7,5 +7,6 @@ export function globalExport(globals: Record<string, unknown>): void {
     }
 
     // but also export as window.anki
-    window["anki"] = globals;
+    window["anki"] = window["anki"] || {};
+    window["anki"] = { ...window["anki"], ...globals };
 }

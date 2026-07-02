@@ -19,7 +19,10 @@ const configure = (proxy: any, _options: any) => {
 };
 
 const viteConfig = defineViteConfig({
-    plugins: [sveltekit(), svg({})],
+    plugins: [
+        sveltekit(),
+        svg({ svgoOptions: { plugins: [{ name: "cleanupIds", params: { remove: false } }] } }),
+    ],
     cacheDir: "../node_modules/.vite",
     build: {
         reportCompressedSize: false,

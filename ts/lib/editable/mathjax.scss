@@ -1,0 +1,15 @@
+img {
+    vertical-align: var(--vertical-center);
+}
+
+.block {
+    display: block;
+    margin: 1rem auto;
+    transform: scale(1.1);
+}
+
+.empty {
+    vertical-align: text-bottom;
+    width: var(--font-size);
+    height: var(--font-size);
+}
