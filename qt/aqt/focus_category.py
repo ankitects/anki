@@ -160,8 +160,9 @@ class FocusCategory(QDialog):
         ).run_in_background()
 
     def _on_deck_saved(self, out: OpChangesWithId) -> None:
-        # Focus-a-category is explicitly NOT interleave mode; leave
-        # _interleave_mode at its existing (False) value.
+        # Focus-a-category studies a single-topic filtered deck normally — no
+        # cross-topic interleaving (that's only for the "Start Flashcards" home
+        # entry, which spreads new cards via the deck's RANDOM_CARDS gather).
         set_current_deck(parent=self.mw, deck_id=DeckId(out.id)).success(
             lambda _: self.mw.moveToState("review")
         ).run_in_background()

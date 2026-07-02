@@ -95,7 +95,6 @@ class Overview:
 
     def _linkHandler(self, url: str) -> bool:
         if url == "study":
-            self.mw.reviewer._interleave_mode = True
             self.mw.col.startTimebox()
             self.mw.moveToState("review")
             if self.mw.state == "overview":

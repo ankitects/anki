@@ -146,14 +146,15 @@ class DeckBrowser:
         return False
 
     def _start_flashcards(self) -> None:
-        """Home-screen entry: study the WHOLE collection interleaved, with no
-        deck/topic picking. Selects the deck whose subtree holds all the cards,
-        flips the reviewer into interleave mode, and goes straight to review."""
+        """Home-screen entry: study the WHOLE collection with topics interleaved,
+        no deck/topic picking. Selects the deck whose subtree holds all the cards,
+        ensures new cards are gathered across all categories (RANDOM_CARDS), and
+        goes straight to review. Interleaving comes from that gather order, not
+        client-side reordering (v3 only lets you answer the front of the queue)."""
         deck_id = self._deck_for_study_everything()
         self._ensure_new_cards_spread(deck_id)
 
         def on_done(_: OpChanges) -> None:
-            self.mw.reviewer._interleave_mode = True
             self.mw.moveToState("review")
 
         set_current_deck(parent=self.mw, deck_id=deck_id).success(

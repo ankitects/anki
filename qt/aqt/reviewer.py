@@ -31,7 +31,6 @@ from anki.tags import MARKED_TAG, NEVER_LEARNED_TAG
 from anki.types import assert_exhaustive
 from anki.utils import is_mac
 from aqt import AnkiQt, gui_hooks
-from aqt._interleave import CategorizedCard, InterleaveState, pick_next
 from aqt.browser.card_info import PreviousReviewerCardInfo, ReviewerCardInfo
 from aqt.deckoptions import confirm_deck_then_display_options
 from aqt.operations.card import set_card_flag
@@ -176,8 +175,6 @@ class Reviewer:
         self._show_question_timer: QTimer | None = None
         self._show_answer_timer: QTimer | None = None
         self.auto_advance_enabled = False
-        self._interleave_mode: bool = False
-        self._interleave_state: InterleaveState | None = None
         gui_hooks.av_player_did_end_playing.append(self._on_av_player_did_end_playing)
 
     def show(self) -> None:
@@ -185,10 +182,6 @@ class Reviewer:
             self.mw.moveToState("deckBrowser")
             show_warning(tr.scheduling_update_required().replace("V2", "v3"))
             return
-        if self._interleave_mode:
-            # fresh rotation state for this session (one continuous stay in
-            # the review state entered via "Start flashcards")
-            self._interleave_state = InterleaveState()
         self.mw.setStateShortcuts(self._shortcutKeys())  # type: ignore
         self.web.set_bridge_command(self._linkHandler, self)
         self.bottom.web.set_bridge_command(self._linkHandler, ReviewerBottomBar(self))
@@ -212,10 +205,6 @@ class Reviewer:
         gui_hooks.reviewer_will_end()
         self.card = None
         self.auto_advance_enabled = False
-        # Reset interleave mode when a session ends, so it never leaks into a
-        # later review entered by a path other than "Start flashcards" (which
-        # re-sets the flag to True right before moveToState).
-        self._interleave_mode = False
 
     def refresh_if_needed(self) -> None:
         if self._refresh_needed is RefreshNeeded.QUEUES:
@@ -281,37 +270,15 @@ class Reviewer:
 
     def _get_next_v3_card(self) -> None:
         assert isinstance(self.mw.col.sched, V3Scheduler)
-        if self._interleave_mode:
-            self._get_next_v3_card_interleaved()
-            return
+        # Note: interleaving across topics is delivered by the deck's
+        # RANDOM_CARDS new-card gather order (set in DeckBrowser._start_flashcards),
+        # NOT by client-side reordering here. v3 only allows answering the card
+        # at the front of the queue (rslib scheduler/queue/mod.rs pop_entry), so
+        # showing a non-front card would raise "not at top of queue" on answer.
         output = self.mw.col.sched.get_queued_cards()
         if not output.cards:
             return
         self._v3 = V3CardInfo.from_queue(output)
-        self.card = Card(self.mw.col, backend_card=self._v3.top_card().card)
-        self.card.start_timer()
-
-    def _get_next_v3_card_interleaved(self) -> None:
-        assert isinstance(self.mw.col.sched, V3Scheduler)
-        output = self.mw.col.sched.get_queued_cards(fetch_limit=60)
-        if not output.cards:
-            return
-        card_ids = [CardId(c.card.id) for c in output.cards]
-        resp = self.mw.col.card_topics(card_ids, group_depth=2)
-        topic_by_card_id = {entry.card_id: entry.topic for entry in resp.entries}
-        window = [
-            topic_by_card_id.get(c.card.id, resp.untagged_sentinel)
-            for c in output.cards
-        ]
-        assert self._interleave_state is not None
-        result: tuple[CategorizedCard, InterleaveState] | None = pick_next(
-            window, self._interleave_state
-        )
-        if result is None:
-            return
-        chosen, new_state = result
-        self._interleave_state = new_state
-        self._v3 = V3CardInfo.from_queue(output, index=chosen.window_index)
         self.card = Card(self.mw.col, backend_card=self._v3.top_card().card)
         self.card.start_timer()
 
