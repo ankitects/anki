@@ -37,3 +37,5 @@ ios/**/.build/
 ios/**/*.xcodeproj/
 ios/**/DerivedData/
 ios/**/.swiftpm/
+# MCAT fork: bundled MileDown iOS deck (derived from the gitignored source deck)
+ios/AnkiMCAT/Resources/milesdown.apkg

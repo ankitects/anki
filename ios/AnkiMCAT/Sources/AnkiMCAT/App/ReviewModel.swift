@@ -53,6 +53,14 @@ final class ReviewModel {
             try await engine.open(preferredLangs: ["en"])
 
             let paths = try sandboxPaths()
+            let deck = try bundledDeck()
+            // Import once: only (re)import when this deck hasn't been imported
+            // yet, so we don't duplicate cards on every launch. Switching decks
+            // (e.g. sample -> milesdown) starts from a clean collection.
+            let needImport = importedDeckMarker() != deck.name
+            if needImport {
+                try clearCollection(paths)
+            }
             statusLine = "Opening collection…"
             try await engine.openCollection(
                 collectionPath: paths.collection,
@@ -60,10 +68,14 @@ final class ReviewModel {
                 mediaDbPath: paths.mediaDB
             )
 
-            statusLine = "Importing deck…"
-            let apkg = try stageBundledApkg()
-            importedNotes = try await engine.importAnkiPackage(packagePath: apkg)
-            statusLine = "Imported \(importedNotes) note(s)."
+            if needImport {
+                statusLine = "Importing \(deck.name)…"
+                let staged = try stageApkg(deck.url)
+                importedNotes = try await engine.importAnkiPackage(packagePath: staged)
+                try? FileManager.default.removeItem(atPath: staged)
+                writeImportedDeckMarker(deck.name)
+                statusLine = "Imported \(importedNotes) note(s)."
+            }
 
             await advanceToNextCard()
         } catch {
@@ -142,25 +154,62 @@ final class ReviewModel {
         )
     }
 
-    /// Copy the bundled sample .apkg into Documents (backend imports from a
-    /// real sandbox file path). Returns the destination path.
-    ///
-    /// NOTE: this bundles a SMALL test package (pylib/tests/support/
-    /// diffmodels2-1.apkg, staged as sample.apkg) rather than the real 238 MB
-    /// MCAT_Milesdown.apkg, which is too large to embed in the app bundle. The
-    /// import path is identical; only the payload differs.
-    private func stageBundledApkg() throws -> String {
-        let fm = FileManager.default
-        guard let src = Bundle.main.url(forResource: "sample", withExtension: "apkg") else {
-            throw AnkiEngineError.decode("bundled sample.apkg not found")
+    /// The bundled deck to study. Prefers the real MileDown deck (a
+    /// media-stripped export, ~0.6 MB, bundled as milesdown.apkg) so the app
+    /// shows real MCAT card content; falls back to the tiny built-in test deck
+    /// (sample.apkg) if MileDown wasn't bundled. Images won't render (media was
+    /// stripped to keep the bundle small), but all card text is present.
+    private func bundledDeck() throws -> (url: URL, name: String) {
+        if let u = Bundle.main.url(forResource: "milesdown", withExtension: "apkg") {
+            return (u, "milesdown")
         }
+        if let u = Bundle.main.url(forResource: "sample", withExtension: "apkg") {
+            return (u, "sample")
+        }
+        throw AnkiEngineError.decode("no bundled .apkg found")
+    }
+
+    /// Copy a bundled .apkg into Documents (the backend imports from a real
+    /// sandbox file path). Returns the destination path.
+    private func stageApkg(_ src: URL) throws -> String {
+        let fm = FileManager.default
         let docs = try fm.url(for: .documentDirectory, in: .userDomainMask,
-                             appropriateFor: nil, create: true)
-        let dst = docs.appendingPathComponent("sample.apkg")
+                              appropriateFor: nil, create: true)
+        let dst = docs.appendingPathComponent(src.lastPathComponent)
         if fm.fileExists(atPath: dst.path) {
             try fm.removeItem(at: dst)
         }
         try fm.copyItem(at: src, to: dst)
         return dst.path
+    }
+
+    private func importMarkerURL() throws -> URL {
+        let docs = try FileManager.default.url(
+            for: .documentDirectory, in: .userDomainMask, appropriateFor: nil, create: true)
+        return docs.appendingPathComponent(".imported_deck")
+    }
+
+    private func importedDeckMarker() -> String? {
+        guard let u = try? importMarkerURL() else { return nil }
+        return try? String(contentsOf: u, encoding: .utf8)
+    }
+
+    private func writeImportedDeckMarker(_ name: String) {
+        if let u = try? importMarkerURL() {
+            try? name.write(to: u, atomically: true, encoding: .utf8)
+        }
+    }
+
+    /// Delete the sandbox collection + media so a (re)import starts clean.
+    private func clearCollection(_ paths: CollectionPaths) throws {
+        let fm = FileManager.default
+        for p in [paths.collection, paths.collection + "-wal", paths.collection + "-shm",
+                  paths.mediaDB] where fm.fileExists(atPath: p) {
+            try fm.removeItem(atPath: p)
+        }
+        if fm.fileExists(atPath: paths.mediaFolder) {
+            try fm.removeItem(atPath: paths.mediaFolder)
+        }
+        try fm.createDirectory(atPath: paths.mediaFolder, withIntermediateDirectories: true)
     }
 }
