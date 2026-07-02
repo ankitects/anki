@@ -14,7 +14,7 @@ jobs:
     steps:
       - name: Check for linked issue
         id: check
-        uses: actions/github-script@f28e40c7f34bde8b3046d885e986cb6290c5673b #v7
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 #v9.0.0
         with:
           script: |
             const pr = context.payload.pull_request;
@@ -40,7 +40,7 @@ jobs:
 
       - name: Apply missing-issue label and comment
         if: steps.check.outputs.has_linked_issue == 'false'
-        uses: actions/github-script@f28e40c7f34bde8b3046d885e986cb6290c5673b #v7
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 #v9.0.0
         with:
           script: |
             const { owner, repo } = context.repo;
@@ -75,7 +75,7 @@ jobs:
 
       - name: Remove missing-issue label and bot comment if issue is now linked
         if: steps.check.outputs.has_linked_issue == 'true'
-        uses: actions/github-script@f28e40c7f34bde8b3046d885e986cb6290c5673b #v7
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 #v9.0.0
         with:
           script: |
             const { owner, repo } = context.repo;
