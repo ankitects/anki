@@ -43,6 +43,11 @@ enum AnkiService {
     static let decks: UInt32 = 7
     static let getDeckNames: UInt32 = 13
     static let setCurrentDeck: UInt32 = 22
+
+    // service 11 = BackendDeckConfigService
+    static let deckConfig: UInt32 = 11
+    static let getDeckConfigsForUpdate: UInt32 = 6
+    static let updateDeckConfigs: UInt32 = 7
 }
 
 /// Error surfaced across the C ABI seam.
@@ -204,6 +209,48 @@ actor AnkiEngine {
         req.did = deckID
         _ = try call(service: AnkiService.decks, method: AnkiService.setCurrentDeck,
                      req, returning: Anki_Collection_OpChanges.self)
+    }
+
+    /// Make new cards gather across every category (RANDOM_CARDS) rather than
+    /// draining one subdeck at a time (the default DECK order). This mirrors the
+    /// desktop "Start Flashcards" behaviour so the iOS daily new cards are spread
+    /// across topics. Idempotent, and respects the daily new-card limit — it only
+    /// changes the *order* cards are introduced, not how many. The apkg config
+    /// round-trip does not reliably carry this field, so we set it at runtime.
+    func ensureRandomCardGather(deckID: Int64) throws {
+        var getReq = Anki_Decks_DeckId()
+        getReq.did = deckID
+        let data = try call(service: AnkiService.deckConfig,
+                            method: AnkiService.getDeckConfigsForUpdate,
+                            getReq, returning: Anki_DeckConfig_DeckConfigsForUpdate.self)
+
+        var configs: [Anki_DeckConfig_DeckConfig] = []
+        var changed = false
+        for entry in data.allConfig {
+            var cfg = entry.config
+            if cfg.config.newCardGatherPriority != .randomCards {
+                cfg.config.newCardGatherPriority = .randomCards
+                changed = true
+            }
+            configs.append(cfg)
+        }
+        guard changed else { return }
+
+        var upd = Anki_DeckConfig_UpdateDeckConfigsRequest()
+        upd.targetDeckID = deckID
+        upd.configs = configs
+        upd.removedConfigIds = []
+        upd.mode = .normal
+        upd.cardStateCustomizer = data.cardStateCustomizer
+        upd.limits = data.currentDeck.limits
+        upd.newCardsIgnoreReviewLimit = data.newCardsIgnoreReviewLimit
+        upd.fsrs = data.fsrs
+        upd.applyAllParentLimits = data.applyAllParentLimits
+        upd.fsrsReschedule = false
+        upd.fsrsHealthCheck = false
+        _ = try call(service: AnkiService.deckConfig,
+                     method: AnkiService.updateDeckConfigs,
+                     upd, returning: Anki_Collection_OpChanges.self)
     }
 
     // MARK: - Scheduler / review loop

@@ -146,6 +146,9 @@ final class ReviewModel {
         let topLevel = names.first(where: { !$0.name.contains("::") })
         let chosen = topLevel ?? names[0]
         try await engine.setCurrentDeck(chosen.id)
+        // Spread new cards across every category instead of draining one subdeck
+        // first (matches the desktop "Start Flashcards" interleaving).
+        try await engine.ensureRandomCardGather(deckID: chosen.id)
     }
 
     // MARK: - Sandbox / bundled resource staging
