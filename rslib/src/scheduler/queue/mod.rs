@@ -145,6 +145,8 @@ fn new_scheduling_context(col: &mut Collection, card: &Card) -> Result<Schedulin
             .or_not_found(card.deck_id)?
             .human_name(),
         seed: card.review_seed(),
+        decay: card.decay,
+        desired_retention: card.desired_retention,
     })
 }
 
