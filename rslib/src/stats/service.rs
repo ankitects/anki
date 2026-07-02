@@ -43,6 +43,13 @@ impl crate::services::StatsService for Collection {
     ) -> error::Result<anki_proto::stats::TagMasteryResponse> {
         self.tag_mastery(input)
     }
+
+    fn card_topics(
+        &mut self,
+        input: anki_proto::stats::CardTopicsRequest,
+    ) -> error::Result<anki_proto::stats::CardTopicsResponse> {
+        self.card_topics(input)
+    }
 }
 
 impl From<RevlogReviewKind> for i32 {

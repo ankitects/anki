@@ -1020,6 +1020,16 @@ class Collection(DeprecatedNamesMixin):
         """
         return self._backend.card_stats(card_id)
 
+    def card_topics(
+        self, card_ids: Sequence[CardId], group_depth: int = 2
+    ) -> stats_pb2.CardTopicsResponse:
+        """Batched card -> depth-2 (by default) topic lookup, e.g. to
+        categorize a reviewer window in one call instead of per-card note
+        fetches."""
+        return self._backend.card_topics(
+            card_ids=list(card_ids), group_depth=group_depth
+        )
+
     def get_review_logs(
         self, card_id: CardId
     ) -> Sequence[stats_pb2.CardStatsResponse.StatsRevlogEntry]:

@@ -2,6 +2,7 @@
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 //! Read-only per-tag mastery aggregation + an overall memory-readiness band.
+//! Also home to `card_topics`, a batched card->depth-2-topic lookup.
 //!
 //! Mirrors the existing retrievability graph (`super::graphs::retrievability`):
 //! a single pass over the searched cards, computing each card's *current*
@@ -13,6 +14,7 @@ use std::collections::HashSet;
 
 use fsrs::FSRS;
 use fsrs::FSRS5_DEFAULT_DECAY;
+use rusqlite::params_from_iter;
 
 use crate::prelude::*;
 use crate::search::SortMode;
@@ -241,6 +243,63 @@ impl Collection {
         )?;
         let mut map = HashMap::new();
         let mut rows = stmt.query([])?;
+        while let Some(row) = rows.next()? {
+            map.insert(row.get(0)?, row.get(1)?);
+        }
+        Ok(map)
+    }
+
+    /// Batched card -> depth-2 (by default) topic lookup for an explicit id
+    /// list, e.g. a reviewer's ~60-card window. Read-only: a single indexed
+    /// query, no search temp table, no writes.
+    pub(crate) fn card_topics(
+        &mut self,
+        input: anki_proto::stats::CardTopicsRequest,
+    ) -> Result<anki_proto::stats::CardTopicsResponse> {
+        if input.card_ids.is_empty() {
+            return Ok(anki_proto::stats::CardTopicsResponse {
+                entries: Vec::new(),
+                untagged_sentinel: UNTAGGED.to_string(),
+            });
+        }
+
+        let card_note_tags = self.card_ids_note_tags(&input.card_ids)?;
+        let entries = input
+            .card_ids
+            .iter()
+            .filter_map(|cid| {
+                card_note_tags.get(cid).map(|tags| {
+                    let topic = split_tags(tags)
+                        .map(|tag| group_key(tag, input.group_depth))
+                        .find(|key| key.contains("::"))
+                        .unwrap_or_else(|| UNTAGGED.to_string());
+                    anki_proto::stats::card_topics_response::Entry {
+                        card_id: *cid,
+                        topic,
+                    }
+                })
+            })
+            .collect();
+
+        Ok(anki_proto::stats::CardTopicsResponse {
+            entries,
+            untagged_sentinel: UNTAGGED.to_string(),
+        })
+    }
+
+    /// card_id -> its note's raw `tags` column, for the exact given id list
+    /// (only ids whose card and note both still exist are present).
+    fn card_ids_note_tags(&self, card_ids: &[i64]) -> Result<HashMap<i64, String>> {
+        let placeholders = std::iter::repeat("?")
+            .take(card_ids.len())
+            .collect::<Vec<_>>()
+            .join(",");
+        let mut stmt = self.storage.db.prepare(&format!(
+            "SELECT c.id, n.tags FROM cards c JOIN notes n ON c.nid = n.id \
+             WHERE c.id IN ({placeholders})"
+        ))?;
+        let mut map = HashMap::new();
+        let mut rows = stmt.query(params_from_iter(card_ids.iter()))?;
         while let Some(row) = rows.next()? {
             map.insert(row.get(0)?, row.get(1)?);
         }
@@ -966,7 +1025,7 @@ mod test {
         assert_eq!(group(&resp, "bio").cards_with_state, 1);
         assert_eq!(group(&resp, "chem").cards_with_state, 1);
         assert_eq!(resp.overall_n, 1); // deduped
-        // Both covered topics tie on recall (same card) -> lexicographic first.
+                                       // Both covered topics tie on recall (same card) -> lexicographic first.
         assert_eq!(resp.next_topic, "bio");
         Ok(())
     }

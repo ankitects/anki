@@ -18,6 +18,8 @@ service StatsService {
   rpc SetGraphPreferences(GraphPreferences) returns (generic.Empty);
   // Per-tag mastery + an overall memory-readiness band. Read-only.
   rpc TagMastery(TagMasteryRequest) returns (TagMasteryResponse);
+  // Batched card -> depth-2 topic lookup. Read-only.
+  rpc CardTopics(CardTopicsRequest) returns (CardTopicsResponse);
 }
 
 // Implicitly includes any of the above methods that are not listed in the
@@ -92,6 +94,21 @@ message TagMasteryResponse {
     MEDIUM = 2;        // half_width <= 0.05 AND n >= 30
     HIGH = 3;          // half_width <= 0.02 AND n >= 100
   }
+}
+
+message CardTopicsRequest {
+  repeated int64 card_ids = 1;
+  uint32 group_depth = 2;  // 2 = depth-2 topic
+}
+
+message CardTopicsResponse {
+  message Entry {
+    int64 card_id = 1;
+    string topic = 2;
+  }
+  repeated Entry entries = 1;
+  // Echoes rslib's UNTAGGED sentinel "(untagged)"; frontend maps to "Other".
+  string untagged_sentinel = 2;
 }
 
 message ReviewLogs {

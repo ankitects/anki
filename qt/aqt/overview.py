@@ -95,6 +95,7 @@ class Overview:
 
     def _linkHandler(self, url: str) -> bool:
         if url == "study":
+            self.mw.reviewer._interleave_mode = True
             self.mw.col.startTimebox()
             self.mw.moveToState("review")
             if self.mw.state == "overview":
@@ -115,6 +116,8 @@ class Overview:
             openLink(f"{aqt.appShared}info/{self.sid}?v={self.sidVer}")
         elif url in {"studymore", "customStudy"}:
             self.onStudyMore()
+        elif url == "focuscategory":
+            self.on_focus_category()
         elif url == "unbury":
             self.on_unbury()
         elif url == "description":
@@ -129,6 +132,7 @@ class Overview:
             ("r", self.rebuild_current_filtered_deck),
             ("e", self.empty_current_filtered_deck),
             ("c", self.onCustomStudyKey),
+            ("f", self.onFocusCategoryKey),
             ("u", self.on_unbury),
         ]
 
@@ -148,6 +152,10 @@ class Overview:
     def onCustomStudyKey(self) -> None:
         if not self._current_deck_is_filtered():
             self.onStudyMore()
+
+    def onFocusCategoryKey(self) -> None:
+        if not self._current_deck_is_filtered():
+            self.on_focus_category()
 
     def on_unbury(self) -> None:
         mode = UnburyDeck.Mode.ALL
@@ -263,7 +271,7 @@ class Overview:
 {number_row(tr.studying_to_review(), "review-count", counts[2], buried_review)}
 </table>
 </td><td align=center>
-{but("study", tr.studying_study_now(), id="study", extra=" autofocus")}</td></tr></table>"""
+{but("study", tr.studying_start_flashcards(), id="study", extra=" autofocus")}</td></tr></table>"""
 
     _body = """
 <center>
@@ -290,6 +298,7 @@ class Overview:
             links.append(["E", "empty", tr.studying_empty()])
         else:
             links.append(["C", "studymore", tr.actions_custom_study()])
+            links.append(["F", "focuscategory", tr.studying_focus_a_category()])
             # links.append(["F", "cram", _("Filter/Cram")])
         if self.mw.col.sched.have_buried():
             links.append(["U", "unbury", tr.studying_unbury()])
@@ -320,3 +329,8 @@ class Overview:
         import aqt.customstudy
 
         aqt.customstudy.CustomStudy.fetch_data_and_show(self.mw)
+
+    def on_focus_category(self) -> None:
+        import aqt.focus_category
+
+        aqt.focus_category.FocusCategory.fetch_data_and_show(self.mw)
