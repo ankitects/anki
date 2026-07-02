@@ -11,7 +11,14 @@ from typing import Any
 import aqt
 import aqt.operations
 from anki.collection import Collection, OpChanges
-from anki.decks import DeckCollapseScope, DeckId, DeckTreeNode
+from anki.deck_config_pb2 import DeckConfig
+from anki.decks import (
+    DeckCollapseScope,
+    DeckId,
+    DeckTreeNode,
+    UpdateDeckConfigs,
+    UpdateDeckConfigsMode,
+)
 from aqt import AnkiQt, gui_hooks
 from aqt.deckoptions import display_options_for_deck_id
 from aqt.operations import QueryOp
@@ -134,7 +141,88 @@ class DeckBrowser:
             set_current_deck(
                 parent=self.mw, deck_id=DeckId(int(arg))
             ).run_in_background()
+        elif cmd == "startflashcards":
+            self._start_flashcards()
         return False
+
+    def _start_flashcards(self) -> None:
+        """Home-screen entry: study the WHOLE collection interleaved, with no
+        deck/topic picking. Selects the deck whose subtree holds all the cards,
+        flips the reviewer into interleave mode, and goes straight to review."""
+        deck_id = self._deck_for_study_everything()
+        self._ensure_new_cards_spread(deck_id)
+
+        def on_done(_: OpChanges) -> None:
+            self.mw.reviewer._interleave_mode = True
+            self.mw.moveToState("review")
+
+        set_current_deck(parent=self.mw, deck_id=deck_id).success(
+            on_done
+        ).run_in_background(initiator=self)
+
+    def _ensure_new_cards_spread(self, deck_id: DeckId) -> None:
+        """So "Start Flashcards" interleaves EVERY category (not just started
+        ones): draw the day's new cards from across the whole deck tree instead
+        of front-loading the first subdeck. Sets the new-card gather order to
+        RANDOM_CARDS on the deck's config(s). Respects the daily new-card limit
+        (this only changes WHICH new cards fill it, not how many). Idempotent —
+        only writes when the order isn't already random."""
+        col = self.mw.col
+        random_cards = (
+            DeckConfig.Config.NewCardGatherPriority.NEW_CARD_GATHER_PRIORITY_RANDOM_CARDS
+        )
+        data = col.decks.get_deck_configs_for_update(deck_id)
+        configs = []
+        changed = False
+        for cwe in data.all_config:
+            if cwe.config.config.new_card_gather_priority != random_cards:
+                cwe.config.config.new_card_gather_priority = random_cards
+                changed = True
+            configs.append(cwe.config)
+        if not changed:
+            return
+        col.decks.update_deck_configs(
+            UpdateDeckConfigs(
+                target_deck_id=deck_id,
+                configs=configs,
+                removed_config_ids=[],
+                mode=UpdateDeckConfigsMode.UPDATE_DECK_CONFIGS_MODE_NORMAL,
+                card_state_customizer=data.card_state_customizer,
+                limits=data.current_deck.limits,
+                new_cards_ignore_review_limit=data.new_cards_ignore_review_limit,
+                fsrs=data.fsrs,
+                apply_all_parent_limits=data.apply_all_parent_limits,
+                fsrs_reschedule=False,
+                fsrs_health_check=False,
+            )
+        )
+
+    def _deck_for_study_everything(self) -> DeckId:
+        """The top-level deck whose subtree holds the most cards — for a
+        single-collection import this is the one parent deck over everything,
+        so studying it (subdecks included) interleaves the whole collection.
+        Falls back to Default."""
+        best_id = DeckId(1)
+        best_count = -1
+        for node in self._render_data.tree.children:
+            did = DeckId(node.deck_id)
+            name = self.mw.col.decks.name(did)
+            escaped = name.replace("\\", "\\\\").replace('"', '\\"')
+            count = len(self.mw.col.find_cards(f'deck:"{escaped}"'))
+            if count > best_count:
+                best_count = count
+                best_id = did
+        return best_id
+
+    def _start_flashcards_button(self) -> str:
+        return (
+            '<div style="text-align:center; margin:0.7em 0 1.1em;">'
+            "<button onclick=\"pycmd('startflashcards'); return false;\" "
+            'style="font-size:15px; font-weight:600; padding:10px 24px; '
+            "border-radius:8px; cursor:pointer; border:1px solid var(--border,#8884); "
+            "background:var(--canvas-elevated,#eee); color:var(--fg,#000);\">"
+            f"{tr.studying_start_flashcards()}</button></div>"
+        )
 
     def set_current_deck(self, deck_id: DeckId) -> None:
         set_current_deck(parent=self.mw, deck_id=deck_id).success(
@@ -187,6 +275,7 @@ class DeckBrowser:
         gui_hooks.deck_browser_will_render_content(self, content)
         self.web.stdHtml(
             self._v1_upgrade_message(data.sched_upgrade_required)
+            + self._start_flashcards_button()
             + self._body % content.__dict__,
             css=["css/deckbrowser.css"],
             js=[
