@@ -5,11 +5,14 @@ import shutil
 import subprocess
 import wave
 from pathlib import Path
+from unittest.mock import MagicMock
 
 import pytest
 
+import aqt
+from anki.sound import SoundOrVideoTag
 from anki.utils import is_mac, is_win
-from aqt.sound import _packagedCmd, is_audio_file
+from aqt.sound import MpvManager, _packagedCmd, is_audio_file
 
 
 def test_is_audio_file_recognizes_common_formats():
@@ -75,14 +78,18 @@ def test_mpv_binary_runs():
     assert result.returncode == 0, result.stderr.decode()
 
 
-def test_mpv_can_play_generated_wav(tmp_path: Path):
+@pytest.fixture
+def generated_wav(tmp_path: Path) -> Path:
     wav_path = tmp_path / "silence.wav"
     with wave.open(str(wav_path), "wb") as wav:
         wav.setnchannels(1)
         wav.setsampwidth(2)
         wav.setframerate(44_100)
         wav.writeframes(b"\0\0" * 4_410)
+    return wav_path
 
+
+def test_mpv_can_play_generated_wav(generated_wav: Path):
     cmd, env = _resolved_mpv_command(
         [
             "mpv",
@@ -94,9 +101,24 @@ def test_mpv_can_play_generated_wav(tmp_path: Path):
             "--ao=null",
             "--vo=null",
             "--",
-            str(wav_path),
+            str(generated_wav),
         ]
     )
 
     result = subprocess.run(cmd, env=env, capture_output=True, timeout=10)
     assert result.returncode == 0, result.stderr.decode()
+
+
+def test_mpvmanager_can_play_generated_wav(
+    monkeypatch, tmp_path: Path, generated_wav: Path
+):
+    monkeypatch.setattr(
+        MpvManager, "default_argv", MpvManager.default_argv + ["--ao=null", "--vo=null"]
+    )
+    mock_mw = MagicMock()
+    mock_mw.taskman.run_in_background.side_effect = (
+        lambda task, on_done=None, **kwargs: task()
+    )
+    monkeypatch.setattr(aqt, "mw", mock_mw)
+    manager = MpvManager(tmp_path, tmp_path)
+    manager.play(SoundOrVideoTag(filename=str(generated_wav.name)), lambda _: None)
