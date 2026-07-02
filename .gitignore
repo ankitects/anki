@@ -39,3 +39,6 @@ ios/**/DerivedData/
 ios/**/.swiftpm/
 # MCAT fork: bundled MileDown iOS deck (derived from the gitignored source deck)
 ios/AnkiMCAT/Resources/milesdown.apkg
+# MCAT fork: pre-seeded installer demo profile (derived from the gitignored
+# source deck; regenerate with qt/tools/generate_demo_seed.py)
+qt/installer/app/src/anki/seed/in_progress.anki2
