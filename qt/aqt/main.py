@@ -1318,7 +1318,7 @@ title="{}" {}>{}</button>""".format(
         deck = self._selectedDeck()
         if not deck:
             return
-        self._open_new_or_legacy_dialog("DeckStats", True, self)
+        self._open_new_or_legacy_dialog("DeckStats", True)
 
     def onPrefs(self) -> None:
         aqt.dialogs.open("Preferences", self)
