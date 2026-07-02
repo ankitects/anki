@@ -1,0 +1,12 @@
+adding-add-shortcut-ctrlandenter = ⵔⵏⵓ (ⴰⵙⴰⵏⴼ : ⴰⴳⴳⵉⵡⵙ + ⴰⴽⵛⵛⵓⵎ )
+adding-added = ⵉⵜⵜⵓⵔⵏⵓ
+adding-discard-current-input = ⴰⵊⵊ ⴰⵙⴽⵛⵎ ⴷⴷⵖ?
+adding-keep-editing = ⵖⵔⵔⴷ ⵜⵉⵔⵔⴰ
+adding-edit = ⵙⵏⴼⵍ « { $val } »
+adding-history = ⴰⵎⵣⵔⵓⵢ
+adding-note-deleted = (ⵜⵓⵙⵎⵉⵔⵜ ⵉⵜⵓⵢⴰⴽⵙⵏ)
+adding-shortcut = ⴰⵙⴰⵏⴼ : { $val }
+adding-the-first-field-is-empty = ⵉⴳⵔ ⴰⵎⵣⵡⴰⵔⵓ ⵉ ⵉⵅⵡⴰ
+adding-you-have-a-cloze-deletion-note = ⴰⵏⴰⵡ ⵏ ⵜⴽⴰⵕⴹⴰ ⵉⴳⴰ ⵜ  "ⵉⴹⵕⵉⵚ ⵉⵅⵛⵛⵏⵏ"  ⵎⴰⵛⴰ ⵓⵔ ⵜⵙⵏⵜⴰⵢⵜ ⴽⵔⴰ ⵏ ⵜⴳⵓⵔⵉ ⵉⵔⴰⵏ ⴰⴷ ⵜⵣⵔⵉ. ⴰⴷ ⵙⵓⵍ ⵏⵜⵜⵎⵓⵜⵜⵓ?
+adding-cloze-outside-cloze-notetype = ⵜⵣⵎⵔⴷ ⴰⴷ ⵜⵣⵔⵉⴷ ⴽⵔⴰ ⵏ ⵜⴳⵓⵔⵉⵡⵉⵏ ⵙ ⴽⵔⴰ ⵏ ⵜⴽⴰⵕⴹⴰ ⵏ ⵡⴰⵏⴰⵡ "ⴰⵎⴰⵡⴰⵍ ⵏ ⵓⴹⵕⵉⵚ".
+adding-cloze-outside-cloze-field = ⵜⵣⵎⵔⴷ ⴰⴷ ⵜⵣⵔⵉⴷ ⴽⵔⴰ ⵏ ⵜⴳⵓⵔⵉⵡⵉⵏ ⴳ ⵢⵉⴳⵔ ⵏⵏⴰ ⵉⵙⵎⵔⴰⵙⵏ ⴰⵙⴼⵉⵍⵍ 'cloze:'. ⵉⴳⴰ ⵙ ⵓⵎⴰⵜⴰ ⵉⴳⵔ ⴰⵎⵣⵡⴰⵔⵓ.

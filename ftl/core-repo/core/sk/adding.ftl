@@ -1,0 +1,9 @@
+adding-add-shortcut-ctrlandenter = Pridať (skratka: ctrl+enter)
+adding-added = Pridané
+adding-close-and-lose-current-input = Zatvoriť a zrušiť momentálne vkladané údaje?
+adding-edit = Upraviť "{ $val }"
+adding-history = História
+adding-note-deleted = (Poznámka odstránená)
+adding-shortcut = Skratka: { $val }
+adding-the-first-field-is-empty = Prvé pole je prázdne.
+adding-you-have-a-cloze-deletion-note = Máte nastavený typ poznámky Doplňovačka, ale nevytvorili ste žiadnu doplňovačku. Pokračovať?

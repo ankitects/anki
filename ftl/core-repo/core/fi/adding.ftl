@@ -1,0 +1,12 @@
+adding-add-shortcut-ctrlandenter = Lisää (pikanäppäinyhdistelmä: Ctrl + enter)
+adding-added = Lisätty
+adding-discard-current-input = Hylätäänkö nykyinen syöte?
+adding-keep-editing = Jatka muokkaamista
+adding-edit = Muokkaa "{ $val }"
+adding-history = Historia
+adding-note-deleted = (Muistiinpano poistettu)
+adding-shortcut = Oikotie: { $val }
+adding-the-first-field-is-empty = Ensimmäinen kenttä on tyhjä.
+adding-you-have-a-cloze-deletion-note = Sinulla on aukkotehtävätyyppi, mutta et ole tehnyt yhtään aukkotehtävää. Jatketaanko?
+adding-cloze-outside-cloze-notetype = Aukkotehtäviä voi lisätä vain aukkotehtävätyyppisiin muistiinpanoihin.
+adding-cloze-outside-cloze-field = Aukkotehtäviä voi lisätä vain kenttiin, joissa käytetään 'cloze:'-suodatinta. Ensimmäinen kenttä on tyypillisesti tällainen.

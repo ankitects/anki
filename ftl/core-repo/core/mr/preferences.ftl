@@ -1,0 +1,10 @@
+preferences-automatically-sync-on-profile-openclose = प्रोफाईल उघड/बंद केल्यावर आपोआप समक्रमीत करा
+preferences-backups = बॅकअप
+preferences-basic = मूळ
+preferences-hours-past-midnight = मध्यरात्रीनंतर तास
+preferences-keep = ठेवा
+preferences-mins = मिनिटं
+preferences-network = नेटवर्क
+preferences-preferences = पसंती
+preferences-scheduling = पुन्हा अनुसूचित करा
+preferences-some-settings-will-take-effect-after = काही संयोजना फक्त आन्की पुन्हा सुरु केल्यानंतर लागू होतील.

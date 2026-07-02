@@ -1,0 +1,12 @@
+adding-add-shortcut-ctrlandenter = Qoʻshish (klaviatura yorligʻi: ctrl+enter)
+adding-added = Qoʻshildi
+adding-discard-current-input = Joriy kiritma tashlab yuborilsinmi?
+adding-keep-editing = Tahrirlashni davom etish
+adding-edit = "{ $val }"ni tahrirlash
+adding-history = Tarix
+adding-note-deleted = (Qayd oʻchirildi)
+adding-shortcut = Klaviatura yorligʻi: { $val }
+adding-the-first-field-is-empty = Birinchi maydon boʻsh.
+adding-you-have-a-cloze-deletion-note = Qayd turi - "Boʻshliqni toʻldirish", lekin hech qanday boʻshliq qoʻshmagansiz. Davom ettirilsinmi?
+adding-cloze-outside-cloze-notetype = Boʻshliqni toʻldirish faqat boʻshliqni toʻldirish turidagi qaydlarda ishlatilishi mumkin.
+adding-cloze-outside-cloze-field = Boʻshliqni toʻldirish faqat 'cloze:' filtri bor maydonlarda qoʻllanishi mumkin. Bu odatda birinchi maydon.

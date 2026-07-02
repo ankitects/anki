@@ -1,0 +1,9 @@
+preferences-automatically-sync-on-profile-openclose = Sünkroniseeri automaatselt profiili avamisel/sulgemisel
+preferences-basic = Põhimudel
+preferences-keep = Hoia alles
+preferences-mins = min
+preferences-network = Võrk
+preferences-preferences = Eelistused
+preferences-scheduling = Ajasta  uuesti
+preferences-some-settings-will-take-effect-after = Mõned sätted realiseeruvad peale Anki taaskäivitamist.
+preferences-synchronisation = <b>Sünkroniseerimine</b>

@@ -1,0 +1,12 @@
+adding-add-shortcut-ctrlandenter = Tambah (shortcut: ctrl+enter)
+adding-added = Ditambahkan
+adding-discard-current-input = Batalkan input saat ini?
+adding-keep-editing = Lanjutkan Pengeditan
+adding-edit = Edit "{ $val }"
+adding-history = Histori
+adding-note-deleted = (Catatan Terhapus)
+adding-shortcut = Shortcut: { $val }
+adding-the-first-field-is-empty = Bidang pertama kosong
+adding-you-have-a-cloze-deletion-note = Kamu punya jenis catatan rumpang tapi belum melakukan perumpangan sama sekali. Lanjutkan?
+adding-cloze-outside-cloze-notetype = Perumpangan hanya dapat dilakukan pada jenis catatan rumpang
+adding-cloze-outside-cloze-field = Perumpangan hanya dapat digunakan pada bidang yang menggunakan filter 'rumpang:'. Biasanya ada pada bidang pertama.

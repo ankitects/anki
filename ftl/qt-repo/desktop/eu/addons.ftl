@@ -1,0 +1,13 @@
+addons-window-title = Gehigarriak
+addons-addon-has-no-configuration = Gehigarria ez dauka konfigurazio
+addons-addon-was-not-downloaded-from-ankiweb = Gehigarria es da AnkiWeb-tik deskargatuta.
+addons-check-for-updates = Eguneraketak bilatu
+addons-checking = Egiaztatzen...
+addons-code = Kodea:
+addons-config = Konfig
+addons-configuration = Konfigurazioa
+addons-disabled =  (desgaituta)
+addons-install-addon = Hedadura  instalatu
+addons-invalid-code = Kode baliogabea.
+addons-invalid-configuration = Baliogabe konfigurazioa: 
+addons-view-files = Artxiboak ikusi

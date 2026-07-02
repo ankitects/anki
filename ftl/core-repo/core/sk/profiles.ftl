@@ -1,0 +1,10 @@
+profiles-anki-could-not-read-your-profile = Anki nedokázal prečítať údaje vo vašom profile. Veľkosti okien a vaše prihlasovacie informácie boli zabudnuté.
+profiles-anki-could-not-rename-your-profile = Anki nedokázal premenovať Váš profil, pretože sa nepodarilo premenovať priečinok profilu na disku. Overte, či máte právo na zápis do priečinku Dokumenty/Anki a to, že žiaden iný program práve nepoužíva priečinok Vášho profilu a skúste to ešte raz.
+profiles-folder-already-exists = Priečinok už existuje.
+profiles-open = Otvoriť
+profiles-open-backup = Otvoriť zálohu...
+profiles-please-remove-the-folder-and = Odstráňte, prosím, priečinok { $val } a skúste to ešte raz.
+profiles-profile-corrupt = Poškodený profil
+profiles-profiles = Profily
+profiles-quit = Ukončiť
+profiles-user-1 = Používateľ 1

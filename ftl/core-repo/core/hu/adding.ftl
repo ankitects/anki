@@ -1,0 +1,12 @@
+adding-add-shortcut-ctrlandenter = Hozzáadás (gyorsbillentyű: Ctrl+Enter)
+adding-added = Hozzáadva
+adding-discard-current-input = Elveti az aktuális bemenetet?
+adding-keep-editing = Szerkesztés folytatása
+adding-edit = „{ $val }” szerkesztése
+adding-history = Előzmények
+adding-note-deleted = Jegyzet törölve
+adding-shortcut = Gyorsbillentyű: { $val }
+adding-the-first-field-is-empty = Az első mező üres.
+adding-you-have-a-cloze-deletion-note = Lyukasszöveg-jegyzettípus van kiválasztva, de még nem hoztál létre lyukas szöveget. Folytatod?
+adding-cloze-outside-cloze-notetype = A lyukas törlés csak Lyukas Szöveg jegyzettípusnál használható
+adding-cloze-outside-cloze-field = A lyukas törlés csak olyan mezőkben használható, amelyek a 'cloze:' szűrőt használják. Ez jellemzően az első mező.

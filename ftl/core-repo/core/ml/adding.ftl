@@ -1,0 +1,12 @@
+adding-add-shortcut-ctrlandenter = ചേര്‍ക്കുക (എളുപ്പവഴി: ctrl+enter)
+adding-added = ചേര്‍ത്തു
+adding-discard-current-input = നിലവിലെ വിവരങ്ങൾ ഒഴിവാക്കണോ?
+adding-keep-editing = പരിഷ്കരണം തുടരുക
+adding-edit = { $val } തിരുത്തുക
+adding-history = ചരിത്രം
+adding-note-deleted = കുറിപ്പ് ഇല്ലാതാക്കി
+adding-shortcut = എളുപ്പവഴി: { $val }
+adding-the-first-field-is-empty = ആദ്യത്തെ മണ്ഡലം ശൂന്യമാണ്.
+adding-you-have-a-cloze-deletion-note = നിങ്ങൾക്ക് ഒരു ക്ലോസ് ഇല്ലാതാക്കൽ കുറിപ്പ് തരം ഉണ്ടെങ്കിലും ക്ലോസ് ഇല്ലാതാക്കലുകളൊന്നും നടത്തിയിട്ടില്ല. മുന്നോട്ട് പോകണോ?
+adding-cloze-outside-cloze-notetype = ക്ലോസ് കുറിപ്പ് തരങ്ങളിൽ മാത്രമേ ക്ലോസ് നിരസിക്കൽ ഉപയോഗിക്കാൻ കഴിയൂ.
+adding-cloze-outside-cloze-field = 'ക്ലോസ്:' ഫിൽട്ടർ ഉപയോഗിക്കുന്ന മണ്ഡലങ്ങളിൽ മാത്രമേ ക്ലോസ് നിരസിക്കൽ ചെയ്യാൻ കഴിയൂ. ഇത് സാധാരണയായി ആദ്യത്തെ മണ്ഡലമാണ്.

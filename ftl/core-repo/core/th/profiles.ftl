@@ -1,0 +1,10 @@
+profiles-open = เปิด
+profiles-open-backup = เปิดไฟล์ข้อมูลสำรอง...
+profiles-please-remove-the-folder-and = กรุณานำโฟลเดอร์ { $val } ออกและลองใหม่อีกครั้ง
+profiles-profiles = โปรไฟล์
+profiles-quit = ออก
+profiles-user-1 = ผู้ใช้ 1
+profiles-creating-backup = กำลังสำรองข้อมูล...
+profiles-backup-created = สำรองข้อมูลเสร็จแล้ว
+profiles-backup-creation-failed = การสำรองข้อมูลไม่สำเร็จ: { $reason }
+profiles-backup-unchanged = ไม่มีการเปลี่ยนแปลงหลังการสำรองข้อมูลครั้งล่าสุด

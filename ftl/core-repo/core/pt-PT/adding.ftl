@@ -1,0 +1,12 @@
+adding-add-shortcut-ctrlandenter = Adicionar (atalho: ctrl+enter)
+adding-added = Adicionado
+adding-discard-current-input = Descartar texto introduzido?
+adding-keep-editing = Continuar a Editar
+adding-edit = Editar "{ $val }"
+adding-history = Histórico
+adding-note-deleted = (Nota eliminada)
+adding-shortcut = Atalho: { $val }
+adding-the-first-field-is-empty = O primeiro campo está vazio.
+adding-you-have-a-cloze-deletion-note = Você tem uma eliminação de nota do tipo Cloze, mas  não foram feitas quaisquer eliminações do tipo Cloze. Confirma?
+adding-cloze-outside-cloze-notetype = Omissões só podem ser usadas em notas do tipo Omissão.
+adding-cloze-outside-cloze-field = Omissões só podem ser usadas em campos que usem o filtro 'omissão'. Normalmente, este é o primeiro campo.

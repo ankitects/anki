@@ -1,0 +1,12 @@
+adding-add-shortcut-ctrlandenter = Додати (скорочення клавіш: Ctrl+Enter)
+adding-added = Додано
+adding-discard-current-input = Видалити введені дані?
+adding-keep-editing = Продовжити редагувати
+adding-edit = Редагувати «{ $val }»
+adding-history = Історія
+adding-note-deleted = (Нотатку видалено)
+adding-shortcut = Гаряча клавіша: { $val }
+adding-the-first-field-is-empty = Перше поле порожнє.
+adding-you-have-a-cloze-deletion-note = Це тип нотатки з закритим текстом, однак текст не закрито. Продовжити?
+adding-cloze-outside-cloze-notetype = Закриття тексту працює лише для нотатки типу Cloze.
+adding-cloze-outside-cloze-field = Закривати текст можна лише у полях, які мають фільтр 'cloze:'. Зазвичай це перше поле.

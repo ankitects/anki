@@ -1,0 +1,13 @@
+editing-add-media = Rnu amidya
+editing-bold-text-ctrlandb = Aḍris azuran (Ctrl+B)
+editing-cards = Tikaṛḍiwin
+editing-change-colour-f8 = Beddel ini (F8)
+editing-customize-card-templates-ctrlandl = Rnu tineɣrufin n tkarḍiwin tudmawanin (Ctrl+L)
+editing-customize-fields = Rnu urtan udamawanen
+editing-cut = Gzem
+editing-edit-current = Ẓreg amiran
+editing-fields = Urtan
+editing-html-editor = Amaẓrag HTML
+editing-media = Amidya
+editing-paste = Senṭeḍ
+editing-tags = Ticraḍ

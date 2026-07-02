@@ -1,0 +1,16 @@
+editing-add-media = Voeg Media By
+editing-an-error-occurred-while-opening = 'n Fout het voorgekom tydens die oopmaak van { $val }
+editing-cards = Kaarte
+editing-cut = Knip
+editing-edit-current = Wysig Huidige
+editing-edit-html = Wysig HTML
+editing-fields = Velde
+editing-html-editor = HTML Wysiger
+editing-jump-to-tags-with-ctrlandshiftandt = Spring na etikette met Ctrl+Shift+T
+editing-latex-equation = LaTeX vergelyking
+editing-latex-math-env = LaTeX wiskunde omgewing
+editing-paste = Plak
+editing-show-duplicates = Wys Duplikate
+editing-tags = Etikette
+editing-to-make-a-cloze-deletion-on = Om 'n cloze (selektiewe) verwydering te maak op 'n bestaande nota, moet jy dit eers na 'n cloze-tipe verander via Wysig>Verander nota tipe.
+editing-warning-cloze-deletions-will-not-work = Waarskuwing, cloze weglatings gaan nie werk totdat  jy bo na die cloze-tipe oorskakel nie.

@@ -1,0 +1,10 @@
+profiles-anki-could-not-read-your-profile = .i la .ankis. na kakne lo ka ce'u samymo'i lo pilno datni .i na morji fi lo ni lo cankyuidje cu barda je lo do datni sarxe cmisau datni
+profiles-anki-could-not-rename-your-profile = .i la .ankis. na kakne lo ka ce'u basygau fo lo ka ce'u cmene lo do pilno datni kei ki'u lo nu .a bu na kakne lo ka ce'u basygau fo lo ka ce'u cmene lo pilno datni datnyveimei .i ko birti lo du'u ga je curmi lo nu do bixygau la'o zoi. Documents/Anki .zoi gi no samtci poi drata ca'o jonse py dy dy. kei ce'o cu za'u re'u troci
+profiles-folder-already-exists = .i lo datnyveimei xa'o zasti
+profiles-open = samymo'i
+profiles-open-backup = samymo'i pa nurfu'i
+profiles-please-remove-the-folder-and = .i ko vimcu la'o zoi. { $val } .zoi poi datnyveimei je cu za'u re'u troci
+profiles-profile-corrupt = .i pa pilno datni cu spofu
+profiles-profiles = pilno datni
+profiles-quit = sisti
+profiles-user-1 = pa moi lo'i pilno datni

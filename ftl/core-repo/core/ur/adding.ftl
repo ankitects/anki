@@ -1,0 +1,9 @@
+adding-add-shortcut-ctrlandenter = اضافہ کرنا (شارٹ کٹ: ctrl+enter)
+adding-added = اضافہ ہو گیا
+adding-close-and-lose-current-input = ان پٹ منسوخ كرنا؟
+adding-edit = "{ $val }" میں ترمیم کرنا
+adding-history = تاریخ
+adding-note-deleted = (تبصرہ حذف کر دیا گیا)
+adding-shortcut = شارٹ کٹ: { $val }
+adding-the-first-field-is-empty = پہلا میدان خالی ہے۔
+adding-you-have-a-cloze-deletion-note = پتے کی قسم "فلڈ ٹیکسٹ" ہے لیکن آپ نے چھپانے کے لیے کوئی لفظ منتخب نہیں کیا ہے. پھر بھی كرنا؟

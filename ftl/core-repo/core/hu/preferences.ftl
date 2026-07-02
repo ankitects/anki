@@ -1,0 +1,100 @@
+preferences-automatically-sync-on-profile-openclose = Automatikus szinkronizálás a profil megnyitásakor és bezárásakor
+preferences-backups = Biztonsági mentések
+preferences-change-deck-depending-on-note-type = Pakliváltás a jegyzettípus függvényében
+preferences-changes-will-take-effect-when-you = A módosítások az Anki újraindításakor lépnek életbe.
+preferences-hours-past-midnight = órával éjfél után
+preferences-language = Nyelv
+preferences-interrupt-current-audio-when-answering = Hang lejátszásának megszakítása válaszadáskor
+preferences-learn-ahead-limit = Előrehozott tanulás határa
+preferences-mins = perc
+preferences-network = Szinkronizálás
+preferences-next-day-starts-at = Új nap kezdete:
+preferences-media-is-not-backed-up = A médiafájlokról nem készül biztonsági mentés. Készíts biztonsági mentést az Anki mappáról, hogy biztonságban tudhasd őket!
+preferences-on-next-sync-force-changes-in = A legközelebbi szinkronizáláskor kényszerítsen módosítást az egyik irányban.
+preferences-paste-clipboard-images-as-png = Vágólapon lévő képek beillesztése PNG-ként
+preferences-paste-without-shift-key-strips-formatting = SHIFT nélküli beillesztéskor a formázás törlése
+preferences-generate-latex-images-automatically = LaTeX képek generálása (biztonsági kockázat)
+preferences-latex-generation-disabled = A LaTeX képek generálása ki van kapcsolva.
+preferences-periodically-sync-media = Média rendszeres szinkronizálása
+preferences-please-restart-anki-to-complete-language = A nyelv módosításának befejezéséhez, indítsd újra az Ankit!
+preferences-preferences = Beállítások
+preferences-scheduling = Ütemezés
+preferences-show-learning-cards-with-larger-steps = Előbb a nagyobb lépésekkel ellátott tanulókártyákat mutassa, aztán az ismételendőket
+preferences-show-next-review-time-above-answer = Következő ismétlés idejének kijelzése a válaszgombok fölött
+preferences-spacebar-rates-card = Válaszadás Szóköz és Enter lenyomáaskor is
+preferences-show-play-buttons-on-cards-with = Lejátszás gomb megjelenítése a hanganyagot tartalmazó kártyákon
+preferences-show-remaining-card-count = Hátralévő kártyák számának kijelzése
+preferences-some-settings-will-take-effect-after = Egyes beállítások csak az Anki újraindítása után lépnek életbe.
+preferences-tab-synchronisation = Szinkronizálás
+preferences-synchronize-audio-and-images-too = Hang- és képanyag szinkronizálása
+preferences-login-successful-sync-now = Sikeres bejelentkezés. Mented a beállításokat és elindítod a szinkronizálást most?
+preferences-timebox-time-limit = Időkeret
+preferences-user-interface-size = A felhasználói felület mérete
+preferences-when-adding-default-to-current-deck = Új kártyák hozzáadása az aktuális paklihoz
+preferences-you-can-restore-backups-via-fileswitch = Az Ankit Visszaálíthatod biztonsági mentésből a Fájl> Profilváltás menüponttal.
+preferences-legacy-timezone-handling = Régi időzónakezelés (nem megbízható, de szükséges az AnkiDroid 2.14 előtti verzióihoz)
+preferences-default-search-text = Alapértelmezett keresőszöveg
+preferences-default-search-text-example = pl. "deck:current"
+preferences-theme = Megjelenítés
+preferences-theme-follow-system = Rendszerbeállítás szerint
+preferences-theme-light = Világos
+preferences-theme-dark = Sötét
+preferences-v3-scheduler = V3 ütemező
+preferences-check-for-updates = Frissítések keresése
+preferences-ignore-accents-in-search = Ékezetek figyelmen kívül hagyása keresésnél (lassabb)
+preferences-backup-explanation = Az Anki rendszeresen biztonsági mentést készít a gyűjteményedről. Tárhely feszabadítása érdekében a 2 napnál idősebb mentések törlésre kerülhetnek.
+preferences-daily-backups = Napi megtartandó biztonsági mentések száma:
+preferences-weekly-backups = Heti megtartandó biztonsági mentések száma:
+preferences-monthly-backups = Havi megtartandó biztonsági mentések száma:
+preferences-minutes-between-backups = Biztonsági mentések közötti percek száma:
+preferences-reduce-motion = Mozgáscsillapítás
+preferences-reduce-motion-tooltip = A felhasználói felület egyes animációinak és átmeneteinek kikapcsolása
+preferences-custom-sync-url = Saját szinkronizációs kiszolgáló
+preferences-custom-sync-url-disclaimer = Csak hozzáértő felhasználóknak — olvasd el a kézikönyvet!
+preferences-hide-top-bar-during-review = Fejléc elrejtése tanulás alatt
+preferences-hide-bottom-bar-during-review = Lábléc elrejtése tanulás alatt
+preferences-always = Mindig
+preferences-full-screen-only = Csak teljesképernyős módban
+preferences-appearance = Megjelenés
+preferences-general = Általános
+preferences-style = Stílus
+preferences-review = Tanulás
+preferences-answer-keys = Válaszgombok
+preferences-distractions = Zavaró elemek
+preferences-minimalist-mode = Minimális mód
+preferences-minimalist-mode-tooltip = Puritánabb és kompaktabb felhasználói felület
+preferences-editing = Szerkesztés
+preferences-browsing = Böngészés
+preferences-default-deck = Alapértelmezett pakli
+preferences-account = AnkiWeb felhasználó
+preferences-note = Megjegyzés
+preferences-scheduler = Ütemező
+preferences-user-interface = Felhasználói felület
+preferences-import-export = Import/Export
+preferences-network-timeout = Hálózati időtúllépés
+preferences-reset-window-sizes = Ablakméretek visszaállítása
+preferences-reset-window-sizes-complete = Az ablakok mérete és elhelyezése vissza lett állítva.
+preferences-shortcut-placeholder = Adj meg egy nem használt gyorsbillentyűt! A kikapcsoláshoz hagyd üresen!
+preferences-third-party-services = Külső szolgáltatások
+preferences-ankihub-not-logged-in = Nem vagy bejelentkezve az AnkiHubra.
+preferences-ankiweb-intro = Az AnkiWeb egy ingyenes szolgáltatás, amin keresztül szinkronban tarthatod a gyűjteményedet minden eszközödön, valamint hozzáférhetsz az adataidhoz akkor is, ha a géped tönkremegy vagy elveszik.
+preferences-ankihub-intro = Az AnkiHubon közösen pakliszerkesztés és további tanulási eszközök is elérhetők. Egyes funkciókhoz előfizetés szükséges.
+preferences-third-party-description = A külső szolgáltatások az Ankitól függetlenek. Egyes szolgáltatások fizetősek lehetnek.
+
+## URL scheme related
+
+preferences-url-schemes = URL sémák
+preferences-url-scheme-prompt = Engedélyezett URL sémák (szóközzel elválasztva):
+preferences-url-scheme-warning =
+    `{ $link }` megnyitására való kísérlet blokkolva: potenciális biztonsági köckázat.
+    
+    Ha mindenképp meg szeretnéd nyitni, hozzáadhatod a `{ $scheme }` sémát az engedélyezett URL sémákhoz.
+preferences-url-scheme-allow-once = Egyszeri engedélyezés
+preferences-url-scheme-always-allow = Engedélyezés
+
+## NO NEED TO TRANSLATE. This text is no longer used by Anki, and will be removed in the future.
+
+preferences-basic = Alap
+preferences-reviewer = { "" }
+preferences-media = { "" }
+preferences-not-logged-in = { "" }

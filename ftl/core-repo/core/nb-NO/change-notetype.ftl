@@ -1,0 +1,9 @@
+change-notetype-current = Nåværende
+change-notetype-new = Ny
+change-notetype-nothing = (ingenting)
+change-notetype-collapse = Fold sammen
+change-notetype-expand = Utvid
+change-notetype-will-discard-content = Vil fjerne innhold på følgende felter:
+change-notetype-will-discard-cards = Vil slette følgende kort:
+change-notetype-fields = Felter
+change-notetype-templates = Maler

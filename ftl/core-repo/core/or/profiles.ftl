@@ -1,0 +1,15 @@
+profiles-anki-could-not-read-your-profile = Anki ଆପଣଙ୍କ ପ୍ରୋଫାଇଲ୍ ଡାଟା ପଢ଼ି ପାରିଲା ନାହିଁ। ୱିଣ୍ଡୋ ଆକାର ଏବଂ ଆପଣଙ୍କ ସିଙ୍କ୍ ଲଗଇନ୍ ବିବରଣୀ ଭୁଲିଯାଇଛି।
+profiles-anki-could-not-rename-your-profile = Anki ଆପଣଙ୍କ ପ୍ରୋଫାଇଲ୍ ନାମ ବଦଳାଇପାରିବନି କାରଣ ଏହା ଡିସ୍କରେ ପ୍ରୋଫାଇଲ୍ ଫୋଲ୍ଡରର ନାମ ବଦଳାଇପାରୁ ନାହିଁ। ଦୟାକରି ନିଶ୍ଚିତ କରନ୍ତୁ ଯେ ଆପଣଙ୍କ ପାଖରେ Documents/Anki ରେ ଲିଖନ ଅନୁମତି ଅଛି ଏବଂ ଅନ୍ୟ କୌଣସି ପ୍ରୋଗ୍ରାମ୍ ଆପଣଙ୍କ ପ୍ରୋଫାଇଲ୍ ଫୋଲ୍ଡରରେ ପ୍ରବେଶ କରୁନାହିଁ, ତା'ପରେ ପୁନଃଚେଷ୍ଟା କରନ୍ତୁ।
+profiles-folder-already-exists = ଫୋଲ୍ଡର୍ ପୂର୍ବରୁ ବିଦ୍ୟମାନ ଅଛି।
+profiles-open = ଖୋଲନ୍ତୁ
+profiles-open-backup = ବ୍ୟାକଅପ୍ ଖୋଲନ୍ତୁ...
+profiles-please-remove-the-folder-and = ଦୟାକରି { $val } ଫୋଲ୍ଡର୍ ଅପସାରଣ କରନ୍ତୁ ଏବଂ ପୁନଃଚେଷ୍ଟା କରନ୍ତୁ।
+profiles-profile-corrupt = ପ୍ରୋଫାଇଲ୍ ଦୁର୍ନୀତିଗ୍ରସ୍ତ
+profiles-profiles = ପ୍ରୋଫାଇଲ୍‍ ଗୁଡ଼ିକ
+profiles-quit = ଛାଡ଼ନ୍ତୁ
+profiles-user-1 = ଉପଭୋକ୍ତା 1
+profiles-confirm-lang-choice = ଆପଣ ପ୍ରକୃତରେ Anki ର ଇଣ୍ଟରଫେସ୍ ଭାଷାକୁ { $lang } ରେ ପରିବର୍ତ୍ତନ କରିବାକୁ ଚାହୁଁଛନ୍ତି କି?
+profiles-could-not-create-data-folder = ଅଙ୍କି ଏହାର ଡାଟା ଫୋଲ୍ଡର ସୃଷ୍ଟି କରିପାରିଲା ନାହିଁ। ଦୟାକରି ମାନୁଆଲ୍ ର ଫାଇଲ୍ ଅବସ୍ଥାନ ବିଭାଗ ଦେଖନ୍ତୁ, ଏବଂ ସୁନିଶ୍ଚିତ କରନ୍ତୁ ଯେ ଅବସ୍ଥାନ read-only ନୁହେଁ।
+profiles-prefs-corrupt-title = ଅଗ୍ରାଧିକାର ଗୁଡ଼ିକ ଦୁର୍ନୀତିଗ୍ରସ୍ତ
+profiles-prefs-file-is-corrupt = Anki's prefs21.db ଫାଇଲ୍ ଦୁର୍ନୀତିଗ୍ରସ୍ତ ଥିଲା ଏବଂ ପୁନଃ ନିର୍ମାଣ କରାଯାଇଛି। ଯଦି ଆପଣ ଏକାଧିକ ପ୍ରୋଫାଇଲ୍ ବ୍ୟବହାର କରୁଥିଲେ, ଦୟାକରି ଆପଣଙ୍କ ପତ୍ରଗୁଡ଼ିକୁ ପୁନରୁଦ୍ଧାର କରିବାକୁ ସମାନ ନାମ ବ୍ୟବହାର କରି ସେଗୁଡ଼ିକୁ ପୁନଃ ଯୋଡ଼ନ୍ତୁ।
+profiles-profile-does-not-exist = ଅନୁରୋଧ କରାଯାଇଥିବା ପ୍ରୋଫାଇଲ୍ ବିଦ୍ୟମାନ ନାହିଁ।

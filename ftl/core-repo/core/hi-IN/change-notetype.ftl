@@ -1,0 +1,1 @@
+change-notetype-new = नई

@@ -1,0 +1,14 @@
+fields-add-field = Ավելացնել դաշտ
+fields-delete-field-from = Ջնջե՞լ դաշտը { $val }-ից:
+fields-editing-font = Խմբագրել տառատեսակը
+fields-field = Դաշտ՝
+fields-field-name = Դաշտի անվանումը՝
+fields-fields-for = Դաշտեր { $val }-ի համար
+fields-font = Տառատեսակ՝
+fields-new-position-1 = Նոր տեղավորությունը (1...{ $val })՝
+fields-notes-require-at-least-one-field = Գրառումները պահանջում են առնվազն մեկ դաշտ:
+fields-remember-last-input-when-adding = Հիշել վերջին մուտքագրված տվյալները
+fields-reverse-text-direction-rtl = Գրվածքի ուղղվածությունը աջից ձախ
+fields-size = Չափ՝
+fields-sort-by-this-field-in-the = Զննիչում տեսակավորել ըստ այս դաշտի
+fields-that-field-name-is-already-used = Դաշտի այդ անվանումը արդեն օգտագործվում է:

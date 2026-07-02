@@ -1,0 +1,12 @@
+adding-add-shortcut-ctrlandenter = Қосу (пернелер тіркесімі: ctrl+enter)
+adding-added = Қосылған
+adding-discard-current-input = Ағымдағы енгізбені тастау?
+adding-keep-editing = Өңдеуді жалғастыру
+adding-edit = "{ $val }" өңдеу
+adding-history = Тарих
+adding-note-deleted = (Жазба жойылған)
+adding-shortcut = Пернелер тіркесімі: { $val }
+adding-the-first-field-is-empty = Бұл өріс бос.
+adding-you-have-a-cloze-deletion-note = Жазба түрі - "саңылау толтыру", алайда саңылау жасамағансыз. Жалғастыру?
+adding-cloze-outside-cloze-notetype = "Саңылау толтыру" жазба түріне ғана саңылау қоюға болады.
+adding-cloze-outside-cloze-field = Саңылау қою тек "cloze:" сүзгісі бар өрістерде мүмкін. Ол әдетте бірінші өріс.

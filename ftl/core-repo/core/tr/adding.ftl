@@ -1,0 +1,12 @@
+adding-add-shortcut-ctrlandenter = Ekle (kısayol: ctrl+enter)
+adding-added = Eklendi
+adding-discard-current-input = Girilen mevcut değer atılsın mı?
+adding-keep-editing = Düzenlemeye Devam Et
+adding-edit = "{ $val }" öğesini düzenle
+adding-history = Geçmiş
+adding-note-deleted = (Not silindi)
+adding-shortcut = Kısayol: { $val }
+adding-the-first-field-is-empty = İlk alan boş.
+adding-you-have-a-cloze-deletion-note = Boşluk doldurmalı bir notunuz var ama hiç boşluk eklemediniz. Devam edilsin mi?
+adding-cloze-outside-cloze-notetype = Boşluk doldurma sadece boşluk doldurmalı bir not türünde kullanılabilir.
+adding-cloze-outside-cloze-field = Boşluk doldurma, yalnızca 'cloze:' filtresi kullanan alanlarda kullanılabilir. Bu, genellikle ilk alandır.

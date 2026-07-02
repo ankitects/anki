@@ -1,0 +1,12 @@
+adding-add-shortcut-ctrlandenter = Lägg till (genväg: ctrl+enter)
+adding-added = Tillagda
+adding-discard-current-input = Kasta nuvarande indata?
+adding-keep-editing = Fortsätt att redigera
+adding-edit = Redigera "{ $val }"
+adding-history = Historik
+adding-note-deleted = (Not borttagen)
+adding-shortcut = Genväg: { $val }
+adding-the-first-field-is-empty = Det första fältet är tomt.
+adding-you-have-a-cloze-deletion-note = Du använder korttypen 'Lucktext' men har inte lagt till några luckor. Vill du verkligen fortsätta?
+adding-cloze-outside-cloze-notetype = Textluckor kan endast användas på lucktext-nottyper.
+adding-cloze-outside-cloze-field = Textluckor kan endast användas på fält som använder "cloze:"-filtret. Detta är typiskt sett det första fältet.

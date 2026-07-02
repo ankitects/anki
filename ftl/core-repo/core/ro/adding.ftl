@@ -1,0 +1,11 @@
+adding-add-shortcut-ctrlandenter = Adaugă (scurtătură: ctrl+enter)
+adding-added = Adăugat(e)
+adding-close-and-lose-current-input = Închid și pierd ce ați introdus?
+adding-edit = Editează „{ $val }”
+adding-history = Istoric
+adding-note-deleted = (Notiță ștearsă)
+adding-shortcut = Surtătură:
+adding-the-first-field-is-empty = Primul câmp este gol.
+adding-you-have-a-cloze-deletion-note = Aveți o notiţă de tip „cloze”, dar nu ați făcut nicio selecție cloze. Continuați?
+adding-cloze-outside-cloze-notetype = Ascunderea conținutului poate fi folosită numai la notiţe de tip „cloze”.
+adding-cloze-outside-cloze-field = Ascunderea tip cloze poate fi utilizată numai în câmpurile care folosesc filtrul „cloze:”. Acesta este de obicei primul câmp.

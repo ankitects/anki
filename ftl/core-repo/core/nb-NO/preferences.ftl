@@ -1,0 +1,15 @@
+preferences-automatically-sync-on-profile-openclose = Automatisk synk når profilen åpnes/lukkes
+preferences-backups = Sikkerhetskopier
+preferences-backups2 = sikkerhetskopier
+preferences-backupsanki-will-create-a-backup-of = <b>Backups</b><br>Anki vil lage en backup av dine ting hver gang den lukkes eller synkroniseres.
+preferences-basic = Grunnleggende
+preferences-change-deck-depending-on-note-type = Endre kortstokk avhengig av korttype
+preferences-hours-past-midnight = timer etter midnatt
+preferences-keep = Behold
+preferences-mins = minutter
+preferences-network = Nettverk
+preferences-preferences = Innstillinger
+preferences-scheduling = Lag ny plan
+preferences-some-settings-will-take-effect-after = Visse innstillinger blir aktive først etter at du har restartet Anki.
+preferences-synchronisation = <b>Synkronisering</b>
+preferences-synchronizationnot-currently-enabled-click-the-sync = <b>Synkronisering</b><br> Ikke aktivert; trykk på synk-knappen i hovedvinduet for å aktivere.

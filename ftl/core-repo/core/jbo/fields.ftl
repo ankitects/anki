@@ -1,0 +1,10 @@
+fields-add-field = jmina pa datnyvau
+fields-delete-field-from = .i pa da poi datnyvau zo'u xu do djica lo nu vimcu da la'o zoi. { $val } .zoi
+fields-editing-font = bixygau ci'artadji
+fields-field = datnyvau
+fields-field-name = cmene pa datnyvau
+fields-fields-for = datnyvau je cu ckini la'o zoi. { $val } .zoi
+fields-font = ci'artadji
+fields-notes-require-at-least-one-field = .i lo karda datni cu nitcu lo ka su'o datnyvau cu srana ce'u
+fields-remember-last-input-when-adding = nu ralte lo prula'i se samci'a ca lo nu jmina
+fields-that-field-name-is-already-used = .i xa'o cmene pa datnyvau

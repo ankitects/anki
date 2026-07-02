@@ -1,0 +1,12 @@
+adding-add-shortcut-ctrlandenter = צולייגן אין טעשל (גיכקנעפּל: ctrl+enter)
+adding-added = געשאַפֿן
+adding-discard-current-input = אָפּוואַרפֿן יעצטיקע אַרײַנוואַרג?
+adding-keep-editing = צופּאַסן ווײַטער
+adding-edit = געביטן "{ $val }"
+adding-history = פֿריִער
+adding-note-deleted = (נאָטיץ אָפּגעמעקט)
+adding-shortcut = גיכקנעפּל: { $val }
+adding-the-first-field-is-empty = דאָס ערשטע פֿעלד איז ליידיק.
+adding-you-have-a-cloze-deletion-note = האָסט אַ שפּאַלט נאָטיצגרופּע, אָבער האָסט נישט געמאַכט קיין שפּאַלט אויסמעקונג. ממשיך זײַן?
+adding-cloze-outside-cloze-notetype = שפּאַלט אויסמעקונג קען מע ניצן נאָר מיט שפּאַלט נאָטיצגרופּעס.
+adding-cloze-outside-cloze-field = שפּאַלט אויסמעקונג קען מע טאָן נאָר מיט פֿעלדער וואָס ניצן דעם שפּאַלט פֿילטער. בדרך-כּלל איז עס דאָס ערטשע פֿעלד.

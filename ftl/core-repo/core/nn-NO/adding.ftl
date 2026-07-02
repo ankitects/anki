@@ -1,0 +1,12 @@
+adding-add-shortcut-ctrlandenter = Legg til (snarveg: ctrl + retur)
+adding-added = Lagt til
+adding-discard-current-input = Forkasta dine brigdingar?
+adding-keep-editing = Nei, hald fram med redigering
+adding-edit = Rediger «{ $val }»
+adding-history = Historikk
+adding-note-deleted = (Notat sletta)
+adding-shortcut = Snarveg: { $val }
+adding-the-first-field-is-empty = Det fyrste feltet er tomt.
+adding-you-have-a-cloze-deletion-note = Du brukar lukeslettingsnotattypen men har ikkje laga ei lukesletting. Hald fram?
+adding-cloze-outside-cloze-notetype = Lukeslettingar kan einast verta bruka på lukenotattypar.
+adding-cloze-outside-cloze-field = Lukeslettingar kan berre verta bruka i felt som brukar «cloze:»-filteret. Dette er vanlegvis det fyrste feltet.

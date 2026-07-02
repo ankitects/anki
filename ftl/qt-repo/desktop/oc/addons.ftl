@@ -1,0 +1,3 @@
+addons-checking = Verificacion en cors...
+addons-code = Còdi :
+addons-disabled =  (desactivat)

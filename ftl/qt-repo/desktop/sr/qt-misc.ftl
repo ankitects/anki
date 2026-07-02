@@ -1,0 +1,50 @@
+qt-misc-all-cards-notes-and-media-for = Све карте, белешке и медија датотеке ће бити избрисане. Да ли то желите?
+qt-misc-anki-updatedanki-has-been-released = <h1>Anki је ажуриран</h1>Објављен је Anki { $val }.<br><br>
+qt-misc-browse = Прегледај
+qt-misc-change-note-type-ctrlandn = Промени тип белешке (Ctrl+N)
+qt-misc-check-the-files-in-the-media = Провери фасциклу с медија датотекама
+qt-misc-choose-deck = Изабери шпил
+qt-misc-choose-note-type = Изабери тип белешке
+qt-misc-configure-interface-language-and-options = Изабери језик сучеља и друге могућности
+qt-misc-create-filtered-deck = Направи филтрирани шпил...
+qt-misc-debug-console = Конзола за уклањање грешака
+qt-misc-deck-will-be-imported-when-a = Шпил ће бити увезен после отварања профила.
+qt-misc-default = Подразумевано
+qt-misc-empty-cards = Празне карте...
+qt-misc-error-during-startup = Грешка при покретању: { $val }
+qt-misc-filtered-deck = Филтриран је шпил { $val }
+qt-misc-ignore-this-update = Занемари ово ажурирање
+qt-misc-in-order-to-ensure-your-collection = Да би се обезбедило исправно функционисање ваше колекције при коришћењу на различитим уређајима, Anki захтева да унутрашњи сат рачунара буде правилно постављен. Унутрашњи сат може бити погрешно постављен чак и ако Ваш систем показује тачно локално време.  Молимо, идите на временска подешавања на вашем рачунару и проверите следеће:  - AM/PM - Кретање сата - Дан, месец и годину - Временску зону - Летње рачунање времена  Разлика у корекцији времена: { $val }.
+qt-misc-invalid-property-found-on-card-please = Неважећи подаци на картици. Користите Алатке>Провери базу података, а ако се проблем поново појави, консултујте подршку на сајту.
+qt-misc-loading = Учитавање...
+qt-misc-manage = Управљај
+qt-misc-name-exists = Назив већ постоји.
+qt-misc-non-unicode-text = <текст није у Unicode>
+qt-misc-optimizing = Оптимизација...
+qt-misc-please-connect-a-microphone-and-ensure = Повежите микрофон и обезбедите да други програми не користе аудио уређај.
+qt-misc-please-ensure-a-profile-is-open = Уверите се да је профил отворен и да Anki није заузет, а затим покушајте поново.
+qt-misc-please-select-1-card = (изаберите 1 карту)
+qt-misc-please-select-a-deck = Изаберите шпил.
+qt-misc-please-use-fileimport-to-import-this = За увоз ове датотеке, користите Датотека>Увоз.
+qt-misc-processing = Обрада...
+qt-misc-resume-now = Настави сад
+qt-misc-reverted-to-state-prior-to = Врати на стање пре '{ $val }'.
+qt-misc-segoe-ui = "Segoe UI"
+qt-misc-shift-key-was-held-down-skipping = Shift типка је притиснута. Прескакање аутоматске синхронизације и учитавање додатка.
+qt-misc-stats = Статистика
+qt-misc-study-deck = Учи шпил...
+qt-misc-sync = Синхронизација
+qt-misc-target-deck-ctrlandd = Циљни шпил (Ctrl+D)
+qt-misc-the-following-character-can-not-be = Следећи симбол не може бити коришћен: { $val }
+qt-misc-the-requested-change-will-require-a = Измена, коју сте затражили, захтеваће учитавање целе базе података приликом следеће синхронизације ваше колекције. Ако на другом уређају имате измене које још нису синхронизоване, изгубићете их. Да ли желите да наставите?
+qt-misc-there-must-be-at-least-one = Мора да остане бар један профил.
+qt-misc-this-file-exists-are-you-sure = Ова датотека већ постоји. Да ли сте сигурни да желите да је презапишете?
+qt-misc-undo = Опозови
+qt-misc-undo2 = Опозови { $val }
+qt-misc-waiting-for-editing-to-finish = Очекивање завршетка уређивања.
+qt-misc-would-you-like-to-download-it = Желите ли да га преузмете сада?
+qt-misc-second = { $count ->
+    [one] { $count } секунда
+    [few] { $count } секунде
+   *[other] { $count } секунди
+  }

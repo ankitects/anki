@@ -1,0 +1,5 @@
+basepath = "desktop"
+
+[[paths]]
+  reference = "templates/*.ftl"
+  l10n = "{locale}/*.ftl"

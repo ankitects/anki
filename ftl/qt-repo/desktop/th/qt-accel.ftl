@@ -1,0 +1,17 @@
+qt-accel-about = &เกี่ยวกับ...
+qt-accel-edit = &แก้ไข
+qt-accel-exit = &ออก
+qt-accel-export = &ส่งออก...
+qt-accel-file = &แฟ้ม
+qt-accel-find = &ค้นหา
+qt-accel-go = &ไ&ปยัง
+qt-accel-help = &ช่วยเหลือ
+qt-accel-import = &นำเ&ข้า...
+qt-accel-invert-selection = &กลับการเลือกเป็นตรงข้าม
+qt-accel-next-card = &บัตรคำถัดไป
+qt-accel-open-addons-folder = &เปิดโฟล์เดอร์โปรแกรมเสริม
+qt-accel-preferences = ตั้&งค่า...
+qt-accel-previous-card = &บัตรคำก่อนหน้า
+qt-accel-support-anki = &สนับสนุน Anki...
+qt-accel-tools = &เครื่องมือ
+qt-accel-undo = &เลิกทำ

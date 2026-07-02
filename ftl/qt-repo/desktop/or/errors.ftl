@@ -1,0 +1,1 @@
+-errors-support-site = [ସମର୍ଥନ ସାଇଟ୍](https://help.ankiweb.net)

@@ -1,0 +1,39 @@
+decks-add-new-deck-ctrlandn = Criar um Novo Baralho (Ctrl+N)
+decks-build = Criar
+decks-cards-selected-by = cartões selecionados por
+decks-create-deck = Criar Baralho
+decks_create_even_if_empty = Criar/atualizar este baralho mesmo se estiver vazio
+decks-custom-steps-in-minutes = Etapas personalizadas (em minutos)
+decks-deck = Baralho
+decks-decreasing-intervals = Mais distantes a estudar/revisar
+decks-delete-deck = Excluir Baralho
+decks-enable-second-filter = Habilite o segundo filtro
+decks-filter = Filtro:
+decks-filter-2 = Filtro 2
+decks-get-shared = Obter compartilhados
+decks-import-file = Importar arquivo
+decks-increasing-intervals = Mais próximos a estudar/revisar
+decks-latest-added-first = Criados há menos tempo
+decks-limit-to = Limitar a
+decks-minutes = minutos
+decks-most-lapses = Mais falhas
+decks-new-deck-name = Novo nome do baralho:
+decks-no-deck = [sem baralho]
+decks-oldest-seen-first = Mais antiga data do primeiro estudo
+decks-order-added = Criados há mais tempo
+decks-order-due = Revisões mais próximas
+decks-please-select-something = Por favor, selecione algo.
+decks-random = Aleatório
+decks-relative-overdueness = Atraso relativo
+decks-repeat-failed-cards-after = Repita os cartões com falha depois
+# e.g. "Delay for Again", "Delay for Hard", "Delay for Good"
+decks-delay-for-button = Atraso para { $button }
+decks-reschedule-cards-based-on-my-answers = Reagendar cartões baseado nas minhas respostas neste baralho
+decks-study = Estudar
+decks-study-deck = Estudar baralho
+decks-filtered-deck-search-empty = Nenhum cartão correspondeu à pesquisa fornecida. Alguns cartões podem ter sido excluídos porque estão em um baralho filtrado diferente ou suspensos.
+decks-unmovable-cards = Mostrar todos os cartões excluídos
+decks-learn-header = Aprender
+# The count of cards waiting to be reviewed
+decks-review-header = Revisar
+decks-zero-minutes-hint = (0 = retornar o cartão para o baralho original)

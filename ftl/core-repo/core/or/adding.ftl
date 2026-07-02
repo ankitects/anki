@@ -1,0 +1,11 @@
+adding-add-shortcut-ctrlandenter = ଯୋଡ଼ନ୍ତୁ (ସର୍ଟକଟ୍: ctrl+enter)
+adding-added = ଯୋଡ଼ାଗଲା
+adding-keep-editing = ସମ୍ପାଦନା ଜାରି ରଖିବା
+adding-edit = "{ $val }" ସମ୍ପାଦନ କରନ୍ତୁ
+adding-history = ଇତିବୃତ୍ତି
+adding-note-deleted = (ନୋଟ୍ ବିଲୋପ ହୋଇଛି)
+adding-shortcut = ସର୍ଟକଟ୍: { $val }
+adding-the-first-field-is-empty = ପ୍ରଥମ କ୍ଷେତ୍ର ଖାଲି ଅଛି।
+adding-you-have-a-cloze-deletion-note = ଆପଣଙ୍କର ଏକ କ୍ଲୋଜ୍ ଡିଲିଶନ ନୋଟ୍ ପ୍ରକାର ଅଛି କିନ୍ତୁ କୌଣସି କ୍ଲୋଜ୍ ବିଲୋପ କରିନାହାଁନ୍ତି। ଅଗ୍ରଗତି କରିବେ?
+adding-cloze-outside-cloze-notetype = କ୍ଲୋଜ୍ ବିଲୋପ କେବଳ କ୍ଲୋଜ୍ ନୋଟ୍ ପ୍ରକାରରେ ବ୍ୟବହୃତ ହୋଇପାରିବ।
+adding-cloze-outside-cloze-field = କ୍ଲୋଜ୍ ବିଲୋପ କେବଳ ସେହି କ୍ଷେତ୍ରରେ ବ୍ୟବହୃତ ହୋଇପାରିବ ଯାହା 'cloze:' ଫିଲ୍ଟର୍ ବ୍ୟବହାର କରେ। ଏହା ସାଧାରଣତଃ ପ୍ରଥମ କ୍ଷେତ୍ର ଅଟେ।

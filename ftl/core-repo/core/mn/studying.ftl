@@ -1,0 +1,9 @@
+studying-again = Дахиад
+studying-bury = Булах
+studying-easy = Амархан
+studying-edit = Засварла
+studying-good = Сайн
+studying-hard = Хэцүү
+studying-more = Цааш үзэх
+studying-show-answer = Хариулт үзүүлэх
+studying-suspend = Түдгэлзэх

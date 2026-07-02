@@ -1,0 +1,39 @@
+decks-add-new-deck-ctrlandn = Додати нову колоду (Ctrl+N)
+decks-build = Побудувати
+decks-cards-selected-by = картки, обрані за
+decks-create-deck = Створити колоду
+decks_create_even_if_empty = Створити/оновити цю колоду навіть якщо пуста
+decks-custom-steps-in-minutes = Користувацькі кроки (в хвилинах)
+decks-deck = Колода
+decks-decreasing-intervals = Нисхідні інтервали
+decks-delete-deck = Видалити колоду
+decks-enable-second-filter = Використовувати другий фільтр
+decks-filter = Фільтр:
+decks-filter-2 = Фільтр 2
+decks-get-shared = Отримати спільні колоди
+decks-import-file = Імпортувати файл
+decks-increasing-intervals = Зростаючі інтервали
+decks-latest-added-first = Спочатку додані останніми
+decks-limit-to = Обмежити
+decks-minutes = хв
+decks-most-lapses = Найбільше невдач
+decks-new-deck-name = Нова назва колоди:
+decks-no-deck = [нема колоди]
+decks-oldest-seen-first = Спочатку найраніше побачені
+decks-order-added = В порядку додавання
+decks-order-due = В порядку очікування
+decks-please-select-something = Оберіть що-небудь.
+decks-random = Довільний порядок
+decks-relative-overdueness = Відносне прострочення
+decks-repeat-failed-cards-after = Потім повторіть забуті картки
+# e.g. "Delay for Again", "Delay for Hard", "Delay for Good"
+decks-delay-for-button = Відстрочити відповідь { $button } на
+decks-reschedule-cards-based-on-my-answers = Змінити розклад карток, спираючись на мої відповіді у цій колоді
+decks-study = Вчити
+decks-study-deck = Вчити колоду
+decks-filtered-deck-search-empty = Нема карток, які відповідають умовам пошуку. Деякі картки могли бути виключеними з пошуку оскільки вони є у іншій відфільтрованій колоді або ж призупинені.
+decks-unmovable-cards = Показувати будь-яку виключену картку
+decks-learn-header = Вчити
+# The count of cards waiting to be reviewed
+decks-review-header = Пригадати
+decks-zero-minutes-hint = (0 = повернути картку до початкової колоди)

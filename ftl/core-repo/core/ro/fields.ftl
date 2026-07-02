@@ -1,0 +1,17 @@
+fields-add-field = Adaugă câmp
+fields-delete-field-from = Ștergi câmpul de la { $val }?
+fields-editing-font = Editare font
+fields-field = Câmp:
+fields-field-name = Nume câmp:
+fields-description = Descriere
+fields-description-placeholder = Indicator pentru afișare lângă numele câmpului în ecranul de editare
+fields-fields-for = Câmpuri pentru { $val }
+fields-font = Font:
+fields-new-position-1 = Poziție nouă (1...{ $val }):
+fields-notes-require-at-least-one-field = Notiţele necesită cel puțin un câmp.
+fields-reverse-text-direction-rtl = Inversează direcţia textului
+fields-size = Mărime:
+fields-sort-by-this-field-in-the = Sortează după acest câmp în browser
+fields-that-field-name-is-already-used = Acest nume de câmp este deja folosit.
+fields-name-first-letter-not-valid = Numele câmpului nu trebuie să înceapă cu #, ^ sau /.
+fields-name-invalid-letter = Numele câmpului nu trebuie să conțină :, ", { "{" } sau { "}" }.

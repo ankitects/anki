@@ -1,0 +1,10 @@
+adding-add-shortcut-ctrlandenter = Erantsi (lasterbidea: ktrl+enter)
+adding-added = Erantsita
+adding-close-and-lose-current-input = Irten eta uneko sarrera galdu?
+adding-edit = Editatu "{ $val }"
+adding-history = Historia
+adding-note-deleted = (Oharra ezabatuta)
+adding-shortcut = Laster-tekla: { $val }
+adding-the-first-field-is-empty = Lehen eremua hutsik dago.
+adding-you-have-a-cloze-deletion-note = Hutsuneak betetzeko ohar-mota bat duzu, baina ez duzu hutsunerik utzi. Jarraitu?
+adding-cloze-outside-cloze-notetype = Hutsuneak betetzeko ohar-motarekin bakarrik utz daitezke hutsuneak.

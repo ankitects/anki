@@ -1,0 +1,11 @@
+adding-add-shortcut-ctrlandenter = Tambah (pintasan: Ctrl + Enter)
+adding-added = Ditambah
+adding-close-and-lose-current-input = Tutup dan hilang input kini?
+adding-edit = Sunting "{ $val }"
+adding-history = Sejarah
+adding-note-deleted = (Nota dipadam)
+adding-shortcut = Pintasan: { $val }
+adding-the-first-field-is-empty = Medan pertama kosong.
+adding-you-have-a-cloze-deletion-note = Anda mengandungi jenis nota kloz tetapi belum membuat apa-apa penghapusan kloz. Terusan?
+adding-cloze-outside-cloze-notetype = Penghapusan kloz hanya boleh digunakan pada jenis nota kloz.
+adding-cloze-outside-cloze-field = Penghapusan kloz hanya boleh digunakan dalam medan yang menggunakan tapisan 'cloze:'. Selalunya, ia adalah medan pertama.

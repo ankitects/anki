@@ -1,0 +1,12 @@
+profiles-folder-already-exists = ថតឯកសារមានរួចហើយ។
+profiles-open = បើក
+profiles-open-backup = បើកការបម្រុងទុក...
+profiles-please-remove-the-folder-and = សូមលុបថតឯកសារ { $val } ហើយព្យាយាមម្តងទៀត។
+profiles-profile-corrupt = ប្រវត្តិរូបខូច
+profiles-profiles = ប្រវត្តិរូប
+profiles-quit = ចាកចេញ
+profiles-user-1 = អ្នកប្រើប្រាស់ 1
+profiles-creating-backup = កំពុងបង្កើតការបម្រុងទុក...
+profiles-backup-created = បានបង្កើតការបម្រុងទុក។
+profiles-backup-creation-failed = ការបម្រុងទុកបានបរាជ័យ: { $reason }
+profiles-backup-unchanged = គ្មានការផ្លាស់ប្តូរទេតាំងពីការបម្រុងទុកលើកចុងក្រោយ។

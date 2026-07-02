@@ -1,0 +1,39 @@
+decks-add-new-deck-ctrlandn = (Ctrl+N) إضافة رزمة جديدة
+decks-build = إنشاء
+decks-cards-selected-by = بطاقة محددة حسب
+decks-create-deck = رزمة جديدة
+decks_create_even_if_empty = أنشئ/حدث هذه الرزمة حتى لو كانت فارغة
+decks-custom-steps-in-minutes = خطوات مخصصة (بالدقيقة)
+decks-deck = رزمة
+decks-decreasing-intervals = فواصل متناقصة
+decks-delete-deck = حذف الرزمة
+decks-enable-second-filter = تفعيل فلتر ثانٍ
+decks-filter = فلتر:
+decks-filter-2 = فلتر 2
+decks-get-shared = الحصول على رزم مشتركة
+decks-import-file = استيراد ملف
+decks-increasing-intervals = فواصل متزايدة
+decks-latest-added-first = المضافة مؤخرًا أولًا
+decks-limit-to = عدد البطاقات الأقصى
+decks-minutes = دقيقة
+decks-most-lapses = الأكثر سقطات
+decks-new-deck-name = اسم الرزمة الجديدة:
+decks-no-deck = [لا رزمة]
+decks-oldest-seen-first = الأقدم أولًا
+decks-order-added = تاريخ الإضافة
+decks-order-due = في ترتيب تاريخ الاستحقاق
+decks-please-select-something = اختر شيئًا.
+decks-random = عشوائي
+decks-relative-overdueness = التأخر النسبي
+decks-repeat-failed-cards-after = تكرار البطاقات غير الناجحة بعد
+# e.g. "Delay for Again", "Delay for Hard", "Delay for Good"
+decks-delay-for-button = فاصل { $button }
+decks-reschedule-cards-based-on-my-answers = إعادة جدولة البطاقات بناءً على أجوبتي في هذه الرزمة
+decks-study = دراسة
+decks-study-deck = دراسة رزمة
+decks-filtered-deck-search-empty = لم تطابق أي بطاقة عبارة البحث المزودة. قد تكون بعض البطاقات أُقصيت لأنها في رزمة مفلترة أخرى، أو لأنها معلّقة.
+decks-unmovable-cards = إظهار البطاقات المستثناة
+decks-learn-header = تعلم
+# The count of cards waiting to be reviewed
+decks-review-header = مستحقة
+decks-zero-minutes-hint = (0 = لإعادة البطاقة إلى رزمتها الأصلية)

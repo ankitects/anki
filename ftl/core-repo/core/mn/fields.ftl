@@ -1,0 +1,10 @@
+fields-add-field = Талбар нэмэх
+fields-editing-font = Фонтыг засварлаж байна
+fields-field = Талбар:
+fields-field-name = Талбарын нэр:
+fields-description = Тайлбар
+fields-font = Фонт:
+fields-new-position-1 = Шинэ байрлал (1... { $val }):
+fields-size = Хэмжээ:
+fields-that-field-name-is-already-used = Талбарын нэр аль хэдийн ашиглагдаж байна.
+fields-name-first-letter-not-valid = Талбарын нэрний эхэнд #, ^, / орж болохгүй.

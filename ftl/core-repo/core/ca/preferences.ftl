@@ -1,0 +1,100 @@
+preferences-automatically-sync-on-profile-openclose = Sincronitza automàticament en obrir o tancar un perfil
+preferences-backups = Còpies de seguretat
+preferences-change-deck-depending-on-note-type = Canvia de baralla en funció del tipus de nota
+preferences-changes-will-take-effect-when-you = Els canvis s’aplicaran quan reinicieu Anki.
+preferences-hours-past-midnight = hora/hores després de la mitjanit
+preferences-language = Llengua
+preferences-interrupt-current-audio-when-answering = Interromp el so actual en respondre
+preferences-learn-ahead-limit = Límit d’estudi per endavant
+preferences-mins = minut(s)
+preferences-network = Xarxa
+preferences-next-day-starts-at = El dia següent comença a les
+preferences-media-is-not-backed-up = Els fitxers multimèdia no s’inclouen en les còpies de seguretat. Per motius de seguretat, feu una còpia de la carpeta d’Anki de manera periòdica.
+preferences-on-next-sync-force-changes-in = En la pròxima sincronització, força els canvis en una direcció
+preferences-paste-clipboard-images-as-png = Enganxa les imatges del porta-retalls com a PNG
+preferences-paste-without-shift-key-strips-formatting = Elimina el format en enganxar sense prémer la tecla de majúscules
+preferences-generate-latex-images-automatically = Genera imatges LaTeX
+preferences-latex-generation-disabled = La generació d’imatges LaTeX està desactivada en les preferències.
+preferences-periodically-sync-media = Sincronitza els fitxers multimèdia periòdicament
+preferences-please-restart-anki-to-complete-language = Reinicieu Anki per a completar el canvi de llengua.
+preferences-preferences = Preferències
+preferences-scheduling = Planificació
+preferences-show-learning-cards-with-larger-steps = Mostra les targetes que estic aprenent amb passos més grans abans dels repassos
+preferences-show-next-review-time-above-answer = Mostra l’interval del pròxim repàs damunt dels botons de resposta
+preferences-spacebar-rates-card = Respon la targeta en prémer la barra espaiadora o la tecla de retorn
+preferences-show-play-buttons-on-cards-with = Mostra els botons de reproducció en les targetes que tenen so
+preferences-show-remaining-card-count = Mostra el nombre de targetes restants
+preferences-some-settings-will-take-effect-after = Alguns canvis no s’aplicaran fins que reinicieu Anki.
+preferences-tab-synchronisation = Sincronització
+preferences-synchronize-audio-and-images-too = Sincronitza també els sons i les imatges
+preferences-login-successful-sync-now = S’ha iniciat la sessió. Voleu desar la configuració i iniciar la sincronització?
+preferences-timebox-time-limit = Límit de la sessió d’estudi
+preferences-user-interface-size = Mida de la interfície d’usuari
+preferences-when-adding-default-to-current-deck = Afegeix la baralla actual per defecte
+preferences-you-can-restore-backups-via-fileswitch = Podeu restaurar una còpia de seguretat des del menú Fitxer > Canvia de perfil.
+preferences-legacy-timezone-handling = Gestió de zones horàries antiga (tot i que té errors, és necessària si feu servir AnkiDroid 2.14 o inferior)
+preferences-default-search-text = Text de cerca per defecte
+preferences-default-search-text-example = per exemple: 'deck:current'
+preferences-theme = Tema
+preferences-theme-follow-system = Segons el sistema
+preferences-theme-light = Clar
+preferences-theme-dark = Fosc
+preferences-v3-scheduler = Versió 3 del planificador
+preferences-check-for-updates = Comprova si hi ha actualitzacions
+preferences-ignore-accents-in-search = Ignora els accents en cercar (més lent)
+preferences-backup-explanation = Anki fa còpies de seguretat periòdiques de la vostra col·lecció. Quan les còpies facin dos dies, Anki començarà a eliminar-ne algunes per tal d’alliberar espai en el disc.
+preferences-daily-backups = Còpies de seguretat diàries que cal mantenir:
+preferences-weekly-backups = Còpies de seguretat setmanals que cal mantenir:
+preferences-monthly-backups = Còpies de seguretat mensuals que cal mantenir:
+preferences-minutes-between-backups = Minuts entre còpies de seguretat automàtiques:
+preferences-reduce-motion = Redueix el moviment
+preferences-reduce-motion-tooltip = Desactiva les animacions i les transicions de la interfície d’usuari
+preferences-custom-sync-url = Servidor de sincronització propi
+preferences-custom-sync-url-disclaimer = Si sou un usuari avançat, consulteu el manual.
+preferences-hide-top-bar-during-review = Amaga la barra superior durant els repassos
+preferences-hide-bottom-bar-during-review = Amaga la barra inferior durant els repassos
+preferences-always = Sempre
+preferences-full-screen-only = Només a pantalla completa
+preferences-appearance = Aparença
+preferences-general = General
+preferences-style = Estil
+preferences-review = Repassos
+preferences-answer-keys = Tecles de resposta
+preferences-distractions = Distraccions
+preferences-minimalist-mode = Mode minimalista
+preferences-minimalist-mode-tooltip = Simplifica i compacta la interfície.
+preferences-editing = Edició
+preferences-browsing = Navegació
+preferences-default-deck = Baralla per defecte
+preferences-account = Compte d’AnkiWeb
+preferences-note = Nota
+preferences-scheduler = Planificador
+preferences-user-interface = Interfície d’usuari
+preferences-import-export = Importació i exportació
+preferences-network-timeout = Temps d’espera de la xarxa
+preferences-reset-window-sizes = Reestableix la mida de les finestres
+preferences-reset-window-sizes-complete = S’ha reestablert la mida i la posició de les finestres.
+preferences-shortcut-placeholder = Prem una tecla de drecera no utilitzada o deixa l’espai en blanc per a desactivar-la.
+preferences-third-party-services = Serveis de tercers
+preferences-ankihub-not-logged-in = No heu iniciat la sessió a AnkiHub.
+preferences-ankiweb-intro = AnkiWeb és un servei gratuït que us permet sincronitzar les targetes en tots els dispositius i recuperar les dades si el dispositiu es malmet o es perd.
+preferences-ankihub-intro = AnkiHub permet editar baralles de manera col·laborativa i proporciona eines d’estudi addicionals. Per a accedir a algunes funcions, cal una subscripció de pagament.
+preferences-third-party-description = Els serveis de tercers són independents i no estan avalats per Anki. Aquests serveis poden ser de pagament.
+
+## URL scheme related
+
+preferences-url-schemes = Esquemes d’URL
+preferences-url-scheme-prompt = Esquemes d’URL permesos (separats per espais):
+preferences-url-scheme-warning =
+    S’ha bloquejat l’intent d’obrir `{ $link }` perquè pot suposar un risc de seguretat.
+    
+    Si confieu en l’autor de la baralla i voleu continuar, podeu afegir `{ $scheme }` als esquemes d’URL permesos.
+preferences-url-scheme-allow-once = Permet una vegada
+preferences-url-scheme-always-allow = Permet sempre
+
+## NO NEED TO TRANSLATE. This text is no longer used by Anki, and will be removed in the future.
+
+preferences-basic = Bàsica
+preferences-reviewer = Revisor
+preferences-media = Multimèdia
+preferences-not-logged-in = No heu iniciat la sessió a AnkiWeb.

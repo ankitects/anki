@@ -1,0 +1,12 @@
+adding-add-shortcut-ctrlandenter = Кошуу (ыкчам баскыч: ctrl+enter)
+adding-added = Кошулду
+adding-discard-current-input = Учурдагы киргизилген маалыматтан баш тартасызбы?
+adding-keep-editing = Түзөтүүнү улантуу
+adding-edit = "{ $val }" түзөтүү
+adding-history = Тарых
+adding-note-deleted = (Эскертме өчүрүлдү)
+adding-shortcut = Ыкчам баскыч: { $val }
+adding-the-first-field-is-empty = Биринчи талаа бош.
+adding-you-have-a-cloze-deletion-note = Сизде жашыруун сөздүү эскертме түрү бар, бирок эч кандай сөз жашырылган эмес. Улантасызбы?
+adding-cloze-outside-cloze-notetype = Жашыруун сөз белгилөөнү жашыруун сөздүү эскертме түрлөрүндө гана колдонсо болот.
+adding-cloze-outside-cloze-field = Жашыруун сөз белгилөөнү 'cloze:' фильтири колдонулган талааларда гана колдонсо болот. Адатта, бул биринчи талаа болот.

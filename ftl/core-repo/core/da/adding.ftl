@@ -1,0 +1,12 @@
+adding-add-shortcut-ctrlandenter = Tilføj kort (genvej: ctrl+enter)
+adding-added = Tilføjet
+adding-discard-current-input = Kasser nuværende input?
+adding-keep-editing = Fortsæt redigering
+adding-edit = Rediger "{ $val }"
+adding-history = Historik
+adding-note-deleted = (Note fjernet)
+adding-shortcut = Genvej: { $val }
+adding-the-first-field-is-empty = Det første felt er tomt.
+adding-you-have-a-cloze-deletion-note = Du har en notetype for cloze-sletning, men har ikke foretaget nogen cloze-sletninger. Fortsæt?
+adding-cloze-outside-cloze-notetype = Cloze-fjerning kan kun blive brugt på cloze-notetyper.
+adding-cloze-outside-cloze-field = Cloze-fjerning kan bruges blive brugt i felter, som bruger 'cloze:'-filter. Det er typisk det første felt.

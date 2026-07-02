@@ -1,0 +1,10 @@
+profiles-anki-could-not-read-your-profile = Չստացվեց կարդալ Ձեր հատկագրի տվյալները: Պատուհանի չափերի և համաժամեցման օգտանվան մանրամասները մոռացվել են:
+profiles-anki-could-not-rename-your-profile = Anki-ն չի կարող անվանափոխել ձեր հատկագիրը, քանի որ չի հաջողվում անվանափոխել սկավառակի վրայի պանակը: Համոզվեք, որ թույլտվություն ունեք Documents/Anki պանակի մեջ գրելու համար և ոչ մի այլ ծրագիր այն չի օգտագործում, դրանից հետո կրկին փորձեք:
+profiles-folder-already-exists = Պիտակը արդեն գոյություն ունի:
+profiles-open = Բացել
+profiles-open-backup = Բացել պահուստը...
+profiles-please-remove-the-folder-and = Հեռացրեք { $val } պանակը և կրկին փորձեք:
+profiles-profile-corrupt = Հատկագիրը վնասված է
+profiles-profiles = Հատկագրեր
+profiles-quit = Ելք
+profiles-user-1 = Օգտատեր 1

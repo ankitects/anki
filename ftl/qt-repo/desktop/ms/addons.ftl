@@ -1,0 +1,9 @@
+addons-window-title = Add-on Tambahan
+addons-addon-has-no-configuration = Add-on tambahan tiada konfigurasi.
+addons-addon-installation-error = Error installasi add-on tambahan
+addons-addon-was-not-downloaded-from-ankiweb = Add-on tambahan tidak dimuat turun dari AnkiWeb.
+addons-disabled = (tidak aktif)
+addons-disabled2 = (tidak aktif)
+addons-important-as-addons-are-programs-downloaded = <b>Amaran</b>: Oleh kerana add-on tambahan adalah program yang dimuat turun dari Internet, ia mungkin bahaya. <b>Hanya install add-on tambahan yang anda yakini.</b><br><br>Anda pasti untuk install add-on tambahan Anki tersebut?<br><br>%(names)s
+addons-please-restart-anki-to-complete-the = <b>Tolong restart Anki untuk lengkapkan installasi.</b>
+addons-requires = (memerlukan { $val })

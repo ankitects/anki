@@ -1,0 +1,16 @@
+fields-add-field = କ୍ଷେତ୍ର ଯୋଡ଼ନ୍ତୁ
+fields-delete-field-from = { $val }ରୁ କ୍ଷେତ୍ର ବିଲୋପ କରିବେ କି?
+fields-editing-font = ସମ୍ପାଦନା ଫଣ୍ଟ
+fields-field = କ୍ଷେତ୍ର:
+fields-field-name = କ୍ଷେତ୍ର ନାମ:
+fields-description = ବର୍ଣ୍ଣନା
+fields-fields-for = { $val } ପାଇଁ କ୍ଷେତ୍ର
+fields-font = ଫଣ୍ଟ:
+fields-new-position-1 = ନୂଆ ଅଵସ୍ଥିତି (1...{ $val }):
+fields-notes-require-at-least-one-field = ନୋଟଗୁଡ଼ିକ ଅତିକମରେ ଗୋଟିଏ କ୍ଷେତ୍ର ଆବଶ୍ୟକ କରେ।
+fields-reverse-text-direction-rtl = ଓଲଟା ପାଠ୍ୟ ଦିଗ (RTL)
+fields-size = ଆକାର:
+fields-sort-by-this-field-in-the = ବ୍ରାଉଜର୍ ରେ ଏହି କ୍ଷେତ୍ର ଅନୁଯାୟୀ ସଜାନ୍ତୁ
+fields-that-field-name-is-already-used = ସେହି କ୍ଷେତ୍ର ନାମ ପୂର୍ବରୁ ବ୍ୟବହୃତ ହୋଇଛି।
+fields-name-first-letter-not-valid = କ୍ଷେତ୍ର ନାମ #, ^ କିମ୍ବା / ସହିତ ଆରମ୍ଭ ହେବା ଉଚିତ୍ ନୁହେଁ।
+fields-name-invalid-letter = କ୍ଷେତ୍ର ନାମରେ , ", { "{" } or { "}" } ରହିବା ଉଚିତ୍ ନୁହେଁ।

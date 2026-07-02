@@ -1,0 +1,44 @@
+card-stats-added = カード作成日
+card-stats-first-review = 最初の学習日
+card-stats-latest-review = 直近の学習日
+card-stats-interval = 間隔
+card-stats-ease = 易しさ
+card-stats-review-count = 学習回数
+card-stats-lapse-count = 復習での忘却回数
+card-stats-average-time = 平均時間
+card-stats-total-time = 合計時間
+card-stats-new-card-position = 位置
+card-stats-card-template = カードタイプ
+card-stats-note-type = ノートタイプ
+card-stats-deck-name = デッキ
+card-stats-preset = プリセット
+card-stats-note-id = ノート ID
+card-stats-card-id = カード ID
+card-stats-review-log-rating = 評価
+card-stats-review-log-type = 種類
+card-stats-review-log-date = 日付
+card-stats-review-log-time-taken = 時間
+card-stats-review-log-type-learn = 習得中
+card-stats-review-log-type-review = 復習
+card-stats-review-log-type-relearn = 再習得中
+card-stats-review-log-type-filtered = フィルター
+card-stats-review-log-type-manual = 期日手動変更
+card-stats-review-log-type-rescheduled = 期日一括変更
+card-stats-review-log-elapsed-time = 前回学習後の経過時間
+card-stats-no-card = （表示するカードがありません）
+card-stats-custom-data = カスタムデータ
+card-stats-fsrs-stability = 安定度
+card-stats-fsrs-difficulty = 難度
+card-stats-fsrs-retrievability = 正答可能性
+card-stats-fsrs-forgetting-curve-title = 忘却曲線
+card-stats-fsrs-forgetting-curve-first-week = 初週
+card-stats-fsrs-forgetting-curve-first-month = 初月
+card-stats-fsrs-forgetting-curve-first-year = 初年
+card-stats-fsrs-forgetting-curve-all-time = 全期間
+card-stats-fsrs-forgetting-curve-probability-of-recalling = 正答できる（答えを思い出せる）可能性
+card-stats-fsrs-forgetting-curve-desired-retention = 目標正答率
+
+## Window Titles
+
+card-stats-current-card = 現在のカード ({ $context })
+card-stats-previous-card = 前のカード ({ $context })

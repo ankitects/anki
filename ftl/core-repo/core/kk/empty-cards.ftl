@@ -1,0 +1,10 @@
+empty-cards-for-note-type = { $notetype } үшін бос карталар:
+empty-cards-count-line = { $existing_count } картаның { $empty_count }-і/ы бос ({ $template_names })
+empty-cards-window-title = Бос карталар
+empty-cards-preserve-notes-checkbox = Нақты картасыз жазбаларды қалдыру
+empty-cards-delete-button = Жою
+empty-cards-not-found = Бос карта жоқ.
+empty-cards-deleted-count = { $cards } карта жойылды.
+empty-cards-delete-empty-cards = Бос Карталарды Жою
+empty-cards-delete-empty-notes = Бос Жазбаларды Жою
+empty-cards-deleting = Жоюда...

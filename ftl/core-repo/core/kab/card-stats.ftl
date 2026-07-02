@@ -1,0 +1,17 @@
+card-stats-added = yettwarna
+card-stats-interval = Azilal
+card-stats-ease = Kkes
+card-stats-average-time = Akud alemmas
+card-stats-total-time = Akud asemday
+card-stats-new-card-position = Adig
+card-stats-card-template = Anaw n tkarḍa
+card-stats-deck-name = Akemmus
+card-stats-note-id = ID n tezmilt
+card-stats-card-id = ID n tkarḍa
+card-stats-review-log-rating = Tazmilt
+card-stats-review-log-type = Tawsit
+card-stats-review-log-date = Azemz
+card-stats-review-log-time-taken = Akud
+card-stats-review-log-type-learn = Issin
+card-stats-review-log-type-review = Cegger
+card-stats-review-log-type-filtered = Yettwasizdeg

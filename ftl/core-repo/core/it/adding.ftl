@@ -1,0 +1,12 @@
+adding-add-shortcut-ctrlandenter = Aggiungi (scorciatoia: ctrl+invio)
+adding-added = Aggiunto
+adding-discard-current-input = Scartare l'input attuale?
+adding-keep-editing = Continua a modificare
+adding-edit = Modifica "{ $val }"
+adding-history = Cronologia
+adding-note-deleted = (Nota eliminata)
+adding-shortcut = Scorciatoia: { $val }
+adding-the-first-field-is-empty = Il primo campo è vuoto.
+adding-you-have-a-cloze-deletion-note = La nota è di tipo cloze ma non è presente alcuna cancellazione. Proseguire?
+adding-cloze-outside-cloze-notetype = Le cancellazioni cloze possono essere utilizzate solo per note di tipo cloze.
+adding-cloze-outside-cloze-field = Le cancellazioni cloze possono essere utilizzate solo in campi che usano il filtro 'cloze:'. Solitamente si tratta del primo campo.

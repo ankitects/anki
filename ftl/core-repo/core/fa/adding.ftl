@@ -1,0 +1,12 @@
+adding-add-shortcut-ctrlandenter = افزودن (میانبر: کنترل+اینتر)
+adding-added = اضافه‌شده
+adding-discard-current-input = کنارگذاشتن ورودی فعلی؟
+adding-keep-editing = ادامۀ ویرایش
+adding-edit = ویرایش "{ $val }"‌
+adding-history = تاریخچه
+adding-note-deleted = (یادداشت حذف‌شده)
+adding-shortcut = میان‌بُر: ‪{ $val }
+adding-the-first-field-is-empty = فیلد اول خالی است.
+adding-you-have-a-cloze-deletion-note = نوع یادداشتتان جاخالی است، اما هنوز جاخالی ایجاد نکرده‌اید. ادامه می‌دهید؟
+adding-cloze-outside-cloze-notetype = فقط در یادداشت‌های از نوع جاخالی می‌توانید از جاخالی استفاده کنید.
+adding-cloze-outside-cloze-field = جاخالی فقط در فیلدهای با فیلتر 'cloze:'عمل می‌کند. این فیلد معمولاً فیلد اول است.

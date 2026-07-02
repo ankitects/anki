@@ -1,0 +1,28 @@
+card-stats-added = Added
+card-stats-first-review = First Review
+card-stats-latest-review = Latest Review
+card-stats-interval = Interval
+card-stats-ease = Ease
+card-stats-review-count = Reviews
+card-stats-lapse-count = Lapses
+card-stats-average-time = Average Time
+card-stats-total-time = Total Time
+card-stats-new-card-position = Position
+card-stats-card-template = Card Type
+card-stats-note-type = Note Type
+card-stats-deck-name = Deck
+card-stats-preset = Preset
+card-stats-note-id = Note ID
+card-stats-card-id = Card ID
+card-stats-review-log-rating = Rating
+card-stats-review-log-type = Type
+card-stats-review-log-date = Date
+card-stats-review-log-time-taken = Time
+card-stats-review-log-type-learn = Learn
+card-stats-review-log-type-review = Review
+
+## Window Titles
+
+
+## NO NEED TO TRANSLATE. This text is no longer used by Anki, and will be removed in the future.
+

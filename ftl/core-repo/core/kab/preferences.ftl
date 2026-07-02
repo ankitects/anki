@@ -1,0 +1,11 @@
+preferences-backups = Iḥrazen
+preferences-backups2 = iḥrazen
+preferences-backupsanki-will-create-a-backup-of = <b>Aḥraz</b><br>Anki ad yernu aḥraz n tigrumminwin-ik yal tikkelt ad tmedleḍ neɣ ad temtawiḍ.
+preferences-basic = Azadur
+preferences-interface-language = Tutlayt n ugrudem:
+preferences-keep = Eǧǧ
+preferences-mins = tisdtin
+preferences-network = Aẓeṭṭa
+preferences-preferences = Ismenyifen
+preferences-synchronisation = <b>Amtawi</b>
+preferences-synchronizationnot-currently-enabled-click-the-sync = <b>Amtawi</b><br> Ur yermid ara akka tura; sit ɣef tqeffalt mtawi deg usfaylu agejdan akken ad yermed.

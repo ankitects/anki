@@ -1,0 +1,14 @@
+fields-add-field = Erantsi eremua
+fields-delete-field-from = zutabea kendu { $val }-tik
+fields-editing-font = Letra-Tipoa editatzen
+fields-field = Eremua:
+fields-field-name = Eremu izena
+fields-fields-for = { $val }-ko eremuak
+fields-font = Letra-tipoa:
+fields-new-position-1 = leku berria (1..{ $val }):
+fields-notes-require-at-least-one-field = oharrek eredu bat behinztat behar dute
+fields-remember-last-input-when-adding = azken sarrera gorde eransten
+fields-reverse-text-direction-rtl = Irakurtzeko noranzko alderantzizkoa (eskuinetik ezkerrera)
+fields-size = Neurria:
+fields-sort-by-this-field-in-the = Nabigatzailean eremu horren arabera sailkatu
+fields-that-field-name-is-already-used = Eremu hau dagoeneko erabilituta dago

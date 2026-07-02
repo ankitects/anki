@@ -1,0 +1,11 @@
+adding-add-shortcut-ctrlandenter = Cuir Leis (aicearra: ctrl+enter)
+adding-added = Curtha leis
+adding-close-and-lose-current-input = Dún (agus caill ionchur atá ar bun)?
+adding-edit = Cuir in eagar "{ $val }"
+adding-history = Stair
+adding-note-deleted = (Nóta scriosta)
+adding-shortcut = Aicearra: { $val }
+adding-the-first-field-is-empty = Tá an chéad réimse folamh.
+adding-you-have-a-cloze-deletion-note = Is den chineál 'sliocht iomlánaithe' é an nóta seo, ach níl aon bhearna le hiomlánú curtha ann. Lean ar aghaidh?
+adding-cloze-outside-cloze-notetype = Ní féidir sleachta iomlánaithe a chur ar nótaí nach nótaí iomlánaithe iad féin.
+adding-cloze-outside-cloze-field = Ní féidir iomlánú a chur ach amháin i réimse a dtéann a n-oibrítear an scagaire 'cloze:' leis. SIn an chéad réimse de ghnáth.

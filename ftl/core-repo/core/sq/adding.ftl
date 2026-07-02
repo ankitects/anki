@@ -1,0 +1,12 @@
+adding-add-shortcut-ctrlandenter = Shto (shkurtorja: ctrl+enter)
+adding-added = U shtua
+adding-discard-current-input = Hidh të dhënat aktuale?
+adding-keep-editing = Vazhdo të redaktosh
+adding-edit = Redakto "{ $val }"
+adding-history = Historia
+adding-note-deleted = (Shënimi u fshi)
+adding-shortcut = Shkurtorja: "{ $val }"
+adding-the-first-field-is-empty = Fusha e parë është bosh
+adding-you-have-a-cloze-deletion-note = Ju keni një shënim të llojit cloze, por nuk keni bërë asnjë fshirje. Vazhdoni?
+adding-cloze-outside-cloze-notetype = Fshirja cloze mund të bëhet vetëm me shënimet e llojit cloze.
+adding-cloze-outside-cloze-field = Fshirja e llojit cloze mund të përdoret vetëm në fushat që përdorin filterin 'cloze'.Kjo është zakonisht fusha e parë.

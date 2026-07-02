@@ -1,0 +1,47 @@
+qt-misc-all-cards-notes-and-media-for = Alle kaarte, notas, en media vir hierdie profiel sal geskrap word. Is jy seker?
+qt-misc-anki-updatedanki-has-been-released = <h1>Anki Opgedateer</ h1> Anki { $val } is vrygestel. <br>
+qt-misc-browse = Snuffel
+qt-misc-change-note-type-ctrlandn = Verander Tipe Nota (Ctrl + N)
+qt-misc-check-the-files-in-the-media = Gaan die lêers in die media omslag na
+qt-misc-choose-deck = Kies Kaartpak
+qt-misc-choose-note-type = Kies Tipe Nota
+qt-misc-configure-interface-language-and-options = Stel koppelvlak taal en opsies
+qt-misc-create-filtered-deck = Skep 'n Gefilterde Kaartpak ...
+qt-misc-debug-console = Ontfout konsole
+qt-misc-deck-will-be-imported-when-a = Kaartpak sal ingevoer word wanneer 'n profiel oopgemaak word.
+qt-misc-empty-cards = Leë kaarte ...
+qt-misc-error-during-startup = Fout tydens die laaiproses:   { $val }
+qt-misc-filtered-deck = Gefiltreerde Kaartpak { $val }
+qt-misc-ignore-this-update = Ignoreer hierdie weergawe
+qt-misc-in-order-to-ensure-your-collection = Om te verseker dat jou versameling korrek werk tussen toestelle, benodig Anki jou rekenaar se interne tyd om korrek te wees. Die interne tyd kan verkeerd wees selfs wanneer jou tyd die korrekte plaaslike tyd wys.<br><br>Gaan asb na die tyd instellings op jou rekenaar en maak seker die volgende is korrek:<br><br>AM/PM<br>'Clock drift'<br>Dag, maand en jaar<br>Tyd zone<br>Daglig spaar tyd<br><br>Verskil met korrekte tyd: { $val }.
+qt-misc-invalid-property-found-on-card-please = Ongeldige eienskap op kaart gevind. Gebruik asseblief Nutsprogramme>Ondersoek Databasis, en as die probleem aanhou, vra asseblief op die ondersteunings webblad
+qt-misc-loading = Laai tans...
+qt-misc-manage = Bestuur
+qt-misc-name-exists = Naam bestaan reeds.
+qt-misc-non-unicode-text = <nie-unicode teks>
+qt-misc-optimizing = Optimeer...
+qt-misc-please-connect-a-microphone-and-ensure = Koppel asseblief 'n mikrofoon en verseker dat ander programme nie die klank toestel gebruik nie.
+qt-misc-please-ensure-a-profile-is-open = Maak asseblief seker dat 'n profiel oop is en Anki nie besig is nie, probeer dan weer.
+qt-misc-please-select-1-card = (kies asseblief 1 kaart)
+qt-misc-please-select-a-deck = Kies 'n kaartpak.
+qt-misc-please-use-fileimport-to-import-this = Gebruik asseblief Lêer> Voer in - om hierdie lêer in te voer.
+qt-misc-processing = Verwerk tans...
+qt-misc-resume-now = Hervat Nou
+qt-misc-reverted-to-state-prior-to = Keer terug na 'n toestand voor '{ $val }'.
+qt-misc-shift-key-was-held-down-skipping = Shift sleutel was ingehou. Slaan outomatiese sinchronisasie oor.
+qt-misc-shortcut-key-left-arrow = Kortpad sleutel: Linker pyltjie.
+qt-misc-shortcut-key-right-arrow-or-enter = Kortpad sleutel: Regter pyltjie of Enter
+qt-misc-study-deck = Studeer kaartpak...
+qt-misc-target-deck-ctrlandd = Teiken Kaartpak (Ctrl+D)
+qt-misc-the-following-character-can-not-be = Die volgende karakter kan nie gebruik word nie: { $val }
+qt-misc-the-requested-change-will-require-a = Die versoekte wysiging sal 'n oplaai van jou hele databasis vereis wanneer u versameling weer gesinchroniseer word. Indien jy ander hersienings of veranderinge het op 'n ander toestel wat nog nie gesinchroniseer is nie, sal hulle verlore gaan. Gaan voort?
+qt-misc-there-must-be-at-least-one = Daar moet ten minste een profiel wees.
+qt-misc-this-file-exists-are-you-sure = Hierdie lêer bestaan. Is jy seker jy wil dit oorskryf?
+qt-misc-undo = Herroep
+qt-misc-undo2 = Herroep { $val }
+qt-misc-waiting-for-editing-to-finish = Wag tans om redigering te voltooi.
+qt-misc-would-you-like-to-download-it = Wil jy dit nou aflaai?
+qt-misc-second = { $count ->
+    [one] { $count } sekonde
+   *[other] { $count } sekondes
+  }

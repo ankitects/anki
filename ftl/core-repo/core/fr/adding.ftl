@@ -1,0 +1,12 @@
+adding-add-shortcut-ctrlandenter = Ajouter (raccourci : Ctrl+Entrée)
+adding-added = Ajouté
+adding-discard-current-input = Abandonner la saisie actuelle ?
+adding-keep-editing = Continuer la saisie
+adding-edit = Modifier « { $val } »
+adding-history = Historique
+adding-note-deleted = (Note effacée)
+adding-shortcut = Raccourci : { $val }
+adding-the-first-field-is-empty = Le premier champ est vide
+adding-you-have-a-cloze-deletion-note = Le type de carte est « Texte à trous » mais vous n’avez pas choisi de mot à cacher. Continuer quand même ?
+adding-cloze-outside-cloze-notetype = Vous pouvez cacher des mots qu'avec le type de carte "texte à trous".
+adding-cloze-outside-cloze-field = Vous pouvez uniquement cacher des mots dans un champs qui utilise le filtre 'cloze:'. C'est généralement le premier champ.

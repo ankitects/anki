@@ -1,0 +1,43 @@
+qt-misc-all-cards-notes-and-media-for = Всички карти, бележки и медийни файлове в този профил ще бъдат изтрити. Сигурни ли сте?
+qt-misc-anki-updatedanki-has-been-released = <h1>Anki беше обновен</h1>Anki { $val } беше издаден.<br><br>
+qt-misc-browse = Преглед
+qt-misc-change-note-type-ctrlandn = Промяна на типа на бележката (Ctrl + N)
+qt-misc-check-the-files-in-the-media = Проверка на директорията с медийните файлове.
+qt-misc-choose-deck = Избор на тесте
+qt-misc-choose-note-type = Избор на тип за бележката
+qt-misc-configure-interface-language-and-options = Конфигурирация на езика на интерфейса и опциите
+qt-misc-create-filtered-deck = Създаване на филтрирано тесте
+qt-misc-deck-will-be-imported-when-a = Тестето ще бъде импортирано при отваряне на нов профил.
+qt-misc-default = По подразбиране
+qt-misc-error-during-startup = Грешка при стартирането: { $val }
+qt-misc-filtered-deck = Филтрирано тесте { $val }
+qt-misc-ignore-this-update = Игнориране на това обновяване
+qt-misc-loading = Зареждане...
+qt-misc-manage = Управление
+qt-misc-name-exists = Името съществува.
+qt-misc-optimizing = Оптимизиране...
+qt-misc-please-connect-a-microphone-and-ensure = Моля свържете микрофон и се уверете, че другите програми не използват аудио устройството.
+qt-misc-please-ensure-a-profile-is-open = Убедете се, че има отворен профил и че Anki не е зает, и опитайте отново.
+qt-misc-please-select-1-card = (моля, изберете една карта)
+qt-misc-please-select-a-deck = Моля, изберете тесте.
+qt-misc-please-use-fileimport-to-import-this = Моля, използвайте Файл->Импортиране, за да импортирате този файл.
+qt-misc-processing = Обработка…
+qt-misc-resume-now = Продължаване сега
+qt-misc-reverted-to-state-prior-to = Възстановено до състояние преди/към '{ $val }'
+qt-misc-shift-key-was-held-down-skipping = Клавишът Shift беше задържан. Пропускане на автоматичното синхронизиране и зареждане на приставките.
+qt-misc-shortcut-key-left-arrow = Бутон за бърз достъп: стрелка наляво
+qt-misc-shortcut-key-right-arrow-or-enter = Бутон за бърз достъп: стрелка надясно или Enter
+qt-misc-study-deck = Научаване на тесте
+qt-misc-target-deck-ctrlandd = Целево тесте (Ctrl+D)
+qt-misc-the-following-character-can-not-be = Този символ не може да се използва: { $val }
+qt-misc-the-requested-change-will-require-a = Заявената промяна изисква пълно качване на базата данни при следващото синхронизиране. Ще бъдат загубени прегледите или промените по тестетата по всички други устройства, които не са синхронизирани все още. Продължаване?
+qt-misc-there-must-be-at-least-one = Трябва да има поне един профил.
+qt-misc-this-file-exists-are-you-sure = Файлът съществува. Наистина ли искате да го презапишете?
+qt-misc-undo = Отмяна
+qt-misc-undo2 = Отмяна на { $val }
+qt-misc-waiting-for-editing-to-finish = Изчакване за приключване на редактирането.
+qt-misc-would-you-like-to-download-it = Искате ли да го изтеглите сега?
+qt-misc-second = { $count ->
+    [one] { $count } секунда
+   *[other] { $count } секунди
+  }

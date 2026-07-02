@@ -1,0 +1,10 @@
+empty-cards-for-note-type = Kartu kosong untuk { $notetype }:
+empty-cards-count-line = { $empty_count } dari { $existing_count } kartu kosong ({ $template_names }).
+empty-cards-window-title = Kartu kosong
+empty-cards-preserve-notes-checkbox = Simpan catatan tanpa kartu yang valid.
+empty-cards-delete-button = Hapus
+empty-cards-not-found = Tidak ada kartu kosong.
+empty-cards-deleted-count = Kartu { $cards } telah dihapus.
+empty-cards-delete-empty-cards = Hapus kartu-kartu kosong
+empty-cards-delete-empty-notes = Hapus catatan-catatan kosong
+empty-cards-deleting = Menghapus...
