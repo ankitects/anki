@@ -66,6 +66,7 @@ class DeckPickerContextMenu : AnalyticsDialogFragment() {
     enum class DeckPickerContextMenuOption {
         RENAME_DECK,
         DECK_OPTIONS,
+        CONCEPT_MAP,
         CUSTOM_STUDY,
         DELETE_DECK,
         EXPORT_DECK,
@@ -85,6 +86,7 @@ class DeckPickerContextMenu : AnalyticsDialogFragment() {
                 when (this@DeckPickerContextMenuOption) {
                     RENAME_DECK -> TR.sentenceCase.renameDeck
                     DECK_OPTIONS -> TR.sentenceCase.deckOptions
+                    CONCEPT_MAP -> TR.statisticsConceptMap()
                     CUSTOM_STUDY -> TR.sentenceCase.customStudy
                     DELETE_DECK -> TR.sentenceCase.deleteDeck
                     EXPORT_DECK -> getString(R.string.export_deck)

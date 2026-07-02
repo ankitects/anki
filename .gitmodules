@@ -1,0 +1,3 @@
+[submodule "android-backend/anki"]
+	path = android-backend/anki
+	url = https://github.com/ankitects/anki

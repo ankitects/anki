@@ -40,9 +40,11 @@ import com.ichi2.anki.libanki.sched.computeFsrsParamsRaw
 import com.ichi2.anki.libanki.sched.computeOptimalRetentionRaw
 import com.ichi2.anki.libanki.sched.simulateFsrsReviewRaw
 import com.ichi2.anki.libanki.stats.cardStatsRaw
+import com.ichi2.anki.libanki.stats.getConceptGraphRaw
 import com.ichi2.anki.libanki.stats.getGraphPreferencesRaw
 import com.ichi2.anki.libanki.stats.graphsRaw
 import com.ichi2.anki.libanki.stats.setGraphPreferencesRaw
+import com.ichi2.anki.libanki.stats.topicMasteryRaw
 import com.ichi2.anki.observability.undoableOp
 import com.ichi2.anki.searchInBrowser
 import kotlinx.coroutines.Deferred
@@ -109,6 +111,8 @@ val collectionMethods =
         "completeTag" to { bytes -> completeTagRaw(bytes) },
         "getFieldNames" to { bytes -> getFieldNamesRaw(bytes) },
         "cardStats" to { bytes -> cardStatsRaw(bytes) },
+        "getConceptGraph" to { bytes -> getConceptGraphRaw(bytes) },
+        "topicMastery" to { bytes -> topicMasteryRaw(bytes) },
         "getDeckConfigsForUpdate" to { bytes -> getDeckConfigsForUpdateRaw(bytes) },
         "computeOptimalRetention" to { bytes -> computeOptimalRetentionRaw(bytes) },
         "computeFsrsParams" to { bytes -> computeFsrsParamsRaw(bytes) },

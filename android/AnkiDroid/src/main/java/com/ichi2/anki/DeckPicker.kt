@@ -151,6 +151,7 @@ import com.ichi2.anki.libanki.sched.DeckNode
 import com.ichi2.anki.mediacheck.MediaCheckFragment
 import com.ichi2.anki.observability.ChangeManager
 import com.ichi2.anki.pages.AnkiPackageImporterFragment
+import com.ichi2.anki.pages.ConceptGraph
 import com.ichi2.anki.pages.CongratsPage
 import com.ichi2.anki.pages.CongratsPage.Companion.onDeckCompleted
 import com.ichi2.anki.receiver.SdCardReceiver
@@ -920,6 +921,11 @@ open class DeckPicker :
             DeckPickerContextMenuOption.DECK_OPTIONS -> {
                 Timber.i("ContextMenu: Open deck options selected")
                 viewModel.openDeckOptions(deckId)
+                dismissAllDialogFragments()
+            }
+            DeckPickerContextMenuOption.CONCEPT_MAP -> {
+                Timber.i("ContextMenu: Concept map selected")
+                startActivity(ConceptGraph.getIntent(this@DeckPicker, deckId))
                 dismissAllDialogFragments()
             }
             DeckPickerContextMenuOption.CUSTOM_STUDY -> {

@@ -34,3 +34,8 @@ fun Collection.getGraphPreferencesRaw(): ByteArray {
 }
 
 fun Collection.setGraphPreferencesRaw(input: ByteArray): ByteArray = backend.setGraphPreferencesRaw(input)
+
+// CFA Speedrun: concept map + per-topic mastery (see ANDROID_PORTING.md)
+fun Collection.getConceptGraphRaw(input: ByteArray): ByteArray = backend.getConceptGraphRaw(input)
+
+fun Collection.topicMasteryRaw(input: ByteArray): ByteArray = backend.topicMasteryRaw(input)
