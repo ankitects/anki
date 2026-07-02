@@ -1049,6 +1049,43 @@ class Collection(DeprecatedNamesMixin):
             search=search,
         )
 
+    def get_dashboard(
+        self,
+        search: str = "",
+        deck_id: DeckId = DeckId(0),
+    ) -> stats_pb2.DashboardResponse:
+        """Per-tag coverage/mastery plus a graded-review count (CFA Speedrun).
+
+        Groups the considered cards by content tag and reports, per tag, how
+        many cards there are and their FSRS retrievability, along with the total
+        number of graded reviews. ``search`` restricts the considered cards
+        (empty = whole collection); a non-zero ``deck_id`` restricts to that
+        deck and its children and takes precedence over ``search``. This powers
+        the dashboard gauges and the honest give-up rule.
+        """
+        return self._backend.get_dashboard(
+            search=search,
+            deck_id=deck_id,
+        )
+
+    def get_concept_graph(
+        self,
+        search: str = "",
+        deck_id: DeckId = DeckId(0),
+    ) -> stats_pb2.ConceptGraphResponse:
+        """Tag-cluster graph for the knowledge-map page (CFA Speedrun).
+
+        Returns one node per tag cluster (with card counts and mean FSRS
+        retrievability) and undirected co-occurrence edges between clusters that
+        share notes. ``search`` restricts the considered cards (empty = whole
+        collection); a non-zero ``deck_id`` restricts to that deck and its
+        children and takes precedence over ``search``.
+        """
+        return self._backend.get_concept_graph(
+            search=search,
+            deck_id=deck_id,
+        )
+
     # Undo
     ##########################################################################
 

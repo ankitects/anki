@@ -277,6 +277,14 @@ message ConceptGraphResponse {
     // Cards that have graduated to review/relearn. Used to colour the cluster
     // by study progress when no FSRS retrievability is available.
     uint32 reviewed_count = 6;
+    // Graded reviews (revlog entries with a real button press) for this
+    // cluster's cards; denominator for the answer-accuracy signal that pulls a
+    // poorly-answered cluster's colour toward "weak".
+    uint32 graded_reviews = 7;
+    // Of `graded_reviews`, those rated "Again" (button 1) — a failed recall.
+    uint32 again_reviews = 8;
+    // Of `graded_reviews`, those rated "Hard" (button 2) — a weak recall.
+    uint32 hard_reviews = 9;
   }
   // An undirected edge between two clusters that share at least one note (tag
   // co-occurrence). `weight` is the number of co-occurring notes.
@@ -318,6 +326,14 @@ message DashboardResponse {
     // Cards studied at least once (not new). Used for coverage independently of
     // FSRS, so progress shows even without FSRS memory state.
     uint32 seen = 6;
+    // Graded reviews (revlog entries with a real button press) for this tag's
+    // cards; a card carrying several tags contributes to each. Denominator for
+    // the answer-accuracy signal that discounts Memory on poorly-answered tags.
+    uint32 graded_reviews = 7;
+    // Of `graded_reviews`, those rated "Again" (button 1) — a failed recall.
+    uint32 again_reviews = 8;
+    // Of `graded_reviews`, those rated "Hard" (button 2) — a weak recall.
+    uint32 hard_reviews = 9;
   }
   repeated Tag tags = 1;
   // Total graded reviews (revlog entries with a real button press) for the

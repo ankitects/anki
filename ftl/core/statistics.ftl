@@ -305,10 +305,19 @@ statistics-title = Statistics
 statistics-concept-map = Concept map
 statistics-concept-map-search = Search
 statistics-concept-map-empty = No cards match the current search.
-statistics-concept-map-mastered = Mastered
+statistics-concept-map-mastered = High recall
 statistics-concept-map-learning = Learning
 statistics-concept-map-weak = Weak
 statistics-concept-map-new = New
+# Toggle for what the node colour reflects.
+statistics-concept-map-color-by = Colour by
+statistics-concept-map-color-difficulty = Difficulty
+statistics-concept-map-color-recall = Recall
+# Difficulty-mode legend: how hard the topic has been (from answer grades).
+statistics-concept-map-easy = Easy
+statistics-concept-map-moderate = Moderate
+statistics-concept-map-hard = Hard
+statistics-concept-map-unanswered = Not answered
 
 ## CFA Speedrun: the CFA dashboard — per-subject progress plus the three gauges
 ## (Memory / Performance / Readiness). See DASHBOARD.md.
@@ -331,7 +340,12 @@ statistics-dashboard-study-next = Study next
 statistics-dashboard-subject = Subject
 statistics-dashboard-weight = Weight
 statistics-dashboard-studied = Studied
+statistics-dashboard-accuracy = Accuracy
 statistics-dashboard-not-studied = Not studied
+# Colour key for the per-subject Memory bar (red = low recall … green = high).
+statistics-dashboard-memory-scale = Memory colour
+statistics-dashboard-scale-low = Low
+statistics-dashboard-scale-high = High
 statistics-dashboard-reviews-count = { $count } graded reviews
 statistics-dashboard-give-up-note = A pass estimate needs at least 15 graded reviews and 1% topic coverage.
 statistics-dashboard-needs-fsrs = FSRS is off, so these are rough estimates from your review history. Enable FSRS in Deck Options for calibrated numbers.

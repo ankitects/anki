@@ -37,6 +37,7 @@ GET /works?query.title={url_encoded_title}&rows=5
 ## `crossref_unmatched` derivation
 
 `true` if and only if:
+
 - DOI present: DOI lookup either returns 404, misses title cross-check, AND title search returns no match meeting threshold; OR
 - DOI absent: title search alone returns no match meeting threshold.
 
@@ -44,13 +45,13 @@ The check fires only when `obtained_via != 'manual'`.
 
 ## Degradation handling
 
-| Condition | Action |
-|---|---|
-| HTTP 404 on DOI | Treat as miss -- return `{}` from `_get`; caller falls through to title search. NOT a degradation. |
-| HTTP 429 (rate limit) | Back off 2 seconds, retry up to 3 times. After exhaustion, raise `CrossrefUnavailable`. Throttle anchor refreshed after each backoff. |
-| HTTP 5xx | Raise `CrossrefUnavailable` immediately (no retry). |
-| Network timeout (30s default) | Raise `CrossrefUnavailable`. |
-| `CrossrefUnavailable` raised | Caller MUST omit `crossref_unmatched` from the entry (per spec v3.9.0 R-L3-2-C: absent != false). Other indexes proceed independently. |
+| Condition                     | Action                                                                                                                                 |
+| ----------------------------- | -------------------------------------------------------------------------------------------------------------------------------------- |
+| HTTP 404 on DOI               | Treat as miss -- return `{}` from `_get`; caller falls through to title search. NOT a degradation.                                     |
+| HTTP 429 (rate limit)         | Back off 2 seconds, retry up to 3 times. After exhaustion, raise `CrossrefUnavailable`. Throttle anchor refreshed after each backoff.  |
+| HTTP 5xx                      | Raise `CrossrefUnavailable` immediately (no retry).                                                                                    |
+| Network timeout (30s default) | Raise `CrossrefUnavailable`.                                                                                                           |
+| `CrossrefUnavailable` raised  | Caller MUST omit `crossref_unmatched` from the entry (per spec v3.9.0 R-L3-2-C: absent != false). Other indexes proceed independently. |
 
 ## v3.9.0 R-L3-2-D constraint
 

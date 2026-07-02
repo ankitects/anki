@@ -32,6 +32,7 @@ Generate a structured monitoring digest based on the user's research topic and b
 
 ```markdown
 ## Literature Monitoring Digest — [Topic]
+
 **Period**: [date range]
 **Generated**: [date]
 **Based on**: [X] tracked authors, [Y] tracked journals, [Z] keywords
@@ -39,35 +40,42 @@ Generate a structured monitoring digest based on the user's research topic and b
 ### High Priority
 
 #### Retractions & Corrections
+
 - [citation] — RETRACTED [date]. Reason: [reason]. **Impact on your research**: [assessment]
 - [citation] — CORRECTION issued. Change: [summary]. **Action**: [recommendation]
 
 #### Contradictory Findings
+
 - [citation] — Reports [finding] which contradicts [your cited source].
   **Strength of evidence**: [Level I-VII]. **Action**: [recommendation]
 
 ### New Publications
 
 #### Directly Relevant (high match to your RQ)
-| # | Citation | Relevance | Key Finding | Action |
-|---|----------|-----------|-------------|--------|
-| 1 | [APA citation] | Core RQ | [finding] | Read + consider citing |
-| 2 | [APA citation] | Methodology | [finding] | Read if updating methods |
+
+| # | Citation       | Relevance   | Key Finding | Action                   |
+| - | -------------- | ----------- | ----------- | ------------------------ |
+| 1 | [APA citation] | Core RQ     | [finding]   | Read + consider citing   |
+| 2 | [APA citation] | Methodology | [finding]   | Read if updating methods |
 
 #### Peripherally Relevant (related topic)
-| # | Citation | Relevance | Key Finding | Action |
-|---|----------|-----------|-------------|--------|
-| 1 | [APA citation] | Adjacent field | [finding] | Scan abstract |
+
+| # | Citation       | Relevance      | Key Finding | Action        |
+| - | -------------- | -------------- | ----------- | ------------- |
+| 1 | [APA citation] | Adjacent field | [finding]   | Scan abstract |
 
 ### Author Activity
+
 - [Tracked Author 1]: Published [X] new papers. Most relevant: [citation]
 - [Tracked Author 2]: No new publications this period
 
 ### Field Trends
+
 - [Emerging keyword/topic]: [X] new publications mentioning this term (up from [Y] last period)
-- [Methodological shift]: [description]
+-
 
 ### Monitoring Health
+
 - Alerts active: [X] / [Y] configured
 - Keywords returning too many results: [list — consider narrowing]
 - Keywords returning zero results: [list — consider broadening]
@@ -81,6 +89,7 @@ Monitor the retraction status of cited sources.
 **Alert trigger**: Any cited source appears on Retraction Watch Database, PubMed retraction notices, or publisher correction pages
 
 **Output per retraction**:
+
 ```markdown
 ### RETRACTION ALERT
 
@@ -90,6 +99,7 @@ Monitor the retraction status of cited sources.
 **Retraction Notice**: [URL]
 
 **Impact Assessment**:
+
 - How central was this source to your argument? [Core / Supporting / Peripheral]
 - Which sections cite this source? [list sections]
 - Does removing this source change your conclusions? [Yes — significant / Yes — minor / No]
@@ -102,6 +112,7 @@ Monitor the retraction status of cited sources.
 Flag new publications that report findings contradicting those cited in the completed research.
 
 **Detection criteria**:
+
 - Same research question or closely related
 - Opposite direction of effect or contradictory conclusion
 - Published after the research was completed
@@ -127,12 +138,14 @@ Monitor how the research field's terminology is evolving.
 ## Monitoring Configuration
 
 ### Research Identity
+
 - **Topic**: [research topic]
 - **RQ**: [research question]
 - **Completion Date**: [date]
 - **Bibliography Size**: [N sources]
 
 ### Monitoring Scope
+
 - **Tracked Keywords**: [list from original search strategy]
 - **Tracked Authors**: [top 10 authors by citation frequency]
 - **Tracked Journals**: [top 5 journals by source count]
@@ -140,16 +153,17 @@ Monitor how the research field's terminology is evolving.
 
 ### Alert Configuration
 
-| Alert Type | Channel | Frequency | Active |
-|-----------|---------|-----------|--------|
-| Google Scholar alerts | Email | As available | ✅ |
-| PubMed saved search | Email | Weekly | ✅ |
-| Retraction Watch | RSS | Daily check | ✅ |
-| arXiv/SSRN (if applicable) | RSS | Weekly | ✅ |
-| Journal TOC alerts | Email | Per issue | ✅ |
-| Web of Science citation alerts | Email | Weekly | ✅ |
+| Alert Type                     | Channel | Frequency    | Active |
+| ------------------------------ | ------- | ------------ | ------ |
+| Google Scholar alerts          | Email   | As available | ✅     |
+| PubMed saved search            | Email   | Weekly       | ✅     |
+| Retraction Watch               | RSS     | Daily check  | ✅     |
+| arXiv/SSRN (if applicable)     | RSS     | Weekly       | ✅     |
+| Journal TOC alerts             | Email   | Per issue    | ✅     |
+| Web of Science citation alerts | Email   | Weekly       | ✅     |
 
 ### Monitoring Cadence
+
 - **Recommended**: [Weekly / Biweekly / Monthly] based on field velocity
 - **Review schedule**: Generate digest every [period]
 - **Sunset date**: [date — recommend 12-24 months post-publication]
@@ -157,12 +171,12 @@ Monitor how the research field's terminology is evolving.
 
 ## Recommended Monitoring Cadence by Field
 
-| Field Category | Publication Velocity | Recommended Cadence | Sunset |
-|---------------|---------------------|-------------------|--------|
-| AI/ML, Social Media, Pandemic Response | Very High (100+ papers/month in niche) | Weekly | 6 months |
-| Education Technology, Public Health | High (20-50 papers/month) | Biweekly | 12 months |
-| Higher Education Policy, Organizational Studies | Moderate (5-20 papers/month) | Monthly | 18 months |
-| History, Philosophy, Classical Theory | Low (1-5 papers/month) | Quarterly | 24 months |
+| Field Category                                  | Publication Velocity                   | Recommended Cadence | Sunset    |
+| ----------------------------------------------- | -------------------------------------- | ------------------- | --------- |
+| AI/ML, Social Media, Pandemic Response          | Very High (100+ papers/month in niche) | Weekly              | 6 months  |
+| Education Technology, Public Health             | High (20-50 papers/month)              | Biweekly            | 12 months |
+| Higher Education Policy, Organizational Studies | Moderate (5-20 papers/month)           | Monthly             | 18 months |
+| History, Philosophy, Classical Theory           | Low (1-5 papers/month)                 | Quarterly           | 24 months |
 
 ## Limitations
 
@@ -175,26 +189,29 @@ Monitor how the research field's terminology is evolving.
 ## Collaboration with Other Agents
 
 ### bibliography_agent
+
 - Receives the original search strategy (keywords, databases, Boolean operators) and final bibliography
 - Uses this as the baseline for monitoring scope
 
 ### source_verification_agent
+
 - Can be invoked to verify the quality of newly identified sources in the digest
 - Particularly useful for flagging predatory journals in new publications
 
 ### synthesis_agent
+
 - If monitoring reveals substantial new evidence, the user may trigger a review update
 - The monitoring digest provides the starting point for an updated synthesis
 
 ## Quality Gates
 
-| Gate | Criterion | Fail Action |
-|------|-----------|-------------|
-| G1 | Monitoring configuration covers all original search keywords | Add missing keywords |
-| G2 | Retraction check covers 100% of cited sources | Add missing sources to tracking |
-| G3 | Recommended cadence matches field velocity | Adjust frequency |
-| G4 | Every digest item has a recommended action | Add action recommendation |
-| G5 | Configuration includes a sunset date | Add sunset date |
+| Gate | Criterion                                                    | Fail Action                     |
+| ---- | ------------------------------------------------------------ | ------------------------------- |
+| G1   | Monitoring configuration covers all original search keywords | Add missing keywords            |
+| G2   | Retraction check covers 100% of cited sources                | Add missing sources to tracking |
+| G3   | Recommended cadence matches field velocity                   | Adjust frequency                |
+| G4   | Every digest item has a recommended action                   | Add action recommendation       |
+| G5   | Configuration includes a sunset date                         | Add sunset date                 |
 
 ## Setup Instructions for Users
 

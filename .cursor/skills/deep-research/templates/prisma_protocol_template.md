@@ -18,16 +18,16 @@ Registration: [PROSPERO / OSF ID, or "To be registered"]
 
 ### Authors
 
-| # | Name | Affiliation | Role | Contact |
-|---|------|-------------|------|---------|
+| # | Name   | Affiliation   | Role             | Contact |
+| - | ------ | ------------- | ---------------- | ------- |
 | 1 | [Name] | [Institution] | Guarantor / Lead | [email] |
-| 2 | [Name] | [Institution] | Co-reviewer | [email] |
+| 2 | [Name] | [Institution] | Co-reviewer      | [email] |
 
 ### Amendments
 
-| Date | Section Changed | Description of Change | Rationale |
-|------|----------------|----------------------|-----------|
-| [date] | [section] | [change] | [why] |
+| Date   | Section Changed | Description of Change | Rationale |
+| ------ | --------------- | --------------------- | --------- |
+| [date] | [section]       | [change]              | [why]     |
 
 ### Support
 
@@ -43,6 +43,7 @@ Registration: [PROSPERO / OSF ID, or "To be registered"]
 **[Describe the rationale for the review in the context of what is already known. Explain why this review is needed.]**
 
 Key points to address:
+
 - What is the health/education/social problem?
 - What is the current state of the evidence?
 - Why is a systematic review needed now? (e.g., existing reviews are outdated, conflicting evidence, no previous review exists)
@@ -67,13 +68,13 @@ Research Question: [State the review question in a single sentence]
 
 #### Study Characteristics
 
-| Criterion | Include | Exclude |
-|-----------|---------|---------|
-| **Study design** | [e.g., RCTs, quasi-experimental, cohort] | [e.g., case reports, editorials, commentaries] |
-| **Publication date** | [e.g., 2010-present] | [Before cutoff, with justification] |
-| **Language** | [e.g., English and Chinese] | [Other languages, with justification] |
-| **Publication status** | [e.g., published and preprints] | [e.g., conference abstracts only] |
-| **Setting** | [e.g., higher education institutions] | [e.g., K-12, non-formal education] |
+| Criterion              | Include                                  | Exclude                                        |
+| ---------------------- | ---------------------------------------- | ---------------------------------------------- |
+| **Study design**       | [e.g., RCTs, quasi-experimental, cohort] | [e.g., case reports, editorials, commentaries] |
+| **Publication date**   | [e.g., 2010-present]                     | [Before cutoff, with justification]            |
+| **Language**           | [e.g., English and Chinese]              | [Other languages, with justification]          |
+| **Publication status** | [e.g., published and preprints]          | [e.g., conference abstracts only]              |
+| **Setting**            | [e.g., higher education institutions]    | [e.g., K-12, non-formal education]             |
 
 #### Participants
 
@@ -90,10 +91,12 @@ Research Question: [State the review question in a single sentence]
 #### Outcomes
 
 **Primary outcome(s)**:
+
 1. [Outcome 1] — measured by [instrument/method], at [time point(s)]
 2. [Outcome 2] — measured by [instrument/method], at [time point(s)]
 
 **Secondary outcome(s)**:
+
 1. [Outcome 3] — measured by [instrument/method], at [time point(s)]
 2. [Outcome 4] — measured by [instrument/method], at [time point(s)]
 
@@ -103,17 +106,18 @@ Research Question: [State the review question in a single sentence]
 
 ### Information Sources
 
-| Database/Source | URL | Coverage | Justification |
-|----------------|-----|----------|---------------|
-| [e.g., PubMed/MEDLINE] | pubmed.ncbi.nlm.nih.gov | Biomedical | Core database for health research |
-| [e.g., Web of Science] | webofscience.com | Multidisciplinary | Citation indexing, broad coverage |
-| [e.g., Scopus] | scopus.com | Multidisciplinary | Large abstract database |
-| [e.g., ERIC] | eric.ed.gov | Education | Core database for education research |
-| [e.g., PsycINFO] | apa.org/pubs/databases/psycinfo | Psychology | Behavioral science coverage |
-| [Grey literature] | [specify sources] | — | Reduce publication bias |
-| [Trial registries] | clinicaltrials.gov, WHO ICTRP | — | Identify unpublished studies |
+| Database/Source        | URL                             | Coverage          | Justification                        |
+| ---------------------- | ------------------------------- | ----------------- | ------------------------------------ |
+| [e.g., PubMed/MEDLINE] | pubmed.ncbi.nlm.nih.gov         | Biomedical        | Core database for health research    |
+| [e.g., Web of Science] | webofscience.com                | Multidisciplinary | Citation indexing, broad coverage    |
+| [e.g., Scopus]         | scopus.com                      | Multidisciplinary | Large abstract database              |
+| [e.g., ERIC]           | eric.ed.gov                     | Education         | Core database for education research |
+| [e.g., PsycINFO]       | apa.org/pubs/databases/psycinfo | Psychology        | Behavioral science coverage          |
+| [Grey literature]      | [specify sources]               | —                 | Reduce publication bias              |
+| [Trial registries]     | clinicaltrials.gov, WHO ICTRP   | —                 | Identify unpublished studies         |
 
 Additional sources:
+
 - Reference lists of included studies (backward citation)
 - Citation tracking of key studies (forward citation)
 - Contact with experts in the field (if applicable)
@@ -123,6 +127,7 @@ Additional sources:
 **[Present the draft search strategy for at least one database. The strategy should be peer-reviewed using the PRESS checklist.]**
 
 Example structure for [primary database]:
+
 ```
 Search Block 1 (Population):
   "higher education" OR "university" OR "college" OR "postsecondary"
@@ -160,18 +165,19 @@ Pilot: [Describe pilot testing of screening criteria, e.g., "Two reviewers will 
 
 ### Data Items
 
-| Category | Variables to Extract |
-|----------|---------------------|
-| **Study metadata** | Authors, year, country, journal, study design |
-| **Participants** | Sample size, demographics, setting, inclusion criteria |
-| **Intervention/Exposure** | Description, duration, frequency, comparison group |
-| **Outcomes** | Primary and secondary outcomes, measurement tools, time points |
-| **Results** | Effect sizes, CIs, p-values, means, SDs, counts |
-| **Quality** | Funding, COI declarations, registration status |
+| Category                  | Variables to Extract                                           |
+| ------------------------- | -------------------------------------------------------------- |
+| **Study metadata**        | Authors, year, country, journal, study design                  |
+| **Participants**          | Sample size, demographics, setting, inclusion criteria         |
+| **Intervention/Exposure** | Description, duration, frequency, comparison group             |
+| **Outcomes**              | Primary and secondary outcomes, measurement tools, time points |
+| **Results**               | Effect sizes, CIs, p-values, means, SDs, counts                |
+| **Quality**               | Funding, COI declarations, registration status                 |
 
 ### Risk of Bias Assessment
 
 **Tool**: [Specify the tool]
+
 - RCTs: RoB 2 (Sterne et al., 2019)
 - Non-randomized studies: ROBINS-I (Sterne et al., 2016)
 - Qualitative studies: [e.g., CASP qualitative checklist]
@@ -191,16 +197,19 @@ Pilot: [Describe pilot testing of screening criteria, e.g., "Two reviewers will 
 **Model**: [Fixed-effect / Random-effects, with justification]
 
 **Heterogeneity assessment**:
+
 - Q-test (significance at p < 0.10)
 - I² statistic with 95% CI
 - tau² (between-study variance)
 - Prediction interval
 
 **Subgroup analyses** (pre-specified):
+
 1. [Subgroup variable 1] — Rationale: [why]
 2. [Subgroup variable 2] — Rationale: [why]
 
 **Sensitivity analyses**:
+
 1. Leave-one-out analysis
 2. Exclude high risk of bias studies
 3. [Other planned sensitivity analyses]
@@ -243,6 +252,6 @@ Pilot: [Describe pilot testing of screening criteria, e.g., "Two reviewers will 
 
 ## Revision Log
 
-| Version | Date | Author | Changes |
-|---------|------|--------|---------|
-| 1.0 | [date] | [name] | Initial protocol |
+| Version | Date   | Author | Changes          |
+| ------- | ------ | ------ | ---------------- |
+| 1.0     | [date] | [name] | Initial protocol |

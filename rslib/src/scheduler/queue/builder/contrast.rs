@@ -46,10 +46,20 @@ impl ContrastClusters {
     }
 }
 
+/// Card-level cluster + note maps, built from [`ContrastClusters`] just before
+/// the piles are merged, so the contrast reorder can be applied to the FINAL
+/// merged queue (C3). `clusters` maps a card to its cluster key; `notes` maps a
+/// card to its note id (used by the sibling-adjacency guard, C10). Only cards
+/// that belong to a cluster are present.
+pub(super) struct ContrastCardMaps {
+    pub(super) clusters: HashMap<CardId, String>,
+    pub(super) notes: HashMap<CardId, NoteId>,
+}
+
 impl QueueBuilder {
     /// When contrast scheduling is enabled, batch-load the tags of all gathered
     /// notes in a single query and record which confusable cluster each belongs
-    /// to. Stored for use by [`QueueBuilder::apply_contrast`] during build().
+    /// to. Consumed by [`QueueBuilder::take_contrast_maps`] during build().
     pub(super) fn load_contrast_clusters(&mut self, col: &mut Collection) -> Result<()> {
         if !self.context.sort_options.contrast_scheduling {
             return Ok(());
@@ -61,6 +71,7 @@ impl QueueBuilder {
             .iter()
             .map(|card| card.note_id)
             .chain(self.review.iter().map(|card| card.note_id))
+            .chain(self.day_learning.iter().map(|card| card.note_id))
             .collect();
         note_ids.sort_unstable();
         note_ids.dedup();
@@ -80,20 +91,34 @@ impl QueueBuilder {
         Ok(())
     }
 
-    /// Reorder the gathered new and review piles so cards in the same
-    /// confusable cluster are surfaced together — interleaved in small
-    /// groups (at most `CONTRAST_CHUNK` in a row) rather than one big
-    /// block, so a broad cluster doesn't force the learner through hundreds
-    /// of same-tag cards at once. No cards are added or removed, so deck
-    /// limits and counts are unaffected.
-    pub(super) fn apply_contrast(&mut self) {
-        let Some(contrast) = self.contrast.take() else {
-            return;
-        };
-        let new = std::mem::take(&mut self.new);
-        self.new = interleave_clusters(new, |card| contrast.cluster_of(card.note_id));
-        let review = std::mem::take(&mut self.review);
-        self.review = interleave_clusters(review, |card| contrast.cluster_of(card.note_id));
+    /// Build card→cluster and card→note maps for every gathered card that
+    /// belongs to a confusable cluster, so the contrast reorder can be applied
+    /// to the FINAL merged queue in [`QueueBuilder::build`] — after
+    /// `merge_new`/`merge_day_learning`, where the intersperser would otherwise
+    /// splice unrelated reviews between a confusable pair (C3). Consumes the
+    /// loaded clusters. Returns None when nothing clusters. No cards are added
+    /// or removed anywhere, so deck limits and counts are unaffected.
+    pub(super) fn take_contrast_maps(&mut self) -> Option<ContrastCardMaps> {
+        let contrast = self.contrast.take()?;
+        let mut clusters = HashMap::new();
+        let mut notes = HashMap::new();
+        let cards = self
+            .new
+            .iter()
+            .map(|card| (card.id, card.note_id))
+            .chain(self.review.iter().map(|card| (card.id, card.note_id)))
+            .chain(self.day_learning.iter().map(|card| (card.id, card.note_id)));
+        for (card_id, note_id) in cards {
+            if let Some(cluster) = contrast.cluster_of(note_id) {
+                clusters.insert(card_id, cluster);
+                notes.insert(card_id, note_id);
+            }
+        }
+        if clusters.is_empty() {
+            None
+        } else {
+            Some(ContrastCardMaps { clusters, notes })
+        }
     }
 
     fn contrast_prefix(&self) -> String {
@@ -105,25 +130,44 @@ impl QueueBuilder {
     }
 }
 
+/// Topic-tag prefix for the 10 CFA areas. Used to keep clusters *within a
+/// single topic* (R28): cross-topic "confusables" earn no adjacency credit
+/// (general transfer is ~zero — St. Hilaire & Carpenter 2023, g≈0.04), so the
+/// topic is folded into the cluster key. Uses existing `cfa::topic::*` tags —
+/// no new labeling — and is a no-op on flat-tagged decks that lack them.
+const TOPIC_PREFIX: &str = "cfa::topic::";
+
 /// Return the cluster key for a note's space-separated tag string.
 ///
-/// - With a non-empty `prefix`, the key is the first tag (in stored order) that
-///   begins with `prefix`; the bare prefix with nothing after it is ignored.
-/// - With an empty `prefix`, the key is the note's first content tag (skipping
-///   bookkeeping tags like `marked`/`leech`), so decks whose tags are plain
-///   reading/topic names still cluster.
+/// - With a non-empty `prefix`, the base key is the first tag (in stored order)
+///   that begins with `prefix`; the bare prefix with nothing after it is
+///   ignored.
+/// - With an empty `prefix`, the base key is the note's first content tag
+///   (skipping bookkeeping tags like `marked`/`leech`), so decks whose tags are
+///   plain reading/topic names still cluster.
+///
+/// R28: when the note also carries a `cfa::topic::*` tag, that topic is
+/// composed into the key so two cards sharing a cluster tag across *different*
+/// topics do not group together. The key is used only for grouping equality
+/// (never shown).
 ///
 /// Returns None when the note has no eligible tag.
 fn cluster_for_tags(tags: &str, prefix: &str) -> Option<String> {
-    if prefix.is_empty() {
+    let cluster = if prefix.is_empty() {
         tags.split_whitespace()
             .find(|tag| !IGNORED_CLUSTER_TAGS.contains(tag))
-            .map(ToString::to_string)
     } else {
         tags.split_whitespace()
             .find(|tag| tag.len() > prefix.len() && tag.starts_with(prefix))
-            .map(ToString::to_string)
-    }
+    }?;
+    let topic = tags
+        .split_whitespace()
+        .find(|tag| tag.len() > TOPIC_PREFIX.len() && tag.starts_with(TOPIC_PREFIX));
+    Some(match topic {
+        // \u{1} is a separator that cannot appear in a tag.
+        Some(topic) => format!("{topic}\u{1}{cluster}"),
+        None => cluster.to_string(),
+    })
 }
 
 /// Maximum number of same-cluster cards shown in a row before rotating to the
@@ -137,7 +181,7 @@ const CONTRAST_CHUNK: usize = 4;
 /// forming a single huge block. Items without a key (None) are treated as
 /// singleton clusters and keep their relative order. Nothing is added or
 /// removed.
-fn interleave_clusters<T, F>(items: Vec<T>, key_of: F) -> Vec<T>
+pub(super) fn interleave_clusters<T, F>(items: Vec<T>, key_of: F) -> Vec<T>
 where
     F: Fn(&T) -> Option<String>,
 {
@@ -175,6 +219,30 @@ where
         }
     }
     out
+}
+
+/// C10 — keep sibling cards (two cards of the *same note*, e.g. different
+/// templates that share a cluster) from landing back-to-back after
+/// interleaving. Greedy single forward pass: when neighbours share a note, the
+/// next card with a different note is rotated into the gap. Never adds or
+/// removes items. In a recall deck (confusables are separate notes) this is
+/// usually a no-op; it guards the same-note case that clustering could
+/// otherwise create.
+pub(super) fn separate_adjacent_siblings<T, F>(items: &mut Vec<T>, note_of: F)
+where
+    F: Fn(&T) -> Option<NoteId>,
+{
+    let mut i = 0;
+    while i + 1 < items.len() {
+        let here = note_of(&items[i]);
+        if here.is_some() && here == note_of(&items[i + 1]) {
+            if let Some(k) = (i + 2..items.len()).find(|&k| note_of(&items[k]) != here) {
+                let item = items.remove(k);
+                items.insert(i + 1, item);
+            }
+        }
+        i += 1;
+    }
 }
 
 #[cfg(test)]
@@ -225,12 +293,42 @@ mod test {
     #[test]
     fn cluster_prefix_matching() {
         assert_eq!(
-            cluster_for_tags(" cfa::topic::fi cluster::fi::duration ", "cluster::"),
+            cluster_for_tags(" cluster::fi::duration ", "cluster::"),
             Some("cluster::fi::duration".to_string())
         );
         // bare prefix with nothing after it is ignored
         assert_eq!(cluster_for_tags(" cluster:: ", "cluster::"), None);
         assert_eq!(cluster_for_tags(" marked leech ", "cluster::"), None);
+    }
+
+    #[test]
+    fn cluster_key_stays_within_topic() {
+        // R28: same cluster tag under different topics -> different keys, so
+        // cross-topic pairs never group together.
+        let fi = cluster_for_tags("cfa::topic::fixed_income cluster::duration", "cluster::");
+        let eq = cluster_for_tags("cfa::topic::equity cluster::duration", "cluster::");
+        assert!(fi.is_some() && eq.is_some());
+        assert_ne!(fi, eq);
+        // no topic tag -> key is just the cluster (flat decks unaffected).
+        assert_eq!(
+            cluster_for_tags("cluster::duration", "cluster::"),
+            Some("cluster::duration".to_string())
+        );
+    }
+
+    #[test]
+    fn adjacent_siblings_are_separated() {
+        // two cards of note 10 start adjacent; after the guard no neighbours
+        // share a note, and nothing is lost.
+        let mut v = vec![(1i64, 10i64), (2, 10), (3, 20), (4, 30)];
+        separate_adjacent_siblings(&mut v, |&(_, n)| Some(NoteId(n)));
+        for w in v.windows(2) {
+            assert_ne!(w[0].1, w[1].1, "adjacent same-note pair remained: {v:?}");
+        }
+        assert_eq!(v.len(), 4);
+        let mut ids: Vec<i64> = v.iter().map(|&(id, _)| id).collect();
+        ids.sort_unstable();
+        assert_eq!(ids, vec![1, 2, 3, 4]);
     }
 
     #[test]

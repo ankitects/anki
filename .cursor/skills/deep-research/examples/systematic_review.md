@@ -1,6 +1,7 @@
 # Example: Systematic Literature Review (lit-review mode)
 
 ## User Request
+
 ```
 Literature review on the effectiveness of micro-credentials in professional development
 ```
@@ -13,11 +14,13 @@ Literature review on the effectiveness of micro-credentials in professional deve
 
 **Databases**: Scopus, Web of Science, ERIC, ProQuest Education
 **Keywords**:
+
 - Primary: "micro-credentials" OR "micro-certifications" OR "digital badges" OR "stackable credentials"
 - Combined with: "professional development" OR "workforce development" OR "continuing education" OR "upskilling"
 - Filters: 2018-2025, English, peer-reviewed + selected grey literature
 
 **PRISMA Flow**:
+
 ```
 Records identified: 1,243
 ├── Scopus: 412
@@ -43,19 +46,19 @@ Studies included in synthesis: 38
 
 ### Annotated Bibliography (Selected entries)
 
-1. **Kato, S., Galan-Muros, V., & Weko, T. (2020). The emergence of alternative credentials. *OECD Education Working Papers*, No. 216. https://doi.org/10.1787/b741f39e-en**
+1. **Kato, S., Galan-Muros, V., & Weko, T. (2020). The emergence of alternative credentials. _OECD Education Working Papers_, No. 216. https://doi.org/10.1787/b741f39e-en**
    - Relevance: Comprehensive OECD policy analysis of alternative credentials ecosystem
    - Key Findings: Micro-credentials gaining traction across OECD but lack standardization; quality assurance is critical challenge
    - Methodology: Policy analysis with cross-country comparison
    - Quality: Level VII (policy report) but high institutional credibility
 
-2. **Ralston, S. J. (2021). Higher education's micro-credentialing craze: A postdigital-Deweyan critique. *Postdigital Science and Education*, *3*(1), 83-101.**
+2. **Ralston, S. J. (2021). Higher education's micro-credentialing craze: A postdigital-Deweyan critique. _Postdigital Science and Education_, _3_(1), 83-101.**
    - Relevance: Critical perspective on micro-credential movement
    - Key Findings: Warns of commodification of learning; micro-credentials risk reducing education to narrow skills training
    - Quality: Level VII (philosophical/critical analysis)
    - Contribution: Important counterpoint to dominant positive narrative
 
-3. **Wheelahan, L., & Moodie, G. (2021). Analysing micro-credentials in higher education: A Bernsteinian analysis. *Journal of Curriculum Studies*, *53*(2), 212-228.**
+3. **Wheelahan, L., & Moodie, G. (2021). Analysing micro-credentials in higher education: A Bernsteinian analysis. _Journal of Curriculum Studies_, _53_(2), 212-228.**
    - Relevance: Theoretical framework for understanding micro-credential design
    - Key Findings: Micro-credentials risk "segmentalist" approach to knowledge; need to be embedded in coherent curricula
    - Quality: Level VI (theoretical analysis with empirical illustration)
@@ -66,15 +69,16 @@ Studies included in synthesis: 38
 
 ### Source Quality Matrix
 
-| Grade | Count | % |
-|-------|-------|---|
-| A | 5 | 13% |
-| B | 14 | 37% |
-| C | 12 | 32% |
-| D | 6 | 16% |
-| F | 1 | 3% |
+| Grade | Count | %   |
+| ----- | ----- | --- |
+| A     | 5     | 13% |
+| B     | 14    | 37% |
+| C     | 12    | 32% |
+| D     | 6     | 16% |
+| F     | 1     | 3%  |
 
 **Flagged**:
+
 - Source #22: Predatory journal indicator (rapid acceptance, no editorial board listed) -> Excluded
 - Source #31: Author is CEO of micro-credential platform -> COI noted, included with caveat
 - Sources #8, #15, #29: Pre-2020 data may not reflect post-pandemic acceleration -> Currency caveat
@@ -85,13 +89,13 @@ Studies included in synthesis: 38
 
 ### Literature Matrix (Condensed)
 
-| Theme | Sources For | Sources Against | Contested | Strength |
-|-------|-----------|----------------|-----------|----------|
-| Employer recognition improving | 8 | 3 | 2 | Moderate |
-| Learner completion rates high | 6 | 4 | 1 | Contested |
-| QA frameworks inadequate | 12 | 1 | 0 | Strong |
-| Equity benefits | 9 | 5 | 3 | Contested |
-| Skills-job alignment | 11 | 2 | 1 | Moderate-Strong |
+| Theme                          | Sources For | Sources Against | Contested | Strength        |
+| ------------------------------ | ----------- | --------------- | --------- | --------------- |
+| Employer recognition improving | 8           | 3               | 2         | Moderate        |
+| Learner completion rates high  | 6           | 4               | 1         | Contested       |
+| QA frameworks inadequate       | 12          | 1               | 0         | Strong          |
+| Equity benefits                | 9           | 5               | 3         | Contested       |
+| Skills-job alignment           | 11          | 2               | 1         | Moderate-Strong |
 
 ### Synthesis Narrative
 
@@ -111,20 +115,23 @@ Employer recognition of micro-credentials has increased significantly since 2020
 Completion rates for micro-credential programs range from 25% to 85% depending on program design, support structures, and learner demographics. Self-paced online formats show lowest completion (25-40%), while cohort-based blended models achieve highest rates (70-85%). Importantly, several studies note that "completion" may not be the right metric — some learners achieve their goals by completing specific modules without finishing the full credential (Reich & Ruiperez-Valiente, 2019).
 
 ### Knowledge Gaps
+
 1. **Longitudinal outcomes**: No studies tracking micro-credential holders beyond 3 years
 2. **Non-English contexts**: 89% of studies from English-speaking countries
 3. **Cost-effectiveness**: No rigorous cost-benefit analyses found
 4. **Stacking behavior**: Limited evidence on how learners combine micro-credentials over time
 
 ### Contradictions
-| Claim A | Claim B | Assessment |
-|---------|---------|-----------|
-| Micro-credentials democratize access (9 sources) | Micro-credentials widen digital divide (5 sources) | Context-dependent: depends on infrastructure, digital literacy, and cost |
-| High completion rates (6 sources) | Low completion for disadvantaged learners (4 sources) | Population-dependent: completion varies significantly by demographic |
+
+| Claim A                                          | Claim B                                               | Assessment                                                               |
+| ------------------------------------------------ | ----------------------------------------------------- | ------------------------------------------------------------------------ |
+| Micro-credentials democratize access (9 sources) | Micro-credentials widen digital divide (5 sources)    | Context-dependent: depends on infrastructure, digital literacy, and cost |
+| High completion rates (6 sources)                | Low completion for disadvantaged learners (4 sources) | Population-dependent: completion varies significantly by demographic     |
 
 ---
 
 ## Final Output
+
 - Annotated bibliography: 37 sources in APA 7.0
 - Literature matrix: 5 themes x 37 sources
 - Synthesis narrative: ~3,200 words

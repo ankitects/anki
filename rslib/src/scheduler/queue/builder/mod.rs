@@ -195,9 +195,12 @@ impl QueueBuilder {
 
     pub(super) fn build(mut self, learn_ahead_secs: i64) -> CardQueues {
         self.sort_new();
-        // CFA Speedrun: cluster confusable cards adjacently. Runs after the
-        // normal sort so it has the final say on order within each pile.
-        self.apply_contrast();
+        // CFA Speedrun (SPOV 1 + SPOV 3): map each gathered card to its
+        // confusable cluster (and note) before the piles are merged, so the
+        // contrast reorder can be applied to the FINAL play order below — the
+        // intersperser would otherwise splice unrelated reviews between a
+        // confusable pair (C3). Pure reordering: counts and limits are untouched.
+        let contrast_maps = self.take_contrast_maps();
 
         // intraday learning and total learn count
         let intraday_learning = sort_learning(self.learning);
@@ -219,6 +222,16 @@ impl QueueBuilder {
             self.new,
             self.context.sort_options.new_review_mix,
         );
+        let mut main: Vec<MainQueueEntry> = main_iter.collect();
+        // CFA Speedrun: keep confusable cards adjacent in the final order, then
+        // keep same-note siblings from touching (C10). No entries added/removed.
+        if let Some(maps) = &contrast_maps {
+            main =
+                contrast::interleave_clusters(main, |entry| maps.clusters.get(&entry.id).cloned());
+            contrast::separate_adjacent_siblings(&mut main, |entry| {
+                maps.notes.get(&entry.id).copied()
+            });
+        }
 
         CardQueues {
             counts: Counts {
@@ -226,7 +239,7 @@ impl QueueBuilder {
                 review: review_count,
                 learning: learn_count,
             },
-            main: main_iter.collect(),
+            main: main.into(),
             intraday_learning,
             learn_ahead_secs,
             current_day: self.context.timing.days_elapsed,
@@ -381,6 +394,18 @@ mod test {
             note.set_field(0, field).unwrap();
             note.tags = tags.iter().map(ToString::to_string).collect();
             self.add_note(&mut note, DeckId(1)).unwrap();
+        }
+
+        /// Like [`add_tagged_new_note`], but makes the card a review due today,
+        /// so contrast can be exercised with a mix of new and review cards.
+        fn add_tagged_review_note(&mut self, field: &str, tags: &[&str]) {
+            let nt = self.get_notetype_by_name("Basic").unwrap().unwrap();
+            let mut note = nt.new_note();
+            note.set_field(0, field).unwrap();
+            note.tags = tags.iter().map(ToString::to_string).collect();
+            self.add_note(&mut note, DeckId(1)).unwrap();
+            let cids = self.storage.card_ids_of_notes(&[note.id]).unwrap();
+            self.set_due_date(&cids, "0", None).unwrap();
         }
 
         /// The cluster tag (or "" if none) of each queued card, in queue order.
@@ -631,6 +656,40 @@ mod test {
                 "cluster::y",
                 ""
             ]
+        );
+    }
+
+    #[test]
+    fn contrast_keeps_confusable_pair_adjacent_across_the_merge() {
+        // C3: with reviews present and the new/review intersperser active, the
+        // two confusable NEW cards must still end up back-to-back in the FINAL
+        // queue — proving the reorder runs on the merged main, not the separate
+        // piles (where the intersperser would splice reviews between them).
+        let mut col = Collection::new();
+        col.update_default_deck_config(|config| {
+            config.new_card_gather_priority = NewCardGatherPriority::LowestPosition as i32;
+            config.new_card_sort_order = NewCardSortOrder::NoSort as i32;
+            config.new_mix = ReviewMix::MixWithReviews as i32;
+            config.contrast_scheduling = true;
+        });
+        col.add_tagged_new_note("x1", &["cluster::x"]);
+        col.add_tagged_review_note("r1", &[]);
+        col.add_tagged_review_note("r2", &[]);
+        col.add_tagged_review_note("r3", &[]);
+        col.add_tagged_new_note("x2", &["cluster::x"]);
+
+        let clusters = col.queue_clusters(DeckId(1));
+        let xs: Vec<usize> = clusters
+            .iter()
+            .enumerate()
+            .filter(|(_, c)| c.as_str() == "cluster::x")
+            .map(|(i, _)| i)
+            .collect();
+        assert_eq!(xs.len(), 2, "both confusables queued: {clusters:?}");
+        assert_eq!(
+            xs[1] - xs[0],
+            1,
+            "confusables adjacent, not split by reviews: {clusters:?}"
         );
     }
 }

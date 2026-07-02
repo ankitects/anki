@@ -16,21 +16,24 @@ The user has completed deep-research full mode on the topic "AI-Assisted Quality
 
 ```markdown
 ### Primary Research Question
+
 How do East Asian universities (Taiwan, Japan, South Korea) differ in their
 implementation strategies for AI-assisted quality assurance, and what factors
 explain the variation in adoption patterns?
 
 ### FINER Assessment
-| Criterion   | Score | Justification |
-|-------------|-------|---------------|
-| Feasible    | 4/5   | Public data + policy documents available |
-| Interesting | 5/5   | Timely: AI policy divergence across similar systems |
-| Novel       | 4/5   | Few cross-national comparisons in this space |
-| Ethical     | 5/5   | No human subjects; public policy analysis |
-| Relevant    | 5/5   | Directly informs HEEACT and peer agencies |
-| **Average** | **4.6/5** | |
+
+| Criterion   | Score     | Justification                                       |
+| ----------- | --------- | --------------------------------------------------- |
+| Feasible    | 4/5       | Public data + policy documents available            |
+| Interesting | 5/5       | Timely: AI policy divergence across similar systems |
+| Novel       | 4/5       | Few cross-national comparisons in this space        |
+| Ethical     | 5/5       | No human subjects; public policy analysis           |
+| Relevant    | 5/5       | Directly informs HEEACT and peer agencies           |
+| **Average** | **4.6/5** |                                                     |
 
 ### Sub-questions
+
 1. What AI-QA tools and frameworks have been adopted by accreditation agencies
    in Taiwan, Japan, and South Korea?
 2. What institutional and policy factors facilitate or hinder AI-QA adoption?
@@ -56,6 +59,7 @@ explain the variation in adoption patterns?
 
 ```markdown
 23 sources identified, 18 retained after quality screening:
+
 - 6 peer-reviewed articles (Level II-III evidence)
 - 4 accreditation agency reports (Level IV)
 - 3 policy documents (Level IV)
@@ -63,6 +67,7 @@ explain the variation in adoption patterns?
 - 2 institutional case studies (Level V)
 
 Key themes identified:
+
 - AI adoption maturity gap (Taiwan > Korea > Japan in QA applications)
 - Regulatory divergence (Japan's cautious approach vs Korea's top-down push)
 - Data infrastructure as prerequisite (not just technology)
@@ -93,10 +98,12 @@ Key themes identified:
    - Student/faculty experience data almost entirely absent
 
 ## Contradictions Identified
+
 - Taiwan HEEACT reports "high adoption" but academic literature suggests
   most universities are still in pilot phase → definition of "adoption" varies
 
 ## Knowledge Gaps
+
 - Impact on accreditation outcomes (pass/fail rates)
 - Cost-effectiveness analysis
 - Faculty perceptions and behavioral changes
@@ -154,18 +161,18 @@ Remaining work: Writing, formatting, argumentation, and polish
 
 ## Skipped Steps and Reasons
 
-| academic-paper Step | Normal Workflow | After Handoff | Reason |
-|---------------------|---------|-----------|------|
-| Phase 1: Topic Scoping | intake_agent clarifies from scratch | SKIPPED | RQ Brief is complete |
-| Phase 2: Structure Planning | outline_agent designs structure | PARTIAL | Has Blueprint but needs conversion to paper structure |
-| Phase 3: Literature Search | literature_agent searches | SKIPPED | Bibliography is complete |
-| Phase 4: Literature Review Writing | review_writer_agent writes | ACTIVE | Has Synthesis but needs conversion to paper tone |
-| Phase 5: Methodology Writing | method_writer_agent writes | ACTIVE | Has Blueprint but needs expansion to full paragraphs |
-| Phase 6: Findings Writing | findings_writer_agent writes | ACTIVE | Has Synthesis but needs expanded argumentation |
-| Phase 7: Discussion Writing | discussion_writer_agent writes | ACTIVE | Needs original discourse (not direct copy of Synthesis) |
-| Phase 8: Intro + Conclusion | bookend_agent writes | ACTIVE | Needs to be written based on full text |
-| Phase 9: Abstract + Formatting | format_agent processes | ACTIVE | Needs full text completion first |
-| Phase 10: Self-Review | review_agent reviews | ACTIVE | Must be executed |
+| academic-paper Step                | Normal Workflow                     | After Handoff | Reason                                                  |
+| ---------------------------------- | ----------------------------------- | ------------- | ------------------------------------------------------- |
+| Phase 1: Topic Scoping             | intake_agent clarifies from scratch | SKIPPED       | RQ Brief is complete                                    |
+| Phase 2: Structure Planning        | outline_agent designs structure     | PARTIAL       | Has Blueprint but needs conversion to paper structure   |
+| Phase 3: Literature Search         | literature_agent searches           | SKIPPED       | Bibliography is complete                                |
+| Phase 4: Literature Review Writing | review_writer_agent writes          | ACTIVE        | Has Synthesis but needs conversion to paper tone        |
+| Phase 5: Methodology Writing       | method_writer_agent writes          | ACTIVE        | Has Blueprint but needs expansion to full paragraphs    |
+| Phase 6: Findings Writing          | findings_writer_agent writes        | ACTIVE        | Has Synthesis but needs expanded argumentation          |
+| Phase 7: Discussion Writing        | discussion_writer_agent writes      | ACTIVE        | Needs original discourse (not direct copy of Synthesis) |
+| Phase 8: Intro + Conclusion        | bookend_agent writes                | ACTIVE        | Needs to be written based on full text                  |
+| Phase 9: Abstract + Formatting     | format_agent processes              | ACTIVE        | Needs full text completion first                        |
+| Phase 10: Self-Review              | review_agent reviews                | ACTIVE        | Must be executed                                        |
 
 ---
 
@@ -257,6 +264,7 @@ Step 5: SELF-REVIEW
 **academic-paper's Opening Message**:
 
 > I've read your complete outputs from the deep-research stage, including:
+>
 > - Research Question Brief (FINER 4.6/5)
 > - Methodology Blueprint (QCA + document analysis)
 > - Annotated Bibliography (18 quality-screened sources)
@@ -266,6 +274,7 @@ Step 5: SELF-REVIEW
 > [Display outline]
 >
 > I have two questions that need your confirmation:
+>
 > 1. What is your target journal? (This affects word limits and formatting requirements)
 > 2. Should the paper language be English or bilingual?
 >

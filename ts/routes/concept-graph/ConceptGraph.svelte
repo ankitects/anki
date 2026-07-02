@@ -24,9 +24,14 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     } from "d3";
     import { onDestroy, onMount } from "svelte";
 
+    import { accuracyAdjustedMemory, accuracyScore } from "../dashboard/metrics";
     import { topicOf } from "./topics";
 
     type Bucket = "mastered" | "learning" | "weak" | "new";
+    // What the node colour reflects: "difficulty" = how hard the topic has been
+    // for the user (from answer grades, no FSRS); "recall" = FSRS retrievability
+    // discounted by accuracy (matches the dashboard's Memory gauge).
+    type ColorMode = "difficulty" | "recall";
 
     interface InputNode {
         id: number;
@@ -35,6 +40,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         withMemoryState: number;
         averageRetrievability: number;
         reviewedCount: number;
+        gradedReviews: number;
+        againReviews: number;
+        hardReviews: number;
     }
     interface InputEdge {
         source: number;
@@ -44,12 +52,18 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     export let nodes: InputNode[];
     export let edges: InputEdge[];
+    export let colorMode: ColorMode = "difficulty";
 
     interface SimNode extends SimulationNodeDatum {
         id: number;
         label: string;
         cardCount: number;
-        bucket: Bucket;
+        withMemoryState: number;
+        averageRetrievability: number;
+        reviewedCount: number;
+        gradedReviews: number;
+        againReviews: number;
+        hardReviews: number;
         topic: string;
         r: number;
     }
@@ -74,10 +88,32 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     let simulation: Simulation<SimNode, SimLink> | undefined;
     let fitted = false;
 
-    function bucketOf(node: InputNode): Bucket {
-        // Prefer FSRS retrievability when the cluster has memory state.
+    function bucketOf(node: SimNode, mode: ColorMode): Bucket {
+        const grades = {
+            gradedReviews: node.gradedReviews,
+            againReviews: node.againReviews,
+            hardReviews: node.hardReviews,
+        };
+        if (mode === "difficulty") {
+            // Pure answer-difficulty: how hard the topic has been for the user,
+            // from graded reviews only (Again = 0, Hard = half, Good/Easy = 1);
+            // more Hard/Again answers -> lower score -> redder. No FSRS.
+            const accuracy = accuracyScore(grades);
+            if (accuracy == null) {
+                return "new"; // not answered yet — can't judge difficulty
+            }
+            if (accuracy >= 0.9) {
+                return "mastered"; // easy
+            }
+            if (accuracy >= 0.7) {
+                return "learning"; // moderate
+            }
+            return "weak"; // hard
+        }
+        // Recall mode: FSRS retrievability discounted by accuracy, matching the
+        // dashboard's Memory gauge.
         if (node.withMemoryState > 0) {
-            const r = node.averageRetrievability;
+            const r = accuracyAdjustedMemory(node.averageRetrievability, grades);
             if (r >= 0.9) {
                 return "mastered";
             }
@@ -135,7 +171,12 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             id: n.id,
             label: n.label,
             cardCount: n.cardCount,
-            bucket: bucketOf(n),
+            withMemoryState: n.withMemoryState,
+            averageRetrievability: n.averageRetrievability,
+            reviewedCount: n.reviewedCount,
+            gradedReviews: n.gradedReviews,
+            againReviews: n.againReviews,
+            hardReviews: n.hardReviews,
             topic: topicOf(n.label),
             r: radiusOf(n.cardCount),
         }));
@@ -334,7 +375,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         <g class="nodes">
             {#each simNodes as node (node.id)}
                 <g
-                    class="node node--{node.bucket}"
+                    class="node node--{bucketOf(node, colorMode)}"
                     transform="translate({node.x ?? 0},{node.y ?? 0})"
                     use:dragNode={node}
                 >

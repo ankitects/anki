@@ -30,6 +30,9 @@ struct TagAcc {
     retrievability_sum: f64,
     reviewed: u32,
     seen: u32,
+    graded: u32,
+    again: u32,
+    hard: u32,
 }
 
 impl Collection {
@@ -72,6 +75,24 @@ impl Collection {
             }
         }
 
+        // Fold in per-tag answer accuracy from the review log so the frontend can
+        // discount Memory on tags the student keeps getting wrong or finding
+        // hard (a card counts toward each of its tags, as above).
+        for (tags, ease, count) in guard.col.storage.searched_cards_revlog_grades_by_tag()? {
+            for tag in tags
+                .split_whitespace()
+                .filter(|t| !IGNORED_TAGS.contains(t))
+            {
+                let acc = by_tag.entry(tag.to_string()).or_default();
+                acc.graded += count;
+                match ease {
+                    1 => acc.again += count,
+                    2 => acc.hard += count,
+                    _ => {}
+                }
+            }
+        }
+
         let mut tags: Vec<Tag> = by_tag
             .into_iter()
             .map(|(tag, acc)| Tag {
@@ -85,6 +106,9 @@ impl Collection {
                 },
                 reviewed: acc.reviewed,
                 seen: acc.seen,
+                graded_reviews: acc.graded,
+                again_reviews: acc.again,
+                hard_reviews: acc.hard,
             })
             .collect();
         // deterministic ordering for stable display/tests
@@ -133,6 +157,28 @@ mod test {
         assert_eq!(res.tags[1].studied, 0);
         assert_eq!(res.tags[1].seen, 0);
         assert_eq!(res.graded_reviews, 0);
+        // and no answers yet -> no accuracy signal
+        assert_eq!(res.tags[1].graded_reviews, 0);
+        assert_eq!(res.tags[1].again_reviews, 0);
+        assert_eq!(res.tags[1].hard_reviews, 0);
+        Ok(())
+    }
+
+    #[test]
+    fn records_per_tag_answer_accuracy() -> Result<()> {
+        let mut col = Collection::new();
+        add_note(&mut col, "1", &["Inventories"]);
+        // Answering the card "Again" logs a failed (button 1) graded review that
+        // the frontend uses to discount this tag's Memory.
+        col.answer_again();
+
+        let res = col.dashboard(DashboardRequest::default())?;
+        let tag = res.tags.iter().find(|t| t.tag == "Inventories").unwrap();
+        assert_eq!(tag.graded_reviews, 1);
+        assert_eq!(tag.again_reviews, 1);
+        assert_eq!(tag.hard_reviews, 0);
+        // top-level give-up counter agrees
+        assert_eq!(res.graded_reviews, 1);
         Ok(())
     }
 }

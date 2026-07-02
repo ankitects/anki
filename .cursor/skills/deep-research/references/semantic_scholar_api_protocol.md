@@ -46,11 +46,11 @@ Used when re-verifying a reference that was previously resolved to a Semantic Sc
 
 ## Verification Tiers (Updated with S2 API)
 
-| Tier | Method | Coverage | Purpose |
-|------|--------|----------|---------|
-| **Tier 0 (NEW)** | Semantic Scholar API | 100% of references | Programmatic existence check + metadata extraction |
-| Tier 1 | DOI resolution | 100% of DOI-bearing refs | URL-level existence check |
-| Tier 2 | WebSearch spot-check | 50% of sources | Human-readable verification |
+| Tier             | Method               | Coverage                 | Purpose                                            |
+| ---------------- | -------------------- | ------------------------ | -------------------------------------------------- |
+| **Tier 0 (NEW)** | Semantic Scholar API | 100% of references       | Programmatic existence check + metadata extraction |
+| Tier 1           | DOI resolution       | 100% of DOI-bearing refs | URL-level existence check                          |
+| Tier 2           | WebSearch spot-check | 50% of sources           | Human-readable verification                        |
 
 **Execution order**: Tier 0 first (batch, 1 req/sec). References that PASS Tier 0 skip Tier 2 unless flagged for other reasons. References that FAIL Tier 0 proceed to Tier 1 + Tier 2 for manual investigation.
 
@@ -61,6 +61,7 @@ Used when re-verifying a reference that was previously resolved to a Semantic Sc
 ### On successful match
 
 Record the following in the reference's verification audit trail:
+
 - `semantic_scholar_id`: the S2 paper ID (e.g., `"649def34f8be52c8b66281af98ae884c09aef38b"`)
 - `s2_title`: returned title
 - `s2_authors`: returned author list
@@ -103,5 +104,5 @@ When two references resolve to the same `semantic_scholar_id`, flag as duplicate
 
 ## References
 
-- Song, Y., Song, Y., Pfister, T., & Yoon, J. (2026). PaperOrchestra: A Multi-Agent Framework for Automated AI Research Paper Writing. *arXiv preprint arXiv:2604.05018*. — Section 4 Step 3 (Literature Review Agent), Appendix D.3 (Citation Verification).
+- Song, Y., Song, Y., Pfister, T., & Yoon, J. (2026). PaperOrchestra: A Multi-Agent Framework for Automated AI Research Paper Writing. _arXiv preprint arXiv:2604.05018_. — Section 4 Step 3 (Literature Review Agent), Appendix D.3 (Citation Verification).
 - Semantic Scholar API documentation: https://api.semanticscholar.org/

@@ -56,18 +56,19 @@ demographic structural changes."
 
 ### Review Summary
 
-| Dimension | Score | Description |
-|------|------|------|
-| Originality | 3/5 | The three policy proposals have been discussed in existing literature; lacks novel perspectives |
-| Rigor | 2/5 | Multiple data claims lack source citations; reasoning process has logical leaps |
-| Evidence sufficiency | 2/5 | Only cites one source (MOE statistics); weak evidentiary basis |
-| Argument coherence | 3/5 | The logical connection between the three policies is not sufficiently clear |
-| Writing quality | 4/5 | Fluent writing, complete structure, reasonable paragraph organization |
-| **Overall** | **2.8/5** | **Recommend Major Revision** |
+| Dimension            | Score     | Description                                                                                     |
+| -------------------- | --------- | ----------------------------------------------------------------------------------------------- |
+| Originality          | 3/5       | The three policy proposals have been discussed in existing literature; lacks novel perspectives |
+| Rigor                | 2/5       | Multiple data claims lack source citations; reasoning process has logical leaps                 |
+| Evidence sufficiency | 2/5       | Only cites one source (MOE statistics); weak evidentiary basis                                  |
+| Argument coherence   | 3/5       | The logical connection between the three policies is not sufficiently clear                     |
+| Writing quality      | 4/5       | Fluent writing, complete structure, reasonable paragraph organization                           |
+| **Overall**          | **2.8/5** | **Recommend Major Revision**                                                                    |
 
 ### Paragraph-by-Paragraph Review
 
 **Paragraph 1 (Problem Description)**:
+
 > "The number of first-year university students in 2024 has dropped to 180,000, a decrease of over 40% compared to 2015"
 
 Review comment: This data needs a source citation. According to MOE higher education overview statistics, the actual number of first-year daytime program students in Academic Year 2024 is approximately 192,000, not 180,000. Furthermore, the 2015 comparison baseline needs clarification on whether it refers to "academic year" or "calendar year" — the two may produce differences in cross-year data. Recommend correcting to the precise figure with source citation and academic year noted.
@@ -77,21 +78,25 @@ Review comment: This data needs a source citation. According to MOE higher educa
 Review comment: As of the end of 2024, the total number of schools listed for special counseling under the "Private Senior High School and Above Exit Act" plus those that have already suspended enrollment needs to be verified. The calculation method for "12" here is unclear — does it include schools that have already completed exit? Is it limited to higher education institutions? Recommend clearly defining the statistical scope and citing the exit regulations implementation report.
 
 **Paragraph 2 (Policy Proposal 1: Cross-Institutional Credit Recognition Alliance)**:
+
 > "Allowing students to take courses across institutions and accumulate credits, improving educational resource utilization efficiency"
 
 Review comment: This proposal does not consider key practical barriers. Taiwan already has cross-institutional course-taking mechanisms such as the "Top University Alliance" and "University System of Taiwan." However, utilization rates are low (most alliances have cross-institutional course-taking rates below 3%). Recommend analyzing why existing mechanisms have been ineffective, then explaining how the new alliance would overcome these barriers; otherwise the proposal lacks incremental value.
 
 **Paragraph 3 (Policy Proposal 2: Public-Private Merger Mechanism)**:
+
 > "Public universities acquire struggling private universities"
 
 Review comment: The term "acquire" has precise legal meaning, but the text does not discuss the applicability of relevant laws such as the Private School Act and National Property Act. There is no precedent for public universities merging with private universities in Taiwan, and the legal pathway for converting institutional legal status (from a foundation to an administrative corporation/national school) remains unclear. Recommend revising to "consolidation" or "merger" and discussing feasibility within the current legal framework.
 
 **Paragraph 4 (Policy Proposal 3: Higher Education Transformation Fund)**:
+
 > "Providing each school up to NTD 500 million in transformation subsidies"
 
 Review comment: What is the basis for the NTD 500 million figure? No cost estimation logic is provided. If calculated for 30 potentially eligible schools, the fund would need to reach NTD 15 billion, which represents a significant proportion of MOE's Higher Education Department annual budget. Recommend providing a policy cost-benefit analysis, or at minimum citing comparable international case funding scales as reference.
 
 **Paragraph 5 (Effect Estimate)**:
+
 > "Estimated to reduce supply-demand imbalance by 30% within five years"
 
 Review comment: This is the weakest argument in the paper. The "30%" estimate has no calculation basis or model support, and the operational definition of "supply-demand imbalance" is unclear — does it refer to the gap between enrollment quota and applicants? Or the ratio of school numbers to student demand? Recommend either deleting this unsupported estimate or providing the estimation model and assumptions.
@@ -101,6 +106,7 @@ Review comment: This is the weakest argument in the paper. The "30%" estimate ha
 **Verdict: MAJOR REVISION**
 
 Core issues:
+
 1. Insufficient data accuracy; multiple figures need verification and correction
 2. Policy proposals lack analysis of existing mechanisms; incremental value not explained
 3. Effect estimate has zero basis, damaging overall credibility
@@ -112,13 +118,13 @@ Core issues:
 
 ### Ethics Review Summary
 
-| Dimension | Verdict | Description |
-|------|------|------|
-| AI disclosure compliance | N/A | Text under review is not within AI disclosure scope |
-| Attribution integrity | CONDITIONAL | Insufficient data source citations |
-| Dual-use risk | CLEARED | No sensitive dual-use concerns |
-| Fair representation | CONDITIONAL | Stakeholder perspectives imbalanced |
-| **Overall Verdict** | **CONDITIONAL** | **Needs supplementation to pass** |
+| Dimension                | Verdict         | Description                                         |
+| ------------------------ | --------------- | --------------------------------------------------- |
+| AI disclosure compliance | N/A             | Text under review is not within AI disclosure scope |
+| Attribution integrity    | CONDITIONAL     | Insufficient data source citations                  |
+| Dual-use risk            | CLEARED         | No sensitive dual-use concerns                      |
+| Fair representation      | CONDITIONAL     | Stakeholder perspectives imbalanced                 |
+| **Overall Verdict**      | **CONDITIONAL** | **Needs supplementation to pass**                   |
 
 ### Item-by-Item Analysis
 
@@ -159,6 +165,7 @@ This proposal may exacerbate the urban-rural divide in higher education resource
 **Verdict: CONDITIONAL**
 
 Conditions for passing:
+
 1. Supplement multi-stakeholder perspective presentation
 2. Add vulnerable population impact assessment
 3. Revise the "overcome Teachers' Act restrictions" framing to a more balanced presentation
@@ -173,6 +180,7 @@ Conditions for passing:
 **Challenge 1: Can cross-institutional credit recognition alliances really improve efficiency?**
 
 Original claim:
+
 > "Establish cross-institutional credit recognition alliances...improving educational resource utilization efficiency"
 
 Counter-argument: The root cause of low utilization in existing cross-institutional course-taking mechanisms is not institutional design but physical distance and time cost. Students won't commute to another school for one course unless that course is highly attractive and irreplaceable. Online courses can partially solve the distance problem, but Taiwan's higher education system remains conservative about recognizing online credits. Furthermore, credit recognition involves inter-institutional trust in teaching quality — would higher-ranked schools be willing to recognize credits from lower-ranked schools? If not, the alliance would become a one-way flow, ultimately accelerating the marginalization of weaker schools.
@@ -182,6 +190,7 @@ Counter-argument: The root cause of low utilization in existing cross-institutio
 **Challenge 2: The premise assumption of public-private mergers may be wrong**
 
 Original claim:
+
 > "Public universities acquire struggling private universities, integrating campus facilities, faculty, and equipment resources"
 
 Counter-argument: This proposal implicitly assumes that "public universities have the motivation and capacity to absorb private universities." But the reality is the opposite:
@@ -196,6 +205,7 @@ A completely opposite argument: rather than pushing public-private mergers, let 
 **Challenge 3: The five-year 30% supply-demand imbalance reduction estimate cannot withstand scrutiny**
 
 Original claim:
+
 > "Estimated to reduce supply-demand imbalance by 30% within five years"
 
 Counter-argument: This is a textbook case of "intuition dressed up with numbers."
@@ -210,18 +220,19 @@ This paragraph should be completely deleted or revised to "further policy simula
 **Challenge 4: The definition of "proactive transformation" is unclear**
 
 Original claim:
+
 > "Taiwan's higher education system must shift from passive exit to proactive transformation"
 
 Counter-argument: This is a rhetorically powerful but operationally vague conclusion. What is "proactive transformation"? For a school that has failed to meet minimum enrollment standards for five consecutive years, exit is the most reasonable transformation. Insisting on keeping a school running with no students, using "transformation" to justify "delay," wastes public resources. The text does not distinguish between "salvageable" and "unsalvageable" schools, but policy design must make this harsh classification.
 
 ### Challenge Summary
 
-| Challenge | Severity | Recommendation |
-|------|--------|------|
-| Cross-institutional alliance lacks incremental value argument | Medium | Add analysis of existing mechanism failures |
-| Public-private merger premise assumption is flawed | High | Re-argue feasibility and motivation |
-| 30% estimate has no basis | Critical | Delete or change to research recommendation |
-| "Proactive transformation" definition is vague | Medium | Add operational definition and classification |
+| Challenge                                                     | Severity | Recommendation                                |
+| ------------------------------------------------------------- | -------- | --------------------------------------------- |
+| Cross-institutional alliance lacks incremental value argument | Medium   | Add analysis of existing mechanism failures   |
+| Public-private merger premise assumption is flawed            | High     | Re-argue feasibility and motivation           |
+| 30% estimate has no basis                                     | Critical | Delete or change to research recommendation   |
+| "Proactive transformation" definition is vague                | Medium   | Add operational definition and classification |
 
 ---
 
@@ -237,16 +248,16 @@ The following three issues were raised in all review agents' reports:
 
 ### Priority Revision Items (by severity)
 
-| Priority | Revision Item | Source |
-|--------|----------|------|
-| 1 | Delete or substantially revise the "reduce by 30% within five years" estimate | editor + devil's advocate |
-| 2 | Add source citations to all data, correct inaccurate figures | editor |
-| 3 | Analyze why existing cross-institutional course-taking mechanisms failed, argue the incremental value of the new proposal | devil's advocate |
-| 4 | Add multi-stakeholder perspectives and vulnerable population impact assessment | ethics |
-| 5 | Add international comparison cases (Japan, South Korea) | editor |
-| 6 | Revise "overcome Teachers' Act restrictions" to a more balanced framing | ethics |
-| 7 | Distinguish between "transformable" and "should exit" school types | devil's advocate |
-| 8 | Add policy cost estimation and cost-benefit analysis framework | editor |
+| Priority | Revision Item                                                                                                             | Source                    |
+| -------- | ------------------------------------------------------------------------------------------------------------------------- | ------------------------- |
+| 1        | Delete or substantially revise the "reduce by 30% within five years" estimate                                             | editor + devil's advocate |
+| 2        | Add source citations to all data, correct inaccurate figures                                                              | editor                    |
+| 3        | Analyze why existing cross-institutional course-taking mechanisms failed, argue the incremental value of the new proposal | devil's advocate          |
+| 4        | Add multi-stakeholder perspectives and vulnerable population impact assessment                                            | ethics                    |
+| 5        | Add international comparison cases (Japan, South Korea)                                                                   | editor                    |
+| 6        | Revise "overcome Teachers' Act restrictions" to a more balanced framing                                                   | ethics                    |
+| 7        | Distinguish between "transformable" and "should exit" school types                                                        | devil's advocate          |
+| 8        | Add policy cost estimation and cost-benefit analysis framework                                                            | editor                    |
 
 ### Revised Conclusion Suggestion (for reference)
 

@@ -1,6 +1,7 @@
 # Preregistration Guide — Research Preregistration Guide
 
 ## Purpose
+
 Decision guide and operational manual for research preregistration. Assists the research_architect_agent in determining whether preregistration is needed during the methodology design stage, and guides researchers through the preregistration process.
 
 ---
@@ -61,15 +62,15 @@ Does your research have the following characteristics?
 
 ## 2. Preregistration Platform Overview
 
-| Platform | Applicable Field | Features | Cost |
-|------|---------|------|------|
-| **OSF Registries** | All disciplines | Most widely used, multiple templates, DOI, permanent preservation | Free |
-| **PROSPERO** | Systematic reviews | Dedicated to systematic reviews and meta-analyses | Free |
-| **AEA Registry** | Economics | American Economic Association's RCT registration platform | Free |
-| **AsPredicted** | All disciplines | Simplified preregistration (9 questions), quick to complete | Free |
-| **ClinicalTrials.gov** | Clinical trials | US FDA-required RCT registration | Free |
-| **EGAP** | Political science | Experiments in Governance and Politics | Free |
-| **RIDIE** | Development economics | Registry for International Development Impact Evaluations | Free |
+| Platform               | Applicable Field      | Features                                                          | Cost |
+| ---------------------- | --------------------- | ----------------------------------------------------------------- | ---- |
+| **OSF Registries**     | All disciplines       | Most widely used, multiple templates, DOI, permanent preservation | Free |
+| **PROSPERO**           | Systematic reviews    | Dedicated to systematic reviews and meta-analyses                 | Free |
+| **AEA Registry**       | Economics             | American Economic Association's RCT registration platform         | Free |
+| **AsPredicted**        | All disciplines       | Simplified preregistration (9 questions), quick to complete       | Free |
+| **ClinicalTrials.gov** | Clinical trials       | US FDA-required RCT registration                                  | Free |
+| **EGAP**               | Political science     | Experiments in Governance and Politics                            | Free |
+| **RIDIE**              | Development economics | Registry for International Development Impact Evaluations         | Free |
 
 ### Platform Selection Guide
 
@@ -91,49 +92,49 @@ Based on the OSF Standard Pre-Data Collection Registration format, the following
 
 ### A. Study Information
 
-| # | Item | Description |
-|---|------|------|
-| 1 | **Study title** | Descriptive title |
-| 2 | **Authors/Research team** | All researchers' names and affiliations |
-| 3 | **Research questions** | Main research questions (clear, specific) |
-| 4 | **Hypotheses** | Pre-specified hypotheses (including directional predictions) |
+| # | Item                      | Description                                                  |
+| - | ------------------------- | ------------------------------------------------------------ |
+| 1 | **Study title**           | Descriptive title                                            |
+| 2 | **Authors/Research team** | All researchers' names and affiliations                      |
+| 3 | **Research questions**    | Main research questions (clear, specific)                    |
+| 4 | **Hypotheses**            | Pre-specified hypotheses (including directional predictions) |
 
 ### B. Design Plan
 
-| # | Item | Description |
-|---|------|------|
-| 5 | **Study design** | Experiment/observational, between/within-subjects, factorial design, etc. |
-| 6 | **Randomization** | Randomization method (if applicable) |
-| 7 | **Blinding** | Blinding level and implementation (if applicable) |
-| 8 | **Conditions/manipulations** | Specific description of each experimental condition/group |
+| # | Item                         | Description                                                               |
+| - | ---------------------------- | ------------------------------------------------------------------------- |
+| 5 | **Study design**             | Experiment/observational, between/within-subjects, factorial design, etc. |
+| 6 | **Randomization**            | Randomization method (if applicable)                                      |
+| 7 | **Blinding**                 | Blinding level and implementation (if applicable)                         |
+| 8 | **Conditions/manipulations** | Specific description of each experimental condition/group                 |
 
 ### C. Sampling Plan
 
-| # | Item | Description |
-|---|------|------|
-| 9 | **Existing data** | Whether existing data is being used; nature and status of data |
-| 10 | **Data collection procedures** | How data will be collected (survey, interview, experiment, archival) |
-| 11 | **Sample size** | Planned sample size and basis for determination |
-| 12 | **Sample size rationale** | Power analysis or other sample size calculation method |
-| 13 | **Stopping rule** | When to stop collecting data (fixed N / target power reached / time cutoff) |
+| #  | Item                           | Description                                                                 |
+| -- | ------------------------------ | --------------------------------------------------------------------------- |
+| 9  | **Existing data**              | Whether existing data is being used; nature and status of data              |
+| 10 | **Data collection procedures** | How data will be collected (survey, interview, experiment, archival)        |
+| 11 | **Sample size**                | Planned sample size and basis for determination                             |
+| 12 | **Sample size rationale**      | Power analysis or other sample size calculation method                      |
+| 13 | **Stopping rule**              | When to stop collecting data (fixed N / target power reached / time cutoff) |
 
 ### D. Variables
 
-| # | Item | Description |
-|---|------|------|
-| 14 | **Manipulated variables** | Operational definition of independent variables |
-| 15 | **Measured variables** | Operational definition and measurement instruments of dependent variables |
-| 16 | **Indices** | Specific indicators for each variable (scales, items, scoring methods) |
+| #  | Item                      | Description                                                               |
+| -- | ------------------------- | ------------------------------------------------------------------------- |
+| 14 | **Manipulated variables** | Operational definition of independent variables                           |
+| 15 | **Measured variables**    | Operational definition and measurement instruments of dependent variables |
+| 16 | **Indices**               | Specific indicators for each variable (scales, items, scoring methods)    |
 
 ### E. Analysis Plan
 
-| # | Item | Description |
-|---|------|------|
-| 17 | **Statistical models** | Primary statistical methods for analysis |
-| 18 | **Transformations** | Data transformation plan (e.g., log transformation, standardization) |
-| 19 | **Inference criteria** | Significance level (alpha), correction methods, effect size reporting |
-| 20 | **Data exclusion** | Exclusion criteria (outlier definition, attention check failure, etc.) |
-| 21 | **Exploratory analyses** | Planned but non-primary hypothesis analyses |
+| #  | Item                     | Description                                                            |
+| -- | ------------------------ | ---------------------------------------------------------------------- |
+| 17 | **Statistical models**   | Primary statistical methods for analysis                               |
+| 18 | **Transformations**      | Data transformation plan (e.g., log transformation, standardization)   |
+| 19 | **Inference criteria**   | Significance level (alpha), correction methods, effect size reporting  |
+| 20 | **Data exclusion**       | Exclusion criteria (outlier definition, attention check failure, etc.) |
+| 21 | **Exploratory analyses** | Planned but non-primary hypothesis analyses                            |
 
 ---
 
@@ -202,6 +203,7 @@ Registration platform: PROSPERO
 ### Disclosing Preregistration in a Paper
 
 #### Standard Statement (Preregistered)
+
 ```
 This study was preregistered on [Platform] prior to data collection
 (registration number: [NUMBER]; URL: [URL]). All hypotheses, sample size
@@ -211,6 +213,7 @@ materials].
 ```
 
 #### Disclosure of Deviations from Preregistration
+
 ```
 Deviations from preregistered plan:
 1. [Deviation description]: [Reason for deviation]
@@ -221,6 +224,7 @@ analyses are clearly labeled.
 ```
 
 #### Disclosure When Not Preregistered
+
 ```
 This study was not preregistered. While the hypotheses were formulated before
 data analysis, the distinction between confirmatory and exploratory analyses
@@ -231,16 +235,16 @@ should be interpreted with this limitation in mind.
 
 ## 6. Preregistration vs. Registered Reports
 
-| Aspect | Preregistration | Registered Reports |
-|------|-------------------------|-------------------------------|
-| **Definition** | Research plan publicly registered in advance | Research plan submitted to a journal for pre-review |
-| **Review** | Does not undergo peer review | Stage 1 peer review (research design) |
-| **Acceptance timing** | Paper submitted only after completion | Receives "In-Principle Acceptance" (IPA) after passing Stage 1 |
-| **Results bias** | Reduced but not eliminated (researchers can still selectively report) | Substantially eliminated (published regardless of results) |
-| **Publication bias** | Cannot solve | Effectively solved (null results also published) |
-| **Applicable journals** | All journals | Only journals accepting Registered Reports |
-| **Difficulty** | Low (just fill in a form) | High (requires complete methodology and passing review) |
-| **Flexibility** | Higher (deviations require disclosure but don't block submission) | Lower (major deviations may affect acceptance) |
+| Aspect                  | Preregistration                                                       | Registered Reports                                             |
+| ----------------------- | --------------------------------------------------------------------- | -------------------------------------------------------------- |
+| **Definition**          | Research plan publicly registered in advance                          | Research plan submitted to a journal for pre-review            |
+| **Review**              | Does not undergo peer review                                          | Stage 1 peer review (research design)                          |
+| **Acceptance timing**   | Paper submitted only after completion                                 | Receives "In-Principle Acceptance" (IPA) after passing Stage 1 |
+| **Results bias**        | Reduced but not eliminated (researchers can still selectively report) | Substantially eliminated (published regardless of results)     |
+| **Publication bias**    | Cannot solve                                                          | Effectively solved (null results also published)               |
+| **Applicable journals** | All journals                                                          | Only journals accepting Registered Reports                     |
+| **Difficulty**          | Low (just fill in a form)                                             | High (requires complete methodology and passing review)        |
+| **Flexibility**         | Higher (deviations require disclosure but don't block submission)     | Lower (major deviations may affect acceptance)                 |
 
 ### Registered Reports Process
 
@@ -272,12 +276,12 @@ Publication
 
 ### Selected Higher Education Journals Supporting Registered Reports
 
-- *Studies in Higher Education*
-- *Higher Education*
-- *Assessment & Evaluation in Higher Education*
-- *Teaching in Higher Education*
-- *Educational Research Review*
-- *Learning and Instruction*
+- _Studies in Higher Education_
+- _Higher Education_
+- _Assessment & Evaluation in Higher Education_
+- _Teaching in Higher Education_
+- _Educational Research Review_
+- _Learning and Instruction_
 
 > Full list: [COS Registered Reports](https://www.cos.io/initiatives/registered-reports)
 

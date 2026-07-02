@@ -13,6 +13,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     // When non-zero, the graph is scoped to this deck (and its children).
     export let deckId = 0n;
 
+    // Node colour: by answer difficulty (default) or by FSRS recall.
+    let colorMode: "difficulty" | "recall" = "difficulty";
     let search = "deck:current";
     let response: ConceptGraphResponse | null = null;
     let loading = true;
@@ -42,6 +44,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         withMemoryState: n.withMemoryState,
         averageRetrievability: n.averageRetrievability,
         reviewedCount: n.reviewedCount,
+        gradedReviews: n.gradedReviews,
+        againReviews: n.againReviews,
+        hardReviews: n.hardReviews,
     }));
     $: edges = (response?.edges ?? []).map((e) => ({
         source: e.source,
@@ -53,34 +58,58 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <div class="concept-map">
     <div class="toolbar">
         <h1 class="title">{tr.statisticsConceptMap()}</h1>
-        {#if deckId === 0n}
-            <form class="search" on:submit|preventDefault={load}>
-                <input
-                    type="text"
-                    bind:value={search}
-                    placeholder={tr.statisticsConceptMapSearch()}
-                    aria-label={tr.statisticsConceptMapSearch()}
-                />
-            </form>
-        {/if}
+        <div class="controls">
+            <label class="mode">
+                <span>{tr.statisticsConceptMapColorBy()}</span>
+                <select
+                    bind:value={colorMode}
+                    aria-label={tr.statisticsConceptMapColorBy()}
+                >
+                    <option value="difficulty">
+                        {tr.statisticsConceptMapColorDifficulty()}
+                    </option>
+                    <option value="recall">
+                        {tr.statisticsConceptMapColorRecall()}
+                    </option>
+                </select>
+            </label>
+            {#if deckId === 0n}
+                <form class="search" on:submit|preventDefault={load}>
+                    <input
+                        type="text"
+                        bind:value={search}
+                        placeholder={tr.statisticsConceptMapSearch()}
+                        aria-label={tr.statisticsConceptMapSearch()}
+                    />
+                </form>
+            {/if}
+        </div>
     </div>
 
     <ul class="legend">
         <li>
             <span class="swatch swatch--mastered"></span>
-            {tr.statisticsConceptMapMastered()}
+            {colorMode === "difficulty"
+                ? tr.statisticsConceptMapEasy()
+                : tr.statisticsConceptMapMastered()}
         </li>
         <li>
             <span class="swatch swatch--learning"></span>
-            {tr.statisticsConceptMapLearning()}
+            {colorMode === "difficulty"
+                ? tr.statisticsConceptMapModerate()
+                : tr.statisticsConceptMapLearning()}
         </li>
         <li>
             <span class="swatch swatch--weak"></span>
-            {tr.statisticsConceptMapWeak()}
+            {colorMode === "difficulty"
+                ? tr.statisticsConceptMapHard()
+                : tr.statisticsConceptMapWeak()}
         </li>
         <li>
             <span class="swatch swatch--new"></span>
-            {tr.statisticsConceptMapNew()}
+            {colorMode === "difficulty"
+                ? tr.statisticsConceptMapUnanswered()
+                : tr.statisticsConceptMapNew()}
         </li>
     </ul>
 
@@ -89,7 +118,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     {:else if !loading && nodes.length === 0}
         <div class="message">{tr.statisticsConceptMapEmpty()}</div>
     {:else}
-        <ConceptGraph {nodes} {edges} />
+        <ConceptGraph {nodes} {edges} {colorMode} />
     {/if}
 </div>
 
@@ -121,8 +150,23 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         margin: 0;
     }
 
-    .search input {
-        min-width: 16em;
+    .controls {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 0.75em;
+    }
+
+    .mode {
+        display: flex;
+        align-items: center;
+        gap: 0.4em;
+        color: var(--fg-subtle);
+        white-space: nowrap;
+    }
+
+    .search input,
+    .mode select {
         color: var(--fg);
         background: var(--canvas-inset);
         border: 1px solid var(--border);
@@ -134,6 +178,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             border-color: var(--border-focus);
             box-shadow: var(--shadow-focus);
         }
+    }
+
+    .search input {
+        min-width: 16em;
     }
 
     .legend {

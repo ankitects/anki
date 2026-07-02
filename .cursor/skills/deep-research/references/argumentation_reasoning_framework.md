@@ -6,14 +6,14 @@ A cognitive framework for evaluating the strength and validity of research argum
 
 Every research argument has 6 components. When evaluating, identify each:
 
-| Component | Question | Red Flag if Missing |
-|-----------|----------|-------------------|
-| **Claim** | What is being asserted? | Vague or shifting thesis |
-| **Data/Evidence** | What evidence supports it? | Claims without empirical backing |
-| **Warrant** | Why does the evidence support the claim? | Logical gap between data and conclusion |
-| **Backing** | What supports the warrant itself? | Assumed methodology validity |
-| **Qualifier** | How certain is the claim? | Absolute language ("proves", "always") |
-| **Rebuttal** | What would undermine the claim? | No acknowledged limitations |
+| Component         | Question                                 | Red Flag if Missing                     |
+| ----------------- | ---------------------------------------- | --------------------------------------- |
+| **Claim**         | What is being asserted?                  | Vague or shifting thesis                |
+| **Data/Evidence** | What evidence supports it?               | Claims without empirical backing        |
+| **Warrant**       | Why does the evidence support the claim? | Logical gap between data and conclusion |
+| **Backing**       | What supports the warrant itself?        | Assumed methodology validity            |
+| **Qualifier**     | How certain is the claim?                | Absolute language ("proves", "always")  |
+| **Rebuttal**      | What would undermine the claim?          | No acknowledged limitations             |
 
 **Judgment heuristic**: If you can't identify the Warrant, the argument is likely weak regardless of how much Data is presented. Data without Warrant is just information.
 
@@ -47,22 +47,22 @@ When multiple explanations exist for the same finding:
 
 Not all claims carry equal weight. Classify each major claim:
 
-| Status | Meaning | Appropriate Language |
-|--------|---------|---------------------|
-| **Established** | Replicated, peer-reviewed, high consensus | "X is..." |
-| **Supported** | Evidence exists but not yet replicated | "Evidence suggests X..." |
-| **Preliminary** | Single study or small sample | "Preliminary findings indicate..." |
-| **Speculative** | Based on reasoning, not direct evidence | "We hypothesize that..." |
-| **Contested** | Conflicting evidence exists | "While some studies find X, others..." |
+| Status          | Meaning                                   | Appropriate Language                   |
+| --------------- | ----------------------------------------- | -------------------------------------- |
+| **Established** | Replicated, peer-reviewed, high consensus | "X is..."                              |
+| **Supported**   | Evidence exists but not yet replicated    | "Evidence suggests X..."               |
+| **Preliminary** | Single study or small sample              | "Preliminary findings indicate..."     |
+| **Speculative** | Based on reasoning, not direct evidence   | "We hypothesize that..."               |
+| **Contested**   | Conflicting evidence exists               | "While some studies find X, others..." |
 
 **Judgment heuristic**: If a paper uses "Established" language for "Preliminary" findings, that's overclaiming — one of the most common quality issues in academic writing.
 
 ## Application by Agent
 
-| Agent | Primary Use |
-|-------|------------|
-| `synthesis_agent` | Toulmin analysis of synthesized arguments; IBE for competing explanations |
-| `devils_advocate_agent` | Causal reasoning audit; identify missing Rebuttals and Qualifiers |
-| `source_verification_agent` | Epistemic status classification of source claims |
-| `socratic_mentor_agent` | Guide users through Toulmin decomposition of their own arguments |
-| `research_architect_agent` | Ensure methodology design supports causal claims at appropriate level |
+| Agent                       | Primary Use                                                               |
+| --------------------------- | ------------------------------------------------------------------------- |
+| `synthesis_agent`           | Toulmin analysis of synthesized arguments; IBE for competing explanations |
+| `devils_advocate_agent`     | Causal reasoning audit; identify missing Rebuttals and Qualifiers         |
+| `source_verification_agent` | Epistemic status classification of source claims                          |
+| `socratic_mentor_agent`     | Guide users through Toulmin decomposition of their own arguments          |
+| `research_architect_agent`  | Ensure methodology design supports causal claims at appropriate level     |

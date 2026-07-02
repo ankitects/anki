@@ -49,6 +49,13 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         };
     });
 
+    // Dev-only: `?readinessTest=1` relaxes the give-up gate so the readiness
+    // pipeline can be exercised end-to-end; the result is labelled "test data",
+    // never a real prediction. The shipped/graded build abstains by default.
+    const readinessTestMode = new URLSearchParams(window.location.search).has(
+        "readinessTest",
+    );
+
     $: data = response
         ? computeDashboard(
               response.tags.map((t) => ({
@@ -58,8 +65,12 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                   meanRetrievability: t.meanRetrievability,
                   reviewed: t.reviewed,
                   seen: t.seen,
+                  gradedReviews: t.gradedReviews,
+                  againReviews: t.againReviews,
+                  hardReviews: t.hardReviews,
               })),
               response.gradedReviews,
+              { testMode: readinessTestMode },
           )
         : null;
 
@@ -71,10 +82,13 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         return r ? `${Math.round(r.low * 100)}–${Math.round(r.high * 100)}%` : "—";
     }
 
-    function memoryColor(m: number | null): string {
-        if (m == null) {
-            return "var(--fg-faint)";
-        }
+    function clamp01(x: number): number {
+        return Math.max(0, Math.min(1, x));
+    }
+
+    // Discrete tier — also the fallback for older webviews without CSS
+    // color-mix (Anki's qt5/legacy build): red < 0.7 ≤ amber < 0.9 ≤ green.
+    function memoryTier(m: number): string {
         if (m >= 0.9) {
             return "var(--state-review)";
         }
@@ -82,6 +96,29 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             return "var(--state-buried)";
         }
         return "var(--state-learn)";
+    }
+
+    // Continuous red → amber → green ramp built from Anki's state tokens (so it
+    // themes in light/dark). Two segments meet at amber so mid values read
+    // yellow, not a muddy red↔green blend. The colour encodes the Memory value:
+    // low recall is red, high recall is green, everything in between graduates.
+    function memoryColor(m: number | null): string {
+        if (m == null) {
+            return "var(--fg-faint)";
+        }
+        const x = clamp01(m);
+        if (x >= 0.7) {
+            const t = Math.round(((x - 0.7) / 0.3) * 100); // amber → green
+            return `color-mix(in srgb, var(--state-buried), var(--state-review) ${t}%)`;
+        }
+        const t = Math.round((x / 0.7) * 100); // red → amber
+        return `color-mix(in srgb, var(--state-learn), var(--state-buried) ${t}%)`;
+    }
+
+    // Custom props for a subject's Memory bar: a discrete tier as the fallback,
+    // plus the smooth ramp used where CSS color-mix is supported (see .fill).
+    function memoryStyle(m: number): string {
+        return `--fill-tier: ${memoryTier(m)}; --fill-ramp: ${memoryColor(m)};`;
     }
 
     function confidenceLabel(c: Confidence): string {
@@ -157,7 +194,13 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                     <div class="gauge-note">
                         {tr.statisticsDashboardGiveUpNote()}
                     </div>
+                    {#if data.readiness.reason}
+                        <div class="gauge-note">{data.readiness.reason}</div>
+                    {/if}
                 {:else}
+                    {#if data.readiness.reason}
+                        <div class="gauge-note">{data.readiness.reason}</div>
+                    {/if}
                     <div class="gauge-value">{pct(data.readiness.pPass.point)}</div>
                     <div class="gauge-range">{rangeStr(data.readiness.pPass)}</div>
                     <div class="gauge-sub">
@@ -177,12 +220,20 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             </div>
         {/if}
 
+        <div class="mem-legend">
+            <span class="mem-legend-label">{tr.statisticsDashboardMemoryScale()}</span>
+            <span>{tr.statisticsDashboardScaleLow()}</span>
+            <span class="mem-ramp" aria-hidden="true"></span>
+            <span>{tr.statisticsDashboardScaleHigh()}</span>
+        </div>
+
         <table class="subjects">
             <thead>
                 <tr>
                     <th>{tr.statisticsDashboardSubject()}</th>
                     <th class="num">{tr.statisticsDashboardWeight()}</th>
                     <th>{tr.statisticsDashboardMemory()}</th>
+                    <th class="num">{tr.statisticsDashboardAccuracy()}</th>
                     <th class="num">{tr.statisticsDashboardPerformance()}</th>
                     <th class="num">{tr.statisticsDashboardStudied()}</th>
                 </tr>
@@ -199,7 +250,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                                         class="fill"
                                         style="width: {Math.round(
                                             s.memory * 100,
-                                        )}%; background: {memoryColor(s.memory)};"
+                                        )}%; {memoryStyle(s.memory)}"
                                     ></span>
                                 </span>
                                 <span class="mem-pct">{pct(s.memory)}</span>
@@ -209,6 +260,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                                 </span>
                             {/if}
                         </td>
+                        <td class="num">{pct(s.accuracy)}</td>
                         <td class="num">{pct(s.performance)}</td>
                         <td class="num">{s.seen}/{s.total}</td>
                     </tr>
@@ -327,6 +379,33 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         border-radius: var(--border-radius);
     }
 
+    .mem-legend {
+        display: flex;
+        align-items: center;
+        gap: 0.5em;
+        margin: 0.5em 0 0.35em;
+        color: var(--fg-subtle);
+        font-size: 0.85em;
+    }
+
+    .mem-legend-label {
+        font-weight: 600;
+    }
+
+    .mem-ramp {
+        width: 8em;
+        height: 0.6em;
+        border-radius: var(--border-radius);
+        // red → amber → green: same tokens the per-row bars use, so the key
+        // matches the bar colours in both light and dark themes.
+        background: linear-gradient(
+            to right,
+            var(--state-learn),
+            var(--state-buried),
+            var(--state-review)
+        );
+    }
+
     .subjects {
         width: 100%;
         border-collapse: collapse;
@@ -369,6 +448,13 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         .fill {
             display: block;
             height: 100%;
+            // Discrete tier fallback; the smooth ramp is layered on where the
+            // webview supports color-mix (modern qt6 build).
+            background: var(--fill-tier);
+
+            @supports (background: color-mix(in srgb, red, blue)) {
+                background: var(--fill-ramp);
+            }
         }
 
         .mem-pct {

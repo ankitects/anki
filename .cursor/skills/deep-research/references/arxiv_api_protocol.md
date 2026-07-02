@@ -49,14 +49,14 @@ Note: the unified `lookup_verified` summary (#182 Delta 4, a later batch) narrow
 
 ## Degradation handling
 
-| Condition | Action |
-|---|---|
-| Empty feed (zero `<entry>`) | Treat as miss — caller falls through to title search / reports unmatched. NOT a degradation. |
-| HTTP 429 (rate limit) | Back off 2 seconds, retry up to 3 times. After exhaustion, raise `ArxivUnavailable`. Throttle anchor refreshed after each backoff. |
-| HTTP 5xx | Raise `ArxivUnavailable` immediately (no retry). |
-| Network timeout (30s default) / URLError | Raise `ArxivUnavailable`. |
-| Malformed XML body (truncated / unclosed mid-stream) | Raise `ArxivUnavailable` (the read/parse narrow-except translates `ET.ParseError`, `OSError`, `http.client.IncompleteRead`). A *complete* HTML error page is well-formed XML and parses to zero entries — a miss, not a degradation. |
-| `ArxivUnavailable` raised | Caller MUST omit `arxiv_unmatched` from the entry (absent != false). Other indexes proceed independently. |
+| Condition                                            | Action                                                                                                                                                                                                                               |
+| ---------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Empty feed (zero `<entry>`)                          | Treat as miss — caller falls through to title search / reports unmatched. NOT a degradation.                                                                                                                                         |
+| HTTP 429 (rate limit)                                | Back off 2 seconds, retry up to 3 times. After exhaustion, raise `ArxivUnavailable`. Throttle anchor refreshed after each backoff.                                                                                                   |
+| HTTP 5xx                                             | Raise `ArxivUnavailable` immediately (no retry).                                                                                                                                                                                     |
+| Network timeout (30s default) / URLError             | Raise `ArxivUnavailable`.                                                                                                                                                                                                            |
+| Malformed XML body (truncated / unclosed mid-stream) | Raise `ArxivUnavailable` (the read/parse narrow-except translates `ET.ParseError`, `OSError`, `http.client.IncompleteRead`). A _complete_ HTML error page is well-formed XML and parses to zero entries — a miss, not a degradation. |
+| `ArxivUnavailable` raised                            | Caller MUST omit `arxiv_unmatched` from the entry (absent != false). Other indexes proceed independently.                                                                                                                            |
 
 ## arXiv-specific notes
 

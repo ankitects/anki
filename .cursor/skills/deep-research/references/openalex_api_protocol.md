@@ -35,6 +35,7 @@ GET /works?search={url_encoded_title}&per-page=5&select=id,title,authorships,pub
 ## `openalex_unmatched` derivation
 
 `true` if and only if:
+
 - DOI present: DOI lookup either misses or fails the title cross-check, AND title search returns no match meeting threshold; OR
 - DOI absent: title search alone returns no match meeting threshold.
 
@@ -42,12 +43,12 @@ The check fires only when `obtained_via != 'manual'` (manual entries are user-vo
 
 ## Degradation handling
 
-| Condition | Action |
-|---|---|
-| HTTP 429 (rate limit) | Back off 2 seconds, retry up to 3 times. After exhaustion, raise `OpenAlexUnavailable`. |
-| HTTP 5xx | Skip — raise `OpenAlexUnavailable` immediately. |
-| Network timeout (30s default) | Skip — raise `OpenAlexUnavailable`. |
-| `OpenAlexUnavailable` raised | Caller MUST omit `openalex_unmatched` from the entry (per spec v3.9.0 R-L3-2-C: absent ≠ false). Other indexes proceed independently. |
+| Condition                     | Action                                                                                                                                |
+| ----------------------------- | ------------------------------------------------------------------------------------------------------------------------------------- |
+| HTTP 429 (rate limit)         | Back off 2 seconds, retry up to 3 times. After exhaustion, raise `OpenAlexUnavailable`.                                               |
+| HTTP 5xx                      | Skip — raise `OpenAlexUnavailable` immediately.                                                                                       |
+| Network timeout (30s default) | Skip — raise `OpenAlexUnavailable`.                                                                                                   |
+| `OpenAlexUnavailable` raised  | Caller MUST omit `openalex_unmatched` from the entry (per spec v3.9.0 R-L3-2-C: absent ≠ false). Other indexes proceed independently. |
 
 ## v3.9.0 R-L3-2-D constraint
 

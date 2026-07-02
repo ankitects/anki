@@ -12,73 +12,73 @@ Socratic Questioning originates from the dialogue-based teaching method of the a
 
 **Purpose**: Ensure the interlocutor truly understands the concepts they are using
 
-| Question Pattern | Usage Context |
-|---------|---------|
-| What do you mean by "X"? | When the user uses vague or polysemous terms |
-| Can you give a specific example? | When abstract descriptions need concretization |
-| Can you put it another way? | To confirm mutual understanding |
-| How is this different from Y? | To distinguish similar concepts |
-| What does X include? What does it exclude? | To define scope |
+| Question Pattern                           | Usage Context                                  |
+| ------------------------------------------ | ---------------------------------------------- |
+| What do you mean by "X"?                   | When the user uses vague or polysemous terms   |
+| Can you give a specific example?           | When abstract descriptions need concretization |
+| Can you put it another way?                | To confirm mutual understanding                |
+| How is this different from Y?              | To distinguish similar concepts                |
+| What does X include? What does it exclude? | To define scope                                |
 
 ### Type 2: Probing Assumptions
 
 **Purpose**: Reveal hidden premises and assumptions
 
-| Question Pattern | Usage Context |
-|---------|---------|
-| What are you assuming? | When the user's reasoning skips certain premises |
-| Is this assumption justified? | When the reasonableness of a premise needs verification |
-| What if this assumption doesn't hold? | To test the robustness of reasoning |
-| Why do you take this for granted? | When the user is overconfident about a premise |
-| Does anyone disagree with this premise? Why? | To introduce different perspectives |
+| Question Pattern                             | Usage Context                                           |
+| -------------------------------------------- | ------------------------------------------------------- |
+| What are you assuming?                       | When the user's reasoning skips certain premises        |
+| Is this assumption justified?                | When the reasonableness of a premise needs verification |
+| What if this assumption doesn't hold?        | To test the robustness of reasoning                     |
+| Why do you take this for granted?            | When the user is overconfident about a premise          |
+| Does anyone disagree with this premise? Why? | To introduce different perspectives                     |
 
 ### Type 3: Probing Rationale and Evidence
 
 **Purpose**: Probe the basis and evidence foundation of reasoning
 
-| Question Pattern | Usage Context |
-|---------|---------|
-| What is your evidence? | When the user makes unsupported assertions |
-| How do you know this is true? | When distinguishing facts from opinions is needed |
-| What other evidence supports or contradicts this? | To broaden the evidence horizon |
-| Is this evidence sufficient? | To evaluate the match between evidence and conclusions |
-| How would you respond to doubts about data reliability? | To test the solidity of evidence |
+| Question Pattern                                        | Usage Context                                          |
+| ------------------------------------------------------- | ------------------------------------------------------ |
+| What is your evidence?                                  | When the user makes unsupported assertions             |
+| How do you know this is true?                           | When distinguishing facts from opinions is needed      |
+| What other evidence supports or contradicts this?       | To broaden the evidence horizon                        |
+| Is this evidence sufficient?                            | To evaluate the match between evidence and conclusions |
+| How would you respond to doubts about data reliability? | To test the solidity of evidence                       |
 
 ### Type 4: Questioning Viewpoints and Perspectives
 
 **Purpose**: Introduce alternative viewpoints to break the limitations of a single perspective
 
-| Question Pattern | Usage Context |
-|---------|---------|
-| What would this look like from another perspective? | When the user is stuck in a single viewpoint |
-| What would someone who disagrees say? | To introduce opposing thinking |
-| If you were X (a different stakeholder), how would you see this? | Multi-stakeholder analysis |
-| Why might others see this differently? | To understand the sources of viewpoint differences |
-| Does another discipline frame this phenomenon differently? | Interdisciplinary thinking |
+| Question Pattern                                                 | Usage Context                                      |
+| ---------------------------------------------------------------- | -------------------------------------------------- |
+| What would this look like from another perspective?              | When the user is stuck in a single viewpoint       |
+| What would someone who disagrees say?                            | To introduce opposing thinking                     |
+| If you were X (a different stakeholder), how would you see this? | Multi-stakeholder analysis                         |
+| Why might others see this differently?                           | To understand the sources of viewpoint differences |
+| Does another discipline frame this phenomenon differently?       | Interdisciplinary thinking                         |
 
 ### Type 5: Probing Implications and Consequences
 
 **Purpose**: Explore the logical consequences and practical impacts of reasoning
 
-| Question Pattern | Usage Context |
-|---------|---------|
+| Question Pattern                                   | Usage Context                 |
+| -------------------------------------------------- | ----------------------------- |
 | If this conclusion is correct, what does it imply? | To trace logical implications |
-| What are the practical consequences? | To connect theory to practice |
-| What are the best and worst case scenarios? | To assess impact range |
-| Who benefits? Who is harmed? | Ethical dimension thinking |
-| Where does this trend lead in the long run? | Extended thinking |
+| What are the practical consequences?               | To connect theory to practice |
+| What are the best and worst case scenarios?        | To assess impact range        |
+| Who benefits? Who is harmed?                       | Ethical dimension thinking    |
+| Where does this trend lead in the long run?        | Extended thinking             |
 
 ### Type 6: Questioning the Question
 
 **Purpose**: Examine whether the question itself is worth asking and whether the framing is correct
 
-| Question Pattern | Usage Context |
-|---------|---------|
-| Why does this question matter? | To return to research motivation |
+| Question Pattern                              | Usage Context                    |
+| --------------------------------------------- | -------------------------------- |
+| Why does this question matter?                | To return to research motivation |
 | Is there a better way to frame this question? | To optimize question formulation |
-| What is the question behind this question? | To excavate deeper concerns |
-| What if we're asking the wrong question? | Fundamental reflection |
-| What preconditions must exist to answer this? | To examine answerability |
+| What is the question behind this question?    | To excavate deeper concerns      |
+| What if we're asking the wrong question?      | Fundamental reflection           |
+| What preconditions must exist to answer this? | To examine answerability         |
 
 ---
 
@@ -137,6 +137,7 @@ Socratic Questioning originates from the dialogue-based teaching method of the a
 ## Questioning Strategies
 
 ### Strategy 1: Funnel Strategy
+
 From open to focused, progressively narrowing scope.
 
 ```
@@ -147,6 +148,7 @@ Q4: "So what you're asking is: can current accreditation indicators truly reflec
 ```
 
 ### Strategy 2: Mirror Strategy
+
 Restate the user's words, then follow up.
 
 ```
@@ -155,6 +157,7 @@ Mentor: "You think there's a direct causal relationship between declining birth 
 ```
 
 ### Strategy 3: Counterfactual Strategy
+
 Imagine the opposite situation to test reasoning.
 
 ```
@@ -163,6 +166,7 @@ Mentor: "If a university that completely didn't adopt online learning had better
 ```
 
 ### Strategy 4: Analogy Strategy
+
 Use similar problems from other domains to inspire thinking.
 
 ```
@@ -171,6 +175,7 @@ Mentor: "Research on corporate mergers and acquisitions shows that most M&A actu
 ```
 
 ### Strategy 5: Strategic Silence
+
 Sometimes the best follow-up is waiting, giving the user space to think.
 
 ```
@@ -184,14 +189,14 @@ Mentor: "Take your time. You just said 'actually I'm not sure' — what exactly 
 
 The dialogue design principles of this framework are consistent with AI learning guidance engines:
 
-| Design Principle | Socratic Mentor | ai-study-learn-engine |
-|---------|-----------------|----------------------|
-| Brief feedback | 1-2 sentences of affirmation/restatement | 1-2 sentences of indicator performance feedback |
-| Data citation | Hint at literature directions | Cite specific indicator data |
-| Focused follow-up | 1-2 precise questions | 1 learning guidance question |
-| Response length limit | 200-400 words | 200-300 words |
-| Insight extraction | [INSIGHT: ...] | [LEARNING: ...] |
-| Convergence mechanism | 15-round limit | 10-round limit |
+| Design Principle      | Socratic Mentor                          | ai-study-learn-engine                           |
+| --------------------- | ---------------------------------------- | ----------------------------------------------- |
+| Brief feedback        | 1-2 sentences of affirmation/restatement | 1-2 sentences of indicator performance feedback |
+| Data citation         | Hint at literature directions            | Cite specific indicator data                    |
+| Focused follow-up     | 1-2 precise questions                    | 1 learning guidance question                    |
+| Response length limit | 200-400 words                            | 200-300 words                                   |
+| Insight extraction    | [INSIGHT: ...]                           | [LEARNING: ...]                                 |
+| Convergence mechanism | 15-round limit                           | 10-round limit                                  |
 
 This consistency ensures a coherent experience when users switch between different tools.
 
@@ -203,13 +208,14 @@ The SCR (State-Challenge-Reflect) overlay works ON TOP of existing Socratic ques
 
 ### Mapping to Socratic Functions
 
-| SCR Phase | Socratic Function | Timing | Purpose |
-|-----------|------------------|--------|---------|
-| **State** (表態) | Clarifying + Probing | Before presenting data/evidence | Collect user's prediction or self-assessment |
-| **Challenge** (挑戰) | Structuring + Challenging | After commitment collected | Present information that tests the commitment |
-| **Reflect** (反思) | Probing + Structuring | After divergence revealed | Guide user to self-explain the gap |
+| SCR Phase            | Socratic Function         | Timing                          | Purpose                                       |
+| -------------------- | ------------------------- | ------------------------------- | --------------------------------------------- |
+| **State** (表態)     | Clarifying + Probing      | Before presenting data/evidence | Collect user's prediction or self-assessment  |
+| **Challenge** (挑戰) | Structuring + Challenging | After commitment collected      | Present information that tests the commitment |
+| **Reflect** (反思)   | Probing + Structuring     | After divergence revealed       | Guide user to self-explain the gap            |
 
 ### Design Constraints
+
 1. The user never sees the words "SCR", "commitment gate", or "divergence reveal"
 2. The experience feels like a natural Socratic dialogue that happens to ask for predictions before showing data
 3. The mechanism is invisible; the learning is visible
@@ -217,7 +223,9 @@ The SCR (State-Challenge-Reflect) overlay works ON TOP of existing Socratic ques
 5. If the user's commitment turns out to be accurate, acknowledge it and move on — no need to force divergence where none exists
 
 ### Integration with Convergence Signals
+
 The new S5/C5 (Self-Calibration) signal tracks whether the user's commitments become more accurate over the dialogue. This signal:
+
 - Strengthens convergence when present (user is both understanding AND self-aware)
 - Does NOT block convergence when absent (understanding can exist without perfect self-calibration)
 - Provides valuable coaching feedback at dialogue end
@@ -226,7 +234,7 @@ The new S5/C5 (Self-Calibration) signal tracks whether the user's commitments be
 
 ## References
 
-- Paul, R., & Elder, L. (2007). *Critical Thinking: The Art of Socratic Questioning*. Journal of Developmental Education, 31(1), 36-37.
+- Paul, R., & Elder, L. (2007). _Critical Thinking: The Art of Socratic Questioning_. Journal of Developmental Education, 31(1), 36-37.
 - Overholser, J. C. (1993). Elements of the Socratic method: I. Systematic questioning. Psychotherapy, 30(1), 67-74.
-- Burbules, N. C. (1993). *Dialogue in Teaching: Theory and Practice*. Teachers College Press.
-- Copeland, M. (2005). *Socratic Circles: Fostering Critical and Creative Thinking in Middle and High School*. Stenhouse Publishers.
+- Burbules, N. C. (1993). _Dialogue in Teaching: Theory and Practice_. Teachers College Press.
+- Copeland, M. (2005). _Socratic Circles: Fostering Critical and Creative Thinking in Middle and High School_. Stenhouse Publishers.

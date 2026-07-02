@@ -1,6 +1,7 @@
 # Preregistration Template — OSF Standard 21-Item Preregistration Template
 
 ## Purpose
+
 A fill-in template based on the OSF Standard Pre-Data Collection Registration format. Researchers complete this template before data collection and upload it to a preregistration platform (e.g., OSF Registries).
 
 ---
@@ -18,6 +19,7 @@ A fill-in template based on the OSF Standard Pre-Data Collection Registration fo
 ## A. Study Information
 
 ### 1. Title [Required]
+
 > Study Title
 
 ```
@@ -25,14 +27,16 @@ A fill-in template based on the OSF Standard Pre-Data Collection Registration fo
 ```
 
 ### 2. Authors [Required]
+
 > Research Team
 
-| Name | Institution | Role | ORCID |
-|------|-------------|------|-------|
+| Name   | Institution   | Role              | ORCID   |
+| ------ | ------------- | ----------------- | ------- |
 | [Name] | [Institution] | [PI / Co-PI / RA] | [ORCID] |
-| [Name] | [Institution] | [Role] | [ORCID] |
+| [Name] | [Institution] | [Role]            | [ORCID] |
 
 ### 3. Research Questions [Required]
+
 > Main Research Questions
 
 ```
@@ -41,6 +45,7 @@ RQ2: [Enter secondary research question, if any]
 ```
 
 ### 4. Hypotheses [Required]
+
 > Pre-specified Hypotheses
 > Please state directional predictions clearly
 
@@ -59,6 +64,7 @@ H3: [Enter hypothesis 3, if any]
 ## B. Design Plan
 
 ### 5. Study Type [Required]
+
 > Study Design
 
 - [ ] Experiment
@@ -78,6 +84,7 @@ H3: [Enter hypothesis 3, if any]
 ```
 
 ### 6. Randomization [Optional]
+
 > Randomization Procedure
 
 ```
@@ -88,6 +95,7 @@ Allocation ratio: [1:1 / 2:1 / Other]
 ```
 
 ### 7. Blinding [Optional]
+
 > Blinding / Masking
 
 ```
@@ -98,6 +106,7 @@ Unblinding timing: [Describe when unblinding occurs]
 ```
 
 ### 8. Study Design / Conditions [Required]
+
 > Specific description of each group/condition
 
 ```
@@ -111,6 +120,7 @@ Control group: [Describe control condition in detail]
 ## C. Sampling Plan
 
 ### 9. Existing Data [Required]
+
 > Existing Data Declaration
 
 - [ ] No data have been collected yet (Registration prior to creation of data)
@@ -123,6 +133,7 @@ Control group: [Describe control condition in detail]
 ```
 
 ### 10. Data Collection Procedures [Required]
+
 > Data Collection Procedures
 
 ```
@@ -134,6 +145,7 @@ Data collectors: [Who is responsible for collection]
 ```
 
 ### 11. Sample Size [Required]
+
 > Planned sample size
 
 ```
@@ -142,6 +154,7 @@ Sample size per group: [Experimental group n = , Control group n = ]
 ```
 
 ### 12. Sample Size Rationale [Required]
+
 > Basis for sample size determination
 
 ```
@@ -160,6 +173,7 @@ Oversampling rate: [Accounting for ___% attrition, actual target N = ]
 ```
 
 ### 13. Stopping Rule [Required]
+
 > When to stop data collection
 
 ```
@@ -175,6 +189,7 @@ Stopping rule:
 ## D. Variables
 
 ### 14. Manipulated Variables [Required for experiments]
+
 > Independent Variables
 
 ```
@@ -186,6 +201,7 @@ Independent variable 2: [If any]
 ```
 
 ### 15. Measured Variables [Required]
+
 > Dependent Variables
 
 ```
@@ -200,6 +216,7 @@ Covariates/Control variables: [If any]
 ```
 
 ### 16. Indices [Required]
+
 > Specific scoring method for each variable
 
 ```
@@ -217,6 +234,7 @@ Variable 2 scoring: [Same format as above]
 ## E. Analysis Plan
 
 ### 17. Statistical Models [Required]
+
 > Primary statistical analysis methods
 
 ```
@@ -228,6 +246,7 @@ Analysis for Hypothesis 2: [Same format as above]
 ```
 
 ### 18. Transformations [Optional]
+
 > Data transformation plan
 
 ```
@@ -239,6 +258,7 @@ Planned transformations:
 ```
 
 ### 19. Inference Criteria [Required]
+
 > Statistical inference criteria
 
 ```
@@ -250,6 +270,7 @@ One-tailed/Two-tailed test: [Two-tailed / One-tailed, with justification]
 ```
 
 ### 20. Data Exclusion [Required]
+
 > Data exclusion criteria
 
 ```
@@ -266,6 +287,7 @@ Post-exclusion procedures:
 ```
 
 ### 21. Exploratory Analyses [Optional]
+
 > Planned exploratory analyses
 
 ```
@@ -281,6 +303,7 @@ These analyses will be explicitly labeled as "exploratory" in the paper.
 ## F. Other
 
 ### Ethics Review [Optional]
+
 ```
 IRB review status: [Approved / Under review / Exempt / Not applicable]
 IRB number: [                ]
@@ -288,6 +311,7 @@ Reviewing institution: [                ]
 ```
 
 ### Data Availability [Optional]
+
 ```
 Will data be made public: [Yes / No / Partially]
 Data repository: [OSF / Dataverse / Other]
@@ -295,6 +319,7 @@ Timing: [After publication / After study completion / Other]
 ```
 
 ### Supplementary Materials [Optional]
+
 ```
 - [ ] Full questionnaire/scale
 - [ ] Stimulus materials

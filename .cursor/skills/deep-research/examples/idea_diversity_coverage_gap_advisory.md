@@ -43,18 +43,21 @@ Search Strategy Report excerpt:
 ### Coverage Distribution Advisory
 
 DISTRIBUTIONAL_SKEW_ADVISORY:
+
 - Dimension: time distribution
 - Concentration: 2023-2026 = 23/25 (92%)
 - Advisory: This is a coverage-distribution signal, not a defect. Consider whether the RQ warrants earlier foundational work on feedback uptake, revision behavior, or formative assessment.
 - Search response: add backward citation chaining from foundational feedback-literacy and formative-assessment works.
 
 DISTRIBUTIONAL_SKEW_ADVISORY:
+
 - Dimension: methodological distribution
 - Concentration: quantitative log-data studies = 21/24 (87.5%)
 - Advisory: This is a coverage-distribution signal, not a defect. Consider whether the question warrants qualitative or mixed-method evidence about how students interpret feedback.
 - Search response: add search string ("AI feedback" OR "automated feedback") AND ("student interpretation" OR "feedback literacy" OR interview OR qualitative).
 
 DISTRIBUTIONAL_SKEW_ADVISORY:
+
 - Dimension: geographic distribution
 - Concentration: North America / Western Europe = 18/20 (90%)
 - Advisory: This is a coverage-distribution signal, not a defect. Consider whether institutional context changes feedback uptake.

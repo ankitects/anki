@@ -1,6 +1,7 @@
 # IRB Decision Tree — Human Subjects Research Ethics Review Guide
 
 ## Purpose
+
 IRB (Institutional Review Board) ethics review decision tree and Taiwan process guide. Used by the ethics_review_agent to determine whether research involves human subjects, and by the research_architect_agent to plan IRB review during methodology design.
 
 ---
@@ -39,6 +40,7 @@ Does your research collect, use, or analyze data from humans?
 ### 2.1 Exempt Review
 
 **Applicable Conditions** (any one of the following):
+
 - [ ] Uses publicly available, de-identified datasets
 - [ ] Research on educational practices in normal educational settings
 - [ ] Involves only anonymous surveys (no sensitive topics)
@@ -50,11 +52,13 @@ Does your research collect, use, or analyze data from humans?
 ### 2.2 Expedited Review
 
 **Applicable Conditions** (all must be met):
+
 - [ ] Research risk is no greater than risks ordinarily encountered in daily life (minimal risk)
 - [ ] Does not involve vulnerable populations
 - [ ] Research methods are on the expedited review category list
 
 **Common Categories**:
+
 - Surveys (containing sensitive but not high-risk topics)
 - Interviews (general topics)
 - Teaching intervention research (non-invasive)
@@ -64,6 +68,7 @@ Does your research collect, use, or analyze data from humans?
 ### 2.3 Full Board Review
 
 **Applicable Conditions** (any one of the following):
+
 - [ ] Greater than minimal risk
 - [ ] Involves vulnerable populations (children, prisoners, pregnant women, individuals with cognitive impairments)
 - [ ] Involves sensitive topics (sexual behavior, illegal behavior, mental health)
@@ -76,19 +81,19 @@ Does your research collect, use, or analyze data from humans?
 
 ### 3.1 Governing Authorities
 
-| Authority | Jurisdiction | Legal Basis |
-|-----------|-------------|-------------|
-| **National Science and Technology Council (formerly MOST)** | NSTC-funded projects involving human research | "NSTC Guidelines for Research Grant Applications" |
-| **Ministry of Health and Welfare** | Human research, clinical trials, human biobanks | "Human Subjects Research Act" (2011) |
-| **Ministry of Education** | Research ethics in educational settings | Institutional regulations |
+| Authority                                                   | Jurisdiction                                    | Legal Basis                                       |
+| ----------------------------------------------------------- | ----------------------------------------------- | ------------------------------------------------- |
+| **National Science and Technology Council (formerly MOST)** | NSTC-funded projects involving human research   | "NSTC Guidelines for Research Grant Applications" |
+| **Ministry of Health and Welfare**                          | Human research, clinical trials, human biobanks | "Human Subjects Research Act" (2011)              |
+| **Ministry of Education**                                   | Research ethics in educational settings         | Institutional regulations                         |
 
 ### 3.2 Regulatory Framework
 
-| Regulation | Scope | Key Requirements |
-|-----------|-------|------------------|
-| **Human Subjects Research Act** | Research involving human subjects (surveys, interviews, observations, interventions) | Prior review, informed consent, personal data protection |
-| **Personal Data Protection Act** | Collection, processing, and use of personal data | Notification obligation, purpose limitation, security maintenance |
-| **Regulations Governing Human Trials** | Drug/medical device clinical trials | GCP compliance, subject insurance |
+| Regulation                             | Scope                                                                                | Key Requirements                                                  |
+| -------------------------------------- | ------------------------------------------------------------------------------------ | ----------------------------------------------------------------- |
+| **Human Subjects Research Act**        | Research involving human subjects (surveys, interviews, observations, interventions) | Prior review, informed consent, personal data protection          |
+| **Personal Data Protection Act**       | Collection, processing, and use of personal data                                     | Notification obligation, purpose limitation, security maintenance |
+| **Regulations Governing Human Trials** | Drug/medical device clinical trials                                                  | GCP compliance, subject insurance                                 |
 
 ### 3.3 Application Process
 
@@ -116,31 +121,31 @@ Does your research collect, use, or analyze data from humans?
 
 ### 3.4 Online Research Ethics Review Platforms
 
-| Platform | Description | URL |
-|----------|-------------|-----|
-| **AREC** (Academic Research Ethics Committee) | Multi-institutional joint ethics review committee | Institutional IRB websites |
-| **Institutional IRB systems** | Online application systems within universities | Institutional R&D office websites |
-| **CITI Program** | Online research ethics training course | citiprogram.org |
-| **Taiwan Research Ethics Education Resource Center** | Research ethics education materials | Institutional teaching development centers |
+| Platform                                             | Description                                       | URL                                        |
+| ---------------------------------------------------- | ------------------------------------------------- | ------------------------------------------ |
+| **AREC** (Academic Research Ethics Committee)        | Multi-institutional joint ethics review committee | Institutional IRB websites                 |
+| **Institutional IRB systems**                        | Online application systems within universities    | Institutional R&D office websites          |
+| **CITI Program**                                     | Online research ethics training course            | citiprogram.org                            |
+| **Taiwan Research Ethics Education Resource Center** | Research ethics education materials               | Institutional teaching development centers |
 
 ---
 
 ## 4. Higher Education Research Quick Reference Table
 
-| Research Scenario | Involves Human Subjects | Recommended Review Level | Notes |
-|-------------------|------------------------|--------------------------|-------|
-| MOE public statistical data analysis | No | Exempt | Already publicly available de-identified data |
-| Institutional research (IR) data analysis | Depends | Exempt/Expedited | Depends on whether data is de-identified |
-| Student learning outcome survey | Yes | Expedited | Anonymous surveys typically qualify for expedited review |
-| Teacher interviews (general teaching experience) | Yes | Expedited | Non-sensitive topics |
-| Teaching experiment (A/B teaching method comparison) | Yes | Expedited/Full Board | Depends on whether it affects students' grades/rights |
-| Student mental health survey | Yes | Full Board | Sensitive topic |
-| Vulnerable student population study | Yes | Full Board | Vulnerable population protection |
-| Student learning portfolio analysis | Depends | Expedited | Contains identifiable information requiring expedited review |
-| Classroom observation (no personal data recorded) | Yes | Exempt/Expedited | Public setting observation |
-| Graduate career tracking survey | Yes | Expedited | Contains personal data requiring expedited review |
-| HEEACT accreditation data analysis | Depends | Exempt/Expedited | Publicly available portions exempt from review |
-| University faculty salary/labor conditions survey | Yes | Expedited/Full Board | May involve institutional power dynamics |
+| Research Scenario                                    | Involves Human Subjects | Recommended Review Level | Notes                                                        |
+| ---------------------------------------------------- | ----------------------- | ------------------------ | ------------------------------------------------------------ |
+| MOE public statistical data analysis                 | No                      | Exempt                   | Already publicly available de-identified data                |
+| Institutional research (IR) data analysis            | Depends                 | Exempt/Expedited         | Depends on whether data is de-identified                     |
+| Student learning outcome survey                      | Yes                     | Expedited                | Anonymous surveys typically qualify for expedited review     |
+| Teacher interviews (general teaching experience)     | Yes                     | Expedited                | Non-sensitive topics                                         |
+| Teaching experiment (A/B teaching method comparison) | Yes                     | Expedited/Full Board     | Depends on whether it affects students' grades/rights        |
+| Student mental health survey                         | Yes                     | Full Board               | Sensitive topic                                              |
+| Vulnerable student population study                  | Yes                     | Full Board               | Vulnerable population protection                             |
+| Student learning portfolio analysis                  | Depends                 | Expedited                | Contains identifiable information requiring expedited review |
+| Classroom observation (no personal data recorded)    | Yes                     | Exempt/Expedited         | Public setting observation                                   |
+| Graduate career tracking survey                      | Yes                     | Expedited                | Contains personal data requiring expedited review            |
+| HEEACT accreditation data analysis                   | Depends                 | Exempt/Expedited         | Publicly available portions exempt from review               |
+| University faculty salary/labor conditions survey    | Yes                     | Expedited/Full Board     | May involve institutional power dynamics                     |
 
 ---
 
@@ -162,13 +167,13 @@ Does your research collect, use, or analyze data from humans?
 
 ### 5.2 Special Situations
 
-| Situation | Additional Requirements |
-|-----------|------------------------|
-| **Online survey** | Electronic consent (clicking "I agree" constitutes consent); must state that IP addresses will not be recorded |
-| **Audio/video recording** | Separate checkbox item: consent to audio/video recording |
-| **Minors** | Legal guardian consent + subject assent |
-| **Cross-national research** | Comply with local IRB requirements + Taiwan IRB requirements |
-| **Indigenous research** | Community consent (tribal consent) + individual informed consent |
+| Situation                   | Additional Requirements                                                                                        |
+| --------------------------- | -------------------------------------------------------------------------------------------------------------- |
+| **Online survey**           | Electronic consent (clicking "I agree" constitutes consent); must state that IP addresses will not be recorded |
+| **Audio/video recording**   | Separate checkbox item: consent to audio/video recording                                                       |
+| **Minors**                  | Legal guardian consent + subject assent                                                                        |
+| **Cross-national research** | Comply with local IRB requirements + Taiwan IRB requirements                                                   |
+| **Indigenous research**     | Community consent (tribal consent) + individual informed consent                                               |
 
 ### 5.3 Informed Consent Form Template Structure
 
@@ -207,13 +212,13 @@ Researcher Signature: __________ Date: __________
 
 ### 6.1 De-identification Strategies
 
-| Strategy | Description | Applicable Scenario |
-|----------|-------------|---------------------|
-| **Anonymization** | Complete removal of all identifiable information, irreversible | Final data publication |
-| **Pseudonymization** | Replace with codes, retain a linkage table | Need to track during research process |
-| **Data generalization** | Convert precise values to ranges (e.g., age → age group) | Statistical analysis |
-| **Data masking** | Hide partial information (e.g., partially masked email) | Data display |
-| **k-anonymity** | Ensure each record is indistinguishable from at least k-1 other records | Dataset release |
+| Strategy                | Description                                                             | Applicable Scenario                   |
+| ----------------------- | ----------------------------------------------------------------------- | ------------------------------------- |
+| **Anonymization**       | Complete removal of all identifiable information, irreversible          | Final data publication                |
+| **Pseudonymization**    | Replace with codes, retain a linkage table                              | Need to track during research process |
+| **Data generalization** | Convert precise values to ranges (e.g., age → age group)                | Statistical analysis                  |
+| **Data masking**        | Hide partial information (e.g., partially masked email)                 | Data display                          |
+| **k-anonymity**         | Ensure each record is indistinguishable from at least k-1 other records | Dataset release                       |
 
 ### 6.2 Common Privacy Risks in Higher Education Research
 

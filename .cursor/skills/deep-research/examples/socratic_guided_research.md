@@ -7,6 +7,7 @@ This example demonstrates the complete multi-round dialogue process in Socratic 
 ## Scenario Setup
 
 **User**:
+
 ```
 Guide my research on the impact of declining birth rates on private universities
 ```
@@ -272,6 +273,7 @@ Dialogue concluded. Below is the Research Plan Summary extracted from 12 rounds 
 **Core Question**: In the context of Taiwan's declining birth rates, among the transformation strategies of private technology universities, which strategies can achieve operational sustainability while maintaining educational quality? What are the key differentiating factors between successful and failed cases?
 
 **Sub-questions**:
+
 1. What different types of transformation strategies have private technology universities adopted?
 2. What common characteristics do the strategies of technology universities that have maintained both operations and quality share?
 3. To what extent do structural factors (geographic location, historical reputation, school size) influence strategy effectiveness?

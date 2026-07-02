@@ -72,24 +72,24 @@ RSS (Really Simple Syndication) allows you to subscribe to content updates from 
 
 ### Recommended Feeds
 
-| Source | Feed URL Pattern | Content |
-|--------|-----------------|---------|
-| **PubMed** | Saved search → RSS icon | New articles matching your search |
-| **arXiv** | `arxiv.org/rss/[category]` (e.g., `cs.AI`, `cs.CL`) | Preprints by category |
-| **bioRxiv** | `connect.biorxiv.org/biorxiv_xml.php?subject=[subject]` | Biology preprints |
-| **medRxiv** | `connect.medrxiv.org/medrxiv_xml.php?subject=[subject]` | Medical preprints |
-| **SSRN** | Subscribe to specific research networks | Social science preprints |
-| **Journal TOC** | Most journals offer RSS on their homepage | New issues of specific journals |
-| **Retraction Watch** | `retractionwatch.com/feed/` | Retraction news and updates |
+| Source               | Feed URL Pattern                                        | Content                           |
+| -------------------- | ------------------------------------------------------- | --------------------------------- |
+| **PubMed**           | Saved search → RSS icon                                 | New articles matching your search |
+| **arXiv**            | `arxiv.org/rss/[category]` (e.g., `cs.AI`, `cs.CL`)     | Preprints by category             |
+| **bioRxiv**          | `connect.biorxiv.org/biorxiv_xml.php?subject=[subject]` | Biology preprints                 |
+| **medRxiv**          | `connect.medrxiv.org/medrxiv_xml.php?subject=[subject]` | Medical preprints                 |
+| **SSRN**             | Subscribe to specific research networks                 | Social science preprints          |
+| **Journal TOC**      | Most journals offer RSS on their homepage               | New issues of specific journals   |
+| **Retraction Watch** | `retractionwatch.com/feed/`                             | Retraction news and updates       |
 
 ### RSS Reader Recommendations
 
-| Reader | Platform | Cost | Best For |
-|--------|----------|------|----------|
-| **Feedly** | Web, iOS, Android | Free (basic) / $6/mo (Pro) | Organized categorization, AI features |
-| **Inoreader** | Web, iOS, Android | Free (basic) / $5/mo (Pro) | Power users, rules/filters |
-| **NewsBlur** | Web, iOS, Android | Free (limited) / $36/yr | Open source option |
-| **Zotero RSS** | Desktop | Free | Integrates with reference manager |
+| Reader         | Platform          | Cost                       | Best For                              |
+| -------------- | ----------------- | -------------------------- | ------------------------------------- |
+| **Feedly**     | Web, iOS, Android | Free (basic) / $6/mo (Pro) | Organized categorization, AI features |
+| **Inoreader**  | Web, iOS, Android | Free (basic) / $5/mo (Pro) | Power users, rules/filters            |
+| **NewsBlur**   | Web, iOS, Android | Free (limited) / $36/yr    | Open source option                    |
+| **Zotero RSS** | Desktop           | Free                       | Integrates with reference manager     |
 
 ---
 
@@ -109,14 +109,14 @@ RSS (Really Simple Syndication) allows you to subscribe to content updates from 
 
 ### Retraction Reasons to Watch For
 
-| Reason | Severity | Action Required |
-|--------|----------|-----------------|
-| Data fabrication/falsification | Critical | Remove citation; add note explaining removal |
-| Plagiarism | High | Replace with original source |
-| Duplicate publication | Moderate | Keep the primary publication; remove duplicate |
-| Honest error | Moderate | Check whether the error affects cited findings |
-| Author dispute | Low | Usually no impact on findings |
-| Publisher error | Low | Update citation to corrected version |
+| Reason                         | Severity | Action Required                                |
+| ------------------------------ | -------- | ---------------------------------------------- |
+| Data fabrication/falsification | Critical | Remove citation; add note explaining removal   |
+| Plagiarism                     | High     | Replace with original source                   |
+| Duplicate publication          | Moderate | Keep the primary publication; remove duplicate |
+| Honest error                   | Moderate | Check whether the error affects cited findings |
+| Author dispute                 | Low      | Usually no impact on findings                  |
+| Publisher error                | Low      | Update citation to corrected version           |
 
 ---
 
@@ -188,24 +188,24 @@ RSS (Really Simple Syndication) allows you to subscribe to content updates from 
 
 ### Determining Your Field's Publication Velocity
 
-| Indicator | High Velocity | Moderate | Low |
-|-----------|--------------|----------|-----|
-| Papers per month (in your niche) | > 50 | 10-50 | < 10 |
-| Median time from submission to publication | < 6 months | 6-12 months | > 12 months |
-| Preprint prevalence | > 50% of key papers | 10-50% | < 10% |
-| Conference vs. journal dominance | Conference-first | Mixed | Journal-only |
+| Indicator                                  | High Velocity       | Moderate    | Low          |
+| ------------------------------------------ | ------------------- | ----------- | ------------ |
+| Papers per month (in your niche)           | > 50                | 10-50       | < 10         |
+| Median time from submission to publication | < 6 months          | 6-12 months | > 12 months  |
+| Preprint prevalence                        | > 50% of key papers | 10-50%      | < 10%        |
+| Conference vs. journal dominance           | Conference-first    | Mixed       | Journal-only |
 
 ### Cadence Recommendations
 
-| Field | Check Frequency | Digest Period | Sunset |
-|-------|----------------|---------------|--------|
-| **AI/ML, NLP** | Daily (arXiv) + Weekly (journals) | Weekly | 6 months |
-| **Biomedical, Clinical** | Weekly (PubMed + preprints) | Biweekly | 12 months |
-| **Education Technology** | Biweekly | Monthly | 12 months |
-| **Higher Education Policy** | Monthly | Quarterly | 18 months |
-| **Social Sciences (general)** | Monthly | Quarterly | 18 months |
-| **Law, Philosophy** | Quarterly | Semi-annually | 24 months |
-| **History, Classics** | Semi-annually | Annually | 36 months |
+| Field                         | Check Frequency                   | Digest Period | Sunset    |
+| ----------------------------- | --------------------------------- | ------------- | --------- |
+| **AI/ML, NLP**                | Daily (arXiv) + Weekly (journals) | Weekly        | 6 months  |
+| **Biomedical, Clinical**      | Weekly (PubMed + preprints)       | Biweekly      | 12 months |
+| **Education Technology**      | Biweekly                          | Monthly       | 12 months |
+| **Higher Education Policy**   | Monthly                           | Quarterly     | 18 months |
+| **Social Sciences (general)** | Monthly                           | Quarterly     | 18 months |
+| **Law, Philosophy**           | Quarterly                         | Semi-annually | 24 months |
+| **History, Classics**         | Semi-annually                     | Annually      | 36 months |
 
 ### Sunset Policy
 
@@ -251,6 +251,7 @@ See `agents/monitoring_agent.md` for the detailed agent definition.
 **Trigger**: "monitor this topic", "set up alerts", "track new publications on this"
 
 **Capabilities**:
+
 - Weekly/monthly monitoring digest generation
 - Retraction alerts for cited sources
 - Contradictory findings detection

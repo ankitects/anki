@@ -681,6 +681,32 @@ impl super::SqliteStorage {
         Ok(count as u32)
     }
 
+    /// Graded reviews for the cards in `search_cids`, grouped as
+    /// `(note tags, button, count)`. Only real button presses are included
+    /// (`ease != 0`, i.e. manual/rescheduled entries are excluded). Grouping in
+    /// SQL keeps the row count small (distinct tag strings × buttons) so the
+    /// caller can fold the per-tag answer-accuracy signal cheaply, even on
+    /// large collections. Buttons follow Anki's convention: 1=Again,
+    /// 2=Hard, 3=Good, 4=Easy.
+    pub(crate) fn searched_cards_revlog_grades_by_tag(&self) -> Result<Vec<(String, u8, u32)>> {
+        self.db
+            .prepare_cached(
+                "select n.tags, revlog.ease, count(*) \
+                 from revlog, search_cids, cards c, notes n \
+                 where revlog.cid = search_cids.cid and c.id = revlog.cid \
+                 and c.nid = n.id and revlog.ease != 0 \
+                 group by n.tags, revlog.ease",
+            )?
+            .query_and_then([], |row| -> Result<(String, u8, u32)> {
+                Ok((
+                    row.get(0)?,
+                    row.get::<_, i64>(1)? as u8,
+                    row.get::<_, i64>(2)? as u32,
+                ))
+            })?
+            .collect()
+    }
+
     /// Cards will arrive in card id order, not search order.
     pub(crate) fn for_each_card_in_search<F>(&self, mut func: F) -> Result<()>
     where

@@ -31,6 +31,9 @@ struct ClusterAcc {
     with_memory_state: u32,
     retrievability_sum: f64,
     reviewed: u32,
+    graded: u32,
+    again: u32,
+    hard: u32,
 }
 
 impl Collection {
@@ -84,6 +87,27 @@ impl Collection {
             }
         }
 
+        // Fold in per-cluster answer accuracy from the review log so the frontend
+        // can pull a cluster the student keeps failing/finding hard toward
+        // "weak" (a card counts toward each of its tags, as above).
+        for (tags, ease, count) in guard.col.storage.searched_cards_revlog_grades_by_tag()? {
+            let mut card_tags: Vec<&str> = tags
+                .split_whitespace()
+                .filter(|t| !IGNORED_TAGS.contains(t))
+                .collect();
+            card_tags.sort_unstable();
+            card_tags.dedup();
+            for &tag in &card_tags {
+                let acc = clusters.entry(tag.to_string()).or_default();
+                acc.graded += count;
+                match ease {
+                    1 => acc.again += count,
+                    2 => acc.hard += count,
+                    _ => {}
+                }
+            }
+        }
+
         // Assign stable ids in sorted label order for deterministic output.
         let mut labels: Vec<String> = clusters.keys().cloned().collect();
         labels.sort();
@@ -108,6 +132,9 @@ impl Collection {
                         0.0
                     },
                     reviewed_count: acc.reviewed,
+                    graded_reviews: acc.graded,
+                    again_reviews: acc.again,
+                    hard_reviews: acc.hard,
                 }
             })
             .collect();
@@ -177,6 +204,25 @@ mod test {
         // fresh new cards have no FSRS memory state and haven't graduated
         assert_eq!(res.nodes[0].with_memory_state, 0);
         assert_eq!(res.nodes[0].reviewed_count, 0);
+        // and no answers yet -> no accuracy signal on any cluster
+        assert_eq!(res.nodes[0].graded_reviews, 0);
+        assert_eq!(res.nodes[0].again_reviews, 0);
+        Ok(())
+    }
+
+    #[test]
+    fn records_per_cluster_answer_accuracy() -> Result<()> {
+        let mut col = Collection::new();
+        add_note(&mut col, "1", &["Duration"]);
+        // Answering "Again" logs a failed graded review the frontend uses to pull
+        // this cluster's colour toward "weak".
+        col.answer_again();
+
+        let res = col.concept_graph(ConceptGraphRequest::default())?;
+        let node = res.nodes.iter().find(|n| n.label == "Duration").unwrap();
+        assert_eq!(node.graded_reviews, 1);
+        assert_eq!(node.again_reviews, 1);
+        assert_eq!(node.hard_reviews, 0);
         Ok(())
     }
 }

@@ -1,16 +1,19 @@
 # Research Methodology Patterns — Design Templates
 
 ## Purpose
+
 Ready-to-use methodology templates for common research designs. Used by the research_architect_agent.
 
 ## Pattern 1: Systematic Literature Review
 
 ### When to Use
+
 - Mapping the state of knowledge on a topic
 - Identifying gaps in existing research
 - Synthesizing evidence for policy/practice recommendations
 
 ### Design Template
+
 ```
 Research Question: What is known about [topic] in [context]?
 
@@ -35,6 +38,7 @@ Reporting Standard: PRISMA 2020 (see references/equator_reporting_guidelines.md)
 ```
 
 ### PRISMA Flow Template
+
 ```
 Records identified through database searching (n = )
 Additional records from other sources (n = )
@@ -53,11 +57,13 @@ Studies included in synthesis (n = )
 ## Pattern 2: Comparative Case Study
 
 ### When to Use
+
 - Comparing policies, programs, or institutions
 - Understanding how context shapes outcomes
 - Generating theoretical propositions from multiple cases
 
 ### Design Template
+
 ```
 Research Question: How does [phenomenon] vary across [cases]?
 
@@ -77,6 +83,7 @@ Quality Criteria:
 ```
 
 ### Comparison Matrix Template
+
 ```
 | Dimension | Case A | Case B | Case C | Pattern |
 |-----------|--------|--------|--------|---------|
@@ -89,11 +96,13 @@ Quality Criteria:
 ## Pattern 3: Policy Analysis
 
 ### When to Use
+
 - Evaluating existing or proposed policies
 - Comparing policy approaches across jurisdictions
 - Assessing policy outcomes and unintended consequences
 
 ### Design Template
+
 ```
 Research Question: How effective is [policy] in achieving [goal]?
 
@@ -121,11 +130,13 @@ Quality Criteria:
 ## Pattern 4: Mixed Methods (Convergent Parallel)
 
 ### When to Use
+
 - Complex phenomena requiring multiple data types
 - Need to triangulate findings
 - Quantitative data needs qualitative explanation (or vice versa)
 
 ### Design Template
+
 ```
 Research Question: What is the nature and extent of [phenomenon]?
 
@@ -151,11 +162,13 @@ Reporting Standards: QUAL strand → COREQ; QUAN strand → STROBE/CONSORT (see 
 ## Pattern 5: Content/Document Analysis
 
 ### When to Use
+
 - Analyzing texts, policies, media, or documents
 - Identifying patterns in communication
 - Systematic examination of large document sets
 
 ### Design Template
+
 ```
 Research Question: What themes/patterns emerge from [document set]?
 
@@ -176,11 +189,13 @@ Quality Criteria:
 ## Pattern 6: Exploratory Research
 
 ### When to Use
+
 - New or under-researched topics
 - Generating hypotheses for future research
 - Understanding phenomena from participant perspective
 
 ### Design Template
+
 ```
 Research Question: How do [participants] experience/understand [phenomenon]?
 
@@ -204,11 +219,13 @@ Reporting Standard: COREQ for interviews/focus groups (see references/equator_re
 ## Pattern 7: Benchmarking Study
 
 ### When to Use
+
 - Comparing performance against standards or peers
 - Identifying best practices
 - Setting performance targets
 
 ### Design Template
+
 ```
 Research Question: How does [entity] perform compared to [benchmark]?
 
@@ -230,12 +247,14 @@ Quality Criteria:
 ## Pattern 8: Technology Requirements Analysis
 
 ### When to Use
+
 - Assessing feasibility, requirements analysis, and technology comparison for new technologies
 - Technology selection decisions before system design
 - Risk and benefit assessment of technology adoption
 - When research questions involve "Which technology should be used?" or "Can this technology solve the problem?"
 
 ### Design Template
+
 ```
 Research Question: What technology approach best addresses [need] given [constraints]?
 
@@ -270,6 +289,7 @@ Quality Criteria:
 ```
 
 ### Technology Comparison Matrix Template
+
 ```
 | Evaluation Dimension | Option A | Option B | Option C | Weight |
 |---------------------|----------|----------|----------|--------|
@@ -286,16 +306,19 @@ Quality Criteria:
 ## Pattern 9: Legal Case Analysis
 
 ### When to Use
+
 - Legal and regulatory policy analysis, case law research, legal text interpretation
 - Analyzing current regulations and judicial opinions on specific legal issues
 - Comparing legal approaches across different jurisdictions
 - When research questions involve statutory interpretation, rights and obligations analysis, or legal aspects of policy analysis
 
 ### Distinction from Pattern 3 (Policy Analysis)
+
 - **Policy Analysis**: Focuses on evaluating policy effectiveness — "Is this policy working?" "Are there better policy options?"
 - **Legal Case Analysis**: Focuses on analyzing legal texts and case law — "What does the law say?" "How do courts interpret it?" "Are there legal loopholes?"
 
 ### Design Template
+
 ```
 Research Question: How does the law address [issue] and what are the implications for [context]?
 
@@ -333,6 +356,7 @@ Quality Criteria:
 ```
 
 ### Legal Analysis Structure Template
+
 ```
 I. Legal Issues
    [Specific legal issues in dispute]
@@ -361,18 +385,21 @@ VI. Conclusions and Recommendations
 ## Pattern 10: Creative/Practice-Based Research
 
 ### When to Use
+
 - Art-based research: Generating knowledge through artistic creation
 - Design research / research through design: Generating knowledge through the design process
 - Practice-based / practice-led research: Practice itself is the research method
 - When research questions involve creative practice, design thinking, or artistic inquiry
 
 ### Differences from Traditional Academic Research
+
 - **Output format**: Can be a creative work + dissertation (not just a dissertation)
 - **Knowledge type**: Values practical knowledge (tacit knowledge) and embodied knowledge
 - **Process as method**: The creative/design process itself is the research method, not merely the object of study
 - **Subjectivity**: The researcher's subjective experience is a legitimate source of knowledge, but requires systematic reflection
 
 ### Design Template
+
 ```
 Research Question: What knowledge emerges through the practice of [creative activity] in [context]?
 
@@ -408,6 +435,7 @@ Quality Criteria:
 ```
 
 ### Practice-Based Research Documentation Template
+
 ```
 Phase 1: Positioning
 - Research question:
