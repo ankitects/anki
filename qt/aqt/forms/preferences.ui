@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>636</width>
-    <height>638</height>
+    <width>750</width>
+    <height>710</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -1236,6 +1236,25 @@
        </item>
       </layout>
      </widget>
+     <widget class="QWidget" name="labsTab">
+      <attribute name="title">
+       <string>preferences_labs</string>
+      </attribute>
+      <layout class="QVBoxLayout" name="verticalLayout_7">
+       <property name="leftMargin">
+        <number>0</number>
+       </property>
+       <property name="topMargin">
+        <number>0</number>
+       </property>
+       <property name="rightMargin">
+        <number>0</number>
+       </property>
+       <property name="bottomMargin">
+        <number>0</number>
+       </property>
+      </layout>
+     </widget>
     </widget>
    </item>
    <item>
@@ -1306,7 +1325,6 @@
   <tabstop>syncAnkiHubLogout</tabstop>
   <tabstop>syncAnkiHubLogin</tabstop>
   <tabstop>buttonBox</tabstop>
-  <tabstop>tabWidget</tabstop>
  </tabstops>
  <resources/>
  <connections>

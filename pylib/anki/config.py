@@ -32,17 +32,30 @@ from anki.errors import NotFoundError
 from anki.utils import from_json_bytes, to_json_bytes
 
 Config = config_pb2.ConfigKey
+ExperimentFlag = config_pb2.ExperimentalFeatureFlag
 
 
 class ConfigManager:
     def __init__(self, col: anki.collection.Collection):
         self.col = col.weakref()
+        # Saved when the collection is loaded to prevent changes before restart.
+        self._experiments = self._get_experiments_dirty()
 
     def get_immutable(self, key: str) -> Any:
         try:
             return from_json_bytes(self.col._backend.get_config_json(key))
         except NotFoundError as exc:
             raise KeyError from exc
+
+    def experiment_enabled(self, key: ExperimentFlag.ValueType) -> bool:
+        return self._experiments.get(str(key), False)
+
+    def _get_experiments_dirty(self) -> dict[str, bool]:
+        """This fetches the experiments in the state that they are saved in the database.
+        This should not be used to check if an experiment is enabled because this will update immediately without a restart.
+
+        Use "experiment_enabled" to fetch an active experiment instead."""
+        return self.get_immutable("experimentalFeatures")
 
     def set(self, key: str, val: Any) -> None:
         self.col._backend.set_config_json_no_undo(
