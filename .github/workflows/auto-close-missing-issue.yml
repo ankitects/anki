@@ -1,0 +1,67 @@
+name: Auto-close PRs without linked issue
+
+on:
+  schedule:
+    - cron: '0 0 * * *'  # daily at midnight UTC
+  workflow_dispatch:
+
+jobs:
+  auto-close:
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write
+      issues: write
+
+    steps:
+      - name: Close PRs missing linked issue for over 4 days
+        uses: actions/github-script@f28e40c7f34bde8b3046d885e986cb6290c5673b #v7
+        with:
+          script: |
+            const { owner, repo } = context.repo;
+            const fourDaysAgo = new Date(Date.now() - 4 * 24 * 60 * 60 * 1000);
+
+            const prs = await github.paginate(github.rest.issues.listForRepo, {
+              owner,
+              repo,
+              state: 'open',
+              labels: 'missing-issue',
+            });
+
+            for (const pr of prs) {
+              if (!pr.pull_request) continue;
+
+              const isExempt =
+                pr.labels.some(l => l.name === 'hotfix') ||
+                pr.user.login === 'dependabot[bot]' ||
+                pr.labels.some(l => l.name === 'dependencies');
+
+              if (isExempt) continue;
+
+              // Find when the missing-issue label was applied
+              const events = await github.paginate(github.rest.issues.listEventsForTimeline, {
+                owner,
+                repo,
+                issue_number: pr.number,
+              });
+
+              const labelEvent = events
+                .filter(e => e.event === 'labeled' && e.label?.name === 'missing-issue')
+                .pop(); // most recent application
+
+              if (!labelEvent) continue;
+              if (new Date(labelEvent.created_at) > fourDaysAgo) continue;
+
+              await github.rest.pulls.update({
+                owner,
+                repo,
+                pull_number: pr.number,
+                state: 'closed',
+              });
+
+              await github.rest.issues.createComment({
+                owner,
+                repo,
+                issue_number: pr.number,
+                body: `This PR has been automatically closed because no linked issue was provided within 4 days. Feel free to reopen it after linking an issue, just edit the PR description and add a line like \`Closes #123\`.`,
+              });
+            }

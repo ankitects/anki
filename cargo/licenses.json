@@ -344,6 +344,14 @@
     "repository": "https://github.com/RustCrypto/utils"
   },
   {
+    "authors": "RustCrypto Developers",
+    "description": "Buffer types for block processing of data",
+    "license": "Apache-2.0 OR MIT",
+    "license_file": null,
+    "name": "block-buffer",
+    "repository": "https://github.com/RustCrypto/utils"
+  },
+  {
     "authors": "Nick Fitzgerald <fitzgen@gmail.com>",
     "description": "A fast bump allocation arena for Rust.",
     "license": "Apache-2.0 OR MIT",
@@ -624,6 +632,14 @@
     "repository": "https://github.com/smol-rs/concurrent-queue"
   },
   {
+    "authors": "RustCrypto Developers",
+    "description": "Const-friendly implementation of the ISO/IEC Object Identifier (OID) standard as defined in ITU X.660, with support for BER/DER encoding/decoding as well as heapless no_std (i.e. embedded) support",
+    "license": "Apache-2.0 OR MIT",
+    "license_file": null,
+    "name": "const-oid",
+    "repository": "https://github.com/RustCrypto/formats"
+  },
+  {
     "authors": "Cesar Eduardo Barros <cesarb@cesarb.eti.br>",
     "description": "Compares two equal-sized byte strings in constant time.",
     "license": "Apache-2.0 OR CC0-1.0 OR MIT-0",
@@ -674,6 +690,14 @@
   {
     "authors": "RustCrypto Developers",
     "description": "Lightweight runtime CPU feature detection for aarch64, loongarch64, and x86/x86_64 targets,  with no_std support and support for mobile targets including Android and iOS",
+    "license": "Apache-2.0 OR MIT",
+    "license_file": null,
+    "name": "cpufeatures",
+    "repository": "https://github.com/RustCrypto/utils"
+  },
+  {
+    "authors": "RustCrypto Developers",
+    "description": "Lightweight runtime CPU feature detection for aarch64, loongarch64, and x86/x86_64 targets, with no_std support and support for mobile targets including Android and iOS",
     "license": "Apache-2.0 OR MIT",
     "license_file": null,
     "name": "cpufeatures",
@@ -736,19 +760,19 @@
     "repository": "https://github.com/RustCrypto/traits"
   },
   {
+    "authors": "RustCrypto Developers",
+    "description": "Common traits used by cryptographic algorithms",
+    "license": "Apache-2.0 OR MIT",
+    "license_file": null,
+    "name": "crypto-common",
+    "repository": "https://github.com/RustCrypto/traits"
+  },
+  {
     "authors": "Simon Sapin <simon.sapin@exyr.org>",
     "description": "Rust implementation of CSS Syntax Level 3",
     "license": "MPL-2.0",
     "license_file": null,
     "name": "cssparser",
-    "repository": "https://github.com/servo/rust-cssparser"
-  },
-  {
-    "authors": "Simon Sapin <simon.sapin@exyr.org>",
-    "description": "Procedural macros for cssparser",
-    "license": "MPL-2.0",
-    "license_file": null,
-    "name": "cssparser-macros",
     "repository": "https://github.com/servo/rust-cssparser"
   },
   {
@@ -998,6 +1022,14 @@
     "license_file": null,
     "name": "difflib",
     "repository": "https://github.com/DimaKudosh/difflib"
+  },
+  {
+    "authors": "RustCrypto Developers",
+    "description": "Traits for cryptographic hash functions and message authentication codes",
+    "license": "Apache-2.0 OR MIT",
+    "license_file": null,
+    "name": "digest",
+    "repository": "https://github.com/RustCrypto/traits"
   },
   {
     "authors": "RustCrypto Developers",
@@ -1310,14 +1342,6 @@
     "license_file": null,
     "name": "fsrs",
     "repository": "https://github.com/open-spaced-repetition/fsrs-rs"
-  },
-  {
-    "authors": "Keegan McAllister <kmcallister@mozilla.com>",
-    "description": "Handling fragments of UTF-8",
-    "license": "Apache-2.0 OR MIT",
-    "license_file": null,
-    "name": "futf",
-    "repository": "https://github.com/servo/futf"
   },
   {
     "authors": null,
@@ -1800,6 +1824,14 @@
     "repository": "https://github.com/pyfisch/httpdate"
   },
   {
+    "authors": "RustCrypto Developers",
+    "description": "Hybrid typenum-based and const generic array types designed to provide the flexibility of typenum-based expressions while also allowing interoperability and a transition path to const generics",
+    "license": "Apache-2.0 OR MIT",
+    "license_file": null,
+    "name": "hybrid-array",
+    "repository": "https://github.com/RustCrypto/hybrid-array"
+  },
+  {
     "authors": "Sean McArthur <sean@seanmonstar.com>",
     "description": "A protective and efficient HTTP library for all.",
     "license": "MIT",
@@ -2152,14 +2184,6 @@
     "repository": "https://github.com/Ralith/lru-slab"
   },
   {
-    "authors": "Jonathan Reem <jonathan.reem@gmail.com>",
-    "description": "A collection of great and ubiqutitous macros.",
-    "license": "Apache-2.0 OR MIT",
-    "license_file": null,
-    "name": "mac",
-    "repository": "https://github.com/reem/rust-mac.git"
-  },
-  {
     "authors": "Genna Wingert",
     "description": "Type and target-generic SIMD",
     "license": "Apache-2.0 OR MIT",
@@ -2197,14 +2221,6 @@
     "license": "Apache-2.0 OR MIT",
     "license_file": null,
     "name": "markup5ever",
-    "repository": "https://github.com/servo/html5ever"
-  },
-  {
-    "authors": "The html5ever Project Developers",
-    "description": "Procedural macro for html5ever.",
-    "license": "Apache-2.0 OR MIT",
-    "license_file": null,
-    "name": "match_token",
     "repository": "https://github.com/servo/html5ever"
   },
   {
@@ -2549,7 +2565,7 @@
     "license": "Apache-2.0",
     "license_file": null,
     "name": "openssl",
-    "repository": "https://github.com/sfackler/rust-openssl"
+    "repository": "https://github.com/rust-openssl/rust-openssl"
   },
   {
     "authors": null,
@@ -2573,7 +2589,7 @@
     "license": "MIT",
     "license_file": null,
     "name": "openssl-sys",
-    "repository": "https://github.com/sfackler/rust-openssl"
+    "repository": "https://github.com/rust-openssl/rust-openssl"
   },
   {
     "authors": "Simon Ochsenreither <simon@ochsenreither.de>",
@@ -2689,6 +2705,14 @@
   },
   {
     "authors": "Steven Fackler <sfackler@gmail.com>",
+    "description": "Runtime support for perfect hash function data structures",
+    "license": "MIT",
+    "license_file": null,
+    "name": "phf",
+    "repository": "https://github.com/rust-phf/rust-phf"
+  },
+  {
+    "authors": "Steven Fackler <sfackler@gmail.com>",
     "description": "Codegen library for PHF types",
     "license": "MIT",
     "license_file": null,
@@ -2705,10 +2729,26 @@
   },
   {
     "authors": "Steven Fackler <sfackler@gmail.com>",
+    "description": "PHF generation logic",
+    "license": "MIT",
+    "license_file": null,
+    "name": "phf_generator",
+    "repository": "https://github.com/rust-phf/rust-phf"
+  },
+  {
+    "authors": "Steven Fackler <sfackler@gmail.com>",
     "description": "Macros to generate types in the phf crate",
     "license": "MIT",
     "license_file": null,
     "name": "phf_macros",
+    "repository": "https://github.com/rust-phf/rust-phf"
+  },
+  {
+    "authors": "Steven Fackler <sfackler@gmail.com>",
+    "description": "Support code shared by PHF libraries",
+    "license": "MIT",
+    "license_file": null,
+    "name": "phf_shared",
     "repository": "https://github.com/rust-phf/rust-phf"
   },
   {
@@ -3520,6 +3560,14 @@
     "repository": "https://github.com/RustCrypto/hashes"
   },
   {
+    "authors": "RustCrypto Developers",
+    "description": "Pure Rust implementation of the SHA-2 hash function family including SHA-224, SHA-256, SHA-384, and SHA-512.",
+    "license": "Apache-2.0 OR MIT",
+    "license_file": null,
+    "name": "sha2",
+    "repository": "https://github.com/RustCrypto/hashes"
+  },
+  {
     "authors": "Eliza Weisman <eliza@buoyant.io>",
     "description": "A lock-free concurrent slab.",
     "license": "MIT",
@@ -3789,7 +3837,7 @@
     "license": "Apache-2.0 OR MIT",
     "license_file": null,
     "name": "tendril",
-    "repository": "https://github.com/servo/tendril"
+    "repository": "https://github.com/servo/html5ever"
   },
   {
     "authors": "Andrew Gallant <jamslam@gmail.com>",

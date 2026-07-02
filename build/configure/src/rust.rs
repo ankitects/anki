@@ -169,7 +169,7 @@ fn build_rsbridge(build: &mut Build) -> Result<()> {
 
 pub fn check_rust(build: &mut Build) -> Result<()> {
     let inputs = inputs![
-        glob!("{rslib/**,pylib/rsbridge/**,ftl/**,build/**,qt/launcher/**,tools/minilints/**}"),
+        glob!("{rslib/**,pylib/rsbridge/**,ftl/**,build/**,tools/minilints/**}"),
         "Cargo.lock",
         "Cargo.toml",
         "rust-toolchain.toml",
@@ -247,7 +247,7 @@ pub fn check_minilints(build: &mut Build) -> Result<()> {
     let files = inputs![
         glob![
             "**/*.{py,rs,ts,svelte,mjs,md}",
-            "{node_modules,ts/.svelte-kit}/**"
+            "{target,extra,.mypy_cache,node_modules,ts/.svelte-kit}/**"
         ],
         "Cargo.lock"
     ];

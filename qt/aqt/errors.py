@@ -59,7 +59,9 @@ def show_exception(*, parent: QWidget, exception: Exception) -> None:
         )
     error_text = "\n".join(error_lines)
     print(error_lines)
-    _mbox = _init_message_box(str(exception), error_text, help_page, text_format)
+    _mbox = _init_message_box(
+        str(exception), error_text, help_page, text_format, parent
+    )
     _mbox.show()
 
 
@@ -183,10 +185,11 @@ def _init_message_box(
     debug_text: str,
     help_page=HelpPage.TROUBLESHOOTING,
     text_format=Qt.TextFormat.PlainText,
+    parent: QWidget | None = None,
 ):
     global _mbox
 
-    _mbox = QMessageBox()
+    _mbox = QMessageBox(parent=parent)
     _mbox.setWindowTitle("Anki")
     _mbox.setText(user_text)
     _mbox.setIcon(QMessageBox.Icon.Warning)
@@ -204,12 +207,12 @@ def _init_message_box(
         debug_info = _mbox.addButton(
             tr.errors_copy_debug_info_button(), QMessageBox.ButtonRole.ActionRole
         )
-        debug_info.disconnect()
+        debug_info.clicked.disconnect()
         debug_info.clicked.connect(copy_debug_info)
     cancel = _mbox.addButton(QMessageBox.StandardButton.Cancel)
     cancel.setText(tr.actions_close())
 
-    help.disconnect()
+    help.clicked.disconnect()
     help.clicked.connect(show_help)
 
     return _mbox

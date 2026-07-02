@@ -53,7 +53,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         display: flex;
         position: absolute;
         top: 2px;
-        left: 2px;
+        inset-inline-start: 2px;
     }
     .tab-buttons .active {
         background: var(--button-primary-bg);

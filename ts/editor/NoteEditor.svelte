@@ -99,7 +99,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                     plainTextsHidden,
                     plainTextDefaults,
                 },
-                modTimeOfNotetype: notetypeMeta.modTime,
             };
         }
     }
@@ -155,7 +154,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     export function setPlainTexts(defaultPlainTexts: boolean[]): void {
         const states = sessionOptions[notetypeMeta?.id]?.fieldStates;
-        if (states) {
+        if (states && states.richTextsHidden.length === defaultPlainTexts.length) {
             richTextsHidden = states.richTextsHidden;
             plainTextsHidden = states.plainTextsHidden;
             plainTextDefaults = states.plainTextDefaults;
@@ -240,10 +239,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     let notetypeMeta: NotetypeIdAndModTime;
     function setNotetypeMeta({ id, modTime }: NotetypeIdAndModTime): void {
         notetypeMeta = { id, modTime };
-        // Discard the saved state of the fields if the notetype has been modified.
-        if (sessionOptions[id]?.modTimeOfNotetype !== modTime) {
-            delete sessionOptions[id];
-        }
         if (isImageOcclusion) {
             getImageOcclusionFields({
                 notetypeId: BigInt(notetypeMeta.id),
@@ -807,7 +802,11 @@ the AddCards dialog) should be implemented in the user of this component.
             tooltip={$tagsCollapsed ? tr.editingExpand() : tr.editingCollapse()}
             on:toggle={() => updateTagsCollapsed(!$tagsCollapsed)}
         >
-            {@html `${tagAmount > 0 ? tagAmount : ""} ${tr.editingTags()}`}
+            {#if tagAmount == 0}
+                {@html `${tr.editingTags()}`}
+            {:else}
+                {@html `${tr.editingTagCount({ count: tagAmount })}`}
+            {/if}
         </CollapseLabel>
         <Collapsible toggleDisplay collapse={$tagsCollapsed}>
             <TagEditor {tags} on:tagsupdate={saveTags} />
@@ -831,7 +830,7 @@ the AddCards dialog) should be implemented in the user of this component.
     }
 
     :global(.image-occlusion .top-tool-bar-container) {
-        margin-left: 28px !important;
+        margin-inline-start: 28px !important;
     }
     :global(.top-tool-bar-container .icon-button) {
         height: 36px !important;

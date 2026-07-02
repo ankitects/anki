@@ -38,6 +38,7 @@ pub(crate) struct DueCard {
     pub current_deck_id: DeckId,
     pub original_deck_id: DeckId,
     pub kind: DueCardKind,
+    pub reps: u32,
 }
 
 #[derive(Debug, Clone, Copy)]
@@ -87,6 +88,7 @@ impl From<DueCard> for LearningQueueEntry {
             due: TimestampSecs(c.due as i64),
             id: c.id,
             mtime: c.mtime,
+            reps: c.reps,
         }
     }
 }
@@ -188,12 +190,8 @@ impl QueueBuilder {
         let intraday_learning = sort_learning(self.learning);
         let now = TimestampSecs::now();
         let cutoff = now.adding_secs(learn_ahead_secs);
-        let learn_count = intraday_learning
-            .iter()
-            .take_while(|e| e.due <= cutoff)
-            .count()
-            + self.day_learning.len();
-
+        let learn_count =
+            intraday_learning.iter().filter(|e| e.due <= cutoff).count() + self.day_learning.len();
         let review_count = self.review.len();
         let new_count = self.new.len();
 
@@ -274,9 +272,11 @@ fn merge_new(
     }
 }
 
-fn sort_learning(mut learning: Vec<DueCard>) -> VecDeque<LearningQueueEntry> {
-    learning.sort_unstable_by(|a, b| a.due.cmp(&b.due));
-    learning.into_iter().map(LearningQueueEntry::from).collect()
+fn sort_learning(learning: Vec<DueCard>) -> VecDeque<LearningQueueEntry> {
+    let mut entries: Vec<LearningQueueEntry> =
+        learning.into_iter().map(LearningQueueEntry::from).collect();
+    entries.sort_by(|a, b| a.cmp_by_reps_then_due(b));
+    entries.into_iter().collect()
 }
 
 impl Collection {

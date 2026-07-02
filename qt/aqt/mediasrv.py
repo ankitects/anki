@@ -16,9 +16,9 @@ from collections.abc import Callable
 from dataclasses import dataclass
 from errno import EPROTOTYPE
 from http import HTTPStatus
+from pathlib import Path
 
 import flask
-import flask_cors
 import stringcase
 import waitress.wasyncore
 from flask import Response, abort, request
@@ -28,8 +28,8 @@ import aqt
 import aqt.main
 import aqt.operations
 from anki import hooks
-from anki.collection import OpChanges, OpChangesOnly, Progress, SearchNode
-from anki.decks import UpdateDeckConfigs
+from anki.collection import OpChangesOnly, Progress, SearchNode
+from anki.decks import UpdateDeckConfigs, UpdateDeckConfigsMode
 from anki.scheduler.v3 import SchedulingStatesWithContext, SetSchedulingStatesRequest
 from anki.utils import dev_mode
 from aqt.changenotetype import ChangeNotetypeDialog
@@ -45,7 +45,6 @@ waitress.wasyncore._DISCONNECTED = waitress.wasyncore._DISCONNECTED.union({EPROT
 
 logger = logging.getLogger(__name__)
 app = flask.Flask(__name__, root_path="/fake")
-flask_cors.CORS(app, resources={r"/*": {"origins": "127.0.0.1"}})
 
 
 @dataclass
@@ -54,6 +53,31 @@ class LocalFileRequest:
     root: str
     # path to file relative to root folder
     path: str
+    # collection media is untrusted user content; add-on web exports are not
+    untrusted: bool = True
+
+
+UNTRUSTED_MEDIA_CSP = "; ".join(
+    (
+        "default-src 'none'",
+        "script-src 'none'",
+        "connect-src 'none'",
+        "object-src 'none'",
+        "frame-src 'none'",
+        "child-src 'none'",
+        "base-uri 'none'",
+        "form-action 'none'",
+        "sandbox",
+    )
+)
+
+
+def _editor_content_security_policy(port: int) -> str:
+    csp_paths = (
+        f"http://127.0.0.1:{port}/_anki/",
+        f"http://127.0.0.1:{port}/_addons/",
+    )
+    return "; ".join((f"script-src {' '.join(csp_paths)}",))
 
 
 @dataclass
@@ -220,6 +244,40 @@ def _text_response(code: HTTPStatus, text: str) -> Response:
     return resp
 
 
+class UnsafePathException(Exception):
+    def __init__(self, path: str):
+        super().__init__(f"Invalid path: {path}")
+
+
+def ensure_safe_path(base_dir: str | Path, path: str | Path) -> str:
+    base_dir = os.path.realpath(base_dir)
+    path = os.path.normpath(path)
+    fullpath = os.path.abspath(os.path.join(base_dir, path))
+
+    # protect against directory traversal: https://security.openstack.org/guidelines/dg_using-file-paths.html
+    if not fullpath.startswith(base_dir + os.sep):
+        raise UnsafePathException(path)
+    return fullpath
+
+
+_LOCALHOST_HOSTS = ("127.0.0.1", "localhost", "[::1]")
+
+_ALLOWED_ORIGIN_PREFIXES = tuple(
+    f"{scheme}{host}" for scheme in ("http://", "https://") for host in _LOCALHOST_HOSTS
+)
+
+
+def is_localhost_origin(origin: str) -> bool:
+    for prefix in _ALLOWED_ORIGIN_PREFIXES:
+        if (
+            origin == prefix
+            or origin.startswith(prefix + ":")
+            or origin.startswith(prefix + "/")
+        ):
+            return True
+    return False
+
+
 def _handle_local_file_request(request: LocalFileRequest) -> Response:
     directory = request.root
     path = request.path
@@ -230,15 +288,7 @@ def _handle_local_file_request(request: LocalFileRequest) -> Response:
             HTTPStatus.BAD_REQUEST, f"Path for '{directory} - {path}' is too long!"
         )
 
-    directory = os.path.realpath(directory)
-    path = os.path.normpath(path)
-    fullpath = os.path.abspath(os.path.join(directory, path))
-
-    # protect against directory transversal: https://security.openstack.org/guidelines/dg_using-file-paths.html
-    if not fullpath.startswith(directory):
-        return _text_response(
-            HTTPStatus.FORBIDDEN, f"Path for '{directory} - {path}' is a security leak!"
-        )
+    fullpath = ensure_safe_path(directory, path)
 
     if isdir:
         return _text_response(
@@ -258,13 +308,17 @@ def _handle_local_file_request(request: LocalFileRequest) -> Response:
                 max_age = 0
             else:
                 max_age = 60 * 60
-            return flask.send_file(
+            response = flask.send_file(
                 fullpath,
                 mimetype=mimetype,
                 conditional=True,
                 max_age=max_age,
                 download_name="foo",  # type: ignore[call-arg]
             )
+            if request.untrusted:
+                # Prevent user-provided HTML/SVG from running as an active document.
+                response.headers["Content-Security-Policy"] = UNTRUSTED_MEDIA_CSP
+            return response
         else:
             print(f"Not found: {path}")
             return _text_response(HTTPStatus.NOT_FOUND, f"Invalid path: {path}")
@@ -283,10 +337,10 @@ def _handle_local_file_request(request: LocalFileRequest) -> Response:
 
 
 def _builtin_data(path: str) -> bytes:
-    """Return data from file in aqt/data folder.
-    Path must use forward slash separators."""
-    full_path = aqt_data_path() / ".." / path
-    return full_path.read_bytes()
+    """Return data from file in aqt/data folder."""
+    full_path = ensure_safe_path(aqt_data_path().parent, path)
+    with open(full_path, "rb") as f:
+        return f.read()
 
 
 def _handle_builtin_file_request(request: BundledFileRequest) -> Response:
@@ -326,29 +380,34 @@ def _handle_builtin_file_request(request: BundledFileRequest) -> Response:
 
 @app.route("/<path:pathin>", methods=["GET", "POST"])
 def handle_request(pathin: str) -> Response:
-    host = request.headers.get("Host", "").lower()
-    allowed_prefixes = ("127.0.0.1:", "localhost:", "[::1]:")
-    if not any(host.startswith(prefix) for prefix in allowed_prefixes):
-        # while we only bind to localhost, this request may have come from a local browser
-        # via a DNS rebinding attack; deny it unless we're doing non-local testing
-        if os.environ.get("ANKI_API_HOST") != "0.0.0.0":
-            print("deny non-local host", host)
+    if os.environ.get("ANKI_API_HOST") != "0.0.0.0":
+        host = request.headers.get("Host", "").lower()
+        origin = request.headers.get("Origin", "").lower()
+        allowed_hosts = tuple(f"{h}:" for h in _LOCALHOST_HOSTS)
+        if not any(host.startswith(h) for h in allowed_hosts):
+            logger.warning("denied non-local host: %s", host)
+            abort(403)
+        if origin and not is_localhost_origin(origin):
+            logger.warning("denied non-local origin: %s", origin)
             abort(403)
 
     req = _extract_request(pathin)
     logger.debug("%s /%s", flask.request.method, pathin)
 
-    if isinstance(req, NotFound):
-        print(req.message)
-        return _text_response(HTTPStatus.NOT_FOUND, f"Invalid path: {pathin}")
-    elif callable(req):
-        return _handle_dynamic_request(req)
-    elif isinstance(req, BundledFileRequest):
-        return _handle_builtin_file_request(req)
-    elif isinstance(req, LocalFileRequest):
-        return _handle_local_file_request(req)
-    else:
-        return _text_response(HTTPStatus.FORBIDDEN, f"unexpected request: {pathin}")
+    try:
+        if isinstance(req, NotFound):
+            print(req.message)
+            return _text_response(HTTPStatus.NOT_FOUND, f"Invalid path: {pathin}")
+        elif callable(req):
+            return _handle_dynamic_request(req)
+        elif isinstance(req, BundledFileRequest):
+            return _handle_builtin_file_request(req)
+        elif isinstance(req, LocalFileRequest):
+            return _handle_local_file_request(req)
+        else:
+            return _text_response(HTTPStatus.FORBIDDEN, f"unexpected request: {pathin}")
+    except UnsafePathException as exc:
+        return _text_response(HTTPStatus.FORBIDDEN, str(exc))
 
 
 def is_sveltekit_page(path: str) -> bool:
@@ -445,7 +504,9 @@ def _extract_addon_request(path: str) -> LocalFileRequest | NotFound | None:
         return None
 
     if re.fullmatch(pattern, sub_path):
-        return LocalFileRequest(root=manager.addonsFolder(), path=addon_path)
+        return LocalFileRequest(
+            root=manager.addonsFolder(), path=addon_path, untrusted=False
+        )
 
     return NotFound(message=f"couldn't locate item in add-on folder {path}")
 
@@ -473,6 +534,16 @@ def congrats_info() -> bytes:
 
 def get_deck_configs_for_update() -> bytes:
     return aqt.mw.col._backend.get_deck_configs_for_update_raw(request.data)
+
+
+def _on_update_deck_configs_success(input: UpdateDeckConfigs) -> None:
+    is_compute_all = (
+        input.mode == UpdateDeckConfigsMode.UPDATE_DECK_CONFIGS_MODE_COMPUTE_ALL_PARAMS
+    )
+    if not is_compute_all and isinstance(
+        window := aqt.mw.app.activeModalWidget(), DeckOptionsDialog
+    ):
+        window.reject()
 
 
 def update_deck_configs() -> bytes:
@@ -511,13 +582,9 @@ def update_deck_configs() -> bytes:
         if update.user_wants_abort:
             update.abort = True
 
-    def on_success(changes: OpChanges) -> None:
-        if isinstance(window := aqt.mw.app.activeModalWidget(), DeckOptionsDialog):
-            window.reject()
-
     def handle_on_main() -> None:
         update_deck_configs_op(parent=aqt.mw, input=input).success(
-            on_success
+            lambda _: _on_update_deck_configs_success(input)
         ).with_backend_progress(on_progress).run_in_background()
 
     aqt.mw.taskman.run_on_main(handle_on_main)
@@ -790,13 +857,8 @@ def legacy_page_data() -> Response:
         # Prevent JS in field content from being executed in the editor, as it would
         # have access to our internal API, and is a security risk.
         if page.context == PageContext.EDITOR:
-            port = aqt.mw.mediaServer.getPort()
-            csp_paths = (
-                f"http://127.0.0.1:{port}/_anki/",
-                f"http://127.0.0.1:{port}/_addons/",
-            )
             response.headers["Content-Security-Policy"] = (
-                f"script-src {' '.join(csp_paths)}"
+                _editor_content_security_policy(aqt.mw.mediaServer.getPort())
             )
         return response
     else:

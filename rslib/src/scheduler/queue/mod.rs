@@ -143,6 +143,8 @@ fn new_scheduling_context(col: &mut Collection, card: &Card) -> Result<Schedulin
             .or_not_found(card.deck_id)?
             .human_name(),
         seed: card.review_seed(),
+        decay: card.decay,
+        desired_retention: card.desired_retention,
     })
 }
 
@@ -159,17 +161,13 @@ impl CardQueues {
     /// Remove the provided card from the top of the queues and
     /// adjust the counts. If it was not at the top, return an error.
     fn pop_entry(&mut self, id: CardId) -> Result<QueueEntry> {
-        // This ignores the current cutoff, so may match if the provided
-        // learning card is not yet due. It should not happen in normal
-        // practice, but does happen in the Python unit tests, as they answer
-        // learning cards early.
-        if self
-            .intraday_learning
-            .front()
-            .filter(|e| e.id == id)
-            .is_some()
-        {
-            Ok(self.pop_intraday_learning().unwrap().into())
+        if let Some(pos) = self.intraday_learning.iter().position(|e| e.id == id) {
+            let entry = self.intraday_learning.remove(pos).unwrap();
+            // FIXME:
+            // under normal circumstances this should not go below 0, but currently
+            // the Python unit tests answer learning cards before they're due
+            self.counts.learning = self.counts.learning.saturating_sub(1);
+            Ok(entry.into())
         } else if self.main.front().filter(|e| e.id == id).is_some() {
             Ok(self.pop_main().unwrap().into())
         } else {
