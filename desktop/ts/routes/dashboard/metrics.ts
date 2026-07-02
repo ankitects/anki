@@ -91,6 +91,8 @@ export interface ReadinessThresholds {
     minCoverage: number;
     minHeldOutProbes: number;
 }
+// If these change, update the `statistics-dashboard-give-up-note` ftl string,
+// which states them to the user.
 export const HONEST_THRESHOLDS: ReadinessThresholds = {
     minGradedReviews: 300,
     minCoverage: 0.7,

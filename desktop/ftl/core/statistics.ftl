@@ -347,6 +347,7 @@ statistics-dashboard-memory-scale = Memory colour
 statistics-dashboard-scale-low = Low
 statistics-dashboard-scale-high = High
 statistics-dashboard-reviews-count = { $count } graded reviews
+# Keep the numbers here in sync with HONEST_THRESHOLDS in ts/routes/dashboard/metrics.ts.
 statistics-dashboard-give-up-note = A pass estimate needs at least 300 graded reviews, 70% topic coverage, and 50 graded held-out practice questions.
 statistics-dashboard-needs-fsrs = Enable FSRS in Deck Options to compute Memory, Performance and Readiness.
 

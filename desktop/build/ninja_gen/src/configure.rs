@@ -22,7 +22,14 @@ impl BuildAction for ConfigureBuild {
     fn files(&mut self, build: &mut impl FilesHandle) {
         build.add_inputs("cmd", inputs![":build:configure_bin"]);
         // reconfigure when external inputs change
-        build.add_inputs("", inputs!["$builddir/env", ".version", ".git"]);
+        build.add_inputs("", inputs!["$builddir/env", ".version"]);
+        // `.git` normally sits at the build root, but when this tree is nested
+        // (e.g. a monorepo subfolder) it can live a directory up. Depend on it
+        // only when present here; the build hash is read via `git rev-parse`,
+        // which searches parent directories, so it's unaffected either way.
+        if std::path::Path::new(".git").exists() {
+            build.add_inputs("", inputs![".git"]);
+        }
         build.add_outputs("", ["build.ninja"])
     }
 
