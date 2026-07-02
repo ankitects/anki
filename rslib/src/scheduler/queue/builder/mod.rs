@@ -123,6 +123,7 @@ struct Context {
     seen_note_ids: HashMap<NoteId, BuryMode>,
     deck_map: HashMap<DeckId, Deck>,
     fsrs: bool,
+    fsrs_short_term_with_steps: bool,
 }
 
 impl QueueBuilder {
@@ -179,6 +180,8 @@ impl QueueBuilder {
                 seen_note_ids: HashMap::new(),
                 deck_map,
                 fsrs: col.get_config_bool(BoolKey::Fsrs),
+                fsrs_short_term_with_steps: col
+                    .get_config_bool(BoolKey::FsrsShortTermWithStepsEnabled),
             },
         })
     }
@@ -220,6 +223,8 @@ impl QueueBuilder {
             build_time: TimestampMillis::now(),
             load_balancer: self.load_balancer,
             current_learning_cutoff: now,
+            fsrs_enabled: self.context.fsrs,
+            fsrs_short_term_with_steps: self.context.fsrs_short_term_with_steps,
         }
     }
 }
