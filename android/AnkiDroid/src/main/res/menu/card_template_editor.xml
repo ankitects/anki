@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- SPDX-License-Identifier: GPL-3.0-or-later -->
+
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:ankidroid="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+    <item
+        android:id="@+id/action_confirm"
+        android:icon="@drawable/ic_done_white"
+        android:title="@string/save"
+        ankidroid:showAsAction="ifRoom"
+        android:visible="true"/>
+    <item
+        android:id="@+id/action_preview"
+        android:icon="@drawable/ic_remove_red_eye_white"
+        android:title="@string/card_editor_preview_card"
+        ankidroid:showAsAction="ifRoom"
+        android:visible="true"/>
+    <item
+        android:id="@+id/action_add"
+        android:title="@string/add_card_type"
+        ankidroid:showAsAction="never"/>
+    <!-- not implemented -->
+    <item
+        android:id="@+id/action_reposition"
+        android:title="@string/card_template_reposition_template"
+        android:visible="false"
+        ankidroid:showAsAction="never"/>
+    <item
+        android:id="@+id/action_rename"
+        android:title="@string/rename_card_type"
+        ankidroid:showAsAction="never"/>
+    <item
+        android:id="@+id/action_delete"
+        android:title="@string/delete_card_type"
+        ankidroid:showAsAction="never"/>
+    <item
+        android:id="@+id/action_card_browser_appearance"
+        android:icon="@drawable/ic_view_list_white_24dp"
+        tools:title="Browser appearance"
+        ankidroid:showAsAction="ifRoom"/>
+    <!-- never show - no icon. Title is dynamic (on/off) -->
+    <item
+        android:id="@+id/action_add_deck_override"
+        android:title="@string/card_template_editor_deck_override"
+        ankidroid:showAsAction="never"/>
+    <item
+        android:id="@+id/action_insert_field"
+        android:title="@string/card_template_editor_insert_field"
+        ankidroid:showAsAction="never"/>
+    <item
+        android:id="@+id/action_copy_as_markdown"
+        android:title="@string/copy_as_markdown"
+        ankidroid:showAsAction="never" />
+    <item
+        android:id="@+id/action_restore_to_default"
+        tools:title="Restore to default..."
+        ankidroid:showAsAction="never"
+        />
+</menu>

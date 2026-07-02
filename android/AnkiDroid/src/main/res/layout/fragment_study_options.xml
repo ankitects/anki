@@ -1,0 +1,236 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/studyoptions_main"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+        <View
+            android:id="@+id/studyoptions_gradient"
+            android:layout_width="15dp"
+            android:layout_height="0dp"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            android:background="@drawable/shadow_left"
+            android:visibility="gone"/>
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/studyoptions_start"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:minWidth="200dp"
+            android:layout_marginBottom="32dp"
+            android:text="@string/studyoptions_start"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"/>
+
+        <ScrollView
+            android:id="@+id/studyoptions_scrollview"
+            android:layout_above="@id/bottom_area_layout"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintStart_toEndOf="@id/studyoptions_gradient"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintBottom_toTopOf="@id/studyoptions_start"
+            android:paddingStart="@dimen/study_options_padding"
+            android:paddingEnd="@dimen/study_options_padding"
+            android:paddingBottom="16dp"
+            android:fadeScrollbars="false" >
+            <LinearLayout
+                android:id="@+id/studyoptions_scrollcontainer"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center_horizontal"
+                android:paddingTop="16dp"
+                android:orientation="vertical">
+
+                <com.ichi2.ui.FixedTextView
+                    android:id="@+id/studyoptions_deck_name"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:ellipsize="end"
+                    android:gravity="center"
+                    android:maxLines="3"
+                    android:textSize="28sp"
+                    android:textStyle="bold"
+                    tools:text="Deck name here"/>
+
+                <com.ichi2.ui.FixedTextView
+                    android:id="@+id/studyoptions_bury_counts_label"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:ellipsize="end"
+                    android:visibility="gone"
+                    android:gravity="center"
+                    tools:text="Counts differ"/>
+
+                <androidx.constraintlayout.widget.ConstraintLayout
+                    android:layout_width="wrap_content"
+                    android:layout_marginTop="16dp"
+                    android:layout_height="wrap_content">
+                    <TextView
+                        android:id="@+id/studyoptions_new_count_label"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        app:layout_constraintTop_toTopOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintEnd_toStartOf="@id/barrier_labels"
+                        app:layout_constraintHorizontal_bias="0"
+                        tools:text="New:"/>
+
+                    <TextView
+                        android:id="@+id/studyoptions_learning_count_label"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        app:layout_constraintTop_toBottomOf="@id/studyoptions_new_count_label"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintEnd_toStartOf="@id/barrier_labels"
+                        app:layout_constraintHorizontal_bias="0"
+                        tools:text="Learning:"/>
+
+                    <TextView
+                        android:id="@+id/studyoptions_review_count_label"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        app:layout_constraintTop_toBottomOf="@id/studyoptions_learning_count_label"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintEnd_toStartOf="@id/barrier_labels"
+                        app:layout_constraintHorizontal_bias="0"
+                        tools:text="To Review:"/>
+
+                    <androidx.constraintlayout.widget.Barrier
+                        android:id="@+id/barrier_labels"
+                        app:barrierDirection="end"
+                        android:layout_width="wrap_content"
+                        android:layout_height="match_parent"
+                        app:constraint_referenced_ids="studyoptions_learning_count_label, studyoptions_review_count_label, studyoptions_new_count_label, studyoptions_total_new_label, studyoptions_total_label"/>
+
+                    <TextView
+                        android:id="@+id/studyoptions_new_count"
+                        android:layout_width="wrap_content"
+                        app:layout_constraintTop_toTopOf="parent"
+                        app:layout_constraintStart_toEndOf="@id/barrier_labels"
+                        app:layout_constraintBottom_toBottomOf="@id/studyoptions_new_count_label"
+                        android:layout_marginStart="8dp"
+                        android:textColor="?attr/newCountColor"
+                        android:layout_height="wrap_content"
+                        tools:text="88"/>
+
+                    <TextView
+                        android:id="@+id/studyoptions_new_bury"
+                        android:layout_width="wrap_content"
+                        app:layout_constraintTop_toTopOf="parent"
+                        app:layout_constraintStart_toEndOf="@id/studyoptions_new_count"
+                        app:layout_constraintBottom_toBottomOf="@id/studyoptions_new_count_label"
+                        android:visibility="gone"
+                        android:layout_marginStart="8dp"
+                        android:layout_height="wrap_content"
+                        android:textColor="?attr/buryCountColor"
+                        tools:text="+4 buried"/>
+
+                    <TextView
+                        android:id="@+id/studyoptions_learning_count"
+                        android:layout_width="wrap_content"
+                        app:layout_constraintStart_toEndOf="@id/barrier_labels"
+                        app:layout_constraintBottom_toBottomOf="@id/studyoptions_learning_count_label"
+                        android:layout_marginStart="8dp"
+                        android:layout_height="wrap_content"
+                        android:textColor="?attr/learnCountColor"
+                        tools:text="3"/>
+
+                    <TextView
+                        android:id="@+id/studyoptions_learning_bury"
+                        android:layout_width="wrap_content"
+                        app:layout_constraintStart_toEndOf="@id/studyoptions_learning_count"
+                        app:layout_constraintBottom_toBottomOf="@id/studyoptions_learning_count_label"
+                        android:visibility="gone"
+                        android:layout_marginStart="8dp"
+                        android:layout_height="wrap_content"
+                        android:textColor="?attr/buryCountColor"
+                        tools:text="+23 buried"/>
+
+                    <TextView
+                        android:id="@+id/studyoptions_review_count"
+                        android:layout_width="wrap_content"
+                        app:layout_constraintStart_toEndOf="@id/barrier_labels"
+                        app:layout_constraintBottom_toBottomOf="@id/studyoptions_review_count_label"
+                        android:layout_marginStart="8dp"
+                        android:layout_height="wrap_content"
+                        android:textColor="?attr/reviewCountColor"
+                        tools:text="104"/>
+
+                    <TextView
+                        android:id="@+id/studyoptions_review_bury"
+                        android:layout_width="wrap_content"
+                        app:layout_constraintStart_toEndOf="@id/studyoptions_review_count"
+                        app:layout_constraintBottom_toBottomOf="@id/studyoptions_review_count_label"
+                        android:visibility="gone"
+                        android:layout_marginStart="8dp"
+                        android:layout_height="wrap_content"
+                        android:textColor="?attr/buryCountColor"
+                        tools:text="+20 buried"/>
+
+                    <TextView
+                        android:id="@+id/studyoptions_total_new_label"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        app:layout_constraintTop_toBottomOf="@id/studyoptions_review_count_label"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintEnd_toStartOf="@id/barrier_labels"
+                        app:layout_constraintHorizontal_bias="0"
+                        android:text="@string/studyoptions_total_new_label"/>
+
+                    <TextView
+                        android:id="@+id/studyoptions_total_new_count"
+                        android:layout_width="wrap_content"
+                        app:layout_constraintTop_toBottomOf="@id/studyoptions_review_count"
+                        app:layout_constraintStart_toEndOf="@id/barrier_labels"
+                        app:layout_constraintBottom_toBottomOf="@id/studyoptions_total_new_label"
+                        android:layout_marginStart="8dp"
+                        android:layout_height="wrap_content"
+                        tools:text="16597"/>
+
+                    <TextView
+                        android:id="@+id/studyoptions_total_label"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        app:layout_constraintTop_toBottomOf="@id/studyoptions_total_new_label"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintEnd_toStartOf="@id/barrier_labels"
+                        app:layout_constraintHorizontal_bias="0"
+                        android:text="@string/studyoptions_total_label"/>
+
+                    <TextView
+                        android:id="@+id/studyoptions_total_count"
+                        android:layout_width="wrap_content"
+                        app:layout_constraintTop_toBottomOf="@id/studyoptions_total_new_count"
+                        app:layout_constraintStart_toEndOf="@id/barrier_labels"
+                        app:layout_constraintBottom_toBottomOf="@id/studyoptions_total_label"
+                        android:layout_marginStart="8dp"
+                        android:layout_height="wrap_content"
+                        tools:text="22177"/>
+
+                    <androidx.constraintlayout.widget.Group
+                        android:id="@+id/group_counts"
+                        app:constraint_referenced_ids="studyoptions_new_count,studyoptions_new_count_label,studyoptions_new_bury,studyoptions_learning_count,studyoptions_learning_count_label,studyoptions_learning_bury,studyoptions_review_count,studyoptions_review_count_label,studyoptions_review_bury,studyoptions_total_new_label,studyoptions_total_new_count,studyoptions_total_label,studyoptions_total_count"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content" />
+                </androidx.constraintlayout.widget.ConstraintLayout>
+
+                <com.ichi2.ui.FixedTextView
+                    android:id="@+id/studyoptions_deck_description"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
+                    android:layout_marginTop="16dp"
+                    tools:text="See shared deck for more info"/>
+            </LinearLayout>
+        </ScrollView>
+    </androidx.constraintlayout.widget.ConstraintLayout>
+    <include layout="@layout/include_anki_progress"/>
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

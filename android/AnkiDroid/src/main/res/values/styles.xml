@@ -1,0 +1,289 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:tools="http://schemas.android.com/tools" tools:ignore="UnusedResources,DuplicateCrowdInStrings">
+
+    <style name="Theme_Dark.Launcher">
+        <item name="android:windowBackground">@drawable/launch_screen</item>
+    </style>
+
+    <style name="Animation.Translucent" parent="@android:style/Animation.Translucent">
+        <item name="android:windowEnterAnimation">@null</item>
+        <item name="android:windowExitAnimation">@anim/translucent_exit</item>
+    </style>
+
+    <!-- Nav drawer style to set width specified by Material Design specification -->
+    <style name="NavDrawer">
+        <item name="android:layout_width">280dp</item>
+        <item name="android:layout_marginRight">@dimen/nav_drawer_margin_offset</item>
+        <item name="android:maxWidth">280dp</item>
+    </style>
+
+    <style name="OverflowMenuStyle" parent="Widget.Material3.PopupMenu.Overflow">
+        <item name="android:popupBackground">@drawable/bg_popup</item>
+    </style>
+
+    <style name="PopupMenuStyle" parent="Widget.Material3.PopupMenu">
+        <item name="android:popupBackground">@drawable/bg_popup</item>
+    </style>
+
+    <style name="SpinnerStyle" parent="Widget.AppCompat.Spinner">
+        <item name="android:popupBackground">@drawable/bg_popup</item>
+    </style>
+
+    <style name="AnswerButton" parent="Widget.Material3.Button.ElevatedButton">
+        <item name="android:padding">0dp</item>
+        <item name="cornerRadius">@dimen/answer_button_corner_radius</item>
+        <item name="android:textSize">@dimen/reviewer_answer_button_textSize</item>
+        <item name="elevation">@dimen/study_screen_elevation</item>
+    </style>
+
+    <!--  Material Design-style persistent footer button -->
+    <style name="FooterButtonBase">
+        <item name="android:layout_height">48dp</item>
+        <item name="android:textSize">14sp</item>
+        <item name="android:typeface">sans</item>
+        <item name="android:gravity">center</item>
+        <item name="android:layout_gravity">center_vertical</item>
+        <item name="android:singleLine">true</item>
+    </style>
+    <style name="FooterButton" parent="FooterButtonBase">
+        <item name="android:fontFamily">@string/font_fontFamily_medium</item>
+    </style>
+
+    <style name="FooterButtonNextTime">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_gravity">center</item>
+        <item name="android:ellipsize">marquee</item>
+        <item name="android:gravity">bottom|center_horizontal</item>
+        <item name="android:singleLine">true</item>
+        <item name="android:textSize">12sp</item>
+    </style>
+
+    <style name="FooterButtonEaseTextBase" parent="FooterButtonNextTime">
+        <item name="android:textSize">14sp</item>
+        <item name="android:typeface">sans</item>
+    </style>
+    <style name="FooterButtonEaseText" parent="FooterButtonEaseTextBase" >
+        <item name="android:fontFamily">@string/font_fontFamily_medium</item>
+    </style>
+
+    <!-- Styles for each of the 4 answer buttons -->
+    <style name="AgainButton">
+        <item name="answerButtonBackground">?attr/againButtonBackground</item>
+    </style>
+    <style name="HardButton">
+        <item name="answerButtonBackground">?attr/hardButtonBackground</item>
+    </style>
+    <style name="GoodButton">
+        <item name="answerButtonBackground">?attr/goodButtonBackground</item>
+    </style>
+    <style name="EasyButton">
+        <item name="answerButtonBackground">?attr/easyButtonBackground</item>
+    </style>
+    <!-- Ease text -->
+    <style name="AgainButtonEaseStyle" parent="FooterButtonEaseText">
+        <item name="android:textColor">?attr/againButtonTextColor</item>
+    </style>
+    <style name="HardButtonEaseStyle" parent="FooterButtonEaseText">
+        <item name="android:textColor">?attr/hardButtonTextColor</item>
+    </style>
+    <style name="GoodButtonEaseStyle" parent="FooterButtonEaseText">
+        <item name="android:textColor">?attr/goodButtonTextColor</item>
+    </style>
+    <style name="EasyButtonEaseStyle" parent="FooterButtonEaseText">
+        <item name="android:textColor">?attr/easyButtonTextColor</item>
+    </style>
+    <!-- Next time text. Use the same color as the ease text. -->
+    <style name="AgainButtonTimeStyle" parent="FooterButtonNextTime">
+        <item name="android:textColor">?attr/againButtonTextColor</item>
+    </style>
+    <style name="HardButtonTimeStyle" parent="FooterButtonNextTime">
+        <item name="android:textColor">?attr/hardButtonTextColor</item>
+    </style>
+    <style name="GoodButtonTimeStyle" parent="FooterButtonNextTime">
+        <item name="android:textColor">?attr/goodButtonTextColor</item>
+    </style>
+    <style name="EasyButtonTimeStyle" parent="FooterButtonNextTime">
+        <item name="android:textColor">?attr/easyButtonTextColor</item>
+    </style>
+
+    <!-- Action bar. Currently all action bar text is white in every theme. -->
+    <style name="ActionBarStyle" parent="Base.ThemeOverlay.AppCompat.ActionBar">
+        <!-- Colors: hamburger, title text, overflow icon -->
+        <item name="android:textColorPrimary">@color/white</item>
+        <!-- Colors: subtitle text -->
+        <item name="android:textColorSecondary">@color/white</item>
+        <!-- Overflow menu style -->
+        <item name="popupTheme">@style/ActionBar.Popup</item>
+    </style>
+
+    <!-- For all other action bar popups like overflow menu (except spinner dropdown in Lollipop). -->
+    <style name="ActionBar.Popup" parent="Base.ThemeOverlay.AppCompat.ActionBar">
+        <item name="android:drawSelectorOnTop">false</item>
+        <item name="android:textColorPrimary">?attr/actionBarPopupTextColor</item>
+        <item name="android:textColorSecondary">?attr/actionBarPopupTextColor</item>
+        <item name="android:colorBackground">?attr/popupBackgroundColor</item>
+    </style>
+
+    <style name="TabLayoutStyle" parent="Widget.Material3.TabLayout">
+        <item name="materialThemeOverlay">@style/ThemeOverlay.App.TabLayout</item>
+        <item name="tabTextAppearance">@style/TextAppearance.Material3.LabelLarge</item>
+        <item name="tabIndicator">@drawable/tab_layout_indicator_floating_pill</item>
+        <item name="tabIndicatorHeight">14dp</item>
+        <item name="tabTextColor">@color/white</item>
+        <item name="tabIndicatorColor">@color/white</item>
+    </style>
+    <style name="ThemeOverlay.App.TabLayout" parent="">
+        <item name="colorSurface">?attr/tabLayoutBackgroundColor</item> <!-- Background -->
+        <item name="colorOnSurfaceVariant">#cfff</item> <!-- Not selected text color -->
+    </style>
+
+    <style name="BottomNavigationViewStyle" parent="@style/Widget.Material3.BottomNavigationView">
+        <item name="materialThemeOverlay">@style/ThemeOverlay.App.BottomNavigationView</item>
+    </style>
+    <style name="ThemeOverlay.App.BottomNavigationView" parent="">
+        <item name="colorSecondaryContainer">?attr/tabLayoutBackgroundColor</item> <!-- Selected item indicator -->
+        <item name="colorOnSecondaryContainer">?attr/tabActiveIconColor</item> <!-- Active icon -->
+        <item name="colorOnSurface">?attr/colorPrimary</item> <!-- Active icon -->
+        <item name="colorOnSurfaceVariant">?attr/colorPrimary</item> <!-- Inactive icon & label -->
+        <item name="textAppearanceTitleSmall">@style/TextAppearance.Material3.TitleSmall</item>
+        <item name="textAppearanceLabelLarge">@style/TextAppearance.Material3.LabelLarge</item>
+    </style>
+
+    <!-- padding is hardcoded in Toolbar.java (32) to allow for fixing the scrollview -->
+    <style name="note_editor_toolbar_button">
+        <item name="android:layout_width">44dp</item>
+        <item name="android:layout_height">44dp</item>
+        <item name="android:padding">2dp</item>
+        <item name="android:background">?android:attr/selectableItemBackground</item>
+        <item name="android:tint">@color/black</item>
+    </style>
+
+    <style name="reviewer_whiteboard_editor_button_style">
+        <item name="android:layout_height">40dp</item>
+        <item name="android:layout_width">40dp</item>
+        <item name="android:layout_margin">5dp</item>
+    </style>
+
+
+    <style name="binding_gesture_tap_button">
+        <item name="android:layout_height">0dp</item>
+        <item name="android:layout_width">0dp</item>
+        <item name="layout_constraintWidth_percent">0.125</item>
+        <item name="layout_constraintHeight_percent">0.125</item>
+        <item name="android:background">@drawable/ic_gesture_tap</item>
+    </style>
+
+    <!-- Snackbars -->
+    <style name="SnackbarStyle" parent="Widget.Material3.Snackbar">
+        <item name="android:backgroundTint">?attr/snackbarBackgroundTintColor</item>
+    </style>
+    <style name="SnackbarButtonStyle" parent="Widget.Material3.Button.TextButton.Snackbar">
+        <item name="android:textColor">?attr/snackbarButtonTextColor</item>
+    </style>
+
+    <!-- Switches -->
+    <style name="Preference.SwitchPreferenceCompat.Material3" parent="@style/Preference.SwitchPreferenceCompat.Material">
+        <item name="widgetLayout">@layout/preference_material_switch_widget</item>
+    </style>
+
+    <style name="SliderLabelStyle" parent="Widget.MaterialComponents.Tooltip">
+        <item name="android:textColor">@color/white</item>
+    </style>
+
+    <style name="SliderStyle" parent="Widget.Material3.Slider">
+        <item name="trackColorActive">@color/slider_active_track_color</item>
+        <item name="trackColorInactive">@color/slider_inactive_track_color</item>
+        <item name="haloColor">@color/slider_halo_color</item>
+        <item name="thumbColor">@color/slider_thumb_color</item>
+        <item name="labelStyle">@style/SliderLabelStyle</item>
+        <item name="tickVisible">false</item>
+    </style>
+
+    <style name="PreferenceThemeOverlay.AnkiDroid">
+        <item name="singleLineTitle">false</item>
+    </style>
+
+    <style name="AppCompatProgressDialogStyle" parent="Theme.AppCompat.Dialog.Alert">
+        <item name="colorAccent">?attr/progressDialogButtonTextColor</item>
+        <item name="android:textColorPrimary">?android:attr/textColor</item>
+        <item name="android:background">?attr/dialogBackground</item>
+        <item name="android:buttonBarButtonStyle">@style/CustomButtonBarButtonStyle</item>
+        <item name="dialogCornerRadius">@dimen/dialog_corner_radius</item>
+    </style>
+
+    <style name="AlertDialogStyle" parent="Theme.AppCompat.Dialog.Alert">
+        <item name="colorPrimary">?attr/progressDialogButtonTextColor</item>
+        <item name="buttonTint">?attr/colorOnPrimary</item>
+        <item name="dialogCornerRadius">@dimen/dialog_corner_radius</item>
+        <item name="android:dialogCornerRadius" tools:targetApi="p">@dimen/dialog_corner_radius</item>
+    </style>
+
+    <style name="ThemeOverlay.AnkiDroid.AlertDialog" parent="ThemeOverlay.Material3.MaterialAlertDialog">
+        <item name="dialogCornerRadius">@dimen/m3_alert_dialog_corner_size</item>
+        <item name="materialAlertDialogBodyTextStyle">@style/AnkiDroid.AlertDialog.Body.Text</item>
+        <item name="android:windowBackground">@drawable/material_dialog_background</item>
+    </style>
+
+    <style name="ThemeOverlay.AnkiDroid.AlertDialog.FullScreen" parent="ThemeOverlay.AnkiDroid.AlertDialog">
+        <item name="android:windowIsFloating">false</item>
+        <item name="android:windowIsTranslucent">false</item>
+        <item name="android:windowBackground">?android:attr/colorBackground</item>
+    </style>
+
+    <style name="TextAppearance.AnkiDroid.TopAppBar.Title" parent="TextAppearance.Material3.TitleMedium" />
+
+    <style name="AnkiDroid.AlertDialog.Body.Text" parent="MaterialAlertDialog.Material3.Body.Text">
+        <!-- The default style uses onSurfaceVariant, which isn't defined yet -->
+        <item name="android:textColor">?android:attr/textColor</item>
+    </style>
+
+    <style name="CustomButtonBarButtonStyle" parent="Widget.AppCompat.Button.ButtonBar.AlertDialog">
+        <item name="android:textColor">?attr/progressDialogButtonTextColor</item>
+    </style>
+
+    <style name="CardView.ViewerStyle" parent="Widget.Material3.CardView.Elevated">
+        <item name="android:elevation">@dimen/study_screen_elevation</item>
+    </style>
+
+    <style name="Theme.AppCompat.Transparent.NoActionBar" parent="Theme.AppCompat.Light.DarkActionBar">
+        <item name="android:windowBackground">@android:color/transparent</item>
+        <item name="android:windowNoTitle">true</item>
+        <item name="android:windowIsFloating">true</item>
+        <item name="android:backgroundDimEnabled">false</item>
+        <item name="android:alertDialogStyle">@style/AlertDialogStyle</item>
+    </style>
+
+    <style name="ThemeOverlay.App.BottomSheetDialog" parent="ThemeOverlay.Material3.BottomSheetDialog">
+        <item name="android:navigationBarColor" tools:ignore="NewApi">@android:color/transparent</item>
+    </style>
+
+    <style name="Widget.AnkiDroid.CardView.Recording" parent="CardView">
+        <item name="cardElevation">@dimen/study_screen_elevation</item>
+        <item name="cardPreventCornerOverlap">false</item>
+        <item name="contentPadding">0dp</item>
+        <item name="android:clickable">true</item>
+        <item name="android:focusable">true</item>
+        <item name="android:elevation">@dimen/study_screen_elevation</item>
+        <item name="cardCornerRadius">16dp</item>
+        <item name="cardUseCompatPadding">false</item>
+        <item name="cardBackgroundColor">?popupBackgroundColor</item>
+    </style>
+
+    <style name="TimePickerStyle" parent="ThemeOverlay.Material3.MaterialTimePicker">
+        <item name="elevationOverlayEnabled">false</item>
+        <item name="colorTertiaryContainer">?colorPrimary</item>
+        <item name="colorOnTertiaryContainer">?colorOnPrimary</item>
+        <item name="colorPrimaryContainer">?colorPrimary</item>
+    </style>
+
+    <!-- TODO remove this style when a proper 'colorOnPrimaryContainer' is set in themes, without
+           this override the user doesn't see the text selection highlight in TextInputLayouts -->
+    <style name="TextInputSelectionColorFixStyle" parent="@style/Widget.Material3.TextInputLayout.OutlinedBox">
+        <item name="materialThemeOverlay">@style/ThemeOverlay.TextInputSelectionFix</item>
+    </style>
+
+    <style name="ThemeOverlay.TextInputSelectionFix" parent="ThemeOverlay.Material3.TextInputEditText.OutlinedBox">
+        <item name="colorOnPrimaryContainer">?attr/editTextHighlightColor</item>
+    </style>
+</resources>

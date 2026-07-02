@@ -1,0 +1,37 @@
+Memorize anything with AnkiDroid!
+
+AnkiDroid lets you learn flashcards very efficiently by showing them just before you will forget. It is fully compatible with the spaced repetition software Anki (including synchronization), which is available for Windows, Linux and MacOS.
+
+Study all sorts of things wherever and whenever you want. Make good use of idle times on bus trips, in supermarket queues or any other waiting situation!
+
+Create your own flashcard decks or download free decks compiled for many languages and topics (more than 6000 available).
+
+Add material through the desktop application Anki or directly through Ankidroid. The application even supports adding material automatically from a dictionary!
+
+★ Key features:
+• supported flashcard contents: text, images, sounds, LaTeX
+• spaced repetition (supermemo 2 algorithm)
+• text-to-speech integration
+• more than 6000 premade decks
+• progress widget
+• detailed statistics
+• syncing with AnkiWeb
+• open source
+
+★ Additional features:
+• write answers (optional)
+• whiteboard
+• card editor/adder
+• card browser
+• tablet layout
+• import existing collection files (via Anki Desktop)
+• dictionary integration (ColorDict, GoldenDict, Leo.org, Aedict, diverse web dictionaries)
+• add cards by intent from other applications like dictionaries
+• custom font support
+• full backup system
+• navigation by swipe, tap, shake
+• fully customisable
+• dynamic deck handling
+• night mode
+• 27 localisations
+• All previous AnkiDroid versions can be downloaded from the website

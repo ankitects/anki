@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~  Copyright (c) 2022 Brayan Oliveira <brayandso.dev@gmail.com>
+  ~
+  ~  This program is free software; you can redistribute it and/or modify it under
+  ~  the terms of the GNU General Public License as published by the Free Software
+  ~  Foundation; either version 3 of the License, or (at your option) any later
+  ~  version.
+  ~
+  ~  This program is distributed in the hope that it will be useful, but WITHOUT ANY
+  ~  WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+  ~  PARTICULAR PURPOSE. See the GNU General Public License for more details.
+  ~
+  ~  You should have received a copy of the GNU General Public License along with
+  ~  this program.  If not, see <http://www.gnu.org/licenses/>.
+  -->
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:title="@string/accessibility"
+    android:key="@string/pref_accessibility_screen_key">
+    <com.ichi2.preferences.SliderPreference
+        android:key="@string/card_zoom_preference"
+        android:title="@string/card_zoom"
+        android:defaultValue="100"
+        android:valueFrom="10"
+        android:valueTo="300"
+        android:stepSize="10"
+        app:displayFormat="@string/percentage"/>
+    <com.ichi2.preferences.SliderPreference
+        android:key="@string/image_zoom_preference"
+        android:title="@string/image_zoom"
+        android:defaultValue="100"
+        android:valueFrom="50"
+        android:valueTo="300"
+        android:stepSize="10"
+        app:displayFormat="@string/percentage"/>
+    <com.ichi2.preferences.SliderPreference
+        android:title="@string/button_size"
+        android:key="@string/answer_button_size_preference"
+        android:defaultValue="100"
+        android:valueFrom="10"
+        android:valueTo="200"
+        android:stepSize="10"
+        app:displayFormat="@string/percentage"/>
+    <com.ichi2.preferences.SliderPreference
+        android:title="@string/button_size"
+        android:key="@string/answer_button_size_pref_key"
+        android:defaultValue="100"
+        android:valueFrom="100"
+        android:valueTo="200"
+        android:stepSize="10"
+        app:displayFormat="@string/percentage"
+        app:isPreferenceVisible="false"
+        />
+    <SwitchPreferenceCompat
+        android:key="@string/show_large_answer_buttons_preference"
+        android:defaultValue="false"
+        android:summary="@string/show_large_answer_buttons_summ"
+        android:title="@string/show_large_answer_buttons"/>
+    <com.ichi2.preferences.SliderPreference
+        android:key="@string/pref_card_browser_font_scale_key"
+        android:title="@string/card_browser_font_size"
+        android:defaultValue="100"
+        android:valueFrom="10"
+        android:valueTo="200"
+        android:stepSize="10"
+        app:displayFormat="@string/percentage"/>
+    <com.ichi2.preferences.SliderPreference
+        android:defaultValue="0"
+        android:key="@string/pref_card_minimal_click_time"
+        android:summary="@string/pref_show_answer_long_press_time_summary"
+        android:title="@string/pref_show_answer_long_press_time"
+        android:valueFrom="0"
+        android:valueTo="2000"
+        app:displayFormat="@string/pref_milliseconds"/>
+    <com.ichi2.preferences.SliderPreference
+        android:key="@string/double_tap_timeout_pref_key"
+        android:title="@string/pref_double_tap_time_interval"
+        android:summary="@string/pref_double_tap_time_interval_summary"
+        android:valueFrom="0"
+        android:valueTo="1000"
+        android:defaultValue="200"
+        android:stepSize="10"
+        app:displayFormat="@string/pref_milliseconds"
+        />
+    <PreferenceCategory
+        android:title="@string/screen">
+        <SwitchPreferenceCompat
+            android:key="@string/safe_display_key"
+            android:defaultValue="false"
+            android:title="@string/remove_animations"
+            android:summary="@string/remove_animations_summary"
+            />
+    </PreferenceCategory>
+</PreferenceScreen>

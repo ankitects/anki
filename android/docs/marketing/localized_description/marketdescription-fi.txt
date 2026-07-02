@@ -1,0 +1,36 @@
+Muista mitä tahansa AnkiDroidilla!
+
+AnkiDroid mahdollistaa muistikorttien oppimisen erittäin tehokkaasti näyttäen ne juuri ennen kuin ehdit unohtaa ne. Se on täysin yhteensopiva Anki-aikavälikertausohjelmiston kanssa (mukaanlukien synkronisointi), joka on saatavilla Windows, Linux ja MacOS -järjestelmille.
+
+Opiskele kaikenlaisia asioita missä ja milloin haluat. Käytä hyväksesi toimettomuus bussimatkalla, ruokakaupan jonossa tai muussa odotustilanteessa!
+
+Luo omat muistikorttipakat tai lataa ilmaisia pakkoja useille kielille ja useille aiheille (yli 6000 pakkaa valmiiksi saatavilla).
+
+Lisää materiaalia työpöytäsovelluksen (Anki) kautta tai suoraan AnkiDroidista. Sovellus tukee jopa materiaalien lisäämistä automaattisesti sanakirjasta!
+
+★ Pääominaisuudet:
+• tuetut sisältömuodot: teksti, kuvat, äänet, LaTeX-merkinnät
+• aikavälikertaus (AI-optimisoitu FSRS -algoritmi)
+• tekstistä puheeksi -tuki
+• yli 10,000 valmista pakkaa
+• widget edistymiseen
+• yksityiskohtaiset tilastot
+• synkronointi AnkiWebin kanssa
+• avoimen lähdekoodin sovellus
+
+★ Lisäominaisuudet:
+• kirjoita vastaukset (valinnainen)
+• luonnoslehtiö
+• korttien muokkaus ja lisäys
+• korttiselain
+• tablet näkymä
+• olemassa olevien kokoelmien tuominen (Anki-työpöytäsovelluksesta)
+• lisää kortteja (Intent) muista sovelluksissa kuten sanakirjoista
+• tuki omien kirjasinten käyttöön
+• tuki varmuuskopioille
+• siirtyminen pyyhkäisemällä tai napauttamalla
+• muokattava
+• tuki dynaamisille pakoille
+• yötila
+• saatavilla 27 kielellä
+• Kaikki aiemmat AnkiDroid-versiot ovat saatavilla verkkosivuilta

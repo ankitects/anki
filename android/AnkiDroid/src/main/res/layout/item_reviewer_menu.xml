@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.card.MaterialCardView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginHorizontal="12dp"
+    android:layout_marginVertical="4dp"
+    style="@style/Widget.Material3.CardView.Elevated"
+    tools:context=".preferences.reviewer.ReviewerMenuSettingsAdapter$ActionViewHolder"
+    >
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:minHeight="?attr/listPreferredItemHeight"
+        android:orientation="horizontal"
+        android:paddingStart="?android:attr/listPreferredItemPaddingStart"
+        android:paddingEnd="?android:attr/listPreferredItemPaddingEnd"
+        android:gravity="center_vertical"
+        android:padding="8dp"
+        >
+
+        <androidx.appcompat.widget.AppCompatImageView
+            android:id="@+id/icon"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:paddingStart="0dp"
+            android:paddingEnd="8dp"
+            android:paddingTop="4dp"
+            android:paddingBottom="4dp"
+            app:maxWidth="48dp"
+            app:maxHeight="48dp"
+            tools:srcCompat="@drawable/ic_star" />
+
+        <com.ichi2.ui.FixedTextView
+            android:id="@+id/title"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:layout_marginEnd="6dp"
+            android:layout_marginVertical="6dp"
+            android:layout_weight="1"
+            android:layout_gravity="center_vertical"
+            tools:text="Item name"/>
+
+        <androidx.appcompat.widget.AppCompatImageView
+            android:id="@+id/drag_handle"
+            android:layout_width="wrap_content"
+            android:padding="8dp"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            app:srcCompat="@drawable/ic_drag_indicator_24" />
+    </LinearLayout>
+</com.google.android.material.card.MaterialCardView>

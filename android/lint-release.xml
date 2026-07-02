@@ -1,0 +1,470 @@
+<?xml version="1.0" encoding="UTF-8"?>
+    <!-- INFORMATION ABOUT USAGE
+    We use this file bacause we want to enable for the release build various checks from the
+    Android SDK(initially just NewApi and InlinedApi) plus our own custom Anki time usage related
+    checks. Using the check() method on lintOptions in the lint.gradle file would be nice but it
+    doesn't work as it will NOT recognize any custom Lint checks(from a local module(like lint-rules)
+    or from a library added as a dependency) .
+
+    To allow more checks for the release build you will need to modify this file to change the
+    severity of that check to fatal. For example, to enable for release the WrongViewCast check
+    change:
+
+        <issue id="WrongViewCast" severity="fatal" />
+
+    Also, note that any NEW issue will appear when linting as this is not an exclusive list of
+    issues to use in linting, it's a file used to declare how the issues are applied to the project.
+    If a NEW issue is created by the Android framework or added by other libraries which should be
+    disabled for release then add it to this file like this:
+
+       <issue id="NewIssueId" severity="ignore"/>
+    -->
+<lint>
+    <issue id="NewApi" severity="fatal" />
+    <issue id="HardcodedText" severity="fatal" />
+    <issue id="InlinedApi" severity="fatal" />
+    <issue id="MissingSuperCall" severity="fatal" />
+    <issue id="StringFormatCount" severity="fatal" />
+    <issue id="StringFormatMatches" severity="fatal" />
+    <issue id="StringFormatInvalid" severity="fatal" />
+    <issue id="UnusedResources" severity="fatal">
+        <ignore path="res/values/12-dont-translate.xml" />
+        <!-- Ignore all translations except values - CrowdIn will handle deletions -->
+        <!-- We only need to handle -af and all others are implicitly ignored -->
+        <!-- tested and this does not block a string in /values/ from triggering lint -->
+        <ignore path="res/values-af/" />
+    </issue>
+    <issue id="MissingDefaultResource" severity="fatal">
+        <!-- Ignore all translations except values - CrowdIn will handle deletions -->
+        <ignore path="res/values-af/" />
+        <ignore path="res/values-am/" />
+        <ignore path="res/values-ar/" />
+        <ignore path="res/values-az/" />
+        <ignore path="res/values-be/" />
+        <ignore path="res/values-bg/" />
+        <ignore path="res/values-bn/" />
+        <ignore path="res/values-ca/" />
+        <ignore path="res/values-ckb/" />
+        <ignore path="res/values-cs/" />
+        <ignore path="res/values-da/" />
+        <ignore path="res/values-de/" />
+        <ignore path="res/values-el/" />
+        <ignore path="res/values-eo/" />
+        <ignore path="res/values-es-rAR/" />
+        <ignore path="res/values-es-rES/" />
+        <ignore path="res/values-et/" />
+        <ignore path="res/values-eu/" />
+        <ignore path="res/values-fa/" />
+        <ignore path="res/values-fi/" />
+        <ignore path="res/values-fil/" />
+        <ignore path="res/values-fr/" />
+        <ignore path="res/values-fy/" />
+        <ignore path="res/values-ga/" />
+        <ignore path="res/values-gl/" />
+        <ignore path="res/values-got/" />
+        <ignore path="res/values-gu/" />
+        <ignore path="res/values-heb/" />
+        <ignore path="res/values-hi/" />
+        <ignore path="res/values-hr/" />
+        <ignore path="res/values-hu/" />
+        <ignore path="res/values-hy/" />
+        <ignore path="res/values-ind/" />
+        <ignore path="res/values-is/" />
+        <ignore path="res/values-it/" />
+        <ignore path="res/values-iw/" /> <!-- iw is special-cased: 0f795cea363ace67bd55ec56775c5beae73c7c9e -->
+        <ignore path="res/values-ja/" />
+        <ignore path="res/values-jv/" />
+        <ignore path="res/values-ka/" />
+        <ignore path="res/values-kk/" />
+        <ignore path="res/values-km/" />
+        <ignore path="res/values-kn/" />
+        <ignore path="res/values-ko/" />
+        <ignore path="res/values-ku/" />
+        <ignore path="res/values-ky/" />
+        <ignore path="res/values-land/" />
+        <ignore path="res/values-lt/" />
+        <ignore path="res/values-lv/" />
+        <ignore path="res/values-mk/" />
+        <ignore path="res/values-ml/" />
+        <ignore path="res/values-mn/" />
+        <ignore path="res/values-mr/" />
+        <ignore path="res/values-ms/" />
+        <ignore path="res/values-my/" />
+        <ignore path="res/values-nl/" />
+        <ignore path="res/values-nn/" />
+        <ignore path="res/values-no/" />
+        <ignore path="res/values-or/" />
+        <ignore path="res/values-pa/" />
+        <ignore path="res/values-pl/" />
+        <ignore path="res/values-pt-rBR/" />
+        <ignore path="res/values-pt-rPT/" />
+        <ignore path="res/values-ro/" />
+        <ignore path="res/values-ru/" />
+        <ignore path="res/values-sat/" />
+        <ignore path="res/values-sc/" />
+        <ignore path="res/values-sk/" />
+        <ignore path="res/values-sl/" />
+        <ignore path="res/values-sq/" />
+        <ignore path="res/values-sr/" />
+        <ignore path="res/values-ss/" />
+        <ignore path="res/values-sv/" />
+        <ignore path="res/values-sw/" />
+        <ignore path="res/values-ta/" />
+        <ignore path="res/values-te/" />
+        <ignore path="res/values-tg/" />
+        <ignore path="res/values-tgl/" />
+        <ignore path="res/values-th/" />
+        <ignore path="res/values-ti/" />
+        <ignore path="res/values-tn/" />
+        <ignore path="res/values-tr/" />
+        <ignore path="res/values-ts/" />
+        <ignore path="res/values-tt/" />
+        <ignore path="res/values-ug/" />
+        <ignore path="res/values-uk/" />
+        <ignore path="res/values-ur/" />
+        <ignore path="res/values-uz/" />
+        <ignore path="res/values-v29/" />
+        <ignore path="res/values-ve/" />
+        <ignore path="res/values-vi/" />
+        <ignore path="res/values-wo/" />
+        <ignore path="res/values-xh/" />
+        <ignore path="res/values-yue/" />
+        <ignore path="res/values-zh-rCN/" />
+        <ignore path="res/values-zh-rTW/" />
+        <ignore path="res/values-zu/" />
+    </issue>
+    <issue id="ViewConstructor" severity="fatal" />
+    <issue id="ViewHolder" severity="fatal" />
+    <issue id="ViewTag" severity="fatal" />
+    <issue id="WrongConstant" severity="fatal" />
+    <issue id="WrongViewCast" severity="fatal" />
+    <issue id="UnknownId" severity="fatal" />
+    <issue id="UselessParent" severity="fatal" />
+    <issue id="ObsoleteLayoutParam" severity="fatal" />
+    <issue id="ObsoleteSdkInt" severity="fatal" />
+    <issue id="MergeRootFrame" severity="fatal" />
+
+    <!--           RTL Rules               -->
+    <issue id="RtlCompat" severity="fatal" />
+    <issue id="RtlEnabled" severity="fatal" />
+    <issue id="RtlHardcoded" severity="fatal" />
+
+    <issue id="CheckResult" severity="fatal" />
+    <issue id="RedundantNamespace" severity="fatal" />
+    <issue id="TextFields" severity="fatal" />
+    <issue id="LogConditional" severity="fatal" />
+    <issue id="ImplicitSamInstance" severity="fatal" />
+    <issue id="DrawAllocation" severity="fatal" />
+
+    <issue id="MonochromeLauncherIcon" severity="fatal" />
+
+    <issue id="ExpiredTargetSdkVersion" severity="fatal" />
+    <issue id="ObsoleteLintCustomCheck" severity="fatal" />
+    <!--          Revert lint rule changes [UnusedQuantity, MissingQuantity] from fatal to ignore             -->
+    <issue id="UnusedQuantity" severity="ignore" />
+    <issue id="MissingQuantity" severity="ignore" />
+
+    <issue id="TrustAllX509TrustManager" severity="fatal" />
+    <issue id="AllowAllHostnameVerifier" severity="fatal" />
+    <issue id="BadHostnameVerifier" severity="fatal" />
+    <issue id="UnsafeDynamicallyLoadedCode" severity="fatal" />
+    <issue id="UnsafeNativeCodeLocation" severity="fatal" />
+    <issue id="UnpackedNativeCode" severity="fatal" />
+    <issue id="PackagedPrivateKey" severity="fatal" />
+    <issue id="HardcodedDebugMode" severity="fatal" />
+    <issue id="HandlerLeak" severity="fatal" />
+    <issue id="StaticFieldLeak" severity="fatal" />
+    <issue id="ServiceCast" severity="fatal" />
+    <issue id="CutPasteId" severity="fatal" />
+    <issue id="WrongCall" severity="fatal" />
+
+    <issue id="ExportedPreferenceActivity" severity="fatal" />
+    <issue id="PrivateApi" severity="fatal" />
+    <issue id="ProguardSplit" severity="fatal" />
+    <issue id="Proguard" severity="fatal" />
+    <issue id="UsingHttp" severity="fatal" />
+    <issue id="AaptCrash" severity="fatal" />
+    <issue id="SdCardPath" severity="fatal" />
+    <issue id="SecureRandom" severity="fatal" />
+    <issue id="TrulyRandom" severity="fatal" />
+    <issue id="ExportedService" severity="fatal" />
+    <issue id="SetWorldReadable" severity="fatal" />
+    <issue id="SetWorldWritable" severity="fatal" />
+    <issue id="GrantAllUris" severity="fatal" />
+    <issue id="WorldReadableFiles" severity="fatal" />
+    <issue id="WorldWriteableFiles" severity="fatal" />
+    <issue id="WifiManagerLeak" severity="fatal" />
+    <issue id="WifiManagerPotentialLeak" severity="fatal" />
+    <issue id="SignatureOrSystemPermissions" severity="fatal" />
+    <issue id="SQLiteString" severity="fatal" />
+    <issue id="SSLCertificateSocketFactoryCreateSocket" severity="fatal" />
+    <issue id="SSLCertificateSocketFactoryGetInsecure" severity="fatal" />
+    <issue id="StateListReachable" severity="fatal" />
+    <issue id="AuthLeak" severity="fatal" />
+    <issue id="UseCheckPermission" severity="fatal" />
+    <issue id="UnprotectedSMSBroadcastReceiver" severity="fatal" />
+    <issue id="WrongFolder" severity="fatal" />
+    <issue id="CustomX509TrustManager" severity="fatal" />
+    <issue id="Recycle" severity="fatal" />
+
+    <!-- this is temporary - needed to work with android gradle plugin 8.1 -->
+    <!-- ideally commits to fix this are completed, such as in https://github.com/ankidroid/Anki-Android/pull/14158 -->
+    <issue id="UnspecifiedRegisterReceiverFlag" severity="ignore" />
+
+    <!-- this is new with AGP7.1+, does not appear to create value -->
+    <issue id="IntentFilterUniqueDataAttributes" severity="ignore" />
+
+    <!-- cannot enable play store language downloads until ABB used vs APK: https://github.com/ankidroid/Anki-Android/issues/9259 -->
+    <issue id="AppBundleLocaleChanges" severity="ignore" />
+
+    <!-- RtlSymmetry is disabled because we already have RtlHardcoded rule enabled -->
+    <issue id="RtlSymmetry" severity="ignore" />
+
+    <issue id="UseCompatTextViewDrawableXml" severity="ignore" />
+    <issue id="AcceptsUserCertificates" severity="ignore" />
+    <issue id="Autofill" severity="ignore" />
+    <issue id="ContentDescription" severity="ignore" />
+    <issue id="AddJavascriptInterface" severity="ignore" />
+    <issue id="ShortAlarm" severity="ignore" />
+    <issue id="AllCaps" severity="ignore" />
+    <issue id="AlwaysShowAction" severity="ignore" />
+    <issue id="InvalidUsesTagAttribute" severity="ignore" />
+    <issue id="MissingIntentFilterForMediaSearch" severity="ignore" />
+    <issue id="MissingMediaBrowserServiceIntentFilter" severity="ignore" />
+    <issue id="MissingOnPlayFromSearch" severity="ignore" />
+    <issue id="ImpliedTouchscreenHardware" severity="ignore" />
+    <issue id="MissingTvBanner" severity="ignore" />
+    <issue id="MissingLeanbackLauncher" severity="ignore" />
+    <issue id="MissingLeanbackSupport" severity="ignore" />
+    <issue id="PermissionImpliesUnsupportedHardware" severity="ignore" />
+    <issue id="UnsupportedTvHardware" severity="ignore" />
+    <issue id="SupportAnnotationUsage" severity="ignore" />
+    <issue id="ShiftFlags" severity="ignore" />
+    <issue id="LocalSuppress" severity="ignore" />
+    <issue id="SwitchIntDef" severity="ignore" />
+    <issue id="UniqueConstants" severity="ignore" />
+    <issue id="Override" severity="ignore" />
+    <issue id="UnusedAttribute" severity="ignore" />
+    <issue id="AppCompatMethod" severity="ignore" />
+    <issue id="AppCompatCustomView" severity="ignore" />
+    <issue id="AppCompatResource" severity="ignore" />
+    <issue id="GoogleAppIndexingApiWarning" severity="ignore" />
+    <issue id="GoogleAppIndexingWarning" severity="ignore" />
+    <issue id="AppLinksAutoVerifyError" severity="ignore" />
+    <issue id="AppLinksAutoVerifyWarning" severity="ignore" />
+    <issue id="AppLinkUrlError" severity="ignore" />
+    <issue id="TestAppLink" severity="ignore" />
+    <issue id="InconsistentArrays" severity="ignore" />
+    <issue id="Assert" severity="ignore" />
+    <issue id="BatteryLife" severity="ignore" />
+    <issue id="BackButton" severity="ignore" />
+    <issue id="ButtonCase" severity="ignore" />
+    <issue id="ButtonOrder" severity="ignore" />
+    <issue id="ButtonStyle" severity="ignore" />
+    <issue id="ByteOrderMark" severity="ignore" />
+    <issue id="AdapterViewChildren" severity="ignore" />
+    <issue id="ScrollViewCount" severity="ignore" />
+    <issue id="PermissionImpliesUnsupportedChromeOsHardware" severity="ignore" />
+    <issue id="UnsupportedChromeOsHardware" severity="ignore" />
+    <issue id="GetInstance" severity="ignore" />
+    <issue id="CommitTransaction" severity="ignore" />
+    <issue id="CommitPrefEdits" severity="ignore" />
+    <issue id="ApplySharedPref" severity="ignore" />
+    <issue id="ClickableViewAccessibility" severity="ignore" />
+    <issue id="EasterEgg" severity="ignore" />
+    <issue id="StopShip" severity="ignore" />
+    <issue id="MissingConstraints" severity="ignore" />
+    <issue id="VulnerableCordovaVersion" severity="ignore" />
+    <issue id="CustomViewStyleable" severity="ignore" />
+    <issue id="SimpleDateFormat" severity="ignore" />
+    <issue id="SetTextI18n" severity="ignore" />
+    <issue id="Deprecated" severity="ignore" />
+    <issue id="MissingPrefix" severity="ignore" />
+    <issue id="MangledCRLF" severity="ignore" />
+    <issue id="DuplicateIncludedIds" severity="ignore" />
+    <issue id="DuplicateIds" severity="ignore" />
+    <issue id="DuplicateDefinition" severity="ignore" />
+    <issue id="ReferenceType" severity="ignore" />
+    <issue id="StringEscaping" severity="ignore" />
+    <issue id="EllipsizeMaxLines" severity="ignore" />
+    <issue id="ExifInterface" severity="ignore" />
+    <issue id="ExtraText" severity="ignore" />
+    <issue id="FieldGetter" severity="ignore" />
+    <issue id="InvalidAnalyticsName" severity="ignore" />
+    <issue id="MissingFirebaseInstanceTokenRefresh" severity="ignore" />
+    <issue id="FontValidationError" severity="ignore" />
+    <issue id="FontValidationWarning" severity="ignore" />
+    <issue id="FullBackupContent" severity="ignore" />
+    <issue id="ValidFragment" severity="ignore" />
+    <issue id="GetContentDescriptionOverride" severity="ignore" />
+    <issue id="PackageManagerGetSignatures" severity="ignore" />
+    <issue id="AccidentalOctal" severity="ignore" />
+    <issue id="UseOfBundledGooglePlayServices" severity="ignore" />
+    <issue id="GradleCompatible" severity="ignore" />
+    <issue id="GradleDependency" severity="ignore" />
+    <issue id="GradleDeprecated" severity="ignore" />
+    <issue id="DevModeObsolete" severity="ignore" />
+    <issue id="DuplicatePlatformClasses" severity="ignore" />
+    <issue id="GradleGetter" severity="ignore" />
+    <issue id="AndroidGradlePluginVersion" severity="ignore" />
+    <issue id="GradlePluginVersion" severity="ignore" />
+    <issue id="HighAppVersionCode" severity="ignore" />
+    <issue id="GradleIdeError" severity="ignore" />
+    <issue id="GradlePath" severity="ignore" />
+    <issue id="GradleDynamicVersion" severity="ignore" />
+    <issue id="NotInterpolated" severity="ignore" />
+    <issue id="StringShouldBeInt" severity="ignore" />
+    <issue id="NewerVersionAvailable" severity="ignore" />
+    <issue id="MinSdkTooLow" severity="ignore" />
+    <issue id="GridLayout" severity="ignore" />
+    <issue id="HardwareIds" severity="ignore" />
+    <issue id="IconDuplicatesConfig" severity="ignore" />
+    <issue id="IconDuplicates" severity="ignore" />
+    <issue id="GifUsage" severity="ignore" />
+    <issue id="IconColors" severity="ignore" />
+    <issue id="IconDensities" severity="ignore" />
+    <issue id="IconDipSize" severity="ignore" />
+    <issue id="IconExpectedSize" severity="ignore" />
+    <issue id="IconExtension" severity="ignore" />
+    <issue id="IconLauncherShape" severity="ignore" />
+    <issue id="IconLocation" severity="ignore" />
+    <issue id="IconMissingDensityFolder" severity="ignore" />
+    <issue id="IconMixedNinePatch" severity="ignore" />
+    <issue id="IconNoDpi" severity="ignore" />
+    <issue id="IconXmlAndPng" severity="ignore" />
+    <issue id="ConvertToWebp" severity="ignore" />
+    <issue id="WebpUnsupported" severity="ignore" />
+    <issue id="IncludeLayoutParam" severity="ignore" />
+    <issue id="DisableBaselineAlignment" severity="ignore" />
+    <issue id="InefficientWeight" severity="ignore" />
+    <issue id="NestedWeights" severity="ignore" />
+    <issue id="Orientation" severity="ignore" />
+    <issue id="Suspicious0dp" severity="ignore" />
+    <issue id="InstantApps" severity="ignore" />
+    <issue id="DuplicateDivider" severity="ignore" />
+    <issue id="InvalidImeActionId" severity="ignore" />
+    <issue id="InvalidPackage" severity="ignore" />
+    <issue id="UseSparseArrays" severity="ignore" />
+    <issue id="UseValueOf" severity="ignore" />
+    <issue id="JavascriptInterface" severity="ignore" />
+    <issue id="JobSchedulerService" severity="ignore" />
+    <issue id="KeyboardInaccessibleWidget" severity="ignore" />
+    <issue id="LabelFor" severity="ignore" />
+    <issue id="InconsistentLayout" severity="ignore" />
+    <issue id="InflateParams" severity="ignore" />
+    <issue id="DefaultLocale" severity="error" />
+    <issue id="LocaleFolder" severity="ignore" />
+    <issue id="LocaleRootUsage" severity="error" />
+    <issue id="GetLocales" severity="ignore" />
+    <issue id="InvalidResourceFolder" severity="ignore" />
+    <issue id="WrongRegion" severity="ignore" />
+    <issue id="UseAlpha2" severity="ignore" />
+    <issue id="LongLogTag" severity="ignore" />
+    <issue id="LogTagMismatch" severity="ignore" />
+    <issue id="AllowBackup" severity="ignore" />
+    <issue id="MissingApplicationIcon" severity="ignore" />
+    <issue id="DeviceAdmin" severity="ignore" />
+    <issue id="DuplicateActivity" severity="ignore" />
+    <issue id="DuplicateUsesFeature" severity="ignore" />
+    <issue id="GradleOverrides" severity="ignore" />
+    <issue id="IllegalResourceRef" severity="ignore" />
+    <issue id="MipmapIcons" severity="ignore" />
+    <issue id="MockLocation" severity="ignore" />
+    <issue id="MultipleUsesSdk" severity="ignore" />
+    <issue id="ManifestOrder" severity="ignore" />
+    <issue id="MissingVersion" severity="ignore" />
+    <issue id="OldTargetApi" severity="ignore" />
+    <issue id="UniquePermission" severity="ignore" />
+    <issue id="UsesMinSdkAttributes" severity="ignore" />
+    <issue id="WearableBindListener" severity="ignore" />
+    <issue id="WrongManifestParent" severity="ignore" />
+    <issue id="InvalidPermission" severity="ignore" />
+    <issue id="ManifestResource" severity="ignore" />
+    <issue id="ManifestTypo" severity="ignore" />
+    <issue id="MergeMarker" severity="ignore" />
+    <issue id="IncompatibleMediaBrowserServiceCompatVersion" severity="ignore" />
+    <issue id="InnerclassSeparator" severity="ignore" />
+    <issue id="Instantiatable" severity="ignore" />
+    <issue id="MissingId" severity="ignore" />
+    <issue id="LibraryCustomView" severity="ignore" />
+    <issue id="ResAuto" severity="ignore" />
+    <issue id="NamespaceTypo" severity="ignore" />
+    <issue id="UnusedNamespace" severity="ignore" />
+    <issue id="NegativeMargin" severity="ignore" />
+    <issue id="NestedScrolling" severity="ignore" />
+    <issue id="NetworkSecurityConfig" severity="ignore" />
+    <issue id="MissingBackupPin" severity="ignore" />
+    <issue id="PinSetExpiry" severity="ignore" />
+    <issue id="NfcTechWhitespace" severity="ignore" />
+    <issue id="UnlocalizedSms" severity="ignore" />
+    <issue id="ObjectAnimatorBinding" severity="ignore" />
+    <issue id="AnimatorKeep" severity="ignore" />
+    <issue id="OnClick" severity="ignore" />
+    <issue id="Overdraw" severity="ignore" />
+    <issue id="DalvikOverride" severity="ignore" />
+    <issue id="OverrideAbstract" severity="ignore" />
+    <issue id="ParcelCreator" severity="ignore" />
+    <!-- ImpliedQuantity: 03-dialogs should be tools:ignore, 07-dialogs has actual problems -->
+    <issue id="ImpliedQuantity" severity="ignore" />
+    <issue id="PrivateResource" severity="ignore" />
+    <issue id="PropertyEscape" severity="ignore" />
+    <issue id="SpUsage" severity="ignore" />
+    <issue id="InOrMmUsage" severity="ignore" />
+    <issue id="PxUsage" severity="ignore" />
+    <issue id="SmallSp" severity="ignore" />
+    <issue id="ParcelClassLoader" severity="ignore" />
+    <issue id="PendingBindings" severity="ignore" />
+    <issue id="RecyclerView" severity="ignore" />
+    <issue id="Registered" severity="ignore" />
+    <issue id="RelativeOverlap" severity="ignore" />
+    <issue id="RequiredSize" severity="ignore" />
+    <issue id="ResourceCycle" severity="ignore" />
+    <issue id="ResourceName" severity="ignore" />
+    <issue id="ValidRestrictions" severity="ignore" />
+    <issue id="ScrollViewSize" severity="ignore" />
+    <issue id="SetJavaScriptEnabled" severity="ignore" />
+    <issue id="PluralsCandidate" severity="ignore" />
+    <issue id="ResourceAsColor" severity="ignore" />
+    <issue id="MissingPermission" severity="ignore" />
+    <issue id="Range" severity="ignore" />
+    <issue id="ResourceType" severity="ignore" />
+    <issue id="RestrictedApi" severity="ignore" />
+    <issue id="WrongThread" severity="informational" />
+    <issue id="VisibleForTests" severity="ignore" />
+    <issue id="ProtectedPermissions" severity="ignore" />
+    <issue id="TextViewEdits" severity="ignore" />
+    <issue id="SelectableText" severity="ignore" />
+    <issue id="MenuTitle" severity="ignore" />
+    <issue id="ShowToast" severity="ignore" />
+    <issue id="TooDeepLayout" severity="ignore" />
+    <issue id="TooManyViews" severity="ignore" />
+    <issue id="ExtraTranslation" severity="ignore" />
+    <issue id="MissingTranslation" severity="ignore" />
+    <issue id="Typos" severity="ignore" />
+    <issue id="TypographyDashes" severity="ignore" />
+    <issue id="TypographyFractions" severity="ignore" />
+    <issue id="TypographyOther" severity="ignore" />
+    <issue id="TypographyQuotes" severity="ignore" />
+    <issue id="UnusedIds" severity="ignore" />
+    <issue id="UseCompoundDrawables" severity="ignore" />
+    <issue id="UselessLeaf" severity="ignore" />
+    <issue id="EnforceUTF8" severity="ignore" />
+    <issue id="VectorRaster" severity="ignore" />
+    <issue id="VectorDrawableCompat" severity="ignore" />
+    <issue id="VectorPath" severity="ignore" />
+    <issue id="InvalidVectorPath" severity="ignore" />
+    <issue id="FindViewByIdCast" severity="ignore" />
+    <issue id="Wakelock" severity="ignore" />
+    <issue id="WakelockTimeout" severity="ignore" />
+    <issue id="InvalidWearFeatureAttribute" severity="ignore" />
+    <issue id="WearStandaloneAppFlag" severity="ignore" />
+    <issue id="WebViewLayout" severity="ignore" />
+    <issue id="WrongCase" severity="ignore" />
+    <issue id="InvalidId" severity="ignore" />
+    <issue id="NotSibling" severity="ignore" />
+    <issue id="UnknownIdInLayout" severity="ignore" />
+    <issue id="WrongThreadInterprocedural" severity="ignore" />
+
+    <!-- PERF: Could improve by not using notifyDataSetChanged() -->
+    <issue id="NotifyDataSetChanged" severity="ignore" />
+</lint>

@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<shape xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shape="rectangle">
+    <!-- 0.5 appears badly aliased on Emulators -->
+    <size android:height="0.6dp" android:width="2dp"/>
+    <solid android:color="?attr/cardBrowserDivider" />
+</shape>

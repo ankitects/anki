@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="keyline_1">24dp</dimen>
+    <dimen name="study_options_padding">16dp</dimen>
+    <dimen name="deck_picker_left_padding_small">16dp</dimen>
+    <dimen name="deck_picker_left_padding">24dp</dimen>
+    <dimen name="deck_picker_right_padding">12dp</dimen>
+    <dimen name="reviewer_side_margin">12dp</dimen>
+    <dimen name="reviewer_answer_button_textSize">18sp</dimen>
+    <dimen name="reviewer_mark_flag">24dp</dimen>
+</resources>

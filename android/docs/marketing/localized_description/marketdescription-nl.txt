@@ -1,0 +1,36 @@
+Leer alles met AnkiDroid!
+
+AnkiDroid stelt u in staat om op een efficiënte manier woordjes te leren, door u flitskaarten te tonen vlak voordat u ze zou vergeten. It is fully compatible with the spaced repetition software Anki (including synchronization), which is available for Windows, Linux and macOS.
+
+Leer van alles, waar en wanneer u maar wilt. Maak nuttig gebruik van wachttijden zoals tijdens een busreis of in de rij bij de kassa.
+
+Bouw je eigen set flitskaarten of download de gratis sets voor talloze onderwerpen en in vele talen (meer dan 6000 beschikbaar).
+
+Voeg materiaal toe via de desktopapplicatie Anki of rechtstreeks via AnkiDroid. De toepassing biedt zelfs ondersteuning voor het automatisch toevoegen van materiaal uit een woordenboek!
+
+★ Belangrijkste functies:
+• flitskaarten maken met tekst, afbeeldingen, geluiden en LaTeX
+• gespreide herhaling (door AI-geoptimaliseerd FSRS-algoritme)
+• tekst-naar-spraak integratie
+• meer dan 10.000 vooraf gemaakte sets
+• voortgangswidget
+• gedetailleerde statistieken
+• synchronisatie met AnkiWeb
+• open source
+
+★ Extra's:
+• geschreven antwoorden (optioneel)
+• whiteboard
+• kaarten bewerken/toevoegen
+• kaartenbrowser
+• tablet lay-out
+• importeren van bestaande verzameling bestanden (via Anki Desktop)
+• kaarten via het intent-protocol toevoegen vanuit andere toepassingen zoals woordenboeken
+• ondersteuning voor aangepaste lettertypes
+• volledig backupsysteem
+• navigatie door vegen en tikken
+• aanpasbaar
+• dynamisch sorteren van sets
+• nachtmodus
+• 27 talen
+• alle eerdere versies van AnkiDroid kunnen vanaf de website worden gedownload

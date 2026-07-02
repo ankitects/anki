@@ -1,0 +1,20 @@
+# Configuration for welcome - https://github.com/behaviorbot/welcome
+
+# Configuration for new-issue-welcome - https://github.com/behaviorbot/new-issue-welcome
+
+# Comment to be posted to on first time issues
+newIssueWelcomeComment: >
+  Hello! 👋 Thanks for logging this issue. Please remember we are all volunteers here, so some patience may be required before we can get to the issue. Also remember that the fastest way to get resolution on an issue is to propose a change directly, https://github.com/ankidroid/Anki-Android/wiki/Contributing
+
+# Configuration for new-pr-welcome - https://github.com/behaviorbot/new-pr-welcome
+
+# Comment to be posted to on PRs from first time contributors in your repository
+newPRWelcomeComment: >
+  First PR! 🚀 We sincerely appreciate that you have taken the time to propose a change to AnkiDroid! Please have patience with us as we are all volunteers - we will get to this as soon as possible.
+
+# Configuration for first-pr-merge - https://github.com/behaviorbot/first-pr-merge
+
+# Comment to be posted to on pull requests merged by a first time user
+firstPRMergeComment: >
+
+# It is recommended to include as many gifs and emojis as possible!

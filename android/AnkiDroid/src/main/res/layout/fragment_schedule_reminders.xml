@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.coordinatorlayout.widget.CoordinatorLayout
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/root_layout"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <LinearLayout
+        android:id="@+id/root_linear_layout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+
+        <com.google.android.material.appbar.MaterialToolbar
+            android:id="@+id/toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:navigationContentDescription="@string/abc_action_bar_up_description"
+            android:background="@drawable/browser_heading_bottom_divider"
+            app:navigationIcon="?attr/homeAsUpIndicator" />
+
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/recycler_view"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="?android:attr/colorBackground"
+                android:overScrollFooter="@color/transparent"
+                android:clipToPadding="false"
+                android:drawSelectorOnTop="true"
+                android:paddingBottom="84dp"
+                android:scrollbars="vertical"
+                android:contentDescription="List of scheduled review reminders"
+                tools:listitem="@layout/item_schedule_reminders"
+                tools:ignore="HardcodedText" />
+
+            <LinearLayout
+                android:id="@+id/no_reminders_placeholder"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:gravity="center_vertical"
+                android:orientation="vertical">
+
+                <ImageView
+                    android:layout_width="96dp"
+                    android:layout_height="96dp"
+                    android:layout_marginBottom="24dp"
+                    android:layout_gravity="center_horizontal"
+                    app:srcCompat="@drawable/outline_notifications_off_24" />
+
+                <com.google.android.material.textview.MaterialTextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="8dp"
+                    android:gravity="center"
+                    android:text="@string/you_have_no_review_reminders"
+                    style="@style/TextAppearance.AppCompat.Medium" />
+
+            </LinearLayout>
+
+        </FrameLayout>
+
+    </LinearLayout>
+
+    <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
+        android:id="@+id/floating_action_button_add"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|end"
+        android:layout_margin="16dp"
+        style="?attr/floatingActionButtonPrimaryStyle"
+        app:backgroundTint="?attr/fab_normal"
+        android:text="@string/add_reminder"
+        app:icon="@drawable/ic_add_bell"
+        android:contentDescription="@string/add_reminder" />
+
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

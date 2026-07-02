@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:gravity="center_vertical"
+    android:orientation="vertical"
+    android:paddingBottom="10dp"
+    android:paddingStart="5dp"
+    android:paddingEnd="5dp"
+    android:paddingTop="10dp" >
+
+    <ScrollView
+        android:id="@+id/scrollView1"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" >
+
+        <!-- We are using EditText as FixedEditText fails here (#8380) -->
+        <EditText
+            android:id="@+id/user_comment"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="top"
+            android:hint="@string/feedback_default_text"
+            android:minLines="2"
+            android:inputType="text|textMultiLine" />
+    </ScrollView>
+
+    <CheckBox
+        android:id="@+id/always_report"
+        android:text="@string/feedback_report_automatically"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingTop="15dp"
+        android:paddingBottom="15dp"/>
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:fadeScrollbars="false"
+        android:fillViewport="true" >
+
+        <com.ichi2.ui.FixedTextView
+            android:paddingStart="5dp"
+            android:paddingEnd="5dp"
+            android:id="@+id/tvFeedbackDisclaimer"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/feedback_disclaimer" />
+    </ScrollView>
+
+</LinearLayout>

@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.coordinatorlayout.widget.CoordinatorLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/root_layout"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+    <ImageView
+        android:id="@+id/background"
+        android:scaleType="centerCrop"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"/>
+    <LinearLayout
+        android:id="@+id/deckpicker_view"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical" >
+
+        <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+            android:id="@+id/pull_to_sync_wrapper"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <FrameLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+
+                <RelativeLayout
+                    android:id="@+id/deck_picker_content"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical">
+
+                    <com.ichi2.anki.ui.BottomFadeFrameLayout
+                        android:id="@+id/decks_fade_wrapper"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent">
+
+                        <androidx.recyclerview.widget.RecyclerView
+                            android:id="@+id/decks"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:clipToPadding="false"
+                            android:drawSelectorOnTop="true"
+                            android:fastScrollEnabled="true"
+                            android:focusable="true"
+                            android:paddingBottom="72dp"
+                            android:scrollbars="vertical" />
+                    </com.ichi2.anki.ui.BottomFadeFrameLayout>
+
+                    <com.ichi2.ui.FixedTextView
+                        android:id="@+id/review_summary_text_view"
+                        android:layout_width="match_parent"
+                        android:layout_marginLeft="8dp"
+                        android:layout_marginRight="8dp"
+                        android:layout_alignParentEnd="true"
+                        android:layout_alignParentStart="true"
+                        android:layout_height="wrap_content"
+                        android:layout_alignParentBottom="true"
+                        android:layout_marginBottom="4dp"
+                        android:gravity="center"/>
+
+                </RelativeLayout>
+
+                <LinearLayout
+                    android:id="@+id/no_decks_placeholder"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:gravity="center_vertical"
+                    android:orientation="vertical">
+
+                    <ImageView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="24dp"
+                        android:layout_gravity="center_horizontal"
+                        app:srcCompat="@drawable/anki_box" />
+
+                    <com.ichi2.ui.FixedTextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="8dp"
+                        android:gravity="center"
+                        android:text="@string/no_cards_placeholder_title"
+                        style="@style/TextAppearance.AppCompat.Medium" />
+
+                    <com.ichi2.ui.FixedTextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:gravity="center"
+                        android:textAlignment="center"
+                        android:text="@string/no_cards_placeholder_description"
+                        style="@style/TextAppearance.AppCompat.Body1" />
+                </LinearLayout>
+
+            </FrameLayout>
+        </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
+    </LinearLayout>
+
+    <include layout="@layout/include_anki_progress"/>
+    <include
+        android:id="@+id/floating_action_button"
+        layout="@layout/include_floating_add_button"/>
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

@@ -1,0 +1,53 @@
+{
+    "name": "not-valid-ankidroid-js-addon-test",
+    "version": "1.0.0",
+    "description": "This addon will not listed in Addon Browser. Also AddonInfo.isValidAnkiDroidAddon return false for this package. For more view. https://github.com/ankidroid/Anki-Android/pull/9232",
+    "main": "index.js",
+    "scripts": {
+        "test": "echo \"Error: no test specified\" && exit 1"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/krmanik/ankidroid-js-addon.git"
+    },
+    "keywords": [
+        "ankidroid-js-addon"
+    ],
+    "author": {
+        "name": "krmanik",
+        "email": "infinyte01@gmail.com",
+        "url": "https://krmanik.github.io"
+    },
+    "license": "MIT",
+    "bugs": {
+        "url": "https://github.com/krmanik/ankidroid-js-addon/issues"
+    },
+    "homepage": "https://github.com/krmanik/ankidroid-js-addon#readme",
+    "_id": "not-valid-ankidroid-js-addon-test@1.0.0",
+    "_nodeVersion": "14.15.4",
+    "_npmVersion": "6.14.10",
+    "dist": {
+        "integrity": "sha512-bJwH/r3LRKNzmRdfb2jPsFxgDXftuPzRC80GnvShqeuE+xUNOegChgKdrhUvT3yzR2fqvLWrHKfJGS41Sgm41A==",
+        "shasum": "5fbaafea62566d234e634321608289410cc0caee",
+        "tarball": "https://registry.npmjs.org/not-valid-ankidroid-js-addon-test/-/not-valid-ankidroid-js-addon-test-1.0.0.tgz",
+        "fileCount": 3,
+        "unpackedSize": 1046,
+        "npm-signature": "-----BEGIN PGP SIGNATURE-----\r\nVersion: OpenPGP.js v3.0.13\r\nComment: https://openpgpjs.org\r\n\r\nwsFcBAEBCAAQBQJg7qOvCRA9TVsSAnZWagAA748QAIkEIXejMq6dryECpJvB\ntrJtvXkCwbK2PhL05pMuZj3FnnkB+duCThtvXJv6m7/dDzxkNKKmLmoZzrHH\nK4RFCWvWbR5Ic2IyLvoGG7BjdgN5Yz7ZukLfqdwOyOpn/g+qmKFW0S8nBxJk\n7ZcMO3+LRf+I9XbSovZZ6WWUqhCWUNe5d/8yqWXPohDhroQZ9aWjLjlw9C8x\nN/3tDS46pgF/Y74PD7K+qVdo75/SVvxIK+k2JYYnOlhjJgDcBnd3AcKymFFb\n548U4oqHEZaguCIaSHn2PKH+pQMZhVUJtAYXIuONJSWJlxQxIpUAUTiW9e9z\nH4ZsI9BNB8qgjV9sq+R3/v6rV99pzzjeejpMdmzk7dg42xqmVIWHKOQVPN4u\n9PCz1yvYk3rO273tSjuDqpX7ydtU6J3HAhNokH/94VoLm9DCVIQd8XmhU8Ic\nghKSBAmnyv+9xNtoXiP9rCfGzrol+zLoTckxC0HmVvsH/McRp9eRxRS5VLXZ\nZOAXL4OSjALV++fVrsU+WkkVTF8iJdFL7Z6baztnprIbNGOrtfsl8dSS/VRD\n6wGftEbljSZTfrGT0Z+7Jz2p8Ax5D1jlgPYxct8+2FNzicCybqnucLjgMsXt\ndb2POYXC0ybekd85mdyLCLWMWSVxGeIatOAl/1Ch5uHBHkK7xLfQkSssh+nb\nyvJP\r\n=VS8R\r\n-----END PGP SIGNATURE-----\r\n"
+    },
+    "_npmUser": {
+        "name": "krmanik",
+        "email": "infinyte01@gmail.com"
+    },
+    "directories": {},
+    "maintainers": [
+        {
+            "name": "krmanik",
+            "email": "infinyte01@gmail.com"
+        }
+    ],
+    "_npmOperationalInternal": {
+        "host": "s3://npm-registry-packages",
+        "tmp": "tmp/not-valid-ankidroid-js-addon-test_1.0.0_1626252207239_0.9991982422469252"
+    },
+    "_hasShrinkwrap": false
+}

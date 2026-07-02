@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- SPDX-License-Identifier: GPL-3.0-or-later -->
+
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/action_rename"
+        android:title="@string/rename" />
+    <item
+        android:id="@+id/action_delete"
+        android:title="@string/dialog_positive_delete" />
+</menu>

@@ -1,0 +1,36 @@
+Lär dig vad som helst med AnkiDroid!
+
+AnkiDroid lär dig flashkort effektivt genom att visa dig korten precis innan du glömmer bort dem. Det är helt kompatibelt med programmet för utspridd repetition, Anki (inklusive synkronisering), som finns tillgängligt för Windows, Linux och macOS.
+
+Studera allt möjligt var och när du vill. Utnyttja inaktiv tid på bussen, i kön på affären eller när du väntar på något annat!
+
+Skapa dina egna flashkort eller ladda ner gratis kortlekar på flera olika språk och ämnen (mer än 6000 tillgängliga).
+
+Lägg till material genom skrivbordsprogrammet Anki eller direkt via AnkiDroid. Programmet stöder även att automatiskt lägga till material från en ordlista!
+
+★ Huvudfunktioner:
+• fungerande innehåll för flashkort: text, bilder, ljud och LaTeX
+• spaced repetition (AI-optimized FSRS algorithm)
+• text-till-tal-integration
+• more than 10,000 premade decks
+• widget som visar dina framsteg
+• detaljerad statistik
+• synkronisering med AnkiWeb
+• öppen källkod
+
+★ Ytterligare funktioner:
+• skriv svar (tillval)
+• whiteboard
+• redigera/lägg till kort
+• kortutforskare
+• layout för surfplattor
+• importera befintliga kortlekar (via Anki Desktop)
+• lägga till kort från andra program som t.ex. ordlistor
+• stöd för anpassade teckensnitt
+• fullständigt säkerhetskopieringssystem
+• navigering med svepgester, knackningar
+• anpassningsbar
+• dynamisk hantering av kortlekar
+• nattläge
+• översatt till 27 språk
+• Alla tidigare versioner av AnkiDroid kan hämtas från webbsidan

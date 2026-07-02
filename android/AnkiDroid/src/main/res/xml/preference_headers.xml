@@ -1,0 +1,147 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+~ Copyright (c) 2015 Timothy Rae <perceptualchaos2@gmail.com>
+~
+~ This program is free software; you can redistribute it and/or modify it under
+~ the terms of the GNU General Public License as published by the Free Software
+~ Foundation; either version 3 of the License, or (at your option) any later
+~ version.
+~
+~ This program is distributed in the hope that it will be useful, but WITHOUT ANY
+~ WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+~ PARTICULAR PURPOSE. See the GNU General Public License for more details.
+~
+~ You should have received a copy of the GNU General Public License along with
+~ this program.  If not, see <http://www.gnu.org/licenses/>.
+-->
+
+
+<PreferenceScreen
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:title="@string/settings"
+    tools:context=".preferences.HeaderFragment">
+
+    <com.bytehamster.lib.preferencesearch.SearchPreference
+        android:key="@string/search_preference_key"
+        app:textNoResults="@string/pref_search_no_results"/>
+
+    <!--  General Preferences -->
+    <com.ichi2.preferences.HeaderPreference
+        android:fragment="com.ichi2.anki.preferences.GeneralSettingsFragment"
+        android:title="@string/pref_cat_general"
+        android:icon="@drawable/ic_settings_black"
+        android:key="@string/pref_general_screen_key"
+        app:summaryEntries="@array/general_summary_entries">
+    </com.ichi2.preferences.HeaderPreference>
+
+
+    <com.ichi2.preferences.HeaderPreference
+        android:fragment="com.ichi2.anki.preferences.ReviewerOptionsFragment"
+        android:title="@string/new_study_screen"
+        android:icon="@drawable/ic_cards_star"
+        android:key="@string/new_reviewer_options_key"
+        app:summaryEntries="@array/study_screen_summary_entries"
+        />
+
+    <!-- Reviewing Preferences -->
+    <com.ichi2.preferences.HeaderPreference
+        android:fragment="com.ichi2.anki.preferences.ReviewingSettingsFragment"
+        android:key="@string/pref_reviewing_screen_key"
+        android:title="@string/pref_cat_reviewing"
+        android:icon="@drawable/ic_flashcard_black"
+        app:summaryEntries="@array/reviewing_summary_entries">
+    </com.ichi2.preferences.HeaderPreference>
+
+    <!-- Sync Preferences -->
+    <com.ichi2.preferences.HeaderPreference
+        android:fragment="com.ichi2.anki.preferences.SyncSettingsFragment"
+        android:key="@string/pref_sync_screen_key"
+        android:title="@string/pref_cat_sync"
+        android:icon="@drawable/ic_sync"
+        app:summaryEntries="@array/sync_summary_entries">
+    </com.ichi2.preferences.HeaderPreference>
+
+    <!-- Notifications -->
+    <com.ichi2.preferences.HeaderPreference
+        android:fragment="com.ichi2.anki.preferences.NotificationsSettingsFragment"
+        android:key="@string/pref_notifications_screen_key"
+        android:title="@string/notification_pref"
+        android:icon="@drawable/ic_notifications"
+        app:summaryEntries="@array/notifications_summary_entries">
+    </com.ichi2.preferences.HeaderPreference>
+
+    <!-- Review Reminders -->
+    <com.ichi2.preferences.HeaderPreference
+        android:key="@string/pref_review_reminders_screen_key"
+        android:title="Review reminders"
+        android:icon="@drawable/ic_notifications"
+        app:summaryEntries="@array/review_reminders_summary_entries">
+    </com.ichi2.preferences.HeaderPreference>
+
+    <!-- Appearance Preferences  -->
+    <com.ichi2.preferences.HeaderPreference
+        android:fragment="com.ichi2.anki.preferences.AppearanceSettingsFragment"
+        android:key="@string/pref_appearance_screen_key"
+        android:title="@string/pref_cat_appearance"
+        android:icon="@drawable/ic_color_lens_white_24dp"
+        app:summaryEntries="@array/appearance_summary_entries">
+    </com.ichi2.preferences.HeaderPreference>
+
+    <!-- Switch Profile Preferences  -->
+    <com.ichi2.preferences.HeaderPreference
+        android:key="@string/pref_switch_profile_screen_key"
+        android:title="Switch Profile"
+        android:icon="@drawable/ic_switch_profile"
+        android:fragment="com.ichi2.anki.preferences.profiles.SwitchProfilesFragment" />
+
+    <!-- Keybinding preferences -->
+    <com.ichi2.preferences.HeaderPreference
+        android:fragment="com.ichi2.anki.preferences.ControlsSettingsFragment"
+        android:key="@string/pref_controls_screen_key"
+        android:title="@string/pref_cat_controls"
+        android:icon="@drawable/ic_touch"
+        app:summaryEntries="@array/controls_summary_entries">
+    </com.ichi2.preferences.HeaderPreference>
+
+    <!-- Accessibility -->
+    <com.ichi2.preferences.HeaderPreference
+        android:fragment="com.ichi2.anki.preferences.AccessibilitySettingsFragment"
+        android:key="@string/pref_accessibility_screen_key"
+        android:title="@string/accessibility"
+        android:icon="@drawable/ic_accessibility_24"
+        app:summaryEntries="@array/accessibility_summary_entries">
+    </com.ichi2.preferences.HeaderPreference>
+
+    <!-- Backup Limits Preferences -->
+    <com.ichi2.preferences.HeaderPreference
+        android:fragment="com.ichi2.anki.preferences.BackupLimitsSettingsFragment"
+        android:key="@string/pref_backup_limits_screen_key"
+        android:icon="@drawable/ic_backup_restore"
+        app:summaryEntries="@array/backup_limits_summary_entries"
+        tools:title="Backups"/>
+
+    <!-- Advanced Preferences -->
+    <com.ichi2.preferences.HeaderPreference
+        android:fragment="com.ichi2.anki.preferences.AdvancedSettingsFragment"
+        android:key="@string/pref_advanced_screen_key"
+        android:title="@string/pref_cat_advanced"
+        android:icon="@drawable/ic_tune_white"
+        app:summaryEntries="@array/advanced_summary_entries">
+    </com.ichi2.preferences.HeaderPreference>
+
+    <com.ichi2.preferences.HeaderPreference
+        android:key="@string/pref_developer_options_screen_key"
+        android:title="@string/pref_cat_dev_options"
+        android:icon="@drawable/ic_code"
+        android:fragment="com.ichi2.anki.preferences.DeveloperOptionsFragment"
+        app:isPreferenceVisible="false">
+    </com.ichi2.preferences.HeaderPreference>
+    <!-- About -->
+    <com.ichi2.preferences.HeaderPreference
+        android:key="@string/about_screen_key"
+        android:icon="@drawable/ic_outline_info_24"
+        android:title="@string/pref_cat_about_title"
+        android:fragment="com.ichi2.anki.preferences.AboutFragment"/>
+</PreferenceScreen>

@@ -1,0 +1,115 @@
+name: APK Size Comparison
+
+on:
+  workflow_dispatch:
+    inputs:
+      prNumber:
+        description: "You want to measure the impact of PR number:"
+        required: true
+        type: number
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.inputs.prNumber }}
+  cancel-in-progress: true
+
+
+permissions:
+  contents: read
+  pull-requests: write
+
+
+jobs:
+  sizeCheck:
+    name: APK Size Check
+    timeout-minutes: 30
+    runs-on: ubuntu-latest
+    env:
+      KEYSTORENAME: keystore
+      KEYSTOREPWD: testpass
+      KEYPWD: testpass
+      KEYALIAS: nrkeystorealias
+    steps:
+      - name: Configure JDK
+        uses: actions/setup-java@be666c2fcd27ec809703dec50e508c2fdc7f6654 # v5.2.0
+        with:
+          distribution: "jetbrains"
+          java-version: "21"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Test Credential Prep
+        run: |
+          export KEYSTOREPATH=$HOME/$KEYSTORENAME
+          echo "KEYSTOREPATH=$KEYSTOREPATH" >> $GITHUB_ENV
+          echo y | keytool -genkeypair -dname "cn=AnkiDroid, ou=ankidroid, o=AnkiDroid, c=US" -alias $KEYALIAS -keypass $KEYPWD -keystore $KEYSTOREPATH -storepass $KEYSTOREPWD -keyalg RSA -validity 20000
+        shell: bash
+
+      - name: Checkout PR
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          fetch-depth: 0
+          ref: 'refs/pull/${{ github.event.inputs.prNumber }}/head'
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@50e97c2cd7a37755bbfafc9c5b7cafaece252f6e # v6.1.0
+        timeout-minutes: 5
+        with:
+          # Use open source provider: https://github.com/gradle/actions/blob/main/docs/setup-gradle.md#basic-caching
+          cache-provider: basic
+          cache-read-only: true
+
+      - name: Assemble PR APK
+        # This makes sure we fetch gradle network resources with a retry
+        uses: nick-fields/retry@ad984534de44a9489a53aefd81eb77f87c70dc60 # v4.0.0
+        with:
+          timeout_minutes: 10
+          retry_wait_seconds: 60
+          max_attempts: 3
+          command: ./gradlew :AnkiDroid:assemblePlayRelease --daemon
+
+      - name: Get PR APK size
+        run: echo NEWSIZE=`ls -lrt AnkiDroid/build/outputs/apk/play/release/AnkiDroid-play-arm64-v8a-release.apk | awk '{print $5}'` >> $GITHUB_ENV
+
+      - name: Checkout Baseline for PR
+        # we want to checkout the base for this PR on main, not just main - as main moves over time
+        # and we want to know the isolated affect of this PR regardless of when the workflow executes
+        run: git checkout `git merge-base origin/main HEAD`
+
+      - name: Assemble Baseline APK
+        # This makes sure we fetch gradle network resources with a retry
+        uses: nick-fields/retry@ad984534de44a9489a53aefd81eb77f87c70dc60 # v4.0.0
+        with:
+          timeout_minutes: 10
+          retry_wait_seconds: 60
+          max_attempts: 3
+          command: ./gradlew :AnkiDroid:assemblePlayRelease --daemon
+
+      - name: Get Baseline APK size
+        run: echo OLDSIZE=`ls -lrt AnkiDroid/build/outputs/apk/play/release/AnkiDroid-play-arm64-v8a-release.apk | awk '{print $5}'` >> $GITHUB_ENV
+
+      - name: Post comment
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
+        with:
+          script: |
+            var inputs = ${{ toJSON(inputs) }}
+            let prNumber = inputs['prNumber'];
+
+            async function getPullRequest() {
+                return await github.rest.pulls.get({
+                    owner: context.repo.owner,
+                    repo: context.repo.repo,
+                    pull_number: prNumber,
+                });
+            }
+            const pullRequestData = await getPullRequest();
+
+            async function addComment(prNumber, oldSize, newSize) {
+              return await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: prNumber,
+                body: `${oldSize.toLocaleString()}: Old APK size
+                      ${newSize.toLocaleString()}: New APK size`
+              })
+            }
+            await addComment(prNumber, process.env.OLDSIZE, process.env.NEWSIZE);

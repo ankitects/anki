@@ -1,0 +1,29 @@
+<!--
+  ~  Copyright (c) 2025 Divyansh Kushwaha <thedroiddiv@gmail.com>
+  ~
+  ~  This program is free software; you can redistribute it and/or modify it under
+  ~  the terms of the GNU General Public License as published by the Free Software
+  ~  Foundation; either version 3 of the License, or (at your option) any later
+  ~  version.
+  ~
+  ~  This program is distributed in the hope that it will be useful, but WITHOUT ANY
+  ~  WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+  ~  PARTICULAR PURPOSE. See the GNU General Public License for more details.
+  ~
+  ~  You should have received a copy of the GNU General Public License along with
+  ~  this program.  If not, see <http://www.gnu.org/licenses/>.
+  -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="32dp"
+    android:height="32dp"
+    android:viewportWidth="32"
+    android:viewportHeight="32">
+  <path
+      android:pathData="M16,32C11.64,28.347 8.383,24.953 6.23,21.82C4.077,18.687 3,15.787 3,13.12C3,9.12 4.307,5.933 6.92,3.56C9.534,1.187 12.56,0 16,0C19.44,0 22.466,1.187 25.08,3.56C27.693,5.933 29,9.12 29,13.12C29,15.787 27.923,18.687 25.77,21.82C23.617,24.953 20.36,28.347 16,32Z"
+      android:fillColor="#000000"/>
+  <path
+      android:strokeWidth="1"
+      android:pathData="M16,22C20.971,22 25,17.971 25,13C25,8.029 20.971,4 16,4C11.029,4 7,8.029 7,13C7,17.971 11.029,22 16,22Z"
+      android:fillColor="#ffffff"
+      android:strokeColor="#ffffff"/>
+</vector>

@@ -1,0 +1,36 @@
+Hafalkan semuanya dengan AnkiDroid!
+
+AnkiDroid memungkinkan Anda mempelajari kartu flash secara efisien dengan menampilkannya sesaat sebelum Anda lupa. It is fully compatible with the spaced repetition software Anki (including synchronization), which is available for Windows, Linux and macOS.
+
+Belajar banyak hal di mana pun dan kapan pun Anda inginkan. Manfaatkan waktu luang saat naik bus, di antrean supermarket atau saat ada waktu luang lainnya!
+
+Buat dek sendiri atau unduh dek gratis dari berbagai macam bahasa dan topik (lebih dari 6000 tersedia).
+
+Tambahkan materi melalui aplikasi desktop Anki atau langsung melalui AnkiDroid. Aplikasi ini juga mendukung menambah materi secara otomatis dari sebuah kamus!
+
+★ Fitur utama:
+• isi kartu flash yang didukung: teks, gambar, audio, LaTeX
+• spaced repetition (AI-optimized FSRS algorithm)
+• integrasi teks ke suara
+• more than 10,000 premade decks
+• widget kemajuan
+• statistik yang rinci
+• sinkronisasi dengan AnkiWeb
+• bersumber terbuka
+
+★ Fitur tambahan:
+• tulis jawaban (opsional)
+• papan tulis
+• penyunting/penambah kartu
+• penelusur kartu
+• tata letak tablet
+• impor berkas koleksi yang ada (melalui Anki Desktop)
+• tambahkan kartu dengan intent dari aplikasi lain seperti kamus
+• dukungan fon kustom
+• sistem pencadangan lengkap
+• navigasi dengan usapan, ketukan
+• dapat disesuaikan
+• penanganan dek kartu dinamis
+• mode malam
+• tersedia dalam 27 bahasa
+• Semua versi AnkiDroid sebelumnya dapat diunduh dari situs web

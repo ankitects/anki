@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~  Copyright (c) 2021 David Allison <davidallisongithub@gmail.com>
+  ~
+  ~  This program is free software; you can redistribute it and/or modify it under
+  ~  the terms of the GNU General Public License as published by the Free Software
+  ~  Foundation; either version 3 of the License, or (at your option) any later
+  ~  version.
+  ~
+  ~  This program is distributed in the hope that it will be useful, but WITHOUT ANY
+  ~  WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+  ~  PARTICULAR PURPOSE. See the GNU General Public License for more details.
+  ~
+  ~  You should have received a copy of the GNU General Public License along with
+  ~  this program.  If not, see <http://www.gnu.org/licenses/>.
+  -->
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:title="@string/pref_cat_controls"
+    android:key="@string/pref_controls_screen_key"
+    tools:context=".preferences.ControlsSettingsFragment">
+
+    <SwitchPreferenceCompat
+        android:defaultValue="false"
+        android:disableDependentsState="false"
+        android:key="@string/gestures_preference"
+        android:summary="@string/gestures_summ"
+        android:title="@string/gestures" />
+    <SwitchPreferenceCompat
+        android:defaultValue="false"
+        android:key="@string/gestures_corner_touch_preference"
+        android:summary="@string/gestures_corner_touch_summary"
+        android:title="@string/gestures_corner_touch" />
+    <com.ichi2.preferences.SliderPreference
+        android:key="@string/pref_swipe_sensitivity_key"
+        android:title="@string/swipe_sensitivity"
+        android:defaultValue="100"
+        android:valueFrom="20"
+        android:valueTo="180"
+        app:displayFormat="@string/percentage"
+        />
+
+    <Preference
+        android:key="@string/pref_keyboard_shortcuts_key"
+        android:title="@string/show_keyboard_shortcuts"
+        android:icon="@drawable/ic_keyboard"
+        />
+
+    <com.ichi2.anki.preferences.ControlsTabPreference
+        android:key="@string/pref_controls_tab_layout_key"
+        />
+</PreferenceScreen>

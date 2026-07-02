@@ -1,0 +1,120 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+
+package com.ichi2.anki.observability
+
+import androidx.test.ext.junit.runners.AndroidJUnit4
+import anki.collection.OpChanges
+import com.ichi2.testutils.EmptyApplication
+import com.ichi2.testutils.JvmTest
+import com.ichi2.testutils.subscriberChangeCounter
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.test.StandardTestDispatcher
+import kotlinx.coroutines.test.advanceUntilIdle
+import kotlinx.coroutines.test.setMain
+import org.hamcrest.MatcherAssert.assertThat
+import org.hamcrest.Matchers.equalTo
+import org.hamcrest.Matchers.greaterThan
+import org.junit.Test
+import org.junit.runner.RunWith
+import org.junit.runners.Parameterized
+import org.robolectric.annotation.Config
+import kotlin.reflect.KProperty1
+import kotlin.reflect.full.memberProperties
+import kotlin.reflect.javaType
+import kotlin.reflect.jvm.isAccessible
+
+// this cannot yet use `EmptyApplication` - `CrashReportService` dependency
+@RunWith(AndroidJUnit4::class)
+class ChangeManagerExceptionHandlingTest : JvmTest() {
+    @Test
+    fun `all subscribers notified even if one throws exception`() {
+        var firstCalled = false
+        var secondCalled = false
+
+        // First subscriber throws an exception
+        val throwingSubscriber =
+            object : ChangeManager.Subscriber {
+                override fun opExecuted(
+                    changes: OpChanges,
+                    handler: Any?,
+                ) {
+                    firstCalled = true
+                    throw RuntimeException("Test exception")
+                }
+            }
+
+        // Second subscriber should still be called
+        val normalSubscriber =
+            object : ChangeManager.Subscriber {
+                override fun opExecuted(
+                    changes: OpChanges,
+                    handler: Any?,
+                ) {
+                    secondCalled = true
+                }
+            }
+
+        ChangeManager.subscribe(throwingSubscriber)
+        ChangeManager.subscribe(normalSubscriber)
+
+        ChangeManager.notifySubscribersAllValuesChanged()
+
+        assertThat("First subscriber should be called", firstCalled, equalTo(true))
+        assertThat("Second subscriber should be called despite first throwing", secondCalled, equalTo(true))
+    }
+}
+
+@RunWith(Parameterized::class)
+class ChangeManagerTest {
+    @JvmField // required for Parameter
+    @Parameterized.Parameter
+    var property: KProperty1<OpChanges, *>? = null
+
+    @JvmField // required for Parameter
+    @Parameterized.Parameter(1)
+    var name: String? = null
+
+    @Test
+    fun `Property is set in ALL object`() {
+        assertThat(name, property!!.call(ChangeManager.ALL), equalTo(true))
+    }
+
+    companion object {
+        @Parameterized.Parameters(name = "{1}")
+        @OptIn(ExperimentalStdlibApi::class)
+        @JvmStatic // required for initParameters
+        fun initParameters(): Collection<Array<out Any>> {
+            val props =
+                OpChanges::class.memberProperties.filter { it.returnType.javaType == Boolean::class.java }
+            assertThat(props.size, greaterThan(0))
+
+            props.forEach { it.isAccessible = true }
+            return props.map {
+                arrayOf(it, it.name)
+            }
+        }
+    }
+}
+
+@RunWith(AndroidJUnit4::class)
+@Config(application = EmptyApplication::class)
+class ChangeManagerPublishTest : JvmTest() {
+    @Test
+    fun `publish notifies multiple subscribers asynchronously`() =
+        runTest {
+            // queue coroutine execution on Dispatchers.Main, to test 'not notified synchronously'
+            Dispatchers.setMain(StandardTestDispatcher(testScheduler))
+
+            val counter1 = subscriberChangeCounter()
+            val counter2 = subscriberChangeCounter()
+
+            ChangeManager.publishAllValuesChanged()
+
+            assertThat("not notified synchronously by publishAllValuesChanged", counter1.hasChanges, equalTo(false))
+
+            advanceUntilIdle()
+
+            assertThat("First subscriber should be notified", counter1.hasChanges, equalTo(true))
+            assertThat("Second subscriber should be notified", counter2.hasChanges, equalTo(true))
+        }
+}

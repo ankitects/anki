@@ -1,0 +1,139 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+~ Copyright (c) 2009 Nicolas Raoul <nicolas.raoul@gmail.com>
+~ Copyright (c) 2009 Edu Zamora <edu.zasu@gmail.com>
+~ Copyright (c) 2009 Jordi Chacon <jordi.chacon@gmail.com>
+~ Copyright (c) 2011 Norbert Nagold <norbert.nagold@gmail.com>
+~ Copyright (c) 2012 Kostas Spyropoulos <inigo.aldana@gmail.com>
+~ Copyright (c) 2014 Timothy Rae <perceptualchaos2@gmail.com>
+~
+~ This program is free software; you can redistribute it and/or modify it under
+~ the terms of the GNU General Public License as published by the Free Software
+~ Foundation; either version 3 of the License, or (at your option) any later
+~ version.
+~
+~ This program is distributed in the hope that it will be useful, but WITHOUT ANY
+~ WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+~ PARTICULAR PURPOSE. See the GNU General Public License for more details.
+~
+~ You should have received a copy of the GNU General Public License along with
+~ this program.  If not, see <http://www.gnu.org/licenses/>.
+-->
+
+<!-- Fonts & Style Preferences -->
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:search="http://schemas.android.com/apk/com.bytehamster.lib.preferencesearch"
+    xmlns:tools="http://schemas.android.com/tools"
+        android:title="@string/pref_cat_appearance"
+        android:key="@string/pref_appearance_screen_key">
+    <PreferenceCategory android:title="@string/pref_cat_themes" >
+        <ListPreference
+            android:defaultValue="@string/theme_follow_system_value"
+            android:entries="@array/app_theme_labels"
+            android:entryValues="@array/app_theme_values"
+            android:key="@string/app_theme_key"
+            android:title="@string/app_theme"
+            android:icon="@drawable/ic_color_lens_white_24dp"
+            app:useSimpleSummaryProvider="true"/>
+        <ListPreference
+            android:defaultValue="@string/theme_light_value"
+            android:entries="@array/day_theme_labels"
+            android:entryValues="@array/day_theme_values"
+            android:key="@string/day_theme_key"
+            android:shouldDisableView="true"
+            android:title="@string/day_theme"
+            android:icon="@drawable/ic_light_mode_24"
+            app:useSimpleSummaryProvider="true"
+            />
+        <ListPreference
+            android:defaultValue="@string/theme_black_value"
+            android:entries="@array/night_theme_labels"
+            android:entryValues="@array/night_theme_values"
+            android:key="@string/night_theme_key"
+            android:shouldDisableView="true"
+            android:title="@string/night_theme"
+            android:icon="@drawable/ic_dark_mode_24"
+            app:useSimpleSummaryProvider="true"
+            />
+    </PreferenceCategory>
+    <PreferenceCategory android:title="@string/background_image_title" >
+        <Preference
+            android:defaultValue="false"
+            android:key="@string/pref_deck_picker_background_key"
+            android:shouldDisableView="true"
+            android:icon="@drawable/wallpaper_icon"
+            tools:title="Select image" />
+        <Preference
+            android:key="@string/pref_remove_wallpaper_key"
+            android:icon="@drawable/ic_delete_white"
+            android:title="@string/remove_wallpaper_image"/>
+    </PreferenceCategory>
+    <PreferenceCategory
+        android:title="@string/pref_cat_reviewer"
+        android:key="@string/study_screen_category_key"
+        >
+        <!-- This is ignored in the search as it opens a submenu. The submenu content is what should actually appear in search result. -->
+        <Preference
+            android:summary="@string/custom_buttons_summary"
+            android:title="@string/custom_buttons"
+            android:key="@string/custom_buttons_link_preference"
+            android:fragment="com.ichi2.anki.preferences.CustomButtonsSettingsFragment"
+            search:ignore="true"/>
+        <ListPreference
+            android:defaultValue="0"
+            android:key="@string/fullscreen_mode_preference"
+            android:entries="@array/full_screen_mode_labels"
+            android:entryValues="@array/full_screen_mode_values"
+            android:title="@string/fullscreen_review"
+            app:useSimpleSummaryProvider="true"/>
+        <SwitchPreferenceCompat
+            android:defaultValue="false"
+            android:key="@string/center_vertically_preference"
+            android:summary="@string/vertical_centering_summ"
+            android:title="@string/vertical_centering" />
+        <SwitchPreferenceCompat
+            android:key="@string/show_estimates_preference"
+            android:summary="@string/show_estimates_summ"
+            android:title="@string/show_estimates" />
+        <ListPreference
+            android:defaultValue="bottom"
+            android:entries="@array/answer_buttons_position_labels"
+            android:entryValues="@array/answer_buttons_position"
+            android:key="@string/answer_buttons_position_preference"
+            android:title="@string/answer_buttons_position"
+            app:useSimpleSummaryProvider="true"/>
+        <SwitchPreferenceCompat
+            android:key="@string/show_topbar_preference"
+            android:defaultValue="true"
+            android:summary="@string/show_top_bar_summary"
+            android:title="@string/show_top_bar" />
+        <SwitchPreferenceCompat
+            android:key="@string/show_progress_preference"
+            android:dependency="@string/show_topbar_preference"
+            android:summary="@string/show_progress_summ"
+            android:title="@string/show_progress" />
+        <SwitchPreferenceCompat
+            android:key="@string/show_eta_preference"
+            android:defaultValue="false"
+            android:summary="@string/show_eta_summ"
+            android:title="@string/show_eta" />
+        <SwitchPreferenceCompat
+            android:key="@string/show_audio_play_buttons_key"
+            android:defaultValue="true"
+            tools:title="Show play buttons on cards with audio"
+            />
+        <SwitchPreferenceCompat
+            android:key="@string/show_deck_title_key"
+            android:defaultValue="false"
+            android:title="@string/show_deck_title"/>
+    </PreferenceCategory>
+    <PreferenceCategory android:title="@string/card_browser">
+        <SwitchPreferenceCompat
+            android:checked="false"
+            android:defaultValue="false"
+            android:key="@string/pref_display_filenames_in_browser_key"
+            android:title="@string/card_browser_hide_media"
+            android:summary="@string/card_browser_hide_media_summary"/>
+    </PreferenceCategory>
+</PreferenceScreen>

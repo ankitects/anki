@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~  Copyright (c) 2024 Brayan Oliveira <brayandso.dev@gmail.com>
+  ~
+  ~  This program is free software; you can redistribute it and/or modify it under
+  ~  the terms of the GNU General Public License as published by the Free Software
+  ~  Foundation; either version 3 of the License, or (at your option) any later
+  ~  version.
+  ~
+  ~  This program is distributed in the hope that it will be useful, but WITHOUT ANY
+  ~  WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+  ~  PARTICULAR PURPOSE. See the GNU General Public License for more details.
+  ~
+  ~  You should have received a copy of the GNU General Public License along with
+  ~  this program.  If not, see <http://www.gnu.org/licenses/>.
+  -->
+<resources>
+    <item type="id" name="flag_none"/>
+    <item type="id" name="flag_red"/>
+    <item type="id" name="flag_orange"/>
+    <item type="id" name="flag_green"/>
+    <item type="id" name="flag_blue"/>
+    <item type="id" name="flag_pink"/>
+    <item type="id" name="flag_turquoise"/>
+    <item type="id" name="flag_purple"/>
+
+    <item type="id" name="action_flag"/>
+    <item type="id" name="action_add_note"/>
+    <item type="id" name="action_undo"/>
+    <item type="id" name="action_redo"/>
+    <item type="id" name="action_mark"/>
+    <item type="id" name="action_delete"/>
+    <item type="id" name="action_deck_options"/>
+    <item type="id" name="action_edit_note"/>
+    <item type="id" name="action_edit_tags"/>
+    <item type="id" name="action_card_info"/>
+    <item type="id" name="action_previous_card_info"/>
+    <item type="id" name="action_bury_card"/>
+    <item type="id" name="action_bury_note"/>
+    <item type="id" name="action_suspend_card"/>
+    <item type="id" name="action_suspend_note"/>
+    <item type="id" name="action_toggle_auto_advance"/>
+    <item type="id" name="action_toggle_whiteboard"/>
+    <item type="id" name="action_record_voice"/>
+    <item type="id" name="action_replay_media"/>
+    <item type="id" name="action_set_due_date"/>
+    <item type="id" name="action_reset_progress"/>
+    <item type="id" name="action_browse"/>
+    <item type="id" name="action_statistics"/>
+
+    <item type="id" name="user_action_1"/>
+    <item type="id" name="user_action_2"/>
+    <item type="id" name="user_action_3"/>
+    <item type="id" name="user_action_4"/>
+    <item type="id" name="user_action_5"/>
+    <item type="id" name="user_action_6"/>
+    <item type="id" name="user_action_7"/>
+    <item type="id" name="user_action_8"/>
+    <item type="id" name="user_action_9"/>
+</resources>

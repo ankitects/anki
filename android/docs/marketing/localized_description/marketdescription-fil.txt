@@ -1,0 +1,36 @@
+Kabisaduhin ang anumang bagay sa AnkiDroid!
+
+Hinahayaan ka ng AnkiDroid na matutunan mo ang mga flashcards nang mabisa sa pamamagitan ng pagpapakita sa mga ito bago mo malilimutan. It is fully compatible with the spaced repetition software Anki (including synchronization), which is available for Windows, Linux and macOS.
+
+Pag-aralan ang lahat ng uri ng mga bagay saan man at kailan mo gusto. Sulitin ang mga oras na walang ginagawa sa mga biyahe sa bus, sa queue ng supermarket o anumang iba pang sitwasyon sa paghihintay!
+
+Lumikha ng iyong sariling mga deck ng flashcard o mag-download ng mga libreng deck na naipon para sa maraming mga wika at paksa (higit sa 6000 magagamit).
+
+Magdagdag ng materyal sa pamamagitan ng Anki desktop application o direkta sa pamamagitan ng AnkiDroid. Sinusuportahan pa ng application ang pagdaragdag ng materyal awtomatikong mula sa isang diksyunaryo!
+
+★ Mga pangunahing tampok:
+• Sinusuportahan ang mga nilalaman ng flashcard: teksto, mga imahe, mga tunog, LaTeX
+• spaced repetition (AI-optimized FSRS algorithm)
+• text-to-speech integration
+• more than 10,000 premade decks
+• widget ng progreso
+• detalyadong istatistika
+• pag-sync sa AnkiWeb
+• open source
+
+★ Karagdagang mga tampok:
+• sumulat ng mga sagot (opsyonal)
+• whiteboard
+• editor ng card / pang-dagdag ng card
+• browser ng card
+• tablet layout
+• mag-import ng mga umiiral na mga file ng koleksyon (sa pamamagitan ng Anki Desktop)
+• magdagdag ng mga card sa pamamagitan ng layunin mula sa iba pang mga application tulad ng mga diksyunaryo
+• pasadyang suporta font
+• buong backup na sistema
+• nabigasyon sa pamamagitan ng mag-swipe, tapikin
+• customisable
+• dynamic handling handling
+• night mode
+• 27 localisasyon
+• Maaaring ma-download ang lahat ng mga nakaraang bersyon ng AnkiDroid mula sa website nito

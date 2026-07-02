@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- SPDX-License-Identifier: GPL-3.0-or-later -->
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:parentTag="androidx.constraintlayout.widget.ConstraintLayout"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <!-- 18781: Don't mirror the gesture display for rtl languages -->
+    <com.ichi2.ui.GestureDisplay
+        android:id="@+id/gestureDisplay"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layoutDirection="ltr"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/gesture_spinner"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintDimensionRatio="1:1"
+        tools:parentTag="androidx.constraintlayout.widget.ConstraintLayout"/>
+
+    <Spinner
+        android:id="@+id/gesture_spinner"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:dropDownWidth="wrap_content"
+        android:gravity="center_horizontal"
+        android:spinnerMode="dropdown"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/gestureDisplay"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_goneMarginTop="24dp"
+        app:layout_constraintBottom_toTopOf="@id/warning"/>
+
+    <com.ichi2.ui.FixedTextView
+        android:id="@+id/warning"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textColor="?attr/colorError"
+        tools:text="Already used in X"
+        android:layout_margin="6dp"
+        android:visibility="gone"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        android:drawableStart="@drawable/ic_warning"
+        android:drawableTint="?attr/colorError"
+        android:drawablePadding="4dp"
+        tools:visibility="visible"
+        />
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>

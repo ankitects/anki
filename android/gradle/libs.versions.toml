@@ -1,0 +1,265 @@
+[versions]
+compileSdk = "36"
+
+# Changing minSdk means newer AnkiDroid versions will not support older devices.
+# However the Play Store will keep old AnkiDroid versions available for older
+# devices *if* you also change AnkiDroid/build.gradle play { retain {} } block
+# to include the version codes of the last released version for the older
+# minSdk. It is critical to update those version codes when you change this.
+minSdk = "24"
+# The API should be as low as possible in order to enable dependencies to stay on a lower minSdk.
+apiMinSdk = "16"
+
+targetSdk = "35"  # affects which SDKs download in ../robolectricDownloader.gradle
+acra = '5.13.1'
+ktlint = '1.8.0'
+# AGP is included in Android Studio and changelogs are not well maintained/at a stable URL
+# Open https://developer.android.com/build/releases/gradle-plugin#patch-releases
+# Maybe select a "bug fixes" link ->
+# https://developer.android.com/studio/releases/fixed-bugs/studio/2024.1.1
+#
+# Old changelogs - See 'Table of Contents' in sidebar
+# https://developer.android.com/build/releases/past-releases
+# Pinned to 9.0.1 until building androidTest in release mode circular dependency issue resolved
+# Upstream reference https://issuetracker.google.com/issues/491718901
+androidGradlePlugin = "9.0.1"
+# https://developer.android.com/jetpack/androidx/releases/activity
+androidxActivity = "1.12.4"
+# https://developer.android.com/jetpack/androidx/releases/annotation
+androidxAnnotation = "1.10.0"
+# https://developer.android.com/jetpack/androidx/releases/appcompat
+androidxAppCompat = "1.7.1"
+# https://developer.android.com/jetpack/androidx/releases/benchmark
+androidxBenchmark = "1.4.1"
+# https://developer.android.com/jetpack/androidx/releases/browser
+androidxBrowser = "1.10.0"
+# https://developer.android.com/jetpack/compose/bom/bom-mapping
+androidxComposeBillOfMaterials = "2026.06.00"
+# https://developer.android.com/jetpack/androidx/releases/constraintlayout
+androidxConstraintlayout = "2.2.1"
+# https://developer.android.com/jetpack/androidx/releases/core
+androidxCoreKtx = "1.17.0"
+# https://developer.android.com/jetpack/androidx/releases/draganddrop
+androidxDragAndDrop = "1.0.0"
+# https://developer.android.com/jetpack/androidx/releases/exifinterface
+androidxExifinterface = "1.4.2"
+# https://developer.android.com/jetpack/androidx/releases/fragment
+androidxFragmentKtx = "1.8.9"
+# https://developer.android.com/jetpack/androidx/releases/lifecycle
+androidxLifecycleProcess = "2.10.0"
+# https://developer.android.com/jetpack/androidx/releases/media3
+androidxMedia3 = "1.10.0"
+# https://developer.android.com/jetpack/androidx/releases/preference
+androidxPreferenceKtx = "1.2.1"
+# https://developer.android.com/jetpack/androidx/releases/profileinstaller
+androidxProfileinstaller = "1.4.1"
+# https://developer.android.com/jetpack/androidx/releases/recyclerview
+androidxRecyclerview = "1.4.0"
+# https://developer.android.com/jetpack/androidx/releases/sqlite
+androidxSqlite = "2.6.2"
+# https://developer.android.com/jetpack/androidx/releases/swiperefreshlayout
+androidxSwipeRefreshLayout = "1.2.0"
+# https://developer.android.com/jetpack/androidx/releases/test
+androidxTest = "1.7.0"
+# https://developer.android.com/jetpack/androidx/releases/test-uiautomator
+androidxTestUiAutomator = "2.3.0"
+# https://developer.android.com/jetpack/androidx/releases/viewpager2
+androidxViewpager2 = "1.1.0"
+# https://developer.android.com/jetpack/androidx/releases/webkit
+androidxWebkit = "1.15.0"
+# https://developer.android.com/jetpack/androidx/releases/work
+androidxWork = "2.11.2"
+# https://github.com/ankidroid/Anki-Android-Backend/
+ankiBackend = '0.1.64-anki25.09.2'
+autoService = "1.1.1"
+autoServiceAnnotations = "1.1.1"
+# https://github.com/skydoves/ColorPickerView/releases
+colorPickerView = "2.4.0"
+# https://commons.apache.org/proper/commons-collections/changes.html
+commonsCollections4 = "4.5.0"
+# https://commons.apache.org/proper/commons-compress/changes-report.html
+commonsCompress = "1.28.0"
+# https://commons.apache.org/proper/commons-io/changes.html
+commonsIo = "2.22.0"
+coroutines = '1.10.2'
+desugar-jdk-libs-nio = "2.1.5"
+drawer = "1.0.3"
+espresso = '3.7.0'
+# https://github.com/criticalAY/google-analytics-kt
+googleAnalyticsKt = "1.2.1"
+mikehardyGoogleAnalyticsJava7 = "2.0.13"
+hamcrest = "3.0"
+imageCropper = "4.7.0"
+jacoco = "0.8.14"
+javaSemver = "0.10.2"
+jetbrainsAnnotations = "26.1.0"
+json = "20251224"
+# https://github.com/jhy/jsoup/releases
+jsoup = "1.22.2"
+androidTestJunit = "1.3.0"
+# https://github.com/junit-team/junit5/releases/
+junit = "6.0.3"
+# https://github.com/JetBrains/kotlin/releases/
+kotlin = '2.3.21'
+# https://github.com/Kotlin/kotlinx.serialization/releases
+kotlinxSerializationJson = "1.11.0"
+ktlintGradlePlugin = "14.2.0"
+leakcanaryAndroid = "2.14"
+lint = '32.2.0'
+material = "1.13.0"
+
+mockitoInline = "5.2.0"
+mockitoKotlin = "6.3.0"
+mockk = "1.14.9"
+nanohttpd = "2.3.1"
+okhttp = "5.3.2"
+# https://github.com/protocolbuffers/protobuf/releases
+protobufKotlinLite = "4.34.1"
+# ../AnkiDroid/robolectricDownload.gradle may need changes - read instructions in that file
+robolectric = "4.16.1"
+# https://github.com/takahirom/roborazzi/releases
+roborazzi = "1.60.0"
+searchpreference = "2.7.3"
+seismic = "1.0.3"
+sharedPreferencesMock = "1.2.4"
+slackKeeper = "0.16.1"
+# https://github.com/qos-ch/slf4j
+slf4j = "1.7.30"
+slf4jTimber = "3.1"
+# https://github.com/google/TestParameterInjector/blob/main/CHANGELOG.md
+testParameterInjector = "1.22"
+timber = "5.0.1"
+# https://github.com/Triple-T/gradle-play-publisher/releases
+# In the past, releases have been published before the changelog
+triplet = "4.0.0"
+turbine = "1.2.1"
+
+[libraries]
+acra-limiter = { module = "ch.acra:acra-limiter", version.ref = "acra" }
+acra-toast = { module = "ch.acra:acra-toast", version.ref = "acra" }
+acra-dialog = { module = "ch.acra:acra-dialog", version.ref = "acra" }
+acra-http = { module = "ch.acra:acra-http", version.ref = "acra" }
+android-image-cropper = { module = "com.vanniktech:android-image-cropper", version.ref = "imageCropper" }
+androidx-constraintlayout = { module = "androidx.constraintlayout:constraintlayout", version.ref = "androidxConstraintlayout" }
+androidx-fragment-ktx = { module = "androidx.fragment:fragment-ktx", version.ref = "androidxFragmentKtx" }
+androidx-exifinterface = { module = "androidx.exifinterface:exifinterface", version.ref = "androidxExifinterface" }
+androidx-core-ktx = { module = "androidx.core:core-ktx", version.ref = "androidxCoreKtx" }
+androidx-draganddrop = { module = "androidx.draganddrop:draganddrop", version.ref = "androidxDragAndDrop" }
+androidx-browser = { module = "androidx.browser:browser", version.ref = "androidxBrowser" }
+androidx-appcompat = { module = "androidx.appcompat:appcompat", version.ref = "androidxAppCompat" }
+androidx-benchmark-macro-junit4 = { module = "androidx.benchmark:benchmark-macro-junit4", version.ref = "androidxBenchmark" }
+androidx-annotation = { module = "androidx.annotation:annotation", version.ref = "androidxAnnotation" }
+androidx-activity = { module = "androidx.activity:activity", version.ref = "androidxActivity" }
+androidx-activity-compose = { module = "androidx.activity:activity-compose", version.ref = "androidxActivity" }
+# The Compose libraries below intentionally omit `version.ref`: their versions are
+# pinned by `androidx-compose-bom` (a Bill of Materials), so the BoM resolves them
+# to a mutually-compatible set. Bump `androidxComposeBillOfMaterials` to upgrade
+# them all in lock-step.
+androidx-compose-bom = { module = "androidx.compose:compose-bom", version.ref = "androidxComposeBillOfMaterials" }
+androidx-compose-ui = { module = "androidx.compose.ui:ui" }
+androidx-compose-ui-tooling = { module = "androidx.compose.ui:ui-tooling" }
+androidx-compose-ui-tooling-preview = { module = "androidx.compose.ui:ui-tooling-preview" }
+androidx-compose-material3 = { module = "androidx.compose.material3:material3" }
+androidx-compose-runtime = { module = "androidx.compose.runtime:runtime" }
+androidx-lifecycle-viewmodel-compose = { module = "androidx.lifecycle:lifecycle-viewmodel-compose", version.ref = "androidxLifecycleProcess" }
+androidx-lifecycle-runtime-compose = { module = "androidx.lifecycle:lifecycle-runtime-compose", version.ref = "androidxLifecycleProcess" }
+androidx-lifecycle-process = { group = "androidx.lifecycle", name = "lifecycle-process", version.ref = "androidxLifecycleProcess" }
+androidx-media3-ui = { module = "androidx.media3:media3-ui", version.ref = "androidxMedia3" }
+androidx-media3-exoplayer-dash = { module = "androidx.media3:media3-exoplayer-dash", version.ref = "androidxMedia3" }
+androidx-media3-exoplayer = { module = "androidx.media3:media3-exoplayer", version.ref = "androidxMedia3" }
+androidx-preference-ktx = { module = "androidx.preference:preference-ktx", version.ref = "androidxPreferenceKtx" }
+androidx-profileinstaller = { module = "androidx.profileinstaller:profileinstaller", version.ref = "androidxProfileinstaller" }
+androidx-uiautomator = { module = "androidx.test.uiautomator:uiautomator", version.ref = "androidxTestUiAutomator" }
+androidx-webkit = { module = "androidx.webkit:webkit", version.ref = "androidxWebkit" }
+androidx-viewpager2 = { module = "androidx.viewpager2:viewpager2", version.ref = "androidxViewpager2" }
+androidx-swiperefreshlayout = { module = "androidx.swiperefreshlayout:swiperefreshlayout", version.ref = "androidxSwipeRefreshLayout" }
+androidx-sqlite-framework = { module = "androidx.sqlite:sqlite-framework", version.ref = "androidxSqlite" }
+androidx-recyclerview = { module = "androidx.recyclerview:recyclerview", version.ref = "androidxRecyclerview" }
+auto-service = { module = "com.google.auto.service:auto-service", version.ref = "autoService" }
+auto-service-annotations = { module = "com.google.auto.service:auto-service-annotations", version.ref = "autoServiceAnnotations" }
+google-analytics-kt = { module = "io.github.criticalay:google-analytics-kt", version.ref = "googleAnalyticsKt" }
+jetbrains-annotations = { module = "org.jetbrains:annotations", version.ref = "jetbrainsAnnotations" }
+skydoves-colorpickerview = { module = "com.github.skydoves:colorpickerview", version.ref = "colorPickerView" }
+commons-io = { module = "commons-io:commons-io", version.ref = "commonsIo" }
+commons-collections4 = { module = "org.apache.commons:commons-collections4", version.ref = "commonsCollections4" }
+commons-compress = { module = "org.apache.commons:commons-compress", version.ref = "commonsCompress" }
+desugar-jdk-libs-nio = { module = "com.android.tools:desugar_jdk_libs_nio", version.ref = "desugar-jdk-libs-nio" }
+drakeet-drawer = { module = "com.drakeet.drawer:drawer", version.ref = "drawer" }
+mikehardy-google-analytics-java7 = { module = "net.mikehardy:google-analytics-java7", version.ref = "mikehardyGoogleAnalyticsJava7" }
+ankiBackend-backend = { module = "io.github.david-allison:anki-android-backend", version.ref = "ankiBackend" }
+ankiBackend-testing = { module = "io.github.david-allison:anki-android-backend-testing", version.ref = "ankiBackend" }
+java-semver = { module = "com.github.zafarkhaja:java-semver", version.ref = "javaSemver" }
+jsoup = { module = "org.jsoup:jsoup", version.ref = "jsoup" }
+kotlin-stdlib = { module = "org.jetbrains.kotlin:kotlin-stdlib", version.ref = "kotlin" }
+kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "kotlinxSerializationJson" }
+kotlinx-coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "coroutines" }
+leakcanary-android = { module = "com.squareup.leakcanary:leakcanary-android", version.ref = "leakcanaryAndroid" }
+google-material = { module = "com.google.android.material:material", version.ref = "material" }
+nanohttpd = { module = "org.nanohttpd:nanohttpd", version.ref = "nanohttpd" }
+okhttp = { module = "com.squareup.okhttp3:okhttp", version.ref = "okhttp" }
+android-lint-api = { module = "com.android.tools.lint:lint-api", version.ref = "lint" }
+android-lint = { module = "com.android.tools.lint:lint", version.ref = "lint" }
+android-lint-tests = { module = "com.android.tools.lint:lint-tests", version.ref = "lint" }
+protobuf-kotlin-lite = { module = "com.google.protobuf:protobuf-kotlin-lite", version.ref = "protobufKotlinLite" }
+search-preference = { module = "com.github.ByteHamster:SearchPreference", version.ref = "searchpreference" }
+seismic = { module = "com.squareup:seismic", version.ref = "seismic" }
+slf4j-api = { module = "org.slf4j:slf4j-api", version.ref = "slf4j" }
+slf4j-timber = { module = "com.arcao:slf4j-timber", version.ref = "slf4jTimber" }
+jakewharton-timber = { module = "com.jakewharton.timber:timber", version.ref = "timber" }
+androidx-work-runtime = { group = "androidx.work", name = "work-runtime-ktx", version.ref = "androidxWork" }
+
+
+#testing libs
+androidx-espresso-contrib = { module = "androidx.test.espresso:espresso-contrib", version.ref = "espresso" }
+androidx-espresso-core = { module = "androidx.test.espresso:espresso-core", version.ref = "espresso" }
+androidx-fragment-testing = { module = "androidx.fragment:fragment-testing", version.ref = "androidxFragmentKtx" }
+androidx-fragment-testing-manifest = { module = "androidx.fragment:fragment-testing-manifest", version.ref = "androidxFragmentKtx" }
+androidx-test-junit = { module = "androidx.test.ext:junit", version.ref = "androidTestJunit" }
+androidx-test-runner = { module = "androidx.test:runner", version.ref = "androidxTest" }
+androidx-test-rules = { module = "androidx.test:rules", version.ref = "androidxTest" }
+androidx-test-core = { module = "androidx.test:core", version.ref = "androidxTest" }
+androidx-work-testing = { module = "androidx.work:work-testing", version.ref = "androidxWork" }
+hamcrest = { module = "org.hamcrest:hamcrest", version.ref = "hamcrest" }
+hamcrest-library = { module = "org.hamcrest:hamcrest-library", version.ref = "hamcrest" }
+ivanshafran-shared-preferences-mock = { module = "io.github.ivanshafran:shared-preferences-mock", version.ref = "sharedPreferencesMock" }
+json = { module = "org.json:json", version.ref = "json" }
+junit-jupiter = { module = "org.junit.jupiter:junit-jupiter", version.ref = "junit" }
+junit-jupiter-params = { module = "org.junit.jupiter:junit-jupiter-params", version.ref = "junit" }
+junit-platform-launcher = { module = "org.junit.platform:junit-platform-launcher", version.ref = "junit" }
+junit-vintage-engine = { module = "org.junit.vintage:junit-vintage-engine", version.ref = "junit" }
+kotlin-reflect = { module = "org.jetbrains.kotlin:kotlin-reflect", version.ref = "kotlin" }
+kotlin-test = { module = "org.jetbrains.kotlin:kotlin-test", version.ref = "kotlin" }
+kotlin-test-junit = { module = "org.jetbrains.kotlin:kotlin-test-junit", version.ref = "kotlin" }
+kotlin-test-junit5 = { module = "org.jetbrains.kotlin:kotlin-test-junit5", version.ref = "kotlin" }
+kotlinx-coroutines-test = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-test", version.ref = "coroutines" }
+mockito-inline = { module = "org.mockito:mockito-inline", version.ref = "mockitoInline" }
+mockito-kotlin = { module = "org.mockito.kotlin:mockito-kotlin", version.ref = "mockitoKotlin" }
+mockk = { module = "io.mockk:mockk", version.ref = "mockk" }
+robolectric = { module = "org.robolectric:robolectric", version.ref = "robolectric" }
+roborazzi = { group = "io.github.takahirom.roborazzi", name = "roborazzi", version.ref = "roborazzi" }
+roborazzi-rule = { group = "io.github.takahirom.roborazzi", name = "roborazzi-junit-rule", version.ref = "roborazzi" }
+cashapp-turbine = { module = "app.cash.turbine:turbine", version.ref = "turbine" }
+test-parameter-injector = { module = "com.google.testparameterinjector:test-parameter-injector", version.ref = "testParameterInjector" }
+
+[plugins]
+
+android-application = { id = "com.android.application", version.ref = "androidGradlePlugin" }
+android-library = { id = "com.android.library", version.ref = "androidGradlePlugin" }
+android-test = { id = "com.android.test", version.ref = "androidGradlePlugin" }
+androidx-baselineprofile = { id = "androidx.baselineprofile", version.ref = "androidxBenchmark" }
+
+tripletPlay = { id = "com.github.triplet.play", version.ref = "triplet" }
+
+
+kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
+kotlin-parcelize = { id = "org.jetbrains.kotlin.plugin.parcelize", version.ref = "kotlin" }
+kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
+kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
+kotlin-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
+
+
+ktlint-gradle-plugin = { id = "org.jlleitschuh.gradle.ktlint", version.ref = "ktlintGradlePlugin" }
+
+
+keeper = { id = "com.slack.keeper", version.ref = "slackKeeper" }
+roborazzi = { id = "io.github.takahirom.roborazzi", version.ref = "roborazzi" }

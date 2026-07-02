@@ -1,0 +1,148 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   id="svg33"
+   version="1.1"
+   viewBox="0 0 192 192"
+   height="192px"
+   width="192px"
+   y="0px"
+   x="0px">
+  <metadata
+     id="metadata39">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title></dc:title>
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <defs
+     id="defs37" />
+  <g
+     id="background">
+    <path
+       style="fill:#434748"
+       id="background_square"
+       d="M 0,0 H 192 V 192 H 0 Z" />
+  </g>
+  <g
+     transform="matrix(1.6,0,0,1.1888545,-31.68,-13.671828)"
+     id="bottom_text"
+     style="opacity:0.7">
+    <rect
+       style="stroke-width:0.6916573"
+       id="b_rect1"
+       height="6"
+       width="19.135592"
+       y="102.51771"
+       x="43.444069" />
+    <rect
+       style="stroke-width:0.78600037"
+       id="b_rect2"
+       height="6"
+       width="12.355931"
+       y="121.85313"
+       x="43.444069" />
+    <rect
+       style="stroke-width:0.90443259"
+       id="b_rect3"
+       height="6"
+       width="34.35593"
+       y="139.98851"
+       x="43.444069" />
+  </g>
+  <g
+     transform="matrix(1.6,0,0,1.1888545,-31.68,-13.671828)"
+     id="top_text"
+     style="opacity:0.6">
+    <rect
+       id="t_rect1"
+       height="6"
+       width="66.530022"
+       y="36.311459"
+       x="43.444069"
+       style="fill:#ffffff;stroke-width:0.97839999" />
+    <rect
+       id="t_rect2"
+       height="6"
+       width="14.755931"
+       y="53.74688"
+       x="43.444069"
+       style="fill:#ffffff;stroke-width:0.81163222" />
+    <rect
+       id="t_rect3"
+       height="6"
+       width="22.4"
+       y="53.74688"
+       x="65.900002"
+       style="fill:#ffffff" />
+    <rect
+       id="t_rect4"
+       height="6"
+       width="29.15593"
+       y="71.882286"
+       x="43.444069"
+       style="fill:#ffffff;stroke-width:0.89010155" />
+  </g>
+  <g
+     id="light">
+    <g
+       style="opacity:0.1"
+       id="l_horizontal">
+      <linearGradient
+         gradientTransform="matrix(1,0,0,-1,0,192)"
+         y2="100"
+         x2="142.3"
+         y1="100"
+         x1="22.6"
+         gradientUnits="userSpaceOnUse"
+         id="gradient_horizontal">
+        <stop
+           id="stop_h_1"
+           style="stop-color:#FFFFFF"
+           offset="0" />
+        <stop
+           id="stop_h_2"
+           style="stop-color:#000000;stop-opacity:0"
+           offset="1" />
+      </linearGradient>
+      <path
+         style="fill:url(#gradient_horizontal)"
+         d="M 0 0 H 192 V 192 H 0 z"
+         id="path_horizontal" />
+    </g>
+    <g
+       style="opacity:0.1"
+       id="l_diagonal">
+      <linearGradient
+         gradientTransform="matrix(1,0,0,-1,0,192)"
+         y2="33.349998"
+         x2="149.10001"
+         y1="166.64999"
+         x1="15.8"
+         gradientUnits="userSpaceOnUse"
+         id="gradient_diagonal">
+        <stop
+           id="stop_d_1"
+           style="stop-color:#FFFFFF"
+           offset="0" />
+        <stop
+           id="stop_d_2"
+           style="stop-color:#000000;stop-opacity:0"
+           offset="1" />
+      </linearGradient>
+      <path
+         style="fill:url(#gradient_diagonal)"
+         d="M 0 0 H 192 V 192 H 0 z"
+         id="path_diagonal" />
+    </g>
+  </g>
+</svg>

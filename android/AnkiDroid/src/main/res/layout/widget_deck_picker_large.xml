@@ -1,0 +1,32 @@
+<RelativeLayout
+    android:id="@+id/widget_deck_picker"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="match_parent"
+    android:background="@drawable/widget_deck_picker_rounded_background"
+    android:clickable="true"
+    android:focusable="false"
+    android:theme="@style/Theme.Material3.DynamicColors.DayNight">
+
+    <TextView
+        android:id="@+id/empty_widget"
+        style="@style/TextAppearance.AppCompat.Medium"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:gravity="center"
+        android:layout_centerInParent="true"
+        android:padding="20dp"
+        android:text="@string/empty_widget_state"
+        android:visibility="gone" />
+
+    <LinearLayout
+        android:id="@+id/deckCollection"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="0dp"
+        android:background="@drawable/widget_deck_picker_rounded_background"
+        android:orientation="vertical">
+
+    </LinearLayout>
+</RelativeLayout>

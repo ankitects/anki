@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="?alternativeBackgroundColor"
+    android:orientation="vertical">
+
+    <com.google.android.material.card.MaterialCardView
+        android:id="@+id/web_view_container"
+        android:layout_width="match_parent"
+        android:layout_marginHorizontal="@dimen/reviewer_side_margin"
+        android:layout_height="0dp"
+        style="@style/CardView.ViewerStyle"
+        android:layout_weight="1"
+        >
+
+        <com.ichi2.anki.workarounds.SafeWebViewLayout
+            android:id="@+id/web_view_layout"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            />
+
+    </com.google.android.material.card.MaterialCardView>
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/show_answer"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        style="@style/Widget.Material3.Button.TextButton"
+        android:layout_marginHorizontal="@dimen/reviewer_side_margin"
+        android:text="@string/show_answer"/>
+
+</LinearLayout>

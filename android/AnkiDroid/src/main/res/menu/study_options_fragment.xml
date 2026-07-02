@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- SPDX-License-Identifier: GPL-3.0-or-later -->
+
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:ankidroid="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+    <item
+        android:id="@+id/action_schedule_reminders"
+        android:title="@string/schedule_reminders_do_not_translate"
+        android:visibility="gone"
+        android:icon="@drawable/ic_notifications"
+        ankidroid:showAsAction="always"/>
+    <item
+        android:id="@+id/action_rebuild"
+        tools:title="Rebuild"
+        android:visibility = "gone"
+        android:icon="@drawable/ic_refresh_white"
+        ankidroid:showAsAction="ifRoom"/>
+    <item
+        android:id="@+id/action_empty"
+        android:title="@string/empty_cram_label"
+        android:visibility = "gone"
+        android:icon="@drawable/ic_clear_white"
+        ankidroid:showAsAction="ifRoom"/>
+    <item
+        android:id="@+id/action_custom_study"
+        tools:title="Custom study"
+        android:icon="@drawable/ic_build_white"
+        ankidroid:showAsAction="ifRoom"/>
+    <!-- the title for the following option will be set dynamically -->
+    <item
+        android:id="@+id/action_deck_or_study_options"
+        tools:title="Deck options"
+        android:icon="@drawable/ic_tune_white"
+        ankidroid:showAsAction="always"/>
+    <item
+        android:id="@+id/action_unbury"
+        tools:title="Unbury"
+        android:visibility = "gone"/>
+</menu>

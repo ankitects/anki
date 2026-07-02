@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ SPDX-License-Identifier: GPL-3.0-or-later
+  ~ SPDX-FileCopyrightText: Copyright (c) 2025 lukstbit <52494258+lukstbit@users.noreply.github.com>
+  -->
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:padding="16dp"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <LinearLayout
+        android:id="@+id/content_views"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <CheckBox
+            android:id="@+id/require_one_or_more_check_box"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:checked="false"
+            tools:text="Require one or more of these tags:"/>
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/tags_included"
+            android:background="@drawable/list_border"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:scrollbars="vertical"
+            android:layout_marginHorizontal="6dp"
+            android:minHeight="?attr/listPreferredItemHeightSmall"
+            app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+            android:layout_marginTop="4dp"
+            tools:listitem="@layout/item_require_exclude_tag"/>
+
+        <TextView
+            android:id="@+id/exclude_label"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:minHeight="48dp"
+            android:gravity="center_vertical"
+            android:paddingStart="6dp"
+            android:textAppearance="?textAppearanceTitleMedium"
+            tools:text="Select tags to exclude:"/>
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/tags_excluded"
+            android:background="@drawable/list_border"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:scrollbars="vertical"
+            android:layout_marginHorizontal="6dp"
+            app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+            android:minHeight="?attr/listPreferredItemHeightSmall"
+            android:layout_marginTop="4dp"
+            tools:listitem="@layout/item_require_exclude_tag"/>
+    </LinearLayout>
+
+    <com.google.android.material.progressindicator.CircularProgressIndicator
+        android:id="@+id/loading_indicator"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:indeterminate="true"
+        style="@style/Widget.Material3.CircularProgressIndicator"
+        app:layout_constraintTop_toTopOf="@id/loading_label"
+        app:layout_constraintBottom_toBottomOf="@id/loading_label"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toStartOf="@id/loading_label"
+        app:layout_constraintHorizontal_chainStyle="packed"/>
+
+    <TextView
+        android:id="@+id/loading_label"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toTopOf="parent"
+        android:layout_marginVertical="24dp"
+        android:layout_marginStart="12dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/loading_indicator"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:text="@string/custom_study_loading_tags"/>
+
+    <androidx.constraintlayout.widget.Group
+        android:id="@+id/loading_views"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:constraint_referenced_ids="loading_indicator,loading_label"/>
+</androidx.constraintlayout.widget.ConstraintLayout>

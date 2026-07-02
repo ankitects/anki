@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ SPDX-License-Identifier: Apache-2.0
+  ~ SPDX-FileCopyrightText: Copyright (C) 2008 The Android Open Source Project
+  -->
+
+<set xmlns:android="http://schemas.android.com/apk/res/android" >
+
+    <translate
+        android:duration="200"
+        android:fromXDelta="0"
+        android:toXDelta="-100%p" />
+
+</set>

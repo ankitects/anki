@@ -1,0 +1,175 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout android:id="@+id/bottom_area_layout"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <!-- "Type in the answer" bar -->
+    <com.ichi2.ui.FixedEditText
+        android:id="@+id/answer_field"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="@string/type_answer_hint"
+        android:imeOptions="actionDone"
+        android:inputType="text|textNoSuggestions" />
+    <!--
+         Looks like setting android:imeActionLabel confuses the
+         original AOSP soft keyboard, so don't.
+    -->
+
+    <LinearLayout
+        android:id="@+id/preview_progress_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:weightSum="100"
+        android:visibility="gone"
+        android:layout_marginEnd="4dp"
+        android:paddingTop="8dp"
+        android:paddingBottom="8dp">
+
+        <SeekBar
+            android:id="@+id/preview_progress_seek_bar"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="75"
+            />
+        <TextView
+            android:id="@+id/preview_progress_text"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="25"
+            android:gravity="center"/>
+    </LinearLayout>
+
+    <FrameLayout
+        android:id="@+id/answer_options_layout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:fitsSystemWindows="true">
+
+        <LinearLayout
+            android:id="@+id/ease_buttons"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:visibility="gone"
+            android:focusable="false"
+            android:orientation="horizontal">
+
+            <LinearLayout
+                style="@style/FooterButton"
+                android:background="?attr/againButtonRef"
+                android:id="@+id/flashcard_layout_ease1"
+                android:nextFocusRight="@id/flashcard_layout_ease2"
+                android:layout_width="0dip"
+                android:layout_height="?minTouchTargetSize"
+                android:layout_weight="1"
+                android:orientation="vertical"
+                android:theme="@style/AgainButton"
+                >
+
+                <com.ichi2.ui.FixedTextView
+                    android:id="@+id/nextTime1"
+                    style="@style/AgainButtonTimeStyle"
+                    tools:text="&lt; 10 min" />
+
+                <com.ichi2.ui.FixedTextView
+                    android:id="@+id/ease1"
+                    android:text="@string/ease_button_again"
+                    style="@style/AgainButtonEaseStyle"/>
+            </LinearLayout>
+
+            <LinearLayout
+                style="@style/FooterButton"
+                android:background="?attr/hardButtonRef"
+                android:id="@+id/flashcard_layout_ease2"
+                android:nextFocusRight="@id/flashcard_layout_ease3"
+                android:nextFocusLeft="@id/flashcard_layout_ease1"
+                android:layout_width="0dip"
+                android:layout_height="?minTouchTargetSize"
+                android:layout_weight="1"
+                android:orientation="vertical"
+                android:theme="@style/HardButton"
+                >
+
+                <com.ichi2.ui.FixedTextView
+                    android:id="@+id/nextTime2"
+                    style="@style/HardButtonTimeStyle"
+                    tools:text="2 d" />
+
+                <com.ichi2.ui.FixedTextView
+                    android:id="@+id/ease2"
+                    android:text="@string/ease_button_hard"
+                    style="@style/HardButtonEaseStyle" />
+            </LinearLayout>
+
+            <LinearLayout
+                style="@style/FooterButton"
+                android:background="?attr/goodButtonRef"
+                android:id="@+id/flashcard_layout_ease3"
+                android:nextFocusRight="@id/flashcard_layout_ease4"
+                android:nextFocusLeft="@id/flashcard_layout_ease2"
+                android:layout_width="0dip"
+                android:layout_height="?minTouchTargetSize"
+                android:layout_weight="1"
+                android:orientation="vertical"
+                android:theme="@style/GoodButton"
+                >
+
+                <com.ichi2.ui.FixedTextView
+                    android:id="@+id/nextTime3"
+                    style="@style/GoodButtonTimeStyle"
+                    tools:text="3 d" />
+
+                <com.ichi2.ui.FixedTextView
+                    android:id="@+id/ease3"
+                    android:text="@string/ease_button_good"
+                    style="@style/GoodButtonEaseStyle"/>
+            </LinearLayout>
+
+            <LinearLayout
+                style="@style/FooterButton"
+                android:background="?attr/easyButtonRef"
+                android:id="@+id/flashcard_layout_ease4"
+                android:nextFocusLeft="@id/flashcard_layout_ease3"
+                android:layout_width="0dip"
+                android:layout_height="?minTouchTargetSize"
+                android:layout_weight="1"
+                android:orientation="vertical"
+                android:theme="@style/EasyButton"
+                >
+
+                <com.ichi2.ui.FixedTextView
+                    android:id="@+id/nextTime4"
+                    style="@style/EasyButtonTimeStyle"
+                    tools:text="4 d" />
+
+                <com.ichi2.ui.FixedTextView
+                    android:id="@+id/ease4"
+                    android:text="@string/ease_button_easy"
+                    style="@style/EasyButtonEaseStyle" />
+            </LinearLayout>
+        </LinearLayout>
+
+        <FrameLayout
+            android:id="@+id/flashcard_layout_flip"
+            android:layout_width="match_parent"
+            android:layout_height="?minTouchTargetSize"
+            android:orientation="vertical"
+            android:focusable="true"
+            android:background="?attr/hardButtonRef"
+            tools:visibility="visible"
+            android:theme="@style/HardButton">
+
+            <com.ichi2.ui.FixedTextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:textColor="?attr/answerButtonTextColor"
+                android:text="@string/show_answer"
+                style="@style/FooterButton" />
+        </FrameLayout>
+    </FrameLayout>
+</LinearLayout>

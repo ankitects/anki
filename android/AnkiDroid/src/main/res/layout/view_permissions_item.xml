@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:minHeight="?attr/listPreferredItemHeight"
+    android:paddingVertical="16dp"
+    android:paddingStart="?android:attr/listPreferredItemPaddingStart"
+    android:background="?attr/selectableItemBackground"
+    android:paddingEnd="?android:attr/listPreferredItemPaddingEnd"
+    tools:context=".ui.windows.permissions.PermissionsItem">
+
+    <ImageView
+        android:id="@+id/icon"
+        android:layout_width="24dp"
+        android:layout_height="24dp"
+        android:layout_marginTop="20dp"
+        android:layout_marginEnd="8dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toStartOf="@id/guideline_front"
+        app:layout_constraintBottom_toBottomOf="@id/title"
+        app:layout_constraintTop_toTopOf="@id/title"
+        tools:src="@drawable/ic_action_mic"
+        tools:tint="?attr/colorControlNormal"/>
+
+    <com.ichi2.ui.FixedTextView
+        android:id="@+id/title"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        app:layout_constrainedWidth="true"
+        app:layout_constraintEnd_toStartOf="@id/switch_widget"
+        app:layout_constraintStart_toStartOf="@+id/guideline_front"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:maxLines="1"
+        tools:text="Permission name"
+        />
+
+    <com.ichi2.ui.FixedTextView
+        android:id="@+id/summary"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="2dp"
+        android:textColor="?android:attr/textColorSecondary"
+        app:layout_constrainedWidth="true"
+        app:layout_constraintEnd_toStartOf="@id/switch_widget"
+        app:layout_constraintStart_toStartOf="@+id/guideline_front"
+        app:layout_constraintTop_toBottomOf="@id/title"
+        tools:maxLines="4"
+        tools:text="A summary about why the permission should be given" />
+
+    <com.google.android.material.materialswitch.MaterialSwitch
+        android:id="@+id/switch_widget"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toEndOf="@id/summary"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:paddingStart="16dp"/>
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guideline_front"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_begin="56dp" />
+</androidx.constraintlayout.widget.ConstraintLayout>

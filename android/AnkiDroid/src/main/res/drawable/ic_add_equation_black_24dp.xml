@@ -1,0 +1,32 @@
+<!--
+  ~  Copyright (c) 2020 David Allison <davidallisongithub@gmail.com>
+  ~
+  ~  This program is free software; you can redistribute it and/or modify it under
+  ~  the terms of the GNU General Public License as published by the Free Software
+  ~  Foundation; either version 3 of the License, or (at your option) any later
+  ~  version.
+  ~
+  ~  This program is distributed in the hope that it will be useful, but WITHOUT ANY
+  ~  WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+  ~  PARTICULAR PURPOSE. See the GNU General Public License for more details.
+  ~
+  ~  You should have received a copy of the GNU General Public License along with
+  ~  this program.  If not, see <http://www.gnu.org/licenses/>.
+  -->
+
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="6.35"
+    android:viewportHeight="6.3500004"
+    android:tint="?attr/colorControlNormal">
+  <path
+      android:fillColor="#FF000000"
+      android:pathData="m1.55908,1.09864l0,0.45734l1.49035,1.80764 -1.49035,1.80764l0,0.45734L3.90364,5.6286A1.2456,1.2456 0,0 1,3.68453 5.14646L2.32131,5.14646l-0.0093,-0.01602 1.38751,-1.72651l0,-0.07441L2.312,1.5968 2.32131,1.58078l1.7017,0l0.04703,0.51986l0.52555,0L4.59558,1.09864Z"
+      android:strokeWidth="2.0067153"/>
+  <path
+      android:pathData="M5.01769,4.32581L4.79055,4.32581v0.45427L4.33628,4.78009v0.22715h0.45427v0.45427h0.22714v-0.45427h0.45427v-0.22715L5.01769,4.78009ZM4.90413,3.758c-0.62689,0 -1.13567,0.50878 -1.13567,1.13566 0,0.62691 0.50878,1.13569 1.13567,1.13569 0.62689,0 1.13568,-0.50878 1.13568,-1.13569 0,-0.62688 -0.50878,-1.13566 -1.13568,-1.13566zM4.90413,5.80222c-0.50083,0 -0.90854,-0.40771 -0.90854,-0.90856 0,-0.50081 0.40771,-0.90855 0.90854,-0.90855 0.50083,0 0.90854,0.40774 0.90854,0.90855 0,0.50085 -0.40771,0.90856 -0.90854,0.90856z"
+      android:strokeWidth="0.11356759"
+      android:fillColor="#000006"
+      android:fillAlpha="1"/>
+</vector>

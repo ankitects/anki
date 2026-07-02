@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- SPDX-License-Identifier: GPL-3.0-or-later -->
+
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:ankidroid="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <item
+        ankidroid:showAsAction="never"
+        android:visible="false"
+        android:id="@+id/action_edit_note"
+        android:title="@string/cardeditor_title_edit_card"
+        android:icon="@drawable/ic_mode_edit_white"/>
+
+    <item
+        android:id="@+id/action_view_card_info"
+        android:icon="@drawable/ic_dialog_info"
+        tools:title="Card info" />
+
+    <item
+        ankidroid:showAsAction="ifRoom"
+        android:id="@+id/action_flag"
+        tools:title="Flag card"
+        android:icon="@drawable/ic_flag_transparent">
+      <menu>
+          <!-- flags are dynamically added -->
+      </menu>
+    </item>
+
+    <item
+        ankidroid:showAsAction="ifRoom"
+        android:id="@+id/action_mark_card"
+        android:icon="@drawable/ic_star_border_white"
+        tools:title="Toggle Mark"/>
+
+
+    <item
+        ankidroid:showAsAction="ifRoom"
+        android:id="@+id/action_suspend_card"
+        android:icon="@drawable/ic_suspend"
+        tools:title="Toggle suspend" />
+
+    <item
+        ankidroid:showAsAction="ifRoom"
+        android:id="@+id/action_toggle_bury"
+        android:icon="@drawable/ic_flip_to_back_white"
+        tools:title="Toggle bury" />
+
+    <item
+        android:id="@+id/action_change_note_type"
+        android:icon="@drawable/ic_change_notetype"
+        tools:title="Change note type"/>
+
+    <item
+        android:id="@+id/action_change_deck"
+        android:icon="@drawable/ic_change_deck"
+        tools:title="Change deck"/>
+
+    <item
+        android:id="@+id/action_reposition_cards"
+        android:icon="@drawable/ic_reposition"
+        android:title="@string/card_editor_reposition_card"/>
+
+    <item
+        android:id="@+id/action_reschedule_cards"
+        android:icon="@drawable/ic_reschedule"
+        tools:title="Set due date" />
+
+    <item
+        android:id="@+id/action_edit_tags"
+        android:icon="@drawable/ic_tag"
+        android:title="@string/menu_edit_tags"/>
+
+    <item
+        android:id="@+id/action_grade_now"
+        android:icon="@drawable/ic_grading"
+        tools:title="Grade now" />
+
+    <item
+        android:id="@+id/action_reset_cards_progress"
+        android:icon="@drawable/ic_backup_restore"
+        android:title="@string/card_editor_reset_card"/>
+
+    <!-- TODO: ankidroid:showAsAction="ifRoom" once 'no hamburger' padding issues are resolved -->
+    <item
+        android:id="@+id/action_preview_many"
+        android:title="@string/card_editor_preview_card"
+        android:icon="@drawable/ic_remove_red_eye_white"
+    />
+
+    <item
+        android:id="@+id/action_export_selected"
+        android:icon="@drawable/ic_export_notes"
+        tools:title="Export cards"/>
+
+
+    <item
+        android:id="@+id/action_find_replace"
+        app:showAsAction="never"
+        android:icon="@drawable/ic_find_replace"
+        tools:title="Find and replace"
+        />
+
+    <!-- Delete should be last, if undo is not visible -->
+    <item
+        android:id="@+id/action_delete_card"
+        android:icon="@drawable/ic_delete_white"
+        tools:title="Delete card" />
+
+    <item
+        ankidroid:showAsAction="ifRoom"
+        android:id="@+id/action_undo"
+        android:title="@string/undo"
+        ankidroid:actionProviderClass="com.ichi2.ui.RtlCompliantActionProvider"
+        android:icon="@drawable/ic_undo_white"/>
+</menu>

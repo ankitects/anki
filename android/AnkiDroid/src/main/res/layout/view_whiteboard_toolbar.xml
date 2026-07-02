@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="utf-8"?>
+<merge xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:parentTag="android.widget.LinearLayout">
+
+    <View
+        android:id="@+id/touch_handle"
+        android:layout_width="32dp"
+        android:layout_height="32dp"
+        android:background="@android:color/transparent" />
+
+    <com.google.android.material.card.MaterialCardView
+        android:id="@+id/toolbar_card"
+        style="?attr/materialCardViewStyle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content">
+
+        <LinearLayout
+            android:id="@+id/inner_controls_layout"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical">
+
+            <ImageButton
+                android:id="@+id/undo_button"
+                style="@android:style/Widget.ActionButton"
+                android:layout_width="?minTouchTargetSize"
+                android:layout_height="match_parent"
+                android:src="@drawable/ic_undo_2"
+                android:contentDescription="@string/undo"
+                android:tooltipText="@string/undo"/>
+
+            <ImageButton
+                android:id="@+id/redo_button"
+                style="@android:style/Widget.ActionButton"
+                android:layout_width="?minTouchTargetSize"
+                android:layout_height="match_parent"
+                android:src="@drawable/ic_redo_2"
+                android:contentDescription="@string/redo"
+                android:tooltipText="@string/redo"/>
+
+            <com.ichi2.anki.ui.windows.reviewer.whiteboard.EraserButton
+                android:id="@+id/eraser_button"
+                style="@style/Widget.Material3.Button.TextButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:minWidth="?minTouchTargetSize"
+                android:contentDescription="@string/eraser"
+                android:textColor="?attr/colorControlNormal"
+                android:textSize="12sp"
+                android:tooltipText="@string/eraser"
+                app:icon="@drawable/eraser"
+                app:backgroundTint="@color/selector_tool_background"
+                app:iconGravity="top"
+                tools:text="30" />
+
+            <ImageButton
+                android:id="@+id/overflow_menu_button"
+                style="@android:style/Widget.ActionButton"
+                android:layout_width="?minTouchTargetSize"
+                android:layout_height="match_parent"
+                android:contentDescription="@string/whiteboard_more_options"
+                android:src="@drawable/ic_more_vertical"
+                android:tooltipText="@string/whiteboard_more_options" />
+
+            <View
+                android:id="@+id/controls_divider"
+                android:layout_width="1dp"
+                android:layout_height="match_parent"
+                android:background="?android:attr/listDivider"
+                android:layout_marginHorizontal="4dp"/>
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/brush_recycler_view"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:overScrollMode="never"
+                android:scrollbars="none"
+                tools:listitem="@layout/item_button_color_brush"
+                />
+
+        </LinearLayout>
+    </com.google.android.material.card.MaterialCardView>
+</merge>

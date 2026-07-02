@@ -1,0 +1,198 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<androidx.coordinatorlayout.widget.CoordinatorLayout  xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/root_layout"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="?attr/alternativeBackgroundColor"
+    android:fitsSystemWindows="true"
+    android:focusableInTouchMode="true"
+    tools:context=".ui.windows.reviewer.ReviewerFragment">
+
+    <LinearLayout
+        android:id="@+id/main_layout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:clipChildren="false">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/tools_layout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:minHeight="?actionBarSize"
+            android:gravity="center_vertical"
+            android:layout_marginHorizontal="4dp"
+            >
+
+            <androidx.appcompat.widget.AppCompatImageButton
+                android:id="@+id/back_button"
+                style="?actionButtonStyle"
+                android:layout_width="?minTouchTargetSize"
+                android:layout_height="?actionBarSize"
+                android:layout_marginStart="4dp"
+                android:contentDescription="@string/abc_action_bar_up_description"
+                android:src="?attr/homeAsUpIndicator"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <com.ichi2.anki.ui.windows.reviewer.StudyCountsView
+                android:id="@+id/study_counts"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintStart_toEndOf="@id/back_button"
+                app:layout_constraintBottom_toTopOf="@id/timer"
+                />
+
+            <!-- Timer below counts means UI elements may jump if timer is selectively enabled.
+              This was a considered decision vs other options. Current thinking is the selectively-
+              enabled timer case will be very rare, so UI element motion should also be rare. -->
+            <com.ichi2.anki.ui.windows.reviewer.AnswerTimerView
+                android:id="@+id/timer"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:layout_constraintStart_toEndOf="@id/back_button"
+                app:layout_constraintEnd_toStartOf="@id/counts_barrier"
+                app:layout_constraintTop_toBottomOf="@id/study_counts"
+                app:layout_constraintBottom_toBottomOf="parent"
+                android:visibility="gone"
+                tools:visibility="visible"
+                />
+
+            <androidx.constraintlayout.widget.Barrier
+                android:id="@+id/counts_barrier"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:barrierDirection="end"
+                app:constraint_referenced_ids="study_counts, timer"/>
+
+            <com.ichi2.anki.preferences.reviewer.ReviewerMenuView
+                android:id="@+id/reviewer_menu_view"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toEndOf="@id/counts_barrier"
+                app:layout_constraintTop_toTopOf="parent"
+                android:layout_marginStart="12dp"/>
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/web_view_container"
+            style="@style/CardView.ViewerStyle"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:layout_marginHorizontal="@dimen/reviewer_side_margin">
+
+            <com.ichi2.anki.workarounds.SafeWebViewLayout
+                android:id="@+id/web_view_layout"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                tools:backgroundTint="@color/white" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="6dp"
+                >
+
+                <androidx.appcompat.widget.AppCompatImageView
+                    android:id="@+id/flag_icon"
+                    android:layout_width="@dimen/reviewer_mark_flag"
+                    android:layout_height="@dimen/reviewer_mark_flag"
+                    tools:srcCompat="@drawable/ic_flag_red"
+                    android:layout_marginEnd="2dp"
+                    android:visibility="gone"
+                    tools:visibility="visible"
+                    />
+
+                <androidx.appcompat.widget.AppCompatImageView
+                    android:id="@+id/mark_icon"
+                    android:layout_width="@dimen/reviewer_mark_flag"
+                    android:layout_height="@dimen/reviewer_mark_flag"
+                    app:srcCompat="@drawable/ic_mark"
+                    android:visibility="gone"
+                    tools:visibility="visible"
+                    />
+
+                <Space
+                    android:layout_width="0dp"
+                    android:layout_height="0dp"
+                    android:layout_weight="1"/>
+
+                <com.ichi2.anki.ui.windows.reviewer.AnswerFeedbackView
+                    android:id="@+id/answer_feedback"
+                    android:layout_width="@dimen/reviewer_mark_flag"
+                    android:layout_height="@dimen/reviewer_mark_flag"
+                    android:visibility="gone"
+                    tools:visibility="visible"
+                    tools:srcCompat="@drawable/ic_ease_good"
+                    />
+            </LinearLayout>
+
+        </com.google.android.material.card.MaterialCardView>
+
+        <!-- The elevation should be higher than the one used by the WebView
+             container, so the voice recording button can be dragged above it -->
+        <LinearLayout
+            android:id="@+id/bottom_layout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:elevation="1dp"
+            android:clipChildren="false"
+            android:showDividers="middle|beginning|end"
+            android:divider="@drawable/vertical_spacer_8dp"
+            android:layout_marginHorizontal="@dimen/reviewer_side_margin">
+
+            <!-- Use the same card style of the WebView -->
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/type_answer_container"
+                style="@style/CardView.ViewerStyle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:visibility="gone"
+                tools:visibility="visible">
+
+                <com.google.android.material.textfield.TextInputLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="@string/type_answer_hint"
+                    app:boxBackgroundMode="filled"
+                    app:boxStrokeWidth="0dp"
+                    app:endIconMode="clear_text">
+
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/type_answer_edit_text"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:imeOptions="actionDone"
+                        android:inputType="text|textNoSuggestions"
+                        />
+                </com.google.android.material.textfield.TextInputLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <androidx.fragment.app.FragmentContainerView
+                android:id="@+id/check_pronunciation_container"
+                android:layout_width="match_parent"
+                android:layout_height="56dp"
+                android:clipChildren="false"
+                android:layout_gravity="center_horizontal"
+                android:elevation="2dp"
+                android:visibility="gone"
+                tools:layout="@layout/fragment_check_pronunciation" />
+
+            <com.ichi2.anki.ui.windows.reviewer.AnswerAreaView
+                android:id="@+id/answer_area"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"/>
+
+        </LinearLayout>
+    </LinearLayout>
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

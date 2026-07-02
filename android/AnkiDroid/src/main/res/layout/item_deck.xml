@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ SPDX-License-Identifier: GPL-3.0-or-later
+  ~ SPDX-FileCopyrightText: Copyright (c) 2009 Daniel Svärd <daniel.svard@gmail.com>
+  ~ SPDX-FileCopyrightText: Copyright (c) 2011 Norbert Nagold <norbert.nagold@gmail.com>
+  -->
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/deck_layout"
+    android:background="?attr/selectableItemBackground"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:gravity="center_vertical"
+    android:orientation="horizontal"
+    android:paddingStart="@dimen/deck_picker_left_padding"
+    android:paddingEnd="@dimen/deck_picker_right_padding"
+    tools:background="@android:color/holo_orange_light">
+
+    <ImageButton
+        android:id="@+id/indent_view"
+        android:minWidth="0dp"
+        android:layout_height="wrap_content"
+        android:layout_width="wrap_content"
+        android:layout_alignParentStart="true"
+        android:background="@android:color/transparent" />
+    <LinearLayout
+        android:id="@+id/deck_name_linear_layout"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_toEndOf="@+id/indent_view"
+        android:layout_toStartOf="@+id/counts_layout"
+        android:orientation="horizontal"
+        android:gravity="center_vertical">
+        <ImageButton
+            android:id="@+id/deck_expander"
+            android:layout_height="wrap_content"
+            android:layout_width="wrap_content"
+            android:minWidth="48dp"
+            android:padding="12dp"
+            android:background="?attr/selectableItemBackgroundBorderless" />
+        <com.ichi2.ui.FixedTextView
+            android:id="@+id/deck_name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:minHeight="48dp"
+            android:background="@color/transparent"
+            android:gravity="start|center_vertical"
+            android:maxLines="2"
+            android:ellipsize="end"
+            android:textColor="?android:textColorPrimary"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            tools:text="Deck name" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/counts_layout"
+        android:contentDescription="@string/deck_picker_counts"
+        android:background="?attr/selectableItemBackground"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:minHeight="48dp"
+        android:minWidth="70dp"
+        android:gravity="end"
+        android:layout_alignParentEnd="true"
+        android:layout_centerVertical="true" >
+        <com.ichi2.ui.FixedTextView
+            android:id="@+id/deck_new"
+            android:contentDescription="@string/deck_picker_new"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:background="@color/transparent"
+            android:gravity="center"
+            android:paddingEnd="5dip"
+            android:textSize="14sp"
+            tools:text="10" />
+
+        <com.ichi2.ui.FixedTextView
+            android:id="@+id/deck_learn"
+            android:contentDescription="@string/deck_picker_lrn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:background="@color/transparent"
+            android:gravity="center"
+            android:paddingEnd="5dip"
+            android:textSize="14sp"
+            tools:text="42" />
+
+        <com.ichi2.ui.FixedTextView
+            android:id="@+id/deck_review"
+            android:contentDescription="@string/deck_picker_rev"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginEnd="6dip"
+            android:background="@color/transparent"
+            android:gravity="center"
+            android:textSize="14sp"
+            tools:text="13" />
+    </LinearLayout>
+</RelativeLayout>

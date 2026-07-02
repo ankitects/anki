@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ SPDX-License-Identifier: Apache-2.0
+  ~ SPDX-FileCopyrightText: Copyright (C) 2008 The Android Open Source Project
+  -->
+
+<alpha xmlns:android="http://schemas.android.com/apk/res/android"
+    android:duration="500"
+    android:fromAlpha="0.0"
+    android:interpolator="@android:anim/decelerate_interpolator"
+    android:toAlpha="1.0" />

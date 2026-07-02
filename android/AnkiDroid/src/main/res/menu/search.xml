@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- SPDX-License-Identifier: GPL-3.0-or-later -->
+
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <item
+        android:id="@+id/search_item"
+        android:title="@android:string/search_go"
+        android:icon="@drawable/ic_search_white"
+        app:actionViewClass="com.ichi2.ui.AccessibleSearchView"
+        app:showAsAction="ifRoom|collapseActionView"
+        />
+</menu>

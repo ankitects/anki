@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+~ Copyright (c) 2009 Nicolas Raoul <nicolas.raoul@gmail.com>
+~ Copyright (c) 2009 Edu Zamora <edu.zasu@gmail.com>
+~ Copyright (c) 2009 Jordi Chacon <jordi.chacon@gmail.com>
+~ Copyright (c) 2011 Norbert Nagold <norbert.nagold@gmail.com>
+~ Copyright (c) 2012 Kostas Spyropoulos <inigo.aldana@gmail.com>
+~ Copyright (c) 2014 Timothy Rae <perceptualchaos2@gmail.com>
+~
+~ This program is free software; you can redistribute it and/or modify it under
+~ the terms of the GNU General Public License as published by the Free Software
+~ Foundation; either version 3 of the License, or (at your option) any later
+~ version.
+~
+~ This program is distributed in the hope that it will be useful, but WITHOUT ANY
+~ WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+~ PARTICULAR PURPOSE. See the GNU General Public License for more details.
+~
+~ You should have received a copy of the GNU General Public License along with
+~ this program.  If not, see <http://www.gnu.org/licenses/>.
+-->
+
+<!-- Advanced Preferences -->
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:title="@string/pref_cat_advanced"
+    android:key="@string/pref_advanced_screen_key">
+        <EditTextPreference
+            android:defaultValue="/sdcard/AnkiDroid"
+            android:key="@string/pref_ankidroid_directory_key"
+            android:title="@string/col_path"
+            app:useSimpleSummaryProvider="true"/>
+        <Preference
+            android:summary="@string/reset_languages_summ"
+            android:title="@string/reset_languages"
+            android:key="@string/pref_reset_languages_key" />
+        <SwitchPreferenceCompat
+            android:defaultValue="false"
+            android:key="@string/double_scrolling_gap_key"
+            android:summary="@string/double_scrolling_gap_summ"
+            android:title="@string/double_scrolling_gap" />
+        <PreferenceCategory
+            android:key="@string/pref_cat_workarounds_key"
+            android:title="@string/pref_cat_workarounds" >
+            <SwitchPreferenceCompat
+                android:defaultValue="false"
+                android:key="@string/disable_hardware_render_key"
+                android:summary="@string/software_render_summ"
+                android:title="@string/software_render" />
+            <SwitchPreferenceCompat
+                android:defaultValue="false"
+                android:key="@string/use_input_tag_key"
+                android:disableDependentsState="true"
+                android:summary="@string/use_input_tag_summ"
+                android:title="@string/use_input_tag" />
+            <!-- Workaround for #5533 -->
+            <SwitchPreferenceCompat
+                android:defaultValue="false"
+                android:key="@string/disable_single_field_edit_key"
+                android:summary="@string/disable_extended_text_ui_summ"
+                android:title="@string/disable_extended_text_ui" />
+            <SwitchPreferenceCompat
+                android:defaultValue="true"
+                android:key="@string/note_editor_newline_replace_key"
+                android:summary="@string/note_editor_replace_newlines_summ"
+                android:title="@string/note_editor_replace_newlines"
+                />
+            <!-- #8424 - allow users to decide if they want to focus the EditText
+                Note: this functionality is already disabled if useInputTag is enabled
+                UseInputTag: has had `disableDependentsState` set, so this is disabled
+                if useInputTag is true
+             -->
+            <SwitchPreferenceCompat
+                android:defaultValue="true"
+                android:key="@string/type_in_answer_focus_key"
+                android:summary="@string/type_in_answer_focus_summ"
+                android:title="@string/type_in_answer_focus" />
+            <!-- #9639 - allow all files in media selection dialog - .opus is application/octet-stream
+            in older versions of Android (fixed between API 26 and API 30)
+             We don't want to allow this by default, but we want an override -->
+            <SwitchPreferenceCompat
+                android:defaultValue="false"
+                android:key="@string/media_import_allow_all_files_key"
+                android:summary="@string/media_import_allow_all_files_summ"
+                android:title="@string/media_import_allow_all_files" />
+            <SwitchPreferenceCompat
+                android:title="@string/pref_fixed_port_title"
+                android:key="@string/use_fixed_port_pref_key"
+                android:summary="@string/pref_fixed_port_summary"
+                android:defaultValue="false"/>
+        </PreferenceCategory>
+        <PreferenceCategory
+            android:key="@string/pref_cat_plugins_key"
+            android:title="@string/pref_cat_plugins" >
+            <SwitchPreferenceCompat
+                android:defaultValue="true"
+                android:key="@string/enable_api_key"
+                android:summary="@string/enable_api_summary"
+                android:title="@string/enable_api_title"/>
+            <Preference
+                android:key="@string/thirdparty_apps_key"
+                android:summary="@string/thirdparty_apps_summary"
+                android:title="@string/thirdparty_apps_title">
+            </Preference>
+        </PreferenceCategory>
+    <SwitchPreferenceCompat
+        android:defaultValue="false"
+        android:icon="@drawable/ic_warning"
+        android:key="@string/tts_key"
+        android:summary="@string/tts_summ"
+        android:title="@string/tts" />
+</PreferenceScreen>

@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    style="@style/CardView.ViewerStyle">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:layout_margin="8dp">
+
+        <com.google.android.material.button.MaterialButtonToggleGroup
+            android:id="@+id/eraser_mode_toggle_group"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:selectionRequired="true"
+            app:singleSelection="true"
+            tools:checkedButton="@id/eraser_mode_ink">
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/eraser_mode_ink"
+                style="?attr/materialButtonOutlinedStyle"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:backgroundTint="@color/selector_tool_background"
+                android:text="@string/whiteboard_ink_eraser"
+                app:icon="@drawable/eraser"
+                app:iconGravity="textStart" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/eraser_mode_stroke"
+                style="?attr/materialButtonOutlinedStyle"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:backgroundTint="@color/selector_tool_background"
+                android:text="@string/whiteboard_stroke_eraser"
+                app:icon="@drawable/ic_edit_off"
+                app:iconGravity="textStart" />
+        </com.google.android.material.button.MaterialButtonToggleGroup>
+
+        <com.google.android.material.slider.Slider
+            android:id="@+id/eraser_width_slider"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:stepSize="5.0"
+            android:valueFrom="5.0"
+            android:valueTo="200.0"
+            app:thumbHeight="24dp"
+            app:tickVisible="false" />
+    </LinearLayout>
+</com.google.android.material.card.MaterialCardView>
+

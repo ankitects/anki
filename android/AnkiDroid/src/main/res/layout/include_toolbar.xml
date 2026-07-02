@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.appcompat.widget.Toolbar
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/toolbar"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_alignParentTop="true"
+    android:background="?attr/appBarColor"
+    android:minHeight="?attr/actionBarSize"
+    android:theme="@style/ActionBarStyle"
+    app:navigationContentDescription="@string/abc_action_bar_up_description"
+    app:navigationIcon="?attr/homeAsUpIndicator">
+
+    <com.ichi2.ui.FixedTextView
+        android:id="@+id/toolbar_title"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:textColor="@color/white"
+        android:textSize="20sp"
+        android:visibility="gone" />
+
+    <Spinner
+        android:id="@+id/toolbar_spinner"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="?attr/selectableItemBackground"
+        android:visibility="gone"
+        app:popupTheme="@style/ActionBar.Popup" />
+</androidx.appcompat.widget.Toolbar>

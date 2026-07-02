@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- SPDX-License-Identifier: GPL-3.0-or-later -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <include layout="@layout/include_toolbar" />
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical" >
+
+            <com.ichi2.ui.FixedTextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/card_template_browser_appearance_summary"
+                android:layout_margin="@dimen/content_vertical_padding"
+                android:layout_marginBottom="@dimen/title_frame_margin_bottom"
+                />
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/question_format_layout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="@string/card_template_browser_appearance_question_format"
+                android:layout_margin="@dimen/content_vertical_padding">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/question_format"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="start|top"
+                    android:lines="3"
+                    android:inputType="textNoSuggestions|textMultiLine" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/answer_format_layout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="@string/card_template_browser_appearance_answer_format"
+                android:layout_margin="@dimen/content_vertical_padding">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/answer_format"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="start|top"
+                    android:lines="3"
+                    android:inputType="textNoSuggestions|textMultiLine"
+                    />
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <com.ichi2.ui.FixedTextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/card_template_browser_appearance_saving_note"
+                android:layout_margin="@dimen/content_vertical_padding"
+                />
+        </LinearLayout>
+    </ScrollView>
+</LinearLayout>

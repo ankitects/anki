@@ -1,0 +1,171 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- SPDX-License-Identifier: GPL-3.0-or-later -->
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:orientation="vertical"
+    android:layout_height="match_parent"
+    tools:ignore="HardcodedText"
+    tools:background="?attr/colorSurfaceContainerHigh">
+
+    <HorizontalScrollView
+        android:id="@+id/chip_group"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:scrollbars="horizontal"
+        android:paddingBottom="4dp"
+
+        app:layout_constraintEnd_toStartOf="@+id/toggle_advanced_search"
+        app:layout_constraintStart_toStartOf="parent">
+
+        <com.google.android.material.chip.ChipGroup
+            android:id="@+id/chip_group_inner"
+            android:layout_width="wrap_content"
+            android:paddingStart="16dp"
+            android:paddingEnd="4dp"
+            android:layout_height="wrap_content"
+>
+
+            <com.google.android.material.chip.Chip
+                android:id="@+id/decks_chip"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:ellipsize="middle"
+                android:maxLines="1"
+                app:chipIcon="@drawable/ic_cards_star"
+
+                tools:text="Deck"
+                tools:checkable="true"
+                tools:checked="true" />
+
+            <com.google.android.material.chip.Chip
+                android:id="@+id/flags_chip"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:ellipsize="middle"
+                android:maxLines="1"
+                app:chipIcon="@drawable/ic_flag_transparent"
+
+                android:text="Flags" />
+
+            <com.google.android.material.chip.Chip
+                android:id="@+id/tags_chip"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:ellipsize="middle"
+                android:maxLines="1"
+                app:chipIcon="@drawable/ic_tag"
+
+                android:text="Tags" />
+
+
+            <com.google.android.material.chip.Chip
+                android:id="@+id/card_state_chip"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:ellipsize="middle"
+                android:maxLines="1"
+                app:chipIcon="@drawable/ic_card_state_default"
+
+                android:text="Card state" />
+
+        </com.google.android.material.chip.ChipGroup>
+    </HorizontalScrollView>
+
+
+
+    <ImageButton
+        android:id="@+id/toggle_advanced_search"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:layout_marginEnd="2dp"
+        android:background="?attr/selectableItemBackground"
+        android:src="@drawable/ic_tune_white"
+        android:contentDescription="Toggle advanced search"
+        app:tint="?attr/colorPrimary"
+        app:layout_constraintBottom_toBottomOf="@+id/chip_group"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/chip_group" />
+
+
+    <LinearLayout
+        android:id="@+id/search_history_container"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintTop_toBottomOf="@id/chip_group">
+
+        <com.ichi2.ui.FixedTextView
+            android:id="@+id/search_history_label"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingStart="16dp"
+            android:paddingBottom="8dp"
+            android:text="History"
+            style="@style/TextAppearance.Material3.LabelLarge" />
+
+        <ListView
+            android:id="@+id/search_history"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:layout_constraintTop_toBottomOf="@id/search_history_label"
+            tools:layout_height="200dp"
+            tools:listitem="@layout/view_search_history_item"
+            />
+
+        <Button
+            android:id="@+id/toggle_search_history"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="end"
+            android:paddingStart="16dp"
+            style="@style/Widget.Material3.Button.TextButton.Icon"
+            android:text="@string/card_browser_see_more"
+            app:layout_constraintTop_toBottomOf="@id/search_history"
+            />
+
+    </LinearLayout>
+
+    <com.ichi2.ui.FixedTextView
+        android:id="@+id/saved_searches_label"
+        style="@style/TextAppearance.Material3.LabelLarge"
+        android:layout_width="wrap_content"
+        android:layout_height="0dp"
+        android:gravity="center_vertical"
+        android:paddingStart="16dp"
+        android:layout_marginEnd="24dp"
+        android:text="Saved searches"
+        app:layout_constraintStart_toStartOf="@+id/search_history_label"
+        app:layout_constraintTop_toTopOf="@id/manage_saved_searches_container"
+        app:layout_constraintBottom_toBottomOf="@id/manage_saved_searches_container" />
+
+    <FrameLayout
+        android:id="@+id/manage_saved_searches_container"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:paddingEnd="8dp"
+        app:layout_constraintBottom_toBottomOf="@id/saved_searches_label"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/search_history_container">
+
+        <ImageButton
+            android:id="@+id/manage_saved_searches"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:contentDescription="Manage saved searches"
+            android:clickable="false"
+            android:src="@drawable/ic_settings_black" />
+    </FrameLayout>
+
+    <ListView
+        android:id="@+id/saved_searches"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toBottomOf="@id/manage_saved_searches_container"
+        tools:listitem="@layout/view_saved_search_item"
+        />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

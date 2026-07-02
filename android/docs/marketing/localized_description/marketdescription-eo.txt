@@ -1,0 +1,36 @@
+Parkerigu ion ajn per AnkiDroid!
+
+AnkiDroid ebligas al vi efike memorigi lernkartojn (fulmokartojn) per montri ilin tuj antaŭ forgeso. Ĝi estas plene kongrua kun la komputila programo Anki (inkluzive samtempigon), kiu estas disponebla por operaciumoj Windows, Linukso kaj macOS.
+
+Memorigu kion ajn kaj kie ajn vi volas. Efike uzu liberan tempetojn dum vojaĝi aŭtobuse, en superbazara vico kaj ĉiam, kiam vi perdas tempon atendante!
+
+Kreu viajn proprajn lernkartojn aŭ senpage alŝutu kartarojn pri multaj lingvoj kaj temoj (pli ol 6000 disponeblaj).
+
+Aldonu lern-enhavon per komputila programo Anki aŭ senpere per AnkiDroid. La aplikaĵo eĉ subtenas aŭtomate aldoni materialon el vortaro!
+
+★ Ĉefaj ebloj:
+• subtenata enhavo por kartoj: teksto; bildoj, sonoj, LateX
+• periodaj ripetoj (AI-plibonigita algoritmo FSRS)
+• tekst-al-voĉo
+• pli ol 10 000 antaŭkreitaj kartaroj
+• progresa fenestraĵo
+• detala statistiko
+• samtempigo kun AnkiWeb
+• malfermkoda programaro
+
+★ Pliaj ebloj:
+• enigi respondojn (malnepre)
+• skribtabulo
+• kart-redaktilo
+• kart-foliumilo
+• tabulkomputila aranĝo
+• enporti ekzistajn dosierojn de kolekto (per komputila Anki)
+• aldoni kartojn per «intent»-oj de aliaj aplikaĵoj (ekz. vortaroj)
+• alĝustigebla tiparo
+• plena sistemo de sekurkopio
+• navigi per ŝovumoj kaj frapetoj
+• agordebla
+• vigla traktado de kartaroj
+• nokta reĝimo
+• pli ol 27 lingvoj de la fasado
+• ĉiuj eksaj versioj de AnkiDroid estas elŝuteblaj el la retejo

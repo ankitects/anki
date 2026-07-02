@@ -1,0 +1,46 @@
+{
+    "name": "ankidroid-localization",
+    "version": "1.0.0",
+    "description": "Extract localization for AnkiDroid using Crowdin JS client api",
+    "main": "index.ts",
+    "private": true,
+    "scripts": {
+        "build": "tsc",
+        "start": "node ./dist/index.js",
+        "dev": "tsc --watch",
+        "checkformat": "npx prettier --check *js src/",
+        "format": "npx prettier --write *js src/",
+        "lint": "eslint src/ --max-warnings=0",
+        "test": "jest --passWithNoTests"
+    },
+    "repository": "https://github.com/ankidroid/Anki-Android",
+    "author": "AnkiDroid Open Source Team",
+    "license": "GPL-3.0",
+    "dependencies": {
+        "@crowdin/crowdin-api-client": "^1.55.1",
+        "axios": "^1.15.2",
+        "dotenv": "^17.4.2",
+        "extract-zip": "^2.0.1",
+        "typescript": "^6.0.3"
+    },
+    "devDependencies": {
+        "@eslint/eslintrc": "^3.3.5",
+        "@eslint/js": "^10.0.1",
+        "@types/jest": "^30.0.0",
+        "@types/node": "^25.6.0",
+        "@typescript-eslint/eslint-plugin": "^8.58.2",
+        "@typescript-eslint/parser": "^8.58.2",
+        "eslint": "^10.2.1",
+        "eslint-config-prettier": "^10.1.8",
+        "eslint-config-standard": "^17.1.0",
+        "eslint-plugin-import": "^2.32.0",
+        "eslint-plugin-n": "^17.24.0",
+        "eslint-plugin-promise": "^7.2.1",
+        "globals": "^17.5.0",
+        "jest": "^30.3.0",
+        "prettier": "^3.8.3",
+        "ts-jest": "^29.4.9",
+        "ts-node": "^10.9.2"
+    },
+    "packageManager": "yarn@4.13.0"
+}

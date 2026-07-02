@@ -1,0 +1,36 @@
+Memoritzeu qualsevol cosa amb AnkiDroid!
+
+AnkiDroid us permet aprendre conceptes de forma molt eficient, mostrant la fitxa just abans que l'oblideu. It is fully compatible with the spaced repetition software Anki (including synchronization), which is available for Windows, Linux and macOS.
+
+Estudieu tot tipus de temes on i quan vulgueu. Aprofiteu els temps morts en el viatge d'autobús, a la cua del supermercats o en qualsevol altra situació d'espera!
+
+Prepareu els vostres paquets de fitxes o descarregueu gratuïtament paquets preparats per a molts idiomes i temes (en trobareu més de 6000 disponibles).
+
+Afegiu material a través de l'aplicació d'escriptori Anki o directament a través de l'AnkiDroid. L'aplicació permet fins i tot afegir material de forma automàtica a partir d'un diccionari!
+
+★ Característiques principals:
+• contingut permès a les fitxes: text, imatges, sons, LaTeX
+• spaced repetition (AI-optimized FSRS algorithm)
+• integra síntesi de veu
+• more than 10,000 premade decks
+• giny del vostre progrés
+• estadístiques detallades
+• sincronització amb AnkiWeb
+• de codi obert
+
+★Característiques addicionals:
+• escriviu les respostes (opcional)
+• pissarra
+• podeu editar i afegir fitxes
+• navegador de fitxes
+• compatible amb tabletes
+• importació d'arxius de col·leccions existents (amb Anki per a l'Escriptori)
+• afegiu fitxes a partir d'altres aplicacions com ara diccionaris
+• permet personalitzar el tipus de lletra
+• complet sistema de còpia de seguretat
+• navegació apta per lliscar i apretar
+• personitzable
+• gestió dinàmica dels paquets
+• mode nocturn
+• Adaptat a 27 idiomes
+• Totes dels versions anteriors d'AnkiDroid es poden baixar de la pàgina web

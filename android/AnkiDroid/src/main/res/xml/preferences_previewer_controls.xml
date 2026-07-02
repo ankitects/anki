@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.preference.PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+
+    <com.ichi2.preferences.ControlPreference
+        android:key="@string/previewer_back_key"
+        android:title="@string/previewer_back"
+        android:icon="@drawable/ic_baseline_chevron_left_24"
+        />
+    <com.ichi2.preferences.ControlPreference
+        android:key="@string/previewer_next_key"
+        android:title="@string/previewer_next"
+        android:icon="@drawable/ic_baseline_chevron_right_24"
+        />
+    <com.ichi2.preferences.ControlPreference
+        android:key="@string/previewer_mark_key"
+        tools:title="Mark note"
+        android:icon="@drawable/ic_star_border_white"
+        />
+    <com.ichi2.preferences.ControlPreference
+        android:key="@string/previewer_edit_key"
+        android:title="@string/cardeditor_title_edit_card"
+        android:icon="@drawable/ic_popup_menu_item_editor"
+        />
+    <com.ichi2.preferences.ControlPreference
+        android:key="@string/previewer_replay_media_key"
+        android:title="@string/replay_media"
+        android:icon="@drawable/ic_play_circle_white"
+        />
+    <com.ichi2.preferences.ControlPreference
+        android:key="@string/previewer_backside_only_action_key"
+        android:title="@string/toggle_backside_only"
+        android:icon="@drawable/ic_card_answer"
+        />
+
+    <PreferenceCategory android:title="@string/filter_by_flags">
+        <com.ichi2.preferences.ControlPreference
+            android:key="@string/previewer_flag_red_key"
+            android:title="@string/gesture_flag_red"
+            android:icon="@drawable/ic_flag_red"
+            />
+        <com.ichi2.preferences.ControlPreference
+            android:key="@string/previewer_flag_orange_key"
+            android:title="@string/gesture_flag_orange"
+            android:icon="@drawable/ic_flag_orange"
+            />
+        <com.ichi2.preferences.ControlPreference
+            android:key="@string/previewer_flag_green_key"
+            android:title="@string/gesture_flag_green"
+            android:icon="@drawable/ic_flag_green"
+            />
+        <com.ichi2.preferences.ControlPreference
+            android:key="@string/previewer_flag_blue_key"
+            android:title="@string/gesture_flag_blue"
+            android:icon="@drawable/ic_flag_blue"
+            />
+        <com.ichi2.preferences.ControlPreference
+            android:key="@string/previewer_flag_pink_key"
+            android:title="@string/gesture_flag_pink"
+            android:icon="@drawable/ic_flag_pink"
+            />
+        <com.ichi2.preferences.ControlPreference
+            android:key="@string/previewer_flag_turquoise_key"
+            android:title="@string/gesture_flag_turquoise"
+            android:icon="@drawable/ic_flag_turquoise"
+            />
+        <com.ichi2.preferences.ControlPreference
+            android:key="@string/previewer_flag_purple_key"
+            android:title="@string/gesture_flag_purple"
+            android:icon="@drawable/ic_flag_purple"
+            />
+        <com.ichi2.preferences.ControlPreference
+            android:key="@string/previewer_unset_flag_key"
+            android:title="@string/gesture_flag_remove"
+            android:icon="@drawable/ic_flag_transparent"
+            />
+    </PreferenceCategory>
+
+</androidx.preference.PreferenceScreen>

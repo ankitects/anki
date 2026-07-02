@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- SPDX-License-Identifier: GPL-3.0-or-later -->
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:minHeight="?android:attr/listPreferredItemHeight"
+    android:gravity="center_vertical"
+    android:background="?attr/selectableItemBackground"
+    >
+
+    <com.ichi2.ui.FixedTextView
+        android:id="@+id/title"
+        android:paddingStart="14dp"
+        android:paddingEnd="16dp"
+        android:drawableStart="@drawable/searchpreference_ic_history"
+        android:drawablePadding="12dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:gravity="start|center_vertical"
+        android:layout_weight="1"
+        android:textSize="16sp"
+        android:textIsSelectable="false"
+        tools:text="nid:1764375217155" />
+
+    <ImageButton
+        android:id="@+id/favorite"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/ic_round_favorite_outline"
+        android:background="?attr/selectableItemBackground"
+        android:padding="8dp"
+        android:paddingEnd="16dp"/>
+
+</LinearLayout>

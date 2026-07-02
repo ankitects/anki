@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- SPDX-License-Identifier: GPL-3.0-or-later -->
+
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:ankidroid="http://schemas.android.com/apk/res-auto">
+
+    <item
+        android:id="@+id/tags_dialog_action_filter"
+        android:icon="@drawable/ic_search_white"
+        android:title="@string/filter_tags"
+        ankidroid:actionViewClass="com.ichi2.ui.AccessibleSearchView"
+        ankidroid:showAsAction="always|collapseActionView"/>
+
+    <item
+        android:id="@+id/tags_dialog_action_add"
+        android:icon="@drawable/ic_add"
+        android:title="@string/add_tag"
+        ankidroid:showAsAction="ifRoom"/>
+
+    <item
+        android:id="@+id/tags_dialog_action_select_all"
+        android:icon="@drawable/ic_select_all_white"
+        android:title="@string/check_all_tags"
+        ankidroid:showAsAction="ifRoom"/>
+</menu>

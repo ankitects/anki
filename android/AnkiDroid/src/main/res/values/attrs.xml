@@ -1,0 +1,232 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+~ Copyright (c) 2011 Norbert Nagold <norbert.nagold@gmail.com>
+~
+~ This program is free software; you can redistribute it and/or modify it under
+~ the terms of the GNU General Public License as published by the Free Software
+~ Foundation; either version 3 of the License, or (at your option) any later
+~ version.
+~
+~ This program is distributed in the hope that it will be useful, but WITHOUT ANY
+~ WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+~ PARTICULAR PURPOSE. See the GNU General Public License for more details.
+~
+~ You should have received a copy of the GNU General Public License along with
+~ this program.  If not, see <http://www.gnu.org/licenses/>.
+-->
+
+<resources xmlns:tools="http://schemas.android.com/tools" tools:ignore="DuplicateCrowdInStrings">
+
+    <!-- Android provides a straightforward way to control action bar styles; an additional color attribute
+     specifically for action bar text color isn't necessary, but it simplifies the color setting
+     while making it accessible everywhere and eases the use of themes -->
+    <attr name="actionBarTextColor" format="color"/> <!-- For title and subtitle, and any other text that may appear in action bar-->
+    <attr name="actionBarPopupTextColor" format="color"/>
+
+    <!-- Custom preferences -->
+    <attr name="allowEmpty" format="boolean" />
+    <attr name="min" format="integer" />
+    <attr name="max" format="integer" />
+
+    <declare-styleable name="CustomPreference">
+        <!-- Whether the preference should automatically set its summary to the value saved for the
+             preference, and update the summary when the value is changed. Defaults to false -->
+        <attr name="useSimpleSummaryProvider" format="boolean"/>
+        <!-- Format `string` or `plurals` to be used as template to build the preference summary.
+             The placeholder is replaced by the preference value, and it must be only one placeholder.
+             If the preference value is updated, the summary is automatically updated as well. -->
+        <attr name="summaryFormat" format="string"/>
+        <!-- Floating label displayed on the dialog text field border. -->
+        <attr name="dialogHint" format="string|reference"/>
+    </declare-styleable>
+
+    <declare-styleable name="RelatedSettingsPreference">
+        <attr name="relatedTitles" format="reference" />
+        <attr name="relatedFragments" format="reference" />
+    </declare-styleable>
+
+    <declare-styleable name="NumberRangePreferenceCompat">
+        <attr name="min"/>
+        <attr name="max"/>
+    </declare-styleable>
+
+    <declare-styleable name="HtmlHelpPreference">
+        <attr name="substitution1" format="string" />
+        <attr name="substitution2" format="string" />
+        <attr name="substitution3" format="string" />
+    </declare-styleable>
+
+    <declare-styleable name="HeaderPreference">
+        <!-- String array of entries to join in order to build the preference summary -->
+        <attr name="summaryEntries" format="reference"/>
+    </declare-styleable>
+
+    <declare-styleable name="ExtendedPreferenceCategory">
+        <!-- Adds a help button that opens the provided link when tapped -->
+        <attr name="helpLink" format="string"/>
+    </declare-styleable>
+
+    <attr name="incrementerButtonBackground" format="color|reference" />
+
+    <declare-styleable name="SliderPreference">
+        <!-- Format string to be used as template to display the value
+             There must be ONLY ONE placeholder, which will be replaced by the preference value -->
+        <attr name="displayFormat" format="boolean"/>
+        <!-- Whether to show the value adjacent to the slider -->
+        <attr name="displayValue" format="boolean"/>
+    </declare-styleable>
+
+    <declare-styleable name="ReviewerControlPreference">
+        <!-- The card side the control applies to. Leave unset to let the user choose.
+             If set in an existing preference, a preference upgrade must be made to
+             remove the incompatible values. -->
+        <attr name="cardSide" format="enum">
+            <enum name="question" value="0"/>
+            <enum name="answer" value="1"/>
+        </attr>
+    </declare-styleable>
+
+    <declare-styleable name="PermissionItem">
+        <!-- Title of the permission -->
+        <attr name="permissionTitle" format="string"/>
+        <!-- Brief description of the permission. It can be used to explain to the user
+         why the permission should be granted -->
+        <attr name="permissionSummary" format="string"/>
+        <!-- Icon to be shown at the side of the button -->
+        <attr name="permissionIcon" format="reference"/>
+        <!-- Permission string to be asked.
+         Will be overridden by app:permissions if set -->
+        <attr name="permission" format="string"/>
+        <!-- Array of permission strings to be asked.
+        Overrides app:permission if set -->
+        <attr name="permissions" format="string"/>
+    </declare-styleable>
+
+    <declare-styleable name="AnswerButton">
+        <!-- Name of the ease (e.g. Again, Hard, Good, Easy -->
+        <attr name="easeName" format="string"/>
+        <!-- Time to bw shown above the ease name -->
+        <attr name="nextTime" format="string"/>
+    </declare-styleable>
+
+    <!-- appBarColor and customTabNavBarColor are declared in :common:android (shared activity code resolves them) -->
+    <attr name="widgetColorActivated" format="color"/>
+    <!-- Deck list colors, divider, and expander -->
+    <attr name="currentDeckBackground" format="reference"/>
+    <attr name="currentDeckBackgroundColor" format="color"/>
+    <attr name="focusedRowBackgroundColor" format="color"/>
+    <attr name="dynDeckColor" format="color"/>
+    <attr name="deckDivider" format="reference"/>
+    <attr name="expandRef" format="reference"/>
+    <attr name="collapseRef" format="reference"/>
+    <!-- Navigation drawer -->
+    <attr name="navDrawerItemColor" format="reference"/>
+    <attr name="navDrawerItemBackgroundColor" format="reference"/>
+    <!-- Card count colors -->
+    <attr name="newCountColor" format="color"/>
+    <attr name="learnCountColor" format="color"/>
+    <attr name="reviewCountColor" format="color"/>
+    <attr name="zeroCountColor" format="color"/>
+    <attr name="buryCountColor" format="color"/>
+    <!-- Study Screen button backgrounds -->
+    <attr name="showAnswerButtonBackground" format="color"/>
+    <attr name="answerButtonBackground" format="color"/>
+    <attr name="againButtonBackground" format="color"/>
+    <attr name="hardButtonBackground" format="color"/>
+    <attr name="goodButtonBackground" format="color"/>
+    <attr name="easyButtonBackground" format="color"/>
+    <attr name="showAnswerColor" format="reference"/>
+    <attr name="againButtonRef" format="reference"/>
+    <attr name="hardButtonRef" format="reference"/>
+    <attr name="goodButtonRef" format="reference"/>
+    <attr name="easyButtonRef" format="reference"/>
+    <!-- Same thing but with ripples -->
+    <attr name="againButtonRippleRef" format="reference"/>
+    <attr name="hardButtonRippleRef" format="reference"/>
+    <attr name="goodButtonRippleRef" format="reference"/>
+    <attr name="easyButtonRippleRef" format="reference"/>
+    <!-- Study Screen button text colors-->
+    <attr name="answerButtonTextColor" format="color"/>
+    <attr name="againButtonTextColor" format="color"/>
+    <attr name="hardButtonTextColor" format="color"/>
+    <attr name="goodButtonTextColor" format="color"/>
+    <attr name="easyButtonTextColor" format="color"/>
+
+    <attr name="againTextColor" format="color"/>
+    <attr name="hardTextColor" format="color"/>
+    <attr name="goodTextColor" format="color"/>
+    <attr name="easyTextColor" format="color"/>
+    <attr name="againBackgroundColor" format="color"/>
+    <attr name="hardBackgroundColor" format="color"/>
+    <attr name="goodBackgroundColor" format="color"/>
+    <attr name="easyBackgroundColor" format="color"/>
+    <attr name="againIconColor" format="color"/>
+    <attr name="hardIconColor" format="color"/>
+    <attr name="goodIconColor" format="color"/>
+    <attr name="easyIconColor" format="color"/>
+    <!-- Card Browser Colors -->
+    <attr name="cardBrowserDivider" format="color"/>
+    <!-- Study Screen other colors -->
+    <attr name="topBarColor" format="color"/>
+    <attr name="maxTimerColor" format="color"/>
+    <attr name="alternativeBackgroundColor" format="color"/>
+    <!-- Browser colors -->
+    <attr name="suspendedColor" format="color"/>
+    <attr name="buriedColor" format="color"/>
+    <attr name="selectedColor" format="color"/>
+    <attr name="markedColor" format="color"/>
+    <!-- Note editor colors -->
+    <attr name="duplicateColor" format="color"/>
+    <attr name="editTextBackgroundColor" format="color"/>
+    <attr name="editTextHighlightColor" format="color"/><!-- TODO replace this with colorOnPrimaryContainer, see #19361 -->
+    <attr name="toolbarBackgroundColor" format="color"/>
+    <attr name="toolbarIconColor" format="color"/>
+    <attr name="buttonShadowColor" format="color"/>
+    <attr name="buttonRippleColor" format="color"/>
+    <attr name="buttonForegroundColor" format="color"/>
+    <!-- Images -->
+    <attr name="navDrawerImage" format="integer"/>
+
+    <!-- Introduction -->
+    <attr name="introductionLogoTransparent" format="color"/>
+
+    <!-- FAB -->
+    <attr name="fab_normal" format="color"/> <!-- Also color of the Study button in StudyOptions -->
+    <attr name="fab_pressed" format="color"/>
+    <!-- Popup menus' background color -->
+    <attr name="popupBackgroundColor" format="reference"/>
+    <attr name="overflowAndPopupMenuIconColor" format="color"/>
+
+    <attr name="editTextDisabled" format="color"/>
+
+    <attr name="snackbarBackgroundTintColor" format="color"/>
+    <attr name="dialogBackground" format="color"/>
+    <attr name="snackbarButtonTextColor" format="color"/>
+
+    <attr name="clozeColor" format="color" />
+
+    <declare-styleable name="CheckBoxTriStates">
+        <attr name="cycle_checked_to_indeterminate" format="boolean" />
+        <attr name="cycle_indeterminate_to_checked" format="boolean" />
+    </declare-styleable>
+
+    <declare-styleable name="AudioWaveform">
+        <attr name="display_vertical_line" format="boolean" />
+        <attr name="android:background" />
+    </declare-styleable>
+
+    <!-- Background color for Tab layout. It is essentially the color of the toolbar.
+         The latter is set by colorPrimary, but theme overlay can't use it,
+         as it itself overrides colorPrimary, which is used by the view directly. -->
+    <attr name="tabLayoutBackgroundColor" format="color"/>
+    <attr name="tabActiveIconColor" format="color"/>
+
+    <attr name="checkMediaListBackground" format="color" />
+    <attr name="checkMediaListForeground" format="color" />
+
+    <attr name="progressDialogButtonTextColor" format="color"/>
+
+    <!-- Reminder troubleshooting -->
+    <attr name="reminderTroubleshootingOk" format="color"/>
+    <attr name="reminderTroubleshootingWarning" format="color"/>
+</resources>

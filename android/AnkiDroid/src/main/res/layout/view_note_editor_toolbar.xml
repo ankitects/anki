@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- SPDX-License-Identifier: GPL-3.0-or-later -->
+<HorizontalScrollView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+
+    android:id="@+id/toolbar_scrollview"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:scrollbarStyle="insideOverlay"
+    android:scrollbars="horizontal">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/toolbar_layout"
+        app:contentInsetLeft="0dp"
+        app:contentInsetStart="0dp"
+        app:contentInsetEnd="0dp"
+        app:contentInsetRight="0dp"
+        android:layout_gravity="center_horizontal"
+        android:background="?android:attr/selectableItemBackground"
+        android:orientation="vertical">
+
+    <LinearLayout
+        android:id="@+id/editor_toolbar_internal"
+        app:contentInsetLeft="0dp"
+        app:contentInsetStart="0dp"
+        app:contentInsetEnd="0dp"
+        app:contentInsetRight="0dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:background="?android:attr/selectableItemBackground"
+        android:orientation="horizontal">
+
+        <androidx.appcompat.widget.AppCompatImageButton
+            android:id="@+id/note_editor_toolbar_button_bold"
+            app:srcCompat="@drawable/ic_format_bold_black_24dp"
+            android:contentDescription="@string/format_insert_bold"
+            android:tooltipText="@string/format_insert_bold"
+            android:tag="b"
+            style="@style/note_editor_toolbar_button" />
+
+        <androidx.appcompat.widget.AppCompatImageButton
+            android:id="@+id/note_editor_toolbar_button_italic"
+            app:srcCompat="@drawable/ic_format_italic_black_24dp"
+            android:contentDescription="@string/format_insert_italic"
+            android:tooltipText="@string/format_insert_italic"
+            android:tag="i"
+            style="@style/note_editor_toolbar_button" />
+
+        <androidx.appcompat.widget.AppCompatImageButton
+            android:id="@+id/note_editor_toolbar_button_underline"
+            app:srcCompat="@drawable/ic_format_underlined_black_24dp"
+            android:contentDescription="@string/format_insert_underline"
+            android:tooltipText="@string/format_insert_underline"
+            android:tag="u"
+            style="@style/note_editor_toolbar_button" />
+
+        <androidx.appcompat.widget.AppCompatImageButton
+            android:id="@+id/note_editor_toolbar_button_horizontal_rule"
+            app:srcCompat="@drawable/ic_horizontal_rule_black_24dp"
+            android:contentDescription="@string/insert_horizontal_line"
+            android:tooltipText="@string/insert_horizontal_line"
+            android:tag="r"
+            style="@style/note_editor_toolbar_button" />
+
+        <androidx.appcompat.widget.AppCompatImageButton
+            android:id="@+id/note_editor_toolbar_button_title"
+            app:srcCompat="@drawable/ic_format_title_black_24dp"
+            android:contentDescription="@string/insert_heading"
+            android:tooltipText="@string/insert_heading"
+            android:tag="h"
+            style="@style/note_editor_toolbar_button" />
+
+        <androidx.appcompat.widget.AppCompatImageButton
+            android:id="@+id/note_editor_toolbar_button_font_size"
+            android:contentDescription="@string/format_font_size"
+            android:tooltipText="@string/format_font_size"
+            app:srcCompat="@drawable/ic_format_font_size_24dp"
+            android:tag="f"
+            style="@style/note_editor_toolbar_button" />
+
+
+        <androidx.appcompat.widget.AppCompatImageButton
+            android:id="@+id/note_editor_toolbar_button_insert_mathjax"
+            android:contentDescription="@string/insert_mathjax"
+            android:tooltipText="@string/insert_mathjax"
+            app:srcCompat="@drawable/ic_add_equation_black_24dp"
+            android:tag="m"
+            style="@style/note_editor_toolbar_button" />
+    </LinearLayout>
+    </LinearLayout>
+</HorizontalScrollView>

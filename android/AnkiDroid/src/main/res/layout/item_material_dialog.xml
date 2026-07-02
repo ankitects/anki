@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- SPDX-License-Identifier: GPL-3.0-or-later -->
+<TextView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:minHeight="?android:attr/listPreferredItemHeight"
+    android:paddingStart="32dp"
+    android:paddingEnd="32dp"
+    android:gravity="start|center_vertical"
+    android:textAlignment="viewStart"
+    android:background="?attr/selectableItemBackground"
+    android:drawablePadding="10dp"
+    android:textSize="20sp"
+    android:textIsSelectable="false" />

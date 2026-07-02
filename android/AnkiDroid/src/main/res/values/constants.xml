@@ -1,0 +1,377 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!--
+~ Copyright (c) 2011 Norbert Nagold <norbert.nagold@gmail.com>
+~
+~ This program is free software; you can redistribute it and/or modify it under
+~ the terms of the GNU General Public License as published by the Free Software
+~ Foundation; either version 3 of the License, or (at your option) any later
+~ version.
+~
+~ This program is distributed in the hope that it will be useful, but WITHOUT ANY
+~ WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+~ PARTICULAR PURPOSE. See the GNU General Public License for more details.
+~
+~ You should have received a copy of the GNU General Public License along with
+~ this program.  If not, see <http://www.gnu.org/licenses/>.
+-->
+<resources xmlns:tools="http://schemas.android.com/tools" tools:ignore="MissingTranslation,DuplicateCrowdInStrings">
+
+    <!--
+        WARNING: These values here match static values defined in Deck.java DO
+        NOT edit them, unless you change their corresponding values
+    -->
+    <!-- Used in deck preferences -->
+    <string-array name="custom_button_labels">
+        <item>@string/custom_buttons_setting_always_show</item>
+        <item>@string/custom_buttons_setting_if_room</item>
+        <item>@string/custom_buttons_setting_menu_only</item>
+        <item>@string/disabled</item>
+    </string-array>
+
+    <string-array name="error_reporting_choice_values">
+        <item>0</item>
+        <item>1</item>
+        <item>2</item>
+    </string-array>
+    <string-array name="notification_minimum_cards_due_labels">
+        <item>@string/never_notify</item>
+        <item>@string/notify_when_pending</item>
+        <item>@string/notification_minimum_cards_due</item>
+        <item>@string/notification_minimum_cards_due</item>
+        <item>@string/notification_minimum_cards_due</item>
+        <item>@string/notification_minimum_cards_due</item>
+        <item>@string/notification_minimum_cards_due</item>
+        <item>@string/notification_minimum_cards_due</item>
+        <item>@string/notification_minimum_cards_due</item>
+        <item>@string/notification_minimum_cards_due</item>
+    </string-array>
+
+    <string-array name="notification_minimum_cards_due_values">
+        <item>2000000</item>
+        <item>1000000</item>
+        <item>10</item>
+        <item>25</item>
+        <item>50</item>
+        <item>75</item>
+        <item>100</item>
+        <item>150</item>
+        <item>200</item>
+        <item>500</item>
+    </string-array>
+    <string-array name="custom_button_values">
+        <item>2</item>
+        <item>1</item>
+        <item>0</item>
+        <item>3</item>
+    </string-array>
+
+    <string-array name="error_reporting_choice_labels">
+        <item>@string/error_reporting_choice_always_report</item>
+        <item>@string/error_reporting_choice_never_report</item>
+        <item>@string/error_reporting_choice_ask_user</item>
+    </string-array>
+    <string-array name="add_to_cur_labels">
+        <item>@string/add_to_deck_use_current_deck</item>
+        <item>@string/add_to_deck_decide_by_note_type</item>
+    </string-array>
+    <string-array name="day_theme_labels">
+        <item>@string/day_theme_light</item>
+        <item>@string/day_theme_plain</item>
+    </string-array>
+    <string-array name="night_theme_labels">
+        <item>@string/night_theme_black</item>
+        <item>@string/night_theme_dark</item>
+    </string-array>
+    <string-array name="html_size_code_labels">
+        <item>@string/html_size_code_xx_small</item>
+        <item>@string/html_size_code_x_small</item>
+        <item>@string/html_size_code_small</item>
+        <item>@string/html_size_code_medium</item>
+        <item>@string/html_size_code_large</item>
+        <item>@string/html_size_code_x_large</item>
+        <item>@string/html_size_code_xx_large</item>
+    </string-array>
+
+    <string name="link_anki_manual">https://docs.ankiweb.net/#/</string>
+    <string name="link_anki_forum">https://forums.ankiweb.net/</string>
+    <string name="link_anki_forum_ankidroid">https://forums.ankiweb.net/c/ankidroid/22</string>
+    <string name="link_forum">http://groups.google.com/group/anki-android</string>
+    <string name="licence_wiki">http://www.gnu.org/licenses/gpl.html</string>
+    <string name="dependency_license_wiki">https://github.com/ankidroid/Anki-Android/wiki/Licences</string>
+    <string name="link_agpl_wiki">https://www.gnu.org/licenses/agpl-3.0.html</string>
+    <string name="link_source">https://github.com/ankidroid/Anki-Android</string>
+    <string name="link_market">market://details?id=com.ichi2.anki</string>
+    <string name="link_market_kindle">http://www.amazon.com/gp/mas/dl/android?p=com.ichi2.anki</string>
+    <string name="link_translation">https://crowdin.net/project/ankidroid</string>
+    <string name="link_contribution">https://github.com/ankidroid/Anki-Android/wiki/Contributing</string>
+    <string name="link_contributors">https://github.com/ankidroid/Anki-Android#credits</string>
+    <string name="link_help">https://docs.ankidroid.org/help.html</string>
+    <string name="link_tts">https://docs.ankiweb.net/templates/fields.html#text-to-speech-for-individual-fields</string>
+    <string name="link_manual">https://docs.ankidroid.org/manual.html</string>
+    <string name="link_help_ja">https://docs.ankidroid.org/help-ja.html</string>
+    <string name="link_manual_ja">https://docs.ankidroid.org/manual-ja.html</string>
+    <string name="link_help_zh">https://docs.ankidroid.org/help-zh.html</string>
+    <string name="link_manual_zh">https://docs.ankidroid.org/manual-zh.html</string>
+    <string name="link_help_ar">https://docs.ankidroid.org/help-ar.html</string>
+    <string name="link_manual_ar">https://docs.ankidroid.org/manual-ar.html</string>
+    <string name="link_manual_note_format_toolbar">https://docs.ankidroid.org/manual.html#noteFormattingToolbar</string>
+    <string name="link_manual_browser_find_replace">https://docs.ankiweb.net/browsing.html#find-and-replace</string>
+    <string name="link_sync_conflict_help">https://docs.ankidroid.org/#AnkiWebConflicts</string>
+    <string name="link_user_actions_help">https://docs.ankidroid.org/#userActions</string>
+    <string name="link_faq_tts">https://github.com/ankidroid/Anki-Android/wiki/FAQ#tts--text-to-speech-is-not-speaking</string>
+    <string name="link_faq_missing_media" tools:ignore="Typos">https://github.com/ankidroid/Anki-Android/wiki/FAQ#why-doesnt-my-sound-or-image-work-on-ankidroid</string>
+    <string name="link_third_party_api_apps">https://github.com/ankidroid/Anki-Android/wiki/Third-Party-Apps</string>
+    <string name="shared_decks_url">https://ankiweb.net/shared/decks/</string>
+    <string name="shared_deck_info">https://ankiweb.net/shared/info/</string>
+    <string name="shared_decks_login_url">https://ankiweb.net/account/login</string>
+    <string name="shared_decks_sign_up_url">https://ankiweb.net/account/signup</string>
+    <string name="repair_deck">https://docs.ankiweb.net/#/files?id=corrupt-collections</string>
+    <string name="resetpw_url">https://ankiweb.net/account/resetpw</string>
+    <string name="register_url">https://ankiweb.net/account/register</string>
+    <string name="remove_account_url">https://ankiweb.net/account/remove-account</string>
+    <string name="link_reddit">https://www.reddit.com/r/Anki/</string>
+    <string name="link_ankidroid_privacy_policy">https://github.com/ankidroid/Anki-Android/wiki/Privacy-Policy</string>
+    <string name="link_ankiweb_privacy_policy">https://ankiweb.net/account/privacy</string>
+    <string name="link_ankiweb_terms_and_conditions">https://ankiweb.net/account/terms</string>
+    <string name="link_webview_update">https://github.com/ankidroid/Anki-Android/wiki/WebView-Detection-and-Package-Updates#outdated-webview</string>
+    <string name="link_legacy_webview_update">https://github.com/ankidroid/Anki-Android/wiki/WebView-Detection-and-Package-Updates#outdated-android-native-webview</string>
+    <!-- Link is in the name of Glutanimate - server admin -->
+    <string name="link_discord">https://discord.gg/qjzcRTx</string>
+    <string name="link_facebook">https://www.facebook.com/AnkiDroid/</string>
+    <string name="link_twitter">https://twitter.com/ankidroid</string>
+    <string name="link_ankidroid_development_guide">https://github.com/ankidroid/Anki-Android/wiki/Development-Guide</string>
+    <string name="link_ankidroid_faq">https://github.com/ankidroid/Anki-Android/wiki/FAQ</string>
+    <string name="link_opencollective_donate">https://opencollective.com/ankidroid/contribute</string>
+    <string name="link_distributions">https://apps.ankiweb.net/#download</string>
+    <string name="link_ankiweb_lost_email_instructions">https://github.com/ankidroid/Anki-Android/wiki/FAQ#forgotten-ankiweb-email-instructions</string>
+    <string name="link_install_non_play_store_install">https://github.com/ankidroid/Anki-Android/wiki/Full-Storage-Access</string>
+    <string name="link_custom_sync_server_help_learn_more_en">https://docs.ankidroid.org/#_custom_sync_server</string>
+    <string name="link_set_due_date_help">https://docs.ankiweb.net/browsing.html#cards</string>
+    <string name="link_full_storage_access">https://github.com/ankidroid/Anki-Android/wiki/Full-Storage-Access</string>
+    <string name="link_help_forget_cards">https://docs.ankiweb.net/studying.html#editing-and-more</string>
+    <string name="link_scheduler_upgrade_faq">https://faqs.ankiweb.net/the-anki-2.1-scheduler.html#updating-to-v2-from-v1</string>
+    <string name="link_help_searching">https://docs.ankiweb.net/searching.html#simple-searches</string>
+    <string name="link_filtered_decks_help">https://docs.ankiweb.net/filtered-decks.html</string>
+
+    <string-array name="add_to_cur_values">
+        <item>0</item>
+        <item>1</item>
+    </string-array>
+    <string-array name="full_screen_mode_values">
+        <item>0</item>
+        <item>1</item>
+        <item>2</item>
+    </string-array>
+    <string-array name="full_screen_mode_labels">
+        <item>@string/full_screen_off</item>
+        <item>@string/full_screen_system</item>
+        <item>@string/full_screen_complete</item>
+    </string-array>
+
+    <!-- Themes -->
+    <string-array name="app_theme_labels">
+        <item>@string/theme_follow_system</item>
+        <item>@string/theme_day</item>
+        <item>@string/theme_night</item>
+    </string-array>
+
+    <string name="theme_follow_system_value">0</string>
+    <string name="theme_day_scheme_value">1</string>
+    <string name="theme_night_scheme_value">2</string>
+
+    <string name="theme_light_value">1</string>
+    <string name="theme_plain_value">2</string>
+    <string name="theme_black_value">3</string>
+    <string name="theme_dark_value">4</string>
+
+    <string-array name="app_theme_values">
+        <item>@string/theme_follow_system_value</item>
+        <item>@string/theme_day_scheme_value</item>
+        <item>@string/theme_night_scheme_value</item>
+    </string-array>
+    <string-array name="day_theme_values">
+        <item>@string/theme_light_value</item>
+        <item>@string/theme_plain_value</item>
+    </string-array>
+    <string-array name="night_theme_values">
+        <item>@string/theme_black_value</item>
+        <item>@string/theme_dark_value</item>
+    </string-array>
+
+    <string-array name="sync_media_entries">
+        <item>@string/sync_media_always</item>
+        <item>@string/sync_media_only_unmetered</item>
+        <item>@string/sync_media_never</item>
+    </string-array>
+
+    <string name="sync_media_always_value">always</string>
+    <string name="sync_media_only_unmetered_value">only_unmetered</string>
+    <string name="sync_media_never_value">never</string>
+
+    <string-array name="sync_media_values">
+        <item>@string/sync_media_always_value</item>
+        <item>@string/sync_media_only_unmetered_value</item>
+        <item>@string/sync_media_never_value</item>
+    </string-array>
+
+    <string-array name="hide_system_bars_entries">
+        <item>@string/hide_system_bars_none</item>
+        <item>@string/hide_system_bars_status_bar</item>
+        <item>@string/hide_system_bars_navigation_bar</item>
+        <item>@string/hide_system_bars_all_bars</item>
+    </string-array>
+
+    <string name="hide_system_bars_none_value">0</string>
+    <string name="hide_system_bars_status_bar_value">1</string>
+    <string name="hide_system_bars_navigation_bar_value">2</string>
+    <string name="hide_system_bars_all_value">3</string>
+
+    <string-array name="hide_system_bars_values">
+        <item>@string/hide_system_bars_none_value</item>
+        <item>@string/hide_system_bars_status_bar_value</item>
+        <item>@string/hide_system_bars_navigation_bar_value</item>
+        <item>@string/hide_system_bars_all_value</item>
+    </string-array>
+
+    <string-array name="reviewer_frame_style_entries">
+        <item>@string/reviewer_frame_style_card</item>
+        <item>@string/reviewer_frame_style_box</item>
+    </string-array>
+
+    <string name="reviewer_frame_style_card_value">0</string>
+    <string name="reviewer_frame_style_box_value">1</string>
+
+    <string-array name="reviewer_frame_style_values">
+        <item>@string/reviewer_frame_style_card_value</item>
+        <item>@string/reviewer_frame_style_box_value</item>
+    </string-array>
+
+    <string-array name="reviewer_toolbar_position_entries">
+        <item>@string/reviewer_toolbar_top</item>
+        <item>@string/reviewer_toolbar_bottom</item>
+        <item>@string/reviewer_toolbar_none</item>
+    </string-array>
+
+    <string name="reviewer_toolbar_value_top">0</string>
+    <string name="reviewer_toolbar_value_bottom">1</string>
+    <string name="reviewer_toolbar_value_none">2</string>
+
+    <string-array name="reviewer_toolbar_position_values">
+        <item>@string/reviewer_toolbar_value_top</item>
+        <item>@string/reviewer_toolbar_value_bottom</item>
+        <item>@string/reviewer_toolbar_value_none</item>
+    </string-array>
+
+
+    <!-- Preferences headers summaries -->
+    <string-array name="general_summary_entries">
+        <item>@string/language</item>
+        <item>@string/pref_cat_studying</item>
+        <item>@string/pref_cat_system_wide</item>
+    </string-array>
+
+    <string-array name="study_screen_summary_entries">
+        <item>@string/screen</item>
+        <item>@string/toolbar</item>
+        <item>@string/answer_buttons</item>
+    </string-array>
+
+    <string-array name="reviewing_summary_entries">
+        <item>@string/pref_cat_scheduling</item>
+        <item>@string/pref_keep_screen_on</item>
+    </string-array>
+
+    <string-array name="sync_summary_entries">
+        <item>@string/automatic_sync_choice</item>
+    </string-array>
+
+    <string-array name="backup_limits_summary_entries">
+        <item>@string/backup_limits_frequency</item>
+        <item>@string/backup_limits_lifetime</item>
+    </string-array>
+
+    <string-array name="notifications_summary_entries">
+        <item>@string/notification_pref_title</item>
+        <item>@string/notification_minimum_cards_due_vibrate</item>
+        <item>@string/notification_minimum_cards_due_blink</item>
+    </string-array>
+
+    <string-array name="review_reminders_summary_entries">
+        <item>App-wide</item>
+        <item>Deck-specific</item>
+    </string-array>
+
+    <string-array name="appearance_summary_entries">
+        <item>@string/pref_cat_themes</item>
+        <item>@string/background_image_title</item>
+    </string-array>
+
+    <string-array name="accessibility_summary_entries">
+        <item>@string/card_zoom</item>
+        <item>@string/button_size</item>
+    </string-array>
+
+    <string-array name="controls_summary_entries">
+        <item>@string/pref_cat_gestures</item>
+        <item>@string/keyboard</item>
+        <item>@string/bluetooth</item>
+    </string-array>
+
+    <string-array name="advanced_summary_entries">
+        <item>@string/pref_cat_workarounds</item>
+        <item>@string/pref_cat_plugins</item>
+    </string-array>
+
+    <!-- Related settings -->
+    <string name="fragment_controls_preferences" tools:ignore="TranslationTypo">com.ichi2.anki.preferences.ControlsSettingsFragment</string>
+    <string name="fragment_accessibility_preferences" tools:ignore="TranslationTypo">com.ichi2.anki.preferences.AccessibilitySettingsFragment</string>
+
+    <string-array name="study_screen_related_titles">
+        <item>@string/pref_cat_controls</item>
+        <item>@string/accessibility</item>
+    </string-array>
+    <string-array name="study_screen_related_fragments">
+        <item>@string/fragment_controls_preferences</item>
+        <item>@string/fragment_accessibility_preferences</item>
+    </string-array>
+
+    <!-- Sample deck names and for Deck Picker Widget layout in widget picker screen
+       These strings are marked as `translatable=false` because translating them would defeat the purpose of the example, which relies on specific language usage.-->
+    <string name="deck1Name_deck_picker_widget" translatable="false" comment="Example of a Deck name. Android's widget provider displays it as an example of what the Deck Picker widget may look like">English</string>
+    <string name="deck2Name_deck_picker_widget" translatable="false" comment="Example of a Deck name. Android's widget provider displays it as an example of what the Deck Picker widget may look like">Español</string>
+    <string name="deck3Name_deck_picker_widget" translatable="false" comment="Example of a Deck name. Android's widget provider displays it as an example of what the Deck Picker widget may look like">日本語</string>
+
+    <string name="answer_buttons_position_preference" translatable="false">answerButtonPosition</string>
+    <string-array name="answer_buttons_position" translatable="false">
+        <item>top</item>
+        <item>bottom</item>
+        <item>none</item>
+    </string-array>
+    <string-array name="html_size_codes">
+        <item>xx-small</item>
+        <item>x-small</item>
+        <item>small</item>
+        <item>medium</item>
+        <item>large</item>
+        <item>x-large</item>
+        <item>xx-large</item>
+    </string-array>
+
+    <string name="manage_external_storage_permission">android.permission.MANAGE_EXTERNAL_STORAGE</string>
+    <string name="manage_internet_permission">android.permission.INTERNET</string>
+    <string-array name="legacy_storage_permissions">
+        <item>android.permission.READ_EXTERNAL_STORAGE</item>
+        <item>android.permission.WRITE_EXTERNAL_STORAGE</item>
+    </string-array>
+    <string name="post_notification_permission">android.permission.POST_NOTIFICATIONS</string>
+    <string name="record_audio_permission">android.permission.RECORD_AUDIO</string>
+
+
+    <string-array name="import_cache_error_resolutions">
+        <item>@string/import_error_resolution_try_again</item>
+        <item>@string/import_error_resolution_free_up_space</item>
+        <item>@string/import_error_resolution_check_internet</item>
+        <item>@string/import_error_resolution_copy_to_device</item>
+        <item>@string/import_error_resolution_select_file</item>
+    </string-array>
+</resources>

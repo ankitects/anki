@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.tabs.TabLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/tab_layout"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    style="@style/Widget.Material3.TabLayout"
+    app:tabMode="fixed"
+    app:tabMaxWidth="0dp"
+    app:tabGravity="fill">
+
+    <com.google.android.material.tabs.TabItem
+        android:id="@+id/reviews_tab"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/pref_controls_reviews_tab"
+        android:icon="@drawable/ic_cards_star"
+        />
+
+    <com.google.android.material.tabs.TabItem
+        android:id="@+id/previews_tab"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/pref_controls_previews_tab"
+        android:icon="@drawable/ic_remove_red_eye_white"
+        />
+
+</com.google.android.material.tabs.TabLayout>

@@ -1,0 +1,36 @@
+𐍈𐌰𐍂𐌾𐌰𐌼𐌼𐌴𐌷 𐌼𐌹𐌸 𐌰𐌽𐌺𐌴𐌹𐌳𐍂𐌰𐌿𐌳 𐌲𐌰𐌼𐌿𐌽𐌽𐍉𐌽!
+
+AnkiDroid lets you learn flashcards very efficiently by showing them just before you will forget. It is fully compatible with the spaced repetition software Anki (including synchronization), which is available for Windows, Linux and macOS.
+
+𐌻𐌰𐌹𐍃𐌴𐌹 𐌸𐌿𐌺 𐌰𐌻𐌻 𐌸𐌰𐍄𐌴𐌹 𐍅𐌹𐌻𐌴𐌹𐍃 𐍈𐌰𐌽 𐌾𐌰𐌷 𐌸𐌹𐍃𐍈𐌰𐍂𐌿𐌷 𐌸𐌰𐌳𐌴𐌹 𐌲𐌰𐌲𐌲𐌹𐍃. Make good use of idle times on bus trips, in supermarket queues or any other waiting situation!
+
+Create your own flashcard decks or download free decks compiled for many languages and topics (more than 6000 available).
+
+𐌱𐌹𐌰𐌹𐌰𐌿𐌺 𐌰𐌱𐌽𐌹 𐍆𐍂𐌰𐌼 𐌳𐌰𐌹𐍃𐌺𐍄𐌰𐌿𐍀 𐌰𐍀𐌻𐌴𐌹𐌺𐌰𐍄𐍃𐌾𐍉𐌽 𐌰𐌽𐌺𐌹 𐌸𐌰𐌿 𐍂𐌰𐌹𐌷𐍄𐌰𐌱𐌰 𐌸𐌰𐌹𐍂𐌷 𐌰𐌽𐌺𐌴𐌹𐌳𐍂𐌰𐌿𐌳. 𐍃𐍉 𐌰𐍀𐍀𐌻𐌴𐌹𐌺𐌰𐍄𐍃𐌾𐍉 𐍃𐍄𐍉𐌳𐌴𐌹𐌸 𐌱𐌹𐌰𐌿𐌺𐌰𐌹𐌽 𐌰𐌱𐌽𐌾𐌴 𐍅𐌰𐌿𐌳𐌰𐌱𐍉𐌺𐍉 𐍃𐌹𐌻𐌱𐍉!
+
+★ Key features:
+• supported flashcard contents: text, images, sounds, LaTeX
+• spaced repetition (AI-optimized FSRS algorithm)
+• 𐌱𐍉𐌺𐍉-𐌳𐌿-𐍃𐍄𐌹𐌱𐌽𐌰𐌹 𐌹𐌽𐍄𐌰𐌹𐌲𐍂𐌰𐍄𐍃𐌾𐍉
+• 𐌼𐌰𐌹𐍃 𐌸𐌰𐌿 10,000 𐍆𐌰𐌿𐍂𐌰𐌲𐌰𐍄𐌰𐍅𐌹𐌳𐌰 𐌺𐌰𐍂𐍄𐌰𐌷𐌿𐌶𐌳𐌰
+• 𐍅𐌹𐌳𐌾𐌰𐌹𐍄 𐍆𐍂𐌰𐌼𐌲𐌰𐌷𐍄𐌰𐌹𐍃
+• detailed statistics
+• 𐌲𐌰𐌲𐌰𐌻𐌴𐌹𐌺𐍉𐌽 𐌼𐌹𐌸 𐌰𐌽𐌺𐌹𐍅𐌰𐌱𐌾𐌰
+• 𐌿𐍃𐌻𐌿𐌺𐌰𐌽𐍃 𐌱𐍂𐌿𐌽𐌽𐌰
+
+★ Additional features:
+• 𐌰𐌽𐌳𐌰𐌷𐌰𐍆𐍄𐌹𐌽𐍃 𐌼𐌴𐌻𐌾𐌰𐌽 (𐌼𐌰𐌷𐍄𐌴𐌹𐌲)
+• 𐍈𐌴𐌹𐍄𐌰𐌱𐌰𐌿𐍂𐌳
+• card editor/adder
+• card browser
+• tablet layout
+• 𐍅𐌹𐍃𐌰𐌽𐌳𐍉𐌽𐌰 𐍆𐌰𐌾𐌻𐌰 𐌷𐌿𐌶𐌳𐌹𐍃 𐌹𐌽𐌽𐌰𐍄𐌱𐌰𐌹𐍂𐌰𐌽 (𐌸𐌰𐌹𐍂𐌷 𐌰𐌽𐌺𐌹 𐌳𐌰𐌹𐍃𐌺𐍄𐌰𐌿𐍀)
+• 𐌺𐌰𐍂𐍄𐍉𐍃 𐍆𐍂𐌰𐌼 𐌰𐍀𐍀𐌻𐌹𐌺𐌰𐍄𐍃𐌾𐍉𐌽𐌰𐌼 𐌰𐌽𐌸𐌰𐍂𐌰𐌹𐌼 𐌱𐌹𐌰𐌿𐌺𐌰𐌽 𐌱𐌹 𐍅𐌹𐌻𐌾𐌹𐌽 𐍃𐍅𐌴 𐍅𐌰𐌿𐍂𐌳𐌰𐌱𐍉𐌺𐍉𐍃
+• custom font support
+• full backup system
+• navigation by swipe, tap
+• customisable
+• dynamic deck handling
+• 𐌽𐌰𐌷𐍄𐌰𐌼𐍉𐌳𐌿𐍃
+• 𐌻𐍉𐌺𐌰𐌻𐌴𐌹𐍃𐌰𐍄𐍃𐌾𐍉𐌽𐍉 27
+• 𐌼𐌰𐌲𐍄 𐌿𐍆𐌰𐍂𐌱𐌰𐌹𐍂𐌰𐌽 𐌰𐌻𐌻𐌰 𐌿𐍃𐌼𐌴𐍂𐌾𐌰 𐌰𐌽𐌺𐌴𐌹𐌳𐍂𐌰𐌿𐌳𐍃 𐍆𐍂𐌰𐌼 𐌽𐌰𐍄𐌾𐌰𐍃𐍄𐌰𐌳𐌰

@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- SPDX-License-Identifier: GPL-3.0-or-later -->
+<com.google.android.material.textfield.TextInputLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/dialog_text_input_layout"
+    android:imeOptions="actionDone"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_margin="@dimen/content_vertical_padding"
+    android:paddingStart="32dp"
+    android:paddingEnd="32dp"
+    android:paddingBottom="4dp"
+    app:errorEnabled="true"
+    android:paddingTop="16dp">
+
+    <com.google.android.material.textfield.TextInputEditText
+        android:id="@+id/dialog_text_input"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:drawablePadding="8dp"
+        android:singleLine="true"
+        android:maxLines="1"
+        />
+</com.google.android.material.textfield.TextInputLayout>

@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- SPDX-License-Identifier: GPL-3.0-or-later -->
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <androidx.appcompat.widget.Toolbar
+        android:id="@+id/toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:minHeight="?attr/actionBarSize"
+        android:layout_alignParentTop="true"
+        android:theme="@style/ActionBarStyle"
+        android:background="?attr/appBarColor"
+        app:popupTheme="@style/ActionBar.Popup"
+        tools:title="@string/search_deck"
+        tools:menu="@menu/deck_picker_dialog_menu">
+    </androidx.appcompat.widget.Toolbar>
+
+    <com.ichi2.ui.FixedTextView
+        android:id="@+id/template_editor_message"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:padding="8dp"
+        android:textIsSelectable="false"
+        android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
+        android:layout_below="@id/toolbar"
+        tools:text="optional summary for 'deck override' picker"/>
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/decks"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/template_editor_message"
+        android:scrollbars="vertical"
+        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+        tools:listitem="@layout/item_deck_picker_dialog" />
+</RelativeLayout>

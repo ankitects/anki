@@ -1,0 +1,36 @@
+<!--
+  ~ Copyright 2xxx, Google Material Design Icons
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~    http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  ~
+  ~ Modifications (GitHub: snowtimeglass, 2024):
+  ~  Base icon: baseline_calendar_today
+  ~  Made bar 1px taller
+  ~  added question mark icon
+  -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+    <path
+        android:pathData="M6,1L6,3L4,3C3,3 2,4 2,5L2,20C2,20.999 3,21.999 4,22L15,22L15,20L4,20L4,7L20,7L20,11C20.833,11.006 21.518,11.581 22,12L22,11.016 22,5C22,4 21,3 20,3L18,3L18,1L16,1L16,3L8,3L8,1ZM6,9L6,11.5L18,11.5L18,9Z"
+        android:fillColor="#000000"/>
+    <path
+        android:pathData="M19,13L17,13C15,13 14,14 14,16 14,16 14,17 15,17 16.009,17 16,16 16,16 16,14.995 17,15 17,15L19,15C20,15 20,16 20,16 20,17 19,17 19,17L18,17C17,17 17,18 17,18L17,20C17,21 18,21 18,21 18,21 19,21 19,20L19,19C23,19 23,12.998 19,13Z"
+        android:fillColor="#000000"/>
+    <path
+        android:pathData="M19,23C19,23 18.995,22 18,22 17,22 17,23 17,23 17,23 17,24 18,24 18,24 19,24 19,23Z"
+        android:fillColor="#000000"/>
+</vector>
+

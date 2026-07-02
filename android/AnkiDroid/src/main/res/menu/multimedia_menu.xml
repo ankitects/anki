@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ SPDX-License-Identifier: GPL-3.0-or-later
+  ~ SPDX-FileCopyrightText: Copyright (c) 2024 Ashish Yadav <mailtoashish693@gmail.com>
+  -->
+
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <item
+        android:id="@+id/action_restart"
+        android:title="@string/reselect"
+        app:showAsAction="always" />
+
+    <item
+        android:id="@+id/action_crop"
+        android:title="@string/crop_button"
+        app:showAsAction="always"
+        android:icon="@drawable/ic_crop"/>
+
+</menu>

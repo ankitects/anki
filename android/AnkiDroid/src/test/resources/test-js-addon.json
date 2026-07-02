@@ -1,0 +1,54 @@
+[
+    {
+        "name": "ankidroid-js-addon-progress-bar",
+        "addonTitle": "Progress Bar",
+        "version": "1.1.1",
+        "description": "Show progress bar in AnkiDroid, this package may not be used in node_modules. For using this addon view. https://github.com/ankidroid/Anki-Android/pull/9232",
+        "main": "index.js",
+        "ankidroidJsApi": "0.0.3",
+        "addonType": "reviewer",
+        "keywords": [
+            "ankidroid-js-addon"
+        ],
+        "author": {
+            "name": "krmanik",
+            "email": "infinyte01@gmail.com",
+            "url": "https://krmanik.github.io"
+        },
+        "license": "MIT",
+        "homepage": "https://github.com/krmanik/Anki-Custom-Card-Layout#readme",
+        "dist": {
+            "integrity": "sha512-vwQ+2/7ECcUxMq+/0zFsTKwiKlES/5XNRUG9JESihm0QGDZtiE3YaZPKifRymh0cOkSW+UCGsADxyzbdfUt9vw==",
+            "shasum": "217479fee9306ba175637fab6b6319421741d320",
+            "tarball": "https://registry.npmjs.org/ankidroid-js-addon-progress-bar/-/ankidroid-js-addon-progress-bar-1.1.1.tgz",
+            "unpackedSize": 4959,
+            "fileCount": 3
+        }
+    },
+    {
+        "name": "valid-ankidroid-js-addon-test",
+        "addonTitle": "Valid AnkiDroid JS Addon",
+        "version": "1.0.1",
+        "description": "This addon will listed in Addon Browser. Also AddonInfo.isValidAnkiDroidAddon return true for this package. For more view. https://github.com/ankidroid/Anki-Android/pull/9232",
+        "main": "index.js",
+        "ankidroidJsApi": "0.0.3",
+        "addonType": "reviewer",
+        "keywords": [
+            "ankidroid-js-addon"
+        ],
+        "author": {
+            "name": "krmanik",
+            "email": "infinyte01@gmail.com",
+            "url": "https://krmanik.github.io"
+        },
+        "license": "MIT",
+        "homepage": "https://github.com/krmanik/ankidroid-js-addon#readme",
+        "dist": {
+            "integrity": "sha512-JwKMl2D8e1UA+ZPhhLA/ebnwsdBKA1xksJJxBAjmYSLwkQrLzsddHchoNLbQL65Jav8syZ8hpISYFcNkolaSCA==",
+            "shasum": "d839a1f9683eea9fcec320234de7f12294700931",
+            "tarball": "https://registry.npmjs.org/valid-ankidroid-js-addon-test/-/valid-ankidroid-js-addon-test-1.0.1.tgz",
+            "unpackedSize": 1195,
+            "fileCount": 3
+        }
+    }
+]

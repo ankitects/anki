@@ -1,0 +1,42 @@
+<androidx.coordinatorlayout.widget.CoordinatorLayout android:id="@+id/root_layout"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:focusableInTouchMode="true"
+    xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- AbstractFlashcardViewer pulls layout params from parent, casting it as RelativeLayout -->
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+        <!-- Main content that takes up the fullscreen -->
+        <include
+            layout="@layout/include_reviewer_mic_tool_bar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
+        <include
+            layout="@layout/include_reviewer_flashcard_fullscreen_noanswers"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+        <!-- Controls that are overlaid over the main content when the user interrupts immersive mode -->
+        <RelativeLayout
+            android:id="@+id/front_frame"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:fitsSystemWindows="true">
+
+            <include layout="@layout/include_toolbar"/>
+            <include layout="@layout/include_reviewer_topbar"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/toolbar"/>
+            <include
+                layout="@layout/include_reviewer_whiteboard_editor"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerHorizontal="true"
+                android:layout_above="@+id/bottom_area_layout"/>
+            <include layout="@layout/include_reviewer_answer_buttons"/>
+
+        </RelativeLayout>
+    </RelativeLayout>
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

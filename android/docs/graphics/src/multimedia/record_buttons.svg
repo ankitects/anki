@@ -1,0 +1,170 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   width="744.09448819"
+   height="1052.3622047"
+   id="svg2"
+   version="1.1"
+   inkscape:version="0.48.4 r9939"
+   sodipodi:docname="record_buttons.svg">
+  <defs
+     id="defs4" />
+  <sodipodi:namedview
+     id="base"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     inkscape:pageopacity="0.0"
+     inkscape:pageshadow="2"
+     inkscape:zoom="2.8284271"
+     inkscape:cx="273.91143"
+     inkscape:cy="753.58507"
+     inkscape:document-units="px"
+     inkscape:current-layer="layer1"
+     showgrid="false"
+     inkscape:window-width="1090"
+     inkscape:window-height="708"
+     inkscape:window-x="310"
+     inkscape:window-y="138"
+     inkscape:window-maximized="0" />
+  <metadata
+     id="metadata7">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title></dc:title>
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <g
+     inkscape:label="Layer 1"
+     inkscape:groupmode="layer"
+     id="layer1">
+    <g
+       id="g3835"
+       inkscape:export-filename="/home/bibek/src/anki/anki_droid_trunk/assets/icon_source_svg/av_rec.png"
+       inkscape:export-xdpi="72"
+       inkscape:export-ydpi="72">
+      <rect
+         y="296.46503"
+         x="201.52542"
+         height="67.528694"
+         width="68.235802"
+         id="rect3831"
+         style="fill:#ffffff;fill-opacity:0.01;stroke:none" />
+      <path
+         inkscape:export-ydpi="72"
+         inkscape:export-xdpi="72"
+         inkscape:export-filename="/home/bibek/src/anki/anki_droid_trunk/assets/icon_source_svg/av_rec.png"
+         sodipodi:type="arc"
+         style="fill:#d83a00;fill-opacity:1;stroke:#808080;stroke-width:16.25615691999999868;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none"
+         id="path3759"
+         sodipodi:cx="284.28571"
+         sodipodi:cy="286.64789"
+         sodipodi:rx="78.571426"
+         sodipodi:ry="78.571426"
+         d="m 362.85713,286.64789 a 78.571426,78.571426 0 1 1 -157.14285,0 78.571426,78.571426 0 1 1 157.14285,0 z"
+         transform="matrix(0.36909092,0,0,0.36909092,130.78701,224.42019)" />
+      <path
+         inkscape:export-ydpi="72"
+         inkscape:export-xdpi="72"
+         inkscape:export-filename="/home/bibek/src/anki/anki_droid_trunk/assets/icon_source_svg/av_rec.png"
+         transform="matrix(0.36909092,0,0,0.36909092,130.78701,224.42019)"
+         d="m 362.85713,286.64789 a 78.571426,78.571426 0 1 1 -157.14285,0 78.571426,78.571426 0 1 1 157.14285,0 z"
+         sodipodi:ry="78.571426"
+         sodipodi:rx="78.571426"
+         sodipodi:cy="286.64789"
+         sodipodi:cx="284.28571"
+         id="path3786"
+         style="fill:#d83a00;fill-opacity:1;stroke:none"
+         sodipodi:type="arc" />
+      <g
+         inkscape:export-ydpi="72"
+         inkscape:export-xdpi="72"
+         inkscape:export-filename="/home/bibek/src/anki/anki_droid_trunk/assets/icon_source_svg/av_rec.png"
+         transform="matrix(0.91338583,0,0,0.91338583,17.41507,21.049923)"
+         id="g3771">
+        <rect
+           ry="0"
+           y="324.11218"
+           x="242"
+           height="28.75"
+           width="4"
+           id="rect3767"
+           style="fill:#ffffff;fill-opacity:1;stroke:#808080;stroke-width:0;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none" />
+        <rect
+           style="fill:#ffffff;fill-opacity:1;stroke:#808080;stroke-width:0;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none"
+           id="rect3769"
+           width="4"
+           height="28.75"
+           x="232"
+           y="324.11218"
+           ry="0" />
+      </g>
+    </g>
+    <g
+       id="g3843"
+       inkscape:export-filename="/home/bibek/src/anki/anki_droid_trunk/assets/icon_source_svg/av_rec_stop.png"
+       inkscape:export-xdpi="72"
+       inkscape:export-ydpi="72">
+      <path
+         inkscape:export-ydpi="72"
+         inkscape:export-xdpi="72"
+         inkscape:export-filename="/home/bibek/src/anki/anki_droid_trunk/assets/icon_source_svg/av_rec_stop.png"
+         transform="matrix(0.36909092,0,0,0.36909092,217.78701,224.42019)"
+         d="m 362.85713,286.64789 c 0,43.3938 -35.17762,78.57142 -78.57142,78.57142 -43.39381,0 -78.57143,-35.17762 -78.57143,-78.57142 0,-43.3938 35.17762,-78.57143 78.57143,-78.57143 43.3938,0 78.57142,35.17763 78.57142,78.57143 z"
+         sodipodi:ry="78.571426"
+         sodipodi:rx="78.571426"
+         sodipodi:cy="286.64789"
+         sodipodi:cx="284.28571"
+         id="path2985"
+         style="fill:#d83a00;fill-opacity:1;stroke:#808080;stroke-width:16.25615691999999868;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none"
+         sodipodi:type="arc" />
+      <path
+         inkscape:export-ydpi="72"
+         inkscape:export-xdpi="72"
+         inkscape:export-filename="/home/bibek/src/anki/anki_droid_trunk/assets/icon_source_svg/av_rec_stop.png"
+         sodipodi:type="arc"
+         style="fill:#d83a00;fill-opacity:1;stroke:none"
+         id="path3788"
+         sodipodi:cx="284.28571"
+         sodipodi:cy="286.64789"
+         sodipodi:rx="78.571426"
+         sodipodi:ry="78.571426"
+         d="m 362.85713,286.64789 c 0,43.3938 -35.17762,78.57142 -78.57142,78.57142 -43.39381,0 -78.57143,-35.17762 -78.57143,-78.57142 0,-43.3938 35.17762,-78.57143 78.57143,-78.57143 43.3938,0 78.57142,35.17763 78.57142,78.57143 z"
+         transform="matrix(0.36909092,0,0,0.36909092,217.78701,224.42019)" />
+      <text
+         inkscape:export-ydpi="72"
+         inkscape:export-xdpi="72"
+         inkscape:export-filename="/home/bibek/src/anki/anki_droid_trunk/assets/icon_source_svg/av_rec_stop.png"
+         sodipodi:linespacing="125%"
+         id="text3755"
+         y="336.20404"
+         x="322.36108"
+         style="font-size:16.44094467px;font-style:normal;font-weight:normal;text-align:center;line-height:125%;letter-spacing:0px;word-spacing:0px;text-anchor:middle;fill:#ffffff;fill-opacity:1;stroke:none;font-family:Sans"
+         xml:space="preserve"><tspan
+           y="336.20404"
+           x="322.36108"
+           id="tspan3757"
+           sodipodi:role="line">REC</tspan></text>
+      <rect
+         style="fill:#ffffff;fill-opacity:0.01000001;stroke:none"
+         id="rect3833"
+         width="68.235802"
+         height="67.528694"
+         x="288.58606"
+         y="296.46503" />
+    </g>
+  </g>
+</svg>

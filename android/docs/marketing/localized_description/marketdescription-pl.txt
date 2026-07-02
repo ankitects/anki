@@ -1,0 +1,36 @@
+Zapamiętasz cokolwiek zechcesz z AnkiDroidem!
+
+AnkiDroid pomaga efektywnie zapamiętywać fiszki wyświetlając je tuż przed ich zapomnieniem. Jest w pełni kompatybilny z opartym na inteligentnych powtórkach SRS programem Anki (łącznie z synchronizacją), który jest dostępny dla systemu Windows, Linux oraz macOS.
+
+Ucz się czego tylko chcesz, gdziekolwiek zechcesz. Wykorzystaj wolny czas podczas dojazdów autobusem, w kolejce sklepowej lub kiedykolwiek musisz na coś czekać!
+
+Twórz własne talie lub pobierz któreś z darmowych, opracowanych dla wielu języków oraz dziedzin (dostępnych jest ponad 6000).
+
+Dodawaj materiał za pomocą programu Anki na komputerze lub bezpośrednio w AnkiDroidzie. Aplikacja umożliwia nawet dodawanie materiału automatycznie z poziomu słownika!
+
+★ Najważniejsze cechy:
+• karty mogą zawierać: tekst, obrazki, dźwięki, LaTeX
+• inteligentne powtórki SRS (algorytm FSRS optymalizowany przez SI)
+• obsługa syntezy mowy
+• ponad 10 000 gotowych talii
+• widok postępu w widżecie
+• szczegółowe statystyki
+• synchronizacja z AnkiWeb
+• otwarte oprogramowanie
+
+★ Dodatkowe możliwości:
+• wpisywanie odpowiedzi (opcjonalne)
+• tablica do rysowania
+• edytor kart
+• przeglądarka kart
+• widok dla tabletów
+• importowanie gotowych plików z kolekcjami (poprzez Anki Desktop)
+• dodawanie kart za pomocą intentów z innych aplikacji, np. słowników
+• obsługa czcionek użytkownika
+• system kopii zapasowych
+• nawigacja gestami, stuknięciami
+• konfigurowalność
+• dynamiczna obsługa talii
+• tryb nocny
+• 27 wersji językowych
+• Wszystkie poprzednie wersje AnkiDroid można pobrać z serwisu WWW

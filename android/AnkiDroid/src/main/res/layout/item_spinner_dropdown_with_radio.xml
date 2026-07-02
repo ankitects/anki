@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<!--
+  Like android.R.layout.simple_spinner_dropdown_item, but has a radio choice indicator.
+
+  16 dp is the usual menu item padding; the end padding was chosen visually.
+  It is halfway between 8 dp, which puts the radio indicator at the same distance
+  from the top and end edges, and 16 dp, which is default for menus but
+  does not accommodate for the intrinsic padding of the radio indicator.
+-->
+<CheckedTextView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@android:id/text1"
+    style="?android:attr/spinnerDropDownItemStyle"
+    android:checkMark="?android:attr/listChoiceIndicatorSingle"
+    android:singleLine="true"
+    android:layout_width="match_parent"
+    android:layout_height="?dropdownListPreferredItemHeight"
+    android:ellipsize="marquee"
+    android:paddingStart="16dp"
+    android:paddingEnd="12dp"
+    />

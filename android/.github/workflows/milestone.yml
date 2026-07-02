@@ -1,0 +1,57 @@
+name: PR Milestone
+
+on:
+  pull_request_target:
+    types: [ closed ]
+
+jobs:
+  milestone:
+    if: ${{ github.event.pull_request.merged == true }}
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      issues: write
+      pull-requests: write
+    steps:
+    - uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
+      with:
+        script: |
+          await github.rest.issues.update({
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            issue_number: ${{ github.event.pull_request.number }},
+            milestone: 77
+          });
+
+          // graphql query to get referenced issues to merged pull request
+          const query = `query($_url:URI!) {
+            resource(url:$_url) {
+              ... on PullRequest {
+                closingIssuesReferences(first:10) {
+                  nodes {
+                    number
+                  }
+                }              
+              }
+            }
+          }`;
+
+          const variables = {
+            _url: "https://github.com/ankidroid/${{ github.event.repository.name }}/pull/${{ github.event.pull_request.number }}"
+          };
+
+          const result = await github.graphql(query, variables);
+          const refIssues = result.resource.closingIssuesReferences.nodes;
+
+          for (issue of refIssues) {
+            console.log("Adding milestone to linked issue: ", issue.number);
+
+            // if issues have milestone, then it will be removed and updated with following
+            await github.rest.issues.update({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: issue.number,
+              milestone: 77
+            });
+          }
+

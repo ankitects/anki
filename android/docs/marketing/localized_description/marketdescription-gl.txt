@@ -1,0 +1,36 @@
+Memoriza calquera cousa con AnkiDroid!
+
+AnkiDroid permíteche aprender tarxetas eficientemente amosándochas xusto antes de que as esquezas. É totalmente compatíbel co software de repetición espazada Anki (incluíndo a sincronización), o cal está dispoñíbel para Windows, Linux e macOS.
+
+Aprende todo tipo de cousas onde e cando queiras. Aproveita os tempos mortos nas viaxes no bus, na quenda do supermercado ou en calquera outra situación!
+
+Crea as túas propias barallas de tarxetas ou descárgaas de balde, agrupadas por diferentes idiomas e temas (dispoñibles máis de 6000).
+
+Engade material a través da aplicación de escritorio Anki ou directamente dende o AnkiDroid. A aplicación incluso permite engadir contido automaticamente dende un dicionario!
+
+★ Características principais:
+• contido soportado polas tarxetas: texto, imaxes, sons, LaTeX
+• repetición espazada (algoritmo FSRS optimizado con IA)
+• integra síntese de voz
+• máis de 10.000 barallas predeseñadas
+• widget de progreso
+• estatísticas detalladas
+• sincronización con AnkiWeb
+• código aberto
+
+★ características adicionais:
+• escribir as respostas (opcional)
+• encerado
+• editor/creador de cartóns
+• explorador de cartóns
+• compatible con tabletas
+• importar ficheiros de coleccións existentes (vía Anki de escritorio)
+• engadir cartóns a partir doutras aplicacións, como dicionarios
+• soporte para fontes personalizadas
+• sistemas completo de copia de seguranza
+• navegación tanto esvarando como tocando
+• personalizable
+• xestión de barallas dinámica
+• modo noite
+• 27 idiomas
+• Todas as versións anteriores do AnkiDroid pódense baixar do sitio web

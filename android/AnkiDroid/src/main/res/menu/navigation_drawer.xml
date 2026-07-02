@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- SPDX-License-Identifier: GPL-3.0-or-later -->
+
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <group android:id="@+id/group1"
+        android:checkableBehavior="single">
+        <item
+            android:id="@+id/nav_decks"
+            android:icon="@drawable/ic_list_black"
+            android:title="@string/decks" />
+        <item
+            android:id="@+id/nav_browser"
+            android:icon="@drawable/ic_flashcard_black"
+            android:title="@string/card_browser"/>
+        <item
+            android:id="@+id/nav_stats"
+            android:icon="@drawable/ic_bar_chart_black"
+            android:title="@string/statistics"/>
+    </group>
+    <group  android:id="@+id/group2">
+        <item
+            android:id="@+id/nav_settings"
+            android:icon="@drawable/ic_settings_black"
+            android:title="@string/settings"/>
+        <item
+            android:id="@+id/nav_help"
+            android:icon="@drawable/ic_help_black"
+            android:title="@string/help"/>
+        <item
+            android:id="@+id/support_ankidroid"
+            android:icon="@drawable/ic_support_ankidroid"
+            android:title="@string/help_title_support_ankidroid"/>
+    </group>
+</menu>

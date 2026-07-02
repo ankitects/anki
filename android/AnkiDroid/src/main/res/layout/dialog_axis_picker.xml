@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- SPDX-License-Identifier: GPL-3.0-or-later -->
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+
+    <com.ichi2.ui.FixedTextView
+        android:id="@+id/selected_axis_text_view"
+        app:layout_constraintDimensionRatio="1:1"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:gravity="center"
+        android:textSize="24sp"
+        android:textAlignment="center"
+        android:text="@string/axis_picker_move_joystick"
+        android:focusable="true"
+        android:focusableInTouchMode="true"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+
+    <!-- Contains `available_axes`, initially invisible -->
+    <ScrollView
+        android:id="@+id/available_axes_container"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:visibility="gone"
+        >
+        <!-- AxisSelector elements are added here dynamically if motion is detected -->
+        <LinearLayout
+            android:id="@+id/available_axes"
+            android:layout_width="match_parent"
+            android:orientation="vertical"
+            android:layout_height="0dp"/>
+    </ScrollView>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

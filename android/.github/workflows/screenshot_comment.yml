@@ -1,0 +1,165 @@
+# Adapted from https://github.com/takahirom/roborazzi/blob/4be7f304fa23f2f00fad67ab612aec2035ac9db2/.github/workflows/CompareScreenshotComment.yml
+#
+# Copyright 2023 takahirom
+# Copyright 2019 Square, Inc.
+# Copyright The Android Open Source Project
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#    http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+name: "🛠️ Screenshots: Comment"
+
+on:
+  workflow_run:
+    workflows:
+      - "🛠️ Screenshots: Compare"
+    types:
+      - completed
+
+permissions: { }
+
+jobs:
+  Comment-CompareScreenshot:
+    name: comment
+    if: >
+      github.event.workflow_run.event == 'pull_request' &&
+      github.event.workflow_run.conclusion == 'success'
+
+    timeout-minutes: 2
+
+    permissions:
+      actions: read # for downloading artifacts and reading the run id
+      pull-requests: write # for creating a comment on pull requests
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Download PR number artifact
+        uses: dawidd6/action-download-artifact@09f2f74827fd3a8607589e5ad7f9398816f540fe # v3.1.4
+        with:
+          name: pr
+          run_id: ${{ github.event.workflow_run.id }}
+      - id: get-pull-request-number
+        name: Get pull request number
+        shell: bash
+        run: |
+          echo "pull_request_number=$(cat NR)" >> "$GITHUB_OUTPUT"
+      - name: Download screenshot diff artifact
+        uses: dawidd6/action-download-artifact@09f2f74827fd3a8607589e5ad7f9398816f540fe # v3.1.4
+        with:
+          run_id: ${{ github.event.workflow_run.id }}
+          name: screenshot-diff
+          path: screenshot-diff
+      - id: check-if-there-are-valid-files
+        name: Check if there are valid files
+        shell: bash
+        run: |
+          # Find Roborazzi diff PNGs in the downloaded artifact (in <TestClass>/).
+          mapfile -t files_to_add < <(find . -name "*_compare.png" -type f)
+          if [ ${#files_to_add[@]} -gt 0 ]; then
+            exist_valid_files="true"
+          else
+            exist_valid_files="false"
+          fi
+          echo "exist_valid_files=$exist_valid_files" >> "$GITHUB_OUTPUT"
+      - id: generate-diff-reports
+        name: Generate diff reports
+        if: steps.check-if-there-are-valid-files.outputs.exist_valid_files == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+          RUN_ID: ${{ github.event.workflow_run.id }}
+          BASE_REF: ${{ github.event.workflow_run.event == 'pull_request' && github.event.workflow_run.pull_requests[0].base.ref || github.event.repository.default_branch }}
+        shell: bash
+        run: |
+          # Find Roborazzi diff PNGs to mention in the comment (in <TestClass>/).
+          mapfile -t files < <(find . -name "*_compare.png" -type f | sort)
+          total=${#files[@]}
+          # Cap the full list so we remain within GitHub's comment limit
+          max_details=100
+
+          # Group by test class - the file's immediate parent directory.
+          declare -A class_counts class_files
+          for file in "${files[@]}"; do
+            class_dir="${file%/*}"
+            class="${class_dir##*/}"
+            class_counts[$class]=$(( ${class_counts[$class]:-0} + 1 ))
+            class_files[$class]+="$(basename "$file")"$'\n'
+          done
+          mapfile -t classes < <(printf '%s\n' "${!class_counts[@]}" | sort)
+
+          # Resolve the artifact ID so we can deep-link to its download page.
+          artifact_id=$(gh api "repos/$REPO/actions/runs/$RUN_ID/artifacts" \
+            --jq '.artifacts[] | select(.name=="screenshot-diff") | .id')
+          artifact_url="${{ github.server_url }}/$REPO/actions/runs/$RUN_ID/artifacts/$artifact_id"
+
+          # delimiter for multi-line output to GITHUB_OUTPUT
+          delimiter="$(openssl rand -hex 8)"
+          {
+            echo "reports<<${delimiter}"
+            echo "Snapshot diff report vs \`$BASE_REF\`. Open [\`screenshot-diff\`]($artifact_url) for diffs."
+            echo ""
+            for class in "${classes[@]}"; do
+              count=${class_counts[$class]}
+              noun=$([ "$count" -eq 1 ] && echo change || echo changes)
+              echo "- **$class**: $count $noun"
+            done
+            echo ""
+            echo "<details><summary>All $total changed screenshots</summary>"
+            echo ""
+            remaining=$max_details
+            for class in "${classes[@]}"; do
+              (( remaining > 0 )) || break
+              echo "**$class**"
+              while IFS= read -r name; do
+                [ -z "$name" ] && continue
+                (( remaining > 0 )) || break
+                echo "- \`$name\`"
+                remaining=$(( remaining - 1 ))
+              done <<< "${class_files[$class]}"
+              echo ""
+            done
+            if (( total > max_details )); then
+              echo "_…and $((total - max_details)) more not shown._"
+            fi
+            echo "</details>"
+            echo "${delimiter}"
+          } >> "$GITHUB_OUTPUT"
+      # Run unconditionally so we can clear a stale comment when regressions are fixed.
+      - name: Find Comment
+        uses: peter-evans/find-comment@3eae4d37986fb5a8592848f6a574fdf654e61f9e # v3.1.0
+        id: fc
+        with:
+          issue-number: ${{ steps.get-pull-request-number.outputs.pull_request_number }}
+          comment-author: 'github-actions[bot]'
+          body-includes: Snapshot diff report
+
+      - name: Add or update comment on PR
+        uses: peter-evans/create-or-update-comment@71345be0265236311c031f5c7866368bd1eff043 # v4.0.0
+        if: steps.generate-diff-reports.outputs.reports != ''
+        with:
+          comment-id: ${{ steps.fc.outputs.comment-id }}
+          issue-number: ${{ steps.get-pull-request-number.outputs.pull_request_number }}
+          body: ${{ steps.generate-diff-reports.outputs.reports }}
+          edit-mode: replace
+
+      # If a previous run posted a diff comment but this run has none, the regressions are fixed.
+      - name: Mark previous regressions as resolved
+        if: >
+          steps.check-if-there-are-valid-files.outputs.exist_valid_files == 'false' &&
+          steps.fc.outputs.comment-id != ''
+        uses: peter-evans/create-or-update-comment@71345be0265236311c031f5c7866368bd1eff043 # v4.0.0
+        with:
+          comment-id: ${{ steps.fc.outputs.comment-id }}
+          body: |
+            Snapshot diff report: Previous regressions were resolved by the latest commit.
+          edit-mode: replace

@@ -1,0 +1,223 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.coordinatorlayout.widget.CoordinatorLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/root_layout"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <LinearLayout
+        android:id="@+id/root_linear_layout"
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <androidx.appcompat.widget.Toolbar
+            android:id="@+id/add_edit_reminder_toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:minHeight="?attr/actionBarSize"
+            android:theme="@style/ActionBarStyle"
+            android:background="?attr/appBarColor"
+            app:title="Add / edit review reminder" />
+
+        <ScrollView
+            android:id="@+id/add_edit_reminder_scrollview"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <LinearLayout
+                android:id="@+id/add_edit_reminder_content"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:paddingTop="24dp"
+                android:paddingHorizontal="24dp">
+
+                <LinearLayout
+                    android:id="@+id/add_edit_reminder_time_section"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:layout_marginBottom="8dp">
+
+                    <com.google.android.material.textview.MaterialTextView
+                        android:id="@+id/add_edit_reminder_time_label"
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_weight="1"
+                        android:gravity="center_vertical"
+                        android:text="Time:"
+                        android:textSize="18sp"
+                        tools:ignore="HardcodedText" />
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/add_edit_reminder_time_button"
+                        android:layout_width="0dp"
+                        android:layout_weight="3"
+                        android:layout_height="match_parent"
+                        app:cornerRadius="8dp"
+                        android:layout_marginStart="12dp"
+                        android:textSize="24sp"
+                        android:text="12:00"
+                        tools:ignore="HardcodedText" />
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/add_edit_reminder_deck_section"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+
+                    <com.google.android.material.textview.MaterialTextView
+                        android:id="@+id/add_edit_reminder_deck_label"
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_weight="1"
+                        android:gravity="center_vertical"
+                        android:text="Deck:"
+                        android:textSize="18sp"
+                        tools:ignore="HardcodedText" />
+
+                    <com.google.android.material.textview.MaterialTextView
+                        android:id="@+id/add_edit_reminder_deck_name"
+                        android:layout_width="0dp"
+                        android:layout_weight="3"
+                        android:layout_height="match_parent"
+                        android:textAppearance="?attr/textAppearanceListItem"
+                        android:minHeight="?minTouchTargetSize"
+                        android:maxLines="1"
+                        android:gravity="center_vertical"
+                        android:drawableEnd="@drawable/id_arrow_drop_down"
+                        android:background="?attr/selectableItemBackground"
+                        android:ellipsize="end"
+                        android:layout_marginStart="12dp"
+                        tools:text="Deck name here"
+                        />
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/add_edit_reminder_advanced_section"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical">
+
+                    <LinearLayout
+                        android:id="@+id/add_edit_reminder_advanced_dropdown"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:minHeight="?attr/minTouchTargetSize"
+                        android:orientation="horizontal">
+
+                        <ImageView
+                            android:id="@+id/add_edit_reminder_advanced_dropdown_icon"
+                            android:layout_width="32dp"
+                            android:layout_height="32dp"
+                            android:layout_gravity="center_vertical"
+                            android:layout_marginEnd="8dp" />
+
+                        <com.google.android.material.textview.MaterialTextView
+                            android:id="@+id/add_edit_reminder_advanced_label"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="center_vertical"
+                            android:textSize="18sp"
+                            android:text="Advanced settings"
+                            tools:ignore="HardcodedText" />
+
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:id="@+id/add_edit_reminder_advanced_content"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="32dp"
+                        android:orientation="vertical">
+
+                        <LinearLayout
+                            android:id="@+id/add_edit_reminder_card_threshold_section"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal"
+                            tools:ignore="UselessParent">
+
+                            <LinearLayout
+                                android:id="@+id/add_edit_reminder_card_threshold_label_container"
+                                android:layout_width="0dp"
+                                android:layout_weight="1"
+                                android:layout_height="wrap_content"
+                                android:paddingVertical="4dp"
+                                android:orientation="vertical">
+
+                                <com.google.android.material.textview.MaterialTextView
+                                    android:id="@+id/add_edit_reminder_card_threshold_label"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:layout_gravity="center_vertical"
+                                    android:textSize="16sp"
+                                    android:text="Card threshold:"
+                                    tools:ignore="HardcodedText" />
+
+                                <com.google.android.material.textview.MaterialTextView
+                                    android:id="@+id/add_edit_reminder_card_threshold_description"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:layout_gravity="center_vertical"
+                                    android:text="Do not send me notifications if there are less than this many cards due"
+                                    tools:ignore="HardcodedText" />
+
+                            </LinearLayout>
+
+                            <com.google.android.material.textfield.TextInputLayout
+                                android:id="@+id/add_edit_reminder_card_threshold_input_wrapper"
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:layout_gravity="center"
+                                android:layout_marginStart="24dp">
+
+                                <com.google.android.material.textfield.TextInputEditText
+                                    android:id="@+id/add_edit_reminder_card_threshold_input"
+                                    android:layout_width="match_parent"
+                                    android:layout_height="wrap_content"
+                                    android:inputType="number" />
+
+                            </com.google.android.material.textfield.TextInputLayout>
+
+                        </LinearLayout>
+
+                        <LinearLayout
+                            android:id="@+id/add_edit_reminder_only_notify_if_no_reviews_section"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal">
+
+                            <com.google.android.material.checkbox.MaterialCheckBox
+                                android:id="@+id/add_edit_reminder_only_notify_if_no_reviews_checkbox"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content" />
+
+                            <com.google.android.material.textview.MaterialTextView
+                                android:id="@+id/add_edit_reminder_only_notify_if_no_reviews_label"
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:text="Only notify me if no reviews have been done today"
+                                tools:ignore="HardcodedText" />
+
+                        </LinearLayout>
+
+                    </LinearLayout>
+
+                </LinearLayout>
+
+            </LinearLayout>
+
+        </ScrollView>
+
+    </LinearLayout>
+
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

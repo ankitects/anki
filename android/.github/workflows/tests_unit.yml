@@ -1,0 +1,201 @@
+name: 🛠️ Unit Tests
+
+on:
+  workflow_dispatch:
+    inputs:
+      iterations:
+        description: "Number of iterations on each chosen operating system. Default 1. Max 85."
+        required: true
+        default: 1
+        type: number
+      operatingSystems:
+        description: "Which operating systems to run tests on"
+        required: true
+        type: choice
+        # If you alter system names in default + options here, also alter osArray below to match
+        default: '["windows-latest", "macos-14", "ubuntu-latest"]'
+        options:
+          - '["windows-latest", "macos-14", "ubuntu-latest"]'
+          - '["windows-latest"]'
+          - '["macos-14"]'
+          - '["ubuntu-latest"]'
+  schedule:
+    - cron: "42 0 * * 2"
+  pull_request:
+  push:
+    # Ignore merge queue branches on push; avoids merge_group+push concurrency race since ref is same
+    branches-ignore:
+      - 'gh-readonly-queue/**'
+  merge_group:
+
+permissions:
+  contents: read
+
+concurrency:
+  # if a workflow is run against the same ref, only one at a time...
+  # ...but allow different triggers to run concurrent (push, manual flake run, scheduled flake run...)
+  group: ${{ github.workflow }}-${{ github.ref }}-${{ github.event_name }}
+  cancel-in-progress: true
+
+jobs:
+  # We want to generate our matrix dynamically
+  # Initial job generates the matrix as a JSON, and following job will use deserialize and use the result
+  matrix_prep:
+    # Do not run the scheduled jobs on forks
+    if: (github.event_name == 'schedule' && github.repository == 'ankidroid/Anki-Android') || (github.event_name != 'schedule')
+    runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.build-matrix.outputs.result }}
+    steps:
+      - id: build-matrix
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
+        with:
+          script: |
+            // by default, we will include all 3 platforms we test on
+            // "latest" would be easy everywhere, but "macos-14" doesn't always happen if you choose "latest"
+            // and we want macos-14 because it has Apple Silicon and is faster
+            // if you alter this, also alter it above in the workflow_dispatch options list
+            let osArray = ["ubuntu-latest", "macos-14", "windows-latest"]
+            
+            // by default, we will run one iteration on each selected system
+            let iterationArray = [1]
+            
+            // workflow dispatch will be a drop-down of different options
+            if (context.eventName === "workflow_dispatch") {
+              const inputs = ${{ toJSON(inputs) }}
+              osArray = JSON.parse(inputs['operatingSystems'])
+              console.log('inputs is: ' + JSON.stringify(inputs))
+              console.log('osArray is: ' + osArray)
+              
+              const iterationInput = inputs.iterations
+              console.log('iterations input is: ' + iterationInput)
+              // this will expand for example with input 5 => [1, 2, 3, 4, 5]
+              iterationArray = []
+              for (let i = 1; i <= iterationInput; i++) {
+                iterationArray.push(i);
+              }
+              console.log('iterationArray is: ' + iterationArray)
+            }
+
+            // If we are running on a schedule it's our periodic passive scan for flakes
+            // Goal is to run enough iterations on all systems that we have confidence there are no flakes
+            if (context.eventName === "schedule") {
+              const iterationCount = 15
+              for (let i = 1; i <= iterationCount; i++) {
+                iterationArray.push(i);
+              }
+            }
+
+            let includeArray = [];
+            for(const os of osArray) {
+              // we do this work to define 'name' so we don't need to update branch protection rules
+              // if the os changes, the name is used in the expanded workflow run name, which is then
+              // used as a "required check" on branch protection merge rules, this keeps it stable
+              // even if "macos-14" changes to "macos-15" in the future so we just change the list here
+              // but don't have to go into organization settings / protection rules etc etc
+              includeArray.push({"os": os, "name": os.split('-')[0]});
+            }
+            return {
+              "os": osArray,
+              "include": includeArray,
+              "iteration": iterationArray
+            }
+      - name: Debug Output
+        run: echo "${{ steps.build-matrix.outputs.result }}"
+
+  # This uses the matrix generated from the matrix-prep stage
+  # it will run unit tests on whatever OS combinations are desired
+  unit:
+    name: JUnit Tests (${{ matrix.name }} run ${{ matrix.iteration }})
+    # Do not run the scheduled jobs on forks
+    if: (github.event_name == 'schedule' && github.repository == 'ankidroid/Anki-Android') || (github.event_name != 'schedule')
+    needs: matrix_prep
+    timeout-minutes: 35
+    env:
+      CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+    strategy:
+      fail-fast: false
+      matrix: ${{fromJson(needs.matrix_prep.outputs.matrix)}}
+    runs-on: ${{ matrix.os }}
+    #env:
+    #  CODACY_TOKEN: ${{ secrets.CODACY_TOKEN }}
+    steps:
+      - name: Configure Windows Pagefile
+        uses: al-cheb/configure-pagefile-action@9b6da52fb72a3c6147c1aad2df22d8d905681adc # v1.5
+        if: contains(matrix.os, 'windows')
+        with:
+          minimum-size: 8GB
+          maximum-size: 12GB
+          disk-root: "C:"
+
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          fetch-depth: 50
+
+      - name: Configure JDK
+        uses: actions/setup-java@be666c2fcd27ec809703dec50e508c2fdc7f6654 # v5.2.0
+        with:
+          distribution: "jetbrains"
+          java-version: "21"  # also change jitpack.yml
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@50e97c2cd7a37755bbfafc9c5b7cafaece252f6e # v6.1.0
+        timeout-minutes: 10
+        with:
+          # Use open source provider: https://github.com/gradle/actions/blob/main/docs/setup-gradle.md#basic-caching
+          cache-provider: basic
+          # Only write to the cache for builds on the 'main' branches, stops branches evicting main cache
+          # Builds on other branches will only read from main branch cache writes
+          # Comment this and the with: above out for performance testing on a branch
+          cache-read-only: ${{ github.ref != 'refs/heads/main' }}
+
+      - name: Gradle Dependency Download
+        uses: nick-fields/retry@ad984534de44a9489a53aefd81eb77f87c70dc60 # v4.0.0
+        with:
+          timeout_minutes: 10
+          retry_wait_seconds: 60
+          max_attempts: 3
+          command: ./gradlew robolectricSdkDownload --daemon
+
+        # update workflows/README.md when modifying this step
+      - name: Run Unit Tests
+        run: ./gradlew jacocoUnitTestReport --daemon
+
+
+      # Only runs:
+      # - on a scheduled run
+      # - on a manually dispatched run
+      # This is not run on the 'happy' CI path as it's a rare de-flake, and would unnecessarily slow
+      #  down CI
+      - name: De-flake EmptyApplication Tests (schedule/manual run only)
+        if: (github.event_name == 'schedule' || github.event_name == 'workflow_dispatch') && matrix.iteration == 1 && matrix.os == 'ubuntu-latest'
+        run: ./gradlew testFullDebugUnitTest -PemptyApplication --daemon
+
+      - name: Store Logcat as Artifact
+        # cancelled() handles test timeouts
+        # remove when test timeouts cause a failure()
+        if: failure() || cancelled()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: logcat-${{ matrix.name }}-${{ matrix.iteration }}
+          # look for the `<system-out>` element in the XML files in `test-results`
+          # The folder contains far too much data:
+          # * .bin files
+          # * XML rather than TXT
+          # * Files are mostly JaCoCo issues logged to stderr (#16180)
+          # * All tests are logged, rather than just failures
+          # despite this, it's a great start
+          # look to see if there's a dependency we can use, arther than improving this
+          path: |
+            **/build/test-results/
+
+      - name: Stop Gradle
+        if: contains(matrix.os, 'windows')
+        run: ./gradlew --stop
+
+      - uses: codecov/codecov-action@e53489f4d376d79066609109e7a95a29eb3740b1 # v7.0.0
+        with:
+          verbose: true
+          fail_ci_if_error: ${{ github.repository == 'ankidroid/Anki-Android' }} # optional (default = false)

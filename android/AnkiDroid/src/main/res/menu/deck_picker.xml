@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- SPDX-License-Identifier: GPL-3.0-or-later -->
+
+<menu xmlns:tools="http://schemas.android.com/tools"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:ankidroid="http://schemas.android.com/apk/res-auto"
+    >
+    <item
+        android:id="@+id/deck_picker_action_filter"
+        android:icon="@drawable/ic_search_white"
+        android:title="@string/search_decks"
+        android:visible="false"
+        ankidroid:actionViewClass="com.ichi2.ui.AccessibleSearchView"
+        ankidroid:showAsAction="always|collapseActionView"/>
+    <item
+        android:id="@+id/action_sync"
+        android:icon="@drawable/ic_sync"
+        android:title="@string/button_sync"
+        ankidroid:actionProviderClass="com.ichi2.anki.SyncActionProvider"
+        ankidroid:showAsAction="always"/>
+    <item
+        android:id="@+id/action_undo"
+        ankidroid:showAsAction="never"
+        android:visible="false"
+        tools:title="Undo X"/>
+    <item
+        android:id="@+id/checks"
+        android:title="@string/checks_action"
+        ankidroid:showAsAction="never">
+        <menu>
+            <!-- TR.databaseCheckTitle() -->
+            <item
+                android:id="@+id/action_check_database"
+                android:menuCategory="secondary"
+                tools:title="Check database"/>
+            <!-- TR.mediaCheckCheckMediaAction() -->
+            <item
+                android:id="@+id/action_check_media"
+                android:menuCategory="secondary"
+                tools:title="Check media"/>
+            <!-- TR.actionsEmptyCards() -->
+            <item
+                android:id="@+id/action_empty_cards"
+                android:menuCategory="secondary"
+                tools:title="Empty cards"/>
+        </menu>
+    </item>
+    <!-- Backend string TR.qtAccelCreateBackup() has an & in it -->
+    <item
+        android:id="@+id/action_create_backup"
+        android:menuCategory="secondary"
+        android:title="@string/menu_create_backup"
+        />
+    <item
+        android:id="@+id/action_restore_backup"
+        android:menuCategory="secondary"
+        android:title="@string/backup_restore"/>
+    <item
+        android:id="@+id/action_model_browser_open"
+        android:menuCategory="secondary"
+        android:title="@string/model_browser_label"/>
+    <item
+        android:id="@+id/action_import"
+        android:menuCategory="secondary"
+        android:title="@string/menu_import"/>
+    <item
+        android:id="@+id/action_export_collection"
+        android:menuCategory="secondary" />
+</menu>

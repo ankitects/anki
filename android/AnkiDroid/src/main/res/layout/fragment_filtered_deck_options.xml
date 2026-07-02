@@ -1,0 +1,352 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ SPDX-License-Identifier: GPL-3.0-or-later
+  ~ SPDX-FileCopyrightText: Copyright (c) 2025 lukstbit <52494258+lukstbit@users.noreply.github.com>
+  -->
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <com.google.android.material.appbar.MaterialToolbar
+        android:id="@+id/toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:minHeight="?attr/actionBarSize"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:navigationIcon="@drawable/close_icon"
+        app:titleTextAppearance="@style/TextAppearance.AnkiDroid.TopAppBar.Title"
+        tools:title="Filtered deck 10:10"
+        tools:menu="@menu/filtered_options">
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_build"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="end"
+            android:visibility="gone"
+            tools:text="Build"
+            tools:visibility="visible"
+            />
+    </com.google.android.material.appbar.MaterialToolbar>
+
+    <!-- Used to indicate progress when building/rebuilding the filtered deck after the user requested it -->
+    <com.google.android.material.progressindicator.LinearProgressIndicator
+        android:id="@+id/loading_indicator_building"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:visibility="gone"
+        android:indeterminate="true"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/toolbar"
+        />
+
+    <!-- Used only when this screen is started and the initial filtered deck data is being retrieved -->
+    <com.google.android.material.loadingindicator.LoadingIndicator
+        android:id="@+id/loading_indicator"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        />
+
+    <ScrollView
+        android:id="@+id/scroll_view"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_marginVertical="8dp"
+        android:visibility="gone"
+        app:layout_constraintBottom_toTopOf="@id/btn_show_excluded_cards"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/toolbar"
+        android:clipToPadding="false"
+        android:paddingBottom="48dp"
+        tools:visibility="visible">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingHorizontal="16dp">
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/deck_name_input_layout"
+                style="@style/Widget.Material3.TextInputLayout.OutlinedBox.Dense"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                tools:hint="Name">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/deck_name_input"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:inputType="text"
+                    tools:text="Filtered deck 10:10"/>
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <!-- Material3Fix after colorSurface* are fixed look into using one here -->
+            <com.ichi2.ui.FixedTextView
+                android:id="@+id/filter_label"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:layout_marginBottom="8dp"
+                android:textAppearance="@style/TextAppearance.Material3.TitleMedium"
+                tools:text="Filter"
+                />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/filter_search_input_layout"
+                    style="@style/Widget.Material3.TextInputLayout.OutlinedBox.Dense"
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_vertical"
+                    app:endIconMode="custom"
+                    app:endIconDrawable="@drawable/ic_search_white"
+                    app:endIconContentDescription="@string/card_browser_cram_search"
+                    tools:hint="Search">
+
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/filter_search_input"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:inputType="text"
+                        tools:text="flag:1"
+                        />
+                </com.google.android.material.textfield.TextInputLayout>
+            </LinearLayout>
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/filter_limit_input_layout"
+                style="@style/Widget.Material3.TextInputLayout.OutlinedBox.Dense"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                tools:hint="Limit to">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/filter_limit_input"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:inputType="number"
+                    tools:text="100"
+                    />
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <TextView
+                android:id="@+id/filter_cards_label"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:textAppearance="@style/TextAppearance.Material3.LabelLarge"
+                tools:text="Cards selected by"
+                />
+
+            <Spinner
+                android:id="@+id/filter_cards"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:minHeight="48dp"
+                />
+
+            <!-- Material3Fix after colorSurface* are fixed look into using one here -->
+            <com.google.android.material.materialswitch.MaterialSwitch
+                android:id="@+id/switch_second_filter"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:textAppearance="@style/TextAppearance.Material3.TitleMedium"
+                tools:text="Enable second filter"
+                />
+
+            <LinearLayout
+                android:id="@+id/second_filter_search_container"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:visibility="gone">
+
+                <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/second_filter_search_input_layout"
+                    style="@style/Widget.Material3.TextInputLayout.OutlinedBox.Dense"
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    app:endIconMode="custom"
+                    app:endIconDrawable="@drawable/ic_search_white"
+                    tools:hint="Search">
+
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/second_filter_search_input"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:inputType="text"
+                        tools:text="flag:5"
+                        />
+                </com.google.android.material.textfield.TextInputLayout>
+            </LinearLayout>
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/second_filter_limit_input_layout"
+                style="@style/Widget.Material3.TextInputLayout.OutlinedBox.Dense"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:visibility="gone"
+                tools:hint="Limit to">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/second_filter_limit_input"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:inputType="number"
+                    tools:text="20"
+                    />
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <TextView
+                android:id="@+id/second_filter_cards_label"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:visibility="gone"
+                android:textAppearance="@style/TextAppearance.Material3.LabelLarge"
+                tools:text="Cards selected by"
+                />
+
+            <Spinner
+                android:id="@+id/second_filter_cards"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:visibility="gone"
+                android:minHeight="48dp"
+                />
+
+            <com.ichi2.ui.FixedTextView
+                android:id="@+id/options_label"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:layout_marginBottom="8dp"
+                android:textAppearance="@style/TextAppearance.Material3.TitleMedium"
+                tools:text="Options"
+                />
+
+            <com.google.android.material.materialswitch.MaterialSwitch
+                android:id="@+id/check_box_reschedule"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:checked="true"
+                tools:text="Reschedule cards based on the answers in this deck"
+                />
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/reschedule_delay_again_layout"
+                style="@style/Widget.Material3.TextInputLayout.OutlinedBox.Dense"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="8dp"
+                android:layout_marginTop="4dp"
+                android:visibility="gone"
+                tools:hint="Delay for again"
+                tools:suffixText="seconds"
+                tools:text="60">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/reschedule_delay_again_input"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:inputType="number"
+                    tools:text="60"
+                    tools:visibility="visible"
+                    />
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/reschedule_delay_hard_layout"
+                style="@style/Widget.Material3.TextInputLayout.OutlinedBox.Dense"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="8dp"
+                android:layout_marginTop="4dp"
+                android:visibility="gone"
+                tools:hint="Delay for hard"
+                tools:text="600">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/reschedule_delay_hard_input"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:inputType="number"
+                    tools:text="600"
+                    />
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/reschedule_delay_good_layout"
+                style="@style/Widget.Material3.TextInputLayout.OutlinedBox.Dense"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="8dp"
+                android:layout_marginTop="4dp"
+                android:visibility="gone"
+                tools:hint="Delay for hard">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/reschedule_delay_good_input"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:inputType="number"
+                    tools:text="0"
+                    />
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <com.ichi2.ui.FixedTextView
+                android:id="@+id/reschedule_info_label"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="8dp"
+                android:visibility="gone"
+                tools:text="(0 = return card to original deck)"
+                />
+
+            <com.google.android.material.materialswitch.MaterialSwitch
+                android:id="@+id/check_box_allow_empty"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                tools:text="Create/update this deck even if empty"
+                />
+        </LinearLayout>
+    </ScrollView>
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btn_show_excluded_cards"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        style="@style/Widget.Material3.Button.TextButton"
+        tools:text="Show excluded cards"
+        android:layout_gravity="center_horizontal"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/scroll_view"
+        app:flow_verticalBias="1.0"
+        app:layout_goneMarginBottom="8dp"
+        android:visibility="gone"
+        tools:visibility="visible"
+        />
+</androidx.constraintlayout.widget.ConstraintLayout>

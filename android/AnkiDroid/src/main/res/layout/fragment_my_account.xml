@@ -1,0 +1,176 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.coordinatorlayout.widget.CoordinatorLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/root_layout"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fitsSystemWindows="true">
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+        <com.google.android.material.appbar.MaterialToolbar
+            android:id="@+id/toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:navigationContentDescription="@string/abc_action_bar_up_description"
+            android:navigationIcon="?attr/homeAsUpIndicator"/>
+        <ScrollView
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_gravity="center_horizontal"
+            android:fillViewport="true"
+            android:layout_weight="1">
+
+            <LinearLayout
+                android:id="@+id/MyAccountLayout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="15dp"
+                android:gravity="top"
+                >
+                <!-- TODO JS choose a standardized padding to use here -->
+
+                <!--<com.ichi2.ui.FixedTextView-->
+                <!--android:id="@+id/sign_in"-->
+                <!--android:layout_width="fill_parent"-->
+                <!--android:layout_height="wrap_content"-->
+                <!--android:text="Sign in"-->
+                <!--android:gravity="center"-->
+                <!--android:textSize="@dimen/md_title_textsize"-->
+                <!--android:textColor="?android:textColorPrimary"-->
+                <!--android:layout_gravity="center"-->
+                <!--android:layout_margin="@dimen/content_vertical_padding"/>-->
+                <!--&lt;!&ndash; TODO JS - move into strings.xml &ndash;&gt;-->
+
+                <ImageView
+                    android:id="@+id/login_logo"
+                    android:layout_width="326dp"
+                    android:layout_height="238dp"
+                    android:layout_gravity="center"
+                    android:layout_marginBottom="@dimen/input_layout_padding"
+                    app:srcCompat="@drawable/login_logo" />
+
+                <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/username_layout"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="@string/username"
+                    app:endIconMode="clear_text"
+                    app:errorEnabled="true"
+                    android:layout_marginHorizontal="@dimen/input_layout_padding">
+
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/username"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:drawableStart="@drawable/ic_baseline_email_24"
+                        android:drawablePadding="8dp"
+                        android:nextFocusForward="@id/password_layout"
+                        android:inputType="textNoSuggestions|textEmailAddress"
+                        />
+                </com.google.android.material.textfield.TextInputLayout>
+
+                <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/password_layout"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="@string/password"
+                    app:endIconMode="password_toggle"
+                    app:errorEnabled="true"
+                    android:layout_marginHorizontal="@dimen/input_layout_padding">
+
+                    <com.ichi2.ui.TextInputEditField
+                        android:id="@+id/password"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:drawableStart="@drawable/ic_baseline_lock_24"
+                        android:drawablePadding="8dp"
+                        android:inputType="textPassword"
+                        />
+                </com.google.android.material.textfield.TextInputLayout>
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/login_button"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:minWidth="200dp"
+                    android:layout_gravity="center"
+                    tools:text="Log in"
+                    android:enabled="false"
+                    android:layout_margin="@dimen/content_vertical_padding"/>
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/reset_password_button"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:background="@null"
+                    android:textSize="@dimen/abc_text_size_button_material"
+                    style="@style/Widget.Material3.Button.TextButton"
+                    android:singleLine="true"
+                    android:padding="3dp"
+                    android:layout_gravity="center"
+                    android:text="@string/reset_password"
+                    />
+
+                <com.ichi2.ui.FixedTextView
+                    android:id="@+id/no_account_text"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/sign_up_description"
+                    android:layout_gravity="center"
+                    android:textSize="@dimen/abc_text_size_button_material"
+                    android:textStyle="bold"/>
+
+                <com.ichi2.ui.FixedTextView
+                    android:id="@+id/no_account_not_affiliated"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/sign_up_not_affiliated"
+                    android:layout_gravity="center"
+                    android:textSize="@dimen/abc_text_size_button_material"
+                    android:textStyle="italic"/>
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/sign_up_button"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:background="@null"
+                    android:textSize="@dimen/abc_text_size_button_material"
+                    style="@style/Widget.Material3.Button.TextButton"
+                    android:padding="3dp"
+                    android:layout_gravity="center"
+                    android:singleLine="true"
+                    android:text="@string/sign_up" />
+
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/privacy_policy_button"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:background="@null"
+                    android:textSize="@dimen/abc_text_size_button_material"
+                    style="@style/Widget.Material3.Button.TextButton"
+                    android:padding="3dp"
+                    android:layout_gravity="center"
+                    android:singleLine="true"
+                    android:text="@string/help_title_privacy" />
+
+                <!-- Added new button for lost email -->
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/lost_mail_instructions"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textSize="@dimen/abc_text_size_button_material"
+                    style="@style/Widget.Material3.Button.TextButton"
+                    android:padding="3dp"
+                    android:layout_gravity="center"
+                    android:singleLine="true"
+                    android:text="@string/lost_mail_instructions" />
+            </LinearLayout>
+        </ScrollView>
+    </LinearLayout>
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

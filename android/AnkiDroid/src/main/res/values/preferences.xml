@@ -1,0 +1,273 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:tools="http://schemas.android.com/tools" tools:ignore="MissingTranslation,DuplicateCrowdInStrings">
+    <string name="search_preference_key">searchPreference</string>
+    <!-- General -->
+    <string name="pref_general_screen_key">generalScreen</string>
+    <string name="deck_for_new_cards_key">useCurrent</string>
+    <string name="pref_language_key">language</string>
+    <string name="analytics_opt_in_key">analytics_opt_in</string>
+    <string name="error_reporting_mode_key">reportErrorMode</string>
+    <!-- Reviewing -->
+    <string name="pref_reviewing_screen_key">reviewingScreen</string>
+    <string name="day_offset_preference">dayOffset</string>
+    <string name="learn_cutoff_preference">learnCutoff</string>
+    <string name="time_limit_preference">timeLimit</string>
+    <string name="keep_screen_on_preference">keepScreenOn</string>
+    <string name="double_tap_timeout_pref_key">doubleTapTimeout</string>
+    <!-- Sync -->
+    <string name="pref_sync_screen_key">syncScreen</string>
+    <string name="sync_account_key">syncAccount</string>
+    <string name="sync_fetch_media_key">syncFetchMedia</string>
+    <string name="sync_io_timeout_secs_key">syncIoTimeoutSecs</string>
+    <string name="automatic_sync_choice_key">automaticSyncMode</string>
+    <string name="one_way_sync_key">one_way_sync</string>
+    <string name="sync_status_badge_key">showSyncStatusBadge</string>
+    <string name="metered_sync_key">allowMetered</string>
+    <string name="custom_sync_server_key">custom_sync_server_link</string>
+    <string name="hkey_key">hkey</string>
+    <string name="username_key">username</string>
+    <string name="last_sync_time_key">lastSyncTime</string>
+    <string name="current_sync_uri_key">currentSyncUri</string>
+    <string name="sync_notifs_request_shown_key">SyncNotifsRequestShown</string>
+    <!-- Backup -->
+    <string name="pref_backup_limits_screen_key">backupLimitsScreen</string>
+    <!-- Editing -->
+    <string name="paste_png_key">pastePNG</string>
+    <!-- Switch Profile -->
+    <string name="pref_switch_profile_screen_key">switchProfileScreen</string>
+    <string name="pref_enable_switch_profile_key">enableSwitchProfile</string>
+    <!-- Appearance -->
+    <string name="pref_appearance_screen_key">appearance_preference_group</string>
+    <string name="app_theme_key">appTheme</string>
+    <string name="day_theme_key">dayTheme</string>
+    <string name="night_theme_key">nightTheme</string>
+    <string name="pref_deck_picker_background_key">deckPickerBackground</string>
+    <string name="pref_remove_wallpaper_key">removeWallPaper</string>
+    <string name="study_screen_category_key">studyScreenAppearance</string>
+    <string name="custom_buttons_link_preference">custom_buttons_link</string>
+    <string name="fullscreen_mode_preference">fullscreenMode</string>
+    <string name="center_vertically_preference">centerVertically</string>
+    <string name="show_estimates_preference">showEstimates</string>
+    <string name="pref_display_filenames_in_browser_key">card_browser_show_media_filenames</string>
+    <string name="show_topbar_preference">showTopbar</string>
+    <string name="show_progress_preference">showProgress</string>
+    <string name="show_eta_preference">showETA</string>
+    <string name="show_audio_play_buttons_key">showAudioPlayButtons</string>
+    <string name="pref_card_browser_font_scale_key">relativeCardBrowserFontSize</string>
+    <string name="show_deck_title_key">showDeckTitle</string>
+    <string name="show_answer_feedback_key">showAnswerFeedback</string>
+    <string name="pref_review_category_key">reviewCategory</string>
+    <!-- App bar buttons -->
+    <string name="pref_app_bar_buttons_screen_key">appBarButtonsScreen</string>
+    <string name="reset_custom_buttons_key">reset_custom_buttons</string>
+    <string name="custom_button_undo_key">customButtonUndo</string>
+    <string name="custom_button_redo_key">customButtonRedo</string>
+    <string name="custom_button_schedule_card_key">customButtonScheduleCard</string>
+    <string name="custom_button_flag_key">customButtonFlag</string>
+    <string name="custom_button_edit_card_key">customButtonEditCard</string>
+    <string name="custom_button_tags_key">customButtonTags</string>
+    <string name="custom_button_add_card_key">customButtonAddCard</string>
+    <string name="custom_button_replay_key">customButtonReplay</string>
+    <string name="custom_button_card_info_key">customButtonCardInfo</string>
+    <string name="custom_button_previous_card_info_key">customButtonPreviousCardInfo</string>
+    <string name="custom_button_select_tts_key">customButtonSelectTts</string>
+    <string name="custom_button_deck_options_key">customButtonDeckOptions</string>
+    <string name="custom_button_mark_card_key">customButtonMarkCard</string>
+    <string name="custom_button_toggle_mic_toolbar_key">customButtonToggleMicToolBar</string>
+    <string name="custom_button_bury_key">customButtonBury</string>
+    <string name="custom_button_suspend_key">customButtonSuspend</string>
+    <string name="custom_button_delete_key">customButtonDelete</string>
+    <string name="custom_button_enable_whiteboard_key">customButtonEnableWhiteboard</string>
+    <string name="custom_button_toggle_eraser_key">customButtonToggleEraser</string>
+    <string name="custom_button_toggle_stylus_key">customButtonToggleStylus</string>
+    <string name="custom_button_save_whiteboard_key">customButtonSaveWhiteboard</string>
+    <string name="custom_button_whiteboard_pen_color_key">customButtonWhiteboardPenColor</string>
+    <string name="custom_button_show_hide_whiteboard_key">customButtonShowHideWhiteboard</string>
+    <string name="custom_button_clear_whiteboard_key">customButtonClearWhiteboard</string>
+    <string name="custom_button_toggle_auto_advance">customButtonToggleAutoAdvance</string>
+    <string name="custom_button_user_action_1_key">customButtonUserAction1</string>
+    <string name="custom_button_user_action_2_key">customButtonUserAction2</string>
+    <string name="custom_button_user_action_3_key">customButtonUserAction3</string>
+    <string name="custom_button_user_action_4_key">customButtonUserAction4</string>
+    <string name="custom_button_user_action_5_key">customButtonUserAction5</string>
+    <string name="custom_button_user_action_6_key">customButtonUserAction6</string>
+    <string name="custom_button_user_action_7_key">customButtonUserAction7</string>
+    <string name="custom_button_user_action_8_key">customButtonUserAction8</string>
+    <string name="custom_button_user_action_9_key">customButtonUserAction9</string>
+    <!-- Controls -->
+    <string name="pref_controls_screen_key">controlsScreen</string>
+    <string name="gestures_preference">gestures</string>
+    <string name="gestures_corner_touch_preference">gestureCornerTouch</string>
+    <string name="nav_drawer_gesture_key">gestureFullScreenNavigationDrawer</string>
+    <string name="pref_keyboard_shortcuts_key">showKeyboardShortcuts</string>
+    <string name="pref_swipe_sensitivity_key">swipeSensitivity</string>
+    <string name="pref_controls_tab_layout_key">controlsTabLayout</string>
+    <string name="show_answer_command_key">binding_SHOW_ANSWER</string>
+    <string name="answer_again_command_key">binding_ANSWER_AGAIN</string>
+    <string name="answer_hard_command_key">binding_ANSWER_HARD</string>
+    <string name="answer_good_command_key">binding_ANSWER_GOOD</string>
+    <string name="answer_easy_command_key">binding_ANSWER_EASY</string>
+    <string name="undo_command_key">binding_UNDO</string>
+    <string name="redo_command_key">binding_REDO</string>
+    <string name="edit_command_key">binding_EDIT</string>
+    <string name="mark_command_key">binding_MARK</string>
+    <string name="bury_card_command_key">binding_BURY_CARD</string>
+    <string name="suspend_card_command_key">binding_SUSPEND_CARD</string>
+    <string name="delete_command_key">binding_DELETE</string>
+    <string name="play_media_command_key">binding_PLAY_MEDIA</string>
+    <string name="abort_command_key">binding_EXIT</string>
+    <string name="bury_note_command_key">binding_BURY_NOTE</string>
+    <string name="suspend_note_command_key">binding_SUSPEND_NOTE</string>
+    <string name="flag_red_command_key">binding_TOGGLE_FLAG_RED</string>
+    <string name="flag_orange_command_key">binding_TOGGLE_FLAG_ORANGE</string>
+    <string name="flag_green_command_key">binding_TOGGLE_FLAG_GREEN</string>
+    <string name="flag_blue_command_key">binding_TOGGLE_FLAG_BLUE</string>
+    <string name="flag_pink_command_key">binding_TOGGLE_FLAG_PINK</string>
+    <string name="flag_turquoise_command_key">binding_TOGGLE_FLAG_TURQUOISE</string>
+    <string name="flag_purple_command_key">binding_TOGGLE_FLAG_PURPLE</string>
+    <string name="remove_flag_command_key">binding_UNSET_FLAG</string>
+    <string name="page_up_command_key">binding_PAGE_UP</string>
+    <string name="page_down_command_key">binding_PAGE_DOWN</string>
+    <string name="browse_command_key">binding_BROWSE</string>
+    <string name="statistics_command_key">binding_STATISTICS</string>
+    <string name="tag_command_key">binding_TAG</string>
+    <string name="card_info_command_key">binding_CARD_INFO</string>
+    <string name="previous_card_info_command_key">binding_PREVIOUS_CARD_INFO</string>
+    <string name="record_voice_command_key">binding_RECORD_VOICE</string>
+    <string name="replay_voice_command_key">binding_REPLAY_VOICE</string>
+    <string name="save_voice_command_key">binding_SAVE_VOICE</string>
+    <string name="toggle_whiteboard_command_key">binding_TOGGLE_WHITEBOARD</string>
+    <string name="pref_key_whiteboard_toggle_eraser">binding_whiteboard_TOGGLE_ERASER</string>
+    <string name="pref_key_whiteboard_clear">binding_whiteboard_CLEAR</string>
+    <string name="pref_key_whiteboard_undo">binding_whiteboard_UNDO</string>
+    <string name="pref_key_whiteboard_redo">binding_whiteboard_REDO</string>
+    <string name="toggle_eraser_command_key">binding_TOGGLE_ERASER</string>
+    <string name="clear_whiteboard_command_key">binding_CLEAR_WHITEBOARD</string>
+    <string name="change_whiteboard_pen_color_command_key">binding_CHANGE_WHITEBOARD_PEN_COLOR</string>
+    <string name="show_hint_command_key">binding_SHOW_HINT</string>
+    <string name="show_all_hints_command_key">binding_SHOW_ALL_HINTS</string>
+    <string name="add_note_command_key">binding_ADD_NOTE</string>
+    <string name="reschedule_command_key">binding_RESCHEDULE_NOTE</string>
+    <string name="user_actions_controls_category_key">userActionsControls</string>
+    <string name="user_action_1_key">binding_USER_ACTION_1</string>
+    <string name="user_action_2_key">binding_USER_ACTION_2</string>
+    <string name="user_action_3_key">binding_USER_ACTION_3</string>
+    <string name="user_action_4_key">binding_USER_ACTION_4</string>
+    <string name="user_action_5_key">binding_USER_ACTION_5</string>
+    <string name="user_action_6_key">binding_USER_ACTION_6</string>
+    <string name="user_action_7_key">binding_USER_ACTION_7</string>
+    <string name="user_action_8_key">binding_USER_ACTION_8</string>
+    <string name="user_action_9_key">binding_USER_ACTION_9</string>
+    <string name="toggle_auto_advance_command_key">binding_TOGGLE_AUTO_ADVANCE</string>
+    <!-- Previewer controls -->
+    <string name="previewer_next_key">previewer_NEXT</string>
+    <string name="previewer_back_key">previewer_BACK</string>
+    <string name="previewer_mark_key">previewer_MARK</string>
+    <string name="previewer_edit_key">previewer_EDIT</string>
+    <string name="previewer_replay_media_key">previewer_REPLAY_AUDIO</string>
+    <string name="previewer_backside_only_action_key">previewer_TOGGLE_BACKSIDE_ONLY</string>
+    <string name="previewer_flag_red_key">previewer_TOGGLE_FLAG_RED</string>
+    <string name="previewer_flag_orange_key">previewer_TOGGLE_FLAG_ORANGE</string>
+    <string name="previewer_flag_green_key">previewer_TOGGLE_FLAG_GREEN</string>
+    <string name="previewer_flag_blue_key">previewer_TOGGLE_FLAG_BLUE</string>
+    <string name="previewer_flag_pink_key">previewer_TOGGLE_FLAG_PINK</string>
+    <string name="previewer_flag_turquoise_key">previewer_TOGGLE_FLAG_TURQUOISE</string>
+    <string name="previewer_flag_purple_key">previewer_TOGGLE_FLAG_PURPLE</string>
+    <string name="previewer_unset_flag_key">previewer_UNSET_FLAG</string>
+    <!-- Accessibility -->
+    <string name="pref_accessibility_screen_key">accessibilityScreen</string>
+    <string name="card_zoom_preference">cardZoom</string>
+    <string name="image_zoom_preference">imageZoom</string>
+    <string name="answer_button_size_preference">answerButtonSize</string>
+    <string name="answer_button_size_pref_key">answerBtnSize</string>
+    <string name="show_large_answer_buttons_preference">showLargeAnswerButtons</string>
+    <string name="pref_card_minimal_click_time">showCardAnswerButtonTime</string>
+    <!-- Custom sync server -->
+    <string name="pref_custom_sync_server_screen_key">customSyncServerScreen</string>
+    <string name="custom_sync_server_collection_url_key">syncBaseUrl</string>
+    <string name="custom_sync_server_enabled_key">syncBaseUrl_switch</string>
+    <string name="custom_sync_certificate_key">customSyncCertificate</string>
+    <!-- Advanced -->
+    <string name="pref_advanced_screen_key">pref_screen_advanced</string>
+    <string name="pref_cat_workarounds_key">category_workarounds</string>
+    <string name="pref_ankidroid_directory_key">deckPath</string>
+    <string name="disable_hardware_render_key">softwareRender</string>
+    <string name="safe_display_key">safeDisplay</string>
+    <string name="use_input_tag_key">useInputTag</string>
+    <string name="disable_single_field_edit_key">disableExtendedTextUi</string>
+    <string name="note_editor_newline_replace_key">noteEditorNewlineReplace</string>
+    <string name="type_in_answer_focus_key">autoFocusTypeInAnswer</string>
+    <string name="exit_via_double_tap_back_key">exitViaDoubleTapBack</string>
+    <string name="media_import_allow_all_files_key">mediaImportAllowAllFiles</string>
+    <string name="pref_cat_plugins_key">category_plugins</string>
+    <string name="enable_api_key">providerEnabled</string>
+    <string name="thirdparty_apps_key">thirdpartyapps_link</string>
+    <string name="tts_key">tts</string>
+    <string name="double_scrolling_gap_key">double_scrolling</string>
+    <string name="html_javascript_debugging_key">html_javascript_debugging</string>
+    <string name="card_browser_external_context_menu_key">card_browser_enable_external_context_menu</string>
+    <string name="anki_card_external_context_menu_key">anki_card_enable_external_context_menu</string>
+    <string name="pref_reset_languages_key">resetLanguages</string>
+    <!-- Notification preferences -->
+    <string name="pref_notifications_screen_key">notificationsScreen</string>
+    <string name="pref_notifications_minimum_cards_due_key">minimumCardsDueForNotification</string>
+    <string name="pref_notifications_vibrate_key">widgetVibrate</string>
+    <string name="pref_notifications_blink_key">widgetBlink</string>
+    <!-- Review reminders -->
+    <string name="pref_review_reminders_screen_key">reviewRemindersScreen</string>
+    <string name="review_reminders_next_free_id">reviewRemindersNextFreeId</string>
+    <string name="reminder_notifs_request_shown_key">reminderNotifsRequestShown</string>
+    <string name="review_reminder_deserialization_errors_key">reviewReminderDeserializationErrors</string>
+    <!-- Notifications -->
+    <string name="notifications_permission_requested_key">notificationsPermissionRequested</string>
+    <string name="record_audio_permission_requested_key">recordAudioPermissionRequested</string>
+    <!-- Developer options -->
+    <string name="pref_developer_options_screen_key">devOptionsKey</string>
+    <string name="pref_trigger_crash_key">trigger_crash_preference</string>
+    <string name="pref_analytics_debug_key">analytics_debug_preference</string>
+    <string name="pref_set_database_path_debug_key">debug_set_database_path</string>
+    <string name="pref_lock_database_key">debug_lock_database</string>
+    <string name="pref_corrupt_fsrs_params">debug_corrupt_fsrs_params</string>
+    <string name="new_congrats_screen_pref_key">new_congrats_screen</string>
+    <string name="new_reviewer_options_key">newReviewerOptions</string>
+    <string name="pref_new_review_reminders">newReviewReminders</string>
+    <string name="developer_options_enabled_by_user_key">devOptionsEnabledByUser</string>
+    <string name="pref_cat_wip_key">workInProgressDevOptions</string>
+    <string name="reviewer_port_pref_key">reviewerPort</string>
+    <string name="use_fixed_port_pref_key">useFixedPort</string>
+    <string name="dev_card_browser_fragmented">cardBrowserFragmented</string>
+    <string name="dev_card_browser_search_view">cardBrowserSearchView</string>
+    <string name="dev_bottom_nav_key">devBottomNav</string>
+    <string name="dev_open_tts_voices">openTtsVoices</string>
+    <!-- Developer options > Create fake notes -->
+    <string name="pref_fill_default_deck_number_key">FillDefaultNumberDeck</string>
+    <string name="pref_fill_default_deck_key">FillDefaultDeck</string>
+    <!-- Developer options > Create fake media -->
+    <string name="pref_fill_collection_key">fillCollection</string>
+    <string name="pref_fill_collection_number_file_key">fillCollectionNumberFile</string>
+    <string name="pref_fill_collection_size_file_key">fillCollectionSizeFile</string>
+    <!-- Messages displayed after the user enabled developer options, and warned remaining messages will be in English -->
+    <string name="dev_options_enabled_msg">Enabled developer options</string>
+    <!-- About -->
+    <string name="about_screen_key">aboutScreen</string>
+
+    <!-- Backup limits -->
+    <string name="pref_backups_screen_key">backupsScreen</string>
+    <string name="pref_backups_help_key">backups_help</string>
+    <string name="pref_minutes_between_automatic_backups_key">minutes_between_automatic_backups</string>
+    <string name="pref_daily_backups_to_keep_key">daily_backups_to_keep</string>
+    <string name="pref_weekly_backups_to_keep_key">weekly_backups_to_keep</string>
+    <string name="pref_monthly_backups_to_keep_key">monthly_backups_to_keep</string>
+
+    <!-- Study Screen options -->
+    <string name="hide_system_bars_key">hideSystemBars</string>
+    <string name="ignore_display_cutout_key">ignoreDisplayCutout</string>
+    <string name="show_answer_buttons_key">showAnswerButtons</string>
+    <string name="hide_hard_and_easy_key">hideHardAndEasy</string>
+    <string name="reviewer_menu_settings_key">reviewerMenuSettings</string>
+    <string name="reviewer_frame_style_key">reviewerFrameStyle</string>
+    <string name="reviewer_toolbar_position_key">reviewerToolbarPosition</string>
+
+    <!-- Onboarding -->
+    <string name="internet_permission_requested_key">internetPermissionRequested</string>
+</resources>

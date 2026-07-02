@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context=".ui.windows.permissions.AllPermissionsExplanationFragment">
+
+    <com.google.android.material.textview.MaterialTextView
+        android:id="@+id/heading_required_permissions"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingStart="16dp"
+        android:textColor="@color/material_blue_500"
+        android:textStyle="bold"
+        android:text="@string/heading_required_permissions" />
+
+    <com.ichi2.anki.ui.windows.permissions.PermissionsItem
+        android:id="@+id/manage_external_storage_permission_item"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:permissionTitle="@string/all_files_access_title"
+        app:permissionSummary="@string/storage_access_summary"
+        app:permissionIcon="@drawable/ic_save_white"
+        app:permission="@string/manage_external_storage_permission"
+        android:visibility="gone"
+        tools:visibility="visible"
+        />
+
+    <com.google.android.material.textview.MaterialTextView
+        android:id="@+id/heading_optional_permissions"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingStart="16dp"
+        android:textColor="@color/material_blue_500"
+        android:textStyle="bold"
+        android:text="@string/heading_optional_permissions" />
+
+    <com.ichi2.anki.ui.windows.permissions.PermissionsItem
+        android:id="@+id/post_notification_permission_item"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:permissionTitle="@string/notification_pref"
+        app:permissionSummary="@string/notifications_permission_explanation"
+        app:permissionIcon="@drawable/ic_notifications"
+        app:permission="@string/post_notification_permission"
+        android:visibility="gone"
+        tools:visibility="visible"
+        />
+
+    <com.ichi2.anki.ui.windows.permissions.PermissionsItem
+        android:id="@+id/record_audio_permission_item"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:permissionTitle="@string/microphone"
+        app:permissionSummary="@string/microphone_permission_explanation"
+        app:permissionIcon="@drawable/ic_action_mic"
+        app:permission="@string/record_audio_permission"
+        android:visibility="gone"
+        tools:visibility="visible"
+        />
+
+</LinearLayout>

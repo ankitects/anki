@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ SPDX-License-Identifier: Apache-2.0
+  ~ SPDX-FileCopyrightText: Copyright 2006, The Android Open Source Project
+  ~ //device/apps/common/res/layout/alert_dialog.xml
+  -->
+
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:gravity="start"
+    android:orientation="vertical" >
+
+    <com.ichi2.ui.FixedTextView
+        android:id="@+id/details_text_1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="start"
+        android:layout_marginLeft="4dip"
+        android:layout_marginRight="4dip"
+        android:gravity="start"
+        android:text=""
+        android:textSize="16sp" />
+
+    <com.ichi2.ui.FixedTextView
+        android:id="@+id/details_text_2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="start"
+        android:layout_marginBottom="16dip"
+        android:layout_marginStart="4dip"
+        android:layout_weight="4"
+        android:gravity="start|center"
+        android:lines="2"
+        android:text=""
+        android:textSize="16sp" />
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/details_edit_text_2_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/details_edit_text_2"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp"
+            android:inputType="number|numberSigned"
+            tools:text="1"
+            />
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/cards_state_selector_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        style="@style/Widget.Material3.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+        android:visibility="gone"
+        tools:visibility="visible">
+
+        <!--
+        Material3Fix we shouldn't have to tint the dropdown background(otherwise it's transparent),
+        also the color of the selected entry needs to be updated in the theme
+         -->
+        <com.google.android.material.textfield.MaterialAutoCompleteTextView
+            android:id="@+id/cards_state_selector"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:inputType="textFilter|textMultiLine"
+            app:dropDownBackgroundTint="?android:attr/colorBackground"
+            tools:text="New cards only"
+            />
+    </com.google.android.material.textfield.TextInputLayout>
+</LinearLayout>

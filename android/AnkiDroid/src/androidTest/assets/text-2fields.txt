@@ -1,0 +1,10 @@
+# this is a test file
+食べる	to eat
+飲む	to drink
+テスト	test
+to eat	食べる
+飲む	to drink
+多すぎる	too many	fields
+not, enough, fields
+遊ぶ	
+	to play

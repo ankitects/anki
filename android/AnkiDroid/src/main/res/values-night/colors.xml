@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:tools="http://schemas.android.com/tools" tools:ignore="UnusedResources,DuplicateCrowdInStrings">
+    <color name="flag_red">#D32525</color>
+    <color name="flag_orange">#BB7A17</color>
+    <color name="flag_green">#057A05</color>
+    <color name="flag_blue">#1A4FC2</color>
+    <color name="flag_pink">#A70D64</color>
+    <color name="flag_turquoise">#138072</color>
+    <color name="flag_purple">#6320A0</color>
+</resources>

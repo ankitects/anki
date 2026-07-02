@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+~ Copyright (c) 2009 Nicolas Raoul <nicolas.raoul@gmail.com>
+~ Copyright (c) 2009 Edu Zamora <edu.zasu@gmail.com>
+~ Copyright (c) 2009 Jordi Chacon <jordi.chacon@gmail.com>
+~ Copyright (c) 2011 Norbert Nagold <norbert.nagold@gmail.com>
+~ Copyright (c) 2012 Kostas Spyropoulos <inigo.aldana@gmail.com>
+~ Copyright (c) 2014 Timothy Rae <perceptualchaos2@gmail.com>
+~
+~ This program is free software; you can redistribute it and/or modify it under
+~ the terms of the GNU General Public License as published by the Free Software
+~ Foundation; either version 3 of the License, or (at your option) any later
+~ version.
+~
+~ This program is distributed in the hope that it will be useful, but WITHOUT ANY
+~ WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+~ PARTICULAR PURPOSE. See the GNU General Public License for more details.
+~
+~ You should have received a copy of the GNU General Public License along with
+~ this program.  If not, see <http://www.gnu.org/licenses/>.
+-->
+
+<!--  General Preferences -->
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:title="@string/pref_cat_general"
+    android:key="@string/pref_general_screen_key">
+        <ListPreference
+            android:defaultValue="@string/empty_string"
+            android:key="@string/pref_language_key"
+            android:icon="@drawable/ic_language_black_24dp"
+            android:title="@string/language"
+            app:useSimpleSummaryProvider="true"/>
+        <ListPreference
+            android:defaultValue="2"
+            android:entries="@array/error_reporting_choice_labels"
+            android:entryValues="@array/error_reporting_choice_values"
+            android:key="@string/error_reporting_mode_key"
+            android:title="@string/error_reporting_choice"
+            app:useSimpleSummaryProvider="true"/>
+        <SwitchPreferenceCompat
+            android:defaultValue="false"
+            android:key="@string/analytics_opt_in_key"
+            android:summary="@string/analytics_summ"
+            android:title="@string/analytics_title" />
+        <SwitchPreferenceCompat
+            android:defaultValue="false"
+            android:key="@string/nav_drawer_gesture_key"
+            android:summary="@string/gestures_fullscreen_nav_drawer_summary"
+            android:title="@string/gestures_full_screen_nav_drawer" />
+    <PreferenceCategory android:title="@string/pref_cat_editing">
+        <SwitchPreferenceCompat
+            android:defaultValue="true"
+            tools:title="Paste clipboard images as PNG"
+            android:maxLength="41"
+            android:key="@string/paste_png_key"/>
+    </PreferenceCategory>
+        <PreferenceCategory android:title="@string/pref_cat_studying">
+            <ListPreference
+                android:entries="@array/add_to_cur_labels"
+                android:entryValues="@array/add_to_cur_values"
+                android:key="@string/deck_for_new_cards_key"
+                android:title="@string/use_current"
+                app:useSimpleSummaryProvider="true"/>
+            <SwitchPreferenceCompat
+                android:defaultValue="false"
+                android:key="@string/exit_via_double_tap_back_key"
+                android:summary="@string/exit_via_double_tap_back_summ"
+                android:title="@string/exit_via_double_tap_back" />
+        </PreferenceCategory>
+        <!-- Title and summary are variable, handled in string:
+            card_browser_enable_external_context_menu -->
+        <PreferenceCategory android:title="@string/pref_cat_system_wide">
+            <SwitchPreferenceCompat
+                android:id="@+id/anki_card_external_context_menu"
+                android:defaultValue="true"
+                android:key="@string/anki_card_external_context_menu_key"
+                tools:title="‘Anki Card’ Menu"
+                tools:summary="Enables the ‘Anki Card’ context menu globally"/>
+            <SwitchPreferenceCompat
+                android:id="@+id/card_browser_external_context_menu"
+                android:defaultValue="false"
+                android:key="@string/card_browser_external_context_menu_key"
+                tools:title="‘Card Browser’ Menu"
+                tools:summary="Enables the ‘Card Browser’ context menu globally"/>
+        </PreferenceCategory>
+</PreferenceScreen>

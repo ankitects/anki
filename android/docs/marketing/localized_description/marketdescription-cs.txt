@@ -1,0 +1,36 @@
+Zapamatujte si cokoliv s AnkiDroid!
+
+AnkiDroid umožňuje velmi efektivní učení kartiček jejich zobrazením těsně předtím, než je zapomenete. Je plně kompatibilní se softwarem pro opakování v rozestupech Anki (včetně synchronizace), který je k dispozici pro Windows, Linux a macOS.
+
+Studium mnoha věcí kdekoliv a kdykoliv chcete. Dobré využití volného času během cesty autobusem, ve frontě v obchodě nebo kdykoliv během čekání!
+
+Vytvořte si vlastní balíčky kartiček nebo si stáhněte zdarma balíčky vytvořené pro mnoho jazyků a témat (k dispozici více než 6000).
+
+Přidání učebního materiálu prostřednictvím aplikace Anki nebo přímo přes AnkiDroid. Aplikace také podporuje automatické přidávání materiálu ze slovníku!
+
+★ Klíčové funkce:
+• podporovaný obsah kartiček: text, obrázky, zvuky, LaTeX
+• opakování v rozestupech (FSRS algoritmus optimalizovaný AI)
+• integrované předčítání textu
+• více než 10 000 předem vytvořených balíčků
+• widget postupu
+• podrobné statistiky
+• synchronizace s AnkiWeb
+• open source
+
+★ Další funkce:
+• psaní odpovědí (volitelné)
+• tabule
+přidání/editace karet
+• prohlížeč karet
+• rozvržení zobrazení pro tablety
+• import stávající kolekce souborů (přes Anki Desktop)
+• přidání kartiček pomocí intent z jiných aplikací, např. slovníků
+• podpora vlastního fontu písma
+• úplný zálohovací systém
+• ovládání pomocí dotyků a gest
+• přizpůsobitelné
+• dynamicky přizpůsobitelné balíčky
+• noční režim
+• 27 lokalizací
+• Všechny předchozí verze AnkiDroid lze stáhnout z internetu

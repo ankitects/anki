@@ -1,0 +1,90 @@
+name: 🚀 Publish
+
+on:
+  workflow_dispatch:
+    inputs:
+      public:
+        description: "any non-empty value triggers a public build - version not auto-incremented / changelog required"
+        required: false
+        type: string
+
+# We do a checkout using provided github token, but the rest of the activity
+# is from a token from secrets in order to push tags / make releases etc
+permissions:
+  contents: read
+
+# We want concurrency control to allow multiple runs, but serially
+# Otherwise if you run two publishes that upload to google at same time
+# (for instance on a release branch for beta, and main for alpha), google
+# will error as it can only handle one edit in publish account at once
+concurrency:
+  group: ${{ github.workflow }}
+  cancel-in-progress: false
+
+jobs:
+  release_app:
+    name: 'Release App'
+    timeout-minutes: 120
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+
+      - uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
+        name: Gradle Cache
+        with:
+          path: ~/.gradle/caches
+          key: gradle-${{ hashFiles('**/*.gradle*') }}-v1
+
+      - name: Configure JDK
+        uses: actions/setup-java@be666c2fcd27ec809703dec50e508c2fdc7f6654 # v5.2.0
+        with:
+          distribution: "jetbrains"
+          java-version: "21"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Install Release Utilities
+        run: |
+          sudo chown -R $USER /var/lib/gems/
+          sudo chown -R $USER /usr/local/bin
+          gem install asciidoctor
+        shell: bash
+
+      - name: GIT Setup
+        run: |
+          git config --global user.name 'Mike Hardy'
+          git config --global user.email 'github@mikehardy.net'
+          git remote set-url origin git@github.com:$GITHUB_REPOSITORY
+        shell: bash
+
+      - uses: webfactory/ssh-agent@e83874834305fe9a4a2997156cb26c5de65a8555 # v0.10.0
+        with:
+          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+
+      - name: Credential Prep
+        run: |
+          echo "KEYSTOREPATH=$HOME/src/android-keystore" >> $GITHUB_ENV
+          echo "KEYALIAS=nrkeystorealias" >> $GITHUB_ENV
+          echo "KEYSTOREPWD=${{ secrets.KEYSTORE_PASSWORD }}" >> $GITHUB_ENV
+          echo "KEYPWD=${{ secrets.KEYSTORE_KEY_PASSWORD }}" >> $GITHUB_ENV
+          mkdir ~/src
+          cd ~/src
+          echo "${{ secrets.AMAZON_PUBLISH_CREDENTIALS }}" | base64 -d > ./AnkiDroid-Amazon-Publish-Security-Profile.json.gz
+          echo "${{ secrets.GOOGLE_PUBLISH_CREDENTIALS }}" | base64 -d > ./AnkiDroid-GCP-Publish-Credentials.json.gz
+          echo "${{ secrets.RELEASES_PUBLISH_TOKEN }}" | base64 -d > ./my-github-personal-access-token.gz
+          echo "${{ secrets.KEYSTORE }}" | base64 -d > ./android-keystore.gz
+          gunzip *.gz
+        shell: bash
+
+      - name: Build and Release public release
+        if: "${{ github.event.inputs.public != '' }}"
+        run: |
+          pushd ../
+          git clone git@github.com:ankidroid/ankidroiddocs
+          popd
+          ./tools/release.sh public
+        shell: bash
+
+      - name: Build and Release test release
+        if: "${{ github.event.inputs.public == '' }}"
+        run: ./tools/release.sh

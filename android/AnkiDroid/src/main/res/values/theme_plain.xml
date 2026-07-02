@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:tools="http://schemas.android.com/tools" tools:ignore="DuplicateCrowdInStrings">
+    <color name="theme_plain_primary">#9E9E9E</color>
+    <color name="theme_plain_primary_dark">#616161</color>
+    <color name="theme_plain_primary_light">#F5F5F5</color>
+    <color name="theme_plain_accent">#607D8B</color>
+    <color name="theme_plain_primary_text">#212121</color>
+
+    <style name="Base.Theme.Light.Plain">
+        <!-- Android colors -->
+        <item name="colorPrimary">@color/theme_plain_primary</item>
+        <item name="colorPrimaryDark">@color/theme_plain_primary_dark</item>
+        <item name="colorAccent">@color/theme_plain_accent</item>
+        <item name="colorSurfaceContainer">#0F9E9E9E</item>
+        <item name="colorSecondaryContainer">#DDDDDD</item>
+        <item name="colorSurfaceContainerHigh">#F4F4F4</item>
+        <item name="android:textColor">@color/text_color_light</item>
+        <item name="android:textColorSecondary">@color/text_color_secondary_light</item>
+        <item name="preferenceCategoryTitleTextColor">?attr/colorAccent</item>
+        <!-- Widget colors -->
+        <item name="widgetColorActivated">?attr/colorAccent</item>
+        <!-- Action bar styles -->
+        <item name="actionBarPopupTextColor">@color/theme_plain_primary_text</item>
+        <item name="actionModeBackground">@color/theme_plain_primary</item>
+        <!-- Tab layout -->
+        <item name="tabLayoutBackgroundColor">@color/theme_plain_primary</item>
+        <item name="tabActiveIconColor">@color/white</item>
+        <!-- Study Screen colors -->
+        <item name="topBarColor">@color/theme_plain_primary_light</item>
+        <item name="againTextColor">@color/material_grey_800</item>
+        <item name="hardTextColor">@color/material_grey_800</item>
+        <item name="goodTextColor">@color/material_grey_800</item>
+        <item name="easyTextColor">@color/material_grey_800</item>
+        <item name="againBackgroundColor">@color/material_grey_300</item>
+        <item name="hardBackgroundColor">@color/material_grey_300</item>
+        <item name="goodBackgroundColor">@color/material_grey_300</item>
+        <item name="easyBackgroundColor">@color/material_grey_300</item>
+        <item name="againIconColor">@color/material_red_900</item>
+        <item name="hardIconColor">#B33800</item>
+        <item name="goodIconColor">@color/material_green_900</item>
+        <item name="easyIconColor">@color/material_light_blue_900</item>
+        <!-- Study Screen button drawables -->
+        <item name="showAnswerButtonBackground">@color/theme_plain_primary</item>
+        <item name="showAnswerColor">@color/theme_plain_primary</item>
+        <item name="againButtonRef">@drawable/footer_button_all_plain</item>
+        <item name="hardButtonRef">@drawable/footer_button_all_plain</item>
+        <item name="goodButtonRef">@drawable/footer_button_all_plain</item>
+        <item name="easyButtonRef">@drawable/footer_button_all_plain</item>
+        <item name="againButtonRippleRef">@drawable/footer_button_all_plain_ripple</item>
+        <item name="hardButtonRippleRef">@drawable/footer_button_all_plain_ripple</item>
+        <item name="goodButtonRippleRef">@drawable/footer_button_all_plain_ripple</item>
+        <item name="easyButtonRippleRef">@drawable/footer_button_all_plain_ripple</item>
+        <!-- Card Browser Colors -->
+        <item name="cardBrowserDivider">#CCCCCC</item>
+        <!-- Note editor colors -->
+        <item name="editTextBackgroundColor">#EBCCCCCC</item>
+        <item name="editTextHighlightColor">@color/material_grey_300</item>
+        <item name="toolbarBackgroundColor">#D6D7D7</item>
+        <item name="toolbarIconColor">@color/black</item>
+        <item name="buttonShadowColor">#FFAAAAAA</item>
+        <item name="buttonRippleColor">#595959</item>
+        <item name="buttonForegroundColor">#D6D7D7</item>
+        <!-- FAB -->
+        <item name="fab_normal">@color/theme_plain_accent</item>
+        <item name="fab_pressed">@color/theme_plain_accent</item> <!-- No change in opacity on FAB pressed to avoid Android's material shadow artifact on translucent backgrounds -->
+        <!--Custom Tabs colors-->
+        <item name="customTabNavBarColor">@color/material_grey_500</item>
+        <item name="overflowAndPopupMenuIconColor">?attr/colorPrimary</item>
+        <!-- StatusBar -->
+        <item name="android:statusBarColor">@color/theme_plain_primary</item>
+        <!-- Navbar -->
+        <item name="android:navigationBarColor">@color/semi_transparent_black</item>
+        <item name="android:windowLightNavigationBar" tools:targetApi="o_mr1">true</item>
+
+        <item name="currentDeckBackground">@drawable/item_background_selected</item>
+
+        <item name="snackbarButtonTextColor">#96bdce</item>
+
+        <!-- Introduction -->
+        <item name="introductionLogoTransparent">#99FFFFFF</item>
+
+        <!-- Browser Options Dialog-->
+        <item name="colorSurface">@color/white</item>
+
+        <!-- ProgressDialog-->
+        <item name="dialogBackground">@color/white</item>
+        <item name="progressDialogButtonTextColor">@color/theme_plain_primary</item>
+
+        <item name="incrementerButtonBackground">@color/theme_plain_primary</item>
+    </style>
+
+    <style name="Theme_Light.Plain" parent="Base.Theme.Light.Plain"/>
+</resources>

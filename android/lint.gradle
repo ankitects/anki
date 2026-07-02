@@ -1,0 +1,21 @@
+// see .editorconfig for ktlint-related rules
+// TODO: move to buildSrc when api/ has a convention plugin and AnkiDroid/build.gradle is converted to .kts
+
+android {
+    lint {
+        abortOnError = true
+        checkReleaseBuilds = true
+        checkTestSources = true
+        explainIssues = false
+        lintConfig = file("${rootDir}/lint-release.xml")
+        showAll = true
+        // To output the lint report to stdout set textReport=true, and leave textOutput unset.
+        textReport = true
+        warningsAsErrors = true
+
+        if (System.getenv("CI") == "true") {
+            // 14853: we want this to appear in the IDE, but it adds noise to CI
+            disable += "WrongThread"
+        }
+    }
+}
