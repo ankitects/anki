@@ -93,7 +93,6 @@
     <addaction name="actionAdd_ons"/>
     <addaction name="separator"/>
     <addaction name="actionNoteTypes"/>
-    <addaction name="action_upgrade_downgrade"/>
     <addaction name="action_check_for_updates"/>
     <addaction name="actionPreferences"/>
    </widget>
@@ -283,11 +282,6 @@
   <action name="action_open_backup">
    <property name="text">
     <string>qt_accel_load_backup</string>
-   </property>
-  </action>
-  <action name="action_upgrade_downgrade">
-   <property name="text">
-    <string>qt_accel_upgrade_downgrade</string>
    </property>
   </action>
   <action name="action_check_for_updates">

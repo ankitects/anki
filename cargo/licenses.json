@@ -776,14 +776,6 @@
     "repository": "https://github.com/servo/rust-cssparser"
   },
   {
-    "authors": "Simon Sapin <simon.sapin@exyr.org>",
-    "description": "Procedural macros for cssparser",
-    "license": "MPL-2.0",
-    "license_file": null,
-    "name": "cssparser-macros",
-    "repository": "https://github.com/servo/rust-cssparser"
-  },
-  {
     "authors": "Andrew Gallant <jamslam@gmail.com>",
     "description": "Fast CSV parsing with support for serde.",
     "license": "MIT OR Unlicense",
@@ -1350,14 +1342,6 @@
     "license_file": null,
     "name": "fsrs",
     "repository": "https://github.com/open-spaced-repetition/fsrs-rs"
-  },
-  {
-    "authors": "Keegan McAllister <kmcallister@mozilla.com>",
-    "description": "Handling fragments of UTF-8",
-    "license": "Apache-2.0 OR MIT",
-    "license_file": null,
-    "name": "futf",
-    "repository": "https://github.com/servo/futf"
   },
   {
     "authors": null,
@@ -2200,14 +2184,6 @@
     "repository": "https://github.com/Ralith/lru-slab"
   },
   {
-    "authors": "Jonathan Reem <jonathan.reem@gmail.com>",
-    "description": "A collection of great and ubiqutitous macros.",
-    "license": "Apache-2.0 OR MIT",
-    "license_file": null,
-    "name": "mac",
-    "repository": "https://github.com/reem/rust-mac.git"
-  },
-  {
     "authors": "Genna Wingert",
     "description": "Type and target-generic SIMD",
     "license": "Apache-2.0 OR MIT",
@@ -2245,14 +2221,6 @@
     "license": "Apache-2.0 OR MIT",
     "license_file": null,
     "name": "markup5ever",
-    "repository": "https://github.com/servo/html5ever"
-  },
-  {
-    "authors": "The html5ever Project Developers",
-    "description": "Procedural macro for html5ever.",
-    "license": "Apache-2.0 OR MIT",
-    "license_file": null,
-    "name": "match_token",
     "repository": "https://github.com/servo/html5ever"
   },
   {
@@ -2737,6 +2705,14 @@
   },
   {
     "authors": "Steven Fackler <sfackler@gmail.com>",
+    "description": "Runtime support for perfect hash function data structures",
+    "license": "MIT",
+    "license_file": null,
+    "name": "phf",
+    "repository": "https://github.com/rust-phf/rust-phf"
+  },
+  {
+    "authors": "Steven Fackler <sfackler@gmail.com>",
     "description": "Codegen library for PHF types",
     "license": "MIT",
     "license_file": null,
@@ -2753,10 +2729,26 @@
   },
   {
     "authors": "Steven Fackler <sfackler@gmail.com>",
+    "description": "PHF generation logic",
+    "license": "MIT",
+    "license_file": null,
+    "name": "phf_generator",
+    "repository": "https://github.com/rust-phf/rust-phf"
+  },
+  {
+    "authors": "Steven Fackler <sfackler@gmail.com>",
     "description": "Macros to generate types in the phf crate",
     "license": "MIT",
     "license_file": null,
     "name": "phf_macros",
+    "repository": "https://github.com/rust-phf/rust-phf"
+  },
+  {
+    "authors": "Steven Fackler <sfackler@gmail.com>",
+    "description": "Support code shared by PHF libraries",
+    "license": "MIT",
+    "license_file": null,
+    "name": "phf_shared",
     "repository": "https://github.com/rust-phf/rust-phf"
   },
   {
@@ -3845,7 +3837,7 @@
     "license": "Apache-2.0 OR MIT",
     "license_file": null,
     "name": "tendril",
-    "repository": "https://github.com/servo/tendril"
+    "repository": "https://github.com/servo/html5ever"
   },
   {
     "authors": "Andrew Gallant <jamslam@gmail.com>",
