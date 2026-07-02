@@ -11,7 +11,7 @@ import pytest
 
 import aqt
 from anki.sound import SoundOrVideoTag
-from anki.utils import is_mac, is_win
+from anki.utils import is_lin, is_mac, is_win
 from aqt.sound import MpvManager, _packagedCmd, is_audio_file
 
 
@@ -109,6 +109,7 @@ def test_mpv_can_play_generated_wav(generated_wav: Path):
     assert result.returncode == 0, result.stderr.decode()
 
 
+@pytest.mark.skipif(is_lin, reason="mpv is not bundled for Linux")
 def test_mpvmanager_can_play_generated_wav(
     monkeypatch, tmp_path: Path, generated_wav: Path
 ):
