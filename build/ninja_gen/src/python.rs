@@ -87,29 +87,6 @@ pub fn setup_uv(build: &mut Build, platform: Platform) -> Result<()> {
     };
     build.add_dependency("uv_binary", uv_binary);
 
-    // Our macOS packaging needs access to the x86 binary on ARM.
-    if cfg!(target_arch = "aarch64") {
-        download_and_extract(
-            build,
-            "uv_mac_x86",
-            uv_archive(Platform::MacX64),
-            hashmap! { "bin" => [
-                with_exe("uv")
-            ] },
-        )?;
-    }
-    // Our Linux packaging needs access to the ARM binary on x86
-    if cfg!(target_arch = "x86_64") {
-        download_and_extract(
-            build,
-            "uv_lin_arm",
-            uv_archive(Platform::LinuxArm),
-            hashmap! { "bin" => [
-                with_exe("uv")
-            ] },
-        )?;
-    }
-
     Ok(())
 }
 
@@ -153,7 +130,14 @@ impl BuildAction for PythonEnvironment {
                     read_file(".python-version").expect("No .python-version in cwd");
                 let python_version_str =
                     String::from_utf8(python_version).expect("Invalid UTF-8 in .python-version");
-                python_version_str.trim().to_string()
+                let version = python_version_str.trim();
+                // On Windows ARM64, uv defaults to x64 interpreters
+                // (astral-sh/uv#12906), so request the native build explicitly.
+                if cfg!(all(windows, target_arch = "aarch64")) {
+                    format!("cpython-{version}-windows-aarch64-none")
+                } else {
+                    version.to_string()
+                }
             });
             build.add_variable("python", python);
             build.add_variable("extra_args", self.extra_args);
@@ -298,4 +282,56 @@ impl BuildAction for PythonTest {
     fn hide_progress(&self) -> bool {
         true
     }
+}
+
+pub struct Complexipy {
+    pub deps: BuildInput,
+    pub folder: &'static str,
+    pub diff_mode: bool,
+}
+
+impl BuildAction for Complexipy {
+    fn command(&self) -> &str {
+        "$complexipy $folder --suggest-refactors $diff_args"
+    }
+
+    fn files(&mut self, build: &mut impl crate::build::FilesHandle) {
+        build.add_inputs("", &self.deps);
+        build.add_inputs("", inputs![".complexipy.toml"]);
+        build.add_inputs("complexipy", inputs![":pyenv:complexipy"]);
+        build.add_variable("folder", self.folder);
+        let diff_args = if self.diff_mode {
+            "--diff main -R -mx 20"
+        } else {
+            ""
+        };
+        build.add_variable("diff_args", diff_args);
+        let hash = simple_hash(self.folder);
+        let kind = if self.diff_mode { "diff" } else { "check" };
+        build.add_output_stamp(format!("tests/complexipy.{kind}.{hash}"));
+    }
+}
+
+pub fn check_complexity(
+    build: &mut Build,
+    group: &str,
+    folder: &'static str,
+    deps: BuildInput,
+) -> Result<()> {
+    build.add_action(
+        format!("complexipy:{group}"),
+        Complexipy {
+            deps: deps.clone(),
+            folder,
+            diff_mode: false,
+        },
+    )?;
+    build.add_action(
+        format!("complexipy-diff:{group}"),
+        Complexipy {
+            deps,
+            folder,
+            diff_mode: true,
+        },
+    )
 }

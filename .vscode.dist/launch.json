@@ -24,7 +24,7 @@
                 "PYTHONPYCACHEPREFIX": "out/pycache",
                 "ANKIDEV": "1",
                 "QTWEBENGINE_REMOTE_DEBUGGING": "8080",
-                "QTWEBENGINE_CHROMIUM_FLAGS": "--remote-allow-origins=http://localhost:8080",
+                "QTWEBENGINE_CHROMIUM_FLAGS": "--remote-allow-origins=https://chrome-devtools-frontend.appspot.com,http://localhost:8080",
                 "RUST_BACKTRACE": "1",
                 // "TRACESQL": "1",
                 // "HMR": "1",

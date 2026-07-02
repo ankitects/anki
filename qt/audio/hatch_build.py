@@ -44,6 +44,8 @@ class CustomBuildHook(BuildHookInterface):
                 mpv_dir / "vulkan-1.dll",
                 lame_dir / "lame.exe",
                 lame_dir / "lame_enc.dll",
+                lame_dir / "libmp3lame-0.dll",
+                lame_dir / "libiconv-2.dll",
             ]
             lib_files = []
         else:
@@ -61,8 +63,10 @@ class CustomBuildHook(BuildHookInterface):
 
         # Copy library files (for macOS) - preserve directory structure
         if lib_files:
-            lib_dst_dir = dst_dir / lib_dir.name  # Use same dir name (lib or libs)
-            lib_dst_dir.mkdir(exist_ok=True)
             for lib_file in lib_files:
+                lib_dst_dir = (
+                    dst_dir / lib_file.parent.name
+                )  # Use same dir name (lib or libs)
+                lib_dst_dir.mkdir(exist_ok=True)
                 if lib_file.exists():
                     shutil.copy2(lib_file, lib_dst_dir / lib_file.name)

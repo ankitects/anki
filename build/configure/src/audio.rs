@@ -30,12 +30,12 @@ fn mpv_archive(platform: Platform) -> OnlineArchive {
 fn lame_archive(platform: Platform) -> OnlineArchive {
     match platform {
         Platform::WindowsX64 => OnlineArchive {
-            url: "https://www.rarewares.org/files/mp3/lame3.100-64-20200409.zip",
+            url: "https://github.com/ankitects/anki-bundle-extras/releases/download/anki-2026-05-08/lame3.100-64-20200409.zip",
             sha256: "59ea16ac74afb04f8ed9f33f75618e4e7e5b3e1ea53f5d751e3834e99f58ba6d",
         },
         Platform::WindowsArm => OnlineArchive {
-            url: "https://www.rarewares.org/files/mp3/lame-3.100-ARM64.zip",
-            sha256: "b1868219b9c9f38f83834b2e6a69c616cabfe6658f5d05c26ac371f39afdac5d",
+            url: "https://github.com/ankitects/anki-bundle-extras/releases/download/anki-2026-05-08/lame-3.100-ARM64.zip",
+            sha256: "03ecceab5d4f408b0f919b4618947a7731b5bd1f297fba52914bfb6eeae187fb",
         },
         _ => unreachable!(),
     }

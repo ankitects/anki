@@ -1,8 +1,21 @@
 [project]
 name = "anki"
 dynamic = ["version"]
+description = "Python library for Anki, the spaced repetition flashcard program"
+readme = "README.md"
 requires-python = ">=3.10"
 license = "AGPL-3.0-or-later"
+authors = [
+  { name = "Anki Team" },
+]
+urls."Bug Tracker" = "https://github.com/ankitects/anki/issues"
+urls."Source Code" = "https://github.com/ankitects/anki"
+urls."Anki Forum" = "https://forums.ankiweb.net/"
+urls."Docs: Contributor Guide" = "https://dev-docs.ankiweb.net/en/latest/contributing.html"
+urls."Docs: User Guide" = "https://docs.ankiweb.net/"
+urls."Docs: Add-on Guide" = "https://addon-docs.ankiweb.net/"
+urls.homepage = "https://apps.ankiweb.net/"
+
 dependencies = [
   "decorator",
   "markdown",
