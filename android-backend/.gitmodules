@@ -1,0 +1,3 @@
+[submodule "anki"]
+	path = anki
+	url = https://github.com/ankitects/anki

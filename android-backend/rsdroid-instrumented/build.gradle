@@ -1,0 +1,78 @@
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+
+/*
+ * Copyright (c) 2020 David Allison <davidallisongithub@gmail.com>
+ *
+ * This program is free software; you can redistribute it and/or modify it under
+ * the terms of the GNU General Public License as published by the Free Software
+ * Foundation; either version 3 of the License, or (at your option) any later
+ * version.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY
+ * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+ * PARTICULAR PURPOSE. See the GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along with
+ * this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
+apply plugin: 'com.android.application'
+apply plugin: "kotlin-android"
+
+android {
+    namespace = 'net.ankiweb.rsdroid.instrumented'
+    compileSdk = libs.versions.compileSdk.get().toInteger()
+
+    defaultConfig {
+        applicationId = "net.ankiweb.rsdroid.instrumented"
+        minSdk = libs.versions.minSdk.get().toInteger()
+        targetSdk = libs.versions.targetSdk.get().toInteger()
+        versionCode = 1
+        versionName = "1.0"
+
+        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled = false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+    }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_11
+        targetCompatibility JavaVersion.VERSION_11
+    }
+
+    // TODO: fix direct APK loading/compression
+    // In brief: we want an uncompressed .so, so we can mmap directly from the apk
+    // this saves copying the .so at install-time, and saves a duplicated copy
+    // Not well-documented. Possibly useful:
+    // https://developer.android.com/build/releases/past-releases/agp-4-2-0-release-notes?utm_source=chatgpt.com#dex-files-uncompressed-in-apks-when-minsdk-=-28-or-higher
+    // https://developer.android.com/reference/tools/gradle-api/8.3/null/com/android/build/api/dsl/JniLibsPackaging#getUseLegacyPackaging()
+    // https://developer.android.com/topic/performance/reduce-apk-size#extract-false
+    // https://developer.android.com/guide/topics/manifest/application-element#extractNativeLibs
+    packagingOptions {
+        jniLibs {
+            useLegacyPackaging = true
+        }
+    }
+
+    kotlin {
+        compilerOptions {
+            jvmTarget = JvmTarget.JVM_11
+        }
+    }
+}
+
+
+dependencies {
+    implementation fileTree(dir: "libs", include: ["*.jar"])
+    implementation libs.androidx.appcompat
+
+    androidTestImplementation libs.androidx.test.junit
+    androidTestImplementation libs.androidx.espresso.core
+    androidTestImplementation project(path: ':rsdroid')
+    androidTestImplementation libs.androidx.sqlite.framework
+    androidTestImplementation libs.jakewharton.timber
+}

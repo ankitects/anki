@@ -1,0 +1,29 @@
+version: 2
+updates:
+- package-ecosystem: gradle
+  directory: "/"
+  schedule:
+    interval: daily
+  open-pull-requests-limit: 10
+- package-ecosystem: "github-actions"
+  directory: "/"
+  schedule:
+    interval: daily
+- package-ecosystem: cargo
+  directories:
+    - "/"
+    - "/build_rust"
+    - "/rslib-bridge"
+  schedule:
+    interval: daily
+  allow:
+    - dependency-type: "direct"
+  ignore:
+    # Ignore anki dependencies, those are managed upstream
+    - dependency-name: "anki*"
+  groups:
+    non-breaking:
+      update-types:
+        - "minor"
+        - "patch"
+  open-pull-requests-limit: 10

@@ -1,0 +1,82 @@
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+
+import java.util.jar.JarFile
+
+/*
+ * Copyright (c) 2020 David Allison <davidallisongithub@gmail.com>
+ *
+ * This program is free software; you can redistribute it and/or modify it under
+ * the terms of the GNU General Public License as published by the Free Software
+ * Foundation; either version 3 of the License, or (at your option) any later
+ * version.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY
+ * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+ * PARTICULAR PURPOSE. See the GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along with
+ * this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
+apply plugin: 'java-library'
+apply plugin: 'kotlin'
+apply plugin: 'signing'
+apply plugin: 'com.vanniktech.maven.publish'
+
+apply from: "$rootDir/build-rust.gradle"
+
+dependencies {
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
+    // obtaining the OS
+    implementation libs.commons.exec
+    implementation libs.kotlin.stdlib.jdk8
+}
+
+jar {
+    mustRunAfter("buildRust")
+    sourceSets {
+        main {
+            resources {
+                srcDirs 'build/generated/jniLibs'
+            }
+        }
+    }
+    doLast {
+        def jarFile = new JarFile(archiveFile.get().getAsFile())
+        int libCount = jarFile.entries().toList().count { it.name.contains(".so") || it.name.contains(".dll") || it.name.contains(".dylib") }
+        if (libCount == 0 || (System.getenv("ALL_ARCHS") == "1" && libCount != 3)) {
+            throw new GradleException("Jar appears to be missing shared library!")
+        }
+    }
+}
+
+java.sourceCompatibility = JavaVersion.VERSION_11
+java.targetCompatibility = JavaVersion.VERSION_11
+
+mavenPublishing {
+    publishToMavenCentral(true) // "true" means publish+release automatically+unattended
+    signAllPublications()
+}
+
+buildscript {
+    repositories {
+        mavenCentral()
+    }
+    dependencies {
+        classpath libs.kotlin.gradle.plugin
+    }
+}
+compileKotlin {
+    kotlin {
+        compilerOptions {
+            jvmTarget = JvmTarget.JVM_11
+        }
+    }
+}
+compileTestKotlin {
+    kotlin {
+        compilerOptions {
+            jvmTarget = JvmTarget.JVM_11
+        }
+    }
+}

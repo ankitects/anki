@@ -1,0 +1,9 @@
+[*.kt]
+# We often have block comments representing implementation details after KDocs.
+# This feels like an acceptable commenting strategy
+ktlint_standard_no-consecutive-comments = disabled
+ktlint_standard_no-wildcard-imports = disabled
+ktlint_standard_property-naming = disabled
+
+[rsdroid/build/generated/source/backend/**/*]
+ktlint = disabled

@@ -1,0 +1,9 @@
+[build]
+# override any global customizations, as the gradle plugin requires a specific path
+target-dir = "target"
+
+[env]
+DESCRIPTORS_BIN = { value = "anki/out/rslib/proto/descriptors.bin", relative = true }
+STRINGS_JSON_ANKIDROID = { value = "anki/out/strings.json", relative = true }
+PROTOC = { value = "anki/out/extracted/protoc/bin/protoc", relative = true }
+GENERATED_BACKEND_DIR = { value = "rsdroid/build/generated/source/backend", relative = true }

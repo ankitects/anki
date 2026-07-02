@@ -1,0 +1,23 @@
+[package]
+name = "build_rust"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[build-dependencies]
+cc="*"
+
+[dependencies]
+anki_io = { version = "0.0.0", path = "../anki/rslib/io" }
+anki_process = { version = "0.0.0", path = "../anki/rslib/process" }
+anyhow = "1.0.97"
+camino = "1.1.9"
+# If you change cargo-ndk here, also change it in main.rs
+cargo-ndk = "4.1.2"
+glob = "0.3.2"
+streaming-iterator = "0.1.9"
+tree-sitter = "0.26.3"
+tree-sitter-svelte-ng = "1.0.2"
+tree-sitter-typescript = "0.23.2"
+which = "7.0.2"

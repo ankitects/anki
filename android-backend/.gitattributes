@@ -1,0 +1,2 @@
+gradlew -diff
+gradle/wrapper/gradle-wrapper.properties -diff

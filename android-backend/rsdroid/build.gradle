@@ -1,0 +1,195 @@
+import com.android.build.gradle.tasks.BundleAar
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+
+import java.util.zip.ZipFile
+import org.gradle.internal.os.OperatingSystem
+
+apply plugin: 'com.android.library' // required for aar generation to link to from AnkiDroid
+apply plugin: "kotlin-android"
+apply plugin: 'signing'
+apply plugin: 'com.vanniktech.maven.publish'
+
+apply from: "$rootDir/build-rust.gradle"
+preBuild.dependsOn "buildRust"
+
+def getAnkiCommitHash = { ->
+    def commit = providers.exec {
+        commandLine "git", "-C", new File("${project.rootDir}", "anki"), "rev-parse", "HEAD"
+    }.standardOutput.asText.get().trim()
+    println("Anki commit: ${commit}")
+    return commit
+}
+
+def getFsrsVersion = { ->
+    // Ensure "jaq" cargo module is installed before we try to use it
+    def crateInfo = providers.exec {
+        commandLine "cargo", "install", "--list"
+    }.standardOutput.asText.get()
+    if (!crateInfo.contains("jaq v2.1.0")) {
+        println("jaq rust crate not installed, needed to fetch FSRS version. Installing...")
+        def jaqInstallProcess = new ProcessBuilder()
+                .command("cargo", "install", "jaq@2.1.0")
+                .redirectErrorStream(true)
+                .start()
+        def jaqOutput = new BufferedReader(new InputStreamReader(jaqInstallProcess.getInputStream()))
+        while (jaqInstallProcess.isAlive()) {
+            def jaqOutputLine = jaqOutput.readLine()
+            if (jaqOutputLine != null) {
+                System.out.println(jaqOutput.readLine())
+            }
+        }
+        jaqInstallProcess.waitFor()
+    }
+    def verStdin = providers.exec {
+         commandLine "cargo", "metadata", "--locked", "--format-version=1", "--manifest-path=" + new File("${project.rootDir}", "anki/Cargo.toml")
+    }.standardOutput.asBytes.get()
+
+    def verArgs = OperatingSystem.current() == OperatingSystem.WINDOWS ?
+            ".packages[] | select(.name==\\\"fsrs\\\") | .version" :
+            ".packages[] | select(.name==\"fsrs\") | .version"
+
+    // use "jaq" cargo module installed during rust build: self-contained + cross-platform
+    // if we use `jq` we are dependent on local system utility installation status
+    def getFsrsVersionProcess = new ProcessBuilder().command("jaq", verArgs).start()
+    def getFsrsVersionStdin = getFsrsVersionProcess.getOutputStream()
+    getFsrsVersionStdin.write(verStdin)
+    getFsrsVersionStdin.flush()
+    getFsrsVersionStdin.close()
+
+    def verStdout = new String(getFsrsVersionProcess.getInputStream().readAllBytes())
+    def version = verStdout.trim().replace("\"", "")
+    println("FSRS version: ${version}")
+    return version
+}
+
+def getAnkiDesktopVersion() {
+    Properties properties = new Properties()
+    properties.load(project.rootProject.file('gradle.properties').newDataInputStream())
+    def versionName = properties.getProperty('VERSION_NAME')
+    return versionName.substring(versionName.indexOf("anki") + "anki".length())
+}
+
+/**
+ * @return the current git hash
+ * @example edf739d95bad7b370a6ed4398d46723f8219b3cd
+ */
+static def getBackendGitCommitHash() {
+    "git rev-parse HEAD".execute().text.trim()
+}
+
+android {
+    namespace = 'net.ankiweb.rsdroid'
+    compileSdk = libs.versions.compileSdk.get().toInteger()
+    ndkVersion = libs.versions.ndk.get()
+
+    buildFeatures {
+        buildConfig = true // expose 'ANKI_DESKTOP_VERSION'
+    }
+
+    compileOptions {
+        sourceCompatibility = JavaVersion.VERSION_11
+        targetCompatibility = JavaVersion.VERSION_11
+    }
+
+    defaultConfig {
+        minSdk = libs.versions.minSdk.get().toInteger()
+        targetSdk = libs.versions.targetSdk.get().toInteger()
+        versionCode = 1
+        versionName = VERSION_NAME
+
+        consumerProguardFiles "consumer-rules.pro"
+
+        buildConfigField "String", "ANKI_COMMIT_HASH", "\"${getAnkiCommitHash()}\""
+        buildConfigField "String", "ANKI_DESKTOP_VERSION", "\"${getAnkiDesktopVersion()}\""
+        buildConfigField "String", "FSRS_VERSION", "\"${getFsrsVersion()}\""
+
+        buildConfigField "String", "BACKEND_GIT_COMMIT_HASH", "\"${getBackendGitCommitHash()}\""
+        buildConfigField "long", "BACKEND_BUILD_TIME", System.currentTimeMillis().toString()
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled = false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+    }
+
+    sourceSets {
+        main {
+            kotlin.srcDirs += "build/generated/source/backend"
+            java.srcDirs += "build/generated/source/backend"
+            jniLibs.srcDirs 'build/generated/jniLibs'
+            resources {
+                srcDirs "src/main/resources"
+            }
+            assets {
+                srcDirs "build/generated/anki_artifacts"
+            }
+        }
+    }
+
+    kotlin {
+        compilerOptions {
+            jvmTarget = JvmTarget.JVM_11
+        }
+    }
+}
+
+afterEvaluate {
+    tasks.withType(BundleAar).configureEach { bundleAarTask ->
+        bundleAarTask.doLast {
+            def aarFile = bundleAarTask.outputs.files.singleFile
+            def zipFile = new ZipFile(aarFile)
+            int libCount = zipFile.entries().toList().count { it.name.contains(".so") }
+            if (libCount == 0 || (System.getenv("ALL_ARCHS") == "1" && libCount != 4)) {
+                throw new GradleException("AAR appears to be missing shared library!")
+            }
+        }
+    }
+}
+
+dependencies {
+    implementation fileTree(dir: "libs", include: ["*.jar", '*.so'])
+    implementation libs.androidx.appcompat
+    // Protobuf is part of the ABI, so include it as a compile/api dependency.
+    api libs.protobuf.kotlin.lite
+
+    implementation libs.androidx.sqlite.ktx
+    implementation libs.androidx.sqlite.framework
+    implementation libs.jakewharton.timber
+
+    testImplementation libs.junit.jupiter
+    testImplementation libs.robolectric
+    testImplementation libs.androidx.core
+    testImplementation libs.androidx.test.junit
+    testImplementation project(path: ':rsdroid-testing')
+}
+
+tasks.withType(KotlinCompile).configureEach {
+    compilerOptions {
+        freeCompilerArgs = ["-opt-in=kotlin.RequiresOptIn"]
+    }
+}
+
+
+
+// Install Git pre-commit hook for format-rust
+tasks.register('installGitHook', Copy) {
+    from new File(rootProject.rootDir, 'pre-commit')
+    into { new File(rootProject.rootDir, '.git/hooks') }
+    filePermissions {
+        user {
+            read = write = execute = true
+        }
+    }
+}
+// to run manually: `./gradlew installGitHook`
+tasks.named('preBuild').configure { dependsOn('installGitHook') }
+
+mavenPublishing {
+    // Use https://central.sonatype.com/account with david-allison's GitHub login, not Google
+    // the host should match rsdroid-testing
+    publishToMavenCentral(true) // "true" means publish+release automatically+unattended
+    signAllPublications()
+}

@@ -1,0 +1,189 @@
+# For most projects, this workflow file will not need changing; you simply need
+# to commit it to your repository.
+#
+# You may wish to alter this file to override the set of languages analyzed,
+# or to provide custom queries or build logic.
+#
+# ******** NOTE ********
+# We have attempted to detect the languages in your repository. Please check
+# the `language` matrix defined below to confirm you have the correct set of
+# supported CodeQL languages.
+#
+name: "CodeQL"
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+  schedule:
+    - cron: '15 10 * * 0'
+
+jobs:
+  analyze:
+    name: Analyze (${{ matrix.language }})
+    # Runner size impacts CodeQL analysis time. To learn more, please see:
+    #   - https://gh.io/recommended-hardware-resources-for-running-codeql
+    #   - https://gh.io/supported-runners-and-hardware-resources
+    #   - https://gh.io/using-larger-runners (GitHub.com only)
+    # Consider using larger runners or machines with greater resources for possible analysis time improvements.
+    runs-on: ${{ (matrix.language == 'swift' && 'macos-latest') || 'ubuntu-latest' }}
+    permissions:
+      # required for all workflows
+      security-events: write
+
+      # required to fetch internal or private CodeQL packs
+      packages: read
+
+      # only required for workflows in private repositories
+      actions: read
+      contents: read
+
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - language: actions
+            build-mode: none
+          - language: java-kotlin
+            build-mode: manual
+          - language: rust
+            build-mode: none
+        # CodeQL supports the following values keywords for 'language': 'actions', 'c-cpp', 'csharp', 'go', 'java-kotlin', 'javascript-typescript', 'python', 'ruby', 'rust', 'swift'
+        # Use `c-cpp` to analyze code written in C, C++ or both
+        # Use 'java-kotlin' to analyze code written in Java, Kotlin or both
+        # Use 'javascript-typescript' to analyze code written in JavaScript, TypeScript or both
+        # To learn more about changing the languages that are analyzed or customizing the build mode for your analysis,
+        # see https://docs.github.com/en/code-security/code-scanning/creating-an-advanced-setup-for-code-scanning/customizing-your-advanced-setup-for-code-scanning.
+        # If you are analyzing a compiled language, you can modify the 'build-mode' for that language to customize how
+        # your codebase is analyzed, see https://docs.github.com/en/code-security/code-scanning/creating-an-advanced-setup-for-code-scanning/codeql-code-scanning-for-compiled-languages
+    steps:
+    # CodeQL runs on Ubuntu which is a little tight on space
+    - name: Liberate disk space
+      uses: jlumbroso/free-disk-space@main
+      if: contains(runner.environment, 'github-hosted') && contains(runner.os, 'Linux')
+      with:
+        tool-cache: false
+        android: false
+        dotnet: true
+        haskell: true
+        large-packages: false
+        docker-images: true
+        swap-storage: false
+
+    - name: Checkout repository
+      uses: actions/checkout@v6
+
+    # Add any setup steps before running the `github/codeql-action/init` action.
+    # This includes steps like installing compilers or runtimes (`actions/setup-node`
+    # or others). This is typically only required for manual builds.
+    # - name: Setup runtime (example)
+    #   uses: actions/setup-example@v1
+
+    # Initializes the CodeQL tools for scanning.
+    - name: Initialize CodeQL
+      uses: github/codeql-action/init@v4
+      with:
+        languages: ${{ matrix.language }}
+        build-mode: ${{ matrix.build-mode }}
+        # If you wish to specify custom queries, you can do so here or in a config file.
+        # By default, queries listed here will override any specified in a config file.
+        # Prefix the list here with "+" to use these queries and those in the config file.
+
+        # For more details on CodeQL's query packs, refer to: https://docs.github.com/en/code-security/code-scanning/automatically-scanning-your-code-for-vulnerabilities-and-errors/configuring-code-scanning#using-queries-in-ql-packs
+        # queries: security-extended,security-and-quality
+
+    # If the analyze step fails for one of the languages you are analyzing with
+    # "We were unable to automatically build your code", modify the matrix above
+    # to set the build mode to "manual" for that language. Then modify this step
+    # to build your code.
+    # ℹ️ Command-line programs to run using the OS shell.
+    # 📚 See https://docs.github.com/en/actions/using-workflows/workflow-syntax-for-github-actions#jobsjob_idstepsrun
+    - name: Ubuntu setup
+      # We also install some system software needed for the build on ubuntu
+      run: |
+        sudo apt update
+        sudo apt -y install liblzma-dev
+
+    - name: Fetch submodules
+      if: matrix.build-mode == 'manual'
+      run: git submodule update --init
+
+    - name: Read configured NDK version
+      run: |
+        cargo install toml-cli
+        ANDROID_NDK_VERSION=$(toml get gradle/libs.versions.toml versions.ndk --raw)
+        ANDROID_NDK_MAJOR_VERSION=$(echo $ANDROID_NDK_VERSION | cut -f1 -d.)
+        ANDROID_NDK_MINOR_VERSION=$(echo $ANDROID_NDK_VERSION | cut -f2 -d.)
+        ANDROID_NDK_MARKETING_VERSION="r${ANDROID_NDK_MAJOR_VERSION}"
+        if ! [ "$ANDROID_NDK_MINOR_VERSION" == "0" ]; then
+          alphabet="abcdefghijklmnopqrstuvwxyz"
+          ANDROID_NDK_MARKETING_MINOR_VERSION=$(echo ${alphabet:$ANDROID_NDK_MINOR_VERSION:1})
+          ANDROID_NDK_MARKETING_VERSION="${ANDROID_NDK_MARKETING_VERSION}${ANDROID_NDK_MARKETING_MINOR_VERSION}"
+        fi
+        echo "ANDROID_NDK_VERSION=$ANDROID_NDK_VERSION" >> $GITHUB_ENV
+        echo "ANDROID_NDK_MARKETING_VERSION=$ANDROID_NDK_MARKETING_VERSION" >> $GITHUB_ENV
+      shell: bash
+
+    - name: Setup Android NDK
+      uses: nttld/setup-ndk@v1
+      with:
+        ndk-version: ${{ env.ANDROID_NDK_MARKETING_VERSION }}
+        add-to-path: false
+        link-to-sdk: true
+
+    - name: Set NDK version
+      if: matrix.build-mode == 'manual'
+      run: |
+        export ANDROID_NDK_LATEST_HOME="${ANDROID_SDK_ROOT}/ndk/${ANDROID_NDK_VERSION}"
+        echo "ANDROID_NDK_HOME=$ANDROID_NDK_LATEST_HOME" >> $GITHUB_ENV
+        echo "ANDROID_NDK_ROOT=$ANDROID_NDK_LATEST_HOME" >> $GITHUB_ENV
+
+    - name: Configure JDK
+      if: matrix.build-mode == 'manual'
+      uses: actions/setup-java@v5
+      with:
+        distribution: "temurin"
+        java-version: "21" # matches Anki-Android
+
+    - name: Restore Rust Cache (Unix)
+      if: matrix.build-mode == 'manual'
+      uses: actions/cache/restore@v5
+      with:
+        path: |
+          ~/.cargo/registry
+          ~/.cargo/git
+          target
+          anki/out/rust
+          anki/out/download
+          anki/out/extracted
+          anki/out/node_modules
+        key: ${{ runner.os }}-rust-debug-${{ hashFiles('Cargo.lock', 'anki/Cargo.lock', 'anki/yarn.lock') }}
+        restore-keys: |
+          ${{ runner.os }}-rust-debug
+          ${{ runner.os }}-rust
+
+    - name: Setup N2
+      if: matrix.build-mode == 'manual'
+      run: bash ./anki/tools/install-n2
+
+    - name: Setup Gradle
+      if: matrix.build-mode == 'manual'
+      uses: gradle/actions/setup-gradle@v5
+      timeout-minutes: 5
+      with:
+        # Only write to the cache for builds on the 'main' branches, stops branches evicting main cache
+        # Builds on other branches will only read from main branch cache writes
+        # Comment this and the with: above out for performance testing on a branch
+        cache-read-only: ${{ github.ref != 'refs/heads/main' }}
+
+    - name: Build all (current platform)
+      if: matrix.build-mode == 'manual'
+      run: |
+        cargo run -p build_rust
+        ./gradlew build
+
+    - name: Perform CodeQL Analysis
+      uses: github/codeql-action/analyze@v4
+      with:
+        category: "/language:${{matrix.language}}"
