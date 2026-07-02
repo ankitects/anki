@@ -77,6 +77,12 @@ final class ReviewModel {
                 statusLine = "Imported \(importedNotes) note(s)."
             }
 
+            // The scheduler builds its queue from the CURRENT deck's subtree.
+            // Right after import the current deck is the empty "Default", so we
+            // must select the deck that actually holds the cards, or the queue
+            // is empty ("All caught up") even though notes were imported.
+            try await selectStudyDeck()
+
             await advanceToNextCard()
         } catch {
             phase = .failed(String(describing: error))
@@ -128,6 +134,18 @@ final class ReviewModel {
             phase = .failed(String(describing: error))
             statusLine = "Failed to load next card: \(error)"
         }
+    }
+
+    /// Select a deck that actually contains cards to study. Prefers a
+    /// top-level deck (no "::" in its name) other than the empty Default — its
+    /// subtree spans every category — so "study everything" works. Falls back
+    /// to whatever deck exists.
+    private func selectStudyDeck() async throws {
+        let names = try await engine.deckNames()  // Default already excluded
+        guard !names.isEmpty else { return }
+        let topLevel = names.first(where: { !$0.name.contains("::") })
+        let chosen = topLevel ?? names[0]
+        try await engine.setCurrentDeck(chosen.id)
     }
 
     // MARK: - Sandbox / bundled resource staging

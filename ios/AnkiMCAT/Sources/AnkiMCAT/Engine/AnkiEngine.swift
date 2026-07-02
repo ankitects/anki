@@ -38,6 +38,11 @@ enum AnkiService {
     // service 27 = BackendCardRenderingService
     static let cardRendering: UInt32 = 27
     static let renderExistingCard: UInt32 = 6
+
+    // service 7 = BackendDecksService
+    static let decks: UInt32 = 7
+    static let getDeckNames: UInt32 = 13
+    static let setCurrentDeck: UInt32 = 22
 }
 
 /// Error surfaced across the C ABI seam.
@@ -178,6 +183,27 @@ actor AnkiEngine {
         let resp = try call(service: AnkiService.importExport, method: AnkiService.importAnkiPackage,
                             req, returning: Anki_ImportExport_ImportResponse.self)
         return resp.log.foundNotes
+    }
+
+    // MARK: - Decks
+
+    /// All deck (id, name) pairs, excluding the empty Default deck.
+    func deckNames() throws -> [Anki_Decks_DeckNameId] {
+        var req = Anki_Decks_GetDeckNamesRequest()
+        req.skipEmptyDefault = true
+        req.includeFiltered = false
+        let resp = try call(service: AnkiService.decks, method: AnkiService.getDeckNames,
+                            req, returning: Anki_Decks_DeckNames.self)
+        return resp.entries
+    }
+
+    /// Select the deck to study. The scheduler builds its queue from the
+    /// current deck's subtree, so this must be set to a deck that has cards.
+    func setCurrentDeck(_ deckID: Int64) throws {
+        var req = Anki_Decks_DeckId()
+        req.did = deckID
+        _ = try call(service: AnkiService.decks, method: AnkiService.setCurrentDeck,
+                     req, returning: Anki_Collection_OpChanges.self)
     }
 
     // MARK: - Scheduler / review loop
