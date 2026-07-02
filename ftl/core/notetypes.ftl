@@ -47,6 +47,7 @@ notetypes-toggle-masks = Toggle Masks
 notetypes-image-occlusion-name = Image Occlusion
 notetypes-hide-all-guess-one = Hide All, Guess One
 notetypes-hide-one-guess-one = Hide One, Guess One
+notetypes-hide-all-but-one = Hide All But One
 notetypes-error-generating-cloze = An error occurred when generating an image occlusion note
 notetypes-error-getting-imagecloze = An error occurred while fetching an image occlusion note
 notetypes-error-loading-image-occlusion = Error loading image occlusion. Is your Anki version up to date?

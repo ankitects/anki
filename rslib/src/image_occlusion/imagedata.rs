@@ -7,6 +7,7 @@ use std::path::PathBuf;
 use anki_io::metadata;
 use anki_io::read_file;
 use anki_proto::image_occlusion::get_image_occlusion_note_response::ImageOcclusionNote;
+use anki_proto::image_occlusion::get_image_occlusion_note_response::OcclusionMode;
 use anki_proto::image_occlusion::get_image_occlusion_note_response::Value;
 use anki_proto::image_occlusion::AddImageOcclusionNoteRequest;
 use anki_proto::image_occlusion::GetImageForOcclusionResponse;
@@ -97,14 +98,22 @@ impl Collection {
         let idxs = nt.get_io_field_indexes()?;
 
         cloze_note.occlusions = parse_image_occlusions(fields[idxs.occlusions as usize].as_str());
-        cloze_note.occlude_inactive = cloze_note.occlusions.iter().any(|oc| {
-            oc.shapes.iter().any(|sh| {
-                sh.properties
-                    .iter()
-                    .find(|p| p.name == "oi")
-                    .is_some_and(|p| p.value == "1")
+        cloze_note.occlusion_mode = cloze_note
+            .occlusions
+            .iter()
+            .find_map(|oc| {
+                oc.shapes.iter().find_map(|sh| {
+                    sh.properties
+                        .iter()
+                        .find(|p| p.name == "oi")
+                        .and_then(|p| match p.value.as_str() {
+                            "1" => Some(OcclusionMode::HideAll as i32),
+                            "2" => Some(OcclusionMode::HideAllButOne as i32),
+                            _ => None,
+                        })
+                })
             })
-        });
+            .unwrap_or(OcclusionMode::HideOne as i32);
         cloze_note.header.clone_from(&fields[idxs.header as usize]);
         cloze_note
             .back_extra

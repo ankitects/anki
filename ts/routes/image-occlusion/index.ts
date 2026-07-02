@@ -10,7 +10,7 @@ import { get } from "svelte/store";
 import { addOrUpdateNote } from "./add-or-update-note.svelte";
 import ImageOcclusionPage from "./ImageOcclusionPage.svelte";
 import type { IOMode } from "./lib";
-import { hideAllGuessOne } from "./store";
+import { occlusionMode } from "./store";
 
 globalThis.anki = globalThis.anki || {};
 
@@ -31,7 +31,7 @@ export async function setupImageOcclusion(mode: IOMode, target = document.body):
     await i18n;
 
     async function addNote(): Promise<void> {
-        addOrUpdateNote(mode, get(hideAllGuessOne));
+        addOrUpdateNote(mode, get(occlusionMode));
     }
 
     // for adding note from mobile devices

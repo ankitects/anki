@@ -9,8 +9,8 @@ import { get } from "svelte/store";
 
 import { optimumCssSizeForCanvas } from "./canvas-scale";
 import {
-    hideAllGuessOne,
     notesDataStore,
+    occlusionMode,
     opacityStateStore,
     saveNeededStore,
     tagsWritable,
@@ -75,7 +75,7 @@ export const setupMaskEditorForEdit = async (
     const clozeNote = clozeNoteResponse.value.value;
     const canvas = initCanvas();
 
-    hideAllGuessOne.set(clozeNote.occludeInactive);
+    occlusionMode.set(clozeNote.occlusionMode);
 
     // get image width and height
     const image = document.getElementById("image") as HTMLImageElement;
