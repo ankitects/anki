@@ -38,9 +38,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         <Icon icon={tagIcon} />
         <Icon icon={addTagIcon} />
     </IconConstrain>
-    <span class="tags-info">
-        <slot />
-    </span>
+    {#if $$slots.default}
+        <span class="tags-info">
+            <slot />
+        </span>
+    {/if}
 </div>
 
 <Shortcut {keyCombination} on:action={() => dispatch("tagappend")} />

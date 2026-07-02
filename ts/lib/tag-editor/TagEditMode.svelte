@@ -17,6 +17,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     export let selected: boolean;
     export let active: boolean;
     export let shorten: boolean;
+    export let truncateMiddle: boolean = false;
+    export let editorWidth: number = 0;
 
     export let flash: () => void;
 
@@ -34,6 +36,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     {selected}
     {active}
     {shorten}
+    {truncateMiddle}
+    {editorWidth}
     {flash}
     on:tagrange
     on:tagselect
