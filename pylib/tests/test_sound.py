@@ -6,15 +6,36 @@ import os
 from anki.sound import AV_REF_RE, SoundOrVideoTag, strip_av_refs
 
 
-def test_sound_tag_path_relative_joins_media_folder():
+def test_sound_tag_path_relative_joins_media_folder(tmp_path):
     tag = SoundOrVideoTag(filename="audio.mp3")
-    assert tag.path("/media") == "/media/audio.mp3"
+    assert tag.path(str(tmp_path)) == os.path.join(str(tmp_path), "audio.mp3")
 
 
 def test_sound_tag_path_absolute_ignores_media_folder():
     abs_path = os.path.abspath("/some/absolute/audio.mp3")
     tag = SoundOrVideoTag(filename=abs_path)
     assert tag.path("/media") == abs_path
+
+
+def test_sound_tag_path_with_directory_separator_uses_abspath():
+    # filename with a separator but not absolute - goes through os.path.abspath,
+    # so the media folder is ignored and the file's directory is used instead.
+    tag = SoundOrVideoTag(filename="subdir/audio.mp3")
+    result = tag.path("/media")
+    expected = os.path.join(os.path.abspath("subdir"), "audio.mp3")
+    assert result == expected
+
+
+def test_sound_tag_path_applies_media_file_filter(monkeypatch, tmp_path):
+    # hooks.media_file_filter is applied to the tail component of the path.
+    import anki.sound as sound_module
+
+    def fake_filter(fname: str) -> str:
+        return fname.replace("audio", "renamed")
+
+    monkeypatch.setattr(sound_module.hooks, "media_file_filter", fake_filter)
+    tag = SoundOrVideoTag(filename="audio.mp3")
+    assert tag.path(str(tmp_path)) == os.path.join(str(tmp_path), "renamed.mp3")
 
 
 def test_strip_av_refs_removes_play_tag():
