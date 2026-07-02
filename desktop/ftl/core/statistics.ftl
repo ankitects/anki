@@ -347,8 +347,8 @@ statistics-dashboard-memory-scale = Memory colour
 statistics-dashboard-scale-low = Low
 statistics-dashboard-scale-high = High
 statistics-dashboard-reviews-count = { $count } graded reviews
-statistics-dashboard-give-up-note = A pass estimate needs at least 15 graded reviews and 1% topic coverage.
-statistics-dashboard-needs-fsrs = FSRS is off, so these are rough estimates from your review history. Enable FSRS in Deck Options for calibrated numbers.
+statistics-dashboard-give-up-note = A pass estimate needs at least 300 graded reviews, 70% topic coverage, and 50 graded held-out practice questions.
+statistics-dashboard-needs-fsrs = Enable FSRS in Deck Options to compute Memory, Performance and Readiness.
 
 ## These strings are no longer used - you do not need to translate them if they
 ## are not already translated.

@@ -146,13 +146,13 @@ not a number on a scale (mirrors the spec's USMLE Step 1 guidance).
 
 ## Give-up rule (written down, enforced)
 
-> **Readiness shows no P(pass)** until the collection has **≥ 15 graded reviews** **and**
-> **≥ 1% topic coverage** (studied). Below either line, Readiness displays only its **decomposed
-> components** (per-subject Memory/Performance, coverage %, best-next-topic) under an
-> **"insufficient data — no score"** label.
+> **Readiness shows no P(pass)** until the collection has **≥ 300 graded reviews**,
+> **≥ 70% topic coverage** (studied), **and ≥ 50 graded held-out probe items**. Below any line,
+> Readiness displays only its **decomposed components** (per-subject Memory/Performance, coverage %,
+> best-next-topic) under an **"insufficient data — no score"** label that **names the missing input**.
 >
-> _(The 15-review and 1%-coverage bars are deliberately low so the score path is easy to trigger and
-> confirm during testing/demo; raise them for real use.)_
+> _(Dev-only escape hatch: opening the page with `?readinessTest=1` relaxes the gates so the pipeline
+> can be exercised end-to-end; that output is labelled "TEST DATA — not a real prediction".)_
 
 Performance is **always** labelled "uncalibrated" in Phase 1. Memory shows whenever a subject has ≥ 1
 studied card (otherwise that subject abstains).
