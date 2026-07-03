@@ -459,3 +459,76 @@ jobs:
         with:
           path: out
           key: build-Windows-${{ github.event.pull_request.number || 'main' }}-${{ github.run_id }}
+
+  # ARM Windows. Runs on pushes to main or on PRs with the check:windows-arm label.
+  check-windows-arm:
+    if: >-
+      github.event_name == 'push'
+      || github.event_name == 'workflow_dispatch'
+      || contains(github.event.pull_request.labels.*.name, 'check:windows-arm')
+    runs-on: windows-11-arm
+    name: check (windows-arm)
+    # Colocate CARGO_HOME and TEMP on D: to keep all I/O on the same fast
+    # local disk.
+    env:
+      CARGO_HOME: D:\cargo-home
+      TEMP: D:\tmp
+      TMP: D:\tmp
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 #v4
+        with:
+          submodules: true
+
+      - name: Prepare D:\ directories
+        shell: bash
+        run: mkdir -p /d/cargo-home /d/tmp
+
+      - name: Restore cargo cache
+        uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 #v4
+        with:
+          path: |
+            D:\cargo-home\registry\index
+            D:\cargo-home\registry\cache
+            D:\cargo-home\git\db
+            D:\cargo-home\bin
+            D:\cargo-home\.crates.toml
+            D:\cargo-home\.crates2.json
+          key: cargo-Windows-arm-${{ hashFiles('Cargo.lock') }}
+          restore-keys: cargo-Windows-arm-
+
+      - name: Restore build output cache
+        uses: actions/cache/restore@0057852bfaa89a56745cba8c7296529d2fc39830 #v4
+        with:
+          path: out
+          key: build-Windows-arm-${{ github.event.pull_request.number || 'main' }}-${{ github.run_id }}
+          restore-keys: |
+            build-Windows-arm-${{ github.event.pull_request.number || 'main' }}-
+            build-Windows-arm-main-
+            build-Windows-arm-
+
+      - name: Setup build environment
+        uses: ./.github/actions/setup-anki
+
+      - name: Install just
+        uses: extractions/setup-just@f8a3cce218d9f83db3a2ecd90e41ac3de6cdfd9b #v3
+
+      - name: Build, lint, and test
+        run: |
+          just build
+          just lint
+          just test
+
+      # Also remove node_modules on Windows — file-locking corrupts the cache.
+      - name: Clean non-cacheable state
+        if: always()
+        shell: bash
+        run: |
+          rm -rf out/pyenv out/node_modules
+          rm -f out/build.ninja
+
+      - name: Save build output cache
+        if: always()
+        uses: actions/cache/save@0057852bfaa89a56745cba8c7296529d2fc39830 #v4
+        with:
+          path: out
+          key: build-Windows-arm-${{ github.event.pull_request.number || 'main' }}-${{ github.run_id }}
