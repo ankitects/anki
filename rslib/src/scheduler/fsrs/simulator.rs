@@ -289,12 +289,20 @@ impl Collection {
         let dr_workload = (70u32..=99u32)
             .into_par_iter()
             .map(|dr| {
+                let cards = cards
+                    .iter()
+                    .map(|c| {
+                        let mut card = c.clone();
+                        card.desired_retention = dr as f32 / 100.;
+                        card
+                    })
+                    .collect_vec();
                 let result = simulate(
                     &config,
                     &req.params,
                     dr as f32 / 100.,
                     None,
-                    Some(cards.clone()),
+                    Some(cards),
                 )?;
                 Ok((
                     dr,
