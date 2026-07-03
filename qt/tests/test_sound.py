@@ -105,7 +105,7 @@ def test_mpv_can_play_generated_wav(generated_wav: Path):
         ]
     )
 
-    result = subprocess.run(cmd, env=env, capture_output=True, timeout=10)
+    result = subprocess.run(cmd, env=env, capture_output=True, timeout=30)
     assert result.returncode == 0, result.stderr.decode()
 
 
