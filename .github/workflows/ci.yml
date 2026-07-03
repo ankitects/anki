@@ -468,31 +468,23 @@ jobs:
       || contains(github.event.pull_request.labels.*.name, 'check:windows')
     runs-on: windows-11-arm
     name: check (windows-arm)
-    # Colocate CARGO_HOME and TEMP on D: to keep all I/O on the same fast
-    # local disk.
-    env:
-      CARGO_HOME: D:\cargo-home
-      TEMP: D:\tmp
-      TMP: D:\tmp
+    # Unlike the x64 Windows runner, windows-11-arm has no D: drive, so we use
+    # the default C:-based CARGO_HOME and TEMP.
     steps:
       - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 #v4
         with:
           submodules: true
 
-      - name: Prepare D:\ directories
-        shell: bash
-        run: mkdir -p /d/cargo-home /d/tmp
-
       - name: Restore cargo cache
         uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 #v4
         with:
           path: |
-            D:\cargo-home\registry\index
-            D:\cargo-home\registry\cache
-            D:\cargo-home\git\db
-            D:\cargo-home\bin
-            D:\cargo-home\.crates.toml
-            D:\cargo-home\.crates2.json
+            ~/.cargo/registry/index
+            ~/.cargo/registry/cache
+            ~/.cargo/git/db
+            ~/.cargo/bin
+            ~/.cargo/.crates.toml
+            ~/.cargo/.crates2.json
           key: cargo-Windows-arm-${{ hashFiles('Cargo.lock') }}
           restore-keys: cargo-Windows-arm-
 
