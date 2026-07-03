@@ -208,13 +208,7 @@ class Editor:
         self.outerLayout.addWidget(self.web, 1)
 
     def setupWeb(self) -> None:
-        if self.editorMode == EditorMode.ADD_CARDS:
-            mode = "add"
-        elif self.editorMode == EditorMode.BROWSER:
-            mode = "browser"
-        else:
-            mode = "review"
-
+        mode = self.mw.pm.editor_key(self.editorMode)
         # then load page
         self.web.stdHtml(
             "",
