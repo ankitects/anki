@@ -197,7 +197,7 @@ jobs:
     if: >-
       github.event_name == 'push'
       || github.event_name == 'workflow_dispatch'
-      || contains(github.event.pull_request.labels.*.name, 'check:linux-arm')
+      || contains(github.event.pull_request.labels.*.name, 'check:linux')
     runs-on: ubuntu-24.04-arm
     name: check (linux-arm)
     steps:
@@ -260,7 +260,7 @@ jobs:
     if: >-
       github.event_name == 'push'
       || github.event_name == 'workflow_dispatch'
-      || contains(github.event.pull_request.labels.*.name, 'check:macos-intel')
+      || contains(github.event.pull_request.labels.*.name, 'check:macos')
     runs-on: macos-15-intel
     name: check (macos-intel)
     steps:
@@ -465,7 +465,7 @@ jobs:
     if: >-
       github.event_name == 'push'
       || github.event_name == 'workflow_dispatch'
-      || contains(github.event.pull_request.labels.*.name, 'check:windows-arm')
+      || contains(github.event.pull_request.labels.*.name, 'check:windows')
     runs-on: windows-11-arm
     name: check (windows-arm)
     # Colocate CARGO_HOME and TEMP on D: to keep all I/O on the same fast
