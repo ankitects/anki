@@ -34,6 +34,7 @@ class NewAddCards(QMainWindow):
         self.setWindowTitle(tr.actions_add())
         self.setMinimumHeight(300)
         self.setMinimumWidth(400)
+        self.form.verticalLayout_3.setSpacing(0)
         self.setupEditor()
         restoreGeom(self, "add")
         gui_hooks.add_cards_did_init(self)
