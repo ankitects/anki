@@ -297,13 +297,7 @@ impl Collection {
                         card
                     })
                     .collect_vec();
-                let result = simulate(
-                    &config,
-                    &req.params,
-                    dr as f32 / 100.,
-                    None,
-                    Some(cards),
-                )?;
+                let result = simulate(&config, &req.params, dr as f32 / 100., None, Some(cards))?;
                 Ok((
                     dr,
                     (
