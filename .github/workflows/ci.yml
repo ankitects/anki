@@ -192,6 +192,69 @@ jobs:
           path: out
           key: build-Linux-${{ github.event.pull_request.number || 'main' }}-${{ github.run_id }}
 
+  # ARM Linux. Runs on pushes to main or on PRs with the check:linux-arm label.
+  check-linux-arm:
+    if: >-
+      github.event_name == 'push'
+      || github.event_name == 'workflow_dispatch'
+      || contains(github.event.pull_request.labels.*.name, 'check:linux-arm')
+    runs-on: ubuntu-24.04-arm
+    name: check (linux-arm)
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 #v4
+
+      - name: Restore cargo cache
+        uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 #v4
+        with:
+          path: |
+            ~/.cargo/registry/index
+            ~/.cargo/registry/cache
+            ~/.cargo/git/db
+            ~/.cargo/bin
+            ~/.cargo/.crates.toml
+            ~/.cargo/.crates2.json
+          key: cargo-Linux-arm-${{ hashFiles('Cargo.lock') }}
+          restore-keys: cargo-Linux-arm-
+
+      - name: Restore build output cache
+        uses: actions/cache/restore@0057852bfaa89a56745cba8c7296529d2fc39830 #v4
+        with:
+          path: out
+          key: build-Linux-arm-${{ github.event.pull_request.number || 'main' }}-${{ github.run_id }}
+          restore-keys: |
+            build-Linux-arm-${{ github.event.pull_request.number || 'main' }}-
+            build-Linux-arm-main-
+            build-Linux-arm-
+
+      - name: Setup build environment
+        uses: ./.github/actions/setup-anki
+
+      - name: Install just
+        uses: extractions/setup-just@f8a3cce218d9f83db3a2ecd90e41ac3de6cdfd9b #v3
+
+      - name: Symlink node_modules
+        run: ln -sf out/node_modules .
+
+      - name: Build, lint, and test
+        run: |
+          just build
+          just lint
+          just test
+
+      - name: Clean non-cacheable state
+        if: always()
+        shell: bash
+        run: |
+          rm -rf out/pyenv
+          rm -f out/build.ninja
+
+      - name: Save build output cache
+        if: always()
+        uses: actions/cache/save@0057852bfaa89a56745cba8c7296529d2fc39830 #v4
+        with:
+          path: out
+          key: build-Linux-arm-${{ github.event.pull_request.number || 'main' }}-${{ github.run_id }}
+
   # Runs on pushes to main or on PRs with the check:macos label.
   check-macos:
     if: >-
