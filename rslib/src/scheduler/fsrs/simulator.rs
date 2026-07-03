@@ -158,7 +158,7 @@ impl Collection {
             .into_iter()
             .filter(is_included_card)
             .filter_map(|c| {
-                let desired_retention = c.desired_retention.unwrap_or(req.desired_retention);
+                let desired_retention = req.desired_retention;
                 let memory_state = match c.memory_state {
                     Some(state) => state,
                     // cards that lack memory states after compute_memory_state have no FSRS items,
