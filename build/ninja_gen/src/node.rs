@@ -213,26 +213,31 @@ impl BuildAction for DPrint {
 
 pub struct Prettier {
     pub inputs: BuildInput,
+    // We don't expand the pattern to work around command length limitations in cmd.exe
+    pub pattern: &'static str,
     pub check_only: bool,
 }
 
 impl BuildAction for Prettier {
     fn command(&self) -> &str {
-        "$yarn prettier --cache $mode $pattern"
+        "$yarn prettier --cache $mode \"$pattern\""
     }
 
     fn files(&mut self, build: &mut impl build::FilesHandle) {
         build.add_inputs("yarn", inputs![":yarn:bin"]);
         build.add_inputs("prettier", inputs![":node_modules:prettier"]);
-        build.add_inputs("", &self.inputs);
-        build.add_variable("pattern", r#""**/*.svelte""#);
+        build.add_inputs("in", &self.inputs);
+        build.add_variable("pattern", self.pattern);
         let (file_ext, mode) = if self.check_only {
             ("fmt", "--check")
         } else {
             ("check", "--write")
         };
         build.add_variable("mode", mode);
-        build.add_output_stamp(format!("tests/prettier.{file_ext}"));
+        build.add_output_stamp(format!(
+            "tests/prettier.{}.{file_ext}",
+            simple_hash(&self.inputs)
+        ));
     }
 }
 

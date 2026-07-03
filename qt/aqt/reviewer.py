@@ -686,6 +686,9 @@ class Reviewer:
             play_clicked_audio(url, self.card)
         elif url.startswith("updateToolbar"):
             self.mw.toolbarWeb.update_background_image()
+        elif url == "repaintNeeded":
+            # Ensure stale frames showing previous or corrupt content are not displayed (#3668)
+            self.web.update()
         elif url == "statesMutated":
             self._states_mutated = True
         else:

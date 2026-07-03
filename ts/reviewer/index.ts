@@ -188,6 +188,7 @@ export function _showQuestion(q: string, a: string, bodyclass: string): void {
 
 function scrollToAnswer(): void {
     document.getElementById("answer")?.scrollIntoView();
+    bridgeCommand("repaintNeeded");
 }
 
 export function _showAnswer(a: string, bodyclass: string): void {

@@ -107,6 +107,11 @@ def get_briefcase_config_args(args: argparse.Namespace) -> list[str]:
             ["-C", "requires=[" + ",".join(f'"{dep}"' for dep in requires) + "]"]
         )
     config_args.extend(["-C", f'template="{template_path.absolute().as_posix()}"'])
+    if sys.platform == "win32":
+        compression_level = (
+            "high" if os.environ.get("RELEASE") in ("1", "2") else "none"
+        )
+        config_args.extend(["-C", f'compression_level="{compression_level}"'])
 
     return config_args
 
@@ -219,7 +224,8 @@ def get_platform_suffix() -> str:
         platform_suffix = f"-mac-{arch}"
     elif sys.platform == "linux":
         arch = platform.machine()
-        platform_suffix = f"-linux-{arch}"
+        # Preserve .tar.zst suffix after file is renamed
+        platform_suffix = f"-linux-{arch}.tar"
     return platform_suffix
 
 

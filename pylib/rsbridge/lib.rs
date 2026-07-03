@@ -46,27 +46,31 @@ fn open_backend(init_msg: &Bound<'_, PyBytes>) -> PyResult<Backend> {
 
 #[pymethods]
 impl Backend {
-    fn command(
+    fn command<'a>(
         &self,
-        py: Python,
+        py: Python<'a>,
         service: u32,
         method: u32,
-        input: &Bound<'_, PyBytes>,
-    ) -> PyResult<PyObject> {
+        input: &Bound<'a, PyBytes>,
+    ) -> PyResult<Bound<'a, PyBytes>> {
         let in_bytes = input.as_bytes();
-        py.allow_threads(|| self.backend.run_service_method(service, method, in_bytes))
+        py.detach(|| self.backend.run_service_method(service, method, in_bytes))
             .map(|out_bytes| {
                 let out_obj = PyBytes::new(py, &out_bytes);
-                out_obj.into()
+                out_obj
             })
             .map_err(BackendError::new_err)
     }
 
     /// This takes and returns JSON, due to Python's slow protobuf
     /// encoding/decoding.
-    fn db_command(&self, py: Python, input: &Bound<'_, PyBytes>) -> PyResult<PyObject> {
+    fn db_command<'a>(
+        &self,
+        py: Python<'a>,
+        input: &Bound<'a, PyBytes>,
+    ) -> PyResult<Bound<'a, PyBytes>> {
         let in_bytes = input.as_bytes();
-        let out_res = py.allow_threads(|| {
+        let out_res = py.detach(|| {
             self.backend
                 .run_db_command_bytes(in_bytes)
                 .map_err(BackendError::new_err)

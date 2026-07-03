@@ -11,11 +11,6 @@ import sys
 from collections.abc import Callable
 from typing import TYPE_CHECKING, Any, Union, cast
 
-if "ANKI_FIRST_RUN" in os.environ:
-    from .package import first_run_setup
-
-    first_run_setup()
-
 try:
     import truststore
 
@@ -43,10 +38,6 @@ if "--syncserver" in sys.argv:
 
     # does not return
     run_sync_server()
-
-from .package import _fix_win_taskbar_pinning
-
-_fix_win_taskbar_pinning()
 
 import argparse
 import builtins
@@ -270,11 +261,15 @@ def setupLangAndBackend(
     else:
         app.setLayoutDirection(Qt.LayoutDirection.LeftToRight)
 
+    # so the webview and native controls localize to Anki's language, not the OS
+    QLocale.setDefault(QLocale(lang))
+
+    qt_lang = lang.replace("-", "_")
+
     # load qt translations
     _qtrans = QTranslator()
 
     qt_dir = QLibraryInfo.path(QLibraryInfo.LibraryPath.TranslationsPath)
-    qt_lang = lang.replace("-", "_")
     if _qtrans.load(f"qtbase_{qt_lang}", qt_dir):
         app.installTranslator(_qtrans)
 

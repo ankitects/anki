@@ -14,7 +14,7 @@ Usage:
 
 Exits with code 1 if any stack's line coverage is below the baseline.
 
-Tolerance: 0.10% — small decreases within this margin are ignored to absorb
+Tolerance: 0.20% — small decreases within this margin are ignored to absorb
 instrumentation noise across runs. Anything beyond this is treated as a
 regression. If a decrease is acceptable (e.g. dead code removed), update
 the baseline by merging to main.
@@ -25,7 +25,9 @@ import sys
 from pathlib import Path
 from typing import Any, Callable, TypedDict
 
-TOLERANCE = 0.1  # percentage points; absorbs instrumentation noise across runs
+TOLERANCE = 0.2  # percentage points; absorbs instrumentation noise across runs
+# (0.1 produced false positives: llvm-cov/coverage.py fluctuate up to ~0.15pp
+#  between identical runs due to non-deterministic macro/generic instrumentation)
 
 
 class Stack(TypedDict):

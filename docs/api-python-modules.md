@@ -1,4 +1,6 @@
-# API Modules
+# anki
+
+The pages below are generated from Python docstrings in `pylib/anki`.
 
 ```{toctree}
 :maxdepth: 2

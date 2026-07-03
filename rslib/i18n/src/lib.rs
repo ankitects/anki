@@ -2,7 +2,6 @@
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 mod generated;
-mod generated_launcher;
 
 use std::borrow::Cow;
 use std::marker::PhantomData;
@@ -23,7 +22,6 @@ type FluentBundle<T> = FluentBundleOrig<T, intl_memoizer::concurrent::IntlLangMe
 pub use fluent::fluent_args as tr_args;
 
 pub use crate::generated::All;
-pub use crate::generated_launcher::Launcher;
 
 pub trait Number: Into<FluentNumber> {
     fn round(self) -> Self;

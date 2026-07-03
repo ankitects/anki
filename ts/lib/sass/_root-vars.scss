@@ -2,6 +2,7 @@
  * License: GNU AGPL, version 3 or later, http://www.gnu.org/licenses/agpl.html */
 
 @use "sass:map";
+@use "sass:string";
 @use "vars" as *;
 @use "functions" as *;
 @use "scrollbar";
@@ -11,7 +12,7 @@
     $colors: map.get($vars, colors);
 
     @each $name, $val in create-vars-from-map($colors, light) {
-        @if str-index($name, "comment") == 1 {
+        @if string.index($name, "comment") == 1 {
             /*! #{$val} */
         } @else {
             #{$name}: #{$val};
@@ -21,7 +22,7 @@
 
     &.night-mode {
         @each $name, $val in create-vars-from-map($colors, dark) {
-            @if str-index($name, "comment") == 1 {
+            @if string.index($name, "comment") == 1 {
                 /*! #{$val} */
             } @else {
                 #{$name}: #{$val};
@@ -35,7 +36,7 @@
 :root {
     $props: map.get($vars, props);
     @each $name, $val in create-vars-from-map($props, light) {
-        @if str-index($name, "comment") == 1 {
+        @if string.index($name, "comment") == 1 {
             /*! #{$val} */
         } @else {
             #{$name}: #{$val};
@@ -43,7 +44,7 @@
     }
     &.night-mode {
         @each $name, $val in create-vars-from-map($props, dark) {
-            @if str-index($name, "comment") == 1 {
+            @if string.index($name, "comment") == 1 {
                 /*! #{$val} */
             } @else {
                 #{$name}: #{$val};

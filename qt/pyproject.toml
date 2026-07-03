@@ -15,7 +15,6 @@ urls.homepage = "https://github.com/ankitects/anki"
 dependencies = [
   "beautifulsoup4",
   "flask",
-  "flask_cors",
   "jsonschema",
   "requests",
   "send2trash",

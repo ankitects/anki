@@ -39,6 +39,7 @@ class DeckOptionsDialog(QDialog):
         self.setWindowModality(Qt.WindowModality.ApplicationModal)
         self.mw.garbage_collect_on_dialog_finish(self)
         self.setMinimumWidth(400)
+        self.setMinimumHeight(500)
         disable_help_button(self)
         restoreGeom(self, self.TITLE, default_size=(800, 800))
 

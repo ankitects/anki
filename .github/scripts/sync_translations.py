@@ -27,8 +27,7 @@ def sync() -> None:
     check_clean()
     for module in modules:
         fetch_new_translations(module)
-        # FIXME: commented out to avoid pushing launcher.ftl for now
-        # push_new_templates(module)
+        push_new_templates(module)
     commit(".", "Update translations")
     push(".")
 

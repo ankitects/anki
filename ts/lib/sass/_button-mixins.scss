@@ -4,9 +4,6 @@
 @use "sass:color";
 @use "./elevation" as *;
 
-@import "bootstrap/scss/functions";
-@import "bootstrap/scss/variables";
-
 @mixin impressed-shadow($intensity) {
     box-shadow: inset 0 calc(var(--buttons-size, 10px) / 15)
         calc(var(--buttons-size, 10px) / 5) rgba(black, $intensity);

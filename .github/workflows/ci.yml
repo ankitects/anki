@@ -121,6 +121,20 @@ jobs:
           just lint
           just test --coverage
 
+      - name: Run complexipy diff
+        id: complexipy
+        continue-on-error: true
+        run: |
+          git fetch origin main:main 2>/dev/null || true
+          just complexipy-diff
+
+      - name: Upload SARIF results for complexipy
+        if: steps.complexipy.outcome == 'failure'
+        uses: github/codeql-action/upload-sarif@a6fd1787519fd23e68309fad43738e41a6ff2a9d #v4
+        with:
+            sarif_file: out/complexipy/complexipy-results.sarif
+            category: complexipy
+
       - name: Cache coverage baseline
         if: github.ref_name == 'main'
         uses: actions/cache/save@0057852bfaa89a56745cba8c7296529d2fc39830 #v4

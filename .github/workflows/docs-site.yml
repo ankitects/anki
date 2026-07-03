@@ -1,0 +1,44 @@
+name: Docs Site
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+    paths:
+      - ".github/workflows/docs-site.yml"
+      - "docs-site/**"
+      - "pylib/tools/genhooks.py"
+      - "pylib/tools/hookslib.py"
+      - "qt/tools/genhooks_gui.py"
+      - "tools/mintlify_hooks.py"
+      - "tools/tests/test_mintlify_hooks.py"
+
+jobs:
+  validate:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 #v4
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@94527f2e458b27549849d47d273a16bec83a01e9 #v7
+
+      - name: Setup Node.js
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 #v4
+        with:
+          node-version: "22.15.0"
+
+      - name: Install Mintlify CLI
+        run: npm install -g mintlify
+
+      - name: Test docs generation
+        run: uv run python -m pytest tools/tests/test_mintlify_hooks.py
+
+      - name: Validate Mintlify docs
+        run: mintlify validate
+        working-directory: docs-site
+
+      - name: Check for accessibility issues
+        run: mintlify a11y --skip-contrast
+        working-directory: docs-site

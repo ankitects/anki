@@ -103,7 +103,7 @@ jobs:
           {
             echo "pep440_version=$version"
             echo "tag_name=$version"
-            echo "release_name=Anki $version"
+            echo "release_name=$version"
             echo "public_release=$public_release"
             echo "is_prerelease=$is_prerelease"
           } >> "$GITHUB_OUTPUT"
@@ -580,9 +580,6 @@ jobs:
       # Upload both anki and aqt wheels; the pure-Python aqt wheel is the same on all platforms
       - name: Build wheels
         run: ./ninja wheels
-
-      - name: Build anki-release wheel
-        run: cd qt/release && bash build.sh
 
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 #v4
         with:

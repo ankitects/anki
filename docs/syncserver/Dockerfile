@@ -1,4 +1,4 @@
-FROM rust:1.85.0-alpine3.20 AS builder
+FROM rust:1.92.0-alpine3.23 AS builder
 
 ARG ANKI_VERSION
 
@@ -10,7 +10,7 @@ RUN cargo install --git https://github.com/ankitects/anki.git \
 --locked \
 anki-sync-server
 
-FROM alpine:3.21.0
+FROM alpine:3.23
 
 # Default PUID and PGID values (can be overridden at runtime). Use these to
 # ensure the files on the volume have the permissions you need.
@@ -30,10 +30,12 @@ RUN chmod +x /entrypoint.sh
 ENTRYPOINT ["/entrypoint.sh"]
 CMD ["anki-sync-server"]
 
-# This health check will work for Anki versions 24.08.x and newer.
-# For older versions, it may incorrectly report an unhealthy status, which should not be the case.
+# Use the built-in healthcheck to avoid noisy HTTP log entries on every probe.
+# The --healthcheck flag exits 0 if the server is healthy, 1 otherwise, and
+# produces no stdout output — allowing Docker/k3s to surface health status
+# without polluting container logs.
 HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
-    CMD wget -qO- http://127.0.0.1:8080/health || exit 1
+    CMD anki-sync-server --healthcheck
 
 VOLUME /anki_data
 

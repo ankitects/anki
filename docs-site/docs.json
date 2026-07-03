@@ -1,0 +1,629 @@
+{
+    "$schema": "https://mintlify.com/docs.json",
+    "name": "Anki Docs",
+    "redirects": [
+      {
+        "source": "/getting-help",
+        "destination": "/manual/getting-help"
+      },
+      {
+        "source": "/when-problems-occur",
+        "destination": "/manual/troubleshooting"
+      },
+      {
+        "source": "/faqs/ankiapp-is-not-part-of-the-anki-ecosystem",
+        "destination": "/faqs/anki-knockoffs"
+      },
+      {
+        "source": "/manual/faqs",
+        "destination": "/faqs/"
+      },
+      {
+        "source": "/faqs/when-problems-occur",
+        "destination": "/manual/troubleshooting"
+      }
+    ],
+    "theme": "mint",
+    "colors": {
+        "primary": "#4B94D8",
+        "light": "#6BADE8",
+        "dark": "#2F75B5"
+    },
+    "favicon": "/media/anki-logo.svg",
+    "logo": {
+        "light": "/media/anki-logo.svg",
+        "dark": "/media/anki-logo.svg"
+    },
+    "fonts": {
+        "family": "Hanken Grotesk"
+    },
+    
+    "navigation": {
+            "languages": [
+      {
+        "language": "en",
+                "tabs": [
+            {
+                "tab": "Manual",
+                "groups": [
+                    {
+                        "group": "Desktop Manual",
+                        "pages": [
+                          "manual/intro",
+                          "manual/getting-started",
+                            "manual/background",
+                            {
+                                "group": "Platform Notes",
+                                "icon": "computer",
+                                "pages": [
+                                    "manual/platform/intro",
+                                    {
+                                        "group": "Windows",
+                                        "icon": "microsoft",
+                                        "pages": [
+                                            "manual/platform/windows/intro",
+                                            "manual/platform/windows/installing",
+                                            "manual/platform/windows/installation-issues",
+                                            "manual/platform/windows/startup-issues",
+                                            "manual/platform/windows/display-issues",
+                                            "manual/platform/windows/copy-and-paste",
+                                            "manual/platform/windows/text-size",
+                                            "manual/platform/windows/permission-problems"
+                                        ]
+                                    },
+                                    {
+                                        "group": "MacOS",
+                                        "icon": "apple",
+                                        "pages": [
+                                            "manual/platform/mac/intro",
+                                            "manual/platform/mac/installing",
+                                            "manual/platform/mac/display-issues"
+                                        ]
+                                    },
+                                    {
+                                        "group": "Linux",
+                                        "icon": "bird",
+                                        "pages": [
+                                            "manual/platform/linux/intro",
+                                            "manual/platform/linux/installing",
+                                            "manual/platform/linux/missing-libraries",
+                                            "manual/platform/linux/display-issues",
+                                            "manual/platform/linux/blank-window",
+                                            "manual/platform/linux/gtk-theme",
+                                            "manual/platform/linux/wayland",
+                                            "manual/platform/linux/input-methods"
+                                        ]
+                                    }
+                                ]
+                            },
+                            "manual/platform/linux/distro-packages",
+                            "manual/getting-help",
+                            "manual/studying",
+                            "manual/editing",
+                            {
+                                "group": "Card Templates",
+                                "icon": "cards-blank",
+                                "pages": [
+                                    "manual/templates/intro",
+                                    "manual/templates/fields",
+                                    "manual/templates/generation",
+                                    "manual/templates/styling",
+                                    "manual/templates/errors"
+                                ]
+                            },
+                            "manual/preferences",
+                            "manual/deck-options",
+                            "manual/syncing",
+                            "manual/profiles",
+                            "manual/browsing",
+                            "manual/filtered-decks",
+                            "manual/searching",
+                            {
+                                "group": "Importing",
+                                "icon": "down-from-bracket",
+                                "pages": [
+                                    "manual/importing/intro",
+                                    "manual/importing/text-files",
+                                    "manual/importing/packaged-decks"
+                                ]
+                            },
+                            "manual/exporting",
+                            "manual/backups",
+                            "manual/files",
+                            "manual/stats",
+                            "manual/media",
+                            "manual/math",
+                            "manual/leeches",
+                            "manual/addons",
+                            "manual/troubleshooting",
+                            "manual/sync-server",
+                            "manual/misc",
+                            "manual/contrib",
+                            "manual/resources"
+                        ],
+                        "expanded": true
+                    }
+                ]
+            },
+            {
+                "tab": "AnkiMobile",
+                "groups": [
+                    {
+                        "group": "AnkiMobile Manual",
+                        "pages": [
+                            "ankimobile/intro",
+                            "ankimobile/support",
+                            "ankimobile/interface-language",
+                            "ankimobile/syncing",
+                            "ankimobile/shared-decks",
+                            "ankimobile/deck-list",
+                            "ankimobile/study-screen",
+                            "ankimobile/study-tools",
+                            "ankimobile/editing",
+                            "ankimobile/preferences",
+                            "ankimobile/collection-transfer",
+                            "ankimobile/tts",
+                            "ankimobile/mathjax",
+                            "ankimobile/custom-fonts",
+                            "ankimobile/night-mode",
+                            "ankimobile/url-schemes",
+                            "ankimobile/reinstalling",
+                            "ankimobile/beta-testing",
+                            "ankimobile/more"
+                        ]
+                    }
+                ]
+            },
+            {
+                "tab": "FAQs",
+                "groups": [
+                    {
+                        "group": "Support FAQs",
+                        "pages": [
+                          "automatic-backups",
+                            {
+                              "group": "Cards and Notes",
+                              "icon": "cards-blank",
+                              "pages": [
+                                "faqs/linking-cards-together",
+                                "faqs/can-i-reveal-parts-of-a-card-one-at-a-time",
+                                "faqs/card-template-has-a-problem",
+                                "faqs/cards-are-reversed-appearing-twice",
+                                "faqs/characters-are-cut-off",
+                                "faqs/customizing-mathjax",
+                                "faqs/errors-when-recording",
+                                "faqs/extra-characters-appearing-on-cards",
+                                "faqs/multiple-choice-questions",
+                                "faqs/no-cloze-found-on-card",
+                                "faqs/printing-cards-in-your-collection",
+                                "faqs/removing-duplicate-note-types",
+                                "faqs/some-updates-were-ignored-because-the-note-type-has-changed",
+                                "faqs/sounds-or-images-have-gone-missing",
+                                "faqs/splitting-a-field-into-multiple-fields",
+                                "faqs/text-to-speech-support",
+                                "faqs/sticky-fields"
+                              ]
+                            },
+                            {
+                              "group": "Decks",
+                              "icon": "book-sparkles",
+                              "pages": [
+                                "faqs/a-deck-i-want-has-disappeared-from-ankiweb",
+                                "faqs/a-shared-deck-is-not-showing-images-or-playing-audio",
+                                "faqs/cards-are-being-placed-in-the-default-deck",
+                                "faqs/hiding-decks",
+                                "faqs/how-can-i-work-with-someone-else-to-create-a-deck",
+                                "faqs/how-do-i-move-cards-between-decks",
+                                "faqs/merging-or-combining-two-decks",
+                                "faqs/shared-decks-with-broken-javascript",
+                                "faqs/timestamps-in-the-future"
+                              ]
+                            },
+                            {
+                              "group": "Scheduling",
+                              "icon": "calendar-clock",
+                              "pages": [
+                                "faqs/anki-is-not-showing-me-all-my-cards",
+                                "faqs/study-in-a-particular-order",
+                                "faqs/due-times-after-a-break",
+                                "faqs/extra-copies-of-a-card-are-coming-up",
+                                "faqs/hard-good-interval-longer-than-good-easy",
+                                "faqs/i-am-going-on-vacation-can-i-pause-the-scheduler",
+                                "faqs/learning-steps-skipped-or-repeated",
+                                "faqs/resetting-progress-in-a-deck",
+                                "faqs/settings-for-using-anki-to-prepare-for-a-large-exam",
+                                "faqs/the-anki-2.1-scheduler",
+                                "faqs/the-2021-scheduler",
+                                "faqs/timezone-handling-changes",
+                                "faqs/what-spaced-repetition-algorithm",
+                                "faqs/frequently-asked-questions-about-fsrs"
+                              ]
+                            },
+                            {
+                              "group": "Synchronising and Ankiweb",
+                              "icon": "globe-pointer",
+                              "pages": [
+                                "faqs/ankiweb-account-removal",
+                                "faqs/are-there-limits-on-file-sizes-on-ankiweb",
+                                "faqs/can-i-sync-only-some-of-my-decks",
+                                "faqs/email-verification",
+                                "faqs/emails-not-being-received",
+                                "faqs/error-establishing-a-secure-connection-when-syncing",
+                                "faqs/media-files-may-take-time-to-sync",
+                                "faqs/outlook-silently-discards-email",
+                                "faqs/synchronizing-multiple-profiles",
+                                "faqs/syncing-failed-connection-timed-out-errors-when-syncing",
+                                "faqs/sounds-or-images-are-not-appearing-on-ankiweb-or-the-mobile-clients"
+                              ]
+                            },
+                            {
+                              "group": "Anki Desktop",
+                              "icon": "computer",
+                              "pages": [
+                                "faqs/shortcut-not-working",
+                                "faqs/anki-must-be-able-to-connect-to-a-local-port",
+                                "faqs/anki-says-my-clock-is-wrong",
+                                "faqs/changing-the-font",
+                                "faqs/changing-the-interface-language",
+                                "faqs/my-antivirus-program-says-anki-is-infected",
+                                "faqs/running-from-python",
+                                "faqs/screenshots-large-and-blurry-on-retina-displays"
+                              ]
+                            },
+                            {
+                              "group": "Anki Mobile",
+                              "icon": "mobile",
+                              "pages": [
+                                "faqs/requesting-a-refund-for-ankimobile",
+                                "faqs/retrieving-ankimobile-crash-logs",
+                                "faqs/why-does-ankimobile-cost-more-than-a-typical-mobile-app"
+                              ]
+                            },
+                            {
+                              "group": "Other Apps",
+                              "pages": [
+                                "faqs/ankidroid-has-a-separate-support-site",
+                                "faqs/anki-knockoffs",
+                                "faqs/ankiuniversal-is-not-supported-here",
+                                "faqs/we-do-not-make-robots"
+                              ]
+                            },
+                            {
+                              "group": "Misc",
+                              "pages": [
+                                "faqs/anki-2.0-support-has-ended",
+                                "faqs/anki-2.0-add-ons",
+                                "faqs/can-i-use-anki-in-a-company-or-school",
+                                "faqs/how-can-i-donate"
+                              ]
+                            }
+                          ]
+                    }
+                ]
+            },
+            {
+                "tab": "Add-ons",
+                "groups": [
+                    {
+                        "group": "Add-on Development",
+                        "pages": [
+                            "addons/intro",
+                            "addons/support",
+                            "addons/editor-setup",
+                            "addons/mypy",
+                            "addons/addon-folders",
+                            "addons/a-basic-addon",
+                            "addons/the-anki-module",
+                            "addons/command-line-use",
+                            "addons/hooks-and-filters",
+                            "addons/hooks-reference",
+                            "addons/console-output",
+                            "addons/background-ops",
+                            "addons/qt",
+                            "addons/python-modules",
+                            "addons/addon-config",
+                            "addons/reviewer-javascript",
+                            "addons/debugging",
+                            "addons/monkey-patching",
+                            "addons/sharing",
+                            "addons/porting2.1.x",
+                            "addons/porting2.0"
+                        ]
+                    }
+                ]
+            },
+            {
+                "tab": "Developers",
+                "groups": [
+                    {
+                        "group": "Core Development",
+                        "pages": [
+                          "developers/development",
+                            "developers/api-python",
+                            "developers/api-rust",
+                            "developers/architecture",
+                            "developers/build",
+                            "developers/contributing",
+                            "developers/docker",
+                            "developers/editing",
+                            "developers/language_bridge",
+                            "developers/linux",
+                            "developers/mac",
+                            "developers/ninja",
+                            "developers/protobuf",
+                            "developers/releasing",
+                            "developers/syncserver",
+                            "developers/testing-coverage",
+                            "developers/windows"
+                        ]
+                    }
+                ]
+            },
+            {
+                "tab": "Translators",
+                "groups": [
+                    {
+                        "group": "Translation Guide",
+                        "pages": [
+                            "translators/intro",
+                            {
+                                "group": "Translating Anki",
+                                "pages": [
+                                    "translators/anki/intro",
+                                    "translators/anki/core",
+                                    "translators/anki/desktop",
+                                    "translators/anki/manual",
+                                    "translators/anki/developers"
+                                ]
+                            },
+                            "translators/ankimobile",
+                            "translators/ankidroid"
+                        ]
+                    }
+                ]
+            },
+            {
+                "tab": "Releases",
+                "groups": [
+                    {
+                        "group": "Release Notes",
+                        "pages": [
+                          "releases/betas/intro",
+                          "releases/changes/known-issues",
+                            "releases/changes/changes/intro",
+                            "releases/changes/changes/github",
+                            "releases/changes/changes/23.10",
+                            "releases/changes/changes/2.1.60-66",
+                            "releases/changes/changes/2.1.50-59",
+                            "releases/changes/changes/2.1.40-49",
+                            "releases/changes/changes/2.1.30-39",
+                            "releases/changes/changes/2.1.20-29",
+                            "releases/changes/changes/2.1.10-19",
+                            "releases/changes/changes/2.1.0-9",
+                            "releases/changes/changes/2.1",
+                            "releases/betas/2021-scheduler",
+                            "releases/betas/github",
+                            "releases/betas/anki23.10",
+                            "releases/betas/anki2.1.66",
+                            "releases/betas/anki2.1.62",
+                            "releases/betas/anki2.1.61",
+                            "releases/betas/anki2.1.57",
+                            "releases/betas/anki2.1.56",
+                            "releases/betas/anki2.1.55",
+                            "releases/betas/anki2.1.54",
+                            "releases/betas/anki2.1.53",
+                            "releases/betas/anki2.1.52",
+                            "releases/betas/anki2.1.51",
+                            "releases/betas/anki2.1.50",
+                            "releases/betas/anki2.1.48",
+                            "releases/betas/anki2.1.47",
+                            "releases/betas/anki2.1.45",
+                            "releases/betas/anki2.1.44",
+                            "releases/betas/anki2.1.43",
+                            "releases/betas/anki2.1.41",
+                            "releases/betas/older"
+                        ]
+                    }
+                ]
+            }
+        ]
+      },
+      {
+        "language": "de",
+        "tabs": [
+          {
+            "tab": "Manual",
+            "groups": [
+              {
+                "group": "Desktop Manual",
+                "pages": ["de/manual/intro"]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "language": "es",
+        "tabs": [
+          {
+            "tab": "Manual",
+            "groups": [
+              {
+                "group": "Desktop Manual",
+                "pages": ["es/manual/intro"]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "language": "fr",
+        "tabs": [
+          {
+            "tab": "Manual",
+            "groups": [
+              {
+                "group": "Desktop Manual",
+                "pages": ["fr/manual/intro"]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "language": "it",
+        "tabs": [
+          {
+            "tab": "Manual",
+            "groups": [
+              {
+                "group": "Desktop Manual",
+                "pages": ["it/manual/intro"]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "language": "id",
+        "tabs": [
+          {
+            "tab": "Manual",
+            "groups": [
+              {
+                "group": "Desktop Manual",
+                "pages": ["id/manual/intro"]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "language": "uz",
+        "tabs": [
+          {
+            "tab": "Manual",
+            "groups": [
+              {
+                "group": "Desktop Manual",
+                "pages": ["uz/manual/intro"]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "language": "pl",
+        "tabs": [
+          {
+            "tab": "Manual",
+            "groups": [
+              {
+                "group": "Desktop Manual",
+                "pages": ["pl/manual/intro"]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "language": "pt",
+        "tabs": [
+          {
+            "tab": "Manual",
+            "groups": [
+              {
+                "group": "Desktop Manual",
+                "pages": ["pt/manual/intro"]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "language": "ru",
+        "tabs": [
+          {
+            "tab": "Manual",
+            "groups": [
+              {
+                "group": "Desktop Manual",
+                "pages": ["ru/manual/intro"]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "language": "uk",
+        "tabs": [
+          {
+            "tab": "Manual",
+            "groups": [
+              {
+                "group": "Desktop Manual",
+                "pages": ["uk/manual/intro"]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "language": "ar",
+        "tabs": [
+          {
+            "tab": "Manual",
+            "groups": [
+              {
+                "group": "Desktop Manual",
+                "pages": ["ar/manual/intro"]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "language": "ja",
+        "tabs": [
+          {
+            "tab": "Manual",
+            "groups": [
+              {
+                "group": "Desktop Manual",
+                "pages": ["ja/manual/intro"]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "language": "zh-Hans",
+        "tabs": [
+          {
+            "tab": "Manual",
+            "groups": [
+              {
+                "group": "Desktop Manual",
+                "pages": ["zh-Hans/manual/intro"]
+              }
+            ]
+          }
+        ]
+      }
+    ],
+        "global": {
+            "anchors": [
+                {
+                    "anchor": "Anki",
+                    "href": "https://apps.ankiweb.net",
+                    "icon": "house"
+                },
+                {
+                    "anchor": "GitHub",
+                    "href": "https://github.com/ankitects/anki",
+                    "icon": "github"
+                }
+            ]
+        }
+    }
+}

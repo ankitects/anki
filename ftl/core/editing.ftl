@@ -49,6 +49,10 @@ editing-show-duplicates = Show Duplicates
 editing-subscript = Subscript
 editing-superscript = Superscript
 editing-tags = Tags
+editing-tag-count = {$count ->
+  [one] { $count } tag
+  *[other] { $count } tags
+}
 editing-tags-add = Add tag
 editing-tags-copy = Copy tags
 editing-tags-remove = Remove tags
