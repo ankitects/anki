@@ -438,6 +438,24 @@ impl Collection {
         )
     }
 
+    fn fsrs_enabled(&self) -> bool {
+        self.state
+            // Card queues are re-built when the deck config is saved so this will be kept up to
+            // date. See: https://github.com/ankitects/anki/blob/acdf486b290bd47d13e2e880fbb1c14773899091/rslib/src/ops.rs#L168-L181
+            .card_queues
+            .as_ref()
+            .map(|q| q.fsrs_enabled)
+            .unwrap_or_else(|| self.get_config_bool(BoolKey::Fsrs))
+    }
+
+    fn fsrs_short_term_with_steps_enabled(&self) -> bool {
+        self.state
+            .card_queues
+            .as_ref()
+            .map(|q| q.fsrs_short_term_with_steps)
+            .unwrap_or_else(|| self.get_config_bool(BoolKey::FsrsShortTermWithStepsEnabled))
+    }
+
     fn card_state_updater(&mut self, mut card: Card) -> Result<CardStateUpdater> {
         let timing = self.timing_today()?;
         let deck = self
@@ -458,10 +476,10 @@ impl Collection {
             .unwrap_or_default();
 
         let desired_retention = home_deck.effective_desired_retention(&config);
-        let fsrs_enabled = self.get_config_bool(BoolKey::Fsrs);
+        let fsrs_enabled = self.fsrs_enabled();
         let fsrs_next_states = if fsrs_enabled {
             let params = config.fsrs_params();
-            let fsrs = FSRS::new(Some(params))?;
+            let fsrs = FSRS::new(params)?;
             card.decay = Some(get_decay_from_params(params));
             if card.memory_state.is_none() && card.ctype != CardType::New {
                 // Card has been moved or imported into an FSRS deck after params were set,
@@ -494,8 +512,7 @@ impl Collection {
             None
         };
         let desired_retention = fsrs_enabled.then_some(desired_retention);
-        let fsrs_short_term_with_steps =
-            self.get_config_bool(BoolKey::FsrsShortTermWithStepsEnabled);
+        let fsrs_short_term_with_steps = self.fsrs_short_term_with_steps_enabled();
         let fsrs_allow_short_term = if fsrs_enabled {
             let params = config.fsrs_params();
             if params.len() >= 19 {
@@ -856,10 +873,17 @@ pub(crate) mod test {
         }};
     }
 
-    // FIXME: This fails between 3:50-4:00 GMT
     #[test]
     fn new_limited_by_reviews() -> Result<()> {
         let (mut col, cids) = v3_test_collection(4)?;
+        // The final answer schedules a learning card a 10-minute step ahead. Run
+        // shortly before the daily cutoff (e.g. 3:50-4:00 GMT with the default 4am
+        // rollover), that step crosses into the next day and the card is no longer
+        // counted as intraday learning, so the expected counts break. Skip in that
+        // window, as the sibling timing-sensitive tests do.
+        if col.timing_today()?.near_cutoff() {
+            return Ok(());
+        }
         col.set_due_date(&cids[0..2], "0", None)?;
         // set a limit of 3 reviews, which should give us 2 reviews and 1 new card
         let mut conf = col.get_deck_config(DeckConfigId(1), false)?.unwrap();

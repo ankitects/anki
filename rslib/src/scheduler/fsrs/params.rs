@@ -19,6 +19,7 @@ use fsrs::FSRSItem;
 use fsrs::FSRSReview;
 use fsrs::MemoryState;
 use fsrs::ModelEvaluation;
+use fsrs::TrainingConfig;
 use fsrs::FSRS;
 use itertools::Itertools;
 use prost::Message;
@@ -94,7 +95,7 @@ impl Collection {
         self.clear_progress();
         let timing = self.timing_today()?;
         let revlogs = self.revlog_for_srs(search)?;
-        let (items, review_count) =
+        let (items, card_ids, review_count) =
             fsrs_items_for_training(revlogs.clone(), timing.next_day_at, ignore_revlogs_before);
 
         let fsrs_items = items.len() as u32;
@@ -135,18 +136,22 @@ impl Collection {
         };
 
         let (progress, progress_thread) = create_progress_thread()?;
-        let fsrs = FSRS::new(None)?;
         let input = ComputeParametersInput {
             train_set: items.clone(),
+            card_ids: Some(card_ids),
             progress: Some(progress.clone()),
             enable_short_term: true,
             num_relearning_steps: Some(num_of_relearning_steps),
+            training_config: Some(TrainingConfig {
+                num_epochs: 8,
+                ..Default::default()
+            }),
         };
-        let mut params = fsrs.compute_parameters(input.clone())?;
+        let mut params = fsrs::compute_parameters(input.clone())?;
         progress_thread.join().ok();
-        if let Ok(current_fsrs) = FSRS::new(Some(current_params)) {
+        if let Ok(current_fsrs) = FSRS::new(current_params) {
             let current_log_loss = current_fsrs.evaluate(items.clone(), |_| true)?.log_loss;
-            let optimized_fsrs = FSRS::new(Some(&params))?;
+            let optimized_fsrs = FSRS::new(&params)?;
             let optimized_log_loss = optimized_fsrs.evaluate(items.clone(), |_| true)?.log_loss;
             if current_log_loss <= optimized_log_loss {
                 if num_of_relearning_steps <= 1 {
@@ -175,8 +180,7 @@ impl Collection {
         }
 
         let health_check_passed = if health_check && input.train_set.len() > 300 {
-            let fsrs = FSRS::new(None)?;
-            fsrs.evaluate_with_time_series_splits(input, |_| true)
+            fsrs::evaluate_with_time_series_splits(input, |_| true)
                 .ok()
                 .map(|eval| {
                     let r = items.iter().fold(0, |p, item| {
@@ -279,18 +283,22 @@ impl Collection {
     ) -> Result<ModelEvaluation> {
         let timing = self.timing_today()?;
         let revlogs = self.revlog_for_srs(search)?;
-        let (items, review_count) =
+        let (items, card_ids, review_count) =
             fsrs_items_for_training(revlogs, timing.next_day_at, ignore_revlogs_before);
         let mut anki_progress = self.new_progress_handler::<ComputeParamsProgress>();
         anki_progress.state.reviews = review_count as u32;
-        let fsrs = FSRS::new(None)?;
         let input = ComputeParametersInput {
             train_set: items.clone(),
+            card_ids: Some(card_ids),
             progress: None,
             enable_short_term: true,
             num_relearning_steps: Some(num_of_relearning_steps),
+            training_config: Some(TrainingConfig {
+                num_epochs: 8,
+                ..Default::default()
+            }),
         };
-        Ok(fsrs.evaluate_with_time_series_splits(input, |ip| {
+        Ok(fsrs::evaluate_with_time_series_splits(input, |ip| {
             anki_progress
                 .update(false, |p| {
                     p.total_iterations = ip.total as u32;
@@ -313,10 +321,10 @@ impl Collection {
             .col
             .storage
             .get_revlog_entries_for_searched_cards_in_card_order()?;
-        let (items, review_count) =
+        let (items, _, review_count) =
             fsrs_items_for_training(revlogs, timing.next_day_at, ignore_revlogs_before);
         anki_progress.state.reviews = review_count as u32;
-        let fsrs = FSRS::new(Some(params))?;
+        let fsrs = FSRS::new(params)?;
         Ok(fsrs.evaluate(items, |ip| {
             anki_progress
                 .update(false, |p| {
@@ -344,26 +352,33 @@ fn fsrs_items_for_training(
     revlogs: Vec<RevlogEntry>,
     next_day_at: TimestampSecs,
     review_revlogs_before: TimestampMillis,
-) -> (Vec<FSRSItem>, usize) {
+) -> (Vec<FSRSItem>, Vec<i64>, usize) {
     let mut review_count: usize = 0;
     let mut revlogs = revlogs
         .into_iter()
         .chunk_by(|r| r.cid)
         .into_iter()
-        .filter_map(|(_cid, entries)| {
+        .filter_map(|(cid, entries)| {
             reviews_for_fsrs(entries.collect(), next_day_at, true, review_revlogs_before)
+                .map(|reviews| (cid, reviews))
         })
-        .flat_map(|i| {
-            review_count += i.filtered_revlogs.len();
+        .flat_map(|(cid, reviews)| {
+            review_count += reviews.filtered_revlogs.len();
 
-            i.fsrs_items
+            reviews
+                .fsrs_items
+                .into_iter()
+                .map(move |(revlog_id, item)| (revlog_id, cid, item))
         })
         .collect_vec();
     // Sort by RevlogId
-    revlogs.sort_by_key(|(revlog_id, _)| revlog_id.0);
-    // Extract only the FSRSItems after sorting
-    let revlogs = revlogs.into_iter().map(|(_, item)| item).collect_vec();
-    (revlogs, review_count)
+    revlogs.sort_by_key(|(revlog_id, _, _)| revlog_id.0);
+    // Extract FSRSItems and card ids after sorting, preserving alignment.
+    let (card_ids, items) = revlogs
+        .into_iter()
+        .map(|(_, cid, item)| (cid.0, item))
+        .unzip();
+    (items, card_ids, review_count)
 }
 
 pub(crate) struct ReviewsForFsrs {
@@ -576,6 +591,13 @@ pub(crate) mod tests {
         }
     }
 
+    fn revlog_for_card(cid: i64, review_kind: RevlogReviewKind, days_ago: i64) -> RevlogEntry {
+        RevlogEntry {
+            cid: CardId(cid),
+            ..revlog(review_kind, days_ago)
+        }
+    }
+
     pub(crate) fn review(delta_t: u32) -> FSRSReview {
         FSRSReview { rating: 3, delta_t }
     }
@@ -645,6 +667,28 @@ pub(crate) mod tests {
             fsrs_items!([review(0), review(2),])
         );
         Ok(())
+    }
+
+    #[test]
+    fn card_ids_align_with_sorted_training_items() {
+        let (items, card_ids, review_count) = fsrs_items_for_training(
+            vec![
+                revlog_for_card(1, RevlogReviewKind::Learning, 10),
+                revlog_for_card(1, RevlogReviewKind::Review, 7),
+                revlog_for_card(1, RevlogReviewKind::Review, 1),
+                revlog_for_card(2, RevlogReviewKind::Learning, 9),
+                revlog_for_card(2, RevlogReviewKind::Review, 8),
+            ],
+            NEXT_DAY_AT,
+            0.into(),
+        );
+
+        assert_eq!(card_ids, vec![2, 1, 1]);
+        assert_eq!(
+            items.iter().map(|item| item.reviews.len()).collect_vec(),
+            vec![2, 2, 3]
+        );
+        assert_eq!(review_count, 5);
     }
 
     #[test]

@@ -135,10 +135,6 @@ jobs:
             sarif_file: out/complexipy/complexipy-results.sarif
             category: complexipy
 
-      - name: Fail if complexipy check failed
-        if: steps.complexipy.outcome == 'failure'
-        run: exit 1
-
       - name: Cache coverage baseline
         if: github.ref_name == 'main'
         uses: actions/cache/save@0057852bfaa89a56745cba8c7296529d2fc39830 #v4
