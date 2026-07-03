@@ -1,0 +1,45 @@
+Anki is licensed under the GNU Affero General Public License, version 3 or
+later, with portions contributed by Anki users licensed under the BSD-3
+license (see CONTRIBUTORS).
+
+The following included source code items use a license other than AGPL3:
+
+In the pylib folder:
+
+ * statsbg.py: CC BY 4.0.
+
+In the qt folder:
+
+ * Anki's translations are a mix of BSD and public domain.
+ * mpv.py: MIT.
+ * winpaths.py: MIT.
+ * MathJax: Apache 2.
+ * jQuery and jQuery-UI: MIT.
+ * plot.js: MIT.
+ * protobuf.js: BSD 3 clause
+
+The above list only covers the source code that is vendored in this
+repository. Binary distributions also include copies of Qt translation
+files (LGPL), and all of the Python, Rust and Javascript libraries
+that this code references.
+
+Anki's logo is copyright Alex Fraser, and is licensed under the AGPL3 like the
+rest of Anki's code.
+
+The logo is also available under a limited alternative license for inclusion
+in books, blogs, videos and so on. If the following conditions are met, you
+may use the logo in your work without the need to license your work under an
+AGPL3-compatible license:
+
+ * The logo must be used to refer to Anki, AnkiWeb, AnkiMobile or AnkiDroid,
+   and a link to https://apps.ankiweb.net must be provided. When your
+   content is focused specifically on AnkiDroid, a link to
+   https://play.google.com/store/apps/details?id=com.ichi2.anki&hl=en
+   may be provided instead of the first link.
+ * The work must make it clear that the text/video/etc you
+   are publishing is your own content and not something originating
+   from the Anki project.
+ * The logo must be used unmodified - no cropping, changing of colours
+   or adding or deleting content is allowed. You may resize the image
+   provided the horizontal and vertical dimensions are resized
+   equally.

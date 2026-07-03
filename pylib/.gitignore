@@ -1,0 +1,14 @@
+*.mo
+*.pyc
+*\#
+*~
+.*.swp
+.build
+.coverage
+.DS_Store
+.mypy_cache
+.pytype
+__pycache__
+anki.egg-info
+build
+dist

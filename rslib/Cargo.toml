@@ -1,0 +1,115 @@
+[package]
+name = "anki"
+version.workspace = true
+authors.workspace = true
+edition.workspace = true
+license.workspace = true
+publish = false
+rust-version.workspace = true
+workspace = ".."
+description = "Anki's Rust library code"
+
+[features]
+bench = ["criterion"]
+rustls = ["reqwest/rustls-tls", "reqwest/rustls-tls-native-roots"]
+native-tls = ["reqwest/native-tls"]
+
+[[bench]]
+name = "benchmark"
+harness = false
+required-features = ["bench"]
+
+[build-dependencies]
+anki_io.workspace = true
+anki_proto.workspace = true
+anki_proto_gen.workspace = true
+anyhow.workspace = true
+inflections.workspace = true
+itertools.workspace = true
+prettyplease.workspace = true
+prost.workspace = true
+prost-reflect.workspace = true
+syn.workspace = true
+
+[dev-dependencies]
+async-stream.workspace = true
+reqwest = { workspace = true, features = ["native-tls"] }
+wiremock.workspace = true
+
+[dependencies]
+criterion = { workspace = true, optional = true }
+
+ammonia.workspace = true
+anki_i18n.workspace = true
+anki_io.workspace = true
+anki_proto.workspace = true
+async-compression.workspace = true
+async-trait.workspace = true
+axum.workspace = true
+axum-client-ip.workspace = true
+axum-extra.workspace = true
+bitflags.workspace = true
+blake3.workspace = true
+bytes.workspace = true
+chrono.workspace = true
+coarsetime.workspace = true
+convert_case.workspace = true
+csv.workspace = true
+data-encoding.workspace = true
+difflib.workspace = true
+dirs.workspace = true
+envy.workspace = true
+flate2.workspace = true
+fluent.workspace = true
+fluent-bundle.workspace = true
+fnv.workspace = true
+fsrs.workspace = true
+futures.workspace = true
+hex.workspace = true
+htmlescape.workspace = true
+hyper.workspace = true
+id_tree.workspace = true
+itertools.workspace = true
+nom.workspace = true
+num_cpus.workspace = true
+num_enum.workspace = true
+once_cell.workspace = true
+pbkdf2.workspace = true
+percent-encoding-iri.workspace = true
+permutation.workspace = true
+phf.workspace = true
+pin-project.workspace = true
+prost.workspace = true
+pulldown-cmark.workspace = true
+rand.workspace = true
+rayon.workspace = true
+regex.workspace = true
+reqwest.workspace = true
+rusqlite.workspace = true
+rustls-pemfile.workspace = true
+same-file.workspace = true
+scopeguard.workspace = true
+serde.workspace = true
+serde-aux.workspace = true
+serde_json.workspace = true
+serde_repr.workspace = true
+serde_tuple.workspace = true
+sha1.workspace = true
+sha2.workspace = true
+snafu.workspace = true
+strum.workspace = true
+tempfile.workspace = true
+tokio.workspace = true
+tokio-util.workspace = true
+tower-http.workspace = true
+tracing.workspace = true
+tracing-appender.workspace = true
+tracing-subscriber.workspace = true
+unic-ucd-category.workspace = true
+unicase.workspace = true
+unicode-normalization.workspace = true
+zip.workspace = true
+zstd.workspace = true
+
+[target.'cfg(windows)'.dependencies]
+windows.workspace = true

@@ -1,0 +1,196 @@
+// Copyright: Ankitects Pty Ltd and contributors
+// License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
+
+syntax = "proto3";
+
+option java_multiple_files = true;
+
+package anki.card_rendering;
+
+import "anki/generic.proto";
+import "anki/notes.proto";
+import "anki/notetypes.proto";
+
+service CardRenderingService {
+  rpc ExtractAvTags(ExtractAvTagsRequest) returns (ExtractAvTagsResponse);
+  rpc ExtractLatex(ExtractLatexRequest) returns (ExtractLatexResponse);
+  rpc GetEmptyCards(generic.Empty) returns (EmptyCardsReport);
+  rpc RenderExistingCard(RenderExistingCardRequest)
+      returns (RenderCardResponse);
+  rpc RenderUncommittedCard(RenderUncommittedCardRequest)
+      returns (RenderCardResponse);
+  rpc RenderUncommittedCardLegacy(RenderUncommittedCardLegacyRequest)
+      returns (RenderCardResponse);
+  rpc StripAvTags(generic.String) returns (generic.String);
+  rpc RenderMarkdown(RenderMarkdownRequest) returns (generic.String);
+  rpc EncodeIriPaths(generic.String) returns (generic.String);
+  rpc DecodeIriPaths(generic.String) returns (generic.String);
+  rpc StripHtml(StripHtmlRequest) returns (generic.String);
+  rpc HtmlToTextLine(HtmlToTextLineRequest) returns (generic.String);
+  rpc CompareAnswer(CompareAnswerRequest) returns (generic.String);
+  rpc ExtractClozeForTyping(ExtractClozeForTypingRequest)
+      returns (generic.String);
+}
+
+// Implicitly includes any of the above methods that are not listed in the
+// backend service.
+service BackendCardRenderingService {
+  rpc StripHtml(StripHtmlRequest) returns (generic.String);
+  rpc AllTtsVoices(AllTtsVoicesRequest) returns (AllTtsVoicesResponse);
+  rpc WriteTtsStream(WriteTtsStreamRequest) returns (generic.Empty);
+}
+
+message ExtractAvTagsRequest {
+  string text = 1;
+  bool question_side = 2;
+}
+
+message ExtractAvTagsResponse {
+  string text = 1;
+  repeated AVTag av_tags = 2;
+}
+
+message AVTag {
+  oneof value {
+    string sound_or_video = 1;
+    TTSTag tts = 2;
+  }
+}
+
+message TTSTag {
+  string field_text = 1;
+  string lang = 2;
+  repeated string voices = 3;
+  float speed = 4;
+  repeated string other_args = 5;
+}
+
+message ExtractLatexRequest {
+  string text = 1;
+  bool svg = 2;
+  bool expand_clozes = 3;
+}
+
+message ExtractLatexResponse {
+  string text = 1;
+  repeated ExtractedLatex latex = 2;
+}
+
+message ExtractedLatex {
+  string filename = 1;
+  string latex_body = 2;
+}
+
+message EmptyCardsReport {
+  message NoteWithEmptyCards {
+    int64 note_id = 1;
+    repeated int64 card_ids = 2;
+    bool will_delete_note = 3;
+  }
+  string report = 1;
+  repeated NoteWithEmptyCards notes = 2;
+}
+
+message RenderExistingCardRequest {
+  int64 card_id = 1;
+  bool browser = 2;
+  // If true, rendering will stop when an unknown filter is encountered,
+  // and caller will need to complete rendering. This is done to allow
+  // Python code to modify the rendering.
+  bool partial_render = 3;
+}
+
+message RenderUncommittedCardRequest {
+  notes.Note note = 1;
+  uint32 card_ord = 2;
+  notetypes.Notetype.Template template = 3;
+  bool fill_empty = 4;
+  // If true, rendering will stop when an unknown filter is encountered,
+  // and caller will need to complete rendering. This is done to allow
+  // Python code to modify the rendering.
+  bool partial_render = 5;
+}
+
+message RenderUncommittedCardLegacyRequest {
+  notes.Note note = 1;
+  uint32 card_ord = 2;
+  bytes template = 3;
+  bool fill_empty = 4;
+  // If true, rendering will stop when an unknown filter is encountered,
+  // and caller will need to complete rendering. This is done to allow
+  // Python code to modify the rendering.
+  bool partial_render = 5;
+}
+
+message RenderCardResponse {
+  repeated RenderedTemplateNode question_nodes = 1;
+  repeated RenderedTemplateNode answer_nodes = 2;
+  string css = 3;
+  bool latex_svg = 4;
+  bool is_empty = 5;
+}
+
+message RenderedTemplateNode {
+  oneof value {
+    string text = 1;
+    RenderedTemplateReplacement replacement = 2;
+  }
+}
+
+message RenderedTemplateReplacement {
+  string field_name = 1;
+  string current_text = 2;
+  repeated string filters = 3;
+}
+
+message RenderMarkdownRequest {
+  string markdown = 1;
+  bool sanitize = 2;
+}
+
+message StripHtmlRequest {
+  enum Mode {
+    NORMAL = 0;
+    PRESERVE_MEDIA_FILENAMES = 1;
+  }
+
+  string text = 1;
+  Mode mode = 2;
+}
+
+message HtmlToTextLineRequest {
+  string text = 1;
+  bool preserve_media_filenames = 2;
+}
+
+message CompareAnswerRequest {
+  string expected = 1;
+  string provided = 2;
+  bool combining = 3;
+}
+
+message ExtractClozeForTypingRequest {
+  string text = 1;
+  uint32 ordinal = 2;
+}
+
+message AllTtsVoicesRequest {
+  bool validate = 1;
+}
+
+message AllTtsVoicesResponse {
+  message TtsVoice {
+    string id = 1;
+    string name = 2;
+    string language = 3;
+    optional bool available = 4;
+  }
+  repeated TtsVoice voices = 1;
+}
+
+message WriteTtsStreamRequest {
+  string path = 1;
+  string voice_id = 2;
+  float speed = 3;
+  string text = 4;
+}

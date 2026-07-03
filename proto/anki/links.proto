@@ -1,0 +1,47 @@
+// Copyright: Ankitects Pty Ltd and contributors
+// License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
+
+syntax = "proto3";
+
+option java_multiple_files = true;
+
+package anki.links;
+
+import "anki/generic.proto";
+
+service LinksService {
+  rpc HelpPageLink(HelpPageLinkRequest) returns (generic.String);
+}
+
+// Implicitly includes any of the above methods that are not listed in the
+// backend service.
+service BackendLinksService {}
+
+message HelpPageLinkRequest {
+  enum HelpPage {
+    NOTE_TYPE = 0;
+    BROWSING = 1;
+    BROWSING_FIND_AND_REPLACE = 2;
+    BROWSING_NOTES_MENU = 3;
+    KEYBOARD_SHORTCUTS = 4;
+    EDITING = 5;
+    ADDING_CARD_AND_NOTE = 6;
+    ADDING_A_NOTE_TYPE = 7;
+    LATEX = 8;
+    PREFERENCES = 9;
+    INDEX = 10;
+    TEMPLATES = 11;
+    FILTERED_DECK = 12;
+    IMPORTING = 13;
+    CUSTOMIZING_FIELDS = 14;
+    DECK_OPTIONS = 15;
+    EDITING_FEATURES = 16;
+    FULL_SCREEN_ISSUE = 17;
+    CARD_TYPE_DUPLICATE = 18;
+    CARD_TYPE_NO_FRONT_FIELD = 19;
+    CARD_TYPE_MISSING_CLOZE = 20;
+    TROUBLESHOOTING = 21;
+    CARD_TYPE_TEMPLATE_ERROR = 22;
+  }
+  HelpPage page = 1;
+}

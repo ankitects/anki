@@ -1,0 +1,15 @@
+[env]
+STRINGS_PY = { value = "out/pylib/anki/_fluent.py", relative = true }
+STRINGS_TS = { value = "out/ts/lib/generated/ftl.ts", relative = true }
+DESCRIPTORS_BIN = { value = "out/rslib/proto/descriptors.bin", relative = true }
+# build script will append .exe if necessary
+PROTOC = { value = "out/extracted/protoc/bin/protoc", relative = true }
+PYO3_NO_PYTHON = "1"
+MACOSX_DEPLOYMENT_TARGET = "11"
+PYTHONDONTWRITEBYTECODE = "1" # prevent junk files on Windows
+
+[term]
+color = "always"
+
+[target.'cfg(all(target_env = "msvc", target_os = "windows"))']
+rustflags = ["-C", "target-feature=+crt-static"]

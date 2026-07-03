@@ -1,0 +1,808 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>Dialog</class>
+ <widget class="QMainWindow" name="Dialog">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>750</width>
+    <height>493</height>
+   </rect>
+  </property>
+  <property name="minimumSize">
+   <size>
+    <width>400</width>
+    <height>400</height>
+   </size>
+  </property>
+  <property name="windowIcon">
+   <iconset>
+    <normaloff>:/icons/anki.png</normaloff>:/icons/anki.png</iconset>
+  </property>
+  <widget class="QWidget" name="centralwidget">
+   <layout class="QVBoxLayout" name="verticalLayout_3">
+    <property name="spacing">
+     <number>12</number>
+    </property>
+    <property name="leftMargin">
+     <number>0</number>
+    </property>
+    <property name="topMargin">
+     <number>6</number>
+    </property>
+    <property name="rightMargin">
+     <number>6</number>
+    </property>
+    <property name="bottomMargin">
+     <number>12</number>
+    </property>
+    <item>
+     <widget class="QSplitter" name="splitter">
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
+        <horstretch>4</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
+      </property>
+      <property name="orientation">
+       <enum>Qt::Horizontal</enum>
+      </property>
+      <widget class="QWidget" name="widget" native="true">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+         <horstretch>3</horstretch>
+         <verstretch>1</verstretch>
+        </sizepolicy>
+       </property>
+       <layout class="QVBoxLayout" name="verticalLayout_2">
+        <property name="spacing">
+         <number>0</number>
+        </property>
+        <property name="leftMargin">
+         <number>0</number>
+        </property>
+        <property name="topMargin">
+         <number>0</number>
+        </property>
+        <property name="rightMargin">
+         <number>0</number>
+        </property>
+        <property name="bottomMargin">
+         <number>0</number>
+        </property>
+        <item>
+         <layout class="QGridLayout" name="gridLayout">
+          <property name="leftMargin">
+           <number>0</number>
+          </property>
+          <property name="topMargin">
+           <number>0</number>
+          </property>
+          <property name="rightMargin">
+           <number>0</number>
+          </property>
+          <property name="bottomMargin">
+           <number>6</number>
+          </property>
+          <property name="horizontalSpacing">
+           <number>12</number>
+          </property>
+          <property name="verticalSpacing">
+           <number>0</number>
+          </property>
+          <item row="0" column="1">
+           <widget class="QComboBox" name="searchEdit">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+              <horstretch>9</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="editable">
+             <bool>true</bool>
+            </property>
+            <property name="insertPolicy">
+             <enum>QComboBox::NoInsert</enum>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </item>
+        <item>
+         <widget class="QTableView" name="tableView">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+            <horstretch>9</horstretch>
+            <verstretch>1</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="minimumSize">
+           <size>
+            <width>0</width>
+            <height>150</height>
+           </size>
+          </property>
+          <property name="contextMenuPolicy">
+           <enum>Qt::ActionsContextMenu</enum>
+          </property>
+          <property name="horizontalScrollBarPolicy">
+           <enum>Qt::ScrollBarAsNeeded</enum>
+          </property>
+          <property name="editTriggers">
+           <set>QAbstractItemView::NoEditTriggers</set>
+          </property>
+          <property name="tabKeyNavigation">
+           <bool>false</bool>
+          </property>
+          <property name="alternatingRowColors">
+           <bool>true</bool>
+          </property>
+          <property name="selectionBehavior">
+           <enum>QAbstractItemView::SelectRows</enum>
+          </property>
+          <attribute name="horizontalHeaderCascadingSectionResizes">
+           <bool>false</bool>
+          </attribute>
+          <attribute name="horizontalHeaderMinimumSectionSize">
+           <number>20</number>
+          </attribute>
+          <attribute name="horizontalHeaderHighlightSections">
+           <bool>false</bool>
+          </attribute>
+          <attribute name="horizontalHeaderShowSortIndicator" stdset="0">
+           <bool>true</bool>
+          </attribute>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+      <widget class="QWidget" name="verticalLayoutWidget">
+       <layout class="QVBoxLayout" name="verticalLayout" stretch="0">
+        <property name="spacing">
+         <number>0</number>
+        </property>
+        <property name="leftMargin">
+         <number>0</number>
+        </property>
+        <property name="topMargin">
+         <number>1</number>
+        </property>
+        <property name="rightMargin">
+         <number>0</number>
+        </property>
+        <property name="bottomMargin">
+         <number>0</number>
+        </property>
+        <item>
+         <layout class="QHBoxLayout" name="horizontalLayout2">
+          <property name="spacing">
+           <number>0</number>
+          </property>
+          <item>
+           <widget class="QWidget" name="fieldsArea" native="true">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
+              <horstretch>0</horstretch>
+              <verstretch>1</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="minimumSize">
+             <size>
+              <width>50</width>
+              <height>200</height>
+             </size>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </item>
+       </layout>
+      </widget>
+     </widget>
+    </item>
+   </layout>
+  </widget>
+  <widget class="QMenuBar" name="menubar">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>750</width>
+     <height>23</height>
+    </rect>
+   </property>
+   <widget class="QMenu" name="menuEdit">
+    <property name="title">
+     <string>qt_accel_edit</string>
+    </property>
+    <addaction name="actionUndo"/>
+    <addaction name="actionRedo"/>
+    <addaction name="separator"/>
+    <addaction name="actionSelectAll"/>
+    <addaction name="actionSelectNotes"/>
+    <addaction name="actionInvertSelection"/>
+    <addaction name="separator"/>
+    <addaction name="actionClose"/>
+    <addaction name="separator"/>
+    <addaction name="actionCreateFilteredDeck"/>
+   </widget>
+   <widget class="QMenu" name="menuJump">
+    <property name="title">
+     <string>qt_accel_go</string>
+    </property>
+    <addaction name="actionFind"/>
+    <addaction name="actionSidebarFilter"/>
+    <addaction name="actionSidebar"/>
+    <addaction name="actionNote"/>
+    <addaction name="actionCardList"/>
+    <addaction name="separator"/>
+    <addaction name="actionFirstCard"/>
+    <addaction name="actionPreviousCard"/>
+    <addaction name="actionNextCard"/>
+    <addaction name="actionLastCard"/>
+   </widget>
+   <widget class="QMenu" name="menu_Help">
+    <property name="title">
+     <string>qt_accel_help</string>
+    </property>
+    <addaction name="actionGuide"/>
+   </widget>
+   <widget class="QMenu" name="menu_Cards">
+    <property name="title">
+     <string>qt_accel_cards</string>
+    </property>
+    <widget class="QMenu" name="menuFlag">
+     <property name="title">
+      <string>browsing_flag</string>
+     </property>
+     <addaction name="actionRed_Flag"/>
+     <addaction name="actionOrange_Flag"/>
+     <addaction name="actionGreen_Flag"/>
+     <addaction name="actionBlue_Flag"/>
+     <addaction name="actionPink_Flag"/>
+     <addaction name="actionTurquoise_Flag"/>
+     <addaction name="actionPurple_Flag"/>
+    </widget>
+    <addaction name="actionChange_Deck"/>
+    <addaction name="separator"/>
+    <addaction name="action_set_due_date"/>
+    <addaction name="action_grade_now"/>
+    <addaction name="action_forget"/>
+    <addaction name="actionReposition"/>
+    <addaction name="separator"/>
+    <addaction name="actionToggle_Suspend"/>
+    <addaction name="action_toggle_bury"/>
+    <addaction name="separator"/>
+    <addaction name="menuFlag"/>
+    <addaction name="separator"/>
+    <addaction name="action_Info"/>
+   </widget>
+   <widget class="QMenu" name="menu_Notes">
+    <property name="title">
+     <string>qt_accel_notes</string>
+    </property>
+    <addaction name="actionAdd"/>
+    <addaction name="actionCopy"/>
+    <addaction name="actionExport"/>
+    <addaction name="separator"/>
+    <addaction name="actionAdd_Tags"/>
+    <addaction name="actionRemove_Tags"/>
+    <addaction name="actionClear_Unused_Tags"/>
+    <addaction name="actionToggle_Mark"/>
+    <addaction name="separator"/>
+    <addaction name="actionChangeModel"/>
+    <addaction name="separator"/>
+    <addaction name="actionFindDuplicates"/>
+    <addaction name="actionFindReplace"/>
+    <addaction name="separator"/>
+    <addaction name="actionManage_Note_Types"/>
+    <addaction name="separator"/>
+    <addaction name="actionDelete"/>
+   </widget>
+   <widget class="QMenu" name="menuqt_accel_view">
+    <property name="title">
+     <string>qt_accel_view</string>
+    </property>
+    <widget class="QMenu" name="menuLayout">
+     <property name="title">
+      <string>qt_accel_layout</string>
+     </property>
+     <addaction name="actionLayoutAuto"/>
+     <addaction name="separator"/>
+     <addaction name="actionLayoutVertical"/>
+     <addaction name="actionLayoutHorizontal"/>
+    </widget>
+    <addaction name="action_toggle_mode"/>
+    <addaction name="separator"/>
+    <addaction name="actionFullScreen"/>
+    <addaction name="separator"/>
+    <addaction name="actionToggleSidebar"/>
+    <addaction name="separator"/>
+    <addaction name="actionZoomIn"/>
+    <addaction name="actionZoomOut"/>
+    <addaction name="actionResetZoom"/>
+    <addaction name="separator"/>
+    <addaction name="menuLayout"/>
+   </widget>
+   <addaction name="menuEdit"/>
+   <addaction name="menuqt_accel_view"/>
+   <addaction name="menu_Notes"/>
+   <addaction name="menu_Cards"/>
+   <addaction name="menuJump"/>
+   <addaction name="menu_Help"/>
+  </widget>
+  <action name="actionSelectAll">
+   <property name="text">
+    <string>qt_accel_select_all</string>
+   </property>
+   <property name="shortcut">
+    <string notr="true">Ctrl+Alt+A</string>
+   </property>
+  </action>
+  <action name="actionUndo">
+   <property name="text">
+    <string>qt_accel_undo</string>
+   </property>
+   <property name="shortcut">
+    <string notr="true">Ctrl+Z</string>
+   </property>
+  </action>
+  <action name="actionInvertSelection">
+   <property name="text">
+    <string>qt_accel_invert_selection</string>
+   </property>
+   <property name="shortcut">
+    <string notr="true">Ctrl+Alt+S</string>
+   </property>
+  </action>
+  <action name="actionFind">
+   <property name="text">
+    <string>qt_accel_find</string>
+   </property>
+   <property name="shortcut">
+    <string notr="true">Ctrl+F</string>
+   </property>
+  </action>
+  <action name="actionNote">
+   <property name="text">
+    <string>qt_accel_note</string>
+   </property>
+   <property name="shortcut">
+    <string notr="true">Ctrl+Shift+N</string>
+   </property>
+  </action>
+  <action name="actionNextCard">
+   <property name="text">
+    <string>qt_accel_next_card</string>
+   </property>
+   <property name="shortcut">
+    <string notr="true">Ctrl+N</string>
+   </property>
+  </action>
+  <action name="actionPreviousCard">
+   <property name="text">
+    <string>qt_accel_previous_card</string>
+   </property>
+   <property name="shortcut">
+    <string notr="true">Ctrl+P</string>
+   </property>
+  </action>
+  <action name="actionGuide">
+   <property name="text">
+    <string>qt_accel_guide</string>
+   </property>
+   <property name="shortcut">
+    <string notr="true">F1</string>
+   </property>
+  </action>
+  <action name="actionChangeModel">
+   <property name="text">
+    <string>browsing_change_note_type2</string>
+   </property>
+   <property name="shortcut">
+    <string notr="true">Ctrl+Shift+M</string>
+   </property>
+  </action>
+  <action name="actionSelectNotes">
+   <property name="text">
+    <string>qt_accel_select_notes</string>
+   </property>
+  </action>
+  <action name="actionFindReplace">
+   <property name="text">
+    <string>qt_accel_find_and_replace</string>
+   </property>
+   <property name="shortcut">
+    <string notr="true">Ctrl+Alt+F</string>
+   </property>
+  </action>
+  <action name="actionSidebarFilter">
+   <property name="text">
+    <string>qt_accel_filter</string>
+   </property>
+   <property name="shortcut">
+    <string notr="true">Ctrl+Shift+F</string>
+   </property>
+  </action>
+  <action name="actionCardList">
+   <property name="text">
+    <string>browsing_card_list</string>
+   </property>
+   <property name="shortcut">
+    <string notr="true">Ctrl+Shift+L</string>
+   </property>
+  </action>
+  <action name="actionFindDuplicates">
+   <property name="text">
+    <string>qt_accel_find_duplicates</string>
+   </property>
+  </action>
+  <action name="actionReposition">
+   <property name="text">
+    <string>browsing_reposition</string>
+   </property>
+   <property name="shortcut">
+    <string notr="true">Ctrl+Shift+S</string>
+   </property>
+  </action>
+  <action name="actionFirstCard">
+   <property name="text">
+    <string>browsing_first_card</string>
+   </property>
+   <property name="shortcut">
+    <string notr="true">Home</string>
+   </property>
+  </action>
+  <action name="actionLastCard">
+   <property name="text">
+    <string>browsing_last_card</string>
+   </property>
+   <property name="shortcut">
+    <string notr="true">End</string>
+   </property>
+  </action>
+  <action name="actionClose">
+   <property name="text">
+    <string>actions_close</string>
+   </property>
+   <property name="shortcut">
+    <string notr="true">Ctrl+W</string>
+   </property>
+  </action>
+  <action name="action_Info">
+   <property name="text">
+    <string>qt_accel_info</string>
+   </property>
+   <property name="shortcut">
+    <string notr="true">Ctrl+Shift+I</string>
+   </property>
+  </action>
+  <action name="actionAdd_Tags">
+   <property name="text">
+    <string>browsing_add_tags2</string>
+   </property>
+   <property name="shortcut">
+    <string notr="true">Ctrl+Shift+A</string>
+   </property>
+  </action>
+  <action name="actionRemove_Tags">
+   <property name="text">
+    <string>browsing_remove_tags</string>
+   </property>
+   <property name="shortcut">
+    <string notr="true">Ctrl+Alt+Shift+A</string>
+   </property>
+  </action>
+  <action name="actionToggle_Suspend">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>browsing_toggle_suspend</string>
+   </property>
+   <property name="shortcut">
+    <string notr="true">Ctrl+J</string>
+   </property>
+  </action>
+  <action name="actionDelete">
+   <property name="text">
+    <string>actions_delete</string>
+   </property>
+   <property name="shortcut">
+    <string notr="true">Ctrl+Del</string>
+   </property>
+  </action>
+  <action name="actionAdd">
+   <property name="text">
+    <string>browsing_add_notes</string>
+   </property>
+   <property name="shortcut">
+    <string notr="true">Ctrl+E</string>
+   </property>
+  </action>
+  <action name="actionChange_Deck">
+   <property name="text">
+    <string>browsing_change_deck2</string>
+   </property>
+   <property name="shortcut">
+    <string notr="true">Ctrl+D</string>
+   </property>
+  </action>
+  <action name="actionRed_Flag">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>actions_flag_red</string>
+   </property>
+   <property name="shortcut">
+    <string notr="true">Ctrl+1</string>
+   </property>
+  </action>
+  <action name="actionOrange_Flag">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>actions_flag_orange</string>
+   </property>
+   <property name="shortcut">
+    <string notr="true">Ctrl+2</string>
+   </property>
+  </action>
+  <action name="actionGreen_Flag">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>actions_flag_green</string>
+   </property>
+   <property name="shortcut">
+    <string notr="true">Ctrl+3</string>
+   </property>
+  </action>
+  <action name="actionBlue_Flag">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>actions_flag_blue</string>
+   </property>
+   <property name="shortcut">
+    <string notr="true">Ctrl+4</string>
+   </property>
+  </action>
+  <action name="actionSidebar">
+   <property name="text">
+    <string>browsing_sidebar</string>
+   </property>
+   <property name="shortcut">
+    <string notr="true">Ctrl+Shift+R</string>
+   </property>
+  </action>
+  <action name="actionClear_Unused_Tags">
+   <property name="text">
+    <string>browsing_clear_unused_tags</string>
+   </property>
+  </action>
+  <action name="actionManage_Note_Types">
+   <property name="text">
+    <string>browsing_manage_note_types</string>
+   </property>
+  </action>
+  <action name="actionToggle_Mark">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>browsing_toggle_mark</string>
+   </property>
+   <property name="shortcut">
+    <string notr="true">Ctrl+K</string>
+   </property>
+  </action>
+  <action name="actionExport">
+   <property name="text">
+    <string>qt_accel_export_notes</string>
+   </property>
+   <property name="shortcut">
+    <string notr="true">Ctrl+Shift+E</string>
+   </property>
+  </action>
+  <action name="actionCreateFilteredDeck">
+   <property name="text">
+    <string>qt_misc_create_filtered_deck</string>
+   </property>
+   <property name="shortcut">
+    <string notr="true">Ctrl+G</string>
+   </property>
+  </action>
+  <action name="action_set_due_date">
+   <property name="text">
+    <string>qt_accel_set_due_date</string>
+   </property>
+   <property name="shortcut">
+    <string notr="true">Ctrl+Shift+D</string>
+   </property>
+  </action>
+  <action name="action_grade_now">
+   <property name="text">
+    <string>actions_grade_now</string>
+   </property>
+   <property name="shortcut">
+    <string notr="true">Ctrl+Shift+G</string>
+   </property>
+  </action>
+  <action name="action_forget">
+   <property name="text">
+    <string>qt_accel_forget</string>
+   </property>
+   <property name="shortcut">
+    <string notr="true">Ctrl+Alt+N</string>
+   </property>
+  </action>
+  <action name="action_toggle_mode">
+   <property name="text">
+    <string>browsing_toggle_showing_cards_notes</string>
+   </property>
+   <property name="shortcut">
+    <string notr="true">Ctrl+Alt+T</string>
+   </property>
+  </action>
+  <action name="actionRedo">
+   <property name="text">
+    <string>qt_accel_redo</string>
+   </property>
+   <property name="shortcut">
+    <string notr="true">Ctrl+Shift+Z</string>
+   </property>
+  </action>
+  <action name="actionPink_Flag">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>actions_flag_pink</string>
+   </property>
+   <property name="shortcut">
+    <string notr="true">Ctrl+5</string>
+   </property>
+  </action>
+  <action name="actionTurquoise_Flag">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>actions_flag_turquoise</string>
+   </property>
+   <property name="shortcut">
+    <string notr="true">Ctrl+6</string>
+   </property>
+  </action>
+  <action name="actionPurple_Flag">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>actions_flag_purple</string>
+   </property>
+   <property name="shortcut">
+    <string notr="true">Ctrl+7</string>
+   </property>
+  </action>
+  <action name="actionCopy">
+   <property name="text">
+    <string>actions_create_copy</string>
+   </property>
+   <property name="shortcut">
+    <string notr="true">Ctrl+Alt+E</string>
+   </property>
+  </action>
+  <action name="actionFullScreen">
+   <property name="text">
+    <string>qt_accel_full_screen</string>
+   </property>
+  </action>
+  <action name="actionToggleSidebar">
+    <property name="text">
+      <string>qt_accel_toggle_sidebar</string>
+    </property>
+  </action>
+  <action name="actionZoomIn">
+   <property name="text">
+    <string>qt_accel_zoom_editor_in</string>
+   </property>
+  </action>
+  <action name="actionZoomOut">
+   <property name="text">
+    <string>qt_accel_zoom_editor_out</string>
+   </property>
+  </action>
+  <action name="actionResetZoom">
+   <property name="text">
+    <string>qt_accel_reset_zoom</string>
+   </property>
+   <property name="shortcut">
+    <string notr="true">Ctrl+0</string>
+   </property>
+  </action>
+  <action name="actionLayoutAuto">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>qt_accel_layout_auto</string>
+   </property>
+  </action>
+  <action name="actionLayoutVertical">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>qt_accel_layout_vertical</string>
+   </property>
+  </action>
+  <action name="actionLayoutHorizontal">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>qt_accel_layout_horizontal</string>
+   </property>
+  </action>
+  <action name="actionbrowsing_toggle_showing_cards_notes">
+   <property name="text">
+    <string>browsing_toggle_showing_cards_notes</string>
+   </property>
+  </action>
+  <action name="action_toggle_bury">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>browsing_toggle_bury</string>
+   </property>
+   <property name="shortcut">
+    <string notr="true">Ctrl+Shift+J</string>
+   </property>
+  </action>
+ </widget>
+ <resources>
+  <include location="icons.qrc"/>
+ </resources>
+ <connections>
+  <connection>
+   <sender>actionSelectAll</sender>
+   <signal>triggered()</signal>
+   <receiver>tableView</receiver>
+   <slot>selectAll()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>299</x>
+     <y>279</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>actionClose</sender>
+   <signal>triggered()</signal>
+   <receiver>Dialog</receiver>
+   <slot>_handle_close()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>374</x>
+     <y>199</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
+</ui>

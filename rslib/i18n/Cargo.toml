@@ -1,0 +1,35 @@
+[package]
+name = "anki_i18n"
+version.workspace = true
+authors.workspace = true
+edition.workspace = true
+license.workspace = true
+publish = false
+rust-version.workspace = true
+description = "Anki's Rust library i18n code"
+
+[lib]
+name = "anki_i18n"
+path = "src/lib.rs"
+
+[build-dependencies]
+fluent-syntax.workspace = true
+fluent.workspace = true
+unic-langid.workspace = true
+serde.workspace = true
+serde_json.workspace = true
+inflections.workspace = true
+anki_io.workspace = true
+anyhow.workspace = true
+itertools.workspace = true
+regex.workspace = true
+
+[dependencies]
+fluent.workspace = true
+fluent-bundle.workspace = true
+intl-memoizer.workspace = true
+num-format.workspace = true
+phf.workspace = true
+serde.workspace = true
+serde_json.workspace = true
+unic-langid.workspace = true

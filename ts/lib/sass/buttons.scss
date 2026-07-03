@@ -1,0 +1,47 @@
+@use "vars";
+@use "button-mixins" as button;
+@use "elevation" as *;
+
+:root {
+    --focus-color: #{vars.palette-of(shadow-focus)};
+
+    .isMac {
+        --focus-color: rgba(0 103 244 / 0.247);
+    }
+}
+
+.isWin {
+    button {
+        font-size: 12px;
+    }
+}
+
+.isMac {
+    button {
+        font-size: 13px;
+    }
+}
+
+button {
+    outline: none !important;
+    background: var(--button-bg);
+    border-radius: var(--border-radius);
+    border: 1px solid var(--border-subtle);
+    &:hover {
+        background: var(--button-gradient-start);
+        border: 1px solid var(--border);
+    }
+    font-weight: 500;
+    padding: 8px 10px;
+    margin: 0 4px;
+
+    @include button.base;
+    .fancy & {
+        border-radius: var(--border-radius-large);
+        @include elevation(1, $opacity-boost: -0.08);
+        &:hover {
+            @include elevation(2);
+            transition: box-shadow var(--transition) linear;
+        }
+    }
+}

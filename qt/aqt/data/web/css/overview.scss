@@ -1,0 +1,42 @@
+/* Copyright: Ankitects Pty Ltd and contributors
+ * License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html */
+
+@use "../../../../../ts/lib/sass/root-vars";
+@use "../../../../../ts/lib/sass/vars" as *;
+@use "../../../../../ts/lib/sass/card-counts";
+@use "../../../../../ts/lib/sass/button-mixins" as button;
+
+.smallLink {
+    font-size: 10px;
+}
+
+h3 {
+    margin-bottom: 0;
+}
+
+.descfont {
+    padding: 1em;
+    color: color(fg-subtle);
+}
+
+.description {
+    white-space: pre-wrap;
+}
+
+#fulldesc {
+    display: none;
+}
+
+.descmid {
+    width: 70%;
+    margin: 0 auto 0;
+    text-align: left;
+}
+
+.dyn {
+    text-align: center;
+}
+
+#study {
+    @include button.base($primary: true);
+}

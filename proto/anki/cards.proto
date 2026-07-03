@@ -1,0 +1,80 @@
+// Copyright: Ankitects Pty Ltd and contributors
+// License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
+
+syntax = "proto3";
+
+option java_multiple_files = true;
+
+package anki.cards;
+
+import "anki/collection.proto";
+
+service CardsService {
+  rpc GetCard(CardId) returns (Card);
+  rpc UpdateCards(UpdateCardsRequest) returns (collection.OpChanges);
+  rpc RemoveCards(RemoveCardsRequest) returns (collection.OpChangesWithCount);
+  rpc SetDeck(SetDeckRequest) returns (collection.OpChangesWithCount);
+  rpc SetFlag(SetFlagRequest) returns (collection.OpChangesWithCount);
+}
+
+// Implicitly includes any of the above methods that are not listed in the
+// backend service.
+service BackendCardsService {}
+
+message CardId {
+  int64 cid = 1;
+}
+
+message CardIds {
+  repeated int64 cids = 1;
+}
+
+message Card {
+  int64 id = 1;
+  int64 note_id = 2;
+  int64 deck_id = 3;
+  uint32 template_idx = 4;
+  int64 mtime_secs = 5;
+  sint32 usn = 6;
+  uint32 ctype = 7;
+  sint32 queue = 8;
+  sint32 due = 9;
+  uint32 interval = 10;
+  uint32 ease_factor = 11;
+  uint32 reps = 12;
+  uint32 lapses = 13;
+  uint32 remaining_steps = 14;
+  sint32 original_due = 15;
+  int64 original_deck_id = 16;
+  uint32 flags = 17;
+  optional uint32 original_position = 18;
+  optional FsrsMemoryState memory_state = 20;
+  optional float desired_retention = 21;
+  optional float decay = 22;
+  optional int64 last_review_time_secs = 23;
+  string custom_data = 19;
+}
+
+message FsrsMemoryState {
+  float stability = 1;
+  float difficulty = 2;
+}
+
+message UpdateCardsRequest {
+  repeated Card cards = 1;
+  bool skip_undo_entry = 2;
+}
+
+message RemoveCardsRequest {
+  repeated int64 card_ids = 1;
+}
+
+message SetDeckRequest {
+  repeated int64 card_ids = 1;
+  int64 deck_id = 2;
+}
+
+message SetFlagRequest {
+  repeated int64 card_ids = 1;
+  uint32 flag = 2;
+}

@@ -1,0 +1,158 @@
+/* Copyright: Ankitects Pty Ltd and contributors
+ * License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html */
+
+@use "../../../../../ts/lib/sass/root-vars";
+@use "../../../../../ts/lib/sass/vars" as *;
+@use "../../../../../ts/lib/sass/elevation" as *;
+@use "../../../../../ts/lib/sass/button-mixins" as button;
+
+.header {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    align-items: start;
+    align-content: space-between;
+    body:not(.fancy) & {
+        border-bottom: 1px solid var(--border-subtle);
+    }
+}
+
+.left-tray {
+    justify-self: start;
+}
+
+.right-tray {
+    justify-self: end;
+}
+
+.left-tray,
+.right-tray {
+    align-self: start;
+    display: flex;
+    flex-direction: row;
+    align-items: start;
+}
+
+.toolbar {
+    justify-self: center;
+    white-space: nowrap;
+
+    .fancy & {
+        transition: all var(--transition) ease-in-out;
+    }
+}
+
+.hitem {
+    font-weight: bold;
+    padding: 5px 12px;
+    color: color(fg);
+    display: inline-block;
+    &:hover {
+        text-decoration: underline;
+    }
+}
+
+body {
+    margin: 0;
+    padding: 0;
+    -webkit-user-select: none;
+    overflow: hidden;
+
+    &:not(.fancy).hidden {
+        opacity: 0;
+    }
+
+    &.fancy {
+        margin-bottom: 5px;
+
+        &.hidden {
+            transform: translateY(-100vh);
+        }
+        transition: transform var(--transition) ease-in-out;
+
+        .toolbar {
+            overflow: hidden;
+            border-bottom-left-radius: prop(border-radius-medium);
+            border-bottom-right-radius: prop(border-radius-medium);
+            @include elevation(1, $opacity-boost: -0.1);
+
+            // glass effect
+            background: var(--canvas-glass);
+            backdrop-filter: blur(var(--blur));
+        }
+
+        // elevated state (deck browser, overview)
+        &:not(.flat) .toolbar {
+            background: var(--canvas-elevated);
+            @include elevation(1);
+            &:hover {
+                @include elevation(2);
+            }
+        }
+
+        &:not(.flat) .hitem {
+            @include button.base($border: false, $with-hover: false);
+            background: var(--canvas-glass);
+            border: 1px solid transparent;
+        }
+        .hitem {
+            text-decoration: none;
+            border: 1px solid transparent;
+
+            &:hover {
+                border: 1px solid var(--border-subtle);
+            }
+            &:active {
+                background: var(--canvas-inset);
+            }
+            &:first-child {
+                padding-left: 18px;
+            }
+            &:last-child {
+                padding-right: 18px;
+            }
+        }
+    }
+}
+
+* {
+    -webkit-user-drag: none;
+}
+
+.hitem:focus {
+    outline: 0;
+}
+
+@keyframes spin {
+    0% {
+        -webkit-transform: rotate(0deg);
+    }
+    100% {
+        -webkit-transform: rotate(360deg);
+    }
+}
+
+.spin {
+    width: 16px !important;
+    animation: spin;
+    animation-duration: 2s;
+    animation-iteration-count: infinite;
+    display: inline-block;
+    visibility: visible !important;
+    animation-timing-function: linear;
+    transition: all var(--transition) ease-in;
+}
+
+#sync-spinner {
+    height: 16px;
+    margin-bottom: -3px;
+    visibility: hidden;
+    width: 0;
+}
+
+.normal-sync {
+    color: color(state-new) !important;
+}
+
+.full-sync {
+    color: color(state-learn) !important;
+}

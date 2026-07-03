@@ -1,0 +1,10 @@
+#!/bin/bash
+
+set -e
+
+rustup target add x86_64-apple-darwin
+
+export MAC_X86=1
+
+RELEASE=2 ./ninja wheels:anki
+echo "wheels are in out/wheels"

@@ -1,0 +1,79 @@
+syntax = "proto3";
+
+option java_multiple_files = true;
+
+import "anki/generic.proto";
+import "anki/scheduler.proto";
+
+package anki.ankidroid;
+
+service AnkidroidService {
+  rpc RunDbCommand(generic.Json) returns (generic.Json);
+  rpc RunDbCommandProto(generic.Json) returns (DbResponse);
+  rpc InsertForId(generic.Json) returns (generic.Int64);
+  rpc RunDbCommandForRowCount(generic.Json) returns (generic.Int64);
+  rpc FlushAllQueries(generic.Empty) returns (generic.Empty);
+  rpc FlushQuery(generic.Int32) returns (generic.Empty);
+  rpc GetNextResultPage(GetNextResultPageRequest) returns (DbResponse);
+  rpc GetColumnNamesFromQuery(generic.String) returns (generic.StringList);
+  rpc GetActiveSequenceNumbers(generic.Empty)
+      returns (GetActiveSequenceNumbersResponse);
+}
+
+// Implicitly includes any of the above methods that are not listed in the
+// backend service.
+service BackendAnkidroidService {
+  rpc SchedTimingTodayLegacy(SchedTimingTodayLegacyRequest)
+      returns (scheduler.SchedTimingTodayResponse);
+  rpc LocalMinutesWestLegacy(generic.Int64) returns (generic.Int32);
+  rpc SetPageSize(generic.Int64) returns (generic.Empty);
+  rpc DebugProduceError(generic.String) returns (generic.Empty);
+}
+
+message DebugActiveDatabaseSequenceNumbersResponse {
+  repeated int32 sequence_numbers = 1;
+}
+
+message SchedTimingTodayLegacyRequest {
+  int64 created_secs = 1;
+  optional sint32 created_mins_west = 2;
+  int64 now_secs = 3;
+  sint32 now_mins_west = 4;
+  sint32 rollover_hour = 5;
+}
+
+// We expect in Java: Null, String, Short, Int, Long, Float, Double, Boolean,
+// Blob (unused) We get: DbResult (Null, String, i64, f64, Vec<u8>), which
+// matches SQLite documentation
+message SqlValue {
+  oneof Data {
+    string stringValue = 1;
+    int64 longValue = 2;
+    double doubleValue = 3;
+    bytes blobValue = 4;
+  }
+}
+
+message Row {
+  repeated SqlValue fields = 1;
+}
+
+message DbResult {
+  repeated Row rows = 1;
+}
+
+message DbResponse {
+  DbResult result = 1;
+  int32 sequenceNumber = 2;
+  int32 rowCount = 3;
+  int64 startIndex = 4;
+}
+
+message GetNextResultPageRequest {
+  int32 sequence = 1;
+  int64 index = 2;
+}
+
+message GetActiveSequenceNumbersResponse {
+  repeated int32 numbers = 1;
+}

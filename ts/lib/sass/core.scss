@@ -1,0 +1,23 @@
+/* Copyright: Ankitects Pty Ltd and contributors
+ * License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html */
+
+@use "vars";
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    color: var(--fg);
+    background: var(--canvas);
+    margin: 1em;
+    &.fancy {
+        transition: opacity var(--transition-medium) ease-out;
+    }
+    overscroll-behavior: none;
+}
+
+a {
+    color: var(--fg-link);
+    text-decoration: none;
+}

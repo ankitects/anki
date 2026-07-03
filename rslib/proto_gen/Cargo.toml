@@ -1,0 +1,21 @@
+[package]
+name = "anki_proto_gen"
+publish = false
+description = "Helpers for interface code generation"
+
+version.workspace = true
+authors.workspace = true
+edition.workspace = true
+license.workspace = true
+rust-version.workspace = true
+
+[dependencies]
+anki_io.workspace = true
+anyhow.workspace = true
+camino.workspace = true
+inflections.workspace = true
+itertools.workspace = true
+prost-reflect.workspace = true
+prost-types.workspace = true
+regex.workspace = true
+walkdir.workspace = true

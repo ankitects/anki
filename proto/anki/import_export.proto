@@ -1,0 +1,230 @@
+// Copyright: Ankitects Pty Ltd and contributors
+// License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
+
+syntax = "proto3";
+
+option java_multiple_files = true;
+
+package anki.import_export;
+
+import "anki/cards.proto";
+import "anki/collection.proto";
+import "anki/notes.proto";
+import "anki/generic.proto";
+
+service ImportExportService {
+  rpc ImportAnkiPackage(ImportAnkiPackageRequest) returns (ImportResponse);
+  rpc GetImportAnkiPackagePresets(generic.Empty)
+      returns (ImportAnkiPackageOptions);
+  rpc ExportAnkiPackage(ExportAnkiPackageRequest) returns (generic.UInt32);
+  rpc GetCsvMetadata(CsvMetadataRequest) returns (CsvMetadata);
+  rpc ImportCsv(ImportCsvRequest) returns (ImportResponse);
+  rpc ExportNoteCsv(ExportNoteCsvRequest) returns (generic.UInt32);
+  rpc ExportCardCsv(ExportCardCsvRequest) returns (generic.UInt32);
+  rpc ImportJsonFile(generic.String) returns (ImportResponse);
+  rpc ImportJsonString(generic.String) returns (ImportResponse);
+}
+
+// Implicitly includes any of the above methods that are not listed in the
+// backend service.
+service BackendImportExportService {
+  rpc ImportCollectionPackage(ImportCollectionPackageRequest)
+      returns (generic.Empty);
+  rpc ExportCollectionPackage(ExportCollectionPackageRequest)
+      returns (generic.Empty);
+}
+
+message ImportCollectionPackageRequest {
+  string col_path = 1;
+  string backup_path = 2;
+  string media_folder = 3;
+  string media_db = 4;
+}
+
+message ExportCollectionPackageRequest {
+  string out_path = 1;
+  bool include_media = 2;
+  bool legacy = 3;
+}
+
+enum ImportAnkiPackageUpdateCondition {
+  IMPORT_ANKI_PACKAGE_UPDATE_CONDITION_IF_NEWER = 0;
+  IMPORT_ANKI_PACKAGE_UPDATE_CONDITION_ALWAYS = 1;
+  IMPORT_ANKI_PACKAGE_UPDATE_CONDITION_NEVER = 2;
+}
+
+message ImportAnkiPackageOptions {
+  bool merge_notetypes = 1;
+  ImportAnkiPackageUpdateCondition update_notes = 2;
+  ImportAnkiPackageUpdateCondition update_notetypes = 3;
+  bool with_scheduling = 4;
+  bool with_deck_configs = 5;
+}
+
+message ImportAnkiPackageRequest {
+  string package_path = 1;
+  ImportAnkiPackageOptions options = 2;
+}
+
+message ImportResponse {
+  message Note {
+    notes.NoteId id = 1;
+    repeated string fields = 2;
+  }
+  message Log {
+    repeated Note new = 1;
+    repeated Note updated = 2;
+    repeated Note duplicate = 3;
+    repeated Note conflicting = 4;
+    repeated Note first_field_match = 5;
+    repeated Note missing_notetype = 6;
+    repeated Note missing_deck = 7;
+    repeated Note empty_first_field = 8;
+    CsvMetadata.DupeResolution dupe_resolution = 9;
+    uint32 found_notes = 10;
+  }
+  collection.OpChanges changes = 1;
+  Log log = 2;
+}
+
+message ExportAnkiPackageRequest {
+  string out_path = 1;
+  ExportAnkiPackageOptions options = 2;
+  ExportLimit limit = 3;
+}
+
+message ExportAnkiPackageOptions {
+  bool with_scheduling = 1;
+  bool with_deck_configs = 2;
+  bool with_media = 3;
+  bool legacy = 4;
+}
+
+message PackageMetadata {
+  enum Version {
+    VERSION_UNKNOWN = 0;
+    // When `meta` missing, and collection.anki2 file present.
+    VERSION_LEGACY_1 = 1;
+    // When `meta` missing, and collection.anki21 file present.
+    VERSION_LEGACY_2 = 2;
+    // Implies MediaEntry media map, and zstd compression.
+    // collection.21b file
+    VERSION_LATEST = 3;
+  }
+
+  Version version = 1;
+}
+
+message MediaEntries {
+  message MediaEntry {
+    string name = 1;
+    uint32 size = 2;
+    bytes sha1 = 3;
+
+    /// Legacy media maps may include gaps in the media list, so the original
+    /// file index is recorded when importing from a HashMap. This field is not
+    /// set when exporting.
+    optional uint32 legacy_zip_filename = 255;
+  }
+
+  repeated MediaEntry entries = 1;
+}
+
+message ImportCsvRequest {
+  string path = 1;
+  CsvMetadata metadata = 2;
+}
+
+message CsvMetadataRequest {
+  string path = 1;
+  optional CsvMetadata.Delimiter delimiter = 2;
+  optional int64 notetype_id = 3;
+  optional int64 deck_id = 4;
+  optional bool is_html = 5;
+}
+
+// Column indices are 1-based to make working with them in TS easier, where
+// unset numerical fields default to 0.
+message CsvMetadata {
+  enum DupeResolution {
+    UPDATE = 0;
+    PRESERVE = 1;
+    DUPLICATE = 2;
+    // UPDATE_IF_NEWER = 3;
+  }
+  // Order roughly in ascending expected frequency in note text, because the
+  // delimiter detection algorithm is stupidly picking the first one it
+  // encounters.
+  enum Delimiter {
+    TAB = 0;
+    PIPE = 1;
+    SEMICOLON = 2;
+    COLON = 3;
+    COMMA = 4;
+    SPACE = 5;
+  }
+  message MappedNotetype {
+    int64 id = 1;
+    // Source column indices for note fields. One-based. 0 means n/a.
+    repeated uint32 field_columns = 2;
+  }
+  Delimiter delimiter = 1;
+  bool is_html = 2;
+  repeated string global_tags = 3;
+  repeated string updated_tags = 4;
+  // Column names as defined by the file or empty strings otherwise. Also used
+  // to determine the number of columns.
+  repeated string column_labels = 5;
+  oneof deck {
+    // id of an existing deck
+    int64 deck_id = 6;
+    // One-based. 0 means n/a.
+    uint32 deck_column = 7;
+    // name of new deck to be created
+    string deck_name = 17;
+  }
+  oneof notetype {
+    // One notetype for all rows with given column mapping.
+    MappedNotetype global_notetype = 8;
+    // Row-specific notetypes with automatic mapping by index.
+    // One-based. 0 means n/a.
+    uint32 notetype_column = 9;
+  }
+  enum MatchScope {
+    NOTETYPE = 0;
+    NOTETYPE_AND_DECK = 1;
+  }
+  // One-based. 0 means n/a.
+  uint32 tags_column = 10;
+  bool force_delimiter = 11;
+  bool force_is_html = 12;
+  repeated generic.StringList preview = 13;
+  uint32 guid_column = 14;
+  DupeResolution dupe_resolution = 15;
+  MatchScope match_scope = 16;
+}
+
+message ExportCardCsvRequest {
+  string out_path = 1;
+  bool with_html = 2;
+  ExportLimit limit = 3;
+}
+
+message ExportNoteCsvRequest {
+  string out_path = 1;
+  bool with_html = 2;
+  bool with_tags = 3;
+  bool with_deck = 4;
+  bool with_notetype = 5;
+  bool with_guid = 6;
+  ExportLimit limit = 7;
+}
+
+message ExportLimit {
+  oneof limit {
+    generic.Empty whole_collection = 1;
+    int64 deck_id = 2;
+    notes.NoteIds note_ids = 3;
+    cards.CardIds card_ids = 4;
+  }
+}

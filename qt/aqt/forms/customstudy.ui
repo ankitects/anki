@@ -1,0 +1,210 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>Dialog</class>
+ <widget class="QDialog" name="Dialog">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>332</width>
+    <height>380</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>actions_custom_study</string>
+  </property>
+  <layout class="QVBoxLayout" name="verticalLayout">
+   <item>
+    <layout class="QGridLayout" name="gridLayout">
+     <item row="3" column="0" alignment="Qt::AlignLeft">
+      <widget class="QRadioButton" name="radioAhead">
+       <property name="text">
+        <string>custom_study_review_ahead</string>
+       </property>
+      </widget>
+     </item>
+     <item row="2" column="0" alignment="Qt::AlignLeft">
+      <widget class="QRadioButton" name="radioForgot">
+       <property name="text">
+        <string>custom_study_review_forgotten_cards</string>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="0" alignment="Qt::AlignLeft">
+      <widget class="QRadioButton" name="radioNew">
+       <property name="text">
+        <string>custom_study_increase_todays_new_card_limit</string>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="0" alignment="Qt::AlignLeft">
+      <widget class="QRadioButton" name="radioRev">
+       <property name="text">
+        <string>custom_study_increase_todays_review_card_limit</string>
+       </property>
+      </widget>
+     </item>
+     <item row="5" column="0" alignment="Qt::AlignLeft">
+      <widget class="QRadioButton" name="radioCram">
+       <property name="text">
+        <string>custom_study_study_by_card_state_or_tag</string>
+       </property>
+      </widget>
+     </item>
+     <item row="4" column="0" alignment="Qt::AlignLeft">
+      <widget class="QRadioButton" name="radioPreview">
+       <property name="text">
+        <string>custom_study_preview_new_cards</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+   <item>
+    <widget class="QGroupBox" name="groupBox">
+     <property name="title">
+      <string/>
+     </property>
+     <layout class="QVBoxLayout" name="verticalLayout_2">
+      <item>
+       <widget class="QLabel" name="title">
+        <property name="text">
+         <string notr="true">...</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <layout class="QHBoxLayout" name="horizontalLayout">
+        <item>
+         <widget class="QLabel" name="preSpin">
+          <property name="text">
+           <string notr="true">...</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QSpinBox" name="spin"/>
+        </item>
+        <item>
+         <widget class="QLabel" name="postSpin">
+          <property name="text">
+           <string notr="true">...</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <spacer name="horizontalSpacer_2">
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>40</width>
+            <height>20</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+       </layout>
+      </item>
+      <item>
+       <widget class="QListWidget" name="cardType">
+        <property name="currentRow">
+         <number>0</number>
+        </property>
+        <item>
+         <property name="text">
+          <string>custom_study_new_cards_only</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>custom_study_due_cards_only</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>custom_study_all_review_cards_in_random_order</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>custom_study_all_cards_in_random_order_dont</string>
+         </property>
+        </item>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item>
+    <spacer name="verticalSpacer_2">
+     <property name="orientation">
+      <enum>Qt::Vertical</enum>
+     </property>
+     <property name="sizeHint" stdset="0">
+      <size>
+       <width>20</width>
+       <height>40</height>
+      </size>
+     </property>
+    </spacer>
+   </item>
+   <item>
+    <widget class="QDialogButtonBox" name="buttonBox">
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
+     </property>
+     <property name="standardButtons">
+      <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
+     </property>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <tabstops>
+  <tabstop>radioNew</tabstop>
+  <tabstop>radioRev</tabstop>
+  <tabstop>radioForgot</tabstop>
+  <tabstop>radioAhead</tabstop>
+  <tabstop>radioPreview</tabstop>
+  <tabstop>radioCram</tabstop>
+  <tabstop>spin</tabstop>
+  <tabstop>buttonBox</tabstop>
+ </tabstops>
+ <resources/>
+ <connections>
+  <connection>
+   <sender>buttonBox</sender>
+   <signal>accepted()</signal>
+   <receiver>Dialog</receiver>
+   <slot>accept()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>248</x>
+     <y>254</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>157</x>
+     <y>274</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>buttonBox</sender>
+   <signal>rejected()</signal>
+   <receiver>Dialog</receiver>
+   <slot>reject()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>316</x>
+     <y>260</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>286</x>
+     <y>274</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
+</ui>

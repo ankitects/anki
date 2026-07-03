@@ -1,0 +1,52 @@
+// Copyright: Ankitects Pty Ltd and contributors
+// License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
+
+syntax = "proto3";
+
+option java_multiple_files = true;
+
+package anki.i18n;
+
+import "anki/generic.proto";
+
+service I18nService {
+  rpc TranslateString(TranslateStringRequest) returns (generic.String);
+  rpc FormatTimespan(FormatTimespanRequest) returns (generic.String);
+  rpc I18nResources(I18nResourcesRequest) returns (generic.Json);
+}
+
+// Implicitly includes any of the above methods that are not listed in the
+// backend service.
+service BackendI18nService {
+  rpc TranslateString(TranslateStringRequest) returns (generic.String);
+  rpc FormatTimespan(FormatTimespanRequest) returns (generic.String);
+  rpc I18nResources(I18nResourcesRequest) returns (generic.Json);
+}
+
+message TranslateStringRequest {
+  uint32 module_index = 1;
+  uint32 message_index = 2;
+  map<string, TranslateArgValue> args = 3;
+}
+
+message TranslateArgValue {
+  oneof value {
+    string str = 1;
+    double number = 2;
+  }
+}
+
+message FormatTimespanRequest {
+  enum Context {
+    PRECISE = 0;
+    ANSWER_BUTTONS = 1;
+    INTERVALS = 2;
+  }
+
+  float seconds = 1;
+  Context context = 2;
+}
+
+message I18nResourcesRequest {
+  repeated string modules = 1;
+}

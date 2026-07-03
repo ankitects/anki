@@ -1,0 +1,248 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>Dialog</class>
+ <widget class="QDialog" name="Dialog">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>567</width>
+    <height>438</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>editing_fields</string>
+  </property>
+  <property name="modal">
+   <bool>true</bool>
+  </property>
+  <layout class="QVBoxLayout" name="verticalLayout">
+   <item>
+    <layout class="QHBoxLayout" name="horizontalLayout">
+     <item>
+      <widget class="QListWidget" name="fieldList">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Expanding" vsizetype="MinimumExpanding">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="minimumSize">
+        <size>
+         <width>50</width>
+         <height>60</height>
+        </size>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <layout class="QVBoxLayout" name="verticalLayout_3">
+       <item>
+        <widget class="QPushButton" name="fieldAdd">
+         <property name="text">
+          <string>actions_add</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QPushButton" name="fieldDelete">
+         <property name="text">
+          <string>actions_delete</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QPushButton" name="fieldRename">
+         <property name="text">
+          <string>actions_rename</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QPushButton" name="fieldPosition">
+         <property name="text">
+          <string>actions_reposition</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <spacer name="verticalSpacer_3">
+         <property name="orientation">
+          <enum>Qt::Vertical</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>20</width>
+           <height>40</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+      </layout>
+     </item>
+    </layout>
+   </item>
+   <item>
+    <layout class="QGridLayout" name="_2">
+     <item row="0" column="0">
+      <widget class="QLabel" name="label_description">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="text">
+        <string>fields_description</string>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="0">
+      <widget class="QLabel" name="label_font">
+       <property name="text">
+        <string>fields_editing_font</string>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="2">
+      <widget class="QSpinBox" name="fontSize">
+       <property name="minimum">
+        <number>5</number>
+       </property>
+       <property name="maximum">
+        <number>300</number>
+       </property>
+      </widget>
+     </item>
+     <item row="2" column="0">
+      <widget class="QLabel" name="label_sort">
+       <property name="text">
+        <string>actions_options</string>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="1">
+      <widget class="QFontComboBox" name="fontFamily">
+       <property name="minimumSize">
+        <size>
+         <width>0</width>
+         <height>25</height>
+        </size>
+       </property>
+      </widget>
+     </item>
+     <item row="3" column="1" alignment="Qt::AlignLeft">
+      <widget class="QCheckBox" name="rtl">
+       <property name="text">
+        <string>fields_reverse_text_direction_rtl</string>
+       </property>
+      </widget>
+     </item>
+     <item row="4" column="1" alignment="Qt::AlignLeft">
+      <widget class="QCheckBox" name="plainTextByDefault">
+       <property name="enabled">
+        <bool>true</bool>
+       </property>
+       <property name="text">
+        <string>fields_html_by_default</string>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="1" colspan="2">
+      <widget class="QLineEdit" name="fieldDescription">
+       <property name="placeholderText">
+        <string>fields_description_placeholder</string>
+       </property>
+      </widget>
+     </item>
+     <item row="2" column="1" alignment="Qt::AlignLeft">
+      <widget class="QRadioButton" name="sortField">
+       <property name="text">
+        <string>fields_sort_by_this_field_in_the</string>
+       </property>
+      </widget>
+     </item>
+     <item row="5" column="1" alignment="Qt::AlignLeft">
+      <widget class="QCheckBox" name="collapseByDefault">
+       <property name="enabled">
+        <bool>true</bool>
+       </property>
+       <property name="text">
+        <string>fields_collapse_by_default</string>
+       </property>
+      </widget>
+     </item>
+     <item row="6" column="1" alignment="Qt::AlignLeft">
+      <widget class="QCheckBox" name="excludeFromSearch">
+       <property name="enabled">
+        <bool>true</bool>
+       </property>
+       <property name="text">
+        <string>fields_exclude_from_search</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+   <item>
+    <widget class="QDialogButtonBox" name="buttonBox">
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
+     </property>
+     <property name="standardButtons">
+      <set>QDialogButtonBox::Cancel|QDialogButtonBox::Help|QDialogButtonBox::Save</set>
+     </property>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <tabstops>
+  <tabstop>fieldList</tabstop>
+  <tabstop>fieldAdd</tabstop>
+  <tabstop>fieldDelete</tabstop>
+  <tabstop>fieldRename</tabstop>
+  <tabstop>fieldPosition</tabstop>
+  <tabstop>fieldDescription</tabstop>
+  <tabstop>fontFamily</tabstop>
+  <tabstop>fontSize</tabstop>
+  <tabstop>sortField</tabstop>
+  <tabstop>rtl</tabstop>
+ </tabstops>
+ <resources>
+  <include location="icons.qrc"/>
+ </resources>
+ <connections>
+  <connection>
+   <sender>buttonBox</sender>
+   <signal>accepted()</signal>
+   <receiver>Dialog</receiver>
+   <slot>accept()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>248</x>
+     <y>254</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>157</x>
+     <y>274</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>buttonBox</sender>
+   <signal>rejected()</signal>
+   <receiver>Dialog</receiver>
+   <slot>reject()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>316</x>
+     <y>260</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>286</x>
+     <y>274</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
+</ui>

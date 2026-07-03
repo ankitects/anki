@@ -1,0 +1,143 @@
+// Copyright: Ankitects Pty Ltd and contributors
+// License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
+
+syntax = "proto3";
+
+option java_multiple_files = true;
+
+package anki.config;
+
+import "anki/generic.proto";
+import "anki/collection.proto";
+
+service ConfigService {
+  rpc GetConfigJson(generic.String) returns (generic.Json);
+  rpc SetConfigJson(SetConfigJsonRequest) returns (collection.OpChanges);
+  rpc SetConfigJsonNoUndo(SetConfigJsonRequest) returns (generic.Empty);
+  rpc RemoveConfig(generic.String) returns (collection.OpChanges);
+  rpc GetAllConfig(generic.Empty) returns (generic.Json);
+  rpc GetConfigBool(GetConfigBoolRequest) returns (generic.Bool);
+  rpc SetConfigBool(SetConfigBoolRequest) returns (collection.OpChanges);
+  rpc GetConfigString(GetConfigStringRequest) returns (generic.String);
+  rpc SetConfigString(SetConfigStringRequest) returns (collection.OpChanges);
+  rpc GetPreferences(generic.Empty) returns (Preferences);
+  rpc SetPreferences(Preferences) returns (collection.OpChanges);
+}
+
+// Implicitly includes any of the above methods that are not listed in the
+// backend service.
+service BackendConfigService {}
+
+message ConfigKey {
+  enum Bool {
+    BROWSER_TABLE_SHOW_NOTES_MODE = 0;
+    PREVIEW_BOTH_SIDES = 3;
+    COLLAPSE_TAGS = 4;
+    COLLAPSE_NOTETYPES = 5;
+    COLLAPSE_DECKS = 6;
+    COLLAPSE_SAVED_SEARCHES = 7;
+    COLLAPSE_TODAY = 8;
+    COLLAPSE_CARD_STATE = 9;
+    COLLAPSE_FLAGS = 10;
+    SCHED_2021 = 11;
+    ADDING_DEFAULTS_TO_CURRENT_DECK = 12;
+    HIDE_AUDIO_PLAY_BUTTONS = 13;
+    INTERRUPT_AUDIO_WHEN_ANSWERING = 14;
+    PASTE_IMAGES_AS_PNG = 15;
+    PASTE_STRIPS_FORMATTING = 16;
+    NORMALIZE_NOTE_TEXT = 17;
+    IGNORE_ACCENTS_IN_SEARCH = 18;
+    RESTORE_POSITION_BROWSER = 19;
+    RESTORE_POSITION_REVIEWER = 20;
+    RESET_COUNTS_BROWSER = 21;
+    RESET_COUNTS_REVIEWER = 22;
+    RANDOM_ORDER_REPOSITION = 23;
+    SHIFT_POSITION_OF_EXISTING_CARDS = 24;
+    RENDER_LATEX = 25;
+    LOAD_BALANCER_ENABLED = 26;
+    FSRS_SHORT_TERM_WITH_STEPS_ENABLED = 27;
+    FSRS_LEGACY_EVALUATE = 28;
+  }
+  enum String {
+    SET_DUE_BROWSER = 0;
+    SET_DUE_REVIEWER = 1;
+    DEFAULT_SEARCH_TEXT = 2;
+    CARD_STATE_CUSTOMIZER = 3;
+  }
+}
+
+message GetConfigBoolRequest {
+  ConfigKey.Bool key = 1;
+}
+
+message SetConfigBoolRequest {
+  ConfigKey.Bool key = 1;
+  bool value = 2;
+  bool undoable = 3;
+}
+
+message GetConfigStringRequest {
+  ConfigKey.String key = 1;
+}
+
+message SetConfigStringRequest {
+  ConfigKey.String key = 1;
+  string value = 2;
+  bool undoable = 3;
+}
+
+message OptionalStringConfigKey {
+  ConfigKey.String key = 1;
+}
+
+message SetConfigJsonRequest {
+  string key = 1;
+  bytes value_json = 2;
+  bool undoable = 3;
+}
+
+message Preferences {
+  message Scheduling {
+    enum NewReviewMix {
+      DISTRIBUTE = 0;
+      REVIEWS_FIRST = 1;
+      NEW_FIRST = 2;
+    }
+
+    uint32 rollover = 2;
+    uint32 learn_ahead_secs = 3;
+    NewReviewMix new_review_mix = 4;
+
+    // v2 only
+    bool new_timezone = 5;
+    bool day_learn_first = 6;
+  }
+  message Reviewing {
+    bool hide_audio_play_buttons = 1;
+    bool interrupt_audio_when_answering = 2;
+    bool show_remaining_due_counts = 3;
+    bool show_intervals_on_buttons = 4;
+    uint32 time_limit_secs = 5;
+    bool load_balancer_enabled = 6;
+    bool fsrs_short_term_with_steps_enabled = 7;
+  }
+  message Editing {
+    bool adding_defaults_to_current_deck = 1;
+    bool paste_images_as_png = 2;
+    bool paste_strips_formatting = 3;
+    string default_search_text = 4;
+    bool ignore_accents_in_search = 5;
+    bool render_latex = 6;
+  }
+  message BackupLimits {
+    uint32 daily = 1;
+    uint32 weekly = 2;
+    uint32 monthly = 3;
+    uint32 minimum_interval_mins = 4;
+  }
+
+  Scheduling scheduling = 1;
+  Reviewing reviewing = 2;
+  Editing editing = 3;
+  BackupLimits backups = 4;
+}

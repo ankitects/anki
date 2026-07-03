@@ -1,0 +1,45 @@
+[package]
+name = "ninja_gen"
+version.workspace = true
+authors.workspace = true
+edition.workspace = true
+license.workspace = true
+publish = false
+rust-version.workspace = true
+
+[dependencies]
+anki_io.workspace = true
+anyhow.workspace = true
+camino.workspace = true
+dunce.workspace = true
+globset.workspace = true
+hex.workspace = true
+itertools.workspace = true
+maplit.workspace = true
+num_cpus.workspace = true
+regex.workspace = true
+serde_json.workspace = true
+sha2.workspace = true
+walkdir.workspace = true
+which.workspace = true
+
+[build-dependencies]
+embed-resource.workspace = true
+
+[target.'cfg(windows)'.dependencies]
+reqwest = { workspace = true, features = ["blocking", "json", "native-tls"] }
+
+[target.'cfg(not(windows))'.dependencies]
+reqwest = { workspace = true, features = ["blocking", "json", "rustls-tls"] }
+
+[[bin]]
+name = "update_uv"
+path = "src/bin/update_uv.rs"
+
+[[bin]]
+name = "update_protoc"
+path = "src/bin/update_protoc.rs"
+
+[[bin]]
+name = "update_node"
+path = "src/bin/update_node.rs"

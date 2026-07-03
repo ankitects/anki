@@ -1,0 +1,137 @@
+/* Copyright: Ankitects Pty Ltd and contributors
+ * License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html */
+
+@use "sass:string";
+@use "../lib/sass/vars";
+@use "../routes/image-occlusion/review";
+
+hr {
+    background-color: vars.palette(darkgray, 0);
+    margin: 1em 0;
+    border: none;
+    height: 1px;
+}
+
+body {
+    margin: 20px;
+    overflow-wrap: break-word;
+    // default background setting to fit with toolbar
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-position: top;
+    background-attachment: fixed;
+}
+
+// explicit nightMode definition required
+// to override default .card styling
+body.nightMode {
+    background-color: var(--canvas);
+    color: var(--fg);
+}
+
+img {
+    max-width: 100%;
+    max-height: 95vh;
+}
+
+li {
+    text-align: start;
+}
+
+pre {
+    text-align: left;
+}
+
+#_flag {
+    position: fixed;
+    [dir="ltr"] & {
+        right: 10px;
+    }
+    [dir="rtl"] & {
+        left: 10px;
+    }
+    top: 0;
+    font-size: 30px;
+    -webkit-text-stroke-width: 1px;
+    -webkit-text-stroke-color: black;
+}
+
+#_mark {
+    position: fixed;
+    [dir="ltr"] & {
+        left: 10px;
+    }
+    [dir="rtl"] & {
+        right: 10px;
+    }
+    top: 0;
+    font-size: 30px;
+    color: yellow;
+    -webkit-text-stroke-width: 1px;
+    -webkit-text-stroke-color: black;
+}
+
+#typeans {
+    width: 100%;
+    // https://anki.tenderapp.com/discussions/beta-testing/1854-using-margin-auto-causes-horizontal-scrollbar-on-typesomething
+    box-sizing: border-box;
+    line-height: 1.75;
+}
+
+code#typeans {
+    white-space: pre-wrap;
+    font-variant-ligatures: none;
+}
+
+.typeGood {
+    background: #afa;
+    color: black;
+}
+
+.typeBad {
+    color: black;
+    background: #faa;
+}
+
+.typeMissed {
+    color: black;
+    background: #ccc;
+}
+
+button {
+    margin: 1em 0.5em;
+}
+
+.replay-button {
+    text-decoration: none;
+    display: inline-flex;
+    vertical-align: middle;
+    margin: 3px;
+
+    svg {
+        width: 40px;
+        height: 40px;
+
+        circle {
+            fill: #fff;
+            stroke: #414141;
+        }
+
+        path {
+            fill: #414141;
+        }
+    }
+}
+
+.nightMode {
+    .latex {
+        filter: invert(100%);
+    }
+}
+
+.drawing {
+    zoom: 50%;
+}
+.nightMode img.drawing {
+    filter: string.unquote("invert(1) hue-rotate(180deg)");
+}

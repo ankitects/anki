@@ -1,0 +1,122 @@
+// Copyright: Ankitects Pty Ltd and contributors
+// License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
+
+syntax = "proto3";
+
+option java_multiple_files = true;
+
+package anki.notes;
+
+import "anki/notetypes.proto";
+import "anki/collection.proto";
+import "anki/decks.proto";
+import "anki/cards.proto";
+
+service NotesService {
+  rpc NewNote(notetypes.NotetypeId) returns (Note);
+  rpc AddNote(AddNoteRequest) returns (AddNoteResponse);
+  rpc AddNotes(AddNotesRequest) returns (AddNotesResponse);
+  rpc DefaultsForAdding(DefaultsForAddingRequest) returns (DeckAndNotetype);
+  rpc DefaultDeckForNotetype(notetypes.NotetypeId) returns (decks.DeckId);
+  rpc UpdateNotes(UpdateNotesRequest) returns (collection.OpChanges);
+  rpc GetNote(NoteId) returns (Note);
+  rpc RemoveNotes(RemoveNotesRequest) returns (collection.OpChangesWithCount);
+  rpc ClozeNumbersInNote(Note) returns (ClozeNumbersInNoteResponse);
+  rpc AfterNoteUpdates(AfterNoteUpdatesRequest)
+      returns (collection.OpChangesWithCount);
+  rpc FieldNamesForNotes(FieldNamesForNotesRequest)
+      returns (FieldNamesForNotesResponse);
+  rpc NoteFieldsCheck(Note) returns (NoteFieldsCheckResponse);
+  rpc CardsOfNote(NoteId) returns (cards.CardIds);
+  rpc GetSingleNotetypeOfNotes(notes.NoteIds) returns (notetypes.NotetypeId);
+}
+
+// Implicitly includes any of the above methods that are not listed in the
+// backend service.
+service BackendNotesService {}
+
+message NoteId {
+  int64 nid = 1;
+}
+
+message NoteIds {
+  repeated int64 note_ids = 1;
+}
+
+message Note {
+  int64 id = 1;
+  string guid = 2;
+  int64 notetype_id = 3;
+  uint32 mtime_secs = 4;
+  int32 usn = 5;
+  repeated string tags = 6;
+  repeated string fields = 7;
+}
+
+message AddNoteRequest {
+  Note note = 1;
+  int64 deck_id = 2;
+}
+
+message AddNoteResponse {
+  collection.OpChangesWithCount changes = 1;
+  int64 note_id = 2;
+}
+
+message AddNotesRequest {
+  repeated AddNoteRequest requests = 1;
+}
+
+message AddNotesResponse {
+  collection.OpChanges changes = 1;
+  repeated int64 nids = 2;
+}
+
+message UpdateNotesRequest {
+  repeated Note notes = 1;
+  bool skip_undo_entry = 2;
+}
+
+message DefaultsForAddingRequest {
+  int64 home_deck_of_current_review_card = 1;
+}
+
+message DeckAndNotetype {
+  int64 deck_id = 1;
+  int64 notetype_id = 2;
+}
+
+message RemoveNotesRequest {
+  repeated int64 note_ids = 1;
+  repeated int64 card_ids = 2;
+}
+
+message ClozeNumbersInNoteResponse {
+  repeated uint32 numbers = 1;
+}
+
+message AfterNoteUpdatesRequest {
+  repeated int64 nids = 1;
+  bool mark_notes_modified = 2;
+  bool generate_cards = 3;
+}
+
+message FieldNamesForNotesRequest {
+  repeated int64 nids = 1;
+}
+
+message FieldNamesForNotesResponse {
+  repeated string fields = 1;
+}
+
+message NoteFieldsCheckResponse {
+  enum State {
+    NORMAL = 0;
+    EMPTY = 1;
+    DUPLICATE = 2;
+    MISSING_CLOZE = 3;
+    NOTETYPE_NOT_CLOZE = 4;
+    FIELD_NOT_CLOZE = 5;
+  }
+  State state = 1;
+}

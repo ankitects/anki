@@ -1,0 +1,77 @@
+// Copyright: Ankitects Pty Ltd and contributors
+// License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
+
+syntax = "proto3";
+
+option java_multiple_files = true;
+
+package anki.tags;
+
+import "anki/generic.proto";
+import "anki/collection.proto";
+
+service TagsService {
+  rpc ClearUnusedTags(generic.Empty) returns (collection.OpChangesWithCount);
+  rpc AllTags(generic.Empty) returns (generic.StringList);
+  rpc RemoveTags(generic.String) returns (collection.OpChangesWithCount);
+  rpc SetTagCollapsed(SetTagCollapsedRequest) returns (collection.OpChanges);
+  rpc TagTree(generic.Empty) returns (TagTreeNode);
+  rpc ReparentTags(ReparentTagsRequest) returns (collection.OpChangesWithCount);
+  rpc RenameTags(RenameTagsRequest) returns (collection.OpChangesWithCount);
+  rpc AddNoteTags(NoteIdsAndTagsRequest)
+      returns (collection.OpChangesWithCount);
+  rpc RemoveNoteTags(NoteIdsAndTagsRequest)
+      returns (collection.OpChangesWithCount);
+  rpc FindAndReplaceTag(FindAndReplaceTagRequest)
+      returns (collection.OpChangesWithCount);
+  rpc CompleteTag(CompleteTagRequest) returns (CompleteTagResponse);
+}
+
+// Implicitly includes any of the above methods that are not listed in the
+// backend service.
+service BackendTagsService {}
+
+message SetTagCollapsedRequest {
+  string name = 1;
+  bool collapsed = 2;
+}
+
+message TagTreeNode {
+  string name = 1;
+  repeated TagTreeNode children = 2;
+  uint32 level = 3;
+  bool collapsed = 4;
+}
+
+message ReparentTagsRequest {
+  repeated string tags = 1;
+  string new_parent = 2;
+}
+
+message RenameTagsRequest {
+  string current_prefix = 1;
+  string new_prefix = 2;
+}
+
+message NoteIdsAndTagsRequest {
+  repeated int64 note_ids = 1;
+  string tags = 2;
+}
+
+message FindAndReplaceTagRequest {
+  repeated int64 note_ids = 1;
+  string search = 2;
+  string replacement = 3;
+  bool regex = 4;
+  bool match_case = 5;
+}
+
+message CompleteTagRequest {
+  // a partial tag, optionally delimited with ::
+  string input = 1;
+  uint32 match_limit = 2;
+}
+
+message CompleteTagResponse {
+  repeated string tags = 1;
+}

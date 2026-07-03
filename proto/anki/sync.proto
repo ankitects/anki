@@ -1,0 +1,90 @@
+// Copyright: Ankitects Pty Ltd and contributors
+// License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
+
+syntax = "proto3";
+
+option java_multiple_files = true;
+
+package anki.sync;
+
+import "anki/generic.proto";
+
+// Syncing methods are only available with a Backend handle.
+service SyncService {}
+
+service BackendSyncService {
+  rpc SyncMedia(SyncAuth) returns (generic.Empty);
+  rpc AbortMediaSync(generic.Empty) returns (generic.Empty);
+  // Can be used by the frontend to detect an active sync. If the sync aborted
+  // with an error, the next call to this method will return the error.
+  rpc MediaSyncStatus(generic.Empty) returns (MediaSyncStatusResponse);
+  rpc SyncLogin(SyncLoginRequest) returns (SyncAuth);
+  rpc SyncStatus(SyncAuth) returns (SyncStatusResponse);
+  rpc SyncCollection(SyncCollectionRequest) returns (SyncCollectionResponse);
+  rpc FullUploadOrDownload(FullUploadOrDownloadRequest) returns (generic.Empty);
+  rpc AbortSync(generic.Empty) returns (generic.Empty);
+  rpc SetCustomCertificate(generic.String) returns (generic.Bool);
+}
+
+message SyncAuth {
+  string hkey = 1;
+  optional string endpoint = 2;
+  optional uint32 io_timeout_secs = 3;
+}
+
+message SyncLoginRequest {
+  string username = 1;
+  string password = 2;
+  optional string endpoint = 3;
+}
+
+message SyncStatusResponse {
+  enum Required {
+    NO_CHANGES = 0;
+    NORMAL_SYNC = 1;
+    FULL_SYNC = 2;
+  }
+  Required required = 1;
+  optional string new_endpoint = 4;
+}
+
+message SyncCollectionRequest {
+  SyncAuth auth = 1;
+  bool sync_media = 2;
+}
+
+message SyncCollectionResponse {
+  enum ChangesRequired {
+    NO_CHANGES = 0;
+    NORMAL_SYNC = 1;
+    FULL_SYNC = 2;
+    // local collection has no cards; upload not an option
+    FULL_DOWNLOAD = 3;
+    // remote collection has no cards; download not an option
+    FULL_UPLOAD = 4;
+  }
+
+  uint32 host_number = 1;
+  string server_message = 2;
+  ChangesRequired required = 3;
+  optional string new_endpoint = 4;
+  int32 server_media_usn = 5;
+}
+
+message MediaSyncStatusResponse {
+  bool active = 1;
+  MediaSyncProgress progress = 2;
+}
+
+message MediaSyncProgress {
+  string checked = 1;
+  string added = 2;
+  string removed = 3;
+}
+
+message FullUploadOrDownloadRequest {
+  SyncAuth auth = 1;
+  bool upload = 2;
+  // if not provided, media syncing will be skipped
+  optional int32 server_usn = 3;
+}

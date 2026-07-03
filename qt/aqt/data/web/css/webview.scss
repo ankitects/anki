@@ -1,0 +1,39 @@
+/* Copyright: Ankitects Pty Ltd and contributors
+ * License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html */
+
+@use "../../../../../ts/lib/sass/root-vars";
+@use "../../../../../ts/lib/sass/scrollbar";
+@use "../../../../../ts/lib/sass/buttons";
+
+* {
+    // border-box would be better, but we need to
+    // keep the old behaviour for now to avoid breaking
+    // add-ons/card templates
+    box-sizing: content-box;
+}
+
+body {
+    color: var(--fg);
+    background: var(--canvas);
+    &.fancy {
+        transition: opacity var(--transition-medium) ease-out;
+    }
+    margin: 2em;
+    overscroll-behavior: none;
+    &:not(.isMac),
+    &:not(.isMac) * {
+        @include scrollbar.custom;
+    }
+    &.no-blur * {
+        backdrop-filter: none !important;
+    }
+}
+
+a {
+    color: var(--fg-link);
+    text-decoration: none;
+}
+
+h1 {
+    margin-bottom: 0.2em;
+}

@@ -1,0 +1,23 @@
+[package]
+name = "rsbridge"
+version.workspace = true
+authors.workspace = true
+edition.workspace = true
+license.workspace = true
+publish = false
+rust-version.workspace = true
+description = "Anki's Rust library code Python bindings"
+
+[lib]
+name = "rsbridge"
+crate-type = ["cdylib"]
+path = "lib.rs"
+test = false
+
+[dependencies]
+anki.workspace = true
+pyo3.workspace = true
+
+[features]
+rustls = ["anki/rustls"]
+native-tls = ["anki/native-tls"]

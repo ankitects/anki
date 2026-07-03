@@ -1,0 +1,21 @@
+[package]
+name = "anki-sync-server"
+version.workspace = true
+authors.workspace = true
+edition.workspace = true
+license.workspace = true
+publish = false
+rust-version.workspace = true
+description = "Standalone sync server"
+
+[[bin]]
+path = "main.rs"
+name = "anki-sync-server"
+
+[dependencies]
+
+[target.'cfg(windows)'.dependencies]
+anki = { workspace = true, features = ["native-tls"] }
+
+[target.'cfg(not(windows))'.dependencies]
+anki = { workspace = true, features = ["rustls"] }

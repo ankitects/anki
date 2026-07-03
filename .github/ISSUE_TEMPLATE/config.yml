@@ -1,0 +1,13 @@
+blank_issues_enabled: false
+contact_links:
+    - name: Bug Reports
+      url: https://forums.ankiweb.net
+      about: This issue tracker is for developers. Please report any bugs you encounter over on the user forum, and they will be triaged there.
+
+    - name: Questions/Support
+      url: https://forums.ankiweb.net
+      about: If you have a question or need support, please post on the user forum.
+
+    - name: Feature Requests/Suggestions
+      url: https://forums.ankiweb.net/c/suggestions/17
+      about: Please post suggestions and feature requests on our user forum.

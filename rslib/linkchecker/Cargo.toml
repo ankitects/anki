@@ -1,0 +1,22 @@
+[package]
+name = "linkchecker"
+version.workspace = true
+authors.workspace = true
+edition.workspace = true
+license.workspace = true
+publish = false
+rust-version.workspace = true
+
+[dependencies]
+anki.workspace = true
+futures.workspace = true
+itertools.workspace = true
+linkcheck.workspace = true
+regex.workspace = true
+reqwest.workspace = true
+strum.workspace = true
+tokio.workspace = true
+
+[features]
+rustls = ["reqwest/rustls-tls", "reqwest/rustls-tls-native-roots"]
+native-tls = ["reqwest/native-tls"]

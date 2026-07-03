@@ -1,0 +1,244 @@
+// Copyright: Ankitects Pty Ltd and contributors
+// License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
+
+syntax = "proto3";
+
+option java_multiple_files = true;
+
+package anki.stats;
+
+import "anki/generic.proto";
+import "anki/cards.proto";
+
+service StatsService {
+  rpc CardStats(cards.CardId) returns (CardStatsResponse);
+  rpc GetReviewLogs(cards.CardId) returns (ReviewLogs);
+  rpc Graphs(GraphsRequest) returns (GraphsResponse);
+  rpc GetGraphPreferences(generic.Empty) returns (GraphPreferences);
+  rpc SetGraphPreferences(GraphPreferences) returns (generic.Empty);
+}
+
+// Implicitly includes any of the above methods that are not listed in the
+// backend service.
+service BackendStatsService {}
+
+message ReviewLogs {
+  repeated CardStatsResponse.StatsRevlogEntry entries = 1;
+}
+
+message CardStatsResponse {
+  message StatsRevlogEntry {
+    int64 time = 1;
+    RevlogEntry.ReviewKind review_kind = 2;
+    uint32 button_chosen = 3;
+    // seconds
+    uint32 interval = 4;
+    // per mill
+    uint32 ease = 5;
+    float taken_secs = 6;
+    optional cards.FsrsMemoryState memory_state = 7;
+    // seconds
+    uint32 last_interval = 8;
+  }
+  repeated StatsRevlogEntry revlog = 1;
+  int64 card_id = 2;
+  int64 note_id = 3;
+  string deck = 4;
+  // Unix timestamps
+  int64 added = 5;
+  optional int64 first_review = 6;
+  optional int64 latest_review = 7;
+  optional int64 due_date = 8;
+  optional int32 due_position = 9;
+  // days
+  uint32 interval = 10;
+  // per mill
+  uint32 ease = 11;
+  uint32 reviews = 12;
+  uint32 lapses = 13;
+  float average_secs = 14;
+  float total_secs = 15;
+  string card_type = 16;
+  string notetype = 17;
+  optional cards.FsrsMemoryState memory_state = 18;
+  // not set if due date/state not available
+  optional float fsrs_retrievability = 19;
+  string custom_data = 20;
+  string preset = 21;
+  optional string original_deck = 22;
+  optional float desired_retention = 23;
+  repeated float fsrs_params = 24;
+}
+
+message GraphsRequest {
+  string search = 1;
+  uint32 days = 2;
+}
+
+message GraphsResponse {
+  message Added {
+    map<int32, uint32> added = 1;
+  }
+  message Intervals {
+    map<uint32, uint32> intervals = 1;
+  }
+  message Eases {
+    map<uint32, uint32> eases = 1;
+    float average = 2;
+  }
+  message Retrievability {
+    map<uint32, uint32> retrievability = 1;
+    float average = 2;
+    float sum_by_card = 3;
+    float sum_by_note = 4;
+  }
+  message FutureDue {
+    map<int32, uint32> future_due = 1;
+    bool have_backlog = 2;
+    uint32 daily_load = 3;
+  }
+  message Today {
+    uint32 answer_count = 1;
+    uint32 answer_millis = 2;
+    uint32 correct_count = 3;
+    uint32 mature_correct = 4;
+    uint32 mature_count = 5;
+    uint32 learn_count = 6;
+    uint32 review_count = 7;
+    uint32 relearn_count = 8;
+    uint32 early_review_count = 9;
+  }
+  // each bucket is a 24 element vec
+  message Hours {
+    message Hour {
+      uint32 total = 1;
+      uint32 correct = 2;
+    }
+    repeated Hour one_month = 1;
+    repeated Hour three_months = 2;
+    repeated Hour one_year = 3;
+    repeated Hour all_time = 4;
+  }
+  message ReviewCountsAndTimes {
+    message Reviews {
+      uint32 learn = 1;
+      uint32 relearn = 2;
+      uint32 young = 3;
+      uint32 mature = 4;
+      uint32 filtered = 5;
+    }
+    map<int32, Reviews> count = 1;
+    map<int32, Reviews> time = 2;
+  }
+  // 4 element vecs for buttons 1-4
+  message Buttons {
+    message ButtonCounts {
+      repeated uint32 learning = 1;
+      repeated uint32 young = 2;
+      repeated uint32 mature = 3;
+    }
+    ButtonCounts one_month = 1;
+    ButtonCounts three_months = 2;
+    ButtonCounts one_year = 3;
+    ButtonCounts all_time = 4;
+  }
+  message CardCounts {
+    message Counts {
+      uint32 newCards = 1;
+      uint32 learn = 2;
+      uint32 relearn = 3;
+      uint32 young = 4;
+      uint32 mature = 5;
+      uint32 suspended = 6;
+      uint32 buried = 7;
+    }
+    // Buried/suspended cards are included in counts; suspended/buried counts
+    // are 0.
+    Counts including_inactive = 1;
+    // Buried/suspended cards are counted separately.
+    Counts excluding_inactive = 2;
+  }
+  message TrueRetentionStats {
+    message TrueRetention {
+      uint32 young_passed = 1;
+      uint32 young_failed = 2;
+      uint32 mature_passed = 3;
+      uint32 mature_failed = 4;
+    }
+
+    TrueRetention today = 1;
+    TrueRetention yesterday = 2;
+    TrueRetention week = 3;
+    TrueRetention month = 4;
+    TrueRetention year = 5;
+    TrueRetention all_time = 6;
+  }
+
+  Buttons buttons = 1;
+  CardCounts card_counts = 2;
+  Hours hours = 3;
+  Today today = 4;
+  Eases eases = 5;
+  Eases difficulty = 11;
+  Intervals intervals = 6;
+  FutureDue future_due = 7;
+  Added added = 8;
+  ReviewCountsAndTimes reviews = 9;
+  uint32 rollover_hour = 10;
+  Retrievability retrievability = 12;
+  bool fsrs = 13;
+  Intervals stability = 14;
+  TrueRetentionStats true_retention = 15;
+}
+
+message GraphPreferences {
+  enum Weekday {
+    SUNDAY = 0;
+    MONDAY = 1;
+    FRIDAY = 5;
+    SATURDAY = 6;
+  }
+  Weekday calendar_first_day_of_week = 1;
+  bool card_counts_separate_inactive = 2;
+  bool browser_links_supported = 3;
+  bool future_due_show_backlog = 4;
+}
+
+message RevlogEntry {
+  enum ReviewKind {
+    LEARNING = 0;
+    REVIEW = 1;
+    RELEARNING = 2;
+    FILTERED = 3;
+    MANUAL = 4;
+    RESCHEDULED = 5;
+  }
+  int64 id = 1;
+  int64 cid = 2;
+  int32 usn = 3;
+  uint32 button_chosen = 4;
+  int32 interval = 5;
+  int32 last_interval = 6;
+  uint32 ease_factor = 7;
+  uint32 taken_millis = 8;
+  ReviewKind review_kind = 9;
+}
+
+message CardEntry {
+  int64 id = 1;
+  int64 note_id = 2;
+  int64 deck_id = 3;
+}
+
+message DeckEntry {
+  int64 id = 1;
+  int64 parent_id = 2;
+  int64 preset_id = 3;
+}
+
+message Dataset {
+  repeated RevlogEntry revlogs = 1;
+  repeated CardEntry cards = 2;
+  repeated DeckEntry decks = 3;
+  int64 next_day_at = 4;
+}

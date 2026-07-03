@@ -1,0 +1,6 @@
+#!/bin/bash
+#
+# Run mypy in daemon mode for fast checking
+
+./ninja pylib qt
+MYPY_CACHE_DIR=out/tests/mypy out/pyenv/bin/dmypy run pylib/anki qt/aqt pylib/tests

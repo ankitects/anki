@@ -1,0 +1,12 @@
+#!/bin/bash
+# Copyright: Ankitects Pty Ltd and contributors
+# License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
+
+# Manually trigger a rebuild and reload of Anki's web stack
+
+# NOTE: This script needs to be run from the project root
+
+set -e
+
+./ninja qt
+./out/pyenv/bin/python tools/reload_webviews.py

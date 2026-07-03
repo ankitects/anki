@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>Dialog</class>
+ <widget class="QDialog" name="Dialog">
+  <property name="windowModality">
+   <enum>Qt::ApplicationModal</enum>
+  </property>
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>800</width>
+    <height>800</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string notr="true">ADD-ONS</string>
+  </property>
+  <property name="modal">
+   <bool>true</bool>
+  </property>
+  <layout class="QHBoxLayout" name="horizontalLayout">
+   <item>
+    <layout class="QVBoxLayout" name="verticalLayout_2">
+     <item>
+      <widget class="QLabel" name="label">
+       <property name="text">
+        <string>addons_changes_will_take_effect_when_anki</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QListWidget" name="addonList">
+       <property name="selectionMode">
+        <enum>QAbstractItemView::ExtendedSelection</enum>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+   <item>
+    <layout class="QVBoxLayout" name="verticalLayout">
+     <item>
+      <widget class="QPushButton" name="getAddons">
+       <property name="text">
+        <string>addons_get_addons</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="installFromFile">
+       <property name="text">
+        <string>addons_install_from_file</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="checkForUpdates">
+       <property name="text">
+        <string>addons_check_for_updates</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <spacer name="verticalSpacer">
+       <property name="orientation">
+        <enum>Qt::Vertical</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>20</width>
+         <height>40</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+     <item>
+      <widget class="QPushButton" name="viewPage">
+       <property name="text">
+        <string>addons_view_addon_page</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="config">
+       <property name="text">
+        <string>addons_config</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="viewFiles">
+       <property name="text">
+        <string>addons_view_files</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="toggleEnabled">
+       <property name="text">
+        <string>addons_toggle_enabled</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="delete_2">
+       <property name="text">
+        <string>actions_delete</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+  </layout>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>

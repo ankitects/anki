@@ -1,0 +1,485 @@
+// Copyright: Ankitects Pty Ltd and contributors
+// License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
+
+syntax = "proto3";
+
+option java_multiple_files = true;
+
+package anki.scheduler;
+
+import "anki/generic.proto";
+import "anki/cards.proto";
+import "anki/decks.proto";
+import "anki/collection.proto";
+import "anki/config.proto";
+import "anki/deck_config.proto";
+
+service SchedulerService {
+  rpc GetQueuedCards(GetQueuedCardsRequest) returns (QueuedCards);
+  rpc AnswerCard(CardAnswer) returns (collection.OpChanges);
+  rpc SchedTimingToday(generic.Empty) returns (SchedTimingTodayResponse);
+  rpc StudiedToday(generic.Empty) returns (generic.String);
+  rpc StudiedTodayMessage(StudiedTodayMessageRequest) returns (generic.String);
+  rpc UpdateStats(UpdateStatsRequest) returns (generic.Empty);
+  rpc ExtendLimits(ExtendLimitsRequest) returns (generic.Empty);
+  rpc CountsForDeckToday(decks.DeckId) returns (CountsForDeckTodayResponse);
+  rpc CongratsInfo(generic.Empty) returns (CongratsInfoResponse);
+  rpc RestoreBuriedAndSuspendedCards(cards.CardIds)
+      returns (collection.OpChanges);
+  rpc UnburyDeck(UnburyDeckRequest) returns (collection.OpChanges);
+  rpc BuryOrSuspendCards(BuryOrSuspendCardsRequest)
+      returns (collection.OpChangesWithCount);
+  rpc EmptyFilteredDeck(decks.DeckId) returns (collection.OpChanges);
+  rpc RebuildFilteredDeck(decks.DeckId) returns (collection.OpChangesWithCount);
+  rpc ScheduleCardsAsNew(ScheduleCardsAsNewRequest)
+      returns (collection.OpChanges);
+  rpc ScheduleCardsAsNewDefaults(ScheduleCardsAsNewDefaultsRequest)
+      returns (ScheduleCardsAsNewDefaultsResponse);
+  rpc SetDueDate(SetDueDateRequest) returns (collection.OpChanges);
+  rpc GradeNow(GradeNowRequest) returns (collection.OpChanges);
+  rpc SortCards(SortCardsRequest) returns (collection.OpChangesWithCount);
+  rpc SortDeck(SortDeckRequest) returns (collection.OpChangesWithCount);
+  rpc GetSchedulingStates(cards.CardId) returns (SchedulingStates);
+  rpc DescribeNextStates(SchedulingStates) returns (generic.StringList);
+  rpc StateIsLeech(SchedulingState) returns (generic.Bool);
+  rpc UpgradeScheduler(generic.Empty) returns (generic.Empty);
+  rpc CustomStudy(CustomStudyRequest) returns (collection.OpChanges);
+  rpc CustomStudyDefaults(CustomStudyDefaultsRequest)
+      returns (CustomStudyDefaultsResponse);
+  rpc RepositionDefaults(generic.Empty) returns (RepositionDefaultsResponse);
+  rpc ComputeFsrsParams(ComputeFsrsParamsRequest)
+      returns (ComputeFsrsParamsResponse);
+  rpc GetOptimalRetentionParameters(GetOptimalRetentionParametersRequest)
+      returns (GetOptimalRetentionParametersResponse);
+  rpc ComputeOptimalRetention(SimulateFsrsReviewRequest)
+      returns (ComputeOptimalRetentionResponse);
+  rpc SimulateFsrsReview(SimulateFsrsReviewRequest)
+      returns (SimulateFsrsReviewResponse);
+  rpc SimulateFsrsWorkload(SimulateFsrsReviewRequest)
+      returns (SimulateFsrsWorkloadResponse);
+  rpc EvaluateParams(EvaluateParamsRequest) returns (EvaluateParamsResponse);
+  rpc EvaluateParamsLegacy(EvaluateParamsLegacyRequest)
+      returns (EvaluateParamsResponse);
+  rpc ComputeMemoryState(cards.CardId) returns (ComputeMemoryStateResponse);
+  // The number of days the calculated interval was fuzzed by on the previous
+  // review (if any). Utilized by the FSRS add-on.
+  rpc FuzzDelta(FuzzDeltaRequest) returns (FuzzDeltaResponse);
+}
+
+// Implicitly includes any of the above methods that are not listed in the
+// backend service.
+service BackendSchedulerService {
+  rpc ComputeFsrsParamsFromItems(ComputeFsrsParamsFromItemsRequest)
+      returns (ComputeFsrsParamsResponse);
+  // Generates parameters used for FSRS's scheduler benchmarks.
+  rpc FsrsBenchmark(FsrsBenchmarkRequest) returns (FsrsBenchmarkResponse);
+  // Used for exporting revlogs for algorithm research.
+  rpc ExportDataset(ExportDatasetRequest) returns (generic.Empty);
+}
+
+message SchedulingState {
+  message New {
+    uint32 position = 1;
+  }
+  message Learning {
+    uint32 remaining_steps = 1;
+    uint32 scheduled_secs = 2;
+    uint32 elapsed_secs = 3;
+    optional cards.FsrsMemoryState memory_state = 6;
+  }
+  message Review {
+    uint32 scheduled_days = 1;
+    uint32 elapsed_days = 2;
+    float ease_factor = 3;
+    uint32 lapses = 4;
+    bool leeched = 5;
+    optional cards.FsrsMemoryState memory_state = 6;
+  }
+  message Relearning {
+    Review review = 1;
+    Learning learning = 2;
+  }
+  message Normal {
+    oneof kind {
+      New new = 1;
+      Learning learning = 2;
+      Review review = 3;
+      Relearning relearning = 4;
+    }
+  }
+  message Preview {
+    uint32 scheduled_secs = 1;
+    bool finished = 2;
+  }
+  message ReschedulingFilter {
+    Normal original_state = 1;
+  }
+  message Filtered {
+    oneof kind {
+      Preview preview = 1;
+      ReschedulingFilter rescheduling = 2;
+    }
+  }
+
+  oneof kind {
+    Normal normal = 1;
+    Filtered filtered = 2;
+  }
+  // The backend does not populate this field in GetQueuedCards; the front-end
+  // is expected to populate it based on the provided Card. If it's not set when
+  // answering a card, the existing custom data will not be updated.
+  optional string custom_data = 3;
+}
+
+message QueuedCards {
+  enum Queue {
+    NEW = 0;
+    LEARNING = 1;
+    REVIEW = 2;
+  }
+  message QueuedCard {
+    cards.Card card = 1;
+    Queue queue = 2;
+    SchedulingStates states = 3;
+    SchedulingContext context = 4;
+  }
+
+  repeated QueuedCard cards = 1;
+  uint32 new_count = 2;
+  uint32 learning_count = 3;
+  uint32 review_count = 4;
+}
+
+message GetQueuedCardsRequest {
+  uint32 fetch_limit = 1;
+  bool intraday_learning_only = 2;
+}
+
+message SchedTimingTodayResponse {
+  uint32 days_elapsed = 1;
+  int64 next_day_at = 2;
+}
+
+message StudiedTodayMessageRequest {
+  uint32 cards = 1;
+  double seconds = 2;
+}
+
+message UpdateStatsRequest {
+  int64 deck_id = 1;
+  int32 new_delta = 2;
+  int32 review_delta = 4;
+  int32 millisecond_delta = 5;
+}
+
+message ExtendLimitsRequest {
+  int64 deck_id = 1;
+  int32 new_delta = 2;
+  int32 review_delta = 3;
+}
+
+message CountsForDeckTodayResponse {
+  int32 new = 1;
+  int32 review = 2;
+}
+
+message CongratsInfoResponse {
+  uint32 learn_remaining = 1;
+  uint32 secs_until_next_learn = 2;
+  bool review_remaining = 3;
+  bool new_remaining = 4;
+  bool have_sched_buried = 5;
+  bool have_user_buried = 6;
+  bool is_filtered_deck = 7;
+  bool bridge_commands_supported = 8;
+  string deck_description = 9;
+}
+
+message UnburyDeckRequest {
+  enum Mode {
+    ALL = 0;
+    SCHED_ONLY = 1;
+    USER_ONLY = 2;
+  }
+  int64 deck_id = 1;
+  Mode mode = 2;
+}
+
+message BuryOrSuspendCardsRequest {
+  enum Mode {
+    SUSPEND = 0;
+    BURY_SCHED = 1;
+    BURY_USER = 2;
+  }
+  repeated int64 card_ids = 1;
+  repeated int64 note_ids = 2;
+  Mode mode = 3;
+}
+
+message ScheduleCardsAsNewRequest {
+  enum Context {
+    BROWSER = 0;
+    REVIEWER = 1;
+  }
+  repeated int64 card_ids = 1;
+  bool log = 2;
+  bool restore_position = 3;
+  bool reset_counts = 4;
+  optional Context context = 5;
+}
+
+message ScheduleCardsAsNewDefaultsRequest {
+  ScheduleCardsAsNewRequest.Context context = 1;
+}
+
+message ScheduleCardsAsNewDefaultsResponse {
+  bool restore_position = 1;
+  bool reset_counts = 2;
+}
+
+message SetDueDateRequest {
+  repeated int64 card_ids = 1;
+  string days = 2;
+  config.OptionalStringConfigKey config_key = 3;
+}
+
+message GradeNowRequest {
+  repeated int64 card_ids = 1;
+  CardAnswer.Rating rating = 2;
+}
+
+message SortCardsRequest {
+  repeated int64 card_ids = 1;
+  uint32 starting_from = 2;
+  uint32 step_size = 3;
+  bool randomize = 4;
+  bool shift_existing = 5;
+}
+
+message SortDeckRequest {
+  int64 deck_id = 1;
+  bool randomize = 2;
+}
+
+message SchedulingStates {
+  SchedulingState current = 1;
+  SchedulingState again = 2;
+  SchedulingState hard = 3;
+  SchedulingState good = 4;
+  SchedulingState easy = 5;
+}
+
+message CardAnswer {
+  enum Rating {
+    AGAIN = 0;
+    HARD = 1;
+    GOOD = 2;
+    EASY = 3;
+  }
+
+  int64 card_id = 1;
+  SchedulingState current_state = 2;
+  SchedulingState new_state = 3;
+  Rating rating = 4;
+  int64 answered_at_millis = 5;
+  uint32 milliseconds_taken = 6;
+}
+
+message CustomStudyRequest {
+  message Cram {
+    enum CramKind {
+      // due cards in due order
+      CRAM_KIND_DUE = 0;
+      // new cards in added order
+      CRAM_KIND_NEW = 1;
+      // review cards in random order
+      CRAM_KIND_REVIEW = 2;
+      // all cards in random order; no rescheduling
+      CRAM_KIND_ALL = 3;
+    }
+    CramKind kind = 1;
+    // the maximum number of cards
+    uint32 card_limit = 2;
+    // cards must match one of these, if unempty
+    repeated string tags_to_include = 3;
+    // cards must not match any of these
+    repeated string tags_to_exclude = 4;
+  }
+  int64 deck_id = 1;
+  oneof value {
+    // increase new limit by x
+    int32 new_limit_delta = 2;
+    // increase review limit by x
+    int32 review_limit_delta = 3;
+    // repeat cards forgotten in the last x days
+    uint32 forgot_days = 4;
+    // review cards due in the next x days
+    uint32 review_ahead_days = 5;
+    // preview new cards added in the last x days
+    uint32 preview_days = 6;
+    Cram cram = 7;
+  }
+}
+
+message SchedulingContext {
+  string deck_name = 1;
+  uint64 seed = 2;
+  optional float decay = 3;
+  optional float desired_retention = 4;
+}
+
+message CustomStudyDefaultsRequest {
+  int64 deck_id = 1;
+}
+
+message CustomStudyDefaultsResponse {
+  message Tag {
+    string name = 1;
+    bool include = 2;
+    bool exclude = 3;
+  }
+
+  repeated Tag tags = 1;
+  uint32 extend_new = 2;
+  uint32 extend_review = 3;
+  uint32 available_new = 4;
+  uint32 available_review = 5;
+  // in v3, counts for children are provided separately
+  uint32 available_new_in_children = 6;
+  uint32 available_review_in_children = 7;
+}
+
+message RepositionDefaultsResponse {
+  bool random = 1;
+  bool shift = 2;
+}
+
+message ComputeFsrsParamsRequest {
+  /// The search used to gather cards for training
+  string search = 1;
+  repeated float current_params = 2;
+  int64 ignore_revlogs_before_ms = 3;
+  uint32 num_of_relearning_steps = 4;
+  bool health_check = 5;
+}
+
+message ComputeFsrsParamsResponse {
+  repeated float params = 1;
+  uint32 fsrs_items = 2;
+  optional bool health_check_passed = 3;
+}
+
+message ComputeFsrsParamsFromItemsRequest {
+  repeated FsrsItem items = 1;
+}
+
+message FsrsBenchmarkRequest {
+  repeated FsrsItem train_set = 1;
+}
+
+message FsrsBenchmarkResponse {
+  repeated float params = 1;
+}
+
+message ExportDatasetRequest {
+  uint32 min_entries = 1;
+  string target_path = 2;
+}
+
+message FsrsItem {
+  repeated FsrsReview reviews = 1;
+}
+
+message FsrsReview {
+  uint32 rating = 1;
+  uint32 delta_t = 2;
+}
+
+message SimulateFsrsReviewRequest {
+  repeated float params = 1;
+  float desired_retention = 2;
+  uint32 deck_size = 3;
+  uint32 days_to_simulate = 4;
+  uint32 new_limit = 5;
+  uint32 review_limit = 6;
+  uint32 max_interval = 7;
+  string search = 8;
+  bool new_cards_ignore_review_limit = 9;
+  repeated float easy_days_percentages = 10;
+  deck_config.DeckConfig.Config.ReviewCardOrder review_order = 11;
+  optional uint32 suspend_after_lapse_count = 12;
+  float historical_retention = 13;
+  uint32 learning_step_count = 14;
+  uint32 relearning_step_count = 15;
+}
+
+message SimulateFsrsReviewResponse {
+  repeated float accumulated_knowledge_acquisition = 1;
+  repeated uint32 daily_review_count = 2;
+  repeated uint32 daily_new_count = 3;
+  repeated float daily_time_cost = 4;
+}
+
+message SimulateFsrsWorkloadResponse {
+  map<uint32, float> cost = 1;
+  float reviewless_end_memorized = 2;
+  map<uint32, float> memorized = 3;
+  map<uint32, uint32> review_count = 4;
+}
+
+message ComputeOptimalRetentionResponse {
+  float optimal_retention = 1;
+}
+
+message GetOptimalRetentionParametersRequest {
+  string search = 1;
+}
+
+message GetOptimalRetentionParametersResponse {
+  uint32 deck_size = 1;
+  uint32 learn_span = 2;
+  float max_cost_perday = 3;
+  float max_ivl = 4;
+  repeated float first_rating_prob = 5;
+  repeated float review_rating_prob = 6;
+  float loss_aversion = 7;
+  uint32 learn_limit = 8;
+  uint32 review_limit = 9;
+  repeated float learning_step_transitions = 10;
+  repeated float relearning_step_transitions = 11;
+  repeated float state_rating_costs = 12;
+  uint32 learning_step_count = 13;
+  uint32 relearning_step_count = 14;
+}
+
+message EvaluateParamsRequest {
+  string search = 1;
+  int64 ignore_revlogs_before_ms = 2;
+  uint32 num_of_relearning_steps = 3;
+}
+
+message EvaluateParamsLegacyRequest {
+  repeated float params = 1;
+  string search = 2;
+  int64 ignore_revlogs_before_ms = 3;
+}
+
+message EvaluateParamsResponse {
+  float log_loss = 1;
+  float rmse_bins = 2;
+}
+
+message ComputeMemoryStateResponse {
+  optional cards.FsrsMemoryState state = 1;
+  float desired_retention = 2;
+  float decay = 3;
+}
+
+message FuzzDeltaRequest {
+  int64 card_id = 1;
+  uint32 interval = 2;
+}
+
+message FuzzDeltaResponse {
+  sint32 delta_days = 1;
+}

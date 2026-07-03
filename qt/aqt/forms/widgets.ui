@@ -1,0 +1,375 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>Dialog</class>
+ <widget class="QDialog" name="Dialog">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>925</width>
+    <height>822</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string notr="true">Qt Widget Gallery</string>
+  </property>
+  <layout class="QVBoxLayout" name="verticalLayout">
+   <item>
+    <layout class="QHBoxLayout" name="topLayout">
+     <item>
+      <widget class="QLabel" name="styleLabel">
+       <property name="text">
+        <string notr="true">Style</string>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QComboBox" name="styleComboBox">
+       <property name="currentText">
+        <string notr="true"/>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <spacer name="horizontalSpacer">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>40</width>
+         <height>20</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+     <item>
+      <widget class="QCheckBox" name="disableCheckBox">
+       <property name="text">
+        <string notr="true">Disable Widgets</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+   <item>
+    <widget class="QWidget" name="testGrid" native="true">
+     <layout class="QGridLayout" name="gridLayout">
+      <item row="0" column="0">
+       <widget class="QGroupBox" name="checkButtonsGroup">
+        <property name="title">
+         <string notr="true">Check Buttons</string>
+        </property>
+        <layout class="QVBoxLayout" name="verticalLayout_3">
+         <item>
+          <widget class="QRadioButton" name="radioButtonNotCheckable">
+           <property name="text">
+            <string notr="true">RadioButton (not checkable)</string>
+           </property>
+           <property name="checkable">
+            <bool>false</bool>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QRadioButton" name="radioButtonChecked">
+           <property name="text">
+            <string notr="true">RadioButton (checked)</string>
+           </property>
+           <property name="checked">
+            <bool>true</bool>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QRadioButton" name="radioButtonUnchecked">
+           <property name="text">
+            <string notr="true">RadioButton (unchecked)</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QCheckBox" name="checkBoxTristate">
+           <property name="text">
+            <string notr="true">CheckBox (tristate)</string>
+           </property>
+           <property name="checked">
+            <bool>true</bool>
+           </property>
+           <property name="tristate">
+            <bool>true</bool>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </widget>
+      </item>
+      <item row="0" column="1">
+       <widget class="QGroupBox" name="buttonsGroup">
+        <property name="title">
+         <string notr="true">Buttons</string>
+        </property>
+        <layout class="QVBoxLayout" name="verticalLayout_4">
+         <item>
+          <widget class="QPushButton" name="pushButton">
+           <property name="text">
+            <string notr="true">PushButton</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QPushButton" name="pushButtonCheckable">
+           <property name="text">
+            <string notr="true">PushButton (checkable)</string>
+           </property>
+           <property name="checkable">
+            <bool>true</bool>
+           </property>
+           <property name="checked">
+            <bool>true</bool>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QPushButton" name="pushButtonFlat">
+           <property name="text">
+            <string notr="true">PushButton (flat)</string>
+           </property>
+           <property name="autoDefault">
+            <bool>true</bool>
+           </property>
+           <property name="flat">
+            <bool>true</bool>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </widget>
+      </item>
+      <item row="1" column="0">
+       <widget class="QGroupBox" name="calendarGroup">
+        <property name="title">
+         <string notr="true">CalendarWidget</string>
+        </property>
+        <layout class="QGridLayout" name="gridLayout_3">
+         <item row="0" column="0">
+          <widget class="QCalendarWidget" name="calendarWidget"/>
+         </item>
+        </layout>
+       </widget>
+      </item>
+      <item row="1" column="1">
+       <widget class="QGroupBox" name="textInputsGroup">
+        <property name="title">
+         <string notr="true">Text Inputs</string>
+        </property>
+        <layout class="QVBoxLayout" name="verticalLayout_8">
+         <item>
+          <widget class="QComboBox" name="comboBox">
+           <property name="editable">
+            <bool>true</bool>
+           </property>
+           <property name="currentText">
+            <string notr="true">ComboBox (editable)</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QLineEdit" name="lineEdit">
+           <property name="text">
+            <string notr="true"/>
+           </property>
+           <property name="placeholderText">
+            <string notr="true">LineEdit</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QSplitter" name="splitter">
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
+           </property>
+           <widget class="QPlainTextEdit" name="plainTextEdit">
+            <property name="plainText">
+             <string notr="true"/>
+            </property>
+            <property name="placeholderText">
+             <string notr="true">PlainTextEdit</string>
+            </property>
+           </widget>
+           <widget class="QTextEdit" name="textEdit">
+            <property name="documentTitle">
+             <string notr="true"/>
+            </property>
+            <property name="placeholderText">
+             <string notr="true">TextEdit</string>
+            </property>
+           </widget>
+          </widget>
+         </item>
+        </layout>
+       </widget>
+      </item>
+      <item row="2" column="0">
+       <widget class="QGroupBox" name="otherInputsGroup">
+        <property name="title">
+         <string notr="true">Other Inputs</string>
+        </property>
+        <layout class="QGridLayout" name="gridLayout_2">
+         <item row="2" column="1" colspan="2">
+          <widget class="QKeySequenceEdit" name="keySequenceEdit">
+           <property name="keySequence">
+            <string notr="true"/>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="1" colspan="2">
+          <widget class="QSpinBox" name="spinBox">
+           <property name="suffix">
+            <string notr="true"/>
+           </property>
+           <property name="prefix">
+            <string notr="true"/>
+           </property>
+           <property name="value">
+            <number>1</number>
+           </property>
+          </widget>
+         </item>
+         <item row="2" column="0">
+          <widget class="QLabel" name="keySequenceLabel">
+           <property name="text">
+            <string notr="true">KeySequenceEdit</string>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="0">
+          <widget class="QLabel" name="dateTimeLabel">
+           <property name="text">
+            <string notr="true">DateTimeEdit</string>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="0">
+          <widget class="QLabel" name="spinBoxLabel">
+           <property name="text">
+            <string notr="true">SpinBox</string>
+           </property>
+          </widget>
+         </item>
+         <item row="3" column="0" colspan="3">
+          <layout class="QHBoxLayout" name="horizontalLayout">
+           <item>
+            <widget class="QLabel" name="sliderLabel">
+             <property name="text">
+              <string notr="true">Slider</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QSlider" name="horizontalSlider">
+             <property name="orientation">
+              <enum>Qt::Horizontal</enum>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QLabel" name="label">
+             <property name="text">
+              <string notr="true">Dial</string>
+             </property>
+             <property name="alignment">
+              <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QDial" name="dial"/>
+           </item>
+          </layout>
+         </item>
+         <item row="1" column="1" colspan="2">
+          <widget class="QDateTimeEdit" name="dateTimeEdit"/>
+         </item>
+        </layout>
+       </widget>
+      </item>
+      <item row="2" column="1">
+       <widget class="QTabWidget" name="tabWidget">
+        <property name="currentIndex">
+         <number>0</number>
+        </property>
+        <widget class="QWidget" name="listTab">
+         <attribute name="title">
+          <string notr="true">ListWidget</string>
+         </attribute>
+         <layout class="QVBoxLayout" name="verticalLayout_6">
+          <item>
+           <widget class="QListWidget" name="listWidget"/>
+          </item>
+         </layout>
+        </widget>
+        <widget class="QWidget" name="treeTab">
+         <attribute name="title">
+          <string notr="true">TreeWidget</string>
+         </attribute>
+         <layout class="QVBoxLayout" name="verticalLayout_7">
+          <item>
+           <widget class="QTreeWidget" name="treeWidget">
+            <column>
+             <property name="text">
+              <string notr="true">1</string>
+             </property>
+            </column>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+        <widget class="QWidget" name="tableTab">
+         <attribute name="title">
+          <string notr="true">TableWidget</string>
+         </attribute>
+         <layout class="QVBoxLayout" name="verticalLayout_5">
+          <item>
+           <widget class="QTableWidget" name="tableWidget">
+            <property name="rowCount">
+             <number>0</number>
+            </property>
+            <property name="columnCount">
+             <number>0</number>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </widget>
+      </item>
+      <item row="3" column="0" colspan="2">
+       <layout class="QHBoxLayout" name="progressBarLayout">
+        <item>
+         <widget class="QLabel" name="progressBarLabel">
+          <property name="text">
+           <string notr="true">ProgressBar</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QProgressBar" name="progressBar">
+          <property name="value">
+           <number>24</number>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </item>
+     </layout>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>

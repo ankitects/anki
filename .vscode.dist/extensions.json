@@ -1,0 +1,12 @@
+{
+    "recommendations": [
+        "dprint.dprint",
+        "ms-python.python",
+        "charliermarsh.ruff",
+        "rust-lang.rust-analyzer",
+        "svelte.svelte-vscode",
+        "zxh404.vscode-proto3",
+        "usernamehw.errorlens",
+        "eamodio.gitlens"
+    ]
+}

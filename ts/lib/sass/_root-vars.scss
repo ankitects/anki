@@ -1,0 +1,66 @@
+/* Copyright: Ankitects Pty Ltd and contributors
+ * License: GNU AGPL, version 3 or later, http://www.gnu.org/licenses/agpl.html */
+
+@use "sass:map";
+@use "sass:string";
+@use "vars" as *;
+@use "functions" as *;
+@use "scrollbar";
+
+/*! colors */
+:root {
+    $colors: map.get($vars, colors);
+
+    @each $name, $val in create-vars-from-map($colors, light) {
+        @if string.index($name, "comment") == 1 {
+            /*! #{$val} */
+        } @else {
+            #{$name}: #{$val};
+        }
+    }
+    color-scheme: light;
+
+    &.night-mode {
+        @each $name, $val in create-vars-from-map($colors, dark) {
+            @if string.index($name, "comment") == 1 {
+                /*! #{$val} */
+            } @else {
+                #{$name}: #{$val};
+            }
+        }
+        color-scheme: dark;
+    }
+}
+
+/*! props */
+:root {
+    $props: map.get($vars, props);
+    @each $name, $val in create-vars-from-map($props, light) {
+        @if string.index($name, "comment") == 1 {
+            /*! #{$val} */
+        } @else {
+            #{$name}: #{$val};
+        }
+    }
+    &.night-mode {
+        @each $name, $val in create-vars-from-map($props, dark) {
+            @if string.index($name, "comment") == 1 {
+                /*! #{$val} */
+            } @else {
+                #{$name}: #{$val};
+            }
+        }
+    }
+}
+
+/*! rest */
+html {
+    font-size: prop(font-size);
+    body {
+        overscroll-behavior: none;
+        &:not(.isMac),
+        &:not(.isMac) * {
+            @include scrollbar.custom;
+        }
+    }
+}

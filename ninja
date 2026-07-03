@@ -1,0 +1,18 @@
+#!/bin/bash
+
+set -e
+
+if [ "$BUILD_ROOT" == "" ]; then
+    out=$(pwd)/out
+else
+    out="$BUILD_ROOT"
+fi
+export CARGO_TARGET_DIR=$out/rust
+export RECONFIGURE_KEY="${MAC_X86};${LIN_ARM64};${SOURCEMAP};${HMR}"
+
+if [ "$SKIP_RUNNER_BUILD" = "1" ]; then
+    echo "Runner not rebuilt."
+else
+    cargo build -p runner --release
+fi
+exec $out/rust/release/runner build -- $*

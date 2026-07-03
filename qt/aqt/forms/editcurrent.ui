@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>Dialog</class>
+ <widget class="QMainWindow" name="Dialog">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>400</width>
+    <height>300</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string notr="true">Dialog</string>
+  </property>
+  <property name="windowIcon">
+   <iconset resource="icons.qrc">
+    <normaloff>:/icons/anki.png</normaloff>:/icons/anki.png</iconset>
+  </property>
+  <widget class="QWidget" name="centralwidget">
+    <layout class="QVBoxLayout" name="verticalLayout">
+    <property name="spacing">
+      <number>3</number>
+    </property>
+    <property name="margin">
+      <number>12</number>
+    </property>
+    <item>
+      <widget class="QWidget" name="fieldsArea" native="true"/>
+    </item>
+    </layout>
+  </widget>
+  <widget class="QMenuBar" name="menubar">
+    <property name="geometry">
+      <rect>
+        <x>0</x>
+        <y>0</y>
+        <width>750</width>
+        <height>22</height>
+    </rect>
+   </property>
+   <widget class="QMenu" name="menu_Edit">
+    <property name="title">
+     <string>qt_accel_edit</string>
+    </property>
+   </widget>
+   <addaction name="menu_Edit"/>
+  </widget>
+ </widget>
+ <resources>
+  <include location="icons.qrc"/>
+ </resources>
+</ui>

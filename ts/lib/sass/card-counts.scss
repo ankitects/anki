@@ -1,0 +1,25 @@
+.review-count {
+    color: var(--state-review);
+}
+
+.new-count {
+    color: var(--state-new);
+}
+
+.learn-count {
+    color: var(--state-learn);
+}
+
+.zero-count {
+    color: var(--fg-faint);
+}
+
+.bury-count {
+    color: var(--fg-disabled);
+    font-weight: bold;
+    margin-inline-start: 2px;
+
+    &:empty {
+        display: none;
+    }
+}

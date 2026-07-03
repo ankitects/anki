@@ -1,0 +1,157 @@
+/* Copyright: Ankitects Pty Ltd and contributors
+ * License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html */
+@use "../../../../../ts/lib/sass/root-vars";
+@use "../../../../../ts/lib/sass/vars" as *;
+@use "../../../../../ts/lib/sass/card-counts";
+@use "../../../../../ts/lib/sass/elevation" as *;
+
+table {
+    padding: 1rem;
+
+    .fancy & {
+        border: 1px solid var(--border-subtle);
+        border-radius: var(--border-radius-medium);
+
+        @include elevation(1, $opacity-boost: -0.08);
+        &:hover {
+            @include elevation(2);
+        }
+        background: var(--canvas-glass);
+    }
+}
+
+a.deck {
+    color: color(fg);
+    text-decoration: none;
+    min-width: 5em;
+    display: inline-block;
+}
+
+a.deck:hover {
+    text-decoration: underline;
+}
+
+th {
+    border-bottom: 1px solid color(border-subtle);
+    padding-bottom: 5px;
+}
+
+tr.deck td {
+    padding: 1px 12px;
+    border-bottom: 1px solid var(--border-subtle);
+
+    .fancy & {
+        border: unset;
+        padding: 4px 12px;
+    }
+}
+
+tr.top-level-drag-row td {
+    border-bottom: 1px solid transparent;
+}
+
+td {
+    white-space: nowrap;
+}
+
+tr.drag-hover td {
+    border-bottom: 1px solid color(border);
+}
+
+body {
+    margin: 2em 1em 1em 1em;
+    -webkit-user-select: none;
+}
+
+.current,
+tr:hover:not(.top-level-drag-row) {
+    td {
+        background: color(border-subtle);
+        &:first-child {
+            border-top-left-radius: prop(border-radius-medium);
+            border-bottom-left-radius: prop(border-radius-medium);
+        }
+        &:last-child {
+            border-top-right-radius: prop(border-radius-medium);
+            border-bottom-right-radius: prop(border-radius-medium);
+        }
+        .gears {
+            visibility: visible;
+        }
+    }
+}
+[dir="rtl"] {
+    .current,
+    tr:hover:not(.top-level-drag-row) {
+        td {
+            background: color(canvas-inset);
+            &:first-child {
+                border-top-left-radius: 0;
+                border-bottom-left-radius: 0;
+                border-top-right-radius: prop(border-radius-medium);
+                border-bottom-right-radius: prop(border-radius-medium);
+            }
+            &:last-child {
+                border-top-right-radius: 0;
+                border-bottom-right-radius: 0;
+                border-top-left-radius: prop(border-radius-medium);
+                border-bottom-left-radius: prop(border-radius-medium);
+            }
+        }
+    }
+}
+
+.decktd {
+    min-width: 15em;
+    max-width: calc(100vw - 300px);
+    overflow: hidden;
+}
+
+.count {
+    min-width: 4em;
+    text-align: right;
+}
+
+.optscol {
+    width: 2em;
+}
+
+.collapse {
+    color: color(fg);
+    text-decoration: none;
+    display: inline-block;
+    width: 1em;
+}
+
+.filtered {
+    color: color(fg-link) !important;
+}
+
+.gears {
+    width: 1em;
+    height: 1em;
+    opacity: 0.5;
+    padding-top: 0.2em;
+    cursor: pointer;
+    visibility: hidden;
+}
+
+.nightMode {
+    .gears {
+        filter: invert(180);
+    }
+}
+
+.callout {
+    background: color(border);
+    padding: 1em;
+    margin: 1em;
+
+    div {
+        margin: 1em;
+    }
+}
+
+#studiedToday {
+    margin: 2em 0;
+}

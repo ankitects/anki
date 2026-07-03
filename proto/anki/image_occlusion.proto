@@ -1,0 +1,109 @@
+// Copyright: Ankitects Pty Ltd and contributors
+// License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
+
+syntax = "proto3";
+
+option java_multiple_files = true;
+
+package anki.image_occlusion;
+
+import "anki/collection.proto";
+import "anki/generic.proto";
+
+service ImageOcclusionService {
+  rpc GetImageForOcclusion(GetImageForOcclusionRequest)
+      returns (GetImageForOcclusionResponse);
+  rpc GetImageOcclusionNote(GetImageOcclusionNoteRequest)
+      returns (GetImageOcclusionNoteResponse);
+  rpc GetImageOcclusionFields(GetImageOcclusionFieldsRequest)
+      returns (GetImageOcclusionFieldsResponse);
+  // Adds an I/O notetype if none exists in the collection.
+  rpc AddImageOcclusionNotetype(generic.Empty) returns (collection.OpChanges);
+  // These two are used by the standalone I/O page, but not used when using
+  // I/O inside Anki's editor
+  rpc AddImageOcclusionNote(AddImageOcclusionNoteRequest)
+      returns (collection.OpChanges);
+  rpc UpdateImageOcclusionNote(UpdateImageOcclusionNoteRequest)
+      returns (collection.OpChanges);
+}
+
+// Implicitly includes any of the above methods that are not listed in the
+// backend service.
+service BackendImageOcclusionService {}
+
+message GetImageForOcclusionRequest {
+  string path = 1;
+}
+
+message GetImageForOcclusionResponse {
+  bytes data = 1;
+  string name = 2;
+}
+
+message AddImageOcclusionNoteRequest {
+  string image_path = 1;
+  string occlusions = 2;
+  string header = 3;
+  string back_extra = 4;
+  repeated string tags = 5;
+  int64 notetype_id = 6;
+}
+
+message GetImageOcclusionNoteRequest {
+  int64 note_id = 1;
+}
+
+message GetImageOcclusionNoteResponse {
+  message ImageOcclusionProperty {
+    string name = 1;
+    string value = 2;
+  }
+
+  message ImageOcclusionShape {
+    string shape = 1;
+    repeated ImageOcclusionProperty properties = 2;
+  }
+
+  message ImageOcclusion {
+    repeated ImageOcclusionShape shapes = 1;
+    uint32 ordinal = 2;
+  }
+
+  message ImageOcclusionNote {
+    bytes image_data = 1;
+    repeated ImageOcclusion occlusions = 2;
+    string header = 3;
+    string back_extra = 4;
+    repeated string tags = 5;
+    string image_file_name = 6;
+    bool occlude_inactive = 7;
+  }
+
+  oneof value {
+    ImageOcclusionNote note = 1;
+    string error = 2;
+  }
+}
+
+message UpdateImageOcclusionNoteRequest {
+  int64 note_id = 1;
+  string occlusions = 2;
+  string header = 3;
+  string back_extra = 4;
+  repeated string tags = 5;
+}
+
+message GetImageOcclusionFieldsRequest {
+  int64 notetype_id = 1;
+}
+
+message GetImageOcclusionFieldsResponse {
+  ImageOcclusionFieldIndexes fields = 1;
+}
+
+message ImageOcclusionFieldIndexes {
+  uint32 occlusions = 1;
+  uint32 image = 2;
+  uint32 header = 3;
+  uint32 back_extra = 4;
+}

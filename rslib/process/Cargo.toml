@@ -1,0 +1,13 @@
+[package]
+name = "anki_process"
+version.workspace = true
+authors.workspace = true
+edition.workspace = true
+license.workspace = true
+publish = false
+rust-version.workspace = true
+description = "Utils for better process error reporting"
+
+[dependencies]
+itertools.workspace = true
+snafu.workspace = true

@@ -1,0 +1,21 @@
+table {
+    border-collapse: collapse;
+
+    margin-left: auto;
+    margin-right: auto;
+}
+
+tr {
+    border-top: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+}
+
+td,
+th {
+    padding-left: 0.5em;
+    padding-right: 0.5em;
+}
+
+.row-header {
+    color: var(--fg);
+}

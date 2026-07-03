@@ -1,0 +1,25 @@
+#!/bin/bash
+# Copyright: Ankitects Pty Ltd and contributors
+# License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
+
+# Monitor all web-related folders and rebuild and reload Anki's web stack
+# when a change is detected.
+
+set -e
+
+MONITORED_FOLDERS=("ts/" "sass/" "qt/aqt/data/web/")
+MONITORED_EVENTS=("Created" "Updated" "Removed")
+
+on_change_detected="clear; ./tools/rebuild-web; echo Rebuilt at $(date +%H:%M:%S)"
+
+event_args=""
+for event in "${MONITORED_EVENTS[@]}"; do
+    event_args+="--event ${event} "
+done
+
+bash -c "$on_change_detected"
+
+# poll_monitor comes with a slight performance penalty, but seems to more
+# reliably identify file system events across both macOS and Linux
+fswatch -r -o -m poll_monitor ${event_args[@]} \
+    "${MONITORED_FOLDERS[@]}" | xargs -I{} bash -c "$on_change_detected"

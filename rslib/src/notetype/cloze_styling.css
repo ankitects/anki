@@ -1,0 +1,7 @@
+.cloze {
+    font-weight: bold;
+    color: blue;
+}
+.nightMode .cloze {
+    color: lightblue;
+}

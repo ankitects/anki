@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>Dialog</class>
+ <widget class="QDialog" name="Dialog">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>637</width>
+    <height>582</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>qt_misc_debug_console</string>
+  </property>
+  <property name="windowIcon">
+   <iconset>
+    <normaloff>:/icons/anki.png</normaloff>:/icons/anki.png</iconset>
+  </property>
+  <layout class="QVBoxLayout" name="verticalLayout">
+   <item>
+    <widget class="QComboBox" name="script">
+     <property name="currentText">
+      <string notr="true"/>
+     </property>
+     <property name="currentIndex">
+      <number>-1</number>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QSplitter" name="splitter">
+     <property name="orientation">
+      <enum>Qt::Vertical</enum>
+     </property>
+     <property name="childrenCollapsible">
+      <bool>false</bool>
+     </property>
+     <widget class="QPlainTextEdit" name="text">
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+        <horstretch>0</horstretch>
+        <verstretch>1</verstretch>
+       </sizepolicy>
+      </property>
+      <property name="minimumSize">
+       <size>
+        <width>0</width>
+        <height>100</height>
+       </size>
+      </property>
+      <property name="maximumSize">
+       <size>
+        <width>16777215</width>
+        <height>1677215</height>
+       </size>
+      </property>
+      <property name="lineWrapMode">
+       <enum>QPlainTextEdit::NoWrap</enum>
+      </property>
+      <property name="placeholderText">
+       <string notr="true">Actions:
+    Ctrl+Enter          Execute
+    Ctrl+Shift+Enter    Execute and print current line
+    Ctrl+L              Clear log
+    Ctrl+Shift+L        Clear input
+    Ctrl+S              Save script
+    Ctrl+O              Open script
+    Ctrl+D              Delete script
+
+Locals:
+    mw: AnkiQt                          Main window
+    card: Callable[[], Card | None]     Reviewer card
+    bcard: Callable[[], Card | None]    Browser card
+    pp: Callable[[object], None]        Pretty print</string>
+      </property>
+     </widget>
+     <widget class="QPlainTextEdit" name="log">
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="Expanding" vsizetype="MinimumExpanding">
+        <horstretch>0</horstretch>
+        <verstretch>8</verstretch>
+       </sizepolicy>
+      </property>
+      <property name="minimumSize">
+       <size>
+        <width>0</width>
+        <height>150</height>
+       </size>
+      </property>
+      <property name="focusPolicy">
+       <enum>Qt::ClickFocus</enum>
+      </property>
+      <property name="readOnly">
+       <bool>true</bool>
+      </property>
+      <property name="placeholderText">
+       <string notr="true">Output</string>
+      </property>
+     </widget>
+    </widget>
+   </item>
+   <item>
+    <widget class="QGroupBox" name="groupBox">
+     <property name="title">
+      <string notr="true">Styling</string>
+     </property>
+     <layout class="QVBoxLayout" name="verticalLayout_2">
+      <item>
+       <widget class="QPushButton" name="widgetsButton">
+        <property name="text">
+         <string notr="true">Qt Widget Gallery</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <tabstops>
+  <tabstop>text</tabstop>
+  <tabstop>widgetsButton</tabstop>
+  <tabstop>script</tabstop>
+ </tabstops>
+ <resources/>
+ <connections/>
+</ui>

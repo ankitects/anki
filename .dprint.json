@@ -1,0 +1,38 @@
+{
+    "typescript": {
+        "indentWidth": 4,
+        "useBraces": "always"
+    },
+    "json": {
+        "indentWidth": 4
+    },
+    "markdown": {},
+    "toml": {},
+    "includes": ["**/*.{ts,tsx,js,jsx,cjs,mjs,json,md,toml,svelte,scss}"],
+    "excludes": [
+        ".vscode",
+        "**/node_modules",
+        "out/**",
+        "**/*-lock.json",
+        "qt/aqt/data/web/js/vendor/*.js",
+        "ftl/qt-repo",
+        "ftl/core-repo",
+        "ftl/usage",
+        "licenses.json",
+        ".dmypy.json",
+        "docs-site",
+        "target",
+        ".mypy_cache",
+        "extra",
+        "ts/.svelte-kit",
+        "ts/vite.config.ts.timestamp*",
+        "qt/installer/*-template"
+    ],
+    "plugins": [
+        "https://plugins.dprint.dev/typescript-0.91.6.wasm",
+        "https://plugins.dprint.dev/json-0.19.3.wasm",
+        "https://plugins.dprint.dev/markdown-0.17.6.wasm",
+        "https://plugins.dprint.dev/toml-0.6.2.wasm",
+        "https://plugins.dprint.dev/disrupted/css-0.2.3.wasm"
+    ]
+}

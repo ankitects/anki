@@ -1,0 +1,249 @@
+// Copyright: Ankitects Pty Ltd and contributors
+// License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
+
+syntax = "proto3";
+
+option java_multiple_files = true;
+
+package anki.notetypes;
+
+import "anki/generic.proto";
+import "anki/collection.proto";
+
+service NotetypesService {
+  rpc AddNotetype(Notetype) returns (collection.OpChangesWithId);
+  rpc UpdateNotetype(Notetype) returns (collection.OpChanges);
+  rpc AddNotetypeLegacy(generic.Json) returns (collection.OpChangesWithId);
+  rpc UpdateNotetypeLegacy(UpdateNotetypeLegacyRequest)
+      returns (collection.OpChanges);
+  rpc AddOrUpdateNotetype(AddOrUpdateNotetypeRequest) returns (NotetypeId);
+  rpc GetStockNotetypeLegacy(StockNotetype) returns (generic.Json);
+  rpc GetNotetype(NotetypeId) returns (Notetype);
+  rpc GetNotetypeLegacy(NotetypeId) returns (generic.Json);
+  rpc GetNotetypeNames(generic.Empty) returns (NotetypeNames);
+  rpc GetNotetypeNamesAndCounts(generic.Empty) returns (NotetypeUseCounts);
+  rpc GetNotetypeIdByName(generic.String) returns (NotetypeId);
+  rpc RemoveNotetype(NotetypeId) returns (collection.OpChanges);
+  rpc GetAuxNotetypeConfigKey(GetAuxConfigKeyRequest) returns (generic.String);
+  rpc GetAuxTemplateConfigKey(GetAuxTemplateConfigKeyRequest)
+      returns (generic.String);
+  rpc GetChangeNotetypeInfo(GetChangeNotetypeInfoRequest)
+      returns (ChangeNotetypeInfo);
+  rpc ChangeNotetype(ChangeNotetypeRequest) returns (collection.OpChanges);
+  rpc GetFieldNames(NotetypeId) returns (generic.StringList);
+  rpc RestoreNotetypeToStock(RestoreNotetypeToStockRequest)
+      returns (collection.OpChanges);
+  rpc GetClozeFieldOrds(NotetypeId) returns (GetClozeFieldOrdsResponse);
+}
+
+// Implicitly includes any of the above methods that are not listed in the
+// backend service.
+service BackendNotetypesService {}
+
+message NotetypeId {
+  int64 ntid = 1;
+}
+
+message Notetype {
+  message Config {
+    enum Kind {
+      KIND_NORMAL = 0;
+      KIND_CLOZE = 1;
+    }
+    message CardRequirement {
+      enum Kind {
+        KIND_NONE = 0;
+        KIND_ANY = 1;
+        KIND_ALL = 2;
+      }
+      uint32 card_ord = 1;
+      Kind kind = 2;
+      repeated uint32 field_ords = 3;
+    }
+
+    Kind kind = 1;
+    uint32 sort_field_idx = 2;
+    string css = 3;
+    // This is now stored separately; retrieve with DefaultsForAdding()
+    int64 target_deck_id_unused = 4;
+    string latex_pre = 5;
+    string latex_post = 6;
+    bool latex_svg = 7;
+    repeated CardRequirement reqs = 8;
+    // Only set on notetypes created with Anki 2.1.62+.
+    StockNotetype.OriginalStockKind original_stock_kind = 9;
+    // the id in the source collection for imported notetypes (Anki 23.10)
+    optional int64 original_id = 10;
+
+    bytes other = 255;
+  }
+  message Field {
+    message Config {
+      bool sticky = 1;
+      bool rtl = 2;
+      string font_name = 3;
+      uint32 font_size = 4;
+      string description = 5;
+      bool plain_text = 6;
+      bool collapsed = 7;
+      bool exclude_from_search = 8;
+      // used for merging notetypes on import (Anki 23.10)
+      optional int64 id = 9;
+      // Can be used to uniquely identify required fields.
+      optional uint32 tag = 10;
+      bool prevent_deletion = 11;
+
+      bytes other = 255;
+    }
+    generic.UInt32 ord = 1;
+    string name = 2;
+    Config config = 5;
+  }
+  message Template {
+    message Config {
+      string q_format = 1;
+      string a_format = 2;
+      string q_format_browser = 3;
+      string a_format_browser = 4;
+      int64 target_deck_id = 5;
+      string browser_font_name = 6;
+      uint32 browser_font_size = 7;
+      // used for merging notetypes on import (Anki 23.10)
+      optional int64 id = 8;
+
+      bytes other = 255;
+    }
+
+    generic.UInt32 ord = 1;
+    string name = 2;
+    int64 mtime_secs = 3;
+    sint32 usn = 4;
+    Config config = 5;
+  }
+
+  int64 id = 1;
+  string name = 2;
+  int64 mtime_secs = 3;
+  sint32 usn = 4;
+  Config config = 7;
+  repeated Field fields = 8;
+  repeated Template templates = 9;
+}
+
+message AddOrUpdateNotetypeRequest {
+  bytes json = 1;
+  bool preserve_usn_and_mtime = 2;
+  bool skip_checks = 3;
+}
+
+message UpdateNotetypeLegacyRequest {
+  bytes json = 1;
+  bool skip_checks = 2;
+}
+
+message StockNotetype {
+  enum Kind {
+    KIND_BASIC = 0;
+    KIND_BASIC_AND_REVERSED = 1;
+    KIND_BASIC_OPTIONAL_REVERSED = 2;
+    KIND_BASIC_TYPING = 3;
+    KIND_CLOZE = 4;
+    KIND_IMAGE_OCCLUSION = 5;
+  }
+  // This is decoupled from Kind to allow us to evolve notetypes over time
+  // (eg an older notetype might require different JS), and allow us to store
+  // a type even for notetypes that we don't add by default. Code should not
+  // assume that the entries here are always +1 from Kind.
+  enum OriginalStockKind {
+    ORIGINAL_STOCK_KIND_UNKNOWN = 0;
+    ORIGINAL_STOCK_KIND_BASIC = 1;
+    ORIGINAL_STOCK_KIND_BASIC_AND_REVERSED = 2;
+    ORIGINAL_STOCK_KIND_BASIC_OPTIONAL_REVERSED = 3;
+    ORIGINAL_STOCK_KIND_BASIC_TYPING = 4;
+    ORIGINAL_STOCK_KIND_CLOZE = 5;
+    ORIGINAL_STOCK_KIND_IMAGE_OCCLUSION = 6;
+  }
+
+  Kind kind = 1;
+}
+
+message NotetypeNames {
+  repeated NotetypeNameId entries = 1;
+}
+
+message NotetypeUseCounts {
+  repeated NotetypeNameIdUseCount entries = 1;
+}
+
+message NotetypeNameId {
+  int64 id = 1;
+  string name = 2;
+}
+
+message NotetypeNameIdUseCount {
+  int64 id = 1;
+  string name = 2;
+  uint32 use_count = 3;
+}
+
+message GetAuxConfigKeyRequest {
+  int64 id = 1;
+  string key = 2;
+}
+
+message GetAuxTemplateConfigKeyRequest {
+  int64 notetype_id = 1;
+  uint32 card_ordinal = 2;
+  string key = 3;
+}
+
+message GetChangeNotetypeInfoRequest {
+  int64 old_notetype_id = 1;
+  int64 new_notetype_id = 2;
+}
+
+message ChangeNotetypeRequest {
+  repeated int64 note_ids = 1;
+  // -1 is used to represent null, as nullable repeated fields
+  // are unwieldy in protobuf
+  repeated int32 new_fields = 2;
+  repeated int32 new_templates = 3;
+  int64 old_notetype_id = 4;
+  int64 new_notetype_id = 5;
+  int64 current_schema = 6;
+  string old_notetype_name = 7;
+  bool is_cloze = 8;
+}
+
+message ChangeNotetypeInfo {
+  repeated string old_field_names = 1;
+  repeated string old_template_names = 2;
+  repeated string new_field_names = 3;
+  repeated string new_template_names = 4;
+  ChangeNotetypeRequest input = 5;
+  string old_notetype_name = 6;
+}
+
+message RestoreNotetypeToStockRequest {
+  NotetypeId notetype_id = 1;
+  // Older notetypes did not store their original stock kind, so we allow the UI
+  // to pass in an override to use when missing, or for tests.
+  optional StockNotetype.Kind force_kind = 2;
+}
+
+enum ImageOcclusionField {
+  IMAGE_OCCLUSION_FIELD_OCCLUSIONS = 0;
+  IMAGE_OCCLUSION_FIELD_IMAGE = 1;
+  IMAGE_OCCLUSION_FIELD_HEADER = 2;
+  IMAGE_OCCLUSION_FIELD_BACK_EXTRA = 3;
+  IMAGE_OCCLUSION_FIELD_COMMENTS = 4;
+}
+
+enum ClozeField {
+  CLOZE_FIELD_TEXT = 0;
+  CLOZE_FIELD_BACK_EXTRA = 1;
+}
+
+message GetClozeFieldOrdsResponse {
+  repeated uint32 ords = 1;
+}

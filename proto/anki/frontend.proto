@@ -1,0 +1,136 @@
+// Copyright: Ankitects Pty Ltd and contributors
+// License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
+
+syntax = "proto3";
+
+option java_multiple_files = true;
+
+package anki.frontend;
+
+import "anki/scheduler.proto";
+import "anki/generic.proto";
+import "anki/search.proto";
+import "anki/notes.proto";
+import "anki/notetypes.proto";
+import "anki/links.proto";
+
+service FrontendService {
+  // Returns values from the reviewer
+  rpc GetSchedulingStatesWithContext(generic.Empty)
+      returns (SchedulingStatesWithContext);
+  // Updates reviewer state
+  rpc SetSchedulingStates(SetSchedulingStatesRequest) returns (generic.Empty);
+
+  // Notify Qt layer so window modality can be updated.
+  rpc ImportDone(generic.Empty) returns (generic.Empty);
+
+  rpc SearchInBrowser(search.SearchNode) returns (generic.Empty);
+
+  // Force closing the deck options.
+  rpc deckOptionsRequireClose(generic.Empty) returns (generic.Empty);
+  // Warns python that the deck option web view is ready to receive requests.
+  rpc deckOptionsReady(generic.Empty) returns (generic.Empty);
+
+  // Editor
+  rpc ConvertPastedImage(ConvertPastedImageRequest)
+      returns (ConvertPastedImageResponse);
+  rpc OpenFilePicker(openFilePickerRequest) returns (generic.String);
+  rpc OpenMedia(generic.String) returns (generic.Empty);
+  rpc ShowInMediaFolder(generic.String) returns (generic.Empty);
+  rpc RecordAudio(generic.Empty) returns (generic.String);
+  rpc CloseAddCards(generic.Bool) returns (generic.Empty);
+  rpc CloseEditCurrent(generic.Empty) returns (generic.Empty);
+  rpc OpenLink(generic.String) returns (generic.Empty);
+  rpc AskUser(AskUserRequest) returns (generic.Bool);
+  rpc ShowMessageBox(ShowMessageBoxRequest) returns (generic.Empty);
+  rpc OpenFieldsDialog(generic.Empty) returns (generic.Empty);
+  rpc OpenCardsDialog(generic.Empty) returns (generic.Empty);
+
+  // Profile config
+  rpc GetProfileConfigJson(generic.String) returns (generic.Json);
+  rpc SetProfileConfigJson(SetSettingJsonRequest) returns (generic.Empty);
+
+  // Metadata
+  rpc GetMetaJson(generic.String) returns (generic.Json);
+  rpc SetMetaJson(SetSettingJsonRequest) returns (generic.Empty);
+
+  // Clipboard
+  rpc ReadClipboard(ReadClipboardRequest) returns (ReadClipboardResponse);
+  rpc WriteClipboard(WriteClipboardRequest) returns (generic.Empty);
+
+  // Save colour picker's custom colour palette
+  rpc SaveCustomColours(generic.Empty) returns (generic.Empty);
+}
+
+service BackendFrontendService {}
+
+message SchedulingStatesWithContext {
+  scheduler.SchedulingStates states = 1;
+  scheduler.SchedulingContext context = 2;
+}
+
+message SetSchedulingStatesRequest {
+  string key = 1;
+  scheduler.SchedulingStates states = 2;
+}
+
+message ConvertPastedImageRequest {
+  bytes data = 1;
+  string ext = 2;
+}
+
+message ConvertPastedImageResponse {
+  bytes data = 1;
+}
+
+message SetSettingJsonRequest {
+  string key = 1;
+  bytes value_json = 2;
+}
+
+message openFilePickerRequest {
+  string title = 1;
+  string key = 2;
+  string filter_description = 3;
+  repeated string extensions = 4;
+}
+
+message ReadClipboardRequest {
+  repeated string types = 1;
+}
+
+message ReadClipboardResponse {
+  map<string, bytes> data = 1;
+}
+
+message WriteClipboardRequest {
+  map<string, bytes> data = 1;
+}
+
+message Help {
+  oneof value {
+    links.HelpPageLinkRequest.HelpPage help_page = 1;
+    string help_link = 2;
+  }
+}
+
+message AskUserRequest {
+  string text = 1;
+  optional Help help = 2;
+  optional string title = 4;
+  optional bool default_no = 5;
+}
+
+enum MessageBoxType {
+  INFO = 0;
+  WARNING = 1;
+  CRITICAL = 2;
+}
+
+message ShowMessageBoxRequest {
+  string text = 1;
+  MessageBoxType type = 2;
+  optional Help help = 3;
+  optional string title = 4;
+  optional string text_format = 5;
+}
