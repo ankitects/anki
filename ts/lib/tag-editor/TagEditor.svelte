@@ -6,13 +6,14 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { completeTag } from "@generated/backend";
     import { tagActionsShortcutsKey } from "@tslib/context-keys";
     import { isArrowDown, isArrowUp } from "@tslib/keys";
-    import { createEventDispatcher, setContext, tick } from "svelte";
+    import { createEventDispatcher, onDestroy, setContext, tick } from "svelte";
     import type { Writable } from "svelte/store";
     import { writable } from "svelte/store";
 
     import Shortcut from "$lib/components/Shortcut.svelte";
     import { execCommand } from "$lib/domlib";
 
+    import TagDisplayModeButton from "./TagDisplayModeButton.svelte";
     import { TagOptionsButton } from "./tag-options-button";
     import TagEditMode from "./TagEditMode.svelte";
     import TagInput from "./TagInput.svelte";
@@ -28,6 +29,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     export let tags: Writable<string[]>;
     export let keyCombination: string = "Control+Shift+T";
+    export let displayFull: boolean = false;
+    export let displayModeShortcut: string = "Control+.";
 
     const selectAllShortcut = "Control+A";
     const copyShortcut = "Control+C";
@@ -63,6 +66,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     let activeAfterBlur: number | null = null;
     let activeName = "";
     let activeInput: HTMLInputElement;
+    let newTagId: string | null = null; // ID of newly created empty tag
 
     let autocomplete: any;
     let autocompleteDisabled: boolean = false;
@@ -139,9 +143,14 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 
     function appendTagAndFocusAt(index: number, name: string): void {
-        tagTypes.splice(index + 1, 0, attachId(name));
+        const newTag = attachId(name);
+        tagTypes.splice(index + 1, 0, newTag);
         tagTypes = tagTypes;
         setActiveAfterBlur(index + 1);
+        // Track new empty tags for spacer collapse logic
+        if (name.length === 0) {
+            newTagId = newTag.id;
+        }
     }
 
     function isActiveNameUniqueAt(index: number): boolean {
@@ -160,6 +169,13 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     async function splitTag(index: number, start: number, end: number): Promise<void> {
         const current = activeName.slice(0, start);
         const splitOff = activeName.slice(end);
+
+        // Don't create empty tags - if both parts are empty, just blur (blur handler deletes empty tags)
+        if (current.length === 0 && splitOff.length === 0) {
+            active = null;
+            activeInput.blur();
+            return;
+        }
 
         activeName = current;
         // await tag to update its name, so it can normalize correctly
@@ -208,6 +224,14 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             return;
         }
 
+        // If current tag is empty, move to previous (blur handler deletes empty tags)
+        if (activeName.length === 0) {
+            activeAfterBlur = index - 1;
+            active = null;
+            activeInput.blur();
+            return;
+        }
+
         const deleted = deleteTagAt(index - 1);
         activeName = deleted.name + activeName;
         active!--;
@@ -243,7 +267,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             return;
         }
 
-        activeAfterBlur = index + 1;
+        // Blur handler deletes empty tags, so next tag shifts to current index
+        activeAfterBlur = activeName.length === 0 ? index : index + 1;
         active = null;
         activeInput.blur();
 
@@ -388,8 +413,86 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     // typically correct for rows < 7
     $: assumedRows = Math.floor(height / badgeHeight);
-    $: shortenTags = shortenTags || assumedRows > 2;
+    let shortenTags = false;
+    let prevDisplayFull = displayFull;
+    let recomputingShorten = false;
+    let shortenSeq = 0; // incremented to cancel in-flight recomputes
+
+    const afterPaint = () =>
+        new Promise<void>((resolve) =>
+            requestAnimationFrame(() => requestAnimationFrame(() => resolve())),
+        );
+
+    async function recomputeShortenForAuto(): Promise<void> {
+        const seq = ++shortenSeq;
+        recomputingShorten = true;
+        shortenTags = false;
+
+        await tick();
+        await afterPaint();
+
+        if (seq !== shortenSeq || displayFull || !editorElement || !badgeHeight) {
+            recomputingShorten = false;
+            return;
+        }
+
+        shortenTags = Math.floor(editorElement.offsetHeight / badgeHeight) > 2;
+        recomputingShorten = false;
+    }
+
+    $: if (displayFull !== prevDisplayFull) {
+        prevDisplayFull = displayFull;
+
+        if (displayFull) {
+            shortenSeq++; // cancel in-flight recompute
+            shortenTags = false;
+        } else {
+            void recomputeShortenForAuto();
+        }
+    }
+
+    $: if (!displayFull && !recomputingShorten && !shortenTags && assumedRows > 2) {
+        shortenTags = true;
+    }
     $: anyTagsSelected = tagTypes.some((tag) => tag.selected);
+    // Spacer should collapse only when adding a new tag at the end
+    $: isAddingTagAtEnd =
+        active !== null &&
+        newTagId !== null &&
+        tagTypes[active]?.id === newTagId &&
+        active === tagTypes.length - 1;
+
+    // Track editor width for tag truncation
+    let editorElement: HTMLDivElement;
+    let editorWidth: number = 0;
+    let resizeObserver: ResizeObserver | null = null;
+    let resizeTimeout: ReturnType<typeof setTimeout> | null = null;
+
+    function updateEditorWidth(): void {
+        if (editorElement) {
+            editorWidth = editorElement.clientWidth;
+        }
+    }
+
+    function debouncedUpdateWidth(): void {
+        if (resizeTimeout) {
+            clearTimeout(resizeTimeout);
+        }
+        resizeTimeout = setTimeout(updateEditorWidth, 32);
+    }
+
+    $: if (editorElement && !resizeObserver) {
+        resizeObserver = new ResizeObserver(debouncedUpdateWidth);
+        resizeObserver.observe(editorElement);
+        updateEditorWidth();
+    }
+
+    onDestroy(() => {
+        resizeObserver?.disconnect();
+        if (resizeTimeout) {
+            clearTimeout(resizeTimeout);
+        }
+    });
 </script>
 
 {#if anyTagsSelected}
@@ -398,17 +501,33 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     <Shortcut keyCombination={removeShortcut} on:action={deleteSelectedTags} />
 {/if}
 
-<div class="tag-editor" on:focusout={deselectIfLeave} bind:offsetHeight={height}>
-    <TagOptionsButton
-        bind:badgeHeight
-        tagsSelected={anyTagsSelected}
-        on:tagselectall={selectAllTags}
-        on:tagcopy={copySelectedTags}
-        on:tagdelete={deleteSelectedTags}
-        on:tagappend={appendEmptyTag}
-        {keyCombination}
-        --icon-align="baseline"
-    />
+<div
+    class="tag-editor"
+    class:display-full={displayFull}
+    class:adding-tag-at-end={isAddingTagAtEnd}
+    on:focusout={deselectIfLeave}
+    bind:offsetHeight={height}
+    bind:this={editorElement}
+>
+    <div class="tag-header">
+        <TagOptionsButton
+            bind:badgeHeight
+            tagsSelected={anyTagsSelected}
+            on:tagselectall={selectAllTags}
+            on:tagcopy={copySelectedTags}
+            on:tagdelete={deleteSelectedTags}
+            on:tagappend={appendEmptyTag}
+            {keyCombination}
+            --icon-align="baseline"
+        />
+
+        <TagDisplayModeButton
+            full={displayFull}
+            keyCombination={displayModeShortcut}
+            on:displaymodechange
+            --icon-align="baseline"
+        />
+    </div>
 
     {#each tagTypes as tag, index (tag.id)}
         <div class="tag-relative" class:hide-tag={index === active}>
@@ -417,11 +536,14 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                 name={index === active ? activeName : tag.name}
                 tooltip={tag.name}
                 active={index === active}
-                shorten={shortenTags}
+                shorten={!displayFull && shortenTags}
+                truncateMiddle={displayFull}
+                {editorWidth}
                 bind:flash={tag.flash}
                 bind:selected={tag.selected}
                 on:tagedit={() => {
                     active = index;
+                    newTagId = null; // Clear when editing existing tag
                     deselect();
                 }}
                 on:tagselect={() => select(index)}
@@ -447,7 +569,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                 >
                     <TagInput
                         id={tag.id}
-                        class="position-absolute start-0 top-0 bottom-0 ps-2 py-0"
+                        class="position-absolute start-0 end-0 top-0 bottom-0 ps-2 py-0"
                         disabled={autocompleteDisabled}
                         bind:name={activeName}
                         bind:input={activeInput}
@@ -516,6 +638,40 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             outline-offset: -1px;
             outline: 2px solid var(--border-focus);
         }
+
+        &.display-full {
+            max-height: 50vh;
+            overflow-x: hidden;
+            overflow-y: auto;
+
+            .tag-header {
+                flex: 0 0 auto;
+            }
+
+            .tag-relative {
+                flex: 1 1 100%;
+                min-height: calc(var(--font-size, 15px) * 1.5 + 2px);
+            }
+
+            :global(.tag-spacer) {
+                flex: 1 1 100%;
+                min-height: calc(var(--font-size, 15px) * 1.5 + 2px);
+                margin-top: 0;
+            }
+
+            // Only collapse spacer when adding a new tag, not when editing existing
+            &.adding-tag-at-end .hide-tag ~ :global(.tag-spacer) {
+                min-height: 0;
+                height: 0;
+                overflow: hidden;
+            }
+        }
+    }
+
+    .tag-header {
+        display: flex;
+        align-items: center;
+        margin-right: 0.75rem;
     }
 
     .tag-relative {
