@@ -28,16 +28,6 @@
     <item>
       <widget class="QWidget" name="fieldsArea" native="true"/>
     </item>
-    <item>
-      <widget class="QDialogButtonBox" name="buttonBox">
-      <property name="orientation">
-        <enum>Qt::Horizontal</enum>
-      </property>
-      <property name="standardButtons">
-        <set>QDialogButtonBox::Close</set>
-      </property>
-      </widget>
-    </item>
     </layout>
   </widget>
   <widget class="QMenuBar" name="menubar">
@@ -60,22 +50,4 @@
  <resources>
   <include location="icons.qrc"/>
  </resources>
- <connections>
-  <connection>
-   <sender>buttonBox</sender>
-   <signal>rejected()</signal>
-   <receiver>Dialog</receiver>
-   <slot>close()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>316</x>
-     <y>260</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>286</x>
-     <y>274</y>
-    </hint>
-   </hints>
-  </connection>
- </connections>
 </ui>
