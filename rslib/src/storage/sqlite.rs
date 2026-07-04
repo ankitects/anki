@@ -11,7 +11,6 @@ use std::sync::Arc;
 
 use bitflags::bitflags;
 use fnv::FnvHasher;
-use fsrs::FSRS;
 use fsrs::FSRS5_DEFAULT_DECAY;
 use regex::Regex;
 use rusqlite::functions::FunctionFlags;
@@ -359,11 +358,7 @@ fn add_extract_fsrs_retrievability(db: &Connection) -> rusqlite::Result<()> {
             };
             let decay = card_data.decay.unwrap_or(FSRS5_DEFAULT_DECAY);
             let retrievability = card_data.memory_state().map(|state| {
-                FSRS::new(None).unwrap().current_retrievability_seconds(
-                    state.into(),
-                    seconds_elapsed,
-                    decay,
-                )
+                fsrs::current_retrievability(state.into(), seconds_elapsed as f32 / 86_400.0, decay)
             });
             Ok(retrievability)
         },
@@ -432,10 +427,12 @@ fn add_extract_fsrs_relative_retrievability(db: &Connection) -> rusqlite::Result
                                 secs_elapsed
                             };
 
-                        let current_retrievability = FSRS::new(None)
-                            .unwrap()
-                            .current_retrievability_seconds(state.into(), seconds_elapsed, decay)
-                            .max(0.0001);
+                        let current_retrievability = fsrs::current_retrievability(
+                            state.into(),
+                            seconds_elapsed as f32 / 86_400.0,
+                            decay,
+                        )
+                        .max(0.0001);
 
                         return Ok(Some(
                             -(current_retrievability.powf(-1.0 / decay) - 1.)

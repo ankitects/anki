@@ -1289,14 +1289,27 @@ title="{}" {}>{}</button>""".format(
     # Other menu operations
     ##########################################################################
 
+    def _open_new_or_legacy_dialog(
+        self, name: str, default_to_new: bool = False, *args: Any, **kwargs: Any
+    ) -> Any:
+        shift = KeyboardModifiersPressed().shift
+        want_new = (default_to_new and not shift) or (not default_to_new and shift)
+        if want_new:
+            name = f"New{name}"
+        return aqt.dialogs.open(name, self, *args, **kwargs)
+
     def onAddCard(self) -> None:
-        aqt.dialogs.open("AddCards", self)
+        from aqt.addcards import NewAddCards
+
+        add_cards = self._open_new_or_legacy_dialog("AddCards")
+        if isinstance(add_cards, NewAddCards):
+            add_cards.load_new_note()
 
     def onBrowse(self) -> None:
         aqt.dialogs.open("Browser", self, card=self.reviewer.card)
 
     def onEditCurrent(self) -> None:
-        aqt.dialogs.open("EditCurrent", self)
+        self._open_new_or_legacy_dialog("EditCurrent")
 
     def onOverview(self) -> None:
         self.moveToState("overview")
@@ -1305,11 +1318,7 @@ title="{}" {}>{}</button>""".format(
         deck = self._selectedDeck()
         if not deck:
             return
-        want_old = KeyboardModifiersPressed().shift
-        if want_old:
-            aqt.dialogs.open("DeckStats", self)
-        else:
-            aqt.dialogs.open("NewDeckStats", self)
+        self._open_new_or_legacy_dialog("DeckStats", True)
 
     def onPrefs(self) -> None:
         aqt.dialogs.open("Preferences", self)

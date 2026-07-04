@@ -297,7 +297,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     {/each}
 </div>
 
-<div dir={$direction}>
+<div class="top-toolbar-wrapper" dir={$direction}>
     <div class="top-tool-bar-container">
         <WithFloating
             show={showFloating}
@@ -507,8 +507,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         display: flex;
         overflow-y: scroll;
         z-index: 99;
-        margin-inline-start: 106px;
-        margin-top: 2px;
+    }
+
+    .top-toolbar-wrapper {
+        position: relative;
     }
 
     .undo-redo-button {
@@ -574,11 +576,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 
     .tool-bar-container {
-        position: fixed;
-        top: 42px;
-        left: 2px;
-        height: 100%;
-        border-right: 1px solid var(--border);
+        border-inline-end: 1px solid var(--border);
         overflow-y: auto;
         width: 32px;
         z-index: 99;
@@ -590,11 +588,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         fill: var(--fill-tool-colour) !important;
         stroke: black;
         stroke-width: 1px;
-    }
-
-    :global([dir="rtl"] .tool-bar-container) {
-        left: unset;
-        right: 2px;
     }
 
     :global(.tool-icon-button) {

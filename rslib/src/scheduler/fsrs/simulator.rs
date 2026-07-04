@@ -14,7 +14,6 @@ use fsrs::ReviewPriorityFn;
 use fsrs::SimulatorConfig;
 use fsrs::FSRS;
 use itertools::Itertools;
-use rand::rngs::StdRng;
 use rand::Rng;
 use rayon::iter::IntoParallelIterator;
 use rayon::iter::ParallelIterator;
@@ -37,7 +36,7 @@ pub(crate) fn apply_load_balance_and_easy_days(
     max_interval: f32,
     day_elapsed: usize,
     due_cnt_per_day: &[usize],
-    rng: &mut StdRng,
+    fuzz_seed: u64,
     next_day_at: TimestampSecs,
     easy_days_percentages: &[EasyDay; 7],
 ) -> f32 {
@@ -75,7 +74,6 @@ pub(crate) fn apply_load_balance_and_easy_days(
                 sibling_modifier: 1.0,
                 easy_days_modifier: easy_days_modifier[interval_index],
             });
-    let fuzz_seed = rng.random();
     select_weighted_interval(intervals, Some(fuzz_seed)).unwrap() as f32
 }
 
@@ -83,37 +81,36 @@ fn create_review_priority_fn(
     review_order: ReviewCardOrder,
     deck_size: usize,
 ) -> Option<ReviewPriorityFn> {
-    // Helper macro to wrap closure in ReviewPriorityFn
     macro_rules! wrap {
         ($f:expr) => {
-            Some(ReviewPriorityFn(std::sync::Arc::new($f)))
+            Some(ReviewPriorityFn::new($f))
         };
     }
 
     match review_order {
         // Ease-based ordering
-        EaseAscending => wrap!(|c, _w| -(c.difficulty * 100.0) as i32),
-        EaseDescending => wrap!(|c, _w| (c.difficulty * 100.0) as i32),
+        EaseAscending => wrap!(|c: &fsrs::Card| -(c.difficulty * 100.0) as i32),
+        EaseDescending => wrap!(|c: &fsrs::Card| (c.difficulty * 100.0) as i32),
 
         // Interval-based ordering
-        IntervalsAscending => wrap!(|c, _w| c.interval as i32),
-        IntervalsDescending => wrap!(|c, _w| (c.interval as i32).saturating_neg()),
+        IntervalsAscending => wrap!(|c: &fsrs::Card| c.interval as i32),
+        IntervalsDescending => wrap!(|c: &fsrs::Card| (c.interval as i32).saturating_neg()),
         // Retrievability-based ordering
         RetrievabilityAscending => {
-            wrap!(move |c, w| (c.retrievability(w) * 1000.0) as i32)
+            wrap!(move |c: &fsrs::Card| (c.retrievability() * 1000.0) as i32)
         }
         RetrievabilityDescending => {
-            wrap!(move |c, w| -(c.retrievability(w) * 1000.0) as i32)
+            wrap!(move |c: &fsrs::Card| -(c.retrievability() * 1000.0) as i32)
         }
 
         // Due date ordering
         Day | DayThenDeck | DeckThenDay => {
-            wrap!(|c, _w| c.scheduled_due() as i32)
+            wrap!(|c: &fsrs::Card| c.scheduled_due() as i32)
         }
 
         // Random ordering
         Random => {
-            wrap!(move |_c, _w| rand::rng().random_range(0..deck_size) as i32)
+            wrap!(move |_c: &fsrs::Card| rand::rng().random_range(0..deck_size) as i32)
         }
 
         // Not implemented yet
@@ -155,11 +152,13 @@ impl Collection {
             .filter(|c| c.ctype == CardType::New && c.queue != CardQueue::Suspended)
             .count()
             + req.deck_size as usize;
-        let fsrs = FSRS::new(Some(&req.params))?;
+        let fsrs = FSRS::new(&req.params)?;
+        let fsrs_card_params = Arc::new(fsrs::check_and_fill_parameters(&req.params)?);
         let mut converted_cards = cards
             .into_iter()
             .filter(is_included_card)
             .filter_map(|c| {
+                let desired_retention = c.desired_retention.unwrap_or(req.desired_retention);
                 let memory_state = match c.memory_state {
                     Some(state) => state,
                     // cards that lack memory states after compute_memory_state have no FSRS items,
@@ -173,7 +172,13 @@ impl Collection {
                         .ok()?
                         .into(),
                 };
-                Card::convert(c, days_elapsed, memory_state)
+                Card::convert(
+                    c,
+                    days_elapsed,
+                    memory_state,
+                    desired_retention,
+                    fsrs_card_params.clone(),
+                )
             })
             .collect_vec();
         let introduced_today_count = self
@@ -189,6 +194,8 @@ impl Collection {
                 due: ((introduced_today_count + i) / req.new_limit as usize) as f32,
                 interval: f32::NEG_INFINITY,
                 lapses: 0,
+                desired_retention: req.desired_retention,
+                parameters: fsrs_card_params.clone(),
             });
             converted_cards.extend(new_cards);
         }
@@ -200,19 +207,19 @@ impl Collection {
 
         let post_scheduling_fn: Option<PostSchedulingFn> =
             if self.get_config_bool(BoolKey::LoadBalancerEnabled) {
-                Some(PostSchedulingFn(Arc::new(
-                    move |card, max_interval, today, due_cnt_per_day, rng| {
+                Some(PostSchedulingFn::new(
+                    move |mut ctx: fsrs::PostSchedulingContext<'_>| {
                         apply_load_balance_and_easy_days(
-                            card.interval,
-                            max_interval,
-                            today,
-                            due_cnt_per_day,
-                            rng,
+                            ctx.card.interval,
+                            ctx.max_interval,
+                            ctx.today,
+                            ctx.due_counts_per_day,
+                            ctx.random_u64(),
                             next_day_at,
                             &easy_days_percentages,
                         )
                     },
-                )))
+                ))
             } else {
                 None
             };
@@ -300,9 +307,9 @@ impl Collection {
                 ))
             })
             .collect::<Result<HashMap<_, _>>>()?;
-        let reviewless_end_memorized = cards.iter().fold(0., |p, c| {
-            p + c.retention_on(&req.params, req.days_to_simulate as f32)
-        });
+        let reviewless_end_memorized = cards
+            .iter()
+            .fold(0., |p, c| p + c.retention_on(req.days_to_simulate as f32));
         Ok(SimulateFsrsWorkloadResponse {
             reviewless_end_memorized,
             memorized: dr_workload.iter().map(|(k, v)| (*k, v.0)).collect(),
@@ -317,6 +324,8 @@ impl Card {
         card: Card,
         days_elapsed: i32,
         memory_state: FsrsMemoryState,
+        desired_retention: f32,
+        parameters: Arc<Vec<f32>>,
     ) -> Option<fsrs::Card> {
         match card.queue {
             CardQueue::DayLearn | CardQueue::Review => {
@@ -331,6 +340,8 @@ impl Card {
                     due: relative_due as f32,
                     interval: card.interval as f32,
                     lapses: card.lapses,
+                    desired_retention,
+                    parameters,
                 })
             }
             CardQueue::New => None,
@@ -342,6 +353,8 @@ impl Card {
                 due: 0.0,
                 interval: card.interval as f32,
                 lapses: card.lapses,
+                desired_retention,
+                parameters,
             }),
             CardQueue::PreviewRepeat => None,
             CardQueue::Suspended => None,

@@ -1,16 +1,14 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-import type { OpChanges } from "@generated/anki/collection_pb";
 import { addImageOcclusionNote, updateImageOcclusionNote } from "@generated/backend";
 import * as tr from "@generated/ftl";
 import { get } from "svelte/store";
 
-import { mount } from "svelte";
 import type { IOAddingMode, IOMode } from "./lib";
 import { exportShapesToClozeDeletions } from "./shapes/to-cloze";
 import { notesDataStore, tagsWritable } from "./store";
-import Toast from "./Toast.svelte";
+import { showToast } from "./toast-utils.svelte";
 
 export const addOrUpdateNote = async function(
     mode: IOMode,
@@ -31,17 +29,17 @@ export const addOrUpdateNote = async function(
 
     if (mode.kind == "edit") {
         const result = await updateImageOcclusionNote({
-            noteId: BigInt(mode.noteId),
+            noteId: mode.noteId,
             occlusions: occlusionCloze,
             header,
             backExtra,
             tags,
         });
         if (result.note) {
-            showResult(mode.noteId, result, noteCount);
+            showResult(mode.noteId, noteCount);
         }
     } else {
-        const result = await addImageOcclusionNote({
+        await addImageOcclusionNote({
             // IOCloningMode is not used on mobile
             notetypeId: BigInt((<IOAddingMode> mode).notetypeId),
             imagePath: (<IOAddingMode> mode).imagePath,
@@ -50,19 +48,13 @@ export const addOrUpdateNote = async function(
             backExtra,
             tags,
         });
-        showResult(null, result, noteCount);
+        showResult(null, noteCount);
     }
 };
 
 // show toast message
-const showResult = (noteId: number | null, result: OpChanges, count: number) => {
-    const props = $state({
-        message: noteId ? tr.browsingCardsUpdated({ count: count }) : tr.importingCardsAdded({ count: count }),
-        type: "success" as "error" | "success",
-        showToast: true,
-    });
-    mount(Toast, {
-        target: document.body,
-        props,
-    });
+const showResult = (noteId: bigint | null, count: number) => {
+    const message = noteId ? tr.browsingCardsUpdated({ count: count }) : tr.importingCardsAdded({ count: count });
+    const type = "success" as "error" | "success";
+    showToast(message, type);
 };
