@@ -213,18 +213,18 @@ jobs:
             ~/.cargo/bin
             ~/.cargo/.crates.toml
             ~/.cargo/.crates2.json
-          key: cargo-Linux-arm-${{ hashFiles('Cargo.lock') }}
-          restore-keys: cargo-Linux-arm-
+          key: cargo-arm64-Linux-${{ hashFiles('Cargo.lock') }}
+          restore-keys: cargo-arm64-Linux-
 
       - name: Restore build output cache
         uses: actions/cache/restore@0057852bfaa89a56745cba8c7296529d2fc39830 #v4
         with:
           path: out
-          key: build-Linux-arm-${{ github.event.pull_request.number || 'main' }}-${{ github.run_id }}
+          key: build-arm64-Linux-${{ github.event.pull_request.number || 'main' }}-${{ github.run_id }}
           restore-keys: |
-            build-Linux-arm-${{ github.event.pull_request.number || 'main' }}-
-            build-Linux-arm-main-
-            build-Linux-arm-
+            build-arm64-Linux-${{ github.event.pull_request.number || 'main' }}-
+            build-arm64-Linux-main-
+            build-arm64-Linux-
 
       - name: Setup build environment
         uses: ./.github/actions/setup-anki
@@ -253,7 +253,7 @@ jobs:
         uses: actions/cache/save@0057852bfaa89a56745cba8c7296529d2fc39830 #v4
         with:
           path: out
-          key: build-Linux-arm-${{ github.event.pull_request.number || 'main' }}-${{ github.run_id }}
+          key: build-arm64-Linux-${{ github.event.pull_request.number || 'main' }}-${{ github.run_id }}
 
   # Intel Mac. Runs on pushes to main or on PRs with the check:macos-intel label.
   check-macos-intel:
@@ -278,18 +278,18 @@ jobs:
             ~/.cargo/bin
             ~/.cargo/.crates.toml
             ~/.cargo/.crates2.json
-          key: cargo-macOS-intel-${{ hashFiles('Cargo.lock') }}
-          restore-keys: cargo-macOS-intel-
+          key: cargo-intel-macOS-${{ hashFiles('Cargo.lock') }}
+          restore-keys: cargo-intel-macOS-
 
       - name: Restore build output cache
         uses: actions/cache/restore@0057852bfaa89a56745cba8c7296529d2fc39830 #v4
         with:
           path: out
-          key: build-macOS-intel-${{ github.event.pull_request.number || 'main' }}-${{ github.run_id }}
+          key: build-intel-macOS-${{ github.event.pull_request.number || 'main' }}-${{ github.run_id }}
           restore-keys: |
-            build-macOS-intel-${{ github.event.pull_request.number || 'main' }}-
-            build-macOS-intel-main-
-            build-macOS-intel-
+            build-intel-macOS-${{ github.event.pull_request.number || 'main' }}-
+            build-intel-macOS-main-
+            build-intel-macOS-
 
       - name: Setup build environment
         uses: ./.github/actions/setup-anki
@@ -319,7 +319,7 @@ jobs:
         uses: actions/cache/save@0057852bfaa89a56745cba8c7296529d2fc39830 #v4
         with:
           path: out
-          key: build-macOS-intel-${{ github.event.pull_request.number || 'main' }}-${{ github.run_id }}
+          key: build-intel-macOS-${{ github.event.pull_request.number || 'main' }}-${{ github.run_id }}
 
   # Runs on pushes to main or on PRs with the check:macos label.
   check-macos:
@@ -485,18 +485,18 @@ jobs:
             ~/.cargo/bin
             ~/.cargo/.crates.toml
             ~/.cargo/.crates2.json
-          key: cargo-Windows-arm-${{ hashFiles('Cargo.lock') }}
-          restore-keys: cargo-Windows-arm-
+          key: cargo-arm64-Windows-${{ hashFiles('Cargo.lock') }}
+          restore-keys: cargo-arm64-Windows-
 
       - name: Restore build output cache
         uses: actions/cache/restore@0057852bfaa89a56745cba8c7296529d2fc39830 #v4
         with:
           path: out
-          key: build-Windows-arm-${{ github.event.pull_request.number || 'main' }}-${{ github.run_id }}
+          key: build-arm64-Windows-${{ github.event.pull_request.number || 'main' }}-${{ github.run_id }}
           restore-keys: |
-            build-Windows-arm-${{ github.event.pull_request.number || 'main' }}-
-            build-Windows-arm-main-
-            build-Windows-arm-
+            build-arm64-Windows-${{ github.event.pull_request.number || 'main' }}-
+            build-arm64-Windows-main-
+            build-arm64-Windows-
 
       - name: Setup build environment
         uses: ./.github/actions/setup-anki
@@ -523,4 +523,4 @@ jobs:
         uses: actions/cache/save@0057852bfaa89a56745cba8c7296529d2fc39830 #v4
         with:
           path: out
-          key: build-Windows-arm-${{ github.event.pull_request.number || 'main' }}-${{ github.run_id }}
+          key: build-arm64-Windows-${{ github.event.pull_request.number || 'main' }}-${{ github.run_id }}
