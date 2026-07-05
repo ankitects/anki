@@ -117,9 +117,11 @@ from aqt import stats, about, preferences, mediasync  # isort:skip
 class DialogManager:
     _dialogs: dict[str, list] = {
         "AddCards": [addcards.AddCards, None],
+        "NewAddCards": [addcards.NewAddCards, None],
         "AddonsDialog": [addons.AddonsDialog, None],
         "Browser": [browser.Browser, None],
         "EditCurrent": [editcurrent.EditCurrent, None],
+        "NewEditCurrent": [editcurrent.NewEditCurrent, None],
         "FilteredDeckConfigDialog": [filtered_deck.FilteredDeckConfigDialog, None],
         "DeckStats": [stats.DeckStats, None],
         "NewDeckStats": [stats.NewDeckStats, None],
@@ -261,11 +263,15 @@ def setupLangAndBackend(
     else:
         app.setLayoutDirection(Qt.LayoutDirection.LeftToRight)
 
+    # so the webview and native controls localize to Anki's language, not the OS
+    QLocale.setDefault(QLocale(lang))
+
+    qt_lang = lang.replace("-", "_")
+
     # load qt translations
     _qtrans = QTranslator()
 
     qt_dir = QLibraryInfo.path(QLibraryInfo.LibraryPath.TranslationsPath)
-    qt_lang = lang.replace("-", "_")
     if _qtrans.load(f"qtbase_{qt_lang}", qt_dir):
         app.installTranslator(_qtrans)
 
