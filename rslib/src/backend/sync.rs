@@ -200,9 +200,11 @@ impl Backend {
                 task.take();
             }
         }
+        let (abort_handle, abort_reg) = AbortHandle::new_pair();
+        self.state.lock().unwrap().sync.media_sync_abort = Some(abort_handle);
         let backend = self.clone();
         *task = Some(std::thread::spawn(move || {
-            backend.sync_media_blocking(auth, server_usn)
+            backend.sync_media_blocking(auth, server_usn, abort_reg)
         }));
         Ok(())
     }
@@ -238,24 +240,22 @@ impl Backend {
         &self,
         auth: SyncAuth,
         server_usn: Option<Usn>,
+        abort_reg: AbortRegistration,
     ) -> Result<()> {
-        // abort handle
-        let (abort_handle, abort_reg) = AbortHandle::new_pair();
-        self.state.lock().unwrap().sync.media_sync_abort = Some(abort_handle);
+        let _clear_abort_handle = scopeguard::guard(self.clone(), |backend| {
+            backend.state.lock().unwrap().sync.media_sync_abort.take();
+        });
 
         // start the sync
         let (mgr, progress) = {
             let mut col = self.col.lock().unwrap();
-            let col = col.as_mut().unwrap();
+            let col = col.as_mut().ok_or(AnkiError::CollectionNotOpen)?;
             (col.media()?, col.new_progress_handler())
         };
         let rt = self.runtime_handle();
         let sync_fut = mgr.sync_media(progress, auth, self.web_client().clone(), server_usn);
         let abortable_sync = Abortable::new(sync_fut, abort_reg);
         let result = rt.block_on(abortable_sync);
-
-        // clean up the handle
-        self.state.lock().unwrap().sync.media_sync_abort.take();
 
         // return result
         match result {

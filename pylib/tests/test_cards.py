@@ -65,6 +65,22 @@ def test_genrem():
     assert len(note.cards()) == 2
 
 
+def test_empty_cards_special_fields():
+    col = getEmptyCol()
+    note = col.newNote()
+    note["Front"] = "1"
+    note["Back"] = "1"
+    col.addNote(note)
+    assert len(note.cards()) == 1
+    m = col.models.current()
+    mm = col.models
+    t = m["tmpls"][0]
+    t["qfmt"] = "{{^Deck}}{{Back}}{{/Deck}}"
+    mm.save(m, templates=True)
+    rep = col._backend.get_empty_cards()
+    assert len(rep.notes) == 1
+
+
 def test_gendeck():
     col = getEmptyCol()
     cloze = col.models.by_name("Cloze")
