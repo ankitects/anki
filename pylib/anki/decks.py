@@ -26,6 +26,7 @@ FilteredDeckConfig = decks_pb2.Deck.Filtered
 DeckCollapseScope = decks_pb2.SetDeckCollapsedRequest.Scope
 DeckConfigsForUpdate = deck_config_pb2.DeckConfigsForUpdate
 UpdateDeckConfigs = deck_config_pb2.UpdateDeckConfigsRequest
+UpdateDeckConfigsMode = deck_config_pb2.UpdateDeckConfigsMode
 Deck = decks_pb2.Deck
 
 # type aliases until we can move away from dicts
@@ -168,6 +169,7 @@ class DeckManager(DeprecatedNamesMixin):
         return self.col._backend.new_deck()
 
     def add_deck(self, deck: Deck) -> OpChangesWithId:
+        "Deck needs to be fetched from DB after adding."
         return self.col._backend.add_deck(message=deck)
 
     def new_deck_legacy(self, filtered: bool) -> DeckDict:

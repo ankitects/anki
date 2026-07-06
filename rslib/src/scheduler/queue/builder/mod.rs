@@ -38,6 +38,7 @@ pub(crate) struct DueCard {
     pub current_deck_id: DeckId,
     pub original_deck_id: DeckId,
     pub kind: DueCardKind,
+    pub reps: u32,
 }
 
 #[derive(Debug, Clone, Copy)]
@@ -87,6 +88,7 @@ impl From<DueCard> for LearningQueueEntry {
             due: TimestampSecs(c.due as i64),
             id: c.id,
             mtime: c.mtime,
+            reps: c.reps,
         }
     }
 }
@@ -121,6 +123,7 @@ struct Context {
     seen_note_ids: HashMap<NoteId, BuryMode>,
     deck_map: HashMap<DeckId, Deck>,
     fsrs: bool,
+    fsrs_short_term_with_steps: bool,
 }
 
 impl QueueBuilder {
@@ -177,6 +180,8 @@ impl QueueBuilder {
                 seen_note_ids: HashMap::new(),
                 deck_map,
                 fsrs: col.get_config_bool(BoolKey::Fsrs),
+                fsrs_short_term_with_steps: col
+                    .get_config_bool(BoolKey::FsrsShortTermWithStepsEnabled),
             },
         })
     }
@@ -188,12 +193,8 @@ impl QueueBuilder {
         let intraday_learning = sort_learning(self.learning);
         let now = TimestampSecs::now();
         let cutoff = now.adding_secs(learn_ahead_secs);
-        let learn_count = intraday_learning
-            .iter()
-            .take_while(|e| e.due <= cutoff)
-            .count()
-            + self.day_learning.len();
-
+        let learn_count =
+            intraday_learning.iter().filter(|e| e.due <= cutoff).count() + self.day_learning.len();
         let review_count = self.review.len();
         let new_count = self.new.len();
 
@@ -222,6 +223,8 @@ impl QueueBuilder {
             build_time: TimestampMillis::now(),
             load_balancer: self.load_balancer,
             current_learning_cutoff: now,
+            fsrs_enabled: self.context.fsrs,
+            fsrs_short_term_with_steps: self.context.fsrs_short_term_with_steps,
         }
     }
 }
@@ -274,9 +277,11 @@ fn merge_new(
     }
 }
 
-fn sort_learning(mut learning: Vec<DueCard>) -> VecDeque<LearningQueueEntry> {
-    learning.sort_unstable_by(|a, b| a.due.cmp(&b.due));
-    learning.into_iter().map(LearningQueueEntry::from).collect()
+fn sort_learning(learning: Vec<DueCard>) -> VecDeque<LearningQueueEntry> {
+    let mut entries: Vec<LearningQueueEntry> =
+        learning.into_iter().map(LearningQueueEntry::from).collect();
+    entries.sort_by(|a, b| a.cmp_by_reps_then_due(b));
+    entries.into_iter().collect()
 }
 
 impl Collection {

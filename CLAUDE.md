@@ -1,5 +1,10 @@
 # Claude Code Configuration
 
+> **Note:** Every command you need — building, running, testing, linting,
+> formatting — is defined as a recipe in the project `justfile`. Run
+> `just --list` to see them. Do not invoke `./ninja`, `./run`, or scripts
+> under `./tools` directly — use the `just` recipes instead.
+
 ## Project Overview
 
 Anki is a spaced repetition flashcard program with a multi-layered architecture. Main components:
@@ -11,26 +16,52 @@ Anki is a spaced repetition flashcard program with a multi-layered architecture.
 - Protobuf definitions in proto/ that are used by the different layers to
   talk to each other.
 
+## Running Anki
+
+To build and run Anki in development mode:
+
+```
+just run
+```
+
+This builds pylib and qt, then launches Anki with debugging enabled. Web
+views are served at http://localhost:40000/_anki/pages/ (e.g.,
+deckconfig.html). Use `just run-optimized` for a release-optimized build.
+For live-reloading during web development, run `just web-watch` in a
+separate terminal — it monitors ts/, sass/, and qt/aqt/data/web/ and
+auto-rebuilds on changes (`just rebuild-web` triggers a one-off rebuild).
+
 ## Building/checking
 
-./check (check.bat) will format the code and run the main build & checks.
+`just check` will format the code and run the main build & checks.
 Please do this as a final step before marking a task as completed.
+
+Run `just` (or `just --list`) to see all available commands.
 
 ## Quick iteration
 
 During development, you can build/check subsections of our code:
 
-- Rust: 'cargo check'
-- Python: './tools/dmypy', and if wheel-related, './ninja wheels'
-- TypeScript/Svelte: './ninja check:svelte'
+- Rust: `cargo check`
+- Python: `just lint` (runs mypy/ruff), and if wheel-related, `just wheels`
+- TypeScript/Svelte: `just lint` (includes check:svelte and check:typescript)
+
+Language-specific tests are also available: `just test-rust`, `just test-py`,
+`just test-ts`. Use `just fmt` / `just fix-fmt` for formatting and
+`just fix-lint` to auto-fix lint issues.
+
+TypeScript/Svelte browser e2e tests live in `ts/tests/e2e/` and run with
+`just test-e2e`. The harness launches a temporary Anki instance and drives
+mediasrv pages with Playwright's Chromium.
 
 Be mindful that some changes (such as modifications to .proto files) may
-need a full build with './check' first.
+need a full build with `just check` first.
 
 ## Build tooling
 
-'./check' and './ninja' invoke our build system, which is implemented in build/. It takes care of downloading required deps and invoking our build
-steps.
+`just` recipes wrap our build system (implemented in build/), which takes
+care of downloading required deps and invoking our build steps. See the
+project `justfile` for the full set of recipes.
 
 ## Translations
 
@@ -44,7 +75,7 @@ first, and try to match the existing style.
 ## Protobuf and IPC
 
 Our build scripts use the .proto files to define our Rust library's
-non-Rust API. pylib/rsbridge exposes that API, and _backend.py exposes
+non-Rust API. pylib/rsbridge exposes that API, and \_backend.py exposes
 snake_case methods for each protobuf RPC that call into the API.
 Similar tooling creates a @generated/backend TypeScript module for
 communicating with the Rust backend (which happens over POST requests).
@@ -59,12 +90,13 @@ don't attempt to grep the codebase.
 ## Ignores
 
 The files in out/ are auto-generated. Mostly you should ignore that folder,
-though you may sometimes find it useful to view out/{pylib/anki,qt/_aqt,ts/lib/generated} when dealing with cross-language communication or our other generated sourcecode.
+though you may sometimes find it useful to view out/{pylib/anki,qt/\_aqt,ts/lib/generated} when dealing with cross-language communication or our other generated sourcecode.
 
-## Launcher/installer
+## Installer
 
-The code for our launcher is in qt/launcher, with separate code for each
-platform.
+The code for our Briefcase-based installer is in qt/installer, with
+separate templates for each platform (mac-template/, linux-template/,
+windows-template/).
 
 ## Rust dependencies
 

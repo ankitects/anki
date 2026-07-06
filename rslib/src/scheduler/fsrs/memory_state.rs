@@ -21,6 +21,7 @@ use crate::revlog::RevlogEntry;
 use crate::scheduler::answering::get_fuzz_seed;
 use crate::scheduler::fsrs::params::reviews_for_fsrs;
 use crate::scheduler::fsrs::params::Params;
+use crate::scheduler::states::fuzz::minimum_review_fuzz_interval;
 use crate::scheduler::states::fuzz::with_review_fuzz;
 use crate::search::Negated;
 use crate::search::SearchNode;
@@ -96,7 +97,7 @@ impl Collection {
 
             let Some(req) = &req else {
                 let items = fsrs_items_for_memory_states(
-                    &FSRS::new(Some(&[]))?,
+                    &FSRS::new(&[])?,
                     revlog,
                     timing.next_day_at,
                     0.9,
@@ -114,7 +115,7 @@ impl Collection {
                 continue;
             };
 
-            let fsrs = FSRS::new(Some(&req.params[..]))?;
+            let fsrs = FSRS::new(&req.params[..])?;
             let last_revlog_info = req.reschedule.then(|| get_last_revlog_info(&revlog));
 
             let items = fsrs_items_for_memory_states(
@@ -193,18 +194,7 @@ impl Collection {
                     // reschedule it
                     let days_elapsed = timing.next_day_at.elapsed_days_since(*last_review) as i32;
                     let original_interval = card.interval;
-                    let min_interval = |interval: u32| {
-                        let previous_interval = last_info.previous_interval.unwrap_or(0);
-                        if interval > previous_interval {
-                            // interval grew; don't allow fuzzed interval to
-                            // be less than previous+1
-                            previous_interval + 1
-                        } else {
-                            // interval shrunk; don't restrict negative fuzz
-                            0
-                        }
-                        .max(1)
-                    };
+                    let previous_interval = last_info.previous_interval.unwrap_or(0);
                     let interval = fsrs.next_interval(
                         Some(
                             card.memory_state
@@ -215,12 +205,15 @@ impl Collection {
                             .expect("We set it before this function is called"),
                         0,
                     );
+                    let min_interval =
+                        minimum_review_fuzz_interval(interval, previous_interval, req.max_interval)
+                            .max(1);
                     card.interval = rescheduler
                         .as_mut()
                         .and_then(|r| {
                             r.find_interval(
                                 interval,
-                                min_interval(interval as u32),
+                                min_interval,
                                 req.max_interval,
                                 days_elapsed as u32,
                                 deckconfig_id,
@@ -231,7 +224,7 @@ impl Collection {
                             with_review_fuzz(
                                 card.get_fuzz_factor(true),
                                 interval,
-                                min_interval(interval as u32),
+                                min_interval,
                                 req.max_interval,
                             )
                         });
@@ -374,7 +367,7 @@ impl Collection {
         let historical_retention = config.inner.historical_retention;
         let params = config.fsrs_params();
         let decay = get_decay_from_params(params);
-        let fsrs = FSRS::new(Some(params))?;
+        let fsrs = FSRS::new(params)?;
         let revlog = self.revlog_for_srs(SearchNode::CardIds(card.id.to_string()))?;
         let item = fsrs_item_for_memory_state(
             &fsrs,
@@ -589,7 +582,7 @@ mod tests {
     fn bypassed_learning_is_handled() -> Result<()> {
         // cards without any learning steps due to truncated history still have memory
         // state calculated
-        let fsrs = FSRS::new(Some(&[])).unwrap();
+        let fsrs = FSRS::new(&[]).unwrap();
         let item = fsrs_item_for_memory_state(
             &fsrs,
             vec![
@@ -662,7 +655,7 @@ mod tests {
             reps: 1,
             ..Default::default()
         };
-        card.set_memory_state(&FSRS::new(Some(&[])).unwrap(), None, 0.9)?;
+        card.set_memory_state(&FSRS::new(&[]).unwrap(), None, 0.9)?;
         assert_int_eq(
             card.memory_state,
             Some(
