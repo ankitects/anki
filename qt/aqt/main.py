@@ -526,8 +526,12 @@ class AnkiQt(QMainWindow):
                 self._refresh_after_sync()
             if onsuccess:
                 onsuccess()
-            if not self.safeMode:
+            if self.safeMode:
+                # Disable all experiments in safe mode
+                self.col.conf._experiments = {}
+            else:
                 self.maybe_check_for_addon_updates(self.setup_auto_update)
+
             if self.col.conf.experiment_enabled(ExperimentFlag.TEST_FLAG):
                 showInfo('You have the "ping" experiment enabled')
 
