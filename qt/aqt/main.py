@@ -1314,7 +1314,8 @@ title="{}" {}>{}</button>""".format(
     def onAddCard(self) -> None:
         from aqt.addcards import NewAddCards
 
-        add_cards = self._open_new_or_legacy_dialog("AddCards")
+        experimental = self.col.experiment_enabled(ExperimentFlag.SVELTE_EDITOR)
+        add_cards = self._open_new_or_legacy_dialog("AddCards", experimental)
         if isinstance(add_cards, NewAddCards):
             add_cards.load_new_note()
 
@@ -1322,7 +1323,8 @@ title="{}" {}>{}</button>""".format(
         aqt.dialogs.open("Browser", self, card=self.reviewer.card)
 
     def onEditCurrent(self) -> None:
-        self._open_new_or_legacy_dialog("EditCurrent")
+        experimental = self.col.experiment_enabled(ExperimentFlag.SVELTE_EDITOR)
+        self._open_new_or_legacy_dialog("EditCurrent", experimental)
 
     def onOverview(self) -> None:
         self.moveToState("overview")
