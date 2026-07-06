@@ -30,12 +30,12 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             key={ExperimentalFeatureFlag.SVELTE_EDITOR}
             {labPerfs}
         ></LabItem>
-        <LabItem
+        <!-- <LabItem
             title="Ping"
             description="Enable this experiment and see an alert every time you load this profile. Used for testing the experiment interface."
             key={ExperimentalFeatureFlag.TEST_FLAG}
             {labPerfs}
-        ></LabItem>
+        ></LabItem> -->
     </div>
 </div>
 

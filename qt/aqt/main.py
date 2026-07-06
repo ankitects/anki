@@ -538,8 +538,8 @@ class AnkiQt(QMainWindow):
             else:
                 self.maybe_check_for_addon_updates(self.setup_auto_update)
 
-            if self.col.experiment_enabled(ExperimentFlag.TEST_FLAG):
-                showInfo('You have the "ping" experiment enabled')
+            # if self.col.experiment_enabled(ExperimentFlag.TEST_FLAG):
+            #     showInfo('You have the "ping" experiment enabled')
 
         last_day_cutoff = self.col.sched.day_cutoff
 
