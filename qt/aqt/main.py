@@ -26,8 +26,14 @@ from anki import hooks
 from anki._backend import RustBackend as _RustBackend
 from anki._legacy import deprecated
 from anki.buildinfo import version as version_str
-from anki.collection import Collection, Config, GithubRelease, OpChanges, UndoStatus
-from anki.config import ExperimentFlag
+from anki.collection import (
+    Collection,
+    Config,
+    ExperimentFlag,
+    GithubRelease,
+    OpChanges,
+    UndoStatus,
+)
 from anki.decks import DeckDict, DeckId
 from anki.hooks import runHook
 from anki.notes import NoteId
@@ -528,11 +534,11 @@ class AnkiQt(QMainWindow):
                 onsuccess()
             if self.safeMode:
                 # Disable all experiments in safe mode
-                self.col.conf._experiments = {}
+                self.col._experiments = {}
             else:
                 self.maybe_check_for_addon_updates(self.setup_auto_update)
 
-            if self.col.conf.experiment_enabled(ExperimentFlag.TEST_FLAG):
+            if self.col.experiment_enabled(ExperimentFlag.TEST_FLAG):
                 showInfo('You have the "ping" experiment enabled')
 
         last_day_cutoff = self.col.sched.day_cutoff

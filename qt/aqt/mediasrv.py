@@ -1118,7 +1118,6 @@ exposed_backend_list = [
     "decode_iri_paths",
     "html_to_text_line",
     # ConfigService
-    "get_config_json",
     "set_config_json",
     "get_config_bool",
     # MediaService

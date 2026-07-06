@@ -403,8 +403,8 @@ class Preferences(QDialog):
             self.mw.pm.setUiScale(newScale)
             restart_required = True
 
-        conf = self.mw.col.conf
-        if conf._get_experiments_dirty() != conf._experiments:
+        col = self.mw.col
+        if col._get_experiments_dirty() != col._experiments:
             restart_required = True
 
         if restart_required:
