@@ -6,6 +6,7 @@
 use std::future::Future;
 use std::sync::LazyLock;
 
+use anki_proto::sync::sync_status_response;
 use axum::http::StatusCode;
 use reqwest::Client;
 use reqwest::Url;
@@ -41,6 +42,7 @@ use crate::sync::collection::normal::SyncOutput;
 use crate::sync::collection::protocol::EmptyInput;
 use crate::sync::collection::protocol::SyncProtocol;
 use crate::sync::collection::start::StartRequest;
+use crate::sync::collection::status::online_sync_status_check;
 use crate::sync::collection::upload::UploadResponse;
 use crate::sync::collection::upload::CORRUPT_MESSAGE;
 use crate::sync::http_client::HttpSyncClient;
@@ -281,6 +283,50 @@ async fn sync_roundtrip() -> Result<()> {
         let ctx = SyncTestContext::new(client);
         upload_download(&ctx).await?;
         regular_sync(&ctx).await?;
+        Ok(())
+    })
+    .await
+}
+
+/// See issue #5109
+#[tokio::test]
+async fn new_empty_collection_should_not_require_full_sync() -> Result<()> {
+    with_active_server(|client: HttpSyncClient| async move {
+        let ctx = SyncTestContext::new(client);
+        let mut col1 = ctx.col1();
+
+        // a new collection reports NoChanges, deferring to the online check
+        assert_eq!(
+            col1.sync_status_offline()?,
+            sync_status_response::Required::NoChanges
+        );
+
+        // the online check agrees when the remote account is also new
+        let state = online_sync_status_check(col1.sync_meta()?, &mut ctx.cloned_client()).await?;
+        assert_eq!(state.required, SyncActionRequired::NoChanges);
+
+        // syncing is a no-op that doesn't stamp last_sync, and the status
+        // must remain NoChanges afterwards
+        let out = ctx.normal_sync(&mut col1).await;
+        assert_eq!(out.required, SyncActionRequired::NoChanges);
+        assert_eq!(
+            col1.sync_status_offline()?,
+            sync_status_response::Required::NoChanges
+        );
+
+        // once local changes exist, the online check picks them up, even
+        // though the offline check still defers
+        col1_setup(&mut col1);
+        assert_eq!(
+            col1.sync_status_offline()?,
+            sync_status_response::Required::NoChanges
+        );
+        let state = online_sync_status_check(col1.sync_meta()?, &mut ctx.cloned_client()).await?;
+        assert!(matches!(
+            state.required,
+            SyncActionRequired::FullSyncRequired { .. }
+        ));
+
         Ok(())
     })
     .await
