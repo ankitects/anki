@@ -6,11 +6,15 @@ import type { PageLoad } from "./$types";
 
 const CONFIG_KEY = "experimentalFeatures";
 
+async function getPreferences() {
+    const resp = await getColConfig(CONFIG_KEY);
+    return resp ?? {};
+}
+
 export const load = (async () => {
     const labPerfs = await autoSavingPrefs(
-        () => getColConfig(CONFIG_KEY) ?? {},
+        getPreferences,
         ($config) => setColConfig(CONFIG_KEY, $config),
     );
-
     return { labPerfs };
 }) satisfies PageLoad;
