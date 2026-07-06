@@ -3,7 +3,6 @@ Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
-    import Row from "$lib/components/Row.svelte";
     import "../deck-options/deck-options-base.scss";
     import LabItem from "./LabItem.svelte";
     import type { PreferenceStore } from "$lib/sveltelib/preferences";
@@ -14,14 +13,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 </script>
 
 <div class="container">
-    <Row>
-        <div class="col-12 alert alert-warning mb-0">
-            <b>⚠️ Experimental Features</b>
-            <br />
-            These features may change, break, or be removed without notice, use at your own
-            risk.
-        </div>
-    </Row>
+    <div class="alert alert-warning mb-0">
+        <b>⚠️ Experimental Features</b>
+        <br />
+        These features may change, break, or be removed without notice, use at your own risk.
+    </div>
 
     <div class="lab-grid">
         <LabItem
@@ -52,6 +48,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         gap: 1em;
         margin: 1em;
         align-items: center;
+    }
+
+    .alert {
+        width: 100%;
     }
 
     :global(body) {
