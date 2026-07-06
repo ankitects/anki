@@ -26,7 +26,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     <div class="lab-grid">
         <LabItem
             title="Svelte note editor"
-            description="Replaces the legacy editor with a new Svelte-based implementation. May affect addon compatibility."
+            description="Replaces the legacy editor with a new Svelte-based implementation. May affect addon compatibility. You can also hold shift while opening the editor to temporarily toggle this option on or off."
             key={ExperimentalFeatureFlag.SVELTE_EDITOR}
             {labPerfs}
         ></LabItem>
