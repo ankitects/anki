@@ -10,6 +10,7 @@ jobs:
     permissions:
       pull-requests: write
       issues: write
+      members: read
 
     steps:
       - name: Check for linked issue
@@ -22,7 +23,13 @@ jobs:
             const author = pr.user.login;
             const labels = pr.labels.map(l => l.name);
 
+            const isOrgMember = await github.rest.orgs.checkMembershipForUser({
+              org: owner,
+              username: author,
+            }).then(() => true).catch(() => false);
+
             const isExempt =
+              isOrgMember ||
               labels.includes('hotfix') ||
               author === 'dependabot[bot]' ||
               labels.includes('dependencies');
