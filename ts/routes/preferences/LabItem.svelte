@@ -32,7 +32,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <style>
     label {
         padding: 1em;
-        background-color: var(--canvas);
+        border: var(--border-subtle) solid 1px;
         border-radius: 1em;
     }
     div {
