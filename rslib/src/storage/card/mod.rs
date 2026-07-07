@@ -406,9 +406,7 @@ impl super::SqliteStorage {
         for (card_id, last_revlog_info) in last_revlog_info {
             let card = self.get_card(card_id)?;
             let lrt = last_revlog_info.last_reviewed_at;
-            if lrt.is_none() {
-                continue;
-            } else if let Some(mut card) = card {
+            if let Some(mut card) = card {
                 if card.ctype != CardType::New && card.last_review_time != lrt {
                     card.last_review_time = lrt;
                     self.update_card(&card)?;
