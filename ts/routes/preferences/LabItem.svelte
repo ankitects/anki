@@ -33,7 +33,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     label {
         padding: 1em;
         border: var(--border-subtle) solid 1px;
-        border-radius: 1em;
+        border-radius: 0.5em;
     }
     div {
         display: flex;
