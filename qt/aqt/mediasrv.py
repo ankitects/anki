@@ -233,6 +233,22 @@ def favicon() -> Response:
     return _handle_builtin_file_request(request)
 
 
+@app.route("/_anki/readyz")
+def readyz() -> Response:
+    """Reports whether the profile's collection is open.
+
+    The HTTP server starts listening before the profile/collection finishes
+    loading (setupMediaServer() runs synchronously in AnkiQt.__init__, while
+    setupProfile() is deferred via a QTimer), so callers that need the
+    collection open - e.g. the e2e test harness's webServer readiness check -
+    should poll this instead of /favicon.ico, which responds regardless of
+    collection state.
+    """
+    if aqt.mw.col is None:
+        return Response(status=HTTPStatus.SERVICE_UNAVAILABLE)
+    return Response(status=HTTPStatus.OK)
+
+
 def _mime_for_path(path: str) -> str:
     "Mime type for provided path/filename."
 
