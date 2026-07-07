@@ -16,6 +16,7 @@ pub mod config;
 pub mod dbcheck;
 pub mod deckconfig;
 pub mod decks;
+pub mod editor;
 pub mod error;
 pub mod findreplace;
 pub mod i18n;
@@ -49,6 +50,7 @@ pub mod timestamp;
 mod typeanswer;
 pub mod types;
 pub mod undo;
+mod updates;
 pub mod version;
 
 use std::env;

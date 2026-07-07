@@ -64,8 +64,7 @@ async fn download_and_check(archive_url: &str, checksum: &str, output_path: &Pat
 fn sha2_data(data: &[u8]) -> String {
     let mut digest = sha2::Sha256::new();
     digest.update(data);
-    let result = digest.finalize();
-    format!("{result:x}")
+    hex::encode(digest.finalize())
 }
 
 enum CompressionKind {
