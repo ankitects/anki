@@ -10,7 +10,6 @@ jobs:
     permissions:
       pull-requests: write
       issues: write
-      members: read
 
     steps:
       - name: Check for linked issue
@@ -18,18 +17,20 @@ jobs:
         uses: actions/github-script@f28e40c7f34bde8b3046d885e986cb6290c5673b #v7
         with:
           script: |
+            const { owner, repo } = context.repo;
             const pr = context.payload.pull_request;
             const body = pr.body || '';
             const author = pr.user.login;
             const labels = pr.labels.map(l => l.name);
 
-            const isOrgMember = await github.rest.orgs.checkMembershipForUser({
-              org: owner,
+            const isCollaborator = await github.rest.repos.checkCollaborator({
+              owner,
+              repo,
               username: author,
             }).then(() => true).catch(() => false);
 
             const isExempt =
-              isOrgMember ||
+              isCollaborator ||
               labels.includes('hotfix') ||
               author === 'dependabot[bot]' ||
               labels.includes('dependencies');
