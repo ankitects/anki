@@ -10,6 +10,7 @@ jobs:
     permissions:
       pull-requests: write
       issues: write
+      members: read
 
     steps:
       - name: Check for linked issue
@@ -22,7 +23,13 @@ jobs:
             const author = pr.user.login;
             const labels = pr.labels.map(l => l.name);
 
+            const isOrgMember = await github.rest.orgs.checkMembershipForUser({
+              org: owner,
+              username: author,
+            }).then(() => true).catch(() => false);
+
             const isExempt =
+              isOrgMember ||
               labels.includes('hotfix') ||
               author === 'dependabot[bot]' ||
               labels.includes('dependencies');
@@ -34,7 +41,7 @@ jobs:
             }
             core.setOutput('exempt', 'false');
 
-            const linkedIssuePattern = /\b(closes|close|fixes|fix|resolves|resolve|refs|ref|references)\s+#\d+/i;
+            const linkedIssuePattern = /\b(closes|close|fixes|fix|resolves|resolve|refs|ref|references)\s+(?:[a-zA-Z0-9_.-]+\/[a-zA-Z0-9_.-]+)?#\d+/i;
             const hasLinkedIssue = linkedIssuePattern.test(body);
             core.setOutput('has_linked_issue', hasLinkedIssue);
 
