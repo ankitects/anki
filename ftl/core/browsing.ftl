@@ -116,6 +116,11 @@ browsing-note-count =
         [one] { $count } note
        *[other] { $count } notes
     }
+browsing-card-count =
+    { $count ->
+        [one] { $count } card
+       *[other] { $count } cards
+    }
 browsing-notes-updated =
     { $count ->
         [one] { $count } note updated.
