@@ -192,7 +192,7 @@ jobs:
           path: out
           key: build-Linux-${{ github.event.pull_request.number || 'main' }}-${{ github.run_id }}
 
-  # ARM Linux. Runs on pushes to main or on PRs with the check:linux-arm label.
+  # ARM Linux. Runs on pushes to main or on PRs with the check:linux label.
   check-linux-arm:
     if: >-
       github.event_name == 'push'
@@ -255,7 +255,7 @@ jobs:
           path: out
           key: build-arm64-Linux-${{ github.event.pull_request.number || 'main' }}-${{ github.run_id }}
 
-  # Intel Mac. Runs on pushes to main or on PRs with the check:macos-intel label.
+  # Intel Mac. Runs on pushes to main or on PRs with the check:macos label.
   check-macos-intel:
     if: >-
       github.event_name == 'push'
@@ -460,7 +460,7 @@ jobs:
           path: out
           key: build-Windows-${{ github.event.pull_request.number || 'main' }}-${{ github.run_id }}
 
-  # ARM Windows. Runs on pushes to main or on PRs with the check:windows-arm label.
+  # ARM Windows. Runs on pushes to main or on PRs with the check:windows label.
   check-windows-arm:
     if: >-
       github.event_name == 'push'
