@@ -1,7 +1,6 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-use crate::card::CardQueue;
 use crate::decks::FilteredSearchOrder;
 use crate::decks::FilteredSearchTerm;
 use crate::scheduler::timing::SchedTimingToday;
@@ -40,6 +39,11 @@ pub(crate) fn order_and_limit_for_search(
                 build_retrievability_query(fsrs, today, next_day_at, now, SqlSortOrder::Descending);
             &temp_string
         }
+        FilteredSearchOrder::RelativeOverdueness => {
+            temp_string =
+                format!("extract_fsrs_relative_retrievability(data, case when odue !=0 then odue else due end, ivl, {today}, {next_day_at}, {now}) asc");
+            &temp_string
+        }
     };
 
     format!("{}, fnvhash(c.id, c.mod) limit {}", order, term.limit)
@@ -54,15 +58,9 @@ fn build_retrievability_query(
 ) -> String {
     if fsrs {
         format!(
-            "extract_fsrs_relative_retrievability(c.data, case when c.odue !=0 then c.odue else c.due end, ivl, {today}, {next_day_at}, {now}) {order}"
+            "extract_fsrs_retrievability(c.data, case when c.odue !=0 then c.odue else c.due end, ivl, {today}, {next_day_at}, {now}) {order}"
         )
     } else {
-        format!(
-            "
-(case when queue={rev_queue} and due <= {today}
-then (ivl / cast({today}-due+0.001 as real)) else 100000+due end) {order}",
-            rev_queue = CardQueue::Review as i8,
-            today = today
-        )
+        String::new()
     }
 }

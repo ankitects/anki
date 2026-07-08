@@ -101,6 +101,7 @@ message Deck {
         REVERSE_ADDED = 7;
         RETRIEVABILITY_ASCENDING = 8;
         RETRIEVABILITY_DESCENDING = 9;
+        RELATIVE_OVERDUENESS = 10;
       }
 
       string search = 1;

@@ -181,7 +181,7 @@ impl Collection {
                 conf.inner.fsrs_params_4.clear();
             }
             // check the provided parameters are valid before we save them
-            FSRS::new(Some(conf.fsrs_params()))?;
+            FSRS::new(conf.fsrs_params())?;
             self.add_or_update_deck_config(conf)?;
             configs_after_update.insert(conf.id, conf.clone());
         }

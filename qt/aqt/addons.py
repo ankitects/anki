@@ -22,9 +22,7 @@ from typing import IO, Any, Union
 from urllib.parse import parse_qs, urlparse
 from zipfile import ZipFile
 
-import jsonschema
 import markdown
-from jsonschema.exceptions import ValidationError
 from markdown.extensions import md_in_html
 
 import anki
@@ -40,7 +38,6 @@ from aqt import gui_hooks
 from aqt.log import ADDON_LOGGER_PREFIX, find_addon_logger, get_addon_logs_folder
 from aqt.qt import *
 from aqt.utils import (
-    add_close_shortcut,
     askUser,
     disable_help_button,
     getFile,
@@ -431,6 +428,9 @@ class AddonManager:
     ######################################################################
 
     def readManifestFile(self, zfile: ZipFile) -> dict[Any, Any]:
+        import jsonschema
+        from jsonschema.exceptions import ValidationError
+
         try:
             with zfile.open("manifest.json") as f:
                 data = json.loads(f.read())
@@ -493,7 +493,7 @@ class AddonManager:
 
     def _install(self, module: str, zfile: ZipFile) -> None:
         # previously installed?
-        base = self.addonsFolder(module)
+        base = os.path.realpath(self.addonsFolder(module))
         if os.path.exists(base):
             self.backupUserFiles(module)
             try:
@@ -510,7 +510,11 @@ class AddonManager:
                 # folder; ignore
                 continue
 
-            path = os.path.join(base, n)
+            # skip unsafe paths
+            path = os.path.realpath(os.path.join(base, n))
+            if not path.startswith(base + os.sep):
+                continue
+
             # skip existing user files
             if os.path.exists(path) and n.startswith("user_files/"):
                 continue
@@ -829,7 +833,6 @@ class AddonsDialog(QDialog):
         self.setAcceptDrops(True)
         self.redrawAddons()
         restoreGeom(self, "addons")
-        add_close_shortcut(self)
         gui_hooks.addons_dialog_will_show(self)
         self._onAddonSelectionChanged()
         self.show()
@@ -1682,6 +1685,9 @@ class ConfigEditor(QDialog):
         super().reject()
 
     def accept(self) -> None:
+        import jsonschema
+        from jsonschema.exceptions import ValidationError
+
         txt = self.form.editor.toPlainText()
         txt = gui_hooks.addon_config_editor_will_update_json(txt, self.addon)
         try:

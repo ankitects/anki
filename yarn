@@ -5,3 +5,6 @@ set -e
 
 export PATH="./out/extracted/node/bin:$PATH"
 ./out/extracted/node/bin/yarn $*
+./node_modules/.bin/license-checker-rseidelsohn --production --json \
+    --excludePackages anki --relativeLicensePath \
+    --relativeModulePath > ts/licenses.json

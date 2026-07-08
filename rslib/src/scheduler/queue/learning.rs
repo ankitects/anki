@@ -12,6 +12,20 @@ pub(crate) struct LearningQueueEntry {
     pub due: TimestampSecs,
     pub id: CardId,
     pub mtime: TimestampSecs,
+    pub reps: u32,
+}
+
+impl LearningQueueEntry {
+    /// Compare two learning queue entries, prioritizing previously-attempted
+    /// cards (reps > 0) before never-attempted cards (reps == 0), then by
+    /// due time.
+    pub(crate) fn cmp_by_reps_then_due(&self, other: &Self) -> std::cmp::Ordering {
+        // Create a sort key: (has_no_reps, due)
+        // Cards with reps get false (0), cards without get true (1)
+        let self_key = (self.reps == 0, self.due);
+        let other_key = (other.reps == 0, other.due);
+        self_key.cmp(&other_key)
+    }
 }
 
 impl CardQueues {
@@ -20,7 +34,7 @@ impl CardQueues {
         let cutoff = self.current_learning_cutoff;
         self.intraday_learning
             .iter()
-            .take_while(move |e| e.due <= cutoff)
+            .filter(move |e| e.due <= cutoff)
     }
 
     /// Intraday learning cards that can be shown after the main queue is empty.
@@ -29,8 +43,7 @@ impl CardQueues {
         let ahead_cutoff = self.current_learn_ahead_cutoff();
         self.intraday_learning
             .iter()
-            .skip_while(move |e| e.due <= cutoff)
-            .take_while(move |e| e.due <= ahead_cutoff)
+            .filter(move |e| e.due > cutoff && e.due <= ahead_cutoff)
     }
 
     /// Increase the cutoff to the current time, and increase the learning count
@@ -46,8 +59,7 @@ impl CardQueues {
         let new_learning_cards = self
             .intraday_learning
             .iter()
-            .skip_while(|e| e.due <= last_ahead_cutoff)
-            .take_while(|e| e.due <= new_ahead_cutoff)
+            .filter(|e| e.due > last_ahead_cutoff && e.due <= new_ahead_cutoff)
             .count();
         self.counts.learning += new_learning_cards;
 
@@ -71,6 +83,7 @@ impl CardQueues {
             due: TimestampSecs(card.due as i64),
             id: card.id,
             mtime: card.mtime,
+            reps: card.reps,
         };
 
         Some(self.requeue_learning_entry(entry))
@@ -116,16 +129,6 @@ impl CardQueues {
         self.main.is_empty()
     }
 
-    /// Remove the head of the intraday learning queue, and update counts.
-    pub(super) fn pop_intraday_learning(&mut self) -> Option<LearningQueueEntry> {
-        self.intraday_learning.pop_front().inspect(|_head| {
-            // FIXME:
-            // under normal circumstances this should not go below 0, but currently
-            // the Python unit tests answer learning cards before they're due
-            self.counts.learning = self.counts.learning.saturating_sub(1);
-        })
-    }
-
     /// Add an undone entry to the top of the intraday learning queue.
     pub(super) fn push_intraday_learning(&mut self, entry: LearningQueueEntry) {
         self.intraday_learning.push_front(entry);
@@ -141,7 +144,7 @@ impl CardQueues {
 
         let target_idx = self
             .intraday_learning
-            .binary_search_by(|e| e.due.cmp(&entry.due))
+            .binary_search_by(|e| e.cmp_by_reps_then_due(&entry))
             .unwrap_or_else(|e| e);
         self.intraday_learning.insert(target_idx, entry);
     }

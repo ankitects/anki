@@ -335,7 +335,7 @@ class Reviewer:
 <div id="_mark" hidden>&#x2605;</div>
 <div id="_flag" hidden>&#x2691;</div>
 {fade}
-<div id="qa"></div>
+<div id="qa" dir="auto"></div>
 {extra}
 """
 
@@ -686,6 +686,9 @@ class Reviewer:
             play_clicked_audio(url, self.card)
         elif url.startswith("updateToolbar"):
             self.mw.toolbarWeb.update_background_image()
+        elif url == "repaintNeeded":
+            # Ensure stale frames showing previous or corrupt content are not displayed (#3668)
+            self.web.update()
         elif url == "statesMutated":
             self._states_mutated = True
         else:
@@ -1192,7 +1195,7 @@ timerStopped = false;
 
     def on_create_copy(self) -> None:
         if self.card:
-            aqt.dialogs.open("AddCards", self.mw).set_note(
+            self.mw._open_new_or_legacy_dialog("AddCards").set_note(
                 self.card.note(), self.card.current_deck_id()
             )
 

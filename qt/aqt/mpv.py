@@ -30,7 +30,6 @@ from __future__ import annotations
 import inspect
 import json
 import os
-import platform
 import select
 import socket
 import subprocess
@@ -94,8 +93,8 @@ class MPVBase:
 
     if is_win:
         default_argv += ["--af-add=lavfi=[apad=pad_dur=0.150]"]
-    if not is_mac or platform.machine() != "arm64":
-        # our arm64 mpv build doesn't support this option (compiled out)
+    if not is_mac:
+        # our mpv build for macOS doesn't support this option (compiled out)
         default_argv += ["--no-ytdl"]
 
     def __init__(self, window_id=None, debug=False):
@@ -133,7 +132,7 @@ class MPVBase:
         self._proc = subprocess.Popen(self.argv, env=self.popenEnv)
         if is_win:
             # Ensure mpv gets terminated if Anki closes abruptly.
-            self._job = win32job.CreateJobObject(None, "")
+            self._job = win32job.CreateJobObject(None, f"AnkiJob_{os.getpid()}")
             extended_info = win32job.QueryInformationJobObject(
                 self._job, win32job.JobObjectExtendedLimitInformation
             )

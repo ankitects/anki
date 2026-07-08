@@ -15,7 +15,6 @@ from aqt.qt import *
 from aqt.schema_change_tracker import ChangeTracker
 from aqt.utils import (
     HelpPage,
-    add_close_shortcut,
     askUser,
     disable_help_button,
     getOnlyText,
@@ -51,7 +50,6 @@ class FieldDialog(QDialog):
             without_unicode_isolation(tr.fields_fields_for(val=self.model["name"]))
         )
 
-        add_close_shortcut(self)
         disable_help_button(self)
         help_button = self.form.buttonBox.button(QDialogButtonBox.StandardButton.Help)
         assert help_button is not None
@@ -130,9 +128,7 @@ class FieldDialog(QDialog):
         self.saveField()
         self.loadField(idx)
 
-    def _uniqueName(
-        self, prompt: str, ignoreOrd: int | None = None, old: str = ""
-    ) -> str | None:
+    def _uniqueName(self, prompt: str, old: str = "") -> str | None:
         txt = getOnlyText(prompt, default=old).replace('"', "").strip()
         if not txt:
             return None
@@ -143,10 +139,10 @@ class FieldDialog(QDialog):
             if letter in txt:
                 show_warning(tr.fields_name_invalid_letter())
                 return None
+        if txt.casefold() == old.casefold():
+            return None
         for f in self.model["flds"]:
-            if ignoreOrd is not None and f["ord"] == ignoreOrd:
-                continue
-            if f["name"] == txt:
+            if f["name"].casefold() == txt.casefold():
                 show_warning(tr.fields_that_field_name_is_already_used())
                 return None
         return txt
@@ -157,7 +153,7 @@ class FieldDialog(QDialog):
 
         idx = self.currentIdx
         f = self.model["flds"][idx]
-        name = self._uniqueName(tr.actions_new_name(), self.currentIdx, f["name"])
+        name = self._uniqueName(tr.actions_new_name(), f["name"])
         if not name:
             return
 

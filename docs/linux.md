@@ -7,14 +7,12 @@ Some extra notes have been provided by a forum member, though some of the things
 mentioned there no longer apply:
 https://forums.ankiweb.net/t/guide-how-to-build-and-run-anki-from-source-with-xubuntu-20-04/12865
 
-You can see a full list of buildtime and runtime requirements by looking at the
-[Dockerfile](../.buildkite/linux/docker/Dockerfile) used to build the
-official releases.
+You can see a full list of buildtime and runtime requirements by looking at the `apt-get install` step in the [`setup-anki` composite action](../.github/actions/setup-anki/action.yml), used by the workflows under [`.github/workflows/`](../.github/workflows/).
 
 **Ensure some basic tools are installed**:
 
 ```
-$ sudo apt install bash grep findutils curl gcc g++ make git rsync
+$ sudo apt install bash grep findutils curl gcc gcc-12 g++ make git rsync
 ```
 
 - The 'find' utility is 'findutils' on Debian.
@@ -31,10 +29,16 @@ for example:
 
 ```
 sudo apt install libxcb-icccm4 libxcb-image0 libxcb-keysyms1 \
-  libxcb-randr0 libxcb-render-util0
+  libxcb-randr0 libxcb-render-util0 libxkbfile1
 ```
 
-On some distros such as Arch Linux and Fedora, you may need to install the
+The libraries that might be required on Arch Linux:
+
+```
+sudo pacman -S nss libxkbfile
+```
+
+On some distros such as Fedora, you may need to install the
 `libxcrypt-compat` package if you get an error like this:
 
 ```

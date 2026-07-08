@@ -45,7 +45,6 @@ from aqt.qt import (
     QFrame,
     QHeaderView,
     QIcon,
-    QKeySequence,
     QLabel,
     QLineEdit,
     QListWidget,
@@ -61,7 +60,6 @@ from aqt.qt import (
     QPlainTextEdit,
     QPoint,
     QPushButton,
-    QShortcut,
     QSize,
     QSplitter,
     QStandardPaths,
@@ -567,7 +565,6 @@ def getText(
     d = GetTextDialog(
         parent, prompt, help=help, edit=edit, default=default, title=title, **kwargs
     )
-    add_close_shortcut(d)
     d.setWindowModality(Qt.WindowModality.WindowModal)
     if geomKey:
         restoreGeom(d, geomKey)
@@ -1019,13 +1016,6 @@ def maybeHideClose(bbox: QDialogButtonBox) -> None:
         b = bbox.button(QDialogButtonBox.StandardButton.Close)
         if b:
             bbox.removeButton(b)
-
-
-def add_close_shortcut(widg: QWidget) -> None:
-    if not is_mac:
-        return
-    shortcut = QShortcut(QKeySequence("Ctrl+W"), widg)
-    qconnect(shortcut.activated, widg.close)
 
 
 def downArrow() -> str:

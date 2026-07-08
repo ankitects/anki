@@ -28,7 +28,6 @@ from aqt.qt import (
     qconnect,
 )
 from aqt.utils import (
-    add_close_shortcut,
     ask_user_dialog,
     disable_help_button,
     show_warning,
@@ -118,7 +117,7 @@ def sync_collection(mw: aqt.main.AnkiQt, on_done: Callable[[], None]) -> None:
         if out.new_endpoint:
             mw.pm.set_current_sync_url(out.new_endpoint)
         if out.server_message:
-            showText(out.server_message, parent=mw)
+            showText(out.server_message, parent=mw, type="rich")
         if out.required == out.NO_CHANGES:
             tooltip(parent=mw, msg=tr.sync_collection_complete())
             # all done; track media progress
@@ -391,7 +390,6 @@ def get_id_and_pass_from_user(
     qconnect(bb.accepted, diag.accept)
     qconnect(bb.rejected, diag.reject)
     vbox.addWidget(bb)
-    add_close_shortcut(diag)
     diag.setLayout(vbox)
     diag.adjustSize()
     diag.show()

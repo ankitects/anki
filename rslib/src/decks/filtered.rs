@@ -66,6 +66,7 @@ fn search_order_label(order: FilteredSearchOrder, tr: &I18n) -> String {
         FilteredSearchOrder::RetrievabilityDescending => {
             tr.deck_config_sort_order_retrievability_descending()
         }
+        FilteredSearchOrder::RelativeOverdueness => tr.decks_relative_overdueness(),
     }
     .into()
 }

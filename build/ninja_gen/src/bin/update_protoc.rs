@@ -64,7 +64,7 @@ fn fetch_protoc_release_info() -> Result<String, Box<dyn Error>> {
         let bytes = response.bytes()?;
         let mut hasher = Sha256::new();
         hasher.update(&bytes);
-        let sha256 = format!("{:x}", hasher.finalize());
+        let sha256 = hex::encode(hasher.finalize());
 
         // Handle platform-specific match patterns
         let match_pattern = match platform {
