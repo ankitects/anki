@@ -1238,7 +1238,7 @@
      </widget>
      <widget class="QWidget" name="labsTab">
       <attribute name="title">
-       <string>preferences_labs</string>
+       <string>preferences_experimental_features_tab</string>
       </attribute>
       <layout class="QVBoxLayout" name="verticalLayout_7">
        <property name="leftMargin">
