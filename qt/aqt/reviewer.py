@@ -1238,6 +1238,8 @@ timerStopped = false;
 
 
 class SvelteReviewer(Reviewer):
+    states: SchedulingStates | None = None
+
     def refresh_if_needed(self):
         if self._refresh_needed:
             self.mw.fade_in_webview()
@@ -1266,6 +1268,9 @@ class SvelteReviewer(Reviewer):
 
     def _shortcutKeys(self) -> Sequence[tuple[str, Callable] | tuple[Qt.Key, Callable]]:
         return []
+
+    def get_scheduling_states(self) -> SchedulingStates:
+        return self.states
 
 
 # if the last element is a comment, then the RUN_STATE_MUTATION code

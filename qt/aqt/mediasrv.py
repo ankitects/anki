@@ -680,20 +680,9 @@ def next_card_data() -> bytes:
     if len(data.next_card.queue.cards) == 0:
         card = None
     else:
-        backend_card = data.next_card.queue.cards[0].card
+        backend_queue_card = data.next_card.queue.cards[0]
+        backend_card = backend_queue_card.card
         card = Card(aqt.mw.col, backend_card=backend_card)
-
-    # TODO: Is dealing with gui_hooks in mediasrv like this a good idea?
-    if gui_hooks.reviewer_did_answer_card.count() > 0:
-        req = NextCardDataRequest.FromString(request.data)
-        if req.HasField("answer"):
-            aqt.mw.taskman.run_on_main(
-                lambda: gui_hooks.reviewer_did_answer_card(
-                    aqt.mw.reviewer,
-                    aqt.mw.col.get_card(CardId(req.answer.card_id)),
-                    req.answer.rating + 1,  # type: ignore
-                )
-            )
 
     reviewer = aqt.mw.reviewer
     # This if statement prevents refreshes from causing the previous card to update.
@@ -706,6 +695,22 @@ def next_card_data() -> bytes:
             reviewer._card_info.set_card(card)
 
         aqt.mw.taskman.run_on_main(update_card_info)
+
+        # For addons
+        reviewer.states = backend_queue_card.states
+        # TODO: Is dealing with gui_hooks in mediasrv like this a good idea?
+        if gui_hooks.reviewer_did_answer_card.count() > 0:
+            req = NextCardDataRequest.FromString(request.data)
+            if req.HasField("answer"):
+                card.timer_started = (req.answer.answered_at_millis - req.answer.milliseconds_taken) / 1000                # TODO: This does not run at the right time.
+                aqt.mw.taskman.run_on_main(lambda: gui_hooks.reviewer_did_show_answer(card))
+                aqt.mw.taskman.run_on_main(
+                    lambda: gui_hooks.reviewer_did_answer_card(
+                        aqt.mw.reviewer,
+                        card,
+                        req.answer.rating + 1,  # type: ignore
+                    )
+                )
 
     if card is None:
         return data.SerializeToString()
