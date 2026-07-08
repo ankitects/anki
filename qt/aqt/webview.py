@@ -886,7 +886,7 @@ html {{ {font} }}
         self.load_url(QUrl(f"{mw.serverURL()}_anki/pages/{name}.html{extra}"))
         self.add_dynamic_styling_and_props_then_show()
 
-    def load_sveltekit_page(self, path: str) -> None:
+    def load_sveltekit_page(self, path: str, context=None) -> None:
         from aqt import mw
 
         self.set_open_links_externally(True)
@@ -903,6 +903,8 @@ html {{ {font} }}
         self.load_url(QUrl(f"{server}{path}{extra}"))
         self.add_dynamic_styling_and_props_then_show()
 
+        self.page().toHtml(lambda html: gui_hooks.webview_will_set_content(WebContent(html), context))
+        
     def force_load_hack(self) -> None:
         """Force process to initialize.
         Must be done on Windows prior to changing current working directory."""

@@ -1259,7 +1259,7 @@ class SvelteReviewer(Reviewer):
         # hide the bottom bar
         self.bottom.web.setHtml("<style>body {margin:0;} html {height:0;}</style>")
         # main window
-        self.web.load_sveltekit_page("reviewer")
+        self.web.load_sveltekit_page("reviewer", self)
         # block default drag & drop behavior while allowing drop events to be received by JS handlers
         self.web.allow_drops = True
         self.web.set_open_iframe_links_externally(True)
