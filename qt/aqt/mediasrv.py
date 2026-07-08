@@ -702,7 +702,8 @@ def next_card_data() -> bytes:
         if gui_hooks.reviewer_did_answer_card.count() > 0:
             req = NextCardDataRequest.FromString(request.data)
             if req.HasField("answer"):
-                card.timer_started = (req.answer.answered_at_millis - req.answer.milliseconds_taken) / 1000                # TODO: This does not run at the right time.
+                card.timer_started = (req.answer.answered_at_millis - req.answer.milliseconds_taken) / 1000                
+                # TODO: This hook does not run at the right time.
                 aqt.mw.taskman.run_on_main(lambda: gui_hooks.reviewer_did_show_answer(card))
                 aqt.mw.taskman.run_on_main(
                     lambda: gui_hooks.reviewer_did_answer_card(
