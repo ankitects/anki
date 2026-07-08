@@ -53,11 +53,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 <ItemChooser
     bind:this={itemChooser}
-    title={tr.qtMiscChooseNoteType()}
+    title={tr.notetypesChooseNoteType()}
     bind:selectedItem={selectedNotetype}
     {onChange}
     items={notetypes}
     icon={mdiNewspaper}
     keyCombination="Control+N"
-    tooltip={tr.qtMiscChangeNoteTypeCtrlandn()}
+    tooltip={tr.notetypesChangeNoteTypeCtrlandn()}
 />
