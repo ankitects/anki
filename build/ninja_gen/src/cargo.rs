@@ -177,10 +177,12 @@ pub struct CargoClippy {
 
 impl BuildAction for CargoClippy {
     fn command(&self) -> &str {
-        "cargo clippy $cargo_flags --tests -- -Dclippy::dbg_macro -Dwarnings"
+        "cargo clippy $release_arg $cargo_flags --tests -- -Dclippy::dbg_macro -Dwarnings"
     }
 
     fn files(&mut self, build: &mut impl FilesHandle) {
+        let release_arg = profile_arg_for_cargo(build.build_profile()).unwrap_or_default();
+        build.add_variable("release_arg", release_arg);
         build.add_inputs(
             "",
             inputs![&self.inputs, "Cargo.lock", "rust-toolchain.toml"],
