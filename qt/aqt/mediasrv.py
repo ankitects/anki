@@ -724,17 +724,17 @@ def next_card_data() -> bytes:
         ctx,
         None,
     )
+    q_avtags = ctx.col()._backend.extract_av_tags(text=qside, question_side=True)
+
     aside = apply_custom_filters(
         PartiallyRenderedCard.nodes_from_proto(data.next_card.partialTemplate.back),
         ctx,
-        qside,
+        q_avtags.text,
     )
+    a_avtags = ctx.col()._backend.extract_av_tags(text=aside, question_side=False)
 
     # Dont send the partialy rendered template to the frontend to save bandwidth
     data.next_card.ClearField("partialTemplate")
-
-    q_avtags = ctx.col()._backend.extract_av_tags(text=qside, question_side=True)
-    a_avtags = ctx.col()._backend.extract_av_tags(text=aside, question_side=False)
 
     # Assumes the av tags are empty in the original response
     data.next_card.question_av_tags.extend(q_avtags.av_tags)
