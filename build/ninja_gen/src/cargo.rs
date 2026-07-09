@@ -136,6 +136,15 @@ fn profile_arg_for_cargo(profile: BuildProfile) -> Option<&'static str> {
     }
 }
 
+fn profile_arg_for_nextest(profile: BuildProfile) -> &'static str {
+    match profile {
+        BuildProfile::Debug => "",
+        BuildProfile::Release => "--cargo-profile release",
+        BuildProfile::ReleaseWithLto => "--cargo-profile release-lto",
+        BuildProfile::Ci => "--cargo-profile ci",
+    }
+}
+
 fn setup_flags(build: &mut Build) -> Result<()> {
     build.once_only("cargo_flags_and_pool", |build| {
         build.variable("cargo_flags", "--locked");
@@ -149,10 +158,14 @@ pub struct CargoTest {
 
 impl BuildAction for CargoTest {
     fn command(&self) -> &str {
-        "cargo nextest run --color=always --failure-output=final --status-level=none $cargo_flags"
+        "cargo nextest run --color=always --failure-output=final --status-level=none $profile_arg $cargo_flags"
     }
 
     fn files(&mut self, build: &mut impl FilesHandle) {
+        build.add_variable(
+            "profile_arg",
+            profile_arg_for_nextest(build.build_profile()),
+        );
         build.add_inputs("", &self.inputs);
         build.add_inputs("", inputs![":cargo-nextest"]);
         build.add_env_var("ANKI_TEST_MODE", "1");
