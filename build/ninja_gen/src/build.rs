@@ -360,7 +360,7 @@ pub enum BuildProfile {
 }
 
 impl BuildProfile {
-    fn from_env() -> Self {
+    pub fn from_env() -> Self {
         match std::env::var("RELEASE").unwrap_or_default().as_str() {
             "1" => Self::Release,
             "2" => Self::ReleaseWithLto,
