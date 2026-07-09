@@ -370,6 +370,16 @@ impl BuildProfile {
             },
         }
     }
+
+    /// The profile to build helper tools like configure/minilints with:
+    /// never optimized, but otherwise matching the main profile so that
+    /// dependency builds are shared.
+    pub fn for_build_tools(self) -> Self {
+        match self {
+            Self::Release | Self::ReleaseWithLto => Self::Debug,
+            other => other,
+        }
+    }
 }
 
 pub trait FilesHandle {
