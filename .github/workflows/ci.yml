@@ -303,7 +303,6 @@ jobs:
       - name: Build, lint, and test
         run: |
           just build
-          just wheels
           just lint
           just test
 
