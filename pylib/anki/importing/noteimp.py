@@ -113,7 +113,7 @@ class NoteImporter(Importer):
         "Return a list of foreign notes for importing."
         return []
 
-    def importNotes(self, notes: list[ForeignNote]) -> None:
+    def importNotes(self, notes: list[ForeignNote]) -> None:  # complexipy: ignore
         "Convert each card into a note, apply attributes and add to col."
         if not self.mappingOk():
             raise Exception("mapping not ok")

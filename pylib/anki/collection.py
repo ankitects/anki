@@ -3,7 +3,7 @@
 
 from __future__ import annotations
 
-from collections.abc import Generator, Iterable, Sequence
+from collections.abc import Generator, Sequence
 from typing import Any, Literal, Union, cast
 
 from anki import (
@@ -12,6 +12,7 @@ from anki import (
     collection_pb2,
     config_pb2,
     generic_pb2,
+    github_pb2,
     image_occlusion_pb2,
     import_export_pb2,
     links_pb2,
@@ -35,6 +36,7 @@ Preferences = config_pb2.Preferences
 UndoStatus = collection_pb2.UndoStatus
 OpChanges = collection_pb2.OpChanges
 OpChangesOnly = collection_pb2.OpChangesOnly
+NestedOpChanges = collection_pb2.NestedOpChanges
 OpChangesWithCount = collection_pb2.OpChangesWithCount
 OpChangesWithId = collection_pb2.OpChangesWithId
 OpChangesAfterUndo = collection_pb2.OpChangesAfterUndo
@@ -58,11 +60,11 @@ CheckForUpdateResponse = ankiweb_pb2.CheckForUpdateResponse
 MediaSyncStatus = sync_pb2.MediaSyncStatusResponse
 FsrsItem = scheduler_pb2.FsrsItem
 FsrsReview = scheduler_pb2.FsrsReview
+GithubRelease = github_pb2.GithubRelease
 
+import logging
 import os
-import sys
 import time
-import traceback
 import weakref
 from dataclasses import dataclass
 
@@ -95,6 +97,7 @@ from anki.utils import (
 
 anki.latex.setup_hook()
 
+logger = logging.getLogger(__name__)
 
 SearchJoiner = Literal["AND", "OR"]
 
@@ -169,10 +172,9 @@ class Collection(DeprecatedNamesMixin):
 
     @property
     def backend(self) -> RustBackend:
-        traceback.print_stack(file=sys.stdout)
-        print()
-        print(
-            "Accessing the backend directly will break in the future. Please use the public methods on Collection instead."
+        logger.warning(
+            "Accessing the backend directly will break in the future. Please use the public methods on Collection instead.",
+            stack_info=True,
         )
         return self._backend
 
@@ -534,7 +536,7 @@ class Collection(DeprecatedNamesMixin):
         note.id = NoteId(out.note_id)
         return out.changes
 
-    def add_notes(self, requests: Iterable[AddNoteRequest]) -> OpChanges:
+    def add_notes(self, requests: Sequence[AddNoteRequest]) -> OpChanges:
         for request in requests:
             hooks.note_will_be_added(self, request.note, request.deck_id)
         out = self._backend.add_notes(
