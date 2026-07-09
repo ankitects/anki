@@ -72,6 +72,7 @@ fn profile_output_dir(profile: BuildProfile) -> &'static str {
         BuildProfile::Debug => "debug",
         BuildProfile::Release => "release",
         BuildProfile::ReleaseWithLto => "release-lto",
+        BuildProfile::Ci => "ci",
     }
 }
 
@@ -131,6 +132,7 @@ fn profile_arg_for_cargo(profile: BuildProfile) -> Option<&'static str> {
         BuildProfile::Debug => None,
         BuildProfile::Release => Some("--release"),
         BuildProfile::ReleaseWithLto => Some("--profile release-lto"),
+        BuildProfile::Ci => Some("--profile ci"),
     }
 }
 

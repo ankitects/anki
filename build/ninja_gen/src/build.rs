@@ -356,6 +356,7 @@ pub enum BuildProfile {
     Debug,
     Release,
     ReleaseWithLto,
+    Ci,
 }
 
 impl BuildProfile {
@@ -363,7 +364,10 @@ impl BuildProfile {
         match std::env::var("RELEASE").unwrap_or_default().as_str() {
             "1" => Self::Release,
             "2" => Self::ReleaseWithLto,
-            _ => Self::Debug,
+            _ => match std::env::var("CI").unwrap_or_default().as_str() {
+                "true" => Self::Ci,
+                _ => Self::Debug,
+            },
         }
     }
 }

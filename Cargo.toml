@@ -175,3 +175,11 @@ debug = 0
 [profile.release-lto]
 inherits = "release"
 lto = true
+
+[profile.ci]
+inherits = "dev"
+opt-level = 0
+incremental = false
+
+[profile.ci.package."*"]
+opt-level = 0
