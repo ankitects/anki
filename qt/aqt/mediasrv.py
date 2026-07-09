@@ -805,7 +805,9 @@ class AsyncRequestHandler(Generic[AsyncRequestReturnType]):
         self.future = self.loop.create_future()
 
     def run(self) -> None:
-        aqt.mw.taskman.run_on_main(lambda: self.callback(self))
+        aqt.mw.taskman.run_on_main(
+            lambda: QTimer.singleShot(0, lambda: self.callback(self))
+        )
 
     def set_result(self, result: AsyncRequestReturnType) -> None:
         self.loop.call_soon_threadsafe(self.future.set_result, result)
@@ -1012,7 +1014,7 @@ def open_fields_dialog() -> bytes:
         if hasattr(window, "editor") and isinstance(window.editor, NewEditor):
             window.editor.onFields()
 
-    aqt.mw.taskman.run_on_main(handle_on_main)
+    aqt.mw.taskman.run_on_main(lambda: QTimer.singleShot(0, handle_on_main))
     return b""
 
 
@@ -1025,7 +1027,7 @@ def open_cards_dialog() -> bytes:
         if hasattr(window, "editor") and isinstance(window.editor, NewEditor):
             window.editor.onCardLayout()
 
-    aqt.mw.taskman.run_on_main(handle_on_main)
+    aqt.mw.taskman.run_on_main(lambda: QTimer.singleShot(0, handle_on_main))
     return b""
 
 
@@ -1170,7 +1172,7 @@ def raw_backend_request(endpoint: str) -> Callable[[], bytes]:
                 handler = aqt.mw.app.activeWindow()
                 on_op_finished(aqt.mw, changes, handler)
 
-            aqt.mw.taskman.run_on_main(handle_on_main)
+            aqt.mw.taskman.run_on_main(lambda: QTimer.singleShot(0, handle_on_main))
 
         return output
 
