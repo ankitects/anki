@@ -676,6 +676,8 @@ def next_card_data() -> bytes:
 
     av_player.stop_and_clear_queue()
     aqt.mw.update_undo_actions()
+    
+    reviewer = aqt.mw.reviewer
 
     if len(data.next_card.queue.cards) == 0:
         card = None
@@ -686,7 +688,6 @@ def next_card_data() -> bytes:
         # For addons
         reviewer.states = backend_queue_card.states
 
-    reviewer = aqt.mw.reviewer
     # This if statement prevents refreshes from causing the previous card to update.
     if reviewer.card is None or card is None or card.id != reviewer.card.id:
         reviewer.previous_card = reviewer.card
