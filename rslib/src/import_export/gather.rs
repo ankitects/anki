@@ -324,9 +324,7 @@ impl Collection {
                     .get_deck_config(config_id)?
                     .or_not_found(config_id)?;
                 if !with_scheduling {
-                    config.inner.fsrs_params_4.clear();
-                    config.inner.fsrs_params_5.clear();
-                    config.inner.fsrs_params_6.clear();
+                    config.clear_fsrs_params();
                 }
                 Ok(config)
             })
