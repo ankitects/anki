@@ -596,6 +596,12 @@ def _extract_request(
     return LocalFileRequest(root=aqt.mw.col.media.dir(), path=path)
 
 
+def run_on_main_with_delay(callback: Callable) -> None:
+    # on certain systems, modal dialogs such as askUser's QMessageBox.question unset the active window
+    # so we wait for the next event loop before querying the next current active window
+    aqt.mw.taskman.run_on_main(lambda: QTimer.singleShot(0, callback))
+
+
 def congrats_info() -> bytes:
     if not aqt.mw.col.sched._is_finished():
         aqt.mw.taskman.run_on_main(lambda: aqt.mw.moveToState("overview"))
@@ -719,9 +725,7 @@ def deck_options_require_close() -> bytes:
         if isinstance(window, DeckOptionsDialog):
             window.require_close()
 
-    # on certain linux systems, askUser's QMessageBox.question unsets the active window
-    # so we wait for the next event loop before querying the next current active window
-    aqt.mw.taskman.run_on_main(lambda: QTimer.singleShot(0, handle_on_main))
+    run_on_main_with_delay(handle_on_main)
     return b""
 
 
@@ -805,9 +809,7 @@ class AsyncRequestHandler(Generic[AsyncRequestReturnType]):
         self.future = self.loop.create_future()
 
     def run(self) -> None:
-        aqt.mw.taskman.run_on_main(
-            lambda: QTimer.singleShot(0, lambda: self.callback(self))
-        )
+        run_on_main_with_delay(lambda: self.callback(self))
 
     def set_result(self, result: AsyncRequestReturnType) -> None:
         self.loop.call_soon_threadsafe(self.future.set_result, result)
@@ -920,7 +922,7 @@ def close_add_cards() -> bytes:
         if isinstance(window, NewAddCards):
             window._close_if_user_wants_to_discard_changes(req.val)
 
-    aqt.mw.taskman.run_on_main(lambda: QTimer.singleShot(0, handle_on_main))
+    run_on_main_with_delay(handle_on_main)
     return b""
 
 
@@ -932,7 +934,7 @@ def close_edit_current() -> bytes:
         if isinstance(window, NewEditCurrent):
             window.close()
 
-    aqt.mw.taskman.run_on_main(lambda: QTimer.singleShot(0, handle_on_main))
+    run_on_main_with_delay(handle_on_main)
     return b""
 
 
@@ -1014,7 +1016,7 @@ def open_fields_dialog() -> bytes:
         if hasattr(window, "editor") and isinstance(window.editor, NewEditor):
             window.editor.onFields()
 
-    aqt.mw.taskman.run_on_main(lambda: QTimer.singleShot(0, handle_on_main))
+    run_on_main_with_delay(handle_on_main)
     return b""
 
 
@@ -1027,7 +1029,7 @@ def open_cards_dialog() -> bytes:
         if hasattr(window, "editor") and isinstance(window.editor, NewEditor):
             window.editor.onCardLayout()
 
-    aqt.mw.taskman.run_on_main(lambda: QTimer.singleShot(0, handle_on_main))
+    run_on_main_with_delay(handle_on_main)
     return b""
 
 
@@ -1172,7 +1174,7 @@ def raw_backend_request(endpoint: str) -> Callable[[], bytes]:
                 handler = aqt.mw.app.activeWindow()
                 on_op_finished(aqt.mw, changes, handler)
 
-            aqt.mw.taskman.run_on_main(lambda: QTimer.singleShot(0, handle_on_main))
+            run_on_main_with_delay(handle_on_main)
 
         return output
 
