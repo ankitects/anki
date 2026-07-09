@@ -178,14 +178,25 @@ where
     let mut target_path = folder.as_ref().join(normalized_name.as_ref());
 
     let existing_file_hash = existing_file_sha1(&target_path)?;
-    if existing_file_hash.is_none() {
-        // no file with that name exists yet
-        write_file(&target_path, data)?;
+
+    if matches!(existing_file_hash, Some(hash) if hash == sha1) {
+        // existing file has same checksum, nothing to do
         return Ok(normalized_name);
     }
 
-    if existing_file_hash.unwrap() == sha1 {
-        // existing file has same checksum, nothing to do
+    let lowercased_name = normalized_name.to_lowercase();
+    if lowercased_name != normalized_name {
+        // try again with the lowercased name (to_lowercase is idempotent)
+        return Ok(
+            add_data_to_folder_uniquely(folder, &lowercased_name, data, sha1)?
+                .to_string()
+                .into(),
+        );
+    }
+
+    if existing_file_hash.is_none() {
+        // no file with that name that's also in lowercase exists yet
+        write_file(&target_path, data)?;
         return Ok(normalized_name);
     }
 
@@ -496,8 +507,14 @@ mod test {
             "test.mp3"
         );
 
-        // different contents
+        // different contents, filenames differ only by case
         let h2 = sha1_of_data(b"hello1");
+        assert_eq!(
+            add_data_to_folder_uniquely(dpath, "Test.mp3", b"hello1", h2).unwrap(),
+            "test-88fdd585121a4ccb3d1540527aee53a77c77abb8.mp3"
+        );
+
+        // same contents, filenames differ only by case
         assert_eq!(
             add_data_to_folder_uniquely(dpath, "test.mp3", b"hello1", h2).unwrap(),
             "test-88fdd585121a4ccb3d1540527aee53a77c77abb8.mp3"

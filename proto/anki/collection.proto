@@ -20,6 +20,7 @@ service CollectionService {
   rpc LatestProgress(generic.Empty) returns (Progress);
   rpc SetWantsAbort(generic.Empty) returns (generic.Empty);
   rpc SetLoadBalancerEnabled(generic.Bool) returns (OpChanges);
+  rpc GetCustomColours(generic.Empty) returns (GetCustomColoursResponse);
 }
 
 // Implicitly includes any of the above methods that are not listed in the
@@ -77,6 +78,10 @@ message OpChangesOnly {
   collection.OpChanges changes = 1;
 }
 
+message NestedOpChanges {
+  OpChangesOnly changes = 1;
+}
+
 message OpChangesWithCount {
   OpChanges changes = 1;
   uint32 count = 2;
@@ -131,6 +136,7 @@ message Progress {
     ComputeParamsProgress compute_params = 9;
     ComputeRetentionProgress compute_retention = 10;
     ComputeMemoryProgress compute_memory = 11;
+    DownloadUpdateProgress download_update = 12;
   }
 }
 
@@ -162,4 +168,13 @@ message CreateBackupRequest {
   // Create a backup even if the configured interval hasn't elapsed yet.
   bool force = 2;
   bool wait_for_completion = 3;
+}
+
+message GetCustomColoursResponse {
+  repeated string colours = 1;
+}
+
+message DownloadUpdateProgress {
+  uint32 downloaded_bytes = 1;
+  uint32 total_bytes = 2;
 }

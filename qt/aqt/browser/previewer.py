@@ -7,13 +7,13 @@ import json
 import re
 import time
 from collections.abc import Callable
-from typing import Any
+from typing import Any, Literal
 
 import aqt.browser
 from anki.cards import Card
 from anki.collection import Config
 from anki.tags import MARKED_TAG
-from aqt import AnkiQt, gui_hooks
+from aqt import AnkiQt, gui_hooks, is_mac
 from aqt.qt import (
     QCheckBox,
     QDialog,
@@ -35,6 +35,7 @@ LastStateAndMod = tuple[str, int, int]
 
 
 class Previewer(QDialog):
+    _state: Literal["question", "answer"] = "question"
     _last_state: LastStateAndMod | None = None
     _card_changed = False
     _last_render: int | float = 0
@@ -81,10 +82,15 @@ class Previewer(QDialog):
         qconnect(self.finished, self._on_finished)
         self.silentlyClose = True
         self.vbox = QVBoxLayout()
+        spacing = 6
         self.vbox.setContentsMargins(0, 0, 0, 0)
+        self.vbox.setSpacing(spacing)
         self._web: AnkiWebView | None = AnkiWebView(kind=AnkiWebViewKind.PREVIEWER)
         self.vbox.addWidget(self._web)
         self.bbox = QDialogButtonBox()
+        self.bbox.setContentsMargins(
+            spacing, spacing if is_mac else 0, spacing, spacing
+        )
         self.bbox.setLayoutDirection(Qt.LayoutDirection.LeftToRight)
 
         gui_hooks.card_review_webview_did_init(self._web, AnkiWebViewKind.PREVIEWER)
@@ -192,6 +198,11 @@ class Previewer(QDialog):
             self._timer.stop()
             self._timer = None
 
+    def type_ans_preview_filter(
+        self, txt: str, type: Literal["question", "answer"]
+    ) -> str:
+        return re.sub(r"\[\[type:[^]]+\]\]", "", txt)
+
     def _render_scheduled(self) -> None:
         self.cancel_timer()
         self._last_render = time.time()
@@ -224,7 +235,7 @@ class Previewer(QDialog):
             if self._state == "answer":
                 func = "_showAnswer"
                 txt = ans_txt
-            txt = re.sub(r"\[\[type:[^]]+\]\]", "", txt)
+            txt = self.type_ans_preview_filter(txt, self._state)
 
             bodyclass = theme_manager.body_classes_for_card_ord(c.ord)
 

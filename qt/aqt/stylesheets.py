@@ -180,7 +180,7 @@ class CustomStyles:
     QPushButton {{
         margin: 1px;
     }}
-    QPushButton:focus {{
+    QPushButton:focus, QPushButton:default:hover {{
         border: 2px solid {tm.var(colors.BORDER_FOCUS)};
         outline: none;
         margin: 0px;
@@ -198,9 +198,6 @@ class CustomStyles:
                 tm.var(colors.BUTTON_GRADIENT_END),
             )
         };
-    }}
-    QPushButton:default:hover {{
-        border-width: 2px;
     }}
     QPushButton:pressed,
     QPushButton:checked,

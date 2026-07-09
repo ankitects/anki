@@ -28,7 +28,6 @@ from aqt.qt import (
     qconnect,
 )
 from aqt.utils import (
-    add_close_shortcut,
     ask_user_dialog,
     disable_help_button,
     show_warning,
@@ -118,7 +117,7 @@ def sync_collection(mw: aqt.main.AnkiQt, on_done: Callable[[], None]) -> None:
         if out.new_endpoint:
             mw.pm.set_current_sync_url(out.new_endpoint)
         if out.server_message:
-            showText(out.server_message, parent=mw)
+            showText(out.server_message, parent=mw, type="rich")
         if out.required == out.NO_CHANGES:
             tooltip(parent=mw, msg=tr.sync_collection_complete())
             # all done; track media progress
@@ -209,11 +208,20 @@ def on_full_sync_timer(mw: aqt.main.AnkiQt, label: str) -> None:
         return
     sync_progress = progress.full_sync
 
+    # If we've reached total, show the "checking" label
     if sync_progress.transferred == sync_progress.total:
         label = tr.sync_checking()
+
+    total = sync_progress.total
+    transferred = sync_progress.transferred
+
+    # Scale both to kilobytes with floor division
+    max_for_bar = total // 1024
+    value_for_bar = transferred // 1024
+
     mw.progress.update(
-        value=sync_progress.transferred,
-        max=sync_progress.total,
+        value=value_for_bar,
+        max=max_for_bar,
         process=False,
         label=label,
     )
@@ -382,7 +390,6 @@ def get_id_and_pass_from_user(
     qconnect(bb.accepted, diag.accept)
     qconnect(bb.rejected, diag.reject)
     vbox.addWidget(bb)
-    add_close_shortcut(diag)
     diag.setLayout(vbox)
     diag.adjustSize()
     diag.show()

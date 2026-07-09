@@ -23,7 +23,6 @@ from aqt.theme import Theme
 from aqt.url_schemes import show_url_schemes_dialog
 from aqt.utils import (
     HelpPage,
-    add_close_shortcut,
     add_ellipsis_to_action_label,
     askUser,
     disable_help_button,
@@ -67,7 +66,6 @@ class Preferences(QDialog):
         self.setup_profile()
         self.setup_global()
         self.setup_configurable_answer_keys()
-        add_close_shortcut(self)
         self.show()
 
     def setup_configurable_answer_keys(self):
@@ -224,6 +222,14 @@ class Preferences(QDialog):
         self.form.check_for_updates.setChecked(self.mw.pm.check_for_updates())
         qconnect(self.form.check_for_updates.stateChanged, self.mw.pm.set_update_check)
 
+        self.form.check_for_addon_updates.setChecked(
+            self.mw.pm.check_for_addon_updates()
+        )
+        qconnect(
+            self.form.check_for_addon_updates.stateChanged,
+            self.mw.pm.set_check_for_addon_updates,
+        )
+
         self.update_login_status()
         qconnect(self.form.syncLogout.clicked, self.sync_logout)
         qconnect(self.form.syncLogin.clicked, self.sync_login)
@@ -260,6 +266,7 @@ class Preferences(QDialog):
                 self.update_login_status()
                 self.confirm_sync_after_login()
 
+        self.update_network()
         sync_login(self.mw, on_success)
 
     def sync_logout(self) -> None:

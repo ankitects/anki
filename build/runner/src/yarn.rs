@@ -28,7 +28,11 @@ pub fn setup_yarn(args: YarnArgs) {
                 .arg("--ignore-scripts"),
         );
     } else {
-        run_command(Command::new(&args.yarn_bin).arg("install"));
+        run_command(
+            Command::new(&args.yarn_bin)
+                .arg("install")
+                .arg("--immutable"),
+        );
     }
 
     std::fs::write(args.stamp, b"").unwrap();

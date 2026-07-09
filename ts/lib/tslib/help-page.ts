@@ -27,7 +27,8 @@ export const HelpPage = {
         limitsFromTop: "https://docs.ankiweb.net/deck-options.html#limits-start-from-top",
         dailyLimits: "https://docs.ankiweb.net/deck-options.html#daily-limits",
         audio: "https://docs.ankiweb.net/deck-options.html#audio",
-        fsrs: "http://docs.ankiweb.net/deck-options.html#fsrs",
+        fsrs: "https://docs.ankiweb.net/deck-options.html#fsrs",
+        desiredRetention: "https://docs.ankiweb.net/deck-options.html#desired-retention",
     },
     Leeches: {
         leeches: "https://docs.ankiweb.net/leeches.html#leeches",
@@ -45,5 +46,8 @@ export const HelpPage = {
         root: "https://docs.ankiweb.net/importing/text-files.html",
         updating: "https://docs.ankiweb.net/importing/text-files.html#duplicates-and-updating",
         html: "https://docs.ankiweb.net/importing/text-files.html#html",
+    },
+    Editing: {
+        adding: "https://docs.ankiweb.net/editing.html#adding-cards-and-notes",
     },
 };

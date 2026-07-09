@@ -22,7 +22,7 @@ pub(crate) fn write_python_interface(services: &[BackendService]) -> Result<()> 
     write_header(&mut out)?;
 
     for service in services {
-        if service.name == "BackendAnkidroidService" {
+        if ["BackendAnkidroidService", "BackendFrontendService"].contains(&service.name.as_str()) {
             continue;
         }
         for method in service.all_methods() {
@@ -249,6 +249,7 @@ import anki.stats_pb2
 import anki.sync_pb2
 import anki.tags_pb2
 import anki.ankihub_pb2
+import anki.github_pb2
 
 class RustBackendGenerated:
     def _run_command(self, service: int, method: int, input: Any) -> bytes:

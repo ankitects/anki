@@ -46,6 +46,20 @@ studying-type-answer-unknown-field = Type answer: unknown field { $val }
 studying-unbury = Unbury
 studying-what-would-you-like-to-unbury = What would you like to unbury?
 studying-you-havent-recorded-your-voice-yet = You haven't recorded your voice yet.
+studying-card-studied-in-minute =
+    { $cards ->
+        [one] { $cards } card
+       *[other] { $cards } cards
+    } studied in
+    { $minutes ->
+        [one] { $minutes } minute.
+       *[other] { $minutes } minutes.
+    }
+studying-question-time-elapsed = Question time elapsed
+studying-answer-time-elapsed = Answer time elapsed
+
+## OBSOLETE; you do not need to translate this
+
 studying-card-studied-in =
     { $count ->
         [one] { $count } card studied in
@@ -56,5 +70,3 @@ studying-minute =
         [one] { $count } minute.
        *[other] { $count } minutes.
     }
-studying-question-time-elapsed = Question time elapsed
-studying-answer-time-elapsed = Answer time elapsed

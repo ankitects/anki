@@ -11,16 +11,13 @@ import sys
 from collections.abc import Callable
 from typing import TYPE_CHECKING, Any, Union, cast
 
-if "ANKI_FIRST_RUN" in os.environ:
-    from .package import first_run_setup
-
-    first_run_setup()
-
 try:
-    import pip_system_certs.wrapt_requests
+    import truststore
+
+    truststore.inject_into_ssl()
 except ModuleNotFoundError:
     print(
-        "Python module pip_system_certs is not installed. System certificate store and custom SSL certificates may not work. See: https://github.com/ankitects/anki/issues/3016"
+        "Python module truststore is not installed. System certificate store and custom SSL certificates may not work. See: https://github.com/ankitects/anki/issues/3016"
     )
 
 if sys.version_info[0] < 3 or sys.version_info[1] < 9:
@@ -41,11 +38,6 @@ if "--syncserver" in sys.argv:
 
     # does not return
     run_sync_server()
-
-if sys.platform == "win32":
-    from win32com.shell import shell
-
-    shell.SetCurrentProcessExplicitAppUserModelID("Ankitects.Anki")
 
 import argparse
 import builtins
@@ -125,9 +117,11 @@ from aqt import stats, about, preferences, mediasync  # isort:skip
 class DialogManager:
     _dialogs: dict[str, list] = {
         "AddCards": [addcards.AddCards, None],
+        "NewAddCards": [addcards.NewAddCards, None],
         "AddonsDialog": [addons.AddonsDialog, None],
         "Browser": [browser.Browser, None],
         "EditCurrent": [editcurrent.EditCurrent, None],
+        "NewEditCurrent": [editcurrent.NewEditCurrent, None],
         "FilteredDeckConfigDialog": [filtered_deck.FilteredDeckConfigDialog, None],
         "DeckStats": [stats.DeckStats, None],
         "NewDeckStats": [stats.NewDeckStats, None],
@@ -269,11 +263,15 @@ def setupLangAndBackend(
     else:
         app.setLayoutDirection(Qt.LayoutDirection.LeftToRight)
 
+    # so the webview and native controls localize to Anki's language, not the OS
+    QLocale.setDefault(QLocale(lang))
+
+    qt_lang = lang.replace("-", "_")
+
     # load qt translations
     _qtrans = QTranslator()
 
     qt_dir = QLibraryInfo.path(QLibraryInfo.LibraryPath.TranslationsPath)
-    qt_lang = lang.replace("-", "_")
     if _qtrans.load(f"qtbase_{qt_lang}", qt_dir):
         app.installTranslator(_qtrans)
 
@@ -290,7 +288,7 @@ def setupLangAndBackend(
 class NativeEventFilter(QAbstractNativeEventFilter):
     def nativeEventFilter(
         self, eventType: Any, message: Any
-    ) -> tuple[bool, Any | None]:
+    ) -> tuple[bool, sip.voidptr]:
         if eventType == "windows_generic_MSG":
             import ctypes.wintypes
 
@@ -300,8 +298,8 @@ class NativeEventFilter(QAbstractNativeEventFilter):
                 if mw.can_auto_sync():
                     mw.app._set_windows_shutdown_block_reason(tr.sync_syncing())
                     mw.progress.single_shot(100, mw.unloadProfileAndExit)
-                    return (True, 0)
-        return (False, 0)
+                    return (True, sip.voidptr(0))
+        return (False, sip.voidptr(0))
 
 
 class AnkiApp(QApplication):
@@ -310,7 +308,10 @@ class AnkiApp(QApplication):
 
     appMsg = pyqtSignal(str)
 
-    KEY = f"anki{checksum(getpass.getuser())}"
+    KEY = (
+        os.environ.get("ANKI_SINGLE_INSTANCE_KEY")
+        or f"anki{checksum(getpass.getuser())}"
+    )
     TMOUT = 30000
 
     def __init__(self, argv: list[str]) -> None:
@@ -406,6 +407,22 @@ class AnkiApp(QApplication):
 
     def eventFilter(self, src: Any, evt: QEvent | None) -> bool:
         assert evt is not None
+
+        # Handle Close shortcut here because modal dialogs disable main-window shortcuts
+        if (is_mac or is_lin) and evt.type() == QEvent.Type.KeyPress:
+            key_event = cast(QKeyEvent, evt)
+            if not key_event.isAutoRepeat():
+                mods = cast(int, key_event.modifiers().value)
+                seq = QKeySequence(mods | key_event.key())
+                if any(
+                    seq == binding
+                    for binding in QKeySequence.keyBindings(
+                        QKeySequence.StandardKey.Close
+                    )
+                ):
+                    if mw is not None:
+                        mw._close_active_window()
+                    return True
 
         pointer_classes = (
             QPushButton,

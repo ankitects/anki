@@ -53,11 +53,7 @@ impl Collection {
             .zip(Some(seconds_elapsed))
             .zip(Some(card.decay.unwrap_or(FSRS5_DEFAULT_DECAY)))
             .map(|((state, seconds), decay)| {
-                FSRS::new(None).unwrap().current_retrievability_seconds(
-                    state.into(),
-                    seconds,
-                    decay,
-                )
+                fsrs::current_retrievability(state.into(), seconds as f32 / 86_400.0, decay)
             });
 
         let original_deck = if card.original_deck_id == DeckId(0) {
@@ -76,8 +72,15 @@ impl Collection {
             note_id: card.note_id.into(),
             deck: deck.human_name(),
             added: card.id.as_secs().0,
-            first_review: revlog.first().map(|entry| entry.id.as_secs().0),
-            latest_review: revlog.last().map(|entry| entry.id.as_secs().0),
+            first_review: revlog
+                .iter()
+                .find(|entry| entry.has_rating())
+                .map(|entry| entry.id.as_secs().0),
+            // last_review_time is not used to ensure cram revlogs are included.
+            latest_review: revlog
+                .iter()
+                .rfind(|entry| entry.has_rating())
+                .map(|entry| entry.id.as_secs().0),
             due_date: self.due_date(&card)?,
             due_position: self.position(&card),
             interval: card.interval,
@@ -154,7 +157,7 @@ impl Collection {
             .get_deck_config(conf_id)?
             .or_not_found(conf_id)?;
         let historical_retention = config.inner.historical_retention;
-        let fsrs = FSRS::new(Some(config.fsrs_params()))?;
+        let fsrs = FSRS::new(config.fsrs_params())?;
         let next_day_at = self.timing_today()?.next_day_at;
         let ignore_before = ignore_revlogs_before_ms_from_config(&config)?;
 
@@ -220,6 +223,7 @@ fn stats_revlog_entry(
         ease: entry.ease_factor,
         taken_secs: entry.taken_millis as f32 / 1000.,
         memory_state: None,
+        last_interval: entry.last_interval_secs(),
     }
 }
 

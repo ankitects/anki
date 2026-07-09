@@ -4,7 +4,12 @@
 import { getRange, getSelection } from "./cross-browser";
 
 function wrappedExceptForWhitespace(text: string, front: string, back: string): string {
-    const match = text.match(/^(\s*)([^]*?)(\s*)$/)!;
+    const normalizedText = text
+        .replace(/&nbsp;/g, " ")
+        .replace(/&#160;/g, " ")
+        .replace(/\u00A0/g, " ");
+
+    const match = normalizedText.match(/^(\s*)([^]*?)(\s*)$/)!;
     return match[1] + front + match[2] + back + match[3];
 }
 

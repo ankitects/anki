@@ -14,7 +14,7 @@ from markdown import markdown
 
 import aqt
 from anki.collection import HelpPage
-from anki.errors import BackendError, Interrupted
+from anki.errors import BackendError, CardTypeError, Interrupted
 from anki.utils import is_win
 from aqt.addons import AddonManager, AddonMeta
 from aqt.qt import *
@@ -36,6 +36,14 @@ def show_exception(*, parent: QWidget, exception: Exception) -> None:
     global _mbox
     error_lines = []
     help_page = HelpPage.TROUBLESHOOTING
+
+    # default to PlainText
+    text_format = Qt.TextFormat.PlainText
+
+    # set CardTypeError messages as rich text to allow HTML formatting
+    if isinstance(exception, CardTypeError):
+        text_format = Qt.TextFormat.RichText
+
     if isinstance(exception, BackendError):
         if exception.context:
             error_lines.append(exception.context)
@@ -51,7 +59,9 @@ def show_exception(*, parent: QWidget, exception: Exception) -> None:
         )
     error_text = "\n".join(error_lines)
     print(error_lines)
-    _mbox = _init_message_box(str(exception), error_text, help_page)
+    _mbox = _init_message_box(
+        str(exception), error_text, help_page, text_format, parent
+    )
     _mbox.show()
 
 
@@ -171,15 +181,19 @@ if not os.environ.get("DEBUG"):
 
 
 def _init_message_box(
-    user_text: str, debug_text: str, help_page=HelpPage.TROUBLESHOOTING
+    user_text: str,
+    debug_text: str,
+    help_page=HelpPage.TROUBLESHOOTING,
+    text_format=Qt.TextFormat.PlainText,
+    parent: QWidget | None = None,
 ):
     global _mbox
 
-    _mbox = QMessageBox()
+    _mbox = QMessageBox(parent=parent)
     _mbox.setWindowTitle("Anki")
     _mbox.setText(user_text)
     _mbox.setIcon(QMessageBox.Icon.Warning)
-    _mbox.setTextFormat(Qt.TextFormat.PlainText)
+    _mbox.setTextFormat(text_format)
 
     def show_help():
         openHelp(help_page)
@@ -193,12 +207,12 @@ def _init_message_box(
         debug_info = _mbox.addButton(
             tr.errors_copy_debug_info_button(), QMessageBox.ButtonRole.ActionRole
         )
-        debug_info.disconnect()
+        debug_info.clicked.disconnect()
         debug_info.clicked.connect(copy_debug_info)
     cancel = _mbox.addButton(QMessageBox.StandardButton.Cancel)
     cancel.setText(tr.actions_close())
 
-    help.disconnect()
+    help.clicked.disconnect()
     help.clicked.connect(show_help)
 
     return _mbox

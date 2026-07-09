@@ -13,13 +13,7 @@ impl From<FSRSError> for AnkiError {
             FSRSError::OptimalNotFound => AnkiError::FsrsUnableToDetermineDesiredRetention,
             FSRSError::Interrupted => AnkiError::Interrupted,
             FSRSError::InvalidParameters => AnkiError::FsrsParamsInvalid,
-            FSRSError::InvalidInput => AnkiError::InvalidInput {
-                source: InvalidInputError {
-                    message: "invalid params provided".to_string(),
-                    source: None,
-                    backtrace: None,
-                },
-            },
+            FSRSError::InvalidInput => AnkiError::FsrsParamsInvalid,
             FSRSError::InvalidDeckSize => AnkiError::InvalidInput {
                 source: InvalidInputError {
                     message: "no cards to simulate".to_string(),

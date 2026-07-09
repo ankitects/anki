@@ -1,0 +1,23 @@
+#!/bin/bash
+
+set -e
+
+html="$1"
+
+outdir="out/coverage/typescript"
+YARN="out/extracted/node/bin/yarn"
+
+mkdir -p "$outdir"
+
+"$YARN" vitest:once \
+    --coverage.enabled true \
+    --coverage.provider=v8 \
+    --coverage.reporter=text-summary \
+    --coverage.reporter=json-summary \
+    ${html:+--coverage.reporter=html} \
+    --coverage.reportsDirectory="../$outdir" \
+    --coverage.thresholds.lines=5
+
+if [ "$html" = "--html" ]; then
+    echo "TypeScript coverage report: $outdir/index.html"
+fi

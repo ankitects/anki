@@ -39,6 +39,12 @@ On all platforms, you will need to install:
   or `bash tools\install-n2` on Windows. If you want to use Ninja, it can be downloaded
   from https://github.com/ninja-build/ninja/releases/tag/v1.11.1 and
   placed on your path, or from your distro/homebrew if it's 1.10+.
+  - On Windows, if you have WSL installed, it may conflict with MSYS2 bash. If you are getting an error, try running `C:\msys64\usr\bin\bash.exe tools/install-n2` instead.
+- (Optional) [just](https://just.systems/man/en/packages.html) command runner.
+  Install with `brew install just` or `uv tool install just`.
+  We are experimenting with `just` as the official tool for running
+  Anki-specific commands, and it will likely become the source of truth
+  in the future.
 
 Platform-specific requirements:
 
@@ -129,7 +135,7 @@ To build wheels on Mac/Linux:
 ./tools/build
 ```
 
-(on Windows, `\tools\build.bat`)
+(on Windows, `.\tools\build.bat`)
 
 The generated wheels are in out/wheels. You can then install them by copying the paths into a pip install command.
 Follow the steps [on the beta site](https://betas.ankiweb.net/#via-pypipip), but replace the
@@ -149,7 +155,8 @@ to free space.
 
 Cargo, yarn and pip all cache downloads of dependencies in a shared cache that
 other builds on your system may use as well. If you wish to clear up those caches,
-they can be found in `~/.rustup`, `~/.cargo` and `~/.cache/{yarn,pip}`.
+they can be found in `~/.rustup`, `~/.cargo` and `~/.cache/{yarn,pip}`. On
+Windows, Yarn cache can be found in `%LOCALAPPDATA%\Yarn`.
 
 If you invoke Rust outside of the build scripts (eg by running cargo, or
 with Rust Analyzer), output files will go into `target/` unless you have
@@ -165,16 +172,16 @@ See [this page](./build.md)
 
 ## Generating documentation
 
-For Rust:
+Build and view the documentation site:
 
 ```
-cargo doc --open
+just docs
 ```
 
-For Python:
+For Rust API docs:
 
 ```
-./ninja python:sphinx && open out/python/sphinx/html/py-modindex.html
+just docs-rust
 ```
 
 ## Environmental Variables
@@ -190,12 +197,26 @@ in the collection2.log file will also be printed on stdout.
 
 If ANKI_PROFILE_CODE is set, Python profiling data will be written on exit.
 
-# Installer/launcher
+## Installer
 
-- The anki-release package is created/published with the scripts in qt/release.
-- The installer/launcher is created with the build scripts in qt/launcher/{platform}.
+Run `tools/build-installer` to build the installer.
 
-## Mixing development and study
+Depending on your operating system, this produces a file under `out/installer/dist`:
+
+- An MSI installer on Windows.
+- A .dmg file on macOS.
+- A tarball on Linux.
+
+### Issues During Building
+
+If you are experiencing issues building the installer, make sure that all dependencies
+are installed. See [Building from source](#building-from-source) for more info.
+
+## Releasing
+
+See [Releasing](./releasing.md).
+
+# Mixing development and study
 
 You may wish to create a separate profile with File>Switch Profile for use
 during development. You can pass the arguments "-p [profile name]" when starting

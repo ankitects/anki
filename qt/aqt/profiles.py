@@ -3,6 +3,7 @@
 
 from __future__ import annotations
 
+import errno
 import io
 import os
 import pickle
@@ -290,6 +291,8 @@ class ProfileManager:
         except Exception as e:
             self.db.rollback()
             if "WinError 5" in str(e):
+                showWarning(tr.profiles_anki_could_not_rename_your_profile())
+            elif isinstance(e, OSError) and e.errno == errno.ENAMETOOLONG:
                 showWarning(tr.profiles_anki_could_not_rename_your_profile())
             else:
                 raise
@@ -595,6 +598,12 @@ create table if not exists profiles
 
     def set_last_addon_update_check(self, secs: int) -> None:
         self.meta["last_addon_update_check"] = secs
+
+    def check_for_addon_updates(self) -> bool:
+        return self.meta.get("check_for_addon_updates", True)
+
+    def set_check_for_addon_updates(self, on: bool) -> None:
+        self.meta["check_for_addon_updates"] = on
 
     @deprecated(info="use theme_manager.night_mode")
     def night_mode(self) -> bool:

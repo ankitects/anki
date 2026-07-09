@@ -2,15 +2,17 @@
 name = "anki-dev"
 version = "0.0.0"
 description = "Local-only environment"
-requires-python = ">=3.9"
+requires-python = ">=3.12"
 classifiers = ["Private :: Do Not Upload"]
 
 [dependency-groups]
 dev = [
+  "pre-commit",
   "mypy",
   "mypy-protobuf",
   "ruff",
   "pytest",
+  "pytest-mock",
   "PyChromeDevTools",
   "wheel",
   "hatchling", # for type checking hatch_build.py files
@@ -24,17 +26,29 @@ dev = [
   "types-markdown",
   "types-waitress",
   "types-pywin32",
+  "briefcase>=0.4.2",
+  "coverage>=7.13.5",
+  "complexipy>=5.6.0",
+  "cogapp>=3.6.0",
+]
+docs = [
+  "sphinx",
+  "myst-parser",
+  "sphinx-book-theme",
+  "sphinx-autoapi",
+  "sphinx-autobuild>=2024.10.3",
+  "click-extra[sphinx]", # for GitHub alerts
+  "sphinxcontrib-mermaid>=2.0.2",
 ]
 
-[project.optional-dependencies]
-sphinx = [
-  "sphinx",
-  "sphinx_rtd_theme",
-  "sphinx-autoapi",
-]
+# Local resolution guard; keep in sync with Dependabot cooldown.
+[tool.uv]
+exclude-newer = "7 days"
+exclude-newer-package = { anki-mac-helper = false, anki-audio = false, briefcase = false }
+required-version = ">=0.9.25"
 
 [tool.uv.workspace]
-members = ["pylib", "qt"]
+members = ["pylib", "qt", "qt/installer/briefcase_plugins"]
 
 [[tool.uv.index]]
 name = "testpypi"

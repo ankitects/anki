@@ -3,6 +3,7 @@ exporting-anki-20-deck = Anki 2.0 Deck
 exporting-anki-collection-package = Anki Collection Package
 exporting-anki-deck-package = Anki Deck Package
 exporting-cards-in-plain-text = Cards in Plain Text
+# used in the filename during the export of a collection package
 exporting-collection = collection
 exporting-collection-exported = Collection exported.
 exporting-colpkg-too-new = Please update to the latest Anki version, then import the .colpkg/.apkg file again.

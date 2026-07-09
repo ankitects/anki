@@ -184,15 +184,11 @@ where
 
 #[derive(Serialize_repr, Deserialize_repr, Debug, PartialEq, Eq, Clone)]
 #[repr(u8)]
+#[derive(Default)]
 pub enum NewCardOrderSchema11 {
     Random = 0,
+    #[default]
     Due = 1,
-}
-
-impl Default for NewCardOrderSchema11 {
-    fn default() -> Self {
-        Self::Due
-    }
 }
 
 fn hard_factor_default() -> f32 {

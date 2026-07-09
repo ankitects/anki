@@ -47,6 +47,9 @@
        <property name="insertPolicy">
         <enum>QComboBox::NoInsert</enum>
        </property>
+       <property name="sizeAdjustPolicy">
+        <enum>QComboBox::SizeAdjustPolicy::AdjustToMinimumContentsLengthWithIcon</enum>
+       </property>
       </widget>
      </item>
     </layout>

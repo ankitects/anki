@@ -17,6 +17,7 @@ import aqt.browser
 import aqt.operations
 from anki.cards import Card, CardId
 from anki.collection import Config, OpChanges, OpChangesWithCount
+from anki.lang import with_collapsed_whitespace
 from anki.scheduler.base import ScheduleCardsAsNew
 from anki.scheduler.v3 import (
     CardAnswer,
@@ -334,7 +335,7 @@ class Reviewer:
 <div id="_mark" hidden>&#x2605;</div>
 <div id="_flag" hidden>&#x2691;</div>
 {fade}
-<div id="qa"></div>
+<div id="qa" dir="auto"></div>
 {extra}
 """
 
@@ -685,6 +686,9 @@ class Reviewer:
             play_clicked_audio(url, self.card)
         elif url.startswith("updateToolbar"):
             self.mw.toolbarWeb.update_background_image()
+        elif url == "repaintNeeded":
+            # Ensure stale frames showing previous or corrupt content are not displayed (#3668)
+            self.web.update()
         elif url == "statesMutated":
             self._states_mutated = True
         else:
@@ -966,11 +970,15 @@ timerStopped = false;
         elapsed = self.mw.col.timeboxReached()
         if elapsed:
             assert not isinstance(elapsed, bool)
-            part1 = tr.studying_card_studied_in(count=elapsed[1])
-            mins = int(round(elapsed[0] / 60))
-            part2 = tr.studying_minute(count=mins)
+            cards_val = elapsed[1]
+            minutes_val = int(round(elapsed[0] / 60))
+            message = with_collapsed_whitespace(
+                tr.studying_card_studied_in_minute(
+                    cards=cards_val, minutes=str(minutes_val)
+                )
+            )
             fin = tr.studying_finish()
-            diag = askUserDialog(f"{part1} {part2}", [tr.studying_continue(), fin])
+            diag = askUserDialog(message, [tr.studying_continue(), fin])
             diag.setIcon(QMessageBox.Icon.Information)
             if diag.run() == fin:
                 self.mw.moveToState("deckBrowser")
@@ -1167,7 +1175,7 @@ timerStopped = false;
 
     def on_create_copy(self) -> None:
         if self.card:
-            aqt.dialogs.open("AddCards", self.mw).set_note(
+            self.mw._open_new_or_legacy_dialog("AddCards").set_note(
                 self.card.note(), self.card.current_deck_id()
             )
 

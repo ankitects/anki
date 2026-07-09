@@ -6,7 +6,6 @@ pub mod files;
 mod service;
 
 use std::borrow::Cow;
-use std::collections::HashMap;
 use std::path::Path;
 use std::path::PathBuf;
 
@@ -22,6 +21,7 @@ use crate::progress::ThrottlingProgressHandler;
 use crate::sync::http_client::HttpSyncClient;
 use crate::sync::login::SyncAuth;
 use crate::sync::media::database::client::changetracker::ChangeTracker;
+pub use crate::sync::media::database::client::Checksums;
 use crate::sync::media::database::client::MediaDatabase;
 use crate::sync::media::database::client::MediaEntry;
 use crate::sync::media::progress::MediaSyncProgress;
@@ -157,7 +157,7 @@ impl MediaManager {
     pub fn all_checksums_after_checking(
         &self,
         progress: impl FnMut(usize) -> bool,
-    ) -> Result<HashMap<String, Sha1Hash>> {
+    ) -> Result<Checksums> {
         ChangeTracker::new(&self.media_folder, progress).register_changes(&self.db)?;
         self.db.all_registered_checksums()
     }
@@ -176,7 +176,7 @@ impl MediaManager {
 
     /// All checksums without registering changes first.
     #[cfg(test)]
-    pub(crate) fn all_checksums_as_is(&self) -> HashMap<String, [u8; 20]> {
+    pub(crate) fn all_checksums_as_is(&self) -> Checksums {
         self.db.all_registered_checksums().unwrap()
     }
 }

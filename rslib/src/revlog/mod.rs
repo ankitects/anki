@@ -85,6 +85,15 @@ impl RevlogEntry {
         .unwrap()
     }
 
+    pub(crate) fn last_interval_secs(&self) -> u32 {
+        u32::try_from(if self.last_interval > 0 {
+            self.last_interval.saturating_mul(86_400)
+        } else {
+            self.last_interval.saturating_mul(-1)
+        })
+        .unwrap()
+    }
+
     /// Returns true if this entry represents a reset operation.
     /// These entries are created when a card is reset using
     /// [`Collection::reschedule_cards_as_new`].
@@ -152,7 +161,7 @@ impl Collection {
     ) -> Result<()> {
         let ease_factor = u32::from(
             card.memory_state
-                .map(|s| ((s.difficulty_shifted() * 1000.) as u16))
+                .map(|s| (s.difficulty_shifted() * 1000.) as u16)
                 .unwrap_or(card.ease_factor),
         );
         let entry = RevlogEntry {

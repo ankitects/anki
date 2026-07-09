@@ -8,6 +8,7 @@ use std::fs;
 use std::path::PathBuf;
 
 use inflections::Inflect;
+use itertools::Itertools;
 
 use crate::extract::Module;
 use crate::extract::Translation;
@@ -15,7 +16,7 @@ use crate::extract::VariableKind;
 use crate::gather::TranslationsByFile;
 use crate::gather::TranslationsByLang;
 
-pub fn write_strings(map: &TranslationsByLang, modules: &[Module]) {
+pub fn write_strings(map: &TranslationsByLang, modules: &[Module], out_fn: &str, tag: &str) {
     let mut buf = String::new();
 
     // lang->module map
@@ -25,25 +26,27 @@ pub fn write_strings(map: &TranslationsByLang, modules: &[Module]) {
     // ordered list of translations by module
     write_translation_key_index(modules, &mut buf);
     // methods to generate messages
-    write_methods(modules, &mut buf);
+    write_methods(modules, &mut buf, tag);
 
     let dir = PathBuf::from(std::env::var("OUT_DIR").unwrap());
-    let path = dir.join("strings.rs");
+    let path = dir.join(out_fn);
     fs::write(path, buf).unwrap();
 }
 
-fn write_methods(modules: &[Module], buf: &mut String) {
+fn write_methods(modules: &[Module], buf: &mut String, tag: &str) {
     buf.push_str(
         r#"
-use crate::{I18n,Number};
+#[allow(unused_imports)]
+use crate::{I18n,Number,Translations};
+#[allow(unused_imports)]
 use fluent::{FluentValue, FluentArgs};
 use std::borrow::Cow;
 
-impl I18n {
 "#,
     );
+    writeln!(buf, "impl I18n<{tag}> {{").unwrap();
     for module in modules {
-        for translation in &module.translations {
+        for translation in module.translations.iter().filter(|t| t.is_core()) {
             let func = translation.key.to_snake_case();
             let key = &translation.key;
             let doc = translation.text.replace('\n', " ");
@@ -142,7 +145,7 @@ fn write_translation_key_index(modules: &[Module], buf: &mut String) {
 
     writeln!(
         buf,
-        "pub(crate) const KEYS_BY_MODULE: [&[&str]; {count}] = [",
+        "pub(crate) const _KEYS_BY_MODULE: [&[&str]; {count}] = [",
         count = modules.len(),
     )
     .unwrap();
@@ -162,7 +165,7 @@ fn write_translation_key_index(modules: &[Module], buf: &mut String) {
 fn write_lang_map(map: &TranslationsByLang, buf: &mut String) {
     buf.push_str(
         "
-pub(crate) const STRINGS: phf::Map<&str, &phf::Map<&str, &str>> = phf::phf_map! {
+pub(crate) const _STRINGS: phf::Map<&str, &phf::Map<&str, &str>> = phf::phf_map! {
 ",
     );
 
@@ -194,8 +197,9 @@ pub(crate) const {lang_name}: phf::Map<&str, &str> = phf::phf_map! {{",
     )
     .unwrap();
 
-    for (module, contents) in modules {
-        let escaped_contents = escape_unicode_control_chars(contents);
+    for (module, repos) in modules {
+        let contents = repos.values().join("");
+        let escaped_contents = escape_unicode_control_chars(&contents);
         writeln!(
             buf,
             r###"        "{module}" => r##"{escaped_contents}"##,"###

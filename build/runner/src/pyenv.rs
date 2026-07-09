@@ -13,6 +13,7 @@ use crate::run::run_command;
 pub struct PyenvArgs {
     uv_bin: String,
     pyenv_folder: String,
+    python: String,
     #[arg(trailing_var_arg = true)]
     extra_args: Vec<String>,
 }
@@ -41,10 +42,14 @@ pub fn setup_pyenv(args: PyenvArgs) {
         }
     }
 
+    // Never use `--no-config` here: `[tool.uv] exclude-newer` must be read so the
+    // lockfile cutoff matches `uv sync --locked`. UV_* env vars are cleared
+    // above for isolation.
     run_command(
         command
             .env("UV_PROJECT_ENVIRONMENT", args.pyenv_folder.clone())
-            .args(["sync", "--locked", "--no-config"])
+            .args(["sync", "--locked"])
+            .args(["--python", &args.python])
             .args(args.extra_args),
     );
 

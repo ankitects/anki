@@ -13,7 +13,6 @@ from aqt import gui_hooks
 from aqt.qt import *
 from aqt.utils import (
     KeyboardModifiersPressed,
-    add_close_shortcut,
     disable_help_button,
     restoreGeom,
     saveGeom,
@@ -40,9 +39,9 @@ class DeckOptionsDialog(QDialog):
         self.setWindowModality(Qt.WindowModality.ApplicationModal)
         self.mw.garbage_collect_on_dialog_finish(self)
         self.setMinimumWidth(400)
+        self.setMinimumHeight(500)
         disable_help_button(self)
         restoreGeom(self, self.TITLE, default_size=(800, 800))
-        add_close_shortcut(self)
 
         self.web = AnkiWebView(kind=AnkiWebViewKind.DECK_OPTIONS)
         self.web.load_sveltekit_page(f"deck-options/{self._deck['id']}")
