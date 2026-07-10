@@ -25,10 +25,11 @@ impl Notetype {
         for (index, field) in other.fields.iter().enumerate() {
             match self.find_field(field) {
                 Some(i) if i == index => (),
-                // `other` may have more fields than us (e.g. a corrupt notetype
-                // with a field matching one of ours twice). Only re-align when
-                // `index` is a real slot in our list; otherwise the field is
-                // already present, so leave it in place rather than panicking.
+                // A longer `other` is fine on its own; its extra fields are
+                // appended below. The panic only arises when `other` repeats a
+                // field that already matches one of ours, at an `index` past the
+                // end of our list. Only re-align when `index` is a real slot;
+                // otherwise the field is already present, so leave it in place.
                 Some(i) => {
                     if index < self.fields.len() {
                         self.fields.swap(i, index);
@@ -56,8 +57,8 @@ impl Notetype {
         for (index, template) in other.templates.iter().enumerate() {
             match self.find_template(template) {
                 Some(i) if i == index => (),
-                // see merge_fields: only re-align when `index` is a real slot;
-                // a longer `other` would otherwise go out of bounds
+                // see merge_fields: a duplicate template can match at an `index`
+                // past the end of our list, so only re-align for a real slot.
                 Some(i) => {
                     if index < self.templates.len() {
                         self.templates.swap(i, index);
@@ -107,8 +108,6 @@ impl CardTemplate {
 
 #[cfg(test)]
 mod test {
-    use std::collections::HashSet;
-
     use itertools::assert_equal;
 
     use super::*;
@@ -194,10 +193,11 @@ mod test {
 
         basic.merge(&other);
 
-        // every distinct incoming field is present, with no duplicates
-        let names: HashSet<&str> = basic.field_names().map(String::as_str).collect();
-        assert_eq!(names, HashSet::from(["Front", "Back", "Extra1", "Extra2"]));
-        assert_eq!(basic.fields.len(), 4);
+        // the duplicate is dropped and the field order is preserved
+        assert_equal(
+            basic.field_names(),
+            ["Front", "Back", "Extra1", "Extra2"].iter(),
+        );
     }
 
     #[test]
@@ -211,12 +211,10 @@ mod test {
 
         basic.merge(&other);
 
-        let names: HashSet<&str> = basic.template_names().map(String::as_str).collect();
-        assert_eq!(
-            names,
-            HashSet::from(["Card 1", "Card 2", "Extra1", "Extra2"])
+        assert_equal(
+            basic.template_names(),
+            ["Card 1", "Card 2", "Extra1", "Extra2"].iter(),
         );
-        assert_eq!(basic.templates.len(), 4);
     }
 
     #[test]
