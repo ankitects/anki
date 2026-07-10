@@ -97,4 +97,6 @@ if os.environ.get("ANKI_NOVERIFYSSL"):
 
     import warnings
 
-    warnings.filterwarnings("ignore")
+    from urllib3.exceptions import InsecureRequestWarning
+
+    warnings.filterwarnings("ignore", category=InsecureRequestWarning)

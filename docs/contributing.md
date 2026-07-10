@@ -26,6 +26,12 @@ can iterate faster and serve specific user needs without affecting all users.
 See the [Add-on API documentation](https://addon-docs.ankiweb.net/) for
 guidance on building add-ons.
 
+## Pull Request Description
+
+When opening a pull request, fill in the provided template
+(`.github/pull_request_template.md`). It covers the required fields: linked
+issue, summary/motivation, how to test, and UI evidence for visual changes.
+
 ## Linked Issues
 
 Every pull request, except hotfixes and dependency updates, must be linked
@@ -146,8 +152,9 @@ example if tools such as `ninja` are installed outside standard locations),
 because pre-commit does not use a login shell and a different path can cause
 extra rebuilds.
 
-If your change is non-trivial and not covered by the existing unit tests, please
-consider adding a unit test at the same time.
+New or changed behavior must be covered by tests. Exceptions where tests are not
+required: version bumps, documentation-only changes, translation updates, dependency
+updates, and CI/build housekeeping (chore).
 
 ## Code Style
 

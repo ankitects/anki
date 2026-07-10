@@ -40,3 +40,30 @@ def test_system_store_adapter_does_not_use_certifi_for_default_verification(
     assert conn.cert_reqs == "CERT_REQUIRED"
     assert conn.ca_certs is None
     assert conn.ca_cert_dir is None
+
+
+def test_noverifyssl_disables_ssl_verification(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    import importlib
+    import warnings
+
+    from urllib3.exceptions import InsecureRequestWarning
+
+    import anki.httpclient as httpclient_module
+
+    original_verify = httpclient_module.HttpClient.verify
+    monkeypatch.setenv("ANKI_NOVERIFYSSL", "1")
+
+    try:
+        with warnings.catch_warnings(record=True) as caught:
+            warnings.simplefilter("always")
+            importlib.reload(httpclient_module)
+            warnings.warn("test", InsecureRequestWarning)
+            warnings.warn("test", DeprecationWarning)
+        assert httpclient_module.HttpClient.verify is False
+    finally:
+        httpclient_module.HttpClient.verify = original_verify
+    categories = [w.category for w in caught]
+    assert InsecureRequestWarning not in categories
+    assert DeprecationWarning in categories

@@ -14,8 +14,9 @@ import anki.lang
 import aqt
 from anki.lang import is_rtl
 from anki.utils import is_lin, is_mac, is_win
-from aqt import QApplication, colors, gui_hooks
+from aqt import colors, gui_hooks
 from aqt.qt import (
+    QApplication,
     QColor,
     QIcon,
     QPainter,
@@ -268,6 +269,8 @@ class ThemeManager:
 
         else:
             app.setStyle(QStyleFactory.create(self._default_style))  # type: ignore
+            # Qt 6.10+ reads this from the system's theme
+            buf += f"QTableView {{ gridline-color: {self.var(colors.BORDER_SUBTLE)}; }}"
 
         # allow addons to modify the styling
         buf = gui_hooks.style_did_init(buf)

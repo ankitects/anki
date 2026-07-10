@@ -19,7 +19,10 @@ const configure = (proxy: any, _options: any) => {
 };
 
 const viteConfig = defineViteConfig({
-    plugins: [sveltekit(), svg({})],
+    plugins: [
+        sveltekit(),
+        svg({ svgoOptions: { plugins: [{ name: "cleanupIds", params: { remove: false } }] } }),
+    ],
     cacheDir: "../node_modules/.vite",
     build: {
         reportCompressedSize: false,
@@ -51,6 +54,10 @@ const viteConfig = defineViteConfig({
 const vitestConfig = defineVitestConfig({
     test: {
         include: ["**/*.{test,spec}.{js,ts}"],
+        exclude: ["tests/e2e/**", "node_modules/**"],
+        coverage: {
+            include: ["lib/**", "routes/**", "editable/**", "editor/**", "html-filter/**", "reviewer/**", "tools/**"],
+        },
     },
 });
 

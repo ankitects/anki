@@ -8,8 +8,8 @@ if "%1"=="pylib" (
     set "tests=pylib/tests"
     set "threshold=65"
 ) else if "%1"=="qt" (
-    set "PYTHONPATH=pylib;out/pylib;out/qt"
-    set "source=qt/aqt"
+    set "PYTHONPATH=pylib;out/pylib;out/qt;qt/tools"
+    set "source=qt/aqt,qt/tools"
     set "outdir=out\coverage\python-qt"
     set "tests=qt/tests"
     set "threshold=20"
