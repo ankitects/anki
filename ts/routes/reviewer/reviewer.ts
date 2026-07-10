@@ -55,7 +55,7 @@ export class ReviewerState {
     autoAdvanceQuestionTimeout: ReturnType<typeof setTimeout> | undefined;
     autoAdvanceAnswerTimeout: ReturnType<typeof setTimeout> | undefined;
     _answerShown = false;
-    mutateNextStates!: StateMutatorFn;
+    mutateNextStates: Promise<StateMutatorFn>;
 
     iframe: HTMLIFrameElement | undefined = undefined;
 
@@ -71,6 +71,14 @@ export class ReviewerState {
                 clearInterval(this.autoAdvanceAnswerTimeout);
             }
         });
+
+        // TODO: This should probably be moved to +page.ts
+        this.mutateNextStates = (async () => new Function(
+            "states",
+            "customData",
+            "ctx",
+            (await getConfigString({ key: ConfigKey_String.CARD_STATE_CUSTOMIZER })).val,
+        ) as any)();
     }
 
     public toggleAutoAdvance() {
@@ -85,12 +93,6 @@ export class ReviewerState {
         const { json } = await getConfigJson({ val: "reviewerStorage" });
         this.sendInnerRequest({ type: "setstorage", json_buffer: json });
         this.showQuestion(null);
-        this.mutateNextStates = new Function(
-            "states",
-            "customData",
-            "ctx",
-            (await getConfigString({ key: ConfigKey_String.CARD_STATE_CUSTOMIZER })).val,
-        ) as any;
         addEventListener("message", this.onMessage.bind(this));
     }
 
@@ -383,7 +385,7 @@ export class ReviewerState {
             states: card.states,
             context: card.context,
         });
-        const newStates = await applyStateTransform(sswc, this.mutateNextStates);
+        const newStates = await applyStateTransform(sswc, await this.mutateNextStates);
 
         if (showDue) {
             describeNextStates(newStates).then((descriptors) => this.answerButtons.set(descriptors.vals));
