@@ -814,6 +814,10 @@ class AsyncRequestHandler(Generic[AsyncRequestReturnType]):
         return await self.future
 
 
+def active_window_or_main() -> QWidget:
+    return aqt.mw.app.activeWindow() or aqt.mw
+
+
 async def open_file_picker() -> bytes:
     req = frontend_pb2.openFilePickerRequest()
     req.ParseFromString(request.data)
@@ -824,8 +828,7 @@ async def open_file_picker() -> bytes:
         def cb(filename: str | None) -> None:
             request_handler.set_result(filename)
 
-        window = aqt.mw.app.activeWindow()
-        assert window is not None
+        window = active_window_or_main()
         getFile(
             parent=window,
             title=req.title,
@@ -870,8 +873,7 @@ async def record_audio() -> bytes:
         def cb(path: str | None) -> None:
             request_handler.set_result(path)
 
-        window = aqt.mw.app.activeWindow()
-        assert window is not None
+        window = active_window_or_main()
         record_audio(window, aqt.mw, True, cb)
 
     request_handler: AsyncRequestHandler[str | None] = AsyncRequestHandler(callback)
