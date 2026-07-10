@@ -12,6 +12,7 @@ use ninja_gen::inputs;
 use ninja_gen::node::CompileSass;
 use ninja_gen::node::EsbuildScript;
 use ninja_gen::node::TypescriptCheck;
+use ninja_gen::python::check_complexity;
 use ninja_gen::python::python_format;
 use ninja_gen::python::PythonTest;
 use ninja_gen::rsync::RsyncFiles;
@@ -191,7 +192,12 @@ fn build_js(build: &mut Build) -> Result<()> {
         },
     )?;
     let files_from_ts = build.inputs_with_suffix(
-        inputs![":ts:editor", ":ts:reviewer:reviewer.js", ":ts:mathjax"],
+        inputs![
+            ":ts:editor",
+            ":ts:editable",
+            ":ts:reviewer:reviewer.js",
+            ":ts:mathjax"
+        ],
         ".js",
     );
     build.add_action(
@@ -354,18 +360,25 @@ fn build_wheel(build: &mut Build) -> Result<()> {
 }
 
 fn check_python(build: &mut Build) -> Result<()> {
-    python_format(
-        build,
-        "qt",
-        inputs![glob!("qt/**/*.py", "qt/installer/*-template/**")],
-    )?;
+    let py_inputs = inputs![glob!("qt/**/*.py", "qt/installer/*-template/**")];
+
+    python_format(build, "qt", py_inputs.clone())?;
 
     build.add_action(
         "check:pytest:aqt",
         PythonTest {
             folder: "qt/tests",
-            python_path: &["pylib", "$builddir/pylib", "$builddir/qt"],
+            python_path: &[
+                "pylib",
+                "$builddir/pylib",
+                "$builddir/qt",
+                "$builddir/qt/tools",
+            ],
             deps: inputs![":pylib:anki", ":qt:aqt", glob!["qt/tests/**"]],
         },
-    )
+    )?;
+
+    check_complexity(build, "qt", "qt", py_inputs)?;
+
+    Ok(())
 }

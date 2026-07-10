@@ -81,7 +81,15 @@ browsing-reposition = Reposition...
 browsing-reposition-new-cards = Reposition New Cards
 browsing-reschedule = Reschedule
 browsing-search-bar-hint = Search cards/notes (type text, then press Enter)
+browsing-search-facet-starters = Filter by
 browsing-search-in = Search in:
+browsing-search-quick = Quick filters
+browsing-search-quick-flagged = Flagged
+browsing-search-quick-leeches = Leeches
+browsing-search-recent = Recent
+browsing-search-suggestions = Suggestions
+browsing-search-syntax-mode = Syntax mode
+browsing-search-text-match = Search "{ $query }"
 browsing-search-within-formatting-slow = Search within formatting (slow)
 browsing-select-deck = Select Deck
 browsing-selected-notes-only = Selected notes only
@@ -156,6 +164,20 @@ browsing-sidebar-due-today = Due
 browsing-sidebar-untagged = Untagged
 browsing-sidebar-overdue = Overdue
 browsing-row-deleted = (deleted)
+# Compact due text in browse card rows when a card is overdue or due today
+browsing-due-now = Now
+# Status chip label in browse card rows
+browsing-leech = Leech
+browsing-more-tags =
+    { $count ->
+        [one] 1 more tag
+       *[other] { $count } more tags
+    }
+browsing-leech-lapses =
+    { $count ->
+        [one] Leech, { $count } lapse
+       *[other] Leech, { $count } lapses
+    }
 browsing-removed-unused-tags-count =
     { $count ->
         [one] Removed { $count } unused tag.

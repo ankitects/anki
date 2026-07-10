@@ -3,6 +3,7 @@
 
 from __future__ import annotations
 
+import asyncio
 import enum
 import logging
 import mimetypes
@@ -16,9 +17,10 @@ from collections.abc import Callable
 from dataclasses import dataclass
 from errno import EPROTOTYPE
 from http import HTTPStatus
+from pathlib import Path
+from typing import Any, Generic, cast
 
 import flask
-import flask_cors
 import stringcase
 import waitress.wasyncore
 from flask import Response, abort, request
@@ -27,25 +29,37 @@ from waitress.server import create_server
 import aqt
 import aqt.main
 import aqt.operations
-from anki import hooks
-from anki.collection import OpChanges, OpChangesOnly, Progress, SearchNode
-from anki.decks import UpdateDeckConfigs
+from anki import frontend_pb2, generic_pb2, hooks
+from anki.collection import (
+    NestedOpChanges,
+    OpChanges,
+    OpChangesOnly,
+    Progress,
+    SearchNode,
+)
+from anki.decks import UpdateDeckConfigs, UpdateDeckConfigsMode
 from anki.scheduler.v3 import SchedulingStatesWithContext, SetSchedulingStatesRequest
-from anki.utils import dev_mode
+from anki.utils import dev_mode, from_json_bytes, to_json_bytes
 from aqt.changenotetype import ChangeNotetypeDialog
 from aqt.deckoptions import DeckOptionsDialog
 from aqt.operations import on_op_finished
 from aqt.operations.deck import update_deck_configs as update_deck_configs_op
 from aqt.progress import ProgressUpdate
 from aqt.qt import *
-from aqt.utils import aqt_data_path, show_warning, tr
+from aqt.utils import (
+    aqt_data_path,
+    askUser,
+    openLink,
+    show_info,
+    show_warning,
+    tr,
+)
 
 # https://forums.ankiweb.net/t/anki-crash-when-using-a-specific-deck/22266
 waitress.wasyncore._DISCONNECTED = waitress.wasyncore._DISCONNECTED.union({EPROTOTYPE})  # type: ignore
 
 logger = logging.getLogger(__name__)
 app = flask.Flask(__name__, root_path="/fake")
-flask_cors.CORS(app, resources={r"/*": {"origins": "127.0.0.1"}})
 
 
 @dataclass
@@ -54,12 +68,63 @@ class LocalFileRequest:
     root: str
     # path to file relative to root folder
     path: str
+    # collection media is untrusted user content; add-on web exports are not
+    untrusted: bool = True
+
+
+UNTRUSTED_MEDIA_CSP = "; ".join(
+    (
+        "default-src 'none'",
+        "script-src 'none'",
+        "connect-src 'none'",
+        "object-src 'none'",
+        "frame-src 'none'",
+        "child-src 'none'",
+        "base-uri 'none'",
+        "form-action 'none'",
+        "sandbox",
+    )
+)
+
+
+def _legacy_editor_content_security_policy(port: int) -> str:
+    csp_paths = (
+        f"http://127.0.0.1:{port}/_anki/",
+        f"http://127.0.0.1:{port}/_addons/",
+    )
+    return "; ".join((f"script-src {' '.join(csp_paths)}",))
+
+
+_SVELTEKIT_SCRIPT_HASH_RE = re.compile(rb"'sha256-[A-Za-z0-9+/=]+'")
+
+
+def _sveltekit_render_script_hash(html: bytes) -> str | None:
+    """Extract the hash SvelteKit computed for its inline render script.
+
+    SvelteKit (csp.mode = 'hash' in svelte.config.js) bakes this into a
+    <meta http-equiv="content-security-policy"> tag in the built HTML.
+    """
+    match = _SVELTEKIT_SCRIPT_HASH_RE.search(html)
+    return match.group(0).decode("utf-8") if match else None
+
+
+def _sveltekit_content_security_policy(port: int, script_hash: str | None) -> str:
+    csp_paths = [
+        f"http://127.0.0.1:{port}/_anki/",
+        f"http://127.0.0.1:{port}/_app/",
+        f"http://127.0.0.1:{port}/_addons/",
+    ]
+    if script_hash:
+        csp_paths.append(script_hash)
+    return "; ".join((f"script-src {' '.join(csp_paths)}",))
 
 
 @dataclass
 class BundledFileRequest:
     # path relative to aqt data folder
     path: str
+    # set for SvelteKit routes
+    is_sveltekit: bool = False
 
 
 @dataclass
@@ -168,6 +233,22 @@ def favicon() -> Response:
     return _handle_builtin_file_request(request)
 
 
+@app.route("/_anki/readyz")
+def readyz() -> Response:
+    """Reports whether the profile's collection is open.
+
+    The HTTP server starts listening before the profile/collection finishes
+    loading (setupMediaServer() runs synchronously in AnkiQt.__init__, while
+    setupProfile() is deferred via a QTimer), so callers that need the
+    collection open - e.g. the e2e test harness's webServer readiness check -
+    should poll this instead of /favicon.ico, which responds regardless of
+    collection state.
+    """
+    if aqt.mw.col is None:
+        return Response(status=HTTPStatus.SERVICE_UNAVAILABLE)
+    return Response(status=HTTPStatus.OK)
+
+
 def _mime_for_path(path: str) -> str:
     "Mime type for provided path/filename."
 
@@ -220,6 +301,40 @@ def _text_response(code: HTTPStatus, text: str) -> Response:
     return resp
 
 
+class UnsafePathException(Exception):
+    def __init__(self, path: str):
+        super().__init__(f"Invalid path: {path}")
+
+
+def ensure_safe_path(base_dir: str | Path, path: str | Path) -> str:
+    base_dir = os.path.realpath(base_dir)
+    path = os.path.normpath(path)
+    fullpath = os.path.abspath(os.path.join(base_dir, path))
+
+    # protect against directory traversal: https://security.openstack.org/guidelines/dg_using-file-paths.html
+    if not fullpath.startswith(base_dir + os.sep):
+        raise UnsafePathException(path)
+    return fullpath
+
+
+_LOCALHOST_HOSTS = ("127.0.0.1", "localhost", "[::1]")
+
+_ALLOWED_ORIGIN_PREFIXES = tuple(
+    f"{scheme}{host}" for scheme in ("http://", "https://") for host in _LOCALHOST_HOSTS
+)
+
+
+def is_localhost_origin(origin: str) -> bool:
+    for prefix in _ALLOWED_ORIGIN_PREFIXES:
+        if (
+            origin == prefix
+            or origin.startswith(prefix + ":")
+            or origin.startswith(prefix + "/")
+        ):
+            return True
+    return False
+
+
 def _handle_local_file_request(request: LocalFileRequest) -> Response:
     directory = request.root
     path = request.path
@@ -230,15 +345,7 @@ def _handle_local_file_request(request: LocalFileRequest) -> Response:
             HTTPStatus.BAD_REQUEST, f"Path for '{directory} - {path}' is too long!"
         )
 
-    directory = os.path.realpath(directory)
-    path = os.path.normpath(path)
-    fullpath = os.path.abspath(os.path.join(directory, path))
-
-    # protect against directory transversal: https://security.openstack.org/guidelines/dg_using-file-paths.html
-    if not fullpath.startswith(directory + os.sep):
-        return _text_response(
-            HTTPStatus.FORBIDDEN, f"Path for '{directory} - {path}' is a security leak!"
-        )
+    fullpath = ensure_safe_path(directory, path)
 
     if isdir:
         return _text_response(
@@ -258,13 +365,17 @@ def _handle_local_file_request(request: LocalFileRequest) -> Response:
                 max_age = 0
             else:
                 max_age = 60 * 60
-            return flask.send_file(
+            response = flask.send_file(
                 fullpath,
                 mimetype=mimetype,
                 conditional=True,
                 max_age=max_age,
                 download_name="foo",  # type: ignore[call-arg]
             )
+            if request.untrusted:
+                # Prevent user-provided HTML/SVG from running as an active document.
+                response.headers["Content-Security-Policy"] = UNTRUSTED_MEDIA_CSP
+            return response
         else:
             print(f"Not found: {path}")
             return _text_response(HTTPStatus.NOT_FOUND, f"Invalid path: {path}")
@@ -283,10 +394,10 @@ def _handle_local_file_request(request: LocalFileRequest) -> Response:
 
 
 def _builtin_data(path: str) -> bytes:
-    """Return data from file in aqt/data folder.
-    Path must use forward slash separators."""
-    full_path = aqt_data_path() / ".." / path
-    return full_path.read_bytes()
+    """Return data from file in aqt/data folder."""
+    full_path = ensure_safe_path(aqt_data_path().parent, path)
+    with open(full_path, "rb") as f:
+        return f.read()
 
 
 def _handle_builtin_file_request(request: BundledFileRequest) -> Response:
@@ -302,6 +413,17 @@ def _handle_builtin_file_request(request: BundledFileRequest) -> Response:
         response = Response(data, mimetype=mimetype)
         if immutable:
             response.headers["Cache-Control"] = "max-age=31536000"
+        if request.is_sveltekit:
+            script_hash = (
+                _sveltekit_render_script_hash(data)
+                if path.endswith("index.html")
+                else None
+            )
+            response.headers["Content-Security-Policy"] = (
+                _sveltekit_content_security_policy(
+                    aqt.mw.mediaServer.getPort(), script_hash
+                )
+            )
         return response
     except FileNotFoundError:
         if dev_mode:
@@ -326,29 +448,34 @@ def _handle_builtin_file_request(request: BundledFileRequest) -> Response:
 
 @app.route("/<path:pathin>", methods=["GET", "POST"])
 def handle_request(pathin: str) -> Response:
-    host = request.headers.get("Host", "").lower()
-    allowed_prefixes = ("127.0.0.1:", "localhost:", "[::1]:")
-    if not any(host.startswith(prefix) for prefix in allowed_prefixes):
-        # while we only bind to localhost, this request may have come from a local browser
-        # via a DNS rebinding attack; deny it unless we're doing non-local testing
-        if os.environ.get("ANKI_API_HOST") != "0.0.0.0":
-            print("deny non-local host", host)
+    if os.environ.get("ANKI_API_HOST") != "0.0.0.0":
+        host = request.headers.get("Host", "").lower()
+        origin = request.headers.get("Origin", "").lower()
+        allowed_hosts = tuple(f"{h}:" for h in _LOCALHOST_HOSTS)
+        if not any(host.startswith(h) for h in allowed_hosts):
+            logger.warning("denied non-local host: %s", host)
+            abort(403)
+        if origin and not is_localhost_origin(origin):
+            logger.warning("denied non-local origin: %s", origin)
             abort(403)
 
     req = _extract_request(pathin)
     logger.debug("%s /%s", flask.request.method, pathin)
 
-    if isinstance(req, NotFound):
-        print(req.message)
-        return _text_response(HTTPStatus.NOT_FOUND, f"Invalid path: {pathin}")
-    elif callable(req):
-        return _handle_dynamic_request(req)
-    elif isinstance(req, BundledFileRequest):
-        return _handle_builtin_file_request(req)
-    elif isinstance(req, LocalFileRequest):
-        return _handle_local_file_request(req)
-    else:
-        return _text_response(HTTPStatus.FORBIDDEN, f"unexpected request: {pathin}")
+    try:
+        if isinstance(req, NotFound):
+            print(req.message)
+            return _text_response(HTTPStatus.NOT_FOUND, f"Invalid path: {pathin}")
+        elif callable(req):
+            return _handle_dynamic_request(req)
+        elif isinstance(req, BundledFileRequest):
+            return _handle_builtin_file_request(req)
+        elif isinstance(req, LocalFileRequest):
+            return _handle_local_file_request(req)
+        else:
+            return _text_response(HTTPStatus.FORBIDDEN, f"unexpected request: {pathin}")
+    except UnsafePathException as exc:
+        return _text_response(HTTPStatus.FORBIDDEN, str(exc))
 
 
 def is_sveltekit_page(path: str) -> bool:
@@ -363,6 +490,7 @@ def is_sveltekit_page(path: str) -> bool:
         "import-csv",
         "import-page",
         "image-occlusion",
+        "editor",
     ]
 
 
@@ -370,7 +498,8 @@ def _extract_internal_request(
     path: str,
 ) -> BundledFileRequest | DynamicRequest | NotFound | None:
     "Catch /_anki references and rewrite them to web export folder."
-    if is_sveltekit_page(path):
+    is_sveltekit = is_sveltekit_page(path)
+    if is_sveltekit:
         path = f"_anki/sveltekit/_app/{path}"
     if path.startswith("_app/"):
         path = path.replace("_app", "_anki/sveltekit/_app")
@@ -415,7 +544,7 @@ def _extract_internal_request(
         path = f"{prefix}{additional_prefix}{base}{ext}"
         print(f"legacy {oldpath} remapped to {path}")
 
-    return BundledFileRequest(path=path[len(prefix) :])
+    return BundledFileRequest(path=path[len(prefix) :], is_sveltekit=is_sveltekit)
 
 
 def _extract_addon_request(path: str) -> LocalFileRequest | NotFound | None:
@@ -445,7 +574,9 @@ def _extract_addon_request(path: str) -> LocalFileRequest | NotFound | None:
         return None
 
     if re.fullmatch(pattern, sub_path):
-        return LocalFileRequest(root=manager.addonsFolder(), path=addon_path)
+        return LocalFileRequest(
+            root=manager.addonsFolder(), path=addon_path, untrusted=False
+        )
 
     return NotFound(message=f"couldn't locate item in add-on folder {path}")
 
@@ -473,6 +604,16 @@ def congrats_info() -> bytes:
 
 def get_deck_configs_for_update() -> bytes:
     return aqt.mw.col._backend.get_deck_configs_for_update_raw(request.data)
+
+
+def _on_update_deck_configs_success(input: UpdateDeckConfigs) -> None:
+    is_compute_all = (
+        input.mode == UpdateDeckConfigsMode.UPDATE_DECK_CONFIGS_MODE_COMPUTE_ALL_PARAMS
+    )
+    if not is_compute_all and isinstance(
+        window := aqt.mw.app.activeModalWidget(), DeckOptionsDialog
+    ):
+        window.reject()
 
 
 def update_deck_configs() -> bytes:
@@ -511,13 +652,9 @@ def update_deck_configs() -> bytes:
         if update.user_wants_abort:
             update.abort = True
 
-    def on_success(changes: OpChanges) -> None:
-        if isinstance(window := aqt.mw.app.activeModalWidget(), DeckOptionsDialog):
-            window.reject()
-
     def handle_on_main() -> None:
         update_deck_configs_op(parent=aqt.mw, input=input).success(
-            on_success
+            lambda _: _on_update_deck_configs_success(input)
         ).with_backend_progress(on_progress).run_in_background()
 
     aqt.mw.taskman.run_on_main(handle_on_main)
@@ -550,36 +687,6 @@ def import_done() -> bytes:
 
     aqt.mw.taskman.run_on_main(update_window_modality)
     return b""
-
-
-def import_request(endpoint: str) -> bytes:
-    output = raw_backend_request(endpoint)()
-    response = OpChangesOnly()
-    response.ParseFromString(output)
-
-    def handle_on_main() -> None:
-        window = aqt.mw.app.activeModalWidget()
-        on_op_finished(aqt.mw, response, window)
-
-    aqt.mw.taskman.run_on_main(handle_on_main)
-
-    return output
-
-
-def import_csv() -> bytes:
-    return import_request("import_csv")
-
-
-def import_anki_package() -> bytes:
-    return import_request("import_anki_package")
-
-
-def import_json_file() -> bytes:
-    return import_request("import_json_file")
-
-
-def import_json_string() -> bytes:
-    return import_request("import_json_string")
 
 
 def search_in_browser() -> bytes:
@@ -628,6 +735,300 @@ def deck_options_ready() -> bytes:
     return b""
 
 
+def get_setting_json(getter: Callable[[str], Any]) -> bytes:
+    req = generic_pb2.String()
+    req.ParseFromString(request.data)
+    value = getter(req.val)
+    output = generic_pb2.Json(json=to_json_bytes(value)).SerializeToString()
+    return output
+
+
+def set_setting_json(setter: Callable[[str, Any], Any]) -> bytes:
+    req = frontend_pb2.SetSettingJsonRequest()
+    req.ParseFromString(request.data)
+    setter(req.key, from_json_bytes(req.value_json))
+    return b""
+
+
+def get_profile_config_json() -> bytes:
+    assert aqt.mw.pm.profile is not None
+    return get_setting_json(aqt.mw.pm.profile.get)
+
+
+def set_profile_config_json() -> bytes:
+    assert aqt.mw.pm.profile is not None
+    return set_setting_json(aqt.mw.pm.profile.__setitem__)
+
+
+def get_meta_json() -> bytes:
+    return get_setting_json(aqt.mw.pm.meta.get)
+
+
+def set_meta_json() -> bytes:
+    return set_setting_json(aqt.mw.pm.meta.__setitem__)
+
+
+def get_config_json() -> bytes:
+    try:
+        return get_setting_json(aqt.mw.col.conf.get_immutable)
+    except KeyError:
+        return generic_pb2.Json(json=b"null").SerializeToString()
+
+
+def set_config_json() -> bytes:
+    return set_setting_json(aqt.mw.col.set_config)
+
+
+def convert_pasted_image() -> bytes:
+    req = frontend_pb2.ConvertPastedImageRequest()
+    req.ParseFromString(request.data)
+    image = QImage.fromData(req.data)
+    buffer = QBuffer()
+    buffer.open(QBuffer.OpenModeFlag.ReadWrite)
+    if req.ext == "png":
+        quality = 50
+    else:
+        quality = 80
+    image.save(buffer, req.ext, quality)
+    buffer.reset()
+    data = bytes(cast(bytes, buffer.readAll()))
+    return frontend_pb2.ConvertPastedImageResponse(data=data).SerializeToString()
+
+
+AsyncRequestReturnType = TypeVar("AsyncRequestReturnType")
+
+
+class AsyncRequestHandler(Generic[AsyncRequestReturnType]):
+    def __init__(self, callback: Callable[[AsyncRequestHandler], None]) -> None:
+        self.callback = callback
+        self.loop = asyncio.get_running_loop()
+        self.future = self.loop.create_future()
+
+    def run(self) -> None:
+        aqt.mw.taskman.run_on_main(lambda: self.callback(self))
+
+    def set_result(self, result: AsyncRequestReturnType) -> None:
+        self.loop.call_soon_threadsafe(self.future.set_result, result)
+
+    async def get_result(self) -> AsyncRequestReturnType:
+        return await self.future
+
+
+async def open_file_picker() -> bytes:
+    req = frontend_pb2.openFilePickerRequest()
+    req.ParseFromString(request.data)
+
+    def callback(request_handler: AsyncRequestHandler) -> None:
+        from aqt.utils import getFile
+
+        def cb(filename: str | None) -> None:
+            request_handler.set_result(filename)
+
+        window = aqt.mw.app.activeWindow()
+        assert window is not None
+        getFile(
+            parent=window,
+            title=req.title,
+            cb=cast(Callable[[Any], None], cb),
+            filter=f"{req.filter_description} ({' '.join(f'*.{ext}' for ext in req.extensions)})",
+            key=req.key,
+        )
+
+    request_handler: AsyncRequestHandler[str | None] = AsyncRequestHandler(callback)
+    request_handler.run()
+    filename = await request_handler.get_result()
+
+    return generic_pb2.String(val=filename if filename else "").SerializeToString()
+
+
+def open_media() -> bytes:
+    from aqt.utils import openFolder
+
+    req = generic_pb2.String()
+    req.ParseFromString(request.data)
+    path = os.path.join(aqt.mw.col.media.dir(), req.val)
+    aqt.mw.taskman.run_on_main(lambda: openFolder(path))
+
+    return b""
+
+
+def show_in_media_folder() -> bytes:
+    from aqt.utils import show_in_folder
+
+    req = generic_pb2.String()
+    req.ParseFromString(request.data)
+    path = os.path.join(aqt.mw.col.media.dir(), req.val)
+    aqt.mw.taskman.run_on_main(lambda: show_in_folder(path))
+
+    return b""
+
+
+async def record_audio() -> bytes:
+    def callback(request_handler: AsyncRequestHandler) -> None:
+        from aqt.sound import record_audio
+
+        def cb(path: str | None) -> None:
+            request_handler.set_result(path)
+
+        window = aqt.mw.app.activeWindow()
+        assert window is not None
+        record_audio(window, aqt.mw, True, cb)
+
+    request_handler: AsyncRequestHandler[str | None] = AsyncRequestHandler(callback)
+    request_handler.run()
+    path = await request_handler.get_result()
+
+    return generic_pb2.String(val=path if path else "").SerializeToString()
+
+
+def read_clipboard() -> bytes:
+    req = frontend_pb2.ReadClipboardRequest()
+    req.ParseFromString(request.data)
+    data = {}
+    clipboard = aqt.mw.app.clipboard()
+    assert clipboard is not None
+    mime_data = clipboard.mimeData(QClipboard.Mode.Clipboard)
+    assert mime_data is not None
+    for type in req.types:
+        data[type] = bytes(mime_data.data(type))  # type: ignore
+
+    return frontend_pb2.ReadClipboardResponse(data=data).SerializeToString()
+
+
+def write_clipboard() -> bytes:
+    req = frontend_pb2.WriteClipboardRequest()
+    req.ParseFromString(request.data)
+    clipboard = aqt.mw.app.clipboard()
+    assert clipboard is not None
+    mime_data = clipboard.mimeData(QClipboard.Mode.Clipboard)
+    assert mime_data is not None
+    for type, data in req.data.items():
+        mime_data.setData(type, data)
+    return b""
+
+
+def close_add_cards() -> bytes:
+    req = generic_pb2.Bool()
+    req.ParseFromString(request.data)
+
+    def handle_on_main() -> None:
+        from aqt.addcards import NewAddCards
+
+        window = aqt.mw.app.activeWindow()
+        if isinstance(window, NewAddCards):
+            window._close_if_user_wants_to_discard_changes(req.val)
+
+    aqt.mw.taskman.run_on_main(lambda: QTimer.singleShot(0, handle_on_main))
+    return b""
+
+
+def close_edit_current() -> bytes:
+    def handle_on_main() -> None:
+        from aqt.editcurrent import NewEditCurrent
+
+        window = aqt.mw.app.activeWindow()
+        if isinstance(window, NewEditCurrent):
+            window.close()
+
+    aqt.mw.taskman.run_on_main(lambda: QTimer.singleShot(0, handle_on_main))
+    return b""
+
+
+def open_link() -> bytes:
+    req = generic_pb2.String()
+    req.ParseFromString(request.data)
+    url = req.val
+    aqt.mw.taskman.run_on_main(lambda: openLink(url))
+    return b""
+
+
+async def ask_user() -> bytes:
+    req = frontend_pb2.AskUserRequest()
+    req.ParseFromString(request.data)
+
+    def callback(request_handler: AsyncRequestHandler) -> None:
+        kwargs: dict[str, Any] = dict(text=req.text)
+        if req.HasField("help"):
+            help_arg: Any
+            if req.help.WhichOneof("value") == "help_page":
+                help_arg = req.help.help_page
+            else:
+                help_arg = req.help.help_link
+            kwargs["help"] = help_arg
+        if req.HasField("title"):
+            kwargs["title"] = req.title
+        if req.HasField("default_no"):
+            kwargs["defaultno"] = req.default_no
+        answer = askUser(**kwargs)
+        request_handler.set_result(answer)
+
+    request_handler: AsyncRequestHandler[bool] = AsyncRequestHandler(callback)
+    request_handler.run()
+    answer = await request_handler.get_result()
+
+    return generic_pb2.Bool(val=answer).SerializeToString()
+
+
+async def show_message_box() -> bytes:
+    req = frontend_pb2.ShowMessageBoxRequest()
+    req.ParseFromString(request.data)
+
+    def callback(request_handler: AsyncRequestHandler) -> None:
+        kwargs: dict[str, Any] = dict(text=req.text)
+        if req.type == frontend_pb2.MessageBoxType.INFO:
+            icon = QMessageBox.Icon.Information
+        elif req.type == frontend_pb2.MessageBoxType.WARNING:
+            icon = QMessageBox.Icon.Warning
+        elif req.type == frontend_pb2.MessageBoxType.CRITICAL:
+            icon = QMessageBox.Icon.Critical
+        kwargs["icon"] = icon
+        if req.HasField("help"):
+            help_arg: Any
+            if req.help.WhichOneof("value") == "help_page":
+                help_arg = req.help.help_page
+            else:
+                help_arg = req.help.help_link
+            kwargs["help"] = help_arg
+        if req.HasField("title"):
+            kwargs["title"] = req.title
+        if req.HasField("text_format"):
+            kwargs["text_format"] = req.text_format
+        show_info(**kwargs)
+        request_handler.set_result(True)
+
+    request_handler: AsyncRequestHandler[bool] = AsyncRequestHandler(callback)
+    request_handler.run()
+    answer = await request_handler.get_result()
+
+    return generic_pb2.Bool(val=answer).SerializeToString()
+
+
+def open_fields_dialog() -> bytes:
+    def handle_on_main() -> None:
+        from aqt.editor import NewEditor
+
+        window = aqt.mw.app.activeWindow()
+        assert window is not None
+        if hasattr(window, "editor") and isinstance(window.editor, NewEditor):
+            window.editor.onFields()
+
+    aqt.mw.taskman.run_on_main(handle_on_main)
+    return b""
+
+
+def open_cards_dialog() -> bytes:
+    def handle_on_main() -> None:
+        from aqt.editor import NewEditor
+
+        window = aqt.mw.app.activeWindow()
+        assert window is not None
+        if hasattr(window, "editor") and isinstance(window.editor, NewEditor):
+            window.editor.onCardLayout()
+
+    aqt.mw.taskman.run_on_main(handle_on_main)
+    return b""
+
+
 def save_custom_colours() -> bytes:
     colors = [
         QColorDialog.customColor(i).name(QColor.NameFormat.HexRgb)
@@ -645,13 +1046,28 @@ post_handler_list = [
     set_scheduling_states,
     change_notetype,
     import_done,
-    import_csv,
-    import_anki_package,
-    import_json_file,
-    import_json_string,
     search_in_browser,
     deck_options_require_close,
     deck_options_ready,
+    get_profile_config_json,
+    set_profile_config_json,
+    get_meta_json,
+    set_meta_json,
+    get_config_json,
+    convert_pasted_image,
+    open_file_picker,
+    open_media,
+    show_in_media_folder,
+    record_audio,
+    read_clipboard,
+    write_clipboard,
+    close_add_cards,
+    close_edit_current,
+    open_link,
+    ask_user,
+    show_message_box,
+    open_fields_dialog,
+    open_cards_dialog,
     save_custom_colours,
 ]
 
@@ -662,17 +1078,31 @@ exposed_backend_list = [
     "get_custom_colours",
     # DeckService
     "get_deck_names",
+    "get_deck",
     # I18nService
     "i18n_resources",
     # ImportExportService
     "get_csv_metadata",
     "get_import_anki_package_presets",
+    "import_csv",
+    "import_anki_package",
+    "import_json_file",
+    "import_json_string",
     # NotesService
     "get_field_names",
     "get_note",
+    "new_note",
+    "note_fields_check",
+    "defaults_for_adding",
+    "default_deck_for_notetype",
+    "add_note",
+    "update_notes",
+    "update_notetype",
     # NotetypesService
+    "get_notetype",
     "get_notetype_names",
     "get_change_notetype_info",
+    "get_cloze_field_ords",
     # StatsService
     "card_stats",
     "get_review_logs",
@@ -698,6 +1128,21 @@ exposed_backend_list = [
     # DeckConfigService
     "get_ignored_before_count",
     "get_retention_workload",
+    # CardRenderingService
+    "encode_iri_paths",
+    "decode_iri_paths",
+    "html_to_text_line",
+    # ConfigService
+    "set_config_json",
+    "get_config_bool",
+    # MediaService
+    "add_media_file",
+    "add_media_from_path",
+    "add_media_from_url",
+    "get_absolute_media_path",
+    "extract_media_files",
+    # CardsService
+    "get_card",
 ]
 
 
@@ -707,7 +1152,29 @@ def raw_backend_request(endpoint: str) -> Callable[[], bytes]:
 
     assert hasattr(RustBackend, f"{endpoint}_raw")
 
-    return lambda: getattr(aqt.mw.col._backend, f"{endpoint}_raw")(request.data)
+    def wrapped() -> bytes:
+        output = getattr(aqt.mw.col._backend, f"{endpoint}_raw")(request.data)
+        op_changes_type = int(request.headers.get("Anki-Op-Changes", "0"))
+        if op_changes_type:
+            op_message_types = (OpChanges, OpChangesOnly, NestedOpChanges)
+            try:
+                response = op_message_types[op_changes_type - 1]()
+                response.ParseFromString(output)
+                changes: Any = response
+                for _ in range(op_changes_type - 1):
+                    changes = changes.changes
+            except IndexError:
+                raise ValueError(f"unhandled op changes level: {op_changes_type}")
+
+            def handle_on_main() -> None:
+                handler = aqt.mw.app.activeWindow()
+                on_op_finished(aqt.mw, changes, handler)
+
+            aqt.mw.taskman.run_on_main(handle_on_main)
+
+        return output
+
+    return wrapped
 
 
 # all methods in here require a collection
@@ -726,7 +1193,14 @@ def _extract_collection_post_request(path: str) -> DynamicRequest | NotFound:
         # convert bytes/None into response
         def wrapped() -> Response:
             try:
-                if data := handler():
+                import inspect
+
+                if inspect.iscoroutinefunction(handler):
+                    data = asyncio.run(handler())
+                else:
+                    result = handler()
+                    data = result
+                if data:
                     response = flask.make_response(data)
                     response.headers["Content-Type"] = "application/binary"
                 else:
@@ -790,13 +1264,8 @@ def legacy_page_data() -> Response:
         # Prevent JS in field content from being executed in the editor, as it would
         # have access to our internal API, and is a security risk.
         if page.context == PageContext.EDITOR:
-            port = aqt.mw.mediaServer.getPort()
-            csp_paths = (
-                f"http://127.0.0.1:{port}/_anki/",
-                f"http://127.0.0.1:{port}/_addons/",
-            )
             response.headers["Content-Security-Policy"] = (
-                f"script-src {' '.join(csp_paths)}"
+                _legacy_editor_content_security_policy(aqt.mw.mediaServer.getPort())
             )
         return response
     else:

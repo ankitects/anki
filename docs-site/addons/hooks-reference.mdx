@@ -1,0 +1,180 @@
+---
+title: "Hooks Reference"
+description: "A generated reference of all hooks and filters available in Anki for add-on development."
+---
+
+This page lists all available hooks in Anki. It is generated from [`pylib/tools/genhooks.py`](https://github.com/ankitects/anki/blob/main/pylib/tools/genhooks.py) and [`qt/tools/genhooks_gui.py`](https://github.com/ankitects/anki/blob/main/qt/tools/genhooks_gui.py).
+
+See [Hooks & Filters](/addons/hooks-and-filters) for usage instructions.
+
+## Backend Hooks (`anki.hooks`)
+
+{/* <<<cog from tools.mintlify_hooks import render_hooks; cog.out("\n" + render_hooks("pylib/tools/genhooks.py").strip())>>> */}
+
+### `card_odue_was_invalid`
+
+No arguments.
+
+No docstring.
+
+---
+
+### `schema_will_change`
+
+**Args:** <code>proceed: bool</code>\
+**Returns:** <code>bool</code>
+
+No docstring.
+
+---
+
+### `notes_will_be_deleted`
+
+**Args:** <code>col: <a href='https://dev-docs.ankiweb.net/en/latest/autoapi/anki/collection#anki.collection.Collection'>anki.collection.Collection</a></code>, <code>ids: Sequence[<a href='https://dev-docs.ankiweb.net/en/latest/autoapi/anki/notes#anki.notes.NoteId'>anki.notes.NoteId</a>]</code>
+
+No docstring.
+
+---
+
+### `note_will_be_added`
+
+**Args:** <code>col: <a href='https://dev-docs.ankiweb.net/en/latest/autoapi/anki/collection#anki.collection.Collection'>anki.collection.Collection</a></code>, <code>note: <a href='https://dev-docs.ankiweb.net/en/latest/autoapi/anki/notes#anki.notes.Note'>anki.notes.Note</a></code>, <code>deck_id: <a href='https://dev-docs.ankiweb.net/en/latest/autoapi/anki/decks#anki.decks.DeckId'>anki.decks.DeckId</a></code>
+
+Allows modifying a note before it's added to the collection.
+
+This hook may be called both when users use the Add screen, and when
+add-ons like AnkiConnect add notes. It is not called when importing. If
+you wish to alter the Add screen, use gui_hooks.add_cards_will_add_note
+instead.
+
+---
+
+### `media_files_did_export`
+
+**Args:** <code>count: int</code>
+
+Only used by legacy .apkg exporter. Will be deprecated in the future.
+
+---
+
+### `legacy_export_progress`
+
+**Args:** <code>progress: str</code>
+
+Temporary hook used in transition to new import/export code.
+
+---
+
+### `exporters_list_created`
+
+**Args:** <code>exporters: list[tuple[str, Any]]</code>
+
+No docstring.
+
+---
+
+### `media_file_filter`
+
+**Args:** <code>txt: str</code>\
+**Returns:** <code>str</code>
+
+Allows manipulating the file path that media will be read from
+
+---
+
+### `field_filter`
+
+**Args:** <code>field_text: str</code>, <code>field_name: str</code>, <code>filter_name: str</code>, <code>ctx: <a href='https://dev-docs.ankiweb.net/en/latest/autoapi/anki/template#anki.template.TemplateRenderContext'>anki.template.TemplateRenderContext</a></code>\
+**Returns:** <code>str</code>
+
+Allows you to define custom `{{filters:..}}`
+
+Your add-on can check filter_name to decide whether it should modify
+field_text or not before returning it.
+
+---
+
+### `note_will_flush`
+
+**Args:** <code>note: Note</code>
+
+Allow to change a note before it is added/updated in the database.
+
+---
+
+### `card_will_flush`
+
+**Args:** <code>card: Card</code>
+
+Allow to change a card before it is added/updated in the database.
+
+---
+
+### `card_did_render`
+
+**Args:** <code>output: <a href='https://dev-docs.ankiweb.net/en/latest/autoapi/anki/template#anki.template.TemplateRenderOutput'>anki.template.TemplateRenderOutput</a></code>, <code>ctx: <a href='https://dev-docs.ankiweb.net/en/latest/autoapi/anki/template#anki.template.TemplateRenderContext'>anki.template.TemplateRenderContext</a></code>
+
+Can modify the resulting text after rendering completes.
+
+---
+
+### `importing_importers`
+
+**Args:** <code>importers: list[tuple[str, Any]]</code>
+
+Allows updating the list of importers.
+The resulting list is not saved and should be changed each time the
+filter is called.
+
+NOTE: Updates to the import/export code are expected in the coming
+months, and this hook may be replaced with another solution at that
+time. Tracked on https://github.com/ankitects/anki/issues/1018
+
+---
+
+### `deck_added` _(Obsolete)_
+
+**Args:** <code>deck: <a href='https://dev-docs.ankiweb.net/en/latest/autoapi/anki/decks#anki.decks.DeckDict'>anki.decks.DeckDict</a></code>
+
+<Warning>
+    
+ Obsolete, do not use.
+
+</Warning>
+
+---
+
+### `note_type_added` _(Obsolete)_
+
+**Args:** <code>notetype: <a href='https://dev-docs.ankiweb.net/en/latest/autoapi/anki/models#anki.models.NotetypeDict'>anki.models.NotetypeDict</a></code>
+
+<Warning>
+    
+ Obsolete, do not use.
+
+</Warning>
+
+---
+
+### `sync_stage_did_change` _(Obsolete)_
+
+**Args:** <code>stage: str</code>
+
+<Warning>
+    
+ Obsolete, do not use.
+
+</Warning>
+
+---
+
+### `sync_progress_did_change` _(Obsolete)_
+
+**Args:** <code>msg: str</code>
+
+<Warning>
+    
+ Obsolete, do not use.
+
+</Warning>
+{/* <<<end>>> */}
