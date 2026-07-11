@@ -673,6 +673,7 @@ theme_manager = ThemeManager()
 def next_card_data() -> bytes:
     raw = aqt.mw.col._backend.next_card_data_raw(request.data)
     data = NextCardDataResponse.FromString(raw)
+    req = NextCardDataRequest.FromString(request.data)
 
     av_player.stop_and_clear_queue()
     aqt.mw.update_undo_actions()
@@ -688,31 +689,29 @@ def next_card_data() -> bytes:
         # For addons
         reviewer.states = backend_queue_card.states
 
-    # This if statement prevents refreshes from causing the previous card to update.
-    if reviewer.card is None or card is None or card.id != reviewer.card.id:
+    # Prevents previous_card being updated from a refresh
+    if req.HasField("answer"):
         reviewer.previous_card = reviewer.card
-        reviewer.card = card
-
-        def update_card_info():
-            reviewer._previous_card_info.set_card(reviewer.previous_card)
-            reviewer._card_info.set_card(card)
-
-        aqt.mw.taskman.run_on_main(update_card_info)
-
         # TODO: Is dealing with gui_hooks in mediasrv like this a good idea?
         if gui_hooks.reviewer_did_answer_card.count() > 0:
-            req = NextCardDataRequest.FromString(request.data)
-            if req.HasField("answer"):
-                reviewer.previous_card.timer_started = (req.answer.answered_at_millis - req.answer.milliseconds_taken) / 1000                
-                # TODO: This hook does not run at the right time.
-                aqt.mw.taskman.run_on_main(lambda: gui_hooks.reviewer_did_show_answer(reviewer.previous_card))
-                aqt.mw.taskman.run_on_main(
-                    lambda: gui_hooks.reviewer_did_answer_card(
-                        aqt.mw.reviewer,
-                        reviewer.previous_card,
-                        req.answer.rating + 1,  # type: ignore
-                    )
+            reviewer.previous_card.timer_started = (req.answer.answered_at_millis - req.answer.milliseconds_taken) / 1000                
+            # TODO: This hook does not run at the right time.
+            aqt.mw.taskman.run_on_main(lambda: gui_hooks.reviewer_did_show_answer(reviewer.previous_card))
+            aqt.mw.taskman.run_on_main(
+                lambda: gui_hooks.reviewer_did_answer_card(
+                    aqt.mw.reviewer,
+                    reviewer.previous_card,
+                    req.answer.rating + 1,  # type: ignore
                 )
+            )
+
+    reviewer.card = card
+
+    def update_card_info():
+        reviewer._previous_card_info.set_card(reviewer.previous_card)
+        reviewer._card_info.set_card(card)
+
+    aqt.mw.taskman.run_on_main(update_card_info)
 
     if card is None:
         return data.SerializeToString()
