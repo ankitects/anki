@@ -229,6 +229,10 @@ impl Collection {
     /// Return the next states that will be applied for each answer button.
     pub fn get_scheduling_states(&mut self, cid: CardId) -> Result<SchedulingStates> {
         let card = self.storage.get_card(cid)?.or_not_found(cid)?;
+        self.get_scheduling_states_inner(card).map(|r| r.0)
+    }
+
+    pub fn get_scheduling_states_inner(&mut self, card: Card) -> Result<(SchedulingStates, Card)> {
         let note_id = card.note_id;
 
         let ctx = self.card_state_updater(card)?;
@@ -256,7 +260,7 @@ impl Collection {
         };
 
         let state_ctx = ctx.state_context(load_balancer_ctx);
-        Ok(current.next_states(&state_ctx))
+        Ok((current.next_states(&state_ctx), ctx.into_card()))
     }
 
     /// Describe the next intervals, to display on the answer buttons.
