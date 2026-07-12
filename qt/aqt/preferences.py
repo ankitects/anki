@@ -6,6 +6,7 @@ from __future__ import annotations
 import functools
 import re
 from collections.abc import Callable
+from copy import deepcopy
 
 import anki.lang
 import aqt
@@ -122,6 +123,7 @@ class Preferences(QDialog):
 
     def setup_collection(self) -> None:
         self.prefs = self.mw.col.get_preferences()
+        self.old_prefs = deepcopy(self.prefs)
 
         form = self.form
 
@@ -187,13 +189,16 @@ class Preferences(QDialog):
         self.prefs.backups.monthly = form.monthly_backups.value()
         self.prefs.backups.minimum_interval_mins = form.minutes_between_backups.value()
 
-        def after_prefs_update(changes: OpChanges) -> None:
+        def after_prefs_update(changes: OpChanges | None = None) -> None:
             self.mw.apply_collection_options()
             on_done()
 
-        set_preferences(parent=self, preferences=self.prefs).success(
-            after_prefs_update
-        ).run_in_background()
+        if self.prefs == self.old_prefs:
+            after_prefs_update()
+        else:
+            set_preferences(parent=self, preferences=self.prefs).success(
+                after_prefs_update
+            ).run_in_background()
 
     # Preferences stored in the profile
     ######################################################################
