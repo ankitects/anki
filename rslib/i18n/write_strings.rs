@@ -8,6 +8,7 @@ use std::fs;
 use std::path::PathBuf;
 
 use inflections::Inflect;
+use itertools::Itertools;
 
 use crate::extract::Module;
 use crate::extract::Translation;
@@ -45,7 +46,7 @@ use std::borrow::Cow;
     );
     writeln!(buf, "impl I18n<{tag}> {{").unwrap();
     for module in modules {
-        for translation in &module.translations {
+        for translation in module.translations.iter().filter(|t| t.is_core()) {
             let func = translation.key.to_snake_case();
             let key = &translation.key;
             let doc = translation.text.replace('\n', " ");
@@ -196,8 +197,9 @@ pub(crate) const {lang_name}: phf::Map<&str, &str> = phf::phf_map! {{",
     )
     .unwrap();
 
-    for (module, contents) in modules {
-        let escaped_contents = escape_unicode_control_chars(contents);
+    for (module, repos) in modules {
+        let contents = repos.values().join("");
+        let escaped_contents = escape_unicode_control_chars(&contents);
         writeln!(
             buf,
             r###"        "{module}" => r##"{escaped_contents}"##,"###

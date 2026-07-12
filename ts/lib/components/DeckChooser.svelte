@@ -53,11 +53,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 <ItemChooser
     bind:this={itemChooser}
-    title={tr.qtMiscChooseDeck()}
+    title={tr.decksChooseDeck()}
     bind:selectedItem={selectedDeck}
     {onChange}
     items={decks}
     icon={mdiBookOutline}
     keyCombination="Control+D"
-    tooltip={tr.qtMiscTargetDeckCtrlandd()}
+    tooltip={tr.decksTargetDeckCtrlandd()}
 />
