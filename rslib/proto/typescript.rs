@@ -83,7 +83,7 @@ fn write_ts_method(
     writeln!(
         out,
         r#"{comments}export async function {method_name}(input: PlainMessage<{input_type}>, options?: PostProtoOptions): Promise<{output_type}> {{
-    return await postProto("{method_name}", new {input_type}(input), {output_type}, options, {op_changes_type});
+        return await postProto("{method_name}", new {input_type}(input), {output_type}, options, {op_changes_type});
 }}"#
     ).unwrap()
 }

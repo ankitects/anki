@@ -36,6 +36,9 @@ const IGNORED_FOLDERS: &[&str] = &[
     ".mypy_cache",
     "./extra",
     "./ts/.svelte-kit",
+    "./.venv",
+    "./qt/installer/windows-template",
+    "./qt/installer/mac-template",
 ];
 
 fn main() -> Result<()> {
@@ -147,11 +150,26 @@ impl LintContext {
         )?;
         let all_contributors = all_contributors.lines().collect::<HashSet<&str>>();
 
-        if last_author == "49699333+dependabot[bot]@users.noreply.github.com" {
-            println!("Dependabot whitelisted.");
-            std::process::exit(0);
-        } else if all_contributors.contains(last_author.as_str()) {
+        const BOT_EMAILS: &[&str] = &[
+            "49699333+dependabot[bot]@users.noreply.github.com",
+            "41898282+github-actions[bot]@users.noreply.github.com",
+            "github-actions[bot]@users.noreply.github.com",
+        ];
+
+        if BOT_EMAILS.contains(&last_author.as_str())
+            || all_contributors.contains(last_author.as_str())
+        {
             return Ok(());
+        }
+
+        if let Ok(bypass) = std::env::var("CONTRIBUTORS_BYPASS_EMAILS") {
+            if bypass
+                .split(',')
+                .any(|e| noreply_aware_match(e.trim(), &last_author))
+            {
+                println!("Author allowlisted via CONTRIBUTORS_BYPASS_EMAILS.");
+                return Ok(());
+            }
         }
 
         println!("All contributors:");
@@ -196,14 +214,30 @@ impl LintContext {
     }
 }
 
+fn noreply_aware_match(bypass_email: &str, commit_email: &str) -> bool {
+    normalize_email(bypass_email) == normalize_email(commit_email)
+}
+
+/// GitHub noreply emails come in two forms:
+/// - `user@users.noreply.github.com`
+/// - `12345+user@users.noreply.github.com`
+///
+/// Normalize to just the username so both forms match.
+fn normalize_email(email: &str) -> &str {
+    email
+        .strip_suffix("@users.noreply.github.com")
+        .map(|local| local.split('+').next_back().unwrap_or(local))
+        .unwrap_or(email)
+}
+
 /// Annoyingly, sveltekit writes temp files into ts/ folder when it's running.
 fn sveltekit_temp_file(path: &str) -> bool {
     path.contains("vite.config.ts.timestamp")
 }
 
 fn check_cargo_deny() -> Result<()> {
-    // WARNING: make sure to update version in .buildekite/linux as well
-    Command::run("cargo install cargo-deny@0.19.0")?;
+    // Used by `fix:minilints` locally. CI uses EmbarkStudios/cargo-deny-action.
+    Command::run("cargo install cargo-deny@0.19.2")?;
     Command::run("cargo deny check")?;
     Ok(())
 }

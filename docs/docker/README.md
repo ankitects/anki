@@ -10,8 +10,8 @@ a somewhat niche approach, with some downsides such as an inability to display n
 on Wayland, and a lack of integration with desktop icons/filetypes. But even if you
 do not use this Dockerfile as-is, you may find it useful as a reference.
 
-Anki's Linux CI is also implemented with Docker, and the Dockerfiles for that may
-also be useful for reference - they can be found in `.buildkite/linux/docker`.
+Anki's Linux CI runs on GitHub Actions. You can use, as references, the [`setup-anki`](../../.github/actions/setup-anki/action.yml)
+to see the lists of packages CI installs, and [`ci.yml`](../../.github/workflows/ci.yml) to see the build steps that follow.
 
 # Build the Docker image
 

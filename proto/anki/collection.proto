@@ -136,6 +136,7 @@ message Progress {
     ComputeParamsProgress compute_params = 9;
     ComputeRetentionProgress compute_retention = 10;
     ComputeMemoryProgress compute_memory = 11;
+    DownloadUpdateProgress download_update = 12;
   }
 }
 
@@ -171,4 +172,9 @@ message CreateBackupRequest {
 
 message GetCustomColoursResponse {
   repeated string colours = 1;
+}
+
+message DownloadUpdateProgress {
+  uint32 downloaded_bytes = 1;
+  uint32 total_bytes = 2;
 }

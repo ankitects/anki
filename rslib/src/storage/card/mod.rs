@@ -267,6 +267,7 @@ impl super::SqliteStorage {
                 mtime: row.get(3)?,
                 current_deck_id: row.get(4)?,
                 original_deck_id: row.get(5)?,
+                reps: row.get(6)?,
                 kind: DueCardKind::Learning,
             })
         }
@@ -306,6 +307,7 @@ impl super::SqliteStorage {
                 mtime: row.get(4)?,
                 current_deck_id: row.get(5)?,
                 original_deck_id: row.get(6)?,
+                reps: row.get(7)?,
                 kind,
             })? {
                 break;
@@ -403,11 +405,10 @@ impl super::SqliteStorage {
         let last_revlog_info = get_last_revlog_info(&revlog);
         for (card_id, last_revlog_info) in last_revlog_info {
             let card = self.get_card(card_id)?;
-            if last_revlog_info.last_reviewed_at.is_none() {
-                continue;
-            } else if let Some(mut card) = card {
-                if card.ctype != CardType::New && card.last_review_time.is_none() {
-                    card.last_review_time = last_revlog_info.last_reviewed_at;
+            let lrt = last_revlog_info.last_reviewed_at;
+            if let Some(mut card) = card {
+                if card.ctype != CardType::New && card.last_review_time != lrt {
+                    card.last_review_time = lrt;
                     self.update_card(&card)?;
                     last_review_time_cnt += 1;
                 }

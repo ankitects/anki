@@ -61,6 +61,7 @@ class AnkiWebViewKind(Enum):
     FIELDS = "fields"
     IMPORT_LOG = "import log"
     IMPORT_ANKI_PACKAGE = "anki package import"
+    PREFERENCES = "preferences"
 
 
 class AuthInterceptor(QWebEngineUrlRequestInterceptor):
@@ -146,6 +147,7 @@ class AnkiWebPage(QWebEnginePage):
             AnkiWebViewKind.IMPORT_CSV,
             AnkiWebViewKind.IMPORT_LOG,
             AnkiWebViewKind.MAIN,
+            AnkiWebViewKind.PREFERENCES,
         )
 
         global _profile_with_api_access, _profile_without_api_access
@@ -381,6 +383,7 @@ class AnkiWebView(QWebEngineView):
         self._pendingActions: list[tuple[str, Sequence[Any]]] = []
         self.requiresCol = True
         self._disable_zoom = False
+        self._uses_dynamic_styling = False
 
         self.resetHandlers()
         self._filterSet = False
@@ -400,6 +403,8 @@ class AnkiWebView(QWebEngineView):
         });
         """
         )
+        if self._uses_dynamic_styling:
+            self.add_dynamic_styling_and_props_then_show()
 
     def page(self) -> AnkiWebPage:
         return cast(AnkiWebPage, super().page())
@@ -884,7 +889,7 @@ html {{ {font} }}
         else:
             extra = ""
         self.load_url(QUrl(f"{mw.serverURL()}_anki/pages/{name}.html{extra}"))
-        self.add_dynamic_styling_and_props_then_show()
+        self._uses_dynamic_styling = True
 
     def load_sveltekit_page(self, path: str, context=None) -> None:
         from aqt import mw
@@ -901,10 +906,12 @@ html {{ {font} }}
             server = mw.serverURL()
 
         self.load_url(QUrl(f"{server}{path}{extra}"))
-        self.add_dynamic_styling_and_props_then_show()
+        self._uses_dynamic_styling = True
 
-        self.page().toHtml(lambda html: gui_hooks.webview_will_set_content(WebContent(html), context))
-        
+        self.page().toHtml(
+            lambda html: gui_hooks.webview_will_set_content(WebContent(html), context)
+        )
+
     def force_load_hack(self) -> None:
         """Force process to initialize.
         Must be done on Windows prior to changing current working directory."""

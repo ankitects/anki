@@ -2,7 +2,9 @@
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 use std::collections::HashSet;
+use std::fmt::Display;
 use std::fmt::Write;
+use std::marker::PhantomData;
 
 use fluent_syntax::ast::Entry;
 use fluent_syntax::ast::Expression;
@@ -13,6 +15,8 @@ use fluent_syntax::parser::parse;
 use serde::Serialize;
 
 use crate::gather::TranslationsByLang;
+use crate::gather::TranslationsByRepo;
+
 #[derive(Debug, PartialOrd, Ord, PartialEq, Eq, Serialize)]
 pub struct Module {
     pub name: String,
@@ -23,6 +27,7 @@ pub struct Module {
 #[derive(Debug, PartialOrd, Ord, PartialEq, Eq, Serialize)]
 pub struct Translation {
     pub key: String,
+    pub repo: String,
     pub text: String,
     pub variables: Vec<Variable>,
     pub index: usize,
@@ -42,13 +47,19 @@ pub enum VariableKind {
     Any,
 }
 
+impl Translation {
+    pub fn is_core(&self) -> bool {
+        !["qt", "mobile"].contains(&self.repo.as_str())
+    }
+}
+
 pub fn get_modules(data: &TranslationsByLang) -> Vec<Module> {
     let mut output = vec![];
 
-    for (module, text) in &data["templates"] {
+    for (module, translations_by_repo) in &data["templates"] {
         output.push(Module {
             name: module.to_string(),
-            translations: extract_metadata(text),
+            translations: extract_metadata(translations_by_repo),
             index: 0,
         });
     }
@@ -65,38 +76,39 @@ pub fn get_modules(data: &TranslationsByLang) -> Vec<Module> {
     output
 }
 
-fn extract_metadata(ftl_text: &str) -> Vec<Translation> {
-    let res = parse(ftl_text).unwrap();
+fn extract_metadata(translations_by_repo: &TranslationsByRepo) -> Vec<Translation> {
     let mut output = vec![];
+    for (repo, ftl_text) in translations_by_repo.iter() {
+        let res = parse(ftl_text.clone()).unwrap();
+        for entry in res.body {
+            if let Entry::Message(m) = entry {
+                if let Some(pattern) = m.value {
+                    let mut visitor = Visitor::default();
+                    visitor.visit_pattern(&pattern);
+                    let key = m.id.name.to_string();
 
-    for entry in res.body {
-        if let Entry::Message(m) = entry {
-            if let Some(pattern) = m.value {
-                let mut visitor = Visitor::default();
-                visitor.visit_pattern(&pattern);
-                let key = m.id.name.to_string();
+                    // special case translations that were ported from gettext, and use embedded
+                    // terms that reference other variables that aren't visible to our visitor
+                    if key == "statistics-studied-today" {
+                        visitor.variables.push("amount".to_string());
+                        visitor.variables.push("cards".to_string());
+                    } else if key == "statistics-average-answer-time" {
+                        visitor.variables.push("cards-per-minute".to_string());
+                    }
 
-                // special case translations that were ported from gettext, and use embedded
-                // terms that reference other variables that aren't visible to our visitor
-                if key == "statistics-studied-today" {
-                    visitor.variables.push("amount".to_string());
-                    visitor.variables.push("cards".to_string());
-                } else if key == "statistics-average-answer-time" {
-                    visitor.variables.push("cards-per-minute".to_string());
+                    let (text, variables) = visitor.into_output();
+
+                    output.push(Translation {
+                        key,
+                        repo: repo.clone(),
+                        text,
+                        variables,
+                        index: 0,
+                    })
                 }
-
-                let (text, variables) = visitor.into_output();
-
-                output.push(Translation {
-                    key,
-                    text,
-                    variables,
-                    index: 0,
-                })
             }
         }
     }
-
     output.sort_unstable();
 
     output
@@ -104,12 +116,16 @@ fn extract_metadata(ftl_text: &str) -> Vec<Translation> {
 
 /// Gather variable names and (rough) text from Fluent AST.
 #[derive(Default)]
-struct Visitor {
+struct Visitor<T> {
     text: String,
     variables: Vec<String>,
+    _phantom: PhantomData<T>,
 }
 
-impl Visitor {
+impl<T> Visitor<T>
+where
+    T: AsRef<str> + Display,
+{
     fn into_output(self) -> (String, Vec<Variable>) {
         // make unique, preserving order
         let mut seen = HashSet::new();
@@ -128,16 +144,16 @@ impl Visitor {
         (self.text, vars)
     }
 
-    fn visit_pattern(&mut self, pattern: &Pattern<&str>) {
+    fn visit_pattern(&mut self, pattern: &Pattern<T>) {
         for element in &pattern.elements {
             match element {
-                PatternElement::TextElement { value } => self.text.push_str(value),
+                PatternElement::TextElement { value } => self.text.push_str(value.as_ref()),
                 PatternElement::Placeable { expression } => self.visit_expression(expression),
             }
         }
     }
 
-    fn visit_inline_expression(&mut self, expr: &InlineExpression<&str>, in_select: bool) {
+    fn visit_inline_expression(&mut self, expr: &InlineExpression<T>, in_select: bool) {
         match expr {
             InlineExpression::VariableReference { id } => {
                 if !in_select {
@@ -152,7 +168,7 @@ impl Visitor {
         }
     }
 
-    fn visit_expression(&mut self, expression: &Expression<&str>) {
+    fn visit_expression(&mut self, expression: &Expression<T>) {
         match expression {
             Expression::Select { selector, variants } => {
                 self.visit_inline_expression(selector, true);
