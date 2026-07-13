@@ -28,7 +28,7 @@ def sync() -> None:
     for module in modules:
         fetch_new_translations(module)
         push_new_templates(module)
-    commit(".", "Update translations")
+    commit(".", "Update translations", "ftl/")
     push(".")
 
 
@@ -60,7 +60,7 @@ def push_new_templates(module: Module) -> None:
         ["git", "diff", "--exit-code"], cwd=module.translation_repo
     ).wait()
     if changes_pending:
-        commit(module.translation_repo, "Update templates")
+        commit(module.translation_repo, "Update templates", "templates/")
         push(module.translation_repo)
 
 
@@ -71,8 +71,8 @@ def push(repo: str) -> None:
         subprocess.check_call(["git", "push", "origin", "main"], cwd=repo)
 
 
-def commit(folder: str, message: str) -> None:
-    subprocess.check_call(["git", "add", "ftl/"], cwd=folder)
+def commit(folder: str, message: str, pathspec: str) -> None:
+    subprocess.check_call(["git", "add", pathspec], cwd=folder)
     result = subprocess.run(
         ["git", "commit", "-m", message],
         cwd=folder,
