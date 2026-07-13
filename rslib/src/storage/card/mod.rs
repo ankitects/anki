@@ -934,19 +934,128 @@ mod test {
     use std::path::Path;
 
     use anki_i18n::I18n;
+    use rusqlite::params;
 
     use crate::card::Card;
+    use crate::card::CardQueue;
+    use crate::card::CardType;
+    use crate::collection::Collection;
+    use crate::revlog::RevlogEntry;
+    use crate::revlog::RevlogId;
+    use crate::revlog::RevlogReviewKind;
     use crate::storage::SqliteStorage;
+    use crate::timestamp::TimestampSecs;
+    use crate::types::Usn;
+
+    fn create_test_storage() -> SqliteStorage {
+        let tr: I18n = I18n::template_only();
+        SqliteStorage::open_or_create(Path::new(":memory:"), &tr, false, false).unwrap()
+    }
 
     #[test]
     fn add_card() {
-        let tr = I18n::template_only();
-        let storage =
-            SqliteStorage::open_or_create(Path::new(":memory:"), &tr, false, false).unwrap();
+        let storage = create_test_storage();
+
         let mut card = Card::default();
         storage.add_card(&mut card).unwrap();
         let id1 = card.id;
         storage.add_card(&mut card).unwrap();
         assert_ne!(id1, card.id);
+    }
+
+    #[test]
+    fn fix_card_properties_last_review_time() {
+        let mut col = Collection::new();
+
+        let mut new_card = Card::default();
+        col.add_card(&mut new_card).unwrap();
+        col.storage
+            .db
+            .execute(
+                "UPDATE cards SET due = 2000001, ord = 40000 WHERE id = ?1",
+                params![new_card.id],
+            )
+            .unwrap();
+
+        let mut review_card = Card {
+            ctype: CardType::Review,
+            queue: CardQueue::Review,
+            ..Default::default()
+        };
+        col.add_card(&mut review_card).unwrap();
+        col.storage
+            .db
+            .execute(
+                "UPDATE cards SET due = 2000001, queue = 2, type = 2, odue = 10, ivl = 1.5 WHERE id = ?1",
+                params![review_card.id],
+            )
+            .unwrap();
+
+        let mut mod_card = Card::default();
+        col.add_card(&mut mod_card).unwrap();
+        col.storage
+            .db
+            .execute(
+                "UPDATE cards SET mod = 1.5 WHERE id = ?1",
+                params![mod_card.id],
+            )
+            .unwrap();
+
+        let mut revlog_card = Card {
+            ctype: CardType::Review,
+            queue: CardQueue::Review,
+            ..Default::default()
+        };
+        col.add_card(&mut revlog_card).unwrap();
+
+        let revlog_entry = RevlogEntry {
+            id: RevlogId(2000),
+            cid: revlog_card.id,
+            usn: Usn(1),
+            button_chosen: 2,
+            interval: 1,
+            last_interval: 0,
+            ease_factor: 2500,
+            taken_millis: 0,
+            review_kind: RevlogReviewKind::Review,
+        };
+        col.storage.add_revlog_entry(&revlog_entry, false).unwrap();
+
+        let stats = col
+            .storage
+            .fix_card_properties(999, TimestampSecs(123), Usn(42), false)
+            .unwrap();
+
+        assert_eq!(stats.new_cards_fixed, 1);
+        assert_eq!(stats.other_cards_fixed, 5);
+        assert_eq!(stats.last_review_time_fixed, 1);
+
+        let new_card = col.storage.get_card(new_card.id).unwrap().unwrap();
+        assert_eq!(new_card.due, 1000001);
+        assert_eq!(new_card.template_idx, 30000);
+        assert_eq!(new_card.mtime, TimestampSecs(123));
+        assert_eq!(new_card.usn, Usn(42));
+
+        let review_card = col.storage.get_card(review_card.id).unwrap().unwrap();
+        let review_odue: i32 = col
+            .storage
+            .db
+            .query_row(
+                "SELECT odue FROM cards WHERE id = ?1",
+                params![review_card.id],
+                |row| row.get(0),
+            )
+            .unwrap();
+        assert_eq!(review_card.due, 999);
+        assert_eq!(review_odue, 0);
+        assert_eq!(review_card.interval, 2);
+        assert_eq!(review_card.mtime, TimestampSecs(123));
+        assert_eq!(review_card.usn, Usn(42));
+
+        let mod_card = col.storage.get_card(mod_card.id).unwrap().unwrap();
+        assert_eq!(mod_card.mtime, TimestampSecs(1));
+
+        let revlog_card = col.storage.get_card(revlog_card.id).unwrap().unwrap();
+        assert_eq!(revlog_card.last_review_time, Some(TimestampSecs(2)));
     }
 }
