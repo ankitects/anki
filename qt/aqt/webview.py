@@ -909,7 +909,9 @@ html {{ {font} }}
         self._uses_dynamic_styling = True
 
         self.page().toHtml(
-            lambda html: gui_hooks.webview_will_set_content(WebContent(html), context)
+            lambda html: gui_hooks.webview_will_set_content(
+                WebContent(html or ""), context
+            )
         )
 
     def force_load_hack(self) -> None:

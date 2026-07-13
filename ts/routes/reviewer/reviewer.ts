@@ -73,12 +73,13 @@ export class ReviewerState {
         });
 
         // TODO: This should probably be moved to +page.ts
-        this.mutateNextStates = (async () => new Function(
-            "states",
-            "customData",
-            "ctx",
-            (await getConfigString({ key: ConfigKey_String.CARD_STATE_CUSTOMIZER })).val,
-        ) as any)();
+        this.mutateNextStates = (async () =>
+            new Function(
+                "states",
+                "customData",
+                "ctx",
+                (await getConfigString({ key: ConfigKey_String.CARD_STATE_CUSTOMIZER })).val,
+            ) as any)();
     }
 
     public toggleAutoAdvance() {

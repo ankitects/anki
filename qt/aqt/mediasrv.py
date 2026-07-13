@@ -56,6 +56,7 @@ from aqt.operations import on_op_finished
 from aqt.operations.deck import update_deck_configs as update_deck_configs_op
 from aqt.progress import ProgressUpdate
 from aqt.qt import *
+from aqt.reviewer import SvelteReviewer
 from aqt.sound import av_player
 from aqt.theme import ThemeManager
 from aqt.utils import (
@@ -1067,6 +1068,7 @@ def next_card_data() -> bytes:
     aqt.mw.update_undo_actions()
 
     reviewer = aqt.mw.reviewer
+    assert isinstance(reviewer, SvelteReviewer)
 
     if len(data.next_card.queue.cards) == 0:
         card = None
@@ -1077,25 +1079,28 @@ def next_card_data() -> bytes:
         # For addons
         reviewer.states = backend_queue_card.states
 
-    # Prevents previous_card being updated from a refresh
-    if req.HasField("answer"):
-        reviewer.previous_card = reviewer.card
-        # TODO: Is dealing with gui_hooks in mediasrv like this a good idea?
-        if gui_hooks.reviewer_did_answer_card.count() > 0:
+    # TODO: Is dealing with gui_hooks in mediasrv like this a good idea?
+    def runHooks():
+        if reviewer.previous_card:
             reviewer.previous_card.timer_started = (
                 req.answer.answered_at_millis - req.answer.milliseconds_taken
             ) / 1000
             # TODO: This hook does not run at the right time.
-            aqt.mw.taskman.run_on_main(
-                lambda: gui_hooks.reviewer_did_show_answer(reviewer.previous_card)
+            gui_hooks.reviewer_did_show_answer(reviewer.previous_card)
+            gui_hooks.reviewer_did_answer_card(
+                aqt.mw.reviewer,
+                reviewer.previous_card,
+                req.answer.rating + 1,  # type: ignore
             )
-            aqt.mw.taskman.run_on_main(
-                lambda: gui_hooks.reviewer_did_answer_card(
-                    aqt.mw.reviewer,
-                    reviewer.previous_card,
-                    req.answer.rating + 1,  # type: ignore
-                )
-            )
+        else:
+            print("BUG: Hooks called before previous card set.")
+
+    # Prevents previous_card being updated from a refresh
+    if req.HasField("answer"):
+        assert reviewer.card
+        reviewer.previous_card = reviewer.card
+        if gui_hooks.reviewer_did_answer_card.count() > 0:
+            aqt.mw.taskman.run_on_main(runHooks)
 
     reviewer.card = card
 

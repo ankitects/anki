@@ -28,7 +28,6 @@ use anki_proto::scheduler::SimulateFsrsWorkloadResponse;
 use fsrs::ComputeParametersInput;
 use fsrs::FSRSItem;
 use fsrs::FSRSReview;
-use fsrs::FSRS;
 use regex::Regex;
 
 use crate::backend::Backend;
