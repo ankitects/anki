@@ -85,8 +85,8 @@ jobs:
 
       - name: Sync translations
         run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
           python3 .github/scripts/sync_translations.py
         env:
           GH_TOKEN: ${{ secrets.RELEASE_TOKEN }}
