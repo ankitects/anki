@@ -123,6 +123,7 @@ class Preferences(QDialog):
                 callback()
 
         self.update_collection(after_collection_update)
+        self.web.cleanup()
 
     def reject(self) -> None:
         self.accept()
