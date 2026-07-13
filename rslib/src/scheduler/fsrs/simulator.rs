@@ -363,3 +363,46 @@ impl Card {
         }
     }
 }
+
+#[cfg(test)]
+mod test {
+    use std::collections::HashSet;
+
+    use anki_proto::scheduler::SimulateFsrsReviewRequest;
+
+    use super::*;
+
+    #[test]
+    fn simulate_workload_varies() {
+        let mut col = Collection::new();
+
+        let req = SimulateFsrsReviewRequest {
+            params: vec![], // leave empty so fsrs fills defaults in tests
+            desired_retention: 0.85f32,
+            deck_size: 50u32,
+            days_to_simulate: 20u32,
+            new_limit: 5u32,
+            review_limit: 1000u32,
+            max_interval: 365u32,
+            search: "".to_string(),
+            new_cards_ignore_review_limit: false,
+            easy_days_percentages: vec![0.0f32, 0.0f32, 0.0f32, 0.0f32, 0.0f32, 0.0f32, 0.0f32],
+            review_order: ReviewCardOrder::Random as i32,
+            suspend_after_lapse_count: Some(3u32),
+            historical_retention: 0.9f32,
+            learning_step_count: 3u32,
+            relearning_step_count: 2u32,
+        };
+
+        let resp = col.simulate_workload(req).unwrap();
+
+        // costs are f32; compare bit representations to allow hashing
+        let cost_variants: HashSet<u32> = resp.cost.values().map(|c| c.to_bits()).collect();
+
+        assert!(
+            cost_variants.len() > 1,
+            "expected varying workload costs, instead got {:?}",
+            resp.cost
+        );
+    }
+}
