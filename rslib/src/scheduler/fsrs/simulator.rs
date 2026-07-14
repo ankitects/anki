@@ -369,6 +369,7 @@ mod test {
     use anki_proto::scheduler::SimulateFsrsReviewRequest;
 
     use super::*;
+    use crate::services::NotesService;
 
     fn base_request() -> SimulateFsrsReviewRequest {
         SimulateFsrsReviewRequest {
@@ -466,5 +467,23 @@ mod test {
         );
 
         Ok(())
+    }
+
+    #[test]
+    fn simulate_uses_dr() {
+        let mut col = Collection::new();
+        col.set_config_bool(BoolKey::Fsrs, true, false).unwrap();
+
+        let note = crate::tests::NoteAdder::basic(&mut col).add(&mut col);
+        let cids = col.cards_of_note(note.id.into()).unwrap().cids;
+        let cids = cids.into_iter().map(CardId).collect_vec();
+        col.grade_now(&cids, 3).unwrap();
+
+        let mut req = base_request();
+        req.deck_size = 0; // ??????? TODO: FIXME should be 1
+
+        let (_, cards) = col.simulate_request_to_config(&req).unwrap();
+        assert_eq!(cards.len(), 1);
+        assert_eq!(cards[0].desired_retention, 0.85f32)
     }
 }
