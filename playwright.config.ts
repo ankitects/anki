@@ -26,7 +26,11 @@ export default defineConfig({
     },
     webServer: {
         command: `${PYENV_PYTHON} qt/tests/launch_anki_for_e2e.py`,
-        url: `http://127.0.0.1:${MEDIASRV_PORT}/favicon.ico`,
+        // /favicon.ico responds as soon as the HTTP server thread starts,
+        // before the profile's collection has finished loading. /_anki/readyz
+        // only returns 200 once the collection is open, so tests never race
+        // against the async profile-load that follows server startup.
+        url: `http://127.0.0.1:${MEDIASRV_PORT}/_anki/readyz`,
         timeout: 60_000,
         reuseExistingServer: process.env.ANKI_E2E_REUSE_SERVER === "1",
         stdout: "pipe",

@@ -158,7 +158,7 @@ impl Collection {
             .into_iter()
             .filter(is_included_card)
             .filter_map(|c| {
-                let desired_retention = c.desired_retention.unwrap_or(req.desired_retention);
+                let desired_retention = req.desired_retention;
                 let memory_state = match c.memory_state {
                     Some(state) => state,
                     // cards that lack memory states after compute_memory_state have no FSRS items,
@@ -289,13 +289,15 @@ impl Collection {
         let dr_workload = (70u32..=99u32)
             .into_par_iter()
             .map(|dr| {
-                let result = simulate(
-                    &config,
-                    &req.params,
-                    dr as f32 / 100.,
-                    None,
-                    Some(cards.clone()),
-                )?;
+                let cards = cards
+                    .iter()
+                    .map(|c| {
+                        let mut card = c.clone();
+                        card.desired_retention = dr as f32 / 100.;
+                        card
+                    })
+                    .collect_vec();
+                let result = simulate(&config, &req.params, dr as f32 / 100., None, Some(cards))?;
                 Ok((
                     dr,
                     (

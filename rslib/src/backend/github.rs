@@ -62,7 +62,7 @@ fn release_is_downloaded(filename: &str, checksum: &str) -> Result<bool> {
 
 impl BackendGithubService for Backend {
     fn get_latest_release(&self, input: LatestReleaseRequest) -> Result<GithubRelease> {
-        let no_updates_msg = self.tr.addons_no_updates_available();
+        let no_updates_msg = self.tr.errors_no_updates_available();
         let platform_suffix = get_platform_suffix().or_invalid(no_updates_msg.clone())?;
         let url = if input.include_prerelease {
             ALL_RELEASES_URL

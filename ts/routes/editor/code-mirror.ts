@@ -121,7 +121,7 @@ export function setupCodeMirror(
     editor.on("focus", () => {
         if (ranges) {
             try {
-                editor.setSelections(ranges);
+                editor.setSelections(ranges, undefined, { scroll: false });
             } catch {
                 ranges = null;
                 editor.setCursor(editor.lineCount(), 0);

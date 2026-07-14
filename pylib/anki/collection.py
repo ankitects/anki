@@ -33,6 +33,7 @@ EmptyCardsReport = card_rendering_pb2.EmptyCardsReport
 GraphPreferences = stats_pb2.GraphPreferences
 CardStats = stats_pb2.CardStatsResponse
 Preferences = config_pb2.Preferences
+ExperimentFlag = config_pb2.ExperimentalFeatureFlag
 UndoStatus = collection_pb2.UndoStatus
 OpChanges = collection_pb2.OpChanges
 OpChangesOnly = collection_pb2.OpChangesOnly
@@ -160,6 +161,10 @@ class Collection(DeprecatedNamesMixin):
         self.decks = DeckManager(self)
         self.tags = TagManager(self)
         self.conf = ConfigManager(self)
+
+        # Saved when the collection is loaded to prevent changes before restart.
+        self._experiments = self._get_experiments_dirty()
+
         self._load_scheduler()
         self._startReps = 0
 
@@ -1004,6 +1009,17 @@ class Collection(DeprecatedNamesMixin):
         fget=_get_enable_fsrs_short_term_with_steps,
         fset=_set_enable_fsrs_short_term_with_steps,
     )
+
+    def experiment_enabled(self, key: ExperimentFlag.ValueType) -> bool:
+        return self._experiments.get(str(key), False)
+
+    def _get_experiments_dirty(self) -> dict[str, bool]:
+        """This fetches the experiments in the state that they are saved in the database.
+        This should not be used to check if an experiment is enabled because this will update immediately without a restart.
+
+        Use "experiment_enabled" to fetch an active experiment instead."""
+        return self.get_config("experimentalFeatures", {})
+
     # Stats
     ##########################################################################
 
