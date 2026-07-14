@@ -1244,7 +1244,6 @@ exposed_backend_list = [
     "latest_progress",
     "get_custom_colours",
     "set_config_json",
-    "get_config_json",
     "get_undo_status",
     # DeckService
     "get_deck_names",
