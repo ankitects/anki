@@ -374,7 +374,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         updateCurrentNote();
     }
 
-    const fieldSave = new ChangeTimer();
+    // one timer per field, so a save cannot cancel another field's pending save (#4754)
+    const fieldSaves = new Map<number, ChangeTimer>();
 
     async function transformContentBeforeSave(content: string): Promise<string> {
         content = content.replace(/ data-editor-shrink="(true|false)"/g, "");
@@ -409,7 +410,12 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 
     async function updateField(index: number, content: string): Promise<void> {
-        fieldSave.schedule(async () => {
+        let timer = fieldSaves.get(index);
+        if (!timer) {
+            timer = new ChangeTimer();
+            fieldSaves.set(index, timer);
+        }
+        timer.schedule(async () => {
             if (isLegacy) {
                 bridgeCommand(
                     `key:${index}:${getNoteId()}:${await transformContentBeforeSave(
@@ -427,7 +433,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     async function saveFieldNow() {
         /* this will always be a key save */
-        await fieldSave.fireImmediately();
+        for (const timer of fieldSaves.values()) {
+            await timer.fireImmediately();
+        }
     }
 
     async function saveNow() {
