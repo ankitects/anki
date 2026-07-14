@@ -56,6 +56,7 @@ export class ReviewerState {
     autoAdvanceQuestionTimeout: ReturnType<typeof setTimeout> | undefined;
     autoAdvanceAnswerTimeout: ReturnType<typeof setTimeout> | undefined;
     _answerShown = false;
+    last_answered_id = BigInt(0);
     // mutateNextStates: Promise<StateMutatorFn>;
 
     iframe: HTMLIFrameElement | undefined = undefined;
@@ -404,6 +405,15 @@ export class ReviewerState {
 
         if (!resp.nextCard) {
             this.displayOverview();
+            return;
+        }
+
+        const next_cid = resp.nextCard.queue?.cards[0].card?.id;
+        if (answer) {
+            this.last_answered_id = answer.cardId;
+        } // Ignore the card if its a refresh and the card is the same as the card that was last answered.
+        // To prevent showing the same card two times in a row.
+        else if (this.last_answered_id === next_cid) {
             return;
         }
 
