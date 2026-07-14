@@ -36,14 +36,14 @@ class AnkiPackageImporter(Anki2Importer):
         # we need the media dict in advance, and we'll need a map of fname ->
         # number to use during the import
         self.nameToNum = {}
-        dir = self.col.media.dir()
+        dir = os.path.realpath(self.col.media.dir())
         try:
             media_dict = json.loads(z.read("media").decode("utf8"))
         except Exception as exc:
             raise MediaMapInvalid() from exc
         for k, v in list(media_dict.items()):
             path = os.path.abspath(os.path.join(dir, v))
-            if os.path.commonprefix([path, dir]) != dir:
+            if not path.startswith(dir + os.sep):
                 raise Exception("Invalid file")
 
             self.nameToNum[unicodedata.normalize("NFC", v)] = k
