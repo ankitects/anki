@@ -32,6 +32,7 @@ import aqt.operations
 from anki import frontend_pb2, generic_pb2, hooks
 from anki.cards import Card
 from anki.collection import (
+    ExperimentFlag,
     NestedOpChanges,
     OpChanges,
     OpChangesOnly,
@@ -1216,6 +1217,7 @@ post_handler_list = [
     get_meta_json,
     set_meta_json,
     get_config_json,
+    set_config_json,
     convert_pasted_image,
     open_file_picker,
     open_media,
@@ -1243,7 +1245,6 @@ exposed_backend_list = [
     # CollectionService
     "latest_progress",
     "get_custom_colours",
-    "set_config_json",
     "get_undo_status",
     # DeckService
     "get_deck_names",
@@ -1304,6 +1305,7 @@ exposed_backend_list = [
     "get_retention_workload",
     # ConfigService
     "get_config_string",
+    "get_config_bool",
     # CardsService
     "set_flag",
     "compare_answer",
@@ -1311,9 +1313,6 @@ exposed_backend_list = [
     "encode_iri_paths",
     "decode_iri_paths",
     "html_to_text_line",
-    # ConfigService
-    "set_config_json",
-    "get_config_bool",
     # MediaService
     "add_media_file",
     "add_media_from_path",
