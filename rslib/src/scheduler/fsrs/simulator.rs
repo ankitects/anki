@@ -480,7 +480,7 @@ mod test {
         col.grade_now(&cids, 3).unwrap();
 
         let mut req = base_request();
-        req.deck_size = 0; // ??????? TODO: FIXME should be 1
+        req.deck_size = 0;
 
         let (_, cards) = col.simulate_request_to_config(&req).unwrap();
         assert_eq!(cards.len(), 1);
