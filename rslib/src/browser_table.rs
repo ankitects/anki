@@ -576,7 +576,7 @@ impl RowContext {
         if eases.is_empty() {
             self.tr.browsing_new().into()
         } else {
-            format!("{}%", eases.iter().sum::<u16>() / eases.len() as u16 / 10)
+            format!("{}%", average_ease_percent(&eases))
         }
     }
 
@@ -599,11 +599,7 @@ impl RowContext {
         if intervals.is_empty() {
             "".into()
         } else {
-            time_span(
-                (intervals.iter().sum::<u32>() * 86400 / (intervals.len() as u32)) as f32,
-                &self.tr,
-                false,
-            )
+            time_span(average_interval_secs(&intervals), &self.tr, false)
         }
     }
 
@@ -681,5 +677,49 @@ impl RowContext {
                 }
             }
         }
+    }
+}
+
+/// Mean of the given day-intervals, in seconds. Caller must ensure the slice is
+/// non-empty. Summed and scaled in u64 so a large interval (or the sum across
+/// many cards in notes mode) can't overflow.
+fn average_interval_secs(intervals: &[u32]) -> f32 {
+    let total: u64 = intervals.iter().map(|&i| i as u64).sum();
+    (total * 86_400 / intervals.len() as u64) as f32
+}
+
+/// Mean ease factor of the given cards, as a percentage. Caller must ensure the
+/// slice is non-empty. Summed in u32 so averaging many cards in notes mode
+/// can't overflow u16 (the sum exceeds u16::MAX after ~27 cards).
+fn average_ease_percent(eases: &[u16]) -> u32 {
+    let total: u32 = eases.iter().map(|&e| e as u32).sum();
+    total / eases.len() as u32 / 10
+}
+
+#[cfg(test)]
+mod test {
+    use super::*;
+
+    #[test]
+    fn average_interval_does_not_overflow() {
+        // a single interval (in days) beyond ~49,710 overflows u32 * 86_400
+        assert_eq!(
+            average_interval_secs(&[49_711]),
+            (49_711u64 * 86_400) as f32
+        );
+        // and so does the sum across multiple large intervals (notes mode)
+        assert_eq!(
+            average_interval_secs(&[30_000, 30_000]),
+            (30_000u64 * 86_400) as f32
+        );
+        // ordinary case still averages correctly
+        assert_eq!(average_interval_secs(&[10, 20]), (15u64 * 86_400) as f32);
+    }
+
+    #[test]
+    fn average_ease_does_not_overflow() {
+        // summing 30 ease factors of 2500 exceeds u16::MAX (65_535)
+        assert_eq!(average_ease_percent(&[2500u16; 30]), 250);
+        assert_eq!(average_ease_percent(&[2500]), 250);
     }
 }
