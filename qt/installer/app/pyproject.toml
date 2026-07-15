@@ -71,6 +71,8 @@ entitlement."com.apple.security.device.audio-input" = true
 supported = false
 
 [tool.briefcase.app.anki.windows]
+create_desktop_shortcut = true
+min_os_version = "17763"
 
 [tool.briefcase.app.anki.iOS]
 supported = false
