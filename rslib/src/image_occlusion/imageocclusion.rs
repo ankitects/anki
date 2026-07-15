@@ -6,45 +6,54 @@ use std::fmt::Write;
 use anki_proto::image_occlusion::get_image_occlusion_note_response::ImageOcclusionProperty;
 use anki_proto::image_occlusion::get_image_occlusion_note_response::ImageOcclusionShape;
 use htmlescape::encode_attribute;
-use nom::bytes::complete::escaped;
-use nom::bytes::complete::is_not;
-use nom::bytes::complete::tag;
-use nom::character::complete::char;
-use nom::error::ErrorKind;
-use nom::sequence::preceded;
-use nom::sequence::separated_pair;
-use nom::Parser;
 
 fn unescape(text: &str) -> String {
     text.replace("\\:", ":")
 }
 
-pub fn parse_image_cloze(text: &str) -> Option<ImageOcclusionShape> {
-    if let Some((shape, _)) = text.split_once(':') {
-        let mut properties = vec![];
-        let mut remaining = &text[shape.len()..];
-        while let Ok((rem, (name, value))) = separated_pair::<_, _, _, (_, ErrorKind), _, _, _>(
-            preceded(tag(":"), is_not("=")),
-            tag("="),
-            escaped(is_not("\\:"), '\\', char(':')),
-        )
-        .parse(remaining)
-        {
-            remaining = rem;
-            let value = unescape(value);
-            properties.push(ImageOcclusionProperty {
-                name: name.to_string(),
-                value,
-            })
+/// Split on each `:` that is not escaped by a preceding backslash. Property
+/// values escape a literal colon as `\:` (backslashes are not otherwise
+/// escaped), so an unescaped `:` always separates one property from the next.
+fn split_on_unescaped_colon(text: &str) -> Vec<&str> {
+    let mut parts = vec![];
+    let mut start = 0;
+    let bytes = text.as_bytes();
+    for i in 0..bytes.len() {
+        if bytes[i] == b':' {
+            // An even number of preceding backslashes means they pair off and
+            // the colon itself is unescaped (a separator); an odd number means
+            // the colon is escaped (`\:`) and part of the value.
+            let preceding_backslashes =
+                bytes[..i].iter().rev().take_while(|&&b| b == b'\\').count();
+            if preceding_backslashes % 2 == 0 {
+                parts.push(&text[start..i]);
+                start = i + 1;
+            }
         }
-
-        return Some(ImageOcclusionShape {
-            shape: shape.to_string(),
-            properties,
-        });
     }
+    parts.push(&text[start..]);
+    parts
+}
 
-    None
+pub fn parse_image_cloze(text: &str) -> Option<ImageOcclusionShape> {
+    let (shape, rest) = text.split_once(':')?;
+    // Parse every `name=value` property. Values may be empty or contain a
+    // backslash (e.g. LaTeX), so we don't stop at the first one that fails a
+    // strict grammar - that previously discarded the rest of the properties.
+    let properties = split_on_unescaped_colon(rest)
+        .into_iter()
+        .filter_map(|prop| {
+            let (name, value) = prop.split_once('=')?;
+            Some(ImageOcclusionProperty {
+                name: name.to_string(),
+                value: unescape(value),
+            })
+        })
+        .collect();
+    Some(ImageOcclusionShape {
+        shape: shape.to_string(),
+        properties,
+    })
 }
 
 // convert text like
@@ -165,5 +174,20 @@ fn test_get_image_cloze_data() {
     assert_eq!(
         get_image_cloze_data("text:text=foo\\:bar:left=10"),
         r#"data-shape="text" data-text="foo&#x3A;bar" data-left="10" "#,
+    );
+}
+
+#[test]
+fn parses_empty_and_backslash_values() {
+    // an empty intermediate value must not drop the properties that follow it
+    assert_eq!(
+        get_image_cloze_data("text:left=10:text=:top=20"),
+        r#"data-shape="text" data-left="10" data-top="20" "#,
+    );
+    // a backslash in a value (e.g. LaTeX) must not drop it or the props after
+    // it (the backslash is HTML-escaped to &#x5C; in the data attribute)
+    assert_eq!(
+        get_image_cloze_data("text:left=10:text=\\frac:top=20"),
+        r#"data-shape="text" data-left="10" data-text="&#x5C;frac" data-top="20" "#,
     );
 }
