@@ -9,6 +9,7 @@ import aqt.main
 from anki.cards import Card
 from anki.decks import DeckDict, DeckId
 from anki.lang import without_unicode_isolation
+from anki.utils import is_mac
 from aqt import gui_hooks
 from aqt.qt import *
 from aqt.utils import (
@@ -58,6 +59,19 @@ class DeckOptionsDialog(QDialog):
     def set_ready(self):
         self._ready = True
         gui_hooks.deck_options_did_load(self)
+
+    def changeEvent(self, evt: QEvent | None) -> None:
+        # A minimized application-modal window can't be restored on macOS (not
+        # from the Dock or the Window menu), leaving the app unusable until it's
+        # force-quit. Refuse to stay minimized.
+        if (
+            is_mac
+            and evt is not None
+            and evt.type() == QEvent.Type.WindowStateChange
+            and self.isMinimized()
+        ):
+            self.showNormal()
+        super().changeEvent(evt)
 
     def closeEvent(self, evt: QCloseEvent | None) -> None:
         if self._close_event_has_cleaned_up or not self._ready:
