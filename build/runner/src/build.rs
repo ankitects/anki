@@ -153,9 +153,17 @@ fn setup_build_root() -> Utf8PathBuf {
 
 fn bootstrap_build() {
     let status = Command::new("cargo")
-        .args(["run", "-p", "configure"])
+        .args(["run", "-p", "configure", "--profile", bootstrap_profile()])
         .status();
     assert!(status.expect("ninja").success());
+}
+
+fn bootstrap_profile() -> &'static str {
+    if env::var("RELEASE").is_err() && env::var("CI").as_deref() == Ok("true") {
+        "ci"
+    } else {
+        "dev"
+    }
 }
 
 fn maybe_update_buildhash(build_root: &Utf8Path) {
