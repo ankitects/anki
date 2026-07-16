@@ -141,6 +141,10 @@ fn setup_flags(build: &mut Build) -> Result<()> {
     })
 }
 
+fn running_on_ci() -> bool {
+    std::option_env!("CI") == Some("true")
+}
+
 pub struct CargoTest {
     pub inputs: BuildInput,
 }
@@ -152,20 +156,27 @@ impl BuildAction for CargoTest {
 
     fn files(&mut self, build: &mut impl FilesHandle) {
         build.add_inputs("", &self.inputs);
-        build.add_inputs("", inputs![":cargo-nextest"]);
+        if !running_on_ci() {
+            build.add_inputs("", inputs![":cargo-nextest"]);
+        }
         build.add_env_var("ANKI_TEST_MODE", "1");
         build.add_output_stamp("tests/cargo_test");
     }
 
     fn on_first_instance(&self, build: &mut Build) -> Result<()> {
-        build.add_action(
+        // on ci, expect prebuilt binary to be available
+        // but `format` doesn't need it, so don't check existence rn
+        if !running_on_ci() {
+            build.add_action(
             "cargo-nextest",
             CargoInstall {
                 binary_name: "cargo-nextest",
                 args: "cargo-nextest --version 0.9.99 --locked --no-default-features --features default-no-update",
             },
         )?;
-        setup_flags(build)
+            setup_flags(build)?;
+        }
+        Ok(())
     }
 }
 

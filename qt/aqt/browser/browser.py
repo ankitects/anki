@@ -19,7 +19,7 @@ import aqt.forms
 import aqt.operations
 from anki._legacy import deprecated
 from anki.cards import Card, CardId
-from anki.collection import Collection, Config, OpChanges, SearchNode
+from anki.collection import Collection, Config, ExperimentFlag, OpChanges, SearchNode
 from anki.consts import *
 from anki.decks import DeckId
 from anki.errors import NotFoundError, SearchError
@@ -617,7 +617,9 @@ class Browser(QMainWindow):
 
         gui_hooks.editor_did_init.append(add_preview_button)
         editor_class: type[aqt.editor.Editor | aqt.editor.NewEditor]
-        if KeyboardModifiersPressed().shift:
+        experimental = self.col.experiment_enabled(ExperimentFlag.SVELTE_EDITOR)
+        shift = KeyboardModifiersPressed().shift
+        if (experimental and not shift) or (not experimental and shift):
             editor_class = aqt.editor.NewEditor
         else:
             editor_class = aqt.editor.Editor
