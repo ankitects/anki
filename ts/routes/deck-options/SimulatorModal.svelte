@@ -332,12 +332,12 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 
     onMount(() => {
-        const obeserver = new ResizeObserver(() => {
+        const observer = new ResizeObserver(() => {
             updateFontScale();
         });
-        obeserver.observe(svg!);
+        observer.observe(svg!);
         return () => {
-            obeserver.disconnect();
+            observer.disconnect();
         };
     });
 </script>
