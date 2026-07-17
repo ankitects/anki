@@ -92,18 +92,12 @@ hooks = [
         ],
         doc="Can modify the resulting text after rendering completes.",
     ),
+    # obsolete
     Hook(
         name="importing_importers",
         args=["importers: list[tuple[str, Any]]"],
-        doc="""Allows updating the list of importers.
-        The resulting list is not saved and should be changed each time the
-        filter is called.
-        
-        NOTE: Updates to the import/export code are expected in the coming 
-        months, and this hook may be replaced with another solution at that 
-        time. Tracked on https://github.com/ankitects/anki/issues/1018""",
+        doc="Obsolete, do not use.",
     ),
-    # obsolete
     Hook(
         name="deck_added",
         args=["deck: anki.decks.DeckDict"],

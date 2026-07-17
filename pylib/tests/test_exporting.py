@@ -8,7 +8,6 @@ import tempfile
 
 from anki.collection import Collection as aopen
 from anki.exporting import *
-from anki.importing import Anki2Importer
 from tests.shared import errorsAfterMidnight
 from tests.shared import getEmptyCol as getEmptyColOrig
 
@@ -126,12 +125,6 @@ def test_export_anki_due():
     os.close(fd)
     os.unlink(newname)
     e.exportInto(newname)
-    # importing into a new deck, the due date should be equivalent
-    col2 = getEmptyCol()
-    imp = Anki2Importer(col2, newname)
-    imp.run()
-    c = col2.getCard(c.id)
-    assert c.due - col2.sched.today == 1
 
 
 # def test_export_textcard():
