@@ -149,6 +149,10 @@ impl LintContext {
                 .stdout,
         )?;
         let all_contributors = all_contributors.lines().collect::<HashSet<&str>>();
+        let normalized_contributors: HashSet<&str> = all_contributors
+            .iter()
+            .map(|e| normalize_email(e))
+            .collect();
 
         const BOT_EMAILS: &[&str] = &[
             "49699333+dependabot[bot]@users.noreply.github.com",
@@ -157,7 +161,7 @@ impl LintContext {
         ];
 
         if BOT_EMAILS.contains(&last_author.as_str())
-            || all_contributors.contains(last_author.as_str())
+            || normalized_contributors.contains(normalize_email(&last_author))
         {
             return Ok(());
         }
