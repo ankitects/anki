@@ -1393,13 +1393,9 @@ title="{}" {}>{}</button>""".format(
         prompt_for_file_then_import(self)
 
     def onExport(self, did: DeckId | None = None) -> None:
-        import aqt.exporting
         from aqt.import_export.exporting import ExportDialog
 
-        if not self.pm.legacy_import_export():
-            ExportDialog(self, did=did)
-        else:
-            aqt.exporting.ExportDialog(self, did=did)
+        ExportDialog(self, did=did)
 
     # Installing add-ons from CLI / mimetype handler
     ##########################################################################

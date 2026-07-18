@@ -42,12 +42,12 @@ hooks = [
     Hook(
         name="media_files_did_export",
         args=["count: int"],
-        doc="Only used by legacy .apkg exporter. Will be deprecated in the future.",
+        doc="Obsolete, do not use.",
     ),
     Hook(
         name="legacy_export_progress",
         args=["progress: str"],
-        doc="Temporary hook used in transition to new import/export code.",
+        doc="Obsolete, do not use.",
     ),
     Hook(
         name="exporters_list_created",
