@@ -21,9 +21,13 @@ test("an action scheduled during a flush is not discarded", async () => {
     timer.schedule(async () => {
         ran.push("second");
     }, 10_000);
+    // replaces the second; only the latest pending action may run
+    timer.schedule(async () => {
+        ran.push("third");
+    }, 10_000);
     release();
     await flush;
     await timer.fireImmediately();
 
-    expect(ran).toEqual(["first", "second"]);
+    expect(ran).toEqual(["first", "third"]);
 });
