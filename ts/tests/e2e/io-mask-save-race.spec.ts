@@ -106,7 +106,7 @@ test("masks drawn shortly before typing in another field are saved", async ({ ed
     // canvas is ready once the bounding box has been added
     await page.waitForFunction(() => {
         const canvas = (globalThis as any).canvas;
-        return canvas && canvas.getObjects().length >= 1;
+        return canvas && canvas.getObjects && canvas.getObjects().length >= 1;
     }, { timeout: 15_000 });
 
     // shapes must be drawn inside the image's bounding box
