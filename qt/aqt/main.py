@@ -536,6 +536,13 @@ class AnkiQt(QMainWindow):
             else:
                 self.maybe_check_for_addon_updates(self.setup_auto_update)
 
+            if self.col.experiment_enabled(ExperimentFlag.SVELTE_REVIEWER):
+                aqt.webview.main_window_api_enabled = True
+                print(
+                    "Enabling main window API for Svelte reviewer",
+                    aqt.webview.main_window_api_enabled,
+                )
+
             # if self.col.experiment_enabled(ExperimentFlag.TEST_FLAG):
             #     showInfo('You have the "ping" experiment enabled')
 
@@ -678,7 +685,7 @@ class AnkiQt(QMainWindow):
             # dump error to stderr so it gets picked up by errors.py
             traceback.print_exc()
 
-        self.setupReviewer(self.backend.get_config_bool(Config.Bool.NEW_REVIEWER))
+        self.setupReviewer(self.col.experiment_enabled(ExperimentFlag.SVELTE_REVIEWER))
 
         return True
 

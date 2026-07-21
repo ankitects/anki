@@ -40,7 +40,6 @@ impl From<BoolKeyProto> for BoolKey {
             BoolKeyProto::LoadBalancerEnabled => BoolKey::LoadBalancerEnabled,
             BoolKeyProto::FsrsShortTermWithStepsEnabled => BoolKey::FsrsShortTermWithStepsEnabled,
             BoolKeyProto::FsrsLegacyEvaluate => BoolKey::FsrsLegacyEvaluate,
-            BoolKeyProto::NewReviewer => BoolKey::NewReviewer,
         }
     }
 }

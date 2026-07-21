@@ -32,7 +32,6 @@ import aqt.operations
 from anki import frontend_pb2, generic_pb2, hooks
 from anki.cards import Card
 from anki.collection import (
-    ExperimentFlag,
     NestedOpChanges,
     OpChanges,
     OpChangesOnly,

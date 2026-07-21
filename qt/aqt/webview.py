@@ -78,6 +78,16 @@ class AuthInterceptor(QWebEngineUrlRequestInterceptor):
             info.setHttpHeader(b"Authorization", f"Bearer {_APIKEY}".encode("utf-8"))
 
 
+main_window_api_enabled = False
+
+
+class MainWindowAuthInterceptor(AuthInterceptor):
+    def interceptRequest(self, info):
+        self._api_enabled = main_window_api_enabled
+        print(main_window_api_enabled)
+        super().interceptRequest(info)
+
+
 def _create_bridge_script() -> QWebEngineScript:
     qwebchannel = ":/qtwebchannel/qwebchannel.js"
     jsfile = QFile(qwebchannel)
@@ -116,6 +126,7 @@ def _create_bridge_script() -> QWebEngineScript:
 
 _bridge_script = _create_bridge_script()
 
+_profile_mw: QWebEngineProfile | None = None
 _profile_with_api_access: QWebEngineProfile | None = None
 _profile_without_api_access: QWebEngineProfile | None = None
 
@@ -146,11 +157,21 @@ class AnkiWebPage(QWebEnginePage):
             AnkiWebViewKind.IMPORT_ANKI_PACKAGE,
             AnkiWebViewKind.IMPORT_CSV,
             AnkiWebViewKind.IMPORT_LOG,
-            AnkiWebViewKind.MAIN,
             AnkiWebViewKind.PREFERENCES,
         )
 
         global _profile_with_api_access, _profile_without_api_access
+
+        # No need to cache the main window profile, as it is only used once
+        if kind == AnkiWebViewKind.MAIN:
+            global _profile_mw
+
+            profile = QWebEngineProfile()
+            mw_interceptor = MainWindowAuthInterceptor(profile)
+            profile.setUrlRequestInterceptor(mw_interceptor)
+            _profile_mw = profile
+
+            return profile
 
         # Use cached profile if available
         if have_api_access and _profile_with_api_access is not None:
