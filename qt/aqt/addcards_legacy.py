@@ -279,10 +279,7 @@ class AddCards(QMainWindow):
     def add_current_note(self) -> None:
         if self.editor.current_notetype_is_image_occlusion():
             self.editor.update_occlusions_field()
-            self.editor.call_after_note_saved(self._add_current_note)
-            self.editor.reset_image_occlusion()
-        else:
-            self.editor.call_after_note_saved(self._add_current_note)
+        self.editor.call_after_note_saved(self._add_current_note)
 
     def _add_current_note(self) -> None:
         note = self.editor.note
@@ -304,6 +301,10 @@ class AddCards(QMainWindow):
 
             tooltip(tr.importing_cards_added(count=changes.count), period=500)
             av_player.stop_and_clear_queue()
+            # resetting any earlier races the background add and can blank
+            # the occlusions field (#4754)
+            if self.editor.current_notetype_is_image_occlusion():
+                self.editor.reset_image_occlusion()
             self._load_new_note(sticky_fields_from=note)
             gui_hooks.add_cards_did_add_note(note)
 
