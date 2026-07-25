@@ -330,6 +330,9 @@ class SimpleProcessPlayer(Player):
 
     args: list[str] = []
     env: dict[str, str] | None = None
+    # some players (e.g. afplay) don't understand "--" as an
+    # options/filename separator
+    supports_arg_separator = True
 
     def __init__(self, taskman: TaskManager, media_folder: str | None = None) -> None:
         self._taskman = taskman
@@ -352,8 +355,9 @@ class SimpleProcessPlayer(Player):
     # note: mplayer implementation overrides this
     def _play(self, tag: AVTag) -> None:
         assert isinstance(tag, SoundOrVideoTag)
+        separator = ["--"] if self.supports_arg_separator else []
         self._process = subprocess.Popen(
-            self.args + ["--", tag.path(self._media_folder)],
+            self.args + separator + [tag.path(self._media_folder)],
             env=self.env,
             cwd=self._media_folder,
             stdout=subprocess.DEVNULL,
@@ -435,6 +439,16 @@ class SimpleMplayerPlayer(SimpleProcessPlayer, SoundOrVideoPlayer):
     args, env = _packagedCmd(["mplayer", "-really-quiet", "-noautosub"])
     if is_win:
         args += ["-ao", "win32"]
+
+
+class SimpleAfplayPlayer(SimpleProcessPlayer, SoundPlayer):
+    "Plays audio files with macOS's built-in afplay, bypassing mpv."
+
+    # outrank MpvManager (rank 0) so audio tags are routed here; video tags
+    # still fall through to mpv, since afplay only handles audio
+    default_rank = 1
+    args = ["/usr/bin/afplay"]
+    supports_arg_separator = False
 
 
 # MPV
@@ -957,6 +971,9 @@ def setup_audio(taskman: TaskManager, base_folder: str, media_folder: str) -> No
     else:
         mplayer = SimpleMplayerSlaveModePlayer(taskman, media_folder)
         av_player.players.append(mplayer)
+
+    if is_mac:
+        av_player.players.append(SimpleAfplayPlayer(taskman, media_folder))
 
     # tts support
     if is_mac:
