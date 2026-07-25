@@ -6,18 +6,14 @@ use std::fmt::Write;
 use anki_proto::image_occlusion::get_image_occlusion_note_response::ImageOcclusionProperty;
 use anki_proto::image_occlusion::get_image_occlusion_note_response::ImageOcclusionShape;
 use htmlescape::encode_attribute;
-use nom::bytes::complete::escaped;
+use nom::bytes::complete::escaped_transform;
 use nom::bytes::complete::is_not;
 use nom::bytes::complete::tag;
-use nom::character::complete::char;
+use nom::character::complete::one_of;
 use nom::error::ErrorKind;
 use nom::sequence::preceded;
 use nom::sequence::separated_pair;
 use nom::Parser;
-
-fn unescape(text: &str) -> String {
-    text.replace("\\:", ":")
-}
 
 pub fn parse_image_cloze(text: &str) -> Option<ImageOcclusionShape> {
     if let Some((shape, _)) = text.split_once(':') {
@@ -26,12 +22,11 @@ pub fn parse_image_cloze(text: &str) -> Option<ImageOcclusionShape> {
         while let Ok((rem, (name, value))) = separated_pair::<_, _, _, (_, ErrorKind), _, _, _>(
             preceded(tag(":"), is_not("=")),
             tag("="),
-            escaped(is_not("\\:"), '\\', char(':')),
+            escaped_transform(is_not("\\:"), '\\', one_of("\\:")),
         )
         .parse(remaining)
         {
             remaining = rem;
-            let value = unescape(value);
             properties.push(ImageOcclusionProperty {
                 name: name.to_string(),
                 value,
