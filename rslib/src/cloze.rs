@@ -194,10 +194,12 @@ fn parse_text_with_clozes(text: &str) -> Vec<TextOrCloze<'_>> {
             }
             Token::Text(mut text) => {
                 if let Some(cloze) = open_clozes.last_mut() {
-                    // extract hint if found
-                    if let Some((head, tail)) = text.split_once("::") {
-                        text = head;
-                        cloze.hint = Some(tail);
+                    if !text.starts_with("image-occlusion:") {
+                        // extract hint if found
+                        if let Some((head, tail)) = text.split_once("::") {
+                            text = head;
+                            cloze.hint = Some(tail);
+                        }
                     }
                     cloze.nodes.push(TextOrCloze::Text(text));
                 } else {
