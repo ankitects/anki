@@ -158,7 +158,11 @@ fn test_get_image_cloze_data() {
         r#"data-shape="polygon" data-points="0,0 10,10 20,0" "#,
     );
     assert_eq!(
-        get_image_cloze_data("text:text=foo\\:bar:left=10"),
-        r#"data-shape="text" data-text="foo&#x3A;bar" data-left="10" "#,
+        get_image_cloze_data(r#"text:text=\\foo\:bar\::left=10"#),
+        r#"data-shape="text" data-text="&#x5C;foo&#x3A;bar&#x3A;" data-left="10" "#,
+    );
+    assert_eq!(
+        get_image_cloze_data(r#"text:text=\:lol\::left=10"#),
+        r#"data-shape="text" data-text="&#x3A;lol&#x3A;" data-left="10" "#,
     );
 }
