@@ -158,10 +158,22 @@ other builds on your system may use as well. If you wish to clear up those cache
 they can be found in `~/.rustup`, `~/.cargo` and `~/.cache/{yarn,pip}`. On
 Windows, Yarn cache can be found in `%LOCALAPPDATA%\Yarn`.
 
-With previous versions, if you invoked Rust outside of the build scripts (e.g., by
-running cargo, or with Rust Analyzer), output files would go into `target/` unless
-you had overridden the default output location. If you are up-to-date with the
-current main branch, you may want to delete the `target/` folder.
+If you invoke Rust outside of the build scripts (eg by running cargo, or
+with Rust Analyzer), output files will go into `target/` unless you have
+overriden the default output location.
+
+## Storage and Performance
+
+Most editors use rust-analyzer for Rust support, which runs `cargo check` in the
+background whenever you save a file, so that problems are surfaced before you try to
+build. This is useful, but on lower-end machines, it can noticeably increase disk
+usage and CPU load. If that's a problem for you, consider disabling "check on save"
+(e.g. set `rust-analyzer.checkOnSave` to `false` in VS Code) as a trade-off — you'll
+lose real-time error checking, but rust-analyzer can still be used for code completion,
+go-to-definition, etc.
+
+If you chose to disable "check on save" and don't run `cargo` commands manually, you
+may delete the `target/` folder (if any) as that's no longer used.
 
 ## IDEs
 

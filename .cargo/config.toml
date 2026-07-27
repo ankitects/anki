@@ -16,6 +16,3 @@ rustflags = ["-C", "target-feature=+crt-static"]
 
 [target.x86_64-pc-windows-msvc]
 linker = "rust-lld"
-
-[build]
-target-dir = "out/rust"
