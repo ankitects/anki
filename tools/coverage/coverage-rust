@@ -1,0 +1,26 @@
+#!/bin/bash
+
+set -e
+
+html="$1"
+
+outdir="out/coverage/rust"
+LLVMCOVPATH="out/bin"
+
+mkdir -p $outdir $LLVMCOVPATH
+
+if [[ "${CI:-}" == "true" ]]; then
+    # prebuilt binary shouldve been installed
+    cargo_cmd="cargo"
+else
+    cargo_cmd="$LLVMCOVPATH/cargo-llvm-cov"
+    test -x "$cargo_cmd" || cargo install cargo-llvm-cov --version 0.8.4 --locked --root out
+fi
+
+ANKI_TEST_MODE=1 "$cargo_cmd" llvm-cov --workspace --locked --json --summary-only \
+    --output-path $outdir/coverage-summary.json --fail-under-lines 64
+
+if [ "$html" = "--html" ]; then
+    ANKI_TEST_MODE=1 "$cargo_cmd" llvm-cov report --html --output-dir $outdir
+    echo "Rust coverage report: $outdir/html/index.html"
+fi

@@ -1,0 +1,91 @@
+---
+title: "Installing & Upgrading Anki on Linux"
+---
+
+## Requirements
+
+The packaged version requires a recent 64 bit Intel/AMD Linux with glibc 2.35+ or ARM/AArch64 with glibc 2.39+, and common
+libraries like libwayland-client and systemd. If you are on a different
+architecture, or a barebones Linux distro, you will not be able to use the
+packaged version, but you may be able to use the [Python wheels](https://betas.ankiweb.net/#via-pypipip)
+instead.
+
+Debian and derivatives, such as Ubuntu and [Chromebooks with Linux enabled](https://support.google.com/chromebook/answer/9145439?), please use the following before
+installing:
+
+```shell
+sudo apt install libxcb-xinerama0 libxcb-cursor0 libnss3 libxcb-icccm4 libxcb-keysyms1
+```
+
+Arch and derivatives, such as Manjaro, please use the following before
+installing:
+
+```shell
+sudo pacman -S libxinerama xcb-util-cursor nss
+```
+
+If Anki fails to start after installing, you may be [missing other libraries](./missing-libraries).
+
+If you're on Ubuntu 24.04 and Anki won't start, please see [this thread](https://forums.ankiweb.net/t/issues-running-on-ubuntu-24-04/40974).
+
+Anki's build system only supports glibc, so musl-based distros are not currently supported.
+
+## Installing
+
+To install Anki:
+
+1. Download Anki from [https://apps.ankiweb.net](https://apps.ankiweb.net) to your Downloads folder.
+2. If zstd is not already installed on your system, you'll need to install it using your package manager (e.g `sudo apt install zstd` on Debian/Ubuntu, or `sudo pacman -S zstd` on Arch).
+3. Open a terminal and run the following commands, replacing the filename as appropriate.
+
+```shell
+tar xaf Downloads/anki-2XXX-linux-x86_64.tar.zst
+cd anki-linux
+sudo ./install.sh
+```
+
+On some Linux systems, you may need to use `tar xaf --use-compress-program=unzstd`.
+
+4. You can then start Anki by typing `anki` and hitting <kbd>Enter</kbd>. If you encounter
+   any issues, please see the links on the left.
+
+## Upgrading
+
+If you were running Anki from a .deb/.rpm/etc in the past, please make
+sure to remove the system version before installing the package
+provided here.
+
+If you're upgrading from a previous package, simply repeat the
+installation steps to upgrade to the latest version. Your user data
+will be preserved.
+
+If you wish to downgrade to a previous version, please make sure you
+[downgrade first](http://changes.ankiweb.net).
+
+## Add-on Compatibility
+
+Some add-ons may not always work with the latest Anki release. If you upgrade to
+the latest Anki version and find an add-on you cannot live without stops working,
+you can download older Anki versions from the [releases page](https://github.com/ankitects/anki/releases).
+
+## System Qt versions
+
+Anki uses the official PyQt builds by default. This makes it easier to
+install Anki on distros that don't have the relevant Python/Qt versions, but means that
+you may not have access certain Qt features provided by your Linux distro, such as certain
+Qt themes, support for the FCITX input method, etc.
+
+If your Linux distro provides up-to-date Anki packages, you may find using them easiest.
+
+## Problems
+
+If you encounter any issues when installing or starting Anki, please see the
+following pages:
+
+- [Missing Libraries](./missing-libraries)
+- [Display Issues](./display-issues)
+- [Blank Main Window](./blank-window)
+- [Linux Distro Packages](./distro-packages)
+- [Incorrect GTK Theme](./gtk-theme)
+- [Wayland](./wayland)
+- [Input Methods](./input-methods)

@@ -1,6 +1,6 @@
 # Source: https://github.com/Homebrew/homebrew-core/blob/6883a6bcb2dabfff96410f2af4002732ac12224e/Formula/m/mpv.rb
 # Changes:
-# - Disable Javascript/Lua/vapoursynth/yt-dlp
+# - Disable Javascript/Lua/vapoursynth
 # - Set deployment target
 
 class Mpv < Formula
@@ -12,15 +12,6 @@ class Mpv < Formula
   revision 4
   compatibility_version 1
   head "https://github.com/mpv-player/mpv.git", branch: "master"
-
-  bottle do
-    sha256               arm64_tahoe:   "d82d7d7bd6619371bd9fb273c8387c7c7bb34e3e37bc8b6bb68e0622bde55bcd"
-    sha256               arm64_sequoia: "b2eafc6bc8c0265d2ce356ba3819a058a06568a00d19c1cdb01b38a9a1036892"
-    sha256               arm64_sonoma:  "53e833faa61805c10bd1c3bf20bc95198e03b701eeb4c544d0c0fbc0f1f4fb00"
-    sha256 cellar: :any, sonoma:        "b6dd374d5896f71570fa116ab17c448f2d5dd7c7b2e824515fcb120b97c11467"
-    sha256               arm64_linux:   "fc94e7920c2ec65875c212cdb01259f12e94f88976e990ea2706a9289584240e"
-    sha256               x86_64_linux:  "e6af765e0c6d1ec79da369f749d6439306fbe7e98bf34fa055674e433e08a1a3"
-  end
 
   depends_on "docutils" => :build
   depends_on "meson" => :build
@@ -38,7 +29,6 @@ class Mpv < Formula
   depends_on "mujs"
   depends_on "rubberband"
   depends_on "uchardet"
-  depends_on "vapoursynth"
   depends_on "vulkan-loader"
   depends_on "zimg"
 
@@ -87,7 +77,6 @@ class Mpv < Formula
       -Djavascript=disabled
       -Dlua=disabled
       -Dvapoursynth=disabled
-      -Dytdl=disabled
       -Dlibmpv=true
       -Dlibarchive=enabled
       -Duchardet=enabled
@@ -125,7 +114,6 @@ class Mpv < Formula
 
   test do
     system bin/"mpv", "--ao=null", "--vo=null", test_fixtures("test.wav")
-    assert_match "vapoursynth", shell_output("#{bin}/mpv --vf=help")
 
     # Make sure `pkgconf` can parse `mpv.pc` after the `inreplace`.
     system "pkgconf", "--print-errors", "mpv"

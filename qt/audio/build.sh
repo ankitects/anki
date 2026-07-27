@@ -9,13 +9,15 @@ fi
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 OUTPUT_DIR="$SCRIPT_DIR/../../out/extracted"
+BREW_PREFIX="$(brew --prefix)"
+BREW_REPO="$(brew --repository)"
 
 brew install dylibbundler
 brew install lame
 if [ "$(brew list --full-name | grep ankitects/audio/mpv)" = "" ]; then
     brew uninstall mpv || true
     brew tap-new ankitects/audio || true
-    cp "$SCRIPT_DIR/mpv.rb" /opt/homebrew/Library/Taps/ankitects/homebrew-audio/Formula/
+    cp "$SCRIPT_DIR/mpv.rb" "$BREW_REPO/Library/Taps/ankitects/homebrew-audio/Formula/"
     brew install ankitects/audio/mpv
 fi
 
@@ -23,13 +25,13 @@ rm -rf "$OUTPUT_DIR/mpv"
 mkdir -p "$OUTPUT_DIR/mpv"
 pushd "$OUTPUT_DIR/mpv"
 mkdir libs
-cp /opt/homebrew/bin/mpv .
+cp "$BREW_PREFIX/bin/mpv" .
 dylibbundler -x mpv -d libs -p @executable_path/libs/ -b
 popd
 
 rm -rf "$OUTPUT_DIR/lame"
 mkdir -p "$OUTPUT_DIR/lame"
-cp /opt/homebrew/bin/lame "$OUTPUT_DIR/lame/" && chmod u+w "$OUTPUT_DIR/lame/lame"
+cp "$BREW_PREFIX/bin/lame" "$OUTPUT_DIR/lame/" && chmod u+w "$OUTPUT_DIR/lame/lame"
 
 if [ -n "${SIGN_IDENTITY:-}" ]; then
     find "$OUTPUT_DIR/mpv/libs" -name "*.dylib" -exec \

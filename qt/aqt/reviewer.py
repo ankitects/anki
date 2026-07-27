@@ -346,8 +346,6 @@ class Reviewer:
             self.revHtml(),
             css=["css/reviewer.css"],
             js=[
-                "js/mathjax.js",
-                "js/vendor/mathjax/tex-chtml-full.js",
                 "js/reviewer.js",
             ],
             context=self,
@@ -686,6 +684,9 @@ class Reviewer:
             play_clicked_audio(url, self.card)
         elif url.startswith("updateToolbar"):
             self.mw.toolbarWeb.update_background_image()
+        elif url == "repaintNeeded":
+            # Ensure stale frames showing previous or corrupt content are not displayed (#3668)
+            self.web.update()
         elif url == "statesMutated":
             self._states_mutated = True
         else:
@@ -1172,7 +1173,7 @@ timerStopped = false;
 
     def on_create_copy(self) -> None:
         if self.card:
-            aqt.dialogs.open("AddCards", self.mw).set_note(
+            self.mw._open_new_or_legacy_dialog("AddCards").set_note(
                 self.card.note(), self.card.current_deck_id()
             )
 

@@ -7,7 +7,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     import CardInfo from "../CardInfo.svelte";
     import type { PageData } from "./$types";
-    import { goto } from "$app/navigation";
+    import { goto, invalidate } from "$app/navigation";
 
     export let data: PageData;
 
@@ -16,9 +16,13 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     globalThis.anki ||= {};
     globalThis.anki.updateCard = async (card_id: string): Promise<void> => {
         const path = `/card-info/${card_id}`;
-        return goto(path).catch(() => {
-            window.location.href = path;
-        });
+        if (page.params.cardId === card_id) {
+            await invalidate("anki:card-info");
+        } else {
+            await goto(path).catch(() => {
+                window.location.href = path;
+            });
+        }
     };
 </script>
 

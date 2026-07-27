@@ -149,11 +149,20 @@ impl LintContext {
                 .stdout,
         )?;
         let all_contributors = all_contributors.lines().collect::<HashSet<&str>>();
+        let normalized_contributors: HashSet<&str> = all_contributors
+            .iter()
+            .map(|e| normalize_email(e))
+            .collect();
 
-        if last_author == "49699333+dependabot[bot]@users.noreply.github.com" {
-            println!("Dependabot whitelisted.");
-            std::process::exit(0);
-        } else if all_contributors.contains(last_author.as_str()) {
+        const BOT_EMAILS: &[&str] = &[
+            "49699333+dependabot[bot]@users.noreply.github.com",
+            "41898282+github-actions[bot]@users.noreply.github.com",
+            "github-actions[bot]@users.noreply.github.com",
+        ];
+
+        if BOT_EMAILS.contains(&last_author.as_str())
+            || normalized_contributors.contains(normalize_email(&last_author))
+        {
             return Ok(());
         }
 

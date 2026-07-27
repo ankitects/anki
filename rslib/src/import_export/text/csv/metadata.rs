@@ -763,6 +763,8 @@ pub(in crate::import_export) mod test {
         );
         // pick up from first line
         assert_eq!(metadata!(col, "foo\tbar\n").delimiter(), Delimiter::Tab);
+        // no header and no recognizable delimiter in content → last-resort Space
+        assert_eq!(metadata!(col, "foobar\n").delimiter(), Delimiter::Space);
         // override with provided
         assert_eq!(
             metadata!(col, "#separator: \nfoo\tbar\n", Some(Delimiter::Pipe)).delimiter(),

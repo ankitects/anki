@@ -38,7 +38,7 @@ class LinuxZipMixin(LinuxMixin):
     supports_external_packaging = True
 
     def project_path(self, app):
-        return self.bundle_path(app) / f"{app.app_name}-{app.version}"
+        return self.bundle_path(app) / f"{app.app_name}"
 
     def binary_path(self, app):
         return self.project_path(app) / app.app_name

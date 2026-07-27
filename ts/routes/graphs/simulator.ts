@@ -114,7 +114,7 @@ export function renderWorkloadChart(
         .attr("stroke", "black")
         .attr("stroke-width", 1);
 
-    const startMemorized = subgraph_data[0].reviewless_end_memorized;
+    const startMemorized = subgraph_data[0]?.reviewless_end_memorized ?? 0;
 
     return _renderSimulationChart(
         svgElem,
