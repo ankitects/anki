@@ -6,18 +6,14 @@ use std::fmt::Write;
 use anki_proto::image_occlusion::get_image_occlusion_note_response::ImageOcclusionProperty;
 use anki_proto::image_occlusion::get_image_occlusion_note_response::ImageOcclusionShape;
 use htmlescape::encode_attribute;
-use nom::bytes::complete::escaped;
+use nom::bytes::complete::escaped_transform;
 use nom::bytes::complete::is_not;
 use nom::bytes::complete::tag;
-use nom::character::complete::char;
+use nom::character::complete::one_of;
 use nom::error::ErrorKind;
 use nom::sequence::preceded;
 use nom::sequence::separated_pair;
 use nom::Parser;
-
-fn unescape(text: &str) -> String {
-    text.replace("\\:", ":")
-}
 
 pub fn parse_image_cloze(text: &str) -> Option<ImageOcclusionShape> {
     if let Some((shape, _)) = text.split_once(':') {
@@ -26,12 +22,11 @@ pub fn parse_image_cloze(text: &str) -> Option<ImageOcclusionShape> {
         while let Ok((rem, (name, value))) = separated_pair::<_, _, _, (_, ErrorKind), _, _, _>(
             preceded(tag(":"), is_not("=")),
             tag("="),
-            escaped(is_not("\\:"), '\\', char(':')),
+            escaped_transform(is_not("\\:"), '\\', one_of("\\:")),
         )
         .parse(remaining)
         {
             remaining = rem;
-            let value = unescape(value);
             properties.push(ImageOcclusionProperty {
                 name: name.to_string(),
                 value,
@@ -163,7 +158,11 @@ fn test_get_image_cloze_data() {
         r#"data-shape="polygon" data-points="0,0 10,10 20,0" "#,
     );
     assert_eq!(
-        get_image_cloze_data("text:text=foo\\:bar:left=10"),
-        r#"data-shape="text" data-text="foo&#x3A;bar" data-left="10" "#,
+        get_image_cloze_data(r#"text:text=\\foo\:bar\::left=10"#),
+        r#"data-shape="text" data-text="&#x5C;foo&#x3A;bar&#x3A;" data-left="10" "#,
+    );
+    assert_eq!(
+        get_image_cloze_data(r#"text:text=\:lol\::left=10"#),
+        r#"data-shape="text" data-text="&#x3A;lol&#x3A;" data-left="10" "#,
     );
 }

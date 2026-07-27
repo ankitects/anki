@@ -233,6 +233,22 @@ def favicon() -> Response:
     return _handle_builtin_file_request(request)
 
 
+@app.route("/_anki/readyz")
+def readyz() -> Response:
+    """Reports whether the profile's collection is open.
+
+    The HTTP server starts listening before the profile/collection finishes
+    loading (setupMediaServer() runs synchronously in AnkiQt.__init__, while
+    setupProfile() is deferred via a QTimer), so callers that need the
+    collection open - e.g. the e2e test harness's webServer readiness check -
+    should poll this instead of /favicon.ico, which responds regardless of
+    collection state.
+    """
+    if aqt.mw.col is None:
+        return Response(status=HTTPStatus.SERVICE_UNAVAILABLE)
+    return Response(status=HTTPStatus.OK)
+
+
 def _mime_for_path(path: str) -> str:
     "Mime type for provided path/filename."
 
@@ -474,6 +490,7 @@ def is_sveltekit_page(path: str) -> bool:
         "import-csv",
         "import-page",
         "image-occlusion",
+        "preferences",
         "editor",
     ]
 
@@ -798,6 +815,10 @@ class AsyncRequestHandler(Generic[AsyncRequestReturnType]):
         return await self.future
 
 
+def active_window_or_main() -> QWidget:
+    return aqt.mw.app.activeWindow() or aqt.mw
+
+
 async def open_file_picker() -> bytes:
     req = frontend_pb2.openFilePickerRequest()
     req.ParseFromString(request.data)
@@ -808,8 +829,7 @@ async def open_file_picker() -> bytes:
         def cb(filename: str | None) -> None:
             request_handler.set_result(filename)
 
-        window = aqt.mw.app.activeWindow()
-        assert window is not None
+        window = active_window_or_main()
         getFile(
             parent=window,
             title=req.title,
@@ -854,8 +874,7 @@ async def record_audio() -> bytes:
         def cb(path: str | None) -> None:
             request_handler.set_result(path)
 
-        window = aqt.mw.app.activeWindow()
-        assert window is not None
+        window = active_window_or_main()
         record_audio(window, aqt.mw, True, cb)
 
     request_handler: AsyncRequestHandler[str | None] = AsyncRequestHandler(callback)
