@@ -199,10 +199,11 @@ jobs:
           path: out
           key: build-Linux-${{ github.event.pull_request.number || 'main' }}-${{ github.run_id }}
 
-  # ARM Linux. Runs on pushes to main or on PRs with the check:linux label.
+  # ARM Linux. Runs on pushes to release branches, manual dispatch, or on PRs
+  # with the check:linux label (not on every push to main).
   check-linux-arm:
     if: >-
-      github.event_name == 'push'
+      (github.event_name == 'push' && startsWith(github.ref, 'refs/heads/release/'))
       || github.event_name == 'workflow_dispatch'
       || contains(github.event.pull_request.labels.*.name, 'check:linux')
     runs-on: ubuntu-24.04-arm
@@ -262,10 +263,11 @@ jobs:
           path: out
           key: build-arm64-Linux-${{ github.event.pull_request.number || 'main' }}-${{ github.run_id }}
 
-  # Intel Mac. Runs on pushes to main or on PRs with the check:macos label.
+  # Intel Mac. Runs on pushes to release branches, manual dispatch, or on PRs
+  # with the check:macos label (not on every push to main).
   check-macos-intel:
     if: >-
-      github.event_name == 'push'
+      (github.event_name == 'push' && startsWith(github.ref, 'refs/heads/release/'))
       || github.event_name == 'workflow_dispatch'
       || contains(github.event.pull_request.labels.*.name, 'check:macos')
     runs-on: macos-15-intel
@@ -480,10 +482,11 @@ jobs:
           path: out
           key: build-Windows-${{ github.event.pull_request.number || 'main' }}-${{ github.run_id }}
 
-  # ARM Windows. Runs on pushes to main or on PRs with the check:windows label.
+  # ARM Windows. Runs on pushes to release branches, manual dispatch, or on
+  # PRs with the check:windows label (not on every push to main).
   check-windows-arm:
     if: >-
-      github.event_name == 'push'
+      (github.event_name == 'push' && startsWith(github.ref, 'refs/heads/release/'))
       || github.event_name == 'workflow_dispatch'
       || contains(github.event.pull_request.labels.*.name, 'check:windows')
     runs-on: windows-11-arm
