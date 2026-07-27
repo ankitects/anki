@@ -381,6 +381,7 @@ class AnkiWebView(QWebEngineView):
         self._pendingActions: list[tuple[str, Sequence[Any]]] = []
         self.requiresCol = True
         self._disable_zoom = False
+        self.font_size_multiplier = 1.5
         self._uses_dynamic_styling = False
 
         self.resetHandlers()
@@ -578,9 +579,12 @@ class AnkiWebView(QWebEngineView):
         else:
             return 3
 
+    def set_font_size_multiplier(self, multiplier: float) -> None:
+        self.font_size_multiplier = multiplier
+
     def standard_css(self) -> str:
         color_hl = theme_manager.var(colors.BORDER_FOCUS)
-        system_font = self.font().pointSizeF() * 1.25
+        font_size = self.font().pointSizeF() * self.font_size_multiplier
 
         if is_win:
             # T: include a font for your language on Windows, eg: "Segoe UI", "MS Mincho"
@@ -623,7 +627,7 @@ div[contenteditable="true"]:focus {{
                 color_hl=color_hl,
             )
 
-        font += f"font-size: {system_font}px; --bs-body-font-size: {system_font}px;"
+        font += f"font-size: {font_size}px; --bs-body-font-size: {font_size}px;"
         zoom = self.app_zoom_factor()
 
         return f"""
