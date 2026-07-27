@@ -12,8 +12,10 @@ use super::gather::TranslationsByLang;
 
 pub fn check(lang_map: &TranslationsByLang) {
     for (lang, files_map) in lang_map {
-        for (fname, content) in files_map {
-            check_content(lang, fname, content);
+        for (fname, repos) in files_map {
+            for content in repos.values() {
+                check_content(lang, fname, content);
+            }
         }
     }
 }

@@ -98,6 +98,13 @@ jobs:
       - name: Install just
         uses: extractions/setup-just@53165ef7e734c5c07cb06b3c8e7b647c5aa16db3 #v4
 
+      - name: Install cargo-llvm-cov and cargo-nextest
+        uses: taiki-e/install-action@c7eb1735f09259a5035e8e5d44b1406b1cddc0fb #v2.83.0
+        with:
+          tool: |
+            cargo-llvm-cov@0.8.4
+            cargo-nextest@0.9.99
+
       - name: Symlink node_modules
         run: ln -sf out/node_modules .
 
@@ -362,6 +369,13 @@ jobs:
       - name: Install just
         uses: extractions/setup-just@53165ef7e734c5c07cb06b3c8e7b647c5aa16db3 #v4
 
+      - name: Install cargo-llvm-cov and cargo-nextest
+        uses: taiki-e/install-action@c7eb1735f09259a5035e8e5d44b1406b1cddc0fb #v2.83.0
+        with:
+          tool: |
+            cargo-llvm-cov@0.8.4
+            cargo-nextest@0.9.99
+
       - name: Symlink node_modules
         run: ln -sf out/node_modules .
 
@@ -437,6 +451,13 @@ jobs:
 
       - name: Install just
         uses: extractions/setup-just@53165ef7e734c5c07cb06b3c8e7b647c5aa16db3 #v4
+
+      - name: Install cargo-llvm-cov and cargo-nextest
+        uses: taiki-e/install-action@c7eb1735f09259a5035e8e5d44b1406b1cddc0fb #v2.83.0
+        with:
+          tool: |
+            cargo-llvm-cov@0.8.4
+            cargo-nextest@0.9.99
 
       - name: Build, lint, and test
         run: |
