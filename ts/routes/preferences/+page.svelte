@@ -56,6 +56,5 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     :global(body) {
         background-color: var(--canvas-elevated) !important;
-        font-size: 80%;
     }
 </style>
