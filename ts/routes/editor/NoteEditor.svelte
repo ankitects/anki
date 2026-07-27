@@ -69,6 +69,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { onDestroy, onMount, tick } from "svelte";
     import { get, writable } from "svelte/store";
     import { nodeIsCommonElement } from "@tslib/dom";
+    import { SerialQueue } from "@tslib/promise";
 
     import Absolute from "$lib/components/Absolute.svelte";
     import Badge from "$lib/components/Badge.svelte";
@@ -1380,6 +1381,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     const focusedField: NoteEditorAPI["focusedField"] = writable(null);
     const focusedInput: NoteEditorAPI["focusedInput"] = writable(null);
     let focusedFieldIndex = 0;
+    const focusEventQueue = new SerialQueue();
 
     const api: NoteEditorAPI = {
         ...apiPartial,
@@ -1494,31 +1496,33 @@ components and functionality for general note editing.
                     {index}
                     flipInputs={plainTextDefaults[index]}
                     api={fields[index]}
-                    on:focusin={() => {
-                        $focusedField = fields[index];
-                        focusedFieldIndex = index;
-                        setAddonButtonsDisabled(false);
-                        bridgeCommand(`focus:${index}`);
-                    }}
-                    on:focusout={async () => {
-                        $focusedField = null;
-                        focusedFieldIndex = 0;
-                        setAddonButtonsDisabled(true);
-                        if (isLegacy) {
-                            bridgeCommand(
-                                `blur:${index}:${getNoteId()}:${await transformContentBeforeSave(
+                    on:focusin={() =>
+                        focusEventQueue.run(async () => {
+                            $focusedField = fields[index];
+                            focusedFieldIndex = index;
+                            setAddonButtonsDisabled(false);
+                            bridgeCommand(`focus:${index}`);
+                        })}
+                    on:focusout={() =>
+                        focusEventQueue.run(async () => {
+                            $focusedField = null;
+                            focusedFieldIndex = 0;
+                            setAddonButtonsDisabled(true);
+                            if (isLegacy) {
+                                bridgeCommand(
+                                    `blur:${index}:${getNoteId()}:${await transformContentBeforeSave(
+                                        get(content),
+                                    )}`,
+                                );
+                            } else {
+                                bridgeCommand(`blur:${index}`);
+                                note!.fields[index] = await transformContentBeforeSave(
                                     get(content),
-                                )}`,
-                            );
-                        } else {
-                            bridgeCommand(`blur:${index}`);
-                            note!.fields[index] = await transformContentBeforeSave(
-                                get(content),
-                            );
-                            await updateCurrentNote();
-                            await updateDuplicateDisplay();
-                        }
-                    }}
+                                );
+                                await updateCurrentNote();
+                                await updateDuplicateDisplay();
+                            }
+                        })}
                     on:mouseenter={() => {
                         $hoveredField = fields[index];
                     }}
