@@ -197,56 +197,24 @@ in the collection2.log file will also be printed on stdout.
 
 If ANKI_PROFILE_CODE is set, Python profiling data will be written on exit.
 
-# Installer/launcher
+## Installer
 
-- The anki-release package is created/published with the scripts in qt/release.
-- The installer/launcher is created with the build scripts in qt/launcher/{platform}.
+Run `tools/build-installer` to build the installer.
 
-## Building
+Depending on your operating system, this produces a file under `out/installer/dist`:
 
-The steps to build the launcher vary slightly depending on your operating
-system. First, you have to navigate to the appropriate folder:
+- An MSI installer on Windows.
+- A .dmg file on macOS.
+- A tarball on Linux.
 
-| Operating System | Path               | Env variables |
-| ---------------- | ------------------ | ------------- |
-| Linux            | ./qt/launcher/lin/ | -             |
-| MacOS            | ./qt/launcher/mac/ | `NODMG=1`     |
-| Windows          | .\qt\launcher\win\ | `NOCOMP=1`    |
+### Issues During Building
 
-If you are on Windows or MacOS, you will now have to set the environment
-variables as outlined in the table above. `NOCOMP=1` skips code signing
-and compression, whereas `NODMG=1` skips the slow bundling / code signing.
-
-Next, run the `build.sh` script (on Linux and MacOS) or the `build.bat` script
-(on Windows).
-
-For example, on Linux, you can build the launcher by following these steps:
-
-```
-cd ./qt/launcher/lin/
-./build.sh
-```
-
-## Issues During Building
-
-If you are experiencing issues building the launcher, make sure that all dependencies
+If you are experiencing issues building the installer, make sure that all dependencies
 are installed. See [Building from source](#building-from-source) for more info.
 
-## Running
+## Releasing
 
-Once the launcher is built, you can find the executable under `out/launcher`
-(located in the project root). In that folder, you will find the binary file of
-the launcher.
-
-On linux, you will find a `launcher.amd64` and a `launcher.arm64` binary file.
-Select the one matching your architecture and run it to test your changes.
-
-For example, on Linux, after following the build steps above, you can run the
-amd64 launcher via this command:
-
-```
-../../../out/launcher/anki-launcher-25.09.2-linux/launcher.amd64
-```
+See [Releasing](./releasing.md).
 
 # Mixing development and study
 

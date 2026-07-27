@@ -487,6 +487,7 @@ deck-config-checking-for-improvement = Checking for improvement...
 deck-config-optimizing-preset = Optimizing preset { $current_count }/{ $total_count }...
 deck-config-fsrs-must-be-enabled = FSRS must be enabled first.
 deck-config-fsrs-params-optimal = The FSRS parameters currently appear to be optimal.
+deck-config-fsrs-confirm-save-and-optimize = This will save any other changes you have made. Are you sure?
 
 deck-config-fsrs-params-no-reviews = No reviews found. Make sure this preset is assigned to all decks (including subdecks) that you want to optimize, and try again.
 

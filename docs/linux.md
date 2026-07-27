@@ -7,9 +7,7 @@ Some extra notes have been provided by a forum member, though some of the things
 mentioned there no longer apply:
 https://forums.ankiweb.net/t/guide-how-to-build-and-run-anki-from-source-with-xubuntu-20-04/12865
 
-You can see a full list of buildtime and runtime requirements by looking at the
-[Dockerfile](../.buildkite/linux/docker/Dockerfile) used to build the
-official releases.
+You can see a full list of buildtime and runtime requirements by looking at the `apt-get install` step in the [`setup-anki` composite action](../.github/actions/setup-anki/action.yml), used by the workflows under [`.github/workflows/`](../.github/workflows/).
 
 **Ensure some basic tools are installed**:
 
@@ -45,14 +43,6 @@ On some distros such as Fedora, you may need to install the
 
 ```
 error while loading shared libraries: libcrypt.so.1: cannot open shared object file: No such file or directory
-```
-
-## Dependencies for Building the Launcher
-
-If you want to build the launcher, you will need to install the following dependency:
-
-```
-sudo apt install gcc-aarch64-linux-gnu
 ```
 
 ## Audio

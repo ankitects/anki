@@ -10,6 +10,7 @@ hidden:
 development
 build
 contributing
+testing-coverage
 architecture
 protobuf
 ```
