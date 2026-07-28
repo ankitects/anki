@@ -1200,6 +1200,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@sveltejs/acorn-typescript@npm:^1.0.9":
+  version: 1.0.11
+  resolution: "@sveltejs/acorn-typescript@npm:1.0.11"
+  peerDependencies:
+    acorn: ^8.9.0
+  checksum: 10c0/9d93f68ffd7ed339a8743af6d1540a2fd3195ff66015163c2c0359eef75cc960188e2ae4a70ec2987989321d9ed2317f315ec05041f7c9c75cf91e8dfba95be9
+  languageName: node
+  linkType: hard
+
 "@sveltejs/adapter-static@npm:^3.0.10":
   version: 3.0.10
   resolution: "@sveltejs/adapter-static@npm:3.0.10"
@@ -1209,14 +1218,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@sveltejs/kit@npm:^2.60.1":
-  version: 2.60.1
-  resolution: "@sveltejs/kit@npm:2.60.1"
+"@sveltejs/kit@npm:^2.69.1":
+  version: 2.69.1
+  resolution: "@sveltejs/kit@npm:2.69.1"
   dependencies:
     "@standard-schema/spec": "npm:^1.0.0"
-    "@sveltejs/acorn-typescript": "npm:^1.0.5"
+    "@sveltejs/acorn-typescript": "npm:^1.0.9"
     "@types/cookie": "npm:^0.6.0"
-    acorn: "npm:^8.14.1"
+    acorn: "npm:^8.16.0"
     cookie: "npm:^0.6.0"
     devalue: "npm:^5.8.1"
     esm-env: "npm:^1.2.2"
@@ -1238,7 +1247,7 @@ __metadata:
       optional: true
   bin:
     svelte-kit: svelte-kit.js
-  checksum: 10c0/6aef97d92ac28f2697870f3458781eacb107e553b519d4f30b72fea7102109e6c41e3f292a8485b3f96e2648417f05158d5b6ab7835a6d12c14bfac1f939956f
+  checksum: 10c0/12b146417f85c9e171e186db04e41570129cd22d6bb938a15c35cc175fea7c5963978970ebe2986105b41393ad10ae23ca619c97a67b27039c84af638f1cd597
   languageName: node
   linkType: hard
 
@@ -2035,12 +2044,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"acorn@npm:^8.14.1":
-  version: 8.15.0
-  resolution: "acorn@npm:8.15.0"
+"acorn@npm:^8.16.0":
+  version: 8.18.0
+  resolution: "acorn@npm:8.18.0"
   bin:
     acorn: bin/acorn
-  checksum: 10c0/dec73ff59b7d6628a01eebaece7f2bdb8bb62b9b5926dcad0f8931f2b8b79c2be21f6c68ac095592adb5adb15831a3635d9343e6a91d028bbe85d564875ec3ec
+  checksum: 10c0/be771be2135cc07910cf76f444ad514d7dcfd6d4a8026e597e93155275abc8ef61eee12211d52146e9d962874269b634f397464942087be013c89d0c54c5f8e5
   languageName: node
   linkType: hard
 
@@ -2086,7 +2095,7 @@ __metadata:
     "@popperjs/core": "npm:^2.11.8"
     "@sqltools/formatter": "npm:^1.2.2"
     "@sveltejs/adapter-static": "npm:^3.0.10"
-    "@sveltejs/kit": "npm:^2.60.1"
+    "@sveltejs/kit": "npm:^2.69.1"
     "@sveltejs/vite-plugin-svelte": "npm:5.1"
     "@types/bootstrap": "npm:^5.0.12"
     "@types/codemirror": "npm:^5.60.0"
