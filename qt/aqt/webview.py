@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import dataclasses
 import json
+import logging
 import os
 import re
 import sys
@@ -26,6 +27,8 @@ from aqt.qt import *
 from aqt.qt import sip
 from aqt.theme import theme_manager
 from aqt.utils import askUser, is_gesture_or_zoom_event, openLink, showInfo, tr
+
+logger = logging.getLogger(__name__)
 
 serverbaseurl = re.compile(r"^.+:\/\/[^\/]+")
 
@@ -970,6 +973,12 @@ html {{ {font} }}
         if sip.isdeleted(self):
             from aqt import mw
 
+            logger.warning(
+                "%s (%s) was destroyed without a cleanup() call; "
+                "dropping operation_did_execute hook",
+                type(self).__name__,
+                self.kind.value,
+            )
             mw.progress.single_shot(
                 0,
                 lambda: gui_hooks.operation_did_execute.remove(
