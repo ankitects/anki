@@ -684,8 +684,11 @@ impl RowContext {
 /// non-empty. Calculate in f64 so neither summing many cards nor converting
 /// days to seconds can overflow an integer accumulator.
 fn average_interval_secs(intervals: &[u32]) -> f32 {
-    let average_days =
-        intervals.iter().map(|&interval| f64::from(interval)).sum::<f64>() / intervals.len() as f64;
+    let average_days = intervals
+        .iter()
+        .map(|&interval| f64::from(interval))
+        .sum::<f64>()
+        / intervals.len() as f64;
     (average_days * 86_400.0) as f32
 }
 
