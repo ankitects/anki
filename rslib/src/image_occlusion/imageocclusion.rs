@@ -8,12 +8,21 @@ use anki_proto::image_occlusion::get_image_occlusion_note_response::ImageOcclusi
 use htmlescape::encode_attribute;
 
 fn unescape(text: &str) -> String {
-    text.replace("\\:", ":")
+    let mut output = String::with_capacity(text.len());
+    let mut chars = text.chars().peekable();
+    while let Some(ch) = chars.next() {
+        if ch == '\\' && matches!(chars.peek(), Some('\\' | ':')) {
+            output.push(chars.next().unwrap());
+        } else {
+            output.push(ch);
+        }
+    }
+    output
 }
 
 /// Split on each `:` that is not escaped by a preceding backslash. Property
-/// values escape a literal colon as `\:` (backslashes are not otherwise
-/// escaped), so an unescaped `:` always separates one property from the next.
+/// values escape literal backslashes and colons as `\\` and `\:`, so an
+/// unescaped `:` always separates one property from the next.
 fn split_on_unescaped_colon(text: &str) -> Vec<&str> {
     let mut parts = vec![];
     let mut start = 0;
@@ -172,8 +181,12 @@ fn test_get_image_cloze_data() {
         r#"data-shape="polygon" data-points="0,0 10,10 20,0" "#,
     );
     assert_eq!(
-        get_image_cloze_data("text:text=foo\\:bar:left=10"),
-        r#"data-shape="text" data-text="foo&#x3A;bar" data-left="10" "#,
+        get_image_cloze_data(r#"text:text=\\foo\:bar\::left=10"#),
+        r#"data-shape="text" data-text="&#x5C;foo&#x3A;bar&#x3A;" data-left="10" "#,
+    );
+    assert_eq!(
+        get_image_cloze_data(r#"text:text=\:lol\::left=10"#),
+        r#"data-shape="text" data-text="&#x3A;lol&#x3A;" data-left="10" "#,
     );
 }
 
@@ -187,7 +200,7 @@ fn parses_empty_and_backslash_values() {
     // a backslash in a value (e.g. LaTeX) must not drop it or the props after
     // it (the backslash is HTML-escaped to &#x5C; in the data attribute)
     assert_eq!(
-        get_image_cloze_data("text:left=10:text=\\frac:top=20"),
+        get_image_cloze_data(r"text:left=10:text=\\frac:top=20"),
         r#"data-shape="text" data-left="10" data-text="&#x5C;frac" data-top="20" "#,
     );
 }
