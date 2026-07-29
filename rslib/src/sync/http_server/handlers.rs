@@ -154,6 +154,7 @@ impl SyncProtocol for Arc<SimpleServer> {
             let _ = req.json()?;
             let now = user.with_sync_state(req.skey()?, |col, _state| server_finish(col))?;
             user.sync_state = None;
+            user.col = None; // Close collection to release database lock
             SyncResponse::try_from_obj(now)
         })
         .await
