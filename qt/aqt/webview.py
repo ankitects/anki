@@ -964,6 +964,20 @@ html {{ {font} }}
     def on_operation_did_execute(
         self, changes: OpChanges, handler: object | None
     ) -> None:
+        # add-on webviews may be destroyed via Qt parent ownership without
+        # cleanup() being called; unsubscribe instead of erroring, deferring
+        # the removal to avoid mutating the hook list while it fires
+        if sip.isdeleted(self):
+            from aqt import mw
+
+            mw.progress.single_shot(
+                0,
+                lambda: gui_hooks.operation_did_execute.remove(
+                    self.on_operation_did_execute
+                ),
+                requires_collection=False,
+            )
+            return
         if handler is self.parentWidget():
             return
 
