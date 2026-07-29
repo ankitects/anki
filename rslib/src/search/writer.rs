@@ -250,6 +250,7 @@ mod test {
         // `\\"` and the result no longer re-parsed.
         for input in [r#"preset:a\"b"#, r#"prop:cds:k=a\"b"#] {
             let normalized = normalize_search(input).unwrap();
+            assert_eq!(normalized, input, "normalizing changed the quoted value");
             assert_eq!(
                 normalize_search(&normalized).unwrap(),
                 normalized,
