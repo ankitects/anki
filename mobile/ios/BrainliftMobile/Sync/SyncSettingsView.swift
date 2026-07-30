@@ -19,12 +19,15 @@ struct SyncSettingsView: View {
                         .textContentType(.username)
                         .textInputAutocapitalization(.never)
                         .autocorrectionDisabled()
+                        .accessibilityIdentifier("sync-username")
                     SecureField("Password", text: $password)
                         .textContentType(.password)
+                        .accessibilityIdentifier("sync-password")
                     Button("Save and Sync") {
                         Task { await saveAndSync() }
                     }
                     .disabled(username.isEmpty || password.isEmpty || isBusy)
+                    .accessibilityIdentifier("save-and-sync")
                 }
 
                 if case .waitingForDirection(let directions) = coordinator.phase {
@@ -41,6 +44,7 @@ struct SyncSettingsView: View {
                                     markCompletedIfNeeded()
                                 }
                             }
+                            .accessibilityIdentifier("full-sync-\(direction.rawValue)")
                         }
                     }
                 }

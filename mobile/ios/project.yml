@@ -54,12 +54,25 @@ targets:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.techmexdev.BrainliftMobileTests
         GENERATE_INFOPLIST_FILE: "YES"
+  BrainliftMobileUITests:
+    type: bundle.ui-testing
+    platform: iOS
+    sources:
+      - path: BrainliftMobileUITests
+    dependencies:
+      - target: BrainliftMobile
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.techmexdev.BrainliftMobileUITests
+        GENERATE_INFOPLIST_FILE: "YES"
 schemes:
   BrainliftMobile:
     build:
       targets:
         BrainliftMobile: all
         BrainliftMobileTests: [test]
+        BrainliftMobileUITests: [test]
     test:
       targets:
         - BrainliftMobileTests
+        - BrainliftMobileUITests

@@ -35,6 +35,20 @@
                ReferencedContainer = "container:BrainliftMobile.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
+         <BuildActionEntry
+            buildForTesting = "YES"
+            buildForRunning = "NO"
+            buildForProfiling = "NO"
+            buildForArchiving = "NO"
+            buildForAnalyzing = "NO">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "AF26ECB8F0C7C12AD1E10258"
+               BuildableName = "BrainliftMobileUITests.xctest"
+               BlueprintName = "BrainliftMobileUITests"
+               ReferencedContainer = "container:BrainliftMobile.xcodeproj">
+            </BuildableReference>
+         </BuildActionEntry>
       </BuildActionEntries>
    </BuildAction>
    <TestAction
@@ -61,6 +75,17 @@
                BlueprintIdentifier = "8F47466D6A5B06CFA9087C9A"
                BuildableName = "BrainliftMobileTests.xctest"
                BlueprintName = "BrainliftMobileTests"
+               ReferencedContainer = "container:BrainliftMobile.xcodeproj">
+            </BuildableReference>
+         </TestableReference>
+         <TestableReference
+            skipped = "NO"
+            parallelizable = "NO">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "AF26ECB8F0C7C12AD1E10258"
+               BuildableName = "BrainliftMobileUITests.xctest"
+               BlueprintName = "BrainliftMobileUITests"
                ReferencedContainer = "container:BrainliftMobile.xcodeproj">
             </BuildableReference>
          </TestableReference>

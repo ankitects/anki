@@ -4,9 +4,15 @@
 import SwiftUI
 
 struct ContentView: View {
+    let backend: any CompanionBackend
+
+    init(backend: any CompanionBackend = AnkiBackend()) {
+        self.backend = backend
+    }
+
     var body: some View {
         NavigationStack {
-            ReviewSessionView()
+            ReviewSessionView(backend: backend)
         }
     }
 }

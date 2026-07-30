@@ -24,10 +24,12 @@
 		46941D55595965408F061ED6 /* BackendMethods.swift in Sources */ = {isa = PBXBuildFile; fileRef = FBC1C09B148D549BA7954A64 /* BackendMethods.swift */; };
 		47AADF18890212582291E52B /* cards.pb.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18DDC6C75C924E97CDEA2A37 /* cards.pb.swift */; };
 		4CCAD4182BA8E3F2BACBC112 /* i18n.pb.swift in Sources */ = {isa = PBXBuildFile; fileRef = C4FF3E7350198CCE25C57972 /* i18n.pb.swift */; };
+		4DC08B1B11E3E5A0588D485B /* BrainliftMobileUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3E1F6B4C1A0C85E96C852004 /* BrainliftMobileUITests.swift */; };
 		512286DC210C83515775F3FA /* SyncSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75F68067F240542B3A2CC397 /* SyncSettingsView.swift */; };
 		562F2CCA46BD590D30F0D8B1 /* tags.pb.swift in Sources */ = {isa = PBXBuildFile; fileRef = E55F9E3C0C991BEAA4F1F188 /* tags.pb.swift */; };
 		56BF3E1BF616D6C3CAF1A3A7 /* frontend.pb.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41FC6D728925433161D25022 /* frontend.pb.swift */; };
 		59ACB90539BE048EA65B014A /* generic.pb.swift in Sources */ = {isa = PBXBuildFile; fileRef = DDDD60ECEE66E73EB70F7C03 /* generic.pb.swift */; };
+		5AD330F20B29FE5D4269D007 /* AppBootstrap.swift in Sources */ = {isa = PBXBuildFile; fileRef = C79EFF35D277362E65694FBF /* AppBootstrap.swift */; };
 		5CA5F2B9FB1CF8039A351EB3 /* ReviewBackend.swift in Sources */ = {isa = PBXBuildFile; fileRef = 19E81B08E60D11EDE6302061 /* ReviewBackend.swift */; };
 		6A289EB241CA3EE403F969FF /* ReviewSessionViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8B63B0643191D123CE5F11A4 /* ReviewSessionViewModel.swift */; };
 		6D407ECE0866981790AA5962 /* notes.pb.swift in Sources */ = {isa = PBXBuildFile; fileRef = DB5EE77906DAC1AD7C07EE53 /* notes.pb.swift */; };
@@ -65,6 +67,13 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
+		8CED25B890F06027D56FFCCC /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 6A0A074D98E0F188F5F2CD7A /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 7BC8B794972678C8E77D9CED;
+			remoteInfo = BrainliftMobile;
+		};
 		915CBFB7DB80E7EEBE830927 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 6A0A074D98E0F188F5F2CD7A /* Project object */;
@@ -88,6 +97,7 @@
 		32B9D70DB9C5720FCA55EF22 /* decks.pb.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = decks.pb.swift; sourceTree = "<group>"; };
 		348435B721983DDDD8879367 /* links.pb.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = links.pb.swift; sourceTree = "<group>"; };
 		358386AEB89790FD633BA920 /* ReviewModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReviewModels.swift; sourceTree = "<group>"; };
+		3E1F6B4C1A0C85E96C852004 /* BrainliftMobileUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BrainliftMobileUITests.swift; sourceTree = "<group>"; };
 		41FC6D728925433161D25022 /* frontend.pb.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = frontend.pb.swift; sourceTree = "<group>"; };
 		429B41360E0CB6A9DDAB1660 /* image_occlusion.pb.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = image_occlusion.pb.swift; sourceTree = "<group>"; };
 		43961C7C80333CFE508868BF /* ScorePanelViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScorePanelViewModel.swift; sourceTree = "<group>"; };
@@ -118,7 +128,9 @@
 		9D050D679ED99AA7C4B29627 /* ScoreRowView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScoreRowView.swift; sourceTree = "<group>"; };
 		9F3953135314338D89D92BBE /* AnkiBackendError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnkiBackendError.swift; sourceTree = "<group>"; };
 		A3159BFB8500CABE7EBDE825 /* ReviewSessionViewModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReviewSessionViewModelTests.swift; sourceTree = "<group>"; };
+		BE1D444F0728D6D145AAF578 /* BrainliftMobileUITests.xctest */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.cfbundle; path = BrainliftMobileUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		C4FF3E7350198CCE25C57972 /* i18n.pb.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = i18n.pb.swift; sourceTree = "<group>"; };
+		C79EFF35D277362E65694FBF /* AppBootstrap.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppBootstrap.swift; sourceTree = "<group>"; };
 		DB5EE77906DAC1AD7C07EE53 /* notes.pb.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = notes.pb.swift; sourceTree = "<group>"; };
 		DDDD60ECEE66E73EB70F7C03 /* generic.pb.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = generic.pb.swift; sourceTree = "<group>"; };
 		DFFF578850C8509999E41EA7 /* SyncProgressView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SyncProgressView.swift; sourceTree = "<group>"; };
@@ -205,6 +217,14 @@
 			path = Sync;
 			sourceTree = "<group>";
 		};
+		84A8485DB844B6F963A6EF98 /* BrainliftMobileUITests */ = {
+			isa = PBXGroup;
+			children = (
+				3E1F6B4C1A0C85E96C852004 /* BrainliftMobileUITests.swift */,
+			);
+			path = BrainliftMobileUITests;
+			sourceTree = "<group>";
+		};
 		8875909A3DED02A9060AE68A /* out */ = {
 			isa = PBXGroup;
 			children = (
@@ -234,6 +254,7 @@
 			children = (
 				9CD0DB108DB66E5FC411049A /* BrainliftMobile.app */,
 				08B7B6191F5FD173F4EF50B3 /* BrainliftMobileTests.xctest */,
+				BE1D444F0728D6D145AAF578 /* BrainliftMobileUITests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -241,6 +262,7 @@
 		AF1A95234CCE404308841C37 /* App */ = {
 			isa = PBXGroup;
 			children = (
+				C79EFF35D277362E65694FBF /* AppBootstrap.swift */,
 				8BEF04906ED8CF34EE799D0E /* BrainliftMobileApp.swift */,
 				1475D9C93C7D337D92EC8358 /* BuildInfo.swift */,
 				449E9D7902566081BED1C0F8 /* ContentView.swift */,
@@ -323,6 +345,7 @@
 				DC3F1514D2C82AD99C39240C /* anki */,
 				F0C70E210548593ACD86DC70 /* BrainliftMobile */,
 				3DBC7B7E208465F2746B827C /* BrainliftMobileTests */,
+				84A8485DB844B6F963A6EF98 /* BrainliftMobileUITests */,
 				A72FD7B4A89D03545D70E756 /* Frameworks */,
 				AC2FCBA2C6F49F501BE2BEA7 /* Products */,
 			);
@@ -413,6 +436,24 @@
 			productReference = 08B7B6191F5FD173F4EF50B3 /* BrainliftMobileTests.xctest */;
 			productType = "com.apple.product-type.bundle.unit-test";
 		};
+		AF26ECB8F0C7C12AD1E10258 /* BrainliftMobileUITests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = AA1ACB4B97E2CCD2E10F612D /* Build configuration list for PBXNativeTarget "BrainliftMobileUITests" */;
+			buildPhases = (
+				DCCDB1D3D5AA41FCC14B31DF /* Sources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				92222A984DFE69393624826F /* PBXTargetDependency */,
+			);
+			name = BrainliftMobileUITests;
+			packageProductDependencies = (
+			);
+			productName = BrainliftMobileUITests;
+			productReference = BE1D444F0728D6D145AAF578 /* BrainliftMobileUITests.xctest */;
+			productType = "com.apple.product-type.bundle.ui-testing";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -427,6 +468,10 @@
 					};
 					8F47466D6A5B06CFA9087C9A = {
 						DevelopmentTeam = "";
+					};
+					AF26ECB8F0C7C12AD1E10258 = {
+						DevelopmentTeam = "";
+						TestTargetID = 7BC8B794972678C8E77D9CED;
 					};
 				};
 			};
@@ -449,6 +494,7 @@
 			targets = (
 				7BC8B794972678C8E77D9CED /* BrainliftMobile */,
 				8F47466D6A5B06CFA9087C9A /* BrainliftMobileTests */,
+				AF26ECB8F0C7C12AD1E10258 /* BrainliftMobileUITests */,
 			);
 		};
 /* End PBXProject section */
@@ -473,6 +519,7 @@
 			files = (
 				192A53965932215079BF523B /* AnkiBackend.swift in Sources */,
 				2447F2FF45DF6658521DF780 /* AnkiBackendError.swift in Sources */,
+				5AD330F20B29FE5D4269D007 /* AppBootstrap.swift in Sources */,
 				46941D55595965408F061ED6 /* BackendMethods.swift in Sources */,
 				8904148A20D364BE02CC1530 /* BackendTransport.swift in Sources */,
 				83A56BFEF3B1C9F0F30D471C /* BrainliftMobileApp.swift in Sources */,
@@ -520,6 +567,14 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		DCCDB1D3D5AA41FCC14B31DF /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				4DC08B1B11E3E5A0588D485B /* BrainliftMobileUITests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
@@ -527,6 +582,11 @@
 			isa = PBXTargetDependency;
 			target = 7BC8B794972678C8E77D9CED /* BrainliftMobile */;
 			targetProxy = 915CBFB7DB80E7EEBE830927 /* PBXContainerItemProxy */;
+		};
+		92222A984DFE69393624826F /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 7BC8B794972678C8E77D9CED /* BrainliftMobile */;
+			targetProxy = 8CED25B890F06027D56FFCCC /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
@@ -545,6 +605,23 @@
 				SDKROOT = iphoneos;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/BrainliftMobile.app/BrainliftMobile";
+			};
+			name = Debug;
+		};
+		1EAB9C92AE4EF27C12E11301 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				GENERATE_INFOPLIST_FILE = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.techmexdev.BrainliftMobileUITests;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_TARGET_NAME = BrainliftMobile;
 			};
 			name = Debug;
 		};
@@ -677,6 +754,23 @@
 			};
 			name = Debug;
 		};
+		BDB32B6A1CC4512B17D99DC2 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				GENERATE_INFOPLIST_FILE = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.techmexdev.BrainliftMobileUITests;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_TARGET_NAME = BrainliftMobile;
+			};
+			name = Release;
+		};
 		EB72BA524CF56CFB3CC7E346 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -742,6 +836,15 @@
 			buildConfigurations = (
 				094235F233C75690547A4516 /* Debug */,
 				706AA98766FCEF8518DE690D /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		AA1ACB4B97E2CCD2E10F612D /* Build configuration list for PBXNativeTarget "BrainliftMobileUITests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				1EAB9C92AE4EF27C12E11301 /* Debug */,
+				BDB32B6A1CC4512B17D99DC2 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Debug;

@@ -5,9 +5,11 @@ import SwiftUI
 
 @main
 struct BrainliftMobileApp: App {
+    private let backend = AppBootstrap.makeBackend()
+
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            ContentView(backend: backend)
         }
     }
 }
