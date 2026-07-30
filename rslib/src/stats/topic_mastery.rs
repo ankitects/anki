@@ -257,4 +257,46 @@ mod test {
         assert_eq!(reported.topics[0].passed_review_count, 2);
         assert_eq!(reported.topics[0].average_recall, Some(2.0 / 3.0));
     }
+
+    /// The query must be read-only.
+    ///
+    /// The undo queue is a sensitive witness: if the query opened a write
+    /// transaction or recorded any change, the pending undo step or its
+    /// counter would move. Adding a note leaves a real undoable operation to
+    /// watch, and the database check confirms nothing was corrupted.
+    #[test]
+    fn query_is_read_only_and_leaves_undo_intact() {
+        use crate::dbcheck::CheckDatabaseOutput;
+
+        let mut col = Collection::new();
+        add_note_with_tags(&mut col, "one", &["MCAT::Bio"]);
+
+        let before = col.undo_status();
+        assert!(before.undo.is_some(), "adding a note should be undoable");
+
+        // Run it repeatedly; a leak would compound.
+        for _ in 0..3 {
+            let _ = mastery(&mut col, "MCAT::", 1);
+        }
+
+        let after = col.undo_status();
+        assert_eq!(
+            before.last_step, after.last_step,
+            "the query moved the undo counter, so it wrote something"
+        );
+        assert_eq!(
+            before.undo, after.undo,
+            "the query displaced the pending undo step"
+        );
+
+        // Undo still works afterwards, and the query reflects the undone state.
+        col.undo().unwrap();
+        assert_eq!(mastery(&mut col, "MCAT::", 1).total_card_count, 0);
+
+        assert_eq!(
+            col.check_database().unwrap(),
+            CheckDatabaseOutput::default(),
+            "database check reported problems after running the query"
+        );
+    }
 }
