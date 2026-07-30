@@ -19,6 +19,7 @@ use crate::collection::Collection;
 use crate::error::Result;
 use crate::invalid_input;
 use crate::storage::BrainliftEvidenceRow;
+use crate::tags::immediate_parent_name_unicase;
 use crate::tags::split_tags;
 
 pub const TOPIC_MIN_REVIEWS: u32 = 2;
@@ -26,7 +27,7 @@ pub const MEMORY_MIN_REVIEWS: u32 = 10;
 pub const PERFORMANCE_MIN_REVIEWS: u32 = 10;
 pub const READINESS_MIN_TOPIC_COVERAGE: f64 = 0.8;
 pub const PASSING_BUTTON_MIN: u32 = 2;
-const PERFORMANCE_TAG: &str = "brainlift::evidence::performance";
+const PERFORMANCE_TAG_PREFIX: &str = "brainlift::evidence::performance::";
 const MCAT_MIN: f64 = 472.0;
 const MCAT_MAX: f64 = 528.0;
 const READINESS_FORMULA: &str =
@@ -57,12 +58,15 @@ struct SnapshotAccumulator {
     topics: Vec<BrainliftTopic>,
     topic_by_tag: HashMap<UniCase<String>, usize>,
     counts: Vec<TopicCounts>,
+    matched_topics: Vec<bool>,
+    matched_topic_indices: Vec<usize>,
     memory: EvidenceCounts,
     performance: EvidenceCounts,
 }
 
 impl SnapshotAccumulator {
     fn new(topics: Vec<BrainliftTopic>) -> Self {
+        let topic_count = topics.len();
         let topic_by_tag = topics
             .iter()
             .enumerate()
@@ -73,42 +77,53 @@ impl SnapshotAccumulator {
             topics,
             topic_by_tag,
             counts,
+            matched_topics: vec![false; topic_count],
+            matched_topic_indices: Vec::new(),
             memory: EvidenceCounts::default(),
             performance: EvidenceCounts::default(),
         }
     }
 
     fn add(&mut self, row: BrainliftEvidenceRow) {
-        let tags: Vec<_> = split_tags(&row.tags).collect();
-        let is_performance = tags
-            .iter()
-            .any(|tag| UniCase::new(*tag) == UniCase::new(PERFORMANCE_TAG));
-        let mut topic_indices = Vec::new();
-        for tag in tags {
+        let mut performance_cutoff_secs = None;
+        for tag in split_tags(&row.tags) {
+            let normalized = tag.to_ascii_lowercase();
+            if let Some(cutoff) = normalized
+                .strip_prefix(PERFORMANCE_TAG_PREFIX)
+                .and_then(|cutoff| cutoff.parse::<i64>().ok())
+            {
+                performance_cutoff_secs = Some(
+                    performance_cutoff_secs.map_or(cutoff, |current: i64| current.max(cutoff)),
+                );
+            }
             let mut candidate = tag;
             loop {
                 if let Some(idx) = self.topic_by_tag.get(&UniCase::new(candidate.to_string())) {
-                    topic_indices.push(*idx);
+                    if !self.matched_topics[*idx] {
+                        self.matched_topics[*idx] = true;
+                        self.matched_topic_indices.push(*idx);
+                    }
                 }
-                let Some((parent, _)) = candidate.rsplit_once("::") else {
+                let Some(parent) = immediate_parent_name_unicase(UniCase::new(candidate)) else {
                     break;
                 };
-                candidate = parent;
+                candidate = parent.into_inner();
             }
         }
-        topic_indices.sort_unstable();
-        topic_indices.dedup();
-        if topic_indices.is_empty() {
+        if self.matched_topic_indices.is_empty() {
             return;
         }
 
+        let is_performance =
+            performance_cutoff_secs.is_some_and(|cutoff| row.review_id.as_secs().0 >= cutoff);
         let aggregate = if is_performance {
             &mut self.performance
         } else {
             &mut self.memory
         };
         aggregate.add(&row);
-        for idx in topic_indices {
+        while let Some(idx) = self.matched_topic_indices.pop() {
+            self.matched_topics[idx] = false;
             let topic = &mut self.counts[idx];
             if is_performance {
                 topic.performance.add(&row);
@@ -397,7 +412,7 @@ mod tests {
 
     const BIOLOGY_TAG: &str = "mcat::biology";
     const CHEMISTRY_TAG: &str = "mcat::chemistry";
-    const PERFORMANCE_TAG: &str = "brainlift::evidence::performance";
+    const PERFORMANCE_TAG: &str = "brainlift::evidence::performance::0";
 
     #[test]
     fn empty_snapshot_abstains_and_returns_requested_topics() -> Result<()> {
@@ -565,6 +580,37 @@ mod tests {
             snapshot.readiness_formula,
             "MCAT = 472 + 56 * mean(memory recall, held-out performance accuracy)"
         );
+        Ok(())
+    }
+
+    #[test]
+    fn performance_marker_cutoff_does_not_reclassify_older_reviews() -> Result<()> {
+        let mut col = Collection::new();
+        let card_id = add_tagged_card(
+            &mut col,
+            &[BIOLOGY_TAG, "brainlift::evidence::performance::1700000100"],
+        );
+        add_reviews(
+            &mut col,
+            card_id,
+            2,
+            2,
+            1_700_000_000_000,
+            RevlogReviewKind::Review,
+        )?;
+        add_reviews(
+            &mut col,
+            card_id,
+            3,
+            3,
+            1_700_000_200_000,
+            RevlogReviewKind::Review,
+        )?;
+
+        let snapshot = col.brainlift_score_snapshot(request())?;
+
+        assert_eq!(snapshot.memory.unwrap().rated_reviews, 2);
+        assert_eq!(snapshot.performance.unwrap().rated_reviews, 3);
         Ok(())
     }
 

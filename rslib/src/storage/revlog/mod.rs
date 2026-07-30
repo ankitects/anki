@@ -128,6 +128,25 @@ impl SqliteStorage {
             .transpose()
     }
 
+    pub(crate) fn max_revlog_id(&self) -> Result<Option<RevlogId>> {
+        self.db
+            .prepare_cached("select max(id) from revlog")?
+            .query_row([], |row| row.get(0))
+            .map_err(Into::into)
+    }
+
+    pub(crate) fn move_revlog_entry(
+        &self,
+        old_id: RevlogId,
+        new_id: RevlogId,
+        pending_usn: Usn,
+    ) -> Result<()> {
+        self.db
+            .prepare_cached("update revlog set id = ?, usn = ? where id = ?")?
+            .execute(params![new_id, pending_usn, old_id])?;
+        Ok(())
+    }
+
     /// Determine the the last review time based on the revlog.
     pub(crate) fn time_of_last_review(&self, card_id: CardId) -> Result<Option<TimestampSecs>> {
         self.db

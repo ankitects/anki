@@ -18,8 +18,10 @@ rescheduled, and non-rescheduling preview entries are excluded. A button above
 1 is a successful review.
 
 - **Memory** uses ordinary rated reviews and becomes available after 10.
-- **Performance** uses only notes tagged
-  `brainlift::evidence::performance` and becomes available after 10.
+- **Performance** uses a timestamped
+  `brainlift::evidence::performance::<unix-seconds>` marker and becomes
+  available after 10. Only reviews at or after that cutoff count as held-out
+  Performance; older history remains Memory evidence.
 - **Readiness** requires both scores plus joint coverage of at least 80% of
   requested topics.
 

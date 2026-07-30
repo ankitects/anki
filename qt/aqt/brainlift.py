@@ -9,6 +9,7 @@ from datetime import datetime, timezone
 
 from anki import stats_pb2
 from anki.collection import Collection
+from aqt.utils import tr
 
 DEFAULT_MCAT_TOPICS: tuple[tuple[str, str], ...] = (
     ("Biochemistry", "mcat::biochemistry"),
@@ -19,14 +20,6 @@ DEFAULT_MCAT_TOPICS: tuple[tuple[str, str], ...] = (
     ("Psychology and Sociology", "mcat::psychology-sociology"),
     ("Critical Analysis and Reasoning", "mcat::cars"),
 )
-
-_SCORE_LABELS = ("Memory", "Performance", "Readiness")
-_CONFIDENCE_LABELS = {
-    stats_pb2.BrainliftEvidenceScore.NONE: "none",
-    stats_pb2.BrainliftEvidenceScore.LOW: "low",
-    stats_pb2.BrainliftEvidenceScore.MEDIUM: "medium",
-    stats_pb2.BrainliftEvidenceScore.HIGH: "high",
-}
 
 
 @dataclass(frozen=True)
@@ -49,19 +42,20 @@ class BrainliftDashboard:
 
 def brainlift_dashboard(col: Collection) -> BrainliftDashboard:
     """Load backend-owned evidence without allowing a stats failure to break study."""
+    labels = _score_labels()
     try:
         snapshot = col.brainlift_score_snapshot(DEFAULT_MCAT_TOPICS)
     except Exception:
         return BrainliftDashboard(
-            scores=tuple(_unavailable_score(label) for label in _SCORE_LABELS),
+            scores=tuple(_unavailable_score(label) for label in labels),
             backend_unavailable=True,
         )
 
     return BrainliftDashboard(
         scores=(
-            _score_view("Memory", snapshot.memory),
-            _score_view("Performance", snapshot.performance),
-            _score_view("Readiness", snapshot.readiness),
+            _score_view(labels[0], snapshot.memory),
+            _score_view(labels[1], snapshot.performance),
+            _score_view(labels[2], snapshot.readiness),
         )
     )
 
@@ -69,15 +63,15 @@ def brainlift_dashboard(col: Collection) -> BrainliftDashboard:
 def render_brainlift_html(dashboard: BrainliftDashboard) -> str:
     """Render a small table supported by both Anki webviews and Qt rich text."""
     subtitle = (
-        "Evidence temporarily unavailable"
+        tr.qt_misc_brainlift_evidence_unavailable()
         if dashboard.backend_unavailable
-        else "Collection-wide evidence; scores stay separate"
+        else tr.qt_misc_brainlift_collection_wide_evidence()
     )
     cells = "".join(_render_score(score) for score in dashboard.scores)
     return f"""
 <section id="brainlift-evidence" style="margin: 10px auto; max-width: 760px;">
   <div style="margin-bottom: 5px;">
-    <strong>Brainlift evidence</strong>
+    <strong>{html.escape(tr.qt_misc_brainlift_evidence())}</strong>
     <small style="opacity: 0.7;"> &middot; {html.escape(subtitle)}</small>
   </div>
   <table width="100%" cellspacing="0" cellpadding="7"
@@ -88,6 +82,13 @@ def render_brainlift_html(dashboard: BrainliftDashboard) -> str:
 """.strip()
 
 
+def render_brainlift_loading_html() -> str:
+    return (
+        f"<strong>{html.escape(tr.qt_misc_brainlift_evidence())}</strong>"
+        f" &middot; {html.escape(tr.qt_misc_brainlift_loading_evidence())}"
+    )
+
+
 def _score_view(
     label: str, score: stats_pb2.BrainliftEvidenceScore
 ) -> BrainliftScoreView:
@@ -96,11 +97,11 @@ def _score_view(
         return BrainliftScoreView(
             label=label,
             available=False,
-            value="Not enough evidence",
+            value=tr.qt_misc_brainlift_not_enough_evidence(),
             interval="",
             detail=_abstention_detail(score),
             coverage=_percent(score.coverage),
-            confidence="none",
+            confidence=tr.qt_misc_brainlift_confidence_none(),
             updated=_updated_text(score.updated_at_secs),
         )
 
@@ -110,9 +111,12 @@ def _score_view(
         available=True,
         value=_estimate(score.estimate, is_mcat),
         interval=_interval(score.range.lower, score.range.upper, is_mcat),
-        detail=f"{score.successful_reviews}/{score.rated_reviews} successful reviews",
+        detail=tr.qt_misc_brainlift_successful_reviews(
+            successful=score.successful_reviews,
+            rated=score.rated_reviews,
+        ),
         coverage=_percent(score.coverage),
-        confidence=_CONFIDENCE_LABELS.get(score.confidence, "none"),
+        confidence=_confidence_label(score.confidence),
         updated=_updated_text(score.updated_at_secs),
     )
 
@@ -121,20 +125,24 @@ def _unavailable_score(label: str) -> BrainliftScoreView:
     return BrainliftScoreView(
         label=label,
         available=False,
-        value="Evidence temporarily unavailable",
+        value=tr.qt_misc_brainlift_evidence_unavailable(),
         interval="",
-        detail="Study and review remain available.",
+        detail=tr.qt_misc_brainlift_study_remains_available(),
         coverage="0%",
-        confidence="none",
-        updated="No update",
+        confidence=tr.qt_misc_brainlift_confidence_none(),
+        updated=tr.qt_misc_brainlift_no_update(),
     )
 
 
 def _render_score(score: BrainliftScoreView) -> str:
     interval = (
-        f"<br><small>Range {html.escape(score.interval)}</small>"
+        f"<br><small>{html.escape(tr.qt_misc_brainlift_range(range=score.interval))}</small>"
         if score.interval
         else ""
+    )
+    coverage = tr.qt_misc_brainlift_coverage_confidence(
+        coverage=score.coverage,
+        confidence=score.confidence,
     )
     return f"""
 <td width="33%" valign="top" style="border-right: 1px solid #bbb;">
@@ -142,8 +150,7 @@ def _render_score(score: BrainliftScoreView) -> str:
   <span style="font-size: 1.15em;">{html.escape(score.value)}</span>
   {interval}<br>
   <small>{html.escape(score.detail)}</small><br>
-  <small>Coverage {html.escape(score.coverage)} &middot;
-  Confidence {html.escape(score.confidence)}</small><br>
+  <small>{html.escape(coverage)}</small><br>
   <small>{html.escape(score.updated)}</small>
 </td>
 """.strip()
@@ -152,21 +159,24 @@ def _render_score(score: BrainliftScoreView) -> str:
 def _abstention_detail(score: stats_pb2.BrainliftEvidenceScore) -> str:
     for reason in score.reasons:
         if reason == "no_qualifying_reviews":
-            return "No qualifying rated reviews yet"
+            return tr.qt_misc_brainlift_no_qualifying_reviews()
         if reason.startswith("minimum_rated_reviews_not_met:"):
             minimum = reason.partition(":")[2]
-            return f"Waiting for rated reviews ({score.rated_reviews}/{minimum})"
+            return tr.qt_misc_brainlift_waiting_rated_reviews(
+                rated=score.rated_reviews,
+                minimum=minimum,
+            )
         if reason.startswith("joint_topic_coverage_below:"):
             minimum = float(reason.partition(":")[2])
-            return (
-                f"Waiting for joint topic coverage "
-                f"({_percent(score.coverage)}/{_percent(minimum)})"
+            return tr.qt_misc_brainlift_waiting_topic_coverage(
+                coverage=_percent(score.coverage),
+                minimum=_percent(minimum),
             )
         if reason == "memory_unavailable":
-            return "Waiting for Memory evidence"
+            return tr.qt_misc_brainlift_waiting_memory()
         if reason == "performance_unavailable":
-            return "Waiting for held-out Performance evidence"
-    return "Waiting for enough rated review evidence"
+            return tr.qt_misc_brainlift_waiting_performance()
+    return tr.qt_misc_brainlift_waiting_evidence()
 
 
 def _estimate(value: float, is_mcat: bool) -> str:
@@ -185,6 +195,22 @@ def _percent(value: float) -> str:
 
 def _updated_text(updated_at_secs: int) -> str:
     if not updated_at_secs:
-        return "No rated reviews yet"
+        return tr.qt_misc_brainlift_no_rated_reviews()
     updated = datetime.fromtimestamp(updated_at_secs, tz=timezone.utc)
-    return f"Updated {updated:%Y-%m-%d %H:%M} UTC"
+    return tr.qt_misc_brainlift_updated(datetime=f"{updated:%Y-%m-%d %H:%M}")
+
+
+def _score_labels() -> tuple[str, str, str]:
+    return (
+        tr.qt_misc_brainlift_memory(),
+        tr.qt_misc_brainlift_performance(),
+        tr.qt_misc_brainlift_readiness(),
+    )
+
+
+def _confidence_label(confidence: int) -> str:
+    return {
+        stats_pb2.BrainliftEvidenceScore.LOW: tr.qt_misc_brainlift_confidence_low(),
+        stats_pb2.BrainliftEvidenceScore.MEDIUM: tr.qt_misc_brainlift_confidence_medium(),
+        stats_pb2.BrainliftEvidenceScore.HIGH: tr.qt_misc_brainlift_confidence_high(),
+    }.get(confidence, tr.qt_misc_brainlift_confidence_none())

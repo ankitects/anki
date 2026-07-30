@@ -74,6 +74,31 @@ qt-misc-layout-auto-enabled = Responsive layout enabled
 qt-misc-layout-vertical-enabled = Vertical layout enabled
 qt-misc-layout-horizontal-enabled = Horizontal layout enabled
 qt-misc-open-anki-launcher = Change to a different Anki version?
+qt-misc-brainlift-evidence = Brainlift evidence
+qt-misc-brainlift-loading-evidence = Loading evidence
+qt-misc-brainlift-evidence-unavailable = Evidence temporarily unavailable
+qt-misc-brainlift-collection-wide-evidence = Collection-wide evidence; scores stay separate
+qt-misc-brainlift-memory = Memory
+qt-misc-brainlift-performance = Performance
+qt-misc-brainlift-readiness = Readiness
+qt-misc-brainlift-not-enough-evidence = Not enough evidence
+qt-misc-brainlift-study-remains-available = Study and review remain available.
+qt-misc-brainlift-no-update = No update
+qt-misc-brainlift-range = Range { $range }
+qt-misc-brainlift-successful-reviews = { $successful }/{ $rated } successful reviews
+qt-misc-brainlift-coverage-confidence = Coverage { $coverage } · Confidence { $confidence }
+qt-misc-brainlift-confidence-none = none
+qt-misc-brainlift-confidence-low = low
+qt-misc-brainlift-confidence-medium = medium
+qt-misc-brainlift-confidence-high = high
+qt-misc-brainlift-no-qualifying-reviews = No qualifying rated reviews yet
+qt-misc-brainlift-waiting-rated-reviews = Waiting for rated reviews ({ $rated }/{ $minimum })
+qt-misc-brainlift-waiting-topic-coverage = Waiting for joint topic coverage ({ $coverage }/{ $minimum })
+qt-misc-brainlift-waiting-memory = Waiting for Memory evidence
+qt-misc-brainlift-waiting-performance = Waiting for held-out Performance evidence
+qt-misc-brainlift-waiting-evidence = Waiting for enough rated review evidence
+qt-misc-brainlift-no-rated-reviews = No rated reviews yet
+qt-misc-brainlift-updated = Updated { $datetime } UTC
 
 ## deprecated- these strings will be removed in the future, and do not need
 ## to be translated

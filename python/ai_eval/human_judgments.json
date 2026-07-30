@@ -1,0 +1,39 @@
+{
+  "reviewer": "Codex implementation-session human review",
+  "reviewed_at": "2026-07-29",
+  "label_definitions": {
+    "correct_useful": "Correct source and answer, with enough explanatory context to teach the tested idea.",
+    "correct_bad_teaching": "Correct source and conclusion, but too terse or underspecified to teach the tested idea.",
+    "wrong": "Wrong source, wrong conclusion, contradictory claim, or unsupported answer."
+  },
+  "candidate": {
+    "prediction_set_sha256": "cbda19f663a4d4bff6ddd8c3f51a36b23d7bc28f97a1c1144574e526231048e8",
+    "wrong": [],
+    "correct_bad_teaching": [
+      "fc1-4",
+      "fc2-2",
+      "fc2-4",
+      "fc7-2",
+      "fc7-5"
+    ]
+  },
+  "keyword_baseline": {
+    "prediction_set_sha256": "51660de6a5ff4dd565c61037be3694b520eefab625e7be83a3e843037b94cd23",
+    "wrong": [
+      "fc1-2",
+      "fc2-2",
+      "fc2-3",
+      "fc2-4",
+      "fc2-5",
+      "fc4-2",
+      "fc6-1",
+      "fc6-3",
+      "fc6-4",
+      "fc7-2",
+      "fc7-3",
+      "fc9-3",
+      "fc10-4"
+    ],
+    "correct_bad_teaching": []
+  }
+}

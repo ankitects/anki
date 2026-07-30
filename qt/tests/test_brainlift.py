@@ -87,7 +87,7 @@ def test_abstained_score_does_not_invent_a_value() -> None:
 
     assert dashboard.scores[0].available is False
     assert dashboard.scores[0].value == "Not enough evidence"
-    assert "0/10" in dashboard.scores[0].detail
+    assert "0/10" in anki.lang.without_unicode_isolation(dashboard.scores[0].detail)
 
 
 def test_backend_error_returns_safe_fallback() -> None:

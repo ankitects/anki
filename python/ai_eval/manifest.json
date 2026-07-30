@@ -8,6 +8,7 @@
     "sources": "12d40d7072dd9d235ba3320eac9e68ed2141da5ade6fa5dacb2121f6f5210b19",
     "gold": "2f4f381c9dafe66d6af94ec4caf13d7fa1cf78677b31ee3ac9cb5882b6d97e7c",
     "predictions": "cbda19f663a4d4bff6ddd8c3f51a36b23d7bc28f97a1c1144574e526231048e8",
-    "evaluator": "2600c37dc59311fb7ccb9ef81e79091b066488bef09a7a03d6d87b190aab39c1"
+    "judgments": "99ebce460b997d2446a798c49933558f4dd3cdee79935054e45a68eb57a84549",
+    "evaluator": "529721379f94f5b09acf23bf1316f0e16fd2d352da4f266c36df5977e32c44a2"
   }
 }

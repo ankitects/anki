@@ -4,7 +4,7 @@
 
 - Held-out set: 50 paraphrased question-and-answer checks frozen before scoring.
 - Source: AAMC What's on the MCAT Exam? content outline (https://students-residents.aamc.org/media/9261/download).
-- Metric: correct-and-useful rate under the fixed source-trace rubric.
+- Metric: correct-and-useful rate under frozen human judgments.
 - Cutoff: 90%.
 - Required lift over keyword overlap: 10%.
 
@@ -17,8 +17,10 @@
 
 Lift: 16%. Decision: **PASSED**.
 
-Every candidate output names an AAMC outline source ID. The manifest records the
-canonical SHA-256 hashes of the source index, held-out cases, and predictions.
+Every candidate output names an AAMC outline source ID. Human judgments are
+bound to exact candidate and baseline prediction-set hashes, so changed or
+contradictory answers fail closed. The manifest freezes the source index,
+held-out cases, predictions, judgments, and evaluator.
 
 ## AI-off behavior
 
@@ -34,8 +36,7 @@ foundational-concept summaries, and the static candidate outputs were produced
 in the Codex implementation session. Student outcome validation remains outside
 this Friday gate.
 
-Before the final manifest freeze, a dry run exposed an asymmetric usefulness
-check that favored the baseline for copying source text. The check was corrected
-to require two source anchor terms instead of four; the 90% cutoff, 10% lift,
-questions, and predictions did not change. The evaluator hash was then frozen
-before the scored run.
+Before the final manifest freeze, adversarial review showed that token overlap
+could accept a contradictory answer. Automated semantic labels were replaced
+with frozen human judgments tied to exact prediction sets; the 90% cutoff, 10%
+lift, questions, predictions, and reported labels did not change.

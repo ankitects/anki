@@ -10,6 +10,11 @@ DMG="$OUTPUT_DIR/Anki-Brainlift.dmg"
 VERSION="$(tr -d '[:space:]' < "$PROJ_ROOT/.version")"
 COMMIT="$(git -C "$PROJ_ROOT" rev-parse HEAD)"
 
+if [[ -n "$(git -C "$PROJ_ROOT" status --porcelain --untracked-files=no)" ]]; then
+    echo "Refusing to package tracked changes that are not recorded in $COMMIT" >&2
+    exit 1
+fi
+
 cd "$PROJ_ROOT"
 rm -f "$PROJ_ROOT"/out/wheels/anki-*.whl "$PROJ_ROOT"/out/wheels/aqt-*.whl
 PROTOC="${PROTOC:-/opt/homebrew/bin/protoc}" ./ninja wheels launcher:uv_universal

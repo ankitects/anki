@@ -35,6 +35,7 @@ use crate::notetype::all_stock_notetypes;
 use crate::prelude::*;
 use crate::revlog::RevlogEntry;
 use crate::search::SortMode;
+use crate::sync::collection::chunks::Chunk;
 use crate::sync::collection::graves::ApplyGravesRequest;
 use crate::sync::collection::meta::MetaRequest;
 use crate::sync::collection::normal::NormalSyncer;
@@ -818,6 +819,118 @@ async fn brainlift_sync_uniquifies_distinct_reviews_with_same_id() -> Result<()>
             payloads.sort_unstable();
             assert_eq!(payloads, vec![(2, 10), (4, 20)]);
         }
+
+        Ok(())
+    })
+    .await
+}
+
+#[test]
+fn brainlift_sync_ignores_identical_revlog_replays() -> Result<()> {
+    let folder = tempdir()?;
+    let mut col = CollectionBuilder::new(folder.path().join("replay.anki2")).build()?;
+    let card_id = add_sync_test_cards(&mut col, 1)?[0];
+    let revlog_id = RevlogId(1_700_000_004_000);
+    add_offline_review(&mut col, card_id, revlog_id, 3, 10)?;
+
+    let mut replay = col.storage.get_revlog_entry(revlog_id)?.unwrap();
+    replay.usn = Usn(42);
+    for _ in 0..2 {
+        col.apply_chunk(
+            Chunk {
+                revlog: vec![replay.clone()],
+                ..Default::default()
+            },
+            Usn(-1),
+        )?;
+    }
+
+    assert_eq!(
+        col.storage.get_all_revlog_entries_in_card_order()?,
+        vec![col.storage.get_revlog_entry(revlog_id)?.unwrap()]
+    );
+    Ok(())
+}
+
+#[tokio::test]
+async fn brainlift_sync_collision_mapping_converges_with_asymmetric_high_ids() -> Result<()> {
+    with_active_server(|client| async move {
+        let ctx = SyncTestContext::new(client);
+        let card_ids = upload_download_cards(&ctx, 3).await?;
+        let colliding_id = RevlogId(1_700_000_005_000);
+        let col1_high_id = RevlogId(1_900_000_000_000);
+        let col2_high_id = RevlogId(2_000_000_000_000);
+        let relocated_id = RevlogId(col2_high_id.0 + 1);
+        let mut col1 = ctx.col1();
+        let mut col2 = ctx.col2();
+
+        add_offline_review(&mut col1, card_ids[0], colliding_id, 2, 10)?;
+        add_offline_review(&mut col1, card_ids[1], col1_high_id, 3, 30)?;
+        add_offline_review(&mut col2, card_ids[0], colliding_id, 4, 20)?;
+        add_offline_review(&mut col2, card_ids[2], col2_high_id, 1, 40)?;
+
+        assert_eq!(
+            ctx.normal_sync(&mut col1).await.required,
+            SyncActionRequired::NoChanges
+        );
+        assert_eq!(
+            ctx.normal_sync(&mut col2).await.required,
+            SyncActionRequired::NoChanges
+        );
+        assert_eq!(
+            ctx.normal_sync(&mut col1).await.required,
+            SyncActionRequired::NoChanges
+        );
+        assert_eq!(
+            ctx.normal_sync(&mut col2).await.required,
+            SyncActionRequired::NoChanges
+        );
+
+        let expected = col1.storage.get_all_revlog_entries_in_card_order()?;
+        assert_eq!(
+            expected,
+            col2.storage.get_all_revlog_entries_in_card_order()?
+        );
+        assert_eq!(expected.len(), 4);
+        assert_eq!(
+            col1.storage
+                .get_revlog_entry(colliding_id)?
+                .unwrap()
+                .interval,
+            10
+        );
+        assert_eq!(
+            col1.storage
+                .get_revlog_entry(relocated_id)?
+                .unwrap()
+                .interval,
+            20
+        );
+
+        assert_eq!(
+            ctx.normal_sync(&mut col1).await.required,
+            SyncActionRequired::NoChanges
+        );
+        assert_eq!(
+            ctx.normal_sync(&mut col2).await.required,
+            SyncActionRequired::NoChanges
+        );
+        assert_eq!(
+            ctx.normal_sync(&mut col1).await.required,
+            SyncActionRequired::NoChanges
+        );
+        assert_eq!(
+            ctx.normal_sync(&mut col2).await.required,
+            SyncActionRequired::NoChanges
+        );
+        assert_eq!(
+            expected,
+            col1.storage.get_all_revlog_entries_in_card_order()?
+        );
+        assert_eq!(
+            expected,
+            col2.storage.get_all_revlog_entries_in_card_order()?
+        );
 
         Ok(())
     })

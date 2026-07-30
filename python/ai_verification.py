@@ -15,6 +15,7 @@ EVAL_DIR = ROOT / "python" / "ai_eval"
 SOURCE_PATH = EVAL_DIR / "aamc_foundational_concepts.json"
 GOLD_PATH = EVAL_DIR / "held_out_questions.json"
 PREDICTIONS_PATH = EVAL_DIR / "codex_predictions.json"
+JUDGMENTS_PATH = EVAL_DIR / "human_judgments.json"
 MANIFEST_PATH = EVAL_DIR / "manifest.json"
 
 PREDECLARED_CORRECT_USEFUL_CUTOFF = 0.90
@@ -78,6 +79,7 @@ def validate_frozen_inputs() -> dict[str, Any]:
         "sources": canonical_hash(SOURCE_PATH),
         "gold": canonical_hash(GOLD_PATH),
         "predictions": canonical_hash(PREDICTIONS_PATH),
+        "judgments": canonical_hash(JUDGMENTS_PATH),
         "evaluator": file_hash(Path(__file__)),
     }
     if actual != expected:
@@ -95,7 +97,9 @@ def tokenize(text: str) -> set[str]:
     return {token for token in TOKEN_RE.findall(text.lower()) if token not in STOPWORDS}
 
 
-def keyword_baseline(question: str, sources: list[dict[str, str]]) -> Prediction:
+def keyword_baseline(
+    case_id: str, question: str, sources: list[dict[str, str]]
+) -> Prediction:
     question_tokens = tokenize(question)
     ranked = sorted(
         sources,
@@ -107,7 +111,7 @@ def keyword_baseline(question: str, sources: list[dict[str, str]]) -> Prediction
     )
     selected = ranked[0]
     return Prediction(
-        case_id="",
+        case_id=case_id,
         answer=f"{selected['title']}: {selected['summary']}",
         source_ids=(selected["source_id"],),
     )
@@ -129,37 +133,52 @@ def parse_predictions(raw: list[dict[str, Any]]) -> dict[str, Prediction]:
     return predictions
 
 
-def classify(
-    case: dict[str, str],
-    prediction: Prediction,
-    source_by_id: dict[str, dict[str, str]],
+def prediction_set_hash(
+    cases: list[dict[str, str]], predictions: dict[str, Prediction]
 ) -> str:
-    expected_source = case["expected_source_id"]
-    expected_title = source_by_id[expected_source]["title"].lower()
-    answer = prediction.answer.lower()
-    correct = expected_source in prediction.source_ids and expected_title in answer
-    if not correct:
-        return "wrong"
-
-    source_terms = tokenize(source_by_id[expected_source]["summary"])
-    answer_terms = tokenize(answer)
-    useful = len(source_terms & answer_terms) >= 2 and 5 <= len(answer.split()) <= 70
-    return "correct_useful" if useful else "correct_bad_teaching"
+    rows = [
+        {
+            "case_id": case["case_id"],
+            "answer": predictions[case["case_id"]].answer,
+            "source_ids": list(predictions[case["case_id"]].source_ids),
+        }
+        for case in cases
+    ]
+    canonical = json.dumps(rows, sort_keys=True, separators=(",", ":")).encode()
+    return hashlib.sha256(canonical).hexdigest()
 
 
 def score_predictions(
     cases: list[dict[str, str]],
     predictions: dict[str, Prediction],
-    sources: list[dict[str, str]],
+    judgment: dict[str, Any],
 ) -> dict[str, Any]:
-    source_by_id = {source["source_id"]: source for source in sources}
+    actual_hash = prediction_set_hash(cases, predictions)
+    if actual_hash != judgment["prediction_set_sha256"]:
+        raise ValueError(
+            "prediction set does not match the frozen human judgments: "
+            f"expected {judgment['prediction_set_sha256']}, got {actual_hash}"
+        )
+
+    wrong = set(judgment["wrong"])
+    correct_bad_teaching = set(judgment["correct_bad_teaching"])
+    if wrong & correct_bad_teaching:
+        raise ValueError("a human judgment cannot assign two labels to one case")
+
     counts = {"correct_useful": 0, "wrong": 0, "correct_bad_teaching": 0}
     details = []
     for case in cases:
         prediction = predictions.get(case["case_id"])
         if prediction is None:
             raise ValueError(f"missing prediction for {case['case_id']}")
-        classification = classify(case, prediction, source_by_id)
+        if not prediction.source_ids:
+            raise ValueError(f"{prediction.case_id} has no named source")
+        if case["case_id"] in wrong:
+            classification = "wrong"
+        elif case["case_id"] in correct_bad_teaching:
+            classification = "correct_bad_teaching"
+        else:
+            classification = "correct_useful"
         counts[classification] += 1
         details.append(
             {
@@ -181,18 +200,21 @@ def run_verification() -> dict[str, Any]:
     manifest = validate_frozen_inputs()
     sources = load_json(SOURCE_PATH)
     cases = load_json(GOLD_PATH)
+    judgments = load_json(JUDGMENTS_PATH)
     candidate = parse_predictions(load_json(PREDICTIONS_PATH))
     baseline = {
-        case["case_id"]: Prediction(
-            case_id=case["case_id"],
-            answer=(result := keyword_baseline(case["question"], sources)).answer,
-            source_ids=result.source_ids,
+        case["case_id"]: keyword_baseline(
+            case["case_id"],
+            case["question"],
+            sources,
         )
         for case in cases
     }
 
-    candidate_score = score_predictions(cases, candidate, sources)
-    baseline_score = score_predictions(cases, baseline, sources)
+    candidate_score = score_predictions(cases, candidate, judgments["candidate"])
+    baseline_score = score_predictions(
+        cases, baseline, judgments["keyword_baseline"]
+    )
     lift = (
         candidate_score["correct_useful_rate"] - baseline_score["correct_useful_rate"]
     )
@@ -244,7 +266,7 @@ def report_markdown(result: dict[str, Any]) -> str:
 
 - Held-out set: {result["case_count"]} paraphrased question-and-answer checks frozen before scoring.
 - Source: {result["source"]["name"]} ({result["source"]["url"]}).
-- Metric: correct-and-useful rate under the fixed source-trace rubric.
+- Metric: correct-and-useful rate under frozen human judgments.
 - Cutoff: {result["cutoff"]:.0%}.
 - Required lift over keyword overlap: {result["minimum_baseline_lift"]:.0%}.
 
@@ -257,8 +279,10 @@ def report_markdown(result: dict[str, Any]) -> str:
 
 Lift: {result["lift"]:.0%}. Decision: **{result["status"].upper()}**.
 
-Every candidate output names an AAMC outline source ID. The manifest records the
-canonical SHA-256 hashes of the source index, held-out cases, and predictions.
+Every candidate output names an AAMC outline source ID. Human judgments are
+bound to exact candidate and baseline prediction-set hashes, so changed or
+contradictory answers fail closed. The manifest freezes the source index,
+held-out cases, predictions, judgments, and evaluator.
 
 ## AI-off behavior
 
@@ -274,11 +298,10 @@ foundational-concept summaries, and the static candidate outputs were produced
 in the Codex implementation session. Student outcome validation remains outside
 this Friday gate.
 
-Before the final manifest freeze, a dry run exposed an asymmetric usefulness
-check that favored the baseline for copying source text. The check was corrected
-to require two source anchor terms instead of four; the 90% cutoff, 10% lift,
-questions, and predictions did not change. The evaluator hash was then frozen
-before the scored run.
+Before the final manifest freeze, adversarial review showed that token overlap
+could accept a contradictory answer. Automated semantic labels were replaced
+with frozen human judgments tied to exact prediction sets; the 90% cutoff, 10%
+lift, questions, predictions, and reported labels did not change.
 """
 
 

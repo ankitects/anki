@@ -160,14 +160,44 @@ impl Collection {
     /// If the provided objects are not modified locally, the USN inside
     /// the individual objects is used.
     pub(in crate::sync) fn apply_chunk(&mut self, chunk: Chunk, pending_usn: Usn) -> Result<()> {
-        self.merge_revlog(chunk.revlog)?;
+        self.merge_revlog(chunk.revlog, pending_usn)?;
         self.merge_cards(chunk.cards, pending_usn)?;
         self.merge_notes(chunk.notes, pending_usn)
     }
 
-    fn merge_revlog(&self, entries: Vec<RevlogEntry>) -> Result<()> {
+    fn merge_revlog(&self, entries: Vec<RevlogEntry>, pending_usn: Usn) -> Result<()> {
+        let max_incoming_id = entries.iter().map(|entry| entry.id.0).max();
+        let mut relocation_floor = self
+            .storage
+            .max_revlog_id()?
+            .map(|id| id.0)
+            .into_iter()
+            .chain(max_incoming_id)
+            .max()
+            .unwrap_or_default();
+
         for entry in entries {
-            self.storage.add_revlog_entry(&entry, true)?;
+            let Some(existing) = self.storage.get_revlog_entry(entry.id)? else {
+                self.storage.add_revlog_entry(&entry, false)?;
+                continue;
+            };
+            if same_revlog_payload(&existing, &entry) {
+                continue;
+            }
+
+            if self.server {
+                self.storage.add_revlog_entry(&entry, true)?;
+            } else {
+                // Server chunks arrive before client uploads, so the server's
+                // payload keeps the shared ID and the pending local one moves.
+                relocation_floor = relocation_floor
+                    .checked_add(1)
+                    .or_invalid("revlog ID overflow while resolving a sync collision")?;
+                let relocated_id = RevlogId(relocation_floor);
+                self.storage
+                    .move_revlog_entry(existing.id, relocated_id, pending_usn)?;
+                self.storage.add_revlog_entry(&entry, false)?;
+            }
         }
         Ok(())
     }
@@ -412,6 +442,17 @@ pub fn server_apply_chunk(
     state: &mut ServerSyncState,
 ) -> Result<()> {
     col.apply_chunk(req.chunk, state.client_usn)
+}
+
+fn same_revlog_payload(left: &RevlogEntry, right: &RevlogEntry) -> bool {
+    left.id == right.id
+        && left.cid == right.cid
+        && left.button_chosen == right.button_chosen
+        && left.interval == right.interval
+        && left.last_interval == right.last_interval
+        && left.ease_factor == right.ease_factor
+        && left.taken_millis == right.taken_millis
+        && left.review_kind == right.review_kind
 }
 
 impl Usn {

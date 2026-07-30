@@ -12,7 +12,11 @@ import aqt.main
 from anki.decks import DeckId
 from anki.utils import is_mac
 from aqt import gui_hooks
-from aqt.brainlift import brainlift_dashboard, render_brainlift_html
+from aqt.brainlift import (
+    brainlift_dashboard,
+    render_brainlift_html,
+    render_brainlift_loading_html,
+)
 from aqt.operations import QueryOp
 from aqt.operations.deck import set_current_deck
 from aqt.qt import *
@@ -36,7 +40,7 @@ def _add_brainlift_panel(form: Any) -> QLabel:
     label.setTextFormat(Qt.TextFormat.RichText)
     label.setWordWrap(True)
     label.setMargin(8)
-    label.setText("<strong>Brainlift evidence</strong> &middot; Loading evidence")
+    label.setText(render_brainlift_loading_html())
     form.verticalLayout.insertWidget(0, label)
     return label
 

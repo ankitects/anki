@@ -34,6 +34,27 @@ def test_candidate_passes_cutoff_and_beats_keyword_baseline() -> None:
     assert result["lift"] >= ai_verification.PREDECLARED_MINIMUM_BASELINE_LIFT
 
 
+def test_changed_or_contradictory_answer_has_no_frozen_human_judgment() -> None:
+    cases = ai_verification.load_json(ai_verification.GOLD_PATH)
+    predictions = ai_verification.parse_predictions(
+        ai_verification.load_json(ai_verification.PREDICTIONS_PATH)
+    )
+    original = predictions["fc1-1"]
+    predictions["fc1-1"] = ai_verification.Prediction(
+        case_id=original.case_id,
+        answer="Foundational Concept 1 says biomolecules are unrelated to life.",
+        source_ids=original.source_ids,
+    )
+    judgments = ai_verification.load_json(ai_verification.JUDGMENTS_PATH)
+
+    with pytest.raises(ValueError, match="frozen human judgments"):
+        ai_verification.score_predictions(
+            cases,
+            predictions,
+            judgments["candidate"],
+        )
+
+
 def test_ai_off_and_evaluator_failure_leave_scoring_available(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:

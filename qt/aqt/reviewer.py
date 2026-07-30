@@ -35,6 +35,7 @@ from aqt.brainlift import (
     BrainliftDashboard,
     brainlift_dashboard,
     render_brainlift_html,
+    render_brainlift_loading_html,
 )
 from aqt.browser.card_info import PreviousReviewerCardInfo, ReviewerCardInfo
 from aqt.deckoptions import confirm_deck_then_display_options
@@ -342,8 +343,7 @@ class Reviewer:
 <div id="_flag" hidden>&#x2691;</div>
 {fade}
 <section id="brainlift-evidence" style="margin: 10px auto; max-width: 760px;">
-  <strong>Brainlift evidence</strong>
-  <small style="opacity: 0.7;"> &middot; Loading evidence</small>
+  {render_brainlift_loading_html()}
 </section>
 <div id="qa"></div>
 {extra}

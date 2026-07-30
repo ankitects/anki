@@ -39,7 +39,7 @@ def test_brainlift_score_snapshot_bridge():
     performance_note["Front"] = "performance"
     performance_note.tags = [
         "mcat::chemistry",
-        "brainlift::evidence::performance",
+        "brainlift::evidence::performance::0",
     ]
     col.addNote(performance_note)
 
