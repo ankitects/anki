@@ -8,6 +8,7 @@ import aqt.forms
 from anki.lang import without_unicode_isolation
 from anki.utils import version_with_build
 from aqt.errors import addon_debug_info
+from aqt.identity import brainlift_commit
 from aqt.qt import *
 from aqt.utils import disable_help_button, supportText, tooltip, tr
 
@@ -70,6 +71,8 @@ def show(mw: aqt.AnkiQt) -> QDialog:
     abouttext += f"<p>{lede}"
     abouttext += f"<p>{tr.about_anki_is_licensed_under_the_agpl3()}"
     abouttext += f"<p>{tr.about_version(val=version_with_build())}<br>"
+    if commit := brainlift_commit():
+        abouttext += f"{tr.qt_misc_brainlift_build(commit=commit)}<br>"
     abouttext += ("Python %s Qt %s Chromium %s<br>") % (
         platform.python_version(),
         qVersion(),

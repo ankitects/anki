@@ -6,6 +6,7 @@ RESOURCES_DIR="$(cd "$(dirname "$0")/../Resources" && pwd)"
 RUNTIME_DIR="$RESOURCES_DIR/runtime"
 UV="$RESOURCES_DIR/uv"
 BUILD_COMMIT="$(cat "$RESOURCES_DIR/brainlift-commit.txt")"
+export ANKI_BRAINLIFT_COMMIT="$BUILD_COMMIT"
 INSTALL_ROOT="${BRAINLIFT_INSTALL_ROOT:-$HOME/Library/Application Support/AnkiBrainlift}"
 VENV="$INSTALL_ROOT/venv"
 INSTALLED_COMMIT="$INSTALL_ROOT/installed-commit.txt"
@@ -35,9 +36,12 @@ import sys
 
 from anki.collection import Collection
 from aqt.brainlift import brainlift_dashboard
+from aqt.identity import app_name, brainlift_commit
 
 assert hasattr(Collection, "brainlift_score_snapshot")
 assert callable(brainlift_dashboard)
+assert brainlift_commit() == sys.argv[1]
+assert app_name() == "Anki Brainlift"
 print(f"Brainlift installer smoke passed for {sys.argv[1]}")
 PY
     exit 0

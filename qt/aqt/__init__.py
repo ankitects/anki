@@ -666,7 +666,9 @@ def _run(argv: list[str] | None = None, exec: bool = True) -> AnkiApp | None:
         os.environ["QT_QPA_PLATFORM"] = "windows:altgr"
 
     # create the app
-    QCoreApplication.setApplicationName("Anki")
+    from aqt.identity import app_name
+
+    QCoreApplication.setApplicationName(app_name())
     QGuiApplication.setDesktopFileName("anki")
     app = AnkiApp(argv)
     if app.secondInstance():

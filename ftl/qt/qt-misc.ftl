@@ -100,6 +100,7 @@ qt-misc-brainlift-readiness-mapping-not-validated = Readiness score mapping has 
 qt-misc-brainlift-waiting-evidence = Waiting for enough rated review evidence
 qt-misc-brainlift-no-rated-reviews = No rated reviews yet
 qt-misc-brainlift-updated = Updated { $datetime } UTC
+qt-misc-brainlift-build = Brainlift build { $commit }
 
 ## deprecated- these strings will be removed in the future, and do not need
 ## to be translated
