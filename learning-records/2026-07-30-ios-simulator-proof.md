@@ -5,7 +5,7 @@ Date: 2026-07-30
 ## Build identity
 
 - Linked Rust bridge source revision:
-  `ef2099bdcbb7bbf4e505d57a07bfb8e0270d5437`
+  `0e3627234f9823ebafadfde56a58c5d2dbed8b00`
 - Historical pre-iOS core baseline:
   `af5417a858cf979e4f9cadef02310d197fa52429`
 - Bundle identifier: `com.techmexdev.BrainliftMobile`
@@ -43,11 +43,11 @@ Date: 2026-07-30
 - `BrainliftMobile` simulator suite: 37 passed (34 unit/integration, 3 UI)
 - Simulator build, install, and clean launch: passed
 - Installed `AnkiBridgeSourceRevision` metadata:
-  `ef2099bdcbb7bbf4e505d57a07bfb8e0270d5437`
+  `0e3627234f9823ebafadfde56a58c5d2dbed8b00`
 - Simulator XCFramework SHA-256:
-  `23938cb1e543e35a1c83d7c888c7b81c6ac410f7536ba07a091b97a9ee084f03`
+  `5174f53ed44ae7f0264c904b0039ed8493b979f7f1830af217860c55fe134169`
 - Installed simulator app tree SHA-256:
-  `6f6172c5e5ab15da2d3d5df02e0105d616c8b898db09a7597c7ef9b2ea30375e`
+  `a879996a872a9383b1e7db3d9ed512ab654341bfb2f210ace97b68e471eef118`
 
 The app tree checksum is a local Debug simulator artifact checksum, not an
 App Store distribution checksum. The artifact was generated from the clean
