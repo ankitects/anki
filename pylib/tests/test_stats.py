@@ -33,11 +33,12 @@ def test_brainlift_score_snapshot_bridge():
     col = getEmptyCol()
     memory_note = col.newNote()
     memory_note["Front"] = "memory"
-    memory_note.tags = ["mcat::biology"]
+    memory_note.tags = ["mcat::biology", "mcat::chemistry"]
     col.addNote(memory_note)
     performance_note = col.newNote()
     performance_note["Front"] = "performance"
     performance_note.tags = [
+        "mcat::biology",
         "mcat::chemistry",
         "brainlift::evidence::performance::0",
     ]
@@ -87,6 +88,15 @@ def test_brainlift_score_snapshot_bridge():
         snapshot.readiness.availability
         == stats_pb2.BrainliftEvidenceScore.Availability.ABSTAINED
     )
+    assert snapshot.readiness.coverage == 1.0
+    assert snapshot.readiness.estimate == 0.0
+    assert not snapshot.readiness.HasField("range")
+    assert (
+        snapshot.readiness.confidence
+        == stats_pb2.BrainliftEvidenceScore.Confidence.NONE
+    )
+    assert snapshot.readiness.reasons == ["readiness_score_mapping_not_validated"]
+    assert not snapshot.readiness_formula
     assert snapshot.thresholds.memory_min_reviews == 10
 
 

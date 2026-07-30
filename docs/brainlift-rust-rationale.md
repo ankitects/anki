@@ -22,29 +22,29 @@ rescheduled, and non-rescheduling preview entries are excluded. A button above
   `brainlift::evidence::performance::<unix-seconds>` marker and becomes
   available after 10. Only reviews at or after that cutoff count as held-out
   Performance; older history remains Memory evidence.
-- **Readiness** requires both scores plus joint coverage of at least 80% of
-  requested topics.
+- **Readiness** always abstains until a held-out score mapping is validated.
+  The response still reports joint coverage and whether Memory or Performance
+  evidence is missing, so the eventual mapping can reuse the same evidence
+  boundary without fabricating a projected score.
 
-Every score includes an explicit available/abstained state, estimate, 95%
-Wilson interval, coverage, confidence, latest qualifying review time,
-machine-readable reasons, and supporting review counts. The response repeats
-all thresholds so clients render the Rust decision instead of recalculating it.
+Memory and Performance include an explicit available/abstained state,
+estimate, 95% Wilson interval, coverage, confidence, latest qualifying review
+time, machine-readable reasons, and supporting review counts. Readiness
+returns `ABSTAINED`, no interval, no estimate, confidence `NONE`, and the
+machine-readable reason `readiness_score_mapping_not_validated`. The response
+repeats all thresholds so clients render the Rust decision instead of
+recalculating it.
 
 Per-topic average recall is successful ordinary reviews divided by qualifying
 ordinary reviews. Per-topic mastery is the conservative lower endpoint of that
 95% Wilson interval. This distinguishes an observed average from an
 evidence-aware mastery estimate.
 
-The Friday MCAT Readiness formula is:
-
-```text
-472 + 56 * mean(memory recall, held-out performance accuracy)
-```
-
-The interval applies the same mapping to the mean of the two Wilson endpoints.
-This deliberately simple mapping is visible in the response and can be
-replaced by Sunday calibration evidence. No Readiness number is returned until
-both independent evidence sources and the joint coverage rule pass.
+There is deliberately no Friday MCAT Readiness formula. A linear conversion
+from review accuracy to the 472–528 scale would be an invented mapping, even
+when guarded by evidence thresholds. The formula field remains empty until a
+mapping is fitted and evaluated on held-out exam outcomes with an uncertainty
+method that can be rerun.
 
 ## Read-Only and Performance Design
 

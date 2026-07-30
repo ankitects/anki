@@ -90,6 +90,70 @@ def test_abstained_score_does_not_invent_a_value() -> None:
     assert "0/10" in anki.lang.without_unicode_isolation(dashboard.scores[0].detail)
 
 
+def test_unvalidated_readiness_mapping_is_explained() -> None:
+    col = MagicMock()
+    col.brainlift_score_snapshot.return_value = (
+        stats_pb2.BrainliftScoreSnapshotResponse(
+            memory=evidence_score(estimate=0.8, lower=0.7, upper=0.9),
+            performance=evidence_score(estimate=0.65, lower=0.5, upper=0.78),
+            readiness=stats_pb2.BrainliftEvidenceScore(
+                availability=stats_pb2.BrainliftEvidenceScore.ABSTAINED,
+                scale=stats_pb2.BrainliftEvidenceScore.MCAT,
+                coverage=0.25,
+                confidence=stats_pb2.BrainliftEvidenceScore.NONE,
+                reasons=[
+                    "readiness_score_mapping_not_validated",
+                    "joint_topic_coverage_below:0.6",
+                ],
+            ),
+        )
+    )
+
+    dashboard = brainlift_dashboard(col)
+    readiness = dashboard.scores[2]
+
+    assert [score.value for score in dashboard.scores] == [
+        "80%",
+        "65%",
+        "Not enough evidence",
+    ]
+    assert readiness.available is False
+    assert readiness.interval == ""
+    assert readiness.confidence == "none"
+    assert anki.lang.without_unicode_isolation(readiness.detail) == (
+        "Readiness score mapping has not been validated"
+        " · Waiting for joint topic coverage (25%/60%)"
+    )
+
+
+def test_all_readiness_abstention_reasons_are_explained() -> None:
+    col = MagicMock()
+    col.brainlift_score_snapshot.return_value = (
+        stats_pb2.BrainliftScoreSnapshotResponse(
+            readiness=stats_pb2.BrainliftEvidenceScore(
+                availability=stats_pb2.BrainliftEvidenceScore.ABSTAINED,
+                coverage=0.25,
+                confidence=stats_pb2.BrainliftEvidenceScore.NONE,
+                reasons=[
+                    "readiness_score_mapping_not_validated",
+                    "memory_unavailable",
+                    "performance_unavailable",
+                    "joint_topic_coverage_below:0.6",
+                ],
+            ),
+        )
+    )
+
+    readiness = brainlift_dashboard(col).scores[2]
+
+    assert anki.lang.without_unicode_isolation(readiness.detail) == (
+        "Readiness score mapping has not been validated"
+        " · Waiting for Memory evidence"
+        " · Waiting for held-out Performance evidence"
+        " · Waiting for joint topic coverage (25%/60%)"
+    )
+
+
 def test_backend_error_returns_safe_fallback() -> None:
     col = MagicMock()
     col.brainlift_score_snapshot.side_effect = RuntimeError("database details")

@@ -157,26 +157,38 @@ def _render_score(score: BrainliftScoreView) -> str:
 
 
 def _abstention_detail(score: stats_pb2.BrainliftEvidenceScore) -> str:
-    for reason in score.reasons:
-        if reason == "no_qualifying_reviews":
-            return tr.qt_misc_brainlift_no_qualifying_reviews()
-        if reason.startswith("minimum_rated_reviews_not_met:"):
-            minimum = reason.partition(":")[2]
-            return tr.qt_misc_brainlift_waiting_rated_reviews(
-                rated=score.rated_reviews,
-                minimum=minimum,
-            )
-        if reason.startswith("joint_topic_coverage_below:"):
-            minimum = float(reason.partition(":")[2])
-            return tr.qt_misc_brainlift_waiting_topic_coverage(
-                coverage=_percent(score.coverage),
-                minimum=_percent(minimum),
-            )
-        if reason == "memory_unavailable":
-            return tr.qt_misc_brainlift_waiting_memory()
-        if reason == "performance_unavailable":
-            return tr.qt_misc_brainlift_waiting_performance()
-    return tr.qt_misc_brainlift_waiting_evidence()
+    reasons = [
+        detail
+        for reason in score.reasons
+        if (detail := _abstention_reason(score, reason)) is not None
+    ]
+    return " · ".join(reasons) if reasons else tr.qt_misc_brainlift_waiting_evidence()
+
+
+def _abstention_reason(
+    score: stats_pb2.BrainliftEvidenceScore, reason: str
+) -> str | None:
+    if reason == "readiness_score_mapping_not_validated":
+        return tr.qt_misc_brainlift_readiness_mapping_not_validated()
+    if reason == "no_qualifying_reviews":
+        return tr.qt_misc_brainlift_no_qualifying_reviews()
+    if reason.startswith("minimum_rated_reviews_not_met:"):
+        minimum = reason.partition(":")[2]
+        return tr.qt_misc_brainlift_waiting_rated_reviews(
+            rated=score.rated_reviews,
+            minimum=minimum,
+        )
+    if reason.startswith("joint_topic_coverage_below:"):
+        minimum = float(reason.partition(":")[2])
+        return tr.qt_misc_brainlift_waiting_topic_coverage(
+            coverage=_percent(score.coverage),
+            minimum=_percent(minimum),
+        )
+    if reason == "memory_unavailable":
+        return tr.qt_misc_brainlift_waiting_memory()
+    if reason == "performance_unavailable":
+        return tr.qt_misc_brainlift_waiting_performance()
+    return None
 
 
 def _estimate(value: float, is_mcat: bool) -> str:

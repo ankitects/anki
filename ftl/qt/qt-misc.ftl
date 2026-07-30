@@ -96,6 +96,7 @@ qt-misc-brainlift-waiting-rated-reviews = Waiting for rated reviews ({ $rated }/
 qt-misc-brainlift-waiting-topic-coverage = Waiting for joint topic coverage ({ $coverage }/{ $minimum })
 qt-misc-brainlift-waiting-memory = Waiting for Memory evidence
 qt-misc-brainlift-waiting-performance = Waiting for held-out Performance evidence
+qt-misc-brainlift-readiness-mapping-not-validated = Readiness score mapping has not been validated
 qt-misc-brainlift-waiting-evidence = Waiting for enough rated review evidence
 qt-misc-brainlift-no-rated-reviews = No rated reviews yet
 qt-misc-brainlift-updated = Updated { $datetime } UTC

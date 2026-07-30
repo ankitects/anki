@@ -28,10 +28,7 @@ pub const PERFORMANCE_MIN_REVIEWS: u32 = 10;
 pub const READINESS_MIN_TOPIC_COVERAGE: f64 = 0.8;
 pub const PASSING_BUTTON_MIN: u32 = 2;
 const PERFORMANCE_TAG_PREFIX: &str = "brainlift::evidence::performance::";
-const MCAT_MIN: f64 = 472.0;
-const MCAT_MAX: f64 = 528.0;
-const READINESS_FORMULA: &str =
-    "MCAT = 472 + 56 * mean(memory recall, held-out performance accuracy)";
+const READINESS_SCORE_MAPPING_NOT_VALIDATED: &str = "readiness_score_mapping_not_validated";
 
 #[derive(Default)]
 struct EvidenceCounts {
@@ -193,7 +190,7 @@ impl SnapshotAccumulator {
                 passing_button_min: PASSING_BUTTON_MIN,
             }),
             updated_at_secs,
-            readiness_formula: READINESS_FORMULA.into(),
+            readiness_formula: String::new(),
         }
     }
 }
@@ -298,8 +295,7 @@ fn readiness_score(
     let memory_available = memory.availability() == Availability::Available;
     let performance_available = performance.availability() == Availability::Available;
     let coverage_available = coverage >= READINESS_MIN_TOPIC_COVERAGE;
-    let available = memory_available && performance_available && coverage_available;
-    let mut reasons = Vec::new();
+    let mut reasons = vec![READINESS_SCORE_MAPPING_NOT_VALIDATED.into()];
     if !memory_available {
         reasons.push("memory_unavailable".into());
     }
@@ -311,36 +307,14 @@ fn readiness_score(
             "joint_topic_coverage_below:{READINESS_MIN_TOPIC_COVERAGE}"
         ));
     }
-    if available {
-        reasons.push("readiness_combines_memory_and_held_out_performance".into());
-    }
 
-    let probability_estimate = (memory.estimate + performance.estimate) / 2.0;
-    let probability_range = memory.range.as_ref().zip(performance.range.as_ref());
     BrainliftEvidenceScore {
-        availability: if available {
-            Availability::Available as i32
-        } else {
-            Availability::Abstained as i32
-        },
+        availability: Availability::Abstained as i32,
         scale: Scale::Mcat as i32,
-        estimate: available
-            .then(|| to_mcat_score(probability_estimate))
-            .unwrap_or_default(),
-        range: available
-            .then(|| {
-                probability_range.map(|(memory, performance)| BrainliftScoreRange {
-                    lower: to_mcat_score((memory.lower + performance.lower) / 2.0),
-                    upper: to_mcat_score((memory.upper + performance.upper) / 2.0),
-                })
-            })
-            .flatten(),
+        estimate: 0.0,
+        range: None,
         coverage,
-        confidence: if available {
-            std::cmp::min(memory.confidence(), performance.confidence()) as i32
-        } else {
-            Confidence::None as i32
-        },
+        confidence: Confidence::None as i32,
         updated_at_secs: memory.updated_at_secs.max(performance.updated_at_secs),
         reasons,
         rated_reviews: memory.rated_reviews + performance.rated_reviews,
@@ -391,10 +365,6 @@ fn wilson_range(successful: u32, rated: u32) -> Option<BrainliftScoreRange> {
     })
 }
 
-fn to_mcat_score(probability: f64) -> f64 {
-    MCAT_MIN + (MCAT_MAX - MCAT_MIN) * probability.clamp(0.0, 1.0)
-}
-
 #[cfg(test)]
 mod tests {
     use anki_proto::stats::brainlift_evidence_score::Availability;
@@ -403,6 +373,8 @@ mod tests {
 
     use super::MEMORY_MIN_REVIEWS;
     use super::PERFORMANCE_MIN_REVIEWS;
+    use super::READINESS_MIN_TOPIC_COVERAGE;
+    use super::READINESS_SCORE_MAPPING_NOT_VALIDATED;
     use crate::collection::Collection;
     use crate::decks::DeckId;
     use crate::prelude::*;
@@ -431,10 +403,15 @@ mod tests {
             snapshot.performance.unwrap().availability(),
             Availability::Abstained
         );
-        assert_eq!(
-            snapshot.readiness.unwrap().availability(),
-            Availability::Abstained
-        );
+        let readiness = snapshot.readiness.unwrap();
+        assert_eq!(readiness.availability(), Availability::Abstained);
+        assert_eq!(readiness.estimate, 0.0);
+        assert!(readiness.range.is_none());
+        assert_eq!(readiness.confidence(), super::Confidence::None);
+        assert!(readiness
+            .reasons
+            .contains(&READINESS_SCORE_MAPPING_NOT_VALIDATED.into()));
+        assert!(snapshot.readiness_formula.is_empty());
         Ok(())
     }
 
@@ -479,6 +456,14 @@ mod tests {
         assert_eq!(performance.availability(), Availability::Available);
         assert_eq!(performance.rated_reviews, PERFORMANCE_MIN_REVIEWS);
         assert_eq!(readiness.availability(), Availability::Abstained);
+        assert_eq!(readiness.estimate, 0.0);
+        assert!(readiness.range.is_none());
+        assert!(readiness
+            .reasons
+            .contains(&READINESS_SCORE_MAPPING_NOT_VALIDATED.into()));
+        assert!(readiness.reasons.contains(&format!(
+            "joint_topic_coverage_below:{READINESS_MIN_TOPIC_COVERAGE}"
+        )));
         assert_eq!(snapshot.topics[0].rated_reviews, MEMORY_MIN_REVIEWS);
         assert_eq!(snapshot.topics[1].rated_reviews, 0);
         assert_eq!(snapshot.thresholds.unwrap().topic_min_reviews, 2);
@@ -530,7 +515,7 @@ mod tests {
     }
 
     #[test]
-    fn readiness_uses_both_evidence_kinds_and_joint_coverage() -> Result<()> {
+    fn readiness_abstains_without_a_validated_score_mapping() -> Result<()> {
         let mut col = Collection::new();
         let biology_memory = add_tagged_card(&mut col, &[BIOLOGY_TAG]);
         let chemistry_memory = add_tagged_card(&mut col, &[CHEMISTRY_TAG]);
@@ -572,14 +557,13 @@ mod tests {
 
         let snapshot = col.brainlift_score_snapshot(request())?;
         let readiness = snapshot.readiness.unwrap();
-        assert_eq!(readiness.availability(), Availability::Available);
+        assert_eq!(readiness.availability(), Availability::Abstained);
         assert_eq!(readiness.coverage, 1.0);
-        assert!((472.0..=528.0).contains(&readiness.estimate));
-        assert!(readiness.range.is_some());
-        assert_eq!(
-            snapshot.readiness_formula,
-            "MCAT = 472 + 56 * mean(memory recall, held-out performance accuracy)"
-        );
+        assert_eq!(readiness.estimate, 0.0);
+        assert!(readiness.range.is_none());
+        assert_eq!(readiness.confidence(), super::Confidence::None);
+        assert_eq!(readiness.reasons, [READINESS_SCORE_MAPPING_NOT_VALIDATED]);
+        assert!(snapshot.readiness_formula.is_empty());
         Ok(())
     }
 
