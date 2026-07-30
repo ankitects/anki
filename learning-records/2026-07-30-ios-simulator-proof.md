@@ -5,7 +5,7 @@ Date: 2026-07-30
 ## Build identity
 
 - Linked Rust bridge source revision:
-  `c3c62ac432e0c44298a9440caa6be1067c1fa5f8-dirty`
+  `ef2099bdcbb7bbf4e505d57a07bfb8e0270d5437`
 - Historical pre-iOS core baseline:
   `af5417a858cf979e4f9cadef02310d197fa52429`
 - Bundle identifier: `com.techmexdev.BrainliftMobile`
@@ -22,31 +22,36 @@ Date: 2026-07-30
 - Swift opens a real fixture collection through the bridge.
 - Review queue, rendering, grading, undo, persistence, evidence, and sync calls
   cross the Rust boundary.
+- Card HTML renders under a restrictive content policy with remote navigation
+  and exfiltration channels blocked.
 - Evidence values are direct projections of Rust responses.
 - Initial sync auto-accepts only a backend-requested full download. Upload and
   later full-sync directions require explicit confirmation.
+- Sync progress remains observable during long native operations, while close
+  waits safely for active bridge calls.
+- Simulator UI tests cover review/reveal/grade/undo, evidence abstention, and
+  explicit later full-sync direction selection.
 - The generated app installs and launches on the simulator, and visibly reports
   its linked Rust bridge revision.
 - The native ABI revision, generated bundle marker, and Swift-visible identity
-  agree. Tracked worktree changes are explicit in the `-dirty` suffix.
+  agree, and the recorded source revision is a clean committed tree.
 
 ## Recorded checks
 
-- `cargo test -p anki_ios_bridge`: 8 passed
+- `cargo test -p anki_ios_bridge`: 9 passed
 - `cargo test -p anki brainlift_sync_`: 5 passed
-- `BrainliftMobile` simulator suite: 22 passed
+- `BrainliftMobile` simulator suite: 37 passed (34 unit/integration, 3 UI)
 - Simulator build, install, and clean launch: passed
 - Installed `AnkiBridgeSourceRevision` metadata:
-  `c3c62ac432e0c44298a9440caa6be1067c1fa5f8-dirty`
+  `ef2099bdcbb7bbf4e505d57a07bfb8e0270d5437`
 - Simulator XCFramework SHA-256:
-  `fd48c6381272495b97359f8156ad9e03850cce4054ded14d4f217e35ebe329de`
+  `23938cb1e543e35a1c83d7c888c7b81c6ac410f7536ba07a091b97a9ee084f03`
 - Installed simulator app tree SHA-256:
-  `e68451485f12e57b005d0015055d9f821b162d270947e66ab91a702b18555b91`
+  `6f6172c5e5ab15da2d3d5df02e0105d616c8b898db09a7597c7ef9b2ea30375e`
 
 The app tree checksum is a local Debug simulator artifact checksum, not an
-App Store distribution checksum. This proof intentionally records a dirty
-artifact: the suffix prevents it from being mistaken for a clean build of the
-named commit.
+App Store distribution checksum. The artifact was generated from the clean
+source revision above; this proof-record update follows that artifact commit.
 
 ## Explicit limitations
 

@@ -1,15 +1,19 @@
-use std::{ffi::CStr, ptr};
+use std::ffi::CStr;
+use std::ptr;
 
-use anki_ios_bridge::{
-    anki_backend_buffer_free, anki_backend_close, anki_backend_open, anki_backend_run_method,
-    anki_backend_source_revision, AnkiBackendCallResult, AnkiBackendOpenResult, AnkiByteSlice,
-    AnkiOwnedBuffer,
-};
-use anki_proto::{
-    backend::{BackendError, BackendInit},
-    card_rendering::StripHtmlRequest,
-    generic::String as ProtoString,
-};
+use anki_ios_bridge::anki_backend_buffer_free;
+use anki_ios_bridge::anki_backend_close;
+use anki_ios_bridge::anki_backend_open;
+use anki_ios_bridge::anki_backend_run_method;
+use anki_ios_bridge::anki_backend_source_revision;
+use anki_ios_bridge::AnkiBackendCallResult;
+use anki_ios_bridge::AnkiBackendOpenResult;
+use anki_ios_bridge::AnkiByteSlice;
+use anki_ios_bridge::AnkiOwnedBuffer;
+use anki_proto::backend::BackendError;
+use anki_proto::backend::BackendInit;
+use anki_proto::card_rendering::StripHtmlRequest;
+use anki_proto::generic::String as ProtoString;
 use prost::Message;
 
 fn slice(bytes: &[u8]) -> AnkiByteSlice {

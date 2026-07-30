@@ -3,12 +3,13 @@
 
 import os
 import re
+from typing import Optional
 
 _BRAINLIFT_COMMIT_ENV = "ANKI_BRAINLIFT_COMMIT"
 _FULL_GIT_COMMIT = re.compile(r"[0-9a-fA-F]{40}")
 
 
-def brainlift_commit() -> str | None:
+def brainlift_commit() -> Optional[str]:
     """Return the packaged Brainlift source revision, when valid."""
     commit = os.environ.get(_BRAINLIFT_COMMIT_ENV)
     if commit and _FULL_GIT_COMMIT.fullmatch(commit):

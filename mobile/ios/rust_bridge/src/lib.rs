@@ -5,18 +5,25 @@
 //!
 //! Swift receives opaque numeric handles rather than Rust pointers. A registry
 //! owns handles and buffers, while per-handle call leases serialize operations,
-//! allow concurrent progress reads, and make repeated close/free calls harmless.
+//! allow concurrent progress reads, and make repeated close/free calls
+//! harmless.
 
-use std::{
-    any::Any,
-    collections::HashMap,
-    panic::{catch_unwind, AssertUnwindSafe},
-    ptr, slice,
-    sync::{Arc, Condvar, Mutex, MutexGuard, OnceLock},
-};
+use std::any::Any;
+use std::collections::HashMap;
+use std::panic::catch_unwind;
+use std::panic::AssertUnwindSafe;
+use std::ptr;
+use std::slice;
+use std::sync::Arc;
+use std::sync::Condvar;
+use std::sync::Mutex;
+use std::sync::MutexGuard;
+use std::sync::OnceLock;
 
-use anki::backend::{init_backend, Backend};
-use anki_proto::backend::{backend_error, BackendError};
+use anki::backend::init_backend;
+use anki::backend::Backend;
+use anki_proto::backend::backend_error;
+use anki_proto::backend::BackendError;
 use prost::Message;
 
 /// Exact repository revision compiled into this bridge.
@@ -384,8 +391,11 @@ pub extern "C" fn anki_backend_buffer_free(buffer: AnkiOwnedBuffer) {
 
 #[cfg(test)]
 mod tests {
+    use std::sync::mpsc;
+    use std::thread;
+    use std::time::Duration;
+
     use super::*;
-    use std::{sync::mpsc, thread, time::Duration};
 
     #[test]
     fn catches_panics_as_serialized_backend_errors() {

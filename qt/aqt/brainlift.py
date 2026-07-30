@@ -112,8 +112,8 @@ def _score_view(
         value=_estimate(score.estimate, is_mcat),
         interval=_interval(score.range.lower, score.range.upper, is_mcat),
         detail=tr.qt_misc_brainlift_successful_reviews(
-            successful=score.successful_reviews,
-            rated=score.rated_reviews,
+            successful=str(score.successful_reviews),
+            rated=str(score.rated_reviews),
         ),
         coverage=_percent(score.coverage),
         confidence=_confidence_label(score.confidence),
@@ -173,16 +173,16 @@ def _abstention_reason(
     if reason == "no_qualifying_reviews":
         return tr.qt_misc_brainlift_no_qualifying_reviews()
     if reason.startswith("minimum_rated_reviews_not_met:"):
-        minimum = reason.partition(":")[2]
+        minimum_reviews = reason.partition(":")[2]
         return tr.qt_misc_brainlift_waiting_rated_reviews(
-            rated=score.rated_reviews,
-            minimum=minimum,
+            rated=str(score.rated_reviews),
+            minimum=minimum_reviews,
         )
     if reason.startswith("joint_topic_coverage_below:"):
-        minimum = float(reason.partition(":")[2])
+        minimum_coverage = float(reason.partition(":")[2])
         return tr.qt_misc_brainlift_waiting_topic_coverage(
             coverage=_percent(score.coverage),
-            minimum=_percent(minimum),
+            minimum=_percent(minimum_coverage),
         )
     if reason == "memory_unavailable":
         return tr.qt_misc_brainlift_waiting_memory()
@@ -221,8 +221,10 @@ def _score_labels() -> tuple[str, str, str]:
 
 
 def _confidence_label(confidence: int) -> str:
-    return {
-        stats_pb2.BrainliftEvidenceScore.LOW: tr.qt_misc_brainlift_confidence_low(),
-        stats_pb2.BrainliftEvidenceScore.MEDIUM: tr.qt_misc_brainlift_confidence_medium(),
-        stats_pb2.BrainliftEvidenceScore.HIGH: tr.qt_misc_brainlift_confidence_high(),
-    }.get(confidence, tr.qt_misc_brainlift_confidence_none())
+    if confidence == stats_pb2.BrainliftEvidenceScore.LOW:
+        return tr.qt_misc_brainlift_confidence_low()
+    if confidence == stats_pb2.BrainliftEvidenceScore.MEDIUM:
+        return tr.qt_misc_brainlift_confidence_medium()
+    if confidence == stats_pb2.BrainliftEvidenceScore.HIGH:
+        return tr.qt_misc_brainlift_confidence_high()
+    return tr.qt_misc_brainlift_confidence_none()

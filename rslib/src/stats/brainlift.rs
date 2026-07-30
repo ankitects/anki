@@ -268,9 +268,11 @@ fn evidence_score(
             Availability::Abstained as i32
         },
         scale: Scale::Probability as i32,
-        estimate: available
-            .then(|| ratio(counts.successful, counts.rated))
-            .unwrap_or_default(),
+        estimate: if available {
+            ratio(counts.successful, counts.rated)
+        } else {
+            0.0
+        },
         range: available
             .then(|| wilson_range(counts.successful, counts.rated))
             .flatten(),

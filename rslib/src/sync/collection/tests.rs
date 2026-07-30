@@ -581,7 +581,7 @@ fn add_sync_test_cards(col: &mut Collection, count: usize) -> Result<Vec<CardId>
     let mut card_ids = Vec::with_capacity(count);
     for idx in 0..count {
         let mut note = nt.new_note();
-        note.set_field(0, &format!("sync test card {idx}"))?;
+        note.set_field(0, format!("sync test card {idx}"))?;
         col.add_note(&mut note, DeckId(1))?;
         card_ids.push(col.search_cards(note.id, SortMode::NoOrder)?[0]);
     }

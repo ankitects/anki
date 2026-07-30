@@ -1,16 +1,16 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-use std::{
-    env,
-    fmt::Write,
-    fs,
-    path::{Path, PathBuf},
-    process::Command,
-};
+use std::env;
+use std::fmt::Write;
+use std::fs;
+use std::path::Path;
+use std::path::PathBuf;
+use std::process::Command;
 
 use anki_proto_gen::get_services;
-use anyhow::{Context, Result};
+use anyhow::Context;
+use anyhow::Result;
 use inflections::Inflect;
 use prost_reflect::DescriptorPool;
 
