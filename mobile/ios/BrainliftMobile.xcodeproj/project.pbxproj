@@ -33,6 +33,7 @@
 		6D407ECE0866981790AA5962 /* notes.pb.swift in Sources */ = {isa = PBXBuildFile; fileRef = DB5EE77906DAC1AD7C07EE53 /* notes.pb.swift */; };
 		7053255026A43AD24B2D5406 /* AnkiBackend.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = 785D6C58C74B6FD98C2EADF7 /* AnkiBackend.xcframework */; };
 		783F1C6D1D881C91B54B868A /* CardWebView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1E3A74FF1368864ED2B29095 /* CardWebView.swift */; };
+		7B17B9AF7C45360D83FB13EE /* BuildInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1475D9C93C7D337D92EC8358 /* BuildInfo.swift */; };
 		81045180A22D837CD1E4E8EB /* ReviewModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = 358386AEB89790FD633BA920 /* ReviewModels.swift */; };
 		83A56BFEF3B1C9F0F30D471C /* BrainliftMobileApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8BEF04906ED8CF34EE799D0E /* BrainliftMobileApp.swift */; };
 		864E73FA9278E66A3A982861 /* ScoreRowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9D050D679ED99AA7C4B29627 /* ScoreRowView.swift */; };
@@ -53,6 +54,7 @@
 		CF515BF887C9AFB1CC1BA4C9 /* SwiftProtobuf in Frameworks */ = {isa = PBXBuildFile; productRef = C3D925242DC4A72D46331A00 /* SwiftProtobuf */; };
 		D1CF363D253F043976282C75 /* ReviewSessionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 69BBF6BA435C9968D4D8765D /* ReviewSessionView.swift */; };
 		D5B8FE2E55ACCA2E8A20E6A6 /* ScorePanelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8BAB3A286E42A832D7CB27F2 /* ScorePanelTests.swift */; };
+		DA83A3971F3BC13D8D148A9F /* BuildInfoTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F2F473906F98BD734E092C1C /* BuildInfoTests.swift */; };
 		DA943D88F05C21C32BDBA4EC /* SyncBackend.swift in Sources */ = {isa = PBXBuildFile; fileRef = 853BCF12BE2570FD6ECEA5AC /* SyncBackend.swift */; };
 		E256A6E5167744A60B548651 /* SyncProgressView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DFFF578850C8509999E41EA7 /* SyncProgressView.swift */; };
 		E63FDCEEDCB87B0ACB7926C8 /* AnkiBackendTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 715FA356DF7D8CBDD1A7CC0A /* AnkiBackendTests.swift */; };
@@ -76,6 +78,7 @@
 		08B7B6191F5FD173F4EF50B3 /* BrainliftMobileTests.xctest */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.cfbundle; path = BrainliftMobileTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		0C2161EA3F6A654B234A2095 /* ScorePanelView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScorePanelView.swift; sourceTree = "<group>"; };
 		0C3B3510D56037627DDBE22E /* sync.pb.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = sync.pb.swift; sourceTree = "<group>"; };
+		1475D9C93C7D337D92EC8358 /* BuildInfo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BuildInfo.swift; sourceTree = "<group>"; };
 		18DDC6C75C924E97CDEA2A37 /* cards.pb.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = cards.pb.swift; sourceTree = "<group>"; };
 		19E81B08E60D11EDE6302061 /* ReviewBackend.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReviewBackend.swift; sourceTree = "<group>"; };
 		1E3A74FF1368864ED2B29095 /* CardWebView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardWebView.swift; sourceTree = "<group>"; };
@@ -100,6 +103,7 @@
 		75F68067F240542B3A2CC397 /* SyncSettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SyncSettingsView.swift; sourceTree = "<group>"; };
 		785D6C58C74B6FD98C2EADF7 /* AnkiBackend.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; name = AnkiBackend.xcframework; path = ../../out/ios/AnkiBackend.xcframework; sourceTree = "<group>"; };
 		7EEAEA84225B2B2221A03CD1 /* AnkiBackend.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnkiBackend.swift; sourceTree = "<group>"; };
+		85370C70573C9FF263632070 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		853BCF12BE2570FD6ECEA5AC /* SyncBackend.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SyncBackend.swift; sourceTree = "<group>"; };
 		8B63B0643191D123CE5F11A4 /* ReviewSessionViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReviewSessionViewModel.swift; sourceTree = "<group>"; };
 		8BAB3A286E42A832D7CB27F2 /* ScorePanelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScorePanelTests.swift; sourceTree = "<group>"; };
@@ -121,6 +125,7 @@
 		E55F9E3C0C991BEAA4F1F188 /* tags.pb.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = tags.pb.swift; sourceTree = "<group>"; };
 		ED0618C38511CB3947B2C93F /* ankihub.pb.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ankihub.pb.swift; sourceTree = "<group>"; };
 		EE0BED669272F30577823877 /* stats.pb.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = stats.pb.swift; sourceTree = "<group>"; };
+		F2F473906F98BD734E092C1C /* BuildInfoTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BuildInfoTests.swift; sourceTree = "<group>"; };
 		F330FF7A9FF306380D988358 /* SyncCredentialsStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SyncCredentialsStore.swift; sourceTree = "<group>"; };
 		FBC1C09B148D549BA7954A64 /* BackendMethods.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BackendMethods.swift; sourceTree = "<group>"; };
 		FCA2BE0E013D71DADC0A5D02 /* search.pb.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = search.pb.swift; sourceTree = "<group>"; };
@@ -170,6 +175,7 @@
 		3DBC7B7E208465F2746B827C /* BrainliftMobileTests */ = {
 			isa = PBXGroup;
 			children = (
+				B70A4D7661E7F3048E08EB55 /* App */,
 				A0D16BE140775EF444C7724D /* Backend */,
 				2FE5FE4B265EFE3A73EA0125 /* Review */,
 				DD19D96B1E40E3F1479A958E /* Scores */,
@@ -224,7 +230,17 @@
 			isa = PBXGroup;
 			children = (
 				8BEF04906ED8CF34EE799D0E /* BrainliftMobileApp.swift */,
+				1475D9C93C7D337D92EC8358 /* BuildInfo.swift */,
 				449E9D7902566081BED1C0F8 /* ContentView.swift */,
+				85370C70573C9FF263632070 /* Info.plist */,
+			);
+			path = App;
+			sourceTree = "<group>";
+		};
+		B70A4D7661E7F3048E08EB55 /* App */ = {
+			isa = PBXGroup;
+			children = (
+				F2F473906F98BD734E092C1C /* BuildInfoTests.swift */,
 			);
 			path = App;
 			sourceTree = "<group>";
@@ -413,6 +429,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				E63FDCEEDCB87B0ACB7926C8 /* AnkiBackendTests.swift in Sources */,
+				DA83A3971F3BC13D8D148A9F /* BuildInfoTests.swift in Sources */,
 				46352761DD0D8BA4CA0F54B8 /* ReviewSessionViewModelTests.swift in Sources */,
 				D5B8FE2E55ACCA2E8A20E6A6 /* ScorePanelTests.swift in Sources */,
 				AC84CFCCCC3BAEF649EE0305 /* SyncCoordinatorTests.swift in Sources */,
@@ -428,6 +445,7 @@
 				46941D55595965408F061ED6 /* BackendMethods.swift in Sources */,
 				8904148A20D364BE02CC1530 /* BackendTransport.swift in Sources */,
 				83A56BFEF3B1C9F0F30D471C /* BrainliftMobileApp.swift in Sources */,
+				7B17B9AF7C45360D83FB13EE /* BuildInfo.swift in Sources */,
 				783F1C6D1D881C91B54B868A /* CardWebView.swift in Sources */,
 				047AD32A9C279FF6D006CD9B /* ContentView.swift in Sources */,
 				F19500B6EFE16DBDDA554FD2 /* DeckPickerView.swift in Sources */,
@@ -509,11 +527,7 @@
 					"$(inherited)",
 					"\"../../out/ios\"",
 				);
-				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_KEY_CFBundleDisplayName = Brainlift;
-				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
-				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = UIInterfaceOrientationPortrait;
+				INFOPLIST_FILE = BrainliftMobile/App/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -536,11 +550,7 @@
 					"$(inherited)",
 					"\"../../out/ios\"",
 				);
-				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_KEY_CFBundleDisplayName = Brainlift;
-				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
-				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = UIInterfaceOrientationPortrait;
+				INFOPLIST_FILE = BrainliftMobile/App/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",

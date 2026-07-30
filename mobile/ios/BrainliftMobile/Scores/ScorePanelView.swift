@@ -11,6 +11,10 @@ struct ScorePanelView: View {
             HStack {
                 Text("Evidence").font(.title3.bold())
                 Spacer()
+                Text("Core \(BuildInfo.shortAnkiCoreCommit)")
+                    .font(.caption2.monospaced())
+                    .foregroundStyle(.secondary)
+                    .accessibilityIdentifier("anki-core-commit")
                 if model.isStale {
                     Label("Stale", systemImage: "clock.badge.exclamationmark")
                         .font(.caption)

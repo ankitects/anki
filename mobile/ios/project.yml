@@ -16,6 +16,17 @@ targets:
   BrainliftMobile:
     type: application
     platform: iOS
+    info:
+      path: BrainliftMobile/App/Info.plist
+      properties:
+        AnkiCoreCommit: af5417a858cf979e4f9cadef02310d197fa52429
+        CFBundleDisplayName: Brainlift
+        CFBundleShortVersionString: $(MARKETING_VERSION)
+        CFBundleVersion: $(CURRENT_PROJECT_VERSION)
+        UIApplicationSupportsIndirectInputEvents: true
+        UILaunchScreen: {}
+        UISupportedInterfaceOrientations:
+          - UIInterfaceOrientationPortrait
     sources:
       - path: BrainliftMobile
     dependencies:
@@ -25,11 +36,6 @@ targets:
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.techmexdev.BrainliftMobile
-        GENERATE_INFOPLIST_FILE: "YES"
-        INFOPLIST_KEY_CFBundleDisplayName: Brainlift
-        INFOPLIST_KEY_UILaunchScreen_Generation: "YES"
-        INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents: "YES"
-        INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone: UIInterfaceOrientationPortrait
         SWIFT_OBJC_BRIDGING_HEADER: rust_bridge/include/anki_backend.h
         MARKETING_VERSION: "0.1"
         CURRENT_PROJECT_VERSION: "1"
