@@ -13,6 +13,8 @@ import "anki/cards.proto";
 service StatsService {
   rpc CardStats(cards.CardId) returns (CardStatsResponse);
   rpc GetReviewLogs(cards.CardId) returns (ReviewLogs);
+  rpc BrainliftScoreSnapshot(BrainliftScoreRequest)
+      returns (BrainliftScoreSnapshotResponse);
   rpc Graphs(GraphsRequest) returns (GraphsResponse);
   rpc GetGraphPreferences(generic.Empty) returns (GraphPreferences);
   rpc SetGraphPreferences(GraphPreferences) returns (generic.Empty);
@@ -24,6 +26,82 @@ service BackendStatsService {}
 
 message ReviewLogs {
   repeated CardStatsResponse.StatsRevlogEntry entries = 1;
+}
+
+message BrainliftTopic {
+  string name = 1;
+  string tag = 2;
+}
+
+message BrainliftScoreRequest {
+  repeated BrainliftTopic topics = 1;
+}
+
+message BrainliftScoreRange {
+  double lower = 1;
+  double upper = 2;
+}
+
+message BrainliftTopicMastery {
+  string name = 1;
+  string tag = 2;
+  uint32 rated_reviews = 3;
+  uint32 successful_reviews = 4;
+  double mastery = 5;
+  double average_recall = 6;
+  BrainliftScoreRange average_recall_range = 7;
+  bool covered = 8;
+  uint32 performance_rated_reviews = 9;
+  uint32 performance_successful_reviews = 10;
+  double performance_average = 11;
+  BrainliftScoreRange performance_range = 12;
+  bool performance_covered = 13;
+}
+
+message BrainliftEvidenceScore {
+  enum Availability {
+    ABSTAINED = 0;
+    AVAILABLE = 1;
+  }
+  enum Confidence {
+    NONE = 0;
+    LOW = 1;
+    MEDIUM = 2;
+    HIGH = 3;
+  }
+  enum Scale {
+    PROBABILITY = 0;
+    MCAT = 1;
+  }
+
+  Availability availability = 1;
+  Scale scale = 2;
+  double estimate = 3;
+  BrainliftScoreRange range = 4;
+  double coverage = 5;
+  Confidence confidence = 6;
+  int64 updated_at_secs = 7;
+  repeated string reasons = 8;
+  uint32 rated_reviews = 9;
+  uint32 successful_reviews = 10;
+}
+
+message BrainliftEvidenceThresholds {
+  uint32 topic_min_reviews = 1;
+  uint32 memory_min_reviews = 2;
+  uint32 performance_min_reviews = 3;
+  double readiness_min_topic_coverage = 4;
+  uint32 passing_button_min = 5;
+}
+
+message BrainliftScoreSnapshotResponse {
+  repeated BrainliftTopicMastery topics = 1;
+  BrainliftEvidenceScore memory = 2;
+  BrainliftEvidenceScore performance = 3;
+  BrainliftEvidenceScore readiness = 4;
+  BrainliftEvidenceThresholds thresholds = 5;
+  int64 updated_at_secs = 6;
+  string readiness_formula = 7;
 }
 
 message CardStatsResponse {

@@ -21,6 +21,12 @@ pub(crate) struct StudiedToday {
     pub seconds: f64,
 }
 
+pub(crate) struct BrainliftEvidenceRow {
+    pub review_id: RevlogId,
+    pub tags: String,
+    pub button_chosen: u8,
+}
+
 impl FromSql for RevlogReviewKind {
     fn column_result(value: ValueRef<'_>) -> std::result::Result<Self, FromSqlError> {
         if let ValueRef::Integer(i) = value {
@@ -46,6 +52,34 @@ fn row_to_revlog_entry(row: &Row) -> Result<RevlogEntry> {
 }
 
 impl SqliteStorage {
+    pub(crate) fn for_each_brainlift_evidence_row(
+        &self,
+        mut func: impl FnMut(BrainliftEvidenceRow) -> Result<()>,
+    ) -> Result<()> {
+        let mut stmt = self.db.prepare_cached(
+            "select r.id, n.tags, r.ease
+             from revlog r
+             join cards c on c.id = r.cid
+             join notes n on n.id = c.nid
+             where r.ease between 1 and 4
+               and r.type not in (?, ?)
+               and not (r.type = ? and r.factor = 0)",
+        )?;
+        let mut rows = stmt.query(params![
+            RevlogReviewKind::Manual as i64,
+            RevlogReviewKind::Rescheduled as i64,
+            RevlogReviewKind::Filtered as i64,
+        ])?;
+        while let Some(row) = rows.next()? {
+            func(BrainliftEvidenceRow {
+                review_id: row.get(0)?,
+                tags: row.get(1)?,
+                button_chosen: row.get(2)?,
+            })?;
+        }
+        Ok(())
+    }
+
     pub(crate) fn fix_revlog_properties(&self) -> Result<usize> {
         self.db
             .prepare(include_str!("fix_props.sql"))?

@@ -1024,6 +1024,16 @@ class Collection(DeprecatedNamesMixin):
     ) -> Sequence[stats_pb2.CardStatsResponse.StatsRevlogEntry]:
         return self._backend.get_review_logs(card_id)
 
+    def brainlift_score_snapshot(
+        self, topics: Sequence[tuple[str, str]]
+    ) -> stats_pb2.BrainliftScoreSnapshotResponse:
+        """Return backend-owned mastery and transfer evidence for name/tag pairs."""
+        return self._backend.brainlift_score_snapshot(
+            topics=[
+                stats_pb2.BrainliftTopic(name=name, tag=tag) for name, tag in topics
+            ]
+        )
+
     def studied_today(self) -> str:
         return self._backend.studied_today()
 

@@ -19,6 +19,13 @@ impl crate::services::StatsService for Collection {
         self.get_review_logs(input.cid.into())
     }
 
+    fn brainlift_score_snapshot(
+        &mut self,
+        input: anki_proto::stats::BrainliftScoreRequest,
+    ) -> error::Result<anki_proto::stats::BrainliftScoreSnapshotResponse> {
+        self.brainlift_score_snapshot(input)
+    }
+
     fn graphs(
         &mut self,
         input: anki_proto::stats::GraphsRequest,
