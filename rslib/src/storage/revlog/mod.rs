@@ -128,13 +128,6 @@ impl SqliteStorage {
             .transpose()
     }
 
-    pub(crate) fn max_revlog_id(&self) -> Result<Option<RevlogId>> {
-        self.db
-            .prepare_cached("select max(id) from revlog")?
-            .query_row([], |row| row.get(0))
-            .map_err(Into::into)
-    }
-
     pub(crate) fn move_revlog_entry(
         &self,
         old_id: RevlogId,

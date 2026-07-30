@@ -10,8 +10,8 @@ DMG="$OUTPUT_DIR/Anki-Brainlift.dmg"
 VERSION="$(tr -d '[:space:]' < "$PROJ_ROOT/.version")"
 COMMIT="$(git -C "$PROJ_ROOT" rev-parse HEAD)"
 
-if [[ -n "$(git -C "$PROJ_ROOT" status --porcelain --untracked-files=no)" ]]; then
-    echo "Refusing to package tracked changes that are not recorded in $COMMIT" >&2
+if [[ -n "$(git -C "$PROJ_ROOT" status --porcelain --untracked-files=all)" ]]; then
+    echo "Refusing to package source changes that are not recorded in $COMMIT" >&2
     exit 1
 fi
 

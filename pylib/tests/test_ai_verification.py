@@ -14,8 +14,10 @@ SPEC.loader.exec_module(ai_verification)
 
 def test_frozen_eval_has_fifty_source_traced_predictions() -> None:
     manifest = ai_verification.validate_frozen_inputs()
+    sources = ai_verification.load_json(ai_verification.SOURCE_PATH)
     predictions = ai_verification.parse_predictions(
-        ai_verification.load_json(ai_verification.PREDICTIONS_PATH)
+        ai_verification.load_json(ai_verification.PREDICTIONS_PATH),
+        {source["source_id"] for source in sources},
     )
 
     assert manifest["case_count"] == 50
@@ -69,6 +71,38 @@ def test_ai_off_and_evaluator_failure_leave_scoring_available(
     assert result["status"] == "unavailable"
     assert result["app_scoring_available"] is True
     assert result["ai_runtime_required_by_app"] is False
+
+    monkeypatch.setattr(sys, "argv", ["ai_verification.py", "--ai-off"])
+    assert ai_verification.main() == 2
+
+
+def test_unknown_source_fails_closed() -> None:
+    raw = [{"case_id": "case-1", "answer": "answer", "source_ids": ["unknown"]}]
+
+    with pytest.raises(ValueError, match="unknown sources"):
+        ai_verification.parse_predictions(raw, {"known"})
+
+
+def test_unknown_judgment_and_extra_prediction_fail_closed() -> None:
+    cases = [{"case_id": "case-1"}]
+    prediction = ai_verification.Prediction("case-1", "answer", ("source-1",))
+    predictions = {"case-1": prediction}
+    judgment = {
+        "prediction_set_sha256": ai_verification.prediction_set_hash(
+            cases, predictions
+        ),
+        "wrong": ["unknown-case"],
+        "correct_bad_teaching": [],
+    }
+
+    with pytest.raises(ValueError, match="unknown cases"):
+        ai_verification.score_predictions(cases, predictions, judgment)
+
+    predictions["extra-case"] = ai_verification.Prediction(
+        "extra-case", "answer", ("source-1",)
+    )
+    with pytest.raises(ValueError, match="do not exactly match"):
+        ai_verification.score_predictions(cases, predictions, judgment)
 
 
 def test_report_contains_cutoff_baseline_and_source(tmp_path: Path) -> None:

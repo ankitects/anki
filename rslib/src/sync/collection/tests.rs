@@ -860,7 +860,7 @@ async fn brainlift_sync_collision_mapping_converges_with_asymmetric_high_ids() -
         let colliding_id = RevlogId(1_700_000_005_000);
         let col1_high_id = RevlogId(1_900_000_000_000);
         let col2_high_id = RevlogId(2_000_000_000_000);
-        let relocated_id = RevlogId(col2_high_id.0 + 1);
+        let relocated_id = RevlogId(colliding_id.0 + 1);
         let mut col1 = ctx.col1();
         let mut col2 = ctx.col2();
 
@@ -906,6 +906,7 @@ async fn brainlift_sync_collision_mapping_converges_with_asymmetric_high_ids() -
                 .interval,
             20
         );
+        assert_eq!(relocated_id.as_secs(), colliding_id.as_secs());
 
         assert_eq!(
             ctx.normal_sync(&mut col1).await.required,

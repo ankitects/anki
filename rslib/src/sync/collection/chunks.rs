@@ -1,6 +1,8 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
+use std::collections::HashSet;
+
 use itertools::Itertools;
 use serde::Deserialize;
 use serde::Serialize;
@@ -166,17 +168,9 @@ impl Collection {
     }
 
     fn merge_revlog(&self, entries: Vec<RevlogEntry>, pending_usn: Usn) -> Result<()> {
-        let max_incoming_id = entries.iter().map(|entry| entry.id.0).max();
-        let mut relocation_floor = self
-            .storage
-            .max_revlog_id()?
-            .map(|id| id.0)
-            .into_iter()
-            .chain(max_incoming_id)
-            .max()
-            .unwrap_or_default();
+        let incoming_ids: HashSet<_> = entries.iter().map(|entry| entry.id).collect();
 
-        for entry in entries {
+        for mut entry in entries {
             let Some(existing) = self.storage.get_revlog_entry(entry.id)? else {
                 self.storage.add_revlog_entry(&entry, false)?;
                 continue;
@@ -185,21 +179,44 @@ impl Collection {
                 continue;
             }
 
+            let relocated_id = self.available_revlog_collision_id(entry.id, &incoming_ids)?;
             if self.server {
-                self.storage.add_revlog_entry(&entry, true)?;
+                entry.id = relocated_id;
+                self.storage.add_revlog_entry(&entry, false)?;
             } else {
                 // Server chunks arrive before client uploads, so the server's
                 // payload keeps the shared ID and the pending local one moves.
-                relocation_floor = relocation_floor
-                    .checked_add(1)
-                    .or_invalid("revlog ID overflow while resolving a sync collision")?;
-                let relocated_id = RevlogId(relocation_floor);
                 self.storage
                     .move_revlog_entry(existing.id, relocated_id, pending_usn)?;
                 self.storage.add_revlog_entry(&entry, false)?;
             }
         }
         Ok(())
+    }
+
+    fn available_revlog_collision_id(
+        &self,
+        original_id: RevlogId,
+        incoming_ids: &HashSet<RevlogId>,
+    ) -> Result<RevlogId> {
+        const MILLIS_PER_SECOND: i64 = 1_000;
+
+        let second_start = original_id.0.div_euclid(MILLIS_PER_SECOND) * MILLIS_PER_SECOND;
+        let original_millis = original_id.0.rem_euclid(MILLIS_PER_SECOND);
+        for delta in 1..MILLIS_PER_SECOND {
+            let millis = (original_millis + delta).rem_euclid(MILLIS_PER_SECOND);
+            let candidate = RevlogId(second_start + millis);
+            if !incoming_ids.contains(&candidate)
+                && self.storage.get_revlog_entry(candidate)?.is_none()
+            {
+                return Ok(candidate);
+            }
+        }
+
+        invalid_input!(
+            "no free revlog ID remains in timestamp second {}",
+            original_id.as_secs().0
+        );
     }
 
     fn merge_cards(&self, entries: Vec<CardEntry>, pending_usn: Usn) -> Result<()> {

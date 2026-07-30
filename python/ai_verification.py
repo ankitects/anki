@@ -117,7 +117,10 @@ def keyword_baseline(
     )
 
 
-def parse_predictions(raw: list[dict[str, Any]]) -> dict[str, Prediction]:
+def parse_predictions(
+    raw: list[dict[str, Any]],
+    valid_source_ids: set[str] | None = None,
+) -> dict[str, Prediction]:
     predictions: dict[str, Prediction] = {}
     for item in raw:
         prediction = Prediction(
@@ -127,6 +130,15 @@ def parse_predictions(raw: list[dict[str, Any]]) -> dict[str, Prediction]:
         )
         if not prediction.source_ids:
             raise ValueError(f"{prediction.case_id} has no named source")
+        if len(prediction.source_ids) != len(set(prediction.source_ids)):
+            raise ValueError(f"{prediction.case_id} repeats a named source")
+        if valid_source_ids is not None:
+            unknown_sources = set(prediction.source_ids) - valid_source_ids
+            if unknown_sources:
+                raise ValueError(
+                    f"{prediction.case_id} names unknown sources: "
+                    f"{sorted(unknown_sources)}"
+                )
         if prediction.case_id in predictions:
             raise ValueError(f"duplicate prediction for {prediction.case_id}")
         predictions[prediction.case_id] = prediction
@@ -153,6 +165,16 @@ def score_predictions(
     predictions: dict[str, Prediction],
     judgment: dict[str, Any],
 ) -> dict[str, Any]:
+    case_ids = [case["case_id"] for case in cases]
+    case_id_set = set(case_ids)
+    if len(case_ids) != len(case_id_set):
+        raise ValueError("held-out cases contain duplicate IDs")
+    if set(predictions) != case_id_set:
+        raise ValueError(
+            "prediction IDs do not exactly match held-out case IDs: "
+            f"expected {sorted(case_id_set)}, got {sorted(predictions)}"
+        )
+
     actual_hash = prediction_set_hash(cases, predictions)
     if actual_hash != judgment["prediction_set_sha256"]:
         raise ValueError(
@@ -160,8 +182,19 @@ def score_predictions(
             f"expected {judgment['prediction_set_sha256']}, got {actual_hash}"
         )
 
-    wrong = set(judgment["wrong"])
-    correct_bad_teaching = set(judgment["correct_bad_teaching"])
+    wrong_ids = judgment["wrong"]
+    bad_teaching_ids = judgment["correct_bad_teaching"]
+    wrong = set(wrong_ids)
+    correct_bad_teaching = set(bad_teaching_ids)
+    if len(wrong_ids) != len(wrong) or len(bad_teaching_ids) != len(
+        correct_bad_teaching
+    ):
+        raise ValueError("human judgments contain duplicate case IDs")
+    unknown_judgments = (wrong | correct_bad_teaching) - case_id_set
+    if unknown_judgments:
+        raise ValueError(
+            f"human judgments name unknown cases: {sorted(unknown_judgments)}"
+        )
     if wrong & correct_bad_teaching:
         raise ValueError("a human judgment cannot assign two labels to one case")
 
@@ -201,7 +234,10 @@ def run_verification() -> dict[str, Any]:
     sources = load_json(SOURCE_PATH)
     cases = load_json(GOLD_PATH)
     judgments = load_json(JUDGMENTS_PATH)
-    candidate = parse_predictions(load_json(PREDICTIONS_PATH))
+    source_ids = [source["source_id"] for source in sources]
+    if len(source_ids) != len(set(source_ids)):
+        raise ValueError("source index contains duplicate IDs")
+    candidate = parse_predictions(load_json(PREDICTIONS_PATH), set(source_ids))
     baseline = {
         case["case_id"]: keyword_baseline(
             case["case_id"],
@@ -322,7 +358,7 @@ def main() -> int:
                 indent=2,
             )
         )
-        return 0
+        return 2
 
     result = safe_verification()
     if args.report:

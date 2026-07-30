@@ -39,7 +39,7 @@ fn brainlift_score_snapshot_50k(c: &mut Criterion) {
             let mut note = notetype.new_note();
             note.tags = vec![format!("mcat::topic::{}", idx % TOPIC_COUNT)];
             if (idx / TOPIC_COUNT) % 2 == 1 {
-                note.tags.push("brainlift::evidence::performance".into());
+                note.tags.push("brainlift::evidence::performance::1".into());
             }
             AddNoteRequest {
                 note,

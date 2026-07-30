@@ -19,14 +19,17 @@ Lift: 16%. Decision: **PASSED**.
 
 Every candidate output names an AAMC outline source ID. Human judgments are
 bound to exact candidate and baseline prediction-set hashes, so changed or
-contradictory answers fail closed. The manifest freezes the source index,
-held-out cases, predictions, judgments, and evaluator.
+contradictory answers fail closed. Source IDs, case IDs, prediction IDs, and
+judgment IDs must also form exact valid relationships. The manifest freezes
+the source index, held-out cases, predictions, judgments, and evaluator.
 
 ## AI-off behavior
 
 The evaluator is a standalone script. The Rust score snapshot, Python bridge,
 desktop reviewer, and mobile bridge do not import it. If the evaluator is
 disabled, malformed, or unavailable, study and deterministic scoring continue.
+The verifier itself returns a nonzero status when disabled, so a release gate
+cannot treat AI-off mode as a passing evaluation.
 
 ## Limits
 

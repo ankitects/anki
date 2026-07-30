@@ -29,5 +29,6 @@ normal indexes, matching the upstream launcher's dependency model.
 The proof DMG is ad-hoc signed for local testing. It is not Developer ID signed
 or notarized, so it is not a public production release artifact.
 
-The builder refuses a dirty tracked worktree. The embedded commit therefore
-identifies the exact source used to build the bundled local wheels.
+The builder refuses tracked and untracked worktree changes. Ignored build
+outputs remain allowed. The embedded commit therefore identifies the exact
+source used to build the bundled local wheels.
