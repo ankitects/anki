@@ -258,14 +258,34 @@ def test_real_collection_dashboard_separates_evidence_and_refreshes(tmp_path) ->
             anki.lang.without_unicode_isolation(before_html)
         )
 
-        col.db.execute(
-            """
-            insert into revlog (id, cid, usn, ease, ivl, lastIvl, factor, time, type)
-            values (?, ?, 0, 3, 1, 1, 2500, 1000, 1)
-            """,
-            1_700_000_200_000,
-            memory_card_id,
+        # Follow the real scheduler answer path: it records the qualifying
+        # review and advances the card's normal scheduling state.
+        reviewed_card = col.sched.getCard()
+        assert reviewed_card is not None
+        assert reviewed_card.id == memory_card_id
+        card_state_before = (
+            reviewed_card.queue,
+            reviewed_card.type,
+            reviewed_card.due,
+            reviewed_card.ivl,
+            reviewed_card.reps,
         )
+        revlog_count_before = col.db.scalar(
+            "select count() from revlog where cid = ?", memory_card_id
+        )
+
+        col.sched.answerCard(reviewed_card, 3)
+
+        assert col.db.scalar(
+            "select count() from revlog where cid = ?", memory_card_id
+        ) == (revlog_count_before + 1)
+        assert reviewed_card.reps == card_state_before[-1] + 1
+        assert (
+            reviewed_card.queue,
+            reviewed_card.type,
+            reviewed_card.due,
+            reviewed_card.ivl,
+        ) != card_state_before[:-1]
 
         after = brainlift_dashboard(col)
         after_html = render_brainlift_html(after)

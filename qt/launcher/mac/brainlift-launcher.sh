@@ -31,19 +31,10 @@ if [[ ! -x "$VENV/bin/python" ]]; then
 fi
 
 if [[ "${BRAINLIFT_INSTALLER_SMOKE_ONLY:-0}" == "1" ]]; then
-    "$VENV/bin/python" - "$BUILD_COMMIT" <<'PY'
-import sys
-
-from anki.collection import Collection
-from aqt.brainlift import brainlift_dashboard
-from aqt.identity import app_name, brainlift_commit
-
-assert hasattr(Collection, "brainlift_score_snapshot")
-assert callable(brainlift_dashboard)
-assert brainlift_commit() == sys.argv[1]
-assert app_name() == "Anki Brainlift"
-print(f"Brainlift installer smoke passed for {sys.argv[1]}")
-PY
+    SMOKE_PROFILE_BASE="$(mktemp -d "${TMPDIR:-/tmp}/anki-brainlift-profile.XXXXXX")"
+    trap 'rm -rf "$SMOKE_PROFILE_BASE"' EXIT
+    BRAINLIFT_SMOKE_PROFILE_BASE="$SMOKE_PROFILE_BASE" "$VENV/bin/python" -c \
+        "import os, aqt; aqt._run(['Anki Brainlift', '--base', os.environ['BRAINLIFT_SMOKE_PROFILE_BASE']], exec=False)"
     exit 0
 fi
 
