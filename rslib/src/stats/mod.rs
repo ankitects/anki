@@ -5,5 +5,6 @@ mod card;
 mod graphs;
 mod service;
 mod today;
+mod topic_mastery;
 
 pub use today::studied_today;

@@ -16,6 +16,7 @@ service StatsService {
   rpc Graphs(GraphsRequest) returns (GraphsResponse);
   rpc GetGraphPreferences(generic.Empty) returns (GraphPreferences);
   rpc SetGraphPreferences(GraphPreferences) returns (generic.Empty);
+  rpc TopicMastery(TopicMasteryRequest) returns (TopicMasteryResponse);
 }
 
 // Implicitly includes any of the above methods that are not listed in the
@@ -239,4 +240,50 @@ message Dataset {
   repeated CardEntry cards = 2;
   repeated DeckEntry decks = 3;
   int64 next_day_at = 4;
+}
+
+// Per-topic mastery, used by the readiness dashboard.
+//
+// A "topic" is a tag (optionally restricted to those under a prefix, e.g.
+// "MCAT::"). A card contributes to every topic it is tagged with, so the
+// per-topic counts intentionally sum to more than the deck size when notes
+// carry multiple content tags.
+message TopicMasteryRequest {
+  // Restricts the cards considered. Empty means the whole collection.
+  string search = 1;
+  // Only tags beginning with this prefix are treated as topics. Empty means
+  // every tag is a topic.
+  string topic_prefix = 2;
+  // A topic reports no recall estimate until it has at least this many graded
+  // reviews. This is the engine-side half of the give-up rule: the backend
+  // refuses to produce a number it cannot support, rather than leaving that
+  // decision to each client.
+  uint32 min_reviews_for_estimate = 3;
+}
+
+message TopicMasteryResponse {
+  message Topic {
+    string name = 1;
+    uint32 card_count = 2;
+    // Cards with at least one graded review.
+    uint32 reviewed_card_count = 3;
+    // Graded reviews (manual rescheduling excluded).
+    uint32 review_count = 4;
+    // Reviews where the answer was not "Again".
+    uint32 passed_review_count = 5;
+    // Mean FSRS retrievability across cards that have a memory state. Absent
+    // when no card in the topic has one (e.g. FSRS disabled, or all cards new).
+    optional float mean_retrievability = 6;
+    // Mean FSRS stability in days, over the same cards.
+    optional float mean_stability_days = 7;
+    // passed_review_count / review_count. Absent when the topic has fewer than
+    // min_reviews_for_estimate graded reviews.
+    optional float average_recall = 8;
+  }
+  repeated Topic topics = 1;
+  // Cards that matched the search but carried no tag matching topic_prefix.
+  // Surfaced so coverage can never be silently overstated.
+  uint32 untagged_card_count = 2;
+  // Total distinct cards considered.
+  uint32 total_card_count = 3;
 }

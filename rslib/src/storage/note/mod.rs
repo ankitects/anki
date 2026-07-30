@@ -284,6 +284,17 @@ impl super::SqliteStorage {
             .collect()
     }
 
+    /// The raw tag strings of the notes owning the cards in 'search_cids'.
+    ///
+    /// Only ids and tags are read, so this stays cheap on large collections
+    /// where loading whole notes (and their fields) would not be.
+    pub(crate) fn tags_for_searched_cards(&self) -> Result<Vec<(NoteId, String)>> {
+        self.db
+            .prepare_cached(include_str!("tags_for_searched_cards.sql"))?
+            .query_and_then([], |row| Ok((NoteId(row.get(0)?), row.get(1)?)))?
+            .collect()
+    }
+
     pub(crate) fn get_note_tags_by_predicate<F>(&mut self, want: F) -> Result<Vec<NoteTags>>
     where
         F: Fn(&str) -> bool,
