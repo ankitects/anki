@@ -63,8 +63,7 @@ actor AnkiBackend {
 
     func call<Input: SwiftProtobuf.Message, Output: SwiftProtobuf.Message>(
         _ address: BackendMethodAddress,
-        input: Input,
-        as outputType: Output.Type = Output.self
+        input: Input
     ) throws -> Output {
         guard let handle else {
             throw AnkiBackendError.notOpen

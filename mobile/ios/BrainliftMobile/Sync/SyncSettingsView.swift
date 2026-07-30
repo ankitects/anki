@@ -64,9 +64,13 @@ struct SyncSettingsView: View {
                 }
             }
             .task(id: isBusy) {
-                while isBusy {
+                while !Task.isCancelled && isBusy {
                     await coordinator.refreshProgress()
-                    try? await Task.sleep(for: .milliseconds(500))
+                    do {
+                        try await Task.sleep(for: .milliseconds(500))
+                    } catch {
+                        return
+                    }
                 }
             }
         }

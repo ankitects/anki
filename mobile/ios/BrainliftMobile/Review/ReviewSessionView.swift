@@ -8,23 +8,21 @@ struct ReviewSessionView: View {
     @StateObject private var scoreModel: ScorePanelViewModel
     @StateObject private var syncCoordinator: SyncCoordinator
     @State private var showSync = false
-    private let credentialsStore = SyncCredentialsStore()
+    private let credentialsStore: SyncCredentialsStore
 
-    init(backend: any ReviewBackend = AnkiBackend()) {
+    init(backend: any CompanionBackend = AnkiBackend()) {
+        let credentialsStore = SyncCredentialsStore()
+        self.credentialsStore = credentialsStore
         _model = StateObject(
             wrappedValue: ReviewSessionViewModel(backend: backend)
         )
-        let evidenceBackend = backend as? any EvidenceBackend
         _scoreModel = StateObject(
-            wrappedValue: ScorePanelViewModel(
-                backend: evidenceBackend ?? UnavailableEvidenceBackend()
-            )
+            wrappedValue: ScorePanelViewModel(backend: backend)
         )
-        let syncBackend = backend as? any SyncBackend
         _syncCoordinator = StateObject(
             wrappedValue: SyncCoordinator(
-                backend: syncBackend ?? UnavailableSyncBackend(),
-                credentials: SyncCredentialsStore()
+                backend: backend,
+                credentials: credentialsStore
             )
         )
     }
@@ -138,36 +136,5 @@ struct ReviewSessionView: View {
                 .accessibilityIdentifier("retry-review")
             }
         }
-    }
-}
-
-private struct UnavailableEvidenceBackend: EvidenceBackend {
-    func evidenceSnapshot() async throws -> Anki_Stats_BrainliftScoreSnapshotResponse {
-        throw AnkiBackendError.notOpen
-    }
-}
-
-private struct UnavailableSyncBackend: SyncBackend {
-    func syncLogin(
-        credentials: SyncCredentials
-    ) async throws -> Anki_Sync_SyncAuth {
-        throw AnkiBackendError.notOpen
-    }
-
-    func syncCollection(
-        auth: Anki_Sync_SyncAuth
-    ) async throws -> Anki_Sync_SyncCollectionResponse.ChangesRequired {
-        throw AnkiBackendError.notOpen
-    }
-
-    func fullSync(
-        auth: Anki_Sync_SyncAuth,
-        direction: SyncDirection
-    ) async throws {
-        throw AnkiBackendError.notOpen
-    }
-
-    func latestSyncProgress() async throws -> SyncProgress? {
-        nil
     }
 }

@@ -39,9 +39,5 @@ struct ScorePanelView: View {
         }
         .padding()
         .background(.thinMaterial, in: RoundedRectangle(cornerRadius: 16))
-        .task {
-            guard model.rows.isEmpty else { return }
-            await model.refresh()
-        }
     }
 }

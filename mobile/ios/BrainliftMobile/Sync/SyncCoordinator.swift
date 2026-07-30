@@ -106,9 +106,15 @@ final class SyncCoordinator: ObservableObject {
 
     func refreshProgress() async {
         do {
-            progress = try await backend.latestSyncProgress()
+            let nextProgress = try await backend.latestSyncProgress()
+            if progress != nextProgress {
+                progress = nextProgress
+            }
         } catch {
-            message = error.localizedDescription
+            let nextMessage = error.localizedDescription
+            if message != nextMessage {
+                message = nextMessage
+            }
         }
     }
 

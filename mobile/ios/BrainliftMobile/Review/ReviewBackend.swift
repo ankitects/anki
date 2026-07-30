@@ -15,6 +15,8 @@ protocol ReviewBackend: Sendable {
     func undoReview() async throws
 }
 
+protocol CompanionBackend: ReviewBackend, EvidenceBackend, SyncBackend {}
+
 extension AnkiBackend: ReviewBackend {
     func openReviewCollection() async throws {
         do {
@@ -143,17 +145,28 @@ extension AnkiBackend: ReviewBackend {
     }
 
     private static func flattenDecks(
-        _ nodes: [Anki_Decks_DeckTreeNode],
-        parent: String? = nil
+        _ nodes: [Anki_Decks_DeckTreeNode]
     ) -> [ReviewDeck] {
-        nodes.flatMap { node in
+        var decks: [ReviewDeck] = []
+        appendDecks(nodes, parent: nil, to: &decks)
+        return decks
+    }
+
+    private static func appendDecks(
+        _ nodes: [Anki_Decks_DeckTreeNode],
+        parent: String?,
+        to decks: inout [ReviewDeck]
+    ) {
+        for node in nodes {
             let name = parent.map { "\($0)::\(node.name)" } ?? node.name
-            let deck = ReviewDeck(
-                id: node.deckID,
-                name: name,
-                dueCount: node.newCount + node.learnCount + node.reviewCount
+            decks.append(
+                ReviewDeck(
+                    id: node.deckID,
+                    name: name,
+                    dueCount: node.newCount + node.learnCount + node.reviewCount
+                )
             )
-            return [deck] + flattenDecks(node.children, parent: name)
+            appendDecks(node.children, parent: name, to: &decks)
         }
     }
 
@@ -183,6 +196,8 @@ extension AnkiBackend: ReviewBackend {
         """
     }
 }
+
+extension AnkiBackend: CompanionBackend {}
 
 enum ReviewBackendError: LocalizedError {
     case emptyRenderedCard
