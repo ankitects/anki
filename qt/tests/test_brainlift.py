@@ -5,6 +5,7 @@ from unittest.mock import MagicMock
 
 import anki.lang
 from anki import stats_pb2
+from anki.collection import Collection
 
 anki.lang.set_lang("en")
 
@@ -184,6 +185,100 @@ def test_second_query_reflects_review_update() -> None:
     assert before_review.scores[0].value == "70%"
     assert after_review.scores[0].value == "80%"
     assert col.brainlift_score_snapshot.call_count == 2
+
+
+def test_real_collection_dashboard_separates_evidence_and_refreshes(tmp_path) -> None:
+    col = Collection(str(tmp_path / "brainlift.anki2"))
+    try:
+        memory_note = col.newNote()
+        memory_note["Front"] = "ordinary memory"
+        memory_note.tags = ["mcat::biology"]
+        col.addNote(memory_note)
+        memory_card_id = memory_note.cards()[0].id
+
+        performance_note = col.newNote()
+        performance_note["Front"] = "held-out performance"
+        performance_note.tags = [
+            "mcat::biology",
+            "brainlift::evidence::performance::0",
+        ]
+        col.addNote(performance_note)
+        performance_card_id = performance_note.cards()[0].id
+
+        rows = []
+        for index in range(10):
+            rows.append(
+                (
+                    1_700_000_000_000 + index,
+                    memory_card_id,
+                    3 if index < 8 else 1,
+                    1,
+                )
+            )
+            rows.append(
+                (
+                    1_700_000_100_000 + index,
+                    performance_card_id,
+                    3 if index < 6 else 1,
+                    1,
+                )
+            )
+        col.db.executemany(
+            """
+            insert into revlog (id, cid, usn, ease, ivl, lastIvl, factor, time, type)
+            values (?, ?, 0, ?, 1, 1, 2500, 1000, ?)
+            """,
+            rows,
+        )
+
+        before = brainlift_dashboard(col)
+        before_html = render_brainlift_html(before)
+
+        assert [score.label for score in before.scores] == [
+            "Memory",
+            "Performance",
+            "Readiness",
+        ]
+        assert [score.value for score in before.scores] == [
+            "80%",
+            "60%",
+            "Not enough evidence",
+        ]
+        assert "Memory" in before_html
+        assert "80%" in before_html
+        assert "Performance" in before_html
+        assert "60%" in before_html
+        readiness = before.scores[2]
+        assert readiness.available is False
+        assert readiness.interval == ""
+        assert "Readiness score mapping has not been validated" in (
+            anki.lang.without_unicode_isolation(readiness.detail)
+        )
+        assert "Readiness score mapping has not been validated" in (
+            anki.lang.without_unicode_isolation(before_html)
+        )
+
+        col.db.execute(
+            """
+            insert into revlog (id, cid, usn, ease, ivl, lastIvl, factor, time, type)
+            values (?, ?, 0, 3, 1, 1, 2500, 1000, 1)
+            """,
+            1_700_000_200_000,
+            memory_card_id,
+        )
+
+        after = brainlift_dashboard(col)
+        after_html = render_brainlift_html(after)
+
+        assert [score.value for score in after.scores] == [
+            "82%",
+            "60%",
+            "Not enough evidence",
+        ]
+        assert "82%" in after_html
+        assert "60%" in after_html
+    finally:
+        col.close(downgrade=False)
 
 
 def test_deck_browser_renders_evidence_with_existing_stats() -> None:
