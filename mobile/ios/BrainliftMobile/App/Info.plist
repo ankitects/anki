@@ -2,8 +2,8 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
-	<key>AnkiCoreCommit</key>
-	<string>af5417a858cf979e4f9cadef02310d197fa52429</string>
+	<key>AnkiBridgeSourceRevision</key>
+	<string>$(ANKI_BRIDGE_SOURCE_REVISION)</string>
 	<key>CFBundleDevelopmentRegion</key>
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
 	<key>CFBundleDisplayName</key>

@@ -36,6 +36,8 @@ typedef struct {
 
 // Non-empty input slices must point to len readable bytes for the duration of
 // the call. Error buffers contain serialized anki.backend.BackendError bytes.
+// The source revision string is static, NUL-terminated, and must not be freed.
+const char *anki_backend_source_revision(void);
 AnkiBackendOpenResult anki_backend_open(AnkiByteSlice input);
 AnkiOwnedBuffer anki_backend_close(uint64_t handle);
 AnkiBackendCallResult anki_backend_run_method(uint64_t handle, uint32_t service,

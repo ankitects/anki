@@ -16,13 +16,38 @@ struct SyncProgress: Equatable, Sendable {
     let total: UInt32?
 }
 
+struct SyncContinuation: Equatable, Sendable {
+    let required: Anki_Sync_SyncCollectionResponse.ChangesRequired
+    let auth: Anki_Sync_SyncAuth
+
+    init(
+        response: Anki_Sync_SyncCollectionResponse,
+        auth: Anki_Sync_SyncAuth
+    ) {
+        self.required = response.required
+        var continuedAuth = auth
+        if response.hasNewEndpoint {
+            continuedAuth.endpoint = response.newEndpoint
+        }
+        self.auth = continuedAuth
+    }
+
+    init(
+        required: Anki_Sync_SyncCollectionResponse.ChangesRequired,
+        auth: Anki_Sync_SyncAuth
+    ) {
+        self.required = required
+        self.auth = auth
+    }
+}
+
 protocol SyncBackend: Sendable {
     func syncLogin(
         credentials: SyncCredentials
     ) async throws -> Anki_Sync_SyncAuth
     func syncCollection(
         auth: Anki_Sync_SyncAuth
-    ) async throws -> Anki_Sync_SyncCollectionResponse.ChangesRequired
+    ) async throws -> SyncContinuation
     func fullSync(
         auth: Anki_Sync_SyncAuth,
         direction: SyncDirection
@@ -45,7 +70,7 @@ extension AnkiBackend: SyncBackend {
 
     func syncCollection(
         auth: Anki_Sync_SyncAuth
-    ) async throws -> Anki_Sync_SyncCollectionResponse.ChangesRequired {
+    ) async throws -> SyncContinuation {
         var request = Anki_Sync_SyncCollectionRequest()
         request.auth = auth
         request.syncMedia = false
@@ -53,7 +78,7 @@ extension AnkiBackend: SyncBackend {
             BackendMethods.backendSyncServiceSyncCollection,
             input: request
         )
-        return response.required
+        return SyncContinuation(response: response, auth: auth)
     }
 
     func fullSync(

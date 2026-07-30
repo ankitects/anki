@@ -56,28 +56,40 @@ final class SyncCoordinator: ObservableObject {
             phase = .authenticating
             let auth = try await backend.syncLogin(credentials: credentials)
             phase = .syncing
-            let required = try await backend.syncCollection(auth: auth)
-            switch required {
+            let continuation = try await backend.syncCollection(auth: auth)
+            switch continuation.required {
             case .noChanges, .normalSync:
                 await complete()
             case .fullDownload:
                 if isCleanInstall {
-                    try await backend.fullSync(auth: auth, direction: .download)
+                    try await backend.fullSync(
+                        auth: continuation.auth,
+                        direction: .download
+                    )
                     await complete()
                 } else {
-                    waitForDirection(auth: auth, allowed: [.download])
+                    waitForDirection(
+                        auth: continuation.auth,
+                        allowed: [.download]
+                    )
                 }
             case .fullUpload:
                 if isCleanInstall {
                     fail(SyncCoordinatorError.emptyUploadBlocked)
                 } else {
-                    waitForDirection(auth: auth, allowed: [.upload])
+                    waitForDirection(
+                        auth: continuation.auth,
+                        allowed: [.upload]
+                    )
                 }
             case .fullSync:
                 if isCleanInstall {
                     fail(SyncCoordinatorError.cleanInstallRequiresDownload)
                 } else {
-                    waitForDirection(auth: auth, allowed: [.download, .upload])
+                    waitForDirection(
+                        auth: continuation.auth,
+                        allowed: [.download, .upload]
+                    )
                 }
             case .UNRECOGNIZED:
                 fail(SyncCoordinatorError.unknownSyncState)
@@ -88,16 +100,21 @@ final class SyncCoordinator: ObservableObject {
     }
 
     func choose(_ direction: SyncDirection) async {
+        guard case .waitingForDirection = phase else {
+            return
+        }
         guard
-            let pendingAuth,
+            let auth = pendingAuth,
             allowedDirections.contains(direction)
         else {
             fail(SyncCoordinatorError.directionNotAllowed)
             return
         }
+        pendingAuth = nil
+        allowedDirections = []
         phase = .syncing
         do {
-            try await backend.fullSync(auth: pendingAuth, direction: direction)
+            try await backend.fullSync(auth: auth, direction: direction)
             await complete()
         } catch {
             fail(error)

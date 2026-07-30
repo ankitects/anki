@@ -5,11 +5,17 @@ import XCTest
 @testable import BrainliftMobile
 
 final class BuildInfoTests: XCTestCase {
-    func testAnkiCoreCommitIsEmbeddedAndDisplayable() {
+    func testDisplayedRevisionMatchesTheLinkedBridgeAndBundleMarker() {
+        let nativeRevision = String(cString: anki_backend_source_revision())
+
+        XCTAssertFalse(nativeRevision.isEmpty)
+        XCTAssertEqual(BuildInfo.sourceRevision, nativeRevision)
+        XCTAssertEqual(BuildInfo.bundleSourceRevision, nativeRevision)
+        XCTAssertTrue(BuildInfo.identityIsConsistent)
         XCTAssertEqual(
-            BuildInfo.ankiCoreCommit,
-            "af5417a858cf979e4f9cadef02310d197fa52429"
+            BuildInfo.shortSourceRevision,
+            String(nativeRevision.prefix(9))
+                + (nativeRevision.hasSuffix("-dirty") ? "-dirty" : "")
         )
-        XCTAssertEqual(BuildInfo.shortAnkiCoreCommit, "af5417a85")
     }
 }

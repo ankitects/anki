@@ -19,6 +19,14 @@ use anki::backend::{init_backend, Backend};
 use anki_proto::backend::{backend_error, BackendError};
 use prost::Message;
 
+/// Exact repository revision compiled into this bridge.
+///
+/// A `-dirty` suffix records tracked changes present when the artifact was
+/// built. The build script owns this value so every bridge entry point and
+/// consumer observes the identity of the linked native library.
+pub const SOURCE_REVISION: &str = env!("ANKI_IOS_SOURCE_REVISION");
+static SOURCE_REVISION_C: &str = concat!(env!("ANKI_IOS_SOURCE_REVISION"), "\0");
+
 #[repr(C)]
 #[derive(Clone, Copy, Debug)]
 pub struct AnkiByteSlice {
@@ -174,6 +182,15 @@ fn catch_backend<T>(operation: impl FnOnce() -> Result<T, Vec<u8>>) -> Result<T,
 
 fn store_buffer(bytes: Vec<u8>) -> AnkiOwnedBuffer {
     lock_state().store_buffer(bytes)
+}
+
+/// Return the source revision compiled into this bridge.
+///
+/// The returned NUL-terminated string is static and remains valid for the
+/// lifetime of the process. Callers must not modify or free it.
+#[no_mangle]
+pub extern "C" fn anki_backend_source_revision() -> *const std::ffi::c_char {
+    SOURCE_REVISION_C.as_ptr().cast()
 }
 
 /// Open an Anki backend and return a registry-owned opaque handle.

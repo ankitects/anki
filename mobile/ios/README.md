@@ -50,8 +50,18 @@ cargo test -p anki brainlift_sync_
 ```
 
 Run the `BrainliftMobile` scheme's tests in Xcode for the Swift and
-Rust-through-FFI integration suite. The app displays its embedded Anki core
-revision beside the Evidence heading.
+Rust-through-FFI integration suite. The app displays the linked Rust bridge's
+source revision beside the Evidence heading.
+
+`build-xcframework.sh` derives that identity from the current Git commit,
+appends `-dirty` when tracked changes are present, compiles it into the native
+bridge, and writes the same value to the app's generated build configuration.
+The Swift build-info test verifies that the linked bridge and installed bundle
+marker agree. The generated identity is also recorded in:
+
+```text
+out/ios/AnkiBackend.xcframework.source-revision
+```
 
 The generated XCFramework checksum is written to:
 

@@ -6,6 +6,7 @@ use std::{
     fmt::Write,
     fs,
     path::{Path, PathBuf},
+    process::Command,
 };
 
 use anki_proto_gen::get_services;
@@ -14,6 +15,12 @@ use inflections::Inflect;
 use prost_reflect::DescriptorPool;
 
 fn main() -> Result<()> {
+    let repo_root = Path::new(env!("CARGO_MANIFEST_DIR")).join("../../..");
+    let source_revision = source_revision(&repo_root)?;
+    println!("cargo:rustc-env=ANKI_IOS_SOURCE_REVISION={source_revision}");
+    println!("cargo:rerun-if-env-changed=ANKI_IOS_SOURCE_REVISION");
+    track_git_revision(&repo_root)?;
+
     let descriptors = PathBuf::from(
         env::var("DESCRIPTORS_BIN").context("DESCRIPTORS_BIN must point at Anki descriptors")?,
     );
@@ -48,6 +55,66 @@ fn main() -> Result<()> {
     fs::create_dir_all(generated.parent().context("generated path has no parent")?)?;
     write_if_changed(&generated, swift.as_bytes())?;
     Ok(())
+}
+
+fn source_revision(repo_root: &Path) -> Result<String> {
+    if let Ok(revision) = env::var("ANKI_IOS_SOURCE_REVISION") {
+        validate_revision(&revision)?;
+        return Ok(revision);
+    }
+
+    let commit = git(repo_root, &["rev-parse", "HEAD"])?;
+    let dirty = !git(
+        repo_root,
+        &["status", "--porcelain", "--untracked-files=no"],
+    )?
+    .is_empty();
+    let revision = if dirty {
+        format!("{commit}-dirty")
+    } else {
+        commit
+    };
+    validate_revision(&revision)?;
+    Ok(revision)
+}
+
+fn validate_revision(revision: &str) -> Result<()> {
+    let commit = revision.strip_suffix("-dirty").unwrap_or(revision);
+    anyhow::ensure!(
+        commit.len() == 40 && commit.bytes().all(|byte| byte.is_ascii_hexdigit()),
+        "invalid ANKI_IOS_SOURCE_REVISION: {revision:?}"
+    );
+    Ok(())
+}
+
+fn track_git_revision(repo_root: &Path) -> Result<()> {
+    let git_dir = PathBuf::from(git(repo_root, &["rev-parse", "--absolute-git-dir"])?);
+    println!("cargo:rerun-if-changed={}", git_dir.join("HEAD").display());
+
+    let reference = git(repo_root, &["symbolic-ref", "-q", "HEAD"]).unwrap_or_default();
+    if !reference.is_empty() {
+        println!(
+            "cargo:rerun-if-changed={}",
+            git_dir.join(reference).display()
+        );
+    }
+    Ok(())
+}
+
+fn git(repo_root: &Path, args: &[&str]) -> Result<String> {
+    let output = Command::new("git")
+        .arg("-C")
+        .arg(repo_root)
+        .args(args)
+        .output()
+        .with_context(|| format!("failed to execute git {}", args.join(" ")))?;
+    anyhow::ensure!(
+        output.status.success(),
+        "git {} failed: {}",
+        args.join(" "),
+        String::from_utf8_lossy(&output.stderr).trim()
+    );
+    Ok(String::from_utf8(output.stdout)?.trim().to_owned())
 }
 
 fn write_if_changed(path: &Path, content: &[u8]) -> Result<()> {

@@ -53,6 +53,7 @@
 		CD8CA2B97733B39A72BEFDEF /* media.pb.swift in Sources */ = {isa = PBXBuildFile; fileRef = 00FA9E91B7CAF0C610BA88E3 /* media.pb.swift */; };
 		CF515BF887C9AFB1CC1BA4C9 /* SwiftProtobuf in Frameworks */ = {isa = PBXBuildFile; productRef = C3D925242DC4A72D46331A00 /* SwiftProtobuf */; };
 		D1CF363D253F043976282C75 /* ReviewSessionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 69BBF6BA435C9968D4D8765D /* ReviewSessionView.swift */; };
+		D58E8A841F173A2A283C2953 /* CardWebSecurityPolicyTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA7C11D70C05802A487DB44A /* CardWebSecurityPolicyTests.swift */; };
 		D5B8FE2E55ACCA2E8A20E6A6 /* ScorePanelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8BAB3A286E42A832D7CB27F2 /* ScorePanelTests.swift */; };
 		DA83A3971F3BC13D8D148A9F /* BuildInfoTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F2F473906F98BD734E092C1C /* BuildInfoTests.swift */; };
 		DA943D88F05C21C32BDBA4EC /* SyncBackend.swift in Sources */ = {isa = PBXBuildFile; fileRef = 853BCF12BE2570FD6ECEA5AC /* SyncBackend.swift */; };
@@ -125,8 +126,10 @@
 		E55F9E3C0C991BEAA4F1F188 /* tags.pb.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = tags.pb.swift; sourceTree = "<group>"; };
 		ED0618C38511CB3947B2C93F /* ankihub.pb.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ankihub.pb.swift; sourceTree = "<group>"; };
 		EE0BED669272F30577823877 /* stats.pb.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = stats.pb.swift; sourceTree = "<group>"; };
+		EF9B1C596F49EB9EC99E469F /* AnkiBackendIdentity.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = AnkiBackendIdentity.xcconfig; sourceTree = "<group>"; };
 		F2F473906F98BD734E092C1C /* BuildInfoTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BuildInfoTests.swift; sourceTree = "<group>"; };
 		F330FF7A9FF306380D988358 /* SyncCredentialsStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SyncCredentialsStore.swift; sourceTree = "<group>"; };
+		FA7C11D70C05802A487DB44A /* CardWebSecurityPolicyTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardWebSecurityPolicyTests.swift; sourceTree = "<group>"; };
 		FBC1C09B148D549BA7954A64 /* BackendMethods.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BackendMethods.swift; sourceTree = "<group>"; };
 		FCA2BE0E013D71DADC0A5D02 /* search.pb.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = search.pb.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -167,6 +170,7 @@
 		2FE5FE4B265EFE3A73EA0125 /* Review */ = {
 			isa = PBXGroup;
 			children = (
+				FA7C11D70C05802A487DB44A /* CardWebSecurityPolicyTests.swift */,
 				A3159BFB8500CABE7EBDE825 /* ReviewSessionViewModelTests.swift */,
 			);
 			path = Review;
@@ -199,6 +203,14 @@
 				49EBF8219DA483F2C5621C47 /* SyncCoordinatorTests.swift */,
 			);
 			path = Sync;
+			sourceTree = "<group>";
+		};
+		8875909A3DED02A9060AE68A /* out */ = {
+			isa = PBXGroup;
+			children = (
+				C56C86385DC52F829B3E0DF4 /* ios */,
+			);
+			path = out;
 			sourceTree = "<group>";
 		};
 		A0D16BE140775EF444C7724D /* Backend */ = {
@@ -256,6 +268,14 @@
 			path = Sync;
 			sourceTree = "<group>";
 		};
+		C56C86385DC52F829B3E0DF4 /* ios */ = {
+			isa = PBXGroup;
+			children = (
+				EF9B1C596F49EB9EC99E469F /* AnkiBackendIdentity.xcconfig */,
+			);
+			path = ios;
+			sourceTree = "<group>";
+		};
 		CC86DA1635E43BA7190D1DDE /* Scores */ = {
 			isa = PBXGroup;
 			children = (
@@ -280,6 +300,15 @@
 			path = Review;
 			sourceTree = "<group>";
 		};
+		DC3F1514D2C82AD99C39240C /* anki */ = {
+			isa = PBXGroup;
+			children = (
+				8875909A3DED02A9060AE68A /* out */,
+			);
+			name = anki;
+			path = ../..;
+			sourceTree = "<group>";
+		};
 		DD19D96B1E40E3F1479A958E /* Scores */ = {
 			isa = PBXGroup;
 			children = (
@@ -291,6 +320,7 @@
 		DE6535F51864A09B91DD924E = {
 			isa = PBXGroup;
 			children = (
+				DC3F1514D2C82AD99C39240C /* anki */,
 				F0C70E210548593ACD86DC70 /* BrainliftMobile */,
 				3DBC7B7E208465F2746B827C /* BrainliftMobileTests */,
 				A72FD7B4A89D03545D70E756 /* Frameworks */,
@@ -430,6 +460,7 @@
 			files = (
 				E63FDCEEDCB87B0ACB7926C8 /* AnkiBackendTests.swift in Sources */,
 				DA83A3971F3BC13D8D148A9F /* BuildInfoTests.swift in Sources */,
+				D58E8A841F173A2A283C2953 /* CardWebSecurityPolicyTests.swift in Sources */,
 				46352761DD0D8BA4CA0F54B8 /* ReviewSessionViewModelTests.swift in Sources */,
 				D5B8FE2E55ACCA2E8A20E6A6 /* ScorePanelTests.swift in Sources */,
 				AC84CFCCCC3BAEF649EE0305 /* SyncCoordinatorTests.swift in Sources */,
@@ -519,6 +550,7 @@
 		};
 		56397C2A859CDAB9C8AFD8EF /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = EF9B1C596F49EB9EC99E469F /* AnkiBackendIdentity.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
@@ -542,6 +574,7 @@
 		};
 		6B40E75480E112C4D47CF591 /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = EF9B1C596F49EB9EC99E469F /* AnkiBackendIdentity.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_IDENTITY = "iPhone Developer";

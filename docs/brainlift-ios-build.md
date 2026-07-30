@@ -10,10 +10,16 @@ The iOS app is a thin SwiftUI client over the existing Anki Rust backend.
 - Review, scheduling, evidence, and sync semantics are calculated in Rust.
 - Swift stores sync credentials in Keychain and renders backend results.
 
-The app bundle identifier is `com.techmexdev.BrainliftMobile`. Build metadata
-and the Evidence panel identify the embedded Anki core revision as
-`af5417a858cf979e4f9cadef02310d197fa52429`, the last core commit before the iOS
-companion commits.
+The app bundle identifier is `com.techmexdev.BrainliftMobile`. The Evidence
+panel identifies the exact repository revision compiled into the linked Rust
+bridge. The bridge build appends `-dirty` when tracked changes are present and
+feeds the same generated identity into `AnkiBridgeSourceRevision` in the app
+bundle; a Swift test rejects disagreement between the native and bundle values.
+
+The historical core baseline is
+`af5417a858cf979e4f9cadef02310d197fa52429`, the last commit before the iOS
+companion work. It is intentionally distinct from the linked-artifact identity
+and is not presented as the identity of a later bridge build.
 
 See [`mobile/ios/README.md`](../mobile/ios/README.md) for prerequisites,
 generation, build, and verification commands.

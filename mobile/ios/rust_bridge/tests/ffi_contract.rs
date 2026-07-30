@@ -1,8 +1,9 @@
-use std::ptr;
+use std::{ffi::CStr, ptr};
 
 use anki_ios_bridge::{
     anki_backend_buffer_free, anki_backend_close, anki_backend_open, anki_backend_run_method,
-    AnkiBackendCallResult, AnkiBackendOpenResult, AnkiByteSlice, AnkiOwnedBuffer,
+    anki_backend_source_revision, AnkiBackendCallResult, AnkiBackendOpenResult, AnkiByteSlice,
+    AnkiOwnedBuffer,
 };
 use anki_proto::{
     backend::{BackendError, BackendInit},
@@ -52,6 +53,16 @@ fn assert_no_error(error: AnkiOwnedBuffer) {
     assert_eq!(error.token, 0, "unexpected bridge error");
     assert!(error.data.is_null());
     assert_eq!(error.len, 0);
+}
+
+#[test]
+fn exposes_the_exact_source_revision_compiled_into_the_bridge() {
+    let revision = unsafe { CStr::from_ptr(anki_backend_source_revision()) }
+        .to_str()
+        .unwrap();
+
+    assert!(!revision.is_empty());
+    assert_eq!(revision, anki_ios_bridge::SOURCE_REVISION);
 }
 
 #[test]

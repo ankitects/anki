@@ -4,7 +4,10 @@ Date: 2026-07-30
 
 ## Build identity
 
-- Anki core commit: `af5417a858cf979e4f9cadef02310d197fa52429`
+- Linked Rust bridge source revision:
+  `c3c62ac432e0c44298a9440caa6be1067c1fa5f8-dirty`
+- Historical pre-iOS core baseline:
+  `af5417a858cf979e4f9cadef02310d197fa52429`
 - Bundle identifier: `com.techmexdev.BrainliftMobile`
 - Xcode: 26.6 (`17F113`)
 - Rust: 1.89.0
@@ -23,23 +26,27 @@ Date: 2026-07-30
 - Initial sync auto-accepts only a backend-requested full download. Upload and
   later full-sync directions require explicit confirmation.
 - The generated app installs and launches on the simulator, and visibly reports
-  its Anki core revision.
+  its linked Rust bridge revision.
+- The native ABI revision, generated bundle marker, and Swift-visible identity
+  agree. Tracked worktree changes are explicit in the `-dirty` suffix.
 
 ## Recorded checks
 
-- `cargo test -p anki_ios_bridge`: 7 passed
+- `cargo test -p anki_ios_bridge`: 8 passed
 - `cargo test -p anki brainlift_sync_`: 5 passed
 - `BrainliftMobile` simulator suite: 22 passed
 - Simulator build, install, and clean launch: passed
-- Installed `AnkiCoreCommit` metadata:
-  `af5417a858cf979e4f9cadef02310d197fa52429`
+- Installed `AnkiBridgeSourceRevision` metadata:
+  `c3c62ac432e0c44298a9440caa6be1067c1fa5f8-dirty`
 - Simulator XCFramework SHA-256:
-  `38907f7fd5e6ddee357d1480dbb47b11e5c528c32d589e4ee358286870d0af95`
+  `fd48c6381272495b97359f8156ad9e03850cce4054ded14d4f217e35ebe329de`
 - Installed simulator app tree SHA-256:
-  `a56d4f10e13576d0bda9548970132d6248ef9939a9e4f7099ff87f1a657d1729`
+  `e68451485f12e57b005d0015055d9f821b162d270947e66ab91a702b18555b91`
 
 The app tree checksum is a local Debug simulator artifact checksum, not an
-App Store distribution checksum.
+App Store distribution checksum. This proof intentionally records a dirty
+artifact: the suffix prevents it from being mistaken for a clean build of the
+named commit.
 
 ## Explicit limitations
 

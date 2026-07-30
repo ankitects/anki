@@ -19,7 +19,7 @@ targets:
     info:
       path: BrainliftMobile/App/Info.plist
       properties:
-        AnkiCoreCommit: af5417a858cf979e4f9cadef02310d197fa52429
+        AnkiBridgeSourceRevision: $(ANKI_BRIDGE_SOURCE_REVISION)
         CFBundleDisplayName: Brainlift
         CFBundleShortVersionString: $(MARKETING_VERSION)
         CFBundleVersion: $(CURRENT_PROJECT_VERSION)
@@ -39,6 +39,9 @@ targets:
         SWIFT_OBJC_BRIDGING_HEADER: rust_bridge/include/anki_backend.h
         MARKETING_VERSION: "0.1"
         CURRENT_PROJECT_VERSION: "1"
+    configFiles:
+      Debug: ../../out/ios/AnkiBackendIdentity.xcconfig
+      Release: ../../out/ios/AnkiBackendIdentity.xcconfig
   BrainliftMobileTests:
     type: bundle.unit-test
     platform: iOS

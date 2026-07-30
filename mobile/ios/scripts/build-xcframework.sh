@@ -7,6 +7,7 @@ REPO_ROOT="$(cd "$SCRIPT_DIR/../../.." && pwd)"
 BRIDGE_DIR="$REPO_ROOT/mobile/ios/rust_bridge"
 BUILD_ROOT="${ANKI_IOS_BUILD_ROOT:-$REPO_ROOT/out/ios}"
 OUTPUT="${ANKI_IOS_XCFRAMEWORK:-$BUILD_ROOT/AnkiBackend.xcframework}"
+IDENTITY_XCCONFIG="$BUILD_ROOT/AnkiBackendIdentity.xcconfig"
 BUILD_DEVICE=1
 
 if [[ "${1:-}" == "--simulator-only" ]]; then
@@ -17,9 +18,14 @@ elif [[ $# -ne 0 ]]; then
 fi
 
 mkdir -p "$BUILD_ROOT"
-rm -rf "$OUTPUT" "$OUTPUT.sha256"
+rm -rf "$OUTPUT" "$OUTPUT.sha256" "$OUTPUT.source-revision"
 
 export IPHONEOS_DEPLOYMENT_TARGET="${IPHONEOS_DEPLOYMENT_TARGET:-17.0}"
+ANKI_IOS_SOURCE_REVISION="$(git -C "$REPO_ROOT" rev-parse HEAD)"
+if [[ -n "$(git -C "$REPO_ROOT" status --porcelain --untracked-files=no)" ]]; then
+  ANKI_IOS_SOURCE_REVISION="${ANKI_IOS_SOURCE_REVISION}-dirty"
+fi
+export ANKI_IOS_SOURCE_REVISION
 
 cd "$REPO_ROOT"
 cargo build --locked --release -p anki_ios_bridge --target aarch64-apple-ios-sim
@@ -39,10 +45,13 @@ fi
 
 xcodebuild -create-xcframework "${XCFRAMEWORK_ARGS[@]}" -output "$OUTPUT"
 
+printf 'ANKI_BRIDGE_SOURCE_REVISION = %s\n' "$ANKI_IOS_SOURCE_REVISION" > "$IDENTITY_XCCONFIG"
+printf '%s\n' "$ANKI_IOS_SOURCE_REVISION" > "$OUTPUT.source-revision"
 (
   cd "$OUTPUT"
   find . -type f -print0 | LC_ALL=C sort -z | xargs -0 shasum -a 256
 ) | shasum -a 256 | awk '{print $1}' > "$OUTPUT.sha256"
 
 echo "Created $OUTPUT"
+echo "Source revision $ANKI_IOS_SOURCE_REVISION"
 echo "SHA-256 $(cat "$OUTPUT.sha256")"
