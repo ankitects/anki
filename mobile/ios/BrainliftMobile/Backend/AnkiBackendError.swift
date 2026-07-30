@@ -6,6 +6,7 @@ import Foundation
 enum AnkiBackendError: Error, Equatable, LocalizedError {
     case notOpen
     case alreadyOpen
+    case busy
     case native(kind: Int, message: String)
     case invalidNativeBuffer
 
@@ -15,6 +16,8 @@ enum AnkiBackendError: Error, Equatable, LocalizedError {
             "The Anki collection is not open."
         case .alreadyOpen:
             "The Anki backend is already open."
+        case .busy:
+            "The Anki backend is busy with another operation."
         case let .native(_, message):
             message
         case .invalidNativeBuffer:

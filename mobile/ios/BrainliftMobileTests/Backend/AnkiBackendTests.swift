@@ -143,6 +143,50 @@ final class AnkiBackendTests: XCTestCase {
             .abstained
         )
     }
+
+    func testProgressCanBeReadWhileLongNativeCallIsSuspendedAndCloseIsRejected() async throws {
+        let fullSyncStarted = expectation(description: "full sync entered transport")
+        let progressReturned = expectation(description: "progress returned during full sync")
+        let transport = SuspendedFullSyncTransport(started: fullSyncStarted)
+        let backend = AnkiBackend(transport: transport)
+        try await backend.open()
+
+        let fullSync = Task {
+            try await backend.fullSync(
+                auth: Anki_Sync_SyncAuth(),
+                direction: .download
+            )
+        }
+        await fulfillment(of: [fullSyncStarted], timeout: 1)
+
+        let progressRead = Task {
+            let progress = try await backend.latestSyncProgress()
+            progressReturned.fulfill()
+            return progress
+        }
+        await fulfillment(of: [progressReturned], timeout: 1)
+        let progress = try await progressRead.value
+        XCTAssertEqual(
+            progress,
+            SyncProgress(
+                title: "Transferring collection",
+                completed: 3,
+                total: 10
+            )
+        )
+
+        do {
+            try await backend.close()
+            XCTFail("close must not race an in-flight native call")
+        } catch {
+            XCTAssertEqual(error as? AnkiBackendError, .busy)
+        }
+
+        transport.releaseFullSync()
+        try await fullSync.value
+        try await backend.close()
+        XCTAssertEqual(transport.closeCount, 1)
+    }
 }
 
 private final class FailingReplacementKeychain:
@@ -219,5 +263,73 @@ private final class RecordingTransport: BackendTransport, @unchecked Sendable {
         lock.withLock {
             closedHandles.append(handle)
         }
+    }
+}
+
+private enum SuspendedTransportError: Error {
+    case timedOut
+    case unexpectedMethod
+}
+
+private final class SuspendedFullSyncTransport:
+    BackendTransport,
+    @unchecked Sendable
+{
+    private let started: XCTestExpectation
+    private let release = DispatchSemaphore(value: 0)
+    private let lock = NSLock()
+    private(set) var closeCount = 0
+
+    init(started: XCTestExpectation) {
+        self.started = started
+    }
+
+    func open(request: Data) throws -> UInt64 {
+        _ = try Anki_Backend_BackendInit(serializedBytes: request)
+        return 42
+    }
+
+    func run(
+        handle: UInt64,
+        address: BackendMethodAddress,
+        request: Data
+    ) throws -> Data {
+        guard handle == 42 else {
+            throw SuspendedTransportError.unexpectedMethod
+        }
+        switch address {
+        case BackendMethods.backendSyncServiceFullUploadOrDownload:
+            _ = try Anki_Sync_FullUploadOrDownloadRequest(
+                serializedBytes: request
+            )
+            started.fulfill()
+            guard release.wait(timeout: .now() + 3) == .success else {
+                throw SuspendedTransportError.timedOut
+            }
+            return try Anki_Generic_Empty().serializedData()
+        case BackendMethods.backendCollectionServiceLatestProgress:
+            _ = try Anki_Generic_Empty(serializedBytes: request)
+            var fullSync = Anki_Collection_Progress.FullSync()
+            fullSync.transferred = 3
+            fullSync.total = 10
+            var progress = Anki_Collection_Progress()
+            progress.fullSync = fullSync
+            return try progress.serializedData()
+        default:
+            throw SuspendedTransportError.unexpectedMethod
+        }
+    }
+
+    func close(handle: UInt64) throws {
+        guard handle == 42 else {
+            throw SuspendedTransportError.unexpectedMethod
+        }
+        lock.withLock {
+            closeCount += 1
+        }
+    }
+
+    func releaseFullSync() {
+        release.signal()
     }
 }

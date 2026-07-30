@@ -3,16 +3,16 @@
 
 //! Stable C boundary for embedding Anki's Rust backend in the iOS companion.
 //!
-//! Swift receives opaque numeric handles rather than Rust pointers. Handles and
-//! buffers remain owned by a single registry, which also serializes all backend
-//! calls and makes repeated close/free calls harmless.
+//! Swift receives opaque numeric handles rather than Rust pointers. A registry
+//! owns handles and buffers, while per-handle call leases serialize operations,
+//! allow concurrent progress reads, and make repeated close/free calls harmless.
 
 use std::{
     any::Any,
     collections::HashMap,
     panic::{catch_unwind, AssertUnwindSafe},
     ptr, slice,
-    sync::{Mutex, MutexGuard, OnceLock},
+    sync::{Arc, Condvar, Mutex, MutexGuard, OnceLock},
 };
 
 use anki::backend::{init_backend, Backend};
@@ -84,8 +84,85 @@ pub struct AnkiBackendCallResult {
     pub error: AnkiOwnedBuffer,
 }
 
+struct BackendEntry {
+    backend: Backend,
+    lifecycle: Mutex<BackendLifecycle>,
+    lifecycle_changed: Condvar,
+    serialized_dispatch: Mutex<()>,
+}
+
+#[derive(Default)]
+struct BackendLifecycle {
+    active_calls: usize,
+    closing: bool,
+}
+
+impl BackendEntry {
+    fn new(backend: Backend) -> Self {
+        Self {
+            backend,
+            lifecycle: Mutex::new(BackendLifecycle::default()),
+            lifecycle_changed: Condvar::new(),
+            serialized_dispatch: Mutex::new(()),
+        }
+    }
+
+    fn begin_call(&self) -> Result<BackendCallLease<'_>, Vec<u8>> {
+        let mut lifecycle = self
+            .lifecycle
+            .lock()
+            .unwrap_or_else(|poisoned| poisoned.into_inner());
+        if lifecycle.closing {
+            return Err(serialized_error(
+                backend_error::Kind::InvalidInput,
+                "backend handle is closing",
+            ));
+        }
+        lifecycle.active_calls += 1;
+        Ok(BackendCallLease { entry: self })
+    }
+
+    fn lock_serialized_dispatch(&self) -> MutexGuard<'_, ()> {
+        self.serialized_dispatch
+            .lock()
+            .unwrap_or_else(|poisoned| poisoned.into_inner())
+    }
+
+    fn close(&self) {
+        let mut lifecycle = self
+            .lifecycle
+            .lock()
+            .unwrap_or_else(|poisoned| poisoned.into_inner());
+        lifecycle.closing = true;
+        while lifecycle.active_calls != 0 {
+            lifecycle = self
+                .lifecycle_changed
+                .wait(lifecycle)
+                .unwrap_or_else(|poisoned| poisoned.into_inner());
+        }
+    }
+}
+
+struct BackendCallLease<'a> {
+    entry: &'a BackendEntry,
+}
+
+impl Drop for BackendCallLease<'_> {
+    fn drop(&mut self) {
+        let mut lifecycle = self
+            .entry
+            .lifecycle
+            .lock()
+            .unwrap_or_else(|poisoned| poisoned.into_inner());
+        lifecycle.active_calls -= 1;
+        if lifecycle.active_calls == 0 {
+            self.entry.lifecycle_changed.notify_all();
+        }
+    }
+}
+
 struct BridgeState {
-    backends: HashMap<u64, Backend>,
+    backends: HashMap<u64, Arc<BackendEntry>>,
     buffers: HashMap<u64, Box<[u8]>>,
     next_handle: u64,
     next_buffer: u64,
@@ -105,7 +182,8 @@ impl Default for BridgeState {
 impl BridgeState {
     fn insert_backend(&mut self, backend: Backend) -> u64 {
         let handle = next_available_id(&mut self.next_handle, &self.backends);
-        self.backends.insert(handle, backend);
+        self.backends
+            .insert(handle, Arc::new(BackendEntry::new(backend)));
         handle
     }
 
@@ -225,14 +303,14 @@ pub unsafe extern "C" fn anki_backend_open(input: AnkiByteSlice) -> AnkiBackendO
 #[no_mangle]
 pub extern "C" fn anki_backend_close(handle: u64) -> AnkiOwnedBuffer {
     let result = catch_backend(|| {
-        if lock_state().backends.remove(&handle).is_some() {
-            Ok(())
-        } else {
-            Err(serialized_error(
+        let entry = lock_state().backends.remove(&handle).ok_or_else(|| {
+            serialized_error(
                 backend_error::Kind::InvalidInput,
                 format!("unknown or stale backend handle: {handle}"),
-            ))
-        }
+            )
+        })?;
+        entry.close();
+        Ok(())
     });
 
     result
@@ -243,9 +321,11 @@ pub extern "C" fn anki_backend_close(handle: u64) -> AnkiOwnedBuffer {
 
 /// Run a protobuf service method against an open backend.
 ///
-/// Calls are serialized with open/close and other dispatches. Exactly one of
-/// `output` and `error` is populated. Empty successful protobuf responses use
-/// the zero-token empty buffer.
+/// Calls other than `LatestProgress` are serialized per backend. Progress reads
+/// can run beside a long operation. Closing removes the handle first and then
+/// waits for all in-flight calls, so no dispatch can outlive its backend.
+/// Exactly one of `output` and `error` is populated. Empty successful protobuf
+/// responses use the zero-token empty buffer.
 ///
 /// # Safety
 ///
@@ -260,14 +340,19 @@ pub unsafe extern "C" fn anki_backend_run_method(
     let result = catch_backend(|| {
         // SAFETY: delegated from this function's caller contract.
         let input = unsafe { input.as_bytes()? };
-        let bridge = lock_state();
-        let backend = bridge.backends.get(&handle).ok_or_else(|| {
+        let entry = lock_state().backends.get(&handle).cloned().ok_or_else(|| {
             serialized_error(
                 backend_error::Kind::InvalidInput,
                 format!("unknown or stale backend handle: {handle}"),
             )
         })?;
-        backend.run_service_method(service, method, input)
+        let _lease = entry.begin_call()?;
+        if is_latest_progress(service, method) {
+            entry.backend.run_service_method(service, method, input)
+        } else {
+            let _dispatch = entry.lock_serialized_dispatch();
+            entry.backend.run_service_method(service, method, input)
+        }
     });
 
     match result {
@@ -280,6 +365,10 @@ pub unsafe extern "C" fn anki_backend_run_method(
             error: store_buffer(error),
         },
     }
+}
+
+fn is_latest_progress(service: u32, method: u32) -> bool {
+    service == 3 && method == 4
 }
 
 /// Release a bridge-owned result or error buffer.
@@ -296,6 +385,7 @@ pub extern "C" fn anki_backend_buffer_free(buffer: AnkiOwnedBuffer) {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use std::{sync::mpsc, thread, time::Duration};
 
     #[test]
     fn catches_panics_as_serialized_backend_errors() {
@@ -312,5 +402,35 @@ mod tests {
         let buffer = state.store_buffer(vec![1, 2, 3]);
         assert!(state.buffers.remove(&buffer.token).is_some());
         assert!(state.buffers.remove(&buffer.token).is_none());
+    }
+
+    #[test]
+    fn progress_bypasses_dispatch_serialization_while_close_waits_for_call_leases() {
+        let backend = init_backend(&[]).unwrap();
+        let entry = Arc::new(BackendEntry::new(backend));
+        let long_call = entry.begin_call().unwrap();
+        let serialized_dispatch = entry.lock_serialized_dispatch();
+
+        assert!(is_latest_progress(3, 4));
+        let progress_call = entry.begin_call().unwrap();
+
+        let closing_entry = Arc::clone(&entry);
+        let (started_tx, started_rx) = mpsc::channel();
+        let (closed_tx, closed_rx) = mpsc::channel();
+        let closer = thread::spawn(move || {
+            started_tx.send(()).unwrap();
+            closing_entry.close();
+            closed_tx.send(()).unwrap();
+        });
+        started_rx.recv().unwrap();
+        assert!(closed_rx.try_recv().is_err());
+
+        drop(progress_call);
+        assert!(closed_rx.try_recv().is_err());
+        drop(serialized_dispatch);
+        drop(long_call);
+
+        closed_rx.recv_timeout(Duration::from_secs(1)).unwrap();
+        closer.join().unwrap();
     }
 }

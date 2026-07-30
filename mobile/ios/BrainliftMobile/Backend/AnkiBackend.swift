@@ -8,6 +8,8 @@ actor AnkiBackend {
     private let transport: any BackendTransport
     let reviewCollectionDirectory: URL?
     private var handle: UInt64?
+    private var nativeCallsInFlight = 0
+    private var longCallInFlight = false
 
     init(
         transport: any BackendTransport = NativeBackendTransport(),
@@ -29,6 +31,9 @@ actor AnkiBackend {
     func close() throws {
         guard let handle else {
             throw AnkiBackendError.notOpen
+        }
+        guard nativeCallsInFlight == 0 else {
+            throw AnkiBackendError.busy
         }
         try transport.close(handle: handle)
         self.handle = nil
@@ -68,11 +73,63 @@ actor AnkiBackend {
         guard let handle else {
             throw AnkiBackendError.notOpen
         }
+        guard nativeCallsInFlight == 0 else {
+            throw AnkiBackendError.busy
+        }
         let data = try transport.run(
             handle: handle,
             address: address,
             request: try input.serializedData()
         )
+        return try Output(serializedBytes: data)
+    }
+
+    func callLongRunning<Input: SwiftProtobuf.Message, Output: SwiftProtobuf.Message>(
+        _ address: BackendMethodAddress,
+        input: Input
+    ) async throws -> Output {
+        guard let handle else {
+            throw AnkiBackendError.notOpen
+        }
+        guard !longCallInFlight, nativeCallsInFlight == 0 else {
+            throw AnkiBackendError.busy
+        }
+        let request = try input.serializedData()
+        let transport = transport
+        longCallInFlight = true
+        nativeCallsInFlight += 1
+        defer {
+            nativeCallsInFlight -= 1
+            longCallInFlight = false
+        }
+        let data = try await Task.detached {
+            try transport.run(
+                handle: handle,
+                address: address,
+                request: request
+            )
+        }.value
+        return try Output(serializedBytes: data)
+    }
+
+    func callProgress<Input: SwiftProtobuf.Message, Output: SwiftProtobuf.Message>(
+        _ address: BackendMethodAddress,
+        input: Input
+    ) async throws -> Output {
+        guard let handle else {
+            throw AnkiBackendError.notOpen
+        }
+        let request = try input.serializedData()
+        let transport = transport
+        nativeCallsInFlight += 1
+        defer { nativeCallsInFlight -= 1 }
+        let data = try await Task.detached {
+            try transport.run(
+                handle: handle,
+                address: address,
+                request: request
+            )
+        }.value
         return try Output(serializedBytes: data)
     }
 

@@ -62,7 +62,7 @@ extension AnkiBackend: SyncBackend {
         var request = Anki_Sync_SyncLoginRequest()
         request.username = credentials.username
         request.password = credentials.password
-        return try call(
+        return try await callLongRunning(
             BackendMethods.backendSyncServiceSyncLogin,
             input: request
         )
@@ -74,7 +74,7 @@ extension AnkiBackend: SyncBackend {
         var request = Anki_Sync_SyncCollectionRequest()
         request.auth = auth
         request.syncMedia = false
-        let response: Anki_Sync_SyncCollectionResponse = try call(
+        let response: Anki_Sync_SyncCollectionResponse = try await callLongRunning(
             BackendMethods.backendSyncServiceSyncCollection,
             input: request
         )
@@ -88,14 +88,14 @@ extension AnkiBackend: SyncBackend {
         var request = Anki_Sync_FullUploadOrDownloadRequest()
         request.auth = auth
         request.upload = direction == .upload
-        let _: Anki_Generic_Empty = try call(
+        let _: Anki_Generic_Empty = try await callLongRunning(
             BackendMethods.backendSyncServiceFullUploadOrDownload,
             input: request
         )
     }
 
     func latestSyncProgress() async throws -> SyncProgress? {
-        let response: Anki_Collection_Progress = try call(
+        let response: Anki_Collection_Progress = try await callProgress(
             BackendMethods.backendCollectionServiceLatestProgress,
             input: Anki_Generic_Empty()
         )
