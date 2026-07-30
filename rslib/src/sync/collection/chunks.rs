@@ -167,7 +167,7 @@ impl Collection {
 
     fn merge_revlog(&self, entries: Vec<RevlogEntry>) -> Result<()> {
         for entry in entries {
-            self.storage.add_revlog_entry(&entry, false)?;
+            self.storage.add_revlog_entry(&entry, true)?;
         }
         Ok(())
     }

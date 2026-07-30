@@ -5,6 +5,7 @@
 
 use std::future::Future;
 use std::sync::LazyLock;
+use std::time::Duration;
 
 use axum::http::StatusCode;
 use reqwest::Client;
@@ -23,6 +24,7 @@ use wiremock::MockServer;
 use wiremock::ResponseTemplate;
 
 use crate::card::CardQueue;
+use crate::card::CardType;
 use crate::collection::CollectionBuilder;
 use crate::deckconfig::DeckConfig;
 use crate::decks::DeckKind;
@@ -571,6 +573,255 @@ async fn upload_download(ctx: &SyncTestContext) -> Result<()> {
     ctx.full_download(col2).await;
 
     Ok(())
+}
+
+fn add_sync_test_cards(col: &mut Collection, count: usize) -> Result<Vec<CardId>> {
+    let nt = col.get_notetype_by_name("Basic")?.unwrap();
+    let mut card_ids = Vec::with_capacity(count);
+    for idx in 0..count {
+        let mut note = nt.new_note();
+        note.set_field(0, &format!("sync test card {idx}"))?;
+        col.add_note(&mut note, DeckId(1))?;
+        card_ids.push(col.search_cards(note.id, SortMode::NoOrder)?[0]);
+    }
+    Ok(card_ids)
+}
+
+async fn upload_download_cards(ctx: &SyncTestContext, card_count: usize) -> Result<Vec<CardId>> {
+    let mut col1 = ctx.col1();
+    let card_ids = add_sync_test_cards(&mut col1, card_count)?;
+
+    let out = ctx.normal_sync(&mut col1).await;
+    assert!(matches!(
+        out.required,
+        SyncActionRequired::FullSyncRequired { .. }
+    ));
+    ctx.full_upload(col1).await;
+
+    let mut col2 = ctx.col2();
+    let out = ctx.normal_sync(&mut col2).await;
+    assert_eq!(
+        out.required,
+        SyncActionRequired::FullSyncRequired {
+            upload_ok: false,
+            download_ok: true,
+        }
+    );
+    ctx.full_download(col2).await;
+
+    Ok(card_ids)
+}
+
+fn add_offline_review(
+    col: &mut Collection,
+    card_id: CardId,
+    revlog_id: RevlogId,
+    button_chosen: u8,
+    interval: i32,
+) -> Result<()> {
+    col.get_and_update_card(card_id, |card| {
+        card.ctype = CardType::Review;
+        card.queue = CardQueue::Review;
+        card.interval = interval as u32;
+        card.reps += 1;
+        Ok(())
+    })?;
+    assert_eq!(
+        col.storage.add_revlog_entry(
+            &RevlogEntry {
+                id: revlog_id,
+                cid: card_id,
+                usn: Usn(-1),
+                button_chosen,
+                interval,
+                last_interval: interval.saturating_sub(1),
+                ease_factor: 2_500,
+                taken_millis: interval as u32,
+                ..Default::default()
+            },
+            false,
+        )?,
+        Some(revlog_id)
+    );
+    Ok(())
+}
+
+async fn converge_twenty_offline_reviews(
+    ctx: &SyncTestContext,
+) -> Result<(Collection, Collection, Vec<CardId>)> {
+    let card_ids = upload_download_cards(ctx, 21).await?;
+    let mut col1 = ctx.col1();
+    let mut col2 = ctx.col2();
+
+    for (idx, card_id) in card_ids.iter().take(10).enumerate() {
+        add_offline_review(
+            &mut col1,
+            *card_id,
+            RevlogId(1_700_000_000_000 + idx as i64),
+            3,
+            idx as i32 + 1,
+        )?;
+    }
+    for (idx, card_id) in card_ids.iter().skip(10).take(10).enumerate() {
+        add_offline_review(
+            &mut col2,
+            *card_id,
+            RevlogId(1_700_000_001_000 + idx as i64),
+            4,
+            idx as i32 + 11,
+        )?;
+    }
+
+    assert_eq!(
+        ctx.normal_sync(&mut col1).await.required,
+        SyncActionRequired::NoChanges
+    );
+    assert_eq!(
+        ctx.normal_sync(&mut col2).await.required,
+        SyncActionRequired::NoChanges
+    );
+    assert_eq!(
+        ctx.normal_sync(&mut col1).await.required,
+        SyncActionRequired::NoChanges
+    );
+
+    Ok((col1, col2, card_ids))
+}
+
+#[tokio::test]
+async fn brainlift_sync_converges_twenty_distinct_offline_reviews_once() -> Result<()> {
+    with_active_server(|client| async move {
+        let ctx = SyncTestContext::new(client);
+        let (col1, col2, _) = converge_twenty_offline_reviews(&ctx).await?;
+
+        let col1_reviews = col1.storage.get_all_revlog_entries_in_card_order()?;
+        let col2_reviews = col2.storage.get_all_revlog_entries_in_card_order()?;
+        assert_eq!(col1_reviews.len(), 20);
+        assert_eq!(col1_reviews, col2_reviews);
+
+        Ok(())
+    })
+    .await
+}
+
+#[tokio::test]
+async fn brainlift_sync_preserves_same_card_histories_and_later_state() -> Result<()> {
+    with_active_server(|client| async move {
+        let ctx = SyncTestContext::new(client);
+        let (mut col1, mut col2, card_ids) = converge_twenty_offline_reviews(&ctx).await?;
+        let shared_card_id = card_ids[20];
+
+        add_offline_review(
+            &mut col1,
+            shared_card_id,
+            RevlogId(1_700_000_002_000),
+            2,
+            21,
+        )?;
+        std::thread::sleep(Duration::from_secs(1));
+        add_offline_review(
+            &mut col2,
+            shared_card_id,
+            RevlogId(1_700_000_002_001),
+            4,
+            42,
+        )?;
+
+        assert_eq!(
+            ctx.normal_sync(&mut col1).await.required,
+            SyncActionRequired::NoChanges
+        );
+        assert_eq!(
+            ctx.normal_sync(&mut col2).await.required,
+            SyncActionRequired::NoChanges
+        );
+        assert_eq!(
+            ctx.normal_sync(&mut col1).await.required,
+            SyncActionRequired::NoChanges
+        );
+        assert_eq!(
+            ctx.normal_sync(&mut col2).await.required,
+            SyncActionRequired::NoChanges
+        );
+
+        let col1_reviews = col1.storage.get_all_revlog_entries_in_card_order()?;
+        let col2_reviews = col2.storage.get_all_revlog_entries_in_card_order()?;
+        assert_eq!(col1_reviews.len(), 22);
+        assert_eq!(col1_reviews, col2_reviews);
+        assert_eq!(
+            col1.storage
+                .get_revlog_entries_for_card(shared_card_id)?
+                .len(),
+            2
+        );
+        assert_eq!(
+            col2.storage
+                .get_revlog_entries_for_card(shared_card_id)?
+                .len(),
+            2
+        );
+        assert_eq!(col1.storage.get_card(shared_card_id)?.unwrap().interval, 42);
+        assert_eq!(col2.storage.get_card(shared_card_id)?.unwrap().interval, 42);
+        assert_eq!(
+            col1.storage
+                .db_scalar::<i64>("select count(*) from cards")?,
+            21
+        );
+        assert_eq!(
+            col2.storage
+                .db_scalar::<i64>("select count(*) from cards")?,
+            21
+        );
+
+        Ok(())
+    })
+    .await
+}
+
+#[tokio::test]
+async fn brainlift_sync_uniquifies_distinct_reviews_with_same_id() -> Result<()> {
+    with_active_server(|client| async move {
+        let ctx = SyncTestContext::new(client);
+        let card_ids = upload_download_cards(&ctx, 1).await?;
+        let card_id = card_ids[0];
+        let colliding_id = RevlogId(1_700_000_003_000);
+        let mut col1 = ctx.col1();
+        let mut col2 = ctx.col2();
+
+        add_offline_review(&mut col1, card_id, colliding_id, 2, 10)?;
+        add_offline_review(&mut col2, card_id, colliding_id, 4, 20)?;
+
+        assert_eq!(
+            ctx.normal_sync(&mut col1).await.required,
+            SyncActionRequired::NoChanges
+        );
+        assert_eq!(
+            ctx.normal_sync(&mut col2).await.required,
+            SyncActionRequired::NoChanges
+        );
+        assert_eq!(
+            ctx.normal_sync(&mut col1).await.required,
+            SyncActionRequired::NoChanges
+        );
+
+        for col in [&col1, &col2] {
+            let reviews = col.storage.get_revlog_entries_for_card(card_id)?;
+            assert_eq!(reviews.len(), 2);
+            assert_eq!(
+                reviews.iter().map(|entry| entry.id).collect::<Vec<_>>(),
+                vec![colliding_id, RevlogId(colliding_id.0 + 1)]
+            );
+            let mut payloads = reviews
+                .iter()
+                .map(|entry| (entry.button_chosen, entry.interval))
+                .collect::<Vec<_>>();
+            payloads.sort_unstable();
+            assert_eq!(payloads, vec![(2, 10), (4, 20)]);
+        }
+
+        Ok(())
+    })
+    .await
 }
 
 // Regular syncs
