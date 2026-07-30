@@ -6,6 +6,9 @@ import SwiftUI
 struct ReviewSessionView: View {
     @StateObject private var model: ReviewSessionViewModel
     @StateObject private var scoreModel: ScorePanelViewModel
+    @StateObject private var syncCoordinator: SyncCoordinator
+    @State private var showSync = false
+    private let credentialsStore = SyncCredentialsStore()
 
     init(backend: any ReviewBackend = AnkiBackend()) {
         _model = StateObject(
@@ -15,6 +18,13 @@ struct ReviewSessionView: View {
         _scoreModel = StateObject(
             wrappedValue: ScorePanelViewModel(
                 backend: evidenceBackend ?? UnavailableEvidenceBackend()
+            )
+        )
+        let syncBackend = backend as? any SyncBackend
+        _syncCoordinator = StateObject(
+            wrappedValue: SyncCoordinator(
+                backend: syncBackend ?? UnavailableSyncBackend(),
+                credentials: SyncCredentialsStore()
             )
         )
     }
@@ -52,6 +62,10 @@ struct ReviewSessionView: View {
         }
         .navigationTitle(model.selectedDeck?.name ?? "Brainlift")
         .toolbar {
+            Button("Sync", systemImage: "arrow.triangle.2.circlepath") {
+                showSync = true
+            }
+            .accessibilityIdentifier("open-sync")
             if model.canUndo {
                 Button("Undo", systemImage: "arrow.uturn.backward") {
                     Task { await model.undo() }
@@ -61,8 +75,17 @@ struct ReviewSessionView: View {
         }
         .task {
             guard model.phase == .loading else { return }
+            syncCoordinator.setCompletion {
+                await scoreModel.refresh()
+            }
             await model.start()
             await scoreModel.refresh()
+        }
+        .sheet(isPresented: $showSync) {
+            SyncSettingsView(
+                coordinator: syncCoordinator,
+                credentialsStore: credentialsStore
+            )
         }
     }
 
@@ -121,5 +144,30 @@ struct ReviewSessionView: View {
 private struct UnavailableEvidenceBackend: EvidenceBackend {
     func evidenceSnapshot() async throws -> Anki_Stats_BrainliftScoreSnapshotResponse {
         throw AnkiBackendError.notOpen
+    }
+}
+
+private struct UnavailableSyncBackend: SyncBackend {
+    func syncLogin(
+        credentials: SyncCredentials
+    ) async throws -> Anki_Sync_SyncAuth {
+        throw AnkiBackendError.notOpen
+    }
+
+    func syncCollection(
+        auth: Anki_Sync_SyncAuth
+    ) async throws -> Anki_Sync_SyncCollectionResponse.ChangesRequired {
+        throw AnkiBackendError.notOpen
+    }
+
+    func fullSync(
+        auth: Anki_Sync_SyncAuth,
+        direction: SyncDirection
+    ) async throws {
+        throw AnkiBackendError.notOpen
+    }
+
+    func latestSyncProgress() async throws -> SyncProgress? {
+        nil
     }
 }
