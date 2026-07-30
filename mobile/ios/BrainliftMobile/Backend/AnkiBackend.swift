@@ -6,10 +6,15 @@ import SwiftProtobuf
 
 actor AnkiBackend {
     private let transport: any BackendTransport
+    let reviewCollectionDirectory: URL?
     private var handle: UInt64?
 
-    init(transport: any BackendTransport = NativeBackendTransport()) {
+    init(
+        transport: any BackendTransport = NativeBackendTransport(),
+        reviewCollectionDirectory: URL? = nil
+    ) {
         self.transport = transport
+        self.reviewCollectionDirectory = reviewCollectionDirectory
     }
 
     func open(preferredLanguages: [String] = ["en"]) throws {

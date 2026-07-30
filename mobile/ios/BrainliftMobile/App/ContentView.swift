@@ -6,12 +6,7 @@ import SwiftUI
 struct ContentView: View {
     var body: some View {
         NavigationStack {
-            ContentUnavailableView(
-                "Brainlift",
-                systemImage: "brain.head.profile",
-                description: Text("The shared Anki backend is ready.")
-            )
-            .navigationTitle("Brainlift")
+            ReviewSessionView()
         }
     }
 }
