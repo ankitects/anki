@@ -11,6 +11,7 @@ members = [
   "build/ninja_gen",
   "build/runner",
   "ftl",
+  "mobile/ios/rust_bridge",
   "pylib/rsbridge",
   "qt/launcher",
   "rslib",

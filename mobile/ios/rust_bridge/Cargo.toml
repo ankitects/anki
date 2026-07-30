@@ -1,0 +1,19 @@
+[package]
+name = "anki_ios_bridge"
+version.workspace = true
+authors.workspace = true
+edition.workspace = true
+license.workspace = true
+rust-version.workspace = true
+
+[lib]
+crate-type = ["rlib", "staticlib"]
+
+[dependencies]
+anki.workspace = true
+anki_proto.workspace = true
+prost.workspace = true
+# The backend's sync transport imports Tokio's extension traits. Existing
+# top-level builds enable this transitively; the standalone bridge must do so
+# explicitly so its package can be checked and cross-compiled in isolation.
+tokio = { workspace = true, features = ["io-util"] }

@@ -199,6 +199,16 @@ dependencies = [
 ]
 
 [[package]]
+name = "anki_ios_bridge"
+version = "0.0.0"
+dependencies = [
+ "anki",
+ "anki_proto",
+ "prost",
+ "tokio",
+]
+
+[[package]]
 name = "anki_process"
 version = "0.0.0"
 dependencies = [
