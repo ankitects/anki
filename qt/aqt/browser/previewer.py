@@ -31,12 +31,12 @@ from aqt.theme import theme_manager
 from aqt.utils import disable_help_button, restoreGeom, saveGeom, setWindowIcon, tr
 from aqt.webview import AnkiWebView, AnkiWebViewKind
 
-LastStateAndMod = tuple[str, int, int]
+LastRenderState = tuple[str, int, int, int, int, int, int]
 
 
 class Previewer(QDialog):
     _state: Literal["question", "answer"] = "question"
-    _last_state: LastStateAndMod | None = None
+    _last_state: LastRenderState | None = None
     _card_changed = False
     _last_render: int | float = 0
     _timer: QTimer | None = None
@@ -292,14 +292,23 @@ class Previewer(QDialog):
             self._state = "question"
         self.render_card()
 
-    def _state_and_mod(self) -> tuple[str, int, int]:
+    def _state_and_mod(self) -> LastRenderState:
         c = self.card()
 
         assert c is not None
 
         n = c.note()
         n.load()
-        return (self._state, c.id, n.mod)
+        notetype = c.note_type()
+        return (
+            self._state,
+            c.id,
+            n.mod,
+            c.flags,
+            c.ord,
+            int(c.current_deck_id()),
+            int(notetype.get("mod", 0)),
+        )
 
     def state(self) -> str:
         return self._state
