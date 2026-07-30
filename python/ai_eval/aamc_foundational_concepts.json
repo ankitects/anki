@@ -1,0 +1,52 @@
+[
+  {
+    "source_id": "AAMC-OUTLINE-FC-1",
+    "title": "Foundational Concept 1",
+    "summary": "Biomolecules have unique properties that shape cell structure and function and support the processes required for life."
+  },
+  {
+    "source_id": "AAMC-OUTLINE-FC-2",
+    "title": "Foundational Concept 2",
+    "summary": "Organized assemblies of molecules, cells, and organs interact to perform the functions of living organisms."
+  },
+  {
+    "source_id": "AAMC-OUTLINE-FC-3",
+    "title": "Foundational Concept 3",
+    "summary": "Integrated tissue and organ systems sense internal and external environments and maintain stable internal conditions."
+  },
+  {
+    "source_id": "AAMC-OUTLINE-FC-4",
+    "title": "Foundational Concept 4",
+    "summary": "Living organisms transport material, sense signals, and respond to change through processes explained by physical principles."
+  },
+  {
+    "source_id": "AAMC-OUTLINE-FC-5",
+    "title": "Foundational Concept 5",
+    "summary": "Chemical interactions and reactions provide the basis for understanding molecular dynamics in living systems."
+  },
+  {
+    "source_id": "AAMC-OUTLINE-FC-6",
+    "title": "Foundational Concept 6",
+    "summary": "Biological, psychological, and sociocultural factors influence how people perceive, think about, and react to the world."
+  },
+  {
+    "source_id": "AAMC-OUTLINE-FC-7",
+    "title": "Foundational Concept 7",
+    "summary": "Biological, psychological, and sociocultural factors influence behavior and behavior change."
+  },
+  {
+    "source_id": "AAMC-OUTLINE-FC-8",
+    "title": "Foundational Concept 8",
+    "summary": "Psychological, sociocultural, and biological factors influence self-concept, views of others, and social interaction."
+  },
+  {
+    "source_id": "AAMC-OUTLINE-FC-9",
+    "title": "Foundational Concept 9",
+    "summary": "Cultural and social differences influence well-being."
+  },
+  {
+    "source_id": "AAMC-OUTLINE-FC-10",
+    "title": "Foundational Concept 10",
+    "summary": "Social stratification and access to resources influence well-being."
+  }
+]

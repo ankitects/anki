@@ -1,0 +1,13 @@
+{
+  "case_count": 50,
+  "source": {
+    "name": "AAMC What's on the MCAT Exam? content outline",
+    "url": "https://students-residents.aamc.org/media/9261/download"
+  },
+  "sha256": {
+    "sources": "12d40d7072dd9d235ba3320eac9e68ed2141da5ade6fa5dacb2121f6f5210b19",
+    "gold": "2f4f381c9dafe66d6af94ec4caf13d7fa1cf78677b31ee3ac9cb5882b6d97e7c",
+    "predictions": "cbda19f663a4d4bff6ddd8c3f51a36b23d7bc28f97a1c1144574e526231048e8",
+    "evaluator": "2600c37dc59311fb7ccb9ef81e79091b066488bef09a7a03d6d87b190aab39c1"
+  }
+}
