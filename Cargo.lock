@@ -204,7 +204,11 @@ version = "0.0.0"
 dependencies = [
  "anki",
  "anki_proto",
+ "anki_proto_gen",
+ "anyhow",
+ "inflections",
  "prost",
+ "prost-reflect",
  "tokio",
 ]
 

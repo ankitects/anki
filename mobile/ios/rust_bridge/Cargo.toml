@@ -17,3 +17,9 @@ prost.workspace = true
 # top-level builds enable this transitively; the standalone bridge must do so
 # explicitly so its package can be checked and cross-compiled in isolation.
 tokio = { workspace = true, features = ["io-util"] }
+
+[build-dependencies]
+anki_proto_gen.workspace = true
+anyhow.workspace = true
+inflections.workspace = true
+prost-reflect.workspace = true

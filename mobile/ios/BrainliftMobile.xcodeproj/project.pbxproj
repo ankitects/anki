@@ -1,0 +1,635 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 77;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		047AD32A9C279FF6D006CD9B /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 449E9D7902566081BED1C0F8 /* ContentView.swift */; };
+		09F501B8904BF12E86900903 /* stats.pb.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE0BED669272F30577823877 /* stats.pb.swift */; };
+		11F70EF47462F296DB7F85D1 /* import_export.pb.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9266037C8A79CED15B7E8E79 /* import_export.pb.swift */; };
+		18E89AB66DD8B8AAD3FB5B40 /* deck_config.pb.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4A128E887BDF7B85D8AC8F3E /* deck_config.pb.swift */; };
+		192A53965932215079BF523B /* AnkiBackend.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7EEAEA84225B2B2221A03CD1 /* AnkiBackend.swift */; };
+		1F47CCD8D3746D50A0B33DCE /* backend.pb.swift in Sources */ = {isa = PBXBuildFile; fileRef = 914FF7FBBCFBABFC4AF61ED0 /* backend.pb.swift */; };
+		2447F2FF45DF6658521DF780 /* AnkiBackendError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F3953135314338D89D92BBE /* AnkiBackendError.swift */; };
+		29B11D6C6FADAFA9B7AC829D /* decks.pb.swift in Sources */ = {isa = PBXBuildFile; fileRef = 32B9D70DB9C5720FCA55EF22 /* decks.pb.swift */; };
+		3049105C85B1F218A657EDD4 /* SwiftProtobuf in Frameworks */ = {isa = PBXBuildFile; productRef = 53AFD892A48EFAC87255C2D8 /* SwiftProtobuf */; };
+		30A59DCEA924CFC1483317E9 /* ankiweb.pb.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6F64A21A7E4E8E8554B25315 /* ankiweb.pb.swift */; };
+		31C76A1175ED51171A16EF76 /* card_rendering.pb.swift in Sources */ = {isa = PBXBuildFile; fileRef = 45EC11E45C6D23D3F137DA49 /* card_rendering.pb.swift */; };
+		40EE8B691BD2056446A02D98 /* links.pb.swift in Sources */ = {isa = PBXBuildFile; fileRef = 348435B721983DDDD8879367 /* links.pb.swift */; };
+		46941D55595965408F061ED6 /* BackendMethods.swift in Sources */ = {isa = PBXBuildFile; fileRef = FBC1C09B148D549BA7954A64 /* BackendMethods.swift */; };
+		47AADF18890212582291E52B /* cards.pb.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18DDC6C75C924E97CDEA2A37 /* cards.pb.swift */; };
+		4CCAD4182BA8E3F2BACBC112 /* i18n.pb.swift in Sources */ = {isa = PBXBuildFile; fileRef = C4FF3E7350198CCE25C57972 /* i18n.pb.swift */; };
+		562F2CCA46BD590D30F0D8B1 /* tags.pb.swift in Sources */ = {isa = PBXBuildFile; fileRef = E55F9E3C0C991BEAA4F1F188 /* tags.pb.swift */; };
+		56BF3E1BF616D6C3CAF1A3A7 /* frontend.pb.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41FC6D728925433161D25022 /* frontend.pb.swift */; };
+		59ACB90539BE048EA65B014A /* generic.pb.swift in Sources */ = {isa = PBXBuildFile; fileRef = DDDD60ECEE66E73EB70F7C03 /* generic.pb.swift */; };
+		6D407ECE0866981790AA5962 /* notes.pb.swift in Sources */ = {isa = PBXBuildFile; fileRef = DB5EE77906DAC1AD7C07EE53 /* notes.pb.swift */; };
+		7053255026A43AD24B2D5406 /* AnkiBackend.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = 785D6C58C74B6FD98C2EADF7 /* AnkiBackend.xcframework */; };
+		83A56BFEF3B1C9F0F30D471C /* BrainliftMobileApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8BEF04906ED8CF34EE799D0E /* BrainliftMobileApp.swift */; };
+		8904148A20D364BE02CC1530 /* BackendTransport.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8DD15442E487570D558820C0 /* BackendTransport.swift */; };
+		8B8098BFE4886C2F1D3CAA19 /* config.pb.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E9D10B33E510560C7C872BA /* config.pb.swift */; };
+		8CE35937C797290610B38709 /* search.pb.swift in Sources */ = {isa = PBXBuildFile; fileRef = FCA2BE0E013D71DADC0A5D02 /* search.pb.swift */; };
+		90ED3383F200B70B5EDF4C58 /* SyncCredentialsStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = F330FF7A9FF306380D988358 /* SyncCredentialsStore.swift */; };
+		9DE69F0FA68C37B2489974C4 /* ankihub.pb.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED0618C38511CB3947B2C93F /* ankihub.pb.swift */; };
+		A27F90EF9B5528DA0B1CF1DA /* notetypes.pb.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6D59D381B5C4F3A08D36407B /* notetypes.pb.swift */; };
+		A4B349D907C2C81888ED6134 /* collection.pb.swift in Sources */ = {isa = PBXBuildFile; fileRef = E4AAA5E8BED5FDBD83DDDEE1 /* collection.pb.swift */; };
+		A9B8BF459BE384D83D9915CE /* image_occlusion.pb.swift in Sources */ = {isa = PBXBuildFile; fileRef = 429B41360E0CB6A9DDAB1660 /* image_occlusion.pb.swift */; };
+		AB598271D0F33208D84CC765 /* ankidroid.pb.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2AAF4B6DA682330049448E34 /* ankidroid.pb.swift */; };
+		C0309027C34E70B1B2F4EF06 /* scheduler.pb.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9B073F629309A179499679C0 /* scheduler.pb.swift */; };
+		CD8CA2B97733B39A72BEFDEF /* media.pb.swift in Sources */ = {isa = PBXBuildFile; fileRef = 00FA9E91B7CAF0C610BA88E3 /* media.pb.swift */; };
+		CF515BF887C9AFB1CC1BA4C9 /* SwiftProtobuf in Frameworks */ = {isa = PBXBuildFile; productRef = C3D925242DC4A72D46331A00 /* SwiftProtobuf */; };
+		E63FDCEEDCB87B0ACB7926C8 /* AnkiBackendTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 715FA356DF7D8CBDD1A7CC0A /* AnkiBackendTests.swift */; };
+		EAFBFD75527F132664FA9782 /* sync.pb.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C3B3510D56037627DDBE22E /* sync.pb.swift */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		915CBFB7DB80E7EEBE830927 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 6A0A074D98E0F188F5F2CD7A /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 7BC8B794972678C8E77D9CED;
+			remoteInfo = BrainliftMobile;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXFileReference section */
+		00FA9E91B7CAF0C610BA88E3 /* media.pb.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = media.pb.swift; sourceTree = "<group>"; };
+		08B7B6191F5FD173F4EF50B3 /* BrainliftMobileTests.xctest */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.cfbundle; path = BrainliftMobileTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		0C3B3510D56037627DDBE22E /* sync.pb.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = sync.pb.swift; sourceTree = "<group>"; };
+		18DDC6C75C924E97CDEA2A37 /* cards.pb.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = cards.pb.swift; sourceTree = "<group>"; };
+		2AAF4B6DA682330049448E34 /* ankidroid.pb.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ankidroid.pb.swift; sourceTree = "<group>"; };
+		32B9D70DB9C5720FCA55EF22 /* decks.pb.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = decks.pb.swift; sourceTree = "<group>"; };
+		348435B721983DDDD8879367 /* links.pb.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = links.pb.swift; sourceTree = "<group>"; };
+		41FC6D728925433161D25022 /* frontend.pb.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = frontend.pb.swift; sourceTree = "<group>"; };
+		429B41360E0CB6A9DDAB1660 /* image_occlusion.pb.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = image_occlusion.pb.swift; sourceTree = "<group>"; };
+		449E9D7902566081BED1C0F8 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
+		45EC11E45C6D23D3F137DA49 /* card_rendering.pb.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = card_rendering.pb.swift; sourceTree = "<group>"; };
+		4A128E887BDF7B85D8AC8F3E /* deck_config.pb.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = deck_config.pb.swift; sourceTree = "<group>"; };
+		6D59D381B5C4F3A08D36407B /* notetypes.pb.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = notetypes.pb.swift; sourceTree = "<group>"; };
+		6E9D10B33E510560C7C872BA /* config.pb.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = config.pb.swift; sourceTree = "<group>"; };
+		6F64A21A7E4E8E8554B25315 /* ankiweb.pb.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ankiweb.pb.swift; sourceTree = "<group>"; };
+		715FA356DF7D8CBDD1A7CC0A /* AnkiBackendTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnkiBackendTests.swift; sourceTree = "<group>"; };
+		785D6C58C74B6FD98C2EADF7 /* AnkiBackend.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; name = AnkiBackend.xcframework; path = ../../out/ios/AnkiBackend.xcframework; sourceTree = "<group>"; };
+		7EEAEA84225B2B2221A03CD1 /* AnkiBackend.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnkiBackend.swift; sourceTree = "<group>"; };
+		8BEF04906ED8CF34EE799D0E /* BrainliftMobileApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BrainliftMobileApp.swift; sourceTree = "<group>"; };
+		8DD15442E487570D558820C0 /* BackendTransport.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BackendTransport.swift; sourceTree = "<group>"; };
+		914FF7FBBCFBABFC4AF61ED0 /* backend.pb.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = backend.pb.swift; sourceTree = "<group>"; };
+		9266037C8A79CED15B7E8E79 /* import_export.pb.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = import_export.pb.swift; sourceTree = "<group>"; };
+		9B073F629309A179499679C0 /* scheduler.pb.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = scheduler.pb.swift; sourceTree = "<group>"; };
+		9CD0DB108DB66E5FC411049A /* BrainliftMobile.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = BrainliftMobile.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		9F3953135314338D89D92BBE /* AnkiBackendError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnkiBackendError.swift; sourceTree = "<group>"; };
+		C4FF3E7350198CCE25C57972 /* i18n.pb.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = i18n.pb.swift; sourceTree = "<group>"; };
+		DB5EE77906DAC1AD7C07EE53 /* notes.pb.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = notes.pb.swift; sourceTree = "<group>"; };
+		DDDD60ECEE66E73EB70F7C03 /* generic.pb.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = generic.pb.swift; sourceTree = "<group>"; };
+		E4AAA5E8BED5FDBD83DDDEE1 /* collection.pb.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = collection.pb.swift; sourceTree = "<group>"; };
+		E55F9E3C0C991BEAA4F1F188 /* tags.pb.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = tags.pb.swift; sourceTree = "<group>"; };
+		ED0618C38511CB3947B2C93F /* ankihub.pb.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ankihub.pb.swift; sourceTree = "<group>"; };
+		EE0BED669272F30577823877 /* stats.pb.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = stats.pb.swift; sourceTree = "<group>"; };
+		F330FF7A9FF306380D988358 /* SyncCredentialsStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SyncCredentialsStore.swift; sourceTree = "<group>"; };
+		FBC1C09B148D549BA7954A64 /* BackendMethods.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BackendMethods.swift; sourceTree = "<group>"; };
+		FCA2BE0E013D71DADC0A5D02 /* search.pb.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = search.pb.swift; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		847D896EB1CE66CB74872402 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				3049105C85B1F218A657EDD4 /* SwiftProtobuf in Frameworks */,
+				7053255026A43AD24B2D5406 /* AnkiBackend.xcframework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		B25BA58735DF90E04541BDB1 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				CF515BF887C9AFB1CC1BA4C9 /* SwiftProtobuf in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		2C164ECD9FDE69E350E7815D /* Backend */ = {
+			isa = PBXGroup;
+			children = (
+				7EEAEA84225B2B2221A03CD1 /* AnkiBackend.swift */,
+				9F3953135314338D89D92BBE /* AnkiBackendError.swift */,
+				8DD15442E487570D558820C0 /* BackendTransport.swift */,
+				F330FF7A9FF306380D988358 /* SyncCredentialsStore.swift */,
+				3E3FE92AF4D9AC7EB4845E26 /* Generated */,
+			);
+			path = Backend;
+			sourceTree = "<group>";
+		};
+		3DBC7B7E208465F2746B827C /* BrainliftMobileTests */ = {
+			isa = PBXGroup;
+			children = (
+				A0D16BE140775EF444C7724D /* Backend */,
+			);
+			path = BrainliftMobileTests;
+			sourceTree = "<group>";
+		};
+		3E3FE92AF4D9AC7EB4845E26 /* Generated */ = {
+			isa = PBXGroup;
+			children = (
+				FBC1C09B148D549BA7954A64 /* BackendMethods.swift */,
+				F33E11EE78E3854603F9B6CC /* anki */,
+			);
+			path = Generated;
+			sourceTree = "<group>";
+		};
+		A0D16BE140775EF444C7724D /* Backend */ = {
+			isa = PBXGroup;
+			children = (
+				715FA356DF7D8CBDD1A7CC0A /* AnkiBackendTests.swift */,
+			);
+			path = Backend;
+			sourceTree = "<group>";
+		};
+		A72FD7B4A89D03545D70E756 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				785D6C58C74B6FD98C2EADF7 /* AnkiBackend.xcframework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		AC2FCBA2C6F49F501BE2BEA7 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				9CD0DB108DB66E5FC411049A /* BrainliftMobile.app */,
+				08B7B6191F5FD173F4EF50B3 /* BrainliftMobileTests.xctest */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		AF1A95234CCE404308841C37 /* App */ = {
+			isa = PBXGroup;
+			children = (
+				8BEF04906ED8CF34EE799D0E /* BrainliftMobileApp.swift */,
+				449E9D7902566081BED1C0F8 /* ContentView.swift */,
+			);
+			path = App;
+			sourceTree = "<group>";
+		};
+		DE6535F51864A09B91DD924E = {
+			isa = PBXGroup;
+			children = (
+				F0C70E210548593ACD86DC70 /* BrainliftMobile */,
+				3DBC7B7E208465F2746B827C /* BrainliftMobileTests */,
+				A72FD7B4A89D03545D70E756 /* Frameworks */,
+				AC2FCBA2C6F49F501BE2BEA7 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		F0C70E210548593ACD86DC70 /* BrainliftMobile */ = {
+			isa = PBXGroup;
+			children = (
+				AF1A95234CCE404308841C37 /* App */,
+				2C164ECD9FDE69E350E7815D /* Backend */,
+			);
+			path = BrainliftMobile;
+			sourceTree = "<group>";
+		};
+		F33E11EE78E3854603F9B6CC /* anki */ = {
+			isa = PBXGroup;
+			children = (
+				2AAF4B6DA682330049448E34 /* ankidroid.pb.swift */,
+				ED0618C38511CB3947B2C93F /* ankihub.pb.swift */,
+				6F64A21A7E4E8E8554B25315 /* ankiweb.pb.swift */,
+				914FF7FBBCFBABFC4AF61ED0 /* backend.pb.swift */,
+				45EC11E45C6D23D3F137DA49 /* card_rendering.pb.swift */,
+				18DDC6C75C924E97CDEA2A37 /* cards.pb.swift */,
+				E4AAA5E8BED5FDBD83DDDEE1 /* collection.pb.swift */,
+				6E9D10B33E510560C7C872BA /* config.pb.swift */,
+				4A128E887BDF7B85D8AC8F3E /* deck_config.pb.swift */,
+				32B9D70DB9C5720FCA55EF22 /* decks.pb.swift */,
+				41FC6D728925433161D25022 /* frontend.pb.swift */,
+				DDDD60ECEE66E73EB70F7C03 /* generic.pb.swift */,
+				C4FF3E7350198CCE25C57972 /* i18n.pb.swift */,
+				429B41360E0CB6A9DDAB1660 /* image_occlusion.pb.swift */,
+				9266037C8A79CED15B7E8E79 /* import_export.pb.swift */,
+				348435B721983DDDD8879367 /* links.pb.swift */,
+				00FA9E91B7CAF0C610BA88E3 /* media.pb.swift */,
+				DB5EE77906DAC1AD7C07EE53 /* notes.pb.swift */,
+				6D59D381B5C4F3A08D36407B /* notetypes.pb.swift */,
+				9B073F629309A179499679C0 /* scheduler.pb.swift */,
+				FCA2BE0E013D71DADC0A5D02 /* search.pb.swift */,
+				EE0BED669272F30577823877 /* stats.pb.swift */,
+				0C3B3510D56037627DDBE22E /* sync.pb.swift */,
+				E55F9E3C0C991BEAA4F1F188 /* tags.pb.swift */,
+			);
+			path = anki;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		7BC8B794972678C8E77D9CED /* BrainliftMobile */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = D45E7572505895E0D2C682D4 /* Build configuration list for PBXNativeTarget "BrainliftMobile" */;
+			buildPhases = (
+				C9D28C7A1887B29A264FA2A8 /* Sources */,
+				847D896EB1CE66CB74872402 /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = BrainliftMobile;
+			packageProductDependencies = (
+				53AFD892A48EFAC87255C2D8 /* SwiftProtobuf */,
+			);
+			productName = BrainliftMobile;
+			productReference = 9CD0DB108DB66E5FC411049A /* BrainliftMobile.app */;
+			productType = "com.apple.product-type.application";
+		};
+		8F47466D6A5B06CFA9087C9A /* BrainliftMobileTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 243A053C8941B3275B69104B /* Build configuration list for PBXNativeTarget "BrainliftMobileTests" */;
+			buildPhases = (
+				22A1DE33CDA1A7348BC7978F /* Sources */,
+				B25BA58735DF90E04541BDB1 /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				687F5094E4AD67E3B667951B /* PBXTargetDependency */,
+			);
+			name = BrainliftMobileTests;
+			packageProductDependencies = (
+				C3D925242DC4A72D46331A00 /* SwiftProtobuf */,
+			);
+			productName = BrainliftMobileTests;
+			productReference = 08B7B6191F5FD173F4EF50B3 /* BrainliftMobileTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		6A0A074D98E0F188F5F2CD7A /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = YES;
+				LastUpgradeCheck = 1430;
+				TargetAttributes = {
+					7BC8B794972678C8E77D9CED = {
+						DevelopmentTeam = "";
+					};
+					8F47466D6A5B06CFA9087C9A = {
+						DevelopmentTeam = "";
+					};
+				};
+			};
+			buildConfigurationList = AF9B43C4581D2ADD209E1691 /* Build configuration list for PBXProject "BrainliftMobile" */;
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				Base,
+				en,
+			);
+			mainGroup = DE6535F51864A09B91DD924E;
+			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				1EC5CA5850B3921366DEC264 /* XCRemoteSwiftPackageReference "swift-protobuf" */,
+			);
+			preferredProjectObjectVersion = 77;
+			productRefGroup = AC2FCBA2C6F49F501BE2BEA7 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				7BC8B794972678C8E77D9CED /* BrainliftMobile */,
+				8F47466D6A5B06CFA9087C9A /* BrainliftMobileTests */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXSourcesBuildPhase section */
+		22A1DE33CDA1A7348BC7978F /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				E63FDCEEDCB87B0ACB7926C8 /* AnkiBackendTests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		C9D28C7A1887B29A264FA2A8 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				192A53965932215079BF523B /* AnkiBackend.swift in Sources */,
+				2447F2FF45DF6658521DF780 /* AnkiBackendError.swift in Sources */,
+				46941D55595965408F061ED6 /* BackendMethods.swift in Sources */,
+				8904148A20D364BE02CC1530 /* BackendTransport.swift in Sources */,
+				83A56BFEF3B1C9F0F30D471C /* BrainliftMobileApp.swift in Sources */,
+				047AD32A9C279FF6D006CD9B /* ContentView.swift in Sources */,
+				90ED3383F200B70B5EDF4C58 /* SyncCredentialsStore.swift in Sources */,
+				AB598271D0F33208D84CC765 /* ankidroid.pb.swift in Sources */,
+				9DE69F0FA68C37B2489974C4 /* ankihub.pb.swift in Sources */,
+				30A59DCEA924CFC1483317E9 /* ankiweb.pb.swift in Sources */,
+				1F47CCD8D3746D50A0B33DCE /* backend.pb.swift in Sources */,
+				31C76A1175ED51171A16EF76 /* card_rendering.pb.swift in Sources */,
+				47AADF18890212582291E52B /* cards.pb.swift in Sources */,
+				A4B349D907C2C81888ED6134 /* collection.pb.swift in Sources */,
+				8B8098BFE4886C2F1D3CAA19 /* config.pb.swift in Sources */,
+				18E89AB66DD8B8AAD3FB5B40 /* deck_config.pb.swift in Sources */,
+				29B11D6C6FADAFA9B7AC829D /* decks.pb.swift in Sources */,
+				56BF3E1BF616D6C3CAF1A3A7 /* frontend.pb.swift in Sources */,
+				59ACB90539BE048EA65B014A /* generic.pb.swift in Sources */,
+				4CCAD4182BA8E3F2BACBC112 /* i18n.pb.swift in Sources */,
+				A9B8BF459BE384D83D9915CE /* image_occlusion.pb.swift in Sources */,
+				11F70EF47462F296DB7F85D1 /* import_export.pb.swift in Sources */,
+				40EE8B691BD2056446A02D98 /* links.pb.swift in Sources */,
+				CD8CA2B97733B39A72BEFDEF /* media.pb.swift in Sources */,
+				6D407ECE0866981790AA5962 /* notes.pb.swift in Sources */,
+				A27F90EF9B5528DA0B1CF1DA /* notetypes.pb.swift in Sources */,
+				C0309027C34E70B1B2F4EF06 /* scheduler.pb.swift in Sources */,
+				8CE35937C797290610B38709 /* search.pb.swift in Sources */,
+				09F501B8904BF12E86900903 /* stats.pb.swift in Sources */,
+				EAFBFD75527F132664FA9782 /* sync.pb.swift in Sources */,
+				562F2CCA46BD590D30F0D8B1 /* tags.pb.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		687F5094E4AD67E3B667951B /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 7BC8B794972678C8E77D9CED /* BrainliftMobile */;
+			targetProxy = 915CBFB7DB80E7EEBE830927 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin XCBuildConfiguration section */
+		094235F233C75690547A4516 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				GENERATE_INFOPLIST_FILE = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.techmexdev.BrainliftMobileTests;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/BrainliftMobile.app/BrainliftMobile";
+			};
+			name = Debug;
+		};
+		56397C2A859CDAB9C8AFD8EF /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				CURRENT_PROJECT_VERSION = 1;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"\"../../out/ios\"",
+				);
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = Brainlift;
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = UIInterfaceOrientationPortrait;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 0.1;
+				PRODUCT_BUNDLE_IDENTIFIER = com.techmexdev.BrainliftMobile;
+				SDKROOT = iphoneos;
+				SWIFT_OBJC_BRIDGING_HEADER = rust_bridge/include/anki_backend.h;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+		6B40E75480E112C4D47CF591 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				CURRENT_PROJECT_VERSION = 1;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"\"../../out/ios\"",
+				);
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = Brainlift;
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = UIInterfaceOrientationPortrait;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 0.1;
+				PRODUCT_BUNDLE_IDENTIFIER = com.techmexdev.BrainliftMobile;
+				SDKROOT = iphoneos;
+				SWIFT_OBJC_BRIDGING_HEADER = rust_bridge/include/anki_backend.h;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		706AA98766FCEF8518DE690D /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				GENERATE_INFOPLIST_FILE = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.techmexdev.BrainliftMobileTests;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/BrainliftMobile.app/BrainliftMobile";
+			};
+			name = Release;
+		};
+		7090AFC6891656D48B1441D1 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				DEVELOPMENT_TEAM = "";
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"$(inherited)",
+					"DEBUG=1",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 6.0;
+			};
+			name = Debug;
+		};
+		EB72BA524CF56CFB3CC7E346 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				DEVELOPMENT_TEAM = "";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				SWIFT_VERSION = 6.0;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		243A053C8941B3275B69104B /* Build configuration list for PBXNativeTarget "BrainliftMobileTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				094235F233C75690547A4516 /* Debug */,
+				706AA98766FCEF8518DE690D /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		AF9B43C4581D2ADD209E1691 /* Build configuration list for PBXProject "BrainliftMobile" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				7090AFC6891656D48B1441D1 /* Debug */,
+				EB72BA524CF56CFB3CC7E346 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		D45E7572505895E0D2C682D4 /* Build configuration list for PBXNativeTarget "BrainliftMobile" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				6B40E75480E112C4D47CF591 /* Debug */,
+				56397C2A859CDAB9C8AFD8EF /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+/* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		1EC5CA5850B3921366DEC264 /* XCRemoteSwiftPackageReference "swift-protobuf" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/apple/swift-protobuf.git";
+			requirement = {
+				kind = exactVersion;
+				version = 1.38.1;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		53AFD892A48EFAC87255C2D8 /* SwiftProtobuf */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 1EC5CA5850B3921366DEC264 /* XCRemoteSwiftPackageReference "swift-protobuf" */;
+			productName = SwiftProtobuf;
+		};
+		C3D925242DC4A72D46331A00 /* SwiftProtobuf */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 1EC5CA5850B3921366DEC264 /* XCRemoteSwiftPackageReference "swift-protobuf" */;
+			productName = SwiftProtobuf;
+		};
+/* End XCSwiftPackageProductDependency section */
+	};
+	rootObject = 6A0A074D98E0F188F5F2CD7A /* Project object */;
+}

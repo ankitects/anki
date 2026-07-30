@@ -1,0 +1,56 @@
+name: BrainliftMobile
+options:
+  bundleIdPrefix: com.techmexdev
+  deploymentTarget:
+    iOS: "17.0"
+  createIntermediateGroups: true
+packages:
+  SwiftProtobuf:
+    url: https://github.com/apple/swift-protobuf.git
+    exactVersion: 1.38.1
+settings:
+  base:
+    SWIFT_VERSION: "6.0"
+    DEVELOPMENT_TEAM: ""
+targets:
+  BrainliftMobile:
+    type: application
+    platform: iOS
+    sources:
+      - path: BrainliftMobile
+    dependencies:
+      - package: SwiftProtobuf
+      - framework: ../../out/ios/AnkiBackend.xcframework
+        embed: false
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.techmexdev.BrainliftMobile
+        GENERATE_INFOPLIST_FILE: "YES"
+        INFOPLIST_KEY_CFBundleDisplayName: Brainlift
+        INFOPLIST_KEY_UILaunchScreen_Generation: "YES"
+        INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents: "YES"
+        INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone: UIInterfaceOrientationPortrait
+        SWIFT_OBJC_BRIDGING_HEADER: rust_bridge/include/anki_backend.h
+        MARKETING_VERSION: "0.1"
+        CURRENT_PROJECT_VERSION: "1"
+  BrainliftMobileTests:
+    type: bundle.unit-test
+    platform: iOS
+    sources:
+      - path: BrainliftMobileTests
+    dependencies:
+      - target: BrainliftMobile
+      - package: SwiftProtobuf
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.techmexdev.BrainliftMobileTests
+        GENERATE_INFOPLIST_FILE: "YES"
+schemes:
+  BrainliftMobile:
+    build:
+      targets:
+        BrainliftMobile: all
+        BrainliftMobileTests: [test]
+    test:
+      targets:
+        - BrainliftMobileTests
