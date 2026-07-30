@@ -133,7 +133,7 @@ extension AnkiBackend: ReviewBackend {
 
     private static func defaultCollectionDirectory() -> URL {
         let base = FileManager.default.urls(
-            for: .applicationSupportDirectory,
+            for: .documentDirectory,
             in: .userDomainMask
         ).first ?? FileManager.default.temporaryDirectory
         return base.appending(

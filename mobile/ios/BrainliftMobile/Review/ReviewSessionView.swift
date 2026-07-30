@@ -5,33 +5,50 @@ import SwiftUI
 
 struct ReviewSessionView: View {
     @StateObject private var model: ReviewSessionViewModel
+    @StateObject private var scoreModel: ScorePanelViewModel
 
     init(backend: any ReviewBackend = AnkiBackend()) {
         _model = StateObject(
             wrappedValue: ReviewSessionViewModel(backend: backend)
         )
+        let evidenceBackend = backend as? any EvidenceBackend
+        _scoreModel = StateObject(
+            wrappedValue: ScorePanelViewModel(
+                backend: evidenceBackend ?? UnavailableEvidenceBackend()
+            )
+        )
     }
 
     var body: some View {
-        Group {
-            switch model.phase {
-            case .loading:
-                ProgressView("Opening collection…")
-            case .choosingDeck:
-                DeckPickerView(decks: model.decks) { deck in
-                    Task { await model.selectDeck(deck) }
+        ScrollView {
+            VStack(spacing: 16) {
+                ScorePanelView(model: scoreModel)
+                Group {
+                    switch model.phase {
+                    case .loading:
+                        ProgressView("Opening collection…")
+                    case .choosingDeck:
+                        DeckPickerView(decks: model.decks) { deck in
+                            Task {
+                                await model.selectDeck(deck)
+                                await scoreModel.refresh()
+                            }
+                        }
+                        .frame(minHeight: 320)
+                    case .question, .answer:
+                        card.frame(minHeight: 360)
+                    case .finished:
+                        ContentUnavailableView(
+                            "Session complete",
+                            systemImage: "checkmark.circle",
+                            description: Text("No cards are due in this deck.")
+                        )
+                    case .error:
+                        error
+                    }
                 }
-            case .question, .answer:
-                card
-            case .finished:
-                ContentUnavailableView(
-                    "Session complete",
-                    systemImage: "checkmark.circle",
-                    description: Text("No cards are due in this deck.")
-                )
-            case .error:
-                error
             }
+            .padding()
         }
         .navigationTitle(model.selectedDeck?.name ?? "Brainlift")
         .toolbar {
@@ -45,6 +62,7 @@ struct ReviewSessionView: View {
         .task {
             guard model.phase == .loading else { return }
             await model.start()
+            await scoreModel.refresh()
         }
     }
 
@@ -73,7 +91,10 @@ struct ReviewSessionView: View {
     private func gradeButton(_ rating: ReviewRating) -> some View {
         let identifier = "grade-\(rating.rawValue.lowercased())"
         return Button(rating.rawValue) {
-            Task { await model.grade(rating) }
+            Task {
+                await model.grade(rating)
+                await scoreModel.refresh()
+            }
         }
         .buttonStyle(.bordered)
         .tint(rating == .good ? .accentColor : .secondary)
@@ -94,5 +115,11 @@ struct ReviewSessionView: View {
                 .accessibilityIdentifier("retry-review")
             }
         }
+    }
+}
+
+private struct UnavailableEvidenceBackend: EvidenceBackend {
+    func evidenceSnapshot() async throws -> Anki_Stats_BrainliftScoreSnapshotResponse {
+        throw AnkiBackendError.notOpen
     }
 }
