@@ -5,6 +5,7 @@ use std::alloc::GlobalAlloc;
 use std::alloc::Layout;
 use std::alloc::System;
 use std::hint::black_box;
+use std::sync::atomic::AtomicBool;
 use std::sync::atomic::AtomicUsize;
 use std::sync::atomic::Ordering;
 use std::time::Duration;
@@ -24,6 +25,11 @@ use criterion::Throughput;
 
 struct TrackingAllocator;
 
+const BRAINLIFT_P95_BUDGET: Duration = Duration::from_millis(200);
+const BRAINLIFT_WORST_BUDGET: Duration = Duration::from_millis(500);
+const BRAINLIFT_PEAK_HEAP_BUDGET_BYTES: usize = 64 * 1024 * 1024;
+
+static TRACK_ALLOCATIONS: AtomicBool = AtomicBool::new(false);
 static LIVE_HEAP_BYTES: AtomicUsize = AtomicUsize::new(0);
 static PEAK_LIVE_HEAP_BYTES: AtomicUsize = AtomicUsize::new(0);
 
@@ -33,7 +39,7 @@ static GLOBAL_ALLOCATOR: TrackingAllocator = TrackingAllocator;
 unsafe impl GlobalAlloc for TrackingAllocator {
     unsafe fn alloc(&self, layout: Layout) -> *mut u8 {
         let allocated = unsafe { System.alloc(layout) };
-        if !allocated.is_null() {
+        if !allocated.is_null() && TRACK_ALLOCATIONS.load(Ordering::Relaxed) {
             record_allocation(layout.size());
         }
         allocated
@@ -41,7 +47,7 @@ unsafe impl GlobalAlloc for TrackingAllocator {
 
     unsafe fn alloc_zeroed(&self, layout: Layout) -> *mut u8 {
         let allocated = unsafe { System.alloc_zeroed(layout) };
-        if !allocated.is_null() {
+        if !allocated.is_null() && TRACK_ALLOCATIONS.load(Ordering::Relaxed) {
             record_allocation(layout.size());
         }
         allocated
@@ -49,12 +55,14 @@ unsafe impl GlobalAlloc for TrackingAllocator {
 
     unsafe fn dealloc(&self, ptr: *mut u8, layout: Layout) {
         unsafe { System.dealloc(ptr, layout) };
-        record_deallocation(layout.size());
+        if TRACK_ALLOCATIONS.load(Ordering::Relaxed) {
+            record_deallocation(layout.size());
+        }
     }
 
     unsafe fn realloc(&self, ptr: *mut u8, layout: Layout, new_size: usize) -> *mut u8 {
         let reallocated = unsafe { System.realloc(ptr, layout, new_size) };
-        if !reallocated.is_null() {
+        if !reallocated.is_null() && TRACK_ALLOCATIONS.load(Ordering::Relaxed) {
             if new_size >= layout.size() {
                 record_allocation(new_size - layout.size());
             } else {
@@ -67,27 +75,32 @@ unsafe impl GlobalAlloc for TrackingAllocator {
 
 fn record_allocation(bytes: usize) {
     let live = LIVE_HEAP_BYTES
-        .fetch_update(Ordering::SeqCst, Ordering::SeqCst, |current| {
+        .fetch_update(Ordering::Relaxed, Ordering::Relaxed, |current| {
             Some(current.saturating_add(bytes))
         })
         .unwrap()
         .saturating_add(bytes);
-    PEAK_LIVE_HEAP_BYTES.fetch_max(live, Ordering::SeqCst);
+    PEAK_LIVE_HEAP_BYTES.fetch_max(live, Ordering::Relaxed);
 }
 
 fn record_deallocation(bytes: usize) {
     LIVE_HEAP_BYTES
-        .fetch_update(Ordering::SeqCst, Ordering::SeqCst, |current| {
+        .fetch_update(Ordering::Relaxed, Ordering::Relaxed, |current| {
             Some(current.saturating_sub(bytes))
         })
         .unwrap();
 }
 
-fn reset_peak_live_heap_bytes() -> usize {
-    let baseline = LIVE_HEAP_BYTES.load(Ordering::SeqCst);
-    PEAK_LIVE_HEAP_BYTES.store(baseline, Ordering::SeqCst);
-    PEAK_LIVE_HEAP_BYTES.fetch_max(LIVE_HEAP_BYTES.load(Ordering::SeqCst), Ordering::SeqCst);
-    baseline
+fn start_tracking_allocations() {
+    debug_assert!(!TRACK_ALLOCATIONS.load(Ordering::Relaxed));
+    LIVE_HEAP_BYTES.store(0, Ordering::Relaxed);
+    PEAK_LIVE_HEAP_BYTES.store(0, Ordering::Relaxed);
+    TRACK_ALLOCATIONS.store(true, Ordering::Relaxed);
+}
+
+fn stop_tracking_allocations() -> usize {
+    TRACK_ALLOCATIONS.store(false, Ordering::Relaxed);
+    PEAK_LIVE_HEAP_BYTES.load(Ordering::Relaxed)
 }
 
 pub fn criterion_benchmark(c: &mut Criterion) {
@@ -125,20 +138,20 @@ fn brainlift_score_snapshot_50k(c: &mut Criterion) {
     col.grade_now(&card_ids, 2).unwrap();
     let request = BrainliftScoreRequest { topics };
 
-    let mut samples = Vec::with_capacity(20);
     let mut peak_additional_bytes = 0;
     for _ in 0..20 {
-        let baseline_live_bytes = reset_peak_live_heap_bytes();
-        let started = Instant::now();
+        start_tracking_allocations();
         let snapshot = black_box(col.brainlift_score_snapshot(request.clone()).unwrap());
-        samples.push(started.elapsed());
-        peak_additional_bytes = peak_additional_bytes.max(
-            PEAK_LIVE_HEAP_BYTES
-                .load(Ordering::SeqCst)
-                .saturating_sub(baseline_live_bytes),
-        );
         black_box(&snapshot);
         drop(snapshot);
+        peak_additional_bytes = peak_additional_bytes.max(stop_tracking_allocations());
+    }
+
+    let mut samples = Vec::with_capacity(20);
+    for _ in 0..20 {
+        let started = Instant::now();
+        let _ = black_box(col.brainlift_score_snapshot(request.clone()).unwrap());
+        samples.push(started.elapsed());
     }
     samples.sort_unstable();
     let median = samples[samples.len() / 2];
@@ -154,18 +167,21 @@ fn brainlift_score_snapshot_50k(c: &mut Criterion) {
         peak_additional_bytes as f64 / (1024 * 1024) as f64,
     );
     assert!(
-        p95 < Duration::from_millis(200),
-        "brainlift_score_snapshot_50k p95 latency budget exceeded: {p95:?} is not below 200ms"
+        p95 < BRAINLIFT_P95_BUDGET,
+        "brainlift_score_snapshot_50k p95 latency budget exceeded: \
+         {p95:?} is not below {BRAINLIFT_P95_BUDGET:?}"
     );
     assert!(
-        worst < Duration::from_millis(500),
-        "brainlift_score_snapshot_50k worst latency budget exceeded: {worst:?} is not below 500ms"
+        worst < BRAINLIFT_WORST_BUDGET,
+        "brainlift_score_snapshot_50k worst latency budget exceeded: \
+         {worst:?} is not below {BRAINLIFT_WORST_BUDGET:?}"
     );
     assert!(
-        peak_additional_bytes < 64 * 1024 * 1024,
+        peak_additional_bytes < BRAINLIFT_PEAK_HEAP_BUDGET_BYTES,
         "brainlift_score_snapshot_50k peak additional live heap budget exceeded: \
-         {peak_additional_bytes} bytes ({:.2} MiB) is not below 64 MiB",
+         {peak_additional_bytes} bytes ({:.2} MiB) is not below {} MiB",
         peak_additional_bytes as f64 / (1024 * 1024) as f64,
+        BRAINLIFT_PEAK_HEAP_BUDGET_BYTES / (1024 * 1024),
     );
 
     let mut group = c.benchmark_group("brainlift");

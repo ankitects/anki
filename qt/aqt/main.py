@@ -53,7 +53,6 @@ from aqt.dbcheck import check_db
 from aqt.debug_console import show_debug_console
 from aqt.emptycards import show_empty_cards
 from aqt.flags import FlagManager
-from aqt.identity import app_name
 from aqt.import_export.exporting import ExportDialog
 from aqt.import_export.importing import (
     import_collection_package_op,
@@ -519,7 +518,7 @@ class AnkiQt(QMainWindow):
         restoreGeom(self, "mainWindow")
         restoreState(self, "mainWindow")
         # titlebar
-        self.setWindowTitle(f"{self.pm.name} - {app_name()}")
+        self.setWindowTitle(f"{self.pm.name} - {QCoreApplication.applicationName()}")
         # show and raise window for osx
         self.show()
         self.activateWindow()
@@ -1449,7 +1448,7 @@ title="{}" {}>{}</button>""".format(
         m.actionFullScreen.setShortcutContext(Qt.ShortcutContext.ApplicationShortcut)
 
     def updateTitleBar(self) -> None:
-        self.setWindowTitle(app_name())
+        self.setWindowTitle(QCoreApplication.applicationName())
 
     # View
     ##########################################################################

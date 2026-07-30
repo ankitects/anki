@@ -707,41 +707,15 @@ mod tests {
     fn snapshot_excludes_non_scheduling_reviews() -> Result<()> {
         let mut col = Collection::new();
         let card_id = add_tagged_card(&mut col, &[BIOLOGY_TAG]);
-        add_reviews_with_factor(
-            &mut col,
-            card_id,
-            1_700_000_900_000,
-            RevlogReviewKind::Manual,
-            2_500,
-        )?;
-        add_reviews_with_factor(
-            &mut col,
-            card_id,
-            1_700_000_900_001,
-            RevlogReviewKind::Rescheduled,
-            2_500,
-        )?;
-        add_reviews_with_factor(
-            &mut col,
-            card_id,
-            1_700_000_900_002,
-            RevlogReviewKind::Filtered,
-            0,
-        )?;
-        add_reviews_with_factor(
-            &mut col,
-            card_id,
-            1_700_000_900_003,
-            RevlogReviewKind::Review,
-            0,
-        )?;
-        add_reviews_with_factor(
-            &mut col,
-            card_id,
-            1_700_000_900_004,
-            RevlogReviewKind::Filtered,
-            2_500,
-        )?;
+        for (id, review_kind, ease_factor) in [
+            (1_700_000_900_000, RevlogReviewKind::Manual, 2_500),
+            (1_700_000_900_001, RevlogReviewKind::Rescheduled, 2_500),
+            (1_700_000_900_002, RevlogReviewKind::Filtered, 0),
+            (1_700_000_900_003, RevlogReviewKind::Review, 0),
+            (1_700_000_900_004, RevlogReviewKind::Filtered, 2_500),
+        ] {
+            add_review_with_factor(&mut col, card_id, id, review_kind, ease_factor)?;
+        }
 
         let snapshot = col.brainlift_score_snapshot(request())?;
         let memory = snapshot.memory.unwrap();
@@ -798,7 +772,7 @@ mod tests {
         Ok(())
     }
 
-    fn add_reviews_with_factor(
+    fn add_review_with_factor(
         col: &mut Collection,
         card_id: CardId,
         id: i64,
