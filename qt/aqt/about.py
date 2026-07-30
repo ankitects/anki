@@ -3,6 +3,7 @@
 
 import platform
 from collections.abc import Callable
+from typing import Optional
 
 import aqt.forms
 from anki.lang import without_unicode_isolation
@@ -13,7 +14,7 @@ from aqt.qt import *
 from aqt.utils import disable_help_button, supportText, tooltip, tr
 
 
-def brainlift_build_line(commit: str | None = None) -> str:
+def brainlift_build_line(commit: Optional[str] = None) -> str:
     """Return the optional Brainlift build line shown in About."""
     if commit is None:
         commit = brainlift_commit()
