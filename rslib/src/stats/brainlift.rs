@@ -598,6 +598,161 @@ mod tests {
         Ok(())
     }
 
+    #[test]
+    fn topic_matching_is_case_insensitive_hierarchical_and_deduplicated() -> Result<()> {
+        let mut col = Collection::new();
+        let card_id = add_tagged_card(
+            &mut col,
+            &[
+                "MCAT::Biology::Cells",
+                "mcat::BIOLOGY::Genetics",
+                "MCAT::CHEMISTRY::Organic",
+            ],
+        );
+        add_reviews(
+            &mut col,
+            card_id,
+            1,
+            1,
+            1_700_000_800_000,
+            RevlogReviewKind::Review,
+        )?;
+
+        let snapshot = col.brainlift_score_snapshot(request())?;
+
+        assert_eq!(snapshot.memory.unwrap().rated_reviews, 1);
+        assert_eq!(snapshot.topics[0].rated_reviews, 1);
+        assert_eq!(snapshot.topics[0].successful_reviews, 1);
+        assert_eq!(snapshot.topics[1].rated_reviews, 1);
+        assert_eq!(snapshot.topics[1].successful_reviews, 1);
+        Ok(())
+    }
+
+    #[test]
+    fn invalid_topic_requests_are_rejected() {
+        let mut col = Collection::new();
+        let invalid_requests = [
+            (
+                vec![BrainliftTopic {
+                    name: "  ".into(),
+                    tag: BIOLOGY_TAG.into(),
+                }],
+                "brainlift topics require non-empty names and tags",
+            ),
+            (
+                vec![BrainliftTopic {
+                    name: "Biology".into(),
+                    tag: "\t".into(),
+                }],
+                "brainlift topics require non-empty names and tags",
+            ),
+            (
+                vec![
+                    BrainliftTopic {
+                        name: "Biology".into(),
+                        tag: "MCAT::BIOLOGY".into(),
+                    },
+                    BrainliftTopic {
+                        name: "Duplicate".into(),
+                        tag: "mcat::biology".into(),
+                    },
+                ],
+                "brainlift topic tags must be unique",
+            ),
+        ];
+
+        for (topics, expected_message) in invalid_requests {
+            let error = col
+                .brainlift_score_snapshot(BrainliftScoreRequest { topics })
+                .unwrap_err();
+            match error {
+                AnkiError::InvalidInput { source } => {
+                    assert_eq!(source.message(), expected_message);
+                }
+                error => panic!("expected invalid input, got {error:?}"),
+            }
+        }
+    }
+
+    #[test]
+    fn wilson_ranges_and_confidence_change_at_declared_boundaries() {
+        assert!(super::wilson_range(0, 0).is_none());
+
+        let all_failed = super::wilson_range(0, 10).unwrap();
+        assert_eq!(all_failed.lower, 0.0);
+        assert!(all_failed.upper > 0.0 && all_failed.upper < 1.0);
+
+        let all_succeeded = super::wilson_range(10, 10).unwrap();
+        assert!(all_succeeded.lower > 0.0 && all_succeeded.lower < 1.0);
+        assert!((all_succeeded.upper - 1.0).abs() <= f64::EPSILON);
+
+        assert_eq!(super::confidence(29, 1.0), super::Confidence::Low);
+        assert_eq!(
+            super::confidence(30, READINESS_MIN_TOPIC_COVERAGE - f64::EPSILON),
+            super::Confidence::Low
+        );
+        assert_eq!(
+            super::confidence(30, READINESS_MIN_TOPIC_COVERAGE),
+            super::Confidence::Medium
+        );
+        assert_eq!(super::confidence(99, 1.0), super::Confidence::Medium);
+        assert_eq!(
+            super::confidence(100, 1.0 - f64::EPSILON),
+            super::Confidence::Medium
+        );
+        assert_eq!(super::confidence(100, 1.0), super::Confidence::High);
+    }
+
+    #[test]
+    fn snapshot_excludes_non_scheduling_reviews() -> Result<()> {
+        let mut col = Collection::new();
+        let card_id = add_tagged_card(&mut col, &[BIOLOGY_TAG]);
+        add_reviews_with_factor(
+            &mut col,
+            card_id,
+            1_700_000_900_000,
+            RevlogReviewKind::Manual,
+            2_500,
+        )?;
+        add_reviews_with_factor(
+            &mut col,
+            card_id,
+            1_700_000_900_001,
+            RevlogReviewKind::Rescheduled,
+            2_500,
+        )?;
+        add_reviews_with_factor(
+            &mut col,
+            card_id,
+            1_700_000_900_002,
+            RevlogReviewKind::Filtered,
+            0,
+        )?;
+        add_reviews_with_factor(
+            &mut col,
+            card_id,
+            1_700_000_900_003,
+            RevlogReviewKind::Review,
+            0,
+        )?;
+        add_reviews_with_factor(
+            &mut col,
+            card_id,
+            1_700_000_900_004,
+            RevlogReviewKind::Filtered,
+            2_500,
+        )?;
+
+        let snapshot = col.brainlift_score_snapshot(request())?;
+        let memory = snapshot.memory.unwrap();
+
+        assert_eq!(memory.rated_reviews, 2);
+        assert_eq!(memory.successful_reviews, 2);
+        assert_eq!(snapshot.topics[0].rated_reviews, 2);
+        assert!(snapshot.topics[0].covered);
+        Ok(())
+    }
+
     fn request() -> BrainliftScoreRequest {
         BrainliftScoreRequest {
             topics: vec![
@@ -640,6 +795,27 @@ mod tests {
                 false,
             )?;
         }
+        Ok(())
+    }
+
+    fn add_reviews_with_factor(
+        col: &mut Collection,
+        card_id: CardId,
+        id: i64,
+        review_kind: RevlogReviewKind,
+        ease_factor: u32,
+    ) -> Result<()> {
+        col.storage.add_revlog_entry(
+            &RevlogEntry {
+                id: RevlogId(id),
+                cid: card_id,
+                button_chosen: 3,
+                review_kind,
+                ease_factor,
+                ..Default::default()
+            },
+            false,
+        )?;
         Ok(())
     }
 }
