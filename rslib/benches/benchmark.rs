@@ -103,6 +103,10 @@ fn stop_tracking_allocations() -> usize {
     PEAK_LIVE_HEAP_BYTES.load(Ordering::Relaxed)
 }
 
+fn p95_index(sample_count: usize) -> usize {
+    (sample_count * 95).div_ceil(100).saturating_sub(1)
+}
+
 pub fn criterion_benchmark(c: &mut Criterion) {
     c.bench_function("anki_tag_parse", |b| b.iter(|| anki_directive_benchmark()));
     brainlift_score_snapshot_50k(c);
@@ -110,6 +114,7 @@ pub fn criterion_benchmark(c: &mut Criterion) {
 
 fn brainlift_score_snapshot_50k(c: &mut Criterion) {
     const CARD_COUNT: usize = 50_000;
+    const SAMPLE_COUNT: usize = 20;
     const TOPIC_COUNT: usize = 100;
 
     let mut col = CollectionBuilder::default().build().unwrap();
@@ -139,7 +144,7 @@ fn brainlift_score_snapshot_50k(c: &mut Criterion) {
     let request = BrainliftScoreRequest { topics };
 
     let mut peak_additional_bytes = 0;
-    for _ in 0..20 {
+    for _ in 0..SAMPLE_COUNT {
         start_tracking_allocations();
         let snapshot = black_box(col.brainlift_score_snapshot(request.clone()).unwrap());
         black_box(&snapshot);
@@ -147,15 +152,17 @@ fn brainlift_score_snapshot_50k(c: &mut Criterion) {
         peak_additional_bytes = peak_additional_bytes.max(stop_tracking_allocations());
     }
 
-    let mut samples = Vec::with_capacity(20);
-    for _ in 0..20 {
+    let mut samples = Vec::with_capacity(SAMPLE_COUNT);
+    for _ in 0..SAMPLE_COUNT {
         let started = Instant::now();
         let _ = black_box(col.brainlift_score_snapshot(request.clone()).unwrap());
         samples.push(started.elapsed());
     }
     samples.sort_unstable();
     let median = samples[samples.len() / 2];
-    let p95 = samples[(samples.len() * 95 / 100).min(samples.len() - 1)];
+    let p95_sample_index = p95_index(samples.len());
+    assert_eq!(p95_sample_index, 18, "p95 index regression check");
+    let p95 = samples[p95_sample_index];
     let worst = *samples.last().unwrap_or(&Duration::ZERO);
     eprintln!(
         "brainlift_score_snapshot_50k median_ms={} p95_ms={} worst_ms={} \
