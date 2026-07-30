@@ -18,19 +18,16 @@ struct EvidenceTopic: Sendable {
     let tag: String
 
     static let mcat = [
+        EvidenceTopic(name: "Biochemistry", tag: "mcat::biochemistry"),
+        EvidenceTopic(name: "Biology", tag: "mcat::biology"),
+        EvidenceTopic(name: "General Chemistry", tag: "mcat::general-chemistry"),
+        EvidenceTopic(name: "Organic Chemistry", tag: "mcat::organic-chemistry"),
+        EvidenceTopic(name: "Physics", tag: "mcat::physics"),
         EvidenceTopic(
-            name: "Chemical and Physical Foundations",
-            tag: "mcat::chemical-physical"
+            name: "Psychology and Sociology",
+            tag: "mcat::psychology-sociology"
         ),
         EvidenceTopic(name: "Critical Analysis and Reasoning", tag: "mcat::cars"),
-        EvidenceTopic(
-            name: "Biological and Biochemical Foundations",
-            tag: "mcat::biological-biochemical"
-        ),
-        EvidenceTopic(
-            name: "Psychological, Social, and Biological Foundations",
-            tag: "mcat::psychological-social"
-        ),
     ]
 }
 

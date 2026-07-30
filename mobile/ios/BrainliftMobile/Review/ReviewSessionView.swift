@@ -74,6 +74,7 @@ struct ReviewSessionView: View {
         .task {
             guard model.phase == .loading else { return }
             syncCoordinator.setCompletion {
+                await model.reloadAfterSync()
                 await scoreModel.refresh()
             }
             await model.start()

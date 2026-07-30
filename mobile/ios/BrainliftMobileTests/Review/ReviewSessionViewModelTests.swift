@@ -79,6 +79,30 @@ final class ReviewSessionViewModelTests: XCTestCase {
         XCTAssertEqual(model.phase, .answer)
         XCTAssertEqual(model.displayedHTML, "<i>Answer</i>")
         XCTAssertTrue(model.canGrade)
+        XCTAssertEqual(backend.integrityCheckCount, 0)
+    }
+
+    func testReloadAfterSyncInvalidatesCardAndReloadsSelectedDeck() async {
+        let backend = ReviewBackendSpy(
+            decks: [ReviewDeck(id: 7, name: "MCAT", dueCount: 2)],
+            cards: [.fixture(id: 101, question: "Before sync", answer: "Old answer")]
+        )
+        let model = ReviewSessionViewModel(backend: backend)
+
+        await model.start()
+        await model.selectDeck(backend.decks[0])
+        XCTAssertEqual(model.card?.id, 101)
+
+        backend.decks = [ReviewDeck(id: 7, name: "MCAT", dueCount: 1)]
+        backend.cards = [.fixture(id: 202, question: "After sync", answer: "New answer")]
+        await model.reloadAfterSync()
+
+        XCTAssertEqual(model.selectedDeck, backend.decks[0])
+        XCTAssertEqual(model.decks, backend.decks)
+        XCTAssertEqual(model.card?.id, 202)
+        XCTAssertEqual(model.displayedHTML, "After sync")
+        XCTAssertEqual(model.phase, .question)
+        XCTAssertFalse(model.canUndo)
     }
 
     func testGradeForwardsSelectedRustStateAndCustomDataThenLoadsNextCard() async {
@@ -179,7 +203,7 @@ final class ReviewSessionViewModelTests: XCTestCase {
         XCTAssertFalse(model.canUndo)
     }
 
-    func testCloseAndReopenPreservesReviewAndChecksIntegrity() async {
+    func testCloseAndReopenPreservesReviewWithoutAutomaticIntegrityRepair() async {
         let first = ReviewCard.fixture(id: 101, question: "Q1", answer: "A1")
         let backend = ReviewBackendSpy(
             decks: [ReviewDeck(id: 7, name: "MCAT", dueCount: 1)],
@@ -200,7 +224,7 @@ final class ReviewSessionViewModelTests: XCTestCase {
 
         XCTAssertTrue(backend.didCloseCollection)
         XCTAssertEqual(backend.openCount, 2)
-        XCTAssertEqual(backend.integrityCheckCount, 2)
+        XCTAssertEqual(backend.integrityCheckCount, 0)
         XCTAssertEqual(backend.answers.count, 1)
         XCTAssertEqual(reopened.phase, .finished)
     }

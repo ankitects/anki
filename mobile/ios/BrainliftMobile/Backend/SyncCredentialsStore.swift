@@ -16,21 +16,34 @@ struct SyncCredentials: Codable, Equatable, CustomStringConvertible, Sendable {
 struct SyncCredentialsStore: Sendable {
     private let service: String
     private let account = "anki-sync"
+    private let keychain: any KeychainAccess
 
-    init(service: String = "com.techmexdev.BrainliftMobile") {
+    init(
+        service: String = "com.techmexdev.BrainliftMobile",
+        keychain: any KeychainAccess = SystemKeychainAccess()
+    ) {
         self.service = service
+        self.keychain = keychain
     }
 
     func save(_ credentials: SyncCredentials) throws {
         let data = try JSONEncoder().encode(credentials)
-        let query = baseQuery.merging([
+        let attributes: [String: Any] = [
             kSecValueData as String: data,
             kSecAttrAccessible as String: kSecAttrAccessibleAfterFirstUnlockThisDeviceOnly,
-        ]) { _, new in new }
-        SecItemDelete(baseQuery as CFDictionary)
-        let status = SecItemAdd(query as CFDictionary, nil)
-        guard status == errSecSuccess else {
-            throw KeychainError(status)
+        ]
+        let updateStatus = keychain.update(baseQuery, attributes: attributes)
+        if updateStatus == errSecSuccess {
+            return
+        }
+        guard updateStatus == errSecItemNotFound else {
+            throw KeychainError(updateStatus)
+        }
+
+        let query = baseQuery.merging(attributes) { _, new in new }
+        let addStatus = keychain.add(query)
+        guard addStatus == errSecSuccess else {
+            throw KeychainError(addStatus)
         }
     }
 
@@ -39,19 +52,18 @@ struct SyncCredentialsStore: Sendable {
             kSecReturnData as String: true,
             kSecMatchLimit as String: kSecMatchLimitOne,
         ]) { _, new in new }
-        var result: CFTypeRef?
-        let status = SecItemCopyMatching(query as CFDictionary, &result)
-        if status == errSecItemNotFound {
+        let result = keychain.copyMatching(query)
+        if result.status == errSecItemNotFound {
             return nil
         }
-        guard status == errSecSuccess, let data = result as? Data else {
-            throw KeychainError(status)
+        guard result.status == errSecSuccess, let data = result.data else {
+            throw KeychainError(result.status)
         }
         return try JSONDecoder().decode(SyncCredentials.self, from: data)
     }
 
     func delete() throws {
-        let status = SecItemDelete(baseQuery as CFDictionary)
+        let status = keychain.delete(baseQuery)
         guard status == errSecSuccess || status == errSecItemNotFound else {
             throw KeychainError(status)
         }
@@ -63,6 +75,44 @@ struct SyncCredentialsStore: Sendable {
             kSecAttrService as String: service,
             kSecAttrAccount as String: account,
         ]
+    }
+}
+
+struct KeychainReadResult: Sendable {
+    let status: OSStatus
+    let data: Data?
+}
+
+protocol KeychainAccess: Sendable {
+    func update(
+        _ query: [String: Any],
+        attributes: [String: Any]
+    ) -> OSStatus
+    func add(_ attributes: [String: Any]) -> OSStatus
+    func copyMatching(_ query: [String: Any]) -> KeychainReadResult
+    func delete(_ query: [String: Any]) -> OSStatus
+}
+
+struct SystemKeychainAccess: KeychainAccess {
+    func update(
+        _ query: [String: Any],
+        attributes: [String: Any]
+    ) -> OSStatus {
+        SecItemUpdate(query as CFDictionary, attributes as CFDictionary)
+    }
+
+    func add(_ attributes: [String: Any]) -> OSStatus {
+        SecItemAdd(attributes as CFDictionary, nil)
+    }
+
+    func copyMatching(_ query: [String: Any]) -> KeychainReadResult {
+        var result: CFTypeRef?
+        let status = SecItemCopyMatching(query as CFDictionary, &result)
+        return KeychainReadResult(status: status, data: result as? Data)
+    }
+
+    func delete(_ query: [String: Any]) -> OSStatus {
+        SecItemDelete(query as CFDictionary)
     }
 }
 

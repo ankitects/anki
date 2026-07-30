@@ -37,7 +37,6 @@ final class ReviewSessionViewModel: ObservableObject {
         errorMessage = nil
         do {
             try await backend.openReviewCollection()
-            try await backend.checkReviewCollection()
             decks = try await backend.reviewDecks()
             phase = .choosingDeck
         } catch {
@@ -111,6 +110,30 @@ final class ReviewSessionViewModel: ObservableObject {
         }
     }
 
+    func reloadAfterSync() async {
+        let selectedDeckID = selectedDeck?.id
+        phase = .loading
+        card = nil
+        canUndo = false
+        errorMessage = nil
+        do {
+            decks = try await backend.reviewDecks()
+            guard
+                let selectedDeckID,
+                let reloadedDeck = decks.first(where: { $0.id == selectedDeckID })
+            else {
+                selectedDeck = nil
+                phase = .choosingDeck
+                return
+            }
+            selectedDeck = reloadedDeck
+            try await backend.selectReviewDeck(id: selectedDeckID)
+            try await loadNextCard()
+        } catch {
+            fail(error)
+        }
+    }
+
     func close() async {
         do {
             try await backend.closeReviewCollection()
@@ -131,4 +154,3 @@ final class ReviewSessionViewModel: ObservableObject {
         phase = .error
     }
 }
-
