@@ -13,6 +13,11 @@ import aqt.operations
 from anki.collection import Collection, OpChanges
 from anki.decks import DeckCollapseScope, DeckId, DeckTreeNode
 from aqt import AnkiQt, gui_hooks
+from aqt.brainlift import (
+    BrainliftDashboard,
+    brainlift_dashboard,
+    render_brainlift_html,
+)
 from aqt.deckoptions import display_options_for_deck_id
 from aqt.operations import QueryOp
 from aqt.operations.deck import (
@@ -42,6 +47,7 @@ class RenderData:
     current_deck_id: DeckId
     studied_today: str
     sched_upgrade_required: bool
+    brainlift: BrainliftDashboard
 
 
 @dataclass
@@ -164,6 +170,7 @@ class DeckBrowser:
                     current_deck_id=col.decks.get_current_id(),
                     studied_today=col.studied_today(),
                     sched_upgrade_required=not col.v3_scheduler(),
+                    brainlift=brainlift_dashboard(col),
                 )
 
             def success(output: RenderData) -> None:
@@ -205,8 +212,11 @@ class DeckBrowser:
         self.web.eval("window.scrollTo(0, %d, 'instant');" % offset)
 
     def _renderStats(self) -> str:
-        return '<div id="studiedToday"><span>{}</span></div>'.format(
-            self._render_data.studied_today
+        return "{}\n{}".format(
+            render_brainlift_html(self._render_data.brainlift),
+            '<div id="studiedToday"><span>{}</span></div>'.format(
+                self._render_data.studied_today
+            ),
         )
 
     def _renderDeckTree(self, top: DeckTreeNode) -> str:
