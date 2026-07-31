@@ -36,9 +36,14 @@ SUBMAKE := $(MAKE) --print-directory
 BUILDFLAGS := --release --strip
 DEVFLAGS := $(BUILDFLAGS)
 RUNFLAGS :=
+RUN_ENV :=
 CHECKABLE_PY := pylib qt
 CHECKABLE_RS := rslib
 DEVEL := rslib rspy pylib qt
+
+ifneq ($(OS),Windows_NT)
+RUN_ENV := QTWEBENGINE_DISABLE_SANDBOX=1 QTWEBENGINE_CHROMIUM_FLAGS="--no-sandbox --disable-gpu"
+endif
 
 .PHONY: all
 all: run
@@ -51,7 +56,7 @@ pyenv:
 	python --version && \
 	python -m pip install --upgrade pip setuptools && \
 	${ANKI_EXTRA_PIP} && \
-	python -c 'import PyQt5' 2>/dev/null || python -m pip install -r qt/requirements.qt
+	python -m pip install --upgrade --force-reinstall -r qt/requirements.qt
 
 # update build hash
 .PHONY: buildhash
@@ -75,7 +80,7 @@ run: develop
 	@set -eo pipefail && \
 	. "${ACTIVATE_SCRIPT}" && \
 	echo "Starting Anki..."; \
-	python qt/runanki $(RUNFLAGS)
+	$(RUN_ENV) python qt/runanki $(RUNFLAGS)
 
 .PHONY: prepare
 prepare: rslib/ftl/repo qt/ftl/repo qt/po/repo

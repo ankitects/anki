@@ -77,10 +77,10 @@ add_cards_will_show_history_menu = _AddCardsWillShowHistoryMenuHook()
 
 class _AddonConfigEditorWillDisplayJsonFilter:
     """Allows changing the text of the json configuration before actually
-        displaying it to the user. For example, you can replace "\n" by
-        some actual new line. Then you can replace the new lines by "\n"
-        while reading the file and let the user uses real new line in
-        string instead of its encoding."""
+    displaying it to the user. For example, you can replace "\n" by
+    some actual new line. Then you can replace the new lines by "\n"
+    while reading the file and let the user uses real new line in
+    string instead of its encoding."""
 
     _hooks: List[Callable[[str], str]] = []
 
@@ -108,8 +108,8 @@ addon_config_editor_will_display_json = _AddonConfigEditorWillDisplayJsonFilter(
 
 class _AddonConfigEditorWillSaveJsonFilter:
     """Allows changing the text of the json configuration that was
-        received from the user before actually reading it. For
-        example, you can replace new line in strings by some "\n"."""
+    received from the user before actually reading it. For
+    example, you can replace new line in strings by some "\n"."""
 
     _hooks: List[Callable[[str], str]] = []
 
@@ -171,7 +171,7 @@ addons_dialog_did_change_selected_addon = _AddonsDialogDidChangeSelectedAddonHoo
 
 class _AddonsDialogWillShowHook:
     """Allows changing the add-on dialog before it is shown. E.g. add
-        buttons."""
+    buttons."""
 
     _hooks: List[Callable[["aqt.addons.AddonsDialog"], None]] = []
 
@@ -326,40 +326,40 @@ browser_menus_did_init = _BrowserMenusDidInitHook()
 
 class _BrowserWillBuildTreeFilter:
     """Used to add or replace items in the browser sidebar tree
-        
-        'tree' is the root SidebarItem that all other items are added to.
-        
-        'stage' is an enum describing the different construction stages of
-        the sidebar tree at which you can interject your changes.
-        The different values can be inspected by looking at
-        aqt.browser.SidebarStage.
-        
-        If you want Anki to proceed with the construction of the tree stage
-        in question after your have performed your changes or additions,
-        return the 'handled' boolean unchanged.
-        
-        On the other hand, if you want to prevent Anki from adding its own
-        items at a particular construction stage (e.g. in case your add-on
-        implements its own version of that particular stage), return 'True'.
-        
-        If you return 'True' at SidebarStage.ROOT, the sidebar will not be
-        populated by any of the other construction stages. For any other stage
-        the tree construction will just continue as usual.
-        
-        For example, if your code wishes to replace the tag tree, you could do:
-        
-            def on_browser_will_build_tree(handled, root, stage, browser):
-                if stage != SidebarStage.TAGS:
-                    # not at tag tree building stage, pass on
-                    return handled
-                
-                # your tag tree construction code
-                # root.addChild(...)
-                
-                # your code handled tag tree construction, no need for Anki
-                # or other add-ons to build the tag tree
-                return True
-        """
+
+    'tree' is the root SidebarItem that all other items are added to.
+
+    'stage' is an enum describing the different construction stages of
+    the sidebar tree at which you can interject your changes.
+    The different values can be inspected by looking at
+    aqt.browser.SidebarStage.
+
+    If you want Anki to proceed with the construction of the tree stage
+    in question after your have performed your changes or additions,
+    return the 'handled' boolean unchanged.
+
+    On the other hand, if you want to prevent Anki from adding its own
+    items at a particular construction stage (e.g. in case your add-on
+    implements its own version of that particular stage), return 'True'.
+
+    If you return 'True' at SidebarStage.ROOT, the sidebar will not be
+    populated by any of the other construction stages. For any other stage
+    the tree construction will just continue as usual.
+
+    For example, if your code wishes to replace the tag tree, you could do:
+
+        def on_browser_will_build_tree(handled, root, stage, browser):
+            if stage != SidebarStage.TAGS:
+                # not at tag tree building stage, pass on
+                return handled
+
+            # your tag tree construction code
+            # root.addChild(...)
+
+            # your code handled tag tree construction, no need for Anki
+            # or other add-ons to build the tag tree
+            return True
+    """
 
     _hooks: List[
         Callable[
@@ -475,7 +475,7 @@ browser_will_show_context_menu = _BrowserWillShowContextMenuHook()
 
 class _CardLayoutWillShowHook:
     """Allow to change the display of the card layout. After most values are
-         set and before the window is actually shown."""
+    set and before the window is actually shown."""
 
     _hooks: List[Callable[["aqt.clayout.CardLayout"], None]] = []
 
@@ -583,7 +583,7 @@ current_note_type_did_change = _CurrentNoteTypeDidChangeHook()
 
 class _DebugConsoleDidEvaluatePythonFilter:
     """Allows processing the debug result. E.g. logging queries and
-        result, saving last query to display it later..."""
+    result, saving last query to display it later..."""
 
     _hooks: List[Callable[[str, str, QDialog], str]] = []
 
@@ -611,7 +611,7 @@ debug_console_did_evaluate_python = _DebugConsoleDidEvaluatePythonFilter()
 
 class _DebugConsoleWillShowHook:
     """Allows editing the debug window. E.g. setting a default code, or
-        previous code."""
+    previous code."""
 
     _hooks: List[Callable[[QDialog], None]] = []
 
@@ -664,19 +664,19 @@ deck_browser_did_render = _DeckBrowserDidRenderHook()
 
 class _DeckBrowserWillRenderContentHook:
     """Used to modify HTML content sections in the deck browser body
-        
-        'content' contains the sections of HTML content the deck browser body
-        will be updated with.
-        
-        When modifying the content of a particular section, please make sure your
-        changes only perform the minimum required edits to make your add-on work.
-        You should avoid overwriting or interfering with existing data as much
-        as possible, instead opting to append your own changes, e.g.:
-        
-            def on_deck_browser_will_render_content(deck_browser, content):
-                content.stats += "
-<div>my html</div>"
-        """
+
+            'content' contains the sections of HTML content the deck browser body
+            will be updated with.
+
+            When modifying the content of a particular section, please make sure your
+            changes only perform the minimum required edits to make your add-on work.
+            You should avoid overwriting or interfering with existing data as much
+            as possible, instead opting to append your own changes, e.g.:
+
+                def on_deck_browser_will_render_content(deck_browser, content):
+                    content.stats += "
+    <div>my html</div>"
+    """
 
     _hooks: List[
         Callable[
@@ -1092,23 +1092,23 @@ editor_will_use_font_for_field = _EditorWillUseFontForFieldFilter()
 class _EmptyCardsWillBeDeletedFilter:
     """Allow to change the list of cards to delete.
 
-        For example, an add-on creating a method to delete only empty
-        new cards would be done as follow:
-```
-from anki.consts import CARD_TYPE_NEW
-from anki.utils import ids2str
-from aqt import mw
-from aqt import gui_hooks
+            For example, an add-on creating a method to delete only empty
+            new cards would be done as follow:
+    ```
+    from anki.consts import CARD_TYPE_NEW
+    from anki.utils import ids2str
+    from aqt import mw
+    from aqt import gui_hooks
 
-def filter(cids, col):
-    return col.db.list(
-            f"select id from cards where (type={CARD_TYPE_NEW} and (id in {ids2str(cids)))")
+    def filter(cids, col):
+        return col.db.list(
+                f"select id from cards where (type={CARD_TYPE_NEW} and (id in {ids2str(cids)))")
 
-def emptyNewCard():
-    gui_hooks.append(filter)
-    mw.onEmptyCards()
-    gui_hooks.remove(filter)
-```"""
+    def emptyNewCard():
+        gui_hooks.append(filter)
+        mw.onEmptyCards()
+        gui_hooks.remove(filter)
+    ```"""
 
     _hooks: List[Callable[[List[int]], List[int]]] = []
 
@@ -1184,7 +1184,7 @@ media_sync_did_start_or_stop = _MediaSyncDidStartOrStopHook()
 
 class _OverviewDidRefreshHook:
     """Allow to update the overview window. E.g. add the deck name in the
-        title."""
+    title."""
 
     _hooks: List[Callable[["aqt.overview.Overview"], None]] = []
 
@@ -1212,18 +1212,18 @@ overview_did_refresh = _OverviewDidRefreshHook()
 class _OverviewWillRenderContentHook:
     """Used to modify HTML content sections in the overview body
 
-        'content' contains the sections of HTML content the overview body
-        will be updated with.
+            'content' contains the sections of HTML content the overview body
+            will be updated with.
 
-        When modifying the content of a particular section, please make sure your
-        changes only perform the minimum required edits to make your add-on work.
-        You should avoid overwriting or interfering with existing data as much
-        as possible, instead opting to append your own changes, e.g.:
+            When modifying the content of a particular section, please make sure your
+            changes only perform the minimum required edits to make your add-on work.
+            You should avoid overwriting or interfering with existing data as much
+            as possible, instead opting to append your own changes, e.g.:
 
-            def on_overview_will_render_content(overview, content):
-                content.table += "
-<div>my html</div>"
-        """
+                def on_overview_will_render_content(overview, content):
+                    content.table += "
+    <div>my html</div>"
+    """
 
     _hooks: List[
         Callable[["aqt.overview.Overview", "aqt.overview.OverviewContent"], None]
@@ -1414,14 +1414,14 @@ reviewer_did_show_question = _ReviewerDidShowQuestionHook()
 
 class _ReviewerWillAnswerCardFilter:
     """Used to modify the ease at which a card is rated or to bypass
-        rating the card completely.
-        
-        ease_tuple is a tuple consisting of a boolean expressing whether the reviewer
-        should continue with rating the card, and an integer expressing the ease at
-        which the card should be rated.
-        
-        If your code just needs to be notified of the card rating event, you should use
-        the reviewer_did_answer_card hook instead."""
+    rating the card completely.
+
+    ease_tuple is a tuple consisting of a boolean expressing whether the reviewer
+    should continue with rating the card, and an integer expressing the ease at
+    which the card should be rated.
+
+    If your code just needs to be notified of the card rating event, you should use
+    the reviewer_did_answer_card hook instead."""
 
     _hooks: List[
         Callable[[Tuple[bool, int], "aqt.reviewer.Reviewer", Card], Tuple[bool, int]]
@@ -1676,15 +1676,15 @@ style_did_init = _StyleDidInitFilter()
 
 class _TopToolbarDidInitLinksHook:
     """Used to modify or add links in the top toolbar of Anki's main window
-        
-        'links' is a list of HTML link elements. Add-ons can generate their own links
-        by using aqt.toolbar.Toolbar.create_link. Links created in that way can then be
-        appended to the link list, e.g.:
 
-            def on_top_toolbar_did_init_links(links, toolbar):
-                my_link = toolbar.create_link(...)
-                links.append(my_link)
-        """
+    'links' is a list of HTML link elements. Add-ons can generate their own links
+    by using aqt.toolbar.Toolbar.create_link. Links created in that way can then be
+    appended to the link list, e.g.:
+
+        def on_top_toolbar_did_init_links(links, toolbar):
+            my_link = toolbar.create_link(...)
+            links.append(my_link)
+    """
 
     _hooks: List[Callable[[List[str], "aqt.toolbar.Toolbar"], None]] = []
 
@@ -1737,35 +1737,35 @@ undo_state_did_change = _UndoStateDidChangeHook()
 
 class _WebviewDidReceiveJsMessageFilter:
     """Used to handle pycmd() messages sent from Javascript.
-        
-        Message is the string passed to pycmd().
 
-        For messages you don't want to handle, return 'handled' unchanged.
-        
-        If you handle a message and don't want it passed to the original
-        bridge command handler, return (True, None).
-        
-        If you want to pass a value to pycmd's result callback, you can
-        return it with (True, some_value).
-                
-        Context is the instance that was passed to set_bridge_command().
-        It can be inspected to check which screen this hook is firing
-        in, and to get a reference to the screen. For example, if your
-        code wishes to function only in the review screen, you could do:
+    Message is the string passed to pycmd().
 
-            if not isinstance(context, aqt.reviewer.Reviewer):
-                # not reviewer, pass on message
-                return handled
-    
-            if message == "my-mark-action":
-                # our message, call onMark() on the reviewer instance
-                context.onMark()
-                # and don't pass message to other handlers
-                return (True, None)
-            else:
-                # some other command, pass it on
-                return handled
-        """
+    For messages you don't want to handle, return 'handled' unchanged.
+
+    If you handle a message and don't want it passed to the original
+    bridge command handler, return (True, None).
+
+    If you want to pass a value to pycmd's result callback, you can
+    return it with (True, some_value).
+
+    Context is the instance that was passed to set_bridge_command().
+    It can be inspected to check which screen this hook is firing
+    in, and to get a reference to the screen. For example, if your
+    code wishes to function only in the review screen, you could do:
+
+        if not isinstance(context, aqt.reviewer.Reviewer):
+            # not reviewer, pass on message
+            return handled
+
+        if message == "my-mark-action":
+            # our message, call onMark() on the reviewer instance
+            context.onMark()
+            # and don't pass message to other handlers
+            return (True, None)
+        else:
+            # some other command, pass it on
+            return handled
+    """
 
     _hooks: List[Callable[[Tuple[bool, Any], str, Any], Tuple[bool, Any]]] = []
 
@@ -1800,34 +1800,34 @@ webview_did_receive_js_message = _WebviewDidReceiveJsMessageFilter()
 class _WebviewWillSetContentHook:
     """Used to modify web content before it is rendered.
 
-        Web_content contains the HTML, JS, and CSS the web view will be
-        populated with.
+    Web_content contains the HTML, JS, and CSS the web view will be
+    populated with.
 
-        Context is the instance that was passed to stdHtml().
-        It can be inspected to check which screen this hook is firing
-        in, and to get a reference to the screen. For example, if your
-        code wishes to function only in the review screen, you could do:
+    Context is the instance that was passed to stdHtml().
+    It can be inspected to check which screen this hook is firing
+    in, and to get a reference to the screen. For example, if your
+    code wishes to function only in the review screen, you could do:
 
-            def on_webview_will_set_content(web_content: WebContent, context):
-                
-                if not isinstance(context, aqt.reviewer.Reviewer):
-                    # not reviewer, do not modify content
-                    return
-                
-                # reviewer, perform changes to content
-                
-                context: aqt.reviewer.Reviewer
-                
-                addon_package = mw.addonManager.addonFromModule(__name__)
-                
-                web_content.css.append(
-                    f"/_addons/{addon_package}/web/my-addon.css")
-                web_content.js.append(
-                    f"/_addons/{addon_package}/web/my-addon.js")
+        def on_webview_will_set_content(web_content: WebContent, context):
 
-                web_content.head += "<script>console.log('my-addon')</script>"
-                web_content.body += "<div id='my-addon'></div>"
-        """
+            if not isinstance(context, aqt.reviewer.Reviewer):
+                # not reviewer, do not modify content
+                return
+
+            # reviewer, perform changes to content
+
+            context: aqt.reviewer.Reviewer
+
+            addon_package = mw.addonManager.addonFromModule(__name__)
+
+            web_content.css.append(
+                f"/_addons/{addon_package}/web/my-addon.css")
+            web_content.js.append(
+                f"/_addons/{addon_package}/web/my-addon.js")
+
+            web_content.head += "<script>console.log('my-addon')</script>"
+            web_content.body += "<div id='my-addon'></div>"
+    """
 
     _hooks: List[Callable[["aqt.webview.WebContent", Optional[Any]], None]] = []
 

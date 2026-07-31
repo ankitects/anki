@@ -132,12 +132,12 @@ enum ParsedNode<'a> {
 #[derive(Debug)]
 pub struct ParsedTemplate<'a>(Vec<ParsedNode<'a>>);
 
-impl ParsedTemplate<'_> {
+impl<'a> ParsedTemplate<'a> {
     /// Create a template from the provided text.
     ///
     /// The legacy alternate syntax is not supported, so the provided text
     /// should be run through without_legacy_template_directives() first.
-    pub fn from_text(template: &str) -> TemplateResult<ParsedTemplate> {
+    pub fn from_text(template: &'a str) -> TemplateResult<ParsedTemplate<'a>> {
         let mut iter = tokens(template);
         Ok(Self(parse_inner(&mut iter, None)?))
     }

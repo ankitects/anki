@@ -29,15 +29,13 @@ import inspect
 import json
 import os
 import select
+import shutil
 import socket
 import subprocess
 import sys
 import tempfile
 import threading
 import time
-from distutils.spawn import (  # pylint: disable=import-error,no-name-in-module
-    find_executable,
-)
 from queue import Empty, Full, Queue
 from typing import Dict, Optional
 
@@ -74,7 +72,7 @@ class MPVBase:
        based JSON IPC.
     """
 
-    executable = find_executable("mpv")
+    executable = shutil.which("mpv")
     popenEnv: Optional[Dict[str, str]] = None
 
     default_argv = [

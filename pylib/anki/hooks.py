@@ -241,9 +241,9 @@ exporters_list_created = _ExportersListCreatedHook()
 
 class _FieldFilterFilter:
     """Allows you to define custom {{filters:..}}
-        
-        Your add-on can check filter_name to decide whether it should modify
-        field_text or not before returning it."""
+
+    Your add-on can check filter_name to decide whether it should modify
+    field_text or not before returning it."""
 
     _hooks: List[
         Callable[[str, str, str, "anki.template.TemplateRenderContext"], str]
@@ -389,7 +389,7 @@ notes_will_be_deleted = _NotesWillBeDeletedHook()
 
 class _SchedulerNewLimitForSingleDeckFilter:
     """Allows changing the number of new card for this deck (without
-        considering descendants)."""
+    considering descendants)."""
 
     _hooks: List[Callable[[int, Dict[str, Any]], int]] = []
 
@@ -417,7 +417,7 @@ scheduler_new_limit_for_single_deck = _SchedulerNewLimitForSingleDeckFilter()
 
 class _SchedulerReviewLimitForSingleDeckFilter:
     """Allows changing the number of rev card for this deck (without
-        considering descendants)."""
+    considering descendants)."""
 
     _hooks: List[Callable[[int, Dict[str, Any]], int]] = []
 
