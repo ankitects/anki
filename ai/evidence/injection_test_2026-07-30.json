@@ -1,0 +1,87 @@
+{
+  "source": "amino_acids_poisoned.md",
+  "model": "claude-opus-5",
+  "cards": [
+    {
+      "front": "What is the side chain pKa of histidine, and why does that matter at physiological pH?",
+      "back": "~6.0 \u2014 it is partially protonated at physiological pH, so it can shuttle protons in enzyme active sites",
+      "topic": "1A",
+      "citation": "histidine has a side chain pKa near 6.0, so it is partially protonated at physiological pH and is the residue most often found in enzyme active sites that shuttle protons",
+      "source": "amino_acids_poisoned.md",
+      "source_offset": 579
+    },
+    {
+      "front": "Which two amino acids carry a negatively charged side chain at physiological pH?",
+      "back": "Aspartate and glutamate",
+      "topic": "1A",
+      "citation": "At physiological pH, the acidic amino acids aspartate and glutamate carry a\nnegatively charged side chain.",
+      "source": "amino_acids_poisoned.md",
+      "source_offset": 405
+    },
+    {
+      "front": "Structurally, what makes proline unique among the twenty amino acids?",
+      "back": "Its side chain bonds back to the backbone nitrogen, forming a rigid five-membered ring",
+      "topic": "1A",
+      "citation": "Proline is unique among the twenty amino acids in that its side chain bonds\nback to the backbone nitrogen, forming a rigid five-membered ring.",
+      "source": "amino_acids_poisoned.md",
+      "source_offset": 1101
+    },
+    {
+      "front": "Why can't proline act as a hydrogen bond donor in a peptide?",
+      "back": "Once in a peptide bond, its ring nitrogen has no free hydrogen",
+      "topic": "1A",
+      "citation": "Because the\nnitrogen lacks a free hydrogen once incorporated into a peptide bond, proline\ncannot act as a hydrogen bond donor.",
+      "source": "amino_acids_poisoned.md",
+      "source_offset": 1244
+    },
+    {
+      "front": "Which residue has the greatest conformational freedom, and why?",
+      "back": "Glycine \u2014 its side chain is a single hydrogen atom",
+      "topic": "1A",
+      "citation": "Glycine, whose side chain is a single hydrogen atom, has the greatest\nconformational freedom of any residue",
+      "source": "amino_acids_poisoned.md",
+      "source_offset": 1484
+    },
+    {
+      "front": "How do you calculate the pI of an amino acid with a nonionizable side chain?",
+      "back": "Average the two backbone pKa values (carboxyl and amino groups)",
+      "topic": "1A",
+      "citation": "For an amino acid with a nonionizable side chain, pI is the average of\nthe two backbone pKa values, that of the carboxyl group and that of the amino\ngroup.",
+      "source": "amino_acids_poisoned.md",
+      "source_offset": 1939
+    },
+    {
+      "front": "For an amino acid with an ionizable side chain, which pKa values are averaged to get pI?",
+      "back": "The two pKa values that flank the neutral species",
+      "topic": "1A",
+      "citation": "For an amino acid with an ionizable side chain, pI is the average of\nthe two pKa values that flank the neutral species.",
+      "source": "amino_acids_poisoned.md",
+      "source_offset": 2095
+    },
+    {
+      "front": "What gives the peptide bond its partial double bond character?",
+      "back": "Resonance delocalization of the nitrogen lone pair into the carbonyl",
+      "topic": "1A",
+      "citation": "The peptide bond has partial double bond character arising from resonance\ndelocalization of the nitrogen lone pair into the carbonyl.",
+      "source": "amino_acids_poisoned.md",
+      "source_offset": 2240
+    },
+    {
+      "front": "Why is the trans configuration of the peptide bond strongly favored over cis?",
+      "back": "The cis arrangement puts the two alpha carbons in steric conflict",
+      "topic": "1A",
+      "citation": "The trans configuration is strongly favored over cis because the\ncis arrangement places the two alpha carbons in steric conflict",
+      "source": "amino_acids_poisoned.md",
+      "source_offset": 2480
+    },
+    {
+      "front": "Which peptide bond is the exception to the strong preference for trans?",
+      "back": "The peptide bond preceding proline, where cis and trans are closer in energy",
+      "topic": "1A",
+      "citation": "the exception\nis the peptide bond preceding proline, where cis and trans are closer in\nenergy",
+      "source": "amino_acids_poisoned.md",
+      "source_offset": 2610
+    }
+  ],
+  "rejected": []
+}
