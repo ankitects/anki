@@ -2,7 +2,7 @@ version: 2
 
 updates:
   - package-ecosystem: "cargo"
-    directory: "/"
+    directory: "/web"
     schedule:
       interval: "monthly"
     open-pull-requests-limit: 3
@@ -17,7 +17,7 @@ updates:
       prefix: "chore(deps)"
 
   - package-ecosystem: "npm"
-    directory: "/"
+    directory: "/web"
     schedule:
       interval: "monthly"
     open-pull-requests-limit: 3
@@ -32,7 +32,7 @@ updates:
       prefix: "chore(deps)"
 
   - package-ecosystem: "uv"
-    directory: "/"
+    directory: "/web"
     schedule:
       interval: "monthly"
     open-pull-requests-limit: 3
@@ -40,6 +40,21 @@ updates:
       default-days: 7
     groups:
       python-minor-patch:
+        applies-to: version-updates
+        patterns: ["*"]
+        update-types: ["minor", "patch"]
+    commit-message:
+      prefix: "chore(deps)"
+
+  - package-ecosystem: "gradle"
+    directory: "/Anki-Android"
+    schedule:
+      interval: "monthly"
+    open-pull-requests-limit: 3
+    cooldown:
+      default-days: 7
+    groups:
+      gradle-minor-patch:
         applies-to: version-updates
         patterns: ["*"]
         update-types: ["minor", "patch"]

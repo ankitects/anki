@@ -1,0 +1,13 @@
+# Repository-level operating-system and editor files.
+.DS_Store
+Thumbs.db
+/.idea/
+/.vscode/
+**/.yarn/
+
+# Local agent settings and worktrees.
+/.claude/settings.local.json
+/.claude/user.md
+/.claude/worktrees/
+
+# Each application owns its build and tool ignores in its own .gitignore.

@@ -1,0 +1,46 @@
+name: Repository Structure
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+        with:
+          submodules: recursive
+
+      - name: Verify application roots
+        shell: bash
+        run: |
+          test -f web/Cargo.toml
+          test -f web/pyproject.toml
+          test -f web/justfile
+          test -f Anki-Android/settings.gradle.kts
+          test -x Anki-Android/gradlew
+
+      - name: Verify desktop submodule locations
+        shell: bash
+        run: |
+          git config --file .gitmodules --get-regexp '^submodule\..*\.path$' |
+            awk '{print $2}' |
+            while read -r path; do
+              case "$path" in
+                web/*) test -e "$path" ;;
+                *) echo "Desktop submodule outside web/: $path" >&2; exit 1 ;;
+              esac
+            done
+
+      - name: Reject nested Git repositories
+        shell: bash
+        run: |
+          test ! -e web/.git
+          test ! -e Anki-Android/.git
