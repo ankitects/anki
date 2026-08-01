@@ -244,3 +244,52 @@ fn fsrs_params_stripped_on_export_without_scheduling() {
     assert!(conf.inner.fsrs_params_5.is_empty());
     assert!(conf.inner.fsrs_params_6.is_empty());
 }
+
+#[test]
+fn probes_survive_apkg_roundtrip() {
+    let (mut src_col, src_tempdir) = open_fs_test_collection("src");
+    let (mut target_col, _target_tempdir) = open_fs_test_collection("target");
+    let apkg_path = src_tempdir.path().join("probes.apkg");
+
+    let note = NoteAdder::basic(&mut src_col).add(&mut src_col);
+    let src_card_id = src_col
+        .storage
+        .all_cards_of_note(note.id)
+        .unwrap()
+        .pop()
+        .unwrap()
+        .id;
+    let probe = crate::probe::test::add_test_probe(&mut src_col, src_card_id);
+
+    src_col
+        .export_apkg(
+            &apkg_path,
+            ExportAnkiPackageOptions {
+                with_scheduling: true,
+                with_deck_configs: true,
+                with_media: false,
+                legacy: false,
+            },
+            SearchNode::WholeCollection,
+            None,
+        )
+        .unwrap();
+    target_col
+        .import_apkg(&apkg_path, ImportAnkiPackageOptions::default())
+        .unwrap();
+
+    // the probe should have followed its parent card, with the card id
+    // remapped to whatever the target collection assigned
+    let target_card_id = target_col
+        .storage
+        .get_all_cards()
+        .pop()
+        .expect("card should have been imported")
+        .id;
+    let imported = target_col.get_probes_for_card(target_card_id).unwrap();
+    assert_eq!(imported.len(), 1);
+    assert_eq!(imported[0].question, probe.question);
+    assert_eq!(imported[0].citation, probe.citation);
+    assert_eq!(imported[0].provenance, probe.provenance);
+    assert_eq!(imported[0].card_id, target_card_id);
+}

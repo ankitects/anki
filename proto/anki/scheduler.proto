@@ -64,6 +64,10 @@ service SchedulerService {
   // The number of days the calculated interval was fuzzed by on the previous
   // review (if any). Utilized by the FSRS add-on.
   rpc FuzzDelta(FuzzDeltaRequest) returns (FuzzDeltaResponse);
+  // Ascent fork: probe management. Service methods are addressed
+  // positionally, so new rpcs must only ever be appended here.
+  rpc AddProbe(Probe) returns (generic.Int64);
+  rpc GetProbes(cards.CardId) returns (Probes);
 }
 
 // Implicitly includes any of the above methods that are not listed in the
@@ -142,6 +146,10 @@ message QueuedCards {
     Queue queue = 2;
     SchedulingStates states = 3;
     SchedulingContext context = 4;
+    // Ascent fork: set when the scheduler chose to serve this probe
+    // variant instead of the original card. Clients that show it must
+    // echo its id in CardAnswer.variant_id.
+    Probe probe = 5;
   }
 
   repeated QueuedCard cards = 1;
@@ -287,6 +295,30 @@ message CardAnswer {
   // report it, so it can be told apart from a real zero. Stored uncapped;
   // the deck's answer time limit only applies to milliseconds_taken.
   optional uint32 milliseconds_to_reveal = 7;
+  // Ascent fork: id of the probe variant that was actually shown in place
+  // of the original card. The client must echo QueuedCard.probe.id here;
+  // unset means the original card was shown. Recorded in the revlog's
+  // data column, and must not influence scheduling.
+  optional int64 variant_id = 8;
+}
+
+// Ascent fork: an AI-generated reworded variant of a card, served instead
+// of the original when the scheduler is already confident of a pass.
+message Probe {
+  // 0 when adding; assigned by the backend.
+  int64 id = 1;
+  // The parent card this probe rewords.
+  int64 card_id = 2;
+  string question = 3;
+  string answer = 4;
+  // Source citation, so a probe can be traced back to its material.
+  string citation = 5;
+  // Free-form JSON generation provenance (model, date, prompt hash).
+  string provenance = 6;
+}
+
+message Probes {
+  repeated Probe probes = 1;
 }
 
 message CustomStudyRequest {

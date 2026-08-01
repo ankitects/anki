@@ -381,6 +381,22 @@ impl crate::services::SchedulerService for Collection {
             delta_days: self.get_fuzz_delta(input.card_id.into(), input.interval)?,
         })
     }
+
+    fn add_probe(&mut self, input: scheduler::Probe) -> Result<generic::Int64> {
+        let mut probe: crate::probe::Probe = input.into();
+        self.add_probe(&mut probe)?;
+        Ok(generic::Int64 { val: probe.id.0 })
+    }
+
+    fn get_probes(&mut self, input: cards::CardId) -> Result<scheduler::Probes> {
+        Ok(scheduler::Probes {
+            probes: self
+                .get_probes_for_card(input.into())?
+                .into_iter()
+                .map(Into::into)
+                .collect(),
+        })
+    }
 }
 
 impl crate::services::BackendSchedulerService for Backend {
@@ -499,6 +515,7 @@ mod tests {
                 answered_at_millis: TimestampMillis::now().0,
                 milliseconds_taken: 0,
                 milliseconds_to_reveal: None,
+                variant_id: None,
             },
         )
         .unwrap();

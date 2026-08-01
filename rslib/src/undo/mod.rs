@@ -312,6 +312,7 @@ impl From<&[UndoableChange]> for StateChanges {
                 UndoableChange::Deck(_) => out.deck = true,
                 UndoableChange::Tag(_) => out.tag = true,
                 UndoableChange::Revlog(_) => {}
+                UndoableChange::Probe(_) => {}
                 UndoableChange::Queue(_) => {}
                 UndoableChange::Config(_) => out.config = true,
                 UndoableChange::DeckConfig(_) => out.deck_config = true,

@@ -5,12 +5,14 @@ pub(crate) mod undo;
 
 use num_enum::TryFromPrimitive;
 use serde::Deserialize;
+use serde::Serialize;
 use serde_repr::Deserialize_repr;
 use serde_repr::Serialize_repr;
 use serde_tuple::Serialize_tuple;
 
 use crate::define_newtype;
 use crate::prelude::*;
+use crate::probe::ProbeId;
 use crate::serde::default_on_invalid;
 use crate::serde::deserialize_int_from_number;
 
@@ -64,6 +66,48 @@ pub struct RevlogEntry {
     /// time limit never silently rewrites it.
     #[serde(default)]
     pub reveal_millis: Option<u32>,
+    /// JSON object with optional extra data about the review, mirroring the
+    /// `cards.data` pattern; see [RevlogData]. Empty for ordinary reviews and
+    /// for entries logged before the column existed.
+    #[serde(default)]
+    pub data: String,
+}
+
+/// Helper for serdeing the revlog data column.
+#[derive(Serialize, Deserialize, Debug, Clone, PartialEq, Eq, Default)]
+#[serde(default)]
+pub struct RevlogData {
+    /// The probe variant that was shown in place of the original card.
+    /// None means the original was shown.
+    #[serde(
+        rename = "vid",
+        skip_serializing_if = "Option::is_none",
+        deserialize_with = "default_on_invalid"
+    )]
+    pub variant_id: Option<ProbeId>,
+}
+
+impl RevlogData {
+    pub(crate) fn from_str(s: &str) -> Self {
+        serde_json::from_str(s).unwrap_or_default()
+    }
+
+    /// The empty string when there is nothing to record, so rows for
+    /// ordinary reviews stay identical to ones from older clients.
+    pub(crate) fn to_data_string(&self) -> String {
+        if *self == Self::default() {
+            String::new()
+        } else {
+            serde_json::to_string(self).unwrap_or_default()
+        }
+    }
+}
+
+impl RevlogEntry {
+    /// The probe variant recorded for this review, if any.
+    pub fn variant_id(&self) -> Option<ProbeId> {
+        RevlogData::from_str(&self.data).variant_id
+    }
 }
 
 #[derive(Serialize_repr, Deserialize_repr, Debug, PartialEq, Eq, TryFromPrimitive, Clone, Copy)]
@@ -182,6 +226,7 @@ impl Collection {
             taken_millis: 0,
             review_kind,
             reveal_millis: None,
+            data: String::new(),
         };
         self.add_revlog_entry_undoable(entry)?;
         Ok(())
@@ -204,5 +249,38 @@ mod test {
 
         let json = serde_json::to_string(&entry).unwrap();
         assert_eq!(serde_json::from_str::<RevlogEntry>(&json).unwrap(), entry);
+    }
+
+    #[test]
+    fn data_serde_compat() {
+        // entries from before the data column existed deserialize as empty
+        let entry: RevlogEntry = serde_json::from_str("[1,2,-1,3,5,-60,2500,3000,1]").unwrap();
+        assert_eq!(entry.data, "");
+        assert_eq!(entry.variant_id(), None);
+        let entry: RevlogEntry = serde_json::from_str("[1,2,-1,3,5,-60,2500,3000,1,1500]").unwrap();
+        assert_eq!(entry.data, "");
+
+        let entry: RevlogEntry =
+            serde_json::from_str(r#"[1,2,-1,3,5,-60,2500,3000,1,1500,"{\"vid\":123}"]"#).unwrap();
+        assert_eq!(entry.variant_id(), Some(ProbeId(123)));
+
+        let json = serde_json::to_string(&entry).unwrap();
+        assert_eq!(serde_json::from_str::<RevlogEntry>(&json).unwrap(), entry);
+
+        // unknown keys and invalid content are tolerated
+        assert_eq!(
+            RevlogData::from_str(r#"{"future":1}"#),
+            RevlogData::default()
+        );
+        assert_eq!(RevlogData::from_str("not json"), RevlogData::default());
+        // and nothing to record round-trips as the empty string
+        assert_eq!(RevlogData::default().to_data_string(), "");
+        assert_eq!(
+            RevlogData {
+                variant_id: Some(ProbeId(123))
+            }
+            .to_data_string(),
+            r#"{"vid":123}"#
+        );
     }
 }

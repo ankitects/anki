@@ -43,6 +43,7 @@ fn row_to_revlog_entry(row: &Row) -> Result<RevlogEntry> {
         taken_millis: row.get(7).unwrap_or_default(),
         review_kind: row.get(8).unwrap_or_default(),
         reveal_millis: row.get(9).unwrap_or_default(),
+        data: row.get(10).unwrap_or_default(),
     })
 }
 
@@ -83,7 +84,8 @@ impl SqliteStorage {
                 entry.ease_factor,
                 entry.taken_millis,
                 entry.review_kind as u8,
-                entry.reveal_millis
+                entry.reveal_millis,
+                entry.data
             ])?;
         Ok((added > 0).then(|| RevlogId(self.db.last_insert_rowid())))
     }

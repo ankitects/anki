@@ -195,6 +195,7 @@ impl Collection {
                     rating,
                     milliseconds_taken: 0,
                     milliseconds_to_reveal: None,
+                    variant_id: None,
                     answered_at_millis: TimestampMillis::now().into(),
                 }
                 .into();

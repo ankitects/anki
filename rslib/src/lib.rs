@@ -32,6 +32,7 @@ pub mod notetype;
 pub mod ops;
 mod preferences;
 pub mod prelude;
+pub mod probe;
 mod progress;
 pub mod revlog;
 pub mod scheduler;

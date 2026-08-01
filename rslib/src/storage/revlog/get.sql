@@ -7,5 +7,6 @@ SELECT id,
   factor,
   time,
   type,
-  reveal_millis
+  reveal_millis,
+  data
 FROM revlog

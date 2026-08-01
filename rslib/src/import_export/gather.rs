@@ -12,6 +12,7 @@ use crate::decks::immediate_parent_name;
 use crate::decks::NormalDeck;
 use crate::latex::extract_latex;
 use crate::prelude::*;
+use crate::probe::Probe;
 use crate::progress::ThrottlingProgressHandler;
 use crate::revlog::RevlogEntry;
 use crate::search::CardTableGuard;
@@ -25,6 +26,7 @@ pub(super) struct ExchangeData {
     pub(super) cards: Vec<Card>,
     pub(super) notetypes: Vec<Notetype>,
     pub(super) revlog: Vec<RevlogEntry>,
+    pub(super) probes: Vec<Probe>,
     pub(super) deck_configs: Vec<DeckConfig>,
     pub(super) media_filenames: HashSet<String>,
     pub(super) days_elapsed: u32,
@@ -47,6 +49,7 @@ impl ExchangeData {
         self.cards = cards;
         self.decks = guard.col.gather_decks(with_scheduling, !with_scheduling)?;
         self.notetypes = guard.col.gather_notetypes()?;
+        self.probes = guard.col.storage.get_probes_for_searched_cards()?;
 
         let allow_filtered = self.enables_filtered_decks();
 

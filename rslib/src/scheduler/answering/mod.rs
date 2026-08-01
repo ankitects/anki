@@ -32,6 +32,7 @@ use crate::deckconfig::DeckConfig;
 use crate::deckconfig::LeechAction;
 use crate::decks::Deck;
 use crate::prelude::*;
+use crate::probe::ProbeId;
 use crate::scheduler::fsrs::memory_state::fsrs_item_for_memory_state;
 use crate::scheduler::fsrs::memory_state::get_decay_from_params;
 use crate::scheduler::states::PreviewState;
@@ -54,6 +55,9 @@ pub struct CardAnswer {
     pub milliseconds_taken: u32,
     /// Question shown -> answer revealed; None if the client didn't report it.
     pub milliseconds_to_reveal: Option<u32>,
+    /// The probe variant that was shown instead of the original card, if any.
+    /// Recorded in the revlog data column; must never affect scheduling.
+    pub variant_id: Option<ProbeId>,
     pub custom_data: Option<String>,
     pub from_queue: bool,
 }
@@ -408,14 +412,7 @@ impl Collection {
         usn: Usn,
         answer: &CardAnswer,
     ) -> Result<()> {
-        let revlog = partial.into_revlog_entry(
-            usn,
-            answer.card_id,
-            answer.rating.as_number(),
-            answer.answered_at,
-            answer.milliseconds_taken,
-            answer.milliseconds_to_reveal,
-        );
+        let revlog = partial.into_revlog_entry(usn, answer);
         self.add_revlog_entry_undoable(revlog)?;
         Ok(())
     }
@@ -653,6 +650,7 @@ pub mod test_helpers {
                 answered_at: TimestampMillis::now(),
                 milliseconds_taken: 0,
                 milliseconds_to_reveal: None,
+                variant_id: None,
                 custom_data: None,
                 from_queue: true,
             })?;
@@ -876,6 +874,7 @@ pub(crate) mod test {
             answered_at: TimestampMillis::now(),
             milliseconds_taken: 3000,
             milliseconds_to_reveal: None,
+            variant_id: None,
             custom_data: None,
             from_queue: true,
         })?;
@@ -897,6 +896,7 @@ pub(crate) mod test {
             answered_at: TimestampMillis::now(),
             milliseconds_taken: 70_000,
             milliseconds_to_reveal: Some(65_000),
+            variant_id: None,
             custom_data: None,
             from_queue: true,
         })?;

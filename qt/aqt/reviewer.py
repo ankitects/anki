@@ -3,6 +3,7 @@
 
 from __future__ import annotations
 
+import html
 import json
 import random
 import re
@@ -21,6 +22,7 @@ from anki.lang import with_collapsed_whitespace
 from anki.scheduler.base import ScheduleCardsAsNew
 from anki.scheduler.v3 import (
     CardAnswer,
+    Probe,
     QueuedCards,
     SchedulingContext,
     SchedulingStates,
@@ -81,6 +83,17 @@ def replay_audio(card: Card, question_side: bool) -> None:
         av_player.play_tags(tags)
 
 
+def probe_html(text: str) -> str:
+    """Render probe text for display.
+
+    Probe text is generated, not authored, so it is escaped rather than
+    treated as card HTML. ponytail: plain text is the minimum that lets the
+    substitution be seen; richer probe rendering can come with the
+    generation pipeline.
+    """
+    return f'<div class="probe">{html.escape(text)}</div>'
+
+
 @dataclass
 class V3CardInfo:
     """Stores the top of the card queue for the v3 scheduler.
@@ -104,6 +117,11 @@ class V3CardInfo:
 
     def top_card(self) -> QueuedCards.QueuedCard:
         return self.queued_cards.cards[0]
+
+    def probe(self) -> Probe | None:
+        "The probe variant the scheduler chose to serve, if any."
+        card = self.top_card()
+        return card.probe if card.HasField("probe") else None
 
     def counts(self) -> tuple[int, list[int]]:
         "Returns (idx, counts)."
@@ -393,6 +411,14 @@ class Reviewer:
         bodyclass = theme_manager.body_classes_for_card_ord(c.ord)
         a = self.mw.col.media.escape_media_filenames(c.answer())
 
+        if probe := self._v3.probe():
+            q = probe_html(probe.question)
+            a = probe_html(probe.answer)
+            # the probe replaces the template's type-in field along with the
+            # rest of the question, so don't compare a typed answer that was
+            # never asked for
+            self.typeCorrect = None
+
         self.web.eval(
             f"_showQuestion({json.dumps(q)}, {json.dumps(a)}, '{bodyclass}');"
         )
@@ -476,6 +502,8 @@ class Reviewer:
         av_player.play_tags(sounds)
         a = self._mungeQA(a)
         a = gui_hooks.card_will_show(a, c, "reviewAnswer")
+        if probe := self._v3.probe():
+            a = probe_html(probe.answer)
         # render and update bottom
         self.web.eval(f"_showAnswer({json.dumps(a)});")
         self._showEaseButtons()
@@ -543,10 +571,12 @@ class Reviewer:
             return
 
         sched = cast(V3Scheduler, self.mw.col.sched)
+        probe = self._v3.probe()
         answer = sched.build_answer(
             card=self.card,
             states=self._v3.states,
             rating=self._v3.rating_from_ease(ease),
+            variant_id=probe.id if probe else None,
         )
 
         def after_answer(changes: OpChanges) -> None:

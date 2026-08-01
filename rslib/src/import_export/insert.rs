@@ -13,6 +13,7 @@ impl Collection {
             col.insert_cards(&data.cards)?;
             col.insert_notetypes(&data.notetypes)?;
             col.insert_revlog(&data.revlog)?;
+            col.insert_probes(&data.probes)?;
             col.insert_deck_configs(&data.deck_configs)
         })
     }
@@ -49,6 +50,13 @@ impl Collection {
     fn insert_revlog(&self, revlog: &[RevlogEntry]) -> Result<()> {
         for entry in revlog {
             self.storage.add_revlog_entry(entry, false)?;
+        }
+        Ok(())
+    }
+
+    fn insert_probes(&self, probes: &[crate::probe::Probe]) -> Result<()> {
+        for probe in probes {
+            self.storage.add_probe(probe, false)?;
         }
         Ok(())
     }

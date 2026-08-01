@@ -34,6 +34,7 @@ SchedulingContext = scheduler_pb2.SchedulingContext
 SchedulingStatesWithContext = frontend_pb2.SchedulingStatesWithContext
 SetSchedulingStatesRequest = frontend_pb2.SetSchedulingStatesRequest
 CardAnswer = scheduler_pb2.CardAnswer
+Probe = scheduler_pb2.Probe
 
 
 class Scheduler(SchedulerBaseWithLegacy):
@@ -69,6 +70,7 @@ class Scheduler(SchedulerBaseWithLegacy):
         card: Card,
         states: SchedulingStates,
         rating: CardAnswer.Rating.V,
+        variant_id: int | None = None,
     ) -> CardAnswer:
         "Build input for answer_card()."
         if rating == CardAnswer.AGAIN:
@@ -92,6 +94,8 @@ class Scheduler(SchedulerBaseWithLegacy):
         )
         if (reveal := card.time_to_reveal()) is not None:
             answer.milliseconds_to_reveal = reveal
+        if variant_id is not None:
+            answer.variant_id = variant_id
         return answer
 
     def answer_card(self, input: CardAnswer) -> OpChanges:

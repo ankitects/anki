@@ -1,7 +1,9 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
+use super::CardAnswer;
 use crate::prelude::*;
+use crate::revlog::RevlogData;
 use crate::revlog::RevlogEntry;
 use crate::revlog::RevlogReviewKind;
 use crate::scheduler::states::CardState;
@@ -32,26 +34,22 @@ impl RevlogEntryPartial {
         }
     }
 
-    pub(super) fn into_revlog_entry(
-        self,
-        usn: Usn,
-        cid: CardId,
-        button_chosen: u8,
-        answered_at: TimestampMillis,
-        taken_millis: u32,
-        reveal_millis: Option<u32>,
-    ) -> RevlogEntry {
+    pub(super) fn into_revlog_entry(self, usn: Usn, answer: &CardAnswer) -> RevlogEntry {
         RevlogEntry {
-            id: answered_at.into(),
-            cid,
+            id: answer.answered_at.into(),
+            cid: answer.card_id,
             usn,
-            button_chosen,
+            button_chosen: answer.rating.as_number(),
             interval: self.interval.as_revlog_interval(),
             last_interval: self.last_interval.as_revlog_interval(),
             ease_factor: (self.ease_factor * 1000.0).round() as u32,
-            taken_millis,
+            taken_millis: answer.milliseconds_taken,
             review_kind: self.review_kind,
-            reveal_millis,
+            reveal_millis: answer.milliseconds_to_reveal,
+            data: RevlogData {
+                variant_id: answer.variant_id,
+            }
+            .to_data_string(),
         }
     }
 }

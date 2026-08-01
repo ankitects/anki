@@ -383,6 +383,8 @@ class Anki2Importer(Importer):
                 rev[2] = self.dst.usn()
                 # sources from before the reveal_millis column have 9 fields
                 rev += [None] * (10 - len(rev))
+                # the data column is NOT NULL, so pad with '' rather than None
+                rev += [""] * (11 - len(rev))
                 revlog.append(rev)
             cnt += 1
         # apply
@@ -393,7 +395,7 @@ insert or ignore into cards values (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)""",
         )
         self.dst.db.executemany(
             """
-insert or ignore into revlog values (?,?,?,?,?,?,?,?,?,?)""",
+insert or ignore into revlog values (?,?,?,?,?,?,?,?,?,?,?)""",
             revlog,
         )
 

@@ -2,6 +2,7 @@
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 import copy
+import json
 import os
 import time
 from collections.abc import Callable
@@ -9,10 +10,12 @@ from typing import Dict
 
 import pytest
 
+import anki
 from anki import hooks
 from anki.consts import *
 from anki.lang import without_unicode_isolation
 from anki.scheduler import UnburyDeck
+from anki.scheduler.v3 import CardAnswer
 from anki.utils import int_time
 from tests.shared import getEmptyCol as getEmptyColOrig
 
@@ -1219,3 +1222,70 @@ def test_time_to_reveal():
     )
     assert reveal is not None
     assert reveal <= taken
+
+
+# a probe variant should be served in place of the original once the card is
+# well known, and the shown variant recorded in the revlog data column
+def test_probe_substitution():
+    col = getEmptyCol()
+    note = col.newNote()
+    note["Front"] = "competitive inhibitor: Km and Vmax?"
+    note["Back"] = "Km up, Vmax unchanged"
+    col.addNote(note)
+
+    # make it a well-known review card
+    c = note.cards()[0]
+    c.type = CARD_TYPE_REV
+    c.queue = QUEUE_TYPE_REV
+    c.due = col.sched.today
+    c.ivl = 100
+    c.flush()
+    col.db.execute(
+        "update cards set data = ? where id = ?",
+        '{"s":1000.0,"d":5.0,"lrt":%d}' % int_time(),
+        c.id,
+    )
+
+    probe_id = col._backend.add_probe(
+        anki.scheduler_pb2.Probe(
+            card_id=c.id,
+            question="Same Vmax, twice the substrate for half-max velocity. Which inhibition?",
+            answer="Competitive",
+            citation="Lehninger 6.3",
+            provenance='{"model":"test"}',
+        )
+    )
+    assert probe_id > 0
+    probes = col._backend.get_probes(cid=c.id)
+    assert len(probes) == 1
+    assert probes[0].id == probe_id
+
+    # with the rate at zero, the original is always served
+    conf = col.decks.config_dict_for_deck_id(c.did)
+    conf["probeRate"] = 0.0
+    conf["probeRetrievabilityThreshold"] = 0.85
+    col.decks.update_config(conf)
+    col.sched.reset()
+    queued = col.sched.get_queued_cards().cards[0]
+    assert not queued.HasField("probe")
+
+    # at a rate of one, the probe is served instead
+    conf["probeRate"] = 1.0
+    col.decks.update_config(conf)
+    col.sched.reset()
+    queued = col.sched.get_queued_cards().cards[0]
+    assert queued.HasField("probe")
+    assert queued.probe.id == probe_id
+
+    # and answering echoes the variant into the revlog data column
+    card = col.get_card(c.id)
+    card.start_timer()
+    answer = col.sched.build_answer(
+        card=card,
+        states=queued.states,
+        rating=CardAnswer.GOOD,
+        variant_id=queued.probe.id,
+    )
+    col.sched.answer_card(answer)
+    data = col.db.scalar("select data from revlog order by id desc limit 1")
+    assert json.loads(data)["vid"] == probe_id

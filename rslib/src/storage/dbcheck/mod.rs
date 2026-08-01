@@ -19,14 +19,15 @@ impl super::SqliteStorage {
     /// `new_id` must be a valid id, i.e. lower or equal to `max_valid_id`.
     pub(crate) fn fix_invalid_ids(&self, max_valid_id: i64, new_id: i64) -> Result<()> {
         require!(new_id <= max_valid_id, "new_id is invalid");
-        for (source_table, foreign_table) in [
-            ("notes", Some(("cards", "nid"))),
-            ("cards", Some(("revlog", "cid"))),
-            ("revlog", None),
-        ] {
+        let foreign_tables: [(&str, &[(&str, &str)]); 3] = [
+            ("notes", &[("cards", "nid")]),
+            ("cards", &[("revlog", "cid"), ("probes", "cid")]),
+            ("revlog", &[]),
+        ];
+        for (source_table, foreign_tables) in foreign_tables {
             self.setup_invalid_ids_table(source_table, max_valid_id, new_id)?;
             self.update_invalid_ids_from_table(source_table, "id")?;
-            if let Some((target_table, id_column)) = foreign_table {
+            for (target_table, id_column) in foreign_tables {
                 self.update_invalid_ids_from_table(target_table, id_column)?;
             }
         }

@@ -10,6 +10,7 @@ mod deckconfig;
 mod graves;
 mod note;
 mod notetype;
+mod probe;
 mod revlog;
 mod sqlite;
 mod sync;

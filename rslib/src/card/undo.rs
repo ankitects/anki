@@ -54,6 +54,7 @@ impl Collection {
         card: Card,
         usn: Usn,
     ) -> Result<()> {
+        self.remove_probes_for_card_undoable(card.id)?;
         self.add_card_grave_undoable(card.id, usn)?;
         self.storage.remove_card(card.id)?;
         self.save_undo(UndoableCardChange::Removed(Box::new(card)));

@@ -1,16 +1,11 @@
 INSERT
-  OR IGNORE INTO revlog (
+  OR IGNORE INTO probes (
     id,
     cid,
-    usn,
-    ease,
-    ivl,
-    lastIvl,
-    factor,
-    time,
-    type,
-    reveal_millis,
-    data
+    question,
+    answer,
+    citation,
+    provenance
   )
 VALUES (
     (
@@ -18,19 +13,14 @@ VALUES (
         WHEN ?1
         AND ?2 IN (
           SELECT id
-          FROM revlog
+          FROM probes
         ) THEN (
           SELECT max(id) + 1
-          FROM revlog
+          FROM probes
         )
         ELSE ?2
       END
     ),
-    ?,
-    ?,
-    ?,
-    ?,
-    ?,
     ?,
     ?,
     ?,

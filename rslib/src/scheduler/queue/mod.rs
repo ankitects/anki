@@ -15,14 +15,19 @@ pub(crate) use builder::DueCardKind;
 pub(crate) use builder::NewCard;
 pub(crate) use entry::QueueEntry;
 pub(crate) use entry::QueueEntryKind;
+use fsrs::FSRS5_DEFAULT_DECAY;
 pub(crate) use learning::LearningQueueEntry;
 pub(crate) use main::MainQueueEntry;
 pub(crate) use main::MainQueueEntryKind;
+use rand::rngs::StdRng;
+use rand::Rng;
+use rand::SeedableRng;
 
 use self::undo::QueueUpdate;
 use super::states::SchedulingStates;
 use super::timing::SchedTimingToday;
 use crate::prelude::*;
+use crate::probe::Probe;
 use crate::scheduler::states::load_balancer::LoadBalancer;
 use crate::timestamp::TimestampSecs;
 
@@ -62,6 +67,9 @@ pub struct QueuedCard {
     pub kind: QueueEntryKind,
     pub states: SchedulingStates,
     pub context: SchedulingContext,
+    /// A probe variant chosen to be served in place of the original card.
+    /// Clients that show it must echo its id in `CardAnswer::variant_id`.
+    pub probe: Option<Probe>,
 }
 
 #[derive(Debug)]
@@ -123,6 +131,7 @@ impl Collection {
 
                 Ok(QueuedCard {
                     context: new_scheduling_context(self, &card)?,
+                    probe: self.maybe_probe_substitute(&card, entry.kind())?,
                     card,
                     states: next_states,
                     kind: entry.kind(),
@@ -135,6 +144,63 @@ impl Collection {
             learning_count: counts.learning,
             review_count: counts.review,
         })
+    }
+}
+
+impl Collection {
+    /// Ascent fork: when the scheduler is already confident this review will
+    /// pass, sometimes choose a probe variant to serve instead of the
+    /// original. Purely a presentation decision - card state and scheduling
+    /// are never touched. Sits in a latency-sensitive path, so checks are
+    /// ordered cheapest first, and collections without probes pay only a
+    /// single indexed lookup on an empty table.
+    fn maybe_probe_substitute(
+        &mut self,
+        card: &Card,
+        kind: QueueEntryKind,
+    ) -> Result<Option<Probe>> {
+        if kind != QueueEntryKind::Review {
+            return Ok(None);
+        }
+        let Some(memory_state) = card.memory_state else {
+            return Ok(None);
+        };
+        let probes = self.storage.get_probes_for_card(card.id)?;
+        if probes.is_empty() {
+            return Ok(None);
+        }
+        let config = self.home_deck_config(None, card.original_or_current_deck_id())?;
+        let rate = config.inner.probe_rate;
+        if rate <= 0.0 {
+            return Ok(None);
+        }
+        let now = TimestampSecs::now();
+        let seconds_elapsed = if let Some(last_review_time) = card.last_review_time {
+            now.elapsed_secs_since(last_review_time)
+        } else {
+            self.storage
+                .time_of_last_review(card.id)?
+                .map(|ts| now.elapsed_secs_since(ts))
+                .unwrap_or_default()
+        }
+        .max(0) as f32;
+        let retrievability = fsrs::current_retrievability(
+            memory_state.into(),
+            seconds_elapsed / 86_400.0,
+            card.decay.unwrap_or(FSRS5_DEFAULT_DECAY),
+        );
+        if retrievability < config.inner.probe_retrievability_threshold {
+            return Ok(None);
+        }
+        // Seeded like interval fuzz so refetching the same review is stable,
+        // but perturbed so the coin doesn't correlate with the fuzz factor.
+        let seed = (card.id.0 as u64).wrapping_add(card.reps as u64) ^ 0x50524f4245;
+        let mut rng = StdRng::seed_from_u64(seed);
+        if rng.random_range(0.0..1.0) >= rate {
+            return Ok(None);
+        }
+        let chosen = rng.random_range(0..probes.len());
+        Ok(probes.into_iter().nth(chosen))
     }
 }
 
@@ -297,5 +363,249 @@ impl Collection {
         self.get_queued_cards(1, false)
             .map(|q| [q.new_count, q.learning_count, q.review_count])
             .unwrap_or([0; 3])
+    }
+}
+
+#[cfg(test)]
+mod probe_test {
+    use super::*;
+    use crate::card::CardType;
+    use crate::card::FsrsMemoryState;
+    use crate::deckconfig::DeckConfigInner;
+    use crate::probe::test::add_test_probe;
+    use crate::scheduler::answering::CardAnswer;
+    use crate::scheduler::answering::Rating;
+    use crate::tests::NoteAdder;
+
+    /// A collection of `count` review cards, each due today with a high
+    /// retrievability memory state and one probe attached.
+    fn probe_collection(count: usize, modifier: impl FnOnce(&mut DeckConfigInner)) -> Collection {
+        let mut col = Collection::new();
+        col.update_default_deck_config(modifier);
+        let days_elapsed = col.timing_today().unwrap().days_elapsed as i32;
+        for _ in 0..count {
+            let note = NoteAdder::basic(&mut col).add(&mut col);
+            let mut card = col
+                .storage
+                .all_cards_of_note(note.id)
+                .unwrap()
+                .pop()
+                .unwrap();
+            card.ctype = CardType::Review;
+            card.queue = crate::card::CardQueue::Review;
+            card.due = days_elapsed;
+            card.interval = 10;
+            // stability far above the elapsed time, so retrievability is
+            // very close to 1
+            card.memory_state = Some(FsrsMemoryState {
+                stability: 1000.0,
+                difficulty: 5.0,
+            });
+            card.last_review_time = Some(TimestampSecs::now());
+            col.storage.update_card(&card).unwrap();
+            add_test_probe(&mut col, card.id);
+        }
+        col.clear_study_queues();
+        col
+    }
+
+    fn substituted_count(col: &mut Collection, fetch: usize) -> usize {
+        col.get_queued_cards(fetch, false)
+            .unwrap()
+            .cards
+            .iter()
+            .filter(|c| c.probe.is_some())
+            .count()
+    }
+
+    #[test]
+    fn zero_rate_never_substitutes() {
+        let mut col = probe_collection(50, |c| {
+            c.probe_rate = 0.0;
+            c.probe_retrievability_threshold = 0.85;
+        });
+        assert_eq!(substituted_count(&mut col, 50), 0);
+    }
+
+    #[test]
+    fn served_at_approximately_the_configured_rate() {
+        let mut col = probe_collection(200, |c| {
+            c.probe_rate = 0.5;
+            c.probe_retrievability_threshold = 0.85;
+        });
+        let substituted = substituted_count(&mut col, 200);
+        // the coin is seeded per card, so this is deterministic for a given
+        // set of card ids; the window is wide enough to tolerate that while
+        // still failing if the rate is ignored
+        assert!(
+            (70..=130).contains(&substituted),
+            "expected ~100 of 200 substituted, got {substituted}"
+        );
+
+        // and a rate of 1.0 substitutes every eligible card
+        let mut col = probe_collection(20, |c| {
+            c.probe_rate = 1.0;
+            c.probe_retrievability_threshold = 0.85;
+        });
+        assert_eq!(substituted_count(&mut col, 20), 20);
+    }
+
+    #[test]
+    fn retrievability_below_threshold_is_not_eligible() {
+        let mut col = probe_collection(20, |c| {
+            c.probe_rate = 1.0;
+            c.probe_retrievability_threshold = 0.85;
+        });
+        // shrink stability and push the last review well into the past, so
+        // retrievability falls below the threshold
+        for mut card in col.storage.get_all_cards() {
+            card.memory_state = Some(FsrsMemoryState {
+                stability: 1.0,
+                difficulty: 5.0,
+            });
+            card.last_review_time = Some(TimestampSecs::now().adding_secs(-30 * 86_400));
+            col.storage.update_card(&card).unwrap();
+        }
+        col.clear_study_queues();
+        assert_eq!(substituted_count(&mut col, 20), 0);
+    }
+
+    #[test]
+    fn cards_without_probes_are_never_substituted() {
+        let mut col = probe_collection(5, |c| {
+            c.probe_rate = 1.0;
+            c.probe_retrievability_threshold = 0.85;
+        });
+        col.storage.db.execute_batch("DELETE FROM probes").unwrap();
+        col.clear_study_queues();
+        assert_eq!(substituted_count(&mut col, 5), 0);
+    }
+
+    /// The experiment needs a clean feature-off arm: with the probe rate at
+    /// zero, scheduling must be bit-for-bit what it would be in a collection
+    /// that has no probes at all.
+    #[test]
+    fn zero_rate_leaves_fsrs_scheduling_untouched() {
+        // (interval, ease factor, reps, lapses, memory state, due offset)
+        type CardState = (u32, u16, u32, u32, Option<String>, i32);
+
+        fn study(with_probes: bool) -> Vec<CardState> {
+            let mut col = Collection::new();
+            col.set_config_bool(crate::config::BoolKey::Fsrs, true, false)
+                .unwrap();
+            col.update_default_deck_config(|c| {
+                c.probe_rate = 0.0;
+                c.probe_retrievability_threshold = 0.85;
+            });
+            let days_elapsed = col.timing_today().unwrap().days_elapsed as i32;
+            for _ in 0..5 {
+                let note = NoteAdder::basic(&mut col).add(&mut col);
+                let mut card = col
+                    .storage
+                    .all_cards_of_note(note.id)
+                    .unwrap()
+                    .pop()
+                    .unwrap();
+                card.ctype = CardType::Review;
+                card.queue = crate::card::CardQueue::Review;
+                card.due = days_elapsed;
+                card.interval = 10;
+                card.memory_state = Some(FsrsMemoryState {
+                    stability: 1000.0,
+                    difficulty: 5.0,
+                });
+                card.last_review_time = Some(TimestampSecs::now());
+                col.storage.update_card(&card).unwrap();
+                if with_probes {
+                    add_test_probe(&mut col, card.id);
+                }
+            }
+            col.clear_study_queues();
+
+            for _ in 0..5 {
+                col.answer_good();
+            }
+
+            let mut states: Vec<_> = col
+                .storage
+                .get_all_cards()
+                .into_iter()
+                .map(|c| {
+                    (
+                        c.interval,
+                        c.ease_factor,
+                        c.reps,
+                        c.lapses,
+                        c.memory_state.map(|m| format!("{m:?}")),
+                        c.due - days_elapsed,
+                    )
+                })
+                .collect();
+            states.sort();
+            states
+        }
+
+        let without = study(false);
+        let with = study(true);
+        assert_eq!(with.len(), 5);
+        assert_eq!(
+            with, without,
+            "probes present at rate 0 must not perturb scheduling"
+        );
+    }
+
+    #[test]
+    fn shown_variant_is_recorded_in_the_revlog() {
+        let mut col = probe_collection(1, |c| {
+            c.probe_rate = 1.0;
+            c.probe_retrievability_threshold = 0.85;
+        });
+        let queued = col.get_next_card().unwrap().unwrap();
+        let probe = queued.probe.clone().expect("probe should be served");
+        let card_id = queued.card.id;
+
+        col.answer_card(&mut CardAnswer {
+            card_id,
+            current_state: queued.states.current,
+            new_state: queued.states.good,
+            rating: Rating::Good,
+            answered_at: TimestampMillis::now(),
+            milliseconds_taken: 3000,
+            milliseconds_to_reveal: None,
+            variant_id: Some(probe.id),
+            custom_data: None,
+            from_queue: true,
+        })
+        .unwrap();
+
+        let entries = col.storage.get_revlog_entries_for_card(card_id).unwrap();
+        let entry = entries.iter().max_by_key(|e| e.id).unwrap();
+        assert_eq!(entry.variant_id(), Some(probe.id));
+
+        // answering the original leaves the column empty, so ordinary rows
+        // are byte-identical to ones written by older clients
+        col.storage
+            .db
+            .execute_batch("UPDATE cards SET due = 0")
+            .unwrap();
+        col.clear_study_queues();
+        let queued = col.get_next_card().unwrap().unwrap();
+        col.answer_card(&mut CardAnswer {
+            card_id,
+            current_state: queued.states.current,
+            new_state: queued.states.good,
+            rating: Rating::Good,
+            answered_at: TimestampMillis::now(),
+            milliseconds_taken: 3000,
+            milliseconds_to_reveal: None,
+            variant_id: None,
+            custom_data: None,
+            from_queue: true,
+        })
+        .unwrap();
+        let entries = col.storage.get_revlog_entries_for_card(card_id).unwrap();
+        let entry = entries.iter().max_by_key(|e| e.id).unwrap();
+        assert_eq!(entry.data, "");
+        assert_eq!(entry.variant_id(), None);
     }
 }

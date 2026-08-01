@@ -98,6 +98,12 @@ pub struct DeckConfSchema11 {
     sm2_retention: f32,
     #[serde(default, rename = "weightSearch")]
     param_search: String,
+    // Ascent fork: without these, the values would silently drop when deck
+    // config goes through schema11 JSON on sync/export.
+    #[serde(default)]
+    probe_rate: f32,
+    #[serde(default)]
+    probe_retrievability_threshold: f32,
 
     #[serde(flatten)]
     other: HashMap<String, Value>,
@@ -314,6 +320,8 @@ impl Default for DeckConfSchema11 {
             param_search: "".to_string(),
             ignore_revlogs_before_date: "".to_string(),
             easy_days_percentages: vec![1.0; 7],
+            probe_rate: 0.0,
+            probe_retrievability_threshold: 0.0,
         }
     }
 }
@@ -396,6 +404,8 @@ impl From<DeckConfSchema11> for DeckConfig {
                 desired_retention: c.desired_retention,
                 historical_retention: c.sm2_retention,
                 param_search: c.param_search,
+                probe_rate: c.probe_rate,
+                probe_retrievability_threshold: c.probe_retrievability_threshold,
                 other: other_bytes,
             },
         }
@@ -510,6 +520,8 @@ impl From<DeckConfig> for DeckConfSchema11 {
             param_search: i.param_search,
             ignore_revlogs_before_date: i.ignore_revlogs_before_date,
             easy_days_percentages: i.easy_days_percentages,
+            probe_rate: i.probe_rate,
+            probe_retrievability_threshold: i.probe_retrievability_threshold,
         }
     }
 }
@@ -545,6 +557,8 @@ static RESERVED_DECKCONF_KEYS: Set<&'static str> = phf_set! {
     "weightSearch",
     "ignoreRevlogsBeforeDate",
     "easyDaysPercentages",
+    "probeRate",
+    "probeRetrievabilityThreshold",
 };
 
 static RESERVED_DECKCONF_NEW_KEYS: Set<&'static str> = phf_set! {
@@ -583,6 +597,23 @@ mod test {
         assert_eq!(&s11.lapse.other.keys().collect_vec(), empty);
 
         Ok(())
+    }
+
+    /// Deck config syncs by round-tripping through schema11 JSON, which
+    /// silently drops any proto field the schema11 struct doesn't know about.
+    #[test]
+    fn probe_settings_survive_schema11_roundtrip() {
+        let mut config = DeckConfig::default();
+        config.inner.probe_rate = 0.25;
+        config.inner.probe_retrievability_threshold = 0.85;
+
+        let json = serde_json::to_vec(&DeckConfSchema11::from(config)).unwrap();
+        let restored: DeckConfig = serde_json::from_slice::<DeckConfSchema11>(&json)
+            .unwrap()
+            .into();
+
+        assert_eq!(restored.inner.probe_rate, 0.25);
+        assert_eq!(restored.inner.probe_retrievability_threshold, 0.85);
     }
 
     #[test]

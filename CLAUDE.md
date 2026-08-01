@@ -16,13 +16,46 @@ Anki is a spaced repetition flashcard program with a multi-layered architecture.
 - Protobuf definitions in proto/ that are used by the different layers to
   talk to each other.
 
-## Fork-specific: split review timer
+## Fork-specific: revlog extensions
 
-This fork's revlog has a nullable `reveal_millis` column (schema 19) recording
-question→reveal latency separately from the capped `taken_millis` composite;
-null means "not recorded", never zero. Authoritative docs:
-`rslib/src/revlog/mod.rs`. Sync peers and non-legacy colpkg importers must run
-this fork's code; the legacy (V11) export path drops the column.
+This fork's revlog has two added columns. Authoritative docs live in
+`rslib/src/revlog/mod.rs`; read it before touching either.
+
+- `reveal_millis` (nullable, schema 19) — question→reveal latency, separate
+  from the capped `taken_millis` composite. Null means "not recorded", never
+  zero.
+- `data` (TEXT NOT NULL DEFAULT '', schema 20) — JSON blob mirroring the
+  `cards.data` pattern, currently holding the probe `variant_id`. Put new
+  per-review metadata here rather than adding another column.
+
+Revlog rows sync as fixed-arity positional tuples
+(`sync/collection/chunks.rs`), so **struct field order must match the SQL
+column order** in `storage/revlog/{add,get}.sql` and `row_to_revlog_entry`.
+Sync peers and non-legacy colpkg importers must run this fork's code; the
+legacy (V11) export path drops both columns.
+
+## Fork-specific: probes
+
+A probe is an AI-generated reworded variant of a card, served instead of the
+original when FSRS retrievability is high — see `rslib/src/probe/mod.rs` and
+the substitution branch `Collection::maybe_probe_substitute` in
+`rslib/src/scheduler/queue/mod.rs`. Probe outcomes must not feed back into
+FSRS; the zero-rate arm has to stay bit-identical to stock scheduling
+(`zero_rate_leaves_fsrs_scheduling_untouched` guards this).
+
+Two open seams, deliberately unresolved:
+
+- **Probe content does not sync.** The `probes` table is local; the chunked
+  sync object lists are closed. Outcomes ride the revlog and do sync. How
+  probe text reaches a second device (pre-generated packs, apkg, or
+  per-device regeneration) is an open captain decision.
+- **Probe generation is not implemented.** Probes arrive via the `AddProbe`
+  rpc or apkg import only.
+
+Deck config gotcha: probe settings live on `DeckConfig.Config`, which syncs
+via schema11 JSON — a new proto field **silently drops on sync** unless it is
+also added to `DeckConfSchema11`, both `From` impls, and
+`RESERVED_DECKCONF_KEYS` in `rslib/src/deckconfig/schema11.rs`.
 
 ## Running Anki
 
