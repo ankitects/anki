@@ -26,6 +26,11 @@ web-watch:
 rebuild-web:
     ./tools/rebuild-web
 
+# Generate probes for a deck. e.g. just probe-gen ~/col.anki2 --deck Biochem --dry-run
+probe-gen *args:
+    {{ ninja }} pylib
+    {{ pyenv_bin }} tools/probe_gen.py {{ args }}
+
 # Build wheels (needed for some platforms)
 wheels:
     {{ ninja }} wheels
@@ -185,4 +190,5 @@ run_script := if os() == "windows" { ".\\run.bat" } else { "./run" }
 playwright_env := if os() == "windows" { "set PLAYWRIGHT_BROWSERS_PATH=out\\playwright-browsers&&" } else { "PLAYWRIGHT_BROWSERS_PATH=out/playwright-browsers" }
 yarn := if os() == "windows" { "out\\extracted\\node\\yarn.cmd" } else { "out/extracted/node/bin/yarn" }
 uv := env("UV_BINARY", if os() == "windows" { "out\\extracted\\uv\\uv" } else { "out/extracted/uv/uv" })
+pyenv_bin := if os() == "windows" { "out\\pyenv\\scripts\\python" } else { "out/pyenv/bin/python" }
 export UV_PROJECT_ENVIRONMENT := if os() == "windows" { "out\\pyenv" } else { "out/pyenv" }
