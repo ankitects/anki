@@ -38,6 +38,32 @@ Please do this as a final step before marking a task as completed.
 
 Run `just` (or `just --list`) to see all available commands.
 
+## Build environment (fork-specific)
+
+See [docs/BUILD-NOTES.md](docs/BUILD-NOTES.md) for verified setup steps, build
+times, and the Android/iOS status. The non-obvious parts:
+
+- **Only `ninja` and `just` need installing** (`brew install ninja just`).
+  Do **not** install protoc, Node, uv or Python for the build — it downloads
+  pinned copies of all four into `out/` and ignores whatever is on `PATH`.
+  Git submodules are checked out automatically too.
+- **Use rustup, not Homebrew Rust.** `rust-toolchain.toml` pins 1.92.0, but only
+  rustup honours it. On Homebrew Rust the pin is silently ignored: the build
+  still succeeds, but `check:clippy` fails on upstream files with lints that
+  postdate the pin. That is not a code defect — do not "fix" upstream to satisfy
+  it.
+- Before `just check`: put `~/.cargo/bin` on `PATH` (else `check:minilints` can't
+  find `cargo-license`) and run
+  `git submodule update --init qt/installer/mac-template` (else two
+  `qt/tests/test_installer.py` tests fail). The build only auto-inits the two
+  `ftl/` submodules.
+- Cross-compiling to Android/iOS is impossible without rustup; Homebrew Rust
+  ships only the host std and cannot add targets.
+- `just run -b <dir>` runs against a throwaway collection. Use it — plain
+  `just run` opens your real one.
+- `http://localhost:40000/_anki/pages/*.html` 404s until the matching screen is
+  opened. That is normal, not a broken build.
+
 ## Quick iteration
 
 During development, you can build/check subsections of our code:
@@ -116,3 +142,10 @@ in build scripts/tests is fine.
 ## Individual preferences
 
 See @.claude/user.md
+
+## Maintaining this file
+
+Keep this file for knowledge useful to almost every future agent session in this project.
+Do not repeat what the codebase already shows; point to the authoritative file or command instead.
+Prefer rewriting or pruning existing entries over appending new ones.
+When updating this file, preserve this bar for all agents and keep entries concise.
