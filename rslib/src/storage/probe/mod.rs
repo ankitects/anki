@@ -53,9 +53,31 @@ impl SqliteStorage {
         Ok(())
     }
 
+    pub(crate) fn remove_probes_for_card(&self, card_id: CardId) -> Result<()> {
+        self.db
+            .prepare_cached("delete from probes where cid = ?")?
+            .execute([card_id])?;
+        Ok(())
+    }
+
+    /// Reclaim probes whose parent card is gone. The per-card cascade in
+    /// [SqliteStorage::remove_card] keeps this empty in practice; this is the
+    /// dbcheck backstop.
+    pub(crate) fn delete_orphaned_probes(&self) -> Result<usize> {
+        self.db
+            .prepare("delete from probes where cid not in (select id from cards)")?
+            .execute([])
+            .map_err(Into::into)
+    }
+
+    /// Ordered by id, so a probe chosen by index is stable across refetches
+    /// of the same review.
     pub(crate) fn get_probes_for_card(&self, card_id: CardId) -> Result<Vec<Probe>> {
         self.db
-            .prepare_cached(concat!(include_str!("get.sql"), " where cid = ?"))?
+            .prepare_cached(concat!(
+                include_str!("get.sql"),
+                " where cid = ? order by id"
+            ))?
             .query_and_then([card_id], row_to_probe)?
             .collect()
     }

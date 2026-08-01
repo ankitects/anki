@@ -700,6 +700,18 @@ async fn regular_sync(ctx: &SyncTestContext) -> Result<()> {
     let cardid = col1.search_cards(note.id, SortMode::NoOrder)?[0];
     let revlogid = RevlogId(123);
 
+    // Probe *content* deliberately does not sync - the chunked object lists
+    // are closed - while probe *outcomes* ride the revlog and do. Pin that,
+    // so wiring probes into the chunks later is a conscious decision rather
+    // than an accident.
+    crate::probe::test::add_test_probe(&mut col1, cardid, "local");
+    let out = ctx.normal_sync(&mut col1).await;
+    assert_eq!(out.required, SyncActionRequired::NoChanges);
+    let out = ctx.normal_sync(&mut col2).await;
+    assert_eq!(out.required, SyncActionRequired::NoChanges);
+    assert_eq!(col1.get_probes_for_card(cardid)?.len(), 1);
+    assert!(col2.get_probes_for_card(cardid)?.is_empty());
+
     let compare_sides = |col1: &mut Collection, col2: &mut Collection| -> Result<()> {
         assert_eq!(
             col1.get_notetype(ntid)?.unwrap(),

@@ -259,7 +259,7 @@ fn probes_survive_apkg_roundtrip() {
         .pop()
         .unwrap()
         .id;
-    let probe = crate::probe::test::add_test_probe(&mut src_col, src_card_id);
+    let probe = crate::probe::test::add_test_probe(&mut src_col, src_card_id, "exported");
 
     src_col
         .export_apkg(

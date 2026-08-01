@@ -43,6 +43,11 @@ the substitution branch `Collection::maybe_probe_substitute` in
 FSRS; the zero-rate arm has to stay bit-identical to stock scheduling
 (`zero_rate_leaves_fsrs_scheduling_untouched` guards this).
 
+Probes are owned by their card. SQLite runs with foreign keys off, so the
+cascade is hand-written in `SqliteStorage::remove_card` — the one point sync
+grave application and dbcheck both route through, neither of which builds undo
+entries. Add new card-deletion paths there, not at the call site.
+
 Two open seams, deliberately unresolved:
 
 - **Probe content does not sync.** The `probes` table is local; the chunked

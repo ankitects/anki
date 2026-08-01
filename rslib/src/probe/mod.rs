@@ -89,14 +89,16 @@ pub(crate) mod test {
     use super::*;
     use crate::tests::CardAdder;
 
-    /// Attach a probe to `card_id`, returning it with its assigned id.
-    pub(crate) fn add_test_probe(col: &mut Collection, card_id: CardId) -> Probe {
+    /// Attach a probe to `card_id`, returning it with its assigned id. The
+    /// text embeds `tag` so a probe served for the wrong card, or the wrong
+    /// field mapped onto another, is visible rather than indistinguishable.
+    pub(crate) fn add_test_probe(col: &mut Collection, card_id: CardId, tag: &str) -> Probe {
         let mut probe = Probe {
             card_id,
-            question: "An assay shows unchanged Vmax but doubled Km. Which inhibition?".to_string(),
-            answer: "Competitive".to_string(),
-            citation: "Lehninger 6.3".to_string(),
-            provenance: r#"{"model":"test","date":"2026-07-31"}"#.to_string(),
+            question: format!("question-{tag}"),
+            answer: format!("answer-{tag}"),
+            citation: format!("citation-{tag}"),
+            provenance: format!(r#"{{"model":"test-{tag}"}}"#),
             ..Default::default()
         };
         col.add_probe(&mut probe).unwrap();
@@ -108,24 +110,49 @@ pub(crate) mod test {
         let mut col = Collection::new();
         let card_id = CardAdder::new().add(&mut col)[0].id;
 
-        let probe = add_test_probe(&mut col, card_id);
+        let probe = add_test_probe(&mut col, card_id, "a");
         assert_ne!(probe.id.0, 0, "a fresh id must be assigned");
+        // every field round-trips, not just the id
         assert_eq!(
             col.get_probes_for_card(card_id).unwrap(),
             vec![probe.clone()]
         );
 
-        // a second probe on the same card gets a distinct id and both are
-        // returned
-        let second = add_test_probe(&mut col, card_id);
+        // a second probe on the same card gets a distinct id; both come back,
+        // in id order
+        let second = add_test_probe(&mut col, card_id, "b");
         assert_ne!(second.id, probe.id);
-        assert_eq!(col.get_probes_for_card(card_id).unwrap().len(), 2);
+        assert_eq!(
+            col.get_probes_for_card(card_id).unwrap(),
+            vec![probe.clone(), second]
+        );
 
         // undo removes only the most recent one
         col.undo().unwrap();
         assert_eq!(col.get_probes_for_card(card_id).unwrap(), vec![probe]);
         col.redo().unwrap();
         assert_eq!(col.get_probes_for_card(card_id).unwrap().len(), 2);
+    }
+
+    /// A probe belongs to exactly one card: a sibling card must not see it.
+    #[test]
+    fn not_returned_for_a_different_card() {
+        let mut col = Collection::new();
+        let cards = CardAdder::new().siblings(2).add(&mut col);
+        let (first, second) = (cards[0].id, cards[1].id);
+
+        let probe = add_test_probe(&mut col, first, "first");
+
+        assert_eq!(col.get_probes_for_card(first).unwrap(), vec![probe]);
+        assert!(col.get_probes_for_card(second).unwrap().is_empty());
+
+        // and once the sibling has its own, the two never cross over
+        let other = add_test_probe(&mut col, second, "second");
+        assert_eq!(col.get_probes_for_card(second).unwrap(), vec![other]);
+        assert_eq!(
+            col.get_probes_for_card(first).unwrap()[0].question,
+            "question-first"
+        );
     }
 
     #[test]
@@ -142,7 +169,7 @@ pub(crate) mod test {
     fn removed_with_parent_card() {
         let mut col = Collection::new();
         let card_id = CardAdder::new().add(&mut col)[0].id;
-        add_test_probe(&mut col, card_id);
+        add_test_probe(&mut col, card_id, "a");
 
         col.transact(Op::EmptyCards, |col| {
             col.remove_cards_and_orphaned_notes(&[card_id])
@@ -152,5 +179,37 @@ pub(crate) mod test {
 
         col.undo().unwrap();
         assert_eq!(col.get_probes_for_card(card_id).unwrap().len(), 1);
+    }
+
+    /// Sync grave application and dbcheck delete cards straight through
+    /// storage, with no undo entry; the cascade has to live down there or
+    /// probes leak on every device that receives a peer's deletion.
+    #[test]
+    fn removed_when_card_is_deleted_without_undo() {
+        let mut col = Collection::new();
+        let card_id = CardAdder::new().add(&mut col)[0].id;
+        add_test_probe(&mut col, card_id, "a");
+
+        col.storage.remove_card(card_id).unwrap();
+        assert!(col.get_probes_for_card(card_id).unwrap().is_empty());
+    }
+
+    /// dbcheck's orphan sweep is the backstop for rows that predate the
+    /// cascade, or that a future deletion path forgets.
+    #[test]
+    fn orphans_are_reclaimed_by_the_sweep() {
+        let mut col = Collection::new();
+        let card_id = CardAdder::new().add(&mut col)[0].id;
+        let probe = add_test_probe(&mut col, card_id, "a");
+
+        // delete the card behind the cascade's back
+        col.storage
+            .db
+            .execute("delete from cards where id = ?", [card_id])
+            .unwrap();
+        assert_eq!(col.get_probes_for_card(card_id).unwrap(), vec![probe]);
+
+        assert_eq!(col.storage.delete_orphaned_probes().unwrap(), 1);
+        assert!(col.get_probes_for_card(card_id).unwrap().is_empty());
     }
 }

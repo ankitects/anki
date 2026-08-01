@@ -330,6 +330,7 @@ impl Collection {
             .or_not_found(answer.card_id)?;
         let original = card.clone();
         let usn = self.usn()?;
+        self.validate_variant_id(answer)?;
 
         let mut updater = self.card_state_updater(card)?;
         answer.cap_answer_secs(updater.config.inner.cap_answer_time_to_secs);
@@ -395,6 +396,24 @@ impl Collection {
             )?;
         }
 
+        Ok(())
+    }
+
+    /// The variant id is supplied by the client, and rides the revlog into
+    /// sync, so a wrong one would permanently mislabel the transfer data the
+    /// whole feature exists to collect. Reject anything that isn't a probe of
+    /// the card being answered.
+    fn validate_variant_id(&self, answer: &CardAnswer) -> Result<()> {
+        if let Some(variant_id) = answer.variant_id {
+            require!(
+                self.storage
+                    .get_probes_for_card(answer.card_id)?
+                    .iter()
+                    .any(|p| p.id == variant_id),
+                "variant {variant_id} is not a probe of card {}",
+                answer.card_id
+            );
+        }
         Ok(())
     }
 

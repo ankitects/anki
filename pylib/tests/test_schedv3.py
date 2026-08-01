@@ -1276,6 +1276,12 @@ def test_probe_substitution():
     queued = col.sched.get_queued_cards().cards[0]
     assert queued.HasField("probe")
     assert queued.probe.id == probe_id
+    # the fields must survive the proto round-trip in the right slots: the
+    # reviewer renders probe.question as the question
+    assert queued.probe.question.startswith("Same Vmax")
+    assert queued.probe.answer == "Competitive"
+    assert queued.probe.citation == "Lehninger 6.3"
+    assert queued.probe.card_id == c.id
 
     # and answering echoes the variant into the revlog data column
     card = col.get_card(c.id)
