@@ -32,6 +32,7 @@ use crate::deckconfig::DeckConfig;
 use crate::deckconfig::LeechAction;
 use crate::decks::Deck;
 use crate::prelude::*;
+use crate::probe::ProbeId;
 use crate::scheduler::fsrs::memory_state::fsrs_item_for_memory_state;
 use crate::scheduler::fsrs::memory_state::get_decay_from_params;
 use crate::scheduler::states::PreviewState;
@@ -54,6 +55,9 @@ pub struct CardAnswer {
     pub milliseconds_taken: u32,
     /// Question shown -> answer revealed; None if the client didn't report it.
     pub milliseconds_to_reveal: Option<u32>,
+    /// The probe variant that was shown instead of the original card, if any.
+    /// Recorded in the revlog data column; must never affect scheduling.
+    pub variant_id: Option<ProbeId>,
     pub custom_data: Option<String>,
     pub from_queue: bool,
 }
@@ -326,6 +330,7 @@ impl Collection {
             .or_not_found(answer.card_id)?;
         let original = card.clone();
         let usn = self.usn()?;
+        self.validate_variant_id(answer)?;
 
         let mut updater = self.card_state_updater(card)?;
         answer.cap_answer_secs(updater.config.inner.cap_answer_time_to_secs);
@@ -394,6 +399,24 @@ impl Collection {
         Ok(())
     }
 
+    /// The variant id is supplied by the client, and rides the revlog into
+    /// sync, so a wrong one would permanently mislabel the transfer data the
+    /// whole feature exists to collect. Reject anything that isn't a probe of
+    /// the card being answered.
+    fn validate_variant_id(&self, answer: &CardAnswer) -> Result<()> {
+        if let Some(variant_id) = answer.variant_id {
+            require!(
+                self.storage
+                    .get_probes_for_card(answer.card_id)?
+                    .iter()
+                    .any(|p| p.id == variant_id),
+                "variant {variant_id} is not a probe of card {}",
+                answer.card_id
+            );
+        }
+        Ok(())
+    }
+
     fn maybe_bury_siblings(&mut self, card: &Card, config: &DeckConfig) -> Result<()> {
         let bury_mode = BuryMode::from_deck_config(config);
         if bury_mode.any_burying() {
@@ -408,14 +431,7 @@ impl Collection {
         usn: Usn,
         answer: &CardAnswer,
     ) -> Result<()> {
-        let revlog = partial.into_revlog_entry(
-            usn,
-            answer.card_id,
-            answer.rating.as_number(),
-            answer.answered_at,
-            answer.milliseconds_taken,
-            answer.milliseconds_to_reveal,
-        );
+        let revlog = partial.into_revlog_entry(usn, answer);
         self.add_revlog_entry_undoable(revlog)?;
         Ok(())
     }
@@ -653,6 +669,7 @@ pub mod test_helpers {
                 answered_at: TimestampMillis::now(),
                 milliseconds_taken: 0,
                 milliseconds_to_reveal: None,
+                variant_id: None,
                 custom_data: None,
                 from_queue: true,
             })?;
@@ -876,6 +893,7 @@ pub(crate) mod test {
             answered_at: TimestampMillis::now(),
             milliseconds_taken: 3000,
             milliseconds_to_reveal: None,
+            variant_id: None,
             custom_data: None,
             from_queue: true,
         })?;
@@ -897,6 +915,7 @@ pub(crate) mod test {
             answered_at: TimestampMillis::now(),
             milliseconds_taken: 70_000,
             milliseconds_to_reveal: Some(65_000),
+            variant_id: None,
             custom_data: None,
             from_queue: true,
         })?;

@@ -634,6 +634,10 @@ async fn regular_sync(ctx: &SyncTestContext) -> Result<()> {
         name: "new dconf".into(),
         ..Default::default()
     };
+    // deck config syncs via schema11 JSON, which silently drops proto fields
+    // the schema11 struct doesn't know about; compare_sides below catches it
+    dconf.inner.probe_rate = 0.25;
+    dconf.inner.probe_retrievability_threshold = 0.85;
     col1.add_or_update_deck_config(&mut dconf)?;
     if let DeckKind::Normal(deck) = &mut deck.kind {
         deck.config_id = dconf.id.0;
@@ -651,13 +655,16 @@ async fn regular_sync(ctx: &SyncTestContext) -> Result<()> {
     note.tags.push("tag".into());
     col1.add_note(&mut note, deck.id)?;
 
-    // mock revlog entry
+    // mock revlog entry; revlog rows sync as fixed-arity positional tuples,
+    // so the reveal time and data column have to ride along in order
     col1.storage.add_revlog_entry(
         &RevlogEntry {
             id: RevlogId(123),
             cid: CardId(456),
             usn: Usn(-1),
             interval: 10,
+            reveal_millis: Some(1500),
+            data: r#"{"vid":789}"#.to_string(),
             ..Default::default()
         },
         true,
@@ -692,6 +699,18 @@ async fn regular_sync(ctx: &SyncTestContext) -> Result<()> {
     let noteid = note.id;
     let cardid = col1.search_cards(note.id, SortMode::NoOrder)?[0];
     let revlogid = RevlogId(123);
+
+    // Probe *content* deliberately does not sync - the chunked object lists
+    // are closed - while probe *outcomes* ride the revlog and do. Pin that,
+    // so wiring probes into the chunks later is a conscious decision rather
+    // than an accident.
+    crate::probe::test::add_test_probe(&mut col1, cardid, "local");
+    let out = ctx.normal_sync(&mut col1).await;
+    assert_eq!(out.required, SyncActionRequired::NoChanges);
+    let out = ctx.normal_sync(&mut col2).await;
+    assert_eq!(out.required, SyncActionRequired::NoChanges);
+    assert_eq!(col1.get_probes_for_card(cardid)?.len(), 1);
+    assert!(col2.get_probes_for_card(cardid)?.is_empty());
 
     let compare_sides = |col1: &mut Collection, col2: &mut Collection| -> Result<()> {
         assert_eq!(

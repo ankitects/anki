@@ -4,6 +4,7 @@
 use std::mem;
 
 use crate::prelude::*;
+use crate::probe::ProbeId;
 use crate::scheduler::answering::CardAnswer;
 use crate::scheduler::answering::Rating;
 use crate::scheduler::queue::QueuedCard;
@@ -21,6 +22,7 @@ impl From<anki_proto::scheduler::CardAnswer> for CardAnswer {
             answered_at: TimestampMillis(answer.answered_at_millis),
             milliseconds_taken: answer.milliseconds_taken,
             milliseconds_to_reveal: answer.milliseconds_to_reveal,
+            variant_id: answer.variant_id.map(ProbeId),
             custom_data,
             from_queue: true,
         }
@@ -44,6 +46,7 @@ impl From<QueuedCard> for anki_proto::scheduler::queued_cards::QueuedCard {
             card: Some(queued_card.card.into()),
             states: Some(queued_card.states.into()),
             context: Some(queued_card.context),
+            probe: queued_card.probe.map(Into::into),
             queue: match queued_card.kind {
                 crate::scheduler::queue::QueueEntryKind::New => {
                     anki_proto::scheduler::queued_cards::Queue::New

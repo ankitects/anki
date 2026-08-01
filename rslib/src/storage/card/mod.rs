@@ -246,6 +246,11 @@ impl super::SqliteStorage {
         self.db
             .prepare_cached("delete from cards where id = ?")?
             .execute([cid])?;
+        // Probes are cache-like content owned by the card, and SQLite runs
+        // with foreign keys off here, so the cascade is done by hand at the
+        // one point every caller routes through - including sync grave
+        // application and dbcheck, which never build undo entries.
+        self.remove_probes_for_card(cid)?;
         Ok(())
     }
 
@@ -422,10 +427,12 @@ impl super::SqliteStorage {
     }
 
     pub(crate) fn delete_orphaned_cards(&self) -> Result<usize> {
-        self.db
+        let removed = self
+            .db
             .prepare("delete from cards where nid not in (select id from notes)")?
-            .execute([])
-            .map_err(Into::into)
+            .execute([])?;
+        self.delete_orphaned_probes()?;
+        Ok(removed)
     }
 
     pub(crate) fn all_filtered_cards_by_deck(&self) -> Result<Vec<(CardId, DeckId)>> {

@@ -81,6 +81,8 @@ const DEFAULT_DECK_CONFIG_INNER: DeckConfigInner = DeckConfigInner {
     other: Vec::new(),
     historical_retention: 0.9,
     param_search: String::new(),
+    probe_rate: 0.0,
+    probe_retrievability_threshold: 0.0,
     ignore_revlogs_before_date: String::new(),
     easy_days_percentages: Vec::new(),
 };

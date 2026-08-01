@@ -9,6 +9,7 @@ use crate::decks::undo::UndoableDeckChange;
 use crate::notes::undo::UndoableNoteChange;
 use crate::notetype::undo::UndoableNotetypeChange;
 use crate::prelude::*;
+use crate::probe::undo::UndoableProbeChange;
 use crate::revlog::undo::UndoableRevlogChange;
 use crate::scheduler::queue::undo::UndoableQueueChange;
 use crate::tags::undo::UndoableTagChange;
@@ -21,6 +22,7 @@ pub(crate) enum UndoableChange {
     DeckConfig(UndoableDeckConfigChange),
     Tag(UndoableTagChange),
     Revlog(UndoableRevlogChange),
+    Probe(UndoableProbeChange),
     Queue(UndoableQueueChange),
     Config(UndoableConfigChange),
     Collection(UndoableCollectionChange),
@@ -35,6 +37,7 @@ impl UndoableChange {
             UndoableChange::Deck(c) => col.undo_deck_change(c),
             UndoableChange::Tag(c) => col.undo_tag_change(c),
             UndoableChange::Revlog(c) => col.undo_revlog_change(c),
+            UndoableChange::Probe(c) => col.undo_probe_change(c),
             UndoableChange::Queue(c) => col.undo_queue_change(c),
             UndoableChange::Config(c) => col.undo_config_change(c),
             UndoableChange::DeckConfig(c) => col.undo_deck_config_change(c),
@@ -77,6 +80,12 @@ impl From<UndoableTagChange> for UndoableChange {
 impl From<UndoableRevlogChange> for UndoableChange {
     fn from(c: UndoableRevlogChange) -> Self {
         UndoableChange::Revlog(c)
+    }
+}
+
+impl From<UndoableProbeChange> for UndoableChange {
+    fn from(c: UndoableProbeChange) -> Self {
+        UndoableChange::Probe(c)
     }
 }
 

@@ -193,6 +193,14 @@ message DeckConfig {
     float historical_retention = 40;
     string param_search = 45;
 
+    // Ascent fork: probability of serving a probe variant instead of the
+    // original on an eligible review. 0 disables the feature entirely.
+    float probe_rate = 47;
+    // Ascent fork: minimum FSRS retrievability before a review is
+    // eligible for probe substitution. With the default of 0, any card
+    // with a memory state is eligible; ~0.85 is the intended setting.
+    float probe_retrievability_threshold = 48;
+
     bytes other = 255;
   }
 

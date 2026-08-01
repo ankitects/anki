@@ -96,6 +96,7 @@ mod test {
             answered_at: TimestampMillis::now(),
             milliseconds_taken: 0,
             milliseconds_to_reveal: None,
+            variant_id: None,
             custom_data: None,
             from_queue: true,
         })?;
@@ -113,6 +114,7 @@ mod test {
             answered_at: TimestampMillis::now(),
             milliseconds_taken: 0,
             milliseconds_to_reveal: None,
+            variant_id: None,
             custom_data: None,
             from_queue: true,
         })?;
@@ -130,6 +132,7 @@ mod test {
             answered_at: TimestampMillis::now(),
             milliseconds_taken: 0,
             milliseconds_to_reveal: None,
+            variant_id: None,
             custom_data: None,
             from_queue: true,
         })?;

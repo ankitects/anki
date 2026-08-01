@@ -92,7 +92,8 @@ impl Context<'_> {
             return Err(AnkiError::SchedulerUpgradeRequired);
         }
         ctx.import_cards(mem::take(&mut self.data.cards))?;
-        ctx.import_revlog(mem::take(&mut self.data.revlog))
+        ctx.import_revlog(mem::take(&mut self.data.revlog))?;
+        ctx.import_probes(mem::take(&mut self.data.probes))
     }
 }
 
@@ -113,6 +114,16 @@ impl CardContext<'_> {
                 entry.cid = *cid;
                 entry.usn = self.usn;
                 self.target_col.add_revlog_entry_if_unique_undoable(entry)?;
+            }
+        }
+        Ok(())
+    }
+
+    fn import_probes(&mut self, probes: Vec<crate::probe::Probe>) -> Result<()> {
+        for mut probe in probes {
+            if let Some(cid) = self.imported_cards.get(&probe.card_id) {
+                probe.card_id = *cid;
+                self.target_col.add_probe_if_unique_undoable(probe)?;
             }
         }
         Ok(())
