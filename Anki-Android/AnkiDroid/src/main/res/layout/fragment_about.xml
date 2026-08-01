@@ -1,0 +1,169 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ SPDX-License-Identifier: GPL-3.0-or-later
+  ~ SPDX-FileCopyrightText: Copyright (c) 2022 Brayan Oliveira <brayandso.dev@gmail.com>
+  -->
+<androidx.coordinatorlayout.widget.CoordinatorLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fitsSystemWindows="true"
+    >
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:fitsSystemWindows="true"
+        >
+
+        <com.google.android.material.appbar.MaterialToolbar
+            android:id="@+id/toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:navigationContentDescription="@string/abc_action_bar_up_description"
+            app:navigationIcon="?attr/homeAsUpIndicator"
+            app:title="@string/pref_cat_about_title"
+            />
+
+        <ScrollView
+            android:fadeScrollbars="false"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:orientation="vertical"
+                android:layout_marginTop="16dp"
+                android:paddingHorizontal="12dp">
+
+                <ImageView
+                    android:id="@+id/app_logo"
+                    android:layout_width="96dp"
+                    android:layout_height="96dp"
+                    app:srcCompat="@drawable/ankidroid_logo" />
+
+                <ImageView
+                    android:id="@+id/about_app_name"
+                    android:layout_width="80dp"
+                    android:layout_height="wrap_content"
+                    app:srcCompat="@drawable/ankidroid_txt"
+                    app:tint="?android:attr/textColor" />
+
+                <TextView
+                    android:id="@+id/version"
+                    style="?android:textAppearanceSmall"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    tools:text="2.x" />
+
+                <TextView
+                    android:id="@+id/build_date"
+                    style="?android:textAppearanceSmall"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    tools:text="13 Apr 2023" />
+
+                <TextView
+                    android:id="@+id/backend_version"
+                    style="?android:textAppearanceSmall"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    tools:text="(anki 23.10.1 / be74babb0)" />
+
+                <TextView
+                    android:id="@+id/fsrs_version"
+                    style="?android:textAppearanceSmall"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="14dp"
+                    tools:text="(FSRS 0.6.4)" />
+
+                <TextView
+                    android:id="@+id/about_contributors_title"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="8dp"
+                    android:text="@string/contributors_title"
+                    android:textSize="16sp" />
+
+                <TextView
+                    android:id="@+id/contributors_description"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginVertical="4dp"
+                    android:textColor="?android:attr/textColorSecondary"
+                    tools:text="These are our awesome contributors. You can help AnkiDroid too by programming, translating, donating and more!"
+                    />
+
+                <TextView
+                    android:id="@+id/about_license_title"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="20dp"
+                    android:layout_marginBottom="8dp"
+                    android:text="@string/license"
+                    android:textSize="16sp" />
+
+                <TextView
+                    android:id="@+id/license_description"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginVertical="4dp"
+                    android:textColor="?android:attr/textColorSecondary"
+                    tools:text="AnkiDroid is released under the GPL-3.0 and AGPL-3.0 licenses, with the source code available on GitHub" />
+
+                <TextView
+                    android:id="@+id/about_donate_title"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="20dp"
+                    android:layout_marginBottom="8dp"
+                    android:text="@string/help_item_support_opencollective_donate"
+                    android:textSize="16sp" />
+
+                <TextView
+                    android:id="@+id/donate_description"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginVertical="4dp"
+                    android:textColor="?android:attr/textColorSecondary"
+                    tools:text="You can support AnkiDroid's development by donating. Any amount is deeply appreciated." />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_marginTop="32dp"
+                    android:orientation="vertical"
+                    android:gravity="center">
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/rate_anki_droid"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/info_rate"
+                        style="@style/Widget.Material3.Button.TextButton"
+                        android:textColor="?attr/colorAccent" />
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/open_changelog"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/open_changelog"
+                        style="@style/Widget.Material3.Button.TextButton"
+                        android:textColor="?attr/colorAccent"/>
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/copy_debug_info"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        tools:text="Copy debug info"
+                        android:textColor="?attr/colorAccent"
+                        style="@style/Widget.Material3.Button.TextButton"
+                        android:layout_marginBottom="16dp"/>
+                </LinearLayout>
+            </LinearLayout>
+        </ScrollView>
+    </LinearLayout>
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

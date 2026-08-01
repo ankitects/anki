@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+		~ Copyright (c) 2011 Norbert Nagold <norbert.nagold@gmail.com> ~ ~
+		This program is free software; you can redistribute it and/or modify
+		it under ~ the terms of the GNU General Public License as published by
+		the Free Software ~ Foundation; either version 3 of the License, or
+		(at your option) any later ~ version. ~ ~ This program is distributed
+		in the hope that it will be useful, but WITHOUT ANY ~ WARRANTY;
+		without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+		~ PARTICULAR PURPOSE. See the GNU General Public License for more
+		details. ~ ~ You should have received a copy of the GNU General Public
+		License along with ~ this program. If not, see
+		<http://www.gnu.org/licenses/>.
+-->
+<resources xmlns:tools="http://schemas.android.com/tools" tools:ignore="UnusedResources,DuplicateCrowdInStrings">
+
+    <color name="wb_fg_color">#B00000FF</color>
+    <color name="wb_fg_color_inv">#0099FF</color>
+    <color name="transparent">#00000000</color>
+    <color name="white">#ffffff</color>
+    <color name="black">#000000</color>
+    <color name="semi_transparent_black">#80000000</color>
+
+    <color name="answer_buttons_highlight_color">#66FFFFFF</color>
+    <color name="whiteboard_eraser">#80808080</color>
+
+    <!-- The Material Design color palette lives in :common:android (common/android/.../res/values/colors.xml) -->
+
+    <!-- Green from the system 'Battery health' screen -->
+    <color name="google_green_300">#81c995</color>
+    <color name="google_green_700">#388E3C</color>
+
+    <color name="google_yellow_300">#fdd633</color>
+    <color name="warning_orange">#DE4900</color>
+
+    <color name="note_editor_selected_item_background">#D1D0CE</color>
+    <color name="note_editor_selected_item_text">#000000</color>
+
+    <!-- For Card background in Card Browser -->
+    <color name="flag_red">#FF4747</color>
+    <color name="flag_orange">#FFB647</color>
+    <color name="flag_green">#6FF06F</color>
+    <color name="flag_blue">#5289FF</color>
+    <color name="flag_pink">#FF99F1</color>
+    <color name="flag_turquoise">#85FFEF</color>
+    <color name="flag_purple">#C398EC</color>
+
+    <!-- For flag icons -->
+    <color name="flag_reviewer_red">#ff0000</color>
+    <color name="flag_reviewer_orange">#ff9800</color>
+    <color name="flag_reviewer_green">#057A05</color>
+    <color name="flag_reviewer_blue">#ff1976d2</color>
+    <color name="flag_reviewer_pink">#FF82EE</color>
+    <color name="flag_reviewer_turquoise">#00D1B5</color>
+    <color name="flag_reviewer_purple">#9649DD</color>
+
+    <color name="badge_error">#f45000</color>
+    <color name="badge_warning">#ff5e13</color>
+
+    <color name="fab_background">#ff757575</color>
+
+    <color name="theme_light_drawer_row_current">#E8E8E8</color>
+    <color name="popup_background_theme_dark">#434343</color>
+    <color name="popup_background_theme_black">#252525</color>
+
+    <!-- Audio Recorder Colors -->
+    <color name="audio_recorder_red">#FF4747</color>
+    <color name="audio_recorder_green">#6FF06F</color>
+    <color name="audio_recorder_grey">#444444</color>
+
+    <!-- color used for bury count in study options(same as anki for light and dark) -->
+    <color name="disabled_gray_light">#858585</color>
+    <color name="disabled_gray_dark">#fcfcfc</color>
+
+    <!-- color used for the resizable screens-->
+    <color name="idle_divider_color">#C7C7C7</color>
+    <color name="drag_divider_color">#1A90FF</color>
+    <color name="divider_handle_color">#4D4D4D</color>
+</resources>
+

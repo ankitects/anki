@@ -1,0 +1,42 @@
+<androidx.coordinatorlayout.widget.CoordinatorLayout android:id="@+id/root_layout"
+android:layout_width="match_parent"
+android:layout_height="match_parent"
+android:focusableInTouchMode="true"
+xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Main content that takes up the fullscreen -->
+    <RelativeLayout
+        android:id="@+id/fullscreen_frame"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+        <include layout="@layout/include_reviewer_topbar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentTop="true"/>
+        <include
+            layout="@layout/include_reviewer_mic_tool_bar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/top_bar" />
+        <include layout="@layout/include_reviewer_flashcard_fullscreen"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_below="@id/mic_tool_bar_layer"/>
+        <include
+            layout="@layout/include_reviewer_whiteboard_editor"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true"
+            android:layout_above="@+id/bottom_area_layout"/>
+        <include layout="@layout/include_reviewer_answer_buttons"/>
+    </RelativeLayout>
+    <!-- Controls that are overlaid over the main content when the user interrupts immersive mode -->
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:fitsSystemWindows="true">
+        <include layout="@layout/include_toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="top"/>
+    </FrameLayout>
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

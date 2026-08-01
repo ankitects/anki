@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="horizontal"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:id="@+id/whiteboard_editor"
+    android:visibility="gone">
+
+    <Button
+        android:id="@+id/pen_color_white"
+        android:backgroundTint="@color/white"
+        style="@style/reviewer_whiteboard_editor_button_style"/>
+
+    <Button
+        android:id="@+id/pen_color_black"
+        android:backgroundTint="@color/black"
+        style="@style/reviewer_whiteboard_editor_button_style"/>
+
+    <Button
+        android:id="@+id/pen_color_red"
+        android:backgroundTint="@color/material_red_500"
+        style="@style/reviewer_whiteboard_editor_button_style"/>
+
+    <Button
+        android:id="@+id/pen_color_green"
+        android:backgroundTint="@color/material_green_500"
+        style="@style/reviewer_whiteboard_editor_button_style"/>
+
+    <Button
+        android:id="@+id/pen_color_blue"
+        android:backgroundTint="@color/material_blue_500"
+        style="@style/reviewer_whiteboard_editor_button_style"/>
+
+    <Button
+        android:id="@+id/pen_color_yellow"
+        android:backgroundTint="@color/material_yellow_500"
+        style="@style/reviewer_whiteboard_editor_button_style"/>
+
+    <Button
+        android:id="@+id/pen_color_custom"
+        android:background="@drawable/ic_palette"
+        android:foreground="?selectableItemBackground"
+        style="@style/reviewer_whiteboard_editor_button_style"/>
+
+    <Button
+        android:id="@+id/stroke_width"
+        android:background="@drawable/ic_mode_edit_white"
+        android:foreground="?selectableItemBackground"
+        style="@style/reviewer_whiteboard_editor_button_style"/>
+
+</LinearLayout>

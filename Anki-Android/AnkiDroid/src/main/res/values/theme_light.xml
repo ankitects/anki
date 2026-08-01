@@ -1,0 +1,175 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<resources xmlns:tools="http://schemas.android.com/tools" tools:ignore="DuplicateCrowdInStrings">
+    <style name="Base.Theme.Light" parent="@style/Theme.Material3.Light.NoActionBar">
+        <!-- Android colors -->
+        <item name="colorPrimary">@color/material_light_blue_500</item>
+        <item name="colorPrimaryDark">@color/material_light_blue_700</item>
+        <item name="colorSurface">@color/white</item>
+        <item name="colorOnSurface">@color/black</item>
+        <item name="colorAccent">@color/material_blue_grey_700</item>
+        <item name="colorPrimaryContainer">@color/white</item> <!-- Switch thumb color when disabled and being pressed -->
+        <item name="colorOnPrimaryContainer">@color/white</item> <!-- FAB icons -->
+        <item name="colorSecondaryContainer">#C1E7FF</item>
+
+        <item name="colorSurfaceContainerHighest">?attr/colorSurfaceContainer</item>
+        <item name="colorSurfaceContainerHigh">#E4F5FD</item>
+        <item name="colorSurfaceContainer">#0F03A9F4</item>
+        <item name="colorSurfaceContainerLow">?android:attr/colorBackground</item>
+
+        <item name="android:textColor">@color/text_color_light</item>
+        <item name="android:textColorSecondary">@color/text_color_secondary_light</item>
+        <item name="android:colorBackground">@android:color/white</item>
+        <item name="android:windowBackground">@android:color/white</item>
+        <item name="preferenceCategoryTitleTextColor">@color/material_light_blue_800</item>
+        <item name="colorOnSurface">@color/black</item>
+        <!-- Widget colors -->
+        <item name="widgetColorActivated">?attr/colorPrimary</item>
+        <!-- Navigation drawer theme -->
+        <item name="navDrawerItemColor">@color/drawer_item_text_light</item>
+        <item name="navDrawerItemBackgroundColor">@drawable/drawer_item_background_light</item>
+        <!-- Menu -->
+        <item name="actionOverflowMenuStyle">@style/OverflowMenuStyle</item>
+        <item name="popupMenuStyle">@style/PopupMenuStyle</item>
+        <item name="spinnerStyle">@style/SpinnerStyle</item>
+        <!-- Action bar styles -->
+        <item name="appBarColor">?attr/colorPrimary</item>
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+        <item name="windowActionModeOverlay">true</item>
+        <item name="actionBarTextColor">@color/white</item>
+        <item name="actionBarPopupTextColor">?android:attr/textColor</item>
+        <item name="actionModeBackground">?attr/colorPrimary</item>
+        <!-- Tab layout -->
+        <item name="tabLayoutBackgroundColor">?attr/colorPrimary</item>
+        <item name="tabActiveIconColor">@color/white</item>
+        <!-- Deck list colors and divider -->
+        <item name="currentDeckBackground">@drawable/item_background_selected</item>
+        <item name="currentDeckBackgroundColor">#ececec</item>
+        <item name="focusedRowBackgroundColor">#ececec</item>
+        <item name="dynDeckColor">#2222bb</item>
+        <item name="deckDivider">@drawable/divider</item>
+        <item name="expandRef">@drawable/ic_chevron_right_black</item>
+        <item name="collapseRef">@drawable/ic_expand_more_black</item>
+        <!-- Count colors -->
+        <item name="newCountColor">@color/material_indigo_700</item>
+        <item name="learnCountColor">@color/material_red_700</item>
+        <item name="reviewCountColor">@color/material_green_800</item>
+        <item name="buryCountColor">@color/disabled_gray_light</item>
+        <item name="zeroCountColor">#1f000000</item>
+        <!-- Study Screen colors -->
+        <item name="againButtonBackground">@color/material_red_700</item>
+        <item name="hardButtonBackground">@color/material_blue_grey_700</item>
+        <item name="goodButtonBackground">@color/material_green_500</item>
+        <item name="easyButtonBackground">@color/material_light_blue_500</item>
+        <item name="topBarColor">@color/material_light_blue_100</item>
+        <item name="maxTimerColor">@color/material_red_500</item>
+        <item name="answerButtonTextColor">@color/white</item>
+        <item name="againButtonTextColor">@color/white</item>
+        <item name="hardButtonTextColor">@color/white</item>
+        <item name="goodButtonTextColor">@color/white</item>
+        <item name="easyButtonTextColor">@color/white</item>
+
+        <item name="alternativeBackgroundColor">#f4f5f9</item>
+        <item name="againTextColor">@color/material_red_900</item>
+        <item name="hardTextColor">#B33800</item>
+        <item name="goodTextColor">@color/material_green_900</item>
+        <item name="easyTextColor">@color/material_light_blue_900</item>
+        <item name="againBackgroundColor">#ffFFCDD2</item>
+        <item name="hardBackgroundColor">#FFE0B2</item>
+        <item name="goodBackgroundColor">#C8E6C9</item>
+        <item name="easyBackgroundColor">@color/material_light_blue_100</item>
+        <item name="againIconColor">?againTextColor</item>
+        <item name="hardIconColor">?hardTextColor</item>
+        <item name="goodIconColor">?goodTextColor</item>
+        <item name="easyIconColor">?easyTextColor</item>
+        <!-- Study Screen button drawables -->
+        <item name="showAnswerButtonBackground">@color/material_blue_700</item>
+        <item name="showAnswerColor">@color/material_blue_grey_700</item>
+        <item name="againButtonRef">@drawable/footer_button_again</item>
+        <item name="hardButtonRef">@drawable/footer_button_hard</item>
+        <item name="goodButtonRef">@drawable/footer_button_good</item>
+        <item name="easyButtonRef">@drawable/footer_button_easy</item>
+        <item name="againButtonRippleRef">@drawable/footer_button_ripple</item>
+        <item name="hardButtonRippleRef">@drawable/footer_button_ripple</item>
+        <item name="goodButtonRippleRef">@drawable/footer_button_ripple</item>
+        <item name="easyButtonRippleRef">@drawable/footer_button_ripple</item>
+        <!-- Card Browser Colors -->
+        <item name="cardBrowserDivider">#CCCCCC</item>
+        <!-- Browser colors -->
+        <item name="suspendedColor">#FFFFB2</item>
+        <item name="buriedColor">#FFCE7C</item>
+        <item name="selectedColor">#FFFFBB99</item>
+        <item name="markedColor">#D9B2E9</item>
+        <!-- Note editor colors -->
+        <item name="duplicateColor">#fcc</item>
+        <item name="editTextBackgroundColor">#EBCCCCCC</item>
+        <item name="editTextHighlightColor">@color/material_light_blue_200</item>
+        <item name="textInputOutlinedStyle">@style/TextInputSelectionColorFixStyle</item>
+        <item name="toolbarBackgroundColor">#D6D7D7</item>
+        <item name="toolbarIconColor">@color/black</item>
+        <item name="buttonShadowColor">#FFAAAAAA</item>
+        <item name="buttonRippleColor">#595959</item>
+        <item name="buttonForegroundColor">#D6D7D7</item>
+        <!-- FAB -->
+        <item name="fab_normal">@color/material_light_blue_700</item>
+        <item name="fab_pressed">@color/material_light_blue_900</item>
+        <!-- Images -->
+        <item name="navDrawerImage">@drawable/nav_drawer_logo</item>
+        <!-- Dialog styles -->
+        <item name="android:listPreferredItemHeight">56dip</item>
+        <item name="dialogCornerRadius">@dimen/dialog_corner_radius</item>
+        <item name="android:dialogCornerRadius" tools:targetApi="p">@dimen/dialog_corner_radius</item>
+        <item name="textAllCaps">false</item>
+        <!--Custom Tabs colors-->
+        <item name="customTabNavBarColor">@color/material_light_blue_500</item>
+        <item name="popupBackgroundColor">@android:color/white</item>
+        <item name="overflowAndPopupMenuIconColor">#9e000000</item>
+        <!-- StatusBar -->
+        <item name="android:statusBarColor">?attr/colorPrimary</item>
+        <!-- Navbar -->
+        <item name="android:navigationBarColor">@color/semi_transparent_black</item>
+        <item name="android:windowLightNavigationBar" tools:targetApi="o_mr1">true</item>
+        <item name="editTextDisabled">@color/material_grey_500</item>
+
+        <!-- Snackbar. Attributes snackbarStyle, snackbarTextViewStyle and snackbarButtonStyle
+             must be *all* present in a theme (or its parent) in order for the snackbar
+             to pick up the proper layout that uses these attributes. -->
+        <item name="snackbarStyle">@style/SnackbarStyle</item>
+        <item name="snackbarTextViewStyle">@style/Widget.MaterialComponents.Snackbar.TextView</item>
+        <item name="snackbarButtonStyle">@style/SnackbarButtonStyle</item>
+        <item name="snackbarBackgroundTintColor">@color/material_grey_800</item>
+        <item name="snackbarButtonTextColor">@color/material_light_blue_300</item>
+
+        <!-- Introduction -->
+        <item name="introductionLogoTransparent">#99FFFFFF</item>
+
+        <!-- Widget styles -->
+        <item name="switchPreferenceCompatStyle">@style/Preference.SwitchPreferenceCompat.Material3</item>
+        <item name="sliderStyle">@style/SliderStyle</item>
+        <item name="preferenceTheme">@style/PreferenceThemeOverlay.AnkiDroid</item>
+        <item name="alertDialogTheme">@style/ThemeOverlay.AnkiDroid.AlertDialog</item>
+
+        <!-- ProgressDialog-->
+        <item name="dialogBackground">@color/white</item>
+
+        <item name="checkMediaListBackground">@color/material_blue_grey_050</item>
+        <item name="checkMediaListForeground">@color/material_grey_700</item>
+        <item name="progressDialogButtonTextColor">@color/material_light_blue_500</item>
+        <item name="tabStyle">@style/Widget.MaterialComponents.TabLayout</item>
+
+        <item name="bottomSheetDialogTheme">@style/ThemeOverlay.App.BottomSheetDialog</item>
+
+
+        <item name="clozeColor">#0277BD</item>
+
+        <item name="incrementerButtonBackground">@color/white</item>
+        <item name="incrementerButtonBackground">@color/material_light_blue_500</item>
+
+        <!-- Reminder troubleshooting - check contrast before changing -->
+        <item name="reminderTroubleshootingOk">@color/google_green_700</item>
+        <item name="reminderTroubleshootingWarning">@color/warning_orange</item>
+    </style>
+
+    <style name="Theme_Light" parent="Base.Theme.Light"/>
+</resources>

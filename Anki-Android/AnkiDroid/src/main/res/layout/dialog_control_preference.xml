@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    tools:context="com.ichi2.preferences.ControlPreference"
+    >
+
+    <com.ichi2.ui.FixedTextView
+        android:id="@+id/add_gesture"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:minHeight="?attr/listPreferredItemHeight"
+        android:text="@string/binding_add_gesture"
+        android:gravity="center_vertical"
+        android:drawableStart="@drawable/ic_touch"
+        android:paddingHorizontal="24dp"
+        android:drawablePadding="16dp"
+        android:background="?android:attr/selectableItemBackground"
+        android:clickable="true"
+        android:textAppearance="?attr/textAppearanceBodyLarge"
+        />
+
+    <com.ichi2.ui.FixedTextView
+        android:id="@+id/add_key"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:minHeight="?attr/listPreferredItemHeight"
+        android:text="@string/binding_add_key"
+        android:drawableStart="@drawable/ic_keyboard"
+        android:gravity="center_vertical"
+        android:paddingHorizontal="24dp"
+        android:drawablePadding="16dp"
+        android:background="?android:attr/selectableItemBackground"
+        android:clickable="true"
+        android:textAppearance="?attr/textAppearanceBodyLarge"
+        />
+
+    <com.ichi2.ui.FixedTextView
+        android:id="@+id/add_axis"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:minHeight="?attr/listPreferredItemHeight"
+        android:text="@string/binding_add_axis"
+        android:drawableStart="@drawable/ic_videogame"
+        android:gravity="center_vertical"
+        android:paddingHorizontal="24dp"
+        android:drawablePadding="16dp"
+        android:background="?android:attr/selectableItemBackground"
+        android:clickable="true"
+        android:textAppearance="?attr/textAppearanceBodyLarge"
+        />
+
+    <ListView
+        android:id="@+id/list_view"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:divider="@null"
+        tools:listitem="@layout/item_control_preference"
+        />
+</LinearLayout>

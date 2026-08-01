@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ SPDX-License-Identifier: GPL-3.0-or-later
+  ~ SPDX-FileCopyrightText: Copyright (c) 2009 Andrew <andrewdubya@gmail>
+  ~ SPDX-FileCopyrightText: Copyright (c) 2009 Nicolas Raoul <nicolas.raoul@gmail.com>
+  ~ SPDX-FileCopyrightText: Copyright (c) 2009 Edu Zamora <edu.zasu@gmail.com>
+  ~ SPDX-FileCopyrightText: Copyright (c) 2009 Jordi Chacon <jordi.chacon@gmail.com>
+  ~ SPDX-FileCopyrightText: Copyright (c) 2010 Norbert Nagold <norbert.nagold@gmail.com>
+  ~ SPDX-FileCopyrightText: Copyright (c) 2014 Roland Sieker <ospalh@gmail.com>
+  ~ SPDX-FileCopyrightText: Copyright (c) 2016 Timothy Rae <perceptualchaos2@gmail.com>
+  -->
+<merge xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <FrameLayout
+        android:layout_gravity="center"
+        android:id="@+id/flashcard"
+        android:layout_margin="0dip"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+    <FrameLayout
+        android:layout_gravity="center"
+        android:id="@+id/touch_layer"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_margin="0dip"
+        android:longClickable="true" />
+    <FrameLayout
+        android:layout_gravity="center"
+        android:id="@+id/whiteboard"
+        android:layout_margin="0dip"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+</merge>

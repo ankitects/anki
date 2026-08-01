@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8"?>
+<merge xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:parentTag="android.widget.FrameLayout">
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/show_answer_button"
+        style="@style/AnswerButton"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:text="@string/show_answer"
+        android:textSize="@dimen/reviewer_answer_button_textSize"
+        app:cornerRadius="12dp"
+        android:textColor="@color/white"
+        tools:layout_height="48dp"
+        android:backgroundTint="?showAnswerButtonBackground" />
+
+    <LinearLayout
+        android:id="@+id/answer_buttons_layout"
+        android:layout_height="match_parent"
+        android:layout_width="match_parent"
+        android:minHeight="?minTouchTargetSize"
+        android:visibility="invisible"
+        tools:layout_height="48dp"
+        >
+
+        <com.ichi2.anki.ui.windows.reviewer.AnswerButton
+            android:id="@+id/again_button"
+            style="@style/AnswerButton"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_marginEnd="@dimen/answer_button_margin_horizontal"
+            app:easeName="@string/ease_button_again"
+            android:textColor="?againTextColor"
+            android:backgroundTint="?againBackgroundColor"
+            android:layout_weight="1" />
+
+        <com.ichi2.anki.ui.windows.reviewer.AnswerButton
+            android:id="@+id/hard_button"
+            style="@style/AnswerButton"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_marginHorizontal="@dimen/answer_button_margin_horizontal"
+            app:easeName="@string/ease_button_hard"
+            android:textColor="?hardTextColor"
+            android:backgroundTint="?hardBackgroundColor"
+            android:layout_weight="1" />
+
+        <com.ichi2.anki.ui.windows.reviewer.AnswerButton
+            android:id="@+id/good_button"
+            style="@style/AnswerButton"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_marginHorizontal="@dimen/answer_button_margin_horizontal"
+            app:easeName="@string/ease_button_good"
+            android:textColor="?goodTextColor"
+            android:backgroundTint="?goodBackgroundColor"
+            android:layout_weight="1" />
+
+        <com.ichi2.anki.ui.windows.reviewer.AnswerButton
+            android:id="@+id/easy_button"
+            style="@style/AnswerButton"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_marginStart="@dimen/answer_button_margin_horizontal"
+            app:easeName="@string/ease_button_easy"
+            android:textColor="?easyTextColor"
+            android:backgroundTint="?easyBackgroundColor"
+            android:layout_weight="1" />
+    </LinearLayout>
+</merge>

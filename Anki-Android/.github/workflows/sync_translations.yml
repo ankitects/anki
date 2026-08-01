@@ -1,0 +1,135 @@
+name: 🌐 Sync Translations
+
+on:
+  workflow_dispatch:
+
+concurrency:
+  group: sync-translations
+  cancel-in-progress: true
+
+# We use a machine account PAT from secrets so workflows are triggered
+# the default token is not needed and should be fully restricted
+permissions: {}
+
+jobs:
+  sync_translations:
+    name: 'Sync Translations with Crowdin'
+    timeout-minutes: 50
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          token: ${{ secrets.MACHINE_ACCOUNT_PAT }}
+          ref: 'main'
+          fetch-depth: 0
+
+      - name: Credential Prep
+        run: |
+          echo "CROWDIN_APIv2_PAT=${{ secrets.CROWDIN_APIv2_PAT }}" >> $GITHUB_ENV
+        shell: bash
+
+      - name: GIT Setup
+        run: |
+          git config --global user.name 'AnkiDroid Translations'
+          git config --global user.email 'ankidroid@ankidroid.org'
+          git checkout -b i18n_sync
+          git reset --hard origin/main
+        shell: bash
+
+      - name: Get second to latest run time
+        env:
+          GH_TOKEN: ${{ secrets.MACHINE_ACCOUNT_PAT }}
+        run: |
+          OUTPUT=$(gh run list --workflow sync_translations.yml --json updatedAt | jq -r '.[1].updatedAt')
+          echo "LATEST_RUN=$OUTPUT" >> $GITHUB_ENV
+
+      - name: Calculate seconds passed
+        id: calc_time
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
+        with:
+          script: |
+            const lastRun = new Date(process.env.LATEST_RUN);
+            const secondsPassed = Math.floor((Date.now() - lastRun.getTime()) / 1000);
+            const timeLeft = 1800 - secondsPassed > 0 ? 1800 - secondsPassed: 0;
+            console.log('Seconds to sleep for: ' + timeLeft);
+            core.setOutput('time_left', timeLeft);
+
+      - name: Await CrowdIn API Cooldown If Needed
+        if: steps.calc_time.outputs.time_left > 0
+        run: sleep ${{ steps.calc_time.outputs.time_left }}
+
+      - uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6.4.0
+        with:
+          node-version: 20
+      
+      - name: Install dependencies and build
+        run: |
+          cd ./tools/localization
+          yarn
+          yarn build
+
+      - name: Push translation sources to crowdin
+        run: |
+          cd ./tools/localization
+          yarn start upload
+
+      - name: Pull translation updates from crowdin
+        run: |
+          cd ./tools/localization
+          yarn start download
+      
+      - name: Extract downloaded ankidroid.zip file
+        run: |
+          cd ./tools/localization
+          yarn start extract
+      
+      - name: Update translation to AnkiDroid res
+        run: |
+          cd ./tools/localization
+          yarn start update
+        
+      - name: Check for changes and handle results
+        id: tr_check
+        run: |
+          git add docs/marketing/localized_description AnkiDroid/src/main/res
+          if git diff --cached --quiet; then
+            echo "HAS_CHANGES=false" >> $GITHUB_OUTPUT
+            echo "Translation Sync Result: No new translation found on Crowdin. No Pull Request necessary" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "HAS_CHANGES=true" >> $GITHUB_OUTPUT
+            git commit -m 'Updated strings from Crowdin'
+            git push --set-upstream origin +i18n_sync
+          fi
+
+      - name: Create PR for strings changes if needed
+        if: steps.tr_check.outputs.HAS_CHANGES == 'true'
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
+        with:
+          github-token: ${{ secrets.MACHINE_ACCOUNT_PAT }}
+          script: |
+            const now = new Date();
+            // Date format used: YYYY/MM/DD HH:MM , UTC time(ex: 2023/01/13 08:38) 
+            const formattedDate = 
+              now.getUTCFullYear() + "/" + 
+              ("0" + (now.getUTCMonth() + 1)).slice(-2) + "/" +
+              ("0" + now.getUTCDate()).slice(-2) + " " + 
+              ("0" + now.getUTCHours()).slice(-2) + ":" +
+              ("0" + now.getUTCMinutes()).slice(-2);
+            try {  
+              await github.rest.pulls.create({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                title: "Updated strings from Crowdin " + formattedDate,
+                head: "i18n_sync",
+                base: "main",
+                body: "Contains the newest strings changes from Crowdin.\n\nhttps://crowdin.com/project/ankidroid/activity-stream\n\n[Re-sync translations](https://github.com/ankidroid/Anki-Android/actions/workflows/sync_translations.yml)",
+                maintainer_can_modify: true
+              });
+            } catch(err) {
+              if (err.status === 422) {
+                console.log("A PR containing translations sync already exists!");
+              } else {
+                console.log("Unexpected error creating pull request: " + err);
+                throw err;
+              }
+            }

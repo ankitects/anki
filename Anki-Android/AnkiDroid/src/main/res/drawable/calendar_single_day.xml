@@ -1,0 +1,28 @@
+<!--
+  ~ Copyright 2xxx, Google Material Design Icons
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~    http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  ~
+  ~ Modifications (GitHub: snowtimeglass, 2024):
+  ~ modified style to match calendar_date_range
+  ~ Made dot 1px larger
+  -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+    <path
+        android:pathData="M6,1L6,3L4,3C3,3 2.005,4 2,5L2,20C2,21 3,21.999 4,21.999L4,20 4,7L20,7L20,20L4,20 4,22L20,22C21,22 22,21 22,20L22,11 22,5C22,4 20.999,3 20,3L18,3L18,1L16,1L16,3L8,3L8,1ZM6,9L6,11.5L8.5,11.5L8.5,9Z"
+        android:fillColor="#000000"/>
+</vector>

@@ -1,0 +1,30 @@
+name: Mark stale issues and pull requests
+
+on:
+  schedule:
+  - cron: "35 * * * *"
+
+permissions:
+  contents: read
+
+jobs:
+  stale:
+
+    permissions:
+      issues: write  # for actions/stale to close stale issues
+      pull-requests: write  # for actions/stale to close stale PRs
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/stale@b5d41d4e1d5dceea10e7104786b73624c18a190f # v10.2.0
+      with:
+        repo-token: ${{ secrets.GITHUB_TOKEN }}
+        stale-issue-message: 'Hello 👋, this issue has been opened for more than 3 months with no activity on it. If the issue is still here, please keep in mind that we need community support and help to fix it! Just comment something like _still searching for solutions_ and if you found one, please open a pull request! You have 7 days until this gets closed automatically'
+        stale-pr-message: 'Hello 👋, this PR has had no activity for more than 2 weeks and needs a reply from the author. If you think this is a mistake please comment and ping a maintainer to get this merged ASAP! Thanks for contributing! You have 7 days until this gets closed automatically'
+        exempt-issue-labels: 'Keep Open,Anki Ecosystem Compatibility,Accepted'
+        exempt-pr-labels: 'Keep Open'
+        close-issue-reason: 'not_planned'
+        days-before-issue-stale: 90
+        days-before-pr-stale: 14
+        only-pr-labels: 'Needs Author Reply'
+

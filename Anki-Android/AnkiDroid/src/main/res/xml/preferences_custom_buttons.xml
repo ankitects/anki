@@ -1,0 +1,283 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+~ Copyright (c) 2016 Aron Freidle <aron.freidle@gmail.com>
+~
+~ This program is free software; you can redistribute it and/or modify it under
+~ the terms of the GNU General Public License as published by the Free Software
+~ Foundation; either version 3 of the License, or (at your option) any later
+~ version.
+~
+~ This program is distributed in the hope that it will be useful, but WITHOUT ANY
+~ WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+~ PARTICULAR PURPOSE. See the GNU General Public License for more details.
+~
+~ You should have received a copy of the GNU General Public License along with
+~ this program.  If not, see <http://www.gnu.org/licenses/>.
+-->
+
+<!-- Custom buttons Preferences -->
+<!--
+MenuItem.SHOW_AS_ACTION_NEVER = 0
+MenuItem.SHOW_AS_ACTION_IF_ROOM = 1
+MenuItem.SHOW_AS_ACTION_ALWAYS  = 2
+MENU_DISABLED = 3
+
+Ensure to add the custom icons to Preferences.java's reset functionality
+TODO: Add a unit test
+-->
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:title="@string/custom_buttons"
+    android:key="@string/pref_app_bar_buttons_screen_key">
+    <Preference
+        android:key="@string/reset_custom_buttons_key"
+        android:title="@string/reset_custom_buttons" />
+    <PreferenceCategory android:title="@string/deck_conf_general" >
+        <ListPreference
+            android:defaultValue="2"
+            android:entries="@array/custom_button_labels"
+            android:entryValues="@array/custom_button_values"
+            android:key="@string/custom_button_undo_key"
+            android:title="@string/undo"
+            app:useSimpleSummaryProvider="true"/>
+        <ListPreference
+            android:defaultValue="1"
+            android:entries="@array/custom_button_labels"
+            android:entryValues="@array/custom_button_values"
+            android:key="@string/custom_button_redo_key"
+            android:title="@string/redo"
+            app:useSimpleSummaryProvider="true"/>
+        <ListPreference
+            android:defaultValue="0"
+            android:entries="@array/custom_button_labels"
+            android:entryValues="@array/custom_button_values"
+            android:key="@string/custom_button_schedule_card_key"
+            android:title="@string/card_editor_reschedule_card"
+            app:useSimpleSummaryProvider="true"/>
+        <ListPreference
+            android:defaultValue="2"
+            android:entries="@array/custom_button_labels"
+            android:entryValues="@array/custom_button_values"
+            android:key="@string/custom_button_flag_key"
+            tools:title="Flag"
+            app:useSimpleSummaryProvider="true"/>
+        <ListPreference
+            android:defaultValue="1"
+            android:entries="@array/custom_button_labels"
+            android:entryValues="@array/custom_button_values"
+            android:key="@string/custom_button_edit_card_key"
+            android:title="@string/cardeditor_title_edit_card"
+            app:useSimpleSummaryProvider="true"/>
+        <ListPreference
+            android:defaultValue="0"
+            android:entries="@array/custom_button_labels"
+            android:entryValues="@array/custom_button_values"
+            android:key="@string/custom_button_tags_key"
+            android:title="@string/menu_edit_tags"
+            app:useSimpleSummaryProvider="true"/>
+        <ListPreference
+            android:defaultValue="3"
+            android:entries="@array/custom_button_labels"
+            android:entryValues="@array/custom_button_values"
+            android:key="@string/custom_button_add_card_key"
+            android:title="@string/menu_add_note"
+            app:useSimpleSummaryProvider="true"/>
+        <ListPreference
+            android:defaultValue="1"
+            android:entries="@array/custom_button_labels"
+            android:entryValues="@array/custom_button_values"
+            android:key="@string/custom_button_replay_key"
+            android:title="@string/replay_media"
+            app:useSimpleSummaryProvider="true"/>
+        <ListPreference
+            android:defaultValue="3"
+            android:entries="@array/custom_button_labels"
+            android:entryValues="@array/custom_button_values"
+            android:key="@string/custom_button_card_info_key"
+            tools:title="Card info"
+            app:useSimpleSummaryProvider="true"/>
+        <ListPreference
+            android:defaultValue="3"
+            android:entries="@array/custom_button_labels"
+            android:entryValues="@array/custom_button_values"
+            android:key="@string/custom_button_previous_card_info_key"
+            tools:title="Previous card info"
+            app:useSimpleSummaryProvider="true"/>
+        <ListPreference
+            android:defaultValue="0"
+            android:entries="@array/custom_button_labels"
+            android:entryValues="@array/custom_button_values"
+            android:key="@string/custom_button_select_tts_key"
+            android:title="@string/select_tts"
+            app:useSimpleSummaryProvider="true"/>
+        <ListPreference
+            android:defaultValue="0"
+            android:entries="@array/custom_button_labels"
+            android:entryValues="@array/custom_button_values"
+            android:key="@string/custom_button_deck_options_key"
+            tools:title="Deck options"
+            app:useSimpleSummaryProvider="true"/>
+        <ListPreference
+            android:defaultValue="1"
+            android:entries="@array/custom_button_labels"
+            android:entryValues="@array/custom_button_values"
+            android:key="@string/custom_button_mark_card_key"
+            tools:title="Mark note"
+            app:useSimpleSummaryProvider="true"/>
+        <ListPreference
+            android:defaultValue="0"
+            android:entries="@array/custom_button_labels"
+            android:entryValues="@array/custom_button_values"
+            android:key="@string/custom_button_toggle_mic_toolbar_key"
+            android:title="@string/menu_enable_voice_playback"
+            app:useSimpleSummaryProvider="true"/>
+        <ListPreference
+            android:defaultValue="0"
+            android:entries="@array/custom_button_labels"
+            android:entryValues="@array/custom_button_values"
+            android:key="@string/custom_button_toggle_auto_advance"
+            android:title="@string/toggle_auto_advance"
+            app:useSimpleSummaryProvider="true"/>
+    </PreferenceCategory>
+    <PreferenceCategory android:title="@string/menu_dismiss_note" >
+        <ListPreference
+            android:defaultValue="0"
+            android:entries="@array/custom_button_labels"
+            android:entryValues="@array/custom_button_values"
+            android:key="@string/custom_button_bury_key"
+            tools:title="Bury"
+            app:useSimpleSummaryProvider="true"/>
+        <ListPreference
+            android:defaultValue="0"
+            android:entries="@array/custom_button_labels"
+            android:entryValues="@array/custom_button_values"
+            android:key="@string/custom_button_suspend_key"
+            tools:title="Suspend"
+            app:useSimpleSummaryProvider="true"/>
+        <ListPreference
+            android:defaultValue="0"
+            android:entries="@array/custom_button_labels"
+            android:entryValues="@array/custom_button_values"
+            android:key="@string/custom_button_delete_key"
+            tools:title="Delete note"
+            app:useSimpleSummaryProvider="true"/>
+    </PreferenceCategory>
+    <PreferenceCategory android:title="@string/pref_cat_whiteboard" >
+        <ListPreference
+            android:defaultValue="0"
+            android:entries="@array/custom_button_labels"
+            android:entryValues="@array/custom_button_values"
+            android:key="@string/custom_button_enable_whiteboard_key"
+            android:title="@string/enable_whiteboard"
+            app:useSimpleSummaryProvider="true"/>
+        <ListPreference
+            android:defaultValue="2"
+            android:entries="@array/custom_button_labels"
+            android:entryValues="@array/custom_button_values"
+            android:key="@string/custom_button_toggle_eraser_key"
+            android:title="@string/enable_eraser"
+            app:useSimpleSummaryProvider="true"/>
+        <ListPreference
+            android:defaultValue="1"
+            android:entries="@array/custom_button_labels"
+            android:entryValues="@array/custom_button_values"
+            android:key="@string/custom_button_toggle_stylus_key"
+            android:title="@string/enable_stylus"
+            app:useSimpleSummaryProvider="true"/>
+        <ListPreference
+            android:defaultValue="0"
+            android:entries="@array/custom_button_labels"
+            android:entryValues="@array/custom_button_values"
+            android:key="@string/custom_button_save_whiteboard_key"
+            android:title="@string/save_whiteboard"
+            app:useSimpleSummaryProvider="true"/>
+        <ListPreference
+            android:defaultValue="1"
+            android:entries="@array/custom_button_labels"
+            android:entryValues="@array/custom_button_values"
+            android:key="@string/custom_button_whiteboard_pen_color_key"
+            android:title="@string/title_whiteboard_editor"
+            app:useSimpleSummaryProvider="true"/>
+        <ListPreference
+            android:defaultValue="2"
+            android:entries="@array/custom_button_labels"
+            android:entryValues="@array/custom_button_values"
+            android:key="@string/custom_button_show_hide_whiteboard_key"
+            android:title="@string/hide_whiteboard"
+            app:useSimpleSummaryProvider="true"/>
+        <ListPreference
+            android:defaultValue="1"
+            android:entries="@array/custom_button_labels"
+            android:entryValues="@array/custom_button_values"
+            android:key="@string/custom_button_clear_whiteboard_key"
+            android:title="@string/clear_whiteboard"
+            app:useSimpleSummaryProvider="true"/>
+    </PreferenceCategory>
+
+    <PreferenceCategory android:title="@string/user_actions">
+        <ListPreference
+            android:defaultValue="3"
+            android:entries="@array/custom_button_labels"
+            android:entryValues="@array/custom_button_values"
+            android:title="@string/user_action_1"
+            android:key="@string/custom_button_user_action_1_key"
+            app:useSimpleSummaryProvider="true"/>
+        <ListPreference
+            android:defaultValue="3"
+            android:entries="@array/custom_button_labels"
+            android:entryValues="@array/custom_button_values"
+            android:title="@string/user_action_2"
+            android:key="@string/custom_button_user_action_2_key"
+            app:useSimpleSummaryProvider="true"/>
+        <ListPreference
+            android:defaultValue="3"
+            android:entries="@array/custom_button_labels"
+            android:entryValues="@array/custom_button_values"
+            android:title="@string/user_action_3"
+            android:key="@string/custom_button_user_action_3_key"
+            app:useSimpleSummaryProvider="true"/>
+        <ListPreference
+            android:defaultValue="3"
+            android:entries="@array/custom_button_labels"
+            android:entryValues="@array/custom_button_values"
+            android:title="@string/user_action_4"
+            android:key="@string/custom_button_user_action_4_key"
+            app:useSimpleSummaryProvider="true"/>
+        <ListPreference
+            android:defaultValue="3"
+            android:entries="@array/custom_button_labels"
+            android:entryValues="@array/custom_button_values"
+            android:title="@string/user_action_5"
+            android:key="@string/custom_button_user_action_5_key"
+            app:useSimpleSummaryProvider="true"/>
+        <ListPreference
+            android:defaultValue="3"
+            android:entries="@array/custom_button_labels"
+            android:entryValues="@array/custom_button_values"
+            android:title="@string/user_action_6"
+            android:key="@string/custom_button_user_action_6_key"
+            app:useSimpleSummaryProvider="true"/>
+        <ListPreference
+            android:defaultValue="3"
+            android:entries="@array/custom_button_labels"
+            android:entryValues="@array/custom_button_values"
+            android:title="@string/user_action_7"
+            android:key="@string/custom_button_user_action_7_key"
+            app:useSimpleSummaryProvider="true"/>
+        <ListPreference
+            android:defaultValue="3"
+            android:entries="@array/custom_button_labels"
+            android:entryValues="@array/custom_button_values"
+            android:title="@string/user_action_8"
+            android:key="@string/custom_button_user_action_8_key"
+            app:useSimpleSummaryProvider="true"/>
+        <ListPreference
+            android:defaultValue="3"
+            android:entries="@array/custom_button_labels"
+            android:entryValues="@array/custom_button_values"
+            android:title="@string/user_action_9"
+            android:key="@string/custom_button_user_action_9_key"
+            app:useSimpleSummaryProvider="true"/>
+    </PreferenceCategory>
+</PreferenceScreen>

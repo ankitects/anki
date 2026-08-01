@@ -1,0 +1,71 @@
+Ghi nhớ bất cứ điều gì với AnkiDroid!
+AnkiDroid phép bạn tìm hiểu Flashcards rất hiệu quả bằng cách nhắc lại chúng trước khi bạn quên mất. Nó hoàn toàn tương thích với các phần mềm khác của Anki (bao gồm cả đồng bộ hóa), trong đó có sẵn cho Windows, Linux và MacOS.
+
+Học tập với tất cả các dạng/loại bất cứ nơi nào và bất cứ khi nào bạn muốn. Hãy sử dụng tốt thời gian nhàn rỗi trên chuyến xe buýt, xếp hàng siêu thị hay bất kỳ tình huống khác chờ đợi!
+
+Tạo ra chủ đề flashcard của riêng bạn hoặc tải về miễn phí chủ đề biên dịch cho nhiều ngôn ngữ và các chủ điểm(có sẵn hơn 6000 ).
+
+Thêm tài liệu thông qua các ứng dụng máy tính để bàn Anki hoặc trực tiếp qua AnkiDroid. Ứng dụng này còn hỗ trợ thêm tài liệu tự động từ một từ điển!
+
+★ Các tính năng chính:
+• Nội dung hỗ trợ Flashcard: văn bản, hình ảnh, âm thanh, LaTeX
+• lặp lại khoảng cách (supermemo 2 thuật toán)
+• Tích hợp text-to-speech 
+• Hơn 6.000 mẫu chủ đề
+• Biểu tượng tiến trình/ widget
+• Thống kê chi tiết
+• đồng bộ với AnkiWeb
+• mã nguồn mở
+
+★ Các tính năng khác:
+• ghi câu trả lời (không bắt buộc)
+• Bảng
+• Biên tập thẻ / bộ thêm vào
+• Trình duyệt thẻ
+• Thiết lập đầu ra máy tính bảng
+• Các tập tin bộ sưu tập hiện tại nhập khẩu (thông qua Anki Desktop)
+• Tích hợp từ điển (ColorDict, GoldenDict, Leo.org, Aedict, từ điển đa dạng web)
+• Thêm thẻ bởi mục đích từ các ứng dụng khác như từ điển
+• Hỗ trợ phông chữ tùy chỉnh
+• Hệ thống sao lưu đầy đủ
+• Định vị bằng swipe, tap
+• Tùy biến
+• Xử lý chủ đề động
+• Chế độ ban đêm
+• Hỗ trợ 27 bản nội địa hoá theo quốc gia
+• Tất cả các phiên bản AnkiDroid trước có thể được tải về từ các trang web
+
+AnkiDroid cho phép bạn học flashcard rất hiệu quả bằng cách hiển thị chúng ngay trước khi bạn quên. It is fully compatible with the spaced repetition software Anki (including synchronization), which is available for Windows, Linux and macOS.
+
+Học mọi thứ bất cứ nơi nào và bất cứ khi nào bạn muốn. Hãy tận dụng tốt thời gian nhàn rỗi trên các chuyến xe buýt, khi xếp hàng trong siêu thị hoặc bất kỳ tình huống chờ đợi nào khác!
+
+Tạo bộ thẻ flashcard của riêng bạn hoặc tải xuống bộ thẻ miễn phí được biên soạn cho nhiều ngôn ngữ và chủ đề (hơn 6000 bộ có sẵn).
+
+Thêm tài liệu thông qua ứng dụng Anki trên máy tính để bàn hoặc trực tiếp thông qua AnkiDroid. Ứng dụng thậm chí còn hỗ trợ thêm tài liệu tự động từ từ điển!
+
+★ Các tính năng chính:
+• nội dung flashcard được hỗ trợ: văn bản, hình ảnh, âm thanh, LaTeX
+• lặp lại ngắt quãng (thuật toán FSRS tối ưu bởi AI)
+• tích hợp văn bản thành giọng nói
+• hơn 10.000 bộ thẻ được tạo sẵn
+• widget tiến trình
+• thống kê chi tiết
+• đồng bộ hóa với AnkiWeb
+• mã nguồn mở
+
+★ Các tính năng bổ sung:
+• viết câu trả lời (tùy chọn)
+• bảng trắng
+• trình biên tập / thêm thẻ
+• trình duyệt thẻ
+• bố cục máy tính bảng
+• nhập các tệp bộ sưu tập hiện có (thông qua Anki Desktop)
+• thêm thẻ theo ý định từ các ứng dụng khác như từ điển
+• hỗ trợ phông chữ tùy chỉnh
+• hệ thống sao lưu đầy đủ
+• điều hướng bằng cách vuốt, chạm
+• có thể tùy chỉnh
+• xử lý bộ thẻ động
+• chế độ ban đêm
+• 27 bản địa hóa
+• Tất cả các phiên bản AnkiDroid trước có thể được tải xuống từ trang web

@@ -1,0 +1,84 @@
+<FrameLayout android:id="@+id/ankidroid_widget_small_layout"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#00FFFFFF"
+    android:clickable="true"
+    android:focusable="false"
+    tools:layout_height="100dp"
+    tools:layout_width="100dp">
+
+    <ImageButton
+        android:id="@+id/ankidroid_widget_small_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:background="#00FFFFFF"
+        android:clickable="false"
+        android:contentDescription="@string/app_name"
+        android:focusable="false"
+        android:scaleType="fitCenter"
+        android:src="@drawable/ic_anki_unthemed" />
+
+    <ImageButton
+        android:id="@+id/ankidroid_widget_small_finish_layout"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:background="#00FFFFFF"
+        android:clickable="false"
+        android:focusable="false"
+        android:scaleType="fitCenter"
+        android:src="@drawable/ic_anki_unthemed_finish"
+        android:visibility="gone" />
+
+    <RelativeLayout
+        android:id="@+id/ankidroid_widget_text_layout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:clickable="false"
+        android:focusable="false"
+        android:orientation="horizontal"
+        android:padding="4dip">
+
+        <!-- 7366: Using FixedTextView breaks the widget
+        Error inflating RemoteViews : android.view.InflateException: Binary XML file line #30:
+        Binary XML file line #30: Error inflating class com.ichi2.ui.FixedTextView
+
+        https://stackoverflow.com/a/6150129/-->
+        <TextView
+            android:id="@+id/widget_due"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:minWidth="24sp"
+            android:minHeight="24sp"
+            android:padding="3sp"
+            android:background="@drawable/circle_background"
+            android:backgroundTint="#475D92"
+            android:gravity="center"
+            android:singleLine="true"
+            android:textColor="#FFFFFF"
+            android:textSize="18sp"
+            android:visibility="invisible"
+            tools:visibility="visible" />
+
+        <TextView
+            android:id="@+id/widget_eta"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:layout_alignParentEnd="false"
+            android:background="@drawable/circle_background"
+            android:backgroundTint="#475D92"
+            android:gravity="center"
+            android:padding="3sp"
+            android:singleLine="true"
+            android:minWidth="24sp"
+            android:minHeight="24sp"
+            android:textColor="#FFFFFF"
+            android:textSize="14sp"
+            android:visibility="invisible"
+            tools:visibility="visible" />
+    </RelativeLayout>
+</FrameLayout>

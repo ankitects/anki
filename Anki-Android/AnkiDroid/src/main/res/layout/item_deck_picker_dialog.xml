@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- SPDX-License-Identifier: GPL-3.0-or-later -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/DeckPickerHoriz"
+    android:background="?attr/selectableItemBackground"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:gravity="center_vertical"
+    android:orientation="horizontal"
+    android:paddingStart="1dp"
+    android:paddingEnd="@dimen/deck_picker_right_padding"
+    tools:showIn="@layout/dialog_deck_picker">
+    <ImageButton
+        android:id="@+id/indent"
+        android:minWidth="0dp"
+        android:layout_height="wrap_content"
+        android:layout_width="wrap_content"
+        android:background="@android:color/transparent"
+        />
+    <LinearLayout
+        android:id="@+id/deck_name_linear_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical">
+        <ImageButton
+            android:id="@+id/expander"
+            android:layout_height="wrap_content"
+            android:layout_width="wrap_content"
+            android:minWidth="48dp"
+            android:padding="12dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            tools:src="@drawable/ic_expand_more_black"
+            />
+
+        <com.ichi2.ui.FixedTextView
+            android:id="@+id/deck_text_view"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:minHeight="?android:attr/listPreferredItemHeight"
+            android:paddingEnd="8dp"
+            android:gravity="start|center_vertical"
+            android:textStyle="bold"
+            android:textSize="20sp"
+            android:textIsSelectable="false"
+            tools:text="Deck Name"
+        />
+    </LinearLayout>
+</LinearLayout>

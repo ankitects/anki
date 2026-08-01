@@ -1,0 +1,173 @@
+name: 🛠️ Conflict Scan
+
+on:
+  push:
+  schedule:
+  - cron: "0 * * * *"
+
+jobs:
+  scan_conflicts:
+    # Do not run the scheduled jobs on forks
+    if: (github.event_name == 'schedule' && github.repository == 'ankidroid/Anki-Android') || (github.event_name != 'schedule')
+    permissions:
+      contents: read
+      pull-requests: write
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check for conflicts and label conflict
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
+        with:
+          script: |
+            // Helper function for retrying GitHub API calls
+            async function withRetry(apiCall, operation = 'API call') {
+              const retries = 3;
+              const retryInitialDelay = 5000;
+
+              for (let attempt = 1; attempt <= retries; attempt++) {
+                try {
+                  return await apiCall();
+                } catch (error) {
+                  // Don't retry client errors (4xx)
+                  if (error.status >= 400 && error.status < 500) {
+                    throw error;
+                  }
+
+                  // If this is the last attempt, throw the error
+                  if (attempt === retries) {
+                    throw new Error(`${operation} failed after ${retries} attempts: ${error.message}`);
+                  }
+
+                  // Wait with linear backoff before retrying                  
+                  const delay = retryInitialDelay * attempt;
+                  console.warn(
+                    `${operation} failed (attempt ${attempt}/${retries}). Retrying in ${delay}ms... ` +
+                    `Error: ${error.status} ${error.message}`
+                  );
+                  await wait(delay);
+                }
+              }
+            }
+            
+            async function getPullRequestList() {
+                return withRetry( () =>
+                  github.rest.pulls.list({
+                    owner: context.repo.owner,
+                    repo: context.repo.repo,
+                    state: 'open',
+                    sort: 'created',
+                    per_page: 100,
+                  }),
+                "List pull requests"
+              );
+            }
+
+            async function getPullRequest(prNumber) {
+                return withRetry(() =>
+                  github.rest.pulls.get({
+                    owner: context.repo.owner,
+                    repo: context.repo.repo,
+                    pull_number: prNumber,
+                  }),
+                `Get PR #${prNumber}`
+              );
+            }
+
+            async function addLabel(labels, issue_number) {
+                return withRetry(() =>
+                  github.rest.issues.addLabels({
+                    owner: context.repo.owner,
+                    repo: context.repo.repo,
+                    issue_number: issue_number,
+                    labels: labels,
+                  }),
+                `Add labels to PR #${issue_number}`
+              );
+            }
+
+            async function removeLabel(labels, issue_number) {
+                return withRetry(() =>
+                  github.rest.issues.removeLabel({
+                    owner: context.repo.owner,
+                    repo: context.repo.repo,
+                    issue_number: issue_number,
+                    name: labels,
+                  }),
+                `Remove label from PR #${issue_number}`
+              );
+
+            }
+
+            async function wait(ms) {
+                return new Promise(resolve => setTimeout(resolve, ms));
+            }
+
+            const maxIterations = 10;
+            async function checkPullRequests() {
+                const pullRequestList = await getPullRequestList();
+
+                if (pullRequestList.data !== null && pullRequestList.data.length > 0) {
+                    for (let pullRequest of pullRequestList.data) {
+                        const prNumber = pullRequest.number;
+                        console.log(`Checking PR #${prNumber}`);
+
+                        try {
+                            let pullRequestData;
+                            let iterations = 0;
+                            do {
+                                pullRequestData = await getPullRequest(prNumber);
+                                // introduce 1-second delay before the next check
+                                await wait(1000);
+                                iterations++;
+
+                                // 'mergeable' is null while GitHub computes mergeability
+                                if (pullRequestData.data.mergeable !== null || iterations >= maxIterations) {
+                                  break;
+                                }
+                            } while (pullRequestData.data.mergeable === null);
+
+                            // 'mergeable' is a nullable boolean; true = no conflicts,
+                            // https://docs.github.com/en/rest/pulls/pulls?apiVersion=2026-03-10#get-a-pull-request
+                            const mergeable = pullRequestData.data.mergeable;
+
+                            if (mergeable === false) {
+                                console.log(`Conflict exists in PR #${prNumber}`);
+                                if (pullRequestData.data.labels.find(label => label.name === 'Has Conflicts')) {
+                                    console.log(`'Has Conflicts' label already exists on PR #${prNumber}`);
+                                } else {
+                                    // Only add label if PR is not already stale to prevent resetting stale timer
+                                    if (!pullRequestData.data.labels.find(label => label.name === 'Stale')) {
+                                        console.log(`Adding 'Has Conflicts' label to PR #${prNumber} (not stale)`);
+                                        await addLabel(['Has Conflicts'], prNumber);
+                                    } else {
+                                        console.warn(`PR #${prNumber} is stale, skipping label addition to prevent timer reset`);
+                                    }
+                                }
+                            } else if (mergeable === true) {
+                                // if PR has no conflicts, remove the label
+                                if (pullRequestData.data.labels.find(label => label.name === 'Has Conflicts')) {
+                                    console.log(`Removing 'Has Conflicts' label from PR #${prNumber}`);
+                                    try {
+                                        await removeLabel(['Has Conflicts'], prNumber);
+                                    } catch(err) {
+                                        if (err.status === 404) {
+                                            console.warn("(Has Conflicts) label no longer found when trying to remove it");
+                                        } else {
+                                            console.log("Unexpected error while removing (Has Conflicts) label: " + err);
+                                            throw err;
+                                        }
+                                    }
+                                }
+                            } else {
+                                console.warn(`PR #${prNumber} mergeability is unknown; skipping`);
+                            }
+                        } catch (err) {
+                            console.error(`Error while processing PR #${prNumber}`);
+                            console.error(err);
+                            throw err;
+                        }
+                    }
+                }
+            }
+
+            checkPullRequests();

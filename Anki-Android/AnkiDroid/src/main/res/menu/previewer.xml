@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ SPDX-License-Identifier: GPL-3.0-or-later
+  ~ SPDX-FileCopyrightText: Copyright (c) 2023 Brayan Oliveira <brayandso.dev@gmail.com>
+  -->
+
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+    <item
+        android:id="@+id/action_back_side_only"
+        android:icon="@drawable/ic_card_question"
+        android:title="@string/card_side_both"
+        app:showAsAction="always"/>
+    <item
+        android:id="@+id/action_flag"
+        tools:title="Flag card"
+        android:icon="@drawable/ic_flag_transparent"
+        app:showAsAction="always" >
+        <menu>
+            <!-- flags are dynamically added -->
+        </menu>
+    </item>
+    <item
+        android:id="@+id/action_mark"
+        android:icon="@drawable/ic_star_border_white"
+        tools:title="Mark note"
+        app:showAsAction="always"/>
+    <item
+        android:id="@+id/action_edit"
+        android:icon="@drawable/ic_mode_edit_white"
+        android:title="@string/cardeditor_title_edit_card"
+        app:showAsAction="always"/>
+</menu>

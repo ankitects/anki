@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<merge xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:parentTag="android.widget.LinearLayout">
+
+    <com.google.android.material.textview.MaterialTextView
+        android:id="@+id/new_count"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:paddingEnd="4dp"
+        android:textColor="?attr/newCountColor"
+        tools:text="127"
+        />
+
+    <com.google.android.material.textview.MaterialTextView
+        android:id="@+id/learn_count"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:paddingHorizontal="4dp"
+        android:textColor="?attr/learnCountColor"
+        tools:text="38"
+        />
+
+    <com.google.android.material.textview.MaterialTextView
+        android:id="@+id/review_count"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:paddingStart="4dp"
+        android:textColor="?attr/reviewCountColor"
+        tools:text="954"
+        />
+</merge>

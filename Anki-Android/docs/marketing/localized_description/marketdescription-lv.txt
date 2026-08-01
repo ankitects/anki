@@ -1,0 +1,36 @@
+Iegaumē jebko ar AnkiDroid!
+
+AnkiDroid ļauj ļoti iedarbīgi apgūt zibkartītes, rādot tās tieši pirms tās tiks aizmirstas. Tā ir pilnībā saderīga ar izkliedētāts atkārtošanas programmatūru Anki (tostarp vienādošana), kas ir pieejama Windows, Linux un macOS.
+
+Apgūsti visāda veida zināšanas kur un kad vien vēlies! Lietderīgi izmanto dīkstāvē pavadīto laiku pārbraucienos ar sabiedrisko transportu, lielveikalu rindās vai jebkuros citos gadījumos, kuros jāgaida!
+
+Izveido savas zibkartīšu kavas vai lejupielādē bezmaksas kavas, kas ir izveidotas daudzās valodās un par dažādām tēmām (pieejamas vairāk kā 6000)!
+
+Pievieno vielu darbvirsmas lietotnē Anki vai uzreiz AnkiDroid! Lietotne pat atbalsta automātisku vielas  pievienošanu no vārdnīcas.
+
+★ Galvenās iespējas:
+• atbalstītais zibkartīšu saturs: teksts, attēli, skaņas, LaTeX
+• izkliedētā atkārtošana (AI optimizēts FSRS algoritms)
+• iekļauta teksta pārveidošana runā
+• vairāk nekā 10 000 iepriekš sagatavotu kavu
+• virzības logrīks
+• izvērsts apkopojums
+• vienādošana ar AnkiWeb
+• atvērts pirmkods
+
+★ Papildu iespējas:
+• atbilžu ierakstīšana (pēc izvēles)
+• tāfele
+• kartīšu labotājs/pievienotājs
+• kartīšu pārlūks
+• izkārtojums planšetēm
+• esošu krājumu datņu ievietošana (ar Anki darbvirsmas lietotni)
+• kartīšu pievienošana no citām lietotnēm, piemēram, vārdnīcām
+• pielāgotu fontu atbalsts
+• pilnīga rezerves kopiju sistēma
+• pārvietošanās ar pavilkšanu, piesišanu
+• pielāgojama
+• dinamiska kavu apstrāde
+• nakts izskats
+• tulkojumi 27 valodās
+• visas iepriekšējās AnkiDroid versijas var lejupielādēt tīmekļvietnē

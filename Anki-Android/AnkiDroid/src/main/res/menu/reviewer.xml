@@ -1,0 +1,257 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- SPDX-License-Identifier: GPL-3.0-or-later -->
+
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:ankidroid="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layoutDirection="locale">
+
+    <item
+        android:id="@+id/action_undo"
+        android:enabled="false"
+        android:icon="@drawable/ic_undo_white"
+        android:title="@string/undo"
+        ankidroid:actionProviderClass="com.ichi2.ui.RtlCompliantActionProvider"
+        ankidroid:showAsAction="always"/>
+    <item
+        android:id="@+id/action_redo"
+        android:enabled="false"
+        android:icon="@drawable/ic_redo"
+        android:title="@string/redo"
+        ankidroid:actionProviderClass="com.ichi2.ui.RtlCompliantActionProvider"
+        ankidroid:showAsAction="always"/>
+    <item
+        android:id="@+id/action_toggle_eraser"
+        android:icon="@drawable/ic_eraser"
+        android:title="@string/enable_eraser"
+        android:visible="false"
+        ankidroid:showAsAction="always"/>
+    <item
+        android:id="@+id/action_clear_whiteboard"
+        android:title="@string/clear_whiteboard"
+        android:icon="@drawable/ic_clear_white"
+        android:visible="false"
+        ankidroid:showAsAction="always"/>
+    <item
+        android:id="@+id/action_hide_whiteboard"
+        android:title="@string/hide_whiteboard"
+        android:icon="@drawable/ic_gesture_white"
+        android:visible="false"
+        ankidroid:showAsAction="always"/>
+    <item
+        android:id="@+id/action_change_whiteboard_pen_color"
+        android:icon="@drawable/ic_color_lens_white_24dp"
+        android:title="@string/title_whiteboard_editor"
+        android:visible="false"
+        ankidroid:showAsAction="ifRoom"/>
+    <item
+        android:id="@+id/action_toggle_stylus"
+        android:title="@string/enable_stylus"
+        android:icon="@drawable/ic_gesture_stylus"
+        android:visible="false"
+        ankidroid:showAsAction="ifRoom"/>
+    <item
+        android:id="@+id/action_save_whiteboard"
+        android:title="@string/save_whiteboard"
+        android:icon="@drawable/ic_save_white"
+        android:visible="false"
+        ankidroid:showAsAction="never"/>
+    <item
+        android:id="@+id/action_toggle_whiteboard"
+        android:title="@string/enable_whiteboard"
+        android:icon="@drawable/ic_enable_whiteboard"
+        ankidroid:showAsAction="never"/>
+    <item
+        android:id="@+id/action_flag"
+        tools:title="Flag card"
+        android:icon="@drawable/ic_flag_transparent"
+        ankidroid:showAsAction="always" >
+        <menu>
+            <item
+                android:id="@id/flag_none"
+                android:icon="@drawable/ic_flag_lightgrey"
+                tools:title="No Flag"/>
+            <item
+                android:id="@id/flag_red"
+                tools:title="Red"
+                android:icon="@drawable/ic_flag_red"/>
+            <item
+                android:id="@id/flag_orange"
+                tools:title="Orange"
+                android:icon="@drawable/ic_flag_orange"/>
+            <item
+                android:id="@id/flag_green"
+                tools:title="Green"
+                android:icon="@drawable/ic_flag_green"/>
+            <item
+                android:id="@id/flag_blue"
+                tools:title="Blue"
+                android:icon="@drawable/ic_flag_blue"/>
+            <item
+                android:id="@id/flag_pink"
+                tools:title="Pink"
+                android:icon="@drawable/ic_flag_pink"/>
+            <item
+                android:id="@id/flag_turquoise"
+                tools:title="Turquoise"
+                android:icon="@drawable/ic_flag_turquoise"/>
+            <item
+                android:id="@id/flag_purple"
+                tools:title="Purple"
+                android:icon="@drawable/ic_flag_purple"/>
+        </menu>
+    </item>
+    <item
+        android:id="@+id/action_edit"
+        android:icon="@drawable/ic_mode_edit_white"
+        android:title="@string/cardeditor_title_edit_card"
+        ankidroid:showAsAction="ifRoom"/>
+    <item
+        android:id="@+id/action_add_note_reviewer"
+        android:title="@string/menu_add_note"
+        android:icon="@drawable/ic_add"
+        ankidroid:showAsAction="never"/>
+    <item
+        android:id="@+id/action_card_info"
+        android:icon="@drawable/ic_dialog_info"
+        tools:title="Card info"
+        ankidroid:showAsAction="never"/>
+    <item
+        android:id="@+id/action_previous_card_info"
+        android:icon="@drawable/ic_outline_info_24"
+        tools:title="Previous card info"
+        ankidroid:showAsAction="never"/>
+    <item
+        android:id="@+id/action_tag"
+        android:icon="@drawable/ic_tag"
+        android:title="@string/menu_edit_tags"
+        ankidroid:showAsAction="never"/>
+    <item
+        android:id="@+id/action_bury_card"
+        tools:title="Bury card"
+        android:icon="@drawable/ic_flip_to_back_white"
+        android:visible="false"
+        />
+    <item
+        android:id="@+id/action_bury"
+        tools:title="Bury"
+        android:icon="@drawable/ic_flip_to_back_white">
+        <menu>
+            <item
+                android:id="@+id/action_bury_card"
+                tools:title="Bury card" />
+            <item
+                android:id="@+id/action_bury_note"
+                tools:title="Bury note" />
+        </menu>
+
+    </item>
+    <item android:id="@+id/action_suspend_card"
+        tools:title="Suspend card"
+        android:icon="@drawable/ic_suspend"
+        android:visible="false"/>
+    <item
+        android:id="@+id/action_suspend"
+        tools:title="Suspend"
+        android:icon="@drawable/ic_suspend">
+        <menu>
+            <item
+                android:id="@+id/action_suspend_card"
+                tools:title="Suspend card" />
+            <item
+                android:id="@+id/action_suspend_note"
+                tools:title="Suspend note" />
+        </menu>
+    </item>
+
+    <item
+        android:id="@+id/action_delete"
+        tools:title="Delete note"
+        android:icon="@drawable/ic_delete_white"/>
+    <item
+        android:id="@+id/action_mark_card"
+        android:icon="@drawable/ic_star_border_white"
+        tools:title="Mark note"
+        ankidroid:showAsAction="ifRoom"/>
+    <item
+        android:id="@+id/action_schedule"
+        android:title="@string/card_editor_reschedule_card"
+        android:icon="@drawable/ic_reschedule">
+        <menu>
+            <item
+                android:id="@+id/action_reschedule_card"
+                tools:title="Set due date" />
+            <item
+                android:id="@+id/action_reset_card_progress"
+                android:title="@string/card_editor_reset_card" />
+        </menu>
+    </item>
+    <item
+        android:id="@+id/action_replay"
+        android:title="@string/replay_media"
+        android:icon="@drawable/ic_play_circle_white"
+        ankidroid:showAsAction="ifRoom"/>
+    <item
+        android:id="@+id/action_toggle_mic_tool_bar"
+        android:title="@string/menu_enable_voice_playback"
+        android:icon="@drawable/ic_action_mic"
+        ankidroid:showAsAction="never"/>
+    <item
+        android:id="@+id/action_select_tts"
+        android:title="@string/select_tts"
+        android:icon="@drawable/ic_language_white"
+        android:visible="false" />
+    <item
+        android:id="@+id/action_open_deck_options"
+        android:icon="@drawable/ic_tune_white"
+        tools:title="Deck options" />
+    <item
+        android:id="@+id/action_toggle_auto_advance"
+        android:icon="@drawable/ic_fast_forward"
+        android:title="@string/toggle_auto_advance" />
+    <item
+        android:id="@+id/user_action_1"
+        android:icon="@drawable/user_action_1"
+        android:title="@string/user_action_1"
+        />
+    <item
+        android:id="@+id/user_action_2"
+        android:icon="@drawable/user_action_2"
+        android:title="@string/user_action_2"
+        />
+    <item
+        android:id="@+id/user_action_3"
+        android:icon="@drawable/user_action_3"
+        android:title="@string/user_action_3"
+        />
+    <item
+        android:id="@+id/user_action_4"
+        android:icon="@drawable/user_action_4"
+        android:title="@string/user_action_4"
+        />
+    <item
+        android:id="@+id/user_action_5"
+        android:icon="@drawable/user_action_5"
+        android:title="@string/user_action_5"
+        />
+    <item
+        android:id="@+id/user_action_6"
+        android:icon="@drawable/user_action_6"
+        android:title="@string/user_action_6"
+        />
+    <item
+        android:id="@+id/user_action_7"
+        android:icon="@drawable/user_action_7"
+        android:title="@string/user_action_7"
+        />
+    <item
+        android:id="@+id/user_action_8"
+        android:icon="@drawable/user_action_8"
+        android:title="@string/user_action_8"
+        />
+    <item
+        android:id="@+id/user_action_9"
+        android:icon="@drawable/user_action_9"
+        android:title="@string/user_action_9"
+        />
+</menu>

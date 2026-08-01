@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- SPDX-License-Identifier: GPL-3.0-or-later -->
+
+<resources>
+    <style name="ThemeOverlay.Xiaomi" parent="">
+        <item name="android:forceDarkAllowed">false</item>
+    </style>
+</resources>

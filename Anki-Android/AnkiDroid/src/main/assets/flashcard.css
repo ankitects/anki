@@ -1,0 +1,156 @@
+body {
+  margin: 0px;
+  padding: 0px;
+
+  overflow-wrap: break-word;
+  /* default background setting to fit with toolbar */
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-position: top;
+  background-attachment: fixed;
+}
+
+li {
+  text-align: start;
+}
+
+pre {
+  text-align: left;
+}
+
+.nightMode .latex {
+     filter: invert(100%);
+}
+
+video {
+    max-width: 100%;
+}
+
+body.night_mode {
+  color: white;
+  background-color: black;
+}
+
+body.ankidroid_dark_mode {
+  background-color: #303030;
+}
+
+#content {
+  margin: 0.5em;
+}
+
+/* For the typed/correct answer comparison. The typePrompt and typeOff
+  classes are AnkiDroid specific, and used only for older (before
+  4.0) Android versions . typePrompt is a placeholder where the input
+  box should be. typeOff is added when the user switched off entering
+  the answer. */
+.typeGood {
+  background-color: #0f0;
+}
+
+.typeBad {
+  background-color: #f00;
+}
+
+.typeMissed {
+  background-color: #ccc;
+}
+
+@font-face {
+    font-family: "Noto Sans Mono";
+    src: url("file:///android_asset/fonts/noto/NotoSansMono.ttf")
+}
+
+#typeans {
+  width: 100%;
+  /* https://anki.tenderapp.com/discussions/beta-testing/1854-using-margin-auto-causes-horizontal-scrollbar-on-typesomething */
+  box-sizing: border-box;
+  /* #15535 - Not in libAnki - Android's Droid Sans Mono is insufficient for IPA */
+  font-family: "Noto Sans Mono";
+}
+
+code#typeans {
+  white-space: pre-wrap;
+  font-variant-ligatures: none;
+}
+
+.typePrompt {
+  color: magenta;
+}
+
+.typePrompt.typeOff {
+  display: none;
+}
+
+.night_mode input#typeans {
+  color: white;
+  background-color: black;
+}
+
+.night_mode .typeGood {
+  background-color: #508040;
+}
+
+.night_mode .typeBad {
+  background-color: #905050;
+}
+
+.ankidroid_dark_mode input#typeans {
+  background-color: #303030;
+}
+
+.replay-button {
+  text-decoration: none;
+}
+
+/*
+Use hard-coded max dimensions if using Chrome back-end. Chrome is able to
+zoom into images correctly even with max dimensions specified, so this way is
+preferred over using JavaScript.
+*/
+.chrome img {
+  max-width: 100%;
+  max-height: 90%;
+}
+
+.vertically_centered {
+  position: absolute;
+  width: 100%;
+  min-height: 100%;
+  display: -webkit-box;
+  -webkit-box-align: stretch;
+  -webkit-box-pack: center;
+  -webkit-box-orient: vertical;
+}
+
+
+/* Make sure the replay buttons look black or white unless explicitly
+changed. Use some fancy CSS to make the button align vertically, and
+scale up, but not down.  */
+
+.replay-button span {
+  display: inline-block;
+  vertical-align: middle;
+  padding: 5px;
+}
+
+.replay-button span svg {
+  stroke: none;
+  fill: black;
+  display: inline;
+  height: 1em;
+  width: 1em;
+  min-width: 32px;
+  min-height: 32px;
+}
+
+.replay-button span img {
+  display: inline;
+  height: 1em;
+  width: 1em;
+  min-width: 32px;
+  min-height: 32px;
+}
+.night_mode .replay-button svg {
+  fill: white;
+}

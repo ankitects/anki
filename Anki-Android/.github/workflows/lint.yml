@@ -1,0 +1,90 @@
+name: 🛠️ Code Quality Checks
+
+on:
+  workflow_dispatch:
+  pull_request:
+  push:
+    # Ignore merge queue branches on push; avoids merge_group+push concurrency race since ref is same
+    branches-ignore:
+      - 'gh-readonly-queue/**'
+  merge_group:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  lintKotlin:
+    name: Lint Kotlin
+    timeout-minutes: 20
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          fetch-depth: 1
+
+      - name: Configure JDK
+        uses: actions/setup-java@be666c2fcd27ec809703dec50e508c2fdc7f6654 # v5.2.0
+        with:
+          distribution: "jetbrains"
+          java-version: "21"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@50e97c2cd7a37755bbfafc9c5b7cafaece252f6e # v6.1.0
+        timeout-minutes: 5
+        with:
+          # Use open source provider: https://github.com/gradle/actions/blob/main/docs/setup-gradle.md#basic-caching
+          cache-provider: basic
+          # Only write to the cache for builds on the 'main' branches, stops branches evicting main cache
+          # Builds on other branches will only read from main branch cache writes
+          # Comment this and the with: above out for performance testing on a branch
+          cache-read-only: ${{ github.ref != 'refs/heads/main' }}
+
+      - name: Warm Gradle Cache
+        # This makes sure we fetch gradle network resources with a retry
+        uses: nick-fields/retry@ad984534de44a9489a53aefd81eb77f87c70dc60 # v4.0.0
+        with:
+          timeout_minutes: 10
+          retry_wait_seconds: 60
+          max_attempts: 3
+          command: ./gradlew :AnkiDroid:compileFullDebugJavaWithJavac compileLint lint-rules:compileTestJava --daemon
+
+      - name: Run Lint Debug
+        # "lintAll" opts in all modules in 1 flavor to lint, pinning :AnkiDroid to lintFullDebug
+        # update workflows/README.md when modifying this line
+        run: ./gradlew lintAll ktLintCheck lint-rules:test --daemon
+
+  # update workflows/README.md when modifying commands
+  lintJavascript:
+    name: Lint Javascript
+    timeout-minutes: 20
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          fetch-depth: 1
+
+        # Handled under the pre-commit hook: ./gradlew installGitHook
+
+        # To run manually, run the following inside folder: Anki-Android
+        # npm install --location=global prettier
+        # prettier --check AnkiDroid/**/*.js
+      - name: Prettify AnkiDroid javascript code
+        uses: creyD/prettier_action@8c18391fdc98ed0d884c6345f03975edac71b8f0 # v4.6
+        with:
+          prettier_options: --check AnkiDroid/**/*.js
+          dry: True
+
+      - name: Install Localization
+        run: cd tools/localization && yarn
+
+      - name: Lint Localization
+        run: cd tools/localization && yarn lint
+
+      - name: Format Localization
+        run: cd tools/localization && yarn checkformat

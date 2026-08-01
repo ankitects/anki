@@ -1,0 +1,29 @@
+<!--
+  ~ Copyright 2021, Google Material Design Icons
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~    http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  ~
+  ~ Modifications (GitHub: joshakaw, 2021):
+  ~  Base icon: payments - outline from Google Material Icons
+  ~  Removed the circle from the middle of the rounded rectangle
+  ~  Added a plus icon inside the foreground bill.
+  -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+  <path
+      android:pathData="M3.1992,3.9688C2.0992,3.9688 1.1992,4.8688 1.1992,5.9688L1.1992,13.9688C1.1992,15.0688 2.0992,15.9688 3.1992,15.9688L17.1992,15.9688C18.2992,15.9688 19.1992,15.0688 19.1992,13.9688L19.1992,5.9688C19.1992,4.8688 18.2992,3.9688 17.1992,3.9688L3.1992,3.9688zM5.9395,6.0488L7.9395,6.0488L7.9395,8.8477L10.7402,8.8477L10.7402,10.8477L7.9395,10.8477L7.9395,13.6484L5.9395,13.6484L5.9395,10.8477L3.2402,10.8477L3.2402,8.8477L5.9395,8.8477L5.9395,6.0488zM21.1992,6.9688L21.1992,17.9688L4.1992,17.9688L4.1992,17.9844A1.9846,1.9846 0,0 0,6.1836 19.9688L21.1992,19.9688C22.2992,19.9688 23.1992,19.0688 23.1992,17.9688L23.1992,8.9531A1.9846,1.9846 0,0 0,21.2148 6.9688L21.1992,6.9688z"
+      android:fillColor="#ffffff"/>
+</vector>

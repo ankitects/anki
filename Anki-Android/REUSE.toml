@@ -1,0 +1,8 @@
+version = 1
+
+# make FileCopyrightText optional on all .kt files
+# see docs/contributing/copyright-headers.md
+[[annotations]]
+path = "**.kt"
+precedence = "aggregate"
+SPDX-FileCopyrightText = "Contributors to the AnkiDroid project"

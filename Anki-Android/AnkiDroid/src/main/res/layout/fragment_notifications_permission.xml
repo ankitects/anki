@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context=".ui.windows.permissions.NotificationsPermissionFragment">
+
+    <com.ichi2.anki.ui.windows.permissions.PermissionsItem
+        android:id="@+id/notification_permission"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:permissionTitle="@string/notification_pref"
+        app:permissionSummary="@string/notifications_permission_explanation"
+        app:permissionIcon="@drawable/ic_notifications"
+        app:permission="@string/post_notification_permission" />
+
+</LinearLayout>

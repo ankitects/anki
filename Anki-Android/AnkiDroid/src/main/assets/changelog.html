@@ -1,0 +1,5840 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="generator" content="Asciidoctor 2.0.26">
+<title>AnkiDroid Changelog</title>
+<style>
+/*! Asciidoctor default stylesheet | MIT License | https://asciidoctor.org */
+/* Uncomment the following line when using as a custom stylesheet */
+/* @import "https://fonts.googleapis.com/css?family=Open+Sans:300,300italic,400,400italic,600,600italic%7CNoto+Serif:400,400italic,700,700italic%7CDroid+Sans+Mono:400,700"; */
+html{font-family:sans-serif;-webkit-text-size-adjust:100%}
+a{background:none}
+a:focus{outline:thin dotted}
+a:active,a:hover{outline:0}
+h1{font-size:2em;margin:.67em 0}
+b,strong{font-weight:bold}
+abbr{font-size:.9em}
+abbr[title]{cursor:help;border-bottom:1px dotted #dddddf;text-decoration:none}
+dfn{font-style:italic}
+hr{height:0}
+mark{background:#ff0;color:#000}
+code,kbd,pre,samp{font-family:monospace;font-size:1em}
+pre{white-space:pre-wrap}
+q{quotes:"\201C" "\201D" "\2018" "\2019"}
+small{font-size:80%}
+sub,sup{font-size:75%;line-height:0;position:relative;vertical-align:baseline}
+sup{top:-.5em}
+sub{bottom:-.25em}
+img{border:0}
+svg:not(:root){overflow:hidden}
+figure{margin:0}
+audio,video{display:inline-block}
+audio:not([controls]){display:none;height:0}
+fieldset{border:1px solid silver;margin:0 2px;padding:.35em .625em .75em}
+legend{border:0;padding:0}
+button,input,select,textarea{font-family:inherit;font-size:100%;margin:0}
+button,input{line-height:normal}
+button,select{text-transform:none}
+button,html input[type=button],input[type=reset],input[type=submit]{-webkit-appearance:button;cursor:pointer}
+button[disabled],html input[disabled]{cursor:default}
+input[type=checkbox],input[type=radio]{padding:0}
+button::-moz-focus-inner,input::-moz-focus-inner{border:0;padding:0}
+textarea{overflow:auto;vertical-align:top}
+table{border-collapse:collapse;border-spacing:0}
+*,::before,::after{box-sizing:border-box}
+html,body{font-size:100%}
+body{background:#fff;color:rgba(0,0,0,.8);padding:0;margin:0;font-family:"Noto Serif","DejaVu Serif",serif;line-height:1;position:relative;cursor:auto;-moz-tab-size:4;-o-tab-size:4;tab-size:4;word-wrap:anywhere;-moz-osx-font-smoothing:grayscale;-webkit-font-smoothing:antialiased}
+a:hover{cursor:pointer}
+img,object,embed{max-width:100%;height:auto}
+object,embed{height:100%}
+img{-ms-interpolation-mode:bicubic}
+.left{float:left!important}
+.right{float:right!important}
+.text-left{text-align:left!important}
+.text-right{text-align:right!important}
+.text-center{text-align:center!important}
+.text-justify{text-align:justify!important}
+.hide{display:none}
+img,object,svg{display:inline-block;vertical-align:middle}
+textarea{height:auto;min-height:50px}
+select{width:100%}
+.subheader,.admonitionblock td.content>.title,.audioblock>.title,.exampleblock>.title,.imageblock>.title,.listingblock>.title,.literalblock>.title,.stemblock>.title,.openblock>.title,.paragraph>.title,.quoteblock>.title,table.tableblock>.title,.verseblock>.title,.videoblock>.title,.dlist>.title,.olist>.title,.ulist>.title,.qlist>.title,.hdlist>.title{line-height:1.45;color:#7a2518;font-weight:400;margin-top:0;margin-bottom:.25em}
+div,dl,dt,dd,ul,ol,li,h1,h2,h3,#toctitle,.sidebarblock>.content>.title,h4,h5,h6,pre,form,p,blockquote,th,td{margin:0;padding:0}
+a{color:#2156a5;text-decoration:underline;line-height:inherit}
+a:hover,a:focus{color:#1d4b8f}
+a img{border:0}
+p{line-height:1.6;margin-bottom:1.25em;text-rendering:optimizeLegibility}
+p aside{font-size:.875em;line-height:1.35;font-style:italic}
+h1,h2,h3,#toctitle,.sidebarblock>.content>.title,h4,h5,h6{font-family:"Open Sans","DejaVu Sans",sans-serif;font-weight:300;font-style:normal;color:#ba3925;text-rendering:optimizeLegibility;margin-top:1em;margin-bottom:.5em;line-height:1.0125em}
+h1 small,h2 small,h3 small,#toctitle small,.sidebarblock>.content>.title small,h4 small,h5 small,h6 small{font-size:60%;color:#e99b8f;line-height:0}
+h1{font-size:2.125em}
+h2{font-size:1.6875em}
+h3,#toctitle,.sidebarblock>.content>.title{font-size:1.375em}
+h4,h5{font-size:1.125em}
+h6{font-size:1em}
+hr{border:solid #dddddf;border-width:1px 0 0;clear:both;margin:1.25em 0 1.1875em}
+em,i{font-style:italic;line-height:inherit}
+strong,b{font-weight:bold;line-height:inherit}
+small{font-size:60%;line-height:inherit}
+code{font-family:"Droid Sans Mono","DejaVu Sans Mono",monospace;font-weight:400;color:rgba(0,0,0,.9)}
+ul,ol,dl{line-height:1.6;margin-bottom:1.25em;list-style-position:outside;font-family:inherit}
+ul,ol{margin-left:1.5em}
+ul li ul,ul li ol{margin-left:1.25em;margin-bottom:0}
+ul.circle{list-style-type:circle}
+ul.disc{list-style-type:disc}
+ul.square{list-style-type:square}
+ul.circle ul:not([class]),ul.disc ul:not([class]),ul.square ul:not([class]){list-style:inherit}
+ol li ul,ol li ol{margin-left:1.25em;margin-bottom:0}
+dl dt{margin-bottom:.3125em;font-weight:bold}
+dl dd{margin-bottom:1.25em}
+blockquote{margin:0 0 1.25em;padding:.5625em 1.25em 0 1.1875em;border-left:1px solid #ddd}
+blockquote,blockquote p{line-height:1.6;color:rgba(0,0,0,.85)}
+@media screen and (min-width:768px){h1,h2,h3,#toctitle,.sidebarblock>.content>.title,h4,h5,h6{line-height:1.2}
+h1{font-size:2.75em}
+h2{font-size:2.3125em}
+h3,#toctitle,.sidebarblock>.content>.title{font-size:1.6875em}
+h4{font-size:1.4375em}}
+table{background:#fff;margin-bottom:1.25em;border:1px solid #dedede;word-wrap:normal}
+table thead,table tfoot{background:#f7f8f7}
+table thead tr th,table thead tr td,table tfoot tr th,table tfoot tr td{padding:.5em .625em .625em;font-size:inherit;color:rgba(0,0,0,.8);text-align:left}
+table tr th,table tr td{padding:.5625em .625em;font-size:inherit;color:rgba(0,0,0,.8)}
+table tr.even,table tr.alt{background:#f8f8f7}
+table thead tr th,table tfoot tr th,table tbody tr td,table tr td,table tfoot tr td{line-height:1.6}
+h1,h2,h3,#toctitle,.sidebarblock>.content>.title,h4,h5,h6{line-height:1.2;word-spacing:-.05em}
+h1 strong,h2 strong,h3 strong,#toctitle strong,.sidebarblock>.content>.title strong,h4 strong,h5 strong,h6 strong{font-weight:400}
+.center{margin-left:auto;margin-right:auto}
+.stretch{width:100%}
+.clearfix::before,.clearfix::after,.float-group::before,.float-group::after{content:" ";display:table}
+.clearfix::after,.float-group::after{clear:both}
+:not(pre).nobreak{word-wrap:normal}
+:not(pre).nowrap{white-space:nowrap}
+:not(pre).pre-wrap{white-space:pre-wrap}
+:not(pre):not([class^=L])>code{font-size:.9375em;font-style:normal!important;letter-spacing:0;padding:.1em .5ex;word-spacing:-.15em;background:#f7f7f8;border-radius:4px;line-height:1.45;text-rendering:optimizeSpeed}
+pre{color:rgba(0,0,0,.9);font-family:"Droid Sans Mono","DejaVu Sans Mono",monospace;line-height:1.45;text-rendering:optimizeSpeed}
+pre code,pre pre{color:inherit;font-size:inherit;line-height:inherit}
+pre.nowrap,pre.nowrap pre{white-space:pre;word-wrap:normal}
+em em{font-style:normal}
+strong strong{font-weight:400}
+.keyseq{color:rgba(51,51,51,.8)}
+kbd{font-family:"Droid Sans Mono","DejaVu Sans Mono",monospace;display:inline-block;color:rgba(0,0,0,.8);font-size:.65em;line-height:1.45;background:#f7f7f7;border:1px solid #ccc;border-radius:3px;box-shadow:0 1px 0 rgba(0,0,0,.2),inset 0 0 0 .1em #fff;margin:0 .15em;padding:.2em .5em;vertical-align:middle;position:relative;top:-.1em;white-space:nowrap}
+.keyseq kbd:first-child{margin-left:0}
+.keyseq kbd:last-child{margin-right:0}
+.menuseq,.menuref{color:#000}
+.menuseq b:not(.caret),.menuref{font-weight:inherit}
+.menuseq{word-spacing:-.02em}
+.menuseq b.caret{font-size:1.25em;line-height:.8}
+.menuseq i.caret{font-weight:bold;text-align:center;width:.45em}
+b.button::before,b.button::after{position:relative;top:-1px;font-weight:400}
+b.button::before{content:"[";padding:0 3px 0 2px}
+b.button::after{content:"]";padding:0 2px 0 3px}
+p a>code:hover{color:rgba(0,0,0,.9)}
+#header,#content,#footnotes,#footer{width:100%;margin:0 auto;max-width:62.5em;*zoom:1;position:relative;padding-left:.9375em;padding-right:.9375em}
+#header::before,#header::after,#content::before,#content::after,#footnotes::before,#footnotes::after,#footer::before,#footer::after{content:" ";display:table}
+#header::after,#content::after,#footnotes::after,#footer::after{clear:both}
+#content{margin-top:1.25em}
+#content::before{content:none}
+#header>h1:first-child{color:rgba(0,0,0,.85);margin-top:2.25rem;margin-bottom:0}
+#header>h1:first-child+#toc{margin-top:8px;border-top:1px solid #dddddf}
+#header>h1:only-child{border-bottom:1px solid #dddddf;padding-bottom:8px}
+#header .details{border-bottom:1px solid #dddddf;line-height:1.45;padding-top:.25em;padding-bottom:.25em;padding-left:.25em;color:rgba(0,0,0,.6);display:flex;flex-flow:row wrap}
+#header .details span:first-child{margin-left:-.125em}
+#header .details span.email a{color:rgba(0,0,0,.85)}
+#header .details br{display:none}
+#header .details br+span::before{content:"\00a0\2013\00a0"}
+#header .details br+span.author::before{content:"\00a0\22c5\00a0";color:rgba(0,0,0,.85)}
+#header .details br+span#revremark::before{content:"\00a0|\00a0"}
+#header #revnumber{text-transform:capitalize}
+#header #revnumber::after{content:"\00a0"}
+#content>h1:first-child:not([class]){color:rgba(0,0,0,.85);border-bottom:1px solid #dddddf;padding-bottom:8px;margin-top:0;padding-top:1rem;margin-bottom:1.25rem}
+#toc{border-bottom:1px solid #e7e7e9;padding-bottom:.5em}
+#toc>ul{margin-left:.125em}
+#toc ul.sectlevel0>li>a{font-style:italic}
+#toc ul.sectlevel0 ul.sectlevel1{margin:.5em 0}
+#toc ul{font-family:"Open Sans","DejaVu Sans",sans-serif;list-style-type:none}
+#toc li{line-height:1.3334;margin-top:.3334em}
+#toc a{text-decoration:none}
+#toc a:active{text-decoration:underline}
+#toctitle{color:#7a2518;font-size:1.2em}
+@media screen and (min-width:768px){#toctitle{font-size:1.375em}
+body.toc2{padding-left:15em;padding-right:0}
+body.toc2 #header>h1:nth-last-child(2){border-bottom:1px solid #dddddf;padding-bottom:8px}
+#toc.toc2{margin-top:0!important;background:#f8f8f7;position:fixed;width:15em;left:0;top:0;border-right:1px solid #e7e7e9;border-top-width:0!important;border-bottom-width:0!important;z-index:1000;padding:1.25em 1em;height:100%;overflow:auto}
+#toc.toc2 #toctitle{margin-top:0;margin-bottom:.8rem;font-size:1.2em}
+#toc.toc2>ul{font-size:.9em;margin-bottom:0}
+#toc.toc2 ul ul{margin-left:0;padding-left:1em}
+#toc.toc2 ul.sectlevel0 ul.sectlevel1{padding-left:0;margin-top:.5em;margin-bottom:.5em}
+body.toc2.toc-right{padding-left:0;padding-right:15em}
+body.toc2.toc-right #toc.toc2{border-right-width:0;border-left:1px solid #e7e7e9;left:auto;right:0}}
+@media screen and (min-width:1280px){body.toc2{padding-left:20em;padding-right:0}
+#toc.toc2{width:20em}
+#toc.toc2 #toctitle{font-size:1.375em}
+#toc.toc2>ul{font-size:.95em}
+#toc.toc2 ul ul{padding-left:1.25em}
+body.toc2.toc-right{padding-left:0;padding-right:20em}}
+#content #toc{border:1px solid #e0e0dc;margin-bottom:1.25em;padding:1.25em;background:#f8f8f7;border-radius:4px}
+#content #toc>:first-child{margin-top:0}
+#content #toc>:last-child{margin-bottom:0}
+#footer{max-width:none;background:rgba(0,0,0,.8);padding:1.25em}
+#footer-text{color:hsla(0,0%,100%,.8);line-height:1.44}
+#content{margin-bottom:.625em}
+.sect1{padding-bottom:.625em}
+@media screen and (min-width:768px){#content{margin-bottom:1.25em}
+.sect1{padding-bottom:1.25em}}
+.sect1:last-child{padding-bottom:0}
+.sect1+.sect1{border-top:1px solid #e7e7e9}
+#content h1>a.anchor,h2>a.anchor,h3>a.anchor,#toctitle>a.anchor,.sidebarblock>.content>.title>a.anchor,h4>a.anchor,h5>a.anchor,h6>a.anchor{position:absolute;z-index:1001;width:1.5ex;margin-left:-1.5ex;display:block;text-decoration:none!important;visibility:hidden;text-align:center;font-weight:400}
+#content h1>a.anchor::before,h2>a.anchor::before,h3>a.anchor::before,#toctitle>a.anchor::before,.sidebarblock>.content>.title>a.anchor::before,h4>a.anchor::before,h5>a.anchor::before,h6>a.anchor::before{content:"\00A7";font-size:.85em;display:block;padding-top:.1em}
+#content h1:hover>a.anchor,#content h1>a.anchor:hover,h2:hover>a.anchor,h2>a.anchor:hover,h3:hover>a.anchor,#toctitle:hover>a.anchor,.sidebarblock>.content>.title:hover>a.anchor,h3>a.anchor:hover,#toctitle>a.anchor:hover,.sidebarblock>.content>.title>a.anchor:hover,h4:hover>a.anchor,h4>a.anchor:hover,h5:hover>a.anchor,h5>a.anchor:hover,h6:hover>a.anchor,h6>a.anchor:hover{visibility:visible}
+#content h1>a.link,h2>a.link,h3>a.link,#toctitle>a.link,.sidebarblock>.content>.title>a.link,h4>a.link,h5>a.link,h6>a.link{color:#ba3925;text-decoration:none}
+#content h1>a.link:hover,h2>a.link:hover,h3>a.link:hover,#toctitle>a.link:hover,.sidebarblock>.content>.title>a.link:hover,h4>a.link:hover,h5>a.link:hover,h6>a.link:hover{color:#a53221}
+details,.audioblock,.imageblock,.literalblock,.listingblock,.stemblock,.videoblock{margin-bottom:1.25em}
+details{margin-left:1.25rem}
+details>summary{cursor:pointer;display:block;position:relative;line-height:1.6;margin-bottom:.625rem;outline:none;-webkit-tap-highlight-color:transparent}
+details>summary::-webkit-details-marker{display:none}
+details>summary::before{content:"";border:solid transparent;border-left:solid;border-width:.3em 0 .3em .5em;position:absolute;top:.5em;left:-1.25rem;transform:translateX(15%)}
+details[open]>summary::before{border:solid transparent;border-top:solid;border-width:.5em .3em 0;transform:translateY(15%)}
+details>summary::after{content:"";width:1.25rem;height:1em;position:absolute;top:.3em;left:-1.25rem}
+.admonitionblock td.content>.title,.audioblock>.title,.exampleblock>.title,.imageblock>.title,.listingblock>.title,.literalblock>.title,.stemblock>.title,.openblock>.title,.paragraph>.title,.quoteblock>.title,table.tableblock>.title,.verseblock>.title,.videoblock>.title,.dlist>.title,.olist>.title,.ulist>.title,.qlist>.title,.hdlist>.title{text-rendering:optimizeLegibility;text-align:left;font-family:"Noto Serif","DejaVu Serif",serif;font-size:1rem;font-style:italic}
+table.tableblock.fit-content>caption.title{white-space:nowrap;width:0}
+.paragraph.lead>p,#preamble>.sectionbody>[class=paragraph]:first-of-type p{font-size:1.21875em;line-height:1.6;color:rgba(0,0,0,.85)}
+.admonitionblock>table{border-collapse:separate;border:0;background:none;width:100%}
+.admonitionblock>table td.icon{text-align:center;width:80px}
+.admonitionblock>table td.icon img{max-width:none}
+.admonitionblock>table td.icon .title{font-weight:bold;font-family:"Open Sans","DejaVu Sans",sans-serif;text-transform:uppercase}
+.admonitionblock>table td.content{padding-left:1.125em;padding-right:1.25em;border-left:1px solid #dddddf;color:rgba(0,0,0,.6);word-wrap:anywhere}
+.admonitionblock>table td.content>:last-child>:last-child{margin-bottom:0}
+.exampleblock>.content{border:1px solid #e6e6e6;margin-bottom:1.25em;padding:1.25em;background:#fff;border-radius:4px}
+.sidebarblock{border:1px solid #dbdbd6;margin-bottom:1.25em;padding:1.25em;background:#f3f3f2;border-radius:4px}
+.sidebarblock>.content>.title{color:#7a2518;margin-top:0;text-align:center}
+.exampleblock>.content>:first-child,.sidebarblock>.content>:first-child{margin-top:0}
+.exampleblock>.content>:last-child,.exampleblock>.content>:last-child>:last-child,.exampleblock>.content .olist>ol>li:last-child>:last-child,.exampleblock>.content .ulist>ul>li:last-child>:last-child,.exampleblock>.content .qlist>ol>li:last-child>:last-child,.sidebarblock>.content>:last-child,.sidebarblock>.content>:last-child>:last-child,.sidebarblock>.content .olist>ol>li:last-child>:last-child,.sidebarblock>.content .ulist>ul>li:last-child>:last-child,.sidebarblock>.content .qlist>ol>li:last-child>:last-child{margin-bottom:0}
+.literalblock pre,.listingblock>.content>pre{border-radius:4px;overflow-x:auto;padding:1em;font-size:.8125em}
+@media screen and (min-width:768px){.literalblock pre,.listingblock>.content>pre{font-size:.90625em}}
+@media screen and (min-width:1280px){.literalblock pre,.listingblock>.content>pre{font-size:1em}}
+.literalblock pre,.listingblock>.content>pre:not(.highlight),.listingblock>.content>pre[class=highlight],.listingblock>.content>pre[class^="highlight "]{background:#f7f7f8}
+.literalblock.output pre{color:#f7f7f8;background:rgba(0,0,0,.9)}
+.listingblock>.content{position:relative}
+.listingblock pre>code{display:block}
+.listingblock code[data-lang]::before{display:none;content:attr(data-lang);position:absolute;font-size:.75em;top:.425rem;right:.5rem;line-height:1;text-transform:uppercase;color:inherit;opacity:.5}
+.listingblock:hover code[data-lang]::before{display:block}
+.listingblock.terminal pre .command::before{content:attr(data-prompt);padding-right:.5em;color:inherit;opacity:.5}
+.listingblock.terminal pre .command:not([data-prompt])::before{content:"$"}
+.listingblock pre.highlightjs{padding:0}
+.listingblock pre.highlightjs>code{padding:1em;border-radius:4px}
+.listingblock pre.prettyprint{border-width:0}
+.prettyprint{background:#f7f7f8}
+pre.prettyprint .linenums{line-height:1.45;margin-left:2em}
+pre.prettyprint li{background:none;list-style-type:inherit;padding-left:0}
+pre.prettyprint li code[data-lang]::before{opacity:1}
+pre.prettyprint li:not(:first-child) code[data-lang]::before{display:none}
+table.linenotable{border-collapse:separate;border:0;margin-bottom:0;background:none}
+table.linenotable td[class]{color:inherit;vertical-align:top;padding:0;line-height:inherit;white-space:normal}
+table.linenotable td.code{padding-left:.75em}
+table.linenotable td.linenos,pre.pygments .linenos{border-right:1px solid;opacity:.35;padding-right:.5em;-webkit-user-select:none;-moz-user-select:none;-ms-user-select:none;user-select:none}
+pre.pygments span.linenos{display:inline-block;margin-right:.75em}
+.quoteblock{margin:0 1em 1.25em 1.5em;display:table}
+.quoteblock:not(.excerpt)>.title{margin-left:-1.5em;margin-bottom:.75em}
+.quoteblock blockquote,.quoteblock p{color:rgba(0,0,0,.85);font-size:1.15rem;line-height:1.75;word-spacing:.1em;letter-spacing:0;font-style:italic;text-align:justify}
+.quoteblock blockquote{margin:0;padding:0;border:0}
+.quoteblock blockquote::before{content:"\201c";float:left;font-size:2.75em;font-weight:bold;line-height:.6em;margin-left:-.6em;color:#7a2518;text-shadow:0 1px 2px rgba(0,0,0,.1)}
+.quoteblock blockquote>.paragraph:last-child p{margin-bottom:0}
+.quoteblock .attribution{margin-top:.75em;margin-right:.5ex;text-align:right}
+.verseblock{margin:0 1em 1.25em}
+.verseblock pre{font-family:"Open Sans","DejaVu Sans",sans-serif;font-size:1.15rem;color:rgba(0,0,0,.85);font-weight:300;text-rendering:optimizeLegibility}
+.verseblock pre strong{font-weight:400}
+.verseblock .attribution{margin-top:1.25rem;margin-left:.5ex}
+.quoteblock .attribution,.verseblock .attribution{font-size:.9375em;line-height:1.45;font-style:italic}
+.quoteblock .attribution br,.verseblock .attribution br{display:none}
+.quoteblock .attribution cite,.verseblock .attribution cite{display:block;letter-spacing:-.025em;color:rgba(0,0,0,.6)}
+.quoteblock.abstract blockquote::before,.quoteblock.excerpt blockquote::before,.quoteblock .quoteblock blockquote::before{display:none}
+.quoteblock.abstract blockquote,.quoteblock.abstract p,.quoteblock.excerpt blockquote,.quoteblock.excerpt p,.quoteblock .quoteblock blockquote,.quoteblock .quoteblock p{line-height:1.6;word-spacing:0}
+.quoteblock.abstract{margin:0 1em 1.25em;display:block}
+.quoteblock.abstract>.title{margin:0 0 .375em;font-size:1.15em;text-align:center}
+.quoteblock.excerpt>blockquote,.quoteblock .quoteblock{padding:0 0 .25em 1em;border-left:.25em solid #dddddf}
+.quoteblock.excerpt,.quoteblock .quoteblock{margin-left:0}
+.quoteblock.excerpt blockquote,.quoteblock.excerpt p,.quoteblock .quoteblock blockquote,.quoteblock .quoteblock p{color:inherit;font-size:1.0625rem}
+.quoteblock.excerpt .attribution,.quoteblock .quoteblock .attribution{color:inherit;font-size:.85rem;text-align:left;margin-right:0}
+p.tableblock:last-child{margin-bottom:0}
+td.tableblock>.content{margin-bottom:1.25em;word-wrap:anywhere}
+td.tableblock>.content>:last-child{margin-bottom:-1.25em}
+table.tableblock,th.tableblock,td.tableblock{border:0 solid #dedede}
+table.grid-all>*>tr>*{border-width:1px}
+table.grid-cols>*>tr>*{border-width:0 1px}
+table.grid-rows>*>tr>*{border-width:1px 0}
+table.frame-all{border-width:1px}
+table.frame-ends{border-width:1px 0}
+table.frame-sides{border-width:0 1px}
+table.frame-none>colgroup+*>:first-child>*,table.frame-sides>colgroup+*>:first-child>*{border-top-width:0}
+table.frame-none>:last-child>:last-child>*,table.frame-sides>:last-child>:last-child>*{border-bottom-width:0}
+table.frame-none>*>tr>:first-child,table.frame-ends>*>tr>:first-child{border-left-width:0}
+table.frame-none>*>tr>:last-child,table.frame-ends>*>tr>:last-child{border-right-width:0}
+table.stripes-all>*>tr,table.stripes-odd>*>tr:nth-of-type(odd),table.stripes-even>*>tr:nth-of-type(even),table.stripes-hover>*>tr:hover{background:#f8f8f7}
+th.halign-left,td.halign-left{text-align:left}
+th.halign-right,td.halign-right{text-align:right}
+th.halign-center,td.halign-center{text-align:center}
+th.valign-top,td.valign-top{vertical-align:top}
+th.valign-bottom,td.valign-bottom{vertical-align:bottom}
+th.valign-middle,td.valign-middle{vertical-align:middle}
+table thead th,table tfoot th{font-weight:bold}
+tbody tr th{background:#f7f8f7}
+tbody tr th,tbody tr th p,tfoot tr th,tfoot tr th p{color:rgba(0,0,0,.8);font-weight:bold}
+p.tableblock>code:only-child{background:none;padding:0}
+p.tableblock{font-size:1em}
+ol{margin-left:1.75em}
+ul li ol{margin-left:1.5em}
+dl dd{margin-left:1.125em}
+dl dd:last-child,dl dd:last-child>:last-child{margin-bottom:0}
+li p,ul dd,ol dd,.olist .olist,.ulist .ulist,.ulist .olist,.olist .ulist{margin-bottom:.625em}
+ul.checklist,ul.none,ol.none,ul.no-bullet,ol.no-bullet,ol.unnumbered,ul.unstyled,ol.unstyled{list-style-type:none}
+ul.no-bullet,ol.no-bullet,ol.unnumbered{margin-left:.625em}
+ul.unstyled,ol.unstyled{margin-left:0}
+li>p:empty:only-child::before{content:"";display:inline-block}
+ul.checklist>li>p:first-child{margin-left:-1em}
+ul.checklist>li>p:first-child>.fa-square-o:first-child,ul.checklist>li>p:first-child>.fa-check-square-o:first-child{width:1.25em;font-size:.8em;position:relative;bottom:.125em}
+ul.checklist>li>p:first-child>input[type=checkbox]:first-child{margin-right:.25em}
+ul.inline{display:flex;flex-flow:row wrap;list-style:none;margin:0 0 .625em -1.25em}
+ul.inline>li{margin-left:1.25em}
+.unstyled dl dt{font-weight:400;font-style:normal}
+ol.arabic{list-style-type:decimal}
+ol.decimal{list-style-type:decimal-leading-zero}
+ol.loweralpha{list-style-type:lower-alpha}
+ol.upperalpha{list-style-type:upper-alpha}
+ol.lowerroman{list-style-type:lower-roman}
+ol.upperroman{list-style-type:upper-roman}
+ol.lowergreek{list-style-type:lower-greek}
+.hdlist>table,.colist>table{border:0;background:none}
+.hdlist>table>tbody>tr,.colist>table>tbody>tr{background:none}
+td.hdlist1,td.hdlist2{vertical-align:top;padding:0 .625em}
+td.hdlist1{font-weight:bold;padding-bottom:1.25em}
+td.hdlist2{word-wrap:anywhere}
+.literalblock+.colist,.listingblock+.colist{margin-top:-.5em}
+.colist td:not([class]):first-child{padding:.4em .75em 0;line-height:1;vertical-align:top}
+.colist td:not([class]):first-child img{max-width:none}
+.colist td:not([class]):last-child{padding:.25em 0}
+.thumb,.th{line-height:0;display:inline-block;border:4px solid #fff;box-shadow:0 0 0 1px #ddd}
+.imageblock.left{margin:.25em .625em 1.25em 0}
+.imageblock.right{margin:.25em 0 1.25em .625em}
+.imageblock>.title{margin-bottom:0}
+.imageblock.thumb,.imageblock.th{border-width:6px}
+.imageblock.thumb>.title,.imageblock.th>.title{padding:0 .125em}
+.image.left,.image.right{margin-top:.25em;margin-bottom:.25em;display:inline-block;line-height:0}
+.image.left{margin-right:.625em}
+.image.right{margin-left:.625em}
+a.image{text-decoration:none;display:inline-block}
+a.image object{pointer-events:none}
+sup.footnote,sup.footnoteref{font-size:.875em;position:static;vertical-align:super}
+sup.footnote a,sup.footnoteref a{text-decoration:none}
+sup.footnote a:active,sup.footnoteref a:active,#footnotes .footnote a:first-of-type:active{text-decoration:underline}
+#footnotes{padding-top:.75em;padding-bottom:.75em;margin-bottom:.625em}
+#footnotes hr{width:20%;min-width:6.25em;margin:-.25em 0 .75em;border-width:1px 0 0}
+#footnotes .footnote{padding:0 .375em 0 .225em;line-height:1.3334;font-size:.875em;margin-left:1.2em;margin-bottom:.2em}
+#footnotes .footnote a:first-of-type{font-weight:bold;text-decoration:none;margin-left:-1.05em}
+#footnotes .footnote:last-of-type{margin-bottom:0}
+#content #footnotes{margin-top:-.625em;margin-bottom:0;padding:.75em 0}
+div.unbreakable{page-break-inside:avoid}
+.big{font-size:larger}
+.small{font-size:smaller}
+.underline{text-decoration:underline}
+.overline{text-decoration:overline}
+.line-through{text-decoration:line-through}
+.aqua{color:#00bfbf}
+.aqua-background{background:#00fafa}
+.black{color:#000}
+.black-background{background:#000}
+.blue{color:#0000bf}
+.blue-background{background:#0000fa}
+.fuchsia{color:#bf00bf}
+.fuchsia-background{background:#fa00fa}
+.gray{color:#606060}
+.gray-background{background:#7d7d7d}
+.green{color:#006000}
+.green-background{background:#007d00}
+.lime{color:#00bf00}
+.lime-background{background:#00fa00}
+.maroon{color:#600000}
+.maroon-background{background:#7d0000}
+.navy{color:#000060}
+.navy-background{background:#00007d}
+.olive{color:#606000}
+.olive-background{background:#7d7d00}
+.purple{color:#600060}
+.purple-background{background:#7d007d}
+.red{color:#bf0000}
+.red-background{background:#fa0000}
+.silver{color:#909090}
+.silver-background{background:#bcbcbc}
+.teal{color:#006060}
+.teal-background{background:#007d7d}
+.white{color:#bfbfbf}
+.white-background{background:#fafafa}
+.yellow{color:#bfbf00}
+.yellow-background{background:#fafa00}
+span.icon>.fa{cursor:default}
+a span.icon>.fa{cursor:inherit}
+.admonitionblock td.icon [class^="fa icon-"]{font-size:2.5em;text-shadow:1px 1px 2px rgba(0,0,0,.5);cursor:default}
+.admonitionblock td.icon .icon-note::before{content:"\f05a";color:#19407c}
+.admonitionblock td.icon .icon-tip::before{content:"\f0eb";text-shadow:1px 1px 2px rgba(155,155,0,.8);color:#111}
+.admonitionblock td.icon .icon-warning::before{content:"\f071";color:#bf6900}
+.admonitionblock td.icon .icon-caution::before{content:"\f06d";color:#bf3400}
+.admonitionblock td.icon .icon-important::before{content:"\f06a";color:#bf0000}
+.conum[data-value]{display:inline-block;color:#fff!important;background:rgba(0,0,0,.8);border-radius:50%;text-align:center;font-size:.75em;width:1.67em;height:1.67em;line-height:1.67em;font-family:"Open Sans","DejaVu Sans",sans-serif;font-style:normal;font-weight:bold}
+.conum[data-value] *{color:#fff!important}
+.conum[data-value]+b{display:none}
+.conum[data-value]::after{content:attr(data-value)}
+pre .conum[data-value]{position:relative;top:-.125em}
+b.conum *{color:inherit!important}
+.conum:not([data-value]):empty{display:none}
+dt,th.tableblock,td.content,div.footnote{text-rendering:optimizeLegibility}
+h1,h2,p,td.content,span.alt,summary{letter-spacing:-.01em}
+p strong,td.content strong,div.footnote strong{letter-spacing:-.005em}
+p,blockquote,dt,td.content,td.hdlist1,span.alt,summary{font-size:1.0625rem}
+p{margin-bottom:1.25rem}
+.sidebarblock p,.sidebarblock dt,.sidebarblock td.content,p.tableblock{font-size:1em}
+.exampleblock>.content{background:#fffef7;border-color:#e0e0dc;box-shadow:0 1px 4px #e0e0dc}
+.print-only{display:none!important}
+@page{margin:1.25cm .75cm}
+@media print{*{box-shadow:none!important;text-shadow:none!important}
+html{font-size:80%}
+a{color:inherit!important;text-decoration:underline!important}
+a.bare,a[href^="#"],a[href^="mailto:"]{text-decoration:none!important}
+a[href^="http:"]:not(.bare)::after,a[href^="https:"]:not(.bare)::after{content:"(" attr(href) ")";display:inline-block;font-size:.875em;padding-left:.25em}
+abbr[title]{border-bottom:1px dotted}
+abbr[title]::after{content:" (" attr(title) ")"}
+pre,blockquote,tr,img,object,svg{page-break-inside:avoid}
+thead{display:table-header-group}
+svg{max-width:100%}
+p,blockquote,dt,td.content{font-size:1em;orphans:3;widows:3}
+h2,h3,#toctitle,.sidebarblock>.content>.title{page-break-after:avoid}
+#header,#content,#footnotes,#footer{max-width:none}
+#toc,.sidebarblock,.exampleblock>.content{background:none!important}
+#toc{border-bottom:1px solid #dddddf!important;padding-bottom:0!important}
+body.book #header{text-align:center}
+body.book #header>h1:first-child{border:0!important;margin:2.5em 0 1em}
+body.book #header .details{border:0!important;display:block;padding:0!important}
+body.book #header .details span:first-child{margin-left:0!important}
+body.book #header .details br{display:block}
+body.book #header .details br+span::before{content:none!important}
+body.book #toc{border:0!important;text-align:left!important;padding:0!important;margin:0!important}
+body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-break-before:always}
+.listingblock code[data-lang]::before{display:block}
+#footer{padding:0 .9375em}
+.hide-on-print{display:none!important}
+.print-only{display:block!important}
+.hide-for-print{display:none!important}
+.show-for-print{display:inherit!important}}
+@media amzn-kf8,print{#header>h1:first-child{margin-top:1.25rem}
+.sect1{padding:0!important}
+.sect1+.sect1{border:0}
+#footer{background:none}
+#footer-text{color:rgba(0,0,0,.6);font-size:.9em}}
+@media amzn-kf8{#header,#content,#footnotes,#footer{padding:0}}
+</style>
+<link rel="apple-touch-icon" sizes="57x57" href="/apple-touch-icon-57x57.png">
+<link rel="apple-touch-icon" sizes="60x60" href="/apple-touch-icon-60x60.png">
+<link rel="apple-touch-icon" sizes="72x72" href="/apple-touch-icon-72x72.png">
+<link rel="apple-touch-icon" sizes="76x76" href="/apple-touch-icon-76x76.png">
+<link rel="apple-touch-icon" sizes="114x114" href="/apple-touch-icon-114x114.png">
+<link rel="apple-touch-icon" sizes="120x120" href="/apple-touch-icon-120x120.png">
+<link rel="apple-touch-icon" sizes="144x144" href="/apple-touch-icon-144x144.png">
+<link rel="apple-touch-icon" sizes="152x152" href="/apple-touch-icon-152x152.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon-180x180.png">
+<link rel="icon" type="image/png" href="/favicon-32x32.png" sizes="32x32">
+<link rel="icon" type="image/png" href="/android-chrome-192x192.png" sizes="192x192">
+<link rel="icon" type="image/png" href="/favicon-96x96.png" sizes="96x96">
+<link rel="icon" type="image/png" href="/favicon-16x16.png" sizes="16x16">
+<link rel="manifest" href="/manifest.json">
+<link rel="mask-icon" href="/safari-pinned-tab.svg" color="#03a9f4">
+<meta name="msapplication-TileColor" content="#303030">
+<meta name="msapplication-TileImage" content="/mstile-144x144.png">
+<meta name="theme-color" content="#03a9f4">
+<style>
+    .rtl * {
+        direction: rtl;
+    }
+    .rtl .anchor {
+        margin-right: -1.5ex;
+    }
+</style>
+</head>
+<body class="article">
+<div id="header">
+<h1>AnkiDroid Changelog</h1>
+</div>
+<div id="content">
+<div class="sect1">
+<h2 id="_version_2_24_0_20260502"><a class="anchor" href="#_version_2_24_0_20260502"></a>Version 2.24.0 (20260502)</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>It&#8217;s new version time! AnkiDroid 2.24.0 is here! 🥳</p>
+</div>
+<div class="paragraph">
+<p>Did you know the AnkiDroid open source team actively grows the open source software community
+now and for the future by participating in the <a href="https://summerofcode.withgoogle.com/">Google Summer of Code</a>? That&#8217;s right, since 2021!</p>
+</div>
+<div class="paragraph">
+<p>We mentor the next generation of software developers in open source software, and just this week
+the 2026 announcements went out - we were awarded 2 project slots this year with <a href="https://summerofcode.withgoogle.com/programs/2026/projects/XGTDRLdf">Manoel Cortes Mendez</a>
+and <a href="https://summerofcode.withgoogle.com/programs/2026/projects/pJlzPbuC">Shaan Narendran</a> as our project participants</p>
+</div>
+<div class="paragraph">
+<p>Be on the lookout in 2.25 and 2.26 for some new features from new open source developers 👀</p>
+</div>
+<div class="paragraph">
+<p>As ever, your help is part of what makes this app go, and it helps the future of open source. You have our
+sincere gratitude for the <a href="https://opencollective.com/ankidroid/contribute">donations</a> 😊</p>
+</div>
+<div class="paragraph">
+<p>Enjoy the new version! Here&#8217;s the major changes:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>BREAKING - deprecation/security: remove setAcceptFileSchemeCookies</p>
+</li>
+<li>
+<p>Features</p>
+<div class="ulist">
+<ul>
+<li>
+<p>Change Note Types: Support 'bulk' change note types [❗️ forces a one-way sync]</p>
+</li>
+<li>
+<p>Filtered Decks: Newly designed create/edit screen</p>
+</li>
+<li>
+<p>New Study Screen: Gestures/keybinds</p>
+</li>
+<li>
+<p>New Study Screen: Whiteboard -  Two finger scroll</p>
+</li>
+<li>
+<p>New Study Screen: Reset progress</p>
+</li>
+<li>
+<p>Insert Field: Support 'Special fields': {{Deck}} etc&#8230;&#8203;</p>
+</li>
+<li>
+<p>Deck Picker: Compatibility with Anki Desktop deck search syntax</p>
+</li>
+<li>
+<p>Sync: Added 'Network timeout' preference</p>
+</li>
+<li>
+<p>Settings: List related settings</p>
+</li>
+<li>
+<p>API: Support /cards</p>
+</li>
+</ul>
+</div>
+</li>
+<li>
+<p>Improvements</p>
+<div class="ulist">
+<ul>
+<li>
+<p>Accessibility: Improve Deck Picker &amp; Sync</p>
+</li>
+<li>
+<p>Internationalization: Various fixes for right-to-left locales</p>
+</li>
+<li>
+<p>Card Browser: Tap and drag scrollbar</p>
+</li>
+<li>
+<p>Dialogs: Better errors when handling duplicate data</p>
+</li>
+<li>
+<p>Note Editor: Disable "Scroll toolbar" if toolbar is not shown</p>
+</li>
+<li>
+<p>Note Editor: More consistent icon design</p>
+</li>
+<li>
+<p>Onboarding: Offer an immediate sync if logging in</p>
+</li>
+<li>
+<p>Sync: Require explicit cancellation of one-way sync</p>
+</li>
+<li>
+<p>Sync: Show progress in MB</p>
+</li>
+<li>
+<p>Sync Conflict: Add help icon</p>
+</li>
+<li>
+<p>New Study Screen:</p>
+<div class="ulist">
+<ul>
+<li>
+<p>Move answer feedback to the top</p>
+</li>
+<li>
+<p>Use system timeout for double tap interval</p>
+</li>
+<li>
+<p>Persist 'Record voice' between sessions</p>
+</li>
+<li>
+<p>Better icons</p>
+</li>
+<li>
+<p>Whiteboard: Persist visibility between study sessions</p>
+</li>
+<li>
+<p>Whiteboard: Hide toolbar option</p>
+</li>
+<li>
+<p>Tablets: Option to show toolbar on the top</p>
+</li>
+<li>
+<p>Previewer: Support all frame styles</p>
+</li>
+<li>
+<p>Drawing: Smooth curves when drawing or using the whiteboard</p>
+</li>
+</ul>
+</div>
+</li>
+<li>
+<p>Settings: Gesture configuration screen supports 'shake' gestures</p>
+</li>
+<li>
+<p>Settings: Restrict answer commands to back of the card</p>
+</li>
+<li>
+<p>Settings: Make Controls tab searchable</p>
+</li>
+<li>
+<p>Settings: Better limits for numeric values</p>
+</li>
+<li>
+<p>Deck options: Show title in the toolbar</p>
+</li>
+<li>
+<p>Custom Study: Improve UI</p>
+</li>
+<li>
+<p>Fields: Display name of field when deleting</p>
+</li>
+<li>
+<p>Settings: Better design for up/down numeric input</p>
+</li>
+<li>
+<p>Notifications: Sync notifications are lower priority [new installs only]</p>
+</li>
+</ul>
+</div>
+</li>
+<li>
+<p>Fixes:</p>
+<div class="ulist">
+<ul>
+<li>
+<p>Stability: Fixes "android backup in progress, please try again" [hopefully]</p>
+</li>
+<li>
+<p>Tags: Fix multiple selection display</p>
+</li>
+<li>
+<p>Scheduling: Fix scheduling bug on January 1</p>
+</li>
+<li>
+<p>Note Editor: 'Discard changes' dialog shown less often</p>
+</li>
+<li>
+<p>Note Editor: Fix crash when saving too quickly</p>
+</li>
+<li>
+<p>Deck Picker: Fix visual glitch when tapping a deck</p>
+</li>
+<li>
+<p>Deck Picker: "All columns" selected bug</p>
+</li>
+<li>
+<p>Card Viewers: stop card reloading after clicking a # link</p>
+</li>
+<li>
+<p>New Study Screen: Persist answer state when app is reopened</p>
+</li>
+<li>
+<p>New Study Screen: support legacy showAnswer calls</p>
+</li>
+<li>
+<p>New Study Screen: fix 'missing media' error display</p>
+</li>
+<li>
+<p>Card Template Editor: re-enable save after error</p>
+</li>
+<li>
+<p>Whiteboard: Fix whiteboard not being cleared between cards</p>
+</li>
+<li>
+<p>Shared Decks: Fix memory leak</p>
+</li>
+<li>
+<p>Set Due Date: Improve message appearance</p>
+</li>
+<li>
+<p>Deck Description: Various UI fixes</p>
+</li>
+<li>
+<p>Tablet: Improved Note Editor Preview [crashes &amp; performance]</p>
+</li>
+<li>
+<p>Widgets: Fix crash when removing deck</p>
+</li>
+<li>
+<p>Widgets: Better refreshing on day rollover</p>
+</li>
+<li>
+<p>Widgets: Better widget restoration</p>
+</li>
+<li>
+<p>Videos: Fix replay not starting from beginning</p>
+</li>
+<li>
+<p>Shortcuts: Fix crash when disabling many shortcuts</p>
+</li>
+<li>
+<p>RTL language display fixes</p>
+</li>
+</ul>
+</div>
+</li>
+<li>
+<p>Updated to newest <a href="https://crowdin.com/project/ankidroid/activity-stream">community-provided translations</a> (thank you!)</p>
+</li>
+<li>
+<p>Full list of changes <a href="https://github.com/ankidroid/Anki-Android/milestone/74?closed=1">2.24.0 changes</a> (only 837, no big deal)</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_version_2_23_3_20260110"><a class="anchor" href="#_version_2_23_3_20260110"></a>Version 2.23.3 (20260110)</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>2026 is already moving right along with fresh fixes for you: 2 more bugs eradicated from the 2.23 release series</p>
+</div>
+<div class="paragraph">
+<p>This will likely be the last release in the 2.23 series as it appears we&#8217;ve fixed most regressions and most
+serious reports related to new functinality. 2.24.0 release will be up next with more "new study screen" changes
+as well as a bunch of other new features which are already in progress 🚂</p>
+</div>
+<div class="paragraph">
+<p>Sincere gratitude for the <a href="https://opencollective.com/ankidroid/contribute">donations</a> - it buys coffee and coffee fuels features ☕ 😊</p>
+</div>
+<div class="paragraph">
+<p>Full list of <a href="https://github.com/ankidroid/Anki-Android/milestone/76?closed=1">2.23.3 fixes</a></p>
+</div>
+<div class="paragraph">
+<p>Please see the <a href="#_version_2_23_0_20251209">2.23.0 changelog</a> below for the main 2.23 features announcement 👇</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Fix legacy TTS language resolution failures</p>
+</li>
+<li>
+<p>Fix flickering / buttons disappearing if editing note type with many cards</p>
+</li>
+<li>
+<p>Updated to newest <a href="https://crowdin.com/project/ankidroid/activity-stream">community-provided translations</a></p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_version_2_23_2_20251229"><a class="anchor" href="#_version_2_23_2_20251229"></a>Version 2.23.2 (20251229)</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>New Year, New AnkiDroid! Some fixes for you: 16 more bugs eradicated from the 2.23 release series</p>
+</div>
+<div class="paragraph">
+<p>We appreciate any and all issue reports and we do our best to work with you to figure out what went wrong and get things fixed.</p>
+</div>
+<div class="paragraph">
+<p>We are truly filled with thanks for all <a href="https://opencollective.com/ankidroid/contribute">donations</a> - it definitely helps us justify all the time we spend on AnkiDroid to our families 😂</p>
+</div>
+<div class="paragraph">
+<p>Full list of <a href="https://github.com/ankidroid/Anki-Android/milestone/75?closed=1">2.23.2 fixes</a></p>
+</div>
+<div class="paragraph">
+<p>Please see the <a href="#_version_2_23_0_20251209">2.23.0 changelog</a> below for the main 2.23 features announcement 👇</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Fix crash when deleting deck with many sub-decks</p>
+</li>
+<li>
+<p>Fix crash in DeckPicker on slower devices</p>
+</li>
+<li>
+<p>Fix crash in Custom Study dialog</p>
+</li>
+<li>
+<p>Fix crash in legacy TTS code for missing languages</p>
+</li>
+<li>
+<p>Fix crash in shared deck download on Xioami devices</p>
+</li>
+<li>
+<p>Fix snackbar not showing or showing twice when adding note</p>
+</li>
+<li>
+<p>Fix incorrect pinned field handling in note type editor</p>
+</li>
+<li>
+<p>Fix potential infinite sync retry loop on sync error</p>
+</li>
+<li>
+<p>Fix set due date dialog theming</p>
+</li>
+<li>
+<p>Fix resizing divider showing up when it shouldn&#8217;t on tablets</p>
+</li>
+<li>
+<p>Updated to newest <a href="https://crowdin.com/project/ankidroid/activity-stream">community-provided translations</a></p>
+</li>
+<li>
+<p>New Study Screen Fixes:</p>
+<div class="ulist">
+<ul>
+<li>
+<p>Fix incorrect cloze text display on back side of card</p>
+</li>
+<li>
+<p>Support Anking IO one by one cards</p>
+</li>
+<li>
+<p>Larger buttons in larger screen layouts</p>
+</li>
+<li>
+<p>Fix card counters resetting to zero under certain circumstances</p>
+</li>
+<li>
+<p>Fix "Set due date" confirmation positioning</p>
+</li>
+</ul>
+</div>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_version_2_23_1_20251214"><a class="anchor" href="#_version_2_23_1_20251214"></a>Version 2.23.1 (20251214)</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Seasons greetings! Here&#8217;s a quick update to our 2.23.0 release, to keep your studying running smoothly.</p>
+</div>
+<div class="paragraph">
+<p>Please see the <a href="#_version_2_23_0_20251209">2.23.0 changelog</a> below for the big list of features 👇</p>
+</div>
+<div class="paragraph">
+<p>We are volunteers, but your <a href="https://opencollective.com/ankidroid/contribute">donations</a> buy us the ☕️ which fuels these bugfixes, thanks! ☺️</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Improvements</p>
+<div class="ulist">
+<ul>
+<li>
+<p>New Study Screen: hide suggestions when typing in the answer</p>
+</li>
+<li>
+<p>New Study Screen: warn when using the API (we&#8217;re still working on this one!)</p>
+</li>
+<li>
+<p>Changelog: improved loading times when offline</p>
+</li>
+</ul>
+</div>
+</li>
+<li>
+<p>Fixes</p>
+<div class="ulist">
+<ul>
+<li>
+<p>Card Browser: Fixed scrollbar</p>
+</li>
+<li>
+<p>Import: Support importing files with invalid filename</p>
+</li>
+<li>
+<p>Note Editor: fix 'Decide by Note Type' handling</p>
+</li>
+<li>
+<p>New Study Screen: fix timer continuing to run when in the background</p>
+</li>
+<li>
+<p>Fix rare permissions-related crash on Xiaomi devices</p>
+</li>
+</ul>
+</div>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_version_2_23_0_20251209"><a class="anchor" href="#_version_2_23_0_20251209"></a>Version 2.23.0 (20251209)</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>What makes the holiday season better? An AnkiDroid feature release! 🎁</p>
+</div>
+<div class="paragraph">
+<p>As ever, a huge thanks for all the <a href="https://opencollective.com/ankidroid/contribute">donations</a>, it makes a huge difference to the group that works on the app for you 💝</p>
+</div>
+<div class="paragraph">
+<p>Here&#8217;s the list of new stuff:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><a href="https://github.com/ankitects/anki/releases/tag/25.09">Anki 25.09 included</a></p>
+</li>
+<li>
+<p>Completely redesigned study screen! Available for testing. Enable it in the app settings.</p>
+</li>
+<li>
+<p>Some of the improvements:</p>
+<div class="ulist">
+<ul>
+<li>
+<p>New design</p>
+</li>
+<li>
+<p>New commands and settings</p>
+</li>
+<li>
+<p>New whiteboard</p>
+</li>
+<li>
+<p>New and improved gestures</p>
+</li>
+<li>
+<p>New JavaScript API (to be released soon!)</p>
+</li>
+<li>
+<p>Better performance</p>
+</li>
+<li>
+<p>Better toolbar</p>
+</li>
+<li>
+<p>Tablets, Foldables and Desktop support</p>
+</li>
+<li>
+<p>Many, many, many fixed issues</p>
+</li>
+<li>
+<p>See the <a href="https://forums.ankiweb.net/t/new-study-screen-official-thread/67394">forum thread</a> for screenshots and more information.</p>
+</li>
+</ul>
+</div>
+</li>
+<li>
+<p>We participated in Google Summer of Code 2025!</p>
+<div class="ulist">
+<ul>
+<li>
+<p><a href="https://github.com/Haz3-jolt/AnkiDroid-GSoC-Report">Hari Srinivasan&#8217;s Tablet and Chromebook UI report</a></p>
+</li>
+<li>
+<p><a href="https://github.com/ericli3690/gsoc-ankidroid-report/blob/main/README.md">Song "Eric" Yu Li&#8217;s Report</a></p>
+</li>
+</ul>
+</div>
+</li>
+<li>
+<p>New Features</p>
+<div class="ulist">
+<ul>
+<li>
+<p>Tablets Resizable panels on tablets</p>
+</li>
+<li>
+<p>Chromebooks/Mouse input: improved right-click support</p>
+</li>
+<li>
+<p>Study Screen: 'Previous Card Info' command</p>
+</li>
+<li>
+<p>Filtered Decks: sort by 'Ascending/Descending retrievability'</p>
+</li>
+<li>
+<p>Study Screen: use numeric keyboard if the typed answer is numeric</p>
+</li>
+<li>
+<p>Image Occlusion: change deck support</p>
+</li>
+<li>
+<p>Note Types: delete multiple note types</p>
+</li>
+<li>
+<p>Fields: add icon to indicate sort field</p>
+</li>
+</ul>
+</div>
+</li>
+<li>
+<p>General Improvements</p>
+<div class="ulist">
+<ul>
+<li>
+<p>Widgets: improve card analysis widget UI</p>
+</li>
+<li>
+<p>FSRS: link to deck options on FSRS errors</p>
+</li>
+<li>
+<p>Settings: move "double tap timeout" to "Accessibility"</p>
+</li>
+<li>
+<p>Vibration: mark vibrations as 'touch' [Android 15+]</p>
+</li>
+<li>
+<p>Instant Add: Better dialog design</p>
+</li>
+<li>
+<p>Dialogs: better 'Discard changes' messages</p>
+</li>
+<li>
+<p>Card Browser: better 'save searches' UX</p>
+</li>
+</ul>
+</div>
+</li>
+<li>
+<p>Fixes</p>
+<div class="ulist">
+<ul>
+<li>
+<p>Deck Picker: no longer hangs hanging when returning from a background sync</p>
+</li>
+<li>
+<p>Deck Picker: resolve inconsistencies when updating decks</p>
+</li>
+<li>
+<p>Reviewing: fix modifying typed answer with JS</p>
+</li>
+<li>
+<p>TTS Voices screen: fix design bugs</p>
+</li>
+<li>
+<p>Deck Description: - keyboard not closing</p>
+</li>
+<li>
+<p>Crash Reports: not shown for user input validation issues</p>
+</li>
+<li>
+<p>Crashes: recover from fatal errors in Anki WebViews [onRenderProcessGone]</p>
+</li>
+</ul>
+</div>
+</li>
+<li>
+<p>Improved community translations: <a href="https://crowdin.com/project/ankidroid/activity-stream">Thank you to all our translators!</a></p>
+</li>
+<li>
+<p><a href="https://github.com/ankidroid/Anki-Android/milestone/71?closed=1">Full set of 526 (!) changed items</a></p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_version_2_22_3_20250802"><a class="anchor" href="#_version_2_22_3_20250802"></a>Version 2.22.3 (20250802)</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Small bugfix release for the 2.22 series, please see 2.22.2 notes below 👇</p>
+</div>
+<div class="paragraph">
+<p>We are volunteers but <a href="https://opencollective.com/ankidroid/contribute">donations</a> buy 🍕 and 🍕 fuels bugfixes, thanks! ☺️</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Includes <a href="https://apps.ankiweb.net/">Anki 25.07.5</a></p>
+</li>
+<li>
+<p>Fix crash in sync worker</p>
+</li>
+<li>
+<p>Fix for empty 3rd party sync server endpoints</p>
+</li>
+<li>
+<p>Fix preferences navigation on large screens</p>
+</li>
+<li>
+<p>Fix missing media folder in collections</p>
+</li>
+<li>
+<p>Fix handling of corrupt FSRS parameters</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>Main release notes for 2.22 follow, enjoy!</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_version_2_22_2_20250725"><a class="anchor" href="#_version_2_22_2_20250725"></a>Version 2.22.2 (20250725)</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Another release containing all of Anki&#8217;s new improvements (and a few of our own)!</p>
+</div>
+<div class="paragraph">
+<p>Your <a href="https://opencollective.com/ankidroid/contribute">donations</a> helped us get these changes out so quickly! 🤜🤛</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><strong>Features</strong></p>
+<div class="ulist">
+<ul>
+<li>
+<p>Includes <a href="https://apps.ankiweb.net/">Anki 25.07.4</a>, with <a href="https://github.com/open-spaced-repetition/fsrs4anki">FSRS 6.0</a></p>
+</li>
+<li>
+<p>Card Browser - Grade Now: Inform Anki&#8217;s scheduler that you forgot a card at any time</p>
+</li>
+<li>
+<p>FSRS 6: Updated FSRS scheduler.</p>
+<div class="ulist">
+<ul>
+<li>
+<p>For optimal scheduling: update all your Anki clients, sync, then re-optimize FSRS</p>
+</li>
+</ul>
+</div>
+</li>
+<li>
+<p>Image Occlusion: Rotate and color masks</p>
+</li>
+<li>
+<p>Deck Description: Support Markdown</p>
+</li>
+<li>
+<p>Deck Options: Reminder to optimize FSRS</p>
+</li>
+<li>
+<p>Deck Options: Warn on suboptimal 'maximum interval' settings</p>
+</li>
+<li>
+<p>Reviewer: Add 'Toggle Eraser'</p>
+</li>
+<li>
+<p>Errors: Link Anki manual pages</p>
+</li>
+</ul>
+</div>
+</li>
+<li>
+<p><strong>Improvements</strong></p>
+<div class="ulist">
+<ul>
+<li>
+<p>FSRS (Scheduling): Better handling of same-day reviews</p>
+</li>
+<li>
+<p>FSRS (Scheduling): Improved forgetting curve shape</p>
+</li>
+<li>
+<p>FSRS (Simulator): Easy days/leech options/sort order support</p>
+</li>
+<li>
+<p>Custom Study: Revert to previous tag selection dialog</p>
+</li>
+<li>
+<p>Card Browser: Improved 'Select All/Select None' UI</p>
+</li>
+<li>
+<p>Deck Options: Better desired retention hints</p>
+</li>
+<li>
+<p>Anki Card menu: Notify user on success</p>
+</li>
+<li>
+<p>Card Template Editor: Keyboard/Tablet/Cursor position improvements</p>
+</li>
+<li>
+<p>App Info: Display user-facing version instead of library version</p>
+</li>
+<li>
+<p>Reviewer: Better 'undo' tooltips</p>
+</li>
+<li>
+<p>Reviewer (Accessibility): Inform user if 'show answer long press time' is enabled</p>
+</li>
+<li>
+<p>Settings: Improve tablet UI</p>
+</li>
+<li>
+<p>Settings: Reorganize settings</p>
+</li>
+<li>
+<p>Settings: Improve accessibility settings</p>
+</li>
+<li>
+<p>Better popup styling</p>
+</li>
+<li>
+<p>Rename 'play media' to 'replay media'</p>
+</li>
+</ul>
+</div>
+</li>
+<li>
+<p><strong>Fixes</strong></p>
+<div class="ulist">
+<ul>
+<li>
+<p>Sharing: Fix creating notes via Android 'Share' menu</p>
+</li>
+<li>
+<p>Card Browser: Various selection/focus fixes</p>
+</li>
+<li>
+<p>Launcher Shortcuts: Improve study shortcut if deck is completed</p>
+</li>
+<li>
+<p>Export: 'Save' dialog sometimes not appearing</p>
+</li>
+<li>
+<p>Card Browser: Dismiss 'X cards shown' snackbar</p>
+</li>
+<li>
+<p>Deck Picker: Show correct 'undo' menu item</p>
+</li>
+<li>
+<p>Deck Options: Fix softlock when trying to view the manual offline</p>
+</li>
+<li>
+<p>Previewer: Make image width consistent with other Anki clients</p>
+</li>
+<li>
+<p>Note Editor - Crop: Fix action bar color</p>
+</li>
+<li>
+<p>Reviewer (Accessibility): Cancel 'answer long press' if answer buttons lose focus</p>
+</li>
+<li>
+<p>Crash Reports: Don&#8217;t send reports on expected or fixable user input errors</p>
+</li>
+</ul>
+</div>
+</li>
+<li>
+<p><strong>Removals</strong></p>
+<div class="ulist">
+<ul>
+<li>
+<p>Deck Options: Compute Minimum Recommended Retention (CMRR) has been removed temporarily from Anki Desktop, pending reworked user interface</p>
+</li>
+<li>
+<p>Deck Options: 'Evaluate' is replaced with 'health check' when optimizing</p>
+</li>
+</ul>
+</div>
+</li>
+<li>
+<p>Improved community translations: <a href="https://crowdin.com/project/ankidroid/activity-stream">Thank you to all our translators!</a></p>
+</li>
+<li>
+<p><a href="https://github.com/ankidroid/Anki-Android/milestone/69?closed=1">Full changelog</a></p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_version_2_22_1_20250724"><a class="anchor" href="#_version_2_22_1_20250724"></a>Version 2.22.1 (20250724)</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Unreleased internal version</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_version_2_22_0_20250724"><a class="anchor" href="#_version_2_22_0_20250724"></a>Version 2.22.0 (20250724)</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Unreleased internal version</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_version_2_21_1_20250716"><a class="anchor" href="#_version_2_21_1_20250716"></a>Version 2.21.1 (20250716)</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>While we know you all think AnkiDroid is perfect, it turns out there are still bugs to fix 😉</p>
+</div>
+<div class="paragraph">
+<p>Here&#8217;s a batch of fixes for our latest 2.21.0 release</p>
+</div>
+<div class="paragraph">
+<p>As always I will take a moment to bow in gratitude for the <a href="https://opencollective.com/ankidroid/contribute">donations</a>, our little crew of volunteers sincerely appreciates it 🙇</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Fix new top crash bug w/proper WorkManager initialization</p>
+</li>
+<li>
+<p>Fix invalid empty sync server URL</p>
+</li>
+<li>
+<p>Fix improperly restored scroll position in Card Browser</p>
+</li>
+<li>
+<p>Fix MIUI / Material You widget color interaction</p>
+</li>
+<li>
+<p>Fix cloze number incrementing in instant editor</p>
+</li>
+<li>
+<p>Fix right-to-left language / mirroring issue in gesture picker</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>AnkiDroid 2.22 with anki 25.07 (and FSRS6!) is just around the corner. Cheers</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_version_2_21_0_20250708"><a class="anchor" href="#_version_2_21_0_20250708"></a>Version 2.21.0 (20250708)</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>It is that time again! New AnkiDroid time!</p>
+</div>
+<div class="paragraph">
+<p>First, let me say thanks so much for the <a href="https://opencollective.com/ankidroid/contribute">donations</a>, we really appreciate it ❤️</p>
+</div>
+<div class="paragraph">
+<p>Here&#8217;s the list of new stuff:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>General</p>
+<div class="ulist">
+<ul>
+<li>
+<p>Includes Anki 25.02.7 (25.07.1 with FSRS6 available in our alphas, and will be out soon)</p>
+</li>
+<li>
+<p>Deck Picker: allow panel resize on larger screens</p>
+</li>
+<li>
+<p>Browser: Multi-column support and 'Manage columns' screen</p>
+</li>
+<li>
+<p>Controls: Support previewer shortcuts</p>
+</li>
+<li>
+<p>Reviewer: Much better multilingual support, using <a href="https://fonts.google.com/noto/specimen/Noto+Sans+Mono/license">Noto Sans Mono font</a> for type-in-answer</p>
+</li>
+<li>
+<p>Export: improve progress notifications</p>
+</li>
+<li>
+<p>Export: use modern format by default [apkg/colpkg]</p>
+</li>
+<li>
+<p>Tags: huge performance improvements</p>
+</li>
+<li>
+<p>Browser Appearance: improve icon design</p>
+</li>
+<li>
+<p>Set Due Date: Display interval of card</p>
+</li>
+<li>
+<p>Set Due Date: hide 'set interval to same value' if FSRS is enabled</p>
+</li>
+<li>
+<p>Translations: add Uyghur language</p>
+</li>
+<li>
+<p>Previewer: Add 'Empty Front' indicator</p>
+</li>
+<li>
+<p>Previewer: Keyboard/controller remappable bindings</p>
+</li>
+<li>
+<p>Previewer: support non-combining (nc:) typed answers</p>
+</li>
+<li>
+<p>Browser: New options: default search text and ignore accents</p>
+</li>
+<li>
+<p>Browser: Support FSRS columns (Difficulty/Stability/Retrievability)</p>
+</li>
+<li>
+<p>Browser: Support sorting by deck name</p>
+</li>
+<li>
+<p>UI: Android predictive back gesture support</p>
+</li>
+<li>
+<p>Widgets: Better resizing support &amp; add rounded corners</p>
+</li>
+<li>
+<p>Reposition Field: pre-fill previous value</p>
+</li>
+<li>
+<p>Card Template Editor: Support 'restore to default'</p>
+</li>
+<li>
+<p>Congrats Screen: support unburying only siblings/manually buried cards</p>
+</li>
+<li>
+<p>Reposition: Implement all upstream functionality (steps, randomize order, shift cards)</p>
+</li>
+<li>
+<p>Reposition: Display queue positions</p>
+</li>
+<li>
+<p>JS API: Added <code>setTags</code> and <code>getTags</code></p>
+</li>
+<li>
+<p>Streamline Debug Info</p>
+</li>
+<li>
+<p>Error dialog: copy stack trace &amp; debug info</p>
+</li>
+<li>
+<p>Made more actions undoable (for example, "empty filtered deck")</p>
+</li>
+<li>
+<p>Improve Deck Options optimization progress notifiations</p>
+</li>
+<li>
+<p>API: reimplement 'empty_cards'</p>
+</li>
+<li>
+<p>Maintenance: add licenses wiki page link</p>
+</li>
+</ul>
+</div>
+</li>
+<li>
+<p>Note Editor</p>
+<div class="ulist">
+<ul>
+<li>
+<p>Add tooltip in note editor</p>
+</li>
+<li>
+<p>Allow pasting images as PNG</p>
+</li>
+<li>
+<p>Add mathjax block and mathjax chemistry</p>
+</li>
+<li>
+<p>Improve LocaleSelectionDialog</p>
+</li>
+<li>
+<p>Check Media dialog: Anki compatibility (tag missing, media report, keep notes, make undoable)</p>
+</li>
+</ul>
+</div>
+</li>
+<li>
+<p>Custom Study</p>
+<div class="ulist">
+<ul>
+<li>
+<p>Replicate desktop custom study by tags functionality</p>
+</li>
+</ul>
+</div>
+</li>
+<li>
+<p>Import</p>
+<div class="ulist">
+<ul>
+<li>
+<p>Improve import progress notifications</p>
+</li>
+<li>
+<p>Performance: up to 100x import speed improvement</p>
+</li>
+<li>
+<p>Add drag-and-drop support for txt/csv/tsv</p>
+</li>
+<li>
+<p>Add support for sharing .txt files to AnkiDroid</p>
+</li>
+</ul>
+</div>
+</li>
+<li>
+<p>Design</p>
+<div class="ulist">
+<ul>
+<li>
+<p>Use proper color for AlertDialogs background color in black theme</p>
+</li>
+<li>
+<p>Improve Activity Transition Animations</p>
+</li>
+<li>
+<p>Various improvements when using a large font</p>
+</li>
+<li>
+<p>Right to left language support improvements</p>
+</li>
+</ul>
+</div>
+</li>
+<li>
+<p>Preferences</p>
+<div class="ulist">
+<ul>
+<li>
+<p>Option to remove Deck Picker background</p>
+</li>
+<li>
+<p>Controls: Show keyboard shortcuts if keyboard attached</p>
+</li>
+<li>
+<p>Controls: Support one-sided gestures</p>
+</li>
+<li>
+<p>Controls: Improved UI for control and gesture entry</p>
+</li>
+</ul>
+</div>
+</li>
+<li>
+<p>Shared Deck Download</p>
+<div class="ulist">
+<ul>
+<li>
+<p>Warn if no internet connection</p>
+</li>
+<li>
+<p>Add 'manual download' link on download failure</p>
+</li>
+</ul>
+</div>
+</li>
+<li>
+<p>Fixes</p>
+<div class="ulist">
+<ul>
+<li>
+<p>Fixed our top crash bug! (issues with collection open on media sync)</p>
+</li>
+<li>
+<p>Sync UI hanging if app did not have notification permission</p>
+</li>
+<li>
+<p>Ensure latest note data is used after updates</p>
+</li>
+<li>
+<p>LTR languages: fix layout padding</p>
+</li>
+<li>
+<p>Screen reorientiation / app reopen fixes</p>
+</li>
+<li>
+<p>Various menu, icon &amp; tooltip related improvements</p>
+</li>
+<li>
+<p>Various keyboard appearance/focus improvements</p>
+</li>
+<li>
+<p>Deck Options: Only show 'discard changes' if changes occurred</p>
+</li>
+<li>
+<p>Deck Picker: Various fixes for the deck expansion arrow</p>
+</li>
+<li>
+<p>Limit size of image that can be used in the crop editor</p>
+</li>
+<li>
+<p>Translatable strings: improve newlines after digits</p>
+</li>
+<li>
+<p>Add missing setting entries to the setting search</p>
+</li>
+<li>
+<p>Fix background image visibility based on collection state</p>
+</li>
+<li>
+<p>Handle quotes in deck names and searches</p>
+</li>
+<li>
+<p>"+0 buried" displayed uselessly</p>
+</li>
+<li>
+<p>Fix DeckOption become closable if it&#8217;s not loaded</p>
+</li>
+<li>
+<p>Fix a number of memory leaks</p>
+</li>
+<li>
+<p>Fix importing text files from other apps (Gmail etc&#8230;&#8203;)</p>
+</li>
+<li>
+<p>Fix multi-line support for the deck picker footer</p>
+</li>
+<li>
+<p>Fix: note editor multimedia options opening more than once</p>
+</li>
+<li>
+<p>Fix: note editor prevent PNG, WEBP to JPG conversion on image crop</p>
+</li>
+<li>
+<p>Fix: Image Occlusion note creation with special chars in filename</p>
+</li>
+<li>
+<p>Card browser: maintain selection after changing flags</p>
+</li>
+<li>
+<p>Card Browser: a flag with an empty name is invalid</p>
+</li>
+<li>
+<p>Fix audio autoplay when previewing</p>
+</li>
+<li>
+<p>Browser: maintain scroll positioning</p>
+</li>
+<li>
+<p>Fix: change Ctrl+A to Ctrl+N in Card Template Editor</p>
+</li>
+<li>
+<p>Fix keyboard not closing after search</p>
+</li>
+<li>
+<p>Correctly highlight settings header on tablets</p>
+</li>
+<li>
+<p>Fix truncated text on Login screen</p>
+</li>
+<li>
+<p>Fix Settings status bar color</p>
+</li>
+<li>
+<p>fix shared deck download 'navigate' button</p>
+</li>
+<li>
+<p>Reset Reviewer zoom on card flip</p>
+</li>
+<li>
+<p>Reviewer: Support localStorage again in JavaScript (via Advanced Setting)</p>
+</li>
+<li>
+<p>Better deep link support for the Reviewer</p>
+</li>
+</ul>
+</div>
+</li>
+<li>
+<p>Fixes - Deck Picker</p>
+<div class="ulist">
+<ul>
+<li>
+<p>Improve congrats message when no cards due later in day</p>
+</li>
+<li>
+<p>Only show Backup prompt dialog at startup if there is no one-way or auto sync</p>
+</li>
+<li>
+<p>"Deck is empty" no longer appears when deck has empty subdecks</p>
+</li>
+<li>
+<p>Adding to an empty deck adds to the correct deck</p>
+</li>
+<li>
+<p>Allow search to show subdecks if they match the searched term</p>
+</li>
+</ul>
+</div>
+</li>
+<li>
+<p>Feature Removals</p>
+<div class="ulist">
+<ul>
+<li>
+<p>Remove long touch gesture</p>
+</li>
+<li>
+<p>Remove Alt + K keyboard dialog shortcut</p>
+</li>
+<li>
+<p>Card Template Editor: change Ctrl+A to Ctrl+N</p>
+</li>
+<li>
+<p>Remove Automatic Display Answer global setting</p>
+</li>
+<li>
+<p>Remove "Close review screen and sync"</p>
+</li>
+<li>
+<p>Translations: <a href="https://crowdin.com/project/ankidroid/activity-stream">Incredible amount of general translation work</a>, thank you!</p>
+</li>
+</ul>
+</div>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p><a href="https://github.com/ankidroid/Anki-Android/milestone/67?closed=1">Full changelog</a></p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_version_2_20_1_20241223"><a class="anchor" href="#_version_2_20_1_20241223"></a>Version 2.20.1 (20241223)</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Happy Holidays from your AnkiDroid team!</p>
+</div>
+<div class="paragraph">
+<p>What an incredible year for AnkiDroid, looking back at the release notes</p>
+</div>
+<div class="paragraph">
+<p>Hope you enjoyed it :-)</p>
+</div>
+<div class="paragraph">
+<p>Thanks so much for the <a href="https://opencollective.com/ankidroid/contribute">donations</a>, we really appreciate it ❤️</p>
+</div>
+<div class="paragraph">
+<p>Small collection of bugfixes for the 2.20.0 release:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Fix shared deck download on Android 15 devices</p>
+</li>
+<li>
+<p>Add ability to detailed error information if collection inaccessible</p>
+</li>
+<li>
+<p>Fix note editor not keeping state if window resizes</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_version_2_20_0_20241204"><a class="anchor" href="#_version_2_20_0_20241204"></a>Version 2.20.0 (20241204)</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>In 2020, implementing Anki&#8217;s latest scheduling improvements would have taken years. Today, the same process takes weeks due to the extensive effort of merging Anki&#8217;s codebase into AnkiDroid. Enjoy your even more efficient reviews!</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Your <a href="https://opencollective.com/ankidroid/contribute">donations</a> paid for the work to make this happen so quickly 🤗</p>
+</li>
+<li>
+<p><strong>AnkiDroid Updates</strong></p>
+<div class="ulist">
+<ul>
+<li>
+<p>Includes <a href="https://apps.ankiweb.net/">Anki 24.11</a>, with <a href="https://github.com/open-spaced-repetition/fsrs4anki">FSRS 5.0</a></p>
+<div class="ulist">
+<ul>
+<li>
+<p>If you use FSRS, we recommend re-optimizing parameters</p>
+</li>
+</ul>
+</div>
+</li>
+<li>
+<p>Forget Cards: Add link to manual</p>
+</li>
+<li>
+<p>Deck Overview: Re-include 'total cards' statistics</p>
+</li>
+</ul>
+</div>
+</li>
+<li>
+<p><strong>Anki 24.11 Features</strong></p>
+<div class="ulist">
+<ul>
+<li>
+<p>FSRS 5.0</p>
+<div class="ulist">
+<ul>
+<li>
+<p>Want to try FSRS (the Free Spaced Repetition Scheduler)? Enable it in deck options</p>
+</li>
+<li>
+<p>(experimental) FSRS now schedules same-day reviews if you remove all learning steps</p>
+</li>
+<li>
+<p>Load balancing: within your fuzz range, Anki will now try to pick days that have fewer reviews waiting.</p>
+</li>
+</ul>
+</div>
+</li>
+<li>
+<p>Deck Options: <a href="https://docs.ankiweb.net/deck-options.html#the-simulator">FSRS Simulator</a></p>
+</li>
+<li>
+<p>Deck Options: <a href="https://docs.ankiweb.net/deck-options.html?#easy-days">Easy days</a> - you can now tell Anki to try avoid certain days of the week</p>
+</li>
+<li>
+<p>Card Info: Add forgetting curve</p>
+</li>
+<li>
+<p>Decks can now be sorted by descending retrievability.</p>
+<div class="ulist">
+<ul>
+<li>
+<p>Simulations have shown this is a better choice when you have a backlog, and this sort order is likely to become the default in the future.</p>
+</li>
+</ul>
+</div>
+</li>
+<li>
+<p>Statistics: Add true retention stats</p>
+</li>
+<li>
+<p>Statistics: Estimated total knowledge by note, and daily load</p>
+</li>
+<li>
+<p>Card Info: Include card position information</p>
+</li>
+<li>
+<p>See more in <a href="https://github.com/ankitects/anki/releases/tag/24.11">the Anki 24.11 changelog</a></p>
+</li>
+</ul>
+</div>
+</li>
+<li>
+<p><strong>Fixes</strong></p>
+<div class="ulist">
+<ul>
+<li>
+<p>Blocked AnkiWeb email addresses being sent to our private crash reporting server if an error occurs when displaying sync server email verification messages</p>
+<div class="ulist">
+<ul>
+<li>
+<p>Crash reports are <strong>never</strong> shared nor permitted to be shared, but;</p>
+</li>
+<li>
+<p>Wiped those records anyway and installed rules to reject them on server as well</p>
+</li>
+</ul>
+</div>
+</li>
+<li>
+<p>Removed 'show keyboard shortcuts' hint after numeric keypresses</p>
+</li>
+</ul>
+</div>
+</li>
+<li>
+<p><strong>Deprecation</strong></p>
+<div class="ulist">
+<ul>
+<li>
+<p>AnkiDroid 2.20.0 no longer supports <a href="https://apilevels.com/">Android 6 (2015)</a></p>
+</li>
+</ul>
+</div>
+</li>
+<li>
+<p><a href="https://crowdin.com/project/ankidroid">New community-provided language translations</a></p>
+</li>
+<li>
+<p><a href="https://github.com/ankidroid/Anki-Android/milestone/64?closed=1">Full changelog</a></p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_version_2_19_5_20250711"><a class="anchor" href="#_version_2_19_5_20250711"></a>Version 2.19.5 (20250711)</h2>
+<div class="sectionbody">
+<div class="ulist">
+<ul>
+<li>
+<p>Security patch for Ankidroid API to correctly enforce permissions
+backported to older versions that still support Android 6 and below</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_version_2_19_4_20250110"><a class="anchor" href="#_version_2_19_4_20250110"></a>Version 2.19.4 (20250110)</h2>
+<div class="sectionbody">
+<div class="ulist">
+<ul>
+<li>
+<p>Restore the 2.19 series to the Play Store for Android versions 6 and older
+We do our best to make sure old devices are not forced into obsolescence
+We had to drop support for Android &lt; 6 in AnkiDroid 2.20, but we intended
+to make sure 2.19 was still available and instead the Play Store removed it</p>
+</li>
+<li>
+<p>As ever, huge thanks for the <a href="https://opencollective.com/ankidroid">donations</a> 😍
+they help us maintain support for old devices much longer than other apps,
+and keep old versions available for them even when we are forced to move on</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_version_2_19_3_20241129"><a class="anchor" href="#_version_2_19_3_20241129"></a>Version 2.19.3 (20241129)</h2>
+<div class="sectionbody">
+<div class="ulist">
+<ul>
+<li>
+<p>Huge batch of fixes for 2.19 series - see main 2.19.1 notes below 👇</p>
+</li>
+<li>
+<p>Huge thanks for the <a href="https://opencollective.com/ankidroid">donations</a> - big impact for our small crew 💌</p>
+</li>
+<li>
+<p>Fixed crash importing collection to recover from storage permission failure</p>
+</li>
+<li>
+<p>Fixed crash on deck finished / congrats page</p>
+</li>
+<li>
+<p>Fixed crash on large screens in deck list search</p>
+</li>
+<li>
+<p>Fixed inaccurate out-of-date WebView error for some users</p>
+</li>
+<li>
+<p>Fixed crash in deck options</p>
+</li>
+<li>
+<p>Fixed crash in shared deck download</p>
+</li>
+<li>
+<p>Fixed crash adding large images to note</p>
+</li>
+<li>
+<p>Fixed crash if device locale is unknown</p>
+</li>
+<li>
+<p>Fixed crashes if no files app, browser, gallery or image app installed</p>
+</li>
+<li>
+<p>Fixed startup crash from other apps sending AnkiDroid unexpected data</p>
+</li>
+<li>
+<p>Fixed card browser crash from odd deck selection dropdown state</p>
+</li>
+<li>
+<p>our stats indicate only 0.02% of users experienced a crash on 2.19.2, hopefully even fewer now!</p>
+</li>
+<li>
+<p>2.20 is coming very soon with just-released anki 24.11</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_version_2_19_2_20241118"><a class="anchor" href="#_version_2_19_2_20241118"></a>Version 2.19.2 (20241118)</h2>
+<div class="sectionbody">
+<div class="ulist">
+<ul>
+<li>
+<p>First batch of fixes for 2.19 release, series - see main 2.19.1 notes below 👇</p>
+</li>
+<li>
+<p>We really appreciate the <a href="https://opencollective.com/ankidroid">donations</a>, they paid for these fixes 😍</p>
+</li>
+<li>
+<p>Fixed crash calculating application size on older Android versions</p>
+</li>
+<li>
+<p>Fixed image occlusion cards being added to the wrong deck</p>
+</li>
+<li>
+<p>Fixed crash when card template editor is opened</p>
+</li>
+<li>
+<p>Fixed crash on pasting file</p>
+</li>
+<li>
+<p>Fixed crash when interacting with the system in note editor</p>
+</li>
+<li>
+<p>Fixed crash related to gestures in the reviewer</p>
+</li>
+<li>
+<p>Fixed crash on devices using developer versions of WebView</p>
+</li>
+<li>
+<p>Fixed unable to crop shared images</p>
+</li>
+<li>
+<p>Added diagnostics to help fix remaining bugs - only a couple with unknown causes left!</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_version_2_19_1_20241031"><a class="anchor" href="#_version_2_19_1_20241031"></a>Version 2.19.1 (20241031)</h2>
+<div class="sectionbody">
+<div class="ulist">
+<ul>
+<li>
+<p>Version 2.19.1 was limited to 10% rollout to check for rarer crash issues. We found some!</p>
+</li>
+<li>
+<p>Incorporating the work done in the last couple of months, including three contributors financed by the "Google Summer of Code" program, we are proud to present the latest iteration of the best Android app for learning!</p>
+</li>
+<li>
+<p>We really appreciate the <a href="https://opencollective.com/ankidroid">donations</a>, they paid for these features 🤝</p>
+</li>
+<li>
+<p>Features</p>
+<div class="ulist">
+<ul>
+<li>
+<p>Includes Anki upstream version 24.06.3 with <a href="https://github.com/open-spaced-repetition/fsrs4anki">FSRS</a>(4.5) 0.6.4</p>
+</li>
+<li>
+<p>Updated backend MathJax and jQuery libraries</p>
+</li>
+<li>
+<p>Two new widgets for easier access to your decks and cards</p>
+</li>
+<li>
+<p>Streamlined process of adding cloze notes to AnkiDroid through an Instant Add Note Editor</p>
+</li>
+<li>
+<p>Improved the process of adding multimedia to your notes</p>
+</li>
+<li>
+<p>Improved experience for devices with larger screens such as chromebooks and tablets</p>
+<div class="ulist">
+<ul>
+<li>
+<p>Better utilization of screen space</p>
+</li>
+<li>
+<p>Better mouse support</p>
+</li>
+<li>
+<p>Better keyboard shortcuts support</p>
+</li>
+<li>
+<p>Drag and drop support on some parts of the application</p>
+</li>
+</ul>
+</div>
+</li>
+<li>
+<p>Better support for cards flags management</p>
+</li>
+<li>
+<p>Update audio focus with support for Android 15</p>
+</li>
+<li>
+<p>Reduced application size</p>
+</li>
+<li>
+<p>Improved accessibility</p>
+<div class="ulist">
+<ul>
+<li>
+<p>Better support for larger text size</p>
+</li>
+<li>
+<p>Added info text for more UI elements</p>
+</li>
+</ul>
+</div>
+</li>
+<li>
+<p>Added new previewer for SVG images</p>
+</li>
+<li>
+<p>Improved deck selection in statistics screen</p>
+</li>
+<li>
+<p>Study options screen shows same bury counts as desktop</p>
+</li>
+<li>
+<p>Added renaming flags</p>
+</li>
+<li>
+<p>New "addTagToNote" method for JS API</p>
+</li>
+<li>
+<p>Suggestion to rename decks for ordering: "chapter 1" &#8594; "chapter 01"</p>
+</li>
+<li>
+<p>Better handling of outdated webview</p>
+</li>
+<li>
+<p>Added hold to record audio</p>
+</li>
+<li>
+<p>Mic toolbar is now persistent in the Reviewer</p>
+</li>
+<li>
+<p>Latest translations from our community of <a href="https://crowdin.com/project/ankidroid">translators</a> (thank you!)</p>
+</li>
+</ul>
+</div>
+</li>
+<li>
+<p>Fixes</p>
+<div class="ulist">
+<ul>
+<li>
+<p>Fixed several issues related to keyboard handling</p>
+</li>
+<li>
+<p>Fixed out of memory errors when displaying many tags</p>
+</li>
+<li>
+<p>Fixed several issues with the interaction between note editor and template editor</p>
+</li>
+<li>
+<p>Fixed learn ahead limit not being applied after setting change</p>
+</li>
+<li>
+<p>Fixed several issues related to statistics page</p>
+</li>
+<li>
+<p>Fixed shared decks rate limit</p>
+</li>
+<li>
+<p>Fixed silent crash on startup due to fatal error</p>
+</li>
+<li>
+<p>Fixed several issues related to TTS replay</p>
+</li>
+<li>
+<p>Fixed several issues related to portrait/landscape screen orientation</p>
+</li>
+<li>
+<p>Fixed multiple UI inconsistencies</p>
+</li>
+<li>
+<p>Fixed several issues to the timebox in review screen</p>
+</li>
+<li>
+<p>Fixed several issues around the previewer</p>
+</li>
+<li>
+<p>Many other smaller fixes (still reading this? Congratulations, you made it to the end!)</p>
+</li>
+</ul>
+</div>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_version_2_19_0_20241026"><a class="anchor" href="#_version_2_19_0_20241026"></a>Version 2.19.0 (20241026)</h2>
+<div class="sectionbody">
+<div class="ulist">
+<ul>
+<li>
+<p>This one almost made it! It had one important bug though so it did not leave beta channel</p>
+</li>
+<li>
+<p>2.19.1 superceded this release so it gets the big changelog you see above</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_version_2_18_4_20240624"><a class="anchor" href="#_version_2_18_4_20240624"></a>Version 2.18.4 (20240624)</h2>
+<div class="sectionbody">
+<div class="ulist">
+<ul>
+<li>
+<p>More fixes for the 2.18 series, see main 2.18.0 notes below 👇</p>
+</li>
+<li>
+<p>We really appreciate the <a href="https://opencollective.com/ankidroid">donations</a>, they paid for these fixes 🤝</p>
+</li>
+<li>
+<p>Fixed release configuration error, shrunk app by 27MB!</p>
+</li>
+<li>
+<p>Fix custom study disables undo option</p>
+</li>
+<li>
+<p>Fix crash if WidgetManager is null</p>
+</li>
+<li>
+<p>Fix filtered card sent to home deck after edit</p>
+</li>
+<li>
+<p>Fix audio elements don&#8217;t play</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_version_2_18_3_20240601"><a class="anchor" href="#_version_2_18_3_20240601"></a>Version 2.18.3 (20240601)</h2>
+<div class="sectionbody">
+<div class="ulist">
+<ul>
+<li>
+<p>A bit more polish on the 2.18 series, main notes below 👇</p>
+</li>
+<li>
+<p><a href="https://opencollective.com/ankidroid">🤜🤛 Thank you! As ever, your donations help the fixes happen!</a></p>
+</li>
+<li>
+<p>Fix handling of really long tags</p>
+</li>
+<li>
+<p>Fix keyboard showing when editing tags</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_version_2_18_2_20240527"><a class="anchor" href="#_version_2_18_2_20240527"></a>Version 2.18.2 (20240527)</h2>
+<div class="sectionbody">
+<div class="ulist">
+<ul>
+<li>
+<p>One crash fix on top of 2.18.1, main notes below 👇</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_version_2_18_1_20240523"><a class="anchor" href="#_version_2_18_1_20240523"></a>Version 2.18.1 (20240523)</h2>
+<div class="sectionbody">
+<div class="ulist">
+<ul>
+<li>
+<p>Minor fixes to polish up the 2.18.0 release, main notes below 👇</p>
+</li>
+<li>
+<p>AnkiDroid is participating in Google Summer of Code again!</p>
+</li>
+<li>
+<p>Your <a href="https://opencollective.com/ankidroid">donations</a> inspire a new generation of open source contributors 💓</p>
+</li>
+<li>
+<p>Fix crash in TagsDialog (this is for you, Anking users!)</p>
+</li>
+<li>
+<p>Fresh translations from our community of <a href="https://crowdin.com/project/ankidroid">translators</a> (thank you!)</p>
+</li>
+<li>
+<p>Fix language handling for regional variants</p>
+</li>
+<li>
+<p>Fix crash in template previewer</p>
+</li>
+<li>
+<p>Fix deck handling note editor</p>
+</li>
+<li>
+<p>Fix reviewer regressions in javascript and visual performance</p>
+</li>
+<li>
+<p>Fix <code>android-app://</code> and <code>intent://</code> links in previewer</p>
+</li>
+<li>
+<p>Fix tag checkbox colors</p>
+</li>
+<li>
+<p>Improve optimizing presets message</p>
+</li>
+<li>
+<p>Fix preferences message display overflow</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_version_2_18_0_20240512"><a class="anchor" href="#_version_2_18_0_20240512"></a>Version 2.18.0 (20240512)</h2>
+<div class="sectionbody">
+<div class="ulist">
+<ul>
+<li>
+<p>Switching to more direct use of Anki blocked 2.17 for a year, but with 2.18 we are back on a more rapid release cadence. Enjoy!</p>
+</li>
+<li>
+<p>We really appreciate the <a href="https://opencollective.com/ankidroid">donations</a>, they paid for these features 🤝</p>
+</li>
+<li>
+<p>Features</p>
+<div class="ulist">
+<ul>
+<li>
+<p>Anki upstream version 24.04.1 included</p>
+</li>
+<li>
+<p>Newly designed previewer</p>
+</li>
+<li>
+<p>Improved media syncing user experience</p>
+</li>
+<li>
+<p>Delete Account up to date with new Google requirements</p>
+</li>
+<li>
+<p>Additional 'Set Due Date' options: select from date range &amp; optionally update interval</p>
+</li>
+<li>
+<p>Forget Cards: support restoring queue positions and resetting lapse counts</p>
+</li>
+<li>
+<p>Toggle 'bury' status of multiple cards</p>
+</li>
+<li>
+<p>Show progress when optimizing all presets</p>
+</li>
+<li>
+<p>'Check Pronunciation': streamlined design</p>
+</li>
+<li>
+<p>Add keyboard shortcuts to flag and mark in previewer</p>
+</li>
+<li>
+<p>Undo stroke in drawing editor</p>
+</li>
+<li>
+<p>Hierarchical deck selection in Note Editor</p>
+<div class="ulist">
+<ul>
+<li>
+<p>Deck Creation: Improved hints for numerical orderings in Deck Picker</p>
+</li>
+</ul>
+</div>
+</li>
+<li>
+<p>Statistics: Hide toolbar on scroll</p>
+</li>
+<li>
+<p>Manage Note Types: Add search bar</p>
+</li>
+<li>
+<p>Match the color of status bar with Statistics toolbar</p>
+</li>
+</ul>
+</div>
+</li>
+<li>
+<p>Fixes</p>
+<div class="ulist">
+<ul>
+<li>
+<p>Automatic Video Playback</p>
+</li>
+<li>
+<p>prevent highlight with bluetooth controller</p>
+</li>
+<li>
+<p>Hebrew localization</p>
+</li>
+<li>
+<p>Fix displayed name of attached file when name contains extra points characters</p>
+</li>
+<li>
+<p>unnecessary sync reminder</p>
+</li>
+<li>
+<p>Restoring a backup hides the Menu</p>
+</li>
+<li>
+<p>Creating a new deck immediately displays 'duplicate' error</p>
+</li>
+<li>
+<p>Ripple Alignment Issue in Tags Window</p>
+</li>
+<li>
+<p>CSS - <a href="https://github.com/ankidroid/Anki-Android/pull/16239" class="bare">https://github.com/ankidroid/Anki-Android/pull/16239</a> - word wrap; alignment of background, lists &amp; pre tags</p>
+</li>
+<li>
+<p>WebView can capture audio</p>
+</li>
+<li>
+<p>Deck Picker: deleting selected deck forgets scroll position</p>
+</li>
+<li>
+<p>crash on clicking 'user actions' in preferences search</p>
+</li>
+<li>
+<p>Allow scrolling to End of TemplateEditor</p>
+</li>
+<li>
+<p>Deleting Deck doesn&#8217;t update the StudyOptionsFragment in Tablet mode</p>
+</li>
+<li>
+<p>SharedDecks&#8217;s SearchView cancel icon is misaligned in landscape mode</p>
+</li>
+<li>
+<p>Restrict the SharedDecks Webview to required websites only</p>
+</li>
+<li>
+<p>make js api&#8217;s new/lrn/rev counts integers</p>
+</li>
+</ul>
+</div>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_version_2_17_6_20240313"><a class="anchor" href="#_version_2_17_6_20240313"></a>Version 2.17.6 (20240313)</h2>
+<div class="sectionbody">
+<div class="ulist">
+<ul>
+<li>
+<p>A few more minor fixes on the huge 2.17 release - see changelog for 2.17.0 below</p>
+</li>
+<li>
+<p>Still happily overwhelmed by the <a href="https://opencollective.com/ankidroid">donations</a> 💪</p>
+</li>
+<li>
+<p>Fix missing background color on Anki pages</p>
+</li>
+<li>
+<p>Fix bad A/V tags extraction for media</p>
+</li>
+<li>
+<p>Make new Congratulations / deck finish page default off</p>
+</li>
+<li>
+<p>Fix handling of audio-only files in video file formats</p>
+</li>
+<li>
+<p>Fix widget not updated if storage permission granted late</p>
+</li>
+<li>
+<p>Help users when Android system revokes storage permission due to inactivity</p>
+</li>
+<li>
+<p><a href="https://crowdin.com/project/ankidroid">New community-provided language translations</a></p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_version_2_17_5_20240307"><a class="anchor" href="#_version_2_17_5_20240307"></a>Version 2.17.5 (20240307)</h2>
+<div class="sectionbody">
+<div class="ulist">
+<ul>
+<li>
+<p>Stability + Polish on the huge 2.17 release - seems good now - see changelog for 2.17.0 below!</p>
+</li>
+<li>
+<p><a href="https://opencollective.com/ankidroid">🤜🤛 Thank you! Your support makes the fixes happen!</a></p>
+</li>
+<li>
+<p>Fix script tags not working when media present</p>
+</li>
+<li>
+<p>Add .webm / remove .avi from supported media types to match Android system abilities</p>
+</li>
+<li>
+<p><a href="https://crowdin.com/project/ankidroid">New community-provided language translations</a></p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_version_2_17_4_20240304"><a class="anchor" href="#_version_2_17_4_20240304"></a>Version 2.17.4 (20240304)</h2>
+<div class="sectionbody">
+<div class="ulist">
+<ul>
+<li>
+<p>More stability / polishing on the huge 2.17 release - see changelog for 2.17.0 below!</p>
+</li>
+<li>
+<p>We are humbled by the <a href="https://opencollective.com/ankidroid">donations</a>, thank you! 🤯</p>
+</li>
+<li>
+<p>Revert crash fix for widgets that caused widgets to disappear, sorry</p>
+</li>
+<li>
+<p>Fix type answer box auto-focus</p>
+</li>
+<li>
+<p><a href="https://crowdin.com/project/ankidroid">New community-provided language translations</a></p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_version_2_17_3_20240301"><a class="anchor" href="#_version_2_17_3_20240301"></a>Version 2.17.3 (20240301)</h2>
+<div class="sectionbody">
+<div class="ulist">
+<ul>
+<li>
+<p>More stability / polishing on the huge 2.17.0 release - see changelog for 2.17.0 below!</p>
+</li>
+<li>
+<p>We really appreciate the <a href="https://opencollective.com/ankidroid">donations</a>, they paid for these fixes 🤝</p>
+</li>
+<li>
+<p>Fix crash sharing to AnkiDroid before first run</p>
+</li>
+<li>
+<p>Fix crash if AnkiDroid backgrounded while on deck-finished screen</p>
+</li>
+<li>
+<p>Fix crash using widget/shortcuts on full build before storage permission grant</p>
+</li>
+<li>
+<p>Fix Image Occlusion cards preview failure</p>
+</li>
+<li>
+<p>Fix audio/video seeking and performance</p>
+</li>
+<li>
+<p>Fix many UI theming issues (colors, transparency etc)</p>
+</li>
+<li>
+<p><a href="https://crowdin.com/project/ankidroid">New community-provided language translations</a></p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_version_2_17_2"><a class="anchor" href="#_version_2_17_2"></a>Version 2.17.2</h2>
+<div class="sectionbody">
+<div class="ulist">
+<ul>
+<li>
+<p>Unreleased</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_version_2_17_1_20240225"><a class="anchor" href="#_version_2_17_1_20240225"></a>Version 2.17.1 (20240225)</h2>
+<div class="sectionbody">
+<div class="ulist">
+<ul>
+<li>
+<p>Mostly stability fixes for the huge 2.17.0 release - see changelog for it below!</p>
+</li>
+<li>
+<p>Always free, always open source, but you may <a href="https://opencollective.com/ankidroid">donate if you like 😊</a></p>
+</li>
+<li>
+<p>Fix crashes importing/sharing certain files, images and decks</p>
+</li>
+<li>
+<p>Fix crash showing dialogs on certain pages</p>
+</li>
+<li>
+<p>Fix metered connection alert theme colors</p>
+</li>
+<li>
+<p>Add ability to rename / reposition card types</p>
+</li>
+<li>
+<p><a href="https://crowdin.com/project/ankidroid">New community-provided language translations</a></p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_version_2_17_0_20240223"><a class="anchor" href="#_version_2_17_0_20240223"></a>Version 2.17.0 (20240223)</h2>
+<div class="sectionbody">
+<div class="ulist">
+<ul>
+<li>
+<p>The Big News First! AnkiDroid 2.17 directly includes Anki Desktop code now.</p>
+<div class="ulist">
+<ul>
+<li>
+<p><a href="https://opencollective.com/ankidroid">🤜🤛 Thank you! Your donations makes progress like this happen!</a></p>
+</li>
+<li>
+<p>Including Anki Desktop directly is a powerful change, it gets you lots of highly requested features in their exact desktop form, for the first time in AnkiDroid:</p>
+<div class="ulist">
+<ul>
+<li>
+<p><a href="https://docs.ankiweb.net/editing.html#image-occlusion">Image Occlusion</a>! Finally in AnkiDroid! Cloze deletion for your images</p>
+</li>
+<li>
+<p>Review Heatmap! &#8230;&#8203;along with all the other statistics from desktop</p>
+</li>
+<li>
+<p>CSV import/export! With desktop import/export included AnkiDroid finally gets this highly requested feature</p>
+</li>
+<li>
+<p>FSRS 4.5 scheduler: Say goodbye to ‘ease hell’! AnkiDroid welcomes the age of AI with this new scheduler. Select your desired retention then FSRS uses machine learning to calculate when you forget, reducing your review load. FSRS is optional, but may be enabled in <a href="https://docs.ankiweb.net/deck-options.html#fsrs">Deck Options</a></p>
+</li>
+<li>
+<p><a href="https://faqs.ankiweb.net/the-2021-scheduler.html">V3 scheduler is enabled by default</a></p>
+<div class="ulist">
+<ul>
+<li>
+<p>Supports your own JavaScript for Custom Scheduling</p>
+</li>
+</ul>
+</div>
+</li>
+<li>
+<p>Unified congratulations screen when reviewing is complete</p>
+</li>
+<li>
+<p>Filtered Decks: customize preview delays for Again, Hard, and Good buttons</p>
+</li>
+<li>
+<p>Anki’s <a href="https://docs.ankiweb.net/searching.html">advanced search syntax</a> is available in the Browser and Filtered Decks</p>
+</li>
+<li>
+<p>See more in <a href="https://github.com/ankitects/anki/releases/tag/23.12.1">Anki’s full changelog</a></p>
+</li>
+</ul>
+</div>
+</li>
+</ul>
+</div>
+</li>
+<li>
+<p>AnkiDroid-specific Changes</p>
+<div class="ulist">
+<ul>
+<li>
+<p>Save your Statistics as a PDF. No more screenshots!</p>
+</li>
+<li>
+<p>Audio recording and Check Pronunciation usability overhaul</p>
+</li>
+<li>
+<p>Late night study session? Screens now refresh if you see the day rollover</p>
+</li>
+<li>
+<p>Undo has been expanded to almost all app activities. Redo has also been added</p>
+</li>
+<li>
+<p>New permissions screen to help new users of the app</p>
+</li>
+<li>
+<p>Note Editor: Added ‘Cloze Deletion (same card)’ toolbar button</p>
+</li>
+<li>
+<p>Improved button mapping support for gamepad joysticks, triggers and pedals</p>
+</li>
+<li>
+<p>Shake is now a supported gesture 🪇🪇</p>
+</li>
+<li>
+<p><a href="https://ankidroid.org/#userActions">User-defined JavaScript Actions</a> are now supported</p>
+</li>
+<li>
+<p>AnkiWeb rate limits for searches &amp; downloads are replaced with a sign in screen</p>
+</li>
+<li>
+<p>Exporting: "Include deck configs" option is enabled</p>
+</li>
+<li>
+<p>Sync: Cancellation is supported</p>
+</li>
+<li>
+<p>Use the Android ‘Share’ menu to create new notes from images (including Image Occlusion)</p>
+</li>
+<li>
+<p>UX: The Deck Picker menus are easier to navigate</p>
+</li>
+<li>
+<p>UI: Material Design has been introduced, making preferences easier to search &amp; navigate, along with a new layout for large screens</p>
+</li>
+<li>
+<p>UI: Better Deck Description screen (long press a deck to access)</p>
+</li>
+<li>
+<p>UI: The Android Navigation bar now matches the active screen</p>
+</li>
+<li>
+<p>UI: Card Info &amp; Help screens are improved</p>
+</li>
+<li>
+<p>&#8230;&#8203;Many more UI tweaks</p>
+</li>
+<li>
+<p>Improved keyboard shortcuts</p>
+<div class="ulist">
+<ul>
+<li>
+<p>Previewer accepts arrow keys; Ctrl+Shift+P will preview the Browser’s selection</p>
+</li>
+</ul>
+</div>
+</li>
+<li>
+<p>Accessibility Option: minimum screen touch time to reveal answer</p>
+</li>
+</ul>
+</div>
+</li>
+<li>
+<p>JS API (0.0.2)</p>
+<div class="ulist">
+<ul>
+<li>
+<p>We continue to work on this new technology to allow for add-ons in AnkiDroid.</p>
+</li>
+<li>
+<p>This is still a technology preview but is already very powerful.</p>
+</li>
+<li>
+<p>⚠️ BREAKING: API is now asynchronous</p>
+</li>
+<li>
+<p>Added new API for Speech to Text</p>
+</li>
+<li>
+<p>Handle android dialog cancellation when used as frontend for js dialogs</p>
+</li>
+</ul>
+</div>
+</li>
+<li>
+<p>Replacements and Removals</p>
+<div class="ulist">
+<ul>
+<li>
+<p>Advanced Statistics have been replaced with desktop statistics screen</p>
+</li>
+<li>
+<p>V3 scheduler replaces V2</p>
+</li>
+<li>
+<p>Auto Advance now located in Deck Options and syncs with all Anki clients</p>
+</li>
+<li>
+<p>Text to Speech (TTS) is now Desktop compatible!</p>
+<div class="ulist">
+<ul>
+<li>
+<p>We have introduced {{tts}} and {{tts-voices:}}, which supports more TTS voices and speeds: <a href="https://docs.ankiweb.net/templates/fields.html#text-to-speech-for-individual-fields">manual</a></p>
+</li>
+<li>
+<p>⚠️ Our legacy TTS (&lt;tts&gt;) will be removed in a future version. Please migrate your card templates to the new format</p>
+</li>
+</ul>
+</div>
+</li>
+<li>
+<p>Backup options unified with Anki Desktop</p>
+</li>
+<li>
+<p>Night mode inversion has been removed - <a href="https://ankidroid.org/removed-features.html#_automatic_night_mode_color_inversion">more info</a></p>
+</li>
+<li>
+<p><a href="https://ankidroid.org/removed-features.html#_custom_fonts_in_fonts">Custom fonts removed</a></p>
+</li>
+<li>
+<p><a href="https://ankidroid.org/removed-features.html">Full information on all removed features</a></p>
+</li>
+</ul>
+</div>
+</li>
+<li>
+<p>Bug Fixes</p>
+<div class="ulist">
+<ul>
+<li>
+<p>Too many to mention! Hundreds of issues fixed. <a href="https://github.com/ankidroid/Anki-Android/milestone/51?closed=1">See the full changelog</a></p>
+</li>
+</ul>
+</div>
+</li>
+<li>
+<p>Release Statistics:</p>
+<div class="ulist">
+<ul>
+<li>
+<p><a href="https://github.com/ankidroid/Anki-Android/compare/v2.16.5...main">958 changes from 26 contributors since 2.16</a></p>
+</li>
+<li>
+<p><a href="https://opencollective.com/ankidroid">Thank you to our 3696 backers</a></p>
+</li>
+<li>
+<p><a href="https://crowdin.com/project/ankidroid">1972 Translators</a></p>
+</li>
+</ul>
+</div>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_version_2_16_5_20230906"><a class="anchor" href="#_version_2_16_5_20230906"></a>Version 2.16.5 (20230906)</h2>
+<div class="sectionbody">
+<div class="ulist">
+<ul>
+<li>
+<p>Fix potential crash in our crash report system. See: Murphy&#8217;s Law</p>
+</li>
+<li>
+<p>Fix incorrect default setting for analytics opt-in. Should be default off.</p>
+<div class="ulist">
+<ul>
+<li>
+<p>Please check your setting if you want to make sure it is off</p>
+</li>
+<li>
+<p>Note1: our analytics is always anonymized and never shared as a first step</p>
+</li>
+<li>
+<p>Note2: the backend has been disabled for months, so there should be no exposure</p>
+</li>
+<li>
+<p>Still this was in error and counter to our strict opt-in ethos. We are deeply sorry.</p>
+</li>
+<li>
+<p>We will issue a future update shortly to opt everyone out as a precaution</p>
+</li>
+</ul>
+</div>
+</li>
+<li>
+<p>Thanks again for your patience waiting for 2.16 - we&#8217;re on to 2.17 work already!</p>
+</li>
+<li>
+<p>We are humbled by the <a href="https://opencollective.com/ankidroid">donations</a> 🤯</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_version_2_16_4_20230827"><a class="anchor" href="#_version_2_16_4_20230827"></a>Version 2.16.4 (20230827)</h2>
+<div class="sectionbody">
+<div class="ulist">
+<ul>
+<li>
+<p>Your dev team is still very excited to be able to release quick fixes for you again!</p>
+</li>
+<li>
+<p>Last big stability release for 2.16 series (see below for main 2.16 info)</p>
+</li>
+<li>
+<p><a href="https://opencollective.com/ankidroid">❤️ We continue to be very thankful for your support</a></p>
+</li>
+<li>
+<p>Improved shortcut icons</p>
+</li>
+<li>
+<p>Fix card browser scroll position after editing a card</p>
+</li>
+<li>
+<p>Improve shared deck download handling</p>
+</li>
+<li>
+<p>Fix sound replay on cards</p>
+</li>
+<li>
+<p>Fix deck rebuild not updating UI</p>
+</li>
+<li>
+<p>Synced with <a href="https://crowdin.com/project/ankidroid">community language translations</a></p>
+</li>
+<li>
+<p>Development for 2.17 is already in progress!</p>
+</li>
+<li>
+<p>Are you still reading this? Good luck in your studies 🤓</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_version_2_16_3_20230818"><a class="anchor" href="#_version_2_16_3_20230818"></a>Version 2.16.3 (20230818)</h2>
+<div class="sectionbody">
+<div class="ulist">
+<ul>
+<li>
+<p>We meet Play Store requirements again, so we can release fixes quickly again!</p>
+</li>
+<li>
+<p>This is a stability release for the just-released 2.16 series (see below for 2.16 info)</p>
+</li>
+<li>
+<p><a href="https://opencollective.com/ankidroid">🤜🤛 Thank you! Your support makes the fixes happen!</a></p>
+</li>
+<li>
+<p>Fix crash in certain cases adding images</p>
+</li>
+<li>
+<p>Fix crash exporting decks with '/' in deck name</p>
+</li>
+<li>
+<p>Fix crash displaying whiteboard menu</p>
+</li>
+<li>
+<p>Fix crash opening preferences after storage migration</p>
+</li>
+<li>
+<p>Remove camera permission (not needed for single photo use)</p>
+</li>
+<li>
+<p>Fix sync required indicator not disappearing</p>
+</li>
+<li>
+<p>Fix keyboard card answer highlighting whole card</p>
+</li>
+<li>
+<p>Fix keyboard card answer causing double-tap</p>
+</li>
+<li>
+<p>Fix incorrect deck highlight in tablet mode</p>
+</li>
+<li>
+<p>Fix display of saved card searches</p>
+</li>
+<li>
+<p>Fix inconsistent italics between Anki / AnkiDroid</p>
+</li>
+<li>
+<p>Add ability to map "reschedule" to a gesture</p>
+</li>
+<li>
+<p>Allow long preference titles to wrap</p>
+</li>
+<li>
+<p>Allow 3rd party cookies in webview to match Anki behavior</p>
+</li>
+<li>
+<p>Improve add shortcut icon</p>
+</li>
+<li>
+<p>Remove beolingus pronounce feature</p>
+</li>
+<li>
+<p>New community-provided translations from <a href="https://crowdin.com/project/ankidroid" class="bare">https://crowdin.com/project/ankidroid</a></p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_version_2_16_2_20230726"><a class="anchor" href="#_version_2_16_2_20230726"></a>Version 2.16.2 (20230726)</h2>
+<div class="sectionbody">
+<div class="ulist">
+<ul>
+<li>
+<p>You waited patiently nearly 3 years for this release! ⌛ Thank you</p>
+</li>
+<li>
+<p>What an effort! v2.16 contains 2,693 changes from 143 different authors 🤯</p>
+</li>
+<li>
+<p>AnkiDroid is a labor of ❤️ with a mission to help the whole world learn more</p>
+</li>
+<li>
+<p><a href="https://opencollective.com/ankidroid">you can ❤️ us back so we have more time to work on it</a></p>
+</li>
+<li>
+<p>“Why It Took So Long”: Scoped Storage replaces sdcard Storage</p>
+<div class="ulist">
+<ul>
+<li>
+<p>Faster syncing and importing</p>
+</li>
+<li>
+<p>AnkiDroid no longer needs permission to access “All Files”!</p>
+</li>
+<li>
+<p>&#8230;&#8203;But you lose access to data on uninstall</p>
+</li>
+<li>
+<p>Sync, export/import, check media/database disabled during migration</p>
+</li>
+<li>
+<p>Manage Space Activity in System Settings</p>
+</li>
+<li>
+<p>Added “Backup Reminder” prompt</p>
+</li>
+<li>
+<p><a href="https://github.com/ankidroid/Anki-Android/wiki/Storage-Migration-FAQ">More info in our FAQ</a></p>
+</li>
+</ul>
+</div>
+</li>
+<li>
+<p>A huge number of crash fixes, too many to mention</p>
+</li>
+<li>
+<p>“Auto” Day/Night theming to follow system, Android 13+ themed icon</p>
+</li>
+<li>
+<p>Added Anki “New Anki Backend option in advanced settings" - will be default in 2.17</p>
+<div class="ulist">
+<ul>
+<li>
+<p>We include anki 2.1.61 now, we’re fully up to date!</p>
+</li>
+<li>
+<p>Stats Heatmap</p>
+</li>
+<li>
+<p>Scheduler v3 support</p>
+</li>
+<li>
+<p>CSV Import, Text import</p>
+</li>
+<li>
+<p>Card Browser Searches</p>
+</li>
+<li>
+<p>Card Info and Deck Options from upstream</p>
+</li>
+</ul>
+</div>
+</li>
+<li>
+<p>New gesture manager, supports gamepad and bluetooth keyboard</p>
+</li>
+<li>
+<p>Translations, new languages, lots of fixes, <a href="https://crowdin.com/project/ankidroid/">you can help!</a></p>
+</li>
+<li>
+<p>Add support for hierarchical tags</p>
+</li>
+<li>
+<p>New Onboarding Screen</p>
+</li>
+<li>
+<p>New Preferences</p>
+<div class="ulist">
+<ul>
+<li>
+<p>Icons &amp; Better Categories</p>
+</li>
+<li>
+<p>Increase max possible backups to 99</p>
+</li>
+<li>
+<p>Full screen navigation drawer option</p>
+</li>
+<li>
+<p>Add Preference for double-tap time interval</p>
+</li>
+<li>
+<p>“Insert Field” in Card Template Editor option</p>
+</li>
+<li>
+<p>Add "Allow sync on metered connections" option</p>
+</li>
+<li>
+<p>New “About” section</p>
+</li>
+<li>
+<p>“Developer Options” is now available</p>
+</li>
+</ul>
+</div>
+</li>
+<li>
+<p>Flags added: Pink, turquoise &amp; purple flags as in Desktop</p>
+</li>
+<li>
+<p>Drawing Activity</p>
+</li>
+<li>
+<p>Custom Sync Server improvements</p>
+<div class="ulist">
+<ul>
+<li>
+<p>Updated to match new Anki Desktop built-in sync server abilities</p>
+</li>
+<li>
+<p>Cleartext traffic permitted (it’s your server, use it how you like)</p>
+</li>
+</ul>
+</div>
+</li>
+<li>
+<p>Javascript AP changes:</p>
+<div class="ulist">
+<ul>
+<li>
+<p>New bury &amp; suspend card or note API</p>
+</li>
+<li>
+<p>New search API</p>
+</li>
+<li>
+<p>New text to speech API</p>
+</li>
+<li>
+<p>Enhanced reschedule API</p>
+</li>
+<li>
+<p>New Reset progress API</p>
+</li>
+<li>
+<p>Enable DOM storage so localStorage works</p>
+</li>
+</ul>
+</div>
+</li>
+<li>
+<p>Use language defined in ‘Language Hint’ when typing the answer</p>
+</li>
+<li>
+<p>Mathjax updated to current versions</p>
+</li>
+<li>
+<p>Double-tap floating ‘+’ Deck Picker button to add note</p>
+</li>
+<li>
+<p>Note Editor SVG, video, clipboard paste import support</p>
+</li>
+<li>
+<p>Card Previewer progress bar during preview</p>
+</li>
+<li>
+<p>Card Previewer: Show type-in answer in card previews</p>
+</li>
+<li>
+<p>Card Browser Support for Indeterminate tags when adding/removing tags</p>
+</li>
+<li>
+<p>Sync Account Add “Forgot Email” Button</p>
+</li>
+<li>
+<p>Add option to show all deck stats by default</p>
+</li>
+<li>
+<p>Add Note Gesture</p>
+</li>
+<li>
+<p>Ask to keep data when uninstalling (saves preferences too)</p>
+</li>
+<li>
+<p>Reviewer: Allow “TTS” to be moved to the Action Bar</p>
+</li>
+<li>
+<p>Note Editor: Allow the import of multiple files</p>
+</li>
+<li>
+<p>Import/Export</p>
+<div class="ulist">
+<ul>
+<li>
+<p>Fixed many general problems with import/export</p>
+</li>
+<li>
+<p>Export just a deck</p>
+</li>
+<li>
+<p>Export just a note</p>
+</li>
+</ul>
+</div>
+</li>
+<li>
+<p>UI: Snackbars used where possible, and made much more pleasant</p>
+</li>
+<li>
+<p>UI: Matched the color of status, action and nav bar to background</p>
+</li>
+<li>
+<p>Card Browser: “Note” mode</p>
+</li>
+<li>
+<p>Whiteboard - Stylus Only Mode</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_version_2_16_1_20230726"><a class="anchor" href="#_version_2_16_1_20230726"></a>Version 2.16.1 (20230726)</h2>
+<div class="sectionbody">
+<div class="ulist">
+<ul>
+<li>
+<p>Published internally, not generally released</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_version_2_16_0_20230726"><a class="anchor" href="#_version_2_16_0_20230726"></a>Version 2.16.0 (20230726)</h2>
+<div class="sectionbody">
+<div class="ulist">
+<ul>
+<li>
+<p>Unpublished</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_version_2_15_6_20210714"><a class="anchor" href="#_version_2_15_6_20210714"></a>Version 2.15.6 (20210714)</h2>
+<div class="sectionbody">
+<div class="ulist">
+<ul>
+<li>
+<p>One more crash fix, no crashes shall be left unfixed! If we can help it.</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_version_2_15_5_20210713"><a class="anchor" href="#_version_2_15_5_20210713"></a>Version 2.15.5 (20210713)</h2>
+<div class="sectionbody">
+<div class="ulist">
+<ul>
+<li>
+<p><a href="https://opencollective.com/ankidroid">🤜🤛 Thank you! Your support makes the fixes happen!</a></p>
+</li>
+<li>
+<p>Full-screen navigation drawer drag is a preference, default off</p>
+</li>
+<li>
+<p>Floating Action Button ('+') labels are clickable again</p>
+</li>
+<li>
+<p>Fixed crash on first run post-install on tablets</p>
+</li>
+<li>
+<p>Fixed odd weekly breakdown stats chart behavior</p>
+</li>
+<li>
+<p>Fixed crash creating new deck from deck chooser</p>
+</li>
+<li>
+<p><a href="https://crowdin.com/project/ankidroid">Updated translations</a> (thank you translators!)</p>
+</li>
+<li>
+<p><a href="https://github.com/ankidroid/Anki-Android/milestone/47?closed=1">Full Changelog here</a></p>
+</li>
+<li>
+<p>We are deep into development for v2.16 + Google Summer of Code, lots of new stuff coming</p>
+</li>
+<li>
+<p>Happy reviewing!</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_version_2_15_4_20210602"><a class="anchor" href="#_version_2_15_4_20210602"></a>Version 2.15.4 (20210602)</h2>
+<div class="sectionbody">
+<div class="ulist">
+<ul>
+<li>
+<p>Saw one crash show up for 2.15.3: if you touched the 3 numbers
+instead of the deck name on the deck list on phones, it would crash</p>
+</li>
+<li>
+<p>Temporarily revert full screen navigation drawer option to fix</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_version_2_15_3_20210602"><a class="anchor" href="#_version_2_15_3_20210602"></a>Version 2.15.3 (20210602)</h2>
+<div class="sectionbody">
+<div class="ulist">
+<ul>
+<li>
+<p><a href="https://opencollective.com/ankidroid">❤️  Thank you so much for the donations! We appreciate it ❤️</a></p>
+</li>
+<li>
+<p>Another batch of fixes stabilizing all the work done for AnkiDroid 2.15</p>
+</li>
+<li>
+<p>Fix "Search All Decks" in Card Browser not searching</p>
+</li>
+<li>
+<p>Make new full screen navigation drawer open optional, default off</p>
+</li>
+<li>
+<p>Preserve edited search in card browser if navigation drawer opens</p>
+</li>
+<li>
+<p>Fix crash editing Tags dialog when switching back from another app</p>
+</li>
+<li>
+<p>Fix incorrect cloze help link</p>
+</li>
+<li>
+<p>Increase touchable area of undo icon</p>
+</li>
+<li>
+<p>Fix legacy / handebar template parsing</p>
+</li>
+<li>
+<p>Fix icon sizes for notifications and search</p>
+</li>
+<li>
+<p>Fix audio files incorrectly importing when attached</p>
+</li>
+<li>
+<p>Fix deck options "steps" showing up with lots of decimal places</p>
+</li>
+<li>
+<p>Update translations, add Kannada language</p>
+</li>
+<li>
+<p>Fix F-Droid app store publishing</p>
+</li>
+<li>
+<p>Correct navigation away from and back to Changelog</p>
+</li>
+<li>
+<p>Fix template parsing for "{{FrontSide}}"</p>
+</li>
+<li>
+<p>Fix stats tab view layout in RTL context</p>
+</li>
+<li>
+<p>Fix preview of cloze cards from note editor</p>
+</li>
+<li>
+<p><a href="https://github.com/ankidroid/Anki-Android/milestone/45?closed=1">Full changelog here</a></p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_version_2_15_2_20210526"><a class="anchor" href="#_version_2_15_2_20210526"></a>Version 2.15.2 (20210526)</h2>
+<div class="sectionbody">
+<div class="ulist">
+<ul>
+<li>
+<p><a href="https://opencollective.com/ankidroid">❤️  Your donations here give us the time to work on the app, thank you! ❤️</a></p>
+</li>
+<li>
+<p>🔥 Hot fixes for 2.15.0 issues (See below for 2.15.0 notes 👇 it was a huge release!)</p>
+</li>
+<li>
+<p>2.15 should have no regressions now we think 🤞</p>
+</li>
+<li>
+<p>That means we&#8217;ll slow down the releases and these popups now, sorry + thank you</p>
+</li>
+<li>
+<p>Fix another API issue breaking card add from external apps</p>
+</li>
+<li>
+<p>Fix conditional template issue that caused blank cards for some</p>
+</li>
+<li>
+<p>Fix auto-advance ignoring "no advance" setting if card had audio</p>
+</li>
+<li>
+<p>Gracefully handle corrupt collections with invalid current decks selected</p>
+</li>
+<li>
+<p>Publish to Amazon App Store again (go get AnkiDroid on your Fire devices!)</p>
+</li>
+<li>
+<p><a href="https://github.com/ankidroid/Anki-Android/milestone/44?closed=1">Issue tracker milestone here</a></p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_version_2_15_1_20210525"><a class="anchor" href="#_version_2_15_1_20210525"></a>Version 2.15.1 (20210525)</h2>
+<div class="sectionbody">
+<div class="ulist">
+<ul>
+<li>
+<p><a href="https://opencollective.com/ankidroid">❤️ Your donations funded this rapid set of fixes, enjoy! ❤️</a></p>
+</li>
+<li>
+<p>🔥 Hot fixes for 2.15.0 issues (See below for 2.15.0 notes 👇 it was a huge release!)</p>
+</li>
+<li>
+<p>Do not auto-update users to scheduler v2. Yet.</p>
+</li>
+<li>
+<p>Fix crash on undo after deck delete</p>
+</li>
+<li>
+<p>Try harder to successfully paste images</p>
+</li>
+<li>
+<p>Reviewer performance fix - only load mathjax if needed</p>
+</li>
+<li>
+<p>Fixed compatibility issue for 2.15 collections on 2.14</p>
+</li>
+<li>
+<p>Fixed API issue breaking card add from external apps</p>
+</li>
+<li>
+<p>Fresh language translations. See a bad translation? <a href="https://crowdin.com/project/ankidroid">You can fix it easily!</a></p>
+</li>
+<li>
+<p><a href="https://github.com/ankidroid/Anki-Android/milestone/43?closed=1">Detailed issue log</a></p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_version_2_15_0_20210524"><a class="anchor" href="#_version_2_15_0_20210524"></a>Version 2.15.0 (20210524)</h2>
+<div class="sectionbody">
+<div class="ulist">
+<ul>
+<li>
+<p><a href="https://opencollective.com/ankidroid">❤️ Your donations funded these features, enjoy! ❤️</a></p>
+</li>
+<li>
+<p>Thanks to <a href="https://github.com/ankidroid/Anki-Android/wiki/Google-Summer-of-Code-2021">Google Summer of Code</a> students for a HUGE effort!</p>
+</li>
+<li>
+<p>Way too many changes to describe, but here are the highlights:</p>
+</li>
+<li>
+<p>New timezone code supported for sync with AnkiDesktop!</p>
+</li>
+<li>
+<p>Performance, stability improvements everywhere</p>
+</li>
+<li>
+<p>General UI improvements (accessibility, dark mode, design, more)</p>
+</li>
+<li>
+<p>Many new keyboard shortcuts and gesture actions</p>
+</li>
+<li>
+<p>Languages: Added Odia, Malayalam; big RTL support improvements!</p>
+</li>
+<li>
+<p>Reviewer: Javascript API: many new methods</p>
+</li>
+<li>
+<p>Improved account login, sync conflict, card template UI</p>
+</li>
+<li>
+<p>Tags and Decks dialogs have search!</p>
+</li>
+<li>
+<p>Whiteboard: erase, pen colors, stroke width</p>
+</li>
+<li>
+<p>NoteEditor: Mathjax 3, capitalize sentences setting</p>
+</li>
+<li>
+<p>Huge quality improvements all over codebase, helps future developers</p>
+</li>
+<li>
+<p><a href="https://github.com/ankidroid/Anki-Android/milestone/37?closed=1">🚧 Full 638 item changelog here! 🚧</a></p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_version_2_14_6_20210309"><a class="anchor" href="#_version_2_14_6_20210309"></a>Version 2.14.6 (20210309)</h2>
+<div class="sectionbody">
+<div class="ulist">
+<ul>
+<li>
+<p>Reviewer: fix "my card is blank now with 2.14.5! help!" 😱</p>
+</li>
+<li>
+<p>Reviewer: fix Android 8/8.1 review buttons disappear (finally?)</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_version_2_14_5_20210307"><a class="anchor" href="#_version_2_14_5_20210307"></a>Version 2.14.5 (20210307)</h2>
+<div class="sectionbody">
+<div class="ulist">
+<ul>
+<li>
+<p>We really appreciate the <a href="https://opencollective.com/ankidroid">donations</a>, they paid for these fixes 🤝</p>
+</li>
+<li>
+<p>NoteEditor: Android 11 users can crop!</p>
+</li>
+<li>
+<p>NoteEditor: Canceling crop twice won&#8217;t delete your image</p>
+</li>
+<li>
+<p>DeckList: parent limits altered to match Desktop</p>
+</li>
+<li>
+<p>DeckList: current deck saved as correct type</p>
+</li>
+<li>
+<p>SchedulerV2: allow very small delays</p>
+</li>
+<li>
+<p>KNOWN ISSUE: <a href="https://github.com/ankidroid/Anki-Android/issues/7369">Android 8/8.1 answer buttons disappear</a>. Use gestures as workaround.</p>
+</li>
+<li>
+<p>Anyone with Android 8/8.1 that reproduces this and knows how to develop Android layouts? We&#8217;d love the help!</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_version_2_14_4_20210307"><a class="anchor" href="#_version_2_14_4_20210307"></a>Version 2.14.4 (20210307)</h2>
+<div class="sectionbody">
+<div class="ulist">
+<ul>
+<li>
+<p>Re-released immediately as 2.14.5 after release script issue 🤷😅</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_version_2_14_3_20210109"><a class="anchor" href="#_version_2_14_3_20210109"></a>Version 2.14.3 (20210109)</h2>
+<div class="sectionbody">
+<div class="ulist">
+<ul>
+<li>
+<p><a href="https://www.youtube.com/c/TheAnKing">The AnKing</a> has graced us with a <a href="https://youtu.be/iuBU_OM9oAM">new intro video</a>! 🤓</p>
+</li>
+<li>
+<p>Still happily overwhelmed by the <a href="https://opencollective.com/ankidroid">donations</a> 💪</p>
+</li>
+<li>
+<p>Reviewer: Fix mark note keyboard shortcut</p>
+</li>
+<li>
+<p>NoteEditor: Fix to remove padding if removing formatting toolbar</p>
+</li>
+<li>
+<p>Previewer: Fix to show same card after edit</p>
+</li>
+<li>
+<p>Scheduler: Fix v1 scheduler completes deck when only learn cards due</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_version_2_14_2_20201202"><a class="anchor" href="#_version_2_14_2_20201202"></a>Version 2.14.2 (20201202)</h2>
+<div class="sectionbody">
+<div class="ulist">
+<ul>
+<li>
+<p>Wow! We are humbled by the <a href="https://opencollective.com/ankidroid">donations</a> 🤯</p>
+</li>
+<li>
+<p>The resources are already going to contributors to improve the app! Thank you ❤️</p>
+</li>
+<li>
+<p>Note Editor: Fix image crop not working first time</p>
+</li>
+<li>
+<p>Note Editor: Paste image at cursor not end</p>
+</li>
+<li>
+<p>Note Editor: Fix Ctrl+C opens preview</p>
+</li>
+<li>
+<p>Note Editor: Add menubar toggle to disable editing toolbar</p>
+</li>
+<li>
+<p>Home Screen: Fix Vivo device shortcut creation (again)</p>
+</li>
+<li>
+<p>Reviewer: Fix numeric keypad not working</p>
+</li>
+<li>
+<p>Note Editor: Fix cloze cards going to wrong deck</p>
+</li>
+<li>
+<p>Navigation Menu: Fix safe display app hang</p>
+</li>
+<li>
+<p>Preferences: Fix gestures menu translation / ordering issue</p>
+</li>
+<li>
+<p>Translations: thanks <a href="https://crowdin.com/project/ankidroid/activity_stream">translators!</a> - you can help too!</p>
+</li>
+<li>
+<p>Full changelog: <a href="https://github.com/ankidroid/Anki-Android/milestone/39?closed=1" class="bare">https://github.com/ankidroid/Anki-Android/milestone/39?closed=1</a></p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_version_2_14_1_2020_11_23"><a class="anchor" href="#_version_2_14_1_2020_11_23"></a>Version 2.14.1 (2020-11-23)</h2>
+<div class="sectionbody">
+<div class="ulist">
+<ul>
+<li>
+<p>Always free, always open source, but you may <a href="https://opencollective.com/ankidroid">donate if you like 😊</a></p>
+</li>
+<li>
+<p>Move sync button to right of action bar (vs search)</p>
+</li>
+<li>
+<p>Fix duplicate note detection</p>
+</li>
+<li>
+<p>Fix add deck shortcut on Vivo devices</p>
+</li>
+<li>
+<p>Fix non-translatable 'Card Info' strings</p>
+</li>
+<li>
+<p>Fix suspended card handling in filtered decks</p>
+</li>
+<li>
+<p>Sync translations from volunteers on our crowdin.com site (thank you!)</p>
+</li>
+<li>
+<p>Fix crash on mismatched WebView ABIs</p>
+</li>
+<li>
+<p>Fix crash invalid filename handling while pasting image</p>
+</li>
+<li>
+<p>Fix crash selecting cards in card browser</p>
+</li>
+<li>
+<p>Fix crash Android 8 in card browser</p>
+</li>
+<li>
+<p>Fix crash in undo labeling</p>
+</li>
+<li>
+<p>Fix crash reset password when system browser not exported</p>
+</li>
+<li>
+<p>Full changelog: <a href="https://github.com/ankidroid/Anki-Android/milestone/38?closed=1" class="bare">https://github.com/ankidroid/Anki-Android/milestone/38?closed=1</a></p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_version_2_14_0_2020_11_18"><a class="anchor" href="#_version_2_14_0_2020_11_18"></a>Version 2.14.0 (2020-11-18)</h2>
+<div class="sectionbody">
+<div class="ulist">
+<ul>
+<li>
+<p>Enabled Donations - we ❤️ you, <a href="https://opencollective.com/ankidroid">now you can ❤️ us 😊</a></p>
+</li>
+<li>
+<p>New Screen: Card Info (from Card Browser or as a Reviewer App Bar Button)</p>
+</li>
+<li>
+<p>New Screen: Help - easy access to manual, many community pages/manuals, donation page, translations</p>
+</li>
+<li>
+<p>Home screen: Add deck shortcut</p>
+</li>
+<li>
+<p>Deck Options: SchedV2: Support setting "Hard Factor"</p>
+</li>
+<li>
+<p>Card Browser: Add deck filtering</p>
+</li>
+<li>
+<p>Card Browser: Filter By Flag</p>
+</li>
+<li>
+<p>Card Browser: Adding cards defaults to selected deck</p>
+</li>
+<li>
+<p>Card Browser: Many more keyboard shortcuts</p>
+</li>
+<li>
+<p>Card Browser: Display the number of cards deleted when deleting a note</p>
+</li>
+<li>
+<p>Card Browser: Better handling of deck searches containing wildcards</p>
+</li>
+<li>
+<p>Reviewer: Basic Android TV Support</p>
+</li>
+<li>
+<p>Reviewer: New Gesture: Abort Learning &amp; Sync</p>
+</li>
+<li>
+<p>Reviewer: Support AnkiMobile 9-area gesture touch layout</p>
+</li>
+<li>
+<p>Reviewer: Improve "Empty Card" UX</p>
+</li>
+<li>
+<p>Reviewer: Keyboard shortcuts for flags (Ctrl+1&#8230;&#8203;4)</p>
+</li>
+<li>
+<p>Note Editor: Editor Toolbar (&amp; keyboard shortcuts) - hugely requested feature!</p>
+</li>
+<li>
+<p>Note Editor Toolbar: Apply Custom Commands (&amp; keyboard shortcuts)</p>
+</li>
+<li>
+<p>Note Editor: Paste to Insert Image</p>
+</li>
+<li>
+<p>Note Editor: Made fields full-width</p>
+</li>
+<li>
+<p>Note Editor: Change Font Size for fields</p>
+</li>
+<li>
+<p>Note Editor: Expand/Collapse Fields</p>
+</li>
+<li>
+<p>Note Editor: Clear Field button</p>
+</li>
+<li>
+<p>Note Editor: Ctrl+Shift+[Num] to switch fields</p>
+</li>
+<li>
+<p>Note Editor: Improved image addition / naming</p>
+</li>
+<li>
+<p>Note Editor: Add preference to convert newline to HTML (or not)</p>
+</li>
+<li>
+<p>OS Integration: Default to "Anki Card" in system context menu vs "Card Browser"</p>
+</li>
+<li>
+<p>Libanki: Add FileUpload API</p>
+</li>
+<li>
+<p>Translations: Tagged screenshots on crowdin.com to help our translators</p>
+</li>
+<li>
+<p>Stability: Fix rare crashes (down to ~50/day total w/1.8million installs!)</p>
+</li>
+<li>
+<p>Performance: massive number of speedups</p>
+</li>
+<li>
+<p>Dev: Massively sped up AnkiDroid builds and improved code readability</p>
+</li>
+<li>
+<p>Totals: 345 code changes and hundreds of translations, made by volunteers, in 2 months</p>
+</li>
+<li>
+<p>Full changelog: <a href="https://github.com/ankidroid/Anki-Android/milestone/30?closed=1" class="bare">https://github.com/ankidroid/Anki-Android/milestone/30?closed=1</a></p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_version_2_13_5_2020_10_03"><a class="anchor" href="#_version_2_13_5_2020_10_03"></a>Version 2.13.5 (2020-10-03)</h2>
+<div class="sectionbody">
+<div class="ulist">
+<ul>
+<li>
+<p>Fix performance for fast (&lt;1s) answers in review</p>
+</li>
+<li>
+<p>Add links to new Arabic help/manual translation</p>
+</li>
+<li>
+<p>Add back button handling to changelog display</p>
+</li>
+<li>
+<p>Add rate button to changelog</p>
+</li>
+<li>
+<p>Add warning message to handle future db upgrades</p>
+</li>
+<li>
+<p>Sync all translations from our volunteer translators (thanks everyone!)</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_version_2_13_4_2020_09_29"><a class="anchor" href="#_version_2_13_4_2020_09_29"></a>Version 2.13.4 (2020-09-29)</h2>
+<div class="sectionbody">
+<div class="ulist">
+<ul>
+<li>
+<p>Fix crash showing TagsDialog</p>
+</li>
+<li>
+<p>Fix crash in gesture detection</p>
+</li>
+<li>
+<p>Improve import interrupted error message</p>
+</li>
+<li>
+<p>Fix scheduler counts after undo</p>
+</li>
+<li>
+<p>Fix Card Browser preview after sort</p>
+</li>
+<li>
+<p>Fix button display if answer animation incomplete</p>
+</li>
+<li>
+<p>Sync all translations</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_version_2_13_3_2020_09_23"><a class="anchor" href="#_version_2_13_3_2020_09_23"></a>Version 2.13.3 (2020-09-23)</h2>
+<div class="sectionbody">
+<div class="ulist">
+<ul>
+<li>
+<p>Fix double-clicking answer buttons skipping cards</p>
+</li>
+<li>
+<p>Change missing media warning to twice-per-session not twice-per-deck</p>
+</li>
+<li>
+<p>Change answer button fade on open</p>
+</li>
+<li>
+<p>Updated all translations from volunteer crowdin.com site up to 20200923</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_version_2_13_2_2020_09_19"><a class="anchor" href="#_version_2_13_2_2020_09_19"></a>Version 2.13.2 (2020-09-19)</h2>
+<div class="sectionbody">
+<div class="ulist">
+<ul>
+<li>
+<p>Fix Crash rare on Card Browser exit</p>
+</li>
+<li>
+<p>Fix Crash Android 4.4</p>
+</li>
+<li>
+<p>Fix Open Deck failures / improve related messaging</p>
+</li>
+<li>
+<p>Fix messaging for Xioami cloze workaround</p>
+</li>
+<li>
+<p>Move "set field language" after share on Note Editor context menu</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_version_2_13_1_2020_09_17"><a class="anchor" href="#_version_2_13_1_2020_09_17"></a>Version 2.13.1 (2020-09-17)</h2>
+<div class="sectionbody">
+<div class="ulist">
+<ul>
+<li>
+<p>Add cloze via clipboard paste workaround on MIUI/Xiaomi devices</p>
+</li>
+<li>
+<p>Fix Navigation drawer respects safe display / disable animations preference</p>
+</li>
+<li>
+<p>Fix Reviewer buttons respect safe display / disable animations preference</p>
+</li>
+<li>
+<p>Fix Deck Picker bottom bar opacity</p>
+</li>
+<li>
+<p>Fix Error message about missing content on cards</p>
+</li>
+<li>
+<p>Fix crash selecting deck that disappears during sync</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_version_2_13_0_2020_09_15"><a class="anchor" href="#_version_2_13_0_2020_09_15"></a>Version 2.13.0 (2020-09-15)</h2>
+<div class="sectionbody">
+<div class="ulist">
+<ul>
+<li>
+<p>Field tag (such as "{{Front}}") appearing in a note&#8217;s field will be shown as-is in cards.</p>
+</li>
+<li>
+<p>Add Sync icon badge when changes are pending sync (can be disabled in options)</p>
+</li>
+<li>
+<p>Add Edit Note from card Preview while in Card Browser</p>
+</li>
+<li>
+<p>Add "Anki Card" to system context menu (like "Card Browser") - disabled by default</p>
+</li>
+<li>
+<p>Add Set keyboard language for specific fields in the note editor (example: one field Japanese, other field Portuguese for input).</p>
+</li>
+<li>
+<p>Add Keep keyboard open after adding a note</p>
+</li>
+<li>
+<p>Add Card properties available in JavaScript API</p>
+</li>
+<li>
+<p>Add JavaScript API versioning for scripts (basis for future plugins)</p>
+</li>
+<li>
+<p>Add Auto-Login when selecting saved user account</p>
+</li>
+<li>
+<p>Add Allow import of collection.anki21 files when under SchedV1</p>
+</li>
+<li>
+<p>Add New screen for first-time users</p>
+</li>
+<li>
+<p>Add Button animations when answering cards</p>
+</li>
+<li>
+<p>Add Note Editor: Add shortcuts Ctrl+(Alt)+Shift+C to add a cloze.</p>
+</li>
+<li>
+<p>Fix Some cards in learning were not shown at the right time (Only if you undo/bury/suspend/reset/reschedule and the next card goes to learning mode)</p>
+</li>
+<li>
+<p>Fix Selected deck has translucent background if a deck picker background is set</p>
+</li>
+<li>
+<p>Fix Improved preview screens</p>
+</li>
+<li>
+<p>Fix Better accessibility in Deck Browser for partially sighted users</p>
+</li>
+<li>
+<p>Fix Improve visibility of "Add/Remove Option Group"</p>
+</li>
+<li>
+<p>Fix Improved messages for sync rate limiting error</p>
+</li>
+<li>
+<p>Fix Improved messages for reducing study limits</p>
+</li>
+<li>
+<p>Fix Improved messaging when collection is missing media</p>
+</li>
+<li>
+<p>Fix Improve feedback when accessing Debug Info</p>
+</li>
+<li>
+<p>Fix Add additional warnings to reschedule dialog</p>
+</li>
+<li>
+<p>Fix Whiteboard pen color can be disabled by pressing icon again</p>
+</li>
+<li>
+<p>Fix Ensure all menu items in the reviewer can be customized by "App Bar Buttons" setting</p>
+</li>
+<li>
+<p>Fix Scheduler discrepancy handling early interval on filtered decks</p>
+</li>
+<li>
+<p>Fix Exports work when cards are missing media</p>
+</li>
+<li>
+<p>Fix Crash due to logging.</p>
+</li>
+<li>
+<p>Fix Toasts used to show one more card than the number of card actually reviewed during the time box</p>
+</li>
+<li>
+<p>Fix Handle newlines properly in Note Editor Preview</p>
+</li>
+<li>
+<p>Fix Improve AnkiDroid opening animation</p>
+</li>
+<li>
+<p>Fix Show correct answer button when answering via Keyboard</p>
+</li>
+<li>
+<p>Fix "New Cards Added" Statistic</p>
+</li>
+<li>
+<p>Fix Crash when inserting a cloze when selecting text from right-to-left via keyboard</p>
+</li>
+<li>
+<p>Fix "Show Password" icon revealing saved password</p>
+</li>
+<li>
+<p>Fix Card browser still contains card after the app goes into background</p>
+</li>
+<li>
+<p>Fix Daily unbury occurs during sync if necessary</p>
+</li>
+<li>
+<p>Fix On big screen, buttons moved during loading</p>
+</li>
+<li>
+<p>Translators If some text change because of minor changes (typos) you won&#8217;t have to translate it again</p>
+</li>
+<li>
+<p>Performance improvements (specifically: initial loading of large collection (lot of decks, note type, card type, fields, long templates&#8230;&#8203;), card browser, deck picker startup, next card view, undo, cancelling tasks such as computing a list of card in browser)</p>
+</li>
+<li>
+<p>Dev: Massive dev workflow improvements and automated checks for our translations.</p>
+</li>
+<li>
+<p>Dev: Implement backend for CSV Importer</p>
+</li>
+<li>
+<p>Dev: Improve crash reporting on app startup</p>
+</li>
+<li>
+<p>Dev: Massive improvement in testing, especially around scheduler / card queue behavior</p>
+</li>
+<li>
+<p>Full changelog: <a href="https://github.com/ankidroid/Anki-Android/milestone/27?closed=1" class="bare">https://github.com/ankidroid/Anki-Android/milestone/27?closed=1</a></p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_version_2_12_1_2020_07_21"><a class="anchor" href="#_version_2_12_1_2020_07_21"></a>Version 2.12.1 (2020-07-21)</h2>
+<div class="sectionbody">
+<div class="ulist">
+<ul>
+<li>
+<p>Fix bug previewing edited notes after changing field count</p>
+</li>
+<li>
+<p>Fix crash previewing edited notes from dynamic decks</p>
+</li>
+<li>
+<p>Fix crash restarting app after a crash</p>
+</li>
+<li>
+<p>Full changelog: <a href="https://github.com/ankidroid/Anki-Android/milestone/28?closed=1" class="bare">https://github.com/ankidroid/Anki-Android/milestone/28?closed=1</a></p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_version_2_12_0_2020_07_18"><a class="anchor" href="#_version_2_12_0_2020_07_18"></a>Version 2.12.0 (2020-07-18)</h2>
+<div class="sectionbody">
+<div class="ulist">
+<ul>
+<li>
+<p>Add Crop image feature</p>
+</li>
+<li>
+<p>Add Preview in note editor</p>
+</li>
+<li>
+<p>Add edit tags in reviewer</p>
+</li>
+<li>
+<p>Add volume buttons as gestures</p>
+</li>
+<li>
+<p>Add whiteboard pen color</p>
+</li>
+<li>
+<p>Add microphone tool bar in reviewer</p>
+</li>
+<li>
+<p>Add javascript API (check the Wiki!)</p>
+</li>
+<li>
+<p>Improve: app is 3MB smaller</p>
+</li>
+<li>
+<p>Fix: show whole tag in tags dialog</p>
+</li>
+<li>
+<p>Fix copy note copies tags too</p>
+</li>
+<li>
+<p>Fix data corruption canceling template edits</p>
+</li>
+<li>
+<p>performance and bug fixes everywhere!</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>11 volunteers made hundreds of individual changes this release</p>
+</div>
+<div class="paragraph">
+<p>Full changelog: <a href="https://github.com/ankidroid/Anki-Android/milestone/18?closed=1" class="bare">https://github.com/ankidroid/Anki-Android/milestone/18?closed=1</a></p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_version_2_11_3_2020_06_17"><a class="anchor" href="#_version_2_11_3_2020_06_17"></a>Version 2.11.3 (2020-06-17)</h2>
+<div class="sectionbody">
+<div class="ulist">
+<ul>
+<li>
+<p>Fix out-of-memory errors when importing very large decks</p>
+</li>
+<li>
+<p>Fix incorrect out-of-space message on import in Android 4</p>
+</li>
+<li>
+<p>Fix crash if card viewer closed quickly after view</p>
+</li>
+<li>
+<p>Fix unzip fail on .apkg files &gt;2GB</p>
+</li>
+<li>
+<p>Fix crash on edit note in browser multi-select</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_version_2_11_2_2020_06_10"><a class="anchor" href="#_version_2_11_2_2020_06_10"></a>Version 2.11.2 (2020-06-10)</h2>
+<div class="sectionbody">
+<div class="ulist">
+<ul>
+<li>
+<p>Add santali language</p>
+</li>
+<li>
+<p>Fix Hebrew, Indonesian, Tagalog languages</p>
+</li>
+<li>
+<p>Improve error reporting around apkg import failures</p>
+</li>
+<li>
+<p>Details: <a href="https://github.com/ankidroid/Anki-Android/milestone/24?closed=1" class="bare">https://github.com/ankidroid/Anki-Android/milestone/24?closed=1</a></p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_version_2_11_1_2020_06_08"><a class="anchor" href="#_version_2_11_1_2020_06_08"></a>Version 2.11.1 (2020-06-08)</h2>
+<div class="sectionbody">
+<div class="ulist">
+<ul>
+<li>
+<p>Fix crash in Card Browser multi-select mode</p>
+</li>
+<li>
+<p>Fix Custom Steps interval dialog space entry issue</p>
+</li>
+<li>
+<p>Fix flags don&#8217;t export with deck</p>
+</li>
+<li>
+<p>Fix AnkiDroid API doesn&#8217;t handle null model id (Anki Compatibility workaround)</p>
+</li>
+<li>
+<p>Fix translation crash in sync dialog in Azerbaijani</p>
+</li>
+<li>
+<p>Details: <a href="https://github.com/ankidroid/Anki-Android/milestone/23?closed=1" class="bare">https://github.com/ankidroid/Anki-Android/milestone/23?closed=1</a></p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_version_2_11_0_2020_06_05"><a class="anchor" href="#_version_2_11_0_2020_06_05"></a>Version 2.11.0 (2020-06-05)</h2>
+<div class="sectionbody">
+<div class="ulist">
+<ul>
+<li>
+<p>Android minimum supported version is now 4.1 / Jelly Bean / API16 (AnkiWeb Compatibility)</p>
+</li>
+<li>
+<p>Change sibling burying should default to off (Anki Compatibility)</p>
+</li>
+<li>
+<p>Change learn cards do not go in filtered decks in v1 sched (Anki Compatibility)</p>
+</li>
+<li>
+<p>Add Browser Appearance screen, to edit Card Browser render format (Anki Compatibility)</p>
+</li>
+<li>
+<p>Add guidance in Note Editor if no cards will be generated despite full fields</p>
+</li>
+<li>
+<p>Add all translations from our crowdin.com translation site</p>
+</li>
+<li>
+<p>Add ability to decrease daily limit in custom study (Anki Compatibility)</p>
+</li>
+<li>
+<p>Add ability to block gesture handling when tapping hints in Reviewer</p>
+</li>
+<li>
+<p>Add create subdeck option in deck list long-press context menu</p>
+</li>
+<li>
+<p>Add edit note action in Card Browser multi-select mode</p>
+</li>
+<li>
+<p>Add ability to turn off 'Card Browser' system text context menu item</p>
+</li>
+<li>
+<p>Add nightMode CSS selector for card HTML (Anki Compatibility)</p>
+</li>
+<li>
+<p>Add ability to change just the case of a deck name</p>
+</li>
+<li>
+<p>Add page-up/page-down gestures</p>
+</li>
+<li>
+<p>Improve gesture handling in full-screen / immersive mode</p>
+</li>
+<li>
+<p>Improve handling of cloze deletion in TTS mode</p>
+</li>
+<li>
+<p>Improve Card Browser search from Android text selection menu</p>
+</li>
+<li>
+<p>Improve Card Browser with default hide of media filenames</p>
+</li>
+<li>
+<p>Improve Reviewer auto-advance by waiting for TTS to finish</p>
+</li>
+<li>
+<p>Improve transparent SVG display in night mode with white background</p>
+</li>
+<li>
+<p>Improve anki package import handling</p>
+</li>
+<li>
+<p>Improve AnkiWeb login form enter button handling</p>
+</li>
+<li>
+<p>Improve hardware back button handling in restore from backup</p>
+</li>
+<li>
+<p>Improve Reviewer display of un-rendered LaTeX</p>
+</li>
+<li>
+<p>Improve TTS / auto-answer combination, wait for TTS before advance</p>
+</li>
+<li>
+<p>Workaround Firefox open downloaded deck bug</p>
+</li>
+<li>
+<p>Workaround crash on Samsung devices with &gt;500 deck reminders</p>
+</li>
+<li>
+<p>Fix card template editor mistakenly allowing add template on cloze type</p>
+</li>
+<li>
+<p>Fix language change preference</p>
+</li>
+<li>
+<p>Fix ability to unbury a deck in deck list</p>
+</li>
+<li>
+<p>Fix app bar item flicker during review</p>
+</li>
+<li>
+<p>Fix V2 scheduler learning card count after undo</p>
+</li>
+<li>
+<p>More details: <a href="https://github.com/ankidroid/Anki-Android/milestone/13?closed=1" class="bare">https://github.com/ankidroid/Anki-Android/milestone/13?closed=1</a></p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_version_2_10_4_2020_05_31"><a class="anchor" href="#_version_2_10_4_2020_05_31"></a>Version 2.10.4 (2020-05-31)</h2>
+<div class="sectionbody">
+<div class="ulist">
+<ul>
+<li>
+<p>Workaround expired AnkiWeb SSL Root certificate</p>
+</li>
+<li>
+<p>More details: <a href="https://github.com/ankidroid/Anki-Android/milestone/22?closed=1" class="bare">https://github.com/ankidroid/Anki-Android/milestone/22?closed=1</a></p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_version_2_10_3_2020_05_29"><a class="anchor" href="#_version_2_10_3_2020_05_29"></a>Version 2.10.3 (2020-05-29)</h2>
+<div class="sectionbody">
+<div class="ulist">
+<ul>
+<li>
+<p>Fix crash on no permissions on Card Browser system text menu entry</p>
+</li>
+<li>
+<p>Fix crash in widget if external storage unmounts</p>
+</li>
+<li>
+<p>Fix crash on device reboot if no permissions</p>
+</li>
+<li>
+<p>Fix crash if deck picker background image too large</p>
+</li>
+<li>
+<p>Fix crash in tags dialog</p>
+</li>
+<li>
+<p>Fix bad data generated for null objects (Anki compatability)</p>
+</li>
+<li>
+<p>Details here: <a href="https://github.com/ankidroid/Anki-Android/milestone/21?closed=1" class="bare">https://github.com/ankidroid/Anki-Android/milestone/21?closed=1</a></p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_version_2_10_2_2020_05_14"><a class="anchor" href="#_version_2_10_2_2020_05_14"></a>Version 2.10.2 (2020-05-14)</h2>
+<div class="sectionbody">
+<div class="ulist">
+<ul>
+<li>
+<p>Fix type answer cards not rendering correctly</p>
+</li>
+<li>
+<p>Fix type answer card template creation on non-English new installs</p>
+</li>
+<li>
+<p>Fix frequent full sync caused by incorrect learning card counts</p>
+</li>
+<li>
+<p>Fix crash importing into fresh install with no storage permission</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_version_2_10_1_2020_05_13"><a class="anchor" href="#_version_2_10_1_2020_05_13"></a>Version 2.10.1 (2020-05-13)</h2>
+<div class="sectionbody">
+<div class="ulist">
+<ul>
+<li>
+<p>Updated all translations from crowdin translators</p>
+</li>
+<li>
+<p>Fix crash note editor on rapid back button</p>
+</li>
+<li>
+<p>Fix crash from incorrect Thai translation</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_version_2_10_2020_05_12"><a class="anchor" href="#_version_2_10_2020_05_12"></a>Version 2.10 (2020-05-12)</h2>
+<div class="sectionbody">
+<div class="ulist">
+<ul>
+<li>
+<p>Add welcome dialog explaining need for storage permission</p>
+</li>
+<li>
+<p>Add support for Flags on cards (including flagging by gesture)</p>
+</li>
+<li>
+<p>Add ability to set background image in Deck Picker</p>
+</li>
+<li>
+<p>Add localization of standard templates created in fresh install</p>
+</li>
+<li>
+<p>Add support for card javascript to reload current card programmatically</p>
+</li>
+<li>
+<p>Add support for restricted learning / classroom devices</p>
+</li>
+<li>
+<p>Add preference to disable "Extended Text UI" full-screen editor</p>
+</li>
+<li>
+<p>Add CSS style capability to heavy checkmark and down arrow in card</p>
+</li>
+<li>
+<p>Add display of current interval on reschedule dialog</p>
+</li>
+<li>
+<p>Add support for card javascript to answer cards programmatically</p>
+</li>
+<li>
+<p>Add ability to toggle sticky field in field editor</p>
+</li>
+<li>
+<p>Improve deck list newline, style, script tag handling in deck descriptions</p>
+</li>
+<li>
+<p>Improve whiteboard on/off state handling, especially between day/night mode</p>
+</li>
+<li>
+<p>Improve multi-selection options in CardBrowser</p>
+</li>
+<li>
+<p>Improve performance (systematic optimization process, lots of improvements!)</p>
+</li>
+<li>
+<p>Improve handling of erroneous notes (missing fields, improper clozes)</p>
+</li>
+<li>
+<p>Improve user messaging on network connection failures</p>
+</li>
+<li>
+<p>Improve counting of suspended/buried cards in advanced statistics</p>
+</li>
+<li>
+<p>Improve v2 scheduler compatibility with Anki ecosystem</p>
+</li>
+<li>
+<p>Improve handling / detection of full sync need</p>
+</li>
+<li>
+<p>Improve Anki compatibility by allowing more field/model/deck name characters</p>
+</li>
+<li>
+<p>Improve deck list estimated review times with human scale times</p>
+</li>
+<li>
+<p>Fix text scaling bug in card browser</p>
+</li>
+<li>
+<p>Fix crash in export while using v2 scheduler</p>
+</li>
+<li>
+<p>Fix Custom Tabs crash with non-default system web browser</p>
+</li>
+<li>
+<p>Fix issues with import of packages with long Unicode names</p>
+</li>
+<li>
+<p>Fix incorrect intervals on lapsed filtered v2 scheduler cards</p>
+</li>
+<li>
+<p>Fix multimedia editor save/cancel behavior</p>
+</li>
+<li>
+<p>Fix incorrect button/gesture availability while existing task is still active</p>
+</li>
+<li>
+<p>Fix type answer crash on invalid characters</p>
+</li>
+<li>
+<p>Fix cloze references not being recognized in all fields</p>
+</li>
+<li>
+<p>Fix invalid ability to change deck to a filtered deck</p>
+</li>
+<li>
+<p>Fix crashes on adding invalid images, audios, and videos</p>
+</li>
+<li>
+<p>Fix CardBrowser crash after deleting card</p>
+</li>
+<li>
+<p>Fix crash and help user if no browser detected</p>
+</li>
+<li>
+<p>Fix Reviewer crash if card not available</p>
+</li>
+<li>
+<p>Fix crash / improve import of pasted decks</p>
+</li>
+<li>
+<p>Fix clicking hint field blocks key input in Reviewer</p>
+</li>
+<li>
+<p>Fix Previewer forgetting which card to show on device rotation</p>
+</li>
+<li>
+<p>Fix Mathjax/cloze interactions</p>
+</li>
+<li>
+<p>Fix vertical alignment of touch area in full-screen review</p>
+</li>
+<li>
+<p>Fix handling of ':::' in deck names</p>
+</li>
+<li>
+<p>Fix incorrect display of HTML comments in card browser</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_version_2_9_7_2020_04_30"><a class="anchor" href="#_version_2_9_7_2020_04_30"></a>Version 2.9.7 (2020-04-30)</h2>
+<div class="sectionbody">
+<div class="ulist">
+<ul>
+<li>
+<p>Fix crash / workaround deck options timer config regression in AnkiDesktop</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_version_2_9_6_2020_04_03"><a class="anchor" href="#_version_2_9_6_2020_04_03"></a>Version 2.9.6 (2020-04-03)</h2>
+<div class="sectionbody">
+<div class="ulist">
+<ul>
+<li>
+<p>Fix multimedia crashes (permissions handling, image add, preview)</p>
+</li>
+<li>
+<p>Fix UI and crashes in database check (user dialog + exception handling)</p>
+</li>
+<li>
+<p>Fix Windows 10 image compatibility issue with image paths</p>
+</li>
+<li>
+<p>Fix AnkiDesktop sync compatibility issue if more than 1000 cards due</p>
+</li>
+<li>
+<p>Fix crash in card browser render</p>
+</li>
+<li>
+<p>Fix parsing of image tags in card browser</p>
+</li>
+<li>
+<p>Fix crash in StudyOptionsFragment</p>
+</li>
+<li>
+<p>Fix issue with deck options group changing on export</p>
+</li>
+<li>
+<p>Fix issue with exports containing unexpected media</p>
+</li>
+<li>
+<p>Fix issue with dynamic decks (crash fix, export fix)</p>
+</li>
+<li>
+<p>Fix high frequency issue "AnkiDroid directory is inaccessible"</p>
+</li>
+<li>
+<p>Fix high frequency WebView (card viewer) crash</p>
+</li>
+<li>
+<p>Add columns to card browser (due, ease, changed, created, edited)</p>
+</li>
+<li>
+<p>Fix card scheduler not respecting maximum intervals</p>
+</li>
+<li>
+<p>Fix card browser spins forever on images or empty strings</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_version_2_9_5_2020_03_15"><a class="anchor" href="#_version_2_9_5_2020_03_15"></a>Version 2.9.5 (2020-03-15)</h2>
+<div class="sectionbody">
+<div class="ulist">
+<ul>
+<li>
+<p>Fix crash rendering card list while updating card browser search</p>
+</li>
+<li>
+<p>Fix case-sensitivity issue with pronunciation words not being found</p>
+</li>
+<li>
+<p>Fix crash caused by auto-sync on startup showing dialog too soon</p>
+</li>
+<li>
+<p>Fix crash on preview of TTS cards showing language selectiond dialog too slowly</p>
+</li>
+<li>
+<p>Fix crash on import if collection not found</p>
+</li>
+<li>
+<p>Fix Anki ecosystem deck configuration issue for Anki Desktop users &#8656; 2.16</p>
+</li>
+<li>
+<p>Fix crash if user attempts to open camera or gallery and no app is available</p>
+</li>
+<li>
+<p>Fix crash building deck reminders while deck is synchronizing</p>
+</li>
+<li>
+<p>Fix crash related to audio recording stop</p>
+</li>
+<li>
+<p>Show helpful messages if import fails because device is out of space</p>
+</li>
+<li>
+<p>Fix crash when taking pictures on devices with Lollipop and older</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_version_2_9_4_2020_02_18"><a class="anchor" href="#_version_2_9_4_2020_02_18"></a>Version 2.9.4 (2020-02-18)</h2>
+<div class="sectionbody">
+<div class="ulist">
+<ul>
+<li>
+<p>Fix crash when fetching pronunciations in note editor</p>
+</li>
+<li>
+<p>Fix issue with pronunciation words not being found</p>
+</li>
+<li>
+<p>Fix crash on startup for users with auto-sync on startup</p>
+</li>
+<li>
+<p>Fix crash on deck import when app is in background</p>
+</li>
+<li>
+<p>Fix crash for users of Google Chrome Canary</p>
+</li>
+<li>
+<p>Fix crash when adding certain audio clips</p>
+</li>
+<li>
+<p>Fix crash related to fetching Sound metadata</p>
+</li>
+<li>
+<p>Fix issue where audio plays twice</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_version_2_9_3_2020_02_09"><a class="anchor" href="#_version_2_9_3_2020_02_09"></a>Version 2.9.3 (2020-02-09)</h2>
+<div class="sectionbody">
+<div class="ulist">
+<ul>
+<li>
+<p>Fix issues with connection timeouts and new encryption library</p>
+</li>
+<li>
+<p>Fix incorrect handling of decks with ':::' in their name</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_version_2_9_2_2020_02_03"><a class="anchor" href="#_version_2_9_2_2020_02_03"></a>Version 2.9.2 (2020-02-03)</h2>
+<div class="sectionbody">
+<div class="ulist">
+<ul>
+<li>
+<p>Add support for new AnkiWeb encryption changes</p>
+</li>
+<li>
+<p>Fix some bugs using filtered decks</p>
+</li>
+<li>
+<p>Fix crash on app startup with uninitialized collection</p>
+</li>
+<li>
+<p>Fix some issues with new cloze deletion menu</p>
+</li>
+<li>
+<p>Fix issue with Mathjax + cloze deletion</p>
+</li>
+<li>
+<p>Fix incorrect intervals bug with new scheduler</p>
+</li>
+<li>
+<p>Add various patches from Anki Desktop</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_version_2_9_1_2019_10_16"><a class="anchor" href="#_version_2_9_1_2019_10_16"></a>Version 2.9.1 (2019-10-16)</h2>
+<div class="sectionbody">
+<div class="ulist">
+<ul>
+<li>
+<p>Fix crash reviewing on Android 5 - 7</p>
+</li>
+<li>
+<p>Fix crash on Hungarian translation</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_version_2_9_2019_10_14"><a class="anchor" href="#_version_2_9_2019_10_14"></a>Version 2.9 (2019-10-14)</h2>
+<div class="sectionbody">
+<div class="ulist">
+<ul>
+<li>
+<p>Change to new adaptive icon</p>
+</li>
+<li>
+<p>Add multi-select in the card browser (delete, change deck, reschedule)</p>
+</li>
+<li>
+<p>Add support for new Anki 2.1 scheduler</p>
+</li>
+<li>
+<p>Add support for Mathjax</p>
+</li>
+<li>
+<p>Add ability to add local audio files to notes</p>
+</li>
+<li>
+<p>Add ability to specify filename and folder on export and import</p>
+</li>
+<li>
+<p>Add ability to insert cloze in Note Editor</p>
+</li>
+<li>
+<p>Add ability to reposition cards</p>
+</li>
+<li>
+<p>Add ability to use due reminders for specific decks</p>
+</li>
+<li>
+<p>Add support for gamepad input when reviewing</p>
+</li>
+<li>
+<p>Add support for common keyboard shortcuts from Anki Desktop</p>
+</li>
+<li>
+<p>Add ability to search in Card Browser for text from system context menu</p>
+</li>
+<li>
+<p>Add ability to recognize tts HTML elements in questions and answers</p>
+</li>
+<li>
+<p>Add ability to display LaTeX rendered to SVG (vs PNG) from Anki Desktop</p>
+</li>
+<li>
+<p>Add confirmation check for full sync trigger in preferences</p>
+</li>
+<li>
+<p>Fix excessive pull-to-sync false positives. Disable when not at top of page.</p>
+</li>
+<li>
+<p>Fix some issues with focus in Note Editor</p>
+</li>
+<li>
+<p>Fix media sync errors related to file creation issues</p>
+</li>
+<li>
+<p>Fix crash related to use of camera without permission or no camera hardware</p>
+</li>
+<li>
+<p>Fix crash related to Card Browser allowing preview with no cards selected</p>
+</li>
+<li>
+<p>Fix crash in Reviewer when collection inaccessible</p>
+</li>
+<li>
+<p>Fix crash related to TTS when TTS not initialized</p>
+</li>
+<li>
+<p>Fix crash related to sdcard mount/unmount on inaccessible collection</p>
+</li>
+<li>
+<p>Fix crash related to audio button being visible after loading pronunciation media</p>
+</li>
+<li>
+<p>Fix crash when attempting to import invalid zip files</p>
+</li>
+<li>
+<p>Fix crash related to switching from split-window mode to single-window mode</p>
+</li>
+<li>
+<p>Fix crash related to missing preferences in Preference editor</p>
+</li>
+<li>
+<p>Fix crash on deck selection after deleting a deck and immediately closing app</p>
+</li>
+<li>
+<p>Fix crash in Reviewer when non-standard browser installed</p>
+</li>
+<li>
+<p>Fix type-answer field showing unexpectedly after undo in Reviewer</p>
+</li>
+<li>
+<p>Fix incorrect display of some characters when using type-answer</p>
+</li>
+<li>
+<p>Fix error related to media in subfolders not showing in Reviewer</p>
+</li>
+<li>
+<p>Fix some issues with generated flashcard html and CSS selectors</p>
+</li>
+<li>
+<p>Fix some Glosbe and Beolingus regressions</p>
+</li>
+<li>
+<p>Fix issue where new deck was created when note type was renamed</p>
+</li>
+<li>
+<p>Fix add note button disappearing from Card Browser when returning from search</p>
+</li>
+<li>
+<p>Fix some statistics display issues</p>
+</li>
+<li>
+<p>Fix incorrect display of some preferences</p>
+</li>
+<li>
+<p>Fix invisible notification bar in NoteEditor</p>
+</li>
+<li>
+<p>Fix newline characters not working in cloze deletions</p>
+</li>
+<li>
+<p>Increase max card count display from 1000 to 99999</p>
+</li>
+<li>
+<p>Improve display handling of very long review intervals (&gt; 68 years)</p>
+</li>
+<li>
+<p>Improve next/back buttons when using Previewer on multiple cards</p>
+</li>
+<li>
+<p>Improve handling of selected deck between statistics, card browser and deck picker</p>
+</li>
+<li>
+<p>Improve Card Browser search by restoring when returning from other activities</p>
+</li>
+<li>
+<p>Improve card focus handling when moving between Note Editor and Card Template Editor</p>
+</li>
+<li>
+<p>Improve labeling of deck-group vs deck-specific options</p>
+</li>
+<li>
+<p>Improve formatting of HTTP error codes during sync</p>
+</li>
+<li>
+<p>Improve handling of multi-touch events while whiteboard displayed</p>
+</li>
+<li>
+<p>Improve permission dialog descriptions</p>
+</li>
+<li>
+<p>Improve handling of "preview new cards" setting when creating custom study deck</p>
+</li>
+<li>
+<p>Improve Navigation Drawer performance on older devices</p>
+</li>
+<li>
+<p>Improve database check dialog with addition progress updates during check</p>
+</li>
+<li>
+<p>Use different notification channels for study reminders and general notifications</p>
+</li>
+<li>
+<p>Drop support for Android &lt; Ice Cream Sandwich MR1 (API15, Android 4.0.3)</p>
+</li>
+<li>
+<p>Add support for more features on Chromebook (import, export, restore backup, camera)</p>
+</li>
+<li>
+<p>Add API support for card/note bury and suspend</p>
+</li>
+<li>
+<p>Add API to open Reviewer on specific decks from other apps</p>
+</li>
+<li>
+<p>Add support for HTML/Javascript debugging</p>
+</li>
+<li>
+<p>Add link to third party apps which support AnkiDroid API in advanced preferences</p>
+</li>
+<li>
+<p>Fix issue with custom sync server certificates</p>
+</li>
+<li>
+<p>Perform basic DB integrity check on app upgrade</p>
+</li>
+<li>
+<p>Introduce optional analytics reporting</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_version_2_8_4_2018_04_27"><a class="anchor" href="#_version_2_8_4_2018_04_27"></a>Version 2.8.4 (2018-04-27)</h2>
+<div class="sectionbody">
+<div class="ulist">
+<ul>
+<li>
+<p>Fix error syncing due to too many card templates</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_version_2_8_3_2017_11_10"><a class="anchor" href="#_version_2_8_3_2017_11_10"></a>Version 2.8.3 (2017-11-10)</h2>
+<div class="sectionbody">
+<div class="ulist">
+<ul>
+<li>
+<p>Fix crash adding a picture from camera</p>
+</li>
+<li>
+<p>Fix add note icon disappearing in browser after search</p>
+</li>
+<li>
+<p>Fix translations from Glosbe</p>
+</li>
+<li>
+<p>Fix crash long-tapping when no deck is selected</p>
+</li>
+<li>
+<p>Fix crash entering advanced settings on some devices</p>
+</li>
+<li>
+<p>Fix incorrect graph display in statistics</p>
+</li>
+<li>
+<p>Fix deck not changing properly in statistics</p>
+</li>
+<li>
+<p>Fix rounding error in statistics weekly breakdown</p>
+</li>
+<li>
+<p>Fix spurious new deck created on model rename</p>
+</li>
+<li>
+<p>Improve error message on exception during media sync</p>
+</li>
+<li>
+<p>Improve animation when transitioning between screens</p>
+</li>
+<li>
+<p>Use a round icon on devices that support it</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_version_2_8_2_2017_02_28"><a class="anchor" href="#_version_2_8_2_2017_02_28"></a>Version 2.8.2 (2017-02-28)</h2>
+<div class="sectionbody">
+<div class="ulist">
+<ul>
+<li>
+<p>Fix bugs showing confirmation dialogs in various places</p>
+</li>
+<li>
+<p>Fix uncommon crash showing dialog after sync</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_version_2_8_1_2017_02_06"><a class="anchor" href="#_version_2_8_1_2017_02_06"></a>Version 2.8.1 (2017-02-06)</h2>
+<div class="sectionbody">
+<div class="ulist">
+<ul>
+<li>
+<p>Allow sending exported apkg to arbitrary app (e.g. Google Drive)</p>
+</li>
+<li>
+<p>Allow AnkiWeb to display a warning on sync completion</p>
+</li>
+<li>
+<p>Fix potential full-sync after sync cancellation</p>
+</li>
+<li>
+<p>Fix media sync sometimes scanning all files again</p>
+</li>
+<li>
+<p>Fix removing $ character when importing media files</p>
+</li>
+<li>
+<p>Improve automatic card answer timing when audio is played</p>
+</li>
+<li>
+<p>Improve rendering of some statistics</p>
+</li>
+<li>
+<p>Fix some crashes in the Russian, Vietnamese, and Chinese translations</p>
+</li>
+<li>
+<p>Fix crash sending exported apkg by email. NB: Export path can no longer be modified.</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_version_2_7_2016_10_16"><a class="anchor" href="#_version_2_7_2016_10_16"></a>Version 2.7 (2016-10-16)</h2>
+<div class="sectionbody">
+<div class="ulist">
+<ul>
+<li>
+<p>Add pull-to-sync feature</p>
+</li>
+<li>
+<p>Add option to place answer buttons at the top</p>
+</li>
+<li>
+<p>Add widget to directly access "Add note" screen</p>
+</li>
+<li>
+<p>Fix issue with importing whole collections and restoring backups</p>
+</li>
+<li>
+<p>Fix deck import failing after the first successful one</p>
+</li>
+<li>
+<p>Fix cards in learning queue not being randomized</p>
+</li>
+<li>
+<p>Fix crash with fullscreen mode and hidden answer buttons</p>
+</li>
+<li>
+<p>Fix rare crash when opening deck options</p>
+</li>
+<li>
+<p>Improve support with TalkBack</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_version_2_6_1_2016_07_08"><a class="anchor" href="#_version_2_6_1_2016_07_08"></a>Version 2.6.1 (2016-07-08)</h2>
+<div class="sectionbody">
+<div class="ulist">
+<ul>
+<li>
+<p>Add card cycling in previewer (similar to desktop client)</p>
+</li>
+<li>
+<p>Add option to hide 'minutes left' in reviewer</p>
+</li>
+<li>
+<p>Fix language from app setting not always being used</p>
+</li>
+<li>
+<p>Fix not being able to play back new sound recording</p>
+</li>
+<li>
+<p>Fix potential crash on Android 2.3 (Gingerbread)</p>
+</li>
+<li>
+<p>Improved use of horizontal space when resizing large images</p>
+</li>
+<li>
+<p>Minor adjustment to black theme colors</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_version_2_6_2016_06_14"><a class="anchor" href="#_version_2_6_2016_06_14"></a>Version 2.6 (2016-06-14)</h2>
+<div class="sectionbody">
+<div class="ulist">
+<ul>
+<li>
+<p>Add two new themes (black, plain), selectable in preferences</p>
+</li>
+<li>
+<p>Make reviewer app bar icons customizable</p>
+</li>
+<li>
+<p>Split "hide / delete" menu in reviewer into "bury", "suspend", "delete note"</p>
+</li>
+<li>
+<p>Reviewer undo button now removes last stroke when whiteboard in use</p>
+</li>
+<li>
+<p>Add menu entry to change TTS language from reviewer</p>
+</li>
+<li>
+<p>Add more of the statistics available on the desktop client</p>
+</li>
+<li>
+<p>Add "advanced statistics" plugin (must be enabled in advanced settings)</p>
+</li>
+<li>
+<p>Add setting to configure custom sync server (advanced)</p>
+</li>
+<li>
+<p>Fix card templates created in AnkiDroid incorrectly using bold style</p>
+</li>
+<li>
+<p>Fix many importing issues (behavior now consistent with the desktop client)</p>
+</li>
+<li>
+<p>Fix long-tapping card in browser not always working</p>
+</li>
+<li>
+<p>Update sound playback button image</p>
+</li>
+<li>
+<p>Reduce size of whiteboard and gesture area for better interoperability with full screen</p>
+</li>
+<li>
+<p>Improve error messages with inaccessible collections</p>
+</li>
+<li>
+<p>Allow auto-play of HTML media elements (for templates that enable it)</p>
+</li>
+<li>
+<p>Significant updates to the content provider and API (for developers; see documentation)</p>
+</li>
+<li>
+<p>Many small bug fixes, improvements, theme adjustments, translation updates</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_version_2_5_4_2015_12_14"><a class="anchor" href="#_version_2_5_4_2015_12_14"></a>Version 2.5.4 (2015-12-14)</h2>
+<div class="sectionbody">
+<div class="ulist">
+<ul>
+<li>
+<p>Fix background color in overflow menu of deck picker</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_version_2_5_3_2015_12_14"><a class="anchor" href="#_version_2_5_3_2015_12_14"></a>Version 2.5.3 (2015-12-14)</h2>
+<div class="sectionbody">
+<div class="ulist">
+<ul>
+<li>
+<p>Fix floating action button (blue +) interfering with deck list on Android 2.3</p>
+</li>
+<li>
+<p>Fix opening apkg files from Gmail</p>
+</li>
+<li>
+<p>Fix automatic playback of consecutive videos</p>
+</li>
+<li>
+<p>Add a new launch screen</p>
+</li>
+<li>
+<p>Improve behaviour surrounding the deck overview screen</p>
+</li>
+<li>
+<p>Multiple media files can now be added to one field in the note editor</p>
+</li>
+<li>
+<p>Don&#8217;t include unused media files on export</p>
+</li>
+<li>
+<p>Undo behaviour is now consistent with the desktop client (can no longer undo note edits)</p>
+</li>
+<li>
+<p>Enhancements to sync canceling</p>
+</li>
+<li>
+<p>Minor performance enhancements, crash fixes, and UI tweaks</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_version_2_5_2_2015_12_04"><a class="anchor" href="#_version_2_5_2_2015_12_04"></a>Version 2.5.2 (2015-12-04)</h2>
+<div class="sectionbody">
+<div class="ulist">
+<ul>
+<li>
+<p>Fix start-up crashes on Samsung devices running Android 4.2</p>
+</li>
+<li>
+<p>Fix crash for new users on Android 6.0</p>
+</li>
+<li>
+<p>Reverted to old typing method. The new method is now an option which is off by default.</p>
+</li>
+<li>
+<p>You can now click on the numbers in the right-most part of the deck list to open the deck overview screen</p>
+</li>
+<li>
+<p>Various fixes to transition animations and progress bars</p>
+</li>
+<li>
+<p>Add option to remove empty cards (previously only possible on desktop)</p>
+</li>
+<li>
+<p>Remove: Google Translate filter. In practice, this feature had no effect and is not required</p>
+</li>
+<li>
+<p>Remove: Google image search for multimedia card. The image search API has been discontinued by Google and no longer works</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_version_2_5_1_2015_12_01"><a class="anchor" href="#_version_2_5_1_2015_12_01"></a>Version 2.5.1 (2015-12-01)</h2>
+<div class="sectionbody">
+<div class="ulist">
+<ul>
+<li>
+<p>Fix crash when loading deck list (could not open collection bug)</p>
+</li>
+<li>
+<p>Fix visible progress bar showing when answering card</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_version_2_5_2015_11_30"><a class="anchor" href="#_version_2_5_2015_11_30"></a>Version 2.5 (2015-11-30)</h2>
+<div class="sectionbody">
+<div class="ulist">
+<ul>
+<li>
+<p>Redesign of user interface to use material design</p>
+</li>
+<li>
+<p>Add new dark theme</p>
+</li>
+<li>
+<p>Simplify the study process by bypassing deck overview screen</p>
+</li>
+<li>
+<p>Add ability to add, edit, delete note types</p>
+</li>
+<li>
+<p>Add setting to enable auto-sync and a Tasker intent to trigger sync</p>
+</li>
+<li>
+<p>Replace "instant add" feature with new API for 3rd party apps to add cards directly to AnkiDroid</p>
+</li>
+<li>
+<p>"Type in the answer" input box now built into the card html itself</p>
+</li>
+<li>
+<p>Make fullscreen-mode immersive and added setting to hide answer buttons when using gestures</p>
+</li>
+<li>
+<p>Add css class for customizing card background color when night mode is enabled</p>
+</li>
+<li>
+<p>Allow changing media volume from the deck picker</p>
+</li>
+<li>
+<p>Add ability to save and view common searches in the card browser</p>
+</li>
+<li>
+<p>Browser now shows full question and answer in the results by default</p>
+</li>
+<li>
+<p>Only show tags relevant to that deck when doing custom study by tag</p>
+</li>
+<li>
+<p>Fix some bugs in the widget</p>
+</li>
+<li>
+<p>Remove "simple interface"</p>
+</li>
+<li>
+<p>Remove support for Android version 2.1 and 2.2 (minimum is now 2.3.3)</p>
+</li>
+<li>
+<p>Add support for Android 6 Marshmallow</p>
+</li>
+<li>
+<p>Disable write-ahead-logging in sqlite database</p>
+</li>
+<li>
+<p>Many other bug fixes and small improvements</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_version_2_4_4_2015_10_20"><a class="anchor" href="#_version_2_4_4_2015_10_20"></a>Version 2.4.4 (2015-10-20)</h2>
+<div class="sectionbody">
+<div class="ulist">
+<ul>
+<li>
+<p>Fix playback of sound files with apostrophes in file name</p>
+</li>
+<li>
+<p>Fix new card siblings not being buried for the same day</p>
+</li>
+<li>
+<p>Fix media on cards when using the Hebrew Fix option</p>
+</li>
+<li>
+<p>Fix crashes related to "Relative overdueness" and make this sort order available on AnkiDroid</p>
+</li>
+<li>
+<p>When mixing new and review cards, make their rotation more consistent with desktop</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_version_2_4_3_2015_04_21"><a class="anchor" href="#_version_2_4_3_2015_04_21"></a>Version 2.4.3 (2015-04-21)</h2>
+<div class="sectionbody">
+<div class="ulist">
+<ul>
+<li>
+<p>Fix "unknown field" bug</p>
+</li>
+<li>
+<p>Fix crash showing welcome screen on Android 2.3</p>
+</li>
+<li>
+<p>Fix crash caused by widget</p>
+</li>
+<li>
+<p>Fix rare crash in browser</p>
+</li>
+<li>
+<p>Fix a couple of sync issues</p>
+</li>
+<li>
+<p>Fix crash starting AnkiDroid on a small number of devices</p>
+</li>
+<li>
+<p>Update translations</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_version_2_4_2_2015_03_18"><a class="anchor" href="#_version_2_4_2_2015_03_18"></a>Version 2.4.2 (2015-03-18)</h2>
+<div class="sectionbody">
+<div class="ulist">
+<ul>
+<li>
+<p>Fix some bugs with cloze templates</p>
+</li>
+<li>
+<p>Fix a translation error</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_version_2_4_1_2015_03_15"><a class="anchor" href="#_version_2_4_1_2015_03_15"></a>Version 2.4.1 (2015-03-15)</h2>
+<div class="sectionbody">
+<div class="ulist">
+<ul>
+<li>
+<p>Fix some bugs with filtered decks</p>
+</li>
+<li>
+<p>Improve importing of shared decks</p>
+</li>
+<li>
+<p>Open settings if AnkiDroid dir inaccesible</p>
+</li>
+<li>
+<p>Fix a bug with zooming</p>
+</li>
+<li>
+<p>Fix a bug where old card was still shown in reviewer after changing deck</p>
+</li>
+<li>
+<p>Fix some issues with cloze deletion</p>
+</li>
+<li>
+<p>Fix various crashes</p>
+</li>
+<li>
+<p>Update translations</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_version_2_4_2015_01_28"><a class="anchor" href="#_version_2_4_2015_01_28"></a>Version 2.4 (2015-01-28)</h2>
+<div class="sectionbody">
+<div class="ulist">
+<ul>
+<li>
+<p>Move "preview" feature to browser</p>
+</li>
+<li>
+<p>Add ability to change note type of existing flashcards</p>
+</li>
+<li>
+<p>Add ability to view and delete card templates</p>
+</li>
+<li>
+<p>Fix TTS for most devices</p>
+</li>
+<li>
+<p>Support playback of videos (see supported formats <a href="http://developer.android.com/guide/appendix/media-formats.html">here</a>)</p>
+</li>
+<li>
+<p>Improve rendering of second column in browser</p>
+</li>
+<li>
+<p>Improve detection of swipe gestures</p>
+</li>
+<li>
+<p>Increase number of languages in Glosbe translator</p>
+</li>
+<li>
+<p>Add support for Chromebooks</p>
+</li>
+<li>
+<p>New crash report system</p>
+</li>
+<li>
+<p>Bug fixes</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_version_2_3_2_2014_11_06"><a class="anchor" href="#_version_2_3_2_2014_11_06"></a>Version 2.3.2 (2014-11-06)</h2>
+<div class="sectionbody">
+<div class="ulist">
+<ul>
+<li>
+<p>Bug fixes: Sync, TTS, Remote images, Advanced editor, Export</p>
+</li>
+<li>
+<p>Note: This is the last version of AnkiDroid supported by AnkiWeb. Previous versions will not sync.</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_version_2_3_2014_10_27"><a class="anchor" href="#_version_2_3_2014_10_27"></a>Version 2.3 (2014-10-27)</h2>
+<div class="sectionbody">
+<div class="ulist">
+<ul>
+<li>
+<p>Add new user manual</p>
+</li>
+<li>
+<p>Make statistics identical to Anki Desktop</p>
+</li>
+<li>
+<p>Fixes to media sync</p>
+</li>
+<li>
+<p>Fix bug where images were not showing</p>
+</li>
+<li>
+<p>Change layout of note editor</p>
+</li>
+<li>
+<p>Add new disable whiteboard option to reviewer and update icons</p>
+</li>
+<li>
+<p>Add full support for APKG export and import</p>
+</li>
+<li>
+<p>Add feature to email exported APKG</p>
+</li>
+<li>
+<p>Increase default number of backups and use APKG</p>
+</li>
+<li>
+<p>Make preview card accessible from card browser</p>
+</li>
+<li>
+<p>Make shared decks download with Android browser</p>
+</li>
+<li>
+<p>Add reset and reschedule feature in note editor</p>
+</li>
+<li>
+<p>Add a new notification system and icon</p>
+</li>
+<li>
+<p>Replace tutorial deck with new welcome screen</p>
+</li>
+<li>
+<p>Disable opening navigation drawer from reviewer when swipe is used</p>
+</li>
+<li>
+<p>Improve audio recording quality</p>
+</li>
+<li>
+<p>Support sticky fields when enabled in Anki Desktop</p>
+</li>
+<li>
+<p>Many other bug fixes</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_version_2_2_3_2014_08_04"><a class="anchor" href="#_version_2_2_3_2014_08_04"></a>Version 2.2.3 (2014-08-04)</h2>
+<div class="sectionbody">
+<div class="ulist">
+<ul>
+<li>
+<p>New media sync protocol</p>
+</li>
+<li>
+<p>Fix 2 bugs for opening links and resuming the app</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_version_2_2_2014_07_21"><a class="anchor" href="#_version_2_2_2014_07_21"></a>Version 2.2 (2014-07-21)</h2>
+<div class="sectionbody">
+<div class="ulist">
+<ul>
+<li>
+<p>Redesign layout</p>
+</li>
+<li>
+<p>Add pictures and sounds to flashcards (experimental)</p>
+</li>
+<li>
+<p>Make second column in card browser configurable</p>
+</li>
+<li>
+<p>Make images on flashcards zoomable</p>
+</li>
+<li>
+<p>Improve preview feature and access via action bar</p>
+</li>
+<li>
+<p>Simplify menus and settings</p>
+</li>
+<li>
+<p>Make slow searches in card browser cancellable</p>
+</li>
+<li>
+<p>Improve adding/removing tags</p>
+</li>
+<li>
+<p>Fix "type in the answer" and cloze deletion features</p>
+</li>
+<li>
+<p>Fix whiteboard feature</p>
+</li>
+<li>
+<p>Restore backups from within the app</p>
+</li>
+<li>
+<p>Make volume duck on any background music when sounds played</p>
+</li>
+<li>
+<p>Make playing of sounds consistent with Desktop version</p>
+</li>
+<li>
+<p>Remove animations feature due to being buggy</p>
+</li>
+<li>
+<p>Improve speed of showing cards</p>
+</li>
+<li>
+<p>Remove duplicate check dialog when adding new flashcards</p>
+</li>
+<li>
+<p>Remove swap button when adding or editing flashcards</p>
+</li>
+<li>
+<p>Remove kanji info feature (will become optional plugin in the future)</p>
+</li>
+<li>
+<p>Make minimum Android version 2.1</p>
+</li>
+<li>
+<p>Fix lots of bugs</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_version_2_1_3_2014_04_05"><a class="anchor" href="#_version_2_1_3_2014_04_05"></a>Version 2.1.3 (2014-04-05)</h2>
+<div class="sectionbody">
+<div class="ulist">
+<ul>
+<li>
+<p>Create new notes in correct deck</p>
+</li>
+<li>
+<p>TTS fixes</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_version_2_1_2014_03_27"><a class="anchor" href="#_version_2_1_2014_03_27"></a>Version 2.1 (2014-03-27)</h2>
+<div class="sectionbody">
+<div class="ulist">
+<ul>
+<li>
+<p>Lots of Bug Fixes</p>
+</li>
+<li>
+<p>New custom study option with improved tag selection</p>
+</li>
+<li>
+<p>New preview card feature in note editor (experimental)</p>
+</li>
+<li>
+<p>New override font preference in addition to default font</p>
+</li>
+<li>
+<p>New "Kanji Info" feature (enabled in preferences&#8594;reviewing&#8594;Kanji Info)</p>
+</li>
+<li>
+<p>Improve Aedict integration</p>
+</li>
+<li>
+<p>Support for Samsung Multi-Window</p>
+</li>
+<li>
+<p>Fix Some TTS Issues</p>
+</li>
+<li>
+<p>Updated Translations</p>
+</li>
+<li>
+<p>Remove unused media check when deleting decks</p>
+</li>
+<li>
+<p>Significantly increase speed for reducing filtered decks</p>
+</li>
+<li>
+<p>Remove upgrade wizard</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_version_2_0_4_2014_02_03"><a class="anchor" href="#_version_2_0_4_2014_02_03"></a>Version 2.0.4 (2014-02-03)</h2>
+<div class="sectionbody">
+<div class="ulist">
+<ul>
+<li>
+<p>Fix issue with typing answers</p>
+</li>
+<li>
+<p>Default font now overrides card font</p>
+</li>
+<li>
+<p>Fixed audio playback image being covered by text on Android 2.3</p>
+</li>
+<li>
+<p>Fixed reviewer crash when language set to Romanian</p>
+</li>
+<li>
+<p>Translation fixes</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_version_2_0_2_2013_12_15"><a class="anchor" href="#_version_2_0_2_2013_12_15"></a>Version 2.0.2 (2013-12-15)</h2>
+<div class="sectionbody">
+<div class="ulist">
+<ul>
+<li>
+<p>Fixed lots of crashes</p>
+</li>
+<li>
+<p>Tablet UI fixes</p>
+</li>
+<li>
+<p>Fixed new card ordering issues</p>
+</li>
+<li>
+<p>Card appearance now matches desktop Anki. (Centering cards is off by default but can be re-enabled)</p>
+</li>
+<li>
+<p>Option groups can now be changed in AnkiDroid</p>
+</li>
+<li>
+<p>Clear error message when using a bad template</p>
+</li>
+<li>
+<p>Fixed timeboxing notifications</p>
+</li>
+<li>
+<p>Properly scale images</p>
+</li>
+<li>
+<p>Better custom font handling</p>
+</li>
+<li>
+<p>More settings (next day starts at, timeboxing value, etc.)</p>
+</li>
+<li>
+<p>Changing AnkiDroid interface language now works.</p>
+</li>
+<li>
+<p>Fixed import/shared deck download issues ("not a valid apkg file")</p>
+</li>
+<li>
+<p>Fixed invisible text on Motorola devices</p>
+</li>
+<li>
+<p>Focus on answer when revealed</p>
+</li>
+<li>
+<p>Filtered decks are now blue in deck list</p>
+</li>
+<li>
+<p>Removed unused circle button in note editor</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_version_2_0_1_2013_02_06"><a class="anchor" href="#_version_2_0_1_2013_02_06"></a>Version 2.0.1 (2013-02-06)</h2>
+<div class="sectionbody">
+<div class="ulist">
+<ul>
+<li>
+<p>Upgrade wizard</p>
+</li>
+<li>
+<p>Fix importing apkgs</p>
+</li>
+<li>
+<p>Fix media syncing</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_version_2_0_2013_01_03"><a class="anchor" href="#_version_2_0_2013_01_03"></a>Version 2.0 (2013-01-03)</h2>
+<div class="sectionbody">
+<div class="ulist">
+<ul>
+<li>
+<p>complete revision</p>
+</li>
+<li>
+<p>libanki2.0 scheduling</p>
+</li>
+<li>
+<p>new learning mode</p>
+</li>
+<li>
+<p>new layout</p>
+</li>
+<li>
+<p>merge syncing possible now</p>
+</li>
+<li>
+<p>better statistics</p>
+</li>
+<li>
+<p>decks are now saved in a single collection</p>
+</li>
+<li>
+<p>options are shareable now</p>
+</li>
+<li>
+<p>tablet layout</p>
+</li>
+<li>
+<p>tons of performance improvements</p>
+</li>
+<li>
+<p>card import function</p>
+</li>
+<li>
+<p>collection can be saved on internal memory</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_version_0_1_to_1_1_3"><a class="anchor" href="#_version_0_1_to_1_1_3"></a>Version 0.1 to 1.1.3</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>AnkiDroid has continuously evolved collectively as an open source project, with the first version released to the Google Market on <a href="http://nicolas-raoul.blogspot.jp/2009/06/just-published-ankidroid-on-market.html">June 28 2009</a>.
+Version 1.1.3 was the last 1.x version (released on 26th June 2012), before the incompatible AnkiDroid v2.0 was released,
+essentially rewritten from scratch to be compatible with the new Anki Desktop v2.0.</p>
+</div>
+</div>
+</div>
+</div>
+<div id="footer">
+<div id="footer-text">
+Last updated 2026-05-02 22:57:50 UTC
+</div>
+</div>
+</body>
+</html>

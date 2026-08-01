@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="utf-8"?><!--
+  ~  Copyright (c) 2024 David Allison <davidallisongithub@gmail.com>
+  ~
+  ~  This program is free software; you can redistribute it and/or modify it under
+  ~  the terms of the GNU General Public License as published by the Free Software
+  ~  Foundation; either version 3 of the License, or (at your option) any later
+  ~  version.
+  ~
+  ~  This program is distributed in the hope that it will be useful, but WITHOUT ANY
+  ~  WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+  ~  PARTICULAR PURPOSE. See the GNU General Public License for more details.
+  ~
+  ~  You should have received a copy of the GNU General Public License along with
+  ~  this program.  If not, see <http://www.gnu.org/licenses/>.
+  -->
+
+<!--
+These strings are from Anki Desktop, but in Title Case, rather than Sentence case.
+As only English uses Title Case [https://en.wikipedia.org/wiki/Letter_case#], we can define
+constant overrides to transform string to sentence case
+
+https://github.com/ankidroid/Anki-Android/issues/15760
+
+TODO:
+col.undoLabel()
+col.redoLabel()
+undoActionUndone()
+-->
+<resources xmlns:tools="http://schemas.android.com/tools" tools:ignore="DuplicateCrowdInStrings">
+    <string name="sentence_toggle_suspend">Toggle suspend</string>
+    <string name="sentence_toggle_bury">Toggle bury</string>
+    <string name="sentence_toggle_cards_notes">Toggle cards/notes</string>
+    <string name="sentence_set_due_date">Set due date</string>
+    <string name="sentence_gesture_flag_red">Toggle red flag</string>
+    <string name="sentence_gesture_flag_orange">Toggle orange flag</string>
+    <string name="sentence_gesture_flag_green">Toggle green flag</string>
+    <string name="sentence_gesture_flag_blue">Toggle blue flag</string>
+    <string name="sentence_gesture_flag_pink">Toggle pink flag</string>
+    <string name="sentence_gesture_flag_turquoise">Toggle turquoise flag</string>
+    <string name="sentence_gesture_flag_purple">Toggle purple flag</string>
+    <string name="sentence_gesture_flag_remove">Remove flag</string>
+    <string name="sentence_gesture_toggle_whiteboard">Toggle whiteboard</string>
+    <string name="sentence_custom_study">Custom study</string>
+    <string name="sentence_empty_cards">Empty cards</string>
+    <string name="sentence_tag_missing">Tag missing</string>
+    <string name="sentence_reposition_new_cards">Reposition new cards</string>
+    <string name="sentence_find_and_replace">Find and replace</string>
+    <string name="sentence_all_fields">All fields</string>
+    <string name="sentence_check_media_delete_unused">Delete unused</string>
+    <string name="sentence_choose_tags">Choose tags</string>
+    <string name="sentence_selective_study">Selective study</string>
+    <string name="sentence_sync_media_log">Media sync log</string>
+    <string name="sentence_empty_trash">Empty trash</string>
+    <string name="sentence_restore_deleted">Restore deleted</string>
+    <string name="sentence_change_note_type" maxLength="28">Change note type</string>
+    <string name="sentence_grade_now">Grade now</string>
+    <string name="sentence_card_stats_current_card_study">Current card (study)</string>
+    <string name="sentence_card_stats_current_card_browse">Current card (browse)</string>
+    <string name="sentence_card_stats_previous_card_study">Previous card (study)</string>
+    <string name="sentence_actions_previous_card_info">Previous card info</string>
+    <string name="sentence_add_note_type">Add note type</string>
+    <string name="sentence_restore_to_default">Restore to default</string>
+    <string name="sentence_check_db">Check database</string>
+    <string name="sentence_check_media">Check media</string>
+    <string name="sentence_front_template">Front template</string>
+    <string name="sentence_back_template">Back template</string>
+    <string name="sentence_rename_deck">Rename deck</string>
+    <string name="sentence_deck_options">Deck options</string>
+    <string name="sentence_delete_deck">Delete deck</string>
+    <string name="sentence_log_in">Log in</string>
+    <string name="sentence_log_out">Log out</string>
+    <string name="sentence_card_info">Card info</string>
+    <string name="sentence_bury_note">Bury note</string>
+    <string name="sentence_bury_card">Bury card</string>
+    <string name="sentence_suspend_note">Suspend note</string>
+    <string name="sentence_suspend_card">Suspend card</string>
+    <string name="sentence_mark_note">Mark note</string>
+    <string name="sentence_delete_note">Delete note</string>
+    <string name="sentence_ankiweb_account" maxLength="41">AnkiWeb account</string>
+    <string name="sentence_browser_appearance">Browser appearance</string>
+    <string name="sentence_copy_debug_info">Copy debug info</string>
+    <string name="sentence_add_field" maxLength="28">Add field</string>
+    <string name="sentence_all_decks">All decks</string>
+    <string name="sentence_browser_options">Browser options</string>
+    <string name="sentence_change_deck" maxLength="28">Change deck</string>
+    <string name="sentence_toggle_mark">Toggle mark</string>
+    <string name="sentence_create_deck">Create deck</string>
+    <string name="sentence_select_deck">Select deck</string>
+    <string name="sentence_flag_card" maxLength="28">Flag card</string>
+    <string name="sentence_select_image" maxLength="41">Select image</string>
+    <string name="sentence_answer_again" maxLength="41">Answer again</string>
+    <string name="sentence_answer_hard" maxLength="41">Answer hard</string>
+    <string name="sentence_answer_good" maxLength="41">Answer good</string>
+</resources>

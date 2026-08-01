@@ -1,0 +1,36 @@
+Memoriza cale si siat cosa cun AnkiDroid!
+
+AnkiDroid ti permitit de imparare cartas mnemònicas in manera efitziente meda ammustrende·las in antis chi ti las ismèntighes. It is fully compatible with the spaced repetition software Anki (including synchronization), which is available for Windows, Linux and macOS.
+
+Istùdia cale si siat genia de cosa cando cheres e in ue cheres. Imprea cun profetu su tempus mortu in sos biàgios in sos postales, in sas filas in su supermercadu o in cale si siat àtera situatzione de isetòngiu!
+
+Crea sos matzos de cartas mnemònicas tuos o iscàrriga matzos de badas cumpilados pro medas limbas e argumentos (prus de 6000 a disponimentu)
+
+Annanghe materiale pro mèdiu de s'aplicatzione de iscrivania Anki o diretamente pro mèdiu de AnkiDroid S'aplicatzione suportat fintzas s'annanta automàtica de materiale dae unu ditzionàriu!
+
+★ Funtzionalidades printzipales:
+• cuntenutos suportados pro sas cartas mnemònicas: testu, immàgines, sonos, LaTeX
+• spaced repetition (AI-optimized FSRS algorithm)
+• integratzione de sa sìntesi vocale (TTS)
+• more than 10,000 premade decks
+• widget de progressu
+• istatìsticas a sa minuda
+• sincronizatzione cun AnkiWeb
+• a còdighe abertu
+
+★ Funtzionalidades additzionales:
+• iscrie sas rispostas (optzionale)
+lavagna
+• editore/annanghidore de cartas
+• navigadore de cartas
+• dispositzione pro tauleddas
+• importa documentos de colletziones chi esistint giai (pro mèdiu de Anki Desktop)
+• annanghe cartas partende dae àteras aplicatziones che a sos ditzionàrios
+• suportu pro caràteres personalizados
+sistema cumpletu de còpia de seguresa
+• navigatzione trisinende o tochende
+• personalizàbile
+gestione dinàmica de sos matzos
+• modalidade noturna
+• 27 tradutziones
+• Totu sas versiones antepostas de AnkiDroid si podent iscarrigare dae su situ web

@@ -1,0 +1,12 @@
+<!-- source: None (Originally created for AnkiDroid) -->
+
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:tint="?attr/colorControlNormal"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+  <path
+      android:pathData="M11.565,19.444C12.306,20.185 13.542,20.185 14.283,19.444L22.05,11.677 13.221,2.849 5.454,10.616C4.713,11.357 4.715,12.594 5.456,13.335ZM12.924,17.975 L6.924,11.975 9.045,9.853 15.045,15.853ZM16.459,14.439 L10.459,8.439 13.221,5.677 19.221,11.677ZM5.995,17 L2,16.999L2,19.999L7.995,20L8.995,20C8.995,20 8.487,19.508 8.003,19.008Z"
+      android:fillColor="#ffffff"/>
+</vector>

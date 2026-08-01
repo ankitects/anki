@@ -1,0 +1,93 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+
+package com.ichi2.anki.common.destinations
+
+import android.app.Activity
+import android.content.Intent
+import androidx.activity.result.ActivityResultLauncher
+import androidx.annotation.CheckResult
+import androidx.core.app.TaskStackBuilder
+import androidx.fragment.app.Fragment
+
+// TODO: Move this into anki-common:android after libanki becomes a java-library
+
+/**
+ * Global navigation instance, set during app initialization.
+ *
+ * Accessible via [navigate].
+ */
+private lateinit var navigatorInstance: Navigator
+
+/**
+ * Resolves a [Destination] to an [Intent].
+ *
+ * Implementations should use the application `Context` internally.
+ */
+interface Navigator {
+    // the intent constructor only uses context for the package name,
+    // so using the app context is acceptable.
+    fun toIntent(destination: Destination): Intent
+
+    companion object {
+        /**
+         * Use during app startup to set the global [Navigator] instance.
+         *
+         * Placed on the companion object, so calers may use `Navigator.register` to avoid
+         * collisions with other top-level `register` functions.
+         */
+        fun register(navigator: Navigator) {
+            navigatorInstance = navigator
+        }
+    }
+}
+
+/** Starts the activity corresponding to [destination]. */
+context(activity: Activity)
+fun navigate(destination: Destination) {
+    activity.startActivity(navigatorInstance.toIntent(destination))
+}
+
+/** Starts the activity corresponding to [destination] from the host of this Fragment. */
+context(fragment: Fragment)
+fun navigate(destination: Destination) {
+    fragment.requireActivity().startActivity(navigatorInstance.toIntent(destination))
+}
+
+/** Launches [destination] via an [ActivityResultLauncher], so the caller can observe the result. */
+fun ActivityResultLauncher<Intent>.navigate(destination: Destination) {
+    launch(navigatorInstance.toIntent(destination))
+}
+
+/**
+ * Adds the Intent for [destination] to this [TaskStackBuilder]'s stack.
+ *
+ * @see TaskStackBuilder.addNextIntent
+ */
+fun TaskStackBuilder.addNextIntent(destination: Destination): TaskStackBuilder = addNextIntent(navigatorInstance.toIntent(destination))
+
+/**
+ * Opt-in marker for callers that are not launching navigation immediately, but
+ * handing an [Intent] to the framework to launch later ([android.app.PendingIntent] etc...).
+ *
+ * Regular navigation should use [navigate].
+ *
+ * Opt in either:
+ * - per call site with `with(DeferredNavigation) { destination.toIntent() }`, or
+ * - per class by implementing this interface (typical for tests and harness code).
+ */
+interface DeferredNavigation {
+    companion object : DeferredNavigation
+}
+
+/**
+ * Resolves the calling [Destination] to an [Intent] without launching it.
+ *
+ * Requires explicit opt-in via [DeferredNavigation]; most navigation should use [navigate].
+ *
+ * ```kt
+ * with(DeferredNavigation) { destination.toIntent() }
+ * ```
+ */
+@CheckResult
+context(_: DeferredNavigation)
+fun Destination.toIntent(): Intent = navigatorInstance.toIntent(this)

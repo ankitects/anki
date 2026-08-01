@@ -1,0 +1,97 @@
+#!/bin/sh
+
+runKtlint () {
+    # Following code was generated automatically by running ./gradlew addKtlintFormatGitPreCommitHook
+    # for reference, see https://github.com/JLLeitschuh/ktlint-gradle#additional-helper-tasks
+    # and for the implementation, https://github.com/JLLeitschuh/ktlint-gradle/blob/master/plugin/src/main/kotlin/org/jlleitschuh/gradle/ktlint/GitHook.kt
+    # The only change made are:
+    # * replacing "exit" for "return", as this is running inside a function
+    # * echoing if the apply fails
+    # * renaming `diff` variable to `diff_path`.
+    # * changing the path of the diff file (to ensure in case of failure that we don't overwrite the file)
+    ######## KTLINT-GRADLE HOOK START ########
+
+    CHANGED_FILES="$(git --no-pager diff --name-status --no-color --cached | awk '$1 != "D" && $NF ~ /\.kts?$/ { print $NF }')"
+
+    if [ -z "$CHANGED_FILES" ]; then
+        echo "No Kotlin staged files."
+        return 0
+    fi;
+
+    echo "Running ktlint over these files:"
+    echo "$CHANGED_FILES"
+
+    date=$(date +%y%m%d_%H%M%S)
+    diff_path=.git/unstaged-ktlint-git-hook-$date.diff
+    git diff --color=never > $diff_path
+    if [ -s $diff_path ]; then
+      git apply -R $diff_path
+    fi
+
+    ./gradlew --quiet ktlintFormat -PinternalKtlintGitFilter="$CHANGED_FILES"
+    gradle_command_exit_code=$?
+
+    echo "Completed ktlint run."
+
+    echo "$CHANGED_FILES" | while read -r file; do
+        if [ -f $file ]; then
+            git add $file
+        fi
+    done
+
+
+    if [ -s $diff_path ]; then
+        git apply --ignore-whitespace $diff_path
+        apply_exit_code=$?
+        if [ $apply_exit_code -ne 0 ]; then
+            echo "`git apply` failed. You can find a patch of the version of the code before your `git commit` in $diff_path"
+        else
+            rm $diff_path
+        fi
+    else
+      rm $diff_path
+    fi
+    unset diff_path
+
+    echo "Completed ktlint hook."
+    return $gradle_command_exit_code
+    ######## KTLINT-GRADLE HOOK END ########
+}
+
+runPrettier () {
+    # check if npx is installed, else skip runPrettier
+    if ! command -v npx &> /dev/null
+    then
+        echo "npx could not be found. Hence, skipping pre-commit Prettier run."
+        return 0
+    fi
+
+    CHANGED_JS_FILES="$(git --no-pager diff --name-status --no-color --cached | awk '$1 != "D" && $2 ~ /\.js/ { print $2 }')"
+        if [ -z "$CHANGED_JS_FILES" ]; then
+            echo "No Javascript staged files. Hence, skipping pre-commit Prettier run."
+            return 0
+        fi;
+
+    # Prettify changed files
+    echo "$CHANGED_JS_FILES" | xargs npx prettier --ignore-unknown --write
+
+    echo "Completed npx prettier run."
+    echo "$CHANGED_JS_FILES" | while read -r file; do
+        if [ -f "$file" ]; then
+            git add "$file"
+        fi
+    done
+}
+
+runKtlint
+ktlint_exit_code=$?
+if [ $ktlint_exit_code -ne 0 ]; then
+    echo "ktlint failed"
+    exit $ktlint_exit_code
+fi
+runPrettier || :; # || to avoid cancelling the commit if there is an error with Prettier
+prettier_exit_code=$?
+if [ $prettier_exit_code -ne 0 ]; then
+    exit $prettier_exit_code
+fi;
+echo "Completed the pre-commit hook."

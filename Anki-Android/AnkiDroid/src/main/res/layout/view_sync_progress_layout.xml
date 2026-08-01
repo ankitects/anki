@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    tools:context=".SyncActionProvider">
+
+    <androidx.appcompat.widget.AppCompatImageButton
+        android:id="@+id/button"
+        android:layout_width="?minTouchTargetSize"
+        android:layout_height="?minTouchTargetSize"
+        app:srcCompat="@drawable/ic_sync"
+        style="@android:style/Widget.ActionButton"
+        android:tooltipText="@string/button_sync"
+        android:tint="@color/white"
+        tools:tint="?attr/colorControlNormal"
+        android:contentDescription="@string/button_sync"
+        android:focusable="true"
+        />
+
+    <com.google.android.material.progressindicator.LinearProgressIndicator
+        android:id="@+id/progress_indicator"
+        android:layout_width="28dp"
+        android:layout_height="wrap_content"
+        android:indeterminate="true"
+        android:layout_gravity="center|bottom"
+        android:layout_marginBottom="2dp"
+        app:indicatorColor="@color/slider_active_track_color"
+        app:trackColor="@color/slider_inactive_track_color"
+        android:visibility="gone"
+        tools:visibility="visible"
+        />
+
+</FrameLayout>

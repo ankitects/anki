@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- SPDX-License-Identifier: GPL-3.0-or-later -->
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:paddingBottom="8dp">
+
+    <androidx.appcompat.widget.Toolbar
+        android:id="@+id/locale_dialog_selection_toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:minHeight="?attr/actionBarSize"
+        android:theme="@style/ActionBarStyle"
+        android:background="?attr/appBarColor"
+        android:layout_alignParentTop="true"
+        app:title="@string/locale_selection_dialog_title_new"
+        app:popupTheme="@style/ActionBar.Popup"
+        app:navigationContentDescription="@string/abc_action_bar_up_description"
+        app:navigationIcon="@drawable/close_icon"
+        />
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/locale_dialog_selection_list"
+        android:scrollbars="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/locale_dialog_selection_toolbar"
+        android:layout_above="@+id/locale_dialog_summary"
+        android:fadeScrollbars="false"
+        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+        />
+
+    <com.ichi2.ui.FixedTextView
+        android:id="@+id/locale_dialog_summary"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/locale_selection_dialog_summary"
+        android:paddingVertical="@dimen/content_vertical_padding"
+        android:layout_alignParentBottom="true"
+        android:paddingHorizontal="20dp"
+        />
+
+</RelativeLayout>

@@ -1,0 +1,156 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ SPDX-License-Identifier: GPL-3.0-or-later
+  ~ SPDX-FileCopyrightText: Copyright (c) 2024 Ashish Yadav <mailtoashish693@gmail.com>
+  -->
+<LinearLayout style="@style/Animation.Design.BottomSheetDialog"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical" >
+
+    <com.google.android.material.bottomsheet.BottomSheetDragHandleView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+
+    <LinearLayout
+        android:padding="16dp"
+        android:id="@+id/multimedia_action_image"
+        android:layout_width="match_parent"
+        android:minHeight="?attr/listPreferredItemHeight"
+        android:background="?attr/selectableItemBackground"
+        android:layout_height="wrap_content" >
+
+        <ImageView
+            android:layout_width="wrap_content"
+            app:srcCompat="@drawable/ic_popup_menu_item_image"
+            android:layout_marginEnd="24dp"
+            android:layout_marginStart="8dp"
+            android:layout_height="match_parent" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:gravity="center_vertical"
+            android:text="@string/multimedia_editor_image_field_editing_galery"
+            app:iconPadding="12dp" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:padding="16dp"
+        android:id="@+id/multimedia_action_camera"
+        android:layout_width="match_parent"
+        android:minHeight="?attr/listPreferredItemHeight"
+        android:background="?attr/selectableItemBackground"
+        android:layout_height="wrap_content" >
+
+        <ImageView
+            android:layout_width="wrap_content"
+            app:srcCompat="@drawable/ic_camera_filled"
+            android:layout_marginEnd="24dp"
+            android:layout_marginStart="8dp"
+            android:layout_height="match_parent" />
+
+        <TextView
+            android:id="@+id/occlusion_action_camera"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:gravity="center_vertical"
+            android:text="@string/multimedia_editor_image_field_editing_photo"
+            app:iconPadding="12dp" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:padding="16dp"
+        android:id="@+id/multimedia_action_drawing"
+        android:layout_width="match_parent"
+        android:minHeight="?attr/listPreferredItemHeight"
+        android:background="?attr/selectableItemBackground"
+        android:layout_height="wrap_content" >
+
+        <ImageView
+            android:layout_width="wrap_content"
+            app:srcCompat="@drawable/ic_draw_filled"
+            android:layout_marginEnd="24dp"
+            android:layout_marginStart="8dp"
+            android:layout_height="match_parent" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:gravity="center_vertical"
+            android:text="@string/drawing"
+            app:iconPadding="12dp" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:padding="16dp"
+        android:id="@+id/multimedia_action_recording"
+        android:layout_width="match_parent"
+        android:minHeight="?attr/listPreferredItemHeight"
+        android:background="?attr/selectableItemBackground"
+        android:layout_height="wrap_content" >
+
+        <ImageView
+            android:layout_width="wrap_content"
+            app:srcCompat="@drawable/ic_popup_menu_item_record"
+            android:layout_marginEnd="24dp"
+            android:layout_marginStart="8dp"
+            android:layout_height="match_parent" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:gravity="center_vertical"
+            android:text="@string/multimedia_editor_popup_audio"
+            app:iconPadding="12dp" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:padding="16dp"
+        android:id="@+id/multimedia_action_audio"
+        android:layout_width="match_parent"
+        android:minHeight="?attr/listPreferredItemHeight"
+        android:background="?attr/selectableItemBackground"
+        android:layout_height="wrap_content" >
+
+        <ImageView
+            android:layout_width="wrap_content"
+            app:srcCompat="@drawable/ic_popup_menu_item_audio"
+            android:layout_marginEnd="24dp"
+            android:layout_marginStart="8dp"
+            android:layout_height="match_parent" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:gravity="center_vertical"
+            android:text="@string/multimedia_editor_popup_audio_clip"
+            app:iconPadding="12dp" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:padding="16dp"
+        android:id="@+id/multimedia_action_video"
+        android:layout_width="match_parent"
+        android:minHeight="?attr/listPreferredItemHeight"
+        android:background="?attr/selectableItemBackground"
+        android:layout_height="wrap_content" >
+
+        <ImageView
+            android:layout_width="wrap_content"
+            app:srcCompat="@drawable/ic_popup_menu_item_video"
+            android:layout_marginEnd="24dp"
+            android:layout_marginStart="8dp"
+            android:layout_height="match_parent" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:gravity="center_vertical"
+            android:text="@string/multimedia_editor_popup_video_clip"
+            app:iconPadding="12dp" />
+    </LinearLayout>
+
+</LinearLayout>

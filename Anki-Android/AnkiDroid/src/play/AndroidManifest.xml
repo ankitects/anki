@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:installLocation="auto">
+
+    <!--
+    The Google Play store has a policy that limits usage of MANAGE_EXTERNAL_STORAGE
+    https://support.google.com/googleplay/android-developer/answer/10467955?hl=en
+     -->
+    <uses-permission
+        android:name="android.permission.MANAGE_EXTERNAL_STORAGE"
+        tools:node="remove"
+        tools:ignore="ScopedStorage" />
+</manifest> 

@@ -1,0 +1,11 @@
+#!/bin/bash
+
+for asset in base-*.png; do
+  for type in xhdpi-64x64 hdpi-48x48 mdpi-32x32 ldpi-24x24; do
+    name="$(echo $type | sed -e 's/-.*//')"
+    size="$(echo $type | sed -e 's/.*-//')"
+    output="drawable-$name/$(echo $asset | sed -e 's/base-//')"
+    mkdir -p $(dirname $output)
+    convert -geometry "$size" "$asset" "$output"
+  done
+done

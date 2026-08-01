@@ -1,0 +1,197 @@
+BODY, A, TD, OL {
+	font-family: 	Helvetica, sans-serif;
+	font-size:      10pt;
+}
+
+
+H1 {
+        font-family:    Helvetica, sans-serif;
+        font-size:      12pt;
+        font-weight:    bold;
+}
+
+
+H2, H3, H4 {
+        font-family:    Helvetica, sans-serif;
+        font-size:      10pt;
+        font-weight:    bold;
+}
+
+
+TT, CODE, PRE {
+	font-family:    monospace;
+}
+
+
+CODE {
+	color:		#000099;
+	font-size:      1.00em;
+}
+
+.code {
+	color:		#000099;
+}
+
+.comment {
+	color:		#990000;
+}
+
+.normal {
+	color:		#000099;
+}
+
+.menu {
+	background:	#004477;
+}
+
+A.menuentry, A.selected {
+	text-decoration: none;
+	text-align:	 right;
+	font-size:       14pt;
+	font-weight:     bold;
+	font-style:	 italic;
+}
+
+A.menuentry:link {
+	color:           #cccccc;
+}
+
+A.menuentry:visited {
+	color:           #cccccc;
+}
+
+A.selected {
+	color:           white;
+}
+
+
+.title, .smalltitle {
+	color:           #cccccc;
+	background:      #004477;
+	font-family:     Helvetica, sans-serif;
+	font-size:       24pt;
+	font-weight:     bold;
+	text-align:	 right;
+}
+
+.smalltitle {
+	font-size:       18pt;
+	font-style:      italic;
+}
+
+.footnote {
+	font-family:    Helvetica, sans-serif;
+	font-size:	8pt;
+}
+
+.address {
+	font-family:    Helvetica, sans-serif;
+	font-size:      12pt;
+	font-weight:    bold;
+}
+
+
+.access, .noaccess, .legend {
+	background:     #990000;
+	font-size:	8pt;
+}
+
+.noaccess {
+	background:     #ccbbbb;
+}
+
+.legend {
+	background:     #ccaaaa;
+}
+
+.trendentry {
+	font-size:	1.0em;
+}
+
+
+.navigator {
+	font-family:    Helvetica, sans-serif;
+	font-weight:    bold;
+	background:	#ccbbbb;
+}
+
+.rule {
+	border-width:	0;
+	border-collapse:	collapse;
+}
+
+.recom {
+	background:	#bbccee;
+	font-weight:    bold;
+	border-width:	1px;
+	border-style:	solid;
+	border-color:	#667799;
+	padding:	5px;
+}
+
+.example {
+	color:		#000077;
+	white-space: 	pre;
+	font-family:    monospace;
+	font-size:      1.00em;
+	border-width:	1px;
+	border-style:	solid;
+	border-color:	#667799;
+	padding:	5px;
+}
+
+.not {
+	color:		#770000;
+}
+
+
+.practice {
+	background:	#BBCCEE;
+	font-weight:    bold;
+}
+
+
+.rationale {
+	font-style:	normal;
+	font-size:	10pt;
+	border-width:	1px;
+	border-style:	solid;
+	border-color:	#667799;
+	padding:	5px;
+}
+
+.cvtitle, .cvsmalltitle {
+	color:           #cccccc;
+	background:      #004477;
+	font-family:     Helvetica, sans-serif;
+	font-size:       24pt;
+	font-weight:     bold;
+	text-align:	 center;
+}
+
+.cvsmalltitle {
+	font-size:       18pt;
+	text-align:	 left;
+	font-weight:     normal;
+}
+
+.cvprompt {
+	font-weight:     bold;
+}
+
+
+.warning {
+	color: red;
+	background: yellow;
+}
+
+.copyright {
+        font-family:    Helvetica, sans-serif;
+        font-size:      7pt;
+}
+
+.small {
+        font-family:    Helvetica, sans-serif;
+        font-size:      8pt;
+}
+

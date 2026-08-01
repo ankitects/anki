@@ -1,0 +1,36 @@
+用 AnkiDroid 記住任何東西!
+
+AnkiDroid 會在你快要忘記之前讓單字卡再次出現以實現高效學習。 It is fully compatible with the spaced repetition software Anki (including synchronization), which is available for Windows, Linux and macOS.
+
+無論何時何地，只要你想要，就可以學習各樣的知識。 可以好好利用閒置時間，像是搭乘巴士、在超市排隊、或其他需要等候的狀況!
+
+可以下載許多種語言和不同主題的牌組 (超過 6000個可用的牌組)，也可以建立自己的單字卡。
+
+教材可透過電腦版 Anki 來新增，或是直接使用 AnkiDroid 來新增。 這應用程式甚至支援自動從字典中新增教材!
+
+★ 主要功能：
+• 支援的單字卡內容： 文字、 圖像、 聲音、 LaTeX
+• spaced repetition (AI-optimized FSRS algorithm)
+• 整合文字轉語音功能
+• more than 10,000 premade decks
+• 進度小工具
+• 詳細的統計資料
+• 與 AnkiWeb 進行同步
+• 開放原始碼
+
+★ 附加功能：
+• 寫答案 (可選)
+• 白板
+• 編輯卡片/新增卡片
+• 卡片瀏覽器
+• 平板電腦佈局
+• 匯入現有的牌組集合 (透過電腦版 Anki)
+• 從其他應用程式，如字典，新增卡片內容
+• 支援自訂字型
+• 完整的備份系統
+• 使用滑動手勢和點擊來導覽
+• 可客製化
+• 處理動態牌組
+• 夜間模式
+• 翻譯成 27 種語系
+• 所有以前的 AnkiDroid 版本都還可以從網站上下載

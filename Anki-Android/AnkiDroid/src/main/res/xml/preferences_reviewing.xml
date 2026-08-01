@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+~ Copyright (c) 2009 Nicolas Raoul <nicolas.raoul@gmail.com>
+~ Copyright (c) 2009 Edu Zamora <edu.zasu@gmail.com>
+~ Copyright (c) 2009 Jordi Chacon <jordi.chacon@gmail.com>
+~ Copyright (c) 2011 Norbert Nagold <norbert.nagold@gmail.com>
+~ Copyright (c) 2012 Kostas Spyropoulos <inigo.aldana@gmail.com>
+~ Copyright (c) 2014 Timothy Rae <perceptualchaos2@gmail.com>
+~
+~ This program is free software; you can redistribute it and/or modify it under
+~ the terms of the GNU General Public License as published by the Free Software
+~ Foundation; either version 3 of the License, or (at your option) any later
+~ version.
+~
+~ This program is distributed in the hope that it will be useful, but WITHOUT ANY
+~ WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+~ PARTICULAR PURPOSE. See the GNU General Public License for more details.
+~
+~ You should have received a copy of the GNU General Public License along with
+~ this program.  If not, see <http://www.gnu.org/licenses/>.
+-->
+
+<!-- Reviewing Preferences -->
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:title="@string/pref_cat_reviewing"
+    android:key="@string/pref_reviewing_screen_key"
+    tools:context=".preferences.ReviewingSettingsFragment">
+    <PreferenceCategory android:title="@string/pref_cat_scheduling" >
+        <com.ichi2.preferences.SliderPreference
+            android:key="@string/day_offset_preference"
+            android:valueFrom="0"
+            android:valueTo="23"
+            android:title="@string/day_offset_with_description"
+            app:persistent="false"
+            app:summaryFormat="@plurals/day_offset_summ"/>
+        <com.ichi2.preferences.IncrementerNumberRangePreferenceCompat
+            android:key="@string/learn_cutoff_preference"
+            android:title="@string/learn_cutoff"
+            app:max="999"
+            app:min="0"
+            app:summaryFormat="@plurals/pref_summ_minutes"/>
+        <com.ichi2.preferences.IncrementerNumberRangePreferenceCompat
+            android:key="@string/time_limit_preference"
+            android:title="@string/time_limit"
+            app:max="999"
+            app:min="0"
+            app:summaryFormat="@plurals/pref_summ_minutes"/>
+    </PreferenceCategory>
+    <PreferenceCategory android:title="@string/pref_cat_advanced">
+        <SwitchPreferenceCompat
+            android:defaultValue="false"
+            android:key="@string/keep_screen_on_preference"
+            android:summary="@string/pref_keep_screen_on_summ"
+            android:title="@string/pref_keep_screen_on" />
+    </PreferenceCategory>
+</PreferenceScreen>

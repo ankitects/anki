@@ -1,0 +1,17 @@
+#!/usr/bin/env python
+# call ./mkicon anki.svg to build pngs of the icon
+import sys, os
+
+mdpi = 22.5
+res = (('xxxhdpi', 4*mdpi), ('xxhdpi', 3*mdpi), ('xhdpi', 2*mdpi), ('hdpi', 1.5*mdpi))
+inputFile = sys.argv[1]
+outputFile = os.path.splitext(inputFile)[0] + '.png'
+
+for r in res: 
+    outDir = os.path.join('../', 'png', os.path.splitext(inputFile)[0], 'drawable-' + r[0])
+    outputPath = os.path.join(outDir, outputFile)
+    try:
+        os.makedirs(outDir)
+    except Exception as e:
+        pass
+    os.system('inkscape %s -e %s -C -d %s'%(inputFile, outputPath, r[1]))

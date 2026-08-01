@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- SPDX-License-Identifier: GPL-3.0-or-later -->
+
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+    <item
+        android:id="@+id/front_edit"
+        android:icon="@drawable/ic_card_question"
+        tools:title="Front" />
+    <item
+        android:id="@+id/back_edit"
+        android:icon="@drawable/ic_card_answer"
+        android:title="@string/back_field_name" />
+    <item
+        android:id="@+id/styling_edit"
+        android:icon="@drawable/ic_css"
+        tools:title="Styling" />
+</menu>

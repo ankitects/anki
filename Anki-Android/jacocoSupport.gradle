@@ -1,0 +1,12 @@
+// TODO: move to buildSrc when api/ has a convention plugin and AnkiDroid/build.gradle is converted to .kts
+apply plugin: 'jacoco'
+
+jacoco {
+    toolVersion = libs.versions.jacoco.get()
+}
+
+android {
+    testCoverage {
+        jacocoVersion = libs.versions.jacoco.get()
+    }
+}

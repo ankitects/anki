@@ -1,0 +1,36 @@
+Запомни нешто со AnkiDroid!
+
+AnkiDroid те овозможува да ги научиш флеш картичките многу ефикасно и прикажувајќи ги пред да заборавите. It is fully compatible with the spaced repetition software Anki (including synchronization), which is available for Windows, Linux and macOS.
+
+Проучи ги сите видови на работи каде и кога сакаш. Направете добра употреба на мирни времиња на автобуски патувања, во редици во супермаркет или во каква било друга ситуација на чекање!
+
+Направете свој флеш-палуби или преземете бесплатни палуби, составени за многу јазици и теми (повеќе од 6000 достапни).
+
+Додадете материјал преку десктоп апликацијата Anki или директно преку AnkiDroid. Апликацијата дури и поддржува додавање на материјал автоматски од речникот!
+
+★ Клучни карактеристики:
+• Поддржен содржина на картичката: текст, слики, звуци, LaTeX
+• spaced repetition (AI-optimized FSRS algorithm)
+• Интегрирање текст-во-говор
+• more than 10,000 premade decks
+• додаток за напредок
+• детални статистики
+• синхронизирање со AnkiWeb
+• отворен извор
+
+★ Дополнителни функции:
+• пишува одговори (опционално)
+• whiteboard
+• card editor/adder
+• card browser
+• tablet layout
+• import existing collection files (via Anki Desktop)
+• add cards by intent from other applications like dictionaries
+• custom font support
+• full backup system
+• navigation by swipe, tap
+• customisable
+• dynamic deck handling
+• night mode
+• 27 localisations
+• All previous AnkiDroid versions can be downloaded from the website

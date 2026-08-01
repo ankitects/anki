@@ -1,0 +1,36 @@
+¡Memoriza cualquier cosa con AnkiDroid!
+
+AnkiDroid te permite aprender tarjetas de manera eficiente, mostrándotelas justo antes de que se te olviden. Es completamente compatible con el software de repetición espaciada de Anki (incluida la sincronización), el cual está disponible para Windows, Linux y macOS. 
+
+Estudia todo tipo de cosas donde y cuando quieras. ¡Aprovecha los tiempos muertos en los viajes en autobús, en las colas de los supermercados o en cualquier otra situación de espera!
+
+Crea tus propios mazos de tarjetas o descarga mazos gratuitos creados para muchos idiomas y temas (más de 6000 disponibles).
+
+Añade contenido mediante la aplicación de escritorio Anki o directamente mediante AnkiDroid. ¡La aplicación soporta incluso la creación de contenidos de forma automática a partir de un diccionario!
+
+★ Características clave:
+• contenidos de tarjeta soportados: texto, imágenes, sonidos, LaTeX
+• repetición espaciada (algoritmo FSRS optimizado por IA)
+• integración de texto a voz
+• más de 10.000 mazos prediseñados
+• widget de progreso
+• estadísticas detalladas
+• sincronización con AnkiWeb
+• código abierto
+
+★ Características adicionales:
+• escribir las respuestas (opcional)
+• pizarra
+• editor/creador de tarjetas
+• explorador de tarjetas
+• diseño para tablet
+• importar archivos de colección existentes (vía Anki Escritorio)
+• agregar tarjetas al seleccionar contenido desde otras aplicaciones como diccionarios
+• soporte para fuentes personalizadas
+• completo sistema de copias de seguridad
+• navegación por swipe, toque
+• personalizable
+• manejo de mazos dinámicos
+• modo noche
+• traducido a 27 idiomas
+• Todas las versiones anteriores de AnkiDroid se pueden descargar del sitio web

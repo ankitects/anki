@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- SPDX-License-Identifier: GPL-3.0-or-later -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    android:gravity="center"
+    tools:layout_width="match_parent"
+    >
+
+    <com.google.android.material.textview.MaterialTextView
+        android:id="@+id/tab_text"
+        style="?attr/textAppearanceLabelLarge"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAllCaps="false"
+        android:singleLine="true"
+        android:ellipsize="end"
+        android:layout_marginStart="12dp"
+        tools:text="Fields"/>
+
+    <ImageView
+        android:id="@+id/tab_icon"
+        android:layout_width="24dp"
+        android:layout_height="24dp"
+        android:layout_marginStart="8dp"
+        tools:src="@drawable/ic_mode_edit_white"
+        />
+</LinearLayout>

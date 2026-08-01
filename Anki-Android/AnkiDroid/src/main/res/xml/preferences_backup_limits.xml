@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:title="@string/button_backup"
+    android:key="@string/pref_backups_screen_key">
+    <!-- Includes modified text from `TR.preferencesBackupExplanation()`
+         and `TR.preferencesNoteMediaIsNotBackedUp()`. -->
+    <com.ichi2.preferences.HtmlHelpPreference
+        android:key="@string/pref_backups_help_key"
+        android:summary="@string/pref__backups_help__summary"/>
+
+    <com.ichi2.preferences.IncrementerNumberRangePreferenceCompat
+        android:key="@string/pref_minutes_between_automatic_backups_key"
+        android:title="@string/pref__minutes_between_automatic_backups__title"
+        android:persistent="false"
+        app:min="5"
+        app:max="99999"
+        />
+
+    <com.ichi2.preferences.IncrementerNumberRangePreferenceCompat
+        android:key="@string/pref_daily_backups_to_keep_key"
+        android:title="@string/pref__daily_backups_to_keep__title"
+        android:persistent="false"
+        app:min="0"
+        app:max="99999"
+        />
+
+    <com.ichi2.preferences.IncrementerNumberRangePreferenceCompat
+        android:key="@string/pref_weekly_backups_to_keep_key"
+        android:title="@string/pref__weekly_backups_to_keep__title"
+        android:persistent="false"
+        app:min="0"
+        app:max="99999"
+        />
+
+    <com.ichi2.preferences.IncrementerNumberRangePreferenceCompat
+        android:key="@string/pref_monthly_backups_to_keep_key"
+        android:title="@string/pref__monthly_backups_to_keep__title"
+        android:persistent="false"
+        app:min="0"
+        app:max="99999"
+        />
+</PreferenceScreen>

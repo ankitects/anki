@@ -1,0 +1,70 @@
+name: Remove Assignees
+
+on:
+  pull_request_target:
+    types: [ closed ]
+
+jobs:
+  merge_job:
+    if: ${{ github.event.pull_request.merged == true }}
+    permissions:
+      contents: read
+      issues: write
+      pull-requests: write
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
+        with:
+          script: |
+
+            const variables = {
+              _url: "https://github.com/ankidroid/${{ github.event.repository.name }}/pull/${{ github.event.pull_request.number }}"
+            };
+
+            const query = `query($_url:URI!) {
+              resource(url:$_url) {
+                ... on PullRequest {
+                  closingIssuesReferences(first:10) {
+                    nodes {
+                      number
+                    }
+                  }
+                }
+              }
+            }`;
+
+            const result = await github.graphql(query, variables);
+            const refIssues = result.resource.closingIssuesReferences.nodes;
+
+            let listAssignees_result = await github.rest.issues.listAssignees({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+            });
+
+            // remove all the assignees of the issue
+            if (listAssignees_result.data !== null && listAssignees_result.data.length > 0) {
+              let assignees_info_list = listAssignees_result.data;
+              let assignees_list=[];
+              for (let assignee_info of assignees_info_list) {
+                  assignees_list.push(assignee_info["login"]);
+              }
+
+              await github.rest.issues.removeAssignees({
+                    owner: context.repo.owner,
+                    repo: context.repo.repo,
+                    issue_number: context.issue.number,
+                    assignees: assignees_list,
+              });
+              console.log("Removed Assignees in this pr#",context.issue.number);
+
+              for (issue of refIssues) {
+                await github.rest.issues.removeAssignees({
+                    owner: context.repo.owner,
+                    repo: context.repo.repo,
+                    issue_number: issue.number,
+                    assignees: assignees_list,
+                  });
+                  console.log("Removed Assignees in issue#",issue.number);
+              }
+            }
+

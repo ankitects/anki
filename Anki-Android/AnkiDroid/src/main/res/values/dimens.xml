@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:tools="http://schemas.android.com/tools" tools:ignore="UnusedResources,DuplicateCrowdInStrings">
+    <!-- Material UI side margin: http://web.archive.org/web/20180105203433if_/https://material.io/guidelines/layout/metrics-keylines.html#metrics-keylines-keylines-spacing -->
+    <dimen name="side_margin">16dp</dimen>
+    <dimen name="default_width">56dp</dimen>
+    <dimen name="keyline_1">16dp</dimen>
+    <dimen name="study_options_padding">8dp</dimen>
+
+    <!-- Top margin for action bar subtitles -->
+    <dimen name="action_bar_subtitle_top_margin">-3dp</dimen>
+
+    <!-- Match 56dp default ActionBar height on portrait orientation -->
+    <dimen name="nav_drawer_margin_offset">-8dp</dimen>
+
+    <!-- Material design dialogs -->
+    <dimen name="dialog_frame_margin">24dp</dimen>
+    <dimen name="title_frame_margin_bottom">16dp</dimen>
+    <dimen name="content_vertical_padding">8dp</dimen>
+    <dimen name="input_layout_padding">8dp</dimen>
+    <dimen name="icon_margin">16dp</dimen>
+
+    <!-- Material design typography -->
+    <dimen name="title_textsize">20sp</dimen>
+    <dimen name="content_textsize">18sp</dimen>
+
+    <!-- DeckPicker -->
+    <dimen name="deck_picker_left_padding_small">0dp</dimen>
+    <dimen name="deck_picker_left_padding">24dp</dimen>
+    <dimen name="deck_picker_right_padding">4dp</dimen>
+    <dimen name="note_editor_toolbar_height">52dp</dimen>
+
+    <dimen name="mtrl_snackbar_background_corner_radius">8dp</dimen>
+    <dimen name="popup_corner_radius">4dp</dimen>
+    <dimen name="dialog_corner_radius">8dp</dimen>
+
+    <dimen name="reviewer_side_margin">8dp</dimen>
+    <dimen name="answer_button_margin_horizontal">3dp</dimen>
+    <dimen name="study_screen_elevation">0.8dp</dimen>
+    <dimen name="answer_button_corner_radius">12dp</dimen>
+    <dimen name="reviewer_answer_button_textSize">14sp</dimen>
+    <dimen name="reviewer_mark_flag">16dp</dimen>
+</resources>

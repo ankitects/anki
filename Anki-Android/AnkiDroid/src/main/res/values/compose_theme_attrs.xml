@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <declare-styleable name="ComposeTheme">
+        <attr name="isLightTheme" />
+        <attr name="colorPrimary" />
+        <attr name="colorOnPrimary" />
+        <attr name="colorPrimaryContainer" />
+        <attr name="colorOnPrimaryContainer" />
+        <attr name="colorSecondary" />
+        <attr name="colorOnSecondary" />
+        <attr name="colorSecondaryContainer" />
+        <attr name="colorOnSecondaryContainer" />
+        <attr name="colorTertiary" />
+        <attr name="colorOnTertiary" />
+        <attr name="colorTertiaryContainer" />
+        <attr name="colorOnTertiaryContainer" />
+        <attr name="colorError" />
+        <attr name="colorOnError" />
+        <attr name="colorErrorContainer" />
+        <attr name="colorOnErrorContainer" />
+        <attr name="colorSurface" />
+        <attr name="colorOnSurface" />
+        <attr name="colorSurfaceVariant" />
+        <attr name="colorOnSurfaceVariant" />
+        <attr name="colorOutline" />
+        <attr name="colorOutlineVariant" />
+        <attr name="colorSurfaceContainer" />
+        <attr name="colorSurfaceContainerHigh" />
+        <attr name="colorSurfaceContainerHighest" />
+        <attr name="colorSurfaceContainerLow" />
+        <attr name="colorSurfaceContainerLowest" />
+        <attr name="android:colorBackground" />
+    </declare-styleable>
+</resources>

@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+        <include layout="@layout/include_toolbar" />
+        <LinearLayout
+            android:id="@+id/note_editor_xl_view"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="?android:attr/colorBackground"
+            android:orientation="horizontal">
+            <androidx.fragment.app.FragmentContainerView
+                android:id="@+id/note_editor_fragment_frame"
+                android:layout_width="1dp"
+                android:layout_weight="1"
+                android:layout_height="match_parent"/>
+            <com.ichi2.anki.ui.ResizingDivider
+                android:id="@+id/note_editor_resizing_divider"
+                android:layout_width="8dp"
+                android:layout_height="match_parent" />
+            <LinearLayout
+                android:id="@+id/previewer_frame_layout"
+                android:layout_width="1dp"
+                android:background="?alternativeBackgroundColor"
+                android:layout_height="match_parent"
+                android:orientation="vertical"
+                android:layout_weight="1">
+                <com.google.android.material.tabs.TabLayout
+                    android:id="@+id/previewer_tab_layout"
+                    android:background="@color/transparent"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    app:tabMode="scrollable"
+                    style="@style/Widget.Material3.TabLayout" />
+                <androidx.fragment.app.FragmentContainerView
+                    android:id="@+id/previewer_frame"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"/>
+            </LinearLayout>
+        </LinearLayout>
+    </LinearLayout>
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

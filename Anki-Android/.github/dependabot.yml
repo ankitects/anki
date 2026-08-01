@@ -1,0 +1,35 @@
+version: 2
+updates:
+- package-ecosystem: "github-actions"
+  directory: "/"
+  schedule:
+    interval: "daily"
+  target-branch: dependency-updates
+  labels:
+  - "dependencies"
+- package-ecosystem: gradle
+  directory: "/"
+  schedule:
+    interval: daily
+    time: "10:00"
+  open-pull-requests-limit: 10
+  target-branch: dependency-updates
+  labels:
+  - "dependencies"
+  ignore:
+  # Ignore all Rust backend updates, these are always done as manual pulls
+  - dependency-name: ankiBackend
+- package-ecosystem: npm
+  directory: "/tools/localization"
+  schedule:
+    interval: weekly
+    time: "10:00"
+  open-pull-requests-limit: 10
+  target-branch: dependency-updates
+  groups:
+    non-breaking:
+      update-types:
+        - "minor"
+        - "patch"
+  labels:
+  - "dependencies"

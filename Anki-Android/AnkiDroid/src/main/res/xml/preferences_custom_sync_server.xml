@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+
+<!-- Advanced Preferences -->
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:search="http://schemas.android.com/apk/com.bytehamster.lib.preferencesearch"
+    android:title="@string/custom_sync_server_title"
+    android:key="@string/pref_custom_sync_server_screen_key">
+    <!--this preference is ignored because it's not actually a preference but an explanation of the subscreen content. So it should not be indexed in the preference search.-->
+    <com.ichi2.preferences.HtmlHelpPreference
+        android:summary="@string/custom_sync_server_help2"
+        app:substitution1="@string/link_custom_sync_server_help_learn_more_en"
+        search:ignore="true" />
+    <com.ichi2.preferences.VersatileTextWithASwitchPreference
+        android:key="@string/custom_sync_server_collection_url_key"
+        android:title="@string/custom_sync_server_base_url_title"
+        android:inputType="textUri"
+        app:dialogHint="@string/dialog_hint_url"
+        app:useSimpleSummaryProvider="true" />
+    <com.ichi2.preferences.VersatileTextPreference
+        android:key="@string/custom_sync_certificate_key"
+        android:title="@string/custom_sync_certificate_title"
+        android:inputType="textMultiLine"
+        app:dialogHint="@string/dialog_hint_certificate" />
+</PreferenceScreen>

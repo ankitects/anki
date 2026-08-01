@@ -1,0 +1,37 @@
+<!--
+  ~ Copyright 2021, Google Material Design Icons
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~    http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  ~
+  ~ Modifications (GitHub: joshakaw, 2021):
+  ~  Base icon: payments - outline from Google Material Icons
+  ~  Removed the circle from the middle of the rounded rectangle
+  ~  Removed the background outline of the 2nd card
+  ~  Added a plus icon, and removed, with padding, the area that the plus took up
+  -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportHeight="24"
+    android:viewportWidth="24"
+    android:tint="#FFFFFF"
+    >
+    <group
+        android:name="rotationGroup"
+        android:pivotX="12"
+        android:scaleX="-1">
+        <path
+            android:fillColor="#ffffff"
+            android:pathData="M18.3711,6.2324C17.3254,6.2419 16.1991,6.2498 15.7422,6.2441L4.4961,6.2441C3.3961,6.2441 2.4961,7.1441 2.4961,8.2441L2.4961,16.2441C2.4961,17.3441 3.3961,18.2441 4.4961,18.2441L18.4961,18.2441C19.5961,18.2441 20.4961,17.3441 20.4961,16.2441C20.4338,14.8996 20.4687,10.7235 20.502,8.1699C20.5161,7.0871 19.5684,6.2216 18.3711,6.2324zM6.9805,8.3496L8.9805,8.3496L8.9805,11.1484L11.7793,11.1484L11.7793,13.1484L8.9805,13.1484L8.9805,15.9492L6.9805,15.9492L6.9805,13.1484L4.2793,13.1484L4.2793,11.1484L6.9805,11.1484L6.9805,8.3496z" />
+    </group>
+</vector>

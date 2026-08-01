@@ -1,0 +1,6 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<resources xmlns:tools="http://schemas.android.com/tools" tools:ignore="UnusedResources,DuplicateCrowdInStrings">
+    <bool name="leak_canary_allow_in_non_debuggable_build">true</bool>
+    <bool name="leak_canary_add_launcher_icon">false</bool>
+    <bool name="leak_canary_watcher_auto_install">false</bool>
+</resources>

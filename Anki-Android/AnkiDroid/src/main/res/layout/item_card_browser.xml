@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/card_item_browser"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="?attr/selectableItemBackground"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <CheckBox
+        android:id="@+id/row_selected_check_box"
+        android:focusable="false"
+        android:focusableInTouchMode="false"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:visibility="gone"
+        android:gravity= "center_vertical"/>
+
+    <!--
+        These views are designer-only. When the screen is running,
+        BrowserMultiColumnAdapter is responsible for dynamically adding
+        a variable number of columns
+     -->
+
+    <com.ichi2.ui.FixedTextView
+        android:id="@+id/card_sfld"
+        android:layout_width="0dip"
+        android:layout_height="match_parent"
+        android:layout_weight="1"
+        android:visibility="gone"
+        tools:text="Question"
+        tools:visibility="visible"
+        />
+
+    <View
+        android:layout_width="0.5dp"
+        android:layout_height="match_parent"
+        android:background="?attr/cardBrowserDivider" />
+
+    <com.ichi2.ui.FixedTextView
+        android:layout_width="0dip"
+        android:layout_height="match_parent"
+        android:layout_weight="1"
+        android:visibility="gone"
+        tools:text="Answer"
+        tools:visibility="visible" />
+
+</LinearLayout>

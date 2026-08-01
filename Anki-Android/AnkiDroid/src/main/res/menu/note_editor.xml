@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- SPDX-License-Identifier: GPL-3.0-or-later -->
+
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:ankidroid="http://schemas.android.com/apk/res-auto" >
+
+    <item
+        android:id="@+id/action_save"
+        android:icon="@drawable/ic_done_white"
+        android:title="@string/save"
+        ankidroid:showAsAction="always"/>
+    <item
+        android:id="@+id/action_preview"
+        android:icon="@drawable/ic_remove_red_eye_white"
+        android:title="@string/card_editor_preview_card"
+        ankidroid:showAsAction="ifRoom"
+        android:visible="true"/>
+    <item
+        android:id="@+id/action_add_note_from_note_editor"
+        android:title="@string/menu_add"
+        android:visible="false"/>
+    <item
+        android:id="@+id/action_copy_note"
+        android:enabled="false"
+        android:title="@string/note_editor_copy_note"/>
+    <item
+        android:id="@+id/action_font_size"
+        android:title="@string/menu_font_size"
+        ankidroid:showAsAction="never"/>
+    <item
+        android:id="@+id/action_capitalize"
+        android:checkable="true"
+        android:checked="true"
+        android:title="@string/note_editor_capitalize"
+        ankidroid:showAsAction="never"/>
+    <item
+        android:id="@+id/action_show_toolbar"
+        android:title="@string/menu_show_toolbar"
+        android:checkable="true"
+        ankidroid:showAsAction="never"/>
+    <item
+        android:id="@+id/action_scroll_toolbar"
+        android:title="@string/menu_scroll_toolbar"
+        android:checkable="true"
+        android:checked="true"
+        ankidroid:showAsAction="never"/>
+</menu>

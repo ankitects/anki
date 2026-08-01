@@ -1,0 +1,350 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+
+package com.ichi2.anki.ui.internationalization
+
+import android.content.Context
+import android.content.res.Resources
+import androidx.annotation.StringRes
+import androidx.fragment.app.Fragment
+import anki.i18n.GeneratedTranslations
+import com.ichi2.anki.CollectionManager.TR
+import com.ichi2.anki.R
+
+// Functions for handling a move from 'Title Case' in Anki Desktop to 'Sentence case' in AnkiDroid
+
+/**
+ * Converts a string to sentence case if it matches the provided resource in `sentence-case.xml`
+ *
+ * ```
+ * "Toggle Suspend".toSentenceCase(R.string.sentence_toggle_suspend) // "Toggle suspend"
+ * ```
+ */
+context(context: Context)
+fun String.toSentenceCase(
+    @StringRes resId: Int,
+) = toSentenceCase(context, resId)
+
+context(fragment: Fragment)
+fun String.toSentenceCase(
+    @StringRes resId: Int,
+): String = toSentenceCase(fragment.requireContext(), resId)
+
+fun String.toSentenceCase(
+    context: Context,
+    @StringRes resId: Int,
+): String {
+    val resString = context.getString(resId)
+    // lowercase both for the comparison: sentence case doesn't mean all words are lowercase
+    if (this.equals(resString, ignoreCase = true)) return resString
+    return this
+}
+
+fun String.toSentenceCase(
+    resources: Resources,
+    @StringRes resId: Int,
+): String {
+    val resString = resources.getString(resId)
+    // lowercase both for the comparison: sentence case doesn't mean all words are lowercase
+    if (this.equals(resString, ignoreCase = true)) return resString
+    return this
+}
+
+/**
+ * Provides properties converting from Anki Desktop's 'Title Case' strings to AnkiDroid's
+ * 'Sentence case' strings.
+ *
+ * Sentence case is a material design guideline
+ */
+// TODO: Expand for all past properties
+object SentenceCase {
+    context(_: Context)
+    val addNoteType get() = TR.notetypesAddNoteType().toSentenceCase(R.string.sentence_add_note_type)
+
+    context(_: Fragment)
+    val changeNoteType get() = TR.browsingChangeNotetype().toSentenceCase(R.string.sentence_change_note_type)
+
+    context(_: Context)
+    val checkDatabase get() = TR.databaseCheckTitle().toSentenceCase(R.string.sentence_check_db)
+
+    context(_: Fragment)
+    val checkDatabase get() = TR.databaseCheckTitle().toSentenceCase(R.string.sentence_check_db)
+
+    context(_: Context)
+    val checkMediaTitle get() = TR.mediaCheckWindowTitle().toSentenceCase(R.string.sentence_check_media)
+
+    context(_: Fragment)
+    val checkMediaTitle get() = TR.mediaCheckWindowTitle().toSentenceCase(R.string.sentence_check_media)
+
+    context(_: Context)
+    val checkMediaAction get() = TR.mediaCheckCheckMediaAction().toSentenceCase(R.string.sentence_check_media)
+    context(_: Fragment)
+    val checkMediaAction get() = TR.mediaCheckCheckMediaAction().toSentenceCase(R.string.sentence_check_media)
+
+    context(_: Context)
+    val customStudy get() = TR.actionsCustomStudy().toSentenceCase(R.string.sentence_custom_study)
+
+    context(_: Fragment)
+    val customStudy get() = TR.actionsCustomStudy().toSentenceCase(R.string.sentence_custom_study)
+
+    /** The 'Empty Cards' menu action. For the window/dialog title, use [emptyCardsTitle]. */
+    context(_: Context)
+    val emptyCards get() = TR.actionsEmptyCards().toSentenceCase(R.string.sentence_empty_cards)
+
+    /** The 'Empty Cards' window/dialog title. For the menu action, use [emptyCards]. */
+    context(_: Fragment)
+    val emptyCardsTitle get() = TR.emptyCardsWindowTitle().toSentenceCase(R.string.sentence_empty_cards)
+
+    context(_: Fragment)
+    val emptyTrash get() = TR.mediaCheckEmptyTrash().toSentenceCase(R.string.sentence_empty_trash)
+
+    context(_: Context)
+    val gradeNow get() = TR.actionsGradeNow().toSentenceCase(R.string.sentence_grade_now)
+
+    context(_: Fragment)
+    val gradeNow get() = TR.actionsGradeNow().toSentenceCase(R.string.sentence_grade_now)
+
+    context(_: Context)
+    val mediaSyncLog get() = TR.syncMediaLogTitle().toSentenceCase(R.string.sentence_sync_media_log)
+
+    context(_: Fragment)
+    val restoreDeleted get() = TR.mediaCheckRestoreTrash().toSentenceCase(R.string.sentence_restore_deleted)
+
+    context(_: Fragment)
+    val restoreToDefault get() = TR.cardTemplatesRestoreToDefault().toSentenceCase(R.string.sentence_restore_to_default)
+    context(_: Context)
+    val restoreToDefault get() = TR.cardTemplatesRestoreToDefault().toSentenceCase(R.string.sentence_restore_to_default)
+
+    context(_: Context)
+    val setDueDate get() = TR.actionsSetDueDate().toSentenceCase(R.string.sentence_set_due_date)
+
+    context(_: Fragment)
+    val setDueDate get() = TR.actionsSetDueDate().toSentenceCase(R.string.sentence_set_due_date)
+
+    context(_: Fragment)
+    val toggleBury get() = TR.browsingToggleBury().toSentenceCase(R.string.sentence_toggle_bury)
+
+    context(_: Fragment)
+    val toggleCardsNotes get() = TR.browsingToggleShowingCardsNotes().toSentenceCase(R.string.sentence_toggle_cards_notes)
+
+    context(_: Fragment)
+    val toggleSuspend get() = TR.browsingToggleSuspend().toSentenceCase(R.string.sentence_toggle_suspend)
+
+    context(_: Fragment)
+    val findAndReplace get() = TR.browsingFindAndReplace().toSentenceCase(R.string.sentence_find_and_replace)
+
+    context(_: Context)
+    val frontTemplate get() = TR.cardTemplatesFrontTemplate().toSentenceCase(R.string.sentence_front_template)
+
+    context(_: Context)
+    val backTemplate get() = TR.cardTemplatesBackTemplate().toSentenceCase(R.string.sentence_back_template)
+
+    context(_: Context)
+    val renameDeck get() = TR.actionsRenameDeck().toSentenceCase(R.string.sentence_rename_deck)
+
+    context(_: Context)
+    val deckOptions get() = TR.deckConfigTitle().toSentenceCase(R.string.sentence_deck_options)
+
+    context(_: Fragment)
+    val deckOptions get() = TR.deckConfigTitle().toSentenceCase(R.string.sentence_deck_options)
+
+    context(_: Context)
+    val deleteDeck get() = TR.decksDeleteDeck().toSentenceCase(R.string.sentence_delete_deck)
+
+    context(_: Context)
+    val logIn get() = TR.syncLogInButton().toSentenceCase(R.string.sentence_log_in)
+
+    context(_: Fragment)
+    val logIn get() = TR.syncLogInButton().toSentenceCase(R.string.sentence_log_in)
+
+    context(_: Context)
+    val logOut get() = TR.syncLogOutButton().toSentenceCase(R.string.sentence_log_out)
+
+    context(_: Fragment)
+    val logOut get() = TR.syncLogOutButton().toSentenceCase(R.string.sentence_log_out)
+
+    context(_: Context)
+    val cardInfo get() = TR.actionsCardInfo().toSentenceCase(R.string.sentence_card_info)
+
+    context(_: Fragment)
+    val cardInfo get() = TR.actionsCardInfo().toSentenceCase(R.string.sentence_card_info)
+
+    context(_: Context)
+    val buryNote get() = TR.studyingBuryNote().toSentenceCase(R.string.sentence_bury_note)
+
+    context(_: Fragment)
+    val buryNote get() = TR.studyingBuryNote().toSentenceCase(R.string.sentence_bury_note)
+
+    context(_: Context)
+    val buryCard get() = TR.studyingBuryCard().toSentenceCase(R.string.sentence_bury_card)
+
+    context(_: Fragment)
+    val buryCard get() = TR.studyingBuryCard().toSentenceCase(R.string.sentence_bury_card)
+
+    context(_: Context)
+    val suspendNote get() = TR.studyingSuspendNote().toSentenceCase(R.string.sentence_suspend_note)
+
+    context(_: Fragment)
+    val suspendNote get() = TR.studyingSuspendNote().toSentenceCase(R.string.sentence_suspend_note)
+
+    context(_: Context)
+    val suspendCard get() = TR.actionsSuspendCard().toSentenceCase(R.string.sentence_suspend_card)
+
+    context(_: Fragment)
+    val suspendCard get() = TR.actionsSuspendCard().toSentenceCase(R.string.sentence_suspend_card)
+
+    context(_: Context)
+    val markNote get() = TR.studyingMarkNote().toSentenceCase(R.string.sentence_mark_note)
+
+    context(_: Fragment)
+    val markNote get() = TR.studyingMarkNote().toSentenceCase(R.string.sentence_mark_note)
+
+    context(_: Context)
+    val deleteNote get() = TR.studyingDeleteNote().toSentenceCase(R.string.sentence_delete_note)
+
+    context(_: Fragment)
+    val deleteNote get() = TR.studyingDeleteNote().toSentenceCase(R.string.sentence_delete_note)
+
+    context(_: Context)
+    val previousCardInfo get() = TR.actionsPreviousCardInfo().toSentenceCase(R.string.sentence_actions_previous_card_info)
+
+    context(_: Fragment)
+    val previousCardInfo get() = TR.actionsPreviousCardInfo().toSentenceCase(R.string.sentence_actions_previous_card_info)
+
+    context(_: Context)
+    val ankiWebAccount get() = TR.preferencesAccount().toSentenceCase(R.string.sentence_ankiweb_account)
+
+    context(_: Fragment)
+    val ankiWebAccount get() = TR.preferencesAccount().toSentenceCase(R.string.sentence_ankiweb_account)
+
+    context(_: Context)
+    val browserAppearance get() = TR.browsingBrowserAppearance().toSentenceCase(R.string.sentence_browser_appearance)
+
+    context(_: Fragment)
+    val browserAppearance get() = TR.browsingBrowserAppearance().toSentenceCase(R.string.sentence_browser_appearance)
+
+    // TR aboutCopyDebugInfo() is a duplicate
+    context(_: Context)
+    val copyDebugInfo get() = TR.errorsCopyDebugInfoButton().toSentenceCase(R.string.sentence_copy_debug_info)
+
+    context(_: Fragment)
+    val copyDebugInfo get() = TR.errorsCopyDebugInfoButton().toSentenceCase(R.string.sentence_copy_debug_info)
+
+    context(_: Context)
+    val addField get() = TR.fieldsAddField().toSentenceCase(R.string.sentence_add_field)
+
+    context(_: Context)
+    val allDecks get() = TR.exportingAllDecks().toSentenceCase(R.string.sentence_all_decks)
+
+    context(_: Fragment)
+    val allDecks get() = TR.exportingAllDecks().toSentenceCase(R.string.sentence_all_decks)
+
+    context(_: Fragment)
+    val browserOptions get() = TR.browsingBrowserOptions().toSentenceCase(R.string.sentence_browser_options)
+
+    context(_: Fragment)
+    val changeDeck get() = TR.browsingChangeDeck().toSentenceCase(R.string.sentence_change_deck)
+
+    context(_: Fragment)
+    val toggleMark get() = TR.browsingToggleMark().toSentenceCase(R.string.sentence_toggle_mark)
+
+    context(_: Context)
+    val createDeck get() = TR.decksCreateDeck().toSentenceCase(R.string.sentence_create_deck)
+
+    context(_: Fragment)
+    val createDeck get() = TR.decksCreateDeck().toSentenceCase(R.string.sentence_create_deck)
+
+    context(_: Context)
+    val selectDeck get() = TR.browsingSelectDeck().toSentenceCase(R.string.sentence_select_deck)
+
+    context(_: Fragment)
+    val selectDeck get() = TR.browsingSelectDeck().toSentenceCase(R.string.sentence_select_deck)
+
+    context(_: Context)
+    val flagCard get() = TR.studyingFlagCard().toSentenceCase(R.string.sentence_flag_card)
+
+    context(_: Fragment)
+    val flagCard get() = TR.studyingFlagCard().toSentenceCase(R.string.sentence_flag_card)
+
+    context(_: Fragment)
+    val selectImage get() = TR.notetypesIoSelectImage().toSentenceCase(R.string.sentence_select_image)
+
+    // 'Answer easy' is not provided by the backend
+    context(_: Fragment)
+    val answerAgain get() = TR.deckConfigAnswerAgain().toSentenceCase(R.string.sentence_answer_again)
+
+    context(_: Fragment)
+    val answerHard get() = TR.deckConfigAnswerHard().toSentenceCase(R.string.sentence_answer_hard)
+
+    context(_: Fragment)
+    val answerGood get() = TR.deckConfigAnswerGood().toSentenceCase(R.string.sentence_answer_good)
+
+    context(_: Fragment)
+    val selectiveStudy get() = TR.customStudySelectiveStudy().toSentenceCase(R.string.sentence_selective_study)
+
+    context(_: Fragment)
+    val chooseTags get() = TR.customStudyChooseTags().toSentenceCase(R.string.sentence_choose_tags)
+
+    context(_: Fragment)
+    val repositionNewCards get() = TR.browsingRepositionNewCards().toSentenceCase(R.string.sentence_reposition_new_cards)
+
+    context(_: Context)
+    val allFields get() = TR.browsingAllFields().toSentenceCase(R.string.sentence_all_fields)
+
+    context(_: Fragment)
+    val allFields get() = TR.browsingAllFields().toSentenceCase(R.string.sentence_all_fields)
+
+    context(_: Fragment)
+    val tagMissing get() = TR.mediaCheckAddTag().toSentenceCase(R.string.sentence_tag_missing)
+
+    context(_: Fragment)
+    val checkMediaDeleteUnused get() = TR.mediaCheckDeleteUnused().toSentenceCase(R.string.sentence_check_media_delete_unused)
+
+    // gesture preference titles: the (localized) title is provided by the caller; only the
+    // sentence-case resource is owned here.
+    // TODO: These AnkiDroid resources should be fixed
+    context(_: Fragment)
+    fun gestureToggleWhiteboard(title: String) = title.toSentenceCase(R.string.sentence_gesture_toggle_whiteboard)
+
+    context(_: Fragment)
+    fun gestureFlagRed(title: String) = title.toSentenceCase(R.string.sentence_gesture_flag_red)
+
+    context(_: Fragment)
+    fun gestureFlagOrange(title: String) = title.toSentenceCase(R.string.sentence_gesture_flag_orange)
+
+    context(_: Fragment)
+    fun gestureFlagGreen(title: String) = title.toSentenceCase(R.string.sentence_gesture_flag_green)
+
+    context(_: Fragment)
+    fun gestureFlagBlue(title: String) = title.toSentenceCase(R.string.sentence_gesture_flag_blue)
+
+    context(_: Fragment)
+    fun gestureFlagPink(title: String) = title.toSentenceCase(R.string.sentence_gesture_flag_pink)
+
+    context(_: Fragment)
+    fun gestureFlagTurquoise(title: String) = title.toSentenceCase(R.string.sentence_gesture_flag_turquoise)
+
+    context(_: Fragment)
+    fun gestureFlagPurple(title: String) = title.toSentenceCase(R.string.sentence_gesture_flag_purple)
+
+    context(_: Fragment)
+    fun gestureFlagRemove(title: String) = title.toSentenceCase(R.string.sentence_gesture_flag_remove)
+
+    // card stats window titles: the (localized) title is provided by the caller.
+    context(_: Context)
+    fun cardStatsCurrentCardStudy(title: String) = title.toSentenceCase(R.string.sentence_card_stats_current_card_study)
+
+    context(_: Context)
+    fun cardStatsCurrentCardBrowse(title: String) = title.toSentenceCase(R.string.sentence_card_stats_current_card_browse)
+
+    context(_: Context)
+    fun cardStatsPreviousCardStudy(title: String) = title.toSentenceCase(R.string.sentence_card_stats_previous_card_study)
+}
+
+/**
+ * Provides properties converting from Anki Desktop's 'Title Case' strings to AnkiDroid's
+ * 'Sentence case' strings.
+ *
+ * Sentence case is a material design guideline
+ */
+@Suppress("UnusedReceiverParameter")
+val GeneratedTranslations.sentenceCase get() = SentenceCase

@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    >
+
+    <View
+        android:id="@+id/fabBGLayout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@color/transparent"
+        android:visibility="gone"
+        />
+    <ScrollView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="8dp"
+        android:layout_gravity="bottom|end">
+        <LinearLayout
+            android:id="@+id/fabLinearLayout"
+            android:layout_width="wrap_content"
+            android:orientation="vertical"
+            android:paddingStart="12dp"
+            android:paddingEnd="12dp"
+            android:paddingTop="12dp"
+            android:layout_height="wrap_content"
+        >
+
+            <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
+                android:id="@+id/add_shared_button"
+                android:layout_gravity="end"
+                style="@style/Widget.Material3.ExtendedFloatingActionButton.Secondary"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="8dp"
+                app:icon="@drawable/ic_file_download_white"
+                android:text="@string/menu_get_shared_decks"
+                android:contentDescription="@string/menu_get_shared_decks"
+                android:focusable="true"
+                android:clickable="true"
+                android:visibility="gone"
+                tools:visibility="visible"
+                />
+
+            <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
+                android:id="@+id/add_filtered_deck_button"
+                android:layout_width="wrap_content"
+                android:layout_gravity="end"
+                style="@style/Widget.Material3.ExtendedFloatingActionButton.Secondary"
+                android:layout_height="wrap_content"
+                android:layout_margin="8dp"
+                app:icon="@drawable/ic_add_filtered_deck"
+                android:text="@string/new_dynamic_deck"
+                android:contentDescription="@string/new_dynamic_deck"
+                android:focusable="true"
+                android:clickable="true"
+                android:visibility="gone"
+                tools:visibility="visible"
+                />
+
+            <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
+                android:id="@+id/add_deck_button"
+                android:layout_width="wrap_content"
+                android:layout_gravity="end"
+                style="@style/Widget.Material3.ExtendedFloatingActionButton.Secondary"
+                android:layout_height="wrap_content"
+                android:layout_margin="8dp"
+                app:icon="@drawable/ic_add_deck_filled"
+                tools:text="Create deck"
+                android:focusable="true"
+                android:clickable="true"
+                android:visibility="gone"
+                tools:visibility="visible"
+                />
+
+
+            <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
+                android:id="@+id/fab_main"
+                style="@style/Widget.Material3.ExtendedFloatingActionButton.Primary"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="end"
+                android:layout_marginHorizontal="8dp"
+                android:layout_marginBottom="16dp"
+                android:layout_marginTop="8dp"
+                android:backgroundTint="?attr/fab_normal"
+                app:icon="@drawable/ic_add"
+                app:iconTint="?colorOnPrimary"
+                android:text="@string/menu_add"
+                android:contentDescription="@string/menu_add"
+                android:focusable="true"
+                android:clickable="true"
+                tools:text=""
+                />
+
+        </LinearLayout>
+    </ScrollView>
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

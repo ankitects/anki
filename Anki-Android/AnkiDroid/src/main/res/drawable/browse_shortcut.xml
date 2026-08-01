@@ -1,0 +1,30 @@
+<!--
+  ~  Copyright (c) 2023 Ashish Yadav <mailtoashish693@gmail.com>
+  ~
+  ~  This program is free software; you can redistribute it and/or modify it under
+  ~  the terms of the GNU General Public License as published by the Free Software
+  ~  Foundation; either version 3 of the License, or (at your option) any later
+  ~  version.
+  ~
+  ~  This program is distributed in the hope that it will be useful, but WITHOUT ANY
+  ~  WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+  ~  PARTICULAR PURPOSE. See the GNU General Public License for more details.
+  ~
+  ~  You should have received a copy of the GNU General Public License along with
+  ~  this program.  If not, see <http://www.gnu.org/licenses/>.
+  -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="48dp"
+    android:height="48dp"
+    android:viewportWidth="1000"
+    android:viewportHeight="1000">
+    <path
+        android:fillColor="#FFFFFF"
+        android:strokeWidth="0"
+        android:strokeMiterLimit="100"
+        android:pathData="m500 58.9c238.1 0 431.1 193 431.1 431.1c0 238.1 -193 431.1 -431.1 431.1c-238.1 0 -431.1 -193 -431.1 -431.1c0 -238.1 193 -431.1 431.1 -431.1z" />
+    <path android:fillColor="@android:color/holo_blue_dark"
+        android:pathData="M284.3,319.5c-13.6,3.7 -23.9,12.3 -30.1,25.2l-3.7,7.8 -0.3,98.5c-0.2,72.3 0,100 0.8,104 2.6,11.9 12,24.5 22.6,30.2 11.2,6 2.7,5.8 180.9,5.8 178.1,-0 169.8,0.2 180.8,-5.7 6.4,-3.6 14.5,-11.6 17.9,-17.9 6,-11 5.8,-8 5.8,-112.9 0,-104.4 0.2,-101.3 -5.6,-112.7 -5.3,-10.5 -16.5,-19 -29.1,-22.3 -8.4,-2.2 -331.9,-2.1 -340,-0zM614,454.5l0,91.5 -159.5,-0 -159.5,-0 0,-91.5 0,-91.5 159.5,-0 159.5,-0 0,91.5z" android:strokeColor="#00000000"/>
+    <path android:fillColor="@android:color/holo_blue_dark"
+        android:pathData="M705,511.6l0,125.4 -193.6,-0 -193.6,-0 0.6,4.7c2.8,19.5 15.5,33.9 34.3,38.8 8.6,2.3 354,2.3 362.6,-0 14,-3.6 24.2,-12.1 30.5,-25.2l3.7,-7.8 0,-113.5 0,-113.5 -3.3,-6.9c-1.8,-3.9 -4.8,-8.8 -6.7,-11.1 -6.7,-8.2 -18.8,-14.6 -29.7,-15.8l-4.8,-0.5 0,125.4z" android:strokeColor="#00000000"/>
+</vector>

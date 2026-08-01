@@ -1,0 +1,113 @@
+name: OpenCollective PR Notices
+
+on:
+    workflow_dispatch:
+        inputs:
+            startDate:
+                description: "earliest date to consider- YYYY-MM-DD, example '2023-06-01'"
+                required: true
+                type: string
+            endDate:
+                description: "oldest date to consider. YYYY-MM-DD, example '2023-06-30'"
+                required: true
+                type: string
+    # and in the future schedule...
+
+jobs:
+    post_notices:
+        permissions:
+            contents: read
+            pull-requests: write
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
+              with:
+                  script: |
+                      // First get the month we are working on and prepare our PR query range
+                      // Format for the dates is "YYYY-MM-DD", and an example is "2022-05-01" and "2022-05-31"
+                      // Getting inputs in github-script requires some fancy mode-switching to "github templating" syntax
+                      // https://stackoverflow.com/a/70999557/9910298
+                      var inputs = ${{ toJSON(inputs) }}
+                      let startDate = inputs['startDate'];
+                      let endDate = inputs['endDate'];
+
+                      const getPRPage = async (startDate, endDate, page) => {
+                        return await github.rest.search.issuesAndPullRequests({
+                          q: `repo:${context.repo.owner}/${context.repo.repo}+is:pr+is:merged+merged:${startDate}..${endDate}`,
+                          per_page: 100,
+                          page
+                        });
+                      }
+
+                      const addComment = async (prNumber, prUser) => {
+                        console.log(`creating comment ${context.repo.owner} / ${context.repo.repo} / ${prNumber} / ${prUser}`);
+                        await github.rest.issues.createComment({
+                          owner: context.repo.owner,
+                          repo: context.repo.repo,
+                          issue_number: prNumber,
+                          body: `Hi there @${prUser}! This is the OpenCollective Notice for PRs merged from [${startDate} through ${endDate}](https://github.com/${context.repo.owner}/${context.repo.repo}/pulls?q=is%3Apr+merged%3A${startDate}..${endDate}+author%3A${prUser})
+
+                      If you are interested in compensation for this work, the process with details is here:
+
+                      https://github.com/ankidroid/Anki-Android/wiki/OpenCollective-Payment-Process#how-to-get-paid
+                    
+                      > [!IMPORTANT]
+                      > PLEASE NOTE: The process was updated in August 2024. Re-read the Payment Process page if you have not already.
+
+                      We only post one comment per person per month to avoid spamming you, regardless of the number of PRs merged, but this note applies to all PRs merged for this month
+
+                      Please understand that our monthly budget is never guaranteed to cover all claims - the cap on payments-per-person may be lower, but we try to make our process as fair and transparent as possible, we just need your understanding.
+
+                      Thanks!`
+                        })
+                      }
+
+
+                      // Now get the PRs for the month, iterating over pages if needed (100 per page limit, pages are 1-based / start on 1)
+                      // https://docs.github.com/en/rest/guides/traversing-with-pagination
+                      let result = await getPRPage(startDate, endDate, 1)
+
+                      // How many pages? iterate until fetched page Math.ceil(total/per-page)
+                      console.log(`First page fetched. Total count is: ${result.data.total_count}`);
+                      const pageCount = Math.ceil(result.data.total_count / 100);
+                      console.log(`Should get a total of ${pageCount} pages`);
+                      for (let i = 2; i <= pageCount; i++) {
+                        console.log(`fetching page ${i}`);
+                        const pageResult = await getPRPage(startDate, endDate, i);
+                        console.log(`Got another page with ${pageResult.data.items.length} items`);
+                        result.data.items = result.data.items.concat(pageResult.data.items);
+                      }
+
+                      // Process the results by putting the author in a map with a PR number associated
+                      const uniqueContributorsWithPR = {}
+                      result.data.items.forEach((pr, index) => {
+                        console.log(`pr at index ${index} is ${pr.number} by ${pr.user.login} (title ${pr.title})`);
+                        // This will overwrite the contributor again and again, on purpose.
+                        // We only want to leave one comment, so simply remembering the last PR we saw for a contributor is sufficient.
+                        uniqueContributorsWithPR[pr.user.login] = pr.number;
+                      })
+
+                      // For each author in the map, post a comment on the associated PR
+                      // Incidentally you cannot use array.forEach() with async functions; it does not await. for or for...in is required.
+                      for (const key of Object.keys(uniqueContributorsWithPR)) {
+                        // skip some users, we don't allow bots to claim for their work, yet?
+                        if (key === 'github-actions' || key.includes('dependabot') || key.includes('[bot]') || key.includes('machineaccount')) {
+                          console.log(`ignoring pr with bot user ${key}`);
+                          continue;
+                        }
+                        console.log(`Going to notify ${key} on PR ${uniqueContributorsWithPR[key]}`);
+                        try {
+                          await addComment(uniqueContributorsWithPR[key], key);
+                        } catch (e) {
+                          // This implies, since there is no state with regard to comments already added or not,
+                          // that you will need to figure out the root cause and re-run the workflow, which will re-add comments
+                          // on any issues that processed successfully prior to the error.
+                          //
+                          // This is not ideal. However it should be rare, and adding state management (e.g, via labels) to a script
+                          // that is working, and is not expected to fail frequently on this step, just to avoid
+                          // duplicate comments (which themselves are not that traumatic) is in my opinion not worth it.
+                          // But it is worth noting that the problem had been considered.
+                          console.log('failed to add comment to issue? ' + e);
+                          throw e;
+                        }
+                      }

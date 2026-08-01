@@ -1,0 +1,36 @@
+Memorize qualquer coisa com AnkiDroid!
+
+AnkiDroid permite que aprenda flashcards de forma muito eficiente, mostrando-os antes que você os esqueça. É totalmente compatível com o software de repetição espaçada Anki (incluindo sincronização), que está disponível para Windows, Linux e macOS.
+
+Estude qualquer tipo de coisa, onde e quando quiser. Aproveite bem os tempos ociosos em viagens de ônibus, em filas de supermercado ou em qualquer outra situação de espera!
+
+Crie seus próprios baralhos de flashcards ou baixe baralhos gratuitos compilados para vários idiomas e tópicos (mais de 6.000 disponíveis).
+
+Adicione material através do aplicativo de computador — Anki ou diretamente através do AnkiDroid. O aplicativo ainda suporta adicionar material automaticamente a partir de um dicionário!
+
+★ Principais características:
+• conteúdo de flashcard suportado: texto, imagens, sons, LaTeX
+• repetição espaçada (algoritmo FSRS otimizado por IA)
+• integração de texto-para-voz
+• mais de 10.000 baralhos prontos
+• widget de progresso
+• estatísticas detalhadas
+• sincronização com AnkiWeb
+• código aberto
+
+★ Características adicionais:
+• escrever respostas (opcional)
+• quadro branco
+• editor/criador de cartões
+• navegador de cartões
+• layout para tablet
+• importar arquivos de coleção existentes (via Anki)
+• adiciona cartões pela interação com outros aplicativos, como dicionários
+• suporte a fonte personalizada
+• sistema de backup completo
+• navegação por deslize, toque
+• personalizável
+• manuseio dinâmico do baralho
+• modo noturno
+• 27 idiomas
+• Todas as versões anteriores do AnkiDroid podem ser baixadas pelo site

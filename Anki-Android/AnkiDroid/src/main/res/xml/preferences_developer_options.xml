@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~  Copyright (c) 2022 Brayan Oliveira <brayandso.dev@gmail.com>
+  ~
+  ~  This program is free software; you can redistribute it and/or modify it under
+  ~  the terms of the GNU General Public License as published by the Free Software
+  ~  Foundation; either version 3 of the License, or (at your option) any later
+  ~  version.
+  ~
+  ~  This program is distributed in the hope that it will be useful, but WITHOUT ANY
+  ~  WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+  ~  PARTICULAR PURPOSE. See the GNU General Public License for more details.
+  ~
+  ~  You should have received a copy of the GNU General Public License along with
+  ~  this program.  If not, see <http://www.gnu.org/licenses/>.
+  -->
+<!--
+~ Some strings aren't translated because these preferences are aimed
+~ at developers, who are assumed to speak English.
+-->
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:title="@string/pref_cat_dev_options"
+    android:key="@string/pref_developer_options_screen_key">
+    <SwitchPreferenceCompat
+        android:title="@string/dev_options_enabled_pref"
+        android:key="@string/developer_options_enabled_by_user_key"
+        android:defaultValue="true"/>
+    <SwitchPreferenceCompat
+        android:defaultValue="false"
+        android:key="@string/html_javascript_debugging_key"
+        android:summary="Enable remote WebView connections, and save card HTML to AnkiDroid directory"
+        android:title="HTML / JavaScript debugging"/>
+    <Preference
+        android:title="Trigger test crash"
+        android:summary="Touch here for an immediate test crash"
+        android:key="@string/pref_trigger_crash_key"/>
+    <Preference
+        android:title="Switch Analytics to dev mode"
+        android:summary="Touch here to use Analytics dev tag and 100% sample rate"
+        android:key="@string/pref_analytics_debug_key"/>
+    <Preference
+        android:title="Lock database"
+        android:summary="Touch here to lock the database (all threads block in-process, exception if using second process)"
+        android:key="@string/pref_lock_database_key"/>
+    <Preference
+        android:title="Corrupt FSRS parameters"
+        android:summary="Corrupts the FSRS parameters of the default deck. Fixed by resetting/optimization"
+        android:key="@string/pref_corrupt_fsrs_params"/>
+    <Preference
+        android:title="Set Database to pre-Scoped Storage default"
+        android:summary="Touch here to set the database path to /storage/emulated/0/AnkiDroid"
+        android:key="@string/pref_set_database_path_debug_key"/>
+    <SwitchPreferenceCompat
+        android:title="New congrats screen"
+        android:key="@string/new_congrats_screen_pref_key"
+        android:defaultValue="false"/>
+    <Preference
+        android:title="Open TTS voice selection"
+        android:summary="shortcut for {{tts-voices:}}"
+        android:key="@string/dev_open_tts_voices"/>
+    <PreferenceCategory
+        android:title="Create meaningless cards notes"
+        >
+        <com.ichi2.preferences.IncrementerNumberRangePreferenceCompat
+            android:key="@string/pref_fill_default_deck_number_key"
+            android:title="Number of notes to generate"
+            app:useSimpleSummaryProvider="true"
+            android:defaultValue="200"
+            app:min="1"
+            />
+        <Preference
+            android:key="@string/pref_fill_default_deck_key"
+            android:title="Create notes"
+            />
+    </PreferenceCategory>
+    <PreferenceCategory
+        android:title="Create fake media"
+        >
+        <com.ichi2.preferences.IncrementerNumberRangePreferenceCompat
+            android:key="@string/pref_fill_collection_number_file_key"
+            android:title="Number of files to generate"
+            app:useSimpleSummaryProvider="true"
+            android:defaultValue="20"
+            app:min="1"
+            />
+        <com.ichi2.preferences.IncrementerNumberRangePreferenceCompat
+            android:key="@string/pref_fill_collection_size_file_key"
+            android:title="Size of the files to generate (in byte)"
+            app:useSimpleSummaryProvider="true"
+            android:defaultValue="1000000"
+            app:min="1"
+            />
+        <Preference
+            android:key="@string/pref_fill_collection_key"
+            android:title="Create files"
+            />
+    </PreferenceCategory>
+
+    <com.ichi2.anki.preferences.ExtendedPreferenceCategory
+        android:key="@string/pref_cat_wip_key"
+        android:title="Work in progress"
+        android:summary="Only for testing. Not suited for use. Don't create reports about them">
+
+        <SwitchPreferenceCompat
+            android:title="[Tablet] Side-by-side browser and editor"
+            android:key="@string/dev_card_browser_fragmented"
+            android:defaultValue="false"/>
+        <SwitchPreferenceCompat
+            android:title="New card browser search view"
+            android:summary="Not compatible with side-by-side editor"
+            android:key="@string/dev_card_browser_search_view"
+            android:defaultValue="false"/>
+        <SwitchPreferenceCompat
+            android:title="Enable new notifications"
+            android:key="@string/pref_new_review_reminders"
+            android:defaultValue="false"/>
+        <SwitchPreferenceCompat
+            android:title="Switch Profile option"
+            android:key="@string/pref_enable_switch_profile_key"
+            android:defaultValue="false"/>
+        <SwitchPreferenceCompat
+            android:title="Bottom navigation bar"
+            android:summary="Replaces the navigation drawer with a bottom nav bar"
+            android:key="@string/dev_bottom_nav_key"
+            android:defaultValue="false"/>
+    </com.ichi2.anki.preferences.ExtendedPreferenceCategory>
+</PreferenceScreen>

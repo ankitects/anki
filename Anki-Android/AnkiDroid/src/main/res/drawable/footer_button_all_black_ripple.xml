@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ripple xmlns:android="http://schemas.android.com/apk/res/android"
+    android:color="@color/answer_buttons_highlight_color">
+    <item android:id="@android:id/mask">
+        <shape android:shape="rectangle" >
+            <solid android:color="#000000" />
+        </shape>
+    </item>
+    <item android:id="@android:id/background">
+        <shape android:shape="rectangle" >
+            <solid android:color="#000000" />
+            <stroke android:width=".2dp" android:color="#505050"/>
+        </shape>
+    </item>
+</ripple>

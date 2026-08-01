@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ SPDX-License-Identifier: GPL-3.0-or-later
+  ~ SPDX-FileCopyrightText: Copyright (c) 2025 Divyansh Kushwaha <thedroiddiv@gmail.com>
+  -->
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/flag_color_layout_wrapper"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:paddingHorizontal="8dp"
+    android:paddingTop="5dp"
+    android:paddingBottom="11dp"
+    android:background="@drawable/pin_shape">
+    <!-- TODO we already have a circle_background.xml but that one is used in widget theming? -->
+    <com.skydoves.colorpickerview.AlphaTileView
+        android:id="@+id/flag_color_layout"
+        android:layout_width="16dp"
+        android:layout_height="16dp"
+        android:background="@drawable/color_picker_circle_indicator"
+        android:clipToOutline="true" />
+</FrameLayout>

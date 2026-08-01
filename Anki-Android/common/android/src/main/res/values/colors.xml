@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- SPDX-License-Identifier: GPL-3.0-or-later -->
+<!-- SPDX-FileCopyrightText: Copyright (c) 2011 Norbert Nagold <norbert.nagold@gmail.com> -->
+<resources xmlns:tools="http://schemas.android.com/tools" tools:ignore="UnusedResources,DuplicateCrowdInStrings">
+
+    <!-- Material Design: http://www.google.com/design/spec/style/color.html#color-color-palette -->
+    <!-- Can eventually be shortened once settled on a color scheme -->
+    <color name="material_blue_grey_050">#ffeceff1</color>
+    <color name="material_blue_grey_100">#ffcfd8dc</color>
+    <color name="material_blue_grey_200">#ffb0bec5</color>
+    <color name="material_blue_grey_500">#ff607d8b</color>
+    <color name="material_blue_grey_600">#ff546e7a</color>
+    <color name="material_blue_grey_700">#ff455a64</color>
+    <color name="material_blue_grey_800">#ff37474f</color>
+    <color name="material_blue_grey_900">#ff263238</color>
+
+    <color name="material_brown_500">#ff795548</color>
+    <color name="material_brown_700">#ff5d4037</color>
+
+    <color name="material_grey_300">#E0E0E0</color>
+    <color name="material_grey_500">#ff9e9e9e</color>
+    <color name="material_grey_600">#ff757575</color>
+    <color name="material_grey_700">#ff616161</color>
+    <color name="material_grey_800">#ff424242</color>
+    <color name="material_grey_900">#ff212121</color>
+
+    <color name="material_red_200">#ffef9a9a</color>
+    <color name="material_red_300">#ffE57373</color>
+    <color name="material_red_400">#ffEF5350</color>
+    <color name="material_red_500">#fff44336</color>
+    <color name="material_red_600">#ffe53935</color>
+    <color name="material_red_700">#ffd32f2f</color>
+    <color name="material_red_800">#ffC62828</color>
+    <color name="material_red_900">#ffb71c1c</color>
+    <color name="material_red_A700">#ffd50000</color>
+
+    <color name="material_orange_100">#FFE0B2</color>
+    <color name="material_orange_200">#FFCC80</color>
+    <color name="material_orange_300">#FFB74D</color>
+    <color name="material_orange_A100">#FFD180</color>
+    <color name="material_orange_A200">#FFAB40</color>
+    <color name="material_orange_A700">#ffff6d00</color>
+
+    <color name="material_indigo_200">#9fa8da</color>
+    <color name="material_indigo_700">#ff303f9f</color>
+    <color name="material_indigo_A700">#ff304ffe</color>
+    <color name="material_blue_100">#BBDEFB</color>
+    <color name="material_blue_200">#90CAF9</color>
+    <color name="material_blue_400">#ff42a5f5</color>
+    <color name="material_blue_500">#ff2196f3</color>
+    <color name="material_blue_600">#ff1e88e5</color>
+    <color name="material_blue_700">#ff1976d2</color>
+    <color name="material_blue_A700">#ff2962ff</color>
+    <color name="material_light_blue_100">#ffB3E5FC</color>
+    <color name="material_light_blue_200">#ff81D4FA</color>
+    <color name="material_light_blue_300">#ff4FC3F7</color>
+    <color name="material_light_blue_400">#ff29B6F6</color>
+    <color name="material_light_blue_500">#ff03a9f4</color>
+    <color name="material_light_blue_600">#ff039be5</color>
+    <color name="material_light_blue_700">#ff0288d1</color>
+    <color name="material_light_blue_800">#ff0277BD</color>
+    <color name="material_light_blue_900">#ff01579B</color>
+    <color name="material_light_blue_A100">#80D8FF</color>
+    <color name="material_light_blue_A200">#40C4FF</color>
+    <color name="material_light_blue_A700">#ff0091ea</color>
+    <color name="material_cyan_A700">#ff00b8d4</color>
+
+    <color name="material_green_200">#ffa5d6a7</color>
+    <color name="material_green_300">#ff81C784</color>
+    <color name="material_green_400">#ff66BB6A</color>
+    <color name="material_green_500">#ff4caf50</color>
+    <color name="material_green_600">#ff43a047</color>
+    <color name="material_green_700">#ff388e3c</color>
+    <color name="material_green_800">#ff2E7D32</color>
+    <color name="material_green_900">#ff1B5E20</color>
+    <color name="material_light_green_A700">#ff64dd17</color>
+    <color name="material_lime_green_A700">#ffaeea00</color>
+
+    <color name="material_light_green_200">#C5E1A5</color>
+
+    <color name="material_yellow_500">#ffffeb3b</color>
+
+    <color name="material_deep_purple_400">#ff7E57C2</color>
+
+    <color name="material_theme_grey">#303030</color>
+</resources>

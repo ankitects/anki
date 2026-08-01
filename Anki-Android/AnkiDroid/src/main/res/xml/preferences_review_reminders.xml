@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ The search functionality in the settings screen (HeaderFragment, getFragmentFromXmlRes) requires
+  ~ @XmlRes resource IDs as a key when the user is performing searches. However, ScheduleRemindersFragment
+  ~ is not a PreferenceFragmentCompat due to having a lot of custom logic and UI, so it does not have one. This file serves as a workaround
+  ~ so that searching for review reminder settings will work while still allowing ScheduleRemindersFragment
+  ~ to be a custom standalone fragment rather than a rigid PreferenceFragmentCompat. The preference screen
+  ~ defined here is never actually displayed to the user and is only for searching and indexing purposes.
+  -->
+<PreferenceScreen />

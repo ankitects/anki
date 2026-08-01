@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~  Copyright (c) 2022 Brayan Oliveira <brayandso.dev@gmail.com>
+  ~
+  ~  This program is free software; you can redistribute it and/or modify it under
+  ~  the terms of the GNU General Public License as published by the Free Software
+  ~  Foundation; either version 3 of the License, or (at your option) any later
+  ~  version.
+  ~
+  ~  This program is distributed in the hope that it will be useful, but WITHOUT ANY
+  ~  WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+  ~  PARTICULAR PURPOSE. See the GNU General Public License for more details.
+  ~
+  ~  You should have received a copy of the GNU General Public License along with
+  ~  this program.  If not, see <http://www.gnu.org/licenses/>.
+  -->
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:search="http://schemas.android.com/apk/com.bytehamster.lib.preferencesearch"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:title="@string/pref_cat_sync"
+    android:key="@string/pref_sync_screen_key"
+    xmlns:tools="http://schemas.android.com/tools">
+    <Preference
+        android:key="@string/sync_account_key"
+        android:summary="@string/sync_account_summ_logged_out"
+        tools:title="AnkiWeb account" >
+    </Preference>
+    <ListPreference
+        android:defaultValue="@string/sync_media_always_value"
+        android:entries="@array/sync_media_entries"
+        android:entryValues="@array/sync_media_values"
+        android:key="@string/sync_fetch_media_key"
+        android:title="@string/sync_fetch_missing_media"
+        app:useSimpleSummaryProvider="true"/>
+    <SwitchPreferenceCompat
+        android:defaultValue="false"
+        android:key="@string/automatic_sync_choice_key"
+        android:summary="@string/automatic_sync_choice_summ"
+        android:title="@string/automatic_sync_choice" />
+    <SwitchPreferenceCompat
+        android:defaultValue="true"
+        android:key="@string/sync_status_badge_key"
+        android:summary="@string/sync_status_badge_summ"
+        android:title="@string/sync_status_badge" />
+    <SwitchPreferenceCompat
+        android:defaultValue="false"
+        android:key="@string/metered_sync_key"
+        android:title="@string/metered_sync_title"
+        android:summary="@string/metered_sync_summary" />
+    <PreferenceCategory android:title="@string/pref_cat_advanced">
+        <!-- Network timeout
+        Anki Desktop:
+        min is 30s
+        max is 99999s
+        https://github.com/ankitects/anki/blob/8f2144534bff6efedb22b7f052fba13ffe28cbc2/qt/aqt/profiles.py#L734-L735
+        https://github.com/ankitects/anki/blob/8f2144534bff6efedb22b7f052fba13ffe28cbc2/qt/aqt/forms/preferences.ui#L718-L742
+        -->
+        <com.ichi2.preferences.IncrementerNumberRangePreferenceCompat
+            android:key="@string/sync_io_timeout_secs_key"
+            android:defaultValue="60"
+            app:min="30"
+            app:max="99999"
+            tools:title="Network timeout" />
+        <!-- `search:ignore` is set so that we can add this preference manually in the search index.
+        We want to add it manually because we provide the summary at run time instead of build time, because it comes from the backend.
+        If we didn't ignore it, searching for the title would return this preference twice.-->
+        <Preference
+            search:ignore="true"
+            android:key="@string/one_way_sync_key"
+            android:title="@string/one_way_sync_title"
+            tools:summary="On next sync, force changes in one direction" />
+        <!-- This is ignored in the search as it opens a submenu. The submenu content is what should actually appear in search result. -->
+        <Preference
+            android:key="@string/custom_sync_server_key"
+            android:title="@string/custom_sync_server_title"
+            android:fragment="com.ichi2.anki.preferences.CustomSyncServerSettingsFragment"
+            search:ignore="true"/>
+    </PreferenceCategory>
+</PreferenceScreen>

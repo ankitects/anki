@@ -1,0 +1,39 @@
+<!--
+  ~  Copyright (c) 2021 David Allison <davidallisongithub@gmail.com>
+  ~
+  ~  This program is free software; you can redistribute it and/or modify it under
+  ~  the terms of the GNU General Public License as published by the Free Software
+  ~  Foundation; either version 3 of the License, or (at your option) any later
+  ~  version.
+  ~
+  ~  This program is distributed in the hope that it will be useful, but WITHOUT ANY
+  ~  WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+  ~  PARTICULAR PURPOSE. See the GNU General Public License for more details.
+  ~
+  ~  You should have received a copy of the GNU General Public License along with
+  ~  this program.  If not, see <http://www.gnu.org/licenses/>.
+  -->
+
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <!--
+    We display the directional arrows, suggesting that a user can swipe
+
+    Less than API 25, level-list doesn't work with vectors
+    I couldn't get a good solution using drawables (rotation + scale didn't work well together)
+    And it seemed more effort than it was worth to code the drawables by hand
+     -->
+    <item>
+        <vector
+            android:width="154.18196dp"
+            android:height="154.18196dp"
+            android:viewportWidth="15418.196"
+            android:viewportHeight="15418.196">
+            <path
+                android:name="swipe"
+                android:pathData="m3314.4,7707.9 l1244,-1042v397h2486v-2486h-397l1042,-1244 1043,1244h-397v2486h2485v-397l1245,1042 -1245,1043v-397h-2485v2485h397l-1043,1245 -1042,-1245h397L7044.4,8353.9L4558.4,8353.9v397z"
+                android:strokeWidth="100.000"
+                android:strokeColor="#b2b2b2"/>
+        </vector>
+
+    </item>
+</layer-list>
