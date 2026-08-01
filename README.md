@@ -12,8 +12,9 @@ prompt you've seen before still triggers the exact answer you rehearsed. None
 of them measure whether you know the thing the card is about. Ascent is built
 to measure that gap: to distinguish recognition of a memorized surface from
 retrieval of the underlying concept, and to schedule study around the
-difference. The full argument lives in the project's accompanying write-up;
-this repository holds the engine work that makes it measurable.
+difference. The full argument lives in the project's accompanying write-up —
+see [docs/Brainlift.md](docs/Brainlift.md) (a draft in progress); this
+repository holds the engine work that makes it measurable.
 
 ## Licence and credit
 
