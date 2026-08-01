@@ -62,6 +62,38 @@ via schema11 JSON — a new proto field **silently drops on sync** unless it is
 also added to `DeckConfSchema11`, both `From` impls, and
 `RESERVED_DECKCONF_KEYS` in `rslib/src/deckconfig/schema11.rs`.
 
+## Fork-specific: the three scores
+
+Ascent reports Memory, Performance and Readiness separately, in
+`rslib/src/ascent/` (`scores.rs` holds every estimator and gate; read its
+module docs first). The statistical design is not re-derivable from the code —
+it lives in `/Users/adam/firstmate/data/mcat-taxonomy/report.md` alongside an
+executable spec, `scoring_reference.py`. Read those before changing a
+threshold, an interval, or a prior.
+
+The non-negotiables, each guarded by a test in `scores.rs`:
+
+- **Uncertainty compounds upward**: Readiness ≥ Performance ≥ Memory in
+  normalised interval width. A design where the topmost number is the most
+  confident inverts the product. `check_compounding` reports violations; it
+  must never clamp them.
+- **Readiness ships withheld** and shows why. No map from ability to the
+  472–528 scale exists — AAMC does not publish a raw-to-scaled conversion —
+  and CARS cannot be measured from flashcards. Never display a projected exam
+  score, and never put a science-only aggregate on that scale.
+- **Memory gates on coverage, never width**; **Performance gates on a real
+  observation count _and_ width**, with the prior's κ capped. Either gate
+  alone is defeated — see report.md §4.2/§4.3.
+- **The `unmapped` bucket is displayed, not logged.** Cards that no tag places
+  in the AAMC outline are excluded from every score and counted in the UI.
+- Every interval comes from the specified estimator; the Memory calibration
+  term is measured from the user's own review log via FSRS's `rmse_bins`, not
+  a constant.
+
+The screen is `ts/routes/ascent-scores/`, fed by the `AscentScores` rpc. In
+dev it is at `http://localhost:40000/_anki/pages/ascent-scores.html`; there is
+no Qt menu entry yet.
+
 ## Running Anki
 
 To build and run Anki in development mode:

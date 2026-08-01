@@ -36,20 +36,20 @@ rendering live in `rslib/`; every frontend talks to it through the same
 protobuf RPC API defined in `proto/anki/`.
 
 ```
-                 rslib/  (Rust core: scheduler, storage, sync, rendering)
-                    │  protobuf API defined in proto/anki/
-        ┌───────────┴──────────────────────┐
-        │                                  │
-  pylib/rsbridge (PyO3)          Anki-Android-Backend ("rsdroid")
-        │                          JNI cdylib + Kotlin AAR wrapping
-  aqt/ + ts/ (desktop:             the same rslib via 3 JNI calls
-  PyQt shell + Svelte web UI)              │
-        │                          Anki-Android (the Android app,
-        ▼                          all-Kotlin UI; every scheduling/
-     Desktop app                   storage decision is a backend RPC)
-                                           │
-                                           ▼
-                                       Android app
+               rslib/  (Rust core: scheduler, storage, sync, rendering)
+                  │  protobuf API defined in proto/anki/
+      ┌───────────┴──────────────────────┐
+      │                                  │
+pylib/rsbridge (PyO3)          Anki-Android-Backend ("rsdroid")
+      │                          JNI cdylib + Kotlin AAR wrapping
+aqt/ + ts/ (desktop:             the same rslib via 3 JNI calls
+PyQt shell + Svelte web UI)              │
+      │                          Anki-Android (the Android app,
+      ▼                          all-Kotlin UI; every scheduling/
+   Desktop app                   storage decision is a backend RPC)
+                                         │
+                                         ▼
+                                     Android app
 ```
 
 The Android path involves two further repositories:
@@ -141,26 +141,26 @@ section will link to them when they are published.
 Generated from the actual diff against the upstream base commit
 (`4a8673634`). Everything else in the tree is unmodified upstream Anki.
 
-| Path | Change |
-|---|---|
-| `rslib/src/revlog/mod.rs` | `RevlogEntry.reveal_millis` field, docs, serde back-compat test |
-| `rslib/src/storage/upgrades/mod.rs` | Schema 18→19 migration; `SCHEMA_MAX_VERSION` bump; tests |
-| `rslib/src/storage/upgrades/schema19_upgrade.sql` | Adds nullable `reveal_millis` column to revlog |
-| `rslib/src/storage/upgrades/schema19_downgrade.sql` | Drops the column on downgrade |
-| `rslib/src/storage/revlog/add.sql`, `get.sql`, `mod.rs` | Read/write the new column |
-| `rslib/src/scheduler/answering/mod.rs` | Carry reveal time through the answer path; tests |
-| `rslib/src/scheduler/answering/revlog.rs`, `preview.rs` | Populate the field on logged entries |
-| `rslib/src/scheduler/service/mod.rs`, `answering.rs` | Map the proto field to the internal answer |
-| `rslib/src/scheduler/reviews.rs`, `fsrs/params.rs`, `rslib/src/stats/card.rs` | Construction sites updated for the new field |
-| `proto/anki/scheduler.proto` | `CardAnswer.milliseconds_to_reveal` (optional, tag 7) |
-| `proto/anki/stats.proto` | Expose reveal time in review-log stats |
-| `pylib/anki/cards.py`, `pylib/anki/scheduler/v3.py` | Python API: note the reveal moment, send it on answer |
-| `pylib/anki/exporting.py`, `pylib/anki/importing/anki2.py` | Legacy colpkg export/import handling of the column |
-| `pylib/tests/test_schedv3.py` | Tests for reveal-time recording |
-| `qt/aqt/reviewer.py` | Desktop reviewer stamps the reveal moment |
-| `ts/routes/card-info/Revlog.svelte` | Show reveal time in the card-info review log |
-| `ftl/core/card-stats.ftl` | "Reveal" column translation string |
-| `docs/BUILD-NOTES.md` | Verified build setup and mobile-path assessment (new) |
-| `CLAUDE.md` | Agent/project instructions for this fork (new) |
-| `CONTRIBUTORS` | Fork contributor entry |
-| `README.md` | This file (replaces upstream's README) |
+| Path                                                                          | Change                                                          |
+| ----------------------------------------------------------------------------- | --------------------------------------------------------------- |
+| `rslib/src/revlog/mod.rs`                                                     | `RevlogEntry.reveal_millis` field, docs, serde back-compat test |
+| `rslib/src/storage/upgrades/mod.rs`                                           | Schema 18→19 migration; `SCHEMA_MAX_VERSION` bump; tests        |
+| `rslib/src/storage/upgrades/schema19_upgrade.sql`                             | Adds nullable `reveal_millis` column to revlog                  |
+| `rslib/src/storage/upgrades/schema19_downgrade.sql`                           | Drops the column on downgrade                                   |
+| `rslib/src/storage/revlog/add.sql`, `get.sql`, `mod.rs`                       | Read/write the new column                                       |
+| `rslib/src/scheduler/answering/mod.rs`                                        | Carry reveal time through the answer path; tests                |
+| `rslib/src/scheduler/answering/revlog.rs`, `preview.rs`                       | Populate the field on logged entries                            |
+| `rslib/src/scheduler/service/mod.rs`, `answering.rs`                          | Map the proto field to the internal answer                      |
+| `rslib/src/scheduler/reviews.rs`, `fsrs/params.rs`, `rslib/src/stats/card.rs` | Construction sites updated for the new field                    |
+| `proto/anki/scheduler.proto`                                                  | `CardAnswer.milliseconds_to_reveal` (optional, tag 7)           |
+| `proto/anki/stats.proto`                                                      | Expose reveal time in review-log stats                          |
+| `pylib/anki/cards.py`, `pylib/anki/scheduler/v3.py`                           | Python API: note the reveal moment, send it on answer           |
+| `pylib/anki/exporting.py`, `pylib/anki/importing/anki2.py`                    | Legacy colpkg export/import handling of the column              |
+| `pylib/tests/test_schedv3.py`                                                 | Tests for reveal-time recording                                 |
+| `qt/aqt/reviewer.py`                                                          | Desktop reviewer stamps the reveal moment                       |
+| `ts/routes/card-info/Revlog.svelte`                                           | Show reveal time in the card-info review log                    |
+| `ftl/core/card-stats.ftl`                                                     | "Reveal" column translation string                              |
+| `docs/BUILD-NOTES.md`                                                         | Verified build setup and mobile-path assessment (new)           |
+| `CLAUDE.md`                                                                   | Agent/project instructions for this fork (new)                  |
+| `CONTRIBUTORS`                                                                | Fork contributor entry                                          |
+| `README.md`                                                                   | This file (replaces upstream's README)                          |

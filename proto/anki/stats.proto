@@ -16,6 +16,64 @@ service StatsService {
   rpc Graphs(GraphsRequest) returns (GraphsResponse);
   rpc GetGraphPreferences(generic.Empty) returns (GraphPreferences);
   rpc SetGraphPreferences(GraphPreferences) returns (generic.Empty);
+  rpc AscentScores(generic.Empty) returns (AscentScoresResponse);
+}
+
+// A gated estimate on the 0-1 probability scale. When `reportable` is false
+// the point and bounds must not be displayed as a topic-level number; show
+// `reason` and `unlock` instead.
+message AscentEstimate {
+  optional double point = 1;
+  double lower = 2;
+  double upper = 3;
+  bool reportable = 4;
+  string reason = 5;
+  string unlock = 6;
+}
+
+// Ascent's three separated scores. Readiness carries no number at all: no
+// outcome-calibrated map from ability to the 472-528 scale exists.
+message AscentScoresResponse {
+  message Topic {
+    // AAMC content-category code ("4A") or foundational concept ("FC4").
+    string id = 1;
+    string title = 2;
+    // Section short code: C/P, B/B or P/S. CARS has no content outline.
+    string section = 3;
+    // "content-category" or "foundational-concept" -- cards land at the
+    // finest grain their tags earned.
+    string grain = 4;
+    uint32 cards = 5;
+    uint32 studied_cards = 6;
+    double coverage = 7;
+    uint32 probes = 8;
+    AscentEstimate memory = 9;
+    AscentEstimate performance = 10;
+  }
+  message Readiness {
+    bool reportable = 1;
+    repeated string reasons = 2;
+    string unlock = 3;
+  }
+  repeated Topic topics = 1;
+  Readiness readiness = 2;
+  uint32 total_cards = 3;
+  uint32 mapped_cards = 4;
+  // Cards that could not be placed in the AAMC outline. Reported, never
+  // guessed, and excluded from every score.
+  uint32 unmapped_cards = 5;
+  // Where the Performance prior came from, e.g. "cold-start Beta(2,2)".
+  string prior_description = 6;
+  // FSRS's measured calibration error over this collection's own review log,
+  // which is the Memory interval's second variance term. Absent when it could
+  // not be measured, in which case no Memory number is reportable.
+  optional double calibration_sd = 7;
+  string calibration_note = 8;
+  // Uncertainty must compound upward. Any entry here is a modelling bug and
+  // is surfaced rather than clamped away.
+  repeated string compounding_violations = 9;
+  // Coverage of every interval above, as a percentage.
+  uint32 interval_percent = 10;
 }
 
 // Implicitly includes any of the above methods that are not listed in the

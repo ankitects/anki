@@ -492,6 +492,7 @@ def is_sveltekit_page(path: str) -> bool:
         "image-occlusion",
         "preferences",
         "editor",
+        "ascent-scores",
     ]
 
 
@@ -1112,6 +1113,7 @@ exposed_backend_list = [
     "graphs",
     "get_graph_preferences",
     "set_graph_preferences",
+    "ascent_scores",
     # TagsService
     "complete_tag",
     # ImageOcclusionService

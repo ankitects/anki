@@ -36,6 +36,10 @@ impl crate::services::StatsService for Collection {
     ) -> error::Result<()> {
         self.set_graph_preferences(input)
     }
+
+    fn ascent_scores(&mut self) -> error::Result<anki_proto::stats::AscentScoresResponse> {
+        Collection::ascent_scores(self)
+    }
 }
 
 impl From<RevlogReviewKind> for i32 {
