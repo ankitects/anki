@@ -39,6 +39,8 @@ message CardStatsResponse {
     optional cards.FsrsMemoryState memory_state = 7;
     // seconds
     uint32 last_interval = 8;
+    // question shown -> answer revealed; unset for old entries
+    optional float reveal_secs = 9;
   }
   repeated StatsRevlogEntry revlog = 1;
   int64 card_id = 2;
@@ -222,6 +224,9 @@ message RevlogEntry {
   uint32 ease_factor = 7;
   uint32 taken_millis = 8;
   ReviewKind review_kind = 9;
+  // Question shown -> answer revealed. Unset for entries logged before
+  // this field existed. Uncapped, unlike taken_millis.
+  optional uint32 reveal_millis = 10;
 }
 
 message CardEntry {

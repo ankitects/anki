@@ -1183,3 +1183,39 @@ def test_initial_repeat():
 
     ivl = col.db.scalar("select ivl from revlog")
     assert ivl == -5.5 * 60
+
+
+# time to reveal should be logged separately from the composite answer time,
+# and left null when the answer was never shown
+def test_time_to_reveal():
+    col = getEmptyCol()
+    note = col.newNote()
+    note["Front"] = "one"
+    note["Back"] = "two"
+    col.addNote(note)
+
+    # answering without revealing records null, distinguishable from zero
+    c = col.sched.getCard()
+    c.start_timer()
+    assert c.time_to_reveal() is None
+    col.sched.answerCard(c, 3)
+    taken, reveal = col.db.first(
+        "select time, reveal_millis from revlog order by id desc"
+    )
+    assert taken >= 0
+    assert reveal is None
+
+    # revealing the answer records the split time
+    c.start_timer()
+    c.note_answer_shown()
+    first_shown = c.answer_shown_at
+    # only the first reveal counts
+    c.note_answer_shown()
+    assert c.answer_shown_at == first_shown
+    assert c.time_to_reveal() is not None
+    col.sched.answerCard(c, 3)
+    taken, reveal = col.db.first(
+        "select time, reveal_millis from revlog order by id desc"
+    )
+    assert reveal is not None
+    assert reveal <= taken

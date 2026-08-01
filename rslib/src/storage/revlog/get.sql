@@ -6,5 +6,6 @@ SELECT id,
   cast(lastIvl AS integer),
   factor,
   time,
-  type
+  type,
+  reveal_millis
 FROM revlog

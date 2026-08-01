@@ -58,6 +58,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         interval: string;
         ease: string;
         takenSecs: string;
+        revealSecs: string;
         elapsedTime: string;
         stability: string;
     }
@@ -75,6 +76,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             interval: timeSpan(entry.interval),
             ease: formatEaseOrDifficulty(entry.ease),
             takenSecs: timeSpan(entry.takenSecs, true),
+            revealSecs:
+                entry.revealSecs !== undefined ? timeSpan(entry.revealSecs, true) : "",
             elapsedTime,
             stability: entry.memoryState?.stability
                 ? timeSpan(entry.memoryState.stability * 86400)
@@ -171,6 +174,14 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             <div class="column-content right">
                 {#each revlogRows as row, _index}
                     <div>{row.takenSecs}</div>
+                {/each}
+            </div>
+        </div>
+        <div class="column hidden-xs">
+            <div class="column-head">{tr2.cardStatsReviewLogTimeToReveal()}</div>
+            <div class="column-content right">
+                {#each revlogRows as row, _index}
+                    <div>{row.revealSecs}</div>
                 {/each}
             </div>
         </div>

@@ -463,6 +463,7 @@ class Reviewer:
             return
         self.state = "answer"
         c = self.card
+        c.note_answer_shown()
         a = c.answer()
         # play audio?
         if c.autoplay():

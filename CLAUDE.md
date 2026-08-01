@@ -16,6 +16,14 @@ Anki is a spaced repetition flashcard program with a multi-layered architecture.
 - Protobuf definitions in proto/ that are used by the different layers to
   talk to each other.
 
+## Fork-specific: split review timer
+
+This fork's revlog has a nullable `reveal_millis` column (schema 19) recording
+question→reveal latency separately from the capped `taken_millis` composite;
+null means "not recorded", never zero. Authoritative docs:
+`rslib/src/revlog/mod.rs`. Sync peers and non-legacy colpkg importers must run
+this fork's code; the legacy (V11) export path drops the column.
+
 ## Running Anki
 
 To build and run Anki in development mode:

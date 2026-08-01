@@ -224,6 +224,7 @@ fn stats_revlog_entry(
         taken_secs: entry.taken_millis as f32 / 1000.,
         memory_state: None,
         last_interval: entry.last_interval_secs(),
+        reveal_secs: entry.reveal_millis.map(|ms| ms as f32 / 1000.),
     }
 }
 

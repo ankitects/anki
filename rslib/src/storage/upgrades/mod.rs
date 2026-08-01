@@ -6,7 +6,7 @@ pub(super) const SCHEMA_MIN_VERSION: u8 = 11;
 /// The version new files are initially created with.
 pub(super) const SCHEMA_STARTING_VERSION: u8 = 11;
 /// The maximum schema version we can open.
-pub(super) const SCHEMA_MAX_VERSION: u8 = 18;
+pub(super) const SCHEMA_MAX_VERSION: u8 = 19;
 
 use super::SchemaVersion;
 use super::SqliteStorage;
@@ -40,6 +40,10 @@ impl SqliteStorage {
             self.db
                 .execute_batch(include_str!("schema18_upgrade.sql"))?;
         }
+        if ver < 19 {
+            self.db
+                .execute_batch(include_str!("schema19_upgrade.sql"))?;
+        }
 
         // in some future schema upgrade, we may want to change
         // _collapsed to _expanded in DeckCommon and invert existing values, so
@@ -52,6 +56,8 @@ impl SqliteStorage {
     pub(super) fn downgrade_to(&self, ver: SchemaVersion) -> Result<()> {
         match ver {
             SchemaVersion::V11 => self.downgrade_to_schema_11(),
+            // deliberately a no-op: the file stays at 19 so revlog.reveal_millis
+            // survives sync uploads/latest-version exports
             SchemaVersion::V18 => Ok(()),
         }
     }
@@ -59,6 +65,8 @@ impl SqliteStorage {
     fn downgrade_to_schema_11(&self) -> Result<()> {
         self.begin_trx()?;
 
+        self.db
+            .execute_batch(include_str!("schema19_downgrade.sql"))?;
         self.db
             .execute_batch(include_str!("schema18_downgrade.sql"))?;
         self.downgrade_deck_conf_from_schema16()?;
@@ -85,11 +93,48 @@ mod test {
 
     #[test]
     #[allow(clippy::assertions_on_constants)]
-    fn assert_18_is_latest_schema_version() {
+    fn assert_19_is_latest_schema_version() {
         assert_eq!(
-            18, SCHEMA_MAX_VERSION,
+            19, SCHEMA_MAX_VERSION,
             "must implement SqliteStorage::downgrade_to(SchemaVersion::V18)"
         );
+    }
+
+    #[test]
+    fn reveal_millis_survives_reopen_and_v11_downgrade() -> Result<()> {
+        let tempfile = new_tempfile()?;
+        let col = CollectionBuilder::default()
+            .set_collection_path(tempfile.path())
+            .build()?;
+        col.storage.add_revlog_entry(
+            &crate::revlog::RevlogEntry {
+                id: crate::revlog::RevlogId(123),
+                cid: CardId(45),
+                taken_millis: 3000,
+                reveal_millis: Some(1500),
+                ..Default::default()
+            },
+            true,
+        )?;
+        col.close(None)?;
+
+        let col = CollectionBuilder::default()
+            .set_collection_path(tempfile.path())
+            .build()?;
+        let entries = col.storage.get_revlog_entries_for_card(CardId(45))?;
+        assert_eq!(entries[0].reveal_millis, Some(1500));
+
+        // the legacy downgrade drops the column; after re-upgrading, the value
+        // reads back as absent rather than zero
+        col.close(Some(SchemaVersion::V11))?;
+        let col = CollectionBuilder::default()
+            .set_collection_path(tempfile.path())
+            .build()?;
+        let entries = col.storage.get_revlog_entries_for_card(CardId(45))?;
+        assert_eq!(entries[0].taken_millis, 3000);
+        assert_eq!(entries[0].reveal_millis, None);
+
+        Ok(())
     }
 
     #[test]

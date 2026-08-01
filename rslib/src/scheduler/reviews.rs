@@ -194,6 +194,7 @@ impl Collection {
                     new_state: Some(new_state.into()),
                     rating,
                     milliseconds_taken: 0,
+                    milliseconds_to_reveal: None,
                     answered_at_millis: TimestampMillis::now().into(),
                 }
                 .into();

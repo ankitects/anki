@@ -20,6 +20,7 @@ impl From<anki_proto::scheduler::CardAnswer> for CardAnswer {
             new_state: new_state.into(),
             answered_at: TimestampMillis(answer.answered_at_millis),
             milliseconds_taken: answer.milliseconds_taken,
+            milliseconds_to_reveal: answer.milliseconds_to_reveal,
             custom_data,
             from_queue: true,
         }

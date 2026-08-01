@@ -95,6 +95,7 @@ mod test {
             rating: Rating::Again,
             answered_at: TimestampMillis::now(),
             milliseconds_taken: 0,
+            milliseconds_to_reveal: None,
             custom_data: None,
             from_queue: true,
         })?;
@@ -111,6 +112,7 @@ mod test {
             rating: Rating::Hard,
             answered_at: TimestampMillis::now(),
             milliseconds_taken: 0,
+            milliseconds_to_reveal: None,
             custom_data: None,
             from_queue: true,
         })?;
@@ -127,6 +129,7 @@ mod test {
             rating: Rating::Good,
             answered_at: TimestampMillis::now(),
             milliseconds_taken: 0,
+            milliseconds_to_reveal: None,
             custom_data: None,
             from_queue: true,
         })?;

@@ -59,6 +59,7 @@ class Card(DeprecatedNamesMixin):
     ) -> None:
         self.col = col.weakref()
         self.timer_started: float | None = None
+        self.answer_shown_at: float | None = None
         self._render_output: anki.template.TemplateRenderOutput | None = None
         if id:
             # existing card
@@ -190,6 +191,20 @@ class Card(DeprecatedNamesMixin):
 
     def start_timer(self) -> None:
         self.timer_started = time.time()
+        self.answer_shown_at = None
+
+    def note_answer_shown(self) -> None:
+        """Record when the answer was revealed; only the first reveal counts."""
+        if self.answer_shown_at is None:
+            self.answer_shown_at = time.time()
+
+    def time_to_reveal(self) -> int | None:
+        """Milliseconds from question shown to answer revealed, or None if
+        the answer has not been shown. Uncapped; the backend applies the
+        deck's answer time cap."""
+        if self.answer_shown_at is None or self.timer_started is None:
+            return None
+        return int((self.answer_shown_at - self.timer_started) * 1000)
 
     def current_deck_id(self) -> anki.decks.DeckId:
         return anki.decks.DeckId(self.odid or self.did)

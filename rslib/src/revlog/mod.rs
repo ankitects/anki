@@ -57,6 +57,13 @@ pub struct RevlogEntry {
     pub taken_millis: u32,
     #[serde(rename = "type", default, deserialize_with = "default_on_invalid")]
     pub review_kind: RevlogReviewKind,
+    /// Milliseconds from the question being shown to the answer being
+    /// revealed. None for entries logged before this field existed, or by
+    /// clients that don't report it; distinguishable from a real zero.
+    /// Unlike `taken_millis`, this is stored uncapped, so the deck's answer
+    /// time limit never silently rewrites it.
+    #[serde(default)]
+    pub reveal_millis: Option<u32>,
 }
 
 #[derive(Serialize_repr, Deserialize_repr, Debug, PartialEq, Eq, TryFromPrimitive, Clone, Copy)]
@@ -174,8 +181,28 @@ impl Collection {
             ease_factor,
             taken_millis: 0,
             review_kind,
+            reveal_millis: None,
         };
         self.add_revlog_entry_undoable(entry)?;
         Ok(())
+    }
+}
+
+#[cfg(test)]
+mod test {
+    use super::*;
+
+    #[test]
+    fn reveal_millis_serde_compat() {
+        // entries from before the field existed deserialize as None, not 0
+        let entry: RevlogEntry = serde_json::from_str("[1,2,-1,3,5,-60,2500,3000,1]").unwrap();
+        assert_eq!(entry.taken_millis, 3000);
+        assert_eq!(entry.reveal_millis, None);
+
+        let entry: RevlogEntry = serde_json::from_str("[1,2,-1,3,5,-60,2500,3000,1,1500]").unwrap();
+        assert_eq!(entry.reveal_millis, Some(1500));
+
+        let json = serde_json::to_string(&entry).unwrap();
+        assert_eq!(serde_json::from_str::<RevlogEntry>(&json).unwrap(), entry);
     }
 }

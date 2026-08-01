@@ -8,7 +8,8 @@ INSERT
     lastIvl,
     factor,
     time,
-    type
+    type,
+    reveal_millis
   )
 VALUES (
     (
@@ -24,6 +25,7 @@ VALUES (
         ELSE ?2
       END
     ),
+    ?,
     ?,
     ?,
     ?,

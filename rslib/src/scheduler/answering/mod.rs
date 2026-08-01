@@ -52,12 +52,19 @@ pub struct CardAnswer {
     pub rating: Rating,
     pub answered_at: TimestampMillis,
     pub milliseconds_taken: u32,
+    /// Question shown -> answer revealed; None if the client didn't report it.
+    pub milliseconds_to_reveal: Option<u32>,
     pub custom_data: Option<String>,
     pub from_queue: bool,
 }
 
 impl CardAnswer {
     fn cap_answer_secs(&mut self, max_secs: u32) {
+        // Only the composite is capped, for backwards compatibility; clamping
+        // silently rewrites the value, making a capped answer look like a
+        // genuine max_secs one. The reveal time is stored raw so the retrieval
+        // latency signal is never corrupted, and a clamped composite remains
+        // detectable by comparing the two.
         self.milliseconds_taken = self.milliseconds_taken.min(max_secs * 1000);
     }
 }
@@ -407,6 +414,7 @@ impl Collection {
             answer.rating.as_number(),
             answer.answered_at,
             answer.milliseconds_taken,
+            answer.milliseconds_to_reveal,
         );
         self.add_revlog_entry_undoable(revlog)?;
         Ok(())
@@ -644,6 +652,7 @@ pub mod test_helpers {
                 rating,
                 answered_at: TimestampMillis::now(),
                 milliseconds_taken: 0,
+                milliseconds_to_reveal: None,
                 custom_data: None,
                 from_queue: true,
             })?;
@@ -845,6 +854,56 @@ pub(crate) mod test {
         let card = col.storage.get_card(post_answer.card_id)?.unwrap();
         assert_eq!(card.queue, CardQueue::Review);
         assert_eq!(card.interval, 1);
+
+        Ok(())
+    }
+
+    #[test]
+    fn split_timer_recorded_and_capped() -> Result<()> {
+        let mut col = Collection::new();
+        let nt = col.get_notetype_by_name("Basic")?.unwrap();
+        let mut note = nt.new_note();
+        col.add_note(&mut note, DeckId(1))?;
+
+        // no reveal reported -> stored as absent, not zero
+        let queued = col.get_next_card()?.unwrap();
+        let card_id = queued.card.id;
+        col.answer_card(&mut CardAnswer {
+            card_id,
+            current_state: queued.states.current,
+            new_state: queued.states.good,
+            rating: Rating::Good,
+            answered_at: TimestampMillis::now(),
+            milliseconds_taken: 3000,
+            milliseconds_to_reveal: None,
+            custom_data: None,
+            from_queue: true,
+        })?;
+        let entries = col.storage.get_revlog_entries_for_card(card_id)?;
+        assert_eq!(entries[0].taken_millis, 3000);
+        assert_eq!(entries[0].reveal_millis, None);
+
+        // the composite is capped to the deck's answer time limit (60s
+        // default), while the reveal time is stored raw, keeping the clamp
+        // detectable
+        col.storage.db.execute_batch("update cards set due=0")?;
+        col.clear_study_queues();
+        let queued = col.get_next_card()?.unwrap();
+        col.answer_card(&mut CardAnswer {
+            card_id,
+            current_state: queued.states.current,
+            new_state: queued.states.good,
+            rating: Rating::Good,
+            answered_at: TimestampMillis::now(),
+            milliseconds_taken: 70_000,
+            milliseconds_to_reveal: Some(65_000),
+            custom_data: None,
+            from_queue: true,
+        })?;
+        let entries = col.storage.get_revlog_entries_for_card(card_id)?;
+        let entry = entries.iter().max_by_key(|e| e.id).unwrap();
+        assert_eq!(entry.taken_millis, 60_000);
+        assert_eq!(entry.reveal_millis, Some(65_000));
 
         Ok(())
     }

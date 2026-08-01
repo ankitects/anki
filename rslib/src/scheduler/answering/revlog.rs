@@ -39,6 +39,7 @@ impl RevlogEntryPartial {
         button_chosen: u8,
         answered_at: TimestampMillis,
         taken_millis: u32,
+        reveal_millis: Option<u32>,
     ) -> RevlogEntry {
         RevlogEntry {
             id: answered_at.into(),
@@ -50,6 +51,7 @@ impl RevlogEntryPartial {
             ease_factor: (self.ease_factor * 1000.0).round() as u32,
             taken_millis,
             review_kind: self.review_kind,
+            reveal_millis,
         }
     }
 }

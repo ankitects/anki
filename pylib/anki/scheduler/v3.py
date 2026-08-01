@@ -82,7 +82,7 @@ class Scheduler(SchedulerBaseWithLegacy):
         else:
             raise Exception("invalid rating")
 
-        return CardAnswer(
+        answer = CardAnswer(
             card_id=card.id,
             current_state=states.current,
             new_state=new_state,
@@ -90,6 +90,9 @@ class Scheduler(SchedulerBaseWithLegacy):
             answered_at_millis=int_time(1000),
             milliseconds_taken=card.time_taken(capped=False),
         )
+        if (reveal := card.time_to_reveal()) is not None:
+            answer.milliseconds_to_reveal = reveal
+        return answer
 
     def answer_card(self, input: CardAnswer) -> OpChanges:
         "Update card to provided state, and remove it from queue."

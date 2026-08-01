@@ -556,6 +556,7 @@ fn revlog_entry_to_proto(e: RevlogEntry) -> anki_proto::stats::RevlogEntry {
         last_interval: e.last_interval,
         ease_factor: e.ease_factor,
         taken_millis: e.taken_millis,
+        reveal_millis: e.reveal_millis,
         review_kind: match e.review_kind {
             RevlogReviewKind::Learning => revlog_entry::ReviewKind::Learning,
             RevlogReviewKind::Review => revlog_entry::ReviewKind::Review,

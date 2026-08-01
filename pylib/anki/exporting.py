@@ -238,7 +238,7 @@ class AnkiExporter(Exporter):
         if self.includeSched:
             data = self.src.db.all("select * from revlog where cid in " + ids2str(cids))
             self.dst.db.executemany(
-                "insert into revlog values (?,?,?,?,?,?,?,?,?)", data
+                "insert into revlog values (?,?,?,?,?,?,?,?,?,?)", data
             )
         else:
             # need to reset card state

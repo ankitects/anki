@@ -18,6 +18,8 @@ card-stats-review-log-rating = Rating
 card-stats-review-log-type = Type
 card-stats-review-log-date = Date
 card-stats-review-log-time-taken = Time
+# Time from the question being shown until the answer was revealed
+card-stats-review-log-time-to-reveal = Reveal
 card-stats-review-log-type-learn = Learn
 card-stats-review-log-type-review = Review
 card-stats-review-log-type-relearn = Relearn

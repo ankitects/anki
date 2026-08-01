@@ -283,6 +283,10 @@ message CardAnswer {
   Rating rating = 4;
   int64 answered_at_millis = 5;
   uint32 milliseconds_taken = 6;
+  // Question shown -> answer revealed. Unset if the client doesn't
+  // report it, so it can be told apart from a real zero. Stored uncapped;
+  // the deck's answer time limit only applies to milliseconds_taken.
+  optional uint32 milliseconds_to_reveal = 7;
 }
 
 message CustomStudyRequest {
