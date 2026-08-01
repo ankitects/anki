@@ -90,6 +90,8 @@
     <addaction name="actionCheckMediaDatabase"/>
     <addaction name="actionEmptyCards"/>
     <addaction name="separator"/>
+    <addaction name="actionAscentScores"/>
+    <addaction name="separator"/>
     <addaction name="actionAdd_ons"/>
     <addaction name="separator"/>
     <addaction name="actionNoteTypes"/>
@@ -214,6 +216,11 @@
   <action name="actionEmptyCards">
    <property name="text">
     <string>qt_misc_empty_cards</string>
+   </property>
+  </action>
+  <action name="actionAscentScores">
+   <property name="text">
+    <string>qt_misc_ascent_scores</string>
    </property>
   </action>
   <action name="actionCreateFiltered">

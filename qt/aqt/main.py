@@ -1468,6 +1468,7 @@ title="{}" {}>{}</button>""".format(
         qconnect(m.actionStudyDeck.triggered, self.onStudyDeck)
         qconnect(m.actionCreateFiltered.triggered, self.onCram)
         qconnect(m.actionEmptyCards.triggered, self.onEmptyCards)
+        qconnect(m.actionAscentScores.triggered, self.on_ascent_scores)
         qconnect(m.actionNoteTypes.triggered, self.onNoteTypes)
         qconnect(m.action_check_for_updates.triggered, self.on_check_for_updates)
         qconnect(m.actionPreferences.triggered, self.onPrefs)
@@ -1755,6 +1756,11 @@ title="{}" {}>{}</button>""".format(
         from aqt.emptycards import show_empty_cards
 
         show_empty_cards(self)
+
+    def on_ascent_scores(self) -> None:
+        from aqt.ascent import AscentScoresDialog
+
+        AscentScoresDialog(self)
 
     # System specific code
     ##########################################################################
