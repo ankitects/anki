@@ -7,6 +7,8 @@ classifiers = ["Private :: Do Not Upload"]
 
 [dependency-groups]
 dev = [
+  # probe generation is an offline authoring tool, never a runtime dependency
+  "anthropic",
   "pre-commit",
   "mypy",
   "mypy-protobuf",

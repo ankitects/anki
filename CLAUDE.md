@@ -48,14 +48,20 @@ cascade is hand-written in `SqliteStorage::remove_card` — the one point sync
 grave application and dbcheck both route through, neither of which builds undo
 entries. Add new card-deletion paths there, not at the call site.
 
-Two open seams, deliberately unresolved:
+Probes are generated offline by `pylib/anki/probe_gen.py` (`just probe-gen
+<collection> --deck NAME [--dry-run] [--baseline]`) and stored through
+`AddProbe`. AI is an authoring-time dependency only — `anthropic` lives in
+the root `dev` dependency group, never in pylib's runtime deps, and
+`--baseline` runs the whole pipeline with no network. New generators must go
+through `gate_reject_reason` plus (for model output) a same-fact verifier;
+never store an unchecked candidate, and only ever report measured rejection
+rates.
 
-- **Probe content does not sync.** The `probes` table is local; the chunked
-  sync object lists are closed. Outcomes ride the revlog and do sync. How
-  probe text reaches a second device (pre-generated packs, apkg, or
-  per-device regeneration) is an open captain decision.
-- **Probe generation is not implemented.** Probes arrive via the `AddProbe`
-  rpc or apkg import only.
+One open seam, deliberately unresolved: **probe content does not sync.** The
+`probes` table is local; the chunked sync object lists are closed. Outcomes
+ride the revlog and do sync. How probe text reaches a second device
+(pre-generated packs, apkg, or per-device regeneration) is an open captain
+decision.
 
 Deck config gotcha: probe settings live on `DeckConfig.Config`, which syncs
 via schema11 JSON — a new proto field **silently drops on sync** unless it is
