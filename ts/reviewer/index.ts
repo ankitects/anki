@@ -49,7 +49,8 @@ function _ensureMathJaxLoaded(): Promise<void> {
     return mathjaxLoading;
 }
 
-const mathjaxRegex = /\\\[|\\\(|\\ce\{/;
+// follows mathjaxBlockDelimiterPattern and mathjaxInlineDelimiterPattern
+const mathjaxRegex = /\\\[(.*?)\\\]|\\\((.*?)\\\)/su;
 
 function _containsMathjax(html: string): boolean {
     return mathjaxRegex.test(html);
