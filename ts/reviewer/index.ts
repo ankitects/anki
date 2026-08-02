@@ -27,13 +27,7 @@ declare const MathJax: any;
 let mathjaxLoading: Promise<void> | null = null;
 
 function _ensureMathJaxLoaded(): Promise<void> {
-    if (mathjaxLoading) {
-        return mathjaxLoading;
-    }
-    if (typeof MathJax !== "undefined" && MathJax.startup) {
-        return Promise.resolve();
-    }
-    mathjaxLoading = new Promise((resolve, reject) => {
+    return mathjaxLoading || (mathjaxLoading = new Promise((resolve, reject) => {
         const configScript = document.createElement("script");
         configScript.src = "/_anki/js/mathjax.js";
         configScript.onload = () => {
@@ -45,8 +39,7 @@ function _ensureMathJaxLoaded(): Promise<void> {
         };
         configScript.onerror = () => reject(new Error("Failed to load MathJax config"));
         document.head.appendChild(configScript);
-    });
-    return mathjaxLoading;
+    }));
 }
 
 // follows mathjaxBlockDelimiterPattern and mathjaxInlineDelimiterPattern
