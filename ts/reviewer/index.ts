@@ -164,6 +164,14 @@ export async function _updateQA(
 
     const qa = document.getElementById("qa")!;
 
+    const containsMathJax = _containsMathjax(html);
+    if (containsMathJax) {
+        try {
+            await _ensureMathJaxLoaded();
+        } catch (error) {
+            console.error(error);
+        }
+    }
     await preloadResources(html);
 
     qa.style.opacity = "0";
@@ -178,14 +186,6 @@ export async function _updateQA(
 
     // dynamic toolbar background
     bridgeCommand("updateToolbar");
-
-    if (_containsMathjax(html)) {
-        try {
-            await _ensureMathJaxLoaded();
-        } catch (error) {
-            console.error(error);
-        }
-    }
 
     if (typeof MathJax !== "undefined" && MathJax.startup) {
         // wait for mathjax to ready
