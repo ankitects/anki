@@ -187,7 +187,7 @@ export async function _updateQA(
     // dynamic toolbar background
     bridgeCommand("updateToolbar");
 
-    if (typeof MathJax !== "undefined" && MathJax.startup) {
+    if (containsMathJax && typeof MathJax !== "undefined" && MathJax.startup) {
         // wait for mathjax to ready
         await MathJax.startup.promise
             .then(() => {
