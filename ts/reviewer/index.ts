@@ -221,6 +221,9 @@ export function _showQuestion(q: string, a: string, bodyclass: string): void {
                 if (typeans) {
                     typeans.focus();
                 }
+                if (!mathjaxLoading && _containsMathjax(a)) {
+                    _ensureMathJaxLoaded();
+                }
                 // preload images
                 allImagesLoaded().then(() => preloadAnswerImages(a));
             },
