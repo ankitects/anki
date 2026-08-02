@@ -26,7 +26,7 @@ declare const MathJax: any;
 
 let mathjaxLoading: Promise<void> | null = null;
 
-function _ensureMathJaxLoaded(): Promise<void> {
+function _lazyLoadMathJax(): Promise<void> {
     return mathjaxLoading || (mathjaxLoading = new Promise((resolve, reject) => {
         const configScript = document.createElement("script");
         configScript.src = "/_anki/js/mathjax.js";
@@ -160,7 +160,7 @@ export async function _updateQA(
     const containsMathJax = _containsMathjax(html);
     if (containsMathJax) {
         try {
-            await _ensureMathJaxLoaded();
+            await _lazyLoadMathJax();
         } catch (error) {
             console.error(error);
         }
@@ -215,7 +215,7 @@ export function _showQuestion(q: string, a: string, bodyclass: string): void {
                     typeans.focus();
                 }
                 if (!mathjaxLoading && _containsMathjax(a)) {
-                    _ensureMathJaxLoaded();
+                    _lazyLoadMathJax();
                 }
                 // preload images
                 allImagesLoaded().then(() => preloadAnswerImages(a));
