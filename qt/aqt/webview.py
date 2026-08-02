@@ -389,13 +389,14 @@ class AnkiWebView(QWebEngineView):
         self.resetHandlers()
         self._filterSet = False
 
-        self._hook_subscriptions = subscriptions = [
+        subscriptions: list[tuple[Any, Callable[..., Any]]] = [
             (gui_hooks.theme_did_change, self.on_theme_did_change),
             (gui_hooks.body_classes_need_update, self.on_body_classes_need_update),
             (gui_hooks.operation_did_execute, self.on_operation_did_execute),
         ]
         for hook, handler in subscriptions:
             hook.append(handler)
+        self._hook_subscriptions = subscriptions
 
         def unhook(_obj: QObject | None = None) -> None:
             try:
