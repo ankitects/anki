@@ -1,0 +1,326 @@
+---
+title: "Changes in 2.1.10 to 19"
+---
+
+## Changes in 2.1.19
+
+Released 2020-01-16, build 3c8690ae.
+
+- Fix formatting and images getting lost when creating cloze
+  deletions.
+
+- Added an option to the preferences screen to strip formatting by
+  default.
+
+- Fix the preview button shortcut key not working.
+
+## Changes in 2.1.18
+
+Released 2020-01-14, build fb9d59fe.
+
+- Fixed Anki failing to start for some users updating from Anki 2.0.
+
+- Fixed the alternate Windows build failing to start on Windows 8.
+
+## Changes in 2.1.17
+
+Released 2020-01-11, build c69ccb50.
+
+Linux version repackaged on 2020-01-12 to fix a 'make install' issue.
+
+- Improved the performance of the browse screen’s sidebar for users
+  with many decks/tags.
+
+- Add-ons that modify the sidebar will break when you update, and will
+  need to be updated by the add-on author.
+
+- Add-ons that alter the audio handling may need to be updated, as
+  code has moved from anki.sound to aqt.sound.
+
+- Changing large note types is significantly faster.
+
+- Added an option in the preferences screen to adjust the user
+  interface size.
+
+- You can now double-click on an .ankiaddon file to install it (thanks
+  to Glutanimate).
+
+- Updated GUI libraries for the standard installs and the alternate
+  Windows install.
+
+- The minimum Python version is now 3.7, and the packaged versions
+  ship with Python 3.8.
+
+- The alternate Linux build has been dropped - you will need to be on
+  a Linux distro from 2016+ with systemd support to use the packaged
+  version.
+
+- Source tarballs are available from the releases tab of the GitHub
+  repo.
+
+- Added an option to tag updated notes when importing (thanks to
+  Erez).
+
+- Automatically remove ':' from field names when opening the card
+  templates screen, as it conflicts with the template syntax.
+
+- Fix a bug in the handling of MathJax+Cloze (thanks to Michal).
+
+- Fixed a regression in the way duplicate deck names were handled.
+
+- Remove help button from some Window titles.
+
+## Changes in 2.1.16
+
+Released 2019-12-12, build 4bc33e2f.
+
+Due to some minor issues that were found, the website was not updated to
+point to this release.
+
+- Pasting now includes formatting by default.
+
+- Preserve foreground/background color when pasting.
+
+- Preserve bold/italic/underline when pasting from Google Docs.
+
+- When pasting with the shift key, bold/italics/underline is also
+  stripped.
+
+- Ensure learning cards in filtered decks with 'order due' show in
+  template order.
+
+- Remove the 'experimental' label from the new scheduler.
+
+- You can now import and export decks with scheduling enabled in the
+  new scheduler.
+
+- Hide empty Default deck in deck picker (thanks to Arthur).
+
+- Add an extra day to the interval when using Easy on a relearning
+  card.
+
+- Preserve surrounding styling when making cloze deletions.
+
+- Draw preview screen more quickly.
+
+- Fix race condition in preview screen (thanks to Håkon).
+
+- Use --exact with dvsvgm to prevent truncated subscript/superscript
+  in LaTeX.
+
+- Newly created cards could be given the wrong due number (thanks to
+  Arthur).
+
+- Sticky fields were ignored when closing the add card window (thanks
+  to Arthur).
+
+- Adding a note type forced a full sync (thanks to Arthur).
+
+- Remove shortcut keys from translations (thanks to Arthur).
+
+- Documentation changes for translators (thanks to Arthur).
+
+- Case not being preserved when changing a deck’s parent (thanks to
+  Arthur).
+
+- Hide default deck in other screens when empty (thanks to Arthur).
+
+- Fix qtwebengineprocesses not being cleaned up when stats window
+  closed.
+
+- Allow smaller window when editing current card.
+
+- Support pasting multiple URLs at once.
+
+- Add ability to force software rendering on old Macs (thanks to Mike)
+
+- A fix for case insensitive field name handling in find&replace
+  (thanks to lovac42)
+
+- Fix non-integer intervals being imported from Mnemosyne (thanks to
+  Blauelf)
+
+- Clear undo queue when changing scheduler (thanks to lovac42)
+
+- Default to not closing add window (thanks to Aidan)
+
+- Sort new cards separately when sorting by ease (thanks to Arthur)
+
+- Fix a bug in the V2 scheduler.
+
+- Properly handle backslashes in the replacement section of
+  Find&Replace.
+
+- Various small fixes.
+
+## Changes in 2.1.15
+
+Released 2019-08-22, build 442df9d6.
+
+- The V2 scheduler now fully randomizes review cards due on a given
+  day.
+
+- Fix add-ons errors on Windows when profile path was short.
+
+- Fix flag changes in Browse screen not syncing.
+
+- Cleanup recording wav file when recording canceled.
+
+- Fix the window icon on Wayland (thanks to Wilco).
+
+- Add a progress bar to media deletion.
+
+- Other minor changes.
+
+## Changes in 2.1.14
+
+Released 2019-06-27, build 7b93e985.
+
+- Fix a bug in the V2 scheduler that would cause partially learnt
+  cards removed from filtered decks to revert to an earlier state.
+
+- Fix a bug in the handling of relearning cards when switching back to
+  the V1 scheduler.
+
+- Fix lost space when pasting indented text.
+
+- Limit image height relative to window height, not document height.
+
+- Fix deck list being re-rendered unnecessarily.
+
+- Remove the 'unable to connect to local port' message.
+
+## Changes in 2.1.13
+
+Released 2019-05-20, build 3ba55990.
+
+- Fix formatting getting lost when copying&pasting between fields on
+  macOS.
+
+- Fix some issues that cause the main window to get stuck.
+
+- Fix an empty deck list sometimes appearing when restoring from a
+  backup.
+
+- Fix Anki hanging after an error occurs during startup.
+
+- Fix error caused by profile with trailing space on Windows.
+
+- Fix error message when syncing with an unconfirmed email address.
+
+- Use jsonschema for add-on manifests (thanks to Erez).
+
+- Warn in DB check when high due numbers are encountered.
+
+- Improve error messages on full disk and failed add-on deletion.
+
+- Fix relearning cards being given learning step count in V2
+  scheduler.
+
+- Fix preview window failing to appear when 'show both sides' enabled.
+
+- Removing trailing BR tag when pasting into an empty field.
+
+- Don’t throw an error when non-Latin text in the Javascript console
+  can’t be shown.
+
+- Double click on add-ons to edit their configuration (thanks to
+  lovac42).
+
+- Fix the window icon in a few screens (thanks to John).
+
+- Don’t highlight the deck selection button in the add screen on
+  Windows.
+
+- Improve the default 'type in the answer' note type.
+
+## Changes in 2.1.12
+
+Released 2019-04-23, build eef86bf3.
+
+- Fix an issue that could prevent profile renaming/deletion on
+  Windows.
+
+- Fix fields appearing under editor buttons.
+
+- Fix memory leak in card layout screen.
+
+- Fix some issues with previewing in the Browse screen.
+
+- Fix card counts not updating when a review is undone.
+
+- Fix an error that could occur on startup on some Windows installs.
+
+- The Mac build now uses the new hardened runtime on Mojave.
+
+- Change focus outline colour on Windows.
+
+- Fix an error caused by missing note types.
+
+- A possible workaround for the audio player getting stuck on Macs.
+
+- Display the installed version in the Windows uninstall screen.
+
+- Fix an issue checking for add-on updates (thanks to Glutanimate).
+
+- Disable add-on config button when not appropriate (thanks to
+  Glutanimate).
+
+- Tweaks to the 'deck age' graph binning (thanks to Jian).
+
+- Add-ons hosted on AnkiWeb can now define conflicts in the manifest
+  file.
+
+- Switch to mplayer on the alternate OS X build, as mpv was not
+  working on some older machines.
+
+- Make sure mpv doesn’t attempt to load scripts from default location.
+
+- Other minor fixes.
+
+## Changes in 2.1.11
+
+Released 2019-03-11, build 3cf770c7.
+
+- Change Undo shortcut back to Ctrl+Alt+Z/Cmd+Opt+Z in Browse screen,
+  to prevent accidentally undoing non-text changes when editing
+  fields.
+
+- Revert a previous card template optimization that could cause an
+  error.
+
+- Suppress a spurious error message that could occur when editing.
+
+## Changes in 2.1.10
+
+Released 2019-03-07, build 22d6feed.
+
+- Add option to strip html in export.
+
+- Avoid nbsp for single spaces when pasting text.
+
+- Fix preview screen flashing when moving between cards.
+
+- Improvements to the add-ons screen (thanks to Glutanimate).
+
+- Support .ankiaddon bundles (thanks to Glutanimate).
+
+- Improve subpixel antialiasing on some machines (thanks to
+  Glutanimate).
+
+- Improve Japanese interface font on Windows 10, and make it possible
+  for translators to change the font for other languages that need it
+  as well.
+
+- Fix inability to start if problem occurs on first run.
+
+- Allow decreasing daily limits in custom study.
+
+- Add a button to copy debug info to about screen (thanks to
+  Glutanimate).
+
+- Fix problem running from source on Windows (thanks to dlon).
+
+- Allow add-ons to serve files from mediasrv (thanks to Glutanimate).
+
+- More user-friendly error messages for some network errors.

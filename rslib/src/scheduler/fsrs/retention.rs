@@ -3,7 +3,6 @@
 use anki_proto::scheduler::SimulateFsrsReviewRequest;
 use fsrs::extract_simulator_config;
 use fsrs::SimulatorConfig;
-use fsrs::FSRS;
 
 use crate::prelude::*;
 use crate::revlog::RevlogEntry;
@@ -17,26 +16,24 @@ pub struct ComputeRetentionProgress {
 impl Collection {
     pub fn compute_optimal_retention(&mut self, req: SimulateFsrsReviewRequest) -> Result<f32> {
         let mut anki_progress = self.new_progress_handler::<ComputeRetentionProgress>();
-        let fsrs = FSRS::new(None)?;
         if req.days_to_simulate == 0 {
             invalid_input!("no days to simulate")
         }
         let (config, cards) = self.simulate_request_to_config(&req)?;
-        Ok(fsrs
-            .optimal_retention(
-                &config,
-                &req.params,
-                |ip| {
-                    anki_progress
-                        .update(false, |p| {
-                            p.current = ip.current as u32;
-                        })
-                        .is_ok()
-                },
-                Some(cards),
-                None,
-            )?
-            .clamp(0.7, 0.95))
+        Ok(fsrs::optimal_retention(
+            &config,
+            &req.params,
+            |ip| {
+                anki_progress
+                    .update(false, |p| {
+                        p.current = ip.current as u32;
+                    })
+                    .is_ok()
+            },
+            Some(cards),
+            None,
+        )?
+        .clamp(0.7, 0.95))
     }
 
     pub fn get_optimal_retention_parameters(

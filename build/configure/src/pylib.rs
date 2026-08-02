@@ -9,6 +9,7 @@ use ninja_gen::copy::LinkFile;
 use ninja_gen::glob;
 use ninja_gen::hashmap;
 use ninja_gen::inputs;
+use ninja_gen::python::check_complexity;
 use ninja_gen::python::python_format;
 use ninja_gen::python::PythonTest;
 use ninja_gen::Build;
@@ -71,13 +72,16 @@ pub fn build_pylib(build: &mut Build) -> Result<()> {
                 "pylib/pyproject.toml",
                 "pylib/hatch_build.py"
             ],
+            project_dir: "pylib",
         },
     )?;
     Ok(())
 }
 
 pub fn check_pylib(build: &mut Build) -> Result<()> {
-    python_format(build, "pylib", inputs![glob!("pylib/**/*.py")])?;
+    let py_inputs = inputs![glob!("pylib/**/*.py")];
+
+    python_format(build, "pylib", py_inputs.clone())?;
 
     build.add_action(
         "check:pytest:pylib",
@@ -86,7 +90,11 @@ pub fn check_pylib(build: &mut Build) -> Result<()> {
             python_path: &["$builddir/pylib"],
             deps: inputs![":pylib:anki", glob!["pylib/{anki,tests}/**"]],
         },
-    )
+    )?;
+
+    check_complexity(build, "pylib", "pylib", py_inputs)?;
+
+    Ok(())
 }
 
 pub struct GenBuildInfo {}

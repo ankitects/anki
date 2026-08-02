@@ -196,7 +196,7 @@ class AnkiExporter(Exporter):
         else:
             return []
 
-    def exportInto(self, path: str) -> None:
+    def exportInto(self, path: str) -> None:  # complexipy: ignore
         # create a new collection at the target
         try:
             os.unlink(path)

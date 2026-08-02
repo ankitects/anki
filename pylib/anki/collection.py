@@ -3,7 +3,7 @@
 
 from __future__ import annotations
 
-from collections.abc import Generator, Iterable, Sequence
+from collections.abc import Generator, Sequence
 from typing import Any, Literal, Union, cast
 
 from anki import (
@@ -12,6 +12,7 @@ from anki import (
     collection_pb2,
     config_pb2,
     generic_pb2,
+    github_pb2,
     image_occlusion_pb2,
     import_export_pb2,
     links_pb2,
@@ -32,9 +33,11 @@ EmptyCardsReport = card_rendering_pb2.EmptyCardsReport
 GraphPreferences = stats_pb2.GraphPreferences
 CardStats = stats_pb2.CardStatsResponse
 Preferences = config_pb2.Preferences
+ExperimentFlag = config_pb2.ExperimentalFeatureFlag
 UndoStatus = collection_pb2.UndoStatus
 OpChanges = collection_pb2.OpChanges
 OpChangesOnly = collection_pb2.OpChangesOnly
+NestedOpChanges = collection_pb2.NestedOpChanges
 OpChangesWithCount = collection_pb2.OpChangesWithCount
 OpChangesWithId = collection_pb2.OpChangesWithId
 OpChangesAfterUndo = collection_pb2.OpChangesAfterUndo
@@ -58,11 +61,11 @@ CheckForUpdateResponse = ankiweb_pb2.CheckForUpdateResponse
 MediaSyncStatus = sync_pb2.MediaSyncStatusResponse
 FsrsItem = scheduler_pb2.FsrsItem
 FsrsReview = scheduler_pb2.FsrsReview
+GithubRelease = github_pb2.GithubRelease
 
+import logging
 import os
-import sys
 import time
-import traceback
 import weakref
 from dataclasses import dataclass
 
@@ -95,6 +98,7 @@ from anki.utils import (
 
 anki.latex.setup_hook()
 
+logger = logging.getLogger(__name__)
 
 SearchJoiner = Literal["AND", "OR"]
 
@@ -157,6 +161,10 @@ class Collection(DeprecatedNamesMixin):
         self.decks = DeckManager(self)
         self.tags = TagManager(self)
         self.conf = ConfigManager(self)
+
+        # Saved when the collection is loaded to prevent changes before restart.
+        self._experiments = self._get_experiments_dirty()
+
         self._load_scheduler()
         self._startReps = 0
 
@@ -169,10 +177,9 @@ class Collection(DeprecatedNamesMixin):
 
     @property
     def backend(self) -> RustBackend:
-        traceback.print_stack(file=sys.stdout)
-        print()
-        print(
-            "Accessing the backend directly will break in the future. Please use the public methods on Collection instead."
+        logger.warning(
+            "Accessing the backend directly will break in the future. Please use the public methods on Collection instead.",
+            stack_info=True,
         )
         return self._backend
 
@@ -534,7 +541,7 @@ class Collection(DeprecatedNamesMixin):
         note.id = NoteId(out.note_id)
         return out.changes
 
-    def add_notes(self, requests: Iterable[AddNoteRequest]) -> OpChanges:
+    def add_notes(self, requests: Sequence[AddNoteRequest]) -> OpChanges:
         for request in requests:
             hooks.note_will_be_added(self, request.note, request.deck_id)
         out = self._backend.add_notes(
@@ -1002,6 +1009,17 @@ class Collection(DeprecatedNamesMixin):
         fget=_get_enable_fsrs_short_term_with_steps,
         fset=_set_enable_fsrs_short_term_with_steps,
     )
+
+    def experiment_enabled(self, key: ExperimentFlag.ValueType) -> bool:
+        return self._experiments.get(str(key), False)
+
+    def _get_experiments_dirty(self) -> dict[str, bool]:
+        """This fetches the experiments in the state that they are saved in the database.
+        This should not be used to check if an experiment is enabled because this will update immediately without a restart.
+
+        Use "experiment_enabled" to fetch an active experiment instead."""
+        return self.get_config("experimentalFeatures", {})
+
     # Stats
     ##########################################################################
 

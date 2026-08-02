@@ -291,3 +291,401 @@ impl From<&mut ExportNoteCsvRequest> for SearchNode {
         SearchNode::from(req.limit.take().unwrap_or_default())
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use anki_proto::import_export::export_limit::Limit;
+    use anki_proto::import_export::ExportLimit;
+    use anki_proto::import_export::ExportNoteCsvRequest;
+    use tempfile::tempdir;
+    use tempfile::NamedTempFile;
+    use tempfile::TempDir;
+
+    use super::*;
+    use crate::tests::DeckAdder;
+    use crate::tests::NoteAdder;
+
+    fn col_and_dir() -> (Collection, TempDir) {
+        (Collection::new(), tempdir().unwrap())
+    }
+
+    fn note_csv_request(out_path: String) -> ExportNoteCsvRequest {
+        ExportNoteCsvRequest {
+            out_path,
+            with_html: true,
+            with_tags: true,
+            with_deck: true,
+            with_notetype: true,
+            with_guid: true,
+            limit: None,
+        }
+    }
+
+    #[test]
+    fn export_card_csv_writes_separator_and_html_header() {
+        let (mut col, dir) = col_and_dir();
+        NoteAdder::basic(&mut col).add(&mut col);
+        let path = dir.path().join("cards.csv");
+        col.export_card_csv(path.to_str().unwrap(), SearchNode::WholeCollection, true)
+            .unwrap();
+        let content = std::fs::read_to_string(&path).unwrap();
+        assert!(
+            content.starts_with("#separator:tab\n#html:true\n"),
+            "expected CSV header, got: {content}"
+        );
+    }
+
+    #[test]
+    fn export_card_csv_html_false_writes_html_false_in_header() {
+        let (mut col, dir) = col_and_dir();
+        NoteAdder::basic(&mut col).add(&mut col);
+        let path = dir.path().join("cards.csv");
+        col.export_card_csv(path.to_str().unwrap(), SearchNode::WholeCollection, false)
+            .unwrap();
+        let content = std::fs::read_to_string(&path).unwrap();
+        assert!(
+            content.starts_with("#separator:tab\n#html:false\n"),
+            "expected CSV header, got: {content}"
+        );
+    }
+
+    #[test]
+    fn export_card_csv_empty_collection_still_writes_header() {
+        let (mut col, dir) = col_and_dir();
+        let path = dir.path().join("cards.csv");
+        let count = col
+            .export_card_csv(path.to_str().unwrap(), SearchNode::WholeCollection, true)
+            .unwrap();
+        assert_eq!(count, 0, "expected 0 cards exported");
+        let content = std::fs::read_to_string(&path).unwrap();
+        assert!(
+            content.starts_with("#separator:tab\n#html:true\n"),
+            "expected header even with empty collection, got: {content}"
+        );
+    }
+
+    #[test]
+    fn export_card_csv_returns_card_count() {
+        let mut col = Collection::new();
+        NoteAdder::basic(&mut col).add(&mut col);
+        let csv = NamedTempFile::new().unwrap();
+        let count = col
+            .export_card_csv(
+                csv.path().to_str().unwrap(),
+                SearchNode::WholeCollection,
+                true,
+            )
+            .unwrap();
+        assert_eq!(count, 1, "expected 1 card exported");
+    }
+
+    #[test]
+    fn export_card_csv_returns_count_for_multiple_notes() {
+        let mut col = Collection::new();
+        for _ in 0..3 {
+            NoteAdder::basic(&mut col).add(&mut col);
+        }
+        let csv = NamedTempFile::new().unwrap();
+        let count = col
+            .export_card_csv(
+                csv.path().to_str().unwrap(),
+                SearchNode::WholeCollection,
+                true,
+            )
+            .unwrap();
+        assert_eq!(count, 3, "expected 3 cards exported");
+    }
+
+    #[test]
+    fn export_card_csv_filters_by_deck() {
+        let mut col = Collection::new();
+        let target_deck = DeckAdder::new("target").add(&mut col);
+        let other_deck = DeckAdder::new("other").add(&mut col);
+        NoteAdder::basic(&mut col)
+            .deck(target_deck.id)
+            .add(&mut col);
+        NoteAdder::basic(&mut col)
+            .deck(target_deck.id)
+            .add(&mut col);
+        NoteAdder::basic(&mut col).deck(other_deck.id).add(&mut col);
+        let csv = NamedTempFile::new().unwrap();
+        let count = col
+            .export_card_csv(
+                csv.path().to_str().unwrap(),
+                SearchNode::DeckIdWithChildren(target_deck.id),
+                true,
+            )
+            .unwrap();
+        assert_eq!(count, 2, "expected only cards from target deck");
+    }
+
+    #[test]
+    fn export_card_csv_front_and_back_in_correct_columns() {
+        let (mut col, dir) = col_and_dir();
+        NoteAdder::basic(&mut col)
+            .fields(&["front text", "back text"])
+            .add(&mut col);
+        let path = dir.path().join("cards.csv");
+        col.export_card_csv(path.to_str().unwrap(), SearchNode::WholeCollection, false)
+            .unwrap();
+        let mut reader = csv::ReaderBuilder::new()
+            .delimiter(b'\t')
+            .comment(Some(b'#'))
+            .has_headers(false)
+            .from_path(&path)
+            .unwrap();
+        let record = reader.records().next().unwrap().unwrap();
+        assert_eq!(&record[0], "front text", "expected front field in column 0");
+        assert_eq!(&record[1], "back text", "expected back field in column 1");
+    }
+
+    #[test]
+    fn export_card_csv_preserves_html_when_with_html_true() {
+        let (mut col, dir) = col_and_dir();
+        NoteAdder::basic(&mut col)
+            .fields(&["<b>bold front</b>", "back text"])
+            .add(&mut col);
+        let path = dir.path().join("cards.csv");
+        col.export_card_csv(path.to_str().unwrap(), SearchNode::WholeCollection, true)
+            .unwrap();
+        let content = std::fs::read_to_string(&path).unwrap();
+        assert!(
+            content.contains("<b>bold front</b>"),
+            "expected HTML preserved in CSV, got: {content}"
+        );
+    }
+
+    #[test]
+    fn export_card_csv_strips_html_from_fields_when_with_html_false() {
+        let (mut col, dir) = col_and_dir();
+        NoteAdder::basic(&mut col)
+            .fields(&["<b>bold front</b>", "back text"])
+            .add(&mut col);
+        let path = dir.path().join("cards.csv");
+        col.export_card_csv(path.to_str().unwrap(), SearchNode::WholeCollection, false)
+            .unwrap();
+        let content = std::fs::read_to_string(&path).unwrap();
+        assert!(
+            content.contains("bold front"),
+            "expected stripped text in CSV, got: {content}"
+        );
+        assert!(
+            !content.contains("<b>"),
+            "expected no HTML tags in CSV, got: {content}"
+        );
+    }
+
+    #[test]
+    fn export_note_csv_returns_note_count() {
+        let mut col = Collection::new();
+        NoteAdder::basic(&mut col).add(&mut col);
+        let csv = NamedTempFile::new().unwrap();
+        let count = col
+            .export_note_csv(note_csv_request(csv.path().to_str().unwrap().into()))
+            .unwrap();
+        assert_eq!(count, 1, "expected 1 note exported");
+    }
+
+    #[test]
+    fn export_note_csv_returns_count_for_multiple_notes() {
+        let mut col = Collection::new();
+        for _ in 0..3 {
+            NoteAdder::basic(&mut col).add(&mut col);
+        }
+        let csv = NamedTempFile::new().unwrap();
+        let count = col
+            .export_note_csv(note_csv_request(csv.path().to_str().unwrap().into()))
+            .unwrap();
+        assert_eq!(count, 3, "expected 3 notes exported");
+    }
+
+    #[test]
+    fn export_note_csv_filters_by_deck() {
+        let mut col = Collection::new();
+        let target_deck = DeckAdder::new("target").add(&mut col);
+        let other_deck = DeckAdder::new("other").add(&mut col);
+        NoteAdder::basic(&mut col)
+            .deck(target_deck.id)
+            .add(&mut col);
+        NoteAdder::basic(&mut col)
+            .deck(target_deck.id)
+            .add(&mut col);
+        NoteAdder::basic(&mut col).deck(other_deck.id).add(&mut col);
+        let csv = NamedTempFile::new().unwrap();
+        let count = col
+            .export_note_csv(ExportNoteCsvRequest {
+                out_path: csv.path().to_str().unwrap().into(),
+                with_html: true,
+                with_tags: false,
+                with_deck: false,
+                with_notetype: false,
+                with_guid: false,
+                limit: Some(ExportLimit {
+                    limit: Some(Limit::DeckId(target_deck.id.0)),
+                }),
+            })
+            .unwrap();
+        assert_eq!(count, 2, "expected only notes from target deck");
+    }
+
+    #[test]
+    fn export_note_csv_column_indices_match_actual_column_positions() {
+        // basic note has 2 fields; with all metadata enabled:
+        //   col 1: guid
+        //   col 2: notetype
+        //   col 3: deck
+        //   col 4-5: note fields
+        //   col 6: tags  (1 + deck(3) + 2 fields)
+        let (mut col, dir) = col_and_dir();
+        NoteAdder::basic(&mut col).add(&mut col);
+        let path = dir.path().join("notes.csv");
+        col.export_note_csv(note_csv_request(path.to_str().unwrap().into()))
+            .unwrap();
+        let content = std::fs::read_to_string(&path).unwrap();
+        assert!(
+            content.contains("#guid column:1\n"),
+            "wrong guid column index"
+        );
+        assert!(
+            content.contains("#notetype column:2\n"),
+            "wrong notetype column index"
+        );
+        assert!(
+            content.contains("#deck column:3\n"),
+            "wrong deck column index"
+        );
+        assert!(
+            content.contains("#tags column:6\n"),
+            "wrong tags column index"
+        );
+    }
+
+    #[test]
+    fn export_note_csv_omits_column_headers_when_metadata_disabled() {
+        let (mut col, dir) = col_and_dir();
+        NoteAdder::basic(&mut col).add(&mut col);
+        let path = dir.path().join("notes.csv");
+        col.export_note_csv(ExportNoteCsvRequest {
+            out_path: path.to_str().unwrap().into(),
+            with_html: true,
+            with_guid: false,
+            with_notetype: false,
+            with_deck: false,
+            with_tags: false,
+            limit: None,
+        })
+        .unwrap();
+        let content = std::fs::read_to_string(&path).unwrap();
+        assert!(
+            !content.contains("#guid column:"),
+            "guid column header should be absent"
+        );
+        assert!(
+            !content.contains("#notetype column:"),
+            "notetype column header should be absent"
+        );
+        assert!(
+            !content.contains("#deck column:"),
+            "deck column header should be absent"
+        );
+        assert!(
+            !content.contains("#tags column:"),
+            "tags column header should be absent"
+        );
+    }
+
+    #[test]
+    fn export_note_csv_fields_and_guid_in_correct_columns() {
+        // with all metadata: guid(0) | notetype(1) | deck(2) | front(3) | back(4) |
+        // tags(5)
+        let (mut col, dir) = col_and_dir();
+        let note = NoteAdder::basic(&mut col)
+            .fields(&["hello", "world"])
+            .add(&mut col);
+        let path = dir.path().join("notes.csv");
+        col.export_note_csv(note_csv_request(path.to_str().unwrap().into()))
+            .unwrap();
+        // use the csv reader so quoted fields (GUIDs may contain '"') are handled
+        // correctly
+        let mut reader = csv::ReaderBuilder::new()
+            .delimiter(b'\t')
+            .comment(Some(b'#'))
+            .has_headers(false)
+            .from_path(&path)
+            .unwrap();
+        let record = reader.records().next().unwrap().unwrap();
+        assert_eq!(&record[0], &note.guid, "expected guid in column 0");
+        assert_eq!(&record[3], "hello", "expected Front field in column 3");
+        assert_eq!(&record[4], "world", "expected Back field in column 4");
+    }
+
+    #[test]
+    fn export_note_csv_omits_guid_value_when_with_guid_false() {
+        let (mut col, dir) = col_and_dir();
+        let note = NoteAdder::basic(&mut col)
+            .fields(&["hello", "world"])
+            .add(&mut col);
+        let path = dir.path().join("notes.csv");
+        col.export_note_csv(ExportNoteCsvRequest {
+            out_path: path.to_str().unwrap().into(),
+            with_html: true,
+            with_guid: false,
+            with_notetype: false,
+            with_deck: false,
+            with_tags: false,
+            limit: None,
+        })
+        .unwrap();
+        let content = std::fs::read_to_string(&path).unwrap();
+        assert!(
+            !content.contains(&note.guid),
+            "guid should be absent when with_guid is false, got: {content}"
+        );
+        assert!(content.contains("hello"), "fields should still be exported");
+        assert!(content.contains("world"), "fields should still be exported");
+    }
+
+    #[test]
+    fn export_note_csv_preserves_html_in_fields_when_with_html_true() {
+        let (mut col, dir) = col_and_dir();
+        NoteAdder::basic(&mut col)
+            .fields(&["<i>italic</i>", "plain back"])
+            .add(&mut col);
+        let path = dir.path().join("notes.csv");
+        col.export_note_csv(note_csv_request(path.to_str().unwrap().into()))
+            .unwrap();
+        let content = std::fs::read_to_string(&path).unwrap();
+        assert!(
+            content.contains("<i>italic</i>"),
+            "expected HTML preserved in note CSV, got: {content}"
+        );
+    }
+
+    #[test]
+    fn export_note_csv_with_html_false_strips_html_tags() {
+        let (mut col, dir) = col_and_dir();
+        NoteAdder::basic(&mut col)
+            .fields(&["<b>bold text</b>", "world"])
+            .add(&mut col);
+        let path = dir.path().join("notes.csv");
+        col.export_note_csv(ExportNoteCsvRequest {
+            out_path: path.to_str().unwrap().into(),
+            with_html: false,
+            with_tags: false,
+            with_deck: false,
+            with_notetype: false,
+            with_guid: false,
+            limit: None,
+        })
+        .unwrap();
+        let content = std::fs::read_to_string(&path).unwrap();
+        assert!(
+            content.contains("bold text"),
+            "expected stripped text in CSV, got: {content}"
+        );
+        assert!(
+            !content.contains("<b>"),
+            "expected no HTML tags in CSV, got: {content}"
+        );
+    }
+}
