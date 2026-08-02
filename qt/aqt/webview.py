@@ -388,10 +388,24 @@ class AnkiWebView(QWebEngineView):
 
         self.resetHandlers()
         self._filterSet = False
-        gui_hooks.theme_did_change.append(self.on_theme_did_change)
-        gui_hooks.body_classes_need_update.append(self.on_body_classes_need_update)
-        gui_hooks.operation_did_execute.append(self.on_operation_did_execute)
 
+        self._hook_subscriptions = subscriptions = [
+            (gui_hooks.theme_did_change, self.on_theme_did_change),
+            (gui_hooks.body_classes_need_update, self.on_body_classes_need_update),
+            (gui_hooks.operation_did_execute, self.on_operation_did_execute),
+        ]
+        for hook, handler in subscriptions:
+            hook.append(handler)
+
+        def unhook(_obj: QObject | None = None) -> None:
+            try:
+                while subscriptions:
+                    hook, handler = subscriptions.pop()
+                    hook.remove(handler)
+            except Exception:
+                pass  # app/interpreter teardown
+
+        qconnect(self.destroyed, unhook)
         qconnect(self.loadFinished, self._on_load_finished)
 
     def _on_load_finished(self) -> None:
@@ -920,9 +934,9 @@ html {{ {font} }}
             # this will fail when __del__ is called during app shutdown
             return
 
-        gui_hooks.theme_did_change.remove(self.on_theme_did_change)
-        gui_hooks.body_classes_need_update.remove(self.on_body_classes_need_update)
-        gui_hooks.operation_did_execute.remove(self.on_operation_did_execute)
+        while self._hook_subscriptions:
+            hook, handler = self._hook_subscriptions.pop()
+            hook.remove(handler)
         # defer page cleanup so that in-flight requests have a chance to complete first
         # https://forums.ankiweb.net/t/error-when-exiting-browsing-when-the-software-is-installed-in-the-path-c-program-files-anki/38363
         mw.progress.single_shot(5000, lambda: mw.mediaServer.clear_page_html(id(self)))
