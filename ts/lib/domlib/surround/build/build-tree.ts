@@ -31,7 +31,6 @@ function buildFromElement<T>(
 
     if (match.shouldRemove()) {
         const parent = element.parentElement!;
-        const childIndex = Array.prototype.indexOf.call(parent.childNodes, element);
 
         for (const child of children) {
             if (child instanceof FormattingNode) {
@@ -40,12 +39,11 @@ function buildFromElement<T>(
                     child.hasMatchHoles = false;
                 }
 
-                child.range.parent = parent;
-                child.range.startIndex += childIndex;
-                child.range.endIndex += childIndex;
+                child.range.rebaseIfParentIs(element, parent);
             }
         }
 
+        format.announceElementRemoval(element);
         element.replaceWith(...element.childNodes);
         return children;
     }
