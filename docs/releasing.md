@@ -108,7 +108,7 @@ Once the fix is ready:
 
 ## Release process overview
 
-```{mermaid}
+```mermaid
 flowchart LR
     A["<b>prepare-release.yml</b><br/>validate version<br/>check CI<br/>check duplicate tag<br/>update .version<br/>push to branch"] --> B["<b>CI (ci.yml)</b><br/>runs automatically<br/>on release/** branches"]
     B --> C["<b>release.yml</b><br/>build all platforms<br/>optionally sign macOS/Windows<br/>optionally create draft GitHub release<br/>optionally publish to TestPyPI/PyPI"]
@@ -120,7 +120,7 @@ flowchart LR
 
 ## Release workflow jobs
 
-```{mermaid}
+```mermaid
 flowchart TD
     prepare[prepare<br/><i>validate version,<br/>check CI, check duplicates</i>]
 
