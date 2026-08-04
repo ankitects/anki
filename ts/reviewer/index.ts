@@ -24,6 +24,37 @@ import { preloadResources } from "./preload";
 
 declare const MathJax: any;
 
+let mathjaxLoading: Promise<void> | null = null;
+
+function _ensureMathJaxLoaded(): Promise<void> {
+    if (mathjaxLoading) {
+        return mathjaxLoading;
+    }
+    if (typeof MathJax !== "undefined" && MathJax.startup) {
+        return Promise.resolve();
+    }
+    mathjaxLoading = new Promise((resolve, reject) => {
+        const configScript = document.createElement("script");
+        configScript.src = "/_anki/js/mathjax.js";
+        configScript.onload = () => {
+            const mathjaxScript = document.createElement("script");
+            mathjaxScript.src = "/_anki/js/vendor/mathjax/tex-chtml-full.js";
+            mathjaxScript.onload = () => resolve();
+            mathjaxScript.onerror = () => reject(new Error("Failed to load MathJax"));
+            document.head.appendChild(mathjaxScript);
+        };
+        configScript.onerror = () => reject(new Error("Failed to load MathJax config"));
+        document.head.appendChild(configScript);
+    });
+    return mathjaxLoading;
+}
+
+const mathjaxRegex = /\\\[|\\\(|\\ce\{/;
+
+function _containsMathjax(html: string): boolean {
+    return mathjaxRegex.test(html);
+}
+
 type Callback = () => void | Promise<void>;
 
 export const onUpdateHook: Array<Callback> = [];
@@ -147,15 +178,25 @@ export async function _updateQA(
     // dynamic toolbar background
     bridgeCommand("updateToolbar");
 
-    // wait for mathjax to ready
-    await MathJax.startup.promise
-        .then(() => {
-            // clear MathJax buffers from previous typesets
-            MathJax.typesetClear();
+    if (_containsMathjax(html)) {
+        try {
+            await _ensureMathJaxLoaded();
+        } catch (error) {
+            console.error(error);
+        }
+    }
 
-            return MathJax.typesetPromise([qa]);
-        })
-        .catch(renderError("MathJax"));
+    if (typeof MathJax !== "undefined" && MathJax.startup) {
+        // wait for mathjax to ready
+        await MathJax.startup.promise
+            .then(() => {
+                // clear MathJax buffers from previous typesets
+                MathJax.typesetClear();
+
+                return MathJax.typesetPromise([qa]);
+            })
+            .catch(renderError("MathJax"));
+    }
 
     qa.style.opacity = "1";
 
