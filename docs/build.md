@@ -1,8 +1,16 @@
+<!-- DO NOT MANUALLY EDIT THIS FILE -->
+<!-- This file is copied from docs-site/developers/build.mdx automatically -->
+
 # The build system
+
+<!-- <<<cog
+from cogdocs import get_file_contents
+cog.out(get_file_contents("build"))
+>>> -->
 
 ## Basic use
 
-Basic use is described in [development.md](./development.md).
+Basic use is described in [development.md](./development).
 
 ## Architecture
 
@@ -37,4 +45,6 @@ If you run into trouble with the build process:
 
 ## Packaging considerations
 
-See [this page](./linux.md).
+See [this page](./linux).
+
+<!-- <<<end>>> -->

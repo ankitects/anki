@@ -1,4 +1,12 @@
+<!-- DO NOT MANUALLY EDIT THIS FILE -->
+<!-- This file is copied from docs-site/developers/releasing.mdx automatically -->
+
 # Releasing
+
+<!-- <<<cog
+from cogdocs import get_file_contents
+cog.out(get_file_contents("releasing"))
+>>> -->
 
 Releases are managed by two GitHub Actions workflows under `.github/workflows/`:
 
@@ -276,3 +284,5 @@ To test the signing flow from a feature branch:
 - Once a GitHub release draft is created, modify the generated changelog if necessary then click **Publish release**.
 - Create a forum topic on the [Beta Testing](https://forums.ankiweb.net/c/anki/beta-testing/13) category. For stable releases, lock the topic and ask users to report issues on a new topic.
 - For stable releases, update the version in [ankitects/anki-landing-page](https://github.com/ankitects/anki-landing-page) (See [example](https://github.com/ankitects/anki-landing-page/commit/2362eb2202f174df2aad1dc5336e1b5195a7af85)).
+
+<!-- <<<end>>> -->

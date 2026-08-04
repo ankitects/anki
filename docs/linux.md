@@ -1,4 +1,12 @@
+<!-- DO NOT MANUALLY EDIT THIS FILE -->
+<!-- This file is copied from docs-site/developers/linux.mdx automatically -->
+
 # Linux-specific notes
+
+<!-- <<<cog
+from cogdocs import get_file_contents
+cog.out(get_file_contents("linux"))
+>>> -->
 
 ## Requirements
 
@@ -7,7 +15,8 @@ Some extra notes have been provided by a forum member, though some of the things
 mentioned there no longer apply:
 https://forums.ankiweb.net/t/guide-how-to-build-and-run-anki-from-source-with-xubuntu-20-04/12865
 
-You can see a full list of buildtime and runtime requirements by looking at the `apt-get install` step in the [`setup-anki` composite action](../.github/actions/setup-anki/action.yml), used by the workflows under [`.github/workflows/`](../.github/workflows/).
+You can see a full list of buildtime and runtime requirements by looking at the `apt-get install` step in the [`setup-anki` composite action](https://github.com/ankitects/anki/blob/main/.github/actions/setup-anki/action.yml),
+used by the workflows under [`.github/workflows/`](https://github.com/ankitects/anki/tree/main/.github/workflows).
 
 **Ensure some basic tools are installed**:
 
@@ -57,7 +66,7 @@ If you are using a distro that uses musl, Anki will not work.
 
 You can use your system's Qt libraries if they are Qt 6.2 or later, if
 you wish. After installing the system libraries (eg:
-'sudo apt install python3-pyqt6.qt{quick,webengine} python3-venv pyqt6-dev-tools'),
+'sudo apt install python3-pyqt6.qt\{quick,webengine\} python3-venv pyqt6-dev-tools'),
 find the place they are installed (eg '/usr/lib/python3/dist-packages'). On modern Ubuntu, you'll
 also need 'sudo apt remove python3-protobuf'. Then before running any commands like './run', tell Anki where
 the packages can be found:
@@ -123,4 +132,6 @@ offline.
 
 ## More
 
-For info on running tests, building wheels and so on, please see [Development](./development.md).
+For info on running tests, building wheels and so on, please see [Development](./development).
+
+<!-- <<<end>>> -->

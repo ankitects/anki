@@ -1,4 +1,12 @@
+<!-- DO NOT MANUALLY EDIT THIS FILE -->
+<!-- This file is copied from docs-site/developers/windows.mdx automatically -->
+
 # Windows
+
+<!-- <<<cog
+from cogdocs import get_file_contents
+cog.out(get_file_contents("windows"))
+>>> -->
 
 ## Minimum Requirements
 
@@ -72,4 +80,6 @@ problems.
 ## More
 
 For info on running tests, building wheels and so on, please see
-[Development](./development.md).
+[Development](./development).
+
+<!-- <<<end>>> -->

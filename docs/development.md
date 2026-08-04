@@ -1,4 +1,12 @@
+<!-- DO NOT MANUALLY EDIT THIS FILE -->
+<!-- This file is copied from docs-site/developers/development.mdx automatically -->
+
 # Anki development
+
+<!-- <<<cog
+from cogdocs import get_file_contents
+cog.out(get_file_contents("development"))
+>>> -->
 
 ## Packaged betas
 
@@ -48,9 +56,9 @@ On all platforms, you will need to install:
 
 Platform-specific requirements:
 
-- [Windows](./windows.md)
-- [Mac](./mac.md)
-- [Linux](./linux.md)
+- [Windows](./windows)
+- [Mac](./mac)
+- [Linux](./linux)
 
 ## Running Anki during development
 
@@ -164,11 +172,11 @@ overriden the default output location.
 
 ## IDEs
 
-Please see [this separate page](./editing.md) for setting up an editor/IDE.
+Please see [this separate page](./editing) for setting up an editor/IDE.
 
 ## Making changes to the build
 
-See [this page](./build.md)
+See [this page](./build)
 
 ## Generating documentation
 
@@ -214,7 +222,7 @@ are installed. See [Building from source](#building-from-source) for more info.
 
 ## Releasing
 
-See [Releasing](./releasing.md).
+See [Releasing](./releasing).
 
 # Mixing development and study
 
@@ -228,3 +236,5 @@ If you're using PyCharm:
 - click "Edit 'run'..." - in Script options and enter:
   "-p [dev profile name]" without the quotes
 - click "Ok"
+
+<!-- <<<end>>> -->
