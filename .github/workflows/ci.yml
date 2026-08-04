@@ -28,10 +28,20 @@ jobs:
       - name: Install Rust toolchain
         uses: actions-rust-lang/setup-rust-toolchain@46268bd060767258de96ed93c1251119784f2ab6 #v1
 
+      - name: Check for non-documentation changes
+        id: non-doc-changes
+        uses: tj-actions/changed-files@24d32ffd492484c1d75e0c0b894501ddb9d30d62 #v47.0.5
+        with:
+          files_ignore: |
+            **.md
+            docs/**/*.png
+            docs/**/*.svg
+
       - name: Run minilints
         run: cargo run -p minilints -- check /tmp/minilints.stamp
         env:
           CONTRIBUTORS_BYPASS_EMAILS: ${{ vars.CONTRIBUTORS_BYPASS_EMAILS }}
+          CHECK_CONTRIBUTORS: ${{ steps.non-doc-changes.outputs.any_changed }}
 
   # Lightweight formatting checks (no build outputs needed).
   # Uses individual tool installs instead of setup-anki to stay fast.

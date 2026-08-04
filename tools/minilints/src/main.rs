@@ -135,6 +135,12 @@ impl LintContext {
     fn check_contributors(&self) -> Result<()> {
         let antispam = ", at the domain ";
 
+        // The workflow only runs this check when non-documentation files changed.
+        if std::env::var("CHECK_CONTRIBUTORS").as_deref() == Ok("false") {
+            println!("Changes are documentation-only; skipping contributors check.");
+            return Ok(());
+        }
+
         let last_author = String::from_utf8(
             Command::new("git")
                 .args(["log", "-1", "--pretty=format:%ae"])
