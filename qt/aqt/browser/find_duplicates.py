@@ -55,6 +55,7 @@ class FindDuplicatesDialog(QDialog):
         form.webView.stdHtml("", context=self)
 
         def on_finished(code: Any) -> None:
+            form.webView.cleanup()
             saveGeom(self, "findDupes")
 
         qconnect(self.finished, on_finished)

@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import dataclasses
 import json
+import logging
 import os
 import re
 import sys
@@ -12,18 +13,22 @@ from collections.abc import Callable, Sequence
 from enum import Enum
 from typing import TYPE_CHECKING, Any, Type, cast
 
+from google.protobuf.json_format import MessageToDict
 from typing_extensions import TypedDict, Unpack
 
 import anki
 import anki.lang
 from anki._legacy import deprecated
 from anki.lang import is_rtl
-from anki.utils import hmr_mode, is_lin, is_mac, is_win
+from anki.utils import hmr_mode, is_lin, is_mac, is_win, to_json_bytes
 from aqt import colors, gui_hooks
+from aqt.operations import OpChanges
 from aqt.qt import *
 from aqt.qt import sip
 from aqt.theme import theme_manager
 from aqt.utils import askUser, is_gesture_or_zoom_event, openLink, showInfo, tr
+
+logger = logging.getLogger(__name__)
 
 serverbaseurl = re.compile(r"^.+:\/\/[^\/]+")
 
@@ -59,6 +64,7 @@ class AnkiWebViewKind(Enum):
     FIELDS = "fields"
     IMPORT_LOG = "import log"
     IMPORT_ANKI_PACKAGE = "anki package import"
+    PREFERENCES = "preferences"
 
 
 class AuthInterceptor(QWebEngineUrlRequestInterceptor):
@@ -142,6 +148,7 @@ class AnkiWebPage(QWebEnginePage):
             AnkiWebViewKind.IMPORT_ANKI_PACKAGE,
             AnkiWebViewKind.IMPORT_CSV,
             AnkiWebViewKind.IMPORT_LOG,
+            AnkiWebViewKind.PREFERENCES,
         )
 
         global _profile_with_api_access, _profile_without_api_access
@@ -377,11 +384,13 @@ class AnkiWebView(QWebEngineView):
         self._pendingActions: list[tuple[str, Sequence[Any]]] = []
         self.requiresCol = True
         self._disable_zoom = False
+        self._uses_dynamic_styling = False
 
         self.resetHandlers()
         self._filterSet = False
         gui_hooks.theme_did_change.append(self.on_theme_did_change)
         gui_hooks.body_classes_need_update.append(self.on_body_classes_need_update)
+        gui_hooks.operation_did_execute.append(self.on_operation_did_execute)
 
         qconnect(self.loadFinished, self._on_load_finished)
 
@@ -395,6 +404,8 @@ class AnkiWebView(QWebEngineView):
         });
         """
         )
+        if self._uses_dynamic_styling:
+            self.add_dynamic_styling_and_props_then_show()
 
     def page(self) -> AnkiWebPage:
         return cast(AnkiWebPage, super().page())
@@ -876,7 +887,7 @@ html {{ {font} }}
         else:
             extra = ""
         self.load_url(QUrl(f"{mw.serverURL()}_anki/pages/{name}.html{extra}"))
-        self.add_dynamic_styling_and_props_then_show()
+        self._uses_dynamic_styling = True
 
     def load_sveltekit_page(self, path: str) -> None:
         from aqt import mw
@@ -893,7 +904,7 @@ html {{ {font} }}
             server = mw.serverURL()
 
         self.load_url(QUrl(f"{server}{path}{extra}"))
-        self.add_dynamic_styling_and_props_then_show()
+        self._uses_dynamic_styling = True
 
     def force_load_hack(self) -> None:
         """Force process to initialize.
@@ -911,6 +922,7 @@ html {{ {font} }}
 
         gui_hooks.theme_did_change.remove(self.on_theme_did_change)
         gui_hooks.body_classes_need_update.remove(self.on_body_classes_need_update)
+        gui_hooks.operation_did_execute.remove(self.on_operation_did_execute)
         # defer page cleanup so that in-flight requests have a chance to complete first
         # https://forums.ankiweb.net/t/error-when-exiting-browsing-when-the-software-is-installed-in-the-path-c-program-files-anki/38363
         mw.progress.single_shot(5000, lambda: mw.mediaServer.clear_page_html(id(self)))
@@ -950,6 +962,37 @@ html {{ {font} }}
         )
         self.eval(
             f"""document.body.classList.toggle("reduce-motion", {json.dumps(mw.pm.reduce_motion())}); """
+        )
+
+    def on_operation_did_execute(
+        self, changes: OpChanges, handler: object | None
+    ) -> None:
+        # add-on webviews may be destroyed via Qt parent ownership without
+        # cleanup() being called; unsubscribe instead of erroring, deferring
+        # the removal to avoid mutating the hook list while it fires
+        if sip.isdeleted(self):
+            from aqt import mw
+
+            logger.warning(
+                "%s (%s) was destroyed without a cleanup() call; "
+                "dropping operation_did_execute hook",
+                type(self).__name__,
+                self.kind.value,
+            )
+            mw.progress.single_shot(
+                0,
+                lambda: gui_hooks.operation_did_execute.remove(
+                    self.on_operation_did_execute
+                ),
+                requires_collection=False,
+            )
+            return
+        if handler is self.parentWidget():
+            return
+
+        changes_json = to_json_bytes(MessageToDict(changes)).decode()
+        self.eval(
+            f"if(globalThis.anki && globalThis.anki.onOperationDidExecute) globalThis.anki.onOperationDidExecute({changes_json})"
         )
 
     @deprecated(info="use theme_manager.qcolor() instead")

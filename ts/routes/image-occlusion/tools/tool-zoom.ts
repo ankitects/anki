@@ -7,8 +7,6 @@
 import type { fabric } from "fabric";
 import Hammer from "hammerjs";
 
-import { isDesktop } from "$lib/tslib/platform";
-
 import type { Size } from "../types";
 import { getBoundingBoxSize, redraw } from "./lib";
 
@@ -209,11 +207,10 @@ export const constrainBoundsAroundBgImage = (canvas: fabric.Canvas) => {
 };
 
 export const setCanvasSize = (canvas: fabric.Canvas) => {
-    const width = window.innerWidth - 39;
-    let height = window.innerHeight;
-    height = isDesktop() ? height - 76 : height - 46;
-    canvas.setHeight(height);
-    canvas.setWidth(width);
+    const container = document.querySelector<HTMLElement>(".editor-main")!;
+    const rect = container.getBoundingClientRect();
+    canvas.setWidth(container.clientWidth);
+    canvas.setHeight(window.innerHeight - rect.top);
     redraw(canvas);
 };
 
@@ -239,10 +236,8 @@ const fitCanvasVptScale = (canvas: fabric.Canvas) => {
 };
 
 const getScaleRatio = (boundingBox: Size) => {
-    const h1 = boundingBox.height!;
-    const w1 = boundingBox.width!;
-    const w2 = innerWidth - 42;
-    let h2 = window.innerHeight;
-    h2 = isDesktop() ? h2 - 79 : h2 - 48;
-    return Math.min(w2 / w1, h2 / h1);
+    const container = document.querySelector<HTMLElement>(".editor-main")!;
+    const rect = container.getBoundingClientRect();
+    const height = window.innerHeight - rect.top;
+    return Math.min(container.clientWidth / boundingBox.width!, height / boundingBox.height!);
 };

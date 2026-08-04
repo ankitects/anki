@@ -545,13 +545,18 @@ jobs:
           sudo apt-get install --yes --no-install-recommends \
             cmake extra-cmake-modules \
             libfcitx5core-dev \
-            qt6-base-dev \
-            qt6-base-private-dev \
             libgl-dev \
             libxkbcommon-dev \
             libx11-dev \
             gettext \
             patchelf
+          # Build against the same Qt as the bundled pyqt6-qt6
+          qt_version=$(uv export --frozen --no-hashes --package aqt --extra qt \
+            | grep -oP '^pyqt6-qt6==\K\S+')
+          test -n "$qt_version"
+          uv tool run --from aqtinstall aqt install-qt \
+            linux desktop "$qt_version" linux_gcc_64 -O /tmp/qt
+          qt_prefix=/tmp/qt/$qt_version/gcc_64
           git clone --depth 1 --branch 5.0.10 \
             https://github.com/fcitx/fcitx5-qt.git /tmp/fcitx5-qt
           cmake -S /tmp/fcitx5-qt -B /tmp/fcitx5-qt-build \
@@ -559,7 +564,10 @@ jobs:
             -DENABLE_QT4=no \
             -DENABLE_QT5=no \
             -DENABLE_QT6=yes \
-            -DCMAKE_INSTALL_PREFIX=/usr
+            -DCMAKE_INSTALL_PREFIX=/usr \
+            -DCMAKE_PREFIX_PATH="$qt_prefix" \
+            -DQT_FIND_PRIVATE_MODULES=ON \
+            -DCMAKE_INSTALL_QT6PLUGINDIR=/usr/lib/qt6/plugins
           cmake --build /tmp/fcitx5-qt-build -j$(nproc)
           sudo cmake --install /tmp/fcitx5-qt-build
 

@@ -47,50 +47,50 @@ Anki’s algorithm differs from SM-2 in some respects. Notably:
 
 ## FSRS
 
-FSRS aims to learn your memory patterns and schedule reviews 
+FSRS aims to learn your memory patterns and schedule reviews
 more efficiently than SM-2.
 
-FSRS is based on the "Three Component Model of Memory". The model asserts 
-that three variables are sufficient to describe the status of a 
+FSRS is based on the "Three Component Model of Memory". The model asserts
+that three variables are sufficient to describe the status of a
 unitary memory in a human brain.
 These three variables include:
 
-- Retrievability (R): The probability that the person can successfully 
-recall a particular information at a given moment. It depends 
-on the time elapsed since the last review and the memory stability (S).
+- Retrievability (R): The probability that the person can successfully
+  recall a particular information at a given moment. It depends
+  on the time elapsed since the last review and the memory stability (S).
 
 - Stability (S): The time, in days, required for R to decrease from
-100% to 90%. For example, S = 365 means that an entire year 
-will pass before the probability of recalling a particular card drops to 90%.
+  100% to 90%. For example, S = 365 means that an entire year
+  will pass before the probability of recalling a particular card drops to 90%.
 
 - Difficulty (D): The inherent complexity of a particular information.
-It represents how difficult it is to increase memory stability after a review.
+  It represents how difficult it is to increase memory stability after a review.
 
 In FSRS, these three values are collectively called the "memory state".
-The value of R changes daily, while D and S change only after a card 
+The value of R changes daily, while D and S change only after a card
 has been reviewed.
-Each card has its own DSR values, in other words, each card has 
+Each card has its own DSR values, in other words, each card has
 its own memory state.
-To accurately estimate the DSR values, FSRS analyzes the user's 
-review history and uses machine learning to find parameters that 
+To accurately estimate the DSR values, FSRS analyzes the user's
+review history and uses machine learning to find parameters that
 provide the best fit to the review history.
 
 Note that the users should not tweak the parameters manually.
 If you want to adjust the scheduling, all you need to do is choose an appropriate
 value of desired retention.
-With FSRS, users can target a specific value of retention, allowing them 
+With FSRS, users can target a specific value of retention, allowing them
 to balance how much they remember and how many reviews they have to do.
 Higher retention leads to more reviews per day.
 
-Aside from allowing users to easily control their retention, 
+Aside from allowing users to easily control their retention,
 FSRS has some other advantages when compared to Anki's default algorithm.
-With FSRS, users have to do fewer reviews than with Anki's default algorithm 
-to achieve the same retention level. FSRS is also much better at scheduling 
-cards that have been reviewed with a delay, for example, if the user took 
+With FSRS, users have to do fewer reviews than with Anki's default algorithm
+to achieve the same retention level. FSRS is also much better at scheduling
+cards that have been reviewed with a delay, for example, if the user took
 a break from Anki for a few weeks or months.
 
 The scheduling code can be found in `rslib/src/scheduler/states`. Here is a summary
-(see the [deck options](https://docs.ankiweb.net/deck-options.html)
+(see the [deck options](/manual/deck-options)
 section of the manual for the options that are mentioned in _italics_):
 
 ## Learning/Relearning Cards
@@ -98,14 +98,14 @@ section of the manual for the options that are mentioned in _italics_):
 If you press…​
 
 - Again  
-  Moves the card back to the first step setted in [Learning/Relearning Steps.](https://docs.ankiweb.net/deck-options.html?#learning-steps)
+  Moves the card back to the first step setted in [Learning/Relearning Steps.](/manual/deck-options?#learning-steps)
 
 - Hard  
   Repeats the current step after the first step, and is the average of
   Again and Good.
 
 - Good  
-  Moves the card to the [next step](https://docs.ankiweb.net/deck-options.html?#learning-steps).
+  Moves the card to the [next step](/manual/deck-options?#learning-steps).
   If the card was on the final step, the card is converted into a
   review card (it 'graduates').
 
@@ -120,7 +120,7 @@ or 'Hard' won't have any effect over the card's ease.
 ## Review Cards
 
 In SM-2, once a card is graduated, it gets an ease factor. By default is 2.5, but you
-can set another value using the [Deck Options](https://docs.ankiweb.net/deck-options.html?#starting-ease).
+can set another value using the [Deck Options](/manual/deck-options?#starting-ease).
 
 If you press…​
 
@@ -146,26 +146,26 @@ If you press…​
 For Hard, Good, and Easy, the next interval is additionally multiplied
 by the _interval modifier_. If the card is being reviewed late,
 additional days will be added to the current interval, as described
-in a [previous FAQ.](https://faqs.ankiweb.net/due-times-after-a-break.html)
+in a [previous FAQ.](/faqs/due-times-after-a-break)
 
 In FSRS, once a card is reviewed at least once, it gets assigned DSR values.
 
 If you press…​
 
 - Again  
-  The card is placed into relearning mode, stability significantly decreases, 
+  The card is placed into relearning mode, stability significantly decreases,
   and difficulty significantly increases.
 
 - Hard  
-  The card’s stability either increases or stays the same, 
+  The card’s stability either increases or stays the same,
   and difficulty moderately increases.
 
 - Good  
-  The card’s stability increases, and difficulty may 
+  The card’s stability increases, and difficulty may
   increase or decrease very slightly.
 
 - Easy  
-  The card’s stability significantly increases, and difficulty 
+  The card’s stability significantly increases, and difficulty
   moderately decreases.
 
 ## Limitations

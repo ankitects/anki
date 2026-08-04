@@ -26,7 +26,14 @@ from anki import hooks
 from anki._backend import RustBackend as _RustBackend
 from anki._legacy import deprecated
 from anki.buildinfo import version as version_str
-from anki.collection import Collection, Config, GithubRelease, OpChanges, UndoStatus
+from anki.collection import (
+    Collection,
+    Config,
+    ExperimentFlag,
+    GithubRelease,
+    OpChanges,
+    UndoStatus,
+)
 from anki.decks import DeckDict, DeckId
 from anki.hooks import runHook
 from anki.notes import NoteId
@@ -525,8 +532,14 @@ class AnkiQt(QMainWindow):
                 self._refresh_after_sync()
             if onsuccess:
                 onsuccess()
-            if not self.safeMode:
+            if self.safeMode:
+                # Disable all experiments in safe mode
+                self.col._experiments = {}
+            else:
                 self.maybe_check_for_addon_updates(self.setup_auto_update)
+
+            # if self.col.experiment_enabled(ExperimentFlag.TEST_FLAG):
+            #     showInfo('You have the "ping" experiment enabled')
 
         last_day_cutoff = self.col.sched.day_cutoff
 
@@ -1289,14 +1302,29 @@ title="{}" {}>{}</button>""".format(
     # Other menu operations
     ##########################################################################
 
+    def _open_new_or_legacy_dialog(
+        self, name: str, default_to_new: bool = False, *args: Any, **kwargs: Any
+    ) -> Any:
+        shift = KeyboardModifiersPressed().shift
+        want_new = (default_to_new and not shift) or (not default_to_new and shift)
+        if want_new:
+            name = f"New{name}"
+        return aqt.dialogs.open(name, self, *args, **kwargs)
+
     def onAddCard(self) -> None:
-        aqt.dialogs.open("AddCards", self)
+        from aqt.addcards import NewAddCards
+
+        experimental = self.col.experiment_enabled(ExperimentFlag.SVELTE_EDITOR)
+        add_cards = self._open_new_or_legacy_dialog("AddCards", experimental)
+        if isinstance(add_cards, NewAddCards):
+            add_cards.load_new_note()
 
     def onBrowse(self) -> None:
         aqt.dialogs.open("Browser", self, card=self.reviewer.card)
 
     def onEditCurrent(self) -> None:
-        aqt.dialogs.open("EditCurrent", self)
+        experimental = self.col.experiment_enabled(ExperimentFlag.SVELTE_EDITOR)
+        self._open_new_or_legacy_dialog("EditCurrent", experimental)
 
     def onOverview(self) -> None:
         self.moveToState("overview")
@@ -1305,11 +1333,7 @@ title="{}" {}>{}</button>""".format(
         deck = self._selectedDeck()
         if not deck:
             return
-        want_old = KeyboardModifiersPressed().shift
-        if want_old:
-            aqt.dialogs.open("DeckStats", self)
-        else:
-            aqt.dialogs.open("NewDeckStats", self)
+        self._open_new_or_legacy_dialog("DeckStats", True)
 
     def onPrefs(self) -> None:
         aqt.dialogs.open("Preferences", self)

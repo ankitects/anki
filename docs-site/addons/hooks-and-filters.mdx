@@ -2,8 +2,6 @@
 title: "Hooks & Filters"
 ---
 
-
-
 Hooks are the way you should connect your add-on code to Anki. If the
 function you want to alter doesn’t already have a hook, please see the
 section below about adding new hooks.
@@ -72,7 +70,7 @@ If you have set up type completion as described in an earlier section,
 you can also see the hooks in your IDE:
 
 <video controls autoplay loop muted alt="Autocomplete in PyCharm">
- <source src="/media/autocomplete.mp4" type="video/mp4"/>
+    <source src="/media/autocomplete.mp4" type="video/mp4" />
 </video>
 
 In the above video, holding the command/ctrl key down while hovering
@@ -119,26 +117,28 @@ From Anki 2.1.36:
   styling or content into external pages like the graphs screen and congratulations
   page that are loaded with load_ts_page().
 
-
 #### Managing External Resources in Webviews
+
 Add-ons may expose their own web assets by utilizing `aqt.addons.AddonManager.setWebExports()`. Web exports registered in this manner may then be accessed under the `/_addons` subpath.
 
 For example, to allow access to a `my-addon.js` and `my-addon.css` residing
-in a "web" subfolder in your add-on package, first register the corresponding web export: 
+in a "web" subfolder in your add-on package, first register the corresponding web export:
+
 ```python
 from aqt import mw
 mw.addonManager.setWebExports(__name__, r"web/.*(css|js)")
 ```
+
 Then, append the subpaths to the corresponding web_content fields within a function subscribing to `gui_hooks.webview_will_set_content`:
+
 ```python
 def on_webview_will_set_content(web_content: WebContent, context) -> None:
     addon_package = mw.addonManager.addonFromModule(__name__)
     web_content.css.append(f"/_addons/{addon_package}/web/my-addon.css")
     web_content.js.append(f"/_addons/{addon_package}/web/my-addon.js")
 ```
+
 Note that '/' will also match the os specific path separator.
-
-
 
 ## Legacy Hook Handling
 
@@ -272,7 +272,7 @@ are general in nature will typically be approved; hooks that target a very
 specific use case may need to be refactored to be more general first. For an
 example of what this might look like, please see [this PR](https://github.com/ankitects/anki/pull/2340).
 
-The hook definitions are located in [pylib/tools/genhooks.py](https://github.com/ankitects/anki/tree/main/pylib/tools/genhooks.py) and [qt/tools/genhooks_gui.py](https://github.com/ankitects/anki/blob/main/qt/tools/genhooks_gui.py).  When building Anki, the build scripts will
+The hook definitions are located in [pylib/tools/genhooks.py](https://github.com/ankitects/anki/tree/main/pylib/tools/genhooks.py) and [qt/tools/genhooks_gui.py](https://github.com/ankitects/anki/blob/main/qt/tools/genhooks_gui.py). When building Anki, the build scripts will
 automatically update the hook files with the definitions listed there.
 
 Please see the [docs/](https://github.com/ankitects/anki/tree/main/docs) folder in the source tree for more information.

@@ -2,8 +2,6 @@
 title: "Deck Options"
 ---
 
-
-
 Deck options primarily control the way Anki schedules cards. It is recommended
 that you spend a few weeks with the defaults to get a feel for how Anki works
 before you start adjusting the options. Please make sure you understand the options
@@ -65,11 +63,11 @@ For example, let's say you have this collection:
 Preset 1 and Preset 2 are identical, with two exceptions:
 
 - Preset 1:
-  - **Learning steps**: `1m 10m`
-  - **New/review order**: `Mix with reviews`
+    - **Learning steps**: `1m 10m`
+    - **New/review order**: `Mix with reviews`
 - Preset 2:
-  - **Learning steps**: `20m 2h`
-  - **New/review order**: `Show after reviews`
+    - **Learning steps**: `20m 2h`
+    - **New/review order**: `Show after reviews`
 
 If you choose to study Subdeck B:
 
@@ -92,7 +90,7 @@ to their original setting: you won't be given more cards than your limit allows.
 
 When studying a deck that has subdecks inside it, the limits set on each subdeck control the maximum number of cards drawn from that particular deck. The selected deck's limits control the total number of cards that will be shown.
 
-For earlier versions, see [this FAQ page](https://faqs.ankiweb.net/the-anki-2.1-scheduler.html).
+For earlier versions, see [this FAQ page](/faqs/the-anki-2.1-scheduler).
 
 Studying new cards will temporarily increase the number of reviews you need to
 do a day, as newly-learned material needs to be repeated a number of times
@@ -171,7 +169,7 @@ For example, let's say that your learning steps are `1m 10m 1d`.
 The **Hard** button works differently depending on which step you're on.
 
 - When you're on the first step, the **Hard** button shows a delay of `6m`. The `6m` delay is the average of first two steps: `1m` and `10m`.
-  - Exception: When there's only one learning step, the **Hard** button shows a delay 1.5 times that step. This delay is at most 1 day longer than the learning step.
+    - Exception: When there's only one learning step, the **Hard** button shows a delay 1.5 times that step. This delay is at most 1 day longer than the learning step.
 - When you're on any other step, the **Hard** button repeats that step.
 
 If there’s nothing else to study, Anki will show learning cards up to 20 minutes
@@ -246,13 +244,13 @@ Controls how Anki gathers new cards from a deck. The options are:
   order is fastest in large collections, and allows you to prioritize subdecks that
   are closer to the top.
 
-  Decks/subdecks are always ordered alphabetically, so you can give them a numeric prefix like
-  001 to control the order they appear in. You can also use `_` and `~` as a
-  prefix to place items at the top or bottom.
+    Decks/subdecks are always ordered alphabetically, so you can give them a numeric prefix like
+    001 to control the order they appear in. You can also use `_` and `~` as a
+    prefix to place items at the top or bottom.
 
-  Although position order depends initially on the insertion order option, you can manually
-  [reposition](./browsing#cards) cards in different
-  ways.
+    Although position order depends initially on the insertion order option, you can manually
+    [reposition](./browsing#cards) cards in different
+    ways.
 
 - **Deck, then random notes**: Gathers cards from each subdeck in order, starting from the top.
   Cards from each subdeck are gathered from randomly selected notes.
@@ -314,13 +312,13 @@ Controls how the review cards are sorted. The options are:
   you have a large backlog that may take some time to get through, and you want to
   reduce the chances of forgetting more cards.
 
-  When using the SM-2 algorithm, overdueness is determined by comparing how
-  overdue cards are, and how long their interval is. For example, a card with a
-  current interval of 5 days that is overdue by 2 days, will display before a card
-  with a current interval of 10 days that is overdue by 3 days.
+    When using the SM-2 algorithm, overdueness is determined by comparing how
+    overdue cards are, and how long their interval is. For example, a card with a
+    current interval of 5 days that is overdue by 2 days, will display before a card
+    with a current interval of 10 days that is overdue by 3 days.
 
-  When FSRS is enabled, this sort order is removed; the FSRS equivalent is **Ascending retrievability**,
-  which is calculated based on each card's retrievability (probability of recall) and the desired retention in the preset.
+    When FSRS is enabled, this sort order is removed; the FSRS equivalent is **Ascending retrievability**,
+    which is calculated based on each card's retrievability (probability of recall) and the desired retention in the preset.
 
 ## Burying
 
@@ -536,7 +534,7 @@ A list of commonly used add-ons and their FSRS compatibility can be found in [Ad
 
 #### More
 
-Several frequently asked questions about FSRS have been answered in [its FAQ](https://faqs.ankiweb.net/frequently-asked-questions-about-fsrs.html).
+Several frequently asked questions about FSRS have been answered in [its FAQ](/faqs/frequently-asked-questions-about-fsrs).
 
 For more info on FSRS, please check:
 
@@ -614,7 +612,7 @@ it to 90%. We’d calculate the modifier as:
 log(90%) / log(85%) = 0.65
 ```
 
-You can use [Google to calculate this](https://www.google.com/search?q=log(90%25)+%2F+log(85%25)).
+You can use [Google to calculate this](<https://www.google.com/search?q=log(90%25)+%2F+log(85%25)>).
 
 If you enter the resulting 65% into the interval modifier, you should
 find over time that your retention moves closer to your desired
@@ -662,9 +660,7 @@ Here is an example custom scheduling script. Note that, for Qt5 versions of Anki
 
 ```javascript
 // print the existing states
-console.log(
-  JSON.stringify(states, null, 4)
-);
+console.log(JSON.stringify(states, null, 4));
 
 // load the debugger if the web inspector is open
 debugger;
@@ -672,19 +668,17 @@ debugger;
 // if the hard button is a learning step, make it
 // a 123 minute delay
 if (states.hard.normal?.learning) {
-  states.hard.normal.learning.scheduledSecs = 123 * 60;
+    states.hard.normal.learning.scheduledSecs = 123 * 60;
 }
 
 // apply the same change in a rescheduling filtered deck
 if (states.hard.filtered?.rescheduling?.originalState?.learning) {
-  states.hard.filtered.rescheduling.originalState.learning.scheduledSecs =
-    123 * 60;
+    states.hard.filtered.rescheduling.originalState.learning.scheduledSecs = 123 * 60;
 }
 
 // increase ease factor by 0.2 when Easy used on a review
 if (states.good.normal?.review) {
-  states.easy.normal.review.easeFactor =
-    states.good.normal.review.easeFactor + 0.2;
+    states.easy.normal.review.easeFactor = states.good.normal.review.easeFactor + 0.2;
 }
 ```
 

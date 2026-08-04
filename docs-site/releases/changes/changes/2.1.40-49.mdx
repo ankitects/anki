@@ -2,8 +2,6 @@
 title: "Changes in 2.1.40 to 49"
 ---
 
-
-
 ## Changes in 2.1.49
 
 Released 2021-10-26.
@@ -12,7 +10,7 @@ Released 2021-10-26.
 - Fixed incorrect learning count in v3 scheduler when interday learning cards
   were queued (thanks to Rumo).
 - Work around an AnkiDroid inconsistency causing deck config to be reset if options
-edited on AnkiDroid.
+  edited on AnkiDroid.
 - Fixed a memory leak in the Preview screen (thanks to Hikaru).
 - Fixed an issue copying filenames from the Check Media screen (thanks to Abdo).
 - Fixed deck changing when toggling sticky fields (thanks to Abdo).
@@ -42,14 +40,14 @@ Released 2021-09-21.
   but remains off by default due to a number of bugs.
 - Fix an error message that could appear when deleting notes (thanks to Rumo).
 - The card templates screen no longer defaults to filling empty fields when
-opened from the Add screen (thanks to BlueGreenMagick).
+  opened from the Add screen (thanks to BlueGreenMagick).
 - Miscellaneous other fixes.
 
 ## Changes in 2.1.47
 
 Released 2021-08-29.
 
-Changes to the [v3 scheduler](https://faqs.ankiweb.net/the-2021-scheduler.html):
+Changes to the [v3 scheduler](/faqs/the-2021-scheduler):
 
 - Interday learning cards are included in the learning count again, instead of
   the review count.
@@ -76,7 +74,7 @@ Other changes:
 - Fixed handling of audio/video tags (thanks to Hikaru).
 - Fixed errors playing audio when computer was slow to respond (thanks to Kelciour).
 - Fixed preferences screen not updating undo menu, and causing an error when
-subsequently reviewing a card in the v3 scheduler.
+  subsequently reviewing a card in the v3 scheduler.
 - Fixed case changes being ignored in tag rename.
 - Fixed error shown when DB check run on corrupt collection.
 - Fixed deck options prompt showing the default deck, instead of the correct one.
@@ -89,7 +87,7 @@ subsequently reviewing a card in the v3 scheduler.
 For add-on developers:
 
 - The Svelte components Anki exports should now work correctly in add-ons,
-provided they exclude Svelte when bundling.
+  provided they exclude Svelte when bundling.
 - WithShortcut is now also available.
 
 ## Changes in 2.1.46
@@ -133,7 +131,7 @@ Undo handling:
 Scheduling changes:
 
 - A new scheduler is available, with a number of improvements. Please see the
-  [2021 scheduler page](https://faqs.ankiweb.net/the-2021-scheduler.html) for
+  [2021 scheduler page](/faqs/the-2021-scheduler) for
   more information.
 - The deck list now shows the learning count separately.
 - On new collections, the v2 scheduler is now the default.

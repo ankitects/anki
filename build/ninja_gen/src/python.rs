@@ -301,7 +301,7 @@ impl BuildAction for Complexipy {
         build.add_inputs("complexipy", inputs![":pyenv:complexipy"]);
         build.add_variable("folder", self.folder);
         let diff_args = if self.diff_mode {
-            "--diff main -R -mx 15"
+            "--diff main -R -mx 20"
         } else {
             ""
         };
@@ -319,7 +319,7 @@ pub fn check_complexity(
     deps: BuildInput,
 ) -> Result<()> {
     build.add_action(
-        format!("check:complexipy:{group}"),
+        format!("complexipy:{group}"),
         Complexipy {
             deps: deps.clone(),
             folder,
@@ -327,7 +327,7 @@ pub fn check_complexity(
         },
     )?;
     build.add_action(
-        format!("check:complexipy-diff:{group}"),
+        format!("complexipy-diff:{group}"),
         Complexipy {
             deps,
             folder,

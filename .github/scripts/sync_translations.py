@@ -28,7 +28,7 @@ def sync() -> None:
     for module in modules:
         fetch_new_translations(module)
         push_new_templates(module)
-    commit(".", "Update translations")
+    commit(".", "Update translations", "ftl/")
     push(".")
 
 
@@ -60,19 +60,22 @@ def push_new_templates(module: Module) -> None:
         ["git", "diff", "--exit-code"], cwd=module.translation_repo
     ).wait()
     if changes_pending:
-        commit(module.translation_repo, "Update templates")
-        push(module.translation_repo)
+        commit(module.translation_repo, "Update templates", "templates/")
+        # Submodule commits are referenced by SHA from the main repo, so
+        # they must always be pushed even if the main push itself is
+        # deferred to a later CI step.
+        push(module.translation_repo, allow_skip=False)
 
 
-def push(repo: str) -> None:
-    if os.environ.get("ANKI_NO_GIT_PUSH", "0") == "1":
+def push(repo: str, *, allow_skip: bool = True) -> None:
+    if allow_skip and os.environ.get("ANKI_NO_GIT_PUSH", "0") == "1":
         print("Skipping git push")
     else:
         subprocess.check_call(["git", "push", "origin", "main"], cwd=repo)
 
 
-def commit(folder: str, message: str) -> None:
-    subprocess.check_call(["git", "add", "ftl/"], cwd=folder)
+def commit(folder: str, message: str, pathspec: str) -> None:
+    subprocess.check_call(["git", "add", pathspec], cwd=folder)
     result = subprocess.run(
         ["git", "commit", "-m", message],
         cwd=folder,
