@@ -9,7 +9,7 @@ cog.out(get_file_contents("contributing"))
 >>> -->
 
 For info on contributing things other than code, such as translations, decks
-and add-ons, please see [the contribution guide](/manual/contrib).
+and add-ons, please see [the contribution guide](https://anki.mintlify.app/manual/contrib).
 
 ## Help wanted
 
@@ -124,7 +124,7 @@ new hook.
 ## Translations
 
 For information on adding new translatable strings to Anki, please see
-[the translation guide](/translators/anki/developers).
+[the translation guide](https://anki.mintlify.app/translators/anki/developers).
 
 ## Tests Must Pass
 

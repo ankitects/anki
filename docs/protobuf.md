@@ -16,7 +16,7 @@ not in a human readable way.
 
 # Protocol Buffers
 
-Anki uses [different implementations of Protocol Buffers](./architecture#protobuf)
+Anki uses [different implementations of Protocol Buffers](https://anki.mintlify.app/architecture#protobuf)
 and each has its own peculiarities. This document highlights some aspects relevant
 to Anki and hopefully helps to avoid some common pitfalls.
 
@@ -63,7 +63,7 @@ indices instead of optional 0-based ones to avoid ambiguity when an index is `0`
 
 ### Oneofs
 
-All fields in a oneof are implicitly optional, so the caveats [above](#optional-values)
+All fields in a oneof are implicitly optional, so the caveats [above](https://anki.mintlify.app/protobuf#optional-values)
 apply just as much to a message like this:
 
 ```protobuf

@@ -80,6 +80,6 @@ problems.
 ## More
 
 For info on running tests, building wheels and so on, please see
-[Development](./development).
+[Development](https://anki.mintlify.app/development).
 
 <!-- <<<end>>> -->
