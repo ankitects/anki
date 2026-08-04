@@ -16,6 +16,9 @@ if not exist %outdir% mkdir %outdir%
 
 if "%CARGO_TARGET_DIR%"=="" set "CARGO_TARGET_DIR=out\rust"
 
+set PROFILE=dev
+if "%CI%"=="true" set PROFILE=ci
+
 if "%CI%"=="true" (
   rem prebuilt binary shouldve been installed earlier
   set "CARGO_CMD=cargo"
@@ -28,10 +31,10 @@ if "%CI%"=="true" (
 )
 
 set "ANKI_TEST_MODE=1"
-"%CARGO_CMD%" llvm-cov --workspace --locked --json --summary-only ^
+"%CARGO_CMD%" llvm-cov --workspace --locked --profile %PROFILE% --json --summary-only ^
     --output-path %outdir%\coverage-summary.json --fail-under-lines 64 || exit /b 1
 
 if "%1"=="--html" (
-    "%CARGO_CMD%" llvm-cov report --html --output-dir %outdir% || exit /b 1
+    "%CARGO_CMD%" llvm-cov report --profile %PROFILE% --html --output-dir %outdir% || exit /b 1
     echo Rust coverage report: %outdir%\html\index.html
 )
