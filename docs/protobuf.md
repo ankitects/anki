@@ -1,3 +1,13 @@
+<!-- DO NOT MANUALLY EDIT THIS FILE -->
+<!-- This file is copied from docs-site/developers/protobuf.mdx automatically -->
+
+# Protocol Buffers
+
+<!-- <<<cog
+from cogdocs import get_file_contents
+cog.out(get_file_contents("protobuf"))
+>>> -->
+
 ProtoBuf is a format used both to save data in storage and transmit
 data between services. You can think of it as similar to JSON with
 schemas, given that you can use basic types, list and records. Except
@@ -6,7 +16,7 @@ not in a human readable way.
 
 # Protocol Buffers
 
-Anki uses [different implementations of Protocol Buffers](./architecture.md#protobuf)
+Anki uses [different implementations of Protocol Buffers](https://anki.mintlify.app/architecture#protobuf)
 and each has its own peculiarities. This document highlights some aspects relevant
 to Anki and hopefully helps to avoid some common pitfalls.
 
@@ -53,7 +63,7 @@ indices instead of optional 0-based ones to avoid ambiguity when an index is `0`
 
 ### Oneofs
 
-All fields in a oneof are implicitly optional, so the caveats [above](#optional-values)
+All fields in a oneof are implicitly optional, so the caveats [above](https://anki.mintlify.app/protobuf#optional-values)
 apply just as much to a message like this:
 
 ```protobuf
@@ -116,3 +126,5 @@ Inside the `pb` module you will find all generated Rust types and their implemen
   a valid variant, so the Rust code needs to deal with a lot of `Option`s. As we
   don't expect other parts of Anki to send invalid messages, using an `InvalidInput`
   error or `unwrap_or_default()` is usually fine.
+
+<!-- <<<end>>> -->

@@ -14,6 +14,8 @@ set "LLVMCOVPATH=out\bin"
 
 if not exist %outdir% mkdir %outdir%
 
+if "%CARGO_TARGET_DIR%"=="" set "CARGO_TARGET_DIR=out\rust"
+
 if "%CI%"=="true" (
   rem prebuilt binary shouldve been installed earlier
   set "CARGO_CMD=cargo"

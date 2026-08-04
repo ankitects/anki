@@ -1,4 +1,12 @@
+<!-- DO NOT MANUALLY EDIT THIS FILE -->
+<!-- This file is copied from docs-site/developers/testing-coverage.mdx automatically -->
+
 # Testing and Coverage
+
+<!-- <<<cog
+from cogdocs import get_file_contents
+cog.out(get_file_contents("testing-coverage"))
+>>> -->
 
 CI runs Rust, Python, and TypeScript tests plus lint/type checks. Coverage is
 orchestrated in `justfile` with direct CLI calls, using ninja only to prepare
@@ -65,3 +73,5 @@ jobs run `just test` (no coverage enforcement) for now.
   thresholds.
 - Add component or browser tests for Svelte UI surfaces if Svelte coverage
   is intended to cover rendered component behaviour.
+
+<!-- <<<end>>> -->

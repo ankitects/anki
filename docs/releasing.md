@@ -1,4 +1,12 @@
+<!-- DO NOT MANUALLY EDIT THIS FILE -->
+<!-- This file is copied from docs-site/developers/releasing.mdx automatically -->
+
 # Releasing
+
+<!-- <<<cog
+from cogdocs import get_file_contents
+cog.out(get_file_contents("releasing"))
+>>> -->
 
 Releases are managed by two GitHub Actions workflows under `.github/workflows/`:
 
@@ -33,43 +41,49 @@ candidates, and the stable release all come from the same branch.
 ### Standard release
 
 1. Create a release branch from `main`:
-   ```
-   git checkout -b release/26.05 main
-   git push origin release/26.05
-   ```
+
+    ```
+    git checkout -b release/26.05 main
+    git push origin release/26.05
+    ```
 
 2. CI runs automatically on push to `release/**` branches.
 
 3. Prepare the release (updates `.version` on the branch):
-   ```
-   just release::prepare --version 26.05b1 --ref release/26.05
-   ```
+
+    ```
+    just release::prepare --version 26.05b1 --ref release/26.05
+    ```
 
 4. Pull the version bump commit:
-   ```
-   git pull origin release/26.05
-   ```
+
+    ```
+    git pull origin release/26.05
+    ```
 
 5. Verify on TestPyPI:
-   ```
-   just release::testpypi --ref release/26.05
-   ```
+
+    ```
+    just release::testpypi --ref release/26.05
+    ```
 
 6. Publish the full release:
-   ```
-   just release::public --ref release/26.05
-   ```
+
+    ```
+    just release::public --ref release/26.05
+    ```
 
 7. For subsequent pre-releases or the stable release from the same cycle,
    repeat steps 3-6 with the new version (e.g. `26.05b2`, `26.05rc1`, `26.05`).
 
 8. After the stable release, merge the release branch back to `main` to pick up
    the `.version` bump and any cherry-picked fixes:
-   ```
-   git checkout main
-   git merge release/26.05
-   git push origin main
-   ```
+
+    ```
+    git checkout main
+    git merge release/26.05
+    git push origin main
+    ```
 
 9. Delete the release branch after the stable release is published.
 
@@ -84,22 +98,25 @@ the fix is ready for release.
 Once the fix is ready:
 
 1. Create a release branch from the latest release tag:
-   ```
-   git checkout -b release/26.05 26.05
-   ```
+
+    ```
+    git checkout -b release/26.05 26.05
+    ```
 
 2. Cherry-pick the fix onto the release branch.
 
 3. Push the branch and wait for CI:
-   ```
-   git push origin release/26.05
-   ```
+
+    ```
+    git push origin release/26.05
+    ```
 
 4. Prepare and publish:
-   ```
-   just release::prepare --version 26.05.1 --ref release/26.05
-   just release::public --ref release/26.05
-   ```
+
+    ```
+    just release::prepare --version 26.05.1 --ref release/26.05
+    just release::public --ref release/26.05
+    ```
 
 5. Merge the release branch back to `main`.
 
@@ -231,9 +248,9 @@ only apply when `draft-release` or `publish-pypi` is enabled. To run a test
 build:
 
 1. Dispatch `release.yml` from your branch with all boolean inputs left false:
-   ```
-   just release::build --ref <your-branch>
-   ```
+    ```
+    just release::build --ref <your-branch>
+    ```
 2. The workflow reads `.version` from the branch as-is (the version input is
    ignored for non-release runs), so no prepare step is needed.
 3. All release guards (CI check, duplicate tag check) are skipped.
@@ -246,9 +263,9 @@ To test the signing flow from a feature branch:
 1. In the repo's Settings → Environments → `release`, temporarily add your
    branch to the allowed deployment branches.
 2. Dispatch the workflow:
-   ```
-   just release::sign --ref <your-branch>
-   ```
+    ```
+    just release::sign --ref <your-branch>
+    ```
 3. Approve the environment deployment when prompted.
 4. After testing, remove your branch from the environment's allowed branches.
 
@@ -276,3 +293,5 @@ To test the signing flow from a feature branch:
 - Once a GitHub release draft is created, modify the generated changelog if necessary then click **Publish release**.
 - Create a forum topic on the [Beta Testing](https://forums.ankiweb.net/c/anki/beta-testing/13) category. For stable releases, lock the topic and ask users to report issues on a new topic.
 - For stable releases, update the version in [ankitects/anki-landing-page](https://github.com/ankitects/anki-landing-page) (See [example](https://github.com/ankitects/anki-landing-page/commit/2362eb2202f174df2aad1dc5336e1b5195a7af85)).
+
+<!-- <<<end>>> -->
