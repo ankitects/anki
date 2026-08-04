@@ -9,6 +9,8 @@ LLVMCOVPATH="out/bin"
 
 mkdir -p $outdir $LLVMCOVPATH
 
+export CARGO_TARGET_DIR="${CARGO_TARGET_DIR:-out/rust}"
+
 if [[ "${CI:-}" == "true" ]]; then
     # prebuilt binary shouldve been installed
     cargo_cmd="cargo"
