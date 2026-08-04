@@ -178,8 +178,8 @@ lto = true
 
 [profile.ci]
 inherits = "dev"
-opt-level = 0
+opt-level = 1
 incremental = false
 
 [profile.ci.package."*"]
-opt-level = 0
+opt-level = 1
