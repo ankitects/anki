@@ -38,10 +38,10 @@ jobs:
             docs/**/*.svg
 
       - name: Run minilints
+        if: steps.non-doc-changes.outputs.any_changed == 'true'
         run: cargo run -p minilints -- check /tmp/minilints.stamp
         env:
           CONTRIBUTORS_BYPASS_EMAILS: ${{ vars.CONTRIBUTORS_BYPASS_EMAILS }}
-          CHECK_CONTRIBUTORS: ${{ steps.non-doc-changes.outputs.any_changed }}
 
   # Lightweight formatting checks (no build outputs needed).
   # Uses individual tool installs instead of setup-anki to stay fast.
