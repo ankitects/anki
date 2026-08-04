@@ -2,6 +2,7 @@
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 import re
 
+ANKI_DOCS_URL = "https://anki.mintlify.app"
 
 def get_file_contents(file_path):
     file_path = f"docs-site/developers/{file_path}.mdx"
@@ -23,7 +24,7 @@ def get_file_contents(file_path):
             elif not target.startswith("/"):
                 target = f"/{target}"
 
-            return f"](https://anki.mintlify.app{target})"
+            return f"]({ANKI_DOCS_URL}{target})"
 
         # Convert relative links to absolute links.
         text = re.sub(r"\]\(([^)]+)\)", rewrite_link, text)
