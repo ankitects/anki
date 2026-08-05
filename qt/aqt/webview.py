@@ -249,13 +249,13 @@ class AnkiWebPage(QWebEnginePage):
     def acceptNavigationRequest(
         self, url: QUrl, navType: Any, isMainFrame: bool
     ) -> bool:
-        from aqt.mediasrv import is_sveltekit_page
+        from aqt.mediasrv import get_sveltekit_route
 
         if (
             not self.open_links_externally
             or "_anki/pages" in url.path()
             or url.path() == "/_anki/legacyPageData"
-            or is_sveltekit_page(url.path()[1:])
+            or get_sveltekit_route(url.path()[1:])
         ):
             return super().acceptNavigationRequest(url, navType, isMainFrame)
 
