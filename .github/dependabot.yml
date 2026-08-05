@@ -4,8 +4,8 @@ updates:
   - package-ecosystem: "cargo"
     directory: "/"
     schedule:
-      interval: "monthly"
-    open-pull-requests-limit: 3
+      interval: "quarterly"
+    open-pull-requests-limit: 1
     cooldown:
       default-days: 7
     groups:
@@ -19,12 +19,12 @@ updates:
   - package-ecosystem: "npm"
     directory: "/"
     schedule:
-      interval: "monthly"
-    open-pull-requests-limit: 3
+      interval: "quarterly"
+    open-pull-requests-limit: 1
     cooldown:
       default-days: 7
     groups:
-      js-minor-patch:
+      npm-minor-patch:
         applies-to: version-updates
         patterns: ["*"]
         update-types: ["minor", "patch"]
@@ -34,8 +34,8 @@ updates:
   - package-ecosystem: "uv"
     directory: "/"
     schedule:
-      interval: "monthly"
-    open-pull-requests-limit: 3
+      interval: "quarterly"
+    open-pull-requests-limit: 1
     cooldown:
       default-days: 7
     groups:
@@ -49,8 +49,8 @@ updates:
   - package-ecosystem: "github-actions"
     directory: "/"
     schedule:
-      interval: "monthly"
-    open-pull-requests-limit: 3
+      interval: "quarterly"
+    open-pull-requests-limit: 1
     cooldown:
       default-days: 7
     groups:
