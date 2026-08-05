@@ -11,7 +11,7 @@ function setLanguage(lang: string): void {
 }
 
 test("Arabic-script languages mirror the question mark", () => {
-    for (const lang of ["ar", "ar-SA", "fa", "fa-IR"]) {
+    for (const lang of ["ar", "ar-SA", "fa", "fa-IR", "ug", "ug-CN"]) {
         setLanguage(lang);
         expect(usesArabicScript()).toBe(true);
     }

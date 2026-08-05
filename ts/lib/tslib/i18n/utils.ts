@@ -10,10 +10,7 @@ import { firstLanguage, setBundles } from "@generated/ftl";
 
 export function usesArabicScript(): boolean {
     const firstLang = firstLanguage();
-    return (
-        firstLang.startsWith("ar")
-        || firstLang.startsWith("fa")
-    );
+    return ["ar", "fa", "ug"].some(lang => firstLang.startsWith(lang));
 }
 
 export function supportsVerticalText(): boolean {
