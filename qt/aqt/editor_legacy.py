@@ -1054,10 +1054,6 @@ require("anki/ui").loaded.then(() => require("anki/NoteEditor").instances[0].too
     removeTags = ["script", "iframe", "object", "style"]
 
     def _pastePreFilter(self, html: str, internal: bool) -> str:
-        # https://anki.tenderapp.com/discussions/ankidesktop/39543-anki-is-replacing-the-character-by-when-i-exit-the-html-edit-mode-ctrlshiftx
-        if html.find(">") < 0:
-            return html
-
         with warnings.catch_warnings():
             warnings.simplefilter("ignore", UserWarning)
             doc = BeautifulSoup(html, "html.parser")

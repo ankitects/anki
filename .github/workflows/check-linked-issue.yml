@@ -42,7 +42,7 @@ jobs:
             }
             core.setOutput('exempt', 'false');
 
-            const linkedIssuePattern = /\b(closes|close|fixes|fix|resolves|resolve|refs|ref|references)\s+(?:[a-zA-Z0-9_.-]+\/[a-zA-Z0-9_.-]+)?#\d+/i;
+            const linkedIssuePattern = /\b(closes|close|closed|fixes|fix|fixed|resolves|resolve|resolved|refs|ref|references):?\s+(?:[a-zA-Z0-9_.-]+\/[a-zA-Z0-9_.-]+)?#\d+/i;
             const hasLinkedIssue = linkedIssuePattern.test(body);
             core.setOutput('has_linked_issue', hasLinkedIssue);
 
