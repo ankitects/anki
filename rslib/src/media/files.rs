@@ -215,7 +215,15 @@ pub(crate) fn add_hash_suffix_to_file_stem(fname: &str, hash: &Sha1Hash) -> Stri
 
     let (stem, ext) = split_and_truncate_filename(fname, max_len);
 
-    format!("{}-{}.{}", stem, hex::encode(hash), ext)
+    let mut name = format!("{}-{}", stem, hex::encode(hash));
+    // Only append the extension when there is one; an extensionless filename
+    // must not gain a trailing dot, which is invalid on Windows (the other
+    // filename paths apply the same trailing-character fix-up).
+    if !ext.is_empty() {
+        name.push('.');
+        name.push_str(ext);
+    }
+    name
 }
 
 /// If filename is longer than max_bytes, truncate it.
@@ -486,6 +494,11 @@ mod test {
         assert_eq!(
             add_hash_suffix_to_file_stem("test.jpg", &hash).as_str(),
             "test-aaf4c61ddcc5e8a2dabede0f3b482cd9aea9434d.jpg"
+        );
+        // an extensionless name must not gain a trailing dot (invalid on Windows)
+        assert_eq!(
+            add_hash_suffix_to_file_stem("test", &hash).as_str(),
+            "test-aaf4c61ddcc5e8a2dabede0f3b482cd9aea9434d"
         );
     }
 
