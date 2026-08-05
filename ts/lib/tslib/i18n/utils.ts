@@ -8,6 +8,14 @@ import type { ModuleName } from "@generated/ftl";
 import { FluentBundle, FluentResource } from "@generated/ftl";
 import { firstLanguage, setBundles } from "@generated/ftl";
 
+export function usesArabicScript(): boolean {
+    const firstLang = firstLanguage();
+    return (
+        firstLang.startsWith("ar")
+        || firstLang.startsWith("fa")
+    );
+}
+
 export function supportsVerticalText(): boolean {
     const firstLang = firstLanguage();
     return (
