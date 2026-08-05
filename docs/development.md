@@ -168,7 +168,7 @@ Windows, Yarn cache can be found in `%LOCALAPPDATA%\Yarn`.
 
 If you invoke Rust outside of the build scripts (eg by running cargo, or
 with Rust Analyzer), output files will go into `target/` unless you have
-overriden the default output location.
+overridden the default output location.
 
 ## IDEs
 
