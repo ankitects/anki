@@ -6,7 +6,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import type { CongratsInfoResponse } from "@generated/anki/scheduler_pb";
     import { congratsInfo } from "@generated/backend";
     import * as tr from "@generated/ftl";
-    import { bridgeLink } from "@tslib/bridgecommand";
+    import { bridgeLink, registerBridgeLinkHandler } from "@tslib/bridgecommand";
 
     import Col from "$lib/components/Col.svelte";
     import Container from "$lib/components/Container.svelte";
@@ -40,6 +40,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                 }
             }, 60000);
         }
+
+        const cleanup = registerBridgeLinkHandler(document);
+
+        return cleanup;
     });
 </script>
 
