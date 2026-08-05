@@ -397,9 +397,17 @@ class AnkiWebView(QWebEngineView):
         for hook, handler in subscriptions:
             hook.append(handler)
         self._hook_subscriptions = subscriptions
+        name = type(self).__name__
 
+        # add-on webviews may be destroyed without cleanup() being called
         def unhook(_obj: QObject | None = None) -> None:
             try:
+                if subscriptions:
+                    logger.warning(
+                        "%s (%s) was destroyed without a cleanup() call",
+                        name,
+                        kind.value,
+                    )
                 while subscriptions:
                     hook, handler = subscriptions.pop()
                     hook.remove(handler)
