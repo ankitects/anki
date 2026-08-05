@@ -95,7 +95,9 @@ def _legacy_editor_content_security_policy(port: int) -> str:
     return "; ".join((f"script-src {' '.join(csp_paths)}",))
 
 
-_SVELTEKIT_SCRIPT_HASH_RE = re.compile(rb"'sha256-[A-Za-z0-9+/=]+'")
+_SVELTEKIT_CSP_META_RE = re.compile(
+    rb"<meta http-equiv=\"content-security-policy\" content=\"script-src 'self' ('sha256-[A-Za-z0-9+/=]+')\">"
+)
 
 
 def _sveltekit_render_script_hash(html: bytes) -> str | None:
@@ -104,11 +106,21 @@ def _sveltekit_render_script_hash(html: bytes) -> str | None:
     SvelteKit (csp.mode = 'hash' in svelte.config.js) bakes this into a
     <meta http-equiv="content-security-policy"> tag in the built HTML.
     """
-    match = _SVELTEKIT_SCRIPT_HASH_RE.search(html)
-    return match.group(0).decode("utf-8") if match else None
+    match = _SVELTEKIT_CSP_META_RE.search(html)
+    print("_sveltekit_render_script_hash", match)
+    return match.group(1).decode("utf-8") if match else None
 
 
-def _sveltekit_content_security_policy(port: int, script_hash: str | None) -> str:
+def _strip_csp_meta(html: bytes) -> bytes:
+    stripped = _SVELTEKIT_CSP_META_RE.sub(b"", html)
+    if stripped == html:
+        raise RuntimeError("CSP meta tag not found in SvelteKit index page")
+    return stripped
+
+
+def _untrusted_sveltekit_content_security_policy(
+    port: int, script_hash: str | None
+) -> str:
     csp_paths = [
         f"http://127.0.0.1:{port}/_anki/",
         f"http://127.0.0.1:{port}/_app/",
@@ -123,8 +135,7 @@ def _sveltekit_content_security_policy(port: int, script_hash: str | None) -> st
 class BundledFileRequest:
     # path relative to aqt data folder
     path: str
-    # set for SvelteKit routes
-    is_sveltekit: bool = False
+    sveltekit_route: str | None = None
 
 
 @dataclass
@@ -413,17 +424,19 @@ def _handle_builtin_file_request(request: BundledFileRequest) -> Response:
         response = Response(data, mimetype=mimetype)
         if immutable:
             response.headers["Cache-Control"] = "max-age=31536000"
-        if request.is_sveltekit:
-            script_hash = (
-                _sveltekit_render_script_hash(data)
-                if path.endswith("index.html")
-                else None
-            )
-            response.headers["Content-Security-Policy"] = (
-                _sveltekit_content_security_policy(
-                    aqt.mw.mediaServer.getPort(), script_hash
+        if request.sveltekit_route:
+            is_index = path.endswith("index.html")
+            if is_untrusted_sveltekit_route(request.sveltekit_route):
+                script_hash = _sveltekit_render_script_hash(data) if is_index else None
+                response.headers["Content-Security-Policy"] = (
+                    _untrusted_sveltekit_content_security_policy(
+                        aqt.mw.mediaServer.getPort(), script_hash
+                    )
                 )
-            )
+            elif is_index:
+                # Strip the default CSP directive set in the SvelteKit config
+                response.set_data(_strip_csp_meta(data))
+
         return response
     except FileNotFoundError:
         if dev_mode:
@@ -478,9 +491,9 @@ def handle_request(pathin: str) -> Response:
         return _text_response(HTTPStatus.FORBIDDEN, str(exc))
 
 
-def is_sveltekit_page(path: str) -> bool:
+def get_sveltekit_route(path: str) -> str | None:
     page_name = path.split("/")[0]
-    return page_name in [
+    if page_name in [
         "graphs",
         "congrats",
         "card-info",
@@ -492,15 +505,21 @@ def is_sveltekit_page(path: str) -> bool:
         "image-occlusion",
         "preferences",
         "editor",
-    ]
+    ]:
+        return page_name
+    return None
+
+
+def is_untrusted_sveltekit_route(route: str) -> bool:
+    return route == "editor"
 
 
 def _extract_internal_request(
     path: str,
 ) -> BundledFileRequest | DynamicRequest | NotFound | None:
     "Catch /_anki references and rewrite them to web export folder."
-    is_sveltekit = is_sveltekit_page(path)
-    if is_sveltekit:
+    sveltekit_route = get_sveltekit_route(path)
+    if sveltekit_route:
         path = f"_anki/sveltekit/_app/{path}"
     if path.startswith("_app/"):
         path = path.replace("_app", "_anki/sveltekit/_app")
@@ -545,7 +564,7 @@ def _extract_internal_request(
         path = f"{prefix}{additional_prefix}{base}{ext}"
         print(f"legacy {oldpath} remapped to {path}")
 
-    return BundledFileRequest(path=path[len(prefix) :], is_sveltekit=is_sveltekit)
+    return BundledFileRequest(path=path[len(prefix) :], sveltekit_route=sveltekit_route)
 
 
 def _extract_addon_request(path: str) -> LocalFileRequest | NotFound | None:
