@@ -107,7 +107,6 @@ def _sveltekit_render_script_hash(html: bytes) -> str | None:
     <meta http-equiv="content-security-policy"> tag in the built HTML.
     """
     match = _SVELTEKIT_CSP_META_RE.search(html)
-    print("_sveltekit_render_script_hash", match)
     return match.group(1).decode("utf-8") if match else None
 
 
