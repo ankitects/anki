@@ -389,6 +389,7 @@ class AnkiWebView(QWebEngineView):
         self.resetHandlers()
         self._filterSet = False
 
+        # NOTE: avoiding the use of self in `unhook` is load-bearing!
         subscriptions: list[tuple[Any, Callable[..., Any]]] = [
             (gui_hooks.theme_did_change, self.on_theme_did_change),
             (gui_hooks.body_classes_need_update, self.on_body_classes_need_update),
