@@ -123,7 +123,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         </Row>
     </div>
     <div slot="footer" class="modal-footer">
-        <button type="button" class="btn btn-primary" on:click={modal.onOkClicked}>
+        <button type="button" class="btn btn-primary" on:click={modal.acceptHandler}>
             {tr.helpOk()}
         </button>
     </div>
