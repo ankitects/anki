@@ -1,7 +1,6 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-import { on } from "@tslib/events";
 import { registerPackage } from "./runtime-require";
 
 declare global {
@@ -10,23 +9,9 @@ declare global {
     }
 }
 
-/** HTML <a> tag pointing to a bridge command via a `data-bridge-command` attribute.
- * Use `registerBridgeLinkHandler()` to register a click handler.
- */
+/** HTML <a> tag pointing to a bridge command. */
 export function bridgeLink(command: string, label: string): string {
-    return `<a href="#" data-bridge-command="${command}">${label}</a>`;
-}
-
-export function registerBridgeLinkHandler<T extends Document | HTMLElement>(target: T) {
-    const cleanup = on(target, "click", (event) => {
-        if (event.target instanceof HTMLAnchorElement && event.target.dataset.bridgeCommand) {
-            bridgeCommand(event.target.dataset.bridgeCommand);
-            return false;
-        }
-        return true;
-    });
-
-    return cleanup;
+    return `<a href="javascript:bridgeCommand('${command}')">${label}</a>`;
 }
 
 export function bridgeCommandsAvailable(): boolean {
