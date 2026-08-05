@@ -1,7 +1,7 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 import type { AVTag } from "@generated/anki/card_rendering_pb";
-// import { ConfigKey_String } from "@generated/anki/config_pb";
+import { ConfigKey_String } from "@generated/anki/config_pb";
 import { DeckConfig_Config_AnswerAction, DeckConfig_Config_QuestionAction } from "@generated/anki/deck_config_pb";
 import { ReviewerActionRequest_ReviewerAction, SchedulingStatesWithContext } from "@generated/anki/frontend_pb";
 import {
@@ -17,7 +17,7 @@ import {
     compareAnswer,
     describeNextStates,
     getConfigJson,
-    //    getConfigString,
+    getConfigString,
     nextCardData,
     playAvtags,
     removeNotes,
@@ -27,9 +27,8 @@ import {
     setFlag,
 } from "@generated/backend";
 import * as tr from "@generated/ftl";
-import * as _ from "lodash-es";
 import { get, writable } from "svelte/store";
-import { applyStateTransform /* type StateMutatorFn */ } from "../../reviewer/answering";
+import { applyStateTransform, type StateMutatorFn } from "../../reviewer/answering";
 import type { InnerReviewerRequest } from "../reviewer-inner/innerReviewerRequest";
 import type { ReviewerRequest } from "./reviewerRequest";
 
@@ -56,7 +55,7 @@ export class ReviewerState {
     autoAdvanceQuestionTimeout: ReturnType<typeof setTimeout> | undefined;
     autoAdvanceAnswerTimeout: ReturnType<typeof setTimeout> | undefined;
     _answerShown = false;
-    // mutateNextStates: Promise<StateMutatorFn>;
+    mutateNextStates: Promise<StateMutatorFn>;
 
     iframe: HTMLIFrameElement | undefined = undefined;
 
@@ -74,14 +73,13 @@ export class ReviewerState {
         });
 
         // TODO: This should probably be moved to +page.ts
-        // FIXME: mutateNextStates is broken due to new security changes. see _sveltekit_content_security_policy in mediasrv.py
-        /* this.mutateNextStates = (async () =>
+        this.mutateNextStates = (async () =>
             new Function(
                 "states",
                 "customData",
                 "ctx",
                 (await getConfigString({ key: ConfigKey_String.CARD_STATE_CUSTOMIZER })).val,
-            ) as any)(); */
+            ) as any)();
     }
 
     public toggleAutoAdvance() {
@@ -388,7 +386,7 @@ export class ReviewerState {
             states: card.states,
             context: card.context,
         });
-        const newStates = await applyStateTransform(sswc, _.noop as any /* await this.mutateNextStates*/);
+        const newStates = await applyStateTransform(sswc, await this.mutateNextStates);
 
         if (showDue) {
             describeNextStates(newStates).then((descriptors) => this.answerButtons.set(descriptors.vals));
