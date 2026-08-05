@@ -27,11 +27,7 @@ export function supportsVerticalText(): boolean {
 
 export function direction(): "ltr" | "rtl" {
     const firstLang = firstLanguage();
-    if (
-        firstLang.startsWith("ar")
-        || firstLang.startsWith("he")
-        || firstLang.startsWith("fa")
-    ) {
+    if (["he", "ar", "fa", "ug", "yi"].some(lang => firstLang.startsWith(lang))) {
         return "rtl";
     } else {
         return "ltr";
