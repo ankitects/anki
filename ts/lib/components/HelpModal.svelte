@@ -4,6 +4,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
     import * as tr from "@generated/ftl";
+    import { usesArabicScript } from "@tslib/i18n";
     import { renderMarkdown } from "@tslib/helpers";
     import Carousel from "bootstrap/js/dist/carousel";
     import { createEventDispatcher, onMount } from "svelte";
@@ -45,7 +46,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     let activeIndex = startIndex;
 </script>
 
-<Badge on:click={() => modal.show()} iconSize={125}>
+<Badge on:click={() => modal.show()} iconSize={125} flipX={usesArabicScript()}>
     <Icon icon={infoCircle} />
 </Badge>
 
