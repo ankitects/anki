@@ -381,7 +381,6 @@ class AnkiWebView(QWebEngineView):
         self._pendingActions: list[tuple[str, Sequence[Any]]] = []
         self.requiresCol = True
         self._disable_zoom = False
-        self.font_size_multiplier = 1.5
         self._uses_dynamic_styling = False
 
         self.resetHandlers()
@@ -578,9 +577,6 @@ class AnkiWebView(QWebEngineView):
             return 2
         else:
             return 3
-
-    def set_font_size_multiplier(self, multiplier: float) -> None:
-        self.font_size_multiplier = multiplier
 
     def standard_css(self) -> str:
         color_hl = theme_manager.var(colors.BORDER_FOCUS)

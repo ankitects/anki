@@ -74,7 +74,6 @@ class Preferences(QDialog):
 
     def _setup_webview(self) -> None:
         self.web = AnkiWebView(kind=AnkiWebViewKind.PREFERENCES)
-        self.web.set_font_size_multiplier(1)
         layout = self.form.labsTab.layout()
         assert layout is not None
         layout.addWidget(self.web)
