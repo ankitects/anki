@@ -1,4 +1,12 @@
+<!-- DO NOT MANUALLY EDIT THIS FILE -->
+<!-- This file is copied from docs-site/developers/development.mdx automatically -->
+
 # Anki development
+
+<!-- <<<cog
+from cogdocs import get_file_contents
+cog.out(get_file_contents("development"))
+>>> -->
 
 ## Packaged betas
 
@@ -39,7 +47,7 @@ On all platforms, you will need to install:
   or `bash tools\install-n2` on Windows. If you want to use Ninja, it can be downloaded
   from https://github.com/ninja-build/ninja/releases/tag/v1.11.1 and
   placed on your path, or from your distro/homebrew if it's 1.10+.
-  - On Windows, if you have WSL installed, it may conflict with MSYS2 bash. If you are getting an error, try running `C:\msys64\usr\bin\bash.exe tools/install-n2` instead.
+    - On Windows, if you have WSL installed, it may conflict with MSYS2 bash. If you are getting an error, try running `C:\msys64\usr\bin\bash.exe tools/install-n2` instead.
 - (Optional) [just](https://just.systems/man/en/packages.html) command runner.
   Install with `brew install just` or `uv tool install just`.
   We are experimenting with `just` as the official tool for running
@@ -48,9 +56,9 @@ On all platforms, you will need to install:
 
 Platform-specific requirements:
 
-- [Windows](./windows.md)
-- [Mac](./mac.md)
-- [Linux](./linux.md)
+- [Windows](https://anki.mintlify.app/windows)
+- [Mac](https://anki.mintlify.app/mac)
+- [Linux](https://anki.mintlify.app/linux)
 
 ## Running Anki during development
 
@@ -67,7 +75,7 @@ This will build Anki and run it in place.
 The first build will take a while, as it downloads and builds a bunch of
 dependencies. When the build is complete, Anki will automatically start.
 
-If Anki fails to start, you may need to install [extra libraries](https://docs.ankiweb.net/platform/linux/missing-libraries.html).
+If Anki fails to start, you may need to install [extra libraries](https://anki.mintlify.app/manual/platform/linux/missing-libraries).
 
 ## Running tests/checks
 
@@ -164,11 +172,11 @@ overriden the default output location.
 
 ## IDEs
 
-Please see [this separate page](./editing.md) for setting up an editor/IDE.
+Please see [this separate page](https://anki.mintlify.app/editing) for setting up an editor/IDE.
 
 ## Making changes to the build
 
-See [this page](./build.md)
+See [this page](https://anki.mintlify.app/build)
 
 ## Generating documentation
 
@@ -210,11 +218,11 @@ Depending on your operating system, this produces a file under `out/installer/di
 ### Issues During Building
 
 If you are experiencing issues building the installer, make sure that all dependencies
-are installed. See [Building from source](#building-from-source) for more info.
+are installed. See [Building from source](https://anki.mintlify.app/development#building-from-source) for more info.
 
 ## Releasing
 
-See [Releasing](./releasing.md).
+See [Releasing](https://anki.mintlify.app/releasing).
 
 # Mixing development and study
 
@@ -228,3 +236,5 @@ If you're using PyCharm:
 - click "Edit 'run'..." - in Script options and enter:
   "-p [dev profile name]" without the quotes
 - click "Ok"
+
+<!-- <<<end>>> -->
