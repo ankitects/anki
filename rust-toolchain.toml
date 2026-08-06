@@ -1,3 +1,4 @@
 [toolchain]
 # older versions may fail to compile; newer versions may fail the clippy tests
 channel = "1.92.0"
+components = ["rust-analyzer"]

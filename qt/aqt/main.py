@@ -610,6 +610,9 @@ class AnkiQt(QMainWindow):
         self.mediaServer.shutdown()
         # Rust background jobs are not awaited implicitly
         self.backend.await_backup_completion()
+        self.toolbarWeb.cleanup()
+        self.web.cleanup()
+        self.bottomWeb.cleanup()
         self.deleteLater()
         app = self.app
         app._unset_windows_shutdown_block_reason()
