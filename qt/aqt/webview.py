@@ -580,7 +580,7 @@ class AnkiWebView(QWebEngineView):
 
     def standard_css(self) -> str:
         color_hl = theme_manager.var(colors.BORDER_FOCUS)
-        font_size = self.font().pointSize() * self.logicalDpiX() / 72
+        font_size = self.font().pointSizeF() * self.logicalDpiX() / 72
         if is_win:
             # T: include a font for your language on Windows, eg: "Segoe UI", "MS Mincho"
             family = tr.qt_misc_segoe_ui()
