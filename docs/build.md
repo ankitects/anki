@@ -1,8 +1,16 @@
+<!-- DO NOT MANUALLY EDIT THIS FILE -->
+<!-- This file is copied from docs-site/developers/build.mdx automatically -->
+
 # The build system
+
+<!-- <<<cog
+from cogdocs import get_file_contents
+cog.out(get_file_contents("build"))
+>>> -->
 
 ## Basic use
 
-Basic use is described in [development.md](./development.md).
+Basic use is described in [development.md](https://anki.mintlify.app/development).
 
 ## Architecture
 
@@ -16,12 +24,12 @@ The build/ folder is made up of 4 packages:
 - build/archives is a helper to download/checksum/extract a dependency as part
   of the build process.
 - build/runner serves a number of purposes:
-  - it's the entrypoint to the build process, taking care of generating
-    the build file and then invoking Ninja
-  - it wraps executable invocations in the build file, swallowing their output
-    if they exit successfully
-  - it provides a few helpers for multi-step processes that can't be easily
-    described in a cross-platform manner thanks to differences on Windows.
+    - it's the entrypoint to the build process, taking care of generating
+      the build file and then invoking Ninja
+    - it wraps executable invocations in the build file, swallowing their output
+      if they exit successfully
+    - it provides a few helpers for multi-step processes that can't be easily
+      described in a cross-platform manner thanks to differences on Windows.
 
 ## Tracing build problems
 
@@ -37,4 +45,6 @@ If you run into trouble with the build process:
 
 ## Packaging considerations
 
-See [this page](./linux.md).
+See [this page](https://anki.mintlify.app/linux).
+
+<!-- <<<end>>> -->
