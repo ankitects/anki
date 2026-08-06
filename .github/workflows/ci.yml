@@ -36,6 +36,7 @@ jobs:
             **.md
             docs/**/*.png
             docs/**/*.svg
+            docs-site/**
 
       - name: Run minilints
         if: steps.non-doc-changes.outputs.any_changed == 'true'
