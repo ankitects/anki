@@ -622,7 +622,7 @@ div[contenteditable="true"]:focus {{
                 color_hl=color_hl,
             )
 
-        font += f"font-size: {font_size}px; --bs-body-font-size: {font_size}px;"
+        font += f"font-size: {font_size}px; --bs-body-font-size: {font_size}px; --font-size: {font_size}px;"
         zoom = self.app_zoom_factor()
 
         return f"""
