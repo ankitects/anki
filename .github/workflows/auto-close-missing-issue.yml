@@ -65,7 +65,7 @@ jobs:
               const currentLabels = currentPr.data.labels.map(l => l.name);
               if (!currentLabels.includes('missing-issue')) continue;
 
-              const linkedIssuePattern = /\b(closes|close|closed|fixes|fix|fixed|resolves|resolve|resolved|refs|ref|references):?\s+(?:[a-zA-Z0-9_.-]+\/[a-zA-Z0-9_.-]+)?#\d+/i;
+              const linkedIssuePattern = /\b(closes|close|closed|fixes|fix|fixed|resolves|resolve|resolved|refs|ref|references):?\s+(?:(?:[a-zA-Z0-9_.-]+\/[a-zA-Z0-9_.-]+)?#\d+|https?:\/\/github\.com\/[a-zA-Z0-9_.-]+\/[a-zA-Z0-9_.-]+\/issues\/\d+)/i;
               if (linkedIssuePattern.test(currentPr.data.body || '')) continue;
 
               await github.rest.pulls.update({
