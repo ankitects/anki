@@ -4,7 +4,7 @@ This directory contains [Mintlify](https://www.mintlify.com/) docs served at htt
 
 ## License
 
-Unless stated otherwise, any documentation changes you submit will be licensed under the [CC BY-SA 4 license](https://creativecommons.org/licenses/by-sa/).
+Unless stated otherwise, any documentation changes you submit will be licensed under the [CC BY-SA 4 license](https://creativecommons.org/licenses/by-sa/4.0/).
 
 ## Translations
 
