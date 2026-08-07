@@ -1004,6 +1004,7 @@ mod test {
         let mut revlog_card = Card {
             ctype: CardType::Review,
             queue: CardQueue::Review,
+            last_review_time: Some(TimestampSecs(999)),
             ..Default::default()
         };
         col.add_card(&mut revlog_card).unwrap();
