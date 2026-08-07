@@ -28,7 +28,7 @@ if "%CI%"=="true" (
 )
 
 set "ANKI_TEST_MODE=1"
-"%CARGO_CMD%" llvm-cov --workspace --locked --json --summary-only ^
+"%CARGO_CMD%" llvm-cov nextest --workspace --locked --json --summary-only ^
     --output-path %outdir%\coverage-summary.json --fail-under-lines 64 || exit /b 1
 
 if "%1"=="--html" (
