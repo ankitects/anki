@@ -85,13 +85,12 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                     value: `${retrievability}%`,
                 });
             }
-        } else {
-            if (stats.ease) {
-                statsRows.push({
-                    label: tr2.cardStatsEase(),
-                    value: `${stats.ease / 10}%`,
-                });
-            }
+        } else if (stats.ease && stats.desiredRetention === undefined) {
+            // The above desired retention check prevents ease from showing when fsrs is enabled but there is no memory state.
+            statsRows.push({
+                label: tr2.cardStatsEase(),
+                value: `${stats.ease / 10}%`,
+            });
         }
 
         statsRows.push({ label: tr2.cardStatsReviewCount(), value: stats.reviews });
