@@ -174,12 +174,10 @@ impl Collection {
 
         // add/update provided configs
         for conf in &mut req.configs {
-            if !conf.inner.ignore_revlogs_before_date.is_empty() {
-                require!(
-                    conf.inner.ignore_revlogs_before_date <= today,
-                    "ignore_revlogs_before_date cannot be later than today"
-                );
-            }
+            require!(
+                conf.inner.ignore_revlogs_before_date <= today,
+                "ignore_revlogs_before_date cannot be later than today"
+            );
             // If the user has provided empty FSRS6 params, zero out any
             // old params as well, so we don't fall back on them, which would
             // be surprising as they're not shown in the GUI.
@@ -646,6 +644,7 @@ mod test {
         };
 
         let mut input2 = input.clone();
+        let mut input3 = input.clone();
         input.configs[0].inner.ignore_revlogs_before_date =
             TimestampSecs::now().adding_secs(86_400).date_string();
 
@@ -653,7 +652,9 @@ mod test {
         assert!(matches!(err, AnkiError::InvalidInput { .. }));
 
         input2.configs[0].inner.ignore_revlogs_before_date = TimestampSecs::now().date_string();
-
         assert!(col.update_deck_configs(input2).is_ok());
+
+        input3.configs[0].inner.ignore_revlogs_before_date = "".to_string();
+        assert!(col.update_deck_configs(input3).is_ok());
     }
 }
