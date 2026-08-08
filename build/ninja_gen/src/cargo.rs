@@ -72,6 +72,7 @@ fn profile_output_dir(profile: BuildProfile) -> &'static str {
         BuildProfile::Debug => "debug",
         BuildProfile::Release => "release",
         BuildProfile::ReleaseWithLto => "release-lto",
+        BuildProfile::Ci => "ci",
     }
 }
 
@@ -131,6 +132,16 @@ fn profile_arg_for_cargo(profile: BuildProfile) -> Option<&'static str> {
         BuildProfile::Debug => None,
         BuildProfile::Release => Some("--release"),
         BuildProfile::ReleaseWithLto => Some("--profile release-lto"),
+        BuildProfile::Ci => Some("--profile ci"),
+    }
+}
+
+fn profile_arg_for_nextest(profile: BuildProfile) -> &'static str {
+    match profile {
+        BuildProfile::Debug => "",
+        BuildProfile::Release => "--cargo-profile release",
+        BuildProfile::ReleaseWithLto => "--cargo-profile release-lto",
+        BuildProfile::Ci => "--cargo-profile ci",
     }
 }
 
@@ -151,10 +162,14 @@ pub struct CargoTest {
 
 impl BuildAction for CargoTest {
     fn command(&self) -> &str {
-        "cargo nextest run --color=always --failure-output=final --status-level=none $cargo_flags"
+        "cargo nextest run --color=always --failure-output=final --status-level=none $profile_arg $cargo_flags"
     }
 
     fn files(&mut self, build: &mut impl FilesHandle) {
+        build.add_variable(
+            "profile_arg",
+            profile_arg_for_nextest(build.build_profile()),
+        );
         build.add_inputs("", &self.inputs);
         if !running_on_ci() {
             build.add_inputs("", inputs![":cargo-nextest"]);
@@ -186,10 +201,12 @@ pub struct CargoClippy {
 
 impl BuildAction for CargoClippy {
     fn command(&self) -> &str {
-        "cargo clippy $cargo_flags --tests -- -Dclippy::dbg_macro -Dwarnings"
+        "cargo clippy $release_arg $cargo_flags --tests -- -Dclippy::dbg_macro -Dwarnings"
     }
 
     fn files(&mut self, build: &mut impl FilesHandle) {
+        let release_arg = profile_arg_for_cargo(build.build_profile()).unwrap_or_default();
+        build.add_variable("release_arg", release_arg);
         build.add_inputs(
             "",
             inputs![&self.inputs, "Cargo.lock", "rust-toolchain.toml"],

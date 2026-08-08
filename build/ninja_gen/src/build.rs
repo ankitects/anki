@@ -356,14 +356,28 @@ pub enum BuildProfile {
     Debug,
     Release,
     ReleaseWithLto,
+    Ci,
 }
 
 impl BuildProfile {
-    fn from_env() -> Self {
+    pub fn from_env() -> Self {
         match std::env::var("RELEASE").unwrap_or_default().as_str() {
             "1" => Self::Release,
             "2" => Self::ReleaseWithLto,
-            _ => Self::Debug,
+            _ => match std::env::var("CI").unwrap_or_default().as_str() {
+                "true" => Self::Ci,
+                _ => Self::Debug,
+            },
+        }
+    }
+
+    /// The profile to build helper tools like configure/minilints with:
+    /// never optimized, but otherwise matching the main profile so that
+    /// dependency builds are shared.
+    pub fn for_build_tools(self) -> Self {
+        match self {
+            Self::Release | Self::ReleaseWithLto => Self::Debug,
+            other => other,
         }
     }
 }
