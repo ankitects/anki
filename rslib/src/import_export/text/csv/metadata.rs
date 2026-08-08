@@ -528,16 +528,67 @@ fn delimiter_from_value(value: &str) -> Option<Delimiter> {
     })
 }
 
-fn delimiter_from_reader(mut reader: impl Read) -> Result<Delimiter> {
-    let mut buf = [0; 8 * 1024];
-    let _ = reader.read(&mut buf)?;
-    // TODO: use smarter heuristic
-    for delimiter in Delimiter::iter() {
-        if buf.contains(&delimiter.byte()) {
-            return Ok(delimiter);
+fn delimiter_from_reader(reader: impl Read) -> Result<Delimiter> {
+    // read_to_end avoids a short read (a fixed-size `read` can return fewer
+    // bytes than available for a pipe/socket); cap it at 8KB via take.
+    let mut buf = Vec::with_capacity(8 * 1024);
+    reader.take(8 * 1024).read_to_end(&mut buf)?;
+    let text = String::from_utf8_lossy(&buf);
+    // Examine the first several non-empty lines and pick the delimiter that
+    // splits them most consistently (the same positive count on the most
+    // lines). This avoids choosing a delimiter that merely appears inside field
+    // content - e.g. a ':' in a time, or a ',' decimal separator in a
+    // semicolon-delimited file.
+    let lines: Vec<&str> = text
+        .lines()
+        .filter(|line| !line.trim().is_empty())
+        .take(10)
+        .collect();
+
+    // Tie-break order: genuine delimiters first, content-prone ones (colon and
+    // space) last, so an otherwise-ambiguous file is read the way it was most
+    // likely written.
+    const TIE_BREAK_ORDER: [Delimiter; 6] = [
+        Delimiter::Tab,
+        Delimiter::Pipe,
+        Delimiter::Semicolon,
+        Delimiter::Comma,
+        Delimiter::Colon,
+        Delimiter::Space,
+    ];
+
+    let mut best: Option<(usize, Delimiter)> = None;
+    for delimiter in TIE_BREAK_ORDER {
+        let score = delimiter_consistency(&lines, delimiter.byte());
+        if score == 0 {
+            continue;
+        }
+        // earlier (higher-priority) delimiters win ties
+        match best {
+            Some((best_score, _)) if best_score >= score => {}
+            _ => best = Some((score, delimiter)),
         }
     }
-    Ok(Delimiter::Space)
+
+    Ok(best
+        .map(|(_, delimiter)| delimiter)
+        .unwrap_or(Delimiter::Space))
+}
+
+/// The largest number of lines that share a single positive per-line count of
+/// `byte`. A higher value means the delimiter splits the sample into a
+/// consistent number of columns; 0 means the byte never appears.
+fn delimiter_consistency(lines: &[&str], byte: u8) -> usize {
+    let counts: Vec<usize> = lines
+        .iter()
+        .map(|line| line.bytes().filter(|&b| b == byte).count())
+        .filter(|&count| count > 0)
+        .collect();
+    counts
+        .iter()
+        .map(|&target| counts.iter().filter(|&&count| count == target).count())
+        .max()
+        .unwrap_or(0)
 }
 
 fn map_single_record<T>(
@@ -770,6 +821,29 @@ pub(in crate::import_export) mod test {
             metadata!(col, "#separator: \nfoo\tbar\n", Some(Delimiter::Pipe)).delimiter(),
             Delimiter::Pipe
         );
+    }
+
+    #[test]
+    fn should_prefer_consistent_delimiter_over_content_characters() {
+        let mut col = Collection::new();
+        // a comma file whose fields contain colons (e.g. times) must be
+        // detected as comma, not colon
+        assert_eq!(
+            metadata!(col, "time,note\n9:00,wake up\n10:30,run\n").delimiter(),
+            Delimiter::Comma
+        );
+        // even on a single line, prefer comma over the content colon
+        assert_eq!(
+            metadata!(col, "9:00,wake up\n").delimiter(),
+            Delimiter::Comma
+        );
+        // a semicolon file with decimal commas must stay semicolon, not comma
+        assert_eq!(
+            metadata!(col, "1,5;2,7\n3,1;4,2\n").delimiter(),
+            Delimiter::Semicolon
+        );
+        // a genuinely colon-delimited file is still detected as colon
+        assert_eq!(metadata!(col, "a:b\nc:d\n").delimiter(), Delimiter::Colon);
     }
 
     #[test]
