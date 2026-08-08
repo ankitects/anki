@@ -30,6 +30,7 @@ import aqt
 import aqt.main
 import aqt.operations
 from anki import frontend_pb2, generic_pb2, hooks
+from anki.cards import Card
 from anki.collection import (
     NestedOpChanges,
     OpChanges,
@@ -38,14 +39,26 @@ from anki.collection import (
     SearchNode,
 )
 from anki.decks import UpdateDeckConfigs, UpdateDeckConfigsMode
+from anki.frontend_pb2 import PlayAVTagsRequest, ReviewerActionRequest
 from anki.scheduler.v3 import SchedulingStatesWithContext, SetSchedulingStatesRequest
+from anki.scheduler_pb2 import NextCardDataRequest, NextCardDataResponse
+from anki.template import (
+    PartiallyRenderedCard,
+    TemplateRenderContext,
+    apply_custom_filters,
+    av_tags_to_native,
+)
 from anki.utils import dev_mode, from_json_bytes, to_json_bytes
+from aqt import gui_hooks
 from aqt.changenotetype import ChangeNotetypeDialog
 from aqt.deckoptions import DeckOptionsDialog
 from aqt.operations import on_op_finished
 from aqt.operations.deck import update_deck_configs as update_deck_configs_op
 from aqt.progress import ProgressUpdate
 from aqt.qt import *
+from aqt.reviewer import SvelteReviewer
+from aqt.sound import av_player
+from aqt.theme import ThemeManager
 from aqt.utils import (
     aqt_data_path,
     askUser,
@@ -502,6 +515,7 @@ def get_sveltekit_route(path: str) -> str | None:
         "import-csv",
         "import-page",
         "image-occlusion",
+        "reviewer",
         "preferences",
         "editor",
     ]:
@@ -611,6 +625,7 @@ def _extract_request(
     if not aqt.mw.col:
         return NotFound(message=f"collection not open, ignore request for {path}")
 
+    path = path.removeprefix("media/")
     path = hooks.media_file_filter(path)
     return LocalFileRequest(root=aqt.mw.col.media.dir(), path=path)
 
@@ -1059,6 +1074,150 @@ def save_custom_colours() -> bytes:
     return b""
 
 
+theme_manager = ThemeManager()
+
+
+def next_card_data() -> bytes:
+    raw = aqt.mw.col._backend.next_card_data_raw(request.data)
+    data = NextCardDataResponse.FromString(raw)
+    req = NextCardDataRequest.FromString(request.data)
+
+    av_player.stop_and_clear_queue()
+    aqt.mw.update_undo_actions()
+
+    reviewer = aqt.mw.reviewer
+    assert isinstance(reviewer, SvelteReviewer)
+
+    if len(data.next_card.queue.cards) == 0:
+        card = None
+    else:
+        backend_queue_card = data.next_card.queue.cards[0]
+        backend_card = backend_queue_card.card
+        card = Card(aqt.mw.col, backend_card=backend_card)
+        # For addons
+        reviewer.states = backend_queue_card.states
+
+    # TODO: Is dealing with gui_hooks in mediasrv like this a good idea?
+    def runHooks():
+        if reviewer.previous_card:
+            reviewer.previous_card.timer_started = (
+                req.answer.answered_at_millis - req.answer.milliseconds_taken
+            ) / 1000
+            # TODO: This hook does not run at the right time.
+            gui_hooks.reviewer_did_show_answer(reviewer.previous_card)
+            gui_hooks.reviewer_did_answer_card(
+                aqt.mw.reviewer,
+                reviewer.previous_card,
+                req.answer.rating + 1,  # type: ignore
+            )
+        else:
+            print("BUG: Hooks called before previous card set.")
+
+    # Prevents previous_card being updated from a refresh
+    if req.HasField("answer"):
+        assert reviewer.card
+        reviewer.previous_card = reviewer.card
+        if gui_hooks.reviewer_did_answer_card.count() > 0:
+            aqt.mw.taskman.run_on_main(runHooks)
+
+    reviewer.card = card
+
+    def update_card_info():
+        reviewer._previous_card_info.set_card(reviewer.previous_card)
+        reviewer._card_info.set_card(card)
+
+    aqt.mw.taskman.run_on_main(update_card_info)
+
+    if card is None:
+        return data.SerializeToString()
+
+    ctx = TemplateRenderContext.from_existing_card(card, False)
+
+    qside = apply_custom_filters(
+        PartiallyRenderedCard.nodes_from_proto(data.next_card.partialTemplate.front),
+        ctx,
+        None,
+    )
+    q_avtags = ctx.col()._backend.extract_av_tags(text=qside, question_side=True)
+
+    aside = apply_custom_filters(
+        PartiallyRenderedCard.nodes_from_proto(data.next_card.partialTemplate.back),
+        ctx,
+        q_avtags.text,
+    )
+    a_avtags = ctx.col()._backend.extract_av_tags(text=aside, question_side=False)
+
+    # Dont send the partialy rendered template to the frontend to save bandwidth
+    data.next_card.ClearField("partialTemplate")
+
+    # Assumes the av tags are empty in the original response
+    data.next_card.question_av_tags.extend(q_avtags.av_tags)
+    data.next_card.answer_av_tags.extend(a_avtags.av_tags)
+
+    qside = q_avtags.text
+    aside = a_avtags.text
+
+    qside = aqt.mw.prepare_card_text_for_display(qside)
+    aside = aqt.mw.prepare_card_text_for_display(aside)
+
+    data.next_card.front = qside
+    data.next_card.back = aside
+    # Night mode is handled by the frontend so that it works with the browsers theme if used outside of anki.
+    # Perhaps the OS class should be handled this way too?
+    data.next_card.body_class = theme_manager.body_classes_for_card_ord(card.ord, False)
+    data.next_card.accept_enter = aqt.mw.pm.spacebar_rates_card()
+
+    return data.SerializeToString()
+
+
+def play_avtags():
+    req = PlayAVTagsRequest.FromString(request.data)
+    av_player.play_tags(av_tags_to_native(req.tags))
+    return b""
+
+
+def reviewer_action():
+    reviewer = aqt.mw.reviewer
+    ACTION_ENUM = ReviewerActionRequest.ReviewerAction
+
+    def overview():
+        aqt.mw.moveToState("overview")
+
+    REVIEWER_ACTIONS = {
+        ACTION_ENUM.EditCurrent: aqt.mw.onEditCurrent,
+        ACTION_ENUM.SetDueDate: reviewer.on_set_due,
+        ACTION_ENUM.CardInfo: reviewer.on_card_info,
+        ACTION_ENUM.PreviousCardInfo: reviewer.on_previous_card_info,
+        ACTION_ENUM.CreateCopy: reviewer.on_create_copy,
+        ACTION_ENUM.Forget: reviewer.forget_current_card,
+        ACTION_ENUM.Options: reviewer.onOptions,
+        ACTION_ENUM.Overview: overview,
+        ACTION_ENUM.PauseAudio: reviewer.on_pause_audio,
+        ACTION_ENUM.SeekBackward: reviewer.on_seek_backward,
+        ACTION_ENUM.SeekForward: reviewer.on_seek_forward,
+        ACTION_ENUM.RecordVoice: reviewer.onRecordVoice,
+        ACTION_ENUM.ReplayRecorded: reviewer.onReplayRecorded,
+    }
+
+    req = ReviewerActionRequest.FromString(request.data)
+    aqt.mw.taskman.run_on_main(REVIEWER_ACTIONS[req.menu])
+    return b""
+
+
+def undo_redo(action: str):
+    resp = raw_backend_request(action)()
+    aqt.mw.update_undo_actions()
+    return resp
+
+
+def undo():
+    return undo_redo("undo")
+
+
+def redo():
+    return undo_redo("redo")
+
+
 post_handler_list = [
     congrats_info,
     get_deck_configs_for_update,
@@ -1075,6 +1234,7 @@ post_handler_list = [
     get_meta_json,
     set_meta_json,
     get_config_json,
+    set_config_json,
     convert_pasted_image,
     open_file_picker,
     open_media,
@@ -1090,6 +1250,11 @@ post_handler_list = [
     open_fields_dialog,
     open_cards_dialog,
     save_custom_colours,
+    next_card_data,
+    play_avtags,
+    reviewer_action,
+    undo,
+    redo,
 ]
 
 
@@ -1097,6 +1262,7 @@ exposed_backend_list = [
     # CollectionService
     "latest_progress",
     "get_custom_colours",
+    "get_undo_status",
     # DeckService
     "get_deck_names",
     "get_deck",
@@ -1112,6 +1278,9 @@ exposed_backend_list = [
     # NotesService
     "get_field_names",
     "get_note",
+    "remove_notes",
+    "add_note_tags",
+    "remove_note_tags",
     "new_note",
     "note_fields_check",
     "defaults_for_adding",
@@ -1146,16 +1315,21 @@ exposed_backend_list = [
     "get_optimal_retention_parameters",
     "simulate_fsrs_review",
     "simulate_fsrs_workload",
+    "bury_or_suspend_cards",
+    "describe_next_states",
     # DeckConfigService
     "get_ignored_before_count",
     "get_retention_workload",
+    # ConfigService
+    "get_config_string",
+    "get_config_bool",
+    # CardsService
+    "set_flag",
+    "compare_answer",
     # CardRenderingService
     "encode_iri_paths",
     "decode_iri_paths",
     "html_to_text_line",
-    # ConfigService
-    "set_config_json",
-    "get_config_bool",
     # MediaService
     "add_media_file",
     "add_media_from_path",
@@ -1175,8 +1349,7 @@ def raw_backend_request(endpoint: str) -> Callable[[], bytes]:
 
     def wrapped() -> bytes:
         output = getattr(aqt.mw.col._backend, f"{endpoint}_raw")(request.data)
-        op_changes_type = int(request.headers.get("Anki-Op-Changes", "0"))
-        if op_changes_type:
+        if op_changes_type := int(request.headers.get("Anki-Op-Changes", "0")):
             op_message_types = (OpChanges, OpChangesOnly, NestedOpChanges)
             try:
                 response = op_message_types[op_changes_type - 1]()
