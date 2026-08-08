@@ -483,3 +483,24 @@ If you don't want Anki to compare accents on characters in your typed input with
 
 This makes sure a difference in accents isn't marked as incorrect by Anki.
 For example, `بطيخ` would be treated the same as `بَطِّيخ` or `elite` would be treated same as `élite`.
+
+### Ignoring Capitalization
+
+If capitalization isn't what you're testing, you can use `type:ci` to make the
+comparison case-insensitive.
+
+```text
+{{type:ci:Front}}
+```
+
+With this, typing `paris` when the field contains `Paris` is not marked as
+incorrect. The correct answer is still shown with its original capitalization.
+
+The modifiers can be combined, in any order, so that both accents and
+capitalization are ignored:
+
+```text
+{{type:nc:ci:Front}}
+```
+
+They can be combined with `cloze` as well, e.g. `{{type:cloze:ci:Text}}`.
