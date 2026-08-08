@@ -3,7 +3,8 @@
     "[python]": {
         "editor.codeActionsOnSave": {
             "source.organizeImports": "explicit"
-        }
+        },
+        "editor.defaultFormatter": "charliermarsh.ruff"
     },
     "files.watcherExclude": {
         "**/.git/objects/**": true,
@@ -18,7 +19,6 @@
         "out/qt",
         "qt"
     ],
-    "python.formatting.provider": "charliermarsh.ruff",
     "python.linting.mypyEnabled": false,
     "python.analysis.diagnosticSeverityOverrides": {
         "reportMissingModuleSource": "none"
