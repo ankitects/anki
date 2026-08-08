@@ -243,6 +243,23 @@ mod test {
     }
 
     #[test]
+    fn preset_and_cds_quotes_round_trip() {
+        // A literal " in a preset/custom-data value must survive
+        // parse -> write -> parse. These nodes previously stored the value
+        // without unescaping, so the writer's added escape compounded into
+        // `\\"` and the result no longer re-parsed.
+        for input in [r#"preset:a\"b"#, r#"prop:cds:k=a\"b"#] {
+            let normalized = normalize_search(input).unwrap();
+            assert_eq!(normalized, input, "normalizing changed the quoted value");
+            assert_eq!(
+                normalize_search(&normalized).unwrap(),
+                normalized,
+                "re-normalizing {normalized:?} changed it"
+            );
+        }
+    }
+
+    #[test]
     fn replacing() -> Result<()> {
         assert_eq!(
             replace_search_node(parse("deck:baz bar")?, parse("deck:foo")?.pop().unwrap()),
