@@ -10,7 +10,7 @@
         "**/.git/objects/**": true,
         "**/.git/subtree-cache/**": true,
         "**/node_modules/*/**": true,
-        ".bazel/**": true
+        "out/**": true
     },
     "python.analysis.extraPaths": [
         "./pylib",
@@ -24,14 +24,14 @@
         "reportMissingModuleSource": "none"
     },
     "rust-analyzer.check.allTargets": false,
-    "rust-analyzer.files.excludeDirs": [".bazel", "node_modules"],
+    "rust-analyzer.files.excludeDirs": ["out", "node_modules"],
     "rust-analyzer.procMacro.enable": true,
     // this formats 'use' blocks in a nicer way, but requires you to run
     // 'rustup install nightly'.
     "rust-analyzer.rustfmt.extraArgs": ["+nightly"],
     "search.exclude": {
         "**/node_modules": true,
-        ".bazel/**": true
+        "out/**": true
     },
     "rust-analyzer.cargo.buildScripts.enable": true,
     "python.analysis.typeCheckingMode": "off",
