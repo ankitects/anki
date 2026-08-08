@@ -30,7 +30,7 @@
         "reportMissingModuleSource": "none"
     },
     "rust-analyzer.check.allTargets": false,
-    "rust-analyzer.files.excludeDirs": ["out", "node_modules"],
+    "rust-analyzer.files.exclude": ["out", "node_modules"],
     "rust-analyzer.procMacro.enable": true,
     // this formats 'use' blocks in a nicer way, but requires you to run
     // 'rustup install nightly'.
