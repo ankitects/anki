@@ -391,6 +391,17 @@ impl Collection {
             })
         }
     }
+
+    // Used for extra-ordinary circumstances where a memory state is needed but is not availiable, e.g. the card has been moved to a different deck.
+    // Try to use update_memory_state where you can.
+    pub fn compute_and_update_memory_state(&mut self, card: &mut Card) -> Result<()> {
+        let fsrs_data = self.compute_memory_state(card.id)?;
+        card.memory_state = fsrs_data.state.map(Into::into);
+        card.desired_retention = Some(fsrs_data.desired_retention);
+        card.decay = Some(fsrs_data.decay);
+        self.storage.update_card(card)?;
+        Ok(())
+    }
 }
 
 impl Card {

@@ -14,7 +14,7 @@ use crate::scheduler::timing::is_unix_epoch_timestamp;
 
 impl Collection {
     pub fn card_stats(&mut self, cid: CardId) -> Result<anki_proto::stats::CardStatsResponse> {
-        let card = self.storage.get_card(cid)?.or_not_found(cid)?;
+        let mut card = self.storage.get_card(cid)?.or_not_found(cid)?;
         let note = self
             .storage
             .get_note(card.note_id)?
@@ -67,6 +67,11 @@ impl Collection {
         let preset = self
             .get_deck_config(config_id, true)?
             .or_not_found(config_id.to_string())?;
+
+        if card.ctype != CardType::New && card.memory_state.is_none() {
+            self.compute_and_update_memory_state(&mut card)?;
+        }
+
         Ok(anki_proto::stats::CardStatsResponse {
             card_id: card.id.into(),
             note_id: card.note_id.into(),
