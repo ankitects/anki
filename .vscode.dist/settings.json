@@ -20,6 +20,7 @@
         "qt"
     ],
     "python.useEnvironmentsExtension": true,
+    "python-envs.workspaceSearchPaths": ["out/pyenv"],
     "mypy-type-checker.extraPaths": ["pylib", "qt", "out/pylib", "out/qt"],
     "mypy-type-checker.interpreter": [],
     "mypy-type-checker.importStrategy": "fromEnvironment",
