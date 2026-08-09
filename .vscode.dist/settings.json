@@ -21,12 +21,6 @@
     ],
     "python.useEnvironmentsExtension": true,
     "python-envs.workspaceSearchPaths": ["out/pyenv"],
-    "mypy-type-checker.extraPaths": ["pylib", "qt", "out/pylib", "out/qt"],
-    "mypy-type-checker.interpreter": [],
-    "mypy-type-checker.importStrategy": "fromEnvironment",
-    "mypy-type-checker.preferDaemon": false,
-    "mypy-type-checker.args": ["--config-file=${workspaceFolder}/.mypy.ini"],
-    "mypy-type-checker.reportingScope": "file",
     "python.analysis.diagnosticSeverityOverrides": {
         "reportMissingModuleSource": "none"
     },
