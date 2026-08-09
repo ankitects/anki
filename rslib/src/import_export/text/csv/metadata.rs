@@ -533,18 +533,6 @@ fn delimiter_from_reader(reader: impl Read) -> Result<Delimiter> {
     // bytes than available for a pipe/socket); cap it at 8KB via take.
     let mut buf = Vec::with_capacity(8 * 1024);
     reader.take(8 * 1024).read_to_end(&mut buf)?;
-    let text = String::from_utf8_lossy(&buf);
-    // Examine the first several non-empty lines and pick the delimiter that
-    // splits them most consistently (the same positive count on the most
-    // lines). This avoids choosing a delimiter that merely appears inside field
-    // content - e.g. a ':' in a time, or a ',' decimal separator in a
-    // semicolon-delimited file.
-    let lines: Vec<&str> = text
-        .lines()
-        .filter(|line| !line.trim().is_empty())
-        .take(10)
-        .collect();
-
     // Tie-break order: genuine delimiters first, content-prone ones (colon and
     // space) last, so an otherwise-ambiguous file is read the way it was most
     // likely written.
@@ -559,7 +547,7 @@ fn delimiter_from_reader(reader: impl Read) -> Result<Delimiter> {
 
     let mut best: Option<(usize, Delimiter)> = None;
     for delimiter in TIE_BREAK_ORDER {
-        let score = delimiter_consistency(&lines, delimiter.byte());
+        let score = delimiter_consistency(&buf, delimiter.byte());
         if score == 0 {
             continue;
         }
@@ -575,14 +563,21 @@ fn delimiter_from_reader(reader: impl Read) -> Result<Delimiter> {
         .unwrap_or(Delimiter::Space))
 }
 
-/// The largest number of lines that share a single positive per-line count of
-/// `byte`. A higher value means the delimiter splits the sample into a
-/// consistent number of columns; 0 means the byte never appears.
-fn delimiter_consistency(lines: &[&str], byte: u8) -> usize {
-    let counts: Vec<usize> = lines
-        .iter()
-        .map(|line| line.bytes().filter(|&b| b == byte).count())
-        .filter(|&count| count > 0)
+/// The largest number of records that share a field count greater than one
+/// when parsed with `byte` as the delimiter. Parsing each candidate as CSV
+/// prevents delimiter-like characters inside quoted fields from affecting the
+/// score.
+fn delimiter_consistency(sample: &[u8], byte: u8) -> usize {
+    let counts: Vec<usize> = csv::ReaderBuilder::new()
+        .delimiter(byte)
+        .has_headers(false)
+        .flexible(true)
+        .from_reader(sample)
+        .byte_records()
+        .take(10)
+        .filter_map(|record| record.ok())
+        .map(|record| record.len())
+        .filter(|&field_count| field_count > 1)
         .collect();
     counts
         .iter()
@@ -841,6 +836,12 @@ pub(in crate::import_export) mod test {
         assert_eq!(
             metadata!(col, "1,5;2,7\n3,1;4,2\n").delimiter(),
             Delimiter::Semicolon
+        );
+        // delimiter-like characters inside quoted fields must not participate
+        // in detection
+        assert_eq!(
+            metadata!(col, "\"a;b\",c\n\"d;e\",f\n").delimiter(),
+            Delimiter::Comma
         );
         // a genuinely colon-delimited file is still detected as colon
         assert_eq!(metadata!(col, "a:b\nc:d\n").delimiter(), Delimiter::Colon);
