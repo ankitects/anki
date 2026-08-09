@@ -4,7 +4,6 @@
 from __future__ import annotations
 
 import os
-import re
 from abc import ABC, abstractmethod
 from collections.abc import Callable
 from itertools import chain
@@ -133,26 +132,8 @@ IMPORTERS: list[type[Importer]] = [
 ]
 
 
-def legacy_file_endings(col: Collection) -> list[str]:
-    from anki.importing import AnkiPackageImporter, TextImporter, importers
-    from anki.importing import MnemosyneImporter as LegacyMnemosyneImporter
-
-    return [
-        ext
-        for (text, importer) in importers(col)
-        if importer not in (TextImporter, AnkiPackageImporter, LegacyMnemosyneImporter)
-        for ext in re.findall(r"[( ]?\*(\..+?)[) ]", text)
-    ]
-
-
 def import_file(mw: aqt.main.AnkiQt, path: str) -> None:
     filename = os.path.basename(path).lower()
-
-    if any(filename.endswith(ext) for ext in legacy_file_endings(mw.col)):
-        import aqt.importing
-
-        aqt.importing.importFile(mw, path)
-        return
 
     for importer in IMPORTERS:
         if importer.can_import(filename):
@@ -184,7 +165,6 @@ def all_accepted_file_endings(mw: aqt.main.AnkiQt) -> set[str]:
     return set(
         chain(
             *(importer.accepted_file_endings for importer in IMPORTERS),
-            legacy_file_endings(mw.col),
         )
     )
 
