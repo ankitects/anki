@@ -30,13 +30,17 @@ jobs:
 
       - name: Check for non-documentation changes
         id: non-doc-changes
-        uses: tj-actions/changed-files@24d32ffd492484c1d75e0c0b894501ddb9d30d62 #v47.0.5
+        uses: tj-actions/changed-files@9426d40962ed5378910ee2e21d5f8c6fcbf2dd96 #v47.0.6
         with:
           files_ignore: |
             **.md
+            **.mdx
             docs/**/*.png
             docs/**/*.svg
-            docs-site/**
+            docs-site/**/*.png
+            docs-site/**/*.jpg
+            docs-site/**/*.svg
+            docs-site/**/*.mp4
 
       - name: Run minilints
         if: steps.non-doc-changes.outputs.any_changed == 'true'
@@ -184,7 +188,7 @@ jobs:
       - name: Check Rust dependencies
         if: github.event_name == 'pull_request'
         id: rust-deps
-        uses: tj-actions/changed-files@9426d40962ed5378910ee2e21d5f8c6fcbf2dd96 #v47.0.5
+        uses: tj-actions/changed-files@9426d40962ed5378910ee2e21d5f8c6fcbf2dd96 #v47.0.6
         with:
           files: |
             Cargo.lock
