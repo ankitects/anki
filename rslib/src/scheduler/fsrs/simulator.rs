@@ -182,7 +182,7 @@ impl Collection {
             })
             .collect_vec();
         let introduced_today_count = self
-            .search_cards(&format!("{} introduced:1", &req.search), SortMode::NoOrder)?
+            .search_cards(&format!("{} introduced:1", req.search), SortMode::NoOrder)?
             .len()
             .min(req.new_limit as usize);
         if req.new_limit > 0 {
