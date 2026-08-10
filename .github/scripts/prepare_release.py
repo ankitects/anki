@@ -23,12 +23,10 @@ from pathlib import Path
 REPO_ROOT = Path(__file__).resolve().parent.parent.parent
 
 
-def run(args: list[str], *, cwd: Path = REPO_ROOT, check: bool = True) -> str:
+def run(args: list[str], *, cwd: Path = REPO_ROOT) -> str:
     """Run a command and return stdout as a string."""
-    result = subprocess.run(
-        args, cwd=cwd, check=check, capture_output=True, text=True
-    )
-    return result.stdout.strip()
+    out = subprocess.check_output(args, cwd=cwd, text=True)
+    return out.strip()
 
 
 def check_ci_passed(commit_sha: str) -> None:
