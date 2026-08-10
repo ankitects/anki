@@ -32,9 +32,11 @@ jobs:
         id: non-doc-changes
         uses: tj-actions/changed-files@9426d40962ed5378910ee2e21d5f8c6fcbf2dd96 #v47.0.6
         with:
+          files: |
+            **
           files_ignore: |
-            **.md
-            **.mdx
+            **/*.md
+            **/*.mdx
             docs/**/*.png
             docs/**/*.svg
             docs-site/**/*.png
