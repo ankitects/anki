@@ -18,6 +18,7 @@ import argparse
 import os
 import subprocess
 import sys
+from dataclasses import dataclass
 from pathlib import Path
 
 # Repo root is two levels up from this script (.github/scripts/)
@@ -25,10 +26,81 @@ REPO_ROOT = Path(__file__).resolve().parent.parent.parent
 GH_REPO = ["--repo", "ankitects/anki"]
 
 
+@dataclass
+class TranslationModule:
+    template_folder: str
+    translation_repo: str
+
+
 def run(args: list[str], *, cwd: Path = REPO_ROOT) -> str:
     """Run a command and return stdout as a string."""
     out = subprocess.check_output(args, cwd=cwd, text=True)
     return out.strip()
+
+
+def check_clean() -> None:
+    out = subprocess.check_output(["git", "status", "--porcelain"])
+    if out:
+        raise Exception("please commit any outstanding changes first")
+
+
+def commit(folder: str, message: str, pathspec: str) -> None:
+    subprocess.check_call(["git", "add", pathspec], cwd=folder)
+    result = subprocess.run(
+        ["git", "commit", "-m", message],
+        cwd=folder,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.STDOUT,
+        text=True,
+        check=False,
+    )
+    if result.returncode == 0:
+        return
+    if "nothing to commit" in result.stdout:
+        print(f"No changes to commit in {folder}")
+    else:
+        raise Exception(f"git commit failed in {folder}: {result.stdout}")
+
+
+def fetch_new_translations(module: TranslationModule) -> None:
+    subprocess.check_call(["git", "checkout", "main"], cwd=module.translation_repo)
+    subprocess.check_call(
+        ["git", "pull", "origin", "main"], cwd=module.translation_repo
+    )
+
+
+def push_new_templates(module: TranslationModule) -> None:
+    subprocess.check_call(
+        [
+            "rsync",
+            "-ai",
+            "--delete",
+            "--no-perms",
+            "--no-times",
+            "-c",
+            f"{module.template_folder}/",
+            f"{module.translation_repo}/templates/",
+        ]
+    )
+    changes_pending = subprocess.Popen(
+        ["git", "diff", "--exit-code"], cwd=module.translation_repo
+    ).wait()
+    if changes_pending:
+        commit(module.translation_repo, "Update templates", "templates/")
+        subprocess.check_call(
+            ["git", "push", "origin", "main"], cwd=module.translation_repo
+        )
+
+
+def sync_translations() -> None:
+    modules = [
+        TranslationModule("ftl/core", "ftl/core-repo/core"),
+        TranslationModule("ftl/qt", "ftl/qt-repo/desktop"),
+    ]
+    for module in modules:
+        fetch_new_translations(module)
+        push_new_templates(module)
+    commit(".", "Update translations", "ftl/")
 
 
 def check_ci_passed(commit_sha: str) -> None:
@@ -99,20 +171,21 @@ def update_version_and_commit(version: str) -> None:
     (REPO_ROOT / ".version").write_text(version)
     run(["git", "add", ".version"])
     run(["git", "commit", "-m", f"Prepare release {version}"])
-    print("Committed.")
 
 
 def push_branch(branch: str) -> None:
     print(f"Pushing to origin/{branch}...")
     run(["git", "push", "origin", f"HEAD:refs/heads/{branch}"])
-    print("Pushed.")
 
 
-def base_version(version_str: str) -> str:
+def release_branch(version_str: str) -> str:
+    """Return the release branch corresponding to a version, e.g. 26.08b1 -> release/26.08"""
     from packaging.version import Version
 
     version = Version(version_str)
-    return version.base_version
+    release = [str(p) for p in Version(version.base_version).release]
+    release[1] = release[1].zfill(2)
+    return "release/" + ".".join(release)
 
 
 def main() -> None:
@@ -133,6 +206,7 @@ def main() -> None:
     args = parser.parse_args()
 
     os.chdir(REPO_ROOT)
+    check_clean()
 
     # Validate version format and ensure it's newer than the current one.
     sys.path.insert(0, str(REPO_ROOT / ".github" / "scripts"))
@@ -147,7 +221,7 @@ def main() -> None:
         sys.exit(1)
     print(f"Version '{args.version}' is valid.")
 
-    branch = f"release/{base_version(args.version)}"
+    branch = release_branch(args.version)
     run(["git", "checkout", branch])
 
     if not args.skip_ci_check:
@@ -160,15 +234,13 @@ def main() -> None:
 
     # Sync translations (pulls latest from submodule repos, pushes updated templates).
     print("Syncing translations...")
-    from sync_translations import sync
-
-    sync()
+    sync_translations()
     print("Translations synced.")
 
     update_version_and_commit(args.version)
     push_branch(branch)
 
-    print(f"\nDone. Release {args.version} is prepared.")
+    print(f"Done. Release {args.version} is prepared.")
 
 
 if __name__ == "__main__":
