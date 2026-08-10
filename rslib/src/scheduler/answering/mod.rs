@@ -232,7 +232,10 @@ impl Collection {
         self.get_scheduling_states_inner(card).map(|r| r.0)
     }
 
-    pub fn get_scheduling_states_inner(&mut self, card: Card) -> Result<(SchedulingStates, Card)> {
+    pub(crate) fn get_scheduling_states_inner(
+        &mut self,
+        card: Card,
+    ) -> Result<(SchedulingStates, Card)> {
         let note_id = card.note_id;
 
         let ctx = self.card_state_updater(card)?;
