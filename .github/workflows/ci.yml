@@ -28,7 +28,22 @@ jobs:
       - name: Install Rust toolchain
         uses: actions-rust-lang/setup-rust-toolchain@166cdcfd11aee3cb47222f9ddb555ce30ddb9659 #v1
 
+      - name: Check for non-documentation changes
+        id: non-doc-changes
+        uses: tj-actions/changed-files@9426d40962ed5378910ee2e21d5f8c6fcbf2dd96 #v47.0.6
+        with:
+          files_ignore: |
+            **.md
+            **.mdx
+            docs/**/*.png
+            docs/**/*.svg
+            docs-site/**/*.png
+            docs-site/**/*.jpg
+            docs-site/**/*.svg
+            docs-site/**/*.mp4
+
       - name: Run minilints
+        if: steps.non-doc-changes.outputs.any_changed == 'true'
         run: cargo run -p minilints -- check /tmp/minilints.stamp
         env:
           CONTRIBUTORS_BYPASS_EMAILS: ${{ vars.CONTRIBUTORS_BYPASS_EMAILS }}
@@ -173,7 +188,7 @@ jobs:
       - name: Check Rust dependencies
         if: github.event_name == 'pull_request'
         id: rust-deps
-        uses: tj-actions/changed-files@9426d40962ed5378910ee2e21d5f8c6fcbf2dd96 #v47.0.5
+        uses: tj-actions/changed-files@9426d40962ed5378910ee2e21d5f8c6fcbf2dd96 #v47.0.6
         with:
           files: |
             Cargo.lock
