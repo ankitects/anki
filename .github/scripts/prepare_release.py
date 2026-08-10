@@ -97,11 +97,17 @@ def update_version_and_commit(version: str) -> None:
     print("Committed.")
 
 
-def push_current_branch() -> None:
-    branch = run(["git", "rev-parse", "--abbrev-ref", "HEAD"])
+def push_branch(branch: str) -> None:
     print(f"Pushing to origin/{branch}...")
     run(["git", "push", "origin", f"HEAD:refs/heads/{branch}"])
     print("Pushed.")
+
+
+def base_version(version_str: str) -> str:
+    from packaging.version import Version
+
+    version = Version(version_str)
+    return version.base_version
 
 
 def main() -> None:
@@ -134,6 +140,9 @@ def main() -> None:
         sys.exit(1)
     print(f"Version '{args.version}' is valid.")
 
+    branch = f"release/{base_version(args.version)}"
+    run(["git", "checkout", branch])
+
     if not args.skip_ci_check:
         commit_sha = run(["git", "rev-parse", "HEAD"])
         check_ci_passed(commit_sha)
@@ -150,7 +159,7 @@ def main() -> None:
     print("Translations synced.")
 
     update_version_and_commit(args.version)
-    push_current_branch()
+    push_branch(branch)
 
     print(f"\nDone. Release {args.version} is prepared.")
 
