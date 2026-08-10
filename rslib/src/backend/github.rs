@@ -18,6 +18,7 @@ use crate::prelude::*;
 use crate::services::BackendGithubService;
 use crate::updates::download_file;
 use crate::updates::release_path;
+use crate::updates::reqwest_error_to_anki_error;
 use crate::updates::updates_dir;
 use crate::updates::user_agent;
 use crate::updates::DownloadUpdateProgress;
@@ -76,8 +77,10 @@ impl BackendGithubService for Backend {
                 .header("User-Agent", user_agent())
                 .timeout(Duration::from_secs(60))
                 .send()
-                .await?
-                .error_for_status()?;
+                .await
+                .map_err(reqwest_error_to_anki_error)?
+                .error_for_status()
+                .map_err(reqwest_error_to_anki_error)?;
             let release_info: Value;
             if input.include_prerelease {
                 let json: Value = response.json().await?;

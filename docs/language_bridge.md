@@ -1,3 +1,13 @@
+<!-- DO NOT MANUALLY EDIT THIS FILE -->
+<!-- This file is copied from docs-site/developers/language_bridge.mdx automatically -->
+
+# Language Bridge
+
+<!-- <<<cog
+from cogdocs import get_file_contents
+cog.out(get_file_contents("language_bridge"))
+>>> -->
+
 Anki's codebase uses three layers.
 
 1. The web frontend, created in Svelte and typescript,
@@ -18,7 +28,7 @@ Imitating those examples should allow you to make call and create new RPCs.
 
 Let's consider the method `NewDeck` of `DecksServices`. It's declared in [decks.proto](https://github.com/ankitects/anki/blob/acaeee91fa853e4a7a78dcddbb832d009ec3529a/proto/anki/decks.proto#L14) as `rpc NewDeck(generic.Empty) returns (Deck);`. This means this methods takes no argument (technically, an argument containing no information), and returns a [`Deck`](https://github.com/ankitects/anki/blob/acaeee91fa853e4a7a78dcddbb832d009ec3529a/proto/anki/decks.proto#L54).
 
-Read [protobuf](./protobuf.md) to learn more about how those input and output types are defined.
+Read [protobuf](https://anki.mintlify.app/protobuf) to learn more about how those input and output types are defined.
 
 If the RPC implementation is in Python, it should be declared in the service [frontend.proto](https://github.com/ankitects/anki/blob/acaeee91fa853e4a7a78dcddbb832d009ec3529a/proto/anki/frontend.proto#L24C3-L24C66)'s `FrontendService`. RPCs declared in any other services are implemented in Rust.
 
@@ -82,3 +92,5 @@ result to a callback. Instead your function will have to call a post
 method that will be sent to Python or Rust.
 
 This method is called in [deckoptions.py](https://github.com/ankitects/anki/blob/acaeee91fa853e4a7a78dcddbb832d009ec3529a/qt/aqt/deckoptions.py#L68) with `self.web.eval("anki.deckOptionsPendingChanges();"`.
+
+<!-- <<<end>>> -->

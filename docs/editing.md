@@ -1,4 +1,12 @@
+<!-- DO NOT MANUALLY EDIT THIS FILE -->
+<!-- This file is copied from docs-site/developers/editing.mdx automatically -->
+
 # Editing/IDEs
+
+<!-- <<<cog
+from cogdocs import get_file_contents
+cog.out(get_file_contents("editing"))
+>>> -->
 
 Visual Studio Code is recommended, since it provides decent support for all the languages
 Anki uses. To set up the recommended workspace settings for VS Code, please see below.
@@ -57,3 +65,5 @@ ln -sf ../.idea.dist/* .
 ```
 
 You also need to add a new Python interpreter under _Settings > Python > Interpreter_ pointing to the Python executable under `out/pyenv` (available after building Anki).
+
+<!-- <<<end>>> -->
