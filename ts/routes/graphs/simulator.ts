@@ -404,7 +404,7 @@ function _renderSimulationChart<
         path.classed("hidden", !hidden);
         path.style("display", () => hidden ? null : "none");
 
-        select(target).select("rect")
+        select(target)
             .style("opacity", hidden ? 1 : 0.5);
     };
 
