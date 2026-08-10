@@ -24,6 +24,9 @@ if "%CI%"=="true" (
   if not exist %LLVMCOVPATH%\cargo-llvm-cov.exe (
       cargo install cargo-llvm-cov --version 0.8.4 --locked --root out || exit /b 1
   )
+  if not exist %LLVMCOVPATH%\cargo-nextest.exe (
+      cargo install cargo-nextest --version 0.9.99 --locked --no-default-features --features default-no-update --root out || exit /b 1
+  )
   set "CARGO_CMD=%LLVMCOVPATH%\cargo-llvm-cov.exe"
 )
 
