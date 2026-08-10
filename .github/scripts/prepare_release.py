@@ -22,6 +22,7 @@ from pathlib import Path
 
 # Repo root is two levels up from this script (.github/scripts/)
 REPO_ROOT = Path(__file__).resolve().parent.parent.parent
+GH_REPO = ["--repo", "ankitects/anki"]
 
 
 def run(args: list[str], *, cwd: Path = REPO_ROOT) -> str:
@@ -35,6 +36,7 @@ def check_ci_passed(commit_sha: str) -> None:
     output = run(
         [
             "gh",
+            *GH_REPO,
             "run",
             "list",
             "--workflow=ci.yml",
@@ -79,7 +81,7 @@ def check_no_duplicate(version: str) -> None:
         sys.exit(1)
 
     result = subprocess.run(
-        ["gh", "release", "view", version],
+        ["gh", *GH_REPO, "release", "view", version],
         cwd=REPO_ROOT,
         capture_output=True,
         text=True,
