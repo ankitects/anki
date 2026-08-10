@@ -33,19 +33,31 @@ def check_ci_passed(commit_sha: str) -> None:
     print(f"Checking CI status for {commit_sha}...")
     output = run(
         [
-            "gh", "run", "list",
+            "gh",
+            "run",
+            "list",
             "--workflow=ci.yml",
-            "--commit", commit_sha,
-            "--limit", "5",
-            "--json", "conclusion,event",
-            "--jq", '[.[] | select(.event == "push" or .event == "workflow_dispatch")][0].conclusion',
+            "--commit",
+            commit_sha,
+            "--limit",
+            "5",
+            "--json",
+            "conclusion,event",
+            "--jq",
+            '[.[] | select(.event == "push" or .event == "workflow_dispatch")][0].conclusion',
         ]
     )
     if not output:
-        print(f"Error: could not determine CI status for commit {commit_sha}", file=sys.stderr)
+        print(
+            f"Error: could not determine CI status for commit {commit_sha}",
+            file=sys.stderr,
+        )
         sys.exit(1)
     if output != "success":
-        print(f"Error: CI for commit {commit_sha} concluded with '{output}'", file=sys.stderr)
+        print(
+            f"Error: CI for commit {commit_sha} concluded with '{output}'",
+            file=sys.stderr,
+        )
         sys.exit(1)
     print("CI check passed.")
 
@@ -56,7 +68,9 @@ def check_no_duplicate(version: str) -> None:
 
     result = subprocess.run(
         ["git", "rev-parse", f"refs/tags/{version}"],
-        cwd=REPO_ROOT, capture_output=True, text=True
+        cwd=REPO_ROOT,
+        capture_output=True,
+        text=True,
     )
     if result.returncode == 0:
         print(f"Error: tag '{version}' already exists", file=sys.stderr)
@@ -64,7 +78,9 @@ def check_no_duplicate(version: str) -> None:
 
     result = subprocess.run(
         ["gh", "release", "view", version],
-        cwd=REPO_ROOT, capture_output=True, text=True
+        cwd=REPO_ROOT,
+        capture_output=True,
+        text=True,
     )
     if result.returncode == 0:
         print(f"Error: GitHub release '{version}' already exists", file=sys.stderr)
@@ -129,6 +145,7 @@ def main() -> None:
     # Sync translations (pulls latest from submodule repos, pushes updated templates).
     print("Syncing translations...")
     from sync_translations import sync
+
     sync()
     print("Translations synced.")
 
