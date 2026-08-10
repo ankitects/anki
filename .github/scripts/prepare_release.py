@@ -71,6 +71,7 @@ def check_no_duplicate(version: str) -> None:
         cwd=REPO_ROOT,
         capture_output=True,
         text=True,
+        check=False,
     )
     if result.returncode == 0:
         print(f"Error: tag '{version}' already exists", file=sys.stderr)
@@ -81,6 +82,7 @@ def check_no_duplicate(version: str) -> None:
         cwd=REPO_ROOT,
         capture_output=True,
         text=True,
+        check=False,
     )
     if result.returncode == 0:
         print(f"Error: GitHub release '{version}' already exists", file=sys.stderr)
