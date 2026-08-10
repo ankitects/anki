@@ -30,6 +30,7 @@ if "%CI%"=="true" (
   set "CARGO_CMD=%LLVMCOVPATH%\cargo-llvm-cov.exe"
 )
 
+set "PATH=%LLVMCOVPATH%;%PATH%"
 set "ANKI_TEST_MODE=1"
 "%CARGO_CMD%" llvm-cov nextest --workspace --locked --json --summary-only ^
     --output-path %outdir%\coverage-summary.json --fail-under-lines 64 || exit /b 1
