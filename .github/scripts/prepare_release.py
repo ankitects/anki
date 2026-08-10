@@ -15,6 +15,7 @@ Examples:
 """
 
 import argparse
+import os
 import subprocess
 import sys
 from pathlib import Path
@@ -128,6 +129,8 @@ def main() -> None:
         help="Skip the CI status check (for hotfix releases from non-main branches)",
     )
     args = parser.parse_args()
+
+    os.chdir(REPO_ROOT)
 
     # Validate version format and ensure it's newer than the current one.
     sys.path.insert(0, str(REPO_ROOT / ".github" / "scripts"))
