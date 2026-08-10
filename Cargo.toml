@@ -178,4 +178,5 @@ lto = true
 
 [profile.ci]
 inherits = "dev"
-incremental = false
+# TODO: set once caching issues are fixed (#5133)
+# incremental = false
