@@ -1,5 +1,18 @@
 name: CI
 
+# Caching strategy
+#
+# Each check job caches its build outputs (out/, which includes the cargo
+# target dir at out/rust) under the key build-<platform>-<pr-number|main>-
+# <run-id>. Cache entries are immutable, so the run-id suffix makes the
+# primary key unique: every run restores the newest earlier entry through
+# restore-keys and saves a fresh one. Entries are ~1 GB and the repository
+# budget is 10 GB, so each save also prunes the entries it supersedes (see
+# .github/actions/save-build-cache). The label-triggered platform jobs do
+# not save caches on PRs; they restore from the main-branch entry instead.
+# node_modules is cached separately, keyed on yarn.lock. cache-cleanup.yml
+# deletes a PR's remaining caches when the PR closes.
+
 on:
   workflow_dispatch:
   push:
