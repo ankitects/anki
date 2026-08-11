@@ -3,10 +3,12 @@
 
 from __future__ import annotations
 
-import sys
+import logging
 from typing import TYPE_CHECKING, Any, NewType
 
 from anki._legacy import DeprecatedNamesMixinForModule
+
+logger = logging.getLogger(__name__)
 
 # whether new cards should be mixed with reviews, or shown first or last
 NEW_CARDS_DISTRIBUTE = 0
@@ -101,10 +103,7 @@ def _tr(col: anki.collection.Collection | None) -> Any:
     if col:
         return col.tr
     else:
-        print("routine in consts.py should be passed col")
-        import traceback
-
-        traceback.print_stack(file=sys.stdout)
+        logger.warning("routine in consts.py should be passed col", stack_info=True)
         from anki.lang import tr_legacyglobal
 
         return tr_legacyglobal

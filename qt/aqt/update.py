@@ -13,12 +13,6 @@ from aqt.operations import QueryOp
 from aqt.package import (
     download_github_update_and_install as _download_github_update_and_install,
 )
-from aqt.package import (
-    launcher_executable as _launcher_executable,
-)
-from aqt.package import (
-    update_and_restart as _update_and_restart,
-)
 from aqt.qt import *
 from aqt.utils import openLink, show_warning, showText, tr
 
@@ -90,10 +84,7 @@ def prompt_to_update(mw: aqt.AnkiQt, ver: str) -> None:
         # ignore this update
         mw.pm.meta["suppressUpdate"] = ver
     elif ret == QMessageBox.StandardButton.Yes:
-        if _launcher_executable():
-            _update_and_restart()
-        else:
-            openLink(aqt.appWebsiteDownloadSection)
+        openLink(aqt.appWebsiteDownloadSection)
 
 
 def prompt_and_install_github_update(mw: aqt.AnkiQt, release: GithubRelease) -> None:

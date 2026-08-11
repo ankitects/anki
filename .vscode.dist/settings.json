@@ -3,13 +3,14 @@
     "[python]": {
         "editor.codeActionsOnSave": {
             "source.organizeImports": "explicit"
-        }
+        },
+        "editor.defaultFormatter": "charliermarsh.ruff"
     },
     "files.watcherExclude": {
         "**/.git/objects/**": true,
         "**/.git/subtree-cache/**": true,
         "**/node_modules/*/**": true,
-        ".bazel/**": true
+        "out/**": true
     },
     "python.analysis.extraPaths": [
         "./pylib",
@@ -18,26 +19,23 @@
         "out/qt",
         "qt"
     ],
-    "python.formatting.provider": "charliermarsh.ruff",
-    "python.linting.mypyEnabled": false,
+    "python.useEnvironmentsExtension": true,
+    "python-envs.workspaceSearchPaths": ["out/pyenv"],
     "python.analysis.diagnosticSeverityOverrides": {
         "reportMissingModuleSource": "none"
     },
     "rust-analyzer.check.allTargets": false,
-    "rust-analyzer.files.excludeDirs": [".bazel", "node_modules"],
+    "rust-analyzer.files.exclude": ["out", "node_modules"],
     "rust-analyzer.procMacro.enable": true,
     // this formats 'use' blocks in a nicer way, but requires you to run
     // 'rustup install nightly'.
     "rust-analyzer.rustfmt.extraArgs": ["+nightly"],
     "search.exclude": {
         "**/node_modules": true,
-        ".bazel/**": true
+        "out/**": true
     },
     "rust-analyzer.cargo.buildScripts.enable": true,
     "python.analysis.typeCheckingMode": "off",
-    "python.analysis.exclude": [
-        "out/launcher/**"
-    ],
     "terminal.integrated.env.windows": {
         "PATH": "c:\\msys64\\usr\\bin;${env:Path}"
     }

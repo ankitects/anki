@@ -1,4 +1,12 @@
+<!-- DO NOT MANUALLY EDIT THIS FILE -->
+<!-- This file is copied from docs-site/developers/linux.mdx automatically -->
+
 # Linux-specific notes
+
+<!-- <<<cog
+from cogdocs import get_file_contents
+cog.out(get_file_contents("linux"))
+>>> -->
 
 ## Requirements
 
@@ -7,7 +15,8 @@ Some extra notes have been provided by a forum member, though some of the things
 mentioned there no longer apply:
 https://forums.ankiweb.net/t/guide-how-to-build-and-run-anki-from-source-with-xubuntu-20-04/12865
 
-You can see a full list of buildtime and runtime requirements by looking at the `apt-get install` step in the [`setup-anki` composite action](../.github/actions/setup-anki/action.yml), used by the workflows under [`.github/workflows/`](../.github/workflows/).
+You can see a full list of buildtime and runtime requirements by looking at the `apt-get install` step in the [`setup-anki` composite action](https://github.com/ankitects/anki/blob/main/.github/actions/setup-anki/action.yml),
+used by the workflows under [`.github/workflows/`](https://github.com/ankitects/anki/tree/main/.github/workflows).
 
 **Ensure some basic tools are installed**:
 
@@ -45,14 +54,6 @@ On some distros such as Fedora, you may need to install the
 error while loading shared libraries: libcrypt.so.1: cannot open shared object file: No such file or directory
 ```
 
-## Dependencies for Building the Launcher
-
-If you want to build the launcher, you will need to install the following dependency:
-
-```
-sudo apt install gcc-aarch64-linux-gnu
-```
-
 ## Audio
 
 To play and record audio during development, install mpv and lame.
@@ -65,7 +66,7 @@ If you are using a distro that uses musl, Anki will not work.
 
 You can use your system's Qt libraries if they are Qt 6.2 or later, if
 you wish. After installing the system libraries (eg:
-'sudo apt install python3-pyqt6.qt{quick,webengine} python3-venv pyqt6-dev-tools'),
+'sudo apt install python3-pyqt6.qt\{quick,webengine\} python3-venv pyqt6-dev-tools'),
 find the place they are installed (eg '/usr/lib/python3/dist-packages'). On modern Ubuntu, you'll
 also need 'sudo apt remove python3-protobuf'. Then before running any commands like './run', tell Anki where
 the packages can be found:
@@ -101,34 +102,36 @@ offline build to succeed. The following conditions must be met:
 
 3. The Python pseudo venv must be set up:
 
-   ```
-   mkdir out/pyenv/bin
-   ln -s /path/to/python out/pyenv/bin/python
-   ln -s /path/to/protoc-gen-mypy out/pyenv/bin/protoc-gen-mypy
-   ```
+    ```
+    mkdir out/pyenv/bin
+    ln -s /path/to/python out/pyenv/bin/python
+    ln -s /path/to/protoc-gen-mypy out/pyenv/bin/protoc-gen-mypy
+    ```
 
-   Optionally, set up your environment to generate Sphinx documentation:
+    Optionally, set up your environment to generate Sphinx documentation:
 
-   ```
-   ln -s /path/to/sphinx-apidoc out/pyenv/bin/sphinx-apidoc
-   ln -s /path/to/sphinx-build out/pyenv/bin/sphinx-build
-   ```
+    ```
+    ln -s /path/to/sphinx-apidoc out/pyenv/bin/sphinx-apidoc
+    ln -s /path/to/sphinx-build out/pyenv/bin/sphinx-build
+    ```
 
-   Note that the PYTHON_BINARY environment variable need not be set,
-   since it is only used when OFFLINE_BUILD is unset to automatically
-   create a network-dependent Python venv.
+    Note that the PYTHON_BINARY environment variable need not be set,
+    since it is only used when OFFLINE_BUILD is unset to automatically
+    create a network-dependent Python venv.
 
 4. Create the offline cache for yarn and use its own environment
    variable YARN_CACHE_FOLDER to it:
 
-   ```
-   YARN_CACHE_FOLDER=/path/to/the/yarn/cache
-   /path/to/yarn install --ignore-scripts
-   ```
+    ```
+    YARN_CACHE_FOLDER=/path/to/the/yarn/cache
+    /path/to/yarn install --ignore-scripts
+    ```
 
 You are now ready to build wheels and Sphinx documentation fully
 offline.
 
 ## More
 
-For info on running tests, building wheels and so on, please see [Development](./development.md).
+For info on running tests, building wheels and so on, please see [Development](https://anki.mintlify.app/development).
+
+<!-- <<<end>>> -->

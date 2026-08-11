@@ -194,10 +194,12 @@ fn parse_text_with_clozes(text: &str) -> Vec<TextOrCloze<'_>> {
             }
             Token::Text(mut text) => {
                 if let Some(cloze) = open_clozes.last_mut() {
-                    // extract hint if found
-                    if let Some((head, tail)) = text.split_once("::") {
-                        text = head;
-                        cloze.hint = Some(tail);
+                    if !text.starts_with("image-occlusion:") {
+                        // extract hint if found
+                        if let Some((head, tail)) = text.split_once("::") {
+                            text = head;
+                            cloze.hint = Some(tail);
+                        }
                     }
                     cloze.nodes.push(TextOrCloze::Text(text));
                 } else {
@@ -337,19 +339,19 @@ fn render_image_occlusion(
         format!(
             r#"<div class="cloze" data-ordinal="{}" {}></div>"#,
             ordinals_str(ordinals),
-            &get_image_cloze_data(text)
+            get_image_cloze_data(text)
         )
     } else if !active {
         format!(
             r#"<div class="cloze-inactive" data-ordinal="{}" {}></div>"#,
             ordinals_str(ordinals),
-            &get_image_cloze_data(text)
+            get_image_cloze_data(text)
         )
     } else if !question_side && active {
         format!(
             r#"<div class="cloze-highlight" data-ordinal="{}" {}></div>"#,
             ordinals_str(ordinals),
-            &get_image_cloze_data(text)
+            get_image_cloze_data(text)
         )
     } else {
         "".into()
@@ -516,6 +518,8 @@ pub(crate) fn cloze_only_filter<'a>(text: &'a str, context: &RenderContext) -> C
 #[cfg(test)]
 mod test {
     use std::collections::HashSet;
+
+    use anki_proto::image_occlusion::get_image_occlusion_note_response::ImageOcclusionProperty;
 
     use super::*;
     use crate::text::strip_html;
@@ -838,5 +842,24 @@ mod test {
 
         let card2_html = reveal_cloze_text(text, 2, true);
         assert!(card2_html.contains(r#"data-ordinal="1,2""#));
+    }
+
+    #[test]
+    fn image_occlusion_with_funny_text() {
+        let text =
+            r#"{{c1::image-occlusion:text:left=10:top=20:text=\:l\\ol\::width=30:height=40}}"#;
+        let occlusions = parse_image_occlusions(text);
+        assert_eq!(occlusions.len(), 1);
+        let text = occlusions.first().unwrap().shapes.first().unwrap();
+        assert_eq!(text.shape, "text");
+        assert_eq!(text.properties.len(), 5);
+        assert!(text.properties.contains(&ImageOcclusionProperty {
+            name: "text".into(),
+            value: r#":l\ol:"#.into()
+        }));
+        assert!(text.properties.contains(&ImageOcclusionProperty {
+            name: "width".into(),
+            value: "30".into()
+        }));
     }
 }

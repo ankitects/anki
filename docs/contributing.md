@@ -1,7 +1,15 @@
+<!-- DO NOT MANUALLY EDIT THIS FILE -->
+<!-- This file is copied from docs-site/developers/contributing.mdx automatically -->
+
 # Contributing Code
 
+<!-- <<<cog
+from cogdocs import get_file_contents
+cog.out(get_file_contents("contributing"))
+>>> -->
+
 For info on contributing things other than code, such as translations, decks
-and add-ons, please see [the contribution guide](https://docs.ankiweb.net/contrib).
+and add-ons, please see [the contribution guide](https://anki.mintlify.app/manual/contrib).
 
 ## Help wanted
 
@@ -25,6 +33,12 @@ can iterate faster and serve specific user needs without affecting all users.
 
 See the [Add-on API documentation](https://addon-docs.ankiweb.net/) for
 guidance on building add-ons.
+
+## Pull Request Description
+
+When opening a pull request, fill in the provided template
+(`.github/pull_request_template.md`). It covers the required fields: linked
+issue, summary/motivation, how to test, and UI evidence for visual changes.
 
 ## Linked Issues
 
@@ -116,7 +130,7 @@ new hook.
 ## Translations
 
 For information on adding new translatable strings to Anki, please see
-[the translation guide](https://translating.ankiweb.net/anki/developers).
+[the translation guide](https://anki.mintlify.app/translators/anki/developers).
 
 ## Tests Must Pass
 
@@ -146,8 +160,9 @@ example if tools such as `ninja` are installed outside standard locations),
 because pre-commit does not use a login shell and a different path can cause
 extra rebuilds.
 
-If your change is non-trivial and not covered by the existing unit tests, please
-consider adding a unit test at the same time.
+New or changed behavior must be covered by tests. Exceptions where tests are not
+required: version bumps, documentation-only changes, translation updates, dependency
+updates, and CI/build housekeeping (chore).
 
 ## Code Style
 
@@ -175,4 +190,6 @@ further discussion.
 
 ## License
 
-Please add yourself to the [CONTRIBUTORS](./CONTRIBUTORS) file in your first pull request.
+Please add yourself to the [CONTRIBUTORS](https://github.com/ankitects/anki/blob/main/CONTRIBUTORS) file in your first pull request.
+
+<!-- <<<end>>> -->
