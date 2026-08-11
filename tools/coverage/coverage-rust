@@ -28,7 +28,7 @@ else
 fi
 
 ANKI_TEST_MODE=1 "$cargo_cmd" llvm-cov nextest --workspace --locked \
-    --profile "$profile" \
+    --cargo-profile "$profile" \
     --json --summary-only \
     --output-path $outdir/coverage-summary.json --fail-under-lines 64
 
