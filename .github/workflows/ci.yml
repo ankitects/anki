@@ -114,6 +114,14 @@ jobs:
             build-Linux-main-
             build-Linux-
 
+      - name: Restore node_modules cache
+        id: node-modules-cache
+        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 #v6.1.0
+        with:
+          path: out/node_modules
+          key: node-modules-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('yarn.lock') }}
+          restore-keys: node-modules-${{ runner.os }}-${{ runner.arch }}-
+
       - name: Setup build environment
         uses: ./.github/actions/setup-anki
 
@@ -220,6 +228,13 @@ jobs:
         shell: bash
         run: cargo deny check
 
+      - name: Save node_modules cache
+        if: always() && steps.node-modules-cache.outputs.cache-hit != 'true'
+        uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 #v6.1.0
+        with:
+          path: out/node_modules
+          key: node-modules-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('yarn.lock') }}
+
       - name: Save build output cache
         if: always()
         uses: ./.github/actions/save-build-cache
@@ -264,6 +279,14 @@ jobs:
             build-arm64-Linux-main-
             build-arm64-Linux-
 
+      - name: Restore node_modules cache
+        id: node-modules-cache
+        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 #v6.1.0
+        with:
+          path: out/node_modules
+          key: node-modules-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('yarn.lock') }}
+          restore-keys: node-modules-${{ runner.os }}-${{ runner.arch }}-
+
       - name: Setup build environment
         uses: ./.github/actions/setup-anki
 
@@ -285,6 +308,13 @@ jobs:
           just build
           just lint
           just test
+
+      - name: Save node_modules cache
+        if: always() && steps.node-modules-cache.outputs.cache-hit != 'true'
+        uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 #v6.1.0
+        with:
+          path: out/node_modules
+          key: node-modules-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('yarn.lock') }}
 
       - name: Save build output cache
         if: always()
@@ -332,6 +362,14 @@ jobs:
             build-intel-macOS-main-
             build-intel-macOS-
 
+      - name: Restore node_modules cache
+        id: node-modules-cache
+        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 #v6.1.0
+        with:
+          path: out/node_modules
+          key: node-modules-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('yarn.lock') }}
+          restore-keys: node-modules-${{ runner.os }}-${{ runner.arch }}-
+
       - name: Setup build environment
         uses: ./.github/actions/setup-anki
 
@@ -353,6 +391,13 @@ jobs:
           just build
           just lint
           just test
+
+      - name: Save node_modules cache
+        if: always() && steps.node-modules-cache.outputs.cache-hit != 'true'
+        uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 #v6.1.0
+        with:
+          path: out/node_modules
+          key: node-modules-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('yarn.lock') }}
 
       - name: Save build output cache
         if: always()
@@ -399,6 +444,14 @@ jobs:
             build-macOS-main-
             build-macOS-
 
+      - name: Restore node_modules cache
+        id: node-modules-cache
+        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 #v6.1.0
+        with:
+          path: out/node_modules
+          key: node-modules-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('yarn.lock') }}
+          restore-keys: node-modules-${{ runner.os }}-${{ runner.arch }}-
+
       - name: Setup build environment
         uses: ./.github/actions/setup-anki
 
@@ -421,6 +474,13 @@ jobs:
           just wheels
           just lint
           just test
+
+      - name: Save node_modules cache
+        if: always() && steps.node-modules-cache.outputs.cache-hit != 'true'
+        uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 #v6.1.0
+        with:
+          path: out/node_modules
+          key: node-modules-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('yarn.lock') }}
 
       - name: Save build output cache
         if: always()
@@ -477,6 +537,26 @@ jobs:
             build-Windows-main-
             build-Windows-
 
+      # On Windows the real node_modules directory lives at the repo root;
+      # out/node_modules is a junction to it (see build/runner/src/yarn.rs).
+      - name: Restore node_modules cache
+        id: node-modules-cache
+        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 #v6.1.0
+        with:
+          path: node_modules
+          key: node-modules-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('yarn.lock') }}
+          restore-keys: node-modules-${{ runner.os }}-${{ runner.arch }}-
+
+      # The build runner only creates the junction when the root directory is
+      # missing (build/runner/src/yarn.rs), so create it here after a restore.
+      - name: Link node_modules junction
+        if: steps.node-modules-cache.outputs.cache-matched-key != ''
+        shell: bash
+        run: |
+          mkdir -p out
+          rm -rf out/node_modules
+          cmd //c "mklink /J out\\node_modules node_modules"
+
       - name: Setup build environment
         uses: ./.github/actions/setup-anki
 
@@ -495,6 +575,13 @@ jobs:
           just build
           just lint
           just test
+
+      - name: Save node_modules cache
+        if: always() && steps.node-modules-cache.outputs.cache-hit != 'true'
+        uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 #v6.1.0
+        with:
+          path: node_modules
+          key: node-modules-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('yarn.lock') }}
 
       - name: Save build output cache
         if: always()
@@ -544,6 +631,26 @@ jobs:
             build-arm64-Windows-main-
             build-arm64-Windows-
 
+      # On Windows the real node_modules directory lives at the repo root;
+      # out/node_modules is a junction to it (see build/runner/src/yarn.rs).
+      - name: Restore node_modules cache
+        id: node-modules-cache
+        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 #v6.1.0
+        with:
+          path: node_modules
+          key: node-modules-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('yarn.lock') }}
+          restore-keys: node-modules-${{ runner.os }}-${{ runner.arch }}-
+
+      # The build runner only creates the junction when the root directory is
+      # missing (build/runner/src/yarn.rs), so create it here after a restore.
+      - name: Link node_modules junction
+        if: steps.node-modules-cache.outputs.cache-matched-key != ''
+        shell: bash
+        run: |
+          mkdir -p out
+          rm -rf out/node_modules
+          cmd //c "mklink /J out\\node_modules node_modules"
+
       - name: Setup build environment
         uses: ./.github/actions/setup-anki
 
@@ -562,6 +669,13 @@ jobs:
           just build
           just lint
           just test
+
+      - name: Save node_modules cache
+        if: always() && steps.node-modules-cache.outputs.cache-hit != 'true'
+        uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 #v6.1.0
+        with:
+          path: node_modules
+          key: node-modules-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('yarn.lock') }}
 
       - name: Save build output cache
         if: always()
