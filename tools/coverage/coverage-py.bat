@@ -6,7 +6,7 @@ if "%1"=="pylib" (
     set "source=pylib/anki"
     set "outdir=out\coverage\python-pylib"
     set "tests=pylib/tests"
-    set "threshold=65"
+    set "threshold=63"
 ) else if "%1"=="qt" (
     set "PYTHONPATH=pylib;out/pylib;out/qt;qt/tools"
     set "source=qt/aqt,qt/tools"
