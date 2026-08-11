@@ -316,8 +316,10 @@ jobs:
           path: out/node_modules
           key: node-modules-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('yarn.lock') }}
 
+      # PR-labeled runs restore from the main entry but do not save; per-PR
+      # platform caches would blow the 10 GB budget.
       - name: Save build output cache
-        if: always()
+        if: always() && github.event_name != 'pull_request'
         uses: ./.github/actions/save-build-cache
         with:
           cache-prefix: build-arm64-Linux-${{ github.event.pull_request.number || 'main' }}
@@ -399,8 +401,10 @@ jobs:
           path: out/node_modules
           key: node-modules-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('yarn.lock') }}
 
+      # PR-labeled runs restore from the main entry but do not save; per-PR
+      # platform caches would blow the 10 GB budget.
       - name: Save build output cache
-        if: always()
+        if: always() && github.event_name != 'pull_request'
         uses: ./.github/actions/save-build-cache
         with:
           cache-prefix: build-intel-macOS-${{ github.event.pull_request.number || 'main' }}
@@ -482,8 +486,10 @@ jobs:
           path: out/node_modules
           key: node-modules-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('yarn.lock') }}
 
+      # PR-labeled runs restore from the main entry but do not save; per-PR
+      # platform caches would blow the 10 GB budget.
       - name: Save build output cache
-        if: always()
+        if: always() && github.event_name != 'pull_request'
         uses: ./.github/actions/save-build-cache
         with:
           cache-prefix: build-macOS-${{ github.event.pull_request.number || 'main' }}
@@ -583,8 +589,10 @@ jobs:
           path: node_modules
           key: node-modules-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('yarn.lock') }}
 
+      # PR-labeled runs restore from the main entry but do not save; per-PR
+      # platform caches would blow the 10 GB budget.
       - name: Save build output cache
-        if: always()
+        if: always() && github.event_name != 'pull_request'
         uses: ./.github/actions/save-build-cache
         with:
           cache-prefix: build-Windows-${{ github.event.pull_request.number || 'main' }}
@@ -677,8 +685,10 @@ jobs:
           path: node_modules
           key: node-modules-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('yarn.lock') }}
 
+      # PR-labeled runs restore from the main entry but do not save; per-PR
+      # platform caches would blow the 10 GB budget.
       - name: Save build output cache
-        if: always()
+        if: always() && github.event_name != 'pull_request'
         uses: ./.github/actions/save-build-cache
         with:
           cache-prefix: build-arm64-Windows-${{ github.event.pull_request.number || 'main' }}
