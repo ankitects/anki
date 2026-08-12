@@ -94,7 +94,7 @@ impl BuildAction for CargoBuild<'_> {
         let release_build = self
             .release_override
             .unwrap_or_else(|| build.build_profile());
-        let release_arg = profile_arg_for_cargo(release_build).unwrap_or_default();
+        let release_arg = release_build.as_cargo_arg();
         let target_arg = if let Some(target) = self.target {
             format!("--target {target}")
         } else {
@@ -127,24 +127,6 @@ impl BuildAction for CargoBuild<'_> {
     }
 }
 
-fn profile_arg_for_cargo(profile: BuildProfile) -> Option<&'static str> {
-    match profile {
-        BuildProfile::Debug => None,
-        BuildProfile::Release => Some("--release"),
-        BuildProfile::ReleaseWithLto => Some("--profile release-lto"),
-        BuildProfile::Ci => Some("--profile ci"),
-    }
-}
-
-fn profile_arg_for_nextest(profile: BuildProfile) -> &'static str {
-    match profile {
-        BuildProfile::Debug => "",
-        BuildProfile::Release => "--cargo-profile release",
-        BuildProfile::ReleaseWithLto => "--cargo-profile release-lto",
-        BuildProfile::Ci => "--cargo-profile ci",
-    }
-}
-
 fn setup_flags(build: &mut Build) -> Result<()> {
     build.once_only("cargo_flags_and_pool", |build| {
         build.variable("cargo_flags", "--locked");
@@ -166,10 +148,7 @@ impl BuildAction for CargoTest {
     }
 
     fn files(&mut self, build: &mut impl FilesHandle) {
-        build.add_variable(
-            "profile_arg",
-            profile_arg_for_nextest(build.build_profile()),
-        );
+        build.add_variable("profile_arg", build.build_profile().as_nextest_arg());
         build.add_inputs("", &self.inputs);
         if !running_on_ci() {
             build.add_inputs("", inputs![":cargo-nextest"]);
@@ -205,7 +184,7 @@ impl BuildAction for CargoClippy {
     }
 
     fn files(&mut self, build: &mut impl FilesHandle) {
-        let release_arg = profile_arg_for_cargo(build.build_profile()).unwrap_or_default();
+        let release_arg = build.build_profile().as_cargo_arg();
         build.add_variable("release_arg", release_arg);
         build.add_inputs(
             "",

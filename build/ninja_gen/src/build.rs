@@ -3,6 +3,7 @@
 
 use std::collections::HashMap;
 use std::collections::HashSet;
+use std::fmt::Display;
 use std::fmt::Write;
 
 use anyhow::Result;
@@ -359,6 +360,18 @@ pub enum BuildProfile {
     Ci,
 }
 
+impl Display for BuildProfile {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        let name = match self {
+            BuildProfile::Debug => "dev",
+            BuildProfile::Release => "release",
+            BuildProfile::ReleaseWithLto => "release-lto",
+            BuildProfile::Ci => "ci",
+        };
+        f.write_str(name)
+    }
+}
+
 impl BuildProfile {
     pub fn from_env() -> Self {
         match std::env::var("RELEASE").unwrap_or_default().as_str() {
@@ -379,6 +392,14 @@ impl BuildProfile {
             Self::Release | Self::ReleaseWithLto => Self::Debug,
             other => other,
         }
+    }
+
+    pub fn as_cargo_arg(self) -> String {
+        format!("--profile {}", self)
+    }
+
+    pub fn as_nextest_arg(self) -> String {
+        format!("--cargo-profile {}", self)
     }
 }
 
