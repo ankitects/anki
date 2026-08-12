@@ -392,7 +392,8 @@ impl Collection {
         }
     }
 
-    // Used for extra-ordinary circumstances where a memory state is needed but is not availiable, e.g. the card has been moved to a different deck.
+    // Used for extra-ordinary circumstances where a memory state is needed but is
+    // not availiable, e.g. the card has been moved to a different deck.
     // Try to use update_memory_state where you can.
     pub fn compute_and_update_memory_state(&mut self, card: &mut Card) -> Result<()> {
         let fsrs_data = self.compute_memory_state(card.id)?;

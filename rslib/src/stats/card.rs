@@ -248,7 +248,6 @@ mod test {
 
     #[test]
     fn stats() -> Result<()> {
-
         let (mut col, cid) = test_collection()?;
         let _report = col.card_stats(cid)?;
 
@@ -273,7 +272,7 @@ mod test {
 
         let report = col.card_stats(cid)?;
         let card = col.storage.get_card(cid)?.unwrap();
-        
+
         assert!(report.memory_state.is_some());
         assert!(card.memory_state.is_some());
 
