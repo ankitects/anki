@@ -237,17 +237,45 @@ mod test {
     use super::*;
     use crate::search::SortMode;
 
-    #[test]
-    fn stats() -> Result<()> {
+    fn test_collection() -> Result<(Collection, CardId)> {
         let mut col = Collection::new();
-
         let nt = col.get_notetype_by_name("Basic")?.unwrap();
         let mut note = nt.new_note();
         col.add_note(&mut note, DeckId(1))?;
-
         let cid = col.search_cards("", SortMode::NoOrder)?[0];
+        Ok((col, cid))
+    }
+
+    #[test]
+    fn stats() -> Result<()> {
+
+        let (mut col, cid) = test_collection()?;
         let _report = col.card_stats(cid)?;
-        //println!("report {}", report);
+
+        Ok(())
+    }
+
+    #[test]
+    fn stats_calculate_memory_state_if_not_present() -> Result<()> {
+        let (mut col, cid) = test_collection()?;
+
+        col.set_config_bool(BoolKey::Fsrs, true, true)?;
+        // review the card as easy
+        col.grade_now(&[cid], 3)?;
+        let mut card = col.storage.get_card(cid)?.unwrap();
+        assert!(card.memory_state.is_some());
+
+        card.memory_state = None;
+        col.storage.update_card(&card)?;
+
+        let card = col.storage.get_card(cid)?.unwrap();
+        assert!(card.memory_state.is_none());
+
+        let report = col.card_stats(cid)?;
+        let card = col.storage.get_card(cid)?.unwrap();
+        
+        assert!(report.memory_state.is_some());
+        assert!(card.memory_state.is_some());
 
         Ok(())
     }
