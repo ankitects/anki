@@ -13,8 +13,8 @@ use crate::build::BuildProfile;
 use crate::input::space_separated;
 use crate::Build;
 
-fn profile_output_dir() -> &'static str {
-    match BuildProfile::from_env() {
+fn profile_output_dir(profile: BuildProfile) -> &'static str {
+    match profile {
         BuildProfile::Ci => "ci",
         _ => "release",
     }
@@ -34,7 +34,7 @@ impl Build {
         writeln!(
             &mut buf,
             "runner = $builddir/rust/{}/{}",
-            profile_output_dir(),
+            profile_output_dir(self.build_profile),
             with_exe("runner")
         )
         .unwrap();
