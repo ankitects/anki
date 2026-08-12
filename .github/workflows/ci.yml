@@ -138,11 +138,13 @@ jobs:
         if: github.event_name == 'pull_request'
         run: test -d out/coverage && mv out/coverage out/coverage-baseline || true
 
-      - name: Build, lint, and test
+      - name: Build
+        run: just build
+
+      - name: Lint and test
         env:
           ONLINE_TESTS: "1"
         run: |
-          just build
           just lint
           just test --coverage
 
@@ -270,9 +272,11 @@ jobs:
       - name: Symlink node_modules
         run: ln -sf out/node_modules .
 
-      - name: Build, lint, and test
+      - name: Build
+        run: just build
+
+      - name: Lint and test
         run: |
-          just build
           just lint
           just test
 
@@ -343,9 +347,11 @@ jobs:
       - name: Symlink node_modules
         run: ln -sf out/node_modules .
 
-      - name: Build, lint, and test
+      - name: Build
+        run: just build
+
+      - name: Lint and test
         run: |
-          just build
           just lint
           just test
 
@@ -415,10 +421,11 @@ jobs:
       - name: Symlink node_modules
         run: ln -sf out/node_modules .
 
-      - name: Build, lint, and test
+      - name: Build
+        run: just build
+
+      - name: Lint and test
         run: |
-          just build
-          just wheels
           just lint
           just test
 
@@ -495,9 +502,11 @@ jobs:
             cargo-llvm-cov@0.8.4
             cargo-nextest@0.9.99
 
-      - name: Build, lint, and test
+      - name: Build
+        run: just build
+
+      - name: Lint and test
         run: |
-          just build
           just lint
           just test
 
@@ -568,9 +577,11 @@ jobs:
             cargo-llvm-cov@0.8.4
             cargo-nextest@0.9.99
 
-      - name: Build, lint, and test
+      - name: Build
+        run: just build
+
+      - name: Lint and test
         run: |
-          just build
           just lint
           just test
 
