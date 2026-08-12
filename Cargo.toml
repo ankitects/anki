@@ -175,3 +175,8 @@ debug = 0
 [profile.release-lto]
 inherits = "release"
 lto = true
+
+[profile.ci]
+inherits = "dev"
+# TODO: consider setting once caching issues are fixed (#5318)
+# incremental = false
