@@ -16,12 +16,10 @@ if not exist %outdir% mkdir %outdir%
 
 if "%CARGO_TARGET_DIR%"=="" set "CARGO_TARGET_DIR=out\rust"
 
-set PROFILE=dev
-if "%CI%"=="true" set PROFILE=ci
-
 if "%CI%"=="true" (
   rem prebuilt binary shouldve been installed earlier
   set "CARGO_CMD=cargo"
+  set PROFILE=ci
 ) else (
   if not exist %LLVMCOVPATH% mkdir %LLVMCOVPATH%
   if not exist %LLVMCOVPATH%\cargo-llvm-cov.exe (
@@ -31,6 +29,7 @@ if "%CI%"=="true" (
       cargo install cargo-nextest --version 0.9.99 --locked --no-default-features --features default-no-update --root out || exit /b 1
   )
   set "CARGO_CMD=%LLVMCOVPATH%\cargo-llvm-cov.exe"
+  set PROFILE=dev
 )
 
 set "PATH=%LLVMCOVPATH%;%PATH%"

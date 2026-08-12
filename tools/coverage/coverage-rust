@@ -11,20 +11,16 @@ mkdir -p $outdir $LLVMCOVPATH
 
 export CARGO_TARGET_DIR="${CARGO_TARGET_DIR:-out/rust}"
 
-if [ "$CI" = "true" ]; then
-    profile=ci
-else
-    profile=dev
-fi
-
 if [[ "${CI:-}" == "true" ]]; then
     # prebuilt binary shouldve been installed
     cargo_cmd="cargo"
+    profile=ci
 else
     cargo_cmd="$LLVMCOVPATH/cargo-llvm-cov"
     test -x "$cargo_cmd" || cargo install cargo-llvm-cov --version 0.8.4 --locked --root out
     test -x "$LLVMCOVPATH/cargo-nextest" || cargo install cargo-nextest \
         --version 0.9.99 --locked --no-default-features --features default-no-update --root out
+    profile=dev
 fi
 
 export PATH="$LLVMCOVPATH:$PATH"
