@@ -27,6 +27,8 @@ else
         --version 0.9.99 --locked --no-default-features --features default-no-update --root out
 fi
 
+export PATH="$LLVMCOVPATH:$PATH"
+
 ANKI_TEST_MODE=1 "$cargo_cmd" llvm-cov nextest --workspace --locked \
     --cargo-profile "$profile" \
     --json --summary-only \
