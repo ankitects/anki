@@ -93,13 +93,13 @@ mod test {
         let mut col = Collection::new();
         let mut cards = CardAdder::new().siblings(3).add(&mut col);
         col.storage.fix_invalid_ids(cards[0].id.0, 42).unwrap();
-        cards.sort_by(|c1, c2| c1.id.cmp(&c2.id));
+        cards.sort_by_key(|c1| c1.id);
         cards[1].id.0 = 42;
         cards[2].id.0 = 43;
         let old_first_card = cards.remove(0);
         cards.push(old_first_card);
         let mut new_cards = col.storage.get_all_cards();
-        new_cards.sort_by(|c1, c2| c1.id.cmp(&c2.id));
+        new_cards.sort_by_key(|c1| c1.id);
         assert_eq!(new_cards, cards);
     }
 

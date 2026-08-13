@@ -29,10 +29,8 @@ pub fn replace_search_node(mut existing: Vec<Node>, replacement: Node) -> String
                 match old_node {
                     Node::Not(n) => update_node(n, new_node),
                     Node::Group(ns) => update_node_vec(ns, new_node),
-                    Node::Search(n) => {
-                        if mem::discriminant(n) == mem::discriminant(new_node) {
-                            *n = new_node.clone();
-                        }
+                    Node::Search(n) if mem::discriminant(n) == mem::discriminant(new_node) => {
+                        *n = new_node.clone();
                     }
                     _ => (),
                 }
@@ -130,12 +128,7 @@ fn write_single_field(field: &str, text: &str, mode: FieldSearchMode) -> String 
     } else {
         text.to_string()
     };
-    maybe_quote(&format!(
-        "{}:{}{}",
-        field.replace(':', "\\:"),
-        prefix,
-        &text
-    ))
+    maybe_quote(&format!("{}:{}{}", field.replace(':', "\\:"), prefix, text))
 }
 
 fn write_template(template: &TemplateKind) -> String {
