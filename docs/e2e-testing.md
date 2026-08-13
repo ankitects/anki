@@ -82,15 +82,15 @@ generated type from `ts/lib/generated/`.
 
 Anki's mediasrv serves the following pages over HTTP (non-exhaustive):
 
-| URL pattern                  | Description                   |
-| ---------------------------- | ----------------------------- |
-| `/graphs`                    | Statistics graphs (SvelteKit) |
-| `/deck-options/[deckId]`     | Deck options (SvelteKit)      |
-| `/congrats`                  | Post-study screen (SvelteKit) |
-| `/card-info/[cardId]`        | Card info (SvelteKit)         |
-| `/editor/?mode=[mode]`       | Editor (SvelteKit)            |
-| `/congrats`                  | Congrats page (SvelteKit)     |
-| `/favicon.ico`               | Mediasrv liveness probe       |
+| URL pattern              | Description                   |
+| ------------------------ | ----------------------------- |
+| `/graphs`                | Statistics graphs (SvelteKit) |
+| `/deck-options/[deckId]` | Deck options (SvelteKit)      |
+| `/congrats`              | Post-study screen (SvelteKit) |
+| `/card-info/[cardId]`    | Card info (SvelteKit)         |
+| `/editor/?mode=[mode]`   | Editor (SvelteKit)            |
+| `/congrats`              | Congrats page (SvelteKit)     |
+| `/favicon.ico`           | Mediasrv liveness probe       |
 
 ## CI
 
