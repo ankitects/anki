@@ -145,14 +145,22 @@ async function urlToFile(url: string, allowedSuffixes = mediaSuffixes): Promise<
     return null;
 }
 
-export function filenameToLink(filename: string): string {
+function extToLowerCase(filename: string): string {
     const filenameParts = filename.split(".");
-    const ext = filenameParts[filenameParts.length - 1].toLowerCase();
+    return filenameParts[filenameParts.length - 1].toLowerCase();
+}
+
+export function filenameToLink(filename: string): string {
+    const ext = extToLowerCase(filename);
     if (imageSuffixes.includes(ext)) {
         return `<img src="${encodeURI(filename)}">`;
     } else {
         return `[sound:${escapeHtml(filename, false)}]`;
     }
+}
+
+export function isAudio(filename: string): boolean {
+    return audioSuffixes.includes(extToLowerCase(filename));
 }
 
 async function urlToLink(url: string, allowedSuffixes: string[] = mediaSuffixes): Promise<string> {
