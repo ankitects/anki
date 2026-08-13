@@ -902,6 +902,30 @@ async def record_audio() -> bytes:
     return generic_pb2.String(val=path if path else "").SerializeToString()
 
 
+def play_file() -> bytes:
+    from aqt.editor import NewEditor
+    from aqt.sound import av_player
+
+    req = generic_pb2.String()
+    req.ParseFromString(request.data)
+    path = os.path.join(aqt.mw.col.media.dir(), req.val)
+
+    def handle_on_main() -> None:
+        window = aqt.mw.app.activeWindow()
+        if (
+            window is not None
+            and hasattr(window, "editor")
+            and isinstance(window.editor, NewEditor)
+        ):
+            av_player.play_file_with_caller(path, window.editor.editorMode)
+        else:
+            av_player.play_file(path)
+
+    aqt.mw.taskman.run_on_main(handle_on_main)
+
+    return b""
+
+
 def read_clipboard() -> bytes:
     req = frontend_pb2.ReadClipboardRequest()
     req.ParseFromString(request.data)
@@ -1080,6 +1104,7 @@ post_handler_list = [
     open_media,
     show_in_media_folder,
     record_audio,
+    play_file,
     read_clipboard,
     write_clipboard,
     close_add_cards,
