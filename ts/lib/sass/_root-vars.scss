@@ -55,7 +55,7 @@
 
 /*! rest */
 html {
-    /* font-size: prop(font-size); */
+    font-size: prop(font-size);
     body {
         overscroll-behavior: none;
         &:not(.isMac),
