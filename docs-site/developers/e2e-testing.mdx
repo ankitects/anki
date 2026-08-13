@@ -74,7 +74,7 @@ generated type from `ts/lib/generated/`.
 
 ## Accessing Anki pages
 
-Anki's mediasrv serves the following page families over HTTP:
+Anki's mediasrv serves the following pages over HTTP (non-exhaustive):
 
 | URL pattern                  | Description                   |
 | ---------------------------- | ----------------------------- |
@@ -83,7 +83,7 @@ Anki's mediasrv serves the following page families over HTTP:
 | `/congrats`                  | Post-study screen (SvelteKit) |
 | `/card-info/[cardId]`        | Card info (SvelteKit)         |
 | `/editor/?mode=[mode]`       | Editor (SvelteKit)            |
-| `/_anki/pages/congrats.html` | Legacy congrats page          |
+| `/congrats`                  | Congrats page (SvelteKit)     |
 | `/favicon.ico`               | Mediasrv liveness probe       |
 
 ## CI
