@@ -85,6 +85,8 @@ print(response.log.found_notes, list(response.log.updated), list(response.log.ne
 
 **Import an .apkg file**
 
+Requires Anki 23.10+.
+
 ```python
 from anki.collection import ImportAnkiPackageRequest, ImportAnkiPackageOptions
 from aqt import mw
@@ -105,6 +107,8 @@ col.import_anki_package(
 Options can be adjusted as needed.
 
 **Export an .apkg file**
+
+Requires Anki 23.12+.
 
 ```python
 from anki.collection import ExportAnkiPackageOptions, DeckIdLimit
