@@ -2,9 +2,15 @@
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 // @vitest-environment jsdom
 
-import { expect, test } from "vitest";
+import { playFile } from "@generated/backend";
+import { expect, test, vi } from "vitest";
 
 import { filenameToLink, isAudio } from "./data-transfer";
+
+vi.mock("@generated/backend", async (importOriginal) => ({
+    ...(await importOriginal<object>()),
+    playFile: vi.fn(),
+}));
 
 test("isAudio recognizes audio/video suffixes regardless of case", () => {
     expect(isAudio("clip.mp3")).toBe(true);
@@ -23,4 +29,5 @@ test("filenameToLink and isAudio agree on what counts as audio", () => {
     const link = filenameToLink("clip.mp3");
     expect(link).toBe("[sound:clip.mp3]");
     expect(isAudio("clip.mp3")).toBe(true);
+    expect(vi.mocked(playFile)).toHaveBeenCalledWith({ val: "clip.mp3" });
 });
