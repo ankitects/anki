@@ -13,6 +13,11 @@
 
 $vars: (
     props: (
+        font: (
+            size: (
+                default: 15px,
+            ),
+        ),
         border-radius: (
             default: (
                 "Used to round corners of various UI elements",
