@@ -88,12 +88,9 @@ Anki's mediasrv serves the following page families over HTTP:
 | `/deck-options/[deckId]`     | Deck options (SvelteKit)      |
 | `/congrats`                  | Post-study screen (SvelteKit) |
 | `/card-info/[cardId]`        | Card info (SvelteKit)         |
+| `/editor/?mode=[mode]`       | Editor (SvelteKit)            |
 | `/_anki/pages/congrats.html` | Legacy congrats page          |
 | `/favicon.ico`               | Mediasrv liveness probe       |
-
-The add-card editor (`/editor/?mode=add`) requires a dedicated HTTP endpoint
-that is not yet present in upstream Anki. It will be available once the
-editor-as-web-page work (issue #3830) is merged.
 
 ## CI
 
