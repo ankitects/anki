@@ -4,23 +4,7 @@
 /**
  * Editor toolbar media buttons (#5330)
  *
- * Covers TemplateButtons.svelte, which branches on isLegacy:
- *
- * Non-legacy (the SvelteKit editor):
- *  - Attach: openFilePicker RPC → addMediaFromPath RPC → inserthtml
- *  - Record: recordAudio RPC → addMediaFromPath RPC → inserthtml → playFile
- *    RPC for immediate playback.
- *
- * Legacy (Qt drives the page, isLegacy=true):
- *  - Both buttons must go through the legacy Qt routines instead of the
- *    RPCs: bridgeCommand("attach") / bridgeCommand("record"), then wait for
- *    Python to add the file and call
- *    require("anki/TemplateButtons").resolveMedia(html)
- *    (editor_legacy.py:880-891). The HTML is inserted when the field regains
- *    focus after the native dialog closes (TemplateButtons.svelte:58-64).
- *
- * The legacy tests replicate the Qt side of the round trip: blur the field
- * (the native dialog takes focus), eval resolveMedia(), refocus the field.
+ * Covers the legacy and new paths in TemplateButtons.svelte
  */
 
 import { openFilePickerRequest } from "@generated/anki/frontend_pb";
@@ -35,17 +19,6 @@ import { bridgeCalls, decodeRequestBody, editableField, isRpc } from "./helpers"
 
 const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), "anki-e2e-media-"));
 test.afterAll(() => fs.rmSync(tmpDir, { recursive: true, force: true }));
-
-// 1x1 transparent PNG; addMediaFromPath copies the bytes verbatim.
-const PNG_BYTES = Buffer.from(
-    "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==",
-    "base64",
-);
-// Empty canonical RIFF/WAVE file.
-const WAV_BYTES = Buffer.from(
-    "UklGRiQAAABXQVZFZm10IBAAAAABAAEAQB8AAIA+AAACABAAZGF0YQAAAAA=",
-    "base64",
-);
 
 function protoStringBody(val: string): Buffer {
     return Buffer.from(new GenericString({ val }).toBinary());
@@ -62,11 +35,8 @@ function recordButton(scope: Page | ReturnType<Page["locator"]>): ReturnType<Pag
 test("attach button uses openFilePicker+addMediaFromPath RPCs, not the Qt bridge", async ({ editor: page }) => {
     const imgName = `e2e-attach-${Date.now()}.png`;
     const imgPath = path.join(tmpDir, imgName);
-    fs.writeFileSync(imgPath, PNG_BYTES);
+    fs.writeFileSync(imgPath, Buffer.from(""));
 
-    // The real RPC would open a native Qt dialog and hang the headless
-    // instance; answer it with the temp file instead. addMediaFromPath then
-    // runs against the real backend.
     await page.route("**/_anki/openFilePicker", (route) =>
         route.fulfill({
             contentType: "application/binary",
@@ -89,8 +59,6 @@ test("attach button uses openFilePicker+addMediaFromPath RPCs, not the Qt bridge
     expect(decoded.extensions).toContain("png");
     expect(decoded.extensions).toContain("wav");
 
-    // The backend must have copied the file and the editor inserted a link.
-    // The name is unique, so the media folder keeps it as-is.
     await addMediaRespPromise;
     await expect(field.locator(`img[src$="${imgName}"]`)).toBeAttached({
         timeout: 5_000,
@@ -104,15 +72,13 @@ test("attach button uses openFilePicker+addMediaFromPath RPCs, not the Qt bridge
 test("record button uses recordAudio+addMediaFromPath RPCs and plays the file", async ({ editor: page }) => {
     const wavName = `e2e-record-${Date.now()}.wav`;
     const wavPath = path.join(tmpDir, wavName);
-    fs.writeFileSync(wavPath, WAV_BYTES);
+    fs.writeFileSync(wavPath, Buffer.from(""));
 
-    // recordAudio would pop Qt's recorder; answer with a prepared file.
     await page.route("**/_anki/recordAudio", (route) =>
         route.fulfill({
             contentType: "application/binary",
             body: protoStringBody(wavPath),
         }));
-    // playFile would ask Qt to actually play audio; stub it out.
     await page.route("**/_anki/playFile", (route) =>
         route.fulfill({
             contentType: "application/binary",
@@ -134,7 +100,6 @@ test("record button uses recordAudio+addMediaFromPath RPCs and plays the file", 
     await recordReqPromise;
     await addMediaRespPromise;
 
-    // The recording is inserted as a sound tag and played immediately.
     await expect(field).toContainText(`[sound:${wavName}]`, { timeout: 5_000 });
     const playFileReq = await playFileReqPromise;
     expect(decodeRequestBody(playFileReq, GenericString).val).toBe(wavName);
