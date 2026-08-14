@@ -249,13 +249,13 @@ class AnkiWebPage(QWebEnginePage):
     def acceptNavigationRequest(
         self, url: QUrl, navType: Any, isMainFrame: bool
     ) -> bool:
-        from aqt.mediasrv import is_sveltekit_page
+        from aqt.mediasrv import get_sveltekit_route
 
         if (
             not self.open_links_externally
             or "_anki/pages" in url.path()
             or url.path() == "/_anki/legacyPageData"
-            or is_sveltekit_page(url.path()[1:])
+            or get_sveltekit_route(url.path()[1:])
         ):
             return super().acceptNavigationRequest(url, navType, isMainFrame)
 
@@ -388,10 +388,34 @@ class AnkiWebView(QWebEngineView):
 
         self.resetHandlers()
         self._filterSet = False
-        gui_hooks.theme_did_change.append(self.on_theme_did_change)
-        gui_hooks.body_classes_need_update.append(self.on_body_classes_need_update)
-        gui_hooks.operation_did_execute.append(self.on_operation_did_execute)
 
+        # NOTE: avoiding the use of self in `unhook` is load-bearing!
+        subscriptions: list[tuple[Any, Callable[..., Any]]] = [
+            (gui_hooks.theme_did_change, self.on_theme_did_change),
+            (gui_hooks.body_classes_need_update, self.on_body_classes_need_update),
+            (gui_hooks.operation_did_execute, self.on_operation_did_execute),
+        ]
+        for hook, handler in subscriptions:
+            hook.append(handler)
+        self._hook_subscriptions = subscriptions
+        name = type(self).__name__
+
+        # add-on webviews may be destroyed without cleanup() being called
+        def unhook(_obj: QObject | None = None) -> None:
+            try:
+                if subscriptions:
+                    logger.warning(
+                        "%s (%s) was destroyed without a cleanup() call",
+                        name,
+                        kind.value,
+                    )
+                while subscriptions:
+                    hook, handler = subscriptions.pop()
+                    hook.remove(handler)
+            except Exception:
+                pass  # app/interpreter teardown
+
+        qconnect(self.destroyed, unhook)
         qconnect(self.loadFinished, self._on_load_finished)
 
     def _on_load_finished(self) -> None:
@@ -920,9 +944,9 @@ html {{ {font} }}
             # this will fail when __del__ is called during app shutdown
             return
 
-        gui_hooks.theme_did_change.remove(self.on_theme_did_change)
-        gui_hooks.body_classes_need_update.remove(self.on_body_classes_need_update)
-        gui_hooks.operation_did_execute.remove(self.on_operation_did_execute)
+        while self._hook_subscriptions:
+            hook, handler = self._hook_subscriptions.pop()
+            hook.remove(handler)
         # defer page cleanup so that in-flight requests have a chance to complete first
         # https://forums.ankiweb.net/t/error-when-exiting-browsing-when-the-software-is-installed-in-the-path-c-program-files-anki/38363
         mw.progress.single_shot(5000, lambda: mw.mediaServer.clear_page_html(id(self)))
@@ -967,26 +991,6 @@ html {{ {font} }}
     def on_operation_did_execute(
         self, changes: OpChanges, handler: object | None
     ) -> None:
-        # add-on webviews may be destroyed via Qt parent ownership without
-        # cleanup() being called; unsubscribe instead of erroring, deferring
-        # the removal to avoid mutating the hook list while it fires
-        if sip.isdeleted(self):
-            from aqt import mw
-
-            logger.warning(
-                "%s (%s) was destroyed without a cleanup() call; "
-                "dropping operation_did_execute hook",
-                type(self).__name__,
-                self.kind.value,
-            )
-            mw.progress.single_shot(
-                0,
-                lambda: gui_hooks.operation_did_execute.remove(
-                    self.on_operation_did_execute
-                ),
-                requires_collection=False,
-            )
-            return
         if handler is self.parentWidget():
             return
 
