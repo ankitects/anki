@@ -14,6 +14,7 @@ use serde_repr::Deserialize_repr;
 use serde_repr::Serialize_repr;
 
 use crate::collection::Collection;
+use crate::config::BoolKey;
 use crate::config::SchedulerVersion;
 use crate::deckconfig::DeckConfig;
 use crate::decks::DeckId;
@@ -24,6 +25,10 @@ use crate::error::Result;
 use crate::notes::NoteId;
 use crate::ops::StateChanges;
 use crate::prelude::*;
+use crate::scheduler::fsrs::memory_state::UpdateMemoryStateEntry;
+use crate::scheduler::fsrs::memory_state::UpdateMemoryStateRequest;
+use crate::scheduler::fsrs::params::ignore_revlogs_before_ms_from_config;
+use crate::storage::comma_separated_ids;
 use crate::timestamp::TimestampSecs;
 use crate::types::Usn;
 
@@ -373,19 +378,42 @@ impl Collection {
             source: FilteredDeckError::CanNotMoveCardsInto,
         })?;
         let config = self.get_deck_config(config_id, true)?.unwrap();
+        let fsrs_enabled = self.get_config_bool(BoolKey::Fsrs);
         let mut steps_adjuster = RemainingStepsAdjuster::new(&config);
         let usn = self.usn()?;
         self.transact(Op::SetCardDeck, |col| {
             let mut count = 0;
+            let mut card_ids_needing_fsrs_recompute = Vec::new();
             for mut card in col.all_cards_for_ids(cards, false)? {
                 if card.deck_id == deck_id {
                     continue;
                 }
                 count += 1;
+                if fsrs_enabled && card.ctype != CardType::New {
+                    card_ids_needing_fsrs_recompute.push(card.id);
+                }
                 let original = card.clone();
                 steps_adjuster.adjust_remaining_steps(col, &mut card)?;
                 card.set_deck(deck_id);
                 col.update_card_inner(&mut card, original, usn)?;
+            }
+            if !card_ids_needing_fsrs_recompute.is_empty() {
+                let desired_retention = deck.effective_desired_retention(&config);
+                let deck_desired_retention = [(deck_id, desired_retention)].into();
+                col.update_memory_state(vec![UpdateMemoryStateEntry {
+                    req: Some(UpdateMemoryStateRequest {
+                        params: config.fsrs_params().clone(),
+                        preset_desired_retention: config.inner.desired_retention,
+                        historical_retention: config.inner.historical_retention,
+                        max_interval: config.inner.maximum_review_interval,
+                        reschedule: false,
+                        deck_desired_retention,
+                    }),
+                    search: SearchNode::CardIds(comma_separated_ids(
+                        &card_ids_needing_fsrs_recompute,
+                    )),
+                    ignore_before: ignore_revlogs_before_ms_from_config(&config)?,
+                }])?;
             }
             Ok(count)
         })
