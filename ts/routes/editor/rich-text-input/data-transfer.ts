@@ -11,6 +11,7 @@ import {
     getAbsoluteMediaPath,
     getConfigBool,
     openFilePicker,
+    playFile,
     readClipboard,
     writeClipboard,
 } from "@generated/backend";
@@ -125,6 +126,20 @@ async function getImageData(data: DataTransfer | ReadClipboardResponse): Promise
     return null;
 }
 
+async function getAudioFile(data: DataTransfer): Promise<{ name: string; data: Uint8Array } | null> {
+    const files = [...(data.files ?? [])].filter((file) =>
+        audioSuffixes.includes(file.name.split(".").pop()?.toLowerCase() ?? "")
+    );
+    for (const file of files) {
+        try {
+            return { name: file.name, data: new Uint8Array(await file.arrayBuffer()) };
+        } catch (e) {
+            continue;
+        }
+    }
+    return null;
+}
+
 async function retrieveUrl(url: string): Promise<string | null> {
     const response = await addMediaFromUrl({ url });
     if (response.error) {
@@ -154,8 +169,11 @@ export function filenameToLink(filename: string): string {
     const ext = extToLowerCase(filename);
     if (imageSuffixes.includes(ext)) {
         return `<img src="${encodeURI(filename)}">`;
-    } else {
+    } else if (audioSuffixes.includes(ext)) {
+        playFile({ val: filename });
         return `[sound:${escapeHtml(filename, false)}]`;
+    } else {
+        return filename;
     }
 }
 
@@ -185,10 +203,10 @@ async function checksum(data: string | Uint8Array): Promise<string> {
     return hashHex;
 }
 
-async function addMediaFromData(filename: string, data: ImageData): Promise<string> {
+async function addMediaFromData(filename: string, data: Uint8Array): Promise<string> {
     filename = (await addMediaFile({
         desiredName: filename,
-        data: imageDataToUint8Array(data),
+        data,
     })).val;
     return filename;
 }
@@ -203,7 +221,7 @@ async function addPastedImage(data: ImageData, ext: string, convert = false): Pr
     if (convert) {
         data = (await convertPastedImage({ data: imageDataToUint8Array(data), ext })).data;
     }
-    return await addMediaFromData(filename, data);
+    return await addMediaFromData(filename, imageDataToUint8Array(data));
 }
 
 async function inlinedImageToFilename(src: string): Promise<string> {
@@ -272,6 +290,17 @@ async function processImages(data: DataTransfer, _extended: Promise<boolean>): P
     return filenameToLink(await addPastedImage(image, ext, true));
 }
 
+async function processAudioFiles(
+    data: DataTransfer,
+    _extended: Promise<boolean>,
+): Promise<string | null> {
+    const file = await getAudioFile(data);
+    if (!file) {
+        return null;
+    }
+    return filenameToLink(await addMediaFromData(file.name, file.data));
+}
+
 async function processText(data: DataTransfer, extended: Promise<boolean>): Promise<string | null> {
     function replaceSpaces(match: string, p1: string): string {
         return `${p1.replaceAll(" ", "&nbsp;")} `;
@@ -317,9 +346,9 @@ async function processDataTransferEvent(
     const urls = await getUrls(data);
     let handlers: ((data: DataTransfer, extended: Promise<boolean>) => Promise<string | null>)[];
     if (urls.length > 0 && urls[0].startsWith("file://")) {
-        handlers = [processUrls, processImages, processText];
+        handlers = [processUrls, processImages, processAudioFiles, processText];
     } else {
-        handlers = [processImages, processUrls, processText];
+        handlers = [processImages, processAudioFiles, processUrls, processText];
     }
 
     for (const handler of handlers) {
