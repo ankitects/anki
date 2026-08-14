@@ -3,9 +3,13 @@
 // @vitest-environment jsdom
 
 import { playFile } from "@generated/backend";
-import { expect, test, vi } from "vitest";
+import { beforeEach, expect, test, vi } from "vitest";
 
 import { filenameToLink, isAudio } from "./data-transfer";
+
+beforeEach(() => {
+    vi.clearAllMocks();
+});
 
 vi.mock("@generated/backend", async (importOriginal) => ({
     ...(await importOriginal<object>()),
@@ -30,4 +34,10 @@ test("filenameToLink and isAudio agree on what counts as audio", () => {
     expect(link).toBe("[sound:clip.mp3]");
     expect(isAudio("clip.mp3")).toBe(true);
     expect(vi.mocked(playFile)).toHaveBeenCalledWith({ val: "clip.mp3" });
+});
+
+test("filenameToLink returns bare filename if unrecognized", () => {
+    const link = filenameToLink("test.foo");
+    expect(link).toBe("test.foo");
+    expect(vi.mocked(playFile)).toHaveBeenCalledTimes(0);
 });
