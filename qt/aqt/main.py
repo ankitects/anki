@@ -26,7 +26,14 @@ from anki import hooks
 from anki._backend import RustBackend as _RustBackend
 from anki._legacy import deprecated
 from anki.buildinfo import version as version_str
-from anki.collection import Collection, Config, GithubRelease, OpChanges, UndoStatus
+from anki.collection import (
+    Collection,
+    Config,
+    ExperimentFlag,
+    GithubRelease,
+    OpChanges,
+    UndoStatus,
+)
 from anki.decks import DeckDict, DeckId
 from anki.hooks import runHook
 from anki.notes import NoteId
@@ -114,7 +121,6 @@ class MainWebView(AnkiWebView):
         event.accept()
 
     def dropEvent(self, event: QDropEvent) -> None:
-        import aqt.importing
         from aqt.import_export.importing import import_file
 
         if self.mw.state != "deckBrowser":
@@ -123,10 +129,7 @@ class MainWebView(AnkiWebView):
         paths = [url.toLocalFile() for url in mime.urls()]
         deck_paths = filter(lambda p: not p.endswith(".colpkg"), paths)
         for path in deck_paths:
-            if not self.mw.pm.legacy_import_export():
-                import_file(self.mw, path)
-            else:
-                aqt.importing.importFile(self.mw, path)
+            import_file(self.mw, path)
 
             # importing continues after the above call returns, so it is not
             # currently safe for us to import more than one file at once
@@ -525,8 +528,14 @@ class AnkiQt(QMainWindow):
                 self._refresh_after_sync()
             if onsuccess:
                 onsuccess()
-            if not self.safeMode:
+            if self.safeMode:
+                # Disable all experiments in safe mode
+                self.col._experiments = {}
+            else:
                 self.maybe_check_for_addon_updates(self.setup_auto_update)
+
+            # if self.col.experiment_enabled(ExperimentFlag.TEST_FLAG):
+            #     showInfo('You have the "ping" experiment enabled')
 
         last_day_cutoff = self.col.sched.day_cutoff
 
@@ -597,6 +606,9 @@ class AnkiQt(QMainWindow):
         self.mediaServer.shutdown()
         # Rust background jobs are not awaited implicitly
         self.backend.await_backup_completion()
+        self.toolbarWeb.cleanup()
+        self.web.cleanup()
+        self.bottomWeb.cleanup()
         self.deleteLater()
         app = self.app
         app._unset_windows_shutdown_block_reason()
@@ -1289,14 +1301,29 @@ title="{}" {}>{}</button>""".format(
     # Other menu operations
     ##########################################################################
 
+    def _open_new_or_legacy_dialog(
+        self, name: str, default_to_new: bool = False, *args: Any, **kwargs: Any
+    ) -> Any:
+        shift = KeyboardModifiersPressed().shift
+        want_new = (default_to_new and not shift) or (not default_to_new and shift)
+        if want_new:
+            name = f"New{name}"
+        return aqt.dialogs.open(name, self, *args, **kwargs)
+
     def onAddCard(self) -> None:
-        aqt.dialogs.open("AddCards", self)
+        from aqt.addcards import NewAddCards
+
+        experimental = self.col.experiment_enabled(ExperimentFlag.SVELTE_EDITOR)
+        add_cards = self._open_new_or_legacy_dialog("AddCards", experimental)
+        if isinstance(add_cards, NewAddCards):
+            add_cards.load_new_note()
 
     def onBrowse(self) -> None:
         aqt.dialogs.open("Browser", self, card=self.reviewer.card)
 
     def onEditCurrent(self) -> None:
-        aqt.dialogs.open("EditCurrent", self)
+        experimental = self.col.experiment_enabled(ExperimentFlag.SVELTE_EDITOR)
+        self._open_new_or_legacy_dialog("EditCurrent", experimental)
 
     def onOverview(self) -> None:
         self.moveToState("overview")
@@ -1305,22 +1332,10 @@ title="{}" {}>{}</button>""".format(
         deck = self._selectedDeck()
         if not deck:
             return
-        want_old = KeyboardModifiersPressed().shift
-        if want_old:
-            aqt.dialogs.open("DeckStats", self)
-        else:
-            aqt.dialogs.open("NewDeckStats", self)
+        self._open_new_or_legacy_dialog("DeckStats", True)
 
     def onPrefs(self) -> None:
         aqt.dialogs.open("Preferences", self)
-
-    def on_upgrade_downgrade(self) -> None:
-        if not askUser(tr.qt_misc_open_anki_launcher()):
-            return
-
-        from aqt.package import update_and_restart
-
-        update_and_restart()
 
     def on_check_for_updates(self) -> None:
         from packaging.version import Version
@@ -1372,31 +1387,18 @@ title="{}" {}>{}</button>""".format(
             showInfo(f"{tr.qt_misc_please_use_fileimport_to_import_this()} ({path})")
             return None
 
-        if not self.pm.legacy_import_export():
-            import_file(self, path)
-        else:
-            import aqt.importing
-
-            aqt.importing.importFile(self, path)
+        import_file(self, path)
 
     def onImport(self) -> None:
         "Importing triggered via File>Import."
-        import aqt.importing
         from aqt.import_export.importing import prompt_for_file_then_import
 
-        if not self.pm.legacy_import_export():
-            prompt_for_file_then_import(self)
-        else:
-            aqt.importing.onImport(self)
+        prompt_for_file_then_import(self)
 
     def onExport(self, did: DeckId | None = None) -> None:
-        import aqt.exporting
         from aqt.import_export.exporting import ExportDialog
 
-        if not self.pm.legacy_import_export():
-            ExportDialog(self, did=did)
-        else:
-            aqt.exporting.ExportDialog(self, did=did)
+        ExportDialog(self, did=did)
 
     # Installing add-ons from CLI / mimetype handler
     ##########################################################################
@@ -1424,8 +1426,6 @@ title="{}" {}>{}</button>""".format(
     ##########################################################################
 
     def setupMenus(self) -> None:
-        from aqt.package import launcher_executable
-
         m = self.form
 
         # File
@@ -1455,12 +1455,7 @@ title="{}" {}>{}</button>""".format(
         qconnect(m.actionCreateFiltered.triggered, self.onCram)
         qconnect(m.actionEmptyCards.triggered, self.onEmptyCards)
         qconnect(m.actionNoteTypes.triggered, self.onNoteTypes)
-        qconnect(m.action_upgrade_downgrade.triggered, self.on_upgrade_downgrade)
         qconnect(m.action_check_for_updates.triggered, self.on_check_for_updates)
-        if launcher_executable():
-            m.action_check_for_updates.setVisible(False)
-        else:
-            m.action_upgrade_downgrade.setVisible(False)
         qconnect(m.actionPreferences.triggered, self.onPrefs)
 
         # View
@@ -1759,38 +1754,6 @@ title="{}" {}>{}</button>""".format(
             self.hideMenuAccels = True
             self.maybeHideAccelerators()
             self.hideStatusTips()
-        elif is_win:
-            self._setupWin32()
-
-    def _setupWin32(self):
-        """Fix taskbar display/pinning"""
-        if sys.platform != "win32":
-            return
-
-        launcher_path = os.environ.get("ANKI_LAUNCHER")
-        if not launcher_path:
-            return
-
-        from win32com.propsys import propsys, pscon
-        from win32com.propsys.propsys import PROPVARIANTType
-
-        hwnd = int(self.winId())
-        prop_store = propsys.SHGetPropertyStoreForWindow(hwnd)  # type: ignore[call-arg]
-        prop_store.SetValue(
-            pscon.PKEY_AppUserModel_ID, PROPVARIANTType("Ankitects.Anki")
-        )
-        prop_store.SetValue(
-            pscon.PKEY_AppUserModel_RelaunchCommand,
-            PROPVARIANTType(f'"{launcher_path}"'),
-        )
-        prop_store.SetValue(
-            pscon.PKEY_AppUserModel_RelaunchDisplayNameResource, PROPVARIANTType("Anki")
-        )
-        prop_store.SetValue(
-            pscon.PKEY_AppUserModel_RelaunchIconResource,
-            PROPVARIANTType(f"{launcher_path},0"),
-        )
-        prop_store.Commit()
 
     def maybeHideAccelerators(self, tgt: Any | None = None) -> None:
         if not self.hideMenuAccels:

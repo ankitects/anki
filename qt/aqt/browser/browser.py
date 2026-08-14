@@ -8,7 +8,7 @@ import json
 import math
 import re
 from collections.abc import Callable, Sequence
-from typing import Any, cast
+from typing import Any
 
 from markdown import markdown
 
@@ -19,7 +19,7 @@ import aqt.forms
 import aqt.operations
 from anki._legacy import deprecated
 from anki.cards import Card, CardId
-from anki.collection import Collection, Config, OpChanges, SearchNode
+from anki.collection import Collection, Config, ExperimentFlag, OpChanges, SearchNode
 from anki.consts import *
 from anki.decks import DeckId
 from anki.errors import NotFoundError, SearchError
@@ -30,9 +30,9 @@ from anki.scheduler.base import ScheduleCardsAsNew
 from anki.tags import MARKED_TAG
 from anki.utils import is_mac
 from aqt import AnkiQt, gui_hooks
-from aqt.editor import Editor, EditorWebView
+from aqt.addcards import NewAddCards
+from aqt.addcards_legacy import AddCards
 from aqt.errors import show_exception
-from aqt.exporting import ExportDialog as LegacyExportDialog
 from aqt.import_export.exporting import ExportDialog
 from aqt.operations.card import set_card_deck, set_card_flag
 from aqt.operations.collection import redo, undo
@@ -79,7 +79,6 @@ from aqt.utils import (
     tr,
 )
 
-from ..addcards import AddCards
 from ..changenotetype import change_notetype_dialog
 from .card_info import BrowserCardInfo
 from .find_and_replace import FindAndReplaceDialog
@@ -113,7 +112,7 @@ class MockModel:
 class Browser(QMainWindow):
     mw: AnkiQt
     col: Collection
-    editor: Editor | None
+    editor: aqt.editor.Editor | aqt.editor.NewEditor | None
     table: Table
 
     def __init__(
@@ -186,7 +185,7 @@ class Browser(QMainWindow):
         focused = current_window() == self
         self.table.op_executed(changes, handler, focused)
         self.sidebar.op_executed(changes, handler, focused)
-        if changes.note_text:
+        if changes.note_text and isinstance(self.editor, aqt.editor.Editor):
             if handler is not self.editor:
                 # fixme: this will leave the splitter shown, but with no current
                 # note being edited
@@ -277,11 +276,14 @@ class Browser(QMainWindow):
         return None
 
     def add_card(self, deck_id: DeckId):
-        add_cards = cast(AddCards, aqt.dialogs.open("AddCards", self.mw))
-        add_cards.set_deck(deck_id)
-
-        if note_type_id := self.get_active_note_type_id():
-            add_cards.set_note_type(note_type_id)
+        add_cards = self.mw._open_new_or_legacy_dialog("AddCards")
+        if isinstance(add_cards, AddCards):
+            add_cards.set_deck(deck_id)
+            if note_type_id := self.get_active_note_type_id():
+                add_cards.set_note_type(note_type_id)
+        else:
+            assert isinstance(add_cards, NewAddCards)
+            add_cards.load_new_note(deck_id, self.get_active_note_type_id())
 
     # If in the Browser we open Preview and press Ctrl+W there,
     # both Preview and Browser windows get closed by Qt out of the box.
@@ -402,7 +404,9 @@ class Browser(QMainWindow):
         add_ellipsis_to_action_label(f.action_forget)
         add_ellipsis_to_action_label(f.action_grade_now)
 
-    def _editor_web_view(self) -> EditorWebView:
+    def _editor_web_view(
+        self,
+    ) -> aqt.editor.EditorWebView | aqt.editor.NewEditorWebView:
         assert self.editor is not None
         editor_web_view = self.editor.web
         assert editor_web_view is not None
@@ -520,7 +524,7 @@ class Browser(QMainWindow):
         self.search()
 
     def current_search(self) -> str:
-        return self._line_edit().text().replace("\n", " ")
+        return re.sub(r"\s", " ", self._line_edit().text())
 
     def search(self) -> None:
         """Search triggered programmatically. Caller must have saved note first."""
@@ -604,17 +608,26 @@ class Browser(QMainWindow):
     def setupEditor(self) -> None:
         QShortcut(QKeySequence("Ctrl+Shift+P"), self, self.onTogglePreview)
 
-        def add_preview_button(editor: Editor) -> None:
+        def add_preview_button(
+            editor: aqt.editor.Editor | aqt.editor.NewEditor,
+        ) -> None:
             editor._links["preview"] = lambda _editor: self.onTogglePreview()
+            gui_hooks.editor_did_init.remove(add_preview_button)
 
         gui_hooks.editor_did_init.append(add_preview_button)
-        self.editor = aqt.editor.Editor(
+        editor_class: type[aqt.editor.Editor | aqt.editor.NewEditor]
+        experimental = self.col.experiment_enabled(ExperimentFlag.SVELTE_EDITOR)
+        shift = KeyboardModifiersPressed().shift
+        if (experimental and not shift) or (not experimental and shift):
+            editor_class = aqt.editor.NewEditor
+        else:
+            editor_class = aqt.editor.Editor
+        self.editor = editor_class(
             self.mw,
             self.form.fieldsArea,
             self,
             editor_mode=aqt.editor.EditorMode.BROWSER,
         )
-        gui_hooks.editor_did_init.remove(add_preview_button)
 
     @ensure_editor_saved
     def on_all_or_selected_rows_changed(self) -> None:
@@ -818,7 +831,7 @@ class Browser(QMainWindow):
             assert current_card is not None
 
             deck_id = current_card.current_deck_id()
-            aqt.dialogs.open("AddCards", self.mw).set_note(note, deck_id)
+            self.mw._open_new_or_legacy_dialog("AddCards").set_note(note, deck_id)
 
     @no_arg_trigger
     @skip_if_selection_is_empty
@@ -842,7 +855,11 @@ class Browser(QMainWindow):
 
         if self._previewer:
             self._previewer.close()
-        elif self.editor.note:
+        elif (
+            isinstance(self.editor, aqt.editor.Editor)
+            and self.editor.note
+            or isinstance(self.editor, aqt.editor.NewEditor)
+        ):
             self._previewer = PreviewDialog(self, self.mw, self._on_preview_closed)
             self._previewer.open()
             self.toggle_preview_button_state(True)
@@ -1030,12 +1047,8 @@ class Browser(QMainWindow):
     @no_arg_trigger
     @skip_if_selection_is_empty
     def _on_export_notes(self) -> None:
-        if not self.mw.pm.legacy_import_export():
-            nids = self.selected_notes()
-            ExportDialog(self.mw, nids=nids, parent=self)
-        else:
-            cids = self.selectedNotesAsCards()
-            LegacyExportDialog(self.mw, cids=list(cids), parent=self)
+        nids = self.selected_notes()
+        ExportDialog(self.mw, nids=nids, parent=self)
 
     # Flags & Marking
     ######################################################################
@@ -1263,7 +1276,10 @@ class Browser(QMainWindow):
         def cb():
             assert self.editor is not None and self.editor.web is not None
             self.editor.web.setFocus()
-            self.editor.loadNote(focusTo=0)
+            if isinstance(self.editor, aqt.editor.Editor):
+                self.editor.loadNote(focusTo=0)
+            else:
+                self.editor.reload_note()
 
         assert self.editor is not None
         self.editor.call_after_note_saved(cb)

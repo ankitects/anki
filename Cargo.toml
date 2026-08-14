@@ -12,7 +12,6 @@ members = [
   "build/runner",
   "ftl",
   "pylib/rsbridge",
-  "qt/launcher",
   "rslib",
   "rslib/i18n",
   "rslib/io",
@@ -33,7 +32,7 @@ git = "https://github.com/ankitects/linkcheck.git"
 rev = "184b2ca50ed39ca43da13f0b830a463861adb9ca"
 
 [workspace.dependencies.fsrs]
-version = "5.2.0"
+version = "6.6.1"
 # git = "https://github.com/open-spaced-repetition/fsrs-rs.git"
 # path = "../open-spaced-repetition/fsrs-rs"
 
@@ -109,7 +108,7 @@ prost-build = "0.13"
 prost-reflect = "0.14.7"
 prost-types = "0.13"
 pulldown-cmark = "0.13.0"
-pyo3 = { version = "0.25.1", features = ["extension-module", "abi3", "abi3-py39"] }
+pyo3 = { version = "0.29.0", features = ["extension-module", "abi3", "abi3-py39"] }
 rand = "0.9.4"
 rayon = "1.10.0"
 regex = "1.11.1"
@@ -176,3 +175,8 @@ debug = 0
 [profile.release-lto]
 inherits = "release"
 lto = true
+
+[profile.ci]
+inherits = "dev"
+# TODO: consider setting once caching issues are fixed (#5318)
+# incremental = false

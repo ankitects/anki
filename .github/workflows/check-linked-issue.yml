@@ -1,8 +1,8 @@
 name: Check Linked Issue
 
 on:
-  pull_request:
-    types: [opened, edited]
+  pull_request_target:
+    types: [opened, edited, labeled]
 
 jobs:
   check-linked-issue:
@@ -14,15 +14,23 @@ jobs:
     steps:
       - name: Check for linked issue
         id: check
-        uses: actions/github-script@f28e40c7f34bde8b3046d885e986cb6290c5673b #v7
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 #v9.0.0
         with:
           script: |
+            const { owner, repo } = context.repo;
             const pr = context.payload.pull_request;
             const body = pr.body || '';
             const author = pr.user.login;
             const labels = pr.labels.map(l => l.name);
 
+            const isCollaborator = await github.rest.repos.checkCollaborator({
+              owner,
+              repo,
+              username: author,
+            }).then(() => true).catch(() => false);
+
             const isExempt =
+              isCollaborator ||
               labels.includes('hotfix') ||
               author === 'dependabot[bot]' ||
               labels.includes('dependencies');
@@ -34,13 +42,13 @@ jobs:
             }
             core.setOutput('exempt', 'false');
 
-            const linkedIssuePattern = /\b(closes|fixes|resolves|close|fix|resolve)\s+#\d+/i;
+            const linkedIssuePattern = /\b(closes|close|closed|fixes|fix|fixed|resolves|resolve|resolved|refs|ref|references):?\s+(?:(?:[a-zA-Z0-9_.-]+\/[a-zA-Z0-9_.-]+)?#\d+|https?:\/\/github\.com\/[a-zA-Z0-9_.-]+\/[a-zA-Z0-9_.-]+\/(?:issues|pull)\/\d+)/i;
             const hasLinkedIssue = linkedIssuePattern.test(body);
             core.setOutput('has_linked_issue', hasLinkedIssue);
 
       - name: Apply missing-issue label and comment
         if: steps.check.outputs.has_linked_issue == 'false'
-        uses: actions/github-script@f28e40c7f34bde8b3046d885e986cb6290c5673b #v7
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 #v9.0.0
         with:
           script: |
             const { owner, repo } = context.repo;
@@ -73,9 +81,9 @@ jobs:
               });
             }
 
-      - name: Remove missing-issue label if issue is now linked
+      - name: Remove missing-issue label and bot comment if issue is now linked
         if: steps.check.outputs.has_linked_issue == 'true'
-        uses: actions/github-script@f28e40c7f34bde8b3046d885e986cb6290c5673b #v7
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 #v9.0.0
         with:
           script: |
             const { owner, repo } = context.repo;
@@ -87,13 +95,28 @@ jobs:
               issue_number
             });
 
-            const hasMissingLabel = labels.data.some(l => l.name === 'missing-issue');
-
-            if (hasMissingLabel) {
+            if (labels.data.some(l => l.name === 'missing-issue')) {
               await github.rest.issues.removeLabel({
                 owner,
                 repo,
                 issue_number,
                 name: 'missing-issue'
               });
+            }
+
+            const comments = await github.rest.issues.listComments({
+              owner,
+              repo,
+              issue_number,
+              per_page: 100
+            });
+
+            for (const comment of comments.data) {
+              if (comment.user.type === 'Bot' && comment.body.includes('To link an issue, edit the PR description')) {
+                await github.rest.issues.deleteComment({
+                  owner,
+                  repo,
+                  comment_id: comment.id
+                });
+              }
             }
