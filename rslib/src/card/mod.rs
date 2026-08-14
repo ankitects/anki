@@ -28,6 +28,7 @@ use crate::prelude::*;
 use crate::scheduler::fsrs::memory_state::UpdateMemoryStateEntry;
 use crate::scheduler::fsrs::memory_state::UpdateMemoryStateRequest;
 use crate::scheduler::fsrs::params::ignore_revlogs_before_ms_from_config;
+use crate::search::SearchNode;
 use crate::storage::comma_separated_ids;
 use crate::timestamp::TimestampSecs;
 use crate::types::Usn;
