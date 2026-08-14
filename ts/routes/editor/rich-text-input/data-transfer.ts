@@ -11,6 +11,7 @@ import {
     getAbsoluteMediaPath,
     getConfigBool,
     openFilePicker,
+    playFile,
     readClipboard,
     writeClipboard,
 } from "@generated/backend";
@@ -168,8 +169,11 @@ export function filenameToLink(filename: string): string {
     const ext = extToLowerCase(filename);
     if (imageSuffixes.includes(ext)) {
         return `<img src="${encodeURI(filename)}">`;
-    } else {
+    } else if (audioSuffixes.includes(ext)) {
+        playFile({ val: filename });
         return `[sound:${escapeHtml(filename, false)}]`;
+    } else {
+        return filename;
     }
 }
 
