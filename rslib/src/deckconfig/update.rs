@@ -160,6 +160,7 @@ impl Collection {
         require!(!req.configs.is_empty(), "config not provided");
         let configs_before_update = self.storage.get_deck_config_map()?;
         let mut configs_after_update = configs_before_update.clone();
+        let today = TimestampSecs::now().date_string();
 
         // handle removals first
         for dcid in &req.removed_config_ids {
@@ -173,6 +174,10 @@ impl Collection {
 
         // add/update provided configs
         for conf in &mut req.configs {
+            require!(
+                conf.inner.ignore_revlogs_before_date <= today,
+                "ignore_revlogs_before_date cannot be later than today"
+            );
             // If the user has provided empty FSRS6 params, zero out any
             // old params as well, so we don't fall back on them, which would
             // be surprising as they're not shown in the GUI.
@@ -447,8 +452,10 @@ fn update_day_limit(day_limit: &mut Option<DayLimit>, new_limit: Option<u32>, to
 mod test {
     use super::*;
     use crate::deckconfig::NewCardInsertOrder;
+    use crate::error::AnkiError;
     use crate::tests::open_test_collection_with_learning_card;
     use crate::tests::open_test_collection_with_relearning_card;
+    use crate::timestamp::TimestampSecs;
 
     #[test]
     fn updating() -> Result<()> {
@@ -612,5 +619,42 @@ mod test {
         col.answer_good();
         col.set_default_relearn_steps(vec![1.]);
         assert_eq!(col.get_first_card().remaining_steps, 1);
+    }
+
+    #[test]
+    fn should_reject_ignore_revlogs_before_date_later_than_today() {
+        let mut col = Collection::new();
+        let output = col.get_deck_configs_for_update(DeckId(1)).unwrap();
+        let mut input = UpdateDeckConfigsRequest {
+            target_deck_id: DeckId(1),
+            configs: output
+                .all_config
+                .into_iter()
+                .map(|c| c.config.unwrap().into())
+                .collect(),
+            removed_config_ids: vec![],
+            mode: UpdateDeckConfigsMode::Normal,
+            card_state_customizer: "".to_string(),
+            limits: Limits::default(),
+            new_cards_ignore_review_limit: false,
+            apply_all_parent_limits: false,
+            fsrs: false,
+            fsrs_reschedule: false,
+            fsrs_health_check: true,
+        };
+
+        let mut input2 = input.clone();
+        let mut input3 = input.clone();
+        input.configs[0].inner.ignore_revlogs_before_date =
+            TimestampSecs::now().adding_secs(86_400).date_string();
+
+        let err = col.update_deck_configs(input).unwrap_err();
+        assert!(matches!(err, AnkiError::InvalidInput { .. }));
+
+        input2.configs[0].inner.ignore_revlogs_before_date = TimestampSecs::now().date_string();
+        assert!(col.update_deck_configs(input2).is_ok());
+
+        input3.configs[0].inner.ignore_revlogs_before_date = "".to_string();
+        assert!(col.update_deck_configs(input3).is_ok());
     }
 }
