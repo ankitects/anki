@@ -61,14 +61,19 @@ pub(crate) struct UpdateMemoryStateEntry {
     pub ignore_before: TimestampMillis,
 }
 
-trait ChunkIntoVecs<T> {
-    fn chunk_into_vecs(&mut self, chunk_size: usize) -> impl Iterator<Item = Vec<T>>;
+trait ChunkIntoVecs<T>: Sized {
+    fn chunk_into_vecs(self, chunk_size: usize) -> impl Iterator<Item = Vec<T>>;
 }
 
 impl<T> ChunkIntoVecs<T> for Vec<T> {
-    fn chunk_into_vecs(&mut self, chunk_size: usize) -> impl Iterator<Item = Vec<T>> {
+    /// Consumes the vec, yielding it as owned chunks. Draining from the front
+    /// instead would shift the remaining elements down on every chunk, making
+    /// this quadratic in the number of cards.
+    fn chunk_into_vecs(self, chunk_size: usize) -> impl Iterator<Item = Vec<T>> {
+        let mut items = self.into_iter();
         std::iter::from_fn(move || {
-            (!self.is_empty()).then(|| self.drain(..chunk_size.min(self.len())).collect())
+            let chunk: Vec<T> = items.by_ref().take(chunk_size).collect();
+            (!chunk.is_empty()).then_some(chunk)
         })
     }
 }
