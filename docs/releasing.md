@@ -1,19 +1,47 @@
+<!-- DO NOT MANUALLY EDIT THIS FILE -->
+<!-- This file is copied from docs-site/developers/releasing.mdx automatically -->
+
 # Releasing
 
-Releases are managed by two GitHub Actions workflows under `.github/workflows/`:
+<!-- <<<cog
+from cogdocs import get_file_contents
+cog.out(get_file_contents("releasing"))
+>>> -->
 
-1. **`prepare-release.yml`** — Run first. Validates the version, checks that CI
-   passed, updates `.version`, and pushes everything to the dispatching branch
-   in a single commit. CI then runs automatically on the resulting commit (for
-   `release/**` branches). The CI check can be skipped with `skip-ci-check`.
+Releases are prepared with a script that a maintainer runs locally, then built
+and published by a GitHub Actions workflow:
 
-2. **`release.yml`** — Run after CI passes on the prepared commit. Builds
-   installers and wheels for all platforms (Linux x86/ARM, macOS Intel/ARM,
-   Windows), and can optionally sign macOS/Windows artifacts, create a draft
-   GitHub release, publish wheels to TestPyPI, and publish wheels to PyPI.
+1. **`.github/scripts/prepare_release.py`** — Run first, on your own machine.
+   Validates the version, checks out the matching `release/YY.MM` branch, checks
+   that CI passed, makes sure no duplicate tag or release exists, syncs
+   translations, then commits the updated `.version` and pushes the branch. CI
+   then runs automatically on the resulting commit (for `release/**` branches).
+   The CI check can be skipped with `--skip-ci-check`.
 
-Both workflows are `workflow_dispatch` and share a `release` concurrency group so
-they cannot run simultaneously.
+2. **`.github/workflows/release.yml`** — Dispatch after CI passes on the
+   prepared commit. Builds installers and wheels for all platforms (Linux
+   x86/ARM, macOS Intel/ARM, Windows), and can optionally sign macOS/Windows
+   artifacts, create a draft GitHub release, publish wheels to TestPyPI, and
+   publish wheels to PyPI.
+
+`release.yml` is `workflow_dispatch` and uses a `release`
+concurrency group, so two release builds cannot run simultaneously.
+
+## Prepare script requirements
+
+The prepare script runs on your machine, so it needs:
+
+- A clean working tree. The script stops if there are uncommitted changes.
+- An authenticated `gh` CLI, with push access to `ankitects/anki` and to the two
+  translation repos.
+- `rsync` on the `PATH`. It copies the translation templates.
+- A Python interpreter with the `packaging` module, which the project's `uv`
+  environment provides.
+
+The script pushes translation template commits to the translation repos before
+it commits `.version`, so a failure after that point leaves those pushes in
+place. Re-running the script is safe: the translation step is a no-op when there
+is nothing new to copy.
 
 ## Version format
 
@@ -33,45 +61,45 @@ candidates, and the stable release all come from the same branch.
 ### Standard release
 
 1. Create a release branch from `main`:
-   ```
-   git checkout -b release/26.05 main
-   git push origin release/26.05
-   ```
+
+    ```
+    git checkout -b release/26.05 main
+    git push origin release/26.05
+    ```
 
 2. CI runs automatically on push to `release/**` branches.
 
 3. Prepare the release (updates `.version` on the branch):
-   ```
-   just release::prepare --version 26.05b1 --ref release/26.05
-   ```
 
-4. Pull the version bump commit:
-   ```
-   git pull origin release/26.05
-   ```
+    ```
+    just release::prepare --version 26.05b1
+    ```
 
-5. Verify on TestPyPI:
-   ```
-   just release::testpypi --ref release/26.05
-   ```
+4. Verify on TestPyPI:
 
-6. Publish the full release:
-   ```
-   just release::public --ref release/26.05
-   ```
+    ```
+    just release::testpypi --ref release/26.05
+    ```
 
-7. For subsequent pre-releases or the stable release from the same cycle,
-   repeat steps 3-6 with the new version (e.g. `26.05b2`, `26.05rc1`, `26.05`).
+5. Publish the full release:
 
-8. After the stable release, merge the release branch back to `main` to pick up
+    ```
+    just release::public --ref release/26.05
+    ```
+
+6. For subsequent pre-releases or the stable release from the same cycle,
+   repeat steps 3-5 with the new version (e.g. `26.05b2`, `26.05rc1`, `26.05`).
+
+7. After the stable release, merge the release branch back to `main` to pick up
    the `.version` bump and any cherry-picked fixes:
-   ```
-   git checkout main
-   git merge release/26.05
-   git push origin main
-   ```
 
-9. Delete the release branch after the stable release is published.
+    ```
+    git checkout main
+    git merge release/26.05
+    git push origin main
+    ```
+
+8. Delete the release branch after the stable release is published.
 
 ### Security and hotfix releases
 
@@ -84,22 +112,25 @@ the fix is ready for release.
 Once the fix is ready:
 
 1. Create a release branch from the latest release tag:
-   ```
-   git checkout -b release/26.05 26.05
-   ```
+
+    ```
+    git checkout -b release/26.05 26.05
+    ```
 
 2. Cherry-pick the fix onto the release branch.
 
 3. Push the branch and wait for CI:
-   ```
-   git push origin release/26.05
-   ```
+
+    ```
+    git push origin release/26.05
+    ```
 
 4. Prepare and publish:
-   ```
-   just release::prepare --version 26.05.1 --ref release/26.05
-   just release::public --ref release/26.05
-   ```
+
+    ```
+    just release::prepare --version 26.05.1
+    just release::public --ref release/26.05
+    ```
 
 5. Merge the release branch back to `main`.
 
@@ -110,7 +141,7 @@ Once the fix is ready:
 
 ```{mermaid}
 flowchart LR
-    A["<b>prepare-release.yml</b><br/>validate version<br/>check CI<br/>check duplicate tag<br/>update .version<br/>push to branch"] --> B["<b>CI (ci.yml)</b><br/>runs automatically<br/>on release/** branches"]
+    A["<b>prepare_release.py</b><br/><i>local</i><br/>validate version<br/>check out release branch<br/>check CI<br/>check duplicate tag<br/>sync translations<br/>update .version<br/>push to branch"] --> B["<b>CI (ci.yml)</b><br/>runs automatically<br/>on release/** branches"]
     B --> C["<b>release.yml</b><br/>build all platforms<br/>optionally sign macOS/Windows<br/>optionally create draft GitHub release<br/>optionally publish to TestPyPI/PyPI"]
 
     style A fill:#2d333b,stroke:#539bf5,color:#adbac7
@@ -166,10 +197,11 @@ flowchart TD
     style pypi fill:#2d333b,stroke:#7ee787,color:#adbac7
 ```
 
-## Workflow inputs
+## Inputs
 
-**prepare-release:** takes a `version` string and an optional `skip-ci-check`
-boolean (default `false`).
+**prepare_release.py:** takes a `version` argument and an optional
+`--skip-ci-check` flag. The release branch is derived from the version, so there
+is no branch argument.
 
 **release:** takes a `version` (must match `.version` for public release
 operations) and five boolean inputs:
@@ -215,11 +247,12 @@ signed and published:
 | `skip-ci-check`    | Skips the CI status check. Useful for hotfix releases.                                                                                                                                                                                            |
 | `version`          | For `draft-release` or `publish-pypi`: must match `.version`. For build-only, signed-only, or TestPyPI-only runs: ignored (`.version` from the branch is used automatically).                                                                     |
 
-## Dispatching with just
+## Running releases with just
 
-Release workflows can be dispatched via `just` using the `release` module
-defined in `release.just`. All recipes require an explicit `--ref` argument
-pointing to the release branch.
+The `release` module defined in `release.just` wraps both the prepare script and
+the `release.yml` dispatches. `release::prepare` runs locally and takes no
+`--ref`. Every other recipe dispatches `release.yml` and requires an explicit
+`--ref` argument pointing to the release branch.
 
 Run `just --list --list-submodules` to see all available recipes and their
 arguments.
@@ -231,9 +264,9 @@ only apply when `draft-release` or `publish-pypi` is enabled. To run a test
 build:
 
 1. Dispatch `release.yml` from your branch with all boolean inputs left false:
-   ```
-   just release::build --ref <your-branch>
-   ```
+    ```
+    just release::build --ref <your-branch>
+    ```
 2. The workflow reads `.version` from the branch as-is (the version input is
    ignored for non-release runs), so no prepare step is needed.
 3. All release guards (CI check, duplicate tag check) are skipped.
@@ -246,9 +279,9 @@ To test the signing flow from a feature branch:
 1. In the repo's Settings → Environments → `release`, temporarily add your
    branch to the allowed deployment branches.
 2. Dispatch the workflow:
-   ```
-   just release::sign --ref <your-branch>
-   ```
+    ```
+    just release::sign --ref <your-branch>
+    ```
 3. Approve the environment deployment when prompted.
 4. After testing, remove your branch from the environment's allowed branches.
 
@@ -260,8 +293,8 @@ To test the signing flow from a feature branch:
 ## Important notes
 
 - The release workflow builds the exact commit at `github.sha`. It does not
-  write `.version` — that is done by the prepare workflow. If you dispatch
-  release before prepare's commit has propagated, the build will use whatever
+  write `.version` — that is done by the prepare script. If you dispatch release
+  before the prepare commit has been pushed, the build will use whatever
   `.version` was HEAD at dispatch time.
 - `draft-release=true` with `sign=false` is rejected — draft releases must use
   signed installer artifacts.
@@ -276,3 +309,5 @@ To test the signing flow from a feature branch:
 - Once a GitHub release draft is created, modify the generated changelog if necessary then click **Publish release**.
 - Create a forum topic on the [Beta Testing](https://forums.ankiweb.net/c/anki/beta-testing/13) category. For stable releases, lock the topic and ask users to report issues on a new topic.
 - For stable releases, update the version in [ankitects/anki-landing-page](https://github.com/ankitects/anki-landing-page) (See [example](https://github.com/ankitects/anki-landing-page/commit/2362eb2202f174df2aad1dc5336e1b5195a7af85)).
+
+<!-- <<<end>>> -->
