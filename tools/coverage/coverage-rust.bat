@@ -38,7 +38,7 @@ set "ANKI_TEST_MODE=1"
     --cargo-profile %PROFILE% ^
     --json --summary-only ^
     --output-path %outdir%\coverage-summary.json --fail-under-lines 64 || exit /b 1
-%LLVMCOVPATH%\cargo-llvm-cov llvm-cov report --lcov --output-path %outdir%\lcov.info || exit /b 1
+"%CARGO_CMD%" llvm-cov report --profile %PROFILE% --lcov --output-path %outdir%\lcov.info || exit /b 1
 
 
 if "%1"=="--html" (

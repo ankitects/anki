@@ -29,7 +29,7 @@ ANKI_TEST_MODE=1 "$cargo_cmd" llvm-cov nextest --workspace --locked \
     --cargo-profile "$profile" \
     --json --summary-only \
     --output-path $outdir/coverage-summary.json --fail-under-lines 64
-ANKI_TEST_MODE=1 $LLVMCOVPATH/cargo-llvm-cov llvm-cov report --lcov \
+ANKI_TEST_MODE=1 "$cargo_cmd" llvm-cov report --profile "$profile" --lcov \
     --output-path $outdir/lcov.info
 
 if [ "$html" = "--html" ]; then
