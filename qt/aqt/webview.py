@@ -607,7 +607,7 @@ class AnkiWebView(QWebEngineView):
 
     def standard_css(self) -> str:
         color_hl = theme_manager.var(colors.BORDER_FOCUS)
-
+        font_size = self.font().pointSizeF() * self.logicalDpiX() / 72
         if is_win:
             # T: include a font for your language on Windows, eg: "Segoe UI", "MS Mincho"
             family = tr.qt_misc_segoe_ui()
@@ -649,11 +649,13 @@ div[contenteditable="true"]:focus {{
                 color_hl=color_hl,
             )
 
+        system_font_size_css = f"font-size: {font_size}px; --bs-body-font-size: {font_size}px; --font-size: {font_size}px;"
         zoom = self.app_zoom_factor()
 
         return f"""
 body {{ zoom: {zoom}; background-color: var(--canvas); }}
 html {{ {font} }}
+:root.system-font-size, :root.night-mode.system-font-size {{ {system_font_size_css} }}
 {button_style}
 :root {{ --canvas: {colors.CANVAS["light"]} }}
 :root[class*=night-mode] {{ --canvas: {colors.CANVAS["dark"]} }}
