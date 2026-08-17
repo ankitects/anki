@@ -56,9 +56,9 @@ On all platforms, you will need to install:
 
 Platform-specific requirements:
 
-- [Windows](https://anki.mintlify.app/windows)
-- [Mac](https://anki.mintlify.app/mac)
-- [Linux](https://anki.mintlify.app/linux)
+- [Windows](https://anki.mintlify.app/manual/platform/windows/installing#requirements)
+- [Mac](https://anki.mintlify.app/manual/platform/mac/installing#requirements)
+- [Linux](https://anki.mintlify.app/manual/platform/linux/installing#requirements)
 
 ## Running Anki during development
 
@@ -185,11 +185,11 @@ may delete the `target/` folder (if any) as that's no longer used.
 
 ## IDEs
 
-Please see [this separate page](https://anki.mintlify.app/editing) for setting up an editor/IDE.
+Please see [this separate page](https://anki.mintlify.app/developers/editing#editing-ides) for setting up an editor/IDE.
 
 ## Making changes to the build
 
-See [this page](https://anki.mintlify.app/build)
+See [this page](https://anki.mintlify.app/developers/build)
 
 ## Generating documentation
 
