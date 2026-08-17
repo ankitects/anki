@@ -14,6 +14,7 @@ preferences-on-next-sync-force-changes-in = On next sync, force changes in one d
 preferences-paste-clipboard-images-as-png = Paste clipboard images as PNG
 preferences-paste-without-shift-key-strips-formatting = Paste without shift key strips formatting
 preferences-generate-latex-images-automatically = Generate LaTeX images (security risk)
+preferences-use-new-reviewer = Use new reviewer
 preferences-latex-generation-disabled = LaTeX image generation is disabled in the preferences.
 preferences-periodically-sync-media = Periodically sync media
 preferences-please-restart-anki-to-complete-language = Please restart Anki to complete language change.

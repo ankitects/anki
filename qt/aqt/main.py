@@ -244,13 +244,11 @@ class AnkiQt(QMainWindow):
         # screens
         self.setupDeckBrowser()
         self.setupOverview()
-        self.setupReviewer()
+        # self.setupReviewer()
 
     def finish_ui_setup(self) -> None:
         "Actions that are deferred until after add-on loading."
         self.toolbar.draw()
-        # add-ons are only available here after setupAddons
-        gui_hooks.reviewer_did_init(self.reviewer)
 
     def setupProfileAfterWebviewsLoaded(self) -> None:
         for w in (self.web, self.bottomWeb):
@@ -534,6 +532,13 @@ class AnkiQt(QMainWindow):
             else:
                 self.maybe_check_for_addon_updates(self.setup_auto_update)
 
+            if self.col.experiment_enabled(ExperimentFlag.SVELTE_REVIEWER):
+                aqt.webview.main_window_api_enabled = True
+                print(
+                    "Enabling main window API for Svelte reviewer",
+                    aqt.webview.main_window_api_enabled,
+                )
+
             # if self.col.experiment_enabled(ExperimentFlag.TEST_FLAG):
             #     showInfo('You have the "ping" experiment enabled')
 
@@ -678,6 +683,8 @@ class AnkiQt(QMainWindow):
         except Exception:
             # dump error to stderr so it gets picked up by errors.py
             traceback.print_exc()
+
+        self.setupReviewer(self.col.experiment_enabled(ExperimentFlag.SVELTE_REVIEWER))
 
         return True
 
@@ -1079,10 +1086,13 @@ title="{}" {}>{}</button>""".format(
 
         self.overview = Overview(self)
 
-    def setupReviewer(self) -> None:
-        from aqt.reviewer import Reviewer
+    def setupReviewer(self, new: bool) -> None:
+        from aqt.reviewer import Reviewer, SvelteReviewer
 
-        self.reviewer = Reviewer(self)
+        self.reviewer = SvelteReviewer(self) if new else Reviewer(self)
+
+        # add-ons are only available here after setupAddons
+        gui_hooks.reviewer_did_init(self.reviewer)
 
     # Syncing
     ##########################################################################
