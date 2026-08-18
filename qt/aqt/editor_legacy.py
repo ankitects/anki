@@ -1142,7 +1142,9 @@ require("anki/ui").loaded.then(() => require("anki/NoteEditor").instances[0].too
                     image_path=image_path, notetype_id=0
                 )
             else:
-                assert self.note is not None
+                if self.note is None:
+                    showWarning(tr.browsing_no_selection())
+                    return
                 self.setup_mask_editor_for_existing_note(
                     note_id=self.note.id, image_path=image_path
                 )
