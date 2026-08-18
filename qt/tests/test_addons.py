@@ -8,7 +8,7 @@ from zipfile import ZipFile
 import pytest
 from mock import MagicMock
 
-from aqt.addons import AddonManager, package_name_valid
+from aqt.addons import AddonManager, DownloadError, download_addon, package_name_valid
 
 
 def test_readMinimalManifest():
@@ -97,3 +97,18 @@ def test_install_extracts_safe_files(tmp_path, addon_manager):
     assert os.path.exists(os.path.join(addon_dir, "main.py"))
     assert os.path.exists(os.path.join(addon_dir, "subdir", "helper.py"))
     assert not os.path.exists(os.path.join(tmp_path, "unsafe.txt"))
+
+
+def test_download_addon_rejects_bad_content_disposition():
+    client = MagicMock()
+    resp = MagicMock()
+    resp.status_code = 200
+    resp.headers = {"content-disposition": "inline; not-a-filename"}
+    client.get.return_value = resp
+    client.stream_content.return_value = b"data"
+
+    result = download_addon(client, 123)
+
+    assert isinstance(result, DownloadError)
+    assert isinstance(result.exception, ValueError)
+    assert "content-disposition" in str(result.exception)
