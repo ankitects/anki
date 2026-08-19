@@ -28,8 +28,7 @@ use crate::prelude::*;
 use crate::scheduler::fsrs::memory_state::UpdateMemoryStateEntry;
 use crate::scheduler::fsrs::memory_state::UpdateMemoryStateRequest;
 use crate::scheduler::fsrs::params::ignore_revlogs_before_ms_from_config;
-use crate::search::SearchNode;
-use crate::storage::comma_separated_ids;
+use crate::search::Negated;
 use crate::timestamp::TimestampSecs;
 use crate::types::Usn;
 
@@ -384,23 +383,22 @@ impl Collection {
         let usn = self.usn()?;
         self.transact(Op::SetCardDeck, |col| {
             let mut count = 0;
-            let mut card_ids_needing_fsrs_recompute = Vec::new();
             for mut card in col.all_cards_for_ids(cards, false)? {
                 if card.deck_id == deck_id {
                     continue;
                 }
                 count += 1;
-                if fsrs_enabled && card.ctype != CardType::New {
-                    card_ids_needing_fsrs_recompute.push(card.id);
-                }
                 let original = card.clone();
                 steps_adjuster.adjust_remaining_steps(col, &mut card)?;
                 card.set_deck(deck_id);
                 col.update_card_inner(&mut card, original, usn)?;
             }
-            if !card_ids_needing_fsrs_recompute.is_empty() {
+            if fsrs_enabled {
                 let desired_retention = deck.effective_desired_retention(&config);
                 let deck_desired_retention = [(deck_id, desired_retention)].into();
+
+                use crate::search::SearchNode::*;
+
                 col.update_memory_state(vec![UpdateMemoryStateEntry {
                     req: Some(UpdateMemoryStateRequest {
                         params: config.fsrs_params().clone(),
@@ -410,9 +408,12 @@ impl Collection {
                         reschedule: false,
                         deck_desired_retention,
                     }),
-                    search: SearchNode::CardIds(comma_separated_ids(
-                        &card_ids_needing_fsrs_recompute,
-                    )),
+                    search: SearchBuilder::all(vec![
+                        DeckIdsWithoutChildren(deck_id.to_string()).into(),
+                        HasMemoryState.negated(),
+                    ])
+                    .try_into_search()
+                    .unwrap(),
                     ignore_before: ignore_revlogs_before_ms_from_config(&config)?,
                 }])?;
             }
