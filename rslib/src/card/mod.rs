@@ -416,8 +416,7 @@ impl Collection {
                         DeckIdsWithoutChildren(deck_id.to_string()).into(),
                         HasMemoryState.negated(),
                     ])
-                    .try_into_search()
-                    .unwrap(),
+                    .try_into_search()?,
                     ignore_before: ignore_revlogs_before_ms_from_config(&config)?,
                 }])?;
             }
