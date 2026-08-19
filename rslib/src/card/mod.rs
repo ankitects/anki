@@ -393,7 +393,11 @@ impl Collection {
                 card.set_deck(deck_id);
                 col.update_card_inner(&mut card, original, usn)?;
             }
-            if fsrs_enabled {
+            // Only recompute when at least one card actually moved. Besides
+            // avoiding wasted work on a no-op, this prevents a set_deck call on
+            // cards already in the target deck from triggering a recompute of
+            // *other* memory-state-less cards in that deck.
+            if fsrs_enabled && count > 0 {
                 let desired_retention = deck.effective_desired_retention(&config);
                 let deck_desired_retention = [(deck_id, desired_retention)].into();
 
