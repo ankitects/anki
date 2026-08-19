@@ -2,7 +2,7 @@
 # Changes:
 # - Disable Javascript/Lua/vapoursynth
 # - Set deployment target
-# - Fix the ao_coreaudio channel map type for macOS 27 (see below)
+# - Revert upstream PR #15622 to fix playback on macOS 27 (See #5157)
 
 class Mpv < Formula
   desc "Media player based on MPlayer and mplayer2"
@@ -58,13 +58,6 @@ class Mpv < Formula
 
   conflicts_with cask: "stolendata-mpv", because: "both install `mpv` binaries"
 
-  # Fix for upstream commit 06fe665b (mpv >= 0.40): it passes an
-  # AudioChannelLayout to kAudioOutputUnitProperty_ChannelMap, which expects
-  # an SInt32 array. macOS 27 rejects this for mono input (error -50), so
-  # mpv falls back to ao_avfoundation, which truncates playback. The patch
-  # builds a correctly-typed SInt32 map instead, and keeps init alive if
-  # the OS still rejects it.
-  # See https://github.com/ankitects/anki/issues/5157
   patch :DATA
 
   def install
@@ -133,7 +126,7 @@ end
 __END__
 --- a/audio/out/ao_coreaudio.c
 +++ b/audio/out/ao_coreaudio.c
-@@ -321,12 +321,41 @@
+@@ -321,13 +321,6 @@
      CHECK_CA_ERROR_L(coreaudio_error_audiounit,
                       "can't link audio unit to selected device");
 
@@ -143,41 +136,7 @@ __END__
 -
 -    CHECK_CA_ERROR_L(coreaudio_error_audiounit,
 -                     "unable to set the input channel layout on the audio unit");
-+    // kAudioOutputUnitProperty_ChannelMap expects an array of SInt32: one
-+    // entry per device output channel, holding the source input channel or
-+    // -1. Only set it when the input is a pure reordering of the device
-+    // layout, and treat failure as non-fatal: the default 1:1 mapping is
-+    // better than losing the coreaudio ao entirely.
-+    AudioStreamBasicDescription out_asbd;
-+    size = sizeof(out_asbd);
-+    err = AudioUnitGetProperty(p->audio_unit,
-+                               kAudioUnitProperty_StreamFormat,
-+                               kAudioUnitScope_Output, 0, &out_asbd, &size);
-+    CHECK_CA_WARN("unable to get the output format of the audio unit");
-+    int out_ch = (err == noErr) ? (int)out_asbd.mChannelsPerFrame : 0;
-+    if (out_ch == ao->channels.num && out_ch <= MP_NUM_CHANNELS) {
-+        struct mp_chmap dev_map;
-+        ca_get_active_chmap(ao, p->device, out_ch, &dev_map);
-+        SInt32 ch_map[MP_NUM_CHANNELS];
-+        bool complete = dev_map.num == out_ch;
-+        for (int n = 0; complete && n < out_ch; n++) {
-+            ch_map[n] = -1;
-+            for (int i = 0; i < ao->channels.num; i++) {
-+                if (ao->channels.speaker[i] == dev_map.speaker[n]) {
-+                    ch_map[n] = i;
-+                    break;
-+                }
-+            }
-+            complete = ch_map[n] >= 0;
-+        }
-+        if (complete) {
-+            err = AudioUnitSetProperty(p->audio_unit,
-+                                       kAudioOutputUnitProperty_ChannelMap,
-+                                       kAudioUnitScope_Global, 0, ch_map,
-+                                       out_ch * sizeof(SInt32));
-+            CHECK_CA_WARN("unable to set the channel map on the audio unit");
-+        }
-+    }
-
+-
      AURenderCallbackStruct render_cb = (AURenderCallbackStruct) {
          .inputProc       = render_cb_lpcm,
+         .inputProcRefCon = ao,
