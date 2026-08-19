@@ -1,6 +1,7 @@
 # Copyright: Ankitects Pty Ltd and contributors
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
+import io
 import os.path
 from tempfile import TemporaryDirectory
 from zipfile import ZipFile
@@ -8,7 +9,13 @@ from zipfile import ZipFile
 import pytest
 from mock import MagicMock
 
-from aqt.addons import AddonManager, package_name_valid
+from aqt.addons import (
+    AddonManager,
+    DownloadOk,
+    InstallOk,
+    download_and_install_addon,
+    package_name_valid,
+)
 
 
 def test_readMinimalManifest():
@@ -83,6 +90,52 @@ def addon_manager(tmp_path) -> AddonManager:
     adm = AddonManager(MagicMock())
     adm.mw.pm.addonFolder.return_value = tmp_path
     return adm
+
+
+def _addon_download(data: bytes, filename: str = "Fallback_Name.zip") -> DownloadOk:
+    return DownloadOk(
+        data=data,
+        filename=filename,
+        mod_time=0,
+        min_point_version=0,
+        max_point_version=0,
+        branch_index=0,
+    )
+
+
+def test_download_prefers_packaged_name(monkeypatch, addon_manager):
+    data = io.BytesIO()
+    with ZipFile(data, "w") as zfile:
+        zfile.writestr(
+            "manifest.json",
+            '{"package": "12345", "name": "Packaged & Name"}',
+        )
+
+    monkeypatch.setattr(
+        "aqt.addons.download_addon",
+        lambda _client, _id: _addon_download(data.getvalue()),
+    )
+
+    _, result = download_and_install_addon(addon_manager, MagicMock(), 12345)
+
+    assert isinstance(result, InstallOk)
+    assert result.name == "Packaged & Name"
+
+
+def test_download_falls_back_to_filename_name(monkeypatch, addon_manager):
+    data = io.BytesIO()
+    with ZipFile(data, "w") as zfile:
+        zfile.writestr("__init__.py", "")
+
+    monkeypatch.setattr(
+        "aqt.addons.download_addon",
+        lambda _client, _id: _addon_download(data.getvalue()),
+    )
+
+    _, result = download_and_install_addon(addon_manager, MagicMock(), 12345)
+
+    assert isinstance(result, InstallOk)
+    assert result.name == "Fallback Name"
 
 
 def test_install_extracts_safe_files(tmp_path, addon_manager):

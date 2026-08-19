@@ -1205,6 +1205,12 @@ def download_and_install_addon(
     if not name:
         name = str(id)
 
+    try:
+        with ZipFile(io.BytesIO(result.data)) as zfile:
+            name = mgr.readManifestFile(zfile).get("name") or name
+    except zipfile.BadZipfile:
+        pass
+
     manifest = dict(
         package=str(id),
         name=name,
