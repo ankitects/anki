@@ -536,6 +536,7 @@ impl From<MemoryState> for FsrsMemoryState {
 
 #[cfg(test)]
 mod test {
+    use crate::config::BoolKey;
     use crate::prelude::*;
     use crate::tests::open_test_collection_with_learning_card;
     use crate::tests::open_test_collection_with_relearning_card;
@@ -583,6 +584,42 @@ mod test {
 
         assert_eq!(col.get_first_card().remaining_steps, 1);
 
+        Ok(())
+    }
+
+    #[test]
+    fn recalculate_memory_state_on_set_deck() -> Result<()> {
+        let mut col = Collection::new();
+
+        let nt = col.get_notetype_by_name("Basic")?.unwrap();
+        let mut note = nt.new_note();
+        col.add_note(&mut note, DeckId(1))?;
+
+        // Graduate card to review without FSRS so it has an interval but no memory
+        // state
+        col.answer_easy();
+
+        col.set_config_bool(BoolKey::Fsrs, true, false)?;
+
+        let card_id = col.get_first_card().id;
+        assert!(col
+            .storage
+            .get_card(card_id)?
+            .unwrap()
+            .memory_state
+            .is_none());
+
+        // Moving the card should trigger FSRS memory state calculation for cards
+        // without it
+        let target = DeckAdder::new("target").add(&mut col);
+        col.set_deck(&[card_id], target.id)?;
+
+        assert!(col
+            .storage
+            .get_card(card_id)?
+            .unwrap()
+            .memory_state
+            .is_some());
         Ok(())
     }
 }
