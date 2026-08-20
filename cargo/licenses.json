@@ -2592,6 +2592,22 @@
     "repository": "https://github.com/mystor/synstructure"
   },
   {
+    "authors": "Mullvad VPN",
+    "description": "Bindings to SystemConfiguration framework for macOS",
+    "license": "Apache-2.0 OR MIT",
+    "license_file": null,
+    "name": "system-configuration",
+    "repository": "https://github.com/mullvad/system-configuration-rs"
+  },
+  {
+    "authors": "Mullvad VPN",
+    "description": "Low level bindings to SystemConfiguration framework for macOS",
+    "license": "Apache-2.0 OR MIT",
+    "license_file": null,
+    "name": "system-configuration-sys",
+    "repository": "https://github.com/mullvad/system-configuration-rs"
+  },
+  {
     "authors": "Steven Allen <steven@stebalien.com>|The Rust Project Developers|Ashley Mannix <ashleymannix@live.com.au>|Jason White <me@jasonwhite.io>",
     "description": "A library for managing temporary files and directories.",
     "license": "Apache-2.0 OR MIT",
@@ -3285,6 +3301,14 @@
     "license": "Apache-2.0 OR MIT",
     "license_file": null,
     "name": "windows-numerics",
+    "repository": "https://github.com/microsoft/windows-rs"
+  },
+  {
+    "authors": "Microsoft",
+    "description": "Windows registry",
+    "license": "Apache-2.0 OR MIT",
+    "license_file": null,
+    "name": "windows-registry",
     "repository": "https://github.com/microsoft/windows-rs"
   },
   {
