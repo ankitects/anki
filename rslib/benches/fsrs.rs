@@ -53,7 +53,9 @@ fn setup_transfer_state() -> TransferBenchState {
     let card_ids = col
         .search_cards("deck:fsrs-source", SortMode::NoOrder)
         .unwrap();
-    col.set_due_date(&card_ids, "1", None).unwrap();
+    col.grade_now(&card_ids, 1).unwrap();
+    col.grade_now(&card_ids, 3).unwrap();
+    col.grade_now(&card_ids, 3).unwrap();
 
     TransferBenchState {
         col,
