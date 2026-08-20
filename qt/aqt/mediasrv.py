@@ -850,7 +850,7 @@ def active_window_or_main() -> QWidget:
     global _activeWindow
     if not _activeWindow or sip.isdeleted(_activeWindow):
         _activeWindow = None
-        return aqt.mw.app.activeWindow() or mw
+        return aqt.mw.app.activeWindow() or aqt.mw
     else:
         return _activeWindow
 
