@@ -201,6 +201,24 @@ class TestMediaFileCSP:
             assert _get_csp(resp) is None
 
 
+class TestCheckDynamicRequestPermissions:
+    """A missing Content-type header must abort(403), not raise KeyError."""
+
+    def test_missing_content_type_header_aborts_403(self, monkeypatch) -> None:
+        from unittest import mock
+
+        from werkzeug.exceptions import Forbidden
+
+        import aqt
+        from aqt.mediasrv import _check_dynamic_request_permissions, app
+
+        monkeypatch.setattr(aqt, "mw", mock.Mock(), raising=False)
+
+        with app.test_request_context(method="POST"):
+            with pytest.raises(Forbidden):
+                _check_dynamic_request_permissions()
+
+
 class TestEditorPageCSP:
     def test_editor_csp_does_not_block_user_embeds(self) -> None:
         csp = _legacy_editor_content_security_policy(port=12345)
