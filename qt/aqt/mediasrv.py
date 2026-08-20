@@ -40,6 +40,7 @@ from anki.collection import (
 from anki.decks import UpdateDeckConfigs, UpdateDeckConfigsMode
 from anki.scheduler.v3 import SchedulingStatesWithContext, SetSchedulingStatesRequest
 from anki.utils import dev_mode, from_json_bytes, to_json_bytes
+from aqt import gui_hooks
 from aqt.changenotetype import ChangeNotetypeDialog
 from aqt.deckoptions import DeckOptionsDialog
 from aqt.operations import on_op_finished
@@ -833,8 +834,20 @@ class AsyncRequestHandler(Generic[AsyncRequestReturnType]):
         return await self.future
 
 
+_activeWindow = None
+
+
+def _on_focus_did_change(new: QWidget | None, _old: QWidget | None):
+    global _activeWindow
+    if new:
+        _activeWindow = new.window()
+
+
+gui_hooks.focus_did_change.append(_on_focus_did_change)
+
+
 def active_window_or_main() -> QWidget:
-    return aqt.mw.app.activeWindow() or aqt.mw
+    return _activeWindow or aqt.mw.app.activeWindow() or aqt.mw
 
 
 async def open_file_picker() -> bytes:
