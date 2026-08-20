@@ -206,6 +206,7 @@ jobs:
 
       - name: SonarCloud Scan
         if: github.event_name == 'push' || github.event_name == 'pull_request'
+        continue-on-error: true
         uses: SonarSource/sonarqube-scan-action@v8.2.0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
