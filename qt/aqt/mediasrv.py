@@ -847,7 +847,12 @@ gui_hooks.focus_did_change.append(_on_focus_did_change)
 
 
 def active_window_or_main() -> QWidget:
-    return _activeWindow or aqt.mw.app.activeWindow() or aqt.mw
+    global _activeWindow
+    if not _activeWindow or sip.isdeleted(_activeWindow):
+        _activeWindow = None
+        return aqt.mw.app.activeWindow() or mw
+    else:
+        return _activeWindow
 
 
 async def open_file_picker() -> bytes:
