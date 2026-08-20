@@ -49,6 +49,11 @@ right problems and prevents wasted effort on both sides.
 
 PRs without a linked issue may be automatically closed after a short period.
 
+## Dependency updates
+
+Dependabot PRs do not need a linked issue. Maintainers should follow
+[Dependabot updates](https://anki.mintlify.app/developers/dependabot) when reviewing or landing them.
+
 ## Refactoring
 
 Please avoid PRs that focus on refactoring. Every PR has a cost to review, and a chance
