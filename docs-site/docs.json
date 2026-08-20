@@ -344,6 +344,7 @@
                             "developers/architecture",
                             "developers/build",
                             "developers/contributing",
+                            "developers/dependabot",
                             "developers/docker",
                             "developers/editing",
                             "developers/language_bridge",
