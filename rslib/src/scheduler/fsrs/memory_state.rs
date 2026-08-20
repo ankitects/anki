@@ -24,6 +24,7 @@ use crate::scheduler::fsrs::params::Params;
 use crate::scheduler::states::fuzz::minimum_review_fuzz_interval;
 use crate::scheduler::states::fuzz::with_review_fuzz;
 use crate::search::Negated;
+use crate::search::Node;
 use crate::search::SearchNode;
 use crate::search::StateKind;
 
@@ -57,7 +58,7 @@ pub(crate) struct UpdateMemoryStateRequest {
 
 pub(crate) struct UpdateMemoryStateEntry {
     pub req: Option<UpdateMemoryStateRequest>,
-    pub search: SearchNode,
+    pub search: Node,
     pub ignore_before: TimestampMillis,
 }
 
@@ -91,8 +92,7 @@ impl Collection {
             ignore_before,
         } in entries
         {
-            let search =
-                SearchBuilder::all([search.into(), SearchNode::State(StateKind::New).negated()]);
+            let search = SearchBuilder::all([search, SearchNode::State(StateKind::New).negated()]);
             let revlog = self.revlog_for_srs(search)?;
 
             let Some(req) = &req else {
@@ -717,7 +717,7 @@ mod tests {
 
             let entry = UpdateMemoryStateEntry {
                 req: None,
-                search: SearchNode::WholeCollection,
+                search: Node::Search(SearchNode::WholeCollection),
                 ignore_before: TimestampMillis(0),
             };
             col.transact(Op::UpdateDeckConfig, |col| {
