@@ -2,6 +2,7 @@
     "recommendations": [
         "dprint.dprint",
         "ms-python.python",
+        "ms-python.mypy-type-checker",
         "charliermarsh.ruff",
         "rust-lang.rust-analyzer",
         "svelte.svelte-vscode",

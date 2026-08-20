@@ -64,10 +64,6 @@ pub fn run_build(args: BuildArgs) {
         .args(ninja_args)
         .env("PATH", &path)
         .env(
-            "MYPY_CACHE_DIR",
-            build_root.join("tests").join("mypy").into_string(),
-        )
-        .env(
             "PYTHONPYCACHEPREFIX",
             std::path::absolute(build_root.join("pycache")).unwrap(),
         )
