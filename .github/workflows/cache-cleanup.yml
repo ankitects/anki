@@ -1,0 +1,34 @@
+# Deletes the Actions caches that a PR created (build outputs, cargo, uv,
+# node_modules, rust-cache entries), which all live in the PR's merge-ref
+# scope. Without this, closed PRs leave ~1 GB entries behind until LRU
+# eviction pushes out caches that are still in use.
+#
+# pull_request_target is used so the token has actions:write for fork PRs
+# too. The job must never check out or execute PR code.
+name: Cache Cleanup
+
+on:
+  pull_request_target:
+    types: [closed]
+
+permissions:
+  actions: write
+
+jobs:
+  cleanup:
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Delete caches scoped to this PR
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REF: refs/pull/${{ github.event.pull_request.number }}/merge
+        run: |
+          # Loop because deletion shifts pagination; cap the attempts.
+          for _ in 1 2 3 4 5; do
+            ids=$(gh api "repos/${{ github.repository }}/actions/caches?ref=$REF&per_page=100" \
+              --jq '.actions_caches[].id')
+            [ -z "$ids" ] && break
+            for id in $ids; do
+              gh api -X DELETE "repos/${{ github.repository }}/actions/caches/$id" || true
+            done
+          done

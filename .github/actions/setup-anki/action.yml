@@ -89,7 +89,11 @@ runs:
           echo "UV_CACHE_DIR=$CACHE_DIR" >> "$GITHUB_ENV"
         fi
 
-    # UV_BINARY tells the build system to use our uv instead of downloading its own
+    # UV_BINARY tells the build system to use our uv instead of downloading
+    # its own. Not set on Windows: n2 cannot parse the drive-letter colon in
+    # absolute paths written to build.ninja (see commit 65f8e084d3). A fix
+    # needs path escaping in build/ninja_gen's rendering; until then, Windows
+    # downloads a second uv into out/extracted.
     - name: Set UV_BINARY
       if: runner.os != 'Windows'
       shell: bash
