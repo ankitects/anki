@@ -19,7 +19,10 @@ jobs:
           script: |
             const { owner, repo } = context.repo;
             const pr = context.payload.pull_request;
-            const body = pr.body || '';
+            // Strip HTML comments: the PR template ships an example
+            // "<!-- Fixes #123 / Closes #123 / Refs #123 -->" that would
+            // otherwise satisfy the check for anyone who leaves it in place.
+            const body = (pr.body || '').replace(/<!--[\s\S]*?-->/g, '');
             const author = pr.user.login;
             const labels = pr.labels.map(l => l.name);
 

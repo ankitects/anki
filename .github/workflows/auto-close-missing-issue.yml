@@ -66,7 +66,10 @@ jobs:
               if (!currentLabels.includes('missing-issue')) continue;
 
               const linkedIssuePattern = /\b(closes|close|closed|fixes|fix|fixed|resolves|resolve|resolved|refs|ref|references):?\s+(?:(?:[a-zA-Z0-9_.-]+\/[a-zA-Z0-9_.-]+)?#\d+|https?:\/\/github\.com\/[a-zA-Z0-9_.-]+\/[a-zA-Z0-9_.-]+\/(?:issues|pull)\/\d+)/i;
-              if (linkedIssuePattern.test(currentPr.data.body || '')) continue;
+              // Strip HTML comments to match check-linked-issue: the PR template
+              // ships an example reference that would otherwise pass the check.
+              const currentBody = (currentPr.data.body || '').replace(/<!--[\s\S]*?-->/g, '');
+              if (linkedIssuePattern.test(currentBody)) continue;
 
               await github.rest.pulls.update({
                 owner,
