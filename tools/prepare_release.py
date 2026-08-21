@@ -208,6 +208,7 @@ def main() -> None:
     check_clean()
 
     # Validate version format and ensure it's newer than the current one.
+    sys.path.insert(0, str(REPO_ROOT))
     from tools.validate_version import validate_version
 
     current_version = (REPO_ROOT / ".version").read_text().strip()
