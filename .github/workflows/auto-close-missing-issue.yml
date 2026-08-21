@@ -37,6 +37,14 @@ jobs:
 
               if (isExempt) continue;
 
+              const isCollaborator = await github.rest.repos.checkCollaborator({
+                owner,
+                repo,
+                username: pr.user.login,
+              }).then(() => true).catch(() => false);
+
+              if (isCollaborator) continue;
+
               // Find when the missing-issue label was applied
               const events = await github.paginate(github.rest.issues.listEventsForTimeline, {
                 owner,
