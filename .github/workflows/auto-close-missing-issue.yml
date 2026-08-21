@@ -65,8 +65,18 @@ jobs:
               const currentLabels = currentPr.data.labels.map(l => l.name);
               if (!currentLabels.includes('missing-issue')) continue;
 
-              const linkedIssuePattern = /\b(closes|close|closed|fixes|fix|fixed|resolves|resolve|resolved|refs|ref|references):?\s+(?:(?:[a-zA-Z0-9_.-]+\/[a-zA-Z0-9_.-]+)?#\d+|https?:\/\/github\.com\/[a-zA-Z0-9_.-]+\/[a-zA-Z0-9_.-]+\/(?:issues|pull)\/\d+)/i;
-              if (linkedIssuePattern.test(currentPr.data.body || '')) continue;
+              const result = await github.graphql(`
+                query($owner: String!, $repo: String!, $number: Int!) {
+                  repository(owner: $owner, name: $repo) {
+                    pullRequest(number: $number) {
+                      closingIssuesReferences(first: 1) {
+                        totalCount
+                      }
+                    }
+                  }
+                }
+              `, { owner, repo, number: pr.number });
+              if (result.repository.pullRequest.closingIssuesReferences.totalCount > 0) continue;
 
               await github.rest.pulls.update({
                 owner,
