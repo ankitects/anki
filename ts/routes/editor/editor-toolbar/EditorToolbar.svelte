@@ -120,7 +120,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             </Item>
 
             <Item id="template">
-                <TemplateButtons api={templateButtons} />
+                <TemplateButtons api={templateButtons} {isLegacy} />
             </Item>
 
             <Item id="cloze">
