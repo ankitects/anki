@@ -165,6 +165,12 @@ class DialogManager:
         else:
             return self._activeWindow
 
+    def getInstance(self, name: str):
+        if not (res := self._dialogs.get(name)):
+            return
+        (_, instance) = res
+        return instance
+
     def markClosed(self, name: str) -> None:
         self._dialogs[name] = [self._dialogs[name][0], None]
 

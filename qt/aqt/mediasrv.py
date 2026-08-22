@@ -959,8 +959,7 @@ def close_add_cards() -> bytes:
     def handle_on_main() -> None:
         from aqt.addcards import NewAddCards
 
-        window = active_window_or_main()
-        if isinstance(window, NewAddCards):
+        if window := aqt.dialogs.getInstance(NewAddCards.__name__):
             window._close_if_user_wants_to_discard_changes(req.val)
 
     aqt.mw.taskman.run_on_main(lambda: QTimer.singleShot(0, handle_on_main))
@@ -971,8 +970,7 @@ def close_edit_current() -> bytes:
     def handle_on_main() -> None:
         from aqt.editcurrent import NewEditCurrent
 
-        window = active_window_or_main()
-        if isinstance(window, NewEditCurrent):
+        if window := aqt.dialogs.getInstance(NewEditCurrent.__name__):
             window.close()
 
     aqt.mw.taskman.run_on_main(lambda: QTimer.singleShot(0, handle_on_main))
