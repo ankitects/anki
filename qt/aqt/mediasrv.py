@@ -911,7 +911,7 @@ def play_file() -> bytes:
     path = os.path.join(aqt.mw.col.media.dir(), req.val)
 
     def handle_on_main() -> None:
-        window = active_window_or_main()
+        window = aqt.dialogs.activeWindow()
         if (
             window is not None
             and hasattr(window, "editor")
@@ -1050,7 +1050,7 @@ def open_fields_dialog() -> bytes:
     def handle_on_main() -> None:
         from aqt.editor import NewEditor
 
-        window = active_window_or_main()
+        window = aqt.dialogs.activeWindow()
         assert window is not None
         if hasattr(window, "editor") and isinstance(window.editor, NewEditor):
             window.editor.onFields()
@@ -1063,7 +1063,7 @@ def open_cards_dialog() -> bytes:
     def handle_on_main() -> None:
         from aqt.editor import NewEditor
 
-        window = active_window_or_main()
+        window = aqt.dialogs.activeWindow()
         assert window is not None
         if hasattr(window, "editor") and isinstance(window.editor, NewEditor):
             window.editor.onCardLayout()
