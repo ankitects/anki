@@ -420,10 +420,17 @@ impl Collection {
         from_queue: CardQueue,
     ) -> Result<()> {
         let mut new_delta = 0;
+        let mut interday_learning_delta = 0;
         let mut review_delta = 0;
         match from_queue {
             CardQueue::New => new_delta += 1,
-            CardQueue::Review | CardQueue::DayLearn => review_delta += 1,
+            CardQueue::Review => review_delta += 1,
+            CardQueue::DayLearn => {
+                // Interday learning cards count against the review limit, so
+                // they increment review_delta. We also track them separately.
+                review_delta += 1;
+                interday_learning_delta += 1;
+            }
             _ => {}
         }
         self.update_deck_stats(
@@ -432,6 +439,7 @@ impl Collection {
             anki_proto::scheduler::UpdateStatsRequest {
                 deck_id: updater.deck.id.0,
                 new_delta,
+                interday_learning_delta,
                 review_delta,
                 millisecond_delta: answer.milliseconds_taken as i32,
             },
