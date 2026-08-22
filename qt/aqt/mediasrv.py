@@ -911,7 +911,7 @@ def play_file() -> bytes:
     path = os.path.join(aqt.mw.col.media.dir(), req.val)
 
     def handle_on_main() -> None:
-        window = aqt.mw.app.activeWindow()
+        window = aqt.dialogs.activeWindow()
         if (
             window is not None
             and hasattr(window, "editor")
@@ -959,8 +959,7 @@ def close_add_cards() -> bytes:
     def handle_on_main() -> None:
         from aqt.addcards import NewAddCards
 
-        window = aqt.mw.app.activeWindow()
-        if isinstance(window, NewAddCards):
+        if window := aqt.dialogs.getInstance(NewAddCards.__name__):
             window._close_if_user_wants_to_discard_changes(req.val)
 
     aqt.mw.taskman.run_on_main(lambda: QTimer.singleShot(0, handle_on_main))
@@ -971,8 +970,7 @@ def close_edit_current() -> bytes:
     def handle_on_main() -> None:
         from aqt.editcurrent import NewEditCurrent
 
-        window = aqt.mw.app.activeWindow()
-        if isinstance(window, NewEditCurrent):
+        if window := aqt.dialogs.getInstance(NewEditCurrent.__name__):
             window.close()
 
     aqt.mw.taskman.run_on_main(lambda: QTimer.singleShot(0, handle_on_main))
@@ -1052,7 +1050,7 @@ def open_fields_dialog() -> bytes:
     def handle_on_main() -> None:
         from aqt.editor import NewEditor
 
-        window = aqt.mw.app.activeWindow()
+        window = aqt.dialogs.activeWindow()
         assert window is not None
         if hasattr(window, "editor") and isinstance(window.editor, NewEditor):
             window.editor.onFields()
@@ -1065,7 +1063,7 @@ def open_cards_dialog() -> bytes:
     def handle_on_main() -> None:
         from aqt.editor import NewEditor
 
-        window = aqt.mw.app.activeWindow()
+        window = aqt.dialogs.activeWindow()
         assert window is not None
         if hasattr(window, "editor") and isinstance(window.editor, NewEditor):
             window.editor.onCardLayout()
@@ -1213,7 +1211,7 @@ def raw_backend_request(endpoint: str) -> Callable[[], bytes]:
                 raise ValueError(f"unhandled op changes level: {op_changes_type}")
 
             def handle_on_main() -> None:
-                handler = aqt.mw.app.activeWindow()
+                handler = active_window_or_main()
                 on_op_finished(aqt.mw, changes, handler)
 
             aqt.mw.taskman.run_on_main(handle_on_main)
