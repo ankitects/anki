@@ -14,7 +14,7 @@ permissions:
 # One scan per branch at a time; a newer CI completion cancels an in-flight
 # scan of an older commit so SonarCloud always reflects the latest push.
 concurrency:
-  group: sonar-${{ github.event.workflow_run.head_branch }}
+  group: sonar-${{ github.event.workflow_run.head_repository.id }}-${{ github.event.workflow_run.head_branch }}
   cancel-in-progress: true
 
 jobs:
@@ -25,7 +25,10 @@ jobs:
     # PR-context artifacts were uploaded (their upload steps are gated on
     # success too), so the scan always has coverage and never falls back to a
     # branch analysis with an empty PR context.
-    if: github.event.workflow_run.conclusion == 'success'
+    if: >-
+      github.event.workflow_run.conclusion == 'success'
+      && (github.event.workflow_run.event == 'push'
+          || github.event.workflow_run.event == 'pull_request')
     steps:
       # Checkout the PR/push code so SonarCloud analyses the actual changes.
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 #v4
@@ -33,57 +36,92 @@ jobs:
           repository: ${{ github.event.workflow_run.head_repository.full_name }}
           ref: ${{ github.event.workflow_run.head_sha }}
           fetch-depth: 0
+          persist-credentials: false
 
       # Overwrite sonar-project.properties with the trusted version from the
       # default branch so a fork PR cannot redirect sonar.host.url to steal
       # the token.
+      - name: Prepare trusted configuration directory
+        run: rm -rf .sonar-trusted
+
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 #v4
         with:
+          repository: ${{ github.repository }}
+          ref: ${{ github.event.repository.default_branch }}
           sparse-checkout: sonar-project.properties
           sparse-checkout-cone-mode: false
           path: .sonar-trusted
+          persist-credentials: false
 
-      - run: cp .sonar-trusted/sonar-project.properties sonar-project.properties
+      - name: Install trusted SonarCloud configuration
+        run: |
+          rm -f sonar-project.properties
+          cp .sonar-trusted/sonar-project.properties sonar-project.properties
 
       - name: Download coverage reports
-        continue-on-error: true
         uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 #v4.3.0
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           run-id: ${{ github.event.workflow_run.id }}
           name: coverage-reports
-          path: out
+          path: out/coverage
 
-      # Read the PR context saved by ci.yml. For push events the files are
-      # absent; outputs stay empty and the scan runs as a branch analysis.
-      # These files were written by ci.yml, which runs in the (untrusted) fork
-      # context for fork PRs, so validate/normalise before trusting them: the
-      # number must be digits-only, and refs are read one line at a time so a
-      # stray newline cannot inject extra $GITHUB_OUTPUT entries.
-      - name: Read PR context
+      - name: Download PR context
+        if: github.event.workflow_run.event == 'pull_request'
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 #v4.3.0
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          run-id: ${{ github.event.workflow_run.id }}
+          name: sonar-pr-context
+          path: out/sonar
+
+      # A PR must never silently fall back to branch analysis. The metadata
+      # artifact comes from a CI job that does not check out or execute PR code.
+      - name: Validate PR context
         id: pr
+        shell: bash
+        env:
+          SOURCE_EVENT: ${{ github.event.workflow_run.event }}
         run: |
-          if [ -f out/sonar/pr-number.txt ]; then
-            num=$(head -n1 out/sonar/pr-number.txt)
-            if [[ "$num" =~ ^[0-9]+$ ]]; then
-              echo "number=$num"                              >> "$GITHUB_OUTPUT"
-              echo "head_ref=$(head -n1 out/sonar/pr-head-ref.txt)" >> "$GITHUB_OUTPUT"
-              echo "base_ref=$(head -n1 out/sonar/pr-base-ref.txt)" >> "$GITHUB_OUTPUT"
-            else
-              echo "pr-number '$num' is not numeric; running as branch analysis"
-            fi
+          if [[ "$SOURCE_EVENT" != "pull_request" ]]; then
+            exit 0
           fi
 
+          for file in pr-number.txt pr-head-ref.txt pr-base-ref.txt; do
+            if [[ ! -s "out/sonar/$file" ]]; then
+              echo "::error::Missing or empty PR context file: $file"
+              exit 1
+            fi
+          done
+
+          num=$(head -n1 out/sonar/pr-number.txt)
+          head_ref=$(head -n1 out/sonar/pr-head-ref.txt)
+          base_ref=$(head -n1 out/sonar/pr-base-ref.txt)
+
+          if [[ ! "$num" =~ ^[0-9]+$ ]]; then
+            echo "::error::Invalid PR number"
+            exit 1
+          fi
+          git check-ref-format --branch "$head_ref" >/dev/null
+          git check-ref-format --branch "$base_ref" >/dev/null
+
+          echo "number=$num" >> "$GITHUB_OUTPUT"
+          echo "head_ref=$head_ref" >> "$GITHUB_OUTPUT"
+          echo "base_ref=$base_ref" >> "$GITHUB_OUTPUT"
+
       - name: SonarCloud Scan
+        if: >-
+          github.event.workflow_run.event != 'pull_request'
+          || steps.pr.outputs.number != ''
         continue-on-error: true
         uses: SonarSource/sonarqube-scan-action@713881670b6b3676cda39549040e2d88c70d582e #v8.2.0
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-          SONAR_SCANNER_OPTS: >-
+        with:
+          args: >-
             -Dsonar.scm.revision=${{ github.event.workflow_run.head_sha }}
             ${{ steps.pr.outputs.number != '' &&
-               format('-Dsonar.pullrequest.key={0} -Dsonar.pullrequest.branch={1} -Dsonar.pullrequest.base={2}',
-                      steps.pr.outputs.number,
-                      steps.pr.outputs.head_ref,
-                      steps.pr.outputs.base_ref) || '' }}
+                format('-Dsonar.pullrequest.key={0} -Dsonar.pullrequest.branch={1} -Dsonar.pullrequest.base={2}',
+                       steps.pr.outputs.number,
+                       steps.pr.outputs.head_ref,
+                       steps.pr.outputs.base_ref) || '' }}
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
