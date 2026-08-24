@@ -17,26 +17,20 @@ env:
   N2_OUTPUT_SUCCESS: "1"
 
 jobs:
-  # Publish PR metadata without checking out or running untrusted PR code. The
-  # privileged SonarCloud workflow consumes this only after the full CI passes.
+  # Publish the PR number as a locator. The privileged SonarCloud workflow
+  # verifies it against the GitHub API before treating it as trusted metadata.
   sonar-context:
     if: github.event_name == 'pull_request'
     runs-on: ubuntu-24.04
     steps:
-      - name: Save PR context for SonarCloud
+      - name: Save PR number for SonarCloud
         shell: bash
         env:
           PR_NUMBER: ${{ github.event.pull_request.number }}
-          PR_HEAD_REF: ${{ github.head_ref }}
-          PR_BASE_REF: ${{ github.base_ref }}
         run: |
-          test -n "$PR_NUMBER"
-          test -n "$PR_HEAD_REF"
-          test -n "$PR_BASE_REF"
+          [[ "$PR_NUMBER" =~ ^[0-9]+$ ]]
           mkdir -p out/sonar
           printf '%s' "$PR_NUMBER" > out/sonar/pr-number.txt
-          printf '%s' "$PR_HEAD_REF" > out/sonar/pr-head-ref.txt
-          printf '%s' "$PR_BASE_REF" > out/sonar/pr-base-ref.txt
 
       - name: Upload PR context for SonarCloud
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a #v7.0.1
