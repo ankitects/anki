@@ -5,11 +5,27 @@ on:
     workflows: ["CI"]
     types: [completed]
 
+# Minimal privileges: read the repo and read artifacts from the triggering
+# CI run (download-artifact across runs needs actions: read).
+permissions:
+  contents: read
+  actions: read
+
+# One scan per branch at a time; a newer CI completion cancels an in-flight
+# scan of an older commit so SonarCloud always reflects the latest push.
+concurrency:
+  group: sonar-${{ github.event.workflow_run.head_branch }}
+  cancel-in-progress: true
+
 jobs:
   sonar:
     name: SonarCloud Scan
     runs-on: ubuntu-24.04
-    if: github.event.workflow_run.conclusion != 'cancelled'
+    # Only run once the whole CI succeeded. This guarantees the coverage and
+    # PR-context artifacts were uploaded (their upload steps are gated on
+    # success too), so the scan always has coverage and never falls back to a
+    # branch analysis with an empty PR context.
+    if: github.event.workflow_run.conclusion == 'success'
     steps:
       # Checkout the PR/push code so SonarCloud analyses the actual changes.
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 #v4
@@ -39,14 +55,23 @@ jobs:
           path: out
 
       # Read the PR context saved by ci.yml. For push events the files are
-      # absent; outputs will be empty and the scan runs as a branch analysis.
+      # absent; outputs stay empty and the scan runs as a branch analysis.
+      # These files were written by ci.yml, which runs in the (untrusted) fork
+      # context for fork PRs, so validate/normalise before trusting them: the
+      # number must be digits-only, and refs are read one line at a time so a
+      # stray newline cannot inject extra $GITHUB_OUTPUT entries.
       - name: Read PR context
         id: pr
         run: |
           if [ -f out/sonar/pr-number.txt ]; then
-            echo "number=$(cat out/sonar/pr-number.txt)"   >> "$GITHUB_OUTPUT"
-            echo "head_ref=$(cat out/sonar/pr-head-ref.txt)" >> "$GITHUB_OUTPUT"
-            echo "base_ref=$(cat out/sonar/pr-base-ref.txt)" >> "$GITHUB_OUTPUT"
+            num=$(head -n1 out/sonar/pr-number.txt)
+            if [[ "$num" =~ ^[0-9]+$ ]]; then
+              echo "number=$num"                              >> "$GITHUB_OUTPUT"
+              echo "head_ref=$(head -n1 out/sonar/pr-head-ref.txt)" >> "$GITHUB_OUTPUT"
+              echo "base_ref=$(head -n1 out/sonar/pr-base-ref.txt)" >> "$GITHUB_OUTPUT"
+            else
+              echo "pr-number '$num' is not numeric; running as branch analysis"
+            fi
           fi
 
       - name: SonarCloud Scan
