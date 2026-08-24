@@ -491,7 +491,7 @@ def handle_request(pathin: str) -> Response:
 
 
 def get_sveltekit_route(path: str) -> str | None:
-    page_name = path.split("/")[0]
+    page_name = path.split("/", maxsplit=1)[0]
     if page_name in [
         "graphs",
         "congrats",
