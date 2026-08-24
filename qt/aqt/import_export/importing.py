@@ -75,9 +75,11 @@ class ColpkgImporter(Importer):
             parent=mw,
             op=lambda _: mw.create_backup_now(),
             success=lambda _: mw.unloadCollection(
-                lambda: import_collection_package_op(mw, file, on_success)
-                .failure(on_failure)
-                .run_in_background()
+                lambda: (
+                    import_collection_package_op(mw, file, on_success)
+                    .failure(on_failure)
+                    .run_in_background()
+                )
             ),
         ).with_progress().run_in_background()
 
