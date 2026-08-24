@@ -2,7 +2,8 @@
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 import pytest
-from validate_version import validate_version
+
+from tools.validate_version import validate_version
 
 
 @pytest.mark.parametrize(
