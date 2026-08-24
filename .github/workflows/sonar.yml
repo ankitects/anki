@@ -1,0 +1,43 @@
+name: SonarCloud
+
+on:
+  workflow_run:
+    workflows: ["CI"]
+    types: [completed]
+
+jobs:
+  sonar:
+    name: SonarCloud Scan
+    runs-on: ubuntu-24.04
+    # Run even if CI failed (but not if cancelled) so partial coverage still
+    # reaches SonarCloud. continue-on-error keeps this job non-blocking.
+    if: github.event.workflow_run.conclusion != 'cancelled'
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 #v4
+        with:
+          repository: ${{ github.event.workflow_run.head_repository.full_name }}
+          ref: ${{ github.event.workflow_run.head_sha }}
+          fetch-depth: 0
+
+      - name: Download coverage reports
+        continue-on-error: true
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 #v4.3.0
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          run-id: ${{ github.event.workflow_run.id }}
+          name: coverage-reports
+          path: out/coverage
+
+      - name: SonarCloud Scan
+        continue-on-error: true
+        uses: SonarSource/sonarqube-scan-action@713881670b6b3676cda39549040e2d88c70d582e #v8.2.0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          SONAR_SCANNER_OPTS: >-
+            -Dsonar.scm.revision=${{ github.event.workflow_run.head_sha }}
+            ${{ github.event.workflow_run.pull_requests[0] != null &&
+               format('-Dsonar.pullrequest.key={0} -Dsonar.pullrequest.branch={1} -Dsonar.pullrequest.base={2}',
+                      github.event.workflow_run.pull_requests[0].number,
+                      github.event.workflow_run.pull_requests[0].head.ref,
+                      github.event.workflow_run.pull_requests[0].base.ref) || '' }}
