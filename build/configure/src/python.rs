@@ -193,7 +193,7 @@ pub fn check_python(build: &mut Build) -> Result<()> {
         "check:mypy",
         PythonTypecheck {
             deps: inputs![
-                glob!["{pylib,ftl,qt}/**/*.{py,pyi}"],
+                glob!["{pylib,ftl,qt,tools}/**/*.{py,pyi}"],
                 ":pylib:anki",
                 ":qt:aqt"
             ],

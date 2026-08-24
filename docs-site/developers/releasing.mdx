@@ -5,7 +5,7 @@ title: "Releasing"
 Releases are prepared with a script that a maintainer runs locally, then built
 and published by a GitHub Actions workflow:
 
-1. **`.github/scripts/prepare_release.py`** — Run first, on your own machine.
+1. **`tools/prepare_release.py`** — Run first, on your own machine.
    Validates the version, checks out the matching `release/YY.MM` branch, checks
    that CI passed, makes sure no duplicate tag or release exists, syncs
    translations, then commits the updated `.version` and pushes the branch. CI
