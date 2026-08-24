@@ -2,7 +2,7 @@ name: Check Linked Issue
 
 on:
   pull_request_target:
-    types: [opened, edited, labeled]
+    types: [opened, edited, labeled, reopened]
 
 jobs:
   check-linked-issue:
@@ -19,7 +19,6 @@ jobs:
           script: |
             const { owner, repo } = context.repo;
             const pr = context.payload.pull_request;
-            const body = pr.body || '';
             const author = pr.user.login;
             const labels = pr.labels.map(l => l.name);
 
@@ -42,8 +41,19 @@ jobs:
             }
             core.setOutput('exempt', 'false');
 
-            const linkedIssuePattern = /\b(closes|close|closed|fixes|fix|fixed|resolves|resolve|resolved|refs|ref|references):?\s+(?:[a-zA-Z0-9_.-]+\/[a-zA-Z0-9_.-]+)?#\d+/i;
-            const hasLinkedIssue = linkedIssuePattern.test(body);
+            const result = await github.graphql(`
+              query($owner: String!, $repo: String!, $number: Int!) {
+                repository(owner: $owner, name: $repo) {
+                  pullRequest(number: $number) {
+                    closingIssuesReferences(first: 1) {
+                      totalCount
+                    }
+                  }
+                }
+              }
+            `, { owner, repo, number: pr.number });
+            const hasLinkedIssue =
+              result.repository.pullRequest.closingIssuesReferences.totalCount > 0;
             core.setOutput('has_linked_issue', hasLinkedIssue);
 
       - name: Apply missing-issue label and comment

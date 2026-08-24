@@ -152,8 +152,8 @@ class Browser(QMainWindow):
         self.setupSidebar()
         self.setup_table()
         self.setupMenus()
-        self.setupHooks()
         self.setupEditor()
+        self.setupHooks()
         gui_hooks.browser_will_show(self)
 
         # restoreXXX() should be called after all child widgets have been created
