@@ -37,28 +37,28 @@ qt = [
   "pyqt6-qt6==6.11.0",
   "pyqt6-webengine==6.11.0",
   "pyqt6-webengine-qt6==6.11.0",
-  "pyqt6_sip==13.11.1",
+  "pyqt6_sip==13.12.0",
 ]
 qt68 = [
   "pyqt6==6.8.0",
   "pyqt6-qt6==6.8.1",
   "pyqt6-webengine==6.8.0",
   "pyqt6-webengine-qt6==6.8.1",
-  "pyqt6_sip==13.10.2",
+  "pyqt6_sip==13.12.0",
 ]
 qt69 = [
   "pyqt6==6.9.1",
   "pyqt6-qt6==6.9.1",
   "pyqt6-webengine==6.9.0",
   "pyqt6-webengine-qt6==6.9.0",
-  "pyqt6_sip==13.10.2",
+  "pyqt6_sip==13.12.0",
 ]
 qt610 = [
   "pyqt6==6.10.2",
   "pyqt6-qt6==6.10.2",
   "pyqt6-webengine==6.10.0",
   "pyqt6-webengine-qt6==6.10.0",
-  "pyqt6_sip==13.10.3",
+  "pyqt6_sip==13.12.0",
 ]
 
 [tool.uv]
