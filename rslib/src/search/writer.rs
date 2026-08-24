@@ -75,8 +75,6 @@ fn write_search_node(node: &SearchNode) -> String {
         CardTemplate(t) => write_template(t),
         Deck(s) => maybe_quote(&format!("deck:{s}")),
         DeckIdsWithoutChildren(s) => format!("did:{s}"),
-        // not exposed on the GUI end
-        DeckIdWithChildren(_) => "".to_string(),
         NotetypeId(NotetypeIdType(i)) => format!("mid:{i}"),
         Notetype(s) => maybe_quote(&format!("note:{s}")),
         Rated { days, ease } => write_rated(days, ease),
@@ -94,6 +92,10 @@ fn write_search_node(node: &SearchNode) -> String {
         WordBoundary(s) => maybe_quote(&format!("w:{s}")),
         CustomData(k) => maybe_quote(&format!("has-cd:{k}")),
         Preset(s) => maybe_quote(&format!("preset:{s}")),
+
+        // not exposed on the GUI end
+        DeckIdWithChildren(_) => "".to_string(),
+        HasMemoryState => "".to_string(),
     }
 }
 

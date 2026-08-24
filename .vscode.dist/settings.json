@@ -21,6 +21,12 @@
     ],
     "python.useEnvironmentsExtension": true,
     "python-envs.workspaceSearchPaths": ["out/pyenv"],
+    "mypy-type-checker.importStrategy": "fromEnvironment",
+    "mypy-type-checker.preferDaemon": true,
+    "mypy-type-checker.reportingScope": "custom",
+    "mypy-type-checker.args": ["--config-file=${workspaceFolder}/.mypy.ini"],
+    // extraPaths is required despite mypy_path being set in .mypy.ini
+    "mypy-type-checker.extraPaths": ["pylib", "out/pylib", "qt", "out/qt", "ftl", "pylib/tools", "python"],
     "python.analysis.diagnosticSeverityOverrides": {
         "reportMissingModuleSource": "none"
     },

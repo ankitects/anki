@@ -6,7 +6,7 @@ version := `cat .version`
 [arg("version", long)]
 [arg("skip-ci-check", long)]
 prepare version skip-ci-check="false":
-    python3 .github/scripts/prepare_release.py "{{ version }}" \
+    python3 tools/prepare_release.py "{{ version }}" \
         {{ if skip-ci-check == "true" { "--skip-ci-check" } else { "" } }}
 
 # Build all platforms, no signing or publishing
