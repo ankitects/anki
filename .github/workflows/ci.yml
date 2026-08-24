@@ -204,6 +204,14 @@ jobs:
         shell: bash
         run: cargo deny check
 
+      - name: Save PR context for SonarCloud
+        if: github.event_name == 'pull_request'
+        run: |
+          mkdir -p out/sonar
+          printf '%s' '${{ github.event.pull_request.number }}' > out/sonar/pr-number.txt
+          printf '%s' '${{ github.head_ref }}'                  > out/sonar/pr-head-ref.txt
+          printf '%s' '${{ github.base_ref }}'                  > out/sonar/pr-base-ref.txt
+
       - name: Upload coverage for SonarCloud
         if: github.event_name == 'push' || github.event_name == 'pull_request'
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a #v7.0.1
@@ -214,6 +222,7 @@ jobs:
             out/coverage/python-qt/coverage.xml
             out/coverage/typescript/lcov.info
             out/coverage/rust/lcov.info
+            out/sonar/
           retention-days: 1
 
       # out/pyenv contains a venv with absolute Python paths that break

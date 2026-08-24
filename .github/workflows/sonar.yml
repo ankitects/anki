@@ -9,15 +9,25 @@ jobs:
   sonar:
     name: SonarCloud Scan
     runs-on: ubuntu-24.04
-    # Run even if CI failed (but not if cancelled) so partial coverage still
-    # reaches SonarCloud. continue-on-error keeps this job non-blocking.
     if: github.event.workflow_run.conclusion != 'cancelled'
     steps:
+      # Checkout the PR/push code so SonarCloud analyses the actual changes.
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 #v4
         with:
           repository: ${{ github.event.workflow_run.head_repository.full_name }}
           ref: ${{ github.event.workflow_run.head_sha }}
           fetch-depth: 0
+
+      # Overwrite sonar-project.properties with the trusted version from the
+      # default branch so a fork PR cannot redirect sonar.host.url to steal
+      # the token.
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 #v4
+        with:
+          sparse-checkout: sonar-project.properties
+          sparse-checkout-cone-mode: false
+          path: .sonar-trusted
+
+      - run: cp .sonar-trusted/sonar-project.properties sonar-project.properties
 
       - name: Download coverage reports
         continue-on-error: true
@@ -26,7 +36,18 @@ jobs:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           run-id: ${{ github.event.workflow_run.id }}
           name: coverage-reports
-          path: out/coverage
+          path: out
+
+      # Read the PR context saved by ci.yml. For push events the files are
+      # absent; outputs will be empty and the scan runs as a branch analysis.
+      - name: Read PR context
+        id: pr
+        run: |
+          if [ -f out/sonar/pr-number.txt ]; then
+            echo "number=$(cat out/sonar/pr-number.txt)"   >> "$GITHUB_OUTPUT"
+            echo "head_ref=$(cat out/sonar/pr-head-ref.txt)" >> "$GITHUB_OUTPUT"
+            echo "base_ref=$(cat out/sonar/pr-base-ref.txt)" >> "$GITHUB_OUTPUT"
+          fi
 
       - name: SonarCloud Scan
         continue-on-error: true
@@ -36,8 +57,8 @@ jobs:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
           SONAR_SCANNER_OPTS: >-
             -Dsonar.scm.revision=${{ github.event.workflow_run.head_sha }}
-            ${{ github.event.workflow_run.pull_requests[0] != null &&
+            ${{ steps.pr.outputs.number != '' &&
                format('-Dsonar.pullrequest.key={0} -Dsonar.pullrequest.branch={1} -Dsonar.pullrequest.base={2}',
-                      github.event.workflow_run.pull_requests[0].number,
-                      github.event.workflow_run.pull_requests[0].head.ref,
-                      github.event.workflow_run.pull_requests[0].base.ref) || '' }}
+                      steps.pr.outputs.number,
+                      steps.pr.outputs.head_ref,
+                      steps.pr.outputs.base_ref) || '' }}
