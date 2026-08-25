@@ -440,7 +440,7 @@ const FILE_PICKER_MEDIA_KEY = "media";
 
 export async function openFilePickerForSuffixes(suffixes: string[]): Promise<string> {
     const filename = (await openFilePicker({
-        title: tr.editingMedia(),
+        title: tr.editingAddMedia(),
         filterDescription: tr.editingMedia(),
         extensions: suffixes,
         key: FILE_PICKER_MEDIA_KEY,
