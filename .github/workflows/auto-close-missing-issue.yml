@@ -37,6 +37,14 @@ jobs:
 
               if (isExempt) continue;
 
+              const isCollaborator = await github.rest.repos.checkCollaborator({
+                owner,
+                repo,
+                username: pr.user.login,
+              }).then(() => true).catch(() => false);
+
+              if (isCollaborator) continue;
+
               // Find when the missing-issue label was applied
               const events = await github.paginate(github.rest.issues.listEventsForTimeline, {
                 owner,
@@ -65,8 +73,44 @@ jobs:
               const currentLabels = currentPr.data.labels.map(l => l.name);
               if (!currentLabels.includes('missing-issue')) continue;
 
-              const linkedIssuePattern = /\b(closes|close|closed|fixes|fix|fixed|resolves|resolve|resolved|refs|ref|references):?\s+(?:[a-zA-Z0-9_.-]+\/[a-zA-Z0-9_.-]+)?#\d+/i;
-              if (linkedIssuePattern.test(currentPr.data.body || '')) continue;
+              const result = await github.graphql(`
+                query($owner: String!, $repo: String!, $number: Int!) {
+                  repository(owner: $owner, name: $repo) {
+                    pullRequest(number: $number) {
+                      closingIssuesReferences(first: 1) {
+                        totalCount
+                      }
+                    }
+                  }
+                }
+              `, { owner, repo, number: pr.number });
+              if (result.repository.pullRequest.closingIssuesReferences.totalCount > 0) {
+                // An issue was linked without an event that re-runs the check
+                // workflow (e.g. via the Development sidebar), so clean up here.
+                await github.rest.issues.removeLabel({
+                  owner,
+                  repo,
+                  issue_number: pr.number,
+                  name: 'missing-issue',
+                });
+
+                const comments = await github.paginate(github.rest.issues.listComments, {
+                  owner,
+                  repo,
+                  issue_number: pr.number,
+                  per_page: 100,
+                });
+                for (const comment of comments) {
+                  if (comment.user.type === 'Bot' && comment.body.includes('To link an issue, edit the PR description')) {
+                    await github.rest.issues.deleteComment({
+                      owner,
+                      repo,
+                      comment_id: comment.id,
+                    });
+                  }
+                }
+                continue;
+              }
 
               await github.rest.pulls.update({
                 owner,

@@ -10,7 +10,7 @@ architecture, or a barebones Linux distro, you will not be able to use the
 packaged version, but you may be able to use the [Python wheels](https://betas.ankiweb.net/#via-pypipip)
 instead.
 
-Debian and derivatives, such as Ubuntu and [Chromebooks with Linux enabled](https://support.google.com/chromebook/answer/9145439?), please use the following before
+Debian and derivatives, such as Ubuntu and [Chromebooks with Linux enabled](https://support.google.com/chromebook/answer/9145439), please use the following before
 installing:
 
 ```shell

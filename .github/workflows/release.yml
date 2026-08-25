@@ -97,7 +97,7 @@ jobs:
           fi
 
           # "0.0" skips the ordering check — non-release builds only need format validation
-          is_prerelease=$(python3 .github/scripts/validate_version.py "$version" "0.0")
+          is_prerelease=$(python3 tools/validate_version.py "$version" "0.0")
           echo "Version check passed: $version (prerelease=$is_prerelease)"
 
           {
