@@ -84,7 +84,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { fragmentToStored, storedToFragment } from "./transform";
 
     export let hidden = false;
-    export let isLegacy = false;
+    export let isLegacy: boolean;
     export const focusFlag = new Flag();
     export let isClozeField: boolean;
 

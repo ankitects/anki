@@ -65,7 +65,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import type { InlineButtonsAPI } from "./InlineButtons.svelte";
     import type { NoteEditorAPI } from "../NoteEditor.svelte";
 
-    export let isLegacy = false;
+    export let isLegacy: boolean;
     export let size: number;
     export let wrap: boolean;
     export let noteEditor: NoteEditorAPI;

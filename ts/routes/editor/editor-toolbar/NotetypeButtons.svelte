@@ -21,7 +21,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     export let api = {};
     export let noteEditor: NoteEditorAPI;
-    export let isLegacy = false;
+    export let isLegacy: boolean;
 
     const keyCombination = "Control+L";
 </script>

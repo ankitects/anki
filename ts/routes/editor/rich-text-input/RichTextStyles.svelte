@@ -10,7 +10,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     import { mount } from "svelte";
 
-    export let isLegacy = false;
+    export let isLegacy: boolean;
 
     export let callback: (styles: Record<string, any>) => void;
 

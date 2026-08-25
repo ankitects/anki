@@ -19,7 +19,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { setColConfig } from "@tslib/profile";
     import { bridgeCommand } from "@tslib/bridgecommand";
 
-    export let isLegacy = false;
+    export let isLegacy: boolean;
     let showFloating = false;
 
     function toggleShrinkImages(_evt: MouseEvent): void {
