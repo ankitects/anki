@@ -69,3 +69,52 @@ card:hover {
 .nav-tabs-item[data-active] {
   color: var(--anki-primary);
 }
+
+
+/* Right-to-left language support */
+
+.is-rtl #content-area {
+  direction: rtl;
+  text-align: right;
+}
+
+.is-rtl #sidebar-content {
+  text-align: right;
+}
+
+.is-rtl #sidebar {
+  direction: rtl;
+}
+
+.is-rtl #content code,
+.is-rtl #content pre,
+.is-rtl #content kbd {
+  direction: ltr;
+  unicode-bidi: embed;
+}
+
+/* "Next" link uses ml-auto which pushes to right in RTL - flip to left */
+.is-rtl #pagination a.ml-auto {
+  margin-left: 0;
+  margin-right: auto;
+}
+
+/* "Next" SVG has rotate-180 (›) - remove so arrow points left (‹) in RTL */
+.is-rtl #pagination a.ml-auto svg {
+  transform: none;
+}
+
+/* "Previous" SVG has no rotation (‹) - rotate so arrow points right (›) in RTL */
+.is-rtl #pagination a:not(.ml-auto) svg {
+  transform: rotate(180deg);
+}
+
+/* space-x-3 adds margin-left to non-first children, which goes to the wrong
+   side in RTL flex; replace it with gap on the link element */
+.is-rtl #pagination a {
+  gap: 0.75rem;
+}
+.is-rtl #pagination a > * {
+  margin-left: 0;
+  margin-right: 0;
+}

@@ -2,8 +2,6 @@
 title: "Windows permission problems"
 ---
 
-
-
 ## Permission Problems
 
 If you receive "access denied" messages, some of Anki's files may be set to read only mode, meaning Anki is not able to write to them.
@@ -15,11 +13,11 @@ To fix the problem, you can do the following:
 
 whoami
 
-- type the following, hitting <kbd>Enter</kbd> after each line, and replacing ____ (and keeping the :F part) with your username from the previous command
+- type the following, hitting <kbd>Enter</kbd> after each line, and replacing \_\_\_\_ (and keeping the :F part) with your username from the previous command
 
 cd %APPDATA%
 
-icacls Anki2 /grant ____:F /t
+icacls Anki2 /grant \_\_\_\_:F /t
 
 That command should fix the permissions on Anki's data folder, and you should now be able to start the program.
 

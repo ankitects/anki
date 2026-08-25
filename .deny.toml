@@ -5,10 +5,6 @@
 db-path = "~/.cargo/advisory-db"
 db-urls = ["https://github.com/rustsec/advisory-db"]
 ignore = [
-  # burn depends on an unmaintained package 'paste'
-  "RUSTSEC-2024-0436",
-  # bincode is unmaintained (via burn). Alternatives: postcard, bitcode, rkyv, wincode
-  "RUSTSEC-2025-0141",
   # rustls-pemfile is unmaintained. Alternative: use rustls-pki-types directly (PemObject trait)
   "RUSTSEC-2025-0134",
   # unic-* crates are unmaintained (used for Unicode category detection).

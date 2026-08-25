@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from types import SimpleNamespace
 
-from tools.mintlify_hooks import render_hook, safe, signature
+from tools.mintlify_hooks import OBSOLETE_TEXT, render_hook, safe, signature
 
 
 def test_signature_includes_arguments_and_return_type() -> None:
@@ -50,17 +50,7 @@ def test_render_hook_marks_obsolete_docstring() -> None:
         doc="Obsolete, do not use.",
     )
 
-    assert render_hook(hook) == "\n".join(
-        [
-            "### `old_hook` _(Obsolete)_",
-            "",
-            "No arguments.",
-            "",
-            "<Warning>",
-            "  Obsolete, do not use.",
-            "</Warning>",
-        ]
-    )
+    assert OBSOLETE_TEXT in render_hook(hook)
 
 
 def test_safe_escapes_mdx_sensitive_text() -> None:

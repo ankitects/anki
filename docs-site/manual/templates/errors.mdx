@@ -2,8 +2,6 @@
 title: "Checks and Errors"
 ---
 
-
-
 When you save changes to a note type or export a deck, Anki 2.1.45+ checks
 for some common errors. These errors will cause issues later on when anyone studies
 the affected cards, so Anki won't let you proceed before you have fixed them.
@@ -122,9 +120,10 @@ You can add extra fields with the Add Field button.
 If you are using the Cloze note type,
 please make sure you've included one or more cloze deletions in the Text field, e.g. \{\{c1::some cloze-deleted text\}\}.
 
-If you're using the type-in-the-answer functionality, please make sure you've included another field on the front side as well. 
+If you're using the type-in-the-answer functionality, please make sure you've included another field on the front side as well.
 
 ### No Cloze Filter on Cloze Note Type
+
 <div id="no-cloze-filter-on-cloze-notetype" />
 
 A Cloze note type's front and back templates should have a [cloze](../editing#cloze-deletion)
@@ -160,9 +159,9 @@ If you accidentally modify your card template, it may prevent any cloze deletion
 - Click on the Cards... button
 - Replace the front text with
 
-  ```
-  {{cloze:Text}}
-  ```
+    ```
+    {{cloze:Text}}
+    ```
 
 - Replace the back text with the same.
 

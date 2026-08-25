@@ -11,6 +11,7 @@ use rand::Rng;
 use rand::SeedableRng;
 
 use super::Notetype;
+use super::SPECIAL_FIELDS;
 use crate::cloze::cloze_number_in_fields;
 use crate::notetype::NotetypeKind;
 use crate::prelude::*;
@@ -122,9 +123,19 @@ impl<N: Deref<Target = Notetype>> CardGenContext<N> {
         extracted: &ExtractedCardInfo,
     ) -> Vec<CardToGenerate> {
         let mut nonempty_fields = note.nonempty_fields(&self.notetype.fields);
-        // Include Tags as a nonempty field when note has tags to render {{#Tags}}
-        if !note.tags.is_empty() {
-            nonempty_fields.insert("Tags");
+        let note_field_names: HashSet<_> = self
+            .notetype
+            .fields
+            .iter()
+            .map(|field| field.name.as_str())
+            .collect();
+        for special_field in SPECIAL_FIELDS.iter().copied() {
+            if !note_field_names.contains(special_field)
+                && special_field != "FrontSide"
+                && (special_field != "Tags" || !note.tags.is_empty())
+            {
+                nonempty_fields.insert(special_field);
+            }
         }
 
         self.cards
@@ -461,6 +472,41 @@ mod test {
         let cards = context.new_cards_required(&note, &[], true);
         assert_eq!(cards.len(), 1);
         assert_eq!(cards[0].ord, 0);
+    }
+
+    /// Tests if FrontSide is considered empty on the front side.
+    #[test]
+    fn new_cards_required_normal_frontside_empty() {
+        let mut col = CollectionBuilder::default().build().unwrap();
+        let arc_note_type = col.get_notetype_by_name("Basic").unwrap().unwrap();
+        let mut note_type = (*arc_note_type).clone();
+        note_type.templates[0].config.q_format =
+            "{{#FrontSide}}{{Front}}{{/FrontSide}}".to_string();
+        let mut note = note_type.new_note();
+        let context = CardGenContext::new(&note_type, None, Usn(-1));
+        note.set_field(0, "Hello").unwrap();
+
+        let cards = context.new_cards_required(&note, &[], false);
+        assert!(cards.is_empty());
+    }
+
+    /// Tests if a note field takes precedence over a special field with the
+    /// same name.
+    #[test]
+    fn new_cards_required_normal_special_field_collision() {
+        let mut col = CollectionBuilder::default().build().unwrap();
+        let arc_note_type = col.get_notetype_by_name("Basic").unwrap().unwrap();
+        let mut note_type = (*arc_note_type).clone();
+        note_type.fields[1].name = "Deck".to_string();
+        note_type.templates[0].config.q_format = "{{#Deck}}{{Front}}{{/Deck}}".to_string();
+        let mut note = note_type.new_note();
+        note.set_field(0, "Hello").unwrap();
+        let context = CardGenContext::new(&note_type, None, Usn(-1));
+
+        assert!(context.new_cards_required(&note, &[], false).is_empty());
+
+        note.set_field(1, "Custom deck").unwrap();
+        assert_eq!(context.new_cards_required(&note, &[], false).len(), 1);
     }
 
     /// Tests if card generation skips ordinals that already exist(duplication)

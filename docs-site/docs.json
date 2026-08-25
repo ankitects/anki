@@ -1,6 +1,28 @@
 {
     "$schema": "https://mintlify.com/docs.json",
     "name": "Anki Docs",
+    "redirects": [
+      {
+        "source": "/getting-help",
+        "destination": "/manual/getting-help"
+      },
+      {
+        "source": "/when-problems-occur",
+        "destination": "/manual/troubleshooting"
+      },
+      {
+        "source": "/faqs/ankiapp-is-not-part-of-the-anki-ecosystem",
+        "destination": "/faqs/anki-knockoffs"
+      },
+      {
+        "source": "/manual/faqs",
+        "destination": "/faqs/"
+      },
+      {
+        "source": "/faqs/when-problems-occur",
+        "destination": "/manual/troubleshooting"
+      }
+    ],
     "theme": "mint",
     "colors": {
         "primary": "#4B94D8",
@@ -15,22 +37,26 @@
     "fonts": {
         "family": "Hanken Grotesk"
     },
+    
     "navigation": {
-        "tabs": [
+            "languages": [
+      {
+        "language": "en",
+                "tabs": [
             {
                 "tab": "Manual",
                 "groups": [
                     {
                         "group": "Desktop Manual",
                         "pages": [
-                            "manual/index",
+                          "manual/intro",
+                          "manual/getting-started",
                             "manual/background",
                             {
                                 "group": "Platform Notes",
                                 "icon": "computer",
                                 "pages": [
                                     "manual/platform/intro",
-                                    "manual/platform/mac/installing",
                                     {
                                         "group": "Windows",
                                         "icon": "microsoft",
@@ -50,6 +76,7 @@
                                         "icon": "apple",
                                         "pages": [
                                             "manual/platform/mac/intro",
+                                            "manual/platform/mac/installing",
                                             "manual/platform/mac/display-issues"
                                         ]
                                     },
@@ -70,7 +97,6 @@
                                 ]
                             },
                             "manual/platform/linux/distro-packages",
-                            "manual/getting-started",
                             "manual/getting-help",
                             "manual/studying",
                             "manual/editing",
@@ -111,8 +137,11 @@
                             "manual/addons",
                             "manual/troubleshooting",
                             "manual/sync-server",
-                            "manual/misc"
-                        ]
+                            "manual/misc",
+                            "manual/contrib",
+                            "manual/resources"
+                        ],
+                        "expanded": true
                     }
                 ]
             },
@@ -122,7 +151,6 @@
                     {
                         "group": "AnkiMobile Manual",
                         "pages": [
-                            "ankimobile/index",
                             "ankimobile/intro",
                             "ankimobile/support",
                             "ankimobile/interface-language",
@@ -152,7 +180,7 @@
                     {
                         "group": "Support FAQs",
                         "pages": [
-                            "faqs/index",
+                          "automatic-backups",
                             {
                               "group": "Cards and Notes",
                               "icon": "cards-blank",
@@ -256,7 +284,6 @@
                               "pages": [
                                 "faqs/ankidroid-has-a-separate-support-site",
                                 "faqs/anki-knockoffs",
-                                "faqs/ankiapp-is-not-part-of-the-anki-ecosystem",
                                 "faqs/ankiuniversal-is-not-supported-here",
                                 "faqs/we-do-not-make-robots"
                               ]
@@ -280,7 +307,6 @@
                     {
                         "group": "Add-on Development",
                         "pages": [
-                            "addons/index",
                             "addons/intro",
                             "addons/support",
                             "addons/editor-setup",
@@ -312,24 +338,25 @@
                     {
                         "group": "Core Development",
                         "pages": [
-                            "developers/index",
+                            "developers/development",
                             "developers/api-python",
                             "developers/api-rust",
                             "developers/architecture",
                             "developers/build",
                             "developers/contributing",
-                            "developers/development",
+                            "developers/dependabot",
                             "developers/docker",
                             "developers/editing",
                             "developers/language_bridge",
                             "developers/linux",
                             "developers/mac",
+                            "developers/windows",
                             "developers/ninja",
                             "developers/protobuf",
                             "developers/releasing",
                             "developers/syncserver",
                             "developers/testing-coverage",
-                            "developers/windows"
+                            "developers/e2e-testing"
                         ]
                     }
                 ]
@@ -340,7 +367,6 @@
                     {
                         "group": "Translation Guide",
                         "pages": [
-                            "translators/index",
                             "translators/intro",
                             {
                                 "group": "Translating Anki",
@@ -364,7 +390,8 @@
                     {
                         "group": "Release Notes",
                         "pages": [
-                            "releases/index",
+                          "releases/betas/intro",
+                          "releases/changes/known-issues",
                             "releases/changes/changes/intro",
                             "releases/changes/changes/github",
                             "releases/changes/changes/23.10",
@@ -376,8 +403,6 @@
                             "releases/changes/changes/2.1.10-19",
                             "releases/changes/changes/2.1.0-9",
                             "releases/changes/changes/2.1",
-                            "releases/changes/known-issues",
-                            "releases/betas/intro",
                             "releases/betas/2021-scheduler",
                             "releases/betas/github",
                             "releases/betas/anki23.10",
@@ -403,7 +428,191 @@
                     }
                 ]
             }
-        ],
+        ]
+      },
+      {
+        "language": "de",
+        "tabs": [
+          {
+            "tab": "Manual",
+            "groups": [
+              {
+                "group": "Desktop Manual",
+                "pages": ["de/manual/intro"]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "language": "es",
+        "tabs": [
+          {
+            "tab": "Manual",
+            "groups": [
+              {
+                "group": "Desktop Manual",
+                "pages": ["es/manual/intro"]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "language": "fr",
+        "tabs": [
+          {
+            "tab": "Manual",
+            "groups": [
+              {
+                "group": "Desktop Manual",
+                "pages": ["fr/manual/intro"]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "language": "it",
+        "tabs": [
+          {
+            "tab": "Manual",
+            "groups": [
+              {
+                "group": "Desktop Manual",
+                "pages": ["it/manual/intro"]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "language": "id",
+        "tabs": [
+          {
+            "tab": "Manual",
+            "groups": [
+              {
+                "group": "Desktop Manual",
+                "pages": ["id/manual/intro"]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "language": "uz",
+        "tabs": [
+          {
+            "tab": "Manual",
+            "groups": [
+              {
+                "group": "Desktop Manual",
+                "pages": ["uz/manual/intro"]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "language": "pl",
+        "tabs": [
+          {
+            "tab": "Manual",
+            "groups": [
+              {
+                "group": "Desktop Manual",
+                "pages": ["pl/manual/intro"]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "language": "pt",
+        "tabs": [
+          {
+            "tab": "Manual",
+            "groups": [
+              {
+                "group": "Desktop Manual",
+                "pages": ["pt/manual/intro"]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "language": "ru",
+        "tabs": [
+          {
+            "tab": "Manual",
+            "groups": [
+              {
+                "group": "Desktop Manual",
+                "pages": ["ru/manual/intro"]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "language": "uk",
+        "tabs": [
+          {
+            "tab": "Manual",
+            "groups": [
+              {
+                "group": "Desktop Manual",
+                "pages": ["uk/manual/intro"]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "language": "ar",
+        "tabs": [
+          {
+            "tab": "Manual",
+            "groups": [
+              {
+                "group": "Desktop Manual",
+                "pages": ["ar/manual/intro"]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "language": "ja",
+        "tabs": [
+          {
+            "tab": "Manual",
+            "groups": [
+              {
+                "group": "Desktop Manual",
+                "pages": ["ja/manual/intro"]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "language": "zh-Hans",
+        "tabs": [
+          {
+            "tab": "Manual",
+            "groups": [
+              {
+                "group": "Desktop Manual",
+                "pages": ["zh-Hans/manual/intro"]
+              }
+            ]
+          }
+        ]
+      }
+    ],
         "global": {
             "anchors": [
                 {

@@ -40,10 +40,13 @@ set SYNC_USER1=user:pass
 Or MacOS, in Terminal.app:
 
 ```
-SYNC_USER1=user:pass /Applications/Anki.app/Contents/MacOS/launcher --syncserver
+SYNC_USER1=user:pass /Applications/Anki.app/Contents/MacOS/anki --syncserver
 ```
 
-Replace 'launcher' with 'anki' for old packaged builds prior to 25.07.
+<Note>
+    Replace 'anki' with 'launcher' in the above command for anki versions 25.07 to
+    25.09.4.
+</Note>
 
 Or Linux:
 
@@ -137,6 +140,8 @@ that the server binds to.
 
 ## Client Setup
 
+### Server URL
+
 You'll need to determine your computer's network IP address, and then
 point each of your Anki clients to the address, e.g something like
 `http://192.168.1.200:8080/`. The URL can be configured in the preferences.
@@ -151,6 +156,11 @@ Older desktop clients required you to define `SYNC_ENDPOINT` and
 respectively. AnkiDroid clients before 2.16 require separate configuration for
 the two endpoints.
 
+### Credentials
+
+To synchronize, enter your user credential (for example, `SYNC_USER1`) in the
+**AnkiWeb account** section of the preferences.
+
 ## Reverse Proxies
 
 If using a reverse proxy to provide HTTPS access (e.g. nginx), and binding to a subpath
@@ -158,9 +168,10 @@ If using a reverse proxy to provide HTTPS access (e.g. nginx), and binding to a 
 include a trailing slash when configuring Anki. If you put `http://example.com/custom`
 instead, it will not work.
 
-If you are using a caddy, increase 
-[the http read buffer size](https://caddyserver.com/docs/caddyfile/directives/reverse_proxy#read_buffer) 
+If you are using a caddy, increase
+[the http read buffer size](https://caddyserver.com/docs/caddyfile/directives/reverse_proxy#read_buffer)
 to avoid connection problems when downloading media files.
+
 ```caddyfile
 reverse_proxy http://127.0.0.1:8080 {
 	transport http {

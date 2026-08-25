@@ -25,6 +25,7 @@ use crate::scheduler::fsrs::params::ignore_revlogs_before_ms_from_config;
 use crate::scheduler::fsrs::params::ComputeParamsRequest;
 use crate::search::JoinSearches;
 use crate::search::Negated;
+use crate::search::Node;
 use crate::search::SearchNode;
 use crate::search::StateKind;
 use crate::storage::comma_separated_ids;
@@ -181,7 +182,7 @@ impl Collection {
                 conf.inner.fsrs_params_4.clear();
             }
             // check the provided parameters are valid before we save them
-            FSRS::new(Some(conf.fsrs_params()))?;
+            FSRS::new(conf.fsrs_params())?;
             self.add_or_update_deck_config(conf)?;
             configs_after_update.insert(conf.id, conf.clone());
         }
@@ -294,7 +295,9 @@ impl Collection {
                     });
                     Ok(UpdateMemoryStateEntry {
                         req: params,
-                        search: SearchNode::DeckIdsWithoutChildren(comma_separated_ids(&search)),
+                        search: Node::Search(SearchNode::DeckIdsWithoutChildren(
+                            comma_separated_ids(&search),
+                        )),
                         ignore_before: config
                             .map(ignore_revlogs_before_ms_from_config)
                             .unwrap_or(Ok(0.into()))?,
