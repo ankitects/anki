@@ -10,6 +10,8 @@ use sha2::Digest;
 use tokio::io::AsyncWriteExt;
 
 use crate::error::AnkiError;
+use crate::error::NetworkError;
+use crate::error::NetworkErrorKind;
 use crate::error::OrInvalid;
 use crate::error::Result;
 use crate::progress::ThrottlingProgressHandler;
@@ -43,6 +45,25 @@ pub fn user_agent() -> String {
     format!("Anki {}", version())
 }
 
+pub fn reqwest_error_to_anki_error(err: reqwest::Error) -> AnkiError {
+    let info = err.to_string();
+    if err.is_timeout() {
+        AnkiError::NetworkError {
+            source: NetworkError {
+                info,
+                kind: NetworkErrorKind::Timeout,
+            },
+        }
+    } else {
+        AnkiError::NetworkError {
+            source: NetworkError {
+                info,
+                kind: NetworkErrorKind::Other,
+            },
+        }
+    }
+}
+
 pub async fn download_file(
     client: &reqwest::Client,
     progress: &mut ThrottlingProgressHandler<DownloadUpdateProgress>,
@@ -54,8 +75,10 @@ pub async fn download_file(
         .get(url)
         .header("User-Agent", user_agent())
         .send()
-        .await?
-        .error_for_status()?;
+        .await
+        .map_err(reqwest_error_to_anki_error)?
+        .error_for_status()
+        .map_err(reqwest_error_to_anki_error)?;
     let content_length = response.content_length().unwrap_or_default();
     let output_path = release_path(filename)?;
     let mut stream = response.bytes_stream();

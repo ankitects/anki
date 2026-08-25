@@ -49,19 +49,27 @@ instead.
 
 ---
 
-### `media_files_did_export`
+### `media_files_did_export` _(Obsolete)_
 
 **Args:** <code>count: int</code>
 
-Only used by legacy .apkg exporter. Will be deprecated in the future.
+<Warning>
+    
+ Obsolete, do not use.
+
+</Warning>
 
 ---
 
-### `legacy_export_progress`
+### `legacy_export_progress` _(Obsolete)_
 
 **Args:** <code>progress: str</code>
 
-Temporary hook used in transition to new import/export code.
+<Warning>
+    
+ Obsolete, do not use.
+
+</Warning>
 
 ---
 
@@ -118,17 +126,15 @@ Can modify the resulting text after rendering completes.
 
 ---
 
-### `importing_importers`
+### `importing_importers` _(Obsolete)_
 
 **Args:** <code>importers: list[tuple[str, Any]]</code>
 
-Allows updating the list of importers.
-The resulting list is not saved and should be changed each time the
-filter is called.
+<Warning>
+    
+ Obsolete, do not use.
 
-NOTE: Updates to the import/export code are expected in the coming
-months, and this hook may be replaced with another solution at that
-time. Tracked on https://github.com/ankitects/anki/issues/1018
+</Warning>
 
 ---
 
