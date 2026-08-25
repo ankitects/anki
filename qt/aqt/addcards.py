@@ -41,6 +41,7 @@ class NewAddCards(QMainWindow):
         if not is_mac:
             self.setMenuBar(None)
         self.show()
+        self.setFocus()
 
     def set_note(self, note: Note, deck_id: DeckId | None = None) -> None:
         """Set tags, field contents and notetype according to `note`. Deck is set
