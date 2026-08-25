@@ -18,10 +18,12 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import Shortcut from "$lib/components/Shortcut.svelte";
     import type { NoteEditorAPI } from "../NoteEditor.svelte";
     import { openFieldsDialog, openCardsDialog } from "@generated/backend";
+    import { legacyEditorKey } from "@tslib/context-keys";
+    import { getContext } from "svelte";
 
     export let api = {};
     export let noteEditor: NoteEditorAPI;
-    export let isLegacy: boolean;
+    const isLegacy = getContext<boolean>(legacyEditorKey);
 
     const keyCombination = "Control+L";
 </script>

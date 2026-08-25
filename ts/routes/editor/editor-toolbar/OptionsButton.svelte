@@ -18,8 +18,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { closeHTMLTags } from "../plain-text-input/PlainTextInput.svelte";
     import { setColConfig } from "@tslib/profile";
     import { bridgeCommand } from "@tslib/bridgecommand";
+    import { legacyEditorKey } from "@tslib/context-keys";
+    import { getContext } from "svelte";
 
-    export let isLegacy: boolean;
+    const isLegacy = getContext<boolean>(legacyEditorKey);
     let showFloating = false;
 
     function toggleShrinkImages(_evt: MouseEvent): void {

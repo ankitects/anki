@@ -32,6 +32,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { promiseWithResolver } from "@tslib/promise";
     import type { RichTextInputAPI } from "../rich-text-input";
     import { registerPackage } from "@tslib/runtime-require";
+    import { legacyEditorKey } from "@tslib/context-keys";
+    import { getContext } from "svelte";
 
     const { focusedInput } = context.get();
 
@@ -94,7 +96,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     $: disabled = !$focusedInput || !editingInputIsRichText($focusedInput);
 
     export let api = {};
-    export let isLegacy;
+    const isLegacy = getContext<boolean>(legacyEditorKey);
 </script>
 
 <ButtonGroup>

@@ -6,7 +6,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import * as tr from "@generated/ftl";
     import { getPlatformString, registerShortcut } from "@tslib/shortcuts";
     import { onEnterOrSpace } from "@tslib/keys";
-    import { onMount } from "svelte";
+    import { getContext, onMount } from "svelte";
 
     import Badge from "$lib/components/Badge.svelte";
     import Icon from "$lib/components/Icon.svelte";
@@ -17,12 +17,13 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import type { Note } from "@generated/anki/notes_pb";
     import { getNotetype, updateNotetype } from "@generated/backend";
     import { bridgeCommand } from "@tslib/bridgecommand";
+    import { legacyEditorKey } from "@tslib/context-keys";
 
     const animated = !document.body.classList.contains("reduce-motion");
 
     export let active: boolean;
     export let show: boolean;
-    export let isLegacy: boolean;
+    const isLegacy = getContext<boolean>(legacyEditorKey);
 
     const editorField = editorFieldContext.get();
     const keyCombination = "F9";

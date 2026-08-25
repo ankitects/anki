@@ -15,6 +15,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import LabelName from "./LabelName.svelte";
     import { EditorState, type EditorMode } from "./types";
     import { ContextMenu, Item } from "$lib/context-menu";
+    import { setContext } from "svelte";
+    import { legacyEditorKey } from "@tslib/context-keys";
 
     export interface NoteEditorAPI {
         fields: EditorFieldAPI[];
@@ -1406,6 +1408,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     export let mode: EditorMode;
     export let isLegacy: boolean;
 
+    setContext(legacyEditorKey, isLegacy);
+
     $: if (noteEditor) {
         uiResolve(api as NoteEditorAPI);
     }
@@ -1444,7 +1448,7 @@ components and functionality for general note editing.
         />
     {/if}
 
-    <EditorToolbar noteEditor={api} {size} {wrap} {isLegacy} api={toolbar}>
+    <EditorToolbar noteEditor={api} {size} {wrap} api={toolbar}>
         <svelte:fragment slot="notetypeButtons">
             {#if mode === "browser"}
                 <ButtonGroupItem>
@@ -1547,14 +1551,13 @@ components and functionality for general note editing.
                             </svelte:fragment>
                             <FieldState>
                                 {#if cols[index] === "dupe"}
-                                    <DuplicateLink {note} {isLegacy} />
+                                    <DuplicateLink {note} />
                                 {/if}
                                 {#if mode === "add"}
                                     <StickyBadge
                                         bind:active={stickies[index]}
                                         {index}
                                         {note}
-                                        {isLegacy}
                                         show={fields[index] === $hoveredField ||
                                             fields[index] === $focusedField}
                                     />
@@ -1587,7 +1590,6 @@ components and functionality for general note editing.
                         >
                             <RichTextInput
                                 {hidden}
-                                {isLegacy}
                                 on:focusout={() => {
                                     saveFieldNow();
                                     $focusedInput = null;
