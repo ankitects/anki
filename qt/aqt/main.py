@@ -274,6 +274,7 @@ class AnkiQt(QMainWindow):
         qconnect(self.app.focusChanged, self.on_focus_changed)
 
     def on_focus_changed(self, old: QWidget, new: QWidget) -> None:
+        aqt.dialogs._on_focus_did_change(new)
         gui_hooks.focus_did_change(new, old)
 
     # Profiles

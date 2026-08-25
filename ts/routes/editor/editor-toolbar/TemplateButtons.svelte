@@ -28,6 +28,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         openFilePickerForMedia,
     } from "../rich-text-input/data-transfer";
     import { addMediaFromPath, playFile, recordAudio } from "@generated/backend";
+    import { bridgeCommand } from "@tslib/bridgecommand";
+    import { promiseWithResolver } from "@tslib/promise";
+    import type { RichTextInputAPI } from "../rich-text-input";
+    import { registerPackage } from "@tslib/runtime-require";
 
     const { focusedInput } = context.get();
 
@@ -41,13 +45,32 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         }
     }
 
+    let mediaPromise: Promise<string>;
+    let resolve: (media: string) => void;
+    function resolveMedia(media: string): void {
+        resolve?.(media);
+    }
+
     async function attachMediaOnFocus(): Promise<void> {
         if (disabled) {
             return;
         }
-        const path = await openFilePickerForMedia();
-        await attachPath(path);
+        if (isLegacy) {
+            [mediaPromise, resolve] = promiseWithResolver<string>();
+            ($focusedInput as RichTextInputAPI).editable.focusHandler.focus.on(
+                async () => setFormat("inserthtml", await mediaPromise),
+                { once: true },
+            );
+            bridgeCommand("attach");
+        } else {
+            const path = await openFilePickerForMedia();
+            await attachPath(path);
+        }
     }
+
+    registerPackage("anki/TemplateButtons", {
+        resolveMedia,
+    });
 
     const recordCombination = "F5";
 
@@ -55,13 +78,23 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         if (disabled) {
             return;
         }
-        const path = (await recordAudio({})).val;
-        await attachPath(path);
+        if (isLegacy) {
+            [mediaPromise, resolve] = promiseWithResolver<string>();
+            ($focusedInput as RichTextInputAPI).editable.focusHandler.focus.on(
+                async () => setFormat("inserthtml", await mediaPromise),
+                { once: true },
+            );
+            bridgeCommand("record");
+        } else {
+            const path = (await recordAudio({})).val;
+            await attachPath(path);
+        }
     }
 
     $: disabled = !$focusedInput || !editingInputIsRichText($focusedInput);
 
     export let api = {};
+    export let isLegacy;
 </script>
 
 <ButtonGroup>
