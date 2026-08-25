@@ -924,7 +924,7 @@ require("anki/ui").loaded.then(() => require("anki/NoteEditor").instances[0].too
         return self.fnameToLink(fname)
 
     def fnameToLink(self, fname: str) -> str:
-        ext = fname.split(".")[-1].lower()
+        ext = fname.rsplit(".", maxsplit=1)[-1].lower()
         if ext in pics:
             name = urllib.parse.quote(fname.encode("utf8"))
             return f'<img src="{name}">'
@@ -1054,10 +1054,6 @@ require("anki/ui").loaded.then(() => require("anki/NoteEditor").instances[0].too
     removeTags = ["script", "iframe", "object", "style"]
 
     def _pastePreFilter(self, html: str, internal: bool) -> str:
-        # https://anki.tenderapp.com/discussions/ankidesktop/39543-anki-is-replacing-the-character-by-when-i-exit-the-html-edit-mode-ctrlshiftx
-        if html.find(">") < 0:
-            return html
-
         with warnings.catch_warnings():
             warnings.simplefilter("ignore", UserWarning)
             doc = BeautifulSoup(html, "html.parser")
@@ -1146,7 +1142,9 @@ require("anki/ui").loaded.then(() => require("anki/NoteEditor").instances[0].too
                     image_path=image_path, notetype_id=0
                 )
             else:
-                assert self.note is not None
+                if self.note is None:
+                    showWarning(tr.browsing_no_selection())
+                    return
                 self.setup_mask_editor_for_existing_note(
                     note_id=self.note.id, image_path=image_path
                 )

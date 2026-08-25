@@ -273,7 +273,7 @@ impl LoadBalancer {
     }
 
     pub fn remove_card(&mut self, cid: CardId) {
-        for (_, days) in self.days_by_preset.iter_mut() {
+        for days in self.days_by_preset.values_mut() {
             for day in days.iter_mut() {
                 day.remove(cid);
             }
@@ -377,8 +377,8 @@ fn calculate_sibling_modifiers(
 
     if let Some(nid) = nid {
         let sibling_days = days_by_preset
-            .iter()
-            .flat_map(|(_did, days)| {
+            .values()
+            .flat_map(|days| {
                 days.iter()
                     .enumerate()
                     .fold(HashSet::new(), |mut sibling_days, (i, day)| {

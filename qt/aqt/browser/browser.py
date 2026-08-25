@@ -19,7 +19,7 @@ import aqt.forms
 import aqt.operations
 from anki._legacy import deprecated
 from anki.cards import Card, CardId
-from anki.collection import Collection, Config, OpChanges, SearchNode
+from anki.collection import Collection, Config, ExperimentFlag, OpChanges, SearchNode
 from anki.consts import *
 from anki.decks import DeckId
 from anki.errors import NotFoundError, SearchError
@@ -33,7 +33,6 @@ from aqt import AnkiQt, gui_hooks
 from aqt.addcards import NewAddCards
 from aqt.addcards_legacy import AddCards
 from aqt.errors import show_exception
-from aqt.exporting import ExportDialog as LegacyExportDialog
 from aqt.import_export.exporting import ExportDialog
 from aqt.operations.card import set_card_deck, set_card_flag
 from aqt.operations.collection import redo, undo
@@ -153,8 +152,8 @@ class Browser(QMainWindow):
         self.setupSidebar()
         self.setup_table()
         self.setupMenus()
-        self.setupHooks()
         self.setupEditor()
+        self.setupHooks()
         gui_hooks.browser_will_show(self)
 
         # restoreXXX() should be called after all child widgets have been created
@@ -617,7 +616,9 @@ class Browser(QMainWindow):
 
         gui_hooks.editor_did_init.append(add_preview_button)
         editor_class: type[aqt.editor.Editor | aqt.editor.NewEditor]
-        if KeyboardModifiersPressed().shift:
+        experimental = self.col.experiment_enabled(ExperimentFlag.SVELTE_EDITOR)
+        shift = KeyboardModifiersPressed().shift
+        if (experimental and not shift) or (not experimental and shift):
             editor_class = aqt.editor.NewEditor
         else:
             editor_class = aqt.editor.Editor
@@ -1046,12 +1047,8 @@ class Browser(QMainWindow):
     @no_arg_trigger
     @skip_if_selection_is_empty
     def _on_export_notes(self) -> None:
-        if not self.mw.pm.legacy_import_export():
-            nids = self.selected_notes()
-            ExportDialog(self.mw, nids=nids, parent=self)
-        else:
-            cids = self.selectedNotesAsCards()
-            LegacyExportDialog(self.mw, cids=list(cids), parent=self)
+        nids = self.selected_notes()
+        ExportDialog(self.mw, nids=nids, parent=self)
 
     # Flags & Marking
     ######################################################################
