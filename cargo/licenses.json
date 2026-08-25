@@ -2048,6 +2048,14 @@
     "repository": "https://github.com/rust-random/rand_core"
   },
   {
+    "authors": "The Rand Project Developers",
+    "description": "Selected PCG random number generators",
+    "license": "Apache-2.0 OR MIT",
+    "license_file": null,
+    "name": "rand_pcg",
+    "repository": "https://github.com/rust-random/rngs"
+  },
+  {
     "authors": "bluss",
     "description": "Extra methods for raw pointers and `NonNull<T>`.  For example `.post_inc()` and `.pre_dec()` (c.f. `ptr++` and `--ptr`), `offset` and `add` for `NonNull<T>`, and the function `ptrdistance`.",
     "license": "Apache-2.0 OR MIT",
