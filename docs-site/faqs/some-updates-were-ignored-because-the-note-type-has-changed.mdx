@@ -13,7 +13,7 @@ If changes have been made to the fields or card templates and you want to apply 
 
 If you're not concerned with updates, and just want to grab any new cards, one way to make importing work is to delete the old note type via the Tools\>Manage Note Types screen. This will delete any cards associated with it, so if you wish to preserve the existing cards, you'll need to manually use the Change Note Type option in the browse screen to move them to a new note type.
 
-Please note that if the deck sharer has used the 'change note type' option in their collection, they will have permanently broken link between your copy and theirs, and updating via .apkg import will not be possible even if your note type's fields and card templates match. You can check the note types are linked by using the following command in the [debug console](https://docs.ankiweb.net/misc.html#debug-console) while looking at a card in the study screen:
+Please note that if the deck sharer has used the 'change note type' option in their collection, they will have permanently broken link between your copy and theirs, and updating via .apkg import will not be possible even if your note type's fields and card templates match. You can check the note types are linked by using the following command in the [debug console](/manual/misc#debug-console) while looking at a card in the study screen:
 
 ```text
 pp(card()['_note'].mid)
@@ -21,4 +21,4 @@ pp(card()['_note'].mid)
 
 Repeat for the shared deck imported into a temporary profile. If the numbers match, the note types are still linked.
 
-If one of the fields in the shared deck has not been altered, it is also possible to apply updates via a text import. After importing the shared deck into a temporary profile, use File\>Export to save the notes in txt format. Then in your original profile, you can import the text file, matching against a field that has not changed. Text imports can only operate on one note type at once, so if the shared deck you've downloaded contains multiple note types, you'll need to do the process one note type at a time. More info is at [https://docs.ankiweb.net/importing/packaged-decks.html#updating](https://docs.ankiweb.net/importing/packaged-decks.html#updating).
+If one of the fields in the shared deck has not been altered, it is also possible to apply updates via a text import. After importing the shared deck into a temporary profile, use File\>Export to save the notes in txt format. Then in your original profile, you can import the text file, matching against a field that has not changed. Text imports can only operate on one note type at once, so if the shared deck you've downloaded contains multiple note types, you'll need to do the process one note type at a time. More info is at [Packaged Decks](./manual/importing/packaged-decks#updating).

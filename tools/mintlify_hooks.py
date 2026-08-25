@@ -108,7 +108,9 @@ def warning(hook: Any) -> str:
             f"<Warning>\n  Deprecated. Use `{replacement(text)}` instead.\n</Warning>"
         )
     if text == OBSOLETE_TEXT:
-        return "<Warning>\n  Obsolete, do not use.\n</Warning>"
+        return f"""<Warning>
+    \n {OBSOLETE_TEXT}\n
+</Warning>"""
     return ""
 
 

@@ -18,6 +18,7 @@ use crate::prelude::*;
 use crate::services::BackendGithubService;
 use crate::updates::download_file;
 use crate::updates::release_path;
+use crate::updates::reqwest_error_to_anki_error;
 use crate::updates::updates_dir;
 use crate::updates::user_agent;
 use crate::updates::DownloadUpdateProgress;
@@ -62,7 +63,7 @@ fn release_is_downloaded(filename: &str, checksum: &str) -> Result<bool> {
 
 impl BackendGithubService for Backend {
     fn get_latest_release(&self, input: LatestReleaseRequest) -> Result<GithubRelease> {
-        let no_updates_msg = self.tr.addons_no_updates_available();
+        let no_updates_msg = self.tr.errors_no_updates_available();
         let platform_suffix = get_platform_suffix().or_invalid(no_updates_msg.clone())?;
         let url = if input.include_prerelease {
             ALL_RELEASES_URL
@@ -76,8 +77,10 @@ impl BackendGithubService for Backend {
                 .header("User-Agent", user_agent())
                 .timeout(Duration::from_secs(60))
                 .send()
-                .await?
-                .error_for_status()?;
+                .await
+                .map_err(reqwest_error_to_anki_error)?
+                .error_for_status()
+                .map_err(reqwest_error_to_anki_error)?;
             let release_info: Value;
             if input.include_prerelease {
                 let json: Value = response.json().await?;

@@ -2,8 +2,6 @@
 title: "Changes in 2.1.50"
 ---
 
-
-
 ## Release Candidate 4
 
 Build 26d40c3a / 2022-04-06.
@@ -12,7 +10,7 @@ Build 26d40c3a / 2022-04-06.
 - For Qt6, the video driver now defaults to OpenGL on Windows/Linux, like
   earlier betas. The option in the preferences has been hidden again, and a new
   file introduced for adjusting behaviour:
-  https://docs.ankiweb.net/platform/windows/display-issues.html#qt6
+  /manual/platform/windows/display-issues#qt6
 
 ## Release Candidate 3
 
@@ -103,12 +101,14 @@ This release has been yanked due to bugs in colpkg imports. Please wait for the
 next beta.
 
 - Reworked .colpkg import/export (thanks to Rumo):
-  - When exporting, you can optionally target Anki 2.1.50+. When doing so,
+    - When exporting, you can optionally target Anki 2.1.50+. When doing so,
+
 ```text
 imports and exports are faster, and media files will be compressed, but the
 resulting .colpkg will not be readable by older Anki clients.
 ```
-  - Collections are now checked for corruption when importing.
+
+- Collections are now checked for corruption when importing.
 - Various fixes for the editor (thanks to Henrik):
 - Allow longer maximum answer times in the deck settings (thanks to Bruce).
 - The custom study screen no longer (sometimes incorrectly) limits the amount
@@ -120,22 +120,28 @@ resulting .colpkg will not be readable by older Anki clients.
 Build a495fbaa / 2022-03-09.
 
 - Reworked backup handling (thanks to Rumo):
-  - Backups are created much faster than they were previously, which allows Anki
+    - Backups are created much faster than they were previously, which allows Anki
+
 ```text
 to close faster when you have a large collection, while still compressing
 the backups.
 ```
-  - There are new options in the preferences to control the number of daily,
+
+- There are new options in the preferences to control the number of daily,
+
 ```text
 weekly and monthly backups you'd like to retain. Anki will keep all backups
 made in the last 48 hours, but avoids making more than one every 5 minutes
 when you're rapidly opening and closing your profile.
 ```
-  - Because the backup storage format has changed, backups created with 2.1.50
+
+- Because the backup storage format has changed, backups created with 2.1.50
+
 ```text
 will not be importable into older Anki versions. Manually-exported colpkg
 files are still compatible with older Anki versions.
 ```
+
 - When exporting a shared deck with scheduling disabled, the original card
   position will be restored if it is available (thanks to Rumo).
 - The Forget action now gives you options to restore the original card position,
@@ -241,16 +247,20 @@ V3 scheduler changes, thanks to Rumo:
   contribute to the limit.
 - The gathering and sorting of new cards has been reworked, trading a little
   performance for more intuitive behaviour:
-  - It is now possible to sort notes or cards randomly at gather time, ensuring
+    - It is now possible to sort notes or cards randomly at gather time, ensuring
+
 ```text
 a random selection is taken from all available new cards.
 ```
-  - The gather order and sort order options have been simplified, but should
+
+- The gather order and sort order options have been simplified, but should
+
 ```text
 offer the same functionality as before. Please check your deck options after
 upgrading, as some users may need to adjust their display order settings to
 match what they were using before.
 ```
+
 - If you have more than 2 learning steps, after the first step, Hard repeats the
   previous delay, instead of being the average of the previous and next step.
 - Review cards and new cards are now interspersed more evenly.
@@ -377,19 +387,19 @@ Linux:
   untarring the file and changing into the top level directory with the 'anki'
   executable:
 
-  ```
-  # eg Debian 11:
-  sudo apt install python3-pyqt5.{qtwebengine,qtmultimedia}
-  ln -sf /usr/lib/python3/dist-packages/PyQt5 lib/
+    ```
+    # eg Debian 11:
+    sudo apt install python3-pyqt5.{qtwebengine,qtmultimedia}
+    ln -sf /usr/lib/python3/dist-packages/PyQt5 lib/
 
-  # eg Fedora 34:
-  sudo dnf install python3-qt5-webengine
-  ln -sf /usr/lib64/python3.9/site-packages/PyQt5 lib/
-  ```
+    # eg Fedora 34:
+    sudo dnf install python3-qt5-webengine
+    ln -sf /usr/lib64/python3.9/site-packages/PyQt5 lib/
+    ```
 
-  You may also be able to use the above technique for switching the x86_64
-  builds to your system's PyQt version - just delete the PyQt5 or 6 folder
-  before linking your system version in.
+    You may also be able to use the above technique for switching the x86_64
+    builds to your system's PyQt version - just delete the PyQt5 or 6 folder
+    before linking your system version in.
 
 - Fcitx users: this build includes libraries that may allow the Qt5 build to
   work with Fcitx. Please let us know if they work for you or not.

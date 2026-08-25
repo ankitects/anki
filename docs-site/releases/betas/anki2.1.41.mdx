@@ -69,13 +69,14 @@ Fixes:
 Build b3b40933 / 2021-02-12.
 
 - Sidebar:
+    - Drop multiple selection, and switch back to the old clicking behaviour.
 
-  - Drop multiple selection, and switch back to the old clicking behaviour.
 ```text
 Multiple selection can be tackled again in a future update.
 ```
-  - "Due" now shows only cards due that day.
-  - Added "Overdue" item.
+
+- "Due" now shows only cards due that day.
+- Added "Overdue" item.
 
 - "Set due" now leaves the review intervals alone unless '!' is provided.
 - Fix stale preview in card layout screen (thanks to Henrik).
@@ -86,22 +87,22 @@ Multiple selection can be tackled again in a future update.
 Build 599d4634 / 2021-02-09.
 
 - Sidebar changes:
+    - Multiple selection. Currently only works with tag and deck drag&drop.
+    - Ctrl/Alt/Shift options to add/modify the search now require a right click
 
-  - Multiple selection. Currently only works with tag and deck drag&drop.
-  - Ctrl/Alt/Shift options to add/modify the search now require a right click
 ```text
 instead of a left click, to avoid conflicts with multiple selection.
 ```
-  - Move "Current Deck" to Decks
-  - Click on Decks to show whole collection.
-  - Click on Flags to show any flag.
-  - Click on Tags to show all non-empty tags.
-  - Added "Untagged" under Tags.
+
+- Move "Current Deck" to Decks
+- Click on Decks to show whole collection.
+- Click on Flags to show any flag.
+- Click on Tags to show all non-empty tags.
+- Added "Untagged" under Tags.
 
 - "Set Due Date" changes:
-
-  - Interval can optionally be reset for review cards.
-  - Input now remembered.
+    - Interval can optionally be reset for review cards.
+    - Input now remembered.
 
 - Editor tweaks to make things easier for add-ons (thanks to Henrik).
 - Fix slowdown after large "check media" report.
@@ -121,43 +122,47 @@ notes as well.
 Changes since 2.1.39beta1:
 
 - The editor's code has been reworked, thanks to Henrik:
+    - `<br>` tags will now be used by default instead of the previous `<div>`
 
-  - `<br>` tags will now be used by default instead of the previous `<div>`
 ```text
 tags, which solves some issues with multiple lines in cloze deletions and
 MathJax.
 ```
-  - Invalid field content can no longer spill out into the editing area.
-  - Other behind-the-scenes changes have been made at the same time, and some
+
+- Invalid field content can no longer spill out into the editing area.
+- Other behind-the-scenes changes have been made at the same time, and some
+
 ```text
 add-ons that alter the editor will need updating.
 ```
 
 - Browser sidebar improvements:
+    - Added a search bar, thanks to Abdo.
+    - The remaining items in the Filter button have been moved into the sidebar,
 
-  - Added a search bar, thanks to Abdo.
-  - The remaining items in the Filter button have been moved into the sidebar,
 ```text
 and the Filter button removed.
 ```
-  - Tags and decks can now be dragged and dropped.
-  - Each section can now be expanded/collapsed.
-  - Add-ons that were adjusting the sidebar or filter button may need updating.
+
+- Tags and decks can now be dragged and dropped.
+- Each section can now be expanded/collapsed.
+- Add-ons that were adjusting the sidebar or filter button may need updating.
 
 - Search improvements, thanks to Rumo:
-
-  - Filtered decks can now be created from a browser search, and vice versa.
-  - Better ergonomics for developers.
+    - Filtered decks can now be created from a browser search, and vice versa.
+    - Better ergonomics for developers.
 
 - Reworked the Reschedule tool:
-  - Split into separate "Forget" and "Set Due Date" actions
-  - "Set Due Date" now
+    - Split into separate "Forget" and "Set Due Date" actions
+    - "Set Due Date" now
+
 ```text
 [adjusts intervals](https://github.com/ankitects/anki/commit/704b5e581a70089798f0f4742640fde4a3f1a507)
 of review cards, instead of resetting them.
 ```
-  - Changed the "Delete Tags" shortcut; Ctrl+Shift+D now changes the due date.
-  - Added the action to the review screen as well.
+
+- Changed the "Delete Tags" shortcut; Ctrl+Shift+D now changes the due date.
+- Added the action to the review screen as well.
 
 Other changes:
 

@@ -1,4 +1,12 @@
+<!-- DO NOT MANUALLY EDIT THIS FILE -->
+<!-- This file is copied from docs-site/developers/e2e-testing.mdx automatically -->
+
 # End-to-End Testing with Playwright
+
+<!-- <<<cog
+from cogdocs import get_file_contents
+cog.out(get_file_contents("e2e-testing"))
+>>> -->
 
 Playwright drives a real headless Anki instance via its mediasrv HTTP API.
 Tests live in `ts/tests/e2e/` and are entirely separate from the Vitest unit tests.
@@ -72,23 +80,22 @@ generated type from `ts/lib/generated/`.
 
 ## Accessing Anki pages
 
-Anki's mediasrv serves the following page families over HTTP:
+Anki's mediasrv serves the following pages over HTTP (non-exhaustive):
 
-| URL pattern                  | Description                   |
-| ---------------------------- | ----------------------------- |
-| `/graphs`                    | Statistics graphs (SvelteKit) |
-| `/deck-options/[deckId]`     | Deck options (SvelteKit)      |
-| `/congrats`                  | Post-study screen (SvelteKit) |
-| `/card-info/[cardId]`        | Card info (SvelteKit)         |
-| `/_anki/pages/congrats.html` | Legacy congrats page          |
-| `/favicon.ico`               | Mediasrv liveness probe       |
-
-The add-card editor (`/editor/?mode=add`) requires a dedicated HTTP endpoint
-that is not yet present in upstream Anki. It will be available once the
-editor-as-web-page work (issue #3830) is merged.
+| URL pattern              | Description                   |
+| ------------------------ | ----------------------------- |
+| `/graphs`                | Statistics graphs (SvelteKit) |
+| `/deck-options/[deckId]` | Deck options (SvelteKit)      |
+| `/congrats`              | Post-study screen (SvelteKit) |
+| `/card-info/[cardId]`    | Card info (SvelteKit)         |
+| `/editor/?mode=[mode]`   | Editor (SvelteKit)            |
+| `/congrats`              | Congrats page (SvelteKit)     |
+| `/favicon.ico`           | Mediasrv liveness probe       |
 
 ## CI
 
 The e2e tests run as part of the `check-linux` job in `.github/workflows/ci.yml`,
 after the regular build and test steps. Screenshots and traces from failed runs
 are uploaded as artifacts and kept for 7 days.
+
+<!-- <<<end>>> -->

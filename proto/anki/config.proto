@@ -66,6 +66,12 @@ message ConfigKey {
   }
 }
 
+enum ExperimentalFeatureFlag {
+  TEST_FLAG = 0;
+  SVELTE_EDITOR = 1;
+  SVELTE_REVIEWER = 2;
+}
+
 message GetConfigBoolRequest {
   ConfigKey.Bool key = 1;
 }

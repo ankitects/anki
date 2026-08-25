@@ -172,7 +172,7 @@ ci branch:
 
 # Run Complexipy in regression-only mode
 complexipy-diff:
-    {{ ninja }} check:complexipy-diff
+    {{ ninja }} complexipy-diff
 
 # Remove build outputs from out/ (pass keep-env to keep node_modules/pyenv); macOS/Linux
 clean *args:
