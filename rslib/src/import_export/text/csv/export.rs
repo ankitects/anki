@@ -428,14 +428,15 @@ mod tests {
         let path = dir.path().join("cards.csv");
         col.export_card_csv(path.to_str().unwrap(), SearchNode::WholeCollection, false)
             .unwrap();
-        let content = std::fs::read_to_string(&path).unwrap();
-        let first_record = content
-            .lines()
-            .find(|l| !l.starts_with('#'))
-            .expect("no data record found");
-        let cols: Vec<&str> = first_record.split('\t').collect();
-        assert_eq!(cols[0], "front text", "expected front field in column 0");
-        assert_eq!(cols[1], "back text", "expected back field in column 1");
+        let mut reader = csv::ReaderBuilder::new()
+            .delimiter(b'\t')
+            .comment(Some(b'#'))
+            .has_headers(false)
+            .from_path(&path)
+            .unwrap();
+        let record = reader.records().next().unwrap().unwrap();
+        assert_eq!(&record[0], "front text", "expected front field in column 0");
+        assert_eq!(&record[1], "back text", "expected back field in column 1");
     }
 
     #[test]
@@ -604,15 +605,18 @@ mod tests {
         let path = dir.path().join("notes.csv");
         col.export_note_csv(note_csv_request(path.to_str().unwrap().into()))
             .unwrap();
-        let content = std::fs::read_to_string(&path).unwrap();
-        let first_record = content
-            .lines()
-            .find(|l| !l.starts_with('#'))
-            .expect("no data record found");
-        let cols: Vec<&str> = first_record.split('\t').collect();
-        assert_eq!(cols[0], note.guid, "expected guid in column 0");
-        assert_eq!(cols[3], "hello", "expected Front field in column 3");
-        assert_eq!(cols[4], "world", "expected Back field in column 4");
+        // use the csv reader so quoted fields (GUIDs may contain '"') are handled
+        // correctly
+        let mut reader = csv::ReaderBuilder::new()
+            .delimiter(b'\t')
+            .comment(Some(b'#'))
+            .has_headers(false)
+            .from_path(&path)
+            .unwrap();
+        let record = reader.records().next().unwrap().unwrap();
+        assert_eq!(&record[0], &note.guid, "expected guid in column 0");
+        assert_eq!(&record[3], "hello", "expected Front field in column 3");
+        assert_eq!(&record[4], "world", "expected Back field in column 4");
     }
 
     #[test]

@@ -107,6 +107,11 @@ def get_briefcase_config_args(args: argparse.Namespace) -> list[str]:
             ["-C", "requires=[" + ",".join(f'"{dep}"' for dep in requires) + "]"]
         )
     config_args.extend(["-C", f'template="{template_path.absolute().as_posix()}"'])
+    if sys.platform == "win32":
+        compression_level = (
+            "high" if os.environ.get("RELEASE") in ("1", "2") else "none"
+        )
+        config_args.extend(["-C", f'compression_level="{compression_level}"'])
 
     return config_args
 

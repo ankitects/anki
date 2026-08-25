@@ -87,29 +87,6 @@ pub fn setup_uv(build: &mut Build, platform: Platform) -> Result<()> {
     };
     build.add_dependency("uv_binary", uv_binary);
 
-    // Our macOS packaging needs access to the x86 binary on ARM.
-    if cfg!(target_arch = "aarch64") {
-        download_and_extract(
-            build,
-            "uv_mac_x86",
-            uv_archive(Platform::MacX64),
-            hashmap! { "bin" => [
-                with_exe("uv")
-            ] },
-        )?;
-    }
-    // Our Linux packaging needs access to the ARM binary on x86
-    if cfg!(target_arch = "x86_64") {
-        download_and_extract(
-            build,
-            "uv_lin_arm",
-            uv_archive(Platform::LinuxArm),
-            hashmap! { "bin" => [
-                with_exe("uv")
-            ] },
-        )?;
-    }
-
     Ok(())
 }
 
@@ -179,23 +156,19 @@ impl BuildAction for PythonEnvironment {
 }
 
 pub struct PythonTypecheck {
-    pub folders: &'static [&'static str],
     pub deps: BuildInput,
 }
 
 impl BuildAction for PythonTypecheck {
     fn command(&self) -> &str {
-        "$mypy $folders"
+        "$mypy"
     }
 
     fn files(&mut self, build: &mut impl crate::build::FilesHandle) {
         build.add_inputs("", &self.deps);
         build.add_inputs("mypy", inputs![":pyenv:mypy"]);
         build.add_inputs("", inputs![".mypy.ini"]);
-        build.add_variable("folders", self.folders.join(" "));
-
-        let hash = simple_hash(self.folders);
-        build.add_output_stamp(format!("tests/python_typecheck.{hash}"));
+        build.add_output_stamp("tests/python_typecheck");
     }
 
     fn hide_progress(&self) -> bool {
@@ -324,7 +297,7 @@ impl BuildAction for Complexipy {
         build.add_inputs("complexipy", inputs![":pyenv:complexipy"]);
         build.add_variable("folder", self.folder);
         let diff_args = if self.diff_mode {
-            "--diff main -R -mx 15"
+            "--diff main -R -mx 20"
         } else {
             ""
         };
@@ -342,7 +315,7 @@ pub fn check_complexity(
     deps: BuildInput,
 ) -> Result<()> {
     build.add_action(
-        format!("check:complexipy:{group}"),
+        format!("complexipy:{group}"),
         Complexipy {
             deps: deps.clone(),
             folder,
@@ -350,7 +323,7 @@ pub fn check_complexity(
         },
     )?;
     build.add_action(
-        format!("check:complexipy-diff:{group}"),
+        format!("complexipy-diff:{group}"),
         Complexipy {
             deps,
             folder,

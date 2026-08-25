@@ -183,7 +183,7 @@ function shapeOrShapesToCloze(
 ): string {
     let text = "";
     function addKeyValue(key: string, value: string) {
-        value = value.replace(":", "\\:");
+        value = value.replace(/\\/g, "\\\\").replace(/:/g, "\\:");
         text += `:${key}=${value}`;
     }
 
