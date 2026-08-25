@@ -63,12 +63,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 </script>
 
 <script lang="ts">
-    import {
-        directionKey,
-        fontFamilyKey,
-        fontSizeKey,
-        legacyEditorKey,
-    } from "@tslib/context-keys";
+    import { directionKey, fontFamilyKey, fontSizeKey } from "@tslib/context-keys";
     import { promiseWithResolver } from "@tslib/promise";
     import { singleCallback } from "@tslib/typing";
     import { getAllContexts, getContext, mount, onMount, tick } from "svelte";
@@ -89,11 +84,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { fragmentToStored, storedToFragment } from "./transform";
 
     export let hidden = false;
-    const isLegacy = getContext<boolean>(legacyEditorKey);
     export const focusFlag = new Flag();
     export let isClozeField: boolean;
 
-    const { focusedInput } = noteEditorContext.get();
+    const { focusedInput, isLegacy } = noteEditorContext.get();
     const { content, editingInputs } = editingAreaContext.get();
 
     const fontFamily = getContext<Readable<string>>(fontFamilyKey);

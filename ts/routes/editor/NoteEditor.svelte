@@ -15,8 +15,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import LabelName from "./LabelName.svelte";
     import { EditorState, type EditorMode } from "./types";
     import { ContextMenu, Item } from "$lib/context-menu";
-    import { setContext } from "svelte";
-    import { legacyEditorKey } from "@tslib/context-keys";
 
     export interface NoteEditorAPI {
         fields: EditorFieldAPI[];
@@ -27,6 +25,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         state: Writable<EditorState>;
         lastIOImagePath: Writable<string | null>;
         saveNow: () => Promise<void>;
+        isLegacy: boolean;
     }
 
     interface LoadNoteArgs {
@@ -1378,6 +1377,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     let apiPartial: Partial<NoteEditorAPI> = {};
     export { apiPartial as api };
+    export let isLegacy: boolean;
 
     const hoveredField: NoteEditorAPI["hoveredField"] = writable(null);
     const focusedField: NoteEditorAPI["focusedField"] = writable(null);
@@ -1395,6 +1395,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         state: editorState,
         lastIOImagePath,
         saveNow,
+        isLegacy,
     };
 
     setContextProperty(api);
@@ -1406,9 +1407,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     export let uiResolve: (api: NoteEditorAPI) => void;
     export let mode: EditorMode;
-    export let isLegacy: boolean;
-
-    setContext(legacyEditorKey, isLegacy);
 
     $: if (noteEditor) {
         uiResolve(api as NoteEditorAPI);
@@ -1448,7 +1446,7 @@ components and functionality for general note editing.
         />
     {/if}
 
-    <EditorToolbar noteEditor={api} {size} {wrap} api={toolbar}>
+    <EditorToolbar {size} {wrap} api={toolbar}>
         <svelte:fragment slot="notetypeButtons">
             {#if mode === "browser"}
                 <ButtonGroupItem>

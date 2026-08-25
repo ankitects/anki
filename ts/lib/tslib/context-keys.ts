@@ -7,4 +7,3 @@ export const directionKey = Symbol("direction");
 export const descriptionKey = Symbol("description");
 export const collapsedKey = Symbol("collapsed");
 export const tagActionsShortcutsKey = Symbol("tagActionsShortcuts");
-export const legacyEditorKey = Symbol("legacyEditor");

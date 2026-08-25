@@ -7,11 +7,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     import type { StyleLinkType, StyleObject } from "./CustomStyles.svelte";
     import CustomStyles from "./CustomStyles.svelte";
+    import { context } from "../NoteEditor.svelte";
+    import { mount } from "svelte";
 
-    import { getContext, mount } from "svelte";
-    import { legacyEditorKey } from "@tslib/context-keys";
-
-    const isLegacy = getContext<boolean>(legacyEditorKey);
+    const { isLegacy } = context.get();
 
     export let callback: (styles: Record<string, any>) => void;
 
