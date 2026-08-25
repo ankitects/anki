@@ -2,10 +2,11 @@
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 /** Keep property if true. */
-type StylingPredicate = (property: string, value: string) => boolean;
+type StylingPredicate = (element: HTMLElement, property: string, value: string) => boolean;
 
-const keep = (_key: string, _value: string) => true;
-const discard = (_key: string, _value: string) => false;
+const keep = (_element: HTMLElement, _key: string, _value: string) => true;
+const discard = (_element: HTMLElement, _key: string, _value: string) => false;
+const discardIfImage = (element: HTMLElement, _key: string, _value: string) => element.nodeName !== "IMG";
 
 /** Return a function that filters out certain styles.
    - If the style is listed in `exceptions`, the provided predicate is used.
@@ -21,7 +22,7 @@ function filterStyling(
             const key = element.style.item(i);
             const value = element.style.getPropertyValue(key);
             const predicate = exceptions[key] ?? defaultPredicate;
-            if (!predicate(key, value)) {
+            if (!predicate(element, key, value)) {
                 toRemove.push(key);
             }
         }
@@ -40,7 +41,7 @@ const nightModeExceptions = {
 export const filterStylingNightMode = filterStyling(discard, nightModeExceptions);
 export const filterStylingLightMode = filterStyling(discard, {
     color: keep,
-    "background-color": (_key: string, value: string) => value != "transparent",
+    "background-color": (_element: HTMLElement, _key: string, value: string) => value != "transparent",
     ...nightModeExceptions,
 });
 export const filterStylingInternal = filterStyling(keep, {
@@ -50,4 +51,5 @@ export const filterStylingInternal = filterStyling(keep, {
     height: discard,
     "max-width": discard,
     "max-height": discard,
+    "vertical-align": discardIfImage,
 });

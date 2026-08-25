@@ -1,3 +1,13 @@
+<!-- DO NOT MANUALLY EDIT THIS FILE -->
+<!-- This file is copied from docs-site/developers/ninja.mdx automatically -->
+
+# Ninja
+
+<!-- <<<cog
+from cogdocs import get_file_contents
+cog.out(get_file_contents("ninja"))
+>>> -->
+
 Brief notes for people used to the existing Bazel build system:
 
 - Put the ninja binary on your path: https://github.com/ninja-build/ninja/releases/tag/v1.11.1
@@ -12,3 +22,5 @@ Brief notes for people used to the existing Bazel build system:
 - Targets are hierarchical, so './ninja check:jest:deck-options' will run
   the Jest tests for ts/deck-options, and './ninja check:jest' will run all
   Jest tests.
+
+<!-- <<<end>>> -->
