@@ -128,21 +128,30 @@ fn get_entry(fname: &Utf8Path, key: &str) -> Option<Entry<String>> {
     None
 }
 
-fn write_entry(path: &Utf8Path, key: &str, mut entry: Entry<String>) -> Result<()> {
-    if let Entry::Message(message) = &mut entry {
-        message.id.name = key.to_string();
-    }
-
+fn write_entry(path: &Utf8Path, key: &str, entry: Entry<String>) -> Result<()> {
     let content = if Path::new(path).exists() {
         fs::read_to_string(path).unwrap()
     } else {
         String::new()
     };
     let mut resource = parser::parse(content).unwrap();
-    resource.body.push(entry);
+    insert_entry(&mut resource, key, entry);
 
     serialize_file(path, &resource)?;
     Ok(())
+}
+
+fn insert_entry(resource: &mut Resource<String>, key: &str, mut entry: Entry<String>) {
+    if let Entry::Message(message) = &mut entry {
+        message.id.name = key.to_string();
+    }
+
+    let insert_at = resource
+        .body
+        .iter()
+        .position(|existing| !matches!(existing, Entry::ResourceComment(_)))
+        .unwrap_or(resource.body.len());
+    resource.body.insert(insert_at, entry);
 }
 
 fn delete_entry(path: &Utf8Path, key: &str) -> Result<bool> {
@@ -161,4 +170,102 @@ fn delete_entry(path: &Utf8Path, key: &str) -> Result<bool> {
         }
     });
     serialize_file(path, &resource)
+}
+
+#[cfg(test)]
+mod tests {
+    use fluent_syntax::parser::parse;
+
+    use super::*;
+    use crate::serialize::serialize;
+
+    fn message(key: &str, value: &str) -> Entry<String> {
+        parse(format!("{key} = {value}")).unwrap().body.remove(0)
+    }
+
+    #[test]
+    fn insert_after_leading_comment() {
+        let mut resource = parse(
+            r#"### File header comment.
+
+sample-a = Existing value
+"#
+            .to_string(),
+        )
+        .unwrap();
+
+        insert_entry(&mut resource, "sample-b", message("sample-b", "New value"));
+
+        assert_eq!(
+            serialize(&resource),
+            r#"### File header comment.
+
+sample-b = New value
+sample-a = Existing value
+"#
+        );
+    }
+
+    #[test]
+    fn insert_before_deprecation_warning() {
+        let mut resource = parse(
+            r#"### File header comment.
+
+## NO NEED TO TRANSLATE. This text is no longer used by Anki, and will be removed in the future.
+
+sample-a = Existing value
+"#
+            .to_string(),
+        )
+        .unwrap();
+
+        insert_entry(&mut resource, "sample-b", message("sample-b", "New value"));
+
+        assert_eq!(
+            serialize(&resource),
+            "### File header comment.\n\nsample-b = New value\n\n## NO NEED TO TRANSLATE. This text is no longer used by Anki, and will be removed in the future.\n\nsample-a = Existing value\n");
+    }
+
+    #[test]
+    fn insert_with_no_comments() {
+        let mut resource = parse(
+            r#"sample-a = Existing value
+"#
+            .to_string(),
+        )
+        .unwrap();
+
+        insert_entry(&mut resource, "sample-b", message("sample-b", "New value"));
+
+        assert_eq!(
+            serialize(&resource),
+            "sample-b = New value\nsample-a = Existing value\n"
+        );
+    }
+
+    #[test]
+    fn insert_empty_file() {
+        let mut resource = parse("".to_string()).unwrap();
+
+        insert_entry(&mut resource, "sample-b", message("sample-b", "New value"));
+
+        assert_eq!(serialize(&resource), "sample-b = New value\n");
+    }
+
+    #[test]
+    fn insert_with_bare_comment() {
+        let mut resource = parse(
+            r#"# Comment.
+"#
+            .to_string(),
+        )
+        .unwrap();
+
+        insert_entry(&mut resource, "sample-b", message("sample-b", "New value"));
+
+        assert_eq!(
+            serialize(&resource),
+            "sample-b = New value\n\n# Comment.\n\n"
+        );
+    }
 }

@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 #
 # Move a translation that previously only existed in AnkiMobile to the core translations.
 #

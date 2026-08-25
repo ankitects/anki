@@ -1,4 +1,12 @@
+<!-- DO NOT MANUALLY EDIT THIS FILE -->
+<!-- This file is copied from docs-site/developers/mac.mdx automatically -->
+
 # Mac-specific notes
+
+<!-- <<<cog
+from cogdocs import get_file_contents
+cog.out(get_file_contents("mac"))
+>>> -->
 
 ## Requirements
 
@@ -17,4 +25,6 @@ To play audio, use Homebrew to install mpv and lame.
 
 ## More
 
-For info on running tests, building wheels and so on, please see [Development](./development.md).
+For info on running tests, building wheels and so on, please see [Development](https://anki.mintlify.app/development).
+
+<!-- <<<end>>> -->
