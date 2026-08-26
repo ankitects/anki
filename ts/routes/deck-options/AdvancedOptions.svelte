@@ -305,7 +305,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             <Item>
                 <DateInput
                     bind:date={$config.ignoreRevlogsBeforeDate}
-                    max={new Date().toISOString().split("T")[0]}
+                    max={new Date().toLocaleDateString("en-CA")}
                 >
                     <SettingTitle
                         on:click={() =>
