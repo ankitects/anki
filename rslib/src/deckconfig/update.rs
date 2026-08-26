@@ -160,7 +160,11 @@ impl Collection {
         require!(!req.configs.is_empty(), "config not provided");
         let configs_before_update = self.storage.get_deck_config_map()?;
         let mut configs_after_update = configs_before_update.clone();
-        let today = TimestampSecs::now().date_string();
+        let today = self
+            .timing_today()?
+            .next_day_at
+            .adding_secs(-24 * 60 * 60)
+            .date_string();
 
         // handle removals first
         for dcid in &req.removed_config_ids {
@@ -174,10 +178,10 @@ impl Collection {
 
         // add/update provided configs
         for conf in &mut req.configs {
-            require!(
-                conf.inner.ignore_revlogs_before_date <= today,
-                "ignore_revlogs_before_date cannot be later than today"
-            );
+            if conf.inner.ignore_revlogs_before_date > today {
+                today.clone_into(&mut conf.inner.ignore_revlogs_before_date);
+            }
+
             // If the user has provided empty FSRS6 params, zero out any
             // old params as well, so we don't fall back on them, which would
             // be surprising as they're not shown in the GUI.
@@ -452,7 +456,6 @@ fn update_day_limit(day_limit: &mut Option<DayLimit>, new_limit: Option<u32>, to
 mod test {
     use super::*;
     use crate::deckconfig::NewCardInsertOrder;
-    use crate::error::AnkiError;
     use crate::tests::open_test_collection_with_learning_card;
     use crate::tests::open_test_collection_with_relearning_card;
     use crate::timestamp::TimestampSecs;
@@ -622,10 +625,11 @@ mod test {
     }
 
     #[test]
-    fn should_reject_ignore_revlogs_before_date_later_than_today() {
+    fn should_clamp_ignore_revlogs_before_date_to_today() {
         let mut col = Collection::new();
+        let today = TimestampSecs::now().date_string();
         let output = col.get_deck_configs_for_update(DeckId(1)).unwrap();
-        let mut input = UpdateDeckConfigsRequest {
+        let base_input = UpdateDeckConfigsRequest {
             target_deck_id: DeckId(1),
             configs: output
                 .all_config
@@ -643,18 +647,31 @@ mod test {
             fsrs_health_check: true,
         };
 
-        let mut input2 = input.clone();
-        let mut input3 = input.clone();
-        input.configs[0].inner.ignore_revlogs_before_date =
+        // future date should be clamped to today
+        let mut future_input = base_input.clone();
+        future_input.configs[0].inner.ignore_revlogs_before_date =
             TimestampSecs::now().adding_secs(86_400).date_string();
+        assert!(col.update_deck_configs(future_input).is_ok());
 
-        let err = col.update_deck_configs(input).unwrap_err();
-        assert!(matches!(err, AnkiError::InvalidInput { .. }));
+        let updated = col.get_deck_configs_for_update(DeckId(1)).unwrap();
+        let updated_config: DeckConfig = updated.all_config[0].config.clone().unwrap().into();
+        assert_eq!(updated_config.inner.ignore_revlogs_before_date, today);
 
-        input2.configs[0].inner.ignore_revlogs_before_date = TimestampSecs::now().date_string();
-        assert!(col.update_deck_configs(input2).is_ok());
+        // past dates should be left unchanged
+        let past_date = TimestampSecs::now().adding_secs(-86_400).date_string();
+        let mut past_input = base_input.clone();
+        past_input.configs[0].inner.ignore_revlogs_before_date = past_date.clone();
+        assert!(col.update_deck_configs(past_input).is_ok());
+        let updated2 = col.get_deck_configs_for_update(DeckId(1)).unwrap();
+        let updated_config2: DeckConfig = updated2.all_config[0].config.clone().unwrap().into();
+        assert_eq!(updated_config2.inner.ignore_revlogs_before_date, past_date);
 
-        input3.configs[0].inner.ignore_revlogs_before_date = "".to_string();
-        assert!(col.update_deck_configs(input3).is_ok());
+        // today's date should also be left unchanged
+        let mut today_input = base_input;
+        today_input.configs[0].inner.ignore_revlogs_before_date = today.clone();
+        assert!(col.update_deck_configs(today_input).is_ok());
+        let updated3 = col.get_deck_configs_for_update(DeckId(1)).unwrap();
+        let updated_config3: DeckConfig = updated3.all_config[0].config.clone().unwrap().into();
+        assert_eq!(updated_config3.inner.ignore_revlogs_before_date, today);
     }
 }
