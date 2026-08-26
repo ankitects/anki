@@ -627,7 +627,7 @@ mod test {
     #[test]
     fn should_clamp_ignore_revlogs_before_date_to_today() {
         let mut col = Collection::new();
-        let today = TimestampSecs::now().date_string();
+        let today = col.timing_today().unwrap().next_day_at.adding_secs(-24 * 60 * 60).date_string();
         let output = col.get_deck_configs_for_update(DeckId(1)).unwrap();
         let base_input = UpdateDeckConfigsRequest {
             target_deck_id: DeckId(1),
