@@ -10,6 +10,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     export let data: { labPerfs: PreferenceStore<any> };
     const labPerfs = data.labPerfs;
+
+    // Use the systems font size for the preferences page to align with the other menus
+    // This is set in standard_css which is called as part of add_dynamic_styling_and_props_then_show in webview.py
+    document.documentElement.classList.add("system-font-size");
 </script>
 
 <div class="container">
@@ -56,6 +60,5 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     :global(body) {
         background-color: var(--canvas-elevated) !important;
-        font-size: 13px;
     }
 </style>

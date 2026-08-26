@@ -121,7 +121,6 @@ class MainWebView(AnkiWebView):
         event.accept()
 
     def dropEvent(self, event: QDropEvent) -> None:
-        import aqt.importing
         from aqt.import_export.importing import import_file
 
         if self.mw.state != "deckBrowser":
@@ -130,10 +129,7 @@ class MainWebView(AnkiWebView):
         paths = [url.toLocalFile() for url in mime.urls()]
         deck_paths = filter(lambda p: not p.endswith(".colpkg"), paths)
         for path in deck_paths:
-            if not self.mw.pm.legacy_import_export():
-                import_file(self.mw, path)
-            else:
-                aqt.importing.importFile(self.mw, path)
+            import_file(self.mw, path)
 
             # importing continues after the above call returns, so it is not
             # currently safe for us to import more than one file at once
@@ -278,6 +274,7 @@ class AnkiQt(QMainWindow):
         qconnect(self.app.focusChanged, self.on_focus_changed)
 
     def on_focus_changed(self, old: QWidget, new: QWidget) -> None:
+        aqt.dialogs._on_focus_did_change(new)
         gui_hooks.focus_did_change(new, old)
 
     # Profiles
@@ -610,6 +607,9 @@ class AnkiQt(QMainWindow):
         self.mediaServer.shutdown()
         # Rust background jobs are not awaited implicitly
         self.backend.await_backup_completion()
+        self.toolbarWeb.cleanup()
+        self.web.cleanup()
+        self.bottomWeb.cleanup()
         self.deleteLater()
         app = self.app
         app._unset_windows_shutdown_block_reason()
@@ -1388,31 +1388,18 @@ title="{}" {}>{}</button>""".format(
             showInfo(f"{tr.qt_misc_please_use_fileimport_to_import_this()} ({path})")
             return None
 
-        if not self.pm.legacy_import_export():
-            import_file(self, path)
-        else:
-            import aqt.importing
-
-            aqt.importing.importFile(self, path)
+        import_file(self, path)
 
     def onImport(self) -> None:
         "Importing triggered via File>Import."
-        import aqt.importing
         from aqt.import_export.importing import prompt_for_file_then_import
 
-        if not self.pm.legacy_import_export():
-            prompt_for_file_then_import(self)
-        else:
-            aqt.importing.onImport(self)
+        prompt_for_file_then_import(self)
 
     def onExport(self, did: DeckId | None = None) -> None:
-        import aqt.exporting
         from aqt.import_export.exporting import ExportDialog
 
-        if not self.pm.legacy_import_export():
-            ExportDialog(self, did=did)
-        else:
-            aqt.exporting.ExportDialog(self, did=did)
+        ExportDialog(self, did=did)
 
     # Installing add-ons from CLI / mimetype handler
     ##########################################################################

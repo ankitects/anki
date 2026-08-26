@@ -132,7 +132,7 @@ impl Collection {
             Ok(Some(format!(
                 "{}::{}",
                 parent_tag,
-                &child_split[parent_count..].join("::")
+                child_split[parent_count..].join("::")
             )))
         } else {
             Ok(None)
