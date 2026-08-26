@@ -151,3 +151,9 @@ def test_legacy_bulk_add_remove(col, monkeypatch):
     remove_mock.reset_mock()
     col.tags._legacy_bulk_rem([], [])
     remove_mock.assert_called()
+
+
+def test_canonify(col):
+    tags = ["a", "a", "A"]
+    # No-op
+    assert col.tags.canonify(tags) == tags
