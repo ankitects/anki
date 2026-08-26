@@ -13,6 +13,7 @@ mkdir -p "$outdir"
     --coverage.enabled true \
     --coverage.provider=v8 \
     --coverage.reporter=text-summary \
+    --coverage.reporter=lcov \
     --coverage.reporter=json-summary \
     ${html:+--coverage.reporter=html} \
     --coverage.reportsDirectory="../$outdir" \
