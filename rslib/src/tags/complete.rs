@@ -40,15 +40,12 @@ fn filters_match(filters: &[Regex], tag: &str) -> Option<bool> {
     let mut is_prefix = true;
     'outer: for filter in filters {
         loop {
-            if let Some(component) = remaining_tag_components.next() {
-                if let Some(m) = filter.find(component) {
-                    is_prefix &= m.start() == 0;
-                    continue 'outer;
-                } else {
-                    is_prefix = false;
-                }
+            let component = remaining_tag_components.next()?;
+            if let Some(m) = filter.find(component) {
+                is_prefix &= m.start() == 0;
+                continue 'outer;
             } else {
-                return None;
+                is_prefix = false;
             }
         }
     }
