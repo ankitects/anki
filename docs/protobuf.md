@@ -16,7 +16,7 @@ not in a human readable way.
 
 # Protocol Buffers
 
-Anki uses [different implementations of Protocol Buffers](https://anki.mintlify.app/architecture#protobuf)
+Anki uses [different implementations of Protocol Buffers](https://anki.mintlify.app/developers/architecture#protobuf)
 and each has its own peculiarities. This document highlights some aspects relevant
 to Anki and hopefully helps to avoid some common pitfalls.
 
