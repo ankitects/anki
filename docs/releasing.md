@@ -313,6 +313,7 @@ To test the signing flow from a feature branch:
 ## Audio package
 
 Audio playback and recording is handled by the `anki-audio` package under **`qt/audio`**, which bundles mpv and lame for Windows and macOS. To update:
+
 1. Update the archive links in **`build/configure/src/audio.rs`** if you're updating the Windows pre-built binaries to new versions.
 2. Update the macOS build script at **`qt/audio/mpv.rb`** and test the Homebrew build locally by running the **`qt/audio/build.sh`** script.
 3. Bump the version at **`qt/audio/.version`**.
