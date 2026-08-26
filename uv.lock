@@ -76,13 +76,13 @@ requires-dist = [
 
 [[package]]
 name = "anki-audio"
-version = "0.2.2"
+version = "0.2.3"
 source = { registry = "https://pypi.org/simple" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/69/3d/a0cb0a6026def851af787c0fbb221c4065b2031d29cadf8cadad5d07fd57/anki_audio-0.2.2-cp310-abi3-macosx_12_0_arm64.whl", hash = "sha256:9f81aa4036136571395991d5c1ad9b69d975750eaf15f6ad7edb7d4b81362330", size = 26310530, upload-time = "2026-06-03T15:39:35.903Z" },
-    { url = "https://files.pythonhosted.org/packages/e8/1a/c91b85954da11e3af8461cdc61d354b35eba5b03eb654d01a9bac6fb4643/anki_audio-0.2.2-cp310-abi3-macosx_12_0_x86_64.whl", hash = "sha256:fb33e72c8d4d17415ad3eb87b12f1d37a20b910d9186bf9f2caa8dd5a5e0edc6", size = 29547833, upload-time = "2026-06-03T15:39:39.623Z" },
-    { url = "https://files.pythonhosted.org/packages/98/ed/ab349195e0a83857a4918b2f32b1356f0041b5467bb6053128efa0a7e795/anki_audio-0.2.2-cp310-abi3-win_amd64.whl", hash = "sha256:ddba6a76f490340216303eddb83ce9bbcadeeaf0033318639fe5d071ab4b51c7", size = 24728253, upload-time = "2026-06-03T15:39:43.515Z" },
-    { url = "https://files.pythonhosted.org/packages/10/c9/f71787ab6041b8f9657684071ec8243801de91c9742a6ce64a09ce2322eb/anki_audio-0.2.2-cp310-abi3-win_arm64.whl", hash = "sha256:291f2c8732aef22d413de38b805515be67c38f12a6804bbda10a3cf476b49501", size = 21655284, upload-time = "2026-06-03T15:39:47.381Z" },
+    { url = "https://files.pythonhosted.org/packages/d6/e7/f4557da402db5bec81ed61b0867dd005630ddd263d20902e951f47d0647a/anki_audio-0.2.3-cp310-abi3-macosx_12_0_arm64.whl", hash = "sha256:e821247de5a6e2d7b80a9b139e851dc827ed5596f6f3efbf64bd1e6582722f9d", size = 26340116, upload-time = "2026-08-25T18:31:51.797Z" },
+    { url = "https://files.pythonhosted.org/packages/57/23/2252aa30ab048d2e9efa4a6b5602b91f4f855c7e3428dbffa20c726d8bf2/anki_audio-0.2.3-cp310-abi3-macosx_12_0_x86_64.whl", hash = "sha256:b2d3b46f4036b15ba3676f5641b0ca617fb9002e9d3ae5bed9a196ac4af3071d", size = 29828402, upload-time = "2026-08-25T18:31:55.312Z" },
+    { url = "https://files.pythonhosted.org/packages/bc/97/3b082aec19e68bc0c66813e6259e6780ac074998e00e711cfd96b9b060e1/anki_audio-0.2.3-cp310-abi3-win_amd64.whl", hash = "sha256:20880906a05eb55f78c6743a1fb52d31d7aaebc769dc890e78b64a96f61c8fd6", size = 24728253, upload-time = "2026-08-25T18:31:59.039Z" },
+    { url = "https://files.pythonhosted.org/packages/63/47/23aeddcf612a52ddfb2fecd970fd5922bc7126bfdf866d378602197884ca/anki_audio-0.2.3-cp310-abi3-win_arm64.whl", hash = "sha256:b60c79707f7d6241c41945714bd8718f479b8bde4b1d37c62490b317ce8df722", size = 21655281, upload-time = "2026-08-25T18:32:02.68Z" },
 ]
 
 [[package]]
@@ -253,7 +253,7 @@ qt69 = [
 
 [package.metadata]
 requires-dist = [
-    { name = "anki-audio", marker = "(sys_platform == 'darwin' and extra == 'audio') or (sys_platform == 'win32' and extra == 'audio')", specifier = "==0.2.2" },
+    { name = "anki-audio", marker = "(sys_platform == 'darwin' and extra == 'audio') or (sys_platform == 'win32' and extra == 'audio')", specifier = "==0.2.3" },
     { name = "anki-mac-helper", marker = "sys_platform == 'darwin'", specifier = ">=0.1.1" },
     { name = "beautifulsoup4" },
     { name = "flask", extras = ["async"] },
@@ -1238,11 +1238,11 @@ wheels = [
 
 [[package]]
 name = "pip"
-version = "26.1"
+version = "26.1.2"
 source = { registry = "https://pypi.org/simple" }
-sdist = { url = "https://files.pythonhosted.org/packages/73/7e/d2b04004e1068ad4fdfa2f227b839b5d03e602e47cdbbf49de71137c9546/pip-26.1.tar.gz", hash = "sha256:81e13ebcca3ffa8cc85e4deff5c27e1ee26dea0aa7fc2f294a073ac208806ff3", size = 1840316, upload-time = "2026-04-26T21:00:05.406Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/01/91/47e7d486260f618783899587af63ccf7980fb60245c3e63dd4571c6b57ad/pip-26.1.2.tar.gz", hash = "sha256:f49cd134c61cf2fd75e0ce2676db03e4054504a5a4986d00f8299ae632dc4605", size = 1840799, upload-time = "2026-05-31T17:33:58.56Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/70/7a/be4bd8bcbb24ea475856dd68159d78b03b2bb53dae369f69c9606b8888f5/pip-26.1-py3-none-any.whl", hash = "sha256:4e8486d821d814b77319acb7b9e8bf5a4ee7590a643e7cb21029f209be8573c1", size = 1812804, upload-time = "2026-04-26T21:00:03.194Z" },
+    { url = "https://files.pythonhosted.org/packages/5d/95/6b5cb3461ea5673ba0995989746db58eb18b91b54dbf331e72f569540946/pip-26.1.2-py3-none-any.whl", hash = "sha256:382ff9f685ee3bc25864f820aa50505825f10f5458ffff07e30a6d96e5715cab", size = 1813144, upload-time = "2026-05-31T17:33:56.772Z" },
 ]
 
 [[package]]
