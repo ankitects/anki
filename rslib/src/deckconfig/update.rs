@@ -667,11 +667,19 @@ mod test {
         assert_eq!(updated_config2.inner.ignore_revlogs_before_date, past_date);
 
         // today's date should also be left unchanged
-        let mut today_input = base_input;
+        let mut today_input = base_input.clone();
         today_input.configs[0].inner.ignore_revlogs_before_date = today.clone();
         assert!(col.update_deck_configs(today_input).is_ok());
         let updated3 = col.get_deck_configs_for_update(DeckId(1)).unwrap();
         let updated_config3: DeckConfig = updated3.all_config[0].config.clone().unwrap().into();
         assert_eq!(updated_config3.inner.ignore_revlogs_before_date, today);
+
+        // empty dates should be saved as is and handled by ignore_revlogs_before_date_to_ms
+        let mut today_input = base_input;
+        today_input.configs[0].inner.ignore_revlogs_before_date = "".to_string();
+        assert!(col.update_deck_configs(today_input).is_ok());
+        let updated3 = col.get_deck_configs_for_update(DeckId(1)).unwrap();
+        let updated_config3: DeckConfig = updated3.all_config[0].config.clone().unwrap().into();
+        assert_eq!(updated_config3.inner.ignore_revlogs_before_date, "".to_string());
     }
 }
