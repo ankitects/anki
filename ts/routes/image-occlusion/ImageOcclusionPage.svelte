@@ -39,11 +39,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         {/each}
     </div>
 
-    <div hidden={activeTabValue != 1}>
+    <div class="io-tab-content" hidden={activeTabValue != 1}>
         <MasksEditor {mode} on:save on:image-loaded />
     </div>
 
-    <div hidden={activeTabValue != 2}>
+    <div class="io-tab-content" hidden={activeTabValue != 2}>
         <Notes />
     </div>
 </Container>
@@ -51,9 +51,12 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <style lang="scss">
     .tab-buttons {
         display: flex;
-        position: absolute;
-        top: 2px;
-        inset-inline-start: 2px;
+        flex-shrink: 0;
+    }
+
+    .io-tab-content:not([hidden]) {
+        flex: 1;
+        min-height: 0;
     }
     .tab-buttons .active {
         background: var(--button-primary-bg);

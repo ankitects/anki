@@ -2,8 +2,6 @@
 title: "Exporting"
 ---
 
-
-
 Exporting allows you to save part of your collection as a text file or
 packaged Anki deck. To export, click the File menu and choose **Export**.
 
@@ -41,8 +39,8 @@ You can use the collection package to back up your collection, or copy it to
 another device.
 
 <Info>
-Collection packages created with previous versions of Anki were called
-`collection.apkg`.
+    Collection packages created with previous versions of Anki were called
+    `collection.apkg`.
 </Info>
 
 #### What Happens on Import?
@@ -57,10 +55,12 @@ collection package. To delete unused media, use **Tools > Check Media**.
 #### Export Options
 
 ##### Include Media
+
 If true, local media will be included.
 If false, the `.colpkg` will not contain any audio, images or other media.
 
 ##### Support older Anki versions (slower/larger files)
+
 If true, a legacy version of the file is created. Turn this on if you need to
 support older clients.
 If false, a modern version of the file is created. Imports and exports will be
@@ -73,8 +73,8 @@ readable by older Anki clients.
 (and any child decks it may have).
 
 <Note>
-If the filename is `collection.apkg`, then it is a collection package instead.
-All other filenames ending with `.apkg` are deck packages.
+    If the filename is `collection.apkg`, then it is a collection package instead. All
+    other filenames ending with `.apkg` are deck packages.
 </Note>
 
 #### What Happens on Import?
@@ -93,24 +93,29 @@ will incorporate all the edits into your own Anki collection.
 If you re-import an unchanged `.apkg` after making changes in your own
 collection (e.g. editing cards), then Anki will keep the changes in your
 collection instead of overwriting them.
+
 </Info>
 
 #### Export Options
 
 ##### Include Scheduling Information
+
 If true, scheduling information such as your review history will be exported.
 If false, Anki will assume that you are sharing the deck with other people, and
 will remove the entire scheduling information, including marked and leech tags.
 That way users will have a clean copy of your deck.
 
 ##### Include Deck Presets
+
 If true, deck presets will be included.
 
 ##### Include Media
+
 If true, local media will be included.
 If false, the `.apkg` will not contain any audio, images or other media.
 
 ##### Support older Anki versions (slower/larger files)
+
 If true, a legacy version of the file is created. Turn this on if you need to
 support older clients.
 If false, a modern version of the file is created. Imports and exports will be
