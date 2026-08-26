@@ -132,6 +132,6 @@ offline.
 
 ## More
 
-For info on running tests, building wheels and so on, please see [Development](https://anki.mintlify.app/development).
+For info on running tests, building wheels and so on, please see [Development](https://anki.mintlify.app/developers/development).
 
 <!-- <<<end>>> -->

@@ -22,6 +22,7 @@ set "ANKI_TEST_MODE=1"
 if not exist %outdir% mkdir %outdir%
 out\pyenv\Scripts\python -m coverage run --source=%source% --data-file=%outdir%\.coverage -m pytest -p no:cacheprovider %tests% || exit /b 1
 out\pyenv\Scripts\python -m coverage json --data-file=%outdir%\.coverage -o %outdir%\coverage-summary.json || exit /b 1
+out\pyenv\Scripts\python -m coverage xml --data-file=%outdir%\.coverage -o %outdir%\coverage.xml || exit /b 1
 out\pyenv\Scripts\python -m coverage report --data-file=%outdir%\.coverage --fail-under=%threshold% || exit /b 1
 
 if "%2"=="--html" (
