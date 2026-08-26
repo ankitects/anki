@@ -9,6 +9,7 @@ import logging
 import os
 import sys
 from collections.abc import Callable
+from inspect import isclass
 from typing import TYPE_CHECKING, Any, Union, cast
 
 try:
@@ -129,6 +130,8 @@ class DialogManager:
         "Preferences": [preferences.Preferences, None],
         "sync_log": [mediasync.MediaSyncDialog, None],
     }
+    _classes = set(filter(isclass, (v[0] for _, v in _dialogs.items())))
+    _activeWindow = None
 
     def open(self, name: str, *args: Any, **kwargs: Any) -> Any:
         (creator, instance) = self._dialogs[name]
@@ -145,6 +148,27 @@ class DialogManager:
             instance = creator(*args, **kwargs)
             self._dialogs[name][1] = instance
         gui_hooks.dialog_manager_did_open_dialog(self, name, instance)
+        return instance
+
+    def _on_focus_did_change(self, new: QWidget | None):
+        if (
+            new
+            and (window := new.window())
+            and any(isinstance(window, klass) for klass in self._classes)
+        ):
+            self._activeWindow = window
+
+    def activeWindow(self) -> QWidget:
+        if not self._activeWindow or sip.isdeleted(self._activeWindow):
+            self._activeWindow = None
+            return aqt.mw.app.activeWindow() or aqt.mw
+        else:
+            return self._activeWindow
+
+    def getInstance(self, name: str):
+        if not (res := self._dialogs.get(name)):
+            return
+        (_, instance) = res
         return instance
 
     def markClosed(self, name: str) -> None:

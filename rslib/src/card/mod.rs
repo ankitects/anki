@@ -14,6 +14,7 @@ use serde_repr::Deserialize_repr;
 use serde_repr::Serialize_repr;
 
 use crate::collection::Collection;
+use crate::config::BoolKey;
 use crate::config::SchedulerVersion;
 use crate::deckconfig::DeckConfig;
 use crate::decks::DeckId;
@@ -24,6 +25,10 @@ use crate::error::Result;
 use crate::notes::NoteId;
 use crate::ops::StateChanges;
 use crate::prelude::*;
+use crate::scheduler::fsrs::memory_state::UpdateMemoryStateEntry;
+use crate::scheduler::fsrs::memory_state::UpdateMemoryStateRequest;
+use crate::scheduler::fsrs::params::ignore_revlogs_before_ms_from_config;
+use crate::search::Negated;
 use crate::timestamp::TimestampSecs;
 use crate::types::Usn;
 
@@ -373,6 +378,7 @@ impl Collection {
             source: FilteredDeckError::CanNotMoveCardsInto,
         })?;
         let config = self.get_deck_config(config_id, true)?.unwrap();
+        let fsrs_enabled = self.get_config_bool(BoolKey::Fsrs);
         let mut steps_adjuster = RemainingStepsAdjuster::new(&config);
         let usn = self.usn()?;
         self.transact(Op::SetCardDeck, |col| {
@@ -386,6 +392,33 @@ impl Collection {
                 steps_adjuster.adjust_remaining_steps(col, &mut card)?;
                 card.set_deck(deck_id);
                 col.update_card_inner(&mut card, original, usn)?;
+            }
+            // Only recompute when at least one card actually moved. Besides
+            // avoiding wasted work on a no-op, this prevents a set_deck call on
+            // cards already in the target deck from triggering a recompute of
+            // *other* memory-state-less cards in that deck.
+            if fsrs_enabled && count > 0 {
+                let desired_retention = deck.effective_desired_retention(&config);
+                let deck_desired_retention = [(deck_id, desired_retention)].into();
+
+                use crate::search::SearchNode::*;
+
+                col.update_memory_state(vec![UpdateMemoryStateEntry {
+                    req: Some(UpdateMemoryStateRequest {
+                        params: config.fsrs_params().clone(),
+                        preset_desired_retention: config.inner.desired_retention,
+                        historical_retention: config.inner.historical_retention,
+                        max_interval: config.inner.maximum_review_interval,
+                        reschedule: false,
+                        deck_desired_retention,
+                    }),
+                    search: SearchBuilder::all(vec![
+                        DeckIdsWithoutChildren(deck_id.to_string()).into(),
+                        HasMemoryState.negated(),
+                    ])
+                    .try_into_search()?,
+                    ignore_before: ignore_revlogs_before_ms_from_config(&config)?,
+                }])?;
             }
             Ok(count)
         })
@@ -506,6 +539,7 @@ impl From<MemoryState> for FsrsMemoryState {
 
 #[cfg(test)]
 mod test {
+    use crate::config::BoolKey;
     use crate::prelude::*;
     use crate::tests::open_test_collection_with_learning_card;
     use crate::tests::open_test_collection_with_relearning_card;
@@ -553,6 +587,192 @@ mod test {
 
         assert_eq!(col.get_first_card().remaining_steps, 1);
 
+        Ok(())
+    }
+
+    #[test]
+    fn recalculate_memory_state_on_set_deck() -> Result<()> {
+        let mut col = Collection::new();
+
+        let nt = col.get_notetype_by_name("Basic")?.unwrap();
+        let mut note = nt.new_note();
+        col.add_note(&mut note, DeckId(1))?;
+
+        // Graduate card to review without FSRS so it has an interval but no memory
+        // state
+        col.answer_easy();
+
+        col.set_config_bool(BoolKey::Fsrs, true, false)?;
+
+        let card_id = col.get_first_card().id;
+        let card = col.storage.get_card(card_id)?.unwrap();
+        assert!(card.memory_state.is_none());
+        assert!(card.desired_retention.is_none());
+        assert!(card.decay.is_none());
+
+        // Moving the card should trigger FSRS memory state calculation for cards
+        // lacking them, and store them in the card.
+        let target = DeckAdder::new("target").add(&mut col);
+        col.set_deck(&[card_id], target.id)?;
+
+        let card = col.storage.get_card(card_id)?.unwrap();
+        assert!(card.memory_state.is_some());
+        assert!(card.desired_retention.is_some());
+        assert!(card.decay.is_some());
+
+        // The original bug (#5327): moving a card that already has a memory
+        // state must recompute it, not leave it cleared.
+        let target2 = DeckAdder::new("target2").add(&mut col);
+        col.set_deck(&[card_id], target2.id)?;
+
+        assert!(col
+            .storage
+            .get_card(card_id)?
+            .unwrap()
+            .memory_state
+            .is_some());
+        Ok(())
+    }
+
+    // Moving cards that are already in the target deck is a no-op and must not
+    // trigger a recompute of other memory-state-less cards in that deck.
+    #[test]
+    fn set_deck_noop_does_not_recompute() -> Result<()> {
+        let mut col = Collection::new();
+        let nt = col.get_notetype_by_name("Basic")?.unwrap();
+        let mut note = nt.new_note();
+        col.add_note(&mut note, DeckId(1))?;
+        col.answer_easy(); // review card, still without a memory state
+        col.set_config_bool(BoolKey::Fsrs, true, false)?;
+
+        let card_id = col.get_first_card().id;
+        // "Move" to the deck it is already in (DeckId(1)) -> count == 0
+        col.set_deck(&[card_id], DeckId(1))?;
+
+        assert!(col
+            .storage
+            .get_card(card_id)?
+            .unwrap()
+            .memory_state
+            .is_none());
+        Ok(())
+    }
+
+    // The recompute must be scoped to the target deck: a memory-state-less card
+    // in a different deck must not be touched.
+    #[test]
+    fn set_deck_recompute_is_scoped_to_target() -> Result<()> {
+        let mut col = Collection::new();
+        let nt = col.get_notetype_by_name("Basic")?.unwrap();
+
+        // Card A and card B, both review cards in the default deck.
+        let mut a = nt.new_note();
+        col.add_note(&mut a, DeckId(1))?;
+        col.answer_easy();
+        let mut b = nt.new_note();
+        col.add_note(&mut b, DeckId(1))?;
+        col.answer_easy();
+
+        col.set_config_bool(BoolKey::Fsrs, true, false)?;
+        let cards = col.storage.get_all_cards();
+        let (a_id, b_id) = (cards[0].id, cards[1].id);
+
+        let target = DeckAdder::new("target").add(&mut col);
+        col.set_deck(&[a_id], target.id)?; // only A moves
+
+        assert!(col.storage.get_card(a_id)?.unwrap().memory_state.is_some());
+        // B stays in the default deck and must remain without a memory state.
+        assert!(col.storage.get_card(b_id)?.unwrap().memory_state.is_none());
+        Ok(())
+    }
+
+    // Moving a deck recomputes the memory state but must not reschedule the
+    // card (reschedule: false): due date and interval stay unchanged.
+    #[test]
+    fn set_deck_does_not_reschedule() -> Result<()> {
+        let mut col = Collection::new();
+        let nt = col.get_notetype_by_name("Basic")?.unwrap();
+        let mut note = nt.new_note();
+        col.add_note(&mut note, DeckId(1))?;
+        col.answer_easy();
+        col.set_config_bool(BoolKey::Fsrs, true, false)?;
+
+        let before = col.get_first_card();
+        let target = DeckAdder::new("target").add(&mut col);
+        col.set_deck(&[before.id], target.id)?;
+
+        let after = col.storage.get_card(before.id)?.unwrap();
+        assert_eq!(after.due, before.due);
+        assert_eq!(after.interval, before.interval);
+        // The memory state was still recomputed, though.
+        assert!(after.memory_state.is_some());
+        Ok(())
+    }
+
+    // The recompute must use the target preset's parameters, not the source's.
+    // Verified through the desired retention stored on the card.
+    #[test]
+    fn set_deck_uses_target_preset_desired_retention() -> Result<()> {
+        let mut col = Collection::new();
+        let nt = col.get_notetype_by_name("Basic")?.unwrap();
+        let mut note = nt.new_note();
+        col.add_note(&mut note, DeckId(1))?;
+        col.answer_easy();
+        col.set_config_bool(BoolKey::Fsrs, true, false)?;
+
+        let card_id = col.get_first_card().id;
+        // Target deck with a desired retention distinct from the default (0.9).
+        let target = DeckAdder::new("target")
+            .with_config(|c| c.inner.desired_retention = 0.95)
+            .add(&mut col);
+        col.set_deck(&[card_id], target.id)?;
+
+        let dr = col.storage.get_card(card_id)?.unwrap().desired_retention;
+        assert_eq!(dr, Some(0.95));
+        Ok(())
+    }
+
+    // With FSRS disabled, moving a card must not compute any memory state.
+    #[test]
+    fn set_deck_without_fsrs_does_not_compute() -> Result<()> {
+        let mut col = Collection::new();
+        let nt = col.get_notetype_by_name("Basic")?.unwrap();
+        let mut note = nt.new_note();
+        col.add_note(&mut note, DeckId(1))?;
+        col.answer_easy(); // review card, FSRS stays disabled
+
+        let card_id = col.get_first_card().id;
+        let target = DeckAdder::new("target").add(&mut col);
+        col.set_deck(&[card_id], target.id)?;
+
+        assert!(col
+            .storage
+            .get_card(card_id)?
+            .unwrap()
+            .memory_state
+            .is_none());
+        Ok(())
+    }
+
+    // New cards have no review history and must never be given a memory state.
+    #[test]
+    fn set_deck_leaves_new_cards_without_memory_state() -> Result<()> {
+        let mut col = Collection::new();
+        let nt = col.get_notetype_by_name("Basic")?.unwrap();
+        let mut note = nt.new_note();
+        col.add_note(&mut note, DeckId(1))?; // never answered -> still New
+        col.set_config_bool(BoolKey::Fsrs, true, false)?;
+
+        let card_id = col.get_first_card().id;
+        let target = DeckAdder::new("target").add(&mut col);
+        col.set_deck(&[card_id], target.id)?;
+
+        assert!(col
+            .storage
+            .get_card(card_id)?
+            .unwrap()
+            .memory_state
+            .is_none());
         Ok(())
     }
 }
