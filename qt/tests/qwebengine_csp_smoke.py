@@ -350,11 +350,16 @@ addElement('iframe', {{
 
 setTimeout(() => {{
     const img = document.getElementById('benign-svg-img');
+    let sameOrigin = false;
+    try {{
+        sameOrigin = !!document.getElementById('styled-svg-object').contentDocument;
+    }} catch (error) {{}}
     record({{
         type: 'done',
         results,
         imgComplete: img.complete,
         imgNaturalWidth: img.naturalWidth,
+        sameOrigin,
     }});
 }}, 1500);
 """
@@ -508,6 +513,13 @@ def _assert_expectations(snapshot: SmokeSnapshot, page: SmokePage) -> None:
         errors.append("different-origin frame request was not observed")
     if snapshot.remote_style_requested:
         errors.append("untrusted media loaded a stylesheet from a remote origin")
+    if latest_done and not latest_done.get("sameOrigin"):
+        # an opaque origin would put the document in its own process, where Chromium
+        # never delivers the hover-out, leaving :hover stuck on for embedded SVGs
+        errors.append(
+            "embedded media landed in an opaque origin"
+            " (sandbox is missing allow-same-origin)"
+        )
     if latest_done and not latest_done.get("imgComplete"):
         errors.append("SVG loaded via <img> did not complete")
     if latest_done and latest_done.get("imgNaturalWidth", 0) <= 0:

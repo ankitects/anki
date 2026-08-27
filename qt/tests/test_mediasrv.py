@@ -180,7 +180,9 @@ class TestMediaFileCSP:
             assert directives["child-src"] == "'none'"
             assert directives["base-uri"] == "'none'"
             assert directives["form-action"] == "'none'"
-            assert directives["sandbox"] == ""
+            # the document keeps its origin so that it stays in-process (see
+            # UNTRUSTED_MEDIA_CSP), but gains nothing else - notably not scripting
+            assert directives["sandbox"] == "allow-same-origin"
             assert "frame-ancestors" not in directives
 
     def test_untrusted_media_can_load_its_own_presentation(self) -> None:

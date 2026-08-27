@@ -86,14 +86,22 @@ UNTRUSTED_MEDIA_CSP = "; ".join(
         # media shown in an <img>, it has to fetch the presentation it ships with -
         # eg an SVG that pulls in a stylesheet sitting beside it in the media folder.
         # None of these can execute code, and 'self' keeps them within the media
-        # server, so a card still can't phone home. 'self' matches the media server
-        # even though the sandbox below puts the document in an opaque origin, as it
-        # is resolved against the URL the policy was delivered with.
+        # server, so a card still can't phone home.
         "style-src 'self' 'unsafe-inline'",
         "img-src 'self'",
         "font-src 'self'",
         "media-src 'self'",
-        "sandbox",
+        # allow-same-origin only keeps the document out of an opaque origin. With
+        # site isolation on, Chromium gives an opaque-origin document its own
+        # process and does not deliver the hover-out to it, leaving :hover stuck on
+        # for an embedded SVG once the mouse has passed over it. QtWebEngine
+        # disables site isolation by default, so this is latent for most users, but
+        # QTWEBENGINE_CHROMIUM_FLAGS is honoured: --site-per-process together with
+        # --enable-features=IsolateSandboxedIframes reproduces it on Qt 6.11 (the
+        # feature is inert on its own - site isolation is the gate). Scripting stays
+        # blocked both by the sandbox (no allow-scripts) and by script-src 'none',
+        # so media can't make use of the origin anyway.
+        "sandbox allow-same-origin",
     )
 )
 
