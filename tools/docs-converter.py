@@ -2,6 +2,7 @@
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 import argparse
 import json
+import re
 from collections.abc import Callable, Iterable
 from copy import deepcopy
 from dataclasses import dataclass
@@ -10,8 +11,26 @@ from typing import TypeVar
 
 T = TypeVar("T")
 
+TITLE_RE = re.compile(r"# (.*)(?:$|\{)", re.MULTILINE)
+TITLE_REPLACE_RE = re.compile(r"#(.*)$", re.MULTILINE)
+
 
 def format_page(html: str) -> str:
+    title = TITLE_RE.findall(html)
+    html = TITLE_REPLACE_RE.sub("", html, 1)
+    if title:
+        title = title[0]
+        html = (
+            f"""---
+title: "{title}"
+---\n"""
+            + html
+        )
+    else:
+        print(f"WARN: could not find title in {html[:5]}")
+
+    html = html.replace("<!--", "{/*").replace("-->", "*/}")
+
     return html
 
 
