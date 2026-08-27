@@ -40,8 +40,14 @@ pub(crate) fn order_and_limit_for_search(
             &temp_string
         }
         FilteredSearchOrder::RelativeOverdueness => {
-            temp_string =
-                format!("extract_fsrs_relative_retrievability(data, case when odue !=0 then odue else due end, ivl, {today}, {next_day_at}, {now}) asc");
+            temp_string = if fsrs {
+                format!("extract_fsrs_relative_retrievability(data, case when odue !=0 then odue else due end, ivl, {today}, {next_day_at}, {now}) asc")
+            } else {
+                format!(
+                    // - (elapsed days+0.001)/(scheduled interval)
+                    "-(1 + cast({today}-due+0.001 as real)/ivl) asc"
+                )
+            };
             &temp_string
         }
     };
