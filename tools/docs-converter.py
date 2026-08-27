@@ -11,8 +11,12 @@ from typing import TypeVar
 
 T = TypeVar("T")
 
-TITLE_RE = re.compile(r"# (.*)(?:$|\{)", re.MULTILINE)
+TITLE_RE = re.compile(r"# (.*?)(?:$|\{)", re.MULTILINE)
 TITLE_REPLACE_RE = re.compile(r"#(.*)$", re.MULTILINE)
+HEADING_ANCHOR_RE = re.compile(
+    r"^(?P<hashes>#{1,6})\s+(?P<title>.*?)\s*\{#(?P<anchor>[A-Za-z0-9][A-Za-z0-9_:\-.]*)\}\s*$",
+    re.MULTILINE,
+)
 
 
 def format_page(html: str) -> str:
@@ -29,6 +33,15 @@ title: "{title}"
     else:
         print(f"WARN: could not find title in {html[:5]}")
 
+    def replace_heading_anchor(match: re.Match[str]) -> str:
+        return (
+            f'<a id="{match.group("anchor")}"></a>\n'
+            f"{match.group('hashes')} {match.group('title').strip()}"
+        )
+
+    html = HEADING_ANCHOR_RE.sub(replace_heading_anchor, html)
+
+    html = html.replace("{", "\{").replace("}", "\}")
     html = html.replace("<!--", "{/*").replace("-->", "*/}")
 
     return html
