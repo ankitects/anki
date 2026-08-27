@@ -17,6 +17,9 @@ HEADING_ANCHOR_RE = re.compile(
     r"^(?P<hashes>#{1,6})\s+(?P<title>.*?)\s*\{#(?P<anchor>[A-Za-z0-9][A-Za-z0-9_:\-.]*)\}\s*$",
     re.MULTILINE,
 )
+QUICKLINK_RE = re.compile(
+    r"<(?P<link>(?:https?|ftp|mailto):[^>\s]+|[^<>\s]+@[^<>\s]+)>"
+)
 
 
 def format_page(html: str) -> str:
@@ -39,7 +42,14 @@ title: "{title}"
             f"{match.group('hashes')} {match.group('title').strip()}"
         )
 
+    def replace_quicklink(match: re.Match[str]) -> str:
+        link = match.group("link")
+        if "@" in link and not link.startswith("mailto:"):
+            return f"[{link}](mailto:{link})"
+        return f"[{link}]({link})"
+
     html = HEADING_ANCHOR_RE.sub(replace_heading_anchor, html)
+    html = QUICKLINK_RE.sub(replace_quicklink, html)
 
     html = html.replace("{", "\{").replace("}", "\}")
     html = html.replace("<!--", "{/*").replace("-->", "*/}")
