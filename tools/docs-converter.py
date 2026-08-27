@@ -3,6 +3,7 @@
 import argparse
 import json
 from collections.abc import Callable, Iterable
+from copy import deepcopy
 from dataclasses import dataclass
 from pathlib import Path
 from typing import TypeVar
@@ -53,7 +54,7 @@ def main():
 
     parser.parse_args()
 
-    language_code = "en"
+    language_code = "ar"
     if language_code == "en":
         language_code = ""
 
@@ -80,7 +81,8 @@ def main():
         lambda tab: tab["tab"] == "Manual",
         "Manual tab",
     )
-    default_language_pages = group_pages(manual_tab["groups"][0])
+    main_group = manual_tab["groups"][0]
+    default_language_pages = group_pages(main_group)
 
     source_contents = sorted(
         path.resolve()
@@ -88,7 +90,7 @@ def main():
         if path.is_file() and path.suffix in {".md", ".mdx"}
     )
 
-    paths = []
+    paths: list[Page] = []
     for path in source_contents:
         relative_src = path.relative_to(SRC_DOCS_DIR)
         root_dest = Path("manual") / relative_src.with_suffix("")
@@ -109,6 +111,34 @@ def main():
         output_path.parent.mkdir(parents=True, exist_ok=True)
         content = page.src.read_text(encoding="utf-8")
         output_path.write_text(format_page(content), encoding="utf-8")
+
+    new_language = deepcopy(default_language)
+    new_language["language"] = language_code
+    new_group = new_language["tabs"][0]["groups"][0]
+
+    def update_page_paths(group: dict | str):
+        if isinstance(group, str):
+            path = Path(group)
+            if any(path == page.root_dest for page in to_move):
+                return str(language_code / path)
+            else:
+                return None
+
+        pages = group["pages"]
+        group["pages"] = [update_page_paths(p) for p in pages]
+        group["pages"] = [p for p in group["pages"] if p is not None]
+        return group
+
+    update_page_paths(new_group)
+    site_structure["navigation"]["languages"] = [
+        lang
+        for lang in site_structure["navigation"]["languages"]
+        if lang["language"] != language_code
+    ]
+    new_language["tabs"][0]["groups"] = [new_group]
+    # Manual only
+    new_language["tabs"] = [new_language["tabs"][0]]
+    site_structure["navigation"]["languages"].append(new_language)
 
     with open(DOCS_FILEPATH, "w") as f:
         json.dump(site_structure, f, indent=4)
