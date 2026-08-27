@@ -82,6 +82,17 @@ UNTRUSTED_MEDIA_CSP = "; ".join(
         "child-src 'none'",
         "base-uri 'none'",
         "form-action 'none'",
+        # Media embedded with <object>/<iframe> is a document of its own, so unlike
+        # media shown in an <img>, it has to fetch the presentation it ships with -
+        # eg an SVG that pulls in a stylesheet sitting beside it in the media folder.
+        # None of these can execute code, and 'self' keeps them within the media
+        # server, so a card still can't phone home. 'self' matches the media server
+        # even though the sandbox below puts the document in an opaque origin, as it
+        # is resolved against the URL the policy was delivered with.
+        "style-src 'self' 'unsafe-inline'",
+        "img-src 'self'",
+        "font-src 'self'",
+        "media-src 'self'",
         "sandbox",
     )
 )
