@@ -1,0 +1,48 @@
+name: Build macOS Apple Silicon
+run-name: Build macOS Apple Silicon (${{ github.ref_name }})
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: build-macos-apple-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  RELEASE: 2
+  N2_OUTPUT_PROGRESS: "1"
+  N2_OUTPUT_SUCCESS: "1"
+
+jobs:
+  build:
+    name: Build DMG (Apple Silicon)
+    runs-on: macos-14
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 #v4
+
+      - name: Setup build environment
+        uses: ./.github/actions/setup-anki
+
+      - name: Build unsigned installer
+        run: ./tools/build-installer
+
+      - name: Upload installer
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a #v7.0.1
+        with:
+          name: anki-macos-apple
+          path: out/installer/dist/*.dmg
+          if-no-files-found: error
+          retention-days: 14
+
+      - name: Upload build logs
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a #v7.0.1
+        with:
+          name: anki-macos-apple-logs
+          path: out/installer/logs/
+          if-no-files-found: ignore
+          retention-days: 14
