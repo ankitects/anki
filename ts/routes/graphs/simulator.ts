@@ -376,22 +376,22 @@ function _renderSimulationChart<
         .selectAll("g")
         .data(Array.from(groups.keys()))
         .join("g")
-        .attr("transform", (d, i) => `translate(0,${i * 20})`)
         .attr("cursor", "pointer")
         .on("click", (event, d) => toggleGroup(event, d))
         .on("mousemove", legendMouseMove)
         .on("mouseout", hideTooltip);
 
-    legend.append("rect")
-        .attr("x", bounds.width - bounds.marginRight + 36)
-        .attr("width", 12)
-        .attr("height", 12)
-        .attr("fill", (d, i) => color[i % color.length]);
-
-    legend.append("text")
+    const legendText = legend.append("text")
         .attr("x", bounds.width - bounds.marginRight + 52)
-        .attr("y", 7)
-        .attr("dy", "0.3em")
+        .attr("y", 14)
+        .attr("dy", (d, i) => `${i * 1.2}em`);
+
+    legendText
+        .insert("tspan")
+        .attr("fill", (d, i) => color[i % color.length])
+        .text("■ ");
+
+    legendText.append("tspan")
         .attr("fill", "currentColor")
         .text(d => `#${d}`);
 
@@ -404,7 +404,7 @@ function _renderSimulationChart<
         path.classed("hidden", !hidden);
         path.style("display", () => hidden ? null : "none");
 
-        select(target).select("rect")
+        select(target)
             .style("opacity", hidden ? 1 : 0.5);
     };
 
