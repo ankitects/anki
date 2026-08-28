@@ -20,13 +20,19 @@ HEADING_ANCHOR_RE = re.compile(
 QUICKLINK_RE = re.compile(
     r"<(?P<link>(?:https?|ftp|mailto):[^> ]+|[^<> ]+@[^<> ]+)>", re.DOTALL
 )
+
+# HTML/MDX safety normalization helpers.
 HTML_TAG_RE = re.compile(r"(</?[A-Za-z][^>]*>)")
 HTML_UNQUOTED_ATTR_RE = re.compile(
     r'(?P<name>[A-Za-z_:][A-Za-z0-9_:.\-]*)=(?P<value>[^\s"\'=<>`]+?)(?=(?:\s|/?>))'
 )
 VOID_HTML_TAG_NAME_RE = re.compile(r"^<\s*/?\s*([A-Za-z][A-Za-z0-9:-]*)")
+
+# Markdown code regions where literal text should be preserved.
 MARKDOWN_FENCED_CODE_RE = re.compile(r"(```[\s\S]*?```)")
 MARKDOWN_INLINE_CODE_RE = re.compile(r"(`[^`\n]*`)")
+
+# Markdown link cleanup helpers.
 MARKDOWN_LINK_MD_RE = re.compile(
     r"(\[[^\]]+\]\()(?P<path>[^)\s]+?)\.md(?P<suffix>[#?][^)\s]+)?\)"
 )
@@ -85,6 +91,7 @@ title: "{title}"
         return f"[{link}]({link})"
 
     content = QUICKLINK_RE.sub(replace_quicklink, content)
+    # Convert intra-manual links like foo.md or foo.md#bar to extensionless links.
     content = MARKDOWN_LINK_MD_RE.sub(r"\1\g<path>\g<suffix>)", content)
     content = HEADING_ANCHOR_RE.sub(replace_heading_anchor, content)
 
@@ -96,6 +103,7 @@ title: "{title}"
     ]
 
     for pattern, replacement in DOCS_RELATIVE_LINK_REPLACEMENTS:
+        # Language pages receive a language prefix, e.g. /ar/manual/...
         if language_code:
             replacement = f"/{language_code}{replacement}"
         content = pattern.sub(replacement, content)
@@ -133,6 +141,7 @@ class Page:
 
 
 def escape_text_preserve_html(raw: str) -> str:
+    # In indented code blocks, always escape angle brackets as literal text.
     lines = raw.splitlines(keepends=True)
     in_fenced_code_block = False
     for idx, line in enumerate(lines):
@@ -146,9 +155,11 @@ def escape_text_preserve_html(raw: str) -> str:
 
     raw = "".join(lines)
 
+    # Split into HTML tags and non-tag text so they can be normalized separately.
     parts = HTML_TAG_RE.split(raw)
     for idx, part in enumerate(parts):
         if part.startswith("<") and part.endswith(">"):
+            # Normalize HTML attributes for MDX parser compatibility.
             tag = HTML_UNQUOTED_ATTR_RE.sub(r'\g<name>="\g<value>"', part)
             tag_name_match = VOID_HTML_TAG_NAME_RE.match(tag)
             if (
@@ -156,6 +167,7 @@ def escape_text_preserve_html(raw: str) -> str:
                 and tag.startswith("</")
                 and tag_name_match.group(1).lower() in VOID_HTML_ELEMENTS
             ):
+                # Drop invalid closing tags for void elements like </br>.
                 parts[idx] = ""
                 continue
             if (
@@ -164,10 +176,12 @@ def escape_text_preserve_html(raw: str) -> str:
                 and not tag.rstrip().endswith("/>")
                 and tag_name_match.group(1).lower() in VOID_HTML_ELEMENTS
             ):
+                # Ensure void elements are self-closing, e.g. <br />.
                 tag = tag[:-1].rstrip() + " />"
             parts[idx] = tag
             continue
 
+        # Escape only outside Markdown code spans/fences.
         fenced_parts = MARKDOWN_FENCED_CODE_RE.split(part)
         for f_idx, fenced_part in enumerate(fenced_parts):
             if MARKDOWN_FENCED_CODE_RE.fullmatch(fenced_part):
