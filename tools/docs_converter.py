@@ -182,6 +182,16 @@ ORDERED_TABS = [
     "Releases",
 ]
 
+FOLDER_TO_TAB_TITLE = {
+    "manual": "Manual",
+    "ankimobile": "AnkiMobile",
+    "faqs": "FAQs",
+    "addons": "Add-ons",
+    "developers": "Developers",
+    "translators": "Translators",
+    "releases": "Releases",
+}
+
 
 def escape_text_preserve_html(raw: str) -> str:
     # In indented code blocks, always escape angle brackets as literal text.
@@ -265,7 +275,7 @@ def main():
     parser.add_argument(
         "tab",
         default="Manual",
-        choices=ORDERED_TABS,
+        choices=FOLDER_TO_TAB_TITLE.keys(),
         help="Navigation tab to import to. Case sensitive.",
     )
     parser.add_argument(
@@ -286,16 +296,17 @@ def main():
     src_docs_dir = Path(args.source_docs_dir).resolve()
     if src_docs_dir.name != "src":
         src_docs_dir /= "src"
-    tab_name = args.tab
+    tab_folder = args.tab
+    tab_name = FOLDER_TO_TAB_TITLE[tab_folder]
 
     language_code_path_str = "" if language_code == "en" else language_code
     language_code_path = Path(language_code_path_str)
 
     docs_filepath = docs_site_dir / "docs.json"
     language_dir = docs_site_dir / language_code_path
-    manual_dest_dir = language_dir / tab_name.lower()
+    tab_dest_dir = language_dir / tab_folder
 
-    print(str(manual_dest_dir))
+    print(str(tab_dest_dir))
 
     with open(docs_filepath) as f:
         site_structure = json.load(f)
@@ -324,7 +335,7 @@ def main():
     paths: list[Page] = []
     for path in source_contents:
         relative_src = path.relative_to(src_docs_dir)
-        root_dest = Path(tab_name.lower()) / relative_src.with_suffix("")
+        root_dest = Path(tab_folder) / relative_src.with_suffix("")
         dest = language_code_path / root_dest if language_code_path else root_dest
         paths.append(Page(src=path, root_dest=root_dest, dest=dest))
 
@@ -397,7 +408,7 @@ def main():
         json.dump(site_structure, f, indent=2)
 
     print("")
-    print(f"Imported {len(to_move)} pages to {language_code_path_str}/{tab_name}.")
+    print(f"Imported {len(to_move)} pages to {language_code_path_str}/{tab_folder}.")
     print(
         "Please run ./check to format the newly imported pages before submitting any changes"
     )
