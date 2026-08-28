@@ -7,7 +7,7 @@ import pytest
 from mock import MagicMock
 
 from anki.collection import Collection
-from anki.notes import Note, NoteId
+from anki.notes import Note, NoteFieldsCheckResult, NoteId
 from tests.shared import getEmptyCol
 
 
@@ -145,3 +145,7 @@ def test_str_tags(basic_note):
     basic_note.tags = []
     basic_note.set_tags_from_str(tags_str)
     assert basic_note.tags == tags
+
+
+def test_fields_check_normal(basic_note):
+    assert basic_note.fields_check() == NoteFieldsCheckResult.NORMAL
