@@ -1,6 +1,7 @@
 # Copyright: Ankitects Pty Ltd and contributors
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 import argparse
+import html as html_lib
 import json
 import re
 from collections.abc import Callable, Iterable
@@ -8,6 +9,8 @@ from copy import deepcopy
 from dataclasses import dataclass
 from pathlib import Path
 from typing import TypeVar
+
+from bs4 import BeautifulSoup, NavigableString
 
 T = TypeVar("T")
 
@@ -18,23 +21,23 @@ HEADING_ANCHOR_RE = re.compile(
     re.MULTILINE,
 )
 QUICKLINK_RE = re.compile(
-    r"<(?P<link>(?:https?|ftp|mailto):[^>\s]+|[^<>\s]+@[^<>\s]+)>"
+    r"<(?P<link>(?:https?|ftp|mailto):[^> ]+|[^<> ]+@[^<> ]+)>", re.DOTALL
 )
 
 
-def format_page(html: str) -> str:
-    title = TITLE_RE.findall(html)
-    html = TITLE_REPLACE_RE.sub("", html, 1)
+def format_page(content: str) -> str:
+    title = TITLE_RE.findall(content)
+    content = TITLE_REPLACE_RE.sub("", content, 1)
     if title:
         title = title[0]
-        html = (
+        content = (
             f"""---
 title: "{title}"
 ---\n"""
-            + html
+            + content
         )
     else:
-        print(f"WARN: could not find title in {html[:5]}")
+        print(f"WARN: could not find title in {content[:5]}")
 
     def replace_heading_anchor(match: re.Match[str]) -> str:
         return (
@@ -48,13 +51,15 @@ title: "{title}"
             return f"[{link}](mailto:{link})"
         return f"[{link}]({link})"
 
-    html = HEADING_ANCHOR_RE.sub(replace_heading_anchor, html)
-    html = QUICKLINK_RE.sub(replace_quicklink, html)
+    content = QUICKLINK_RE.sub(replace_quicklink, content)
+    content = HEADING_ANCHOR_RE.sub(replace_heading_anchor, content)
 
-    html = html.replace("{", "\{").replace("}", "\}")
-    html = html.replace("<!--", "{/*").replace("-->", "*/}")
+    content = content.replace("{", "\{").replace("}", "\}")
+    content = content.replace("<!--", "{/*").replace("-->", "*/}")
+    # Escape plain text nodes for MDX while preserving actual HTML tags.
+    content = escape_text_preserve_html(content)
 
-    return html
+    return content
 
 
 def group_pages(group: dict | str) -> list[str]:
@@ -79,6 +84,19 @@ class Page:
     src: Path
     root_dest: Path
     dest: Path
+
+
+def escape_text_preserve_html(raw: str) -> str:
+    soup = BeautifulSoup(raw, "html.parser")
+
+    for node in soup.find_all(string=True):
+        # Skip script/style content if you want
+        if node.parent and node.parent.name in {"script", "style"}:
+            continue
+        escaped = html_lib.escape(str(node), quote=False)  # < and > only
+        node.replace_with(NavigableString(escaped))
+
+    return str(soup)
 
 
 def main():
