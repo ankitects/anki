@@ -42,7 +42,7 @@ class FilteredDeckConfigDialog(QDialog):
             FilteredDeckConfig.SearchTerm.Order.RETRIEVABILITY_DESCENDING,
         )
     )
-    DEFAULT_ORDER = 1  # Random
+    DEFAULT_ORDER = FilteredDeckConfig.SearchTerm.Order.RANDOM
 
     def __init__(
         self,
