@@ -185,14 +185,6 @@ def escape_text_preserve_html(raw: str) -> str:
         if line.startswith("    ") or line.startswith("\t"):
             line = line.replace("<", "&lt;").replace(">", "&gt;")
         # Sanitize braces and HTML comments for MDX compatibility.
-        line = line.replace("{", "\\{").replace("}", "\\}")
-        line = line.replace("<!--", "{/*").replace("-->", "*/}")
-        line = (
-            line.replace("$$", "LATEX")
-            .replace("$", "\\$")
-            .replace("\\\\$", "\\$")
-            .replace("LATEX", "$$")
-        )
         lines[idx] = line
 
     raw = "".join(lines)
@@ -233,9 +225,18 @@ def escape_text_preserve_html(raw: str) -> str:
             for i_idx, inline_part in enumerate(inline_parts):
                 if MARKDOWN_INLINE_CODE_RE.fullmatch(inline_part):
                     continue
-                inline_parts[i_idx] = inline_part.replace("<", "&lt;").replace(
-                    ">", "&gt;"
+
+                # This code deals with the parts that aren't inline
+                inline_part = inline_part.replace("<", "&lt;").replace(">", "&gt;")
+                inline_part = inline_part.replace("{", "\\{").replace("}", "\\}")
+                inline_part = inline_part.replace("<!--", "{/*").replace("-->", "*/}")
+                inline_part = (
+                    inline_part.replace("$$", "LATEX")
+                    .replace("$", "\\$")
+                    .replace("\\\\$", "\\$")
+                    .replace("LATEX", "$$")
                 )
+                inline_parts[i_idx] = inline_part
 
             fenced_parts[f_idx] = "".join(inline_parts)
 
