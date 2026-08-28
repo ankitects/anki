@@ -96,7 +96,7 @@ def format_page(content: str, language_code: str = "") -> str:
     title = TITLE_RE.findall(content)
     content = TITLE_REPLACE_RE.sub("", content, 1)
     if title:
-        title = title[0]
+        title = title[0].replace('"', '\\"').strip()
         content = (
             f"""---
 title: "{title}"
