@@ -24,6 +24,7 @@ HTML_TAG_RE = re.compile(r"(</?[A-Za-z][^>]*>)")
 HTML_UNQUOTED_ATTR_RE = re.compile(
     r'(?P<name>[A-Za-z_:][A-Za-z0-9_:.\-]*)=(?P<value>[^\s"\'=<>`]+?)(?=(?:\s|/?>))'
 )
+VOID_HTML_TAG_NAME_RE = re.compile(r"^<\s*/?\s*([A-Za-z][A-Za-z0-9:-]*)")
 MARKDOWN_FENCED_CODE_RE = re.compile(r"(```[\s\S]*?```)")
 MARKDOWN_INLINE_CODE_RE = re.compile(r"(`[^`\n]*`)")
 MARKDOWN_LINK_MD_RE = re.compile(
@@ -33,6 +34,22 @@ MARKDOWN_LINK_MD_RE = re.compile(
 # Mirrors the replacement rules listed in docs-relative-links branch commits.
 HTML_PATH_AND_SUFFIX_RE = r"(?P<path>.+?)\.html(?P<suffix>[#?][^)\s]+)?"
 PATH_AND_SUFFIX_REPLACEMENT = r"\g<path>\g<suffix>"
+VOID_HTML_ELEMENTS = {
+    "area",
+    "base",
+    "br",
+    "col",
+    "embed",
+    "hr",
+    "img",
+    "input",
+    "link",
+    "meta",
+    "param",
+    "source",
+    "track",
+    "wbr",
+}
 
 
 def relative_link_rule(domain: str, prefix: str) -> tuple[re.Pattern[str], str]:
@@ -132,7 +149,23 @@ def escape_text_preserve_html(raw: str) -> str:
     parts = HTML_TAG_RE.split(raw)
     for idx, part in enumerate(parts):
         if part.startswith("<") and part.endswith(">"):
-            parts[idx] = HTML_UNQUOTED_ATTR_RE.sub(r'\g<name>="\g<value>"', part)
+            tag = HTML_UNQUOTED_ATTR_RE.sub(r'\g<name>="\g<value>"', part)
+            tag_name_match = VOID_HTML_TAG_NAME_RE.match(tag)
+            if (
+                tag_name_match
+                and tag.startswith("</")
+                and tag_name_match.group(1).lower() in VOID_HTML_ELEMENTS
+            ):
+                parts[idx] = ""
+                continue
+            if (
+                tag_name_match
+                and not tag.startswith("</")
+                and not tag.rstrip().endswith("/>")
+                and tag_name_match.group(1).lower() in VOID_HTML_ELEMENTS
+            ):
+                tag = tag[:-1].rstrip() + " />"
+            parts[idx] = tag
             continue
 
         fenced_parts = MARKDOWN_FENCED_CODE_RE.split(part)
