@@ -73,7 +73,7 @@ def test_bulk_add(col):
         assert note.tags == ["a", "b"]
 
 
-def test_bulk_remove(col, basic_note):
+def test_bulk_remove(col):
     model = col.models.by_name("Basic")
     notes: list[Note] = []
     for _ in range(10):
