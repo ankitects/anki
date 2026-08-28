@@ -288,7 +288,8 @@ def main():
         src_docs_dir /= "src"
     tab_name = args.tab
 
-    language_code_path = Path("" if language_code == "en" else language_code)
+    language_code_path_str = "" if language_code == "en" else language_code
+    language_code_path = Path(language_code_path_str)
 
     docs_filepath = docs_site_dir / "docs.json"
     language_dir = docs_site_dir / language_code_path
@@ -342,7 +343,7 @@ def main():
         output_path.parent.mkdir(parents=True, exist_ok=True)
         content = page.src.read_text(encoding="utf-8")
         output_path.write_text(
-            format_page(content, str(language_code_path)), encoding="utf-8"
+            format_page(content, language_code_path_str), encoding="utf-8"
         )
 
     new_tab = deepcopy(default_tab)
@@ -396,7 +397,7 @@ def main():
         json.dump(site_structure, f, indent=2)
 
     print("")
-    print(f"Imported {len(to_move)} pages to {language_code}/{tab_name}.")
+    print(f"Imported {len(to_move)} pages to {language_code_path_str}/{tab_name}.")
     print(
         "Please run ./check to format the newly imported pages before submitting any changes"
     )
