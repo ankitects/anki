@@ -172,6 +172,17 @@ class Page:
     dest: Path
 
 
+ORDERED_TABS = [
+    "Manual",
+    "AnkiMobile",
+    "FAQs",
+    "Add-ons",
+    "Developers",
+    "Translators",
+    "Releases",
+]
+
+
 def escape_text_preserve_html(raw: str) -> str:
     # In indented code blocks, always escape angle brackets as literal text.
     lines = raw.splitlines(keepends=True)
@@ -254,15 +265,7 @@ def main():
     parser.add_argument(
         "tab",
         default="Manual",
-        choices=[
-            "Manual",
-            "AnkiMobile",
-            "FAQs",
-            "Add-ons",
-            "Developers",
-            "Translators",
-            "Releases",
-        ],
+        choices=ORDERED_TABS,
         help="Navigation tab to import to.",
     )
     parser.add_argument(
@@ -379,6 +382,15 @@ def main():
         tab for tab in target_language["tabs"] if tab.get("tab", None) != tab_name
     ]
     target_language["tabs"].append(new_tab)
+
+    # Sort the tabs according to ORDERED_TABS
+    target_language["tabs"].sort(
+        key=lambda tab: (
+            ORDERED_TABS.index(tab["tab"])
+            if tab["tab"] in ORDERED_TABS
+            else len(ORDERED_TABS)
+        )
+    )
 
     with open(docs_filepath, "w") as f:
         json.dump(site_structure, f, indent=4)
