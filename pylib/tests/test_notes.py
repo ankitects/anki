@@ -62,8 +62,7 @@ def test_ephemeral_card_default(col, from_card_layout):
     assert kwargs["template"] == model["tmpls"][0]
 
 
-def test_ephemeral_card_custom_ordinal(from_card_layout):
-    col = getEmptyCol()
+def test_ephemeral_card_custom_ordinal(col, from_card_layout):
     model = col.models.by_name("Basic (and reversed card)")
     note = col.new_note(model)
     note.ephemeral_card(ord=1)
@@ -72,8 +71,7 @@ def test_ephemeral_card_custom_ordinal(from_card_layout):
     assert kwargs["template"] == model["tmpls"][1]
 
 
-def test_ephemeral_card_cloze(from_card_layout):
-    col = getEmptyCol()
+def test_ephemeral_card_cloze(col, from_card_layout):
     model = col.models.by_name("Cloze")
     note = col.new_note(model)
     ordinal = 1
@@ -84,8 +82,7 @@ def test_ephemeral_card_cloze(from_card_layout):
     assert kwargs["template"] == {**model["tmpls"][0], "ord": ordinal}
 
 
-def test_ephemeral_card_custom_model_and_template(from_card_layout):
-    col = getEmptyCol()
+def test_ephemeral_card_custom_model_and_template(col, from_card_layout):
     note = col.new_note(col.models.current())
     custom_model = col.models.by_name("Basic (and reversed card)")
     custom_template = copy.copy(custom_model["tmpls"][0])
@@ -96,8 +93,7 @@ def test_ephemeral_card_custom_model_and_template(from_card_layout):
     assert kwargs["template"] == custom_template
 
 
-def test_cloze_numbers_in_fields():
-    col = getEmptyCol()
+def test_cloze_numbers_in_fields(col):
     model = col.models.by_name("Cloze")
     note = col.new_note(model)
     note["Text"] = "{{c3::single}} {{c1,2::multi}}"
