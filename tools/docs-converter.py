@@ -24,8 +24,18 @@ QUICKLINK_RE = re.compile(
     r"<(?P<link>(?:https?|ftp|mailto):[^> ]+|[^<> ]+@[^<> ]+)>", re.DOTALL
 )
 
+# Mirrors the replacement rules listed in docs-relative-links branch commits.
+HTML_PATH_AND_SUFFIX_RE = r"(?P<path>.+?)\.html(?P<suffix>[#?][^)\s]+)?"
+PATH_AND_SUFFIX_REPLACEMENT = r"\g<path>\g<suffix>"
 
-def format_page(content: str) -> str:
+
+def relative_link_rule(domain: str, prefix: str) -> tuple[re.Pattern[str], str]:
+    pattern = re.compile(rf"https://{re.escape(domain)}/{HTML_PATH_AND_SUFFIX_RE}")
+    replacement = f"/{prefix}/{PATH_AND_SUFFIX_REPLACEMENT}"
+    return (pattern, replacement)
+
+
+def format_page(content: str, language_code: str = "") -> str:
     title = TITLE_RE.findall(content)
     content = TITLE_REPLACE_RE.sub("", content, 1)
     if title:
@@ -53,6 +63,18 @@ title: "{title}"
 
     content = QUICKLINK_RE.sub(replace_quicklink, content)
     content = HEADING_ANCHOR_RE.sub(replace_heading_anchor, content)
+
+    DOCS_RELATIVE_LINK_REPLACEMENTS = [
+        relative_link_rule("docs.ankiweb.net", "manual"),
+        relative_link_rule("addon-docs.ankiweb.net", "addons"),
+        relative_link_rule("faqs.ankiweb.net", "faqs"),
+        relative_link_rule("docs.ankimobile.net", "ankimobile"),
+    ]
+
+    for pattern, replacement in DOCS_RELATIVE_LINK_REPLACEMENTS:
+        if language_code:
+            replacement = f"/{language_code}{replacement}"
+        content = pattern.sub(replacement, content)
 
     content = content.replace("{", "\{").replace("}", "\}")
     content = content.replace("<!--", "{/*").replace("-->", "*/}")
@@ -114,7 +136,7 @@ def main():
 
     parser.parse_args()
 
-    language_code = "ar"
+    language_code = "en"
     if language_code == "en":
         language_code = ""
 
@@ -170,7 +192,7 @@ def main():
         output_path = DOCS_SITE_DIR / page.dest.with_suffix(".mdx")
         output_path.parent.mkdir(parents=True, exist_ok=True)
         content = page.src.read_text(encoding="utf-8")
-        output_path.write_text(format_page(content), encoding="utf-8")
+        output_path.write_text(format_page(content, language_code), encoding="utf-8")
 
     new_language = deepcopy(default_language)
     new_language["language"] = language_code
