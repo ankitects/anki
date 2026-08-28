@@ -3,12 +3,9 @@ Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
-    import { direction } from "@tslib/i18n";
-
-    export let dir = direction();
 </script>
 
-<div {dir}>
+<div>
     <slot />
 </div>
 

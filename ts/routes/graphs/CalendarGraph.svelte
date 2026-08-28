@@ -66,7 +66,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 </script>
 
 <Graph {title}>
-    <InputBox dir="ltr">
+    <InputBox>
         <span>
             <button on:click={() => targetYear--} disabled={minYear >= targetYear}>
                 ◄

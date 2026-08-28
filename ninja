@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/bin/bash
 
 set -e
 
@@ -8,17 +8,11 @@ else
     out="$BUILD_ROOT"
 fi
 export CARGO_TARGET_DIR=$out/rust
-export RECONFIGURE_KEY="${MAC_X86};${LIN_ARM64};${SOURCEMAP};${HMR};${CI}"
-
-if [ "$CI" = "true" ] && [ -z "$RELEASE" ]; then
-    runner_profile=ci
-else
-    runner_profile=release
-fi
+export RECONFIGURE_KEY="${MAC_X86};${LIN_ARM64};${SOURCEMAP};${HMR}"
 
 if [ "$SKIP_RUNNER_BUILD" = "1" ]; then
     echo "Runner not rebuilt."
 else
-    cargo build -p runner --profile $runner_profile
+    cargo build -p runner --release
 fi
-exec $out/rust/$runner_profile/runner build -- $*
+exec $out/rust/release/runner build -- $*

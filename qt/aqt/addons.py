@@ -674,11 +674,11 @@ class AddonManager:
         return markdown.markdown(contents, extensions=[md_in_html.makeExtension()])
 
     def addonFromModule(self, module: str) -> str:  # softly deprecated
-        return module.split(".", maxsplit=1)[0]
+        return module.split(".")[0]
 
     @staticmethod
     def addon_from_module(module: str) -> str:
-        return module.split(".", maxsplit=1)[0]
+        return module.split(".")[0]
 
     def configAction(self, module: str) -> Callable[[], bool | None]:
         return self._configButtonActions.get(module)
@@ -1083,7 +1083,7 @@ class GetAddons(QDialog):
         saveGeom(self, "getaddons")
 
     def onBrowse(self) -> None:
-        openLink(f"{aqt.appShared}addons")
+        openLink(f"{aqt.appShared}addons/2.1")
 
     def accept(self) -> None:
         # get codes
@@ -1118,10 +1118,7 @@ def download_addon(client: HttpClient, id: int) -> DownloadOk | DownloadError:
         match = re.match(
             "attachment; filename=(.+)", resp.headers["content-disposition"]
         )
-        if match is None:
-            raise ValueError(
-                f"Unexpected content-disposition header: {resp.headers.get('content-disposition')}"
-            )
+        assert match is not None
         fname = match.group(1)
 
         meta = extract_meta_from_download_url(resp.url)

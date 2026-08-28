@@ -788,7 +788,7 @@ class CardLayout(QDialog):
         assert a is not None
         qconnect(
             a.triggered,
-            lambda: self.on_restore_to_default(),  # noqa: PLW0108
+            lambda: self.on_restore_to_default(),
         )
 
         if not self._isCloze():

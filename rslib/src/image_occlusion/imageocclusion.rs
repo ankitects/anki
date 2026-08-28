@@ -120,8 +120,10 @@ pub fn get_image_cloze_data(text: &str) -> String {
                         result.push_str(&format!("data-scale=\"{}\" ", property.value));
                     }
                 }
-                "fs" if !property.value.is_empty() => {
-                    result.push_str(&format!("data-font-size=\"{}\" ", property.value));
+                "fs" => {
+                    if !property.value.is_empty() {
+                        result.push_str(&format!("data-font-size=\"{}\" ", property.value));
+                    }
                 }
                 _ => {}
             }

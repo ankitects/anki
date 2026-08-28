@@ -14,7 +14,7 @@ use crate::scheduler::timing::is_unix_epoch_timestamp;
 
 impl Collection {
     pub fn card_stats(&mut self, cid: CardId) -> Result<anki_proto::stats::CardStatsResponse> {
-        let mut card = self.storage.get_card(cid)?.or_not_found(cid)?;
+        let card = self.storage.get_card(cid)?.or_not_found(cid)?;
         let note = self
             .storage
             .get_note(card.note_id)?
@@ -67,11 +67,6 @@ impl Collection {
         let preset = self
             .get_deck_config(config_id, true)?
             .or_not_found(config_id.to_string())?;
-
-        if card.ctype != CardType::New && card.memory_state.is_none() {
-            self.compute_and_update_memory_state(&mut card)?;
-        }
-
         Ok(anki_proto::stats::CardStatsResponse {
             card_id: card.id.into(),
             note_id: card.note_id.into(),
@@ -237,44 +232,17 @@ mod test {
     use super::*;
     use crate::search::SortMode;
 
-    fn test_collection() -> Result<(Collection, CardId)> {
+    #[test]
+    fn stats() -> Result<()> {
         let mut col = Collection::new();
+
         let nt = col.get_notetype_by_name("Basic")?.unwrap();
         let mut note = nt.new_note();
         col.add_note(&mut note, DeckId(1))?;
+
         let cid = col.search_cards("", SortMode::NoOrder)?[0];
-        Ok((col, cid))
-    }
-
-    #[test]
-    fn stats() -> Result<()> {
-        let (mut col, cid) = test_collection()?;
         let _report = col.card_stats(cid)?;
-
-        Ok(())
-    }
-
-    #[test]
-    fn stats_calculate_memory_state_if_not_present() -> Result<()> {
-        let (mut col, cid) = test_collection()?;
-
-        col.set_config_bool(BoolKey::Fsrs, true, true)?;
-        // review the card as easy
-        col.grade_now(&[cid], 3)?;
-        let mut card = col.storage.get_card(cid)?.unwrap();
-        assert!(card.memory_state.is_some());
-
-        card.memory_state = None;
-        col.storage.update_card(&card)?;
-
-        let card = col.storage.get_card(cid)?.unwrap();
-        assert!(card.memory_state.is_none());
-
-        let report = col.card_stats(cid)?;
-        let card = col.storage.get_card(cid)?.unwrap();
-
-        assert!(report.memory_state.is_some());
-        assert!(card.memory_state.is_some());
+        //println!("report {}", report);
 
         Ok(())
     }

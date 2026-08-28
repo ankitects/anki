@@ -497,9 +497,10 @@ impl SqliteStorage {
         }
 
         if check_integrity {
-            let s =
-                db.pragma_query_value(None, "integrity_check", |row| row.get::<_, String>(0))?;
-            require!(s == "ok", "corrupt: {s}");
+            match db.pragma_query_value(None, "integrity_check", |row| row.get::<_, String>(0)) {
+                Ok(s) => require!(s == "ok", "corrupt: {s}"),
+                Err(e) => return Err(e.into()),
+            };
         }
 
         let upgrade = ver != SCHEMA_MAX_VERSION;

@@ -95,7 +95,6 @@
     <addaction name="actionNoteTypes"/>
     <addaction name="action_check_for_updates"/>
     <addaction name="actionPreferences"/>
-    <addaction name="separator"/>
    </widget>
    <widget class="QMenu" name="menuqt_accel_view">
     <property name="title">

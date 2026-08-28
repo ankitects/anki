@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/bin/bash
 
 set -e
 
@@ -11,7 +11,7 @@ case "$target" in
         source="pylib/anki"
         outdir="out/coverage/python-pylib"
         tests="pylib/tests"
-        threshold=63
+        threshold=65
         ;;
     qt)
         pythonpath="pylib:out/pylib:out/qt:qt/tools"
@@ -32,8 +32,6 @@ PYTHONPATH="$pythonpath" ANKI_TEST_MODE=1 out/pyenv/bin/python -m coverage run \
     -m pytest -p no:cacheprovider "$tests"
 out/pyenv/bin/python -m coverage json \
     --data-file="$outdir/.coverage" -o "$outdir/coverage-summary.json"
-out/pyenv/bin/python -m coverage xml \
-    --data-file="$outdir/.coverage" -o "$outdir/coverage.xml"
 out/pyenv/bin/python -m coverage report \
     --data-file="$outdir/.coverage" --fail-under="$threshold"
 

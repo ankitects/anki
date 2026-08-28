@@ -72,7 +72,6 @@ fn profile_output_dir(profile: BuildProfile) -> &'static str {
         BuildProfile::Debug => "debug",
         BuildProfile::Release => "release",
         BuildProfile::ReleaseWithLto => "release-lto",
-        BuildProfile::Ci => "ci",
     }
 }
 
@@ -94,7 +93,7 @@ impl BuildAction for CargoBuild<'_> {
         let release_build = self
             .release_override
             .unwrap_or_else(|| build.build_profile());
-        let release_arg = release_build.as_cargo_arg();
+        let release_arg = profile_arg_for_cargo(release_build).unwrap_or_default();
         let target_arg = if let Some(target) = self.target {
             format!("--target {target}")
         } else {
@@ -127,6 +126,14 @@ impl BuildAction for CargoBuild<'_> {
     }
 }
 
+fn profile_arg_for_cargo(profile: BuildProfile) -> Option<&'static str> {
+    match profile {
+        BuildProfile::Debug => None,
+        BuildProfile::Release => Some("--release"),
+        BuildProfile::ReleaseWithLto => Some("--profile release-lto"),
+    }
+}
+
 fn setup_flags(build: &mut Build) -> Result<()> {
     build.once_only("cargo_flags_and_pool", |build| {
         build.variable("cargo_flags", "--locked");
@@ -144,11 +151,10 @@ pub struct CargoTest {
 
 impl BuildAction for CargoTest {
     fn command(&self) -> &str {
-        "cargo nextest run --color=always --failure-output=final --status-level=none $profile_arg $cargo_flags"
+        "cargo nextest run --color=always --failure-output=final --status-level=none $cargo_flags"
     }
 
     fn files(&mut self, build: &mut impl FilesHandle) {
-        build.add_variable("profile_arg", build.build_profile().as_nextest_arg());
         build.add_inputs("", &self.inputs);
         if !running_on_ci() {
             build.add_inputs("", inputs![":cargo-nextest"]);
@@ -180,12 +186,10 @@ pub struct CargoClippy {
 
 impl BuildAction for CargoClippy {
     fn command(&self) -> &str {
-        "cargo clippy $release_arg $cargo_flags --tests -- -Dclippy::dbg_macro -Dwarnings"
+        "cargo clippy $cargo_flags --tests -- -Dclippy::dbg_macro -Dwarnings"
     }
 
     fn files(&mut self, build: &mut impl FilesHandle) {
-        let release_arg = build.build_profile().as_cargo_arg();
-        build.add_variable("release_arg", release_arg);
         build.add_inputs(
             "",
             inputs![&self.inputs, "Cargo.lock", "rust-toolchain.toml"],

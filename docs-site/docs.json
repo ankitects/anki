@@ -338,25 +338,23 @@
                     {
                         "group": "Core Development",
                         "pages": [
-                            "developers/development",
+                          "developers/development",
                             "developers/api-python",
                             "developers/api-rust",
                             "developers/architecture",
                             "developers/build",
                             "developers/contributing",
-                            "developers/dependabot",
                             "developers/docker",
                             "developers/editing",
                             "developers/language_bridge",
                             "developers/linux",
                             "developers/mac",
-                            "developers/windows",
                             "developers/ninja",
                             "developers/protobuf",
                             "developers/releasing",
                             "developers/syncserver",
                             "developers/testing-coverage",
-                            "developers/e2e-testing"
+                            "developers/windows"
                         ]
                     }
                 ]

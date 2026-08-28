@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/bin/bash
 # - sync ftl
 # - ./copy-core-string.sh scheduling-review browsing-sidebar-card-state-review
 # - confirm changes in core-repo/ correct

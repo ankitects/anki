@@ -2,13 +2,11 @@
     "recommendations": [
         "dprint.dprint",
         "ms-python.python",
-        "ms-python.mypy-type-checker",
         "charliermarsh.ruff",
         "rust-lang.rust-analyzer",
         "svelte.svelte-vscode",
         "zxh404.vscode-proto3",
         "usernamehw.errorlens",
-        "eamodio.gitlens",
-        "unifiedjs.vscode-mdx"
+        "eamodio.gitlens"
     ]
 }

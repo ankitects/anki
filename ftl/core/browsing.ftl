@@ -39,22 +39,6 @@ browsing-current-note-type = Current note type:
 browsing-delete-notes = Delete Notes
 browsing-duplicate = duplicate
 browsing-ease = Ease
-# Button that clears the browse search
-browsing-empty-clear-search = Clear search
-# Title when the collection has no cards
-# $notes-mode is "yes" when browsing notes instead of cards
-browsing-empty-collection-title =
-    { $notes-mode ->
-        [yes] No notes yet
-       *[other] No cards yet
-    }
-# Title when a valid search matches nothing
-# $notes-mode is "yes" when browsing notes instead of cards
-browsing-empty-no-match-title =
-    { $notes-mode ->
-        [yes] No notes match this search
-       *[other] No cards match this search
-    }
 browsing-enter-tags-to-add = Enter tags to add:
 browsing-enter-tags-to-delete = Enter tags to delete:
 browsing-filtered = (filtered)
@@ -103,8 +87,6 @@ browsing-search-quick = Quick filters
 browsing-search-quick-flagged = Flagged
 browsing-search-quick-leeches = Leeches
 browsing-search-recent = Recent
-# Shown above browse results when the current search is invalid
-browsing-search-results-unchanged = Results unchanged until the search is valid
 browsing-search-suggestions = Suggestions
 browsing-search-syntax-mode = Syntax mode
 browsing-search-text-match = Search "{ $query }"

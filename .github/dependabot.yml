@@ -4,68 +4,53 @@ updates:
   - package-ecosystem: "cargo"
     directory: "/"
     schedule:
-      interval: "quarterly"
-    open-pull-requests-limit: 2
+      interval: "monthly"
+    open-pull-requests-limit: 3
     cooldown:
       default-days: 7
-      semver-major-days: 30
     groups:
       rust-minor-patch:
         applies-to: version-updates
         patterns: ["*"]
         update-types: ["minor", "patch"]
-      rust-major:
-        applies-to: version-updates
-        patterns: ["*"]
-        update-types: ["major"]
     commit-message:
       prefix: "chore(deps)"
 
   - package-ecosystem: "npm"
     directory: "/"
     schedule:
-      interval: "quarterly"
-    open-pull-requests-limit: 2
+      interval: "monthly"
+    open-pull-requests-limit: 3
     cooldown:
       default-days: 7
-      semver-major-days: 30
     groups:
-      npm-minor-patch:
+      js-minor-patch:
         applies-to: version-updates
         patterns: ["*"]
         update-types: ["minor", "patch"]
-      npm-major:
-        applies-to: version-updates
-        patterns: ["*"]
-        update-types: ["major"]
     commit-message:
       prefix: "chore(deps)"
 
   - package-ecosystem: "uv"
     directory: "/"
     schedule:
-      interval: "quarterly"
-    open-pull-requests-limit: 2
+      interval: "monthly"
+    open-pull-requests-limit: 3
     cooldown:
       default-days: 7
-      semver-major-days: 30
     groups:
       python-minor-patch:
         applies-to: version-updates
         patterns: ["*"]
         update-types: ["minor", "patch"]
-      python-major:
-        applies-to: version-updates
-        patterns: ["*"]
-        update-types: ["major"]
     commit-message:
       prefix: "chore(deps)"
 
   - package-ecosystem: "github-actions"
     directory: "/"
     schedule:
-      interval: "quarterly"
-    open-pull-requests-limit: 1
+      interval: "monthly"
+    open-pull-requests-limit: 3
     cooldown:
       default-days: 7
     groups:

@@ -196,9 +196,6 @@ impl SqlWriter<'_> {
             SearchNode::CustomData(key) => self.write_custom_data(key)?,
             SearchNode::WholeCollection => write!(self.sql, "true").unwrap(),
             SearchNode::Preset(name) => self.write_deck_preset(name)?,
-            SearchNode::HasMemoryState => {
-                write!(self.sql, "extract_fsrs_variable(c.data, 's') is not null").unwrap();
-            }
         };
         Ok(())
     }
@@ -1097,7 +1094,6 @@ impl SearchNode {
             SearchNode::Property { .. } => RequiredTable::Cards,
             SearchNode::CustomData { .. } => RequiredTable::Cards,
             SearchNode::Preset(_) => RequiredTable::Cards,
-            SearchNode::HasMemoryState => RequiredTable::Cards,
 
             SearchNode::UnqualifiedText(_) => RequiredTable::Notes,
             SearchNode::SingleField { .. } => RequiredTable::Notes,

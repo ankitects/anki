@@ -141,9 +141,6 @@ class CustomStyles:
         border: 1px solid {tm.var(colors.BORDER_SUBTLE)};
         padding: 4px;
     }}
-    QMenu::right-arrow {{
-        width: 13px;
-    }}
     QMenu::item {{
         background-color: transparent;
         padding: 3px 14px;

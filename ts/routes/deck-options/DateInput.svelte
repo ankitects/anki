@@ -8,7 +8,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import Row from "$lib/components/Row.svelte";
 
     export let date;
-    export let max = undefined;
     $: date = date ? date : "1970-01-01";
 </script>
 
@@ -19,7 +18,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                 <slot />
             </Col>
             <Col --col-size={6} breakpoint="xs">
-                <input bind:value={date} type="date" {max} />
+                <input bind:value={date} type="date" />
             </Col>
         </Row>
     </ConfigInput>

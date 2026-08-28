@@ -24,7 +24,6 @@ use crate::scheduler::fsrs::params::Params;
 use crate::scheduler::states::fuzz::minimum_review_fuzz_interval;
 use crate::scheduler::states::fuzz::with_review_fuzz;
 use crate::search::Negated;
-use crate::search::Node;
 use crate::search::SearchNode;
 use crate::search::StateKind;
 
@@ -58,7 +57,7 @@ pub(crate) struct UpdateMemoryStateRequest {
 
 pub(crate) struct UpdateMemoryStateEntry {
     pub req: Option<UpdateMemoryStateRequest>,
-    pub search: Node,
+    pub search: SearchNode,
     pub ignore_before: TimestampMillis,
 }
 
@@ -92,7 +91,8 @@ impl Collection {
             ignore_before,
         } in entries
         {
-            let search = SearchBuilder::all([search, SearchNode::State(StateKind::New).negated()]);
+            let search =
+                SearchBuilder::all([search.into(), SearchNode::State(StateKind::New).negated()]);
             let revlog = self.revlog_for_srs(search)?;
 
             let Some(req) = &req else {
@@ -390,18 +390,6 @@ impl Collection {
                 decay,
             })
         }
-    }
-
-    // Used for extra-ordinary circumstances where a memory state is needed but is
-    // not availiable, e.g. the card has been moved to a different deck.
-    // Try to use update_memory_state where you can.
-    pub fn compute_and_update_memory_state(&mut self, card: &mut Card) -> Result<()> {
-        let fsrs_data = self.compute_memory_state(card.id)?;
-        card.memory_state = fsrs_data.state.map(Into::into);
-        card.desired_retention = Some(fsrs_data.desired_retention);
-        card.decay = Some(fsrs_data.decay);
-        self.storage.update_card(card)?;
-        Ok(())
     }
 }
 
@@ -717,7 +705,7 @@ mod tests {
 
             let entry = UpdateMemoryStateEntry {
                 req: None,
-                search: Node::Search(SearchNode::WholeCollection),
+                search: SearchNode::WholeCollection,
                 ignore_before: TimestampMillis(0),
             };
             col.transact(Op::UpdateDeckConfig, |col| {

@@ -625,7 +625,7 @@ impl RowContext {
         }
         let deck_name = self.deck.human_name();
         if let Some(original_deck) = &self.original_deck {
-            format!("{} ({})", deck_name, original_deck.human_name())
+            format!("{} ({})", &deck_name, &original_deck.human_name())
         } else {
             deck_name
         }

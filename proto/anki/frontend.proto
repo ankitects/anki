@@ -38,7 +38,6 @@ service FrontendService {
   rpc OpenMedia(generic.String) returns (generic.Empty);
   rpc ShowInMediaFolder(generic.String) returns (generic.Empty);
   rpc RecordAudio(generic.Empty) returns (generic.String);
-  rpc PlayFile(generic.String) returns (generic.Empty);
   rpc CloseAddCards(generic.Bool) returns (generic.Empty);
   rpc CloseEditCurrent(generic.Empty) returns (generic.Empty);
   rpc OpenLink(generic.String) returns (generic.Empty);

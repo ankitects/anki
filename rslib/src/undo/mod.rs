@@ -150,7 +150,7 @@ impl UndoManager {
         }
         let target = self.undo_steps.front_mut().unwrap();
         for step in removed.into_iter().rev() {
-            target.changes.extend(step.changes);
+            target.changes.extend(step.changes.into_iter());
         }
         self.counter = starting_from;
         Ok(OpChanges {

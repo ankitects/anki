@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import os
+import re
 from abc import ABC, abstractmethod
 from collections.abc import Callable
 from itertools import chain
@@ -75,11 +76,9 @@ class ColpkgImporter(Importer):
             parent=mw,
             op=lambda _: mw.create_backup_now(),
             success=lambda _: mw.unloadCollection(
-                lambda: (
-                    import_collection_package_op(mw, file, on_success)
-                    .failure(on_failure)
-                    .run_in_background()
-                )
+                lambda: import_collection_package_op(mw, file, on_success)
+                .failure(on_failure)
+                .run_in_background()
             ),
         ).with_progress().run_in_background()
 
@@ -134,8 +133,26 @@ IMPORTERS: list[type[Importer]] = [
 ]
 
 
+def legacy_file_endings(col: Collection) -> list[str]:
+    from anki.importing import AnkiPackageImporter, TextImporter, importers
+    from anki.importing import MnemosyneImporter as LegacyMnemosyneImporter
+
+    return [
+        ext
+        for (text, importer) in importers(col)
+        if importer not in (TextImporter, AnkiPackageImporter, LegacyMnemosyneImporter)
+        for ext in re.findall(r"[( ]?\*(\..+?)[) ]", text)
+    ]
+
+
 def import_file(mw: aqt.main.AnkiQt, path: str) -> None:
     filename = os.path.basename(path).lower()
+
+    if any(filename.endswith(ext) for ext in legacy_file_endings(mw.col)):
+        import aqt.importing
+
+        aqt.importing.importFile(mw, path)
+        return
 
     for importer in IMPORTERS:
         if importer.can_import(filename):
@@ -167,6 +184,7 @@ def all_accepted_file_endings(mw: aqt.main.AnkiQt) -> set[str]:
     return set(
         chain(
             *(importer.accepted_file_endings for importer in IMPORTERS),
+            legacy_file_endings(mw.col),
         )
     )
 

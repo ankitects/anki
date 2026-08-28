@@ -17,13 +17,12 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import type { Note } from "@generated/anki/notes_pb";
     import { getNotetype, updateNotetype } from "@generated/backend";
     import { bridgeCommand } from "@tslib/bridgecommand";
-    import { context } from "./NoteEditor.svelte";
 
     const animated = !document.body.classList.contains("reduce-motion");
 
     export let active: boolean;
     export let show: boolean;
-    const { isLegacy } = context.get();
+    export let isLegacy: boolean;
 
     const editorField = editorFieldContext.get();
     const keyCombination = "F9";

@@ -3,14 +3,13 @@
     "[python]": {
         "editor.codeActionsOnSave": {
             "source.organizeImports": "explicit"
-        },
-        "editor.defaultFormatter": "charliermarsh.ruff"
+        }
     },
     "files.watcherExclude": {
         "**/.git/objects/**": true,
         "**/.git/subtree-cache/**": true,
         "**/node_modules/*/**": true,
-        "out/**": true
+        ".bazel/**": true
     },
     "python.analysis.extraPaths": [
         "./pylib",
@@ -19,26 +18,20 @@
         "out/qt",
         "qt"
     ],
-    "python.useEnvironmentsExtension": true,
-    "python-envs.workspaceSearchPaths": ["out/pyenv"],
-    "mypy-type-checker.importStrategy": "fromEnvironment",
-    "mypy-type-checker.preferDaemon": true,
-    "mypy-type-checker.reportingScope": "custom",
-    "mypy-type-checker.args": ["--config-file=${workspaceFolder}/.mypy.ini"],
-    // extraPaths is required despite mypy_path being set in .mypy.ini
-    "mypy-type-checker.extraPaths": ["pylib", "out/pylib", "qt", "out/qt", "ftl", "pylib/tools", "python"],
+    "python.formatting.provider": "charliermarsh.ruff",
+    "python.linting.mypyEnabled": false,
     "python.analysis.diagnosticSeverityOverrides": {
         "reportMissingModuleSource": "none"
     },
     "rust-analyzer.check.allTargets": false,
-    "rust-analyzer.files.exclude": ["out", "node_modules"],
+    "rust-analyzer.files.excludeDirs": [".bazel", "node_modules"],
     "rust-analyzer.procMacro.enable": true,
     // this formats 'use' blocks in a nicer way, but requires you to run
     // 'rustup install nightly'.
     "rust-analyzer.rustfmt.extraArgs": ["+nightly"],
     "search.exclude": {
         "**/node_modules": true,
-        "out/**": true
+        ".bazel/**": true
     },
     "rust-analyzer.cargo.buildScripts.enable": true,
     "python.analysis.typeCheckingMode": "off",

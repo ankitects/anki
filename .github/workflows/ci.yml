@@ -17,57 +17,18 @@ env:
   N2_OUTPUT_SUCCESS: "1"
 
 jobs:
-  # Publish the PR number as a locator. The privileged SonarCloud workflow
-  # verifies it against the GitHub API before treating it as trusted metadata.
-  sonar-context:
-    if: github.event_name == 'pull_request'
-    runs-on: ubuntu-24.04
-    steps:
-      - name: Save PR number for SonarCloud
-        shell: bash
-        env:
-          PR_NUMBER: ${{ github.event.pull_request.number }}
-        run: |
-          [[ "$PR_NUMBER" =~ ^[0-9]+$ ]]
-          mkdir -p out/sonar
-          printf '%s' "$PR_NUMBER" > out/sonar/pr-number.txt
-
-      - name: Upload PR context for SonarCloud
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a #v7.0.1
-        with:
-          name: sonar-pr-context
-          path: out/sonar/
-          retention-days: 1
-
   minilints:
     runs-on: ubuntu-24.04
     steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 #v4
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 #v4
         with:
           fetch-depth: 0
           filter: blob:none
 
       - name: Install Rust toolchain
-        uses: actions-rust-lang/setup-rust-toolchain@166cdcfd11aee3cb47222f9ddb555ce30ddb9659 #v1
-
-      - name: Check for non-documentation changes
-        id: non-doc-changes
-        uses: tj-actions/changed-files@9426d40962ed5378910ee2e21d5f8c6fcbf2dd96 #v47.0.6
-        with:
-          files: |
-            **
-          files_ignore: |
-            **/*.md
-            **/*.mdx
-            docs/**/*.png
-            docs/**/*.svg
-            docs-site/**/*.png
-            docs-site/**/*.jpg
-            docs-site/**/*.svg
-            docs-site/**/*.mp4
+        uses: actions-rust-lang/setup-rust-toolchain@46268bd060767258de96ed93c1251119784f2ab6 #v1
 
       - name: Run minilints
-        if: steps.non-doc-changes.outputs.any_changed == 'true'
         run: cargo run -p minilints -- check /tmp/minilints.stamp
         env:
           CONTRIBUTORS_BYPASS_EMAILS: ${{ vars.CONTRIBUTORS_BYPASS_EMAILS }}
@@ -77,16 +38,16 @@ jobs:
   format:
     runs-on: ubuntu-24.04
     steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 #v4
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 #v4
 
       - name: Install Rust toolchain
-        uses: actions-rust-lang/setup-rust-toolchain@166cdcfd11aee3cb47222f9ddb555ce30ddb9659 #v1
+        uses: actions-rust-lang/setup-rust-toolchain@46268bd060767258de96ed93c1251119784f2ab6 #v1
 
       - name: Install uv
-        uses: astral-sh/setup-uv@c771a70e6277c0a99b617c7a806ffedaca235ff9 #v9.0.0
+        uses: astral-sh/setup-uv@94527f2e458b27549849d47d273a16bec83a01e9 #v7
 
       - name: Setup Node.js
-        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 #v7.0.0
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 #v4
         with:
           node-version: '20'
 
@@ -106,10 +67,10 @@ jobs:
     runs-on: ubuntu-24.04
     name: check (linux)
     steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 #v4
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 #v4
 
       - name: Restore cargo cache
-        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 #v6.1.0
+        uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 #v4
         with:
           path: |
             ~/.cargo/registry/index
@@ -122,7 +83,7 @@ jobs:
           restore-keys: cargo-${{ runner.os }}-
 
       - name: Restore build output cache
-        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 #v6.1.0
+        uses: actions/cache/restore@0057852bfaa89a56745cba8c7296529d2fc39830 #v4
         with:
           path: out
           key: build-Linux-${{ github.event.pull_request.number || 'main' }}-${{ github.run_id }}
@@ -137,20 +98,19 @@ jobs:
       - name: Install just
         uses: extractions/setup-just@53165ef7e734c5c07cb06b3c8e7b647c5aa16db3 #v4
 
-      - name: Install cargo-llvm-cov, cargo-nextest and cargo-deny
-        uses: taiki-e/install-action@67729d5c413db75907f0ad1e39bb04b9c868ff60 #v2.85.7
+      - name: Install cargo-llvm-cov and cargo-nextest
+        uses: taiki-e/install-action@c7eb1735f09259a5035e8e5d44b1406b1cddc0fb #v2.83.0
         with:
           tool: |
             cargo-llvm-cov@0.8.4
             cargo-nextest@0.9.99
-            cargo-deny@0.20.2
 
       - name: Symlink node_modules
         run: ln -sf out/node_modules .
 
       - name: Restore coverage baseline
         if: github.event_name == 'pull_request'
-        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 #v6.1.0
+        uses: actions/cache/restore@0057852bfaa89a56745cba8c7296529d2fc39830 #v4
         with:
           path: out/coverage
           key: coverage-baseline-linux-${{ github.sha }}
@@ -160,13 +120,11 @@ jobs:
         if: github.event_name == 'pull_request'
         run: test -d out/coverage && mv out/coverage out/coverage-baseline || true
 
-      - name: Build
-        run: just build
-
-      - name: Lint and test
+      - name: Build, lint, and test
         env:
           ONLINE_TESTS: "1"
         run: |
+          just build
           just lint
           just test --coverage
 
@@ -186,7 +144,7 @@ jobs:
 
       - name: Cache coverage baseline
         if: github.ref_name == 'main'
-        uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 #v6.1.0
+        uses: actions/cache/save@0057852bfaa89a56745cba8c7296529d2fc39830 #v4
         with:
           path: out/coverage
           key: coverage-baseline-linux-${{ github.sha }}
@@ -200,7 +158,7 @@ jobs:
 
       - name: Upload Playwright report
         if: failure()
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a #v7.0.1
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 #v4
         with:
           name: playwright-report
           path: out/e2e-report/
@@ -214,29 +172,15 @@ jobs:
       - name: Check Rust dependencies
         if: github.event_name == 'pull_request'
         id: rust-deps
-        uses: tj-actions/changed-files@9426d40962ed5378910ee2e21d5f8c6fcbf2dd96 #v47.0.6
+        uses: tj-actions/changed-files@24d32ffd492484c1d75e0c0b894501ddb9d30d62 #v47.0.5
         with:
           files: |
             Cargo.lock
             **/Cargo.toml
             .deny.toml
 
-      - name: Run cargo-deny check
+      - uses: EmbarkStudios/cargo-deny-action@8f84122a46a358a27cb0625d85ad60ab436a1b87 #v2
         if: github.event_name != 'pull_request' || steps.rust-deps.outputs.any_changed == 'true'
-        shell: bash
-        run: cargo deny check
-
-      - name: Upload coverage for SonarCloud
-        if: github.event_name == 'push' || github.event_name == 'pull_request'
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a #v7.0.1
-        with:
-          name: coverage-reports
-          path: |
-            out/coverage/python-pylib/coverage.xml
-            out/coverage/python-qt/coverage.xml
-            out/coverage/typescript/lcov.info
-            out/coverage/rust/lcov.info
-          retention-days: 1
 
       # out/pyenv contains a venv with absolute Python paths that break
       # across runs. out/build.ninja is regenerated by configure each time.
@@ -250,7 +194,7 @@ jobs:
 
       - name: Save build output cache
         if: always()
-        uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 #v6.1.0
+        uses: actions/cache/save@0057852bfaa89a56745cba8c7296529d2fc39830 #v4
         with:
           path: out
           key: build-Linux-${{ github.event.pull_request.number || 'main' }}-${{ github.run_id }}
@@ -265,10 +209,10 @@ jobs:
     runs-on: ubuntu-24.04-arm
     name: check (linux-arm)
     steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 #v4
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 #v4
 
       - name: Restore cargo cache
-        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 #v6.1.0
+        uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 #v4
         with:
           path: |
             ~/.cargo/registry/index
@@ -281,7 +225,7 @@ jobs:
           restore-keys: cargo-arm64-Linux-
 
       - name: Restore build output cache
-        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 #v6.1.0
+        uses: actions/cache/restore@0057852bfaa89a56745cba8c7296529d2fc39830 #v4
         with:
           path: out
           key: build-arm64-Linux-${{ github.event.pull_request.number || 'main' }}-${{ github.run_id }}
@@ -297,7 +241,7 @@ jobs:
         uses: extractions/setup-just@53165ef7e734c5c07cb06b3c8e7b647c5aa16db3 #v4
 
       - name: Install cargo-llvm-cov and cargo-nextest
-        uses: taiki-e/install-action@67729d5c413db75907f0ad1e39bb04b9c868ff60 #v2.85.7
+        uses: taiki-e/install-action@c7eb1735f09259a5035e8e5d44b1406b1cddc0fb #v2.83.0
         with:
           tool: |
             cargo-llvm-cov@0.8.4
@@ -306,11 +250,9 @@ jobs:
       - name: Symlink node_modules
         run: ln -sf out/node_modules .
 
-      - name: Build
-        run: just build
-
-      - name: Lint and test
+      - name: Build, lint, and test
         run: |
+          just build
           just lint
           just test
 
@@ -323,7 +265,7 @@ jobs:
 
       - name: Save build output cache
         if: always()
-        uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 #v6.1.0
+        uses: actions/cache/save@0057852bfaa89a56745cba8c7296529d2fc39830 #v4
         with:
           path: out
           key: build-arm64-Linux-${{ github.event.pull_request.number || 'main' }}-${{ github.run_id }}
@@ -338,12 +280,12 @@ jobs:
     runs-on: macos-15-intel
     name: check (macos-intel)
     steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 #v4
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 #v4
         with:
           submodules: true
 
       - name: Restore cargo cache
-        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 #v6.1.0
+        uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 #v4
         with:
           path: |
             ~/.cargo/registry/index
@@ -356,7 +298,7 @@ jobs:
           restore-keys: cargo-intel-macOS-
 
       - name: Restore build output cache
-        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 #v6.1.0
+        uses: actions/cache/restore@0057852bfaa89a56745cba8c7296529d2fc39830 #v4
         with:
           path: out
           key: build-intel-macOS-${{ github.event.pull_request.number || 'main' }}-${{ github.run_id }}
@@ -372,7 +314,7 @@ jobs:
         uses: extractions/setup-just@53165ef7e734c5c07cb06b3c8e7b647c5aa16db3 #v4
 
       - name: Install cargo-llvm-cov and cargo-nextest
-        uses: taiki-e/install-action@67729d5c413db75907f0ad1e39bb04b9c868ff60 #v2.85.7
+        uses: taiki-e/install-action@c7eb1735f09259a5035e8e5d44b1406b1cddc0fb #v2.83.0
         with:
           tool: |
             cargo-llvm-cov@0.8.4
@@ -381,11 +323,9 @@ jobs:
       - name: Symlink node_modules
         run: ln -sf out/node_modules .
 
-      - name: Build
-        run: just build
-
-      - name: Lint and test
+      - name: Build, lint, and test
         run: |
+          just build
           just lint
           just test
 
@@ -398,7 +338,7 @@ jobs:
 
       - name: Save build output cache
         if: always()
-        uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 #v6.1.0
+        uses: actions/cache/save@0057852bfaa89a56745cba8c7296529d2fc39830 #v4
         with:
           path: out
           key: build-intel-macOS-${{ github.event.pull_request.number || 'main' }}-${{ github.run_id }}
@@ -412,12 +352,12 @@ jobs:
     runs-on: macos-latest
     name: check (macos)
     steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 #v4
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 #v4
         with:
           submodules: true
 
       - name: Restore cargo cache
-        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 #v6.1.0
+        uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 #v4
         with:
           path: |
             ~/.cargo/registry/index
@@ -430,7 +370,7 @@ jobs:
           restore-keys: cargo-macOS-
 
       - name: Restore build output cache
-        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 #v6.1.0
+        uses: actions/cache/restore@0057852bfaa89a56745cba8c7296529d2fc39830 #v4
         with:
           path: out
           key: build-macOS-${{ github.event.pull_request.number || 'main' }}-${{ github.run_id }}
@@ -446,7 +386,7 @@ jobs:
         uses: extractions/setup-just@53165ef7e734c5c07cb06b3c8e7b647c5aa16db3 #v4
 
       - name: Install cargo-llvm-cov and cargo-nextest
-        uses: taiki-e/install-action@67729d5c413db75907f0ad1e39bb04b9c868ff60 #v2.85.7
+        uses: taiki-e/install-action@c7eb1735f09259a5035e8e5d44b1406b1cddc0fb #v2.83.0
         with:
           tool: |
             cargo-llvm-cov@0.8.4
@@ -455,11 +395,10 @@ jobs:
       - name: Symlink node_modules
         run: ln -sf out/node_modules .
 
-      - name: Build
-        run: just build
-
-      - name: Lint and test
+      - name: Build, lint, and test
         run: |
+          just build
+          just wheels
           just lint
           just test
 
@@ -472,7 +411,7 @@ jobs:
 
       - name: Save build output cache
         if: always()
-        uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 #v6.1.0
+        uses: actions/cache/save@0057852bfaa89a56745cba8c7296529d2fc39830 #v4
         with:
           path: out
           key: build-macOS-${{ github.event.pull_request.number || 'main' }}-${{ github.run_id }}
@@ -492,7 +431,7 @@ jobs:
       TEMP: D:\tmp
       TMP: D:\tmp
     steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 #v4
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 #v4
         with:
           submodules: true
 
@@ -501,7 +440,7 @@ jobs:
         run: mkdir -p /d/cargo-home /d/tmp
 
       - name: Restore cargo cache
-        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 #v6.1.0
+        uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 #v4
         with:
           path: |
             D:\cargo-home\registry\index
@@ -514,7 +453,7 @@ jobs:
           restore-keys: cargo-Windows-
 
       - name: Restore build output cache
-        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 #v6.1.0
+        uses: actions/cache/restore@0057852bfaa89a56745cba8c7296529d2fc39830 #v4
         with:
           path: out
           key: build-Windows-${{ github.event.pull_request.number || 'main' }}-${{ github.run_id }}
@@ -530,17 +469,15 @@ jobs:
         uses: extractions/setup-just@53165ef7e734c5c07cb06b3c8e7b647c5aa16db3 #v4
 
       - name: Install cargo-llvm-cov and cargo-nextest
-        uses: taiki-e/install-action@67729d5c413db75907f0ad1e39bb04b9c868ff60 #v2.85.7
+        uses: taiki-e/install-action@c7eb1735f09259a5035e8e5d44b1406b1cddc0fb #v2.83.0
         with:
           tool: |
             cargo-llvm-cov@0.8.4
             cargo-nextest@0.9.99
 
-      - name: Build
-        run: just build
-
-      - name: Lint and test
+      - name: Build, lint, and test
         run: |
+          just build
           just lint
           just test
 
@@ -554,7 +491,7 @@ jobs:
 
       - name: Save build output cache
         if: always()
-        uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 #v6.1.0
+        uses: actions/cache/save@0057852bfaa89a56745cba8c7296529d2fc39830 #v4
         with:
           path: out
           key: build-Windows-${{ github.event.pull_request.number || 'main' }}-${{ github.run_id }}
@@ -571,12 +508,12 @@ jobs:
     # Unlike the x64 Windows runner, windows-11-arm has no D: drive, so we use
     # the default C:-based CARGO_HOME and TEMP.
     steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 #v4
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 #v4
         with:
           submodules: true
 
       - name: Restore cargo cache
-        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 #v6.1.0
+        uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 #v4
         with:
           path: |
             ~/.cargo/registry/index
@@ -589,7 +526,7 @@ jobs:
           restore-keys: cargo-arm64-Windows-
 
       - name: Restore build output cache
-        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 #v6.1.0
+        uses: actions/cache/restore@0057852bfaa89a56745cba8c7296529d2fc39830 #v4
         with:
           path: out
           key: build-arm64-Windows-${{ github.event.pull_request.number || 'main' }}-${{ github.run_id }}
@@ -605,17 +542,15 @@ jobs:
         uses: extractions/setup-just@53165ef7e734c5c07cb06b3c8e7b647c5aa16db3 #v4
 
       - name: Install cargo-llvm-cov and cargo-nextest
-        uses: taiki-e/install-action@67729d5c413db75907f0ad1e39bb04b9c868ff60 #v2.85.7
+        uses: taiki-e/install-action@c7eb1735f09259a5035e8e5d44b1406b1cddc0fb #v2.83.0
         with:
           tool: |
             cargo-llvm-cov@0.8.4
             cargo-nextest@0.9.99
 
-      - name: Build
-        run: just build
-
-      - name: Lint and test
+      - name: Build, lint, and test
         run: |
+          just build
           just lint
           just test
 
@@ -629,7 +564,7 @@ jobs:
 
       - name: Save build output cache
         if: always()
-        uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 #v6.1.0
+        uses: actions/cache/save@0057852bfaa89a56745cba8c7296529d2fc39830 #v4
         with:
           path: out
           key: build-arm64-Windows-${{ github.event.pull_request.number || 'main' }}-${{ github.run_id }}

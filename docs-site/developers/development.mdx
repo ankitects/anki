@@ -50,9 +50,9 @@ On all platforms, you will need to install:
 
 Platform-specific requirements:
 
-- [Windows](/developers/windows)
-- [Mac](/developers/mac)
-- [Linux](/developers/linux)
+- [Windows](./windows)
+- [Mac](./mac)
+- [Linux](./linux)
 
 ## Running Anki during development
 
@@ -162,28 +162,15 @@ Windows, Yarn cache can be found in `%LOCALAPPDATA%\Yarn`.
 
 If you invoke Rust outside of the build scripts (eg by running cargo, or
 with Rust Analyzer), output files will go into `target/` unless you have
-overridden the default output location.
-
-## Storage and Performance
-
-Most editors use rust-analyzer for Rust support, which runs `cargo check` in the
-background whenever you save a file, so that problems are surfaced before you try to
-build. This is useful, but on lower-end machines, it can noticeably increase disk
-usage and CPU load. If that's a problem for you, consider disabling "check on save"
-(e.g. set `rust-analyzer.checkOnSave` to `false` in VS Code) as a trade-off — you'll
-lose real-time error checking, but rust-analyzer can still be used for code completion,
-go-to-definition, etc.
-
-If you chose to disable "check on save" and don't run `cargo` commands manually, you
-may delete the `target/` folder (if any) as that's no longer used.
+overriden the default output location.
 
 ## IDEs
 
-Please see [this separate page](/developers/editing) for setting up an editor/IDE.
+Please see [this separate page](./editing) for setting up an editor/IDE.
 
 ## Making changes to the build
 
-See [this page](/developers/build)
+See [this page](./build)
 
 ## Generating documentation
 
@@ -229,7 +216,7 @@ are installed. See [Building from source](#building-from-source) for more info.
 
 ## Releasing
 
-See [Releasing](/developers/releasing).
+See [Releasing](./releasing).
 
 # Mixing development and study
 

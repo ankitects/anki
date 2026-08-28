@@ -306,7 +306,7 @@ fn check_web(build: &mut Build) -> Result<()> {
     let prettier_pattern = "{**/*.svelte,docs-site/**/*.mdx}";
     let prettier_files = inputs![
         glob!["**/*.svelte", fmt_excluded],
-        glob!["docs-site/**/*.mdx", fmt_excluded]
+        glob!["docs-site/**/*.mdx"]
     ];
 
     build.add_action(

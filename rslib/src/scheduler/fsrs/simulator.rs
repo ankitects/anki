@@ -139,7 +139,11 @@ impl Collection {
         // calculate any missing memory state
         for c in &mut cards {
             if is_included_card(c) && c.memory_state.is_none() {
-                self.compute_and_update_memory_state(c)?;
+                let fsrs_data = self.compute_memory_state(c.id)?;
+                c.memory_state = fsrs_data.state.map(Into::into);
+                c.desired_retention = Some(fsrs_data.desired_retention);
+                c.decay = Some(fsrs_data.decay);
+                self.storage.update_card(c)?;
             }
         }
         let days_elapsed = self.timing_today().unwrap().days_elapsed as i32;
@@ -178,7 +182,7 @@ impl Collection {
             })
             .collect_vec();
         let introduced_today_count = self
-            .search_cards(&format!("{} introduced:1", req.search), SortMode::NoOrder)?
+            .search_cards(&format!("{} introduced:1", &req.search), SortMode::NoOrder)?
             .len()
             .min(req.new_limit as usize);
         if req.new_limit > 0 {
@@ -357,129 +361,5 @@ impl Card {
             CardQueue::PreviewRepeat => None,
             CardQueue::Suspended => None,
         }
-    }
-}
-
-#[cfg(test)]
-mod test {
-    use anki_proto::scheduler::SimulateFsrsReviewRequest;
-
-    use super::*;
-    use crate::services::NotesService;
-
-    fn base_request() -> SimulateFsrsReviewRequest {
-        SimulateFsrsReviewRequest {
-            params: vec![], // leave empty so fsrs fills defaults in tests
-            desired_retention: 0.85f32,
-            deck_size: 50u32,
-            days_to_simulate: 20u32,
-            new_limit: 5u32,
-            review_limit: 1000u32,
-            max_interval: 365u32,
-            search: "".to_string(),
-            new_cards_ignore_review_limit: false,
-            easy_days_percentages: vec![0.0f32, 0.0f32, 0.0f32, 0.0f32, 0.0f32, 0.0f32, 0.0f32],
-            review_order: ReviewCardOrder::Random as i32,
-            suspend_after_lapse_count: Some(3u32),
-            historical_retention: 0.9f32,
-            learning_step_count: 3u32,
-            relearning_step_count: 2u32,
-        }
-    }
-
-    #[test]
-    fn simulate_workload_varies() {
-        let mut col = Collection::new();
-
-        let resp = col.simulate_workload(base_request()).unwrap();
-
-        // Regression guard for #5101: the workload simulation must apply the per-card
-        // desired retention, so cost has to grow with the target retention. A plain
-        // "the values differ" check is not enough here: even with the bug present the
-        // costs vary due to simulation noise, so we assert the actual trend instead by
-        // comparing the low- and high-retention buckets.
-        let cost = |dr: u32| resp.cost[&dr];
-        let low_avg = (70..=79).map(cost).sum::<f32>() / 10.0;
-        let high_avg = (90..=99).map(cost).sum::<f32>() / 10.0;
-
-        assert!(
-            high_avg > low_avg * 1.2,
-            "expected workload cost to grow with desired retention, instead got \
-             low_avg={low_avg}, high_avg={high_avg}, cost={:?}",
-            resp.cost
-        );
-    }
-
-    #[test]
-    fn request_config_uses_requested_retention() -> Result<()> {
-        // Regression guard for the other half of #5101 ("for normal simulator too"):
-        // simulate_request_to_config must apply the *requested* desired retention to
-        // every card, ignoring each card's individually stored value. This helper feeds
-        // the normal simulator, the workload simulator and optimal-retention
-        // computation, so pinning it here covers all three callers without simulation
-        // noise.
-        let mut col = Collection::new();
-        let nt = col.get_notetype_by_name("Basic")?.unwrap();
-        let mut note = nt.new_note();
-        col.add_note(&mut note, DeckId(1))?;
-        let mut card = col
-            .storage
-            .all_cards_of_note(note.id)?
-            .into_iter()
-            .next()
-            .unwrap();
-        card.ctype = CardType::Review;
-        card.queue = CardQueue::Review;
-        card.interval = 100;
-        card.memory_state = Some(FsrsMemoryState {
-            stability: 100.0,
-            difficulty: 5.0,
-        });
-        // Deliberately differs from the requested retention below.
-        card.desired_retention = Some(0.70);
-        card.decay = Some(0.2);
-        col.storage.update_card(&card)?;
-
-        let req = SimulateFsrsReviewRequest {
-            desired_retention: 0.95f32,
-            // Isolate the existing review card: no synthetic new cards.
-            deck_size: 0u32,
-            new_limit: 0u32,
-            ..base_request()
-        };
-
-        let (_config, cards) = col.simulate_request_to_config(&req)?;
-
-        assert!(
-            !cards.is_empty(),
-            "expected the review card to be converted"
-        );
-        assert!(
-            cards
-                .iter()
-                .all(|c| (c.desired_retention - 0.95).abs() < 1e-6),
-            "converted cards must use the requested retention (0.95), instead got {:?}",
-            cards.iter().map(|c| c.desired_retention).collect_vec()
-        );
-
-        Ok(())
-    }
-
-    #[test]
-    fn simulate_uses_dr() {
-        let mut col = Collection::new();
-        col.set_config_bool(BoolKey::Fsrs, true, false).unwrap();
-
-        let note = crate::tests::NoteAdder::basic(&mut col).add(&mut col);
-        let cids = col.cards_of_note(note.id.into()).unwrap().cids;
-        let cids = cids.into_iter().map(CardId).collect_vec();
-        col.grade_now(&cids, 3).unwrap();
-
-        let mut req = base_request();
-        req.deck_size = 0;
-
-        let (_, cards) = col.simulate_request_to_config(&req).unwrap();
-        assert_eq!(cards.len(), 1);
-        assert_eq!(cards[0].desired_retention, 0.85f32)
     }
 }

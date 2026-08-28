@@ -472,14 +472,15 @@ pub(crate) fn reviews_for_fsrs(
     } else if training {
         // when training, we ignore cards that don't have any learning steps
         return None;
-    } else {
-        // if no valid user grades were found, ignore the card.
-        let idx = first_user_grade_idx?;
+    } else if let Some(idx) = first_user_grade_idx {
         // if there are no learning entries, but the user has reviewed the card,
         // we ignore all entries before the first grade
         if idx > 0 {
             entries.drain(..idx);
         }
+    } else {
+        // if no valid user grades were found, ignore the card.
+        return None;
     }
 
     // Filter out unwanted entries

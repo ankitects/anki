@@ -1,12 +1,4 @@
-<!-- DO NOT MANUALLY EDIT THIS FILE -->
-<!-- This file is copied from docs-site/developers/development.mdx automatically -->
-
 # Anki development
-
-<!-- <<<cog
-from cogdocs import get_file_contents
-cog.out(get_file_contents("development"))
->>> -->
 
 ## Packaged betas
 
@@ -47,7 +39,7 @@ On all platforms, you will need to install:
   or `bash tools\install-n2` on Windows. If you want to use Ninja, it can be downloaded
   from https://github.com/ninja-build/ninja/releases/tag/v1.11.1 and
   placed on your path, or from your distro/homebrew if it's 1.10+.
-    - On Windows, if you have WSL installed, it may conflict with MSYS2 bash. If you are getting an error, try running `C:\msys64\usr\bin\bash.exe tools/install-n2` instead.
+  - On Windows, if you have WSL installed, it may conflict with MSYS2 bash. If you are getting an error, try running `C:\msys64\usr\bin\bash.exe tools/install-n2` instead.
 - (Optional) [just](https://just.systems/man/en/packages.html) command runner.
   Install with `brew install just` or `uv tool install just`.
   We are experimenting with `just` as the official tool for running
@@ -56,9 +48,9 @@ On all platforms, you will need to install:
 
 Platform-specific requirements:
 
-- [Windows](https://anki.mintlify.app/developers/windows)
-- [Mac](https://anki.mintlify.app/developers/mac)
-- [Linux](https://anki.mintlify.app/developers/linux)
+- [Windows](./windows.md)
+- [Mac](./mac.md)
+- [Linux](./linux.md)
 
 ## Running Anki during development
 
@@ -75,7 +67,7 @@ This will build Anki and run it in place.
 The first build will take a while, as it downloads and builds a bunch of
 dependencies. When the build is complete, Anki will automatically start.
 
-If Anki fails to start, you may need to install [extra libraries](https://anki.mintlify.app/manual/platform/linux/missing-libraries).
+If Anki fails to start, you may need to install [extra libraries](https://docs.ankiweb.net/platform/linux/missing-libraries.html).
 
 ## Running tests/checks
 
@@ -168,28 +160,15 @@ Windows, Yarn cache can be found in `%LOCALAPPDATA%\Yarn`.
 
 If you invoke Rust outside of the build scripts (eg by running cargo, or
 with Rust Analyzer), output files will go into `target/` unless you have
-overridden the default output location.
-
-## Storage and Performance
-
-Most editors use rust-analyzer for Rust support, which runs `cargo check` in the
-background whenever you save a file, so that problems are surfaced before you try to
-build. This is useful, but on lower-end machines, it can noticeably increase disk
-usage and CPU load. If that's a problem for you, consider disabling "check on save"
-(e.g. set `rust-analyzer.checkOnSave` to `false` in VS Code) as a trade-off — you'll
-lose real-time error checking, but rust-analyzer can still be used for code completion,
-go-to-definition, etc.
-
-If you chose to disable "check on save" and don't run `cargo` commands manually, you
-may delete the `target/` folder (if any) as that's no longer used.
+overriden the default output location.
 
 ## IDEs
 
-Please see [this separate page](https://anki.mintlify.app/developers/editing) for setting up an editor/IDE.
+Please see [this separate page](./editing.md) for setting up an editor/IDE.
 
 ## Making changes to the build
 
-See [this page](https://anki.mintlify.app/developers/build)
+See [this page](./build.md)
 
 ## Generating documentation
 
@@ -231,11 +210,11 @@ Depending on your operating system, this produces a file under `out/installer/di
 ### Issues During Building
 
 If you are experiencing issues building the installer, make sure that all dependencies
-are installed. See [Building from source](https://anki.mintlify.app/development#building-from-source) for more info.
+are installed. See [Building from source](#building-from-source) for more info.
 
 ## Releasing
 
-See [Releasing](https://anki.mintlify.app/developers/releasing).
+See [Releasing](./releasing.md).
 
 # Mixing development and study
 
@@ -249,5 +228,3 @@ If you're using PyCharm:
 - click "Edit 'run'..." - in Script options and enter:
   "-p [dev profile name]" without the quotes
 - click "Ok"
-
-<!-- <<<end>>> -->

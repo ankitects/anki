@@ -976,13 +976,13 @@ hooks = [
     ),
     Hook(
         name="legacy_exporter_will_export",
-        args=["legacy_exporter: Any"],
-        doc="""Obsolete, do not use.""",
+        args=["legacy_exporter: anki.exporting.Exporter"],
+        doc="""Called before collection and deck exports performed by legacy exporters.""",
     ),
     Hook(
         name="legacy_exporter_did_export",
-        args=["legacy_exporter: Any"],
-        doc="""Obsolete, do not use.""",
+        args=["legacy_exporter: anki.exporting.Exporter"],
+        doc="""Called after collection and deck exports performed by legacy exporters.""",
     ),
     Hook(
         name="exporters_list_did_initialize",

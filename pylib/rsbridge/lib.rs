@@ -77,7 +77,7 @@ impl Backend {
         });
         let out_bytes = out_res?;
         let out_obj = PyBytes::new(py, &out_bytes);
-        Ok(out_obj)
+        Ok(out_obj.into())
     }
 }
 

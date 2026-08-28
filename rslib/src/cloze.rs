@@ -339,19 +339,19 @@ fn render_image_occlusion(
         format!(
             r#"<div class="cloze" data-ordinal="{}" {}></div>"#,
             ordinals_str(ordinals),
-            get_image_cloze_data(text)
+            &get_image_cloze_data(text)
         )
     } else if !active {
         format!(
             r#"<div class="cloze-inactive" data-ordinal="{}" {}></div>"#,
             ordinals_str(ordinals),
-            get_image_cloze_data(text)
+            &get_image_cloze_data(text)
         )
     } else if !question_side && active {
         format!(
             r#"<div class="cloze-highlight" data-ordinal="{}" {}></div>"#,
             ordinals_str(ordinals),
-            get_image_cloze_data(text)
+            &get_image_cloze_data(text)
         )
     } else {
         "".into()

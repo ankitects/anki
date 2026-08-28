@@ -83,55 +83,6 @@ response = col.import_csv(request)
 print(response.log.found_notes, list(response.log.updated), list(response.log.new))
 ```
 
-**Import an .apkg file**
-
-Requires Anki 23.10+.
-
-```python
-from anki.collection import ImportAnkiPackageRequest, ImportAnkiPackageOptions
-from aqt import mw
-
-col = mw.col
-col.import_anki_package(
-    ImportAnkiPackageRequest(
-        package_path="/path/to/deck.apkg",
-        options=ImportAnkiPackageOptions(
-            merge_notetypes=True,
-            with_scheduling=False,
-            with_deck_configs=True,
-        ),
-    )
-)
-```
-
-Options can be adjusted as needed.
-
-**Export an .apkg file**
-
-Requires Anki 23.12+.
-
-```python
-from anki.collection import ExportAnkiPackageOptions, DeckIdLimit
-from aqt import mw
-
-col = mw.col
-col.export_anki_package(
-    out_path="/path/to/deck.apkg",
-    options=ExportAnkiPackageOptions(
-        with_scheduling=False,
-        with_deck_configs=False,
-        with_media=True,
-        legacy=False,
-    ),
-    limit=DeckIdLimit(deck_id=col.decks.id("My Deck")),
-)
-```
-
-Options can be adjusted as needed.
-
-Pass `limit=None` to export the whole collection. Other limit types are
-`NoteIdsLimit` and `CardIdsLimit`.
-
 Almost every GUI operation has an associated function in anki, so any of
 the operations that Anki makes available can also be called in an
 add-on.

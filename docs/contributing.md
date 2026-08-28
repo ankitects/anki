@@ -1,15 +1,7 @@
-<!-- DO NOT MANUALLY EDIT THIS FILE -->
-<!-- This file is copied from docs-site/developers/contributing.mdx automatically -->
-
 # Contributing Code
 
-<!-- <<<cog
-from cogdocs import get_file_contents
-cog.out(get_file_contents("contributing"))
->>> -->
-
 For info on contributing things other than code, such as translations, decks
-and add-ons, please see [the contribution guide](https://anki.mintlify.app/manual/contrib).
+and add-ons, please see [the contribution guide](https://docs.ankiweb.net/contrib).
 
 ## Help wanted
 
@@ -48,11 +40,6 @@ the problem before submitting a PR. This helps us ensure we're solving the
 right problems and prevents wasted effort on both sides.
 
 PRs without a linked issue may be automatically closed after a short period.
-
-## Dependency updates
-
-Dependabot PRs do not need a linked issue. Maintainers should follow
-[Dependabot updates](https://anki.mintlify.app/developers/dependabot) when reviewing or landing them.
 
 ## Refactoring
 
@@ -135,7 +122,7 @@ new hook.
 ## Translations
 
 For information on adding new translatable strings to Anki, please see
-[the translation guide](https://anki.mintlify.app/translators/anki/developers).
+[the translation guide](https://translating.ankiweb.net/anki/developers).
 
 ## Tests Must Pass
 
@@ -195,6 +182,4 @@ further discussion.
 
 ## License
 
-Please add yourself to the [CONTRIBUTORS](https://github.com/ankitects/anki/blob/main/CONTRIBUTORS) file in your first pull request.
-
-<!-- <<<end>>> -->
+Please add yourself to the [CONTRIBUTORS](./CONTRIBUTORS) file in your first pull request.

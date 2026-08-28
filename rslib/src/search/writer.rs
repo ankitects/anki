@@ -29,8 +29,10 @@ pub fn replace_search_node(mut existing: Vec<Node>, replacement: Node) -> String
                 match old_node {
                     Node::Not(n) => update_node(n, new_node),
                     Node::Group(ns) => update_node_vec(ns, new_node),
-                    Node::Search(n) if mem::discriminant(n) == mem::discriminant(new_node) => {
-                        *n = new_node.clone();
+                    Node::Search(n) => {
+                        if mem::discriminant(n) == mem::discriminant(new_node) {
+                            *n = new_node.clone();
+                        }
                     }
                     _ => (),
                 }
@@ -75,6 +77,8 @@ fn write_search_node(node: &SearchNode) -> String {
         CardTemplate(t) => write_template(t),
         Deck(s) => maybe_quote(&format!("deck:{s}")),
         DeckIdsWithoutChildren(s) => format!("did:{s}"),
+        // not exposed on the GUI end
+        DeckIdWithChildren(_) => "".to_string(),
         NotetypeId(NotetypeIdType(i)) => format!("mid:{i}"),
         Notetype(s) => maybe_quote(&format!("note:{s}")),
         Rated { days, ease } => write_rated(days, ease),
@@ -92,10 +96,6 @@ fn write_search_node(node: &SearchNode) -> String {
         WordBoundary(s) => maybe_quote(&format!("w:{s}")),
         CustomData(k) => maybe_quote(&format!("has-cd:{k}")),
         Preset(s) => maybe_quote(&format!("preset:{s}")),
-
-        // not exposed on the GUI end
-        DeckIdWithChildren(_) => "".to_string(),
-        HasMemoryState => "".to_string(),
     }
 }
 
@@ -130,7 +130,12 @@ fn write_single_field(field: &str, text: &str, mode: FieldSearchMode) -> String 
     } else {
         text.to_string()
     };
-    maybe_quote(&format!("{}:{}{}", field.replace(':', "\\:"), prefix, text))
+    maybe_quote(&format!(
+        "{}:{}{}",
+        field.replace(':', "\\:"),
+        prefix,
+        &text
+    ))
 }
 
 fn write_template(template: &TemplateKind) -> String {

@@ -14,34 +14,22 @@ set "LLVMCOVPATH=out\bin"
 
 if not exist %outdir% mkdir %outdir%
 
-if "%CARGO_TARGET_DIR%"=="" set "CARGO_TARGET_DIR=out\rust"
-
 if "%CI%"=="true" (
   rem prebuilt binary shouldve been installed earlier
   set "CARGO_CMD=cargo"
-  set PROFILE=ci
 ) else (
   if not exist %LLVMCOVPATH% mkdir %LLVMCOVPATH%
   if not exist %LLVMCOVPATH%\cargo-llvm-cov.exe (
       cargo install cargo-llvm-cov --version 0.8.4 --locked --root out || exit /b 1
   )
-  if not exist %LLVMCOVPATH%\cargo-nextest.exe (
-      cargo install cargo-nextest --version 0.9.99 --locked --no-default-features --features default-no-update --root out || exit /b 1
-  )
   set "CARGO_CMD=%LLVMCOVPATH%\cargo-llvm-cov.exe"
-  set PROFILE=dev
 )
 
-set "PATH=%LLVMCOVPATH%;%PATH%"
 set "ANKI_TEST_MODE=1"
-"%CARGO_CMD%" llvm-cov nextest --workspace --locked ^
-    --cargo-profile %PROFILE% ^
-    --json --summary-only ^
+"%CARGO_CMD%" llvm-cov --workspace --locked --json --summary-only ^
     --output-path %outdir%\coverage-summary.json --fail-under-lines 64 || exit /b 1
-"%CARGO_CMD%" llvm-cov report --profile %PROFILE% --lcov --output-path %outdir%\lcov.info || exit /b 1
-
 
 if "%1"=="--html" (
-    "%CARGO_CMD%" llvm-cov report --profile %PROFILE% --html --output-dir %outdir% || exit /b 1
+    "%CARGO_CMD%" llvm-cov report --html --output-dir %outdir% || exit /b 1
     echo Rust coverage report: %outdir%\html\index.html
 )

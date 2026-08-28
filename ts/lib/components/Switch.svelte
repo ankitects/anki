@@ -56,10 +56,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         .form-check-input {
             margin-left: 0;
             margin-right: 1.5em;
-            background-position: right center;
-            &:checked {
-                background-position: left center;
-            }
         }
     }
 </style>

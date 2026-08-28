@@ -1,12 +1,4 @@
-<!-- DO NOT MANUALLY EDIT THIS FILE -->
-<!-- This file is copied from docs-site/developers/windows.mdx automatically -->
-
 # Windows
-
-<!-- <<<cog
-from cogdocs import get_file_contents
-cog.out(get_file_contents("windows"))
->>> -->
 
 ## Minimum Requirements
 
@@ -27,13 +19,13 @@ cog.out(get_file_contents("windows"))
 > Studio IDE, do the following before installing Rust:
 >
 > 1. Install **Visual Studio Build Tools** via winget:
->     ```
->     winget install Microsoft.VisualStudio.BuildTools
->     ```
+>    ```
+>    winget install Microsoft.VisualStudio.BuildTools
+>    ```
 > 2. Open the **Visual Studio Installer**, select **Build Tools**, click
 >    **Modify**, then under **Individual components**, install:
->     - **MSVC Build Tools for x64/x86 (Latest)**
->     - **Windows 11 SDK** (or Windows 10 SDK if you're on Windows 10)
+>    - **MSVC Build Tools for x64/x86 (Latest)**
+>    - **Windows 11 SDK** (or Windows 10 SDK if you're on Windows 10)
 >
 > Then proceed with the Rust installation above.
 
@@ -80,6 +72,4 @@ problems.
 ## More
 
 For info on running tests, building wheels and so on, please see
-[Development](https://anki.mintlify.app/developers/development).
-
-<!-- <<<end>>> -->
+[Development](./development.md).

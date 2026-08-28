@@ -9,16 +9,8 @@ use anyhow::Result;
 use itertools::Itertools;
 
 use crate::archives::with_exe;
-use crate::build::BuildProfile;
 use crate::input::space_separated;
 use crate::Build;
-
-fn profile_output_dir(profile: BuildProfile) -> &'static str {
-    match profile {
-        BuildProfile::Ci => "ci",
-        _ => "release",
-    }
-}
 
 impl Build {
     pub fn render(&self) -> String {
@@ -33,8 +25,7 @@ impl Build {
         writeln!(&mut buf, "builddir = {}", self.buildroot.as_str()).unwrap();
         writeln!(
             &mut buf,
-            "runner = $builddir/rust/{}/{}",
-            profile_output_dir(self.build_profile),
+            "runner = $builddir/rust/release/{}",
             with_exe("runner")
         )
         .unwrap();

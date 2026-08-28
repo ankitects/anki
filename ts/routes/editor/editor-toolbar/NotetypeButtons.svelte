@@ -16,11 +16,13 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import DynamicallySlottable from "$lib/components/DynamicallySlottable.svelte";
     import LabelButton from "$lib/components/LabelButton.svelte";
     import Shortcut from "$lib/components/Shortcut.svelte";
-    import { context } from "../NoteEditor.svelte";
+    import type { NoteEditorAPI } from "../NoteEditor.svelte";
     import { openFieldsDialog, openCardsDialog } from "@generated/backend";
 
     export let api = {};
-    const { isLegacy, saveNow } = context.get();
+    export let noteEditor: NoteEditorAPI;
+    export let isLegacy = false;
+
     const keyCombination = "Control+L";
 </script>
 
@@ -36,7 +38,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             <LabelButton
                 tooltip={tr.editingCustomizeFields()}
                 on:click={async () => {
-                    await saveNow();
+                    await noteEditor.saveNow();
                     if (isLegacy) {
                         bridgeCommand("fields");
                     } else {
@@ -54,7 +56,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                     keyCombination,
                 )})"
                 on:click={async () => {
-                    await saveNow();
+                    await noteEditor.saveNow();
                     if (isLegacy) {
                         bridgeCommand("cards");
                     } else {
@@ -67,7 +69,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             <Shortcut
                 {keyCombination}
                 on:action={async () => {
-                    await saveNow();
+                    await noteEditor.saveNow();
                     bridgeCommand("cards");
                 }}
             />

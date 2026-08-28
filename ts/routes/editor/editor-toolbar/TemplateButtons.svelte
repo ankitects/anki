@@ -24,14 +24,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import LatexButton from "./LatexButton.svelte";
     import {
         filenameToLink,
-        isAudio,
         openFilePickerForMedia,
     } from "../rich-text-input/data-transfer";
-    import { addMediaFromPath, playFile, recordAudio } from "@generated/backend";
-    import { bridgeCommand } from "@tslib/bridgecommand";
-    import { promiseWithResolver } from "@tslib/promise";
-    import type { RichTextInputAPI } from "../rich-text-input";
-    import { registerPackage } from "@tslib/runtime-require";
+    import { addMediaFromPath, recordAudio } from "@generated/backend";
 
     const { focusedInput } = context.get();
 
@@ -40,37 +35,15 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     async function attachPath(path: string) {
         const filename = (await addMediaFromPath({ path })).val;
         setFormat("inserthtml", filenameToLink(filename));
-        if (isAudio(filename)) {
-            await playFile({ val: filename });
-        }
-    }
-
-    let mediaPromise: Promise<string>;
-    let resolve: (media: string) => void;
-    function resolveMedia(media: string): void {
-        resolve?.(media);
     }
 
     async function attachMediaOnFocus(): Promise<void> {
         if (disabled) {
             return;
         }
-        if (isLegacy) {
-            [mediaPromise, resolve] = promiseWithResolver<string>();
-            ($focusedInput as RichTextInputAPI).editable.focusHandler.focus.on(
-                async () => setFormat("inserthtml", await mediaPromise),
-                { once: true },
-            );
-            bridgeCommand("attach");
-        } else {
-            const path = await openFilePickerForMedia();
-            await attachPath(path);
-        }
+        const path = await openFilePickerForMedia();
+        await attachPath(path);
     }
-
-    registerPackage("anki/TemplateButtons", {
-        resolveMedia,
-    });
 
     const recordCombination = "F5";
 
@@ -78,23 +51,13 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         if (disabled) {
             return;
         }
-        if (isLegacy) {
-            [mediaPromise, resolve] = promiseWithResolver<string>();
-            ($focusedInput as RichTextInputAPI).editable.focusHandler.focus.on(
-                async () => setFormat("inserthtml", await mediaPromise),
-                { once: true },
-            );
-            bridgeCommand("record");
-        } else {
-            const path = (await recordAudio({})).val;
-            await attachPath(path);
-        }
+        const path = (await recordAudio({})).val;
+        await attachPath(path);
     }
 
     $: disabled = !$focusedInput || !editingInputIsRichText($focusedInput);
 
     export let api = {};
-    const { isLegacy } = context.get();
 </script>
 
 <ButtonGroup>

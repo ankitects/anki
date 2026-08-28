@@ -303,10 +303,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             </SpinBoxFloatRow>
 
             <Item>
-                <DateInput
-                    bind:date={$config.ignoreRevlogsBeforeDate}
-                    max={new Date().toLocaleDateString("en-CA")}
-                >
+                <DateInput bind:date={$config.ignoreRevlogsBeforeDate}>
                     <SettingTitle
                         on:click={() =>
                             openHelpModal(
