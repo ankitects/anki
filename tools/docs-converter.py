@@ -239,29 +239,50 @@ def escape_text_preserve_html(raw: str) -> str:
 
 def main():
     parser = argparse.ArgumentParser()
-    # parser.add_argument(
-    #    "--source-docs",
-    #    required=True,
-    #    help="Path to the source documents",
-    # )
-    # parser.add_argument(
-    #    "--language-code",
-    #    required=True,
-    #    help="the language code of the language",
-    # )
+    parser.add_argument(
+        "source_docs_dir",
+        help="Path to the directory of the docs you want to import.",
+    )
+    parser.add_argument(
+        "tab",
+        default="Manual",
+        choices=[
+            "Manual",
+            "AnkiMobile",
+            "FAQs",
+            "Add-ons",
+            "Developers",
+            "Translators",
+            "Releases",
+        ],
+        help="Navigation tab to import to.",
+    )
+    parser.add_argument(
+        "language_code",
+        default="en",
+        help="Language code to import (use 'en' for default language paths).",
+    )
+    parser.add_argument(
+        "--docs-site-dir",
+        default="docs-site",
+        help="Path to the destination directory.",
+    )
 
-    parser.parse_args()
+    args = parser.parse_args()
 
-    language_code = "ar"
+    language_code = args.language_code
+    DOCS_SITE_DIR = Path(args.docs_site_dir)
+    SRC_DOCS_DIR = Path(args.source_docs_dir).resolve()
+    if SRC_DOCS_DIR.name != "src":
+        SRC_DOCS_DIR /= "src"
+    TAB = args.tab
+
     if language_code == "en":
         language_code = ""
 
-    DOCS_SITE_DIR = Path("docs-site")
     DOCS_FILEPATH = DOCS_SITE_DIR / "docs.json"
     LANGUAGE_DIR = DOCS_SITE_DIR / language_code
-    MANUAL_DEST_DIR = LANGUAGE_DIR / "manual"
-    SRC_DOCS_DIR = Path("../anki-faqs/src").resolve()
-    TAB = "FAQs"
+    MANUAL_DEST_DIR = LANGUAGE_DIR / TAB.lower()
 
     print(str(MANUAL_DEST_DIR))
 
@@ -300,6 +321,7 @@ def main():
     unmoved = [
         page.src for page in paths if str(page.root_dest) not in default_language_pages
     ]
+
     if unmoved:
         print(f"unimported pages: {unmoved}")
 
