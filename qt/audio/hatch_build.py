@@ -63,8 +63,10 @@ class CustomBuildHook(BuildHookInterface):
 
         # Copy library files (for macOS) - preserve directory structure
         if lib_files:
-            lib_dst_dir = dst_dir / lib_dir.name  # Use same dir name (lib or libs)
-            lib_dst_dir.mkdir(exist_ok=True)
             for lib_file in lib_files:
+                lib_dst_dir = (
+                    dst_dir / lib_file.parent.name
+                )  # Use same dir name (lib or libs)
+                lib_dst_dir.mkdir(exist_ok=True)
                 if lib_file.exists():
                     shutil.copy2(lib_file, lib_dst_dir / lib_file.name)

@@ -10,6 +10,8 @@ hidden:
 development
 build
 contributing
+dependabot
+testing-coverage
 architecture
 protobuf
 ```

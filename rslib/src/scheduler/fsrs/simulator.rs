@@ -14,7 +14,6 @@ use fsrs::ReviewPriorityFn;
 use fsrs::SimulatorConfig;
 use fsrs::FSRS;
 use itertools::Itertools;
-use rand::rngs::StdRng;
 use rand::Rng;
 use rayon::iter::IntoParallelIterator;
 use rayon::iter::ParallelIterator;
@@ -37,7 +36,7 @@ pub(crate) fn apply_load_balance_and_easy_days(
     max_interval: f32,
     day_elapsed: usize,
     due_cnt_per_day: &[usize],
-    rng: &mut StdRng,
+    fuzz_seed: u64,
     next_day_at: TimestampSecs,
     easy_days_percentages: &[EasyDay; 7],
 ) -> f32 {
@@ -75,7 +74,6 @@ pub(crate) fn apply_load_balance_and_easy_days(
                 sibling_modifier: 1.0,
                 easy_days_modifier: easy_days_modifier[interval_index],
             });
-    let fuzz_seed = rng.random();
     select_weighted_interval(intervals, Some(fuzz_seed)).unwrap() as f32
 }
 
@@ -83,37 +81,36 @@ fn create_review_priority_fn(
     review_order: ReviewCardOrder,
     deck_size: usize,
 ) -> Option<ReviewPriorityFn> {
-    // Helper macro to wrap closure in ReviewPriorityFn
     macro_rules! wrap {
         ($f:expr) => {
-            Some(ReviewPriorityFn(std::sync::Arc::new($f)))
+            Some(ReviewPriorityFn::new($f))
         };
     }
 
     match review_order {
         // Ease-based ordering
-        EaseAscending => wrap!(|c, _w| -(c.difficulty * 100.0) as i32),
-        EaseDescending => wrap!(|c, _w| (c.difficulty * 100.0) as i32),
+        EaseAscending => wrap!(|c: &fsrs::Card| -(c.difficulty * 100.0) as i32),
+        EaseDescending => wrap!(|c: &fsrs::Card| (c.difficulty * 100.0) as i32),
 
         // Interval-based ordering
-        IntervalsAscending => wrap!(|c, _w| c.interval as i32),
-        IntervalsDescending => wrap!(|c, _w| (c.interval as i32).saturating_neg()),
+        IntervalsAscending => wrap!(|c: &fsrs::Card| c.interval as i32),
+        IntervalsDescending => wrap!(|c: &fsrs::Card| (c.interval as i32).saturating_neg()),
         // Retrievability-based ordering
         RetrievabilityAscending => {
-            wrap!(move |c, w| (c.retrievability(w) * 1000.0) as i32)
+            wrap!(move |c: &fsrs::Card| (c.retrievability() * 1000.0) as i32)
         }
         RetrievabilityDescending => {
-            wrap!(move |c, w| -(c.retrievability(w) * 1000.0) as i32)
+            wrap!(move |c: &fsrs::Card| -(c.retrievability() * 1000.0) as i32)
         }
 
         // Due date ordering
         Day | DayThenDeck | DeckThenDay => {
-            wrap!(|c, _w| c.scheduled_due() as i32)
+            wrap!(|c: &fsrs::Card| c.scheduled_due() as i32)
         }
 
         // Random ordering
         Random => {
-            wrap!(move |_c, _w| rand::rng().random_range(0..deck_size) as i32)
+            wrap!(move |_c: &fsrs::Card| rand::rng().random_range(0..deck_size) as i32)
         }
 
         // Not implemented yet
@@ -142,11 +139,7 @@ impl Collection {
         // calculate any missing memory state
         for c in &mut cards {
             if is_included_card(c) && c.memory_state.is_none() {
-                let fsrs_data = self.compute_memory_state(c.id)?;
-                c.memory_state = fsrs_data.state.map(Into::into);
-                c.desired_retention = Some(fsrs_data.desired_retention);
-                c.decay = Some(fsrs_data.decay);
-                self.storage.update_card(c)?;
+                self.compute_and_update_memory_state(c)?;
             }
         }
         let days_elapsed = self.timing_today().unwrap().days_elapsed as i32;
@@ -155,11 +148,13 @@ impl Collection {
             .filter(|c| c.ctype == CardType::New && c.queue != CardQueue::Suspended)
             .count()
             + req.deck_size as usize;
-        let fsrs = FSRS::new(Some(&req.params))?;
+        let fsrs = FSRS::new(&req.params)?;
+        let fsrs_card_params = Arc::new(fsrs::check_and_fill_parameters(&req.params)?);
         let mut converted_cards = cards
             .into_iter()
             .filter(is_included_card)
             .filter_map(|c| {
+                let desired_retention = req.desired_retention;
                 let memory_state = match c.memory_state {
                     Some(state) => state,
                     // cards that lack memory states after compute_memory_state have no FSRS items,
@@ -173,11 +168,17 @@ impl Collection {
                         .ok()?
                         .into(),
                 };
-                Card::convert(c, days_elapsed, memory_state)
+                Card::convert(
+                    c,
+                    days_elapsed,
+                    memory_state,
+                    desired_retention,
+                    fsrs_card_params.clone(),
+                )
             })
             .collect_vec();
         let introduced_today_count = self
-            .search_cards(&format!("{} introduced:1", &req.search), SortMode::NoOrder)?
+            .search_cards(&format!("{} introduced:1", req.search), SortMode::NoOrder)?
             .len()
             .min(req.new_limit as usize);
         if req.new_limit > 0 {
@@ -189,6 +190,8 @@ impl Collection {
                 due: ((introduced_today_count + i) / req.new_limit as usize) as f32,
                 interval: f32::NEG_INFINITY,
                 lapses: 0,
+                desired_retention: req.desired_retention,
+                parameters: fsrs_card_params.clone(),
             });
             converted_cards.extend(new_cards);
         }
@@ -200,19 +203,19 @@ impl Collection {
 
         let post_scheduling_fn: Option<PostSchedulingFn> =
             if self.get_config_bool(BoolKey::LoadBalancerEnabled) {
-                Some(PostSchedulingFn(Arc::new(
-                    move |card, max_interval, today, due_cnt_per_day, rng| {
+                Some(PostSchedulingFn::new(
+                    move |mut ctx: fsrs::PostSchedulingContext<'_>| {
                         apply_load_balance_and_easy_days(
-                            card.interval,
-                            max_interval,
-                            today,
-                            due_cnt_per_day,
-                            rng,
+                            ctx.card.interval,
+                            ctx.max_interval,
+                            ctx.today,
+                            ctx.due_counts_per_day,
+                            ctx.random_u64(),
                             next_day_at,
                             &easy_days_percentages,
                         )
                     },
-                )))
+                ))
             } else {
                 None
             };
@@ -282,13 +285,15 @@ impl Collection {
         let dr_workload = (70u32..=99u32)
             .into_par_iter()
             .map(|dr| {
-                let result = simulate(
-                    &config,
-                    &req.params,
-                    dr as f32 / 100.,
-                    None,
-                    Some(cards.clone()),
-                )?;
+                let cards = cards
+                    .iter()
+                    .map(|c| {
+                        let mut card = c.clone();
+                        card.desired_retention = dr as f32 / 100.;
+                        card
+                    })
+                    .collect_vec();
+                let result = simulate(&config, &req.params, dr as f32 / 100., None, Some(cards))?;
                 Ok((
                     dr,
                     (
@@ -300,9 +305,9 @@ impl Collection {
                 ))
             })
             .collect::<Result<HashMap<_, _>>>()?;
-        let reviewless_end_memorized = cards.iter().fold(0., |p, c| {
-            p + c.retention_on(&req.params, req.days_to_simulate as f32)
-        });
+        let reviewless_end_memorized = cards
+            .iter()
+            .fold(0., |p, c| p + c.retention_on(req.days_to_simulate as f32));
         Ok(SimulateFsrsWorkloadResponse {
             reviewless_end_memorized,
             memorized: dr_workload.iter().map(|(k, v)| (*k, v.0)).collect(),
@@ -317,6 +322,8 @@ impl Card {
         card: Card,
         days_elapsed: i32,
         memory_state: FsrsMemoryState,
+        desired_retention: f32,
+        parameters: Arc<Vec<f32>>,
     ) -> Option<fsrs::Card> {
         match card.queue {
             CardQueue::DayLearn | CardQueue::Review => {
@@ -331,6 +338,8 @@ impl Card {
                     due: relative_due as f32,
                     interval: card.interval as f32,
                     lapses: card.lapses,
+                    desired_retention,
+                    parameters,
                 })
             }
             CardQueue::New => None,
@@ -342,9 +351,135 @@ impl Card {
                 due: 0.0,
                 interval: card.interval as f32,
                 lapses: card.lapses,
+                desired_retention,
+                parameters,
             }),
             CardQueue::PreviewRepeat => None,
             CardQueue::Suspended => None,
         }
+    }
+}
+
+#[cfg(test)]
+mod test {
+    use anki_proto::scheduler::SimulateFsrsReviewRequest;
+
+    use super::*;
+    use crate::services::NotesService;
+
+    fn base_request() -> SimulateFsrsReviewRequest {
+        SimulateFsrsReviewRequest {
+            params: vec![], // leave empty so fsrs fills defaults in tests
+            desired_retention: 0.85f32,
+            deck_size: 50u32,
+            days_to_simulate: 20u32,
+            new_limit: 5u32,
+            review_limit: 1000u32,
+            max_interval: 365u32,
+            search: "".to_string(),
+            new_cards_ignore_review_limit: false,
+            easy_days_percentages: vec![0.0f32, 0.0f32, 0.0f32, 0.0f32, 0.0f32, 0.0f32, 0.0f32],
+            review_order: ReviewCardOrder::Random as i32,
+            suspend_after_lapse_count: Some(3u32),
+            historical_retention: 0.9f32,
+            learning_step_count: 3u32,
+            relearning_step_count: 2u32,
+        }
+    }
+
+    #[test]
+    fn simulate_workload_varies() {
+        let mut col = Collection::new();
+
+        let resp = col.simulate_workload(base_request()).unwrap();
+
+        // Regression guard for #5101: the workload simulation must apply the per-card
+        // desired retention, so cost has to grow with the target retention. A plain
+        // "the values differ" check is not enough here: even with the bug present the
+        // costs vary due to simulation noise, so we assert the actual trend instead by
+        // comparing the low- and high-retention buckets.
+        let cost = |dr: u32| resp.cost[&dr];
+        let low_avg = (70..=79).map(cost).sum::<f32>() / 10.0;
+        let high_avg = (90..=99).map(cost).sum::<f32>() / 10.0;
+
+        assert!(
+            high_avg > low_avg * 1.2,
+            "expected workload cost to grow with desired retention, instead got \
+             low_avg={low_avg}, high_avg={high_avg}, cost={:?}",
+            resp.cost
+        );
+    }
+
+    #[test]
+    fn request_config_uses_requested_retention() -> Result<()> {
+        // Regression guard for the other half of #5101 ("for normal simulator too"):
+        // simulate_request_to_config must apply the *requested* desired retention to
+        // every card, ignoring each card's individually stored value. This helper feeds
+        // the normal simulator, the workload simulator and optimal-retention
+        // computation, so pinning it here covers all three callers without simulation
+        // noise.
+        let mut col = Collection::new();
+        let nt = col.get_notetype_by_name("Basic")?.unwrap();
+        let mut note = nt.new_note();
+        col.add_note(&mut note, DeckId(1))?;
+        let mut card = col
+            .storage
+            .all_cards_of_note(note.id)?
+            .into_iter()
+            .next()
+            .unwrap();
+        card.ctype = CardType::Review;
+        card.queue = CardQueue::Review;
+        card.interval = 100;
+        card.memory_state = Some(FsrsMemoryState {
+            stability: 100.0,
+            difficulty: 5.0,
+        });
+        // Deliberately differs from the requested retention below.
+        card.desired_retention = Some(0.70);
+        card.decay = Some(0.2);
+        col.storage.update_card(&card)?;
+
+        let req = SimulateFsrsReviewRequest {
+            desired_retention: 0.95f32,
+            // Isolate the existing review card: no synthetic new cards.
+            deck_size: 0u32,
+            new_limit: 0u32,
+            ..base_request()
+        };
+
+        let (_config, cards) = col.simulate_request_to_config(&req)?;
+
+        assert!(
+            !cards.is_empty(),
+            "expected the review card to be converted"
+        );
+        assert!(
+            cards
+                .iter()
+                .all(|c| (c.desired_retention - 0.95).abs() < 1e-6),
+            "converted cards must use the requested retention (0.95), instead got {:?}",
+            cards.iter().map(|c| c.desired_retention).collect_vec()
+        );
+
+        Ok(())
+    }
+
+    #[test]
+    fn simulate_uses_dr() {
+        let mut col = Collection::new();
+        col.set_config_bool(BoolKey::Fsrs, true, false).unwrap();
+
+        let note = crate::tests::NoteAdder::basic(&mut col).add(&mut col);
+        let cids = col.cards_of_note(note.id.into()).unwrap().cids;
+        let cids = cids.into_iter().map(CardId).collect_vec();
+        col.grade_now(&cids, 3).unwrap();
+
+        let mut req = base_request();
+        req.deck_size = 0;
+
+        let (_, cards) = col.simulate_request_to_config(&req).unwrap();
+        assert_eq!(cards.len(), 1);
+        assert_eq!(cards[0].desired_retention, 0.85f32)
     }
 }

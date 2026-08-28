@@ -19,6 +19,11 @@ name = "benchmark"
 harness = false
 required-features = ["bench"]
 
+[[bench]]
+name = "fsrs"
+harness = false
+required-features = ["bench"]
+
 [build-dependencies]
 anki_io.workspace = true
 anki_proto.workspace = true
@@ -87,6 +92,7 @@ regex.workspace = true
 reqwest.workspace = true
 rusqlite.workspace = true
 rustls-pemfile.workspace = true
+same-file.workspace = true
 scopeguard.workspace = true
 serde.workspace = true
 serde-aux.workspace = true
