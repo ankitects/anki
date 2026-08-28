@@ -87,11 +87,9 @@ class FilteredDeckConfigDialog(QDialog):
         order_labels = self.col.sched.filtered_deck_order_labels()
 
         fsrs_enabled = bool(self.mw.col.get_config("fsrs"))
-        self._order_values = [
-            order
-            for order in range(len(order_labels))
-            if fsrs_enabled or order not in self.FSRS_ONLY_ORDERS
-        ]
+        self._order_values = self._available_order_values(
+            order_count=len(order_labels), fsrs_enabled=fsrs_enabled
+        )
         visible_labels = [order_labels[order] for order in self._order_values]
 
         self.form.order.addItems(visible_labels)
@@ -129,6 +127,16 @@ class FilteredDeckConfigDialog(QDialog):
         )
 
         restoreGeom(self, self.GEOMETRY_KEY)
+
+    @classmethod
+    def _available_order_values(
+        cls, *, order_count: int, fsrs_enabled: bool
+    ) -> list[int]:
+        return [
+            order
+            for order in range(order_count)
+            if fsrs_enabled or order not in cls.FSRS_ONLY_ORDERS
+        ]
 
     def load_deck_and_show(self, deck: FilteredDeckForUpdate) -> None:
         self.deck = deck
