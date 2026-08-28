@@ -36,6 +36,9 @@ MARKDOWN_INLINE_CODE_RE = re.compile(r"(`[^`\n]*`)")
 MARKDOWN_LINK_MD_RE = re.compile(
     r"(\[[^\]]+\]\()(?P<path>[^)\s]+?)\.md(?P<suffix>[#?][^)\s]+)?\)"
 )
+ADMONISH_BLOCK_RE = re.compile(
+    r"```admonish\s+(?P<kind>[A-Za-z]+)\n(?P<body>[\s\S]*?)\n```"
+)
 
 # Mirrors the replacement rules listed in docs-relative-links branch commits.
 HTML_PATH_AND_SUFFIX_RE = r"(?P<path>.+?)\.html(?P<suffix>[#?][^)\s]+)?"
@@ -56,6 +59,23 @@ VOID_HTML_ELEMENTS = {
     "track",
     "wbr",
 }
+
+
+def admonish_callout_rule(
+    admonish_kind: str, callout: str, heading: str = ""
+) -> tuple[str, str, str]:
+    return (admonish_kind, callout, heading)
+
+
+ADMONISH_CALLOUT_REPLACEMENTS = [
+    admonish_callout_rule("summary", "Note", "Summary"),
+    admonish_callout_rule("warning", "Warning"),
+    admonish_callout_rule("note", "Note"),
+    admonish_callout_rule("info", "Info"),
+    admonish_callout_rule("danger", "Danger"),
+    admonish_callout_rule("caution", "Warning"),
+    admonish_callout_rule("example", "Info"),
+]
 
 
 def relative_link_rule(domain: str, prefix: str) -> tuple[re.Pattern[str], str]:
@@ -90,6 +110,17 @@ title: "{title}"
             return f"[{link}](mailto:{link})"
         return f"[{link}]({link})"
 
+    def replace_admonish(match: re.Match[str]) -> str:
+        kind = match.group("kind").lower()
+        body = match.group("body")
+        for admonish_kind, callout, heading in ADMONISH_CALLOUT_REPLACEMENTS:
+            if kind != admonish_kind:
+                continue
+            title = f"**{heading}**\n\n" if heading else ""
+            return f"<{callout}>\n{title}{body}\n</{callout}>"
+        return match.group(0)
+
+    content = ADMONISH_BLOCK_RE.sub(replace_admonish, content)
     content = QUICKLINK_RE.sub(replace_quicklink, content)
     # Convert intra-manual links like foo.md or foo.md#bar to extensionless links.
     content = MARKDOWN_LINK_MD_RE.sub(r"\1\g<path>\g<suffix>)", content)
