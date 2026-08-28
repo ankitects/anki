@@ -41,7 +41,7 @@ ADMONISH_BLOCK_RE = re.compile(
 )
 
 # Mirrors the replacement rules listed in docs-relative-links branch commits.
-HTML_PATH_AND_SUFFIX_RE = r"(?P<path>.+?)\.html(?P<suffix>[#?][^)\s]+)?"
+HTML_PATH_AND_SUFFIX_RE = r"(?P<path>.+?)\.html(?P<suffix>[#?][^)\]\s]+)?"
 PATH_AND_SUFFIX_REPLACEMENT = r"\g<path>\g<suffix>"
 VOID_HTML_ELEMENTS = {
     "area",
