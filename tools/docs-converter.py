@@ -223,9 +223,13 @@ def escape_text_preserve_html(raw: str) -> str:
             for i_idx, inline_part in enumerate(inline_parts):
                 if MARKDOWN_INLINE_CODE_RE.fullmatch(inline_part):
                     continue
-                inline_parts[i_idx] = inline_part.replace("<", "&lt;").replace(
-                    ">", "&gt;"
+                inline_parts[i_idx] = (
+                    inline_part.replace("<", "&lt;")
+                    .replace(">", "&gt;")
+                    .replace("$", "\\$")
+                    .replace("\\\\$", "\\$")
                 )
+
             fenced_parts[f_idx] = "".join(inline_parts)
 
         parts[idx] = "".join(fenced_parts)
@@ -337,7 +341,6 @@ def main():
         target_language = deepcopy(default_language)
         target_language["language"] = language_code
         site_structure["navigation"]["languages"].append(target_language)
-
 
     target_language["tabs"] = [
         tab for tab in target_language["tabs"] if tab.get("tab", None) != TAB
