@@ -393,7 +393,7 @@ def main():
     )
 
     with open(docs_filepath, "w") as f:
-        json.dump(site_structure, f, indent=4)
+        json.dump(site_structure, f, indent=2)
 
 
 if __name__ == "__main__":
