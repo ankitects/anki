@@ -271,22 +271,22 @@ def main():
     args = parser.parse_args()
 
     language_code = args.language_code
-    DOCS_SITE_DIR = Path(args.docs_site_dir)
-    SRC_DOCS_DIR = Path(args.source_docs_dir).resolve()
-    if SRC_DOCS_DIR.name != "src":
-        SRC_DOCS_DIR /= "src"
-    TAB = args.tab
+    docs_site_dir = Path(args.docs_site_dir)
+    src_docs_dir = Path(args.source_docs_dir).resolve()
+    if src_docs_dir.name != "src":
+        src_docs_dir /= "src"
+    tab_name = args.tab
 
     if language_code == "en":
         language_code = ""
 
-    DOCS_FILEPATH = DOCS_SITE_DIR / "docs.json"
-    LANGUAGE_DIR = DOCS_SITE_DIR / language_code
-    MANUAL_DEST_DIR = LANGUAGE_DIR / TAB.lower()
+    docs_filepath = docs_site_dir / "docs.json"
+    language_dir = docs_site_dir / language_code
+    manual_dest_dir = language_dir / tab_name.lower()
 
-    print(str(MANUAL_DEST_DIR))
+    print(str(manual_dest_dir))
 
-    with open(DOCS_FILEPATH) as f:
+    with open(docs_filepath) as f:
         site_structure = json.load(f)
 
     # print(site_structure)
@@ -298,22 +298,22 @@ def main():
     )
     default_tab = find_first(
         default_language["tabs"],
-        lambda tab: tab["tab"] == TAB,
-        f"{TAB} tab",
+        lambda tab: tab["tab"] == tab_name,
+        f"{tab_name} tab",
     )
     main_group = default_tab["groups"][0]
     default_language_pages = group_pages(main_group)
 
     source_contents = sorted(
         path.resolve()
-        for path in SRC_DOCS_DIR.rglob("*")
+        for path in src_docs_dir.rglob("*")
         if path.is_file() and path.suffix in {".md", ".mdx"}
     )
 
     paths: list[Page] = []
     for path in source_contents:
-        relative_src = path.relative_to(SRC_DOCS_DIR)
-        root_dest = Path(TAB.lower()) / relative_src.with_suffix("")
+        relative_src = path.relative_to(src_docs_dir)
+        root_dest = Path(tab_name.lower()) / relative_src.with_suffix("")
         dest = Path(language_code) / root_dest if language_code else root_dest
         paths.append(Page(src=path, root_dest=root_dest, dest=dest))
 
@@ -328,7 +328,7 @@ def main():
     # print(f"Source docs: {default_language}")
 
     for page in to_move:
-        output_path = DOCS_SITE_DIR / page.dest.with_suffix(".mdx")
+        output_path = docs_site_dir / page.dest.with_suffix(".mdx")
         output_path.parent.mkdir(parents=True, exist_ok=True)
         content = page.src.read_text(encoding="utf-8")
         output_path.write_text(format_page(content, language_code), encoding="utf-8")
@@ -365,11 +365,11 @@ def main():
         site_structure["navigation"]["languages"].append(target_language)
 
     target_language["tabs"] = [
-        tab for tab in target_language["tabs"] if tab.get("tab", None) != TAB
+        tab for tab in target_language["tabs"] if tab.get("tab", None) != tab_name
     ]
     target_language["tabs"].append(new_tab)
 
-    with open(DOCS_FILEPATH, "w") as f:
+    with open(docs_filepath, "w") as f:
         json.dump(site_structure, f, indent=4)
 
 
