@@ -266,7 +266,7 @@ def main():
         "tab",
         default="Manual",
         choices=ORDERED_TABS,
-        help="Navigation tab to import to.",
+        help="Navigation tab to import to. Case sensitive.",
     )
     parser.add_argument(
         "language_code",
@@ -394,6 +394,12 @@ def main():
 
     with open(docs_filepath, "w") as f:
         json.dump(site_structure, f, indent=2)
+
+    print("")
+    print(f"Imported {len(to_move)} pages to {language_code}/{tab_name}.")
+    print(
+        "Please run ./check to format the newly imported pages before submitting any changes"
+    )
 
 
 if __name__ == "__main__":
