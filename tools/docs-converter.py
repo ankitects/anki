@@ -113,6 +113,19 @@ class Page:
 
 
 def escape_text_preserve_html(raw: str) -> str:
+    lines = raw.splitlines(keepends=True)
+    in_fenced_code_block = False
+    for idx, line in enumerate(lines):
+        if line.lstrip().startswith("```"):
+            in_fenced_code_block = not in_fenced_code_block
+            continue
+        if in_fenced_code_block:
+            continue
+        if line.startswith("    ") or line.startswith("\t"):
+            lines[idx] = line.replace("<", "&lt;").replace(">", "&gt;")
+
+    raw = "".join(lines)
+
     parts = HTML_TAG_RE.split(raw)
     for idx, part in enumerate(parts):
         if part.startswith("<") and part.endswith(">"):
