@@ -84,6 +84,14 @@ def relative_link_rule(domain: str, prefix: str) -> tuple[re.Pattern[str], str]:
     return (pattern, replacement)
 
 
+DOCS_RELATIVE_LINK_REPLACEMENTS = [
+    relative_link_rule("docs.ankiweb.net", "manual"),
+    relative_link_rule("addon-docs.ankiweb.net", "addons"),
+    relative_link_rule("faqs.ankiweb.net", "faqs"),
+    relative_link_rule("docs.ankimobile.net", "ankimobile"),
+]
+
+
 def format_page(content: str, language_code: str = "") -> str:
     title = TITLE_RE.findall(content)
     content = TITLE_REPLACE_RE.sub("", content, 1)
@@ -125,13 +133,6 @@ title: "{title}"
     # Convert intra-manual links like foo.md or foo.md#bar to extensionless links.
     content = MARKDOWN_LINK_MD_RE.sub(r"\1\g<path>\g<suffix>)", content)
     content = HEADING_ANCHOR_RE.sub(replace_heading_anchor, content)
-
-    DOCS_RELATIVE_LINK_REPLACEMENTS = [
-        relative_link_rule("docs.ankiweb.net", "manual"),
-        relative_link_rule("addon-docs.ankiweb.net", "addons"),
-        relative_link_rule("faqs.ankiweb.net", "faqs"),
-        relative_link_rule("docs.ankimobile.net", "ankimobile"),
-    ]
 
     for pattern, replacement in DOCS_RELATIVE_LINK_REPLACEMENTS:
         # Language pages receive a language prefix, e.g. /ar/manual/...
