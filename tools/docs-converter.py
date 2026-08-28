@@ -23,6 +23,9 @@ HEADING_ANCHOR_RE = re.compile(
 QUICKLINK_RE = re.compile(
     r"<(?P<link>(?:https?|ftp|mailto):[^> ]+|[^<> ]+@[^<> ]+)>", re.DOTALL
 )
+MARKDOWN_LINK_MD_RE = re.compile(
+    r"(\[[^\]]+\]\()(?P<path>[^)\s]+?)\.md(?P<suffix>[#?][^)\s]+)?\)"
+)
 
 # Mirrors the replacement rules listed in docs-relative-links branch commits.
 HTML_PATH_AND_SUFFIX_RE = r"(?P<path>.+?)\.html(?P<suffix>[#?][^)\s]+)?"
@@ -62,6 +65,7 @@ title: "{title}"
         return f"[{link}]({link})"
 
     content = QUICKLINK_RE.sub(replace_quicklink, content)
+    content = MARKDOWN_LINK_MD_RE.sub(r"\1\g<path>\g<suffix>)", content)
     content = HEADING_ANCHOR_RE.sub(replace_heading_anchor, content)
 
     DOCS_RELATIVE_LINK_REPLACEMENTS = [
