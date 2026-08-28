@@ -256,7 +256,8 @@ def main():
     DOCS_FILEPATH = DOCS_SITE_DIR / "docs.json"
     LANGUAGE_DIR = DOCS_SITE_DIR / language_code
     MANUAL_DEST_DIR = LANGUAGE_DIR / "manual"
-    SRC_DOCS_DIR = Path("../anki-manual/src").resolve()
+    SRC_DOCS_DIR = Path("../anki-faqs/src").resolve()
+    TAB = "FAQs"
 
     print(str(MANUAL_DEST_DIR))
 
@@ -270,12 +271,12 @@ def main():
         lambda lang: lang["language"] == "en",
         "language 'en'",
     )
-    manual_tab = find_first(
+    default_tab = find_first(
         default_language["tabs"],
-        lambda tab: tab["tab"] == "Manual",
-        "Manual tab",
+        lambda tab: tab["tab"] == TAB,
+        f"{TAB} tab",
     )
-    main_group = manual_tab["groups"][0]
+    main_group = default_tab["groups"][0]
     default_language_pages = group_pages(main_group)
 
     source_contents = sorted(
@@ -287,7 +288,7 @@ def main():
     paths: list[Page] = []
     for path in source_contents:
         relative_src = path.relative_to(SRC_DOCS_DIR)
-        root_dest = Path("manual") / relative_src.with_suffix("")
+        root_dest = Path(TAB.lower()) / relative_src.with_suffix("")
         dest = Path(language_code) / root_dest if language_code else root_dest
         paths.append(Page(src=path, root_dest=root_dest, dest=dest))
 
@@ -306,9 +307,8 @@ def main():
         content = page.src.read_text(encoding="utf-8")
         output_path.write_text(format_page(content, language_code), encoding="utf-8")
 
-    new_language = deepcopy(default_language)
-    new_language["language"] = language_code
-    new_group = new_language["tabs"][0]["groups"][0]
+    new_tab = deepcopy(default_tab)
+    new_group = new_tab["groups"][0]
 
     def update_page_paths(group: dict | str):
         if isinstance(group, str):
@@ -324,15 +324,25 @@ def main():
         return group
 
     update_page_paths(new_group)
-    site_structure["navigation"]["languages"] = [
-        lang
-        for lang in site_structure["navigation"]["languages"]
-        if lang["language"] != language_code
+
+    target_language = next(
+        (
+            lang
+            for lang in site_structure["navigation"]["languages"]
+            if lang["language"] == language_code
+        ),
+        None,
+    )
+    if target_language is None:
+        target_language = deepcopy(default_language)
+        target_language["language"] = language_code
+        site_structure["navigation"]["languages"].append(target_language)
+
+
+    target_language["tabs"] = [
+        tab for tab in target_language["tabs"] if tab.get("tab", None) != TAB
     ]
-    new_language["tabs"][0]["groups"] = [new_group]
-    # Manual only
-    new_language["tabs"] = [new_language["tabs"][0]]
-    site_structure["navigation"]["languages"].append(new_language)
+    target_language["tabs"].append(new_tab)
 
     with open(DOCS_FILEPATH, "w") as f:
         json.dump(site_structure, f, indent=4)
