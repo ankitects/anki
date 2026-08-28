@@ -924,7 +924,7 @@ require("anki/ui").loaded.then(() => require("anki/NoteEditor").instances[0].too
         return self.fnameToLink(fname)
 
     def fnameToLink(self, fname: str) -> str:
-        ext = fname.split(".")[-1].lower()
+        ext = fname.rsplit(".", maxsplit=1)[-1].lower()
         if ext in pics:
             name = urllib.parse.quote(fname.encode("utf8"))
             return f'<img src="{name}">'

@@ -674,11 +674,11 @@ class AddonManager:
         return markdown.markdown(contents, extensions=[md_in_html.makeExtension()])
 
     def addonFromModule(self, module: str) -> str:  # softly deprecated
-        return module.split(".")[0]
+        return module.split(".", maxsplit=1)[0]
 
     @staticmethod
     def addon_from_module(module: str) -> str:
-        return module.split(".")[0]
+        return module.split(".", maxsplit=1)[0]
 
     def configAction(self, module: str) -> Callable[[], bool | None]:
         return self._configButtonActions.get(module)

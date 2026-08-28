@@ -303,3 +303,17 @@ To test the signing flow from a feature branch:
 - Once a GitHub release draft is created, modify the generated changelog if necessary then click **Publish release**.
 - Create a forum topic on the [Beta Testing](https://forums.ankiweb.net/c/anki/beta-testing/13) category. For stable releases, lock the topic and ask users to report issues on a new topic.
 - For stable releases, update the version in [ankitects/anki-landing-page](https://github.com/ankitects/anki-landing-page) (See [example](https://github.com/ankitects/anki-landing-page/commit/2362eb2202f174df2aad1dc5336e1b5195a7af85)).
+
+## Audio package
+
+Audio playback and recording is handled by the `anki-audio` package under **`qt/audio`**, which bundles mpv and lame for Windows and macOS. To update:
+
+1. Update the archive links in **`build/configure/src/audio.rs`** if you're updating the Windows pre-built binaries to new versions, then run `./tools/ninja audio_wheel` to test.
+2. Update the macOS build script at **`qt/audio/mpv.rb`** and test the Homebrew build locally by running the **`qt/audio/build.sh`** script.
+3. Bump the version at **`qt/audio/.version`**.
+4. Submit a PR with the changes.
+5. Once the PR is merged to main, run the **`.github/workflows/publish-audio-package.yml`** workflow to publish the package to PyPI:
+    ```
+    gh workflow run publish-audio-package.yml -f sign-macos=true -f publish-testpypi=true -f publish-pypi=true
+    ```
+6. Once the package is published, update the pinned `anki-audio` version in **`qt/pyproject.toml`** to the new version.

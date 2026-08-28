@@ -19,12 +19,8 @@ so it installs the command line tools.
 
 Install via Homebrew or similar tool.
 
-## Audio
-
-To play audio, use Homebrew to install mpv and lame.
-
 ## More
 
-For info on running tests, building wheels and so on, please see [Development](https://anki.mintlify.app/development).
+For info on running tests, building wheels and so on, please see [Development](https://anki.mintlify.app/developers/development).
 
 <!-- <<<end>>> -->
