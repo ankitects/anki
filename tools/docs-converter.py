@@ -92,7 +92,7 @@ DOCS_RELATIVE_LINK_REPLACEMENTS = [
 ]
 
 
-def format_page(content: str, language_code: str = "") -> str:
+def format_page(content: str, language_code_url: str = "") -> str:
     title = TITLE_RE.findall(content)
     content = TITLE_REPLACE_RE.sub("", content, 1)
     if title:
@@ -136,8 +136,8 @@ title: "{title}"
 
     for pattern, replacement in DOCS_RELATIVE_LINK_REPLACEMENTS:
         # Language pages receive a language prefix, e.g. /ar/manual/...
-        if language_code:
-            replacement = f"/{language_code}{replacement}"
+        if language_code_url:
+            replacement = f"/{language_code_url}{replacement}"
         content = pattern.sub(replacement, content)
 
     content = content.replace("{", "\\{").replace("}", "\\}")
@@ -277,11 +277,10 @@ def main():
         src_docs_dir /= "src"
     tab_name = args.tab
 
-    if language_code == "en":
-        language_code = ""
+    language_code_path = Path("" if language_code == "en" else language_code)
 
     docs_filepath = docs_site_dir / "docs.json"
-    language_dir = docs_site_dir / language_code
+    language_dir = docs_site_dir / language_code_path
     manual_dest_dir = language_dir / tab_name.lower()
 
     print(str(manual_dest_dir))
@@ -314,7 +313,7 @@ def main():
     for path in source_contents:
         relative_src = path.relative_to(src_docs_dir)
         root_dest = Path(tab_name.lower()) / relative_src.with_suffix("")
-        dest = Path(language_code) / root_dest if language_code else root_dest
+        dest = language_code_path / root_dest if language_code_path else root_dest
         paths.append(Page(src=path, root_dest=root_dest, dest=dest))
 
     to_move = [page for page in paths if str(page.root_dest) in default_language_pages]
@@ -331,7 +330,9 @@ def main():
         output_path = docs_site_dir / page.dest.with_suffix(".mdx")
         output_path.parent.mkdir(parents=True, exist_ok=True)
         content = page.src.read_text(encoding="utf-8")
-        output_path.write_text(format_page(content, language_code), encoding="utf-8")
+        output_path.write_text(
+            format_page(content, language_code_path), encoding="utf-8"
+        )
 
     new_tab = deepcopy(default_tab)
     new_group = new_tab["groups"][0]
@@ -340,7 +341,9 @@ def main():
         if isinstance(group, str):
             path = Path(group)
             if any(path == page.root_dest for page in to_move):
-                return str(language_code / path)
+                return (
+                    str(language_code_path / path) if language_code_path else str(path)
+                )
             else:
                 return None
 
