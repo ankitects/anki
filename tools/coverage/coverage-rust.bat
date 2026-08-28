@@ -1,0 +1,47 @@
+@echo off
+setlocal
+
+rem cargo-llvm-cov's llvm-profdata uses the host toolchain, which is incompatible
+rem with the profraw files produced when running on Windows ARM64.
+if "%PROCESSOR_ARCHITECTURE%"=="ARM64" (
+    echo Rust coverage is not supported on Windows ARM64 ^(llvm-profdata format mismatch^).
+    echo Run on Linux or let CI enforce coverage.
+    exit /b 0
+)
+
+set "outdir=out\coverage\rust"
+set "LLVMCOVPATH=out\bin"
+
+if not exist %outdir% mkdir %outdir%
+
+if "%CARGO_TARGET_DIR%"=="" set "CARGO_TARGET_DIR=out\rust"
+
+if "%CI%"=="true" (
+  rem prebuilt binary shouldve been installed earlier
+  set "CARGO_CMD=cargo"
+  set PROFILE=ci
+) else (
+  if not exist %LLVMCOVPATH% mkdir %LLVMCOVPATH%
+  if not exist %LLVMCOVPATH%\cargo-llvm-cov.exe (
+      cargo install cargo-llvm-cov --version 0.8.4 --locked --root out || exit /b 1
+  )
+  if not exist %LLVMCOVPATH%\cargo-nextest.exe (
+      cargo install cargo-nextest --version 0.9.99 --locked --no-default-features --features default-no-update --root out || exit /b 1
+  )
+  set "CARGO_CMD=%LLVMCOVPATH%\cargo-llvm-cov.exe"
+  set PROFILE=dev
+)
+
+set "PATH=%LLVMCOVPATH%;%PATH%"
+set "ANKI_TEST_MODE=1"
+"%CARGO_CMD%" llvm-cov nextest --workspace --locked ^
+    --cargo-profile %PROFILE% ^
+    --json --summary-only ^
+    --output-path %outdir%\coverage-summary.json --fail-under-lines 64 || exit /b 1
+"%CARGO_CMD%" llvm-cov report --profile %PROFILE% --lcov --output-path %outdir%\lcov.info || exit /b 1
+
+
+if "%1"=="--html" (
+    "%CARGO_CMD%" llvm-cov report --profile %PROFILE% --html --output-dir %outdir% || exit /b 1
+    echo Rust coverage report: %outdir%\html\index.html
+)

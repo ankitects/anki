@@ -1,15 +1,17 @@
-set windows-shell := ["cmd.exe", "/c"]
+set windows-shell := ["pwsh", "-NoLogo", "-NoProfileLoadTime", "-Command"]
 
 version := `cat .version`
 
-# Prepare a release: validate version, check CI, sync translations, update .version
-prepare ref="HEAD" skip-ci-check="false":
-    gh workflow run prepare-release.yml --ref {{ ref }} \
-        -f version="{{ version }}" \
-        -f skip-ci-check={{ skip-ci-check }}
+# Prepare a release: validate version, check CI, update .version
+[arg("version", long)]
+[arg("skip-ci-check", long)]
+prepare version skip-ci-check="false":
+    python3 tools/prepare_release.py "{{ version }}" \
+        {{ if skip-ci-check == "true" { "--skip-ci-check" } else { "" } }}
 
 # Build all platforms, no signing or publishing
-build ref="HEAD":
+[arg("ref", long)]
+build ref:
     gh workflow run release.yml --ref {{ ref }} \
         -f version="{{ version }}" \
         -f sign=false \
@@ -18,7 +20,8 @@ build ref="HEAD":
         -f publish-pypi=false
 
 # Build and sign artifacts
-sign ref="HEAD":
+[arg("ref", long)]
+sign ref:
     gh workflow run release.yml --ref {{ ref }} \
         -f version="{{ version }}" \
         -f sign=true \
@@ -27,7 +30,8 @@ sign ref="HEAD":
         -f publish-pypi=false
 
 # Full public release: sign, draft, testpypi, pypi
-public ref="main":
+[arg("ref", long)]
+public ref:
     gh workflow run release.yml --ref {{ ref }} \
         -f version="{{ version }}" \
         -f sign=true \
@@ -35,8 +39,34 @@ public ref="main":
         -f publish-testpypi=true \
         -f publish-pypi=true
 
-# Custom release with explicit flags
-custom ref="HEAD" sign="false" draft-release="false" publish-testpypi="false" publish-pypi="false" skip-ci-check="false":
+# Publish Python packages to TestPyPI only
+[arg("ref", long)]
+testpypi ref:
+    gh workflow run release.yml --ref {{ ref }} \
+        -f version="{{ version }}" \
+        -f sign=false \
+        -f draft-release=false \
+        -f publish-testpypi=true \
+        -f publish-pypi=false
+
+# Publish Python packages to TestPyPI and PyPI
+[arg("ref", long)]
+pypi ref:
+    gh workflow run release.yml --ref {{ ref }} \
+        -f version="{{ version }}" \
+        -f sign=false \
+        -f draft-release=false \
+        -f publish-testpypi=true \
+        -f publish-pypi=true
+
+# Manual release with explicit flags
+[arg("ref", long)]
+[arg("sign", long)]
+[arg("draft-release", long)]
+[arg("publish-testpypi", long)]
+[arg("publish-pypi", long)]
+[arg("skip-ci-check", long)]
+custom ref sign="false" draft-release="false" publish-testpypi="false" publish-pypi="false" skip-ci-check="false":
     gh workflow run release.yml --ref {{ ref }} \
         -f version="{{ version }}" \
         -f sign={{ sign }} \
