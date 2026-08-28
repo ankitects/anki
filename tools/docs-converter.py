@@ -142,9 +142,6 @@ title: "{title}"
 
     # Remove toc
     content = re.sub(r"<!--\s*toc\s*-->", "", content, flags=re.IGNORECASE)
-    # Sanitize braces and HTML comments for MDX compatibility.
-    content = content.replace("{", "\\{").replace("}", "\\}")
-    content = content.replace("<!--", "{/*").replace("-->", "*/}")
     # Escape plain text nodes for MDX while preserving actual HTML tags.
     content = escape_text_preserve_html(content)
 
@@ -186,7 +183,17 @@ def escape_text_preserve_html(raw: str) -> str:
         if in_fenced_code_block:
             continue
         if line.startswith("    ") or line.startswith("\t"):
-            lines[idx] = line.replace("<", "&lt;").replace(">", "&gt;")
+            line = line.replace("<", "&lt;").replace(">", "&gt;")
+        # Sanitize braces and HTML comments for MDX compatibility.
+        line = line.replace("{", "\\{").replace("}", "\\}")
+        line = line.replace("<!--", "{/*").replace("-->", "*/}")
+        line = (
+            line.replace("$$", "LATEX")
+            .replace("$", "\\$")
+            .replace("\\\\$", "\\$")
+            .replace("LATEX", "$$")
+        )
+        lines[idx] = line
 
     raw = "".join(lines)
 
@@ -226,11 +233,8 @@ def escape_text_preserve_html(raw: str) -> str:
             for i_idx, inline_part in enumerate(inline_parts):
                 if MARKDOWN_INLINE_CODE_RE.fullmatch(inline_part):
                     continue
-                inline_parts[i_idx] = (
-                    inline_part.replace("<", "&lt;")
-                    .replace(">", "&gt;")
-                    .replace("$", "\\$")
-                    .replace("\\\\$", "\\$")
+                inline_parts[i_idx] = inline_part.replace("<", "&lt;").replace(
+                    ">", "&gt;"
                 )
 
             fenced_parts[f_idx] = "".join(inline_parts)
