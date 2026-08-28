@@ -21,6 +21,9 @@ QUICKLINK_RE = re.compile(
     r"<(?P<link>(?:https?|ftp|mailto):[^> ]+|[^<> ]+@[^<> ]+)>", re.DOTALL
 )
 HTML_TAG_RE = re.compile(r"(</?[A-Za-z][^>]*>)")
+HTML_UNQUOTED_ATTR_RE = re.compile(
+    r'(?P<name>[A-Za-z_:][A-Za-z0-9_:.\-]*)=(?P<value>[^\s"\'=<>`]+?)(?=(?:\s|/?>))'
+)
 MARKDOWN_FENCED_CODE_RE = re.compile(r"(```[\s\S]*?```)")
 MARKDOWN_INLINE_CODE_RE = re.compile(r"(`[^`\n]*`)")
 MARKDOWN_LINK_MD_RE = re.compile(
@@ -129,6 +132,7 @@ def escape_text_preserve_html(raw: str) -> str:
     parts = HTML_TAG_RE.split(raw)
     for idx, part in enumerate(parts):
         if part.startswith("<") and part.endswith(">"):
+            parts[idx] = HTML_UNQUOTED_ATTR_RE.sub(r'\g<name>="\g<value>"', part)
             continue
 
         fenced_parts = MARKDOWN_FENCED_CODE_RE.split(part)
