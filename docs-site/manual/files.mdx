@@ -5,22 +5,27 @@ title: "Managing Files and Your Collection"
 ## Checking Your Collection
 
 It is a good idea to occasionally check your collection file for
-problems. You can do this via the Tools>Check Database menu item.
+problems. You can do this via the Tools&gt;Check Database menu item.
 Checking the database ensures the file has not been corrupted, rebuilds some
 internal structures, and optimizes the file.
 
 When you check the database, your tag list is also rebuilt. When you
 delete individual decks or cards, Anki does not update the list of used
 tags, as it's inefficient to do so. If you want to clear old tags out
-from the list that are no longer in use, checking your database is the
+from the list that are no longer in use, checking your database is one
 way to do it.
 
-Please note that Anki will automatically optimize your collection once
+<Note>
+    The clearing out of unused tags is not synced to other devices with the rest of your
+    collection, so you will need to run *Check Database* separately on each device.
+</Note>
+
+Note that Anki will automatically optimize your collection once
 every 2 weeks. This optimization ensures the collection performs well,
 but it does not check for errors or rebuild the tag list when
 automatically optimizing.
 
-<span id="file-locations"></span>
+<a id="file-locations"></a>
 
 ## User Data
 
@@ -80,7 +85,7 @@ Removing that folder will cause the launcher to behave like a fresh install.
 The `AnkiProgramFiles` contains all the files needed to run Anki aside from
 the launcher. You can copy it to a different folder or system, and start
 Anki from the new location by opening `AnkiProgramFiles/.venv/bin/anki` (or
-`AnkiProgramFiles\.venv\scripts\anki` on Windows). If placed in the standard location on a new computer, the launcher will also be able to reuse the existing files, provided the files were copied with modification times preserved.
+`AnkiProgramFiles\.venv\scripts\anki` on Windows). If placed in the standard location on a new computer, the launcher will also be able to re-use the existing files, provided the files were copied with modification times preserved.
 
 See the flash drive section below for more.
 
@@ -101,17 +106,15 @@ most circumstances.
 
 The syntax to specify an alternate folder is as follows:
 
-```text
-anki -b /path/to/anki/folder
-```
+    anki -b /path/to/anki/folder
 
-- If you have multiple profiles, you can pass `-p <name>` to load
+- If you have multiple profiles, you can pass -p &lt;name&gt; to load
   a specific profile.
-- If you pass `-p some-fake-name`, Anki will show the profile screen on startup.
+- If you pass -p some-fake-name, Anki will show the profile screen on startup.
   If no profile is provided, the last-used profile is loaded.
 
-- To change the interface language, use -l \<iso 639-1 language
-  code>, such as "-l ja" for Japanese.
+- To change the interface language, use -l &lt;iso 639-1 language
+  code&gt;, such as "-l ja" for Japanese.
 
 If you always want to use a custom folder location, you can modify your
 shortcut to Anki. On Windows, right-click on the shortcut, choose
@@ -119,9 +122,7 @@ Properties, select the Shortcut tab, and add "-b
 \\path\\to\\data\\folder" after the path to the program, which should
 leave you with something like
 
-```text
-"C:\Program Files\Anki\anki.exe" -b "C:\AnkiDataFolder"
-```
+    "C:\Program Files\Anki\anki.exe" -b "C:\AnkiDataFolder"
 
 You can also use this technique with the -l option to easily use Anki in
 different languages.
@@ -132,22 +133,16 @@ On a Mac there is no easy way to alter the behaviour when clicking on
 the Anki icon, but it is possible to start Anki with a custom base
 folder from a terminal:
 
-```text
-open /Applications/Anki.app --args -b ~/myankifolder
-```
+    open /Applications/Anki.app --args -b ~/myankifolder
 
 Alternatively, you can define the environment variable "ANKI_BASE".
 On Windows, you can define the environment variable with:
 
-```text
-set "ANKI_BASE=C:/path/to/AnkiDataFolder"
-```
+    set "ANKI_BASE=C:/path/to/AnkiDataFolder"
 
 On Linux and macOS, you can use:
 
-```text
-export ANKI_BASE="/path/to/AnkiDataFolder"
-```
+    export ANKI_BASE="/path/to/AnkiDataFolder"
 
 ## DropBox and File Syncing
 
@@ -156,7 +151,7 @@ third-party synchronization service, as it can lead to database
 corruption when files are synced while in use.
 
 If you just want to synchronize your media, you can link external
-folders into services like DropBox. Please see [DropboxWiki: Sync
+folders into services like DropBox. See [DropboxWiki: Sync
 Folders Outside Dropbox (archive.org)][dropboxwiki-sync-other]
 for more info.
 
@@ -172,7 +167,7 @@ never synchronized while they are open.
 
 We strongly recommend you have Anki store your files on a local hard
 disk, as network filesystems can lead to database corruption. If a
-network filesystem is your only option, regular use of Tools>Check
+network filesystem is your only option, regular use of Tools&gt;Check
 Database to detect corruption is recommended.
 
 ## Running from a Flash Drive
@@ -181,32 +176,30 @@ On Windows, Anki can be installed on a USB / flash drive and run as a
 portable application. The following example assumes your USB drive is
 drive E; adjust as necessary.
 
-- Copy the `%LOCALAPPDATA%\Programs\Anki` folder to the flash drive, so you
-  have a folder like `E:\\Anki`.
-- Create a text file called `E:\\anki.bat` with the following text:
-    ```bat
+- Copy the %LOCALAPPDATA%\Programs\Anki folder to the flash drive, so you
+  have a folder like E:\\Anki.
+
+- Create a text file called E:\\anki.bat with the following text:
+
     E:\anki\anki.exe -b E:\ankidata
-    ```
-- If you would like to prevent the black command prompt window from
-  remaining open, you can instead use:
-    ```bat
+
+If you would like to prevent the black command prompt window from
+remaining open, you can instead use:
+
     start /b E:\anki\anki.exe -b E:\ankidata
-    ```
-- Double-clicking on `anki.bat` should start Anki with the user data
-  stored in `E:\\ankidata`.
+
+- Double-clicking on anki.bat should start Anki with the user data
+  stored in E:\\ankidata.
 
 The full path including drive letter is required - if you try using
 `\anki\anki.exe` instead you will find syncing stops working.
 
-<Warning>
-    The drive letter must be the same on all devices. If you set this up for drive E, it
-    won't work for a flash drive mapped to drive D for example.
-</Warning>
+WARNING: The drive letter must be the same on all devices. If you set this up for drive E,
+it won't work for a flash drive mapped to drive D for example.
 
-<Warning>
-    Media syncing with AnkiWeb may not work if your flash drive is formatted as FAT32.
-    Please format the drive as NTFS to ensure media syncs correctly.
-</Warning>
+WARNING: Media syncing with AnkiWeb may not work if your flash drive is formatted
+as FAT32. Please format the drive as NTFS to ensure media syncs
+correctly.
 
 ### Anki Launcher
 
@@ -230,12 +223,12 @@ start /b %ANKI_LAUNCHER%
 4. Double-click on the .bat file you created, and install Anki as normal.
 5. You can now double-click on the .bat file to run Anki from other machines.
 
-Tools>Upgrade/Downgrade will continue to function, but only when your machine
+Tools&gt;Upgrade/Downgrade will continue to function, but only when your machine
 has access to the internet.
 
 ## Backups
 
-Please see [this section](./backups).
+See [this section](./backups).
 
 ## Inaccessible Harddisk
 
@@ -277,7 +270,7 @@ crashes, but it's still possible for your collection to become corrupt
 if the files are modified while Anki is open, stored on a network drive,
 or corrupted by a bug.
 
-When you run Tools>Check Database, you will receive a message if Anki
+When you run Tools&gt;Check Database, you will receive a message if Anki
 detects the file has been corrupted. **The best way to recover from this
 is to restore from the most recent [automatic backup](#backups)**, but
 if your backup is too old, then you can attempt to repair the corruption
@@ -295,18 +288,14 @@ goes wrong with the steps below.
 Open a terminal, change to the folder your collection is located in, and
 type:
 
-```text
-sqlite3 collection.anki2 .dump > dump.txt
-```
+    sqlite3 collection.anki2 .dump &gt; dump.txt
 
 Open the resulting dump.txt file in a text editor, and look at the final
 line. If it reads "rollback;", change it to "commit;"
 
 Then run the following in a terminal:
 
-```text
-cat dump.txt | sqlite3 temp.file
-```
+    cat dump.txt | sqlite3 temp.file
 
 Make sure you use temp.file - do not put collection.anki2 on the right,
 or you will blank out the file. When you're done, proceed to the final
@@ -315,31 +304,25 @@ step.
 ### Windows
 
 Copy the `sqlite3.exe` program and your deck to your desktop. Then go to
-**Start>Run** and type in `cmd.exe`.
+**Start&gt;Run** and type in `cmd.exe`.
 
 If you're on a recent Windows, the command prompt may not start on your
 desktop. If you don't see desktop displayed in the command prompt, type
 something like the following, replacing "administrator" with your login
 name.
 
-```text
-cd C:\Users\Administrator\Desktop
-```
+    cd C:\Users\Administrator\Desktop
 
 Then type:
 
-```text
-sqlite3 collection.anki2 .dump > dump.txt
-```
+    sqlite3 collection.anki2 .dump &gt; dump.txt
 
 Open the resulting dump.txt file in a text editor, and look at the final
 line. If it reads "rollback;", change it to "commit;"
 
 Then run the following in a terminal:
 
-```text
-type dump.txt | sqlite3 temp.file
-```
+    type dump.txt | sqlite3 temp.file
 
 Make sure you use temp.file - do not put collection.anki2 on the right,
 or you will blank out the file. When you're done, proceed to the final
@@ -360,5 +343,5 @@ When you've confirmed the file is not empty:
 - move collection.anki2 back into your collection folder, overwriting
   the old version
 
-- start Anki and go to Tools>Check Database to make sure the
+- start Anki and go to Tools&gt;Check Database to make sure the
   collection has been successfully restored.

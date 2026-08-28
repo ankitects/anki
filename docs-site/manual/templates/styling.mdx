@@ -19,7 +19,7 @@ The standard options available to you are:
 The name of the font to use on the card. If your font has spaces in it
 like "MS Unicode", then you need to surround the font name in double
 quotes, like `font-family: "MS Unicode";`. It is also possible to use multiple fonts on
-one card; for information on that, please see below.
+one card; for information on that, see below.
 
 **font-size**\
 The size of the font in pixels. When changing it, make sure you leave px
@@ -31,7 +31,7 @@ Whether the text should be aligned in the center, left, or right.
 **color**\
 The color of the text. Simple color names like "blue", "lightyellow",
 and so on will work, or you can use HTML color codes to select arbitrary
-colors. Please see [this webpage](https://htmlcolorcodes.com/) for more
+colors. See [this webpage](https://htmlcolorcodes.com/) for more
 information.
 
 **background-color**\
@@ -39,7 +39,7 @@ The color of the card background.
 
 Any CSS can be placed in the styling section – advanced users may wish
 to do things like add a background image or gradient, for example. If
-you’re wondering how to get some particular formatting, please search
+you’re wondering how to get some particular formatting, search
 the web for information about how to do it in CSS, as there is a great
 deal of documentation available.
 
@@ -95,7 +95,7 @@ img#star {
 
 You can explore the styling of cards interactively by using Chrome:
 
-[Porting Anki 2.0 add-ons](/addons/porting2.0#webview-changes)
+[/./addons/porting2.0#webview-changes](/./addons/porting2.0#webview-changes)
 
 Anki 2.1.50+ supports image resizing within the editor natively.
 
@@ -110,24 +110,18 @@ appropriate font has been chosen.
 Say you have an “Expression” field, and you want to give it the macOS Thai
 font “Ayuthaya”. Imagine your template already reads:
 
-```text
-What is {{Expression}}?
+    What is \{\{Expression\}\}?
 
-{{Notes}}
-```
+    \{\{Notes\}\}
 
 What we need to do is wrap the text we want to style in some HTML. We
 will put the following in front of the text:
 
-```text
-<div class=mystyle1>
-```
+    &lt;div class=mystyle1&gt;
 
 And the following behind it:
 
-```text
-</div>
-```
+    &lt;/div&gt;
 
 By wrapping the text like the above, we tell Anki to style the wrapped
 text with a custom style called “mystyle1”, which we will create later.
@@ -135,20 +129,16 @@ text with a custom style called “mystyle1”, which we will create later.
 Thus if we wanted the entire “What is …​?” expression to use the Thai
 font, we would use:
 
-```text
-<div class=mystyle1>What is {{Expression}}?</div>
+    &lt;div class=mystyle1&gt;What is \{\{Expression\}\}?&lt;/div&gt;
 
-{{Notes}}
-```
+    \{\{Notes\}\}
 
 And if we wanted only the expression field itself to use the Thai font,
 we’d use:
 
-```text
-What is <div class=mystyle1>{{Expression}}</div>?
+    What is &lt;div class=mystyle1&gt;\{\{Expression\}\}&lt;/div&gt;?
 
-{{Notes}}
-```
+    \{\{Notes\}\}
 
 After we’ve edited the template, we now need to move to the Styling
 section between the templates. Before editing it, it should look
@@ -192,7 +182,7 @@ like:
 ```
 
 It’s also possible to bundle custom fonts with your deck, so you don’t
-need to install them on your computer or mobile device. Please see the
+need to install them on your computer or mobile device. See the
 [installing fonts](#installing-fonts) section for more info.
 
 ## Audio Replay Buttons
@@ -234,11 +224,9 @@ you can add the CSS `direction` property to the .card section for correct displa
 This will change the direction of the entire card. You can change the direction
 of only certain fields by wrapping their references in some HTML:
 
-```text
-<div dir="rtl">{{Front}}</div>
-```
+    &lt;div dir="rtl"&gt;\{\{Front\}\}&lt;/div&gt;
 
-To change the direction of fields in the editor, please see
+To change the direction of fields in the editor, see
 the [editing](../editing#customizing-fields) section.
 
 ## Displaying Code Snippets
@@ -261,9 +249,9 @@ Use `<pre><code>` for multi-line code:
 
 ```html
 <pre><code>
-function square(number) {
+function square(number) \{
   return number * number;
-};
+\};
 </code></pre>
 ```
 
@@ -298,44 +286,44 @@ font depending on where you’re reviewing:
 
 ```css
 /* Windows */
-.win .example {
-    font-family: "Example1";
-}
+.win .example \{
+  font-family: "Example1";
+\}
 /* macOS */
-.mac .example {
-    font-family: "Example2";
-}
+.mac .example \{
+  font-family: "Example2";
+\}
 /* Linux desktops */
-.linux:not(.android) .example {
-    font-family: "Example3";
-}
+.linux:not(.android) .example \{
+  font-family: "Example3";
+\}
 /* both Linux desktops, and Android devices */
-.linux .example {
-    font-family: "Example4";
-}
+.linux .example \{
+  font-family: "Example4";
+\}
 /* both Android and iOS */
-.mobile .example {
-    font-family: "Example5";
-}
+.mobile .example \{
+  font-family: "Example5";
+\}
 /* iOS */
 .iphone .example,
-.ipad .example {
-    font-family: "Example6";
-}
+.ipad .example \{
+  font-family: "Example6";
+\}
 /* Android */
-.android .example {
-    font-family: "Example7";
-}
+.android .example \{
+  font-family: "Example7";
+\}
 ```
 
 And in the template:
 
 ```html
-<div class="example">{{Field}}</div>
+<div class="example">\{\{Field\}\}</div>
 ```
 
 You can also use properties like .gecko, .opera, and .ie to select
-particular browsers when using AnkiWeb. Please see
+particular browsers when using AnkiWeb. See
 [http://rafael.adm.br/css_browser_selector/](http://rafael.adm.br/css_browser_selector/) for a full list of options.
 
 ## Installing Fonts
@@ -358,10 +346,7 @@ it to the media folder.
    checking for unused media.
 
 2. In your computer’s file browser, go to your Anki application data folder (see [File Locations](../files#file-locations) for details),
-
-```text
-and then into your profile folder (e.g., "User 1").
-```
+   and then into your profile folder (e.g., "User 1").
 
 3. Inside the folder, you should see a folder called collection.media.
    Drag the renamed file to that folder.
@@ -381,10 +366,10 @@ template.
    the file you copied into your media folder:
 
 ```css
-@font-face {
-    font-family: myfont;
-    src: url("_arial.ttf");
-}
+@font-face \{
+  font-family: myfont;
+  src: url("_arial.ttf");
+\}
 ```
 
 Only change the "arial" part, not the "myfont" part.
@@ -392,10 +377,10 @@ Only change the "arial" part, not the "myfont" part.
 After that, you can either change the font for the entire card, or for
 individual fields. To change the font for the entire card, simply locate
 the font-family: line in the .card section and change the font to
-"myfont". To change the font for only certain fields, please see the
+"myfont". To change the font for only certain fields, see the
 [Field Styling](#field-styling) instructions above.
 
-Please make sure the filenames match exactly. If the file is called
+Make sure the filenames match exactly. If the file is called
 arial.TTF and you write arial.ttf in your card templates, it will not
 work.
 
@@ -408,18 +393,18 @@ If you wanted a lighter grey background, you could use
 something like:
 
 ```css
-.card.nightMode {
-    background-color: #555;
-}
+.card.nightMode \{
+  background-color: #555;
+\}
 ```
 
 If you have a "myclass" style, the following would show the text in
 yellow when night mode is enabled:
 
 ```css
-.nightMode .myclass {
-    color: yellow;
-}
+.nightMode .myclass \{
+  color: yellow;
+\}
 ```
 
 ## Fading and Scrolling
@@ -446,7 +431,7 @@ template:
 
 As Anki cards are treated like web pages, it is possible to embed some
 Javascript on your cards via the card template. For a good reference
-please read [this post](https://forums.ankiweb.net/t/card-templates-user-input-101-buttons-keyboard-shortcuts-etc-guide/13756)
+read [this post](https://forums.ankiweb.net/t/card-templates-user-input-101-buttons-keyboard-shortcuts-etc-guide/13756)
 in the forums.
 
 Because Javascript is an advanced feature and so many things can go
@@ -466,6 +451,6 @@ document.getElementById() rather than doing things like
 document.write().
 
 Functions like window.alert may not be available. Anki will write
-javascript errors to the terminal, so you'll need to [view the console](/addons/console-output#console-output) to
+javascript errors to the terminal, so you'll need to [view the console](/./addons/console-output#console-output) to
 see them. To debug issues with JavaScript, you can use Chrome's
-[inspector](/addons/debugging#webviews).
+[inspector](/./addons/debugging#webviews).

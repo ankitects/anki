@@ -35,4 +35,4 @@ cd %APPDATA%
 
 icacls Anki2 /t
 
-Then please copy & paste or screenshot what you see, and post it to us in a support ticket.
+Then copy & paste or screenshot what you see, and post it to us in a support ticket.

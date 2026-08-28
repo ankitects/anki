@@ -3,19 +3,19 @@ title: "Syncing with AnkiWeb"
 ---
 
 AnkiWeb is a service that allows you to keep your collection
-synchronized across multiple devices, and to study online. Please sign
+synchronized across multiple devices, and to study online. Sign
 up for a [free account](https://ankiweb.net/) before following the steps
 below.
 
 ## Intro Videos
 
-For a quick introduction to syncing, please check out the
+For a quick introduction to syncing, check out the
 [syncing intro videos](https://www.youtube.com/watch?v=YkiM4DPzSVc&list=PLGgmaKOIHykFoomqkBJAyGiDQ2kyiuTao&yt:cc=on).
 
 ## Setup
 
 To start syncing your collection across devices, click the sync button
-(the top right one on the [main screen](./studying#decks), or press <kbd>Y</kbd> on your keyboard.
+(the top right one on the [main screen](studying#decks), or press <kbd>Y</kbd> on your keyboard.
 You’ll be prompted for your AnkiWeb ID and password, which you created
 in the signup process.
 
@@ -40,7 +40,7 @@ with a single AnkiWeb account, you will lose data.
 
 Once syncing is enabled, Anki will automatically sync each time your
 collection is closed or opened. If you would prefer to synchronize
-manually, you can disable automatic syncing in Anki’s [preferences.](./preferences#syncing)
+manually, you can disable automatic syncing in Anki’s [preferences.](preferences#syncing)
 
 ## Button Color
 
@@ -52,7 +52,7 @@ and red when a full sync is required.
 You can watch a [related video](https://www.youtube.com/watch?v=phP9GGG-PxY) on this topic.
 
 Anki will synchronize any sounds and images used by your notes. It will
-notice when media has been added, removed or replaced in your [media folder](./files#user-data), but
+notice when media has been added, removed or replaced in your [media folder](files#user-data), but
 will not notice if you have made edits to existing files. To get your edits synced, you
 need to add, remove or replace a file as well.
 
@@ -67,7 +67,7 @@ If you have accidentally deleted media files, and want to restore them, open the
 and log out. The next time you sync, Anki will restore any deleted files, if they are available
 on AnkiWeb still.
 
-If you’re running Anki off a [USB flash drive](./files#running-from-a-flash-drive), you should use an NTFS
+If you’re running Anki off a [USB flash drive](files#running-from-a-flash-drive), you should use an NTFS
 file system, as Anki may not be able to detect media changes on a FAT32
 filesystem.
 
@@ -92,7 +92,7 @@ next synchronized.
 
 If certain problems are detected while syncing, Anki forces a
 
-one-way sync. If you find this consistently happening, please post on our
+one-way sync. If you find this consistently happening, post on our
 [support site](https://forums.ankiweb.net).
 
 When a one-way sync is required, you need to choose whether you wish to
@@ -114,11 +114,11 @@ If you wish to force a full upload or download (for example, because you
 accidentally deleted a deck on one side and want to restore the deck
 rather than having its deletion synchronized), you can check the "On
 next sync, force changes in one direction" box in
-**Tools > Preferences > Network**, then sync as usual. (You’ll be given
+**Tools &gt; Preferences &gt; Network**, then sync as usual. (You’ll be given
 the option to choose which side you want to use.)
 
 Forcing a one way sync only affects card syncing - media is synced as
-normal. If you have files that you want to remove from AnkiWeb, please
+normal. If you have files that you want to remove from AnkiWeb,
 ensure your client is fully in sync first. After syncing is up to date,
 any files you remove (e.g. via the **Check Media** function) will be removed
 from AnkiWeb on the following sync.
@@ -132,7 +132,7 @@ if you overwrite it with the content from the other device. With some
 work, it is possible to manually merge data into a single collection.
 
 Start by taking a backup on each device/profile, in case something goes
-wrong. With the computer version you can use **File > Export** to export
+wrong. With the computer version you can use **File &gt; Export** to export
 "all decks" with scheduling information and media files included, and
 save the file somewhere safe. In AnkiMobile, the Add/Export button on
 the decks list screen will let you export all decks with media.
@@ -156,7 +156,7 @@ Once all top-level decks have been exported, click the sync button at
 the top right, and choose **Download**, which will overwrite the local
 content with the content you synced from your other device.
 
-You can now use **File > Import** to import the `.apkg` files you exported
+You can now use **File &gt; Import** to import the `.apkg` files you exported
 earlier, which will merge the exported content with the existing
 content, so everything will be in one place.
 
@@ -184,7 +184,7 @@ your account will automatically be marked as active.
 
 If your account has been inactive for 6 months or more, and you used the service for a week or longer,
 we will send you an email notifying you that deletion is pending.
-If you'd like to keep your account active, please log in to ankiweb.net
+If you'd like to keep your account active, log in to ankiweb.net
 and study a card, or sync one of your devices within 30 days.
 
 ## Firewalls
@@ -196,7 +196,7 @@ change, so we recommend you allow wildcard access to \*.ankiweb.net to reduce
 the chance of the firewall rules needing to be updated in the future.
 
 If you have a firewall on your machine, you should add an exception for
-Anki. If you are on a work or school network, please contact your
+Anki. If you are on a work or school network, contact your
 network administrator for assistance - it is not something we can help
 you with.
 
@@ -215,23 +215,19 @@ password, you will need to manually tell Anki the proxy configuration.
 To tell Anki your proxy settings, define a HTTPS_PROXY environment
 variable that points to the proxy server. It will look like:
 
-```text
-http://user:pass@proxy.company.com:8080
-```
+    http://user:pass@proxy.company.com:8080
 
 If your username or password contains an @ (e.g `user@workdomain.com`),
 you need to change it to %40, like so:
 
-```text
-http://user%40workdomain.com:pass@proxy.company.com:8080
-```
+    http://user%40workdomain.com:pass@proxy.company.com:8080
 
 Anki 2.0 expects to find HTTP_PROXY instead of HTTPS_PROXY.
 
-To set environment variables on Windows, please see
+To set environment variables on Windows, see
 [https://duckduckgo.com/?q=windows+set+environment+variable](https://duckduckgo.com/?q=windows+set+environment+variable)
 
-If you’re on a Mac, please see
+If you’re on a Mac, see
 [http://stackoverflow.com/questions/135688/setting-environment-variables-in-os-x](http://stackoverflow.com/questions/135688/setting-environment-variables-in-os-x)
 
 Heavily locked down networks that intercept secure connections and
