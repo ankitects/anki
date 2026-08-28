@@ -140,6 +140,9 @@ title: "{title}"
             replacement = f"/{language_code_url}{replacement}"
         content = pattern.sub(replacement, content)
 
+    # Remove toc
+    content = re.sub(r"<!--\s*toc\s*-->", "", content, flags=re.IGNORECASE)
+    # Sanitize braces and HTML comments for MDX compatibility.
     content = content.replace("{", "\\{").replace("}", "\\}")
     content = content.replace("<!--", "{/*").replace("-->", "*/}")
     # Escape plain text nodes for MDX while preserving actual HTML tags.
@@ -331,7 +334,7 @@ def main():
         output_path.parent.mkdir(parents=True, exist_ok=True)
         content = page.src.read_text(encoding="utf-8")
         output_path.write_text(
-            format_page(content, language_code_path), encoding="utf-8"
+            format_page(content, str(language_code_path)), encoding="utf-8"
         )
 
     new_tab = deepcopy(default_tab)
