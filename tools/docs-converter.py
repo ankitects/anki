@@ -1,7 +1,6 @@
 # Copyright: Ankitects Pty Ltd and contributors
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 import argparse
-import html as html_lib
 import json
 import re
 from collections.abc import Callable, Iterable
@@ -9,8 +8,6 @@ from copy import deepcopy
 from dataclasses import dataclass
 from pathlib import Path
 from typing import TypeVar
-
-from bs4 import BeautifulSoup, NavigableString
 
 T = TypeVar("T")
 
@@ -23,6 +20,9 @@ HEADING_ANCHOR_RE = re.compile(
 QUICKLINK_RE = re.compile(
     r"<(?P<link>(?:https?|ftp|mailto):[^> ]+|[^<> ]+@[^<> ]+)>", re.DOTALL
 )
+HTML_TAG_RE = re.compile(r"(</?[A-Za-z][^>]*>)")
+MARKDOWN_FENCED_CODE_RE = re.compile(r"(```[\s\S]*?```)")
+MARKDOWN_INLINE_CODE_RE = re.compile(r"(`[^`\n]*`)")
 MARKDOWN_LINK_MD_RE = re.compile(
     r"(\[[^\]]+\]\()(?P<path>[^)\s]+?)\.md(?P<suffix>[#?][^)\s]+)?\)"
 )
@@ -80,7 +80,7 @@ title: "{title}"
             replacement = f"/{language_code}{replacement}"
         content = pattern.sub(replacement, content)
 
-    content = content.replace("{", "\{").replace("}", "\}")
+    content = content.replace("{", "\\{").replace("}", "\\}")
     content = content.replace("<!--", "{/*").replace("-->", "*/}")
     # Escape plain text nodes for MDX while preserving actual HTML tags.
     content = escape_text_preserve_html(content)
@@ -113,16 +113,28 @@ class Page:
 
 
 def escape_text_preserve_html(raw: str) -> str:
-    soup = BeautifulSoup(raw, "html.parser")
-
-    for node in soup.find_all(string=True):
-        # Skip script/style content if you want
-        if node.parent and node.parent.name in {"script", "style"}:
+    parts = HTML_TAG_RE.split(raw)
+    for idx, part in enumerate(parts):
+        if part.startswith("<") and part.endswith(">"):
             continue
-        escaped = html_lib.escape(str(node), quote=False)  # < and > only
-        node.replace_with(NavigableString(escaped))
 
-    return str(soup)
+        fenced_parts = MARKDOWN_FENCED_CODE_RE.split(part)
+        for f_idx, fenced_part in enumerate(fenced_parts):
+            if MARKDOWN_FENCED_CODE_RE.fullmatch(fenced_part):
+                continue
+
+            inline_parts = MARKDOWN_INLINE_CODE_RE.split(fenced_part)
+            for i_idx, inline_part in enumerate(inline_parts):
+                if MARKDOWN_INLINE_CODE_RE.fullmatch(inline_part):
+                    continue
+                inline_parts[i_idx] = inline_part.replace("<", "&lt;").replace(
+                    ">", "&gt;"
+                )
+            fenced_parts[f_idx] = "".join(inline_parts)
+
+        parts[idx] = "".join(fenced_parts)
+
+    return "".join(parts)
 
 
 def main():
@@ -140,7 +152,7 @@ def main():
 
     parser.parse_args()
 
-    language_code = "en"
+    language_code = "ar"
     if language_code == "en":
         language_code = ""
 
