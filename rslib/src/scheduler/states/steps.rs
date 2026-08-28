@@ -40,29 +40,6 @@ impl LearningSteps<'_> {
         self.secs_at_index(idx)
             // if current is invalid, try first step
             .or_else(|| self.steps.first().copied().map(to_secs))
-            .map(|current| {
-                if idx == 0 {
-                    self.hard_delay_secs_for_first_step(current)
-                } else {
-                    current
-                }
-            })
-    }
-
-    /// Special case the hard interval for the first step to avoid equality with
-    /// the again interval. Also ensure it's smaller than the good interval,
-    /// at least with reasonable settings.
-    fn hard_delay_secs_for_first_step(self, again_secs: u32) -> u32 {
-        if let Some(next) = self.secs_at_index(1) {
-            // average of first (again) and second (good) steps
-            maybe_round_in_days(again_secs.saturating_add(next) / 2)
-        } else {
-            // 50% more than the again secs, but at most one day more
-            // otherwise, a learning step of 3 days and a graduating interval of 4 days e.g.
-            // would lead to the hard interval being larger than the good interval
-            let secs = (again_secs.saturating_mul(3) / 2).min(again_secs.saturating_add(DAY));
-            maybe_round_in_days(secs)
-        }
     }
 
     pub(crate) fn good_delay_secs(self, remaining: u32) -> Option<u32> {
@@ -115,21 +92,20 @@ mod test {
 
     #[test]
     fn delay_secs() {
-        // if no other step, hard delay is 50% above again secs
-        assert_delay_secs!([10.0], 1, Some(600), Some(900), None);
-        // but at most one day more than again secs
+        // Hard uses the current step, even when it is the only step.
+        assert_delay_secs!([10.0], 1, Some(600), Some(600), None);
         assert_delay_secs!(
             [(3 * DAY / 60) as f32],
             1,
             Some(3 * DAY),
-            Some(4 * DAY),
+            Some(3 * DAY),
             None
         );
 
-        assert_delay_secs!([1.0, 10.0], 2, Some(60), Some(330), Some(600));
+        assert_delay_secs!([1.0, 10.0], 2, Some(60), Some(60), Some(600));
         assert_delay_secs!([1.0, 10.0], 1, Some(60), Some(600), None);
 
-        assert_delay_secs!([1.0, 10.0, 100.0], 3, Some(60), Some(330), Some(600));
+        assert_delay_secs!([1.0, 10.0, 100.0], 3, Some(60), Some(60), Some(600));
         assert_delay_secs!([1.0, 10.0, 100.0], 2, Some(60), Some(600), Some(6000));
         assert_delay_secs!([1.0, 10.0, 100.0], 1, Some(60), Some(6000), None);
     }
