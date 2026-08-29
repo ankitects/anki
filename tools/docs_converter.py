@@ -267,7 +267,15 @@ def escape_text_preserve_html(raw: str) -> str:
 
 
 def main():
-    parser = argparse.ArgumentParser()
+    parser = argparse.ArgumentParser(
+        description="Convert anki docs from a repo that follows the same format as the anki-manual repo into the main repos mintlify format.",
+        epilog=(
+            "Examples:\n"
+            "  %(prog)s ../anki-manual manual en\n"
+            "  %(prog)s ../anki-faqs faqs ar"
+        ),
+        formatter_class=argparse.RawTextHelpFormatter,
+    )
     parser.add_argument(
         "source_docs_dir",
         help="Path to the directory of the docs you want to import.",
