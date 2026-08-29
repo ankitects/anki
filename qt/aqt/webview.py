@@ -9,6 +9,7 @@ import logging
 import os
 import re
 import sys
+import time
 from collections.abc import Callable, Sequence
 from enum import Enum
 from typing import TYPE_CHECKING, Any, Type, cast
@@ -915,14 +916,16 @@ html {{ {font} }}
         self.load_url(QUrl(f"{mw.serverURL()}_anki/pages/{name}.html{extra}"))
         self._uses_dynamic_styling = True
 
-    def load_sveltekit_page(self, path: str) -> None:
+    def load_sveltekit_page(self, path: str, cache_bust: bool = False) -> None:
         from aqt import mw
 
         self.set_open_links_externally(True)
+
+        extra = ""
+        if cache_bust:
+            extra += "?cb=" + str(time.time())
         if theme_manager.night_mode:
-            extra = "#night"
-        else:
-            extra = ""
+            extra += "#night"
 
         if hmr_mode:
             server = "http://127.0.0.1:5173/"
