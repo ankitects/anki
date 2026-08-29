@@ -43,6 +43,15 @@ class AnkiLoggerManager(logging.Manager):
         logger = super().getLogger(name)
 
         module = name.split(ADDON_LOGGER_PREFIX)[1].partition(".")[0]
+
+        # Only the add-on's base logger gets a file handler. Loggers created
+        # from it via getChild() (e.g. "addon.foo.bar") share this handler
+        # through propagation. Attaching a second handler that points at the
+        # same file would duplicate log lines and, on Windows, raise
+        # PermissionError when the handler rotates an already-open file.
+        if name != ADDON_LOGGER_PREFIX + module:
+            return logger
+
         path = get_addon_logs_folder(self.logs_path, module=module) / f"{module}.log"
         path.parent.mkdir(parents=True, exist_ok=True)
 
