@@ -708,6 +708,19 @@ def import_done() -> bytes:
     return b""
 
 
+def import_dialog_require_close() -> bytes:
+    def handle_on_main() -> None:
+        if window := aqt.mw.app.activeModalWidget():
+            from aqt.import_export.import_dialog import ImportDialog
+
+            if isinstance(window, ImportDialog):
+                window.reject()
+
+    aqt.mw.taskman.run_on_main(handle_on_main)
+
+    return b""
+
+
 def search_in_browser() -> bytes:
     node = SearchNode()
     node.ParseFromString(request.data)
@@ -1089,6 +1102,7 @@ post_handler_list = [
     set_scheduling_states,
     change_notetype,
     import_done,
+    import_dialog_require_close,
     search_in_browser,
     deck_options_require_close,
     deck_options_ready,
