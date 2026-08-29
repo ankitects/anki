@@ -7,11 +7,11 @@ ensuring no duplicate tag/release exists, syncing translations, and
 committing + pushing the updated .version file.
 
 Usage:
-    python3 .github/scripts/prepare_release.py <version> [--skip-ci-check]
+    python3 tools/prepare_release.py <version> [--skip-ci-check]
 
 Examples:
-    python3 .github/scripts/prepare_release.py 26.06
-    python3 .github/scripts/prepare_release.py 26.06b1 --skip-ci-check
+    python3 tools/prepare_release.py 26.06
+    python3 tools/prepare_release.py 26.06b1 --skip-ci-check
 """
 
 import argparse
@@ -21,8 +21,7 @@ import sys
 from dataclasses import dataclass
 from pathlib import Path
 
-# Repo root is two levels up from this script (.github/scripts/)
-REPO_ROOT = Path(__file__).resolve().parent.parent.parent
+REPO_ROOT = Path(__file__).resolve().parent.parent
 GH_REPO = ["--repo", "ankitects/anki"]
 
 
@@ -209,8 +208,8 @@ def main() -> None:
     check_clean()
 
     # Validate version format and ensure it's newer than the current one.
-    sys.path.insert(0, str(REPO_ROOT / ".github" / "scripts"))
-    from validate_version import validate_version
+    sys.path.insert(0, str(REPO_ROOT))
+    from tools.validate_version import validate_version
 
     current_version = (REPO_ROOT / ".version").read_text().strip()
     print(f"Current .version: {current_version}")
