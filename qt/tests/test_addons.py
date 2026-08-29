@@ -92,6 +92,22 @@ def addon_manager(tmp_path) -> AddonManager:
     return adm
 
 
+def test_install_prefers_packaged_name(addon_manager):
+    data = io.BytesIO()
+    with ZipFile(data, "w") as zfile:
+        zfile.writestr(
+            "manifest.json",
+            '{"package": "12345", "name": "Packaged & Name"}',
+        )
+
+    result = addon_manager.install(
+        data, manifest={"package": "12345", "name": "Fallback Name"}
+    )
+
+    assert isinstance(result, InstallOk)
+    assert result.name == "Packaged & Name"
+
+
 def _addon_download(data: bytes, filename: str = "Fallback_Name.zip") -> DownloadOk:
     return DownloadOk(
         data=data,
