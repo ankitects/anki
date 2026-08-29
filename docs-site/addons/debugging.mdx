@@ -28,51 +28,49 @@ window will open up. You can enter expressions or statements into the
 top area, and then press ctrl+return/command+return to evaluate them. An
 example session follows:
 
-```text
->>> mw
-<no output>
+    &gt;&gt;&gt; mw
+    &lt;no output&gt;
 
->>> print(mw)
-<aqt.main.AnkiQt object at 0x10c0ddc20>
+    &gt;&gt;&gt; print(mw)
+    &lt;aqt.main.AnkiQt object at 0x10c0ddc20&gt;
 
->>> invalidName
-Traceback (most recent call last):
-  File "/Users/dae/Lib/anki/qt/aqt/main.py", line 933, in onDebugRet
-    exec text
-  File "<string>", line 1, in <module>
-NameError: name 'invalidName' is not defined
+    &gt;&gt;&gt; invalidName
+    Traceback (most recent call last):
+      File "/Users/dae/Lib/anki/qt/aqt/main.py", line 933, in onDebugRet
+        exec text
+      File "&lt;string&gt;", line 1, in &lt;module&gt;
+    NameError: name 'invalidName' is not defined
 
->>> a = [a for a in dir(mw.form) if a.startswith("action")]
-... print(a)
-... print()
-... pp(a)
-['actionAbout', 'actionCheckMediaDatabase', ...]
+    &gt;&gt;&gt; a = [a for a in dir(mw.form) if a.startswith("action")]
+    ... print(a)
+    ... print()
+    ... pp(a)
+    ['actionAbout', 'actionCheckMediaDatabase', ...]
 
-['actionAbout',
- 'actionCheckMediaDatabase',
- 'actionDocumentation',
- 'actionDonate',
- ...]
+    ['actionAbout',
+     'actionCheckMediaDatabase',
+     'actionDocumentation',
+     'actionDonate',
+     ...]
 
->>> pp(mw.reviewer.card)
-<anki.cards.Card object at 0x112181150>
+    &gt;&gt;&gt; pp(mw.reviewer.card)
+    &lt;anki.cards.Card object at 0x112181150&gt;
 
->>> pp(card()) # shortcut for mw.reviewer.card.__dict__
-{'_note': <anki.notes.Note object at 0x11221da90>,
- '_qa': [...]
- 'col': <anki.collection._Collection object at 0x1122415d0>,
- 'data': u'',
- 'did': 1,
- 'due': -1,
- 'factor': 2350,
- 'flags': 0,
- 'id': 1307820012852L,
- [...]
-}
+    &gt;&gt;&gt; pp(card()) # shortcut for mw.reviewer.card.__dict__
+    \{'_note': &lt;anki.notes.Note object at 0x11221da90&gt;,
+     '_qa': [...]
+     'col': &lt;anki.collection._Collection object at 0x1122415d0&gt;,
+     'data': u'',
+     'did': 1,
+     'due': -1,
+     'factor': 2350,
+     'flags': 0,
+     'id': 1307820012852L,
+     [...]
+    \}
 
->>> pp(bcard()) # shortcut for selected card in browser
-<as above>
-```
+    &gt;&gt;&gt; pp(bcard()) # shortcut for selected card in browser
+    &lt;as above&gt;
 
 Note that you need to explicitly print an expression in order to see
 what it evaluates to. Anki exports pp() (pretty print) in the scope to

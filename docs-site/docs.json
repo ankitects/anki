@@ -314,7 +314,6 @@
                   "addons/the-anki-module",
                   "addons/command-line-use",
                   "addons/hooks-and-filters",
-                  "addons/hooks-reference",
                   "addons/console-output",
                   "addons/background-ops",
                   "addons/qt",
