@@ -71,6 +71,11 @@ impl SqliteStorage {
 
         self.commit_trx()?;
 
+        // The schema-11 downgrade drops tables/indexes, which leaves pages on
+        // the SQLite freelist without shrinking the file. Vacuum afterwards so
+        // legacy exports don't carry this wasted space.
+        self.db.execute_batch("vacuum")?;
+
         Ok(())
     }
 }
@@ -110,6 +115,24 @@ mod test {
             .build()?;
         let card = &col.storage.get_all_cards()[0];
         assert_eq!(card.ease_factor, 1400);
+        Ok(())
+    }
+
+    #[test]
+    fn schema11_downgrade_leaves_no_freelist_pages() -> Result<()> {
+        let tempfile = new_tempfile()?;
+        let mut col = CollectionBuilder::default()
+            .set_collection_path(tempfile.path())
+            .build()?;
+        let nt = col.get_notetype_by_name("Basic")?.unwrap();
+        let mut note = nt.new_note();
+        col.add_note(&mut note, DeckId(1))?;
+        col.close(Some(SchemaVersion::V11))?;
+
+        let conn = rusqlite::Connection::open(tempfile.path())?;
+        let freelist: i64 = conn.query_row("pragma freelist_count", [], |row| row.get(0))?;
+        assert_eq!(freelist, 0);
+
         Ok(())
     }
 }
