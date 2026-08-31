@@ -9,6 +9,7 @@ import stat
 import subprocess
 import zipfile
 from pathlib import Path
+from types import SimpleNamespace
 from typing import Any
 
 import pytest
@@ -50,8 +51,23 @@ def zipped(files: dict[str, bytes]) -> bytes:
     stream = io.BytesIO()
     with zipfile.ZipFile(stream, "w") as archive:
         for name, content in files.items():
-            archive.writestr(name, content)
+            member = zipfile.ZipInfo(name)
+            # Preserve malformed names instead of letting ZipInfo normalize them
+            # on Windows or truncate them at NUL bytes when building the fixture.
+            member.filename = name
+            archive.writestr(member, content)
     return stream.getvalue()
+
+
+@pytest.fixture(params=[("/", None), ("\\", "/")], ids=["posix", "windows"])
+def zip_path_separators(
+    request: pytest.FixtureRequest, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    # Exercise both platforms' ZIP normalization without changing the OS module
+    # used by pytest, pathlib, or the rest of the application.
+    zip_os = SimpleNamespace(**vars(os))
+    zip_os.sep, zip_os.altsep = request.param
+    monkeypatch.setattr(zipfile, "os", zip_os)
 
 
 def reports() -> dict[str, bytes]:
@@ -182,11 +198,20 @@ def test_invalid_pr_number(value: str) -> None:
         "/tmp/settings",
         "rust/../../settings",
         "rust\\clippy.json",
+        "rust/clippy.json\x00ignored",
     ],
 )
-def test_rejects_archive_path_traversal(name: str) -> None:
+def test_rejects_archive_path_traversal(name: str, zip_path_separators: None) -> None:
+    data = zipped({name: b"bad"})
+    with zipfile.ZipFile(io.BytesIO(data)) as archive:
+        assert archive.infolist()[0].orig_filename == name
     with pytest.raises(ValueError, match="Unsafe artifact"):
-        sonar.read_zip(zipped({name: b"bad"}), {"rust/clippy.json"}, 64)
+        sonar.read_zip(data, {"rust/clippy.json"}, 64)
+
+
+def test_accepts_archive_with_exact_names(zip_path_separators: None) -> None:
+    files = {"rust/clippy.json": b"{}"}
+    assert sonar.read_zip(zipped(files), set(files), 64) == files
 
 
 def test_rejects_archive_symlink_duplicate_and_oversize() -> None:

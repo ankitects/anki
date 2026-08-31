@@ -75,8 +75,11 @@ def read_zip(data: bytes, names: set[str], limit: int) -> dict[str, bytes]:
             raise ValueError("Expanded artifact is too large")
         for member in members:
             kind = stat.S_IFMT(member.external_attr >> 16)
+            # zipfile normalizes Windows separators and truncates NUL bytes.
+            # Require the original archive name to match the allowlisted name.
             if (
-                member.filename not in names
+                member.orig_filename != member.filename
+                or member.filename not in names
                 or member.filename in result
                 or kind not in (0, stat.S_IFREG)
                 or member.file_size > limit
