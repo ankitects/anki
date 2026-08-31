@@ -98,7 +98,7 @@ AUDIO_EXTENSIONS = {
 
 
 def is_audio_file(fname: str) -> bool:
-    ext = fname.split(".")[-1].lower()
+    ext = fname.rsplit(".", maxsplit=1)[-1].lower()
     return ext in AUDIO_EXTENSIONS
 
 

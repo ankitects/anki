@@ -240,6 +240,7 @@ export interface DefaultSlotInterface extends Record<string, unknown> {
     show(position: Identifier): Promise<boolean>;
     hide(position: Identifier): Promise<boolean>;
     toggle(position: Identifier): Promise<boolean>;
+    setShown(position: Identifier, shown: boolean): Promise<boolean>;
 }
 
 export function defaultInterface<T extends SlotHostProps, U extends Element>({
@@ -287,12 +288,20 @@ export function defaultInterface<T extends SlotHostProps, U extends Element>({
         }, id);
     }
 
+    function setShown(id: Identifier, shown: boolean): Promise<boolean> {
+        return updateProps((props: T): T => {
+            props.detach.set(!shown);
+            return props;
+        }, id);
+    }
+
     return {
         insert,
         append,
         show,
         hide,
         toggle,
+        setShown,
     };
 }
 

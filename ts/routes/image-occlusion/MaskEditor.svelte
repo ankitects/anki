@@ -20,7 +20,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     export let mode: IOMode;
     const iconSize = 80;
-    let innerWidth = 0;
     const startingTool = mode.kind === "add" ? "draw-rectangle" : "cursor";
     let canvas: fabric.Canvas | null = null;
 
@@ -82,30 +81,41 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     };
 </script>
 
-<Toolbar {canvas} {iconSize} activeTool={startingTool} />
-<div class="editor-main" bind:clientWidth={innerWidth}>
-    <div class="editor-container" use:init>
-        <!-- svelte-ignore a11y-missing-attribute -->
-        <img id="image" />
-        <canvas id="canvas"></canvas>
+<div class="mask-editor">
+    <Toolbar {canvas} {iconSize} activeTool={startingTool} />
+    <div class="editor-main">
+        <div class="editor-container" use:init>
+            <!-- svelte-ignore a11y-missing-attribute -->
+            <img id="image" />
+            <canvas id="canvas"></canvas>
+        </div>
     </div>
 </div>
 
 <style lang="scss">
-    .editor-main {
-        position: absolute;
-        top: 42px;
-        left: 36px;
-        bottom: 2px;
-        right: 2px;
-        border: 1px solid var(--border);
-        overflow: auto;
-        outline: none !important;
+    .mask-editor {
+        height: 100%;
+        display: grid;
+        grid-template-columns: auto 1fr;
+        grid-template-rows: auto 1fr;
     }
 
-    :global([dir="rtl"]) .editor-main {
-        left: 2px;
-        right: 36px;
+    :global(.tool-bar-container) {
+        grid-column: 1;
+        grid-row: 1 / -1;
+    }
+
+    :global(.top-toolbar-wrapper) {
+        grid-column: 2;
+        grid-row: 1;
+    }
+
+    .editor-main {
+        grid-column: 2;
+        grid-row: 2;
+        overflow: auto;
+        outline: none !important;
+        min-height: 0;
     }
 
     .editor-container {

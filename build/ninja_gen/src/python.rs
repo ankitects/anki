@@ -156,23 +156,19 @@ impl BuildAction for PythonEnvironment {
 }
 
 pub struct PythonTypecheck {
-    pub folders: &'static [&'static str],
     pub deps: BuildInput,
 }
 
 impl BuildAction for PythonTypecheck {
     fn command(&self) -> &str {
-        "$mypy $folders"
+        "$mypy"
     }
 
     fn files(&mut self, build: &mut impl crate::build::FilesHandle) {
         build.add_inputs("", &self.deps);
         build.add_inputs("mypy", inputs![":pyenv:mypy"]);
         build.add_inputs("", inputs![".mypy.ini"]);
-        build.add_variable("folders", self.folders.join(" "));
-
-        let hash = simple_hash(self.folders);
-        build.add_output_stamp(format!("tests/python_typecheck.{hash}"));
+        build.add_output_stamp("tests/python_typecheck");
     }
 
     fn hide_progress(&self) -> bool {
@@ -319,7 +315,7 @@ pub fn check_complexity(
     deps: BuildInput,
 ) -> Result<()> {
     build.add_action(
-        format!("check:complexipy:{group}"),
+        format!("complexipy:{group}"),
         Complexipy {
             deps: deps.clone(),
             folder,
@@ -327,7 +323,7 @@ pub fn check_complexity(
         },
     )?;
     build.add_action(
-        format!("check:complexipy-diff:{group}"),
+        format!("complexipy-diff:{group}"),
         Complexipy {
             deps,
             folder,
