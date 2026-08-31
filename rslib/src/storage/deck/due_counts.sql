@@ -16,7 +16,7 @@ SELECT did,
     (
       (
         queue = :learn_queue
-        AND due < :learn_cutoff
+        AND due <= :learn_cutoff
       )
       OR (
         queue = :preview_queue
