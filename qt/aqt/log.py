@@ -26,10 +26,10 @@ class AnkiLoggerManager(logging.Manager):
     # inspired by: https://github.com/abdnh/ankiutils/blob/master/src/ankiutils/log.py
 
     def __init__(
-        self,
-        logs_path: Path | str,
-        existing_loggers: dict[str, logging.Logger | logging.PlaceHolder],
-        rootnode: logging.RootLogger,
+            self,
+            logs_path: Path | str,
+            existing_loggers: dict[str, logging.Logger | logging.PlaceHolder],
+            rootnode: logging.RootLogger,
     ):
         super().__init__(rootnode)
         self.loggerDict = existing_loggers
@@ -46,7 +46,9 @@ class AnkiLoggerManager(logging.Manager):
             # Create a new add-on logger
             logger = super().getLogger(addon_logger_name)
 
-            path = get_addon_logs_folder(self.logs_path, module=module) / f"{module}.log"
+            path = (
+                get_addon_logs_folder(self.logs_path, module=module) / f"{module}.log"
+            )
             path.parent.mkdir(parents=True, exist_ok=True)
 
             # Keep the last 10 days of logs
