@@ -139,6 +139,15 @@ sonar-clippy-report:
     mkdir -p out/coverage/rust
     CARGO_TARGET_DIR=out/rust cargo clippy --profile {{ if env("CI", "") == "true" { "ci" } else { "dev" } }} --locked --tests --message-format=json-render-diagnostics -- -Dclippy::dbg_macro -Dwarnings > out/coverage/rust/clippy.json
 
+# Prepare a Sonar analysis using only the trusted checkout's helper.
+[unix]
+sonar-context:
+    python3 -I tools/sonar.py context
+
+[unix]
+sonar-prepare:
+    python3 -I tools/sonar.py prepare
+
 # Fix auto-fixable lint issues (ruff + eslint)
 fix-lint:
     {{ ninja }} fix:ruff fix:eslint
