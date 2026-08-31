@@ -1,0 +1,65 @@
+name: Prune coverage baseline caches
+
+on:
+  workflow_run:
+    workflows: ["CI"]
+    branches: [main]
+    types: [completed]
+
+# Delete all coverage-baseline caches except the newest one. The regression
+# check fails if no baseline is available, so cache eviction cannot silently
+# disable it.
+permissions:
+  actions: write
+
+# An older CI completion may be handled after a newer baseline has been saved.
+# Serialize pruning and select by creation time instead of the triggering SHA.
+concurrency:
+  group: prune-coverage-baseline-cache
+
+jobs:
+  prune:
+    runs-on: ubuntu-24.04
+    if: github.event.workflow_run.conclusion == 'success'
+    steps:
+      - name: Delete stale coverage baseline caches
+        uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea #v7.0.1
+        with:
+          script: |
+            const caches = await github.paginate(
+              github.rest.actions.getActionsCacheList,
+              {
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                ref: 'refs/heads/main',
+                key: 'coverage-baseline-linux-',
+                sort: 'created_at',
+                direction: 'desc',
+                per_page: 100,
+              },
+              response => response.data.actions_caches,
+            );
+
+            if (caches.length === 0) {
+              core.warning('No coverage baseline cache found.');
+              return;
+            }
+
+            const [keep, ...toDelete] = caches;
+            console.log(`Keeping newest cache: ${keep.key} (id ${keep.id})`);
+
+            if (toDelete.length === 0) {
+              console.log('No stale caches to delete.');
+              return;
+            }
+
+            for (const cache of toDelete) {
+              console.log(`Deleting: ${cache.key} (id ${cache.id})`);
+              await github.rest.actions.deleteActionsCacheById({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                cache_id: cache.id,
+              });
+            }
+
+            console.log(`Deleted ${toDelete.length} stale cache(s).`);
