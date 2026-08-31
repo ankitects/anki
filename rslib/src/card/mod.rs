@@ -401,7 +401,6 @@ impl Collection {
                 let desired_retention = deck.effective_desired_retention(&config);
                 let deck_desired_retention = [(deck_id, desired_retention)].into();
 
-                use crate::search::Node::*;
                 use crate::search::SearchNode::*;
 
                 col.update_memory_state(vec![UpdateMemoryStateEntry {
@@ -414,8 +413,8 @@ impl Collection {
                         deck_desired_retention,
                     }),
                     search: SearchBuilder::all(vec![
-                        Group(vec![DeckIdsWithoutChildren(deck_id.to_string()).into()]),
-                        Group(vec![HasMemoryState.negated()]),
+                        DeckIdsWithoutChildren(deck_id.to_string()).into(),
+                        HasMemoryState.negated(),
                     ])
                     .try_into_search()?,
                     ignore_before: ignore_revlogs_before_ms_from_config(&config)?,
