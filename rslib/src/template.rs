@@ -78,8 +78,12 @@ impl TemplateMode {
             return None;
         }
 
-        // Loop, starting from the first character
-        for (i, _) in input.char_indices() {
+        let mut search_from = 0;
+        while let Some(pos) = match self {
+            TemplateMode::Standard => input[search_from..].find(['{', '<']),
+            TemplateMode::LegacyAltSyntax => input[search_from..].find('<'),
+        } {
+            let i = search_from + pos;
             let remaining = &input[i..];
 
             // Valid handlebar clause?
@@ -101,6 +105,8 @@ impl TemplateMode {
                     (remaining, Token::Text(&input[..i]))
                 });
             }
+
+            search_from = i + 1;
         }
 
         // If no matches, return the entire input as text, with nothing remaining

@@ -93,12 +93,15 @@ fn tokenize(mut text: &str) -> impl Iterator<Item = Token<'_>> {
         }
         let mut other_token = alt((open_cloze, close_cloze));
         // start with the no-match case
+        let mut search_from = 0;
         let mut index = text.len();
-        for (idx, _) in text.char_indices() {
+        while let Some(pos) = text[search_from..].find(['{', '}']) {
+            let idx = search_from + pos;
             if other_token.parse(&text[idx..]).is_ok() {
                 index = idx;
                 break;
             }
+            search_from = idx + 1;
         }
         Ok((&text[index..], Token::Text(&text[0..index])))
     }
