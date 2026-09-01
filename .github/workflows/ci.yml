@@ -168,7 +168,6 @@ jobs:
           ONLINE_TESTS: "1"
         run: |
           just lint
-          just sonar-clippy-report
           just test --coverage
 
       - name: Run complexipy diff
@@ -237,7 +236,6 @@ jobs:
             out/coverage/python-qt/coverage.xml
             out/coverage/typescript/lcov.info
             out/coverage/rust/lcov.info
-            out/coverage/rust/clippy.json
           if-no-files-found: error
           retention-days: 1
 

@@ -50,7 +50,6 @@ REPORT_NAMES = {
     "python-qt/coverage.xml",
     "typescript/lcov.info",
     "rust/lcov.info",
-    "rust/clippy.json",
 }
 MAX_REPORT_BYTES = 64 * 1024 * 1024
 MAX_ARCHIVE_BYTES = 128 * 1024 * 1024
@@ -293,6 +292,10 @@ def normalize_report(
             if len(filenames) != 1:
                 raise ValueError("Malformed LCOV record")
             filename = report_path(filenames[0], repository)
+            # Vitest runs from ts/, so its LCOV paths are relative to that
+            # directory rather than the repository root used by the snapshot.
+            if name == "typescript/lcov.info":
+                filename = str(PurePosixPath("ts", filename))
             if filename in sources:
                 records.append(
                     "\n".join(
@@ -300,34 +303,10 @@ def normalize_report(
                         for line in lines
                     )
                 )
+        if name == "typescript/lcov.info" and text.strip() and not records:
+            raise ValueError("TypeScript coverage contains no staged source paths")
         return "".join(record + "\nend_of_record\n" for record in records).encode()
-    # Cargo emits JSON lines. Only diagnostics are relevant, not executable paths
-    # or environment values in compiler-artifact/build-script-executed records.
-    diagnostics = []
-    for line in text.splitlines():
-        if not line.strip():
-            continue
-        item = json.loads(line)
-        if item.get("reason") != "compiler-message":
-            continue
-        normalize_clippy_paths(item, repository)
-        spans = item["message"]["spans"]
-        if any(span["file_name"] in sources for span in spans):
-            diagnostics.append(json.dumps(item))
-    return ("\n".join(diagnostics) + "\n").encode()
-
-
-def normalize_clippy_paths(value: Any, repository: str) -> None:
-    # Also validate secondary locations, macro expansions and target paths.
-    if isinstance(value, dict):
-        for key, child in value.items():
-            if key in {"file_name", "src_path"} and isinstance(child, str):
-                value[key] = report_path(child, repository)
-            else:
-                normalize_clippy_paths(child, repository)
-    elif isinstance(value, list):
-        for child in value:
-            normalize_clippy_paths(child, repository)
+    raise ValueError("Unsupported coverage report")
 
 
 def property_value(value: str) -> str:

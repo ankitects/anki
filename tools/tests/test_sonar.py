@@ -75,9 +75,8 @@ def reports() -> dict[str, bytes]:
     return {
         "python-pylib/coverage.xml": xml,
         "python-qt/coverage.xml": xml,
-        "typescript/lcov.info": b"SF:ts/example.ts\nDA:1,1\nend_of_record\n",
+        "typescript/lcov.info": b"SF:lib/example.ts\nDA:1,1\nend_of_record\n",
         "rust/lcov.info": b"SF:/home/runner/work/anki/anki/rslib/example.rs\nDA:1,1\nend_of_record\n",
-        "rust/clippy.json": b'{"reason":"build-script-executed","executable":"untrusted"}\n',
     }
 
 
@@ -128,7 +127,7 @@ def test_context_uses_api_for_internal_and_fork_prs(
     assert context["base"] == "main"
     assert f"repos/{REPO}/pulls/123" in calls
     assert (f"repos/{REPO}/actions/artifacts/1/zip" in calls) != payload_number
-    assert (tmp_path / "inputs/reports/rust/clippy.json").is_file()
+    assert (tmp_path / "inputs/reports/typescript/lcov.info").is_file()
 
 
 @pytest.mark.parametrize(
@@ -197,8 +196,8 @@ def test_invalid_pr_number(value: str) -> None:
         "../sonar-project.properties",
         "/tmp/settings",
         "rust/../../settings",
-        "rust\\clippy.json",
-        "rust/clippy.json\x00ignored",
+        "rust\\lcov.info",
+        "rust/lcov.info\x00ignored",
     ],
 )
 def test_rejects_archive_path_traversal(name: str, zip_path_separators: None) -> None:
@@ -206,11 +205,11 @@ def test_rejects_archive_path_traversal(name: str, zip_path_separators: None) ->
     with zipfile.ZipFile(io.BytesIO(data)) as archive:
         assert archive.infolist()[0].orig_filename == name
     with pytest.raises(ValueError, match="Unsafe artifact"):
-        sonar.read_zip(data, {"rust/clippy.json"}, 64)
+        sonar.read_zip(data, {"rust/lcov.info"}, 64)
 
 
 def test_accepts_archive_with_exact_names(zip_path_separators: None) -> None:
-    files = {"rust/clippy.json": b"{}"}
+    files = {"rust/lcov.info": b"{}"}
     assert sonar.read_zip(zipped(files), set(files), 64) == files
 
 
@@ -236,7 +235,7 @@ def test_rejects_archive_symlink_duplicate_and_oversize() -> None:
 
 def test_rejects_missing_report() -> None:
     files = reports()
-    del files["rust/clippy.json"]
+    del files["rust/lcov.info"]
     with pytest.raises(ValueError, match="members"):
         sonar.read_zip(zipped(files), sonar.REPORT_NAMES, sonar.MAX_REPORT_BYTES)
 
@@ -259,7 +258,7 @@ def test_excludes_executable_configuration_and_unsafe_paths(name: str) -> None:
 
 
 def test_report_normalization() -> None:
-    sources = {"pylib/anki/example.py", "rslib/example.rs", "ts/example.ts"}
+    sources = {"pylib/anki/example.py", "rslib/example.rs", "ts/lib/example.ts"}
     files = reports()
     xml = sonar.normalize_report(
         "coverage.xml", files["python-pylib/coverage.xml"], REPO, sources
@@ -270,13 +269,24 @@ def test_report_normalization() -> None:
     )
     assert lcov.startswith(b"SF:rslib/example.rs\n")
     assert b"/home/runner" not in lcov
+    typescript = sonar.normalize_report(
+        "typescript/lcov.info", files["typescript/lcov.info"], REPO, sources
+    )
+    assert typescript.startswith(b"SF:ts/lib/example.ts\n")
     assert (
         sonar.normalize_report("rust/lcov.info", files["rust/lcov.info"], REPO, set())
         == b""
     )
-    assert b"untrusted" not in sonar.normalize_report(
-        "rust/clippy.json", files["rust/clippy.json"], REPO, sources
-    )
+
+
+def test_rejects_silently_empty_typescript_coverage() -> None:
+    with pytest.raises(ValueError, match="no staged source paths"):
+        sonar.normalize_report(
+            "typescript/lcov.info",
+            reports()["typescript/lcov.info"],
+            REPO,
+            {"ts/lib/other.ts"},
+        )
 
 
 def test_lcov_record_separator_is_not_a_function_name() -> None:
@@ -285,35 +295,6 @@ def test_lcov_record_separator_is_not_a_function_name() -> None:
         sonar.normalize_report("rust/lcov.info", data, REPO, {"rslib/example.rs"})
         == data
     )
-
-
-def test_clippy_diagnostics_and_secondary_paths() -> None:
-    item: dict[str, Any] = {
-        "reason": "compiler-message",
-        "message": {
-            "message": "Example diagnostic",
-            "code": {"code": "clippy::needless_return"},
-            "level": "warning",
-            "spans": [
-                {
-                    "file_name": "/home/runner/work/anki/anki/rslib/example.rs",
-                    "line_start": 1,
-                }
-            ],
-            "children": [],
-        },
-    }
-    result = sonar.normalize_report(
-        "rust/clippy.json", json.dumps(item).encode(), REPO, {"rslib/example.rs"}
-    )
-    diagnostic = json.loads(result)
-    assert diagnostic["message"]["spans"][0]["file_name"] == "rslib/example.rs"
-    assert diagnostic["message"]["code"]["code"] == "clippy::needless_return"
-    item["message"]["children"] = [{"spans": [{"file_name": "/etc/passwd"}]}]
-    with pytest.raises(ValueError, match="outside"):
-        sonar.normalize_report(
-            "rust/clippy.json", json.dumps(item).encode(), REPO, {"rslib/example.rs"}
-        )
 
 
 @pytest.mark.parametrize(
@@ -360,7 +341,7 @@ def test_snapshot_keeps_code_as_data_and_uses_trusted_config(tmp_path: Path) -> 
         "pylib/anki/example.py": code,
         "tools/sonar.py": code,
         "rslib/example.rs": "fn main() {}",
-        "ts/example.ts": "const value = 1;",
+        "ts/lib/example.ts": "const value = 1;",
         "sonar-project.properties": "sonar.host.url=https://attacker.invalid",
         "Cargo.toml": "malicious manifest",
         "ts/eslint.config.js": "throw 1",

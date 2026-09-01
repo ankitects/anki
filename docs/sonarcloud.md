@@ -8,8 +8,7 @@ must remain disabled for this CI-analyzed Sonar project.
 
 1. `CI` runs for pull requests targeting `main`, including forks, and pushes to
    `main`/`release/**`. Build, tests, lint and coverage checks run without using
-   `SONAR_TOKEN`. `just sonar-clippy-report` exports Cargo's JSON diagnostics
-   after lint, reusing the same target directory and CI profile.
+   `SONAR_TOKEN`.
 2. Only a successful **whole CI run** triggers analysis. Missing coverage
    baselines or coverage regressions fail CI and therefore prevent scanning.
 3. `sonar.yml` loads its tooling and settings from the same default-branch commit
@@ -30,15 +29,17 @@ must remain disabled for this CI-analyzed Sonar project.
    build outputs, scanner caches and `*.config.*` files are not copied. Supported
    snapshot extensions are listed in `tools/sonar.py`; adding a language requires
    reviewing its analyzer's execution behavior first.
-7. Coverage filenames are normalized to the snapshot; external paths and XML
-   entity declarations are rejected. The scanner gets trusted Sonar properties
-   and a minimal TypeScript config, not the PR's configuration. PR references are
-   encoded as Java property values, not interpolated into shell/CLI arguments.
+7. Coverage filenames are normalized to the snapshot, including Vitest paths
+   relative to `ts/`; external paths and XML entity declarations are rejected.
+   The scanner gets trusted Sonar properties and a minimal TypeScript config, not
+   the PR's configuration. PR references are encoded as Java property values,
+   not interpolated into shell/CLI arguments.
 8. Only the scanner step receives `SONAR_TOKEN`. It analyzes source as data and
-   imports coverage/Clippy reports. No PR scripts, dependency installations or
-   builds run here. `sonar.rust.clippy.enable=false` and `sonar.sca.enabled=false`
-   disable automatic invocations of build tools. Results are attached to the PR
-   before merge; pushes update the corresponding branch analysis.
+   imports coverage reports. No PR scripts, dependency installations or builds
+   run here. `sonar.rust.clippy.enable=false` and `sonar.sca.enabled=false`
+   disable automatic invocations of build tools; Clippy remains enforced by CI.
+   Results are attached to the PR before merge; pushes update the corresponding
+   branch analysis.
 
 ## Security boundaries and tradeoffs
 
@@ -48,9 +49,9 @@ must remain disabled for this CI-analyzed Sonar project.
 - Use GitHub-hosted ephemeral runners. Do not restore CI caches in this workflow.
 - Restrict the Sonar credential to analysis of this project using the least
   privileges supported by the organization's plan. Never provide it to fork CI.
-- Treat coverage/Clippy content as untrusted even when it belongs to the correct
-  run: a contributor can change both tests and workflow. These are review signals,
-  not proof that a contribution is safe or honestly measured.
+- Treat coverage content as untrusted even when it belongs to the correct run: a
+  contributor can change both tests and workflow. These are review signals, not
+  proof that a contribution is safe or honestly measured.
 - This protects against executing project code/configuration by design. It is
   not a guarantee against vulnerabilities in GitHub Actions, Git, archive/XML
   parsers or Sonar analyzers. Review dependency updates at this trust boundary.
@@ -65,12 +66,11 @@ must remain disabled for this CI-analyzed Sonar project.
 `workflow_run` uses the default branch, so a PR changing this integration cannot
 exercise its new privileged workflow until the trusted change is available there.
 After landing it, run fresh CI for an internal PR and a fork PR (including one
-whose workflow-run PR list is empty). Older CI artifacts lack the Clippy report
-and intentionally fail validation. Confirm:
+whose workflow-run PR list is empty). Confirm:
 
 - the analyzed SHA and PR number are correct;
 - the analysis appears on the open PR, with coverage and Rust metrics;
-- the scanner imports Clippy and does not launch Cargo or dependency resolution;
+- the scanner imports coverage and does not launch Cargo or dependency resolution;
 - a failed CI does not scan and a failed Quality Gate does not block merging;
 - a `main` push produces a branch analysis, not a PR analysis.
 

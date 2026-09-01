@@ -133,12 +133,6 @@ lint:
         check:svelte \
         check:typescript
 
-# Export Clippy diagnostics for Sonar (after build/lint, without Sonar credentials).
-[unix]
-sonar-clippy-report:
-    mkdir -p out/coverage/rust
-    CARGO_TARGET_DIR=out/rust cargo clippy --profile {{ if env("CI", "") == "true" { "ci" } else { "dev" } }} --locked --tests --message-format=json-render-diagnostics -- -Dclippy::dbg_macro -Dwarnings > out/coverage/rust/clippy.json
-
 # Prepare a Sonar analysis using only the trusted checkout's helper.
 [unix]
 sonar-context:
