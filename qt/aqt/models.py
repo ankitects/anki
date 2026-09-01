@@ -9,7 +9,7 @@ from operator import itemgetter
 
 import aqt.clayout
 from anki import stdmodels
-from anki.collection import Collection, OpChangesWithId
+from anki.collection import Collection, OpChangesWithCount, OpChangesWithId
 from anki.lang import without_unicode_isolation
 from anki.models import NotetypeDict, NotetypeId, NotetypeNameIdUseCount
 from anki.notes import Note
@@ -18,6 +18,8 @@ from aqt.operations import QueryOp
 from aqt.operations.notetype import (
     add_notetype_legacy,
     remove_notetype,
+    remove_notetypes,
+    selected_notetype_ids_to_remove,
     update_notetype_legacy,
 )
 from aqt.qt import *
@@ -32,6 +34,7 @@ from aqt.utils import (
     restoreGeom,
     saveGeom,
     showInfo,
+    tooltip,
     tr,
 )
 
@@ -113,6 +116,7 @@ class Models(QDialog):
             button = box.addButton(label, QDialogButtonBox.ButtonRole.ActionRole)
             qconnect(button.clicked, func)
 
+        f.modelsList.setSelectionMode(QAbstractItemView.SelectionMode.ExtendedSelection)
         qconnect(f.modelsList.itemDoubleClicked, self.onRename)
 
         def on_done(fut: Future) -> None:
@@ -163,6 +167,17 @@ class Models(QDialog):
         row = self.form.modelsList.currentRow()
         return self.mm.get(NotetypeId(self.models[row].id))
 
+    def selected_notetype_rows(self) -> list[int]:
+        rows = sorted({index.row() for index in self.form.modelsList.selectedIndexes()})
+        if rows:
+            return rows
+
+        row = self.form.modelsList.currentRow()
+        if row != -1:
+            return [row]
+
+        return []
+
     def onAdd(self) -> None:
         def on_success(notetype: NotetypeDict) -> None:
             # if legacy add-ons already added the notetype, skip adding
@@ -190,7 +205,16 @@ class Models(QDialog):
         if len(self.models) < 2:
             showInfo(tr.notetypes_please_add_another_note_type_first(), parent=self)
             return
-        idx = self.form.modelsList.currentRow()
+
+        selected_rows = self.selected_notetype_rows()
+        if not selected_rows:
+            return
+
+        if len(selected_rows) > 1:
+            self.onDeleteSelected(selected_rows)
+            return
+
+        idx = selected_rows[0]
         if self.models[idx].use_count:
             msg = tr.notetypes_delete_this_note_type_and_all()
         else:
@@ -202,10 +226,65 @@ class Models(QDialog):
         if not tracker.mark_schema():
             return
 
-        nt = self.current_notetype()
-        remove_notetype(parent=self, notetype_id=nt["id"]).success(
-            lambda _: self.refresh_list(None)
-        ).run_in_background()
+        remove_notetype(
+            parent=self, notetype_id=NotetypeId(self.models[idx].id)
+        ).success(lambda _: self.refresh_list(None)).run_in_background()
+
+    def onDeleteSelected(self, selected_rows: Sequence[int]) -> None:
+        selected_notetype_ids = [
+            NotetypeId(self.models[row].id)
+            for row in selected_rows
+            if 0 <= row < len(self.models)
+        ]
+        current_row = self.form.modelsList.currentRow()
+        protected_notetype_id = (
+            NotetypeId(self.models[current_row].id)
+            if len(selected_notetype_ids) == len(self.models) and current_row != -1
+            else None
+        )
+        notetype_ids = selected_notetype_ids_to_remove(
+            self.models,
+            selected_notetype_ids,
+            protected_notetype_id,
+        )
+        if not notetype_ids:
+            showInfo(tr.notetypes_please_add_another_note_type_first(), parent=self)
+            return
+
+        use_counts = {
+            NotetypeId(notetype.id): notetype.use_count for notetype in self.models
+        }
+        has_notes = any(use_counts[notetype_id] for notetype_id in notetype_ids)
+        msg = (
+            tr.notetypes_delete_selected_note_types_and_all(count=len(notetype_ids))
+            if has_notes
+            else tr.notetypes_delete_selected_note_types(count=len(notetype_ids))
+        )
+        if not askUser(
+            msg,
+            parent=self,
+        ):
+            return
+
+        tracker = ChangeTracker(self.mw)
+        if not tracker.mark_schema():
+            return
+
+        def on_success(out: OpChangesWithCount) -> None:
+            if out.count:
+                tooltip(
+                    tr.notetypes_selected_note_types_removed(count=out.count),
+                    parent=self,
+                )
+            else:
+                showInfo(tr.notetypes_please_add_another_note_type_first(), parent=self)
+            self.refresh_list(None)
+
+        remove_notetypes(
+            parent=self,
+            notetype_ids=notetype_ids,
+            protected_notetype_id=protected_notetype_id,
+        ).success(on_success).run_in_background()
 
     def onAdvanced(self) -> None:
         nt = self.current_notetype()
