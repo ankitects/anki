@@ -356,7 +356,8 @@
                             "developers/releasing",
                             "developers/syncserver",
                             "developers/testing-coverage",
-                            "developers/e2e-testing"
+                            "developers/e2e-testing",
+                            "developers/sonarcloud"
                         ]
                     }
                 ]

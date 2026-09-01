@@ -12,6 +12,7 @@ build
 contributing
 dependabot
 testing-coverage
+sonarcloud
 architecture
 protobuf
 ```

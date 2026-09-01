@@ -1,0 +1,68 @@
+<!-- DO NOT MANUALLY EDIT THIS FILE -->
+<!-- This file is copied from docs-site/developers/sonarcloud.mdx automatically -->
+
+# SonarCloud analysis
+
+<!-- <<<cog
+from cogdocs import get_file_contents
+cog.out(get_file_contents("sonarcloud"))
+>>> -->
+
+SonarCloud gives us a dashboard for code quality, security and test coverage
+across Rust, Python and TypeScript. It is **informative, not a required merge
+check**: a failing Quality Gate never blocks a PR. Automatic Analysis must stay
+disabled, because this project is analyzed from CI.
+
+For local coverage tooling and thresholds, see
+[Testing and Coverage](https://anki.mintlify.app/testing-coverage).
+
+## What gets analyzed
+
+- **Internal pull requests and pushes** to `main` or `release/**` branches get the
+  full analysis, including coverage, because their reports come from our own CI.
+- **Fork pull requests** get quality and security analysis, but **no coverage
+  bar**. Their coverage reports are contributor-controlled and would misrepresent
+  measured coverage, so they are not imported. Contributors can measure their own
+  new-code coverage locally before opening a PR.
+
+Coverage ratchets upward through the per-stack thresholds enforced in CI (see
+Testing and Coverage) and SonarCloud's "new code" Quality Gate on `main`.
+
+## How it runs
+
+`sonar.yml` is a `workflow_run` workflow that starts only after a whole CI run
+succeeds. Running separately from CI keeps `SONAR_TOKEN` out of any job that
+builds or tests contributor code.
+
+1. It validates the PR number, head SHA, head/base repositories and branches, and
+   open state against GitHub's API. Invalid or stale context fails closed; a PR is
+   never silently downgraded to a branch analysis.
+2. It checks out the tested commit. Fork PR code requires
+   `allow-unsafe-pr-checkout`, and is treated purely as **data** for the scanner.
+3. `sonar-project.properties` is overwritten with the trusted default-branch copy,
+   so a fork cannot redirect `sonar.host.url` or re-enable scanner-side tooling.
+4. Only the scanner step receives `SONAR_TOKEN`.
+
+## Trust boundary — do not weaken
+
+<Warning>
+    This workflow runs with the base repository's `SONAR_TOKEN`. Never add `just build`,
+    `cargo`, `npm`, `pip`, PR-provided scanner settings, local Actions from the PR, or
+    restored CI caches to it. The scanner analyzes source as data;
+    `sonar.rust.clippy.enable=false` and `sonar.sca.enabled=false` keep it from invoking
+    build tools. Clippy is still enforced by CI.
+</Warning>
+
+- Keep Sonar checks non-required and keep Automatic Analysis disabled.
+- Restrict `SONAR_TOKEN` to analysis of this project, and never provide it to
+  fork CI.
+- Coverage content is a review signal, not proof that a contribution is safe or
+  honestly measured. These boundaries reduce exposure to PR-controlled execution;
+  they do not eliminate vulnerabilities in third-party Actions or analyzers.
+
+## Type-aware TypeScript
+
+The scanner runs without installed dependencies or generated SvelteKit config, so
+type-aware TypeScript results may be less complete than CI's dedicated checks.
+
+<!-- <<<end>>> -->
