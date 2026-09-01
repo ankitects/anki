@@ -37,7 +37,7 @@ jobs:
                 direction: 'desc',
                 per_page: 100,
               },
-              response => response.data.actions_caches,
+              response => response.data,
             );
 
             if (caches.length === 0) {
