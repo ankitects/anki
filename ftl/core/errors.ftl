@@ -18,6 +18,11 @@ errors-no-updates-available = No updates available.
 errors-bad-directive = Error in directive '{ $directive }': { $error }
 errors-option-not-set = '{ $option }' not set
 
+## Error pages
+
+errors-ok = OK
+errors-unknown-error = Unknown error
+
 ## NO NEED TO TRANSLATE. This text is no longer used by Anki, and will be removed in the future.
 
 errors-invalid-input-empty = Invalid input.

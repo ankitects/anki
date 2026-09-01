@@ -4,6 +4,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
     import { importDialogRequireClose } from "@generated/backend";
+    import * as tr from "@generated/ftl";
 
     export let error: Error;
 
@@ -14,7 +15,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 <div class="error-box">
     <p class="error-text">{error.message}</p>
-    <button class="btn btn-primary" on:click={closePage}>Okay</button>
+    <button class="btn btn-primary" on:click={closePage}>{tr.errorsOk()}</button>
 </div>
 
 <style lang="scss">
