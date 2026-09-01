@@ -1594,6 +1594,7 @@ mod tests {
             anki_proto::scheduler::UpdateStatsRequest {
                 deck_id: 1,
                 new_delta: 2,
+                interday_learning_delta: 0,
                 review_delta: 3,
                 millisecond_delta: 0,
             },
@@ -1620,6 +1621,7 @@ mod tests {
             anki_proto::scheduler::UpdateStatsRequest {
                 deck_id: 1,
                 new_delta: 5,
+                interday_learning_delta: 0,
                 review_delta: 5,
                 millisecond_delta: 0,
             },
