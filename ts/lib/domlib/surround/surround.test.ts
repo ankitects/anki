@@ -139,6 +139,137 @@ describe("surround across block element", () => {
     });
 });
 
+describe("surround next to BR", () => {
+    let body: HTMLBodyElement;
+
+    beforeEach(() => {
+        body = p("<b><i>1</i> 2<br>ABC</b>3");
+    });
+
+    test("works as intended", () => {
+        const range = new Range();
+        const textNode = body.childNodes[1]; // 3
+        range.setStart(textNode, 0);
+        range.setEnd(textNode, 1);
+        surround(range, body, easyBold);
+
+        expect(body).toHaveProperty(
+            "innerHTML",
+            "<b><i>1</i> 2<br>ABC3</b>",
+        );
+    });
+
+    test("BR unchanged in no-op case", () => {
+        const body = p("<b>text<br>more</b>");
+
+        const textNode = body.querySelector("b")!.childNodes[2]; // The text node "more"
+
+        const range = new Range();
+        range.selectNode(textNode);
+        surround(range, body, easyBold);
+
+        // Should remain unchanged
+        expect(body).toHaveProperty(
+            "innerHTML",
+            "<b>text<br>more</b>",
+        );
+    });
+});
+
+describe("surround additional regression cases", () => {
+    test("merges with existing bold that contains multiple BR", () => {
+        const body = p("<b>A<br>B<br>C</b>D");
+        const range = new Range();
+        const textNode = body.childNodes[1]; // D
+        range.setStart(textNode, 0);
+        range.setEnd(textNode, 1);
+        surround(range, body, easyBold);
+
+        expect(body).toHaveProperty(
+            "innerHTML",
+            "<b>A<br>B<br>CD</b>",
+        );
+    });
+
+    test("merges with existing bold that contains nested formatting around BR", () => {
+        const body = p("<b><i>A</i><br><u>B</u></b>C");
+        const range = new Range();
+        const textNode = body.childNodes[1]; // C
+        range.setStart(textNode, 0);
+        range.setEnd(textNode, 1);
+        surround(range, body, easyBold);
+
+        expect(body).toHaveProperty(
+            "innerHTML",
+            "<b><i>A</i><br><u>B</u>C</b>",
+        );
+    });
+
+    test("does not merge across a block container boundary", () => {
+        const body = p("<div><b>A<br>B</b></div>C");
+        const range = new Range();
+        const textNode = body.childNodes[1]; // C
+        range.setStart(textNode, 0);
+        range.setEnd(textNode, 1);
+        surround(range, body, easyBold);
+
+        expect(body).toHaveProperty(
+            "innerHTML",
+            "<div><b>A<br>B</b></div><b>C</b>",
+        );
+    });
+
+    test("merges across an inline container boundary", () => {
+        const body = p("<span><b>A<br>B</b></span>C");
+        const range = new Range();
+        const textNode = body.childNodes[1]; // C
+        range.setStart(textNode, 0);
+        range.setEnd(textNode, 1);
+        surround(range, body, easyBold);
+
+        expect(body).toHaveProperty(
+            "innerHTML",
+            "<b><span>A<br>B</span>C</b>",
+        );
+    });
+
+    test("does not merge across a block container even when there is a bold outside", () => {
+        const body = p("<div><b>A<br>B</b>C</div><b>D</b>");
+        const range = new Range();
+        const div = body.firstElementChild!;
+        const textNode = div.childNodes[1]; // C
+        range.setStart(textNode, 0);
+        range.setEnd(textNode, 1);
+        surround(range, body, easyBold);
+
+        expect(body).toHaveProperty(
+            "innerHTML",
+            "<div><b>A<br>BC</b></div><b>D</b>",
+        );
+    });
+
+    test("merges left and right existing bold elements", () => {
+        const body = p("<b>L</b>M<b>R</b>");
+        const range = new Range();
+        const textNode = body.childNodes[1]; // M
+        range.setStart(textNode, 0);
+        range.setEnd(textNode, 1);
+        surround(range, body, easyBold);
+
+        expect(body).toHaveProperty("innerHTML", "<b>LMR</b>");
+    });
+
+    test("merges two existing bold elements separated by BR", () => {
+        const body = p("<b>L</b><br><b>R</b>");
+        const range = new Range();
+        const rightBoldText = body.childNodes[2].firstChild!; // R
+        range.selectNodeContents(rightBoldText);
+        surround(range, body, easyBold);
+
+        expect(body).toHaveProperty("innerHTML", "<b>L<br>R</b>");
+    });
+});
+
 describe("next to nested", () => {
     let body: HTMLBodyElement;
 
