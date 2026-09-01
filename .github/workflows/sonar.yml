@@ -27,7 +27,7 @@ jobs:
       # workflow_run uses the default branch. Pin the helper/config to the same
       # trusted commit as this workflow, never to the PR's version.
       - name: Checkout trusted tooling
-        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 #v4
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 #v7.0.1
         with:
           ref: ${{ github.sha }}
           path: trusted
@@ -48,7 +48,7 @@ jobs:
       # as tooling. Only selected regular source files enter the scan snapshot.
       # See docs/sonarcloud.md before changing this trust boundary.
       - name: Checkout analysis revision
-        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 #v4
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 #v7.0.1
         with:
           repository: ${{ github.repository }}
           ref: ${{ steps.context.outputs.ref }}
