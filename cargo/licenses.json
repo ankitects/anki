@@ -2048,6 +2048,14 @@
     "repository": "https://github.com/rust-random/rand_core"
   },
   {
+    "authors": "The Rand Project Developers",
+    "description": "Selected PCG random number generators",
+    "license": "Apache-2.0 OR MIT",
+    "license_file": null,
+    "name": "rand_pcg",
+    "repository": "https://github.com/rust-random/rngs"
+  },
+  {
     "authors": "bluss",
     "description": "Extra methods for raw pointers and `NonNull<T>`.  For example `.post_inc()` and `.pre_dec()` (c.f. `ptr++` and `--ptr`), `offset` and `add` for `NonNull<T>`, and the function `ptrdistance`.",
     "license": "Apache-2.0 OR MIT",
@@ -2590,6 +2598,22 @@
     "license_file": null,
     "name": "synstructure",
     "repository": "https://github.com/mystor/synstructure"
+  },
+  {
+    "authors": "Mullvad VPN",
+    "description": "Bindings to SystemConfiguration framework for macOS",
+    "license": "Apache-2.0 OR MIT",
+    "license_file": null,
+    "name": "system-configuration",
+    "repository": "https://github.com/mullvad/system-configuration-rs"
+  },
+  {
+    "authors": "Mullvad VPN",
+    "description": "Low level bindings to SystemConfiguration framework for macOS",
+    "license": "Apache-2.0 OR MIT",
+    "license_file": null,
+    "name": "system-configuration-sys",
+    "repository": "https://github.com/mullvad/system-configuration-rs"
   },
   {
     "authors": "Steven Allen <steven@stebalien.com>|The Rust Project Developers|Ashley Mannix <ashleymannix@live.com.au>|Jason White <me@jasonwhite.io>",
@@ -3285,6 +3309,14 @@
     "license": "Apache-2.0 OR MIT",
     "license_file": null,
     "name": "windows-numerics",
+    "repository": "https://github.com/microsoft/windows-rs"
+  },
+  {
+    "authors": "Microsoft",
+    "description": "Windows registry",
+    "license": "Apache-2.0 OR MIT",
+    "license_file": null,
+    "name": "windows-registry",
     "repository": "https://github.com/microsoft/windows-rs"
   },
   {

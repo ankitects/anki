@@ -33,6 +33,7 @@ from aqt.utils import (
     showWarning,
     tr,
 )
+from aqt.webview import AnkiWebView, AnkiWebViewKind
 
 
 class Preferences(QDialog):
@@ -62,12 +63,21 @@ class Preferences(QDialog):
         qconnect(
             self.form.buttonBox.helpRequested, lambda: openHelp(HelpPage.PREFERENCES)
         )
+
+        self._setup_webview()
         self.silentlyClose = True
         self.setup_collection()
         self.setup_profile()
         self.setup_global()
         self.setup_configurable_answer_keys()
         self.show()
+
+    def _setup_webview(self) -> None:
+        self.web = AnkiWebView(kind=AnkiWebViewKind.PREFERENCES)
+        layout = self.form.labsTab.layout()
+        assert layout is not None
+        layout.addWidget(self.web)
+        self.web.load_sveltekit_page("preferences")
 
     def setup_configurable_answer_keys(self):
         """
@@ -114,6 +124,7 @@ class Preferences(QDialog):
                 callback()
 
         self.update_collection(after_collection_update)
+        self.web.cleanup()
 
     def reject(self) -> None:
         self.accept()
@@ -396,6 +407,10 @@ class Preferences(QDialog):
         newScale = self.form.uiScale.value() / 100
         if newScale != self.mw.pm.uiScale():
             self.mw.pm.setUiScale(newScale)
+            restart_required = True
+
+        col = self.mw.col
+        if col._get_experiments_dirty() != col._experiments:
             restart_required = True
 
         if restart_required:

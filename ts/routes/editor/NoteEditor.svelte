@@ -25,6 +25,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         state: Writable<EditorState>;
         lastIOImagePath: Writable<string | null>;
         saveNow: () => Promise<void>;
+        isLegacy: boolean;
     }
 
     interface LoadNoteArgs {
@@ -69,6 +70,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { onDestroy, onMount, tick } from "svelte";
     import { get, writable } from "svelte/store";
     import { nodeIsCommonElement } from "@tslib/dom";
+    import { SerialQueue } from "@tslib/promise";
 
     import Absolute from "$lib/components/Absolute.svelte";
     import Badge from "$lib/components/Badge.svelte";
@@ -369,12 +371,16 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     function saveTags({ detail }: CustomEvent): void {
         tagAmount = detail.tags.filter((tag: string) => tag != "").length;
         lastSavedTags = detail.tags;
-        note!.tags = detail.tags;
-        bridgeCommand("saveTags");
-        updateCurrentNote();
+        if (isLegacy) {
+            bridgeCommand(`saveTags:${JSON.stringify(detail.tags)}`);
+        } else {
+            note!.tags = detail.tags;
+            updateCurrentNote();
+        }
     }
 
-    const fieldSave = new ChangeTimer();
+    // one timer per field, so a save cannot cancel another field's pending save (#4754)
+    const fieldSaves = new Map<number, ChangeTimer>();
 
     async function transformContentBeforeSave(content: string): Promise<string> {
         content = content.replace(/ data-editor-shrink="(true|false)"/g, "");
@@ -409,7 +415,12 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 
     async function updateField(index: number, content: string): Promise<void> {
-        fieldSave.schedule(async () => {
+        let timer = fieldSaves.get(index);
+        if (!timer) {
+            timer = new ChangeTimer();
+            fieldSaves.set(index, timer);
+        }
+        timer.schedule(async () => {
             if (isLegacy) {
                 bridgeCommand(
                     `key:${index}:${getNoteId()}:${await transformContentBeforeSave(
@@ -427,7 +438,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     async function saveFieldNow() {
         /* this will always be a key save */
-        await fieldSave.fireImmediately();
+        for (const timer of fieldSaves.values()) {
+            await timer.fireImmediately();
+        }
     }
 
     async function saveNow() {
@@ -1364,11 +1377,13 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     let apiPartial: Partial<NoteEditorAPI> = {};
     export { apiPartial as api };
+    export let isLegacy: boolean;
 
     const hoveredField: NoteEditorAPI["hoveredField"] = writable(null);
     const focusedField: NoteEditorAPI["focusedField"] = writable(null);
     const focusedInput: NoteEditorAPI["focusedInput"] = writable(null);
     let focusedFieldIndex = 0;
+    const focusEventQueue = new SerialQueue();
 
     const api: NoteEditorAPI = {
         ...apiPartial,
@@ -1380,6 +1395,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         state: editorState,
         lastIOImagePath,
         saveNow,
+        isLegacy,
     };
 
     setContextProperty(api);
@@ -1391,7 +1407,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     export let uiResolve: (api: NoteEditorAPI) => void;
     export let mode: EditorMode;
-    export let isLegacy: boolean;
 
     $: if (noteEditor) {
         uiResolve(api as NoteEditorAPI);
@@ -1431,7 +1446,7 @@ components and functionality for general note editing.
         />
     {/if}
 
-    <EditorToolbar noteEditor={api} {size} {wrap} {isLegacy} api={toolbar}>
+    <EditorToolbar {size} {wrap} api={toolbar}>
         <svelte:fragment slot="notetypeButtons">
             {#if mode === "browser"}
                 <ButtonGroupItem>
@@ -1483,31 +1498,33 @@ components and functionality for general note editing.
                     {index}
                     flipInputs={plainTextDefaults[index]}
                     api={fields[index]}
-                    on:focusin={() => {
-                        $focusedField = fields[index];
-                        focusedFieldIndex = index;
-                        setAddonButtonsDisabled(false);
-                        bridgeCommand(`focus:${index}`);
-                    }}
-                    on:focusout={async () => {
-                        $focusedField = null;
-                        focusedFieldIndex = 0;
-                        setAddonButtonsDisabled(true);
-                        if (isLegacy) {
-                            bridgeCommand(
-                                `blur:${index}:${getNoteId()}:${await transformContentBeforeSave(
+                    on:focusin={() =>
+                        focusEventQueue.run(async () => {
+                            $focusedField = fields[index];
+                            focusedFieldIndex = index;
+                            setAddonButtonsDisabled(false);
+                            bridgeCommand(`focus:${index}`);
+                        })}
+                    on:focusout={() =>
+                        focusEventQueue.run(async () => {
+                            $focusedField = null;
+                            focusedFieldIndex = 0;
+                            setAddonButtonsDisabled(true);
+                            if (isLegacy) {
+                                bridgeCommand(
+                                    `blur:${index}:${getNoteId()}:${await transformContentBeforeSave(
+                                        get(content),
+                                    )}`,
+                                );
+                            } else {
+                                bridgeCommand(`blur:${index}`);
+                                note!.fields[index] = await transformContentBeforeSave(
                                     get(content),
-                                )}`,
-                            );
-                        } else {
-                            bridgeCommand(`blur:${index}`);
-                            note!.fields[index] = await transformContentBeforeSave(
-                                get(content),
-                            );
-                            await updateCurrentNote();
-                            await updateDuplicateDisplay();
-                        }
-                    }}
+                                );
+                                await updateCurrentNote();
+                                await updateDuplicateDisplay();
+                            }
+                        })}
                     on:mouseenter={() => {
                         $hoveredField = fields[index];
                     }}
@@ -1532,14 +1549,13 @@ components and functionality for general note editing.
                             </svelte:fragment>
                             <FieldState>
                                 {#if cols[index] === "dupe"}
-                                    <DuplicateLink {note} {isLegacy} />
+                                    <DuplicateLink {note} />
                                 {/if}
                                 {#if mode === "add"}
                                     <StickyBadge
                                         bind:active={stickies[index]}
                                         {index}
                                         {note}
-                                        {isLegacy}
                                         show={fields[index] === $hoveredField ||
                                             fields[index] === $focusedField}
                                     />
@@ -1572,7 +1588,6 @@ components and functionality for general note editing.
                         >
                             <RichTextInput
                                 {hidden}
-                                {isLegacy}
                                 on:focusout={() => {
                                     saveFieldNow();
                                     $focusedInput = null;
@@ -1617,7 +1632,11 @@ components and functionality for general note editing.
             tooltip={$tagsCollapsed ? tr.editingExpand() : tr.editingCollapse()}
             on:toggle={() => updateTagsCollapsed(!$tagsCollapsed)}
         >
-            {@html `${tagAmount > 0 ? tagAmount : ""} ${tr.editingTags()}`}
+            {#if tagAmount == 0}
+                {@html `${tr.editingTags()}`}
+            {:else}
+                {@html `${tr.editingTagCount({ count: tagAmount })}`}
+            {/if}
         </CollapseLabel>
         <Collapsible toggleDisplay collapse={$tagsCollapsed}>
             <TagEditor {tags} on:tagsupdate={saveTags} />
