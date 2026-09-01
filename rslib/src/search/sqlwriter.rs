@@ -197,7 +197,7 @@ impl SqlWriter<'_> {
             SearchNode::WholeCollection => write!(self.sql, "true").unwrap(),
             SearchNode::Preset(name) => self.write_deck_preset(name)?,
             SearchNode::HasMemoryState => {
-                write!(self.sql, "(extract_fsrs_variable(c.data, 's') is not null)").unwrap();
+                write!(self.sql, "extract_fsrs_variable(c.data, 's') is not null").unwrap();
             }
         };
         Ok(())
