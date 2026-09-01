@@ -236,6 +236,8 @@ jobs:
             out/coverage/python-qt/coverage.xml
             out/coverage/typescript/lcov.info
             out/coverage/rust/lcov.info
+          # Fail loudly rather than let an internal scan import empty coverage.
+          if-no-files-found: error
           retention-days: 1
 
       # out/pyenv contains a venv with absolute Python paths that break

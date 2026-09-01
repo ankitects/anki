@@ -22,30 +22,38 @@ jobs:
   sonar:
     name: SonarCloud Scan
     runs-on: ubuntu-24.04
+    timeout-minutes: 30
     # Only run once the whole CI succeeded. This guarantees the coverage and
     # PR-context artifacts were uploaded (their upload steps are gated on
-    # success too), so the scan always has coverage and never falls back to a
-    # branch analysis with an empty PR context.
+    # success too), so an internal scan always has coverage.
     if: >-
       github.event.workflow_run.conclusion == 'success'
       && (github.event.workflow_run.event == 'push'
           || github.event.workflow_run.event == 'pull_request')
+    env:
+      # A fork PR's head repository differs from ours. Coverage is imported only
+      # for internal PRs and pushes, whose reports were produced by our own CI.
+      # Fork PRs still get quality and security analysis, just no coverage.
+      IS_INTERNAL: ${{ github.event.workflow_run.head_repository.full_name == github.repository }}
     steps:
-      # Checkout the PR/push code so SonarCloud analyses the actual changes.
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 #v4
+      # Check out the exact tested commit so SonarCloud analyses the real
+      # changes. allow-unsafe-pr-checkout is required to fetch fork PR code from
+      # a workflow_run; this checkout is only ever read by the scanner as data,
+      # never built, installed, or used as tooling. The scanner does not execute
+      # project code, and Clippy/SCA (which would invoke build tools) are
+      # disabled below. See docs/sonarcloud.md before changing this boundary.
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 #v7.0.1
         with:
           repository: ${{ github.event.workflow_run.head_repository.full_name }}
           ref: ${{ github.event.workflow_run.head_sha }}
           fetch-depth: 0
           persist-credentials: false
+          allow-unsafe-pr-checkout: true
 
-      # Overwrite sonar-project.properties with the trusted version from the
-      # default branch so a fork PR cannot redirect sonar.host.url to steal
-      # the token.
-      - name: Prepare trusted configuration directory
-        run: rm -rf .sonar-trusted
-
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 #v4
+      # Overwrite sonar-project.properties with the trusted default-branch copy
+      # so a fork PR cannot redirect sonar.host.url to steal the token, nor
+      # re-enable scanner-side Clippy/SCA.
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 #v7.0.1
         with:
           repository: ${{ github.repository }}
           ref: ${{ github.event.repository.default_branch }}
@@ -58,8 +66,12 @@ jobs:
         run: |
           rm -f sonar-project.properties
           cp .sonar-trusted/sonar-project.properties sonar-project.properties
+          rm -rf .sonar-trusted
 
+      # Coverage reports come from our own CI run. Skip for forks: their reports
+      # are contributor-controlled and would misrepresent measured coverage.
       - name: Download coverage reports
+        if: env.IS_INTERNAL == 'true'
         uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 #v4.3.0
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
@@ -115,6 +127,7 @@ jobs:
             fail "Unable to retrieve PR $num"
 
           api_number=$(jq -er '.number' <<< "$pr_json")
+          api_state=$(jq -er '.state' <<< "$pr_json")
           api_head_sha=$(jq -er '.head.sha' <<< "$pr_json")
           api_head_repo=$(jq -er '.head.repo.full_name' <<< "$pr_json")
           api_head_ref=$(jq -er '.head.ref' <<< "$pr_json")
@@ -122,6 +135,7 @@ jobs:
           api_base_ref=$(jq -er '.base.ref' <<< "$pr_json")
 
           [[ "$api_number" == "$num" ]] || fail "PR number mismatch"
+          [[ "$api_state" == "open" ]] || fail "PR is no longer open"
           [[ "$api_head_sha" == "$EXPECTED_HEAD_SHA" ]] ||
             fail "PR head SHA does not match the triggering workflow"
           [[ "$api_head_repo" == "$EXPECTED_HEAD_REPO" ]] ||
@@ -142,11 +156,15 @@ jobs:
           echo "head_ref=$api_head_ref" >> "$GITHUB_OUTPUT"
           echo "base_ref=$api_base_ref" >> "$GITHUB_OUTPUT"
 
+      # The token is supplied only here. Quality Gate results are informative
+      # (sonar.qualitygate.wait=false); keep Sonar out of required checks.
+      # Technical scanner failures are intentionally visible (no
+      # continue-on-error); this workflow is not a required check, so a failure
+      # never blocks a merge.
       - name: SonarCloud Scan
         if: >-
           github.event.workflow_run.event != 'pull_request'
           || steps.pr.outputs.number != ''
-        continue-on-error: true
         uses: SonarSource/sonarqube-scan-action@713881670b6b3676cda39549040e2d88c70d582e #v8.2.0
         with:
           args: >-
@@ -156,5 +174,9 @@ jobs:
                        steps.pr.outputs.number,
                        steps.pr.outputs.head_ref,
                        steps.pr.outputs.base_ref) || '' }}
+            ${{ env.IS_INTERNAL != 'true' &&
+                '-Dsonar.python.coverage.reportPaths= -Dsonar.javascript.lcov.reportPaths= -Dsonar.rust.lcov.reportPaths=' || '' }}
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          SONAR_HOST_URL: https://sonarcloud.io
+          SONAR_USER_HOME: ${{ runner.temp }}/sonar-user-home
