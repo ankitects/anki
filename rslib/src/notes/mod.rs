@@ -685,6 +685,7 @@ fn note_differs_from_db(existing_note: &mut Note, note: &mut Note) -> bool {
 mod test {
     use super::anki_base91;
     use super::field_checksum;
+    use super::NoteFieldsState;
     use crate::config::BoolKey;
     use crate::decks::DeckId;
     use crate::error::Result;
@@ -854,5 +855,60 @@ mod test {
         assert_after_remove(&mut col)?;
 
         Ok(())
+    }
+
+    #[test]
+    fn fields_check() {
+        let mut col = Collection::new();
+
+        let basic_notetype = col.basic_notetype();
+        let mut basic_note = basic_notetype.new_note();
+        col.add_note(&mut basic_note, DeckId(1)).unwrap();
+
+        let cloze_notetype = col.cloze_notetype();
+        let mut cloze_note = cloze_notetype.new_note();
+        col.add_note(&mut cloze_note, DeckId(1)).unwrap();
+
+        assert_eq!(
+            col.note_fields_check(&basic_note).unwrap(),
+            NoteFieldsState::Empty
+        );
+
+        basic_note.fields[0] = "foo".into();
+        col.update_note(&mut basic_note).unwrap();
+        assert_eq!(
+            col.note_fields_check(&basic_note).unwrap(),
+            NoteFieldsState::Normal
+        );
+
+        let mut basic_note2 = basic_notetype.new_note();
+        basic_note2.fields[0] = "foo".into();
+        col.add_note(&mut basic_note2, DeckId(1)).unwrap();
+        assert_eq!(
+            col.note_fields_check(&basic_note2).unwrap(),
+            NoteFieldsState::Duplicate
+        );
+
+        cloze_note.fields[0] = "no cloze".into();
+        col.update_note(&mut cloze_note).unwrap();
+        assert_eq!(
+            col.note_fields_check(&cloze_note).unwrap(),
+            NoteFieldsState::MissingCloze
+        );
+
+        cloze_note.fields[0] = "{{c1::foo}}".into();
+        cloze_note.fields[1] = "{{c1::non-cloze field}}".into();
+        col.update_note(&mut cloze_note).unwrap();
+        assert_eq!(
+            col.note_fields_check(&cloze_note).unwrap(),
+            NoteFieldsState::FieldNotCloze
+        );
+
+        basic_note.fields[0] = "{{c1::foo}}".into();
+        col.update_note(&mut basic_note).unwrap();
+        assert_eq!(
+            col.note_fields_check(&basic_note).unwrap(),
+            NoteFieldsState::NotetypeNotCloze
+        );
     }
 }
