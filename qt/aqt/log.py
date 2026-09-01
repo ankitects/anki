@@ -26,10 +26,10 @@ class AnkiLoggerManager(logging.Manager):
     # inspired by: https://github.com/abdnh/ankiutils/blob/master/src/ankiutils/log.py
 
     def __init__(
-            self,
-            logs_path: Path | str,
-            existing_loggers: dict[str, logging.Logger | logging.PlaceHolder],
-            rootnode: logging.RootLogger,
+        self,
+        logs_path: Path | str,
+        existing_loggers: dict[str, logging.Logger | logging.PlaceHolder],
+        rootnode: logging.RootLogger,
     ):
         super().__init__(rootnode)
         self.loggerDict = existing_loggers
