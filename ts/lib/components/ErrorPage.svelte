@@ -15,7 +15,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 <div class="error-box">
     <p class="error-text">{error.message}</p>
-    <button class="btn btn-primary" on:click={closePage}>{tr.errorsOk()}</button>
+    <button class="btn btn-primary" on:click={closePage}>{tr.helpOk()}</button>
 </div>
 
 <style lang="scss">
