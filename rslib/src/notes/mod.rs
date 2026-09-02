@@ -683,6 +683,8 @@ fn note_differs_from_db(existing_note: &mut Note, note: &mut Note) -> bool {
 
 #[cfg(test)]
 mod test {
+    use std::assert_matches;
+
     use super::anki_base91;
     use super::field_checksum;
     use super::NoteFieldsState;
@@ -909,6 +911,35 @@ mod test {
         assert_eq!(
             col.note_fields_check(&basic_note).unwrap(),
             NoteFieldsState::NotetypeNotCloze
+        );
+    }
+
+    #[test]
+    fn updating_notes() {
+        let mut col = Collection::new();
+
+        let nt = col.basic_notetype();
+        let mut note = nt.new_note();
+
+        // Field update persists
+        note.fields[0] = "foo".into();
+        col.add_note(&mut note, DeckId(1)).unwrap();
+        note.fields[0] = "bar".into();
+        col.update_note(&mut note).unwrap();
+        let mut note = col.storage.get_note(note.id).unwrap().unwrap();
+        assert_eq!(note.fields[0], "bar");
+
+        // Note is not marked as modified if no changes
+        let mtime = note.mtime;
+        col.update_note(&mut note).unwrap();
+        assert_eq!(note.mtime, mtime);
+
+        // Invalid note type
+        note.notetype_id = NotetypeId(0);
+        note.fields[0] = "a".into();
+        assert_matches!(
+            col.update_note(&mut note),
+            Err(AnkiError::InvalidInput { .. })
         );
     }
 }
