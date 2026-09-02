@@ -212,6 +212,11 @@ in the collection2.log file will also be printed on stdout.
 
 If ANKI_PROFILE_CODE is set, Python profiling data will be written on exit.
 
+If ANKI_API_HOST is set, the internal server will listen on the given host instead of
+`127.0.0.1`. Setting it to `0.0.0.0` allows external clients (e.g. other devices on
+the same network) to access the API, which is useful for testing SvelteKit pages on
+other devices during development. Do not use this on untrusted networks.
+
 ## Installer
 
 Run `tools/build-installer` to build the installer.
