@@ -196,17 +196,22 @@ FOLDER_TO_TAB_TITLE = {
 def escape_text_preserve_html(raw: str) -> str:
     # In indented code blocks, always escape angle brackets as literal text.
     lines = raw.splitlines(keepends=True)
-    in_fenced_code_block = False
+    in_tabbed_area = False
+    in_escaped_block = False
     for idx, line in enumerate(lines):
-        if line.lstrip().startswith("```"):
-            in_fenced_code_block = not in_fenced_code_block
-            continue
-        if in_fenced_code_block:
-            continue
-        if line.startswith("    ") or line.startswith("\t"):
-            line = line.replace("<", "&lt;").replace(">", "&gt;")
-        # Sanitize braces and HTML comments for MDX compatibility.
-        lines[idx] = line
+        if line.startswith("```"):
+            in_escaped_block = not in_escaped_block
+        if len(line.strip()) > 0 and not in_escaped_block:
+            tabbed = line.startswith("    ") or line.startswith("\t")
+            if tabbed and not in_tabbed_area:
+                lines.insert(idx, "```text\n")
+                in_tabbed_area = True
+            elif not tabbed and in_tabbed_area:
+                lines.insert(idx - 1, "```\n")
+                in_tabbed_area = False
+
+    if in_tabbed_area:
+        lines.append("```\n")
 
     raw = "".join(lines)
 
