@@ -100,50 +100,36 @@ Qt 5 has dropped WebKit in favour of the Chromium-based WebEngine, so
 Anki’s webviews are now using WebEngine. Of note:
 
 -   You can now debug the webviews using an external Chrome instance, by
-```text
     setting the env var QTWEBENGINE\_REMOTE\_DEBUGGING to 8080 prior to
     starting Anki, then surfing to localhost:8080 in Chrome.
-```
 
 -   WebEngine uses a different method of communicating back to Python.
-```text
     AnkiWebView() is a wrapper for webviews which provides a pycmd(str)
     function in Javascript which will call the ankiwebview’s
     onBridgeCmd(str) method. Various parts of Anki’s UI like reviewer.py
     and deckbrowser.py have had to be modified to use this.
-```
 
 -   Javascript is evaluated asynchronously, so if you need the result of
-```text
     a JS expression you can use ankiwebview’s evalWithCallback().
-```
 
 -   As a result of this asynchronous behaviour, editor.saveNow() now
-```text
     requires a callback. If your add-on performs actions in the browser,
     you likely need to call editor.saveNow() first and then run the rest
     of your code in the callback. Calls to .onSearch() will need to be
     changed to .search()/.onSearchActivated() as well. See the browser’s
     .deleteNotes() for an example.
-```
 
 -   Various operations that were supported by WebKit like
-```text
     setScrollPosition() now need to be implemented in javascript.
-```
 
 -   Page actions like mw.web.triggerPageAction(QWebEnginePage.Copy) are
-```text
     also asynchronous, and need to be rewritten to use javascript or a
     delay.
-```
 
 -   WebEngine doesn’t provide a keyPressEvent() like WebKit did, so the
-```text
     code that catches shortcuts not attached to a menu or button has had
     to be changed. setStateShortcuts() fires a hook that can be used to
     adjust the shortcuts for a given state.
-```
 
 ## Reviewer Changes
 

@@ -198,10 +198,15 @@ def escape_text_preserve_html(raw: str) -> str:
     lines = raw.splitlines(keepends=True)
     in_tabbed_area = False
     in_escaped_block = False
+    in_other_indent = False
     for idx, line in enumerate(lines):
         if line.startswith("```"):
             in_escaped_block = not in_escaped_block
-        if len(line.strip()) > 0 and not in_escaped_block:
+        if line.startswith("-") or line.startswith("*") or line.startswith("+"):
+            in_other_indent = True
+        elif line.strip() == "":
+            in_other_indent = False
+        if len(line.strip()) > 0 and not in_escaped_block and not in_other_indent:
             tabbed = line.startswith("    ") or line.startswith("\t")
             if tabbed and not in_tabbed_area:
                 lines.insert(idx, "```text\n")
