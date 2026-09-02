@@ -222,38 +222,37 @@ def escape_text_preserve_html(raw: str) -> str:
     raw = "".join(lines)
 
     # Split into HTML tags and non-tag text so they can be normalized separately.
-    parts = HTML_TAG_RE.split(raw)
+    parts = MARKDOWN_FENCED_CODE_RE.split(raw)
     for idx, part in enumerate(parts):
-        if HTML_TAG_RE.fullmatch(part):
-            # Normalize HTML attributes for MDX parser compatibility.
-            tag = HTML_UNQUOTED_ATTR_RE.sub(r'\g<name>="\g<value>"', part)
-            tag_name_match = VOID_HTML_TAG_NAME_RE.match(tag)
-            if (
-                tag_name_match
-                and tag.startswith("</")
-                and tag_name_match.group(1).lower() in VOID_HTML_ELEMENTS
-            ):
-                # Drop invalid closing tags for void elements like </br>.
-                parts[idx] = ""
-                continue
-            if (
-                tag_name_match
-                and not tag.startswith("</")
-                and not tag.rstrip().endswith("/>")
-                and tag_name_match.group(1).lower() in VOID_HTML_ELEMENTS
-            ):
-                # Ensure void elements are self-closing, e.g. <br />.
-                tag = tag[:-1].rstrip() + " />"
-            parts[idx] = tag
-            continue
-
-        # Escape only outside Markdown code spans/fences.
-        fenced_parts = MARKDOWN_FENCED_CODE_RE.split(part)
-        for f_idx, fenced_part in enumerate(fenced_parts):
-            if MARKDOWN_FENCED_CODE_RE.fullmatch(fenced_part):
+        html_parts = HTML_TAG_RE.split(part)
+        for f_idx, html_part in enumerate(html_parts):
+            if MARKDOWN_FENCED_CODE_RE.fullmatch(part):
                 continue
 
-            inline_parts = MARKDOWN_INLINE_CODE_RE.split(fenced_part)
+            if HTML_TAG_RE.fullmatch(html_part):
+                # Normalize HTML attributes for MDX parser compatibility.
+                tag = HTML_UNQUOTED_ATTR_RE.sub(r'\g<name>="\g<value>"', html_part)
+                tag_name_match = VOID_HTML_TAG_NAME_RE.match(tag)
+                if (
+                    tag_name_match
+                    and tag.startswith("</")
+                    and tag_name_match.group(1).lower() in VOID_HTML_ELEMENTS
+                ):
+                    # Drop invalid closing tags for void elements like </br>.
+                    html_parts[f_idx] = ""
+                    continue
+                if (
+                    tag_name_match
+                    and not tag.startswith("</")
+                    and not tag.rstrip().endswith("/>")
+                    and tag_name_match.group(1).lower() in VOID_HTML_ELEMENTS
+                ):
+                    # Ensure void elements are self-closing, e.g. <br />.
+                    tag = tag[:-1].rstrip() + " />"
+                html_parts[idx] = tag
+                continue
+
+            inline_parts = MARKDOWN_INLINE_CODE_RE.split(html_part)
             for i_idx, inline_part in enumerate(inline_parts):
                 if MARKDOWN_INLINE_CODE_RE.fullmatch(inline_part):
                     continue
@@ -270,9 +269,9 @@ def escape_text_preserve_html(raw: str) -> str:
                 )
                 inline_parts[i_idx] = inline_part
 
-            fenced_parts[f_idx] = "".join(inline_parts)
+            html_parts[f_idx] = "".join(inline_parts)
 
-        parts[idx] = "".join(fenced_parts)
+        parts[idx] = "".join(html_parts)
 
     return "".join(parts)
 

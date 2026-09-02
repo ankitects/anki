@@ -2,7 +2,6 @@
 title: "Debugging"
 ---
 
-
 ## Exceptions and Stdout/Stderr
 
 If your code throws an uncaught exception, it will be caught by Anki’s standard
@@ -30,20 +29,20 @@ top area, and then press ctrl+return/command+return to evaluate them. An
 example session follows:
 
 ```text
-    &gt;&gt;&gt; mw
+    >>> mw
     <no output>
 
-    &gt;&gt;&gt; print(mw)
+    >>> print(mw)
     <aqt.main.AnkiQt object at 0x10c0ddc20>
 
-    &gt;&gt;&gt; invalidName
+    >>> invalidName
     Traceback (most recent call last):
       File "/Users/dae/Lib/anki/qt/aqt/main.py", line 933, in onDebugRet
         exec text
       File "<string>", line 1, in <module>
     NameError: name 'invalidName' is not defined
 
-    &gt;&gt;&gt; a = [a for a in dir(mw.form) if a.startswith("action")]
+    >>> a = [a for a in dir(mw.form) if a.startswith("action")]
     ... print(a)
     ... print()
     ... pp(a)
@@ -55,11 +54,11 @@ example session follows:
      'actionDonate',
      ...]
 
-    &gt;&gt;&gt; pp(mw.reviewer.card)
+    >>> pp(mw.reviewer.card)
     <anki.cards.Card object at 0x112181150>
 
-    &gt;&gt;&gt; pp(card()) # shortcut for mw.reviewer.card.__dict__
-    \{'_note': <anki.notes.Note object at 0x11221da90>,
+    >>> pp(card()) # shortcut for mw.reviewer.card.__dict__
+    {'_note': <anki.notes.Note object at 0x11221da90>,
      '_qa': [...]
      'col': <anki.collection._Collection object at 0x1122415d0>,
      'data': u'',
@@ -69,9 +68,9 @@ example session follows:
      'flags': 0,
      'id': 1307820012852L,
      [...]
-    \}
+    }
 
-    &gt;&gt;&gt; pp(bcard()) # shortcut for selected card in browser
+    >>> pp(bcard()) # shortcut for selected card in browser
     <as above>
 ```
 

@@ -2,7 +2,6 @@
 title: "Reviewer Javascript"
 ---
 
-
 For a general solution not specific to card review, see
 [the webview section](hooks-and-filters#webview).
 
@@ -46,9 +45,9 @@ from aqt import gui_hooks
 def prepare(html, card, context):
     return html + """
 <script>
-onUpdateHook.push(function () \{
+onUpdateHook.push(function () {
     window.scrollTo(0, 2000);
-\})
+})
 </script>"""
 gui_hooks.card_will_show.append(prepare)
 ```

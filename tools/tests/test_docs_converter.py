@@ -305,3 +305,17 @@ class TestTocRemoval:
 # ===========================================================================
 # format_page — indented code blocks (angle brackets & braces inside)
 # ===========================================================================
+
+
+class TestIndentedCodeBlocks:
+    def test_angle_brackets_not_escaped_in_indented_block(self) -> None:
+        result = body(fmt("\t>>> text"))
+        assert ">>> text" in result
+
+    def test_braces_escaped_in_indented_block(self) -> None:
+        result = body(fmt("    {{field}}"))
+        assert "{{field}}" in result
+
+    def test_dollars_escaped_in_indented_block(self) -> None:
+        result = body(fmt("    $1.00"))
+        assert "$1.00" in result

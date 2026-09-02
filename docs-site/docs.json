@@ -322,8 +322,7 @@
                   "addons/reviewer-javascript",
                   "addons/debugging",
                   "addons/monkey-patching",
-                  "addons/sharing",
-                  "addons/porting2"
+                  "addons/sharing"
                 ]
               }
             ]
