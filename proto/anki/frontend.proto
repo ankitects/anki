@@ -38,6 +38,7 @@ service FrontendService {
   rpc OpenMedia(generic.String) returns (generic.Empty);
   rpc ShowInMediaFolder(generic.String) returns (generic.Empty);
   rpc RecordAudio(generic.Empty) returns (generic.String);
+  rpc PlayFile(generic.String) returns (generic.Empty);
   rpc CloseAddCards(generic.Bool) returns (generic.Empty);
   rpc CloseEditCurrent(generic.Empty) returns (generic.Empty);
   rpc OpenLink(generic.String) returns (generic.Empty);
@@ -60,6 +61,9 @@ service FrontendService {
 
   // Save colour picker's custom colour palette
   rpc SaveCustomColours(generic.Empty) returns (generic.Empty);
+
+  // CSV import
+  rpc ImportDialogRequireClose(generic.Empty) returns (generic.Empty);
 }
 
 service BackendFrontendService {}
