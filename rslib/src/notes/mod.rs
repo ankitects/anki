@@ -942,4 +942,28 @@ mod test {
             Err(AnkiError::InvalidInput { .. })
         );
     }
+
+    #[test]
+    fn removing_notes() {
+        let mut col = Collection::new();
+
+        let nt = col.basic_rev_notetype();
+        let mut note = nt.new_note();
+        note.fields[0] = "f".into();
+        note.fields[1] = "b".into();
+        col.add_note(&mut note, DeckId(1)).unwrap();
+
+        // Note and all its cards are removed
+        let cards = col.storage.all_cards_of_note(note.id).unwrap();
+        let card_count = col
+            .remove_notes(&[
+                note.id,
+                // Non-existing notes are ignored
+                NoteId(0),
+            ])
+            .unwrap()
+            .output;
+        assert_eq!(card_count, cards.len());
+        assert_eq!(col.storage.get_note(note.id), Ok(None));
+    }
 }
