@@ -323,8 +323,7 @@
                   "addons/debugging",
                   "addons/monkey-patching",
                   "addons/sharing",
-                  "addons/porting2.1.x",
-                  "addons/porting2.0"
+                  "addons/porting2"
                 ]
               }
             ]
