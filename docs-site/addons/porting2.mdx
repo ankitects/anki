@@ -24,7 +24,7 @@ of the code that you need to manually modify.
 
 The syntax for connecting signals and slots has changed in PyQt5. Recent
 PyQt4 versions support the new syntax as well, so the same syntax can be
-used for both Anki 2.0 and 2.1 add-ons.
+used for both Anki 2.0 and 2.1 add-ons. 
 
 More info is available at
 [http://pyqt.sourceforge.net/Docs/PyQt4/new_style_signals_slots.html](http://pyqt.sourceforge.net/Docs/PyQt4/new_style_signals_slots.html)
@@ -36,7 +36,7 @@ automatically convert the code:
 The Qt modules are in 'PyQt5' instead of 'PyQt4'. You can do a
 conditional import, but an easier way is to import from aqt.qt - eg
 
-```text
+```python
     from aqt.qt import *
 ```
 
@@ -56,7 +56,7 @@ If you plan to support 2.0 with the same file, you can copy your
 original file into the folder (`demo.py` → `demo/demo.py`), and then
 import it relatively by adding the following to `demo/__init__.py`:
 
-```text
+```python
     from . import demo
 ```
 
