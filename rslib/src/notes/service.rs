@@ -214,20 +214,19 @@ mod test {
     use crate::services::NotesService;
 
     #[test]
-    fn note_added() {
+    fn note_added() -> Result<()> {
         let mut col = Collection::new();
         let nt = col.basic_notetype();
 
         // Note ID and changes are returned
-        let note = NotesService::new_note(&mut col, nt.id.into()).unwrap();
+        let note = NotesService::new_note(&mut col, nt.id.into())?;
         let response = NotesService::add_note(
             &mut col,
             AddNoteRequest {
                 note: Some(note),
                 deck_id: 1,
             },
-        )
-        .unwrap();
+        )?;
         assert_ne!(response.note_id, 0);
         assert_ne!(response.changes, None);
 
@@ -240,10 +239,12 @@ mod test {
             },
         );
         assert_matches!(result, Err(AnkiError::InvalidInput { .. }));
+
+        Ok(())
     }
 
     #[test]
-    fn bulk_notes_added() {
+    fn bulk_notes_added() -> Result<()> {
         let mut col = Collection::new();
         let nt = col.basic_notetype();
         let requests: Vec<_> = (0..10)
@@ -255,40 +256,45 @@ mod test {
                 }
             })
             .collect();
-        let response = NotesService::add_notes(&mut col, AddNotesRequest { requests }).unwrap();
+        let response = NotesService::add_notes(&mut col, AddNotesRequest { requests })?;
         assert_eq!(response.nids.len(), 10);
         assert_ne!(response.changes, None);
+
+        Ok(())
     }
 
     #[test]
-    fn adding_defaults() {
+    fn adding_defaults() -> Result<()> {
         let mut col = Collection::new();
         let response = NotesService::defaults_for_adding(
             &mut col,
             DefaultsForAddingRequest {
                 home_deck_of_current_review_card: 1,
             },
-        )
-        .unwrap();
+        )?;
         assert_eq!(response.deck_id, 1);
         assert_eq!(response.notetype_id, col.basic_notetype().id.0);
+
+        Ok(())
     }
 
     #[test]
-    fn default_deck_for_notetype() {
+    fn default_deck_for_notetype() -> Result<()> {
         let mut col = Collection::new();
         let nt = col.basic_notetype();
         // No deck set; return 0
-        let response = NotesService::default_deck_for_notetype(&mut col, nt.id.into()).unwrap();
+        let response = NotesService::default_deck_for_notetype(&mut col, nt.id.into())?;
         assert_eq!(response, DeckId(0).into());
 
-        col.set_last_deck_for_notetype(nt.id, DeckId(1)).unwrap();
-        let response = NotesService::default_deck_for_notetype(&mut col, nt.id.into()).unwrap();
+        col.set_last_deck_for_notetype(nt.id, DeckId(1))?;
+        let response = NotesService::default_deck_for_notetype(&mut col, nt.id.into())?;
         assert_eq!(response, DeckId(1).into());
+
+        Ok(())
     }
 
     #[test]
-    fn notes_updated() {
+    fn notes_updated() -> Result<()> {
         let mut col = Collection::new();
         let nt = col.basic_notetype();
         let notes: Vec<_> = (0..10)
@@ -304,7 +310,7 @@ mod test {
                 })
                 .collect(),
         };
-        let _ = NotesService::add_notes(&mut col, add_request).unwrap();
+        let _ = NotesService::add_notes(&mut col, add_request)?;
         let notes: Vec<anki_proto::notes::Note> = col
             .get_all_notes()
             .into_iter()
@@ -318,34 +324,37 @@ mod test {
             notes: notes.clone(),
             skip_undo_entry: true,
         };
-        let _ = NotesService::update_notes(&mut col, request).unwrap();
+        let _ = NotesService::update_notes(&mut col, request)?;
+
+        Ok(())
     }
 
     #[test]
-    fn get_note() {
+    fn get_note() -> Result<()> {
         let mut col = Collection::new();
         let nt = col.basic_notetype();
-        let note1 = col.new_note(nt.id.into()).unwrap();
+        let note1 = col.new_note(nt.id.into())?;
         let response = NotesService::add_note(
             &mut col,
             AddNoteRequest {
                 note: Some(note1),
                 deck_id: 1,
             },
-        )
-        .unwrap();
+        )?;
         let nid = response.note_id;
-        let note2 = NotesService::get_note(&mut col, anki_proto::notes::NoteId { nid }).unwrap();
+        let note2 = NotesService::get_note(&mut col, anki_proto::notes::NoteId { nid })?;
         assert_eq!(nid, note2.id);
 
         assert_matches!(
             NotesService::get_note(&mut col, anki_proto::notes::NoteId { nid: 0 }),
             Err(AnkiError::NotFound { .. })
         );
+
+        Ok(())
     }
 
     #[test]
-    fn remove_notes() {
+    fn remove_notes() -> Result<()> {
         let mut col = Collection::new();
         let nt = col.basic_notetype();
         let notes: Vec<_> = (0..10)
@@ -361,7 +370,7 @@ mod test {
                 })
                 .collect(),
         };
-        let add_response = NotesService::add_notes(&mut col, add_request).unwrap();
+        let add_response = NotesService::add_notes(&mut col, add_request)?;
         let (note_ids, remaining_nids) = add_response.nids.split_at(3);
         let note_ids: Vec<_> = note_ids.into();
         let card_ids: Vec<_> = remaining_nids
@@ -381,8 +390,7 @@ mod test {
                 // An invalid ID to confirm card_ids is unused when note_ids is set
                 card_ids: [0].into(),
             },
-        )
-        .unwrap();
+        )?;
         assert_eq!(response.count as usize, note_ids.len());
         assert_ne!(response.changes, None);
         let response = NotesService::remove_notes(
@@ -391,17 +399,18 @@ mod test {
                 note_ids: vec![],
                 card_ids: card_ids.clone(),
             },
-        )
-        .unwrap();
+        )?;
         assert_eq!(response.count as usize, card_ids.len());
         assert_ne!(response.changes, None);
+
+        Ok(())
     }
 
     #[test]
-    fn cloze_numbers_in_note() {
+    fn cloze_numbers_in_note() -> Result<()> {
         let mut col: Collection = Collection::new();
         let nt = col.cloze_notetype();
-        let mut note = col.new_note(nt.id.into()).unwrap();
+        let mut note = col.new_note(nt.id.into())?;
         note.fields[0] = "{{c3::single}} {{c1,2::multi}}".into();
         let _ = NotesService::add_note(
             &mut col,
@@ -409,65 +418,67 @@ mod test {
                 note: Some(note.clone()),
                 deck_id: 1,
             },
-        )
-        .unwrap();
-        let response = NotesService::cloze_numbers_in_note(&mut col, note).unwrap();
+        )?;
+        let response = NotesService::cloze_numbers_in_note(&mut col, note)?;
         let expected_numbers = HashSet::from_iter([1, 2, 3]);
         let extracted_numbers: HashSet<_> = HashSet::from_iter(response.numbers);
         assert_eq!(expected_numbers, extracted_numbers);
+
+        Ok(())
     }
 
     #[test]
-    fn field_names_for_notes() {
+    fn field_names_for_notes() -> Result<()> {
         let mut col: Collection = Collection::new();
         let nt = col.cloze_notetype();
-        let note = col.new_note(nt.id.into()).unwrap();
+        let note = col.new_note(nt.id.into())?;
         let response = NotesService::add_note(
             &mut col,
             AddNoteRequest {
                 note: Some(note.clone()),
                 deck_id: 1,
             },
-        )
-        .unwrap();
+        )?;
         let nid = response.note_id;
         let mut response = NotesService::field_names_for_notes(
             &mut col,
             FieldNamesForNotesRequest { nids: vec![nid] },
-        )
-        .unwrap();
+        )?;
         let mut notetype_fields: Vec<_> = nt.field_names().cloned().collect();
         notetype_fields.sort();
         response.fields.sort();
         assert_eq!(response.fields, notetype_fields);
+
+        Ok(())
     }
 
     #[test]
-    fn note_fields_check() {
+    fn note_fields_check() -> Result<()> {
         let mut col: Collection = Collection::new();
         let nt = col.basic_notetype();
-        let note = col.new_note(nt.id.into()).unwrap();
+        let note = col.new_note(nt.id.into())?;
         let _ = NotesService::add_note(
             &mut col,
             AddNoteRequest {
                 note: Some(note.clone()),
                 deck_id: 1,
             },
-        )
-        .unwrap();
+        )?;
 
-        let response = NotesService::note_fields_check(&mut col, note).unwrap();
+        let response = NotesService::note_fields_check(&mut col, note)?;
         assert_eq!(
             response.state(),
             anki_proto::notes::note_fields_check_response::State::Empty
         );
+
+        Ok(())
     }
 
     #[test]
-    fn cards_of_note() {
+    fn cards_of_note() -> Result<()> {
         let mut col: Collection = Collection::new();
         let nt = col.basic_rev_notetype();
-        let mut note = col.new_note(nt.id.into()).unwrap();
+        let mut note = col.new_note(nt.id.into())?;
         note.fields[0] = "f".into();
         note.fields[1] = "b".into();
         let response = NotesService::add_note(
@@ -476,20 +487,20 @@ mod test {
                 note: Some(note.clone()),
                 deck_id: 1,
             },
-        )
-        .unwrap();
+        )?;
         let nid = response.note_id;
 
-        let response =
-            NotesService::cards_of_note(&mut col, anki_proto::notes::NoteId { nid }).unwrap();
+        let response = NotesService::cards_of_note(&mut col, anki_proto::notes::NoteId { nid })?;
         assert_eq!(response.cids.len(), 2);
+
+        Ok(())
     }
 
     #[test]
-    fn get_single_notetype_of_notes() {
+    fn get_single_notetype_of_notes() -> Result<()> {
         let mut col: Collection = Collection::new();
         let nt = col.basic_rev_notetype();
-        let mut note = col.new_note(nt.id.into()).unwrap();
+        let mut note = col.new_note(nt.id.into())?;
         note.fields[0] = "f".into();
         note.fields[1] = "b".into();
         let response = NotesService::add_note(
@@ -498,16 +509,16 @@ mod test {
                 note: Some(note.clone()),
                 deck_id: 1,
             },
-        )
-        .unwrap();
+        )?;
         let nid = response.note_id;
         let response = NotesService::get_single_notetype_of_notes(
             &mut col,
             NoteIds {
                 note_ids: vec![nid],
             },
-        )
-        .unwrap();
+        )?;
         assert_eq!(response.ntid, nt.id.0);
+
+        Ok(())
     }
 }

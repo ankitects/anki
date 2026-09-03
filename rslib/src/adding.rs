@@ -120,122 +120,113 @@ mod test {
     use crate::config::ConfigKey;
     use crate::prelude::*;
 
-    fn normal_deck(col: &mut Collection, name: &str) -> Deck {
+    fn normal_deck(col: &mut Collection, name: &str) -> Result<Deck> {
         let mut deck = Deck::new_normal();
         deck.name = NativeDeckName::from_human_name(name);
-        col.add_deck(&mut deck).unwrap();
+        col.add_deck(&mut deck)?;
 
-        deck
+        Ok(deck)
     }
 
-    fn filtered_deck(col: &mut Collection, name: &str) -> Deck {
+    fn filtered_deck(col: &mut Collection, name: &str) -> Result<Deck> {
         let mut deck = Deck::new_filtered();
         deck.name = NativeDeckName::from_human_name(name);
-        col.add_deck(&mut deck).unwrap();
+        col.add_deck(&mut deck)?;
 
-        deck
+        Ok(deck)
     }
 
     #[test]
-    fn defaults() {
+    fn defaults() -> Result<()> {
         let mut col = Collection::new();
-        let normal_deck1 = normal_deck(&mut col, "n1");
-        let filtered_deck1 = filtered_deck(&mut col, "f1");
-        let normal_deck2 = normal_deck(&mut col, "n2");
-        let filtered_deck2 = filtered_deck(&mut col, "f2");
-        let normal_deck3 = normal_deck(&mut col, "n3");
+        let normal_deck1 = normal_deck(&mut col, "n1")?;
+        let filtered_deck1 = filtered_deck(&mut col, "f1")?;
+        let normal_deck2 = normal_deck(&mut col, "n2")?;
+        let filtered_deck2 = filtered_deck(&mut col, "f2")?;
+        let normal_deck3 = normal_deck(&mut col, "n3")?;
 
         // AddingDefaultsToCurrentDeck defaults to true
 
         // Current deck, unset deck's last notetype; fall back to first notetype in
         // collection
-        col.set_current_deck(normal_deck1.id).unwrap();
-        let defaults = col
-            .defaults_for_adding(
-                // Invalid ID to confirm it's not used
-                DeckId(0),
-            )
-            .unwrap();
+        col.set_current_deck(normal_deck1.id)?;
+        let defaults = col.defaults_for_adding(
+            // Invalid ID to confirm it's not used
+            DeckId(0),
+        )?;
         assert_eq!(defaults.deck_id, normal_deck1.id);
         assert_eq!(defaults.notetype_id, col.basic_notetype().id);
 
         // Current deck, current note type
-        col.set_current_notetype_id(col.cloze_notetype().id)
-            .unwrap();
-        let defaults = col.defaults_for_adding(DeckId(0)).unwrap();
+        col.set_current_notetype_id(col.cloze_notetype().id)?;
+        let defaults = col.defaults_for_adding(DeckId(0))?;
         assert_eq!(defaults.deck_id, normal_deck1.id);
         assert_eq!(defaults.notetype_id, col.cloze_notetype().id);
 
         // Current deck, deck's last note type
-        col.set_last_notetype_for_deck(normal_deck1.id, col.basic_rev_notetype().id)
-            .unwrap();
-        let defaults = col.defaults_for_adding(DeckId(0)).unwrap();
+        col.set_last_notetype_for_deck(normal_deck1.id, col.basic_rev_notetype().id)?;
+        let defaults = col.defaults_for_adding(DeckId(0))?;
         assert_eq!(defaults.deck_id, normal_deck1.id);
         assert_eq!(defaults.notetype_id, col.basic_rev_notetype().id);
 
         // Provided deck
-        col.set_current_deck(filtered_deck1.id).unwrap();
-        let defaults = col.defaults_for_adding(normal_deck1.id).unwrap();
+        col.set_current_deck(filtered_deck1.id)?;
+        let defaults = col.defaults_for_adding(normal_deck1.id)?;
         assert_eq!(defaults.deck_id, normal_deck1.id);
 
         // Invalid provided deck; fall back to default deck
-        let defaults = col.defaults_for_adding(DeckId(0)).unwrap();
+        let defaults = col.defaults_for_adding(DeckId(0))?;
         assert_eq!(defaults.deck_id, DeckId(1));
 
         // AddingDefaultsToCurrentDeck=false
-        col.set_config_bool_inner(BoolKey::AddingDefaultsToCurrentDeck, false)
-            .unwrap();
+        col.set_config_bool_inner(BoolKey::AddingDefaultsToCurrentDeck, false)?;
 
         // Unset current note type; fall back to first notetype and current deck
-        col.remove_config_inner(ConfigKey::CurrentNotetypeId)
-            .unwrap();
-        col.clear_aux_config_for_notetype(col.basic_notetype().id)
-            .unwrap();
-        col.set_current_deck(normal_deck2.id).unwrap();
-        let defaults = col.defaults_for_adding(DeckId(0)).unwrap();
+        col.remove_config_inner(ConfigKey::CurrentNotetypeId)?;
+        col.clear_aux_config_for_notetype(col.basic_notetype().id)?;
+        col.set_current_deck(normal_deck2.id)?;
+        let defaults = col.defaults_for_adding(DeckId(0))?;
         assert_eq!(defaults.deck_id, normal_deck2.id);
         assert_eq!(defaults.notetype_id, col.basic_notetype().id);
 
         // Invalid current note type; fall back to first notetype and current deck
-        col.clear_aux_config_for_notetype(col.basic_notetype().id)
-            .unwrap();
+        col.clear_aux_config_for_notetype(col.basic_notetype().id)?;
         col.set_current_notetype_id(
             // Set to an invalid notetype to trigger fallback
             NotetypeId(0),
-        )
-        .unwrap();
-        let defaults = col.defaults_for_adding(DeckId(0)).unwrap();
+        )?;
+        let defaults = col.defaults_for_adding(DeckId(0))?;
         assert_eq!(defaults.deck_id, normal_deck2.id);
         assert_eq!(defaults.notetype_id, col.basic_notetype().id);
 
         // Current notetype, current deck
         let nt = col.basic_notetype();
-        col.set_current_notetype_id(nt.id).unwrap();
-        col.clear_aux_config_for_notetype(nt.id).unwrap();
-        let defaults = col.defaults_for_adding(DeckId(0)).unwrap();
+        col.set_current_notetype_id(nt.id)?;
+        col.clear_aux_config_for_notetype(nt.id)?;
+        let defaults = col.defaults_for_adding(DeckId(0))?;
         assert_eq!(defaults.deck_id, normal_deck2.id);
         assert_eq!(defaults.notetype_id, nt.id);
 
         // Current notetype, non-existing notetype's last deck; fall back to current
         // deck
-        col.set_last_deck_for_notetype(nt.id, DeckId(0)).unwrap();
-        let defaults = col.defaults_for_adding(DeckId(0)).unwrap();
+        col.set_last_deck_for_notetype(nt.id, DeckId(0))?;
+        let defaults = col.defaults_for_adding(DeckId(0))?;
         assert_eq!(defaults.deck_id, normal_deck2.id);
         assert_eq!(defaults.notetype_id, nt.id);
 
         // Current notetype, notetype's last deck (filtered); fall back to current
         // deck
-        col.set_last_deck_for_notetype(nt.id, filtered_deck2.id)
-            .unwrap();
-        let defaults = col.defaults_for_adding(DeckId(0)).unwrap();
+        col.set_last_deck_for_notetype(nt.id, filtered_deck2.id)?;
+        let defaults = col.defaults_for_adding(DeckId(0))?;
         assert_eq!(defaults.deck_id, normal_deck2.id);
         assert_eq!(defaults.notetype_id, nt.id);
 
         // Current notetype, notetype's last deck (normal)
-        col.set_last_deck_for_notetype(nt.id, normal_deck3.id)
-            .unwrap();
-        let defaults = col.defaults_for_adding(DeckId(0)).unwrap();
+        col.set_last_deck_for_notetype(nt.id, normal_deck3.id)?;
+        let defaults = col.defaults_for_adding(DeckId(0))?;
         assert_eq!(defaults.deck_id, normal_deck3.id);
         assert_eq!(defaults.notetype_id, nt.id);
+
+        Ok(())
     }
 }

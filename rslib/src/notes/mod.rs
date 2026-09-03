@@ -893,62 +893,58 @@ mod test {
     }
 
     #[test]
-    fn fields_check() {
+    fn fields_check() -> Result<()> {
         let mut col = Collection::new();
 
         let basic_notetype = col.basic_notetype();
         let mut basic_note = basic_notetype.new_note();
-        col.add_note(&mut basic_note, DeckId(1)).unwrap();
+        col.add_note(&mut basic_note, DeckId(1))?;
 
         let cloze_notetype = col.cloze_notetype();
         let mut cloze_note = cloze_notetype.new_note();
-        col.add_note(&mut cloze_note, DeckId(1)).unwrap();
+        col.add_note(&mut cloze_note, DeckId(1))?;
 
-        assert_eq!(
-            col.note_fields_check(&basic_note).unwrap(),
-            NoteFieldsState::Empty
-        );
+        assert_eq!(col.note_fields_check(&basic_note)?, NoteFieldsState::Empty);
 
         basic_note.fields[0] = "foo".into();
-        col.update_note(&mut basic_note).unwrap();
-        assert_eq!(
-            col.note_fields_check(&basic_note).unwrap(),
-            NoteFieldsState::Normal
-        );
+        col.update_note(&mut basic_note)?;
+        assert_eq!(col.note_fields_check(&basic_note)?, NoteFieldsState::Normal);
 
         let mut basic_note2 = basic_notetype.new_note();
         basic_note2.fields[0] = "foo".into();
-        col.add_note(&mut basic_note2, DeckId(1)).unwrap();
+        col.add_note(&mut basic_note2, DeckId(1))?;
         assert_eq!(
-            col.note_fields_check(&basic_note2).unwrap(),
+            col.note_fields_check(&basic_note2)?,
             NoteFieldsState::Duplicate
         );
 
         cloze_note.fields[0] = "no cloze".into();
-        col.update_note(&mut cloze_note).unwrap();
+        col.update_note(&mut cloze_note)?;
         assert_eq!(
-            col.note_fields_check(&cloze_note).unwrap(),
+            col.note_fields_check(&cloze_note)?,
             NoteFieldsState::MissingCloze
         );
 
         cloze_note.fields[0] = "{{c1::foo}}".into();
         cloze_note.fields[1] = "{{c1::non-cloze field}}".into();
-        col.update_note(&mut cloze_note).unwrap();
+        col.update_note(&mut cloze_note)?;
         assert_eq!(
-            col.note_fields_check(&cloze_note).unwrap(),
+            col.note_fields_check(&cloze_note)?,
             NoteFieldsState::FieldNotCloze
         );
 
         basic_note.fields[0] = "{{c1::foo}}".into();
-        col.update_note(&mut basic_note).unwrap();
+        col.update_note(&mut basic_note)?;
         assert_eq!(
-            col.note_fields_check(&basic_note).unwrap(),
+            col.note_fields_check(&basic_note)?,
             NoteFieldsState::NotetypeNotCloze
         );
+
+        Ok(())
     }
 
     #[test]
-    fn updating_note() {
+    fn updating_note() -> Result<()> {
         let mut col = Collection::new();
 
         let nt = col.basic_notetype();
@@ -956,15 +952,15 @@ mod test {
 
         // Field update persists
         note.fields[0] = "foo".into();
-        col.add_note(&mut note, DeckId(1)).unwrap();
+        col.add_note(&mut note, DeckId(1))?;
         note.fields[0] = "bar".into();
-        col.update_note(&mut note).unwrap();
-        let mut note = col.storage.get_note(note.id).unwrap().unwrap();
+        col.update_note(&mut note)?;
+        let mut note = col.storage.get_note(note.id)?.unwrap();
         assert_eq!(note.fields[0], "bar");
 
         // Note is not marked as modified if no changes
         let mtime = note.mtime;
-        col.update_note(&mut note).unwrap();
+        col.update_note(&mut note)?;
         assert_eq!(note.mtime, mtime);
 
         // Missing note type
@@ -974,6 +970,8 @@ mod test {
             col.update_note(&mut note),
             Err(AnkiError::InvalidInput { .. })
         );
+
+        Ok(())
     }
 
     #[test]
