@@ -2,7 +2,69 @@
 title: "The Manual"
 ---
 
-Translating the manual and other docs is trickier than translating Anki's interface.
+Translating the manual and other documentation is trickier than translating
+Anki's interface: the documentation is not translated on the [translation
+site](https://i18n.ankiweb.net/projects). Instead, you edit Markdown files in
+[the main Anki repository](https://github.com/ankitects/anki) and submit a
+pull request. Some familiarity with Git is required, but you don't need to be
+able to build Anki or write code.
 
-You have to fork the main Anki repo and work with Markdown files.
-Please see https://github.com/ankitects/anki/blob/main/docs-site#translations
+The English source pages live in the
+[docs-site directory](https://github.com/ankitects/anki/tree/main/docs-site).
+The manual itself is located in `docs-site/manual`, and the other sections,
+such as the add-on and developer documentation, are in sibling directories.
+
+## Getting Started
+
+1. [Fork](https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/working-with-forks/fork-a-repo)
+   the [Anki repository](https://github.com/ankitects/anki) and clone your
+   fork locally.
+
+2. If your language already has a subdirectory under `docs-site` (for example
+   `docs-site/ru/`), you can start improving the existing `.mdx` pages in it.
+   Otherwise, create a new subdirectory named after your language code, such
+   as `docs-site/ko/manual/`.
+
+3. Translate the pages you'd like to work on. The pages are written in MDX, a
+   flavor of Markdown that supports embedded components. Please keep Markdown
+   formatting such as links, images and code blocks intact, and translate the
+   surrounding text only.
+
+4. List your translated pages in
+   [docs-site/docs.json](https://github.com/ankitects/anki/blob/main/docs-site/docs.json)
+   so they show up in the navigation. Each language has an entry under
+   `navigation.languages`: to add a page, append its path to your language's
+   `pages` list; to add a new language, add a new entry following the existing
+   pattern:
+
+   ```json
+   {
+     "language": "ko",
+     "tabs": [
+       {
+         "tab": "Manual",
+         "groups": [
+           {
+             "group": "Desktop Manual",
+             "pages": ["ko/manual/intro"]
+           }
+         ]
+       }
+     ]
+   }
+   ```
+
+   For the supported language codes and the language switcher configuration,
+   please see Mintlify's guide on
+   [internationalization](https://www.mintlify.com/docs/guides/internationalization#configure-the-language-switcher).
+
+5. Submit a pull request containing your changes.
+
+## Notes
+
+- Partial translations are welcome: starting with the introduction page, like
+  most of the existing languages, is perfectly fine.
+- Unless stated otherwise, documentation changes are licensed under the
+  [CC BY-SA 4.0 license](https://creativecommons.org/licenses/by-sa/4.0/).
+- If you have questions about translating the documentation, please feel free
+  to ask on [the forums](https://forums.ankiweb.net/).
