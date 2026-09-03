@@ -45,8 +45,8 @@ A good unit test is:
   unavailable external service.
 - **Fast:** it is cheap enough to run repeatedly while editing.
 - **Readable:** its name and test data explain the contract and the failure.
-- **Sensitive:** it fails when the behavior is broken, not merely when an assertion
-  is changed.
+- **Sensitive:** a real regression in the behavior makes it fail; it does not keep
+  passing when the contract is broken.
 - **Stable:** a behavior-preserving refactor should usually leave it unchanged.
 
 Code coverage is useful for finding untested code, but a covered line is not
@@ -61,7 +61,7 @@ Use the lowest-cost test that can prove the behavior:
 | ------------- | --------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------- |
 | Pure unit     | Calculations, parsing, validation, conversion, and deterministic state transitions                                          | Framework wiring or cross-process behavior              |
 | Sociable unit | A small group of fast, in-process collaborators                                                                             | Network, real subprocesses, or a user's persistent data |
-| UI component  | One Qt or Svelte component's visible state, signals/events, and user interaction                                            | Whole application workflows                             |
+| UI component  | A Qt component's visible state, signals/events, and interaction; for Svelte, extracted logic and stores                     | Whole application workflows                             |
 | Integration   | Database mappings, protobuf/language bridges, filesystem contracts, and framework integration that a unit test cannot prove | Repeating every unit-level branch                       |
 | End-to-end    | A small number of critical workflows through a real Anki instance and browser                                               | Exhaustive validation and edge cases                    |
 
@@ -69,9 +69,13 @@ Most scenarios should be below the end-to-end layer. If a higher-level test disc
 a defect, add a lower-level regression test when that level can reproduce the defect.
 Keep the higher-level test only when it proves an additional contract.
 
+For Svelte specifically, "UI component" means extracted logic and stores: the
+repository does not wire rendered-component tests into the unit suite (see
+[Svelte, TypeScript, and JavaScript](https://anki.mintlify.app/unit-testing#svelte-typescript-and-javascript)).
+
 Anki spans several implementation layers. Test a rule at the layer that owns it:
 
-- Business rules implemented in Rust should normally be tested in Rust.
+- Business rules implemented in Rust **should** normally be tested in Rust.
 - Python library tests should cover Python-owned behavior, compatibility surfaces,
   orchestration, and adaptations instead of duplicating Rust assertions.
 - Python/Qt tests should cover GUI-owned state, signals, callbacks, and backend
@@ -120,15 +124,27 @@ Prefer a visible Arrange–Act–Assert flow:
 The phases do not require comments when the structure is already obvious. Avoid
 hiding the act or the important assertion inside a helper.
 
-Name a test after the scenario and expected behavior, not an implementation method:
+Name a test after the unit under test and the expected behavior, not an
+implementation method. Follow the convention of the tests already in that file;
+newer tests in the codebase put the condition last:
 
 ```text
-<behavior>_<condition>_<expected_outcome>
+<unit>_<expected_outcome>[_when_<condition>]
 ```
 
-Good names include `empty_input_uses_the_default` and
-`save_failure_preserves_existing_state`. Names such as `test_helper`, `works`, or
-`case_1` do not explain the contract.
+Real examples from the codebase:
+
+- Rust: `answer_easy_graduates_new_card_to_review_queue`,
+  `bury_leaves_suspended_card_untouched`,
+  `add_or_update_notetype_preserves_usn_when_flag_is_set`
+- Python/Qt: `test_update_collection_skips_backend_when_unchanged`,
+  `test_is_audio_file_rejects_no_extension`
+
+Vitest names the behavior in the `test(...)` description string rather than in an
+identifier, e.g. `test("event handler attributes are stripped")`.
+
+Names such as `test_helper`, `works`, `basic`, or `case_1` do not explain the
+contract.
 
 Assertions should be precise enough to diagnose the defect. Prefer comparing the
 meaningful value or structured result over a generic truthiness check. Assert an
@@ -147,7 +163,7 @@ behavior.
   Never read or modify a user's Anki profile.
 - Restore patched globals, environment variables, timers, DOM state, and callbacks.
   Prefer framework cleanup facilities that run even after an assertion fails.
-- Tests must pass independently, in any order, and when repeated.
+- Tests **must** pass independently, in any order, and when repeated.
 
 ## Test doubles and boundaries
 
@@ -175,7 +191,7 @@ probably describes the implementation rather than useful behavior.
 
 ## Regression tests
 
-A bug fix should normally include a test that would have caught the bug.
+A bug fix **should** normally include a test that would have caught the bug.
 
 1. Reduce the report to the smallest representative input and state.
 2. Place the test at the lowest layer that reproduces the defect and proves the
@@ -236,7 +252,7 @@ Do not spend test maintenance on:
 
 Qt and Svelte tests have a higher setup and maintenance cost than tests for pure
 logic. Do not attempt to test every widget, component, property, or markup detail. A
-UI test should protect behavior whose value and risk justify that cost.
+UI test **should** protect behavior whose value and risk justify that cost.
 
 Prefer testing:
 
@@ -263,7 +279,7 @@ may be the better trade-off.
 ## Stack-specific guidance
 
 The examples below are illustrative pseudocode. Names such as `State`, `Model`, and
-`normalize_value` are not Anki APIs and must not be copied without inspecting the
+`normalize_value` are not Anki APIs and **must not** be copied without inspecting the
 actual code.
 
 ### Python library
@@ -354,7 +370,7 @@ nearby crate's existing helpers and conventions.
   otherwise.
 - Use small table-driven loops for one contract and include the input in assertion
   messages.
-- `unwrap()` and `expect()` are acceptable in setup and when an unexpected error
+- `unwrap()` and `expect()` **may** be used in setup and when an unexpected error
   should fail the test; do not use them to inspect the error path being tested.
 
 Generic example:
@@ -433,7 +449,7 @@ Use the repository's `just` recipes:
 just test-rust  # Rust
 just test-py    # Python library and Python/Qt
 just test-ts    # TypeScript/JavaScript/Svelte unit tests
-just test       # all unit-test stacks
+just test       # every stack (Rust, Python, TS)
 just check      # required final formatting, build, lint, and test validation
 ```
 
@@ -466,7 +482,7 @@ runner configuration. This guide does not replace repository context.
 
 Before editing, it should follow the quick workflow, summarize the contract, owning
 layer, scenarios, and selected boundary, then follow local naming, fixtures, builders,
-and file placement. It must not invent APIs, dependencies, fixtures, or runner
+and file placement. It **must not** invent APIs, dependencies, fixtures, or runner
 capabilities; change production visibility solely to reach private implementation;
 or weaken an assertion to make it pass. It should finish by reporting what was
 tested, intentionally omitted, and not validated.

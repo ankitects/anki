@@ -98,4 +98,8 @@ The e2e tests run as part of the `check-linux` job in `.github/workflows/ci.yml`
 after the regular build and test steps. Screenshots and traces from failed runs
 are uploaded as artifacts and kept for 7 days.
 
+## See also
+
+- [Unit Testing Specification and Guide](https://anki.mintlify.app/developers/unit-testing)
+
 <!-- <<<end>>> -->
