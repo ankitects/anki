@@ -322,7 +322,8 @@
                   "addons/reviewer-javascript",
                   "addons/debugging",
                   "addons/monkey-patching",
-                  "addons/sharing"
+                  "addons/sharing",
+                  "addons/hooks-reference"
                 ]
               }
             ]

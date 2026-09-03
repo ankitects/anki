@@ -389,7 +389,10 @@ def main():
     def update_page_paths(group: dict | str):
         if isinstance(group, str):
             path = Path(group)
-            if any(path == page.root_dest for page in to_move):
+            if (
+                any(path == page.root_dest for page in to_move)
+                or "hooks-reference" in group
+            ):
                 return (
                     str(language_code_path / path) if language_code_path else str(path)
                 )
