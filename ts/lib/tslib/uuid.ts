@@ -2,7 +2,7 @@
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 /**
- * TODO replace with crypto.randomUUID
+ * TODO replace with crypto.randomUUID once we update browserslist to Chrome>=92, iOS>=15.4
  */
 export function randomUUID(): string {
     const value = `${1e7}-${1e3}-${4e3}-${8e3}-${1e11}`;
