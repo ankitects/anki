@@ -200,10 +200,18 @@ def escape_text_preserve_html(raw: str) -> str:
     in_escaped_block = False
     in_other_indent = False
     for idx, line in enumerate(lines):
+
+        def exit_current_tabbed_area():
+            nonlocal in_tabbed_area
+            if in_tabbed_area:
+                lines.insert(idx - 1, "```\n")
+                in_tabbed_area = False
+
         if line.startswith("```"):
             in_escaped_block = not in_escaped_block
         if line.startswith("-") or line.startswith("*") or line.startswith("+"):
             in_other_indent = True
+            exit_current_tabbed_area()
         elif line.strip() == "":
             in_other_indent = False
         if len(line.strip()) > 0 and not in_escaped_block and not in_other_indent:
@@ -213,8 +221,7 @@ def escape_text_preserve_html(raw: str) -> str:
                 lines.insert(idx, f"```{code_type}\n")
                 in_tabbed_area = True
             elif not tabbed and in_tabbed_area:
-                lines.insert(idx - 1, "```\n")
-                in_tabbed_area = False
+                exit_current_tabbed_area()
 
     if in_tabbed_area:
         lines.append("```\n")
