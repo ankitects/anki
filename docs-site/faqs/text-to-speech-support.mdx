@@ -27,24 +27,24 @@ If you want to use the generated files outside the computer version, make sure y
 While AnkiMobile &lt;2.0.56 has no official support for on-device TTS, Apple introduced TTS support in iOS7, and it is possible to gain access to it. The following is based on a user-contributed solution.
 
 ```html
-<span id="word">\{\{Word\}\}</span>
+<span id="word">{{Word}}</span>
 
 <script>
     var w = document.getElementById("word");
     window.setTimeout("speak(w.innerHTML)", 500);
 
-    function speak(word) \{
-      var speech = new SpeechSynthesisUtterance();
-      speech.text = word;
-      speech.volume = 1; // 0 to 1
-      speech.rate = 1; // 0.1 to 9
-      speech.pitch = 1; // 0 to 2, 1=normal
-      speech.voice = window.speechSynthesis
-        .getVoices()
-        .filter((v) =&gt; v.lang == "en-GB")[0];
-      speechSynthesis.cancel();
-      speechSynthesis.speak(speech);
-    \}
+    function speak(word) {
+        var speech = new SpeechSynthesisUtterance();
+        speech.text = word;
+        speech.volume = 1; // 0 to 1
+        speech.rate = 1; // 0.1 to 9
+        speech.pitch = 1; // 0 to 2, 1=normal
+        speech.voice = window.speechSynthesis
+            .getVoices()
+            .filter((v) => v.lang == "en-GB")[0];
+        speechSynthesis.cancel();
+        speechSynthesis.speak(speech);
+    }
 </script>
 ```
 
