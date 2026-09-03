@@ -317,8 +317,8 @@ like so:
 
 Here are some examples:
 
-\{/_ prettier-ignore _/\}
-| Raw Text | Rendered Text |
+{/* prettier-ignore */}
+| Raw Text            | Rendered Text                                                                             |
 | ------------------- | ----------------------------------------------------------------------------------------- |
 | `Text[Ruby]` | <ruby><rb>Text</rb><rt>Ruby</rt></ruby> |
 | `日本語[にほんご]` | <ruby><rb>日本語</rb><rt>にほんご</rt></ruby> |
@@ -337,8 +337,8 @@ of the ruby text, with the `kana` and `kanji` filters. The `kana` filter will
 only show the ruby text, while the `kanji` filter removes the ruby text
 entirely.
 
-\{/_ prettier-ignore _/\}
-| Raw Text | Field Filter | Rendered Text |
+{/* prettier-ignore */}
+| Raw Text           | Field Filter           | Rendered Text                                 |
 | ------------------ | ---------------------- | --------------------------------------------- |
 | `日本語[にほんご]` | `{{furigana:MyField}}` | <ruby><rb>日本語</rb><rt>にほんご</rt></ruby> |
 | `日本語[にほんご]` | `{{kana:MyField}}` | にほんご |
@@ -365,7 +365,7 @@ for every card (e.g. a company logo at the top of each card):
 
 2. Add a reference to the media on your front or back template, like:
 
-\{/\* \*/\}
+{/*  */}
 
 ```text
     <img src="_logo.jpg">

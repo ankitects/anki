@@ -266,9 +266,9 @@ def escape_text_preserve_html(raw: str) -> str:
                     continue
 
                 # This code deals with the parts that aren't inline
+                inline_part = inline_part.replace("{", "\\{").replace("}", "\\}")
                 inline_part = inline_part.replace("<!--", "{/*").replace("-->", "*/}")
                 inline_part = inline_part.replace("<", "&lt;").replace(">", "&gt;")
-                inline_part = inline_part.replace("{", "\\{").replace("}", "\\}")
                 inline_part = (
                     inline_part.replace("$$", "LATEX")
                     .replace("$", "\\$")
