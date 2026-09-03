@@ -109,6 +109,16 @@ class TestVoidElementNormalization:
         result = escape_text_preserve_html('<img src="x.png">')
         assert "/>" in result
 
+    def test_source_becomes_self_closing(self) -> None:
+        result = escape_text_preserve_html(
+            (
+                "<video controls autoplay loop muted>"
+                '<source src="../img/autocomplete.mp4" type="video/mp4">'
+                "</video>"
+            )
+        )
+        assert 'type="video/mp4" />' in result
+
     def test_hr_becomes_self_closing(self) -> None:
         result = escape_text_preserve_html("<hr>")
         assert "<hr />" in result
