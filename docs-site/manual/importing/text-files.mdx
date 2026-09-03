@@ -32,33 +32,41 @@ the one you’ve selected.
 
 This is an example of a valid file with three fields:
 
+```text
     apple;banana;grape
     first field;second field;third field
+```
 
 There are two ways to include newlines or the field separator in fields.
 
 **Escape the characters by placing the contents of the field in
 quotation marks**:
 
+```text
     hello;"this is
     a two line answer"
     two;this is a one line field
     "this includes a ; (semicolon)";another field
+```
 
 Because quotes are used to mark where a field begins and ends, if you
 wish to include them inside your field, you need to replace a single
 doublequote with two doublequotes to "escape" them from the regular
 handling, like so:
 
+```text
     field one;"field two with ""escaped quotes"" inside it"
+```
 
 When you use a spreadsheet program like Libreoffice to create the CSV
 file for you, it will automatically take care of escaping double quotes.
 
 **Use HTML new lines**:
 
-    hello; this is&lt;br&gt;a two line answer
+```text
+    hello; this is<br>a two line answer
     two; this is a one line one
+```
 
 You need to turn on the **Allow HTML in fields** in the import
 dialog for HTML newlines to work.
@@ -70,13 +78,17 @@ newlines instead.
 You can also include tags in another field and select it as a tags field
 in the import dialog:
 
+```text
     first field;second field;tags
+```
 
 This is an example of a valid file where the first line is ignored (\#):
 
+```text
     # this is a comment and is ignored
     foo bar;bar baz;baz quux
     field1;field2;field3
+```
 
 ## Spreadsheets and UTF-8
 
@@ -121,11 +133,15 @@ subdirectories in the media folder, or some features will not work.**
 After you’ve copied the files, change one of the fields in your text
 file as follows.
 
-    &lt;img src="myimage.jpg"&gt;
+```text
+    <img src="myimage.jpg">
+```
 
 or
 
+```text
     [sound:myaudio.mp3]
+```
 
 Alternatively, you can use the [find and replace](../browsing) feature
 in the browse screen to update all the fields at once. If each field
@@ -138,7 +154,9 @@ enable the "Allow HTML" option.
 
 You might be tempted to do this in a template, like:
 
-    &lt;img src="\{\{field name\}\}"&gt;
+```text
+    <img src="{{field name}}">
+```
 
 Anki doesn’t support this for two reasons: searching for used media is
 expensive, as each card has to be rendered, and such functionality isn’t

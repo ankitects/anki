@@ -28,7 +28,9 @@ you can attach to your notes, to make organizing and finding notes
 easier. You can leave the tags blank if you wish, or add one or more of
 them. Tags are separated by a space. If the tags area says
 
+```text
     vocab check_with_tutor
+```
 
 …​then the note you add would have two tags.
 
@@ -332,12 +334,16 @@ key strips formatting" to modify the default behaviour.
 _Cloze deletion_ is the process of hiding one or more words in a
 sentence. For example, if you have the sentence:
 
+```text
     Canberra was founded in 1913.
+```
 
 …​and you create a cloze deletion on "1913", then the sentence would
 become:
 
+```text
     Canberra was founded in [...].
+```
 
 Sometimes sections that have been removed in this fashion are said to be
 "occluded".
@@ -351,24 +357,32 @@ type, and type some text into the "Text" field. Then drag the mouse over
 the text you want to hide to select it, and click the \[…​\] button.
 Anki will replace the text with:
 
-    Canberra was founded in \{\{c1::1913\}\}.
+```text
+    Canberra was founded in {{c1::1913}}.
+```
 
 The "c1" part means that you have created one cloze deletion in the
 sentence. You can create more than one deletion if you'd like. For
 example, if you select Canberra and click \[…​\] again, the text will
 now look like:
 
-    \{\{c2::Canberra\}\} was founded in \{\{c1::1913\}\}.
+```text
+    {{c2::Canberra}} was founded in {{c1::1913}}.
+```
 
 When you add the above note, Anki will create two cards. The first card
 will show:
 
+```text
     Canberra was founded in [...].
+```
 
 …​on the question, with the full sentence on the answer. The other card
 will have the following on the question:
 
+```text
     [...] was founded in 1913.
+```
 
 You can also elide multiple sections on the same card. In the above
 example, if you change c2 to c1, only one card would be created, with
@@ -383,28 +397,38 @@ would appear as "C\[…​\] was founded in 1913", giving you a hint.
 You can also give yourself hints that don't match the text. If you
 replace the original sentence with:
 
+```text
     Canberra::city was founded in 1913
+```
 
 …​and then press \[…​\] after selecting "Canberra::city", Anki will
 treat the text after the two colons as a hint, changing the text into:
 
-    \{\{c1::Canberra::city\}\} was founded in 1913
+```text
+    {{c1::Canberra::city}} was founded in 1913
+```
 
 When the card comes up for review, it will appear as:
 
+```text
     [city] was founded in 1913.
+```
 
 For information on testing your ability to type in a cloze deletion
 correctly, see the section on [typing answers](templates/fields#checking-your-answer).
 
 From version 2.1.56, nested cloze deletions are supported. For example, the following is valid:
 
-    \{\{c1::Canberra was \{\{c2::founded\}\}\}\} in 1913
+```text
+    {{c1::Canberra was {{c2::founded}}}} in 1913
+```
 
 The inner cloze is entirely nested within the outer. There is no support for partial overlaps, such as:
 
-    [...] founded in 1913 -&gt; Canberra was
-    Canberra [...] in 1913 -&gt; was founded
+```text
+    [...] founded in 1913 -> Canberra was
+    Canberra [...] in 1913 -> was founded
+```
 
 with the word "was" appearing in both deletions.
 
@@ -417,9 +441,11 @@ Prior to version 2.1.56, if you need to create clozes from overlapping text, add
 field to your cloze, add it to the [template](templates/intro), and then when
 creating notes, paste the text into two separate fields, like so:
 
-    Text1 field: \{\{c1::Canberra was founded\}\} in 1913
+```text
+    Text1 field: {{c1::Canberra was founded}} in 1913
 
-    Text2 field: \{\{c2::Canberra\}\} was founded in 1913
+    Text2 field: {{c2::Canberra}} was founded in 1913
+```
 
 The default cloze note type has a second field called Extra, that is
 shown on the answer side of each card. It can be used for adding some
@@ -434,12 +460,16 @@ extra card templates to the cloze note type.
 Anki now supports a new syntax that allows a single cloze deletion to appear on
 multiple cards:
 
-    \{\{c1::-té\}\}, \{\{c2::-sion\}\}, or \{\{c3::-tion\}\} are \{\{c1,2,3,4::feminine\}\}.
+```text
+    {{c1::-té}}, {{c2::-sion}}, or {{c3::-tion}} are {{c1,2,3,4::feminine}}.
+```
 
 This creates 4 cards, each hiding “feminine” in a different context.
 The same result can however still be achieved with the older nested syntax:
 
-    \{\{c1::-té\}\}, \{\{c2::-sion\}\}, \{\{c3::-tion\}\} are \{\{c4::\{\{c3::\{\{c2::\{\{c1::feminine\}\}\}\}\}\}\}\}
+```text
+    {{c1::-té}}, {{c2::-sion}}, {{c3::-tion}} are {{c4::{{c3::{{c2::{{c1::feminine}}}}}}}}
+```
 
 The new syntax is easier to read and write, while the old syntax is more
 verbose.

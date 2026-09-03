@@ -266,7 +266,9 @@ restriction, you can untick the "selected notes only" checkbox (requires Anki 2.
 The regular expression option allows you to perform complex replacements.
 For example, assume there is the following text in a field:
 
-    &lt;img src="pic.jpg" /&gt;
+```text
+    <img src="pic.jpg" />
+```
 
 We use these settings:
 
@@ -277,7 +279,9 @@ with `\1`.)
 
 Then the assumed field content will change to:
 
+```text
     pic.jpg
+```
 
 A full discussion on regular expressions is outside the scope of this document.
 There are a number of syntax guides available on the web:
@@ -301,12 +305,16 @@ The **Optional filter** text box allows you to narrow down where Anki will
 look for duplicates. If you only want to search for duplicates in the
 "French Vocab" and "French Verbs" note types, you would enter:
 
+```text
     "note:french vocab" or "note:french verbs"
+```
 
 Or you might want to look only for duplicates in a particular deck, so
 you could use:
 
+```text
     "deck:myDeck"
+```
 
 The search syntax is the same as used when searching in the browser.
 For more information, see [Searching](searching).

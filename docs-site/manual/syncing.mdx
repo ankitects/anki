@@ -215,12 +215,16 @@ password, you will need to manually tell Anki the proxy configuration.
 To tell Anki your proxy settings, define a HTTPS_PROXY environment
 variable that points to the proxy server. It will look like:
 
+```text
     http://user:pass@proxy.company.com:8080
+```
 
 If your username or password contains an @ (e.g `user@workdomain.com`),
 you need to change it to %40, like so:
 
+```text
     http://user%40workdomain.com:pass@proxy.company.com:8080
+```
 
 Anki 2.0 expects to find HTTP_PROXY instead of HTTPS_PROXY.
 

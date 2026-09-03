@@ -6,7 +6,9 @@ title: "Field Replacements"
 
 The most basic template looks something like this:
 
-    \{\{Front\}\}
+```text
+    {{Front}}
+```
 
 When you place text within curly brackets, Anki looks for a field by
 that name, and replaces the text with the actual content of the field.
@@ -19,15 +21,19 @@ arbitrary text on your templates. For example, if you’re studying
 capital cities, and you’ve created a note type with a “Country” field,
 you might create a front template like this:
 
-    What's the capital city of \{\{Country\}\}?
+```text
+    What's the capital city of {{Country}}?
+```
 
 The default back template will look something like this:
 
-    \{\{FrontSide\}\}
+```text
+    {{FrontSide}}
 
-    &lt;hr id=answer&gt;
+    <hr id=answer>
 
-    \{\{Back\}\}
+    {{Back}}
+```
 
 This means “show me the text that’s on the front side, then a divider
 line, and then the Back field”.
@@ -44,26 +50,34 @@ another HTML element such as a paragraph or div instead.
 Card templates are like web pages, which means a special command is required
 to create a new line. For example, if you wrote the following in the template:
 
+```text
     one
     two
+```
 
 In the preview, you’d actually see:
 
+```text
     one two
+```
 
 To add a new line, you need to add a &lt;br&gt; code to the end of a
 line, like so:
 
-    one&lt;br&gt;
+```text
+    one<br>
     two
+```
 
 The br code stands for "(line) br(eak)".
 
 The same applies for fields. If you want to display two fields, one on
 each line, you would use
 
-    \{\{Field 1\}\}&lt;br&gt;
-    \{\{Field 2\}\}
+```text
+    {{Field 1}}<br>
+    {{Field 2}}
+```
 
 ## Text to Speech for individual fields
 
@@ -72,7 +86,9 @@ This feature requires Anki 2.1.20, AnkiMobile 2.0.56 or AnkiDroid 2.17.
 To have Anki read the Front field in a US English voice, you can place
 the following in your card template:
 
-    \{\{tts en_US:Front\}\}
+```text
+    {{tts en_US:Front}}
+```
 
 On Windows, macOS, and iOS, Anki will use the OS’s built-in voices. On
 Linux, no voices are built in, but voices can be provided by add-ons,
@@ -81,20 +97,26 @@ such as [this one](https://ankiweb.net/shared/info/391644525).
 To see a list of all available languages/voices, place the following on
 your card template:
 
-    \{\{tts-voices:\}\}
+```text
+    {{tts-voices:}}
+```
 
 If there are multiple voices that support your chosen language, you can
 specify desired voices in a list, and Anki will choose the first
 available voice. For example:
 
-    \{\{tts ja_JP voices=Apple_Otoya,Microsoft_Haruka:Field\}\}
+```text
+    {{tts ja_JP voices=Apple_Otoya,Microsoft_Haruka:Field}}
+```
 
 This would use Otoya when on an Apple device, and Haruka when on a
 Windows PC.
 
 Specifying a different speed is possible in some TTS implementations:
 
-    \{\{tts fr_FR speed=0.8:SomeField\}\}
+```text
+    {{tts fr_FR speed=0.8:SomeField}}
+```
 
 Both speed and voices are optional, but the language must be included.
 
@@ -119,7 +141,9 @@ does not make those voices available to other applications.
 On a cloze note type, you can make Anki read only the elided sections
 using the `cloze-only` filter, like so:
 
-    \{\{tts en_US:cloze-only:Text\}\}
+```text
+    {{tts en_US:cloze-only:Text}}
+```
 
 The cloze-only filter is supported in Anki 2.1.29+, AnkiMobile 2.0.65+, and AnkiDroid 2.17+.
 
@@ -139,20 +163,22 @@ This is other text on the template. It is outside of the tags so it should not b
 
 There are some special fields you can include in your templates:
 
-    The note's tags: \{\{Tags\}\}
+```text
+    The note's tags: {{Tags}}
 
-    The type of note: \{\{Type\}\}
+    The type of note: {{Type}}
 
-    The card's deck: \{\{Deck\}\}
+    The card's deck: {{Deck}}
 
-    The card's subdeck: \{\{Subdeck\}\}
+    The card's subdeck: {{Subdeck}}
 
-    The card's flag: \{\{CardFlag\}\}
+    The card's flag: {{CardFlag}}
 
-    The type of card ("Forward", etc): \{\{Card\}\}
+    The type of card ("Forward", etc): {{Card}}
 
     The content of the front template
-    (only valid in back template): \{\{FrontSide\}\}
+    (only valid in back template): {{FrontSide}}
+```
 
 FrontSide will not automatically play any audio that was on the front side
 of the card. If you wish to have the same audio play automatically on both
@@ -180,7 +206,9 @@ Assuming you’ve created a field called MyField, you can tell Anki to
 include it on the card but hide it by default by adding the following to
 your template:
 
-    \{\{hint:MyField\}\}
+```text
+    {{hint:MyField}}
+```
 
 This will show a link labeled “show hint”; when you click it, the
 content of the field will be displayed on the card. (If MyField is
@@ -198,11 +226,13 @@ If you want to customize the appearance or behaviour, you’ll need to
 implement the hint field yourself. We can not provide any support for
 doing so, but the following code should get you started:
 
-    \{\{#Back\}\}
-    &lt;a class=hint href="#"
-    onclick="this.style.display='none';document.getElementById('hint4753594160').style.display='inline-block';return false;"&gt;
-    Show Back&lt;/a&gt;&lt;div id="hint4753594160" class=hint style="display: none"&gt;\{\{Back\}\}&lt;/div&gt;
-    \{\{/Back\}\}
+```text
+    {{#Back}}
+    <a class=hint href="#"
+    onclick="this.style.display='none';document.getElementById('hint4753594160').style.display='inline-block';return false;">
+    Show Back</a><div id="hint4753594160" class=hint style="display: none">{{Back}}</div>
+    {{/Back}}
+```
 
 ## Dictionary Links
 
@@ -210,13 +240,17 @@ You can also use field replacement to create dictionary links. Imagine
 you’re studying a language and your favourite online dictionary allows
 you to search for text using a web URL like:
 
+```text
     http://example.com/search?q=myword
+```
 
 You could add an automatic link by doing the following in your template:
 
-    \{\{Expression\}\}
+```text
+    {{Expression}}
 
-    &lt;a href="http://example.com/search?q=\{\{Expression\}\}"&gt;check in dictionary&lt;/a&gt;
+    <a href="http://example.com/search?q={{Expression}}">check in dictionary</a>
+```
 
 The template above would allow you to search for each note’s expression
 by clicking on the link while reviewing. There is a caveat however, so
@@ -234,7 +268,9 @@ was bolded for example, the actual HTML would be
 This can present a problem for things like dictionary links. In the
 above example, the dictionary link would end up being:
 
-    &lt;a href="http://example.com/search?q=&lt;b&gt;myword&lt;/b&gt;"&gt;check in dictionary&lt;/a&gt;
+```text
+    <a href="http://example.com/search?q=<b>myword</b>">check in dictionary</a>
+```
 
 The extra characters in the link would likely confuse the dictionary
 site, and you’re likely not to get any matches.
@@ -244,14 +280,18 @@ when they are replaced. If you prefix a field name with text:, Anki will
 not include any formatting. So a dictionary link that worked even with
 formatted text would be:
 
-    &lt;a href="http://example.com/search?q=\{\{text:Expression\}\}"&gt;check in dictionary&lt;/a&gt;
+```text
+    <a href="http://example.com/search?q={{text:Expression}}">check in dictionary</a>
+```
 
 ## Right To Left Text
 
 If you’re using a language that reads from right to left, you’ll need
 to adjust the template like so:
 
-    &lt;div dir=rtl&gt;\{\{FieldThatHasRTLTextInIt\}\}&lt;/div&gt;
+```text
+    <div dir=rtl>{{FieldThatHasRTLTextInIt}}</div>
+```
 
 ## Ruby Characters
 
@@ -262,14 +302,18 @@ In Japanese, these are known as [furigana](https://en.wikipedia.org/wiki/Furigan
 
 In Anki, you can display ruby characters by using the following syntax:
 
+```text
     Text[Ruby]
+```
 
 Suppose the text above is written in MyField. By default, if you simply use
 `{{Myfield}}`, the field will be displayed as is. To properly position the
 ruby characters above the text, use the `furigana` filter in the templates
 like so:
 
-    \{\{furigana:MyField\}\}
+```text
+    {{furigana:MyField}}
+```
 
 Here are some examples:
 
@@ -323,7 +367,9 @@ for every card (e.g. a company logo at the top of each card):
 
 \{/\* \*/\}
 
-    &lt;img src="_logo.jpg"&gt;
+```text
+    <img src="_logo.jpg">
+```
 
 ### Field References
 
@@ -331,11 +377,13 @@ Media references to fields are not supported. They may or may not display
 during review, and will not work when checking for unused media,
 importing/exporting, and so on. Examples that won’t work:
 
-    &lt;img src="\{\{Expression\}\}.jpg"&gt;
+```text
+    <img src="{{Expression}}.jpg">
 
-    [sound:\{\{Word\}\}]
+    [sound:{{Word}}]
 
-    [latex]\{\{Field 1\}\}[/latex]
+    [latex]{{Field 1}}[/latex]
+```
 
 Instead, you should include the media references in the field.
 See the [importing section](../importing/text-files#importing-media) for more information.
@@ -351,19 +399,23 @@ left of the card adding screen, and select "Basic (type in the answer)".
 If you have downloaded a shared deck and would like to type in the answer
 with it, you can modify its card template. If it has a template like:
 
-    \{\{Native Word\}\}
+```text
+    {{Native Word}}
 
-    \{\{FrontSide\}\}
+    {{FrontSide}}
 
-    &lt;hr id=answer&gt;
+    <hr id=answer>
 
-    \{\{Foreign Word\}\}
+    {{Foreign Word}}
+```
 
 To type in the foreign word and check if you are correct, you need to
 edit your front template so that it looks like this:
 
-    \{\{Native Word\}\}
-    \{\{type:Foreign Word\}\}
+```text
+    {{Native Word}}
+    {{type:Foreign Word}}
+```
 
 Here, we have added `type:` in front of the field we want to
 compare. Since FrontSide is on the back of the card, the type answer box
@@ -390,11 +442,15 @@ Anki uses a monospaced font for the answer comparison so that the
 font for the answer comparison, you can put the following at the bottom
 of your styling section:
 
-    code#typeans \{ font-family: "myfontname"; \}
+```text
+    code#typeans { font-family: "myfontname"; }
+```
 
 Which will affect the following HTML for the answer comparison:
 
-    &lt;code id=typeans&gt;...&lt;/code&gt;
+```text
+    <code id=typeans>...</code>
+```
 
 Advanced users can override the default type-answer colors with the css
 classes "typeGood", "typeBad" and "typeMissed". AnkiMobile supports
@@ -404,15 +460,20 @@ If you wish to override the size of the typing box and don’t want to
 change the font in the Fields dialog, you can override the default
 inline style using `!important`, like so:
 
-    #typeans \{ font-size: 50px !important; \}
+```python
+    #typeans { font-size: 50px !important; }
+```
 
 It is also possible to type in the answer for cloze deletion cards. To
 do this, add `{{type:cloze:Text}}` to both the front and back
 template, so the back looks something like this:
 
-    \{\{cloze:Text\}\}
-    \{\{type:cloze:Text\}\}
-    \{\{Extra\}\}
+```text
+    {{cloze:Text}}
+    {{type:cloze:Text}}
+    {{Extra}}
+
+```
 
 If there are multiple sections elided, you can separate the answers in
 the text box with a comma.
@@ -421,7 +482,9 @@ the text box with a comma.
 
 If you don't want Anki to compare accents on characters in your typed input with the correct answer, you can do so by using `type:nc` in your fields.
 
-    \{\{type:nc:Front\}\}
+```text
+    {{type:nc:Front}}
+```
 
 This makes sure a difference in accents isn't marked as incorrect by Anki.
 For example, `بطيخ` would be treated the same as `بَطِّيخ` or `elite` would be treated same as `élite`.

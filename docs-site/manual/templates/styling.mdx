@@ -110,18 +110,24 @@ appropriate font has been chosen.
 Say you have an “Expression” field, and you want to give it the macOS Thai
 font “Ayuthaya”. Imagine your template already reads:
 
-    What is \{\{Expression\}\}?
+```text
+    What is {{Expression}}?
 
-    \{\{Notes\}\}
+    {{Notes}}
+```
 
 What we need to do is wrap the text we want to style in some HTML. We
 will put the following in front of the text:
 
-    &lt;div class=mystyle1&gt;
+```text
+    <div class=mystyle1>
+```
 
 And the following behind it:
 
-    &lt;/div&gt;
+```text
+    </div>
+```
 
 By wrapping the text like the above, we tell Anki to style the wrapped
 text with a custom style called “mystyle1”, which we will create later.
@@ -129,16 +135,20 @@ text with a custom style called “mystyle1”, which we will create later.
 Thus if we wanted the entire “What is …​?” expression to use the Thai
 font, we would use:
 
-    &lt;div class=mystyle1&gt;What is \{\{Expression\}\}?&lt;/div&gt;
+```text
+    <div class=mystyle1>What is {{Expression}}?</div>
 
-    \{\{Notes\}\}
+    {{Notes}}
+```
 
 And if we wanted only the expression field itself to use the Thai font,
 we’d use:
 
-    What is &lt;div class=mystyle1&gt;\{\{Expression\}\}&lt;/div&gt;?
+```text
+    What is <div class=mystyle1>{{Expression}}</div>?
 
-    \{\{Notes\}\}
+    {{Notes}}
+```
 
 After we’ve edited the template, we now need to move to the Styling
 section between the templates. Before editing it, it should look
@@ -224,7 +234,9 @@ you can add the CSS `direction` property to the .card section for correct displa
 This will change the direction of the entire card. You can change the direction
 of only certain fields by wrapping their references in some HTML:
 
-    &lt;div dir="rtl"&gt;\{\{Front\}\}&lt;/div&gt;
+```text
+    <div dir="rtl">{{Front}}</div>
+```
 
 To change the direction of fields in the editor, see
 the [editing](../editing#customizing-fields) section.
@@ -249,9 +261,9 @@ Use `<pre><code>` for multi-line code:
 
 ```html
 <pre><code>
-function square(number) \{
+function square(number) {
   return number * number;
-\};
+};
 </code></pre>
 ```
 
@@ -286,40 +298,40 @@ font depending on where you’re reviewing:
 
 ```css
 /* Windows */
-.win .example \{
-  font-family: "Example1";
-\}
+.win .example {
+    font-family: "Example1";
+}
 /* macOS */
-.mac .example \{
-  font-family: "Example2";
-\}
+.mac .example {
+    font-family: "Example2";
+}
 /* Linux desktops */
-.linux:not(.android) .example \{
-  font-family: "Example3";
-\}
+.linux:not(.android) .example {
+    font-family: "Example3";
+}
 /* both Linux desktops, and Android devices */
-.linux .example \{
-  font-family: "Example4";
-\}
+.linux .example {
+    font-family: "Example4";
+}
 /* both Android and iOS */
-.mobile .example \{
-  font-family: "Example5";
-\}
+.mobile .example {
+    font-family: "Example5";
+}
 /* iOS */
 .iphone .example,
-.ipad .example \{
-  font-family: "Example6";
-\}
+.ipad .example {
+    font-family: "Example6";
+}
 /* Android */
-.android .example \{
-  font-family: "Example7";
-\}
+.android .example {
+    font-family: "Example7";
+}
 ```
 
 And in the template:
 
 ```html
-<div class="example">\{\{Field\}\}</div>
+<div class="example">{{Field}}</div>
 ```
 
 You can also use properties like .gecko, .opera, and .ie to select
@@ -346,7 +358,10 @@ it to the media folder.
    checking for unused media.
 
 2. In your computer’s file browser, go to your Anki application data folder (see [File Locations](../files#file-locations) for details),
-   and then into your profile folder (e.g., "User 1").
+
+```text
+    and then into your profile folder (e.g., "User 1").
+```
 
 3. Inside the folder, you should see a folder called collection.media.
    Drag the renamed file to that folder.
@@ -362,14 +377,14 @@ template.
 2. Click **Cards**.
 
 3. In the styling section, add the following text to the bottom (after
-   the last "}" character), replacing "\_arial.ttf" with the name of
+   the last "\}" character), replacing "\_arial.ttf" with the name of
    the file you copied into your media folder:
 
 ```css
-@font-face \{
-  font-family: myfont;
-  src: url("_arial.ttf");
-\}
+@font-face {
+    font-family: myfont;
+    src: url("_arial.ttf");
+}
 ```
 
 Only change the "arial" part, not the "myfont" part.
@@ -393,18 +408,18 @@ If you wanted a lighter grey background, you could use
 something like:
 
 ```css
-.card.nightMode \{
-  background-color: #555;
-\}
+.card.nightMode {
+    background-color: #555;
+}
 ```
 
 If you have a "myclass" style, the following would show the text in
 yellow when night mode is enabled:
 
 ```css
-.nightMode .myclass \{
-  color: yellow;
-\}
+.nightMode .myclass {
+    color: yellow;
+}
 ```
 
 ## Fading and Scrolling

@@ -106,7 +106,9 @@ most circumstances.
 
 The syntax to specify an alternate folder is as follows:
 
+```text
     anki -b /path/to/anki/folder
+```
 
 - If you have multiple profiles, you can pass -p &lt;name&gt; to load
   a specific profile.
@@ -122,7 +124,9 @@ Properties, select the Shortcut tab, and add "-b
 \\path\\to\\data\\folder" after the path to the program, which should
 leave you with something like
 
+```text
     "C:\Program Files\Anki\anki.exe" -b "C:\AnkiDataFolder"
+```
 
 You can also use this technique with the -l option to easily use Anki in
 different languages.
@@ -133,16 +137,22 @@ On a Mac there is no easy way to alter the behaviour when clicking on
 the Anki icon, but it is possible to start Anki with a custom base
 folder from a terminal:
 
+```text
     open /Applications/Anki.app --args -b ~/myankifolder
+```
 
 Alternatively, you can define the environment variable "ANKI_BASE".
 On Windows, you can define the environment variable with:
 
+```text
     set "ANKI_BASE=C:/path/to/AnkiDataFolder"
+```
 
 On Linux and macOS, you can use:
 
+```text
     export ANKI_BASE="/path/to/AnkiDataFolder"
+```
 
 ## DropBox and File Syncing
 
@@ -186,7 +196,9 @@ drive E; adjust as necessary.
 If you would like to prevent the black command prompt window from
 remaining open, you can instead use:
 
+```text
     start /b E:\anki\anki.exe -b E:\ankidata
+```
 
 - Double-clicking on anki.bat should start Anki with the user data
   stored in E:\\ankidata.
@@ -288,14 +300,18 @@ goes wrong with the steps below.
 Open a terminal, change to the folder your collection is located in, and
 type:
 
-    sqlite3 collection.anki2 .dump &gt; dump.txt
+```text
+    sqlite3 collection.anki2 .dump > dump.txt
+```
 
 Open the resulting dump.txt file in a text editor, and look at the final
 line. If it reads "rollback;", change it to "commit;"
 
 Then run the following in a terminal:
 
+```text
     cat dump.txt | sqlite3 temp.file
+```
 
 Make sure you use temp.file - do not put collection.anki2 on the right,
 or you will blank out the file. When you're done, proceed to the final
@@ -311,18 +327,24 @@ desktop. If you don't see desktop displayed in the command prompt, type
 something like the following, replacing "administrator" with your login
 name.
 
+```text
     cd C:\Users\Administrator\Desktop
+```
 
 Then type:
 
-    sqlite3 collection.anki2 .dump &gt; dump.txt
+```text
+    sqlite3 collection.anki2 .dump > dump.txt
+```
 
 Open the resulting dump.txt file in a text editor, and look at the final
 line. If it reads "rollback;", change it to "commit;"
 
 Then run the following in a terminal:
 
+```text
     type dump.txt | sqlite3 temp.file
+```
 
 Make sure you use temp.file - do not put collection.anki2 on the right,
 or you will blank out the file. When you're done, proceed to the final

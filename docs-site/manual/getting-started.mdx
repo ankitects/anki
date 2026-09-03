@@ -40,13 +40,17 @@ Anki, a card doesn't look like a physical card, and when you
 show the answer the question remains visible by default. For example, if
 you're studying basic chemistry, you might see a question like:
 
+```text
     Q: Chemical symbol for oxygen?
+```
 
 After deciding the answer is O, you click the
 **Show Answer** button, and Anki shows you:
 
+```text
     Q: Chemical symbol for oxygen?
     A: O
+```
 
 After confirming that you are correct, you tell Anki how well you
 remembered the answer, and Anki will choose when to show you the card again. For example, Anki might decide to show you the card again in 3 days. In this case, we say the card now has a 3 day interval.
@@ -133,23 +137,29 @@ Imagine we want to study French vocabulary, and we want to include a textbook
 page number on the back of each card. We want our cards to look like
 this:
 
+```text
     Q: Bonjour
     A: Hello
        Page #12
+```
 
 And this:
 
+```text
     Q: Hello
     A: Bonjour
        Page #12
+```
 
 In both cards, we have the same three related pieces of information: a French
 word, an English meaning, and a page number. If we put them together,
 they’d look like this:
 
+```text
     French: Bonjour
     English: Hello
     Page: 12
+```
 
 In Anki, this collection of related information is called a _note_ and each piece of information is contained in a _field_. In this example, the note
 has three fields: "French", "English", and "Page".
@@ -170,24 +180,30 @@ All card types have two _templates_, one for the question and one for the
 answer. In the previous French example, we wanted the back of our recognition card to
 look like this:
 
+```text
     Q: Bonjour
     A: Hello
        Page #12
+```
 
 To do this, we can set the answer template to:
 
-    Q: \{\{French\}\}
-    A: \{\{English\}\}&lt;br&gt;
-       Page #\{\{Page\}\}
+```text
+    Q: {{French}}
+    A: {{English}}<br>
+       Page #{{Page}}
+```
 
 In card templates, field names are wrapped in double curly brackets, like `{{French}}` or `{{English}}`. Anki replaces those with the actual text the fields contain. This is called a ["Field replacement"](templates/fields). Text not wrapped in double curly brackets appears the same on each card. For example, we won't need to add "Page \#" on every note because the template will add it automatically to every card. The `<br />` tag is
 a special code that tells Anki to move to the next line. For details, see the [templates](templates/intro) section.
 
 The production card's templates will also work in a similar way:
 
-    Q: \{\{English\}\}
-    A: \{\{French\}\}&lt;br&gt;
-       Page #\{\{Page\}\}
+```text
+    Q: {{English}}
+    A: {{French}}<br>
+       Page #{{Page}}
+```
 
 After a card type has been created, every time you add a new note, a card
 will be created based on that card type. Card types make it easy to keep
@@ -292,8 +308,10 @@ language any more than memorizing scientific equations will teach you
 astrophysics. To learn properly, you might need textbooks, teachers, or
 exposure to real-world sentences.
 
+```text
     Do not learn if you do not understand.
     --SuperMemo
+```
 
 Most shared decks are created by people who are learning material
 outside Anki, such as from textbooks, classes, TV, etc. They select the

@@ -44,7 +44,9 @@ Anki does not consider special fields or non-field text for the purposes
 of card generation. Thus if your front template looked like the
 following, no card would be generated if Country was empty:
 
-    Where is \{\{Country\}\} on the map?
+```text
+    Where is {{Country}} on the map?
+```
 
 ## Selective Card Generation
 
@@ -61,63 +63,75 @@ this, see the conditional replacement section below.
 It is possible to include certain text, fields, or HTML on your cards
 only if a field is empty or not empty. An example:
 
+```text
     This text is always shown.
 
-    \{\{#FieldName\}\}
+    {{#FieldName}}
         This text is only shown if FieldName has text in it
-    \{\{/FieldName\}\}
+    {{/FieldName}}
 
-    \{\{^FieldName\}\}
+    {{^FieldName}}
         This text is only shown if FieldName is empty
-    \{\{/FieldName\}\}
+    {{/FieldName}}
+```
 
 A real life example is only showing a label if the field is not empty:
 
-    \{\{#Tags\}\}
-        Tags: \{\{Tags\}\}
-    \{\{/Tags\}\}
+```text
+    {{#Tags}}
+        Tags: {{Tags}}
+    {{/Tags}}
+```
 
 Or say you want to display a specific field in blue on the front of your
 card if there are extra notes on the back (perhaps the fact that there
 are notes serves as a reminder that you should spend more time thinking
 about the answer). You can style the field as follows:
 
-    \{\{#Notes\}\}
-        &lt;span style="color:blue;"&gt;
-    \{\{/Notes\}\}
+```text
+    {{#Notes}}
+        <span style="color:blue;">
+    {{/Notes}}
 
-    \{\{FieldToFormat\}\}
+    {{FieldToFormat}}
 
-    \{\{#Notes\}\}
-        &lt;/span&gt;
-    \{\{/Notes\}\}
+    {{#Notes}}
+        </span>
+    {{/Notes}}
+```
 
 You can also use conditional replacement to control which cards are
 generated. This works since Anki will not generate
 cards which would have a blank front side. For
 example, consider a card with two fields on the front:
 
-    \{\{Expression\}\}
-    \{\{Notes\}\}
+```text
+    {{Expression}}
+    {{Notes}}
+```
 
 Normally a card would be generated if either the expression or notes
 field had text in it. If you only wanted a card generated if expression
 was not empty, then you could change the template to this:
 
-    \{\{#Expression\}\}
-        \{\{Expression\}\}
-        \{\{Notes\}\}
-    \{\{/Expression\}\}
+```text
+    {{#Expression}}
+        {{Expression}}
+        {{Notes}}
+    {{/Expression}}
+```
 
 And if you wanted to require both fields, you could use two conditional
 replacements:
 
-    \{\{#Expression\}\}
-        \{\{#Notes\}\}
-            \{\{Expression\}\}
-            \{\{Notes\}\}
-        \{\{/Notes\}\}
-    \{\{/Expression\}\}
+```text
+    {{#Expression}}
+        {{#Notes}}
+            {{Expression}}
+            {{Notes}}
+        {{/Notes}}
+    {{/Expression}}
+```
 
 Keep in mind that this only works when you place the
 conditional replacement code on the _front_ of the card; if you do this
@@ -127,21 +141,27 @@ empty, it is important to make sure you wrap the "entire" front side in
 the conditional replacement; for instance, the following would not work
 as expected:
 
-    \{\{#Expression\}\}
-        \{\{Expression\}\}
-    \{\{/Expression\}\}
-    \{\{Notes\}\}
+```text
+    {{#Expression}}
+        {{Expression}}
+    {{/Expression}}
+    {{Notes}}
+```
 
 ## Blank Back Sides
 
 Card generation only looks at the front side of the card. For example, if you have a
 front template:
 
-    \{\{Field 1\}\}
+```text
+    {{Field 1}}
+```
 
 and a back template:
 
-    \{\{Field 2\}\}
+```text
+    {{Field 2}}
+```
 
 Then a card will be generated if Field 1 is non-empty. If Field 2 is empty, the card
 will still be generated, and you will get a blank back side.
@@ -149,9 +169,11 @@ will still be generated, and you will get a blank back side.
 If you wish to avoid a blank back side, you will need to place a required field
 on the front template as a conditional, like so:
 
-    \{\{#Field 2\}\}
-        \{\{Field 1\}\}
-    \{\{/Field 2\}\}
+```text
+    {{#Field 2}}
+        {{Field 1}}
+    {{/Field 2}}
+```
 
 This will ensure the card is generated only if both Field 2 and Field 1 are non-empty.
 
@@ -192,12 +214,14 @@ card you are rendering. If you wanted to display the "hint1" field on
 the first cloze, and "hint2" field on the second cloze for example, you
 could use the following template:
 
-    \{\{cloze:Text\}\}
+```text
+    {{cloze:Text}}
 
-    \{\{#c1\}\}
-        \{\{Hint1\}\}
-    \{\{/c1\}\}
+    {{#c1}}
+        {{Hint1}}
+    {{/c1}}
 
-    \{\{#c2\}\}
-        \{\{Hint2\}\}
-    \{\{/c2\}\}
+    {{#c2}}
+        {{Hint2}}
+    {{/c2}}
+```
