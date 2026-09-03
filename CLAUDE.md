@@ -57,6 +57,11 @@ mediasrv pages with Playwright's Chromium.
 Be mindful that some changes (such as modifications to .proto files) may
 need a full build with `just check` first.
 
+## Testing guidance
+
+Before adding or changing unit or component tests, read and follow the
+[Unit Testing Specification and Guide](docs-site/developers/unit-testing.mdx).
+
 ## Build tooling
 
 `just` recipes wrap our build system (implemented in build/), which takes
