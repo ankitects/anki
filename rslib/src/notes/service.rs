@@ -217,6 +217,8 @@ mod test {
     fn note_added() {
         let mut col = Collection::new();
         let nt = col.basic_notetype();
+
+        // Note ID and changes are returned
         let note = NotesService::new_note(&mut col, nt.id.into()).unwrap();
         let response = NotesService::add_note(
             &mut col,
@@ -228,6 +230,16 @@ mod test {
         .unwrap();
         assert_ne!(response.note_id, 0);
         assert_ne!(response.changes, None);
+
+        // No note passed
+        let result = NotesService::add_note(
+            &mut col,
+            AddNoteRequest {
+                note: None,
+                deck_id: 1,
+            },
+        );
+        assert_matches!(result, Err(AnkiError::InvalidInput { .. }));
     }
 
     #[test]

@@ -710,6 +710,39 @@ mod test {
     }
 
     #[test]
+    fn adding_notes() -> Result<()> {
+        let mut col = Collection::new();
+        let nt = col.basic_notetype();
+
+        // Missing field
+        let mut note = nt.new_note();
+        note.fields[0] = "test".into();
+        note.fields.pop();
+        assert_matches!(
+            col.add_note(&mut note, DeckId(1)),
+            Err(AnkiError::InvalidInput { .. })
+        );
+        assert_eq!(col.get_all_notes().len(), 0);
+
+        // Missing note type
+        let mut note = nt.new_note();
+        note.notetype_id = NotetypeId(0);
+        assert_matches!(
+            col.add_note(&mut note, DeckId(1)),
+            Err(AnkiError::InvalidInput { .. })
+        );
+        assert_eq!(col.get_all_notes().len(), 0);
+
+        // Empty note added
+        let mut note = nt.new_note();
+        let count = col.add_note(&mut note, DeckId(1))?.output;
+        assert_eq!(count, 1);
+        assert_eq!(col.get_all_notes().len(), 1);
+
+        Ok(())
+    }
+
+    #[test]
     fn adding_cards() -> Result<()> {
         let mut col = Collection::new();
         let nt = col
@@ -934,7 +967,7 @@ mod test {
         col.update_note(&mut note).unwrap();
         assert_eq!(note.mtime, mtime);
 
-        // Invalid note type
+        // Missing note type
         note.notetype_id = NotetypeId(0);
         note.fields[0] = "a".into();
         assert_matches!(
