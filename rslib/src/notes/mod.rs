@@ -977,26 +977,29 @@ mod test {
     }
 
     #[test]
-    fn removing_notes() {
+    fn removing_notes() -> Result<()> {
         let mut col = Collection::new();
 
         let nt = col.basic_rev_notetype();
-        let mut note = nt.new_note();
-        note.fields[0] = "f".into();
-        note.fields[1] = "b".into();
-        col.add_note(&mut note, DeckId(1)).unwrap();
+        let mut note_ids: Vec<_> = (0..10)
+            .map(|_| {
+                let mut note = nt.new_note();
+                note.fields[0] = "f".into();
+                note.fields[1] = "b".into();
+                col.add_note_inner(&mut note, DeckId(1)).unwrap();
 
-        // Note and all its cards are removed
-        let cards = col.storage.all_cards_of_note(note.id).unwrap();
-        let card_count = col
-            .remove_notes(&[
-                note.id,
-                // Non-existing notes are ignored
-                NoteId(0),
-            ])
-            .unwrap()
-            .output;
-        assert_eq!(card_count, cards.len());
-        assert_eq!(col.storage.get_note(note.id), Ok(None));
+                note.id
+            })
+            .collect();
+        // Non-existing notes are ignored
+        note_ids.push(NoteId(0));
+        let card_ids = col.storage.get_all_card_ids()?;
+        // Notes and all associated cards are removed
+        let card_count = col.remove_notes(&note_ids)?.output;
+        assert_eq!(card_count, card_ids.len());
+        assert_eq!(col.storage.get_all_notes().len(), 0);
+        assert_eq!(col.storage.get_all_card_ids()?.len(), 0);
+
+        Ok(())
     }
 }

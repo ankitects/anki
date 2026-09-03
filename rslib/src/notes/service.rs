@@ -413,8 +413,6 @@ mod test {
         .unwrap();
         assert_eq!(response.count as usize, card_ids.len());
         assert_ne!(response.changes, None);
-
-        assert_eq!(col.get_all_notes().len(), 0);
     }
 
     #[test]
