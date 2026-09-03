@@ -239,6 +239,7 @@ def escape_text_preserve_html(raw: str) -> str:
             if HTML_TAG_RE.fullmatch(html_part):
                 # Normalize HTML attributes for MDX parser compatibility.
                 tag = HTML_UNQUOTED_ATTR_RE.sub(r'\g<name>="\g<value>"', html_part)
+                tag = tag.replace("../img/", "/media/")
                 tag_name_match = VOID_HTML_TAG_NAME_RE.match(tag)
                 if (
                     tag_name_match
