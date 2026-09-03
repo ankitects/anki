@@ -35,6 +35,7 @@ pub(crate) struct TransformNoteOutput {
     pub generate_cards: bool,
     pub mark_modified: bool,
     pub update_tags: bool,
+    pub mtime: Option<TimestampSecs>,
 }
 
 #[derive(Debug, PartialEq, Eq, Clone)]
@@ -352,7 +353,7 @@ fn invalid_char_for_field(c: char) -> bool {
 }
 
 /// Used when calling [Collection::update_note_inner_without_cards] and
-/// [Collection::update_note_inner_without_cards_using_mtime]
+/// [Collection::update_note_inner_without_cards]
 pub(crate) struct UpdateNoteInnerWithoutCardsArgs<'a> {
     pub(crate) note: &'a mut Note,
     pub(crate) original: &'a Note,
@@ -361,6 +362,7 @@ pub(crate) struct UpdateNoteInnerWithoutCardsArgs<'a> {
     pub(crate) mark_note_modified: bool,
     pub(crate) normalize_text: bool,
     pub(crate) update_tags: bool,
+    pub(crate) mtime: Option<TimestampSecs>,
 }
 
 impl Collection {
@@ -439,10 +441,19 @@ impl Collection {
         let last_deck = self.get_last_deck_added_to_for_notetype(note.notetype_id);
         let ctx = CardGenContext::new(nt.as_ref(), last_deck, self.usn()?);
         let norm = self.get_config_bool(BoolKey::NormalizeNoteText);
-        self.update_note_inner_generating_cards(&ctx, note, &existing_note, true, norm, true)?;
+        self.update_note_inner_generating_cards(
+            &ctx,
+            note,
+            &existing_note,
+            true,
+            norm,
+            true,
+            None,
+        )?;
         Ok(())
     }
 
+    #[allow(clippy::too_many_arguments)]
     pub(crate) fn update_note_inner_generating_cards(
         &mut self,
         ctx: &CardGenContext<&Notetype>,
@@ -451,6 +462,7 @@ impl Collection {
         mark_note_modified: bool,
         normalize_text: bool,
         update_tags: bool,
+        mtime: Option<TimestampSecs>,
     ) -> Result<()> {
         self.update_note_inner_without_cards(UpdateNoteInnerWithoutCardsArgs {
             note,
@@ -460,12 +472,13 @@ impl Collection {
             mark_note_modified,
             normalize_text,
             update_tags,
+            mtime,
         })?;
         self.generate_cards_for_existing_note(ctx, note)
     }
 
     #[inline]
-    pub(crate) fn update_note_inner_without_cards_using_mtime(
+    pub(crate) fn update_note_inner_without_cards(
         &mut self,
         UpdateNoteInnerWithoutCardsArgs {
             note,
@@ -475,8 +488,8 @@ impl Collection {
             mark_note_modified,
             normalize_text,
             update_tags,
+            mtime,
         }: UpdateNoteInnerWithoutCardsArgs,
-        mtime: Option<TimestampSecs>,
     ) -> Result<()> {
         if update_tags {
             self.canonify_note_tags(note, usn)?;
@@ -490,13 +503,6 @@ impl Collection {
             }
         }
         self.update_note_undoable(note, original)
-    }
-
-    pub(crate) fn update_note_inner_without_cards(
-        &mut self,
-        args: UpdateNoteInnerWithoutCardsArgs<'_>,
-    ) -> Result<()> {
-        self.update_note_inner_without_cards_using_mtime(args, None)
     }
 
     pub(crate) fn remove_notes_inner(&mut self, nids: &[NoteId], usn: Usn) -> Result<usize> {
@@ -526,6 +532,7 @@ impl Collection {
                 generate_cards,
                 mark_modified: mark_notes_modified,
                 update_tags: true,
+                mtime: None,
             })
         })
     }
@@ -571,6 +578,7 @@ impl Collection {
                         out.mark_modified,
                         norm,
                         out.update_tags,
+                        out.mtime,
                     )?;
                 } else {
                     self.update_note_inner_without_cards(UpdateNoteInnerWithoutCardsArgs {
@@ -581,6 +589,7 @@ impl Collection {
                         mark_note_modified: out.mark_modified,
                         normalize_text: norm,
                         update_tags: out.update_tags,
+                        mtime: out.mtime,
                     })?;
                 }
 
@@ -688,11 +697,14 @@ mod test {
     use super::anki_base91;
     use super::field_checksum;
     use super::NoteFieldsState;
+    use super::TransformNoteOutput;
+    use super::UpdateNoteInnerWithoutCardsArgs;
     use crate::config::BoolKey;
     use crate::decks::DeckId;
     use crate::error::Result;
     use crate::prelude::*;
     use crate::search::SortMode;
+    use crate::tags::Tag;
 
     #[test]
     fn test_base91() {
@@ -1028,6 +1040,154 @@ mod test {
         assert_eq!(card_count, card_ids.len());
         assert_eq!(col.storage.get_all_notes().len(), 0);
         assert_eq!(col.storage.get_all_card_ids()?.len(), 0);
+
+        Ok(())
+    }
+
+    #[test]
+    fn note_transformation() -> Result<()> {
+        let mut col = Collection::new();
+        let nt = col.basic_optional_rev_notetype();
+        let note_ids: Vec<_> = (0..10)
+            .map(|_| {
+                let mut note = nt.new_note();
+                note.fields[0] = "f".into();
+                col.add_note_inner(&mut note, DeckId(1)).unwrap();
+
+                note.id
+            })
+            .collect();
+
+        // No notes; nothing changes
+        let count = col.transform_notes(&[], |_note, _nt| {
+            Ok(TransformNoteOutput {
+                changed: true,
+                ..Default::default()
+            })
+        })?;
+        assert_eq!(count, 0);
+
+        // mtime is updated if mark_modified=true
+        let mtimes_before: Vec<_> = col
+            .storage
+            .get_all_notes()
+            .iter()
+            .map(|note| note.mtime)
+            .collect();
+        let expected_mtime = TimestampSecs::now().adding_secs(1);
+        let count = col.transform_notes(&note_ids, |_note, _nt| {
+            Ok(TransformNoteOutput {
+                changed: true,
+                mark_modified: true,
+                generate_cards: false,
+                update_tags: false,
+                mtime: Some(expected_mtime),
+            })
+        })?;
+        assert_eq!(count, 10);
+        let mtimes_after: Vec<_> = col
+            .storage
+            .get_all_notes()
+            .iter()
+            .map(|note| note.mtime)
+            .collect();
+        assert_ne!(mtimes_before, mtimes_after);
+        for mtime in mtimes_after {
+            assert_eq!(mtime, expected_mtime);
+        }
+
+        // No cards are generated if generate_cards=false
+        for original in col.storage.get_all_notes() {
+            let mut note = original.clone();
+            note.fields[1] = "b".into();
+            // Fill the Add Reverse field
+            note.fields[2] = "1".into();
+            col.update_note_inner_without_cards(UpdateNoteInnerWithoutCardsArgs {
+                note: &mut note,
+                original: &original,
+                notetype: &nt,
+                usn: col.usn()?,
+                mark_note_modified: true,
+                normalize_text: false,
+                update_tags: false,
+                mtime: None,
+            })?;
+        }
+        let count = col.transform_notes(&note_ids, |_note, _nt| {
+            Ok(TransformNoteOutput {
+                changed: true,
+                mark_modified: true,
+                generate_cards: false,
+                update_tags: false,
+                mtime: None,
+            })
+        })?;
+        assert_eq!(count, 10);
+        let card_ids = col.storage.card_ids_of_notes(&note_ids)?;
+        assert_eq!(card_ids.len(), note_ids.len());
+
+        // Cards are generated if generate_cards=true
+        let count = col.transform_notes(&note_ids, |_note, _nt| {
+            Ok(TransformNoteOutput {
+                changed: true,
+                mark_modified: true,
+                generate_cards: true,
+                update_tags: false,
+                mtime: None,
+            })
+        })?;
+        assert_eq!(count, 10);
+        let card_ids = col.storage.card_ids_of_notes(&note_ids)?;
+        assert_eq!(card_ids.len(), note_ids.len() * 2);
+
+        // Tags are not canonified if update_tags=false
+        col.storage
+            .register_tag(&Tag::new("a".into(), col.usn()?))?;
+        for original in col.storage.get_all_notes() {
+            let mut note = original.clone();
+            // Add the tag with different casing
+            note.tags.push("A".into());
+            col.update_note_inner_without_cards(UpdateNoteInnerWithoutCardsArgs {
+                note: &mut note,
+                original: &original,
+                notetype: &nt,
+                usn: col.usn()?,
+                mark_note_modified: true,
+                normalize_text: false,
+                update_tags: false,
+                mtime: None,
+            })?;
+        }
+        let count = col.transform_notes(&note_ids, |_note, _nt| {
+            Ok(TransformNoteOutput {
+                changed: true,
+                mark_modified: true,
+                generate_cards: false,
+                update_tags: false,
+                mtime: None,
+            })
+        })?;
+        assert_eq!(count, 10);
+        for note_id in &note_ids {
+            let tags = col.storage.get_note_tags_by_id(*note_id)?.unwrap().tags;
+            assert_eq!(tags, " A ".to_string());
+        }
+
+        // Tags are canonified if update_tags=true
+        let count = col.transform_notes(&note_ids, |_note, _nt| {
+            Ok(TransformNoteOutput {
+                changed: true,
+                mark_modified: true,
+                generate_cards: false,
+                update_tags: true,
+                mtime: None,
+            })
+        })?;
+        assert_eq!(count, 10);
+        for note_id in &note_ids {
+            let tags = col.storage.get_note_tags_by_id(*note_id)?.unwrap().tags;
+            assert_eq!(tags, " a ".to_string());
+        }
 
         Ok(())
     }

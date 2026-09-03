@@ -428,6 +428,35 @@ mod test {
     }
 
     #[test]
+    fn after_note_updates() -> Result<()> {
+        let mut col = Collection::new();
+        let nt = col.basic_notetype();
+        let requests: Vec<_> = (0..10)
+            .map(|_| {
+                let note = NotesService::new_note(&mut col, nt.id.into()).unwrap();
+                AddNoteRequest {
+                    note: Some(note),
+                    deck_id: 1,
+                }
+            })
+            .collect();
+        let add_response = NotesService::add_notes(&mut col, AddNotesRequest { requests })?;
+        let nids = add_response.nids;
+        let response = NotesService::after_note_updates(
+            &mut col,
+            AfterNoteUpdatesRequest {
+                nids,
+                mark_notes_modified: true,
+                generate_cards: true,
+            },
+        )?;
+        assert_eq!(response.count, 10);
+        assert_ne!(response.changes, None);
+
+        Ok(())
+    }
+
+    #[test]
     fn field_names_for_notes() -> Result<()> {
         let mut col: Collection = Collection::new();
         let nt = col.cloze_notetype();
