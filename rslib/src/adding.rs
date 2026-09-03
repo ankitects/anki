@@ -192,11 +192,6 @@ mod test {
         col.clear_aux_config_for_notetype(col.basic_notetype().id)
             .unwrap();
         col.set_current_deck(normal_deck2.id).unwrap();
-        col.set_current_notetype_id(
-            // Set to an invalid notetype to trigger fallback
-            NotetypeId(0),
-        )
-        .unwrap();
         let defaults = col.defaults_for_adding(DeckId(0)).unwrap();
         assert_eq!(defaults.deck_id, normal_deck2.id);
         assert_eq!(defaults.notetype_id, col.basic_notetype().id);
@@ -204,7 +199,6 @@ mod test {
         // Invalid current note type; fall back to first notetype and current deck
         col.clear_aux_config_for_notetype(col.basic_notetype().id)
             .unwrap();
-        // col.set_current_deck(normal_deck2.id).unwrap();
         col.set_current_notetype_id(
             // Set to an invalid notetype to trigger fallback
             NotetypeId(0),
