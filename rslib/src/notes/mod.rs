@@ -948,7 +948,7 @@ mod test {
     }
 
     #[test]
-    fn updating_notes() {
+    fn updating_note() {
         let mut col = Collection::new();
 
         let nt = col.basic_notetype();
@@ -974,6 +974,37 @@ mod test {
             col.update_note(&mut note),
             Err(AnkiError::InvalidInput { .. })
         );
+    }
+
+    #[test]
+    fn updating_notes() -> Result<()> {
+        let mut col = Collection::new();
+        let nt = col.basic_notetype();
+        let mut notes: Vec<_> = (0..10)
+            .map(|_| {
+                let mut note = nt.new_note();
+                note.fields[0] = "f".into();
+                col.add_note_inner(&mut note, DeckId(1)).unwrap();
+
+                note
+            })
+            .collect();
+
+        // No undo
+        for note in &mut notes {
+            note.fields[0] = "f1".into();
+        }
+        col.update_notes_maybe_undoable(notes.clone(), false)?;
+        assert_eq!(col.can_undo(), None);
+
+        // With undo
+        for note in &mut notes {
+            note.fields[0] = "f2".into();
+        }
+        col.update_notes_maybe_undoable(notes, true)?;
+        assert_ne!(col.can_undo(), None);
+
+        Ok(())
     }
 
     #[test]

@@ -314,29 +314,11 @@ mod test {
             })
             .collect();
 
-        // No undo
         let request = UpdateNotesRequest {
             notes: notes.clone(),
             skip_undo_entry: true,
         };
         let _ = NotesService::update_notes(&mut col, request).unwrap();
-        assert_eq!(col.can_undo(), None);
-
-        // With undo
-        let notes: Vec<anki_proto::notes::Note> = col
-            .get_all_notes()
-            .into_iter()
-            .map(|mut note| {
-                note.fields[0] = "bar".into();
-                note.into()
-            })
-            .collect();
-        let request = UpdateNotesRequest {
-            notes,
-            skip_undo_entry: false,
-        };
-        let _ = NotesService::update_notes(&mut col, request).unwrap();
-        assert_ne!(col.can_undo(), None);
     }
 
     #[test]
