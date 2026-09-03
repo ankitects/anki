@@ -249,7 +249,7 @@ def escape_text_preserve_html(raw: str) -> str:
                 ):
                     # Ensure void elements are self-closing, e.g. <br />.
                     tag = tag[:-1].rstrip() + " />"
-                html_parts[idx] = tag
+                html_parts[f_idx] = tag
                 continue
 
             inline_parts = MARKDOWN_INLINE_CODE_RE.split(html_part)
