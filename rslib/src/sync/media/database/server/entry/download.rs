@@ -59,3 +59,75 @@ impl ServerMediaDatabase {
         Ok(())
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use axum::http::StatusCode;
+    use tempfile::tempdir;
+
+    use super::*;
+    use crate::sync::media::zip::UploadedChange;
+    use crate::sync::media::zip::UploadedChangeKind;
+
+    fn add_files(db: &mut ServerMediaDatabase, count: usize, size: usize) {
+        db.with_transaction(|db, meta| {
+            for idx in 0..count {
+                db.register_uploaded_change(
+                    meta,
+                    UploadedChange {
+                        nfc_filename: format!("file-{idx}.txt"),
+                        kind: UploadedChangeKind::AddOrReplace {
+                            nonempty_data: vec![idx as u8; size],
+                            sha1: vec![idx as u8; 20],
+                        },
+                    },
+                )?;
+            }
+            Ok(())
+        })
+        .unwrap();
+    }
+
+    fn filenames(count: usize) -> Vec<String> {
+        (0..count).map(|idx| format!("file-{idx}.txt")).collect()
+    }
+
+    fn new_db() -> (tempfile::TempDir, ServerMediaDatabase) {
+        let dir = tempdir().unwrap();
+        let db = ServerMediaDatabase::new(&dir.path().join("server.db")).unwrap();
+        (dir, db)
+    }
+
+    #[test]
+    fn download_allows_batches_larger_than_legacy_limit() {
+        let (_dir, mut db) = new_db();
+        add_files(&mut db, 30, 1);
+
+        assert!(30 <= MAX_MEDIA_FILES_IN_ZIP);
+        let entries = db.get_entries_for_download(&filenames(30)).unwrap();
+        assert_eq!(entries.len(), 30);
+    }
+
+    #[test]
+    fn download_rejects_requests_over_batch_limit() {
+        let (_dir, db) = new_db();
+        let err = db
+            .get_entries_for_download(&filenames(MAX_MEDIA_FILES_IN_ZIP + 1))
+            .unwrap_err();
+        assert_eq!(err.code, StatusCode::BAD_REQUEST);
+        assert_eq!(err.context, "too many files requested");
+    }
+
+    #[test]
+    fn download_truncates_after_configured_zip_target() {
+        let (_dir, mut db) = new_db();
+        let file_size = 1024 * 1024;
+        let expected_entries = (MEDIA_SYNC_TARGET_ZIP_BYTES / file_size) + 1;
+        add_files(&mut db, expected_entries + 1, file_size);
+
+        let entries = db
+            .get_entries_for_download(&filenames(expected_entries + 1))
+            .unwrap();
+        assert_eq!(entries.len(), expected_entries);
+    }
+}
