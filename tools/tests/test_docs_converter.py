@@ -162,6 +162,11 @@ class TestMdLinkStripping:
         assert "[link](./foo)" in result
         assert ".md" not in result
 
+    def test_html_extension_removed(self) -> None:
+        result = body(fmt("[link](foo.html)"))
+        assert "[link](./foo)" in result
+        assert ".html" not in result
+
     def test_md_extension_removed_with_anchor(self) -> None:
         result = body(fmt("[link](foo.md#bar)"))
         assert "[link](./foo#bar)" in result
@@ -171,8 +176,8 @@ class TestMdLinkStripping:
         assert "[link](foo?x=1)" in result
 
     def test_non_md_link_unchanged(self) -> None:
-        result = body(fmt("[link](foo.html)"))
-        assert "[link](foo.html)" in result
+        result = body(fmt("[link](foo.pdf)"))
+        assert "[link](foo.pdf)" in result
 
 
 # ===========================================================================
