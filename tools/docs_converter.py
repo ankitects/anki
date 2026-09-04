@@ -80,10 +80,10 @@ ADMONISH_CALLOUT_REPLACEMENTS = [
 ]
 
 
-def relative_link_rule(domain: str, prefix: str) -> tuple[re.Pattern[str], str]:
+def relative_link_rule(domain: str, prefix: str) -> tuple[str, re.Pattern[str], str]:
     pattern = re.compile(rf"https://{re.escape(domain)}/{HTML_PATH_AND_SUFFIX_RE}")
     replacement = f"/{prefix}/{PATH_AND_SUFFIX_REPLACEMENT}"
-    return (pattern, replacement)
+    return (domain, pattern, replacement)
 
 
 DOCS_RELATIVE_LINK_REPLACEMENTS = [
@@ -132,9 +132,24 @@ def format_page(
 
     def replace_quicklink(match: re.Match[str]) -> str:
         link = match.group("link")
+
+        link_title = link
+        for domain, _, _ in DOCS_RELATIVE_LINK_REPLACEMENTS:
+            if link.startswith(f"https://{domain}/"):
+                # Format link titles for internal links
+                link_title = (
+                    link.split("/")[-1]
+                    .split("#")[-1]
+                    .split("?", 1)[0]
+                    .split(".", 1)[0]
+                    .replace("-", " ")
+                    .strip()
+                )
+                break
+
         if "@" in link and not link.startswith("mailto:"):
-            return f"[{link}](mailto:{link})"
-        return f"[{link}]({link})"
+            return f"[{link_title}](mailto:{link})"
+        return f"[{link_title}]({link})"
 
     def replace_admonish(match: re.Match[str]) -> str:
         kind = match.group("kind").lower()
@@ -152,7 +167,7 @@ def format_page(
     content = MARKDOWN_LINK_MD_RE.sub(r"\1\g<path>\g<suffix>)", content)
     content = HEADING_ANCHOR_RE.sub(replace_heading_anchor, content)
 
-    for pattern, replacement in DOCS_RELATIVE_LINK_REPLACEMENTS:
+    for _, pattern, replacement in DOCS_RELATIVE_LINK_REPLACEMENTS:
         # Language pages receive a language prefix, e.g. /ar/manual/...
         if language_code_url:
             replacement = f"/{language_code_url}{replacement}"
@@ -434,7 +449,7 @@ def main():
         output_path.parent.mkdir(parents=True, exist_ok=True)
         content = page.src.read_text(encoding="utf-8")
         relative_src_key = page.src.relative_to(src_docs_dir).with_suffix("").as_posix()
-        metadata_title = summary_titles.get(relative_src_key, None)
+        metadata_title = summary_titles.get(relative_src_key, "")
         output_path.write_text(
             format_page(content, language_code_path_str, metadata_title),
             encoding="utf-8",
