@@ -144,6 +144,7 @@ title: "{title}"
     content = re.sub(r"<!--\s*toc\s*-->", "", content, flags=re.IGNORECASE)
     # Escape plain text nodes for MDX while preserving actual HTML tags.
     content = escape_text_preserve_html(content)
+    content = content.replace("(media", "(/media")
 
     return content
 
