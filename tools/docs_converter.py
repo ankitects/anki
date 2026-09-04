@@ -421,7 +421,7 @@ def main():
     # print(f"Source docs: {default_language}")
 
     for page in to_move:
-        output_path = docs_site_dir / page.dest.with_suffix(".mdx")
+        output_path = docs_site_dir / page.dest.parent / f"{page.dest.name}.mdx"
         output_path.parent.mkdir(parents=True, exist_ok=True)
         content = page.src.read_text(encoding="utf-8")
         relative_src_key = page.src.relative_to(src_docs_dir).with_suffix("").as_posix()
