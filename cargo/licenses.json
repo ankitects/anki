@@ -1240,6 +1240,14 @@
     "repository": "https://github.com/rust-itertools/itertools"
   },
   {
+    "authors": "bluss",
+    "description": "Extra iterator adaptors, iterator methods, free functions, and macros.",
+    "license": "Apache-2.0 OR MIT",
+    "license_file": null,
+    "name": "itertools",
+    "repository": "https://github.com/rust-itertools/itertools"
+  },
+  {
     "authors": "David Tolnay <dtolnay@gmail.com>",
     "description": "Fast integer primitive to string conversion",
     "license": "Apache-2.0 OR MIT",
@@ -2046,6 +2054,14 @@
     "license_file": null,
     "name": "rand_core",
     "repository": "https://github.com/rust-random/rand_core"
+  },
+  {
+    "authors": "The Rand Project Developers",
+    "description": "Selected PCG random number generators",
+    "license": "Apache-2.0 OR MIT",
+    "license_file": null,
+    "name": "rand_pcg",
+    "repository": "https://github.com/rust-random/rngs"
   },
   {
     "authors": "bluss",
