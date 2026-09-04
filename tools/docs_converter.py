@@ -18,7 +18,8 @@ HEADING_ANCHOR_RE = re.compile(
     re.MULTILINE,
 )
 QUICKLINK_RE = re.compile(
-    r"<(?P<link>(?:https?|ftp|mailto):[^> ]+|[^<> ]+@[^<> ]+)>", re.DOTALL
+    r"(?P<leading>[^\(])<(?P<link>(?:https?|ftp|mailto):[^> ]+|[^<> ]+@[^<> ]+)>",
+    re.DOTALL,
 )
 
 # HTML/MDX safety normalization helpers.
@@ -114,9 +115,10 @@ title: "{title}"
 
     def replace_quicklink(match: re.Match[str]) -> str:
         link = match.group("link")
+        leading = match.group("leading")
         if "@" in link and not link.startswith("mailto:"):
-            return f"[{link}](mailto:{link})"
-        return f"[{link}]({link})"
+            return f"{leading}[{link}](mailto:{link})"
+        return f"{leading}[{link}]({link})"
 
     def replace_admonish(match: re.Match[str]) -> str:
         kind = match.group("kind").lower()
