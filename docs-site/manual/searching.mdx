@@ -9,7 +9,7 @@ of searching for specific cards/notes. This method can also be used to adjust th
 
 When you type some text into the search box, Anki finds matching notes
 and displays their cards. Anki searches in all fields of the notes, but
-does not search for tags (see [later in this section](#tags-decks-cards-and-notes) to search for tags). Some examples:
+does not search for tags (see [later in this section](./#tags-decks-cards-and-notes) to search for tags). Some examples:
 
 `dog`\
 searches for "dog" - will match words like "doggy" and "underdog" too.
@@ -80,7 +80,7 @@ Things to note from the above:
   parentheses, it matches either "dog cat" or "dog mouse", whereas
   without them it would match either "dog and cat" or "mouse".
 
-- Anki is only able to search within formatting in the [sort field](editing#customizing-fields) you’ve configured. For example, if you add
+- Anki is only able to search within formatting in the [sort field](./editing#customizing-fields) you’ve configured. For example, if you add
   "**exa**mple" to one of your fields, with the "exa" part in bold, this will not be matched when
   searching for `example` unless that field is the sort field. If a
   word is not formatted, or the formatting does not change in the
@@ -103,7 +103,7 @@ dog" will not match.
 
 `"animal front:a dog"`\
 finds notes where the "Animal Front" field is exactly "a dog". The double quotes are
-mandatory: see [later in this section](#matching-special-characters).
+mandatory: see [later in this section](./#matching-special-characters).
 
 `front:*dog*`\
 finds notes where the Front field contains dog somewhere.
@@ -204,7 +204,7 @@ Anki 2.1.24+, AnkiMobile 2.0.60+ and AnkiDroid 2.17+ support searching in notes 
 a standard and powerful way of searching in text.
 
 Start a search with `re:` to search using regular expressions. To make things easier, Anki will
-treat the following as [raw input](#raw-input), so bear in mind the rules listed there.
+treat the following as [raw input](./#raw-input), so bear in mind the rules listed there.
 
 Some examples:
 
@@ -255,10 +255,10 @@ cards in learning.
 reviews (both due and not due) and lapsed cards.
 
 `is:suspended`\
-cards that have been [automatically](leeches) or manually suspended.
+cards that have been [automatically](./leeches) or manually suspended.
 
 `is:buried`\
-cards that have been either [automatically](studying#siblings-and-burying) or
+cards that have been either [automatically](./studying#siblings-and-burying) or
 manually buried.
 
 `is:buried-sibling`\
@@ -267,7 +267,7 @@ cards that have been buried automatically.
 `is:buried-manually`\
 cards that have been manually buried.
 
-Cards that have [lapsed](deck-options#lapses) fall into several of the previous categories, so it may
+Cards that have [lapsed](./deck-options#lapses) fall into several of the previous categories, so it may
 be useful to combine different search terms to get more precise results:
 
 `is:learn is:review`\
@@ -474,7 +474,7 @@ the note with note id 123.
 `cid:123,456,789`\
 all cards with card ids 123, 456, or 789.
 
-Note and card IDs can be found in the [card info](stats) dialog in the
+Note and card IDs can be found in the [card info](./stats) dialog in the
 browser. These searches may also be helpful when doing add-on
 development or otherwise working closely with the database.
 

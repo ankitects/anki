@@ -159,12 +159,12 @@ class TestFrontmatter:
 class TestMdLinkStripping:
     def test_md_extension_removed(self) -> None:
         result = body(fmt("[link](foo.md)"))
-        assert "[link](foo)" in result
+        assert "[link](./foo)" in result
         assert ".md" not in result
 
     def test_md_extension_removed_with_anchor(self) -> None:
         result = body(fmt("[link](foo.md#bar)"))
-        assert "[link](foo#bar)" in result
+        assert "[link](./foo#bar)" in result
 
     def test_md_extension_removed_with_query(self) -> None:
         result = body(fmt("[link](foo.md?x=1)"))

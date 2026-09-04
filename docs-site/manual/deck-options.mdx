@@ -49,8 +49,8 @@ If your deck has subdecks, and you wish one or more of them to have different se
 When Anki shows a card, it will check which subdeck the card is in, and use the options
 for that deck. There are two exceptions:
 
-- The **New cards/day** and **Maximum reviews/day** [limits](#daily-limits) of a subdeck affect the number of cards that can be gathered from that subdeck. But the total number of cards you see during your study session is controlled by the limits of the deck you select to study.
-- The [display order](#display-order) options are taken from the
+- The **New cards/day** and **Maximum reviews/day** [limits](./#daily-limits) of a subdeck affect the number of cards that can be gathered from that subdeck. But the total number of cards you see during your study session is controlled by the limits of the deck you select to study.
+- The [display order](./#display-order) options are taken from the
   deck you select to study, not the deck of the current card.
 
 For example, let's say you have this collection:
@@ -145,7 +145,7 @@ This option can be useful if you wish to study individual subdecks, while enforc
 ## New Cards
 
 The options here only affect new cards and
-[learning cards](getting-started#card-states). Once a card
+[learning cards](./getting-started#card-states). Once a card
 has graduated (that is, gone through all the learning steps), the options in this section no longer apply to the card.
 
 ### Learning Steps
@@ -173,7 +173,7 @@ The **Hard** button works differently depending on which step you're on.
 - When you're on any other step, the **Hard** button repeats that step.
 
 If there’s nothing else to study, Anki will show learning cards up to 20 minutes
-early by default. To turn this off or change the amount of time to look ahead, see [Preferences](preferences).
+early by default. To turn this off or change the amount of time to look ahead, see [Preferences](./preferences).
 
 #### Day Boundaries
 
@@ -187,7 +187,7 @@ In contrast, if the step crosses a day boundary, the delay is automatically conv
 
 The number of days to wait before showing a card again, after the Good button is used on the final learning step. This means that it is the first interval
 after the learning card graduates. See the example
-from [earlier in this section](deck-options#learning-steps).
+from [earlier in this section](./deck-options#learning-steps).
 
 ### Easy Interval
 
@@ -202,7 +202,7 @@ as long as the graduating interval, and typically a few days longer.
 Controls whether Anki should add new cards into the deck randomly, or sequentially.
 When you change this option, Anki will re-sort the decks in the current preset.
 
-On recent Anki versions, you should leave this option set to `Sequential`, and adjust the [display order](deck-options#display-order) instead.
+On recent Anki versions, you should leave this option set to `Sequential`, and adjust the [display order](./deck-options#display-order) instead.
 
 ## Lapses
 
@@ -224,7 +224,7 @@ the next day.
 
 ### Leeches
 
-Control the way Anki handles leeches. For details, see the [leeches](leeches)
+Control the way Anki handles leeches. For details, see the [leeches](./leeches)
 section.
 
 ## Display Order
@@ -232,7 +232,7 @@ section.
 The options in this section are taken from the deck you select to study, not
 the deck of the currently displayed card.
 
-Some further information about display order is available in the [studying section](studying#display-order).
+Some further information about display order is available in the [studying section](./studying#display-order).
 
 ### New Card Gather Order
 
@@ -406,7 +406,7 @@ become available, and SM-2 specific options, such as **Graduating interval**,
 - Enable FSRS under the "FSRS" section, at the bottom of the deck options page. FSRS can only be enabled globally; you cannot enable it for some presets and disable it for others.
 - Ensure that all your learning and re-learning steps are shorter than 1d and can be completed on the same day. 23h is not recommended even though it's less than one day because you won't be able to finish this step on the same day as your first review. Steps such as 10m or 30m are good.
 - Click the "Optimize" button under the "FSRS parameters" field. If you see a message that says "The FSRS parameters currently appear to be optimal", that's fine.
-- Choose a value of desired retention: the proportion of cards recalled successfully when they are due. **This is the most important setting in FSRS. Higher retention leads to shorter intervals and more reviews per day.** The default is 90%, which offers a good balance of retention and workload. Above 90% the workload increases very quickly, and above 97% the workload can be overwhelming. You can use ["Compute minimum recommended retention"](#compute-minimum-recommended-retention) to help you choose the value of desired retention.
+- Choose a value of desired retention: the proportion of cards recalled successfully when they are due. **This is the most important setting in FSRS. Higher retention leads to shorter intervals and more reviews per day.** The default is 90%, which offers a good balance of retention and workload. Above 90% the workload increases very quickly, and above 97% the workload can be overwhelming. You can use ["Compute minimum recommended retention"](./#compute-minimum-recommended-retention) to help you choose the value of desired retention.
 
 Parameters and desired retention are preset-specific, so you can create multiple presets with different settings.
 
@@ -673,7 +673,7 @@ will be given 12 days.
 
 The multiplier applied when you use the **Again** button on a review card. The
 default 0.00 means that a review card's delay is reset to zero when you forget it
-(which then becomes 1 day after the [minimum interval](#minimum-interval) is
+(which then becomes 1 day after the [minimum interval](./#minimum-interval) is
 applied).
 
 If changed from the default, it is possible for forgotten cards to preserve part
