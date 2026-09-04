@@ -37,6 +37,7 @@ MARKDOWN_INLINE_CODE_RE = re.compile(r"(`[^`\n]*`)")
 MARKDOWN_LINK_MD_RE = re.compile(
     r"(\[[^\]]+\]\()(?!(?:https?|ftp)://|/)(?P<path>[^)\s]+?)\.(:?md|html)(?P<suffix>[#?][^)\s]+)?\)"
 )
+SUMMARY_LINK_RE = re.compile(r"^\s*[-*+]\s+\[(?P<title>[^\]]+)\]\((?P<link>[^)]+)\)")
 ADMONISH_BLOCK_RE = re.compile(
     r"```admonish\s+(?P<kind>[A-Za-z]+)\n(?P<body>[\s\S]*?)\n```"
 )
@@ -93,19 +94,25 @@ DOCS_RELATIVE_LINK_REPLACEMENTS = [
 ]
 
 
-def format_page(content: str, language_code_url: str = "") -> str:
-    title = TITLE_RE.findall(content)
+def format_page(
+    content: str, language_code_url: str = "", metadata_title: str | None = None
+) -> str:
+    title_match = TITLE_RE.search(content)
     content = TITLE_REPLACE_RE.sub("", content, 1)
-    if title:
-        title = title[0].replace('"', '\\"').strip()
+    if title_match or metadata_title:
+        source_title = title_match.group(1) if title_match else None
+        title = metadata_title or source_title
+        assert title is not None
+        title = title.replace('"', '\\"').strip()
         content = (
-            f"""---
-title: "{title}"
----\n"""
-            + content
+            "---\n"
+            f'title: "{title}"\n'
+            "---\n"
+            f"{('##### ' + source_title) if metadata_title and source_title and source_title != metadata_title else ''}"
+            f"{content}"
         )
     else:
-        print(f"WARN: could not find title in {content[:5]}")
+        print(f"WARN: could not find title in {content[:5]} or in SUMMARY.md")
 
     def replace_heading_anchor(match: re.Match[str]) -> str:
         return (
@@ -175,6 +182,31 @@ class Page:
     src: Path
     root_dest: Path
     dest: Path
+
+
+def extract_summary_titles(summary_path: Path) -> dict[str, str]:
+    if not summary_path.exists():
+        return {}
+
+    entries: dict[str, str] = {}
+    for line in summary_path.read_text(encoding="utf-8").splitlines():
+        match = SUMMARY_LINK_RE.match(line)
+        if not match:
+            continue
+
+        title = match.group("title").strip()
+        link = match.group("link").split("#", 1)[0].split("?", 1)[0].strip()
+        if not link or "://" in link or link.startswith("/"):
+            continue
+
+        link_path = Path(link)
+        if link_path.suffix not in {".md", ".mdx", ".html"}:
+            continue
+
+        normalized_path = link_path.with_suffix("").as_posix().lstrip("./")
+        entries[normalized_path] = title
+
+    return entries
 
 
 ORDERED_TABS = [
@@ -363,6 +395,7 @@ def main():
     )
     main_group = default_tab["groups"][0]
     default_language_pages = group_pages(main_group)
+    summary_titles = extract_summary_titles(src_docs_dir / "SUMMARY.md")
 
     source_contents = sorted(
         path.resolve()
@@ -391,8 +424,11 @@ def main():
         output_path = docs_site_dir / page.dest.with_suffix(".mdx")
         output_path.parent.mkdir(parents=True, exist_ok=True)
         content = page.src.read_text(encoding="utf-8")
+        relative_src_key = page.src.relative_to(src_docs_dir).with_suffix("").as_posix()
+        metadata_title = summary_titles.get(relative_src_key, None)
         output_path.write_text(
-            format_page(content, language_code_path_str), encoding="utf-8"
+            format_page(content, language_code_path_str, metadata_title),
+            encoding="utf-8",
         )
 
     new_tab = deepcopy(default_tab)
