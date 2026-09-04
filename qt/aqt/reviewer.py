@@ -155,6 +155,7 @@ class Reviewer:
         self._answeredIds: list[CardId] = []
         self._recordedAudio: str | None = None
         self._combining: bool = True
+        self._ignore_case: bool = False
         self.typeCorrect: str | None = None  # web init happens before this is set
         self.state: Literal["question", "answer", "transition"] | None = None
         self._refresh_needed: RefreshNeeded | None = None
@@ -705,20 +706,24 @@ class Reviewer:
 
     def typeAnsQuestionFilter(self, buf: str) -> str:
         self._combining = True
+        self._ignore_case = False
         self.typeCorrect = None
         clozeIdx = None
         m = re.search(self.typeAnsPat, buf)
         if not m:
             return buf
         fld = m.group(1)
-        # if it's a cloze, extract data
-        if fld.startswith("cloze:"):
-            # get field and cloze position
-            clozeIdx = self.card.ord + 1
-            fld = fld.split(":")[1]
-        if fld.startswith("nc:"):
-            self._combining = False
-            fld = fld.split(":")[1]
+        # strip any modifiers preceding the field name (field names can't
+        # contain a colon, so anything before the last one is a modifier)
+        modifiers, _, fld = fld.rpartition(":")
+        for modifier in modifiers.split(":"):
+            if modifier == "cloze":
+                # get cloze position
+                clozeIdx = self.card.ord + 1
+            elif modifier == "nc":
+                self._combining = False
+            elif modifier == "ci":
+                self._ignore_case = True
         # loop through fields for a match
         for f in self.card.note_type()["flds"]:
             if f["name"] == fld:
@@ -765,7 +770,9 @@ class Reviewer:
             (initial_expected, initial_provided), type_pattern
         )
 
-        output = self.mw.col.compare_answer(expected, provided, self._combining)
+        output = self.mw.col.compare_answer(
+            expected, provided, self._combining, self._ignore_case
+        )
         output = gui_hooks.reviewer_will_render_compared_answer(
             output,
             initial_expected,
