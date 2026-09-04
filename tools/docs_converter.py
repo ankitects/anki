@@ -214,7 +214,12 @@ def escape_text_preserve_html(raw: str) -> str:
 
         if line.startswith("```"):
             in_escaped_block = not in_escaped_block
-        if line.startswith("-") or line.startswith("*") or line.startswith("+"):
+        if (
+            line.startswith("-")
+            or line.startswith("*")
+            or line.startswith("+")
+            or line.strip().startswith("$$")
+        ):
             in_other_indent = True
             exit_current_tabbed_area()
         elif line.strip() == "":
