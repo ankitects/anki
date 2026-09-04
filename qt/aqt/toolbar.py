@@ -66,6 +66,14 @@ class TopWebView(ToolbarWebView):
         self.web_height = 0
         qconnect(self.hide_timer.timeout, self.hide_if_allowed)
 
+    def on_theme_did_change(self) -> None:
+        super().on_theme_did_change()
+
+        if self.mw.state == "review":
+            self.eval("""document.body.style.removeProperty("background"); """)
+            # Wait until all webviews have queued their theme class updates.
+            self.mw.progress.single_shot(0, self.update_background_image)
+
     def eventFilter(self, obj, evt):
         if handled := super().eventFilter(obj, evt):
             return handled
