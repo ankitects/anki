@@ -95,20 +95,30 @@ DOCS_RELATIVE_LINK_REPLACEMENTS = [
 
 
 def format_page(
-    content: str, language_code_url: str = "", metadata_title: str | None = None
+    content: str, language_code_url: str = "", sidebar_title: str = ""
 ) -> str:
     title_match = TITLE_RE.search(content)
     content = TITLE_REPLACE_RE.sub("", content, 1)
-    if title_match or metadata_title:
-        source_title = title_match.group(1) if title_match else None
-        title = metadata_title or source_title
-        assert title is not None
-        title = title.replace('"', '\\"').strip()
+
+    def title_hash(title: str) -> str:
+        return re.sub(r"[^\w]", "", title.lower())
+
+    def sanitize_title(title: str) -> str:
+        return title.replace('"', '\\"').strip()
+
+    if title_match:
+        title = title_match.group(1)
+        sidebar_title = (
+            "" if title_hash(sidebar_title) == title_hash(title) else sidebar_title
+        )
+        title = sanitize_title(title)
+        sidebar_title = sanitize_title(sidebar_title)
         content = (
             "---\n"
             f'title: "{title}"\n'
+            f"""{f'sidebarTitle: "{sidebar_title}"\n' if sidebar_title else ""}"""
+            f"""{f'description: "{sidebar_title}"\n' if sidebar_title else ""}"""
             "---\n"
-            f"{('##### ' + source_title) if metadata_title and source_title and source_title != metadata_title else ''}"
             f"{content}"
         )
     else:
