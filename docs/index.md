@@ -11,6 +11,7 @@ development
 build
 contributing
 dependabot
+unit-testing
 testing-coverage
 architecture
 protobuf

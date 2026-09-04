@@ -87,4 +87,8 @@ merging, but the results are visible on the PR.
 - Add component or browser tests for Svelte UI surfaces if Svelte coverage
   is intended to cover rendered component behaviour.
 
+## See also
+
+- [Unit Testing Specification and Guide](https://anki.mintlify.app/developers/unit-testing)
+
 <!-- <<<end>>> -->
