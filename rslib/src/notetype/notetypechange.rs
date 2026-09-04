@@ -271,7 +271,7 @@ impl Collection {
             remap_fields(note.fields_mut(), new_fields);
             note.notetype_id = new_notetype_id;
             self.update_note_inner_generating_cards(
-                &ctx, &mut note, &original, true, false, false,
+                &ctx, &mut note, &original, true, false, false, None,
             )?;
         }
 
