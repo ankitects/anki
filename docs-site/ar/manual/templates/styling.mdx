@@ -99,7 +99,7 @@ img#star {
 
 تستطيع تصفح تنسيق البطاقات بشكل تفاعلي باستخدام متصفح كروم:
 
-[/ar/addons/porting2.0#webview-changes](/ar/addons/porting2.0#webview-changes)
+[webview changes](/ar/addons/porting2.0#webview-changes)
 
 <a id="field-styling"></a>
 ## تنسيق الحقول ينطبق التنسيق الافتراضي على البطاقة كاملة. كما تستطيع جعل بعض الحقول أو
@@ -110,15 +110,19 @@ img#star {
 لنقل أن لديك حقلًا باسم «عبارة»، وتريد عرضه بخط أو إس إكس التايلندي “Ayuthaya”.
 لنفرض أن قالبك يحوي التالي:
 
-    ما \{\{عبارة\}\}؟
+```text
+    ما {{عبارة}}؟
 
-    \{\{ملاحظات\}\}
+    {{ملاحظات}}
+```
 
 علينا إحاطة النص الذي نريد تنسيقه ببعض الHTML. سنضع التالي قبل النص:
 
 <div dir="ltr">
 
-    &lt;div class=mystyle1&gt;
+```text
+    <div class=mystyle1>
+```
 
 </div>
 
@@ -126,7 +130,9 @@ img#star {
 
 <div dir="ltr">
 
-    &lt;/div&gt;
+```text
+    </div>
+```
 
 </div>
 
@@ -137,9 +143,11 @@ img#star {
 
 <div dir="ltr">
 
-    &lt;div class=mystyle1&gt;ما \{\{عبارة\}\}؟&lt;/div&gt;
+```text
+    <div class=mystyle1>ما {{عبارة}}؟</div>
 
-    \{\{ملاحظات\}\}
+    {{ملاحظات}}
+```
 
 </div>
 
@@ -147,9 +155,11 @@ img#star {
 
 <div dir="ltr">
 
-    ما &lt;div class=mystyle1&gt;\{\{عبارة\}\}&lt;/div&gt;؟
+```text
+    ما <div class=mystyle1>{{عبارة}}</div>؟
 
-    \{\{ملاحظات\}\}
+    {{ملاحظات}}
+```
 
 </div>
 
@@ -205,7 +215,7 @@ img#star {
 </div>
 
 من الممكن أيضًا تضمين خطوط مخصصة مع رزمتك، لكي لا تحتاج إلى تنصيبها في حاسوبك
-أو هاتفك المحمول. انظر قسم [تنصيب الخطوط](#installing-fonts) لمزيد من المعلومات.
+أو هاتفك المحمول. انظر قسم [تنصيب الخطوط](./#installing-fonts) لمزيد من المعلومات.
 
 <a id="audio-replay-buttons"></a>
 ## أزرار إعادة تشغيل الصوت عندما يكون هناك تسجيل صوتي أو تحويل نص إلى كلام في بطاقاتك،
@@ -245,7 +255,9 @@ img#star {
 
 سيغير هذا اتجاه كامل البطاقة. تستطيع تغيير اتجاه حقول معينة فقط بإحاطتها بكود HTML كالتالي:
 
-    &lt;div dir="rtl"&gt;\{\{أمام\}\}&lt;/div&gt;
+```text
+    <div dir="rtl">{{أمام}}</div>
+```
 
 لتغيير اتجاه الحقول في المحرر، انظر قسم [التحرير](../editing#customizing-fields).
 
@@ -292,7 +304,7 @@ img#star {
 <div dir="ltr">
 
 ```html
-<div class="jp">\{\{Field\}\}</div>
+<div class="jp">{{Field}}</div>
 ```
 
 </div>
@@ -348,7 +360,7 @@ img#star {
 بعد ذلك، تستطيع إما تغيير خط البطاقة كاملة، أو حقول فردية. لتغيير خط البطاقة كاملة،
 ابحث عن سطر <span dir="ltr">font-family:</span> في قسم <span dir="ltr">.card</span>
 وغير الخط إلى "myfont". لتغيير خط حقول محددة فقط،
-انظر تعليمات [تنسيق الحقول](#field-styling) في الأعلى.
+انظر تعليمات [تنسيق الحقول](./#field-styling) في الأعلى.
 
 تأكد أن أسماء الملفات تتطابق. إذا كان اسم الملف arial.TTF فكتابة arial.ttf لن تعمل.
 

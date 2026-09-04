@@ -16,7 +16,9 @@ title: "الرياضيات والرموز"
 
 <div dir="ltr">
 
-    \sqrt\{x\}
+```text
+    \sqrt{x}
+```
 
 </div>
 
@@ -27,7 +29,9 @@ title: "الرياضيات والرموز"
 
 <div dir="ltr">
 
-    \(\sqrt\{x\}\)
+```text
+    \(\sqrt{x}\)
+```
 
 </div>
 
@@ -74,7 +78,9 @@ LaTeX هو نظام صف حروف فعال، يستخدم للمعادلات ا�
 
 <div dir="ltr">
 
+```text
     sudo tlmgr update --self; sudo tlmgr install dvipng
+```
 
 </div>
 
@@ -97,7 +103,8 @@ LaTeX هو نظام صف حروف فعال، يستخدم للمعادلات ا�
 
 <a id="example"></a>
 ### مثال الطريقة الأعم لإدخال محتوى LaTeX هي بإحاطته بـ
-<span dir="ltr">\[latex\]\[/latex\]</span>. هناك زر لهذا موثق في قسم [المحرر](editing).
+<span dir="ltr">\[latex\]\[/latex\]</span>. هناك زر لهذا موثق في قسم
+[المحرر](./editing).
 
 يجب أن تستخدم علامات <span dir="ltr">\[latex\]</span> داخل حقل - وضعها في قالب البطاقة
 [يسبب مشاكل](templates/fields).
@@ -106,7 +113,9 @@ LaTeX هو نظام صف حروف فعال، يستخدم للمعادلات ا�
 
 <div dir="ltr">
 
-    Does [latex]\begin\{math\}\sum_\{k = 1\}^\{\infty\}\frac\{1\}\{k\}\end\{math\}[/latex] converge?
+```text
+    Does [latex]\begin{math}\sum_{k = 1}^{\infty}\frac{1}{k}\end{math}[/latex] converge?
+```
 
 </div>
 
@@ -119,9 +128,11 @@ LaTeX هو نظام صف حروف فعال، يستخدم للمعادلات ا�
 
 <div dir="ltr">
 
+```text
     Does the sum below converge?
 
-    [latex]\begin\{displaymath\}\sum_\{k = 1\}^\{\infty\}\frac\{1\}\{k\}\end\{displaymath\}[/latex]
+    [latex]\begin{displaymath}\sum_{k = 1}^{\infty}\frac{1}{k}\end{displaymath}[/latex]
+```
 
 </div>
 
@@ -132,7 +143,9 @@ LaTeX هو نظام صف حروف فعال، يستخدم للمعادلات ا�
 
 <div dir="ltr">
 
-    [latex]\begin\{math\}...\end\{math\}[/latex]
+```text
+    [latex]\begin{math}...\end{math}[/latex]
+```
 
 </div>
 
@@ -140,7 +153,9 @@ LaTeX هو نظام صف حروف فعال، يستخدم للمعادلات ا�
 
 <div dir="ltr">
 
-    [\$]...[/\$]
+```text
+    [$]...[/$]
+```
 
 </div>
 
@@ -148,7 +163,9 @@ LaTeX هو نظام صف حروف فعال، يستخدم للمعادلات ا�
 
 <div dir="ltr">
 
-    [latex]\begin\{displaymath\}...\end\{displaymath\}[/latex]
+```text
+    [latex]\begin{displaymath}...\end{displaymath}[/latex]
+```
 
 </div>
 
@@ -156,7 +173,9 @@ LaTeX هو نظام صف حروف فعال، يستخدم للمعادلات ا�
 
 <div dir="ltr">
 
+```text
     [$$]...[/$$]
+```
 
 </div>
 
@@ -164,7 +183,9 @@ LaTeX هو نظام صف حروف فعال، يستخدم للمعادلات ا�
 
 <div dir="ltr">
 
-    Does [\$]\sum_\{k = 1\}^\{\infty\}\frac\{1\}\{k\}[/\$] converge?
+```text
+    Does [$]\sum_{k = 1}^{\infty}\frac{1}{k}[/$] converge?
+```
 
 </div>
 
@@ -172,9 +193,11 @@ LaTeX هو نظام صف حروف فعال، يستخدم للمعادلات ا�
 
 <div dir="ltr">
 
+```text
     Does the sum below converge?
 
-    [$$]\sum_\{k = 1\}^\{\infty\}\frac\{1\}\{k\}[/$$]
+    [$$]\sum_{k = 1}^{\infty}\frac{1}{k}[/$$]
+```
 
 </div>
 
@@ -186,23 +209,25 @@ LaTeX هو نظام صف حروف فعال، يستخدم للمعادلات ا�
 
 <div dir="ltr">
 
-    \documentclass[a4paper,12pt]\{report\}
-    \usepackage\{chemtex\}
-    \begin\{document\}
+```text
+    \documentclass[a4paper,12pt]{report}
+    \usepackage{chemtex}
+    \begin{document}
 
     \initial
-    \begin\{figure\}[h]\centering
-    \parbox\{.3\textwidth\}\{\ethene\{H\}\{H\$_3\$C\}\{CH\$_3\$\}\{Br\}\}
+    \begin{figure}[h]\centering
+    \parbox{.3\textwidth}{\ethene{H}{H$_3$C}{CH$_3$}{Br}}
     \hfil
-    \parbox\{.3\textwidth\}\{\cbranch\{H\}\{S\}\{H\}\{S\}\{C\}\{S\}\{\}\{S\}\{H\}
-      \xi=-200 \cright\{\}\{Q\}\{C\}\{D\}\{O\}\{S\}\{OH\}\}
+    \parbox{.3\textwidth}{\cbranch{H}{S}{H}{S}{C}{S}{}{S}{H}
+      \xi=-200 \cright{}{Q}{C}{D}{O}{S}{OH}}
     \hfil
-    \parbox\{.3\textwidth\}\{\hetisix\{Q\}\{Q\}\{Q\}\{Q\}\{Q\}\{Q\}\{O\}\{Q\}\{O\}
-      \xi=-171 \fuseup\{Q\}\{Q\}\{Q\}\{Q\}\{D\}\{Q\}\{D\}\{Q\}\{D\}\}
-    \caption\{Chemie mit \{\tt CHEMTEX\}\label\{a1\}\}
-    \end\{figure\}
+    \parbox{.3\textwidth}{\hetisix{Q}{Q}{Q}{Q}{Q}{Q}{O}{Q}{O}
+      \xi=-171 \fuseup{Q}{Q}{Q}{Q}{D}{Q}{D}{Q}{D}}
+    \caption{Chemie mit {\tt CHEMTEX}\label{a1}}
+    \end{figure}
 
-    \end\{document\}
+    \end{document}
+```
 
 </div>
 
@@ -217,12 +242,14 @@ LaTeX هو نظام صف حروف فعال، يستخدم للمعادلات ا�
 
 <div dir="ltr">
 
-    \documentclass[12pt]\{article\}
-    \special\{papersize=3in,5in\}
-    \usepackage\{amssymb,amsmath\}
-    \pagestyle\{empty\}
-    \setlength\{\parindent\}\{0in\}
-    \begin\{document\}
+```text
+    \documentclass[12pt]{article}
+    \special{papersize=3in,5in}
+    \usepackage{amssymb,amsmath}
+    \pagestyle{empty}
+    \setlength{\parindent}{0in}
+    \begin{document}
+```
 
 </div>
 
@@ -230,13 +257,15 @@ LaTeX هو نظام صف حروف فعال، يستخدم للمعادلات ا�
 
 <div dir="ltr">
 
-    \documentclass[12pt]\{article\}
-    \special\{papersize=3in,5in\}
-    \usepackage\{amssymb,amsmath\}
-    \usepackage\{chemtex\}
-    \pagestyle\{empty\}
-    \setlength\{\parindent\}\{0in\}
-    \begin\{document\}
+```text
+    \documentclass[12pt]{article}
+    \special{papersize=3in,5in}
+    \usepackage{amssymb,amsmath}
+    \usepackage{chemtex}
+    \pagestyle{empty}
+    \setlength{\parindent}{0in}
+    \begin{document}
+```
 
 </div>
 
@@ -244,7 +273,9 @@ LaTeX هو نظام صف حروف فعال، يستخدم للمعادلات ا�
 
 <div dir="ltr">
 
-    [latex]\ethene\{H\}\{H\$_3\$C\}\{CH\$_3\$\}\{Br\}[/latex]
+```text
+    [latex]\ethene{H}{H$_3$C}{CH$_3$}{Br}[/latex]
+```
 
 </div>
 
@@ -266,7 +297,9 @@ LaTeX هو نظام صف حروف فعال، يستخدم للمعادلات ا�
 
 <div dir="ltr">
 
-    \{\{latex field\}\}
+```text
+    {{latex field}}
+```
 
 </div>
 
@@ -274,8 +307,10 @@ LaTeX هو نظام صف حروف فعال، يستخدم للمعادلات ا�
 
 <div dir="ltr">
 
-    \{\{=&lt;% %&gt;=\}\}
-    &lt;%latex field%&gt;
+```text
+    {{=<% %>=}}
+    <%latex field%>
+```
 
 </div>
 
@@ -288,7 +323,9 @@ LaTeX هو نظام صف حروف فعال، يستخدم للمعادلات ا�
 
 <div dir="ltr">
 
-    \{\{c1::[\$]\frac\{foo\}\{\frac\{bar\}\{baz\}\}[/\$] blah blah blah.\}\}
+```text
+    {{c1::[$]\frac{foo}{\frac{bar}{baz}}[/$] blah blah blah.}}
+```
 
 </div>
 
@@ -296,7 +333,9 @@ LaTeX هو نظام صف حروف فعال، يستخدم للمعادلات ا�
 
 <div dir="ltr">
 
-    \{\{c1::[\$]\frac\{foo\}\{\frac\{bar\}\{baz\} \}[/\$] blah blah blah.\}\}
+```text
+    {{c1::[$]\frac{foo}{\frac{bar}{baz} }[/$] blah blah blah.}}
+```
 
 </div>
 
@@ -307,7 +346,9 @@ LaTeX هو نظام صف حروف فعال، يستخدم للمعادلات ا�
 
 <div dir="ltr">
 
-    \{\{c1::[\$]\frac\{foo\}\{\frac\{bar\}\{baz\}&lt;!-- --&gt;\}[/\$] blah blah blah.\}\}
+```text
+    {{c1::[$]\frac{foo}{\frac{bar}{baz}<!-- -->}[/$] blah blah blah.}}
+```
 
 </div>
 
@@ -318,7 +359,9 @@ LaTeX هو نظام صف حروف فعال، يستخدم للمعادلات ا�
 
 <div dir="ltr">
 
-    \{\{c1::std:&lt;!-- --&gt;:variant::~type~\}\} in C++ is a \{\{c2::type-safe union\}\}
+```text
+    {{c1::std:<!-- -->:variant::~type~}} in C++ is a {{c2::type-safe union}}
+```
 
 </div>
 

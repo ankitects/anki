@@ -1,5 +1,7 @@
 ---
 title: "إدارة الملفات ومجموعتك"
+sidebarTitle: "إدارة الملفات"
+description: "إدارة الملفات"
 ---
 
 <a id="checking-your-collection"></a>
@@ -60,7 +62,9 @@ appdata. تستطيع الوصول إلى هذا المجلد بفتح مدير 
 
 <div dir="ltr">
 
+```text
     anki -b /مسار/مجلد/أنكي
+```
 
 </div>
 
@@ -78,7 +82,9 @@ appdata. تستطيع الوصول إلى هذا المجلد بفتح مدير 
 
 <div dir="ltr">
 
+```text
     "C:\Program Files\Anki\anki.exe" -b "C:\AnkiDataFolder"
+```
 
 </div>
 
@@ -92,7 +98,9 @@ appdata. تستطيع الوصول إلى هذا المجلد بفتح مدير 
 
 <div dir="ltr">
 
+```text
     open /Applications/Anki.app --args -b ~/myankifolder
+```
 
 </div>
 
@@ -100,7 +108,9 @@ appdata. تستطيع الوصول إلى هذا المجلد بفتح مدير 
 
 <div dir="ltr">
 
+```text
     set "ANKI_BASE=C:/مسار/مجلد/أنكي"
+```
 
 </div>
 
@@ -108,7 +118,9 @@ appdata. تستطيع الوصول إلى هذا المجلد بفتح مدير 
 
 <div dir="ltr">
 
+```text
     export ANKI_BASE="/مسار/مجلد/أنكي"
+```
 
 </div>
 
@@ -142,7 +154,9 @@ Folders Outside Dropbox (archive.org)][dropboxwiki-sync-other] لمزيد من �
 
 <div dir="ltr">
 
+```text
     g:\anki\anki.exe -b g:\ankidata
+```
 
 </div>
 
@@ -150,7 +164,9 @@ Folders Outside Dropbox (archive.org)][dropboxwiki-sync-other] لمزيد من �
 
 <div dir="ltr">
 
+```text
     start /b g:\anki\anki.exe -b g:\ankidata
+```
 
 </div>
 
@@ -169,7 +185,7 @@ Folders Outside Dropbox (archive.org)][dropboxwiki-sync-other] لمزيد من �
 
 <a id="inaccessible-harddisk"></a>
 ## قرص صالب لا يمكن الوصول إليه إذا لم يكن أنكي قادرًا على الكتابة إلى الملفات في [مجلد
-أنكي](files#file-locations) ستظهر رسالة عند البدء تخبرك بذلك، وسيُغلق أنكي. إذا لم تكن
+أنكي](./files#file-locations) ستظهر رسالة عند البدء تخبرك بذلك، وسيُغلق أنكي. إذا لم تكن
 متأكدًا من كيفية إصلاح الأذونات، الرجاء التواصل مع أحد ما بقربك لديه خبرة في الحواسيب
 ويمكنه مساعدتك.
 
@@ -198,7 +214,7 @@ Folders Outside Dropbox (archive.org)][dropboxwiki-sync-other] لمزيد من �
 المجموعة مخزنة على قرص على الشبكة، أو بسبب عطل برمجي.
 
 عند تشغيل أدوات&gt;فحص قاعدة البيانات، ستستلم رسالة إذا اكتشف أنكي أن الملف تالف.
-**أفضل طريقة لحل هذه المشكلة هي استرجاع آخر** [نسخة احتياطية](files#backups)،
+**أفضل طريقة لحل هذه المشكلة هي استرجاع آخر** [نسخة احتياطية](./files#backups)،
 لكن إذا كانت هذه النسخة قديمة جدًا، فقد تجرب إصلاح التلف بدلًا من ذلك.
 
 في لينكس، تأكد من أن sqlite3 منصب. في ماك، يجب أن يكون منصبًا بشكل افتراضي.
@@ -212,7 +228,9 @@ Folders Outside Dropbox (archive.org)][dropboxwiki-sync-other] لمزيد من �
 
 <div dir="ltr">
 
-    sqlite3 collection.anki2 .dump &gt; dump.txt
+```text
+    sqlite3 collection.anki2 .dump > dump.txt
+```
 
 </div>
 
@@ -224,7 +242,9 @@ Folders Outside Dropbox (archive.org)][dropboxwiki-sync-other] لمزيد من �
 
 <div dir="ltr">
 
+```text
     cat dump.txt | sqlite3 temp.file
+```
 
 </div>
 
@@ -241,7 +261,9 @@ Folders Outside Dropbox (archive.org)][dropboxwiki-sync-other] لمزيد من �
 
 <div dir="ltr">
 
+```text
     cd C:\Users\مسؤول\Desktop
+```
 
 </div>
 
@@ -249,7 +271,9 @@ Folders Outside Dropbox (archive.org)][dropboxwiki-sync-other] لمزيد من �
 
 <div dir="ltr">
 
-    sqlite3 collection.anki2 .dump &gt; dump.txt
+```text
+    sqlite3 collection.anki2 .dump > dump.txt
+```
 
 </div>
 
@@ -261,7 +285,9 @@ Folders Outside Dropbox (archive.org)][dropboxwiki-sync-other] لمزيد من �
 
 <div dir="ltr">
 
+```text
     type dump.txt | sqlite3 temp.file
+```
 
 </div>
 

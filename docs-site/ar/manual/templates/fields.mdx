@@ -7,7 +7,9 @@ title: "استبدالات الحقول"
 <a id="basic-replacements"></a>
 ## استبدالات أساسية يبدو القالب الأكثر بساطة كالتالي:
 
-    \{\{Front\}\}
+```text
+    {{Front}}
+```
 
 عندما تدخل نصًا بين قوسين مجعدين، يبحث أنكي عن حقل بذلك الاسم،
 ويستبدل النص بالمحتوى الفعلي للحقل.
@@ -21,17 +23,21 @@ title: "استبدالات الحقول"
 
 <div dir="ltr">
 
-    ما عاصمة \{\{بلد\}\}؟
+```text
+    ما عاصمة {{بلد}}؟
+```
 
 </div>
 
 يبدو القالب الخلفي الافتراضي كالتالي:
 
-    \{\{FrontSide\}\}
+```text
+    {{FrontSide}}
 
-    &lt;hr id=answer&gt;
+    <hr id=answer>
 
-    \{\{خلف\}\}
+    {{خلف}}
+```
 
 يعنى هذا إظهار النص في الجانب الأمامي، ثم خط تقسيم، ثم حقل الخلف.
 
@@ -47,8 +53,10 @@ title: "استبدالات الحقول"
 
 <div dir="ltr">
 
+```text
     واحد
     اثنان
+```
 
 </div>
 
@@ -56,7 +64,9 @@ title: "استبدالات الحقول"
 
 <div dir="ltr">
 
+```text
     واحد اثنان
+```
 
 </div>
 
@@ -64,8 +74,10 @@ title: "استبدالات الحقول"
 
 <div dir="ltr">
 
-    واحد&lt;br&gt;
+```text
+    واحد<br>
     اثنان
+```
 
 </div>
 
@@ -75,8 +87,10 @@ title: "استبدالات الحقول"
 
 <div dir="ltr">
 
-    \{\{حقل 1\}\}&lt;br&gt;
-    \{\{حقل 2\}\}
+```text
+    {{حقل 1}}<br>
+    {{حقل 2}}
+```
 
 </div>
 
@@ -89,7 +103,9 @@ title: "استبدالات الحقول"
 
 <div dir="ltr">
 
-    \{\{tts en_US:أمامي\}\}
+```text
+    {{tts en_US:أمامي}}
+```
 
 </div>
 
@@ -101,7 +117,9 @@ title: "استبدالات الحقول"
 
 <div dir="ltr">
 
-    \{\{tts-voices:\}\}
+```text
+    {{tts-voices:}}
+```
 
 </div>
 
@@ -110,7 +128,9 @@ title: "استبدالات الحقول"
 
 <div dir="ltr">
 
-    \{\{tts ja_JP voices=Apple_Otoya,Microsoft_Haruka:حقل\}\}
+```text
+    {{tts ja_JP voices=Apple_Otoya,Microsoft_Haruka:حقل}}
+```
 
 </div>
 
@@ -120,7 +140,9 @@ title: "استبدالات الحقول"
 
 <div dir="ltr">
 
-    \{\{tts fr_FR speed=0.8:حقل\}\}
+```text
+    {{tts fr_FR speed=0.8:حقل}}
+```
 
 </div>
 
@@ -148,7 +170,9 @@ title: "استبدالات الحقول"
 
 <div dir="ltr">
 
-    \{\{tts en_US:cloze-only:نص\}\}
+```text
+    {{tts en_US:cloze-only:نص}}
+```
 
 </div>
 
@@ -157,21 +181,19 @@ title: "استبدالات الحقول"
 يمكنك تفعيل ميزة تحويل النص إلى كلام في المنصات المدعومة بجانب [طريقة أنكيدرويد](https://docs.ankidroid.org/#_workarounds) من خلال وضع كود كهذا في القوالب:
 
 ```html
-<span class="ankidroidtts">
-    <tts service="android" voice="en_US">\{\{Front\}\}</tts>
-</span>
-<span class="ankitts">\{\{tts en_US:Front\}\}</span>
+<span class="ankidroidtts"><tts service="android" voice="en_US">{{Front}}</tts></span>
+<span class="ankitts">{{tts en_US:Front}}</span>
 ```
 
 في قسم التنسيق:
 
 ```css
-.android .ankitts \{
-  display: none;
-\}
-html:not(.android) .ankidroidtts \{
-  display: none;
-\}
+.android .ankitts {
+    display: none;
+}
+html:not(.android) .ankidroidtts {
+    display: none;
+}
 ```
 
 <a id="special-fields"></a>
@@ -179,17 +201,19 @@ html:not(.android) .ankidroidtts \{
 
 <div dir="ltr">
 
-    وسوم الملحوظة: \{\{Tags\}\}
+```text
+    وسوم الملحوظة: {{Tags}}
 
-    نوع الملحوظة: \{\{Type\}\}
+    نوع الملحوظة: {{Type}}
 
-    رزمة البطاقة: \{\{Deck\}\}
+    رزمة البطاقة: {{Deck}}
 
-    رزمة البطاقة الفرعية: \{\{Subdeck\}\}
+    رزمة البطاقة الفرعية: {{Subdeck}}
 
-    نوع البطاقة ("أمامي"، إلخ): \{\{Card\}\}
+    نوع البطاقة ("أمامي"، إلخ): {{Card}}
 
-    محتوى القالب الأمامي (صالح في الرزمة الخلفية فقط): \{\{FrontSide\}\}
+    محتوى القالب الأمامي (صالح في الرزمة الخلفية فقط): {{FrontSide}}
+```
 
 </div>
 
@@ -216,7 +240,9 @@ html:not(.android) .ankidroidtts \{
 
 <div dir="ltr">
 
-    \{\{hint:حقلي\}\}
+```text
+    {{hint:حقلي}}
+```
 
 </div>
 
@@ -235,11 +261,13 @@ html:not(.android) .ankidroidtts \{
 
 <div dir="ltr">
 
-    \{\{#خلف\}\}
-    ﻿&lt;a class=hint href="#"
-    onclick="this.style.display='none';document.getElementById('hint4753594160').style.display='inline-block';return false;"&gt;
-    أظهر الخلف&lt;/a&gt;&lt;div id="hint4753594160" class=hint style="display: none"&gt;\{\{خلف\}\}&lt;/div&gt;
-    \{\{/خلف\}\}
+```text
+    {{#خلف}}
+    ﻿<a class=hint href="#"
+    onclick="this.style.display='none';document.getElementById('hint4753594160').style.display='inline-block';return false;">
+    أظهر الخلف</a><div id="hint4753594160" class=hint style="display: none">{{خلف}}</div>
+    {{/خلف}}
+```
 
 </div>
 
@@ -249,7 +277,9 @@ html:not(.android) .ankidroidtts \{
 
 <div dir="ltr">
 
+```text
     http://example.com/search?q=myword
+```
 
 </div>
 
@@ -257,9 +287,11 @@ html:not(.android) .ankidroidtts \{
 
 <div dir="ltr">
 
-    \{\{عبارة\}\}
+```text
+    {{عبارة}}
 
-    &lt;a href="http://example.com/search?q=\{\{عبارة\}\}"&gt;ابحث في القاموس&lt;/a&gt;
+    <a href="http://example.com/search?q={{عبارة}}">ابحث في القاموس</a>
+```
 
 </div>
 
@@ -277,7 +309,9 @@ html:not(.android) .ankidroidtts \{
 
 <div dir="ltr">
 
-    &lt;a href="http://example.com/search?q=&lt;b&gt;myword&lt;/b&gt;"&gt;ابحث في القاموس&lt;/a&gt;
+```text
+    <a href="http://example.com/search?q=<b>myword</b>">ابحث في القاموس</a>
+```
 
 </div>
 
@@ -289,7 +323,9 @@ html:not(.android) .ankidroidtts \{
 
 <div dir="ltr">
 
-    &lt;a href="http://example.com/search?q=\{\{text:عبارة\}\}"&gt;ابحث في القاموس&lt;/a&gt;
+```text
+    <a href="http://example.com/search?q={{text:عبارة}}">ابحث في القاموس</a>
+```
 
 </div>
 
@@ -299,7 +335,9 @@ html:not(.android) .ankidroidtts \{
 
 <div dir="ltr">
 
-    &lt;div dir=rtl&gt;\{\{حقل_من_اليمين_إلى_اليسار\}\}&lt;/div&gt;
+```text
+    <div dir=rtl>{{حقل_من_اليمين_إلى_اليسار}}</div>
+```
 
 </div>
 
@@ -318,7 +356,9 @@ html:not(.android) .ankidroidtts \{
 
 <div dir="ltr">
 
-    &lt;img src="_شعار.jpg"&gt;
+```text
+    <img src="_شعار.jpg">
+```
 
 </div>
 
@@ -329,11 +369,13 @@ html:not(.android) .ankidroidtts \{
 
 <div dir="ltr">
 
-    &lt;img src="\{\{عبارة\}\}.jpg"&gt;
+```text
+    <img src="{{عبارة}}.jpg">
 
-    [sound:\{\{كلمة\}\}]
+    [sound:{{كلمة}}]
 
-    [latex]\{\{حقل 1\}\}[/latex]
+    [latex]{{حقل 1}}[/latex]
+```
 
 </div>
 
@@ -352,13 +394,15 @@ html:not(.android) .ankidroidtts \{
 
 <div dir="ltr">
 
-    \{\{كلمة أصلية\}\}
+```text
+    {{كلمة أصلية}}
 
-    \{\{FrontSide\}\}
+    {{FrontSide}}
 
-    &lt;hr id=answer&gt;
+    <hr id=answer>
 
-    \{\{كلمة أجنبية\}\}
+    {{كلمة أجنبية}}
+```
 
 </div>
 
@@ -367,8 +411,10 @@ html:not(.android) .ankidroidtts \{
 
 <div dir="ltr">
 
-    \{\{كلمة أصلية\}\}
-    \{\{type:كلمة أجنبية\}\}
+```text
+    {{كلمة أصلية}}
+    {{type:كلمة أجنبية}}
+```
 
 </div>
 
@@ -391,7 +437,9 @@ html:not(.android) .ankidroidtts \{
 
 <div dir="ltr">
 
-    code#typeans \{ font-family: "myfontname"; \}
+```text
+    code#typeans { font-family: "myfontname"; }
+```
 
 </div>
 
@@ -399,7 +447,9 @@ html:not(.android) .ankidroidtts \{
 
 <div dir="ltr">
 
-    &lt;code id=typeans&gt;...&lt;/code&gt;
+```text
+    <code id=typeans>...</code>
+```
 
 </div>
 
@@ -412,7 +462,9 @@ html:not(.android) .ankidroidtts \{
 
 <div dir="ltr">
 
-    #typeans \{ font-size: 50px !important; \}
+```python
+    #typeans { font-size: 50px !important; }
+```
 
 </div>
 
@@ -421,9 +473,11 @@ html:not(.android) .ankidroidtts \{
 
 <div dir="ltr">
 
-    \{\{cloze:نص\}\}
-    \{\{type:cloze:نص\}\}
-    \{\{إضافي\}\}
+```text
+    {{cloze:نص}}
+    {{type:cloze:نص}}
+    {{إضافي}}
+```
 
 </div>
 
@@ -431,5 +485,5 @@ html:not(.android) .ankidroidtts \{
 
 إذا كانت هناك عدة أقسام معتمة، تستطيع فصل الإجابات في صندوق النص بفاصلة.
 
-لن تظهر صناديق إدخال الجواب في نافذة [المعاينة](intro) في المتصفح.
+لن تظهر صناديق إدخال الجواب في نافذة [المعاينة](./intro) في المتصفح.
 لكنها ستظهر عند المراجعة أو في قسم المعاينة في نافذة أنواع البطاقات.
