@@ -220,7 +220,9 @@ def escape_text_preserve_html(raw: str) -> str:
         elif line.strip() == "":
             in_other_indent = False
         if len(line.strip()) > 0 and not in_escaped_block and not in_other_indent:
-            tabbed = line.startswith("    ") or line.startswith("\t")
+            tabbed = (
+                line.startswith("    ") or line.startswith("\t") or line.startswith(">")
+            )
             if tabbed and not in_tabbed_area:
                 code_type = "python" if "import" in line else "text"
                 lines.insert(idx, f"```{code_type}\n")
