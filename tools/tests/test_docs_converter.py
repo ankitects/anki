@@ -195,6 +195,18 @@ class TestMdLinkStripping:
         result = body(fmt("[link](foo.pdf)"))
         assert "[link](foo.pdf)" in result
 
+    def test_relative_nested_link_gets_dot_slash_prefix(self) -> None:
+        result = body(fmt("[link](foo/bar)"))
+        assert "[link](./foo/bar)" in result
+
+    def test_dot_slash_link_is_not_double_prefixed(self) -> None:
+        result = body(fmt("[link](./foo/bar)"))
+        assert "[link](./foo/bar)" in result
+
+    def test_root_relative_link_is_not_prefixed(self) -> None:
+        result = body(fmt("[link](/foo/bar)"))
+        assert "[link](/foo/bar)" in result
+
 
 # ===========================================================================
 # format_page — heading anchors

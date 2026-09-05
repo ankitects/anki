@@ -172,7 +172,7 @@ def format_page(
     content = escape_text_preserve_html(content)
     content = content.replace("(media", "(/media")
     # Skips any links with /, :, ? or . in them, as those are likely to be external links.
-    content = re.sub(r"\]\(([a-zA-Z0-9_\-#]+?\))", r"](./\1", content)
+    content = re.sub(r"\]\(([^./][a-zA-Z0-9_\-#/]+?\))", r"](./\1", content)
 
     return content
 
