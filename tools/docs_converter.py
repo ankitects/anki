@@ -124,12 +124,6 @@ def format_page(
     else:
         print(f"WARN: could not find title in {content[:5]} or in SUMMARY.md")
 
-    def replace_heading_anchor(match: re.Match[str]) -> str:
-        return (
-            f'<a id="{match.group("anchor")}"></a>\n'
-            f"{match.group('hashes')} {match.group('title').strip()}"
-        )
-
     def replace_quicklink(match: re.Match[str]) -> str:
         link = match.group("link")
 
@@ -165,7 +159,6 @@ def format_page(
     content = QUICKLINK_RE.sub(replace_quicklink, content)
     # Convert intra-manual links like foo.md or foo.md#bar to extensionless links.
     content = MARKDOWN_LINK_MD_RE.sub(r"\1\g<path>\g<suffix>)", content)
-    content = HEADING_ANCHOR_RE.sub(replace_heading_anchor, content)
 
     for _, pattern, replacement in DOCS_RELATIVE_LINK_REPLACEMENTS:
         # Language pages receive a language prefix, e.g. /ar/manual/...
@@ -334,7 +327,30 @@ def escape_text_preserve_html(raw: str) -> str:
                     continue
 
                 # This code deals with the parts that aren't inline
-                inline_part = inline_part.replace("{", "\\{").replace("}", "\\}")
+                # Preserve {#anchor} patterns while escaping other curly braces
+                def escape_braces(text: str) -> str:
+                    # Find all {#anchor} patterns and protect them
+                    anchor_pattern = r"\{#[A-Za-z0-9][A-Za-z0-9_:\-.]*\}"
+                    anchors: dict[str, str] = {}
+                    placeholder_prefix = "\x00ANCHOR_"
+
+                    # Replace anchors with placeholders
+                    for match in re.finditer(anchor_pattern, text):
+                        anchor = match.group(0)
+                        placeholder = f"{placeholder_prefix}{len(anchors)}\x00"
+                        anchors[placeholder] = anchor
+                        text = text.replace(anchor, placeholder)
+
+                    # Escape remaining braces
+                    text = text.replace("{", "\\{").replace("}", "\\}")
+
+                    # Restore anchors
+                    for placeholder, anchor in anchors.items():
+                        text = text.replace(placeholder, anchor)
+
+                    return text
+
+                inline_part = escape_braces(inline_part)
                 inline_part = inline_part.replace("<!--", "{/*").replace("-->", "*/}")
                 inline_part = inline_part.replace("<", "&lt;").replace(">", "&gt;")
                 inline_part = (

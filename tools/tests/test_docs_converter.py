@@ -37,6 +37,18 @@ class TestEscapeBracesAndDollars:
         result = escape_text_preserve_html("Hello {world}!")
         assert "\\{world\\}" in result
 
+    def test_anchor_braces_not_escaped(self) -> None:
+        result = escape_text_preserve_html("## My Section {#my-anchor}")
+        assert "{#my-anchor}" in result
+        assert "\\{" not in result
+
+    def test_anchor_braces_not_escaped_with_complex_name(self) -> None:
+        result = escape_text_preserve_html(
+            "Some text {#complex-anchor_name:extra-part}"
+        )
+        assert "{#complex-anchor_name:extra-part}" in result
+        assert "\\{" not in result
+
     def test_dollar_escaped_in_plain_text(self) -> None:
         result = escape_text_preserve_html("Price is $5")
         assert "\\$5" in result
@@ -186,11 +198,10 @@ class TestMdLinkStripping:
 
 
 class TestHeadingAnchors:
-    def test_heading_anchor_converted_to_a_tag(self) -> None:
+    def test_heading_anchor_not_escaped(self) -> None:
         result = body(fmt("## My Section {#my-anchor}"))
-        assert '<a id="my-anchor"></a>' in result
-        assert "## My Section" in result
-        assert "{#my-anchor}" not in result
+        assert "{#my-anchor}" in result
+        assert "\\{" not in result
 
 
 # ===========================================================================

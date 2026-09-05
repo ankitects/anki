@@ -2,7 +2,6 @@
 title: "Card template has a problem"
 ---
 
-
 Anki has recently become stricter about reporting mistakes in card templates. In the past, it would silently ignore some problems, but display templates in unexpected ways. This change has been made to make mistakes easier to notice.
 
 If you have not edited your card templates yourself, it is likely you have downloaded a shared deck, where the original deck author made a mistake when creating the template.
@@ -37,7 +36,7 @@ then this needs to be changed to
 
 **Missing \{\{/Field\}\}**
 
-This means Anki found `{{#Field}}` or `{{^Field}}` in your card template, without a matching `{{/Field}}`. Removing  `{{#Field}}` or `{{^Field}}` from the template will fix the error.
+This means Anki found `{{#Field}}` or `{{^Field}}` in your card template, without a matching `{{/Field}}`. Removing `{{#Field}}` or `{{^Field}}` from the template will fix the error.
 
 **Found \{\{/One\}\}, but expected \{\{/Two\}\}**
 
@@ -60,7 +59,8 @@ To fix the problem, the template should be changed like so:
   {{/Two}}
 {{/One}}
 ```
-**Found \{\{/Field\}\}, but missing '\{\{#Field\}\}' or '\{\{^Field\}\}'**
+
+**Found \{\{/Field\}\}, but missing '\{{#Field}\}' or '\{\{^Field\}\}'**
 
 Closing tags must be matched by opening tags. For example, the following is invalid, because there is no `{{#Two}}` or `{{^Two}}` at the start:
 
