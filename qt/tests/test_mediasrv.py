@@ -154,16 +154,10 @@ class TestMediaFileCSP:
             csp = _get_csp(resp)
             assert csp is not None
 
-            # default-src 'none' implies connect-src 'none', which is sufficient
-            if "default-src 'none'" in csp:
-                return
-
-            # Otherwise connect-src must not include http: or 'self'
-            assert "http:" not in csp, (
-                f"CSP must not allow http: connections (enables local API access): {csp}"
-            )
-            assert "'self'" not in csp, (
-                f"CSP must not allow 'self' connections (enables local API access): {csp}"
+            directives = _csp_directives(csp)
+            connect_src = directives.get("connect-src", directives.get("default-src"))
+            assert connect_src == "'none'", (
+                f"CSP must not allow connections (enables local API access): {csp}"
             )
 
     def test_untrusted_media_is_sandboxed(self) -> None:
@@ -186,8 +180,30 @@ class TestMediaFileCSP:
             assert directives["child-src"] == "'none'"
             assert directives["base-uri"] == "'none'"
             assert directives["form-action"] == "'none'"
-            assert directives["sandbox"] == ""
+            # the document keeps its origin so that it stays in-process (see
+            # UNTRUSTED_MEDIA_CSP), but gains nothing else - notably not scripting
+            assert directives["sandbox"] == "allow-same-origin"
             assert "frame-ancestors" not in directives
+
+    def test_untrusted_media_can_load_its_own_presentation(self) -> None:
+        """Media embedded via <object>/<iframe> is a document of its own, and has to
+        be able to load the stylesheets/images/fonts stored next to it."""
+        directives = _csp_directives(UNTRUSTED_MEDIA_CSP)
+
+        assert directives["style-src"] == "'self' 'unsafe-inline'"
+        assert directives["img-src"] == "'self'"
+        assert directives["font-src"] == "'self'"
+        assert directives["media-src"] == "'self'"
+
+        # ...but only passive resources, and only from our own server, so that
+        # cards can neither execute code nor phone home
+        for directive in ("script-src", "connect-src", "object-src", "frame-src"):
+            assert directives[directive] == "'none'"
+        for name, value in directives.items():
+            assert not any(
+                remote in value for remote in ("http:", "https:", "data:", "*")
+            ), f"{name} must not allow remote sources: {value}"
+        assert "'unsafe-inline'" not in directives["script-src"]
 
     def test_trusted_local_file_does_not_get_untrusted_media_csp(self) -> None:
         """Add-on exports use LocalFileRequest too, but should not be sandboxed."""

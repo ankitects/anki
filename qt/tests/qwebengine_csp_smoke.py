@@ -12,6 +12,7 @@ the host GUI environment. Run it manually with:
 from __future__ import annotations
 
 import argparse
+import base64
 import json
 import os
 import sys
@@ -49,6 +50,12 @@ from aqt.mediasrv import UNTRUSTED_MEDIA_CSP, _legacy_editor_content_security_po
 
 AUTH_TOKEN = "qwebengine-csp-smoke-token"
 
+# 1x1 transparent png
+PIXEL_PNG = base64.b64decode(
+    "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk"
+    "YPhfDwAChwGA60e6kgAAAABJRU5ErkJggg=="
+)
+
 
 @dataclass
 class SmokeState:
@@ -57,6 +64,7 @@ class SmokeState:
     script_hits: list[str] = field(default_factory=list)
     media_requests: list[str] = field(default_factory=list)
     remote_frame_requested: bool = False
+    remote_style_requested: bool = False
     done: bool = False
     lock: threading.Lock = field(default_factory=threading.Lock)
 
@@ -82,6 +90,10 @@ class SmokeState:
         with self.lock:
             self.remote_frame_requested = True
 
+    def record_remote_style_request(self) -> None:
+        with self.lock:
+            self.remote_style_requested = True
+
     def snapshot(self) -> "SmokeSnapshot":
         with self.lock:
             return SmokeSnapshot(
@@ -90,6 +102,7 @@ class SmokeState:
                 script_hits=list(self.script_hits),
                 media_requests=list(self.media_requests),
                 remote_frame_requested=self.remote_frame_requested,
+                remote_style_requested=self.remote_style_requested,
                 done=self.done,
             )
 
@@ -101,6 +114,7 @@ class SmokeSnapshot:
     script_hits: list[str]
     media_requests: list[str]
     remote_frame_requested: bool
+    remote_style_requested: bool
     done: bool
 
 
@@ -207,6 +221,31 @@ try {
 """,
                 "image/svg+xml",
             )
+        elif parsed.path == "/media/styled.svg":
+            self.server.state.record_media_request(parsed.path)
+            assert self.server.remote_port is not None
+            remote_css = f"http://127.0.0.1:{self.server.remote_port}/remote-style.css"
+            self._send_untrusted_media(
+                f"""<?xml version="1.0" encoding="UTF-8"?>
+<?xml-stylesheet type="text/css" href="styled.css"?>
+<?xml-stylesheet type="text/css" href="{remote_css}"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="80" height="40">
+  <style>@import url("inline-import.css");</style>
+  <image href="pixel.png" width="10" height="10"/>
+  <script><![CDATA[
+  new Image().src = '/__script-ran?doc=styled-svg';
+  ]]></script>
+  <rect width="80" height="40" fill="#2f7dd1" style="opacity: 0.5"/>
+</svg>
+""".encode(),
+                "image/svg+xml",
+            )
+        elif parsed.path in ("/media/styled.css", "/media/inline-import.css"):
+            self.server.state.record_media_request(parsed.path)
+            self._send_untrusted_media(b"rect { opacity: 1 }", "text/css")
+        elif parsed.path == "/media/pixel.png":
+            self.server.state.record_media_request(parsed.path)
+            self._send_untrusted_media(PIXEL_PNG, "image/png")
         elif parsed.path == "/__script-ran":
             self.server.state.record_script_hit(parsed.query)
             self._send_bytes(b"", "text/plain")
@@ -299,6 +338,11 @@ addElement('object', {{
     data: '/media/benign.svg?via=object',
     type: 'image/svg+xml',
 }});
+addElement('object', {{
+    id: 'styled-svg-object',
+    data: '/media/styled.svg',
+    type: 'image/svg+xml',
+}});
 addElement('iframe', {{
     id: 'remote-iframe',
     src: `http://127.0.0.1:${{remotePort}}/remote-frame`,
@@ -306,11 +350,16 @@ addElement('iframe', {{
 
 setTimeout(() => {{
     const img = document.getElementById('benign-svg-img');
+    let sameOrigin = false;
+    try {{
+        sameOrigin = !!document.getElementById('styled-svg-object').contentDocument;
+    }} catch (error) {{}}
     record({{
         type: 'done',
         results,
         imgComplete: img.complete,
         imgNaturalWidth: img.naturalWidth,
+        sameOrigin,
     }});
 }}, 1500);
 """
@@ -342,7 +391,15 @@ class RemoteRequestHandler(BaseHTTPRequestHandler):
     server: SmokeServer
 
     def do_GET(self) -> None:
-        if urlparse(self.path).path == "/remote-frame":
+        if urlparse(self.path).path == "/remote-style.css":
+            self.server.state.record_remote_style_request()
+            body = b"rect { opacity: 1 }"
+            self.send_response(HTTPStatus.OK)
+            self.send_header("Content-Type", "text/css")
+            self.send_header("Content-Length", str(len(body)))
+            self.end_headers()
+            self.wfile.write(body)
+        elif urlparse(self.path).path == "/remote-frame":
             self.server.state.record_remote_frame_request()
             body = b"<!doctype html><p>remote frame</p>"
             self.send_response(HTTPStatus.OK)
@@ -409,6 +466,7 @@ def _assert_expectations(snapshot: SmokeSnapshot, page: SmokePage) -> None:
         "malicious-svg-object",
         "benign-svg-img",
         "benign-svg-object",
+        "styled-svg-object",
         "remote-iframe",
     }
     done_loads = {k for k, v in done_results.items() if v == "load"}
@@ -419,6 +477,12 @@ def _assert_expectations(snapshot: SmokeSnapshot, page: SmokePage) -> None:
         "/media/malicious.svg",
         "/media/benign.svg?via=img",
         "/media/benign.svg?via=object",
+        # an embedded document must be able to load the passive resources it
+        # ships with, eg an SVG and the stylesheet sitting next to it
+        "/media/styled.svg",
+        "/media/styled.css",
+        "/media/inline-import.css",
+        "/media/pixel.png",
     }
     missing_media_requests = expected_media_requests - set(snapshot.media_requests)
 
@@ -447,6 +511,15 @@ def _assert_expectations(snapshot: SmokeSnapshot, page: SmokePage) -> None:
         )
     if not snapshot.remote_frame_requested:
         errors.append("different-origin frame request was not observed")
+    if snapshot.remote_style_requested:
+        errors.append("untrusted media loaded a stylesheet from a remote origin")
+    if latest_done and not latest_done.get("sameOrigin"):
+        # an opaque origin would put the document in its own process, where Chromium
+        # never delivers the hover-out, leaving :hover stuck on for embedded SVGs
+        errors.append(
+            "embedded media landed in an opaque origin"
+            " (sandbox is missing allow-same-origin)"
+        )
     if latest_done and not latest_done.get("imgComplete"):
         errors.append("SVG loaded via <img> did not complete")
     if latest_done and latest_done.get("imgNaturalWidth", 0) <= 0:
