@@ -330,7 +330,7 @@ def escape_text_preserve_html(raw: str) -> str:
                 # Preserve {#anchor} patterns while escaping other curly braces
                 def escape_braces(text: str) -> str:
                     # Find all {#anchor} patterns and protect them
-                    anchor_pattern = r"\{#[A-Za-z0-9][A-Za-z0-9_:\-.]*\}"
+                    anchor_pattern = r"[^{]\{#[A-Za-z0-9][A-Za-z0-9_:\-.]*\}"
                     anchors: dict[str, str] = {}
                     placeholder_prefix = "\x00ANCHOR_"
 

@@ -37,6 +37,10 @@ class TestEscapeBracesAndDollars:
         result = escape_text_preserve_html("Hello {world}!")
         assert "\\{world\\}" in result
 
+    def test_double_braced_field_still_escaped(self) -> None:
+        result = escape_text_preserve_html("{{#field}}")
+        assert "\\{\\{#field\\}\\}" in result
+
     def test_anchor_braces_not_escaped(self) -> None:
         result = escape_text_preserve_html("## My Section {#my-anchor}")
         assert "{#my-anchor}" in result
