@@ -2,6 +2,7 @@
 title: "MyPy"
 ---
 
+
 ## Using MyPy
 
 The type hints you installed when [setting up PyCharm](./editor-setup) can
@@ -26,8 +27,8 @@ gui_hooks.reviewer_did_show_answer.append(myfunc)
 Then mypy will report:
 
 ```text
-myaddon/__init__.py:5: error: Argument 1 to "append" of "list" has incompatible type "Callable[[], Any]"; expected "Callable[[Card], None]"
-Found 1 error in 1 file (checked 1 source file)
+    myaddon/__init__.py:5: error: Argument 1 to "append" of "list" has incompatible type "Callable[[], Any]"; expected "Callable[[Card], None]"
+    Found 1 error in 1 file (checked 1 source file)
 ```
 
 ..which is telling you that the hook expects a function which takes a card as

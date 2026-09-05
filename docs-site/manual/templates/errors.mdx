@@ -8,7 +8,7 @@ the affected cards, so Anki won't let you proceed before you have fixed them.
 
 ## Basics
 
-Please see [Key Concepts](../getting-started#key-concepts) before reading further.
+See [Key Concepts](../getting-started#key-concepts) before reading further.
 
 Most of the errors below will require you to modify your note type/card template. To do so:
 
@@ -79,7 +79,7 @@ To fix the problem, the template should be changed like so:
 {{/One}}
 ```
 
-**Found \{\{/Field\}\}, but missing '\{\{#Field\}\}' or '\{\{^Field\}\}'**
+**Found \{\{/Field\}\}, but missing '\{\{#Field}\}' or '\{\{^Field\}\}'**
 
 Closing tags must be matched by opening tags. For example, the following is invalid, because there is no `{{#Two}}` or `{{^Two}}` at the start:
 
@@ -118,9 +118,9 @@ and checking to make sure at least one field with some text on it is included on
 You can add extra fields with the Add Field button.
 
 If you are using the Cloze note type,
-please make sure you've included one or more cloze deletions in the Text field, e.g. \{\{c1::some cloze-deleted text\}\}.
+make sure you've included one or more cloze deletions in the Text field, e.g. \{\{c1::some cloze-deleted text\}\}.
 
-If you're using the type-in-the-answer functionality, please make sure you've included another field on the front side as well.
+If you're using the type-in-the-answer functionality, make sure you've included another field on the front side as well.
 
 ### No Cloze Filter on Cloze Note Type
 
@@ -150,11 +150,11 @@ and
 {{c1::This}} is a {{c2::sample}} {{c1::sentence}}.
 ```
 
-are both changes that would make card 3 blank. When you view card 3, you'll see a message indicating that the card is blank, and can be cleaned up with the Empty Cards function. You can access that function via the Tools menu of the computer version's main window, and use it to remove blank cards. Please check the reported empty cards first, and if in doubt, create a backup with the File>Export menu item before proceeding.
+are both changes that would make card 3 blank. When you view card 3, you'll see a message indicating that the card is blank, and can be cleaned up with the Empty Cards function. You can access that function via the Tools menu of the computer version's main window, and use it to remove blank cards. Check the reported empty cards first, and if in doubt, create a backup with the File&gt;Export menu item before proceeding.
 
 #### All cloze cards empty
 
-If you accidentally modify your card template, it may prevent any cloze deletions from appearing. If that has happened, please edit one such problem card, and note down the name of the first field - it is usually called "Text". Then, please:
+If you accidentally modify your card template, it may prevent any cloze deletions from appearing. If that has happened, edit one such problem card, and note down the name of the first field - it is usually called "Text". Then:
 
 - Click on the Cards... button
 - Replace the front text with
