@@ -1,5 +1,6 @@
 export type LocalCollectionInfo = {
   sqliteVersion: string;
+  schemaVersion: number;
   persistent: boolean;
   crossOriginIsolated: boolean;
 };
@@ -13,14 +14,60 @@ export type DeckSummary = {
   totalCards: number;
 };
 
-export type DbRequest = {
+export type CardState = "new" | "learning" | "review" | "relearning";
+
+export type StudyCard = {
   id: number;
-  type: "init" | "listDecks";
+  deckId: number;
+  deckName: string;
+  questionHtml: string;
+  answerHtml: string;
+  cardCss: string;
+  state: CardState;
+  intervalDays: number;
+  answerOptions: Array<{
+    rating: ReviewRating;
+    intervalLabel: string;
+  }>;
 };
+
+export type ReviewRating = 1 | 2 | 3 | 4;
+
+export type NoteTypeSummary = {
+  id: number;
+  name: string;
+  kind: "standard" | "cloze";
+  fields: string[];
+};
+
+export type ApkgImportResult = {
+  notes: number;
+  cards: number;
+  media: number;
+  skippedNotes: number;
+  decks: string[];
+  keptScheduling: boolean;
+};
+
+export type DbCommand =
+  | { type: "init" }
+  | { type: "listDecks" }
+  | { type: "listNotetypes" }
+  | { type: "createDeck"; name: string }
+  | { type: "addNote"; deckId: number; notetypeId: number; fields: string[] }
+  | { type: "addBasicNote"; deckId: number; front: string; back: string }
+  | { type: "addClozeNote"; deckId: number; text: string; extra: string }
+  | { type: "storeMedia"; filename: string; bytes: ArrayBuffer }
+  | { type: "importApkg"; bytes: ArrayBuffer; keepScheduling: boolean }
+  | { type: "getNextCard"; deckId: number }
+  | { type: "answerCard"; cardId: number; rating: ReviewRating; timeMs: number };
+
+export type DbRequest = DbCommand & { id: number };
 
 export type DbResponse = {
   id: number;
   ok: boolean;
   result?: unknown;
   error?: string;
+  progress?: string;
 };

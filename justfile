@@ -178,6 +178,21 @@ complexipy-diff:
 clean *args:
     ./tools/clean {{ args }}
 
+# Browser-only PWA development and verification
+pwa-dev:
+    npm --prefix pwa run dev
+
+pwa-check:
+    npm --prefix pwa run typecheck
+    npm --prefix pwa test
+
+pwa-build:
+    npm --prefix pwa run build
+
+# Requires a running production PWA and a fresh Chrome test profile with CDP enabled
+pwa-test-browser cdp_port="9230" url="http://127.0.0.1:3002/" format="legacy":
+    npm --prefix pwa run test:browser -- {{cdp_port}} {{url}} {{format}}
+
 # Helpers to get the right commands for the platform
 
 ninja := if os() == "windows" { "tools\\ninja" } else { "./ninja" }

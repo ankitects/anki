@@ -60,6 +60,71 @@ h1 {
 .top-actions {
   display: flex;
   align-items: center;
+  gap: 10px;
+}
+
+.secondary-button {
+  min-height: 42px;
+  padding: 9px 12px;
+  border: 1px solid #b9c8df;
+  border-radius: 12px;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+}
+
+.import-panel h2,
+.import-panel p {
+  margin: 0;
+}
+
+.import-panel p {
+  line-height: 1.5;
+}
+
+.import-panel .checkbox-label {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+}
+
+.import-panel input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+  margin: 2px 0 0;
+  padding: 0;
+  accent-color: #1f6fd1;
+}
+
+.import-help {
+  font-size: 13px;
+}
+
+.import-result {
+  display: grid;
+  gap: 10px;
+  overflow-wrap: anywhere;
+}
+
+.title-group {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  gap: 12px;
+}
+
+.back-button {
+  width: 38px;
+  height: 42px;
+  padding: 0 0 4px;
+  border: 0;
+  border-radius: 12px;
+  background: #e9edf3;
+  color: #344054;
+  font-size: 34px;
+  line-height: 1;
+  cursor: pointer;
 }
 
 .icon-button {
@@ -166,6 +231,247 @@ h1 {
   white-space: nowrap;
 }
 
+.form-panel {
+  display: grid;
+  gap: 10px;
+}
+
+.form-panel label {
+  margin-top: 5px;
+  color: #475467;
+  font-size: 13px;
+  font-weight: 750;
+}
+
+.form-panel input:not([type="file"]),
+.form-panel textarea,
+.form-panel select {
+  width: 100%;
+  border: 1px solid #d5d9e1;
+  border-radius: 12px;
+  outline: none;
+  background: #fff;
+  color: #17191c;
+  padding: 12px 13px;
+  resize: vertical;
+}
+
+.form-panel input:not([type="file"]):focus,
+.form-panel textarea:focus,
+.form-panel select:focus {
+  border-color: #1f6fd1;
+  box-shadow: 0 0 0 3px rgba(31, 111, 209, 0.13);
+}
+
+.media-picker {
+  display: flex;
+  min-height: 48px;
+  align-items: center;
+  justify-content: center;
+  margin-top: 5px;
+  border: 1px dashed #98a2b3;
+  border-radius: 12px;
+  color: #475467;
+  cursor: pointer;
+}
+
+.media-picker input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+.attachment-list {
+  margin: 0;
+  color: #667085;
+  font-size: 12px;
+  overflow-wrap: anywhere;
+}
+
+.form-heading {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  margin-bottom: 4px;
+}
+
+.form-heading strong {
+  font-size: 20px;
+}
+
+.form-heading span {
+  color: #667085;
+  font-size: 13px;
+}
+
+.field-editor {
+  display: grid;
+  gap: 10px;
+}
+
+.form-error {
+  margin: 4px 0;
+  color: #b42318;
+  font-size: 13px;
+}
+
+.primary-button,
+.secondary-button {
+  min-height: 48px;
+  border-radius: 13px;
+  padding: 11px 18px;
+  font-weight: 750;
+  cursor: pointer;
+}
+
+.primary-button {
+  border: 0;
+  background: #1f6fd1;
+  color: #fff;
+}
+
+.primary-button:disabled,
+.answer-button:disabled {
+  cursor: default;
+  opacity: 0.55;
+}
+
+.secondary-button {
+  border: 1px solid #d5d9e1;
+  background: transparent;
+  color: inherit;
+}
+
+.deck-overview {
+  display: grid;
+  gap: 16px;
+}
+
+.count-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  overflow: hidden;
+  border: 1px solid #e7e9ee;
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.92);
+  box-shadow: 0 8px 30px rgba(17, 24, 39, 0.05);
+}
+
+.count-grid > div {
+  display: grid;
+  gap: 4px;
+  padding: 20px 10px;
+  border-right: 1px solid #eceef2;
+  text-align: center;
+}
+
+.count-grid > div:last-child {
+  border-right: 0;
+}
+
+.count-grid strong {
+  font-size: 28px;
+  font-variant-numeric: tabular-nums;
+}
+
+.count-grid span {
+  color: #667085;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.study-button {
+  margin-top: 8px;
+}
+
+.deck-total {
+  margin: -5px 0 0;
+  color: #667085;
+  text-align: center;
+  font-size: 13px;
+}
+
+.reviewer {
+  display: grid;
+  min-height: calc(100dvh - 125px - env(safe-area-inset-top));
+  grid-template-rows: minmax(320px, 1fr) auto auto;
+  gap: 14px;
+}
+
+.card-frame {
+  width: 100%;
+  min-height: 360px;
+  border: 1px solid #e7e9ee;
+  border-radius: 18px;
+  background: #fff;
+  box-shadow: 0 8px 30px rgba(17, 24, 39, 0.05);
+}
+
+.show-answer {
+  width: 100%;
+}
+
+.answer-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+}
+
+.answer-button {
+  display: grid;
+  min-height: 58px;
+  gap: 3px;
+  align-content: center;
+  border: 1px solid #d5d9e1;
+  border-radius: 12px;
+  background: #fff;
+  color: #344054;
+  font-size: 13px;
+  font-weight: 750;
+  cursor: pointer;
+}
+
+.answer-button span {
+  color: #98a2b3;
+  font-size: 11px;
+  font-weight: 650;
+}
+
+.rating-1 { border-color: #f1b4b4; color: #b42318; }
+.rating-2 { border-color: #efcf9b; color: #b54708; }
+.rating-3 { border-color: #9bc5f3; color: #175cd3; }
+.rating-4 { border-color: #9ed3ae; color: #067647; }
+
+.congratulations {
+  align-self: start;
+  padding: 36px 22px;
+  text-align: center;
+}
+
+.congratulations h2 {
+  margin: 12px 0 6px;
+}
+
+.congratulations p {
+  margin: 0 0 22px;
+}
+
+.complete-mark {
+  display: grid;
+  width: 52px;
+  height: 52px;
+  margin: 0 auto;
+  place-items: center;
+  border-radius: 50%;
+  background: #dcfae6;
+  color: #067647;
+  font-size: 25px;
+  font-weight: 800;
+}
+
 .deck-counts {
   display: grid;
   grid-template-columns: repeat(3, minmax(28px, auto));
@@ -248,6 +554,45 @@ h1 {
     background: #252a30;
   }
 
+  .back-button {
+    background: #252a30;
+    color: #d0d5dd;
+  }
+
+  .form-panel input:not([type="file"]),
+  .form-panel textarea,
+  .form-panel select,
+  .answer-button {
+    border-color: #3b4149;
+    background: #17191c;
+    color: #f3f4f6;
+  }
+
+  .form-panel label {
+    color: #b3b9c3;
+  }
+
+  .count-grid {
+    border-color: #2a2e34;
+    background: rgba(28, 31, 35, 0.94);
+    box-shadow: none;
+  }
+
+  .count-grid > div {
+    border-right-color: #2a2e34;
+  }
+
+  .card-frame {
+    border-color: #2a2e34;
+    background: #1c1f23;
+    box-shadow: none;
+  }
+
+  .complete-mark {
+    background: #163d2c;
+    color: #75e0a7;
+  }
+
   .bottom-nav {
     border-top-color: #2a2e34;
     background: rgba(20, 22, 25, 0.94);
@@ -256,5 +601,27 @@ h1 {
   .nav-item.active {
     background: #18375d;
     color: #8ec0ff;
+  }
+}
+
+@media (max-width: 480px) {
+  .storage-banner {
+    align-items: flex-start;
+    flex-wrap: wrap;
+  }
+
+  .storage-meta {
+    width: 100%;
+    margin-left: 17px;
+  }
+
+  .answer-grid {
+    gap: 5px;
+  }
+
+  .answer-button {
+    min-width: 0;
+    padding: 8px 3px;
+    font-size: 12px;
   }
 }
