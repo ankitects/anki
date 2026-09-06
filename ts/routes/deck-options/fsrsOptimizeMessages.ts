@@ -10,7 +10,7 @@ export function parametersEqual(
     return left.every((n, i) => n.toFixed(4) === right[i]?.toFixed(4));
 }
 
-export function getFsrsAlreadyOptimalMessage(
+export function getUnchangedReasonMessage(
     alreadyOptimal: boolean,
     isDefault: boolean,
     fsrsItems: number | undefined,
@@ -22,7 +22,6 @@ export function getFsrsAlreadyOptimalMessage(
             return isDefault
                 ? tr.deckConfigFsrsParamsUsingDefault()
                 : tr.deckConfigFsrsParamsOptimal();
-
         } else {
             return revlogCount
                 ? tr.deckConfigFsrsReviewsIgnoredByOptimizer()

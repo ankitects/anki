@@ -22,10 +22,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     import GlobalLabel from "./GlobalLabel.svelte";
     import { commitEditing, fsrsParams, type DeckOptionsState, ValueTab } from "./lib";
-    import {
-        getFsrsAlreadyOptimalMessage as getUnchangedReasonMessage,
-        parametersEqual,
-    } from "./fsrsOptimizeMessages";
+    import { getUnchangedReasonMessage, parametersEqual } from "./fsrsOptimizeMessages";
     import SpinBoxFloatRow from "./SpinBoxFloatRow.svelte";
     import Warning from "./Warning.svelte";
     import ParamsInputRow from "./ParamsInputRow.svelte";
