@@ -490,6 +490,12 @@ deck-config-fsrs-params-optimal = The FSRS parameters are currently optimal. Thi
 deck-config-fsrs-confirm-save-and-optimize = This will save any other changes you have made. Are you sure?
 
 deck-config-fsrs-params-no-reviews = No reviews found. Make sure this preset is assigned to all decks (including subdecks) that you want to optimize, and try again.
+deck-config-fsrs-params-using-default = 
+    Using default parameters.
+    Continue to do reviews and optimize again later.
+deck-config-fsrs-reviews-ignored-by-optimizer = 
+    Reviews were found but they are ignored by the optimizer.
+    This is likely because of "Ignore cards reviewed before" or because the cards only have reviews that were done on the day they were introduced.
 
 deck-config-wait-for-audio = Wait for audio
 deck-config-show-reminder = Show Reminder

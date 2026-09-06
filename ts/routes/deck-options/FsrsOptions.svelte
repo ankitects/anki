@@ -239,6 +239,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                             )) ||
                         resp.params.length === 0;
 
+                    const isDefault = params.every(
+                        (n, i) => n.toFixed(4) === defaults.fsrsParams6[i].toFixed(4),
+                    );
+
                     let healthCheckMessage = "";
                     if (resp.healthCheckPassed !== undefined) {
                         healthCheckMessage = resp.healthCheckPassed
@@ -247,9 +251,17 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                     }
                     let alreadyOptimalMessage = "";
                     if (alreadyOptimal) {
-                        alreadyOptimalMessage = resp.fsrsItems
-                            ? tr.deckConfigFsrsParamsOptimal()
-                            : tr.deckConfigFsrsParamsNoReviews();
+                        if (resp.fsrsItems) {
+                            isDefault
+                                ? (alreadyOptimalMessage =
+                                      tr.deckConfigFsrsParamsUsingDefault())
+                                : tr.deckConfigFsrsParamsOptimal();
+                        } else {
+                            resp.revlogCount
+                                ? (alreadyOptimalMessage =
+                                      tr.deckConfigFsrsReviewsIgnoredByOptimizer())
+                                : tr.deckConfigFsrsParamsNoReviews();
+                        }
                     }
                     const message = [alreadyOptimalMessage, healthCheckMessage]
                         .filter((a) => a)
