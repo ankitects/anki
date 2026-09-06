@@ -6,10 +6,12 @@ import {
   addNote,
   answerCard,
   createDeck,
+  deleteDeck,
   getNextCard,
   initLocalCollection,
   listDecks,
   listNotetypes,
+  renameDeck,
   storeMedia
 } from "@/lib/db/client";
 import type { DeckSummary, LocalCollectionInfo, NoteTypeSummary, ReviewRating, StudyCard } from "@/lib/db/types";
@@ -25,7 +27,7 @@ type LoadState =
   | { status: "ready"; info: LocalCollectionInfo; decks: DeckSummary[]; notetypes: NoteTypeSummary[] }
   | { status: "error"; message: string };
 
-type Screen = "decks" | "browse" | "settings" | "deck" | "create-deck" | "add-note" | "review" | "import" | "shared";
+type Screen = "decks" | "browse" | "settings" | "deck" | "create-deck" | "manage-deck" | "add-note" | "review" | "import" | "shared";
 
 function errorMessage(error: unknown) {
   return error instanceof Error ? error.message : String(error);
@@ -64,11 +66,16 @@ function imageOcclusionFields(notetype: NoteTypeSummary, draft: ImageOcclusionDr
   return fields;
 }
 
+function leafDeckName(name: string) {
+  return name.split("::").at(-1) ?? name;
+}
+
 export function LocalCollectionStatus() {
   const [state, setState] = useState<LoadState>({ status: "loading" });
   const [screen, setScreen] = useState<Screen>("decks");
   const [selectedDeckId, setSelectedDeckId] = useState<number | null>(null);
   const [deckName, setDeckName] = useState("");
+  const [subdeckName, setSubdeckName] = useState("");
   const [noteTypeId, setNoteTypeId] = useState<number | null>(null);
   const [noteFields, setNoteFields] = useState<string[]>([]);
   const [attachments, setAttachments] = useState<File[]>([]);
@@ -135,6 +142,14 @@ export function LocalCollectionStatus() {
     setActionError(null);
   };
 
+  const openDeckManagement = () => {
+    if (!selectedDeck) return;
+    setDeckName(leafDeckName(selectedDeck.name));
+    setSubdeckName("");
+    setActionError(null);
+    setScreen("manage-deck");
+  };
+
   const saveDeck = async (event: React.FormEvent) => {
     event.preventDefault();
     setBusy(true);
@@ -144,6 +159,70 @@ export function LocalCollectionStatus() {
       await refreshDecks();
       setDeckName("");
       goToDeck(deck.id);
+    } catch (error) {
+      setActionError(errorMessage(error));
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  const saveDeckRename = async (event: React.FormEvent) => {
+    event.preventDefault();
+    if (!selectedDeck) return;
+    const leaf = deckName.trim();
+    if (leaf.includes("::")) {
+      setActionError("Rename one deck level at a time; use subdecks for hierarchy.");
+      return;
+    }
+    const parent = selectedDeck.name.split("::").slice(0, -1).join("::");
+    const fullName = parent ? `${parent}::${leaf}` : leaf;
+    setBusy(true);
+    setActionError(null);
+    try {
+      await renameDeck(selectedDeck.id, fullName);
+      await refreshDecks();
+      setScreen("deck");
+    } catch (error) {
+      setActionError(errorMessage(error));
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  const saveSubdeck = async (event: React.FormEvent) => {
+    event.preventDefault();
+    if (!selectedDeck) return;
+    const child = subdeckName.trim();
+    if (!child) return;
+    if (child.includes("::")) {
+      setActionError("Create one subdeck level at a time.");
+      return;
+    }
+    setBusy(true);
+    setActionError(null);
+    try {
+      const deck = await createDeck(`${selectedDeck.name}::${child}`);
+      await refreshDecks();
+      setSubdeckName("");
+      goToDeck(deck.id);
+    } catch (error) {
+      setActionError(errorMessage(error));
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  const removeSelectedDeck = async () => {
+    if (!selectedDeck || selectedDeck.id === 1 || busy) return;
+    const hasChildren = state.decks.some((deck) => deck.id !== selectedDeck.id && deck.name.toLocaleLowerCase().startsWith(`${selectedDeck.name.toLocaleLowerCase()}::`));
+    const scope = hasChildren ? "this deck, its subdecks, and their cards" : "this deck and its cards";
+    if (!window.confirm(`Delete ${scope}? Notes that have no cards left will also be deleted. This cannot be undone.`)) return;
+    setBusy(true);
+    setActionError(null);
+    try {
+      await deleteDeck(selectedDeck.id);
+      await refreshDecks();
+      goToDecks();
     } catch (error) {
       setActionError(errorMessage(error));
     } finally {
@@ -274,21 +353,24 @@ export function LocalCollectionStatus() {
             <button className="secondary-button" type="button"
               onClick={() => { setScreen("shared"); setActionError(null); }}>Shared</button>
             <button className="secondary-button" type="button" onClick={() => setScreen("import")}>Import</button>
-            <button className="icon-button" type="button" onClick={() => { setScreen("create-deck"); setActionError(null); }} aria-label="Add deck">+</button>
+            <button className="icon-button" type="button" onClick={() => { setDeckName(""); setScreen("create-deck"); setActionError(null); }} aria-label="Add deck">+</button>
           </div>
         )}
         {screen === "deck" && (
-          <button className="icon-button" type="button" onClick={() => {
-            const initial = state.notetypes.find((notetype) => notetype.id === noteTypeId) ?? state.notetypes[0];
-            if (initial) {
-              setNoteTypeId(initial.id);
-              setNoteFields(initial.fields.map(() => ""));
-            }
-            setAttachments([]);
-            setImageOcclusion(emptyImageOcclusionDraft);
-            setScreen("add-note");
-            setActionError(null);
-          }} aria-label="Add card">+</button>
+          <div className="top-actions">
+            <button className="secondary-button" type="button" disabled={busy} onClick={openDeckManagement}>Manage</button>
+            <button className="icon-button" type="button" onClick={() => {
+              const initial = state.notetypes.find((notetype) => notetype.id === noteTypeId) ?? state.notetypes[0];
+              if (initial) {
+                setNoteTypeId(initial.id);
+                setNoteFields(initial.fields.map(() => ""));
+              }
+              setAttachments([]);
+              setImageOcclusion(emptyImageOcclusionDraft);
+              setScreen("add-note");
+              setActionError(null);
+            }} aria-label="Add card">+</button>
+          </div>
         )}
       </header>
 
@@ -300,16 +382,21 @@ export function LocalCollectionStatus() {
             <span className="storage-meta">Anki schema {state.info.schemaVersion} · SQLite {state.info.sqliteVersion}</span>
           </div>
           <section className="deck-list" aria-label="Decks">
-            {state.decks.map((deck) => (
-              <button className="deck-row" key={deck.id} type="button" onClick={() => goToDeck(deck.id)}>
-                <span className="deck-name">{deck.name}</span>
-                <span className="deck-counts" aria-label={`${deck.totalCards} cards`}>
-                  <span className="new-count">{deck.newCount}</span>
-                  <span className="learn-count">{deck.learningCount}</span>
-                  <span className="review-count">{deck.reviewCount}</span>
-                </span>
-              </button>
-            ))}
+            {state.decks.map((deck) => {
+              const depth = Math.max(0, deck.name.split("::").length - 1);
+              return (
+                <button className="deck-row" key={deck.id} type="button" onClick={() => goToDeck(deck.id)}>
+                  <span className="deck-name" style={{ paddingInlineStart: `${depth * 18}px` }}>
+                    {depth > 0 ? "↳ " : ""}{leafDeckName(deck.name)}
+                  </span>
+                  <span className="deck-counts" aria-label={`${deck.totalCards} cards`}>
+                    <span className="new-count">{deck.newCount}</span>
+                    <span className="learn-count">{deck.learningCount}</span>
+                    <span className="review-count">{deck.reviewCount}</span>
+                  </span>
+                </button>
+              );
+            })}
           </section>
         </>
       )}
@@ -332,6 +419,31 @@ export function LocalCollectionStatus() {
         </form>
       )}
 
+      {screen === "manage-deck" && selectedDeck && (
+        <section className="settings-list">
+          <form className="panel form-panel" onSubmit={saveDeckRename}>
+            <div className="form-heading"><strong>Rename deck</strong><span>{selectedDeck.name}</span></div>
+            <label htmlFor="manage-deck-name">Name</label>
+            <input id="manage-deck-name" autoFocus value={deckName} onChange={(event) => setDeckName(event.target.value)} />
+            <button className="primary-button" type="submit" disabled={busy || !deckName.trim()}>{busy ? "Saving…" : "Save name"}</button>
+          </form>
+          <form className="panel form-panel" onSubmit={saveSubdeck}>
+            <div className="form-heading"><strong>Create subdeck</strong><span>Under {selectedDeck.name}</span></div>
+            <label htmlFor="subdeck-name">Subdeck name</label>
+            <input id="subdeck-name" value={subdeckName} onChange={(event) => setSubdeckName(event.target.value)} placeholder="e.g. Verbs" />
+            <button className="secondary-button" type="submit" disabled={busy || !subdeckName.trim()}>{busy ? "Creating…" : "Create subdeck"}</button>
+          </form>
+          {actionError && <p className="panel form-error" role="alert">{actionError}</p>}
+          {selectedDeck.id !== 1 && (
+            <div className="panel form-panel">
+              <div className="form-heading"><strong>Delete deck</strong><span>{selectedDeck.totalCards} cards including subdecks</span></div>
+              <p className="muted">Deleting a deck also deletes its subdecks and cards. Notes are removed only when no cards remain elsewhere.</p>
+              <button className="danger-button" type="button" disabled={busy} onClick={() => void removeSelectedDeck()}>Delete deck</button>
+            </div>
+          )}
+        </section>
+      )}
+
       {screen === "deck" && selectedDeck && (
         <section className="deck-overview">
           <div className="count-grid">
@@ -341,7 +453,7 @@ export function LocalCollectionStatus() {
           </div>
           {actionError && <p className="form-error panel" role="alert">{actionError}</p>}
           <button className="primary-button study-button" type="button" disabled={busy} onClick={beginStudy}>{busy ? "Opening…" : "Study now"}</button>
-          <p className="deck-total">{selectedDeck.totalCards} {selectedDeck.totalCards === 1 ? "card" : "cards"} total</p>
+          <p className="deck-total">{selectedDeck.totalCards} {selectedDeck.totalCards === 1 ? "card" : "cards"} total, including subdecks</p>
         </section>
       )}
 

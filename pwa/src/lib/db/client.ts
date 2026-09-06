@@ -95,6 +95,14 @@ export function createDeck(name: string) {
   return request<DeckSummary>({ type: "createDeck", name });
 }
 
+export function renameDeck(deckId: number, name: string) {
+  return request<void>({ type: "renameDeck", deckId, name });
+}
+
+export function deleteDeck(deckId: number) {
+  return request<void>({ type: "deleteDeck", deckId });
+}
+
 export function addBasicNote(deckId: number, front: string, back: string) {
   return request<number[]>({ type: "addBasicNote", deckId, front, back });
 }
@@ -133,6 +141,10 @@ export function deleteNote(noteId: number) {
 
 export function setCardStatus(cardId: number, status: BrowserCard["status"]) {
   return request<void>({ type: "setCardStatus", cardId, status });
+}
+
+export function moveCard(cardId: number, deckId: number) {
+  return request<void>({ type: "moveCard", cardId, deckId });
 }
 
 export function getNextCard(deckId: number) {

@@ -11,7 +11,8 @@ A frontend-only Next.js PWA with an on-device Anki-format collection. No hosted 
 - persistent Origin Private File System (OPFS) collection storage when supported
 - initial decks / notes / cards / review-log schema
 - deck browser wired to the local collection
-- browse/search by text, tag or deck; edit/delete notes; suspend and bury cards
+- deck management with rename/delete, hierarchical subdecks, parent-deck study/counts, and moving cards between decks
+- browse/search by text, tag or deck; edit/delete notes and tags; suspend and bury cards
 - deck/note creation with dynamic note-type fields
 - Basic, Cloze and custom-template review with local images/audio
 - all six stock Anki note types: Basic, reversed, optional reversed, type-in-answer, Cloze, and Image Occlusion
@@ -86,7 +87,7 @@ Import tests use the repository's original `.apkg` fixtures plus generated schem
 
 For the browser smoke test, start a production PWA on a dedicated test origin and open it in a **fresh Chrome profile** with remote debugging enabled. Run `just pwa-test-browser 9230 http://127.0.0.1:3002/ legacy` (or `modern`). Without `just`, use `npm --prefix pwa run test:browser -- 9230 http://127.0.0.1:3002/ modern`. The test adds a small synthetic deck, imports it twice, checks invalid-package handling, then reloads and reviews offline. Never point it at your real collection.
 
-The shared-deck UI smoke test verifies that the search form targets AnkiWeb directly and does not consume AnkiWeb's anonymous search limit: `npm --prefix pwa run test:shared-browser -- 9232 http://127.0.0.1:3012/`.
+The browse smoke test covers note/tag editing, card status changes, card moves, subdeck creation/rename, and recursive deck deletion. The shared-deck UI smoke test verifies that the search form targets AnkiWeb directly and does not consume AnkiWeb's anonymous search limit.
 
 ## Next milestones
 

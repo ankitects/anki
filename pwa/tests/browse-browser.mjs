@@ -48,40 +48,83 @@ async function setValue(selector, value) {
     input.dispatchEvent(new Event(input instanceof HTMLSelectElement ? "change" : "input", { bubbles: true }));
   })()`);
 }
+async function selectOption(selector, label) {
+  await evaluate(`(() => {
+    const select = document.querySelector(${JSON.stringify(selector)});
+    const option = [...select.options].find((candidate) => candidate.textContent === ${JSON.stringify(label)});
+    if (!option) throw new Error("Option not found: ${label}");
+    Object.getOwnPropertyDescriptor(HTMLSelectElement.prototype, "value").set.call(select, option.value);
+    select.dispatchEvent(new Event("change", { bubbles: true }));
+  })()`);
+}
+async function openDeck(label) {
+  await until(`[...document.querySelectorAll(".deck-row")].some((row) => row.textContent.includes(${JSON.stringify(label)}))`);
+  await evaluate(`[...document.querySelectorAll(".deck-row")].find((row) => row.textContent.includes(${JSON.stringify(label)})).click()`);
+}
+async function createDeck(name) {
+  await evaluate('document.querySelector("button[aria-label=\\"Add deck\\"]").click()');
+  await until('document.querySelector("#deck-name")');
+  await setValue("#deck-name", name);
+  await evaluate('document.querySelector(".form-panel").requestSubmit()');
+  await until(`document.body.innerText.includes(${JSON.stringify(name)}) && document.body.innerText.includes("Study now")`);
+}
+async function addBasicCard(front, back) {
+  await evaluate('document.querySelector("button[aria-label=\\"Add card\\"]").click()');
+  await until('document.querySelector("#note-field-0")');
+  await setValue("#note-field-0", front);
+  await setValue("#note-field-1", back);
+  await evaluate('document.querySelector(".form-panel").requestSubmit()');
+  await until('document.body.innerText.includes("card") && document.body.innerText.includes("total")');
+}
 
 try {
   await until('document.querySelector(".storage-banner")');
-  await evaluate('document.querySelector("button[aria-label=\\"Add deck\\"]").click()');
-  await until('document.querySelector("#deck-name")');
-  await setValue("#deck-name", "Browser feature test");
-  await evaluate('document.querySelector(".form-panel").requestSubmit()');
-  await until('document.body.innerText.includes("Browser feature test") && document.body.innerText.includes("Study now")');
-  await evaluate('document.querySelector("button[aria-label=\\"Add card\\"]").click()');
-  await until('document.querySelector("#note-field-0")');
-  await setValue("#note-field-0", "Browse before edit");
-  await setValue("#note-field-1", "Back before edit");
-  await evaluate('document.querySelector(".form-panel").requestSubmit()');
-  await until('document.body.innerText.includes("1 card total")');
+
+  await createDeck("Deck management test");
+  await addBasicCard("Move me", "Destination answer");
+  await evaluate('document.querySelector("button[aria-label=\\"Back\\"]").click()');
+  await until('document.querySelector(".deck-list")');
+
+  await createDeck("Move destination");
+  await evaluate('document.querySelector("button[aria-label=\\"Back\\"]").click()');
+  await until('document.querySelector(".deck-list")');
+
+  await openDeck("Deck management test");
+  await click("Manage");
+  await until('document.querySelector("#subdeck-name")');
+  await setValue("#subdeck-name", "Child");
+  await evaluate('document.querySelector("#subdeck-name").closest("form").requestSubmit()');
+  await until('document.body.innerText.includes("Deck management test::Child") && document.body.innerText.includes("Study now")');
+
+  await click("Manage");
+  await until('document.querySelector("#manage-deck-name")');
+  await setValue("#manage-deck-name", "Renamed child");
+  await evaluate('document.querySelector("#manage-deck-name").closest("form").requestSubmit()');
+  await until('document.body.innerText.includes("Deck management test::Renamed child") && document.body.innerText.includes("Study now")');
+  await addBasicCard("Child delete me", "This should be removed with its parent");
 
   await evaluate('document.querySelector("button[aria-label=\\"Back\\"]").click()');
   await until('document.querySelector(".deck-list")');
   await click("Browse");
   await until('document.querySelector("#browser-query")');
-  await setValue("#browser-query", "Browse before edit");
+  await setValue("#browser-query", "Move me");
   await evaluate('document.querySelector(".browser-search").requestSubmit()');
   await until('document.querySelectorAll(".browser-note-row").length === 1');
   await evaluate('document.querySelector(".browser-note-row").click()');
   await until('document.querySelector("#browser-field-0")');
-  await setValue("#browser-field-0", "Browse after edit");
-  await setValue("#browser-tags", "edited browser-test");
+  await setValue("#browser-tags", "edited deck-management");
   await evaluate('document.querySelector(".browser-editor .form-panel").requestSubmit()');
   await until('document.body.innerText.includes("Note saved.")');
 
-  await setValue("#browser-query", "Browse after edit");
+  await setValue("#browser-query", "Move me");
   await evaluate('document.querySelector(".browser-search").requestSubmit()');
   await until('document.querySelectorAll(".browser-note-row").length === 1');
-  assert.match(await evaluate("document.body.innerText"), /edited/);
+  assert.match(await evaluate("document.body.innerText"), /deck-management/);
   await evaluate('document.querySelector(".browser-note-row").click()');
+  await until('document.querySelector(".browser-card-actions select")');
+  await selectOption(".browser-card-actions select", "Move destination");
+  await until('document.querySelector(".browser-card").textContent.includes("Move destination")');
+
   await click("Suspend");
   await until('document.body.innerText.includes("Suspended")');
   await click("Resume");
@@ -91,14 +134,29 @@ try {
   await click("Unbury");
   await until('document.body.innerText.includes("New")');
 
-  await evaluate("window.confirm = () => true");
-  await click("Delete note");
-  await until('document.body.innerText.includes("Note deleted.")');
-  assert.equal(await evaluate('document.querySelectorAll(".browser-note-row").length'), 0);
   await click("Decks");
   await until('document.querySelector(".deck-list")');
-  assert.match(await evaluate('[...document.querySelectorAll(".deck-row")].find((row) => row.textContent.includes("Browser feature test")).textContent'), /000/);
-  console.log(JSON.stringify({ search: true, edit: true, tags: true, suspend: true, bury: true, delete: true }));
+  assert.match(await evaluate('[...document.querySelectorAll(".deck-row")].find((row) => row.textContent.includes("Move destination")).textContent'), /1/);
+
+  await openDeck("Deck management test");
+  await click("Manage");
+  await evaluate("window.confirm = () => true");
+  await click("Delete deck");
+  await until('document.querySelector(".deck-list")');
+  assert.equal(await evaluate('[...document.querySelectorAll(".deck-row")].some((row) => row.textContent.includes("Deck management test"))'), false);
+  assert.equal(await evaluate('[...document.querySelectorAll(".deck-row")].some((row) => row.textContent.includes("Renamed child"))'), false);
+
+  await click("Browse");
+  await until('document.querySelector("#browser-query")');
+  await setValue("#browser-query", "Child delete me");
+  await evaluate('document.querySelector(".browser-search").requestSubmit()');
+  await until('document.querySelectorAll(".browser-note-row").length === 0');
+  await setValue("#browser-query", "deck-management");
+  await evaluate('document.querySelector(".browser-search").requestSubmit()');
+  await until('document.querySelectorAll(".browser-note-row").length === 1');
+  assert.match(await evaluate("document.body.innerText"), /Move destination/);
+
+  console.log(JSON.stringify({ tags: true, subdecks: true, rename: true, move: true, recursiveDelete: true, suspend: true, bury: true }));
 } finally {
   socket.close();
 }

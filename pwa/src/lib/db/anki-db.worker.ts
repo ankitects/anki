@@ -11,6 +11,7 @@ import { buildCollectionPackage } from "../anki/export-colpkg";
 import type { BackupMediaFile } from "../anki/export-colpkg";
 import { importApkg } from "../anki/import-apkg";
 import type { ImportMediaStore } from "../anki/import-apkg";
+import { deckScopeIds, deleteDeck as deleteStoredDeck, moveCard as moveStoredCard, renameDeck as renameStoredDeck } from "./deck-management";
 import type {
   BrowseNotesResult,
   BrowserCard,
@@ -502,14 +503,17 @@ function unburyCardsForNewDay(database: Database) {
 function deckSummary(deck: AnkiDeck, database = collection()): DeckSummary {
   const today = collectionDay(database);
   const now = nowSeconds();
+  const decks = readDecks(database);
+  const scopeIds = deckScopeIds(decks, deck.id);
+  const placeholders = scopeIds.map(() => "?").join(",");
   const counts = database.selectObject(
     `SELECT
        sum(CASE WHEN queue = 0 THEN 1 ELSE 0 END) AS new_count,
        sum(CASE WHEN (queue = 1 AND due <= ?) OR (queue = 3 AND due <= ?) THEN 1 ELSE 0 END) AS learning_count,
        sum(CASE WHEN queue = 2 AND due <= ? THEN 1 ELSE 0 END) AS review_count,
        count(*) AS total_cards
-     FROM cards WHERE did = ?`,
-    [now, today, today, deck.id]
+     FROM cards WHERE did IN (${placeholders})`,
+    [now, today, today, ...scopeIds]
   );
 
   return {
@@ -999,9 +1003,11 @@ async function browseNotes(queryInput: string, deckId: number | null, offsetInpu
     bind.push(query, query, query);
   }
   if (deckId !== null) {
-    if (!readDecks(database)[String(deckId)]) throw new Error("Deck not found");
-    clauses.push("EXISTS (SELECT 1 FROM cards filtered_card WHERE filtered_card.nid = n.id AND filtered_card.did = ?)");
-    bind.push(deckId);
+    const decks = readDecks(database);
+    if (!decks[String(deckId)]) throw new Error("Deck not found");
+    const scopeIds = deckScopeIds(decks, deckId);
+    clauses.push(`EXISTS (SELECT 1 FROM cards filtered_card WHERE filtered_card.nid = n.id AND filtered_card.did IN (${scopeIds.map(() => "?").join(",")}))`);
+    bind.push(...scopeIds);
   }
   const where = clauses.length ? `WHERE ${clauses.join(" AND ")}` : "";
   const total = Number(database.selectValue(`SELECT count(*) FROM notes n ${where}`, bind) ?? 0);
@@ -1206,22 +1212,25 @@ async function getNextCard(deckId: number): Promise<StudyCard | null> {
   await initialize();
   const database = collection();
   unburyCardsForNewDay(database);
-  const deck = readDecks(database)[String(deckId)];
+  const decks = readDecks(database);
+  const deck = decks[String(deckId)];
   if (!deck) throw new Error("Deck not found");
+  const scopeIds = deckScopeIds(decks, deckId);
+  const placeholders = scopeIds.map(() => "?").join(",");
 
   const row = database.selectObject(
     `SELECT c.id, c.did, c.ord, c.type, c.queue, c.due, c.ivl, c.reps, c.lapses,
        c.left, c.data, n.mid, n.flds,
        (SELECT max(r.id) / 1000 FROM revlog r WHERE r.cid = c.id) AS last_review_seconds
      FROM cards c JOIN notes n ON n.id = c.nid
-     WHERE c.did = ? AND (
+     WHERE c.did IN (${placeholders}) AND (
        (c.queue = 1 AND c.due <= ?) OR
        (c.queue IN (2, 3) AND c.due <= ?) OR
        c.queue = 0
      )
      ORDER BY CASE c.queue WHEN 1 THEN 0 WHEN 3 THEN 0 WHEN 2 THEN 1 ELSE 2 END, c.due, c.id
      LIMIT 1`,
-    [deckId, nowSeconds(), collectionDay(database)]
+    [...scopeIds, nowSeconds(), collectionDay(database)]
   );
   if (!row) return null;
 
@@ -1235,7 +1244,7 @@ async function getNextCard(deckId: number): Promise<StudyCard | null> {
   return {
     id: Number(row.id),
     deckId: Number(row.did),
-    deckName: deck.name,
+    deckName: decks[String(row.did)]?.name ?? deck.name,
     questionHtml: question.html,
     answerHtml: answer.html,
     cardCss: answer.css,
@@ -1349,6 +1358,14 @@ async function handleRequest(request: DbRequest) {
       case "createDeck":
         result = await createDeck(request.name);
         break;
+      case "renameDeck":
+        await initialize();
+        result = renameStoredDeck(collection(), request.deckId, request.name);
+        break;
+      case "deleteDeck":
+        await initialize();
+        result = deleteStoredDeck(collection(), request.deckId);
+        break;
       case "addBasicNote":
         result = await addBasicNote(request.deckId, request.front, request.back);
         break;
@@ -1385,6 +1402,10 @@ async function handleRequest(request: DbRequest) {
         break;
       case "setCardStatus":
         result = await setExistingCardStatus(request.cardId, request.status);
+        break;
+      case "moveCard":
+        await initialize();
+        result = moveStoredCard(collection(), request.cardId, request.deckId);
         break;
       case "getNextCard":
         result = await getNextCard(request.deckId);

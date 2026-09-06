@@ -106,6 +106,8 @@ export type DbCommand =
   | { type: "listDecks" }
   | { type: "listNotetypes" }
   | { type: "createDeck"; name: string }
+  | { type: "renameDeck"; deckId: number; name: string }
+  | { type: "deleteDeck"; deckId: number }
   | { type: "addNote"; deckId: number; notetypeId: number; fields: string[] }
   | { type: "addBasicNote"; deckId: number; front: string; back: string }
   | { type: "addClozeNote"; deckId: number; text: string; extra: string }
@@ -116,6 +118,7 @@ export type DbCommand =
   | { type: "updateNote"; noteId: number; fields: string[]; tags: string[] }
   | { type: "deleteNote"; noteId: number }
   | { type: "setCardStatus"; cardId: number; status: BrowserCard["status"] }
+  | { type: "moveCard"; cardId: number; deckId: number }
   | { type: "getNextCard"; deckId: number }
   | { type: "answerCard"; cardId: number; rating: ReviewRating; timeMs: number };
 

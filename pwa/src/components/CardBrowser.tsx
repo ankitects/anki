@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 
-import { browseNotes, deleteNote, setCardStatus, updateNote } from "@/lib/db/client";
+import { browseNotes, deleteNote, moveCard, setCardStatus, updateNote } from "@/lib/db/client";
 import type { BrowseNotesResult, BrowserCard, BrowserNote, DeckSummary } from "@/lib/db/types";
 
 function errorMessage(error: unknown) {
@@ -132,6 +132,30 @@ export function CardBrowser({ decks, onCollectionChanged }: {
     }
   };
 
+  const changeCardDeck = async (card: BrowserCard, targetDeckId: number) => {
+    if (busyCardId !== null || targetDeckId === card.deckId) return;
+    const target = decks.find((deck) => deck.id === targetDeckId);
+    if (!target) return;
+    setBusyCardId(card.id);
+    setError(null);
+    try {
+      await moveCard(card.id, targetDeckId);
+      const update = (note: BrowserNote) => ({
+        ...note,
+        cards: note.cards.map((candidate) => candidate.id === card.id
+          ? { ...candidate, deckId: targetDeckId, deckName: target.name }
+          : candidate)
+      });
+      setSelected((current) => current ? update(current) : current);
+      setResult((current) => current ? { ...current, notes: current.notes.map(update) } : current);
+      await onCollectionChanged();
+    } catch (error) {
+      setError(errorMessage(error));
+    } finally {
+      setBusyCardId(null);
+    }
+  };
+
   if (selected) {
     return (
       <section className="browser-editor">
@@ -168,6 +192,10 @@ export function CardBrowser({ decks, onCollectionChanged }: {
                 <span>{card.deckName} · {stateLabel(card)} · {card.reviews} reviews</span>
               </div>
               <div className="browser-card-actions">
+                <select aria-label={`Move ${card.templateName} to deck`} value={card.deckId} disabled={busyCardId !== null}
+                  onChange={(event) => void changeCardDeck(card, Number(event.target.value))}>
+                  {decks.map((deck) => <option key={deck.id} value={deck.id}>{deck.name}</option>)}
+                </select>
                 {card.status === "active" ? <>
                   <button type="button" disabled={busyCardId !== null} onClick={() => void changeCardStatus(card, "suspended")}>Suspend</button>
                   <button type="button" disabled={busyCardId !== null} onClick={() => void changeCardStatus(card, "buried")}>Bury</button>
