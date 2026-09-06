@@ -99,11 +99,13 @@ impl Collection {
             fsrs_items_for_training(revlogs.clone(), timing.next_day_at, ignore_revlogs_before);
 
         let fsrs_items = items.len() as u32;
+        let review_count = review_count as u32;
         if fsrs_items == 0 {
             return Ok(ComputeFsrsParamsResponse {
                 params: current_params.to_vec(),
                 fsrs_items,
                 health_check_passed: None,
+                review_count,
             });
         }
         // adapt the progress handler to our built-in progress handling
@@ -124,7 +126,7 @@ impl Collection {
                     if let Err(_err) = anki_progress.update(false, |s| {
                         s.total_iterations = guard.total() as u32;
                         s.current_iteration = guard.current() as u32;
-                        s.reviews = review_count as u32;
+                        s.reviews = review_count;
                         finished = guard.finished();
                     }) {
                         guard.want_abort = true;
@@ -205,6 +207,7 @@ impl Collection {
             params,
             fsrs_items,
             health_check_passed,
+            review_count,
         })
     }
 

@@ -401,6 +401,7 @@ impl crate::services::BackendSchedulerService for Backend {
             params,
             fsrs_items,
             health_check_passed: None,
+            review_count: 0,
         })
     }
 

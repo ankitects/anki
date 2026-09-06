@@ -367,6 +367,9 @@ message ComputeFsrsParamsResponse {
   repeated float params = 1;
   uint32 fsrs_items = 2;
   optional bool health_check_passed = 3;
+  // Number of revlog entries that remained after filtering. Can be > 0 while
+  // fsrs_items is 0, e.g. when no card has been reviewed on a second day yet.
+  uint32 review_count = 4;
 }
 
 message ComputeFsrsParamsFromItemsRequest {

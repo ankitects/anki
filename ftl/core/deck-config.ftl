@@ -490,6 +490,7 @@ deck-config-fsrs-params-optimal = The FSRS parameters are currently optimal. Thi
 deck-config-fsrs-confirm-save-and-optimize = This will save any other changes you have made. Are you sure?
 
 deck-config-fsrs-params-no-reviews = No reviews found. Make sure this preset is assigned to all decks (including subdecks) that you want to optimize, and try again.
+deck-config-fsrs-params-not-enough-history = Not enough review history yet. FSRS can only learn from cards that have been reviewed again on a later day. Keep reviewing and try again later.
 
 deck-config-wait-for-audio = Wait for audio
 deck-config-show-reminder = Show Reminder

@@ -247,9 +247,14 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                     }
                     let alreadyOptimalMessage = "";
                     if (alreadyOptimal) {
-                        alreadyOptimalMessage = resp.fsrsItems
-                            ? tr.deckConfigFsrsParamsOptimal()
-                            : tr.deckConfigFsrsParamsNoReviews();
+                        if (resp.fsrsItems) {
+                            alreadyOptimalMessage = tr.deckConfigFsrsParamsOptimal();
+                        } else if (resp.reviewCount) {
+                            alreadyOptimalMessage =
+                                tr.deckConfigFsrsParamsNotEnoughHistory();
+                        } else {
+                            alreadyOptimalMessage = tr.deckConfigFsrsParamsNoReviews();
+                        }
                     }
                     const message = [alreadyOptimalMessage, healthCheckMessage]
                         .filter((a) => a)
