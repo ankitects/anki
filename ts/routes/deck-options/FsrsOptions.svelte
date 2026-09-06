@@ -22,6 +22,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     import GlobalLabel from "./GlobalLabel.svelte";
     import { commitEditing, fsrsParams, type DeckOptionsState, ValueTab } from "./lib";
+    import {
+        getFsrsAlreadyOptimalMessage as getUnchangedReasonMessage,
+        parametersEqual,
+    } from "./fsrsOptimizeMessages";
     import SpinBoxFloatRow from "./SpinBoxFloatRow.svelte";
     import Warning from "./Warning.svelte";
     import ParamsInputRow from "./ParamsInputRow.svelte";
@@ -233,15 +237,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                     });
 
                     const alreadyOptimal =
-                        (params.length &&
-                            params.every(
-                                (n, i) => n.toFixed(4) === resp.params[i].toFixed(4),
-                            )) ||
+                        (params.length && parametersEqual(params, resp.params)) ||
                         resp.params.length === 0;
 
-                    const isDefault = params.every(
-                        (n, i) => n.toFixed(4) === defaults.fsrsParams6[i].toFixed(4),
-                    );
+                    const isDefault = parametersEqual(params, defaults.fsrsParams6);
 
                     let healthCheckMessage = "";
                     if (resp.healthCheckPassed !== undefined) {
@@ -249,21 +248,13 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                             ? tr.deckConfigFsrsGoodFit()
                             : tr.deckConfigFsrsBadFitWarning();
                     }
-                    let alreadyOptimalMessage = "";
-                    if (alreadyOptimal) {
-                        if (resp.fsrsItems) {
-                            isDefault
-                                ? (alreadyOptimalMessage =
-                                      tr.deckConfigFsrsParamsUsingDefault())
-                                : tr.deckConfigFsrsParamsOptimal();
-                        } else {
-                            resp.revlogCount
-                                ? (alreadyOptimalMessage =
-                                      tr.deckConfigFsrsReviewsIgnoredByOptimizer())
-                                : tr.deckConfigFsrsParamsNoReviews();
-                        }
-                    }
-                    const message = [alreadyOptimalMessage, healthCheckMessage]
+                    const unchangedReasonMessage = getUnchangedReasonMessage(
+                        alreadyOptimal,
+                        isDefault,
+                        resp.fsrsItems,
+                        resp.revlogCount,
+                    );
+                    const message = [unchangedReasonMessage, healthCheckMessage]
                         .filter((a) => a)
                         .join("\n\n");
 
