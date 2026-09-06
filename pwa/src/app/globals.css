@@ -1,0 +1,260 @@
+:root {
+  color-scheme: light dark;
+  font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  background: #f5f6f8;
+  color: #17191c;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  min-height: 100%;
+  background: #f5f6f8;
+}
+
+button,
+input,
+textarea,
+select {
+  font: inherit;
+}
+
+button {
+  -webkit-tap-highlight-color: transparent;
+}
+
+.app-shell {
+  width: min(100%, 760px);
+  min-height: 100dvh;
+  margin: 0 auto;
+  padding: max(18px, env(safe-area-inset-top)) 18px calc(84px + env(safe-area-inset-bottom));
+}
+
+.top-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 22px;
+}
+
+.eyebrow {
+  margin: 0 0 3px;
+  color: #667085;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.13em;
+}
+
+h1 {
+  margin: 0;
+  font-size: clamp(30px, 8vw, 42px);
+  line-height: 1;
+  letter-spacing: -0.04em;
+}
+
+.top-actions {
+  display: flex;
+  align-items: center;
+}
+
+.icon-button {
+  width: 42px;
+  height: 42px;
+  border: 0;
+  border-radius: 13px;
+  background: #1f6fd1;
+  color: white;
+  font-size: 26px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.panel,
+.storage-banner,
+.deck-list {
+  background: rgba(255, 255, 255, 0.92);
+  border: 1px solid #e7e9ee;
+  box-shadow: 0 8px 30px rgba(17, 24, 39, 0.05);
+}
+
+.panel {
+  border-radius: 16px;
+  padding: 18px;
+}
+
+.muted {
+  color: #667085;
+}
+
+.error-panel {
+  display: grid;
+  gap: 6px;
+  color: #9f1d1d;
+}
+
+.storage-banner {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  margin-bottom: 12px;
+  padding: 11px 13px;
+  border-radius: 14px;
+  color: #475467;
+  font-size: 13px;
+}
+
+.storage-meta {
+  margin-left: auto;
+  color: #98a2b3;
+  font-size: 12px;
+}
+
+.status-dot {
+  width: 8px;
+  height: 8px;
+  flex: 0 0 auto;
+  border-radius: 50%;
+}
+
+.status-dot.good {
+  background: #14a44d;
+}
+
+.status-dot.warning {
+  background: #d97706;
+}
+
+.deck-list {
+  overflow: hidden;
+  border-radius: 18px;
+}
+
+.deck-row {
+  display: flex;
+  width: 100%;
+  min-height: 64px;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 14px 16px;
+  border: 0;
+  border-bottom: 1px solid #eceef2;
+  background: transparent;
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.deck-row:last-child {
+  border-bottom: 0;
+}
+
+.deck-row:active {
+  background: #f0f4f9;
+}
+
+.deck-name {
+  overflow: hidden;
+  font-size: 16px;
+  font-weight: 650;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.deck-counts {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(28px, auto));
+  gap: 7px;
+  align-items: center;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.new-count {
+  color: #2563eb;
+}
+
+.learn-count {
+  color: #d97706;
+}
+
+.review-count {
+  color: #16a34a;
+}
+
+.bottom-nav {
+  position: fixed;
+  z-index: 10;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  max-width: 760px;
+  margin: 0 auto;
+  padding: 9px 10px max(9px, env(safe-area-inset-bottom));
+  border-top: 1px solid #e3e6eb;
+  background: rgba(249, 250, 251, 0.94);
+  backdrop-filter: blur(16px);
+}
+
+.nav-item {
+  min-height: 42px;
+  border: 0;
+  border-radius: 10px;
+  background: transparent;
+  color: #667085;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.nav-item.active {
+  background: #e8f1fd;
+  color: #1f6fd1;
+}
+
+.nav-item:disabled {
+  opacity: 0.42;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root,
+  html,
+  body {
+    background: #111316;
+    color: #f3f4f6;
+  }
+
+  .panel,
+  .storage-banner,
+  .deck-list {
+    border-color: #2a2e34;
+    background: rgba(28, 31, 35, 0.94);
+    box-shadow: none;
+  }
+
+  .deck-row {
+    border-bottom-color: #2a2e34;
+  }
+
+  .deck-row:active {
+    background: #252a30;
+  }
+
+  .bottom-nav {
+    border-top-color: #2a2e34;
+    background: rgba(20, 22, 25, 0.94);
+  }
+
+  .nav-item.active {
+    background: #18375d;
+    color: #8ec0ff;
+  }
+}
