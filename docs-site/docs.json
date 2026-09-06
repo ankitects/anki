@@ -179,6 +179,7 @@
               {
                 "group": "Support FAQs",
                 "pages": [
+                  "faqs/intro",
                   {
                     "group": "Cards and Notes",
                     "icon": "cards-blank",
@@ -688,6 +689,7 @@
               {
                 "group": "Support FAQs",
                 "pages": [
+                  "ar/faqs/intro",
                   {
                     "group": "Cards and Notes",
                     "icon": "cards-blank",
