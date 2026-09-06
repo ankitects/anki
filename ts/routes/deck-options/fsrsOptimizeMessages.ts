@@ -16,17 +16,19 @@ export function getFsrsAlreadyOptimalMessage(
     fsrsItems: number | undefined,
     revlogCount: number | undefined,
 ): string {
-    if (!alreadyOptimal) {
+    console.log("getFsrsAlreadyOptimalMessage", alreadyOptimal, isDefault, fsrsItems, revlogCount);
+    if (alreadyOptimal) {
+        if (fsrsItems) {
+            return isDefault
+                ? tr.deckConfigFsrsParamsUsingDefault()
+                : tr.deckConfigFsrsParamsOptimal();
+
+        } else {
+            return revlogCount
+                ? tr.deckConfigFsrsReviewsIgnoredByOptimizer()
+                : tr.deckConfigFsrsParamsNoReviews();
+        }
+    } else {
         return "";
     }
-
-    if (fsrsItems) {
-        return isDefault
-            ? tr.deckConfigFsrsParamsUsingDefault()
-            : tr.deckConfigFsrsParamsOptimal();
-    }
-
-    return revlogCount
-        ? tr.deckConfigFsrsReviewsIgnoredByOptimizer()
-        : tr.deckConfigFsrsParamsNoReviews();
 }
