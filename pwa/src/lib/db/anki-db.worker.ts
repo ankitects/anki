@@ -7,6 +7,8 @@ import type { CardInput, Grade, RecordLogItem } from "ts-fsrs";
 
 import { clozeOrdinals, renderAnkiCard } from "../anki/template";
 import type { AnkiNotetype } from "../anki/template";
+import { buildCollectionPackage } from "../anki/export-colpkg";
+import type { BackupMediaFile } from "../anki/export-colpkg";
 import { importApkg } from "../anki/import-apkg";
 import type { ImportMediaStore } from "../anki/import-apkg";
 import type {
@@ -14,6 +16,7 @@ import type {
   BrowserCard,
   BrowserNote,
   CardState,
+  CollectionBackupResult,
   DbRequest,
   DbResponse,
   DeckSummary,
@@ -691,6 +694,47 @@ async function importMediaStore(persistent: boolean): Promise<ImportMediaStore> 
   };
 }
 
+async function collectionMedia(progress: (message: string) => void) {
+  const files = new Map<string, Uint8Array>();
+  const directory = await mediaDirectory(false);
+  if (directory) {
+    let count = 0;
+    for await (const [name, handle] of directory.entries()) {
+      if (handle.kind !== "file") continue;
+      progress(`Reading media ${++count}…`);
+      const file = await (handle as FileSystemFileHandle).getFile();
+      files.set(name.normalize("NFC"), new Uint8Array(await file.arrayBuffer()));
+    }
+  }
+  for (const [name, bytes] of memoryMedia) files.set(name.normalize("NFC"), bytes.slice());
+  return [...files].sort(([left], [right]) => left.localeCompare(right))
+    .map(([name, bytes]): BackupMediaFile => ({ name, bytes }));
+}
+
+function backupFilename() {
+  const timestamp = new Date().toISOString().replace(/:\d\d\.\d\d\dZ$/, "Z").replaceAll(":", "-");
+  return `anki-pwa-backup-${timestamp}.colpkg`;
+}
+
+async function exportCollection(progress: (message: string) => void): Promise<CollectionBackupResult> {
+  const database = collection();
+  if (!sqliteRuntime || !database.pointer) throw new Error("The local collection is not ready to export");
+  progress("Reading local media…");
+  const media = await collectionMedia(progress);
+  progress("Creating collection snapshot…");
+  const databaseBytes = sqliteRuntime.capi.sqlite3_js_db_export(database.pointer);
+  progress("Compressing backup…");
+  const packageBytes = buildCollectionPackage(databaseBytes, media);
+  return {
+    filename: backupFilename(),
+    bytes: packageBytes.buffer,
+    notes: Number(database.selectValue("SELECT count(*) FROM notes") ?? 0),
+    cards: Number(database.selectValue("SELECT count(*) FROM cards") ?? 0),
+    reviews: Number(database.selectValue("SELECT count(*) FROM revlog") ?? 0),
+    media: media.length
+  };
+}
+
 function mediaMimeType(filename: string) {
   const extension = filename.split(".").pop()?.toLowerCase();
   const types: Record<string, string> = {
@@ -1325,6 +1369,11 @@ async function handleRequest(request: DbRequest) {
           });
         break;
       }
+      case "exportCollection":
+        result = await exportCollection((progress) => {
+          workerScope.postMessage({ id: request.id, ok: true, progress } satisfies DbResponse);
+        });
+        break;
       case "browseNotes":
         result = await browseNotes(request.query, request.deckId, request.offset);
         break;
@@ -1348,7 +1397,11 @@ async function handleRequest(request: DbRequest) {
     }
 
     const response: DbResponse = { id: request.id, ok: true, result };
-    workerScope.postMessage(response);
+    if (request.type === "exportCollection") {
+      workerScope.postMessage(response, [(result as CollectionBackupResult).bytes]);
+    } else {
+      workerScope.postMessage(response);
+    }
   } catch (error) {
     const response: DbResponse = {
       id: request.id,

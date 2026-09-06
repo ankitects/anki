@@ -18,6 +18,7 @@ A frontend-only Next.js PWA with an on-device Anki-format collection. No hosted 
 - FSRS scheduling and local review history
 - local `.apkg` import with legacy and modern (Zstd/protobuf) package support
 - AnkiWeb shared-deck search launcher and local `.apkg` import
+- downloadable `.colpkg` collection backups with scheduling history and media
 
 ## Import a deck
 
@@ -35,7 +36,7 @@ To find a public deck, select **Shared**, enter a search, and choose **Search An
 
 Image Occlusion creation supports Anki-compatible rectangular masks, including “Hide all, guess one”. Imported rectangle, ellipse, and polygon masks are rendered during review. Anki's advanced polygon/text mask editor is not available yet.
 
-This is not full Anki feature parity: custom note-type/template management, deck-option presets, add-ons, collection backups (`.colpkg`), AnkiWeb sync, and script-dependent templates are not supported. Imported cards use this PWA's existing FSRS settings. Some advanced template filters and MathJax are not rendered. Keep your original Anki collection/export as your backup.
+Collection backups can be imported into the official Anki desktop app. Restoring a `.colpkg` directly into this PWA is not supported yet. This is not full Anki feature parity: custom note-type/template management, deck-option presets, add-ons, AnkiWeb sync, and script-dependent templates are not supported. Imported cards use this PWA's existing FSRS settings. Some advanced template filters and MathJax are not rendered. Keep an external backup of important collections.
 
 When the app reports **Temporary storage fallback**, imported data will not survive a reload. Browser/site-data clearing can also remove persistent OPFS data.
 
@@ -89,7 +90,6 @@ The shared-deck UI smoke test verifies that the search form targets AnkiWeb dire
 
 ## Next milestones
 
-1. Local collection export/backup.
-2. Statistics and configurable deck options.
-3. More complete template rendering.
-4. Further investigation of AnkiWeb interoperability. Shared-deck discovery links to AnkiWeb; account sync is not supported.
+1. Statistics and configurable deck options.
+2. More complete template rendering.
+3. Further investigation of AnkiWeb interoperability. Shared-deck discovery links to AnkiWeb; account sync is not supported.

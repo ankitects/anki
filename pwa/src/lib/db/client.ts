@@ -4,6 +4,7 @@ import type {
   ApkgImportResult,
   BrowseNotesResult,
   BrowserCard,
+  CollectionBackupResult,
   DbCommand,
   DbRequest,
   DbResponse,
@@ -112,6 +113,10 @@ export function storeMedia(filename: string, bytes: ArrayBuffer) {
 
 export function importApkg(bytes: ArrayBuffer, keepScheduling: boolean, progress?: (message: string) => void) {
   return request<ApkgImportResult>({ type: "importApkg", bytes, keepScheduling }, [bytes], progress);
+}
+
+export function exportCollection(progress?: (message: string) => void) {
+  return request<CollectionBackupResult>({ type: "exportCollection" }, [], progress);
 }
 
 export function browseNotes(query: string, deckId: number | null, offset = 0) {

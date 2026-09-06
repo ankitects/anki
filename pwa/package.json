@@ -14,6 +14,7 @@
     "test:browser": "node tests/import-browser.mjs",
     "test:card-types-browser": "node tests/card-types-browser.mjs",
     "test:browse-browser": "node tests/browse-browser.mjs",
+    "test:backup-browser": "node tests/backup-browser.mjs",
     "test:shared-browser": "node tests/shared-decks-browser.mjs"
   },
   "dependencies": {

@@ -113,6 +113,35 @@ h1 {
   overflow-wrap: anywhere;
 }
 
+.settings-list,
+.backup-panel {
+  display: grid;
+  gap: 14px;
+}
+
+.backup-panel h2,
+.backup-panel p {
+  margin: 0;
+}
+
+.backup-panel > div:first-child {
+  display: grid;
+  gap: 6px;
+}
+
+.backup-panel p {
+  line-height: 1.5;
+}
+
+.backup-help {
+  font-size: 13px;
+}
+
+.backup-result {
+  color: #067647;
+  font-size: 13px;
+}
+
 .shared-decks {
   display: grid;
   gap: 14px;

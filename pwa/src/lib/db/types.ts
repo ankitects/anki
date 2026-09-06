@@ -60,6 +60,15 @@ export type ApkgImportResult = {
   keptScheduling: boolean;
 };
 
+export type CollectionBackupResult = {
+  filename: string;
+  bytes: ArrayBuffer;
+  notes: number;
+  cards: number;
+  reviews: number;
+  media: number;
+};
+
 export type BrowserCard = {
   id: number;
   deckId: number;
@@ -102,6 +111,7 @@ export type DbCommand =
   | { type: "addClozeNote"; deckId: number; text: string; extra: string }
   | { type: "storeMedia"; filename: string; bytes: ArrayBuffer }
   | { type: "importApkg"; bytes: ArrayBuffer; keepScheduling: boolean }
+  | { type: "exportCollection" }
   | { type: "browseNotes"; query: string; deckId: number | null; offset: number }
   | { type: "updateNote"; noteId: number; fields: string[]; tags: string[] }
   | { type: "deleteNote"; noteId: number }

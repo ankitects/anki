@@ -14,6 +14,7 @@ import {
 } from "@/lib/db/client";
 import type { DeckSummary, LocalCollectionInfo, NoteTypeSummary, ReviewRating, StudyCard } from "@/lib/db/types";
 import { CardBrowser } from "./CardBrowser";
+import { CollectionBackup } from "./CollectionBackup";
 import { ImportDeck } from "./ImportDeck";
 import { emptyImageOcclusionDraft, ImageOcclusionEditor } from "./ImageOcclusionEditor";
 import type { ImageOcclusionDraft } from "./ImageOcclusionEditor";
@@ -24,7 +25,7 @@ type LoadState =
   | { status: "ready"; info: LocalCollectionInfo; decks: DeckSummary[]; notetypes: NoteTypeSummary[] }
   | { status: "error"; message: string };
 
-type Screen = "decks" | "browse" | "deck" | "create-deck" | "add-note" | "review" | "import" | "shared";
+type Screen = "decks" | "browse" | "settings" | "deck" | "create-deck" | "add-note" | "review" | "import" | "shared";
 
 function errorMessage(error: unknown) {
   return error instanceof Error ? error.message : String(error);
@@ -249,8 +250,8 @@ export function LocalCollectionStatus() {
     );
   }
 
-  const showBack = screen !== "decks" && screen !== "browse";
-  const title = screen === "import" ? "Import" : screen === "shared" ? "Shared decks" : screen === "browse" ? "Browse"
+  const showBack = screen !== "decks" && screen !== "browse" && screen !== "settings";
+  const title = screen === "import" ? "Import" : screen === "shared" ? "Shared decks" : screen === "browse" ? "Browse" : screen === "settings" ? "Settings"
     : screen === "decks" || screen === "create-deck" ? "Decks" : selectedDeck?.name ?? "Deck";
 
   return (
@@ -319,6 +320,8 @@ export function LocalCollectionStatus() {
       {screen === "shared" && <SharedDecks onImport={() => setScreen("import")} />}
 
       {screen === "browse" && <CardBrowser decks={state.decks} onCollectionChanged={refreshCollection} />}
+
+      {screen === "settings" && <CollectionBackup persistent={state.info.persistent} onBusyChange={setBusy} />}
 
       {screen === "create-deck" && (
         <form className="panel form-panel" onSubmit={saveDeck}>
@@ -417,13 +420,14 @@ export function LocalCollectionStatus() {
         </section>
       )}
 
-      {(screen === "decks" || screen === "browse") && (
+      {(screen === "decks" || screen === "browse" || screen === "settings") && (
         <footer className="bottom-nav" aria-label="Primary navigation">
           <button className={`nav-item ${screen === "decks" ? "active" : ""}`} type="button" onClick={goToDecks}>Decks</button>
           <button className={`nav-item ${screen === "browse" ? "active" : ""}`} type="button"
             onClick={() => { setScreen("browse"); setSelectedDeckId(null); setActionError(null); }}>Browse</button>
           <button className="nav-item" type="button" disabled>Stats</button>
-          <button className="nav-item" type="button" disabled>Settings</button>
+          <button className={`nav-item ${screen === "settings" ? "active" : ""}`} type="button"
+            onClick={() => { setScreen("settings"); setSelectedDeckId(null); setActionError(null); }}>Settings</button>
         </footer>
       )}
     </main>
