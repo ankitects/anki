@@ -13,14 +13,18 @@ import {
   storeMedia
 } from "@/lib/db/client";
 import type { DeckSummary, LocalCollectionInfo, NoteTypeSummary, ReviewRating, StudyCard } from "@/lib/db/types";
+import { CardBrowser } from "./CardBrowser";
 import { ImportDeck } from "./ImportDeck";
+import { emptyImageOcclusionDraft, ImageOcclusionEditor } from "./ImageOcclusionEditor";
+import type { ImageOcclusionDraft } from "./ImageOcclusionEditor";
+import { SharedDecks } from "./SharedDecks";
 
 type LoadState =
   | { status: "loading" }
   | { status: "ready"; info: LocalCollectionInfo; decks: DeckSummary[]; notetypes: NoteTypeSummary[] }
   | { status: "error"; message: string };
 
-type Screen = "decks" | "deck" | "create-deck" | "add-note" | "review" | "import";
+type Screen = "decks" | "browse" | "deck" | "create-deck" | "add-note" | "review" | "import" | "shared";
 
 function errorMessage(error: unknown) {
   return error instanceof Error ? error.message : String(error);
@@ -33,9 +37,30 @@ function cardDocument(content: string, cardCss: string) {
       line-height:1.45;text-align:center;color:#17191c;background:#fff;overflow-wrap:anywhere}
       hr#answer{margin:28px 0;border:0;border-top:1px solid #d8dce3}img,video{max-width:100%;height:auto}
       .anki-audio{width:min(100%,360px);margin:14px auto}.hint{color:#1f6fd1;text-decoration:underline;cursor:help}
+      .type-answer-marker{display:inline-block;margin-top:16px;color:#667085;font-size:14px}.type-answer-correct{font-weight:700}
       @media(prefers-color-scheme:dark){body{color:#f3f4f6;background:#1c1f23}hr#answer{border-color:#3b4149}}
       ${cardCss.replace(/<\/style/gi, "<\\/style")}
     </style></head><body class="card">${content}</body></html>`;
+}
+
+function occlusionNumber(value: number) {
+  if (!Number.isFinite(value) || value === 0) return ".0000";
+  return value.toFixed(4).replace(/^0+|0+$/g, "");
+}
+
+function imageOcclusionFields(notetype: NoteTypeSummary, draft: ImageOcclusionDraft, filename: string) {
+  const indexes = notetype.imageOcclusionFields;
+  if (!indexes) throw new Error("This Image Occlusion note type is missing its field mapping");
+  const fields = notetype.fields.map(() => "");
+  fields[indexes.occlusions] = draft.masks.map((mask, index) => {
+    const inactive = draft.hideAllGuessOne ? ":oi=1" : "";
+    return `{{c${index + 1}::image-occlusion:rect:left=${occlusionNumber(mask.left)}:top=${occlusionNumber(mask.top)}:width=${occlusionNumber(mask.width)}:height=${occlusionNumber(mask.height)}${inactive}}}<br>`;
+  }).join("");
+  fields[indexes.image] = `<img src="${encodeURIComponent(filename)}">`;
+  fields[indexes.header] = draft.header.trim();
+  fields[indexes.backExtra] = draft.backExtra.trim();
+  if (indexes.comments !== undefined && indexes.comments < fields.length) fields[indexes.comments] = draft.comments.trim();
+  return fields;
 }
 
 export function LocalCollectionStatus() {
@@ -46,9 +71,11 @@ export function LocalCollectionStatus() {
   const [noteTypeId, setNoteTypeId] = useState<number | null>(null);
   const [noteFields, setNoteFields] = useState<string[]>([]);
   const [attachments, setAttachments] = useState<File[]>([]);
+  const [imageOcclusion, setImageOcclusion] = useState<ImageOcclusionDraft>(emptyImageOcclusionDraft);
   const [studyCard, setStudyCard] = useState<StudyCard | null>(null);
   const [studyComplete, setStudyComplete] = useState(false);
   const [answerShown, setAnswerShown] = useState(false);
+  const [typedAnswer, setTypedAnswer] = useState("");
   const [busy, setBusy] = useState(false);
   const [actionError, setActionError] = useState<string | null>(null);
   const shownAt = useRef(Date.now());
@@ -129,6 +156,23 @@ export function LocalCollectionStatus() {
     setBusy(true);
     setActionError(null);
     try {
+      if (selectedNotetype.kind === "image-occlusion") {
+        if (!imageOcclusion.image) throw new Error("Choose an image to occlude");
+        if (!imageOcclusion.image.size || imageOcclusion.image.size > 64 * 1024 * 1024) {
+          throw new Error("Choose a non-empty image no larger than 64 MiB");
+        }
+        if (!imageOcclusion.image.type.startsWith("image/")
+          && !/\.(?:avif|gif|jpe?g|png|svg|webp)$/i.test(imageOcclusion.image.name)) {
+          throw new Error("Choose a supported image file");
+        }
+        if (!imageOcclusion.masks.length) throw new Error("Draw at least one mask on the image");
+        const filename = await storeMedia(imageOcclusion.image.name, await imageOcclusion.image.arrayBuffer());
+        await addNote(selectedDeckId, selectedNotetype.id, imageOcclusionFields(selectedNotetype, imageOcclusion, filename));
+        await refreshDecks();
+        setImageOcclusion(emptyImageOcclusionDraft);
+        setScreen("deck");
+        return;
+      }
       const mediaMarkup: string[] = [];
       for (const file of attachments) {
         const filename = await storeMedia(file.name, await file.arrayBuffer());
@@ -160,6 +204,7 @@ export function LocalCollectionStatus() {
       setStudyCard(card);
       setStudyComplete(card === null);
       setAnswerShown(false);
+      setTypedAnswer("");
       shownAt.current = Date.now();
       setScreen("review");
     } catch (error) {
@@ -179,6 +224,7 @@ export function LocalCollectionStatus() {
       setStudyCard(next);
       setStudyComplete(next === null);
       setAnswerShown(false);
+      setTypedAnswer("");
       shownAt.current = Date.now();
       await refreshDecks();
     } catch (error) {
@@ -203,8 +249,9 @@ export function LocalCollectionStatus() {
     );
   }
 
-  const showBack = screen !== "decks";
-  const title = screen === "import" ? "Import" : screen === "decks" || screen === "create-deck" ? "Decks" : selectedDeck?.name ?? "Deck";
+  const showBack = screen !== "decks" && screen !== "browse";
+  const title = screen === "import" ? "Import" : screen === "shared" ? "Shared decks" : screen === "browse" ? "Browse"
+    : screen === "decks" || screen === "create-deck" ? "Decks" : selectedDeck?.name ?? "Deck";
 
   return (
     <main className="app-shell">
@@ -223,6 +270,8 @@ export function LocalCollectionStatus() {
         </div>
         {screen === "decks" && (
           <div className="top-actions">
+            <button className="secondary-button" type="button"
+              onClick={() => { setScreen("shared"); setActionError(null); }}>Shared</button>
             <button className="secondary-button" type="button" onClick={() => setScreen("import")}>Import</button>
             <button className="icon-button" type="button" onClick={() => { setScreen("create-deck"); setActionError(null); }} aria-label="Add deck">+</button>
           </div>
@@ -235,6 +284,7 @@ export function LocalCollectionStatus() {
               setNoteFields(initial.fields.map(() => ""));
             }
             setAttachments([]);
+            setImageOcclusion(emptyImageOcclusionDraft);
             setScreen("add-note");
             setActionError(null);
           }} aria-label="Add card">+</button>
@@ -265,6 +315,10 @@ export function LocalCollectionStatus() {
 
       {screen === "import" && <ImportDeck persistent={state.info.persistent} onBusyChange={setBusy}
         onImported={refreshCollection} onDone={goToDecks} />}
+
+      {screen === "shared" && <SharedDecks onImport={() => setScreen("import")} />}
+
+      {screen === "browse" && <CardBrowser decks={state.decks} onCollectionChanged={refreshCollection} />}
 
       {screen === "create-deck" && (
         <form className="panel form-panel" onSubmit={saveDeck}>
@@ -297,22 +351,26 @@ export function LocalCollectionStatus() {
             const notetype = state.notetypes.find((candidate) => candidate.id === id);
             setNoteTypeId(id);
             setNoteFields(notetype?.fields.map(() => "") ?? []);
+            setImageOcclusion(emptyImageOcclusionDraft);
           }}>
             {state.notetypes.map((notetype) => <option value={notetype.id} key={notetype.id}>{notetype.name}</option>)}
           </select>
-          {selectedNotetype.fields.map((field, index) => (
+          {selectedNotetype.kind === "image-occlusion" ? (
+            <ImageOcclusionEditor value={imageOcclusion} disabled={busy} onChange={setImageOcclusion} />
+          ) : selectedNotetype.fields.map((field, index) => (
             <div className="field-editor" key={`${selectedNotetype.id}-${field}`}>
               <label htmlFor={`note-field-${index}`}>{field}</label>
               <textarea id={`note-field-${index}`} autoFocus={index === 0} rows={index === 0 ? 5 : 4} value={noteFields[index] ?? ""} onChange={(event) => setNoteFields((current) => current.map((value, fieldIndex) => fieldIndex === index ? event.target.value : value))} placeholder={selectedNotetype.kind === "cloze" && index === 0 ? "The capital is {{c1::Paris}}." : undefined} />
             </div>
           ))}
-          <label className="media-picker" htmlFor="media-files">
+          {selectedNotetype.kind !== "image-occlusion" && <label className="media-picker" htmlFor="media-files">
             <span>Attach image or audio</span>
             <input id="media-files" type="file" accept="image/*,audio/*,video/*" multiple onChange={(event) => setAttachments([...event.target.files ?? []])} />
-          </label>
-          {attachments.length > 0 && <p className="attachment-list">{attachments.map((file) => file.name).join(", ")}</p>}
+          </label>}
+          {selectedNotetype.kind !== "image-occlusion" && attachments.length > 0 && <p className="attachment-list">{attachments.map((file) => file.name).join(", ")}</p>}
           {actionError && <p className="form-error" role="alert">{actionError}</p>}
-          <button className="primary-button" type="submit" disabled={busy || !noteFields[0]?.trim()}>{busy ? "Saving…" : "Add card"}</button>
+          <button className="primary-button" type="submit" disabled={busy || (selectedNotetype.kind === "image-occlusion"
+            ? !imageOcclusion.image || !imageOcclusion.masks.length : !noteFields[0]?.trim())}>{busy ? "Saving…" : "Add card"}</button>
         </form>
       )}
 
@@ -330,25 +388,40 @@ export function LocalCollectionStatus() {
               <iframe className="card-frame" sandbox="" title={answerShown ? "Card answer" : "Card question"} srcDoc={cardDocument(answerShown ? studyCard.answerHtml : studyCard.questionHtml, studyCard.cardCss)} />
               {actionError && <p className="form-error" role="alert">{actionError}</p>}
               {!answerShown ? (
-                <button className="primary-button show-answer" type="button" onClick={() => setAnswerShown(true)}>Show answer</button>
+                <>
+                  {studyCard.typedAnswer && <label className="typed-answer-panel" htmlFor="typed-answer">
+                    <span>Type your answer</span>
+                    <input id="typed-answer" autoFocus autoComplete="off" value={typedAnswer}
+                      onChange={(event) => setTypedAnswer(event.target.value)}
+                      onKeyDown={(event) => { if (event.key === "Enter") setAnswerShown(true); }} />
+                  </label>}
+                  <button className="primary-button show-answer" type="button" onClick={() => setAnswerShown(true)}>Show answer</button>
+                </>
               ) : (
-                <div className="answer-grid">
-                  {studyCard.answerOptions.map((option) => (
-                    <button className={`answer-button rating-${option.rating}`} type="button" key={option.rating} disabled={busy} onClick={() => void rateCard(option.rating)}>
-                      <span>{option.intervalLabel}</span>{["", "Again", "Hard", "Good", "Easy"][option.rating]}
-                    </button>
-                  ))}
-                </div>
+                <>
+                  {studyCard.typedAnswer && <div className={`typed-answer-result ${typedAnswer.normalize("NFC").trim() === studyCard.typedAnswer.correct.normalize("NFC").trim() ? "correct" : "incorrect"}`}>
+                    <span>Your answer</span><strong>{typedAnswer || "(blank)"}</strong>
+                    <span>Correct answer</span><strong>{studyCard.typedAnswer.correct}</strong>
+                  </div>}
+                  <div className="answer-grid">
+                    {studyCard.answerOptions.map((option) => (
+                      <button className={`answer-button rating-${option.rating}`} type="button" key={option.rating} disabled={busy} onClick={() => void rateCard(option.rating)}>
+                        <span>{option.intervalLabel}</span>{["", "Again", "Hard", "Good", "Easy"][option.rating]}
+                      </button>
+                    ))}
+                  </div>
+                </>
               )}
             </>
           ) : null}
         </section>
       )}
 
-      {screen === "decks" && (
+      {(screen === "decks" || screen === "browse") && (
         <footer className="bottom-nav" aria-label="Primary navigation">
-          <button className="nav-item active" type="button">Decks</button>
-          <button className="nav-item" type="button" disabled>Browse</button>
+          <button className={`nav-item ${screen === "decks" ? "active" : ""}`} type="button" onClick={goToDecks}>Decks</button>
+          <button className={`nav-item ${screen === "browse" ? "active" : ""}`} type="button"
+            onClick={() => { setScreen("browse"); setSelectedDeckId(null); setActionError(null); }}>Browse</button>
           <button className="nav-item" type="button" disabled>Stats</button>
           <button className="nav-item" type="button" disabled>Settings</button>
         </footer>

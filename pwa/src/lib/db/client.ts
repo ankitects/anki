@@ -2,6 +2,8 @@
 
 import type {
   ApkgImportResult,
+  BrowseNotesResult,
+  BrowserCard,
   DbCommand,
   DbRequest,
   DbResponse,
@@ -110,6 +112,22 @@ export function storeMedia(filename: string, bytes: ArrayBuffer) {
 
 export function importApkg(bytes: ArrayBuffer, keepScheduling: boolean, progress?: (message: string) => void) {
   return request<ApkgImportResult>({ type: "importApkg", bytes, keepScheduling }, [bytes], progress);
+}
+
+export function browseNotes(query: string, deckId: number | null, offset = 0) {
+  return request<BrowseNotesResult>({ type: "browseNotes", query, deckId, offset });
+}
+
+export function updateNote(noteId: number, fields: string[], tags: string[]) {
+  return request<void>({ type: "updateNote", noteId, fields, tags });
+}
+
+export function deleteNote(noteId: number) {
+  return request<void>({ type: "deleteNote", noteId });
+}
+
+export function setCardStatus(cardId: number, status: BrowserCard["status"]) {
+  return request<void>({ type: "setCardStatus", cardId, status });
 }
 
 export function getNextCard(deckId: number) {

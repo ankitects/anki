@@ -1,6 +1,6 @@
 # Anki PWA
 
-A frontend-only Next.js PWA with an on-device Anki-format collection. No hosted backend or paid service is needed for local study and imports.
+A frontend-only Next.js PWA with an on-device Anki-format collection. No hosted database, backend, or paid service is needed for local study and imports.
 
 ## Current milestone
 
@@ -11,14 +11,19 @@ A frontend-only Next.js PWA with an on-device Anki-format collection. No hosted 
 - persistent Origin Private File System (OPFS) collection storage when supported
 - initial decks / notes / cards / review-log schema
 - deck browser wired to the local collection
+- browse/search by text, tag or deck; edit/delete notes; suspend and bury cards
 - deck/note creation with dynamic note-type fields
 - Basic, Cloze and custom-template review with local images/audio
+- all six stock Anki note types: Basic, reversed, optional reversed, type-in-answer, Cloze, and Image Occlusion
 - FSRS scheduling and local review history
 - local `.apkg` import with legacy and modern (Zstd/protobuf) package support
+- AnkiWeb shared-deck search launcher and local `.apkg` import
 
 ## Import a deck
 
 On the Decks screen, select **Import**, choose an `.apkg`, then select **Import deck**.
+
+To find a public deck, select **Shared**, enter a search, and choose **Search AnkiWeb**. Results open on AnkiWeb so your AnkiWeb login remains private and its anonymous-search limit is not shared by a proxy server. Download the `.apkg`, return to this PWA, and choose **Open Import**. The package goes directly from AnkiWeb to your device.
 
 - Notes, cards, tags, templates, CSS, and packaged media are imported locally.
 - Scheduling/history are kept by default. Uncheck the option to start imported cards as new.
@@ -28,7 +33,9 @@ On the Decks screen, select **Import**, choose an `.apkg`, then select **Import 
 - Imports are limited to 128 MiB per package/database, 64 MiB per media file, 512 MiB expanded data and 50,000 ZIP entries. Larger decks should be split/exported in smaller batches in Anki.
 - Database changes are transactional. A failed import rolls them back and removes newly written media. Closing the tab mid-import can leave unused media, but cannot partially commit notes/cards. Keep the tab open until completion.
 
-This is not full Anki feature parity: deck-option presets, add-ons, collection backups (`.colpkg`), AnkiWeb sync, and script-dependent templates are not supported. Imported cards use this PWA's existing FSRS settings. Some advanced template filters and MathJax are not rendered. Keep your original Anki collection/export as your backup.
+Image Occlusion creation supports Anki-compatible rectangular masks, including “Hide all, guess one”. Imported rectangle, ellipse, and polygon masks are rendered during review. Anki's advanced polygon/text mask editor is not available yet.
+
+This is not full Anki feature parity: custom note-type/template management, deck-option presets, add-ons, collection backups (`.colpkg`), AnkiWeb sync, and script-dependent templates are not supported. Imported cards use this PWA's existing FSRS settings. Some advanced template filters and MathJax are not rendered. Keep your original Anki collection/export as your backup.
 
 When the app reports **Temporary storage fallback**, imported data will not survive a reload. Browser/site-data clearing can also remove persistent OPFS data.
 
@@ -78,10 +85,11 @@ Import tests use the repository's original `.apkg` fixtures plus generated schem
 
 For the browser smoke test, start a production PWA on a dedicated test origin and open it in a **fresh Chrome profile** with remote debugging enabled. Run `just pwa-test-browser 9230 http://127.0.0.1:3002/ legacy` (or `modern`). Without `just`, use `npm --prefix pwa run test:browser -- 9230 http://127.0.0.1:3002/ modern`. The test adds a small synthetic deck, imports it twice, checks invalid-package handling, then reloads and reviews offline. Never point it at your real collection.
 
+The shared-deck UI smoke test verifies that the search form targets AnkiWeb directly and does not consume AnkiWeb's anonymous search limit: `npm --prefix pwa run test:shared-browser -- 9232 http://127.0.0.1:3012/`.
+
 ## Next milestones
 
-1. Browse/search, edit and delete existing notes/cards.
-2. Local collection export/backup.
-3. Statistics and configurable deck options.
-4. More complete template rendering.
-5. Shared-deck discovery and investigation of AnkiWeb interoperability.
+1. Local collection export/backup.
+2. Statistics and configurable deck options.
+3. More complete template rendering.
+4. Further investigation of AnkiWeb interoperability. Shared-deck discovery links to AnkiWeb; account sync is not supported.

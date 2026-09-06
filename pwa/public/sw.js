@@ -1,4 +1,4 @@
-const CACHE_NAME = "anki-pwa-shell-v1";
+const CACHE_NAME = "anki-pwa-shell-v3";
 const CORE_ASSETS = ["/", "/icon.svg", "/icon-maskable.svg"];
 
 self.addEventListener("install", (event) => {
@@ -22,6 +22,8 @@ self.addEventListener("fetch", (event) => {
 
   const url = new URL(request.url);
   if (url.origin !== self.location.origin) return;
+  // API responses are live and should never be served from the offline shell cache.
+  if (url.pathname.startsWith("/api/")) return;
 
   if (request.mode === "navigate") {
     event.respondWith(

@@ -193,6 +193,10 @@ pwa-build:
 pwa-test-browser cdp_port="9230" url="http://127.0.0.1:3002/" format="legacy":
     npm --prefix pwa run test:browser -- {{cdp_port}} {{url}} {{format}}
 
+# Same requirements as pwa-test-browser; verifies all six stock note types
+pwa-test-card-types cdp_port="9231" url="http://127.0.0.1:3002/":
+    npm --prefix pwa run test:card-types-browser -- {{cdp_port}} {{url}}
+
 # Helpers to get the right commands for the platform
 
 ninja := if os() == "windows" { "tools\\ninja" } else { "./ninja" }

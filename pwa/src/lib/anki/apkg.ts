@@ -71,11 +71,12 @@ function modernModels(db: Database): AnkiNotetype[] {
     const c = config(row);
     return {
       id: Number(row.id), name: String(row.name), type: c.number(1), sortf: c.number(2), css: c.text(3),
+      originalStockKind: c.number(9),
       latexPre: c.text(5), latexPost: c.text(6), latexsvg: Boolean(c.number(7)),
       flds: (groupedFields.get(Number(row.id)) ?? []).map((field) => {
         const f = config(field);
         return { name: String(field.name), ord: Number(field.ord), sticky: Boolean(f.number(1)),
-          rtl: Boolean(f.number(2)), font: f.text(3), size: f.number(4), description: f.text(5) };
+          rtl: Boolean(f.number(2)), font: f.text(3), size: f.number(4), description: f.text(5), tag: f.number(10) };
       }),
       tmpls: (groupedTemplates.get(Number(row.id)) ?? []).map((template) => {
         const t = config(template);

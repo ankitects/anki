@@ -11,7 +11,10 @@
     "start": "next start",
     "typecheck": "tsc --noEmit",
     "test": "node --import tsx --test tests/*.test.ts",
-    "test:browser": "node tests/import-browser.mjs"
+    "test:browser": "node tests/import-browser.mjs",
+    "test:card-types-browser": "node tests/card-types-browser.mjs",
+    "test:browse-browser": "node tests/browse-browser.mjs",
+    "test:shared-browser": "node tests/shared-decks-browser.mjs"
   },
   "dependencies": {
     "@sqlite.org/sqlite-wasm": "3.53.0-build1",

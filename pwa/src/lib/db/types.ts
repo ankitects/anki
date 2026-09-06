@@ -25,6 +25,10 @@ export type StudyCard = {
   cardCss: string;
   state: CardState;
   intervalDays: number;
+  typedAnswer?: {
+    field: string;
+    correct: string;
+  };
   answerOptions: Array<{
     rating: ReviewRating;
     intervalLabel: string;
@@ -36,8 +40,15 @@ export type ReviewRating = 1 | 2 | 3 | 4;
 export type NoteTypeSummary = {
   id: number;
   name: string;
-  kind: "standard" | "cloze";
+  kind: "standard" | "cloze" | "image-occlusion";
   fields: string[];
+  imageOcclusionFields?: {
+    occlusions: number;
+    image: number;
+    header: number;
+    backExtra: number;
+    comments?: number;
+  };
 };
 
 export type ApkgImportResult = {
@@ -47,6 +58,38 @@ export type ApkgImportResult = {
   skippedNotes: number;
   decks: string[];
   keptScheduling: boolean;
+};
+
+export type BrowserCard = {
+  id: number;
+  deckId: number;
+  deckName: string;
+  ordinal: number;
+  templateName: string;
+  state: CardState;
+  status: "active" | "suspended" | "buried";
+  intervalDays: number;
+  reviews: number;
+  lapses: number;
+};
+
+export type BrowserNote = {
+  id: number;
+  notetypeId: number;
+  notetypeName: string;
+  fieldNames: string[];
+  fields: string[];
+  tags: string[];
+  preview: string;
+  modified: number;
+  cards: BrowserCard[];
+};
+
+export type BrowseNotesResult = {
+  notes: BrowserNote[];
+  total: number;
+  offset: number;
+  hasMore: boolean;
 };
 
 export type DbCommand =
@@ -59,6 +102,10 @@ export type DbCommand =
   | { type: "addClozeNote"; deckId: number; text: string; extra: string }
   | { type: "storeMedia"; filename: string; bytes: ArrayBuffer }
   | { type: "importApkg"; bytes: ArrayBuffer; keepScheduling: boolean }
+  | { type: "browseNotes"; query: string; deckId: number | null; offset: number }
+  | { type: "updateNote"; noteId: number; fields: string[]; tags: string[] }
+  | { type: "deleteNote"; noteId: number }
+  | { type: "setCardStatus"; cardId: number; status: BrowserCard["status"] }
   | { type: "getNextCard"; deckId: number }
   | { type: "answerCard"; cardId: number; rating: ReviewRating; timeMs: number };
 
