@@ -324,7 +324,9 @@
                   "addons/debugging",
                   "addons/monkey-patching",
                   "addons/sharing",
-                  "addons/hooks-reference"
+                  "addons/hooks-reference",
+                  "addons/porting2.1.x",
+                  "addons/porting2.0"
                 ]
               }
             ]
