@@ -63,7 +63,7 @@ indices instead of optional 0-based ones to avoid ambiguity when an index is `0`
 
 ### Oneofs
 
-All fields in a oneof are implicitly optional, so the caveats [above](https://anki.mintlify.app/#optional-values)
+All fields in a oneof are implicitly optional, so the caveats [above](https://anki.mintlify.app/developers/protobuf#optional-values)
 apply just as much to a message like this:
 
 ```protobuf

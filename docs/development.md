@@ -231,7 +231,7 @@ Depending on your operating system, this produces a file under `out/installer/di
 ### Issues During Building
 
 If you are experiencing issues building the installer, make sure that all dependencies
-are installed. See [Building from source](https://anki.mintlify.app/#building-from-source) for more info.
+are installed. See [Building from source](https://anki.mintlify.app/developers/development#building-from-source) for more info.
 
 ## Releasing
 
