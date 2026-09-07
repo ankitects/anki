@@ -44,11 +44,6 @@ notetypes-header = Header
 notetypes-note-types = Note Types
 notetypes-options = Options
 notetypes-please-add-another-note-type-first = Please add another note type first.
-notetypes-selected-note-types-removed =
-    { $count ->
-        [one] Removed one selected note type.
-       *[other] Removed { $count } selected note types.
-    }
 notetypes-type = Type
 
 ## Image Occlusion

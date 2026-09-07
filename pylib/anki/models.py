@@ -17,7 +17,7 @@ from anki import notetypes_pb2
 from anki._legacy import DeprecatedNamesMixin, deprecated, print_deprecation_warning
 from anki.collection import OpChanges, OpChangesWithId
 from anki.consts import *
-from anki.errors import NotFoundError
+from anki.errors import InvalidInput, NotFoundError
 from anki.lang import without_unicode_isolation
 from anki.stdmodels import StockNotetypeKind
 from anki.utils import checksum, from_json_bytes, to_json_bytes
@@ -202,6 +202,27 @@ class ModelManager(DeprecatedNamesMixin):
         "Modifies schema."
         self._remove_from_cache(id)
         return self.col._backend.remove_notetype(id)
+
+    def remove_multiple(self, ids: Sequence[NotetypeId]) -> OpChanges:
+        """Remove existing selected note types in one undo step, keeping at least one."""
+        existing_ids = {notetype.id for notetype in self.all_names_and_ids()}
+        ids = list(dict.fromkeys(id for id in ids if id in existing_ids))
+        if not ids:
+            return OpChanges()
+        if len(ids) == len(existing_ids):
+            raise InvalidInput(
+                self.col.tr.notetypes_please_add_another_note_type_first(),
+                help_page=None,
+                context=None,
+                backtrace=None,
+            )
+
+        changes = self.remove(ids[0])
+        target = self.col.undo_status().last_step
+        for id in ids[1:]:
+            self.remove(id)
+            changes = self.col.merge_undo_entries(target)
+        return changes
 
     def add(self, notetype: NotetypeDict) -> OpChangesWithId:
         "Replaced with add_dict()"
