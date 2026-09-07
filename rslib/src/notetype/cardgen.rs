@@ -297,7 +297,7 @@ impl Collection {
         cache: &mut CardGenCache,
     ) -> Result<()> {
         for c in cards {
-            let (did, dcid) = self.deck_for_adding(c.did.or(target_deck_id))?;
+            let (did, dcid) = self.deck_for_adding(target_deck_id, c.did)?;
             let due = if let Some(due) = c.due {
                 // use existing due number if provided
                 due
@@ -341,10 +341,14 @@ impl Collection {
         }
     }
 
-    /// If deck ID does not exist or points to a filtered deck, fall back on
-    /// default.
-    fn deck_for_adding(&mut self, did: Option<DeckId>) -> Result<(DeckId, DeckConfigId)> {
-        if let Some(did) = did {
+    /// If deck ID or overriding deck id both don't exist or point to filtered
+    /// decks, fall back on default.
+    fn deck_for_adding(
+        &mut self,
+        did: Option<DeckId>,
+        did_override: Option<DeckId>,
+    ) -> Result<(DeckId, DeckConfigId)> {
+        for did in did_override.into_iter().chain(did) {
             if let Some(deck) = self.deck_conf_if_normal(did)? {
                 return Ok(deck);
             }
