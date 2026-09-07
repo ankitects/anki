@@ -450,9 +450,13 @@ def main():
         dest = language_code_path / root_dest if language_code_path else root_dest
         paths.append(Page(src=path, root_dest=root_dest, dest=dest))
 
-    to_move = [page for page in paths if str(page.root_dest) in default_language_pages]
+    to_move = [
+        page for page in paths if page.root_dest.as_posix() in default_language_pages
+    ]
     unmoved = [
-        page.src for page in paths if str(page.root_dest) not in default_language_pages
+        page
+        for page in paths
+        if page.root_dest.as_posix() not in default_language_pages
     ]
 
     if unmoved:
@@ -482,7 +486,9 @@ def main():
                 or "hooks-reference" in group
             ):
                 return (
-                    str(language_code_path / path) if language_code_path else str(path)
+                    (language_code_path / path).as_posix()
+                    if language_code_path
+                    else path.as_posix()
                 )
             else:
                 return None
