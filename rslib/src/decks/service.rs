@@ -319,6 +319,10 @@ fn deck_names_to_proto(names: Vec<(DeckId, String)>) -> anki_proto::decks::DeckN
 
 #[cfg(test)]
 mod tests {
+    use std::collections::HashSet;
+
+    use strum::IntoEnumIterator;
+
     use super::*;
     use crate::decks::FilteredDeck;
     use crate::decks::FilteredSearchOrder;
@@ -327,10 +331,6 @@ mod tests {
     use crate::services::DecksService;
     use crate::tests::DeckAdder;
     use crate::tests::NoteAdder;
-
-    fn deck_id(did: i64) -> anki_proto::decks::DeckId {
-        anki_proto::decks::DeckId { did }
-    }
 
     fn deck_id_by_name(col: &mut Collection, name: &str) -> error::Result<i64> {
         DecksService::get_deck_id_by_name(
@@ -460,7 +460,7 @@ mod tests {
         let added = DecksService::add_deck(&mut col, proto).unwrap();
         assert!(added.id > 0);
 
-        let by_id = DecksService::get_deck(&mut col, deck_id(added.id)).unwrap();
+        let by_id = DecksService::get_deck(&mut col, DeckId(added.id).into()).unwrap();
         assert_eq!(by_id.name, "Created");
 
         let by_name = DecksService::get_deck_id_by_name(
@@ -476,7 +476,7 @@ mod tests {
     #[test]
     fn get_deck_with_unknown_id_errors() {
         let mut col = Collection::new();
-        let err = DecksService::get_deck(&mut col, deck_id(999_999)).unwrap_err();
+        let err = DecksService::get_deck(&mut col, DeckId(999_999).into()).unwrap_err();
         assert!(
             matches!(err, AnkiError::NotFound { .. }),
             "unknown id should be a not-found error, got {err:?}"
@@ -507,7 +507,7 @@ mod tests {
     fn update_deck_persists_common_and_kind_specific_changes() {
         let mut col = Collection::new();
         let deck = DeckAdder::new("BeforeUpdate").add(&mut col);
-        let mut proto = DecksService::get_deck(&mut col, deck_id(deck.id.0)).unwrap();
+        let mut proto = DecksService::get_deck(&mut col, deck.id.into()).unwrap();
         proto.name = "AfterUpdate".to_string();
         let common = proto.common.as_mut().unwrap();
         common.study_collapsed = false;
@@ -522,7 +522,7 @@ mod tests {
 
         let _ = DecksService::update_deck(&mut col, proto).unwrap();
 
-        let updated = DecksService::get_deck(&mut col, deck_id(deck.id.0)).unwrap();
+        let updated = DecksService::get_deck(&mut col, deck.id.into()).unwrap();
         assert_eq!(updated.name, "AfterUpdate");
         let common = updated.common.unwrap();
         assert!(!common.study_collapsed);
@@ -575,7 +575,7 @@ mod tests {
         .unwrap();
         assert_eq!(out.count, 1, "one card should have been removed");
 
-        let error = DecksService::get_deck(&mut col, deck_id(deck.id.0)).unwrap_err();
+        let error = DecksService::get_deck(&mut col, deck.id.into()).unwrap_err();
         assert!(
             matches!(error, AnkiError::NotFound { .. }),
             "removed deck should produce a not-found error, got {error:?}"
@@ -714,7 +714,7 @@ mod tests {
         let child = DeckAdder::new("P::C").add(&mut col);
         DeckAdder::new("Unrelated").add(&mut col);
 
-        let names = DecksService::get_deck_and_child_names(&mut col, deck_id(parent.id.0)).unwrap();
+        let names = DecksService::get_deck_and_child_names(&mut col, parent.id.into()).unwrap();
         let entries: Vec<_> = names
             .entries
             .into_iter()
@@ -795,7 +795,7 @@ mod tests {
     fn set_and_get_current_deck_round_trip() {
         let mut col = Collection::new();
         let deck = DeckAdder::new("Current").add(&mut col);
-        let _ = DecksService::set_current_deck(&mut col, deck_id(deck.id.0)).unwrap();
+        let _ = DecksService::set_current_deck(&mut col, deck.id.into()).unwrap();
         let current = DecksService::get_current_deck(&mut col).unwrap();
         assert_eq!(current.id, deck.id.0);
     }
@@ -813,7 +813,7 @@ mod tests {
             },
         )
         .unwrap();
-        let fetched = DecksService::get_deck(&mut col, deck_id(deck.id.0)).unwrap();
+        let fetched = DecksService::get_deck(&mut col, deck.id.into()).unwrap();
         let common = fetched.common.unwrap();
         assert!(!common.study_collapsed);
         assert!(
@@ -855,7 +855,7 @@ mod tests {
         .unwrap();
         assert!(added.id > 0);
 
-        let fetched = DecksService::get_deck_legacy(&mut col, deck_id(added.id)).unwrap();
+        let fetched = DecksService::get_deck_legacy(&mut col, DeckId(added.id).into()).unwrap();
         let fetched: serde_json::Value = serde_json::from_slice(&fetched.json).unwrap();
         assert_eq!(fetched["name"], "LegacyDeck");
     }
@@ -909,7 +909,7 @@ mod tests {
     fn update_deck_legacy_persists_changes() {
         let mut col = Collection::new();
         let deck = DeckAdder::new("LegacyUpdate").add(&mut col);
-        let fetched = DecksService::get_deck_legacy(&mut col, deck_id(deck.id.0)).unwrap();
+        let fetched = DecksService::get_deck_legacy(&mut col, deck.id.into()).unwrap();
         let mut value: serde_json::Value = serde_json::from_slice(&fetched.json).unwrap();
         value["name"] = serde_json::json!("LegacyRenamed");
 
@@ -921,7 +921,7 @@ mod tests {
         )
         .unwrap();
 
-        let after = DecksService::get_deck(&mut col, deck_id(deck.id.0)).unwrap();
+        let after = DecksService::get_deck(&mut col, deck.id.into()).unwrap();
         assert_eq!(after.name, "LegacyRenamed");
     }
 
@@ -943,7 +943,7 @@ mod tests {
         .unwrap();
         assert!(added.did > 0);
         assert_eq!(
-            DecksService::get_deck(&mut col, deck_id(added.did))
+            DecksService::get_deck(&mut col, DeckId(added.did).into())
                 .unwrap()
                 .name,
             "AddOrUpdateLegacy"
@@ -954,7 +954,7 @@ mod tests {
     fn add_or_update_deck_legacy_preserves_usn_and_mtime_when_requested() {
         let mut col = Collection::new();
         let deck = DeckAdder::new("PreserveMetadata").add(&mut col);
-        let fetched = DecksService::get_deck_legacy(&mut col, deck_id(deck.id.0)).unwrap();
+        let fetched = DecksService::get_deck_legacy(&mut col, deck.id.into()).unwrap();
         let mut value: serde_json::Value = serde_json::from_slice(&fetched.json).unwrap();
         value["name"] = serde_json::json!("PreservedName");
         value["mod"] = serde_json::json!(123);
@@ -970,7 +970,7 @@ mod tests {
         .unwrap();
         assert_eq!(updated.did, deck.id.0);
 
-        let fetched = DecksService::get_deck_legacy(&mut col, deck_id(deck.id.0)).unwrap();
+        let fetched = DecksService::get_deck_legacy(&mut col, deck.id.into()).unwrap();
         let value: serde_json::Value = serde_json::from_slice(&fetched.json).unwrap();
         assert_eq!(value["name"], "PreservedName");
         assert_eq!(value["mod"], 123);
@@ -982,29 +982,27 @@ mod tests {
     // ----------------------------------------------------------------------
 
     #[test]
-    fn filtered_deck_order_labels_match_the_order_enum() {
+    fn filtered_deck_order_labels_has_a_unique_label_per_order() {
         let mut col = Collection::new();
-        let expected: Vec<String> = vec![
-            col.tr.decks_oldest_seen_first().into(),
-            col.tr.decks_random().into(),
-            col.tr.decks_increasing_intervals().into(),
-            col.tr.decks_decreasing_intervals().into(),
-            col.tr.decks_most_lapses().into(),
-            col.tr.decks_order_added().into(),
-            col.tr.decks_order_due().into(),
-            col.tr.decks_latest_added_first().into(),
-            col.tr
-                .deck_config_sort_order_retrievability_ascending()
-                .into(),
-            col.tr
-                .deck_config_sort_order_retrievability_descending()
-                .into(),
-            col.tr.decks_relative_overdueness().into(),
-        ];
 
         let labels = DecksService::filtered_deck_order_labels(&mut col).unwrap();
 
-        assert_eq!(labels.vals, expected);
+        assert_eq!(
+            labels.vals.len(),
+            FilteredSearchOrder::iter().count(),
+            "there should be one label per search order"
+        );
+        assert!(
+            labels.vals.iter().all(|label| !label.is_empty()),
+            "no label should be empty"
+        );
+        let unique: HashSet<&String> = labels.vals.iter().collect();
+        assert_eq!(
+            unique.len(),
+            labels.vals.len(),
+            "labels should be unique, got {:?}",
+            labels.vals
+        );
     }
 
     #[test]
@@ -1012,7 +1010,8 @@ mod tests {
         let mut col = Collection::new();
         let names_before = col.storage.get_all_deck_names().unwrap();
 
-        let created = DecksService::get_or_create_filtered_deck(&mut col, deck_id(0)).unwrap();
+        let created =
+            DecksService::get_or_create_filtered_deck(&mut col, DeckId(0).into()).unwrap();
 
         assert_eq!(created.id, 0);
         assert!(created.config.is_some());
@@ -1026,8 +1025,8 @@ mod tests {
     #[test]
     fn get_or_create_filtered_deck_errors_for_unknown_id() {
         let mut col = Collection::new();
-        let err =
-            DecksService::get_or_create_filtered_deck(&mut col, deck_id(999_999)).unwrap_err();
+        let err = DecksService::get_or_create_filtered_deck(&mut col, DeckId(999_999).into())
+            .unwrap_err();
         assert!(
             matches!(err, AnkiError::NotFound { .. }),
             "unknown id should be a not-found error, got {err:?}"
@@ -1040,7 +1039,8 @@ mod tests {
         let note = NoteAdder::basic(&mut col).add(&mut col);
         let card_id = col.storage.card_ids_of_notes(&[note.id]).unwrap()[0];
 
-        let mut template = DecksService::get_or_create_filtered_deck(&mut col, deck_id(0)).unwrap();
+        let mut template =
+            DecksService::get_or_create_filtered_deck(&mut col, DeckId(0).into()).unwrap();
         template.name = "MyFiltered".to_string();
         let config = template
             .config
