@@ -110,3 +110,32 @@ pub fn gather_zip_data_for_upload(
 
     Ok(Some(entries))
 }
+
+#[cfg(test)]
+mod tests {
+    use tempfile::tempdir;
+
+    use super::*;
+    use crate::media::MediaManager;
+    use crate::sync::media::MAX_MEDIA_FILES_IN_ZIP;
+
+    #[test]
+    fn gather_zip_data_handles_batches_larger_than_legacy_limit() -> Result<()> {
+        let dir = tempdir()?;
+        let media_dir = dir.path().join("media");
+        let media_db = dir.path().join("media.db");
+        let mgr = MediaManager::new(&media_dir, &media_db)?;
+
+        for idx in 0..30 {
+            mgr.add_file(&format!("file-{idx}.txt"), b"x")?;
+        }
+
+        assert!(30 <= MAX_MEDIA_FILES_IN_ZIP);
+        let pending = mgr.db.get_pending_uploads(30)?;
+        let gathered = gather_zip_data_for_upload(&mgr.db, &mgr.media_folder, &pending)?
+            .expect("test media entries should be readable");
+        assert_eq!(gathered.len(), 30);
+
+        Ok(())
+    }
+}
