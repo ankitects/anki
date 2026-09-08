@@ -24,7 +24,7 @@ class _LegacyAnkiPackageExporter:
                 with_media=True,
                 legacy=True,
             ),
-            limit=DeckIdLimit(deck_id=self.did),
+            limit=DeckIdLimit(deck_id=self.did) if self.did else None,
         )
 
 
