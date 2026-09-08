@@ -18,6 +18,7 @@ from tools.build_installer import (
     get_briefcase_template_path,
     get_platform_suffix,
     get_signing_args,
+    get_support_hash_args,
     installer_dir,
     main,
     normalize_wheel_path,
@@ -130,6 +131,42 @@ def test_briefcase_config(out_dir: Path, cmd_args: argparse.Namespace) -> None:
         in config
     )
     assert any(s.startswith("template=") for s in config)
+    assert any(s.startswith('support_package_hash="sha256:') for s in config)
+
+
+@pytest.mark.parametrize(
+    "platform, machine, has_stub",
+    [
+        ("win32", "AMD64", True),
+        ("win32", "ARM64", True),
+        ("darwin", "arm64", True),
+        ("darwin", "x86_64", True),
+        ("linux", "x86_64", False),
+        ("linux", "aarch64", False),
+    ],
+)
+def test_support_hash_args(
+    monkeypatch, platform: str, machine: str, has_stub: bool
+) -> None:
+    monkeypatch.setattr("sys.platform", platform)
+    monkeypatch.setattr("platform.machine", lambda: machine)
+    config = get_support_hash_args()
+    assert config.count("-C") == len(config) // 2
+    assert any(s.startswith('support_package_hash="sha256:') for s in config)
+    assert any(s.startswith('stub_binary_hash="sha256:') for s in config) == has_stub
+
+
+def test_support_hash_args_unknown_platform(monkeypatch) -> None:
+    monkeypatch.setattr("sys.platform", "unknown")
+    monkeypatch.setattr("platform.machine", lambda: "unknown")
+    with pytest.raises(RuntimeError, match="No support package hashes"):
+        get_support_hash_args()
+
+
+def test_support_hash_args_python_mismatch(monkeypatch) -> None:
+    monkeypatch.setattr("sys.version_info", (3, 99, 0))
+    with pytest.raises(RuntimeError, match="pinned for Python"):
+        get_support_hash_args()
 
 
 def test_compile_fails_loudly(

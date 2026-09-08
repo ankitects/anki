@@ -22,6 +22,34 @@ out_dir = Path("out/installer").resolve()
 # Anki disk-lang codes whose Chromium .pak filename differs from the disk lang.
 _CHROMIUM_PAK_LANG_REMAP = {"tl": "fil"}
 
+_SUPPORT_PYTHON_TAG = "3.13"
+
+_MAC_SUPPORT_HASHES = {
+    "support_package_hash": "sha256:1e4630ba00f90bde7e44e54386bc5b2b860dce473d70c2cef9fe651642820bc1",
+    "stub_binary_hash": "sha256:879b015bceb9260da6062ff39c70dcf87652380d1d9a0a2a0038875cec348022",
+}
+
+# Hashes of the support packages/stub binaries pinned by support_revision and
+# stub_binary_revision in pyproject.toml
+_SUPPORT_HASHES: dict[tuple[str, str], dict[str, str]] = {
+    ("win32", "AMD64"): {
+        "support_package_hash": "sha256:791ada5e20aba24524f8d939cdeb069976d632a699fe5cb65274b23f4545e68a",
+        "stub_binary_hash": "sha256:7a8d544123450499ce408e8bd0c7b17c664f32e3b1dcde72c4b885e33cd43bbb",
+    },
+    ("win32", "ARM64"): {
+        "support_package_hash": "sha256:1ab59dce63c61e780b6448bf38ad1b66d5428be831e42d1f09fc11258a4eab4f",
+        "stub_binary_hash": "sha256:bd57e168ccfd18add46d4e328eb7d956f26e75e5a2b6a177c3254fa89deeb643",
+    },
+    ("darwin", "arm64"): _MAC_SUPPORT_HASHES,
+    ("darwin", "x86_64"): _MAC_SUPPORT_HASHES,
+    ("linux", "x86_64"): {
+        "support_package_hash": "sha256:8a689a077337bea6d1c4bc0b7df1d52fcaa28f5f67e50df8bf417c1e3f9d8874",
+    },
+    ("linux", "aarch64"): {
+        "support_package_hash": "sha256:01ce0ce9189feaead3298abf10d4efe998c55a489b3d5d38ca4f83dda7e7977e",
+    },
+}
+
 
 def normalize_wheel_path(path: str | Path) -> str:
     return Path(path).absolute().as_posix()
@@ -86,6 +114,24 @@ def get_briefcase_sources_path(out_dir: Path) -> Path:
     return path
 
 
+def get_support_hash_args() -> list[str]:
+    python_tag = "{}.{}".format(*sys.version_info[:2])
+    if python_tag != _SUPPORT_PYTHON_TAG:
+        raise RuntimeError(
+            f"Support package hashes are pinned for Python {_SUPPORT_PYTHON_TAG}, "
+            f"but the installer is being built with Python {python_tag}"
+        )
+    key = (sys.platform, platform.machine())
+    try:
+        hashes = _SUPPORT_HASHES[key]
+    except KeyError:
+        raise RuntimeError(f"No support package hashes pinned for {key}") from None
+    config_args = []
+    for name, value in hashes.items():
+        config_args.extend(["-C", f'{name}="{value}"'])
+    return config_args
+
+
 def get_briefcase_config_args(args: argparse.Namespace) -> list[str]:
     version = args.version
     if aqt_wheel := getattr(args, "aqt_wheel", None):
@@ -107,6 +153,7 @@ def get_briefcase_config_args(args: argparse.Namespace) -> list[str]:
             ["-C", "requires=[" + ",".join(f'"{dep}"' for dep in requires) + "]"]
         )
     config_args.extend(["-C", f'template="{template_path.absolute().as_posix()}"'])
+    config_args.extend(get_support_hash_args())
     if sys.platform == "win32":
         compression_level = (
             "high" if os.environ.get("RELEASE") in ("1", "2") else "none"
