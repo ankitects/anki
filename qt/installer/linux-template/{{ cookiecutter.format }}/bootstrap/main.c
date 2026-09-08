@@ -63,6 +63,8 @@ int main(int argc, char *argv[]) {
     // Don't write bytecode; we can't modify the app bundle
     // after it has been signed.
     config.write_bytecode = 0;
+    // Ensure that signal handlers are installed
+    config.install_signal_handlers = 1;
     // Isolated apps need to set the full PYTHONPATH manually.
     config.module_search_paths_set = 1;
     // We're using the system Python's stdlib; however, we don't want anything
