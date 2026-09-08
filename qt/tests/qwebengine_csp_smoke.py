@@ -350,10 +350,7 @@ addElement('iframe', {{
 
 setTimeout(() => {{
     const img = document.getElementById('benign-svg-img');
-    let sameOrigin = false;
-    try {{
-        sameOrigin = !!document.getElementById('styled-svg-object').contentDocument;
-    }} catch (error) {{}}
+    const sameOrigin = !!document.getElementById('styled-svg-object').contentDocument;
     record({{
         type: 'done',
         results,
