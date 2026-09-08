@@ -12,6 +12,7 @@ import pytest
 import aqt
 from anki.sound import SoundOrVideoTag
 from anki.utils import is_lin, is_mac, is_win
+from aqt.mpv import MPV
 from aqt.sound import MpvManager, _packagedCmd, is_audio_file
 
 
@@ -123,3 +124,71 @@ def test_mpvmanager_can_play_generated_wav(
     monkeypatch.setattr(aqt, "mw", mock_mw)
     manager = MpvManager(tmp_path, tmp_path)
     manager.play(SoundOrVideoTag(filename=str(generated_wav.name)), lambda _: None)
+
+
+@pytest.mark.parametrize(
+    "event, callback_name, args",
+    [
+        ({"event": "file-loaded"}, "file-loaded", ()),
+        (
+            {"event": "property-change", "name": "idle-active", "data": True},
+            "property-idle-active",
+            (True,),
+        ),
+    ],
+)
+def test_callback_failure_does_not_interrupt_event_dispatch(
+    event: dict[str, object],
+    callback_name: str,
+    args: tuple[bool, ...],
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    # Feed received events without starting an external mpv process.
+    player = MPV.__new__(MPV)
+    player._callbacks_initialized = True
+    failing_callback = MagicMock(side_effect=RuntimeError("callback failed"))
+    other_callback = MagicMock()
+    player._callbacks = {callback_name: [failing_callback, other_callback]}
+
+    player._handle_event(event)
+    other_callback.assert_called_once_with(*args)
+
+    # A failed callback must not prevent subsequent events from being handled.
+    player._handle_event(event)
+    assert other_callback.call_count == 2
+    assert failing_callback.call_count == 2
+    stdout = capsys.readouterr().out
+    assert stdout == f"Error in mpv callback for {callback_name}\n" * 2
+
+
+def test_mpv_idle_event_after_main_window_teardown(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    manager = MpvManager.__new__(MpvManager)
+    on_done = MagicMock()
+    manager._on_done = on_done
+    monkeypatch.setattr(aqt, "mw", None)
+
+    manager.on_property_idle_active(True)
+
+    on_done.assert_not_called()
+
+
+@pytest.mark.parametrize("idle", [False, True])
+@pytest.mark.parametrize("has_callback", [False, True])
+def test_mpv_idle_event_schedules_completion_on_main_thread(
+    monkeypatch: pytest.MonkeyPatch, idle: bool, has_callback: bool
+) -> None:
+    manager = MpvManager.__new__(MpvManager)
+    on_done = MagicMock()
+    manager._on_done = on_done if has_callback else None
+    mock_mw = MagicMock()
+    monkeypatch.setattr(aqt, "mw", mock_mw)
+
+    manager.on_property_idle_active(idle)
+
+    if idle and has_callback:
+        mock_mw.taskman.run_on_main.assert_called_once_with(on_done)
+    else:
+        mock_mw.taskman.run_on_main.assert_not_called()
+    on_done.assert_not_called()

@@ -500,7 +500,8 @@ class MpvManager(MPV, SoundOrVideoPlayer):
         if value and self._on_done:
             from aqt import mw
 
-            mw.taskman.run_on_main(self._on_done)
+            if mw is not None:
+                mw.taskman.run_on_main(self._on_done)
 
     def shutdown(self) -> None:
         self.close()

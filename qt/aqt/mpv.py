@@ -539,10 +539,13 @@ class MPV(MPVBase):
             name = message["event"]
 
         for callback in self._callbacks.get(name, []):
-            if "data" in message:
-                callback(message["data"])
-            else:
-                callback()
+            try:
+                if "data" in message:
+                    callback(message["data"])
+                else:
+                    callback()
+            except Exception:
+                print(f"Error in mpv callback for {name}")
 
     def register_callback(self, name, callback):
         """Register a function `callback` for the event `name`."""
