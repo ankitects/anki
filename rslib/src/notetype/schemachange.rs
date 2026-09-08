@@ -89,6 +89,7 @@ impl Collection {
                         mark_note_modified: true,
                         normalize_text,
                         update_tags: false,
+                        mtime: None,
                     })?;
                 }
             } else {
@@ -113,6 +114,7 @@ impl Collection {
                 mark_note_modified: true,
                 normalize_text,
                 update_tags: false,
+                mtime: None,
             })?;
         }
         Ok(())
