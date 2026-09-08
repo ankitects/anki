@@ -21,6 +21,10 @@
     {
       "source": "/faqs/when-problems-occur",
       "destination": "/manual/troubleshooting"
+    },
+    {
+      "source": "/ar/:slug*",
+      "destination": "/:slug*"
     }
   ],
   "theme": "mint",

@@ -368,6 +368,19 @@ def escape_text_preserve_html(raw: str) -> str:
     return "".join(parts)
 
 
+def ensure_language_redirect(site_structure: dict, language_code: str) -> None:
+    if language_code == "en":
+        return
+
+    if not any(
+        redirect.get("source", "") == f"/{language_code}/:slug*"
+        for redirect in site_structure["redirects"]
+    ):
+        site_structure["redirects"].append(
+            {"source": f"/{language_code}/:slug*", "destination": "/:slug*"}
+        )
+
+
 def main():
     parser = argparse.ArgumentParser(
         description="Convert anki docs from a repo that follows the same format as the anki-manual repo into the main repos mintlify format.",
@@ -526,6 +539,8 @@ def main():
             else len(ORDERED_TABS)
         )
     )
+
+    ensure_language_redirect(site_structure, language_code)
 
     with open(docs_filepath, "w") as f:
         json.dump(site_structure, f, indent=2)
