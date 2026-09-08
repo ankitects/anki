@@ -514,8 +514,6 @@ def _assert_expectations(snapshot: SmokeSnapshot, page: SmokePage) -> None:
     if snapshot.remote_style_requested:
         errors.append("untrusted media loaded a stylesheet from a remote origin")
     if latest_done and not latest_done.get("sameOrigin"):
-        # an opaque origin would put the document in its own process, where Chromium
-        # never delivers the hover-out, leaving :hover stuck on for embedded SVGs
         errors.append(
             "embedded media landed in an opaque origin"
             " (sandbox is missing allow-same-origin)"

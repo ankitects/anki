@@ -74,6 +74,7 @@ class LocalFileRequest:
 
 UNTRUSTED_MEDIA_CSP = "; ".join(
     (
+        # Disallow everything by default
         "default-src 'none'",
         "script-src 'none'",
         "connect-src 'none'",
@@ -82,25 +83,18 @@ UNTRUSTED_MEDIA_CSP = "; ".join(
         "child-src 'none'",
         "base-uri 'none'",
         "form-action 'none'",
-        # Media embedded with <object>/<iframe> is a document of its own, so unlike
-        # media shown in an <img>, it has to fetch the presentation it ships with -
-        # eg an SVG that pulls in a stylesheet sitting beside it in the media folder.
-        # None of these can execute code, and 'self' keeps them within the media
-        # server, so a card still can't phone home.
+        # Allow same-origin styles, images, fonts and media, so that an SVG or HTML
+        # file can use the resources next to it. 'unsafe-inline' is needed for
+        # <style> elements and style= attributes inside SVGs.
         "style-src 'self' 'unsafe-inline'",
         "img-src 'self'",
         "font-src 'self'",
         "media-src 'self'",
-        # allow-same-origin only keeps the document out of an opaque origin. With
-        # site isolation on, Chromium gives an opaque-origin document its own
-        # process and does not deliver the hover-out to it, leaving :hover stuck on
-        # for an embedded SVG once the mouse has passed over it. QtWebEngine
-        # disables site isolation by default, so this is latent for most users, but
-        # QTWEBENGINE_CHROMIUM_FLAGS is honoured: --site-per-process together with
-        # --enable-features=IsolateSandboxedIframes reproduces it on Qt 6.11 (the
-        # feature is inert on its own - site isolation is the gate). Scripting stays
-        # blocked both by the sandbox (no allow-scripts) and by script-src 'none',
-        # so media can't make use of the origin anyway.
+        # The sandbox blocks scripts, forms, popups and top-level navigation.
+        # allow-same-origin is required for fonts (font loads use CORS, and we send
+        # no CORS headers) and to avoid stuck :hover styles under site isolation.
+        # Never add allow-scripts: with allow-same-origin, that would give media
+        # access to the parent page.
         "sandbox allow-same-origin",
     )
 )
