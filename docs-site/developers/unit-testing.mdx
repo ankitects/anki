@@ -1,25 +1,28 @@
 ---
-title: "Unit Testing Specification and Guide"
+title: "Writing Unit Tests for Anki"
 ---
 
-This document defines how maintainers, contributors, and coding assistants should
-design unit and component tests for Anki. It is intentionally independent of any
-particular feature, module, or bug. Use it together with the behavior being changed,
-the surrounding production code, and nearby tests.
+This guide helps maintainers, contributors, and coding assistants write unit and
+component tests for Anki. It is independent of any particular feature, module, or
+bug. Use it together with the behavior being changed, the surrounding production
+code, and nearby tests.
 
-The words **must**, **should**, and **may** express requirements, recommendations,
-and optional practices respectively.
+This guide assumes basic familiarity with automated tests. If testing is new to you,
+start with one of the introductory resources in [References](#references-and-rationale),
+then return here for Anki-specific guidance.
 
-## Quick workflow
+## Quick summary
 
-1. Identify the behavior and the layer that owns it.
-2. Define the observable contract.
-3. Consider happy, unhappy/error, boundary, invariant, and regression scenarios.
-4. Select the lowest test boundary that provides sufficient confidence.
-5. Write a focused Arrange–Act–Assert test.
-6. Control time, randomness, external services, and global state.
-7. Confirm that the test fails when the behavior is broken.
-8. Run the relevant `just` recipe and then `just check`.
+When adding a test:
+
+1. Describe what should happen from the user's point of view.
+2. Add the test close to the code responsible for that behavior.
+3. Consider normal input, errors, edge cases, and known regressions.
+4. Prefer the smallest and fastest test that gives enough confidence.
+5. Give the test a name that explains the behavior being checked.
+6. Avoid dependencies on real time, network access, user data, or test order.
+7. For a bug fix, confirm that the test fails before the fix when practical.
+8. Run the relevant `just test-*` recipe and then `just check`.
 
 ## Purpose
 
@@ -38,9 +41,9 @@ A good unit test is:
 - **Isolated:** it does not depend on a user's profile, another test's state, or an
   unavailable external service.
 - **Fast:** it is cheap enough to run repeatedly while editing.
-- **Readable:** its name and test data explain the contract and the failure.
+- **Readable:** its name and test data explain the expected behavior and the failure.
 - **Sensitive:** a real regression in the behavior makes it fail; it does not keep
-  passing when the contract is broken.
+  passing when the expected behavior is broken.
 - **Stable:** a behavior-preserving refactor should usually leave it unchanged.
 
 Code coverage is useful for finding untested code, but a covered line is not
@@ -51,17 +54,17 @@ coverage number.
 
 Use the lowest-cost test that can prove the behavior:
 
-| Boundary      | Use it for                                                                                                                  | Do not use it for                                       |
-| ------------- | --------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------- |
-| Pure unit     | Calculations, parsing, validation, conversion, and deterministic state transitions                                          | Framework wiring or cross-process behavior              |
-| Sociable unit | A small group of fast, in-process collaborators                                                                             | Network, real subprocesses, or a user's persistent data |
-| UI component  | A Qt component's visible state, signals/events, and interaction; for Svelte, extracted logic and stores                     | Whole application workflows                             |
-| Integration   | Database mappings, protobuf/language bridges, filesystem contracts, and framework integration that a unit test cannot prove | Repeating every unit-level branch                       |
-| End-to-end    | A small number of critical workflows through a real Anki instance and browser                                               | Exhaustive validation and edge cases                    |
+| Boundary                | Use it for                                                                                                                  | Do not use it for                                       |
+| ----------------------- | --------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------- |
+| Pure unit               | Calculations, parsing, validation, conversion, and deterministic state transitions                                          | Framework wiring or cross-process behavior              |
+| Unit with collaborators | A small group of fast, in-process collaborators                                                                             | Network, real subprocesses, or a user's persistent data |
+| UI component            | A Qt component's visible state, signals/events, and interaction; for Svelte, extracted logic and stores                     | Whole application workflows                             |
+| Integration             | Database mappings, protobuf/language bridges, filesystem contracts, and framework integration that a unit test cannot prove | Repeating every unit-level branch                       |
+| End-to-end              | A small number of critical workflows through a real Anki instance and browser                                               | Exhaustive validation and edge cases                    |
 
 Most scenarios should be below the end-to-end layer. If a higher-level test discovers
 a defect, add a lower-level regression test when that level can reproduce the defect.
-Keep the higher-level test only when it proves an additional contract.
+Keep the higher-level test only when it proves additional behavior.
 
 For Svelte specifically, "UI component" means extracted logic and stores: the
 repository does not wire rendered-component tests into the unit suite (see
@@ -82,11 +85,12 @@ Anki spans several implementation layers. Test a rule at the layer that owns it:
   or bridge behavior at its owning layer; use an integration test if correctness
   depends on both sides of the bridge.
 
-## Derive scenarios from the contract
+## Choose scenarios from expected behavior
 
-Before writing test code, state the contract in plain English. Identify the inputs,
-observable outputs, side effects, errors, and invariants. Then select the smallest
-set of scenarios that distinguishes a correct implementation from a plausible bug.
+Before writing test code, describe what should happen in plain English. Identify the
+inputs, results a caller or user can observe, side effects, errors, and facts that
+must remain true. Then select the smallest set of scenarios that distinguishes a
+correct implementation from a plausible bug.
 
 Every meaningful behavior change should consider these categories:
 
@@ -98,9 +102,8 @@ Every meaningful behavior change should consider these categories:
 | State/invariant    | What must remain true before and after the action?                      | A failed update leaves the previous value and unrelated records unchanged.         |
 | Regression         | What is the smallest input that reproduces a reported defect?           | The exact shape that once crashed now produces the specified result.               |
 
-Do not assume that every function needs one test from every category. Include a category
-when the contract has that behavior or the implementation has a credible failure
-mode.
+Do not assume that every function needs one test from every category. Include a
+category when the expected behavior or implementation has that failure mode.
 
 Use equivalence classes rather than enumerating inputs that exercise the same rule.
 Use parameterization when several compact input/output pairs express one behavior;
@@ -113,7 +116,7 @@ Prefer a visible Arrange–Act–Assert flow:
 
 1. **Arrange** only the state relevant to the scenario.
 2. **Act** once on the behavior under test.
-3. **Assert** the observable contract, including important non-effects.
+3. **Assert** the expected outcome, including important non-effects.
 
 The phases do not require comments when the structure is already obvious. Avoid
 hiding the act or the important assertion inside a helper.
@@ -138,7 +141,7 @@ Vitest names the behavior in the `test(...)` description string rather than in a
 identifier, e.g. `test("event handler attributes are stripped")`.
 
 Names such as `test_helper`, `works`, `basic`, or `case_1` do not explain the
-contract.
+expected behavior.
 
 Assertions should be precise enough to diagnose the defect. Prefer comparing the
 meaningful value or structured result over a generic truthiness check. Assert an
@@ -166,7 +169,7 @@ to control an awkward boundary such as time, randomness, network, subprocess,
 clipboard, native dialog, or backend call, and patch it where the code looks it up.
 Return realistic values and errors.
 
-Assert interactions only when they are part of the contract; avoid incidental calls
+Assert interactions only when they affect expected behavior; avoid incidental calls
 and ordering. If every collaborator is mocked and only calls are asserted, the test
 probably describes the implementation rather than useful behavior.
 
@@ -189,7 +192,7 @@ A bug fix **should** normally include a test that would have caught the bug.
 
 1. Reduce the report to the smallest representative input and state.
 2. Place the test at the lowest layer that reproduces the defect and proves the
-   intended contract.
+   intended behavior.
 3. When practical, run it before the fix or against the buggy revision and confirm
    that it fails for the expected reason.
 4. Apply the fix and confirm that the new test passes.
@@ -199,7 +202,7 @@ A bug fix **should** normally include a test that would have caught the bug.
    context that the test cannot express.
 
 Do not encode the buggy implementation in the expected result. A regression test
-should describe the durable contract so that future refactoring can preserve it.
+should describe lasting expected behavior so that future refactoring can preserve it.
 
 ## Test-first workflow
 
@@ -208,13 +211,13 @@ is clear. A test-first cycle can help verify that the test is sensitive to the d
 
 1. Write a focused test for the intended behavior.
 2. Confirm that it fails for the expected reason.
-3. Make the smallest production change that satisfies the contract.
+3. Make the smallest production change that satisfies the expected behavior.
 4. Refactor while keeping the test suite green.
 
 Test-first development is not mandatory. For exploratory work or behavior that is
-not yet understood, first investigate and define the contract, then add the test. For
-bug fixes, a failing regression test before the fix is strongly recommended whenever
-practical.
+not yet understood, investigate and describe the expected behavior before adding the
+test. For bug fixes, a failing regression test before the fix is strongly recommended
+whenever practical.
 
 ## Additional risk areas
 
@@ -454,10 +457,10 @@ selected boundary requires Playwright.
 
 ## Review checklist
 
-A test is ready when the answer to each applicable question is yes:
+A test is ready when the answer to each relevant question is yes:
 
-- Do its name and assertions clearly prove an observable contract and fail when that
-  contract is broken?
+- Does the test name explain the behavior being checked?
+- Does the test clearly show when that behavior works and when it does not?
 - Were the relevant scenario categories considered at the lowest useful layer,
   without duplication?
 - Is Arrange–Act–Assert clear, with minimal data and doubles only at meaningful
@@ -474,17 +477,19 @@ When this document is supplied to a coding assistant, the assistant must also in
 the production behavior, issue/diff, neighboring tests, available helpers, and test
 runner configuration. This guide does not replace repository context.
 
-Before editing, it should follow the quick workflow, summarize the contract, owning
-layer, scenarios, and selected boundary, then follow local naming, fixtures, builders,
-and file placement. It **must not** invent APIs, dependencies, fixtures, or runner
-capabilities; change production visibility solely to reach private implementation;
-or weaken an assertion to make it pass. It should finish by reporting what was
-tested, intentionally omitted, and not validated.
+Before editing, it should follow the quick summary, describe the expected behavior,
+identify the responsible layer, list the scenarios and selected test level, then
+follow local naming, fixtures, builders, and file placement. It **must not** invent
+APIs, dependencies, fixtures, or runner capabilities; change production visibility
+solely to reach private implementation; or weaken an assertion to make it pass. It
+should finish by reporting what was tested, intentionally omitted, and not validated.
 
 ## References and rationale
 
-This specification adapts these references to Anki's architecture:
+This guide adapts these references to Anki's architecture:
 
+- Beginner introductions: [Getting Started With Testing in Python](https://realpython.com/python-testing/)
+  and [How to Use pytest](https://www.freecodecamp.org/news/how-to-use-pytest-a-guide-to-testing-in-python/).
 - General principles: [behavior over implementation](https://testing.googleblog.com/2013/08/testing-on-toilet-test-behavior-not.html),
   [test sizes](https://testing.googleblog.com/2010/12/test-sizes.html),
   [unit-test characteristics and Arrange–Act–Assert](https://learn.microsoft.com/en-us/dotnet/core/testing/unit-testing-best-practices),
