@@ -394,10 +394,9 @@ wheels = [
 
 [[package]]
 name = "briefcase"
-version = "0.4.4"
+version = "0.4.5"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "binaryornot" },
     { name = "build" },
     { name = "chardet" },
     { name = "cookiecutter" },
@@ -416,9 +415,9 @@ dependencies = [
     { name = "truststore" },
     { name = "wheel" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/91/79/f6fa74fd99cc521f59bdc0094f268b4d8720fcbb977443dd69cb8e6b7d49/briefcase-0.4.4.tar.gz", hash = "sha256:e6e1a9d6811e2436fa2bfb2ecafdd12605e3920473946c09562fb9c9526e60ac", size = 2675906, upload-time = "2026-07-08T01:41:34.156Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/b9/3d/58c3e032dc71d1b82cedf49cd8fe7ae3173aef630a4c078961d4a117fc1c/briefcase-0.4.5.tar.gz", hash = "sha256:b3c9e2f781ad6ca9e241a73ca80660624fed86db5b3e65a80b7a5bb697d54741", size = 2727138, upload-time = "2026-09-08T08:38:29.88Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/fa/49/d7ffd855159c4371e7783a34ac92791af5fe838777059b9290c06d504086/briefcase-0.4.4-py3-none-any.whl", hash = "sha256:667b5e0c4d25c388efef822d1f5b0381c57619d198dad6ed2b7e323f7460baf4", size = 291828, upload-time = "2026-07-08T01:41:31.478Z" },
+    { url = "https://files.pythonhosted.org/packages/a3/eb/18b21088b380242820ec065e3ed32c65cf98ffeb2797012d7f2e37b60029/briefcase-0.4.5-py3-none-any.whl", hash = "sha256:0fd06503b03bfbb52fb13137d49791e0c686bb3c39c9bd901e35ebf3de37aa2a", size = 303995, upload-time = "2026-09-08T08:38:27.362Z" },
 ]
 
 [[package]]
