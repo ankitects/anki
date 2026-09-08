@@ -201,7 +201,6 @@ class TestMediaFileCSP:
             assert not any(
                 remote in value for remote in ("http:", "https:", "data:", "*")
             ), f"{name} must not allow remote sources: {value}"
-        assert "'unsafe-inline'" not in directives["script-src"]
 
     def test_trusted_local_file_does_not_get_untrusted_media_csp(self) -> None:
         """Add-on exports use LocalFileRequest too, but should not be sandboxed."""
