@@ -84,6 +84,10 @@ class LinuxZipMixin(LinuxMixin):
 
         super().verify_app_tools(app)
 
+    @property
+    def use_docker(self):
+        return False
+
 
 class LinuxZipCreateCommand(LinuxZipMixin, LocalRequirementsMixin, CreateCommand):
     description = "Create and populate a Linux zip project."
