@@ -60,7 +60,7 @@ need a full build with `just check` first.
 ## Testing guidance
 
 Before adding or changing unit or component tests, read and follow the
-[Unit Testing Specification and Guide](docs-site/developers/unit-testing.mdx).
+[Writing Unit Tests for Anki](docs-site/developers/unit-testing.mdx).
 
 ## Build tooling
 

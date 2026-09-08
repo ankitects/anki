@@ -89,6 +89,6 @@ merging, but the results are visible on the PR.
 
 ## See also
 
-- [Unit Testing Specification and Guide](https://anki.mintlify.app/developers/unit-testing)
+- [Writing Unit Tests for Anki](https://anki.mintlify.app/developers/unit-testing)
 
 <!-- <<<end>>> -->

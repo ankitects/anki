@@ -100,6 +100,6 @@ are uploaded as artifacts and kept for 7 days.
 
 ## See also
 
-- [Unit Testing Specification and Guide](https://anki.mintlify.app/developers/unit-testing)
+- [Writing Unit Tests for Anki](https://anki.mintlify.app/developers/unit-testing)
 
 <!-- <<<end>>> -->
