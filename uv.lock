@@ -131,7 +131,7 @@ docs = [
 
 [package.metadata.requires-dev]
 dev = [
-    { name = "briefcase", specifier = ">=0.4.2" },
+    { name = "briefcase", specifier = ">=0.4.5" },
     { name = "cogapp", specifier = ">=3.6.0" },
     { name = "complexipy", specifier = ">=5.6.0" },
     { name = "coverage", specifier = ">=7.15.3" },

@@ -163,6 +163,25 @@ def get_briefcase_config_args(args: argparse.Namespace) -> list[str]:
     return config_args
 
 
+def get_uv_binary() -> Path:
+    if uv_path := os.environ.get("UV_BINARY"):
+        return Path(uv_path)
+    name = "uv.exe" if sys.platform == "win32" else "uv"
+    return Path("out/extracted/uv") / name
+
+
+def get_briefcase_environ() -> dict[str, str]:
+    """Get environment variables to pass to Briefcase calls."""
+    uv_binary = get_uv_binary().resolve()
+    if not uv_binary.is_file():
+        raise RuntimeError(f"uv not found at {uv_binary}")
+    env = os.environ.copy()
+    env["PATH"] = os.pathsep.join(
+        filter(None, [str(uv_binary.parent), env.get("PATH", "")])
+    )
+    return env
+
+
 def compile_sources(out_dir: Path, version: str) -> bool:
     """Compile Python sources to .pyc"""
 
@@ -254,6 +273,7 @@ def build(args: argparse.Namespace) -> None:
             "--log",
         ],
         cwd=out_dir,
+        env=get_briefcase_environ(),
     )
     prune_webengine_locales(out_dir)
     compile_sources(out_dir, version)
@@ -297,6 +317,7 @@ def package(args: argparse.Namespace) -> None:
             *get_signing_args(),
         ],
         cwd=out_dir,
+        env=get_briefcase_environ(),
     )
     package_path = next((out_dir / "dist").iterdir())
     package_path.rename(

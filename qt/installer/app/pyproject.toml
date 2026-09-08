@@ -9,6 +9,7 @@ url = "https://apps.ankiweb.net"
 license = "AGPL-3.0-or-later"
 license-files = ["LICENSE"]
 author = "Damien Elmes"
+env_manager = "uv"
 
 [tool.briefcase.app.anki]
 formal_name = "Anki"

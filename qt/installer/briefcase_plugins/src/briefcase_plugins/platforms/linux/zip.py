@@ -13,7 +13,7 @@ from briefcase.commands import (
     PackageCommand,
     UpdateCommand,
 )
-from briefcase.config import DraftAppConfig, FinalizedAppConfig
+from briefcase.config import DraftAppConfig, EnvManagerT, FinalizedAppConfig
 from briefcase.exceptions import BriefcaseCommandError
 from briefcase.integrations.subprocess import NativeAppContext
 from briefcase.platforms.linux import (
@@ -36,6 +36,7 @@ class LinuxZipMixin(LinuxMixin):
     supported_host_os: Collection[str] = {"Linux"}
     supported_host_os_reason = "Linux zip projects can only be built on Linux,"
     supports_external_packaging = True
+    supported_env_managers: Collection[EnvManagerT] = {"venv", "uv"}
 
     def project_path(self, app):
         return self.bundle_path(app) / f"{app.app_name}"
