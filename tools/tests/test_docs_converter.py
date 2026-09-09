@@ -208,6 +208,10 @@ class TestMdLinkStripping:
         result = body(fmt("[link](/foo/bar)"))
         assert "[link](/foo/bar)" in result
 
+    def test_root_relative_html_extension_removed_with_query_and_anchor(self) -> None:
+        result = body(fmt("[FSRS](/manual/deck-options.html?highlight=FSRS#fsrs)"))
+        assert "[FSRS](/manual/deck-options?highlight=FSRS#fsrs)" in result
+
 
 # ===========================================================================
 # format_page — heading anchors

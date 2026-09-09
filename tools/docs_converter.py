@@ -35,7 +35,7 @@ MARKDOWN_INLINE_CODE_RE = re.compile(r"(`[^`\n]*`)")
 
 # Markdown link cleanup helpers.
 MARKDOWN_LINK_MD_RE = re.compile(
-    r"(\[[^\]]+\]\()(?!(?:https?|ftp)://|/)(?P<path>[^)\s]+?)\.(:?md|html)(?P<suffix>[#?][^)\s]+)?\)"
+    r"(\[[^\]]+\]\()(?!(?:https?|ftp)://)(?P<path>[^)\s]+?)\.(:?md|html)(?P<suffix>[#?][^)\s]+)?\)"
 )
 SUMMARY_LINK_RE = re.compile(r"^\s*[-*+]\s+\[(?P<title>[^\]]+)\]\((?P<link>[^)]+)\)")
 ADMONISH_BLOCK_RE = re.compile(
