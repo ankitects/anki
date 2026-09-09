@@ -81,16 +81,21 @@ ADMONISH_CALLOUT_REPLACEMENTS = [
 
 
 def relative_link_rule(domain: str, prefix: str) -> tuple[str, re.Pattern[str], str]:
-    pattern = re.compile(rf"https://{re.escape(domain)}/{HTML_PATH_AND_SUFFIX_RE}")
+    pattern = re.compile(rf"https?://{re.escape(domain)}/{HTML_PATH_AND_SUFFIX_RE}")
     replacement = f"/{prefix}/{PATH_AND_SUFFIX_REPLACEMENT}"
     return (domain, pattern, replacement)
 
 
+# If the repo you are importing has more than one domain, add more rules here.
 DOCS_RELATIVE_LINK_REPLACEMENTS = [
+    # en
     relative_link_rule("docs.ankiweb.net", "manual"),
     relative_link_rule("addon-docs.ankiweb.net", "addons"),
     relative_link_rule("faqs.ankiweb.net", "faqs"),
     relative_link_rule("docs.ankimobile.net", "ankimobile"),
+    # ar
+    relative_link_rule("www.abdnh.net/anki-faqs", "faqs"),
+    relative_link_rule("www.abdnh.net/anki-manual", "manual"),
 ]
 
 
