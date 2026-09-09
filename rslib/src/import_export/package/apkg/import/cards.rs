@@ -99,6 +99,22 @@ impl Context<'_> {
 impl CardContext<'_> {
     fn import_cards(&mut self, mut cards: Vec<Card>) -> Result<()> {
         for card in &mut cards {
+            // Remap the template index using the card's *source* note id, before
+            // map_to_imported_note rewrites note_id to the target's. notetype_map
+            // and remapped_templates are keyed by source ids, so doing this
+            // afterwards would miss the lookup and leave the card pointing at the
+            // wrong template whenever a note's id changes on import. Doing it here
+            // also means card_ordinal_already_exists dedupes on the final ordinal.
+            // The common import has no remapped templates, so skip the per-card
+            // lookup entirely in that case.
+            if !self.remapped_templates.is_empty() {
+                card.template_idx = remapped_template_index(
+                    self.notetype_map,
+                    self.remapped_templates,
+                    card.note_id,
+                    card.template_idx,
+                );
+            }
             if self.map_to_imported_note(card) && !self.card_ordinal_already_exists(card) {
                 self.add_card(card)?;
             }
@@ -135,7 +151,6 @@ impl CardContext<'_> {
     fn add_card(&mut self, card: &mut Card) -> Result<()> {
         card.usn = self.usn;
         self.remap_deck_ids(card);
-        self.remap_template_index(card);
         card.shift_collection_relative_dates(self.collection_delta);
         let old_id = self.uniquify_card_id(card);
 
@@ -162,16 +177,24 @@ impl CardContext<'_> {
             card.original_deck_id = *did;
         }
     }
+}
 
-    fn remap_template_index(&self, card: &mut Card) {
-        card.template_idx = self
-            .notetype_map
-            .get(&card.note_id)
-            .and_then(|ntid| self.remapped_templates.get(ntid))
-            .and_then(|map| map.get(&card.template_idx))
-            .copied()
-            .unwrap_or(card.template_idx);
-    }
+/// Map a card's `template_idx` through `remapped_templates`, looked up by the
+/// card's *source* note id (the key space of `notetype_map`). Returns the
+/// original index when the note's notetype wasn't remapped or the ordinal isn't
+/// in the map.
+fn remapped_template_index(
+    notetype_map: &HashMap<NoteId, NotetypeId>,
+    remapped_templates: &HashMap<NotetypeId, TemplateMap>,
+    source_note_id: NoteId,
+    template_idx: u16,
+) -> u16 {
+    notetype_map
+        .get(&source_note_id)
+        .and_then(|ntid| remapped_templates.get(ntid))
+        .and_then(|map| map.get(&template_idx))
+        .copied()
+        .unwrap_or(template_idx)
 }
 
 impl Card {
@@ -193,5 +216,31 @@ impl Card {
 
     fn original_due_in_days_since_collection_creation(&self) -> bool {
         self.ctype == CardType::Review
+    }
+}
+
+#[cfg(test)]
+mod test {
+    use super::*;
+
+    #[test]
+    fn template_index_is_remapped_via_source_notetype() {
+        let notetype_map = HashMap::from([(NoteId(10), NotetypeId(100))]);
+        let remapped_templates = HashMap::from([(NotetypeId(100), TemplateMap::from([(0, 1)]))]);
+        // source note 10 -> notetype 100 -> template ordinal 0 remaps to 1
+        assert_eq!(
+            remapped_template_index(&notetype_map, &remapped_templates, NoteId(10), 0),
+            1
+        );
+        // an ordinal that isn't in the map is left unchanged
+        assert_eq!(
+            remapped_template_index(&notetype_map, &remapped_templates, NoteId(10), 5),
+            5
+        );
+        // a note whose notetype wasn't remapped is left unchanged
+        assert_eq!(
+            remapped_template_index(&notetype_map, &remapped_templates, NoteId(999), 0),
+            0
+        );
     }
 }
