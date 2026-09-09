@@ -377,7 +377,11 @@ def ensure_language_redirect(site_structure: dict, language_code: str) -> None:
         for redirect in site_structure["redirects"]
     ):
         site_structure["redirects"].append(
-            {"source": f"/{language_code}/:slug*", "destination": "/:slug*"}
+            {
+                "source": f"/{language_code}/:slug*",
+                "destination": "/:slug*",
+                "permanent": False,
+            }
         )
 
 

@@ -24,7 +24,8 @@
     },
     {
       "source": "/ar/:slug*",
-      "destination": "/:slug*"
+      "destination": "/:slug*",
+      "permanent": false
     }
   ],
   "theme": "mint",

@@ -390,7 +390,11 @@ class TestEnsureLanguageRedirect:
 
         assert site_structure["redirects"] == [
             {"source": "/ar/manual/:slug*", "destination": "/:slug*"},
-            {"source": "/ar/:slug*", "destination": "/:slug*"},
+            {
+                "source": "/ar/:slug*",
+                "destination": "/:slug*",
+                "permanent": False,
+            },
         ]
 
     def test_exact_language_redirect_prevents_duplicate(self) -> None:
@@ -410,5 +414,9 @@ class TestEnsureLanguageRedirect:
         ensure_language_redirect(site_structure, "ar")
 
         assert site_structure["redirects"] == [
-            {"source": "/ar/:slug*", "destination": "/:slug*"}
+            {
+                "source": "/ar/:slug*",
+                "destination": "/:slug*",
+                "permanent": False,
+            }
         ]
