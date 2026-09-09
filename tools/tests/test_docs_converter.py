@@ -296,6 +296,17 @@ class TestRelativeLinkReplacement:
         result = body(fmt("[x](https://faqs.ankiweb.net/bar.html)"))
         assert "/faqs/bar" in result
 
+    def test_sm2_faq_link_converted(self) -> None:
+        result = body(
+            fmt(
+                "SuperMemo algorithm called [SM-2](https://faqs.ankiweb.net/what-spaced-repetition-algorithm)"
+            )
+        )
+        assert (
+            "SuperMemo algorithm called [SM-2](/faqs/what-spaced-repetition-algorithm)"
+            in result
+        )
+
     def test_ankimobile_domain_converted(self) -> None:
         result = body(fmt("[x](https://docs.ankimobile.net/intro.html)"))
         assert "/ankimobile/intro" in result
