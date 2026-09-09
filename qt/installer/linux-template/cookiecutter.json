@@ -16,6 +16,7 @@
     "console_app": false,
     "briefcase_version": "0.3.X",
     "python_version": "3.X.0",
+    "host_arch": "x86_64",
     "_extensions": [
         "briefcase.integrations.cookiecutter.PythonVersionExtension"
     ]
