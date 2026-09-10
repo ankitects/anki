@@ -2,9 +2,10 @@
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 // @vitest-environment jsdom
 
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
 
 vi.mock(import("@tslib/bridgecommand"), () => ({ bridgeCommand: vi.fn() }));
+vi.stubGlobal("scrollTo", (_x: any, _y: any) => null);
 
 const CONFIG_SRC = "/_anki/js/mathjax.js";
 const VENDOR_SRC = "/_anki/js/vendor/mathjax/tex-chtml-full.js";
@@ -29,8 +30,13 @@ function spyOnScripts(): HTMLScriptElement[] {
     return scripts;
 }
 
+beforeAll(async () => {
+    await import("./index"); // warm cache
+}, 10000);
+
 beforeEach(() => {
     vi.resetModules();
+    vi.restoreAllMocks();
     delete window.MathJax;
     document.body.innerHTML = "<div id=\"qa\"></div>";
     document.head.querySelectorAll("script").forEach((node) => node.remove());
@@ -54,9 +60,10 @@ describe("mathjax lazy loading", () => {
         _showQuestion(HTML_WITH_MATHJAX, "", "");
 
         await vi.waitFor(() => expect(scripts).toHaveLength(1));
-        expect(scripts[0].src).toContain(CONFIG_SRC);
         scripts[0].onload?.(new Event("load")); // mock script loading
+        expect(scripts[0].src).toContain(CONFIG_SRC);
         await vi.waitFor(() => expect(scripts).toHaveLength(2));
+        scripts[1].onload?.(new Event("load"));
         expect(scripts[1].src).toContain(VENDOR_SRC);
     });
 
