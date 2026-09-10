@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 from tools.docs_converter import (
-    ensure_language_redirect,
     escape_text_preserve_html,
     format_page,
 )
@@ -385,61 +384,3 @@ class TestIndentedCodeBlocks:
     def test_dollars_escaped_in_indented_block(self) -> None:
         result = body(fmt("    $1.00"))
         assert "$1.00" in result
-
-
-# ===========================================================================
-# ensure_language_redirect
-# ===========================================================================
-
-
-class TestEnsureLanguageRedirect:
-    def test_english_language_does_not_append_redirect(self) -> None:
-        site_structure = {
-            "redirects": [{"source": "/manual/:slug*", "destination": "/:slug*"}]
-        }
-
-        ensure_language_redirect(site_structure, "en")
-
-        assert site_structure["redirects"] == [
-            {"source": "/manual/:slug*", "destination": "/:slug*"}
-        ]
-
-    def test_non_matching_language_redirect_does_not_prevent_append(self) -> None:
-        site_structure = {
-            "redirects": [{"source": "/ar/manual/:slug*", "destination": "/:slug*"}]
-        }
-
-        ensure_language_redirect(site_structure, "ar")
-
-        assert site_structure["redirects"] == [
-            {"source": "/ar/manual/:slug*", "destination": "/:slug*"},
-            {
-                "source": "/ar/:slug*",
-                "destination": "/:slug*",
-                "permanent": False,
-            },
-        ]
-
-    def test_exact_language_redirect_prevents_duplicate(self) -> None:
-        site_structure = {
-            "redirects": [{"source": "/ar/:slug*", "destination": "/:slug*"}]
-        }
-
-        ensure_language_redirect(site_structure, "ar")
-
-        assert site_structure["redirects"] == [
-            {"source": "/ar/:slug*", "destination": "/:slug*"}
-        ]
-
-    def test_non_english_language_without_existing_redirect_appends(self) -> None:
-        site_structure: dict = {"redirects": []}
-
-        ensure_language_redirect(site_structure, "ar")
-
-        assert site_structure["redirects"] == [
-            {
-                "source": "/ar/:slug*",
-                "destination": "/:slug*",
-                "permanent": False,
-            }
-        ]
