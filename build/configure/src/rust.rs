@@ -9,6 +9,7 @@ use ninja_gen::build::FilesHandle;
 use ninja_gen::cargo::CargoBuild;
 use ninja_gen::cargo::CargoClippy;
 use ninja_gen::cargo::CargoFormat;
+use ninja_gen::cargo::CargoInstall;
 use ninja_gen::cargo::CargoTest;
 use ninja_gen::cargo::RustOutput;
 use ninja_gen::git::SyncSubmodule;
@@ -215,7 +216,7 @@ pub fn check_minilints(build: &mut Build) -> Result<()> {
 
     impl BuildAction for RunMinilints {
         fn command(&self) -> &str {
-            "$minilints_bin $fix $stamp"
+            "$minilints_bin $fix $stamp $cargo_license"
         }
 
         fn bypass_runner(&self) -> bool {
@@ -224,12 +225,20 @@ pub fn check_minilints(build: &mut Build) -> Result<()> {
 
         fn files(&mut self, build: &mut impl FilesHandle) {
             build.add_inputs("minilints_bin", inputs![":build:minilints"]);
+            build.add_inputs("cargo_license", inputs![":cargo-license"]);
             build.add_inputs("", &self.deps);
             build.add_variable("fix", if self.fix { "fix" } else { "check" });
             build.add_output_stamp(format!("tests/minilints.{}", self.fix));
         }
 
         fn on_first_instance(&self, build: &mut Build) -> Result<()> {
+            build.add_action(
+                "cargo-license",
+                CargoInstall {
+                    binary_name: "cargo-license",
+                    args: "cargo-license --version 0.7.0 --locked",
+                },
+            )?;
             build.add_action(
                 "build:minilints",
                 CargoBuild {
