@@ -5,6 +5,7 @@
 import { beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
 
 vi.mock(import("@tslib/bridgecommand"), () => ({ bridgeCommand: vi.fn() }));
+vi.stubGlobal("scrollTo", (_x: any, _y: any) => null);
 
 const CONFIG_SRC = "/_anki/js/mathjax.js";
 const VENDOR_SRC = "/_anki/js/vendor/mathjax/tex-chtml-full.js";
