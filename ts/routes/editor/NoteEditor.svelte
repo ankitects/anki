@@ -1282,7 +1282,43 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             loadNote({ copyFromNote: note });
             lastAddedNote = null;
         } else if (mode !== "add" && changes.noteText) {
-            reloadNote();
+            const currentNote = note;
+            const currentLoad = loadController;
+            if (!currentNote) {
+                return;
+            }
+            let storedNote: Note;
+            try {
+                storedNote = await getNote(
+                    { nid: currentNote.id },
+                    { alertOnError: false },
+                );
+            } catch {
+                // Note deleted.
+                return;
+            }
+            if (note !== currentNote || loadController !== currentLoad) {
+                // The user started loading another note while the request was pending.
+                return;
+            }
+            const fieldsChanged =
+                storedNote.fields.length !== currentNote.fields.length ||
+                storedNote.fields.some(
+                    (field, index) => field !== currentNote.fields[index],
+                );
+            const tagsChanged =
+                storedNote.tags.length !== currentNote.tags.length ||
+                storedNote.tags.some((tag, index) => tag !== currentNote.tags[index]);
+            // An echoed save or a change to another note must not reload the
+            // editor and reset its focus/caret. Real external edits still reload.
+            if (
+                changes.notetype ||
+                storedNote.notetypeId !== currentNote.notetypeId ||
+                fieldsChanged ||
+                tagsChanged
+            ) {
+                reloadNote();
+            }
         }
     }
 
