@@ -158,17 +158,24 @@ Display cards that you have most recently added to the deck first.
 (This is the opposite of "Order added".)
 
 **Relative overdueness**\
-Display cards that you're most likely to have forgotten first. This is useful if
-you have a large backlog that may take some time to get through, and you want to
-reduce the chances of forgetting more cards.
+Prioritize cards that are most overdue relative to their scheduling target.
+This option is available with both SM-2 and FSRS. With SM-2, it compares how
+overdue cards are with the length of their intervals. With FSRS, it compares
+each card's current retrievability with the desired retention stored for that
+card.
 
-When using the SM-2 algorithm, overdueness is determined by comparing how
-overdue cards are, and how long their interval is. For example, a card with a
-current interval of 5 days that is overdue by 2 days, will display before a card
-with a current interval of 10 days that is overdue by 3 days.
+**Ascending retrievability**\
+Available when FSRS is enabled. Display cards with the lowest probability of
+recall first, starting with the cards you're most likely to have forgotten.
+Unlike **Relative overdueness**, this does not compare retrievability to each
+card's desired retention.
 
-When using FSRS, overdueness is calculated based on each card's retrievability,
-and the desired retention in the deck preset.
+**Descending retrievability**\
+Available when FSRS is enabled. Display cards with the highest probability of
+recall first, starting with the cards you're most likely to remember.
+
+See [Review Sort Order](./deck-options#review-sort-order) for more details on
+these three options.
 
 ## Steps & Returning
 
