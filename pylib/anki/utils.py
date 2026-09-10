@@ -250,7 +250,7 @@ is_gnome = (
     "gnome" in os.getenv("XDG_CURRENT_DESKTOP", "").lower()
     or "gnome" in os.getenv("DESKTOP_SESSION", "").lower()
 )
-dev_mode = os.getenv("ANKIDEV", "")
+dev_mode = os.getenv("ANKIDEV", "") not in ("", "0")
 hmr_mode = os.getenv("HMR", "")
 
 INVALID_FILENAME_CHARS = ':*?"<>|'
