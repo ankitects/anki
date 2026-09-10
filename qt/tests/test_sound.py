@@ -12,7 +12,7 @@ import pytest
 import aqt
 from anki.sound import SoundOrVideoTag
 from anki.utils import is_lin, is_mac, is_win
-from aqt.sound import MpvManager, _packagedCmd, is_audio_file
+from aqt.sound import MacStdinMpvPlayer, MpvManager, _packagedCmd, is_audio_file
 
 
 def test_is_audio_file_recognizes_common_formats():
@@ -107,6 +107,36 @@ def test_mpv_can_play_generated_wav(generated_wav: Path):
 
     result = subprocess.run(cmd, env=env, capture_output=True, timeout=30)
     assert result.returncode == 0, result.stderr.decode()
+
+
+@pytest.mark.skipif(not is_mac, reason="macOS-specific stdin audio player")
+def test_mpv_can_play_generated_wav_from_stdin(generated_wav: Path):
+    cmd, env = _resolved_mpv_command(
+        [
+            "mpv",
+            "--no-terminal",
+            "--force-window=no",
+            "--audio-display=no",
+            "--keep-open=no",
+            "--autoload-files=no",
+            "--ao=null",
+            "--vo=null",
+            "--",
+            "-",
+        ]
+    )
+
+    result = subprocess.run(
+        cmd, env=env, input=generated_wav.read_bytes(), capture_output=True, timeout=30
+    )
+    assert result.returncode == 0, result.stderr.decode()
+
+
+@pytest.mark.skipif(not is_mac, reason="macOS-specific stdin audio player")
+def test_macos_stdin_player_is_preferred_for_audio(tmp_path: Path):
+    player = MacStdinMpvPlayer(MagicMock(), tmp_path, tmp_path)
+    assert player.rank_for_tag(SoundOrVideoTag(filename="sound.mp3")) == 10
+    assert player.rank_for_tag(SoundOrVideoTag(filename="video.mp4")) is None
 
 
 @pytest.mark.skipif(is_lin, reason="mpv is not bundled for Linux")
