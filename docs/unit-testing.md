@@ -14,7 +14,7 @@ bug. Use it together with the behavior being changed, the surrounding production
 code, and nearby tests.
 
 This guide assumes basic familiarity with automated tests. If testing is new to you,
-start with one of the introductory resources in [References](https://anki.mintlify.app/unit-testing#references-and-rationale),
+start with one of the introductory resources in [References](https://anki.mintlify.app/developers/unit-testing#references-and-rationale),
 then return here for Anki-specific guidance.
 
 ## Quick summary
@@ -74,7 +74,7 @@ Keep the higher-level test only when it proves additional behavior.
 
 For Svelte specifically, "UI component" means extracted logic and stores: the
 repository does not wire rendered-component tests into the unit suite (see
-[Svelte, TypeScript, and JavaScript](https://anki.mintlify.app/unit-testing#svelte-typescript-and-javascript)).
+[Svelte, TypeScript, and JavaScript](https://anki.mintlify.app/developers/unit-testing#svelte-typescript-and-javascript)).
 
 Anki spans several implementation layers. Test a rule at the layer that owns it:
 
