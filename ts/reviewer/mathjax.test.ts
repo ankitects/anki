@@ -2,7 +2,7 @@
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 // @vitest-environment jsdom
 
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
 
 vi.mock(import("@tslib/bridgecommand"), () => ({ bridgeCommand: vi.fn() }));
 
@@ -28,6 +28,10 @@ function spyOnScripts(): HTMLScriptElement[] {
     });
     return scripts;
 }
+
+beforeAll(async () => {
+    await import("./index"); // warm cache
+}, 10000);
 
 beforeEach(() => {
     vi.resetModules();
