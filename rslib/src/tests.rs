@@ -109,6 +109,15 @@ impl Collection {
         self.storage.get_notetype(ntid).unwrap().unwrap()
     }
 
+    pub(crate) fn basic_optional_rev_notetype(&self) -> Notetype {
+        let ntid = self
+            .storage
+            .get_notetype_id("Basic (optional reversed card)")
+            .unwrap()
+            .unwrap();
+        self.storage.get_notetype(ntid).unwrap().unwrap()
+    }
+
     pub(crate) fn cloze_notetype(&self) -> Notetype {
         let ntid = self.storage.get_notetype_id("Cloze").unwrap().unwrap();
         self.storage.get_notetype(ntid).unwrap().unwrap()
