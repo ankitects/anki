@@ -6,8 +6,16 @@ description: "Install & Upgrade"
 
 ## Requirements
 
-Recent Anki releases require a computer running the 64 bit version of Windows
-10 or 11.
+Recent Anki releases support the following Windows configurations:
+
+| Processor architecture | Required Windows version |
+| ---------------------- | ------------------------ |
+| x64 (Intel or AMD)     | 64-bit Windows 10 or 11  |
+| ARM64                  | Windows 11               |
+
+To check your processor architecture, open **Settings > System > About** and
+look for **System type** under **Device specifications**. An **x64-based processor**
+uses the x64 installer; an **ARM-based processor** uses the ARM installer.
 
 - The last Anki release that supported Windows 7 and 8.1 was Anki 2.1.49.
 - The last Anki release that supported 32 bit Windows was [Anki 2.1.35-alternate](https://github.com/ankitects/anki/releases/tag/2.1.35).
@@ -18,7 +26,8 @@ If you're on an old machine, you can obtain old releases from the [releases page
 
 To install Anki:
 
-1. Download Anki from [https://apps.ankiweb.net](https://apps.ankiweb.net).
+1. Download Anki from [https://apps.ankiweb.net](https://apps.ankiweb.net), choosing
+   **Windows 10+ (x64)** or **Windows 11 (ARM)** to match your processor architecture.
 2. Save the installer to your desktop or downloads folder.
 3. Double-click on the installer to run it. If you see an error
    message, please see the [installation issues page](./installation-issues).
