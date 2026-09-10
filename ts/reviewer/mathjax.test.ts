@@ -59,9 +59,10 @@ describe("mathjax lazy loading", () => {
         _showQuestion(HTML_WITH_MATHJAX, "", "");
 
         await vi.waitFor(() => expect(scripts).toHaveLength(1));
-        expect(scripts[0].src).toContain(CONFIG_SRC);
         scripts[0].onload?.(new Event("load")); // mock script loading
+        expect(scripts[0].src).toContain(CONFIG_SRC);
         await vi.waitFor(() => expect(scripts).toHaveLength(2));
+        scripts[1].onload?.(new Event("load"));
         expect(scripts[1].src).toContain(VENDOR_SRC);
     });
 
