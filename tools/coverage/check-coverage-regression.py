@@ -12,7 +12,8 @@ Usage:
     current-dir   Directory containing coverage-summary.json files from the
                   current PR run (e.g. out/coverage)
 
-Exits with code 1 if any stack's line coverage is below the baseline.
+Exits with code 1 if any stack's line coverage is below the baseline, or code 2
+if a required coverage summary is missing.
 
 Tolerance: 0.20% — small decreases within this margin are ignored to absorb
 instrumentation noise across runs. Anything beyond this is treated as a
@@ -83,8 +84,11 @@ def main() -> int:
         current_pct = load_pct(current_dir, stack)
 
         if baseline_pct is None:
-            print(f"[{name}] no baseline — skipping")
-            continue
+            print(
+                f"[{name}] coverage-summary.json not found in {baseline_dir}",
+                file=sys.stderr,
+            )
+            return 2
         if current_pct is None:
             print(
                 f"[{name}] coverage-summary.json not found in {current_dir}",

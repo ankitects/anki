@@ -74,6 +74,7 @@ class LocalFileRequest:
 
 UNTRUSTED_MEDIA_CSP = "; ".join(
     (
+        # Disallow everything by default
         "default-src 'none'",
         "script-src 'none'",
         "connect-src 'none'",
@@ -82,7 +83,19 @@ UNTRUSTED_MEDIA_CSP = "; ".join(
         "child-src 'none'",
         "base-uri 'none'",
         "form-action 'none'",
-        "sandbox",
+        # Allow same-origin styles, images, fonts and media, so that an SVG or HTML
+        # file can use the resources next to it. 'unsafe-inline' is needed for
+        # <style> elements and style= attributes inside SVGs.
+        "style-src 'self' 'unsafe-inline'",
+        "img-src 'self'",
+        "font-src 'self'",
+        "media-src 'self'",
+        # The sandbox blocks scripts, forms, popups and top-level navigation.
+        # allow-same-origin is required for fonts (font loads use CORS, and we send
+        # no CORS headers) and to avoid stuck :hover styles under site isolation.
+        # Never add allow-scripts: with allow-same-origin, that would give media
+        # access to the parent page.
+        "sandbox allow-same-origin",
     )
 )
 
@@ -708,6 +721,19 @@ def import_done() -> bytes:
     return b""
 
 
+def import_dialog_require_close() -> bytes:
+    def handle_on_main() -> None:
+        if window := aqt.mw.app.activeModalWidget():
+            from aqt.import_export.import_dialog import ImportDialog
+
+            if isinstance(window, ImportDialog):
+                window.reject()
+
+    aqt.mw.taskman.run_on_main(handle_on_main)
+
+    return b""
+
+
 def search_in_browser() -> bytes:
     node = SearchNode()
     node.ParseFromString(request.data)
@@ -1089,6 +1115,7 @@ post_handler_list = [
     set_scheduling_states,
     change_notetype,
     import_done,
+    import_dialog_require_close,
     search_in_browser,
     deck_options_require_close,
     deck_options_ready,

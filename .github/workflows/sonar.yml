@@ -1,0 +1,160 @@
+name: SonarCloud
+
+on:
+  workflow_run:
+    workflows: ["CI"]
+    types: [completed]
+
+# Minimal privileges: read the repo and read artifacts from the triggering
+# CI run (download-artifact across runs needs actions: read).
+permissions:
+  contents: read
+  actions: read
+  pull-requests: read
+
+# One scan per branch at a time; a newer CI completion cancels an in-flight
+# scan of an older commit so SonarCloud always reflects the latest push.
+concurrency:
+  group: sonar-${{ github.event.workflow_run.head_repository.id }}-${{ github.event.workflow_run.head_branch }}
+  cancel-in-progress: true
+
+jobs:
+  sonar:
+    name: SonarCloud Scan
+    runs-on: ubuntu-24.04
+    # Only run once the whole CI succeeded. This guarantees the coverage and
+    # PR-context artifacts were uploaded (their upload steps are gated on
+    # success too), so the scan always has coverage and never falls back to a
+    # branch analysis with an empty PR context.
+    if: >-
+      github.event.workflow_run.conclusion == 'success'
+      && (github.event.workflow_run.event == 'push'
+          || github.event.workflow_run.event == 'pull_request')
+    steps:
+      # Checkout the PR/push code so SonarCloud analyses the actual changes.
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 #v4
+        with:
+          repository: ${{ github.event.workflow_run.head_repository.full_name }}
+          ref: ${{ github.event.workflow_run.head_sha }}
+          fetch-depth: 0
+          persist-credentials: false
+
+      # Overwrite sonar-project.properties with the trusted version from the
+      # default branch so a fork PR cannot redirect sonar.host.url to steal
+      # the token.
+      - name: Prepare trusted configuration directory
+        run: rm -rf .sonar-trusted
+
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 #v4
+        with:
+          repository: ${{ github.repository }}
+          ref: ${{ github.event.repository.default_branch }}
+          sparse-checkout: sonar-project.properties
+          sparse-checkout-cone-mode: false
+          path: .sonar-trusted
+          persist-credentials: false
+
+      - name: Install trusted SonarCloud configuration
+        run: |
+          rm -f sonar-project.properties
+          cp .sonar-trusted/sonar-project.properties sonar-project.properties
+
+      - name: Download coverage reports
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 #v4.3.0
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          run-id: ${{ github.event.workflow_run.id }}
+          name: coverage-reports
+          path: out/coverage
+
+      - name: Download PR context
+        if: github.event.workflow_run.event == 'pull_request'
+        continue-on-error: true
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 #v4.3.0
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          run-id: ${{ github.event.workflow_run.id }}
+          name: sonar-pr-context
+          path: out/sonar
+
+      # A PR must never silently fall back to branch analysis. A pull_request
+      # workflow and its artifacts can be modified by a fork, so use the
+      # artifact only to locate the PR and trust metadata returned by GitHub.
+      - name: Validate PR context
+        id: pr
+        shell: bash
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_REPO: ${{ github.repository }}
+          SOURCE_EVENT: ${{ github.event.workflow_run.event }}
+          PAYLOAD_PR_NUMBER: ${{ github.event.workflow_run.pull_requests[0].number }}
+          EXPECTED_HEAD_SHA: ${{ github.event.workflow_run.head_sha }}
+          EXPECTED_HEAD_REPO: ${{ github.event.workflow_run.head_repository.full_name }}
+          EXPECTED_HEAD_REF: ${{ github.event.workflow_run.head_branch }}
+          EXPECTED_BASE_REF: ${{ github.event.repository.default_branch }}
+        run: |
+          if [[ "$SOURCE_EVENT" != "pull_request" ]]; then
+            exit 0
+          fi
+
+          fail() {
+            echo "::error::$1"
+            exit 1
+          }
+
+          num="$PAYLOAD_PR_NUMBER"
+          if [[ -z "$num" ]]; then
+            [[ -s out/sonar/pr-number.txt ]] ||
+              fail "Missing PR number in workflow payload and artifact"
+            num=$(head -n1 out/sonar/pr-number.txt)
+          fi
+
+          [[ "$num" =~ ^[0-9]+$ ]] || fail "Invalid PR number"
+
+          pr_json=$(gh api "repos/$GH_REPO/pulls/$num") ||
+            fail "Unable to retrieve PR $num"
+
+          api_number=$(jq -er '.number' <<< "$pr_json")
+          api_head_sha=$(jq -er '.head.sha' <<< "$pr_json")
+          api_head_repo=$(jq -er '.head.repo.full_name' <<< "$pr_json")
+          api_head_ref=$(jq -er '.head.ref' <<< "$pr_json")
+          api_base_repo=$(jq -er '.base.repo.full_name' <<< "$pr_json")
+          api_base_ref=$(jq -er '.base.ref' <<< "$pr_json")
+
+          [[ "$api_number" == "$num" ]] || fail "PR number mismatch"
+          [[ "$api_head_sha" == "$EXPECTED_HEAD_SHA" ]] ||
+            fail "PR head SHA does not match the triggering workflow"
+          [[ "$api_head_repo" == "$EXPECTED_HEAD_REPO" ]] ||
+            fail "PR head repository does not match the triggering workflow"
+          [[ "$api_head_ref" == "$EXPECTED_HEAD_REF" ]] ||
+            fail "PR head branch does not match the triggering workflow"
+          [[ "$api_base_repo" == "$GH_REPO" ]] ||
+            fail "PR targets a different repository"
+          [[ "$api_base_ref" == "$EXPECTED_BASE_REF" ]] ||
+            fail "PR targets an unexpected base branch"
+
+          git check-ref-format --branch "$api_head_ref" >/dev/null ||
+            fail "Invalid PR head ref"
+          git check-ref-format --branch "$api_base_ref" >/dev/null ||
+            fail "Invalid PR base ref"
+
+          echo "number=$api_number" >> "$GITHUB_OUTPUT"
+          echo "head_ref=$api_head_ref" >> "$GITHUB_OUTPUT"
+          echo "base_ref=$api_base_ref" >> "$GITHUB_OUTPUT"
+
+      - name: SonarCloud Scan
+        if: >-
+          github.event.workflow_run.event != 'pull_request'
+          || steps.pr.outputs.number != ''
+        continue-on-error: true
+        uses: SonarSource/sonarqube-scan-action@713881670b6b3676cda39549040e2d88c70d582e #v8.2.0
+        with:
+          args: >-
+            -Dsonar.scm.revision=${{ github.event.workflow_run.head_sha }}
+            ${{ steps.pr.outputs.number != '' &&
+                format('-Dsonar.pullrequest.key={0} -Dsonar.pullrequest.branch={1} -Dsonar.pullrequest.base={2}',
+                       steps.pr.outputs.number,
+                       steps.pr.outputs.head_ref,
+                       steps.pr.outputs.base_ref) || '' }}
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}

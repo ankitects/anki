@@ -94,7 +94,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     $: disabled = !$focusedInput || !editingInputIsRichText($focusedInput);
 
     export let api = {};
-    export let isLegacy;
+    const { isLegacy } = context.get();
 </script>
 
 <ButtonGroup>
