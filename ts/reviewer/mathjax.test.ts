@@ -35,6 +35,7 @@ beforeAll(async () => {
 
 beforeEach(() => {
     vi.resetModules();
+    vi.restoreAllMocks();
     delete window.MathJax;
     document.body.innerHTML = "<div id=\"qa\"></div>";
     document.head.querySelectorAll("script").forEach((node) => node.remove());
