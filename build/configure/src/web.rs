@@ -346,7 +346,9 @@ fn check_web(build: &mut Build) -> Result<()> {
                 ":node_modules",
                 ":ts:generated",
                 glob!["ts/{svelte.config.js,vite.config.ts,tsconfig.json}"],
-                glob!["ts/{lib,deck-options,html-filter,domlib,reviewer,change-notetype}/**/*"],
+                glob![
+                    "ts/{lib,routes,deck-options,html-filter,domlib,reviewer,change-notetype}/**/*"
+                ],
             ],
         },
     )?;
