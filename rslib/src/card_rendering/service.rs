@@ -236,3 +236,239 @@ pub(crate) fn strip_html_proto(
     .to_string()
     .into())
 }
+
+#[cfg(test)]
+mod test {
+    use anki_proto::card_rendering::rendered_template_node::Value;
+    use anki_proto::card_rendering::RenderExistingCardRequest;
+    use anki_proto::card_rendering::RenderUncommittedCardLegacyRequest;
+    use anki_proto::card_rendering::RenderUncommittedCardRequest;
+
+    use crate::error::AnkiError;
+    use crate::prelude::*;
+    use crate::services::CardRenderingService;
+    use crate::tests::NoteAdder;
+
+    /// Build a `RenderUncommittedCardRequest` for a Basic note whose fields are
+    /// set to `fields`, optionally overriding the question format of the first
+    /// template.
+    fn basic_request(
+        col: &Collection,
+        fields: &[&str],
+        q_format: Option<&str>,
+        partial_render: bool,
+    ) -> RenderUncommittedCardRequest {
+        let nt = col.basic_notetype();
+        let note = NoteAdder::new(&nt).fields(fields).note();
+        let mut template = nt.templates[0].clone();
+        if let Some(q_format) = q_format {
+            template.config.q_format = q_format.into();
+        }
+        RenderUncommittedCardRequest {
+            note: Some(note.into()),
+            card_ord: 0,
+            template: Some(template.into()),
+            fill_empty: false,
+            partial_render,
+        }
+    }
+
+    /// The text of a fully rendered node list, or `None` when the nodes were
+    /// left partially rendered (i.e. contain a replacement).
+    fn text_of(nodes: &[anki_proto::card_rendering::RenderedTemplateNode]) -> Option<&str> {
+        match nodes {
+            [node] => match node.value.as_ref() {
+                Some(Value::Text(text)) => Some(text),
+                _ => None,
+            },
+            _ => None,
+        }
+    }
+
+    // Area 1: question/answer rendering.
+
+    #[test]
+    fn render_uncommitted_card_returns_question_and_answer() {
+        let mut col = Collection::new();
+        let req = basic_request(&col, &["front", "back"], None, false);
+
+        let resp = CardRenderingService::render_uncommitted_card(&mut col, req).unwrap();
+
+        assert_eq!(text_of(&resp.question_nodes), Some("front"));
+        assert_eq!(
+            text_of(&resp.answer_nodes),
+            Some("front\n\n<hr id=answer>\n\nback")
+        );
+        assert!(!resp.is_empty);
+        assert!(!resp.css.is_empty());
+    }
+
+    #[test]
+    fn render_existing_card_returns_saved_card_content() {
+        let mut col = Collection::new();
+        NoteAdder::basic(&mut col)
+            .fields(&["front", "back"])
+            .add(&mut col);
+        let card_id = col.get_first_card().id.0;
+
+        let resp = CardRenderingService::render_existing_card(
+            &mut col,
+            RenderExistingCardRequest {
+                card_id,
+                browser: false,
+                partial_render: false,
+            },
+        )
+        .unwrap();
+
+        assert_eq!(text_of(&resp.question_nodes), Some("front"));
+        assert_eq!(
+            text_of(&resp.answer_nodes),
+            Some("front\n\n<hr id=answer>\n\nback")
+        );
+    }
+
+    // Area 2: template filters.
+
+    #[test]
+    fn render_uncommitted_card_applies_known_filter() {
+        let mut col = Collection::new();
+        // The `text` filter strips HTML from the field before rendering it.
+        let req = basic_request(
+            &col,
+            &["<b>front</b>", "back"],
+            Some("{{text:Front}}"),
+            false,
+        );
+
+        let resp = CardRenderingService::render_uncommitted_card(&mut col, req).unwrap();
+
+        assert_eq!(text_of(&resp.question_nodes), Some("front"));
+    }
+
+    #[test]
+    fn render_uncommitted_card_ignores_unknown_filter_when_not_partial() {
+        let mut col = Collection::new();
+        let req = basic_request(&col, &["front", "back"], Some("{{foo:Front}}"), false);
+
+        let resp = CardRenderingService::render_uncommitted_card(&mut col, req).unwrap();
+
+        assert_eq!(text_of(&resp.question_nodes), Some("front"));
+    }
+
+    #[test]
+    fn render_uncommitted_card_emits_replacement_node_when_partial() {
+        let mut col = Collection::new();
+        let req = basic_request(&col, &["front", "back"], Some("{{foo:Front}}"), true);
+
+        let resp = CardRenderingService::render_uncommitted_card(&mut col, req).unwrap();
+
+        let replacement = resp
+            .question_nodes
+            .iter()
+            .find_map(|node| match node.value.as_ref() {
+                Some(Value::Replacement(r)) => Some(r),
+                _ => None,
+            })
+            .expect("expected a replacement node when partial rendering");
+        assert_eq!(replacement.field_name, "Front");
+        assert_eq!(replacement.filters, vec!["foo".to_string()]);
+    }
+
+    // Area 3: edge cases (empty fields and cloze).
+
+    #[test]
+    fn render_uncommitted_card_reports_empty_when_fields_blank() {
+        let mut col = Collection::new();
+        let req = basic_request(&col, &["", ""], None, false);
+
+        let resp = CardRenderingService::render_uncommitted_card(&mut col, req).unwrap();
+
+        assert!(resp.is_empty);
+    }
+
+    #[test]
+    fn render_uncommitted_card_renders_cloze() {
+        let mut col = Collection::new();
+        let nt = col.cloze_notetype();
+        let note = NoteAdder::new(&nt).fields(&["{{c1::foo}}", ""]).note();
+        let req = RenderUncommittedCardRequest {
+            note: Some(note.into()),
+            card_ord: 0,
+            template: Some(nt.templates[0].clone().into()),
+            fill_empty: false,
+            partial_render: false,
+        };
+
+        let resp = CardRenderingService::render_uncommitted_card(&mut col, req).unwrap();
+
+        let question = text_of(&resp.question_nodes).expect("cloze question fully rendered");
+        let answer = text_of(&resp.answer_nodes).expect("cloze answer fully rendered");
+        // The question hides the deletion behind the `[...]` placeholder (the
+        // value is only carried in a data attribute), and the answer reveals it.
+        assert_eq!(
+            question,
+            r#"<span class="cloze" data-cloze="foo" data-ordinal="1">[...]</span>"#
+        );
+        assert_eq!(
+            answer,
+            "<span class=\"cloze\" data-ordinal=\"1\">foo</span><br>\n"
+        );
+    }
+
+    // Area 4: error handling (structured errors, no panic).
+
+    #[test]
+    fn render_uncommitted_card_errors_when_template_missing() {
+        let mut col = Collection::new();
+        let mut req = basic_request(&col, &["front", "back"], None, false);
+        req.template = None;
+
+        let err = CardRenderingService::render_uncommitted_card(&mut col, req).unwrap_err();
+
+        assert!(matches!(err, AnkiError::InvalidInput { .. }));
+    }
+
+    #[test]
+    fn render_uncommitted_card_errors_when_note_missing() {
+        let mut col = Collection::new();
+        let mut req = basic_request(&col, &["front", "back"], None, false);
+        req.note = None;
+
+        let err = CardRenderingService::render_uncommitted_card(&mut col, req).unwrap_err();
+
+        assert!(matches!(err, AnkiError::InvalidInput { .. }));
+    }
+
+    #[test]
+    fn render_uncommitted_card_legacy_errors_on_invalid_template_bytes() {
+        let mut col = Collection::new();
+        let nt = col.basic_notetype();
+        let note = NoteAdder::new(&nt).fields(&["front", "back"]).note();
+        let req = RenderUncommittedCardLegacyRequest {
+            note: Some(note.into()),
+            card_ord: 0,
+            template: b"not valid json".to_vec(),
+            fill_empty: false,
+            partial_render: false,
+        };
+
+        assert!(CardRenderingService::render_uncommitted_card_legacy(&mut col, req).is_err());
+    }
+
+    #[test]
+    fn render_existing_card_errors_for_unknown_card_id() {
+        let mut col = Collection::new();
+
+        let result = CardRenderingService::render_existing_card(
+            &mut col,
+            RenderExistingCardRequest {
+                card_id: 12345,
+                browser: false,
+                partial_render: false,
+            },
+        );
+
+        assert!(result.is_err());
+    }
+}
