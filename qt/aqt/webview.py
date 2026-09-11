@@ -10,8 +10,10 @@ import os
 import re
 import sys
 import time
+import weakref
 from collections.abc import Callable, Sequence
 from enum import Enum
+from types import MethodType
 from typing import TYPE_CHECKING, Any, Type, cast
 
 from google.protobuf.json_format import MessageToDict
@@ -361,6 +363,31 @@ class WebContent:
 ##########################################################################
 
 
+def _weak_hook_handler(
+    hook: Any, method: Callable[..., Any], description: str
+) -> Callable[..., Any]:
+    """Wrap a webview's bound method for registration on a global hook.
+
+    The hook only holds a weak reference to the webview, so a webview that is
+    destroyed without a cleanup() call is not kept alive by the hook,
+    and its handler removes itself the next time the hook fires.
+    """
+    ref = weakref.WeakMethod(cast(MethodType, method))
+
+    def handler(*args: Any, **kwargs: Any) -> None:
+        bound = ref()
+        if bound is not None and not sip.isdeleted(
+            cast(sip.simplewrapper, bound.__self__)
+        ):
+            bound(*args, **kwargs)
+            return
+        logger.warning("%s was destroyed without a cleanup() call", description)
+        # hooks iterate over the live handler list, so defer the removal
+        QTimer.singleShot(0, lambda: hook.remove(handler))
+
+    return handler
+
+
 class AnkiWebView(QWebEngineView):
     allow_drops = False
     _kind: AnkiWebViewKind
@@ -390,33 +417,16 @@ class AnkiWebView(QWebEngineView):
         self.resetHandlers()
         self._filterSet = False
 
-        # NOTE: avoiding the use of self in `unhook` is load-bearing!
-        subscriptions: list[tuple[Any, Callable[..., Any]]] = [
+        description = f"{type(self).__name__} ({kind.value})"
+        self._hook_subscriptions: list[tuple[Any, Callable[..., Any]]] = []
+        for hook, method in (
             (gui_hooks.theme_did_change, self.on_theme_did_change),
             (gui_hooks.body_classes_need_update, self.on_body_classes_need_update),
             (gui_hooks.operation_did_execute, self.on_operation_did_execute),
-        ]
-        for hook, handler in subscriptions:
+        ):
+            handler = _weak_hook_handler(hook, method, description)
             hook.append(handler)
-        self._hook_subscriptions = subscriptions
-        name = type(self).__name__
-
-        # add-on webviews may be destroyed without cleanup() being called
-        def unhook(_obj: QObject | None = None) -> None:
-            try:
-                if subscriptions:
-                    logger.warning(
-                        "%s (%s) was destroyed without a cleanup() call",
-                        name,
-                        kind.value,
-                    )
-                while subscriptions:
-                    hook, handler = subscriptions.pop()
-                    hook.remove(handler)
-            except Exception:
-                pass  # app/interpreter teardown
-
-        qconnect(self.destroyed, unhook)
+            self._hook_subscriptions.append((hook, handler))
         qconnect(self.loadFinished, self._on_load_finished)
 
     def _on_load_finished(self) -> None:
