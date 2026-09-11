@@ -142,6 +142,11 @@ impl SqlWriter<'_> {
             SearchNode::SingleField { field, text, mode } => {
                 self.write_field(&norm(field), &self.norm_note(text), *mode)?
             }
+            SearchNode::NumericField {
+                field,
+                operator,
+                value,
+            } => self.write_numeric_field(&norm(field), operator, *value)?,
             SearchNode::Duplicates { notetype_id, text } => {
                 self.write_dupe(*notetype_id, &self.norm_note(text))?
             }
@@ -729,6 +734,38 @@ impl SqlWriter<'_> {
         Ok(())
     }
 
+    fn write_numeric_field(&mut self, field_name: &str, operator: &str, value: f64) -> Result<()> {
+        let field_indices_by_notetype = self.fields_indices_by_notetype(field_name)?;
+        if field_indices_by_notetype.is_empty() {
+            write!(self.sql, "false").unwrap();
+            return Ok(());
+        }
+
+        self.args
+            .push(r"^[+-]?(?:[0-9]+(?:\.[0-9]*)?|\.[0-9]+)(?:[eE][+-]?[0-9]+)?$".into());
+        let arg_idx = self.args.len();
+
+        let all_notetype_clauses = field_indices_by_notetype
+            .iter()
+            .map(|(mid, field_indices)| {
+                let field_clauses = field_indices
+                    .iter()
+                    .map(|idx| {
+                        let field = format!("trim(field_at_index(n.flds, {idx}))");
+                        format!(
+                            "({field} regexp ?{arg_idx} and cast({field} as real) {operator} {value})"
+                        )
+                    })
+                    .join(" or ");
+                format!("(n.mid = {mid} and ({field_clauses}))")
+            })
+            .join(" or ");
+
+        write!(self.sql, "({all_notetype_clauses})").unwrap();
+
+        Ok(())
+    }
+
     fn num_fields_and_fields_indices_by_notetype(
         &mut self,
         field_name: &str,
@@ -1095,6 +1132,7 @@ impl SearchNode {
 
             SearchNode::UnqualifiedText(_) => RequiredTable::Notes,
             SearchNode::SingleField { .. } => RequiredTable::Notes,
+            SearchNode::NumericField { .. } => RequiredTable::Notes,
             SearchNode::Tag { .. } => RequiredTable::Notes,
             SearchNode::Duplicates { .. } => RequiredTable::Notes,
             SearchNode::Regex(_) => RequiredTable::Notes,
