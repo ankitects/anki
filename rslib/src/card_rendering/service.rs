@@ -236,3 +236,562 @@ pub(crate) fn strip_html_proto(
     .to_string()
     .into())
 }
+
+#[cfg(test)]
+mod test {
+    use anki_proto::card_rendering::rendered_template_node::Value;
+    use anki_proto::card_rendering::CompareAnswerRequest;
+    use anki_proto::card_rendering::ExtractAvTagsRequest;
+    use anki_proto::card_rendering::ExtractClozeForTypingRequest;
+    use anki_proto::card_rendering::ExtractLatexRequest;
+    use anki_proto::card_rendering::HtmlToTextLineRequest;
+    use anki_proto::card_rendering::RenderExistingCardRequest;
+    use anki_proto::card_rendering::RenderMarkdownRequest;
+    use anki_proto::card_rendering::RenderUncommittedCardLegacyRequest;
+    use anki_proto::card_rendering::RenderUncommittedCardRequest;
+    use anki_proto::card_rendering::RenderedTemplateNode;
+    use anki_proto::card_rendering::RenderedTemplateReplacement;
+    use anki_proto::card_rendering::StripHtmlRequest;
+    use anki_proto::generic;
+
+    use crate::error::AnkiError;
+    use crate::notetype::CardTemplateSchema11;
+    use crate::prelude::*;
+    use crate::services::CardRenderingService;
+    use crate::tests::NoteAdder;
+
+    /// Build a `RenderUncommittedCardRequest` for a Basic note whose fields are
+    /// set to `fields`, optionally overriding the question format of the first
+    /// template.
+    fn basic_request(
+        col: &Collection,
+        fields: &[&str],
+        q_format: Option<&str>,
+        partial_render: bool,
+    ) -> RenderUncommittedCardRequest {
+        let nt = col.basic_notetype();
+        let note = NoteAdder::new(&nt).fields(fields).note();
+        let mut template = nt.templates[0].clone();
+        if let Some(q_format) = q_format {
+            template.config.q_format = q_format.into();
+        }
+        RenderUncommittedCardRequest {
+            note: Some(note.into()),
+            card_ord: 0,
+            template: Some(template.into()),
+            fill_empty: false,
+            partial_render,
+        }
+    }
+
+    /// The text of a node list that rendered to a single text node, or `None`
+    /// otherwise (an empty list, multiple nodes, or a replacement node — i.e.
+    /// partially rendered output).
+    fn text_of(nodes: &[anki_proto::card_rendering::RenderedTemplateNode]) -> Option<&str> {
+        match nodes {
+            [node] => match node.value.as_ref() {
+                Some(Value::Text(text)) => Some(text),
+                _ => None,
+            },
+            _ => None,
+        }
+    }
+
+    // Question/answer rendering.
+
+    #[test]
+    fn render_uncommitted_card_returns_question_and_answer() {
+        let mut col = Collection::new();
+        let req = basic_request(&col, &["front", "back"], None, false);
+
+        let resp = CardRenderingService::render_uncommitted_card(&mut col, req).unwrap();
+
+        assert_eq!(text_of(&resp.question_nodes), Some("front"));
+        assert_eq!(
+            text_of(&resp.answer_nodes),
+            Some("front\n\n<hr id=answer>\n\nback")
+        );
+        assert!(!resp.is_empty);
+        assert!(!resp.css.is_empty());
+    }
+
+    #[test]
+    fn render_existing_card_returns_saved_card_content() {
+        let mut col = Collection::new();
+        NoteAdder::basic(&mut col)
+            .fields(&["front", "back"])
+            .add(&mut col);
+        let card_id = col.get_first_card().id.0;
+
+        let resp = CardRenderingService::render_existing_card(
+            &mut col,
+            RenderExistingCardRequest {
+                card_id,
+                browser: false,
+                partial_render: false,
+            },
+        )
+        .unwrap();
+
+        assert_eq!(text_of(&resp.question_nodes), Some("front"));
+        assert_eq!(
+            text_of(&resp.answer_nodes),
+            Some("front\n\n<hr id=answer>\n\nback")
+        );
+    }
+
+    // Template filters.
+
+    #[test]
+    fn render_uncommitted_card_applies_known_filter() {
+        let mut col = Collection::new();
+        // The `text` filter strips HTML from the field before rendering it.
+        let req = basic_request(
+            &col,
+            &["<b>front</b>", "back"],
+            Some("{{text:Front}}"),
+            false,
+        );
+
+        let resp = CardRenderingService::render_uncommitted_card(&mut col, req).unwrap();
+
+        assert_eq!(text_of(&resp.question_nodes), Some("front"));
+    }
+
+    #[test]
+    fn render_uncommitted_card_ignores_unknown_filter_when_not_partial() {
+        let mut col = Collection::new();
+        let req = basic_request(&col, &["front", "back"], Some("{{foo:Front}}"), false);
+
+        let resp = CardRenderingService::render_uncommitted_card(&mut col, req).unwrap();
+
+        assert_eq!(text_of(&resp.question_nodes), Some("front"));
+    }
+
+    #[test]
+    fn render_uncommitted_card_emits_replacement_node_when_partial() {
+        let mut col = Collection::new();
+        let req = basic_request(&col, &["front", "back"], Some("{{foo:Front}}"), true);
+
+        let resp = CardRenderingService::render_uncommitted_card(&mut col, req).unwrap();
+
+        assert_eq!(
+            resp.question_nodes,
+            vec![RenderedTemplateNode {
+                value: Some(Value::Replacement(RenderedTemplateReplacement {
+                    field_name: "Front".into(),
+                    current_text: "front".into(),
+                    filters: vec!["foo".into()],
+                })),
+            }]
+        );
+    }
+
+    #[test]
+    fn render_uncommitted_card_preserves_text_before_replacement_when_partial() {
+        let mut col = Collection::new();
+        let req = basic_request(&col, &["front", "back"], Some("pre {{foo:Front}}"), true);
+
+        let resp = CardRenderingService::render_uncommitted_card(&mut col, req).unwrap();
+
+        assert_eq!(
+            resp.question_nodes,
+            vec![
+                RenderedTemplateNode {
+                    value: Some(Value::Text("pre ".into())),
+                },
+                RenderedTemplateNode {
+                    value: Some(Value::Replacement(RenderedTemplateReplacement {
+                        field_name: "Front".into(),
+                        current_text: "front".into(),
+                        filters: vec!["foo".into()],
+                    })),
+                },
+            ]
+        );
+    }
+
+    // Edge cases (empty fields and cloze).
+
+    #[test]
+    fn render_uncommitted_card_reports_empty_when_fields_blank() {
+        let mut col = Collection::new();
+        let req = basic_request(&col, &["", ""], None, false);
+
+        let resp = CardRenderingService::render_uncommitted_card(&mut col, req).unwrap();
+
+        assert!(resp.is_empty);
+    }
+
+    #[test]
+    fn render_uncommitted_card_renders_cloze() {
+        let mut col = Collection::new();
+        let nt = col.cloze_notetype();
+        let note = NoteAdder::new(&nt).fields(&["{{c1::foo}}", ""]).note();
+        let req = RenderUncommittedCardRequest {
+            note: Some(note.into()),
+            card_ord: 0,
+            template: Some(nt.templates[0].clone().into()),
+            fill_empty: false,
+            partial_render: false,
+        };
+
+        let resp = CardRenderingService::render_uncommitted_card(&mut col, req).unwrap();
+
+        let question = text_of(&resp.question_nodes).expect("cloze question fully rendered");
+        let answer = text_of(&resp.answer_nodes).expect("cloze answer fully rendered");
+        // The question hides the deletion behind the `[...]` placeholder (the
+        // value is only carried in a data attribute), and the answer reveals it.
+        assert_eq!(
+            question,
+            r#"<span class="cloze" data-cloze="foo" data-ordinal="1">[...]</span>"#
+        );
+        assert_eq!(
+            answer,
+            "<span class=\"cloze\" data-ordinal=\"1\">foo</span><br>\n"
+        );
+    }
+
+    // Error handling (structured errors, no panic).
+
+    #[test]
+    fn render_uncommitted_card_errors_when_template_missing() {
+        let mut col = Collection::new();
+        let mut req = basic_request(&col, &["front", "back"], None, false);
+        req.template = None;
+
+        let err = CardRenderingService::render_uncommitted_card(&mut col, req).unwrap_err();
+
+        match err {
+            AnkiError::InvalidInput { source } => {
+                assert_eq!(source.message(), "missing template");
+            }
+            other => panic!("expected InvalidInput, got {other:?}"),
+        }
+    }
+
+    #[test]
+    fn render_uncommitted_card_errors_when_note_missing() {
+        let mut col = Collection::new();
+        let mut req = basic_request(&col, &["front", "back"], None, false);
+        req.note = None;
+
+        let err = CardRenderingService::render_uncommitted_card(&mut col, req).unwrap_err();
+
+        match err {
+            AnkiError::InvalidInput { source } => {
+                assert_eq!(source.message(), "missing note");
+            }
+            other => panic!("expected InvalidInput, got {other:?}"),
+        }
+    }
+
+    #[test]
+    fn render_uncommitted_card_legacy_errors_on_invalid_template_bytes() {
+        let mut col = Collection::new();
+        let nt = col.basic_notetype();
+        let note = NoteAdder::new(&nt).fields(&["front", "back"]).note();
+        let req = RenderUncommittedCardLegacyRequest {
+            note: Some(note.into()),
+            card_ord: 0,
+            template: b"not valid json".to_vec(),
+            fill_empty: false,
+            partial_render: false,
+        };
+
+        let err = CardRenderingService::render_uncommitted_card_legacy(&mut col, req).unwrap_err();
+
+        assert!(
+            matches!(err, AnkiError::JsonError { .. }),
+            "expected JsonError, got {err:?}"
+        );
+    }
+
+    #[test]
+    fn render_existing_card_errors_for_unknown_card_id() {
+        let mut col = Collection::new();
+
+        let err = CardRenderingService::render_existing_card(
+            &mut col,
+            RenderExistingCardRequest {
+                card_id: 12345,
+                browser: false,
+                partial_render: false,
+            },
+        )
+        .unwrap_err();
+
+        match err {
+            AnkiError::InvalidInput { source } => {
+                assert_eq!(source.message(), "no such card");
+            }
+            other => panic!("expected InvalidInput, got {other:?}"),
+        }
+    }
+
+    // Remaining delegating methods: assert the bridge contract
+    // (proto conversion, mode/flag dispatch) rather than re-testing the
+    // domain rules, which are covered by the free functions' own unit tests.
+
+    #[test]
+    fn extract_av_tags_moves_sound_into_av_tags() {
+        use anki_proto::card_rendering::av_tag::Value as AvValue;
+        let mut col = Collection::new();
+
+        let resp = col
+            .extract_av_tags(ExtractAvTagsRequest {
+                text: "foo [sound:bar.mp3] baz".into(),
+                question_side: true,
+            })
+            .unwrap();
+
+        assert_eq!(resp.text, "foo [anki:play:q:0] baz");
+        assert_eq!(resp.av_tags.len(), 1);
+        assert!(matches!(
+            &resp.av_tags[0].value,
+            Some(AvValue::SoundOrVideo(name)) if name == "bar.mp3"
+        ));
+    }
+
+    #[test]
+    fn extract_latex_returns_extracted_expressions() {
+        let mut col = Collection::new();
+
+        let resp = col
+            .extract_latex(ExtractLatexRequest {
+                text: "a [latex]x^2[/latex] b".into(),
+                svg: false,
+                expand_clozes: false,
+            })
+            .unwrap();
+
+        assert_eq!(resp.latex.len(), 1);
+        assert_eq!(resp.latex[0].latex_body, "x^2");
+        assert!(!resp.latex[0].filename.is_empty());
+        // The inline latex is replaced by an <img> reference to the filename.
+        assert!(resp.text.contains(&resp.latex[0].filename));
+    }
+
+    #[test]
+    fn extract_latex_expands_clozes_when_requested() {
+        let mut col = Collection::new();
+
+        let resp = col
+            .extract_latex(ExtractLatexRequest {
+                text: "[latex]{{c1::x}}[/latex]".into(),
+                svg: true,
+                expand_clozes: true,
+            })
+            .unwrap();
+
+        // Expanding the cloze yields one latex expression per rendered side
+        // (deletion hidden and revealed).
+        assert_eq!(resp.latex.len(), 2);
+    }
+
+    #[test]
+    fn get_empty_cards_reports_note_with_empty_card() {
+        let mut col = Collection::new();
+        let nt = col.basic_rev_notetype();
+        // Generate both cards with the fields filled, then blank the Back field:
+        // the reverse card now renders empty while the forward card keeps the
+        // note alive.
+        let mut note = NoteAdder::new(&nt).fields(&["front", "back"]).add(&mut col);
+        let reverse_card_id = col
+            .storage
+            .all_cards_of_note(note.id)
+            .unwrap()
+            .into_iter()
+            .find(|card| card.template_idx == 1)
+            .expect("expected a reverse card")
+            .id
+            .0;
+        note.set_field(1, "").unwrap();
+        col.update_note(&mut note).unwrap();
+
+        let report = col.get_empty_cards().unwrap();
+
+        assert_eq!(report.notes.len(), 1);
+        assert_eq!(report.notes[0].note_id, note.id.0);
+        assert_eq!(report.notes[0].card_ids, vec![reverse_card_id]);
+        assert!(!report.notes[0].will_delete_note);
+        assert!(!report.report.is_empty());
+    }
+
+    #[test]
+    fn get_empty_cards_marks_note_for_deletion_when_all_cards_empty() {
+        let mut col = Collection::new();
+        let mut note = NoteAdder::basic(&mut col)
+            .fields(&["front", "back"])
+            .add(&mut col);
+        let card_id = col.storage.all_cards_of_note(note.id).unwrap()[0].id.0;
+        note.set_field(0, "").unwrap();
+        note.set_field(1, "").unwrap();
+        col.update_note(&mut note).unwrap();
+
+        let report = col.get_empty_cards().unwrap();
+
+        assert_eq!(report.notes.len(), 1);
+        assert_eq!(report.notes[0].note_id, note.id.0);
+        assert_eq!(report.notes[0].card_ids, vec![card_id]);
+        assert!(report.notes[0].will_delete_note);
+    }
+
+    #[test]
+    fn render_uncommitted_card_legacy_renders_question_and_answer() {
+        let mut col = Collection::new();
+        let nt = col.basic_notetype();
+        let note = NoteAdder::new(&nt).fields(&["front", "back"]).note();
+        let schema11: CardTemplateSchema11 = nt.templates[0].clone().into();
+        let req = RenderUncommittedCardLegacyRequest {
+            note: Some(note.into()),
+            card_ord: 0,
+            template: serde_json::to_vec(&schema11).unwrap(),
+            fill_empty: false,
+            partial_render: false,
+        };
+
+        let resp = CardRenderingService::render_uncommitted_card_legacy(&mut col, req).unwrap();
+
+        assert_eq!(text_of(&resp.question_nodes), Some("front"));
+        assert_eq!(
+            text_of(&resp.answer_nodes),
+            Some("front\n\n<hr id=answer>\n\nback")
+        );
+    }
+
+    #[test]
+    fn strip_av_tags_removes_sound_tags() {
+        let mut col = Collection::new();
+
+        let resp = col
+            .strip_av_tags(generic::String {
+                val: "foo [sound:bar] baz".into(),
+            })
+            .unwrap();
+
+        assert_eq!(resp.val, "foo  baz");
+    }
+
+    #[test]
+    fn render_markdown_converts_without_sanitizing() {
+        let mut col = Collection::new();
+
+        let resp = col
+            .render_markdown(RenderMarkdownRequest {
+                markdown: "# Title".into(),
+                sanitize: false,
+            })
+            .unwrap();
+
+        assert_eq!(resp.val, "<h1>Title</h1>\n");
+    }
+
+    #[test]
+    fn render_markdown_sanitizes_disallowed_markup() {
+        let mut col = Collection::new();
+
+        let resp = col
+            .render_markdown(RenderMarkdownRequest {
+                markdown: "safe\n\n<script>alert(1)</script>".into(),
+                sanitize: true,
+            })
+            .unwrap();
+
+        assert!(resp.val.contains("safe"));
+        assert!(!resp.val.contains("<script>"));
+        assert!(!resp.val.contains("alert(1)"));
+    }
+
+    #[test]
+    fn iri_paths_round_trip_through_encode_and_decode() {
+        let mut col = Collection::new();
+        let original = r#"<img src="a b.png">"#;
+
+        let encoded = col
+            .encode_iri_paths(generic::String {
+                val: original.into(),
+            })
+            .unwrap();
+        assert_ne!(encoded.val, original, "encoding should escape the space");
+
+        let decoded = col.decode_iri_paths(encoded).unwrap();
+        assert_eq!(decoded.val, original);
+    }
+
+    #[test]
+    fn strip_html_normal_removes_all_tags() {
+        use anki_proto::card_rendering::strip_html_request::Mode;
+        let mut col = Collection::new();
+
+        let resp = col
+            .strip_html(StripHtmlRequest {
+                text: r#"<b>hi</b> <img src="foo.jpg">"#.into(),
+                mode: Mode::Normal as i32,
+            })
+            .unwrap();
+
+        assert_eq!(resp.val, "hi ");
+    }
+
+    #[test]
+    fn strip_html_preserve_mode_keeps_media_filename() {
+        use anki_proto::card_rendering::strip_html_request::Mode;
+        let mut col = Collection::new();
+
+        let resp = col
+            .strip_html(StripHtmlRequest {
+                text: r#"<b>hi</b> <img src="foo.jpg">"#.into(),
+                mode: Mode::PreserveMediaFilenames as i32,
+            })
+            .unwrap();
+
+        assert_eq!(resp.val, "hi  foo.jpg ");
+    }
+
+    #[test]
+    fn html_to_text_line_strips_markup() {
+        let mut col = Collection::new();
+
+        let resp = col
+            .html_to_text_line(HtmlToTextLineRequest {
+                text: "<b>hi</b>".into(),
+                preserve_media_filenames: false,
+            })
+            .unwrap();
+
+        assert_eq!(resp.val, "hi");
+    }
+
+    #[test]
+    fn compare_answer_marks_correct_input() {
+        let mut col = Collection::new();
+
+        let resp = col
+            .compare_answer(CompareAnswerRequest {
+                expected: "foo".into(),
+                provided: "foo".into(),
+                combining: true,
+            })
+            .unwrap();
+
+        assert_eq!(
+            resp.val,
+            "<code id=typeans><span class=typeGood>foo</span></code>"
+        );
+    }
+
+    #[test]
+    fn extract_cloze_for_typing_returns_answer_for_ordinal() {
+        let mut col = Collection::new();
+
+        let resp = col
+            .extract_cloze_for_typing(ExtractClozeForTypingRequest {
+                text: "{{c1::foo}} {{c2::bar}}".into(),
+                ordinal: 1,
+            })
+            .unwrap();
+
+        assert_eq!(resp.val, "foo");
+    }
+}
