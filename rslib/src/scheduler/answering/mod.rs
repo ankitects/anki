@@ -346,6 +346,9 @@ impl Collection {
         ) {
             card.last_review_time = Some(answer.answered_at.as_secs());
         }
+        if self.should_bury_failed_card(&card, answer, timing)? {
+            card.queue = CardQueue::SchedBuried;
+        }
         if let Some(data) = answer.custom_data.take() {
             card.custom_data = data;
             card.validate_custom_data()?;
@@ -385,6 +388,30 @@ impl Collection {
         }
 
         Ok(())
+    }
+
+    /// True if the user has asked for repeatedly-failed cards to be buried, and
+    /// this Again answer was the card's nth failure today. The revlog entry for
+    /// the current answer has already been added, so it is counted.
+    fn should_bury_failed_card(
+        &self,
+        card: &Card,
+        answer: &CardAnswer,
+        timing: SchedTimingToday,
+    ) -> Result<bool> {
+        if !matches!(answer.rating, Rating::Again)
+            || matches!(
+                answer.current_state,
+                CardState::Filtered(FilteredState::Preview(_))
+            )
+            || !self.get_config_bool(BoolKey::BuryFailedCards)
+        {
+            return Ok(false);
+        }
+        let failures = self
+            .storage
+            .failures_since(card.id, timing.next_day_at.adding_secs(-86_400))?;
+        Ok(failures >= self.get_bury_failed_cards_threshold())
     }
 
     fn maybe_bury_siblings(&mut self, card: &Card, config: &DeckConfig) -> Result<()> {
@@ -903,6 +930,39 @@ pub(crate) mod test {
         // after the final 10 minute step, the queues should be empty
         col.answer_good();
         assert_counts!(col, 0, 0, 0);
+
+        Ok(())
+    }
+
+    #[test]
+    fn bury_after_repeated_failures() -> Result<()> {
+        let (mut col, cids) = v3_test_collection(1)?;
+        if col.timing_today()?.near_cutoff() {
+            return Ok(());
+        }
+        col.transact_no_undo(|col| {
+            col.set_config_bool_inner(BoolKey::BuryFailedCards, true)?;
+            col.set_bury_failed_cards_threshold(3)
+        })?;
+
+        for _ in 0..2 {
+            col.answer_again();
+            assert_ne!(
+                col.storage.get_card(cids[0])?.unwrap().queue,
+                CardQueue::SchedBuried
+            );
+            col.storage.db.execute_batch("update cards set due=0")?;
+            col.clear_study_queues();
+        }
+
+        // the third failure hits the threshold, and takes the card out of today's
+        // queue
+        col.answer_again();
+        assert_eq!(
+            col.storage.get_card(cids[0])?.unwrap().queue,
+            CardQueue::SchedBuried
+        );
+        assert!(col.get_next_card()?.is_none());
 
         Ok(())
     }
