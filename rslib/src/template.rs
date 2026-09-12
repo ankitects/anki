@@ -620,6 +620,21 @@ pub fn render_card(
         .and_then(|tmpl| Ok((tmpl.render(&context, tr)?, tmpl)))
         .map_err(|e| template_error_to_anki_error(e, true, browser, tr))?;
 
+    // Render the answer before checking for an empty front, so template errors
+    // take priority over the blank-card warning.
+    context.frontside = if context.partial_for_python {
+        Some("")
+    } else {
+        Some(match qnodes.first() {
+            Some(RenderedNode::Text { text }) => text,
+            None => "",
+            Some(_) => invalid_input!("should not happen: first node not text"),
+        })
+    };
+    let anodes = ParsedTemplate::from_text(afmt)
+        .and_then(|tmpl| tmpl.render(&context, tr))
+        .map_err(|e| template_error_to_anki_error(e, false, browser, tr))?;
+
     // check if the front side was empty
     let empty_message = if is_cloze && cloze_is_empty(field_map, card_ord) {
         Some(format!(
@@ -646,19 +661,6 @@ pub fn render_card(
             is_empty: true,
         });
     }
-
-    // answer side
-    context.frontside = if context.partial_for_python {
-        Some("")
-    } else {
-        let Some(RenderedNode::Text { text }) = &qnodes.first() else {
-            invalid_input!("should not happen: first node not text");
-        };
-        Some(text)
-    };
-    let anodes = ParsedTemplate::from_text(afmt)
-        .and_then(|tmpl| tmpl.render(&context, tr))
-        .map_err(|e| template_error_to_anki_error(e, false, browser, tr))?;
 
     Ok(RenderCardResponse {
         qnodes,
@@ -920,6 +922,7 @@ mod test {
     use super::FieldMap;
     use super::ParsedNode::*;
     use super::ParsedTemplate as PT;
+    use crate::error::AnkiError;
     use crate::error::TemplateError;
     use crate::template::field_is_empty;
     use crate::template::nonempty_fields;
@@ -1317,6 +1320,95 @@ mod test {
                 filters: vec!["filter".to_string()]
             }]
         );
+    }
+
+    #[test]
+    fn render_card_reports_back_template_errors_before_blank_front() {
+        let fields = HashMap::from([("Front", "front".into()), ("Back", "".into())]);
+        let tr = I18n::template_only();
+
+        for qfmt in ["{{Front}}", "{{Back}}", "{{#Back}}{{Back}}{{/Back}}"] {
+            for (afmt, details) in [("{{#Back}}", "{{/Back}}"), ("{{Missing}}", "Missing")] {
+                for partial_render in [true, false] {
+                    let error = super::render_card(RenderCardRequest {
+                        qfmt,
+                        afmt,
+                        field_map: &fields,
+                        card_ord: 0,
+                        is_cloze: false,
+                        browser: false,
+                        tr: &tr,
+                        partial_render,
+                    })
+                    .err()
+                    .expect("invalid back template must take priority over a blank front");
+
+                    let AnkiError::TemplateError { info } = error else {
+                        panic!("expected a template error, got {error:?}");
+                    };
+                    assert!(info.starts_with("Back template has a problem:"), "{info}");
+                    assert!(info.contains(details), "{info}");
+                }
+            }
+        }
+    }
+
+    #[test]
+    fn render_card_preserves_blank_front_warning_with_valid_back() {
+        let fields = HashMap::from([("Front", "".into()), ("Back", "answer".into())]);
+        let tr = I18n::template_only();
+
+        for qfmt in ["{{Front}}", "{{#Front}}{{Front}}{{/Front}}"] {
+            for partial_render in [true, false] {
+                let response = super::render_card(RenderCardRequest {
+                    qfmt,
+                    afmt: "{{FrontSide}}{{Back}}",
+                    field_map: &fields,
+                    card_ord: 0,
+                    is_cloze: false,
+                    browser: false,
+                    tr: &tr,
+                    partial_render,
+                })
+                .unwrap();
+
+                assert!(response.is_empty);
+                let warning = response.qnodes.last().unwrap();
+                let super::RenderedNode::Text { text } = warning else {
+                    panic!("expected a blank-front warning, got {warning:?}");
+                };
+                assert!(text.contains("The front of this card is blank."));
+                assert_eq!(response.anodes.as_slice(), std::slice::from_ref(warning));
+            }
+        }
+    }
+
+    #[test]
+    fn render_card_preserves_missing_cloze_warning_with_valid_back() {
+        let fields = HashMap::from([("Text", "No deletion".into())]);
+        let tr = I18n::template_only();
+
+        for partial_render in [true, false] {
+            let response = super::render_card(RenderCardRequest {
+                qfmt: "{{cloze:Text}}",
+                afmt: "{{cloze:Text}}",
+                field_map: &fields,
+                card_ord: 0,
+                is_cloze: true,
+                browser: false,
+                tr: &tr,
+                partial_render,
+            })
+            .unwrap();
+
+            assert!(response.is_empty);
+            let warning = response.qnodes.last().unwrap();
+            let super::RenderedNode::Text { text } = warning else {
+                panic!("expected a missing-cloze warning, got {warning:?}");
+            };
+            assert!(text.contains("No cloze"));
+            assert_eq!(response.anodes.as_slice(), std::slice::from_ref(warning));
+        }
     }
 
     #[test]
