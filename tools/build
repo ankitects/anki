@@ -2,7 +2,6 @@
 
 set -eo pipefail
 
-rm -rf out/wheels/*
-RELEASE=2 ./ninja wheels
-(cd qt/release && ./build.sh)
+cd "$(dirname "$0")/.."
+RELEASE=2 just wheels
 echo "wheels are in out/wheels"
