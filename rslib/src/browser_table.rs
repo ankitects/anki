@@ -3,7 +3,6 @@
 
 use std::sync::Arc;
 
-use fsrs::FSRS;
 use fsrs::FSRS5_DEFAULT_DECAY;
 use itertools::Itertools;
 use strum::Display;
@@ -545,11 +544,8 @@ impl RowContext {
             .zip(self.cards[0].seconds_since_last_review(&self.timing))
             .zip(Some(self.cards[0].decay.unwrap_or(FSRS5_DEFAULT_DECAY)))
             .map(|((state, seconds), decay)| {
-                let r = FSRS::new(None).unwrap().current_retrievability_seconds(
-                    (*state).into(),
-                    seconds,
-                    decay,
-                );
+                let r =
+                    fsrs::current_retrievability((*state).into(), seconds as f32 / 86_400.0, decay);
                 format!("{:.0}%", r * 100.)
             })
             .unwrap_or_default()
@@ -629,7 +625,7 @@ impl RowContext {
         }
         let deck_name = self.deck.human_name();
         if let Some(original_deck) = &self.original_deck {
-            format!("{} ({})", &deck_name, &original_deck.human_name())
+            format!("{} ({})", deck_name, original_deck.human_name())
         } else {
             deck_name
         }

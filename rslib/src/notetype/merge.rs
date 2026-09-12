@@ -25,11 +25,21 @@ impl Notetype {
         for (index, field) in other.fields.iter().enumerate() {
             match self.find_field(field) {
                 Some(i) if i == index => (),
-                Some(i) => self.fields.swap(i, index),
+                // A longer `other` is fine on its own; its extra fields are
+                // appended below. The panic only arises when `other` repeats a
+                // field that already matches one of ours, at an `index` past the
+                // end of our list. Only re-align when `index` is a real slot;
+                // otherwise the field is already present, so leave it in place.
+                Some(i) => {
+                    if index < self.fields.len() {
+                        self.fields.swap(i, index);
+                    }
+                }
                 None => {
                     let mut missing = field.clone();
                     missing.ord.take();
-                    self.fields.insert(index, missing);
+                    // clamp so a longer `other` appends instead of panicking
+                    self.fields.insert(index.min(self.fields.len()), missing);
                 }
             }
         }
@@ -47,11 +57,18 @@ impl Notetype {
         for (index, template) in other.templates.iter().enumerate() {
             match self.find_template(template) {
                 Some(i) if i == index => (),
-                Some(i) => self.templates.swap(i, index),
+                // see merge_fields: a duplicate template can match at an `index`
+                // past the end of our list, so only re-align for a real slot.
+                Some(i) => {
+                    if index < self.templates.len() {
+                        self.templates.swap(i, index);
+                    }
+                }
                 None => {
                     let mut missing = template.clone();
                     missing.ord.take();
-                    self.templates.insert(index, missing);
+                    self.templates
+                        .insert(index.min(self.templates.len()), missing);
                 }
             }
         }
@@ -158,6 +175,46 @@ mod test {
         basic.merge(&other);
         assert_equal(basic.template_ids(), other.template_ids());
         assert_equal(basic.template_names(), std::iter::once("Card 1"));
+    }
+
+    #[test]
+    fn merge_longer_other_with_duplicate_field() {
+        // A malformed incoming notetype (e.g. from a corrupt deck) can have more
+        // fields than ours, including a field that matches one of ours a second
+        // time. Merging it must not panic. See issue #4345.
+        let mut basic = stock::basic(&I18n::template_only());
+        let mut other = basic.clone();
+        other.add_field("Extra1");
+        other.add_field("Extra2");
+        // duplicate the first field so it matches `basic`'s first field again,
+        // at an index beyond `basic`'s length
+        let duplicate = other.fields[0].clone();
+        other.fields.push(duplicate);
+
+        basic.merge(&other);
+
+        // the duplicate is dropped and the field order is preserved
+        assert_equal(
+            basic.field_names(),
+            ["Front", "Back", "Extra1", "Extra2"].iter(),
+        );
+    }
+
+    #[test]
+    fn merge_longer_other_with_duplicate_template() {
+        let mut basic = stock::basic_forward_reverse(&I18n::template_only());
+        let mut other = basic.clone();
+        other.add_template("Extra1", "", "");
+        other.add_template("Extra2", "", "");
+        let duplicate = other.templates[0].clone();
+        other.templates.push(duplicate);
+
+        basic.merge(&other);
+
+        assert_equal(
+            basic.template_names(),
+            ["Card 1", "Card 2", "Extra1", "Extra2"].iter(),
+        );
     }
 
     #[test]

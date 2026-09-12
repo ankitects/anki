@@ -13,7 +13,8 @@ function optionalBigInt(x: any): bigint | null {
     }
 }
 
-export const load = (async ({ params }) => {
+export const load = (async ({ params, depends }) => {
+    depends("anki:card-info");
     const currentId = optionalBigInt(params.cardId);
     const currentInfo = currentId !== null ? await cardStats({ cid: currentId }) : null;
     const previousId = optionalBigInt(params.previousId);

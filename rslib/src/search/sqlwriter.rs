@@ -173,7 +173,7 @@ impl SqlWriter<'_> {
             SearchNode::DeckIdsWithoutChildren(dids) => {
                 write!(
                     self.sql,
-                    "c.did in ({dids}) or (c.odid != 0 and c.odid in ({dids}))"
+                    "(c.did in ({dids}) or (c.odid != 0 and c.odid in ({dids})))"
                 )
                 .unwrap();
             }
@@ -196,6 +196,9 @@ impl SqlWriter<'_> {
             SearchNode::CustomData(key) => self.write_custom_data(key)?,
             SearchNode::WholeCollection => write!(self.sql, "true").unwrap(),
             SearchNode::Preset(name) => self.write_deck_preset(name)?,
+            SearchNode::HasMemoryState => {
+                write!(self.sql, "extract_fsrs_variable(c.data, 's') is not null").unwrap();
+            }
         };
         Ok(())
     }
@@ -409,18 +412,19 @@ impl SqlWriter<'_> {
             }
             PropertyKind::Rated(days, ease) => self.write_rated(op, i64::from(*days), ease)?,
             PropertyKind::CustomDataNumber { key, value } => {
+                self.args.push(key.clone());
                 write!(
                     self.sql,
-                    "cast(extract_custom_data(c.data, '{key}') as float) {op} {value}"
+                    "cast(extract_custom_data(c.data, ?) as float) {op} {value}",
+                    op = op,
+                    value = value
                 )
                 .unwrap();
             }
             PropertyKind::CustomDataString { key, value } => {
-                write!(
-                    self.sql,
-                    "extract_custom_data(c.data, '{key}') {op} '{value}'"
-                )
-                .unwrap();
+                self.args.push(key.clone());
+                self.args.push(value.clone());
+                write!(self.sql, "extract_custom_data(c.data, ?) {op} ?").unwrap();
             }
             PropertyKind::Stability(s) => {
                 write!(self.sql, "extract_fsrs_variable(c.data, 's') {op} {s}").unwrap()
@@ -447,7 +451,8 @@ impl SqlWriter<'_> {
     }
 
     fn write_custom_data(&mut self, key: &str) -> Result<()> {
-        write!(self.sql, "extract_custom_data(c.data, '{key}') is not null").unwrap();
+        self.args.push(key.to_owned());
+        write!(self.sql, "extract_custom_data(c.data, ?) is not null").unwrap();
 
         Ok(())
     }
@@ -1092,6 +1097,7 @@ impl SearchNode {
             SearchNode::Property { .. } => RequiredTable::Cards,
             SearchNode::CustomData { .. } => RequiredTable::Cards,
             SearchNode::Preset(_) => RequiredTable::Cards,
+            SearchNode::HasMemoryState => RequiredTable::Cards,
 
             SearchNode::UnqualifiedText(_) => RequiredTable::Notes,
             SearchNode::SingleField { .. } => RequiredTable::Notes,
@@ -1122,6 +1128,7 @@ mod test {
     use super::*;
     use crate::collection::Collection;
     use crate::collection::CollectionBuilder;
+    use crate::config::BoolKey;
 
     // shortcut
     fn s(req: &mut Collection, search: &str) -> (String, Vec<String>) {
@@ -1358,12 +1365,34 @@ c.odue != 0 then c.odue else c.due end) != {days}) or (c.queue in (1,4) and
         );
         assert_eq!(s(ctx, "prop:rated>-5:3").0, s(ctx, "rated:5:3").0);
         assert_eq!(
-            &s(ctx, "prop:cdn:r=1").0,
-            "(cast(extract_custom_data(c.data, 'r') as float) = 1)"
+            s(ctx, "prop:cdn:r=1"),
+            (
+                "(cast(extract_custom_data(c.data, ?) as float) = 1)".into(),
+                vec!["r".into()]
+            )
         );
         assert_eq!(
-            &s(ctx, "prop:cds:r=s").0,
-            "(extract_custom_data(c.data, 'r') = 's')"
+            s(ctx, "prop:cds:r=s"),
+            (
+                "(extract_custom_data(c.data, ?) = ?)".into(),
+                vec!["r".into(), "s".into()]
+            )
+        );
+        // Single quote in value: before parameterization this produced invalid SQL.
+        assert_eq!(
+            s(ctx, "prop:cds:foo=bar'baz"),
+            (
+                "(extract_custom_data(c.data, ?) = ?)".into(),
+                vec!["foo".into(), "bar'baz".into()]
+            )
+        );
+        // SQL injection attempt: payload must be fully contained in args.
+        assert_eq!(
+            s(ctx, r#""prop:cds:key=x';DROP TABLE cards;--""#),
+            (
+                "(extract_custom_data(c.data, ?) = ?)".into(),
+                vec!["key".into(), "x';DROP TABLE cards;--".into()]
+            )
         );
 
         // note types by name
@@ -1408,8 +1437,11 @@ c.odue != 0 then c.odue else c.due end) != {days}) or (c.queue in (1,4) and
 
         // has-cd
         assert_eq!(
-            &s(ctx, "has-cd:r").0,
-            "(extract_custom_data(c.data, 'r') is not null)"
+            s(ctx, "has-cd:r"),
+            (
+                "(extract_custom_data(c.data, ?) is not null)".into(),
+                vec!["r".into()]
+            )
         );
 
         // preset search
@@ -1421,6 +1453,35 @@ c.odue != 0 then c.odue else c.due end) != {days}) or (c.queue in (1,4) and
 
         // strip clozes
         assert_eq!(&s(ctx, "sc:abcdef").0, "((n.mid = 1581236385343) and (coalesce(process_text(cast(n.sfld as text), 2), n.sfld) like ?1 escape '\\' or coalesce(process_text(n.flds, 2), n.flds) like ?1 escape '\\'))");
+    }
+
+    #[test]
+    fn has_memory_state_returns_only_reviewed_cards() -> Result<()> {
+        let mut col = Collection::new();
+        let nt = col.get_notetype_by_name("Basic")?.unwrap();
+        col.set_config_bool(BoolKey::Fsrs, true, false)?;
+
+        let mut reviewed_note = nt.new_note();
+        col.add_note(&mut reviewed_note, DeckId(1))?;
+        let reviewed_cid = col.storage.card_ids_of_notes(&[reviewed_note.id]).unwrap()[0];
+        col.grade_now(&[reviewed_cid], 3)?;
+
+        let mut new_note = nt.new_note();
+        col.add_note(&mut new_note, DeckId(1))?;
+        let new_cid = col.storage.card_ids_of_notes(&[new_note.id]).unwrap()[0];
+
+        let cards = col.all_cards_for_search(SearchNode::HasMemoryState)?;
+        let card_ids: Vec<_> = cards.into_iter().map(|card| card.id).collect();
+        assert_eq!(card_ids, vec![reviewed_cid]);
+        assert!(!card_ids.contains(&new_cid));
+
+        let node = Node::Search(SearchNode::HasMemoryState);
+        let mut writer = SqlWriter::new(&mut col, ReturnItemType::Cards);
+        writer.write_node_to_sql(&node).unwrap();
+        assert_eq!(writer.sql, "extract_fsrs_variable(c.data, 's') is not null");
+        assert_eq!(node.required_table(), RequiredTable::Cards);
+
+        Ok(())
     }
 
     #[test]

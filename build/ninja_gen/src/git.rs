@@ -75,10 +75,6 @@ fn locate_git_head() -> Option<BuildInput> {
                 .collect_vec();
             return Some(inputs![heads]);
         }
-        if let Some(parent) = folder.parent() {
-            folder = parent.to_owned();
-        } else {
-            return None;
-        }
+        folder = folder.parent()?.to_owned();
     }
 }

@@ -67,16 +67,14 @@ fn get_filter_info_for_card(
     if card.original_deck_id.0 == 0 {
         None
     } else {
-        let (had_custom_steps, reschedule) = if let Some(deck) = decks.get(&card.deck_id) {
+        let (had_custom_steps, reschedule) = {
+            let deck = decks.get(&card.deck_id)?;
             if let DeckKind::Filtered(filtered) = &deck.kind {
                 (!filtered.delays.is_empty(), filtered.reschedule)
             } else {
                 // not a filtered deck, give up
                 return None;
             }
-        } else {
-            // missing filtered deck, give up
-            return None;
         };
 
         let original_step_count = if had_custom_steps {

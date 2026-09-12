@@ -118,6 +118,13 @@ impl DeckConfig {
             &self.inner.fsrs_params_4
         }
     }
+
+    /// Clear the FSRS 6.0 params, along with the 5.0 and 4.x fallbacks.
+    pub(crate) fn clear_fsrs_params(&mut self) {
+        self.inner.fsrs_params_4.clear();
+        self.inner.fsrs_params_5.clear();
+        self.inner.fsrs_params_6.clear();
+    }
 }
 
 impl Collection {

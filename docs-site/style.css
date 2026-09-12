@@ -1,0 +1,120 @@
+/* Minimal Anki landing-page styling for the Mintlify POC. */
+:root {
+  --anki-foreground: hsl(248 8% 20%);
+  --anki-subtle: hsl(0 1% 33%);
+  --anki-background: hsl(0 0% 100%);
+  --anki-primary: hsl(208 65% 55%);
+  --anki-primary-darker: hsl(208 65% 52%);
+  --anki-subtle-surface: hsl(0 1% 33% / 8%);
+}
+
+.dark {
+  --anki-foreground: hsl(0 0% 100%);
+  --anki-subtle: hsl(0 0% 85%);
+  --anki-background: hsl(0 0% 3%);
+  --anki-primary: hsl(205 67% 62%);
+  --anki-primary-darker: hsl(205 67% 54%);
+  --anki-subtle-surface: hsl(0 0% 85% / 10%);
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background: var(--anki-background);
+  color: var(--anki-foreground);
+}
+
+#navbar {
+  border-bottom: 1px solid hsl(0 1% 33% / 12%);
+  background: color-mix(in srgb, var(--anki-background) 92%, transparent);
+  backdrop-filter: blur(16px);
+}
+
+nav-logo,
+#page-title,
+mdx-content h1,
+mdx-content h2,
+mdx-content h3 {
+  letter-spacing: 0;
+}
+
+#page-title,
+mdx-content h1 {
+  color: var(--anki-foreground);
+}
+
+mdx-content p,
+mdx-content li {
+  color: color-mix(in srgb, var(--anki-foreground) 82%, var(--anki-subtle));
+}
+
+card {
+  border: 1px solid hsl(0 1% 33% / 14%);
+  border-radius: 8px;
+  background: var(--anki-subtle-surface);
+}
+
+card:hover {
+  border-color: var(--anki-primary);
+}
+
+#search-bar-entry,
+#search-bar-entry-mobile {
+  border-radius: 6px;
+}
+
+#sidebar-content li[data-active],
+.nav-tabs-item[data-active] {
+  color: var(--anki-primary);
+}
+
+
+/* Right-to-left language support */
+
+.is-rtl #content-area {
+  direction: rtl;
+  text-align: right;
+}
+
+.is-rtl #sidebar-content {
+  text-align: right;
+}
+
+.is-rtl #sidebar {
+  direction: rtl;
+}
+
+.is-rtl #content code,
+.is-rtl #content pre,
+.is-rtl #content kbd {
+  direction: ltr;
+  unicode-bidi: embed;
+}
+
+/* "Next" link uses ml-auto which pushes to right in RTL - flip to left */
+.is-rtl #pagination a.ml-auto {
+  margin-left: 0;
+  margin-right: auto;
+}
+
+/* "Next" SVG has rotate-180 (›) - remove so arrow points left (‹) in RTL */
+.is-rtl #pagination a.ml-auto svg {
+  transform: none;
+}
+
+/* "Previous" SVG has no rotation (‹) - rotate so arrow points right (›) in RTL */
+.is-rtl #pagination a:not(.ml-auto) svg {
+  transform: rotate(180deg);
+}
+
+/* space-x-3 adds margin-left to non-first children, which goes to the wrong
+   side in RTL flex; replace it with gap on the link element */
+.is-rtl #pagination a {
+  gap: 0.75rem;
+}
+.is-rtl #pagination a > * {
+  margin-left: 0;
+  margin-right: 0;
+}

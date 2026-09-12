@@ -16,6 +16,8 @@ use crate::media::MediaManager;
 use crate::prelude::*;
 use crate::search::SearchNode;
 use crate::tests::open_fs_test_collection;
+use crate::tests::DeckAdder;
+use crate::tests::NoteAdder;
 
 const SAMPLE_JPG: &str = "sample.jpg";
 const SAMPLE_MP3: &str = "sample.mp3";
@@ -175,4 +177,70 @@ impl Collection {
         assert!(self.storage.get_all_card_ids().unwrap().is_empty());
         assert!(self.storage.all_tags().unwrap().is_empty());
     }
+}
+
+fn export_and_reimport_with_fsrs_params(with_scheduling: bool) -> DeckConfig {
+    let (mut src_col, src_tempdir) = open_fs_test_collection("src");
+    let (mut target_col, _target_tempdir) = open_fs_test_collection("target");
+    let apkg_path = src_tempdir.path().join("fsrs.apkg");
+
+    let deck = DeckAdder::new("fsrs-deck")
+        .with_config(|c| {
+            c.name = "fsrs-config".into();
+            c.inner.fsrs_params_4 = vec![0.1; 17];
+            c.inner.fsrs_params_5 = vec![0.2; 19];
+            c.inner.fsrs_params_6 = vec![0.3; 21];
+        })
+        .add(&mut src_col);
+    NoteAdder::basic(&mut src_col)
+        .deck(deck.id)
+        .add(&mut src_col);
+
+    src_col
+        .export_apkg(
+            &apkg_path,
+            ExportAnkiPackageOptions {
+                with_scheduling,
+                with_deck_configs: true,
+                with_media: false,
+                legacy: false,
+            },
+            SearchNode::WholeCollection,
+            None,
+        )
+        .unwrap();
+    target_col
+        .import_apkg(
+            &apkg_path,
+            ImportAnkiPackageOptions {
+                with_scheduling: true,
+                with_deck_configs: true,
+                ..Default::default()
+            },
+        )
+        .unwrap();
+
+    target_col
+        .storage
+        .all_deck_config()
+        .unwrap()
+        .into_iter()
+        .find(|c| c.name == "fsrs-config")
+        .expect("custom config should have been imported")
+}
+
+#[test]
+fn fsrs_params_preserved_on_export_with_scheduling() {
+    let conf = export_and_reimport_with_fsrs_params(true);
+    assert_eq!(conf.inner.fsrs_params_4.len(), 17);
+    assert_eq!(conf.inner.fsrs_params_5.len(), 19);
+    assert_eq!(conf.inner.fsrs_params_6.len(), 21);
+}
+
+#[test]
+fn fsrs_params_stripped_on_export_without_scheduling() {
+    let conf = export_and_reimport_with_fsrs_params(false);
+    assert!(conf.inner.fsrs_params_4.is_empty());
+    assert!(conf.inner.fsrs_params_5.is_empty());
+    assert!(conf.inner.fsrs_params_6.is_empty());
 }

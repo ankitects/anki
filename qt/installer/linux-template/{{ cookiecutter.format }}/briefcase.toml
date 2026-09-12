@@ -1,0 +1,35 @@
+# Generated using Briefcase {{ cookiecutter.briefcase_version }} for Python {{ cookiecutter.python_version|py_tag }}
+[paths]
+app_path = "{{ cookiecutter.app_name }}/app"
+app_packages_path = "{{ cookiecutter.app_name }}/app_packages"
+support_path = "{{ cookiecutter.app_name }}"
+{{ {
+    "3.11": 'support_revision = "3.11.16+20260901"',
+    "3.12": 'support_revision = "3.12.14+20260901"',
+    "3.13": 'support_revision = "3.13.15+20260901"',
+    "3.14": 'support_revision = "3.14.7+20260901"',
+    "3.15": 'support_revision = "3.15.0rc2+20260901"',
+}.get(cookiecutter.python_version|py_tag, "") }}
+{% if cookiecutter.host_arch == "x86_64" -%}
+{{ {
+    "3.11": 'support_package_hash = "sha256:64427febea27864d136db46c8efe968eb6fa5ca2813ce1dca4bb95aec31cb2e4"',
+    "3.12": 'support_package_hash = "sha256:72748da13197c1fb161e3afeef20a6a385ff24f2165e6e2758e47008e7faba4c"',
+    "3.13": 'support_package_hash = "sha256:8a689a077337bea6d1c4bc0b7df1d52fcaa28f5f67e50df8bf417c1e3f9d8874"',
+    "3.14": 'support_package_hash = "sha256:3959f92825141e04adf44982d3a83ee57af0877e893b0796e04c1468749d9b04"',
+    "3.15": 'support_package_hash = "sha256:9549c3789acb25209da019cc8506ea5b1684b81fb4b471dc64cb47d1d04d6422"',
+}.get(cookiecutter.python_version|py_tag, "") }}
+{% else -%}
+{{ {
+    "3.11": 'support_package_hash = "sha256:f9308ed57184fae73941c712ed847be420ce36d31ba73ce53f0508a1ee752f68"',
+    "3.12": 'support_package_hash = "sha256:577b4bec0793ad1ff0cbff9adbd0df078eddde38a4c41bf5d83ad381a85ee39d"',
+    "3.13": 'support_package_hash = "sha256:01ce0ce9189feaead3298abf10d4efe998c55a489b3d5d38ca4f83dda7e7977e"',
+    "3.14": 'support_package_hash = "sha256:8a0798baa8a2c27b5751d590aced543eaa85e20b3f73d93c1af049688acdc9c5"',
+    "3.15": 'support_package_hash = "sha256:95008f38ebde8ba8a71c03fcd2a67cdfb65ef2687415fbc7f95ec61ba7397b1c"',
+}.get(cookiecutter.python_version|py_tag, "") }}
+{% endif -%}
+cleanup_paths = [
+    "{{ cookiecutter.app_name }}/python/bin/2to3*",
+    "{{ cookiecutter.app_name }}/python/bin/idle3*",
+    "{{ cookiecutter.app_name }}/python/bin/pydoc*",
+    "{{ cookiecutter.app_name }}/python/bin/pip*",
+]

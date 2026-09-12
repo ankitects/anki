@@ -10,7 +10,8 @@ use std::fs;
 use std::path::Path;
 use std::path::PathBuf;
 
-pub type TranslationsByFile = HashMap<String, String>;
+pub type TranslationsByRepo = HashMap<String, String>;
+pub type TranslationsByFile = HashMap<String, TranslationsByRepo>;
 pub type TranslationsByLang = HashMap<String, TranslationsByFile>;
 
 /// Read the contents of the FTL files into a TranslationMap structure.
@@ -19,24 +20,29 @@ pub fn get_ftl_data() -> TranslationsByLang {
 
     // English core templates are taken from this repo
     let ftl_base = source_tree_root();
-    add_folder(&mut map, &ftl_base.join("core"), "templates");
+    add_folder(&mut map, &ftl_base.join("core"), "core", "templates");
     // And core translations from submodule
-    add_translation_root(&mut map, &ftl_base.join("core-repo/core"), true);
+    add_translation_root(&mut map, &ftl_base.join("core-repo/core"), "core", true);
 
     if let Some(path) = extra_ftl_root() {
         // Mobile client has requested its own extra translations
-        add_translation_root(&mut map, &path, false);
+        add_translation_root(
+            &mut map,
+            &path,
+            &path.file_name().unwrap().to_string_lossy(),
+            false,
+        );
     } else {
         // Qt core templates from this repo
-        add_folder(&mut map, &ftl_base.join("qt"), "templates");
+        add_folder(&mut map, &ftl_base.join("qt"), "qt", "templates");
         // And translations from submodule
-        add_translation_root(&mut map, &ftl_base.join("qt-repo/desktop"), true)
+        add_translation_root(&mut map, &ftl_base.join("qt-repo/desktop"), "qt", true)
     }
     map
 }
 
 /// For each .ftl file in the provided folder, add it to the translation map.
-fn add_folder(map: &mut TranslationsByLang, folder: &Path, lang: &str) {
+fn add_folder(map: &mut TranslationsByLang, folder: &Path, repo: &str, lang: &str) {
     let map_entry = map.entry(lang.to_string()).or_default();
     for entry in fs::read_dir(folder).unwrap() {
         let entry = entry.unwrap();
@@ -50,7 +56,12 @@ fn add_folder(map: &mut TranslationsByLang, folder: &Path, lang: &str) {
             text.ends_with('\n'),
             "file was missing final newline: {entry:?}"
         );
-        map_entry.entry(module).or_default().push_str(&text);
+        map_entry
+            .entry(module)
+            .or_default()
+            .entry(repo.to_string())
+            .or_default()
+            .push_str(&text);
         println!("cargo:rerun-if-changed={}", entry.path().to_str().unwrap());
     }
 }
@@ -58,14 +69,19 @@ fn add_folder(map: &mut TranslationsByLang, folder: &Path, lang: &str) {
 /// For each language folder in `root`, add the ftl files stored inside.
 /// If ignore_templates is true, the templates/ folder will be ignored, on the
 /// assumption the templates were extracted from the source tree.
-fn add_translation_root(map: &mut TranslationsByLang, root: &Path, ignore_templates: bool) {
+fn add_translation_root(
+    map: &mut TranslationsByLang,
+    root: &Path,
+    repo: &str,
+    ignore_templates: bool,
+) {
     for entry in fs::read_dir(root).unwrap() {
         let entry = entry.unwrap();
         let lang = entry.file_name().to_string_lossy().to_string();
         if ignore_templates && lang == "templates" {
             continue;
         }
-        add_folder(map, &entry.path(), &lang);
+        add_folder(map, &entry.path(), repo, &lang);
     }
 }
 

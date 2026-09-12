@@ -1,3 +1,0 @@
-#define RT_MANIFEST 24
-1 RT_MANIFEST "anki.exe.manifest"
-IDI_ICON1 ICON DISCARDABLE "anki-icon.ico"

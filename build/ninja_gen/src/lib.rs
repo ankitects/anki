@@ -5,6 +5,7 @@ pub mod action;
 pub mod archives;
 pub mod build;
 pub mod cargo;
+pub mod cog;
 pub mod command;
 pub mod configure;
 pub mod copy;

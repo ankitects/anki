@@ -39,6 +39,8 @@ pub(crate) struct CardQueues {
     /// user returns from editing a review card.
     current_learning_cutoff: TimestampSecs,
     pub(crate) load_balancer: Option<LoadBalancer>,
+    pub(crate) fsrs_enabled: bool,
+    pub(crate) fsrs_short_term_with_steps: bool,
 }
 
 #[derive(Debug, Copy, Clone)]
@@ -143,6 +145,8 @@ fn new_scheduling_context(col: &mut Collection, card: &Card) -> Result<Schedulin
             .or_not_found(card.deck_id)?
             .human_name(),
         seed: card.review_seed(),
+        decay: card.decay,
+        desired_retention: card.desired_retention,
     })
 }
 

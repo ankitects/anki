@@ -11,6 +11,7 @@ extensions = [
     "sphinx.ext.intersphinx",
     "autoapi.extension",
     "click_extra.sphinx",
+    "sphinxcontrib.mermaid",
 ]
 
 source_suffix = {

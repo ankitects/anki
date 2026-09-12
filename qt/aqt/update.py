@@ -3,16 +3,15 @@
 
 from __future__ import annotations
 
+from typing import Callable
+
 import aqt
 from anki.buildinfo import buildhash
-from anki.collection import CheckForUpdateResponse, Collection
+from anki.collection import CheckForUpdateResponse, Collection, GithubRelease
 from anki.utils import dev_mode, int_time, int_version, plat_desc
 from aqt.operations import QueryOp
 from aqt.package import (
-    launcher_executable as _launcher_executable,
-)
-from aqt.package import (
-    update_and_restart as _update_and_restart,
+    download_github_update_and_install as _download_github_update_and_install,
 )
 from aqt.qt import *
 from aqt.utils import openLink, show_warning, showText, tr
@@ -85,7 +84,38 @@ def prompt_to_update(mw: aqt.AnkiQt, ver: str) -> None:
         # ignore this update
         mw.pm.meta["suppressUpdate"] = ver
     elif ret == QMessageBox.StandardButton.Yes:
-        if _launcher_executable():
-            _update_and_restart()
-        else:
-            openLink(aqt.appWebsiteDownloadSection)
+        openLink(aqt.appWebsiteDownloadSection)
+
+
+def prompt_and_install_github_update(mw: aqt.AnkiQt, release: GithubRelease) -> None:
+    msg = (
+        tr.qt_misc_anki_updatedanki_has_been_released(val=release.tag_name)
+        + tr.qt_misc_would_you_like_to_download_it()
+    )
+
+    msgbox = QMessageBox(mw)
+    msgbox.setStandardButtons(
+        QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No
+    )
+    msgbox.setIcon(QMessageBox.Icon.Information)
+    msgbox.setText(msg)
+
+    msgbox.setDefaultButton(QMessageBox.StandardButton.Yes)
+    ret = msgbox.exec()
+
+    if ret == QMessageBox.StandardButton.Yes:
+        _download_github_update_and_install(release)
+
+
+def get_latest_release_op(
+    parent: QWidget,
+    include_prerelease: bool,
+    on_success: Callable[[GithubRelease], None],
+) -> QueryOp:
+    return QueryOp(
+        parent=parent,
+        op=lambda col: col._backend.get_latest_release(
+            include_prerelease=include_prerelease
+        ),
+        success=on_success,
+    )

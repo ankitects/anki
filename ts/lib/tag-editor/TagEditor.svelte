@@ -40,8 +40,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     let tagTypes: TagType[];
     function tagsToTagTypes(tags: string[]): void {
-        tagTypes = tags.map(
-            (tag: string): TagType => attachId(replaceWithUnicodeSeparator(tag)),
+        tagTypes = tags.map((tag: string): TagType =>
+            attachId(replaceWithUnicodeSeparator(tag)),
         );
     }
 
@@ -326,9 +326,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 
     function deselect() {
-        tagTypes = tagTypes.map(
-            (tag: TagType): TagType => ({ ...tag, selected: false }),
-        );
+        tagTypes = tagTypes.map((tag: TagType): TagType => ({
+            ...tag,
+            selected: false,
+        }));
         selectionAnchor = null;
         selectionFocus = null;
     }

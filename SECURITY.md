@@ -3,10 +3,13 @@
 ## Reporting a Vulnerability
 
 Anki does not currently have a bug bounty program, but if you have discovered a
-security issue, a private message on our support site would be greatly
-appreciated. No account is required to post a message:
+security vulnerability, please report it privately via GitHub's security
+advisory feature:
 
-https://anki.tenderapp.com/discussion/new
+https://github.com/ankitects/anki/security
+
+For instructions on how to submit a private vulnerability report, see
+https://docs.github.com/en/code-security/how-tos/report-and-fix-vulnerabilities/privately-reporting-a-security-vulnerability
 
 ## FAQ
 

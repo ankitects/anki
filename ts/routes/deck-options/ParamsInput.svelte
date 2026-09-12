@@ -2,6 +2,19 @@
 Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
+<script context="module" lang="ts">
+    // Host timing preferences must survive the FSRS controls being unmounted.
+    let unlock_click_timeout_ms = 500;
+
+    function setParameterUnlockClickTimeoutMs(ms: number): void {
+        unlock_click_timeout_ms = ms;
+    }
+
+    globalThis.anki ||= {};
+    globalThis.anki.setParameterUnlockClickTimeoutMs = setParameterUnlockClickTimeoutMs;
+    globalThis.anki.defaultParameterUnlockClickTimeoutMs = unlock_click_timeout_ms;
+</script>
+
 <script lang="ts">
     import { tick } from "svelte";
     import * as tr from "@generated/ftl";
@@ -48,7 +61,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 
     const UNLOCK_EDIT_COUNT = 3;
-    const UNLOCK_CLICK_TIMEOUT_MS = 500;
     let clickCount = 0;
 
     let clickTimeout: ReturnType<typeof setTimeout>;
@@ -59,7 +71,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         if (clickCount < UNLOCK_EDIT_COUNT) {
             clickTimeout = setTimeout(() => {
                 clickCount = 0;
-            }, UNLOCK_CLICK_TIMEOUT_MS);
+            }, unlock_click_timeout_ms);
         } else {
             taRef.focus();
         }

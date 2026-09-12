@@ -22,9 +22,7 @@ from typing import IO, Any, Union
 from urllib.parse import parse_qs, urlparse
 from zipfile import ZipFile
 
-import jsonschema
 import markdown
-from jsonschema.exceptions import ValidationError
 from markdown.extensions import md_in_html
 
 import anki
@@ -430,6 +428,9 @@ class AddonManager:
     ######################################################################
 
     def readManifestFile(self, zfile: ZipFile) -> dict[Any, Any]:
+        import jsonschema
+        from jsonschema.exceptions import ValidationError
+
         try:
             with zfile.open("manifest.json") as f:
                 data = json.loads(f.read())
@@ -492,7 +493,7 @@ class AddonManager:
 
     def _install(self, module: str, zfile: ZipFile) -> None:
         # previously installed?
-        base = self.addonsFolder(module)
+        base = os.path.realpath(self.addonsFolder(module))
         if os.path.exists(base):
             self.backupUserFiles(module)
             try:
@@ -509,7 +510,11 @@ class AddonManager:
                 # folder; ignore
                 continue
 
-            path = os.path.join(base, n)
+            # skip unsafe paths
+            path = os.path.realpath(os.path.join(base, n))
+            if not path.startswith(base + os.sep):
+                continue
+
             # skip existing user files
             if os.path.exists(path) and n.startswith("user_files/"):
                 continue
@@ -669,11 +674,11 @@ class AddonManager:
         return markdown.markdown(contents, extensions=[md_in_html.makeExtension()])
 
     def addonFromModule(self, module: str) -> str:  # softly deprecated
-        return module.split(".")[0]
+        return module.split(".", maxsplit=1)[0]
 
     @staticmethod
     def addon_from_module(module: str) -> str:
-        return module.split(".")[0]
+        return module.split(".", maxsplit=1)[0]
 
     def configAction(self, module: str) -> Callable[[], bool | None]:
         return self._configButtonActions.get(module)
@@ -1078,7 +1083,7 @@ class GetAddons(QDialog):
         saveGeom(self, "getaddons")
 
     def onBrowse(self) -> None:
-        openLink(f"{aqt.appShared}addons/2.1")
+        openLink(f"{aqt.appShared}addons")
 
     def accept(self) -> None:
         # get codes
@@ -1113,7 +1118,10 @@ def download_addon(client: HttpClient, id: int) -> DownloadOk | DownloadError:
         match = re.match(
             "attachment; filename=(.+)", resp.headers["content-disposition"]
         )
-        assert match is not None
+        if match is None:
+            raise ValueError(
+                f"Unexpected content-disposition header: {resp.headers.get('content-disposition')}"
+            )
         fname = match.group(1)
 
         meta = extract_meta_from_download_url(resp.url)
@@ -1680,6 +1688,9 @@ class ConfigEditor(QDialog):
         super().reject()
 
     def accept(self) -> None:
+        import jsonschema
+        from jsonschema.exceptions import ValidationError
+
         txt = self.form.editor.toPlainText()
         txt = gui_hooks.addon_config_editor_will_update_json(txt, self.addon)
         try:

@@ -1,4 +1,12 @@
+<!-- DO NOT MANUALLY EDIT THIS FILE -->
+<!-- This file is copied from docs-site/developers/architecture.mdx automatically -->
+
 # Anki Architecture
+
+<!-- <<<cog
+from cogdocs import get_file_contents
+cog.out(get_file_contents("architecture"))
+>>> -->
 
 Very brief notes for now.
 
@@ -7,8 +15,8 @@ Very brief notes for now.
 At the highest level, Anki is logically separated into two parts.
 
 A neat visualization of the file layout is available here:
-<https://mango-dune-07a8b7110.1.azurestaticapps.net/?repo=ankitects%2Fanki>
-(or go to <https://githubnext.com/projects/repo-visualization#explore-for-yourself> and enter `ankitects/anki`).
+[https://mango-dune-07a8b7110.1.azurestaticapps.net/?repo=ankitects%2Fanki](https://mango-dune-07a8b7110.1.azurestaticapps.net/?repo=ankitects%2Fanki)
+(or go to [https://githubnext.com/projects/repo-visualization#explore-for-yourself](https://githubnext.com/projects/repo-visualization#explore-for-yourself) and enter `ankitects/anki`).
 
 ### Library (rslib & pylib)
 
@@ -44,3 +52,5 @@ At the moment, the protobuf is not considered public API. Some pylib methods
 expose a protobuf object directly to callers, but when they do so, they use a
 type alias, so callers outside pylib should never need to import a generated
 \_pb2.py file.
+
+<!-- <<<end>>> -->

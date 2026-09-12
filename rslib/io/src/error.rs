@@ -25,12 +25,14 @@ impl Eq for FileIoError {}
 
 #[derive(Debug, PartialEq, Clone, Eq)]
 pub enum FileOp {
+    Absolute,
     Read,
     Open,
     Create,
     Write,
     Remove,
     CopyFrom(PathBuf),
+    Parent,
     Persist,
     Sync,
     Metadata,
@@ -58,11 +60,13 @@ impl FileIoError {
                 FileOp::Write => "write".into(),
                 FileOp::Remove => "remove".into(),
                 FileOp::CopyFrom(p) => format!("copy from '{}' to", p.to_string_lossy()),
+                FileOp::Parent => "get parent".into(),
                 FileOp::Persist => "persist".into(),
                 FileOp::Sync => "sync".into(),
                 FileOp::Metadata => "get metadata".into(),
                 FileOp::DecodeUtf8Filename => "decode utf8 filename".into(),
                 FileOp::SetFileTimes => "set file times".into(),
+                FileOp::Absolute => "get absolute path".into(),
             },
             self.path.to_string_lossy(),
             self.source

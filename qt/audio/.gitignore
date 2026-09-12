@@ -1,0 +1,2 @@
+anki_audio/*
+!anki_audio/__init__.py

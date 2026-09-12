@@ -42,12 +42,12 @@ hooks = [
     Hook(
         name="media_files_did_export",
         args=["count: int"],
-        doc="Only used by legacy .apkg exporter. Will be deprecated in the future.",
+        doc="Obsolete, do not use.",
     ),
     Hook(
         name="legacy_export_progress",
         args=["progress: str"],
-        doc="Temporary hook used in transition to new import/export code.",
+        doc="Obsolete, do not use.",
     ),
     Hook(
         name="exporters_list_created",
@@ -92,18 +92,12 @@ hooks = [
         ],
         doc="Can modify the resulting text after rendering completes.",
     ),
+    # obsolete
     Hook(
         name="importing_importers",
         args=["importers: list[tuple[str, Any]]"],
-        doc="""Allows updating the list of importers.
-        The resulting list is not saved and should be changed each time the
-        filter is called.
-        
-        NOTE: Updates to the import/export code are expected in the coming 
-        months, and this hook may be replaced with another solution at that 
-        time. Tracked on https://github.com/ankitects/anki/issues/1018""",
+        doc="Obsolete, do not use.",
     ),
-    # obsolete
     Hook(
         name="deck_added",
         args=["deck: anki.decks.DeckDict"],

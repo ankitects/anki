@@ -63,7 +63,7 @@ hooks = [
         as possible, instead opting to append your own changes, e.g.:
 
             def on_overview_will_render_content(overview, content):
-                content.table += "\n<div>my html</div>"
+                content.table += "\\n<div>my html</div>"
         """,
     ),
     Hook(
@@ -86,12 +86,12 @@ hooks = [
         that trigger, and return the new link_handler.
 
         Example:
-        links.append(['H', 'hello', 'Click me!'])
-        def custom_link_handler(url):
-            if url == 'hello':
-                print('Hello World!')
-            return link_handler(url=url)
-        return custom_link_handler
+            links.append(['H', 'hello', 'Click me!'])
+            def custom_link_handler(url):
+                if url == 'hello':
+                    print('Hello World!')
+                return link_handler(url=url)
+            return custom_link_handler
         """,
     ),
     Hook(
@@ -790,18 +790,18 @@ hooks = [
         
         For example:
         
-        def mytest(webview: AnkiWebView):
-            if webview.kind != AnkiWebViewKind.DECK_STATS:
-                return
-            webview.eval(
-                """
-                div = document.createElement("div");
-                div.innerHTML = 'hello';
-                document.body.appendChild(div);
-                """
-            )
-        
-        gui_hooks.webview_did_inject_style_into_page.append(mytest)
+            def mytest(webview: AnkiWebView):
+                if webview.kind != AnkiWebViewKind.DECK_STATS:
+                    return
+                webview.eval(
+                    """
+                    div = document.createElement("div");
+                    div.innerHTML = 'hello';
+                    document.body.appendChild(div);
+                    """
+                )
+            
+            gui_hooks.webview_did_inject_style_into_page.append(mytest)
         ''',
     ),
     # Main
@@ -976,13 +976,13 @@ hooks = [
     ),
     Hook(
         name="legacy_exporter_will_export",
-        args=["legacy_exporter: anki.exporting.Exporter"],
-        doc="""Called before collection and deck exports performed by legacy exporters.""",
+        args=["legacy_exporter: Any"],
+        doc="""Obsolete, do not use.""",
     ),
     Hook(
         name="legacy_exporter_did_export",
-        args=["legacy_exporter: anki.exporting.Exporter"],
-        doc="""Called after collection and deck exports performed by legacy exporters.""",
+        args=["legacy_exporter: Any"],
+        doc="""Obsolete, do not use.""",
     ),
     Hook(
         name="exporters_list_did_initialize",
@@ -1008,12 +1008,15 @@ hooks = [
     ###################
     Hook(
         name="add_cards_will_show_history_menu",
-        args=["addcards: aqt.addcards.AddCards", "menu: QMenu"],
+        args=[
+            "addcards: aqt.addcards.AddCards | aqt.addcards.NewAddCards",
+            "menu: QMenu",
+        ],
         legacy_hook="AddCards.onHistory",
     ),
     Hook(
         name="add_cards_did_init",
-        args=["addcards: aqt.addcards.AddCards"],
+        args=["addcards: aqt.addcards.AddCards | aqt.addcards.NewAddCards"],
     ),
     Hook(
         name="add_cards_did_add_note",
@@ -1047,9 +1050,9 @@ hooks = [
             An example add-on that asks the user for confirmation before adding a
             card without tags:
 
-            def might_reject_empty_tag(optional_problems, note):
-                if not any(note.tags):
-                    optional_problems.append("Add cards without tags?")
+                def might_reject_empty_tag(optional_problems, note):
+                    if not any(note.tags):
+                        optional_problems.append("Add cards without tags?")
         """,
     ),
     Hook(
@@ -1068,7 +1071,7 @@ hooks = [
     Hook(
         name="addcards_did_change_note_type",
         args=[
-            "addcards: aqt.addcards.AddCards",
+            "addcards: aqt.addcards.AddCards | aqt.addcards.NewAddCards",
             "old: anki.models.NoteType",
             "new: anki.models.NoteType",
         ],
@@ -1087,20 +1090,26 @@ hooks = [
     ###################
     Hook(
         name="editor_did_init_left_buttons",
-        args=["buttons: list[str]", "editor: aqt.editor.Editor"],
+        args=["buttons: list[str]", "editor: aqt.editor.Editor | aqt.editor.NewEditor"],
     ),
     Hook(
         name="editor_did_init_buttons",
-        args=["buttons: list[str]", "editor: aqt.editor.Editor"],
+        args=["buttons: list[str]", "editor: aqt.editor.Editor | aqt.editor.NewEditor"],
     ),
     Hook(
         name="editor_did_init_shortcuts",
-        args=["shortcuts: list[tuple]", "editor: aqt.editor.Editor"],
+        args=[
+            "shortcuts: list[tuple]",
+            "editor: aqt.editor.Editor | aqt.editor.NewEditor",
+        ],
         legacy_hook="setupEditorShortcuts",
     ),
     Hook(
         name="editor_will_show_context_menu",
-        args=["editor_webview: aqt.editor.EditorWebView", "menu: QMenu"],
+        args=[
+            "editor_webview: aqt.editor.EditorWebView | aqt.editor.NewEditorWebView",
+            "menu: QMenu",
+        ],
         legacy_hook="EditorWebView.contextMenuEvent",
     ),
     Hook(
@@ -1121,7 +1130,7 @@ hooks = [
     ),
     Hook(
         name="editor_did_load_note",
-        args=["editor: aqt.editor.Editor"],
+        args=["editor: aqt.editor.Editor | aqt.editor.NewEditor"],
         legacy_hook="loadNote",
     ),
     Hook(
@@ -1131,7 +1140,7 @@ hooks = [
     ),
     Hook(
         name="editor_will_munge_html",
-        args=["txt: str", "editor: aqt.editor.Editor"],
+        args=["txt: str", "editor: aqt.editor.Editor | aqt.editor.NewEditor"],
         return_type="str",
         doc="""Allows manipulating the text that will be saved by the editor""",
     ),
@@ -1143,15 +1152,21 @@ hooks = [
     ),
     Hook(
         name="editor_web_view_did_init",
-        args=["editor_web_view: aqt.editor.EditorWebView"],
+        args=[
+            "editor_web_view: aqt.editor.EditorWebView | aqt.editor.NewEditorWebView"
+        ],
     ),
     Hook(
         name="editor_did_init",
-        args=["editor: aqt.editor.Editor"],
+        args=["editor: aqt.editor.Editor | aqt.editor.NewEditor"],
     ),
     Hook(
         name="editor_will_load_note",
-        args=["js: str", "note: anki.notes.Note", "editor: aqt.editor.Editor"],
+        args=[
+            "js: str",
+            "note: anki.notes.Note",
+            "editor: aqt.editor.Editor | aqt.editor.NewEditor",
+        ],
         return_type="str",
         doc="""Allows changing the javascript commands to load note before
         executing it and do change in the QT editor.""",
@@ -1159,7 +1174,7 @@ hooks = [
     Hook(
         name="editor_did_paste",
         args=[
-            "editor: aqt.editor.Editor",
+            "editor: aqt.editor.Editor | aqt.editor.NewEditor",
             "html: str",
             "internal: bool",
             "extended: bool",
@@ -1170,7 +1185,7 @@ hooks = [
         name="editor_will_process_mime",
         args=[
             "mime: QMimeData",
-            "editor_web_view: aqt.editor.EditorWebView",
+            "editor_web_view: aqt.editor.EditorWebView | aqt.editor.NewEditorWebView",
             "internal: bool",
             "extended: bool",
             "drop_event: bool",
@@ -1194,7 +1209,7 @@ hooks = [
     Hook(
         name="editor_state_did_change",
         args=[
-            "editor: aqt.editor.Editor",
+            "editor: aqt.editor.Editor | aqt.editor.NewEditor",
             "new_state: aqt.editor.EditorState",
             "old_state: aqt.editor.EditorState",
         ],
@@ -1203,7 +1218,10 @@ hooks = [
     ),
     Hook(
         name="editor_mask_editor_did_load_image",
-        args=["editor: aqt.editor.Editor", "path_or_nid: str | anki.notes.NoteId"],
+        args=[
+            "editor: aqt.editor.Editor | aqt.editor.NewEditor",
+            "path_or_nid: str | anki.notes.NoteId",
+        ],
         doc="""Called when the image occlusion mask editor has completed
         loading an image.
 

@@ -204,8 +204,12 @@ impl NetworkError {
             NetworkErrorKind::ProxyAuth => tr.network_proxy_auth(),
             NetworkErrorKind::Other => tr.network_other(),
         };
-        let details = tr.network_details(self.info.as_str());
-        format!("{summary}\n\n{details}")
+        if self.info.trim().is_empty() {
+            summary.into_owned()
+        } else {
+            let details = tr.network_details(self.info.as_str());
+            format!("{summary}\n\n{details}")
+        }
     }
 }
 
@@ -228,5 +232,52 @@ impl From<HttpError> for AnkiError {
         } else {
             AnkiError::sync_error(format!("{err:?}"), SyncErrorKind::Other)
         }
+    }
+}
+
+#[cfg(test)]
+mod test {
+    use super::*;
+
+    fn other_error(info: &str) -> NetworkError {
+        NetworkError {
+            info: info.to_string(),
+            kind: NetworkErrorKind::Other,
+        }
+    }
+
+    #[test]
+    fn empty_info_omits_the_details_line() {
+        let tr = I18n::template_only();
+        assert_eq!(
+            other_error("").message(&tr),
+            tr.network_other().into_owned()
+        );
+    }
+
+    #[test]
+    fn whitespace_info_omits_the_details_line() {
+        let tr = I18n::template_only();
+        assert_eq!(
+            other_error("  ").message(&tr),
+            tr.network_other().into_owned()
+        );
+    }
+
+    #[test]
+    fn nonempty_info_keeps_the_details_line() {
+        let tr = I18n::template_only();
+        let expected = format!("{}\n\n{}", tr.network_other(), tr.network_details("boom"));
+        assert_eq!(other_error("boom").message(&tr), expected);
+    }
+
+    #[test]
+    fn empty_timeout_shows_only_the_timeout_summary() {
+        let tr = I18n::template_only();
+        let err = NetworkError {
+            info: String::new(),
+            kind: NetworkErrorKind::Timeout,
+        };
+        assert_eq!(err.message(&tr), tr.network_timeout().into_owned());
     }
 }

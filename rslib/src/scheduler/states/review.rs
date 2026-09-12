@@ -3,6 +3,7 @@
 
 use fsrs::NextStates;
 
+use super::fuzz::minimum_review_fuzz_interval;
 use super::interval_kind::IntervalKind;
 use super::CardState;
 use super::LearnState;
@@ -180,31 +181,37 @@ impl ReviewState {
         ctx: &StateContext,
         states: &NextStates,
     ) -> (u32, u32, u32) {
-        // If the interval is larger than last time, don't allow fuzz to go backwards
-        let greater_than_last = |interval: u32| {
-            if interval > self.scheduled_days {
-                self.scheduled_days + 1
-            } else {
-                // User may have changed their retention factor; don't limit
-                0
-            }
-        };
         let hard = constrain_passing_interval(
             ctx,
             states.hard.interval,
-            greater_than_last(states.hard.interval.round() as u32).max(1),
+            minimum_review_fuzz_interval(
+                states.hard.interval,
+                self.scheduled_days,
+                ctx.maximum_review_interval,
+            )
+            .max(1),
             true,
         );
         let good = constrain_passing_interval(
             ctx,
             states.good.interval,
-            greater_than_last(states.good.interval.round() as u32).max(hard + 1),
+            minimum_review_fuzz_interval(
+                states.good.interval,
+                self.scheduled_days,
+                ctx.maximum_review_interval,
+            )
+            .max(hard + 1),
             true,
         );
         let easy = constrain_passing_interval(
             ctx,
             states.easy.interval,
-            greater_than_last(states.easy.interval.round() as u32).max(good + 1),
+            minimum_review_fuzz_interval(
+                states.easy.interval,
+                self.scheduled_days,
+                ctx.maximum_review_interval,
+            )
+            .max(good + 1),
             true,
         );
         (hard, good, easy)

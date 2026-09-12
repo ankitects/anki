@@ -17,6 +17,10 @@ impl CollectionTimestamps {
     pub fn schema_changed_since_sync(&self) -> bool {
         self.schema_change > self.last_sync
     }
+
+    pub fn never_synced(&self) -> bool {
+        self.last_sync.0 == 0
+    }
 }
 
 impl Collection {

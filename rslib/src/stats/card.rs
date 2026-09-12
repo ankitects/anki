@@ -14,7 +14,7 @@ use crate::scheduler::timing::is_unix_epoch_timestamp;
 
 impl Collection {
     pub fn card_stats(&mut self, cid: CardId) -> Result<anki_proto::stats::CardStatsResponse> {
-        let card = self.storage.get_card(cid)?.or_not_found(cid)?;
+        let mut card = self.storage.get_card(cid)?.or_not_found(cid)?;
         let note = self
             .storage
             .get_note(card.note_id)?
@@ -53,11 +53,7 @@ impl Collection {
             .zip(Some(seconds_elapsed))
             .zip(Some(card.decay.unwrap_or(FSRS5_DEFAULT_DECAY)))
             .map(|((state, seconds), decay)| {
-                FSRS::new(None).unwrap().current_retrievability_seconds(
-                    state.into(),
-                    seconds,
-                    decay,
-                )
+                fsrs::current_retrievability(state.into(), seconds as f32 / 86_400.0, decay)
             });
 
         let original_deck = if card.original_deck_id == DeckId(0) {
@@ -71,6 +67,11 @@ impl Collection {
         let preset = self
             .get_deck_config(config_id, true)?
             .or_not_found(config_id.to_string())?;
+
+        if card.ctype != CardType::New && card.memory_state.is_none() {
+            self.compute_and_update_memory_state(&mut card)?;
+        }
+
         Ok(anki_proto::stats::CardStatsResponse {
             card_id: card.id.into(),
             note_id: card.note_id.into(),
@@ -161,7 +162,7 @@ impl Collection {
             .get_deck_config(conf_id)?
             .or_not_found(conf_id)?;
         let historical_retention = config.inner.historical_retention;
-        let fsrs = FSRS::new(Some(config.fsrs_params()))?;
+        let fsrs = FSRS::new(config.fsrs_params())?;
         let next_day_at = self.timing_today()?.next_day_at;
         let ignore_before = ignore_revlogs_before_ms_from_config(&config)?;
 
@@ -236,17 +237,44 @@ mod test {
     use super::*;
     use crate::search::SortMode;
 
-    #[test]
-    fn stats() -> Result<()> {
+    fn test_collection() -> Result<(Collection, CardId)> {
         let mut col = Collection::new();
-
         let nt = col.get_notetype_by_name("Basic")?.unwrap();
         let mut note = nt.new_note();
         col.add_note(&mut note, DeckId(1))?;
-
         let cid = col.search_cards("", SortMode::NoOrder)?[0];
+        Ok((col, cid))
+    }
+
+    #[test]
+    fn stats() -> Result<()> {
+        let (mut col, cid) = test_collection()?;
         let _report = col.card_stats(cid)?;
-        //println!("report {}", report);
+
+        Ok(())
+    }
+
+    #[test]
+    fn stats_calculate_memory_state_if_not_present() -> Result<()> {
+        let (mut col, cid) = test_collection()?;
+
+        col.set_config_bool(BoolKey::Fsrs, true, true)?;
+        // review the card as easy
+        col.grade_now(&[cid], 3)?;
+        let mut card = col.storage.get_card(cid)?.unwrap();
+        assert!(card.memory_state.is_some());
+
+        card.memory_state = None;
+        col.storage.update_card(&card)?;
+
+        let card = col.storage.get_card(cid)?.unwrap();
+        assert!(card.memory_state.is_none());
+
+        let report = col.card_stats(cid)?;
+        let card = col.storage.get_card(cid)?.unwrap();
+
+        assert!(report.memory_state.is_some());
+        assert!(card.memory_state.is_some());
 
         Ok(())
     }

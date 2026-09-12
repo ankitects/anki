@@ -1,0 +1,13 @@
+---
+title: "macOS"
+---
+
+## Installing & Upgrading Anki on macOS
+
+For instructions on how to install or upgrade Anki on macOS, see:
+
+- [Install & Upgrade](./installing)
+
+## Problems
+
+If you encounter any issues when installing or starting Anki, please see the subsections in the table of contents.

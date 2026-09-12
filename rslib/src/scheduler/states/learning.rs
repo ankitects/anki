@@ -194,3 +194,182 @@ impl LearnState {
         }
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::super::steps::LearningSteps;
+    use super::*;
+    use crate::scheduler::states::NormalState;
+
+    // defaults_for_testing: steps=[1.0, 10.0]min, graduating_good=1day,
+    // graduating_easy=4days, fuzz_factor=None (deterministic)
+    //   remaining_steps=2 → first step  (1min = 60s)
+    //   remaining_steps=1 → last step  (10min = 600s)
+
+    fn learn_state(remaining_steps: u32) -> LearnState {
+        LearnState {
+            remaining_steps,
+            scheduled_secs: 60,
+            elapsed_secs: 0,
+            memory_state: None,
+        }
+    }
+
+    #[test]
+    fn again_on_any_step_resets_to_first_step() {
+        // steps [1.0, 10.0]min: remaining=1 means last step (10min)
+        // Again must jump all the way back to step 1 (1min), not just go back one.
+        let ctx = StateContext::defaults_for_testing();
+        for remaining in [1, 2] {
+            // remaining_steps = 1 or 2
+            let state = learn_state(remaining);
+            let states = state.next_states(&ctx);
+            assert!(matches!(
+                states.again,
+                CardState::Normal(NormalState::Learning(LearnState {
+                    remaining_steps: 2, // reset to step 1 (1min), not stay at step 2 (10min)
+                    scheduled_secs: 60,
+                    ..
+                }))
+            ));
+        }
+    }
+
+    #[test]
+    fn again_with_no_steps_graduates_to_review() {
+        let ctx = StateContext {
+            steps: LearningSteps::new(&[]),
+            ..StateContext::defaults_for_testing()
+        };
+        assert!(ctx.steps.is_empty(), "precondition: no steps configured");
+        // remaining_steps is irrelevant here: with no steps configured,
+        // again_delay_secs_learn() always returns None regardless of position.
+        let state = learn_state(0);
+        let states = state.next_states(&ctx);
+        // No steps → Again graduates directly to Review using graduating_interval_good
+        // (1 day)
+        assert!(matches!(
+            states.again,
+            CardState::Normal(NormalState::Review(ReviewState {
+                scheduled_days: 1,
+                ..
+            }))
+        ));
+    }
+
+    #[test]
+    fn hard_any_step_stays_on_same_step() {
+        let ctx = StateContext::defaults_for_testing();
+
+        // On first step (remaining=2): hard delay = avg(60+600)/2 = 330s, stays at step
+        // 1
+        let state = learn_state(2); // first step (means step 1 of 2)
+        let states = state.next_states(&ctx);
+        assert!(matches!(
+            states.hard,
+            CardState::Normal(NormalState::Learning(LearnState {
+                remaining_steps: 2, // stays on step 1
+                scheduled_secs: 330,
+                ..
+            }))
+        ));
+
+        // On last step (remaining=1): hard delay = 600s (same step), stays at step 2
+        let state = learn_state(1); // last step (means step 2 of 2)
+        let states = state.next_states(&ctx);
+        assert!(matches!(
+            states.hard,
+            CardState::Normal(NormalState::Learning(LearnState {
+                remaining_steps: 1, // stays on step 2
+                scheduled_secs: 600,
+                ..
+            }))
+        ));
+    }
+
+    #[test]
+    fn hard_with_no_steps_graduates_to_review() {
+        let ctx = StateContext {
+            steps: LearningSteps::new(&[]),
+            ..StateContext::defaults_for_testing()
+        };
+        assert!(ctx.steps.is_empty(), "precondition: no steps configured");
+        // remaining_steps is irrelevant: hard_delay_secs() returns None whenever steps
+        // is empty.
+        let state = learn_state(1);
+        let states = state.next_states(&ctx);
+        // No steps → Hard graduates to Review using graduating_interval_good (1 day)
+        assert!(matches!(
+            states.hard,
+            CardState::Normal(NormalState::Review(ReviewState {
+                scheduled_days: 1,
+                ..
+            }))
+        ));
+    }
+
+    #[test]
+    fn good_on_first_step_advances_to_next_step() {
+        let ctx = StateContext::defaults_for_testing();
+        let state = learn_state(2); // first step (means step 1 of 2)
+        let states = state.next_states(&ctx);
+        // Good advances remaining_steps from 2 to 1, next delay = 600s (10min)
+        assert!(matches!(
+            states.good,
+            CardState::Normal(NormalState::Learning(LearnState {
+                remaining_steps: 1, // advances to step 2 of 2
+                scheduled_secs: 600,
+                ..
+            }))
+        ));
+    }
+
+    #[test]
+    fn good_on_last_step_advances_to_review() {
+        let ctx = StateContext::defaults_for_testing();
+        let state = learn_state(1); // last step (means step 2 of 2)
+        let states = state.next_states(&ctx);
+        // Good from last step → Review with graduating_interval_good = 1 day
+        assert!(matches!(
+            states.good,
+            CardState::Normal(NormalState::Review(ReviewState {
+                scheduled_days: 1,
+                ..
+            }))
+        ));
+    }
+
+    #[test]
+    fn easy_always_graduates_to_review() {
+        let ctx = StateContext::defaults_for_testing();
+        for remaining in [1, 2] {
+            // remaining_steps = 1 or 2
+            let state = learn_state(remaining);
+            let states = state.next_states(&ctx);
+            assert!(
+                matches!(states.easy, CardState::Normal(NormalState::Review(_))),
+                "Easy with remaining_steps={remaining} should always graduate to Review"
+            );
+        }
+    }
+
+    #[test]
+    fn easy_interval_is_longer_than_good() {
+        let ctx = StateContext::defaults_for_testing();
+        let state = learn_state(1); // last step so Good also graduates
+        let states = state.next_states(&ctx);
+        let easy_days = match states.easy {
+            CardState::Normal(NormalState::Review(r)) => r.scheduled_days,
+            _ => panic!("easy should produce a ReviewState"),
+        };
+        let good_days = match states.good {
+            CardState::Normal(NormalState::Review(r)) => r.scheduled_days,
+            _ => panic!("good from last step should produce a ReviewState"),
+        };
+        // graduating_interval_easy=4 > graduating_interval_good=1
+        assert!(
+            easy_days > good_days,
+            "easy interval ({easy_days}d) should exceed good interval ({good_days}d)"
+        );
+    }
+}

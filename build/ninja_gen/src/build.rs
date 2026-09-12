@@ -3,6 +3,7 @@
 
 use std::collections::HashMap;
 use std::collections::HashSet;
+use std::fmt::Display;
 use std::fmt::Write;
 
 use anyhow::Result;
@@ -12,6 +13,7 @@ use itertools::Itertools;
 use crate::action::BuildAction;
 use crate::archives::Platform;
 use crate::configure::ConfigureBuild;
+use crate::input::join_inputs;
 use crate::input::space_separated;
 use crate::input::BuildInput;
 
@@ -271,11 +273,15 @@ impl BuildStatement<'_> {
             stmt.rule_variables.push(("pool".into(), pool.into()));
         }
         if have_n2 {
-            if action.hide_success() {
+            if action.hide_success()
+                && std::env::var("N2_OUTPUT_SUCCESS").ok().as_deref() != Some("1")
+            {
                 stmt.rule_variables
                     .push(("hide_success".into(), "1".into()));
             }
-            if action.hide_progress() {
+            if action.hide_progress()
+                && std::env::var("N2_OUTPUT_PROGRESS").ok().as_deref() != Some("1")
+            {
                 stmt.rule_variables
                     .push(("hide_progress".into(), "1".into()));
             }
@@ -351,15 +357,49 @@ pub enum BuildProfile {
     Debug,
     Release,
     ReleaseWithLto,
+    Ci,
+}
+
+impl Display for BuildProfile {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        let name = match self {
+            BuildProfile::Debug => "dev",
+            BuildProfile::Release => "release",
+            BuildProfile::ReleaseWithLto => "release-lto",
+            BuildProfile::Ci => "ci",
+        };
+        f.write_str(name)
+    }
 }
 
 impl BuildProfile {
-    fn from_env() -> Self {
+    pub fn from_env() -> Self {
         match std::env::var("RELEASE").unwrap_or_default().as_str() {
             "1" => Self::Release,
             "2" => Self::ReleaseWithLto,
-            _ => Self::Debug,
+            _ => match std::env::var("CI").unwrap_or_default().as_str() {
+                "true" => Self::Ci,
+                _ => Self::Debug,
+            },
         }
+    }
+
+    /// The profile to build helper tools like configure/minilints with:
+    /// never optimized, but otherwise matching the main profile so that
+    /// dependency builds are shared.
+    pub fn for_build_tools(self) -> Self {
+        match self {
+            Self::Release | Self::ReleaseWithLto => Self::Debug,
+            other => other,
+        }
+    }
+
+    pub fn as_cargo_arg(self) -> String {
+        format!("--profile {}", self)
+    }
+
+    pub fn as_nextest_arg(self) -> String {
+        format!("--cargo-profile {}", self)
     }
 }
 
@@ -538,14 +578,14 @@ fn to_ninja_target_string(
     implicit: &[String],
     order_only: &[String],
 ) -> String {
-    let mut joined = space_separated(explicit);
+    let mut joined = join_inputs(explicit);
     if !implicit.is_empty() {
         joined.push_str(" | ");
-        joined.push_str(&space_separated(implicit));
+        joined.push_str(&join_inputs(implicit));
     }
     if !order_only.is_empty() {
         joined.push_str(" || ");
-        joined.push_str(&space_separated(order_only));
+        joined.push_str(&join_inputs(order_only));
     }
     joined
 }

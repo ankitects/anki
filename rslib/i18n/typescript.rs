@@ -42,7 +42,7 @@ fn render_module_map(modules: &[Module], ts_out: &mut String) {
 
 fn render_methods(modules: &[Module], ts_out: &mut String) {
     for module in modules {
-        for translation in &module.translations {
+        for translation in module.translations.iter().filter(|t| t.is_core()) {
             let text = &translation.text;
             let key = &translation.key;
             let func_name = key.replace('-', "_").to_camel_case();

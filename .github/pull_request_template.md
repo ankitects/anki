@@ -13,7 +13,7 @@ Examples:
 
 ## Linked issue (required)
 
-<!-- Fixes #123 / Closes #123 / Refs #123 -->
+<!-- Fixes #123 / Closes #123 -->
 
 ## Summary / motivation (required)
 

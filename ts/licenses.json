@@ -95,8 +95,8 @@
         "repository": "https://github.com/TooTallNate/node-agent-base",
         "publisher": "Nathan Rajlich",
         "email": "nathan@tootallnate.net",
-        "path": "node_modules/https-proxy-agent/node_modules/agent-base",
-        "licenseFile": "node_modules/https-proxy-agent/node_modules/agent-base/README.md"
+        "path": "node_modules/jsdom/node_modules/agent-base",
+        "licenseFile": "node_modules/jsdom/node_modules/agent-base/README.md"
     },
     "asynckit@0.4.0": {
         "licenses": "MIT",
@@ -461,8 +461,8 @@
         "repository": "https://github.com/ljharb/es-define-property",
         "publisher": "Jordan Harband",
         "email": "ljharb@gmail.com",
-        "path": "node_modules/es-set-tostringtag/node_modules/es-define-property",
-        "licenseFile": "node_modules/es-set-tostringtag/node_modules/es-define-property/LICENSE"
+        "path": "node_modules/form-data/node_modules/es-define-property",
+        "licenseFile": "node_modules/form-data/node_modules/es-define-property/LICENSE"
     },
     "es-errors@1.3.0": {
         "licenses": "MIT",
@@ -485,16 +485,16 @@
         "repository": "https://github.com/ljharb/es-object-atoms",
         "publisher": "Jordan Harband",
         "email": "ljharb@gmail.com",
-        "path": "node_modules/es-set-tostringtag/node_modules/es-object-atoms",
-        "licenseFile": "node_modules/es-set-tostringtag/node_modules/es-object-atoms/LICENSE"
+        "path": "node_modules/form-data/node_modules/es-object-atoms",
+        "licenseFile": "node_modules/form-data/node_modules/es-object-atoms/LICENSE"
     },
     "es-set-tostringtag@2.1.0": {
         "licenses": "MIT",
         "repository": "https://github.com/es-shims/es-set-tostringtag",
         "publisher": "Jordan Harband",
         "email": "ljharb@gmail.com",
-        "path": "node_modules/es-set-tostringtag",
-        "licenseFile": "node_modules/es-set-tostringtag/LICENSE"
+        "path": "node_modules/form-data/node_modules/es-set-tostringtag",
+        "licenseFile": "node_modules/form-data/node_modules/es-set-tostringtag/LICENSE"
     },
     "escodegen@2.1.0": {
         "licenses": "BSD-2-Clause",
@@ -551,8 +551,8 @@
         "repository": "https://github.com/ljharb/get-intrinsic",
         "publisher": "Jordan Harband",
         "email": "ljharb@gmail.com",
-        "path": "node_modules/es-set-tostringtag/node_modules/get-intrinsic",
-        "licenseFile": "node_modules/es-set-tostringtag/node_modules/get-intrinsic/LICENSE"
+        "path": "node_modules/form-data/node_modules/get-intrinsic",
+        "licenseFile": "node_modules/form-data/node_modules/get-intrinsic/LICENSE"
     },
     "get-proto@1.0.1": {
         "licenses": "MIT",
@@ -591,8 +591,8 @@
         "repository": "https://github.com/inspect-js/has-symbols",
         "publisher": "Jordan Harband",
         "email": "ljharb@gmail.com",
-        "path": "node_modules/es-set-tostringtag/node_modules/has-symbols",
-        "licenseFile": "node_modules/es-set-tostringtag/node_modules/has-symbols/LICENSE"
+        "path": "node_modules/form-data/node_modules/has-symbols",
+        "licenseFile": "node_modules/form-data/node_modules/has-symbols/LICENSE"
     },
     "has-tostringtag@1.0.2": {
         "licenses": "MIT",
@@ -623,16 +623,16 @@
         "repository": "https://github.com/TooTallNate/node-http-proxy-agent",
         "publisher": "Nathan Rajlich",
         "email": "nathan@tootallnate.net",
-        "path": "node_modules/http-proxy-agent",
-        "licenseFile": "node_modules/http-proxy-agent/README.md"
+        "path": "node_modules/jsdom/node_modules/http-proxy-agent",
+        "licenseFile": "node_modules/jsdom/node_modules/http-proxy-agent/README.md"
     },
     "https-proxy-agent@5.0.1": {
         "licenses": "MIT",
         "repository": "https://github.com/TooTallNate/node-https-proxy-agent",
         "publisher": "Nathan Rajlich",
         "email": "nathan@tootallnate.net",
-        "path": "node_modules/https-proxy-agent",
-        "licenseFile": "node_modules/https-proxy-agent/README.md"
+        "path": "node_modules/jsdom/node_modules/https-proxy-agent",
+        "licenseFile": "node_modules/jsdom/node_modules/https-proxy-agent/README.md"
     },
     "iconv-lite@0.6.3": {
         "licenses": "MIT",

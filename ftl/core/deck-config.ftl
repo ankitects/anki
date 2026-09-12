@@ -350,7 +350,7 @@ deck-config-revert-button-tooltip = Restore this setting to its default value?
 ## These strings are shown via the Description button at the bottom of the
 ## overview screen.
 
-deck-config-description-new-handling = Anki 2.1.41+ handling
+deck-config-description-new-handling2 = Interpret as Markdown
 deck-config-description-new-handling-hint =
     Treats input as markdown, and cleans HTML input. When enabled, the
     description will also be shown on the congratulations screen.
@@ -486,7 +486,8 @@ deck-config-percent-input = { $pct }%
 deck-config-checking-for-improvement = Checking for improvement...
 deck-config-optimizing-preset = Optimizing preset { $current_count }/{ $total_count }...
 deck-config-fsrs-must-be-enabled = FSRS must be enabled first.
-deck-config-fsrs-params-optimal = The FSRS parameters currently appear to be optimal.
+deck-config-fsrs-params-optimal = The FSRS parameters are currently optimal. This is expected once parameters are well-fitted to your review history. You can try optimizing again after doing more reviews.
+deck-config-fsrs-confirm-save-and-optimize = This will save any other changes you have made. Are you sure?
 
 deck-config-fsrs-params-no-reviews = No reviews found. Make sure this preset is assigned to all decks (including subdecks) that you want to optimize, and try again.
 
@@ -539,6 +540,7 @@ deck-config-fsrs-good-fit = Health Check:
 
 ## NO NEED TO TRANSLATE. This text is no longer used by Anki, and will be removed in the future.
 
+deck-config-description-new-handling = Anki 2.1.41+ handling
 deck-config-fsrs-simulator-radio-ratio = Time / Memorized Ratio
 # $time here is pre-formatted e.g. "10 Seconds" 
 deck-config-fsrs-simulator-ratio-tooltip = { $time } per memorized card

@@ -354,7 +354,7 @@ class DeckBrowser:
                 deck_id=did,
                 collapsed=node.collapsed,
                 scope=DeckCollapseScope.REVIEWER,
-            ).run_in_background()
+            ).run_in_background(initiator=self)
             self._renderPage(reuse=True)
 
     def _handle_drag_and_drop(self, source: DeckId, target: DeckId) -> None:

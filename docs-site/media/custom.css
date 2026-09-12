@@ -1,0 +1,18 @@
+/* Anki color scheme
+ * Blues from Anki's palette (ts/lib/sass/_color-palette.scss) */
+
+html[data-theme="light"] {
+  --pst-color-primary: #2563eb;
+  --pst-color-primary-text: #fff;
+  --pst-color-primary-highlight: #1d4ed8;
+  --pst-color-link: #2563eb;
+  --pst-color-link-hover: #1d4ed8;
+}
+
+html[data-theme="dark"] {
+  --pst-color-primary: #60a5fa;
+  --pst-color-primary-text: #14181e;
+  --pst-color-primary-highlight: #93c5fd;
+  --pst-color-link: #60a5fa;
+  --pst-color-link-hover: #93c5fd;
+}

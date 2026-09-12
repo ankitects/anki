@@ -32,11 +32,16 @@ impl Card {
         days_from_today: u32,
         ease_factor: f32,
         force_reset: bool,
+        fsrs_enabled: bool,
     ) {
         let new_due = (today + days_from_today) as i32;
-        let fsrs_enabled = self.memory_state.is_some();
         let new_interval = if fsrs_enabled {
-            if let Some(last_review_time) = self.last_review_time {
+            // Don't set the interval if the card is new or if the card has an interval of 0
+            // (to prevent the interval changing if set due date is used several times in a
+            // row on a new card.)
+            if self.queue == CardQueue::New || self.interval == 0 {
+                0
+            } else if let Some(last_review_time) = self.last_review_time {
                 let elapsed_days =
                     TimestampSecs(next_day_start).elapsed_days_since(last_review_time);
                 elapsed_days as u32 + days_from_today
@@ -133,6 +138,7 @@ impl Collection {
         let mut rng = rand::rng();
         let distribution = Uniform::new_inclusive(spec.min, spec.max).unwrap();
         let mut decks_initial_ease: HashMap<DeckId, f32> = HashMap::new();
+        let fsrs_enabled = self.get_config_bool(BoolKey::Fsrs);
         self.transact(Op::SetDueDate, |col| {
             for mut card in col.all_cards_for_ids(cids, false)? {
                 let deck_id = card.original_deck_id.or(card.deck_id);
@@ -159,6 +165,7 @@ impl Collection {
                     days_from_today,
                     ease_factor,
                     spec.force_reset,
+                    fsrs_enabled,
                 );
                 col.log_manually_scheduled_review(&card, original.interval, usn)?;
                 col.update_card_inner(&mut card, original, usn)?;
@@ -250,26 +257,26 @@ mod test {
         let mut c = Card::new(NoteId(0), 0, DeckId(0), 0);
 
         // setting the due date of a new card will convert it
-        c.set_due_date(5, 0, 2, 1.8, false);
+        c.set_due_date(5, 0, 2, 1.8, false, false);
         assert_eq!(c.ctype, CardType::Review);
         assert_eq!(c.due, 7);
         assert_eq!(c.interval, 2);
         assert_eq!(c.ease_factor, 1800);
 
         // reschedule it again the next day, shifting it from day 7 to day 9
-        c.set_due_date(6, 0, 3, 2.5, false);
+        c.set_due_date(6, 0, 3, 2.5, false, false);
         assert_eq!(c.due, 9);
         assert_eq!(c.interval, 2);
         assert_eq!(c.ease_factor, 1800); // interval doesn't change
 
         // we can bring cards forward too - return it to its original due date
-        c.set_due_date(6, 0, 1, 2.4, false);
+        c.set_due_date(6, 0, 1, 2.4, false, false);
         assert_eq!(c.due, 7);
         assert_eq!(c.interval, 2);
         assert_eq!(c.ease_factor, 1800); // interval doesn't change
 
         // we can force the interval to be reset instead of shifted
-        c.set_due_date(6, 0, 3, 2.3, true);
+        c.set_due_date(6, 0, 3, 2.3, true, false);
         assert_eq!(c.due, 9);
         assert_eq!(c.interval, 3);
         assert_eq!(c.ease_factor, 1800); // interval doesn't change
@@ -281,7 +288,7 @@ mod test {
         c.original_deck_id = DeckId(1);
         c.due = -10000;
         c.queue = CardQueue::New;
-        c.set_due_date(6, 0, 1, 2.2, false);
+        c.set_due_date(6, 0, 1, 2.2, false, false);
         assert_eq!(c.due, 7);
         assert_eq!(c.interval, 2);
         assert_eq!(c.ease_factor, 2200);
@@ -293,7 +300,7 @@ mod test {
         c.ctype = CardType::Relearn;
         c.original_due = c.due;
         c.due = 12345678;
-        c.set_due_date(6, 0, 10, 2.1, false);
+        c.set_due_date(6, 0, 10, 2.1, false, false);
         assert_eq!(c.due, 16);
         assert_eq!(c.interval, 2);
         assert_eq!(c.ease_factor, 2200); // interval doesn't change

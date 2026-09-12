@@ -16,7 +16,7 @@ import {
     tagsWritable,
     textEditingState,
 } from "./store";
-import Toast from "./Toast.svelte";
+import { showToast } from "./toast-utils.svelte";
 import { addShapesToCanvasFromCloze } from "./tools/add-from-cloze";
 import {
     enableSelectable,
@@ -56,19 +56,13 @@ export const setupMaskEditor = async (
 };
 
 export const setupMaskEditorForEdit = async (
-    noteId: number,
+    noteId: bigint,
     onImageLoaded: (event: ImageLoadedEvent) => void,
 ): Promise<fabric.Canvas> => {
     const clozeNoteResponse = await getImageOcclusionNote({ noteId: BigInt(noteId) });
     const kind = clozeNoteResponse.value?.case;
     if (!kind || kind === "error") {
-        new Toast({
-            target: document.body,
-            props: {
-                message: tr.notetypesErrorGettingImagecloze(),
-                type: "error",
-            },
-        }).$set({ showToast: true });
+        showToast(tr.notetypesErrorGettingImagecloze(), "error");
         throw "error getting cloze";
     }
 
@@ -209,10 +203,11 @@ const addClozeNotesToTextEditor = (header: string, backExtra: string, tags: stri
 };
 
 function containerSize(): Size {
-    const container = document.querySelector(".editor-main")!;
+    const container = document.querySelector<HTMLElement>(".editor-main")!;
+    const rect = container.getBoundingClientRect();
     return {
         width: container.clientWidth,
-        height: container.clientHeight,
+        height: window.innerHeight - rect.top,
     };
 }
 
