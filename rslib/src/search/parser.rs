@@ -76,6 +76,11 @@ pub enum SearchNode {
         text: String,
         mode: FieldSearchMode,
     },
+    NumericField {
+        field: String,
+        operator: String,
+        value: f64,
+    },
     AddedInDays(u32),
     EditedInDays(u32),
     CardTemplate(TemplateKind),
@@ -355,10 +360,34 @@ fn search_node_for_text(s: &str) -> ParseResult<'_, SearchNode> {
     .parse(s)
     .map_err(|_: nom::Err<ParseError>| parse_failure(s, FailKind::MissingKey))?;
     if tail.is_empty() {
-        Ok(SearchNode::UnqualifiedText(unescape(head)?))
+        if let Some(node) = parse_numeric_field_comparison(head)? {
+            Ok(node)
+        } else {
+            Ok(SearchNode::UnqualifiedText(unescape(head)?))
+        }
     } else {
         search_node_for_text_with_argument(head, &tail[1..])
     }
+}
+
+fn parse_numeric_field_comparison(s: &str) -> ParseResult<'_, Option<SearchNode>> {
+    static RE: LazyLock<Regex> = LazyLock::new(|| Regex::new(r"^(.+?)(<=|>=|=|<|>)(.+)$").unwrap());
+    let Some(caps) = RE.captures(s) else {
+        return Ok(None);
+    };
+
+    let field = caps.get(1).unwrap().as_str();
+    let operator = caps.get(2).unwrap().as_str();
+    let value = match caps.get(3).unwrap().as_str().parse::<f64>() {
+        Ok(value) if value.is_finite() => value,
+        _ => return Ok(None),
+    };
+
+    Ok(Some(SearchNode::NumericField {
+        field: unescape(field)?,
+        operator: operator.into(),
+        value,
+    }))
 }
 
 /// Convert a colon-separated key/val pair into the relevant search type.
@@ -894,6 +923,16 @@ mod test {
                 mode: FieldSearchMode::NoCombining,
             })]
         );
+        for operator in ["<", "<=", "=", ">=", ">"] {
+            assert_eq!(
+                parse(&format!("Frequency{operator}500"))?,
+                vec![Search(NumericField {
+                    field: "Frequency".into(),
+                    operator: operator.into(),
+                    value: 500.0,
+                })]
+            );
+        }
 
         // escaping is independent of quotation
         assert_eq!(
