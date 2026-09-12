@@ -217,10 +217,10 @@ async function pastedImageFilename(data: ImageData, ext: string): Promise<string
 }
 
 async function addPastedImage(data: ImageData, ext: string, convert = false): Promise<string> {
-    const filename = await pastedImageFilename(data, ext);
     if (convert) {
         data = (await convertPastedImage({ data: imageDataToUint8Array(data), ext })).data;
     }
+    const filename = await pastedImageFilename(data, ext);
     return await addMediaFromData(filename, imageDataToUint8Array(data));
 }
 
