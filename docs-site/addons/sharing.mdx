@@ -44,6 +44,10 @@ AnkiWeb can not accept zip files that contain `pycache` folders.
 Once you’ve created a .ankiaddon file, you can use the Upload button on
 [https://ankiweb.net/shared/addons/](https://ankiweb.net/shared/addons/) to share the add-on with others.
 
+If an add-on downloaded from AnkiWeb includes a valid 'manifest.json' with
+a non-empty 'name', Anki uses that name. Otherwise, it uses a name derived
+from the add-on's title on AnkiWeb.
+
 ## Sharing outside AnkiWeb
 
 If you wish to distribute .ankiaddon files outside of AnkiWeb, your
@@ -53,6 +57,3 @@ add-on will be stored in, and 'name' specifies the name that will be
 shown to the user. You can optionally include a 'conflicts' key which is
 a list of other packages that conflict with the add-on, and a 'mod' key
 which specifies when the add-on was updated.
-
-When Anki downloads add-ons from AnkiWeb, only the conflicts key is used
-from the manifest.
