@@ -181,6 +181,10 @@ export function isAudio(filename: string): boolean {
     return audioSuffixes.includes(extToLowerCase(filename));
 }
 
+export function isImage(filename: string): boolean {
+    return imageSuffixes.includes(extToLowerCase(filename));
+}
+
 async function urlToLink(url: string, allowedSuffixes: string[] = mediaSuffixes): Promise<string> {
     const filename = await urlToFile(url, allowedSuffixes);
     if (!filename) {
