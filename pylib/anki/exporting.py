@@ -29,8 +29,11 @@ class _LegacyAnkiPackageExporter:
 
 
 _deprecated_names = DeprecatedNamesMixinForModule(globals())
-_deprecated_names.register_deprecated_aliases(
-    AnkiPackageExporter=_LegacyAnkiPackageExporter
+_deprecated_names.register_deprecated_attributes(
+    AnkiPackageExporter=(
+        _LegacyAnkiPackageExporter,
+        (Collection.export_anki_package, "Collection.export_anki_package"),
+    )
 )
 
 
