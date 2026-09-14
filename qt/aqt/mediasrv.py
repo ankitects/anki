@@ -908,12 +908,15 @@ async def open_file_picker() -> bytes:
 
 
 def open_media() -> bytes:
+    from aqt.editor_legacy import pics
     from aqt.utils import openFolder
 
     req = generic_pb2.String()
     req.ParseFromString(request.data)
     path = os.path.join(aqt.mw.col.media.dir(), req.val)
-    aqt.mw.taskman.run_on_main(lambda: openFolder(path))
+    _, ext = os.path.splitext(path)
+    if ext[1:] in pics:
+        aqt.mw.taskman.run_on_main(lambda: openFolder(path))
 
     return b""
 
