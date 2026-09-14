@@ -14,7 +14,7 @@ blocking maintainers. Automatic Analysis must remain disabled because this
 project uses CI-based analysis.
 
 For the test commands and coverage thresholds enforced by CI, see
-[Testing and Coverage](https://anki.mintlify.app/testing-coverage).
+[Testing and Coverage](https://anki.mintlify.app/developers/testing-coverage).
 
 ## Analysis matrix
 
@@ -69,12 +69,5 @@ The scanner necessarily parses untrusted source when analyzing a fork. These
 constraints prevent direct execution of contributor code and reduce the token's
 exposure, but they do not eliminate vulnerabilities in third-party Actions or
 analyzers.
-
-## TypeScript coverage paths
-
-Vitest runs with `ts/` as its working directory, but its LCOV reporter emits
-paths relative to the repository root. This is required because SonarCloud
-downloads the report into a fresh checkout and must resolve entries such as
-`ts/lib/...` there.
 
 <!-- <<<end>>> -->
