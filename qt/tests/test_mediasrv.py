@@ -306,18 +306,22 @@ class TestTrustedPageCSP:
 
     def test_trusted_sveltekit_page_refuses_framing(self, monkeypatch) -> None:
         request = BundledFileRequest(
-            "sveltekit/index.html", sveltekit_route="image-occlusion"
+            "sveltekit/index.html", sveltekit_route="deck-options"
         )
         resp = self._serve_builtin(monkeypatch, request, self.SVELTEKIT_INDEX)
         assert _get_csp(resp) == TRUSTED_PAGE_CSP
         assert b"content-security-policy" not in resp.get_data()
 
-    def test_untrusted_sveltekit_page_refuses_framing(self, monkeypatch) -> None:
-        request = BundledFileRequest("sveltekit/index.html", sveltekit_route="editor")
+    @pytest.mark.parametrize("route", ["editor", "image-occlusion"])
+    def test_untrusted_sveltekit_page_refuses_framing(
+        self, monkeypatch, route: str
+    ) -> None:
+        request = BundledFileRequest("sveltekit/index.html", sveltekit_route=route)
         resp = self._serve_builtin(monkeypatch, request, self.SVELTEKIT_INDEX)
         csp = _get_csp(resp)
         assert csp is not None
         directives = _csp_directives(csp)
+        assert directives["form-action"] == "'none'"
         assert directives["frame-ancestors"] == "'none'"
         assert "'sha256-abc='" in directives["script-src"]
 

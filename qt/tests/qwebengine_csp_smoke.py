@@ -17,9 +17,9 @@ network access. User embeds must keep working under every policy.
 The host also frames a page that runs an inline event handler. Served with the
 trusted-page CSP, the page must refuse to render in a frame; served without a
 CSP, it is the control and must run. The same page loaded top-level with the
-SvelteKit editor CSP checks that inline handlers are blocked. Under the editor
-CSPs a form must also fail to submit; without a CSP the submission is the
-control.
+untrusted SvelteKit CSP checks that inline handlers are blocked. Under the
+editor CSPs a form must also fail to submit; without a CSP the submission is
+the control.
 """
 
 from __future__ import annotations
@@ -69,9 +69,9 @@ from aqt.mediasrv import (
 
 AUTH_TOKEN = "qwebengine-csp-smoke-token"
 
-IO_TRUSTED = "image-occlusion"
+TRUSTED_PAGE = "trusted-page"
 IO_CONTROL = "image-occlusion-unprotected"
-IO_EDITOR_CSP = "image-occlusion-editor-csp"
+IO_UNTRUSTED = "image-occlusion"
 
 # 1x1 transparent png
 PIXEL_PNG = base64.b64decode(
@@ -338,18 +338,18 @@ try {
         elif parsed.path == "/__form-probe":
             self.server.state.record_form_probe()
             self._send_bytes(b"", "text/plain")
-        elif parsed.path == f"/{IO_TRUSTED}/note":
+        elif parsed.path == f"/{TRUSTED_PAGE}/note":
             # served like a trusted internal route
-            self.server.state.record_io_request(IO_TRUSTED)
-            self._send_io_document(IO_TRUSTED, 42, csp=TRUSTED_PAGE_CSP)
+            self.server.state.record_io_request(TRUSTED_PAGE)
+            self._send_io_document(TRUSTED_PAGE, 42, csp=TRUSTED_PAGE_CSP)
         elif parsed.path == f"/{IO_CONTROL}/note":
             # control: the same document with no policy
             self.server.state.record_io_request(IO_CONTROL)
             self._send_io_document(IO_CONTROL, 43, csp=None)
-        elif parsed.path == f"/{IO_EDITOR_CSP}/note":
-            self.server.state.record_io_request(IO_EDITOR_CSP)
+        elif parsed.path == f"/{IO_UNTRUSTED}/note":
+            self.server.state.record_io_request(IO_UNTRUSTED)
             self._send_io_document(
-                IO_EDITOR_CSP,
+                IO_UNTRUSTED,
                 44,
                 csp=_untrusted_sveltekit_content_security_policy(port, None),
             )
@@ -457,8 +457,8 @@ addElement('iframe', {{
     src: `http://127.0.0.1:${{remotePort}}/remote-frame`,
 }});
 addElement('iframe', {{
-    id: 'io-trusted-iframe',
-    src: '/{IO_TRUSTED}/note',
+    id: 'trusted-page-iframe',
+    src: '/{TRUSTED_PAGE}/note',
 }});
 addElement('iframe', {{
     id: 'io-control-iframe',
@@ -491,7 +491,7 @@ setTimeout(() => {{
         """Serve a document whose bundle injects an inline event handler.
 
         The bundle is an external script from /_anki/, so it runs under the
-        editor CSP; the inline handler it injects must not.
+        untrusted page CSP; the inline handler it injects must not.
         """
         html = f"""<!doctype html>
 <meta charset="utf-8">
@@ -710,24 +710,24 @@ def _check_host(snapshot: SmokeSnapshot, editor_csp: bool) -> list[str]:
             )
         )
     # The trusted route may be fetched, but must not render in a frame.
-    if snapshot.io_hit_with_token(IO_TRUSTED):
+    if snapshot.io_hit_with_token(TRUSTED_PAGE):
         errors.append(
             "framed trusted route reached /_anki/getImageForOcclusion with the token"
         )
-    elif snapshot.io_api_hits.get(IO_TRUSTED) or IO_TRUSTED in io_script_docs:
+    elif snapshot.io_api_hits.get(TRUSTED_PAGE) or TRUSTED_PAGE in io_script_docs:
         errors.append("framed trusted route ran its inline handler")
     return errors
 
 
 def _check_inline_handler_blocked(snapshot: SmokeSnapshot) -> list[str]:
-    """Loaded top-level with the editor CSP: the bundle runs, the inline
-    handler must not."""
+    """Loaded top-level with the untrusted page CSP: the bundle runs, but the
+    inline handler must not."""
     errors: list[str] = []
     if not snapshot.done:
         errors.append("bundle did not report completion")
     if snapshot.io_api_hits or snapshot.io_script_hits:
         errors.append(
-            "SvelteKit editor CSP did not block the inline handler: "
+            "Untrusted SvelteKit CSP did not block the inline handler: "
             + json.dumps(snapshot.io_api_hits, indent=2)
         )
     return errors
@@ -775,7 +775,11 @@ VARIANTS: list[tuple[str, str, Callable[[SmokeSnapshot], list[str]]]] = [
         "/editor-sveltekit",
         lambda s: _check_host(s, editor_csp=True),
     ),
-    ("editor-csp-inline", f"/{IO_EDITOR_CSP}/note", _check_inline_handler_blocked),
+    (
+        "image-occlusion-csp-inline",
+        f"/{IO_UNTRUSTED}/note",
+        _check_inline_handler_blocked,
+    ),
 ]
 
 
