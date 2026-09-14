@@ -1573,6 +1573,8 @@ title="{}" {}>{}</button>""".format(
 
     def on_periodic_backup_timer(self) -> None:
         """Create a backup if enough time has elapsed and collection changed."""
+        if self.restoring_backup:
+            return
         self._create_backup_with_progress(user_initiated=False)
 
     def on_create_backup_now(self) -> None:
