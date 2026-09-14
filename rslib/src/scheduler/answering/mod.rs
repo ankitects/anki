@@ -237,7 +237,6 @@ impl Collection {
         card: Card,
     ) -> Result<(SchedulingStates, Card)> {
         let note_id = card.note_id;
-
         let ctx = self.card_state_updater(card)?;
         let current = ctx.current_card_state();
 
@@ -484,7 +483,9 @@ impl Collection {
 
         let desired_retention = home_deck.effective_desired_retention(&config);
         let fsrs_enabled = self.fsrs_enabled();
+        dbg!("Here2");
         let fsrs_next_states = if fsrs_enabled {
+            dbg!("Here1");
             let params = config.fsrs_params();
             let fsrs = FSRS::new(params)?;
             card.decay = Some(get_decay_from_params(params));
@@ -741,6 +742,37 @@ pub(crate) mod test {
 
         // Verify that the desired retention is from the deck, not the config
         assert_eq!(updater.desired_retention, Some(0.85));
+
+        Ok(())
+    }
+    
+    #[test]
+    fn get_scheduling_states_inner_fills_missing_fsrs_fields_on_returned_card() -> Result<()> {
+        let mut col = Collection::new();
+        let nt = col.get_notetype_by_name("Basic")?.unwrap();
+        let mut note = nt.new_note();
+        col.add_note(&mut note, DeckId(1))?;
+
+        // Graduate without FSRS so the stored card has no decay/dr.
+        // This could happen if the card is moved between decks in an earlier version.
+        col.answer_easy();
+        let card_id = col.get_first_card().id;
+        let mut stored = col.storage.get_card(card_id)?.unwrap();
+        stored.memory_state = None;
+        col.storage.update_card(&stored)?;
+
+        col.set_config_bool(BoolKey::Fsrs, true, false)?;
+        col.clear_study_queues();
+
+        let input = col.storage.get_card(card_id)?.unwrap();
+        assert!(input.memory_state.is_none());
+
+        let (_, returned) = col.get_scheduling_states_inner(input)?;
+        assert!(returned.memory_state.is_some());
+
+        // No need to update the memory state in the database, since it will be recalculated on the next answer.
+        let stored = col.storage.get_card(card_id)?.unwrap();
+        assert!(stored.memory_state.is_none());
 
         Ok(())
     }
