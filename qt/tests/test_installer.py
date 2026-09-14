@@ -14,6 +14,7 @@ from tools.build_installer import (
     _find_fcitx_file,
     build,
     bundle_fcitx,
+    export_constraints,
     get_briefcase_config_args,
     get_briefcase_environ,
     get_briefcase_output_format,
@@ -136,6 +137,40 @@ def test_briefcase_config(out_dir: Path, cmd_args: argparse.Namespace) -> None:
     )
     assert any(s.startswith("template=") for s in config)
     assert any(s.startswith('support_package_hash="sha256:') for s in config)
+    assert not any(s.startswith("requirement_installer_args=") for s in config)
+
+
+def test_briefcase_config_constraints(
+    out_dir: Path, cmd_args: argparse.Namespace
+) -> None:
+    constraints_path = out_dir / "constraints.txt"
+    config = get_briefcase_config_args(cmd_args, constraints_path)
+    assert (
+        f'requirement_installer_args=["--constraints","{normalize_wheel_path(constraints_path)}"]'
+        in config
+    )
+
+
+def test_export_constraints_command(mocker, monkeypatch, tmp_path: Path) -> None:
+    monkeypatch.setenv("UV_BINARY", "uv-bin")
+    check_call = mocker.patch("tools.build_installer.subprocess.check_call")
+    assert export_constraints(tmp_path) == tmp_path / "constraints.txt"
+    cmd = check_call.call_args.args[0]
+    assert cmd[:3] == ["uv-bin", "export", "--frozen"]
+    assert cmd[-2:] == ["--output-file", str(tmp_path / "constraints.txt")]
+    assert "--no-emit-workspace" in cmd
+    for package in ("aqt", "anki"):
+        assert package in cmd[cmd.index("--package") :]
+
+
+def test_export_constraints_pins_lockfile(tmp_path: Path) -> None:
+    lines = export_constraints(tmp_path).read_text(encoding="utf-8").splitlines()
+    assert lines
+    for line in lines:
+        assert "==" in line and not line.startswith(("-e", "#"))
+    names = {line.split("==")[0] for line in lines}
+    assert {"flask", "protobuf", "pyqt6"} <= names
+    assert not {"anki", "aqt"} & names
 
 
 @pytest.mark.parametrize(

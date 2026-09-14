@@ -132,7 +132,9 @@ def get_support_hash_args() -> list[str]:
     return config_args
 
 
-def get_briefcase_config_args(args: argparse.Namespace) -> list[str]:
+def get_briefcase_config_args(
+    args: argparse.Namespace, constraints_path: Path | None = None
+) -> list[str]:
     version = args.version
     if aqt_wheel := getattr(args, "aqt_wheel", None):
         aqt_wheel = normalize_wheel_path(args.aqt_wheel)
@@ -152,6 +154,14 @@ def get_briefcase_config_args(args: argparse.Namespace) -> list[str]:
         config_args.extend(
             ["-C", "requires=[" + ",".join(f'"{dep}"' for dep in requires) + "]"]
         )
+    if constraints_path:
+        constraints = normalize_wheel_path(constraints_path)
+        config_args.extend(
+            [
+                "-C",
+                f'requirement_installer_args=["--constraints","{constraints}"]',
+            ]
+        )
     config_args.extend(["-C", f'template="{template_path.absolute().as_posix()}"'])
     config_args.extend(get_support_hash_args())
     if sys.platform == "win32":
@@ -168,6 +178,36 @@ def get_uv_binary() -> Path:
         return Path(uv_path)
     name = "uv.exe" if sys.platform == "win32" else "uv"
     return Path("out/extracted/uv") / name
+
+
+def export_constraints(out_dir: Path) -> Path:
+    """Export the locked versions of the app's transitive dependencies."""
+
+    constraints_path = out_dir / "constraints.txt"
+    subprocess.check_call(
+        [
+            str(get_uv_binary()),
+            "export",
+            "--frozen",
+            "--quiet",
+            "--package",
+            "aqt",
+            "--package",
+            "anki",
+            "--extra",
+            "qt",
+            "--extra",
+            "audio",
+            "--no-dev",
+            "--no-hashes",
+            "--no-emit-workspace",
+            "--no-header",
+            "--no-annotate",
+            "--output-file",
+            str(constraints_path),
+        ]
+    )
+    return constraints_path
 
 
 def get_briefcase_environ() -> dict[str, str]:
@@ -253,7 +293,8 @@ def bundle_fcitx(out_dir: Path) -> None:
 def build(args: argparse.Namespace) -> None:
     version = args.version
     shutil.copytree(app_dir, out_dir, dirs_exist_ok=True)
-    config_args = get_briefcase_config_args(args)
+    constraints_path = export_constraints(out_dir)
+    config_args = get_briefcase_config_args(args, constraints_path)
     shutil.copy("LICENSE", out_dir / "LICENSE")
     (out_dir / "CHANGELOG").write_text(
         "Please see https://apps.ankiweb.net/", encoding="utf-8"
