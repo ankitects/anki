@@ -217,10 +217,10 @@ async function pastedImageFilename(data: ImageData, ext: string): Promise<string
 }
 
 async function addPastedImage(data: ImageData, ext: string, convert = false): Promise<string> {
-    const filename = await pastedImageFilename(data, ext);
     if (convert) {
         data = (await convertPastedImage({ data: imageDataToUint8Array(data), ext })).data;
     }
+    const filename = await pastedImageFilename(data, ext);
     return await addMediaFromData(filename, imageDataToUint8Array(data));
 }
 
@@ -231,11 +231,11 @@ async function inlinedImageToFilename(src: string): Promise<string> {
         const fullPrefix = prefix + ext + suffix;
         if (src.startsWith(fullPrefix)) {
             const b64data = src.slice(fullPrefix.length).trim();
-            const data = atob(b64data);
+            const data = Uint8Array.from(atob(b64data), (char) => char.charCodeAt(0));
             if (ext === "jpeg") {
                 ext = "jpg";
             }
-            return filenameToLink(await addPastedImage(data, ext));
+            return await addPastedImage(data, ext);
         }
     }
     return "";
@@ -275,7 +275,7 @@ async function processUrls(
 }
 
 async function getPreferredImageExtension(): Promise<string> {
-    if (await getConfigBool({ key: ConfigKey_Bool.PASTE_IMAGES_AS_PNG })) {
+    if ((await getConfigBool({ key: ConfigKey_Bool.PASTE_IMAGES_AS_PNG })).val) {
         return "png";
     }
     return "jpg";
