@@ -57,6 +57,12 @@ const vitestConfig = defineVitestConfig({
         exclude: ["tests/e2e/**", "node_modules/**"],
         coverage: {
             include: ["lib/**", "routes/**", "editable/**", "editor/**", "html-filter/**", "reviewer/**", "tools/**"],
+            // The test command runs from ts/. Emit repository-relative LCOV paths
+            // so a later SonarCloud job can resolve them after downloading the
+            // report into a fresh checkout.
+            reporter: process.env.ANKI_COVERAGE_HTML
+                ? ["text-summary", ["lcov", { projectRoot: ".." }], "json-summary", "html"]
+                : ["text-summary", ["lcov", { projectRoot: ".." }], "json-summary"],
         },
     },
 });
