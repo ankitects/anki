@@ -381,7 +381,7 @@ class AnkiQt(QMainWindow):
         self.loadProfile(on_done)
 
     def profileNameOk(self, name: str) -> bool:
-        return not checkInvalidFilename(name) and name != "addons21"
+        return not checkInvalidFilename(name) and name.casefold() != "addons21"
 
     def onAddProfile(self) -> None:
         name = getOnlyText(tr.actions_name()).strip()
