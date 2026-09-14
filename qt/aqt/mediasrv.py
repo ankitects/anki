@@ -541,7 +541,7 @@ def get_sveltekit_route(path: str) -> str | None:
 
 
 def is_untrusted_sveltekit_route(route: str) -> bool:
-    return route == "editor"
+    return route in ("editor", "image-occlusion")
 
 
 def _extract_internal_request(
