@@ -2,7 +2,10 @@
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 from __future__ import annotations
 
-from tools.docs_converter import (
+import pytest
+
+from tools.docs import (
+    build_parser,
     escape_text_preserve_html,
     format_page,
 )
@@ -25,6 +28,20 @@ def body(result: str) -> str:
         if i > 0 and line == "---":
             return "\n".join(lines[i + 1 :]).lstrip("\n")
     return result
+
+
+class TestCli:
+    def test_convert_subcommand_parses(self) -> None:
+        args = build_parser().parse_args(["convert", "../anki-manual", "manual", "en"])
+
+        assert args.command == "convert"
+        assert args.source_docs_dir == "../anki-manual"
+        assert args.tab == "manual"
+        assert args.language_code == "en"
+
+    def test_subcommand_required(self) -> None:
+        with pytest.raises(SystemExit):
+            build_parser().parse_args([])
 
 
 # ===========================================================================

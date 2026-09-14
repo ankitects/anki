@@ -373,38 +373,52 @@ def escape_text_preserve_html(raw: str) -> str:
     return "".join(parts)
 
 
-def main():
-    parser = argparse.ArgumentParser(
-        description="Convert anki docs from a repo that follows the same format as the anki-manual repo into the main repos mintlify format.",
-        epilog=(
-            "Examples:\n"
-            "  %(prog)s ../anki-manual manual en\n"
-            "  %(prog)s ../anki-faqs faqs ar"
-        ),
+def add_convert_subcommand(subparsers: argparse._SubParsersAction) -> None:
+    convert_parser = subparsers.add_parser(
+        "convert",
+        help="Convert docs into docs-site format.",
         formatter_class=argparse.RawTextHelpFormatter,
     )
-    parser.add_argument(
+    convert_parser.add_argument(
         "source_docs_dir",
         help="Path to the directory of the docs you want to import.",
     )
-    parser.add_argument(
+    convert_parser.add_argument(
         "tab",
         default="Manual",
         choices=FOLDER_TO_TAB_TITLE.keys(),
         help="Navigation tab to import to. Case sensitive.",
     )
-    parser.add_argument(
+    convert_parser.add_argument(
         "language_code",
         default="en",
         help="Language code to import (use 'en' for default language paths).",
     )
-    parser.add_argument(
+    convert_parser.add_argument(
         "--docs-site-dir",
         default="docs-site",
         help="Path to the destination directory.",
     )
+    convert_parser.set_defaults(func=run_convert)
 
-    args = parser.parse_args()
+
+def build_parser() -> argparse.ArgumentParser:
+    parser = argparse.ArgumentParser(
+        description="Convert anki docs from a repo that follows the same format as the anki-manual repo into the main repos mintlify format.",
+        epilog=(
+            "Examples:\n"
+            "  %(prog)s convert ../anki-manual manual en\n"
+            "  %(prog)s convert ../anki-faqs faqs ar"
+        ),
+        formatter_class=argparse.RawTextHelpFormatter,
+    )
+    subparsers = parser.add_subparsers(dest="command", required=True)
+    add_convert_subcommand(subparsers)
+
+    return parser
+
+
+def run_convert(args: argparse.Namespace) -> None:
 
     language_code = args.language_code
     docs_site_dir = Path(args.docs_site_dir)
@@ -540,6 +554,11 @@ def main():
     print(
         "Please run ./check to format the newly imported pages before submitting any changes"
     )
+
+
+def main(argv: list[str] | None = None) -> None:
+    args = build_parser().parse_args(argv)
+    args.func(args)
 
 
 if __name__ == "__main__":
