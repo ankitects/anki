@@ -331,8 +331,14 @@ mod tests {
 
             let nodes = [RenderedNode::Text { text: input }];
             for answer_side in [false, true] {
-                assert_eq!(rendered_nodes_to_record_field(&nodes, true, answer_side), field);
-                assert_eq!(rendered_nodes_to_record_field(&nodes, false, answer_side), "Hello");
+                assert_eq!(
+                    rendered_nodes_to_record_field(&nodes, true, answer_side),
+                    field
+                );
+                assert_eq!(
+                    rendered_nodes_to_record_field(&nodes, false, answer_side),
+                    "Hello"
+                );
             }
         }
     }
