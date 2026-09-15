@@ -139,7 +139,7 @@
                       },
                       {
                         "group": "Linux",
-                        "icon": "bird",
+                        "icon": "linux",
                         "pages": [
                           "manual/platform/linux/intro",
                           "manual/platform/linux/installing",
