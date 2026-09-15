@@ -121,7 +121,8 @@ def test_sources_path(monkeypatch, tmp_path: Path, platform: str, root: str) -> 
 
 
 @pytest.mark.parametrize(
-    "platform, output_format", [("linux", ["linux", "zip"]), ("win32", ["windows", "visualstudio"])]
+    "platform, output_format",
+    [("linux", ["linux", "zip"]), ("win32", ["windows", "visualstudio"])],
 )
 def test_output_format(monkeypatch, platform: str, output_format: list[str]) -> None:
     monkeypatch.setattr("sys.platform", platform)

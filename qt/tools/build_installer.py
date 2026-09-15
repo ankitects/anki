@@ -99,7 +99,15 @@ def get_briefcase_sources_path(out_dir: Path) -> Path:
     """
     path: Path
     if sys.platform == "win32":
-        path = out_dir / "build" / "anki" / "windows" / "visualstudio" / ("ARM64" if platform.machine() == "ARM64" else "x64") / "Release"
+        path = (
+            out_dir
+            / "build"
+            / "anki"
+            / "windows"
+            / "visualstudio"
+            / ("ARM64" if platform.machine() == "ARM64" else "x64")
+            / "Release"
+        )
     elif sys.platform == "darwin":
         path = (
             out_dir
