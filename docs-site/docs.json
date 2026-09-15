@@ -238,6 +238,7 @@
                 "group": "Support FAQs",
                 "pages": [
                   "faqs/intro",
+                  "faqs/restoring-an-automatic-backup-recovering-from-data-loss",
                   {
                     "group": "Cards and Notes",
                     "icon": "cards-blank",
