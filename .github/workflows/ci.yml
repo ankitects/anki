@@ -570,7 +570,7 @@ jobs:
       (github.event_name == 'push' && startsWith(github.ref, 'refs/heads/release/'))
       || github.event_name == 'workflow_dispatch'
       || contains(github.event.pull_request.labels.*.name, 'check:windows')
-    runs-on: windows-11-arm
+    runs-on: windows-11-vs2026-arm
     name: check (windows-arm)
     # Unlike the x64 Windows runner, windows-11-arm has no D: drive, so we use
     # the default C:-based CARGO_HOME and TEMP.

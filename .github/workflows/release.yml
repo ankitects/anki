@@ -364,7 +364,7 @@ jobs:
   # support ARM runners: build on ARM → sign EXE on x64 → package MSI on ARM → sign MSI on x64.
   build-windows-arm:
     needs: prepare
-    runs-on: windows-11-arm
+    runs-on: windows-11-vs2026-arm
     timeout-minutes: 90
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 #v4
@@ -445,7 +445,7 @@ jobs:
 
   package-windows-arm:
     needs: [prepare, build-windows-arm, sign-exe-windows-arm]
-    runs-on: windows-11-arm
+    runs-on: windows-11-vs2026-arm
     timeout-minutes: 30
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 #v4
