@@ -105,7 +105,7 @@ def test_wrapped_dict_mutation_persists_on_drop() -> None:
     assert col.get_config("mydict") == {"a": 1, "b": 2}
 
 
-def test_wrapped_list_without_mutation_does_not_write_back(
+def test_wrapped_list_does_not_write_back_when_unmutated(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     # the value is unchanged either way, so the write itself has to be
@@ -115,8 +115,9 @@ def test_wrapped_list_without_mutation_does_not_write_back(
     wrapped = col.conf["mylist"]
     assert list(wrapped) == [1, 2, 3]
     writes: list[str] = []
+    # the wrapper writes through ConfigManager.set
     monkeypatch.setattr(
-        type(col.conf), "__setitem__", lambda self, key, value: writes.append(key)
+        type(col.conf), "set", lambda self, key, val: writes.append(key)
     )
 
     del wrapped
