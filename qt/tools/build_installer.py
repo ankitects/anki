@@ -74,6 +74,12 @@ def prune_webengine_locales(out_dir: Path) -> None:
             pak.unlink()
 
 
+def remove_visualstudio_debug_info(out_dir: Path) -> None:
+    src_dir = get_briefcase_sources_path(out_dir)
+    (src_dir / "Anki.pdb").unlink(missing_ok=True)
+    (src_dir / "Anki.exe.metagen").unlink(missing_ok=True)
+
+
 def get_briefcase_template_path() -> Path:
     if sys.platform == "win32":
         return installer_dir / "windows-template"
@@ -86,6 +92,8 @@ def get_briefcase_template_path() -> Path:
 def get_briefcase_output_format() -> list[str]:
     if sys.platform == "linux":
         return ["linux", "zip"]
+    elif sys.platform == "win32":
+        return ["windows", "visualstudio"]
     # Use default format for platform
     return []
 
@@ -97,7 +105,15 @@ def get_briefcase_sources_path(out_dir: Path) -> Path:
     """
     path: Path
     if sys.platform == "win32":
-        path = out_dir / "build" / "anki" / "windows" / "app" / "src"
+        path = (
+            out_dir
+            / "build"
+            / "anki"
+            / "windows"
+            / "visualstudio"
+            / ("ARM64" if platform.machine() == "ARM64" else "x64")
+            / "Release"
+        )
     elif sys.platform == "darwin":
         path = (
             out_dir
@@ -317,6 +333,7 @@ def build(args: argparse.Namespace) -> None:
         env=get_briefcase_environ(),
     )
     prune_webengine_locales(out_dir)
+    remove_visualstudio_debug_info(out_dir)
     compile_sources(out_dir, version)
     if not args.skip_fcitx:
         bundle_fcitx(out_dir)  # pragma: no cover
