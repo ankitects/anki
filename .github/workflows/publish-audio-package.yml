@@ -56,7 +56,7 @@ jobs:
             artifact: wheel-windows-x64
             build_cmd: tools\ninja audio_wheel
             needs_signing: false
-          - runner: windows-11-arm
+          - runner: windows-11-vs2026-arm
             artifact: wheel-windows-arm
             build_cmd: tools\ninja audio_wheel
             needs_signing: false

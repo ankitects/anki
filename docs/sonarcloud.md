@@ -1,0 +1,73 @@
+<!-- DO NOT MANUALLY EDIT THIS FILE -->
+<!-- This file is copied from docs-site/developers/sonarcloud.mdx automatically -->
+
+# SonarCloud analysis
+
+<!-- <<<cog
+from cogdocs import get_file_contents
+cog.out(get_file_contents("sonarcloud"))
+>>> -->
+
+SonarCloud provides informative static-analysis and coverage results. Its
+Quality Gate is not a required merge check, so findings guide review without
+blocking maintainers. Automatic Analysis must remain disabled because this
+project uses CI-based analysis.
+
+For the test commands and coverage thresholds enforced by CI, see
+[Testing and Coverage](https://anki.mintlify.app/developers/testing-coverage).
+
+## Analysis matrix
+
+| Event                          | Static analysis | Coverage in CI | Coverage in SonarCloud |
+| ------------------------------ | --------------- | -------------- | ---------------------- |
+| Internal pull request          | Yes             | Yes            | Yes                    |
+| Push to `main` or `release/**` | Yes             | Yes            | Yes                    |
+| Fork pull request              | Yes             | Yes            | No                     |
+
+Fork pull requests still run the complete test coverage and coverage-regression
+checks in the unprivileged CI workflow. Their reports are not imported by the
+privileged SonarCloud workflow, so SonarCloud does not calculate a coverage
+metric for those pull requests.
+
+The fork scan still reports static bugs, vulnerabilities, security hotspots,
+and code smells. Scanner-side Clippy and software composition analysis are
+disabled; Clippy remains part of the regular CI checks.
+
+## How it runs
+
+`.github/workflows/sonar.yml` runs after the complete CI workflow succeeds.
+Keeping it separate prevents `SONAR_TOKEN` from being available to jobs that
+build or test contributor code.
+
+1. The workflow validates the pull request number, state, head SHA,
+   repositories, and branches against the GitHub API. Invalid or stale context
+   fails closed instead of becoming a branch analysis.
+2. It checks out the exact commit tested by CI. Fork source is read only by the
+   scanner and is never built, installed, or used as tooling.
+3. It replaces `sonar-project.properties` with the default branch's trusted
+   copy, preventing a fork from changing the server or enabling build tools.
+4. For internal changes, it downloads the coverage artifact from the triggering
+   CI run. For forks, report paths are cleared and all sources are excluded only
+   from the coverage calculation.
+5. Only the scanner step receives `SONAR_TOKEN`.
+
+## Trust boundary
+
+<Warning>
+    This workflow has access to the base repository's `SONAR_TOKEN`. Never add a build,
+    test, package install, PR-provided configuration, local Action from the PR, or
+    restored CI cache to it. In particular, do not invoke `just`, `cargo`, `npm`, `pip`,
+    or repository scripts in this workflow.
+</Warning>
+
+- Keep Automatic Analysis disabled and SonarCloud checks non-required.
+- Restrict `SONAR_TOKEN` to analysis of this project.
+- Keep scanner-side Clippy and software composition analysis disabled.
+- Do not import artifacts produced by a fork into the privileged scan.
+
+The scanner necessarily parses untrusted source when analyzing a fork. These
+constraints prevent direct execution of contributor code and reduce the token's
+exposure, but they do not eliminate vulnerabilities in third-party Actions or
+analyzers.
+
+<!-- <<<end>>> -->

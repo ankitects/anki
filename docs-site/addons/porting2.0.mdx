@@ -9,9 +9,9 @@ machine, you can use the 2to3 tool to automatically convert your
 existing scripts to Python 3 code on a folder by folder basis, like:
 
 ```text
-2to3-3.8 --output-dir=aqt3 -W -n aqt
-mv aqt aqt-old
-mv aqt3 aqt
+    2to3-3.8 --output-dir=aqt3 -W -n aqt
+    mv aqt aqt-old
+    mv aqt3 aqt
 ```
 
 Most simple code can be converted automatically, but there may be parts
@@ -33,8 +33,8 @@ automatically convert the code:
 The Qt modules are in 'PyQt5' instead of 'PyQt4'. You can do a
 conditional import, but an easier way is to import from aqt.qt - eg
 
-```text
-from aqt.qt import *
+```python
+    from aqt.qt import *
 ```
 
 That will import all the Qt objects like QDialog without having to
@@ -53,8 +53,8 @@ If you plan to support 2.0 with the same file, you can copy your
 original file into the folder (`demo.py` → `demo/demo.py`), and then
 import it relatively by adding the following to `demo/__init__.py`:
 
-```text
-from . import demo
+```python
+    from . import demo
 ```
 
 The folder needs to be zipped up when uploading to AnkiWeb. For more
@@ -97,57 +97,36 @@ Qt 5 has dropped WebKit in favour of the Chromium-based WebEngine, so
 Anki’s webviews are now using WebEngine. Of note:
 
 - You can now debug the webviews using an external Chrome instance, by
-
-```text
-setting the env var QTWEBENGINE\_REMOTE\_DEBUGGING to 8080 prior to
-starting Anki, then surfing to localhost:8080 in Chrome.
-```
+  setting the env var QTWEBENGINE_REMOTE_DEBUGGING to 8080 prior to
+  starting Anki, then surfing to localhost:8080 in Chrome.
 
 - WebEngine uses a different method of communicating back to Python.
-
-```text
-AnkiWebView() is a wrapper for webviews which provides a pycmd(str)
-function in Javascript which will call the ankiwebview’s
-onBridgeCmd(str) method. Various parts of Anki’s UI like reviewer.py
-and deckbrowser.py have had to be modified to use this.
-```
+  AnkiWebView() is a wrapper for webviews which provides a pycmd(str)
+  function in Javascript which will call the ankiwebview’s
+  onBridgeCmd(str) method. Various parts of Anki’s UI like reviewer.py
+  and deckbrowser.py have had to be modified to use this.
 
 - Javascript is evaluated asynchronously, so if you need the result of
-
-```text
-a JS expression you can use ankiwebview’s evalWithCallback().
-```
+  a JS expression you can use ankiwebview’s evalWithCallback().
 
 - As a result of this asynchronous behaviour, editor.saveNow() now
-
-```text
-requires a callback. If your add-on performs actions in the browser,
-you likely need to call editor.saveNow() first and then run the rest
-of your code in the callback. Calls to .onSearch() will need to be
-changed to .search()/.onSearchActivated() as well. See the browser’s
-.deleteNotes() for an example.
-```
+  requires a callback. If your add-on performs actions in the browser,
+  you likely need to call editor.saveNow() first and then run the rest
+  of your code in the callback. Calls to .onSearch() will need to be
+  changed to .search()/.onSearchActivated() as well. See the browser’s
+  .deleteNotes() for an example.
 
 - Various operations that were supported by WebKit like
-
-```text
-setScrollPosition() now need to be implemented in javascript.
-```
+  setScrollPosition() now need to be implemented in javascript.
 
 - Page actions like mw.web.triggerPageAction(QWebEnginePage.Copy) are
-
-```text
-also asynchronous, and need to be rewritten to use javascript or a
-delay.
-```
+  also asynchronous, and need to be rewritten to use javascript or a
+  delay.
 
 - WebEngine doesn’t provide a keyPressEvent() like WebKit did, so the
-
-```text
-code that catches shortcuts not attached to a menu or button has had
-to be changed. setStateShortcuts() fires a hook that can be used to
-adjust the shortcuts for a given state.
-```
+  code that catches shortcuts not attached to a menu or button has had
+  to be changed. setStateShortcuts() fires a hook that can be used to
+  adjust the shortcuts for a given state.
 
 ## Reviewer Changes
 

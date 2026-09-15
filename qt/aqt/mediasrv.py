@@ -74,6 +74,7 @@ class LocalFileRequest:
 
 UNTRUSTED_MEDIA_CSP = "; ".join(
     (
+        # Disallow everything by default
         "default-src 'none'",
         "script-src 'none'",
         "connect-src 'none'",
@@ -82,9 +83,36 @@ UNTRUSTED_MEDIA_CSP = "; ".join(
         "child-src 'none'",
         "base-uri 'none'",
         "form-action 'none'",
-        "sandbox",
+        # Allow same-origin styles, images, fonts and media, so that an SVG or HTML
+        # file can use the resources next to it. 'unsafe-inline' is needed for
+        # <style> elements and style= attributes inside SVGs.
+        "style-src 'self' 'unsafe-inline'",
+        "img-src 'self'",
+        "font-src 'self'",
+        "media-src 'self'",
+        # The sandbox blocks scripts, forms, popups and top-level navigation.
+        # allow-same-origin is required for fonts (font loads use CORS, and we send
+        # no CORS headers) and to avoid stuck :hover styles under site isolation.
+        # Never add allow-scripts: with allow-same-origin, that would give media
+        # access to the parent page.
+        "sandbox allow-same-origin",
     )
 )
+
+
+# Our pages are always shown top-level
+TRUSTED_PAGE_CSP = "frame-ancestors 'none'"
+
+
+def _untrusted_page_content_security_policy(script_src: str) -> str:
+    """CSP for pages that show user content, e.g. note fields in the editor."""
+    return "; ".join(
+        (
+            f"script-src {script_src}",
+            "form-action 'none'",
+            TRUSTED_PAGE_CSP,
+        )
+    )
 
 
 def _legacy_editor_content_security_policy(port: int) -> str:
@@ -92,7 +120,7 @@ def _legacy_editor_content_security_policy(port: int) -> str:
         f"http://127.0.0.1:{port}/_anki/",
         f"http://127.0.0.1:{port}/_addons/",
     )
-    return "; ".join((f"script-src {' '.join(csp_paths)}",))
+    return _untrusted_page_content_security_policy(" ".join(csp_paths))
 
 
 _SVELTEKIT_CSP_META_RE = re.compile(
@@ -127,7 +155,7 @@ def _untrusted_sveltekit_content_security_policy(
     ]
     if script_hash:
         csp_paths.append(script_hash)
-    return "; ".join((f"script-src {' '.join(csp_paths)}",))
+    return _untrusted_page_content_security_policy(" ".join(csp_paths))
 
 
 @dataclass
@@ -433,8 +461,11 @@ def _handle_builtin_file_request(request: BundledFileRequest) -> Response:
                     )
                 )
             elif is_index:
-                # Strip the default CSP directive set in the SvelteKit config
+                # Replace the default CSP directive set in the SvelteKit config
                 response.set_data(_strip_csp_meta(data))
+                response.headers["Content-Security-Policy"] = TRUSTED_PAGE_CSP
+        elif mimetype == "text/html":
+            response.headers["Content-Security-Policy"] = TRUSTED_PAGE_CSP
 
         return response
     except FileNotFoundError:
@@ -510,7 +541,7 @@ def get_sveltekit_route(path: str) -> str | None:
 
 
 def is_untrusted_sveltekit_route(route: str) -> bool:
-    return route == "editor"
+    return route in ("editor", "image-occlusion")
 
 
 def _extract_internal_request(
@@ -877,12 +908,15 @@ async def open_file_picker() -> bytes:
 
 
 def open_media() -> bytes:
+    from aqt.editor_legacy import pics
     from aqt.utils import openFolder
 
     req = generic_pb2.String()
     req.ParseFromString(request.data)
     path = os.path.join(aqt.mw.col.media.dir(), req.val)
-    aqt.mw.taskman.run_on_main(lambda: openFolder(path))
+    _, ext = os.path.splitext(path)
+    if ext[1:] in pics:
+        aqt.mw.taskman.run_on_main(lambda: openFolder(path))
 
     return b""
 
@@ -1325,6 +1359,8 @@ def legacy_page_data() -> Response:
             response.headers["Content-Security-Policy"] = (
                 _legacy_editor_content_security_policy(aqt.mw.mediaServer.getPort())
             )
+        else:
+            response.headers["Content-Security-Policy"] = TRUSTED_PAGE_CSP
         return response
     else:
         return _text_response(HTTPStatus.NOT_FOUND, "page not found")

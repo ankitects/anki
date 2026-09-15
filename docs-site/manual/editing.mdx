@@ -29,7 +29,7 @@ easier. You can leave the tags blank if you wish, or add one or more of
 them. Tags are separated by a space. If the tags area says
 
 ```text
-vocab check_with_tutor
+    vocab check_with_tutor
 ```
 
 …​then the note you add would have two tags.
@@ -42,7 +42,7 @@ added, you can click the history button to search for a recently added
 card in the [browser](./browsing).
 
 For more information on the buttons between the note type and the
-fields, please see the [editor](./editing) section.
+fields, see the [editor](./editing) section.
 
 ### Duplicate Check
 
@@ -94,7 +94,7 @@ back, except by laboriously copying and pasting it for every note. By
 keeping content in separate fields, you make it much easier to adjust
 the layout of your cards in the future.
 
-To create a new type of note, choose **Tools > Manage Note Types** from the
+To create a new type of note, choose **Tools &gt; Manage Note Types** from the
 main Anki window. Then click **Add** to add a new type of note. You will now
 see another screen that gives you a choice of note types to base the new
 type on. "Add" means to base the newly created type on one that comes
@@ -135,17 +135,17 @@ properly.
 The options at the bottom of the screen allow you to edit various
 properties of the fields to be used when adding and editing the cards.
 This is _not_ where you customize what appears on your cards when
-reviewing; for that, please see [templates](./templates/intro).
+reviewing; for that, see [templates](./templates/intro).
 
 - **Editing Font** allows you to customize the font and size used when
   editing notes. This is useful if you want to make unimportant
   information smaller, or increase the size of non-Latin characters which
   are hard to read. The changes you make here do not affect how cards
-  appear when reviewing: to do that, please see the
+  appear when reviewing: to do that, see the
   [templates](./templates/intro) section. If you have enabled the "type in the
   answer" function, however, the text you type will use the font size
   defined here. (For information about how to change the actual font face
-  when typing the answer, please see the [checking your answer](./templates/fields#checking-your-answer) section.)
+  when typing the answer, see the [checking your answer](./templates/fields#checking-your-answer) section.)
 
 - **Sort by this field…​** tells Anki to show this field in the Sort Field
   column of the browser. You can use this to sort cards by that field.
@@ -168,7 +168,7 @@ reviewing; for that, please see [templates](./templates/intro).
   searches.
 
 After you have added fields, you will probably want to add them to the front
-or back of your cards. For more information on that, please see the
+or back of your cards. For more information on that, see the
 [templates](./templates/intro) section.
 
 ## Changing Deck / Note Type
@@ -225,7 +225,7 @@ cards to your main language study deck, and tag the cards with "food" and
 food-related vocabulary, or all verbs that are related to food.
 
 You can add tags from the Edit window and from the [Browser](./browsing), and you can also add,
-delete, rename, or organize tags there. Please note that
+delete, rename, or organize tags there. Note that
 tags work at [note](./getting-started#notes--fields) level, which means that when you tag a card that has siblings,
 all the siblings will be tagged as well. If you need to tag a single card,
 but not its siblings, you should consider using flags instead.
@@ -278,7 +278,7 @@ marks or fields are better.
 
 ## Editing Features
 
-The editor is shown when [adding notes](./editing.md), [editing a note](./studying#editing-and-more) during reviews, or [browsing](./browsing).
+The editor is shown when [adding notes](./editing), [editing a note](./studying#editing-and-more) during reviews, or [browsing](./browsing).
 
 ![Editor icons](/media/editor_icons.png)
 
@@ -299,7 +299,7 @@ your computer's hard drive and attach them to your notes. Alternatively, you
 can copy the media onto your computer's clipboard (for instance, by
 right-clicking an image on the web and choosing "Copy Image") and paste
 it into the field that you want to place it in. For more information
-about media, please see the [media](/media) section.
+about media, see the [media](/media) section.
 
 The microphone icon allows you to record from your computer's microphone
 and attach the recording to the note.
@@ -335,14 +335,14 @@ _Cloze deletion_ is the process of hiding one or more words in a
 sentence. For example, if you have the sentence:
 
 ```text
-Canberra was founded in 1913.
+    Canberra was founded in 1913.
 ```
 
 …​and you create a cloze deletion on "1913", then the sentence would
 become:
 
 ```text
-Canberra was founded in [...].
+    Canberra was founded in [...].
 ```
 
 Sometimes sections that have been removed in this fashion are said to be
@@ -358,7 +358,7 @@ the text you want to hide to select it, and click the \[…​\] button.
 Anki will replace the text with:
 
 ```text
-Canberra was founded in {{c1::1913}}.
+    Canberra was founded in {{c1::1913}}.
 ```
 
 The "c1" part means that you have created one cloze deletion in the
@@ -367,21 +367,21 @@ example, if you select Canberra and click \[…​\] again, the text will
 now look like:
 
 ```text
-{{c2::Canberra}} was founded in {{c1::1913}}.
+    {{c2::Canberra}} was founded in {{c1::1913}}.
 ```
 
 When you add the above note, Anki will create two cards. The first card
 will show:
 
 ```text
-Canberra was founded in [...].
+    Canberra was founded in [...].
 ```
 
 …​on the question, with the full sentence on the answer. The other card
 will have the following on the question:
 
 ```text
-[...] was founded in 1913.
+    [...] was founded in 1913.
 ```
 
 You can also elide multiple sections on the same card. In the above
@@ -398,36 +398,36 @@ You can also give yourself hints that don't match the text. If you
 replace the original sentence with:
 
 ```text
-Canberra::city was founded in 1913
+    Canberra::city was founded in 1913
 ```
 
 …​and then press \[…​\] after selecting "Canberra::city", Anki will
 treat the text after the two colons as a hint, changing the text into:
 
 ```text
-{{c1::Canberra::city}} was founded in 1913
+    {{c1::Canberra::city}} was founded in 1913
 ```
 
 When the card comes up for review, it will appear as:
 
 ```text
-[city] was founded in 1913.
+    [city] was founded in 1913.
 ```
 
 For information on testing your ability to type in a cloze deletion
-correctly, please see the section on [typing answers](./templates/fields#checking-your-answer).
+correctly, see the section on [typing answers](./templates/fields#checking-your-answer).
 
 From version 2.1.56, nested cloze deletions are supported. For example, the following is valid:
 
 ```text
-{{c1::Canberra was {{c2::founded}}}} in 1913
+    {{c1::Canberra was {{c2::founded}}}} in 1913
 ```
 
 The inner cloze is entirely nested within the outer. There is no support for partial overlaps, such as:
 
 ```text
-[...] founded in 1913 -> Canberra was
-Canberra [...] in 1913 -> was founded
+    [...] founded in 1913 -> Canberra was
+    Canberra [...] in 1913 -> was founded
 ```
 
 with the word "was" appearing in both deletions.
@@ -442,9 +442,9 @@ field to your cloze, add it to the [template](./templates/intro), and then when
 creating notes, paste the text into two separate fields, like so:
 
 ```text
-Text1 field: {{c1::Canberra was founded}} in 1913
+    Text1 field: {{c1::Canberra was founded}} in 1913
 
-Text2 field: {{c2::Canberra}} was founded in 1913
+    Text2 field: {{c2::Canberra}} was founded in 1913
 ```
 
 The default cloze note type has a second field called Extra, that is
@@ -452,23 +452,23 @@ shown on the answer side of each card. It can be used for adding some
 usage notes or extra information.
 
 The cloze note type is treated specially by Anki, and cannot be created
-based on a regular note type. If you wish to customize it, please make
+based on a regular note type. If you wish to customize it, make
 sure to clone the existing Cloze type instead of another type of note.
 Things like formatting can be customized, but it is not possible to add
 extra card templates to the cloze note type.
 
-Anki now supports a syntax that allows a single cloze deletion to appear on
+Anki now supports a new syntax that allows a single cloze deletion to appear on
 multiple cards:
 
 ```text
-{{c1::-té}}, {{c2::-sion}}, or {{c3::-tion}} are {{c1,2,3,4::feminine}}.
+    {{c1::-té}}, {{c2::-sion}}, or {{c3::-tion}} are {{c1,2,3,4::feminine}}.
 ```
 
-This creates four cards, each hiding "feminine" in a different context.
-The same result can still be achieved with the older nested syntax:
+This creates 4 cards, each hiding “feminine” in a different context.
+The same result can however still be achieved with the older nested syntax:
 
 ```text
-{{c1::-té}}, {{c2::-sion}}, {{c3::-tion}} are {{c4::{{c3::{{c2::{{c1::feminine}}}}}}}}
+    {{c1::-té}}, {{c2::-sion}}, {{c3::-tion}} are {{c4::{{c3::{{c2::{{c1::feminine}}}}}}}}
 ```
 
 The new syntax is easier to read and write, while the old syntax is more
@@ -510,6 +510,7 @@ You can also choose between two different IO modes for each note:
 
 ![Image Occlusion Modes](/media/io_modes.jpg)
 
+{/* fields & tags are not intuitive to find in editor */}
 The default IO note type also has standard fields:
 **Header** (displayed above the image on the front and back of each card),
 **Back Extra** (displayed below the image on the back of each card),
@@ -536,13 +537,13 @@ can use. Of note:
 - Undo / Redo.
 - Zoom In / Out - Reset zoom.
 - Toggle Translucency: Use this tool to temporarily view the hidden areas.
-- Delete: Use this tool to delete selected shapes and text areas. Please
-  note that deleting a shape won't delete its associated card automatically;
-  you will need to use Tools>Empty Cards afterwards, the same as
+- Delete: Use this tool to delete selected shapes and text areas. Note
+  that deleting a shape won't delete its associated card automatically;
+  you will need to use Tools&gt;Empty Cards afterwards, the same as
   with regular cloze deletions.
 - Duplicate.
 - Group selection: Use this tool to create a cluster of shapes, which will
-  allow you to move, resize or delete them simultaneously. Please note that
+  allow you to move, resize or delete them simultaneously. Note that
   two or more single shapes will create only one card once grouped.
 - Ungroup selection: Select a group and then click this button to make each shape independent again.
 - Alignment: This tool can be used to align your shapes / text areas as desired.
@@ -567,7 +568,7 @@ apostrophe (<kbd>´</kbd>) then the letter a (<kbd>a</kbd>) gives á.
 ### Adding international keyboard layouts
 
 Instructions on how to use international keyboards vary depending on the operating
-system and desktop environment that you are using. To get started, please see the
+system and desktop environment that you are using. To get started, see the
 links below.
 
 Windows:
@@ -598,7 +599,7 @@ As an example, `apt install ibus-anthy` on Debian allows you to type hiragana ch
 ### Right-to-left Languages
 
 If you are learning a right-to-left language, there are lots of other
-things to consider. Please see [this page](http://dotancohen.com/howto/rtl_right_to_left.html)
+things to consider. See [this page](http://dotancohen.com/howto/rtl_right_to_left.html)
 for more information.
 
 ### Limitations

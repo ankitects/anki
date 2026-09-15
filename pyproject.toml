@@ -27,7 +27,7 @@ dev = [
   "types-waitress",
   "types-pywin32",
   "types-mock",
-  "briefcase>=0.4.2",
+  "briefcase>=0.4.5",
   "coverage>=7.15.3",
   "complexipy>=5.6.0",
   "cogapp>=3.6.0",

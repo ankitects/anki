@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import enum
+import faulthandler
 import gc
 import os
 import re
@@ -225,6 +226,7 @@ class AnkiQt(QMainWindow):
     def setupUI(self) -> None:
         self.col = None
         self.disable_automatic_garbage_collection()
+        self.setup_crashlog()
         self.setupAppMsg()
         self.setupKeys()
         self.setupThreads()
@@ -1873,6 +1875,11 @@ title="{}" {}>{}</button>""".format(
 
     setupDialogGC = garbage_collect_on_dialog_finish
     gcWindow = deferred_delete_and_garbage_collect
+
+    def setup_crashlog(self) -> None:
+        path = os.path.join(self.pm.base, "crash.log")
+        self._crash_log = open(path, "a")
+        faulthandler.enable(self._crash_log)
 
     # Media server
     ##########################################################################
