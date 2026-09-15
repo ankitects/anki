@@ -2,7 +2,9 @@
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 import argparse
+import os
 import shutil
+import sys
 from pathlib import Path
 from typing import Any
 from unittest.mock import MagicMock
@@ -12,12 +14,16 @@ from tools.build_installer import (
     _find_fcitx_file,
     build,
     bundle_fcitx,
+    export_constraints,
     get_briefcase_config_args,
+    get_briefcase_environ,
     get_briefcase_output_format,
     get_briefcase_sources_path,
     get_briefcase_template_path,
     get_platform_suffix,
     get_signing_args,
+    get_support_hash_args,
+    get_uv_binary,
     installer_dir,
     main,
     normalize_wheel_path,
@@ -103,7 +109,7 @@ def test_template_path(monkeypatch, platform: str, template: str) -> None:
 @pytest.mark.parametrize(
     "platform, root",
     [
-        ("win32", "src"),
+        ("win32", "Release"),
         ("darwin", "Resources"),
         ("linux", "anki"),
     ],
@@ -115,7 +121,8 @@ def test_sources_path(monkeypatch, tmp_path: Path, platform: str, root: str) -> 
 
 
 @pytest.mark.parametrize(
-    "platform, output_format", [("linux", ["linux", "zip"]), ("win32", [])]
+    "platform, output_format",
+    [("linux", ["linux", "zip"]), ("win32", ["windows", "visualstudio"])],
 )
 def test_output_format(monkeypatch, platform: str, output_format: list[str]) -> None:
     monkeypatch.setattr("sys.platform", platform)
@@ -130,6 +137,76 @@ def test_briefcase_config(out_dir: Path, cmd_args: argparse.Namespace) -> None:
         in config
     )
     assert any(s.startswith("template=") for s in config)
+    assert any(s.startswith('support_package_hash="sha256:') for s in config)
+    assert not any(s.startswith("requirement_installer_args=") for s in config)
+
+
+def test_briefcase_config_constraints(
+    out_dir: Path, cmd_args: argparse.Namespace
+) -> None:
+    constraints_path = out_dir / "constraints.txt"
+    config = get_briefcase_config_args(cmd_args, constraints_path)
+    assert (
+        f'requirement_installer_args=["--constraints","{normalize_wheel_path(constraints_path)}"]'
+        in config
+    )
+
+
+def test_export_constraints_command(mocker, monkeypatch, tmp_path: Path) -> None:
+    monkeypatch.setenv("UV_BINARY", "uv-bin")
+    check_call = mocker.patch("tools.build_installer.subprocess.check_call")
+    assert export_constraints(tmp_path) == tmp_path / "constraints.txt"
+    cmd = check_call.call_args.args[0]
+    assert cmd[:3] == ["uv-bin", "export", "--frozen"]
+    assert cmd[-2:] == ["--output-file", str(tmp_path / "constraints.txt")]
+    assert "--no-emit-workspace" in cmd
+    for package in ("aqt", "anki"):
+        assert package in cmd[cmd.index("--package") :]
+
+
+def test_export_constraints_pins_lockfile(tmp_path: Path) -> None:
+    lines = export_constraints(tmp_path).read_text(encoding="utf-8").splitlines()
+    assert lines
+    for line in lines:
+        assert "==" in line and not line.startswith(("-e", "#"))
+    names = {line.split("==")[0] for line in lines}
+    assert {"flask", "protobuf", "pyqt6"} <= names
+    assert not {"anki", "aqt"} & names
+
+
+@pytest.mark.parametrize(
+    "platform, machine, has_stub",
+    [
+        ("win32", "AMD64", True),
+        ("win32", "ARM64", True),
+        ("darwin", "arm64", True),
+        ("darwin", "x86_64", True),
+        ("linux", "x86_64", False),
+        ("linux", "aarch64", False),
+    ],
+)
+def test_support_hash_args(
+    monkeypatch, platform: str, machine: str, has_stub: bool
+) -> None:
+    monkeypatch.setattr("sys.platform", platform)
+    monkeypatch.setattr("platform.machine", lambda: machine)
+    config = get_support_hash_args()
+    assert config.count("-C") == len(config) // 2
+    assert any(s.startswith('support_package_hash="sha256:') for s in config)
+    assert any(s.startswith('stub_binary_hash="sha256:') for s in config) == has_stub
+
+
+def test_support_hash_args_unknown_platform(monkeypatch) -> None:
+    monkeypatch.setattr("sys.platform", "unknown")
+    monkeypatch.setattr("platform.machine", lambda: "unknown")
+    with pytest.raises(RuntimeError, match="No support package hashes"):
+        get_support_hash_args()
+
+
+def test_support_hash_args_python_mismatch(monkeypatch) -> None:
+    monkeypatch.setattr("sys.version_info", (3, 99, 0))
+    with pytest.raises(RuntimeError, match="pinned for Python"):
+        get_support_hash_args()
 
 
 def test_compile_fails_loudly(
@@ -254,3 +331,85 @@ def test_build_and_package(out_dir: Path, cmd_args: argparse.Namespace) -> None:
     package(cmd_args)
     package_path = next((out_dir / "dist").iterdir())
     assert package_path.stem.endswith(get_platform_suffix())
+
+
+def _fake_uv(uv_dir: Path) -> Path:
+    uv_dir.mkdir(parents=True, exist_ok=True)
+    uv = uv_dir / ("uv.exe" if sys.platform == "win32" else "uv")
+    uv.touch()
+    return uv
+
+
+def test_uv_binary_from_env(monkeypatch, tmp_path: Path) -> None:
+    uv = tmp_path / "uv"
+    monkeypatch.setenv("UV_BINARY", str(uv))
+    assert get_uv_binary() == uv
+
+
+@pytest.mark.parametrize("platform, name", [("win32", "uv.exe"), ("linux", "uv")])
+def test_uv_binary_default(monkeypatch, platform: str, name: str) -> None:
+    monkeypatch.delenv("UV_BINARY", raising=False)
+    monkeypatch.setattr("sys.platform", platform)
+    assert get_uv_binary() == Path("out/extracted/uv") / name
+
+
+def test_briefcase_environ_prepends_uv_dir(monkeypatch, tmp_path: Path) -> None:
+    uv = _fake_uv(tmp_path / "uv")
+    monkeypatch.setenv("UV_BINARY", str(uv))
+    monkeypatch.setenv("PATH", "existing")
+    monkeypatch.setenv("SOME_VAR", "kept")
+    env = get_briefcase_environ()
+    assert env["PATH"] == os.pathsep.join([str(uv.resolve().parent), "existing"])
+    assert env["SOME_VAR"] == "kept"
+
+
+def test_briefcase_environ_default_path_is_absolute(
+    monkeypatch, tmp_path: Path
+) -> None:
+    monkeypatch.delenv("UV_BINARY", raising=False)
+    monkeypatch.chdir(tmp_path)
+    uv = _fake_uv(tmp_path / "out" / "extracted" / "uv")
+    uv_dir = Path(get_briefcase_environ()["PATH"].split(os.pathsep)[0])
+    assert uv_dir.is_absolute()
+    assert uv_dir == uv.resolve().parent
+
+
+def test_briefcase_environ_without_path(monkeypatch, tmp_path: Path) -> None:
+    uv = _fake_uv(tmp_path)
+    monkeypatch.setenv("UV_BINARY", str(uv))
+    monkeypatch.delenv("PATH")
+    assert get_briefcase_environ()["PATH"] == str(uv.resolve().parent)
+
+
+def test_briefcase_environ_raises_when_uv_missing(monkeypatch, tmp_path: Path) -> None:
+    monkeypatch.setenv("UV_BINARY", str(tmp_path / "uv"))
+    with pytest.raises(RuntimeError, match="uv not found"):
+        get_briefcase_environ()
+
+
+def test_briefcase_calls_receive_environ(
+    mocker, out_dir: Path, cmd_args: argparse.Namespace
+) -> None:
+    env = {"PATH": "uv-dir"}
+    mocker.patch("tools.build_installer.get_briefcase_environ", return_value=env)
+    mocker.patch("tools.build_installer.prune_webengine_locales")
+    mocker.patch("tools.build_installer.compile_sources")
+    check_call = mocker.patch("tools.build_installer.subprocess.check_call")
+
+    build(cmd_args)
+    assert check_call.call_args.kwargs["env"] is env
+
+    def create_dist(*args: Any, **kwargs: Any) -> None:
+        (out_dir / "dist").mkdir()
+        (out_dir / "dist" / "anki.msi").touch()
+
+    check_call.reset_mock()
+    check_call.side_effect = create_dist
+    package(cmd_args)
+    assert check_call.call_args.kwargs["env"] is env
+
+
+def test_linux_zip_format_supports_uv() -> None:
+    from briefcase_plugins.platforms.linux.zip import LinuxZipMixin
+
+    assert "uv" in LinuxZipMixin.supported_env_managers

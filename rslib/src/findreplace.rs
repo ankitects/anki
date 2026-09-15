@@ -106,6 +106,7 @@ impl Collection {
                 generate_cards: true,
                 mark_modified: true,
                 update_tags: false,
+                mtime: None,
             })
         })
     }
