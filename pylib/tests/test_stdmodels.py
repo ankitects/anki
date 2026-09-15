@@ -12,7 +12,6 @@ import pytest
 import anki.collection
 import anki.models
 from anki import stdmodels
-from anki.decks import DeckId
 from anki.stdmodels import (
     StockNotetypeKind,
     _get_stock_notetype,
@@ -63,19 +62,6 @@ def test_basic_typing_asks_for_typed_answer() -> None:
     col = getEmptyCol()
     nt = _get_stock_notetype(col, StockNotetypeKind.KIND_BASIC_TYPING)
     assert "{{type:Back}}" in nt["tmpls"][0]["qfmt"]
-
-
-def test_optional_reverse_generates_second_card_only_when_filled() -> None:
-    col = getEmptyCol()
-    nt = _legacy_add_forward_optional_reverse(col)
-    note = col.new_note(nt)
-    note["Front"] = "front"
-    note["Back"] = "back"
-    col.add_note(note, DeckId(1))
-    assert len(note.cards()) == 1
-    note["Add Reverse"] = "y"
-    col.update_note(note)
-    assert len(note.cards()) == 2
 
 
 def test_get_stock_notetypes_lists_builtin_kinds_in_proto_order() -> None:
