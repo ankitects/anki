@@ -86,6 +86,8 @@ def get_briefcase_template_path() -> Path:
 def get_briefcase_output_format() -> list[str]:
     if sys.platform == "linux":
         return ["linux", "zip"]
+    elif sys.platform == "win32":
+        return ["windows", "visualstudio"]
     # Use default format for platform
     return []
 
@@ -97,7 +99,7 @@ def get_briefcase_sources_path(out_dir: Path) -> Path:
     """
     path: Path
     if sys.platform == "win32":
-        path = out_dir / "build" / "anki" / "windows" / "app" / "src"
+        path = out_dir / "build" / "anki" / "windows" / "visualstudio" / ("ARM64" if platform.machine() == "ARM64" else "x64") / "Release"
     elif sys.platform == "darwin":
         path = (
             out_dir
