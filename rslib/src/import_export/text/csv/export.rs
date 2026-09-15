@@ -159,8 +159,6 @@ fn strip_redundant_sections(text: &str) -> Cow<'_, str> {
     static RE: LazyLock<Regex> = LazyLock::new(|| {
         Regex::new(
             r"(?isx)
-            <style>.*?</style>          # style elements
-            |
             \[\[type:[^]]+\]\]          # type replacements
             ",
         )
@@ -318,6 +316,24 @@ mod tests {
             with_notetype: true,
             with_guid: true,
             limit: None,
+        }
+    }
+
+    #[test]
+    fn text_export_preserves_styles_only_when_html_enabled() {
+        for field in [
+            "<style>.card { color: red; }</style><b>Hello</b>",
+            "<style type='text/css'>\n.card { color: red; }\n</style><b>Hello</b>",
+        ] {
+            let input = format!("{field}[[type:Front]]");
+            assert_eq!(field_to_record_field(&input, true), field);
+            assert_eq!(field_to_record_field(&input, false), "Hello");
+
+            let nodes = [RenderedNode::Text { text: input }];
+            for answer_side in [false, true] {
+                assert_eq!(rendered_nodes_to_record_field(&nodes, true, answer_side), field);
+                assert_eq!(rendered_nodes_to_record_field(&nodes, false, answer_side), "Hello");
+            }
         }
     }
 
