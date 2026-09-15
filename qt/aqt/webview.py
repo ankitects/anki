@@ -70,6 +70,21 @@ class AnkiWebViewKind(Enum):
     PREFERENCES = "preferences"
 
 
+def _is_internal_url(url: QUrl) -> bool:
+    from aqt import mw
+
+    server = QUrl(mw.serverURL())
+    if url.scheme() == server.scheme() and url.authority() == server.authority():
+        return True
+    # Vite server
+    return (
+        bool(hmr_mode)
+        and url.scheme() == "http"
+        and url.host() == "127.0.0.1"
+        and url.port() == 5173
+    )
+
+
 class AuthInterceptor(QWebEngineUrlRequestInterceptor):
     _api_enabled = False
 
@@ -80,7 +95,7 @@ class AuthInterceptor(QWebEngineUrlRequestInterceptor):
     def interceptRequest(self, info):
         from aqt.mediasrv import _APIKEY
 
-        if self._api_enabled and info.requestUrl().host() == "127.0.0.1":
+        if self._api_enabled and _is_internal_url(info.requestUrl()):
             info.setHttpHeader(b"Authorization", f"Bearer {_APIKEY}".encode("utf-8"))
 
 
@@ -249,27 +264,15 @@ class AnkiWebPage(QWebEnginePage):
         # https://github.com/ankitects/anki/pull/560
         sys.stdout.write(buf)
 
-    def _is_internal_url(self, url: QUrl) -> bool:
-        from aqt import mw
-
-        server = QUrl(mw.serverURL())
-        if url.scheme() == server.scheme() and url.authority() == server.authority():
-            return True
-        # Vite server
-        return (
-            bool(hmr_mode)
-            and url.scheme() == "http"
-            and url.host() == "127.0.0.1"
-            and url.port() == 5173
-        )
-
-    def acceptNavigationRequest(self, url: QUrl, navType: Any, isMainFrame: bool) -> bool:
+    def acceptNavigationRequest(
+        self, url: QUrl, navType: Any, isMainFrame: bool
+    ) -> bool:
         from aqt.mediasrv import get_sveltekit_route
 
         if not self.open_links_externally:
             return super().acceptNavigationRequest(url, navType, isMainFrame)
 
-        if self._is_internal_url(url):
+        if _is_internal_url(url):
             path = url.path()
             if (
                 path.startswith("/_anki/pages/")
