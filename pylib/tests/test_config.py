@@ -105,10 +105,20 @@ def test_wrapped_dict_mutation_persists_on_drop() -> None:
     assert col.get_config("mydict") == {"a": 1, "b": 2}
 
 
-def test_wrapped_list_without_mutation_leaves_value_unchanged() -> None:
+def test_wrapped_list_without_mutation_does_not_write_back(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    # the value is unchanged either way, so the write itself has to be
+    # observed to tell a skipped write-back from a redundant one.
     col = getEmptyCol()
     col.set_config("mylist", [1, 2, 3])
     wrapped = col.conf["mylist"]
     assert list(wrapped) == [1, 2, 3]
+    writes: list[str] = []
+    monkeypatch.setattr(
+        type(col.conf), "__setitem__", lambda self, key, value: writes.append(key)
+    )
+
     del wrapped
-    assert col.get_config("mylist") == [1, 2, 3]
+
+    assert writes == []
