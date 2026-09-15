@@ -43,7 +43,11 @@ def set_due_date_dialog(
     prompt = "\n".join(
         [
             tr.scheduling_set_due_date_prompt(cards=len(card_ids)),
-            tr.scheduling_set_due_date_prompt_hint(),
+            (
+                tr.scheduling_set_due_date_prompt_hint_fsrs()
+                if aqt.mw.col.get_config("fsrs")
+                else tr.scheduling_set_due_date_prompt_hint()
+            ),
         ]
     )
     (days, success) = getText(
