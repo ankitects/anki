@@ -45,6 +45,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import type { ComputeRetentionProgress } from "@generated/anki/collection_pb";
     import Modal from "bootstrap/js/dist/modal";
     import { onMount } from "svelte";
+    import {
+        deckSimulationSearch,
+        presetSimulationSearch,
+    } from "./simulator-search";
 
     export let state: DeckOptionsState;
     export let simulateFsrsRequest: SimulateFsrsReviewRequest;
@@ -62,6 +66,17 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     let simulating: boolean = false;
     const fsrs = state.fsrs;
     const bounds = defaultGraphBounds();
+    const currentPresetName = state.currentPresetName;
+    const currentDeckSearch = deckSimulationSearch(state.currentDeck.name, false);
+    const currentDeckWithSubdecksSearch = deckSimulationSearch(
+        state.currentDeck.name,
+        true,
+    );
+    $: presetSearch = presetSimulationSearch($currentPresetName);
+
+    function setSimulationSearch(search: string): void {
+        simulateFsrsRequest.search = search;
+    }
 
     let svg: HTMLElement | SVGElement | null = null;
     let simulationNumber = 0;
@@ -361,6 +376,42 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                 ></button>
             </div>
             <div class="modal-body">
+                <div class="mb-3">
+                    <div class="form-label">
+                        {tr.deckConfigFsrsSimulatorSearch()}
+                    </div>
+                    <input
+                        type="text"
+                        class="form-control mb-2"
+                        bind:value={simulateFsrsRequest.search}
+                        aria-label={tr.deckConfigFsrsSimulatorSearch()}
+                    />
+                    <div class="d-flex flex-wrap gap-1">
+                        <button
+                            type="button"
+                            class="btn btn-secondary btn-sm"
+                            on:click={() => setSimulationSearch(presetSearch)}
+                        >
+                            {tr.deckConfigFsrsSimulatorCurrentPreset()}
+                        </button>
+                        <button
+                            type="button"
+                            class="btn btn-secondary btn-sm"
+                            on:click={() => setSimulationSearch(currentDeckSearch)}
+                        >
+                            {tr.deckConfigFsrsSimulatorCurrentDeck()}
+                        </button>
+                        <button
+                            type="button"
+                            class="btn btn-secondary btn-sm"
+                            on:click={() =>
+                                setSimulationSearch(currentDeckWithSubdecksSearch)}
+                        >
+                            {tr.deckConfigFsrsSimulatorCurrentDeckWithSubdecks()}
+                        </button>
+                    </div>
+                </div>
+
                 <SpinBoxRow
                     bind:value={daysToSimulate}
                     defaultValue={365}
