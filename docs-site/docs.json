@@ -690,7 +690,7 @@
                       },
                       {
                         "group": "Linux",
-                        "icon": "bird",
+                        "icon": "linux",
                         "pages": [
                           "ar/manual/platform/linux/installing",
                           "ar/manual/platform/linux/missing-libraries",
