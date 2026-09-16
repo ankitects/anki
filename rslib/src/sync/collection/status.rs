@@ -16,9 +16,10 @@ impl Collection {
     pub fn sync_status_offline(&mut self) -> Result<sync_status_response::Required> {
         let stamps = self.storage.get_collection_timestamps()?;
         let required = if stamps.never_synced() {
-            // A collection that has never synced can't know its true state without
-            // consulting the server; reporting FullSync here would otherwise stick
-            // permanently when both sides are empty (mod=0 on both ends).
+            // A collection that has never synced can't know its true state
+            // without consulting the server; reporting FullSync
+            // here would otherwise stick permanently when both
+            // sides are empty (mod=0 on both ends).
             sync_status_response::Required::NoChanges
         } else if stamps.schema_changed_since_sync() {
             sync_status_response::Required::FullSync

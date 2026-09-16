@@ -71,7 +71,8 @@ mod test {
             next.current,
             CardState::Filtered(FilteredState::Preview(_))
         ));
-        // the exit state should have a 0 second interval, which will show up as (end)
+        // the exit state should have a 0 second interval, which will show up as
+        // (end)
         assert!(matches!(
             next.easy,
             CardState::Filtered(FilteredState::Preview(PreviewState {
@@ -117,8 +118,8 @@ mod test {
         c = col.storage.get_card(c.id)?.unwrap();
         assert_eq!(c.queue, CardQueue::PreviewRepeat);
 
-        // and then it should return to its old state once good or easy selected,
-        // with the default filtered config
+        // and then it should return to its old state once good or easy
+        // selected, with the default filtered config
         let next = col.get_scheduling_states(c.id)?;
         col.answer_card(&mut CardAnswer {
             card_id: c.id,

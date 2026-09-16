@@ -359,7 +359,8 @@ mod tests {
 
     #[test]
     fn parsable_text_single_node_unwraps_directly() {
-        // "tag:foo" parses to exactly one Node::Search(Tag), so no Group wrapper
+        // "tag:foo" parses to exactly one Node::Search(Tag), so no Group
+        // wrapper
         let proto = ProtoSearchNode {
             filter: Some(Filter::ParsableText("tag:foo".to_string())),
         };
@@ -621,8 +622,8 @@ mod tests {
 
     #[test]
     fn field_name_filter_produces_wildcard_single_field() {
-        // FieldName checks whether a field exists (has any content), so text is always
-        // "_*"
+        // FieldName checks whether a field exists (has any content), so text is
+        // always "_*"
         let proto = ProtoSearchNode {
             filter: Some(Filter::FieldName("Back".to_string())),
         };

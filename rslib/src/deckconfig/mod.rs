@@ -141,7 +141,8 @@ impl Collection {
             if let Some(conf) = self.storage.get_deck_config(DeckConfigId(1))? {
                 return Ok(Some(conf));
             }
-            // if even the default deck config is missing, just return the defaults
+            // if even the default deck config is missing, just return the
+            // defaults
             Ok(Some(DeckConfig::default()))
         } else {
             Ok(None)

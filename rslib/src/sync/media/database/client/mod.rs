@@ -219,8 +219,8 @@ delete from media where fname=?",
     pub fn record_additions(&self, additions: Vec<AddedFile>) -> error::Result<()> {
         for file in additions {
             if let Some(renamed) = file.renamed_from {
-                // the file AnkiWeb sent us wasn't normalized, so we need to record
-                // the old file name as a deletion
+                // the file AnkiWeb sent us wasn't normalized, so we need to
+                // record the old file name as a deletion
                 debug!("marking non-normalized file as deleted: {}", renamed);
                 let mut entry = MediaEntry {
                     fname: renamed,

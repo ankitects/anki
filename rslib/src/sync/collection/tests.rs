@@ -340,8 +340,8 @@ async fn sanity_check_should_roll_back_and_force_full_sync() -> Result<()> {
 
         let mut col1 = ctx.col1();
 
-        // add a deck but don't mark it as requiring a sync, which will trigger the
-        // sanity check to fail
+        // add a deck but don't mark it as requiring a sync, which will trigger
+        // the sanity check to fail
         let mut deck = col1.get_or_create_normal_deck("unsynced deck")?;
         col1.add_or_update_deck(&mut deck)?;
         col1.storage
@@ -391,8 +391,9 @@ async fn sync_errors_should_prompt_db_check() -> Result<()> {
 
         let mut col1 = ctx.col1();
 
-        // Add a a new notetype, and a note that uses it, but don't mark the notetype as
-        // requiring a sync, which will cause the sync to fail as the note is added.
+        // Add a a new notetype, and a note that uses it, but don't mark the
+        // notetype as requiring a sync, which will cause the sync to
+        // fail as the note is added.
         let mut nt = all_stock_notetypes(&col1.tr).remove(0);
         nt.name = "new".into();
         col1.add_notetype(&mut nt, false)?;
@@ -419,7 +420,8 @@ async fn sync_errors_should_prompt_db_check() -> Result<()> {
         let out = ctx.normal_sync(&mut col2).await;
         assert_eq!(out.required, SyncActionRequired::NoChanges);
 
-        // and the client should be able to sync again without a forced one-way sync
+        // and the client should be able to sync again without a forced one-way
+        // sync
         let err = NormalSyncer::new(&mut col1, ctx.cloned_client())
             .sync()
             .await

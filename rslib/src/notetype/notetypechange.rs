@@ -534,8 +534,8 @@ mod test {
         let cards = col.storage.all_cards_of_note(note.id)?;
         assert_eq!(cards.len(), 2);
 
-        // but any cards above the available templates should be removed when converting
-        // from cloze->normal
+        // but any cards above the available templates should be removed when
+        // converting from cloze->normal
         let input = ChangeNotetypeInput {
             note_ids: vec![note.id],
             ..col.notetype_change_info(basic.id, cloze.id)?.input

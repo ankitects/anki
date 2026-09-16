@@ -441,7 +441,8 @@ mod test {
         let question = text_of(&resp.question_nodes).expect("cloze question fully rendered");
         let answer = text_of(&resp.answer_nodes).expect("cloze answer fully rendered");
         // The question hides the deletion behind the `[...]` placeholder (the
-        // value is only carried in a data attribute), and the answer reveals it.
+        // value is only carried in a data attribute), and the answer reveals
+        // it.
         assert_eq!(
             question,
             r#"<span class="cloze" data-cloze="foo" data-ordinal="1">[...]</span>"#
@@ -593,9 +594,9 @@ mod test {
     fn get_empty_cards_reports_note_with_empty_card() {
         let mut col = Collection::new();
         let nt = col.basic_rev_notetype();
-        // Generate both cards with the fields filled, then blank the Back field:
-        // the reverse card now renders empty while the forward card keeps the
-        // note alive.
+        // Generate both cards with the fields filled, then blank the Back
+        // field: the reverse card now renders empty while the forward
+        // card keeps the note alive.
         let mut note = NoteAdder::new(&nt).fields(&["front", "back"]).add(&mut col);
         let reverse_card_id = col
             .storage

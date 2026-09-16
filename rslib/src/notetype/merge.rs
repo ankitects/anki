@@ -179,9 +179,10 @@ mod test {
 
     #[test]
     fn merge_longer_other_with_duplicate_field() {
-        // A malformed incoming notetype (e.g. from a corrupt deck) can have more
-        // fields than ours, including a field that matches one of ours a second
-        // time. Merging it must not panic. See issue #4345.
+        // A malformed incoming notetype (e.g. from a corrupt deck) can have
+        // more fields than ours, including a field that matches one of
+        // ours a second time. Merging it must not panic. See issue
+        // #4345.
         let mut basic = stock::basic(&I18n::template_only());
         let mut other = basic.clone();
         other.add_field("Extra1");

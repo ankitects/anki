@@ -596,8 +596,8 @@ mod tests {
 
     #[test]
     fn export_note_csv_fields_and_guid_in_correct_columns() {
-        // with all metadata: guid(0) | notetype(1) | deck(2) | front(3) | back(4) |
-        // tags(5)
+        // with all metadata: guid(0) | notetype(1) | deck(2) | front(3) |
+        // back(4) | tags(5)
         let (mut col, dir) = col_and_dir();
         let note = NoteAdder::basic(&mut col)
             .fields(&["hello", "world"])
@@ -605,8 +605,8 @@ mod tests {
         let path = dir.path().join("notes.csv");
         col.export_note_csv(note_csv_request(path.to_str().unwrap().into()))
             .unwrap();
-        // use the csv reader so quoted fields (GUIDs may contain '"') are handled
-        // correctly
+        // use the csv reader so quoted fields (GUIDs may contain '"') are
+        // handled correctly
         let mut reader = csv::ReaderBuilder::new()
             .delimiter(b'\t')
             .comment(Some(b'#'))

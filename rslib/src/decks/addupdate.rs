@@ -71,8 +71,8 @@ impl Collection {
         }
         self.update_single_deck_undoable(deck, original)?;
         if name_changed {
-            // after updating, we need to ensure all grandparents exist, which may not be
-            // the case in the parent->child case
+            // after updating, we need to ensure all grandparents exist, which
+            // may not be the case in the parent->child case
             self.create_missing_parents(&deck.name, usn)?;
         }
         Ok(())

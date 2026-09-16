@@ -144,8 +144,8 @@ impl Rescheduler {
                         .and_then(|counts| counts.get(&check_due))
                         .unwrap_or(&0)
                 } else {
-                    // today's workload is the sum of backlogs, cards due today and cards reviewed
-                    // today
+                    // today's workload is the sum of backlogs, cards due today
+                    // and cards reviewed today
                     self.due_today(deckconfig_id) + self.reviewed_today(deckconfig_id)
                 }
             })

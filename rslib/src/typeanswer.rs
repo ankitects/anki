@@ -331,7 +331,8 @@ mod test {
     fn html_and_media() {
         let stripped = strip_expected("[sound:foo.mp3]<b>1</b> &nbsp;2");
         let ctx = Diff::new(&stripped, "1  2");
-        // the spacing is handled by wrapping html output in white-space: pre-wrap
+        // the spacing is handled by wrapping html output in white-space:
+        // pre-wrap
         assert_eq!(ctx.to_tokens().expected_tokens, &[good("1  2")]);
     }
 

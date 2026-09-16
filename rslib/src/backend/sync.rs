@@ -338,10 +338,10 @@ impl Backend {
         let state = rt.block_on(online_sync_status_check(local, &mut client))?;
         {
             let mut guard = self.state.lock().unwrap();
-            // On startup, the sync status check will block on network access, and then
-            // automatic syncing begins, taking hold of the mutex. By the time
-            // we reach here, our network status may be out of date,
-            // so we discard it if stale.
+            // On startup, the sync status check will block on network access,
+            // and then automatic syncing begins, taking hold of the
+            // mutex. By the time we reach here, our network status
+            // may be out of date, so we discard it if stale.
             if guard.sync.remote_sync_status.last_check < time_at_check_begin {
                 guard.sync.remote_sync_status.last_check = time_at_check_begin;
                 guard.sync.remote_sync_status.last_response = state.required.into();
@@ -369,7 +369,8 @@ impl Backend {
             match rt.block_on(abortable_sync) {
                 Ok(sync_result) => sync_result,
                 Err(_) => {
-                    // if the user aborted, we'll need to clean up the transaction
+                    // if the user aborted, we'll need to clean up the
+                    // transaction
                     col.storage.rollback_trx()?;
                     // and tell AnkiWeb to clean up
                     let _handle = std::thread::spawn(move || {

@@ -38,7 +38,8 @@ impl TemplateOrdChanges {
         for (idx, old_ord) in ords.into_iter().enumerate() {
             if let Some(old_ord) = old_ord {
                 if let Some(entry) = removed.get_mut(old_ord as usize) {
-                    // guard required to ensure we don't panic if invalid high ordinal received
+                    // guard required to ensure we don't panic if invalid high
+                    // ordinal received
                     *entry = None;
                 }
                 if old_ord == idx as u32 {

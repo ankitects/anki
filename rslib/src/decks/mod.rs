@@ -219,8 +219,8 @@ mod test {
         assert_eq!(deck1.id, deck2.id);
         assert_eq!(sorted_names(&col), vec!["Default", "foo"]);
 
-        // missing parents should be automatically created, and case should match
-        // existing parents
+        // missing parents should be automatically created, and case should
+        // match existing parents
         let _deck3 = col.get_or_create_normal_deck("FOO::BAR::BAZ")?;
         assert_eq!(
             sorted_names(&col),

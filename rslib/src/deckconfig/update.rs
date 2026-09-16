@@ -238,8 +238,8 @@ impl Collection {
                 let previous_dr = previous_deck_dr.or(previous_preset_dr);
                 let previous_easy_days = previous_config.map(|c| &c.inner.easy_days_percentages);
 
-                // if a selected (sub)deck, or its old config was removed, update deck to point
-                // to new config
+                // if a selected (sub)deck, or its old config was removed,
+                // update deck to point to new config
                 let (current_config_id, current_deck_dr) = if selected_deck_ids.contains(&deck.id)
                     || !configs_after_update.contains_key(&previous_config_id)
                 {
@@ -363,8 +363,8 @@ impl Collection {
     fn compute_all_params(&mut self, req: &mut UpdateDeckConfigsRequest) -> Result<()> {
         require!(req.fsrs, "FSRS must be enabled");
 
-        // frontend didn't include any unmodified deck configs, so we need to fill them
-        // in
+        // frontend didn't include any unmodified deck configs, so we need to
+        // fill them in
         let changed_configs: HashSet<_> = req.configs.iter().map(|c| c.id).collect();
         let previous_last = req.configs.pop().or_invalid("no configs provided")?;
         for config in self.storage.all_deck_config()? {
@@ -372,7 +372,8 @@ impl Collection {
                 req.configs.push(config);
             }
         }
-        // other parts of the code expect the currently-selected preset to come last
+        // other parts of the code expect the currently-selected preset to come
+        // last
         req.configs.push(previous_last);
 
         // calculate and apply params to each preset
@@ -549,8 +550,9 @@ mod test {
         assert!(col.update_deck_configs(input.clone())?.changes.changes.card);
         assert_ne!(card1_pos(&mut col), 0);
 
-        // removing the config will assign the selected config (default in this case),
-        // and as default has normal sort order, that will reset the order again
+        // removing the config will assign the selected config (default in this
+        // case), and as default has normal sort order, that will reset
+        // the order again
         assert!(!full_sync_required(&mut col));
         reset_card1_pos(&mut col);
         input.configs.remove(1);

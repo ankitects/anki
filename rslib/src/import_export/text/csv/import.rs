@@ -177,7 +177,8 @@ impl ColumnContext {
                 .map(|opt| opt.and_then(op))
                 .collect()
         } else {
-            // notetype column provided, assume all non-metadata columns are notetype fields
+            // notetype column provided, assume all non-metadata columns are
+            // notetype fields
             (1..=record.len())
                 .filter(|i| !self.meta_columns.contains(i))
                 .map(op)

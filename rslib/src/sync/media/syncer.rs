@@ -203,8 +203,8 @@ impl MediaSyncer {
                 gather_zip_data_for_upload(&self.mgr.db, &self.mgr.media_folder, &pending)?;
             let zip_bytes = match data_for_zip {
                 None => {
-                    // discard zip info and retry batch - not particularly efficient,
-                    // but this is a corner case
+                    // discard zip info and retry batch - not particularly
+                    // efficient, but this is a corner case
                     self.progress
                         .update(false, |p| p.checked += pending.len())?;
                     continue;

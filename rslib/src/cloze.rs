@@ -309,7 +309,8 @@ fn reveal_cloze(
             buf.push_str("</span>");
         }
         (_, false) => {
-            // question or answer side inactive cloze; text shown, children may be active
+            // question or answer side inactive cloze; text shown, children may
+            // be active
             write!(
                 buf,
                 r#"<span class="cloze-inactive" data-ordinal="{}">"#,
@@ -421,7 +422,8 @@ pub fn extract_cloze_for_typing(text: &str, cloze_ord: u16) -> Cow<'_, str> {
     if output.is_empty() {
         "".into()
     } else if output.iter().min() == output.iter().max() {
-        // If all matches are identical text, they get collapsed into a single entry
+        // If all matches are identical text, they get collapsed into a single
+        // entry
         output.pop().unwrap().into()
     } else {
         output.join(", ").into()

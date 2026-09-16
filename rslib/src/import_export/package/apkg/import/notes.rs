@@ -243,8 +243,8 @@ impl<'n> NoteContext<'n> {
         existing.merge(incoming);
         self.record_remapped_ords(incoming);
         let new_incoming = if self.should_update_notetype(&existing, incoming) {
-            // ords must be existing's as they are used to remap note fields and card
-            // template indices
+            // ords must be existing's as they are used to remap note fields and
+            // card template indices
             incoming.copy_ords(&existing);
             incoming
         } else {
@@ -415,8 +415,8 @@ impl<'n> NoteContext<'n> {
 
     fn maybe_update_existing_note(&mut self, existing: NoteMeta, incoming: Note) -> Result<()> {
         if !self.merge_notetypes && incoming.notetype_id != existing.notetype_id {
-            // notetype of existing note has changed, or notetype of incoming note has been
-            // remapped due to a schema conflict
+            // notetype of existing note has changed, or notetype of incoming
+            // note has been remapped due to a schema conflict
             self.imports.log_conflicting(incoming);
         } else if should_update(self.update_notes, existing.mtime, incoming.mtime) {
             self.update_note(incoming, existing.id)?;
@@ -464,7 +464,8 @@ impl<'n> NoteContext<'n> {
         self.munge_media(&mut note)?;
         let original = self.get_expected_note(note.id)?;
         let notetype = self.get_expected_notetype(note.notetype_id)?;
-        // Preserve the incoming note's mtime to allow imports of successive exports
+        // Preserve the incoming note's mtime to allow imports of successive
+        // exports
         let incoming_mtime = note.mtime;
         self.target_col
             .update_note_inner_without_cards(UpdateNoteInnerWithoutCardsArgs {
@@ -499,7 +500,8 @@ impl<'n> NoteContext<'n> {
                         return Some(entry.name.clone());
                     }
                 } else if let Cow::Owned(s) = normalized {
-                    // no entry; might be a reference to an existing file, so ensure normalization
+                    // no entry; might be a reference to an existing file, so
+                    // ensure normalization
                     return Some(s);
                 }
             }
@@ -864,7 +866,8 @@ mod test {
         let remapped = col.storage.get_notetype(remapped_id).unwrap().unwrap();
         assert_eq!(remapped.fields[0].name, "new field");
 
-        // notetype with matching schema and original id exists => should be reused
+        // notetype with matching schema and original id exists => should be
+        // reused
         to_import.name = String::from("new name");
         to_import.mtime_secs.0 = remapped.mtime_secs.0 + 1;
         let ctx_2 = ImportBuilder::new().notetype(to_import).import(&mut col);
@@ -1007,8 +1010,8 @@ mod test {
         );
         assert_eq!(dst.storage.get_all_notetype_names().unwrap().len(), 8);
 
-        // if enabling merge, it should succeed and remove the empty notetype, remapping
-        // its note
+        // if enabling merge, it should succeed and remove the empty notetype,
+        // remapping its note
         src.export_apkg(&path, ExportAnkiPackageOptions::default(), "", None)?;
         assert_eq!(
             dst.import_apkg(
@@ -1045,8 +1048,9 @@ mod test {
         existing_notetype.id.0 = 0;
         col.add_notetype_inner(&mut existing_notetype, Usn(0), true)
             .unwrap();
-        // incoming conflicts with existing note, e.g. because it was remapped during a
-        // previous import (which wasn't recording the origninal id of the notetype yet)
+        // incoming conflicts with existing note, e.g. because it was remapped
+        // during a previous import (which wasn't recording the
+        // origninal id of the notetype yet)
         let mut note = NoteAdder::new(&existing_notetype)
             .fields(&["front", "back", "new existing"])
             .add(&mut col);

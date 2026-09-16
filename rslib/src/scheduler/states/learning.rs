@@ -218,7 +218,8 @@ mod tests {
     #[test]
     fn again_on_any_step_resets_to_first_step() {
         // steps [1.0, 10.0]min: remaining=1 means last step (10min)
-        // Again must jump all the way back to step 1 (1min), not just go back one.
+        // Again must jump all the way back to step 1 (1min), not just go back
+        // one.
         let ctx = StateContext::defaults_for_testing();
         for remaining in [1, 2] {
             // remaining_steps = 1 or 2
@@ -246,8 +247,8 @@ mod tests {
         // again_delay_secs_learn() always returns None regardless of position.
         let state = learn_state(0);
         let states = state.next_states(&ctx);
-        // No steps → Again graduates directly to Review using graduating_interval_good
-        // (1 day)
+        // No steps → Again graduates directly to Review using
+        // graduating_interval_good (1 day)
         assert!(matches!(
             states.again,
             CardState::Normal(NormalState::Review(ReviewState {
@@ -261,8 +262,8 @@ mod tests {
     fn hard_any_step_stays_on_same_step() {
         let ctx = StateContext::defaults_for_testing();
 
-        // On first step (remaining=2): hard delay = avg(60+600)/2 = 330s, stays at step
-        // 1
+        // On first step (remaining=2): hard delay = avg(60+600)/2 = 330s, stays
+        // at step 1
         let state = learn_state(2); // first step (means step 1 of 2)
         let states = state.next_states(&ctx);
         assert!(matches!(
@@ -274,7 +275,8 @@ mod tests {
             }))
         ));
 
-        // On last step (remaining=1): hard delay = 600s (same step), stays at step 2
+        // On last step (remaining=1): hard delay = 600s (same step), stays at
+        // step 2
         let state = learn_state(1); // last step (means step 2 of 2)
         let states = state.next_states(&ctx);
         assert!(matches!(
@@ -294,11 +296,12 @@ mod tests {
             ..StateContext::defaults_for_testing()
         };
         assert!(ctx.steps.is_empty(), "precondition: no steps configured");
-        // remaining_steps is irrelevant: hard_delay_secs() returns None whenever steps
-        // is empty.
+        // remaining_steps is irrelevant: hard_delay_secs() returns None
+        // whenever steps is empty.
         let state = learn_state(1);
         let states = state.next_states(&ctx);
-        // No steps → Hard graduates to Review using graduating_interval_good (1 day)
+        // No steps → Hard graduates to Review using graduating_interval_good (1
+        // day)
         assert!(matches!(
             states.hard,
             CardState::Normal(NormalState::Review(ReviewState {

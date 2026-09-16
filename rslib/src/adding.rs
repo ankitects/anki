@@ -147,8 +147,8 @@ mod test {
 
         // AddingDefaultsToCurrentDeck defaults to true
 
-        // Current deck, unset deck's last notetype; fall back to first notetype in
-        // collection
+        // Current deck, unset deck's last notetype; fall back to first notetype
+        // in collection
         col.set_current_deck(normal_deck1.id)?;
         let defaults = col.defaults_for_adding(
             // Invalid ID to confirm it's not used
@@ -189,7 +189,8 @@ mod test {
         assert_eq!(defaults.deck_id, normal_deck2.id);
         assert_eq!(defaults.notetype_id, col.basic_notetype().id);
 
-        // Invalid current note type; fall back to first notetype and current deck
+        // Invalid current note type; fall back to first notetype and current
+        // deck
         col.clear_aux_config_for_notetype(col.basic_notetype().id)?;
         col.set_current_notetype_id(
             // Set to an invalid notetype to trigger fallback
@@ -207,15 +208,15 @@ mod test {
         assert_eq!(defaults.deck_id, normal_deck2.id);
         assert_eq!(defaults.notetype_id, nt.id);
 
-        // Current notetype, non-existing notetype's last deck; fall back to current
-        // deck
+        // Current notetype, non-existing notetype's last deck; fall back to
+        // current deck
         col.set_last_deck_for_notetype(nt.id, DeckId(0))?;
         let defaults = col.defaults_for_adding(DeckId(0))?;
         assert_eq!(defaults.deck_id, normal_deck2.id);
         assert_eq!(defaults.notetype_id, nt.id);
 
-        // Current notetype, notetype's last deck (filtered); fall back to current
-        // deck
+        // Current notetype, notetype's last deck (filtered); fall back to
+        // current deck
         col.set_last_deck_for_notetype(nt.id, filtered_deck2.id)?;
         let defaults = col.defaults_for_adding(DeckId(0))?;
         assert_eq!(defaults.deck_id, normal_deck2.id);

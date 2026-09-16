@@ -35,8 +35,8 @@ impl<T> SyncRequest<T> {
         {
             match field.name() {
                 Some("c") => {
-                    // normal syncs should always be compressed, but media syncs may compress the
-                    // zip instead
+                    // normal syncs should always be compressed, but media syncs
+                    // may compress the zip instead
                     let c = field.text().await.or_bad_request("malformed c")?;
                     compressed = c != "0";
                 }

@@ -491,8 +491,9 @@ mod test {
         let mut col = Collection::new();
         // add one new and one review card
         CardAdder::new().siblings(2).due_dates(["0"]).add(&mut col);
-        // Potentially problematic config: New cards are shown first and would bury
-        // review siblings. This poses a problem because we gather review cards first.
+        // Potentially problematic config: New cards are shown first and would
+        // bury review siblings. This poses a problem because we gather
+        // review cards first.
         col.update_default_deck_config(|config| {
             config.new_mix = ReviewMix::BeforeReviews as i32;
             config.bury_new = false;
@@ -503,9 +504,9 @@ mod test {
         col.answer_easy();
         col.clear_study_queues();
 
-        // The number of cards in the queue must decrease by exactly 1, either because
-        // no burying was performed, or the first built queue anticipated it and didn't
-        // include the buried card.
+        // The number of cards in the queue must decrease by exactly 1, either
+        // because no burying was performed, or the first built queue
+        // anticipated it and didn't include the buried card.
         assert_eq!(col.card_queue_len(), old_queue_len - 1);
     }
 

@@ -181,10 +181,11 @@ impl SimpleServer {
         // its goal is to prevent a timing attack from gaining
         // information about whether a specific user exists.
         let user = {
-            // This inner block returns Ok(hkey,user) if a user with corresponding
-            // name is found and Err(user) with a random user if it isn't found.
-            // The user is needed to verify against a random hash,
-            // before returning an Error.
+            // This inner block returns Ok(hkey,user) if a user with
+            // corresponding name is found and Err(user) with a
+            // random user if it isn't found. The user is needed to
+            // verify against a random hash, before returning an
+            // Error.
             let mut result: Result<(String, &User), &User> =
                 Err(state.users.iter().next().unwrap().1);
             for (hkey, user) in state.users.iter() {
@@ -210,8 +211,8 @@ impl SimpleServer {
                 }
             }
             Err(user) => {
-                // Verify random password, in order to ensure constant-timedness,
-                // then return an error
+                // Verify random password, in order to ensure
+                // constant-timedness, then return an error
                 let pwhash =
                     &PasswordHash::new(&user.password_hash).expect("couldn't parse password hash");
                 let _ = Pbkdf2.verify_password(request.password.as_bytes(), pwhash);

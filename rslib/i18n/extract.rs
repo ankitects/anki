@@ -87,8 +87,9 @@ fn extract_metadata(translations_by_repo: &TranslationsByRepo) -> Vec<Translatio
                     visitor.visit_pattern(&pattern);
                     let key = m.id.name.to_string();
 
-                    // special case translations that were ported from gettext, and use embedded
-                    // terms that reference other variables that aren't visible to our visitor
+                    // special case translations that were ported from gettext,
+                    // and use embedded terms that reference
+                    // other variables that aren't visible to our visitor
                     if key == "statistics-studied-today" {
                         visitor.variables.push("amount".to_string());
                         visitor.variables.push("cards".to_string());
@@ -181,9 +182,9 @@ where
 
 impl From<String> for Variable {
     fn from(name: String) -> Self {
-        // rather than adding more items here as we add new strings, we should probably
-        // try to either reuse existing ones, or consider some sort of Hungarian
-        // notation
+        // rather than adding more items here as we add new strings, we should
+        // probably try to either reuse existing ones, or consider some
+        // sort of Hungarian notation
         let kind = match name.as_str() {
             "cards" | "notes" | "count" | "amount" | "reviews" | "total" | "selected"
             | "kilobytes" | "daysStart" | "daysEnd" | "days" | "secs-per-card" | "remaining"

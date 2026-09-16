@@ -165,8 +165,8 @@ mod test {
         };
 
         let assert_pre_review_state = |col: &mut Collection| -> Result<()> {
-            // the card should have its old state, but a new mtime (which we can't
-            // easily test without waiting)
+            // the card should have its old state, but a new mtime (which we
+            // can't easily test without waiting)
             let card = col.storage.get_card(cid)?.unwrap();
             assert_eq!(card.interval, 4);
             assert_eq!(card.lapses, 7);

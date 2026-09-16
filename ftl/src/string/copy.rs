@@ -48,8 +48,8 @@ pub(super) fn copy_or_move(mode: CopyOrMove, args: CopyOrMoveArgs) -> anyhow::Re
         if let Some(entry) = entry {
             entries.insert(lang.file_name().unwrap(), entry);
         } else {
-            // the key might be missing from some languages, but it should not be missing
-            // from the template
+            // the key might be missing from some languages, but it should not
+            // be missing from the template
             assert_ne!(lang, "templates");
         }
     }
@@ -69,7 +69,8 @@ pub(super) fn copy_or_move(mode: CopyOrMove, args: CopyOrMoveArgs) -> anyhow::Re
     }
 
     if let Some(template_dir) = string::additional_template_folder(&args.dst_lang_folder) {
-        // Our templates are also stored in the source tree, and need to be updated too.
+        // Our templates are also stored in the source tree, and need to be
+        // updated too.
         let ftl_path = template_dir.join(&dst_ftl_file);
         println!("Updating {ftl_path}");
         string::write_entry(

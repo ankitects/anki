@@ -45,8 +45,8 @@ impl Collection {
                     // this is basically update_deck_inner(), except:
                     // - we skip the normalization in prepare_for_update()
                     // - we skip the match_or_create_parents() step
-                    // - we skip the final create_missing_parents(), as we don't allow parent->child
-                    //   renames
+                    // - we skip the final create_missing_parents(), as we don't
+                    //   allow parent->child renames
 
                     deck.set_modified(usn);
                     deck.name = new_name;

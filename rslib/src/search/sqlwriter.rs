@@ -124,9 +124,10 @@ impl SqlWriter<'_> {
         }
     }
 
-    // NOTE: when adding any new nodes in the future, make sure that they are either
-    // a single search term, or they wrap multiple terms in parentheses, as can
-    // be seen in the sql() unit test at the bottom of the file.
+    // NOTE: when adding any new nodes in the future, make sure that they are
+    // either a single search term, or they wrap multiple terms in
+    // parentheses, as can be seen in the sql() unit test at the bottom of
+    // the file.
     fn write_search_node_to_sql(&mut self, node: &SearchNode) -> Result<()> {
         use normalize_to_nfc as norm;
         match node {
@@ -1378,7 +1379,8 @@ c.odue != 0 then c.odue else c.due end) != {days}) or (c.queue in (1,4) and
                 vec!["r".into(), "s".into()]
             )
         );
-        // Single quote in value: before parameterization this produced invalid SQL.
+        // Single quote in value: before parameterization this produced invalid
+        // SQL.
         assert_eq!(
             s(ctx, "prop:cds:foo=bar'baz"),
             (

@@ -118,7 +118,8 @@ fn sound_node(s: &str) -> IResult<'_, Node<'_>> {
 }
 
 fn take_till_potential_tag_start(s: &str) -> IResult<'_, &str> {
-    // first char could be '[', but wasn't part of a node, so skip (eof ends parse)
+    // first char could be '[', but wasn't part of a node, so skip (eof ends
+    // parse)
     let (after, offset) = anychar(s).map(|(s, c)| (s, c.len_utf8()))?;
     Ok(match after.find('[') {
         Some(pos) => s.take_split(offset + pos),

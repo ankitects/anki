@@ -194,16 +194,16 @@ fn group_inner(input: &str) -> IResult<'_, Vec<Node>> {
                 remaining = rem;
 
                 if nodes.len() % 2 == 0 {
-                    // before adding the node, if the length is even then the node
-                    // must not be a boolean
+                    // before adding the node, if the length is even then the
+                    // node must not be a boolean
                     if node == Node::And {
                         return Err(parse_failure(input, FailKind::MisplacedAnd));
                     } else if node == Node::Or {
                         return Err(parse_failure(input, FailKind::MisplacedOr));
                     }
                 } else {
-                    // if the length is odd, the next item must be a boolean. if it's
-                    // not, add an implicit and
+                    // if the length is odd, the next item must be a boolean. if
+                    // it's not, add an implicit and
                     if !matches!(node, Node::And | Node::Or) {
                         nodes.push(Node::And);
                     }

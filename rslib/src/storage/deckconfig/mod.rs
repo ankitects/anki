@@ -191,7 +191,8 @@ impl SqliteStorage {
                     // try direct parse
                     serde_json::from_str(text)
                         .or_else(|_| {
-                            // failed, and could be caused by duplicate keys. Serialize into
+                            // failed, and could be caused by duplicate keys.
+                            // Serialize into
                             // a value first to discard them, then try again
                             let conf: Value = serde_json::from_str(text)?;
                             serde_json::from_value(conf)

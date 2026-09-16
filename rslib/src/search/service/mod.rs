@@ -485,9 +485,9 @@ mod tests {
 
     #[test]
     fn replace_search_node_replaces_single_node() {
-        // existing is a single Tag node (not a Group) → wraps in vec![node] before
-        // replacing replacement is also a Tag → the old tag is swapped for the
-        // new one
+        // existing is a single Tag node (not a Group) → wraps in vec![node]
+        // before replacing replacement is also a Tag → the old tag is
+        // swapped for the new one
         let mut col = Collection::new();
         let input = anki_proto::search::ReplaceSearchNodeRequest {
             existing_node: Some(ProtoSearchNode {

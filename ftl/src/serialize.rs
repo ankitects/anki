@@ -200,8 +200,9 @@ impl Serializer {
             PatternElement::TextElement { value } => self.writer.write_literal(value.as_ref()),
             PatternElement::Placeable { expression } => match expression {
                 Expression::Inline(InlineExpression::Placeable { expression }) => {
-                    // A placeable inside a placeable is a special case because we
-                    // don't want the braces to look silly (e.g. "{ { Foo() } }").
+                    // A placeable inside a placeable is a special case because
+                    // we don't want the braces to look
+                    // silly (e.g. "{ { Foo() } }").
                     self.writer.write_literal("{{ ")?;
                     self.serialize_expression(expression)?;
                     self.writer.write_literal(" }}")?;

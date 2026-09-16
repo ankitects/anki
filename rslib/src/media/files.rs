@@ -210,7 +210,8 @@ where
 
 /// Convert foo.jpg into foo-abcde12345679.jpg
 pub(crate) fn add_hash_suffix_to_file_stem(fname: &str, hash: &Sha1Hash) -> String {
-    // when appending a hash to make unique, it will be 40 bytes plus the hyphen.
+    // when appending a hash to make unique, it will be 40 bytes plus the
+    // hyphen.
     let max_len = MAX_MEDIA_FILENAME_LENGTH - 40 - 1;
 
     let (stem, ext) = split_and_truncate_filename(fname, max_len);
@@ -361,8 +362,9 @@ where
         let secs = time::SystemTime::now();
         let times = FileTimes::new().set_accessed(secs).set_modified(secs);
         if let Err(err) = set_file_times(&dst_path, times) {
-            // The libc utimes() call fails on (some? all?) Android devices. Since we don't
-            // do automatic expiry yet, we can safely ignore the error.
+            // The libc utimes() call fails on (some? all?) Android devices.
+            // Since we don't do automatic expiry yet, we can safely
+            // ignore the error.
             if !cfg!(target_os = "android") {
                 return Err(err.into());
             }

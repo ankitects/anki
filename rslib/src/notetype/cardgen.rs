@@ -277,8 +277,9 @@ impl Collection {
             if ctx.notetype.config.kind() == NotetypeKind::Normal
                 && existing_cards.len() == ctx.notetype.templates.len()
             {
-                // in a normal note type, if card count matches template count, we don't need
-                // to load the note contents to know if all cards have been generated
+                // in a normal note type, if card count matches template count,
+                // we don't need to load the note contents to
+                // know if all cards have been generated
                 continue;
             }
             cache.next_position = None;
@@ -311,7 +312,8 @@ impl Collection {
         Ok(())
     }
 
-    // not sure if entry() can be used due to get_deck_config() returning a result
+    // not sure if entry() can be used due to get_deck_config() returning a
+    // result
     #[allow(clippy::map_entry)]
     fn due_for_deck(
         &mut self,
@@ -354,7 +356,8 @@ impl Collection {
     }
 
     fn default_deck_conf(&mut self) -> Result<(DeckId, DeckConfigId)> {
-        // currently hard-coded to 1, we could create this as needed in the future
+        // currently hard-coded to 1, we could create this as needed in the
+        // future
         self.deck_conf_if_normal(DeckId(1))?
             .or_invalid("invalid default deck")
     }

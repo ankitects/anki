@@ -179,7 +179,8 @@ impl Collection {
         out.card_properties_invalid += other_cards_fixed;
         out.card_last_review_time_empty = last_review_time_fixed;
 
-        // Trigger one-way sync if last_review_time was updated to avoid conflicts
+        // Trigger one-way sync if last_review_time was updated to avoid
+        // conflicts
         if last_review_time_fixed > 0 {
             self.set_schema_modified()?;
         }
@@ -292,7 +293,8 @@ impl Collection {
                     note.mtime = stamp_secs;
                 }
 
-                // note type ID may have changed if we created a recovery notetype
+                // note type ID may have changed if we created a recovery
+                // notetype
                 note.notetype_id = nt.id;
 
                 // write note, updating tags and generating missing cards
@@ -309,12 +311,12 @@ impl Collection {
             }
         }
 
-        // the note rebuilding process took care of adding tags back, so we just need
-        // to ensure to restore the collapse state
+        // the note rebuilding process took care of adding tags back, so we just
+        // need to ensure to restore the collapse state
         self.storage.restore_expanded_tags(&expanded_tags)?;
 
-        // if the collection is empty and the user has deleted all note types, ensure at
-        // least one note type exists
+        // if the collection is empty and the user has deleted all note types,
+        // ensure at least one note type exists
         if self.storage.get_all_notetype_names()?.is_empty() {
             let mut nt = all_stock_notetypes(&self.tr).remove(0);
             self.add_notetype_inner(&mut nt, usn, true)?;
@@ -450,9 +452,10 @@ impl Collection {
         Ok(num_invalid_ids)
     }
     fn add_missing_field_tags(&mut self, nt: &mut Notetype) -> Result<()> {
-        // we only try to fix I/O, as the other notetypes have been in circulation too
-        // long, and there's too much of a risk that the user has reordered the fields
-        // already. We could try to match on field name in the future though.
+        // we only try to fix I/O, as the other notetypes have been in
+        // circulation too long, and there's too much of a risk that the
+        // user has reordered the fields already. We could try to match
+        // on field name in the future though.
         let usn = self.usn()?;
         if let OriginalStockKind::ImageOcclusion = nt.config.original_stock_kind() {
             let mut changed = false;

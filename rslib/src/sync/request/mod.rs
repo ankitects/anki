@@ -152,8 +152,8 @@ where
     where
         Self: Sized + 'static,
     {
-        // A not-very-elegant workaround for the fact that a separate impl for vec<u8>
-        // would conflict with this generic one.
+        // A not-very-elegant workaround for the fact that a separate impl for
+        // vec<u8> would conflict with this generic one.
         let is_data = (&self as &dyn Any).is::<Vec<u8>>();
         let data = if is_data {
             let boxed_self = (Box::new(self) as Box<dyn Any>)

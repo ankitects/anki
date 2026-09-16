@@ -229,8 +229,8 @@ async fn parallel_requests() -> Result<()> {
         media2.add_file("auto", b"auto").unwrap();
         ctx.sync_media1().await?;
         // Normally the second client would notice the addition of the file when
-        // fetching changes from the server; here we manually upload the change to
-        // simulate two parallel syncs going on.
+        // fetching changes from the server; here we manually upload the change
+        // to simulate two parallel syncs going on.
         let get_usn = || async {
             Ok::<_, AnkiError>(
                 ctx.client

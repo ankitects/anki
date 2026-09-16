@@ -27,8 +27,8 @@ impl CardQueues {
                 MainQueueEntryKind::Review => self.counts.review -= 1,
                 MainQueueEntryKind::InterdayLearning => {
                     // the bug causing learning counts to go below zero should
-                    // hopefully be fixed at this point, but ensure we don't wrap
-                    // if it isn't
+                    // hopefully be fixed at this point, but ensure we don't
+                    // wrap if it isn't
                     self.counts.learning = self.counts.learning.saturating_sub(1)
                 }
             };

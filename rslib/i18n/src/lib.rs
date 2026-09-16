@@ -261,9 +261,10 @@ impl<P: Translations> I18n<P> {
             if let Ok(lang) = code.parse::<LanguageIdentifier>() {
                 input_langs.push(lang.clone());
                 if lang.language == "en" {
-                    // if English was listed, any further preferences are skipped,
-                    // as the template has 100% coverage, and we need to ensure
-                    // it is tried prior to any other langs.
+                    // if English was listed, any further preferences are
+                    // skipped, as the template has 100%
+                    // coverage, and we need to ensure it is
+                    // tried prior to any other langs.
                     break;
                 }
             }

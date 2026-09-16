@@ -348,8 +348,8 @@ mod tests {
         let dir = tempdir().unwrap();
         let path = dir.path().join("notes.csv");
         // tab-separated: two fields matching Basic notetype (Front, Back)
-        // dir and the CSV inside are deleted automatically when dir drops at end of
-        // test
+        // dir and the CSV inside are deleted automatically when dir drops at
+        // end of test
         std::fs::write(&path, "front content\tback content\n").unwrap();
 
         let metadata = ImportExportService::get_csv_metadata(
@@ -399,7 +399,8 @@ mod tests {
         let dir = tempdir().unwrap();
         let path = dir.path().join("notes.json");
         // ForeignData has #[serde(default)] — empty notes list is valid JSON
-        // dir and the file are deleted automatically when dir drops at end of test
+        // dir and the file are deleted automatically when dir drops at end of
+        // test
         std::fs::write(&path, r#"{"notes": []}"#).unwrap();
         let result = ImportExportService::import_json_file(
             &mut col,

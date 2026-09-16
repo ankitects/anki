@@ -74,8 +74,8 @@ fn prepare_translations(build: &mut Build) -> Result<()> {
         },
     )?;
 
-    // These don't use :group notation, as it doesn't make sense to invoke multiple
-    // commands as a group.
+    // These don't use :group notation, as it doesn't make sense to invoke
+    // multiple commands as a group.
     build.add_action(
         "ftl-sync",
         FtlCommand {

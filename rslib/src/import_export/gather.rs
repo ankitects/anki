@@ -170,8 +170,9 @@ impl ExchangeData {
     fn reset_cards(&mut self, col: &Collection) {
         let mut position = col.get_next_card_position();
         for card in self.cards.iter_mut() {
-            // schedule_as_new() removes cards from filtered decks, but we want to
-            // leave cards in their current deck, which gets converted to a regular one
+            // schedule_as_new() removes cards from filtered decks, but we want
+            // to leave cards in their current deck, which gets
+            // converted to a regular one
             let deck_id = card.deck_id;
             if card.schedule_as_new(position, true, true) {
                 position += 1;
@@ -184,7 +185,8 @@ impl ExchangeData {
     fn restore_cards_from_filtered_decks(&mut self) {
         for card in self.cards.iter_mut() {
             if card.is_filtered() {
-                // instead of moving between decks, the deck is converted to a regular one
+                // instead of moving between decks, the deck is converted to a
+                // regular one
                 card.original_deck_id = card.deck_id;
                 card.remove_from_filtered_deck_restoring_queue();
             }

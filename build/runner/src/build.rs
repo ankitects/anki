@@ -80,10 +80,11 @@ pub fn run_build(args: BuildArgs) {
         panic!("\nn2 and ninja missing/failed. did you forget 'bash tools/install-n2'?");
     };
     if !status.success() && Instant::now().duration_since(start_time).as_secs() < 3 {
-        // if the build fails quickly, there's a reasonable chance that build.ninja
-        // references a file that has been renamed/deleted. We currently don't
-        // capture stderr, so we can't confirm, but in case that's the case, we
-        // regenerate the build.ninja file then try again.
+        // if the build fails quickly, there's a reasonable chance that
+        // build.ninja references a file that has been renamed/deleted.
+        // We currently don't capture stderr, so we can't confirm, but
+        // in case that's the case, we regenerate the build.ninja file
+        // then try again.
         bootstrap_build();
         status = command.status().expect("ninja missing");
     }

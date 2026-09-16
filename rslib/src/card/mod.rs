@@ -434,8 +434,9 @@ impl Collection {
             for mut card in col.all_cards_for_ids(cards, false)? {
                 let original = card.clone();
                 if card.set_flag(flag) {
-                    // To avoid having to rebuild the study queues, we mark the card as requiring
-                    // a sync, but do not change its modification time.
+                    // To avoid having to rebuild the study queues, we mark the
+                    // card as requiring a sync, but do not
+                    // change its modification time.
                     card.usn = usn;
                     col.update_card_undoable(&mut card, original)?;
                     count += 1;
@@ -598,8 +599,8 @@ mod test {
         let mut note = nt.new_note();
         col.add_note(&mut note, DeckId(1))?;
 
-        // Graduate card to review without FSRS so it has an interval but no memory
-        // state
+        // Graduate card to review without FSRS so it has an interval but no
+        // memory state
         col.answer_easy();
 
         col.set_config_bool(BoolKey::Fsrs, true, false)?;
@@ -610,8 +611,8 @@ mod test {
         assert!(card.desired_retention.is_none());
         assert!(card.decay.is_none());
 
-        // Moving the card should trigger FSRS memory state calculation for cards
-        // lacking them, and store them in the card.
+        // Moving the card should trigger FSRS memory state calculation for
+        // cards lacking them, and store them in the card.
         let target = DeckAdder::new("target").add(&mut col);
         col.set_deck(&[card_id], target.id)?;
 

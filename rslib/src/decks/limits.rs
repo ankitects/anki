@@ -305,7 +305,8 @@ impl LimitTreeMap {
                             new_cards_ignore_review_limit,
                         )
                     } else {
-                        // immediate parent is missing, skip the deck until a DB check is run
+                        // immediate parent is missing, skip the deck until a DB
+                        // check is run
                         remaining_decks.next();
                     }
                 }

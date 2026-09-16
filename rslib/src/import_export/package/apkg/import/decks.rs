@@ -92,7 +92,8 @@ impl DeckContext<'_> {
             let target_col_today = self.target_col.timing_today()?.days_elapsed;
             let op = |mut limit: NormalDeckDayLimit| {
                 if limit.today == self.source_col_today {
-                    // imported deck has an active today limit, map it to target col
+                    // imported deck has an active today limit, map it to target
+                    // col
                     limit.today = target_col_today;
                     Some(limit)
                 } else if target_col_today > 0 {
@@ -100,7 +101,8 @@ impl DeckContext<'_> {
                     limit.today = limit.today.min(target_col_today - 1);
                     Some(limit)
                 } else {
-                    // edge case where target collection is new (day 0), clear saved limit
+                    // edge case where target collection is new (day 0), clear
+                    // saved limit
                     None
                 }
             };

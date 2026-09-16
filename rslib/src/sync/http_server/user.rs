@@ -52,10 +52,10 @@ impl User {
         self.ensure_col_open()?;
         let state = self.sync_state.as_mut().unwrap();
         let col = self.col.as_mut().or_internal_err("open col")?;
-        // Failures in a sync op are usually caused by referential integrity issues (eg
-        // they've sent a note without sending its associated notetype).
-        // Returning HTTP 400 will inform the client that a DB check+full sync
-        // is required to fix the issue.
+        // Failures in a sync op are usually caused by referential integrity
+        // issues (eg they've sent a note without sending its associated
+        // notetype). Returning HTTP 400 will inform the client that a
+        // DB check+full sync is required to fix the issue.
         op(col, state)
             .inspect_err(|_e| {
                 self.col = None;

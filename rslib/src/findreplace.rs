@@ -137,7 +137,8 @@ mod test {
         assert_eq!(out.output, 2);
 
         let note = col.storage.get_note(note.id)?.unwrap();
-        // but the update should be limited to the specified field when it was available
+        // but the update should be limited to the specified field when it was
+        // available
         assert_eq!(&note.fields()[..], &["one BBB", "two BBB"]);
 
         let note2 = col.storage.get_note(note2.id)?.unwrap();
@@ -157,7 +158,8 @@ mod test {
         assert_eq!(out.output, 1);
 
         let note = col.storage.get_note(note.id)?.unwrap();
-        // the update should be limited to the specified field when it was available
+        // the update should be limited to the specified field when it was
+        // available
         assert_eq!(&note.fields()[..], &["one ccc", "two BBB"]);
 
         Ok(())

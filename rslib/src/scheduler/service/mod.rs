@@ -756,7 +756,8 @@ mod tests {
         let cid_sched = add_basic_card(&mut col);
         let cid_user = add_basic_card(&mut col);
 
-        // Bury one card via the scheduler (sibling auto-bury) and one by the user.
+        // Bury one card via the scheduler (sibling auto-bury) and one by the
+        // user.
         let _ = SchedulerService::bury_or_suspend_cards(
             &mut col,
             anki_proto::scheduler::BuryOrSuspendCardsRequest {
@@ -1187,7 +1188,8 @@ mod tests {
         let cid1 = col.storage.card_ids_of_notes(&[note1.id]).unwrap()[0];
         let cid2 = col.storage.card_ids_of_notes(&[note2.id]).unwrap()[0];
 
-        // reposition the two new cards starting at position 5, step 1, preserving order
+        // reposition the two new cards starting at position 5, step 1,
+        // preserving order
         let out = SchedulerService::sort_cards(
             &mut col,
             anki_proto::scheduler::SortCardsRequest {
@@ -1297,8 +1299,9 @@ mod tests {
             .collect();
 
         // Loop until the RNG produces an ordering that differs from preserve.
-        // One different result out of 100 attempts is sufficient to confirm randomness;
-        // the probability of 100 consecutive identical shuffles is (1/N!)^100 ≈ 0.
+        // One different result out of 100 attempts is sufficient to confirm
+        // randomness; the probability of 100 consecutive identical
+        // shuffles is (1/N!)^100 ≈ 0.
         for _ in 0..100 {
             let out = SchedulerService::sort_cards(
                 &mut col,
@@ -1361,8 +1364,9 @@ mod tests {
         assert!(!defaults.random);
         assert!(!defaults.shift);
 
-        // sort_cards persists randomize and shift_existing to config; a subsequent
-        // reposition_defaults call must reflect those stored values.
+        // sort_cards persists randomize and shift_existing to config; a
+        // subsequent reposition_defaults call must reflect those stored
+        // values.
         let cid = add_basic_card(&mut col);
         let _ = SchedulerService::sort_cards(
             &mut col,
@@ -1411,8 +1415,9 @@ mod tests {
 
         let mut col = Collection::new();
 
-        // Only `leeched` is relevant to state_is_leech; the remaining fields are
-        // required to build a valid Review state but do not affect the result.
+        // Only `leeched` is relevant to state_is_leech; the remaining fields
+        // are required to build a valid Review state but do not affect
+        // the result.
         let review_state = |leeched: bool| scheduling_state::Review {
             scheduled_days: 0,
             elapsed_days: 0,
@@ -1626,7 +1631,8 @@ mod tests {
         )
         .unwrap();
 
-        // Extending the limits lowers the studied counts, freeing up more cards.
+        // Extending the limits lowers the studied counts, freeing up more
+        // cards.
         SchedulerService::extend_limits(
             &mut col,
             anki_proto::scheduler::ExtendLimitsRequest {

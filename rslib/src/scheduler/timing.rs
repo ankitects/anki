@@ -275,12 +275,12 @@ mod test {
             .unwrap()
             .timestamp();
         assert_eq!(elap(crt, now, mdt_offset, mst_offset, 4), 507);
-        // the previous implementation generated a different elapsed number of days with
-        // a change to DST, but the number shouldn't change
+        // the previous implementation generated a different elapsed number of
+        // days with a change to DST, but the number shouldn't change
         assert_eq!(elap(crt, now, mdt_offset, mdt_offset, 4), 507);
 
-        // collection created at 3am on the 6th, so day 1 starts at 4am on the 7th, and
-        // day 3 on the 9th.
+        // collection created at 3am on the 6th, so day 1 starts at 4am on the
+        // 7th, and day 3 on the 9th.
         let crt = mdt
             .with_ymd_and_hms(2018, 8, 6, 3, 0, 0)
             .latest()
@@ -305,7 +305,8 @@ mod test {
             .timestamp();
         assert_eq!(elap(crt, now, mdt_offset, mst_offset, 4), 3);
 
-        // try a bunch of combinations of creation time, current time, and rollover hour
+        // try a bunch of combinations of creation time, current time, and
+        // rollover hour
         let hours_of_interest = &[0, 1, 4, 12, 22, 23];
         for creation_hour in hours_of_interest {
             let crt_dt = mdt

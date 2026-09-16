@@ -66,8 +66,8 @@ pub fn get_services(pool: &DescriptorPool) -> (Vec<CollectionService>, Vec<Backe
             panic!("missing associated service: {}", service.name)
         };
 
-        // add any methods that don't exist in backend trait methods to the delegating
-        // methods
+        // add any methods that don't exist in backend trait methods to the
+        // delegating methods
         service.delegating_methods = col_service
             .trait_methods
             .iter()

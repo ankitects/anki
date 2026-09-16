@@ -42,9 +42,9 @@ pub fn setup_pyenv(args: PyenvArgs) {
         }
     }
 
-    // Never use `--no-config` here: `[tool.uv] exclude-newer` must be read so the
-    // lockfile cutoff matches `uv sync --locked`. UV_* env vars are cleared
-    // above for isolation.
+    // Never use `--no-config` here: `[tool.uv] exclude-newer` must be read so
+    // the lockfile cutoff matches `uv sync --locked`. UV_* env vars are
+    // cleared above for isolation.
     run_command(
         command
             .env("UV_PROJECT_ENVIRONMENT", args.pyenv_folder.clone())

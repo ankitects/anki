@@ -165,8 +165,9 @@ impl CardQueues {
         if let Some(pos) = self.intraday_learning.iter().position(|e| e.id == id) {
             let entry = self.intraday_learning.remove(pos).unwrap();
             // FIXME:
-            // under normal circumstances this should not go below 0, but currently
-            // the Python unit tests answer learning cards before they're due
+            // under normal circumstances this should not go below 0, but
+            // currently the Python unit tests answer learning cards
+            // before they're due
             self.counts.learning = self.counts.learning.saturating_sub(1);
             Ok(entry.into())
         } else if self.main.front().filter(|e| e.id == id).is_some() {
@@ -252,8 +253,8 @@ impl Collection {
         Ok(self.state.card_queues.as_mut().unwrap())
     }
 
-    // Returns queues if they are valid and have not been rebuilt. If build time has
-    // changed, they are cleared.
+    // Returns queues if they are valid and have not been rebuilt. If build time
+    // has changed, they are cleared.
     pub(crate) fn get_or_invalidate_queues(
         &mut self,
         build_time: TimestampMillis,

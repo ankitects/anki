@@ -51,7 +51,8 @@ pub fn gather_zip_data_for_upload(
         {
             use unicode_normalization::is_nfc;
             if !is_nfc(&file.fname) {
-                // older Anki versions stored non-normalized filenames in the DB; clean them up
+                // older Anki versions stored non-normalized filenames in the
+                // DB; clean them up
                 debug!(fname = file.fname, "clean up non-nfc entry");
                 invalid_entries.push(&file.fname);
                 continue;

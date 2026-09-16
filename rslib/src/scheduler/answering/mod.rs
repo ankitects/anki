@@ -150,7 +150,8 @@ impl CardStateUpdater {
                             invalid_input!("should set finished=true, not return different state")
                         }
                         FilteredState::Rescheduling(_) => {
-                            // card needs to be removed from normal filtered deck, then scheduled
+                            // card needs to be removed from normal filtered
+                            // deck, then scheduled
                             // normally
                             self.card.remove_from_filtered_deck_before_reschedule();
                         }
@@ -329,8 +330,8 @@ impl Collection {
         let mut updater = self.card_state_updater(card)?;
         answer.cap_answer_secs(updater.config.inner.cap_answer_time_to_secs);
         let current_state = updater.current_card_state();
-        // If the states aren't equal, it's probably because some time has passed.
-        // Try to fix this by setting elapsed_secs equal.
+        // If the states aren't equal, it's probably because some time has
+        // passed. Try to fix this by setting elapsed_secs equal.
         self.set_elapsed_secs_equal(&current_state, &mut answer.current_state);
         require!(
             current_state == answer.current_state,
@@ -488,8 +489,9 @@ impl Collection {
             let fsrs = FSRS::new(params)?;
             card.decay = Some(get_decay_from_params(params));
             if card.memory_state.is_none() && card.ctype != CardType::New {
-                // Card has been moved or imported into an FSRS deck after params were set,
-                // and will need its initial memory state to be calculated based on review
+                // Card has been moved or imported into an FSRS deck after
+                // params were set, and will need its initial
+                // memory state to be calculated based on review
                 // history.
                 let revlog = self.revlog_for_srs(SearchNode::CardIds(card.id.to_string()))?;
                 let item = fsrs_item_for_memory_state(
@@ -752,7 +754,8 @@ pub(crate) mod test {
         col.add_note(&mut note, DeckId(1))?;
 
         // Graduate without FSRS so the stored card has no decay/dr.
-        // This could happen if the card is moved between decks in an earlier version.
+        // This could happen if the card is moved between decks in an earlier
+        // version.
         col.answer_easy();
         let card_id = col.get_first_card().id;
         let mut stored = col.storage.get_card(card_id)?.unwrap();
@@ -912,16 +915,18 @@ pub(crate) mod test {
     #[test]
     fn new_limited_by_reviews() -> Result<()> {
         let (mut col, cids) = v3_test_collection(4)?;
-        // The final answer schedules a learning card a 10-minute step ahead. Run
-        // shortly before the daily cutoff (e.g. 3:50-4:00 GMT with the default 4am
-        // rollover), that step crosses into the next day and the card is no longer
-        // counted as intraday learning, so the expected counts break. Skip in that
-        // window, as the sibling timing-sensitive tests do.
+        // The final answer schedules a learning card a 10-minute step ahead.
+        // Run shortly before the daily cutoff (e.g. 3:50-4:00 GMT with
+        // the default 4am rollover), that step crosses into the next
+        // day and the card is no longer counted as intraday learning,
+        // so the expected counts break. Skip in that window, as the
+        // sibling timing-sensitive tests do.
         if col.timing_today()?.near_cutoff() {
             return Ok(());
         }
         col.set_due_date(&cids[0..2], "0", None)?;
-        // set a limit of 3 reviews, which should give us 2 reviews and 1 new card
+        // set a limit of 3 reviews, which should give us 2 reviews and 1 new
+        // card
         let mut conf = col.get_deck_config(DeckConfigId(1), false)?.unwrap();
         conf.inner.reviews_per_day = 3;
         conf.inner.set_new_mix(ReviewMix::BeforeReviews);

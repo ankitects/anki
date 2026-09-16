@@ -27,7 +27,8 @@ fn normalize_version(version: &str) -> String {
                 part.parse::<u32>().unwrap_or(0).to_string()
             } else {
                 // Mixed part (contains both numbers and pre-release markers)
-                // Split on first non-digit character and normalize the numeric prefix
+                // Split on first non-digit character and normalize the numeric
+                // prefix
                 let chars = part.chars();
                 let mut numeric_prefix = String::new();
                 let mut rest = String::new();
@@ -165,7 +166,8 @@ impl BuildAction for BuildWheel {
             "py3-none-any".into()
         };
 
-        // Set environment variable for hatch_build.py to use the correct platform tag
+        // Set environment variable for hatch_build.py to use the correct
+        // platform tag
         build.add_variable("wheel_tag", &tag);
         build.add_env_var("ANKI_WHEEL_TAG", "$wheel_tag");
 

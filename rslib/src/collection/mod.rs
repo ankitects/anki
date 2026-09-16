@@ -183,8 +183,8 @@ impl Collection {
     }
 
     pub(crate) fn usn(&self) -> Result<Usn> {
-        // if we cache this in the future, must make sure to invalidate cache when usn
-        // bumped in sync.finish()
+        // if we cache this in the future, must make sure to invalidate cache
+        // when usn bumped in sync.finish()
         self.storage.usn(self.server)
     }
 

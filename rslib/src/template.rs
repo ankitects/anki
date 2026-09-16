@@ -103,7 +103,8 @@ impl TemplateMode {
             }
         }
 
-        // If no matches, return the entire input as text, with nothing remaining
+        // If no matches, return the entire input as text, with nothing
+        // remaining
         Some(("", Token::Text(input)))
     }
 }
@@ -437,8 +438,9 @@ fn render_into(
             Replacement { key, filters } => {
                 if key.is_empty() && !filters.is_empty() {
                     if context.partial_for_python {
-                        // if a filter is provided, we accept an empty field name to
-                        // mean 'pass an empty string to the filter, and it will add
+                        // if a filter is provided, we accept an empty field
+                        // name to mean 'pass an empty
+                        // string to the filter, and it will add
                         // its own text'
                         rendered_nodes.push(RenderedNode::Replacement {
                             field_name: "".to_string(),

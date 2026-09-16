@@ -315,7 +315,8 @@ mod tests {
 
     #[test]
     fn hard_stays_in_relearning_and_keeps_same_step() {
-        let ctx = StateContext::defaults_for_testing(); // relearn_steps=[10.0], remaining=1
+        let ctx = StateContext::defaults_for_testing(); // relearn_steps=[10.0],
+                                                        // remaining=1
         let state = relearn_state();
         let states = state.next_states(&ctx);
         let CardState::Normal(NormalState::Relearning(r)) = states.hard else {
@@ -345,9 +346,11 @@ mod tests {
     #[test]
     fn good_from_last_step_graduates_to_review() {
         let ctx = StateContext::defaults_for_testing();
-        let state = relearn_state(); // remaining_steps=1, only 1 relearn step → no next step
+        let state = relearn_state(); // remaining_steps=1, only 1 relearn step →
+                                     // no next step
         let states = state.next_states(&ctx);
-        // Good from last (only) relearn step → graduate to Review (self.review.into())
+        // Good from last (only) relearn step → graduate to Review
+        // (self.review.into())
         assert!(matches!(
             states.good,
             CardState::Normal(NormalState::Review(_))
@@ -415,7 +418,8 @@ mod tests {
         let state = relearn_state();
         let states = state.next_states(&ctx);
         // interval=0.2 < 0.5, fsrs_allow_short_term=true, relearn_steps empty
-        // → stays in Relearning with scheduled_secs = (0.2 * 86_400.0) as u32 = 17280
+        // → stays in Relearning with scheduled_secs = (0.2 * 86_400.0) as u32 =
+        // 17280
         let CardState::Normal(NormalState::Relearning(r)) = states.again else {
             panic!("expected Relearning, got: {:?}", states.again);
         };
@@ -453,7 +457,8 @@ mod tests {
         let state = relearn_state();
         let states = state.next_states(&ctx);
         // interval=0.3 < 0.5, fsrs_allow_short_term=true, relearn_steps empty
-        // → stays in Relearning with scheduled_secs = (0.3 * 86_400.0) as u32 = 25920
+        // → stays in Relearning with scheduled_secs = (0.3 * 86_400.0) as u32 =
+        // 25920
         let CardState::Normal(NormalState::Relearning(r)) = states.hard else {
             panic!("expected Relearning, got: {:?}", states.hard);
         };
@@ -491,7 +496,8 @@ mod tests {
         let state = relearn_state();
         let states = state.next_states(&ctx);
         // interval=0.4 < 0.5, fsrs_allow_short_term=true, relearn_steps empty
-        // → stays in Relearning with scheduled_secs = (0.4 * 86_400.0) as u32 = 34560
+        // → stays in Relearning with scheduled_secs = (0.4 * 86_400.0) as u32 =
+        // 34560
         let CardState::Normal(NormalState::Relearning(r)) = states.good else {
             panic!("expected Relearning, got: {:?}", states.good);
         };
@@ -507,7 +513,8 @@ mod tests {
         };
         let state = relearn_state(); // review.scheduled_days = 3
         let states = state.next_states(&ctx);
-        // SM-2 would give 3 + 1 = 4 days; FSRS should give easy.interval = 7 days
+        // SM-2 would give 3 + 1 = 4 days; FSRS should give easy.interval = 7
+        // days
         let CardState::Normal(NormalState::Review(r)) = states.easy else {
             panic!("easy should produce a ReviewState, got: {:?}", states.easy);
         };
@@ -564,7 +571,8 @@ mod tests {
 
     #[test]
     fn hard_with_two_steps_keeps_same_remaining_steps() {
-        // Hard should keep the card on the current step without advancing or resetting.
+        // Hard should keep the card on the current step without advancing or
+        // resetting.
         let ctx = StateContext {
             relearn_steps: LearningSteps::new(&[5.0, 10.0]),
             ..StateContext::defaults_for_testing()
@@ -582,8 +590,8 @@ mod tests {
 
     #[test]
     fn good_from_non_last_step_stays_in_relearning() {
-        // Card is at remaining=2 (first of two steps). Good advances to next step
-        // but should NOT graduate to Review yet.
+        // Card is at remaining=2 (first of two steps). Good advances to next
+        // step but should NOT graduate to Review yet.
         let ctx = StateContext {
             relearn_steps: LearningSteps::new(&[5.0, 10.0]),
             ..StateContext::defaults_for_testing()

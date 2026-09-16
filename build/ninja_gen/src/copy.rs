@@ -18,7 +18,8 @@ pub struct CopyFiles<'a> {
 
 impl BuildAction for CopyFiles<'_> {
     fn command(&self) -> &str {
-        // The -f is because we may need to overwrite read-only files copied from Bazel.
+        // The -f is because we may need to overwrite read-only files copied
+        // from Bazel.
         "cp -fr $in $builddir/$folder"
     }
 

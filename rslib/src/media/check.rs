@@ -291,7 +291,8 @@ impl MediaChecker<'_> {
             files_sorted.push(disk_fname.to_owned());
         }
 
-        // if there are case-insensitive dupes, have the lowercase entries show up first
+        // if there are case-insensitive dupes, have the lowercase entries show
+        // up first
         files_sorted.sort_unstable();
         files_sorted.reverse();
 
@@ -315,8 +316,9 @@ impl MediaChecker<'_> {
                     out.files.push(norm_name.into_owned());
                 }
                 None => {
-                    // file not found, caused by the file being removed at this exact instant,
-                    // or the path being larger than MAXPATH on Windows
+                    // file not found, caused by the file being removed at this
+                    // exact instant, or the path being
+                    // larger than MAXPATH on Windows
                     continue;
                 }
             }
@@ -339,8 +341,9 @@ impl MediaChecker<'_> {
 
         // remove the original file
         // but only if both paths arent equal on a case-insensitive fs
-        // e.g given a.jpg (hash 1) and a.JPG (hash 1), a.JPG gets renamed to a.jpg,
-        // but then removing a.JPG on windows would be the same as removing a.jpg
+        // e.g given a.jpg (hash 1) and a.JPG (hash 1), a.JPG gets renamed to
+        // a.jpg, but then removing a.JPG on windows would be the same
+        // as removing a.jpg
         let orig_path = &self.media.media_folder.join(original_fname);
         let new_path = &self.media.media_folder.join(fname.as_ref());
         if !matches!(same_file::is_same_file(orig_path, new_path), Ok(true)) {
@@ -737,8 +740,8 @@ Unused: unused.jpg
             vec!["test.jpg".to_string()]
         );
 
-        // if we repeat the process, restoring should do the same thing if the contents
-        // are equal
+        // if we repeat the process, restoring should do the same thing if the
+        // contents are equal
         write_file(trash_folder.join("test.jpg"), "test")?;
 
         let mut checker = col.media_checker()?;
@@ -782,8 +785,8 @@ Unused: unused.jpg
         output.missing.sort();
 
         if cfg!(target_vendor = "apple") {
-            // on a Mac, the file should not have been renamed, but the returned name
-            // should be in NFC format
+            // on a Mac, the file should not have been renamed, but the returned
+            // name should be in NFC format
             assert_eq!(
                 output,
                 MediaCheckOutput {

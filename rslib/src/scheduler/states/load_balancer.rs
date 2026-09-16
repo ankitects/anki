@@ -216,7 +216,8 @@ impl LoadBalancer {
         fuzz_seed: Option<u64>,
         note_id: Option<NoteId>,
     ) -> Option<u32> {
-        // if we're sending a card far out into the future, the need to balance is low
+        // if we're sending a card far out into the future, the need to balance
+        // is low
         if interval as usize > MAX_LOAD_BALANCE_INTERVAL
             || minimum as usize > MAX_LOAD_BALANCE_INTERVAL
         {

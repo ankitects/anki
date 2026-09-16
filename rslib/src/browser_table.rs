@@ -285,9 +285,10 @@ impl Collection {
     }
 
     fn get_note_maybe_with_fields(&self, id: NoteId, _with_fields: bool) -> Result<Note> {
-        // todo: After note.sort_field has been modified so it can be displayed in the
-        // browser, we can update note_field_str() and only load the note with
-        // fields if a card render is necessary (see #1082).
+        // todo: After note.sort_field has been modified so it can be displayed
+        // in the browser, we can update note_field_str() and only load
+        // the note with fields if a card render is necessary (see
+        // #1082).
         if true {
             self.storage.get_note(id)?
         } else {

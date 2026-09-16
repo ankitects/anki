@@ -34,8 +34,8 @@ impl Collection {
         };
         self.clear_aux_config_for_deck(deck.id)?;
         if deck.id.0 == 1 {
-            // if the default deck is included, just ensure it's reset to the default
-            // name, as we've already removed its cards
+            // if the default deck is included, just ensure it's reset to the
+            // default name, as we've already removed its cards
             let mut modified_default = deck.clone();
             modified_default.name =
                 NativeDeckName::from_native_str(self.tr.deck_config_default_name());

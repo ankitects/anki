@@ -84,7 +84,8 @@ fn add_or_replace_file(path: &Path, data: Vec<u8>) -> error::Result<(), FileIoEr
 
 fn remove_file(path: &Path) -> error::Result<(), FileIoError> {
     if let Err(err) = fs::remove_file(path) {
-        // if transaction was previously aborted, the file may have already been deleted
+        // if transaction was previously aborted, the file may have already been
+        // deleted
         if err.kind() != ErrorKind::NotFound {
             return Err(err).context(FileIoSnafu {
                 path,

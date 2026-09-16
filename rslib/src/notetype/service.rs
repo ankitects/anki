@@ -570,8 +570,8 @@ mod tests {
         );
     }
 
-    // --- Service: add_or_update_notetype (branch: id!=0, !preserve_usn_and_mtime →
-    // update) ---
+    // --- Service: add_or_update_notetype (branch: id!=0,
+    // !preserve_usn_and_mtime → update) ---
 
     #[test]
     fn add_or_update_notetype_updates_when_id_is_nonzero() {
@@ -602,8 +602,8 @@ mod tests {
         assert_eq!(updated["name"], "UpdatedViaAddOrUpdate");
     }
 
-    // --- Service: add_or_update_notetype (branch: id!=0, preserve_usn_and_mtime →
-    // add_or_update_with_existing_id) ---
+    // --- Service: add_or_update_notetype (branch: id!=0,
+    // preserve_usn_and_mtime → add_or_update_with_existing_id) ---
 
     #[test]
     fn add_or_update_notetype_preserves_usn_when_flag_is_set() {

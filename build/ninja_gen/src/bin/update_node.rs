@@ -134,8 +134,8 @@ fn generate_node_archive_function(release: &NodeRelease) -> Result<String, Box<d
         .send()?;
     let shasums_text = shasums_response.text()?;
 
-    // Create a mapping from filename patterns to platform names - using the exact
-    // patterns we stored in files
+    // Create a mapping from filename patterns to platform names - using the
+    // exact patterns we stored in files
     let platform_mapping = vec![
         ("linux-x64.tar.xz", "LinuxX64"),
         ("linux-arm64.tar.xz", "LinuxArm"),

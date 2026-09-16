@@ -33,7 +33,8 @@ impl ReschedulingFilterState {
                 easy: maybe_wrap(normal.easy),
             }
         } else {
-            // card is marked as filtered, but not in a filtered deck; convert to normal
+            // card is marked as filtered, but not in a filtered deck; convert
+            // to normal
             normal
         }
     }

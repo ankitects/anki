@@ -118,7 +118,8 @@ pub fn unzip_and_validate_files(zip_data: &[u8]) -> Result<Vec<UploadedChange>> 
             }
             let data = if let Some(filename_in_zip) = entry.filename_in_zip.as_ref() {
                 if filename_in_zip.is_empty() {
-                    // older clients/AnkiDroid use an empty string instead of null
+                    // older clients/AnkiDroid use an empty string instead of
+                    // null
                     UploadedChangeKind::Delete
                 } else {
                     let file = zip.by_name(filename_in_zip)?;
@@ -126,7 +127,8 @@ pub fn unzip_and_validate_files(zip_data: &[u8]) -> Result<Vec<UploadedChange>> 
                         invalid_input!("file too large");
                     }
                     let mut data = vec![];
-                    // the .take() is because we don't trust the header to be correct
+                    // the .take() is because we don't trust the header to be
+                    // correct
                     let bytes_read = file
                         .take(MAX_INDIVIDUAL_MEDIA_FILE_SIZE as u64)
                         .read_to_end(&mut data)?;

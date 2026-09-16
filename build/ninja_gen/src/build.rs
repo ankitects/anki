@@ -37,7 +37,8 @@ impl Build {
         let buildroot = if cfg!(windows) {
             Utf8PathBuf::from("out")
         } else {
-            // on Unix systems we allow out to be a symlink to an external location
+            // on Unix systems we allow out to be a symlink to an external
+            // location
             Utf8PathBuf::from("out").canonicalize_utf8()?
         };
 

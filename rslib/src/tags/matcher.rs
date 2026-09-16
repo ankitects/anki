@@ -58,7 +58,8 @@ impl TagMatcher {
         let tags: Vec<_> = split_tags(space_separated_tags)
             .map(|tag| {
                 let out = self.regex.replace(tag, |caps: &Captures| {
-                    // if we captured the child separator, add it to the replacement
+                    // if we captured the child separator, add it to the
+                    // replacement
                     if caps.get(2).is_some() {
                         Cow::Owned(format!("{replacement}::"))
                     } else {
@@ -89,7 +90,8 @@ impl TagMatcher {
             .map(|tag| {
                 let out = self.regex.replace(tag, |caps: &Captures| {
                     let replacement = replacer(caps.get(1).unwrap().as_str());
-                    // if we captured the child separator, add it to the replacement
+                    // if we captured the child separator, add it to the
+                    // replacement
                     if caps.get(2).is_some() {
                         format!("{replacement}::")
                     } else {

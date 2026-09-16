@@ -393,10 +393,11 @@ mod test {
 
         let resp = col.simulate_workload(base_request()).unwrap();
 
-        // Regression guard for #5101: the workload simulation must apply the per-card
-        // desired retention, so cost has to grow with the target retention. A plain
-        // "the values differ" check is not enough here: even with the bug present the
-        // costs vary due to simulation noise, so we assert the actual trend instead by
+        // Regression guard for #5101: the workload simulation must apply the
+        // per-card desired retention, so cost has to grow with the
+        // target retention. A plain "the values differ" check is not
+        // enough here: even with the bug present the costs vary due to
+        // simulation noise, so we assert the actual trend instead by
         // comparing the low- and high-retention buckets.
         let cost = |dr: u32| resp.cost[&dr];
         let low_avg = (70..=79).map(cost).sum::<f32>() / 10.0;
@@ -412,12 +413,13 @@ mod test {
 
     #[test]
     fn request_config_uses_requested_retention() -> Result<()> {
-        // Regression guard for the other half of #5101 ("for normal simulator too"):
-        // simulate_request_to_config must apply the *requested* desired retention to
-        // every card, ignoring each card's individually stored value. This helper feeds
-        // the normal simulator, the workload simulator and optimal-retention
-        // computation, so pinning it here covers all three callers without simulation
-        // noise.
+        // Regression guard for the other half of #5101 ("for normal simulator
+        // too"): simulate_request_to_config must apply the *requested*
+        // desired retention to every card, ignoring each card's
+        // individually stored value. This helper feeds the normal
+        // simulator, the workload simulator and optimal-retention
+        // computation, so pinning it here covers all three callers without
+        // simulation noise.
         let mut col = Collection::new();
         let nt = col.get_notetype_by_name("Basic")?.unwrap();
         let mut note = nt.new_note();
