@@ -546,6 +546,7 @@ def setupGL(pm: aqt.profiles.ProfileManager) -> None:
             # RHI backend
             or "Failed to create QRhi" in msg
             or "Failed to get a QRhi" in msg
+            or "Failed to create RHI" in msg
         ):
             QMessageBox.critical(
                 None,
