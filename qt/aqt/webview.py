@@ -264,7 +264,9 @@ class AnkiWebPage(QWebEnginePage):
         # https://github.com/ankitects/anki/pull/560
         sys.stdout.write(buf)
 
-    def acceptNavigationRequest(self, url: QUrl, navType: Any, isMainFrame: bool) -> bool:
+    def acceptNavigationRequest(
+        self, url: QUrl, navType: Any, isMainFrame: bool
+    ) -> bool:
         from aqt.mediasrv import get_sveltekit_route
 
         if not self.open_links_externally:
