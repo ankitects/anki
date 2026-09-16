@@ -84,6 +84,7 @@ def main() -> int:
     with tempfile.TemporaryDirectory(prefix="anki-e2e-") as base_str:
         base = Path(base_str)
         _seed_prefs(base)
+        (base / "gldriver6").write_text("software", encoding="utf-8")
 
         env = {
             **os.environ,
