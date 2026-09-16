@@ -66,16 +66,14 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         const current = ++generation;
         const input = mathjax;
 
-        convertMathjax(
-            unescapeSomeEntities(input),
-            $pageTheme.isDark,
-            fontSize,
-        ).then((entry) => {
-            cache.set(input, entry);
-            if (current === generation) {
-                [converted, title] = entry;
-            }
-        });
+        convertMathjax(unescapeSomeEntities(input), $pageTheme.isDark, fontSize).then(
+            (entry) => {
+                cache.set(input, entry);
+                if (current === generation) {
+                    [converted, title] = entry;
+                }
+            },
+        );
     });
     $: empty = title === "MathJax";
     $: encoded = encodeURIComponent(converted);
