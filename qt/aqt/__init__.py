@@ -54,7 +54,7 @@ from anki._backend import RustBackend
 from anki.buildinfo import version as _version
 from anki.collection import Collection
 from anki.consts import HELP_SITE
-from anki.utils import checksum, is_gnome, is_lin, is_mac
+from anki.utils import checksum, dev_mode, is_gnome, is_lin, is_mac
 from aqt import gui_hooks
 from aqt.log import setup_logging
 from aqt.qt import *
@@ -727,7 +727,7 @@ def _run(argv: list[str] | None = None, exec: bool = True) -> AnkiApp | None:
 
     setup_logging(
         pm.addon_logs(),
-        level=logging.DEBUG if int(os.getenv("ANKIDEV", "0")) else logging.INFO,
+        level=logging.DEBUG if dev_mode else logging.INFO,
     )
 
     # disable icons on mac; this must be done before window created
