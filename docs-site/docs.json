@@ -139,13 +139,14 @@
                       },
                       {
                         "group": "Linux",
-                        "icon": "bird",
+                        "icon": "linux",
                         "pages": [
                           "manual/platform/linux/intro",
                           "manual/platform/linux/installing",
                           "manual/platform/linux/missing-libraries",
                           "manual/platform/linux/display-issues",
                           "manual/platform/linux/blank-window",
+                          "manual/platform/linux/distro-packages",
                           "manual/platform/linux/gtk-theme",
                           "manual/platform/linux/wayland",
                           "manual/platform/linux/input-methods"
@@ -153,7 +154,6 @@
                       }
                     ]
                   },
-                  "manual/platform/linux/distro-packages",
                   "manual/getting-help",
                   "manual/studying",
                   "manual/editing",
@@ -238,6 +238,7 @@
                 "group": "Support FAQs",
                 "pages": [
                   "faqs/intro",
+                  "faqs/restoring-an-automatic-backup-recovering-from-data-loss",
                   {
                     "group": "Cards and Notes",
                     "icon": "cards-blank",
@@ -689,12 +690,13 @@
                       },
                       {
                         "group": "Linux",
-                        "icon": "bird",
+                        "icon": "linux",
                         "pages": [
                           "ar/manual/platform/linux/installing",
                           "ar/manual/platform/linux/missing-libraries",
                           "ar/manual/platform/linux/display-issues",
                           "ar/manual/platform/linux/blank-window",
+                          "ar/manual/platform/linux/distro-packages",
                           "ar/manual/platform/linux/gtk-theme",
                           "ar/manual/platform/linux/wayland",
                           "ar/manual/platform/linux/input-methods"
@@ -702,7 +704,6 @@
                       }
                     ]
                   },
-                  "ar/manual/platform/linux/distro-packages",
                   "ar/manual/studying",
                   "ar/manual/editing",
                   {
