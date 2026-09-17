@@ -61,7 +61,9 @@ jobs:
         with:
           repository: ${{ github.repository }}
           ref: ${{ github.event.repository.default_branch }}
-          sparse-checkout: sonar-project.properties
+          sparse-checkout: |
+            sonar-project.properties
+            .version
           sparse-checkout-cone-mode: false
           path: .sonar-trusted
           persist-credentials: false
@@ -70,6 +72,17 @@ jobs:
         run: |
           rm -f sonar-project.properties
           cp .sonar-trusted/sonar-project.properties sonar-project.properties
+          # New code is measured since the previous version, so the analysed
+          # version has to follow releases. Read it from the trusted checkout,
+          # as a fork must not be able to inject scanner arguments.
+          version=$(tr -d '[:space:]' < .sonar-trusted/.version)
+          case "$version" in
+            "" | *[!0-9A-Za-z.+-]*)
+              echo "Unexpected .version contents" >&2
+              exit 1
+              ;;
+          esac
+          echo "SONAR_PROJECT_VERSION=$version" >> "$GITHUB_ENV"
           rm -rf .sonar-trusted
 
       # Coverage reports are imported only when they were produced by trusted
@@ -171,6 +184,7 @@ jobs:
         with:
           args: >-
             -Dsonar.scm.revision=${{ github.event.workflow_run.head_sha }}
+            -Dsonar.projectVersion=${{ env.SONAR_PROJECT_VERSION }}
             ${{ steps.pr.outputs.number != '' &&
                 format('-Dsonar.pullrequest.key={0} -Dsonar.pullrequest.branch={1} -Dsonar.pullrequest.base={2}',
                        steps.pr.outputs.number,
