@@ -473,8 +473,8 @@ class Preferences(QDialog):
             self.video_drivers.index(self.mw.pm.video_driver())
         )
 
-    """Returns True if the video driver was changed."""
     def update_video_driver(self) -> bool:
+        """Returns True if the video driver was changed."""
         new_driver = self.video_drivers[self.form.video_driver.currentIndex()]
         if new_driver != self.mw.pm.video_driver():
             self.mw.pm.set_video_driver(new_driver)
