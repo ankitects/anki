@@ -536,6 +536,7 @@ def setupGL(pm: aqt.profiles.ProfileManager) -> None:
             context += f"{ctx.function}"
         if context:
             context = f"'{context}'"
+        print(f"Qt {category}: {msg} {context}")
 
         nonlocal driver_failed
         if (
@@ -564,8 +565,6 @@ def setupGL(pm: aqt.profiles.ProfileManager) -> None:
             pm.set_video_driver(driver.next())
             driver_failed = True
             return
-        else:
-            print(f"Qt {category}: {msg} {context}")
 
     qInstallMessageHandler(msgHandler)
     atexit.register(qInstallMessageHandler, None)
