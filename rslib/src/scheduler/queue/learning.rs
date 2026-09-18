@@ -53,16 +53,9 @@ impl CardQueues {
             learning_count: self.counts.learning,
             learning_cutoff: self.current_learning_cutoff,
         };
-        let last_ahead_cutoff = self.current_learn_ahead_cutoff();
-        self.current_learning_cutoff = TimestampSecs::now();
-        let new_ahead_cutoff = self.current_learn_ahead_cutoff();
-        let new_learning_cards = self
-            .intraday_learning
-            .iter()
-            .filter(|e| e.due > last_ahead_cutoff && e.due <= new_ahead_cutoff)
-            .count();
-        self.counts.learning += new_learning_cards;
-
+        let now = TimestampSecs::now();
+        self.counts.learning += self.newly_due_learning_count(now);
+        self.current_learning_cutoff = now;
         change
     }
 
@@ -174,5 +167,16 @@ impl CardQueues {
     fn current_learn_ahead_cutoff(&self) -> TimestampSecs {
         self.current_learning_cutoff
             .adding_secs(self.learn_ahead_secs)
+    }
+
+    /// Number of intraday learning cards that have become due between
+    /// the last cutoff update and `now`.
+    pub(super) fn newly_due_learning_count(&self, now: TimestampSecs) -> usize {
+        let last_ahead_cutoff = self.current_learn_ahead_cutoff();
+        let new_ahead_cutoff = now.adding_secs(self.learn_ahead_secs);
+        self.intraday_learning
+            .iter()
+            .filter(|e| e.due > last_ahead_cutoff && e.due <= new_ahead_cutoff)
+            .count()
     }
 }
