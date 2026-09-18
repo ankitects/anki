@@ -671,9 +671,151 @@ impl Display for SqlSortOrder {
 
 #[cfg(test)]
 mod test {
+    use anki_io::new_tempfile;
+
     use super::*;
+    use crate::collection::CollectionBuilder;
+    use crate::error::DbError;
     use crate::scheduler::answering::test::v3_test_collection;
     use crate::storage::card::ReviewOrderSubclause;
+
+    fn test_tr() -> I18n {
+        I18n::template_only()
+    }
+
+    /// Builds a fresh on-disk collection, stamps the given schema version into
+    /// the `col` table, closes it without downgrading, then reopens it through
+    /// the migration gate and returns the resulting error kind.
+    fn open_error_kind_for_schema_version(ver: u8) -> DbErrorKind {
+        let tempfile = new_tempfile().unwrap();
+        {
+            let col = CollectionBuilder::default()
+                .set_collection_path(tempfile.path())
+                .build()
+                .unwrap();
+            col.storage
+                .db
+                .execute("update col set ver = ?", params![ver])
+                .unwrap();
+            col.close(None).unwrap();
+        }
+        let err =
+            SqliteStorage::open_or_create(tempfile.path(), &test_tr(), false, false).unwrap_err();
+        match err {
+            AnkiError::DbError {
+                source: DbError { kind, .. },
+            } => kind,
+            other => panic!("expected DbError, got {other:?}"),
+        }
+    }
+
+    /// Reads the persisted schema version with a raw connection, so no upgrade
+    /// is triggered.
+    fn stored_schema_version(path: &Path) -> u8 {
+        Connection::open(path)
+            .unwrap()
+            .query_row("select ver from col", [], |r| r.get(0))
+            .unwrap()
+    }
+
+    #[test]
+    fn open_rejects_schema_older_than_minimum() {
+        assert_eq!(
+            open_error_kind_for_schema_version(SCHEMA_MIN_VERSION - 1),
+            DbErrorKind::FileTooOld
+        );
+    }
+
+    #[test]
+    fn open_rejects_schema_newer_than_maximum() {
+        assert_eq!(
+            open_error_kind_for_schema_version(SCHEMA_MAX_VERSION + 1),
+            DbErrorKind::FileTooNew
+        );
+    }
+
+    #[test]
+    fn open_rejects_intermediate_schema_versions_12_and_13() {
+        // versions 12 and 13 require a clean shutdown back to 11 first
+        assert_eq!(
+            open_error_kind_for_schema_version(12),
+            DbErrorKind::FileTooNew
+        );
+        assert_eq!(
+            open_error_kind_for_schema_version(13),
+            DbErrorKind::FileTooNew
+        );
+    }
+
+    #[test]
+    fn fresh_collection_is_created_at_latest_schema_version() {
+        let tempfile = new_tempfile().unwrap();
+        let col = CollectionBuilder::default()
+            .set_collection_path(tempfile.path())
+            .build()
+            .unwrap();
+
+        let ver: u8 = col.storage.db_scalar("select ver from col").unwrap();
+
+        assert_eq!(ver, SCHEMA_MAX_VERSION);
+    }
+
+    #[test]
+    fn close_downgrades_stored_schema_version_to_v11() {
+        let tempfile = new_tempfile().unwrap();
+        let col = CollectionBuilder::default()
+            .set_collection_path(tempfile.path())
+            .build()
+            .unwrap();
+
+        col.close(Some(SchemaVersion::V11)).unwrap();
+
+        assert_eq!(stored_schema_version(tempfile.path()), SCHEMA_MIN_VERSION);
+    }
+
+    #[test]
+    fn close_at_latest_version_leaves_schema_unchanged() {
+        let tempfile = new_tempfile().unwrap();
+        let col = CollectionBuilder::default()
+            .set_collection_path(tempfile.path())
+            .build()
+            .unwrap();
+
+        col.close(Some(SchemaVersion::V18)).unwrap();
+
+        assert_eq!(stored_schema_version(tempfile.path()), SCHEMA_MAX_VERSION);
+    }
+
+    #[test]
+    fn checkpoint_fails_during_active_transaction() {
+        let storage =
+            SqliteStorage::open_or_create(Path::new(":memory:"), &test_tr(), false, false).unwrap();
+        storage.begin_trx().unwrap();
+
+        let err = storage.checkpoint().unwrap_err();
+
+        assert!(matches!(
+            err,
+            AnkiError::DbError {
+                source: DbError {
+                    kind: DbErrorKind::Other,
+                    ..
+                }
+            }
+        ));
+        storage.rollback_trx().unwrap();
+    }
+
+    #[test]
+    fn checkpoint_succeeds_in_autocommit() {
+        let tempfile = new_tempfile().unwrap();
+        let col = CollectionBuilder::default()
+            .set_collection_path(tempfile.path())
+            .build()
+            .unwrap();
+
+        col.storage.checkpoint().unwrap();
+    }
 
     #[test]
     fn missing_memory_state_falls_back_to_sm2() -> Result<()> {
