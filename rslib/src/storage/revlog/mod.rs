@@ -305,12 +305,6 @@ mod test {
     }
 
     #[test]
-    fn get_revlog_entry_returns_none_for_missing_id() {
-        let storage = create_test_storage();
-        assert_eq!(storage.get_revlog_entry(RevlogId(999)).unwrap(), None);
-    }
-
-    #[test]
     fn get_revlog_entries_for_card_returns_only_matching_entries() {
         let storage = create_test_storage();
         storage

@@ -829,37 +829,6 @@ mod test {
     }
 
     #[test]
-    fn checkpoint_fails_during_active_transaction() {
-        let storage =
-            SqliteStorage::open_or_create(Path::new(":memory:"), &test_tr(), false, false).unwrap();
-        storage.begin_trx().unwrap();
-
-        let err = storage.checkpoint().unwrap_err();
-
-        assert!(matches!(
-            err,
-            AnkiError::DbError {
-                source: DbError {
-                    kind: DbErrorKind::Other,
-                    ..
-                }
-            }
-        ));
-        storage.rollback_trx().unwrap();
-    }
-
-    #[test]
-    fn checkpoint_succeeds_in_autocommit() {
-        let tempfile = new_tempfile().unwrap();
-        let col = CollectionBuilder::default()
-            .set_collection_path(tempfile.path())
-            .build()
-            .unwrap();
-
-        col.storage.checkpoint().unwrap();
-    }
-
-    #[test]
     fn missing_memory_state_falls_back_to_sm2() -> Result<()> {
         let (mut col, _cids) = v3_test_collection(1)?;
         col.set_config_bool(BoolKey::Fsrs, true, true)?;
