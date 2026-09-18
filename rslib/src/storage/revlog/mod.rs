@@ -474,6 +474,8 @@ mod test {
         add(950_000_000, in_deck_100.id, 3);
         add(950_000_010, in_deck_200.id, 3);
         add(950_000_020, filtered_from_999.id, 3);
+        // Repeated reviews still count as one studied card.
+        add(950_000_025, in_deck_100.id, 3);
         // ease 0 is filtered out by the query
         add(950_000_030, in_deck_100.id, 0);
 
@@ -487,6 +489,70 @@ mod test {
         by_deck.sort();
 
         assert_eq!(by_deck, vec![(100, 1), (200, 1), (999, 1)]);
+    }
+
+    #[test]
+    fn studied_today_by_deck_counts_only_cards_reviewed_after_day_start() {
+        let storage = create_test_storage();
+        let day_cutoff = TimestampSecs(1_000_000);
+        let start = 913_600_000;
+        for (id, stamp) in [(1, start - 1), (2, start), (3, start + 1)] {
+            let card = Card {
+                id: CardId(id),
+                deck_id: DeckId(id),
+                ..Default::default()
+            };
+            storage.add_card_if_unique(&card).unwrap();
+            storage
+                .add_revlog_entry(&review_for_card(stamp, card.id, 3), false)
+                .unwrap();
+        }
+
+        assert_eq!(
+            storage.studied_today_by_deck(day_cutoff).unwrap(),
+            vec![(DeckId(3), 1)]
+        );
+    }
+
+    #[test]
+    fn studied_today_by_deck_requires_rating_and_review_kind_or_factor() {
+        let cases = [
+            (RevlogReviewKind::Learning, 3, 0, true),
+            (RevlogReviewKind::Review, 3, 0, true),
+            (RevlogReviewKind::Relearning, 3, 0, true),
+            (RevlogReviewKind::Filtered, 3, 0, false),
+            (RevlogReviewKind::Filtered, 3, 2500, true),
+            (RevlogReviewKind::Manual, 3, 0, false),
+            (RevlogReviewKind::Rescheduled, 3, 0, false),
+            (RevlogReviewKind::Review, 0, 2500, false),
+        ];
+        for (kind, button, factor, counted) in cases {
+            let storage = create_test_storage();
+            let card = Card {
+                id: CardId(1),
+                ..Default::default()
+            };
+            storage.add_card_if_unique(&card).unwrap();
+            let entry = RevlogEntry {
+                review_kind: kind,
+                ease_factor: factor,
+                ..review_for_card(950_000_000, card.id, button)
+            };
+            storage.add_revlog_entry(&entry, false).unwrap();
+
+            let expected = if counted {
+                vec![(card.deck_id, 1)]
+            } else {
+                vec![]
+            };
+            assert_eq!(
+                storage
+                    .studied_today_by_deck(TimestampSecs(1_000_000))
+                    .unwrap(),
+                expected,
+                "kind {kind:?}, button {button}, factor {factor}"
+            );
+        }
     }
 
     #[test]
