@@ -46,7 +46,13 @@ pub(crate) fn order_and_limit_for_search(
         }
     };
 
-    format!("{}, fnvhash(c.id, c.mod) limit {}", order, term.limit)
+    let tiebreaker_and_limit = format!("fnvhash(c.id, c.mod) limit {}", term.limit);
+    if order.is_empty() {
+        // A saved retrievability order can remain after FSRS is disabled.
+        tiebreaker_and_limit
+    } else {
+        format!("{order}, {tiebreaker_and_limit}")
+    }
 }
 
 fn build_retrievability_query(
@@ -69,6 +75,8 @@ fn build_retrievability_query(
 mod test {
     use super::*;
     use crate::prelude::*;
+    use crate::search::SortMode;
+    use crate::tests::NoteAdder;
 
     const TODAY: u32 = 100;
     const NEXT_DAY_AT: i64 = 1_600_086_400;
@@ -175,22 +183,25 @@ mod test {
     }
 
     #[test]
-    fn retrievability_order_leaves_empty_leading_term_when_fsrs_disabled() {
-        // build_retrievability_query returns an empty string without FSRS, so the
-        // clause degenerates to just the fnvhash tie-breaker and limit.
-        let got = order_and_limit_for_search(
-            &term(FilteredSearchOrder::RetrievabilityAscending, 5),
-            timing(),
-            false,
-        );
-        assert_eq!(got, ", fnvhash(c.id, c.mod) limit 5");
-    }
+    fn retrievability_orders_fall_back_to_tiebreaker_and_limit_without_fsrs() {
+        let mut col = Collection::new();
+        for front in ["one", "two", "three"] {
+            NoteAdder::basic(&mut col)
+                .fields(&[front, "back"])
+                .add(&mut col);
+        }
+        let expected = col
+            .search_cards("", SortMode::Custom("fnvhash(c.id, c.mod) limit 2".into()))
+            .unwrap();
+        assert_eq!(expected.len(), 2);
 
-    #[test]
-    fn build_retrievability_query_is_empty_without_fsrs() {
-        assert_eq!(
-            build_retrievability_query(false, TODAY, NEXT_DAY_AT, NOW, SqlSortOrder::Ascending),
-            ""
-        );
+        for order in [
+            FilteredSearchOrder::RetrievabilityAscending,
+            FilteredSearchOrder::RetrievabilityDescending,
+        ] {
+            let clause = order_and_limit_for_search(&term(order, 2), timing(), false);
+            let cards = col.search_cards("", SortMode::Custom(clause)).unwrap();
+            assert_eq!(cards, expected, "order {order:?}");
+        }
     }
 }
