@@ -678,6 +678,7 @@ mod test {
     use crate::error::DbError;
     use crate::scheduler::answering::test::v3_test_collection;
     use crate::storage::card::ReviewOrderSubclause;
+    use crate::tests::NoteAdder;
 
     fn test_tr() -> I18n {
         I18n::template_only()
@@ -745,6 +746,47 @@ mod test {
             open_error_kind_for_schema_version(13),
             DbErrorKind::FileTooNew
         );
+    }
+
+    #[test]
+    fn rejected_schema_leaves_version_and_collection_data_unchanged() {
+        for ver in [SCHEMA_MIN_VERSION - 1, 12, 13, SCHEMA_MAX_VERSION + 1] {
+            let tempfile = new_tempfile().unwrap();
+            let mut col = CollectionBuilder::default()
+                .set_collection_path(tempfile.path())
+                .build()
+                .unwrap();
+            let note = NoteAdder::basic(&mut col)
+                .fields(&["Preserved question", "Preserved answer"])
+                .add(&mut col);
+            let original_note = col.storage.get_note(note.id).unwrap().unwrap();
+            let cards = col.storage.get_all_cards();
+            col.storage
+                .db
+                .execute("update col set ver = ?", params![ver])
+                .unwrap();
+            col.close(None).unwrap();
+
+            SqliteStorage::open_or_create(tempfile.path(), &test_tr(), false, false).unwrap_err();
+
+            assert_eq!(stored_schema_version(tempfile.path()), ver, "schema {ver}");
+            // Only the version marker was changed in setup; restore it to verify
+            // that rejection left the collection readable and its data intact.
+            Connection::open(tempfile.path())
+                .unwrap()
+                .execute("update col set ver = ?", params![SCHEMA_MAX_VERSION])
+                .unwrap();
+            let col = CollectionBuilder::default()
+                .set_collection_path(tempfile.path())
+                .build()
+                .unwrap();
+            assert_eq!(
+                col.storage.get_note(note.id).unwrap(),
+                Some(original_note),
+                "schema {ver}"
+            );
+            assert_eq!(col.storage.get_all_cards(), cards, "schema {ver}");
+        }
     }
 
     #[test]
