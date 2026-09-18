@@ -46,13 +46,10 @@ pub(crate) fn order_and_limit_for_search(
         }
     };
 
-    let tiebreaker_and_limit = format!("fnvhash(c.id, c.mod) limit {}", term.limit);
-    if order.is_empty() {
-        // A saved retrievability order can remain after FSRS is disabled.
-        tiebreaker_and_limit
-    } else {
-        format!("{order}, {tiebreaker_and_limit}")
-    }
+    // A saved retrievability order can remain after FSRS is disabled. Match the
+    // filtered-deck dialog's fallback instead of generating an empty SQL term.
+    let order = if order.is_empty() { "random()" } else { order };
+    format!("{order}, fnvhash(c.id, c.mod) limit {}", term.limit)
 }
 
 fn build_retrievability_query(
@@ -122,13 +119,6 @@ mod test {
     }
 
     #[test]
-    fn limit_is_interpolated_into_the_clause() {
-        let got =
-            order_and_limit_for_search(&term(FilteredSearchOrder::Random, 30), timing(), false);
-        assert_eq!(got, "random(), fnvhash(c.id, c.mod) limit 30");
-    }
-
-    #[test]
     fn due_order_builds_case_expression_using_today_and_now() {
         let got = order_and_limit_for_search(&term(FilteredSearchOrder::Due, 5), timing(), false);
         assert_eq!(
@@ -183,25 +173,21 @@ mod test {
     }
 
     #[test]
-    fn retrievability_orders_fall_back_to_tiebreaker_and_limit_without_fsrs() {
+    fn retrievability_orders_fall_back_to_random_without_fsrs() {
         let mut col = Collection::new();
         for front in ["one", "two", "three"] {
             NoteAdder::basic(&mut col)
                 .fields(&[front, "back"])
                 .add(&mut col);
         }
-        let expected = col
-            .search_cards("", SortMode::Custom("fnvhash(c.id, c.mod) limit 2".into()))
-            .unwrap();
-        assert_eq!(expected.len(), 2);
-
         for order in [
             FilteredSearchOrder::RetrievabilityAscending,
             FilteredSearchOrder::RetrievabilityDescending,
         ] {
             let clause = order_and_limit_for_search(&term(order, 2), timing(), false);
+            assert_eq!(clause, "random(), fnvhash(c.id, c.mod) limit 2");
             let cards = col.search_cards("", SortMode::Custom(clause)).unwrap();
-            assert_eq!(cards, expected, "order {order:?}");
+            assert_eq!(cards.len(), 2, "order {order:?}");
         }
     }
 }
