@@ -82,6 +82,9 @@ mod test {
     use super::*;
     use crate::collection::CollectionBuilder;
     use crate::prelude::*;
+    use crate::revlog::RevlogEntry;
+    use crate::revlog::RevlogId;
+    use crate::revlog::RevlogReviewKind;
 
     #[test]
     #[allow(clippy::assertions_on_constants)]
@@ -93,23 +96,48 @@ mod test {
     }
 
     #[test]
-    fn valid_ease_factor_survives_upgrade_roundtrip() -> Result<()> {
+    fn note_card_and_revlog_survive_upgrade_roundtrip() -> Result<()> {
         let tempfile = new_tempfile()?;
         let mut col = CollectionBuilder::default()
             .set_collection_path(tempfile.path())
             .build()?;
         let nt = col.get_notetype_by_name("Basic")?.unwrap();
         let mut note = nt.new_note();
+        note.set_field(0, "Migration question")?;
+        note.set_field(1, "Migration answer")?;
+        note.tags = vec!["migration".into()];
         col.add_note(&mut note, DeckId(1))?;
         col.storage
             .db
             .execute("update cards set factor = 1400", [])?;
+        let original_note = col.storage.get_note(note.id)?.unwrap();
+        let original_card = col.get_first_card();
+        let review = RevlogEntry {
+            id: RevlogId(1_600_000_000_000),
+            cid: original_card.id,
+            button_chosen: 3,
+            interval: 10,
+            last_interval: 5,
+            ease_factor: 1400,
+            taken_millis: 1234,
+            review_kind: RevlogReviewKind::Review,
+            ..Default::default()
+        };
+        col.storage.add_revlog_entry(&review, false)?;
         col.close(Some(SchemaVersion::V11))?;
         let col = CollectionBuilder::default()
             .set_collection_path(tempfile.path())
             .build()?;
-        let card = &col.storage.get_all_cards()[0];
-        assert_eq!(card.ease_factor, 1400);
+        assert_eq!(
+            col.storage.db_scalar::<u8>("select ver from col")?,
+            SCHEMA_MAX_VERSION
+        );
+        assert_eq!(col.storage.get_note(note.id)?, Some(original_note));
+        assert_eq!(col.storage.get_all_cards(), vec![original_card]);
+        assert_eq!(
+            col.storage.get_revlog_entries_for_card(review.cid)?,
+            vec![review]
+        );
         Ok(())
     }
 }
