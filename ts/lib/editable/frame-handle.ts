@@ -32,6 +32,25 @@ export function isFrameHandle(node: unknown): node is FrameHandle {
     return node instanceof FrameHandle;
 }
 
+/**
+ * When a structural command like justifyCenter moves a handle or its space
+ * out of the frame, Chromium wraps the moved node in a copy of the frame,
+ * which frames nothing. Removes such copies and reports whether there were any.
+ */
+export function removeFrameCopies(frameElement: FrameElement): boolean {
+    const root = frameElement.getRootNode() as Document | ShadowRoot;
+    let found = false;
+
+    for (const frame of root.querySelectorAll(frameElementTagName)) {
+        if (frame !== frameElement && !frame.querySelector(frameElement.frames!)) {
+            frame.remove();
+            found = true;
+        }
+    }
+
+    return found;
+}
+
 function skippableNode(handleElement: FrameHandle, node: Node): boolean {
     /**
      * We only want to move nodes, which are direct descendants of the FrameHandle
@@ -58,6 +77,23 @@ function restoreHandleContent(mutations: MutationRecord[]): void {
 
             const handleElement = target;
             const frameElement = handleElement.parentElement as FrameElement;
+
+            for (const node of mutation.removedNodes) {
+                if (
+                    nodeIsText(node)
+                    && node.data === spaceCharacter
+                    && handleElement.isConnected
+                    && !handleElement.hasChildNodes()
+                ) {
+                    /**
+                     * The space was moved out of the handle rather than deleted,
+                     * e.g. when justifying the paragraph following the frame.
+                     * Deleting the space removes the whole handle instead.
+                     */
+                    removeFrameCopies(frameElement);
+                    handleElement.refreshSpace();
+                }
+            }
 
             for (const node of mutation.addedNodes) {
                 if (skippableNode(handleElement, node)) {
