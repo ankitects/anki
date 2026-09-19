@@ -48,11 +48,10 @@ On all platforms, you will need to install:
   from https://github.com/ninja-build/ninja/releases/tag/v1.11.1 and
   placed on your path, or from your distro/homebrew if it's 1.10+.
     - On Windows, if you have WSL installed, it may conflict with MSYS2 bash. If you are getting an error, try running `C:\msys64\usr\bin\bash.exe tools/install-n2` instead.
-- (Optional) [just](https://just.systems/man/en/packages.html) command runner.
+- [just](https://just.systems/man/en/packages.html) command runner.
   Install with `brew install just` or `uv tool install just`.
-  We are experimenting with `just` as the official tool for running
-  Anki-specific commands, and it will likely become the source of truth
-  in the future.
+  Use the project's recipes for Anki-specific commands; `just --list` shows
+  the available recipes.
 
 Platform-specific requirements:
 
@@ -131,7 +130,7 @@ the build much slower.
 
 ## Building redistributable wheels
 
-The `./run` method described in the platform-specific instructions is a shortcut
+The `just run` recipe is a shortcut
 for starting Anki directly from the build folder. For regular study, it's recommended
 you build Python wheels and then install them into your own python venv. This is also
 a good idea if you wish to install extra tools from PyPi that Anki's build process
@@ -140,10 +139,11 @@ does not use.
 To build wheels on Mac/Linux:
 
 ```
-./tools/build
+RELEASE=1 just wheels
 ```
 
-(on Windows, `.\tools\build.bat`)
+On Windows in PowerShell, use `$env:RELEASE='1'; just wheels`.
+Use `RELEASE=2` for additional optimization at the cost of a longer build.
 
 The generated wheels are in out/wheels. You can then install them by copying the paths into a pip install command.
 Follow the steps [on the beta site](https://betas.ankiweb.net/#via-pypipip), but replace the
