@@ -2,6 +2,74 @@
 title: "I'm going on vacation. Can I pause the scheduler?"
 ---
 
-Being able to come back from a break to find Anki in exactly the same state you left it in may sound attractive, but unfortunately while it's easy to tell the computer to suspend its estimates of how quickly you are forgetting, it's not possible to suspend your memory, so memories will continue to decay if you don't review. If you paused the scheduler, you would be delaying the review of every card in your deck, increasing your chance of forgetting every one of them, even those that would normally have appeared after you returned from your break.
+You can take a break from Anki, but you cannot pause forgetting. Moving due dates
+does not preserve your memory: some cards may need relearning when you return.
+You do not need to change the schedule to take time off. The following options can
+help you prepare and make catching up more manageable.
 
-Anki does have a "Set Due Date" feature in the Browse screen that can change the due date of cards. You can use this to either to move cards to an earlier due date (allowing you to study more before you take a break), or to push cards back to a later date. Conservative changes are recommended - if you alter the due date of cards by too much, there is a good chance you will forget them and need to relearn them again.
+## Before Your Break
+
+- **Reduce or stop new cards in advance.** Newly learned cards need frequent
+  reviews. In [Deck Options](/manual/deck-options#new-cards/day), lower **New
+  cards/day**, or set it to `0`, while continuing to review cards you have already
+  learned. This reduces new work without hiding existing reviews.
+- **Check which decks your change affects.** For a break lasting several days,
+  use the **This deck** daily limit rather than **Today only**. Changing the
+  **Preset** limit affects all decks using that preset unless they have their own
+  overrides. If you study subdecks separately, check their limits too. See
+  [Per-Deck Daily Limits](/manual/deck-options#per-deck-daily-limits).
+- **If you have extra time, consider reviewing ahead once.** On the computer,
+  select a deck, then **Custom Study > Review ahead**. This can move some reviews
+  beyond your break, but recently learned cards may still be due during it.
+  Repeatedly reviewing ahead is not a substitute for spacing reviews; see
+  [Reviewing Ahead](/manual/filtered-decks#reviewing-ahead).
+
+For recurring busy days, such as weekends, built-in
+[Easy Days](/manual/deck-options#easy-days) can reduce the reviews scheduled on
+selected weekdays. It works with both FSRS and SM-2. Changing Easy Days alone does
+not move already scheduled reviews, and it does not guarantee a day with no
+reviews. It is not a way to block out an entire vacation.
+
+## During Your Break
+
+If you have some time to study, keep new cards at `0` and review the material most
+important to you. A short session is useful even if you cannot finish every due
+card. If you cannot study at all, leave the cards as they are and resume when you
+return.
+
+You can use [Maximum reviews/day](/manual/deck-options#maximum-reviews/day) to limit
+the number of review cards shown. This hides excess reviews for the day; it does
+not clear the backlog or stop those cards becoming more overdue. A daily limit is
+also not a time limit, since forgotten cards may need multiple reviews.
+
+## When You Return
+
+Keep new cards at `0` until the review workload is manageable. Choose an amount of
+time you can sustain each day, allowing for both overdue cards and cards that
+become due while you catch up. You do not have to finish the backlog in one sitting.
+
+Answer according to what you remember now. Use
+[Again](/manual/studying#answer-buttons) when you forget an answer; **Hard** means
+you recalled it correctly with difficulty. You do not need to reset your cards
+just because you missed reviews.
+
+For a large backlog, [filtered decks for catching up](/manual/filtered-decks#catching-up)
+let you separate recent due cards from older overdue cards and work through the
+older group gradually. This is optional; you can also continue reviewing in your
+regular decks. Restore any daily limits you changed when you are ready to resume
+your usual routine.
+
+## Optional Scheduling Tools
+
+If you use FSRS, the [FSRS Helper add-on](https://github.com/open-spaced-repetition/fsrs4anki-helper#usage)
+offers tools for specific dates and longer breaks, including **Schedule a Break**
+and **Advance/Postpone**. These are add-on features, separate from Anki's built-in
+Easy Days. Read the add-on's current instructions and requirements before using
+them. Postponing reviews trades a lighter workload now for a greater chance of
+forgetting later; it does not remove the need to review.
+
+Anki also has **Cards > Set Due Date** in the Browse screen for moving selected
+cards to earlier or later dates. Use it conservatively: moving dates is not the
+same as reviewing the cards, and moving everything far into the future can lead
+to more relearning. See [Set Due Date](/manual/browsing#cards) for its behavior and
+options.
