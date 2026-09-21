@@ -27,8 +27,8 @@ function baseStats(overrides?: Partial<CardStatsResponse>): CardStatsResponse {
     });
 }
 
-test("shows ease when desiredRetention is undefined", () => {
-    const rows = rowsFromStats(baseStats({ desiredRetention: undefined }));
+test("shows ease when fsrs is disabled", () => {
+    const rows = rowsFromStats(baseStats({ fsrsEnabled: false }));
 
     expect(rows).toContainEqual({
         label: tr2.cardStatsEase(),
@@ -38,33 +38,18 @@ test("shows ease when desiredRetention is undefined", () => {
     expect(rows.find((row) => row.label === tr2.cardStatsFsrsDifficulty())).toBeUndefined();
 });
 
-test("hides ease when desiredRetention is provided", () => {
-    const rows = rowsFromStats(baseStats({ desiredRetention: 0.9 }));
+test("hides ease when fsrs is enabled", () => {
+    const rows = rowsFromStats(baseStats({ fsrsEnabled: true }));
 
     expect(rows.find((row) => row.label === tr2.cardStatsEase())).toBeUndefined();
     expect(rows.find((row) => row.label === tr2.cardStatsFsrsStability())).toBeUndefined();
     expect(rows.find((row) => row.label === tr2.cardStatsFsrsDifficulty())).toBeUndefined();
 });
 
-test("with memoryState and undefined desiredRetention, shows FSRS rows and hides ease", () => {
+test("with memoryState and fsrs enabled, shows FSRS rows and hides ease", () => {
     const rows = rowsFromStats(
         baseStats({
-            desiredRetention: undefined,
-            memoryState: new FsrsMemoryState({ stability: 15, difficulty: 5.5 }),
-        }),
-    );
-
-    expect(rows.find((row) => row.label === tr2.cardStatsFsrsStability())).toBeDefined();
-    expect(rows).toContainEqual({
-        label: tr2.cardStatsFsrsDifficulty(),
-        value: "50%",
-    });
-    expect(rows.find((row) => row.label === tr2.cardStatsEase())).toBeUndefined();
-});
-
-test("with memoryState and desiredRetention, shows FSRS rows and hides ease", () => {
-    const rows = rowsFromStats(
-        baseStats({
+            fsrsEnabled: true,
             desiredRetention: 0.9,
             memoryState: new FsrsMemoryState({ stability: 20, difficulty: 7.3 }),
         }),
