@@ -267,6 +267,20 @@ class TestEditorPageCSP:
         assert directives["form-action"] == "'none'"
         assert directives["frame-ancestors"] == "'none'"
 
+    @pytest.mark.parametrize(
+        "csp",
+        [
+            _legacy_editor_content_security_policy(port=12345),
+            _untrusted_sveltekit_content_security_policy(12345, "'sha256-abc='"),
+        ],
+    )
+    def test_editor_csp_keeps_base_url_on_local_server(self, csp: str) -> None:
+        """The page's API calls use root-relative URLs, so a <base> in field
+        content must not be able to point them at another origin. The legacy
+        editor injects its own same-origin <base>, so 'none' is not an option."""
+        directives = _csp_directives(csp)
+        assert directives["base-uri"] == "http://127.0.0.1:12345"
+
     def test_sveltekit_editor_csp_allows_render_script_hash(self) -> None:
         csp = _untrusted_sveltekit_content_security_policy(12345, "'sha256-abc='")
         directives = _csp_directives(csp)
