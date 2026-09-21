@@ -40,9 +40,7 @@ class LinuxZipMixin(LinuxMixin):
     supported_env_managers: Collection[EnvManagerT] = {"venv", "uv"}
 
     def version_name(self, app: FinalizedAppConfig):
-        revision = str(getattr(app, "revision", 1))
-        revision = "" if revision == "1" else f"r{revision}"
-        return f"{app.app_name}-{app.version}{revision}{get_platform_suffix()}"
+        return f"{app.app_name}-{app.version}{get_platform_suffix()}"
 
     def root_folder_name(self, app: FinalizedAppConfig) -> str:
         return self.version_name(app)
