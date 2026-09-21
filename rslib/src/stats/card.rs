@@ -272,7 +272,7 @@ mod test {
         let mut card = col.storage.get_card(cid)?.unwrap();
         assert!(card.memory_state.is_some());
 
-        card.memory_state = None;
+        card.clear_fsrs_data();
         col.storage.update_card(&card)?;
 
         let card = col.storage.get_card(cid)?.unwrap();
