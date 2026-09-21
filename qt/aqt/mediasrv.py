@@ -104,11 +104,12 @@ UNTRUSTED_MEDIA_CSP = "; ".join(
 TRUSTED_PAGE_CSP = "frame-ancestors 'none'"
 
 
-def _untrusted_page_content_security_policy(script_src: str) -> str:
+def _untrusted_page_content_security_policy(port: int, script_src: str) -> str:
     """CSP for pages that show user content, e.g. note fields in the editor."""
     return "; ".join(
         (
             f"script-src {script_src}",
+            f"base-uri http://127.0.0.1:{port}",
             "form-action 'none'",
             TRUSTED_PAGE_CSP,
         )
@@ -120,7 +121,7 @@ def _legacy_editor_content_security_policy(port: int) -> str:
         f"http://127.0.0.1:{port}/_anki/",
         f"http://127.0.0.1:{port}/_addons/",
     )
-    return _untrusted_page_content_security_policy(" ".join(csp_paths))
+    return _untrusted_page_content_security_policy(port, " ".join(csp_paths))
 
 
 _SVELTEKIT_CSP_META_RE = re.compile(
@@ -155,7 +156,7 @@ def _untrusted_sveltekit_content_security_policy(
     ]
     if script_hash:
         csp_paths.append(script_hash)
-    return _untrusted_page_content_security_policy(" ".join(csp_paths))
+    return _untrusted_page_content_security_policy(port, " ".join(csp_paths))
 
 
 @dataclass
