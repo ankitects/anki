@@ -173,10 +173,10 @@ jobs:
           echo "head_ref=$api_head_ref" >> "$GITHUB_OUTPUT"
           echo "base_ref=$api_base_ref" >> "$GITHUB_OUTPUT"
 
-      # SonarCloud PR analysis derives the changed-file set from git: the base
-      # branch must be present in the local repository, or every analysed file
-      # is attributed to the PR as new code. The fork checkout only contains the
-      # PR head history, so fetch the base branch from the trusted upstream
+      # SonarCloud PR analysis derives the changed-file set from git. Without
+      # the correct upstream base reference, it may attribute unrelated changes
+      # to the PR. The fork checkout may contain an outdated base branch, so
+      # fetch the base branch from the trusted upstream
       # repository (github.repository, never the fork) and pin it under the same
       # name passed as sonar.pullrequest.base. The upstream repository is public
       # and read as data; nothing from it is built or executed. Fail closed if
