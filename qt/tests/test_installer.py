@@ -429,6 +429,7 @@ def test_linux_zip_package_root_dir_includes_version(tmp_path: Path) -> None:
     assert app.app_name in root_folder_name
     assert app.version in root_folder_name
     assert f"r{app.revision}" in root_folder_name
+    assert "--" not in root_folder_name
 
     app.revision = 1
 
@@ -436,3 +437,4 @@ def test_linux_zip_package_root_dir_includes_version(tmp_path: Path) -> None:
     root_folder_name = mixin.root_folder_name(app)
 
     assert "r1" not in root_folder_name
+    assert "--" not in root_folder_name
