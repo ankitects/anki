@@ -30,7 +30,7 @@ impl Collection {
 
         let (average_secs, total_secs) = average_and_total_secs_strings(&revlog);
         let timing = self.timing_today()?;
-        let fsrs_enabled = card.desired_retention.is_some();
+        let fsrs_enabled = self.fsrs_enabled();
 
         let last_review_time = if let Some(last_review_time) = card.last_review_time {
             last_review_time
@@ -272,7 +272,7 @@ mod test {
         let mut card = col.storage.get_card(cid)?.unwrap();
         assert!(card.memory_state.is_some());
 
-        card.memory_state = None;
+        card.clear_fsrs_data();
         col.storage.update_card(&card)?;
 
         let card = col.storage.get_card(cid)?.unwrap();
