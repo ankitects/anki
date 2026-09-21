@@ -413,3 +413,26 @@ def test_linux_zip_format_supports_uv() -> None:
     from briefcase_plugins.platforms.linux.zip import LinuxZipMixin
 
     assert "uv" in LinuxZipMixin.supported_env_managers
+
+
+def test_linux_zip_package_root_dir_includes_version(tmp_path: Path) -> None:
+    from briefcase_plugins.platforms.linux.zip import LinuxZipMixin
+
+    app = MagicMock()
+    app.app_name = "anki"
+    app.version = "25.09"
+    app.revision = 9999
+
+    mixin = LinuxZipMixin()
+    root_folder_name = mixin.root_folder_name(app)
+
+    assert app.app_name in root_folder_name
+    assert app.version in root_folder_name
+    assert f"r{app.revision}" in root_folder_name
+
+    app.revision = 1
+
+    mixin = LinuxZipMixin()
+    root_folder_name = mixin.root_folder_name(app)
+
+    assert "r1" not in root_folder_name
