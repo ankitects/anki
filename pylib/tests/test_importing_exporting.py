@@ -38,14 +38,20 @@ def _exporter(col: Collection) -> exporting._LegacyAnkiPackageExporter:
     return getattr(exporting, "AnkiPackageExporter")(col)
 
 
-def test_deprecated_aliases(capsys) -> None:
+def test_deprecated_classes_show_collection_replacements(capsys) -> None:
     importer = getattr(importing, "AnkiPackageImporter")
     assert importer is importing._LegacyAnkiPackageImporter
-    assert "AnkiPackageImporter is deprecated" in capsys.readouterr().out
+    assert (
+        "AnkiPackageImporter is deprecated: please use "
+        "'Collection.import_anki_package'" in capsys.readouterr().out
+    )
 
     exporter = getattr(exporting, "AnkiPackageExporter")
     assert exporter is exporting._LegacyAnkiPackageExporter
-    assert "AnkiPackageExporter is deprecated" in capsys.readouterr().out
+    assert (
+        "AnkiPackageExporter is deprecated: please use "
+        "'Collection.export_anki_package'" in capsys.readouterr().out
+    )
 
 
 def test_export_whole_collection_and_import() -> None:
