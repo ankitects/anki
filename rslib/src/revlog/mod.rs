@@ -76,22 +76,20 @@ pub enum RevlogReviewKind {
 }
 
 impl RevlogEntry {
-    pub(crate) fn interval_secs(&self) -> u32 {
-        u32::try_from(if self.interval > 0 {
-            self.interval.saturating_mul(86_400)
+    pub(crate) fn interval_secs(&self) -> f32 {
+        if self.interval > 0 {
+            self.interval as f32 * 86_400.0
         } else {
-            self.interval.saturating_mul(-1)
-        })
-        .unwrap()
+            -(self.interval as f32)
+        }
     }
 
-    pub(crate) fn last_interval_secs(&self) -> u32 {
-        u32::try_from(if self.last_interval > 0 {
-            self.last_interval.saturating_mul(86_400)
+    pub(crate) fn last_interval_secs(&self) -> f32 {
+        if self.last_interval > 0 {
+            self.last_interval as f32 * 86_400.0
         } else {
-            self.last_interval.saturating_mul(-1)
-        })
-        .unwrap()
+            -(self.last_interval as f32)
+        }
     }
 
     /// Returns true if this entry represents a reset operation.
