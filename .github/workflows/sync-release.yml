@@ -35,11 +35,6 @@ jobs:
             exit 1
           fi
 
-          if git merge-base --is-ancestor "origin/$branch" origin/main; then
-            echo "::notice::main already contains $branch"
-            exit 0
-          fi
-
           existing=$(gh pr list --head "$branch" --base main --state open --json url --jq '.[0].url // empty')
           if [ -n "$existing" ]; then
             echo "::notice::PR already exists: $existing"
