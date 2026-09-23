@@ -1,0 +1,58 @@
+name: Sync release to main
+
+# Opens a PR that merges the release branch (translations, version bump)
+# back into main once a stable release is published.
+
+on:
+  release:
+    types: [published]
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  create-pr:
+    if: ${{ !github.event.release.prerelease }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 #v4
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Create PR to main
+        run: |
+          branch="release/$TAG_NAME"
+          if ! git rev-parse --verify --quiet "origin/$branch" >/dev/null; then
+            echo "::error::Branch '$branch' not found"
+            exit 1
+          fi
+
+          if ! git merge-base --is-ancestor "$RELEASE_SHA" "origin/$branch"; then
+            echo "::error::Tag '$TAG_NAME' is not on branch '$branch'"
+            exit 1
+          fi
+
+          if git merge-base --is-ancestor "origin/$branch" origin/main; then
+            echo "::notice::main already contains $branch"
+            exit 0
+          fi
+
+          existing=$(gh pr list --head "$branch" --base main --state open --json url --jq '.[0].url // empty')
+          if [ -n "$existing" ]; then
+            echo "::notice::PR already exists: $existing"
+            exit 0
+          fi
+
+          gh pr create \
+            --base main \
+            --head "$branch" \
+            --title "$TAG_NAME" \
+            --body "$RELEASE_URL"
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG_NAME: ${{ github.event.release.tag_name }}
+          RELEASE_SHA: ${{ github.sha }}
+          RELEASE_URL: ${{ github.event.release.html_url }}
