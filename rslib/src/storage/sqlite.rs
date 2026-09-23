@@ -765,11 +765,8 @@ mod test {
                 .db
                 .execute("update col set ver = ?", params![ver])
                 .unwrap();
-            let collection_change = col
-                .storage
-                .get_collection_timestamps()
-                .unwrap()
-                .collection_change;
+            let collection_change = TimestampMillis(1_600_000_000_000);
+            col.storage.set_modified_time(collection_change).unwrap();
             col.close(None).unwrap();
 
             SqliteStorage::open_or_create(tempfile.path(), &test_tr(), false, false).unwrap_err();
