@@ -2,18 +2,13 @@
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 use std::fs;
-use std::io::Write;
 
 use anki_io::atomic_rename;
 use anki_io::new_tempfile_in_parent_of;
 use anki_io::write_file;
 use axum::response::IntoResponse;
 use axum::response::Response;
-use flate2::write::GzEncoder;
-use flate2::Compression;
-use futures::StreamExt;
 use reqwest::Client;
-use tokio_util::io::ReaderStream;
 
 use crate::collection::CollectionBuilder;
 use crate::error::SyncErrorKind;
@@ -133,21 +128,9 @@ pub fn check_upload_limit(size: usize, limit: usize) -> Result<()> {
     }
 }
 
-pub async fn gzipped_data_from_vec(vec: Vec<u8>) -> Result<Vec<u8>> {
-    let mut encoder = GzEncoder::new(Vec::new(), Compression::default());
-    let mut stream = ReaderStream::new(&vec[..]);
-    while let Some(chunk) = stream.next().await {
-        let chunk = chunk?;
-        encoder.write_all(&chunk)?;
-    }
-    encoder.finish().map_err(Into::into)
-}
-
 #[cfg(test)]
 mod test {
-    use std::io::Read;
-
-    use flate2::read::GzDecoder;
+    use futures::StreamExt;
     use tempfile::tempdir;
 
     use super::*;
@@ -188,29 +171,6 @@ mod test {
         assert_eq!(kind, SyncErrorKind::UploadTooLarge);
         // user-facing message compares the collection size to the limit
         assert_eq!(info, "2.00 MB > 1.00 MB");
-    }
-
-    #[tokio::test]
-    async fn gzipped_data_from_vec_round_trips_the_original_bytes() {
-        let original = b"the quick brown fox".to_vec();
-        let compressed = gzipped_data_from_vec(original.clone()).await.unwrap();
-
-        let mut decoded = Vec::new();
-        GzDecoder::new(&compressed[..])
-            .read_to_end(&mut decoded)
-            .unwrap();
-        assert_eq!(decoded, original);
-    }
-
-    #[tokio::test]
-    async fn gzipped_data_from_vec_handles_empty_input() {
-        let compressed = gzipped_data_from_vec(Vec::new()).await.unwrap();
-
-        let mut decoded = Vec::new();
-        GzDecoder::new(&compressed[..])
-            .read_to_end(&mut decoded)
-            .unwrap();
-        assert!(decoded.is_empty());
     }
 
     /// Builds a valid, closed collection on disk and returns its bytes, so we
