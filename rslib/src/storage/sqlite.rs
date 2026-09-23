@@ -765,11 +765,23 @@ mod test {
                 .db
                 .execute("update col set ver = ?", params![ver])
                 .unwrap();
+            let collection_change = col
+                .storage
+                .get_collection_timestamps()
+                .unwrap()
+                .collection_change;
             col.close(None).unwrap();
 
             SqliteStorage::open_or_create(tempfile.path(), &test_tr(), false, false).unwrap_err();
 
             assert_eq!(stored_schema_version(tempfile.path()), ver, "schema {ver}");
+            // A rejected open must be side-effect free, so the modification time
+            // is left untouched (read before restoring the version below).
+            let mod_after: i64 = Connection::open(tempfile.path())
+                .unwrap()
+                .query_row("select mod from col", [], |r| r.get(0))
+                .unwrap();
+            assert_eq!(mod_after, collection_change.0, "schema {ver}");
             // Only the version marker was changed in setup; restore it to verify
             // that rejection left the collection readable and its data intact.
             Connection::open(tempfile.path())
