@@ -46,9 +46,6 @@ pub(crate) fn order_and_limit_for_search(
         }
     };
 
-    // A saved retrievability order can remain after FSRS is disabled. Match the
-    // filtered-deck dialog's fallback instead of generating an empty SQL term.
-    let order = if order.is_empty() { "random()" } else { order };
     format!("{order}, fnvhash(c.id, c.mod) limit {}", term.limit)
 }
 
@@ -64,7 +61,9 @@ fn build_retrievability_query(
             "extract_fsrs_retrievability(c.data, case when c.odue !=0 then c.odue else c.due end, ivl, {today}, {next_day_at}, {now}) {order}"
         )
     } else {
-        String::new()
+        // A saved retrievability order can remain after FSRS is disabled. Match
+        // the filtered-deck dialog's fallback instead of an empty SQL term.
+        "random()".to_string()
     }
 }
 
