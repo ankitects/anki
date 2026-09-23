@@ -70,8 +70,12 @@ fn build_retrievability_query(
 
 #[cfg(test)]
 mod test {
+    use rusqlite::params;
+
     use super::*;
     use crate::prelude::*;
+    use crate::revlog::RevlogEntry;
+    use crate::revlog::RevlogReviewKind;
     use crate::search::SortMode;
     use crate::tests::NoteAdder;
 
@@ -95,98 +99,199 @@ mod test {
         }
     }
 
+    /// Adds a single (basic) card and returns its id.
+    fn add_card(col: &mut Collection, front: &str) -> CardId {
+        let note = NoteAdder::basic(col).fields(&[front, "back"]).add(col);
+        col.storage.all_cards_of_note(note.id).unwrap()[0].id
+    }
+
+    fn set_card_columns(col: &Collection, cid: CardId, ivl: i32, lapses: u32, due: i32) {
+        col.storage
+            .db
+            .execute(
+                "update cards set ivl = ?, lapses = ?, due = ? where id = ?",
+                params![ivl, lapses, due, cid],
+            )
+            .unwrap();
+    }
+
+    fn add_review(col: &Collection, cid: CardId, id: i64) {
+        let entry = RevlogEntry {
+            id: RevlogId(id),
+            cid,
+            button_chosen: 3,
+            review_kind: RevlogReviewKind::Review,
+            ..Default::default()
+        };
+        col.storage.add_revlog_entry(&entry, false).unwrap();
+    }
+
+    /// Pulls cards in the order the filtered-deck builder would use.
+    fn cards_in_order(
+        col: &mut Collection,
+        order: FilteredSearchOrder,
+        limit: u32,
+        fsrs: bool,
+    ) -> Vec<CardId> {
+        let clause = order_and_limit_for_search(&term(order, limit), timing(), fsrs);
+        col.search_cards("", SortMode::Custom(clause)).unwrap()
+    }
+
     #[test]
-    fn simple_orders_map_to_their_sql_fragment_with_fnvhash_suffix() {
-        // one contract: each order variant without dynamic timing produces a
-        // fixed fragment followed by the tie-breaking fnvhash and limit clause.
-        let cases = [
-            (FilteredSearchOrder::Random, "random()"),
-            (FilteredSearchOrder::IntervalsAscending, "ivl"),
-            (FilteredSearchOrder::IntervalsDescending, "ivl desc"),
-            (FilteredSearchOrder::Lapses, "lapses desc"),
-            (FilteredSearchOrder::Added, "n.id, c.ord"),
-            (FilteredSearchOrder::ReverseAdded, "n.id desc, c.ord asc"),
-            (
-                FilteredSearchOrder::OldestReviewedFirst,
-                "(select max(id) from revlog where cid=c.id)",
+    fn cards_are_ordered_by_interval_ascending_and_descending() {
+        let mut col = Collection::new();
+        let small = add_card(&mut col, "small");
+        let large = add_card(&mut col, "large");
+        let mid = add_card(&mut col, "mid");
+        set_card_columns(&col, small, 1, 0, 0);
+        set_card_columns(&col, mid, 5, 0, 0);
+        set_card_columns(&col, large, 10, 0, 0);
+
+        assert_eq!(
+            cards_in_order(&mut col, FilteredSearchOrder::IntervalsAscending, 10, false),
+            vec![small, mid, large]
+        );
+        assert_eq!(
+            cards_in_order(
+                &mut col,
+                FilteredSearchOrder::IntervalsDescending,
+                10,
+                false
             ),
-        ];
-        for (order, fragment) in cases {
-            let got = order_and_limit_for_search(&term(order, 10), timing(), false);
-            let expected = format!("{fragment}, fnvhash(c.id, c.mod) limit 10");
-            assert_eq!(got, expected, "order {order:?}");
+            vec![large, mid, small]
+        );
+    }
+
+    #[test]
+    fn cards_are_ordered_by_descending_lapses() {
+        let mut col = Collection::new();
+        let none = add_card(&mut col, "none");
+        let most = add_card(&mut col, "most");
+        let some = add_card(&mut col, "some");
+        set_card_columns(&col, none, 0, 0, 0);
+        set_card_columns(&col, some, 0, 1, 0);
+        set_card_columns(&col, most, 0, 3, 0);
+
+        assert_eq!(
+            cards_in_order(&mut col, FilteredSearchOrder::Lapses, 10, false),
+            vec![most, some, none]
+        );
+    }
+
+    #[test]
+    fn cards_are_ordered_by_added_and_reverse_added() {
+        let mut col = Collection::new();
+        let first = add_card(&mut col, "first");
+        let second = add_card(&mut col, "second");
+        let third = add_card(&mut col, "third");
+
+        assert_eq!(
+            cards_in_order(&mut col, FilteredSearchOrder::Added, 10, false),
+            vec![first, second, third]
+        );
+        assert_eq!(
+            cards_in_order(&mut col, FilteredSearchOrder::ReverseAdded, 10, false),
+            vec![third, second, first]
+        );
+    }
+
+    #[test]
+    fn cards_are_ordered_by_due() {
+        let mut col = Collection::new();
+        let late = add_card(&mut col, "late");
+        let early = add_card(&mut col, "early");
+        let middle = add_card(&mut col, "middle");
+        set_card_columns(&col, early, 0, 0, 10);
+        set_card_columns(&col, middle, 0, 0, 20);
+        set_card_columns(&col, late, 0, 0, 30);
+
+        assert_eq!(
+            cards_in_order(&mut col, FilteredSearchOrder::Due, 10, false),
+            vec![early, middle, late]
+        );
+    }
+
+    #[test]
+    fn oldest_reviewed_cards_come_first() {
+        let mut col = Collection::new();
+        let reviewed_earlier = add_card(&mut col, "earlier");
+        let reviewed_later = add_card(&mut col, "later");
+        add_review(&col, reviewed_later, 2_000_000);
+        add_review(&col, reviewed_earlier, 1_000_000);
+
+        assert_eq!(
+            cards_in_order(
+                &mut col,
+                FilteredSearchOrder::OldestReviewedFirst,
+                10,
+                false
+            ),
+            vec![reviewed_earlier, reviewed_later]
+        );
+    }
+
+    #[test]
+    fn limit_caps_the_number_of_returned_cards() {
+        let mut col = Collection::new();
+        let small = add_card(&mut col, "small");
+        let mid = add_card(&mut col, "mid");
+        let _large = add_card(&mut col, "large");
+        set_card_columns(&col, small, 1, 0, 0);
+        set_card_columns(&col, mid, 5, 0, 0);
+        set_card_columns(&col, _large, 10, 0, 0);
+
+        // only the two smallest intervals are pulled in
+        assert_eq!(
+            cards_in_order(&mut col, FilteredSearchOrder::IntervalsAscending, 2, false),
+            vec![small, mid]
+        );
+    }
+
+    #[test]
+    fn random_order_returns_all_matching_cards() {
+        let mut col = Collection::new();
+        let mut expected: Vec<CardId> = ["one", "two", "three"]
+            .into_iter()
+            .map(|front| add_card(&mut col, front))
+            .collect();
+        expected.sort();
+
+        let mut got = cards_in_order(&mut col, FilteredSearchOrder::Random, 10, false);
+        got.sort();
+
+        assert_eq!(got, expected);
+    }
+
+    #[test]
+    fn fsrs_orders_produce_runnable_sql() {
+        // The FSRS ordering fragments must be valid SQL that runs against real
+        // cards (memory state falls back gracefully when absent).
+        let mut col = Collection::new();
+        for front in ["one", "two", "three"] {
+            add_card(&mut col, front);
         }
-    }
-
-    #[test]
-    fn due_order_builds_case_expression_using_today_and_now() {
-        let got = order_and_limit_for_search(&term(FilteredSearchOrder::Due, 5), timing(), false);
-        assert_eq!(
-            got,
-            format!(
-                "(case when c.due > 1000000000 then due else (due - {TODAY}) * 86400 + {NOW} end), \
-                 c.ord, fnvhash(c.id, c.mod) limit 5"
-            )
-        );
-    }
-
-    #[test]
-    fn relative_overdueness_inlines_fsrs_fragment_regardless_of_fsrs_flag() {
-        let got = order_and_limit_for_search(
-            &term(FilteredSearchOrder::RelativeOverdueness, 5),
-            timing(),
-            false,
-        );
-        assert_eq!(
-            got,
-            format!(
-                "extract_fsrs_relative_retrievability(data, case when odue !=0 then odue else due \
-                 end, ivl, {TODAY}, {NEXT_DAY_AT}, {NOW}) asc, fnvhash(c.id, c.mod) limit 5"
-            )
-        );
-    }
-
-    #[test]
-    fn retrievability_orders_emit_fsrs_clause_when_fsrs_enabled() {
-        let asc = order_and_limit_for_search(
-            &term(FilteredSearchOrder::RetrievabilityAscending, 5),
-            timing(),
-            true,
-        );
-        assert_eq!(
-            asc,
-            format!(
-                "extract_fsrs_retrievability(c.data, case when c.odue !=0 then c.odue else c.due \
-                 end, ivl, {TODAY}, {NEXT_DAY_AT}, {NOW}) asc, fnvhash(c.id, c.mod) limit 5"
-            )
-        );
-
-        let desc = order_and_limit_for_search(
-            &term(FilteredSearchOrder::RetrievabilityDescending, 5),
-            timing(),
-            true,
-        );
-        assert!(
-            desc.starts_with("extract_fsrs_retrievability(") && desc.contains(") desc,"),
-            "descending order should use the desc sort direction, got: {desc}"
-        );
+        for order in [
+            FilteredSearchOrder::RetrievabilityAscending,
+            FilteredSearchOrder::RetrievabilityDescending,
+            FilteredSearchOrder::RelativeOverdueness,
+        ] {
+            let cards = cards_in_order(&mut col, order, 10, true);
+            assert_eq!(cards.len(), 3, "order {order:?}");
+        }
     }
 
     #[test]
     fn retrievability_orders_fall_back_to_random_without_fsrs() {
         let mut col = Collection::new();
         for front in ["one", "two", "three"] {
-            NoteAdder::basic(&mut col)
-                .fields(&[front, "back"])
-                .add(&mut col);
+            add_card(&mut col, front);
         }
         for order in [
             FilteredSearchOrder::RetrievabilityAscending,
             FilteredSearchOrder::RetrievabilityDescending,
         ] {
-            let clause = order_and_limit_for_search(&term(order, 2), timing(), false);
-            assert_eq!(clause, "random(), fnvhash(c.id, c.mod) limit 2");
-            let cards = col.search_cards("", SortMode::Custom(clause)).unwrap();
+            // would fail on the old empty-order SQL (leading comma)
+            let cards = cards_in_order(&mut col, order, 2, false);
             assert_eq!(cards.len(), 2, "order {order:?}");
         }
     }
