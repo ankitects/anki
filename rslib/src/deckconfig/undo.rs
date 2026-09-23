@@ -122,7 +122,7 @@ mod tests {
         let mut config = DeckConfig::default();
         let config_id = DeckConfigId(TimestampMillis::now().0);
         config.id.0 = config_id.0;
-        col.add_deck_config_if_unique_undoable(&mut config)?;
+        col.add_deck_config_if_unique_undoable(&config)?;
         let returned_config = col.storage.get_deck_config(config_id)?;
         assert_eq!(returned_config, Some(config));
 
@@ -136,8 +136,8 @@ mod tests {
         let config_id = DeckConfigId(TimestampMillis::now().0);
         config.id.0 = config_id.0;
         // Try to add same config twice
-        col.add_deck_config_if_unique_undoable(&mut config)?;
-        col.add_deck_config_if_unique_undoable(&mut config)?;
+        col.add_deck_config_if_unique_undoable(&config)?;
+        col.add_deck_config_if_unique_undoable(&config)?;
         let returned_config = col.storage.get_deck_config(config_id)?.unwrap();
         assert_eq!(returned_config.id, config.id);
 
