@@ -3,19 +3,20 @@
 
 syntax = "proto3";
 
-option java_multiple_files = true;
-
 package anki.scheduler;
 
-import "anki/generic.proto";
 import "anki/cards.proto";
-import "anki/decks.proto";
 import "anki/collection.proto";
 import "anki/config.proto";
 import "anki/deck_config.proto";
+import "anki/decks.proto";
+import "anki/generic.proto";
+
+option java_multiple_files = true;
 
 service SchedulerService {
   rpc GetQueuedCards(GetQueuedCardsRequest) returns (QueuedCards);
+  rpc GetOverviewCounts(GetOverviewCountsRequest) returns (OverviewCounts);
   rpc AnswerCard(CardAnswer) returns (collection.OpChanges);
   rpc SchedTimingToday(generic.Empty) returns (SchedTimingTodayResponse);
   rpc StudiedToday(generic.Empty) returns (generic.String);
@@ -24,17 +25,13 @@ service SchedulerService {
   rpc ExtendLimits(ExtendLimitsRequest) returns (generic.Empty);
   rpc CountsForDeckToday(decks.DeckId) returns (CountsForDeckTodayResponse);
   rpc CongratsInfo(generic.Empty) returns (CongratsInfoResponse);
-  rpc RestoreBuriedAndSuspendedCards(cards.CardIds)
-      returns (collection.OpChanges);
+  rpc RestoreBuriedAndSuspendedCards(cards.CardIds) returns (collection.OpChanges);
   rpc UnburyDeck(UnburyDeckRequest) returns (collection.OpChanges);
-  rpc BuryOrSuspendCards(BuryOrSuspendCardsRequest)
-      returns (collection.OpChangesWithCount);
+  rpc BuryOrSuspendCards(BuryOrSuspendCardsRequest) returns (collection.OpChangesWithCount);
   rpc EmptyFilteredDeck(decks.DeckId) returns (collection.OpChanges);
   rpc RebuildFilteredDeck(decks.DeckId) returns (collection.OpChangesWithCount);
-  rpc ScheduleCardsAsNew(ScheduleCardsAsNewRequest)
-      returns (collection.OpChanges);
-  rpc ScheduleCardsAsNewDefaults(ScheduleCardsAsNewDefaultsRequest)
-      returns (ScheduleCardsAsNewDefaultsResponse);
+  rpc ScheduleCardsAsNew(ScheduleCardsAsNewRequest) returns (collection.OpChanges);
+  rpc ScheduleCardsAsNewDefaults(ScheduleCardsAsNewDefaultsRequest) returns (ScheduleCardsAsNewDefaultsResponse);
   rpc SetDueDate(SetDueDateRequest) returns (collection.OpChanges);
   rpc GradeNow(GradeNowRequest) returns (collection.OpChanges);
   rpc SortCards(SortCardsRequest) returns (collection.OpChangesWithCount);
@@ -44,22 +41,15 @@ service SchedulerService {
   rpc StateIsLeech(SchedulingState) returns (generic.Bool);
   rpc UpgradeScheduler(generic.Empty) returns (generic.Empty);
   rpc CustomStudy(CustomStudyRequest) returns (collection.OpChanges);
-  rpc CustomStudyDefaults(CustomStudyDefaultsRequest)
-      returns (CustomStudyDefaultsResponse);
+  rpc CustomStudyDefaults(CustomStudyDefaultsRequest) returns (CustomStudyDefaultsResponse);
   rpc RepositionDefaults(generic.Empty) returns (RepositionDefaultsResponse);
-  rpc ComputeFsrsParams(ComputeFsrsParamsRequest)
-      returns (ComputeFsrsParamsResponse);
-  rpc GetOptimalRetentionParameters(GetOptimalRetentionParametersRequest)
-      returns (GetOptimalRetentionParametersResponse);
-  rpc ComputeOptimalRetention(SimulateFsrsReviewRequest)
-      returns (ComputeOptimalRetentionResponse);
-  rpc SimulateFsrsReview(SimulateFsrsReviewRequest)
-      returns (SimulateFsrsReviewResponse);
-  rpc SimulateFsrsWorkload(SimulateFsrsReviewRequest)
-      returns (SimulateFsrsWorkloadResponse);
+  rpc ComputeFsrsParams(ComputeFsrsParamsRequest) returns (ComputeFsrsParamsResponse);
+  rpc GetOptimalRetentionParameters(GetOptimalRetentionParametersRequest) returns (GetOptimalRetentionParametersResponse);
+  rpc ComputeOptimalRetention(SimulateFsrsReviewRequest) returns (ComputeOptimalRetentionResponse);
+  rpc SimulateFsrsReview(SimulateFsrsReviewRequest) returns (SimulateFsrsReviewResponse);
+  rpc SimulateFsrsWorkload(SimulateFsrsReviewRequest) returns (SimulateFsrsWorkloadResponse);
   rpc EvaluateParams(EvaluateParamsRequest) returns (EvaluateParamsResponse);
-  rpc EvaluateParamsLegacy(EvaluateParamsLegacyRequest)
-      returns (EvaluateParamsResponse);
+  rpc EvaluateParamsLegacy(EvaluateParamsLegacyRequest) returns (EvaluateParamsResponse);
   rpc ComputeMemoryState(cards.CardId) returns (ComputeMemoryStateResponse);
   // The number of days the calculated interval was fuzzed by on the previous
   // review (if any). Utilized by the FSRS add-on.
@@ -69,8 +59,7 @@ service SchedulerService {
 // Implicitly includes any of the above methods that are not listed in the
 // backend service.
 service BackendSchedulerService {
-  rpc ComputeFsrsParamsFromItems(ComputeFsrsParamsFromItemsRequest)
-      returns (ComputeFsrsParamsResponse);
+  rpc ComputeFsrsParamsFromItems(ComputeFsrsParamsFromItemsRequest) returns (ComputeFsrsParamsResponse);
   // Generates parameters used for FSRS's scheduler benchmarks.
   rpc FsrsBenchmark(FsrsBenchmarkRequest) returns (FsrsBenchmarkResponse);
   // Used for exporting revlogs for algorithm research.
@@ -153,6 +142,22 @@ message QueuedCards {
 message GetQueuedCardsRequest {
   uint32 fetch_limit = 1;
   bool intraday_learning_only = 2;
+}
+
+message GetOverviewCountsRequest {
+  int64 deck_id = 1;
+}
+
+message OverviewCounts {
+  // Counts from the active study queue (what the reviewer will show next).
+  uint32 new_count = 1;
+  uint32 learning_count = 2;
+  uint32 review_count = 3;
+  // How many cards are hidden by burying for each type.
+  // deck_node count - queue count.
+  uint32 buried_new = 4;
+  uint32 buried_learning = 5;
+  uint32 buried_review = 6;
 }
 
 message SchedTimingTodayResponse {
