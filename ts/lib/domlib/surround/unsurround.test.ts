@@ -153,3 +153,27 @@ describe("with two double nested and one single nested", () => {
         expect(surroundedRange.toString()).toEqual("aaabbb");
     });
 });
+
+describe("unsurround additional regression cases", () => {
+    test("selection outside bold containing BR is a no-op", () => {
+        const body = p("<b>A<br>B</b>C");
+        const range = new Range();
+        const textNode = body.childNodes[1];
+        range.setStart(textNode, 0);
+        range.setEnd(textNode, 1);
+        unsurround(range, body, easyBold);
+
+        expect(body).toHaveProperty("innerHTML", "<b>A<br>B</b>C");
+    });
+
+    test("can unsurround trailing text from bold containing BR", () => {
+        const body = p("<b>A<br>B</b>");
+        const range = new Range();
+        const bold = body.querySelector("b")!;
+        const textNodeB = bold.childNodes[2];
+        range.selectNodeContents(textNodeB);
+        unsurround(range, body, easyBold);
+
+        expect(body).toHaveProperty("innerHTML", "<b>A</b><br>B");
+    });
+});

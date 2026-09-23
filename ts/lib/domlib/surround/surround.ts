@@ -26,11 +26,18 @@ function surroundOnCorrectNode<T>(
     apply: ApplyFormat<T>,
     matcher: Matcher,
 ): Range {
-    const node = findFarthest(
+    let node: Node = findFarthest(
         range.commonAncestorContainer,
         base,
         matcher,
     ) ?? range.commonAncestorContainer;
+
+    if (
+        node.nodeType === Node.TEXT_NODE
+        || node.nodeType === Node.COMMENT_NODE
+    ) {
+        node = node.parentNode ?? node;
+    }
 
     return buildAndApply(node, build, apply);
 }
