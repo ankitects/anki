@@ -73,6 +73,7 @@ mod test {
     use rusqlite::params;
 
     use super::*;
+    use crate::card::FsrsMemoryState;
     use crate::prelude::*;
     use crate::revlog::RevlogEntry;
     use crate::revlog::RevlogReviewKind;
@@ -196,14 +197,16 @@ mod test {
     }
 
     #[test]
-    fn cards_are_ordered_by_due() {
+    fn due_order_compares_days_and_timestamps_chronologically() {
         let mut col = Collection::new();
         let late = add_card(&mut col, "late");
         let early = add_card(&mut col, "early");
         let middle = add_card(&mut col, "middle");
-        set_card_columns(&col, early, 0, 0, 10);
-        set_card_columns(&col, middle, 0, 0, 20);
-        set_card_columns(&col, late, 0, 0, 30);
+        // Yesterday, an hour from now, and tomorrow. Sorting raw due values
+        // would incorrectly put tomorrow before the timestamp-based card.
+        set_card_columns(&col, early, 0, 0, TODAY as i32 - 1);
+        set_card_columns(&col, middle, 0, 0, (NOW + 3600) as i32);
+        set_card_columns(&col, late, 0, 0, TODAY as i32 + 1);
 
         assert_eq!(
             cards_in_order(&mut col, FilteredSearchOrder::Due, 10, false),
@@ -216,8 +219,11 @@ mod test {
         let mut col = Collection::new();
         let reviewed_earlier = add_card(&mut col, "earlier");
         let reviewed_later = add_card(&mut col, "later");
-        add_review(&col, reviewed_later, 2_000_000);
-        add_review(&col, reviewed_earlier, 1_000_000);
+        // The first-review order is the reverse of the last-review order.
+        add_review(&col, reviewed_later, 1_000_000);
+        add_review(&col, reviewed_earlier, 2_000_000);
+        add_review(&col, reviewed_earlier, 3_000_000);
+        add_review(&col, reviewed_later, 4_000_000);
 
         assert_eq!(
             cards_in_order(
@@ -263,20 +269,40 @@ mod test {
     }
 
     #[test]
-    fn fsrs_orders_produce_runnable_sql() {
-        // The FSRS ordering fragments must be valid SQL that runs against real
-        // cards (memory state falls back gracefully when absent).
+    fn fsrs_orders_sort_cards_by_retrievability() {
         let mut col = Collection::new();
-        for front in ["one", "two", "three"] {
-            add_card(&mut col, front);
+        let low = add_card(&mut col, "low");
+        let high = add_card(&mut col, "high");
+        let medium = add_card(&mut col, "medium");
+        // With the same elapsed time, greater stability means greater
+        // retrievability. Equal desired retention preserves that ordering
+        // for relative overdueness as well.
+        for (id, stability) in [(low, 1.0), (medium, 10.0), (high, 100.0)] {
+            let mut card = col.storage.get_card(id).unwrap().unwrap();
+            card.memory_state = Some(FsrsMemoryState {
+                stability,
+                difficulty: 5.0,
+            });
+            card.last_review_time = Some(TimestampSecs(NOW - 10 * 86_400));
+            card.desired_retention = Some(0.9);
+            col.storage.update_card(&card).unwrap();
         }
-        for order in [
-            FilteredSearchOrder::RetrievabilityAscending,
-            FilteredSearchOrder::RetrievabilityDescending,
-            FilteredSearchOrder::RelativeOverdueness,
+        for (order, expected) in [
+            (
+                FilteredSearchOrder::RetrievabilityAscending,
+                vec![low, medium, high],
+            ),
+            (
+                FilteredSearchOrder::RetrievabilityDescending,
+                vec![high, medium, low],
+            ),
+            (
+                FilteredSearchOrder::RelativeOverdueness,
+                vec![low, medium, high],
+            ),
         ] {
             let cards = cards_in_order(&mut col, order, 10, true);
-            assert_eq!(cards.len(), 3, "order {order:?}");
+            assert_eq!(cards, expected, "order {order:?}");
         }
     }
 
