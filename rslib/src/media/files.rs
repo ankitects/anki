@@ -181,7 +181,10 @@ where
 
     if matches!(existing_file_hash, Some(hash) if hash == sha1) {
         // existing file has same checksum, nothing to do
-        return Ok(normalized_name);
+        return Ok(fs::canonicalize(&target_path)
+            .ok()
+            .and_then(|p| p.file_name()?.to_str().map(String::from).map(Cow::from))
+            .unwrap_or(normalized_name));
     }
 
     let lowercased_name = normalized_name.to_lowercase();
