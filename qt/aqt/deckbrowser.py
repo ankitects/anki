@@ -381,10 +381,10 @@ class DeckBrowser:
     ######################################################################
 
     drawLinks = [
-        ["", "create", tr.decks_create_deck()],
         ["", "shared", tr.decks_get_shared()],
-        ["Ctrl+Shift+I", "import", tr.decks_import_file()],
         ["", "addons", tr.decks_get_addons()],
+        ["", "create", tr.decks_create_deck()],
+        ["Ctrl+Shift+I", "import", tr.decks_import_file()],
     ]
 
     def _drawButtons(self) -> None:
