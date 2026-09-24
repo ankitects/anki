@@ -14,7 +14,7 @@ use crate::scheduler::timing::is_unix_epoch_timestamp;
 
 impl Collection {
     pub fn card_stats(&mut self, cid: CardId) -> Result<anki_proto::stats::CardStatsResponse> {
-        let mut card = self.storage.get_card(cid)?.or_not_found(cid)?;
+        let card = self.storage.get_card(cid)?.or_not_found(cid)?;
         let note = self
             .storage
             .get_note(card.note_id)?
@@ -30,6 +30,7 @@ impl Collection {
 
         let (average_secs, total_secs) = average_and_total_secs_strings(&revlog);
         let timing = self.timing_today()?;
+        let fsrs_enabled = self.fsrs_enabled();
 
         let last_review_time = if let Some(last_review_time) = card.last_review_time {
             last_review_time
@@ -68,9 +69,12 @@ impl Collection {
             .get_deck_config(config_id, true)?
             .or_not_found(config_id.to_string())?;
 
-        if card.ctype != CardType::New && card.memory_state.is_none() {
-            self.compute_and_update_memory_state(&mut card)?;
-        }
+        let memory_state =
+            if fsrs_enabled && card.ctype != CardType::New && card.memory_state.is_none() {
+                self.compute_memory_state(card.id)?.state
+            } else {
+                card.memory_state.map(Into::into)
+            };
 
         Ok(anki_proto::stats::CardStatsResponse {
             card_id: card.id.into(),
@@ -97,7 +101,7 @@ impl Collection {
             card_type: nt.get_template(card.template_idx)?.name.clone(),
             notetype: nt.name.clone(),
             revlog: self.stats_revlog_entries_with_memory_state(&card, revlog)?,
-            memory_state: card.memory_state.map(Into::into),
+            memory_state,
             fsrs_retrievability,
             custom_data: card.custom_data,
             fsrs_params: preset.fsrs_params().to_vec(),
@@ -234,7 +238,11 @@ fn stats_revlog_entry(
 
 #[cfg(test)]
 mod test {
+    use anki_proto::deck_config::deck_configs_for_update::current_deck::Limits;
+    use anki_proto::deck_config::UpdateDeckConfigsMode;
+
     use super::*;
+    use crate::deckconfig::UpdateDeckConfigsRequest;
     use crate::search::SortMode;
 
     fn test_collection() -> Result<(Collection, CardId)> {
@@ -264,7 +272,7 @@ mod test {
         let mut card = col.storage.get_card(cid)?.unwrap();
         assert!(card.memory_state.is_some());
 
-        card.memory_state = None;
+        card.clear_fsrs_data();
         col.storage.update_card(&card)?;
 
         let card = col.storage.get_card(cid)?.unwrap();
@@ -274,7 +282,32 @@ mod test {
         let card = col.storage.get_card(cid)?.unwrap();
 
         assert!(report.memory_state.is_some());
-        assert!(card.memory_state.is_some());
+        // Don't modify the card. See https://github.com/ankitects/anki/issues/5635
+        assert!(card.memory_state.is_none());
+
+        // Toggle FSRS off
+        let deck_configs = col.get_deck_configs_for_update(DeckId(1))?;
+        col.update_deck_configs(UpdateDeckConfigsRequest {
+            target_deck_id: DeckId(1),
+            configs: deck_configs
+                .all_config
+                .into_iter()
+                .map(|config| config.config.unwrap().into())
+                .collect(),
+            removed_config_ids: vec![],
+            mode: UpdateDeckConfigsMode::Normal,
+            card_state_customizer: String::new(),
+            limits: Limits::default(),
+            new_cards_ignore_review_limit: false,
+            apply_all_parent_limits: false,
+            fsrs: false, // <-------- Disable FSRS
+            fsrs_reschedule: false,
+            fsrs_health_check: true,
+        })?;
+
+        // Dont report memory_state while SM2 is enabled
+        let report = col.card_stats(cid)?;
+        assert!(report.memory_state.is_none());
 
         Ok(())
     }
