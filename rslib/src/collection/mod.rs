@@ -40,6 +40,7 @@ pub struct CollectionBuilder {
     server: Option<bool>,
     tr: Option<I18n>,
     check_integrity: bool,
+    skip_fsrs_defaults_upgrade: bool,
     progress_handler: Option<Arc<Mutex<ProgressState>>>,
 }
 
@@ -62,7 +63,7 @@ impl CollectionBuilder {
         let media_folder = self.media_folder.clone().unwrap_or_default();
         let media_db = self.media_db.clone().unwrap_or_default();
         let storage = SqliteStorage::open_or_create(&col_path, &tr, server, self.check_integrity)?;
-        let col = Collection {
+        let mut col = Collection {
             storage,
             col_path,
             media_folder,
@@ -75,6 +76,10 @@ impl CollectionBuilder {
             },
         };
 
+        if !self.skip_fsrs_defaults_upgrade {
+            col.upgrade_empty_fsrs_presets()?;
+            col.repair_incomplete_fsrs7_states()?;
+        }
         Ok(col)
     }
 
@@ -112,6 +117,13 @@ impl CollectionBuilder {
 
     pub fn set_check_integrity(&mut self, check_integrity: bool) -> &mut Self {
         self.check_integrity = check_integrity;
+        self
+    }
+
+    /// Sync payload validation must preserve the sender's data and timestamps.
+    /// The client upgrades after reopening the received collection for use.
+    pub(crate) fn set_skip_fsrs_defaults_upgrade(&mut self) -> &mut Self {
+        self.skip_fsrs_defaults_upgrade = true;
         self
     }
 

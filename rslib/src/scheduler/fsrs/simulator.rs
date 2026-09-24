@@ -189,6 +189,7 @@ impl Collection {
                 last_date: f32::NEG_INFINITY, // Treated as a new card in simulation
                 due: ((introduced_today_count + i) / req.new_limit as usize) as f32,
                 interval: f32::NEG_INFINITY,
+                reps: 0,
                 lapses: 0,
                 desired_retention: req.desired_retention,
                 parameters: fsrs_card_params.clone(),
@@ -239,6 +240,7 @@ impl Collection {
             suspend_after_lapses: req.suspend_after_lapse_count,
             post_scheduling_fn,
             review_priority_fn,
+            review_rating_cost_fn: None,
             learning_step_transitions: p.learning_step_transitions,
             relearning_step_transitions: p.relearning_step_transitions,
             state_rating_costs: p.state_rating_costs,
@@ -333,10 +335,11 @@ impl Card {
                 Some(fsrs::Card {
                     id: card.id.0,
                     difficulty: memory_state.difficulty,
-                    stability: memory_state.stability,
+                    stability: memory_state.stability_internal,
                     last_date,
                     due: relative_due as f32,
                     interval: card.interval as f32,
+                    reps: card.reps,
                     lapses: card.lapses,
                     desired_retention,
                     parameters,
@@ -346,10 +349,11 @@ impl Card {
             CardQueue::Learn | CardQueue::SchedBuried | CardQueue::UserBuried => Some(fsrs::Card {
                 id: card.id.0,
                 difficulty: memory_state.difficulty,
-                stability: memory_state.stability,
+                stability: memory_state.stability_internal,
                 last_date: 0.0,
                 due: 0.0,
                 interval: card.interval as f32,
+                reps: card.reps,
                 lapses: card.lapses,
                 desired_retention,
                 parameters,
@@ -433,6 +437,8 @@ mod test {
         card.interval = 100;
         card.memory_state = Some(FsrsMemoryState {
             stability: 100.0,
+            stability_internal: 100.0,
+            stability_fast: None,
             difficulty: 5.0,
         });
         // Deliberately differs from the requested retention below.

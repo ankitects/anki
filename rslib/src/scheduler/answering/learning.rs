@@ -41,13 +41,13 @@ impl CardStateUpdater {
         &mut self,
         current: CardState,
         next: LearnState,
-    ) -> RevlogEntryPartial {
+    ) -> Result<RevlogEntryPartial> {
         self.card.remaining_steps = next.remaining_steps;
         self.card.ctype = CardType::Learn;
         if let Some(position) = current.new_position() {
             self.card.original_position = Some(position)
         }
-        self.card.memory_state = next.memory_state;
+        self.card.memory_state = self.memory_state_for_storage(next.memory_state)?;
 
         let interval = next
             .interval_kind()
@@ -63,7 +63,7 @@ impl CardStateUpdater {
             }
         }
 
-        RevlogEntryPartial::new(
+        Ok(RevlogEntryPartial::new(
             current,
             next.into(),
             self.card
@@ -71,7 +71,7 @@ impl CardStateUpdater {
                 .map(|d| d.difficulty_shifted())
                 .unwrap_or_default(),
             self.secs_until_rollover(),
-        )
+        ))
     }
 
     /// Adds secs + fuzz to current time

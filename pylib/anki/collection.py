@@ -1037,6 +1037,49 @@ class Collection(DeprecatedNamesMixin):
         """
         return self._backend.card_stats(card_id)
 
+    def card_memory_metrics(
+        self, card_ids: Sequence[CardId], *, include_retrievability: bool = True
+    ) -> Sequence[stats_pb2.CardMemoryMetrics]:
+        """Read current FSRS state without generating full card statistics.
+
+        Missing cards are omitted; order and duplicates are otherwise preserved.
+        Missing memory state remains absent, including on reviewed cards. Use
+        card_stats_data() when its missing-state initialization is required.
+        Set include_retrievability=False to read stored state/retention only.
+        """
+        return self._backend.card_memory_metrics(
+            card_ids=card_ids, include_retrievability=include_retrievability
+        )
+
+    def card_details(
+        self,
+        card_ids: Sequence[CardId],
+        *,
+        include_memory_state: bool = False,
+        include_retrievability: bool = False,
+        note_fields: Sequence[str] | None = None,
+    ) -> Sequence[stats_pb2.CardDetails]:
+        """Read scheduling fields, selected note values and optional current metrics.
+
+        Missing cards are omitted; order and duplicates are preserved. None skips
+        note access, while [] requests an empty field selection. Absent note_fields
+        in a returned entry signals a missing note/type or malformed selected field.
+        Unknown field names are ignored. Missing memory state is never initialized;
+        use card_stats_data() when required.
+        """
+        return self._backend.card_details(
+            stats_pb2.CardDetailsRequest(
+                card_ids=card_ids,
+                include_memory_state=include_memory_state,
+                include_retrievability=include_retrievability,
+                note_fields=(
+                    stats_pb2.NoteFieldSelection(names=note_fields)
+                    if note_fields is not None
+                    else None
+                ),
+            )
+        )
+
     def get_review_logs(
         self, card_id: CardId
     ) -> Sequence[stats_pb2.CardStatsResponse.StatsRevlogEntry]:

@@ -5,6 +5,7 @@ use super::CardStateUpdater;
 use super::RevlogEntryPartial;
 use crate::card::CardQueue;
 use crate::card::CardType;
+use crate::prelude::*;
 use crate::scheduler::states::CardState;
 use crate::scheduler::states::IntervalKind;
 use crate::scheduler::states::RelearnState;
@@ -14,7 +15,7 @@ impl CardStateUpdater {
         &mut self,
         current: CardState,
         next: RelearnState,
-    ) -> RevlogEntryPartial {
+    ) -> Result<RevlogEntryPartial> {
         self.card.interval = next.review.scheduled_days;
         self.card.remaining_steps = next.learning.remaining_steps;
         self.card.ctype = CardType::Relearn;
@@ -23,7 +24,7 @@ impl CardStateUpdater {
         if let Some(position) = current.new_position() {
             self.card.original_position = Some(position)
         }
-        self.card.memory_state = next.learning.memory_state;
+        self.card.memory_state = self.memory_state_for_storage(next.learning.memory_state)?;
 
         let interval = next
             .interval_kind()
@@ -39,7 +40,7 @@ impl CardStateUpdater {
             }
         }
 
-        RevlogEntryPartial::new(
+        Ok(RevlogEntryPartial::new(
             current,
             next.into(),
             self.card
@@ -47,6 +48,6 @@ impl CardStateUpdater {
                 .map(|d| d.difficulty_shifted())
                 .unwrap_or(next.review.ease_factor),
             self.secs_until_rollover(),
-        )
+        ))
     }
 }

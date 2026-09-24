@@ -197,6 +197,10 @@ after each review.
 ### Card Retrievability
 
 Only shown if FSRS is enabled. "Retrievability" is synonymous with "probability of recall".
+It is calculated from the card's complete current memory state and the parameters
+of its home deck's preset. In FSRS 7, this includes two internal stability traces
+and difficulty; the displayed stability remains the interval at which
+retrievability reaches 90%.
 
 Estimated total knowledge is the total number of cards you are likely to currently remember,
 calculated by multiplying average retrievability by the number of cards that have been

@@ -25,13 +25,60 @@ impl RelearnState {
     }
 
     pub(crate) fn next_states(self, ctx: &StateContext) -> SchedulingStates {
-        SchedulingStates {
+        let mut next = SchedulingStates {
             current: self.into(),
             again: self.answer_again(ctx),
             hard: self.answer_hard(ctx),
             good: self.answer_good(ctx),
             easy: self.answer_easy(ctx).into(),
+        };
+        if ctx.fsrs7 {
+            if let Some(states) = &ctx.fsrs_next_states {
+                let intervals = super::button_intervals::button_intervals(
+                    ctx,
+                    [
+                        ctx.relearn_steps
+                            .again_delay_secs_learn()
+                            .is_none()
+                            .then_some(states.again.interval),
+                        ctx.relearn_steps
+                            .hard_delay_secs(self.learning.remaining_steps)
+                            .is_none()
+                            .then_some(states.hard.interval),
+                        ctx.relearn_steps
+                            .good_delay_secs(self.learning.remaining_steps)
+                            .is_none()
+                            .then_some(states.good.interval),
+                        Some(states.easy.interval),
+                    ],
+                    None,
+                );
+                for ((target, item), (interval, remaining)) in [
+                    &mut next.again,
+                    &mut next.hard,
+                    &mut next.good,
+                    &mut next.easy,
+                ]
+                .into_iter()
+                .zip([&states.again, &states.hard, &states.good, &states.easy])
+                .zip(
+                    intervals
+                        .into_iter()
+                        .zip([ctx.relearn_steps.remaining_for_failed(), 0, 0, 0]),
+                ) {
+                    if let Some(interval) = interval {
+                        *target = interval.reviewing(
+                            ReviewState {
+                                memory_state: Some(item.memory.into()),
+                                ..self.review
+                            },
+                            remaining,
+                        );
+                    }
+                }
+            }
         }
+        next
     }
 
     fn answer_again(self, ctx: &StateContext) -> CardState {
@@ -222,6 +269,7 @@ mod tests {
     fn fsrs_states(again: f32, hard: f32, good: f32, easy: f32) -> FsrsNextStates {
         let mem = MemoryState {
             stability: 4.0,
+            stability_fast: 4.0,
             difficulty: 5.0,
         };
         FsrsNextStates {

@@ -26,6 +26,9 @@ pub(super) struct ExchangeData {
     pub(super) notetypes: Vec<Notetype>,
     pub(super) revlog: Vec<RevlogEntry>,
     pub(super) deck_configs: Vec<DeckConfig>,
+    /// Import-only model provenance; never serialized into the package.
+    pub(super) fsrs_params_by_deck: HashMap<DeckId, Vec<f32>>,
+    pub(super) incomplete_fsrs_cards: HashSet<CardId>,
     pub(super) media_filenames: HashSet<String>,
     pub(super) days_elapsed: u32,
     pub(super) creation_utc_offset: Option<i32>,
@@ -51,6 +54,24 @@ impl ExchangeData {
         let allow_filtered = self.enables_filtered_decks();
 
         if with_scheduling {
+            let configs = guard.col.storage.get_deck_config_map()?;
+            if with_deck_configs {
+                self.fsrs_params_by_deck = self
+                    .decks
+                    .iter()
+                    .filter_map(|deck| {
+                        let config = configs.get(&deck.config_id()?)?;
+                        Some((deck.id, config.fsrs_params().clone()))
+                    })
+                    .collect();
+            }
+            self.incomplete_fsrs_cards = guard
+                .col
+                .storage
+                .cards_with_incomplete_fsrs_state()?
+                .into_iter()
+                .map(|(id, _)| id)
+                .collect();
             self.revlog = guard.col.gather_revlog()?;
             if !allow_filtered {
                 self.restore_cards_from_filtered_decks();
@@ -370,6 +391,7 @@ mod test {
                 c.inner.fsrs_params_4 = vec![0.1; 17];
                 c.inner.fsrs_params_5 = vec![0.2; 19];
                 c.inner.fsrs_params_6 = vec![0.3; 21];
+                c.inner.fsrs_params_7 = vec![0.4; 34];
             })
             .add(col);
         NoteAdder::basic(col).deck(deck.id).add(col);
@@ -388,6 +410,7 @@ mod test {
         assert_eq!(conf.inner.fsrs_params_4.len(), 17);
         assert_eq!(conf.inner.fsrs_params_5.len(), 19);
         assert_eq!(conf.inner.fsrs_params_6.len(), 21);
+        assert_eq!(conf.inner.fsrs_params_7.len(), 34);
     }
 
     #[test]
@@ -403,5 +426,6 @@ mod test {
         assert!(conf.inner.fsrs_params_4.is_empty());
         assert!(conf.inner.fsrs_params_5.is_empty());
         assert!(conf.inner.fsrs_params_6.is_empty());
+        assert!(conf.inner.fsrs_params_7.is_empty());
     }
 }

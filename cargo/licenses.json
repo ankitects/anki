@@ -280,6 +280,14 @@
     "repository": "https://github.com/fitzgen/bumpalo"
   },
   {
+    "authors": "Lokathor <zefria@gmail.com>",
+    "description": "A crate for mucking around with piles of bytes.",
+    "license": "Apache-2.0 OR MIT OR Zlib",
+    "license_file": null,
+    "name": "bytemuck",
+    "repository": "https://github.com/Lokathor/bytemuck"
+  },
+  {
     "authors": "Carl Lerche <me@carllerche.com>|Sean McArthur <sean@seanmonstar.com>",
     "description": "Types and traits for working with bytes",
     "license": "MIT",
@@ -1248,6 +1256,14 @@
     "repository": "https://github.com/rust-itertools/itertools"
   },
   {
+    "authors": "bluss",
+    "description": "Extra iterator adaptors, iterator methods, free functions, and macros.",
+    "license": "Apache-2.0 OR MIT",
+    "license_file": null,
+    "name": "itertools",
+    "repository": "https://github.com/rust-itertools/itertools"
+  },
+  {
     "authors": "David Tolnay <dtolnay@gmail.com>",
     "description": "Fast integer primitive to string conversion",
     "license": "Apache-2.0 OR MIT",
@@ -1294,6 +1310,14 @@
     "license_file": null,
     "name": "libc",
     "repository": "https://github.com/rust-lang/libc"
+  },
+  {
+    "authors": "Alex Crichton <alex@alexcrichton.com>|Amanieu d'Antras <amanieu@gmail.com>|Jorge Aparicio <japaricious@gmail.com>|Trevor Gross <tg@trevorgross.com>",
+    "description": "libm in pure Rust",
+    "license": "MIT",
+    "license_file": null,
+    "name": "libm",
+    "repository": "https://github.com/rust-lang/compiler-builtins"
   },
   {
     "authors": "4lDO2 <4lDO2@protonmail.com>",
@@ -2057,6 +2081,14 @@
   },
   {
     "authors": "The Rand Project Developers",
+    "description": "Sampling from random number distributions",
+    "license": "Apache-2.0 OR MIT",
+    "license_file": null,
+    "name": "rand_distr",
+    "repository": "https://github.com/rust-random/rand_distr"
+  },
+  {
+    "authors": "The Rand Project Developers",
     "description": "Selected PCG random number generators",
     "license": "Apache-2.0 OR MIT",
     "license_file": null,
@@ -2142,6 +2174,14 @@
     "license_file": null,
     "name": "ring",
     "repository": "https://github.com/briansmith/ring"
+  },
+  {
+    "authors": "Mikhail Vorotilov <mikhail.vorotilov@gmail.com>",
+    "description": "Library of well known algorithms for numerical root finding.",
+    "license": "BSD-2-Clause",
+    "license_file": null,
+    "name": "roots",
+    "repository": "https://github.com/vorot/roots"
   },
   {
     "authors": "The rusqlite developers",
@@ -2230,6 +2270,14 @@
     "license_file": null,
     "name": "ryu",
     "repository": "https://github.com/dtolnay/ryu"
+  },
+  {
+    "authors": "Lokathor <zefria@gmail.com>",
+    "description": "Crate that exposes `core::arch` safely via `#[cfg()]`.",
+    "license": "Apache-2.0 OR MIT OR Zlib",
+    "license_file": null,
+    "name": "safe_arch",
+    "repository": "https://github.com/Lokathor/safe_arch"
   },
   {
     "authors": "Andrew Gallant <jamslam@gmail.com>",
@@ -3248,6 +3296,14 @@
     "repository": "https://github.com/rustls/webpki-roots"
   },
   {
+    "authors": "Lokathor <zefria@gmail.com>",
+    "description": "A crate to help you go wide.",
+    "license": "Apache-2.0 OR MIT OR Zlib",
+    "license_file": null,
+    "name": "wide",
+    "repository": "https://github.com/Lokathor/wide"
+  },
+  {
     "authors": "Andrew Gallant <jamslam@gmail.com>",
     "description": "A dumping ground for high level safe wrappers over windows-sys.",
     "license": "MIT OR Unlicense",
@@ -3361,22 +3417,6 @@
   },
   {
     "authors": "Microsoft",
-    "description": "Rust for Windows",
-    "license": "Apache-2.0 OR MIT",
-    "license_file": null,
-    "name": "windows-sys",
-    "repository": "https://github.com/microsoft/windows-rs"
-  },
-  {
-    "authors": "Microsoft",
-    "description": "Import libs for Windows",
-    "license": "Apache-2.0 OR MIT",
-    "license_file": null,
-    "name": "windows-targets",
-    "repository": "https://github.com/microsoft/windows-rs"
-  },
-  {
-    "authors": "Microsoft",
     "description": "Import libs for Windows",
     "license": "Apache-2.0 OR MIT",
     "license_file": null,
@@ -3404,31 +3444,7 @@
     "description": "Import lib for Windows",
     "license": "Apache-2.0 OR MIT",
     "license_file": null,
-    "name": "windows_aarch64_gnullvm",
-    "repository": "https://github.com/microsoft/windows-rs"
-  },
-  {
-    "authors": "Microsoft",
-    "description": "Import lib for Windows",
-    "license": "Apache-2.0 OR MIT",
-    "license_file": null,
     "name": "windows_aarch64_msvc",
-    "repository": "https://github.com/microsoft/windows-rs"
-  },
-  {
-    "authors": "Microsoft",
-    "description": "Import lib for Windows",
-    "license": "Apache-2.0 OR MIT",
-    "license_file": null,
-    "name": "windows_aarch64_msvc",
-    "repository": "https://github.com/microsoft/windows-rs"
-  },
-  {
-    "authors": "Microsoft",
-    "description": "Import lib for Windows",
-    "license": "Apache-2.0 OR MIT",
-    "license_file": null,
-    "name": "windows_i686_gnu",
     "repository": "https://github.com/microsoft/windows-rs"
   },
   {
@@ -3452,22 +3468,6 @@
     "description": "Import lib for Windows",
     "license": "Apache-2.0 OR MIT",
     "license_file": null,
-    "name": "windows_i686_gnullvm",
-    "repository": "https://github.com/microsoft/windows-rs"
-  },
-  {
-    "authors": "Microsoft",
-    "description": "Import lib for Windows",
-    "license": "Apache-2.0 OR MIT",
-    "license_file": null,
-    "name": "windows_i686_msvc",
-    "repository": "https://github.com/microsoft/windows-rs"
-  },
-  {
-    "authors": "Microsoft",
-    "description": "Import lib for Windows",
-    "license": "Apache-2.0 OR MIT",
-    "license_file": null,
     "name": "windows_i686_msvc",
     "repository": "https://github.com/microsoft/windows-rs"
   },
@@ -3484,31 +3484,7 @@
     "description": "Import lib for Windows",
     "license": "Apache-2.0 OR MIT",
     "license_file": null,
-    "name": "windows_x86_64_gnu",
-    "repository": "https://github.com/microsoft/windows-rs"
-  },
-  {
-    "authors": "Microsoft",
-    "description": "Import lib for Windows",
-    "license": "Apache-2.0 OR MIT",
-    "license_file": null,
     "name": "windows_x86_64_gnullvm",
-    "repository": "https://github.com/microsoft/windows-rs"
-  },
-  {
-    "authors": "Microsoft",
-    "description": "Import lib for Windows",
-    "license": "Apache-2.0 OR MIT",
-    "license_file": null,
-    "name": "windows_x86_64_gnullvm",
-    "repository": "https://github.com/microsoft/windows-rs"
-  },
-  {
-    "authors": "Microsoft",
-    "description": "Import lib for Windows",
-    "license": "Apache-2.0 OR MIT",
-    "license_file": null,
-    "name": "windows_x86_64_msvc",
     "repository": "https://github.com/microsoft/windows-rs"
   },
   {

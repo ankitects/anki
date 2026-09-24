@@ -79,6 +79,10 @@ _test:
 _test-rust:
     {{ ninja }} check:rust_test
 
+# Synthetic FSRS6/7 queue measurements; no user collection is opened.
+fsrs-queue-bench:
+    cargo test -p anki --release --lib fsrs_queue_benchmark -- --ignored --nocapture
+
 [private]
 _test-py:
     {{ ninja }} check:pytest

@@ -2,13 +2,14 @@
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 use fsrs::FSRS;
-use fsrs::FSRS5_DEFAULT_DECAY;
 
 use crate::card::CardType;
 use crate::card::FsrsMemoryState;
 use crate::prelude::*;
 use crate::revlog::RevlogEntry;
+use crate::scheduler::fsrs::memory_state::fsrs_current_retrievability_for_state;
 use crate::scheduler::fsrs::memory_state::fsrs_item_for_memory_state;
+use crate::scheduler::fsrs::memory_state::fsrs_memory_state_for_fsrs;
 use crate::scheduler::fsrs::params::ignore_revlogs_before_ms_from_config;
 use crate::scheduler::timing::is_unix_epoch_timestamp;
 
@@ -46,16 +47,6 @@ impl Collection {
             last_review_time
         };
 
-        let seconds_elapsed = timing.now.elapsed_secs_since(last_review_time) as u32;
-
-        let fsrs_retrievability = card
-            .memory_state
-            .zip(Some(seconds_elapsed))
-            .zip(Some(card.decay.unwrap_or(FSRS5_DEFAULT_DECAY)))
-            .map(|((state, seconds), decay)| {
-                fsrs::current_retrievability(state.into(), seconds as f32 / 86_400.0, decay)
-            });
-
         let original_deck = if card.original_deck_id == DeckId(0) {
             deck.clone()
         } else {
@@ -71,6 +62,18 @@ impl Collection {
         if card.ctype != CardType::New && card.memory_state.is_none() {
             self.compute_and_update_memory_state(&mut card)?;
         }
+
+        let seconds_elapsed = timing.now.elapsed_secs_since(last_review_time).max(0) as u32;
+        let fsrs_retrievability = card
+            .memory_state
+            .map(|state| {
+                fsrs_current_retrievability_for_state(
+                    preset.fsrs_params(),
+                    state,
+                    seconds_elapsed as f32 / 86_400.0,
+                )
+            })
+            .transpose()?;
 
         Ok(anki_proto::stats::CardStatsResponse {
             card_id: card.id.into(),
@@ -181,10 +184,16 @@ impl Collection {
                 let memory_state: Option<FsrsMemoryState> = if revlog_index >= memory_states.len() {
                     // The removed revlog is in the end of the revlog, so we use the last memory
                     // state
-                    Some(memory_states[memory_states.len() - 1].into())
+                    Some(fsrs_memory_state_for_fsrs(
+                        &fsrs,
+                        memory_states[memory_states.len() - 1],
+                    ))
                 } else if entry.id == item.filtered_revlogs[revlog_index].id {
                     revlog_index += 1;
-                    Some(memory_states[revlog_index - 1].into())
+                    Some(fsrs_memory_state_for_fsrs(
+                        &fsrs,
+                        memory_states[revlog_index - 1],
+                    ))
                 } else if revlog_index == 0 {
                     // The removed revlog is in the start of the revlog, so we don't have a memory
                     // state for it
@@ -192,7 +201,10 @@ impl Collection {
                 } else {
                     // The removed revlog is in the middle of the revlog, so we use the memory
                     // state for the previous revlog entry
-                    Some(memory_states[revlog_index].into())
+                    Some(fsrs_memory_state_for_fsrs(
+                        &fsrs,
+                        memory_states[revlog_index],
+                    ))
                 };
                 stats_entry.memory_state = memory_state.map(|s| s.into());
                 result.push(stats_entry);

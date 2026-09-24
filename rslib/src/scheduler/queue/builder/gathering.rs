@@ -1,22 +1,113 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
+use std::hash::Hasher;
+
+use fnv::FnvHasher;
+
 use super::DueCard;
+use super::DueCardWithState;
 use super::NewCard;
 use super::QueueBuilder;
+use crate::card::CardQueue;
 use crate::deckconfig::NewCardGatherPriority;
+use crate::deckconfig::ReviewCardOrder;
 use crate::decks::limits::LimitKind;
 use crate::prelude::*;
+use crate::scheduler::fsrs::metrics::FsrsMetricContext;
 use crate::scheduler::queue::DueCardKind;
+use crate::scheduler::timing::SchedTimingToday;
 use crate::storage::card::NewCardSorting;
+
+#[derive(Debug, Clone, Copy)]
+struct DueCardForRetrievabilitySort {
+    card: DueCard,
+    counts_towards_review_limit: bool,
+    interday_or_review: bool,
+}
 
 impl QueueBuilder {
     pub(super) fn gather_cards(&mut self, col: &mut Collection) -> Result<()> {
+        if self.context.uses_exact_retrievability_order() {
+            self.gather_due_non_new_cards_with_exact_retrievability(col)?;
+            self.gather_new_cards(col)?;
+            return Ok(());
+        }
+
         self.gather_intraday_learning_cards(col)?;
         self.gather_due_cards(col, DueCardKind::Learning)?;
         self.gather_due_cards(col, DueCardKind::Review)?;
         self.gather_new_cards(col)?;
 
+        Ok(())
+    }
+
+    fn gather_due_non_new_cards_with_exact_retrievability(
+        &mut self,
+        col: &mut Collection,
+    ) -> Result<()> {
+        self.gather_future_learning_cards_for_retrievability_sort(col)?;
+        let cards = col
+            .storage
+            .due_cards_with_state_in_active_decks(self.context.timing)?;
+
+        let mut with_keys = {
+            let mut metrics =
+                FsrsMetricContext::new(&self.context.deck_map, &self.context.config_map);
+            let mut with_keys = Vec::with_capacity(cards.len());
+            for card in cards {
+                let interday_or_review =
+                    matches!(card.queue, CardQueue::Review | CardQueue::DayLearn);
+                let candidate = DueCardForRetrievabilitySort {
+                    card: card.card,
+                    counts_towards_review_limit: interday_or_review,
+                    interday_or_review,
+                };
+                let key = exact_review_order_key(
+                    &mut metrics,
+                    &card,
+                    self.context.timing,
+                    self.context.sort_options.review_order,
+                )?;
+                with_keys.push((candidate, key, fnvhash_due_card(&candidate.card)));
+            }
+            with_keys
+        };
+        let descending = matches!(
+            self.context.sort_options.review_order,
+            ReviewCardOrder::RetrievabilityDescending
+        );
+        with_keys.sort_unstable_by(
+            |(candidate_a, key_a, hash_a), (candidate_b, key_b, hash_b)| {
+                let order = key_a.total_cmp(key_b);
+                let order = if descending { order.reverse() } else { order };
+                order
+                    .then_with(|| hash_a.cmp(hash_b))
+                    .then_with(|| candidate_a.card.id.cmp(&candidate_b.card.id))
+            },
+        );
+
+        for (candidate, _, _) in with_keys {
+            if candidate.counts_towards_review_limit
+                && (self.limits.root_limit_reached(LimitKind::Review)
+                    || self
+                        .limits
+                        .limit_reached(candidate.card.current_deck_id, LimitKind::Review)?)
+            {
+                continue;
+            }
+            if self
+                .add_due_card_for_retrievability_sort(candidate.card, candidate.interday_or_review)
+            {
+                self.retrievability_sorted_non_new.push(candidate.card);
+                if candidate.counts_towards_review_limit {
+                    self.limits.decrement_deck_and_parent_limits(
+                        candidate.card.current_deck_id,
+                        LimitKind::Review,
+                    )?;
+                }
+            }
+        }
         Ok(())
     }
 
@@ -29,6 +120,22 @@ impl QueueBuilder {
             },
         )?;
 
+        Ok(())
+    }
+
+    fn gather_future_learning_cards_for_retrievability_sort(
+        &mut self,
+        col: &mut Collection,
+    ) -> Result<()> {
+        col.storage.for_each_intraday_card_in_active_decks(
+            self.context.timing.next_day_at,
+            |card| {
+                if card.due > self.context.timing.now.0 as i32 {
+                    self.get_and_update_bury_mode_for_note(card.into());
+                    self.learning.push(card);
+                }
+            },
+        )?;
         Ok(())
     }
 
@@ -134,23 +241,30 @@ impl QueueBuilder {
 
     /// True if limit should be decremented.
     fn add_due_card(&mut self, card: DueCard) -> bool {
-        let bury_this_card = self
-            .get_and_update_bury_mode_for_note(card.into())
-            .map(|mode| match card.kind {
-                DueCardKind::Review => mode.bury_reviews,
-                DueCardKind::Learning => mode.bury_interday_learning,
-            })
-            .unwrap_or_default();
-        if bury_this_card {
-            false
-        } else {
+        let added = self.add_due_card_for_retrievability_sort(card, true);
+        if added {
             match card.kind {
                 DueCardKind::Review => self.review.push(card),
                 DueCardKind::Learning => self.day_learning.push(card),
             }
-
-            true
         }
+        added
+    }
+
+    fn add_due_card_for_retrievability_sort(
+        &mut self,
+        card: DueCard,
+        interday_or_review: bool,
+    ) -> bool {
+        let bury_this_card = self
+            .get_and_update_bury_mode_for_note(card.into())
+            .map(|mode| match card.kind {
+                DueCardKind::Review => mode.bury_reviews,
+                DueCardKind::Learning if interday_or_review => mode.bury_interday_learning,
+                DueCardKind::Learning => false,
+            })
+            .unwrap_or_default();
+        !bury_this_card
     }
 
     // True if limit should be decremented.
@@ -173,4 +287,55 @@ impl QueueBuilder {
     fn knuth_salt(base_salt: u32) -> u32 {
         base_salt.wrapping_mul(2654435761)
     }
+}
+
+fn elapsed_seconds_since_last_review(card: &DueCardWithState, timing: SchedTimingToday) -> u32 {
+    if let Some(last_review) = card.last_review_time {
+        timing.now.elapsed_secs_since(last_review).max(0) as u32
+    } else {
+        // Preserve the legacy due/interval estimate when no timestamp was stored.
+        let due = card.original_or_current_due() as i64;
+        if due > 365_000 {
+            timing.now.elapsed_secs_since(TimestampSecs(due)).max(0) as u32
+        } else {
+            ((timing.days_elapsed as i64 - due + card.interval as i64).max(0) * 86_400) as u32
+        }
+    }
+}
+
+fn exact_review_order_key(
+    metrics: &mut FsrsMetricContext,
+    card: &DueCardWithState,
+    timing: SchedTimingToday,
+    order: ReviewCardOrder,
+) -> Result<f32> {
+    if let Some(state) = card.memory_state {
+        let elapsed_days = elapsed_seconds_since_last_review(card, timing) as f32 / 86_400.0;
+        let deck_id = if card.card.original_deck_id.0 != 0 {
+            card.card.original_deck_id
+        } else {
+            card.card.current_deck_id
+        };
+        if matches!(order, ReviewCardOrder::RelativeOverdueness) {
+            metrics.relative_overdueness_for_deck(deck_id, state, elapsed_days)
+        } else {
+            metrics.current_retrievability_for_deck(deck_id, state, elapsed_days)
+        }
+    } else {
+        let due = card.original_or_current_due() as i64;
+        let review_day = due.saturating_sub(card.interval as i64);
+        let days_elapsed = if due > 365_000 {
+            (timing.next_day_at.0 as u32).saturating_sub(due as u32) / 86_400
+        } else {
+            timing.days_elapsed.saturating_sub(review_day as u32)
+        };
+        Ok(-((days_elapsed as f32) + 0.001) / (card.interval as f32).max(1.0))
+    }
+}
+
+fn fnvhash_due_card(card: &DueCard) -> i64 {
+    let mut hasher = FnvHasher::default();
+    hasher.write_i64(card.id.0);
+    hasher.write_i64(card.mtime.0);
+    hasher.finish() as i64
 }

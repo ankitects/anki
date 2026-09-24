@@ -8,6 +8,7 @@ mod sqlwriter;
 pub(crate) mod writer;
 
 use std::borrow::Cow;
+use std::cmp::Ordering;
 
 pub use builder::JoinSearches;
 pub use builder::Negated;
@@ -29,7 +30,10 @@ pub use writer::replace_search_node;
 use crate::browser_table::Column;
 use crate::card::CardType;
 use crate::prelude::*;
+use crate::scheduler::fsrs::metrics::FsrsMetricContext;
 use crate::scheduler::timing::SchedTimingToday;
+
+const EXACT_RETRIEVABILITY_TABLE: &str = "search_exact_retrievability";
 
 #[derive(Debug, PartialEq, Eq, Clone, Copy)]
 pub enum ReturnItemType {
@@ -159,6 +163,12 @@ impl Collection {
     where
         N: TryIntoSearch,
     {
+        if let Some(reverse) = exact_retrievability_sort_mode(ReturnItemType::Cards, &mode) {
+            let top_node = search.try_into_search()?;
+            let mut ids = self.search_card_ids_for_node(&top_node, mode.required_table())?;
+            self.sort_card_ids_by_exact_retrievability(&mut ids, reverse)?;
+            return Ok(ids);
+        }
         self.search(search, mode)
     }
 
@@ -178,6 +188,123 @@ impl Collection {
 }
 
 impl Collection {
+    fn with_exact_retrievability_table<R>(
+        &mut self,
+        needed: bool,
+        op: impl FnOnce(&mut Self) -> Result<R>,
+    ) -> Result<R> {
+        if needed {
+            if let Err(err) = self.setup_exact_retrievability_table() {
+                let _ = self.clear_exact_retrievability_table();
+                return Err(err);
+            }
+        }
+        let result = op(self);
+        let cleanup = if needed {
+            self.clear_exact_retrievability_table()
+        } else {
+            Ok(())
+        };
+        match (result, cleanup) {
+            (Err(err), _) => Err(err),
+            (Ok(_), Err(err)) => Err(err),
+            (Ok(value), Ok(())) => Ok(value),
+        }
+    }
+
+    fn setup_exact_retrievability_table(&mut self) -> Result<()> {
+        self.storage.db.execute_batch(&format!(
+            "drop table if exists {EXACT_RETRIEVABILITY_TABLE};\
+             create temporary table {EXACT_RETRIEVABILITY_TABLE}(\
+                cid integer primary key, retrievability real)"
+        ))?;
+        let timing = self.timing_today()?;
+        let decks = self.storage.get_decks_map()?;
+        let configs = self.storage.get_deck_config_map()?;
+        let mut metrics = FsrsMetricContext::new(&decks, &configs);
+        let cards = self.storage.all_cards_for_fsrs_metrics()?;
+        let mut rows = Vec::new();
+        for card in cards {
+            if let Some(state) = card.memory_state {
+                let elapsed_days =
+                    card.seconds_since_last_review(&timing).unwrap_or_default() as f32 / 86_400.0;
+                rows.push((
+                    card.id.0,
+                    metrics.current_retrievability(&card, state, elapsed_days)?,
+                ));
+            }
+        }
+        let mut insert = self.storage.db.prepare_cached(&format!(
+            "insert into {EXACT_RETRIEVABILITY_TABLE}(cid, retrievability) values (?, ?)"
+        ))?;
+        for (cid, retrievability) in rows {
+            insert.execute(rusqlite::params![cid, retrievability])?;
+        }
+        Ok(())
+    }
+
+    fn clear_exact_retrievability_table(&self) -> Result<()> {
+        self.storage.db.execute(
+            &format!("drop table if exists {EXACT_RETRIEVABILITY_TABLE}"),
+            [],
+        )?;
+        Ok(())
+    }
+
+    fn search_card_ids_for_node(
+        &mut self,
+        top_node: &Node,
+        required_table: RequiredTable,
+    ) -> Result<Vec<CardId>> {
+        self.with_exact_retrievability_table(has_retrievability_property(top_node), |col| {
+            let writer = SqlWriter::new(col, ReturnItemType::Cards);
+            let (sql, args) = writer.build_query(top_node, required_table)?;
+            let mut stmt = col.storage.db.prepare(&sql)?;
+            let ids = stmt
+                .query_map(params_from_iter(args.iter()), |row| row.get(0))?
+                .collect::<std::result::Result<_, _>>()
+                .map_err(Into::into);
+            ids
+        })
+    }
+
+    fn sort_card_ids_by_exact_retrievability(
+        &mut self,
+        ids: &mut [CardId],
+        reverse: bool,
+    ) -> Result<()> {
+        let timing = self.timing_today()?;
+        let cards = self.all_cards_for_ids(ids, false)?;
+        let decks = self.storage.get_decks_map()?;
+        let configs = self.storage.get_deck_config_map()?;
+        let mut metrics = FsrsMetricContext::new(&decks, &configs);
+        let mut with_retrievability = Vec::with_capacity(ids.len());
+        for card in cards {
+            let retrievability = if let Some(state) = card.memory_state {
+                let elapsed_days =
+                    card.seconds_since_last_review(&timing).unwrap_or_default() as f32 / 86_400.0;
+                Some(metrics.current_retrievability(&card, state, elapsed_days)?)
+            } else {
+                None
+            };
+            with_retrievability.push((card.id, retrievability));
+        }
+        with_retrievability.sort_by(|(cid_a, r_a), (cid_b, r_b)| {
+            let order = match (r_a, r_b) {
+                (Some(a), Some(b)) => a.total_cmp(b),
+                (None, Some(_)) => Ordering::Less,
+                (Some(_), None) => Ordering::Greater,
+                (None, None) => Ordering::Equal,
+            };
+            let order = if reverse { order.reverse() } else { order };
+            order.then_with(|| cid_a.cmp(cid_b))
+        });
+        for (target, (cid, _)) in ids.iter_mut().zip(with_retrievability) {
+            *target = cid;
+        }
+        Ok(())
+    }
+
     fn search<T, N>(&mut self, search: N, mode: SortMode) -> Result<Vec<T>>
     where
         N: TryIntoSearch,
@@ -185,17 +312,17 @@ impl Collection {
     {
         let item_type = T::as_return_item_type();
         let top_node = search.try_into_search()?;
-        let writer = SqlWriter::new(self, item_type);
+        self.with_exact_retrievability_table(has_retrievability_property(&top_node), |col| {
+            let writer = SqlWriter::new(col, item_type);
+            let (mut sql, args) = writer.build_query(&top_node, mode.required_table())?;
+            col.add_order(&mut sql, item_type, mode)?;
 
-        let (mut sql, args) = writer.build_query(&top_node, mode.required_table())?;
-        self.add_order(&mut sql, item_type, mode)?;
-
-        let mut stmt = self.storage.db.prepare(&sql)?;
-        let ids: Vec<_> = stmt
-            .query_map(params_from_iter(args.iter()), |row| row.get(0))?
-            .collect::<std::result::Result<_, _>>()?;
-
-        Ok(ids)
+            let mut stmt = col.storage.db.prepare(&sql)?;
+            let ids = stmt
+                .query_map(params_from_iter(args.iter()), |row| row.get(0))?
+                .collect::<std::result::Result<_, _>>()?;
+            Ok(ids)
+        })
     }
 
     fn add_order(
@@ -229,25 +356,38 @@ impl Collection {
         mode: SortMode,
     ) -> Result<CardTableGuard<'_>> {
         let top_node = search.try_into_search()?;
-        let writer = SqlWriter::new(self, ReturnItemType::Cards);
-        let want_order = mode != SortMode::NoOrder;
-
-        let (mut sql, args) = writer.build_query(&top_node, mode.required_table())?;
-        self.add_order(&mut sql, ReturnItemType::Cards, mode)?;
-
-        if want_order {
+        if let Some(reverse) = exact_retrievability_sort_mode(ReturnItemType::Cards, &mode) {
+            let mut ids = self.search_card_ids_for_node(&top_node, mode.required_table())?;
+            self.sort_card_ids_by_exact_retrievability(&mut ids, reverse)?;
             self.storage
                 .setup_searched_cards_table_to_preserve_order()?;
-        } else {
-            self.storage.setup_searched_cards_table()?;
+            self.storage.set_search_table_to_card_ids(&ids)?;
+            return Ok(CardTableGuard {
+                cards: ids.len(),
+                col: self,
+            });
         }
-        let sql = format!("insert into search_cids {sql}");
+        let want_order = mode != SortMode::NoOrder;
 
-        let cards = self
-            .storage
-            .db
-            .prepare(&sql)?
-            .execute(params_from_iter(args))?;
+        let cards =
+            self.with_exact_retrievability_table(has_retrievability_property(&top_node), |col| {
+                let writer = SqlWriter::new(col, ReturnItemType::Cards);
+                let (mut sql, args) = writer.build_query(&top_node, mode.required_table())?;
+                col.add_order(&mut sql, ReturnItemType::Cards, mode)?;
+
+                if want_order {
+                    col.storage.setup_searched_cards_table_to_preserve_order()?;
+                } else {
+                    col.storage.setup_searched_cards_table()?;
+                }
+                let sql = format!("insert into search_cids {sql}");
+
+                col.storage
+                    .db
+                    .prepare(&sql)?
+                    .execute(params_from_iter(args))
+                    .map_err(Into::into)
+            })?;
 
         Ok(CardTableGuard { cards, col: self })
     }
@@ -325,6 +465,31 @@ impl Collection {
         self.storage.setup_searched_cards_table()?;
         let cards = self.storage.search_cards_of_notes_into_table()?;
         Ok(CardTableGuard { cards, col: self })
+    }
+}
+
+fn exact_retrievability_sort_mode(item_type: ReturnItemType, mode: &SortMode) -> Option<bool> {
+    match (item_type, mode) {
+        (
+            ReturnItemType::Cards,
+            SortMode::Builtin {
+                column: Column::Retrievability,
+                reverse,
+            },
+        ) => Some(*reverse),
+        _ => None,
+    }
+}
+
+fn has_retrievability_property(node: &Node) -> bool {
+    match node {
+        Node::Not(inner) => has_retrievability_property(inner),
+        Node::Group(nodes) => nodes.iter().any(has_retrievability_property),
+        Node::Search(SearchNode::Property {
+            kind: PropertyKind::Retrievability(_),
+            ..
+        }) => true,
+        _ => false,
     }
 }
 
@@ -449,9 +614,13 @@ fn prepare_sort(col: &mut Collection, column: Column, item_type: ReturnItemType)
 #[cfg(test)]
 mod test {
     use anki_proto::search::browser_columns::Sorting;
+    use fsrs::DEFAULT_PARAMETERS;
     use strum::IntoEnumIterator;
 
     use super::*;
+    use crate::card::CardQueue;
+    use crate::card::FsrsMemoryState;
+    use crate::scheduler::fsrs::memory_state::fsrs_current_retrievability_for_state;
 
     impl SchedTimingToday {
         pub(crate) fn zero() -> Self {
@@ -476,5 +645,86 @@ mod test {
                 matches!(column.default_notes_order(), Sorting::None)
             );
         }
+    }
+
+    #[test]
+    fn retrievability_search_and_sort_use_complete_fsrs7_state() -> Result<()> {
+        let mut col = Collection::new();
+        let config_id = col.get_deck(DeckId(1))?.unwrap().config_id().unwrap();
+        let mut config = col.get_deck_config(config_id, false)?.unwrap();
+        config.inner.fsrs_params_7 = DEFAULT_PARAMETERS.to_vec();
+        col.add_or_update_deck_config(&mut config)?;
+
+        let nt = col.get_notetype_by_name("Basic")?.unwrap();
+        let mut note1 = nt.new_note();
+        let mut note2 = nt.new_note();
+        col.add_note(&mut note1, DeckId(1))?;
+        col.add_note(&mut note2, DeckId(1))?;
+        let timing = col.timing_today()?;
+        let mut cards = col.all_cards_for_search("")?;
+        cards.sort_by_key(|card| card.id);
+        let states = [
+            FsrsMemoryState {
+                stability: 10.0,
+                stability_internal: 10.0,
+                stability_fast: Some(20.0),
+                difficulty: 5.0,
+            },
+            FsrsMemoryState {
+                stability: 10.0,
+                stability_internal: 10.0,
+                stability_fast: Some(5.0),
+                difficulty: 8.0,
+            },
+        ];
+        let mut keyed = Vec::new();
+        for (card, state) in cards.iter_mut().zip(states) {
+            card.ctype = CardType::Review;
+            card.queue = CardQueue::Review;
+            card.interval = 20;
+            card.memory_state = Some(state);
+            card.last_review_time = Some(timing.now.adding_secs(-20 * 86_400));
+            // These compatibility values must not influence built-in metrics.
+            card.decay = Some(if keyed.is_empty() { 2.0 } else { 0.1 });
+            col.storage.update_card(card)?;
+            keyed.push((
+                card.id,
+                fsrs_current_retrievability_for_state(&DEFAULT_PARAMETERS, state, 20.0)?,
+            ));
+        }
+        assert_ne!(keyed[0].1, keyed[1].1);
+        keyed.sort_by(|a, b| a.1.total_cmp(&b.1));
+
+        let sorted = col.search_cards(
+            "",
+            SortMode::Builtin {
+                column: Column::Retrievability,
+                reverse: false,
+            },
+        )?;
+        assert_eq!(sorted, keyed.iter().map(|(id, _)| *id).collect::<Vec<_>>());
+
+        let midpoint = (keyed[0].1 + keyed[1].1) / 2.0;
+        let query = format!("prop:r<{midpoint:.6}");
+        assert_eq!(
+            col.search_cards(&query, SortMode::NoOrder)?,
+            vec![keyed[0].0]
+        );
+        Ok(())
+    }
+
+    #[test]
+    fn exact_retrievability_table_is_cleared_after_search_errors() -> Result<()> {
+        let mut col = Collection::new();
+        let result: Result<()> =
+            col.with_exact_retrievability_table(true, |_| invalid_input!("forced search failure"));
+        assert!(result.is_err());
+        let count: u32 = col.storage.db.query_row(
+            "select count(*) from sqlite_temp_master where name = ?",
+            [EXACT_RETRIEVABILITY_TABLE],
+            |row| row.get(0),
+        )?;
+        assert_eq!(count, 0);
+        Ok(())
     }
 }

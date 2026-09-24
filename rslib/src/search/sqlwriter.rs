@@ -434,14 +434,10 @@ impl SqlWriter<'_> {
                 write!(self.sql, "extract_fsrs_variable(c.data, 'd') {op} {d}").unwrap()
             }
             PropertyKind::Retrievability(r) => {
-                let (elap, next_day_at, now) = {
-                    let timing = self.col.timing_today()?;
-                    (timing.days_elapsed, timing.next_day_at, timing.now)
-                };
                 const NEW_TYPE: i8 = CardType::New as i8;
                 write!(
                     self.sql,
-                    "case when c.type = {NEW_TYPE} then false else (extract_fsrs_retrievability(c.data, case when c.odue !=0 then c.odue else c.due end, c.ivl, {elap}, {next_day_at}, {now}) {op} {r}) end"
+                    "case when c.type = {NEW_TYPE} then false else ((select retrievability from search_exact_retrievability where cid = c.id) {op} {r}) end"
                 )
                 .unwrap()
             }

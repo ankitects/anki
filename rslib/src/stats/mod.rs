@@ -2,7 +2,9 @@
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 mod card;
+mod details;
 mod graphs;
+mod memory;
 mod service;
 mod today;
 

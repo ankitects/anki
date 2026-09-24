@@ -6,14 +6,23 @@
 use std::collections::HashMap;
 use std::collections::HashSet;
 use std::iter;
+use std::sync::atomic::AtomicBool;
+use std::sync::atomic::Ordering;
+use std::sync::Arc;
+use std::thread;
+use std::time::Duration;
 
 use anki_proto::deck_config::deck_configs_for_update::current_deck::Limits;
 use anki_proto::deck_config::deck_configs_for_update::ConfigWithExtra;
 use anki_proto::deck_config::deck_configs_for_update::CurrentDeck;
 use anki_proto::deck_config::UpdateDeckConfigsMode;
 use anki_proto::decks::deck::normal::DayLimit;
+use fsrs::CombinedProgressState;
 use fsrs::DEFAULT_PARAMETERS;
 use fsrs::FSRS;
+use rayon::prelude::*;
+use tracing::debug;
+use tracing::warn;
 
 use crate::config::I32ConfigKey;
 use crate::config::StringKey;
@@ -21,14 +30,38 @@ use crate::decks::NormalDeck;
 use crate::prelude::*;
 use crate::scheduler::fsrs::memory_state::UpdateMemoryStateEntry;
 use crate::scheduler::fsrs::memory_state::UpdateMemoryStateRequest;
+use crate::scheduler::fsrs::params::compute_params_from_prepared;
 use crate::scheduler::fsrs::params::ignore_revlogs_before_ms_from_config;
-use crate::scheduler::fsrs::params::ComputeParamsRequest;
+use crate::scheduler::fsrs::params::ComputeAllParamsPresetProgress;
+use crate::scheduler::fsrs::params::ComputeAllParamsProgress;
+use crate::scheduler::fsrs::params::PreparedComputeParams;
 use crate::search::JoinSearches;
 use crate::search::Negated;
 use crate::search::Node;
 use crate::search::SearchNode;
 use crate::search::StateKind;
 use crate::storage::comma_separated_ids;
+
+struct ComputeAllParamsJob {
+    config_index: usize,
+    progress_index: usize,
+    name: String,
+    prepared: PreparedComputeParams,
+    progress: Arc<std::sync::Mutex<CombinedProgressState>>,
+    done: Arc<AtomicBool>,
+    failed: Arc<AtomicBool>,
+}
+
+impl ComputeAllParamsJob {
+    fn estimated_reviews(&self) -> usize {
+        self.prepared.target_counts.total_targets
+    }
+}
+
+struct ComputeAllParamsJobLane {
+    estimated_reviews: usize,
+    jobs: Vec<ComputeAllParamsJob>,
+}
 
 #[derive(Debug, Clone)]
 pub struct UpdateDeckConfigsRequest {
@@ -53,7 +86,7 @@ impl Collection {
         deck: DeckId,
     ) -> Result<anki_proto::deck_config::DeckConfigsForUpdate> {
         let mut defaults = DeckConfig::default();
-        defaults.inner.fsrs_params_6 = DEFAULT_PARAMETERS.into();
+        defaults.inner.fsrs_params_7 = DEFAULT_PARAMETERS.into();
         let last_optimize = self.get_config_i32(I32ConfigKey::LastFsrsOptimize) as u32;
         let days_since_last_fsrs_optimize = if last_optimize > 0 {
             self.timing_today()?
@@ -93,14 +126,11 @@ impl Collection {
         // grab the config and sort it
         let mut config = self.storage.all_deck_config()?;
         config.sort_unstable_by(|a, b| a.name.cmp(&b.name));
-        // pre-fill empty fsrs params with older params
+        // The UI exposes a single parameter input. Populate the newest slot from an
+        // older collection without changing which model the parameter length selects.
         config.iter_mut().for_each(|c| {
-            if c.inner.fsrs_params_6.is_empty() {
-                c.inner.fsrs_params_6 = if c.inner.fsrs_params_5.is_empty() {
-                    c.inner.fsrs_params_4.clone()
-                } else {
-                    c.inner.fsrs_params_5.clone()
-                };
+            if c.inner.fsrs_params_7.is_empty() {
+                c.inner.fsrs_params_7 = c.fsrs_params().to_vec();
             }
         });
 
@@ -183,12 +213,16 @@ impl Collection {
                 today.clone_into(&mut conf.inner.ignore_revlogs_before_date);
             }
 
-            // If the user has provided empty FSRS6 params, zero out any
+            // If the user has provided empty current params, zero out any
             // old params as well, so we don't fall back on them, which would
-            // be surprising as they're not shown in the GUI.
-            if conf.inner.fsrs_params_6.is_empty() {
+            // be surprising as they're not shown in the GUI. Persist the
+            // current defaults explicitly, matching the automatic upgrade of
+            // empty presets when opening a collection.
+            if conf.inner.fsrs_params_7.is_empty() {
+                conf.inner.fsrs_params_6.clear();
                 conf.inner.fsrs_params_5.clear();
                 conf.inner.fsrs_params_4.clear();
+                conf.inner.fsrs_params_7 = DEFAULT_PARAMETERS.to_vec();
             }
             // check the provided parameters are valid before we save them
             FSRS::new(conf.fsrs_params())?;
@@ -291,7 +325,7 @@ impl Collection {
                     let params = config.and_then(|c| {
                         if req.fsrs {
                             Some(UpdateMemoryStateRequest {
-                                params: c.fsrs_params().clone(),
+                                params: c.fsrs_params().to_vec(),
                                 preset_desired_retention: c.inner.desired_retention,
                                 max_interval: c.inner.maximum_review_interval,
                                 reschedule: req.fsrs_reschedule,
@@ -375,9 +409,11 @@ impl Collection {
         // other parts of the code expect the currently-selected preset to come last
         req.configs.push(previous_last);
 
-        // calculate and apply params to each preset
-        let config_len = req.configs.len() as u32;
-        for (idx, config) in req.configs.iter_mut().enumerate() {
+        // Collection access is serialized, so prepare each independent training
+        // set first. The CPU-heavy optimizers can then safely run concurrently.
+        let mut jobs = Vec::with_capacity(req.configs.len());
+        let mut progress_entries = Vec::with_capacity(req.configs.len());
+        for (config_index, config) in req.configs.iter().enumerate() {
             let search = if config.inner.param_search.trim().is_empty() {
                 SearchNode::Preset(config.name.clone())
                     .and(SearchNode::State(StateKind::Suspended).negated())
@@ -388,29 +424,172 @@ impl Collection {
             };
             let ignore_revlogs_before_ms = ignore_revlogs_before_ms_from_config(config)?;
             let num_of_relearning_steps = config.inner.relearn_steps.len();
-            match self.compute_params(ComputeParamsRequest {
-                search: &search,
+            let prepared = self.prepare_compute_params(
+                &search,
                 ignore_revlogs_before_ms,
-                current_preset: idx as u32 + 1,
-                total_presets: config_len,
-                current_params: config.fsrs_params(),
+                config.fsrs_params(),
                 num_of_relearning_steps,
-                health_check: false,
-            }) {
+            )?;
+            let progress_index = progress_entries.len();
+            let progress_entry = ComputeAllParamsPresetProgress {
+                name: config.name.clone(),
+                reviews: prepared.target_counts.total_targets as u32,
+                long_term_reviews: prepared.target_counts.long_term_targets as u32,
+                short_term_reviews: prepared.target_counts.short_term_targets as u32,
+                ..Default::default()
+            };
+            if prepared.target_counts.total_targets == 0 {
+                progress_entries.push(ComputeAllParamsPresetProgress {
+                    finished: true,
+                    skipped: true,
+                    ..progress_entry
+                });
+                continue;
+            }
+            progress_entries.push(progress_entry);
+            jobs.push(ComputeAllParamsJob {
+                config_index,
+                progress_index,
+                name: config.name.clone(),
+                prepared,
+                progress: CombinedProgressState::new_shared(),
+                done: Arc::new(AtomicBool::new(false)),
+                failed: Arc::new(AtomicBool::new(false)),
+            });
+        }
+
+        let total_jobs = jobs.len() as u32;
+        let progress_thread =
+            self.create_compute_all_params_progress_thread(&jobs, progress_entries, total_jobs)?;
+        let results = compute_all_params_job_lanes(jobs)
+            .into_par_iter()
+            .flat_map(|lane| {
+                lane.jobs
+                    .into_iter()
+                    .map(|job| {
+                        let result = compute_params_from_prepared(
+                            job.prepared,
+                            Some(job.progress.clone()),
+                            false,
+                        );
+                        job.failed.store(result.is_err(), Ordering::Release);
+                        job.done.store(true, Ordering::Release);
+                        (job.config_index, job.name, result)
+                    })
+                    .collect::<Vec<_>>()
+            })
+            .collect::<Vec<_>>();
+        progress_thread.join().ok();
+
+        for (config_index, name, result) in results {
+            match result {
                 Ok(params) => {
-                    println!("{}: {:?}", config.name, params.params);
-                    config.inner.fsrs_params_6 = params.params;
+                    debug!(preset = name, params = ?params.params, "optimized FSRS preset");
+                    req.configs[config_index].inner.fsrs_params_7 = params.params;
                 }
                 Err(AnkiError::Interrupted) => return Err(AnkiError::Interrupted),
                 Err(err) => {
-                    println!("{}: {}", config.name, err)
+                    warn!(preset = name, error = %err, "failed to optimize FSRS preset");
                 }
             }
-            let today = self.timing_today()?.days_elapsed as i32;
-            self.set_config_i32_inner(I32ConfigKey::LastFsrsOptimize, today)?;
         }
+        let today = self.timing_today()?.days_elapsed as i32;
+        self.set_config_i32_inner(I32ConfigKey::LastFsrsOptimize, today)?;
         Ok(())
     }
+
+    fn create_compute_all_params_progress_thread(
+        &self,
+        jobs: &[ComputeAllParamsJob],
+        progress_entries: Vec<ComputeAllParamsPresetProgress>,
+        total_jobs: u32,
+    ) -> Result<thread::JoinHandle<()>> {
+        let mut anki_progress = self.new_progress_handler::<ComputeAllParamsProgress>();
+        anki_progress.set(ComputeAllParamsProgress {
+            current_iteration: 0,
+            total_iterations: total_jobs,
+            presets: progress_entries,
+        })?;
+        let progresses = jobs
+            .iter()
+            .map(|job| job.progress.clone())
+            .collect::<Vec<_>>();
+        let done = jobs.iter().map(|job| job.done.clone()).collect::<Vec<_>>();
+        let failed = jobs
+            .iter()
+            .map(|job| job.failed.clone())
+            .collect::<Vec<_>>();
+        let progress_indexes = jobs
+            .iter()
+            .map(|job| job.progress_index)
+            .collect::<Vec<_>>();
+
+        Ok(thread::spawn(move || loop {
+            thread::sleep(Duration::from_millis(100));
+            let finished = done.iter().all(|done| done.load(Ordering::Acquire));
+            if anki_progress
+                .update(false, |state| {
+                    for (((progress_index, progress), done), failed) in progress_indexes
+                        .iter()
+                        .zip(&progresses)
+                        .zip(&done)
+                        .zip(&failed)
+                    {
+                        let optimizer = progress.lock().unwrap();
+                        let preset = &mut state.presets[*progress_index];
+                        preset.current_iteration = optimizer.current() as u32;
+                        preset.total_iterations = optimizer.total() as u32;
+                        preset.finished = done.load(Ordering::Acquire);
+                        preset.failed = failed.load(Ordering::Acquire);
+                    }
+                    state.current_iteration = state
+                        .presets
+                        .iter()
+                        .filter(|preset| preset.finished && !preset.skipped)
+                        .count() as u32;
+                })
+                .is_err()
+            {
+                for progress in &progresses {
+                    progress.lock().unwrap().want_abort = true;
+                }
+                break;
+            }
+            if finished {
+                break;
+            }
+        }))
+    }
+}
+
+fn compute_all_params_job_lanes(jobs: Vec<ComputeAllParamsJob>) -> Vec<ComputeAllParamsJobLane> {
+    if jobs.is_empty() {
+        return Vec::new();
+    }
+    let lane_count = rayon::current_num_threads().min(jobs.len());
+    compute_all_params_job_lanes_with_count(jobs, lane_count)
+}
+
+fn compute_all_params_job_lanes_with_count(
+    mut jobs: Vec<ComputeAllParamsJob>,
+    lane_count: usize,
+) -> Vec<ComputeAllParamsJobLane> {
+    jobs.sort_unstable_by_key(|job| std::cmp::Reverse(job.estimated_reviews()));
+    let mut lanes = (0..lane_count)
+        .map(|_| ComputeAllParamsJobLane {
+            estimated_reviews: 0,
+            jobs: Vec::new(),
+        })
+        .collect::<Vec<_>>();
+    for job in jobs {
+        let lane = lanes
+            .iter_mut()
+            .min_by_key(|lane| lane.estimated_reviews)
+            .unwrap();
+        lane.estimated_reviews += job.estimated_reviews();
+        lane.jobs.push(job);
+    }
+    lanes
 }
 
 fn normal_deck_to_limits(deck: &NormalDeck, today: u32) -> Limits {
@@ -462,6 +641,42 @@ mod test {
     use crate::tests::open_test_collection_with_learning_card;
     use crate::tests::open_test_collection_with_relearning_card;
     use crate::timestamp::TimestampSecs;
+
+    fn compute_all_job(estimated_reviews: usize) -> ComputeAllParamsJob {
+        ComputeAllParamsJob {
+            config_index: estimated_reviews,
+            progress_index: estimated_reviews,
+            name: estimated_reviews.to_string(),
+            prepared: PreparedComputeParams {
+                current_params: vec![],
+                num_of_relearning_steps: 0,
+                items: vec![],
+                card_ids: vec![],
+                target_counts: crate::scheduler::fsrs::params::TrainingTargetCounts {
+                    total_targets: estimated_reviews,
+                    ..Default::default()
+                },
+            },
+            progress: CombinedProgressState::new_shared(),
+            done: Arc::new(AtomicBool::new(false)),
+            failed: Arc::new(AtomicBool::new(false)),
+        }
+    }
+
+    #[test]
+    fn compute_all_jobs_are_balanced_across_worker_lanes() {
+        let lanes = compute_all_params_job_lanes_with_count(
+            [8, 7, 6, 5].into_iter().map(compute_all_job).collect(),
+            2,
+        );
+        assert_eq!(
+            lanes
+                .iter()
+                .map(|lane| lane.estimated_reviews)
+                .collect::<Vec<_>>(),
+            vec![13, 13]
+        );
+    }
 
     #[test]
     fn updating() -> Result<()> {

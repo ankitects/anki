@@ -87,6 +87,7 @@ pub fn handle_received_upload(
     // check the collection is valid
     if let Err(err) = CollectionBuilder::new(temp_file.path())
         .set_check_integrity(true)
+        .set_skip_fsrs_defaults_upgrade()
         .build()
     {
         tracing::info!(?err, "uploaded file was corrupt/failed to open");

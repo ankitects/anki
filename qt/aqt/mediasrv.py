@@ -12,6 +12,7 @@ import re
 import secrets
 import sys
 import threading
+import time
 import traceback
 from collections.abc import Callable
 from dataclasses import dataclass
@@ -44,7 +45,7 @@ from aqt.changenotetype import ChangeNotetypeDialog
 from aqt.deckoptions import DeckOptionsDialog
 from aqt.operations import on_op_finished
 from aqt.operations.deck import update_deck_configs as update_deck_configs_op
-from aqt.progress import ProgressUpdate
+from aqt.progress import ProgressBarUpdate, ProgressUpdate
 from aqt.qt import *
 from aqt.utils import (
     aqt_data_path,
@@ -655,8 +656,37 @@ def update_deck_configs() -> bytes:
 
     input = UpdateDeckConfigs()
     input.ParseFromString(request.data)
+    completed_presets: set[str] = set()
+    completion_log: list[str] = []
+    logged_skipped = False
+    first_progress_at: float | None = None
+    smoothed_remaining: float | None = None
+    preset_started_at: dict[str, float] = {}
+
+    def format_duration(seconds: float) -> str:
+        seconds = int(max(seconds, 0))
+        minutes, seconds = divmod(seconds, 60)
+        hours, minutes = divmod(minutes, 60)
+        if hours:
+            return f"{hours}h {minutes:02d}m {seconds:02d}s"
+        if minutes:
+            return f"{minutes}m {seconds:02d}s"
+        return f"{seconds}s"
+
+    def review_weighted_progress(progress: Any) -> tuple[int, float]:
+        total = sum(preset.reviews for preset in progress.presets if not preset.skipped)
+        completed = 0.0
+        for preset in progress.presets:
+            if preset.skipped:
+                continue
+            if preset.finished:
+                completed += preset.reviews
+            elif preset.total:
+                completed += preset.reviews * preset.current / preset.total
+        return total, completed
 
     def on_progress(progress: Progress, update: ProgressUpdate) -> None:
+        nonlocal first_progress_at, logged_skipped, smoothed_remaining
         if progress.HasField("compute_memory"):
             val = progress.compute_memory
             update.max = val.total_cards
@@ -679,6 +709,89 @@ def update_deck_configs() -> bytes:
                 reviews = tr.qt_misc_processing()
 
             update.label = label + "\n" + reviews
+        elif progress.HasField("compute_all_params"):
+            value = progress.compute_all_params
+            now = time.monotonic()
+            if first_progress_at is None:
+                first_progress_at = now
+            update.max = max(value.total, 1)
+            update.value = value.current
+            percent = int(value.current / value.total * 100) if value.total else 0
+            total_reviews, completed_reviews = review_weighted_progress(value)
+            elapsed = now - first_progress_at
+            label_parts = [
+                tr.deck_config_optimizing_presets(
+                    current=str(value.current),
+                    total=value.total,
+                    percent=percent,
+                ),
+                tr.deck_config_optimization_elapsed(duration=format_duration(elapsed)),
+            ]
+            if 0 < completed_reviews < total_reviews:
+                remaining = (
+                    elapsed * (total_reviews - completed_reviews) / completed_reviews
+                )
+                smoothed_remaining = (
+                    remaining
+                    if smoothed_remaining is None
+                    else smoothed_remaining * 0.85 + remaining * 0.15
+                )
+                label_parts.append(
+                    tr.deck_config_optimization_remaining(
+                        duration=format_duration(smoothed_remaining)
+                    )
+                )
+            update.label = " | ".join(label_parts)
+
+            skipped = sum(1 for preset in value.presets if preset.skipped)
+            if skipped and not logged_skipped:
+                completion_log.append(
+                    tr.deck_config_optimization_skipped(count=skipped)
+                )
+                logged_skipped = True
+            for preset in value.presets:
+                if not preset.finished and not preset.skipped and preset.total:
+                    preset_started_at.setdefault(preset.name, now)
+                if preset.name in completed_presets:
+                    continue
+                if preset.skipped:
+                    completed_presets.add(preset.name)
+                elif preset.finished:
+                    started_at = preset_started_at.get(preset.name, first_progress_at)
+                    if preset.failed:
+                        completion_log.append(
+                            tr.deck_config_optimization_failed(name=preset.name)
+                        )
+                    else:
+                        completion_log.append(
+                            tr.deck_config_optimization_done(
+                                name=preset.name,
+                                duration=format_duration(now - started_at),
+                                reviews=preset.reviews,
+                                long_term=str(preset.long_term_reviews),
+                                same_day=str(preset.short_term_reviews),
+                            )
+                        )
+                    completed_presets.add(preset.name)
+            update.details = "\n".join(completion_log[-12:]) or None
+            update.bars = [
+                ProgressBarUpdate(
+                    label=tr.deck_config_optimization_preset_progress(
+                        name=preset.name, reviews=preset.reviews
+                    ),
+                    value=preset.current if preset.total else int(preset.finished),
+                    max=max(preset.total, 1),
+                )
+                for preset in sorted(
+                    (
+                        preset
+                        for preset in value.presets
+                        if not preset.finished and preset.total > 0
+                    ),
+                    key=lambda preset: preset.reviews,
+                    reverse=True,
+                )
+            ]
         else:
             return
         if update.user_wants_abort:
@@ -1191,6 +1304,7 @@ exposed_backend_list = [
     # SchedulerService
     "compute_fsrs_params",
     "compute_optimal_retention",
+    "get_fsrs_new_card_intervals",
     "set_wants_abort",
     "evaluate_params_legacy",
     "get_optimal_retention_parameters",

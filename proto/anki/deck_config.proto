@@ -135,9 +135,10 @@ message DeckConfig {
     repeated float fsrs_params_4 = 3;
     repeated float fsrs_params_5 = 5;
     repeated float fsrs_params_6 = 6;
+    repeated float fsrs_params_7 = 7;
 
     // consider saving remaining ones for fsrs param changes
-    reserved 7 to 8;
+    reserved 8;
 
     uint32 new_per_day = 9;
     uint32 reviews_per_day = 10;

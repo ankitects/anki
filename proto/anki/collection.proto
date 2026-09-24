@@ -137,6 +137,7 @@ message Progress {
     ComputeRetentionProgress compute_retention = 10;
     ComputeMemoryProgress compute_memory = 11;
     DownloadUpdateProgress download_update = 12;
+    ComputeAllParamsProgress compute_all_params = 13;
   }
 }
 
@@ -150,6 +151,24 @@ message ComputeParamsProgress {
   uint32 current_preset = 4;
   // Only used in 'compute all params' case
   uint32 total_presets = 5;
+}
+
+message ComputeAllParamsProgress {
+  uint32 current = 1;
+  uint32 total = 2;
+  repeated Preset presets = 3;
+
+  message Preset {
+    string name = 1;
+    uint32 current = 2;
+    uint32 total = 3;
+    uint32 reviews = 4;
+    uint32 long_term_reviews = 5;
+    uint32 short_term_reviews = 6;
+    bool finished = 7;
+    bool skipped = 8;
+    bool failed = 9;
+  }
 }
 
 message ComputeRetentionProgress {

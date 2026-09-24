@@ -6,6 +6,8 @@ mod service;
 pub(crate) mod undo;
 mod update;
 
+use std::sync::LazyLock;
+
 pub use anki_proto::deck_config::deck_config::config::AnswerAction;
 pub use anki_proto::deck_config::deck_config::config::LeechAction;
 pub use anki_proto::deck_config::deck_config::config::NewCardGatherPriority;
@@ -27,6 +29,9 @@ use crate::prelude::*;
 use crate::scheduler::states::review::INITIAL_EASE_FACTOR;
 
 define_newtype!(DeckConfigId, i64);
+
+static DEFAULT_FSRS_PARAMS: LazyLock<Vec<f32>> =
+    LazyLock::new(|| fsrs::DEFAULT_PARAMETERS.to_vec());
 
 #[derive(Debug, PartialEq, Clone)]
 pub struct DeckConfig {
@@ -77,6 +82,7 @@ const DEFAULT_DECK_CONFIG_INNER: DeckConfigInner = DeckConfigInner {
     fsrs_params_4: vec![],
     fsrs_params_5: vec![],
     fsrs_params_6: vec![],
+    fsrs_params_7: vec![],
     desired_retention: 0.9,
     other: Vec::new(),
     historical_retention: 0.9,
@@ -108,22 +114,34 @@ impl DeckConfig {
         self.usn = usn;
     }
 
-    /// Retrieve the FSRS 6.0 params, falling back on 5.0 or 4.x ones.
+    /// Retrieve the newest stored FSRS params, falling back to older slots.
     pub fn fsrs_params(&self) -> &Vec<f32> {
-        if !self.inner.fsrs_params_6.is_empty() {
+        if !self.inner.fsrs_params_7.is_empty() {
+            &self.inner.fsrs_params_7
+        } else if !self.inner.fsrs_params_6.is_empty() {
             &self.inner.fsrs_params_6
         } else if !self.inner.fsrs_params_5.is_empty() {
             &self.inner.fsrs_params_5
-        } else {
+        } else if !self.inner.fsrs_params_4.is_empty() {
             &self.inner.fsrs_params_4
+        } else {
+            &DEFAULT_FSRS_PARAMS
         }
     }
 
-    /// Clear the FSRS 6.0 params, along with the 5.0 and 4.x fallbacks.
+    pub(crate) fn has_empty_fsrs_params(&self) -> bool {
+        self.inner.fsrs_params_7.is_empty()
+            && self.inner.fsrs_params_6.is_empty()
+            && self.inner.fsrs_params_5.is_empty()
+            && self.inner.fsrs_params_4.is_empty()
+    }
+
+    /// Clear all stored FSRS parameter generations.
     pub(crate) fn clear_fsrs_params(&mut self) {
         self.inner.fsrs_params_4.clear();
         self.inner.fsrs_params_5.clear();
         self.inner.fsrs_params_6.clear();
+        self.inner.fsrs_params_7.clear();
     }
 }
 
@@ -323,5 +341,29 @@ fn ensure_f32_valid(val: &mut f32, default: f32, min: f32, max: f32) {
 fn ensure_u32_valid(val: &mut u32, default: u32, min: u32, max: u32) {
     if *val < min || *val > max {
         *val = default;
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn empty_params_use_fsrs7_defaults() {
+        assert_eq!(
+            DeckConfig::default().fsrs_params().as_slice(),
+            fsrs::DEFAULT_PARAMETERS.as_slice()
+        );
+    }
+
+    #[test]
+    fn new_collections_store_fsrs7_defaults_explicitly() -> Result<()> {
+        let col = Collection::new();
+        let config = col.get_deck_config(DeckConfigId(1), false)?.unwrap();
+        assert_eq!(
+            config.inner.fsrs_params_7.as_slice(),
+            fsrs::DEFAULT_PARAMETERS.as_slice()
+        );
+        Ok(())
     }
 }

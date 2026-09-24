@@ -67,6 +67,8 @@ impl NormalSyncer<'_> {
     }
 
     pub async fn sync(&mut self) -> error::Result<SyncOutput> {
+        self.col.upgrade_empty_fsrs_presets()?;
+        self.col.repair_incomplete_fsrs7_states()?;
         debug!("fetching meta...");
         let local = self.col.sync_meta()?;
         let local_bytes = local.collection_bytes;
@@ -90,6 +92,11 @@ impl NormalSyncer<'_> {
                 match self.normal_sync_inner(state).await {
                     Ok(success) => {
                         self.col.storage.commit_trx()?;
+                        // Upgrade newly received empty presets only after the
+                        // sync transaction completes. The resulting -1 USNs
+                        // remain pending for the next upload.
+                        self.col.upgrade_empty_fsrs_presets()?;
+                        self.col.repair_incomplete_fsrs7_states()?;
                         Ok(success)
                     }
                     Err(e) => {
@@ -174,5 +181,132 @@ impl Collection {
         NormalSyncer::new(self, HttpSyncClient::new(auth, client))
             .sync()
             .await
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::card::CardQueue;
+    use crate::card::CardType;
+    use crate::card::FsrsMemoryState;
+    use crate::collection::CollectionBuilder;
+    use crate::prelude::*;
+    use crate::sync::collection::tests::with_active_server;
+    use crate::sync::collection::tests::SyncTestContext;
+    use crate::tests::NoteAdder;
+
+    #[tokio::test]
+    async fn full_download_upgrades_empty_presets_only_after_validation() -> Result<()> {
+        with_active_server(|client| async move {
+            let ctx = SyncTestContext::new(client);
+            let mut source = ctx.col1();
+            NoteAdder::basic(&mut source).add(&mut source);
+            let mut config = source.get_deck_config(DeckConfigId(1), false)?.unwrap();
+            config.clear_fsrs_params();
+            source.add_or_update_deck_config(&mut config)?;
+            source.full_upload_with_server(ctx.client.clone()).await?;
+            ctx.col2()
+                .full_download_with_server(ctx.client.clone())
+                .await?;
+
+            let downloaded = CollectionBuilder::new(ctx.folder.path().join("col2.anki2"))
+                .set_skip_fsrs_defaults_upgrade()
+                .build()?;
+            assert!(downloaded
+                .get_deck_config(DeckConfigId(1), false)?
+                .unwrap()
+                .has_empty_fsrs_params());
+            let stamps = downloaded.storage.get_collection_timestamps()?;
+            assert_eq!(stamps.collection_change, stamps.last_sync);
+            downloaded.close(None)?;
+
+            let mut target = ctx.col2();
+            let preset = target.get_deck_config(DeckConfigId(1), false)?.unwrap();
+            assert_eq!(preset.inner.fsrs_params_7, fsrs::DEFAULT_PARAMETERS);
+            assert_eq!(preset.usn, Usn(-1));
+            assert_eq!(
+                target.sync_status_offline()?,
+                anki_proto::sync::sync_status_response::Required::NormalSync
+            );
+            NormalSyncer::new(&mut target, ctx.client.clone())
+                .sync()
+                .await?;
+            assert_ne!(
+                target.get_deck_config(DeckConfigId(1), false)?.unwrap().usn,
+                Usn(-1)
+            );
+            Ok(())
+        })
+        .await
+    }
+
+    #[tokio::test]
+    async fn normal_sync_upgrades_received_empty_presets_and_uploads_rebuilt_state() -> Result<()> {
+        with_active_server(|client| async move {
+            let ctx = SyncTestContext::new(client);
+            let mut source = ctx.col1();
+            let note = NoteAdder::basic(&mut source).add(&mut source);
+            let mut card = source.storage.all_cards_of_note(note.id)?.remove(0);
+            card.ctype = CardType::Review;
+            card.queue = CardQueue::Review;
+            card.interval = 20;
+            card.due = 100;
+            card.memory_state = Some(FsrsMemoryState {
+                stability: 10.0,
+                stability_internal: 10.0,
+                stability_fast: None,
+                difficulty: 5.0,
+            });
+            source.storage.update_card(&card)?;
+            source.full_upload_with_server(ctx.client.clone()).await?;
+            ctx.col2()
+                .full_download_with_server(ctx.client.clone())
+                .await?;
+            let mut source = ctx.col1();
+            let mut target = ctx.col2();
+
+            // Simulate an older client's normal sync, without the new migration
+            // hooks that surround the unchanged protocol exchange.
+            let mut config = source.get_deck_config(DeckConfigId(1), false)?.unwrap();
+            config.clear_fsrs_params();
+            source.add_or_update_deck_config(&mut config)?;
+            let mut sender = NormalSyncer::new(&mut source, ctx.client.clone());
+            let state =
+                online_sync_status_check(sender.col.sync_meta()?, &mut sender.server).await?;
+            sender.col.storage.begin_trx()?;
+            sender.normal_sync_inner(state).await?;
+            sender.col.storage.commit_trx()?;
+
+            NormalSyncer::new(&mut target, ctx.client.clone())
+                .sync()
+                .await?;
+            let upgraded = target.storage.get_card(card.id)?.unwrap();
+            assert!(upgraded.memory_state.unwrap().stability_fast.is_some());
+            assert_eq!((upgraded.due, upgraded.interval), (100, 20));
+            assert_eq!(upgraded.usn, Usn(-1));
+            let preset = target.get_deck_config(DeckConfigId(1), false)?.unwrap();
+            assert_eq!(preset.inner.fsrs_params_7, fsrs::DEFAULT_PARAMETERS);
+            assert_eq!(preset.usn, Usn(-1));
+            assert_eq!(
+                target.sync_status_offline()?,
+                anki_proto::sync::sync_status_response::Required::NormalSync
+            );
+
+            NormalSyncer::new(&mut target, ctx.client.clone())
+                .sync()
+                .await?;
+            assert_ne!(target.storage.get_card(card.id)?.unwrap().usn, Usn(-1));
+            assert_ne!(
+                target.get_deck_config(DeckConfigId(1), false)?.unwrap().usn,
+                Usn(-1)
+            );
+            assert_eq!(
+                target.sync_status_offline()?,
+                anki_proto::sync::sync_status_response::Required::NoChanges
+            );
+            Ok(())
+        })
+        .await
     }
 }

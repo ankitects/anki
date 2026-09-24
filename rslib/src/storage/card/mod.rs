@@ -37,6 +37,7 @@ use crate::scheduler::fsrs::memory_state::get_last_revlog_info;
 use crate::scheduler::queue::BuryMode;
 use crate::scheduler::queue::DueCard;
 use crate::scheduler::queue::DueCardKind;
+use crate::scheduler::queue::DueCardWithState;
 use crate::scheduler::queue::NewCard;
 use crate::scheduler::timing::SchedTimingToday;
 use crate::timestamp::TimestampMillis;
@@ -120,6 +121,61 @@ fn row_to_new_card(row: &Row) -> result::Result<NewCard, rusqlite::Error> {
 }
 
 impl super::SqliteStorage {
+    /// Keep day and second cutoffs separate so both ranges use the scheduling
+    /// index. Exact R sorting and limits are applied by the queue builder.
+    pub(crate) fn due_cards_with_state_in_active_decks(
+        &self,
+        timing: SchedTimingToday,
+    ) -> Result<Vec<DueCardWithState>> {
+        self.db.prepare_cached(concat!(
+            include_str!("get_due_card_state.sql"),
+            " where did in (select id from active_decks) and queue in (2, 3) and due <= ?1 union all ",
+            include_str!("get_due_card_state.sql"),
+            " where did in (select id from active_decks) and queue in (1, 4) and due <= ?2"
+        ))?.query_and_then(params![timing.days_elapsed, timing.now.min(timing.next_day_at)], |row| -> Result<_> {
+            let queue = row.get(4)?;
+            let data: CardData = row.get(10)?;
+            Ok(DueCardWithState {
+                card: DueCard {
+                    id: row.get(0)?, note_id: row.get(1)?, current_deck_id: row.get(2)?, mtime: row.get(3)?,
+                    due: row.get(5).ok().unwrap_or_default(), reps: row.get(7)?, original_deck_id: row.get(9)?,
+                    kind: if queue == CardQueue::Review { DueCardKind::Review } else { DueCardKind::Learning },
+                },
+                queue, interval: row.get(6)?, original_due: row.get(8).ok().unwrap_or_default(),
+                memory_state: data.memory_state(), last_review_time: data.last_review_time,
+            })
+        })?.collect()
+    }
+
+    /// Detect incomplete states before deserialization fills the old scalar
+    /// compatibility defaults. The caller filters by the current preset model.
+    pub(crate) fn cards_with_incomplete_fsrs_state(&self) -> Result<Vec<(CardId, DeckId)>> {
+        self.db
+            .prepare_cached("select id, data, did, odid from cards where data like '%\"s\"%'")?
+            .query_and_then([], |row| -> Result<Option<(CardId, DeckId)>> {
+                let data: CardData = row.get(1)?;
+                let incomplete = data.fsrs_stability.is_some()
+                    && data.fsrs_difficulty.is_some()
+                    && (data.fsrs_stability_internal.is_none()
+                        || data.fsrs_stability_fast.is_none());
+                if incomplete {
+                    let original: DeckId = row.get(3)?;
+                    Ok(Some((
+                        row.get(0)?,
+                        if original.0 != 0 {
+                            original
+                        } else {
+                            row.get(2)?
+                        },
+                    )))
+                } else {
+                    Ok(None)
+                }
+            })?
+            .filter_map(Result::transpose)
+            .collect()
+    }
+
     pub fn get_card(&self, cid: CardId) -> Result<Option<Card>> {
         self.db
             .prepare_cached(concat!(include_str!("get_card.sql"), " where id = ?"))?
@@ -774,6 +830,14 @@ impl super::SqliteStorage {
             .unwrap()
             .unwrap()
             .get(0)?)
+    }
+
+    pub(crate) fn all_cards_for_fsrs_metrics(&self) -> Result<Vec<Card>> {
+        Ok(self
+            .db
+            .prepare("select * from cards")?
+            .query_and_then([], row_to_card)?
+            .collect::<rusqlite::Result<_>>()?)
     }
 
     #[cfg(test)]

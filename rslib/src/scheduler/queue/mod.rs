@@ -12,6 +12,7 @@ use std::collections::VecDeque;
 use anki_proto::scheduler::SchedulingContext;
 pub(crate) use builder::DueCard;
 pub(crate) use builder::DueCardKind;
+pub(crate) use builder::DueCardWithState;
 pub(crate) use builder::NewCard;
 pub(crate) use entry::QueueEntry;
 pub(crate) use entry::QueueEntryKind;
@@ -38,6 +39,10 @@ pub(crate) struct CardQueues {
     /// counts are zero. Ensures we don't show a newly-due learning card after a
     /// user returns from editing a review card.
     current_learning_cutoff: TimestampSecs,
+    exact_retrievability_order: bool,
+    /// Do not replace the displayed question when another intraday card becomes
+    /// due.
+    shown_top_card: Option<CardId>,
     pub(crate) load_balancer: Option<LoadBalancer>,
     pub(crate) fsrs_enabled: bool,
     pub(crate) fsrs_short_term_with_steps: bool,
@@ -94,7 +99,11 @@ impl Collection {
     ) -> Result<QueuedCards> {
         let queues = self.get_queues()?;
         let counts = queues.counts();
-        let entries: Vec<_> = if intraday_learning_only {
+        let exact_order = queues.exact_retrievability_order;
+        let entries: Vec<_> = if intraday_learning_only && exact_order {
+            // Due intraday entries are mixed into the globally sorted main queue.
+            queues.main.iter().map(Into::into).collect()
+        } else if intraday_learning_only {
             queues
                 .intraday_now_iter()
                 .chain(queues.intraday_ahead_iter())
@@ -103,7 +112,7 @@ impl Collection {
         } else {
             queues.iter().take(fetch_limit).collect()
         };
-        let cards: Vec<_> = entries
+        let mut cards: Vec<_> = entries
             .into_iter()
             .map(|entry| {
                 let card = self
@@ -129,6 +138,14 @@ impl Collection {
                 })
             })
             .collect::<Result<_>>()?;
+        if intraday_learning_only && exact_order {
+            cards.retain(|queued| queued.card.is_intraday_learning());
+        }
+        if !intraday_learning_only {
+            if let Some(queued) = cards.first() {
+                self.state.card_queues.as_mut().unwrap().shown_top_card = Some(queued.card.id);
+            }
+        }
         Ok(QueuedCards {
             cards,
             new_count: counts.new,
@@ -155,14 +172,20 @@ impl CardQueues {
     /// be presented.
     fn iter(&self) -> impl Iterator<Item = QueueEntry> + '_ {
         self.intraday_now_iter()
+            .filter(|_| !self.exact_retrievability_order)
             .map(Into::into)
             .chain(self.main.iter().map(Into::into))
-            .chain(self.intraday_ahead_iter().map(Into::into))
+            .chain(
+                self.intraday_ahead_iter()
+                    .filter(|_| !self.exact_retrievability_order)
+                    .map(Into::into),
+            )
     }
 
     /// Remove the provided card from the top of the queues and
     /// adjust the counts. If it was not at the top, return an error.
     fn pop_entry(&mut self, id: CardId) -> Result<QueueEntry> {
+        self.shown_top_card = None;
         if let Some(pos) = self.intraday_learning.iter().position(|e| e.id == id) {
             let entry = self.intraday_learning.remove(pos).unwrap();
             // FIXME:
@@ -178,6 +201,7 @@ impl CardQueues {
     }
 
     fn push_undo_entry(&mut self, entry: QueueEntry) {
+        self.shown_top_card = None;
         match entry {
             QueueEntry::IntradayLearning(entry) => self.push_intraday_learning(entry),
             QueueEntry::Main(entry) => self.push_main(entry),
@@ -188,7 +212,7 @@ impl CardQueues {
     /// cutoff is updated to the current time first, and any newly-due learning
     /// cards are added to the counts.
     pub(crate) fn counts(&mut self) -> Counts {
-        if self.counts.all_zero() {
+        if self.counts.all_zero() && !self.exact_retrievability_order {
             // we discard the returned undo information in this case
             self.update_learning_cutoff_and_count();
         }
@@ -197,6 +221,15 @@ impl CardQueues {
 
     fn is_stale(&self, current_day: u32) -> bool {
         self.current_day != current_day
+    }
+
+    fn due_intraday_needs_resort(&self) -> bool {
+        self.exact_retrievability_order
+            && self.shown_top_card.is_none()
+            && self
+                .intraday_learning
+                .iter()
+                .any(|entry| entry.due <= TimestampSecs::now())
     }
 }
 
@@ -246,8 +279,20 @@ impl Collection {
     pub(crate) fn get_queues(&mut self) -> Result<&mut CardQueues> {
         let deck = self.get_current_deck()?;
         self.clear_queues_if_day_changed()?;
-        if self.state.card_queues.is_none() {
-            self.state.card_queues = Some(self.build_queues(deck.id)?);
+        if self
+            .state
+            .card_queues
+            .as_ref()
+            .map_or(true, CardQueues::due_intraday_needs_resort)
+        {
+            let previous_build = self.state.card_queues.as_ref().map(|q| q.build_time);
+            let mut queues = self.build_queues(deck.id)?;
+            // Undo must invalidate its old queue snapshot even when a due-time
+            // rebuild happens within the same millisecond (or the clock moves back).
+            if let Some(previous) = previous_build {
+                queues.build_time.0 = queues.build_time.0.max(previous.0 + 1);
+            }
+            self.state.card_queues = Some(queues);
         }
 
         Ok(self.state.card_queues.as_mut().unwrap())

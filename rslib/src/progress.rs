@@ -15,6 +15,7 @@ use crate::import_export::ExportProgress;
 use crate::import_export::ImportProgress;
 use crate::prelude::Collection;
 use crate::scheduler::fsrs::memory_state::ComputeMemoryProgress;
+use crate::scheduler::fsrs::params::ComputeAllParamsProgress;
 use crate::scheduler::fsrs::params::ComputeParamsProgress;
 use crate::scheduler::fsrs::retention::ComputeRetentionProgress;
 use crate::sync::collection::normal::NormalSyncProgress;
@@ -130,7 +131,7 @@ impl ProgressState {
     }
 }
 
-#[derive(Clone, Copy, Debug)]
+#[derive(Clone, Debug)]
 pub enum Progress {
     MediaSync(MediaSyncProgress),
     MediaCheck(MediaCheckProgress),
@@ -140,6 +141,7 @@ pub enum Progress {
     Import(ImportProgress),
     Export(ExportProgress),
     ComputeParams(ComputeParamsProgress),
+    ComputeAllParams(ComputeAllParamsProgress),
     ComputeRetention(ComputeRetentionProgress),
     ComputeMemory(ComputeMemoryProgress),
     DownloadUpdate(DownloadUpdateProgress),
@@ -225,6 +227,29 @@ pub(crate) fn progress_to_proto(
                     reviews: progress.reviews,
                     current_preset: progress.current_preset,
                     total_presets: progress.total_presets,
+                })
+            }
+            Progress::ComputeAllParams(progress) => {
+                Value::ComputeAllParams(anki_proto::collection::ComputeAllParamsProgress {
+                    current: progress.current_iteration,
+                    total: progress.total_iterations,
+                    presets: progress
+                        .presets
+                        .into_iter()
+                        .map(
+                            |preset| anki_proto::collection::compute_all_params_progress::Preset {
+                                name: preset.name,
+                                current: preset.current_iteration,
+                                total: preset.total_iterations,
+                                reviews: preset.reviews,
+                                long_term_reviews: preset.long_term_reviews,
+                                short_term_reviews: preset.short_term_reviews,
+                                finished: preset.finished,
+                                skipped: preset.skipped,
+                                failed: preset.failed,
+                            },
+                        )
+                        .collect(),
                 })
             }
             Progress::ComputeRetention(progress) => {
@@ -317,6 +342,12 @@ impl From<ComputeParamsProgress> for Progress {
     }
 }
 
+impl From<ComputeAllParamsProgress> for Progress {
+    fn from(progress: ComputeAllParamsProgress) -> Self {
+        Self::ComputeAllParams(progress)
+    }
+}
+
 impl From<ComputeRetentionProgress> for Progress {
     fn from(p: ComputeRetentionProgress) -> Self {
         Progress::ComputeRetention(p)
@@ -376,5 +407,34 @@ impl<'f, F: 'f + FnMut(usize) -> Result<()>> Incrementor<'f, F> {
 
     pub(crate) fn count(&self) -> usize {
         self.count
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::scheduler::fsrs::params::ComputeAllParamsPresetProgress;
+
+    #[test]
+    fn compute_all_progress_preserves_failed_preset_status() {
+        let proto = progress_to_proto(
+            Some(
+                ComputeAllParamsProgress {
+                    presets: vec![ComputeAllParamsPresetProgress {
+                        name: "failed preset".into(),
+                        finished: true,
+                        failed: true,
+                        ..Default::default()
+                    }],
+                    ..Default::default()
+                }
+                .into(),
+            ),
+            &I18n::template_only(),
+        );
+        let Value::ComputeAllParams(progress) = proto.value.unwrap() else {
+            panic!("unexpected progress kind");
+        };
+        assert!(progress.presets[0].failed);
     }
 }

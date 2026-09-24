@@ -7,10 +7,14 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         ComputeRetentionProgress,
         type ComputeParamsProgress,
     } from "@generated/anki/collection_pb";
-    import { SimulateFsrsReviewRequest } from "@generated/anki/scheduler_pb";
+    import {
+        GetFsrsNewCardIntervalsRequest,
+        SimulateFsrsReviewRequest,
+    } from "@generated/anki/scheduler_pb";
     import {
         computeFsrsParams,
         evaluateParamsLegacy,
+        getFsrsNewCardIntervals,
         getRetentionWorkload,
         setWantsAbort,
     } from "@generated/backend";
@@ -28,6 +32,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import ParamsSearchRow from "./ParamsSearchRow.svelte";
     import SimulatorModal from "./SimulatorModal.svelte";
     import {
+        DeckConfig_Config,
         GetRetentionWorkloadRequest,
         type GetRetentionWorkloadResponse,
         UpdateDeckConfigsMode,
@@ -113,6 +118,36 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     let effectiveDesiredRetention =
         $limits.desiredRetention ?? $config.desiredRetention;
     const startingDesiredRetention = effectiveDesiredRetention.toFixed(2);
+    const startingDesiredRetentionValue = Number(startingDesiredRetention);
+    const intervalRows = [
+        tr.studyingAgain(),
+        tr.studyingHard(),
+        tr.studyingGood(),
+        tr.studyingEasy(),
+        tr.deckConfigAgainThenGood(),
+        tr.deckConfigAgainThenAgain(),
+        tr.deckConfigGoodThenAgain(),
+        tr.deckConfigGoodThenGood(),
+    ];
+    const intervalRowClasses = [
+        "interval-again",
+        "interval-hard",
+        "interval-good",
+        "interval-easy",
+        "",
+        "",
+        "",
+        "",
+    ];
+    let newCardIntervals: [string[], string[]] | undefined;
+    let newCardIntervalsError = "";
+    let newCardIntervalsRequest = 0;
+
+    $: void loadNewCardIntervals(
+        new DeckConfig_Config($config),
+        startingDesiredRetentionValue,
+        effectiveDesiredRetention,
+    );
 
     $: simulateFsrsRequest = new SimulateFsrsReviewRequest({
         params: fsrsParams($config),
@@ -131,6 +166,43 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     const DESIRED_RETENTION_LOW_THRESHOLD = 0.8;
     const DESIRED_RETENTION_HIGH_THRESHOLD = 0.95;
+
+    async function loadNewCardIntervals(
+        config: DeckConfig_Config,
+        currentRetention: number,
+        selectedRetention: number,
+    ): Promise<void> {
+        const request = ++newCardIntervalsRequest;
+        newCardIntervalsError = "";
+        const configForRetention = (retention: number): DeckConfig_Config => {
+            const copy = new DeckConfig_Config(config);
+            copy.desiredRetention = retention;
+            return copy;
+        };
+        try {
+            const [current, selected] = await Promise.all([
+                getFsrsNewCardIntervals(
+                    new GetFsrsNewCardIntervalsRequest({
+                        config: configForRetention(currentRetention),
+                    }),
+                ),
+                getFsrsNewCardIntervals(
+                    new GetFsrsNewCardIntervalsRequest({
+                        config: configForRetention(selectedRetention),
+                    }),
+                ),
+            ]);
+            if (request === newCardIntervalsRequest) {
+                newCardIntervals = [current.vals, selected.vals];
+            }
+        } catch (error) {
+            if (request === newCardIntervalsRequest) {
+                newCardIntervals = undefined;
+                newCardIntervalsError =
+                    error instanceof Error ? error.message : String(error);
+            }
+        }
+    }
 
     function getRetentionLongShortWarning(retention: number) {
         if (retention < DESIRED_RETENTION_LOW_THRESHOLD) {
@@ -260,7 +332,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                     }
 
                     if (!alreadyOptimal) {
-                        $config.fsrsParams6 = resp.params;
+                        $config.fsrsParams7 = resp.params;
                         setTimeout(() => {
                             optimized = true;
                         }, 201);
@@ -388,6 +460,40 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     </Item>
 </DynamicallySlottable>
 
+{#if newCardIntervals}
+    <div class="interval-preview ms-1 me-1">
+        <div class="interval-preview-title">
+            {tr.deckConfigNewCardIntervals()}
+        </div>
+        <table class="interval-preview-table">
+            <thead>
+                <tr>
+                    <th></th>
+                    <th>
+                        {tr.deckConfigCurrentDr()}
+                        ({(startingDesiredRetentionValue * 100).toFixed(2)}%)
+                    </th>
+                    <th>
+                        {tr.deckConfigSelectedDr()}
+                        ({(effectiveDesiredRetention * 100).toFixed(2)}%)
+                    </th>
+                </tr>
+            </thead>
+            <tbody>
+                {#each intervalRows as row, index}
+                    <tr class={intervalRowClasses[index]}>
+                        <th>{row}</th>
+                        <td>{newCardIntervals[0][index]}</td>
+                        <td>{newCardIntervals[1][index]}</td>
+                    </tr>
+                {/each}
+            </tbody>
+        </table>
+    </div>
+{/if}
+
+<Warning warning={newCardIntervalsError} className="alert-warning" />
+
 <button
     class="btn btn-primary"
     on:click={() => {
@@ -402,7 +508,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <Warning warning={desiredRetentionWarning} className={retentionWarningClass} />
 
 <div class="ms-1 me-1">
-    <ParamsInputRow bind:value={$config.fsrsParams6} defaultValue={[]}>
+    <ParamsInputRow
+        bind:value={$config.fsrsParams7}
+        defaultValue={defaults.fsrsParams7}
+    >
         <SettingTitle on:click={() => openHelpModal("modelParams")}>
             {tr.deckConfigWeights()}
         </SettingTitle>
@@ -502,6 +611,50 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <style>
     .btn {
         margin-bottom: 0.375rem;
+    }
+
+    .interval-preview {
+        margin-bottom: 0.75rem;
+        overflow-x: auto;
+    }
+
+    .interval-preview-title {
+        font-weight: 600;
+        margin-bottom: 0.375rem;
+    }
+
+    .interval-preview-table {
+        width: 100%;
+        font-size: 0.9rem;
+        border-collapse: collapse;
+    }
+
+    .interval-preview-table th,
+    .interval-preview-table td {
+        padding: 0.35rem 0.5rem;
+        border: 1px solid var(--border);
+        text-align: left;
+        white-space: nowrap;
+    }
+
+    .interval-preview-table thead th {
+        background: var(--canvas-elevated);
+    }
+
+    .interval-preview-table tr.interval-again {
+        color: var(--fg-red, #b42318);
+    }
+
+    .interval-preview-table tr.interval-hard {
+        color: var(--fg-orange, #b54708);
+    }
+
+    .interval-preview-table tr.interval-good {
+        color: var(--fg-green, #027a48);
+    }
+
+    .interval-preview-table tr.interval-easy {
+        color: var(--fg-light-green, #12b76a);
     }
 
     :global(.two-line) {

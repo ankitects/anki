@@ -5,3 +5,30 @@ title: "Python API"
 Find the documentation for the python API here:
 
 - https://dev-docs.ankiweb.net/en/latest/api-python.html
+
+## Current card details and FSRS metrics
+
+`Collection.card_memory_metrics(card_ids, include_retrievability=True)` returns
+current stored memory states and optional backend-computed retrievability (R).
+`Collection.card_details(card_ids, include_memory_state=False,
+include_retrievability=False, note_fields=None)` also returns raw scheduling fields
+and optionally selected note values.
+
+These batch APIs provide a read-only alternative to repeated Card Info calls.
+FSRS7 R depends on both internal stability traces, difficulty, elapsed time, and the
+card's current home preset. Add-ons should request R from the backend rather than
+derive it from public stability (S90) or the old scalar decay formula. Preset models
+are reused within each request. These calls do not initialize missing states,
+replay history, reschedule cards, or write to the collection; missing state means
+missing R. Use Card Info when historical reconstruction is needed.
+
+Both APIs preserve input order and duplicates, omitting nonexistent cards. Note
+field names are case-sensitive; unknown names are ignored, and returned values
+retain raw HTML and note-type field order. `note_fields=None` skips note access;
+`[]` requests an empty selection. An absent result also indicates a missing
+note/type or malformed selected field. The optional `desired_retention` metric
+is the value stored on the card, not a newly resolved preset setting.
+
+Legacy callers writing only public S90 and difficulty receive an approximate dual
+state calibrated to that S90 under FSRS7. It is not recovery of the original traces.
+Clients that understand FSRS7 should round-trip both optional internal fields.

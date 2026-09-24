@@ -3,7 +3,6 @@
 
 use std::sync::Arc;
 
-use fsrs::FSRS5_DEFAULT_DECAY;
 use itertools::Itertools;
 use strum::Display;
 use strum::EnumIter;
@@ -16,6 +15,7 @@ use crate::card_rendering::prettify_av_tags;
 use crate::notetype::CardTemplate;
 use crate::notetype::NotetypeKind;
 use crate::prelude::*;
+use crate::scheduler::fsrs::memory_state::fsrs_current_retrievability_for_state;
 use crate::scheduler::timespan::time_span;
 use crate::scheduler::timing::SchedTimingToday;
 use crate::template::RenderedNode;
@@ -69,6 +69,7 @@ struct RowContext {
     tr: I18n,
     timing: SchedTimingToday,
     render_context: RenderContext,
+    fsrs_retrievability: Option<f32>,
 }
 
 enum RenderContext {
@@ -130,7 +131,7 @@ impl Card {
     /// 'set due date' or an add-on has changed the due date.
     pub(crate) fn seconds_since_last_review(&self, timing: &SchedTimingToday) -> Option<u32> {
         if let Some(last_review_time) = self.last_review_time {
-            Some(timing.now.elapsed_secs_since(last_review_time) as u32)
+            Some(timing.now.elapsed_secs_since(last_review_time).max(0) as u32)
         } else if self.is_due_in_days() {
             self.due_time(timing).map(|due| {
                 (due.adding_secs(-86_400 * self.interval as i64)
@@ -390,6 +391,24 @@ impl RowContext {
         } else {
             RenderContext::Unset
         };
+        let fsrs_retrievability = cards[0]
+            .memory_state
+            .zip(cards[0].seconds_since_last_review(&timing))
+            .map(|(state, seconds)| {
+                let home_deck = original_deck.as_deref().unwrap_or(&deck);
+                let config_id = home_deck
+                    .config_id()
+                    .or_invalid("card belongs to a filtered deck")?;
+                let config = col
+                    .get_deck_config(config_id, true)?
+                    .or_not_found(config_id)?;
+                fsrs_current_retrievability_for_state(
+                    config.fsrs_params(),
+                    state,
+                    seconds as f32 / 86_400.0,
+                )
+            })
+            .transpose()?;
 
         Ok(RowContext {
             notes_mode,
@@ -401,6 +420,7 @@ impl RowContext {
             tr: col.tr.clone(),
             timing,
             render_context,
+            fsrs_retrievability,
         })
     }
 
@@ -538,16 +558,8 @@ impl RowContext {
     }
 
     fn fsrs_retrievability_str(&self) -> String {
-        self.cards[0]
-            .memory_state
-            .as_ref()
-            .zip(self.cards[0].seconds_since_last_review(&self.timing))
-            .zip(Some(self.cards[0].decay.unwrap_or(FSRS5_DEFAULT_DECAY)))
-            .map(|((state, seconds), decay)| {
-                let r =
-                    fsrs::current_retrievability((*state).into(), seconds as f32 / 86_400.0, decay);
-                format!("{:.0}%", r * 100.)
-            })
+        self.fsrs_retrievability
+            .map(|r| format!("{:.0}%", r * 100.))
             .unwrap_or_default()
     }
 

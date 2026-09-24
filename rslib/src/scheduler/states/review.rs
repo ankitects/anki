@@ -64,13 +64,51 @@ impl ReviewState {
     pub(crate) fn next_states(self, ctx: &StateContext) -> SchedulingStates {
         let (hard_interval, good_interval, easy_interval) = self.passing_review_intervals(ctx);
 
-        SchedulingStates {
+        let mut next = SchedulingStates {
             current: self.into(),
             again: self.answer_again(ctx),
             hard: self.answer_hard(hard_interval, ctx).into(),
             good: self.answer_good(good_interval, ctx).into(),
             easy: self.answer_easy(easy_interval, ctx).into(),
+        };
+        if ctx.fsrs7 {
+            if let Some(states) = &ctx.fsrs_next_states {
+                let intervals = super::button_intervals::button_intervals(
+                    ctx,
+                    [
+                        ctx.relearn_steps
+                            .again_delay_secs_learn()
+                            .is_none()
+                            .then_some(states.again.interval),
+                        Some(states.hard.interval),
+                        Some(states.good.interval),
+                        Some(states.easy.interval),
+                    ],
+                    Some(self.scheduled_days),
+                );
+                for (target, interval) in [
+                    &mut next.again,
+                    &mut next.hard,
+                    &mut next.good,
+                    &mut next.easy,
+                ]
+                .into_iter()
+                .zip(intervals)
+                {
+                    if let Some(interval) = interval {
+                        let review = match *target {
+                            CardState::Normal(super::NormalState::Review(review)) => review,
+                            CardState::Normal(super::NormalState::Relearning(relearn)) => {
+                                relearn.review
+                            }
+                            _ => unreachable!("review answers stay in review or relearning"),
+                        };
+                        *target = interval.reviewing(review, 0);
+                    }
+                }
+            }
         }
+        next
     }
 
     pub(crate) fn failing_review_interval(
