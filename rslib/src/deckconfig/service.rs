@@ -204,3 +204,385 @@ impl From<anki_proto::deck_config::DeckConfigId> for DeckConfigId {
         DeckConfigId(dcid.dcid)
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use std::assert_matches;
+
+    use anki_proto::generic::Json;
+    use fsrs::DEFAULT_PARAMETERS;
+
+    use super::*;
+    use crate::card::CardQueue;
+    use crate::card::CardType;
+    use crate::card::FsrsMemoryState;
+    use crate::prelude::*;
+    use crate::revlog::RevlogEntry;
+    use crate::revlog::RevlogReviewKind;
+    use crate::services::DeckConfigService;
+    use crate::tests::CardAdder;
+    use crate::tests::DeckAdder;
+
+    fn deck_config_json() -> Result<generic::Json> {
+        serde_json::to_vec(&DeckConfSchema11::default())
+            .map_err(Into::into)
+            .map(Into::into)
+    }
+
+    #[test]
+    fn add_or_update_deck_config_legacy_adds_config() -> Result<()> {
+        let mut col = Collection::new();
+        let config_bytes = deck_config_json()?;
+        let config: serde_json::Value = serde_json::from_slice(&config_bytes.json)?;
+        let config_id =
+            DeckConfigService::add_or_update_deck_config_legacy(&mut col, config_bytes)?;
+        assert_ne!(
+            config_id,
+            anki_proto::deck_config::DeckConfigId {
+                dcid: config["id"].as_i64().unwrap()
+            }
+        );
+        assert_eq!(col.can_undo(), None);
+
+        Ok(())
+    }
+
+    #[test]
+    fn add_or_update_deck_config_legacy_updates_config() -> Result<()> {
+        let mut col = Collection::new();
+        let config_bytes = deck_config_json()?;
+        let mut config: serde_json::Value = serde_json::from_slice(&config_bytes.json)?;
+        let config_id =
+            DeckConfigService::add_or_update_deck_config_legacy(&mut col, config_bytes)?;
+        config["id"] = config_id.dcid.into();
+        config["name"] = "updated".to_string().into();
+        let config_id = DeckConfigService::add_or_update_deck_config_legacy(
+            &mut col,
+            Json {
+                json: serde_json::to_vec(&config)?,
+            },
+        )?;
+        let returned_config = DeckConfigService::get_deck_config(&mut col, config_id)?;
+        assert_eq!(returned_config.name, config["name"]);
+        assert_eq!(col.can_undo(), None);
+
+        Ok(())
+    }
+
+    #[test]
+    fn all_deck_config_legacy_returns_all_configs() -> Result<()> {
+        let mut col = Collection::new();
+        let config_bytes = deck_config_json()?;
+        let _ = DeckConfigService::add_or_update_deck_config_legacy(&mut col, config_bytes)?;
+        let configs = DeckConfigService::all_deck_config_legacy(&mut col)?;
+        let json: serde_json::Value = serde_json::from_slice(&configs.json)?;
+        let array = json.as_array().expect("should return a JSON array");
+
+        // Default + new config
+        assert_eq!(array.len(), 2);
+        let _ = array[0]
+            .as_object()
+            .expect("deckconfig should be a JSON object");
+
+        Ok(())
+    }
+
+    #[test]
+    fn get_deck_config_returns_config() -> Result<()> {
+        let mut col = Collection::new();
+        let mut config = DeckConfig {
+            name: "custom".into(),
+            ..Default::default()
+        };
+        col.add_or_update_deck_config(&mut config)?;
+        let returned = DeckConfigService::get_deck_config(
+            &mut col,
+            anki_proto::deck_config::DeckConfigId { dcid: config.id.0 },
+        )?;
+
+        assert_eq!(returned.id, config.id.0);
+        assert_eq!(returned.name, "custom");
+
+        Ok(())
+    }
+
+    #[test]
+    fn get_deck_config_falls_back_to_default_for_unknown_id() -> Result<()> {
+        let mut col = Collection::new();
+        let returned = DeckConfigService::get_deck_config(
+            &mut col,
+            anki_proto::deck_config::DeckConfigId { dcid: 12345 },
+        )?;
+
+        assert_eq!(returned.id, 1);
+
+        Ok(())
+    }
+
+    #[test]
+    fn get_deck_config_legacy_returns_config() -> Result<()> {
+        let mut col = Collection::new();
+        let mut config = DeckConfig {
+            name: "custom".into(),
+            ..Default::default()
+        };
+        col.add_or_update_deck_config(&mut config)?;
+        let returned: serde_json::Value = serde_json::from_slice(
+            &(DeckConfigService::get_deck_config_legacy(
+                &mut col,
+                anki_proto::deck_config::DeckConfigId { dcid: config.id.0 },
+            )?
+            .json),
+        )?;
+
+        assert_eq!(returned["id"].as_i64(), Some(config.id.0));
+        assert_eq!(returned["name"].as_str(), Some("custom"));
+
+        Ok(())
+    }
+
+    #[test]
+    fn get_deck_config_legacy_falls_back_to_default_for_unknown_id() -> Result<()> {
+        let mut col = Collection::new();
+        let returned: serde_json::Value = serde_json::from_slice(
+            &(DeckConfigService::get_deck_config_legacy(
+                &mut col,
+                anki_proto::deck_config::DeckConfigId { dcid: 12345 },
+            )?
+            .json),
+        )?;
+
+        assert_eq!(returned["id"].as_i64(), Some(1));
+
+        Ok(())
+    }
+
+    #[test]
+    fn new_deck_config_legacy_returns_valid_config() -> Result<()> {
+        let mut col = Collection::new();
+        let config_json = DeckConfigService::new_deck_config_legacy(&mut col)?;
+        let config: DeckConfSchema11 =
+            serde_json::from_slice(&config_json.json).expect("deck config JSON deserialize");
+        assert_eq!(config, DeckConfSchema11::default());
+
+        Ok(())
+    }
+
+    #[test]
+    fn remove_deck_config_removes_config() -> Result<()> {
+        let mut col = Collection::new();
+        let config_bytes = deck_config_json()?;
+        let config_id =
+            DeckConfigService::add_or_update_deck_config_legacy(&mut col, config_bytes)?;
+        DeckConfigService::remove_deck_config(&mut col, config_id)?;
+        assert_eq!(col.get_deck_config(config_id.into(), false)?, None);
+        assert_eq!(col.can_undo(), None);
+
+        Ok(())
+    }
+
+    #[test]
+    fn get_deck_configs_for_update_returns_requested_deck() -> Result<()> {
+        let mut col = Collection::new();
+        let deck = DeckAdder::new("child")
+            .with_config(|config| config.name = "custom".into())
+            .add(&mut col);
+
+        let output = DeckConfigService::get_deck_configs_for_update(
+            &mut col,
+            anki_proto::decks::DeckId { did: deck.id.0 },
+        )?;
+
+        let current = output.current_deck.unwrap();
+        assert_eq!(current.name, "child");
+        assert_eq!(current.config_id, deck.normal()?.config_id);
+
+        Ok(())
+    }
+
+    fn update_request_for_deck(
+        col: &mut Collection,
+        deck_id: DeckId,
+    ) -> Result<anki_proto::deck_config::UpdateDeckConfigsRequest> {
+        let output = col.get_deck_configs_for_update(deck_id)?;
+        let current_config_id = output.current_deck.unwrap().config_id;
+        let config = output
+            .all_config
+            .into_iter()
+            .filter_map(|c| c.config)
+            .find(|c| c.id == current_config_id)
+            .unwrap();
+        Ok(anki_proto::deck_config::UpdateDeckConfigsRequest {
+            target_deck_id: deck_id.0,
+            configs: vec![config],
+            ..Default::default()
+        })
+    }
+
+    #[test]
+    fn update_deck_configs_saves_configs_from_request() -> Result<()> {
+        let mut col = Collection::new();
+        let mut request = update_request_for_deck(&mut col, DeckId(1))?;
+        request.configs[0].name = "renamed".into();
+
+        let changes = DeckConfigService::update_deck_configs(&mut col, request)?;
+
+        assert!(changes.deck_config);
+        assert_eq!(
+            col.get_deck_config(DeckConfigId(1), false)?.unwrap().name,
+            "renamed"
+        );
+
+        Ok(())
+    }
+
+    #[test]
+    fn update_deck_configs_applies_config_to_children_in_apply_to_children_mode() -> Result<()> {
+        let mut col = Collection::new();
+        let parent = DeckAdder::new("parent")
+            .with_config(|config| config.name = "parent".into())
+            .add(&mut col);
+        let child = DeckAdder::new("parent::child").add(&mut col);
+        let mut request = update_request_for_deck(&mut col, parent.id)?;
+        request.set_mode(anki_proto::deck_config::UpdateDeckConfigsMode::ApplyToChildren);
+
+        let _ = DeckConfigService::update_deck_configs(&mut col, request)?;
+
+        let child = col.get_deck(child.id)?.unwrap();
+        assert_eq!(child.normal()?.config_id, parent.normal()?.config_id);
+
+        Ok(())
+    }
+
+    const IGNORE_BEFORE_DATE: &str = "2024-01-01";
+
+    fn add_reviewed_card(col: &mut Collection, revlogs: &[(RevlogReviewKind, i64)]) -> Card {
+        let mut card = CardAdder::new().add(col).remove(0);
+        card.ctype = CardType::Review;
+        card.queue = CardQueue::Review;
+        col.storage.update_card(&card).unwrap();
+        for &(review_kind, id) in revlogs {
+            let entry = RevlogEntry {
+                id: RevlogId(id),
+                cid: card.id,
+                review_kind,
+                ..Default::default()
+            };
+            col.storage.add_revlog_entry(&entry, true).unwrap();
+        }
+        card
+    }
+
+    fn get_ignored_before_count(
+        col: &mut Collection,
+        date: &str,
+    ) -> Result<anki_proto::deck_config::GetIgnoredBeforeCountResponse> {
+        DeckConfigService::get_ignored_before_count(
+            col,
+            anki_proto::deck_config::GetIgnoredBeforeCountRequest {
+                ignore_revlogs_before_date: date.into(),
+                search: "deck:Default".into(),
+            },
+        )
+    }
+
+    #[test]
+    fn get_ignored_before_count_counts_cards_learned_after_date() -> Result<()> {
+        let mut col = Collection::new();
+        let cutoff = ignore_revlogs_before_date_to_ms(&IGNORE_BEFORE_DATE.to_string())?.0;
+        let day_ms = 86_400_000;
+        CardAdder::new().add(&mut col);
+        add_reviewed_card(&mut col, &[(RevlogReviewKind::Learning, cutoff + day_ms)]);
+        add_reviewed_card(&mut col, &[(RevlogReviewKind::Learning, cutoff - day_ms)]);
+        add_reviewed_card(&mut col, &[(RevlogReviewKind::Review, cutoff + day_ms)]);
+
+        let response = get_ignored_before_count(&mut col, IGNORE_BEFORE_DATE)?;
+
+        assert_eq!(response.included, 1);
+        assert_eq!(response.total, 3, "new cards are not counted");
+
+        Ok(())
+    }
+
+    #[test]
+    fn get_ignored_before_count_includes_all_learned_cards_when_date_is_empty() -> Result<()> {
+        let mut col = Collection::new();
+        add_reviewed_card(&mut col, &[(RevlogReviewKind::Learning, 1)]);
+        add_reviewed_card(&mut col, &[(RevlogReviewKind::Learning, 2)]);
+
+        let response = get_ignored_before_count(&mut col, "")?;
+
+        assert_eq!(response.included, 2);
+        assert_eq!(response.total, 2);
+
+        Ok(())
+    }
+
+    #[test]
+    fn get_ignored_before_count_rejects_invalid_date() {
+        let mut col = Collection::new();
+
+        let result = get_ignored_before_count(&mut col, "not a date");
+
+        assert_matches!(result, Err(AnkiError::InvalidInput { .. }));
+    }
+
+    fn get_retention_workload(
+        col: &mut Collection,
+        w: Vec<f32>,
+        search: &str,
+    ) -> Result<anki_proto::deck_config::GetRetentionWorkloadResponse> {
+        DeckConfigService::get_retention_workload(
+            col,
+            anki_proto::deck_config::GetRetentionWorkloadRequest {
+                w,
+                search: search.into(),
+            },
+        )
+    }
+
+    #[test]
+    fn get_retention_workload_returns_cost_for_each_retention_from_70_to_99() -> Result<()> {
+        let mut col = Collection::new();
+
+        let response = get_retention_workload(&mut col, DEFAULT_PARAMETERS.to_vec(), "")?;
+
+        let mut retentions: Vec<u32> = response.costs.into_keys().collect();
+        retentions.sort_unstable();
+        assert_eq!(retentions, (70..=99).collect::<Vec<_>>());
+
+        Ok(())
+    }
+
+    #[test]
+    fn get_retention_workload_includes_existing_cards_matching_search() -> Result<()> {
+        let mut col = Collection::new();
+        let mut card = add_reviewed_card(&mut col, &[(RevlogReviewKind::Learning, 1)]);
+        card.interval = 10;
+
+        card.memory_state = None;
+        col.storage.update_card(&card)?;
+        let without_memory_state =
+            get_retention_workload(&mut col, DEFAULT_PARAMETERS.to_vec(), "")?;
+
+        card.memory_state = Some(FsrsMemoryState {
+            stability: 10.0,
+            difficulty: 5.0,
+        });
+        col.storage.update_card(&card)?;
+        let with_memory_state = get_retention_workload(&mut col, DEFAULT_PARAMETERS.to_vec(), "")?;
+
+        assert_ne!(without_memory_state.costs, with_memory_state.costs);
+
+        Ok(())
+    }
+
+    #[test]
+    fn get_retention_workload_rejects_invalid_params() {
+        let mut col = Collection::new();
+
+        let result = get_retention_workload(&mut col, vec![1.0; 5], "");
+
+        assert_matches!(result, Err(AnkiError::FsrsParamsInvalid));
+    }
+}
