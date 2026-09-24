@@ -375,6 +375,7 @@ mod tests {
         let config_id =
             DeckConfigService::add_or_update_deck_config_legacy(&mut col, config_bytes)?;
         DeckConfigService::remove_deck_config(&mut col, config_id)?;
+        assert_eq!(col.get_deck_config(config_id.into(), false)?, None);
         assert_eq!(col.can_undo(), None);
 
         Ok(())
