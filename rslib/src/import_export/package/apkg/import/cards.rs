@@ -10,6 +10,7 @@ use super::TemplateMap;
 use crate::card::CardQueue;
 use crate::card::CardType;
 use crate::config::SchedulerVersion;
+use crate::import_export::gather::ExchangeData;
 use crate::prelude::*;
 use crate::revlog::RevlogEntry;
 
@@ -32,12 +33,15 @@ struct CardContext<'a> {
     existing_card_ids: HashSet<CardId>,
 
     imported_cards: HashMap<CardId, CardId>,
+    source_fsrs_params: &'a HashMap<DeckId, Vec<f32>>,
+    incomplete_fsrs_cards: &'a HashSet<CardId>,
+    rebuild_fsrs_states: Vec<CardId>,
 }
 
 impl<'c> CardContext<'c> {
     fn new<'a: 'c>(
         usn: Usn,
-        days_elapsed: u32,
+        data: &'a ExchangeData,
         target_col: &'a mut Collection,
         imported_notes: &'a HashMap<NoteId, NoteId>,
         notetype_map: &'a HashMap<NoteId, NotetypeId>,
@@ -45,7 +49,7 @@ impl<'c> CardContext<'c> {
         imported_decks: &'a HashMap<DeckId, DeckId>,
     ) -> Result<Self> {
         let existing_cards = target_col.storage.all_cards_as_nid_and_ord()?;
-        let collection_delta = target_col.collection_delta(days_elapsed)?;
+        let collection_delta = target_col.collection_delta(data.days_elapsed)?;
         let scheduler_version = target_col.scheduler_info()?.version;
         let existing_card_ids = target_col.storage.get_all_card_ids()?;
         Ok(Self {
@@ -60,6 +64,9 @@ impl<'c> CardContext<'c> {
             scheduler_version,
             existing_card_ids,
             imported_cards: HashMap::new(),
+            source_fsrs_params: &data.fsrs_params_by_deck,
+            incomplete_fsrs_cards: &data.incomplete_fsrs_cards,
+            rebuild_fsrs_states: Vec::new(),
         })
     }
 }
@@ -79,9 +86,11 @@ impl Context<'_> {
         remapped_templates: &HashMap<NotetypeId, TemplateMap>,
         imported_decks: &HashMap<DeckId, DeckId>,
     ) -> Result<()> {
+        let cards = mem::take(&mut self.data.cards);
+        let revlog = mem::take(&mut self.data.revlog);
         let mut ctx = CardContext::new(
             self.usn,
-            self.data.days_elapsed,
+            &self.data,
             self.target_col,
             imported_notes,
             notetype_map,
@@ -91,8 +100,13 @@ impl Context<'_> {
         if ctx.scheduler_version == SchedulerVersion::V1 {
             return Err(AnkiError::SchedulerUpgradeRequired);
         }
-        ctx.import_cards(mem::take(&mut self.data.cards))?;
-        ctx.import_revlog(mem::take(&mut self.data.revlog))
+        ctx.import_cards(cards)?;
+        ctx.import_revlog(revlog)?;
+        // A retained destination preset may differ from the source, even if
+        // the source had a complete state. Replay only after importing history.
+        ctx.target_col
+            .rebuild_fsrs_states_inner(&ctx.rebuild_fsrs_states)?;
+        Ok(())
     }
 }
 
@@ -134,10 +148,24 @@ impl CardContext<'_> {
 
     fn add_card(&mut self, card: &mut Card) -> Result<()> {
         card.usn = self.usn;
+        let source_params = self
+            .source_fsrs_params
+            .get(&card.original_or_current_deck_id());
         self.remap_deck_ids(card);
         self.remap_template_index(card);
         card.shift_collection_relative_dates(self.collection_delta);
         let old_id = self.uniquify_card_id(card);
+
+        if let Some(state) = card.memory_state {
+            let config = self.target_col.fsrs_config_for_card(card)?;
+            if source_params != Some(config.fsrs_params())
+                || (config.fsrs_params().len() == 34
+                    && (state.stability_fast.is_none()
+                        || self.incomplete_fsrs_cards.contains(&old_id)))
+            {
+                self.rebuild_fsrs_states.push(card.id);
+            }
+        }
 
         self.target_col.add_card_if_unique_undoable(card)?;
         self.existing_card_ids.insert(card.id);

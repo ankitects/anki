@@ -27,6 +27,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         if (paramsLength < 21) {
             return 0.5; // default decay for FSRS-4.5 and FSRS-5
         }
+        if (paramsLength >= 34) {
+            return stats?.fsrsParams?.[23] ?? 0.1542;
+        }
         return stats?.fsrsParams?.[20] ?? 0.1542;
     })();
 </script>
@@ -44,7 +47,12 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         {/if}
         {#if fsrsEnabled && showCurve}
             <Row>
-                <ForgettingCurve revlog={stats.revlog} {desiredRetention} {decay} />
+                <ForgettingCurve
+                    revlog={stats.revlog}
+                    {desiredRetention}
+                    {decay}
+                    fsrsParams={stats.fsrsParams}
+                />
             </Row>
         {/if}
     {:else}

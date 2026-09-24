@@ -318,7 +318,8 @@ Controls how the review cards are sorted. The options are:
     with a current interval of 10 days that is overdue by 3 days.
 
     When FSRS is enabled, this sort order is removed; the FSRS equivalent is **Ascending retrievability**,
-    which is calculated based on each card's retrievability (probability of recall) and the desired retention in the preset.
+    which shows the cards with the lowest current probability of recall first. Retrievability is calculated with each
+    card's complete memory state and the current parameters of its home deck's preset.
 
 ## Burying
 
@@ -410,6 +411,12 @@ become available, and SM-2 specific options, such as **Graduating interval**,
 
 Parameters and desired retention are preset-specific, so you can create multiple presets with different settings.
 
+FSRS7 is the default model. Existing presets with no saved parameters automatically
+adopt the FSRS7 defaults when the collection opens. Anki rebuilds their cards' memory
+states from review history without changing the cards' current due dates or intervals.
+This may take some time on the first open. Presets with saved parameters from an older
+FSRS version keep using that model until you reset or optimize them.
+
 FSRS can adapt to almost any habit, except for one: pressing "Hard" instead of "Again" when you forget the information. When you press "Hard", FSRS assumes you have recalled the information correctly (though with hesitation and a lot of mental effort). If you press "Hard" when you have failed to recall the information, all intervals will be unreasonably high. So, if you have this habit, please change it and use "Again" when you forget the information.
 
 Regarding add-on compatibility, as a general rule of thumb, if an add-on affects intervals and scheduling in some way, it shouldn't be used with FSRS.
@@ -436,6 +443,12 @@ and recommend you keep it lower than 97%.
 
 In the latest version of Anki, you can set different values of desired retention
 for different decks within the same preset.
+
+The **New card intervals at graduation** table below this setting previews the
+intervals produced by the current and selected desired retention. It covers each
+answer on a new card and common two-answer paths through the learning steps. The
+preview uses the unsaved learning steps, maximum interval, and FSRS parameters
+currently shown in Deck Options.
 
 ### Help Me Decide
 
@@ -481,6 +494,9 @@ before optimizing the parameters, if you'd like to change which cards
 are used for optimization.
 
 You can also optimize the parameters for all of your presets at once by clicking on **Optimize All Presets**.
+Independent presets are optimized concurrently. The progress dialog shows overall
+progress, active presets, review counts, elapsed time, an estimated remaining time,
+and presets that were completed or skipped because they had no usable reviews.
 
 **Health Check**
 
@@ -559,8 +575,18 @@ shows that repeating a card multiple times in a single day does not significantl
 contribute to long-term memory, so your time is
 better spent on other cards or a shorter study session.
 
-In the latest version of Anki you can let FSRS control short-term scheduling by leaving the (re)learning steps field empty. This is an experimental feature.
-Note that just because FSRS-5 _can_ give you intervals shorter than one day doesn't necessarily mean that it _will_. Your **Again** interval can be one day long, or even longer.
+With FSRS7, configured (re)learning steps take precedence. Once no configured step
+applies to an answer, FSRS can schedule another short-term interval, even after the
+last step or on a review card. Leaving the steps empty gives FSRS control immediately.
+Model intervals shorter than twelve hours use the learning/relearning queues; longer
+intervals use whole days with the normal fuzz and maximum-interval rules. Crossing
+the daily cutoff still uses Anki's interday-learning behavior.
+
+Intraday learning/relearning answers do not consume the daily review limit. The
+original review answer counts once; further intraday repetitions do not. Interday
+learning/relearning still counts toward that limit. No separate same-day bypass
+setting is needed. A short interval is not guaranteed: **Again** may still be a day
+or longer. Explicit older FSRS parameter sets retain their existing step behavior.
 
 #### Add-On Compatibility
 

@@ -5,7 +5,12 @@ use crate::ops::StateChanges;
 use crate::prelude::*;
 
 impl Collection {
-    fn transact_inner<F, R>(&mut self, op: Option<Op>, func: F) -> Result<OpOutput<R>>
+    fn transact_inner<F, R>(
+        &mut self,
+        op: Option<Op>,
+        modified_after: Option<TimestampMillis>,
+        func: F,
+    ) -> Result<OpOutput<R>>
     where
         F: FnOnce(&mut Collection) -> Result<R>,
     {
@@ -22,6 +27,11 @@ impl Collection {
                 if !have_op || (self.current_undo_step_has_changes() && !self.undoing_or_redoing())
                 {
                     self.set_modified()?;
+                    if let Some(after) = modified_after {
+                        let modified = self.storage.get_collection_timestamps()?.collection_change;
+                        self.storage
+                            .set_modified_time(TimestampMillis(modified.0.max(after.0 + 1)))?;
+                    }
                 }
                 // then commit
                 self.storage.commit_rust_trx()?;
@@ -60,7 +70,7 @@ impl Collection {
     where
         F: FnOnce(&mut Collection) -> Result<R>,
     {
-        self.transact_inner(Some(op), func)
+        self.transact_inner(Some(op), None, func)
     }
 
     /// Execute the provided closure in a transaction, rolling back if
@@ -69,6 +79,17 @@ impl Collection {
     where
         F: FnOnce(&mut Collection) -> Result<R>,
     {
-        self.transact_inner(None, func).map(|out| out.output)
+        self.transact_inner(None, None, func).map(|out| out.output)
+    }
+
+    /// Apply a client migration atomically, leaving its writes pending even
+    /// when the sync server's clock is ahead of the local clock.
+    pub(crate) fn transact_no_undo_after_sync<F, R>(&mut self, func: F) -> Result<R>
+    where
+        F: FnOnce(&mut Self) -> Result<R>,
+    {
+        let last_sync = self.storage.get_collection_timestamps()?.last_sync;
+        self.transact_inner(None, Some(last_sync), func)
+            .map(|out| out.output)
     }
 }

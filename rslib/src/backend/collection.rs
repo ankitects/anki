@@ -83,7 +83,7 @@ impl BackendCollectionService for Backend {
     }
 
     fn latest_progress(&self) -> Result<anki_proto::collection::Progress> {
-        let progress = self.progress_state.lock().unwrap().last_progress;
+        let progress = self.progress_state.lock().unwrap().last_progress.clone();
         Ok(progress_to_proto(progress, &self.tr))
     }
 

@@ -4,12 +4,18 @@
 mod card;
 mod custom_study;
 
+use std::cmp::Ordering;
+use std::hash::Hasher;
+
+use fnv::FnvHasher;
+
 use crate::config::ConfigKey;
 use crate::config::SchedulerVersion;
 use crate::decks::FilteredDeck;
 use crate::decks::FilteredSearchTerm;
 use crate::error::FilteredDeckError;
 use crate::prelude::*;
+use crate::scheduler::fsrs::metrics::FsrsMetricContext;
 use crate::scheduler::timing::SchedTimingToday;
 use crate::search::writer::deck_search;
 use crate::search::writer::normalize_search;
@@ -128,6 +134,13 @@ impl Collection {
                 format!("({})", term.search)
             }
         );
+        if fsrs {
+            if let Some(order) = exact_fsrs_search_order(term.order()) {
+                return self.move_cards_matching_term_with_exact_fsrs_order(
+                    ctx, term, &search, position, order,
+                );
+            }
+        }
         let order = order_and_limit_for_search(term, ctx.timing, fsrs);
 
         for mut card in self.all_cards_for_search_in_order(&search, SortMode::Custom(order))? {
@@ -137,6 +150,43 @@ impl Collection {
             position += 1;
         }
 
+        Ok(position)
+    }
+
+    fn move_cards_matching_term_with_exact_fsrs_order(
+        &mut self,
+        ctx: &DeckFilterContext,
+        term: &FilteredSearchTerm,
+        search: &str,
+        mut position: i32,
+        order: ExactFsrsSearchOrder,
+    ) -> Result<i32> {
+        let decks = self.storage.get_decks_map()?;
+        let configs = self.storage.get_deck_config_map()?;
+        let mut metrics = FsrsMetricContext::new(&decks, &configs);
+        let mut cards_with_keys = Vec::new();
+        for card in self.all_cards_for_search(search)? {
+            let key = exact_fsrs_search_key_for_card(&mut metrics, &card, ctx.timing, order)?;
+            cards_with_keys.push((fnvhash_card_and_mod(&card), card, key));
+        }
+        cards_with_keys.sort_unstable_by(|(hash_a, card_a, key_a), (hash_b, card_b, key_b)| {
+            let ordering = key_a.partial_cmp(key_b).unwrap_or(Ordering::Equal);
+            let ordering = if order.reverse() {
+                ordering.reverse()
+            } else {
+                ordering
+            };
+            ordering
+                .then_with(|| hash_a.cmp(hash_b))
+                .then_with(|| card_a.id.cmp(&card_b.id))
+        });
+
+        for (_, mut card, _) in cards_with_keys.into_iter().take(term.limit as usize) {
+            let original = card.clone();
+            card.move_into_filtered_deck(ctx, position);
+            self.update_card_inner(&mut card, original, ctx.usn)?;
+            position += 1;
+        }
         Ok(position)
     }
 
@@ -231,6 +281,75 @@ impl Collection {
 
         Ok(deck)
     }
+}
+
+#[derive(Clone, Copy)]
+enum ExactFsrsSearchOrder {
+    Retrievability { reverse: bool },
+    RelativeOverdueness,
+}
+
+impl ExactFsrsSearchOrder {
+    fn reverse(self) -> bool {
+        matches!(self, Self::Retrievability { reverse: true })
+    }
+}
+
+fn exact_fsrs_search_order(
+    order: crate::decks::FilteredSearchOrder,
+) -> Option<ExactFsrsSearchOrder> {
+    use crate::decks::FilteredSearchOrder;
+
+    match order {
+        FilteredSearchOrder::RetrievabilityAscending => {
+            Some(ExactFsrsSearchOrder::Retrievability { reverse: false })
+        }
+        FilteredSearchOrder::RetrievabilityDescending => {
+            Some(ExactFsrsSearchOrder::Retrievability { reverse: true })
+        }
+        FilteredSearchOrder::RelativeOverdueness => Some(ExactFsrsSearchOrder::RelativeOverdueness),
+        _ => None,
+    }
+}
+
+fn exact_fsrs_search_key_for_card(
+    metrics: &mut FsrsMetricContext,
+    card: &Card,
+    timing: SchedTimingToday,
+    order: ExactFsrsSearchOrder,
+) -> Result<f32> {
+    if let Some(state) = card.memory_state {
+        let elapsed_days =
+            card.seconds_since_last_review(&timing).unwrap_or_default() as f32 / 86_400.0;
+        match order {
+            ExactFsrsSearchOrder::Retrievability { .. } => {
+                metrics.current_retrievability(card, state, elapsed_days)
+            }
+            ExactFsrsSearchOrder::RelativeOverdueness => {
+                metrics.relative_overdueness(card, state, elapsed_days)
+            }
+        }
+    } else {
+        Ok(sm2_relative_overdueness_key(card, timing))
+    }
+}
+
+fn sm2_relative_overdueness_key(card: &Card, timing: SchedTimingToday) -> f32 {
+    let due = card.original_or_current_due() as i64;
+    let review_day = due.saturating_sub(card.interval as i64);
+    let days_elapsed = if due > 365_000 {
+        (timing.next_day_at.0 as u32).saturating_sub(due as u32) / 86_400
+    } else {
+        timing.days_elapsed.saturating_sub(review_day as u32)
+    };
+    -((days_elapsed as f32) + 0.001) / (card.interval as f32).max(1.0)
+}
+
+fn fnvhash_card_and_mod(card: &Card) -> i64 {
+    let mut hasher = FnvHasher::default();
+    hasher.write_i64(card.id.0);
+    hasher.write_i64(card.mtime.0);
+    hasher.finish() as i64
 }
 
 impl TryFrom<Deck> for FilteredDeckForUpdate {

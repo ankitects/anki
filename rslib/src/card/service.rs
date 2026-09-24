@@ -33,11 +33,31 @@ impl crate::services::CardsService for Collection {
         &mut self,
         input: anki_proto::cards::UpdateCardsRequest,
     ) -> error::Result<anki_proto::collection::OpChanges> {
-        let cards = input
-            .cards
-            .into_iter()
-            .map(TryInto::try_into)
-            .collect::<error::Result<Vec<Card>, AnkiError>>()?;
+        let mut cards = Vec::with_capacity(input.cards.len());
+        for proto in input.cards {
+            let incomplete = proto.memory_state.as_ref().is_some_and(|state| {
+                state.stability_internal.is_none() || state.stability_fast.is_none()
+            });
+            let mut card: Card = proto.try_into()?;
+            if incomplete {
+                let config = self.fsrs_config_for_card(&card)?;
+                let model = fsrs::FSRS::new(config.fsrs_params())?;
+                if model.version() == fsrs::ModelVersion::Fsrs7 {
+                    let state = card.memory_state.unwrap();
+                    // Legacy callers explicitly set public S90/D. Respect their
+                    // edit, rather than treating S90 as the internal slow trace.
+                    card.memory_state = Some(
+                        crate::scheduler::fsrs::repair::fsrs_memory_state_for_s90_and_difficulty(
+                            &model,
+                            state.stability,
+                            state.difficulty,
+                        )
+                        .or_invalid("invalid FSRS memory state")?,
+                    );
+                }
+            }
+            cards.push(card);
+        }
         for card in &cards {
             card.validate_custom_data()?;
         }
@@ -155,8 +175,11 @@ impl From<anki_proto::cards::CardId> for CardId {
 
 impl From<anki_proto::cards::FsrsMemoryState> for FsrsMemoryState {
     fn from(value: anki_proto::cards::FsrsMemoryState) -> Self {
+        let stability_internal = value.stability_internal.unwrap_or(value.stability);
         FsrsMemoryState {
             stability: value.stability,
+            stability_internal,
+            stability_fast: value.stability_fast,
             difficulty: value.difficulty,
         }
     }
@@ -167,6 +190,8 @@ impl From<FsrsMemoryState> for anki_proto::cards::FsrsMemoryState {
         anki_proto::cards::FsrsMemoryState {
             stability: value.stability,
             difficulty: value.difficulty,
+            stability_internal: Some(value.stability_internal),
+            stability_fast: value.stability_fast,
         }
     }
 }
@@ -177,6 +202,41 @@ mod tests {
     use crate::services::CardsService;
     use crate::tests::DeckAdder;
     use crate::tests::NoteAdder;
+
+    #[test]
+    fn legacy_api_writes_preserve_public_s90_in_fsrs7() -> Result<()> {
+        let mut col = Collection::new();
+        let note = NoteAdder::basic(&mut col).add(&mut col);
+        let cid = col.storage.card_ids_of_notes(&[note.id])?[0];
+        let original = col.storage.get_card(cid)?.unwrap();
+        let mut proto: anki_proto::cards::Card = original.clone().into();
+        proto.memory_state = Some(anki_proto::cards::FsrsMemoryState {
+            stability: 20.0,
+            difficulty: 6.0,
+            stability_internal: None,
+            stability_fast: None,
+        });
+        let _ = CardsService::update_cards(
+            &mut col,
+            anki_proto::cards::UpdateCardsRequest {
+                cards: vec![proto],
+                ..Default::default()
+            },
+        )?;
+        let stored = col.storage.get_card(cid)?.unwrap();
+        let state = stored.memory_state.unwrap();
+        assert_eq!((state.stability, state.difficulty), (20.0, 6.0));
+        assert!(
+            (fsrs::FSRS::new(&fsrs::DEFAULT_PARAMETERS)?
+                .interval_at_retrievability(state.into(), 0.9)
+                - 20.0)
+                .abs()
+                < 0.01
+        );
+        col.undo()?;
+        assert_eq!(col.storage.get_card(cid)?.unwrap(), original);
+        Ok(())
+    }
 
     #[test]
     fn set_deck_reassigns_card_to_target_deck() {

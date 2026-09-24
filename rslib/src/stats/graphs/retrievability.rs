@@ -2,10 +2,7 @@
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 use anki_proto::stats::graphs_response::Retrievability;
-use fsrs::FSRS5_DEFAULT_DECAY;
 
-use crate::prelude::TimestampSecs;
-use crate::scheduler::timing::SchedTimingToday;
 use crate::stats::graphs::eases::percent_to_bin;
 use crate::stats::graphs::GraphsContext;
 
@@ -14,11 +11,6 @@ impl GraphsContext {
     pub(super) fn retrievability(&self) -> Retrievability {
         let mut retrievability = Retrievability::default();
         let mut card_with_retrievability_count: usize = 0;
-        let timing = SchedTimingToday {
-            days_elapsed: self.days_elapsed,
-            now: TimestampSecs::now(),
-            next_day_at: self.next_day_start,
-        };
         // note id -> (sum, count)
         let mut note_retrievability: std::collections::HashMap<i64, (f32, u32)> =
             std::collections::HashMap::new();
@@ -27,14 +19,7 @@ impl GraphsContext {
                 .entry(card.note_id.0)
                 .or_insert((0.0, 0));
             entry.1 += 1;
-            if let Some(state) = card.memory_state {
-                let elapsed_seconds = card.seconds_since_last_review(&timing).unwrap_or_default();
-                let r = fsrs::current_retrievability(
-                    state.into(),
-                    elapsed_seconds as f32 / 86_400.0,
-                    card.decay.unwrap_or(FSRS5_DEFAULT_DECAY),
-                );
-
+            if let Some(r) = self.fsrs_retrievability.get(&card.id).copied() {
                 *retrievability
                     .retrievability
                     .entry(percent_to_bin(r * 100.0, 1))

@@ -161,6 +161,7 @@ impl SqliteStorage {
         let mut conf = DeckConfig::default();
         conf.id.0 = 1;
         conf.name = tr.deck_config_default_name().into();
+        conf.inner.fsrs_params_7 = fsrs::DEFAULT_PARAMETERS.to_vec();
         self.add_deck_conf(&mut conf)
     }
 

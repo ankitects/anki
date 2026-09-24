@@ -3,8 +3,11 @@
 
 mod error;
 pub mod memory_state;
+pub(crate) mod metrics;
 pub mod params;
+pub(crate) mod repair;
 pub mod rescheduler;
 pub mod retention;
 pub mod simulator;
 pub mod try_collect;
+mod upgrade;

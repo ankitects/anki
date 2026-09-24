@@ -150,6 +150,9 @@ impl Collection {
         debug!("check review log");
         self.check_revlog(&mut out)?;
 
+        let incomplete = self.incomplete_fsrs7_card_ids()?;
+        out.card_properties_invalid += self.rebuild_fsrs_states_inner(&incomplete)?;
+
         debug!("missing decks");
         self.check_missing_deck_names(&mut out)?;
 

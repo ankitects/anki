@@ -7,10 +7,15 @@ use std::collections::HashSet;
 use std::fs::File;
 use std::io::Write;
 
+use anki_io::new_tempfile;
 use anki_io::read_file;
 use anki_proto::import_export::ImportAnkiPackageOptions;
+use zip::ZipArchive;
 
+use crate::collection::CollectionBuilder;
+use crate::import_export::package::meta::MetaExt;
 use crate::import_export::package::ExportAnkiPackageOptions;
+use crate::import_export::package::Meta;
 use crate::media::files::sha1_of_data;
 use crate::media::MediaManager;
 use crate::prelude::*;
@@ -26,6 +31,104 @@ const JPG_DATA: &[u8] = b"1";
 const MP3_DATA: &[u8] = b"2";
 const JS_DATA: &[u8] = b"3";
 const EXISTING_MP3_DATA: &[u8] = b"4";
+
+#[test]
+fn scheduled_import_replays_state_under_retained_destination_preset() -> Result<()> {
+    scheduled_import_replays_under_preset(false)?;
+    scheduled_import_replays_under_preset(true)
+}
+
+fn scheduled_import_replays_under_preset(legacy_destination: bool) -> Result<()> {
+    use crate::card::CardQueue;
+    use crate::card::CardType;
+    use crate::revlog::RevlogEntry;
+    use crate::revlog::RevlogReviewKind;
+    use crate::scheduler::fsrs::memory_state::fsrs_memory_state_for_fsrs;
+
+    let (mut source, source_dir) = open_fs_test_collection("source");
+    let (mut target, _target_dir) = open_fs_test_collection("target");
+    if legacy_destination {
+        let mut config = target.get_deck_config(DeckConfigId(1), false)?.unwrap();
+        config.clear_fsrs_params();
+        config.inner.fsrs_params_6 = fsrs::FSRS6_DEFAULT_PARAMETERS.to_vec();
+        target.add_or_update_deck_config(&mut config)?;
+    }
+    let path = source_dir.path().join("fsrs.apkg");
+    let note = NoteAdder::basic(&mut source).add(&mut source);
+    let mut card = source.storage.all_cards_of_note(note.id)?.remove(0);
+    let mut source_config = source.get_deck_config(DeckConfigId(1), false)?.unwrap();
+    source_config.inner.fsrs_params_7[2] = 0.1;
+    source.add_or_update_deck_config(&mut source_config)?;
+    let source_model = fsrs::FSRS::new(source_config.fsrs_params())?;
+    let review = fsrs::FSRSItem {
+        reviews: vec![fsrs::FSRSReview {
+            rating: 3,
+            delta_t: 0.0,
+        }],
+    };
+    card.memory_state = Some(fsrs_memory_state_for_fsrs(
+        &source_model,
+        source_model.memory_state(review.clone(), None)?,
+    ));
+    card.ctype = CardType::Review;
+    card.queue = CardQueue::Review;
+    card.due = source.timing_today()?.days_elapsed as i32 + 10;
+    card.interval = 10;
+    card.last_review_time = Some(TimestampSecs(1_700_000_000));
+    source.storage.update_card(&card)?;
+    source.storage.add_revlog_entry(
+        &RevlogEntry {
+            id: RevlogId(1_700_000_000_000),
+            cid: card.id,
+            button_chosen: 3,
+            review_kind: RevlogReviewKind::Learning,
+            interval: 10,
+            ..Default::default()
+        },
+        false,
+    )?;
+    source.export_apkg(
+        &path,
+        ExportAnkiPackageOptions {
+            with_scheduling: true,
+            with_deck_configs: true,
+            with_media: false,
+            legacy: false,
+        },
+        SearchNode::WholeCollection,
+        None,
+    )?;
+    target.import_apkg(
+        &path,
+        ImportAnkiPackageOptions {
+            with_scheduling: true,
+            with_deck_configs: false,
+            ..Default::default()
+        },
+    )?;
+    let imported = target.storage.all_cards_of_note(note.id)?.remove(0);
+    let config = target.get_deck_config(DeckConfigId(1), false)?.unwrap();
+    let model = fsrs::FSRS::new(config.fsrs_params())?;
+    let expected = fsrs_memory_state_for_fsrs(&model, model.memory_state(review, None)?);
+    let actual = imported.memory_state.unwrap();
+    assert_ne!(actual, card.memory_state.unwrap());
+    assert!((actual.stability_internal - expected.stability_internal).abs() < 0.001);
+    match (actual.stability_fast, expected.stability_fast) {
+        (Some(a), Some(e)) => assert!((a - e).abs() < 0.001),
+        (None, None) => (),
+        states => panic!("mismatched model state: {states:?}"),
+    }
+    assert!((actual.difficulty - expected.difficulty).abs() < 0.001);
+    assert_eq!(imported.last_review_time, card.last_review_time);
+    assert_eq!(imported.interval, 10);
+    assert_eq!(
+        imported.due,
+        target.timing_today()?.days_elapsed as i32 + 10
+    );
+    target.undo()?;
+    assert!(target.storage.get_card(imported.id)?.is_none());
+    Ok(())
+}
 
 #[test]
 fn roundtrip() {
@@ -179,7 +282,7 @@ impl Collection {
     }
 }
 
-fn export_and_reimport_with_fsrs_params(with_scheduling: bool) -> DeckConfig {
+fn export_and_reimport_with_fsrs_params(with_scheduling: bool) -> (DeckConfig, DeckConfig) {
     let (mut src_col, src_tempdir) = open_fs_test_collection("src");
     let (mut target_col, _target_tempdir) = open_fs_test_collection("target");
     let apkg_path = src_tempdir.path().join("fsrs.apkg");
@@ -190,6 +293,7 @@ fn export_and_reimport_with_fsrs_params(with_scheduling: bool) -> DeckConfig {
             c.inner.fsrs_params_4 = vec![0.1; 17];
             c.inner.fsrs_params_5 = vec![0.2; 19];
             c.inner.fsrs_params_6 = vec![0.3; 21];
+            c.inner.fsrs_params_7 = vec![0.4; 34];
         })
         .add(&mut src_col);
     NoteAdder::basic(&mut src_col)
@@ -209,6 +313,26 @@ fn export_and_reimport_with_fsrs_params(with_scheduling: bool) -> DeckConfig {
             None,
         )
         .unwrap();
+    // Inspect the serialized package without applying the opening migration.
+    let mut archive = ZipArchive::new(File::open(&apkg_path).unwrap()).unwrap();
+    let meta = Meta::from_archive(&mut archive).unwrap();
+    let mut tempfile = new_tempfile().unwrap();
+    meta.copy(
+        &mut archive.by_name(meta.collection_filename()).unwrap(),
+        &mut tempfile,
+    )
+    .unwrap();
+    let exported_col = CollectionBuilder::new(tempfile.path())
+        .set_skip_fsrs_defaults_upgrade()
+        .build()
+        .unwrap();
+    let exported = exported_col
+        .storage
+        .all_deck_config()
+        .unwrap()
+        .into_iter()
+        .find(|c| c.name == "fsrs-config")
+        .unwrap();
     target_col
         .import_apkg(
             &apkg_path,
@@ -220,27 +344,32 @@ fn export_and_reimport_with_fsrs_params(with_scheduling: bool) -> DeckConfig {
         )
         .unwrap();
 
-    target_col
+    let imported = target_col
         .storage
         .all_deck_config()
         .unwrap()
         .into_iter()
         .find(|c| c.name == "fsrs-config")
-        .expect("custom config should have been imported")
+        .expect("custom config should have been imported");
+    (exported, imported)
 }
 
 #[test]
 fn fsrs_params_preserved_on_export_with_scheduling() {
-    let conf = export_and_reimport_with_fsrs_params(true);
+    let (exported, conf) = export_and_reimport_with_fsrs_params(true);
     assert_eq!(conf.inner.fsrs_params_4.len(), 17);
     assert_eq!(conf.inner.fsrs_params_5.len(), 19);
     assert_eq!(conf.inner.fsrs_params_6.len(), 21);
+    assert_eq!(conf.inner.fsrs_params_7.len(), 34);
+    assert_eq!(exported.inner, conf.inner);
 }
 
 #[test]
 fn fsrs_params_stripped_on_export_without_scheduling() {
-    let conf = export_and_reimport_with_fsrs_params(false);
-    assert!(conf.inner.fsrs_params_4.is_empty());
-    assert!(conf.inner.fsrs_params_5.is_empty());
-    assert!(conf.inner.fsrs_params_6.is_empty());
+    let (exported, imported) = export_and_reimport_with_fsrs_params(false);
+    assert!(exported.has_empty_fsrs_params());
+    assert!(imported.inner.fsrs_params_4.is_empty());
+    assert!(imported.inner.fsrs_params_5.is_empty());
+    assert!(imported.inner.fsrs_params_6.is_empty());
+    assert_eq!(imported.inner.fsrs_params_7, fsrs::DEFAULT_PARAMETERS);
 }

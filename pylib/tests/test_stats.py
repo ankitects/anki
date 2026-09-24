@@ -4,8 +4,39 @@
 import os
 import tempfile
 
-from anki.collection import CardStats
 from tests.shared import getEmptyCol
+
+
+def test_batch_card_details_and_memory_metrics():
+    col = getEmptyCol()
+    try:
+        note = col.new_note(col.models.current())
+        note["Front"] = "<b>猫</b>"
+        note["Back"] = "line one\nline two"
+        col.add_note(note, 1)
+        cid = note.cards()[0].id
+        metrics = col.card_memory_metrics([cid, 1, cid], include_retrievability=False)
+        assert len(metrics) == 2
+        assert metrics[0] == metrics[1]
+        assert not metrics[0].HasField("memory_state")
+        assert not metrics[0].HasField("fsrs_retrievability")
+        assert not col.card_details([cid])[0].HasField("note_fields")
+        assert col.card_details([cid], note_fields=[])[0].HasField("note_fields")
+        details = col.card_details(
+            [cid, 1, cid],
+            include_memory_state=True,
+            note_fields=["Back", "Front", "Missing"],
+        )
+        assert len(details) == 2
+        assert details[0] == details[1]
+        assert [(f.name, f.value, f.order) for f in details[0].note_fields.fields] == [
+            ("Front", "<b>猫</b>", 0),
+            ("Back", "line one\nline two", 1),
+        ]
+        assert details[0].HasField("metrics")
+        assert not details[0].metrics.HasField("fsrs_retrievability")
+    finally:
+        col.close()
 
 
 def test_stats():

@@ -43,6 +43,27 @@ impl super::SqliteStorage {
             .transpose()
     }
 
+    /// Copy only selected values from SQLite's borrowed field text.
+    /// None also covers a malformed note missing a requested field index.
+    pub(crate) fn get_note_fields_at_indices(
+        &self,
+        nid: NoteId,
+        indices: &[usize],
+    ) -> Result<Option<Vec<String>>> {
+        let mut statement = self
+            .db
+            .prepare_cached("SELECT flds FROM notes WHERE id = ?")?;
+        let mut rows = statement.query(params![nid])?;
+        let Some(row) = rows.next()? else {
+            return Ok(None);
+        };
+        let fields = row.get_ref(0)?.as_str()?.split('\x1f').collect::<Vec<_>>();
+        Ok(indices
+            .iter()
+            .map(|&index| fields.get(index).map(|value| (*value).to_owned()))
+            .collect())
+    }
+
     pub fn get_all_note_ids(&self) -> Result<HashSet<NoteId>> {
         self.db
             .prepare("SELECT id FROM notes")?

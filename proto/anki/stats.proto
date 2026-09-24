@@ -16,11 +16,72 @@ service StatsService {
   rpc Graphs(GraphsRequest) returns (GraphsResponse);
   rpc GetGraphPreferences(generic.Empty) returns (GraphPreferences);
   rpc SetGraphPreferences(GraphPreferences) returns (generic.Empty);
+  rpc CardMemoryMetrics(CardMemoryMetricsRequest)
+      returns (CardMemoryMetricsResponse);
+  rpc CardDetails(CardDetailsRequest) returns (CardDetailsResponse);
 }
 
 // Implicitly includes any of the above methods that are not listed in the
 // backend service.
 service BackendStatsService {}
+
+// Current values only: no historical memory-state reconstruction or card
+// writes.
+message CardMemoryMetricsRequest {
+  repeated int64 card_ids = 1;
+  bool include_retrievability = 2;
+}
+
+message CardMemoryMetrics {
+  int64 card_id = 1;
+  optional cards.FsrsMemoryState memory_state = 2;
+  optional float desired_retention = 3;
+  optional float fsrs_retrievability = 4;
+}
+
+message CardMemoryMetricsResponse {
+  // Input order and duplicates are preserved; missing cards are omitted.
+  repeated CardMemoryMetrics entries = 1;
+}
+
+// Compact current card data with optional selected note fields and metrics.
+message CardDetailsRequest {
+  repeated int64 card_ids = 1;
+  bool include_memory_state = 2;
+  bool include_retrievability = 3;
+  optional NoteFieldSelection note_fields = 4;
+}
+
+message NoteFieldSelection {
+  repeated string names = 1;
+}
+
+message SelectedNoteFields {
+  message Field {
+    string name = 1;
+    string value = 2;
+    uint32 order = 3;
+  }
+  repeated Field fields = 1;
+}
+
+message CardDetails {
+  int64 card_id = 1;
+  uint32 ctype = 2;
+  sint32 queue = 3;
+  sint32 due = 4;
+  uint32 interval = 5;
+  uint32 reps = 6;
+  optional CardMemoryMetrics metrics = 7;
+  // Absent if not requested, the note/type is missing, or a selected field's
+  // stored index is missing. Unknown field names are ignored.
+  optional SelectedNoteFields note_fields = 8;
+}
+
+message CardDetailsResponse {
+  // Input order and duplicates are preserved; missing cards are omitted.
+  repeated CardDetails entries = 1;
+}
 
 message ReviewLogs {
   repeated CardStatsResponse.StatsRevlogEntry entries = 1;

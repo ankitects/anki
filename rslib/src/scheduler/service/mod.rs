@@ -20,12 +20,16 @@ use anki_proto::scheduler::SimulateFsrsWorkloadResponse;
 use fsrs::ComputeParametersInput;
 use fsrs::FSRSItem;
 use fsrs::FSRSReview;
+use fsrs::FSRS;
 
 use crate::backend::Backend;
+use crate::config::BoolKey;
 use crate::prelude::*;
+use crate::scheduler::answering::PreviewDelays;
 use crate::scheduler::fsrs::params::ComputeParamsRequest;
 use crate::scheduler::new::NewCardDueOrder;
 use crate::scheduler::states::CardState;
+use crate::scheduler::states::LearnState;
 use crate::scheduler::states::SchedulingStates;
 use crate::search::SortMode;
 use crate::stats::studied_today;
@@ -299,6 +303,100 @@ impl crate::services::SchedulerService for Collection {
         })
     }
 
+    fn get_fsrs_new_card_intervals(
+        &mut self,
+        input: scheduler::GetFsrsNewCardIntervalsRequest,
+    ) -> Result<generic::StringList> {
+        let config = crate::deckconfig::DeckConfig {
+            inner: input.config.or_invalid("deck config not provided")?,
+            ..Default::default()
+        };
+        let params = config.fsrs_params();
+        let fsrs = FSRS::new(params)?;
+        let fsrs_allow_short_term = params.len() >= 19 && params[17] > 0.0 && params[18] > 0.0;
+        let fsrs_short_term_with_steps_enabled =
+            self.get_config_bool(BoolKey::FsrsShortTermWithStepsEnabled);
+        let make_context =
+            |memory_state: Option<fsrs::MemoryState>, elapsed_days: f32| -> Result<_> {
+                Ok(crate::scheduler::states::StateContext {
+                    fuzz_factor: None,
+                    fsrs_next_states: Some(fsrs.next_states_with_elapsed_days(
+                        memory_state,
+                        config.inner.desired_retention,
+                        elapsed_days,
+                    )?),
+                    fsrs_short_term_with_steps_enabled,
+                    fsrs_allow_short_term,
+                    fsrs7: fsrs.version() == fsrs::ModelVersion::Fsrs7,
+                    steps: crate::scheduler::states::steps::LearningSteps::new(
+                        &config.inner.learn_steps,
+                    ),
+                    graduating_interval_good: config.inner.graduating_interval_good,
+                    graduating_interval_easy: config.inner.graduating_interval_easy,
+                    initial_ease_factor: config.inner.initial_ease,
+                    hard_multiplier: config.inner.hard_multiplier,
+                    easy_multiplier: config.inner.easy_multiplier,
+                    interval_multiplier: config.inner.interval_multiplier,
+                    maximum_review_interval: config.inner.maximum_review_interval,
+                    leech_threshold: config.inner.leech_threshold,
+                    load_balancer_ctx: None,
+                    relearn_steps: crate::scheduler::states::steps::LearningSteps::new(
+                        &config.inner.relearn_steps,
+                    ),
+                    lapse_multiplier: config.inner.lapse_multiplier,
+                    minimum_lapse_interval: config.inner.minimum_lapse_interval,
+                    in_filtered_deck: false,
+                    preview_delays: PreviewDelays::default(),
+                })
+            };
+        let followup_states = |state: &CardState| -> Result<SchedulingStates> {
+            let (memory_state, elapsed_days) = match state {
+                CardState::Normal(crate::scheduler::states::NormalState::Learning(state)) => (
+                    state.memory_state.map(Into::into),
+                    state.scheduled_secs as f32 / 86_400.0,
+                ),
+                CardState::Normal(crate::scheduler::states::NormalState::Review(state)) => (
+                    state.memory_state.map(Into::into),
+                    state.scheduled_days as f32,
+                ),
+                CardState::Normal(crate::scheduler::states::NormalState::Relearning(state)) => (
+                    state.learning.memory_state.map(Into::into),
+                    if state.learning.scheduled_secs == 0 {
+                        state.review.scheduled_days as f32
+                    } else {
+                        state.learning.scheduled_secs as f32 / 86_400.0
+                    },
+                ),
+                CardState::Normal(crate::scheduler::states::NormalState::New(_))
+                | CardState::Filtered(_) => (None, 0.0),
+            };
+            Ok(state.next_states(&make_context(memory_state, elapsed_days)?))
+        };
+
+        let initial_states = LearnState {
+            remaining_steps: config.inner.learn_steps.len() as u32,
+            scheduled_secs: 0,
+            elapsed_secs: 0,
+            memory_state: None,
+        }
+        .next_states(&make_context(None, 0.0)?);
+        let initial_labels = self.describe_next_states(&initial_states)?;
+        let after_again = self.describe_next_states(&followup_states(&initial_states.again)?)?;
+        let after_good = self.describe_next_states(&followup_states(&initial_states.good)?)?;
+        Ok(generic::StringList {
+            vals: vec![
+                initial_labels[0].clone(),
+                initial_labels[1].clone(),
+                initial_labels[2].clone(),
+                initial_labels[3].clone(),
+                after_again[2].clone(),
+                after_again[0].clone(),
+                after_good[0].clone(),
+                after_good[2].clone(),
+            ],
+        })
+    }
+
     fn evaluate_params(
         &mut self,
         input: scheduler::EvaluateParamsRequest,
@@ -394,9 +492,12 @@ impl crate::services::BackendSchedulerService for Backend {
             card_ids: None,
             progress: None,
             enable_short_term: true,
+            enable_sched_penalties: true,
+            model_version: fsrs::ComputeParametersVersion::Fsrs7,
             num_relearning_steps: None,
             training_config: None,
         })?;
+        FSRS::new(&params)?;
         Ok(ComputeFsrsParamsResponse {
             params,
             fsrs_items,
@@ -418,9 +519,12 @@ impl crate::services::BackendSchedulerService for Backend {
             card_ids: None,
             progress: None,
             enable_short_term: true,
+            enable_sched_penalties: true,
+            model_version: fsrs::ComputeParametersVersion::Fsrs7,
             num_relearning_steps: None,
             training_config: None,
         });
+        FSRS::new(&params)?;
         Ok(FsrsBenchmarkResponse { params })
     }
 
@@ -446,7 +550,7 @@ fn fsrs_item_proto_to_fsrs(item: anki_proto::scheduler::FsrsItem) -> FSRSItem {
 
 fn fsrs_review_proto_to_fsrs(review: anki_proto::scheduler::FsrsReview) -> FSRSReview {
     FSRSReview {
-        delta_t: review.delta_t,
+        delta_t: review.delta_t as f32,
         rating: review.rating,
     }
 }
@@ -1403,6 +1507,26 @@ mod tests {
         // one human-readable interval label for Again/Hard/Good/Easy
         assert_eq!(labels.vals.len(), 4);
         assert!(labels.vals.iter().all(|s| !s.is_empty()));
+    }
+
+    #[test]
+    fn fsrs_new_card_interval_preview_uses_all_learning_steps() {
+        let mut col = Collection::new();
+        let mut config = DeckConfig::default();
+        config.inner.fsrs_params_7 = fsrs::DEFAULT_PARAMETERS.to_vec();
+        config.inner.learn_steps = vec![1.0, 10.0, 30.0];
+
+        let labels = SchedulerService::get_fsrs_new_card_intervals(
+            &mut col,
+            anki_proto::scheduler::GetFsrsNewCardIntervalsRequest {
+                config: Some(config.inner),
+            },
+        )
+        .unwrap();
+
+        assert_eq!(labels.vals.len(), 8);
+        assert!(labels.vals.iter().all(|label| !label.is_empty()));
+        assert!(labels.vals[2].ends_with("10m"));
     }
 
     #[test]
