@@ -688,6 +688,14 @@ def _run(argv: list[str] | None = None, exec: bool = True) -> AnkiApp | None:
         traceback.print_exc()
         pm = None
 
+    driver = None
+    if pm:
+        driver = VideoDriver.Software if "--safemode" in argv else pm.video_driver()
+        # gl workarounds
+        setupGL(pm, driver)
+        # apply user-provided scale factor
+        os.environ["QT_SCALE_FACTOR"] = str(pm.uiScale())
+
     # Opt-in to full HiDPI support?
     if not os.environ.get("ANKI_NOHIGHDPI") and qtmajor == 5:
         QCoreApplication.setAttribute(Qt.ApplicationAttribute.AA_EnableHighDpiScaling)  # type: ignore
@@ -713,14 +721,7 @@ def _run(argv: list[str] | None = None, exec: bool = True) -> AnkiApp | None:
         # we've signaled the primary instance, so we should close
         return None
 
-    driver = None
-    if pm:
-        driver = pm.video_driver() if not app.safeMode else VideoDriver.Software
-        # gl workarounds
-        setupGL(pm, driver)
-        # apply user-provided scale factor
-        os.environ["QT_SCALE_FACTOR"] = str(pm.uiScale())
-    else:
+    if not pm:
         if i18n_setup:
             QMessageBox.critical(
                 None,
@@ -730,6 +731,11 @@ def _run(argv: list[str] | None = None, exec: bool = True) -> AnkiApp | None:
         else:
             QMessageBox.critical(None, "Startup Failed", "Unable to create data folder")
         return None
+
+    # holding Shift can only be detected once the app exists
+    if app.safeMode and driver != VideoDriver.Software:
+        driver = VideoDriver.Software
+        setupGL(pm, driver)
 
     setup_logging(
         pm.addon_logs(),
