@@ -49,7 +49,7 @@ pub struct SqliteStorage {
     pub(crate) db: Connection,
 }
 
-fn open_or_create_collection_db(path: &Path) -> Result<Connection> {
+fn open_or_create_collection_db(path: &Path, locking_mode: &str) -> Result<Connection> {
     let db = Connection::open(path)?;
 
     if std::env::var("TRACESQL").is_ok() {
@@ -61,7 +61,7 @@ fn open_or_create_collection_db(path: &Path) -> Result<Connection> {
 
     db.busy_timeout(std::time::Duration::from_secs(0))?;
 
-    db.pragma_update(None, "locking_mode", "exclusive")?;
+    db.pragma_update(None, "locking_mode", locking_mode)?;
     db.pragma_update(None, "page_size", 4096)?;
     db.pragma_update(None, "cache_size", -40 * 1024)?;
     db.pragma_update(None, "legacy_file_format", false)?;
@@ -479,7 +479,16 @@ impl SqliteStorage {
         server: bool,
         check_integrity: bool,
     ) -> Result<Self> {
-        let db = open_or_create_collection_db(path)?;
+        let locking_mode = if server
+            && matches!(
+                std::env::var("SYNC_COLLECTION_DB_LOCKING_MODE"),
+                Ok(mode) if mode.eq_ignore_ascii_case("normal")
+            ) {
+            "normal"
+        } else {
+            "exclusive"
+        };
+        let db = open_or_create_collection_db(path, locking_mode)?;
         let (create, ver) = schema_version(&db)?;
 
         let err = match ver {

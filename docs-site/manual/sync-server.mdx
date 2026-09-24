@@ -137,6 +137,10 @@ reverse proxy.
 You can define `SYNC_HOST` and `SYNC_PORT` to change the host and port
 that the server binds to.
 
+By default, the sync server opens its collection database with SQLite's exclusive
+locking mode. If you need to read the collection database while the server is
+running, you can set `SYNC_COLLECTION_DB_LOCKING_MODE=normal`.
+
 ## Client Setup
 
 ### Server URL
