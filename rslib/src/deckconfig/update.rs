@@ -6,6 +6,8 @@
 use std::collections::HashMap;
 use std::collections::HashSet;
 use std::iter;
+use std::panic::catch_unwind;
+use std::panic::AssertUnwindSafe;
 use std::sync::atomic::AtomicBool;
 use std::sync::atomic::Ordering;
 use std::sync::Arc;
@@ -28,6 +30,7 @@ use crate::config::I32ConfigKey;
 use crate::config::StringKey;
 use crate::decks::NormalDeck;
 use crate::prelude::*;
+use crate::progress::ThrottlingProgressHandler;
 use crate::scheduler::fsrs::memory_state::UpdateMemoryStateEntry;
 use crate::scheduler::fsrs::memory_state::UpdateMemoryStateRequest;
 use crate::scheduler::fsrs::params::compute_params_from_prepared;
@@ -409,6 +412,8 @@ impl Collection {
         // other parts of the code expect the currently-selected preset to come last
         req.configs.push(previous_last);
 
+        // Created before the preparation, so a cancel during it is not lost.
+        let mut anki_progress = self.new_progress_handler::<ComputeAllParamsProgress>();
         // Collection access is serialized, so prepare each independent training
         // set first. The CPU-heavy optimizers can then safely run concurrently.
         let mut jobs = Vec::with_capacity(req.configs.len());
@@ -430,6 +435,7 @@ impl Collection {
                 config.fsrs_params(),
                 num_of_relearning_steps,
             )?;
+            anki_progress.check_cancelled()?;
             let progress_index = progress_entries.len();
             let progress_entry = ComputeAllParamsPresetProgress {
                 name: config.name.clone(),
@@ -459,19 +465,28 @@ impl Collection {
         }
 
         let total_jobs = jobs.len() as u32;
-        let progress_thread =
-            self.create_compute_all_params_progress_thread(&jobs, progress_entries, total_jobs)?;
+        let progress_thread = self.create_compute_all_params_progress_thread(
+            anki_progress,
+            &jobs,
+            progress_entries,
+            total_jobs,
+        )?;
         let results = compute_all_params_job_lanes(jobs)
             .into_par_iter()
             .flat_map(|lane| {
                 lane.jobs
                     .into_iter()
                     .map(|job| {
-                        let result = compute_params_from_prepared(
-                            job.prepared,
-                            Some(job.progress.clone()),
-                            false,
-                        );
+                        // A panic must still mark the job as done, or the
+                        // progress thread never stops.
+                        let result = catch_unwind(AssertUnwindSafe(|| {
+                            compute_params_from_prepared(
+                                job.prepared,
+                                Some(job.progress.clone()),
+                                false,
+                            )
+                        }))
+                        .unwrap_or_else(|_| invalid_input!("FSRS optimizer panicked"));
                         job.failed.store(result.is_err(), Ordering::Release);
                         job.done.store(true, Ordering::Release);
                         (job.config_index, job.name, result)
@@ -500,11 +515,11 @@ impl Collection {
 
     fn create_compute_all_params_progress_thread(
         &self,
+        mut anki_progress: ThrottlingProgressHandler<ComputeAllParamsProgress>,
         jobs: &[ComputeAllParamsJob],
         progress_entries: Vec<ComputeAllParamsPresetProgress>,
         total_jobs: u32,
     ) -> Result<thread::JoinHandle<()>> {
-        let mut anki_progress = self.new_progress_handler::<ComputeAllParamsProgress>();
         anki_progress.set(ComputeAllParamsProgress {
             current_iteration: 0,
             total_iterations: total_jobs,

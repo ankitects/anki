@@ -21,6 +21,7 @@ use fsrs::ComputeParametersVersion;
 use fsrs::FSRSItem;
 use fsrs::FSRSReview;
 use fsrs::ModelEvaluation;
+use fsrs::ModelVersion;
 use fsrs::TrainingConfig;
 use fsrs::FSRS;
 use itertools::Itertools;
@@ -114,6 +115,38 @@ fn health_check_passed(eval: ModelEvaluation, items: &[FSRSItem]) -> bool {
     adjusted_log_loss <= 1.11 || adjusted_rmse <= 1.53
 }
 
+/// Below this many items, fsrs-rs returns its default or initial parameters
+/// without training.
+const MIN_ITEMS_FOR_TRAINING: usize = 64;
+
+/// Keep the current parameters unless the optimized ones predict the training
+/// items better. The log loss of two FSRS-7 parameter sets on the same items
+/// is a fair comparison: the scheduling penalties are part of the training
+/// objective only. Parameters of an older model cannot be evaluated on these
+/// items, because their elapsed time is in whole days, so they are kept only
+/// when there are too few items to train.
+fn params_to_keep(current: &[f32], optimized: Params, items: &[FSRSItem]) -> Result<Params> {
+    let Ok(current_fsrs) = FSRS::new(current) else {
+        return Ok(optimized);
+    };
+    if current_fsrs.version() != ModelVersion::Fsrs7 {
+        return Ok(if items.len() < MIN_ITEMS_FOR_TRAINING {
+            current.to_vec()
+        } else {
+            optimized
+        });
+    }
+    let current_log_loss = current_fsrs.evaluate(items.to_vec(), |_| true)?.log_loss;
+    let optimized_log_loss = FSRS::new(&optimized)?
+        .evaluate(items.to_vec(), |_| true)?
+        .log_loss;
+    Ok(if current_log_loss <= optimized_log_loss {
+        current.to_vec()
+    } else {
+        optimized
+    })
+}
+
 pub(crate) fn compute_params_from_prepared(
     prepared: PreparedComputeParams,
     progress: Option<Arc<Mutex<CombinedProgressState>>>,
@@ -135,9 +168,11 @@ pub(crate) fn compute_params_from_prepared(
         });
     }
 
+    let run_health_check = run_health_check && items.len() > 300;
+    let health_check_card_ids = run_health_check.then(|| card_ids.clone());
     let params = fsrs::compute_parameters(ComputeParametersInput {
         train_set: items.clone(),
-        card_ids: Some(card_ids.clone()),
+        card_ids: Some(card_ids),
         progress,
         enable_short_term: true,
         enable_sched_penalties: true,
@@ -148,15 +183,12 @@ pub(crate) fn compute_params_from_prepared(
             ..Default::default()
         }),
     })?;
-    // Do not compare against raw log-loss: FSRS7's objective also contains
-    // scheduling penalties. Still validate the optimizer's public output
-    // before it can be persisted in a preset.
-    FSRS::new(&params)?;
-    let health_check_passed = if run_health_check && items.len() > 300 {
+    let params = params_to_keep(&current_params, params, &items)?;
+    let health_check_passed = if run_health_check {
         fsrs::evaluate_with_time_series_splits(
             ComputeParametersInput {
                 train_set: items.clone(),
-                card_ids: Some(card_ids),
+                card_ids: health_check_card_ids,
                 progress: None,
                 enable_short_term: true,
                 enable_sched_penalties: true,
@@ -259,7 +291,7 @@ impl Collection {
         let timing = self.timing_today()?;
         let revlogs = self.revlog_for_srs(search)?;
         let (items, card_ids, _) =
-            fsrs_items_for_training(revlogs, timing.next_day_at, ignore_revlogs_before);
+            fsrs_items_for_training(revlogs, timing.next_day_at, ignore_revlogs_before, true);
         let target_counts = training_target_counts_from_items(&items);
         Ok(PreparedComputeParams {
             current_params: current_params.to_vec(),
@@ -346,7 +378,7 @@ impl Collection {
         let timing = self.timing_today()?;
         let revlogs = self.revlog_for_srs(search)?;
         let (items, card_ids, review_count) =
-            fsrs_items_for_training(revlogs, timing.next_day_at, ignore_revlogs_before);
+            fsrs_items_for_training(revlogs, timing.next_day_at, ignore_revlogs_before, true);
         let mut anki_progress = self.new_progress_handler::<ComputeParamsProgress>();
         anki_progress.state.reviews = review_count as u32;
         let input = ComputeParametersInput {
@@ -385,10 +417,16 @@ impl Collection {
             .col
             .storage
             .get_revlog_entries_for_searched_cards_in_card_order()?;
-        let (items, _, review_count) =
-            fsrs_items_for_training(revlogs, timing.next_day_at, ignore_revlogs_before);
-        anki_progress.state.reviews = review_count as u32;
         let fsrs = FSRS::new(params)?;
+        // Older models count elapsed time in whole days, so they get no
+        // same-day targets, as in their training.
+        let (items, _, review_count) = fsrs_items_for_training(
+            revlogs,
+            timing.next_day_at,
+            ignore_revlogs_before,
+            fsrs.version() == ModelVersion::Fsrs7,
+        );
+        anki_progress.state.reviews = review_count as u32;
         Ok(fsrs.evaluate(items, |ip| {
             anki_progress
                 .update(false, |p| {
@@ -443,6 +481,7 @@ fn fsrs_items_for_training(
     revlogs: Vec<RevlogEntry>,
     next_day_at: TimestampSecs,
     review_revlogs_before: TimestampMillis,
+    include_same_day: bool,
 ) -> (Vec<FSRSItem>, Vec<i64>, usize) {
     let mut review_count: usize = 0;
     let mut revlogs = revlogs
@@ -455,7 +494,7 @@ fn fsrs_items_for_training(
                 next_day_at,
                 true,
                 review_revlogs_before,
-                true,
+                include_same_day,
             )
             .map(|reviews| (cid, reviews))
         })
@@ -803,6 +842,7 @@ pub(crate) mod tests {
             ],
             NEXT_DAY_AT,
             0.into(),
+            true,
         );
 
         assert_eq!(card_ids, vec![2, 1, 1]);
@@ -1047,5 +1087,85 @@ pub(crate) mod tests {
         ];
         // L R |
         assert_eq!(convert_ignore_before(revlogs, false, days_ago_ms(4)), None);
+    }
+
+    fn items_failed_after(days: f32, count: usize) -> Vec<FSRSItem> {
+        vec![
+            FSRSItem {
+                reviews: vec![
+                    FSRSReview {
+                        rating: 3,
+                        delta_t: 0.0,
+                    },
+                    FSRSReview {
+                        rating: 1,
+                        delta_t: days,
+                    },
+                ],
+            };
+            count
+        ]
+    }
+
+    #[test]
+    fn optimize_keeps_current_fsrs7_params_when_the_new_ones_fit_worse() -> Result<()> {
+        // Every card is forgotten after 30 days, so a high initial stability
+        // for Good fits worse than the defaults.
+        let items = items_failed_after(30.0, 100);
+        let good = fsrs::DEFAULT_PARAMETERS.to_vec();
+        let mut bad = good.clone();
+        bad[2] *= 30.0;
+
+        assert_eq!(params_to_keep(&good, bad.clone(), &items)?, good);
+        assert_eq!(params_to_keep(&bad, good.clone(), &items)?, good);
+        Ok(())
+    }
+
+    #[test]
+    fn optimize_keeps_legacy_params_when_too_few_items_to_train() -> Result<()> {
+        let legacy = fsrs::FSRS6_DEFAULT_PARAMETERS.to_vec();
+        let optimized = fsrs::DEFAULT_PARAMETERS.to_vec();
+
+        let few = items_failed_after(30.0, MIN_ITEMS_FOR_TRAINING - 1);
+        assert_eq!(params_to_keep(&legacy, optimized.clone(), &few)?, legacy);
+        let enough = items_failed_after(30.0, MIN_ITEMS_FOR_TRAINING);
+        assert_eq!(
+            params_to_keep(&legacy, optimized.clone(), &enough)?,
+            optimized
+        );
+        Ok(())
+    }
+
+    #[test]
+    fn legacy_evaluate_gives_older_models_no_same_day_targets() -> Result<()> {
+        let mut col = Collection::new();
+        let note = crate::tests::NoteAdder::basic(&mut col).add(&mut col);
+        let cid = col.storage.card_ids_of_notes(&[note.id])?[0];
+        let start = TimestampMillis::now().0 - 5 * 86_400_000;
+        for (offset, button_chosen, review_kind) in [
+            (0, 3, RevlogReviewKind::Learning),
+            (10 * 60_000, 1, RevlogReviewKind::Learning),
+            (3 * 86_400_000, 3, RevlogReviewKind::Review),
+        ] {
+            col.storage.add_revlog_entry(
+                &RevlogEntry {
+                    id: RevlogId(start + offset),
+                    cid,
+                    button_chosen,
+                    review_kind,
+                    interval: 1,
+                    ..Default::default()
+                },
+                false,
+            )?;
+        }
+
+        // FSRS-6 rounds a same-day elapsed time to 0 and predicts R = 1, so
+        // the failed step would add about 9 nats.
+        let log_loss = col
+            .evaluate_params_legacy(&fsrs::FSRS6_DEFAULT_PARAMETERS.to_vec(), "", 0.into())?
+            .log_loss;
+        assert!(log_loss < 1.0, "{log_loss}");
+        Ok(())
     }
 }
