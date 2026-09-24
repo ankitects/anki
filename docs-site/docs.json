@@ -611,6 +611,7 @@
                         "group": "Windows",
                         "icon": "microsoft",
                         "pages": [
+                          "ar/manual/platform/windows/intro",
                           "ar/manual/platform/windows/installing",
                           "ar/manual/platform/windows/installation-issues",
                           "ar/manual/platform/windows/startup-issues",
@@ -624,6 +625,7 @@
                         "group": "MacOS",
                         "icon": "apple",
                         "pages": [
+                          "ar/manual/platform/mac/intro",
                           "ar/manual/platform/mac/installing",
                           "ar/manual/platform/mac/display-issues"
                         ]
@@ -632,6 +634,7 @@
                         "group": "Linux",
                         "icon": "bird",
                         "pages": [
+                          "ar/manual/platform/linux/intro",
                           "ar/manual/platform/linux/installing",
                           "ar/manual/platform/linux/missing-libraries",
                           "ar/manual/platform/linux/display-issues",
@@ -644,6 +647,7 @@
                     ]
                   },
                   "ar/manual/platform/linux/distro-packages",
+                  "ar/manual/getting-help",
                   "ar/manual/studying",
                   "ar/manual/editing",
                   {
@@ -667,7 +671,11 @@
                   {
                     "group": "Importing",
                     "icon": "down-from-bracket",
-                    "pages": []
+                    "pages": [
+                      "ar/manual/importing/intro",
+                      "ar/manual/importing/text-files",
+                      "ar/manual/importing/packaged-decks"
+                    ]
                   },
                   "ar/manual/exporting",
                   "ar/manual/backups",
@@ -677,12 +685,42 @@
                   "ar/manual/math",
                   "ar/manual/leeches",
                   "ar/manual/addons",
+                  "ar/manual/troubleshooting",
                   "ar/manual/sync-server",
                   "ar/manual/misc",
                   "ar/manual/contrib",
                   "ar/manual/resources"
                 ],
                 "expanded": true
+              }
+            ]
+          },
+          {
+            "tab": "AnkiMobile",
+            "groups": [
+              {
+                "group": "AnkiMobile Manual",
+                "pages": [
+                  "ar/ankimobile/intro",
+                  "ar/ankimobile/support",
+                  "ar/ankimobile/interface-language",
+                  "ar/ankimobile/syncing",
+                  "ar/ankimobile/shared-decks",
+                  "ar/ankimobile/deck-list",
+                  "ar/ankimobile/study-screen",
+                  "ar/ankimobile/study-tools",
+                  "ar/ankimobile/editing",
+                  "ar/ankimobile/preferences",
+                  "ar/ankimobile/collection-transfer",
+                  "ar/ankimobile/tts",
+                  "ar/ankimobile/mathjax",
+                  "ar/ankimobile/custom-fonts",
+                  "ar/ankimobile/night-mode",
+                  "ar/ankimobile/url-schemes",
+                  "ar/ankimobile/reinstalling",
+                  "ar/ankimobile/beta-testing",
+                  "ar/ankimobile/more"
+                ]
               }
             ]
           },
@@ -712,7 +750,8 @@
                       "ar/faqs/some-updates-were-ignored-because-the-note-type-has-changed",
                       "ar/faqs/sounds-or-images-have-gone-missing",
                       "ar/faqs/splitting-a-field-into-multiple-fields",
-                      "ar/faqs/text-to-speech-support"
+                      "ar/faqs/text-to-speech-support",
+                      "ar/faqs/sticky-fields"
                     ]
                   },
                   {
@@ -726,7 +765,8 @@
                       "ar/faqs/how-can-i-work-with-someone-else-to-create-a-deck",
                       "ar/faqs/how-do-i-move-cards-between-decks",
                       "ar/faqs/merging-or-combining-two-decks",
-                      "ar/faqs/shared-decks-with-broken-javascript"
+                      "ar/faqs/shared-decks-with-broken-javascript",
+                      "ar/faqs/timestamps-in-the-future"
                     ]
                   },
                   {
@@ -734,16 +774,19 @@
                     "icon": "calendar-clock",
                     "pages": [
                       "ar/faqs/anki-is-not-showing-me-all-my-cards",
+                      "ar/faqs/study-in-a-particular-order",
                       "ar/faqs/due-times-after-a-break",
                       "ar/faqs/extra-copies-of-a-card-are-coming-up",
                       "ar/faqs/hard-good-interval-longer-than-good-easy",
                       "ar/faqs/i-am-going-on-vacation-can-i-pause-the-scheduler",
+                      "ar/faqs/learning-steps-skipped-or-repeated",
                       "ar/faqs/resetting-progress-in-a-deck",
                       "ar/faqs/settings-for-using-anki-to-prepare-for-a-large-exam",
                       "ar/faqs/the-anki-2.1-scheduler",
                       "ar/faqs/the-2021-scheduler",
                       "ar/faqs/timezone-handling-changes",
-                      "ar/faqs/what-spaced-repetition-algorithm"
+                      "ar/faqs/what-spaced-repetition-algorithm",
+                      "ar/faqs/frequently-asked-questions-about-fsrs"
                     ]
                   },
                   {
@@ -790,6 +833,7 @@
                     "group": "Other Apps",
                     "pages": [
                       "ar/faqs/ankidroid-has-a-separate-support-site",
+                      "ar/faqs/anki-knockoffs",
                       "ar/faqs/ankiuniversal-is-not-supported-here",
                       "ar/faqs/we-do-not-make-robots"
                     ]
@@ -803,6 +847,134 @@
                       "ar/faqs/how-can-i-donate"
                     ]
                   }
+                ]
+              }
+            ]
+          },
+          {
+            "tab": "Add-ons",
+            "groups": [
+              {
+                "group": "Add-on Development",
+                "pages": [
+                  "ar/addons/intro",
+                  "ar/addons/support",
+                  "ar/addons/editor-setup",
+                  "ar/addons/mypy",
+                  "ar/addons/addon-folders",
+                  "ar/addons/a-basic-addon",
+                  "ar/addons/the-anki-module",
+                  "ar/addons/command-line-use",
+                  "ar/addons/hooks-and-filters",
+                  "ar/addons/console-output",
+                  "ar/addons/background-ops",
+                  "ar/addons/qt",
+                  "ar/addons/python-modules",
+                  "ar/addons/addon-config",
+                  "ar/addons/reviewer-javascript",
+                  "ar/addons/debugging",
+                  "ar/addons/monkey-patching",
+                  "ar/addons/sharing",
+                  "ar/addons/hooks-reference",
+                  "ar/addons/porting2.1.x",
+                  "ar/addons/porting2.0"
+                ]
+              }
+            ]
+          },
+          {
+            "tab": "Developers",
+            "groups": [
+              {
+                "group": "Core Development",
+                "pages": [
+                  "ar/developers/development",
+                  "ar/developers/api-python",
+                  "ar/developers/api-rust",
+                  "ar/developers/architecture",
+                  "ar/developers/build",
+                  "ar/developers/contributing",
+                  "ar/developers/dependabot",
+                  "ar/developers/docker",
+                  "ar/developers/editing",
+                  "ar/developers/language_bridge",
+                  "ar/developers/linux",
+                  "ar/developers/mac",
+                  "ar/developers/windows",
+                  "ar/developers/ninja",
+                  "ar/developers/protobuf",
+                  "ar/developers/releasing",
+                  "ar/developers/syncserver",
+                  "ar/developers/unit-testing",
+                  "ar/developers/testing-coverage",
+                  "ar/developers/e2e-testing"
+                ]
+              }
+            ]
+          },
+          {
+            "tab": "Translators",
+            "groups": [
+              {
+                "group": "Translation Guide",
+                "pages": [
+                  "ar/translators/intro",
+                  {
+                    "group": "Translating Anki",
+                    "pages": [
+                      "ar/translators/anki/intro",
+                      "ar/translators/anki/core",
+                      "ar/translators/anki/desktop",
+                      "ar/translators/anki/manual",
+                      "ar/translators/anki/developers"
+                    ]
+                  },
+                  "ar/translators/ankimobile",
+                  "ar/translators/ankidroid"
+                ]
+              }
+            ]
+          },
+          {
+            "tab": "Releases",
+            "groups": [
+              {
+                "group": "Release Notes",
+                "pages": [
+                  "ar/releases/betas/intro",
+                  "ar/releases/changes/known-issues",
+                  "ar/releases/changes/changes/intro",
+                  "ar/releases/changes/changes/github",
+                  "ar/releases/changes/changes/23.10",
+                  "ar/releases/changes/changes/2.1.60-66",
+                  "ar/releases/changes/changes/2.1.50-59",
+                  "ar/releases/changes/changes/2.1.40-49",
+                  "ar/releases/changes/changes/2.1.30-39",
+                  "ar/releases/changes/changes/2.1.20-29",
+                  "ar/releases/changes/changes/2.1.10-19",
+                  "ar/releases/changes/changes/2.1.0-9",
+                  "ar/releases/changes/changes/2.1",
+                  "ar/releases/betas/2021-scheduler",
+                  "ar/releases/betas/github",
+                  "ar/releases/betas/anki23.10",
+                  "ar/releases/betas/anki2.1.66",
+                  "ar/releases/betas/anki2.1.62",
+                  "ar/releases/betas/anki2.1.61",
+                  "ar/releases/betas/anki2.1.57",
+                  "ar/releases/betas/anki2.1.56",
+                  "ar/releases/betas/anki2.1.55",
+                  "ar/releases/betas/anki2.1.54",
+                  "ar/releases/betas/anki2.1.53",
+                  "ar/releases/betas/anki2.1.52",
+                  "ar/releases/betas/anki2.1.51",
+                  "ar/releases/betas/anki2.1.50",
+                  "ar/releases/betas/anki2.1.48",
+                  "ar/releases/betas/anki2.1.47",
+                  "ar/releases/betas/anki2.1.45",
+                  "ar/releases/betas/anki2.1.44",
+                  "ar/releases/betas/anki2.1.43",
+                  "ar/releases/betas/anki2.1.41",
+                  "ar/releases/betas/older"
                 ]
               }
             ]

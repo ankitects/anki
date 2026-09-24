@@ -408,14 +408,26 @@ def build_parser() -> argparse.ArgumentParser:
         epilog=(
             "Examples:\n"
             "  %(prog)s convert ../anki-manual manual en\n"
-            "  %(prog)s convert ../anki-faqs faqs ar"
+            "  %(prog)s convert ../anki-faqs faqs ar\n"
+            "  %(prog)s copy ar"
         ),
         formatter_class=argparse.RawTextHelpFormatter,
     )
     subparsers = parser.add_subparsers(dest="command", required=True)
     add_convert_subcommand(subparsers)
+    add_copy_subcommand(subparsers)
 
     return parser
+
+
+def load_site_structure(docs_site_dir: Path) -> dict:
+    with open(docs_site_dir / "docs.json", encoding="utf-8") as file:
+        return json.load(file)
+
+
+def write_site_structure(docs_site_dir: Path, site_structure: dict) -> None:
+    with open(docs_site_dir / "docs.json", "w", encoding="utf-8") as file:
+        json.dump(site_structure, file, indent=2)
 
 
 def run_convert(args: argparse.Namespace) -> None:
@@ -431,14 +443,12 @@ def run_convert(args: argparse.Namespace) -> None:
     language_code_path_str = "" if language_code == "en" else language_code
     language_code_path = Path(language_code_path_str)
 
-    docs_filepath = docs_site_dir / "docs.json"
     language_dir = docs_site_dir / language_code_path
     tab_dest_dir = language_dir / tab_folder
 
     print(str(tab_dest_dir))
 
-    with open(docs_filepath) as f:
-        site_structure = json.load(f)
+    site_structure = load_site_structure(docs_site_dir)
 
     # print(site_structure)
 
@@ -546,14 +556,170 @@ def run_convert(args: argparse.Namespace) -> None:
         )
     )
 
-    with open(docs_filepath, "w") as f:
-        json.dump(site_structure, f, indent=2)
+    write_site_structure(docs_site_dir, site_structure)
 
     print("")
     print(f"Imported {len(to_move)} pages to {language_code_path_str}/{tab_folder}.")
     print(
         "Please run ./check to format the newly imported pages before submitting any changes"
     )
+
+
+# ---------------------------------------------------------------------------
+# copy subcommand
+# ---------------------------------------------------------------------------
+
+ENGLISH_DOCS_FOLDERS = (
+    "manual",
+    "ankimobile",
+    "faqs",
+    "addons",
+    "developers",
+    "translators",
+    "releases",
+)
+
+ENGLISH_DOCS_ROOT_FILES = (
+    "index.mdx",
+    "automatic-backups.mdx",
+)
+
+INTERNAL_DOCS_LINK_RE = re.compile(
+    r'(?P<prefix>\]\(|href=["\"])\/(?P<path>(?:manual|ankimobile|faqs|addons|developers|translators|releases|index|automatic\-backups)(?:[/?#][^\s)"\']*)?)'
+)
+
+
+def add_copy_subcommand(subparsers: argparse._SubParsersAction) -> None:
+    copy_parser = subparsers.add_parser(
+        "copy",
+        help="Copy all English docs-site pages to another language and update docs.json.",
+        formatter_class=argparse.RawTextHelpFormatter,
+    )
+    copy_parser.add_argument(
+        "language_code",
+        help="Target language code.",
+    )
+    copy_parser.add_argument(
+        "--docs-site-dir",
+        default="docs-site",
+        help="Path to the destination directory.",
+    )
+    copy_parser.set_defaults(func=run_copy)
+
+
+def get_english_docs_pages(docs_site_dir: Path) -> list[Path]:
+    pages: list[Path] = []
+
+    for folder in ENGLISH_DOCS_FOLDERS:
+        folder_path = docs_site_dir / folder
+        if not folder_path.exists():
+            continue
+
+        pages.extend(
+            sorted(
+                path.relative_to(docs_site_dir) for path in folder_path.rglob("*.mdx")
+            )
+        )
+
+    for file_name in ENGLISH_DOCS_ROOT_FILES:
+        file_path = docs_site_dir / file_name
+        if file_path.exists():
+            pages.append(Path(file_name))
+
+    return pages
+
+
+def localize_internal_links(content: str, language_code: str) -> str:
+    def replace_link(match: re.Match[str]) -> str:
+        return f"{match.group('prefix')}/{language_code}/{match.group('path')}"
+
+    return INTERNAL_DOCS_LINK_RE.sub(replace_link, content)
+
+
+def prefix_page_paths(group: dict | str, language_code: str) -> dict | str:
+    if isinstance(group, str):
+        return f"{language_code}/{group}"
+
+    updated_group = deepcopy(group)
+    updated_group["pages"] = [
+        prefix_page_paths(page, language_code) for page in updated_group["pages"]
+    ]
+    return updated_group
+
+
+def copy_english_pages(
+    docs_site_dir: Path, language_code: str, pages: list[Path]
+) -> tuple[int, int]:
+    copied_pages = 0
+    skipped_pages = 0
+    for page in pages:
+        source_path = docs_site_dir / page
+        target_path = docs_site_dir / language_code / page
+        if target_path.exists():
+            skipped_pages += 1
+            continue
+        target_path.parent.mkdir(parents=True, exist_ok=True)
+        target_path.write_text(
+            localize_internal_links(
+                source_path.read_text(encoding="utf-8"), language_code
+            ),
+            encoding="utf-8",
+        )
+        copied_pages += 1
+
+    return copied_pages, skipped_pages
+
+
+def update_language_tabs_from_english(
+    site_structure: dict, language_code: str
+) -> tuple[dict, int]:
+    default_language = find_first(
+        site_structure["navigation"]["languages"],
+        lambda lang: lang["language"] == "en",
+        "language 'en'",
+    )
+    localized_tabs = deepcopy(default_language["tabs"])
+    for tab in localized_tabs:
+        tab["groups"] = [
+            prefix_page_paths(group, language_code) for group in tab["groups"]
+        ]
+
+    target_language = next(
+        (
+            lang
+            for lang in site_structure["navigation"]["languages"]
+            if lang["language"] == language_code
+        ),
+        None,
+    )
+    if target_language is None:
+        target_language = deepcopy(default_language)
+        target_language["language"] = language_code
+        site_structure["navigation"]["languages"].append(target_language)
+
+    target_language["tabs"] = localized_tabs
+    return site_structure, len(localized_tabs)
+
+
+def run_copy(args: argparse.Namespace) -> None:
+    docs_site_dir = Path(args.docs_site_dir)
+    language_code = args.language_code
+    site_structure = load_site_structure(docs_site_dir)
+    pages = get_english_docs_pages(docs_site_dir)
+
+    copied_pages, skipped_pages = copy_english_pages(
+        docs_site_dir, language_code, pages
+    )
+    site_structure, tab_count = update_language_tabs_from_english(
+        site_structure, language_code
+    )
+    write_site_structure(docs_site_dir, site_structure)
+
+    print(
+        f"Copied {copied_pages} English pages to {language_code}/; "
+        f"skipped {skipped_pages} existing files."
+    )
+    print(f"Updated docs.json with {tab_count} tabs for {language_code}.")
 
 
 def main(argv: list[str] | None = None) -> None:
