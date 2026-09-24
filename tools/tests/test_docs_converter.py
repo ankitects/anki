@@ -48,7 +48,7 @@ class TestCli:
         args = build_parser().parse_args(["copy", "ar"])
 
         assert args.command == "copy"
-        assert args.language_code == "ar"
+        assert args.target_locale == "ar"
 
     def test_subcommand_required(self) -> None:
         with pytest.raises(SystemExit):
@@ -123,7 +123,7 @@ class TestCopySubcommand:
         )
 
         run_copy(
-            argparse.Namespace(language_code="ar", docs_site_dir=str(docs_site_dir))
+            argparse.Namespace(target_locale="ar", docs_site_dir=str(docs_site_dir))
         )
 
         assert (docs_site_dir / "ar" / "manual" / "intro.mdx").read_text(
@@ -188,7 +188,7 @@ class TestCopySubcommand:
         )
 
         run_copy(
-            argparse.Namespace(language_code="ar", docs_site_dir=str(docs_site_dir))
+            argparse.Namespace(target_locale="ar", docs_site_dir=str(docs_site_dir))
         )
 
         assert (

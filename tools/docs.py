@@ -596,13 +596,14 @@ def add_copy_subcommand(subparsers: argparse._SubParsersAction) -> None:
         formatter_class=argparse.RawTextHelpFormatter,
     )
     copy_parser.add_argument(
-        "language_code",
-        help="Target language code.",
+        "target_locale",
+        metavar="target-locale",
+        help="Language code to copy the docs to",
     )
     copy_parser.add_argument(
         "--docs-site-dir",
         default="docs-site",
-        help="Path to the destination directory.",
+        help="Path to the docs-site directory.",
     )
     copy_parser.set_defaults(func=run_copy)
 
@@ -629,39 +630,39 @@ def get_english_docs_pages(docs_site_dir: Path) -> list[Path]:
     return pages
 
 
-def localize_internal_links(content: str, language_code: str) -> str:
+def localize_internal_links(content: str, target_locale: str) -> str:
     def replace_link(match: re.Match[str]) -> str:
-        return f"{match.group('prefix')}/{language_code}/{match.group('path')}"
+        return f"{match.group('prefix')}/{target_locale}/{match.group('path')}"
 
     return INTERNAL_DOCS_LINK_RE.sub(replace_link, content)
 
 
-def prefix_page_paths(group: dict | str, language_code: str) -> dict | str:
+def prefix_page_paths(group: dict | str, target_locale: str) -> dict | str:
     if isinstance(group, str):
-        return f"{language_code}/{group}"
+        return f"{target_locale}/{group}"
 
     updated_group = deepcopy(group)
     updated_group["pages"] = [
-        prefix_page_paths(page, language_code) for page in updated_group["pages"]
+        prefix_page_paths(page, target_locale) for page in updated_group["pages"]
     ]
     return updated_group
 
 
 def copy_english_pages(
-    docs_site_dir: Path, language_code: str, pages: list[Path]
+    docs_site_dir: Path, target_locale: str, pages: list[Path]
 ) -> tuple[int, int]:
     copied_pages = 0
     skipped_pages = 0
     for page in pages:
         source_path = docs_site_dir / page
-        target_path = docs_site_dir / language_code / page
+        target_path = docs_site_dir / target_locale / page
         if target_path.exists():
             skipped_pages += 1
             continue
         target_path.parent.mkdir(parents=True, exist_ok=True)
         target_path.write_text(
             localize_internal_links(
-                source_path.read_text(encoding="utf-8"), language_code
+                source_path.read_text(encoding="utf-8"), target_locale
             ),
             encoding="utf-8",
         )
@@ -671,7 +672,7 @@ def copy_english_pages(
 
 
 def update_language_tabs_from_english(
-    site_structure: dict, language_code: str
+    site_structure: dict, target_locale: str
 ) -> tuple[dict, int]:
     default_language = find_first(
         site_structure["navigation"]["languages"],
@@ -681,20 +682,20 @@ def update_language_tabs_from_english(
     localized_tabs = deepcopy(default_language["tabs"])
     for tab in localized_tabs:
         tab["groups"] = [
-            prefix_page_paths(group, language_code) for group in tab["groups"]
+            prefix_page_paths(group, target_locale) for group in tab["groups"]
         ]
 
     target_language = next(
         (
             lang
             for lang in site_structure["navigation"]["languages"]
-            if lang["language"] == language_code
+            if lang["language"] == target_locale
         ),
         None,
     )
     if target_language is None:
         target_language = deepcopy(default_language)
-        target_language["language"] = language_code
+        target_language["language"] = target_locale
         site_structure["navigation"]["languages"].append(target_language)
 
     target_language["tabs"] = localized_tabs
@@ -703,23 +704,23 @@ def update_language_tabs_from_english(
 
 def run_copy(args: argparse.Namespace) -> None:
     docs_site_dir = Path(args.docs_site_dir)
-    language_code = args.language_code
+    target_locale = args.target_locale
     site_structure = load_site_structure(docs_site_dir)
     pages = get_english_docs_pages(docs_site_dir)
 
     copied_pages, skipped_pages = copy_english_pages(
-        docs_site_dir, language_code, pages
+        docs_site_dir, target_locale, pages
     )
     site_structure, tab_count = update_language_tabs_from_english(
-        site_structure, language_code
+        site_structure, target_locale
     )
     write_site_structure(docs_site_dir, site_structure)
 
     print(
-        f"Copied {copied_pages} English pages to {language_code}/; "
+        f"Copied {copied_pages} English pages to {target_locale}/; "
         f"skipped {skipped_pages} existing files."
     )
-    print(f"Updated docs.json with {tab_count} tabs for {language_code}.")
+    print(f"Updated docs.json with {tab_count} tabs for {target_locale}.")
 
 
 def main(argv: list[str] | None = None) -> None:
