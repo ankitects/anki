@@ -62,19 +62,19 @@ def test_auto_sync_continues_open_or_close_immediately_when_offline(mw, offline)
     mw._sync_collection_and_media.assert_not_called()
 
 
-@patch("aqt.main.tooltip")
-def test_sync_button_reports_offline_without_starting_sync(tooltip, mw, offline):
+@patch("aqt.main.show_warning")
+def test_sync_button_reports_offline_without_starting_sync(warning, mw, offline):
     AnkiQt.on_sync_button_clicked(mw)
 
-    tooltip.assert_called_once()
+    warning.assert_called_once_with("Please check your internet connection.", parent=mw)
     mw._sync_collection_and_media.assert_not_called()
     mw.taskman.with_progress.assert_not_called()
 
 
-@patch("aqt.sync.tooltip")
+@patch("aqt.sync.show_warning")
 @patch("aqt.sync.QTimer")
 def test_collection_sync_finishes_without_network_work_when_offline(
-    timer, tooltip, mw, offline
+    timer, warning, mw, offline
 ):
     done = MagicMock()
 
@@ -84,7 +84,7 @@ def test_collection_sync_finishes_without_network_work_when_offline(
     mw.taskman.with_progress.assert_not_called()
     mw.col.sync_collection.assert_not_called()
     mw.pm.clear_sync_auth.assert_not_called()
-    tooltip.assert_called_once()
+    warning.assert_called_once_with("Please check your internet connection.", parent=mw)
 
 
 @pytest.mark.parametrize("required", [SyncStatus.NORMAL_SYNC, SyncStatus.FULL_SYNC])

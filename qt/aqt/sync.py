@@ -97,7 +97,7 @@ def sync_collection(mw: aqt.main.AnkiQt, on_done: Callable[[], None]) -> None:
     if not auth:
         raise Exception("expected auth")
     if is_sync_offline(mw.pm):
-        tooltip(tr.network_offline(), parent=mw)
+        show_warning(tr.network_offline(), parent=mw)
         on_done()
         return
 

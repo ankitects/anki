@@ -82,6 +82,7 @@ from aqt.utils import (
     restoreState,
     saveGeom,
     saveState,
+    show_warning,
     showInfo,
     showWarning,
     tooltip,
@@ -1092,7 +1093,7 @@ title="{}" {}>{}</button>""".format(
         if self.media_syncer.is_syncing():
             self.media_syncer.show_sync_log()
         elif is_sync_offline(self.pm):
-            tooltip(tr.network_offline(), parent=self)
+            show_warning(tr.network_offline(), parent=self)
         else:
             auth = self.pm.sync_auth()
             if not auth:
