@@ -108,13 +108,15 @@ fn tokenize(mut text: &str) -> impl Iterator<Item = Token<'_>> {
             }
             match mathjax_end {
                 None => {
-                    // Enter MathJax when not already inside it.
-                    if rest.starts_with(r"\(") {
+                    // Enter MathJax when not already inside it. An unterminated
+                    // delimiter is treated as plain text, so that it can't swallow
+                    // the cloze's closing marker.
+                    if rest.starts_with(r"\(") && rest[2..].contains(r"\)") {
                         mathjax_end = Some(r"\)");
                         i += 2;
                         continue;
                     }
-                    if rest.starts_with(r"\[") {
+                    if rest.starts_with(r"\[") && rest[2..].contains(r"\]") {
                         mathjax_end = Some(r"\]");
                         i += 2;
                         continue;
@@ -737,6 +739,33 @@ mod test {
         assert_eq!(
             strip_html(reveal_cloze_text(text, 1, false).as_ref()),
             r" \(\pi\) and \(\sqrt{2}\) "
+        );
+    }
+
+    #[test]
+    fn cloze_with_unterminated_mathjax() {
+        for (text, answer) in [
+            (r"{{c1::foo \( bar}} baz", r"foo \( bar baz"),
+            (r"{{c1::foo \[ bar}} baz", r"foo \[ bar baz"),
+        ] {
+            assert_eq!(
+                strip_html(reveal_cloze_text(text, 1, true).as_ref()),
+                "[...] baz"
+            );
+            assert_eq!(
+                strip_html(reveal_cloze_text(text, 1, false).as_ref()),
+                answer
+            );
+            assert_eq!(cloze_numbers_in_string(text), HashSet::from([1]));
+        }
+    }
+
+    #[test]
+    fn cloze_with_mismatched_mathjax_delimiters() {
+        let text = r"{{c1::\( a \]}} b";
+        assert_eq!(
+            strip_html(reveal_cloze_text(text, 1, false).as_ref()),
+            r"\( a \] b"
         );
     }
 
