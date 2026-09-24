@@ -510,6 +510,12 @@ mod test {
             "test.mp3"
         );
 
+        // same contents, filenames differ only by case
+        assert_eq!(
+            add_data_to_folder_uniquely(dpath, "Test.mp3", b"hello", h1).unwrap(),
+            "test.mp3"
+        );
+
         // different contents, filenames differ only by case
         let h2 = sha1_of_data(b"hello1");
         assert_eq!(
