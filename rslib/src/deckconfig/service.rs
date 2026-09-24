@@ -559,17 +559,22 @@ mod tests {
         let mut col = Collection::new();
         let mut card = add_reviewed_card(&mut col, &[(RevlogReviewKind::Learning, 1)]);
         card.interval = 10;
-        card.memory_state = Some(FsrsMemoryState {
-            stability: 10.0,
-            difficulty: 5.0,
-        });
-        col.storage.update_card(&card)?;
+        for memory_state in [
+            None,
+            Some(FsrsMemoryState {
+                stability: 10.0,
+                difficulty: 5.0,
+            }),
+        ] {
+            card.memory_state = memory_state;
+            col.storage.update_card(&card)?;
 
-        let without_cards =
-            get_retention_workload(&mut col, DEFAULT_PARAMETERS.to_vec(), "deck:none")?;
-        let with_cards = get_retention_workload(&mut col, DEFAULT_PARAMETERS.to_vec(), "")?;
+            let without_cards =
+                get_retention_workload(&mut col, DEFAULT_PARAMETERS.to_vec(), "deck:none")?;
+            let with_cards = get_retention_workload(&mut col, DEFAULT_PARAMETERS.to_vec(), "")?;
 
-        assert_ne!(without_cards.costs, with_cards.costs);
+            assert_ne!(without_cards.costs, with_cards.costs);
+        }
 
         Ok(())
     }
