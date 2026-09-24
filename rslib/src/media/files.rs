@@ -183,7 +183,13 @@ where
         // existing file has same checksum, nothing to do
         return Ok(fs::canonicalize(&target_path)
             .ok()
-            .and_then(|p| p.file_name()?.to_str().map(String::from).map(Cow::from))
+            .and_then(|p| {
+                p.file_name()?
+                    .to_str()
+                    .map(normalize_filename)
+                    .map(Cow::into_owned)
+            })
+            .map(Cow::from)
             .unwrap_or(normalized_name));
     }
 
