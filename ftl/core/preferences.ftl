@@ -23,6 +23,10 @@ preferences-show-learning-cards-with-larger-steps = Show learning cards with lar
 preferences-show-next-review-time-above-answer = Show next review time above answer buttons
 preferences-spacebar-rates-card = Spacebar (or enter) also answers card
 preferences-show-play-buttons-on-cards-with = Show play buttons on cards with audio
+# Precedes a number, reading "After 5 fails, bury card for the day"
+preferences-bury-failed-cards = After
+# Follows a number, reading "After 5 fails, bury card for the day"
+preferences-bury-failed-cards-suffix = fails, bury card for the day
 preferences-show-remaining-card-count = Show remaining card count
 preferences-some-settings-will-take-effect-after = Some settings will take effect after you restart Anki.
 preferences-tab-synchronisation = Synchronization
