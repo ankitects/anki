@@ -6,8 +6,10 @@ import html
 import re
 import time
 
+import pytest
+
 from anki.consts import MODEL_CLOZE
-from anki.errors import NotFoundError
+from anki.errors import InvalidInput, NotFoundError
 from anki.utils import is_win, strip_html
 from tests.shared import getEmptyCol
 
@@ -27,6 +29,54 @@ def test_modelDelete():
     assert col.card_count() == 1
     col.models.remove(col.models.current()["id"])
     assert col.card_count() == 0
+
+
+def test_remove_multiple_notetypes():
+    col = getEmptyCol()
+    notetypes = [col.models.current(), col.models.copy(col.models.current())]
+    for notetype in notetypes:
+        note = col.new_note(notetype)
+        note["Front"] = notetype["name"]
+        col.add_note(note, col.decks.current()["id"])
+
+    original_ids = {notetype.id for notetype in col.models.all_names_and_ids()}
+    selected_ids = [notetype["id"] for notetype in notetypes]
+    previous_undo = col.undo_status().undo
+    changes = col.models.remove_multiple(selected_ids)
+
+    assert changes.notetype and changes.note and changes.card
+    assert {notetype.id for notetype in col.models.all_names_and_ids()} == (
+        original_ids - set(selected_ids)
+    )
+    assert col.note_count() == col.card_count() == 0
+
+    col.undo()
+    assert {notetype.id for notetype in col.models.all_names_and_ids()} == original_ids
+    assert col.note_count() == col.card_count() == 2
+    assert col.undo_status().undo == previous_undo
+
+
+def test_remove_multiple_notetypes_keeps_one():
+    col = getEmptyCol()
+    ids = [notetype.id for notetype in col.models.all_names_and_ids()]
+    previous_step = col.undo_status().last_step
+
+    with pytest.raises(InvalidInput):
+        col.models.remove_multiple(ids)
+
+    assert [notetype.id for notetype in col.models.all_names_and_ids()] == ids
+    assert col.undo_status().last_step == previous_step
+
+
+def test_remove_multiple_notetypes_ignores_missing_ids():
+    col = getEmptyCol()
+    ids = [notetype.id for notetype in col.models.all_names_and_ids()]
+    col.models.remove_multiple([ids[0], ids[0], 0])
+    assert {notetype.id for notetype in col.models.all_names_and_ids()} == set(ids[1:])
+
+    previous_step = col.undo_status().last_step
+    col.models.remove_multiple([ids[0], 0])
+    assert col.undo_status().last_step == previous_step
 
 
 def test_modelCopy():
