@@ -9,7 +9,14 @@ import { moveChildOutOfElement } from "$lib/domlib/move-nodes";
 import { placeCaretAfter, placeCaretBefore } from "$lib/domlib/place-caret";
 
 import type { FrameHandle } from "./frame-handle";
-import { checkHandles, frameElementTagName, FrameEnd, FrameStart, isFrameHandle } from "./frame-handle";
+import {
+    checkHandles,
+    frameElementTagName,
+    FrameEnd,
+    FrameStart,
+    isFrameHandle,
+    removeFrameCopies,
+} from "./frame-handle";
 
 function restoreFrameHandles(mutations: MutationRecord[]): void {
     let referenceNode: Node | null = null;
@@ -52,6 +59,10 @@ function restoreFrameHandles(mutations: MutationRecord[]): void {
                 /* avoid triggering when (un)mounting whole frame */
                 mutations.length === 1
                 && !node.partiallySelected
+                /* Chromium moves the handle out of the frame when justifying
+                 * the paragraph it belongs to; restore it rather than treating
+                 * that as a deletion */
+                && !removeFrameCopies(frameElement)
             ) {
                 // Similar to a "movein", this could be considered a
                 // "deletein" event and could get some special treatment, e.g.
@@ -61,6 +72,7 @@ function restoreFrameHandles(mutations: MutationRecord[]): void {
             }
 
             if (frameElement.isConnected) {
+                removeFrameCopies(frameElement);
                 frameElement.refreshHandles();
                 continue;
             }
