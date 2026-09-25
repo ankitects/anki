@@ -180,17 +180,15 @@ where
     let existing_file_hash = existing_file_sha1(&target_path)?;
 
     if matches!(existing_file_hash, Some(hash) if hash == sha1) {
-        // existing file has same checksum, nothing to do
-        return Ok(fs::canonicalize(&target_path)
-            .ok()
-            .and_then(|p| {
-                p.file_name()?
-                    .to_str()
-                    .map(normalize_filename)
-                    .map(Cow::into_owned)
-            })
-            .map(Cow::from)
-            .unwrap_or(normalized_name));
+        if let Some(normalised_existing_name) = fs::canonicalize(&target_path).ok().and_then(|p| {
+            p.file_name()?
+                .to_str()
+                .and_then(filename_if_normalized)
+                .map(Cow::into_owned)
+        }) {
+            // existing file has same checksum and normalised name, nothing to do
+            return Ok(normalised_existing_name.into());
+        }
     }
 
     let lowercased_name = normalized_name.to_lowercase();
