@@ -340,6 +340,9 @@ class AnkiApp(QApplication):
 
     def __init__(self, argv: list[str]) -> None:
         QApplication.__init__(self, argv)
+        from aqt.network import setup_network_information
+
+        setup_network_information()
         self.installEventFilter(self)
         self._argv = argv
         self._native_event_filter = NativeEventFilter()
