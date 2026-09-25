@@ -11,7 +11,6 @@ use anki_proto::image_occlusion::get_image_occlusion_note_response::ImageOcclusi
 use anki_proto::image_occlusion::get_image_occlusion_note_response::ImageOcclusionShape;
 use htmlescape::encode_attribute;
 use itertools::Itertools;
-use nom::branch::alt;
 use nom::bytes::complete::tag;
 use nom::bytes::complete::take_while;
 use nom::combinator::map;
@@ -84,36 +83,89 @@ fn tokenize(mut text: &str) -> impl Iterator<Item = Token<'_>> {
     }
 
     /// Match a run of text until an open/close marker is encountered.
-    fn normal_text(text: &str) -> IResult<&str, Token<'_>> {
-        if text.is_empty() {
-            return Err(nom::Err::Error(nom::error::make_error(
-                text,
-                nom::error::ErrorKind::Eof,
-            )));
-        }
-        let mut other_token = alt((open_cloze, close_cloze));
-        // start with the no-match case
-        let mut index = text.len();
-        for (idx, _) in text.char_indices() {
-            if other_token.parse(&text[idx..]).is_ok() {
-                index = idx;
+    fn normal_text<'a>(text: &'a str, state: &mut MathJaxState) -> (&'a str, Token<'a>) {
+        let mut i = 0;
+        while i < text.len() {
+            let rest = &text[i..];
+            if open_cloze(rest).is_ok() || (state.can_close_cloze() && close_cloze(rest).is_ok()) {
                 break;
             }
+            i += state
+                .consume_delimiter(rest)
+                .unwrap_or_else(|| rest.chars().next().map_or(1, char::len_utf8));
         }
-        Ok((&text[index..], Token::Text(&text[0..index])))
+        (&text[i..], Token::Text(&text[..i]))
     }
 
+    let mut state = MathJaxState::default();
     std::iter::from_fn(move || {
         if text.is_empty() {
-            None
-        } else {
-            let (remaining_text, token) = alt((open_cloze, close_cloze, normal_text))
-                .parse(text)
-                .unwrap();
-            text = remaining_text;
-            Some(token)
+            return None;
         }
+        let (remaining_text, token) = if let Ok((rest, token)) = open_cloze(text) {
+            state.cloze_regions.push(state.region());
+            (rest, token)
+        } else if let (true, Ok((rest, token))) = (state.can_close_cloze(), close_cloze(text)) {
+            state.cloze_regions.pop();
+            (rest, token)
+        } else {
+            normal_text(text, &mut state)
+        };
+        text = remaining_text;
+        Some(token)
     })
+}
+
+/// Tracks MathJax expressions during tokenizing, so that a `}}` inside an
+/// expression doesn't end a cloze that was opened outside of it.
+#[derive(Default)]
+struct MathJaxState {
+    /// The closing delimiter and id of the expression we're in, if any.
+    current: Option<(&'static str, u32)>,
+    next_id: u32,
+    /// For each open cloze, the expression it was opened in.
+    cloze_regions: Vec<Option<u32>>,
+}
+
+impl MathJaxState {
+    fn region(&self) -> Option<u32> {
+        self.current.map(|(_, id)| id)
+    }
+
+    /// Outside MathJax, `}}` always closes a cloze. Inside MathJax, it only
+    /// closes a cloze opened in the same expression.
+    fn can_close_cloze(&self) -> bool {
+        match self.region() {
+            None => true,
+            Some(id) => self.cloze_regions.last() == Some(&Some(id)),
+        }
+    }
+
+    /// If `text` starts with a MathJax delimiter, enter or exit the
+    /// expression, and return the delimiter's length.
+    fn consume_delimiter(&mut self, text: &str) -> Option<usize> {
+        match self.current {
+            None => {
+                for (open, close) in [(r"\(", r"\)"), (r"\[", r"\]")] {
+                    // An unterminated delimiter is treated as plain text, so
+                    // that it can't swallow the cloze's closing marker.
+                    if text
+                        .strip_prefix(open)
+                        .is_some_and(|rest| rest.contains(close))
+                    {
+                        self.current = Some((close, self.next_id));
+                        self.next_id += 1;
+                        return Some(open.len());
+                    }
+                }
+                None
+            }
+            Some((close, _)) => text.starts_with(close).then(|| {
+                self.current = None;
+                close.len()
+            }),
+        }
+    }
 }
 
 #[derive(Debug)]
@@ -666,6 +718,121 @@ mod test {
         assert_eq!(
             strip_html_inside_mathjax(r"\(<foo>&lt;&gt;</foo>\)"),
             r"\(&lt;&gt;\)"
+        );
+    }
+
+    #[test]
+    fn cloze_with_mathjax_braces() {
+        let text = r"{{c1:: \( \frac{1}{\sqrt{\pi}} \) }}";
+        assert_eq!(
+            strip_html(reveal_cloze_text(text, 1, true).as_ref()),
+            "[...]"
+        );
+        assert_eq!(
+            strip_html(reveal_cloze_text(text, 1, false).as_ref()),
+            r" \( \frac{1}{\sqrt{\pi}} \) "
+        );
+    }
+
+    #[test]
+    fn cloze_with_mathjax_square_brackets() {
+        let text = r"{{c1:: \[ \frac{1}{\sqrt{\pi}} \] }}";
+        assert_eq!(
+            strip_html(reveal_cloze_text(text, 1, true).as_ref()),
+            "[...]"
+        );
+        assert_eq!(
+            strip_html(reveal_cloze_text(text, 1, false).as_ref()),
+            r" \[ \frac{1}{\sqrt{\pi}} \] "
+        );
+    }
+
+    #[test]
+    fn cloze_with_multiple_mathjax_expressions() {
+        let text = r"{{c1:: \(\pi\) and \(\sqrt{2}\) }}";
+        assert_eq!(
+            strip_html(reveal_cloze_text(text, 1, true).as_ref()),
+            "[...]"
+        );
+        assert_eq!(
+            strip_html(reveal_cloze_text(text, 1, false).as_ref()),
+            r" \(\pi\) and \(\sqrt{2}\) "
+        );
+    }
+
+    #[test]
+    fn cloze_with_unterminated_mathjax() {
+        for (text, answer) in [
+            (r"{{c1::foo \( bar}} baz", r"foo \( bar baz"),
+            (r"{{c1::foo \[ bar}} baz", r"foo \[ bar baz"),
+        ] {
+            assert_eq!(
+                strip_html(reveal_cloze_text(text, 1, true).as_ref()),
+                "[...] baz"
+            );
+            assert_eq!(
+                strip_html(reveal_cloze_text(text, 1, false).as_ref()),
+                answer
+            );
+            assert_eq!(cloze_numbers_in_string(text), HashSet::from([1]));
+        }
+    }
+
+    #[test]
+    fn cloze_with_mismatched_mathjax_delimiters() {
+        let text = r"{{c1::\( a \]}} b";
+        assert_eq!(
+            strip_html(reveal_cloze_text(text, 1, false).as_ref()),
+            r"\( a \] b"
+        );
+    }
+
+    #[test]
+    fn nested_cloze_inside_mathjax_does_not_reset_mathjax_state() {
+        let text = r"{{c1::\( a {{c2::b}} \frac{1}{\sqrt{2}} \)}} c";
+        assert_eq!(
+            strip_html(reveal_cloze_text(text, 1, true).as_ref()),
+            "[...] c"
+        );
+        assert_eq!(
+            strip_html(reveal_cloze_text(text, 1, false).as_ref()),
+            r"\( a b \frac{1}{\sqrt{2}} \) c"
+        );
+        assert_eq!(
+            strip_html(reveal_cloze_text(text, 2, false).as_ref()),
+            r"\( a b \frac{1}{\sqrt{2}} \) c"
+        );
+        assert_eq!(cloze_numbers_in_string(text), HashSet::from([1, 2]));
+    }
+
+    #[test]
+    fn clozes_opened_inside_mathjax_close_inside_it() {
+        let text = r"\(x = {{c1::a}} + {{c2::\frac{1}{2} }}\)";
+        assert_eq!(
+            strip_html(reveal_cloze_text(text, 1, false).as_ref()),
+            r"\(x = a + \frac{1}{2} \)"
+        );
+        assert_eq!(
+            strip_html(reveal_cloze_text(text, 2, false).as_ref()),
+            r"\(x = a + \frac{1}{2} \)"
+        );
+    }
+
+    #[test]
+    fn cloze_opened_inside_mathjax_can_close_after_it() {
+        let text = r"\(a {{c1::b\) c}} d";
+        assert_eq!(
+            strip_html(reveal_cloze_text(text, 1, false).as_ref()),
+            r"\(a b\) c d"
+        );
+    }
+
+    #[test]
+    fn braces_in_mathjax_outside_clozes_are_text() {
+        let text = r"\(\sqrt{\pi}}\) {{c1::a}}";
+        assert_eq!(
+            strip_html(reveal_cloze_text(text, 1, false).as_ref()),
+            r"\(\sqrt{\pi}}\) a"
         );
     }
 
