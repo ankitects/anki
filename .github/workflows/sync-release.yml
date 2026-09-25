@@ -1,31 +1,95 @@
 name: Sync release to main
 
 # Once a stable release is published:
+# - builds a patch that moves flathub/net.ankiweb.Anki to the new release, and
+#   uploads it as an artifact
 # - opens a PR that merges the release branch (translations, version bump)
-#   back into main
-# - opens a PR on flathub/net.ankiweb.Anki that moves the Flatpak to the new
-#   release. Needs a FLATHUB_TOKEN secret that can push branches and open PRs
-#   there.
+#   back into main, and comments there how to submit the Flathub patch
+#
+# The Flathub job runs third-party generators, so it has no write access.
 
 on:
   release:
     types: [published]
-  workflow_dispatch:
-    inputs:
-      tag:
-        description: Release tag to package for Flathub
-        required: true
 
 permissions:
   contents: read
 
 jobs:
+  flathub:
+    if: ${{ !github.event.release.prerelease }}
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    outputs:
+      has-patch: ${{ steps.patch.outputs.has-patch }}
+    env:
+      TAG_NAME: ${{ github.event.release.tag_name }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 #v4
+        with:
+          repository: flathub/net.ankiweb.Anki
+          persist-credentials: false
+
+      - uses: astral-sh/setup-uv@c771a70e6277c0a99b617c7a806ffedaca235ff9 #v9.0.0
+        with:
+          enable-cache: false
+
+      # flatpak-pip-generator runs pip inside the SDK to pick wheels.
+      - name: Install Flatpak SDK
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y flatpak appstream
+          # Ubuntu 24.04 blocks the user namespaces that bubblewrap needs.
+          sudo sysctl -w kernel.apparmor_restrict_unprivileged_userns=0
+          runtime=$(sed -n "s/^runtime-version: '\(.*\)'$/\1/p" net.ankiweb.Anki.yaml)
+          flatpak remote-add --user --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo
+          flatpak install --user -y --noninteractive flathub "org.kde.Sdk//$runtime"
+
+      - name: Update Anki
+        run: |
+          mkdir -p "$RUNNER_TEMP/flathub"
+          status=0
+          uv run scripts/update-anki.py "$TAG_NAME" --report "$RUNNER_TEMP/flathub/report.md" || status=$?
+          # 2 means the report lists problems to fix by hand.
+          if [ "$status" != 0 ] && [ "$status" != 2 ]; then
+            exit "$status"
+          fi
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+
+      - name: Create patch
+        id: patch
+        run: |
+          if [ -z "$(git status --porcelain)" ]; then
+            echo "::notice::No Flathub changes for $TAG_NAME"
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git commit --quiet -m "Update to $TAG_NAME"
+          git format-patch -1 -o "$RUNNER_TEMP/flathub"
+          cat "$RUNNER_TEMP/flathub/report.md" >> "$GITHUB_STEP_SUMMARY"
+          echo "has-patch=true" >> "$GITHUB_OUTPUT"
+
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a #v7.0.1
+        if: ${{ steps.patch.outputs.has-patch }}
+        with:
+          name: flathub-${{ github.event.release.tag_name }}
+          path: ${{ runner.temp }}/flathub
+
   create-pr:
-    if: ${{ github.event_name == 'release' && !github.event.release.prerelease }}
+    needs: flathub
+    # Open the sync PR even if the Flathub job failed.
+    if: ${{ !cancelled() && !github.event.release.prerelease }}
     runs-on: ubuntu-latest
     permissions:
       contents: read
       pull-requests: write
+    env:
+      GH_TOKEN: ${{ github.token }}
+      TAG_NAME: ${{ github.event.release.tag_name }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 #v4
         with:
@@ -34,6 +98,7 @@ jobs:
           persist-credentials: false
 
       - name: Create PR to main
+        id: pr
         run: |
           branch="release/$TAG_NAME"
           if ! git rev-parse --verify --quiet "origin/$branch" >/dev/null; then
@@ -46,107 +111,63 @@ jobs:
             exit 1
           fi
 
-          existing=$(gh pr list --head "$branch" --base main --state open --json url --jq '.[0].url // empty')
-          if [ -n "$existing" ]; then
-            echo "::notice::PR already exists: $existing"
-            exit 0
+          url=$(gh pr list --head "$branch" --base main --state open --json url --jq '.[0].url // empty')
+          if [ -n "$url" ]; then
+            echo "::notice::PR already exists: $url"
+          else
+            url=$(gh pr create \
+              --base main \
+              --head "$branch" \
+              --title "$TAG_NAME" \
+              --body "$RELEASE_URL")
           fi
-
-          gh pr create \
-            --base main \
-            --head "$branch" \
-            --title "$TAG_NAME" \
-            --body "$RELEASE_URL"
+          echo "url=$url" >> "$GITHUB_OUTPUT"
         env:
-          GH_TOKEN: ${{ github.token }}
-          TAG_NAME: ${{ github.event.release.tag_name }}
           RELEASE_SHA: ${{ github.sha }}
           RELEASE_URL: ${{ github.event.release.html_url }}
 
-  flathub:
-    if: ${{ github.event_name == 'workflow_dispatch' || !github.event.release.prerelease }}
-    runs-on: ubuntu-latest
-    permissions:
-      contents: read
-    env:
-      TAG_NAME: ${{ inputs.tag || github.event.release.tag_name }}
-      FLATHUB_REPO: flathub/net.ankiweb.Anki
-    steps:
-      - name: Check token
-        run: |
-          if [ -z "$FLATHUB_TOKEN" ]; then
-            echo "::error::The FLATHUB_TOKEN secret is not set"
-            exit 1
-          fi
-        env:
-          FLATHUB_TOKEN: ${{ secrets.FLATHUB_TOKEN }}
-
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 #v4
+      - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c #v8.0.1
+        if: ${{ needs.flathub.outputs.has-patch }}
         with:
-          repository: ${{ env.FLATHUB_REPO }}
-          persist-credentials: false
+          name: flathub-${{ github.event.release.tag_name }}
+          path: ${{ runner.temp }}/flathub
 
-      - name: Skip if branch exists
-        id: branch
+      - name: Comment Flathub instructions
         run: |
-          if git ls-remote --exit-code --heads origin "$TAG_NAME" >/dev/null; then
-            echo "::notice::Branch '$TAG_NAME' already exists on $FLATHUB_REPO"
-            echo "exists=true" >> "$GITHUB_OUTPUT"
-          fi
-
-      - uses: astral-sh/setup-uv@c771a70e6277c0a99b617c7a806ffedaca235ff9 #v9.0.0
-        if: ${{ !steps.branch.outputs.exists }}
-        with:
-          enable-cache: false
-
-      # flatpak-pip-generator runs pip inside the SDK to pick wheels.
-      - name: Install Flatpak SDK
-        if: ${{ !steps.branch.outputs.exists }}
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y flatpak appstream
-          # Ubuntu 24.04 blocks the user namespaces that bubblewrap needs.
-          sudo sysctl -w kernel.apparmor_restrict_unprivileged_userns=0
-          runtime=$(sed -n "s/^runtime-version: '\(.*\)'$/\1/p" net.ankiweb.Anki.yaml)
-          flatpak remote-add --user --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo
-          flatpak install --user -y --noninteractive flathub "org.kde.Sdk//$runtime"
-
-      - name: Update Anki
-        id: update
-        if: ${{ !steps.branch.outputs.exists }}
-        run: |
-          status=0
-          uv run scripts/update-anki.py "$TAG_NAME" --report "$RUNNER_TEMP/report.md" || status=$?
-          case $status in
-            0) ;;
-            2) echo "draft=true" >> "$GITHUB_OUTPUT" ;;
-            *) exit "$status" ;;
-          esac
-        env:
-          GITHUB_TOKEN: ${{ github.token }}
-
-      - name: Create PR on Flathub
-        if: ${{ !steps.branch.outputs.exists }}
-        run: |
-          if [ -z "$(git status --porcelain)" ]; then
-            echo "::notice::No changes for $TAG_NAME"
+          body="$RUNNER_TEMP/comment.md"
+          if [ "$FLATHUB_RESULT" != success ]; then
+            echo "The Flathub update failed. See $RUN_URL" > "$body"
+          elif [ "$HAS_PATCH" != true ]; then
             exit 0
+          else
+            {
+              echo "## Flathub update"
+              echo
+              cat "$RUNNER_TEMP/flathub/report.md"
+              echo
+              envsubst '$TAG_NAME $RUN_ID $REPO' <<'EOF'
+          ### Open the Flathub PR
+
+          In a clone of [flathub/net.ankiweb.Anki](https://github.com/flathub/net.ankiweb.Anki):
+
+          ```sh
+          git fetch origin
+          git switch -c $TAG_NAME origin/master
+          gh run download $RUN_ID -R $REPO -n flathub-$TAG_NAME -D /tmp/flathub-$TAG_NAME
+          git am -3 /tmp/flathub-$TAG_NAME/*.patch
+          git push -u origin $TAG_NAME
+          gh pr create --base master --title "Update to $TAG_NAME" --body-file /tmp/flathub-$TAG_NAME/report.md
+          ```
+
+          Fix the problems under "Needs attention" (if any) before you push, or open the PR with `--draft`.
+          EOF
+            } > "$body"
           fi
-
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git switch -c "$TAG_NAME"
-          git add -A
-          git commit -m "Update to $TAG_NAME"
-          git push "https://x-access-token:$GH_TOKEN@github.com/$FLATHUB_REPO.git" "$TAG_NAME"
-
-          gh pr create \
-            --repo "$FLATHUB_REPO" \
-            --base master \
-            --head "$TAG_NAME" \
-            --title "Update to $TAG_NAME" \
-            --body-file "$RUNNER_TEMP/report.md" \
-            ${DRAFT:+--draft}
+          gh pr comment "$PR_URL" --body-file "$body"
         env:
-          GH_TOKEN: ${{ secrets.FLATHUB_TOKEN }}
-          DRAFT: ${{ steps.update.outputs.draft }}
+          PR_URL: ${{ steps.pr.outputs.url }}
+          FLATHUB_RESULT: ${{ needs.flathub.result }}
+          HAS_PATCH: ${{ needs.flathub.outputs.has-patch }}
+          RUN_ID: ${{ github.run_id }}
+          REPO: ${{ github.repository }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
