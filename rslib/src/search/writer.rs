@@ -179,6 +179,7 @@ fn write_property(operator: &str, kind: &PropertyKind) -> String {
         Interval(u) => format!("prop:ivl{operator}{u}"),
         Reps(u) => format!("prop:reps{operator}{u}"),
         Lapses(u) => format!("prop:lapses{operator}{u}"),
+        ForgottenRate(f) => format!("prop:forgotten-rate{operator}{f}"),
         Ease(f) => format!("prop:ease{operator}{f}"),
         Position(u) => format!("prop:pos{operator}{u}"),
         Stability(u) => format!("prop:s{operator}{u}"),
@@ -235,6 +236,15 @@ mod test {
         assert_eq!(r#""aNd" "oR""#, normalize_search(r#""aNd" "oR""#).unwrap());
         // normalize numbers
         assert_eq!("prop:ease>1", normalize_search("prop:ease>1.0").unwrap());
+        assert_eq!(
+            "prop:forgotten-rate>0.3",
+            normalize_search("prop:forgotten-rate>0.30").unwrap()
+        );
+        // fr alias normalizes to the full name
+        assert_eq!(
+            "prop:forgotten-rate>0.3",
+            normalize_search("prop:fr>0.3").unwrap()
+        );
     }
 
     #[test]
