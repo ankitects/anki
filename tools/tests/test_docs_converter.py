@@ -303,6 +303,11 @@ class TestRelativeLinkReplacement:
         assert "/manual/foo" in result
         assert "docs.ankiweb.net" not in result
 
+    def test_betas_domain_converted(self) -> None:
+        result = body(fmt("[x](https://betas.ankiweb.net/anki2.1.50.html)"))
+        assert "/releases/betas/anki2.1.50" in result
+        assert "betas.ankiweb.net" not in result
+
     def test_faqs_domain_converted(self) -> None:
         result = body(fmt("[x](https://faqs.ankiweb.net/bar.html)"))
         assert "/faqs/bar" in result
