@@ -134,6 +134,8 @@ class DeckBrowser:
             set_current_deck(
                 parent=self.mw, deck_id=DeckId(int(arg))
             ).run_in_background()
+        elif cmd == "addons":
+            self._onAddons()
         return False
 
     def set_current_deck(self, deck_id: DeckId) -> None:
@@ -370,11 +372,17 @@ class DeckBrowser:
             parent=self.mw, deck_ids=[did], deck_name=deck_name
         ).run_in_background()
 
+    def _onAddons(self) -> None:
+        addons_dialog = aqt.dialogs.open("AddonsDialog", aqt.mw.addonManager)
+        assert isinstance(addons_dialog, aqt.addons.AddonsDialog)
+        addons_dialog.onGetAddons()
+
     # Top buttons
     ######################################################################
 
     drawLinks = [
         ["", "shared", tr.decks_get_shared()],
+        ["", "addons", tr.decks_get_addons()],
         ["", "create", tr.decks_create_deck()],
         ["Ctrl+Shift+I", "import", tr.decks_import_file()],
     ]

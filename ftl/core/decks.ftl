@@ -24,8 +24,10 @@ decks-build = Build
 decks-create-deck = Create Deck
 decks-custom-steps-in-minutes = Custom steps (in minutes)
 decks-delete-deck = Delete Deck
+# a shortcut to the Add-ons > Get Add-ons dialogue
+decks-get-addons = Get Add-ons
 # a button that links to AnkiWeb for browsing shared decks
-decks-get-shared = Get Shared
+decks-get-shared = Get Decks
 # import deck from file
 decks-import-file = Import File
 decks-minutes = minutes
