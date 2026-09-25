@@ -1,20 +1,31 @@
 name: Sync release to main
 
-# Opens a PR that merges the release branch (translations, version bump)
-# back into main once a stable release is published.
+# Once a stable release is published:
+# - opens a PR that merges the release branch (translations, version bump)
+#   back into main
+# - opens a PR on flathub/net.ankiweb.Anki that moves the Flatpak to the new
+#   release. Needs a FLATHUB_TOKEN secret that can push branches and open PRs
+#   there.
 
 on:
   release:
     types: [published]
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: Release tag to package for Flathub
+        required: true
 
 permissions:
   contents: read
-  pull-requests: write
 
 jobs:
   create-pr:
-    if: ${{ !github.event.release.prerelease }}
+    if: ${{ github.event_name == 'release' && !github.event.release.prerelease }}
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 #v4
         with:
@@ -51,3 +62,91 @@ jobs:
           TAG_NAME: ${{ github.event.release.tag_name }}
           RELEASE_SHA: ${{ github.sha }}
           RELEASE_URL: ${{ github.event.release.html_url }}
+
+  flathub:
+    if: ${{ github.event_name == 'workflow_dispatch' || !github.event.release.prerelease }}
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    env:
+      TAG_NAME: ${{ inputs.tag || github.event.release.tag_name }}
+      FLATHUB_REPO: flathub/net.ankiweb.Anki
+    steps:
+      - name: Check token
+        run: |
+          if [ -z "$FLATHUB_TOKEN" ]; then
+            echo "::error::The FLATHUB_TOKEN secret is not set"
+            exit 1
+          fi
+        env:
+          FLATHUB_TOKEN: ${{ secrets.FLATHUB_TOKEN }}
+
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 #v4
+        with:
+          repository: ${{ env.FLATHUB_REPO }}
+          persist-credentials: false
+
+      - name: Skip if branch exists
+        id: branch
+        run: |
+          if git ls-remote --exit-code --heads origin "$TAG_NAME" >/dev/null; then
+            echo "::notice::Branch '$TAG_NAME' already exists on $FLATHUB_REPO"
+            echo "exists=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - uses: astral-sh/setup-uv@c771a70e6277c0a99b617c7a806ffedaca235ff9 #v9.0.0
+        if: ${{ !steps.branch.outputs.exists }}
+        with:
+          enable-cache: false
+
+      # flatpak-pip-generator runs pip inside the SDK to pick wheels.
+      - name: Install Flatpak SDK
+        if: ${{ !steps.branch.outputs.exists }}
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y flatpak appstream
+          # Ubuntu 24.04 blocks the user namespaces that bubblewrap needs.
+          sudo sysctl -w kernel.apparmor_restrict_unprivileged_userns=0
+          runtime=$(sed -n "s/^runtime-version: '\(.*\)'$/\1/p" net.ankiweb.Anki.yaml)
+          flatpak remote-add --user --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo
+          flatpak install --user -y --noninteractive flathub "org.kde.Sdk//$runtime"
+
+      - name: Update Anki
+        id: update
+        if: ${{ !steps.branch.outputs.exists }}
+        run: |
+          status=0
+          uv run scripts/update-anki.py "$TAG_NAME" --report "$RUNNER_TEMP/report.md" || status=$?
+          case $status in
+            0) ;;
+            2) echo "draft=true" >> "$GITHUB_OUTPUT" ;;
+            *) exit "$status" ;;
+          esac
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+
+      - name: Create PR on Flathub
+        if: ${{ !steps.branch.outputs.exists }}
+        run: |
+          if [ -z "$(git status --porcelain)" ]; then
+            echo "::notice::No changes for $TAG_NAME"
+            exit 0
+          fi
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git switch -c "$TAG_NAME"
+          git add -A
+          git commit -m "Update to $TAG_NAME"
+          git push "https://x-access-token:$GH_TOKEN@github.com/$FLATHUB_REPO.git" "$TAG_NAME"
+
+          gh pr create \
+            --repo "$FLATHUB_REPO" \
+            --base master \
+            --head "$TAG_NAME" \
+            --title "Update to $TAG_NAME" \
+            --body-file "$RUNNER_TEMP/report.md" \
+            ${DRAFT:+--draft}
+        env:
+          GH_TOKEN: ${{ secrets.FLATHUB_TOKEN }}
+          DRAFT: ${{ steps.update.outputs.draft }}

@@ -95,6 +95,15 @@ candidates, and the stable release all come from the same branch.
 
 8. Delete the release branch after the stable release is published.
 
+9. Review and merge the Flathub PR. When a stable release is published,
+   `.github/workflows/sync-release.yml` opens a PR on
+   [flathub/net.ankiweb.Anki](https://github.com/flathub/net.ankiweb.Anki)
+   that moves the Flatpak to the new version. The PR is a draft if a patch
+   does not apply or another step needs a manual fix. See
+   [updating-anki.org](https://github.com/flathub/net.ankiweb.Anki/blob/master/updating-anki.org)
+   for the manual steps. The job needs a `FLATHUB_TOKEN` secret that can push
+   branches and open PRs on that repo.
+
 ### Security and hotfix releases
 
 For security fixes, an admin should first create a
