@@ -30,6 +30,27 @@ button {
     position: relative;
 }
 
+.answerButton,
+.answerButton:hover {
+    border-style: solid;
+}
+
+.answerButton:focus {
+    border-style: dashed;
+}
+
+.answerIncorrect,
+.answerIncorrect:hover,
+.answerIncorrect:focus {
+    border-color: color(border-answerIncorrect);
+}
+
+.answerCorrect,
+.answerCorrect:hover,
+.answerCorrect:focus {
+    border-color: color(border-answerCorrect);
+}
+
 .hitem {
     margin-top: 2px;
 }
