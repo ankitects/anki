@@ -5,8 +5,6 @@ name: Sync release to main
 #   uploads it as an artifact
 # - opens a PR that merges the release branch (translations, version bump)
 #   back into main, and comments there how to submit the Flathub patch
-#
-# The Flathub job runs third-party generators, so it has no write access.
 
 on:
   release:
