@@ -394,7 +394,7 @@ class DeckBrowser:
         )
 
     def _onShared(self) -> None:
-        openLink(f"{aqt.appShared}decks/")
+        openLink(f"{aqt.appShared}decks")
 
     def _on_create(self) -> None:
         if op := add_deck_dialog(
