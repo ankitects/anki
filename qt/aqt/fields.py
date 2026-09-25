@@ -129,6 +129,7 @@ class FieldDialog(QDialog):
         self.loadField(idx)
 
     def _uniqueName(self, prompt: str, old: str = "") -> str | None:
+        """Asks the user for a name for a field. Returns the name, cleaned up so that it can be used. If it can't be used, return None and shows a warning explaining why."""
         txt = getOnlyText(prompt, default=old).replace('"', "").strip()
         if not txt:
             return None
@@ -139,10 +140,10 @@ class FieldDialog(QDialog):
             if letter in txt:
                 show_warning(tr.fields_name_invalid_letter())
                 return None
-        if txt.casefold() == old.casefold():
+        if txt == old:
             return None
         for f in self.model["flds"]:
-            if f["name"].casefold() == txt.casefold():
+            if f["name"].casefold() == txt.casefold() and f["name"] != old:
                 show_warning(tr.fields_that_field_name_is_already_used())
                 return None
         return txt
