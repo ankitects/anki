@@ -53,10 +53,17 @@ function restoreFrameHandles(mutations: MutationRecord[]): void {
                 mutations.length === 1
                 && !node.partiallySelected
             ) {
-                // Similar to a "movein", this could be considered a
-                // "deletein" event and could get some special treatment, e.g.
-                // first highlight the entire frame-element.
-                frameElement.remove();
+                // Select frameElement and perform tracked deletion so undo restores the frame
+                const selection = getSelection(frameElement);
+                if (selection) {
+                    const range = document.createRange();
+                    range.selectNode(frameElement);
+                    selection.removeAllRanges();
+                    selection.addRange(range);
+                    document.execCommand("delete");
+                } else {
+                    frameElement.remove();
+                }
                 continue;
             }
 
