@@ -504,6 +504,37 @@ def parseArgs(argv: list[str]) -> tuple[argparse.Namespace, list[str]]:
     return parser.parse_known_args(argv[1:])
 
 
+def shift_held_before_app() -> bool:
+    """Check whether Shift is held, without needing a QApplication.
+
+    Some video driver settings must be applied before the app is created, but
+    QGuiApplication.queryKeyboardModifiers() only works once it exists. Returns
+    False on platforms where this isn't implemented, or if the check fails.
+    """
+    try:
+        if is_mac:
+            import ctypes
+
+            core_graphics = ctypes.cdll.LoadLibrary(
+                "/System/Library/Frameworks/CoreGraphics.framework/CoreGraphics"
+            )
+            core_graphics.CGEventSourceFlagsState.argtypes = [ctypes.c_int32]
+            core_graphics.CGEventSourceFlagsState.restype = ctypes.c_uint64
+            # kCGEventSourceStateCombinedSessionState, kCGEventFlagMaskShift
+            return bool(core_graphics.CGEventSourceFlagsState(0) & 0x20000)
+        if is_win:
+            import ctypes
+
+            user32 = ctypes.windll.user32  # type: ignore
+            user32.GetAsyncKeyState.argtypes = [ctypes.c_int]
+            user32.GetAsyncKeyState.restype = ctypes.c_short
+            # VK_SHIFT; the most significant bit is set while the key is down
+            return bool(user32.GetAsyncKeyState(0x10) & 0x8000)
+    except Exception:
+        traceback.print_exc()
+    return False
+
+
 def setupGL(pm: aqt.profiles.ProfileManager, driver: VideoDriver | None = None) -> None:
     if driver is None:
         driver = pm.video_driver()
@@ -688,7 +719,14 @@ def _run(argv: list[str] | None = None, exec: bool = True) -> AnkiApp | None:
         traceback.print_exc()
         pm = None
 
+    # Safe mode forces software rendering, which must be set up before the app is
+    # created, so Shift has to be checked without relying on Qt
+    safe_mode = opts.safemode or shift_held_before_app()
+    driver = None
     if pm:
+        driver = VideoDriver.Software if safe_mode else pm.video_driver()
+        # gl workarounds; some of them only take effect before the app is created
+        setupGL(pm, driver)
         # apply user-provided scale factor
         os.environ["QT_SCALE_FACTOR"] = str(pm.uiScale())
 
@@ -717,11 +755,14 @@ def _run(argv: list[str] | None = None, exec: bool = True) -> AnkiApp | None:
         # we've signaled the primary instance, so we should close
         return None
 
-    driver = None
+    app.safeMode = app.safeMode or safe_mode
+
     if pm:
-        driver = pm.video_driver() if not app.safeMode else VideoDriver.Software
-        # gl workarounds
-        setupGL(pm, driver)
+        if app.safeMode and driver != VideoDriver.Software:
+            # Shift was only detected by Qt (e.g. on Linux, where the settings
+            # setupGL() makes still take effect after the app is created)
+            driver = VideoDriver.Software
+            setupGL(pm, driver)
     else:
         if i18n_setup:
             QMessageBox.critical(
