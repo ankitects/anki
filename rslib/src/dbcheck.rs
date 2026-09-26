@@ -235,11 +235,14 @@ impl Collection {
             let mut default_kind = Vec::new();
             DeckKind::Normal(NormalDeck::default()).encode(&mut default_kind);
             out.decks_invalid = errors.len();
+            let mtime_secs = TimestampSecs::now();
+            let usn = self.usn()?;
             for did in errors {
                 self.storage.db.execute(
-                    "update decks set kind = ? where id = ?",
-                    (default_kind.as_slice(), did.0),
+                    "update decks set kind = ?, mtime_secs = ?, usn = ? where id = ?",
+                    (default_kind.as_slice(), mtime_secs, usn, did.0),
                 )?;
+                self.state.deck_cache.clear();
             }
             Ok(())
         }
