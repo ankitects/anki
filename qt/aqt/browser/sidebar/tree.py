@@ -882,7 +882,7 @@ class SidebarTreeView(QTreeView):
                 )
                 item.add_child(child)
 
-            for c, fld in enumerate(nt["flds"]):
+            for _c, fld in enumerate(nt["flds"]):
                 child = SidebarItem(
                     fld["name"],
                     field_icon,
