@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import re
+from contextlib import suppress
 from typing import cast
 
 from anki.collection import Collection
@@ -149,8 +150,6 @@ class TagCompleter(QCompleter):
             return self.edit.text()
         ret = QCompleter.pathFromIndex(self, idx)
         self.tags[self.cursor] = ret
-        try:
+        with suppress(ValueError):
             self.tags.remove("")
-        except ValueError:
-            pass
         return f"{' '.join(self.tags)} "

@@ -131,9 +131,7 @@ class AddonMeta:
         if min is not None and _current_version < min:
             return False
         max = self.max_version
-        if max is not None and max < 0 and _current_version > abs(max):
-            return False
-        return True
+        return not (max is not None and max < 0 and _current_version > abs(max))
 
     def is_latest(self, server_update_time: int) -> bool:
         return self.installed_at >= server_update_time
@@ -168,9 +166,7 @@ def package_name_valid(name: str) -> bool:
     # tries to escape to parent?
     root = os.getcwd()
     subfolder = os.path.abspath(os.path.join(root, name))
-    if root.startswith(subfolder):
-        return False
-    return True
+    return not root.startswith(subfolder)
 
 
 # fixme: this class should not have any GUI code in it
@@ -1758,7 +1754,7 @@ def installAddonPackages(
         names = ",<br>".join(f"<b>{os.path.basename(p)}</b>" for p in paths)
         q = tr.addons_important_as_addons_are_programs_downloaded() % dict(names=names)
         if (
-            not showInfo(
+            showInfo(
                 q,
                 parent=parent,
                 title=tr.addons_install_anki_addon(),
@@ -1768,7 +1764,7 @@ def installAddonPackages(
                     QMessageBox.StandardButton.Yes,
                 ],
             )
-            == QMessageBox.StandardButton.Yes
+            != QMessageBox.StandardButton.Yes
         ):
             return False
 

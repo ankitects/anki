@@ -437,11 +437,8 @@ class CardLayout(QDialog):
             play_clicked_audio(cmd, self.rendered_card)
 
     def note_has_empty_field(self) -> bool:
-        for field in self.note.fields:
-            if not field.strip():
-                # ignores HTML, but this should suffice
-                return True
-        return False
+        # ignores HTML, but this should suffice
+        return any(not field.strip() for field in self.note.fields)
 
     # Buttons
     ##########################################################################

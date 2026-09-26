@@ -37,6 +37,7 @@ import sys
 import tempfile
 import threading
 import time
+from contextlib import suppress
 from queue import Empty, Full, Queue
 from shutil import which
 
@@ -221,10 +222,8 @@ class MPVBase:
         if hasattr(self, "_sock"):
             self._sock.close()
         if hasattr(self, "_sock_filename"):
-            try:
+            with suppress(OSError):
                 os.remove(self._sock_filename)
-            except OSError:
-                pass
 
     def _prepare_thread(self):
         """Set up the queues for the communication threads."""

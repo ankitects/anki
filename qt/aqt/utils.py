@@ -10,6 +10,7 @@ import shutil
 import subprocess
 import sys
 from collections.abc import Callable, Sequence
+from contextlib import suppress
 from functools import partial, wraps
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, Literal, Union
@@ -1100,17 +1101,13 @@ def tooltip(
 def closeTooltip() -> None:
     global _tooltipLabel, _tooltipTimer
     if _tooltipLabel:
-        try:
+        # already deleted as parent window closed
+        with suppress(RuntimeError):
             _tooltipLabel.deleteLater()
-        except RuntimeError:
-            # already deleted as parent window closed
-            pass
         _tooltipLabel = None
     if _tooltipTimer:
-        try:
+        with suppress(RuntimeError):
             _tooltipTimer.deleteLater()
-        except RuntimeError:
-            pass
         _tooltipTimer = None
 
 

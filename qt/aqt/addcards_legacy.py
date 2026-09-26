@@ -337,10 +337,7 @@ class AddCards(QMainWindow):
 
         optional_problems: list[str] = []
         gui_hooks.add_cards_might_add_note(optional_problems, note)
-        if not all(askUser(op) for op in optional_problems):
-            return False
-
-        return True
+        return all(askUser(op) for op in optional_problems)
 
     def keyPressEvent(self, evt: QKeyEvent) -> None:
         if evt.key() == Qt.Key.Key_Escape:

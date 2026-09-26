@@ -145,10 +145,7 @@ class StudyDeck(QDialog):
         filt = filt.lower()
         if not filt:
             return True
-        for word in filt.split(" "):
-            if word not in name:
-                return False
-        return True
+        return all(word in name for word in filt.split(" "))
 
     def onReset(self) -> None:
         # model updated?

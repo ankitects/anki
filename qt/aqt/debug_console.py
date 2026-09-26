@@ -131,10 +131,8 @@ class DebugConsole(QDialog):
         if result == "Save":
             self._save_script()
             return True
-        elif result == "Don't Save":
-            return True
-        else:  # Cancel
-            return False
+        # anything other than "Don't Save" is Cancel
+        return result == "Don't Save"
 
     def _on_script_change(self, new_index: int) -> None:
         current_text = self._text.toPlainText()

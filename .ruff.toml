@@ -6,7 +6,7 @@ lint.select = [
   "ARG",
   # "UP", # pyupgrade
   # "B", # flake8-bugbear
-  # "SIM", # flake8-simplify
+  "SIM", # flake8-simplify
 ]
 
 extend-exclude = ["*_pb2.py", "*_pb2.pyi"]
@@ -51,6 +51,13 @@ lint.ignore = [
   "PLW2901", # redefined-loop-name
   "PLC0415", # import-outside-top-level
   "PLR2004", # magic-value-comparison
+
+  # Simplify rules the codebase does not follow
+  "SIM102", # collapsible-if
+  "SIM108", # if-else-block-instead-of-if-exp
+  "SIM114", # if-with-same-arms
+  "SIM115", # open-file-with-context-handler
+  "SIM116", # if-else-block-instead-of-dict-get
 
   # Exception handling (broad-except, bare-except in pylint)
   "BLE001", # Do not catch blind exception

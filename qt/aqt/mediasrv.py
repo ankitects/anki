@@ -14,6 +14,7 @@ import sys
 import threading
 import traceback
 from collections.abc import Callable
+from contextlib import suppress
 from dataclasses import dataclass
 from errno import EPROTOTYPE
 from http import HTTPStatus
@@ -259,10 +260,8 @@ class MediaServer(threading.Thread):
             return None
 
     def clear_page_html(self, id: int) -> None:
-        try:
+        with suppress(KeyError):
             del self._legacy_pages[id]
-        except KeyError:
-            pass
 
 
 @app.route("/favicon.ico")

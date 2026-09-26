@@ -505,7 +505,7 @@ class AnkiWebView(QWebEngineView):
     def onEsc(self) -> None:
         w = self.parent()
         while w:
-            if isinstance(w, QDialog) or isinstance(w, QMainWindow):
+            if isinstance(w, (QDialog, QMainWindow)):
                 from aqt import mw
 
                 # esc in a child window closes the window
@@ -843,9 +843,7 @@ html {{ {font} }}
 
         if sip.isdeleted(self):
             return True
-        if not mw.col and self.requiresCol:
-            return True
-        return False
+        return bool(not mw.col and self.requiresCol)
 
     def _onBridgeCmd(self, cmd: str) -> Any:
         if self._shouldIgnoreWebEvent():

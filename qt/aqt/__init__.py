@@ -9,6 +9,7 @@ import logging
 import os
 import sys
 from collections.abc import Callable
+from contextlib import suppress
 from inspect import isclass
 from typing import TYPE_CHECKING, Any, Union, cast
 
@@ -252,10 +253,8 @@ def setupLangAndBackend(
     firstTime: bool = False,
 ) -> RustBackend:
     global _qtrans
-    try:
+    with suppress(Exception):
         locale.setlocale(locale.LC_ALL, "")
-    except Exception:
-        pass
 
     # add _ and ngettext globals used by legacy code
     def fn__(arg) -> None:  # type: ignore

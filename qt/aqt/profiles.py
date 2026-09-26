@@ -10,6 +10,7 @@ import pickle
 import random
 import shutil
 import traceback
+from contextlib import suppress
 from enum import Enum
 from pathlib import Path
 from typing import TYPE_CHECKING, Any
@@ -395,10 +396,8 @@ class ProfileManager:
         def recover() -> None:
             # if we can't load profile, start with a new one
             if self.db:
-                try:
+                with suppress(Exception):
                     self.db.close()
-                except Exception:
-                    pass
             for suffix in ("", "-journal"):
                 fpath = path + suffix
                 if os.path.exists(fpath):
