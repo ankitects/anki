@@ -227,6 +227,14 @@ impl Collection {
                 conf.inner.fsrs_params_4.clear();
                 conf.inner.fsrs_params_7 = DEFAULT_PARAMETERS.to_vec();
             }
+            // The options screen shows one parameter box, which is pre-filled
+            // from an older slot. Store an older model's parameters in the
+            // FSRS-6 slot, as before, not as a copy in the FSRS-7 slot: such a
+            // copy would hide a later optimize or reset from a client that
+            // writes the FSRS-6 slot. The same parameters stay selected.
+            if conf.inner.fsrs_params_7.len() != DEFAULT_PARAMETERS.len() {
+                conf.inner.fsrs_params_6 = std::mem::take(&mut conf.inner.fsrs_params_7);
+            }
             // check the provided parameters are valid before we save them
             FSRS::new(conf.fsrs_params())?;
             self.add_or_update_deck_config(conf)?;
@@ -691,6 +699,56 @@ mod test {
                 .collect::<Vec<_>>(),
             vec![13, 13]
         );
+    }
+
+    #[test]
+    fn saving_legacy_params_keeps_them_in_the_fsrs6_slot() -> Result<()> {
+        let mut col = Collection::new();
+        let mut config = col.get_deck_config(DeckConfigId(1), false)?.unwrap();
+        config.inner.fsrs_params_7.clear();
+        config.inner.fsrs_params_6 = fsrs::FSRS6_DEFAULT_PARAMETERS.to_vec();
+        col.add_or_update_deck_config(&mut config)?;
+
+        // The options screen pre-fills the FSRS-7 slot, and saves it back.
+        let output = col.get_deck_configs_for_update(DeckId(1))?;
+        let configs: Vec<DeckConfig> = output
+            .all_config
+            .into_iter()
+            .map(|c| c.config.unwrap().into())
+            .collect();
+        assert_eq!(
+            configs[0].inner.fsrs_params_7,
+            fsrs::FSRS6_DEFAULT_PARAMETERS
+        );
+        col.update_deck_configs(UpdateDeckConfigsRequest {
+            target_deck_id: DeckId(1),
+            configs,
+            removed_config_ids: vec![],
+            mode: UpdateDeckConfigsMode::Normal,
+            card_state_customizer: "".to_string(),
+            limits: Limits::default(),
+            new_cards_ignore_review_limit: false,
+            apply_all_parent_limits: false,
+            fsrs: true,
+            fsrs_reschedule: false,
+            fsrs_health_check: true,
+        })?;
+
+        let saved = col.get_deck_config(DeckConfigId(1), false)?.unwrap();
+        assert!(saved.inner.fsrs_params_7.is_empty());
+        assert_eq!(saved.inner.fsrs_params_6, fsrs::FSRS6_DEFAULT_PARAMETERS);
+        // A later write of the FSRS-6 slot, as from an older client, takes
+        // effect.
+        let mut other = saved.clone();
+        other.inner.fsrs_params_6[0] += 0.1;
+        col.add_or_update_deck_config(&mut other)?;
+        assert_eq!(
+            col.get_deck_config(DeckConfigId(1), false)?
+                .unwrap()
+                .fsrs_params(),
+            &other.inner.fsrs_params_6
+        );
+        Ok(())
     }
 
     #[test]
