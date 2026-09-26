@@ -1255,8 +1255,10 @@ def raw_backend_request(endpoint: str) -> Callable[[], bytes]:
                 changes: Any = response
                 for _ in range(op_changes_type - 1):
                     changes = changes.changes
-            except IndexError:
-                raise ValueError(f"unhandled op changes level: {op_changes_type}")
+            except IndexError as e:
+                raise ValueError(
+                    f"unhandled op changes level: {op_changes_type}"
+                ) from e
 
             def handle_on_main() -> None:
                 handler = active_window_or_main()
