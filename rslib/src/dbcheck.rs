@@ -39,6 +39,7 @@ pub struct CheckDatabaseOutput {
     card_position_too_high: usize,
     cards_missing_note: usize,
     decks_missing: usize,
+    decks_invalid: usize,
     revlog_properties_invalid: usize,
     templates_missing: usize,
     card_ords_duplicated: usize,
@@ -104,6 +105,9 @@ impl CheckDatabaseOutput {
         }
         if self.invalid_ids > 0 {
             probs.push(tr.database_check_fixed_invalid_ids(self.invalid_ids));
+        }
+        if self.decks_invalid > 0 {
+            probs.push(tr.database_check_fixed_invalid_deck_kinds(self.decks_invalid));
         }
 
         probs.into_iter().map(Into::into).collect()
@@ -211,7 +215,7 @@ impl Collection {
         Ok(())
     }
 
-    fn check_deck_kinds(&mut self, _out: &mut CheckDatabaseOutput) -> Result<()> {
+    fn check_deck_kinds(&mut self, out: &mut CheckDatabaseOutput) -> Result<()> {
         let mut stmt = self.storage.db.prepare("select id, kind from decks")?;
         let mut rows = stmt.query([])?;
         let mut errors = vec![];
@@ -236,6 +240,7 @@ impl Collection {
         } else {
             let mut default_kind = Vec::new();
             DeckKind::Normal(NormalDeck::default()).encode(&mut default_kind);
+            out.decks_invalid = errors.len();
             for did in errors {
                 self.storage.db.execute(
                     "update decks set kind = ? where id = ?",
@@ -777,6 +782,7 @@ mod test {
         assert_eq!(
             out,
             CheckDatabaseOutput {
+                decks_invalid: 2,
                 ..Default::default()
             }
         );
