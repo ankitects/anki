@@ -242,8 +242,8 @@ impl Collection {
                     "update decks set kind = ?, mtime_secs = ?, usn = ? where id = ?",
                     (default_kind.as_slice(), mtime_secs, usn, did.0),
                 )?;
-                self.state.deck_cache.clear();
             }
+            self.state.deck_cache.clear();
             Ok(())
         }
     }
