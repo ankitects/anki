@@ -222,7 +222,7 @@ impl Collection {
 
         while let Some(row) = rows.next()? {
             let blob = row.get_ref_unwrap(1).as_blob()?;
-            let kind =  DeckKindContainer::decode(blob);
+            let kind = DeckKindContainer::decode(blob);
             if !kind.is_ok_and(|kind| kind.kind.is_some()) {
                 let did: DeckId = row.get(0)?;
                 errors.push(did);
