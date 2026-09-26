@@ -551,6 +551,27 @@ can use. Of note:
 While reviewing IO Cards a "Toggle Masks" button will appear just below the image.
 This button will temporarily clear all shapes of the note when using "Hide All, Guess One" mode.
 
+### Styling answer highlights
+
+To change the highlight over a revealed area on an IO card's answer side,
+open the **Cards** screen for the Image Occlusion note type and select
+**Styling**. In the existing `#image-occlusion-canvas` rule, change
+`--highlight-shape-color` to a color with an alpha value. For example:
+
+```css
+#image-occlusion-canvas {
+    --highlight-shape-color: #ff8e8e80;
+}
+```
+
+The last two digits of this eight-digit hex color control opacity: `00` is
+fully transparent, `80` is approximately 50% opaque, and `ff` is fully
+opaque. The example adds a translucent pink highlight while keeping the
+image underneath visible. The default, `#ff8e8e00`, has a transparent fill.
+A six-digit color such as `#ff8e8e` is opaque and would cover the revealed
+area again. This setting changes answer highlights, not the masks that hide
+answers on the question side.
+
 ## Inputting Non-Latin Characters and Accents
 
 All modern computers have built-in support for typing accents and
