@@ -37,6 +37,34 @@ FSRSMemoryState = cards_pb2.FsrsMemoryState
 
 
 class Card(DeprecatedNamesMixin):
+    """A card: one question and answer generated from a note.
+
+    Usually obtained from the collection rather than constructed directly:
+
+    >>> card = col.get_card(1234567890123)        # doctest: +SKIP
+    >>> cards = col.find_cards("deck:Default")    # doctest: +SKIP
+
+    A card is always tied to a notetype template, which is what `ord` selects.
+    The note it came from is fetched on demand, so reading a card does not cost
+    a second query:
+
+    >>> note = card.note()                        # doctest: +SKIP
+    >>> card.question()                           # doctest: +SKIP
+    '<div>the rendered front, with styling</div>'
+
+    Scheduling state lives in `queue` and `type`, which are distinct: `type` is
+    the stage the card is at (`CARD_TYPE_NEW`, `CARD_TYPE_LRN`, `CARD_TYPE_REV`
+    or `CARD_TYPE_RELEARNING`), and `queue` is where it sits, which is the same
+    for a scheduled card but is negative for a suspended or buried one. See the
+    `QUEUE_TYPE_*` constants in `anki.consts`. The meaning of `due` depends on
+    the queue: a position in the new queue, a day number in the review queue, or
+    a timestamp in the learning queue.
+
+    Changes are saved through the collection, not the card:
+
+    >>> col.update_card(card)                     # doctest: +SKIP
+    """
+
     _note: Note | None
     lastIvl: int
     ord: int
@@ -71,6 +99,11 @@ class Card(DeprecatedNamesMixin):
             self._load_from_backend_card(cards_pb2.Card())
 
     def load(self) -> None:
+        """Discard the in-memory copy and reload the card from the database.
+
+        Also drops the cached render output and note, so both are fetched again
+        on next use.
+        """
         card = self.col._backend.get_card(self.id)
         assert card
         self._load_from_backend_card(card)
@@ -147,20 +180,37 @@ class Card(DeprecatedNamesMixin):
             raise Exception("card.flush() expects an existing card")
 
     def question(self, reload: bool = False, browser: bool = False) -> str:
+        """The rendered front of the card, with styling, as HTML.
+
+        `browser` selects browser rendering rules rather than reviewer ones.
+        See `render_output()`.
+        """
         return self.render_output(reload, browser).question_and_style()
 
     def answer(self) -> str:
+        """The rendered back of the card, with styling, as HTML."""
         return self.render_output().answer_and_style()
 
     def question_av_tags(self) -> list[AVTag]:
+        """The sound and video files referenced by the front, in order."""
         return self.render_output().question_av_tags
 
     def answer_av_tags(self) -> list[AVTag]:
+        """The sound and video files referenced by the back, in order."""
         return self.render_output().answer_av_tags
 
     def render_output(
         self, reload: bool = False, browser: bool = False
     ) -> anki.template.TemplateRenderOutput:
+        """The rendered card, caching the result.
+
+        The cached output is reused until `reload` is passed, so this is much
+        cheaper than `question()` and `answer()` in a loop over many cards.
+        `browser` renders as the browser does rather than the reviewer.
+
+        The output is dropped by `load()`, and is not written to the database, so
+        changing a notetype's templates does not by itself invalidate it.
+        """
         if not self._render_output or reload:
             self._render_output = (
                 anki.template.TemplateRenderContext.from_existing_card(
@@ -170,17 +220,29 @@ class Card(DeprecatedNamesMixin):
         return self._render_output
 
     def set_render_output(self, output: anki.template.TemplateRenderOutput) -> None:
+        """Store render output to be returned by `render_output()` unchanged.
+
+        Used when the output was rendered from something other than the stored
+        card, as `anki.notes.Note.ephemeral_card()` does.
+        """
         self._render_output = output
 
     def note(self, reload: bool = False) -> Note:
+        """The note this card was generated from, fetched on first use."""
         if not self._note or reload:
             self._note = self.col.get_note(self.nid)
         return self._note
 
     def note_type(self) -> NotetypeDict:
+        """The notetype this card's template belongs to."""
         return self.col.models.get(self.note().mid)
 
     def template(self) -> TemplateDict:
+        """The template this card renders with.
+
+        A cloze notetype has a single template, so the card's `ord` selects a
+        cloze deletion rather than a template, and the first one is returned.
+        """
         notetype = self.note_type()
         templates = notetype["tmpls"]
         if notetype["type"] == MODEL_STD:
@@ -189,9 +251,15 @@ class Card(DeprecatedNamesMixin):
             return templates[0]
 
     def start_timer(self) -> None:
+        """Start the answer timer, for use with `time_taken()`."""
         self.timer_started = time.time()
 
     def current_deck_id(self) -> anki.decks.DeckId:
+        """The deck the card's deck options apply to.
+
+        This is the original deck if the card has one, so a card that was moved
+        to a filtered deck still uses the options it was scheduled with.
+        """
         return anki.decks.DeckId(self.odid or self.did)
 
     def time_limit(self) -> int:
@@ -200,27 +268,39 @@ class Card(DeprecatedNamesMixin):
         return conf["maxTaken"] * 1000
 
     def should_show_timer(self) -> bool:
+        """Whether the reviewer shows a countdown for this card."""
         conf = self.col.decks.config_dict_for_deck_id(self.current_deck_id())
         return conf["timer"]
 
     def replay_question_audio_on_answer_side(self) -> bool:
+        """Whether the front's audio plays again on the answer side."""
         conf = self.col.decks.config_dict_for_deck_id(self.current_deck_id())
         return conf.get("replayq", True)
 
     def autoplay(self) -> bool:
+        """Whether the reviewer plays audio and video without being asked."""
         return self.col.decks.config_dict_for_deck_id(self.current_deck_id())[
             "autoplay"
         ]
 
     def time_taken(self, capped: bool = True) -> int:
         """Time taken since card timer started, in integer MS.
-        If `capped` is true, returned time is limited to deck preset setting."""
+        If `capped` is true, returned time is limited to deck preset setting.
+
+        Requires `start_timer()` to have been called, otherwise there is no
+        start time to measure from.
+        """
         total = int((time.time() - self.timer_started) * 1000)
         if capped:
             total = min(total, self.time_limit())
         return total
 
     def description(self) -> str:
+        """The card's state as a readable string, for debugging.
+
+        Includes every scheduling field, but not the note or the rendered
+        output, which would otherwise make this unusable.
+        """
         dict_copy = dict(self.__dict__)
         # remove non-useful elements
         del dict_copy["_note"]
@@ -230,9 +310,18 @@ class Card(DeprecatedNamesMixin):
         return f"{super().__repr__()} {pprint.pformat(dict_copy, width=300)}"
 
     def user_flag(self) -> int:
+        """The user flag, an integer from 0 to 7.
+
+        0 means no flag. The other values are given a colour in the browser:
+        1 red, 2 orange, 3 green, 4 blue, 5 pink, 6 turquoise, 7 purple.
+        """
         return self.flags & 0b111
 
     def set_user_flag(self, flag: int) -> None:
+        """Set the user flag, which must be between 0 and 7 inclusive.
+
+        Only changes the card in memory; saving is done by the collection.
+        """
         print("use col.set_user_flag_for_cards() instead")
         if not 0 <= flag <= 7:
             raise Exception("invalid flag")
