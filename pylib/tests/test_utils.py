@@ -235,7 +235,8 @@ def test_tmpfile_is_created_empty():
 
 
 def test_namedtmp_is_stable_across_calls():
-    assert namedtmp("anki-test-same") == namedtmp("anki-test-same")
+    first = namedtmp("anki-test-same")
+    assert namedtmp("anki-test-same") == first
 
 
 def test_namedtmp_removes_an_existing_file():
