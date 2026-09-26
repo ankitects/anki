@@ -38,10 +38,20 @@ stored your Anki files in a folder called `Anki` in your `Documents`
 folder.
 
 On **Mac** computers, recent Anki versions store all user data in the
-`~/Library/Application Support/Anki2` folder. The Library folder is
-hidden by default, but can be revealed in Finder by holding down the
-option key while clicking on the Go menu. If you're on an older Anki
-version, your Anki files will be in your `Documents/Anki` folder.
+`~/Library/Application Support/Anki2` folder. The `~` stands for your home
+folder. To open the Anki folder:
+
+1. Open Finder and choose **Go → Go to Folder** from the menu bar, or press
+   <kbd>Shift</kbd>+<kbd>Command</kbd>+<kbd>G</kbd>.
+2. Paste `~/Library/Application Support/Anki2` and press <kbd>Return</kbd>.
+3. Open the folder named after your Anki profile. For example, media for a
+   profile named `User 1` is in `Anki2/User 1/collection.media`.
+
+This works even though the Library folder is hidden by default. You can also
+open Library from Finder's **Go** menu by holding down <kbd>Option</kbd> and
+choosing **Library**, then opening **Application Support → Anki2**.
+If you're on an older Anki version, your Anki files will be in your
+`Documents/Anki` folder.
 
 On **Linux**, recent Anki versions store your user data in
 `~/.local/share/Anki2`, or `$XDG_DATA_HOME/Anki2` if you have set a
