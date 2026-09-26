@@ -221,18 +221,12 @@ impl Collection {
         let mut errors = vec![];
 
         while let Some(row) = rows.next()? {
-            let did: DeckId = row.get(0)?;
             let blob = row.get_ref_unwrap(1).as_blob()?;
-            match DeckKindContainer::decode(blob) {
-                Ok(kind) => {
-                    if kind.kind.is_none() {
-                        errors.push(did);
-                    }
-                }
-                Err(_) => {
-                    errors.push(did);
-                }
-            };
+            let kind =  DeckKindContainer::decode(blob);
+            if !kind.is_ok_and(|kind| kind.kind.is_some()) {
+                let did: DeckId = row.get(0)?;
+                errors.push(did);
+            }
         }
 
         if errors.is_empty() {
