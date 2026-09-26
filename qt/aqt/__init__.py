@@ -688,6 +688,14 @@ def _run(argv: list[str] | None = None, exec: bool = True) -> AnkiApp | None:
         traceback.print_exc()
         pm = None
 
+    driver = None
+    if pm:
+        # Safe mode forces software rendering. Only --safemode is known at this
+        # point; safe mode enabled by holding Shift is handled after the app is created.
+        driver = VideoDriver.Software if opts.safemode else pm.video_driver()
+        # gl workarounds; some of them only take effect before the app is created
+        setupGL(pm, driver)
+
     # Opt-in to full HiDPI support?
     if not os.environ.get("ANKI_NOHIGHDPI") and qtmajor == 5:
         QCoreApplication.setAttribute(Qt.ApplicationAttribute.AA_EnableHighDpiScaling)  # type: ignore
@@ -713,11 +721,11 @@ def _run(argv: list[str] | None = None, exec: bool = True) -> AnkiApp | None:
         # we've signaled the primary instance, so we should close
         return None
 
-    driver = None
     if pm:
-        driver = pm.video_driver() if not app.safeMode else VideoDriver.Software
-        # gl workarounds
-        setupGL(pm, driver)
+        if app.safeMode and driver != VideoDriver.Software:
+            # Shift was held; apply what can still be changed now that the app exists
+            driver = VideoDriver.Software
+            setupGL(pm, driver)
         # apply user-provided scale factor
         os.environ["QT_SCALE_FACTOR"] = str(pm.uiScale())
     else:
