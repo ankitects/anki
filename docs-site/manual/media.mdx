@@ -35,10 +35,14 @@ This tool does not scan question or answer
 templates, which is why you can’t place media references to fields in
 the template. If you need a static image or sound on every card, name it
 with a leading \_ (e.g., `_dog.jpg`) to tell Anki to ignore it when
-checking for media. If you delete media using the unused media check,
-Anki will move it into your operating system’s trash folder, so you can
-recover if you accidentally delete media that shouldn’t have been
-deleted.
+checking for media.
+
+In Anki Desktop, deleting unused media moves the files into the profile's
+`media.trash` folder, rather than your operating system's trash. If you
+accidentally delete files you still need, use Tools&gt;Check Media to restore
+them. Empty Trash permanently deletes the files from `media.trash` without
+moving them to your operating system's trash, so you cannot restore them
+through Check Media after emptying it.
 
 ## Manually Adding Media
 
