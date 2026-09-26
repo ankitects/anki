@@ -8,10 +8,15 @@ use anki_i18n::I18n;
 use anki_proto::notetypes::stock_notetype::OriginalStockKind;
 use anki_proto::notetypes::ImageOcclusionField;
 use itertools::Itertools;
+use prost::Message;
 use tracing::debug;
 
 use crate::collection::Collection;
 use crate::config::SchedulerVersion;
+use crate::decks::DeckId;
+use crate::decks::DeckKind;
+use crate::decks::DeckKindContainer;
+use crate::decks::NormalDeck;
 use crate::error::AnkiError;
 use crate::error::DbError;
 use crate::error::DbErrorKind;
@@ -139,6 +144,7 @@ impl Collection {
         self.check_orphaned_cards(&mut out)?;
 
         debug!("check decks");
+        self.check_deck_kinds(&mut out)?;
         self.check_missing_deck_ids(&mut out)?;
         self.check_filtered_cards(&mut out)?;
 
@@ -203,6 +209,41 @@ impl Collection {
             out.decks_missing += 1;
         }
         Ok(())
+    }
+
+    fn check_deck_kinds(&mut self, _out: &mut CheckDatabaseOutput) -> Result<()> {
+        let mut stmt = self.storage.db.prepare("select id, kind from decks")?;
+        let mut rows = stmt.query([])?;
+        let mut errors = vec![];
+
+        while let Some(row) = rows.next()? {
+            let did: DeckId = row.get(0)?;
+            let blob = row.get_ref_unwrap(1).as_blob()?;
+            match DeckKindContainer::decode(blob) {
+                Ok(kind) => {
+                    if kind.kind.is_none() {
+                        errors.push(did);
+                    }
+                }
+                Err(_) => {
+                    errors.push(did);
+                }
+            };
+        }
+
+        if errors.is_empty() {
+            Ok(())
+        } else {
+            let mut default_kind = Vec::new();
+            DeckKind::Normal(NormalDeck::default()).encode(&mut default_kind);
+            for did in errors {
+                self.storage.db.execute(
+                    "update decks set kind = ? where id = ?",
+                    (default_kind.as_slice(), did.0),
+                )?;
+            }
+            Ok(())
+        }
     }
 
     fn check_filtered_cards(&mut self, out: &mut CheckDatabaseOutput) -> Result<()> {
@@ -706,6 +747,70 @@ mod test {
 
         assert!(col.storage.get_tag("one")?.unwrap().expanded);
         assert!(!col.storage.get_tag("two")?.unwrap().expanded);
+
+        Ok(())
+    }
+
+    #[test]
+    fn invalid_deck_kind() -> Result<()> {
+        let mut col = Collection::new();
+        let deck = col.get_or_create_normal_deck("foo")?;
+        let deck2 = col.get_or_create_normal_deck("foo2")?;
+        let mut filtered_deck = col.get_or_create_filtered_deck(DeckId(0))?;
+        filtered_deck.human_name = "filtered".into();
+        filtered_deck.allow_empty = true;
+        let filtered_deck_id = col.add_or_update_filtered_deck(filtered_deck)?.output;
+
+        col.storage.db.execute_batch(&format!(
+            "update decks set kind = X'1432' where id = {}",
+            deck.id
+        ))?;
+
+        assert!(col.storage.get_decks_map().is_err());
+
+        col.storage.db.execute_batch(&format!(
+            "update decks set kind = X'' where id = {}",
+            deck2.id
+        ))?;
+
+        let out = col.check_database()?;
+        assert_eq!(
+            out,
+            CheckDatabaseOutput {
+                ..Default::default()
+            }
+        );
+        assert_eq!(
+            col.storage
+                .get_all_deck_names()?
+                .iter()
+                .map(|(_, name)| name)
+                .collect::<Vec<_>>(),
+            &["Default", "filtered", "foo", "foo2"]
+        );
+
+        // Check that the decks no longer crash
+        let decks = col.storage.get_decks_map()?;
+
+        // The default deck is still normal
+        assert!(matches!(
+            decks.get(&DeckId(1)).unwrap().kind,
+            DeckKind::Normal(_)
+        ));
+        // Broken deck is fixed
+        assert!(matches!(
+            decks.get(&deck.id).unwrap().kind,
+            DeckKind::Normal(_)
+        ));
+        assert!(matches!(
+            decks.get(&deck2.id).unwrap().kind,
+            DeckKind::Normal(_)
+        ));
+        // Filtered deck is still filtered
+        assert!(matches!(
+            decks.get(&filtered_deck_id).unwrap().kind,
+            DeckKind::Filtered(_)
+        ));
 
         Ok(())
     }
