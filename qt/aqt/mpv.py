@@ -311,8 +311,10 @@ class MPVBase:
             # This message is a reply to a request.
             try:
                 thread_id = self._request_queue.get(timeout=1)
-            except Empty:
-                raise MPVCommunicationError("got a response without a pending request")
+            except Empty as e:
+                raise MPVCommunicationError(
+                    "got a response without a pending request"
+                ) from e
 
             self._response_queues[thread_id].put(message)
 
@@ -347,8 +349,8 @@ class MPVBase:
         # request.
         try:
             self._request_queue.put(thread_id, block=True, timeout=timeout)
-        except Full:
-            raise MPVTimeoutError("unable to put request")
+        except Full as e:
+            raise MPVTimeoutError("unable to put request") from e
 
         # Write the message data to the socket.
         if is_win:
@@ -369,8 +371,8 @@ class MPVBase:
             message = self._response_queues[self._thread_id()].get(
                 block=True, timeout=timeout
             )
-        except Empty:
-            raise MPVTimeoutError("unable to get response")
+        except Empty as e:
+            raise MPVTimeoutError("unable to get response") from e
 
         if message["error"] != "success":
             raise MPVCommandError(message["error"])
@@ -394,7 +396,7 @@ class MPVBase:
             self._send_message(message, timeout)
             return self._get_response(timeout)
         except MPVCommandError as e:
-            raise MPVCommandError(f"{message['command']!r}: {e}")
+            raise MPVCommandError(f"{message['command']!r}: {e}") from e
         except Exception:
             if _retry:
                 print("mpv timed out, restarting")
@@ -548,8 +550,8 @@ class MPV(MPVBase):
         """Register a function `callback` for the event `name`."""
         try:
             self.command("enable_event", name)
-        except MPVCommandError:
-            raise MPVError(f"no such event {name!r}")
+        except MPVCommandError as e:
+            raise MPVError(f"no such event {name!r}") from e
 
         self._callbacks.setdefault(name, []).append(callback)
 
@@ -559,13 +561,15 @@ class MPV(MPVBase):
         """
         try:
             callbacks = self._callbacks[name]
-        except KeyError:
-            raise MPVError(f"no callbacks registered for event {name!r}")
+        except KeyError as e:
+            raise MPVError(f"no callbacks registered for event {name!r}") from e
 
         try:
             callbacks.remove(callback)
-        except ValueError:
-            raise MPVError(f"callback {callback!r} not registered for event {name!r}")
+        except ValueError as e:
+            raise MPVError(
+                f"callback {callback!r} not registered for event {name!r}"
+            ) from e
 
     def register_property_callback(self, name, callback):
         """Register a function `callback` for the property-change event on
@@ -595,15 +599,15 @@ class MPV(MPVBase):
         """
         try:
             callbacks = self._callbacks[f"property-{name}"]
-        except KeyError:
-            raise MPVError(f"no callbacks registered for property {name!r}")
+        except KeyError as e:
+            raise MPVError(f"no callbacks registered for property {name!r}") from e
 
         try:
             callbacks.remove(callback)
-        except ValueError:
+        except ValueError as e:
             raise MPVError(
                 f"callback {callback!r} not registered for property {name!r}"
-            )
+            ) from e
 
         serial = self._property_serials.pop((name, callback))
         self.command("unobserve_property", serial)
