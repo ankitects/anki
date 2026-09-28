@@ -81,13 +81,14 @@ impl Collection {
     fn parse_meta_lines(&mut self, reader: impl Read, metadata: &mut CsvMetadata) -> Result<usize> {
         let mut meta_len = 0;
         let mut reader = BufReader::new(reader);
+        let mut spreadsheet_suffix = None;
         let mut line = String::new();
         let mut line_len = reader.read_line(&mut line)?;
-        if self.parse_first_line(&line, metadata) {
+        if self.parse_first_line(&line, metadata, &mut spreadsheet_suffix) {
             meta_len += line_len;
             line.clear();
             line_len = reader.read_line(&mut line)?;
-            while self.parse_line(&line, metadata) {
+            while self.parse_line(&line, metadata, &mut spreadsheet_suffix) {
                 meta_len += line_len;
                 line.clear();
                 line_len = reader.read_line(&mut line)?;
@@ -98,21 +99,31 @@ impl Collection {
 
     /// True if the line is a meta line, i.e. a comment, or starting with
     /// 'tags:'.
-    fn parse_first_line(&mut self, line: &str, metadata: &mut CsvMetadata) -> bool {
+    fn parse_first_line(
+        &mut self,
+        line: &str,
+        metadata: &mut CsvMetadata,
+        spreadsheet_suffix: &mut Option<String>,
+    ) -> bool {
         let line = strip_utf8_bom(line);
         if let Some(tags) = line.strip_prefix("tags:") {
             metadata.global_tags = collect_tags(tags);
             true
         } else {
-            self.parse_line(line, metadata)
+            self.parse_line(line, metadata, spreadsheet_suffix)
         }
     }
 
     /// True if the line is a comment.
-    fn parse_line(&mut self, line: &str, metadata: &mut CsvMetadata) -> bool {
+    fn parse_line(
+        &mut self,
+        line: &str,
+        metadata: &mut CsvMetadata,
+        spreadsheet_suffix: &mut Option<String>,
+    ) -> bool {
         if let Some(l) = line.strip_prefix('#') {
             if let Some((key, value)) = l.split_once(':') {
-                self.parse_meta_value(key, strip_line_ending(value), metadata);
+                self.parse_meta_value(key, strip_line_ending(value), metadata, spreadsheet_suffix);
             }
             true
         } else {
@@ -120,26 +131,38 @@ impl Collection {
         }
     }
 
-    fn parse_meta_value(&mut self, key: &str, value: &str, metadata: &mut CsvMetadata) {
+    fn parse_meta_value(
+        &mut self,
+        key: &str,
+        value: &str,
+        metadata: &mut CsvMetadata,
+        spreadsheet_suffix: &mut Option<String>,
+    ) {
+        let key = key.trim().to_ascii_lowercase();
+        let value = if key == "separator" {
+            value
+        } else {
+            spreadsheet_suffix
+                .as_deref()
+                .and_then(|suffix| value.strip_suffix(suffix))
+                .unwrap_or(value)
+        };
         // trim potential delimiters past the first char* if
         // metadata line was mistakenly exported as a record
         // *to allow cases like #separator:,
         // ASSUMPTION: delimiters are not ascii-alphanumeric
-        let trimmed_value = value
-            .char_indices()
-            .nth(1)
-            .and_then(|(i, _)| {
-                value[i..] // SAFETY: char_indices are on char boundaries
-                    .find(|c| !char::is_ascii_alphanumeric(&c))
-                    .map(|j| value.split_at(i + j).0)
-            })
-            .unwrap_or(value);
+        let (trimmed_value, potential_suffix) = split_spreadsheet_suffix(value);
 
-        match key.trim().to_ascii_lowercase().as_str() {
+        match key.as_str() {
             "separator" => {
                 if let Some(delimiter) = delimiter_from_value(trimmed_value) {
                     metadata.delimiter = delimiter as i32;
                     metadata.force_delimiter = true;
+                    *spreadsheet_suffix = (!potential_suffix.is_empty()
+                        && potential_suffix
+                            .bytes()
+                            .all(|byte| byte == delimiter.byte()))
+                    .then(|| potential_suffix.to_string());
                 }
             }
             "html" => {
@@ -255,6 +278,18 @@ impl Collection {
         }
         Ok(())
     }
+}
+
+fn split_spreadsheet_suffix(value: &str) -> (&str, &str) {
+    value
+        .char_indices()
+        .nth(1)
+        .and_then(|(i, _)| {
+            value[i..] // SAFETY: char_indices are on char boundaries
+                .find(|c| !char::is_ascii_alphanumeric(&c))
+                .map(|j| value.split_at(i + j))
+        })
+        .unwrap_or((value, ""))
 }
 
 pub(super) trait CsvMetadataHelpers {
@@ -945,5 +980,88 @@ pub(in crate::import_export) mod test {
             metadata!(col, "#separator:\t|,:\n").delimiter(),
             Delimiter::Tab
         );
+    }
+
+    #[test]
+    fn should_strip_spreadsheet_suffix_from_metadata_values() {
+        let mut col = Collection::new();
+        let cloze_id = col.cloze_notetype().id.0;
+        let metadata = metadata!(
+            col,
+            r#"#separator:Comma,,,
+#html:true,,,
+#tags:foo bar,,,
+#columns:Text,Extra,,,
+#notetype:Cloze,,,
+#deck:Default,,,
+#match scope:notetype + deck,,,
+#if matches:keep both,,,
+front,back
+"#
+        );
+
+        assert_eq!(metadata.delimiter(), Delimiter::Comma);
+        assert!(metadata.is_html);
+        assert_eq!(metadata.global_tags, ["foo", "bar"]);
+        assert_eq!(metadata.column_labels, ["Text", "Extra"]);
+        assert_eq!(metadata.unwrap_notetype_id(), cloze_id);
+        assert_eq!(metadata.unwrap_deck_id(), 1);
+        assert_eq!(metadata.match_scope(), MatchScope::NotetypeAndDeck);
+        assert_eq!(metadata.dupe_resolution(), DupeResolution::Duplicate);
+    }
+
+    #[test]
+    fn should_update_spreadsheet_suffix_with_each_valid_separator() {
+        let mut col = Collection::new();
+        let cloze_id = col.cloze_notetype().id.0;
+
+        let replaced = metadata!(
+            col,
+            "#separator:Comma,,,\n#separator:Pipe||\n#notetype:Cloze||\n"
+        );
+        assert_eq!(replaced.delimiter(), Delimiter::Pipe);
+        assert_eq!(replaced.unwrap_notetype_id(), cloze_id);
+
+        let literal = metadata!(col, "#separator:,,,,\n#notetype:Cloze,,,\n");
+        assert_eq!(literal.delimiter(), Delimiter::Comma);
+        assert_eq!(literal.unwrap_notetype_id(), cloze_id);
+
+        let cleared = metadata!(
+            col,
+            "#separator:Comma,,,\n#separator:Comma\n#notetype:Cloze,,,\n"
+        );
+        assert_eq!(cleared.unwrap_notetype_id(), col.basic_notetype().id.0);
+
+        let preserved = metadata!(
+            col,
+            "#separator:Comma,,,\n#separator:invalid\n#notetype:Cloze,,,\n"
+        );
+        assert_eq!(preserved.unwrap_notetype_id(), cloze_id);
+    }
+
+    #[test]
+    fn should_only_strip_an_exact_suffix_after_its_separator() {
+        let mut col = Collection::new();
+        let basic_id = col.basic_notetype().id.0;
+
+        let before_separator =
+            metadata!(col, "#notetype:Cloze,,,\n#separator:Comma,,,\nfront,back\n");
+        assert_eq!(before_separator.unwrap_notetype_id(), basic_id);
+
+        let mismatched_suffix =
+            metadata!(col, "#separator:Comma,,,\n#notetype:Cloze,,\nfront,back\n");
+        assert_eq!(mismatched_suffix.unwrap_notetype_id(), basic_id);
+
+        let no_suffix_marker = metadata!(col, "#separator:Comma\n#notetype:Cloze,,,\nfront,back\n");
+        assert_eq!(no_suffix_marker.unwrap_notetype_id(), basic_id);
+    }
+
+    #[test]
+    fn should_not_treat_quoted_csv_records_as_metadata() {
+        let mut col = Collection::new();
+        let metadata = metadata!(col, "\"#notetype:Cloze\",,,\nfront,back\n");
+
+        assert_eq!(metadata.unwrap_notetype_id(), col.basic_notetype().id.0);
+        assert_eq!(metadata.preview[0].vals[0], "#notetype:Cloze,,,");
     }
 }
