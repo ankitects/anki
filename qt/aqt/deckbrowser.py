@@ -10,6 +10,7 @@ from typing import Any
 
 import aqt
 import aqt.operations
+from anki._legacy import DeprecatedNamesMixin
 from anki.collection import Collection, OpChanges
 from anki.decks import DeckCollapseScope, DeckId, DeckTreeNode
 from aqt import AnkiQt, gui_hooks
@@ -63,7 +64,7 @@ class RenderDeckNodeContext:
     current_deck_id: DeckId
 
 
-class DeckBrowser:
+class DeckBrowser(DeprecatedNamesMixin):
     _render_data: RenderData
 
     def __init__(self, mw: AnkiQt) -> None:
@@ -81,7 +82,7 @@ class DeckBrowser:
         self.refresh()
 
     def refresh(self) -> None:
-        self._renderPage()
+        self._render_page()
         self._refresh_needed = False
 
     def refresh_if_needed(self) -> None:
@@ -111,9 +112,9 @@ class DeckBrowser:
         if cmd == "open":
             self.set_current_deck(DeckId(int(arg)))
         elif cmd == "opts":
-            self._showOptions(arg)
+            self._show_options(arg)
         elif cmd == "shared":
-            self._onShared()
+            self._on_shared()
         elif cmd == "import":
             self.mw.onImport()
         elif cmd == "create":
@@ -155,7 +156,7 @@ class DeckBrowser:
 </center>
 """
 
-    def _renderPage(self, reuse: bool = False) -> None:
+    def _render_page(self, reuse: bool = False) -> None:
         if not reuse:
 
             def get_data(col: Collection) -> RenderData:
@@ -168,7 +169,7 @@ class DeckBrowser:
 
             def success(output: RenderData) -> None:
                 self._render_data = output
-                self.__renderPage(None)
+                self.__render_page(None)
 
             QueryOp(
                 parent=self.mw,
@@ -176,13 +177,13 @@ class DeckBrowser:
                 success=success,
             ).run_in_background()
         else:
-            self.web.evalWithCallback("window.pageYOffset", self.__renderPage)
+            self.web.evalWithCallback("window.pageYOffset", self.__render_page)
 
-    def __renderPage(self, offset: int | None) -> None:
+    def __render_page(self, offset: int | None) -> None:
         data = self._render_data
         content = DeckBrowserContent(
-            tree=self._renderDeckTree(data.tree),
-            stats=self._renderStats(),
+            tree=self._render_deck_tree(data.tree),
+            stats=self._render_stats(),
         )
         gui_hooks.deck_browser_will_render_content(self, content)
         self.web.stdHtml(
@@ -196,20 +197,20 @@ class DeckBrowser:
             ],
             context=self,
         )
-        self._drawButtons()
+        self._draw_buttons()
         if offset is not None:
-            self._scrollToOffset(offset)
+            self._scroll_to_offset(offset)
         gui_hooks.deck_browser_did_render(self)
 
-    def _scrollToOffset(self, offset: int) -> None:
+    def _scroll_to_offset(self, offset: int) -> None:
         self.web.eval("window.scrollTo(0, %d, 'instant');" % offset)
 
-    def _renderStats(self) -> str:
+    def _render_stats(self) -> str:
         return '<div id="studiedToday"><span>{}</span></div>'.format(
             self._render_data.studied_today
         )
 
-    def _renderDeckTree(self, top: DeckTreeNode) -> str:
+    def _render_deck_tree(self, top: DeckTreeNode) -> str:
         buf = """
 <tr><th colspan=5 align=start>{}</th>
 <th class=count>{}</th>
@@ -306,7 +307,7 @@ class DeckBrowser:
     # Options
     ##########################################################################
 
-    def _showOptions(self, did: str) -> None:
+    def _show_options(self, did: str) -> None:
         m = QMenu(self.mw)
         a = m.addAction(tr.actions_rename())
         assert a is not None
@@ -355,7 +356,7 @@ class DeckBrowser:
                 collapsed=node.collapsed,
                 scope=DeckCollapseScope.REVIEWER,
             ).run_in_background(initiator=self)
-            self._renderPage(reuse=True)
+            self._render_page(reuse=True)
 
     def _handle_drag_and_drop(self, source: DeckId, target: DeckId) -> None:
         reparent_decks(
@@ -379,7 +380,7 @@ class DeckBrowser:
         ["Ctrl+Shift+I", "import", tr.decks_import_file()],
     ]
 
-    def _drawButtons(self) -> None:
+    def _draw_buttons(self) -> None:
         buf = ""
         drawLinks = deepcopy(self.drawLinks)
         for b in drawLinks:
@@ -393,7 +394,7 @@ class DeckBrowser:
             web_context=DeckBrowserBottomBar(self),
         )
 
-    def _onShared(self) -> None:
+    def _on_shared(self) -> None:
         openLink(f"{aqt.appShared}decks")
 
     def _on_create(self) -> None:
