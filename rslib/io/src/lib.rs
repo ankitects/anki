@@ -3,6 +3,7 @@
 
 mod error;
 
+use std::ffi::OsStr;
 use std::fs::File;
 use std::fs::FileTimes;
 use std::fs::OpenOptions;
@@ -350,8 +351,12 @@ pub fn write_file_if_changed(path: impl AsRef<Path>, contents: impl AsRef<[u8]>)
     };
 
     match std::env::var("CARGO_PKG_NAME") {
-        Ok(pkg) if pkg == "anki_proto" || pkg == "anki_i18n" => {
-            // at comptime for the proto/i18n crates, register implicit output as input
+        // at comptime for the proto/i18n crates, register implicit output as input
+        // (except files in OUT_DIR; see is_in_out_dir())
+        Ok(pkg)
+            if (pkg == "anki_proto" || pkg == "anki_i18n")
+                && !is_in_out_dir(path, std::env::var_os("OUT_DIR").as_deref()) =>
+        {
             println!("cargo:rerun-if-changed={}", path.to_str().unwrap());
         }
         _ => {}
@@ -363,6 +368,18 @@ pub fn write_file_if_changed(path: impl AsRef<Path>, contents: impl AsRef<[u8]>)
     } else {
         Ok(false)
     }
+}
+
+/// True if `path` is in the running build script's OUT_DIR. Cargo owns that
+/// folder, and the proto build script rewrites the files in it on every run
+/// (prost writes them, then add_must_use_annotations() edits them), so they
+/// are always newer than the start of the run. Registering them as inputs
+/// would make cargo rerun the script, and rebuild anki_proto and everything
+/// that depends on it, on every build. Paths are compared by component, so
+/// the default descriptors path, OUT_DIR/../../anki_descriptors.bin, which is
+/// also in cargo's build folder, counts as well.
+fn is_in_out_dir(path: &Path, out_dir: Option<&OsStr>) -> bool {
+    out_dir.is_some_and(|out_dir| path.starts_with(out_dir))
 }
 
 pub fn is_case_sensitive(dir: &Path) -> bool {
@@ -433,6 +450,34 @@ mod test {
             assert!(!filename_is_safe("c:\\foo"));
             assert!(!filename_is_safe("\\foo"));
         }
+    }
+
+    #[test]
+    fn is_in_out_dir_accepts_paths_spelled_from_out_dir() {
+        let out_dir = Some(OsStr::new("/target/debug/build/anki_proto-1/out"));
+
+        assert!(is_in_out_dir(
+            Path::new("/target/debug/build/anki_proto-1/out/anki.cards.rs"),
+            out_dir
+        ));
+        assert!(is_in_out_dir(
+            Path::new("/target/debug/build/anki_proto-1/out/../../anki_descriptors.bin"),
+            out_dir
+        ));
+    }
+
+    #[test]
+    fn is_in_out_dir_rejects_paths_outside_out_dir() {
+        let out_dir = Some(OsStr::new("/target/debug/build/anki_proto-1/out"));
+
+        assert!(!is_in_out_dir(
+            Path::new("../../out/pylib/anki/_backend_generated.py"),
+            out_dir
+        ));
+        assert!(!is_in_out_dir(
+            Path::new("/target/debug/build/anki_proto-1/output"),
+            out_dir
+        ));
     }
 
     struct TempCurrentDirectory {
