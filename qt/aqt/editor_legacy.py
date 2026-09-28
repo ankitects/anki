@@ -1775,16 +1775,17 @@ class EditorWebView(AnkiWebView):
         qconnect(a.triggered, self.onCopy)
 
     def _add_image_menu(self, menu: QMenu) -> None:
-        a = menu.addAction(tr.editing_copy_image())
-        assert a is not None
-        qconnect(a.triggered, self.on_copy_image)
-
         context_menu_request = self.lastContextMenuRequest()
         assert context_menu_request is not None
         url = context_menu_request.mediaUrl()
         file_name = url.fileName()
         path = os.path.join(self.editor.mw.col.media.dir(), file_name)
-        self._add_image_menu_with_path(menu, path)
+        _, ext = os.path.splitext(path)
+        if ext[1:] in pics:
+            a = menu.addAction(tr.editing_copy_image())
+            assert a is not None
+            qconnect(a.triggered, self.on_copy_image)
+            self._add_image_menu_with_path(menu, path)
 
     def _add_image_menu_with_path(self, menu: QMenu, path: str) -> None:
         a = menu.addAction(tr.editing_open_image())
