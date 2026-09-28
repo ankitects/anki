@@ -671,9 +671,171 @@ impl Display for SqlSortOrder {
 
 #[cfg(test)]
 mod test {
+    use anki_io::new_tempfile;
+
     use super::*;
+    use crate::collection::CollectionBuilder;
+    use crate::error::DbError;
     use crate::scheduler::answering::test::v3_test_collection;
     use crate::storage::card::ReviewOrderSubclause;
+    use crate::tests::NoteAdder;
+
+    fn test_tr() -> I18n {
+        I18n::template_only()
+    }
+
+    /// Builds a fresh on-disk collection, stamps the given schema version into
+    /// the `col` table, closes it without downgrading, then reopens it through
+    /// the migration gate and returns the resulting error kind.
+    fn open_error_kind_for_schema_version(ver: u8) -> DbErrorKind {
+        let tempfile = new_tempfile().unwrap();
+        {
+            let col = CollectionBuilder::default()
+                .set_collection_path(tempfile.path())
+                .build()
+                .unwrap();
+            col.storage
+                .db
+                .execute("update col set ver = ?", params![ver])
+                .unwrap();
+            col.close(None).unwrap();
+        }
+        let err =
+            SqliteStorage::open_or_create(tempfile.path(), &test_tr(), false, false).unwrap_err();
+        match err {
+            AnkiError::DbError {
+                source: DbError { kind, .. },
+            } => kind,
+            other => panic!("expected DbError, got {other:?}"),
+        }
+    }
+
+    /// Reads the persisted schema version with a raw connection, so no upgrade
+    /// is triggered.
+    fn stored_schema_version(path: &Path) -> u8 {
+        Connection::open(path)
+            .unwrap()
+            .query_row("select ver from col", [], |r| r.get(0))
+            .unwrap()
+    }
+
+    #[test]
+    fn open_rejects_schema_older_than_minimum() {
+        assert_eq!(
+            open_error_kind_for_schema_version(SCHEMA_MIN_VERSION - 1),
+            DbErrorKind::FileTooOld
+        );
+    }
+
+    #[test]
+    fn open_rejects_schema_newer_than_maximum() {
+        assert_eq!(
+            open_error_kind_for_schema_version(SCHEMA_MAX_VERSION + 1),
+            DbErrorKind::FileTooNew
+        );
+    }
+
+    #[test]
+    fn open_rejects_intermediate_schema_versions_12_and_13() {
+        // versions 12 and 13 require a clean shutdown back to 11 first
+        assert_eq!(
+            open_error_kind_for_schema_version(12),
+            DbErrorKind::FileTooNew
+        );
+        assert_eq!(
+            open_error_kind_for_schema_version(13),
+            DbErrorKind::FileTooNew
+        );
+    }
+
+    #[test]
+    fn rejected_schema_leaves_version_and_collection_data_unchanged() {
+        for ver in [SCHEMA_MIN_VERSION - 1, 12, 13, SCHEMA_MAX_VERSION + 1] {
+            let tempfile = new_tempfile().unwrap();
+            let mut col = CollectionBuilder::default()
+                .set_collection_path(tempfile.path())
+                .build()
+                .unwrap();
+            let note = NoteAdder::basic(&mut col)
+                .fields(&["Preserved question", "Preserved answer"])
+                .add(&mut col);
+            let original_note = col.storage.get_note(note.id).unwrap().unwrap();
+            let cards = col.storage.get_all_cards();
+            col.storage
+                .db
+                .execute("update col set ver = ?", params![ver])
+                .unwrap();
+            let collection_change = TimestampMillis(1_600_000_000_000);
+            col.storage.set_modified_time(collection_change).unwrap();
+            col.close(None).unwrap();
+
+            SqliteStorage::open_or_create(tempfile.path(), &test_tr(), false, false).unwrap_err();
+
+            assert_eq!(stored_schema_version(tempfile.path()), ver, "schema {ver}");
+            // A rejected open must be side-effect free, so the modification time
+            // is left untouched (read before restoring the version below).
+            let mod_after: i64 = Connection::open(tempfile.path())
+                .unwrap()
+                .query_row("select mod from col", [], |r| r.get(0))
+                .unwrap();
+            assert_eq!(mod_after, collection_change.0, "schema {ver}");
+            // Only the version marker was changed in setup; restore it to verify
+            // that rejection left the collection readable and its data intact.
+            Connection::open(tempfile.path())
+                .unwrap()
+                .execute("update col set ver = ?", params![SCHEMA_MAX_VERSION])
+                .unwrap();
+            let col = CollectionBuilder::default()
+                .set_collection_path(tempfile.path())
+                .build()
+                .unwrap();
+            assert_eq!(
+                col.storage.get_note(note.id).unwrap(),
+                Some(original_note),
+                "schema {ver}"
+            );
+            assert_eq!(col.storage.get_all_cards(), cards, "schema {ver}");
+        }
+    }
+
+    #[test]
+    fn fresh_collection_is_created_at_latest_schema_version() {
+        let tempfile = new_tempfile().unwrap();
+        let col = CollectionBuilder::default()
+            .set_collection_path(tempfile.path())
+            .build()
+            .unwrap();
+
+        let ver: u8 = col.storage.db_scalar("select ver from col").unwrap();
+
+        assert_eq!(ver, SCHEMA_MAX_VERSION);
+    }
+
+    #[test]
+    fn close_downgrades_stored_schema_version_to_v11() {
+        let tempfile = new_tempfile().unwrap();
+        let col = CollectionBuilder::default()
+            .set_collection_path(tempfile.path())
+            .build()
+            .unwrap();
+
+        col.close(Some(SchemaVersion::V11)).unwrap();
+
+        assert_eq!(stored_schema_version(tempfile.path()), SCHEMA_MIN_VERSION);
+    }
+
+    #[test]
+    fn close_at_latest_version_leaves_schema_unchanged() {
+        let tempfile = new_tempfile().unwrap();
+        let col = CollectionBuilder::default()
+            .set_collection_path(tempfile.path())
+            .build()
+            .unwrap();
+
+        col.close(Some(SchemaVersion::V18)).unwrap();
+
+        assert_eq!(stored_schema_version(tempfile.path()), SCHEMA_MAX_VERSION);
+    }
 
     #[test]
     fn missing_memory_state_falls_back_to_sm2() -> Result<()> {
