@@ -16,6 +16,7 @@ use crate::media::files::sha1_of_data;
 use crate::prelude::*;
 use crate::sync::media::MAX_INDIVIDUAL_MEDIA_FILE_SIZE;
 use crate::sync::media::MAX_MEDIA_FILENAME_LENGTH_SERVER;
+use crate::sync::media::MAX_MEDIA_FILES_IN_ZIP;
 
 pub struct ZipFileMetadata {
     pub filename: String,
@@ -99,7 +100,7 @@ pub fn unzip_and_validate_files(zip_data: &[u8]) -> Result<Vec<UploadedChange>> 
     // meta map first, limited to a reasonable size
     let meta_file = zip.by_name("_meta")?;
     let entries: Vec<UploadEntry> = serde_json::from_reader(meta_file.take(50 * 1024))?;
-    if entries.len() > 25 {
+    if entries.len() > MAX_MEDIA_FILES_IN_ZIP {
         invalid_input!("too many files in zip");
     }
 
@@ -154,4 +155,37 @@ pub fn unzip_and_validate_files(zip_data: &[u8]) -> Result<Vec<UploadedChange>> 
 struct UploadEntry {
     actual_filename: String,
     filename_in_zip: Option<String>,
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::error::AnkiError;
+
+    fn upload_entries(count: usize) -> Vec<(String, Option<Vec<u8>>)> {
+        (0..count)
+            .map(|idx| (format!("file-{idx}.txt"), Some(vec![idx as u8])))
+            .collect()
+    }
+
+    #[test]
+    fn accepts_batches_up_to_configured_limit() -> Result<()> {
+        let zip = zip_files_for_upload(upload_entries(MAX_MEDIA_FILES_IN_ZIP))?;
+        let changes = unzip_and_validate_files(&zip)?;
+        assert_eq!(changes.len(), MAX_MEDIA_FILES_IN_ZIP);
+        Ok(())
+    }
+
+    #[test]
+    fn rejects_batches_over_configured_limit() -> Result<()> {
+        let zip = zip_files_for_upload(upload_entries(MAX_MEDIA_FILES_IN_ZIP + 1))?;
+        let err = unzip_and_validate_files(&zip)
+            .err()
+            .expect("zip with too many entries should be rejected");
+        assert!(matches!(
+            err,
+            AnkiError::InvalidInput { source } if source.message == "too many files in zip"
+        ));
+        Ok(())
+    }
 }
