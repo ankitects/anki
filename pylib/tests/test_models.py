@@ -90,6 +90,21 @@ def test_fields():
     assert col.get_note(col.models.nids(m)[0]).fields == ["", "2", "1"]
 
 
+def test_rename_field_case_only_rename_updates_templates():
+    col = getEmptyCol()
+    note = col.newNote()
+    note["Front"] = "1"
+    note["Back"] = "2"
+    col.addNote(note)
+    m = col.models.current()
+
+    col.models.renameField(m, m["flds"][0], "front")
+
+    assert m["flds"][0]["name"] == "front"
+    assert "{{front}}" in m["tmpls"][0]["qfmt"]
+    assert col.get_note(col.models.nids(m)[0])["front"] == "1"
+
+
 def test_templates():
     col = getEmptyCol()
     m = col.models.current()
