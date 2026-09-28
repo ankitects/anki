@@ -22,11 +22,64 @@
       "source": "/faqs/when-problems-occur",
       "destination": "/manual/troubleshooting"
     },
-    {
-      "source": "/ar/:slug*",
-      "destination": "/:slug*",
-      "permanent": false
-    }
+    { "source": "/addons.html", "destination": "/manual/addons" },
+    { "source": "/background.html", "destination": "/manual/background" },
+    { "source": "/backups.html", "destination": "/manual/backups" },
+    { "source": "/browsing.html", "destination": "/manual/browsing" },
+    { "source": "/contrib.html", "destination": "/manual/contrib" },
+    { "source": "/deck-options.html", "destination": "/manual/deck-options" },
+    { "source": "/editing.html", "destination": "/manual/editing" },
+    { "source": "/exporting.html", "destination": "/manual/exporting" },
+    { "source": "/faqs.html", "destination": "/manual/faqs" },
+    { "source": "/files.html", "destination": "/manual/files" },
+    { "source": "/filtered-decks.html", "destination": "/manual/filtered-decks" },
+    { "source": "/getting-help.html", "destination": "/manual/getting-help" },
+    { "source": "/getting-started.html", "destination": "/manual/getting-started" },
+    { "source": "/importing/intro.html", "destination": "/manual/importing/intro" },
+    { "source": "/importing/packaged-decks.html", "destination": "/manual/importing/packaged-decks" },
+    { "source": "/importing/text-files.html", "destination": "/manual/importing/text-files" },
+    { "source": "/index.html", "destination": "/manual/intro" },
+    { "source": "/intro.html", "destination": "/manual/intro" },
+    { "source": "/leeches.html", "destination": "/manual/leeches" },
+    { "source": "/math.html", "destination": "/manual/math" },
+    { "source": "/media.html", "destination": "/manual/media" },
+    { "source": "/misc.html", "destination": "/manual/misc" },
+    { "source": "/platform/intro.html", "destination": "/manual/platform/intro" },
+    { "source": "/platform/linux/blank-window.html", "destination": "/manual/platform/linux/blank-window" },
+    { "source": "/platform/linux/display-issues.html", "destination": "/manual/platform/linux/display-issues" },
+    { "source": "/platform/linux/distro-packages.html", "destination": "/manual/platform/linux/distro-packages" },
+    { "source": "/platform/linux/gtk-theme.html", "destination": "/manual/platform/linux/gtk-theme" },
+    { "source": "/platform/linux/input-methods.html", "destination": "/manual/platform/linux/input-methods" },
+    { "source": "/platform/linux/installing.html", "destination": "/manual/platform/linux/installing" },
+    { "source": "/platform/linux/intro.html", "destination": "/manual/platform/linux/intro" },
+    { "source": "/platform/linux/missing-libraries.html", "destination": "/manual/platform/linux/missing-libraries" },
+    { "source": "/platform/linux/wayland.html", "destination": "/manual/platform/linux/wayland" },
+    { "source": "/platform/mac/display-issues.html", "destination": "/manual/platform/mac/display-issues" },
+    { "source": "/platform/mac/installing.html", "destination": "/manual/platform/mac/installing" },
+    { "source": "/platform/mac/intro.html", "destination": "/manual/platform/mac/intro" },
+    { "source": "/platform/windows/copy-and-paste.html", "destination": "/manual/platform/windows/copy-and-paste" },
+    { "source": "/platform/windows/display-issues.html", "destination": "/manual/platform/windows/display-issues" },
+    { "source": "/platform/windows/installing.html", "destination": "/manual/platform/windows/installing" },
+    { "source": "/platform/windows/installation-issues.html", "destination": "/manual/platform/windows/installation-issues" },
+    { "source": "/platform/windows/intro.html", "destination": "/manual/platform/windows/intro" },
+    { "source": "/platform/windows/permission-problems.html", "destination": "/manual/platform/windows/permission-problems" },
+    { "source": "/platform/windows/startup-issues.html", "destination": "/manual/platform/windows/startup-issues" },
+    { "source": "/platform/windows/text-size.html", "destination": "/manual/platform/windows/text-size" },
+    { "source": "/preferences.html", "destination": "/manual/preferences" },
+    { "source": "/print.html", "destination": "/manual/editing" },
+    { "source": "/profiles.html", "destination": "/manual/profiles" },
+    { "source": "/resources.html", "destination": "/manual/resources" },
+    { "source": "/searching.html", "destination": "/manual/searching" },
+    { "source": "/stats.html", "destination": "/manual/stats" },
+    { "source": "/studying.html", "destination": "/manual/studying" },
+    { "source": "/sync-server.html", "destination": "/manual/sync-server" },
+    { "source": "/syncing.html", "destination": "/manual/syncing" },
+    { "source": "/templates/errors.html", "destination": "/manual/templates/errors" },
+    { "source": "/templates/fields.html", "destination": "/manual/templates/fields" },
+    { "source": "/templates/generation.html", "destination": "/manual/templates/generation" },
+    { "source": "/templates/intro.html", "destination": "/manual/templates/intro" },
+    { "source": "/templates/styling.html", "destination": "/manual/templates/styling" },
+    { "source": "/troubleshooting.html", "destination": "/manual/troubleshooting" }
   ],
   "theme": "mint",
   "colors": {
@@ -86,13 +139,14 @@
                       },
                       {
                         "group": "Linux",
-                        "icon": "bird",
+                        "icon": "linux",
                         "pages": [
                           "manual/platform/linux/intro",
                           "manual/platform/linux/installing",
                           "manual/platform/linux/missing-libraries",
                           "manual/platform/linux/display-issues",
                           "manual/platform/linux/blank-window",
+                          "manual/platform/linux/distro-packages",
                           "manual/platform/linux/gtk-theme",
                           "manual/platform/linux/wayland",
                           "manual/platform/linux/input-methods"
@@ -100,7 +154,6 @@
                       }
                     ]
                   },
-                  "manual/platform/linux/distro-packages",
                   "manual/getting-help",
                   "manual/studying",
                   "manual/editing",
@@ -185,6 +238,7 @@
                 "group": "Support FAQs",
                 "pages": [
                   "faqs/intro",
+                  "faqs/restoring-an-automatic-backup-recovering-from-data-loss",
                   {
                     "group": "Cards and Notes",
                     "icon": "cards-blank",
@@ -361,7 +415,8 @@
                   "developers/syncserver",
                   "developers/unit-testing",
                   "developers/testing-coverage",
-                  "developers/e2e-testing"
+                  "developers/e2e-testing",
+                  "developers/sonarcloud"
                 ]
               }
             ]
@@ -635,12 +690,13 @@
                       },
                       {
                         "group": "Linux",
-                        "icon": "bird",
+                        "icon": "linux",
                         "pages": [
                           "ar/manual/platform/linux/installing",
                           "ar/manual/platform/linux/missing-libraries",
                           "ar/manual/platform/linux/display-issues",
                           "ar/manual/platform/linux/blank-window",
+                          "ar/manual/platform/linux/distro-packages",
                           "ar/manual/platform/linux/gtk-theme",
                           "ar/manual/platform/linux/wayland",
                           "ar/manual/platform/linux/input-methods"
@@ -648,7 +704,6 @@
                       }
                     ]
                   },
-                  "ar/manual/platform/linux/distro-packages",
                   "ar/manual/studying",
                   "ar/manual/editing",
                   {
