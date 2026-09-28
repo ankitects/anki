@@ -13,6 +13,7 @@ contributing
 dependabot
 unit-testing
 testing-coverage
+sonarcloud
 architecture
 protobuf
 ```

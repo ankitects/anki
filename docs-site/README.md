@@ -8,5 +8,5 @@ Unless stated otherwise, any documentation changes you submit will be licensed u
 
 ## Translations
 
-To help translate the website to your language, make changes to the relevant .mdx pages under the language's subdirectory (e.g. `docs-site/ru/`) and submit a PR.
-If your language doesn't have a subdirectory yet, create one with the same structure (e.g. `ru/manual`) and modify [docs-site/docs.json](./docs.json) to list translated pages. See https://www.mintlify.com/docs/guides/internationalization#configure-the-language-switcher
+To help translate the website to your language, please see
+[Translating the Documentation](./translators/anki/manual.mdx).
