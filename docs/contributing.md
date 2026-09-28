@@ -137,6 +137,9 @@ new hook.
 For information on adding new translatable strings to Anki, please see
 [the translation guide](https://anki.mintlify.app/translators/anki/developers).
 
+For information on translating the documentation, please see
+[translating the manual](https://anki.mintlify.app/translators/anki/manual).
+
 ## Tests Must Pass
 
 Please make sure 'ninja check' completes successfully before submitting code.

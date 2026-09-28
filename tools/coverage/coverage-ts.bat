@@ -6,8 +6,8 @@ set "YARN=out\extracted\node\yarn.cmd"
 
 if not exist %outdir% mkdir %outdir%
 
-set "COVERAGE_ARGS=--coverage.enabled true --coverage.provider=v8 --coverage.reporter=text-summary --coverage.reporter=lcov --coverage.reporter=json-summary"
-if "%1"=="--html" set "COVERAGE_ARGS=%COVERAGE_ARGS% --coverage.reporter=html"
+set "COVERAGE_ARGS=--coverage.enabled true --coverage.provider=v8"
+if "%1"=="--html" set "ANKI_COVERAGE_HTML=1"
 
 %YARN% vitest:once %COVERAGE_ARGS% --coverage.reportsDirectory=..\%outdir% --coverage.thresholds.lines=5 || exit /b 1
 
