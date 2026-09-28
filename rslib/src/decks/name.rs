@@ -64,10 +64,17 @@ impl NativeDeckName {
     /// list. The returned name should be used to replace `self`.
     pub(crate) fn reparented_name(&self, target: Option<&NativeDeckName>) -> Option<Self> {
         let dragged_base = self.0.rsplit('\x1f').next().unwrap();
-        let dragged_root = self.components().next().unwrap();
         if let Some(target) = target {
-            let target_root = target.components().next().unwrap();
-            if target.0.starts_with(&self.0) && target_root == dragged_root {
+            // A deck can't be dropped onto itself or onto one of its own
+            // descendants. Compare on component boundaries, so a sibling whose
+            // name merely shares a string prefix (e.g. `foo::bar` and
+            // `foo::barbaz`) is not mistaken for a descendant.
+            let onto_self_or_descendant = target.0 == self.0
+                || target
+                    .0
+                    .strip_prefix(self.0.as_str())
+                    .is_some_and(|rest| rest.starts_with('\x1f'));
+            if onto_self_or_descendant {
                 // foo onto foo::bar, or foo onto itself -> no-op
                 None
             } else {
@@ -292,5 +299,11 @@ mod test {
         assert_eq!(reparented_name("foo:bar", Some("foo:bar")), None);
         // names that are prefixes of the target are handled correctly
         assert_eq!(reparented_name("a", Some("ab")), n_opt("ab:a"));
+        // a sibling whose name has the dragged deck's name as a string prefix
+        // is not a descendant, so the drop must still reparent (not no-op)
+        assert_eq!(
+            reparented_name("foo:bar", Some("foo:barbaz")),
+            n_opt("foo:barbaz:bar")
+        );
     }
 }
