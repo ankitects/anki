@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import os
 from pathlib import Path
+from typing import Any
 from unittest.mock import patch
 
 import pytest
@@ -23,7 +24,7 @@ def test_ui_scale_is_applied_before_app_is_created(
     seen: list[str | None] = []
 
     class FakeApp:
-        def __init__(self, argv: list[str]) -> None:
+        def __init__(self, *args: Any, **kwargs: Any) -> None:
             seen.append(os.environ.get("QT_SCALE_FACTOR"))
 
         def secondInstance(self) -> bool:

@@ -338,12 +338,12 @@ class AnkiApp(QApplication):
     )
     TMOUT = 30000
 
-    def __init__(self, argv: list[str]) -> None:
+    def __init__(self, argv: list[str], force_safemode: bool = False) -> None:
         QApplication.__init__(self, argv)
         self.installEventFilter(self)
         self._argv = argv
         self._native_event_filter = NativeEventFilter()
-        self.safeMode = (
+        self.safeMode = force_safemode or (
             bool(self.queryKeyboardModifiers() & Qt.KeyboardModifier.ShiftModifier)
             or "--safemode" in argv
         )
@@ -750,12 +750,10 @@ def _run(argv: list[str] | None = None, exec: bool = True) -> AnkiApp | None:
     # create the app
     QCoreApplication.setApplicationName("Anki")
     QGuiApplication.setDesktopFileName("anki")
-    app = AnkiApp(argv)
+    app = AnkiApp(argv, safe_mode)
     if app.secondInstance():
         # we've signaled the primary instance, so we should close
         return None
-
-    app.safeMode = app.safeMode or safe_mode
 
     if pm:
         if app.safeMode and driver != VideoDriver.Software:

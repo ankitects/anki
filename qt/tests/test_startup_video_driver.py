@@ -37,7 +37,7 @@ def test_run_applies_video_driver_before_app_is_created(
         events.append(("setupGL", driver))
 
     class FakeApp:
-        def __init__(self, argv: list[str]) -> None:
+        def __init__(self, *args: Any, **kwargs: Any) -> None:
             events.append(("app created", None))
 
         def secondInstance(self) -> bool:
