@@ -69,44 +69,66 @@ test("attach button uses openFilePicker+addMediaFromPath RPCs, not the Qt bridge
     expect(calls).not.toContain("attach");
 });
 
-test("record button uses recordAudio+addMediaFromPath RPCs and plays the file", async ({ editor: page }) => {
-    const wavName = `e2e-record-${Date.now()}.wav`;
-    const wavPath = path.join(tmpDir, wavName);
-    fs.writeFileSync(wavPath, Buffer.from(""));
+for (const source of ["attachment", "recording"] as const) {
+    test(`audio ${source} inserts the file and starts playback exactly once`, async ({ editor: page }) => {
+        const wavName = `e2e-${source}.wav`;
+        const wavPath = path.join(tmpDir, wavName);
+        fs.writeFileSync(wavPath, Buffer.from(""));
+        const dialogRpc = source === "attachment" ? "openFilePicker" : "recordAudio";
 
-    await page.route("**/_anki/recordAudio", (route) =>
-        route.fulfill({
-            contentType: "application/binary",
-            body: protoStringBody(wavPath),
-        }));
-    await page.route("**/_anki/playFile", (route) =>
-        route.fulfill({
-            contentType: "application/binary",
-            body: Buffer.from(""),
-        }));
+        await page.route(`**/_anki/${dialogRpc}`, (route) =>
+            route.fulfill({
+                contentType: "application/binary",
+                body: protoStringBody(wavPath),
+            }));
+        await page.route("**/_anki/playFile", (route) =>
+            route.fulfill({
+                contentType: "application/binary",
+                body: Buffer.from(""),
+            }));
 
-    const field = editableField(page, 0);
-    await field.click();
+        // Count in the browser so both requests from the same handler are visible
+        // without waiting for a duplicate request to arrive over the network.
+        await page.evaluate(() => {
+            const w = window as typeof window & { __mediaPlaybackCount: number };
+            w.__mediaPlaybackCount = 0;
+            const originalFetch = window.fetch.bind(window);
+            window.fetch = (...args: Parameters<typeof fetch>) => {
+                if (typeof args[0] === "string" && args[0].endsWith("/playFile")) {
+                    w.__mediaPlaybackCount++;
+                }
+                return originalFetch(...args);
+            };
+        });
 
-    const recordReqPromise = page.waitForRequest(isRpc("recordAudio"), { timeout: 10_000 });
-    const addMediaRespPromise = page.waitForResponse(
-        (resp) => isRpc("addMediaFromPath")(resp.request()) && resp.status() < 400,
-        { timeout: 10_000 },
-    );
-    const playFileReqPromise = page.waitForRequest(isRpc("playFile"), { timeout: 10_000 });
+        const field = editableField(page, 0);
+        await field.click();
 
-    await recordButton(page).click();
+        const dialogReqPromise = page.waitForRequest(isRpc(dialogRpc), { timeout: 10_000 });
+        const addMediaRespPromise = page.waitForResponse(
+            (resp) => isRpc("addMediaFromPath")(resp.request()) && resp.status() < 400,
+            { timeout: 10_000 },
+        );
+        const playFileReqPromise = page.waitForRequest(isRpc("playFile"), { timeout: 10_000 });
 
-    await recordReqPromise;
-    await addMediaRespPromise;
+        await (source === "attachment" ? attachButton(page) : recordButton(page)).click();
 
-    await expect(field).toContainText(`[sound:${wavName}]`, { timeout: 5_000 });
-    const playFileReq = await playFileReqPromise;
-    expect(decodeRequestBody(playFileReq, GenericString).val).toBe(wavName);
+        await dialogReqPromise;
+        await addMediaRespPromise;
 
-    const calls = await bridgeCalls(page);
-    expect(calls).not.toContain("record");
-});
+        await expect(field).toContainText(`[sound:${wavName}]`, { timeout: 5_000 });
+        const playFileReq = await playFileReqPromise;
+        expect(decodeRequestBody(playFileReq, GenericString).val).toBe(wavName);
+        expect(
+            await page.evaluate(() =>
+                (window as typeof window & { __mediaPlaybackCount: number }).__mediaPlaybackCount
+            ),
+        ).toBe(1);
+
+        const calls = await bridgeCalls(page);
+        expect(calls).not.toContain(source === "attachment" ? "attach" : "record");
+    });
+}
 
 /**
  * Drives the legacy branch of a media button and replicates Qt's half of the
