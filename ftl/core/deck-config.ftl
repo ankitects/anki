@@ -304,7 +304,7 @@ deck-config-interval-modifier-tooltip =
     the manual before changing this option.
 deck-config-hard-interval-tooltip = The multiplier applied to a review interval when answering `Hard`.
 deck-config-new-interval-tooltip = The multiplier applied to a review interval when answering `Again`.
-deck-config-minimum-interval-tooltip = The minimum interval given to a review card after answering `Again`.
+deck-config-minimum-interval-tooltip = The minimum interval given to a review card after answering `Again` and completing any relearning steps.
 deck-config-custom-scheduling = Custom scheduling
 deck-config-custom-scheduling-tooltip = Affects the entire collection. Use at your own risk!
 
