@@ -45,9 +45,16 @@ fn main() -> Result<()> {
     let mut args = env::args();
     let want_fix = args.nth(1) == Some("fix".to_string());
     let stamp = args.next().unwrap();
+    let cargo_license = if let Some(path) = args.next() {
+        path
+    } else {
+        // Standalone callers (including CI) do not use the build graph.
+        Command::run("cargo install cargo-license --version 0.7.0 --locked --root out")?;
+        format!("out/bin/cargo-license{}", env::consts::EXE_SUFFIX)
+    };
     let mut ctx = LintContext::new(want_fix);
     ctx.check_contributors()?;
-    ctx.check_rust_licenses()?;
+    ctx.check_rust_licenses(&cargo_license)?;
     ctx.walk_folders(Path::new("."))?;
     if ctx.found_problems {
         std::process::exit(1);
@@ -201,16 +208,16 @@ impl LintContext {
         std::process::exit(1);
     }
 
-    fn check_rust_licenses(&mut self) -> Result<()> {
+    fn check_rust_licenses(&mut self, cargo_license: &str) -> Result<()> {
         let license_path = Path::new("cargo/licenses.json");
-        let licenses = generate_licences()?;
+        let licenses = generate_licences(cargo_license)?;
         let existing_licenses = read_to_string(license_path)?;
         if licenses != existing_licenses {
             if self.want_fix {
                 check_cargo_deny()?;
                 write_file(license_path, licenses)?;
             } else {
-                println!("cargo/licenses.json is out of date; run ./ninja fix:minilints");
+                println!("cargo/licenses.json is out of date; run just fix-minilints");
                 self.found_problems = true;
             }
         }
@@ -292,10 +299,9 @@ fn check_for_unstaged_changes() {
     }
 }
 
-fn generate_licences() -> Result<String> {
-    Command::run("cargo install cargo-license@0.7.0")?;
+fn generate_licences(cargo_license: &str) -> Result<String> {
     let output = Command::run_with_output([
-        "cargo-license",
+        cargo_license,
         "--features",
         "rustls",
         "--features",
