@@ -688,6 +688,10 @@ def _run(argv: list[str] | None = None, exec: bool = True) -> AnkiApp | None:
         traceback.print_exc()
         pm = None
 
+    if pm:
+        # apply user-provided scale factor
+        os.environ["QT_SCALE_FACTOR"] = str(pm.uiScale())
+
     # Opt-in to full HiDPI support?
     if not os.environ.get("ANKI_NOHIGHDPI") and qtmajor == 5:
         QCoreApplication.setAttribute(Qt.ApplicationAttribute.AA_EnableHighDpiScaling)  # type: ignore
@@ -718,8 +722,6 @@ def _run(argv: list[str] | None = None, exec: bool = True) -> AnkiApp | None:
         driver = pm.video_driver() if not app.safeMode else VideoDriver.Software
         # gl workarounds
         setupGL(pm, driver)
-        # apply user-provided scale factor
-        os.environ["QT_SCALE_FACTOR"] = str(pm.uiScale())
     else:
         if i18n_setup:
             QMessageBox.critical(
