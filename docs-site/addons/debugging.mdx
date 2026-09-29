@@ -29,49 +29,49 @@ top area, and then press ctrl+return/command+return to evaluate them. An
 example session follows:
 
 ```text
->>> mw
-<no output>
+    >>> mw
+    <no output>
 
->>> print(mw)
-<aqt.main.AnkiQt object at 0x10c0ddc20>
+    >>> print(mw)
+    <aqt.main.AnkiQt object at 0x10c0ddc20>
 
->>> invalidName
-Traceback (most recent call last):
-  File "/Users/dae/Lib/anki/qt/aqt/main.py", line 933, in onDebugRet
-    exec text
-  File "<string>", line 1, in <module>
-NameError: name 'invalidName' is not defined
+    >>> invalidName
+    Traceback (most recent call last):
+      File "/Users/dae/Lib/anki/qt/aqt/main.py", line 933, in onDebugRet
+        exec text
+      File "<string>", line 1, in <module>
+    NameError: name 'invalidName' is not defined
 
->>> a = [a for a in dir(mw.form) if a.startswith("action")]
-... print(a)
-... print()
-... pp(a)
-['actionAbout', 'actionCheckMediaDatabase', ...]
+    >>> a = [a for a in dir(mw.form) if a.startswith("action")]
+    ... print(a)
+    ... print()
+    ... pp(a)
+    ['actionAbout', 'actionCheckMediaDatabase', ...]
 
-['actionAbout',
- 'actionCheckMediaDatabase',
- 'actionDocumentation',
- 'actionDonate',
- ...]
+    ['actionAbout',
+     'actionCheckMediaDatabase',
+     'actionDocumentation',
+     'actionDonate',
+     ...]
 
->>> pp(mw.reviewer.card)
-<anki.cards.Card object at 0x112181150>
+    >>> pp(mw.reviewer.card)
+    <anki.cards.Card object at 0x112181150>
 
->>> pp(card()) # shortcut for mw.reviewer.card.__dict__
-{'_note': <anki.notes.Note object at 0x11221da90>,
- '_qa': [...]
- 'col': <anki.collection._Collection object at 0x1122415d0>,
- 'data': u'',
- 'did': 1,
- 'due': -1,
- 'factor': 2350,
- 'flags': 0,
- 'id': 1307820012852L,
- [...]
-}
+    >>> pp(card()) # shortcut for mw.reviewer.card.__dict__
+    {'_note': <anki.notes.Note object at 0x11221da90>,
+     '_qa': [...]
+     'col': <anki.collection._Collection object at 0x1122415d0>,
+     'data': u'',
+     'did': 1,
+     'due': -1,
+     'factor': 2350,
+     'flags': 0,
+     'id': 1307820012852L,
+     [...]
+    }
 
->>> pp(bcard()) # shortcut for selected card in browser
-<as above>
+    >>> pp(bcard()) # shortcut for selected card in browser
+    <as above>
 ```
 
 Note that you need to explicitly print an expression in order to see
@@ -99,4 +99,4 @@ the debugger on an uncaught exception.
 Runtime checks using Python's `assert` statement are not evaluated in
 Anki's release builds, even when running in debug mode. If you want to
 use `assert` for testing you can use the [packaged versions from PyPI](https://betas.ankiweb.net/#via-pypipip)
-or [run Anki from source](https://github.com/ankitects/anki/blob/main/docs/development).
+or [run Anki from source](https://github.com/ankitects/anki/blob/main/docs/development.md).

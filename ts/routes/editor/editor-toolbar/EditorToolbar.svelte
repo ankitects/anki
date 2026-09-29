@@ -63,12 +63,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import RichTextClozeButtons from "./RichTextClozeButtons.svelte";
     import TemplateButtons from "./TemplateButtons.svelte";
     import type { InlineButtonsAPI } from "./InlineButtons.svelte";
-    import type { NoteEditorAPI } from "../NoteEditor.svelte";
 
-    export let isLegacy = false;
     export let size: number;
     export let wrap: boolean;
-    export let noteEditor: NoteEditorAPI;
 
     const toolbar = {} as DefaultSlotInterface;
     const notetypeButtons = {} as DefaultSlotInterface;
@@ -102,13 +99,13 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     <ButtonToolbar {size} {wrap}>
         <DynamicallySlottable slotHost={Item} api={toolbar}>
             <Item id="notetype">
-                <NotetypeButtons {isLegacy} {noteEditor} api={notetypeButtons}>
+                <NotetypeButtons api={notetypeButtons}>
                     <slot name="notetypeButtons" />
                 </NotetypeButtons>
             </Item>
 
             <Item id="settings">
-                <OptionsButtons api={optionsButtons} {isLegacy} />
+                <OptionsButtons api={optionsButtons} />
             </Item>
 
             <Item id="inlineFormatting">
@@ -120,7 +117,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             </Item>
 
             <Item id="template">
-                <TemplateButtons api={templateButtons} {isLegacy} />
+                <TemplateButtons api={templateButtons} />
             </Item>
 
             <Item id="cloze">

@@ -84,11 +84,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { fragmentToStored, storedToFragment } from "./transform";
 
     export let hidden = false;
-    export let isLegacy = false;
     export const focusFlag = new Flag();
     export let isClozeField: boolean;
 
-    const { focusedInput } = noteEditorContext.get();
+    const { focusedInput, isLegacy } = noteEditorContext.get();
     const { content, editingInputs } = editingAreaContext.get();
 
     const fontFamily = getContext<Readable<string>>(fontFamilyKey);
@@ -231,7 +230,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 <div class="rich-text-input" on:focusin={setFocus} on:focusout={removeFocus} {hidden}>
     <RichTextStyles
-        {isLegacy}
         color={$pageTheme.isDark ? "white" : "black"}
         fontFamily={$fontFamily}
         fontSize={$fontSize}

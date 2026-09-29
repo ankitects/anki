@@ -34,6 +34,16 @@ class FilteredDeckConfigDialog(QDialog):
     DIALOG_KEY = "FilteredDeckConfigDialog"
     silentlyClose = True
 
+    # Retrievability orders require FSRS memory states, and are only
+    # offered when FSRS is enabled.
+    FSRS_ONLY_ORDERS = frozenset(
+        (
+            FilteredDeckConfig.SearchTerm.Order.RETRIEVABILITY_ASCENDING,
+            FilteredDeckConfig.SearchTerm.Order.RETRIEVABILITY_DESCENDING,
+        )
+    )
+    DEFAULT_ORDER = FilteredDeckConfig.SearchTerm.Order.RANDOM
+
     def __init__(
         self,
         mw: AnkiQt,
@@ -76,8 +86,14 @@ class FilteredDeckConfigDialog(QDialog):
 
         order_labels = self.col.sched.filtered_deck_order_labels()
 
-        self.form.order.addItems(order_labels)
-        self.form.order_2.addItems(order_labels)
+        fsrs_enabled = bool(self.mw.col.get_config("fsrs"))
+        self._order_values = self._available_order_values(
+            order_count=len(order_labels), fsrs_enabled=fsrs_enabled
+        )
+        visible_labels = [order_labels[order] for order in self._order_values]
+
+        self.form.order.addItems(visible_labels)
+        self.form.order_2.addItems(visible_labels)
 
         qconnect(self.form.allow_empty.stateChanged, self._on_allow_empty_toggled)
 
@@ -112,6 +128,16 @@ class FilteredDeckConfigDialog(QDialog):
 
         restoreGeom(self, self.GEOMETRY_KEY)
 
+    @classmethod
+    def _available_order_values(
+        cls, *, order_count: int, fsrs_enabled: bool
+    ) -> list[int]:
+        return [
+            order
+            for order in range(order_count)
+            if fsrs_enabled or order not in cls.FSRS_ONLY_ORDERS
+        ]
+
     def load_deck_and_show(self, deck: FilteredDeckForUpdate) -> None:
         self.deck = deck
         self._load_deck()
@@ -140,7 +166,7 @@ class FilteredDeckConfigDialog(QDialog):
 
         term1: FilteredDeckConfig.SearchTerm = config.search_terms[0]
         form.search.setText(term1.search)
-        form.order.setCurrentIndex(term1.order)
+        form.order.setCurrentIndex(self._combo_row(term1.order))
         form.limit.setValue(term1.limit)
 
         form.preview_again.setValue(config.preview_again_secs)
@@ -150,12 +176,12 @@ class FilteredDeckConfigDialog(QDialog):
         if len(config.search_terms) > 1:
             term2: FilteredDeckConfig.SearchTerm = config.search_terms[1]
             form.search_2.setText(term2.search)
-            form.order_2.setCurrentIndex(term2.order)
+            form.order_2.setCurrentIndex(self._combo_row(term2.order))
             form.limit_2.setValue(term2.limit)
             show_second = existing
         else:
             show_second = False
-            form.order_2.setCurrentIndex(5)
+            form.order_2.setCurrentIndex(self._combo_row(self.DEFAULT_ORDER))
             form.limit_2.setValue(20)
 
         form.secondFilter.setChecked(show_second)
@@ -245,6 +271,13 @@ class FilteredDeckConfigDialog(QDialog):
     def _onReschedToggled(self, _state: int) -> None:
         self.form.previewDelayWidget.setVisible(not self.form.resched.isChecked())
 
+    def _combo_row(self, order: int) -> int:
+        """Translate a FilteredSearchOrder value into a combo box row."""
+        if order not in self._order_values:
+            # Saved selection is not available without FSRS.
+            order = self.DEFAULT_ORDER
+        return self._order_values.index(order)
+
     def _on_allow_empty_toggled(self) -> None:
         self.deck.allow_empty = self.form.allow_empty.isChecked()
 
@@ -263,7 +296,7 @@ class FilteredDeckConfigDialog(QDialog):
             FilteredDeckConfig.SearchTerm(
                 search=form.search.text(),
                 limit=form.limit.value(),
-                order=form.order.currentIndex(),  # type: ignore[arg-type]
+                order=self._order_values[form.order.currentIndex()],  # type: ignore[arg-type]
             )
         ]
 
@@ -272,7 +305,7 @@ class FilteredDeckConfigDialog(QDialog):
                 FilteredDeckConfig.SearchTerm(
                     search=form.search_2.text(),
                     limit=form.limit_2.value(),
-                    order=form.order_2.currentIndex(),  # type: ignore[arg-type]
+                    order=self._order_values[form.order_2.currentIndex()],  # type: ignore[arg-type]
                 )
             )
 

@@ -173,7 +173,7 @@ impl SqlWriter<'_> {
             SearchNode::DeckIdsWithoutChildren(dids) => {
                 write!(
                     self.sql,
-                    "c.did in ({dids}) or (c.odid != 0 and c.odid in ({dids}))"
+                    "(c.did in ({dids}) or (c.odid != 0 and c.odid in ({dids})))"
                 )
                 .unwrap();
             }
@@ -1128,6 +1128,7 @@ mod test {
     use super::*;
     use crate::collection::Collection;
     use crate::collection::CollectionBuilder;
+    use crate::config::BoolKey;
 
     // shortcut
     fn s(req: &mut Collection, search: &str) -> (String, Vec<String>) {
@@ -1452,6 +1453,35 @@ c.odue != 0 then c.odue else c.due end) != {days}) or (c.queue in (1,4) and
 
         // strip clozes
         assert_eq!(&s(ctx, "sc:abcdef").0, "((n.mid = 1581236385343) and (coalesce(process_text(cast(n.sfld as text), 2), n.sfld) like ?1 escape '\\' or coalesce(process_text(n.flds, 2), n.flds) like ?1 escape '\\'))");
+    }
+
+    #[test]
+    fn has_memory_state_returns_only_reviewed_cards() -> Result<()> {
+        let mut col = Collection::new();
+        let nt = col.get_notetype_by_name("Basic")?.unwrap();
+        col.set_config_bool(BoolKey::Fsrs, true, false)?;
+
+        let mut reviewed_note = nt.new_note();
+        col.add_note(&mut reviewed_note, DeckId(1))?;
+        let reviewed_cid = col.storage.card_ids_of_notes(&[reviewed_note.id]).unwrap()[0];
+        col.grade_now(&[reviewed_cid], 3)?;
+
+        let mut new_note = nt.new_note();
+        col.add_note(&mut new_note, DeckId(1))?;
+        let new_cid = col.storage.card_ids_of_notes(&[new_note.id]).unwrap()[0];
+
+        let cards = col.all_cards_for_search(SearchNode::HasMemoryState)?;
+        let card_ids: Vec<_> = cards.into_iter().map(|card| card.id).collect();
+        assert_eq!(card_ids, vec![reviewed_cid]);
+        assert!(!card_ids.contains(&new_cid));
+
+        let node = Node::Search(SearchNode::HasMemoryState);
+        let mut writer = SqlWriter::new(&mut col, ReturnItemType::Cards);
+        writer.write_node_to_sql(&node).unwrap();
+        assert_eq!(writer.sql, "extract_fsrs_variable(c.data, 's') is not null");
+        assert_eq!(node.required_table(), RequiredTable::Cards);
+
+        Ok(())
     }
 
     #[test]

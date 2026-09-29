@@ -39,22 +39,27 @@ class AnkiLoggerManager(logging.Manager):
         if not name.startswith(ADDON_LOGGER_PREFIX) or name in self.loggerDict:
             return super().getLogger(name)
 
-        # Create a new add-on logger
-        logger = super().getLogger(name)
+        module = name.removeprefix(ADDON_LOGGER_PREFIX).split(".", maxsplit=1)[0]
+        addon_logger_name = f"{ADDON_LOGGER_PREFIX}{module}"
 
-        module = name.split(ADDON_LOGGER_PREFIX)[1].partition(".")[0]
-        path = get_addon_logs_folder(self.logs_path, module=module) / f"{module}.log"
-        path.parent.mkdir(parents=True, exist_ok=True)
+        if addon_logger_name not in self.loggerDict:
+            # Create a new add-on logger
+            logger = super().getLogger(addon_logger_name)
 
-        # Keep the last 10 days of logs
-        handler = TimedRotatingFileHandler(
-            filename=path, when="D", interval=1, backupCount=10, encoding="utf-8"
-        )
-        handler.setFormatter(FORMATTER)
+            path = (
+                get_addon_logs_folder(self.logs_path, module=module) / f"{module}.log"
+            )
+            path.parent.mkdir(parents=True, exist_ok=True)
 
-        logger.addHandler(handler)
+            # Keep the last 10 days of logs
+            handler = TimedRotatingFileHandler(
+                filename=path, when="D", interval=1, backupCount=10, encoding="utf-8"
+            )
+            handler.setFormatter(FORMATTER)
 
-        return logger
+            logger.addHandler(handler)
+
+        return super().getLogger(name)
 
 
 def get_addon_logs_folder(logs_path: Path | str, module: str) -> Path:

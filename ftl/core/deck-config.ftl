@@ -350,7 +350,7 @@ deck-config-revert-button-tooltip = Restore this setting to its default value?
 ## These strings are shown via the Description button at the bottom of the
 ## overview screen.
 
-deck-config-description-new-handling = Anki 2.1.41+ handling
+deck-config-description-new-handling2 = Interpret as Markdown
 deck-config-description-new-handling-hint =
     Treats input as markdown, and cleans HTML input. When enabled, the
     description will also be shown on the congratulations screen.
@@ -540,6 +540,7 @@ deck-config-fsrs-good-fit = Health Check:
 
 ## NO NEED TO TRANSLATE. This text is no longer used by Anki, and will be removed in the future.
 
+deck-config-description-new-handling = Anki 2.1.41+ handling
 deck-config-fsrs-simulator-radio-ratio = Time / Memorized Ratio
 # $time here is pre-formatted e.g. "10 Seconds" 
 deck-config-fsrs-simulator-ratio-tooltip = { $time } per memorized card

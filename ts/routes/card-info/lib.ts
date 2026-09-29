@@ -78,8 +78,8 @@ export function rowsFromStats(stats: CardStatsResponse): StatsRow[] {
                 value: `${retrievability}%`,
             });
         }
-    } else if (stats.ease && stats.desiredRetention === undefined) {
-        // Prevent showing ease when FSRS is enabled but no memory state exists.
+    } else if (stats.ease && !stats.fsrsEnabled) {
+        // Don't show ease when FSRS is enabled even if memory states don't exist.
         statsRows.push({
             label: tr2.cardStatsEase(),
             value: `${stats.ease / 10}%`,

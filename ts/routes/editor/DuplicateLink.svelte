@@ -7,9 +7,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import * as tr from "@generated/ftl";
     import type { Note } from "@generated/anki/notes_pb";
     import { bridgeCommand } from "@tslib/bridgecommand";
+    import { context } from "./NoteEditor.svelte";
 
     export let note: Note | null = null;
-    export let isLegacy: boolean;
+    const { isLegacy } = context.get();
 
     function showDupes(event: MouseEvent) {
         if (isLegacy) {

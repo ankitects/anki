@@ -50,7 +50,7 @@ async function postProtoInner(
         } catch {
             // ignore
         }
-        throw new Error(`${result.status}: ${msg}`);
+        throw new Error(process.env.NODE_ENV === "production" ? `${msg}` : `${result.status}: ${msg}`);
     }
     const blob = await result.blob();
     const respBuf = await new Response(blob).arrayBuffer();

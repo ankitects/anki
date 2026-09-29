@@ -13,13 +13,14 @@ from briefcase.commands import (
     PackageCommand,
     UpdateCommand,
 )
-from briefcase.config import DraftAppConfig, FinalizedAppConfig
+from briefcase.config import DraftAppConfig, EnvManagerT, FinalizedAppConfig
 from briefcase.exceptions import BriefcaseCommandError
 from briefcase.integrations.subprocess import NativeAppContext
 from briefcase.platforms.linux import (
     LinuxMixin,
     LocalRequirementsMixin,
 )
+from tools.build_installer import get_platform_suffix
 
 
 class LinuxZipAppConfig(FinalizedAppConfig):
@@ -36,16 +37,23 @@ class LinuxZipMixin(LinuxMixin):
     supported_host_os: Collection[str] = {"Linux"}
     supported_host_os_reason = "Linux zip projects can only be built on Linux,"
     supports_external_packaging = True
+    supported_env_managers: Collection[EnvManagerT] = {"venv", "uv"}
+
+    def version_name(self, app: FinalizedAppConfig):
+        return f"{app.app_name}-{app.version}{get_platform_suffix()}"
+
+    def root_folder_name(self, app: FinalizedAppConfig) -> str:
+        return self.version_name(app)
 
     def project_path(self, app):
-        return self.bundle_path(app) / f"{app.app_name}"
+        return self.bundle_path(app) / app.app_name
 
     def binary_path(self, app):
         return self.project_path(app) / app.app_name
 
     def distribution_filename(self, app: FinalizedAppConfig) -> str:
         app = cast(LinuxZipAppConfig, app)
-        return f"{app.bundle_name}_{app.version}-{getattr(app, 'revision', 1)}.tar.zst"
+        return f"{self.version_name(app)}.tar.zst"
 
     def distribution_path(self, app: FinalizedAppConfig):
         return self.dist_path / self.distribution_filename(app)
@@ -82,6 +90,10 @@ class LinuxZipMixin(LinuxMixin):
         NativeAppContext.verify(tools=self.tools, app=app)
 
         super().verify_app_tools(app)
+
+    @property
+    def use_docker(self):
+        return False
 
 
 class LinuxZipCreateCommand(LinuxZipMixin, LocalRequirementsMixin, CreateCommand):
@@ -164,7 +176,7 @@ class LinuxZipPackageCommand(LinuxZipMixin, PackageCommand):
                         "-I",
                         "zstd -c --long -T0 -18",
                         "--transform",
-                        f"s%^.%{self.project_path(app).name}-linux%S",
+                        f"s%^.%{self.root_folder_name(app)}%S",
                         "-cf",
                         self.distribution_path(app),
                         "-C",
