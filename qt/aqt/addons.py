@@ -1060,7 +1060,9 @@ class AddonsDialog(QDialog):
 
 
 class GetAddons(QDialog):
-    def __init__(self, dlg: AddonsDialog | None, manager: AddonManager | None) -> None:
+    def __init__(
+        self, dlg: AddonsDialog | None, manager: AddonManager | None = None
+    ) -> None:
         QDialog.__init__(self, dlg)
         self.addonsDlg = dlg
         if manager is None:
