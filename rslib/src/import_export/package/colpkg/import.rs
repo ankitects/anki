@@ -39,7 +39,9 @@ pub fn import_colpkg(
     let mut tempfile = new_tempfile_in_parent_of(&col_path)?;
 
     let backup_file = open_file(colpkg_path)?;
-    let mut archive = ZipArchive::new(backup_file)?;
+    let mut archive = ZipArchive::new(backup_file).map_err(|_| AnkiError::ImportError {
+        source: ImportError::Corrupt,
+    })?;
     let meta = Meta::from_archive(&mut archive)?;
 
     copy_collection(&mut archive, &mut tempfile, &meta)?;
