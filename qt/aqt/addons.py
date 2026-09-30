@@ -1009,18 +1009,10 @@ class AddonsDialog(QDialog):
         self.redrawAddons()
 
     def onGetAddons(self) -> None:
-        obj = GetAddons(self)
-        if obj.ids:
-            download_addons(
-                self, self.mgr, obj.ids, self.after_downloading, force_enable=True
-            )
+        self.mw.on_get_addons(dialog=self, after_downloading=self.after_downloading)
 
     def after_downloading(self, log: list[DownloadLogEntry]) -> None:
         self.redrawAddons()
-        if log:
-            show_log_to_user(self, log)
-        else:
-            tooltip(tr.addons_no_updates_available())
 
     def onInstallFiles(self, paths: list[str] | None = None) -> bool | None:
         if not paths:
@@ -1068,10 +1060,13 @@ class AddonsDialog(QDialog):
 
 
 class GetAddons(QDialog):
-    def __init__(self, dlg: AddonsDialog) -> None:
+    def __init__(self, dlg: AddonsDialog | None, manager: AddonManager | None) -> None:
         QDialog.__init__(self, dlg)
         self.addonsDlg = dlg
-        self.mgr = dlg.mgr
+        if manager is None:
+            assert dlg
+            manager = dlg.mgr
+        self.mgr = manager
         self.mw = self.mgr.mw
         self.ids: list[int] = []
         self.form = aqt.forms.getaddons.Ui_Dialog()

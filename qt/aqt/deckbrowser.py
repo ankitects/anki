@@ -373,9 +373,7 @@ class DeckBrowser:
         ).run_in_background()
 
     def _on_addons(self) -> None:
-        addons_dialog = aqt.dialogs.open("AddonsDialog", aqt.mw.addonManager)
-        assert isinstance(addons_dialog, aqt.addons.AddonsDialog)
-        addons_dialog.onGetAddons()
+        aqt.mw.on_get_addons()
 
     # Top buttons
     ######################################################################

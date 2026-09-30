@@ -50,7 +50,14 @@ from anki.utils import (
     split_fields,
 )
 from aqt import gui_hooks
-from aqt.addons import DownloadLogEntry, check_and_prompt_for_updates, show_log_to_user
+from aqt.addons import (
+    AddonsDialog,
+    DownloadLogEntry,
+    GetAddons,
+    check_and_prompt_for_updates,
+    download_addons,
+    show_log_to_user,
+)
 from aqt.debug_console import show_debug_console
 from aqt.flags import FlagManager
 from aqt.legacy import install_pylib_legacy
@@ -1367,6 +1374,29 @@ title="{}" {}>{}</button>""".format(
 
     def onDocumentation(self) -> None:
         openHelp(HelpPage.INDEX)
+
+    def on_get_addons(
+        self,
+        dialog: AddonsDialog | None = None,
+        after_downloading: Callable[[list[DownloadLogEntry]], None] | None = None,
+    ) -> None:
+        def after_downloading_inner(log: list[DownloadLogEntry]) -> None:
+            if after_downloading is not None:
+                after_downloading(log)
+            if log:
+                show_log_to_user(self, log)
+            else:
+                tooltip(tr.addons_no_updates_available())
+
+        obj = GetAddons(dialog, self.addonManager)
+        if obj.ids:
+            download_addons(
+                self,
+                self.addonManager,
+                obj.ids,
+                after_downloading_inner,
+                force_enable=True,
+            )
 
     # legacy
 
