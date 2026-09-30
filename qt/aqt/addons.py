@@ -1060,16 +1060,12 @@ class AddonsDialog(QDialog):
 
 
 class GetAddons(QDialog):
-    def __init__(
-        self, dlg: AddonsDialog | None, manager: AddonManager | None = None
-    ) -> None:
-        QDialog.__init__(self, dlg)
-        self.addonsDlg = dlg
-        if manager is None:
-            assert dlg
-            manager = dlg.mgr
-        self.mgr = manager
-        self.mw = self.mgr.mw
+    def __init__(self, dlg: AddonsDialog | None = None) -> None:
+        from aqt import mw
+
+        QDialog.__init__(self, dlg or mw)
+        self.mgr = mw.addonManager
+        self.mw = mw
         self.ids: list[int] = []
         self.form = aqt.forms.getaddons.Ui_Dialog()
         self.form.setupUi(self)

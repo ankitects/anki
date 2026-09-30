@@ -1388,7 +1388,7 @@ title="{}" {}>{}</button>""".format(
             else:
                 tooltip(tr.addons_no_updates_available())
 
-        obj = GetAddons(dialog, self.addonManager)
+        obj = GetAddons(dialog)
         if obj.ids:
             download_addons(
                 self,
