@@ -111,7 +111,9 @@ class CardInfoDialog(QDialog):
 
         new_revlog = [
             {"row": revlog, "info": card_info_review}
-            for revlog, card_info_review in zip(revlog, info.get("revlog", []))
+            for revlog, card_info_review in zip(
+                revlog, info.get("revlog", []), strict=False
+            )
         ]
         info["revlog"] = new_revlog
         info["rollover"] = aqt.mw.col.get_config("rollover")
