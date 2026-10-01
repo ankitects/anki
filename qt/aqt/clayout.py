@@ -746,7 +746,10 @@ class CardLayout(QDialog):
         self.redraw_everything()
 
     def _flipQA(self, src: dict, dst: dict) -> None:
-        m = re.match("(?s)(.+)<hr id=answer>(.+)", src["afmt"])
+        m = re.match(
+            r"(?is)(.+)<hr\b(?=[^>]*\bid\s*=\s*(?:\"answer\"|'answer'|answer(?=[\s/>])))[^>]*>(.+)",
+            src["afmt"],
+        )
         if not m:
             showInfo(tr.card_templates_anki_couldnt_find_the_line_between())
             return
