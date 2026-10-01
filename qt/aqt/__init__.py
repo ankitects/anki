@@ -557,6 +557,7 @@ def setupGL(pm: aqt.profiles.ProfileManager, driver: VideoDriver | None = None) 
                 or "Failed to create QRhi" in msg
                 or "Failed to get a QRhi" in msg
                 or "Failed to create RHI" in msg
+                or "D3D11 smoke test" in msg
             )
         ):
             QMessageBox.critical(
