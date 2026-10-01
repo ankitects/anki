@@ -541,17 +541,24 @@ def setupGL(pm: aqt.profiles.ProfileManager, driver: VideoDriver | None = None) 
             context += f"{ctx.function}"
         if context:
             context = f"'{context}'"
+        print(f"Qt {category}: {msg} {context}")
 
         nonlocal driver_failed
-        if not driver_failed and (
-            "Failed to create OpenGL context" in msg
-            # Based on the message Qt6 shows to the user; have not tested whether
-            # we can actually capture this or not.
-            or "Failed to initialize graphics backend" in msg
-            # RHI backend
-            or "Failed to create QRhi" in msg
-            or "Failed to get a QRhi" in msg
-            or "D3D11 smoke test" in msg
+        if (
+            not driver_failed
+            # Skip in CI
+            and os.environ.get("QT_QPA_PLATFORM") != "offscreen"
+            and (
+                "Failed to create OpenGL context" in msg
+                # Based on the message Qt6 shows to the user; have not tested whether
+                # we can actually capture this or not.
+                or "Failed to initialize graphics backend" in msg
+                # RHI backend
+                or "Failed to create QRhi" in msg
+                or "Failed to get a QRhi" in msg
+                or "Failed to create RHI" in msg
+                or "D3D11 smoke test" in msg
+            )
         ):
             QMessageBox.critical(
                 None,
@@ -564,8 +571,6 @@ def setupGL(pm: aqt.profiles.ProfileManager, driver: VideoDriver | None = None) 
             pm.set_video_driver(driver.next())
             driver_failed = True
             return
-        else:
-            print(f"Qt {category}: {msg} {context}")
 
     qInstallMessageHandler(msgHandler)
     atexit.register(qInstallMessageHandler, None)
