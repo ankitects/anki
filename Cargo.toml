@@ -47,7 +47,7 @@ anki_proto_gen = { path = "rslib/proto_gen" }
 ninja_gen = { "path" = "build/ninja_gen" }
 
 # pinned
-unicase = "=2.6.0" # any changes could invalidate sqlite indexes
+unicase = "=2.9.0" # any changes could invalidate sqlite indexes
 
 # normal
 ammonia = "4.1.2"
