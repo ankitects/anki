@@ -13,7 +13,7 @@ import type { Bin } from "d3";
 import { bin, extent, interpolateGreens, scaleLinear, scaleSequential, sum } from "d3";
 
 import type { SearchDispatch, TableDatum } from "./graph-helpers";
-import { getNumericMapBinValue, GraphRange, numericMap } from "./graph-helpers";
+import { binThresholds, getNumericMapBinValue, GraphRange, numericMap } from "./graph-helpers";
 import type { HistogramData } from "./histogram-graph";
 
 export interface GraphData {
@@ -100,7 +100,7 @@ export function buildHistogram(
             return m[0];
         })
         .domain(x.domain() as any)
-        .thresholds(x.ticks(desiredBars))(data.entries() as any);
+        .thresholds(binThresholds(x, desiredBars))(data.entries() as any);
 
     // empty graph?
     if (!sum(bins, (bin) => bin.length)) {
