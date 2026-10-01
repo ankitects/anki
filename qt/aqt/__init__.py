@@ -343,6 +343,10 @@ class AnkiApp(QApplication):
         self.installEventFilter(self)
         self._argv = argv
         self._native_event_filter = NativeEventFilter()
+        self.safeMode = (
+            bool(self.queryKeyboardModifiers() & Qt.KeyboardModifier.ShiftModifier)
+            or "--safemode" in argv
+        )
         if is_win:
             self.installNativeEventFilter(self._native_event_filter)
 
@@ -500,8 +504,9 @@ def parseArgs(argv: list[str]) -> tuple[argparse.Namespace, list[str]]:
     return parser.parse_known_args(argv[1:])
 
 
-def setupGL(pm: aqt.profiles.ProfileManager) -> None:
-    driver = pm.video_driver()
+def setupGL(pm: aqt.profiles.ProfileManager, driver: VideoDriver | None = None) -> None:
+    if driver is None:
+        driver = pm.video_driver()
     # RHI errors are emitted multiple times so make sure we only handle them once
     driver_failed = False
 
@@ -536,16 +541,23 @@ def setupGL(pm: aqt.profiles.ProfileManager) -> None:
             context += f"{ctx.function}"
         if context:
             context = f"'{context}'"
+        print(f"Qt {category}: {msg} {context}")
 
         nonlocal driver_failed
-        if not driver_failed and (
-            "Failed to create OpenGL context" in msg
-            # Based on the message Qt6 shows to the user; have not tested whether
-            # we can actually capture this or not.
-            or "Failed to initialize graphics backend" in msg
-            # RHI backend
-            or "Failed to create QRhi" in msg
-            or "Failed to get a QRhi" in msg
+        if (
+            not driver_failed
+            # Skip in CI
+            and os.environ.get("QT_QPA_PLATFORM") != "offscreen"
+            and (
+                "Failed to create OpenGL context" in msg
+                # Based on the message Qt6 shows to the user; have not tested whether
+                # we can actually capture this or not.
+                or "Failed to initialize graphics backend" in msg
+                # RHI backend
+                or "Failed to create QRhi" in msg
+                or "Failed to get a QRhi" in msg
+                or "Failed to create RHI" in msg
+            )
         ):
             QMessageBox.critical(
                 None,
@@ -558,8 +570,6 @@ def setupGL(pm: aqt.profiles.ProfileManager) -> None:
             pm.set_video_driver(driver.next())
             driver_failed = True
             return
-        else:
-            print(f"Qt {category}: {msg} {context}")
 
     qInstallMessageHandler(msgHandler)
     atexit.register(qInstallMessageHandler, None)
@@ -684,8 +694,6 @@ def _run(argv: list[str] | None = None, exec: bool = True) -> AnkiApp | None:
         pm = None
 
     if pm:
-        # gl workarounds
-        setupGL(pm)
         # apply user-provided scale factor
         os.environ["QT_SCALE_FACTOR"] = str(pm.uiScale())
 
@@ -714,7 +722,12 @@ def _run(argv: list[str] | None = None, exec: bool = True) -> AnkiApp | None:
         # we've signaled the primary instance, so we should close
         return None
 
-    if not pm:
+    driver = None
+    if pm:
+        driver = pm.video_driver() if not app.safeMode else VideoDriver.Software
+        # gl workarounds
+        setupGL(pm, driver)
+    else:
         if i18n_setup:
             QMessageBox.critical(
                 None,
@@ -791,7 +804,6 @@ def _run(argv: list[str] | None = None, exec: bool = True) -> AnkiApp | None:
     # i18n & backend
     backend = setupLangAndBackend(pm, app, opts.lang, pmLoadResult.firstTime)
 
-    driver = pm.video_driver()
     if is_lin and driver == VideoDriver.OpenGL:
         from aqt.utils import gfxDriverIsBroken
 
