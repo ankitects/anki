@@ -169,6 +169,8 @@ export function histogramGraph(
         })
         .on("mouseout", hideTooltip);
 
+    // rects are reused across renders, so clear what the last render set
+    hoverzone.attr("class", null).on("click", null);
     if (data.onClick) {
         hoverzone
             .filter(([bin]) => bin.length > 0)
