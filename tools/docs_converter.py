@@ -92,6 +92,7 @@ DOCS_RELATIVE_LINK_REPLACEMENTS = [
     relative_link_rule("docs.ankiweb.net", "manual"),
     relative_link_rule("addon-docs.ankiweb.net", "addons"),
     relative_link_rule("faqs.ankiweb.net", "faqs"),
+    relative_link_rule("betas.ankiweb.net", "releases/betas"),
     relative_link_rule("docs.ankimobile.net", "ankimobile"),
     # ar
     relative_link_rule("www.abdnh.net/anki-faqs", "faqs"),

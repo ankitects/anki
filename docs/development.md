@@ -13,7 +13,7 @@ cog.out(get_file_contents("development"))
 For non-developers who want to try beta versions, the easiest way is to use a
 packaged version - please see:
 
-https://betas.ankiweb.net/
+[/releases/betas/intro](https://anki.mintlify.app/releases/betas/intro)
 
 ## Pre-built Python wheels
 
@@ -26,7 +26,7 @@ Pre-built Python packages are available on PyPI. They are useful if you wish to:
 You will need the 64 bit version of Python 3.10 or later installed. You can install
 Python from python.org or from your distro.
 
-For further instructions, please see https://betas.ankiweb.net/#via-pypipip. Note that
+For further instructions, please see [/releases/betas/intro#via-pypi/pip](https://anki.mintlify.app/releases/betas/intro#via-pypi/pip). Note that
 in the provided commands, `--pre` tells pip to fetch alpha/beta versions. If you remove
 `--pre`, it will download the latest stable version instead.
 
@@ -144,7 +144,7 @@ To build wheels on Mac/Linux:
 (on Windows, `.\tools\build.bat`)
 
 The generated wheels are in out/wheels. You can then install them by copying the paths into a pip install command.
-Follow the steps [on the beta site](https://betas.ankiweb.net/#via-pypipip), but replace the
+Follow the steps [on the beta site](https://anki.mintlify.app/releases/betas#via-pypipip), but replace the
 `pip install --upgrade --pre aqt` line with something like:
 
 ```
