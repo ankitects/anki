@@ -48,7 +48,7 @@ jobs:
           filter: blob:none
 
       - name: Install Rust toolchain
-        uses: actions-rust-lang/setup-rust-toolchain@166cdcfd11aee3cb47222f9ddb555ce30ddb9659 #v1
+        uses: actions-rust-lang/setup-rust-toolchain@ecabd13d1c56bd1345c230e542e9144811ad706f #v2.0.0
 
       - name: Check for non-documentation changes
         id: non-doc-changes
@@ -80,10 +80,10 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 #v4
 
       - name: Install Rust toolchain
-        uses: actions-rust-lang/setup-rust-toolchain@166cdcfd11aee3cb47222f9ddb555ce30ddb9659 #v1
+        uses: actions-rust-lang/setup-rust-toolchain@ecabd13d1c56bd1345c230e542e9144811ad706f #v2.0.0
 
       - name: Install uv
-        uses: astral-sh/setup-uv@c771a70e6277c0a99b617c7a806ffedaca235ff9 #v9.0.0
+        uses: astral-sh/setup-uv@c18668ad3cf93ea998bef934396af7bb5c839dc7 #v10.2.0
 
       - name: Setup Node.js
         uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 #v7.0.0
@@ -138,7 +138,7 @@ jobs:
         uses: extractions/setup-just@53165ef7e734c5c07cb06b3c8e7b647c5aa16db3 #v4
 
       - name: Install cargo-llvm-cov, cargo-nextest and cargo-deny
-        uses: taiki-e/install-action@67729d5c413db75907f0ad1e39bb04b9c868ff60 #v2.85.7
+        uses: taiki-e/install-action@9983c65e42da123ff25d1f78505eb6de315aa172 #v2.87.20
         with:
           tool: |
             cargo-llvm-cov@0.8.4
@@ -301,7 +301,7 @@ jobs:
         uses: extractions/setup-just@53165ef7e734c5c07cb06b3c8e7b647c5aa16db3 #v4
 
       - name: Install cargo-llvm-cov and cargo-nextest
-        uses: taiki-e/install-action@67729d5c413db75907f0ad1e39bb04b9c868ff60 #v2.85.7
+        uses: taiki-e/install-action@9983c65e42da123ff25d1f78505eb6de315aa172 #v2.87.20
         with:
           tool: |
             cargo-llvm-cov@0.8.4
@@ -376,7 +376,7 @@ jobs:
         uses: extractions/setup-just@53165ef7e734c5c07cb06b3c8e7b647c5aa16db3 #v4
 
       - name: Install cargo-llvm-cov and cargo-nextest
-        uses: taiki-e/install-action@67729d5c413db75907f0ad1e39bb04b9c868ff60 #v2.85.7
+        uses: taiki-e/install-action@9983c65e42da123ff25d1f78505eb6de315aa172 #v2.87.20
         with:
           tool: |
             cargo-llvm-cov@0.8.4
@@ -450,7 +450,7 @@ jobs:
         uses: extractions/setup-just@53165ef7e734c5c07cb06b3c8e7b647c5aa16db3 #v4
 
       - name: Install cargo-llvm-cov and cargo-nextest
-        uses: taiki-e/install-action@67729d5c413db75907f0ad1e39bb04b9c868ff60 #v2.85.7
+        uses: taiki-e/install-action@9983c65e42da123ff25d1f78505eb6de315aa172 #v2.87.20
         with:
           tool: |
             cargo-llvm-cov@0.8.4
@@ -534,7 +534,7 @@ jobs:
         uses: extractions/setup-just@53165ef7e734c5c07cb06b3c8e7b647c5aa16db3 #v4
 
       - name: Install cargo-llvm-cov and cargo-nextest
-        uses: taiki-e/install-action@67729d5c413db75907f0ad1e39bb04b9c868ff60 #v2.85.7
+        uses: taiki-e/install-action@9983c65e42da123ff25d1f78505eb6de315aa172 #v2.87.20
         with:
           tool: |
             cargo-llvm-cov@0.8.4
@@ -609,7 +609,7 @@ jobs:
         uses: extractions/setup-just@53165ef7e734c5c07cb06b3c8e7b647c5aa16db3 #v4
 
       - name: Install cargo-llvm-cov and cargo-nextest
-        uses: taiki-e/install-action@67729d5c413db75907f0ad1e39bb04b9c868ff60 #v2.85.7
+        uses: taiki-e/install-action@9983c65e42da123ff25d1f78505eb6de315aa172 #v2.87.20
         with:
           tool: |
             cargo-llvm-cov@0.8.4
