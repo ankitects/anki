@@ -431,6 +431,83 @@ class SimpleMpvPlayer(SimpleProcessPlayer, VideoPlayer):
         self.args += [f"--config-dir={base_folder}"]
 
 
+class MacStdinMpvPlayer(SimpleProcessPlayer, SoundPlayer):
+    """Play audio through stdin so mpv never receives a collection media path.
+
+    On macOS, passing an audio file URL to the system decoder can cause the
+    Quick Look thumbnail service to cache that media. Keeping the file access
+    in Anki and feeding mpv a byte stream avoids exposing a file URL to mpv.
+    Video continues to use the regular path-based player.
+    """
+
+    default_rank = 10
+
+    args, env = _packagedCmd(
+        [
+            "mpv",
+            "--no-terminal",
+            "--force-window=no",
+            "--audio-display=no",
+            "--keep-open=no",
+            "--input-media-keys=no",
+            "--autoload-files=no",
+        ]
+    )
+
+    def __init__(
+        self, taskman: TaskManager, base_folder: str, media_folder: str
+    ) -> None:
+        super().__init__(taskman, media_folder)
+        self.args += [f"--config-dir={base_folder}"]
+
+    def _play(self, tag: AVTag) -> None:
+        assert isinstance(tag, SoundOrVideoTag)
+        path = tag.path(self._media_folder)
+        self._process = subprocess.Popen(
+            self.args + ["--", "-"],
+            env=self.env,
+            cwd=self._media_folder,
+            stdin=subprocess.PIPE,
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.DEVNULL,
+        )
+        self._taskman.run_on_main(
+            lambda: gui_hooks.av_player_did_begin_playing(self, tag)
+        )
+
+        try:
+            assert self._process.stdin is not None
+            with open(path, "rb") as media:
+                while chunk := media.read(64 * 1024):
+                    if self._terminate_flag:
+                        break
+                    self._process.stdin.write(chunk)
+            self._process.stdin.close()
+        except (BrokenPipeError, OSError):
+            # mpv may exit early when playback is interrupted or the media is
+            # invalid. _wait_for_termination() handles the process result.
+            pass
+
+        self._wait_for_termination_without_notification()
+
+    def _wait_for_termination_without_notification(self) -> None:
+        while True:
+            if self._terminate_flag:
+                self._process.terminate()
+                self._process.wait(1)
+                self._process = None
+                return
+
+            try:
+                self._process.wait(0.1)
+                if self._process.returncode != 0:
+                    print(f"player got return code: {self._process.returncode}")
+                self._process = None
+                return
+            except subprocess.TimeoutExpired:
+                pass
+
+
 class SimpleMplayerPlayer(SimpleProcessPlayer, SoundOrVideoPlayer):
     args, env = _packagedCmd(["mplayer", "-really-quiet", "-noautosub"])
     if is_win:
@@ -954,6 +1031,10 @@ def setup_audio(taskman: TaskManager, base_folder: str, media_folder: str) -> No
         if is_win:
             mpvPlayer = SimpleMpvPlayer(taskman, base_folder, media_folder)
             av_player.players.append(mpvPlayer)
+        elif is_mac:
+            av_player.players.append(
+                MacStdinMpvPlayer(taskman, base_folder, media_folder)
+            )
     else:
         mplayer = SimpleMplayerSlaveModePlayer(taskman, media_folder)
         av_player.players.append(mplayer)
