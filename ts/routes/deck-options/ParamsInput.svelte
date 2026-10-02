@@ -28,7 +28,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     function updateHeight() {
         if (taRef) {
             taRef.style.height = "auto";
-            // +2 for "overflow-y: auto" in case js breaks
+            // Include the textarea's 1px top and bottom borders.
             taRef.style.height = `${taRef.scrollHeight + 2}px`;
         }
     }
@@ -109,6 +109,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 
     textarea:disabled {
+        overflow-y: hidden;
         pointer-events: none;
     }
 </style>
