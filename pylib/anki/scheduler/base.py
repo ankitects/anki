@@ -10,8 +10,10 @@ from anki._legacy import DeprecatedNamesMixin
 from anki.cards import Card
 from anki.collection import OpChanges, OpChangesWithCount, OpChangesWithId
 from anki.config import Config
+from anki.decks import DeckId
 
 SchedTimingToday = scheduler_pb2.SchedTimingTodayResponse
+OverviewCounts = scheduler_pb2.OverviewCounts
 CongratsInfo = scheduler_pb2.CongratsInfoResponse
 UnburyDeck = scheduler_pb2.UnburyDeckRequest
 BuryOrSuspend = scheduler_pb2.BuryOrSuspendCardsRequest
@@ -80,6 +82,10 @@ class SchedulerBase(DeprecatedNamesMixin):
         if top_deck_id:
             return self.col.decks.find_deck_in_tree(tree, top_deck_id)
         return tree
+
+    def overview_counts(self, deck_id: DeckId) -> OverviewCounts:
+        """Return queue counts and buried-card deltas for the deck overview."""
+        return self.col._backend.get_overview_counts(deck_id=deck_id)
 
     # Deck finished state & custom study
     ##########################################################################
