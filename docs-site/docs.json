@@ -1110,7 +1110,6 @@
                   "ar/addons/debugging",
                   "ar/addons/monkey-patching",
                   "ar/addons/sharing",
-                  "ar/addons/hooks-reference",
                   "ar/addons/porting2.1.x",
                   "ar/addons/porting2.0"
                 ]

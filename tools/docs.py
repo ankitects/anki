@@ -639,9 +639,10 @@ def prefix_page_paths(group: dict | str, target_locale: str) -> dict | str:
 
 def copy_english_pages(
     docs_site_dir: Path, target_locale: str, pages: list[Path]
-) -> tuple[int, int]:
+) -> tuple[int, int, set[Path]]:
     copied_pages = 0
     skipped_pages = 0
+    skipped_from_nav: set[Path] = set()
     for page in pages:
         source_path = docs_site_dir / page
         target_path = docs_site_dir / target_locale / page
@@ -653,9 +654,13 @@ def copy_english_pages(
         headmatter = re.match(r"^---\n(.*?)\n---", content, re.DOTALL)
         if headmatter is None:
             print(f"WARN: no headmatter found in {source_path}")
+            skipped_pages += 1
+            skipped_from_nav.add(page)
             continue
         if "<<<<cog" in content:
             print(f"Skipping file with cog contents {source_path}")
+            skipped_pages += 1
+            skipped_from_nav.add(page)
             continue
         content = (
             headmatter.group(0)
@@ -671,21 +676,38 @@ def copy_english_pages(
         )
         copied_pages += 1
 
-    return copied_pages, skipped_pages
+    return copied_pages, skipped_pages, skipped_from_nav
 
 
 def update_language_tabs_from_english(
-    site_structure: dict, target_locale: str
+    site_structure: dict, target_locale: str, excluded_pages: set[Path] | None = None
 ) -> tuple[dict, int]:
     default_language = find_first(
         site_structure["navigation"]["languages"],
         lambda lang: lang["language"] == "en",
         "language 'en'",
     )
+    excluded_pages = excluded_pages or set()
+
+    def filter_group(group: dict | str):
+        if isinstance(group, str):
+            path = Path(group)
+            return None if path in excluded_pages else group
+
+        updated_group = deepcopy(group)
+        updated_group["pages"] = [
+            nested_page
+            for nested_page in (filter_group(page) for page in updated_group["pages"])
+            if nested_page is not None
+        ]
+        return updated_group
+
     localized_tabs = deepcopy(default_language["tabs"])
     for tab in localized_tabs:
         tab["groups"] = [
-            prefix_page_paths(group, target_locale) for group in tab["groups"]
+            group
+            for group in (filter_group(group) for group in tab["groups"])
+            if group is not None
         ]
 
     target_language = next(
@@ -711,11 +733,11 @@ def run_copy(args: argparse.Namespace) -> None:
     site_structure = load_site_structure(docs_site_dir)
     pages = get_english_docs_pages(docs_site_dir)
 
-    copied_pages, skipped_pages = copy_english_pages(
+    copied_pages, skipped_pages, skipped_from_nav = copy_english_pages(
         docs_site_dir, target_locale, pages
     )
     site_structure, tab_count = update_language_tabs_from_english(
-        site_structure, target_locale
+        site_structure, target_locale, skipped_from_nav
     )
     write_site_structure(docs_site_dir, site_structure)
 
