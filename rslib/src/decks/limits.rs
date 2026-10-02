@@ -99,7 +99,7 @@ impl RemainingLimits {
             current_review_limit(normal, today).unwrap_or(config.inner.reviews_per_day) as i32;
         let mut new_limit =
             current_new_limit(normal, today).unwrap_or(config.inner.new_per_day) as i32;
-        let (new_today_count, review_today_count) = deck.new_rev_counts(today);
+        let (new_today_count, _, review_today_count) = deck.new_rev_counts(today);
 
         review_limit -= review_today_count;
         new_limit -= new_today_count;
