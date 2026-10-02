@@ -52,6 +52,7 @@ pub enum BoolKey {
     ShowRemainingDueCountsInStudy,
     #[strum(to_string = "addToCur")]
     AddingDefaultsToCurrentDeck,
+    ShowColoredButtons,
 }
 
 impl Collection {
@@ -60,6 +61,7 @@ impl Collection {
             // some keys default to true
             BoolKey::InterruptAudioWhenAnswering
             | BoolKey::ShowIntervalsAboveAnswerButtons
+            | BoolKey::ShowColoredButtons
             | BoolKey::AddingDefaultsToCurrentDeck
             | BoolKey::FutureDueShowBacklog
             | BoolKey::ShowRemainingDueCountsInStudy
