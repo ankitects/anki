@@ -69,8 +69,12 @@ class TestCopySubcommand:
         french_page.parent.mkdir(parents=True, exist_ok=True)
         root_page.parent.mkdir(parents=True, exist_ok=True)
 
-        english_page.write_text("English intro\n", encoding="utf-8")
-        root_page.write_text("English home\n", encoding="utf-8")
+        english_page.write_text(
+            "---\ntitle: Intro\n---\n\nEnglish intro\n", encoding="utf-8"
+        )
+        root_page.write_text(
+            "---\ntitle: Home\n---\n\nEnglish home\n", encoding="utf-8"
+        )
         french_page.write_text("French intro\n", encoding="utf-8")
         docs_json_path.write_text(
             json.dumps(
@@ -126,22 +130,28 @@ class TestCopySubcommand:
             argparse.Namespace(target_locale="ar", docs_site_dir=str(docs_site_dir))
         )
 
-        # assert (docs_site_dir / "ar" / "manual" / "intro.mdx").read_text(
-        #     encoding="utf-8"
-        # ) == "English intro\n"
-        # assert (docs_site_dir / "ar" / "index.mdx").read_text(
-        #     encoding="utf-8"
-        # ) == "English home\n"
-        # assert not (docs_site_dir / "ar" / "fr" / "manual" / "intro.mdx").exists()
+        # Check that pages with proper frontmatter were copied with cog markers
+        ar_intro = (docs_site_dir / "ar" / "manual" / "intro.mdx").read_text(
+            encoding="utf-8"
+        )
+        assert "auto_update_untranslated" in ar_intro
+        assert "<<<<cog" in ar_intro
 
-        # docs_json = json.loads(docs_json_path.read_text(encoding="utf-8"))
-        # ar_language = next(
-        #     language
-        #     for language in docs_json["navigation"]["languages"]
-        #     if language["language"] == "ar"
-        # )
-        # assert ar_language["tabs"][0]["groups"][0]["pages"] == ["ar/manual/intro"]
-        # assert ar_language["tabs"][1]["groups"][0]["pages"] == ["ar/index"]
+        ar_index = (docs_site_dir / "ar" / "index.mdx").read_text(encoding="utf-8")
+        assert "auto_update_untranslated" in ar_index
+
+        # Check that the French file was not copied
+        assert not (docs_site_dir / "ar" / "fr" / "manual" / "intro.mdx").exists()
+
+        # Check docs.json was updated correctly
+        docs_json = json.loads(docs_json_path.read_text(encoding="utf-8"))
+        ar_language = next(
+            language
+            for language in docs_json["navigation"]["languages"]
+            if language["language"] == "ar"
+        )
+        assert ar_language["tabs"][0]["groups"][0]["pages"] == ["ar/manual/intro"]
+        assert ar_language["tabs"][1]["groups"][0]["pages"] == ["ar/index"]
 
     def test_copy_does_not_overwrite_existing_target_files(
         self, tmp_path: Path
@@ -154,7 +164,9 @@ class TestCopySubcommand:
         english_page.parent.mkdir(parents=True, exist_ok=True)
         existing_target_page.parent.mkdir(parents=True, exist_ok=True)
 
-        english_page.write_text("English intro\n", encoding="utf-8")
+        english_page.write_text(
+            "---\ntitle: Intro\n---\n\nEnglish intro\n", encoding="utf-8"
+        )
         existing_target_page.write_text("Existing Arabic intro\n", encoding="utf-8")
         docs_json_path.write_text(
             json.dumps(
@@ -191,18 +203,20 @@ class TestCopySubcommand:
             argparse.Namespace(target_locale="ar", docs_site_dir=str(docs_site_dir))
         )
 
+        # Existing target files should not be overwritten
         assert (
             existing_target_page.read_text(encoding="utf-8")
             == "Existing Arabic intro\n"
         )
 
-        # docs_json = json.loads(docs_json_path.read_text(encoding="utf-8"))
-        # ar_language = next(
-        #     language
-        #     for language in docs_json["navigation"]["languages"]
-        #     if language["language"] == "ar"
-        # )
-        # assert ar_language["tabs"][0]["groups"][0]["pages"] == ["ar/manual/intro"]
+        # Existing files are kept in docs.json
+        docs_json = json.loads(docs_json_path.read_text(encoding="utf-8"))
+        ar_language = next(
+            language
+            for language in docs_json["navigation"]["languages"]
+            if language["language"] == "ar"
+        )
+        assert ar_language["tabs"][0]["groups"][0]["pages"] == ["ar/manual/intro"]
 
 
 # ===========================================================================

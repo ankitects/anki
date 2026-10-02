@@ -692,7 +692,9 @@ def update_language_tabs_from_english(
     def filter_group(group: dict | str):
         if isinstance(group, str):
             path = Path(group)
-            return None if path in excluded_pages else group
+            if path in excluded_pages:
+                return None
+            return f"{target_locale}/{group}"
 
         updated_group = deepcopy(group)
         updated_group["pages"] = [
