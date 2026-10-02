@@ -22,7 +22,7 @@ export function newGatherPriorityChoices(): Choice<DeckConfig_Config_NewCardGath
             value: DeckConfig_Config_NewCardGatherPriority.DECK,
         },
         {
-            label: tr.deckConfigNewGatherPriorityDeckThenRandomNotes(),
+            label: tr.deckConfigNewGatherPriorityRandomNotesByDeck(),
             value: DeckConfig_Config_NewCardGatherPriority.DECK_THEN_RANDOM_NOTES,
         },
         {
