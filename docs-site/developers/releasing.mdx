@@ -95,6 +95,16 @@ candidates, and the stable release all come from the same branch.
 
 8. Delete the release branch after the stable release is published.
 
+9. Submit the Flathub update. When a stable release is published,
+   `.github/workflows/sync-release.yml` makes a patch that moves
+   [flathub/net.ankiweb.Anki](https://github.com/flathub/net.ankiweb.Anki)
+   to the new version. The workflow uploads the patch as an artifact, and
+   comments on the release PR with a report and the commands to open the
+   Flathub PR. Fix the problems in the report's "Needs attention" section, if
+   there are any. See
+   [updating-anki.md](https://github.com/flathub/net.ankiweb.Anki/blob/master/updating-anki.md)
+   for the manual steps.
+
 ### Security and hotfix releases
 
 For security fixes, an admin should first create a
