@@ -3,10 +3,10 @@
 
 # Releasing
 
-<!-- <<<cog
+<!-- <<<<cog
 from cogdocs import get_file_contents
 cog.out(get_file_contents("releasing"))
->>> -->
+>>>> -->
 
 Releases are prepared with a script that a maintainer runs locally, then built
 and published by a GitHub Actions workflow:
@@ -324,4 +324,4 @@ Audio playback and recording is handled by the `anki-audio` package under **`qt/
     ```
 6. Once the package is published, update the pinned `anki-audio` version in **`qt/pyproject.toml`** to the new version.
 
-<!-- <<<end>>> -->
+<!-- <<<<end>>>> -->

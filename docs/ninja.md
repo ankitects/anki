@@ -3,10 +3,10 @@
 
 # Ninja
 
-<!-- <<<cog
+<!-- <<<<cog
 from cogdocs import get_file_contents
 cog.out(get_file_contents("ninja"))
->>> -->
+>>>> -->
 
 Brief notes for people used to the existing Bazel build system:
 
@@ -23,4 +23,4 @@ Brief notes for people used to the existing Bazel build system:
   the Jest tests for ts/deck-options, and './ninja check:jest' will run all
   Jest tests.
 
-<!-- <<<end>>> -->
+<!-- <<<<end>>>> -->

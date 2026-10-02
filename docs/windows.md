@@ -3,10 +3,10 @@
 
 # Windows
 
-<!-- <<<cog
+<!-- <<<<cog
 from cogdocs import get_file_contents
 cog.out(get_file_contents("windows"))
->>> -->
+>>>> -->
 
 ## Minimum Requirements
 
@@ -82,4 +82,4 @@ problems.
 For info on running tests, building wheels and so on, please see
 [Development](https://anki.mintlify.app/developers/development).
 
-<!-- <<<end>>> -->
+<!-- <<<<end>>>> -->
