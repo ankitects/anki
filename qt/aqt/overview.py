@@ -129,6 +129,7 @@ class Overview:
             ("r", self.rebuild_current_filtered_deck),
             ("e", self.empty_current_filtered_deck),
             ("c", self.onCustomStudyKey),
+            ("i", self.on_description_key),
             ("u", self.on_unbury),
         ]
 
@@ -148,6 +149,10 @@ class Overview:
     def onCustomStudyKey(self) -> None:
         if not self._current_deck_is_filtered():
             self.onStudyMore()
+
+    def on_description_key(self) -> None:
+        if not self._current_deck_is_filtered():
+            self.edit_description()
 
     def on_unbury(self) -> None:
         mode = UnburyDeck.Mode.ALL
@@ -294,7 +299,7 @@ class Overview:
         if self.mw.col.sched.have_buried():
             links.append(["U", "unbury", tr.studying_unbury()])
         if not is_dyn:
-            links.append(["", "description", tr.scheduling_description()])
+            links.append(["I", "description", tr.scheduling_description()])
         link_handler = gui_hooks.overview_will_render_bottom(
             self._linkHandler,
             links,
