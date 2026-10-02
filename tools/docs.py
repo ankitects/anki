@@ -584,10 +584,6 @@ ENGLISH_DOCS_ROOT_FILES = (
     "automatic-backups.mdx",
 )
 
-INTERNAL_DOCS_LINK_RE = re.compile(
-    r'(?P<prefix>\]\(|href=["\"])\/(?P<path>(?:manual|ankimobile|faqs|addons|developers|translators|releases|index|automatic\-backups)(?:[/?#][^\s)"\']*)?)'
-)
-
 
 def add_copy_subcommand(subparsers: argparse._SubParsersAction) -> None:
     copy_parser = subparsers.add_parser(
@@ -630,13 +626,6 @@ def get_english_docs_pages(docs_site_dir: Path) -> list[Path]:
     return pages
 
 
-def localize_internal_links(content: str, target_locale: str) -> str:
-    def replace_link(match: re.Match[str]) -> str:
-        return f"{match.group('prefix')}/{target_locale}/{match.group('path')}"
-
-    return INTERNAL_DOCS_LINK_RE.sub(replace_link, content)
-
-
 def prefix_page_paths(group: dict | str, target_locale: str) -> dict | str:
     if isinstance(group, str):
         return f"{target_locale}/{group}"
@@ -660,10 +649,24 @@ def copy_english_pages(
             skipped_pages += 1
             continue
         target_path.parent.mkdir(parents=True, exist_ok=True)
+        content = source_path.read_text(encoding="utf-8")
+        headmatter = re.match(r"^---\n(.*?)\n---", content, re.DOTALL)
+        if headmatter is None:
+            print(f"WARN: no headmatter found in {source_path}")
+            continue
+        if "<<<<cog" in content:
+            print(f"Skipping file with cog contents {source_path}")
+            continue
+        content = (
+            headmatter.group(0)
+            + "\n"
+            + '{/* This text is currently untranslated. REMOVE THE BELOW "cog" COMMENTS WHEN TRANSLATING OR YOU RISK YOUR TRANSLATION WORK BEING OVERWRITTEN.*/}\n'
+            f"""{{/* <<<<cog from tools.auto_update_untranslated import auto_update_untranslated; cog.out(auto_update_untranslated("{source_path}", "{target_locale}"))>>>> */}}"""
+            + "{/* <<<<end>>>> */}"
+        )
+
         target_path.write_text(
-            localize_internal_links(
-                source_path.read_text(encoding="utf-8"), target_locale
-            ),
+            content,
             encoding="utf-8",
         )
         copied_pages += 1
