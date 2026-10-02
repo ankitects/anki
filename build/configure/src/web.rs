@@ -424,6 +424,9 @@ pub const MATHJAX_FILES: &[&str] = &[
     "mathjax/es5/a11y/complexity.js",
     "mathjax/es5/a11y/explorer.js",
     "mathjax/es5/a11y/semantic-enrich.js",
+    // required by a11y/semantic-enrich
+    "mathjax/es5/a11y/sre.js",
+    "mathjax/es5/input/mml.js",
     "mathjax/es5/output/chtml/fonts/woff-v2/MathJax_AMS-Regular.woff",
     "mathjax/es5/output/chtml/fonts/woff-v2/MathJax_Calligraphic-Bold.woff",
     "mathjax/es5/output/chtml/fonts/woff-v2/MathJax_Calligraphic-Regular.woff",
@@ -447,14 +450,23 @@ pub const MATHJAX_FILES: &[&str] = &[
     "mathjax/es5/output/chtml/fonts/woff-v2/MathJax_Vector-Bold.woff",
     "mathjax/es5/output/chtml/fonts/woff-v2/MathJax_Vector-Regular.woff",
     "mathjax/es5/output/chtml/fonts/woff-v2/MathJax_Zero.woff",
+    // SVG renderer, selectable from the MathJax context menu
+    "mathjax/es5/output/svg.js",
+    "mathjax/es5/output/svg/fonts/tex.js",
     "mathjax/es5/tex-chtml-full.js",
+    "mathjax/es5/sre/mathmaps/base.json",
+    "mathjax/es5/sre/mathmaps/ca.json",
+    "mathjax/es5/sre/mathmaps/da.json",
     "mathjax/es5/sre/mathmaps/de.json",
     "mathjax/es5/sre/mathmaps/en.json",
     "mathjax/es5/sre/mathmaps/es.json",
     "mathjax/es5/sre/mathmaps/fr.json",
     "mathjax/es5/sre/mathmaps/hi.json",
     "mathjax/es5/sre/mathmaps/it.json",
+    "mathjax/es5/sre/mathmaps/nb.json",
     "mathjax/es5/sre/mathmaps/nemeth.json",
+    "mathjax/es5/sre/mathmaps/nn.json",
+    "mathjax/es5/sre/mathmaps/sv.json",
 ];
 
 pub fn copy_mathjax() -> impl BuildAction {
