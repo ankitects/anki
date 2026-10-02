@@ -315,7 +315,12 @@ impl Collection {
     /// Answer card, writing its new state to the database.
     /// Provided [CardAnswer] has its answer time capped to deck preset.
     pub fn answer_card(&mut self, answer: &mut CardAnswer) -> Result<OpOutput<()>> {
-        self.transact(Op::AnswerCard, |col| col.answer_card_inner(answer))
+        let op_type = if answer.from_queue {
+            Op::AnswerCard
+        } else {
+            Op::AnswerUnqueuedCard
+        };
+        self.transact(op_type, |col| col.answer_card_inner(answer))
     }
 
     pub(crate) fn answer_card_inner(&mut self, answer: &mut CardAnswer) -> Result<()> {
