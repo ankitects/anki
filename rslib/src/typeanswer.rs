@@ -35,13 +35,13 @@ macro_rules! format_typeans {
 }
 
 // Public API
-pub fn compare_answer(expected: &str, typed: &str, combining: bool) -> String {
+pub fn compare_answer(expected: &str, typed: &str, combining: bool, ignore_case: bool) -> String {
     let stripped = strip_expected(expected);
 
     match typed.is_empty() {
         true => format_typeans!(htmlescape::encode_minimal(&stripped)),
-        false if combining => Diff::new(&stripped, typed).to_html(),
-        false => DiffNonCombining::new(&stripped, typed).to_html(),
+        false if combining => Diff::new(&stripped, typed, ignore_case).to_html(),
+        false => DiffNonCombining::new(&stripped, typed, ignore_case).to_html(),
     }
 }
 
@@ -50,12 +50,17 @@ trait DiffTrait {
     fn get_typed(&self) -> &[char];
     fn get_expected(&self) -> &[char];
     fn get_expected_original(&self) -> Cow<'_, str>;
+    /// The text the diff is calculated on, which is case-folded if case is
+    /// being ignored. Indices into it are valid for [Self::get_typed].
+    fn get_typed_for_diff(&self) -> &[char];
+    /// See [Self::get_typed_for_diff].
+    fn get_expected_for_diff(&self) -> &[char];
 
-    fn new(expected: &str, typed: &str) -> Self;
+    fn new(expected: &str, typed: &str, ignore_case: bool) -> Self;
 
     // Entry Point
     fn to_html(&self) -> String {
-        if self.get_typed() == self.get_expected() {
+        if self.get_typed_for_diff() == self.get_expected_for_diff() {
             format_typeans!(format!(
                 "<span class=typeGood>{}</span>",
                 htmlescape::encode_minimal(&self.get_expected_original())
@@ -72,7 +77,8 @@ trait DiffTrait {
     }
 
     fn to_tokens(&self) -> DiffTokens {
-        let mut matcher = SequenceMatcher::new(self.get_typed(), self.get_expected());
+        let mut matcher =
+            SequenceMatcher::new(self.get_typed_for_diff(), self.get_expected_for_diff());
         let mut typed_tokens = Vec::new();
         let mut expected_tokens = Vec::new();
 
@@ -111,6 +117,22 @@ trait DiffTrait {
 // Utility Functions
 fn normalize(string: &str) -> Vec<char> {
     normalize_to_nfc(string).chars().collect()
+}
+
+/// Lowercases each character individually. The few characters that lowercase
+/// to multiple ones (e.g. İ) are mapped to the first of them, so that the
+/// output stays aligned with the input.
+fn fold_case(chars: &[char]) -> Vec<char> {
+    chars
+        .iter()
+        .map(|&c| match c {
+            // these are already lowercase, so they need mapping to the form
+            // their uppercase (Σ, S) lowercases to
+            'ς' => 'σ',
+            'ſ' => 's',
+            _ => c.to_lowercase().next().unwrap_or(c),
+        })
+        .collect()
 }
 
 fn slice(chars: &[char], start: usize, end: usize) -> String {
@@ -152,6 +174,28 @@ fn isolate_leading_mark(text: &str) -> Cow<'_, str> {
 struct Diff {
     typed: Vec<char>,
     expected: Vec<char>,
+    /// Case-folded copies used for the diff, if case is being ignored. The
+    /// original text is still what gets rendered.
+    folded: Option<FoldedChars>,
+}
+
+struct FoldedChars {
+    typed: Vec<char>,
+    expected: Vec<char>,
+}
+
+impl Diff {
+    fn from_chars(typed: Vec<char>, expected: Vec<char>, ignore_case: bool) -> Self {
+        let folded = ignore_case.then(|| FoldedChars {
+            typed: fold_case(&typed),
+            expected: fold_case(&expected),
+        });
+        Self {
+            typed,
+            expected,
+            folded,
+        }
+    }
 }
 
 impl DiffTrait for Diff {
@@ -164,12 +208,21 @@ impl DiffTrait for Diff {
     fn get_expected_original(&self) -> Cow<'_, str> {
         Cow::Owned(self.get_expected().iter().collect::<String>())
     }
-
-    fn new(expected: &str, typed: &str) -> Self {
-        Self {
-            typed: normalize(typed),
-            expected: normalize(expected),
+    fn get_typed_for_diff(&self) -> &[char] {
+        match &self.folded {
+            Some(folded) => &folded.typed,
+            None => &self.typed,
         }
+    }
+    fn get_expected_for_diff(&self) -> &[char] {
+        match &self.folded {
+            Some(folded) => &folded.expected,
+            None => &self.expected,
+        }
+    }
+
+    fn new(expected: &str, typed: &str, ignore_case: bool) -> Self {
+        Self::from_chars(normalize(typed), normalize(expected), ignore_case)
     }
 
     fn render_expected_tokens(&self, tokens: &[DiffToken]) -> String {
@@ -194,8 +247,14 @@ impl DiffTrait for DiffNonCombining {
     fn get_expected_original(&self) -> Cow<'_, str> {
         Cow::Borrowed(&self.expected_original)
     }
+    fn get_typed_for_diff(&self) -> &[char] {
+        self.base.get_typed_for_diff()
+    }
+    fn get_expected_for_diff(&self) -> &[char] {
+        self.base.get_expected_for_diff()
+    }
 
-    fn new(expected: &str, typed: &str) -> Self {
+    fn new(expected: &str, typed: &str, ignore_case: bool) -> Self {
         // filter out combining elements
         let typed_stripped: Vec<char> = typed.nfkd().filter(|&c| !is_combining_mark(c)).collect();
         let mut expected_stripped: Vec<char> = Vec::new();
@@ -214,10 +273,7 @@ impl DiffTrait for DiffNonCombining {
         }
 
         Self {
-            base: Diff {
-                typed: typed_stripped,
-                expected: expected_stripped,
-            },
+            base: Diff::from_chars(typed_stripped, expected_stripped, ignore_case),
             expected_split,
             expected_original: expected.to_string(),
         }
@@ -299,7 +355,11 @@ mod test {
 
     #[test]
     fn tokens() {
-        let ctx = Diff::new("¿Y ahora qué vamos a hacer?", "y ahora qe vamosa hacer");
+        let ctx = Diff::new(
+            "¿Y ahora qué vamos a hacer?",
+            "y ahora qe vamosa hacer",
+            false,
+        );
         let output = ctx.to_tokens();
         assert_eq!(
             output.typed_tokens,
@@ -330,22 +390,22 @@ mod test {
     #[test]
     fn html_and_media() {
         let stripped = strip_expected("[sound:foo.mp3]<b>1</b> &nbsp;2");
-        let ctx = Diff::new(&stripped, "1  2");
+        let ctx = Diff::new(&stripped, "1  2", false);
         // the spacing is handled by wrapping html output in white-space: pre-wrap
         assert_eq!(ctx.to_tokens().expected_tokens, &[good("1  2")]);
     }
 
     #[test]
     fn missed_chars_only_shown_in_typed_when_after_good() {
-        let ctx = Diff::new("1", "23");
+        let ctx = Diff::new("1", "23", false);
         assert_eq!(ctx.to_tokens().typed_tokens, &[bad("23")]);
-        let ctx = Diff::new("12", "1");
+        let ctx = Diff::new("12", "1", false);
         assert_eq!(ctx.to_tokens().typed_tokens, &[good("1"), missing("-"),]);
     }
 
     #[test]
     fn missed_chars_counted_correctly() {
-        let ctx = Diff::new("нос", "нс");
+        let ctx = Diff::new("нос", "нс", false);
         assert_eq!(
             ctx.to_tokens().typed_tokens,
             &[good("н"), missing("-"), good("с")]
@@ -355,7 +415,7 @@ mod test {
     #[test]
     fn handles_certain_unicode_as_expected() {
         // this was not parsed as expected with dissimilar 1.0.4
-        let ctx = Diff::new("쓰다듬다", "스다뜸다");
+        let ctx = Diff::new("쓰다듬다", "스다뜸다", false);
         assert_eq!(
             ctx.to_tokens().typed_tokens,
             &[bad("스"), good("다"), bad("뜸"), good("다"),]
@@ -371,6 +431,7 @@ mod test {
                 "Single responsibility Сущность выполняет только одну задачу.",
                 "Повод для изменения сущности только один."
             ),
+            false,
         );
         ctx.to_tokens();
     }
@@ -380,20 +441,24 @@ mod test {
         let stripped = strip_expected("<div>123</div>");
         assert_eq!(stripped, "123");
         assert_eq!(
-            Diff::new(&stripped, "123").to_html(),
+            Diff::new(&stripped, "123", false).to_html(),
             "<code id=typeans><span class=typeGood>123</span></code>"
         );
     }
 
     #[test]
     fn empty_input_shows_as_code() {
-        let ctx = compare_answer("<div>123</div>", "", true);
+        let ctx = compare_answer("<div>123</div>", "", true, false);
         assert_eq!(ctx, "<code id=typeans>123</code>");
     }
 
     #[test]
     fn correct_input_is_escaped() {
-        let ctx = Diff::new("source <dir>/bin/activate", "source <dir>/bin/activate");
+        let ctx = Diff::new(
+            "source <dir>/bin/activate",
+            "source <dir>/bin/activate",
+            false,
+        );
         assert_eq!(
             ctx.to_html(),
             "<code id=typeans><span class=typeGood>source &lt;dir&gt;/bin/activate</span></code>"
@@ -402,7 +467,7 @@ mod test {
 
     #[test]
     fn correct_input_is_collapsed() {
-        let ctx = Diff::new("123", "123");
+        let ctx = Diff::new("123", "123", false);
         assert_eq!(
             ctx.to_html(),
             "<code id=typeans><span class=typeGood>123</span></code>"
@@ -411,7 +476,7 @@ mod test {
 
     #[test]
     fn incorrect_input_is_not_collapsed() {
-        let ctx = Diff::new("123", "1123");
+        let ctx = Diff::new("123", "1123", false);
         assert_eq!(
             ctx.to_html(),
             "<code id=typeans><span class=typeBad>1</span><span class=typeGood>123</span><br><span id=typearrow>&darr;</span><br><span class=typeGood>123</span></code>"
@@ -419,17 +484,54 @@ mod test {
     }
 
     #[test]
+    fn case_insensitive_comparison() {
+        // the expected text is shown with its original casing
+        assert_eq!(
+            compare_answer("Paris", "paris", true, true),
+            "<code id=typeans><span class=typeGood>Paris</span></code>"
+        );
+        // case is folded one character at a time, so ß is not equal to SS
+        assert_eq!(
+            compare_answer("Straße", "STRASSE", true, true),
+            "<code id=typeans><span class=typeGood>STRA</span><span class=typeBad>SS</span><span class=typeGood>E</span><br><span id=typearrow>&darr;</span><br><span class=typeGood>Stra</span><span class=typeMissed>ß</span><span class=typeGood>e</span></code>"
+        );
+        // a word-final sigma is the same letter as Σ
+        assert_eq!(
+            compare_answer("φως", "ΦΩΣ", true, true),
+            "<code id=typeans><span class=typeGood>φως</span></code>"
+        );
+        // only case is ignored; other differences are still shown
+        assert_eq!(
+            compare_answer("Paris", "parls", true, true),
+            "<code id=typeans><span class=typeGood>par</span><span class=typeBad>l</span><span class=typeGood>s</span><br><span id=typearrow>&darr;</span><br><span class=typeGood>Par</span><span class=typeMissed>i</span><span class=typeGood>s</span></code>"
+        );
+        // and it remains significant when not requested
+        assert_eq!(
+            compare_answer("Paris", "paris", true, false),
+            "<code id=typeans><span class=typeBad>p</span><span class=typeGood>aris</span><br><span id=typearrow>&darr;</span><br><span class=typeMissed>P</span><span class=typeGood>aris</span></code>"
+        );
+    }
+
+    #[test]
+    fn case_insensitive_noncombining_comparison() {
+        assert_eq!(
+            compare_answer("Ábaco", "abaco", false, true),
+            "<code id=typeans><span class=typeGood>Ábaco</span></code>"
+        );
+    }
+
+    #[test]
     fn noncombining_comparison() {
         assert_eq!(
-            compare_answer("שִׁנּוּן", "שנון", false),
+            compare_answer("שִׁנּוּן", "שנון", false, false),
             "<code id=typeans><span class=typeGood>שִׁנּוּן</span></code>"
         );
         assert_eq!(
-            compare_answer("חוֹף", "חופ", false),
+            compare_answer("חוֹף", "חופ", false, false),
             "<code id=typeans><span class=typeGood>חו</span><span class=typeBad>פ</span><br><span id=typearrow>&darr;</span><br><span class=typeGood>חוֹ</span><span class=typeMissed>ף</span></code>"
         );
         assert_eq!(
-            compare_answer("ば", "は", false),
+            compare_answer("ば", "は", false, false),
             "<code id=typeans><span class=typeGood>ば</span></code>"
         );
     }
