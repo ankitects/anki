@@ -10,12 +10,24 @@ pub fn check_cog(build: &mut Build) -> Result<()> {
     cog_render(
         build,
         "docs",
-        inputs!["docs-site/addons/hooks-reference.mdx", glob!["docs/*.md"]],
+        inputs![
+            glob!["docs/*.md"],
+            glob!["docs-site/*.mdx"],
+            glob!["docs-site/{ar,de,es,fa,fr,id,it,ja,pl,pt,ru,uk,uz,zh-Hans}/**/*.mdx"],
+        ],
         inputs![
             "pylib/tools/genhooks.py",
             "tools/mintlify_hooks.py",
+            "tools/auto_update_untranslated.py",
             "docs/cogdocs.py",
-            glob!["docs-site/developers/*.mdx"],
+            glob!["docs-site/*.mdx"],
+            glob!["docs-site/addons/**.mdx"],
+            glob!["docs-site/ankimobile/**.mdx"],
+            glob!["docs-site/developers/**.mdx"],
+            glob!["docs-site/faqs/**.mdx"],
+            glob!["docs-site/manual/**.mdx"],
+            glob!["docs-site/releases/**.mdx"],
+            glob!["docs-site/translators/**.mdx"],
         ],
     )
 }
