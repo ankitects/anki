@@ -382,7 +382,7 @@ deck-config-which-deck = Which deck would you like to display options for?
 ## Messages related to the FSRS scheduler
 
 deck-config-updating-cards = Updating cards: { $current_cards_count }/{ $total_cards_count }...
-deck-config-invalid-parameters = The provided FSRS parameters are invalid. Leave them blank to use the default values.
+deck-config-invalid-parameters-2 = The provided FSRS parameters are invalid. Please use the Optimize button in Deck Options to correct them, or leave the parameters blank to use the default values.
 deck-config-placeholder-parameters = 
     Default parameters
     (Press "{deck-config-optimize-button}" periodically to allow FSRS to better adjust to your memory)
@@ -630,3 +630,4 @@ deck-config-fsrs-on-all-clients =
     Please ensure all of your Anki clients are Anki(Mobile) 23.10+ or AnkiDroid 2.17+. FSRS will
     not work correctly if one of your clients is older.
 deck-config-optimize-all-tip = You can optimize all presets at once by using the dropdown button next to "Save".
+deck-config-invalid-parameters = The provided FSRS parameters are invalid. Leave them blank to use the default values.
