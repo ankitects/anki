@@ -5,6 +5,7 @@ import platform
 from collections.abc import Callable
 
 import aqt.forms
+from anki.buildinfo import buildtime
 from anki.lang import without_unicode_isolation
 from anki.utils import version_with_build
 from aqt.errors import addon_debug_info
@@ -70,6 +71,7 @@ def show(mw: aqt.AnkiQt) -> QDialog:
     abouttext += f"<p>{lede}"
     abouttext += f"<p>{tr.about_anki_is_licensed_under_the_agpl3()}"
     abouttext += f"<p>{tr.about_version(val=version_with_build())}<br>"
+    abouttext += f"{tr.about_build_time(val=buildtime)}<br>"
     abouttext += ("Python %s Qt %s Chromium %s<br>") % (
         platform.python_version(),
         qVersion(),
