@@ -400,7 +400,8 @@ class Table:
             # Current selection is modified. The number of added/removed rows is
             # usually smaller than the number of rows in the resulting selection.
             self._len_selection += (
-                len(selected.indexes()) - len(deselected.indexes())
+                self._model.count_enabled_cells(selected)
+                - self._model.count_enabled_cells(deselected)
             ) // self._model.len_columns()
         else:
             # New selection is created. Usually a single row or none at all.
