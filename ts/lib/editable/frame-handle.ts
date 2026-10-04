@@ -33,22 +33,50 @@ export function isFrameHandle(node: unknown): node is FrameHandle {
 }
 
 /**
- * When a structural command like justifyCenter moves a handle or its space
- * out of the frame, Chromium wraps the moved node in a copy of the frame,
- * which frames nothing. Removes such copies and reports whether there were any.
+ * When a structural command like justifyCenter moves a handle or its space out
+ * of the frame, Chromium may wrap the moved node in a copy of the frame, which
+ * frames nothing. Removes such copies.
  */
-export function removeFrameCopies(frameElement: FrameElement): boolean {
+export function removeFrameCopies(frameElement: FrameElement): void {
     const root = frameElement.getRootNode() as Document | ShadowRoot;
-    let found = false;
 
     for (const frame of root.querySelectorAll(frameElementTagName)) {
         if (frame !== frameElement && !frame.querySelector(frameElement.frames!)) {
             frame.remove();
-            found = true;
         }
     }
+}
 
-    return found;
+/**
+ * A missing handle is only a deletion of the framed element if the browser is
+ * carrying out a deletion: structural commands like justifyCenter also take the
+ * handle out of the frame, and what they leave behind differs between Chromium
+ * versions (a copy of the frame around the handle in 149, no trace of it in the
+ * 140 of QtWebEngine 6.11), so the shape of the DOM cannot tell the two apart.
+ * Input events are dispatched before the DOM is changed, while the observers of
+ * frame and handle run on a microtask after it.
+ */
+let deleting = false;
+
+function trackDeletion({ inputType }: InputEvent): void {
+    if (!inputType.startsWith("delete")) {
+        return;
+    }
+
+    deleting = true;
+
+    /* The observers run on the microtask that follows the deletion, which for
+     * a key press is only reached after this listener has returned, so the
+     * flag has to outlive the current task. */
+    setTimeout(() => {
+        deleting = false;
+    });
+}
+
+document.addEventListener("beforeinput", trackDeletion, { capture: true });
+
+export function deletionInProgress(): boolean {
+    return deleting;
 }
 
 function skippableNode(handleElement: FrameHandle, node: Node): boolean {
@@ -84,6 +112,7 @@ function restoreHandleContent(mutations: MutationRecord[]): void {
                     && node.data === spaceCharacter
                     && handleElement.isConnected
                     && !handleElement.hasChildNodes()
+                    && !deleting
                 ) {
                     /**
                      * The space was moved out of the handle rather than deleted,

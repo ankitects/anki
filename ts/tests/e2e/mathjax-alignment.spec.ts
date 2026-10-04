@@ -9,6 +9,11 @@
  * handle, into a new block. The frame used to treat the missing handle as a
  * deletion and removed the whole MathJax element.
  *
+ * What the command leaves behind differs between Chromium versions: 149 wraps
+ * the moved handle in a copy of the frame, the 140 of QtWebEngine 6.11 drops
+ * it. The alignment tests below cover whichever shape the harness produces,
+ * the last test pins the one without a copy.
+ *
  * Content is seeded with setFields() the way editor_legacy.py loads a note, as
  * that is the path that decorates `\[...\]` into <anki-mathjax>.
  */
@@ -97,4 +102,14 @@ test("backspace after inline MathJax still deletes it", async ({ legacyEditor: p
     await expect(field.locator("anki-mathjax")).toHaveCount(0);
     await expect(field.locator("anki-frame")).toHaveCount(0);
     await expect(field).toHaveText("Lorem ");
+});
+
+test("a handle that goes missing outside a deletion keeps the MathJax", async ({ legacyEditor: page }) => {
+    const field = await seedFirstField(page, "Lorem \\(abc\\)");
+
+    // The shape the Qt webview's Chromium leaves behind when the line is
+    // justified: the handle is gone and no copy of the frame anywhere.
+    await field.evaluate((element) => element.querySelector("frame-start")!.remove());
+
+    await expectIntactFrame(field, "abc");
 });
