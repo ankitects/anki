@@ -3,13 +3,14 @@
 
 import { get } from "svelte/store";
 
-import { addOrUpdateNote } from "../add-or-update-note.svelte";
+import { addOrUpdateNote, type ImageOcclusionSaveResult } from "../add-or-update-note.svelte";
 import type { IOMode } from "../lib";
+import { exportShapesToClozeDeletions } from "../shapes/to-cloze";
 import { hideAllGuessOne } from "../store";
 import type { PageLoad } from "./$types";
 
-async function save(): Promise<void> {
-    addOrUpdateNote(globalThis["anki"].imageOcclusion.mode, get(hideAllGuessOne));
+async function save(): Promise<ImageOcclusionSaveResult> {
+    return await addOrUpdateNote(globalThis["anki"].imageOcclusion.mode, get(hideAllGuessOne));
 }
 
 export const load = (async ({ params }) => {
@@ -25,6 +26,9 @@ export const load = (async ({ params }) => {
     globalThis.anki.imageOcclusion = {
         mode,
         save,
+        addNote: save,
+        hasMasks: () => exportShapesToClozeDeletions(false).noteCount > 0,
+        getMaskCount: () => exportShapesToClozeDeletions(false).noteCount,
     };
 
     return {
