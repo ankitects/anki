@@ -223,11 +223,8 @@ class DataModel(QAbstractTableModel):
         return None
 
     def get_item_rows(self, items: Sequence[ItemId]) -> list[int]:
-        rows = []
-        for row, i in enumerate(self._items):
-            if i in items:
-                rows.append(row)
-        return rows
+        wanted = set(items)
+        return [row for row, i in enumerate(self._items) if i in wanted]
 
     def get_card_row(self, card_id: CardId) -> int | None:
         return self.get_item_row(self._state.get_item_from_card_id(card_id))
