@@ -1,0 +1,6 @@
+{
+  "package": "qt_stress",
+  "name": "Qt Stress Test",
+  "min_point_version": 260500,
+  "homepage": "https://github.com/ankitects/anki/pull/5663"
+}
