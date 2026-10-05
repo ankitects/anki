@@ -171,7 +171,7 @@ fn get_media_list_data(archive: &mut ZipArchive<File>, meta: &Meta) -> Result<Ve
             // Older AnkiDroid versions wrote colpkg files without a media map
             return Ok(b"{}".to_vec());
         }
-        err => err?,
+        err => err.map_err(AnkiError::from_zip_import_error)?,
     };
     let mut buf = Vec::new();
     if meta.zstd_compressed() {

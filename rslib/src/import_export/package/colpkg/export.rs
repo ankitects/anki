@@ -131,17 +131,20 @@ pub(crate) fn export_collection(
     tr: &I18n,
     progress: &mut ThrottlingProgressHandler<ExportProgress>,
 ) -> Result<()> {
-    let out_file = File::create(&out_path)?;
+    let out_path = out_path.as_ref();
+    let out_file = File::create(out_path)?;
     let mut zip = ZipWriter::new(out_file);
 
-    zip.start_file("meta", file_options_stored())?;
+    zip.start_file("meta", file_options_stored())
+        .map_err(|err| AnkiError::from_zip_export_error(out_path, err))?;
     let mut meta_bytes = vec![];
     meta.encode(&mut meta_bytes)?;
     zip.write_all(&meta_bytes)?;
-    write_collection(&meta, &mut zip, col, col_size)?;
-    write_dummy_collection(&mut zip, tr)?;
-    write_media(&meta, &mut zip, media, progress)?;
-    zip.finish()?;
+    write_collection(&meta, &mut zip, col, col_size, out_path)?;
+    write_dummy_collection(&mut zip, tr, out_path)?;
+    write_media(&meta, &mut zip, media, progress, out_path)?;
+    zip.finish()
+        .map_err(|err| AnkiError::from_zip_export_error(out_path, err))?;
 
     Ok(())
 }
@@ -159,23 +162,27 @@ fn write_collection(
     zip: &mut ZipWriter<File>,
     col: &mut impl Read,
     size: usize,
+    path: &Path,
 ) -> Result<()> {
     if meta.zstd_compressed() {
-        zip.start_file(meta.collection_filename(), file_options_stored())?;
+        zip.start_file(meta.collection_filename(), file_options_stored())
+            .map_err(|err| AnkiError::from_zip_export_error(path, err))?;
         zstd_copy(col, zip, size)?;
     } else {
-        zip.start_file(meta.collection_filename(), file_options_default())?;
+        zip.start_file(meta.collection_filename(), file_options_default())
+            .map_err(|err| AnkiError::from_zip_export_error(path, err))?;
         io::copy(col, zip)?;
     }
     Ok(())
 }
 
-fn write_dummy_collection(zip: &mut ZipWriter<File>, tr: &I18n) -> Result<()> {
+fn write_dummy_collection(zip: &mut ZipWriter<File>, tr: &I18n, path: &Path) -> Result<()> {
     let mut tempfile = create_dummy_collection_file(tr)?;
     zip.start_file(
         Version::Legacy1.collection_filename(),
         file_options_stored(),
-    )?;
+    )
+    .map_err(|err| AnkiError::from_zip_export_error(path, err))?;
     io::copy(&mut tempfile, zip)?;
 
     Ok(())
@@ -220,10 +227,11 @@ fn write_media(
     zip: &mut ZipWriter<File>,
     media: MediaIter,
     progress: &mut ThrottlingProgressHandler<ExportProgress>,
+    path: &Path,
 ) -> Result<()> {
     let mut media_entries = vec![];
-    write_media_files(meta, zip, media, &mut media_entries, progress)?;
-    write_media_map(meta, media_entries, zip)?;
+    write_media_files(meta, zip, media, &mut media_entries, progress, path)?;
+    write_media_map(meta, media_entries, zip, path)?;
     Ok(())
 }
 
@@ -231,8 +239,10 @@ fn write_media_map(
     meta: &Meta,
     media_entries: Vec<MediaEntry>,
     zip: &mut ZipWriter<File>,
+    path: &Path,
 ) -> Result<()> {
-    zip.start_file("media", file_options_stored())?;
+    zip.start_file("media", file_options_stored())
+        .map_err(|err| AnkiError::from_zip_export_error(path, err))?;
     let encoded_bytes = if meta.media_list_is_hashmap() {
         let map: HashMap<String, &str> = media_entries
             .iter()
@@ -264,6 +274,7 @@ fn write_media_files(
     media: MediaIter,
     media_entries: &mut Vec<MediaEntry>,
     progress: &mut ThrottlingProgressHandler<ExportProgress>,
+    path: &Path,
 ) -> Result<()> {
     let mut copier = MediaCopier::new(meta.zstd_compressed());
     let mut incrementor = progress.incrementor(ExportProgress::Media);
@@ -271,7 +282,8 @@ fn write_media_files(
         incrementor.increment()?;
         let mut entry = res?;
 
-        zip.start_file(index.to_string(), file_options_stored())?;
+        zip.start_file(index.to_string(), file_options_stored())
+            .map_err(|err| AnkiError::from_zip_export_error(path, err))?;
 
         let (size, sha1) = copier.copy(&mut entry.data, zip)?;
         media_entries.push(new_media_entry(entry.nfc_filename, size, sha1));

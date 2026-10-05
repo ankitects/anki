@@ -309,6 +309,37 @@ impl From<std::io::Error> for AnkiError {
     }
 }
 
+// Helpers for explicitly mapping zip errors at the call site, so that callers
+// pick the AnkiError kind matching their context. A blanket From conversion is
+// avoided, as it previously assumed every zip error was a sync failure, which
+// was wrong for import/export.
+impl AnkiError {
+    /// For a zip failure while reading/writing sync media.
+    pub(crate) fn from_zip_sync_error(err: zip::result::ZipError) -> Self {
+        AnkiError::sync_error(err.to_string(), SyncErrorKind::Other)
+    }
+
+    /// For a zip failure while reading an import package; it is corrupt.
+    pub(crate) fn from_zip_import_error(_: zip::result::ZipError) -> Self {
+        AnkiError::ImportError {
+            source: ImportError::Corrupt,
+        }
+    }
+
+    /// For a zip failure while writing the export package at `path`.
+    pub(crate) fn from_zip_export_error(
+        path: impl AsRef<std::path::Path>,
+        err: zip::result::ZipError,
+    ) -> Self {
+        FileIoError {
+            path: path.as_ref().to_path_buf(),
+            op: FileOp::Write,
+            source: std::io::Error::other(err),
+        }
+        .into()
+    }
+}
+
 #[derive(Debug, PartialEq, Eq, Snafu)]
 #[snafu(visibility(pub))]
 pub struct CardTypeError {
