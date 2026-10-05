@@ -778,6 +778,7 @@ mod test {
                 expected: "foo".into(),
                 provided: "foo".into(),
                 combining: true,
+                ignore_case: false,
             })
             .unwrap();
 
