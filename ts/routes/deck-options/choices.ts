@@ -83,6 +83,10 @@ export function reviewOrderChoices(
                 value: DeckConfig_Config_ReviewCardOrder.DAY_THEN_DECK,
             },
             {
+                label: tr.deckConfigSortOrderReverseDueDateThenDeck(),
+                value: DeckConfig_Config_ReviewCardOrder.REVERSE_DAY_THEN_DECK,
+            },
+            {
                 label: tr.deckConfigSortOrderDeckThenDueDate(),
                 value: DeckConfig_Config_ReviewCardOrder.DECK_THEN_DAY,
             },
