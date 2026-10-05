@@ -46,7 +46,7 @@ pub(crate) fn get_decay_from_params(params: &[f32]) -> f32 {
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub(crate) struct UpdateMemoryStateRequest {
     pub params: Params,
     pub preset_desired_retention: f32,
@@ -682,7 +682,27 @@ mod tests {
     }
 
     mod update_memory_state {
+        use anki_proto::scheduler::bury_or_suspend_cards_request::Mode;
+
         use super::*;
+
+        fn update_memory_state_for_card(
+            col: &mut Collection,
+            card_id: CardId,
+            req: Option<UpdateMemoryStateRequest>,
+        ) -> Result<()> {
+            let entry = UpdateMemoryStateEntry {
+                req,
+                search: Node::Search(SearchNode::CardIds(card_id.to_string())),
+                ignore_before: TimestampMillis(0),
+            };
+            col.transact(Op::UpdateDeckConfig, |col| {
+                col.update_memory_state(vec![entry]).unwrap();
+                Ok(())
+            })
+            .unwrap();
+            Ok(())
+        }
 
         #[test]
         fn no_req_clears_fsrs_data() -> Result<()> {
@@ -715,21 +735,68 @@ mod tests {
             rev.cid = card_id;
             col.storage.add_revlog_entry(&rev, false)?;
 
-            let entry = UpdateMemoryStateEntry {
-                req: None,
-                search: Node::Search(SearchNode::WholeCollection),
-                ignore_before: TimestampMillis(0),
-            };
-            col.transact(Op::UpdateDeckConfig, |col| {
-                col.update_memory_state(vec![entry]).unwrap();
-                Ok(())
-            })
-            .unwrap();
+            update_memory_state_for_card(&mut col, card_id, None)?;
 
             let card = col.storage.get_card(card_id)?.unwrap();
             assert_eq!(card.memory_state, None);
             assert_eq!(card.desired_retention, None);
             assert_eq!(card.decay, None);
+
+            Ok(())
+        }
+
+        #[test]
+        fn suspended_card_not_rescheduled() -> Result<()> {
+            let mut col = Collection::new();
+            let nt = col.get_notetype_by_name("Basic")?.unwrap();
+            let mut note1 = nt.new_note();
+            col.add_note(&mut note1, DeckId(1))?;
+            let card = col
+                .storage
+                .all_cards_of_note(note1.id)?
+                .into_iter()
+                .next()
+                .unwrap();
+            col.grade_now(&[card.id], 3)?;
+
+            let req = Some(UpdateMemoryStateRequest {
+                params: vec![],
+                preset_desired_retention: 0.9,
+                historical_retention: 0.9,
+                max_interval: 365,
+                reschedule: true,
+                deck_desired_retention: HashMap::new(),
+            });
+
+            update_memory_state_for_card(&mut col, card.id, req.clone())?;
+
+            let mut card = col.storage.get_card(card.id)?.unwrap();
+            card.interval = 910;
+            card.due = 910;
+
+            assert_eq!(card.queue, CardQueue::Review);
+            assert_eq!(card.ctype, CardType::Review);
+            assert!(card.memory_state.is_some());
+
+            update_memory_state_for_card(&mut col, card.id, req.clone())?;
+            let mut card = col.storage.get_card(card.id)?.unwrap();
+
+            assert_ne!(card.interval, 910);
+            assert_ne!(card.due, 910);
+
+            card.interval = 909;
+            card.due = 909;
+            card.clear_fsrs_data();
+            col.storage.update_card(&card)?;
+
+            col.bury_or_suspend_cards(&[card.id], Mode::Suspend)?;
+
+            update_memory_state_for_card(&mut col, card.id, req)?;
+
+            let suspend_updated_card = col.storage.get_card(card.id)?.unwrap();
+            assert_eq!(suspend_updated_card.queue, CardQueue::Suspended);
+            assert_eq!(suspend_updated_card.interval, card.interval);
+            assert_eq!(suspend_updated_card.due, card.due);
 
             Ok(())
         }
