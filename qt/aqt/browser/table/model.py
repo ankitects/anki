@@ -135,7 +135,8 @@ class DataModel(QAbstractTableModel):
         """
         disabled = {item for item, row in self._rows.items() if row.is_disabled}
         count = 0
-        for selection_range in selection:
+        for i in range(len(selection)):
+            selection_range = selection[i]
             if not selection_range.isValid():
                 continue
             rows = range(selection_range.top(), selection_range.bottom() + 1)
