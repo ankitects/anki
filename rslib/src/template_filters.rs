@@ -16,6 +16,10 @@ use crate::text::strip_html;
 // Filtering
 //----------------------------------------
 
+/// Modifiers that may precede the field name of a type: reference, in the
+/// order they are written into the resulting placeholder.
+const TYPE_MODIFIERS: [&str; 3] = ["cloze", "nc", "ci"];
+
 /// Applies built in filters, returning the resulting text and remaining
 /// filters.
 ///
@@ -28,16 +32,13 @@ pub(crate) fn apply_filters<'a>(
     field_name: &str,
     context: &RenderContext,
 ) -> (Cow<'a, str>, Vec<String>) {
-    let mut text: Cow<str> = text.into();
+    // an outer type: is handled specially: recognized modifiers like cloze and
+    // nc are folded into the placeholder, and any other filters are ignored
+    if let [modifiers @ .., "type"] = filters {
+        return (type_filter(field_name, modifiers), vec![]);
+    }
 
-    // type:cloze & type:nc are handled specially
-    // other type: are passed as the default one
-    let filters = match filters {
-        ["cloze", "type"] => &["type-cloze"],
-        ["nc", "type"] => &["type-nc"],
-        [.., "type"] => &["type"],
-        _ => filters,
-    };
+    let mut text: Cow<str> = text.into();
 
     for (idx, &filter_name) in filters.iter().enumerate() {
         match apply_filter(filter_name, text.as_ref(), field_name, context) {
@@ -80,9 +81,12 @@ fn apply_filter(
         "furigana" => furigana_filter(text),
         "kanji" => kanji_filter(text),
         "kana" => kana_filter(text),
-        "type" => type_filter(field_name),
-        "type-cloze" => type_cloze_filter(field_name),
-        "type-nc" => type_nc_filter(field_name),
+        // only reached when type: is not the outermost filter
+        "type" => type_filter(field_name, &[]),
+        // these were originally an implementation detail of the handling
+        // above, but are usable in templates, so are kept working
+        "type-cloze" => type_filter(field_name, &["cloze"]),
+        "type-nc" => type_filter(field_name, &["nc"]),
         "hint" => hint_filter(text, field_name),
         "cloze" => cloze_filter(text, context),
         "cloze-only" => cloze_only_filter(text, context),
@@ -163,17 +167,15 @@ fn furigana_filter(text: &str) -> Cow<'_, str> {
 // Other filters
 //----------------------------------------
 
-/// convert to [[type:...]] for the gui code to process
-fn type_filter<'a>(field_name: &str) -> Cow<'a, str> {
-    format!("[[type:{field_name}]]").into()
-}
-
-fn type_cloze_filter<'a>(field_name: &str) -> Cow<'a, str> {
-    format!("[[type:cloze:{field_name}]]").into()
-}
-
-fn type_nc_filter<'a>(field_name: &str) -> Cow<'a, str> {
-    format!("[[type:nc:{field_name}]]").into()
+/// convert to [[type:...]] for the gui code to process, keeping any recognized
+/// modifiers in a canonical order and discarding the rest
+fn type_filter<'a>(field_name: &str, modifiers: &[&str]) -> Cow<'a, str> {
+    let prefix: String = TYPE_MODIFIERS
+        .iter()
+        .filter(|modifier| modifiers.contains(*modifier))
+        .map(|modifier| format!("{modifier}:"))
+        .collect();
+    format!("[[type:{prefix}{field_name}]]").into()
 }
 
 fn hint_filter<'a>(text: &'a str, field_name: &str) -> Cow<'a, str> {
@@ -240,9 +242,12 @@ field</a>
 
     #[test]
     fn typing() {
-        assert_eq!(type_filter("Front"), "[[type:Front]]");
-        assert_eq!(type_cloze_filter("Front"), "[[type:cloze:Front]]");
-        assert_eq!(type_nc_filter("Front"), "[[type:nc:Front]]");
+        assert_eq!(type_filter("Front", &[]), "[[type:Front]]");
+        assert_eq!(type_filter("Front", &["cloze"]), "[[type:cloze:Front]]");
+        assert_eq!(type_filter("Front", &["nc"]), "[[type:nc:Front]]");
+        assert_eq!(type_filter("Front", &["ci"]), "[[type:ci:Front]]");
+        // modifiers are output in a canonical order
+        assert_eq!(type_filter("Front", &["ci", "nc"]), "[[type:nc:ci:Front]]");
         let ctx = RenderContext {
             fields: &Default::default(),
             nonempty_fields: &Default::default(),
@@ -259,8 +264,21 @@ field</a>
             ("[[type:nc:Text]]".into(), vec![])
         );
         assert_eq!(
+            apply_filters("ignored", &["ci", "type"], "Text", &ctx),
+            ("[[type:ci:Text]]".into(), vec![])
+        );
+        // {{type:ci:nc:Text}}
+        assert_eq!(
+            apply_filters("ignored", &["nc", "ci", "type"], "Text", &ctx),
+            ("[[type:nc:ci:Text]]".into(), vec![])
+        );
+        assert_eq!(
             apply_filters("ignored", &["some", "unknown", "type"], "Text", &ctx),
             ("[[type:Text]]".into(), vec![])
+        );
+        assert_eq!(
+            apply_filters("ignored", &["type-nc"], "Text", &ctx),
+            ("[[type:nc:Text]]".into(), vec![])
         );
     }
 
