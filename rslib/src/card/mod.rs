@@ -409,6 +409,7 @@ impl Collection {
                         historical_retention: config.inner.historical_retention,
                         max_interval: config.inner.maximum_review_interval,
                         reschedule: false,
+                        reschedule_no_workload: false,
                         deck_desired_retention,
                     }),
                     search: SearchBuilder::all(vec![
