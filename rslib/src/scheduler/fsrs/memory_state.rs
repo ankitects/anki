@@ -757,7 +757,9 @@ mod tests {
                 .into_iter()
                 .next()
                 .unwrap();
-            col.grade_now(&[card.id], 3)?;
+
+            let card_id = card.id;
+            col.grade_now(&[card_id], 3)?;
 
             let req = Some(UpdateMemoryStateRequest {
                 params: vec![],
@@ -768,9 +770,9 @@ mod tests {
                 deck_desired_retention: HashMap::new(),
             });
 
-            update_memory_state_for_card(&mut col, card.id, req.clone())?;
+            update_memory_state_for_card(&mut col, card_id, req.clone())?;
 
-            let mut card = col.storage.get_card(card.id)?.unwrap();
+            let mut card = col.storage.get_card(card_id)?.unwrap();
             card.interval = 910;
             card.due = 910;
 
@@ -778,8 +780,8 @@ mod tests {
             assert_eq!(card.ctype, CardType::Review);
             assert!(card.memory_state.is_some());
 
-            update_memory_state_for_card(&mut col, card.id, req.clone())?;
-            let mut card = col.storage.get_card(card.id)?.unwrap();
+            update_memory_state_for_card(&mut col, card_id, req.clone())?;
+            let mut card = col.storage.get_card(card_id)?.unwrap();
 
             assert_ne!(card.interval, 910);
             assert_ne!(card.due, 910);
@@ -788,15 +790,20 @@ mod tests {
             card.due = 909;
             card.clear_fsrs_data();
             col.storage.update_card(&card)?;
+            // One revlog entry for the initial grade, and one for the two reschedules
+            assert_eq!(col.get_review_logs(card_id)?.entries.len(), 3);
 
-            col.bury_or_suspend_cards(&[card.id], Mode::Suspend)?;
+            col.bury_or_suspend_cards(&[card_id], Mode::Suspend)?;
 
-            update_memory_state_for_card(&mut col, card.id, req)?;
+            update_memory_state_for_card(&mut col, card_id, req)?;
 
-            let suspend_updated_card = col.storage.get_card(card.id)?.unwrap();
+            let suspend_updated_card = col.storage.get_card(card_id)?.unwrap();
             assert_eq!(suspend_updated_card.queue, CardQueue::Suspended);
             assert_eq!(suspend_updated_card.interval, card.interval);
             assert_eq!(suspend_updated_card.due, card.due);
+
+            // Suspended card does not get an extra review log
+            assert_eq!(col.get_review_logs(card_id)?.entries.len(), 3);
 
             Ok(())
         }
