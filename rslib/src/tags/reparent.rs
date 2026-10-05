@@ -101,10 +101,15 @@ fn old_to_new_names(
 /// Returns None if new parent is a child of the tag to be reparented.
 fn reparented_name(existing_name: &str, new_parent: Option<&str>) -> Option<String> {
     let existing_base = existing_name.rsplit("::").next().unwrap();
-    let existing_root = existing_name.split("::").next().unwrap();
     if let Some(new_parent) = new_parent {
-        let new_parent_root = new_parent.split("::").next().unwrap();
-        if new_parent.starts_with(existing_name) && new_parent_root == existing_root {
+        // Compare on :: component boundaries, so a sibling whose name merely
+        // shares a string prefix (e.g. foo::bar onto foo::barbaz) is not
+        // mistaken for a descendant and silently dropped.
+        let onto_self_or_descendant = new_parent == existing_name
+            || new_parent
+                .strip_prefix(existing_name)
+                .is_some_and(|rest| rest.starts_with("::"));
+        if onto_self_or_descendant {
             // foo onto foo::bar, or foo onto itself -> no-op
             None
         } else {
@@ -138,6 +143,19 @@ mod test {
             .into_iter()
             .map(|t| t.name)
             .collect()
+    }
+
+    #[test]
+    fn reparent_onto_prefix_sibling() {
+        // foo::bar onto its sibling foo::barbaz must reparent, not no-op: the
+        // names share a string prefix but barbaz is not a descendant of bar.
+        assert_eq!(
+            reparented_name("foo::bar", Some("foo::barbaz")),
+            Some("foo::barbaz::bar".to_string())
+        );
+        // a genuine descendant, or the tag itself, is still a no-op
+        assert_eq!(reparented_name("foo", Some("foo::bar")), None);
+        assert_eq!(reparented_name("foo::bar", Some("foo::bar")), None);
     }
 
     #[test]
