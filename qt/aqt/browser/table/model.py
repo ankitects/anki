@@ -4,6 +4,8 @@ from __future__ import annotations
 
 import time
 from collections.abc import Callable, Sequence
+from itertools import compress, count, repeat
+from operator import eq
 from typing import Any
 
 import aqt
@@ -217,14 +219,11 @@ class DataModel(QAbstractTableModel):
     # Get row numbers from items
 
     def get_item_row(self, item: ItemId) -> int | None:
-        for row, i in enumerate(self._items):
-            if i == item:
-                return row
-        return None
+        return next(compress(count(), map(eq, self._items, repeat(item))), None)
 
     def get_item_rows(self, items: Sequence[ItemId]) -> list[int]:
         wanted = set(items)
-        return [row for row, i in enumerate(self._items) if i in wanted]
+        return list(compress(count(), map(wanted.__contains__, self._items)))
 
     def get_card_row(self, card_id: CardId) -> int | None:
         return self.get_item_row(self._state.get_item_from_card_id(card_id))
