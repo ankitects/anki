@@ -676,8 +676,9 @@ class StatusDelegate(QItemDelegate):
     def paint(
         self, painter: QPainter | None, option: QStyleOptionViewItem, index: QModelIndex
     ) -> None:
-        option.textElideMode = self._model.get_cell(index).elide_mode
-        if self._model.get_cell(index).is_rtl:
+        cell = self._model.get_cell(index)
+        option.textElideMode = cell.elide_mode
+        if cell.is_rtl:
             option.direction = Qt.LayoutDirection.RightToLeft
         if row_color := self._model.get_row(index).color:
             brush = QBrush(theme_manager.qcolor(row_color))
