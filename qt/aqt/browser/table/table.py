@@ -340,6 +340,12 @@ class Table:
         assert self._view is not None
         self._view.setSortingEnabled(True)
         self._view.setModel(self._model)
+        # On every paint, QHeaderView checks if each column is fully selected
+        # by calling flags() for every row, which signficantly slows down selections,
+        # so we set an empty model to prevent that.
+        self._horizontal_header().setSelectionModel(
+            QItemSelectionModel(self._model, self._view)
+        )
         self._view.selectionModel()
         self._view.setItemDelegate(StatusDelegate(self.browser, self._model))
         selection_model = self._selection_model()
