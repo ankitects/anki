@@ -1,4 +1,7 @@
 #!/usr/bin/env bash
+#
+# Builds the macOS anki-audio wheel. mpv, lame and all their libraries are
+# built from source (see macos/)
 
 set -e
 
@@ -9,29 +12,18 @@ fi
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 OUTPUT_DIR="$SCRIPT_DIR/../../out/extracted"
-BREW_PREFIX="$(brew --prefix)"
-BREW_REPO="$(brew --repository)"
 
-brew install dylibbundler
-brew install lame
-if [ "$(brew list --full-name | grep ankitects/audio/mpv)" = "" ]; then
-    brew uninstall mpv || true
-    brew tap-new ankitects/audio || true
-    cp "$SCRIPT_DIR/mpv.rb" "$BREW_REPO/Library/Taps/ankitects/homebrew-audio/Formula/"
-    brew install ankitects/audio/mpv
+brew install meson ninja cmake pkgconf nasm autoconf automake libtool dylibbundler
+
+# FFmpeg's Metal filters need the Metal compiler, which newer Xcode versions
+# ship as a separate download.
+if ! xcrun -sdk macosx metal -v >/dev/null 2>&1; then
+    xcodebuild -downloadComponent MetalToolchain
 fi
 
-rm -rf "$OUTPUT_DIR/mpv"
-mkdir -p "$OUTPUT_DIR/mpv"
-pushd "$OUTPUT_DIR/mpv"
-mkdir libs
-cp "$BREW_PREFIX/bin/mpv" .
-dylibbundler -x mpv -d libs -p @executable_path/libs/ -b
-popd
-
-rm -rf "$OUTPUT_DIR/lame"
-mkdir -p "$OUTPUT_DIR/lame"
-cp "$BREW_PREFIX/bin/lame" "$OUTPUT_DIR/lame/" && chmod u+w "$OUTPUT_DIR/lame/lame"
+"$SCRIPT_DIR/macos/build-deps.sh"
+"$SCRIPT_DIR/macos/bundle.sh"
+"$SCRIPT_DIR/macos/check-binaries.sh" "$OUTPUT_DIR/mpv" "$OUTPUT_DIR/lame"
 
 if [ -n "${SIGN_IDENTITY:-}" ]; then
     find "$OUTPUT_DIR/mpv/libs" -name "*.dylib" -exec \
