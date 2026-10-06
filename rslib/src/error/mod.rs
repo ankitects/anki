@@ -183,7 +183,7 @@ impl AnkiError {
             AnkiError::FsrsInsufficientReviews { count } => {
                 tr.deck_config_must_have_400_reviews(*count).into()
             }
-            AnkiError::FsrsParamsInvalid => tr.deck_config_invalid_parameters().into(),
+            AnkiError::FsrsParamsInvalid => tr.deck_config_invalid_parameters_2().into(),
             AnkiError::SchedulerUpgradeRequired => {
                 tr.scheduling_update_required().replace("V2", "v3")
             }
