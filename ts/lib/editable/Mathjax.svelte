@@ -37,31 +37,43 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     import { pageTheme } from "$lib/sveltelib/theme";
 
-    import { convertMathjax, unescapeSomeEntities } from "./mathjax";
+    import { convertMathjax, emptyIcon, unescapeSomeEntities } from "./mathjax";
     import { CooldownTimer } from "./cooldown-timer";
 
     export let mathjax: string;
     export let block: boolean;
     export let fontSize: number;
 
-    let converted: string, title: string;
+    // MathJax is loaded on demand, so the first typeset in a session resolves
+    // asynchronously. Show the same icon an empty element uses until it does.
+    let [converted, title]: [string, string] = emptyIcon($pageTheme.isDark, fontSize);
 
     const debouncer = new CooldownTimer(500);
 
+    // Bumped for every conversion, so that a typeset which resolves after a
+    // newer one was scheduled cannot overwrite the newer result.
+    let generation = 0;
+
     $: debouncer.schedule(() => {
         const cache = getCache($pageTheme.isDark, fontSize);
-        const entry = cache.get(mathjax);
-        if (entry) {
-            [converted, title] = entry;
-        } else {
-            const entry = convertMathjax(
-                unescapeSomeEntities(mathjax),
-                $pageTheme.isDark,
-                fontSize,
-            );
-            [converted, title] = entry;
-            cache.set(mathjax, entry);
+        const cached = cache.get(mathjax);
+        if (cached) {
+            generation++;
+            [converted, title] = cached;
+            return;
         }
+
+        const current = ++generation;
+        const input = mathjax;
+
+        convertMathjax(unescapeSomeEntities(input), $pageTheme.isDark, fontSize).then(
+            (entry) => {
+                cache.set(input, entry);
+                if (current === generation) {
+                    [converted, title] = entry;
+                }
+            },
+        );
     });
     $: empty = title === "MathJax";
     $: encoded = encodeURIComponent(converted);
