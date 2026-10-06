@@ -55,7 +55,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     async function save(mode: UpdateDeckConfigsMode): Promise<void> {
         await commitEditing();
-        state.save(mode);
+        await state.save(mode);
     }
 
     const saveKeyCombination = "Control+Enter";
