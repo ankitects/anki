@@ -184,7 +184,6 @@ pub fn check_python(build: &mut Build) -> Result<()> {
         "check:pytest:tools",
         PythonTest {
             folder: "tools/tests",
-            python_path: &["tools"],
             deps: inputs![glob!["tools/**/*.py"]],
         },
     )?;
