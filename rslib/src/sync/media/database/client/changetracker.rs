@@ -3,7 +3,6 @@
 
 use std::collections::HashMap;
 use std::path::Path;
-use std::time;
 
 use anki_io::read_dir_files;
 use tracing::debug;
@@ -136,11 +135,7 @@ where
             let previous_mtime = mtimes.remove(fname.as_ref());
 
             // skip files that have not been modified
-            let mtime = metadata
-                .modified()?
-                .duration_since(time::UNIX_EPOCH)
-                .unwrap()
-                .as_secs() as i64;
+            let mtime = mtime_as_i64(dentry.path())?;
             if let Some(previous_mtime) = previous_mtime {
                 if previous_mtime == mtime {
                     debug!(fname = fname.as_ref(), "mtime unchanged");
@@ -241,7 +236,6 @@ mod test {
     use std::fs;
     use std::fs::FileTimes;
     use std::path::Path;
-    use std::time;
     use std::time::Duration;
 
     use anki_io::create_dir;
@@ -294,12 +288,7 @@ mod test {
                 MediaEntry {
                     fname: "file.jpg".into(),
                     sha1: Some(sha1_of_data(b"hello")),
-                    mtime: f1
-                        .metadata()?
-                        .modified()?
-                        .duration_since(time::UNIX_EPOCH)
-                        .unwrap()
-                        .as_secs() as i64,
+                    mtime: mtime_as_i64(&f1)?,
                     sync_required: true,
                 }
             );
@@ -328,12 +317,7 @@ mod test {
                 MediaEntry {
                     fname: "file.jpg".into(),
                     sha1: Some(sha1_of_data(b"hello1")),
-                    mtime: f1
-                        .metadata()?
-                        .modified()?
-                        .duration_since(time::UNIX_EPOCH)
-                        .unwrap()
-                        .as_secs() as i64,
+                    mtime: mtime_as_i64(&f1)?,
                     sync_required: true,
                 }
             );
@@ -365,6 +349,35 @@ mod test {
             }
         );
 
+        Ok(())
+    }
+
+    #[test]
+    fn scan_does_not_rehash_a_file_whose_stored_mtime_came_from_mtime_as_i64() -> Result<()> {
+        // MediaManager::add_file and add_file_from_ankiweb store mtime_as_i64's
+        // millisecond value for a file they just wrote. Before this fix, the
+        // folder scan computed its own mtime with .as_secs() instead of calling
+        // mtime_as_i64, so a freshly added file's stored mtime never matched the
+        // scan's mtime and got rehashed on every scan since the file was added,
+        // not just once.
+        let dir = tempdir()?;
+        let media_dir = dir.path().join("media");
+        create_dir(&media_dir)?;
+        let f1 = media_dir.join("file.jpg");
+        write_file(&f1, "hello")?;
+
+        let mut mtimes = HashMap::new();
+        mtimes.insert("file.jpg".to_string(), mtime_as_i64(&f1)?);
+
+        let mut progress_cb = |_n| true;
+        let (added_or_changed, removed) =
+            ChangeTracker::new(&media_dir, &mut progress_cb).media_folder_changes(mtimes)?;
+
+        assert!(
+            added_or_changed.is_empty(),
+            "file was rehashed even though its stored mtime matches the file's current mtime"
+        );
+        assert!(removed.is_empty());
         Ok(())
     }
 }
