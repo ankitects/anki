@@ -54,7 +54,7 @@ ammonia = "4.1.2"
 anyhow = "1.0.98"
 async-compression = { version = "0.4.24", features = ["zstd", "tokio"] }
 async-stream = "0.3.6"
-async-trait = "0.1.88"
+async-trait = "0.1.92"
 axum = { version = "0.8.4", features = ["multipart", "macros"] }
 axum-client-ip = "1.1.3"
 axum-extra = { version = "0.10.1", features = ["typed-header"] }

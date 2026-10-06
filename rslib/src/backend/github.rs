@@ -81,14 +81,13 @@ impl BackendGithubService for Backend {
                 .map_err(reqwest_error_to_anki_error)?
                 .error_for_status()
                 .map_err(reqwest_error_to_anki_error)?;
-            let release_info: Value;
-            if input.include_prerelease {
+            let release_info: Value = if input.include_prerelease {
                 let json: Value = response.json().await?;
                 let releases = json.as_array().or_invalid("expected an array")?;
-                release_info = releases.first().or_invalid("no releases found")?.clone();
+                releases.first().or_invalid("no releases found")?.clone()
             } else {
-                release_info = response.json().await?;
-            }
+                response.json().await?
+            };
             let tag_name = release_info["tag_name"]
                 .as_str()
                 .or_invalid("release tag not found")?;
