@@ -134,20 +134,19 @@ class DataModel(QAbstractTableModel):
         Cells of disabled (deleted) rows are not counted, as in flags().
         """
         disabled = {item for item, row in self._rows.items() if row.is_disabled}
-        count = 0
+        cells = 0
         for i in range(len(selection)):
             selection_range = selection[i]
             if not selection_range.isValid():
                 continue
-            rows = range(selection_range.top(), selection_range.bottom() + 1)
+            top, bottom = selection_range.top(), selection_range.bottom()
+            enabled_rows = bottom - top + 1
             if disabled:
-                enabled_rows = sum(
-                    1 for row in rows if self._items[row] not in disabled
+                enabled_rows -= sum(
+                    map(disabled.__contains__, self._items[top : bottom + 1])
                 )
-            else:
-                enabled_rows = len(rows)
-            count += enabled_rows * selection_range.width()
-        return count
+            cells += enabled_rows * selection_range.width()
+        return cells
 
     # Reset
 
