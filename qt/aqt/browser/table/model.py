@@ -128,6 +128,27 @@ class DataModel(QAbstractTableModel):
         """Get row if it is cached, regardless of staleness."""
         return self._rows.get(self.get_item(index))
 
+    def count_enabled_cells(self, selection: QItemSelection) -> int:
+        """Return len(selection.indexes()) without calling flags() for every
+        cell, which is very slow for large selections (e.g. Ctrl+A).
+        Cells of disabled (deleted) rows are not counted, as in flags().
+        """
+        disabled = {item for item, row in self._rows.items() if row.is_disabled}
+        count = 0
+        for i in range(len(selection)):
+            selection_range = selection[i]
+            if not selection_range.isValid():
+                continue
+            rows = range(selection_range.top(), selection_range.bottom() + 1)
+            if disabled:
+                enabled_rows = sum(
+                    1 for row in rows if self._items[row] not in disabled
+                )
+            else:
+                enabled_rows = len(rows)
+            count += enabled_rows * selection_range.width()
+        return count
+
     # Reset
 
     def mark_cache_stale(self) -> None:
