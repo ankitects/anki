@@ -26,7 +26,7 @@ The following people have contributed to Anki: [CONTRIBUTORS](./CONTRIBUTORS)
 ### Anki Betas
 
 If you'd like to try development builds of Anki but don't feel comfortable
-building the code, please see [Anki betas](https://betas.ankiweb.net/).
+building the code, please see [Anki betas](https://docs.ankiweb.net/releases/betas/intro).
 
 ## License
 
