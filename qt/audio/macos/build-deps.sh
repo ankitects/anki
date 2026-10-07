@@ -265,7 +265,7 @@ build_mpv() {
         -Daudiounit=disabled \
         -Dgl-cocoa=enabled -Dmacos-cocoa-cb=enabled -Dswift-build=enabled \
         -Dvideotoolbox-gl=enabled -Dvideotoolbox-pl=enabled \
-        -Dmacos-media-player=enabled -Dmacos-touchbar=enabled \
+        -Dmacos-media-player=disabled -Dmacos-touchbar=enabled \
         -Dswift-flags="-target $ARCH-apple-macos$DEPLOYMENT_TARGET"
     local swift_minos
     swift_minos="$(otool -l "$BUILD/mpv/osdep/mac/swift.o" | awk '$1 == "minos" { print $2 }' | sort -u | tr '\n' ' ' | sed 's/ $//')"
