@@ -102,6 +102,8 @@ download() {
     local actual
     actual="$(shasum -a 256 "$file.part" | cut -d' ' -f1)"
     if [ "$actual" != "$sha" ]; then
+        # Show what was served instead (for example an HTML error page).
+        echo "downloaded $(wc -c <"$file.part" | tr -d ' ') bytes: $(file -b "$file.part")" >&2
         rm -f "$file.part"
         die "sha256 mismatch for $url: expected $sha, got $actual"
     fi
