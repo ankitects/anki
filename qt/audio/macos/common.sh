@@ -3,6 +3,9 @@
 
 # Shared environment and helpers for the macOS anki-audio build.
 # Source this file; do not run it.
+#
+# Variables defined here are used by the scripts that source this file.
+# shellcheck shell=bash disable=SC2034
 
 set -euo pipefail
 
@@ -56,7 +59,7 @@ CMAKE_ARGS=(
     -DCMAKE_INSTALL_PREFIX="$PREFIX"
     -DCMAKE_INSTALL_LIBDIR=lib
     -DCMAKE_PREFIX_PATH="$PREFIX"
-    -DCMAKE_OSX_DEPLOYMENT_TARGET=$DEPLOYMENT_TARGET
+    -DCMAKE_OSX_DEPLOYMENT_TARGET="$DEPLOYMENT_TARGET"
     -DCMAKE_OSX_ARCHITECTURES="$ARCH"
     -DCMAKE_OSX_SYSROOT="$SDKROOT"
     "-DCMAKE_IGNORE_PREFIX_PATH=/opt/homebrew;/usr/local"
