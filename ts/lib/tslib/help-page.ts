@@ -38,14 +38,14 @@ export const HelpPage = {
         siblingsAndBurying: "https://docs.ankiweb.net/manual/studying#siblings-and-burying",
     },
     PackageImporting: {
-        root: "https://docs.ankiweb.net/manual/importing/packaged-decks.html",
-        updating: "https://docs.ankiweb.net/manual/importing/packaged-decks.html#updating",
-        scheduling: "https://docs.ankiweb.net/manual/importing/packaged-decks.html#scheduling",
+        root: "https://docs.ankiweb.net/manual/importing/packaged-decks#packaged-decks",
+        updating: "https://docs.ankiweb.net/manual/importing/packaged-decksl#updating",
+        scheduling: "https://docs.ankiweb.net/manual/importing/packaged-decks#scheduling",
     },
     TextImporting: {
-        root: "https://docs.ankiweb.net/manual/importing/text-files.html",
-        updating: "https://docs.ankiweb.net/manual/importing/text-files.html#duplicates-and-updating",
-        html: "https://docs.ankiweb.net/manual/importing/text-files.html#html",
+        root: "https://docs.ankiweb.net/manual/importing/text-files#text-files",
+        updating: "https://docs.ankiweb.net/manual/importing/text-files#duplicates-and-updating",
+        html: "https://docs.ankiweb.net/manual/importing/text-files#html",
     },
     Editing: {
         adding: "https://docs.ankiweb.net/manual/editing#adding-cards-and-notes",
