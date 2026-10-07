@@ -101,7 +101,7 @@ pub struct GenBuildInfo {}
 
 impl BuildAction for GenBuildInfo {
     fn command(&self) -> &str {
-        "$pyenv_bin $script $version_file $buildhash_file $out"
+        "$pyenv_bin $script $version_file $buildhash_file $buildtime_file $out"
     }
 
     fn files(&mut self, build: &mut impl ninja_gen::build::FilesHandle) {
@@ -109,6 +109,7 @@ impl BuildAction for GenBuildInfo {
         build.add_inputs("script", inputs!["pylib/tools/genbuildinfo.py"]);
         build.add_inputs("version_file", inputs![".version"]);
         build.add_inputs("buildhash_file", inputs!["$builddir/buildhash"]);
+        build.add_inputs("buildtime_file", inputs!["$builddir/buildtime"]);
         build.add_outputs("out", vec!["pylib/anki/buildinfo.py"]);
     }
 }

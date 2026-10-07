@@ -12,6 +12,7 @@ anki_io.workspace = true
 anki_process.workspace = true
 anyhow.workspace = true
 camino.workspace = true
+chrono.workspace = true
 clap.workspace = true
 flate2.workspace = true
 hex.workspace = true
