@@ -735,10 +735,7 @@ pub(in crate::import_export) mod test {
             metadata!(col, format!("#deck:{numeric_deck_2_id}\n")).unwrap_deck_id(),
             numeric_deck_2_id
         );
-        assert_eq!(
-            metadata!(col, format!("#deck:1234\n")).unwrap_deck_name(),
-            "1234"
-        );
+        assert_eq!(metadata!(col, "#deck:1234\n").unwrap_deck_name(), "1234");
     }
 
     #[test]
