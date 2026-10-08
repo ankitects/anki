@@ -10,45 +10,70 @@ import { exportShapesToClozeDeletions } from "./shapes/to-cloze";
 import { notesDataStore, tagsWritable } from "./store";
 import { showToast } from "./toast-utils.svelte";
 
+export type ImageOcclusionSaveResult =
+    | { success: true; kind: "success"; count: number }
+    | { success: false; kind: "no-masks"; message: string }
+    | { success: false; kind: "error"; error: string; message: string };
+
 export const addOrUpdateNote = async function(
     mode: IOMode,
     occludeInactive: boolean,
-): Promise<void> {
+): Promise<ImageOcclusionSaveResult> {
     const { clozes: occlusionCloze, noteCount } = exportShapesToClozeDeletions(occludeInactive);
     if (noteCount === 0) {
-        return;
+        const message = tr.notetypesNoOcclusionCreated();
+        showToast(message, "error");
+        return {
+            success: false,
+            kind: "no-masks",
+            message,
+        };
     }
 
     const fieldsData: { id: string; title: string; divValue: string; textareaValue: string }[] = get(notesDataStore);
     const tags = get(tagsWritable);
-    let header = fieldsData[0].textareaValue;
-    let backExtra = fieldsData[1].textareaValue;
+    let header = fieldsData[0]?.textareaValue ?? "";
+    let backExtra = fieldsData[1]?.textareaValue ?? "";
 
     header = header ? `<div>${header}</div>` : "";
     backExtra = backExtra ? `<div>${backExtra}</div>` : "";
 
-    if (mode.kind == "edit") {
-        const result = await updateImageOcclusionNote({
-            noteId: mode.noteId,
-            occlusions: occlusionCloze,
-            header,
-            backExtra,
-            tags,
-        });
-        if (result.note) {
+    try {
+        if (mode.kind === "edit") {
+            await updateImageOcclusionNote({
+                noteId: mode.noteId,
+                occlusions: occlusionCloze,
+                header,
+                backExtra,
+                tags,
+            });
             showResult(mode.noteId, noteCount);
+        } else {
+            await addImageOcclusionNote({
+                // IOCloningMode is not used on mobile
+                notetypeId: BigInt((<IOAddingMode> mode).notetypeId),
+                imagePath: (<IOAddingMode> mode).imagePath,
+                occlusions: occlusionCloze,
+                header,
+                backExtra,
+                tags,
+            });
+            showResult(null, noteCount);
         }
-    } else {
-        await addImageOcclusionNote({
-            // IOCloningMode is not used on mobile
-            notetypeId: BigInt((<IOAddingMode> mode).notetypeId),
-            imagePath: (<IOAddingMode> mode).imagePath,
-            occlusions: occlusionCloze,
-            header,
-            backExtra,
-            tags,
-        });
-        showResult(null, noteCount);
+        return {
+            success: true,
+            kind: "success",
+            count: noteCount,
+        };
+    } catch (err: any) {
+        const message = err?.message || tr.notetypesErrorGeneratingCloze();
+        showToast(message, "error");
+        return {
+            success: false,
+            kind: "error",
+            error: String(err),
+            message,
+        };
     }
 };
 

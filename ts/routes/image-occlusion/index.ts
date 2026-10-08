@@ -7,9 +7,10 @@ import { ModuleName, setupI18n } from "@tslib/i18n";
 import { checkNightMode } from "@tslib/nightmode";
 import { get } from "svelte/store";
 
-import { addOrUpdateNote } from "./add-or-update-note.svelte";
+import { addOrUpdateNote, type ImageOcclusionSaveResult } from "./add-or-update-note.svelte";
 import ImageOcclusionPage from "./ImageOcclusionPage.svelte";
 import type { IOMode } from "./lib";
+import { exportShapesToClozeDeletions } from "./shapes/to-cloze";
 import { hideAllGuessOne } from "./store";
 
 globalThis.anki = globalThis.anki || {};
@@ -30,14 +31,17 @@ export async function setupImageOcclusion(mode: IOMode, target = document.body):
     checkNightMode();
     await i18n;
 
-    async function addNote(): Promise<void> {
-        addOrUpdateNote(mode, get(hideAllGuessOne));
+    async function addNote(): Promise<ImageOcclusionSaveResult> {
+        return await addOrUpdateNote(mode, get(hideAllGuessOne));
     }
 
     // for adding note from mobile devices
     globalThis.anki.imageOcclusion = {
         mode,
         addNote,
+        save: addNote,
+        hasMasks: () => exportShapesToClozeDeletions(false).noteCount > 0,
+        getMaskCount: () => exportShapesToClozeDeletions(false).noteCount,
     };
 
     return new ImageOcclusionPage({
