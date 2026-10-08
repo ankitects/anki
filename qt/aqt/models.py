@@ -17,7 +17,7 @@ from aqt import AnkiQt, gui_hooks
 from aqt.operations import QueryOp
 from aqt.operations.notetype import (
     add_notetype_legacy,
-    remove_notetype,
+    remove_notetypes,
     update_notetype_legacy,
 )
 from aqt.qt import *
@@ -80,13 +80,11 @@ class Models(QDialog):
         Otherwise the one at `self.selected_notetype_id`,
         otherwise the `row`-th element."""
         selected_notetype_id = selected_notetype_id or self.selected_notetype_id
-        if not selected_notetype_id:
-            self.form.modelsList.setCurrentRow(row)
-            return
         for i, m in enumerate(self.models):
             if m.id == selected_notetype_id:
                 self.form.modelsList.setCurrentRow(i)
-                break
+                return
+        self.form.modelsList.setCurrentRow(min(row, len(self.models) - 1))
 
     def setupModels(self) -> None:
         self.model = None
@@ -109,11 +107,33 @@ class Models(QDialog):
 
         default_buttons.append((tr.notetypes_options(), self.onAdvanced))
 
+        single_notetype_actions = (
+            self.onRename,
+            self.onFields,
+            self.onCards,
+            self.onAdvanced,
+        )
+        single_notetype_buttons = []
+        delete_buttons = []
         for label, func in gui_hooks.models_did_init_buttons(default_buttons, self):
             button = box.addButton(label, QDialogButtonBox.ButtonRole.ActionRole)
             qconnect(button.clicked, func)
+            if func in single_notetype_actions:
+                single_notetype_buttons.append(button)
+            elif func == self.onDelete:
+                delete_buttons.append(button)
 
+        def update_buttons() -> None:
+            count = len(f.modelsList.selectedIndexes())
+            for button in single_notetype_buttons:
+                button.setEnabled(count == 1)
+            for button in delete_buttons:
+                button.setEnabled(count > 0)
+
+        f.modelsList.setSelectionMode(QAbstractItemView.SelectionMode.ExtendedSelection)
+        qconnect(f.modelsList.itemSelectionChanged, update_buttons)
         qconnect(f.modelsList.itemDoubleClicked, self.onRename)
+        update_buttons()
 
         def on_done(fut: Future) -> None:
             self.updateModelsList(fut.result())
@@ -132,6 +152,8 @@ class Models(QDialog):
         ).run_in_background()
 
     def onRename(self) -> None:
+        if len(self.form.modelsList.selectedIndexes()) != 1:
+            return
         nt = self.current_notetype()
         text, ok = getText(tr.actions_new_name(), default=nt["name"])
         if ok and text.strip():
@@ -160,7 +182,10 @@ class Models(QDialog):
         self.maybe_select_provided_notetype(selected_notetype_id, row)
 
     def current_notetype(self) -> NotetypeDict:
-        row = self.form.modelsList.currentRow()
+        indexes = self.form.modelsList.selectedIndexes()
+        row = (
+            indexes[0].row() if len(indexes) == 1 else self.form.modelsList.currentRow()
+        )
         return self.mm.get(NotetypeId(self.models[row].id))
 
     def onAdd(self) -> None:
@@ -187,14 +212,28 @@ class Models(QDialog):
         AddModel(self.mw, on_success, self)
 
     def onDelete(self) -> None:
-        if len(self.models) < 2:
+        notetypes = [
+            self.models[index.row()] for index in self.form.modelsList.selectedIndexes()
+        ]
+        if not notetypes:
+            return
+        if len(notetypes) == len(self.models):
             showInfo(tr.notetypes_please_add_another_note_type_first(), parent=self)
             return
-        idx = self.form.modelsList.currentRow()
-        if self.models[idx].use_count:
-            msg = tr.notetypes_delete_this_note_type_and_all()
+
+        has_notes = any(notetype.use_count for notetype in notetypes)
+        if len(notetypes) == 1:
+            msg = (
+                tr.notetypes_delete_this_note_type_and_all()
+                if has_notes
+                else tr.notetypes_delete_this_unused_note_type()
+            )
         else:
-            msg = tr.notetypes_delete_this_unused_note_type()
+            msg = (
+                tr.notetypes_delete_selected_note_types_and_all(count=len(notetypes))
+                if has_notes
+                else tr.notetypes_delete_selected_note_types(count=len(notetypes))
+            )
         if not askUser(msg, parent=self):
             return
 
@@ -202,10 +241,10 @@ class Models(QDialog):
         if not tracker.mark_schema():
             return
 
-        nt = self.current_notetype()
-        remove_notetype(parent=self, notetype_id=nt["id"]).success(
-            lambda _: self.refresh_list(None)
-        ).run_in_background()
+        remove_notetypes(
+            parent=self,
+            notetype_ids=[NotetypeId(notetype.id) for notetype in notetypes],
+        ).success(lambda _: self.refresh_list()).run_in_background()
 
     def onAdvanced(self) -> None:
         nt = self.current_notetype()
