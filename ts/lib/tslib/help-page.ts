@@ -31,7 +31,7 @@ export const HelpPage = {
         desiredRetention: "https://docs.ankiweb.net/deck-options.html#desired-retention",
     },
     Leeches: {
-        leeches: "https://docs.ankiweb.net/leeches.html#leeches",
+        leeches: "https://docs.ankiweb.net/leeches.html",
         waiting: "https://docs.ankiweb.net/leeches.html#waiting",
     },
     Studying: {
