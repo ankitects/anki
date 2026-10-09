@@ -2,9 +2,17 @@
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 from __future__ import annotations
 
-from tools.docs_converter import (
+import argparse
+import json
+from pathlib import Path
+
+import pytest
+
+from tools.docs import (
+    build_parser,
     escape_text_preserve_html,
     format_page,
+    run_copy,
 )
 
 # ---------------------------------------------------------------------------
@@ -25,6 +33,190 @@ def body(result: str) -> str:
         if i > 0 and line == "---":
             return "\n".join(lines[i + 1 :]).lstrip("\n")
     return result
+
+
+class TestCli:
+    def test_convert_subcommand_parses(self) -> None:
+        args = build_parser().parse_args(["convert", "../anki-manual", "manual", "en"])
+
+        assert args.command == "convert"
+        assert args.source_docs_dir == "../anki-manual"
+        assert args.tab == "manual"
+        assert args.language_code == "en"
+
+    def test_copy_subcommand_parses(self) -> None:
+        args = build_parser().parse_args(["copy", "ar"])
+
+        assert args.command == "copy"
+        assert args.target_locale == "ar"
+
+    def test_subcommand_required(self) -> None:
+        with pytest.raises(SystemExit):
+            build_parser().parse_args([])
+
+
+class TestCopySubcommand:
+    def test_copy_copies_english_pages_and_updates_docs_json(
+        self, tmp_path: Path
+    ) -> None:
+        docs_site_dir = tmp_path / "docs-site"
+        english_page = docs_site_dir / "manual" / "intro.mdx"
+        root_page = docs_site_dir / "index.mdx"
+        french_page = docs_site_dir / "fr" / "manual" / "intro.mdx"
+        docs_json_path = docs_site_dir / "docs.json"
+
+        english_page.parent.mkdir(parents=True, exist_ok=True)
+        french_page.parent.mkdir(parents=True, exist_ok=True)
+        root_page.parent.mkdir(parents=True, exist_ok=True)
+
+        english_page.write_text(
+            "---\ntitle: Intro\n---\n\nEnglish intro\n", encoding="utf-8"
+        )
+        root_page.write_text(
+            "---\ntitle: Home\n---\n\nEnglish home\n", encoding="utf-8"
+        )
+        french_page.write_text("French intro\n", encoding="utf-8")
+        docs_json_path.write_text(
+            json.dumps(
+                {
+                    "navigation": {
+                        "languages": [
+                            {
+                                "language": "en",
+                                "tabs": [
+                                    {
+                                        "tab": "Manual",
+                                        "groups": [
+                                            {
+                                                "group": "Desktop Manual",
+                                                "pages": ["manual/intro"],
+                                            }
+                                        ],
+                                    },
+                                    {
+                                        "tab": "Releases",
+                                        "groups": [
+                                            {
+                                                "group": "Site",
+                                                "pages": ["index"],
+                                            }
+                                        ],
+                                    },
+                                ],
+                            },
+                            {
+                                "language": "fr",
+                                "tabs": [
+                                    {
+                                        "tab": "Manual",
+                                        "groups": [
+                                            {
+                                                "group": "Desktop Manual",
+                                                "pages": ["fr/manual/intro"],
+                                            }
+                                        ],
+                                    }
+                                ],
+                            },
+                        ]
+                    }
+                },
+                indent=2,
+            ),
+            encoding="utf-8",
+        )
+
+        run_copy(
+            argparse.Namespace(target_locale="ar", docs_site_dir=str(docs_site_dir))
+        )
+
+        # Check that pages with proper frontmatter were copied with cog markers
+        ar_intro = (docs_site_dir / "ar" / "manual" / "intro.mdx").read_text(
+            encoding="utf-8"
+        )
+        assert "auto_update_untranslated" in ar_intro
+        assert "<<<<cog" in ar_intro
+
+        ar_index = (docs_site_dir / "ar" / "index.mdx").read_text(encoding="utf-8")
+        assert "auto_update_untranslated" in ar_index
+
+        # Check that the French file was not copied
+        assert not (docs_site_dir / "ar" / "fr" / "manual" / "intro.mdx").exists()
+
+        # Check docs.json was updated correctly
+        docs_json = json.loads(docs_json_path.read_text(encoding="utf-8"))
+        ar_language = next(
+            language
+            for language in docs_json["navigation"]["languages"]
+            if language["language"] == "ar"
+        )
+        assert ar_language["tabs"][0]["groups"][0]["pages"] == ["ar/manual/intro"]
+        assert ar_language["tabs"][1]["groups"][0]["pages"] == ["ar/index"]
+
+    def test_copy_does_not_overwrite_existing_target_files(
+        self, tmp_path: Path
+    ) -> None:
+        docs_site_dir = tmp_path / "docs-site"
+        english_page = docs_site_dir / "manual" / "intro.mdx"
+        existing_target_page = docs_site_dir / "ar" / "manual" / "intro.mdx"
+        docs_json_path = docs_site_dir / "docs.json"
+
+        english_page.parent.mkdir(parents=True, exist_ok=True)
+        existing_target_page.parent.mkdir(parents=True, exist_ok=True)
+
+        english_page.write_text(
+            "---\ntitle: Intro\n---\n\nEnglish intro\n", encoding="utf-8"
+        )
+        existing_target_page.write_text("Existing Arabic intro\n", encoding="utf-8")
+        docs_json_path.write_text(
+            json.dumps(
+                {
+                    "navigation": {
+                        "languages": [
+                            {
+                                "language": "en",
+                                "tabs": [
+                                    {
+                                        "tab": "Manual",
+                                        "groups": [
+                                            {
+                                                "group": "Desktop Manual",
+                                                "pages": ["manual/intro"],
+                                            }
+                                        ],
+                                    }
+                                ],
+                            },
+                            {
+                                "language": "ar",
+                                "tabs": [],
+                            },
+                        ]
+                    }
+                },
+                indent=2,
+            ),
+            encoding="utf-8",
+        )
+
+        run_copy(
+            argparse.Namespace(target_locale="ar", docs_site_dir=str(docs_site_dir))
+        )
+
+        # Existing target files should not be overwritten
+        assert (
+            existing_target_page.read_text(encoding="utf-8")
+            == "Existing Arabic intro\n"
+        )
+
+        # Existing files are kept in docs.json
+        docs_json = json.loads(docs_json_path.read_text(encoding="utf-8"))
+        ar_language = next(
+            language
+            for language in docs_json["navigation"]["languages"]
+            if language["language"] == "ar"
+        )
+        assert ar_language["tabs"][0]["groups"][0]["pages"] == ["ar/manual/intro"]
 
 
 # ===========================================================================

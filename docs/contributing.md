@@ -3,10 +3,10 @@
 
 # Contributing Code
 
-<!-- <<<cog
+<!-- <<<<cog
 from cogdocs import get_file_contents
 cog.out(get_file_contents("contributing"))
->>> -->
+>>>> -->
 
 For info on contributing things other than code, such as translations, decks
 and add-ons, please see [the contribution guide](https://anki.mintlify.app/manual/contrib).
@@ -200,4 +200,4 @@ further discussion.
 
 Please add yourself to the [CONTRIBUTORS](https://github.com/ankitects/anki/blob/main/CONTRIBUTORS) file in your first pull request.
 
-<!-- <<<end>>> -->
+<!-- <<<<end>>>> -->
