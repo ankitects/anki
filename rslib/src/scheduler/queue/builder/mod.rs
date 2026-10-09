@@ -361,6 +361,17 @@ mod test {
                 })
                 .collect()
         }
+
+        fn queue_as_deck_and_due(&mut self, deck_id: DeckId) -> Vec<(DeckId, i32)> {
+            self.build_queues(deck_id)
+                .unwrap()
+                .iter()
+                .map(|entry| {
+                    let card = self.storage.get_card(entry.card_id()).unwrap().unwrap();
+                    (card.deck_id, card.due)
+                })
+                .collect()
+        }
     }
 
     #[test]
@@ -476,6 +487,46 @@ mod test {
         col.update_cards_maybe_undoable(cards, false)?;
         col.set_deck_review_order(&mut deck, ReviewCardOrder::RelativeOverdueness);
         assert_eq!(col.queue_as_due_and_ivl(deck.id), expected_queue);
+
+        Ok(())
+    }
+
+    #[test]
+    fn reverse_due_date_then_deck_orders_descending_due_by_deck() -> Result<()> {
+        let mut col = Collection::new();
+
+        let mut parent = col.get_or_create_normal_deck("Default").unwrap();
+        let deck_a = DeckAdder::new("Default::A").add(&mut col);
+        let deck_b = DeckAdder::new("Default::B").add(&mut col);
+
+        let nt = col.get_notetype_by_name("Basic")?.unwrap();
+        let mut cards = vec![];
+        for &deck_id in &[deck_a.id, deck_b.id] {
+            for &due in &[-100, 0] {
+                let mut note = nt.new_note();
+                note.set_field(0, "foo")?;
+                note.id.0 = 0;
+                col.add_note(&mut note, deck_id)?;
+                let mut card = col.storage.get_card_by_ordinal(note.id, 0)?.unwrap();
+                card.due = due;
+                card.ctype = CardType::Review;
+                card.queue = CardQueue::Review;
+                cards.push(card);
+            }
+        }
+        col.update_cards_maybe_undoable(cards, false)?;
+        col.set_deck_review_order(&mut parent, ReviewCardOrder::ReverseDayThenDeck);
+
+        let result = col.queue_as_deck_and_due(parent.id);
+        assert_eq!(
+            result,
+            vec![
+                (deck_a.id, 0),
+                (deck_b.id, 0),
+                (deck_a.id, -100),
+                (deck_b.id, -100),
+            ]
+        );
 
         Ok(())
     }
