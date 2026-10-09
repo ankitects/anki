@@ -85,6 +85,21 @@ jobs:
         env:
           SIGN_IDENTITY: ${{ matrix.needs_signing && inputs.sign-macos == true && secrets.APPLE_SIGNING_IDENTITY || '' }}
 
+      - name: Check wheel binaries
+        if: runner.os == 'macOS'
+        run: |
+          WHEEL_DIR="$RUNNER_TEMP/wheel"
+          rm -rf "$WHEEL_DIR"
+          mkdir -p "$WHEEL_DIR"
+          unzip -q out/wheels/anki_audio-*.whl -d "$WHEEL_DIR"
+          qt/audio/macos/check-binaries.sh "$WHEEL_DIR/anki_audio"
+
+      - name: Smoke test
+        if: runner.os == 'macOS'
+        run: |
+          brew install ffmpeg
+          qt/audio/macos/smoke-test.sh "$RUNNER_TEMP/wheel/anki_audio"
+
       - name: Clean up signing credentials
         if: always() && matrix.needs_signing && inputs.sign-macos == true
         run: |
