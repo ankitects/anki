@@ -2592,6 +2592,14 @@
     "repository": "https://github.com/dtolnay/syn"
   },
   {
+    "authors": "David Tolnay <dtolnay@gmail.com>",
+    "description": "Parser for Rust source code",
+    "license": "Apache-2.0 OR MIT",
+    "license_file": null,
+    "name": "syn",
+    "repository": "https://github.com/dtolnay/syn"
+  },
+  {
     "authors": "Actyx AG <developer@actyx.io>",
     "description": "A tool for enlisting the compiler's help in proving the absence of concurrency",
     "license": "Apache-2.0",
