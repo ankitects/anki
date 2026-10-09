@@ -82,7 +82,7 @@ except AttributeError:
 appVersion = _version
 appWebsite = "https://apps.ankiweb.net/"
 appWebsiteDownloadSection = "https://apps.ankiweb.net/#download"
-appDonate = "https://docs.ankiweb.net/contrib.html"
+appDonate = "https://docs.ankiweb.net/manual/contrib"
 appShared = "https://ankiweb.net/shared/"
 appUpdate = "https://ankiweb.net/update/desktop"
 appHelpSite = HELP_SITE

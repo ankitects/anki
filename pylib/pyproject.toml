@@ -13,7 +13,7 @@ urls."Source Code" = "https://github.com/ankitects/anki"
 urls."Anki Forum" = "https://forums.ankiweb.net/"
 urls."Docs: Contributor Guide" = "https://dev-docs.ankiweb.net/en/latest/contributing.html"
 urls."Docs: User Guide" = "https://docs.ankiweb.net/"
-urls."Docs: Add-on Guide" = "https://addon-docs.ankiweb.net/"
+urls."Docs: Add-on Guide" = "https://docs.ankiweb.net/addons/intro"
 urls.homepage = "https://apps.ankiweb.net/"
 
 dependencies = [

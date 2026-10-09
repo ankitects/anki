@@ -48,7 +48,7 @@
     "repository": "https://github.com/nical/android_system_properties"
   },
   {
-    "authors": "Ankitects Pty Ltd and contributors <https://help.ankiweb.net>",
+    "authors": "Ankitects Pty Ltd and contributors <https://faqs.ankiweb.net/>",
     "description": "Anki's Rust library code",
     "license": "AGPL-3.0-or-later",
     "license_file": null,
@@ -56,7 +56,7 @@
     "repository": null
   },
   {
-    "authors": "Ankitects Pty Ltd and contributors <https://help.ankiweb.net>",
+    "authors": "Ankitects Pty Ltd and contributors <https://faqs.ankiweb.net/>",
     "description": "Anki's Rust library i18n code",
     "license": "AGPL-3.0-or-later",
     "license_file": null,
@@ -64,7 +64,7 @@
     "repository": null
   },
   {
-    "authors": "Ankitects Pty Ltd and contributors <https://help.ankiweb.net>",
+    "authors": "Ankitects Pty Ltd and contributors <https://faqs.ankiweb.net/>",
     "description": "Utils for better I/O error reporting",
     "license": "AGPL-3.0-or-later",
     "license_file": null,
@@ -72,7 +72,7 @@
     "repository": null
   },
   {
-    "authors": "Ankitects Pty Ltd and contributors <https://help.ankiweb.net>",
+    "authors": "Ankitects Pty Ltd and contributors <https://faqs.ankiweb.net/>",
     "description": "Anki's Rust library protobuf code",
     "license": "AGPL-3.0-or-later",
     "license_file": null,
@@ -80,7 +80,7 @@
     "repository": null
   },
   {
-    "authors": "Ankitects Pty Ltd and contributors <https://help.ankiweb.net>",
+    "authors": "Ankitects Pty Ltd and contributors <https://faqs.ankiweb.net/>",
     "description": "Helpers for interface code generation",
     "license": "AGPL-3.0-or-later",
     "license_file": null,

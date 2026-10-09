@@ -1,4 +1,4 @@
--errors-support-site = [support site](https://help.ankiweb.net)
+-errors-support-site = [support site](https://docs.ankiweb.net/faqs/intro)
 errors-standard-popup2 =
     Anki encountered a problem. Please follow the troubleshooting steps.
 errors-may-be-addon = The problem may be caused by an add-on.
