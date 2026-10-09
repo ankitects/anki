@@ -5,7 +5,7 @@ lint.select = [
   "I", # Isort rules
   "ARG",
   # "UP", # pyupgrade
-  # "B", # flake8-bugbear
+  "B", # flake8-bugbear
   # "SIM", # flake8-simplify
 ]
 
@@ -23,6 +23,17 @@ lint.ignore = [
 
   # pycodestyle rules
   "E741", # ambiguous-variable-name
+
+  # Function call in argument default (bugbear)
+  # Qt model methods must keep the `QModelIndex()` default to match the C++ API,
+  # and DeckId is a NewType over int, so evaluating it once is harmless.
+  "B008",
+
+  # Abstract base class rules (bugbear)
+  # sound.py's Player/Recorder deliberately provide optional hooks with empty
+  # bodies rather than declaring every one of them abstract.
+  "B024",
+  "B027",
 
   # Comment rules (fixme in pylint)
   "FIX002", # Line contains TODO
