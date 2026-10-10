@@ -43,6 +43,7 @@ pub struct UpdateDeckConfigsRequest {
     pub apply_all_parent_limits: bool,
     pub fsrs: bool,
     pub fsrs_reschedule: bool,
+    pub fsrs_reschedule_no_workload: bool,
     pub fsrs_health_check: bool,
 }
 
@@ -270,6 +271,7 @@ impl Collection {
                     || previous_params != current_params
                     || previous_dr != current_dr
                     || (req.fsrs_reschedule && previous_easy_days != current_easy_days)
+                    || (req.fsrs_reschedule_no_workload && current_config_id == selected_config.id)
                 {
                     decks_needing_memory_recompute
                         .entry(current_config_id)
@@ -295,6 +297,8 @@ impl Collection {
                                 preset_desired_retention: c.inner.desired_retention,
                                 max_interval: c.inner.maximum_review_interval,
                                 reschedule: req.fsrs_reschedule,
+                                reschedule_no_workload: req.fsrs_reschedule_no_workload
+                                    && conf_id == selected_config.id,
                                 historical_retention: c.inner.historical_retention,
                                 deck_desired_retention: deck_desired_retention.clone(),
                             })
@@ -516,6 +520,7 @@ mod test {
             apply_all_parent_limits: false,
             fsrs: false,
             fsrs_reschedule: false,
+            fsrs_reschedule_no_workload: false,
             fsrs_health_check: true,
         };
         assert!(!col.update_deck_configs(input.clone())?.changes.had_change());
@@ -652,6 +657,7 @@ mod test {
             apply_all_parent_limits: false,
             fsrs: false,
             fsrs_reschedule: false,
+            fsrs_reschedule_no_workload: false,
             fsrs_health_check: true,
         };
 

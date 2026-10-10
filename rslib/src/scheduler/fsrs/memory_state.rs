@@ -27,6 +27,7 @@ use crate::search::Negated;
 use crate::search::Node;
 use crate::search::SearchNode;
 use crate::search::StateKind;
+use crate::storage::comma_separated_ids;
 
 #[derive(Debug, Clone, Copy, Default)]
 pub struct ComputeMemoryProgress {
@@ -53,6 +54,7 @@ pub(crate) struct UpdateMemoryStateRequest {
     pub historical_retention: f32,
     pub max_interval: u32,
     pub reschedule: bool,
+    pub reschedule_no_workload: bool,
     pub deck_desired_retention: HashMap<DeckId, f32>,
 }
 
@@ -116,7 +118,8 @@ impl Collection {
             };
 
             let fsrs = FSRS::new(&req.params[..])?;
-            let last_revlog_info = req.reschedule.then(|| get_last_revlog_info(&revlog));
+            let should_reschedule_any = req.reschedule || req.reschedule_no_workload;
+            let last_revlog_info = should_reschedule_any.then(|| get_last_revlog_info(&revlog));
 
             let items = fsrs_items_for_memory_states(
                 &fsrs,
@@ -144,7 +147,6 @@ impl Collection {
             // Unlike memory states, scheduler doesn't use decay and dr stored in the card.
             let set_decay_and_desired_retention = move |card: &mut Card| {
                 let deck_id = card.original_or_current_deck_id();
-
                 let desired_retention = *req
                     .deck_desired_retention
                     .get(&deck_id)
@@ -162,7 +164,7 @@ impl Collection {
             )?;
 
             let mut rescheduler =
-                if req.reschedule && self.get_config_bool(BoolKey::LoadBalancerEnabled) {
+                if should_reschedule_any && self.get_config_bool(BoolKey::LoadBalancerEnabled) {
                     Some(Rescheduler::new(self)?)
                 } else {
                     None
@@ -208,7 +210,7 @@ impl Collection {
                     let min_interval =
                         minimum_review_fuzz_interval(interval, previous_interval, req.max_interval)
                             .max(1);
-                    card.interval = rescheduler
+                    let computed_interval = rescheduler
                         .as_mut()
                         .and_then(|r| {
                             r.find_interval(
@@ -228,13 +230,28 @@ impl Collection {
                                 req.max_interval,
                             )
                         });
+                    let due_before = if card.original_due != 0 {
+                        card.original_due
+                    } else {
+                        card.due
+                    };
+                    let new_due =
+                        (timing.days_elapsed as i32) - days_elapsed + computed_interval as i32;
+
+                    if req.reschedule_no_workload {
+                        let today = timing.days_elapsed as i32;
+                        if new_due <= due_before || new_due <= today {
+                            // Do not reschedule this card: keep original interval and due date
+                            return Ok(());
+                        }
+                    }
+
+                    card.interval = computed_interval;
                     let due = if card.original_due != 0 {
                         &mut card.original_due
                     } else {
                         &mut card.due
                     };
-                    let new_due =
-                        (timing.days_elapsed as i32) - days_elapsed + card.interval as i32;
                     if let Some(rescheduler) = &mut rescheduler {
                         rescheduler.update_due_cnt_per_day(*due, new_due, deckconfig_id);
                     }
@@ -402,6 +419,203 @@ impl Collection {
         card.decay = Some(fsrs_data.decay);
         self.storage.update_card(card)?;
         Ok(())
+    }
+
+    pub(crate) fn simulate_reschedule(
+        &mut self,
+        input: anki_proto::deck_config::SimulateRescheduleRequest,
+    ) -> Result<anki_proto::deck_config::SimulateRescheduleResponse> {
+        let conf_id = DeckConfigId(input.deck_config_id);
+        let config = self.get_deck_config(conf_id, false)?.unwrap_or_default();
+        let params = if input.params.is_empty() {
+            config.fsrs_params().clone()
+        } else {
+            input.params
+        };
+        let desired_retention = if input.desired_retention > 0.0 {
+            input.desired_retention
+        } else {
+            config.inner.desired_retention
+        };
+        let max_interval = if input.max_interval > 0 {
+            input.max_interval
+        } else {
+            config.inner.maximum_review_interval
+        };
+
+        let deck_map = self.storage.get_decks_map()?;
+        let matching_deck_ids: Vec<DeckId> = deck_map
+            .values()
+            .filter_map(|d| {
+                if d.config_id() == Some(conf_id) {
+                    Some(d.id)
+                } else {
+                    None
+                }
+            })
+            .collect();
+
+        if matching_deck_ids.is_empty() {
+            return Ok(anki_proto::deck_config::SimulateRescheduleResponse::default());
+        }
+
+        let search = Node::Search(SearchNode::DeckIdsWithoutChildren(comma_separated_ids(
+            &matching_deck_ids,
+        )));
+        let search = SearchBuilder::all([search, SearchNode::State(StateKind::New).negated()]);
+        let revlog = self.revlog_for_srs(search)?;
+        let timing = self.timing_today()?;
+        let ignore_before = ignore_revlogs_before_ms_from_config(&config)?;
+        let fsrs = FSRS::new(&params[..])?;
+        let last_revlog_info = get_last_revlog_info(&revlog);
+
+        let items = fsrs_items_for_memory_states(
+            &fsrs,
+            revlog,
+            timing.next_day_at,
+            config.inner.historical_retention,
+            ignore_before,
+        )?;
+
+        let mut total_examined = 0u32;
+        let mut rescheduled_total = 0u32;
+        let mut future_pushed = 0u32;
+        let mut today_postponed = 0u32;
+        let mut preserved_total = 0u32;
+        let mut preserved_closer = 0u32;
+        let mut preserved_today = 0u32;
+        let mut workload_today_before = 0u32;
+
+        let today = timing.days_elapsed as i32;
+
+        let mut rescheduler = if self.get_config_bool(BoolKey::LoadBalancerEnabled) {
+            Some(Rescheduler::new(self)?)
+        } else {
+            None
+        };
+
+        const FSRS_BATCH_SIZE: usize = 1000;
+        let mut to_process = Vec::new();
+        let mut fsrs_items = Vec::new();
+        let mut starting_states = Vec::new();
+
+        for (card_id, item) in items.into_iter() {
+            if let Some(item) = item {
+                to_process.push(card_id);
+                fsrs_items.push(item.item);
+                starting_states.push(item.starting_state);
+            }
+        }
+
+        let mut p = permutation::sort_unstable_by_key(&fsrs_items, |item| item.reviews.len());
+        p.apply_slice_in_place(&mut to_process);
+        p.apply_slice_in_place(&mut fsrs_items);
+        p.apply_slice_in_place(&mut starting_states);
+
+        for ((cards_batch, items_batch), states_batch) in to_process
+            .chunk_into_vecs(FSRS_BATCH_SIZE)
+            .zip_eq(fsrs_items.chunk_into_vecs(FSRS_BATCH_SIZE))
+            .zip_eq(starting_states.chunk_into_vecs(FSRS_BATCH_SIZE))
+        {
+            let memory_states = fsrs.memory_state_batch(items_batch, states_batch)?;
+
+            for (card_id, memory_state) in cards_batch.into_iter().zip_eq(memory_states) {
+                let Some(card) = self.storage.get_card(card_id)? else {
+                    continue;
+                };
+
+                if !(card.ctype == CardType::Review && card.queue != CardQueue::Suspended) {
+                    continue;
+                }
+
+                let Some(last_info) = last_revlog_info.get(&card.id) else {
+                    continue;
+                };
+                let Some(last_review) = &last_info.last_reviewed_at else {
+                    continue;
+                };
+
+                let due_before = if card.original_due != 0 {
+                    card.original_due
+                } else {
+                    card.due
+                };
+                let is_due_today_before = due_before <= today;
+                if is_due_today_before {
+                    workload_today_before += 1;
+                }
+
+                let days_elapsed = timing.next_day_at.elapsed_days_since(*last_review) as i32;
+                let previous_interval = last_info.previous_interval.unwrap_or(0);
+                let interval =
+                    fsrs.next_interval(Some(memory_state.stability), desired_retention, 0);
+                let min_interval =
+                    minimum_review_fuzz_interval(interval, previous_interval, max_interval).max(1);
+                let deck = self
+                    .get_deck(card.original_or_current_deck_id())?
+                    .or_not_found(card.original_or_current_deck_id())?;
+                let deckconfig_id = deck.config_id().unwrap_or(conf_id);
+
+                let computed_interval = rescheduler
+                    .as_mut()
+                    .and_then(|r| {
+                        r.find_interval(
+                            interval,
+                            min_interval,
+                            max_interval,
+                            days_elapsed as u32,
+                            deckconfig_id,
+                            get_fuzz_seed(&card, true),
+                        )
+                    })
+                    .unwrap_or_else(|| {
+                        with_review_fuzz(
+                            card.get_fuzz_factor(true),
+                            interval,
+                            min_interval,
+                            max_interval,
+                        )
+                    });
+
+                let new_due =
+                    (timing.days_elapsed as i32) - days_elapsed + computed_interval as i32;
+
+                total_examined += 1;
+
+                if new_due > due_before && new_due > today {
+                    rescheduled_total += 1;
+                    if is_due_today_before {
+                        today_postponed += 1;
+                    } else {
+                        future_pushed += 1;
+                    }
+                    if let Some(rescheduler) = &mut rescheduler {
+                        rescheduler.update_due_cnt_per_day(due_before, new_due, deckconfig_id);
+                    }
+                } else {
+                    preserved_total += 1;
+                    if is_due_today_before {
+                        preserved_today += 1;
+                    } else {
+                        preserved_closer += 1;
+                    }
+                }
+            }
+        }
+
+        let workload_today_after = workload_today_before.saturating_sub(today_postponed);
+
+        Ok(anki_proto::deck_config::SimulateRescheduleResponse {
+            total_examined,
+            rescheduled_total,
+            future_pushed,
+            today_postponed,
+            preserved_total,
+            preserved_closer,
+            preserved_today,
+            workload_today_before,
+            workload_today_after,
+        })
     }
 }
 

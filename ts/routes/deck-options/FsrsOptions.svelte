@@ -13,6 +13,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         evaluateParamsLegacy,
         getRetentionWorkload,
         setWantsAbort,
+        simulateReschedule,
     } from "@generated/backend";
     import * as tr from "@generated/ftl";
     import { runWithBackendProgress } from "@tslib/progress";
@@ -27,9 +28,12 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import ParamsInputRow from "./ParamsInputRow.svelte";
     import ParamsSearchRow from "./ParamsSearchRow.svelte";
     import SimulatorModal from "./SimulatorModal.svelte";
+    import RescheduleRecapModal from "./RescheduleRecapModal.svelte";
     import {
         GetRetentionWorkloadRequest,
         type GetRetentionWorkloadResponse,
+        SimulateRescheduleRequest,
+        type SimulateRescheduleResponse,
         UpdateDeckConfigsMode,
     } from "@generated/anki/deck_config_pb";
     import type Modal from "bootstrap/js/dist/modal";
@@ -363,6 +367,45 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     let simulatorModal: Modal;
     let workloadModal: Modal;
+
+    let rescheduleModal: RescheduleRecapModal;
+    let rescheduleStats: SimulateRescheduleResponse | undefined = undefined;
+    let simulatingReschedule = false;
+
+    async function runSimulateReschedule(): Promise<void> {
+        if (simulatingReschedule) {
+            return;
+        }
+        await commitEditing();
+        simulatingReschedule = true;
+        try {
+            const req = new SimulateRescheduleRequest({
+                deckConfigId: state.getCurrentId(),
+                params: fsrsParams($config),
+                desiredRetention: $config.desiredRetention,
+                maxInterval: $config.maximumReviewInterval,
+            });
+            rescheduleStats = await simulateReschedule(req);
+            rescheduleModal?.show();
+        } catch (e) {
+            console.error(e);
+            alert(`Error simulating reschedule: ${e}`);
+        } finally {
+            simulatingReschedule = false;
+        }
+    }
+
+    async function applyRescheduleNoWorkload(): Promise<void> {
+        await commitEditing();
+        await state.save(UpdateDeckConfigsMode.NORMAL, true);
+        alert(
+            tr.deckConfigRescheduleSuccess({
+                count: rescheduleStats?.rescheduledTotal ?? 0,
+                preset: state.getCurrentName(),
+            }),
+        );
+        window.location.reload();
+    }
 </script>
 
 <DynamicallySlottable slotHost={Item} api={{}}>
@@ -421,6 +464,19 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     {#if $fsrsReschedule}
         <Warning warning={tr.deckConfigRescheduleCardsWarning()} />
     {/if}
+
+    <div class="mb-3 mt-1">
+        <button
+            type="button"
+            class="btn btn-secondary btn-sm"
+            disabled={simulatingReschedule || computing}
+            on:click={() => runSimulateReschedule()}
+        >
+            {simulatingReschedule
+                ? tr.actionsProcessing()
+                : tr.deckConfigRescheduleNoAddedWorkload()}
+        </button>
+    </div>
 
     <SwitchRow bind:value={$healthCheck} defaultValue={false}>
         <SettingTitle on:click={() => openHelpModal("healthCheck")}>
@@ -496,6 +552,14 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     {computing}
     {openHelpModal}
     {onPresetChange}
+/>
+
+<RescheduleRecapModal
+    bind:this={rescheduleModal}
+    {state}
+    stats={rescheduleStats}
+    desiredRetention={$config.desiredRetention}
+    onConfirm={applyRescheduleNoWorkload}
 />
 
 <style>

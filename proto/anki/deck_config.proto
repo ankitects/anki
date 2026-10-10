@@ -27,6 +27,8 @@ service DeckConfigService {
       returns (GetIgnoredBeforeCountResponse);
   rpc GetRetentionWorkload(GetRetentionWorkloadRequest)
       returns (GetRetentionWorkloadResponse);
+  rpc SimulateReschedule(SimulateRescheduleRequest)
+      returns (SimulateRescheduleResponse);
 }
 
 // Implicitly includes any of the above methods that are not listed in the
@@ -35,6 +37,25 @@ service BackendDeckConfigService {}
 
 message DeckConfigId {
   int64 dcid = 1;
+}
+
+message SimulateRescheduleRequest {
+  int64 deck_config_id = 1;
+  repeated float params = 2;
+  float desired_retention = 3;
+  uint32 max_interval = 4;
+}
+
+message SimulateRescheduleResponse {
+  uint32 total_examined = 1;
+  uint32 rescheduled_total = 2;
+  uint32 future_pushed = 3;
+  uint32 today_postponed = 4;
+  uint32 preserved_total = 5;
+  uint32 preserved_closer = 6;
+  uint32 preserved_today = 7;
+  uint32 workload_today_before = 8;
+  uint32 workload_today_after = 9;
 }
 
 message GetRetentionWorkloadRequest {
@@ -262,4 +283,5 @@ message UpdateDeckConfigsRequest {
   bool apply_all_parent_limits = 9;
   bool fsrs_reschedule = 10;
   bool fsrs_health_check = 11;
+  bool fsrs_reschedule_no_workload = 12;
 }
