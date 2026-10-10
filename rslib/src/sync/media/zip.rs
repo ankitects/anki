@@ -36,15 +36,20 @@ pub fn zip_files_for_download(files: Vec<(String, Vec<u8>)>) -> Result<Vec<u8>> 
         assert!(!data.is_empty());
         let idx_str = idx.to_string();
         entries.insert(idx_str.clone(), filename);
-        zip.start_file(idx_str, options)?;
+        zip.start_file(idx_str, options)
+            .map_err(AnkiError::from_zip_sync_error)?;
         zip.write_all(&data)?;
     }
 
     let meta = serde_json::to_vec(&entries)?;
-    zip.start_file("_meta", options)?;
+    zip.start_file("_meta", options)
+        .map_err(AnkiError::from_zip_sync_error)?;
     zip.write_all(&meta)?;
 
-    Ok(zip.finish()?.into_inner())
+    Ok(zip
+        .finish()
+        .map_err(AnkiError::from_zip_sync_error)?
+        .into_inner())
 }
 
 pub fn zip_files_for_upload(entries_: Vec<(String, Option<Vec<u8>>)>) -> Result<Vec<u8>> {
@@ -63,7 +68,8 @@ pub fn zip_files_for_upload(entries_: Vec<(String, Option<Vec<u8>>)>) -> Result<
             }
             Some(data) => {
                 let idx_str = idx.to_string();
-                zip.start_file(&idx_str, options)?;
+                zip.start_file(&idx_str, options)
+                    .map_err(AnkiError::from_zip_sync_error)?;
                 zip.write_all(&data)?;
                 entries.push(UploadEntry {
                     actual_filename: filename,
@@ -74,10 +80,14 @@ pub fn zip_files_for_upload(entries_: Vec<(String, Option<Vec<u8>>)>) -> Result<
     }
 
     let meta = serde_json::to_vec(&entries)?;
-    zip.start_file("_meta", options)?;
+    zip.start_file("_meta", options)
+        .map_err(AnkiError::from_zip_sync_error)?;
     zip.write_all(&meta)?;
 
-    Ok(zip.finish()?.into_inner())
+    Ok(zip
+        .finish()
+        .map_err(AnkiError::from_zip_sync_error)?
+        .into_inner())
 }
 
 pub struct UploadedChange {
@@ -94,10 +104,13 @@ pub enum UploadedChangeKind {
 }
 
 pub fn unzip_and_validate_files(zip_data: &[u8]) -> Result<Vec<UploadedChange>> {
-    let mut zip = zip::ZipArchive::new(io::Cursor::new(zip_data))?;
+    let mut zip =
+        zip::ZipArchive::new(io::Cursor::new(zip_data)).map_err(AnkiError::from_zip_sync_error)?;
 
     // meta map first, limited to a reasonable size
-    let meta_file = zip.by_name("_meta")?;
+    let meta_file = zip
+        .by_name("_meta")
+        .map_err(AnkiError::from_zip_sync_error)?;
     let entries: Vec<UploadEntry> = serde_json::from_reader(meta_file.take(50 * 1024))?;
     if entries.len() > 25 {
         invalid_input!("too many files in zip");
@@ -121,7 +134,9 @@ pub fn unzip_and_validate_files(zip_data: &[u8]) -> Result<Vec<UploadedChange>> 
                     // older clients/AnkiDroid use an empty string instead of null
                     UploadedChangeKind::Delete
                 } else {
-                    let file = zip.by_name(filename_in_zip)?;
+                    let file = zip
+                        .by_name(filename_in_zip)
+                        .map_err(AnkiError::from_zip_sync_error)?;
                     if file.size() > MAX_INDIVIDUAL_MEDIA_FILE_SIZE as u64 {
                         invalid_input!("file too large");
                     }

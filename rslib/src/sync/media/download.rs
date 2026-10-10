@@ -25,14 +25,16 @@ pub(crate) fn extract_into_media_folder(
     zip: Vec<u8>,
 ) -> error::Result<Vec<AddedFile>> {
     let reader = io::Cursor::new(zip);
-    let mut zip = zip::ZipArchive::new(reader)?;
+    let mut zip = zip::ZipArchive::new(reader).map_err(AnkiError::from_zip_sync_error)?;
 
-    let meta_file = zip.by_name("_meta")?;
+    let meta_file = zip
+        .by_name("_meta")
+        .map_err(AnkiError::from_zip_sync_error)?;
     let fmap: HashMap<String, String> = serde_json::from_reader(meta_file)?;
     let mut output = Vec::with_capacity(fmap.len());
 
     for i in 0..zip.len() {
-        let mut file = zip.by_index(i)?;
+        let mut file = zip.by_index(i).map_err(AnkiError::from_zip_sync_error)?;
         let name = file.name();
         if name == "_meta" {
             continue;

@@ -8,9 +8,11 @@ use std::fs::File;
 use std::io::Write;
 
 use anki_io::read_file;
+use anki_io::write_file;
 use anki_proto::import_export::ImportAnkiPackageOptions;
 
 use crate::import_export::package::ExportAnkiPackageOptions;
+use crate::import_export::ImportError;
 use crate::media::files::sha1_of_data;
 use crate::media::MediaManager;
 use crate::prelude::*;
@@ -243,4 +245,22 @@ fn fsrs_params_stripped_on_export_without_scheduling() {
     assert!(conf.inner.fsrs_params_4.is_empty());
     assert!(conf.inner.fsrs_params_5.is_empty());
     assert!(conf.inner.fsrs_params_6.is_empty());
+}
+
+#[test]
+fn invalid_package_returns_import_error() {
+    let (mut col, tempdir) = open_fs_test_collection("target");
+    let apkg_path = tempdir.path().join("invalid.apkg");
+    write_file(&apkg_path, b"not a zip archive").unwrap();
+
+    let error = col
+        .import_apkg(&apkg_path, ImportAnkiPackageOptions::default())
+        .unwrap_err();
+
+    assert_eq!(
+        error,
+        AnkiError::ImportError {
+            source: ImportError::Corrupt
+        }
+    );
 }
