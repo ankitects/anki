@@ -78,6 +78,7 @@ impl Collection {
             card_counts: Some(ctx.card_counts()),
             rollover_hour: self.rollover_for_current_scheduler()? as u32,
             retrievability: Some(ctx.retrievability()),
+            hours_by_day: ctx.hours_by_day(),
             fsrs: self.fsrs_enabled(),
         };
         Ok(resp)
