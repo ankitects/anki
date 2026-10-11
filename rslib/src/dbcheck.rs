@@ -16,6 +16,7 @@ use crate::error::AnkiError;
 use crate::error::DbError;
 use crate::error::DbErrorKind;
 use crate::error::Result;
+use crate::notes::UpdateNoteInnerWithoutCardsArgs;
 use crate::notetype::all_stock_notetypes;
 use crate::notetype::AlreadyGeneratedCardInfo;
 use crate::notetype::CardGenContext;
@@ -264,6 +265,8 @@ impl Collection {
 
             self.add_missing_field_tags(Arc::make_mut(&mut nt))?;
 
+            let mut cards_by_note = self.storage.existing_cards_for_notetype_by_note(ntid)?;
+
             let mut genctx = None;
             for (_, nid) in group {
                 progress.increment(|p| {
@@ -276,10 +279,18 @@ impl Collection {
                 let mut note = self.get_note_fixing_invalid_utf8(nid, out)?;
                 let original = note.clone();
 
-                let cards = self.storage.existing_cards_for_note(nid)?;
+                let cards = cards_by_note.remove(&nid).unwrap_or_default();
 
-                out.card_ords_duplicated += self.remove_duplicate_card_ordinals(&cards)?;
-                out.templates_missing += self.remove_cards_without_template(&nt, &cards)?;
+                let duplicated = self.remove_duplicate_card_ordinals(&cards)?;
+                let without_template = self.remove_cards_without_template(&nt, &cards)?;
+                out.card_ords_duplicated += duplicated;
+                out.templates_missing += without_template;
+                // card generation needs the cards that are left
+                let cards = if duplicated + without_template == 0 {
+                    cards
+                } else {
+                    self.storage.existing_cards_for_note(nid)?
+                };
 
                 // fix fields
                 if note.fields().len() != nt.fields.len() {
@@ -303,9 +314,17 @@ impl Collection {
                         usn,
                     )
                 });
-                self.update_note_inner_generating_cards(
-                    ctx, &mut note, &original, false, norm, true, None,
-                )?;
+                self.update_note_inner_without_cards(UpdateNoteInnerWithoutCardsArgs {
+                    note: &mut note,
+                    original: &original,
+                    notetype: ctx.notetype,
+                    usn: ctx.usn,
+                    mark_note_modified: false,
+                    normalize_text: norm,
+                    update_tags: true,
+                    mtime: None,
+                })?;
+                self.generate_cards_for_existing_note_with_cards(ctx, &note, &cards)?;
             }
         }
 

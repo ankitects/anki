@@ -4,6 +4,8 @@
 use std::collections::HashSet;
 use std::fmt::Write;
 
+use itertools::Itertools;
+
 use super::cardgen::group_generated_cards_by_note;
 use super::CardGenContext;
 use super::Notetype;
@@ -14,6 +16,9 @@ use crate::collection::Collection;
 use crate::error::Result;
 use crate::notes::NoteId;
 use crate::text::strip_html;
+
+/// How many notes the Empty Cards scan reads per query.
+const EMPTY_CARDS_NOTE_BATCH: usize = 1000;
 
 pub struct EmptyCardsForNote {
     pub nid: NoteId,
@@ -30,27 +35,32 @@ impl Collection {
         let by_note = group_generated_cards_by_note(existing_cards);
         let mut out = Vec::with_capacity(by_note.len());
 
-        for (nid, existing) in by_note {
-            let note = self.storage.get_note(nid)?.unwrap();
-            let cards = ctx.new_cards_required(&note, &[], false);
-            let nonempty_ords: HashSet<_> = cards.into_iter().map(|c| c.ord).collect();
-            let current_count = existing.len();
-            let empty: Vec<_> = existing
-                .into_iter()
-                .filter_map(|e| {
-                    if !nonempty_ords.contains(&e.ord) {
-                        Some((e.ord, e.id))
-                    } else {
-                        None
-                    }
-                })
-                .collect();
-            if !empty.is_empty() {
-                out.push(EmptyCardsForNote {
-                    nid,
-                    empty,
-                    current_count,
-                })
+        for batch in &by_note.into_iter().chunks(EMPTY_CARDS_NOTE_BATCH) {
+            let batch: Vec<_> = batch.collect();
+            let nids: Vec<_> = batch.iter().map(|(nid, _)| *nid).collect();
+            let notes = self.storage.get_notes_by_id(&nids)?;
+            for (nid, existing) in batch {
+                let note = notes.get(&nid).unwrap();
+                let cards = ctx.new_cards_required(note, &[], false);
+                let nonempty_ords: HashSet<_> = cards.into_iter().map(|c| c.ord).collect();
+                let current_count = existing.len();
+                let empty: Vec<_> = existing
+                    .into_iter()
+                    .filter_map(|e| {
+                        if !nonempty_ords.contains(&e.ord) {
+                            Some((e.ord, e.id))
+                        } else {
+                            None
+                        }
+                    })
+                    .collect();
+                if !empty.is_empty() {
+                    out.push(EmptyCardsForNote {
+                        nid,
+                        empty,
+                        current_count,
+                    })
+                }
             }
         }
 
