@@ -42,8 +42,9 @@ impl Collection {
         let extend_new = normal.extend_new;
         let extend_review = normal.extend_review;
 
+        // an empty default deck is hidden from the tree, and has nothing to count
         let subtree = get_deck_in_tree(self.deck_tree(Some(TimestampSecs::now()))?, deck_id)
-            .or_not_found(deck_id)?;
+            .unwrap_or_default();
         let available_new_including_children =
             sum_deck_tree_node(&subtree, |node| node.new_uncapped);
         let available_review_including_children =
@@ -379,6 +380,18 @@ mod test {
                 ("3", false, true)
             ]
         );
+
+        Ok(())
+    }
+
+    #[test]
+    fn defaults_for_hidden_default_deck() -> Result<()> {
+        let mut col = Collection::new();
+        col.get_or_create_normal_deck("other")?;
+
+        let defaults = col.custom_study_defaults(DeckId(1))?;
+        assert_eq!(defaults.available_new, 0);
+        assert_eq!(defaults.available_review, 0);
 
         Ok(())
     }
