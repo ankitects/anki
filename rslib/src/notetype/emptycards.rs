@@ -174,6 +174,50 @@ mod tests {
         )]
     }
 
+    /// Over more notes than one read holds, every note's empty cards are
+    /// found, per notetype in note order, with the note's card count.
+    #[test]
+    fn empty_cards_over_many_notes() -> Result<()> {
+        let mut col = CollectionBuilder::default().build()?;
+        let nt = col
+            .get_notetype_by_name("Basic (optional reversed card)")?
+            .unwrap();
+        let mut expected = vec![];
+        for i in 0..2503 {
+            let mut note = nt.new_note();
+            note.set_field(0, format!("front {i}"))?;
+            note.set_field(1, format!("back {i}"))?;
+            note.set_field(2, "y")?;
+            col.add_note(&mut note, DeckId(1))?;
+            let cards = col.storage.existing_cards_for_note(note.id)?;
+            assert_eq!(cards.len(), 2);
+            // empty the fields behind the card generation's back
+            let front = if i % 7 == 0 { "" } else { "f" };
+            let reverse = if i % 4 == 0 { "" } else { "y" };
+            col.storage.db.execute(
+                "update notes set flds = ? where id = ?",
+                (format!("{front}\x1fb\x1f{reverse}"), note.id),
+            )?;
+            let empty: Vec<(u32, CardId)> = cards
+                .iter()
+                .filter(|c| (c.ord == 0 && front.is_empty()) || (c.ord == 1 && reverse.is_empty()))
+                .map(|c| (c.ord, c.id))
+                .collect();
+            if !empty.is_empty() {
+                expected.push((note.id, empty, 2));
+            }
+        }
+        let found: Vec<_> = col
+            .empty_cards()?
+            .into_iter()
+            .filter(|(ntid, _)| *ntid == nt.id)
+            .flat_map(|(_, notes)| notes)
+            .map(|n| (n.nid, n.empty, n.current_count))
+            .collect();
+        assert_eq!(found, expected);
+        Ok(())
+    }
+
     /// HTML/JS injected into note type or template names must not appear in the
     /// report.
     #[test]

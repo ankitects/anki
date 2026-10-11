@@ -636,6 +636,99 @@ mod test {
         Ok(())
     }
 
+    fn cards_of_note(col: &Collection, nid: NoteId) -> Result<Vec<(i64, u32, i64, i32)>> {
+        col.storage
+            .db
+            .prepare("select id, ord, did, due from cards where nid = ? order by id")?
+            .query_and_then([nid], |r| Ok((r.get(0)?, r.get(1)?, r.get(2)?, r.get(3)?)))?
+            .collect()
+    }
+
+    /// Per note, Check Database keeps the oldest card of a duplicated
+    /// ordinal, removes the cards of missing templates, and generates the
+    /// missing cards in the deck and at the new-card position of the note's
+    /// existing cards. Notes whose cards have ids in another order than the
+    /// notes themselves each get their own cards.
+    #[test]
+    fn note_cards_are_checked_per_note() -> Result<()> {
+        let mut col = Collection::new();
+        let nt = col
+            .get_notetype_by_name("Basic (and reversed card)")?
+            .unwrap();
+        let other_deck = col.get_or_create_normal_deck("other")?.id;
+        let mut nids = vec![];
+        for i in 0..4 {
+            let mut note = nt.new_note();
+            note.set_field(0, format!("front {i}"))?;
+            note.set_field(1, format!("back {i}"))?;
+            col.add_note(&mut note, DeckId(1))?;
+            nids.push(note.id);
+        }
+        let db = &col.storage.db;
+        // card ids in the reverse order of the notes
+        db.execute_batch("update cards set id = 2800000000000 - id")?;
+        // note 0 lost its reverse card and lives in another deck, its
+        // remaining new card at position 77
+        db.execute("delete from cards where nid = ? and ord = 1", [nids[0]])?;
+        db.execute(
+            "update cards set did = ?, due = 77 where nid = ?",
+            [other_deck.0, nids[0].0],
+        )?;
+        // note 1: two newer duplicates of its forward card, and a card of a
+        // template that does not exist
+        let forward: i64 = db.query_row(
+            "select id from cards where nid = ? and ord = 0",
+            [nids[1]],
+            |r| r.get(0),
+        )?;
+        for (offset, ord) in [(1_000_000, 0), (2_000_000, 0), (3_000_000, 7)] {
+            db.execute(
+                "insert into cards select ?, nid, did, ?, mod, usn, type, queue, due, ivl, factor,
+                 reps, lapses, left, odue, odid, flags, data from cards where id = ?",
+                [forward + offset, ord, forward],
+            )?;
+        }
+        // note 2 lost both cards: nothing to take the deck from
+        db.execute("delete from cards where nid = ?", [nids[2]])?;
+        let untouched = cards_of_note(&col, nids[3])?;
+
+        let out = col.check_database()?;
+        assert_eq!(
+            out,
+            CheckDatabaseOutput {
+                card_ords_duplicated: 2,
+                templates_missing: 1,
+                ..Default::default()
+            }
+        );
+
+        let note0 = cards_of_note(&col, nids[0])?;
+        assert_eq!(note0.len(), 2);
+        assert!(note0.iter().all(|c| c.2 == other_deck.0 && c.3 == 77));
+        assert_eq!(
+            note0.iter().map(|c| c.1).collect::<HashSet<_>>(),
+            HashSet::from([0, 1])
+        );
+        let note1 = cards_of_note(&col, nids[1])?;
+        assert_eq!(
+            note1
+                .iter()
+                .map(|c| (c.0, c.1))
+                .filter(|c| c.1 == 0)
+                .collect::<Vec<_>>(),
+            vec![(forward, 0)]
+        );
+        assert_eq!(note1.len(), 2);
+        let note2 = cards_of_note(&col, nids[2])?;
+        assert_eq!(
+            note2.iter().map(|c| c.1).collect::<HashSet<_>>(),
+            HashSet::from([0, 1])
+        );
+        assert_eq!(cards_of_note(&col, nids[3])?, untouched);
+
+        Ok(())
+    }
+
     #[test]
     fn note_fields() -> Result<()> {
         let mut col = Collection::new();
