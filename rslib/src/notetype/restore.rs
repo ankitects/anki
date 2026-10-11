@@ -104,18 +104,24 @@ mod test {
     #[test]
     fn reordered_fields_keep_their_content() -> Result<()> {
         let mut col = Collection::new();
-        let mut nt = col.basic_notetype();
-        let note = NoteAdder::basic(&mut col)
-            .fields(&["front", "back"])
-            .add(&mut col);
-        nt.fields.swap(0, 1);
-        col.update_notetype(&mut nt, false)?;
+        for (mut nt, fields, q_format) in [
+            (col.basic_notetype(), ["front", "back"], "{{Front}}"),
+            (
+                col.cloze_notetype(),
+                ["{{c1::text}}", "extra"],
+                "{{cloze:Text}}",
+            ),
+        ] {
+            let note = NoteAdder::new(&nt).fields(&fields).add(&mut col);
+            nt.fields.swap(0, 1);
+            col.update_notetype(&mut nt, false)?;
 
-        col.restore_notetype_to_stock(nt.id, None)?;
-        let note = col.storage.get_note(note.id)?.unwrap();
-        assert_eq!(note.fields(), &["front", "back"]);
-        let restored = col.basic_notetype();
-        assert_eq!(restored.templates[0].config.q_format, "{{Front}}");
+            col.restore_notetype_to_stock(nt.id, None)?;
+            let note = col.storage.get_note(note.id)?.unwrap();
+            assert_eq!(note.fields(), &fields);
+            let restored = col.get_notetype(nt.id)?.unwrap();
+            assert_eq!(restored.templates[0].config.q_format, q_format);
+        }
 
         Ok(())
     }
