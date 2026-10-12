@@ -537,33 +537,37 @@ class AnkiQt(QMainWindow):
             # if self.col.experiment_enabled(ExperimentFlag.TEST_FLAG):
             #     showInfo('You have the "ping" experiment enabled')
 
-        last_day_cutoff = self.col.sched.day_cutoff
-
-        def refresh_reviewer_on_day_rollover_change():
-            from aqt.reviewer import RefreshNeeded
-
-            # need to refresh?
-            nonlocal last_day_cutoff
-            current_cutoff = self.col.sched.day_cutoff
-            if self.state == "review" and last_day_cutoff != current_cutoff:
-                last_day_cutoff = self.col.sched.day_cutoff
-                self.reviewer._refresh_needed = RefreshNeeded.QUEUES
-                self.reviewer.refresh_if_needed()
-            if last_day_cutoff != current_cutoff:
-                gui_hooks.day_did_change()
-
-            # schedule another check
-            secs_until_cutoff = current_cutoff - int_time()
-            self._reviewer_refresh_timer = self.progress.timer(
-                secs_until_cutoff * 1000,
-                refresh_reviewer_on_day_rollover_change,
-                repeat=False,
-                parent=self,
-            )
-
-        refresh_reviewer_on_day_rollover_change()
+        self._last_sched_today = self.col.sched.today
+        self._refresh_reviewer_on_day_rollover_change()
         gui_hooks.profile_did_open()
         self.maybe_auto_sync_on_open_close(_onsuccess)
+
+    def _refresh_reviewer_on_day_rollover_change(self) -> None:
+        from aqt.reviewer import RefreshNeeded
+
+        if not self.col or self._last_sched_today is None:
+            return
+
+        # need to refresh?
+        today = self.col.sched.today
+        if today != self._last_sched_today:
+            self._last_sched_today = today
+            if self.state == "review":
+                self.reviewer._refresh_needed = RefreshNeeded.QUEUES
+                self.reviewer.refresh_if_needed()
+            gui_hooks.day_did_change()
+
+        # schedule another check
+        if self._reviewer_refresh_timer:
+            self._reviewer_refresh_timer.stop()
+            self._reviewer_refresh_timer.deleteLater()
+        secs_until_cutoff = self.col.sched.day_cutoff - int_time()
+        self._reviewer_refresh_timer: QTimer = self.progress.timer(
+            secs_until_cutoff * 1000,
+            self._refresh_reviewer_on_day_rollover_change,
+            repeat=False,
+            parent=self,
+        )
 
     def unloadProfile(self, onsuccess: Callable) -> None:
         def callback() -> None:
@@ -585,6 +589,8 @@ class AnkiQt(QMainWindow):
         # at this point there should be no windows left
         self._checkForUnclosedWidgets()
         self._reviewer_refresh_timer.deleteLater()
+        self._reviewer_refresh_timer = None
+        self._last_sched_today = None
 
     def _checkForUnclosedWidgets(self) -> None:
         for w in self.app.topLevelWidgets():
@@ -871,6 +877,10 @@ class AnkiQt(QMainWindow):
 
         if changes.notetype:
             self.col.models._clear_cache()
+
+        if changes.config:
+            # "next day starts at" may have changed
+            self._refresh_reviewer_on_day_rollover_change()
 
     def on_focus_did_change(
         self, new_focus: QWidget | None, _old: QWidget | None
@@ -1547,6 +1557,9 @@ title="{}" {}>{}</button>""".format(
             True,
             parent=self,
         )
+        # day rollover, checked while a profile is open
+        self._reviewer_refresh_timer = None
+        self._last_sched_today = None
 
     def onRefreshTimer(self) -> None:
         if self.state == "deckBrowser":
