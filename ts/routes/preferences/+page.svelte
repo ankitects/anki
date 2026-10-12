@@ -25,8 +25,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     <div class="lab-grid">
         <LabItem
-            title="Svelte note editor"
-            description="Replaces the legacy editor with a new Svelte-based implementation. May affect addon compatibility. You can also hold shift while opening the editor to temporarily toggle this option on or off."
+            title="Note Editor Rework"
+            description="Enables an experimental rework of the editor (<a href='https://github.com/ankitects/anki/issues/3830'>#3830</a>). You can also hold shift while opening the editor to temporarily toggle this option on or off.<br><br><b>Not recommended for add-on users yet.</b>"
             key={ExperimentalFeatureFlag.SVELTE_EDITOR}
             {labPerfs}
         ></LabItem>
