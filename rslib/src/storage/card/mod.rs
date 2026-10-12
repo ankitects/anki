@@ -791,6 +791,7 @@ impl super::SqliteStorage {
 #[derive(Clone, Copy)]
 pub(crate) enum ReviewOrderSubclause {
     Day,
+    DayDescending,
     Deck,
     Random,
     IntervalsAscending,
@@ -818,6 +819,7 @@ impl fmt::Display for ReviewOrderSubclause {
         let temp_string;
         let clause = match self {
             ReviewOrderSubclause::Day => "due",
+            ReviewOrderSubclause::DayDescending => "due desc",
             ReviewOrderSubclause::Deck => "(select rowid from active_decks ad where ad.id = did)",
             ReviewOrderSubclause::Random => "fnvhash(id, mod)",
             ReviewOrderSubclause::IntervalsAscending => "ivl asc",
@@ -860,6 +862,12 @@ fn review_order_sql(order: ReviewCardOrder, timing: SchedTimingToday, fsrs: bool
         ReviewCardOrder::Day => vec![ReviewOrderSubclause::Day],
         ReviewCardOrder::DayThenDeck => vec![ReviewOrderSubclause::Day, ReviewOrderSubclause::Deck],
         ReviewCardOrder::DeckThenDay => vec![ReviewOrderSubclause::Deck, ReviewOrderSubclause::Day],
+        ReviewCardOrder::ReverseDayThenDeck => {
+            vec![
+                ReviewOrderSubclause::DayDescending,
+                ReviewOrderSubclause::Deck,
+            ]
+        }
         ReviewCardOrder::IntervalsAscending => vec![ReviewOrderSubclause::IntervalsAscending],
         ReviewCardOrder::IntervalsDescending => vec![ReviewOrderSubclause::IntervalsDescending],
         ReviewCardOrder::EaseAscending => {

@@ -228,6 +228,8 @@ deck-config-review-mix-show-before-reviews = Show before reviews
 deck-config-sort-order-due-date-then-random = Due date, then random
 # Sort the cards first by due date, in ascending order (oldest due date to newest), then by deck within the same due date.
 deck-config-sort-order-due-date-then-deck = Due date, then deck
+# Sort the cards first by due date, in descending order (newest due date to oldest), then by deck within the same due date.
+deck-config-sort-order-reverse-due-date-then-deck = Reverse due date, then deck
 # Sort the cards first by deck, then by due date in ascending order (oldest due date to newest) within the same deck.
 deck-config-sort-order-deck-then-due-date = Deck, then due date
 # Sort the cards by the interval, in ascending order (shortest to longest).
