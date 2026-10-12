@@ -1,10 +1,12 @@
 ---
 title: "Card Info, Graphs and Statistics"
+sidebarTitle: "Statistics"
+description: "Statistics"
 ---
 
 ## Card Info
 
-You can display information about a card by using the Cards>Info menu item,
+You can display information about a card by using the Cards&gt;Info menu item,
 by right-clicking on the card and then selecting **Info**, or by pressing
 
 <kbd>I</kbd> on the study screen.
@@ -124,7 +126,7 @@ your number of due cards.
 It is calculated as follows:
 
 $$
-\frac{1}{I_1} + \frac{1}{I_2} + \frac{1}{I_3} + \dots + \frac{1}{I_n}
+\frac\{1\}\{I_1\} + \frac\{1\}\{I_2\} + \frac\{1\}\{I_3\} + \dots + \frac\{1\}\{I_n\}
 $$
 
 Here, \\(I_n\\) is the interval of
@@ -132,7 +134,7 @@ the n-th card. If the interval is less than one day, the summation term is 1. Th
 prevents cards with short intervals from unrealistically skewing the value of daily load.
 
 Example: you have a card with an interval of 10 days and a card with an interval of 50 days.
-Daily load = \\(\frac{1}{10} + \frac{1}{50} = 0.12\\), meaning that, _on average_, you will have 0.12 due cards per day.
+Daily load = \\(\frac\{1\}\{10\} + \frac\{1\}\{50\} = 0.12\\), meaning that, _on average_, you will have 0.12 due cards per day.
 
 ### Calendar
 
@@ -229,7 +231,7 @@ Again counts as "Fail"; Hard, Good, and Easy count as "Pass".
 This table can be used to check how well [Anki's spaced repetition algorithm](/faqs/what-spaced-repetition-algorithm) is working for you.
 
 If you are using FSRS, your true retention is expected to be close to your [desired retention](./deck-options#desired-retention).
-Please keep in mind that data for a single day is noisy, so it's better to look at monthly data. If your true retention doesn't match your desired retention very well, here are some general recommendations:
+Keep in mind that data for a single day is noisy, so it's better to look at monthly data. If your true retention doesn't match your desired retention very well, here are some general recommendations:
 
 1. Optimize your FSRS parameters.
 2. Use different presets with their own parameters for different material.
@@ -243,7 +245,7 @@ than what Anki provides, it is possible to access the data directly.
 Because of the complexity involved, this is not something we can provide
 any support for.
 
-One option is to [write an add-on](addons) that adds another graph or
+One option is to [write an add-on](./addons) that adds another graph or
 more details to the statistics window. There are several add-ons of this
 sort on AnkiWeb already, which you can look at to get an idea of how it
 works.

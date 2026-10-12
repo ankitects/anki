@@ -9,6 +9,7 @@ url = "https://apps.ankiweb.net"
 license = "AGPL-3.0-or-later"
 license-files = ["LICENSE"]
 author = "Damien Elmes"
+env_manager = "uv"
 
 [tool.briefcase.app.anki]
 formal_name = "Anki"
@@ -66,6 +67,11 @@ entitlement."com.apple.security.cs.allow-jit" = true
 entitlement."com.apple.security.cs.disable-executable-page-protection" = true
 entitlement."com.apple.security.cs.allow-dyld-environment-variables" = true
 entitlement."com.apple.security.device.audio-input" = true
+support_revision = "15"
+stub_binary_revision = "16"
+
+[tool.briefcase.app.anki.linux]
+support_revision = "3.13.15+20260901"
 
 [tool.briefcase.app.anki.linux.flatpak]
 supported = false
@@ -73,6 +79,8 @@ supported = false
 [tool.briefcase.app.anki.windows]
 create_desktop_shortcut = true
 min_os_version = "17763"
+support_revision = "15"
+stub_binary_revision = "13"
 
 [tool.briefcase.app.anki.iOS]
 supported = false
@@ -88,7 +96,7 @@ description = "Anki deck package"
 extension = "apkg"
 icon = "resources/anki"
 mime_type = "application/x-apkg"
-url = "https://docs.ankiweb.net/exporting.html#deck-apkg"
+url = "https://docs.ankiweb.net/manual/exporting#deck-apkg"
 macOS.CFBundleTypeRole = "Editor"
 
 [tool.briefcase.app.anki.document_type.colpkg]
@@ -96,7 +104,7 @@ description = "Anki collection package"
 extension = "colpkg"
 icon = "resources/anki"
 mime_type = "application/x-colpkg"
-url = "https://docs.ankiweb.net/exporting.html#collection-colpkg"
+url = "https://docs.ankiweb.net/manual/exporting#collection-colpkg"
 macOS.CFBundleTypeRole = "Editor"
 
 [tool.briefcase.app.anki.document_type.ankiaddon]
@@ -104,5 +112,5 @@ description = "Anki add-on package"
 extension = "ankiaddon"
 icon = "resources/anki"
 mime_type = "application/x-ankiaddon"
-url = "https://addon-docs.ankiweb.net/sharing.html"
+url = "https://docs.ankiweb.net/addons/sharing"
 macOS.CFBundleTypeRole = "Editor"

@@ -451,7 +451,7 @@ class AddonManager:
     ) -> InstallOk | InstallError:
         """Install add-on from path or file-like object. Metadata is read
         from the manifest file, with keys overridden by supplying a 'manifest'
-        dictionary"""
+        dictionary, except for a non-empty packaged name."""
         try:
             zfile = ZipFile(file)
         except zipfile.BadZipfile:
@@ -459,8 +459,11 @@ class AddonManager:
 
         with zfile:
             file_manifest = self.readManifestFile(zfile)
+            packaged_name = file_manifest.get("name")
             if manifest:
                 file_manifest.update(manifest)
+            if packaged_name:
+                file_manifest["name"] = packaged_name
             manifest = file_manifest
             if not manifest:
                 return InstallError(errmsg="manifest")

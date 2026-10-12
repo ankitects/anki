@@ -4,8 +4,8 @@
 use anki_io::atomic_rename;
 use anki_io::new_tempfile_in_parent_of;
 use anki_io::read_file;
-use anki_io::write_file;
 use reqwest::Client;
+use tokio::io::BufWriter;
 
 use crate::collection::CollectionBuilder;
 use crate::prelude::*;
@@ -29,13 +29,16 @@ impl Collection {
         let _col_folder = col_path.parent().or_invalid("couldn't get col_folder")?;
         let progress = self.new_progress_handler();
         self.close(None)?;
-        let out_data = server
-            .download_with_progress(EmptyInput::request(), progress)
-            .await?
-            .data;
-        // check file ok
+        // stream straight to disk, so large collections don't need to fit in memory
         let temp_file = new_tempfile_in_parent_of(&col_path)?;
-        write_file(temp_file.path(), out_data)?;
+        {
+            let file = tokio::fs::File::from_std(temp_file.as_file().try_clone()?);
+            let mut writer = BufWriter::with_capacity(1024 * 1024, file);
+            server
+                .download_into_with_progress(EmptyInput::request(), progress, &mut writer)
+                .await?;
+        }
+        // check file ok
         let col = CollectionBuilder::new(temp_file.path())
             .set_check_integrity(true)
             .build()?;

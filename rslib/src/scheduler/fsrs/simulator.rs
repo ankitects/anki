@@ -482,4 +482,42 @@ mod test {
         assert_eq!(cards.len(), 1);
         assert_eq!(cards[0].desired_retention, 0.85f32)
     }
+
+    #[test]
+    fn simulator_does_not_crash_with_review_priority_functions() {
+        let mut col = Collection::new();
+        let review_orders = [
+            ReviewCardOrder::Day,
+            ReviewCardOrder::DayThenDeck,
+            ReviewCardOrder::DeckThenDay,
+            ReviewCardOrder::IntervalsAscending,
+            ReviewCardOrder::IntervalsDescending,
+            ReviewCardOrder::EaseAscending,
+            ReviewCardOrder::EaseDescending,
+            ReviewCardOrder::RetrievabilityAscending,
+            ReviewCardOrder::RetrievabilityDescending,
+            ReviewCardOrder::RelativeOverdueness,
+            ReviewCardOrder::Random,
+            ReviewCardOrder::Added,
+            ReviewCardOrder::ReverseAdded,
+        ];
+
+        let parameters = [
+            &fsrs::DEFAULT_PARAMETERS[..21], /* FSRS-6 (Sliced due to the potential of more
+                                              * parameters in the future) */
+            &fsrs::DEFAULT_PARAMETERS[..19], // FSRS-5
+            &fsrs::DEFAULT_PARAMETERS[..17], // FSRS-4
+        ];
+
+        for params in parameters {
+            for review_order in review_orders {
+                let req = SimulateFsrsReviewRequest {
+                    params: params.to_vec(),
+                    review_order: review_order as i32,
+                    ..base_request()
+                };
+                let _ = col.simulate_review(req).unwrap();
+            }
+        }
+    }
 }

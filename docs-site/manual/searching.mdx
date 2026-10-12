@@ -9,7 +9,7 @@ of searching for specific cards/notes. This method can also be used to adjust th
 
 When you type some text into the search box, Anki finds matching notes
 and displays their cards. Anki searches in all fields of the notes, but
-does not search for tags (see [later in this section](#tags-decks-cards-and-notes) to search for tags). Some examples:
+does not search for tags (see [later in this section](./#tags-decks-cards-and-notes) to search for tags). Some examples:
 
 `dog`\
 searches for "dog" - will match words like "doggy" and "underdog" too.
@@ -41,10 +41,10 @@ as "atta dog", but not "dog a" or "adog".
 finds notes without the exact sequence of characters "a dog" in them.
 
 `d_g`\
-finds notes with d, \<one character\>, g, like dog, dig, dug, and so on.
+finds notes with d, &lt;one character&gt;, g, like dog, dig, dug, and so on.
 
 `d*g`\
-finds notes with d, \<zero or more characters\>, g, like dg, dog, dung,
+finds notes with d, &lt;zero or more characters&gt;, g, like dg, dog, dung,
 etc.
 
 `w:dog`\
@@ -103,7 +103,7 @@ dog" will not match.
 
 `"animal front:a dog"`\
 finds notes where the "Animal Front" field is exactly "a dog". The double quotes are
-mandatory: see [later in this section](#matching-special-characters).
+mandatory: see [later in this section](./#matching-special-characters).
 
 `front:*dog*`\
 finds notes where the Front field contains dog somewhere.
@@ -204,7 +204,7 @@ Anki 2.1.24+, AnkiMobile 2.0.60+ and AnkiDroid 2.17+ support searching in notes 
 a standard and powerful way of searching in text.
 
 Start a search with `re:` to search using regular expressions. To make things easier, Anki will
-treat the following as [raw input](#raw-input), so bear in mind the rules listed there.
+treat the following as [raw input](./#raw-input), so bear in mind the rules listed there.
 
 Some examples:
 
@@ -214,7 +214,7 @@ finds notes that have "some" or "another" on them, followed by 0 or more charact
 `re:\d{3}`\
 finds notes that have 3 digits in a row.
 
-Regular expressions can also be limited to a specific field. Please note that unlike the normal searches
+Regular expressions can also be limited to a specific field. Note that unlike the normal searches
 in a specific field, regular expressions in fields don't require an exact match:
 
 `front:re:[a-c]1`\
@@ -452,7 +452,7 @@ you need to tell Anki not to treat them specially. This is called "escaping a ch
   `&`, `<`, and `>` are treated as HTML when searching in Anki, and as such, searches
   containing them don't work as expected. However, you can search for them by using their
   corresponding HTML entity names (`&amp;` for `&`, `&lt;` for `<`, and `&gt;` for `>`).
-  For example, searching `&text` searches for a note with `&text` in a field.
+  For example, searching `&amp;text` searches for a note with `&text` in a field.
 
 ### Raw input
 

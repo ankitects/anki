@@ -12,7 +12,7 @@ import type { EditingInputAPI } from "./EditingArea.svelte";
 import type { NoteEditorAPI } from "./NoteEditor.svelte";
 import { editingInputIsPlainText } from "./plain-text-input";
 import { editingInputIsRichText } from "./rich-text-input";
-import { writeBlobToClipboard } from "./rich-text-input/data-transfer";
+import { isImage, writeBlobToClipboard } from "./rich-text-input/data-transfer";
 import { EditorState } from "./types";
 
 async function getFieldSelection(focusedInput: EditingInputAPI): Promise<string | null> {
@@ -90,7 +90,7 @@ export function setupContextMenu(): [
         } else if (focusedInput && editingInputIsRichText(focusedInput)) {
             imagePath = getImageFromMouseEvent(event, await focusedInput.element);
         }
-        if (imagePath) {
+        if (imagePath && isImage(imagePath)) {
             contextMenuItems.push({
                 label: tr.editingCopyImage(),
                 action: async () => {

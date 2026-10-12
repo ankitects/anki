@@ -143,9 +143,8 @@ fn is_empty_or_zero(text: &str) -> bool {
 fn test_get_image_cloze_data() {
     assert_eq!(
         get_image_cloze_data("rect:left=10:top=20:width=30:height=10"),
-        format!(
-            r#"data-shape="rect" data-left="10" data-top="20" data-width="30" data-height="10" "#,
-        )
+        r#"data-shape="rect" data-left="10" data-top="20" data-width="30" data-height="10" "#
+            .to_string(),
     );
     assert_eq!(
         get_image_cloze_data("ellipse:left=15:top=20:width=10:height=20:rx=10:ry=5"),
