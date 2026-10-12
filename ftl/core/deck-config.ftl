@@ -142,7 +142,7 @@ deck-config-new-gather-priority-tooltip-3 =
     can stop before all subdecks have been checked. This order is fastest in large collections, and
     allows you to prioritize subdecks that are closer to the top.
     
-    `Random notes, grouped by deck`: Like `Random notes`, but goes through subdecks in order,
+    `Deck, then random notes`: Like `Random notes`, but goes through subdecks in order,
     as `Deck` does, picking notes at random within each subdeck and gathering all of their cards.
     
     `Ascending position`: Gathers cards by ascending position (due #), which is typically
@@ -199,7 +199,7 @@ deck-config-display-order-will-use-current-deck =
 # Gather new cards ordered by deck.
 deck-config-new-gather-priority-deck = Deck
 # Gather new cards ordered by deck, then ordered by random notes, ensuring all cards of the same note are grouped together.
-deck-config-new-gather-priority-random-notes-by-deck = Random notes, grouped by deck
+deck-config-new-gather-priority-deck-then-random-notes = Deck, then random notes
 # Gather new cards ordered by position number, ascending (lowest to highest).
 deck-config-new-gather-priority-position-lowest-first = Ascending position
 # Gather new cards ordered by position number, descending (highest to lowest).

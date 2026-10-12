@@ -15,8 +15,8 @@ intended primarily to track development tasks, and it is easier to provide suppo
 over on the forums. Please make sure you read the following pages before
 you post there:
 
-- https://faqs.ankiweb.net/when-problems-occur.html
-- https://faqs.ankiweb.net/getting-help.html
+- https://docs.ankiweb.net/manual/troubleshooting
+- https://docs.ankiweb.net/manual/getting-help
 
 If you post questions, suggestions, or vague bug reports here, please do not be
 offended if we close your ticket without replying. If in doubt, please post on

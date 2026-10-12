@@ -14,7 +14,7 @@ use fsrs::ReviewPriorityFn;
 use fsrs::SimulatorConfig;
 use fsrs::FSRS;
 use itertools::Itertools;
-use rand::Rng;
+use rand::random_range;
 use rayon::iter::IntoParallelIterator;
 use rayon::iter::ParallelIterator;
 
@@ -110,7 +110,7 @@ fn create_review_priority_fn(
 
         // Random ordering
         Random => {
-            wrap!(move |_c: &fsrs::Card| rand::rng().random_range(0..deck_size) as i32)
+            wrap!(move |_c: &fsrs::Card| random_range(0..deck_size) as i32)
         }
 
         // Not implemented yet
