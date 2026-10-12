@@ -7,7 +7,7 @@ use std::ops::Deref;
 
 use itertools::Itertools;
 use rand::rngs::StdRng;
-use rand::Rng;
+use rand::RngExt;
 use rand::SeedableRng;
 
 use super::Notetype;
