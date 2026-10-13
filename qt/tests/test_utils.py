@@ -1,13 +1,11 @@
 # Copyright: Ankitects Pty Ltd and contributors
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-from aqt.qt import QApplication, QMenu
+from aqt.qt import QMenu
 from aqt.utils import qtMenuShortcutWorkaround
 
 
-def test_qt_menu_shortcut_workaround_applies_to_submenus() -> None:
-    _app = QApplication.instance() or QApplication([])
-
+def test_qt_menu_shortcut_workaround_applies_to_submenus(qapp) -> None:
     menu = QMenu()
     top_action = menu.addAction("Top")
     submenu = menu.addMenu("Submenu")
