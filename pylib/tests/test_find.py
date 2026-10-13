@@ -190,6 +190,20 @@ def test_find_cards():
     assert len(col.find_cards("prop:ease=2.2")) == 1
     assert len(col.find_cards("prop:ease>2")) == 1
     assert len(col.find_cards("-prop:ease>2")) > 1
+    # forgotten rate (lapses / reps); only valid when reps > 0
+    forgottenId = col.db.scalar("select id from cards where reps = 0 limit 1")
+    col.db.execute(
+        "update cards set queue=2, reps=10, lapses=4 where id = ?", forgottenId
+    )
+    # a card with 4 lapses in 10 reviews has a rate of 0.4
+    assert len(col.find_cards("prop:forgotten-rate=0.4")) == 1
+    assert len(col.find_cards("prop:fr=0.4")) == 1
+    assert len(col.find_cards("prop:forgotten-rate>0.4")) == 0
+    # the earlier review card (20 reps, no lapses) has a rate of 0
+    assert len(col.find_cards("prop:forgotten-rate=0")) == 1
+    # never-reviewed cards (reps = 0) are excluded, so only the two reviewed
+    # cards match, not the whole collection
+    assert len(col.find_cards("prop:forgotten-rate>=0")) == 2
     # recently failed
     if not isNearCutoff():
         # rated
