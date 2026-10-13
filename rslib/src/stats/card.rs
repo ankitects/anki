@@ -30,6 +30,7 @@ impl Collection {
 
         let (average_secs, total_secs) = average_and_total_secs_strings(&revlog);
         let timing = self.timing_today()?;
+        let fsrs_enabled = self.fsrs_enabled();
 
         let last_review_time = if let Some(last_review_time) = card.last_review_time {
             last_review_time
@@ -67,6 +68,14 @@ impl Collection {
         let preset = self
             .get_deck_config(config_id, true)?
             .or_not_found(config_id.to_string())?;
+
+        let memory_state =
+            if fsrs_enabled && card.ctype != CardType::New && card.memory_state.is_none() {
+                self.compute_memory_state(card.id)?.state
+            } else {
+                card.memory_state.map(Into::into)
+            };
+
         Ok(anki_proto::stats::CardStatsResponse {
             card_id: card.id.into(),
             note_id: card.note_id.into(),
@@ -92,7 +101,7 @@ impl Collection {
             card_type: nt.get_template(card.template_idx)?.name.clone(),
             notetype: nt.name.clone(),
             revlog: self.stats_revlog_entries_with_memory_state(&card, revlog)?,
-            memory_state: card.memory_state.map(Into::into),
+            memory_state,
             fsrs_retrievability,
             custom_data: card.custom_data,
             fsrs_params: preset.fsrs_params().to_vec(),
@@ -103,6 +112,7 @@ impl Collection {
                 None
             },
             desired_retention: card.desired_retention,
+            fsrs_enabled,
         })
     }
 
@@ -229,20 +239,76 @@ fn stats_revlog_entry(
 
 #[cfg(test)]
 mod test {
+    use anki_proto::deck_config::deck_configs_for_update::current_deck::Limits;
+    use anki_proto::deck_config::UpdateDeckConfigsMode;
+
     use super::*;
+    use crate::deckconfig::UpdateDeckConfigsRequest;
     use crate::search::SortMode;
 
-    #[test]
-    fn stats() -> Result<()> {
+    fn test_collection() -> Result<(Collection, CardId)> {
         let mut col = Collection::new();
-
         let nt = col.get_notetype_by_name("Basic")?.unwrap();
         let mut note = nt.new_note();
         col.add_note(&mut note, DeckId(1))?;
-
         let cid = col.search_cards("", SortMode::NoOrder)?[0];
+        Ok((col, cid))
+    }
+
+    #[test]
+    fn stats() -> Result<()> {
+        let (mut col, cid) = test_collection()?;
         let _report = col.card_stats(cid)?;
-        //println!("report {}", report);
+
+        Ok(())
+    }
+
+    #[test]
+    fn stats_calculate_memory_state_if_not_present() -> Result<()> {
+        let (mut col, cid) = test_collection()?;
+
+        col.set_config_bool(BoolKey::Fsrs, true, true)?;
+        // review the card as easy
+        col.grade_now(&[cid], 3)?;
+        let mut card = col.storage.get_card(cid)?.unwrap();
+        assert!(card.memory_state.is_some());
+
+        card.clear_fsrs_data();
+        col.storage.update_card(&card)?;
+
+        let card = col.storage.get_card(cid)?.unwrap();
+        assert!(card.memory_state.is_none());
+
+        let report = col.card_stats(cid)?;
+        let card = col.storage.get_card(cid)?.unwrap();
+
+        assert!(report.memory_state.is_some());
+        // Don't modify the card. See https://github.com/ankitects/anki/issues/5635
+        assert!(card.memory_state.is_none());
+
+        // Toggle FSRS off
+        let deck_configs = col.get_deck_configs_for_update(DeckId(1))?;
+        col.update_deck_configs(UpdateDeckConfigsRequest {
+            target_deck_id: DeckId(1),
+            configs: deck_configs
+                .all_config
+                .into_iter()
+                .map(|config| config.config.unwrap().into())
+                .collect(),
+            removed_config_ids: vec![],
+            mode: UpdateDeckConfigsMode::Normal,
+            card_state_customizer: String::new(),
+            limits: Limits::default(),
+            new_cards_ignore_review_limit: false,
+            apply_all_parent_limits: false,
+            fsrs: false, // <-------- Disable FSRS
+            fsrs_reschedule: false,
+            fsrs_health_check: true,
+        })?;
+
+        // Dont report memory_state while SM2 is enabled
+        let report = col.card_stats(cid)?;
+        assert!(report.memory_state.is_none());
 
         Ok(())
     }

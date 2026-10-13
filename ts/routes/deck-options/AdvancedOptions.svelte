@@ -81,7 +81,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         customScheduling: {
             title: tr.deckConfigCustomScheduling(),
             help: tr.deckConfigCustomSchedulingTooltip(),
-            url: "https://faqs.ankiweb.net/the-2021-scheduler.html#add-ons-and-custom-scheduling",
+            url: "https://docs.ankiweb.net/faqs/the-2021-scheduler#add-ons-and-custom-scheduling",
             global: true,
         },
     };
@@ -303,7 +303,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             </SpinBoxFloatRow>
 
             <Item>
-                <DateInput bind:date={$config.ignoreRevlogsBeforeDate}>
+                <DateInput
+                    bind:date={$config.ignoreRevlogsBeforeDate}
+                    max={new Date().toLocaleDateString("en-CA")}
+                >
                     <SettingTitle
                         on:click={() =>
                             openHelpModal(

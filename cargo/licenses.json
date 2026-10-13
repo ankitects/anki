@@ -48,7 +48,7 @@
     "repository": "https://github.com/nical/android_system_properties"
   },
   {
-    "authors": "Ankitects Pty Ltd and contributors <https://help.ankiweb.net>",
+    "authors": "Ankitects Pty Ltd and contributors <https://faqs.ankiweb.net/>",
     "description": "Anki's Rust library code",
     "license": "AGPL-3.0-or-later",
     "license_file": null,
@@ -56,7 +56,7 @@
     "repository": null
   },
   {
-    "authors": "Ankitects Pty Ltd and contributors <https://help.ankiweb.net>",
+    "authors": "Ankitects Pty Ltd and contributors <https://faqs.ankiweb.net/>",
     "description": "Anki's Rust library i18n code",
     "license": "AGPL-3.0-or-later",
     "license_file": null,
@@ -64,7 +64,7 @@
     "repository": null
   },
   {
-    "authors": "Ankitects Pty Ltd and contributors <https://help.ankiweb.net>",
+    "authors": "Ankitects Pty Ltd and contributors <https://faqs.ankiweb.net/>",
     "description": "Utils for better I/O error reporting",
     "license": "AGPL-3.0-or-later",
     "license_file": null,
@@ -72,7 +72,7 @@
     "repository": null
   },
   {
-    "authors": "Ankitects Pty Ltd and contributors <https://help.ankiweb.net>",
+    "authors": "Ankitects Pty Ltd and contributors <https://faqs.ankiweb.net/>",
     "description": "Anki's Rust library protobuf code",
     "license": "AGPL-3.0-or-later",
     "license_file": null,
@@ -80,7 +80,7 @@
     "repository": null
   },
   {
-    "authors": "Ankitects Pty Ltd and contributors <https://help.ankiweb.net>",
+    "authors": "Ankitects Pty Ltd and contributors <https://faqs.ankiweb.net/>",
     "description": "Helpers for interface code generation",
     "license": "AGPL-3.0-or-later",
     "license_file": null,
@@ -1240,6 +1240,14 @@
     "repository": "https://github.com/rust-itertools/itertools"
   },
   {
+    "authors": "bluss",
+    "description": "Extra iterator adaptors, iterator methods, free functions, and macros.",
+    "license": "Apache-2.0 OR MIT",
+    "license_file": null,
+    "name": "itertools",
+    "repository": "https://github.com/rust-itertools/itertools"
+  },
+  {
     "authors": "David Tolnay <dtolnay@gmail.com>",
     "description": "Fast integer primitive to string conversion",
     "license": "Apache-2.0 OR MIT",
@@ -2048,6 +2056,14 @@
     "repository": "https://github.com/rust-random/rand_core"
   },
   {
+    "authors": "The Rand Project Developers",
+    "description": "Selected PCG random number generators",
+    "license": "Apache-2.0 OR MIT",
+    "license_file": null,
+    "name": "rand_pcg",
+    "repository": "https://github.com/rust-random/rngs"
+  },
+  {
     "authors": "bluss",
     "description": "Extra methods for raw pointers and `NonNull<T>`.  For example `.post_inc()` and `.pre_dec()` (c.f. `ptr++` and `--ptr`), `offset` and `add` for `NonNull<T>`, and the function `ptrdistance`.",
     "license": "Apache-2.0 OR MIT",
@@ -2576,6 +2592,14 @@
     "repository": "https://github.com/dtolnay/syn"
   },
   {
+    "authors": "David Tolnay <dtolnay@gmail.com>",
+    "description": "Parser for Rust source code",
+    "license": "Apache-2.0 OR MIT",
+    "license_file": null,
+    "name": "syn",
+    "repository": "https://github.com/dtolnay/syn"
+  },
+  {
     "authors": "Actyx AG <developer@actyx.io>",
     "description": "A tool for enlisting the compiler's help in proving the absence of concurrency",
     "license": "Apache-2.0",
@@ -2590,6 +2614,22 @@
     "license_file": null,
     "name": "synstructure",
     "repository": "https://github.com/mystor/synstructure"
+  },
+  {
+    "authors": "Mullvad VPN",
+    "description": "Bindings to SystemConfiguration framework for macOS",
+    "license": "Apache-2.0 OR MIT",
+    "license_file": null,
+    "name": "system-configuration",
+    "repository": "https://github.com/mullvad/system-configuration-rs"
+  },
+  {
+    "authors": "Mullvad VPN",
+    "description": "Low level bindings to SystemConfiguration framework for macOS",
+    "license": "Apache-2.0 OR MIT",
+    "license_file": null,
+    "name": "system-configuration-sys",
+    "repository": "https://github.com/mullvad/system-configuration-rs"
   },
   {
     "authors": "Steven Allen <steven@stebalien.com>|The Rust Project Developers|Ashley Mannix <ashleymannix@live.com.au>|Jason White <me@jasonwhite.io>",
@@ -3285,6 +3325,14 @@
     "license": "Apache-2.0 OR MIT",
     "license_file": null,
     "name": "windows-numerics",
+    "repository": "https://github.com/microsoft/windows-rs"
+  },
+  {
+    "authors": "Microsoft",
+    "description": "Windows registry",
+    "license": "Apache-2.0 OR MIT",
+    "license_file": null,
+    "name": "windows-registry",
     "repository": "https://github.com/microsoft/windows-rs"
   },
   {

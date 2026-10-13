@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import enum
+import faulthandler
 import gc
 import os
 import re
@@ -121,7 +122,6 @@ class MainWebView(AnkiWebView):
         event.accept()
 
     def dropEvent(self, event: QDropEvent) -> None:
-        import aqt.importing
         from aqt.import_export.importing import import_file
 
         if self.mw.state != "deckBrowser":
@@ -130,10 +130,7 @@ class MainWebView(AnkiWebView):
         paths = [url.toLocalFile() for url in mime.urls()]
         deck_paths = filter(lambda p: not p.endswith(".colpkg"), paths)
         for path in deck_paths:
-            if not self.mw.pm.legacy_import_export():
-                import_file(self.mw, path)
-            else:
-                aqt.importing.importFile(self.mw, path)
+            import_file(self.mw, path)
 
             # importing continues after the above call returns, so it is not
             # currently safe for us to import more than one file at once
@@ -195,11 +192,8 @@ class AnkiQt(QMainWindow):
         self.app = app
         self.pm = profileManager
         self.fullscreen = False
+        self.safeMode = app.safeMode
         # init rest of app
-        self.safeMode = (
-            bool(self.app.queryKeyboardModifiers() & Qt.KeyboardModifier.ShiftModifier)
-            or self.opts.safemode
-        )
         try:
             self.setupUI()
             self.setupAddons(args)
@@ -229,6 +223,7 @@ class AnkiQt(QMainWindow):
     def setupUI(self) -> None:
         self.col = None
         self.disable_automatic_garbage_collection()
+        self.setup_crashlog()
         self.setupAppMsg()
         self.setupKeys()
         self.setupThreads()
@@ -276,6 +271,7 @@ class AnkiQt(QMainWindow):
         qconnect(self.app.focusChanged, self.on_focus_changed)
 
     def on_focus_changed(self, old: QWidget, new: QWidget) -> None:
+        aqt.dialogs._on_focus_did_change(new)
         gui_hooks.focus_did_change(new, old)
 
     # Profiles
@@ -1401,31 +1397,18 @@ title="{}" {}>{}</button>""".format(
             showInfo(f"{tr.qt_misc_please_use_fileimport_to_import_this()} ({path})")
             return None
 
-        if not self.pm.legacy_import_export():
-            import_file(self, path)
-        else:
-            import aqt.importing
-
-            aqt.importing.importFile(self, path)
+        import_file(self, path)
 
     def onImport(self) -> None:
         "Importing triggered via File>Import."
-        import aqt.importing
         from aqt.import_export.importing import prompt_for_file_then_import
 
-        if not self.pm.legacy_import_export():
-            prompt_for_file_then_import(self)
-        else:
-            aqt.importing.onImport(self)
+        prompt_for_file_then_import(self)
 
     def onExport(self, did: DeckId | None = None) -> None:
-        import aqt.exporting
         from aqt.import_export.exporting import ExportDialog
 
-        if not self.pm.legacy_import_export():
-            ExportDialog(self, did=did)
-        else:
-            aqt.exporting.ExportDialog(self, did=did)
+        ExportDialog(self, did=did)
 
     # Installing add-ons from CLI / mimetype handler
     ##########################################################################
@@ -1899,6 +1882,11 @@ title="{}" {}>{}</button>""".format(
 
     setupDialogGC = garbage_collect_on_dialog_finish
     gcWindow = deferred_delete_and_garbage_collect
+
+    def setup_crashlog(self) -> None:
+        path = os.path.join(self.pm.base, "crash.log")
+        self._crash_log = open(path, "a")
+        faulthandler.enable(self._crash_log)
 
     # Media server
     ##########################################################################

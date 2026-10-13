@@ -192,17 +192,8 @@ pub fn check_python(build: &mut Build) -> Result<()> {
     build.add_action(
         "check:mypy",
         PythonTypecheck {
-            folders: &[
-                "pylib",
-                "qt/aqt",
-                "qt/tools",
-                "out/pylib/anki",
-                "out/qt/_aqt",
-                "python",
-                "tools",
-            ],
             deps: inputs![
-                glob!["{pylib,ftl,qt}/**/*.{py,pyi}"],
+                glob!["{pylib,ftl,qt,tools}/**/*.{py,pyi}"],
                 ":pylib:anki",
                 ":qt:aqt"
             ],

@@ -11,6 +11,7 @@ import {
     getAbsoluteMediaPath,
     getConfigBool,
     openFilePicker,
+    playFile,
     readClipboard,
     writeClipboard,
 } from "@generated/backend";
@@ -125,6 +126,20 @@ async function getImageData(data: DataTransfer | ReadClipboardResponse): Promise
     return null;
 }
 
+async function getAudioFile(data: DataTransfer): Promise<{ name: string; data: Uint8Array } | null> {
+    const files = [...(data.files ?? [])].filter((file) =>
+        audioSuffixes.includes(file.name.split(".").pop()?.toLowerCase() ?? "")
+    );
+    for (const file of files) {
+        try {
+            return { name: file.name, data: new Uint8Array(await file.arrayBuffer()) };
+        } catch (e) {
+            continue;
+        }
+    }
+    return null;
+}
+
 async function retrieveUrl(url: string): Promise<string | null> {
     const response = await addMediaFromUrl({ url });
     if (response.error) {
@@ -145,14 +160,29 @@ async function urlToFile(url: string, allowedSuffixes = mediaSuffixes): Promise<
     return null;
 }
 
-export function filenameToLink(filename: string): string {
+function extToLowerCase(filename: string): string {
     const filenameParts = filename.split(".");
-    const ext = filenameParts[filenameParts.length - 1].toLowerCase();
+    return filenameParts[filenameParts.length - 1].toLowerCase();
+}
+
+export function filenameToLink(filename: string): string {
+    const ext = extToLowerCase(filename);
     if (imageSuffixes.includes(ext)) {
         return `<img src="${encodeURI(filename)}">`;
-    } else {
+    } else if (audioSuffixes.includes(ext)) {
+        playFile({ val: filename });
         return `[sound:${escapeHtml(filename, false)}]`;
+    } else {
+        return filename;
     }
+}
+
+export function isAudio(filename: string): boolean {
+    return audioSuffixes.includes(extToLowerCase(filename));
+}
+
+export function isImage(filename: string): boolean {
+    return imageSuffixes.includes(extToLowerCase(filename));
 }
 
 async function urlToLink(url: string, allowedSuffixes: string[] = mediaSuffixes): Promise<string> {
@@ -177,10 +207,10 @@ async function checksum(data: string | Uint8Array): Promise<string> {
     return hashHex;
 }
 
-async function addMediaFromData(filename: string, data: ImageData): Promise<string> {
+async function addMediaFromData(filename: string, data: Uint8Array): Promise<string> {
     filename = (await addMediaFile({
         desiredName: filename,
-        data: imageDataToUint8Array(data),
+        data,
     })).val;
     return filename;
 }
@@ -191,11 +221,11 @@ async function pastedImageFilename(data: ImageData, ext: string): Promise<string
 }
 
 async function addPastedImage(data: ImageData, ext: string, convert = false): Promise<string> {
-    const filename = await pastedImageFilename(data, ext);
     if (convert) {
         data = (await convertPastedImage({ data: imageDataToUint8Array(data), ext })).data;
     }
-    return await addMediaFromData(filename, data);
+    const filename = await pastedImageFilename(data, ext);
+    return await addMediaFromData(filename, imageDataToUint8Array(data));
 }
 
 async function inlinedImageToFilename(src: string): Promise<string> {
@@ -205,11 +235,11 @@ async function inlinedImageToFilename(src: string): Promise<string> {
         const fullPrefix = prefix + ext + suffix;
         if (src.startsWith(fullPrefix)) {
             const b64data = src.slice(fullPrefix.length).trim();
-            const data = atob(b64data);
+            const data = Uint8Array.from(atob(b64data), (char) => char.charCodeAt(0));
             if (ext === "jpeg") {
                 ext = "jpg";
             }
-            return filenameToLink(await addPastedImage(data, ext));
+            return await addPastedImage(data, ext);
         }
     }
     return "";
@@ -249,7 +279,7 @@ async function processUrls(
 }
 
 async function getPreferredImageExtension(): Promise<string> {
-    if (await getConfigBool({ key: ConfigKey_Bool.PASTE_IMAGES_AS_PNG })) {
+    if ((await getConfigBool({ key: ConfigKey_Bool.PASTE_IMAGES_AS_PNG })).val) {
         return "png";
     }
     return "jpg";
@@ -262,6 +292,17 @@ async function processImages(data: DataTransfer, _extended: Promise<boolean>): P
     }
     const ext = await getPreferredImageExtension();
     return filenameToLink(await addPastedImage(image, ext, true));
+}
+
+async function processAudioFiles(
+    data: DataTransfer,
+    _extended: Promise<boolean>,
+): Promise<string | null> {
+    const file = await getAudioFile(data);
+    if (!file) {
+        return null;
+    }
+    return filenameToLink(await addMediaFromData(file.name, file.data));
 }
 
 async function processText(data: DataTransfer, extended: Promise<boolean>): Promise<string | null> {
@@ -309,9 +350,9 @@ async function processDataTransferEvent(
     const urls = await getUrls(data);
     let handlers: ((data: DataTransfer, extended: Promise<boolean>) => Promise<string | null>)[];
     if (urls.length > 0 && urls[0].startsWith("file://")) {
-        handlers = [processUrls, processImages, processText];
+        handlers = [processUrls, processImages, processAudioFiles, processText];
     } else {
-        handlers = [processImages, processUrls, processText];
+        handlers = [processImages, processAudioFiles, processUrls, processText];
     }
 
     for (const handler of handlers) {
@@ -403,7 +444,7 @@ const FILE_PICKER_MEDIA_KEY = "media";
 
 export async function openFilePickerForSuffixes(suffixes: string[]): Promise<string> {
     const filename = (await openFilePicker({
-        title: tr.editingMedia(),
+        title: tr.editingAddMedia(),
         filterDescription: tr.editingMedia(),
         extensions: suffixes,
         key: FILE_PICKER_MEDIA_KEY,

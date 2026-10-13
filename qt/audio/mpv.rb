@@ -2,6 +2,7 @@
 # Changes:
 # - Disable Javascript/Lua/vapoursynth
 # - Set deployment target
+# - Revert upstream PR #15622 to fix playback on macOS 27 (See #5157)
 
 class Mpv < Formula
   desc "Media player based on MPlayer and mplayer2"
@@ -9,7 +10,7 @@ class Mpv < Formula
   url "https://github.com/mpv-player/mpv/archive/refs/tags/v0.41.0.tar.gz"
   sha256 "ee21092a5ee427353392360929dc64645c54479aefdb5babc5cfbb5fad626209"
   license all_of: ["GPL-2.0-or-later", "LGPL-2.1-or-later"]
-  revision 4
+  revision 5
   compatibility_version 1
   head "https://github.com/mpv-player/mpv.git", branch: "master"
 
@@ -56,6 +57,8 @@ class Mpv < Formula
   end
 
   conflicts_with cask: "stolendata-mpv", because: "both install `mpv` binaries"
+
+  patch :DATA
 
   def install
     # LANG is unset by default on macOS and causes issues when calling getlocale
@@ -119,3 +122,21 @@ class Mpv < Formula
     system "pkgconf", "--print-errors", "mpv"
   end
 end
+
+__END__
+--- a/audio/out/ao_coreaudio.c
++++ b/audio/out/ao_coreaudio.c
+@@ -321,13 +321,6 @@
+     CHECK_CA_ERROR_L(coreaudio_error_audiounit,
+                      "can't link audio unit to selected device");
+
+-    err = AudioUnitSetProperty(p->audio_unit,
+-                               kAudioOutputUnitProperty_ChannelMap,
+-                               kAudioUnitScope_Global, 0, layout, layout_size);
+-
+-    CHECK_CA_ERROR_L(coreaudio_error_audiounit,
+-                     "unable to set the input channel layout on the audio unit");
+-
+     AURenderCallbackStruct render_cb = (AURenderCallbackStruct) {
+         .inputProc       = render_cb_lpcm,
+         .inputProcRefCon = ao,

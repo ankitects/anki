@@ -437,6 +437,7 @@ export class ReviewerState {
             expected: this._cardData.typedAnswer.text,
             provided: this.currentTypedAnswer,
             combining: !args.includes("nc"),
+            ignoreCase: args.includes("ci"),
         });
 
         const prefix = args.includes("cloze") ? "<br/>" : "";

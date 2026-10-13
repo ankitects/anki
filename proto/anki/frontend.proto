@@ -39,6 +39,7 @@ service FrontendService {
   rpc OpenMedia(generic.String) returns (generic.Empty);
   rpc ShowInMediaFolder(generic.String) returns (generic.Empty);
   rpc RecordAudio(generic.Empty) returns (generic.String);
+  rpc PlayFile(generic.String) returns (generic.Empty);
   rpc CloseAddCards(generic.Bool) returns (generic.Empty);
   rpc CloseEditCurrent(generic.Empty) returns (generic.Empty);
   rpc OpenLink(generic.String) returns (generic.Empty);
@@ -65,6 +66,8 @@ service FrontendService {
   // Plays the listed AV tags
   rpc PlayAVTags(PlayAVTagsRequest) returns (generic.Empty);
   rpc ReviewerAction(ReviewerActionRequest) returns (generic.Empty);
+  // CSV import
+  rpc ImportDialogRequireClose(generic.Empty) returns (generic.Empty);
 }
 
 service BackendFrontendService {}

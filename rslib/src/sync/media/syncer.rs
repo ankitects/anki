@@ -230,7 +230,7 @@ impl MediaSyncer {
 
             let fnames: Vec<_> = processed_files
                 .into_iter()
-                .chain(processed_deletions.into_iter())
+                .chain(processed_deletions)
                 .map(|e| e.fname)
                 .collect();
             let fname_cnt = fnames.len() as i32;

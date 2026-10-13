@@ -122,7 +122,7 @@ impl Collection {
             deck.name = NativeDeckName::from_native_str(format!(
                 "{}\x1f{}",
                 parent_deck.name,
-                &child_split[parent_count..].join("\x1f")
+                child_split[parent_count..].join("\x1f")
             ));
             if need_create {
                 self.create_missing_parents(&deck.name, usn)?;

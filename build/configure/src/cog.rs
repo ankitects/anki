@@ -11,6 +11,11 @@ pub fn check_cog(build: &mut Build) -> Result<()> {
         build,
         "docs",
         inputs!["docs-site/addons/hooks-reference.mdx", glob!["docs/*.md"]],
-        inputs!["pylib/tools/genhooks.py", "tools/mintlify_hooks.py"],
+        inputs![
+            "pylib/tools/genhooks.py",
+            "tools/mintlify_hooks.py",
+            "docs/cogdocs.py",
+            glob!["docs-site/developers/*.mdx"],
+        ],
     )
 }

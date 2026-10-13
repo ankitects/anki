@@ -18,9 +18,9 @@ What needs changing will depend on the message you are getting.
 **Found '\{\{Field\}\}', but there is no field called 'Field'**
 
 This indicates your template includes the name of a field that doesn't exist. To fix the problem, locate the
-\{\{Field inside the card template, and remove it.
+\{\{Field\}\} inside the card template, and remove it.
 
-**Missing \}\} in \{\{Field\}\}**
+**Missing \}\} in \{\{Field**
 
 This message is shown when \{\{ is found in the template without a matching \}\}. For example, if you have
 
@@ -60,7 +60,7 @@ To fix the problem, the template should be changed like so:
 {{/One}}
 ```
 
-**Found \{\{/Field\}\}, but missing '\{\{#Field\}\}' or '\{\{^Field\}\}'**
+**Found \{\{/Field\}\}, but missing '\{\{#Field}\}' or '\{\{^Field\}\}'**
 
 Closing tags must be matched by opening tags. For example, the following is invalid, because there is no `{{#Two}}` or `{{^Two}}` at the start:
 

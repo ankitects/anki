@@ -8,17 +8,25 @@ from __future__ import annotations
 import os
 import tempfile
 from pathlib import Path
+from unittest import mock
 
 import pytest
 
 from aqt.mediasrv import (
+    TRUSTED_PAGE_CSP,
     UNTRUSTED_MEDIA_CSP,
+    BundledFileRequest,
+    LegacyPage,
     LocalFileRequest,
+    PageContext,
     UnsafePathException,
+    _handle_builtin_file_request,
     _handle_local_file_request,
     _legacy_editor_content_security_policy,
+    _untrusted_sveltekit_content_security_policy,
     ensure_safe_path,
     is_localhost_origin,
+    legacy_page_data,
 )
 
 
@@ -154,16 +162,10 @@ class TestMediaFileCSP:
             csp = _get_csp(resp)
             assert csp is not None
 
-            # default-src 'none' implies connect-src 'none', which is sufficient
-            if "default-src 'none'" in csp:
-                return
-
-            # Otherwise connect-src must not include http: or 'self'
-            assert "http:" not in csp, (
-                f"CSP must not allow http: connections (enables local API access): {csp}"
-            )
-            assert "'self'" not in csp, (
-                f"CSP must not allow 'self' connections (enables local API access): {csp}"
+            directives = _csp_directives(csp)
+            connect_src = directives.get("connect-src", directives.get("default-src"))
+            assert connect_src == "'none'", (
+                f"CSP must not allow connections (enables local API access): {csp}"
             )
 
     def test_untrusted_media_is_sandboxed(self) -> None:
@@ -186,8 +188,27 @@ class TestMediaFileCSP:
             assert directives["child-src"] == "'none'"
             assert directives["base-uri"] == "'none'"
             assert directives["form-action"] == "'none'"
-            assert directives["sandbox"] == ""
+            assert directives["sandbox"] == "allow-same-origin"
             assert "frame-ancestors" not in directives
+
+    def test_untrusted_media_can_load_its_own_presentation(self) -> None:
+        """Media embedded via <object>/<iframe> is a document of its own, and has to
+        be able to load the stylesheets/images/fonts stored next to it."""
+        directives = _csp_directives(UNTRUSTED_MEDIA_CSP)
+
+        assert directives["style-src"] == "'self' 'unsafe-inline'"
+        assert directives["img-src"] == "'self'"
+        assert directives["font-src"] == "'self'"
+        assert directives["media-src"] == "'self'"
+
+        # ...but only passive resources, and only from our own server, so that
+        # cards can neither execute code nor phone home
+        for directive in ("script-src", "connect-src", "object-src", "frame-src"):
+            assert directives[directive] == "'none'"
+        for name, value in directives.items():
+            assert not any(
+                remote in value for remote in ("http:", "https:", "data:", "*")
+            ), f"{name} must not allow remote sources: {value}"
 
     def test_trusted_local_file_does_not_get_untrusted_media_csp(self) -> None:
         """Add-on exports use LocalFileRequest too, but should not be sandboxed."""
@@ -199,6 +220,24 @@ class TestMediaFileCSP:
             with app.test_request_context():
                 resp = _handle_local_file_request(req)
             assert _get_csp(resp) is None
+
+
+class TestCheckDynamicRequestPermissions:
+    """A missing Content-type header must abort(403), not raise KeyError."""
+
+    def test_missing_content_type_header_aborts_403(self, monkeypatch) -> None:
+        from unittest import mock
+
+        from werkzeug.exceptions import Forbidden
+
+        import aqt
+        from aqt.mediasrv import _check_dynamic_request_permissions, app
+
+        monkeypatch.setattr(aqt, "mw", mock.Mock(), raising=False)
+
+        with app.test_request_context(method="POST"):
+            with pytest.raises(Forbidden):
+                _check_dynamic_request_permissions()
 
 
 class TestEditorPageCSP:
@@ -213,3 +252,108 @@ class TestEditorPageCSP:
         assert "frame-src" not in directives
         assert "child-src" not in directives
         assert "img-src" not in directives
+
+    @pytest.mark.parametrize(
+        "csp",
+        [
+            _legacy_editor_content_security_policy(port=12345),
+            _untrusted_sveltekit_content_security_policy(12345, "'sha256-abc='"),
+        ],
+    )
+    def test_editor_csp_blocks_navigation_and_framing(self, csp: str) -> None:
+        """Field content must not navigate the editor webview via a form, and
+        the editor itself must not be framed by other pages."""
+        directives = _csp_directives(csp)
+        assert directives["form-action"] == "'none'"
+        assert directives["frame-ancestors"] == "'none'"
+
+    def test_sveltekit_editor_csp_allows_render_script_hash(self) -> None:
+        csp = _untrusted_sveltekit_content_security_policy(12345, "'sha256-abc='")
+        directives = _csp_directives(csp)
+        assert directives["script-src"].split() == [
+            "http://127.0.0.1:12345/_anki/",
+            "http://127.0.0.1:12345/_app/",
+            "http://127.0.0.1:12345/_addons/",
+            "'sha256-abc='",
+        ]
+
+
+class TestTrustedPageCSP:
+    """Internal pages are only shown top-level. Refusing frame ancestors keeps
+    note HTML in the editor from embedding them in the API-access profile
+    (GHSA-jw6j-j4mf-8jgm)."""
+
+    SVELTEKIT_INDEX = (
+        b'<html><head><meta http-equiv="content-security-policy" '
+        b"content=\"script-src 'self' 'sha256-abc='\"></head></html>"
+    )
+
+    def _mock_mw(self, monkeypatch) -> mock.Mock:
+        import aqt
+
+        mw = mock.Mock()
+        mw.mediaServer.getPort.return_value = 12345
+        monkeypatch.setattr(aqt, "mw", mw, raising=False)
+        return mw
+
+    def _serve_builtin(self, monkeypatch, request: BundledFileRequest, data: bytes):
+        from aqt import mediasrv
+
+        self._mock_mw(monkeypatch)
+        monkeypatch.setattr(mediasrv, "_builtin_data", lambda path: data)
+        with mediasrv.app.test_request_context():
+            return _handle_builtin_file_request(request)
+
+    def test_trusted_sveltekit_page_refuses_framing(self, monkeypatch) -> None:
+        request = BundledFileRequest(
+            "sveltekit/index.html", sveltekit_route="deck-options"
+        )
+        resp = self._serve_builtin(monkeypatch, request, self.SVELTEKIT_INDEX)
+        assert _get_csp(resp) == TRUSTED_PAGE_CSP
+        assert b"content-security-policy" not in resp.get_data()
+
+    @pytest.mark.parametrize("route", ["editor", "image-occlusion"])
+    def test_untrusted_sveltekit_page_refuses_framing(
+        self, monkeypatch, route: str
+    ) -> None:
+        request = BundledFileRequest("sveltekit/index.html", sveltekit_route=route)
+        resp = self._serve_builtin(monkeypatch, request, self.SVELTEKIT_INDEX)
+        csp = _get_csp(resp)
+        assert csp is not None
+        directives = _csp_directives(csp)
+        assert directives["form-action"] == "'none'"
+        assert directives["frame-ancestors"] == "'none'"
+        assert "'sha256-abc='" in directives["script-src"]
+
+    def test_bundled_html_page_refuses_framing(self, monkeypatch) -> None:
+        request = BundledFileRequest("pages/deckconfig.html")
+        resp = self._serve_builtin(monkeypatch, request, b"<html></html>")
+        assert _get_csp(resp) == TRUSTED_PAGE_CSP
+
+    def test_bundled_asset_has_no_csp(self, monkeypatch) -> None:
+        request = BundledFileRequest("js/foo.js")
+        resp = self._serve_builtin(monkeypatch, request, b"console.log(1)")
+        assert _get_csp(resp) is None
+
+    @pytest.mark.parametrize(
+        "context", [PageContext.REVIEWER, PageContext.PREVIEWER, PageContext.UNKNOWN]
+    )
+    def test_legacy_page_refuses_framing(self, monkeypatch, context) -> None:
+        from aqt.mediasrv import app
+
+        mw = self._mock_mw(monkeypatch)
+        mw.mediaServer.get_page.return_value = LegacyPage("<html></html>", context)
+        with app.test_request_context("/_anki/legacyPageData?id=1"):
+            resp = legacy_page_data()
+        assert _get_csp(resp) == TRUSTED_PAGE_CSP
+
+    def test_legacy_editor_page_gets_editor_csp(self, monkeypatch) -> None:
+        from aqt.mediasrv import app
+
+        mw = self._mock_mw(monkeypatch)
+        mw.mediaServer.get_page.return_value = LegacyPage(
+            "<html></html>", PageContext.EDITOR
+        )
+        with app.test_request_context("/_anki/legacyPageData?id=1"):
+            resp = legacy_page_data()
+        assert _get_csp(resp) == _legacy_editor_content_security_policy(12345)

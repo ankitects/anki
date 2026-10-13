@@ -4,12 +4,10 @@ version := `cat .version`
 
 # Prepare a release: validate version, check CI, update .version
 [arg("version", long)]
-[arg("ref", long)]
 [arg("skip-ci-check", long)]
-prepare version ref skip-ci-check="false":
-    gh workflow run prepare-release.yml --ref {{ ref }} \
-        -f version="{{ version }}" \
-        -f skip-ci-check={{ skip-ci-check }}
+prepare version skip-ci-check="false":
+    python3 tools/prepare_release.py "{{ version }}" \
+        {{ if skip-ci-check == "true" { "--skip-ci-check" } else { "" } }}
 
 # Build all platforms, no signing or publishing
 [arg("ref", long)]

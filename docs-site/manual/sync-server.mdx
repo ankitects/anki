@@ -1,5 +1,7 @@
 ---
 title: "Self-Hosted Sync Server"
+sidebarTitle: "Sync Server"
+description: "Sync Server"
 ---
 
 Advanced users who cannot or do not wish to use AnkiWeb can use a self-hosted
@@ -43,10 +45,7 @@ Or MacOS, in Terminal.app:
 SYNC_USER1=user:pass /Applications/Anki.app/Contents/MacOS/anki --syncserver
 ```
 
-<Note>
-    Replace 'anki' with 'launcher' in the above command for anki versions 25.07 to
-    25.09.4.
-</Note>
+<Note>Replace 'anki' with 'launcher' for versions 25.07 to 25.09.4.</Note>
 
 Or Linux:
 
@@ -140,6 +139,8 @@ that the server binds to.
 
 ## Client Setup
 
+### Server URL
+
 You'll need to determine your computer's network IP address, and then
 point each of your Anki clients to the address, e.g something like
 `http://192.168.1.200:8080/`. The URL can be configured in the preferences.
@@ -154,10 +155,15 @@ Older desktop clients required you to define `SYNC_ENDPOINT` and
 respectively. AnkiDroid clients before 2.16 require separate configuration for
 the two endpoints.
 
+### Credentials
+
+To be able to synchronize, put your user credential (`SYNC_USER1` for example)
+in the **AnkiWeb account** section of the preferences.
+
 ## Reverse Proxies
 
 If using a reverse proxy to provide HTTPS access (e.g. nginx), and binding to a subpath
-(e.g. `http://example.com/custom/` -> `http://localhost:8080/`), you must make sure to
+(e.g. `http://example.com/custom/` -&gt; `http://localhost:8080/`), you must make sure to
 include a trailing slash when configuring Anki. If you put `http://example.com/custom`
 instead, it will not work.
 

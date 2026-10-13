@@ -3,6 +3,7 @@
 
 use std::collections::HashMap;
 use std::collections::HashSet;
+use std::fmt::Display;
 use std::fmt::Write;
 
 use anyhow::Result;
@@ -356,15 +357,49 @@ pub enum BuildProfile {
     Debug,
     Release,
     ReleaseWithLto,
+    Ci,
+}
+
+impl Display for BuildProfile {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        let name = match self {
+            BuildProfile::Debug => "dev",
+            BuildProfile::Release => "release",
+            BuildProfile::ReleaseWithLto => "release-lto",
+            BuildProfile::Ci => "ci",
+        };
+        f.write_str(name)
+    }
 }
 
 impl BuildProfile {
-    fn from_env() -> Self {
+    pub fn from_env() -> Self {
         match std::env::var("RELEASE").unwrap_or_default().as_str() {
             "1" => Self::Release,
             "2" => Self::ReleaseWithLto,
-            _ => Self::Debug,
+            _ => match std::env::var("CI").unwrap_or_default().as_str() {
+                "true" => Self::Ci,
+                _ => Self::Debug,
+            },
         }
+    }
+
+    /// The profile to build helper tools like configure/minilints with:
+    /// never optimized, but otherwise matching the main profile so that
+    /// dependency builds are shared.
+    pub fn for_build_tools(self) -> Self {
+        match self {
+            Self::Release | Self::ReleaseWithLto => Self::Debug,
+            other => other,
+        }
+    }
+
+    pub fn as_cargo_arg(self) -> String {
+        format!("--profile {}", self)
+    }
+
+    pub fn as_nextest_arg(self) -> String {
+        format!("--cargo-profile {}", self)
     }
 }
 

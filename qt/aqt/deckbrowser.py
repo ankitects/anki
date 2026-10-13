@@ -127,9 +127,9 @@ class DeckBrowser:
             self._confirm_upgrade()
         elif cmd == "v2upgradeinfo":
             if self.mw.col.sched_ver() == 1:
-                openLink("https://faqs.ankiweb.net/the-anki-2.1-scheduler.html")
+                openLink("https://docs.ankiweb.net/faqs/the-anki-2.1-scheduler")
             else:
-                openLink("https://faqs.ankiweb.net/the-2021-scheduler.html")
+                openLink("https://docs.ankiweb.net/faqs/the-2021-scheduler")
         elif cmd == "select":
             set_current_deck(
                 parent=self.mw, deck_id=DeckId(int(arg))
@@ -354,7 +354,7 @@ class DeckBrowser:
                 deck_id=did,
                 collapsed=node.collapsed,
                 scope=DeckCollapseScope.REVIEWER,
-            ).run_in_background()
+            ).run_in_background(initiator=self)
             self._renderPage(reuse=True)
 
     def _handle_drag_and_drop(self, source: DeckId, target: DeckId) -> None:
@@ -394,7 +394,7 @@ class DeckBrowser:
         )
 
     def _onShared(self) -> None:
-        openLink(f"{aqt.appShared}decks/")
+        openLink(f"{aqt.appShared}decks")
 
     def _on_create(self) -> None:
         if op := add_deck_dialog(

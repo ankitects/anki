@@ -43,3 +43,6 @@ AGPL3-compatible license:
    or adding or deleting content is allowed. You may resize the image
    provided the horizontal and vertical dimensions are resized
    equally.
+
+Documentation in the docs-site folder is licensed under the CC BY-SA 4.0
+license; other files in that folder remain under the AGPL3.

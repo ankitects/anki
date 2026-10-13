@@ -924,7 +924,7 @@ require("anki/ui").loaded.then(() => require("anki/NoteEditor").instances[0].too
         return self.fnameToLink(fname)
 
     def fnameToLink(self, fname: str) -> str:
-        ext = fname.split(".")[-1].lower()
+        ext = fname.rsplit(".", maxsplit=1)[-1].lower()
         if ext in pics:
             name = urllib.parse.quote(fname.encode("utf8"))
             return f'<img src="{name}">'
@@ -1142,7 +1142,9 @@ require("anki/ui").loaded.then(() => require("anki/NoteEditor").instances[0].too
                     image_path=image_path, notetype_id=0
                 )
             else:
-                assert self.note is not None
+                if self.note is None:
+                    showWarning(tr.browsing_no_selection())
+                    return
                 self.setup_mask_editor_for_existing_note(
                     note_id=self.note.id, image_path=image_path
                 )
@@ -1773,16 +1775,17 @@ class EditorWebView(AnkiWebView):
         qconnect(a.triggered, self.onCopy)
 
     def _add_image_menu(self, menu: QMenu) -> None:
-        a = menu.addAction(tr.editing_copy_image())
-        assert a is not None
-        qconnect(a.triggered, self.on_copy_image)
-
         context_menu_request = self.lastContextMenuRequest()
         assert context_menu_request is not None
         url = context_menu_request.mediaUrl()
         file_name = url.fileName()
         path = os.path.join(self.editor.mw.col.media.dir(), file_name)
-        self._add_image_menu_with_path(menu, path)
+        _, ext = os.path.splitext(path)
+        if ext[1:] in pics:
+            a = menu.addAction(tr.editing_copy_image())
+            assert a is not None
+            qconnect(a.triggered, self.on_copy_image)
+            self._add_image_menu_with_path(menu, path)
 
     def _add_image_menu_with_path(self, menu: QMenu, path: str) -> None:
         a = menu.addAction(tr.editing_open_image())

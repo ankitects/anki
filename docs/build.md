@@ -10,7 +10,7 @@ cog.out(get_file_contents("build"))
 
 ## Basic use
 
-Basic use is described in [development.md](https://anki.mintlify.app/development).
+Basic use is described in [development.md](https://anki.mintlify.app/developers/development).
 
 ## Architecture
 
@@ -45,6 +45,6 @@ If you run into trouble with the build process:
 
 ## Packaging considerations
 
-See [this page](https://anki.mintlify.app/linux).
+See [this page](https://anki.mintlify.app/developers/linux).
 
 <!-- <<<end>>> -->

@@ -451,7 +451,7 @@ class AddonManager:
     ) -> InstallOk | InstallError:
         """Install add-on from path or file-like object. Metadata is read
         from the manifest file, with keys overridden by supplying a 'manifest'
-        dictionary"""
+        dictionary, except for a non-empty packaged name."""
         try:
             zfile = ZipFile(file)
         except zipfile.BadZipfile:
@@ -459,8 +459,11 @@ class AddonManager:
 
         with zfile:
             file_manifest = self.readManifestFile(zfile)
+            packaged_name = file_manifest.get("name")
             if manifest:
                 file_manifest.update(manifest)
+            if packaged_name:
+                file_manifest["name"] = packaged_name
             manifest = file_manifest
             if not manifest:
                 return InstallError(errmsg="manifest")
@@ -674,11 +677,11 @@ class AddonManager:
         return markdown.markdown(contents, extensions=[md_in_html.makeExtension()])
 
     def addonFromModule(self, module: str) -> str:  # softly deprecated
-        return module.split(".")[0]
+        return module.split(".", maxsplit=1)[0]
 
     @staticmethod
     def addon_from_module(module: str) -> str:
-        return module.split(".")[0]
+        return module.split(".", maxsplit=1)[0]
 
     def configAction(self, module: str) -> Callable[[], bool | None]:
         return self._configButtonActions.get(module)
@@ -1083,7 +1086,7 @@ class GetAddons(QDialog):
         saveGeom(self, "getaddons")
 
     def onBrowse(self) -> None:
-        openLink(f"{aqt.appShared}addons/2.1")
+        openLink(f"{aqt.appShared}addons")
 
     def accept(self) -> None:
         # get codes
@@ -1118,7 +1121,10 @@ def download_addon(client: HttpClient, id: int) -> DownloadOk | DownloadError:
         match = re.match(
             "attachment; filename=(.+)", resp.headers["content-disposition"]
         )
-        assert match is not None
+        if match is None:
+            raise ValueError(
+                f"Unexpected content-disposition header: {resp.headers.get('content-disposition')}"
+            )
         fname = match.group(1)
 
         meta = extract_meta_from_download_url(resp.url)

@@ -107,7 +107,14 @@ impl crate::services::SearchService for Collection {
         } else {
             Some(input.field_name)
         };
-        let repl = input.replacement;
+        let repl = if input.regex {
+            input.replacement
+        } else {
+            // In a non-regex replacement, `$` is a literal character; escape it
+            // so the regex engine doesn't treat e.g. `$1`/`$name` as a capture
+            // group reference (which would drop or corrupt the text).
+            input.replacement.replace('$', "$$")
+        };
 
         if nids.is_empty() {
             nids = self.search_notes_unordered("")?
@@ -231,6 +238,28 @@ mod tests {
         };
         let result = SearchService::find_and_replace(&mut col, input).unwrap();
         assert_eq!(result.count, 1, "expected one note changed");
+    }
+
+    #[test]
+    fn literal_replacement_with_dollar_is_inserted_verbatim() {
+        let mut col = Collection::new();
+        let note = NoteAdder::basic(&mut col)
+            .fields(&["price", "back"])
+            .add(&mut col);
+        let input = anki_proto::search::FindAndReplaceRequest {
+            nids: vec![note.id.0],
+            search: "price".to_string(),
+            // `$5` must be inserted literally, not expanded as capture group 5
+            // (which would otherwise replace the match with an empty string).
+            replacement: "$5".to_string(),
+            regex: false,
+            match_case: false,
+            field_name: "".to_string(),
+        };
+        let result = SearchService::find_and_replace(&mut col, input).unwrap();
+        assert_eq!(result.count, 1);
+        let note = col.storage.get_note(note.id).unwrap().unwrap();
+        assert_eq!(note.fields()[0].as_str(), "$5");
     }
 
     #[test]

@@ -26,7 +26,10 @@ impl BuildAction for BuildCommand {
         build.add_variable("version", &self.version);
         build.add_inputs("aqt_wheel", inputs![":wheels:aqt"]);
         build.add_inputs("anki_wheel", inputs![":wheels:anki"]);
-        build.add_inputs("", inputs![":installer:template", glob!["qt/installer/**"]]);
+        build.add_inputs(
+            "",
+            inputs![":installer:template", glob!["qt/installer/**"], "uv.lock"],
+        );
         build.add_output_stamp("installer/briefcase.build.stamp");
     }
 }

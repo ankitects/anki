@@ -23,10 +23,8 @@ Pre-built Python packages are available on PyPI. They are useful if you wish to:
 - Get code completion when developing add-ons
 - Make command line scripts that modify .anki2 files via Anki's Python libraries
 
-You will need the 64 bit version of Python 3.9 or later installed. 3.9 is
-recommended, as Anki has only received minimal testing on 3.10+ so far, and some
-dependencies have not been fully updated yet. You can install Python from python.org
-or from your distro.
+You will need the 64 bit version of Python 3.10 or later installed. You can install
+Python from python.org or from your distro.
 
 For further instructions, please see https://betas.ankiweb.net/#via-pypipip. Note that
 in the provided commands, `--pre` tells pip to fetch alpha/beta versions. If you remove
@@ -49,16 +47,16 @@ On all platforms, you will need to install:
   placed on your path, or from your distro/homebrew if it's 1.10+.
     - On Windows, if you have WSL installed, it may conflict with MSYS2 bash. If you are getting an error, try running `C:\msys64\usr\bin\bash.exe tools/install-n2` instead.
 - (Optional) [just](https://just.systems/man/en/packages.html) command runner.
-  Install with `brew install just` or `uv tool install just`.
+  Install with `brew install just` or `uv tool install rust-just`.
   We are experimenting with `just` as the official tool for running
   Anki-specific commands, and it will likely become the source of truth
   in the future.
 
 Platform-specific requirements:
 
-- [Windows](https://anki.mintlify.app/windows)
-- [Mac](https://anki.mintlify.app/mac)
-- [Linux](https://anki.mintlify.app/linux)
+- [Windows](https://anki.mintlify.app/developers/windows)
+- [Mac](https://anki.mintlify.app/developers/mac)
+- [Linux](https://anki.mintlify.app/developers/linux)
 
 ## Running Anki during development
 
@@ -168,15 +166,28 @@ Windows, Yarn cache can be found in `%LOCALAPPDATA%\Yarn`.
 
 If you invoke Rust outside of the build scripts (eg by running cargo, or
 with Rust Analyzer), output files will go into `target/` unless you have
-overriden the default output location.
+overridden the default output location.
+
+## Storage and Performance
+
+Most editors use rust-analyzer for Rust support, which runs `cargo check` in the
+background whenever you save a file, so that problems are surfaced before you try to
+build. This is useful, but on lower-end machines, it can noticeably increase disk
+usage and CPU load. If that's a problem for you, consider disabling "check on save"
+(e.g. set `rust-analyzer.checkOnSave` to `false` in VS Code) as a trade-off — you'll
+lose real-time error checking, but rust-analyzer can still be used for code completion,
+go-to-definition, etc.
+
+If you chose to disable "check on save" and don't run `cargo` commands manually, you
+may delete the `target/` folder (if any) as that's no longer used.
 
 ## IDEs
 
-Please see [this separate page](https://anki.mintlify.app/editing) for setting up an editor/IDE.
+Please see [this separate page](https://anki.mintlify.app/developers/editing) for setting up an editor/IDE.
 
 ## Making changes to the build
 
-See [this page](https://anki.mintlify.app/build)
+See [this page](https://anki.mintlify.app/developers/build)
 
 ## Generating documentation
 
@@ -218,11 +229,11 @@ Depending on your operating system, this produces a file under `out/installer/di
 ### Issues During Building
 
 If you are experiencing issues building the installer, make sure that all dependencies
-are installed. See [Building from source](https://anki.mintlify.app/development#building-from-source) for more info.
+are installed. See [Building from source](https://anki.mintlify.app/developers/development#building-from-source) for more info.
 
 ## Releasing
 
-See [Releasing](https://anki.mintlify.app/releasing).
+See [Releasing](https://anki.mintlify.app/developers/releasing).
 
 # Mixing development and study
 

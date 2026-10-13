@@ -86,6 +86,8 @@ pub enum SearchNode {
     /// Matches cards in a deck or its children (original_deck_id is not
     /// checked, so filtered cards are not matched).
     DeckIdWithChildren(DeckId),
+    /// checks if the card has an fsrs memory state
+    HasMemoryState,
     IntroducedInDays(u32),
     NotetypeId(NotetypeId),
     Notetype(String),
