@@ -1,6 +1,7 @@
 name: Sync release to main
 
 # Once a stable release is published:
+# - points the mintlify-docs branch (deployed by Mintlify) at the release
 # - builds a patch that moves flathub/net.ankiweb.Anki to the new release, and
 #   uploads it as an artifact
 # - opens a PR that merges the release branch (translations, version bump)
@@ -14,6 +15,21 @@ permissions:
   contents: read
 
 jobs:
+  deploy-docs:
+    if: ${{ !github.event.release.prerelease }}
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 #v4
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: true
+
+      - name: Update docs branch
+        run: |
+          git push --force origin "$GITHUB_SHA:refs/heads/mintlify-docs"
+
   flathub:
     if: ${{ !github.event.release.prerelease }}
     runs-on: ubuntu-latest
