@@ -113,7 +113,7 @@ UNTRUSTED_MEDIA_CSP = "; ".join(
 )
 
 
-# Our pages are always shown top-level
+# Our pages are always shown top-level besides "reviewer-inner"
 TRUSTED_PAGE_CSP = "frame-ancestors 'none'"
 
 
@@ -477,6 +477,8 @@ def _handle_builtin_file_request(request: BundledFileRequest) -> Response:
                 # Replace the default CSP directive set in the SvelteKit config
                 response.set_data(_strip_csp_meta(data))
                 response.headers["Content-Security-Policy"] = TRUSTED_PAGE_CSP
+        elif path.endswith("reviewer-inner.html"):
+            response.headers["Content-Security-Policy"] = "frame-ancestors 'self'"
         elif mimetype == "text/html":
             response.headers["Content-Security-Policy"] = TRUSTED_PAGE_CSP
 
