@@ -14,7 +14,7 @@ anki
 
 ## Add-on development
 
-If you are building an Anki add-on, this is the package that exposes the GUI hooks and Qt widgets you need. See the [Add-on Guide](https://addon-docs.ankiweb.net/) for full documentation.
+If you are building an Anki add-on, this is the package that exposes the GUI hooks and Qt widgets you need. See the [Add-on Guide](https://docs.ankiweb.net/addons/intro) for full documentation.
 
 ## Source code
 

@@ -167,6 +167,7 @@ message CompareAnswerRequest {
   string expected = 1;
   string provided = 2;
   bool combining = 3;
+  bool ignore_case = 4;
 }
 
 message ExtractClozeForTypingRequest {

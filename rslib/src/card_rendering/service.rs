@@ -167,7 +167,13 @@ impl crate::services::CardRenderingService for Collection {
         &mut self,
         input: anki_proto::card_rendering::CompareAnswerRequest,
     ) -> Result<generic::String> {
-        Ok(compare_answer(&input.expected, &input.provided, input.combining).into())
+        Ok(compare_answer(
+            &input.expected,
+            &input.provided,
+            input.combining,
+            input.ignore_case,
+        )
+        .into())
     }
 
     fn extract_cloze_for_typing(
@@ -772,6 +778,7 @@ mod test {
                 expected: "foo".into(),
                 provided: "foo".into(),
                 combining: true,
+                ignore_case: false,
             })
             .unwrap();
 
