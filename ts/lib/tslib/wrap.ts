@@ -44,6 +44,19 @@ export function wrapInternal(
     if (plainText) {
         const new_ = wrappedExceptForWhitespace(span.innerText, front, back);
         document.execCommand("inserttext", false, new_);
+    } else if (wasCollapsed) {
+        const new_ = wrappedExceptForWhitespace(span.innerHTML, front, back);
+        const fragment = range.createContextualFragment(new_);
+        const lastNode = fragment.lastChild;
+        range.insertNode(fragment);
+
+        if (lastNode) {
+            const after = new Range();
+            after.setStartAfter(lastNode);
+            after.collapse(true);
+            selection.removeAllRanges();
+            selection.addRange(after);
+        }
     } else {
         const new_ = wrappedExceptForWhitespace(span.innerHTML, front, back);
         document.execCommand("inserthtml", false, new_);
