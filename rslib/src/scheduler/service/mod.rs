@@ -412,7 +412,7 @@ impl crate::services::SchedulerService for Collection {
 
             // Typed answer replacements
             static ANSWER_REGEX: LazyLock<Regex> =
-                LazyLock::new(|| Regex::new(r"\[\[type:(.+?:)?(.+?)\]\]").unwrap());
+                LazyLock::new(|| Regex::new(r"\[\[type:(.+:)?(.+?)\]\]").unwrap());
 
             const ANSWER_HTML: &str = "<center>
 <input type=text id=typeans onkeypress=\"_typeAnsPress();\"
@@ -789,6 +789,34 @@ mod tests {
         assert!(states.hard.is_some());
         assert!(states.good.is_some());
         assert!(states.easy.is_some());
+    }
+
+    #[test]
+    fn next_card_data_includes_nc_ci_typed_answer_metadata() -> Result<()> {
+        let mut col = Collection::new();
+        let mut notetype = col.basic_notetype();
+        // "Back" to ensure that the regex doesn't somehow match through the }} {{
+        notetype.templates[0].config.q_format = "{{type:nc:ci:Front}} {{Back}}".into();
+        col.update_notetype(&mut notetype, false).unwrap();
+
+        NoteAdder::new(&notetype)
+            .fields(&["MiXeD", "second field"])
+            .add(&mut col);
+
+        let response = SchedulerService::next_card_data(
+            &mut col,
+            anki_proto::scheduler::NextCardDataRequest::default(),
+        )?;
+        let next_card = response
+            .next_card
+            .expect("a queued card should be returned");
+        let typed_answer = next_card
+            .typed_answer
+            .expect("type answer metadata should be present");
+
+        assert_eq!(typed_answer.args, "nc:ci:");
+        assert_eq!(typed_answer.text, "MiXeD");
+        Ok(())
     }
 
     #[test]
