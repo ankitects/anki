@@ -4,12 +4,16 @@
 use std::io;
 use std::io::Read;
 use std::time::Duration;
+use std::time::SystemTime;
+use std::time::UNIX_EPOCH;
 
 use anki_io::open_file;
 use anki_io::read_dir_files;
 use anki_io::remove_file;
 use anki_proto::github::GithubRelease;
 use anki_proto::github::LatestReleaseRequest;
+use reqwest::header::HeaderMap;
+use reqwest::StatusCode;
 use serde_json::Value;
 use sha2::Digest;
 
@@ -25,6 +29,52 @@ use crate::updates::DownloadUpdateProgress;
 
 const ALL_RELEASES_URL: &str = "https://api.github.com/repos/ankitects/anki/releases";
 const LATEST_RELEASE_URL: &str = "https://api.github.com/repos/ankitects/anki/releases/latest";
+
+/// GitHub answers an exhausted rate limit with 403 or 429 and no useful body,
+/// which `error_for_status` turns into a bare "403 Forbidden". Repeating the
+/// request immediately is also what gets a user agent blocked outright, so the
+/// retry headers are read here and reported instead.
+///
+/// <https://docs.github.com/en/rest/using-the-rest-api/troubleshooting-the-rest-api#rate-limit-errors>
+fn rate_limit_error(status: StatusCode, headers: &HeaderMap, now_secs: u64) -> Option<AnkiError> {
+    if status != StatusCode::FORBIDDEN && status != StatusCode::TOO_MANY_REQUESTS {
+        return None;
+    }
+    let header = |name| {
+        headers
+            .get(name)
+            .and_then(|value| value.to_str().ok())
+            .and_then(|value| value.trim().parse::<u64>().ok())
+    };
+    // `retry-after` is in seconds; `x-ratelimit-reset` is a unix timestamp, and
+    // only means we are rate limited when no requests remain.
+    let wait_secs = match header("retry-after") {
+        Some(secs) => secs,
+        None => match (header("x-ratelimit-remaining"), header("x-ratelimit-reset")) {
+            (Some(0), Some(reset)) => reset.saturating_sub(now_secs),
+            _ => return None,
+        },
+    };
+    let wait = match wait_secs {
+        0 => "a moment".to_string(),
+        1 => "1 second".to_string(),
+        secs if secs < 120 => format!("{secs} seconds"),
+        secs => format!("{} minutes", secs.div_ceil(60)),
+    };
+    Some(AnkiError::NetworkError {
+        source: crate::error::NetworkError {
+            info: format!("GitHub rate limit reached; please try again in {wait}."),
+            kind: crate::error::NetworkErrorKind::Other,
+        },
+    })
+}
+
+fn now_secs() -> u64 {
+    SystemTime::now()
+        .duration_since(UNIX_EPOCH)
+        .map(|d| d.as_secs())
+        .unwrap_or_default()
+}
 
 // NOTE: must match platform suffixes in build_installer.py
 fn get_platform_suffix() -> Option<&'static str> {
@@ -78,7 +128,11 @@ impl BackendGithubService for Backend {
                 .timeout(Duration::from_secs(60))
                 .send()
                 .await
-                .map_err(reqwest_error_to_anki_error)?
+                .map_err(reqwest_error_to_anki_error)?;
+            if let Some(err) = rate_limit_error(response.status(), response.headers(), now_secs()) {
+                return Err(err);
+            }
+            let response = response
                 .error_for_status()
                 .map_err(reqwest_error_to_anki_error)?;
             let release_info: Value = if input.include_prerelease {
@@ -153,5 +207,89 @@ impl BackendGithubService for Backend {
             .or_invalid("non-unicode filename")?
             .to_string();
         Ok(output_path.into())
+    }
+}
+
+#[cfg(test)]
+mod test {
+    use super::*;
+
+    fn headers(pairs: &[(&'static str, &str)]) -> HeaderMap {
+        let mut map = HeaderMap::new();
+        for (name, value) in pairs {
+            map.insert(*name, value.parse().unwrap());
+        }
+        map
+    }
+
+    fn info(err: Option<AnkiError>) -> String {
+        match err {
+            Some(AnkiError::NetworkError { source }) => source.info,
+            other => panic!("expected a network error, got {other:?}"),
+        }
+    }
+
+    #[test]
+    fn retry_after_is_reported() {
+        let err = rate_limit_error(
+            StatusCode::TOO_MANY_REQUESTS,
+            &headers(&[("retry-after", "90")]),
+            0,
+        );
+        assert_eq!(
+            info(err),
+            "GitHub rate limit reached; please try again in 90 seconds."
+        );
+    }
+
+    #[test]
+    fn a_long_wait_is_reported_in_minutes() {
+        let err = rate_limit_error(
+            StatusCode::FORBIDDEN,
+            &headers(&[("retry-after", "3601")]),
+            0,
+        );
+        assert_eq!(
+            info(err),
+            "GitHub rate limit reached; please try again in 61 minutes."
+        );
+    }
+
+    /// The primary rate limit comes back as 403 with no `retry-after`, and is
+    /// only a rate limit when the remaining count is zero.
+    #[test]
+    fn reset_time_is_used_when_no_requests_remain() {
+        let hdrs = headers(&[("x-ratelimit-remaining", "0"), ("x-ratelimit-reset", "600")]);
+        let err = rate_limit_error(StatusCode::FORBIDDEN, &hdrs, 300);
+        assert_eq!(
+            info(err),
+            "GitHub rate limit reached; please try again in 5 minutes."
+        );
+    }
+
+    #[test]
+    fn a_reset_in_the_past_does_not_underflow() {
+        let hdrs = headers(&[("x-ratelimit-remaining", "0"), ("x-ratelimit-reset", "100")]);
+        let err = rate_limit_error(StatusCode::FORBIDDEN, &hdrs, 500);
+        assert_eq!(
+            info(err),
+            "GitHub rate limit reached; please try again in a moment."
+        );
+    }
+
+    #[test]
+    fn other_failures_are_left_alone() {
+        // a 403 with requests still remaining is a permissions problem
+        let remaining = headers(&[
+            ("x-ratelimit-remaining", "12"),
+            ("x-ratelimit-reset", "600"),
+        ]);
+        assert!(rate_limit_error(StatusCode::FORBIDDEN, &remaining, 0).is_none());
+        // and so is one with no rate limit headers at all
+        assert!(rate_limit_error(StatusCode::FORBIDDEN, &HeaderMap::new(), 0).is_none());
+        // a different status is never a rate limit
+        let hdrs = headers(&[("retry-after", "30")]);
+        assert!(rate_limit_error(StatusCode::NOT_FOUND, &hdrs, 0).is_none());
+        assert!(rate_limit_error(StatusCode::OK, &hdrs, 0).is_none());
     }
 }
