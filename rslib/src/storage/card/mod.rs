@@ -104,6 +104,7 @@ fn row_to_card_entry(row: &Row) -> Result<CardEntry> {
         id: row.get(0)?,
         note_id: row.get(1)?,
         deck_id: row.get(2)?,
+        template_idx: row.get(3)?,
     })
 }
 
@@ -950,6 +951,19 @@ mod test {
     fn create_test_storage() -> SqliteStorage {
         let tr: I18n = I18n::template_only();
         SqliteStorage::open_or_create(Path::new(":memory:"), &tr, false, false).unwrap()
+    }
+
+    #[test]
+    fn card_entries_include_template_index() {
+        let storage = create_test_storage();
+        let mut card = Card {
+            template_idx: 3,
+            ..Default::default()
+        };
+        storage.add_card(&mut card).unwrap();
+        let entries = storage.get_all_card_entries().unwrap();
+        assert_eq!(entries.len(), 1);
+        assert_eq!(entries[0].template_idx, 3);
     }
 
     #[test]

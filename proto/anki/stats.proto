@@ -229,6 +229,7 @@ message CardEntry {
   int64 id = 1;
   int64 note_id = 2;
   int64 deck_id = 3;
+  uint32 template_idx = 4;
 }
 
 message DeckEntry {
