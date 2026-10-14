@@ -1,86 +1,60 @@
 ---
-title: "Core Interface"
+title: "共通インターフェース"
 ---
 
-The `core` module in the [translation site](https://i18n.ankiweb.net/projects/)
-uses a translations system called [Fluent](https://projectfluent.org/). It is
-a recently-developed system that makes it easier for translators to deal with
-plurals, and makes it easier for developers to provide useful comments to help
-with translation.
+[翻訳サイト](https://i18n.ankiweb.net/projects/)の `core` モジュールでは、Fluent という翻訳システムを使用しています。[Fluent](https://projectfluent.org/)は比較的新しいシステムで、翻訳者が複数形を扱いやすくし、開発者が翻訳の参考になるコメントを付けやすくします。
 
-Translations in the `core` module are divided up into multiple files, with each file
-focusing on a particular topic, such as scheduling, deck options, and so on, as
-can be seen [here](https://i18n.ankiweb.net/en-GB/core/).
+`core` モジュールの翻訳は複数のファイルに分かれており、スケジューリングやデッキオプションなど、それぞれ特定のトピックを扱います。[こちら](https://i18n.ankiweb.net/en-GB/core/)で確認できます。
 
-## Simple Replacements
+## 単純な置き換え
 
-![A simple translation string](/media/simple-replacement@2x.png)
+![単純な翻訳文字列](/media/simple-replacement@2x.png)
 
-When the text is a simple string, all you need to do is write the text in your
-native language and click Save (or press the Enter key).
+テキストが単純な文字列の場合は、母語でテキストを入力して「Save」をクリックするか、Enter キーを押すだけです。
 
-Under the English text, many strings will contain a comment to help you understand
-where the string is being used, or to give an example of how it appears.
+英語のテキストの下には、その文字列が使われる場所や表示例を説明するコメントが付いていることがあります。
 
-"Context" is the short name for this string, and may sometimes give you a hint
-as to where it is used or what it is trying to represent.
+「Context」はこの文字列の短い名前です。使われる場所や表している内容の手がかりになることがあります。
 
-## Variables
+## 変数
 
-![A translation string with a variable](/media/variable@2x.png)
+![変数を含む翻訳文字列](/media/variable@2x.png)
 
-When you see `{$something}` in the English text, it means that that text will
-be replaced with something else. You can change the position of `{$something}`
-in your translation, but please don't change the text inside - you should not
-attempt to translate the text inside the `{...}` part. You can click on the
-`{$something}` part of the English text to automatically copy it into your
-translation.
+英語のテキストに `{$something}` とある場合、その部分が別の内容に置き換わることを示します。翻訳では `{$something}` の位置を変えられますが、中のテキストは変更しないでください。`{...}` の中を翻訳する必要はありません。英語のテキスト内にある `{$something}` をクリックすると、翻訳欄に自動でコピーできます。
 
-## Plurals
+## 複数形
 
-Many languages change words depending on number. For example, English uses
-"1 cat", but "3 cats".
+多くの言語では、数によって単語の形が変わります。たとえば英語では「1 cat」「3 cats」のように変わります。
 
-Some of the strings to translate will look like this:
+翻訳対象の文字列には、次のようなものがあります。
 
-![A translation string with plural forms](/media/simple-plurals@2x.png)
+![複数形を含む翻訳文字列](/media/simple-plurals@2x.png)
 
-In the top part, you can see there are two forms for English - the `one`
-case (second), and the `other` case (seconds).
+上の部分には、英語の2つの形式、`one`（秒）と `other`（秒）が表示されています。
 
-The bottom section shows the translation in Polish, which has four different
-plural forms. In this case, the `few` case and `many` case have been translated
-with the same translation.
+下の部分にはポーランド語の翻訳が表示されています。ポーランド語には4つの複数形があります。この例では、`few` と `many` に同じ訳が使われています。
 
-The translation website should automatically show the appropriate number
-of boxes for your language. Languages like Japanese that do not have separate
-plural forms will only need to enter in a translation once.
+翻訳サイトには、お使いの言語に応じた数の入力欄が自動で表示されます。日本語のように複数形を分けない言語では、翻訳を一度入力するだけで済みます。
 
-## Advanced Plurals
+## 高度な複数形
 
-The translation website supports an advanced mode for when you need more
-flexibility. You can access the advanced mode by clicking on the FTL icon
-on the bottom left. The previous example then looks like this:
+翻訳サイトには、より柔軟に翻訳できる高度なモードがあります。左下の FTL アイコンをクリックすると切り替えられます。先ほどの例は次のように表示されます。
 
-![Editing translation strings with advanced plurals](/media/advanced-plurals@2x.png)
+![高度な複数形を使った翻訳文字列の編集](/media/advanced-plurals@2x.png)
 
-The first line is the unique identifier for this message - it can also be
-seen in the "CONTEXT" label near the comments.
+1行目は、このメッセージを識別する一意の ID です。コメントの近くにある「CONTEXT」ラベルにも表示されます。
 
-The rest of the text means the following:
+残りの部分は、次のような意味です。
 
-- Check the value of amount
-- If the amount is `one`, show `{$amount} sekunda`
-- If the amount is `few`, show `{$amount} sekundy`
-- If the amount is `many`, show `{$amount} sekund`
-- If the amount is `other`, show `{$amount} sekundy`
+- `amount` の値を確認する
+- `amount` が `one` の場合は `{$amount} sekunda` を表示する
+- `amount` が `few` の場合は `{$amount} sekundy` を表示する
+- `amount` が `many` の場合は `{$amount} sekund` を表示する
+- `amount` が `other` の場合は `{$amount} sekundy` を表示する
 
-The definitions of few, many and other depend on
-[your language](https://unicode.org/cldr/charts/latest/supplemental/language_plural_rules.html).
+`few`、`many`、`other` の定義は[言語](https://unicode.org/cldr/charts/latest/supplemental/language_plural_rules.html)によって異なります。
 
-The `*` character before other means that any unknown value should
-match `other`. Since in this example `few` is the same as `other`, the
-text could thus be shortened to:
+`other` の前にある `*` は、該当する形式がほかにない場合に `other` を使うことを示します。この例では `few` と `other` が同じなので、次のように短くできます。
 
 ```
 time-span-seconds = { $amount ->
@@ -90,28 +64,19 @@ time-span-seconds = { $amount ->
  }
 ```
 
-As `few` is not listed here, it will be covered in the `other` case.
-It's generally best to list out all cases however, as otherwise the
-translation website will shown a warning that you may have forgotten
-to translate a case.
+ここでは `few` を個別に指定していないため、`other` の場合が適用されます。ただし、翻訳サイトに未翻訳の形式があるという警告を出さないためにも、通常はすべての形式を列挙するのが最善です。
 
-When writing these rules manually, please make sure to add at least one
-space to the start of each line except the first.
+これらのルールを手動で記述する場合は、最初の行を除く各行の先頭に、少なくとも1つのスペースを入れてください。
 
-While there was little benefit from rewriting the text in this case, this
-flexibility becomes useful when your language doesn't fit well with the
-structure of the original English string.
+この例では書き換えによる利点はあまりありませんでしたが、言語によっては英語の文字列の構造にそのまま当てはめにくいため、この柔軟性が役立ちます。
 
-For example, when viewing cards in the Browse screen in Anki, Anki shows
-new cards with a number, such as "New #1", or "New #532". The English
-doesn't use plurals in this case, but other languages may need to.
+たとえば、Anki のブラウザー画面でカードを表示すると、新しいカードには「New #1」や「New #532」のように番号が付きます。英語ではこの場合に複数形を使いませんが、ほかの言語では必要になることがあります。
 
-If you were translating this into Spanish, you'd see the following screen:
+これをスペイン語に翻訳する場合、次の画面が表示されます。
 
-![Editing a translation string to add plurals](/media/advanced-plurals2@2x.png)
+![複数形を追加する翻訳文字列の編集](/media/advanced-plurals2@2x.png)
 
-To add a plural form, click the FTL button, and then change the text
-to read:
+複数形を追加するには、FTL ボタンをクリックし、次のようにテキストを変更します。
 
 ```
 due-for-new-card = { $number ->
@@ -120,36 +85,27 @@ due-for-new-card = { $number ->
  }
 ```
 
-Here's another example. In this case the English text is using plurals
-as well, but only a small part needs to change. When translating to Polish,
-the "used by" portion needs to change as well. So the default editing
-screen is not sufficient:
+もう1つ例を見てみましょう。この場合、英語のテキストにも複数形がありますが、変更が必要なのは一部だけです。ポーランド語に翻訳する場合、「used by」の部分も変える必要があります。そのため、通常の編集画面では不十分です。
 
-![Another example of plural forms](/media/advanced-plurals3@2x.png)
+![複数形の別の例](/media/advanced-plurals3@2x.png)
 
-To fix this, we click on the FTL button to get a blank template:
+これを修正するには、FTL ボタンをクリックして空のテンプレートを表示します。
 
-![Template view of plural forms](/media/advanced-plurals4@2x.png)
+![複数形のテンプレート表示](/media/advanced-plurals4@2x.png)
 
-And then modify the template as required:
+次に、必要に応じてテンプレートを変更します。
 
-![Modifying the template view of plural forms](/media/advanced-plurals5@2x.png)
+![複数形のテンプレート表示を変更](/media/advanced-plurals5@2x.png)
 
-## Other Languages
+## ほかの言語
 
-If you're not sure how something should be translated, you can click on the
-Locales tab on the right. You can see a summary of the translation on that
-screen, or click on a particular language to see how it has translated
-all its plural forms.
+訳し方が分からない場合は、右側の「Locales」タブをクリックしてください。その画面で翻訳の概要を確認したり、特定の言語を選んですべての複数形の訳を確認したりできます。
 
-## Special Characters
+## 特殊文字
 
-When a translated string is more than one line long, please keep an eye
-out for lines that start with `.` or `[`. Strings can start with these characters
-on the first line, but if a translation stretches over multiple lines, these
-characters will cause problems.
+翻訳文字列が複数行にわたる場合は、`.` または `[` で始まる行に注意してください。文字列の1行目はこれらの文字で始めても構いませんが、複数行の翻訳では問題の原因になります。
 
-For example, the following is fine:
+たとえば、次の形式は問題ありません。
 
 ```
 some-translation =
@@ -158,8 +114,7 @@ some-translation =
   or three lines.
 ```
 
-But the following will cause problems, because the second line starts with a `[`,
-and the third starts with a `.`:
+一方、次の形式では、2行目が `[`、3行目が `.` で始まるため問題が発生します。
 
 ```
 some-translation =
@@ -168,9 +123,7 @@ some-translation =
   or three lines.]
 ```
 
-When you need to use a `[` or `.` character at the start of a a line
-in a multi-line string, please escape it by wrapping it in `{"` and
-`"}` - for example:
+複数行の文字列で行頭に `[` または `.` を使う場合は、`{"` と `"}` で囲んでエスケープしてください。たとえば次のようにします。
 
 ```
 some-translation =
@@ -179,18 +132,10 @@ some-translation =
   or three lines.]
 ```
 
-## Testing
+## テスト
 
-Each time a new Anki beta is released, it will include any translation
-changes that were made since the last time. Please give the betas a try,
-so you can see how your translations appear in the app. There's a beta
-testing section on the support site that you can follow for beta
-updates.
+Anki のベータ版がリリースされるたびに、前回のリリース以降に行われた翻訳の変更が含まれます。アプリ内での表示を確認できるよう、ベータ版をお試しください。ベータ版の更新情報は、サポートサイトのベータテストのセクションで確認できます。
 
-When translating, please try to keep the translations about the same
-length as the original English text. If it is not possible, and you find
-that text is not appearing properly in a beta (such as two labels
-overlapping), please report the issue on the support site.
+翻訳の長さは、できるだけ英語の原文と同程度にしてください。長さをそろえられず、ベータ版でテキストが正しく表示されない場合（ラベル同士が重なるなど）は、サポートサイトに問題を報告してください。
 
-When testing the betas, if you notice that some text is not
-translatable, please report this on the support site so it can be fixed.
+ベータ版をテストしていて、翻訳できないテキストに気づいた場合も、修正できるようサポートサイトに報告してください。

@@ -1,46 +1,31 @@
 ---
-title: "For Developers"
+title: "開発者向け"
 ---
 
-When adding user-visible strings to Anki's codebase, extra work is required
-to make the strings translatable.
+Anki のコードベースにユーザー向けの文字列を追加する場合、翻訳できるようにするための作業が別途必要です。
 
-Anki's codebase has recently migrated away from the old gettext system,
-and now only uses Fluent's `col.tr` and `aqt.utils.tr`.
+Anki のコードベースでは最近、旧 gettext システムからの移行が行われ、現在は Fluent の `col.tr` と `aqt.utils.tr` のみを使用しています。
 
-Please start by taking a look at the [core documentation](./core) to see
-how strings are presented to translators. Note how translators can not see the
-areas of the code where a string is used, so comments are often required to help
-the translators understand what they are translating.
+まず[core のドキュメント](./core)を確認し、文字列が翻訳者にどのように表示されるかを見てください。翻訳者には、文字列がコードのどこで使われているか分かりません。そのため、何を翻訳するのか理解してもらうために、コメントが必要になることがよくあります。
 
-## Adding New Strings
+## 新しい文字列を追加する
 
-As an example, imagine we want to add the string "You have x add-ons".
+例として、「アドオンが x 個あります」という文字列を追加するとします。
 
-To add a new translatable string to the codebase, we first need to identify
-whether it belongs in the `core` module (text likely to be used by all Anki clients),
-or whether it is specific to the computer version (the `desktop` module).
-Add-ons are only supported by the computer version, so we'll want to use
-the `desktop` module in this example.
+コードベースに翻訳可能な文字列を追加するには、まず `core` モジュール（すべての Anki クライアントで使われる可能性が高いテキスト）と、パソコン版固有の `desktop` モジュールのどちらに属するかを判断します。アドオンはパソコン版でのみサポートされるため、この例では `desktop` モジュールを使います。
 
-- The English `core` files are stored in `ftl/core`
-- The English `desktop` files are stored in `ftl/qt`
+- 英語の `core` ファイルは `ftl/core` にあります。
+- 英語の `desktop` ファイルは `ftl/qt` にあります。
 
-We'll look for a file like `ftl/qt/addons.ftl`, and add one if no appropriate
-one exists. Then we need to add the string to the file.
+`ftl/qt/addons.ftl` のようなファイルを探し、適切なファイルがなければ作成します。その後、ファイルに文字列を追加します。
 
-Each string needs a key that uniquely identifies it. It should start with
-the same text as the filename, and then contain at least a few words separated
-by hyphens. For example, we might add the following to the file:
+各文字列には、一意のキーが必要です。ファイル名と同じテキストで始め、ハイフンで区切った単語を少なくともいくつか含めてください。たとえば、次のように追加します。
 
 ```properties
 addons-you-have-count = You have { $count } add-ons.
 ```
 
-If `count` is 5, then the string will be "You have 5 add-ons.". This means
-it will look strange if `count` is 1 - we'd see "You have 1 add-ons." instead
-of "You have 1 add-on.". We'll need to add another string to cover the singular
-case:
+`count` が5の場合、文字列は「You have 5 add-ons.」になります。`count` が1の場合は「You have 1 add-ons.」となり、不自然です。そのため、単数形の場合の文字列も追加する必要があります。
 
 ```properties
 addons-you-have-count = You have { $count ->
@@ -49,12 +34,9 @@ addons-you-have-count = You have { $count ->
    }.
 ```
 
-The text above tells Fluent to use the first string in the singular case,
-and use the second string in all other cases.
+上の記述では、単数形の場合に最初の文字列を使い、それ以外の場合は2番目の文字列を使うよう Fluent に指示しています。
 
-While an improvement, this can make it a bit hard for translators when the
-"you have" part needs to change depending on the number. So while more verbose,
-it is better to list out the alternatives in full where possible:
+これで改善されますが、数によって「you have」にあたる部分も変わる言語では、翻訳が難しくなることがあります。そのため、記述は長くなりますが、可能な場合は選択肢ごとに文全体を列挙する方が適切です。
 
 ```properties
 addons-you-have-count = { $count ->
@@ -63,56 +45,43 @@ addons-you-have-count = { $count ->
    }
 ```
 
-This leaves the most control in the hands of the translators to be able
-to translate the sentence with a natural structure.
+こうすると、翻訳者が自然な文の構造で訳せるよう、最も大きな裁量を残せます。
 
-Note how the variable was used in the singular case as well. While in English
-$count will only be 1 in the singular case, in other languages, the
-singular case can be used for other numbers, such as 21. While translators
-could replace the `1` with `{ $count }` in their translation, they sometimes
-do not realise they need to, so using the variable makes mistakes less likely.
+単数形の場合にも変数を使っている点に注目してください。英語では単数形の `$count` は常に1ですが、ほかの言語では21など、別の数にも単数形が使われることがあります。翻訳者が `1` を `{ $count }` に置き換えることもできますが、その必要に気づかない場合があります。変数を使っておくと、こうした間違いを減らせます。
 
-Please note that the bulk of the strings in the .ftl files were imported
-from the older gettext system, so many of them may not demonstrate best
-practice. The older system also encouraged constructs like:
+`.ftl` ファイルにある文字列の大半は、旧 gettext システムから取り込まれたものです。そのため、ベストプラクティスに沿っていないものも多くあります。また、旧システムでは次のような書き方が使われていました。
 
 ```python
 msg = "%s %d %s" % (_("Studied"), card_count, _("today"))
 ```
 
-Please avoid constructing strings in Python like this, as it makes it hard
-for translators to translate, and not all languages use English spaces.
-The above example would be better made into a single translatable string
-that takes a count argument.
+このように Python で文字列を組み立てるのは避けてください。翻訳が難しくなり、英語のように単語間にスペースを使わない言語もあるためです。この例では、個数を引数に取る単一の翻訳可能な文字列にする方が適切です。
 
-Finally, we should also add one or more comments for translators:
+最後に、翻訳者向けのコメントを1つ以上追加します。
 
 ```properties
-### Lines starting with three hashes are shown in the translation system
-### for every string in the file.
-### You can use it for a general summary of what a file is dealing with. Not
-### all files will need this.
+### 3つのシャープ記号で始まる行は、ファイル内のすべての文字列について
+### 翻訳システムに表示されます。
+### ファイル全体の概要を記載できます。必要のないファイルもあります。
 
-## Lines starting with two hashes are shown for every following string, until
-## another set of two hashes is encountered, or the file ends.
+## 2つのシャープ記号で始まる行は、次の文字列すべてに表示されます。
+## 別の2つのシャープ記号が現れるか、ファイル末尾に達すると終了します。
 
-# This is a comment that will only apply to the following string. Eg:
-# Shown in the add-on management screen (Tools>Add-ons), in the title bar.
+# このコメントは次の文字列だけに適用されます。例:
+# アドオン管理画面（ツール > アドオン）のタイトルバーに表示される。
 addons-you-have-count = { $count ->
     [one] You have { $count } add-on.
    *[other] You have { $count } add-ons.
    }
 ```
 
-## Accessing the New String
+## 新しい文字列を使う
 
-Once you've added one or more strings to the .ftl files, run Anki in the source
-tree as usual, which will compile the new strings, and make them accessible in
-Python/Typescript/Rust.
+`.ftl` ファイルに文字列を1つ以上追加したら、通常どおりソースツリーから Anki を実行します。新しい文字列がコンパイルされ、Python、TypeScript、Rust から利用できるようになります。
 
 ### Python
 
-To resolve a string, you can use the following code:
+文字列を取得するには、次のコードを使います。
 
 ```python
 from aqt.utils import tr
@@ -120,18 +89,11 @@ from aqt.utils import tr
 msg = tr.addons_you_have_count(count=3)
 ```
 
-- Note how a snake_case() function has been automatically defined as part of
-  the build process, with the correct arguments. These will be checked by
-  the tests, to ensure you don't accidentally use a missing string, or
-  omit an argument/pass the wrong one.
-- The generated function has a docstring based on the original text in the ftl
-  file, so if you're using an editor like PyCharm, you can hover the mouse over
-  a function to see the text it will resolve to.
-- Code in qt/ can use the `aqt.utils.tr()` function, but code in pylib should
-  use `col.tr()` instead.
+- ビルドプロセスで、適切な引数を持つ `snake_case()` 関数が自動生成されます。存在しない文字列を使ったり、引数を省略したり、誤った引数を渡したりしていないか、テストで確認されます。
+- 生成された関数の docstring には `.ftl` ファイルにある原文が記載されます。PyCharm などのエディターでは、関数にカーソルを合わせると表示される文字列を確認できます。
+- `qt/` のコードでは `aqt.utils.tr()` を使えますが、`pylib` のコードでは `col.tr()` を使ってください。
 
-If you'd like to test out the strings in the Python repl, make sure to
-call set_lang() first.
+Python の REPL で文字列を試す場合は、先に `set_lang()` を呼び出してください。
 
 ```python
 >>> from anki.lang import set_lang
@@ -141,9 +103,7 @@ call set_lang() first.
 'You have \u20683\u2069 add-ons.'
 ```
 
-Note the unicode characters that were inserted. These ensure that when left-to-right
-and right-to-left languages are mixed, the text flows correctly. For debugging,
-you can strip the characters off:
+挿入された Unicode 文字に注目してください。これにより、左から右に書く言語と右から左に書く言語が混在しても、テキストが正しい順序で表示されます。デバッグ時には、次のようにこれらの文字を取り除けます。
 
 ```python
 >>> from anki.lang import without_unicode_isolation as nosep
@@ -155,7 +115,7 @@ you can strip the characters off:
 
 ### TypeScript
 
-A global is available with automatically generated functions in camelCaps. Eg:
+自動生成された関数を含むグローバルオブジェクトが、camelCaps 形式で利用できます。例:
 
 ```typescript
 import * as tr from "../lib/ftl";
@@ -163,11 +123,9 @@ import * as tr from "../lib/ftl";
 console.log(tr.statisticsCardsPerDay({ count: 5 }));
 ```
 
-The functions have docstrings that have the original text, so you can hover over
-them to see what the text says.
+関数の docstring には原文が記載されているため、カーソルを合わせるとテキストを確認できます。
 
-To make use of the translations, they first need to be fetched from the backend.
-You'll need to specify the modules you want included, eg:
+翻訳を使うには、まずバックエンドから取得する必要があります。次のように、含めるモジュールを指定してください。
 
 ```typescript
 import { setupI18n, ModuleName } from "../lib/i18n";
@@ -177,23 +135,19 @@ await setupI18n({ modules: [ModuleName.STATISTICS] });
 
 ### Rust
 
-The backend and collection structures have an I18n object in .tr, which can be
-called to get a translation, eg, in a Collection method:
+バックエンドとコレクションの構造体には `.tr` に I18n オブジェクトがあり、これを呼び出して翻訳を取得できます。たとえば、Collection のメソッドでは次のようにします。
 
 ```rust
 println!("{}", self.tr.database_check_missing_templates(5))
 ```
 
-The docstring contains the original translation, and your editor can
-show you the names of each argument.
+docstring には原文が記載されており、エディターで各引数の名前を確認できます。
 
-The return value is a Cow - if you need a String, you can call `.to_string()` or
-`.into()` on it.
+戻り値は `Cow` です。`String` が必要な場合は、`.to_string()` または `.into()` を呼び出します。
 
-### Legacy style
+### 旧形式
 
-Anki versions before 2.1.44 used a single function and a separate constant instead.
-Eg, instead of
+Anki 2.1.44 より前のバージョンでは、代わりに単一の関数と別の定数を使っていました。たとえば、次のコードではなく
 
 ```python
 from aqt.utils import tr
@@ -201,7 +155,7 @@ from aqt.utils import tr
 msg = tr.addons_you_have_count(count=3)
 ```
 
-they instead used:
+次のように記述していました。
 
 ```python
 from aqt.utils import tr, TR
@@ -209,20 +163,18 @@ from aqt.utils import tr, TR
 msg = tr(TR.ADDONS_YOU_HAVE_COUNT, count=3)
 ```
 
-This old style will still work for now, but will be removed in the future.
+この旧形式は現在も使えますが、今後削除される予定です。
 
-## Repeated Content
+## 繰り返し使う内容
 
-Sometimes you will need multiple translations that have some text shared between
-them. For example, the search code has a list of separate error message, such as:
+複数の翻訳で同じテキストを共有する必要がある場合があります。たとえば検索コードには、次のように個別のエラーメッセージが複数あります。
 
 ```properties
 search-invalid-added = Invalid search: 'added:' must be followed by a positive number of days.
 search-invalid-edited = Invalid search: 'edited:' must be followed by a positive number of days.
 ```
 
-Since there are a lot of separate messages with the same prefix, we can split it off
-into a separate string:
+同じ接頭辞を持つメッセージが多いため、接頭辞を別の文字列に分けられます。
 
 ```properties
 search-invalid-search = Invalid search: { $reason }
@@ -230,52 +182,26 @@ search-invalid-added = 'added:' must be followed by a positive number reason.
 search-invalid-edited = 'edited:' must be followed by a positive number of days.
 ```
 
-The code can then compose the message from two separate entries. Note that we're
-using a Fluent variable in the outer string, as some languages may want to place
-the reason first, not include a space after the colon, and so on.
+その後、コードで2つの項目からメッセージを組み立てます。外側の文字列に Fluent 変数を使っている点に注目してください。言語によっては理由を先に置いたり、コロンの後にスペースを入れなかったりするためです。
 
-## Avoid HTML where possible
+## 可能な限り HTML を避ける
 
-Translators may not have any development experience, and HTML can be difficult to read
-and translate correctly. Prefer plain text where possible, and when HTML is required
-or would make things much clearer, consider using markdown instead (see the search
-translations for an example of how this is done).
+翻訳者が開発経験を持っているとは限らず、HTML は読みにくく、正しく翻訳するのが難しい場合があります。可能であればプレーンテキストを使ってください。HTML が必要な場合や、使うと明確になる場合は、代わりに Markdown を検討してください（例は検索の翻訳を参照してください）。
 
-## Avoid Strings That Will Change
+## 変更される可能性のある文字列を避ける
 
-Avoid doing things like listing out a series of options in a string, if there's any
-chance that list will change in the future. When the string later gets updated
-(and assuming people don't forget to update it), it will need to be given a new ID
-so that translators become aware of it, and doing so will mean all the existing
-translations get invalidated until a translator has a chance to update them, which
-may take months and sometimes even years.
+将来変わる可能性がある選択肢の一覧などを、1つの文字列に列挙するのは避けてください。文字列を後で更新するとき（更新を忘れなかった場合）、翻訳者が変更に気づくよう、新しい ID を割り当てる必要があります。そうすると、翻訳者が更新するまで既存の翻訳がすべて無効になります。更新には数か月、ときには数年かかることもあります。
 
-## Avoid Excess Strings
+## 文字列を増やしすぎない
 
-Please try to be conservative with the number of new strings you add, as translator time
-is precious, and the more strings included in Anki, the more overwhelming it can be
-for translators. If you need to display an error message for some obscure error that most
-people will never hit, it probably doesn't need a translation.
+新しい文字列の追加は必要な範囲にとどめてください。翻訳者の時間は貴重です。Anki に含まれる文字列が増えるほど、翻訳作業の負担も大きくなります。ほとんどの人が遭遇しないようなまれなエラーのメッセージは、翻訳する必要がないかもしれません。
 
-## Add-ons
+## アドオン
 
-Add-ons can make use of existing strings in Anki, but if you wish to add new
-strings, you'll need to add them to your add-on rather than Anki. How you approach
-translations in your add-on(s) is up to you:
+アドオンでは Anki の既存の文字列を利用できますが、新しい文字列を追加する場合は、Anki 本体ではなくアドオンに追加する必要があります。アドオンの翻訳方法は自由に選べます。
 
-- If you don't care about translations, the simplest solution is to use plain strings.
-- The next-easiest option is to place all strings in a dict or python module,
-  and accept pull requests from users that add a new language. You can then
-  select the appropriate dict by looking at what anki.lang.currentLang is set
-  to.
-- If you want proper plural support, you'll want to consider using gettext,
-  though it is considerably more involved than the above solution. It requires
-  separate build steps to extract strings from your source and build compiled
-  versions of the strings. You can have translators email you a completed .po
-  file, or send you a PR. There are online translation services like Launchpad
-  and Crowdin that support gettext, but you would need to either manually upload
-  and download files, or spend some time setting up scripts to do so.
+- 翻訳を行わない場合は、通常の文字列を使うのが最も簡単です。
+- 次に簡単な方法は、すべての文字列を辞書または Python モジュールに置き、新しい言語を追加するプルリクエストを受け付けることです。`anki.lang.currentLang` の値を確認して、適切な辞書を選べます。
+- 適切な複数形のサポートが必要な場合は gettext を検討してください。ただし、上記の方法よりかなり複雑です。ソースから文字列を抽出し、コンパイル済みの文字列を生成するためのビルド手順が別途必要です。完成した `.po` ファイルを翻訳者からメールで受け取るか、プルリクエストを送ってもらえます。Launchpad や Crowdin など、gettext に対応するオンライン翻訳サービスもありますが、ファイルのアップロードとダウンロードを手動で行うか、設定用のスクリプトを作成する必要があります。
 
-Fluent is not currently recommended for add-ons. There is limited tooling
-support for it, and you would need to bundle the Fluent Python libraries with
-your add-on.
+現在、アドオンに Fluent を使うことは推奨していません。対応するツールが限られており、Fluent の Python ライブラリをアドオンに同梱する必要があるためです。

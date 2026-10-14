@@ -1,41 +1,20 @@
 ---
-title: "The Manual"
+title: "マニュアル"
 ---
 
-Translating the manual and other documentation is trickier than translating
-Anki's interface: the documentation is not translated on the [translation
-site](https://i18n.ankiweb.net/projects/). Instead, you edit Markdown files in
-[the main Anki repository](https://github.com/ankitects/anki) and submit a
-pull request. Some familiarity with Git is required, but you don't need to be
-able to build Anki or write code.
+マニュアルなどのドキュメントの翻訳は、Anki のインターフェースよりも少し複雑です。ドキュメントは[翻訳サイト](https://i18n.ankiweb.net/projects/)では翻訳しません。[Anki のメインリポジトリ](https://github.com/ankitects/anki)にある Markdown ファイルを編集し、プルリクエストを送ります。Git の基本的な知識は必要ですが、Anki をビルドしたり、コードを書いたりする必要はありません。
 
-The English source pages live in the
-[docs-site directory](https://github.com/ankitects/anki/tree/main/docs-site).
-The manual itself is located in `docs-site/manual`, and the other sections,
-such as the add-on and developer documentation, are in sibling directories.
+英語の原文ページは、[docs-site ディレクトリ](https://github.com/ankitects/anki/tree/main/docs-site)にあります。マニュアル本体は `docs-site/manual` にあり、アドオンや開発者向けドキュメントなどのセクションは、その隣のディレクトリにあります。
 
-## Getting Started
+## 翻訳を始める
 
-1. [Fork](https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/working-with-forks/fork-a-repo)
-   the [Anki repository](https://github.com/ankitects/anki) and clone your
-   fork locally.
+1. [Anki リポジトリ](https://github.com/ankitects/anki)を[フォーク](https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/working-with-forks/fork-a-repo)し、フォークをローカルにクローンします。
 
-2. If your language already has a subdirectory under `docs-site` (for example
-   `docs-site/ru/`), you can start improving the existing `.mdx` pages in it.
-   Otherwise, create a new subdirectory named after your language code, such
-   as `docs-site/ko/manual/`.
+2. `docs-site` の下にお使いの言語のサブディレクトリ（例: `docs-site/ru/`）がすでにある場合は、その中の `.mdx` ページを改善できます。まだない場合は、`docs-site/ko/manual/` のように、言語コードを名前にしたサブディレクトリを作成します。
 
-3. Translate the pages you'd like to work on. The pages are written in MDX, a
-   flavor of Markdown that supports embedded components. Please keep Markdown
-   formatting such as links, images and code blocks intact, and translate the
-   surrounding text only.
+3. 翻訳したいページを翻訳します。ページは、コンポーネントを埋め込める Markdown の一種である MDX で書かれています。リンク、画像、コードブロックなどの Markdown の書式は維持し、周囲の文章だけを翻訳してください。
 
-4. List your translated pages in
-   [docs-site/docs.json](https://github.com/ankitects/anki/blob/main/docs-site/docs.json)
-   so they show up in the navigation. Each language has an entry under
-   `navigation.languages`: to add a page, append its path to your language's
-   `pages` list; to add a new language, add a new entry following the existing
-   pattern:
+4. 翻訳したページがナビゲーションに表示されるよう、[docs-site/docs.json](https://github.com/ankitects/anki/blob/main/docs-site/docs.json)に追加します。各言語には `navigation.languages` の下に項目があります。ページを追加する場合は、その言語の `pages` リストにパスを追加します。新しい言語を追加する場合は、既存の形式に従って項目を追加します。
 
     ```json
     {
@@ -54,17 +33,12 @@ such as the add-on and developer documentation, are in sibling directories.
     }
     ```
 
-    For the supported language codes and the language switcher configuration,
-    please see Mintlify's guide on
-    [internationalization](https://www.mintlify.com/docs/guides/internationalization#configure-the-language-switcher).
+    対応している言語コードと、言語切り替えの設定については、Mintlify の[国際化ガイド](https://www.mintlify.com/docs/guides/internationalization#configure-the-language-switcher)をご覧ください。
 
-5. Submit a pull request containing your changes.
+5. 変更を含むプルリクエストを送ります。
 
-## Notes
+## 補足
 
-- Partial translations are welcome: starting with the introduction page, like
-  most of the existing languages, is perfectly fine.
-- Unless stated otherwise, documentation changes are licensed under the
-  [CC BY-SA 4.0 license](https://creativecommons.org/licenses/by-sa/4.0/).
-- If you have questions about translating the documentation, please feel free
-  to ask on [the forums](https://forums.ankiweb.net/).
+- 一部だけの翻訳も歓迎します。多くの既存言語と同様に、まず導入ページから始めても構いません。
+- 特に記載がない限り、ドキュメントの変更には[CC BY-SA 4.0 ライセンス](https://creativecommons.org/licenses/by-sa/4.0/)が適用されます。
+- ドキュメントの翻訳について質問がある場合は、[フォーラム](https://forums.ankiweb.net/)でお尋ねください。
