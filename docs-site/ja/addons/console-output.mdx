@@ -1,38 +1,32 @@
 ---
-title: "Console Output"
+title: "コンソール出力"
 ---
 
-Because Anki is a GUI app, text output to stdout (e.g.`print("foo")`) is not
-usually visible to the user. You can optionally reveal text printed to stdout,
-and it is recommended that you do so while developing your add-on.
+Anki は GUI アプリのため、標準出力へのテキスト（例: `print("foo")`）は通常ユーザーに表示されません。標準出力に出したテキストを表示することもできます。アドオンの開発中は、表示することをおすすめします。
 
-## Warnings
+## 警告
 
-Anki uses stdout to print warnings about API deprecations, eg:
+Anki は API の非推奨化に関する警告を標準出力に表示します。例:
 
 ```
 addons21/mytest/__init__.py:10:getNote is deprecated: please use 'get_note'
 ```
 
-If these warnings are occurring in a loop, please address them promptly, as they can
-slow Anki down even if the console is not shown.
+こうした警告がループ内で発生する場合は、速やかに対処してください。コンソールが表示されていなくても Anki の動作が遅くなることがあります。
 
-## Printing text
+## テキストを出力する
 
-You may find it useful to print text to stdout to aid in debugging your add-on.
-Please avoid printing large amounts of text (e.g.in a loop that deals with hundreds or
-thousands of items), as that may slow Anki down, even if the console is not shown.
+アドオンのデバッグに標準出力へのテキスト出力が役立つことがあります。ただし、大量のテキスト（数百、数千項目を扱うループ内など）を出力するのは避けてください。コンソールが表示されていなくても、動作が遅くなることがあります。
 
-## Showing the Console
+## コンソールを表示する
 
 ### Windows
 
-If you start Anki via the `anki-console.bat` file in `C:\Users\user\AppData\Local\Programs\Anki` (or `C:\Program Files\Anki`), a
-separate console window will appear.
+`C:\Users\user\AppData\Local\Programs\Anki`（または `C:\Program Files\Anki`）にある `anki-console.bat` ファイルから Anki を起動すると、別のコンソールウィンドウが開きます。
 
 ### macOS
 
-Open Terminal.app, then enter the following text and hit enter:
+Terminal.app を開き、次のテキストを入力して Enter キーを押します。
 
 ```
 /Applications/Anki.app/Contents/MacOS/anki
@@ -40,4 +34,4 @@ Open Terminal.app, then enter the following text and hit enter:
 
 ### Linux
 
-Open a terminal/xterm, then run Anki with `anki`
+ターミナルまたは xterm を開き、`anki` で Anki を起動します。

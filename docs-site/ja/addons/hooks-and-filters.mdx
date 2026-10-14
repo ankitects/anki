@@ -1,41 +1,29 @@
 ---
-title: "Hooks & Filters"
-sidebarTitle: "Hooks and Filters"
-description: "Hooks and Filters"
+title: "フックとフィルター"
+sidebarTitle: "フックとフィルター"
+description: "フックとフィルター"
 ---
 
-Hooks are the way you should connect your add-on code to Anki. If the
-function you want to alter doesn’t already have a hook, please see the
-section below about adding new hooks.
+フックは、アドオンのコードを Anki に接続する方法です。変更したい関数にフックがない場合は、下記の「フックを追加する」セクションをご覧ください。
 
-There are two different kinds of "hooks":
+「フック」には2種類あります。
 
-- Regular hooks are functions that don’t return anything. They are run
-  for their side effects, and may sometimes alter the objects they
-  have been passed, such as inserting an extra item in a list.
+- 通常のフックは、値を返さない関数です。副作用を起こすために実行され、渡されたオブジェクトを変更することもあります（例: リストに項目を追加）。
+- 「フィルター」は、最初の引数を受け取り、必要に応じて変更して返す関数です。たとえば、カードの表示中にフィールドのテキストを受け取り、変更したテキストを返すフィルターがあります。
 
-- "Filters" are functions that return their first argument, after
-  maybe changing it. An example filter is one that takes the text of a
-  field during card display, and returns an altered version.
+この区別が必要なのは、Python のデータ型には直接変更できるものと、文字列のように変更したコピーを作る必要があるものがあるためです。
 
-The distinction is necessary because some data types in Python can be
-modified directly, and others can only be modified by creating a changed
-copy (such as strings).
+## 新しい形式のフック
 
-## New Style Hooks
+Anki 2.1.20 で新しい形式のフックが追加されました。
 
-A new style of hook was added in Anki 2.1.20.
-
-Imagine you wish to show a message each time the front side of a card is
-shown in the review screen. You’ve looked at the source code in
-reviewer.py, and seen the following line in the showQuestion() function:
+たとえば、学習画面でカードの表面が表示されるたびにメッセージを表示するとします。`reviewer.py` のソースコードを確認すると、`showQuestion()` 関数に次の行があります。
 
 ```python
 gui_hooks.reviewer_did_show_question(card)
 ```
 
-To register a function to be called when this hook is run, you can do
-the following in your add-on:
+このフックが実行されたときに呼び出す関数を登録するには、アドオンに次のコードを追加します。
 
 ```python
 from aqt import gui_hooks
@@ -46,91 +34,70 @@ def myfunc(card):
 gui_hooks.reviewer_did_show_question.append(myfunc)
 ```
 
-Multiple add-ons can register for the same hook or filter - they will
-all be called in turn.
+複数のアドオンが同じフックやフィルターを登録できます。それぞれ順番に呼び出されます。
 
-To remove a hook, use code like:
+フックを削除するには、次のようなコードを使います。
 
 ```
 gui_hooks.reviewer_did_show_question.remove(myfunc)
 ```
 
-:warning: Functions you attach to a hook should not modify the hook while they are executing, as it will break things:
+:warning: フックに登録した関数の実行中に、そのフックを変更しないでください。問題が発生します。
 
 ```
 def myfunc(card):
-  # DON'T DO THIS!
+  # これはしないでください!
   gui_hooks.reviewer_did_show_question.remove(myfunc)
 
 gui_hooks.reviewer_did_show_question.append(myfunc)
 ```
 
-An easy way to see all hooks at a glance is to look at the
-[Hooks Reference](/addons/hooks-reference) page.
+すべてのフックを一覧で確認するには、[フックリファレンス](/addons/hooks-reference)をご覧ください。
 
-If you have set up type completion as described in an earlier section,
-you can also see the hooks in your IDE:
+前のセクションで説明した型補完を設定している場合は、IDE でもフックを確認できます。
 
-<video controls autoplay loop muted alt="Autocomplete in PyCharm">
+<video controls autoplay loop muted alt="PyCharm のコード補完">
     <source src="/media/autocomplete.mp4" type="video/mp4" />
 </video>
 
-In the above video, holding the command/ctrl key down while hovering
-will show a tooltip, including arguments and documentation if it exists.
-The argument names and types for the callback can be seen on the bottom
-line.
+上の動画のように、Command/Ctrl キーを押しながらカーソルを合わせると、引数やドキュメント（ある場合）を含むツールチップが表示されます。コールバックの引数名と型は、最下行で確認できます。
 
-For some examples of how the new hooks are used, please see
-[https://github.com/ankitects/anki-addons/blob/master/demos/](https://github.com/ankitects/anki-addons/blob/master/demos/).
+新しい形式のフックの使用例については、[https://github.com/ankitects/anki-addons/blob/master/demos/](https://github.com/ankitects/anki-addons/blob/master/demos/)をご覧ください。
 
-Most of the new style hooks will also call the legacy hooks (described
-further below), so old add-ons will continue to work for now, but add-on authors
-are encouraged to update to the new style as it allows for code
-completion, and better error checking.
+新しい形式のフックの多くは、旧形式のフック（後述）も呼び出します。そのため、古いアドオンも当面は動作します。ただし、新しい形式ではコード補完やエラーチェックが改善されるため、アドオンの作成者には新しい形式への更新をおすすめします。
 
-## Notable Hooks
+## 主なフック
 
-For a full list of hooks, and their documentation, please see
+フックの一覧と説明については、次をご覧ください。
 
-- [The GUI hooks](https://github.com/ankitects/anki/blob/master/qt/tools/genhooks_gui.py)
-- [The pylib hooks](https://github.com/ankitects/anki/blob/master/pylib/tools/genhooks.py)
+- [GUI フック](https://github.com/ankitects/anki/blob/master/qt/tools/genhooks_gui.py)
+- [pylib のフック](https://github.com/ankitects/anki/blob/master/pylib/tools/genhooks.py)
 
-### Webview
+### Web ビュー
 
-Many of Anki's screens are built with one or more webviews, and there are
-some hooks you can use to intercept their use.
+Anki の画面の多くは、1つ以上の Web ビューで構成されています。Web ビューの利用を割り込んで処理するためのフックもあります。
 
-From Anki 2.1.22:
+Anki 2.1.22 以降:
 
-- `gui_hooks.webview_will_set_content()` allows you to modify the HTML that
-  various screens send to the webview. You can use this for adding your own
-  HTML/CSS/Javascript to particular screens. This will not work for external
-  pages - see the Anki 2.1.36 section below.
-- `gui_hooks.webview_did_receive_js_message()` allows you to intercept
-  messages sent from Javascript. Anki provides a `pycmd(string)` function in
-  Javascript which sends a message back to Python, and various screens such as
-  reviewer.py respond to the messages. By using this hook, you can respond
-  to your own messages as well.
+- `gui_hooks.webview_will_set_content()` を使うと、各画面が Web ビューに送る HTML を変更できます。特定の画面に独自の HTML/CSS/JavaScript を追加できます。外部ページには適用されません。外部ページについては、下記の Anki 2.1.36 の説明をご覧ください。
+- `gui_hooks.webview_did_receive_js_message()` を使うと、JavaScript から送信されたメッセージを受け取れます。Anki の JavaScript には、Python にメッセージを送る `pycmd(string)` 関数があります。`reviewer.py` などの画面はメッセージに応答します。このフックを使えば、独自のメッセージにも応答できます。
 
-From Anki 2.1.36:
+Anki 2.1.36 以降:
 
-- `webview_did_inject_style_into_page()` gives you an opportunity to inject
-  styling or content into external pages like the graphs screen and congratulations
-  page that are loaded with load_ts_page().
+- `webview_did_inject_style_into_page()` を使うと、`load_ts_page()` で読み込まれるグラフ画面やお祝い画面などの外部ページに、スタイルやコンテンツを挿入できます。
 
-#### Managing External Resources in Webviews
+#### Web ビューで外部リソースを管理する
 
-Add-ons may expose their own web assets by utilizing `aqt.addons.AddonManager.setWebExports()`. Web exports registered in this manner may then be accessed under the `/_addons` subpath.
+`aqt.addons.AddonManager.setWebExports()` を使うと、アドオンから独自の Web アセットを公開できます。この方法で登録した Web エクスポートには、`/_addons` サブパスからアクセスできます。
 
-For example, to allow access to a `my-addon.js` and `my-addon.css` residing
-in a "web" subfolder in your add-on package, first register the corresponding web export:
+たとえば、アドオンパッケージ内の `web` サブフォルダーにある `my-addon.js` と `my-addon.css` にアクセスできるようにするには、まず対応する Web エクスポートを登録します。
 
 ```python
 from aqt import mw
 mw.addonManager.setWebExports(__name__, r"web/.*(css|js)")
 ```
 
-Then, append the subpaths to the corresponding web_content fields within a function subscribing to `gui_hooks.webview_will_set_content`:
+次に、`gui_hooks.webview_will_set_content` を購読する関数内で、対応する `web_content` フィールドにサブパスを追加します。
 
 ```python
 def on_webview_will_set_content(web_content: WebContent, context) -> None:
@@ -139,33 +106,28 @@ def on_webview_will_set_content(web_content: WebContent, context) -> None:
     web_content.js.append(f"/_addons/{addon_package}/web/my-addon.js")
 ```
 
-Note that '/' will also match the os specific path separator.
+`/` は OS 固有のパス区切り文字にも一致する点に注意してください。
 
-## Legacy Hook Handling
+## 旧形式のフック
 
-Older versions of Anki used a different hook system, using the functions
-runHook(), addHook() and runFilter().
+Anki の旧バージョンでは `runHook()`、`addHook()`、`runFilter()` 関数を使う別のフックシステムを採用していました。
 
-For example, when the scheduler (anki/sched.py) discovers a leech, it
-calls:
+たとえば、スケジューラー（`anki/sched.py`）が埋もれたカードを検出すると、次を呼び出します。
 
 ```python
 runHook("leech", card)
 ```
 
-If you wished to perform a special operation when a leech was
-discovered, such as moving the card to a "Difficult" deck, you could do
-it with the following code:
+埋もれたカードが検出されたときに特別な処理（例: カードを「難しい」デッキに移動）を行うには、次のようにします。
 
 ```python
 from anki.hooks import addHook
 from aqt import mw
 
 def onLeech(card):
-    # can modify without .flush(), as scheduler will do it for us
+    # スケジューラーが処理するため、.flush() を呼ばずに変更できます。
     card.did = mw.col.decks.id("Difficult")
-    # if the card was in a cram deck, we have to put back the original due
-    # time and original deck
+    # カードが詰め込みデッキにあった場合は、元の期限とデッキを戻します。
     card.odid = 0
     if card.odue:
         card.due = card.odue
@@ -174,36 +136,29 @@ def onLeech(card):
 addHook("leech", onLeech)
 ```
 
-An example of a filter is in [aqt/editor.py](https://github.com/ankitects/anki/blob/main/qt/aqt/editor.py). The editor calls the
-"editFocusLost" filter each time a field loses focus, so that add-ons
-can apply changes to the note:
+フィルターの例は [aqt/editor.py](https://github.com/ankitects/anki/blob/main/qt/aqt/editor.py) にあります。エディターは、フィールドのフォーカスが外れるたびに `editFocusLost` フィルターを呼び出します。アドオンはこのフィルターを使ってノートを変更できます。
 
 ```python
 if runFilter(
     "editFocusLost", False, self.note, self.currentField):
-    # something updated the note; schedule reload
+    # ノートが更新されたので再読み込みを予約
     def onUpdate():
         self.loadNote()
         self.checkValid()
     self.mw.progress.timer(100, onUpdate, False)
 ```
 
-Each filter in this example accepts three arguments: a modified flag,
-the note, and the current field. If a filter makes no changes it returns
-the modified flag the same as it received it; if it makes a change it
-returns True. In this way, if any single add-on makes a change, the UI
-will reload the note to show updates.
+この例でフィルターが受け取る引数は、変更済みかどうかを示すフラグ、ノート、現在のフィールドの3つです。変更がない場合は、受け取ったフラグをそのまま返します。変更した場合は `True` を返します。この仕組みにより、どれか1つのアドオンが変更を加えた場合に UI がノートを再読み込みして更新を表示します。
 
-The Japanese Support add-on uses this hook to automatically generate one
-field from another. A slightly simplified version is presented below:
+Japanese Support アドオンは、このフックを使ってあるフィールドから別のフィールドを自動生成します。以下に簡略化した例を示します。
 
 ```python
 def onFocusLost(flag, n, fidx):
     from aqt import mw
-    # japanese model?
+    # 日本語モデルか?
     if "japanese" not in n.model()['name'].lower():
         return flag
-    # have src and dst fields?
+    # 元フィールドと出力先フィールドがあるか?
     for c, name in enumerate(mw.col.models.fieldNames(n.model())):
         for f in srcFields:
             if name == f:
@@ -214,17 +169,17 @@ def onFocusLost(flag, n, fidx):
                 dst = f
     if not src or not dst:
         return flag
-    # dst field already filled?
+    # 出力先フィールドはすでに入力済みか?
     if n[dst]:
         return flag
-    # event coming from src field?
+    # 元フィールドからフォーカスが外れたか?
     if fidx != srcIdx:
         return flag
-    # grab source text
+    # 元のテキストを取得
     srcTxt = mw.col.media.strip(n[src])
     if not srcTxt:
         return flag
-    # update field
+    # フィールドを更新
     try:
         n[dst] = mecab.reading(srcTxt)
     except Exception, e:
@@ -235,21 +190,15 @@ def onFocusLost(flag, n, fidx):
 addHook('editFocusLost', onFocusLost)
 ```
 
-The first argument of a filter is the argument that should be returned.
-In the focus lost filter this is a flag, but in other cases it may be
-some other object. For example, in anki/collection.py, \_renderQA()
-calls the "mungeQA" filter which contains the generated HTML for the
-front and back of cards. latex.py uses this filter to convert text in
-LaTeX tags into images.
+フィルターの最初の引数は、戻り値として返す引数です。フォーカスが外れたときのフィルターではフラグですが、別のフィルターでは異なるオブジェクトの場合があります。たとえば `anki/collection.py` では、`_renderQA()` が「mungeQA」フィルターを呼び出し、カードの表と裏の生成済み HTML を渡します。`latex.py` はこのフィルターを使って LaTeX タグ内のテキストを画像に変換します。
 
-In Anki 2.1, a hook was added for adding buttons to the editor. It can
-be used like so:
+Anki 2.1 では、エディターにボタンを追加するフックが導入されました。次のように使えます。
 
 ```python
 from aqt.utils import showInfo
 from anki.hooks import addHook
 
-# cross out the currently selected text
+# 現在選択しているテキストに取り消し線を付ける
 def onStrike(editor):
     editor.web.eval("wrap('<del>', '</del>');")
 
@@ -257,23 +206,18 @@ def addMyButton(buttons, editor):
     editor._links['strike'] = onStrike
     return buttons + [editor._addButton(
         "iconname", # "/full/path/to/icon.png",
-        "strike", # link name
+        "strike", # リンク名
         "tooltip")]
 
 addHook("setupEditorButtons", addMyButton)
 ```
 
-## Adding Hooks
+## フックを追加する
 
-If you want to modify a function that doesn’t already have a hook,
-please submit a pull request that adds the hooks you need.
+フックがない関数を変更したい場合は、必要なフックを追加するプルリクエストを送ってください。
 
-In your PR, please describe the use-case you're trying to solve. Hooks that
-are general in nature will typically be approved; hooks that target a very
-specific use case may need to be refactored to be more general first. For an
-example of what this might look like, please see [this PR](https://github.com/ankitects/anki/pull/2340).
+プルリクエストには、解決したい用途を記載してください。汎用的なフックは通常承認されますが、特定の用途に限定されたフックは、まず汎用的な形に作り直す必要がある場合があります。どのような変更になるかは[このプルリクエスト](https://github.com/ankitects/anki/pull/2340)をご覧ください。
 
-The hook definitions are located in [pylib/tools/genhooks.py](https://github.com/ankitects/anki/tree/main/pylib/tools/genhooks.py) and [qt/tools/genhooks_gui.py](https://github.com/ankitects/anki/blob/main/qt/tools/genhooks_gui.py). When building Anki, the build scripts will
-automatically update the hook files with the definitions listed there.
+フックの定義は [pylib/tools/genhooks.py](https://github.com/ankitects/anki/tree/main/pylib/tools/genhooks.py) と [qt/tools/genhooks_gui.py](https://github.com/ankitects/anki/blob/main/qt/tools/genhooks_gui.py) にあります。Anki をビルドすると、ビルドスクリプトがこれらの定義をもとにフックファイルを自動更新します。
 
-Please see the [docs/](https://github.com/ankitects/anki/tree/main/docs) folder in the source tree for more information.
+詳しくは、ソースツリーの [docs/](https://github.com/ankitects/anki/tree/main/docs) フォルダーをご覧ください。

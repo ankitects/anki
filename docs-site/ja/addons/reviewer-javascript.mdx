@@ -1,15 +1,12 @@
 ---
-title: "Reviewer Javascript"
+title: "学習画面の JavaScript"
 ---
 
-For a general solution not specific to card review, see
-[the webview section](./hooks-and-filters#webview).
+カードの学習に限らない一般的な方法については、[Web ビューのセクション](./hooks-and-filters#webview)をご覧ください。
 
-Anki provides a hook to modify the question and answer HTML before it is
-displayed in the review screen, preview dialog, and card layout screen.
-This can be useful for adding Javascript to the card. If you wish to load external resources in your card, please see [managing external resources in webviews](./hooks-and-filters#managing-external-resources-in-webviews).
+Anki には、学習画面、プレビュー画面、カードレイアウト画面に表示する前に、問題と解答の HTML を変更するフックがあります。カードに JavaScript を追加する際に便利です。カードから外部リソースを読み込む場合は、[Web ビューで外部リソースを管理する](./hooks-and-filters#managing-external-resources-in-webviews)をご覧ください。
 
-An example:
+例:
 
 ```python
 from aqt import gui_hooks
@@ -21,24 +18,15 @@ document.body.style.background = "blue";
 gui_hooks.card_will_show.append(prepare)
 ```
 
-The hook takes three arguments: the HTML of the question or answer, the
-current card object (so you can limit your add-on to specific note types
-for example), and a string representing the context the hook is running
-in.
+このフックには3つの引数が渡されます。問題または解答の HTML、現在のカードオブジェクト（たとえば特定のノートタイプだけを対象にできます）、フックが実行されている状況を表す文字列です。
 
-Make sure you return the modified HTML.
+変更した HTML を返してください。
 
-Context is one of: "reviewQuestion", "reviewAnswer", "clayoutQuestion",
-"clayoutAnswer", "previewQuestion" or "previewAnswer".
+状況を表す値は、`"reviewQuestion"`、`"reviewAnswer"`、`"clayoutQuestion"`、`"clayoutAnswer"`、`"previewQuestion"`、`"previewAnswer"` のいずれかです。
 
-The answer preview in the card layout screen, and the previewer set to
-"show both sides" will only use the "Answer" context. This means
-Javascript you append on the back side of the card should not depend on
-Javascript that is only added on the front.
+カードレイアウト画面の解答プレビューと、「両面を表示」に設定されたプレビューでは、`"Answer"` の状況だけが使われます。そのため、カードの裏面に追加する JavaScript は、表面にだけ追加される JavaScript に依存しないようにしてください。
 
-Because Anki fades the previous text out before revealing the new text,
-Javascript hooks are required to perform actions like scrolling at the
-correct time. You can use them like so:
+Anki は新しいテキストを表示する前に前のテキストをフェードアウトします。そのため、適切なタイミングでスクロールするなどの処理には、JavaScript のフックが必要です。次のように使えます。
 
 ```python
 from aqt import gui_hooks
@@ -52,9 +40,7 @@ onUpdateHook.push(function () {
 gui_hooks.card_will_show.append(prepare)
 ```
 
-- onUpdateHook fires after the new card has been placed in the DOM,
-  but before it is shown.
+- `onUpdateHook` は、新しいカードが DOM に追加された後、表示される前に実行されます。
+- `onShownHook` は、カードがフェードインした後に実行されます。
 
-- onShownHook fires after the card has faded in.
-
-The hooks are reset each time the question or answer is shown.
+問題または解答を表示するたびに、フックはリセットされます。

@@ -1,37 +1,34 @@
 ---
-title: "A Basic Add-on"
+title: "基本的なアドオン"
 ---
 
-Add the following to `myaddon/__init__.py` in your add-ons folder:
+アドオンフォルダー内の `myaddon/__init__.py` に、次のコードを追加します。
 
 ```python
-# import the main window object (mw) from aqt
+# aqt からメインウィンドウオブジェクト (mw) をインポート
 from aqt import mw
-# import the "show info" tool from utils.py
+# utils.py から情報を表示する関数をインポート
 from aqt.utils import showInfo, qconnect
-# import all of the Qt GUI library
+# Qt GUI ライブラリをすべてインポート
 from aqt.qt import *
 
-# We're going to add a menu item below. First we want to create a function to
-# be called when the menu item is activated.
+# 以下でメニュー項目を追加します。まず、項目が選択されたときに
+# 呼び出す関数を作成します。
 
 def testFunction() -> None:
-    # get the number of cards in the current collection, which is stored in
-    # the main window
+    # メインウィンドウに保存されている、現在のコレクション内のカード数を取得
     cardCount = mw.col.card_count()
-    # show a message box
+    # メッセージボックスを表示
     showInfo("Card count: %d" % cardCount)
 
-# create a new menu item, "test"
+# "test" という新しいメニュー項目を作成
 action = QAction("test", mw)
-# set it to call testFunction when it's clicked
+# クリックされたときに testFunction を呼び出すよう設定
 qconnect(action.triggered, testFunction)
-# and add it to the tools menu
+# ツールメニューに追加
 mw.form.menuTools.addAction(action)
 ```
 
-Restart Anki, and you should find a 'test' item in the tools menu.
-Running it will display a dialog with the card count.
+Anki を再起動すると、ツールメニューに「test」という項目が表示されます。選択すると、カード数がダイアログに表示されます。
 
-If you make a mistake when entering in the plugin, Anki will show an
-error message on startup indicating where the problem is.
+アドオンのコードの入力を間違えると、Anki の起動時に問題の場所を示すエラーメッセージが表示されます。

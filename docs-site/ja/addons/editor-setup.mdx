@@ -1,34 +1,21 @@
 ---
-title: "Editor Setup"
+title: "エディターの設定"
 ---
 
-While you can write an add-on with a basic text editor such as Notepad,
-setting up a proper Python editor/development environment (IDE) will make
-your life considerably easier.
+メモ帳のような基本的なテキストエディターでもアドオンを書けますが、適切な Python エディターや開発環境（IDE）を設定すると、作業がずっと楽になります。
 
-## PyCharm setup
+## PyCharm の設定
 
-The free community edition of PyCharm has good out of the box support
-for Python: [https://www.jetbrains.com/pycharm/](https://www.jetbrains.com/pycharm/). You can also use other
-editors like Visual Studio Code, but we find PyCharm gives the best results.
+PyCharm の無料の Community Edition は、Python を標準でよくサポートしています。[https://www.jetbrains.com/pycharm/](https://www.jetbrains.com/pycharm/) をご覧ください。Visual Studio Code など、ほかのエディターも使えますが、PyCharm が最も使いやすいと考えています。
 
-Over the last year, Anki’s codebase has been updated to add type hints to almost
-all of the code. These type hints make development easier, by providing better
-code completion, and by catching errors using tools like mypy. As an add-on
-author, you can take advantage of this type hinting as well.
+この1年ほどで、Anki のコードベースではほぼすべてのコードに型ヒントが追加されました。型ヒントは、コード補完を改善し、mypy などのツールでエラーを検出できるため、開発をしやすくします。アドオンの開発でも型ヒントを利用できます。
 
-To get started with your first add-on:
+最初のアドオンを作るには、次の手順に沿ってください。
 
-- Open PyCharm and create a new project.
+- PyCharm を開き、新しいプロジェクトを作成します。
+- 左側のプロジェクトを右クリック（または Ctrl+クリック）し、`myaddon` という名前の Python パッケージを作成します。
 
-- Right click/ctrl+click on your project on the left and create a new
-  Python package called "myaddon"
-
-Now you’ll need to fetch Anki’s bundled source code so you can get type
-completion. As of Anki 2.1.24, these are available on PyPI. **You will need to
-be using a 64 bit version of Python, and your Python version must match a
-version the Anki version you are fetching supports.** To install Anki via
-PyCharm, click on Python Console in the bottom left and type the following in:
+次に、型補完を使えるよう Anki のソースコード一式を取得します。Anki 2.1.24 以降では、これらを PyPI から入手できます。**64 ビット版の Python を使用し、インストールする Anki のバージョンがサポートする Python のバージョンを使う必要があります。** PyCharm から Anki をインストールするには、左下の「Python Console」をクリックし、次を入力します。
 
 ```python
 import subprocess
@@ -37,23 +24,17 @@ subprocess.check_call(["pip3", "install", "--upgrade", "pip"])
 subprocess.check_call(["pip3", "install", "mypy", "aqt[qt6]"])
 ```
 
-Hit enter and wait. Once it completes, you should now have code completion.
+Enter キーを押して、処理が完了するまで待ちます。完了すると、コード補完が使えるようになります。
 
-If you get an error, you are probably not using a 64 bit version of Python, or
-your Python version is not one the latest Anki version supports. Try running the
-commands above with "-vvv" to get more info.
+エラーが発生する場合は、64 ビット版以外の Python を使っているか、現在の Anki バージョンがサポートしていない Python を使っている可能性があります。詳しい情報を得るには、上記のコマンドに `-vvv` を付けて実行してみてください。
 
-After installing, try out the code completion by double clicking on the
-`__init__.py` file. If you see a spinner down the bottom, wait for it to
-complete. Then type in:
+インストール後、`__init__.py` ファイルをダブルクリックして、コード補完を試します。画面下部に処理中のアイコンが表示された場合は、完了するまで待ってください。次を入力します。
 
 ```python
 from anki import hooks
 hooks.
 ```
 
-and you should see completions pop up.
+補完候補が表示されます。
 
-**Please note that you can not run your add-on from within PyCharm - you
-will get errors.** Add-ons need to be run from within Anki, which is
-covered in the [A Basic Add-on](./a-basic-addon) section.
+**PyCharm からアドオンを実行することはできません。実行するとエラーになります。** アドオンは Anki 内で実行する必要があります。詳しくは[基本的なアドオン](./a-basic-addon)をご覧ください。
