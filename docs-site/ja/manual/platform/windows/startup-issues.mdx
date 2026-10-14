@@ -1,0 +1,82 @@
+---
+title: "Windowsでの起動時の問題"
+sidebarTitle: "起動時の問題"
+description: "起動時の問題"
+---
+
+## エラーが出ずにアプリが表示されない場合
+
+Ankiを起動しても、エラーメッセージが出ず、アプリも表示されない場合は、次の方法を試してください。
+
+- 複数のディスプレイや外部ディスプレイの接続を外します。
+- [最新版のAnki](https://apps.ankiweb.net/)をインストールします。
+- 小数点の区切り記号がピリオド以外に設定されている場合は、[区切り記号を変更します](https://forums.ankiweb.net/t/windows-update-broke-anki/1822/75)。
+- 古いAnkiの[2.1.35-alternateビルド](https://github.com/ankitects/anki/releases/tag/2.1.35)をインストールします。
+
+## Windowsの更新
+
+Ankiの起動時に、次のようなメッセージが表示されることがあります。
+
+- _Error loading Python DLL_
+- _The program can't start because api-ms-win.... is missing_
+- _Failed to execute script runanki_
+- _Failed to execute script pyi_rth_multiprocessing_
+- _Failed to execute script pyi_rth_win32comgenpy_
+
+これらのエラーは通常、必要なWindowsの更新プログラムやライブラリがコンピューターにないために発生します。
+
+Windows Updateを開き、すべての更新プログラムがインストールされていることを確認してください。未適用の更新プログラムがあった場合は、インストール後にコンピューターを再起動してください。
+
+## Windows 7/8
+
+Windows 7/8では、追加の更新プログラムを手動でインストールする必要がある場合があります。次の更新プログラムを試してください。
+
+- [https://www.microsoft.com/en-us/download/details.aspx?id=48234](https://www.microsoft.com/en-us/download/details.aspx?id=48234)
+- [https://aka.ms/vs/15/release/vc_redist.x64.exe](https://aka.ms/vs/15/release/vc_redist.x64.exe)
+- [http://www.catalog.update.microsoft.com/Search.aspx?q=kb4474419](http://www.catalog.update.microsoft.com/Search.aspx?q=kb4474419)
+- [http://www.catalog.update.microsoft.com/Search.aspx?q=kb4490628](http://www.catalog.update.microsoft.com/Search.aspx?q=kb4490628)
+
+## ビデオドライバーの問題
+
+[表示の問題](./display-issues)を参照してください。
+
+## 複数のディスプレイ
+
+「LoadLibrary failed with error 126」というエラーが表示される場合は、Ankiが使用するツールキットと[複数のディスプレイ](https://forums.ankiweb.net/t/error-126-on-open-anki-desktop/13967)の組み合わせに問題がある可能性があります。
+
+## ウイルス対策・ファイアウォールソフト
+
+コンピューター上のサードパーティ製ソフトが、Ankiの起動を妨げることがあります。Ankiを例外に追加するか、ウイルス対策ソフトやファイアウォールを一時的に無効にして、解決するか試してください。
+
+## 管理者権限での実行
+
+Ankiのアイコンを右クリックして「管理者として実行」を選ぶまで、Ankiが起動しなかったという報告があります。Ankiはすべてのデータをユーザーフォルダーに保存するため、通常は管理者権限を必要としませんが、ほかの方法で解決しない場合は試してみてください。
+
+## 更新後にAnkiが複数インストールされている場合
+
+更新後に`C:\Program Files\Anki`と`C:\Program Files (x86)\Anki`など、複数の場所にAnkiが残っていると、正常に動作しない状態になり、エラーメッセージを表示せずに起動しなくなることがあります。
+
+コンピューター上のAnkiをすべてアンインストールしてみてください。Windowsの「設定 > アプリと機能」（または「アプリ > インストールされているアプリ」）でAnkiを探してアンインストールするか、各Ankiプログラムフォルダーにある`uninstall.exe`を実行します。その後、Ankiを再インストールしてください。
+
+## 原因の調査
+
+ターミナルからAnkiを起動すると、エラーについて詳しい情報が得られる場合があります。最新版のAnkiをインストールし、Windowsの更新プログラムがすべて適用されていることを確認したら、Ankiを直接起動する代わりに、<kbd>Windows</kbd>キーを押すかスタートメニューを開き、`cmd`と入力してコマンドプロンプトを起動してください。開いたウィンドウに次のコマンドを貼り付け、<kbd>Enter</kbd>キーを押します。Ankiを初期設定とは異なる場所にインストールした場合は、パスも異なります。
+
+```
+%LocalAppData%\Programs\Anki\anki-console.bat
+```
+
+Anki 25.07〜25.09.4では、次のコマンドを貼り付けてください。
+
+```
+%LocalAppData%\Programs\Anki\anki-console.exe
+```
+
+おそらく以前と同様にAnkiは起動しませんが、ターミナルの出力から問題の原因が分かるかもしれません。
+
+## ほかの方法で解決しない場合
+
+上記の回避策を試してもAnkiを起動できない場合は、次の2つの方法が残っています。
+
+- [Pythonから実行する](/faqs/running-from-python)方法を試します。
+- [2.1.35-alternate](https://github.com/ankitects/anki/releases/tag/2.1.35)や[2.1.15](https://github.com/ankitects/anki/releases/tag/2.1.15)など、古いツールキットでビルドされた以前のAnkiを試します。
