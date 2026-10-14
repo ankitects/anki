@@ -876,6 +876,12 @@
             "tab": "マニュアル",
             "groups": [
               {
+                "group": "概要",
+                "pages": [
+                  "ja/index"
+                ]
+              },
+              {
                 "group": "デスクトップ版マニュアル",
                 "pages": [
                   "ja/manual/intro",
@@ -1222,7 +1228,7 @@
               {
                 "group": "リリースノート",
                 "pages": [
-                  "ja/releases/intro"
+                  "ja/releases/betas/intro"
                 ]
               }
             ]
