@@ -1,102 +1,72 @@
 ---
-title: "Adding & Editing"
+title: "カードの追加と編集"
 ---
 
-## Adding
+## 追加
 
-To add cards to a deck, tap the "Add" button while reviewing.
+カードをデッキに追加するには、復習中に「追加」ボタンをタップします。
 
-The "Type" button at the top allows you to select the type of note you’d
-like to add. For more information about note types, please see the
-introduction in the [computer version’s manual](/manual/getting-started#note-types).
+画面上部の「タイプ」ボタンをタップすると、追加するノートのタイプを選べます。ノートタイプについては、[デスクトップ版マニュアルの概要](/manual/getting-started#note-types)をご覧ください。
 
-When you tap on a field, a keyboard will come up, allowing you to type
-in information. You can use the next and previous buttons to move
-between fields.
+フィールドをタップするとキーボードが表示され、情報を入力できます。「次へ」と「前へ」ボタンでフィールド間を移動できます。
 
-The toolbar has the following icons:
+ツールバーには次のアイコンがあります。
 
 **B I U**\
-Mark the text as bold, italics or underline.
+テキストを太字、斜体、下線にします。
 
 **Fx**\
-Remove formatting.
+書式を削除します。
 
-**Paintbrush**\
-Sets the text color.
+**絵筆**\
+テキストの色を設定します。
 
-**Paperclip/Camera**\
-Allows you to add media files from the camera, microphone, photo library
-or from a file. On iPads, the mic button is shown separately.
+**クリップ/カメラ**\
+カメラ、マイク、写真ライブラリ、またはファイルからメディアを追加します。iPad ではマイクボタンが別に表示されます。
 
-**Pen**\
-Only available on iPads. Allows you to draw an image and
-attach it to the card. You can later edit a drawn image by holding two
-fingers on it.
+**ペン**\
+iPad でのみ利用できます。画像を描いてカードに添付できます。描いた画像を編集するには、2本の指で長押しします。
 
-**Square root**\
-Shortcuts to subscript/superscript, and [MathJax](./mathjax).
+**平方根**\
+下付き文字、上付き文字、[MathJax](./mathjax)へのショートカットです。
 
-**Eye**\
-Shows a preview of how the card will appear when reviewed.
+**目**\
+復習時にカードがどのように表示されるかをプレビューします。
 
 **\</\>**\
-Reveals the underlying HTML that fields are comprised of.
+フィールドを構成する HTML を表示します。
 
-When you’ve typed in the content of a note, hit the save button to add
-it to your collection.
+ノートの内容を入力したら、保存ボタンをタップしてコレクションに追加します。
 
-## Editing
+## 編集
 
-To edit a note, tap the "Edit" button while reviewing.
+ノートを編集するには、復習中に「編集」ボタンをタップします。
 
-The edit screen is similar to the adding screen mentioned above, with
-some key differences:
+編集画面は前述の追加画面に似ていますが、次の点が異なります。
 
-- There is no note type selection button or deck selection button. If
-  you want to change the type of an existing note, go to the "Browse"
-  screen, tap the checkmark button at the upper right corner, select
-  the card, then use Actions->Change Notetype.
+- ノートタイプとデッキを選ぶボタンはありません。既存ノートのタイプを変更するには、「ブラウズ」画面を開き、右上のチェックマークをタップしてカードを選び、「操作」>「ノートタイプを変更」を選択します。
+- 画面上部に「ツール」ボタンがあります。タップすると、現在のカードまたはノートに対して操作を実行できます。各操作の説明は[操作の説明](./study-tools#actions)をご覧ください。
 
-- There is a "Tools" button at the top of the screen. Tapping on it
-  will allow you to perform actions on the current card or note.
-  Please see the [action descriptions](./study-tools#actions) for more information
-  on what each action does.
+## ブラウズ
 
-## Browsing
+復習中に「ブラウズ」ボタンをタップすると、デッキを検索または閲覧できます。
 
-You can search or browse your deck by tapping the "Browse" button while
-reviewing.
+既定では、ブラウザー画面に現在のデッキのすべてのカードが表示されます。
 
-The browse screen will show all the cards in the current deck by
-default.
+検索ボックスにテキストを入力すると、カードを絞り込めます。たとえば、現在のデッキから「hello」を含むカードだけを表示するには、検索語を `deck:current hello` にして Return キーをタップします。複数のデッキを検索する場合は、`deck:current` を削除してください。
 
-You can type text into the search box in order to limit the cards
-further. If you only wanted to show cards in the current deck that
-contain the text "hello" for example, you’d modify the text so it says
-`deck:current hello` and then tap return. If you wish to search across
-multiple decks, you can remove the `deck:current` part.
+AnkiMobile はデスクトップ版 Anki の検索文字列をすべてサポートしているため、複雑な検索もできます。例:
 
-AnkiMobile supports all the search strings that the desktop version of
-Anki does, allowing you to perform quite complex searches. Some
-examples:
+`tag:marked` 「marked」タグのカードを表示します。
 
-`tag:marked` show cards that with the tag "marked"
+`is:due` 復習期限が来ているカードだけを表示します。
 
-`is:due` show only cards that are waiting for review
+`front:rabbit` 表面フィールドが正確に「rabbit」であるカードだけを表示します。
 
-`front:rabbit` show only cards where the front field is exactly "rabbit"
+検索方法の一覧は、[デスクトップ版マニュアル](/manual/searching)をご覧ください。
 
-For a full list of the possibilities, please see the section in the
-[desktop manual](/manual/searching).
+「フィルター」ボタンをタップすると、コンピューター版のサイドバーのように、適用できるフィルターの一覧が表示されます。項目をタップすると現在の検索条件を置き換えます。項目をスワイプすると、既存の検索条件に追加できます。
 
-Tapping the Filter button will reveal a list of filters you can apply,
-like the side bar in the computer version. Tapping on a line will
-replace the current search; you can also swipe on a line to add to the
-existing search instead.
+「オプション」ボタンでは、左右の列に表示する内容や、カードの表示順を変更できます。
 
-The Options button will allow you to change what is shown in the left
-and right columns, and change the order cards are shown in.
-
-The Select button allows you to select multiple cards at once, and then
-perform actions on them like changing their deck, or suspending them.
+「選択」ボタンでは、複数のカードを選んで、デッキの変更や停止などの操作をまとめて実行できます。
