@@ -17,10 +17,7 @@ namespace = {"pyautogui": pyautogui, "time": time}
 
 @mcp.tool(structured_output=False)
 def exec_py(code: str) -> list[ImageContent]:
-    """Run persistent Python with PyAutoGUI; return the 1280×900 desktop screenshot.
-
-    Start with empty code. Batch short action sequences. Keep the fail-safe on.
-    """
+    """Run persistent Python with PyAutoGUI; return the 1280×900 desktop screenshot."""
     with contextlib.redirect_stdout(sys.stderr):
         exec(code, namespace)
     time.sleep(0.3)
