@@ -1,34 +1,34 @@
 ---
-title: "Anki says my clock is wrong"
+title: "Anki に時計が正しくないと表示される"
 ---
 
-To ensure your scheduling doesn't get messed up, Anki requires that your device's clock is set correctly. This means all of the following must be set correctly:
+スケジュールに問題が起きないように、Anki では端末の時計が正確に設定されている必要があります。次のすべてを正しく設定してください。
 
-- the time (including AM/PM)
-- the date
-- the timezone
-- daylight savings
+- 時刻（午前/午後を含む）
+- 日付
+- タイムゾーン
+- 夏時間
 
-If you receive an error about the clock being wrong, please check to ensure all of the above are set correctly. Please note that even if your system is showing you what looks like the correct time, if the above settings are not correct, the computer's internal idea of the correct time may be wrong.
+時計が正しくないというエラーが出た場合は、上記すべての設定を確認してください。画面上は正しい時刻に見えていても、これらの設定が正しくないと、コンピューター内部では時刻が誤っている場合があります。
 
-**"What should I do if my country has just changed its handling of daylight savings?"**
+**「自分の国で夏時間の扱いが変更された場合、どうすればよいですか？」**
 
-When politicians change the handling of daylight savings time, it can take companies like Windows and Apple time to update their operating systems to reflect the new handling. To work around the problem, you can select a different timezone that has the same UTC offset as your current location, and then update the clock to make sure it is correct. For example:
+夏時間の扱いが政治的に変更されても、Windows や Apple などの企業が OS に反映するまで時間がかかることがあります。回避するには、現在の場所と UTC オフセットが同じ別のタイムゾーンを選び、時計が正しい時刻を示すように調整してください。例:
 
-- it's 10AM where you are
-- you've checked Google for the current standard time, and it's currently midnight: [https://www.google.com/search?q=utc+time](https://www.google.com/search?q=utc+time)
-- this means you are ten hours ahead of standard time, so your UTC offset is +10:00
-- in your system settings, look for a timezone that is +10:00
-- after adjusting the time zone, adjust the clock so it shows the correct time
+- 現地時刻が午前10時
+- Google で現在の標準時を確認すると、午前0時と表示された: [https://www.google.com/search?q=utc+time](https://www.google.com/search?q=utc+time)
+- 現地は標準時より10時間進んでいるため、UTC オフセットは `+10:00`
+- システム設定で `+10:00` のタイムゾーンを探す
+- タイムゾーンを変更したら、時計を調整して正しい時刻にする
 
-**"Why doesn't Anki let me ignore the error?"**
+**「エラーを無視できないのはなぜですか？」**
 
-If you study while the clock is incorrect, then your progress is likely to be messed up when any of the following happen:
+時計が正しくないまま学習すると、次のような場合に学習の進捗に問題が起きる可能性があります。
 
-- the clock is automatically reset to the correct time in an OS upgrade
-- you decide to start using AnkiWeb for backups or deck sharing
-- you decide to start studying on multiple devices
-- you move to a new machine after the old one breaks
-- you manually change the time because other apps also notice the clock is wrong
+- OS のアップグレードで時計が自動的に正しい時刻へ戻る
+- バックアップやデッキ共有のために AnkiWeb を使い始める
+- 複数の端末で Anki を使い始める
+- 古いマシンの故障後に、新しいマシンへ移行する
+- 他のアプリでも時計の誤りが検出され、手動で時刻を変更する
 
-Anki refuses to start up because an incorrect clock will also cause issues like file modification times to be wrong, and it's better to address the issue than hide it away and risk issues in the future.
+時計が誤っているとファイルの更新日時などにも問題が起きるため、Anki は起動を拒否します。問題を隠して将来の不具合につなげるより、原因を解消してください。

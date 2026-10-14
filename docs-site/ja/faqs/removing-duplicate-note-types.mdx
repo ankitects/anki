@@ -1,15 +1,15 @@
 ---
-title: "Removing duplicate note types"
+title: "重複したノートタイプを削除する"
 ---
 
-After you have used Anki for a while, you may find you have multiple note types with the same name followed by different characters, like `Basic-908e4`, `Cloze-37a28`, or `Image Occlusion++++`. This can happen when you import a shared deck that uses a note type with the same name as one that is already in your collection, or if you create a note type with a duplicate name. Anki adds characters to the name to avoid merging or overwriting the existing note type.
+Anki をしばらく使っていると、`Basic-908e4`、`Cloze-37a28`、`Image Occlusion++++` のように、同じ名前に異なる文字が付いたノートタイプが複数できることがあります。コレクションにすでにあるノートタイプと同じ名前のノートタイプを使った共有デッキをインポートした場合や、重複する名前でノートタイプを作った場合に起こります。Anki は既存のノートタイプとの統合や上書きを避けるため、名前に文字を追加します。
 
-While these "duplicate" note types are generally harmless, it can be somewhat confusing if you can't tell which note type you are using. To clean that up, you can do the following:
+このような「重複」したノートタイプは通常問題ありませんが、どれを使っているか分かりにくくなることがあります。整理するには次の手順を行います。
 
-1. Compare the fields, card templates, and styling of each of the note types by clicking <kbd>Fields</kbd> and <kbd>Cards</kbd> in the Manage Note Types window (Notes → Manage Note Types).
-    - If they are the same, decide which note type to delete and click <kbd>Rename</kbd> to change its name so you will know which one it is (e.g., add `-delete` to the name).
-    - If they aren't the same, rename one to something more descriptive, and keep them both.
-2. In the Browse window, in the left Sidebar, select the note type that you want to delete, then choose Edit → Select All to select all of its notes/cards.
-3. Choose Notes → Change Note Type and select the note type that you are keeping from the dropdown on the right side of the screen. \[This step will require a one-way sync the next time you sync with AnkiWeb, so if you have unsynced progress on other devices, you should stop here and get your devices in sync. Anki will give you a warning about this.\] Verify that the fields and templates are mapping as you expect. Click Save.
-4. Repeat steps 2 & 3 for any other note types you want to delete.
-5. Open the Manage Note Types window again and delete the now-unused note types (each will say it is used by "\[0 notes\]").
+1. **Manage Note Types** ウィンドウ（**Notes → Manage Note Types**）で **Fields** と **Cards** をクリックし、各ノートタイプのフィールド、カードテンプレート、スタイルを比較します。
+    - 同じ内容なら、削除するノートタイプを決め、**Rename** をクリックして名前を変更します（例: 名前に `-delete` を付ける）。
+    - 内容が異なる場合は、一方をより分かりやすい名前に変更して、両方を残します。
+2. **Browse** ウィンドウの左側サイドバーで削除するノートタイプを選び、**Edit → Select All** ですべてのノート/カードを選択します。
+3. **Notes → Change Note Type** を選び、画面右側のドロップダウンから残すノートタイプを選択します。この操作の後、AnkiWeb と同期する際に一方向同期が必要になります。他の端末に未同期の進捗がある場合は、ここで中止して各端末を同期してください（Anki からも警告が表示されます）。フィールドとテンプレートの対応が正しいことを確認して、**Save** をクリックします。
+4. 削除するノートタイプごとに手順2と3を繰り返します。
+5. **Manage Note Types** ウィンドウを再度開き、使われなくなったノートタイプを削除します。それぞれ「[0 notes]」と表示されます。

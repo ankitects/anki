@@ -1,46 +1,45 @@
 ---
-title: "Card template has a problem"
+title: "カードテンプレートに問題があります"
 ---
 
-Anki has recently become stricter about reporting mistakes in card templates. In the past, it would silently ignore some problems, but display templates in unexpected ways. This change has been made to make mistakes easier to notice.
+最近の Anki は、カードテンプレートの誤りを以前より厳密に報告します。以前は一部の問題を通知せずに無視し、その結果、テンプレートが想定外の表示になっていました。この変更により、誤りに気づきやすくなりました。
 
-If you have not edited your card templates yourself, it is likely you have downloaded a shared deck, where the original deck author made a mistake when creating the template.
+自分でカードテンプレートを編集していない場合は、テンプレートを作成した共有デッキの作者に誤りがあった可能性があります。
 
-You can correct mistakes on the template by opening the card templates screen:
+カードテンプレート画面を開いて誤りを修正できます。
 
-- On the computer version, edit a problem card, and then click on the Cards... button
-- On AnkiMobile, while viewing a problem card in the review screen, tap the cog/gear, then Card Template.
+- デスクトップ版では、問題のあるカードを編集して **Cards...** ボタンをクリックします。
+- AnkiMobile では、復習画面で問題のあるカードを表示し、歯車をタップして **Card Template** を選びます。
 
-When you correct a mistake, it will update all cards of that type - you do not need to make the same change for every card that uses the template.
+テンプレートを修正すると、そのタイプのカードすべてに反映されます。同じテンプレートを使うカードごとに変更する必要はありません。
 
-What needs changing will depend on the message you are getting.
+必要な修正は、表示されたメッセージによって異なります。
 
-**Found '\{\{Field\}\}', but there is no field called 'Field'**
+**「`{{Field}}` が見つかりましたが、「Field」というフィールドはありません」**
 
-This indicates your template includes the name of a field that doesn't exist. To fix the problem, locate the
-\{\{Field\}\} inside the card template, and remove it.
+テンプレートに存在しないフィールド名が含まれています。カードテンプレート内の `{{Field}}` を探し、削除してください。
 
-**Missing \}\} in \{\{Field**
+**「`{{Field` の `}}` がありません」**
 
-This message is shown when \{\{ is found in the template without a matching \}\}. For example, if you have
+テンプレートに `{{` があるものの、対応する `}}` がない場合に表示されます。たとえば、次の内容は
 
 ```
 {{Field
 ```
 
-then this needs to be changed to
+次のように修正します。
 
 ```
 {{Field}}
 ```
 
-**Missing \{\{/Field\}\}**
+**「`{{/Field}}` がありません」**
 
-This means Anki found `{{#Field}}` or `{{^Field}}` in your card template, without a matching `{{/Field}}`. Removing `{{#Field}}` or `{{^Field}}` from the template will fix the error.
+カードテンプレートに `{{#Field}}` または `{{^Field}}` があるのに、対応する `{{/Field}}` がありません。テンプレートから `{{#Field}}` または `{{^Field}}` を削除するとエラーが解消されます。
 
-**Found \{\{/One\}\}, but expected \{\{/Two\}\}**
+**「`{{/One}}` が見つかりましたが、`{{/Two}}` が必要です」**
 
-Conditional replacements need to be closed in the same order they are opened. For example, the following template is incorrect:
+条件付き置換は、開始した順序と同じ順序で閉じる必要があります。たとえば、次のテンプレートは誤りです。
 
 ```
 {{#One}}
@@ -50,7 +49,7 @@ Conditional replacements need to be closed in the same order they are opened. Fo
 {{/Two}}
 ```
 
-To fix the problem, the template should be changed like so:
+次のように修正します。
 
 ```
 {{#One}}
@@ -60,16 +59,16 @@ To fix the problem, the template should be changed like so:
 {{/One}}
 ```
 
-**Found \{\{/Field\}\}, but missing '\{\{#Field}\}' or '\{\{^Field\}\}'**
+**「`{{/Field}}` が見つかりましたが、`{{#Field}}` または `{{^Field}}` がありません」**
 
-Closing tags must be matched by opening tags. For example, the following is invalid, because there is no `{{#Two}}` or `{{^Two}}` at the start:
+終了タグには対応する開始タグが必要です。次の例では、先頭に `{{#Two}}` または `{{^Two}}` がないため無効です。
 
 ```
   {{Field}}
 {{/Two}}
 ```
 
-It can be fixed by removing the closing tag:
+終了タグを削除すると修正できます。
 
 ```
 {{Field}}

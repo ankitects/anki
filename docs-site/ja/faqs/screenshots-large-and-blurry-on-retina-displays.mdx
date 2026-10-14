@@ -1,10 +1,8 @@
 ---
-title: "Screenshots large and blurry on retina displays"
+title: "Retina ディスプレイでスクリーンショットが大きくぼやける"
 ---
 
-If you edit a card, click on Cards, and then place the following at the very
-bottom of the styling section, it will shrink screenshots down to the correct
-size:
+カードを編集して **Cards** をクリックし、スタイル欄の一番下に次の内容を追加すると、スクリーンショットが適切なサイズに縮小されます。
 
 ```
 img[src*="Screen"] {
@@ -12,16 +10,8 @@ img[src*="Screen"] {
 }
 ```
 
-It works by targeting any filenames that have "Screen" in them - which applies
-to the default "Screen Shot" name that macOS uses. If your screenshots use a
-different but consistent name, you can adjust the line above.
+この設定はファイル名に `Screen` が含まれる画像を対象にします。macOS の既定のスクリーンショット名「Screen Shot」に適用されます。スクリーンショットに別の一貫した名前を付けている場合は、上記の行を調整できます。
 
-If your screenshots use names that don't have a consistent pattern, you can
-remove the square brackets and the text inside them, which will cause all images
-to be matched. Images from high resolution displays will now look correct, but
-images you obtain from other sources may now look too small. Unfortunately there
-is no good solution to this problem at the moment - the web technologies Anki
-uses do not have a way of detecting which images need to be resized. Resizing
-the images prior to adding them to Anki will allow you to mix and match other
-images, but it requires some setup:
+スクリーンショットの名前に一貫したパターンがない場合は、角かっことその中のテキストを削除すると、すべての画像が対象になります。高解像度ディスプレイで撮影した画像は正しいサイズになりますが、他の場所から取得した画像が小さくなりすぎることがあります。現時点では、Anki が使う Web 技術に画像ごとの縮小要否を判定する方法がないため、適切な解決策はありません。Anki に追加する前に画像を縮小すれば、他の画像と混在させられますが、事前の設定が必要です。
+
 [https://www.quora.com/How-can-I-get-my-retina-Mac-to-not-take-screenshots-that-are-too-big](https://www.quora.com/How-can-I-get-my-retina-Mac-to-not-take-screenshots-that-are-too-big)

@@ -1,42 +1,23 @@
 ---
-title: "Can I study my cards in a particular order?"
+title: "カードを特定の順番で学習できますか？"
 ---
 
-## New cards
+## 新しいカード
 
-By default, new cards are introduced by their due number. If you open the
-Browse screen and look at the due column, you'll see new cards have numbers
-like New #1, New #2, and so on. Anki will show the card with the smallest
-due number first. If you'd like to change the order, you can select one or more
-cards, then use the Reposition action in the Cards menu.
+既定では、新しいカードは期限番号の順に追加されます。ブラウザー画面を開いて期限の列を見ると、新しいカードに「New #1」「New #2」などの番号が付いています。Anki は期限番号が最も小さいカードから表示します。順番を変更するには、カードを1枚以上選択し、**Cards** メニューの **Reposition** を使います。
 
-The number of new cards that will be introduced each day depends on the daily
-limits you've set in the deck options.
+毎日追加される新しいカードの枚数は、デッキオプションで設定した1日の上限によって決まります。
 
-When you have multiple cards for a note (for example, both forward-&gt;backward
-and backward-&gt;forward cards, or multiple cloze deletions on a note), those cards
-will have the same new number, and you may want those cards to be shown on different days,
-or spaced apart, or shown one after the other depending on your preferences.
+1つのノートに複数のカードがある場合（表から裏・裏から表のカードや、1つのノートに複数の穴埋めがある場合など）、それらのカードには同じ新規番号が割り当てられます。設定に応じて、別の日に表示したり、間隔を空けたり、続けて表示したりできます。
 
-- To have the cards shown on different days, enable burying in the deck options.
-- Sibling cards are spaced apart by default.
-- To have the cards shown next to each other, enable the [v3 scheduler](./the-2021-scheduler),
-  and then change the sort order in the deck options, in the display order section.
+- 別の日に表示するには、デッキオプションで埋め込み（burying）を有効にします。
+- 同じノートから作られたカードは、既定で間隔を空けて表示されます。
+- 連続して表示するには、[v3 スケジューラー](./the-2021-scheduler)を有効にし、デッキオプションの表示順セクションで並べ替え順を変更します。
 
-## Reviews
+## 復習カード
 
-Because Anki is [designed to show you cards again when you're about to forget them](./anki-is-not-showing-me-all-my-cards),
-it is not possible to preserve the original order when cards come up again for review,
-as the cards may have been scheduled on different days. For this reason, you should
-design your cards so that they do not rely on context or certain other cards having been
-seen first, or you'll find it difficult to review them.
+Anki は[忘れそうなタイミングでカードを再表示するよう設計されている](./anki-is-not-showing-me-all-my-cards)ため、復習カードの元の順番は維持できません。カードごとに別の日に復習予定となることがあるためです。そのため、先に別のカードを見ていることを前提とする内容や、文脈に頼ったカードは避けてください。そうしたカードは復習しづらくなります。
 
-If you have a backlog of reviews, there is some flexibility in the order review cards
-are presented. After enabling the [v3 scheduler](./the-2021-scheduler), please see
-the display options in the deck's options.
+復習の遅れがある場合は、復習カードの表示順をある程度調整できます。[v3 スケジューラー](./the-2021-scheduler)を有効にしてから、デッキオプションの表示設定をご覧ください。
 
-While the regular review process will not show cards in order, you can use the
-[Browse screen](/manual/browsing) to sort your cards in a
-particular order, and then use the Preview button to go through the cards in that order.
-This bypasses Anki's usual learning process, and will not alter the scheduling of the
-cards or their review history.
+通常の復習ではカードを順番に表示できませんが、[ブラウザー画面](/manual/browsing)でカードを特定の順に並べ、**Preview** ボタンからその順番で確認できます。これは Anki の通常の学習プロセスを迂回するため、カードのスケジュールや復習履歴は変わりません。

@@ -1,54 +1,19 @@
 ---
-title: "Can I link cards together?"
+title: "カード同士を関連付けられますか？"
 ---
 
-Anki supports links between cards of a note, but not between unrelated
-cards. Imagine you are studying Japanese and aiming to be able to both
-recognize and reproduce the Japanese. You may enter the word "ookii",
-which means "big", and tell Anki to generate two cards - ookii→big and
-big→ookii.
+Anki では同じノートから作られたカードを関連付けられますが、無関係なカード同士は関連付けられません。日本語を学び、単語を見て意味を理解することと、日本語を自分で再現することの両方を目指しているとします。「ookii（大きい）」と入力して、`ookii → big` と `big → ookii` の2枚を Anki に作成させることができます。
 
-In the above situation Anki can space reviews of those two sibling cards
-out so that they don’t appear one after the other.
+この例のように同じノートから作ったカードは、連続して出ないように復習間隔を空けられます。
 
-Some people want to extend this link between arbitrary cards. They want
-to be able to tell Anki "after showing me this card, show me that card",
-or "don’t show me that card until I know this card well enough". This
-might sound like a nice idea in theory, but in practice it is not
-practical.
+任意のカード同士にも同じような関連付けを設定し、「このカードを表示した後に、あのカードを表示する」「このカードを十分覚えるまで、あのカードを表示しない」と Anki に指示したい人もいます。理論上は便利に聞こえるかもしれませんが、実際には現実的ではありません。
 
-For one, unlike the sibling card case above, you would have to define
-all the relations yourself. Entering new notes into Anki would become a
-complicated process, as you’d have to search through the rest of the
-deck and assign relationships between the old and new material.
+まず、同じノートから作ったカードとは異なり、カード間の関係をすべて自分で定義する必要があります。Anki に新しいノートを追加するたびに、デッキ内の他の内容を検索し、新しい内容と既存の内容の関係を設定しなければならず、作業が複雑になります。
 
-Secondly, remember that Anki is using an algorithm to determine when the
-optimum time to show you material again is. Adding constraints to card
-display that cause cards to display earlier or later than they were
-supposed to will make the spaced repetition system less effective,
-leading to more work than necessary, or forgotten cards.
+また、Anki は内容を再表示する最適なタイミングをアルゴリズムで判断します。カードを本来より早く、または遅く表示する制約を加えると、間隔反復の効果が下がり、必要以上に学習したり、カードを忘れたりすることになります。
 
-The most effective way to use Anki is to make each note you see
-independent from other notes. Instead of trying to join similar words
-together, you’ll be better off if you can determine the differences
-between them. Synonyms are rarely completely interchangeable - they tend
-to have nuances attached, and it’s not unusual for a sentence to become
-strange if one synonym is replaced with another.
+Anki を最も効果的に使うには、各ノートの内容を他のノートから独立させます。似た単語をまとめるのではなく、それぞれの違いを見分けられるようにする方が有効です。同義語は完全に置き換えられるとは限らず、ニュアンスが異なることがあります。同義語を別の語に置き換えると、文が不自然になることも珍しくありません。
 
-Continuing with the Japanese example earlier, imagine you want to learn
-the word "dekai", which also roughly translates to "big", but is a more
-colloquial expression. If you still want to review in both directions,
-you might make the English prompt of this word "big (more casual)". The
-further you progress in your language studies though, the more of a
-burden it becomes to define the differences between similar words, which
-is why cards asking you to produce a particular word are best left to
-the early stage of your studies. With a strong base vocabulary, moving
-towards recognition-based study makes more sense, as we all have a much
-larger passive vocabulary than our active vocabulary.
+先ほどの日本語の例で、同じく「大きい」と訳されるものの、より口語的な「dekai」を学ぶとします。両方向で復習する場合は、英語側の問いを `big (more casual)` にできます。ただし、学習が進むにつれて、似た単語の違いを説明する負担が大きくなります。そのため、特定の単語を自分で答えるカードは、学習の初期段階にとどめるのがよいでしょう。基本的な語彙が身についたら、認識を中心とした学習に移る方が適しています。私たちは、使っている語彙よりも、見聞きして理解できる語彙の方がずっと多いからです。
 
-As for ensuring that difficult material is introduced after easier
-material, a number of existing tools are available. New cards are by
-default introduced in the order they are added to the deck, so as long
-as the learning materials or sources of information you are using are
-adequately graded for your level, material should appear in order of
-easiness.
+簡単な内容の後に難しい内容を学ぶ方法については、すでにいくつかの機能があります。既定では新しいカードはデッキに追加した順番に導入されます。そのため、使っている教材や情報源が学習レベルに合わせて適切に構成されていれば、内容も難易度順に表示されるはずです。

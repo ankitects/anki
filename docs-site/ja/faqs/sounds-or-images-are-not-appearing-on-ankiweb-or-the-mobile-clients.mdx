@@ -1,21 +1,21 @@
 ---
-title: "Sounds/images are not appearing on AnkiWeb or the mobile clients"
+title: "AnkiWeb やモバイル版で音声・画像が表示されない"
 ---
 
-If you created your deck by importing from a text file, or you downloaded a shared deck that was created in that way, it's possible the filenames in Anki do not match the filenames on the computer. Some computers treat "file.jpg", "file.JPG" and "FILE.JPG" all as the same file, but other computers do not. This means that if the deck contains a reference to "dog.jpg" but the file on disk is "dog.JPG", some devices (including AnkiWeb) will not be able to display the image.
+テキストファイルからデッキをインポートした場合や、その方法で作られた共有デッキをダウンロードした場合、Anki に記録されたファイル名とパソコン上のファイル名が一致していない可能性があります。パソコンによっては `file.jpg`、`file.JPG`、`FILE.JPG` を同じファイルとして扱いますが、そうでないものもあります。たとえばデッキが `dog.jpg` を参照しているのに、ディスク上のファイル名が `dog.JPG` の場合、一部の端末（AnkiWeb を含む）では画像が表示されません。
 
-You can confirm this is a problem by editing a card that's not showing up correctly using the computer version. If audio isn't working, you'll see a link like `[sound:hello.mp3]`. If you see a broken image link, click on that field, then press the down arrow on the top right, choose "Edit HTML", and locate text that looks like:
+デスクトップ版で、正しく表示されないカードを編集すると、この問題かどうか確認できます。音声が再生されない場合は `[sound:hello.mp3]` のようなリンクが表示されます。画像リンクが壊れている場合は、そのフィールドをクリックし、右上の下矢印を押して **Edit HTML** を選び、次のような箇所を探します。
 
 ```html
 <img src="cat.jpg" />
 ```
 
-Note down the name of the file.
+ファイル名を書き留めます。
 
-Then open your collection's media folder ([file locations](/manual/files#file-locations)) and locate the file that is referenced. If the file does not use exactly the same combination of lowercase or uppercase letters, you've found the problem.
+次に、コレクションのメディアフォルダー（[ファイルの場所](/manual/files#file-locations)）を開き、参照されているファイルを探します。大文字・小文字の組み合わせが完全に一致しない場合は、それが原因です。
 
-Please also make sure you [ran a media check](/manual/media#manually-adding-media).
+[メディアの検査](/manual/media#manually-adding-media)を実行したことも確認してください。
 
-If it was a shared deck, please report the issue to the shared deck author. If the differences in case are regular, you can try fix the problem using Anki's find&replace feature in the browser. For example, if the link is for "dog.JPG" but the file on disk is "dog.jpg", you can click browse, select all cards, and use find&replace to replace JPG with jpg.
+共有デッキの場合は、作成者に問題を報告してください。大文字・小文字の違いに規則性があれば、ブラウザーの検索・置換機能で修正できます。たとえば、リンクが `dog.JPG` でファイル名が `dog.jpg` の場合、ブラウザーで全カードを選択し、`JPG` を `jpg` に置換します。
 
-If that doesn't explain your issue, please check that the computer you're on is not using a vfat/fat32 file system. Anki currently is unable to detect changes to the media folder when it's on such a filesystem, so media syncing will not work in this case. A workaround is planned for a future release.
+これで解決しない場合は、使用しているパソコンのファイルシステムが vfat/fat32 でないか確認してください。Anki は現在、このようなファイルシステム上のメディアフォルダーの変更を検出できないため、メディアを同期できません。今後のリリースで回避策を提供する予定です。

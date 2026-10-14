@@ -1,9 +1,9 @@
 ---
-title: "Anki must be able to connect to a local port"
+title: "Anki がローカルポートに接続できる必要があります"
 ---
 
-When Anki 2.1 starts up, it listens on a port on localhost for requests from the user interface. If you have a proxy server configured on your machine, please go into your proxy settings and make sure that "bypass proxy server for local addresses" is enabled - otherwise Anki's user interface will have its local communication redirected through the proxy, which will prevent Anki from functioning.
+Anki 2.1 の起動時、ユーザーインターフェースからのリクエストを受け取るため、localhost のポートで待ち受けます。マシンでプロキシサーバーを設定している場合は、プロキシ設定で「ローカルアドレスにはプロキシサーバーを使用しない」が有効になっていることを確認してください。無効だと、Anki の画面とローカル間の通信がプロキシ経由になり、Anki が動作しなくなります。
 
-More info: [https://superuser.com/a/261434](https://superuser.com/a/261434)
+詳しくは[こちら](https://superuser.com/a/261434)をご覧ください。
 
-This problem may also occur if you have a firewall running on your machine that blocks local connections, or are using a VPN that is incorrectly redirecting local traffic.
+マシン上でローカル接続を遮断するファイアウォールが動作している場合や、ローカル通信を誤ってリダイレクトする VPN を使用している場合にも、この問題が起こることがあります。

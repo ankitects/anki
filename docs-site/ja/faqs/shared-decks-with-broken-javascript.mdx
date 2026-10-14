@@ -1,18 +1,17 @@
 ---
-title: "Shared decks with broken Javascript"
+title: "共有デッキの JavaScript が動作しない"
 ---
 
-Some shared decks make use of a feature called 'Javascript', which allows them to dynamically modify the display of the card. Javascript can be fragile, which is why the Anki manual recommends deck authors avoid it. It may break when Anki is updated, or when the deck author has not tested their Javascript on the different Anki platforms.
+共有デッキの中には、カードの表示を動的に変更する「JavaScript」という機能を使うものがあります。JavaScript は壊れやすいため、Anki のマニュアルではデッキ作成者に使用しないよう勧めています。Anki の更新後や、デッキ作成者が Anki の各プラットフォームで JavaScript をテストしていない場合に、動作しなくなることがあります。
 
-If you encounter a Javascript error in a shared deck, please post a review on the shared deck download page to let the deck author and other users know of the problem. If the deck author is active, they will hopefully address
-the issue in a future update.
+共有デッキで JavaScript のエラーが出る場合は、共有デッキのダウンロードページにレビューを投稿し、作成者や他のユーザーに知らせてください。作成者が活動していれば、今後の更新で修正される可能性があります。
 
-If the deck author is unable to help you, you can try edit your card template to remove the Javascript to prevent an error from showing. Depending on what the Javascript was doing, this may result in lost functionality.
+作成者が対応できない場合は、エラーが表示されないようカードテンプレートから JavaScript を削除できます。JavaScript の処理内容によっては、機能の一部が失われます。
 
-To do so, using the computer version of Anki:
+デスクトップ版 Anki で次の操作を行います。
 
-- Use File&gt;Export to export your entire collection with scheduling information. This will give you a backup that you can restore to if anything goes wrong.
-- Edit a card, and click the Cards... button.
-- Look for areas in the front and back template that start with `<script>` and end with `</script>`. Remove the start and end, and everything in between.
-- Confirm that the card displays in the review screen without error. If it's working ok, you can sync your changes to AnkiWeb and then to your other devices.
-- If removing the script has completely broken the card, use File&gt;Import to restore to the backup you created.
+- **File > Export** を使い、スケジュール情報を含めてコレクション全体を書き出します。問題が起きたときに戻せるバックアップになります。
+- カードを編集し、**Cards...** ボタンをクリックします。
+- 表面と裏面のテンプレートで、`<script>` から始まり `</script>` で終わる箇所を探します。開始タグと終了タグ、およびその間の内容をすべて削除します。
+- 復習画面でエラーなくカードが表示されることを確認します。問題がなければ、変更を AnkiWeb と他の端末に同期します。
+- スクリプトを削除したことでカードが完全に壊れた場合は、**File > Import** を使い、作成したバックアップを復元します。

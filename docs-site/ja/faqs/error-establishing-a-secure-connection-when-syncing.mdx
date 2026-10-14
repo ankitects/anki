@@ -1,25 +1,25 @@
 ---
-title: '"Error establishing a secure connection." when syncing'
+title: "同期時に「安全な接続を確立できません」と表示される"
 ---
 
-This error happens when Anki tries to make a connection to AnkiWeb, and receives an invalid response. It can be caused by:
+Anki が AnkiWeb への接続を試みた際に、無効な応答を受け取るとこのエラーが発生します。原因として、次のようなものが考えられます。
 
-- antivirus or firewall software on your machine
-- a filtered network connection, common on work and school networks
-- an unreliable network connection
+- マシン上のウイルス対策ソフトやファイアウォール
+- 職場や学校のネットワークなど、通信がフィルタリングされている環境
+- 不安定なネットワーク接続
 
-**Antivirus/firewall/VPN/proxy**
+**ウイルス対策ソフト、ファイアウォール、VPN、プロキシ**
 
-Antivirus, firewall and VPN programs can often cause problems when they filter network traffic.
+ウイルス対策ソフト、ファイアウォール、VPN は、ネットワーク通信をフィルタリングするために問題を起こすことがあります。
 
-The first thing to try is to add an exception for Anki.
+まず Anki を例外に追加してください。
 
-If that doesn't work, try disabling your antivirus temporarily.
+解決しない場合は、ウイルス対策ソフトを一時的に無効にしてみてください。
 
-Unfortunately some antivirus programs do not completely stop themselves when disabled. We have seen cases where the only way to resolve the problem was to completely uninstall the antivirus program. We do not expect you to stop using your antivirus program just to run Anki, but if the previous suggestions have not helped, it is worth uninstalling and restarting your computer to see if it resolves the problem. If it does, then please contact your antivirus company to report the issue to them.
+無効にしても完全に停止しないウイルス対策ソフトもあります。アンインストールだけが解決方法だったケースも確認されています。Anki を使うためにウイルス対策ソフトの利用をやめる必要はありませんが、上記の方法で解決しない場合は、アンインストールしてパソコンを再起動すると解決するか確認できます。解決した場合は、ウイルス対策ソフトの提供元に問題を報告してください。
 
-**Unreliable internet**
+**不安定なインターネット接続**
 
-If your wifi or internet connection is experiencing troubles, the messages from AnkiWeb may arrive corrupted or not at all, which can cause this error message to occur. It may be worth checking for packet loss:
+Wi-Fi やインターネット接続が不安定な場合、AnkiWeb からのメッセージが破損したり届かなかったりして、このエラーが発生することがあります。パケットロスが起きていないか確認してください。
 
-[syncing failed connection timed out errors when syncing](/faqs/syncing-failed-connection-timed-out-errors-when-syncing)
+[同期に失敗し、接続タイムアウトエラーが表示される](/faqs/syncing-failed-connection-timed-out-errors-when-syncing)

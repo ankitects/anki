@@ -1,40 +1,38 @@
 ---
-title: "No cloze found on card"
+title: "カードに穴埋めが見つからない"
 ---
 
-<h2>Single empty cards</h2>
+<h2>空のカードが1枚だけある</h2>
 
-When making clozes, each cloze number is turned into a separate card. For example, the following will create three cards:
-
-```
-{{c1::This}} is a {{c2::sample}} {{c3::sentence}}.
-```
-
-If you you later edit the text, and either remove or change a cloze number, the previously created card may become blank. For example:
+穴埋めカードを作ると、穴埋め番号ごとに別のカードが作られます。たとえば次の内容からは3枚のカードが作られます。
 
 ```
-{{c1::This}} is a {{c2::sample}}
+{{c1::これ}} は {{c2::サンプル}} {{c3::文}} です。
 ```
 
-and
+後からテキストを編集して穴埋め番号を削除または変更すると、以前作られたカードが空になることがあります。たとえば、次のどちらの変更でもカード3は空になります。
 
 ```
-{{c1::This}} is a {{c2::sample}} {{c1::sentence}}.
+{{c1::これ}} は {{c2::サンプル}}
 ```
 
-are both changes that would make card 3 blank. When you view card 3, you'll see a message indicating that the card is blank, and can be cleaned up with the Empty Cards function. You can access that function via the Tools menu of the computer version's main window, and use it to remove blank cards. Please check the reported empty cards first, and if in doubt, create a backup with the File&gt;Export menu item before proceeding.
+```
+{{c1::これ}} は {{c2::サンプル}} {{c1::文}} です。
+```
 
-<h2>All cloze cards empty</h2>
+カード3を表示すると、空のカードであることを知らせるメッセージが出ます。**Empty Cards** 機能で削除できます。デスクトップ版のメイン画面にある **Tools** メニューから機能を開き、空のカードを削除してください。削除対象として表示されたカードを事前に確認してください。判断に迷う場合は、**File > Export** からバックアップを作成してから操作します。
 
-If you accidentally modify your card template, it may prevent any cloze deletions from appearing. If that has happened, please edit one such problem card, and note down the name of the first field - it is usually called "Text". Then, please:
+<h2>穴埋めカードがすべて空になる</h2>
 
-- Click on the Cards... button
-- Replace the front text with
+カードテンプレートを誤って変更すると、穴埋めが表示されなくなることがあります。問題のあるカードを1枚編集し、最初のフィールド名を確認してください。通常は「Text」という名前です。その後、次の手順を行います。
+
+- **Cards...** ボタンをクリックします。
+- 表面のテキストを次の内容に置き換えます。
 
     ```
     {{cloze:Text}}
     ```
 
-- Replace the back text with the same.
+- 裏面のテキストも同じ内容に置き換えます。
 
-If your field was called something other than Text, replace Text with the name of the field.
+フィールド名が `Text` 以外の場合は、`Text` を実際のフィールド名に置き換えてください。

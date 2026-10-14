@@ -1,10 +1,10 @@
 ---
-title: "Customizing MathJax"
+title: "MathJax をカスタマイズする"
 ---
 
-Anki's bundled MathJax support is loaded before your card content, so if you wish to customize MathJax, you will need to do so in a specific way.
+Anki に同梱されている MathJax はカードの内容より前に読み込まれます。そのため MathJax をカスタマイズする場合は、次の方法で設定してください。
 
-For recent Anki versions, use something like this:
+最近の Anki では、次のように記述します。
 
 ```html
 <script>
@@ -18,7 +18,7 @@ For recent Anki versions, use something like this:
 </script>
 ```
 
-For older Anki versions:
+古いバージョンの Anki では、次のように記述します。
 
 ```html
 <script>
@@ -29,6 +29,6 @@ For older Anki versions:
 </script>
 ```
 
-Notes:
+注意:
 
-- Please avoid changing the standard open/close tags (`\(` and `\[`), to something like `$` and `$$`, as Anki has special logic for cloze deletions, which will not work if you change the delimiter.
+- 標準の開始・終了区切り文字（`\(` と `\[`）を `$` や `$$` などに変更しないでください。Anki には穴埋め削除向けの専用処理があり、区切り文字を変えると動作しなくなります。
