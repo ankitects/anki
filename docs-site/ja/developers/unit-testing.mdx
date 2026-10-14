@@ -1,299 +1,211 @@
 ---
-title: "Writing Unit Tests for Anki"
+title: "Anki のユニットテストを書く"
 ---
 
-This guide helps maintainers, contributors, and coding assistants write unit and
-component tests for Anki. It is independent of any particular feature, module, or
-bug. Use it together with the behavior being changed, the surrounding production
-code, and nearby tests.
+このガイドでは、Anki のメンテナー、コントリビューター、コーディングアシスタント向けに、ユニットテストとコンポーネントテストの書き方を説明します。特定の機能、モジュール、バグに依存しない内容です。変更対象の動作、周辺の本番コード、近くにあるテストと合わせて利用してください。
 
-This guide assumes basic familiarity with automated tests. If testing is new to you,
-start with one of the introductory resources in [References](#references-and-rationale),
-then return here for Anki-specific guidance.
+自動テストの基本を理解していることを前提としています。テストが初めての場合は、[参考資料](#参考資料と背景)にある入門資料を読んでから、Anki 固有の説明に戻ってください。
 
-## Quick summary
+## 要約
 
-When adding a test:
+テストを追加するときは、次の点を意識します。
 
-1. Describe what should happen from the user's point of view.
-2. Add the test close to the code responsible for that behavior.
-3. Consider normal input, errors, edge cases, and known regressions.
-4. Prefer the smallest and fastest test that gives enough confidence.
-5. Give the test a name that explains the behavior being checked.
-6. Avoid dependencies on real time, network access, user data, or test order.
-7. For a bug fix, confirm that the test fails before the fix when practical.
-8. Run the relevant `just test-*` recipe and then `just check`.
+1. ユーザーの視点で、期待する動作を説明する。
+2. その動作を担うコードの近くにテストを置く。
+3. 通常の入力、エラー、境界条件、既知の回帰を検討する。
+4. 十分な確信を得られる、最小かつ高速なテストを選ぶ。
+5. 確認する動作が分かる名前を付ける。
+6. 実時間、ネットワーク、ユーザーデータ、テストの実行順序に依存させない。
+7. バグ修正では、可能なら修正前にテストが失敗することを確認する。
+8. 関連する `just test-*` レシピを実行し、その後 `just check` を実行する。
 
-## Purpose
+## 目的
 
-A useful test gives fast, trustworthy evidence about behavior that matters. It also
-acts as executable documentation: a reader should be able to understand the
-scenario, action, and expected result without reverse-engineering the implementation.
+有用なテストは、重要な動作について、迅速で信頼できる根拠を示します。また、実行可能なドキュメントとしても機能します。読み手が実装を逆解析しなくても、シナリオ、操作、期待結果を理解できるようにしてください。
 
-A good unit test is:
+優れたユニットテストには、次の性質があります。
 
-- **Behavioral:** it verifies an observable result, state transition, error, or
-  required interaction.
-- **Focused:** it has one reason to fail. Multiple assertions are fine when they
-  describe one behavior.
-- **Deterministic:** the same code and inputs produce the same result regardless of
-  test order, wall-clock time, locale, network access, or machine speed.
-- **Isolated:** it does not depend on a user's profile, another test's state, or an
-  unavailable external service.
-- **Fast:** it is cheap enough to run repeatedly while editing.
-- **Readable:** its name and test data explain the expected behavior and the failure.
-- **Sensitive:** a real regression in the behavior makes it fail; it does not keep
-  passing when the expected behavior is broken.
-- **Stable:** a behavior-preserving refactor should usually leave it unchanged.
+- **動作を検証する:** 観測可能な結果、状態遷移、エラー、必要なやり取りを確認する。
+- **焦点が明確:** 失敗する理由が1つである。1つの動作を説明する複数のアサーションは問題ありません。
+- **決定的:** 同じコードと入力なら、テスト順序、時刻、ロケール、ネットワーク、マシン速度にかかわらず同じ結果になる。
+- **分離されている:** ユーザープロファイル、別のテストの状態、利用できない外部サービスに依存しない。
+- **高速:** 編集中に繰り返し実行できる。
+- **読みやすい:** 名前とテストデータから、期待される動作と失敗内容が分かる。
+- **不具合を検出できる:** 実際に回帰があれば失敗し、期待する動作が壊れても通り続けることがない。
+- **安定している:** 動作を保つリファクタリングでは、通常は変更せずに済む。
 
-Code coverage is useful for finding untested code, but a covered line is not
-necessarily a tested behavior. Do not add weak assertions merely to increase a
-coverage number.
+コードカバレッジは未テストのコードを見つけるのに役立ちますが、行が実行されたからといって動作が検証されたとは限りません。カバレッジの数値を上げるだけの弱いアサーションを追加しないでください。
 
-## Choose the smallest useful test boundary
+## 有用な最小のテスト境界を選ぶ
 
-Use the lowest-cost test that can prove the behavior:
+動作を証明できる、最もコストの低いテストを選びます。
 
-| Boundary                | Use it for                                                                                                                  | Do not use it for                                       |
-| ----------------------- | --------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------- |
-| Pure unit               | Calculations, parsing, validation, conversion, and deterministic state transitions                                          | Framework wiring or cross-process behavior              |
-| Unit with collaborators | A small group of fast, in-process collaborators                                                                             | Network, real subprocesses, or a user's persistent data |
-| UI component            | A Qt component's visible state, signals/events, and interaction; for Svelte, extracted logic and stores                     | Whole application workflows                             |
-| Integration             | Database mappings, protobuf/language bridges, filesystem contracts, and framework integration that a unit test cannot prove | Repeating every unit-level branch                       |
-| End-to-end              | A small number of critical workflows through a real Anki instance and browser                                               | Exhaustive validation and edge cases                    |
+| 境界 | 用途 | 避ける用途 |
+| --- | --- | --- |
+| 純粋なユニットテスト | 計算、解析、検証、変換、決定的な状態遷移 | フレームワークの配線やプロセス間の動作 |
+| 依存要素を含むユニットテスト | 少数の高速なインプロセス依存要素 | ネットワーク、実プロセス、ユーザーの永続データ |
+| UI コンポーネント | Qt の表示状態、シグナル、イベント、操作。Svelte では抽出したロジックとストア | アプリ全体のワークフロー |
+| 統合テスト | DB マッピング、protobuf/言語ブリッジ、ファイルシステム契約、ユニットテストで証明できないフレームワーク連携 | ユニットレベルの分岐をすべて繰り返すこと |
+| エンドツーエンド | 実際の Anki とブラウザーを使う、重要なワークフローを少数検証 | 網羅的な検証や境界条件の列挙 |
 
-Most scenarios should be below the end-to-end layer. If a higher-level test discovers
-a defect, add a lower-level regression test when that level can reproduce the defect.
-Keep the higher-level test only when it proves additional behavior.
+ほとんどのシナリオはエンドツーエンドより下の層で扱います。上位のテストで不具合が見つかった場合、再現可能なら下位層に回帰テストを追加してください。上位のテストは、追加の動作を証明できる場合に残します。
 
-For Svelte specifically, "UI component" means extracted logic and stores: the
-repository does not wire rendered-component tests into the unit suite (see
-[Svelte, TypeScript, and JavaScript](#svelte-typescript-and-javascript)).
+Svelte の「UI コンポーネント」は、抽出したロジックとストアを指します。現状、リポジトリのユニットテストには描画済みコンポーネントのテスト環境が組み込まれていません（[Svelte、TypeScript、JavaScript](#svelte-typescript-javascript)を参照）。
 
-Anki spans several implementation layers. Test a rule at the layer that owns it:
+Anki は複数の実装層にまたがります。ルールを所有する層でテストしてください。
 
-- Business rules implemented in Rust **should** normally be tested in Rust.
-- Python library tests should cover Python-owned behavior, compatibility surfaces,
-  orchestration, and adaptations instead of duplicating Rust assertions.
-- Python/Qt tests should cover GUI-owned state, signals, callbacks, and backend
-  orchestration. Move framework-independent logic into a form that can be tested
-  without constructing the full GUI when practical.
-- TypeScript/JavaScript tests should cover web-owned logic, stores, DOM helpers, and
-  component behavior. Use end-to-end tests only when a real browser/Anki boundary is
-  essential.
-- Generated protobuf code does not need tests. Test custom conversion, validation,
-  or bridge behavior at its owning layer; use an integration test if correctness
-  depends on both sides of the bridge.
+- Rust で実装されたビジネスルールは、通常 Rust でテストします。
+- Python ライブラリのテストでは、Python が所有する動作、互換性のあるインターフェース、オーケストレーション、適応処理を確認します。Rust の検証を重複させないでください。
+- Python/Qt のテストでは、GUI が所有する状態、シグナル、コールバック、バックエンドのオーケストレーションを確認します。実用的であれば、フレームワークに依存しないロジックを、GUI 全体を構築せずにテストできる形にします。
+- TypeScript/JavaScript のテストでは、Web 側が所有するロジック、ストア、DOM ヘルパー、コンポーネント動作を確認します。実際のブラウザーと Anki の境界が不可欠な場合だけエンドツーエンドテストを使います。
+- 生成された protobuf コードにテストは不要です。独自の変換、検証、ブリッジ動作は所有する層でテストし、両側に依存する正しさには統合テストを使います。
 
-## Choose scenarios from expected behavior
+## 期待する動作からシナリオを選ぶ
 
-Before writing test code, describe what should happen in plain English. Identify the
-inputs, results a caller or user can observe, side effects, errors, and facts that
-must remain true. Then select the smallest set of scenarios that distinguishes a
-correct implementation from a plausible bug.
+テストコードを書く前に、期待する動作を平易な言葉で説明します。入力、呼び出し側またはユーザーが観測できる結果、副作用、エラー、維持すべき事実を特定します。そのうえで、正しい実装と、もっともらしいバグのある実装を区別できる最小のシナリオを選びます。
 
-Every meaningful behavior change should consider these categories:
+意味のある動作変更では、次の観点を検討します。
 
-| Category           | Question                                                                | Generic example                                                                    |
-| ------------------ | ----------------------------------------------------------------------- | ---------------------------------------------------------------------------------- |
-| Happy path         | Does valid, representative input produce the intended result?           | An accepted value is normalized and stored.                                        |
-| Unhappy/error path | Is invalid input rejected or recovered from as specified?               | A malformed value returns the expected error and does not mutate state.            |
-| Boundary           | What happens at empty, minimum, maximum, transition, and Unicode cases? | An empty label uses the defined fallback; the maximum allowed value remains valid. |
-| State/invariant    | What must remain true before and after the action?                      | A failed update leaves the previous value and unrelated records unchanged.         |
-| Regression         | What is the smallest input that reproduces a reported defect?           | The exact shape that once crashed now produces the specified result.               |
+| 分類 | 確認すること | 一般的な例 |
+| --- | --- | --- |
+| 正常系 | 代表的な有効入力から意図した結果が得られるか | 入力値が正規化されて保存される |
+| 異常系・エラー | 無効な入力が仕様どおり拒否または回復されるか | 不正な値がエラーになり、状態を変更しない |
+| 境界 | 空、最小、最大、遷移、Unicode のケースでどうなるか | 空のラベルは定義済みの代替値になり、上限値は有効なまま |
+| 状態・不変条件 | 操作の前後で何が維持される必要があるか | 更新失敗後も以前の値と無関係なレコードが保たれる |
+| 回帰 | 報告された不具合を再現する最小の入力は何か | 以前クラッシュした形の入力が期待どおり処理される |
 
-Do not assume that every function needs one test from every category. Include a
-category when the expected behavior or implementation has that failure mode.
+すべての関数に全分類のテストが必要とは限りません。期待動作や実装にその失敗要因がある場合に該当分類を含めてください。
 
-Use equivalence classes rather than enumerating inputs that exercise the same rule.
-Use parameterization when several compact input/output pairs express one behavior;
-use separate tests when cases require different setup or should produce distinct
-failure explanations.
+同じルールを試す入力を何通りも列挙するのではなく、同値クラスを使います。複数の簡潔な入出力例が1つの動作を表すならパラメーター化し、別の準備が必要な場合や、異なる失敗理由を示す場合はテストを分けます。
 
-## Structure and naming
+## 構成と命名
 
-Prefer a visible Arrange–Act–Assert flow:
+Arrange–Act–Assert の流れを明確にします。
 
-1. **Arrange** only the state relevant to the scenario.
-2. **Act** once on the behavior under test.
-3. **Assert** the expected outcome, including important non-effects.
+1. **Arrange:** シナリオに関係する状態だけを準備する。
+2. **Act:** 対象の動作を1回実行する。
+3. **Assert:** 重要な副作用の有無も含め、期待結果を確認する。
 
-The phases do not require comments when the structure is already obvious. Avoid
-hiding the act or the important assertion inside a helper.
+構成から明らかな場合、各段階のコメントは不要です。操作や重要なアサーションをヘルパーの中に隠さないでください。
 
-Name a test after the unit under test and the expected behavior, not an
-implementation method. Follow the convention of the tests already in that file;
-newer tests in the codebase put the condition last:
+実装メソッドではなく、テスト対象の単位と期待する動作を表す名前を付けます。そのファイル内の既存規約に従ってください。新しいテストでは条件を最後に置きます。
 
 ```text
-<unit>_<expected_outcome>[_when_<condition>]
+<対象>_<期待する結果>[_when_<条件>]
 ```
 
-Real examples from the codebase:
+コードベースで使われている名前の例:
 
-- Rust: `answer_easy_graduates_new_card_to_review_queue`,
-  `bury_leaves_suspended_card_untouched`,
-  `add_or_update_notetype_preserves_usn_when_flag_is_set`
-- Python/Qt: `test_update_collection_skips_backend_when_unchanged`,
-  `test_is_audio_file_rejects_no_extension`
+- Rust: `answer_easy_graduates_new_card_to_review_queue`、`bury_leaves_suspended_card_untouched`、`add_or_update_notetype_preserves_usn_when_flag_is_set`
+- Python/Qt: `test_update_collection_skips_backend_when_unchanged`、`test_is_audio_file_rejects_no_extension`
 
-Vitest names the behavior in the `test(...)` description string rather than in an
-identifier, e.g. `test("event handler attributes are stripped")`.
+Vitest では識別子ではなく `test(...)` の説明文字列に動作を書きます（例: `test("event handler attributes are stripped")`）。
 
-Names such as `test_helper`, `works`, `basic`, or `case_1` do not explain the
-expected behavior.
+`test_helper`、`works`、`basic`、`case_1` のように、期待結果を説明しない名前は避けてください。
 
-Assertions should be precise enough to diagnose the defect. Prefer comparing the
-meaningful value or structured result over a generic truthiness check. Assert an
-error's type or variant and, when stable and user-relevant, its message. Avoid
-asserting incidental formatting or a complete object when only one field defines the
-behavior.
+不具合の診断に十分な精度でアサーションします。単なる真偽値より、意味のある値や構造化された結果を比較してください。エラーは型またはバリアントを確認し、メッセージが安定していて利用者に関係する場合は内容も確認します。動作と関係のない書式や、必要なフィールドが一つだけなのにオブジェクト全体を比較することは避けてください。
 
-## Test data, setup, and cleanup
+## テストデータ、準備、後片付け
 
-- Use the smallest realistic data and give it semantic names such as
-  `existing_record` and `invalid_name`.
-- Prefer builders, factories, and fixtures already used by nearby tests.
-- Keep test-specific setup in the test. Extract a helper only when it removes noise
-  without concealing the scenario.
-- Use temporary directories, temporary collections/databases, and in-memory values.
-  Never read or modify a user's Anki profile.
-- Restore patched globals, environment variables, timers, DOM state, and callbacks.
-  Prefer framework cleanup facilities that run even after an assertion fails.
-- Tests **must** pass independently, in any order, and when repeated.
+- 現実的な最小データを使い、`existing_record` や `invalid_name` のような意味のある名前を付けます。
+- 周辺のテストで使われているビルダー、ファクトリー、フィクスチャを優先します。
+- テスト固有の準備はテスト内に置きます。シナリオを見えにくくせずノイズを減らせる場合にだけヘルパーを抽出します。
+- 一時ディレクトリ、一時コレクション/データベース、メモリ内の値を使います。ユーザーの Anki プロファイルを読み書きしないでください。
+- パッチを当てたグローバル値、環境変数、タイマー、DOM 状態、コールバックを復元します。アサーションが失敗しても実行されるフレームワークの後片付け機能を優先します。
+- テストは単独で、任意の順序で、繰り返し実行しても成功する必要があります。
 
-## Test doubles and boundaries
+## テストダブルと境界
 
-Prefer real, lightweight, deterministic collaborators. Use a stub, fake, spy, or mock
-to control an awkward boundary such as time, randomness, network, subprocess,
-clipboard, native dialog, or backend call, and patch it where the code looks it up.
-Return realistic values and errors.
+実際に使える軽量で決定的な依存要素を優先します。時間、乱数、ネットワーク、サブプロセス、クリップボード、ネイティブダイアログ、バックエンド呼び出しなど扱いにくい境界を制御する場合に、スタブ、フェイク、スパイ、モックを使います。コードが依存先を参照する場所で差し替え、現実的な戻り値とエラーを返してください。
 
-Assert interactions only when they affect expected behavior; avoid incidental calls
-and ordering. If every collaborator is mocked and only calls are asserted, the test
-probably describes the implementation rather than useful behavior.
+動作に関係するやり取りだけをアサートします。付随的な呼び出しや順序の確認は避けてください。すべての依存先をモックにし、呼び出しだけをアサートしているなら、役立つ動作ではなく実装をテストしている可能性があります。
 
-## Time, randomness, concurrency, and asynchronous behavior
+## 時刻、乱数、並行処理、非同期動作
 
-- Inject or freeze time when the exact time affects behavior. Do not depend on the
-  current date, local timezone, or rollover hour.
-- Seed or replace randomness and assert invariants rather than one accidental random
-  result.
-- Never use an unconditional sleep to wait for correctness. Await the promise,
-  callback, signal, task, or condition with a bounded safety timeout.
-- Avoid exact performance timings in unit tests. Put performance claims in a
-  benchmark with appropriate tolerance and environment control.
-- Assume files and test cases may run in parallel. Do not share mutable globals,
-  fixed ports, or fixed temporary paths.
+- 時刻が結果に影響する場合は、時刻を注入するか固定します。現在日付、ローカルタイムゾーン、日付変更時刻に依存させないでください。
+- 乱数はシードを固定するか差し替え、偶然の結果ではなく不変条件を確認します。
+- 正しさを待つために無条件の sleep を使わないでください。promise、コールバック、シグナル、タスク、条件を、上限時間を設けて待ちます。
+- ユニットテストで正確な処理時間を要求しないでください。性能の主張は適切な許容範囲と環境制御を備えたベンチマークで確認します。
+- ファイルやテストケースが並行実行されることを前提とします。変更可能なグローバル値、固定ポート、固定一時パスを共有しないでください。
 
-## Regression tests
+## 回帰テスト
 
-A bug fix **should** normally include a test that would have caught the bug.
+バグ修正には通常、その不具合を検出できるテストを含めます。
 
-1. Reduce the report to the smallest representative input and state.
-2. Place the test at the lowest layer that reproduces the defect and proves the
-   intended behavior.
-3. When practical, run it before the fix or against the buggy revision and confirm
-   that it fails for the expected reason.
-4. Apply the fix and confirm that the new test passes.
-5. Run the relevant suite and check adjacent scenarios for the same class of defect.
-6. Keep the regression test permanently. Name it after the behavior, not an issue
-   number; add the issue link in a short comment only when it provides essential
-   context that the test cannot express.
+1. 報告を、代表的な最小の入力と状態に絞ります。
+2. 不具合を再現し、期待動作を証明する最も低い層にテストを置きます。
+3. 可能なら修正前のリビジョンで実行し、想定した理由で失敗することを確認します。
+4. 修正を適用し、新しいテストが成功することを確認します。
+5. 関連するテスト群を実行し、同種の問題が周辺にもないか確認します。
+6. 回帰テストは残します。不具合番号ではなく動作を名前にし、テストだけでは表せない重要な背景がある場合に限り、短いコメントで課題へのリンクを追加します。
 
-Do not encode the buggy implementation in the expected result. A regression test
-should describe lasting expected behavior so that future refactoring can preserve it.
+期待結果に不具合のある実装をそのまま記述しないでください。回帰テストは、将来のリファクタリングでも維持すべき動作を記述します。
 
-## Test-first workflow
+## テストファースト
 
-Writing the test before the implementation is encouraged when the expected behavior
-is clear. A test-first cycle can help verify that the test is sensitive to the defect:
+期待する動作が明確であれば、実装より先にテストを書く方法が有効です。テストが不具合を検出できることを確かめるのに役立ちます。
 
-1. Write a focused test for the intended behavior.
-2. Confirm that it fails for the expected reason.
-3. Make the smallest production change that satisfies the expected behavior.
-4. Refactor while keeping the test suite green.
+1. 期待する動作を確認する、焦点の絞られたテストを書く。
+2. 想定した理由で失敗することを確認する。
+3. 期待動作を満たす最小の本番コード変更を行う。
+4. テストを成功させたままリファクタリングする。
 
-Test-first development is not mandatory. For exploratory work or behavior that is
-not yet understood, investigate and describe the expected behavior before adding the
-test. For bug fixes, a failing regression test before the fix is strongly recommended
-whenever practical.
+テストファーストは必須ではありません。探索中や動作がまだ不明な場合は、まず期待動作を調べて説明します。バグ修正では、可能な限り修正前に回帰テストを失敗させることを強く推奨します。
 
-## Additional risk areas
+## 追加で考慮するリスク
 
-The scenario categories above apply to all behavior. Also consider risks specific to
-Anki:
+前述のシナリオ分類はすべての動作に適用されます。Anki 固有のリスクとして、次も検討してください。
 
-- serialization or conversion code written by the project;
-- permission, path, escaping, and untrusted-input boundaries;
-- callbacks, signals, events, and async completion when they are part of the API;
-- compatibility behavior intentionally supported for add-ons or older data.
+- プロジェクト独自のシリアライズまたは変換コード
+- 権限、パス、エスケープ処理、信頼できない入力との境界
+- API の一部となるコールバック、シグナル、イベント、非同期完了
+- 古いデータやアドオン向けに意図的に維持している互換動作
 
-## What not to test
+## テスト対象にしないもの
 
-Do not spend test maintenance on:
+次の項目のためだけにテストを保守するのは避けてください。
 
-- private implementation details with no observable contract;
-- trivial code, compiler/type-checker guarantees, generated accessors, or third-party
-  behavior;
-- the same rule exhaustively at every language layer;
-- snapshots so broad that reviewers cannot tell whether a change is correct;
-- real network services, user profiles, home-directory files, or machine-specific
-  executables;
-- random input without a reproducible seed and reported failing case;
-- internal call counts used only because mocking makes them easy to observe; or
-- assertions that only prove the code ran, returned something truthy, or did not
-  throw when a more specific result exists.
+- 観測可能な契約を持たない非公開の実装詳細
+- 自明なコード、コンパイラーや型チェッカーで保証されること、生成アクセサー、サードパーティーの動作
+- 同じルールをすべての言語層で網羅的に繰り返すこと
+- レビュアーが正否を判断できないほど広いスナップショット
+- 実ネットワークサービス、ユーザープロファイル、ホームディレクトリのファイル、マシン固有の実行ファイル
+- 再現可能なシードや失敗例のない乱数入力
+- モックで簡単に確認できるという理由だけの内部呼び出し回数
+- より具体的な結果を確認できるのに、コードが実行された、真の値が返った、例外が出なかったことだけを証明するアサーション
 
-## UI testing scope and cost
+## UI テストの範囲とコスト
 
-Qt and Svelte tests have a higher setup and maintenance cost than tests for pure
-logic. Do not attempt to test every widget, component, property, or markup detail. A
-UI test **should** protect behavior whose value and risk justify that cost.
+Qt と Svelte のテストは、純粋なロジックのテストより準備と保守にコストがかかります。すべてのウィジェット、コンポーネント、プロパティ、マークアップをテストしようとしないでください。価値とリスクに見合う動作を UI テストで保護します。
 
-Prefer testing:
+優先してテストするもの:
 
-- logic, view models, stores, state transitions, and error handling;
-- interactive states, signals, events, callbacks, and backend requests;
-- accessibility roles, labels, focus, and keyboard behavior when they are part of
-  the user contract; and
-- regressions in stable, user-visible behavior.
+- ロジック、ビューモデル、ストア、状態遷移、エラー処理
+- 操作状態、シグナル、イベント、コールバック、バックエンド要求
+- 利用者向け仕様に含まれるアクセシビリティロール、ラベル、フォーカス、キーボード操作
+- 安定したユーザー可視動作の回帰
 
-Avoid unit tests for styling, exact geometry, incidental DOM structure or CSS/Sass
-class names, animation timing, platform-native rendering, generated UI code,
-framework internals, and large UI snapshots.
+スタイル、正確な座標、偶発的な DOM 構造や CSS/Sass クラス名、アニメーション時間、プラットフォーム固有の描画、生成 UI コード、フレームワーク内部、大規模な UI スナップショットのユニットテストは避けます。
 
-When possible, extract logic from the Qt widget or Svelte component and test it as
-ordinary Python or TypeScript/JavaScript. Keep only a small wiring test at the UI
-layer when it provides additional confidence.
+可能なら Qt ウィジェットや Svelte コンポーネントからロジックを抽出し、通常の Python または TypeScript/JavaScript としてテストします。UI 層のテストは、追加の確信につながる小規模な接続確認にとどめます。
 
-Check presentation during UI review, or with visual regression if appearance is a
-stable product contract and the project intentionally adopts such tooling. Volatile
-code is not automatically exempt: test its stable contract when one exists. If both
-implementation and expected presentation are temporary, omitting a brittle UI test
-may be the better trade-off.
+表示の確認は UI レビューで行います。外観が安定した製品仕様であり、プロジェクトがその仕組みを採用している場合は、ビジュアル回帰テストも利用できます。コードが変わりやすいことだけを理由にテストを省略する必要はありません。実装と期待される表示の両方が一時的な場合は、壊れやすい UI テストを省く方がよいこともあります。
 
-## Stack-specific guidance
+## 技術スタック別のガイド
 
-The examples below are illustrative pseudocode. Names such as `State`, `Model`, and
-`normalize_value` are not Anki APIs and **must not** be copied without inspecting the
-actual code.
+以下の例は説明用の疑似コードです。`State`、`Model`、`normalize_value` などは Anki の API ではありません。実際のコードを確認せずにコピーしないでください。
 
-### Python library
+### Python ライブラリ
 
-Python library tests live under `pylib/tests/` and use `pytest`.
+Python ライブラリのテストは `pylib/tests/` に置き、`pytest` を使います。
 
-- Name files/functions `test_*` and use plain `assert` for diagnostic diffs.
-- Use `pytest.raises()` for expected errors; match a stable message only when the
-  message is part of the contract or improves precision.
-- Use `pytest.mark.parametrize()` for compact equivalent cases.
-- Prefer typed fixtures, `tmp_path`, `monkeypatch`, and existing collection helpers;
-  close resources through fixtures or context managers.
-- Mock the Rust backend only when testing Python-owned orchestration or an otherwise
-  impractical failure. Do not mock it merely to make a domain-rule test appear unit
-  sized.
+- ファイル名と関数名は `test_*` にし、診断しやすい差分が得られる通常の `assert` を使います。
+- 予期するエラーには `pytest.raises()` を使います。安定したメッセージが契約の一部であるか、精度向上につながる場合だけメッセージも照合します。
+- 簡潔で同等なケースには `pytest.mark.parametrize()` を使います。
+- 型付きフィクスチャ、`tmp_path`、`monkeypatch`、既存のコレクションヘルパーを優先します。リソースはフィクスチャやコンテキストマネージャーで閉じます。
+- Python が所有するオーケストレーションや、現実的でないエラーをテストする場合に限り、Rust バックエンドをモックします。ドメインルールのテストを小さく見せる目的でモックしないでください。
 
-Generic example:
+一般的な例:
 
 ```python
 import pytest
@@ -320,21 +232,16 @@ def test_invalid_value_is_rejected_without_mutating_state() -> None:
 
 ### Python/Qt
 
-Python/Qt tests live under `qt/tests/` and also use `pytest`.
+Python/Qt のテストも `qt/tests/` に置き、`pytest` を使います。
 
-- Test framework-independent decisions as ordinary Python first.
-- Construct the smallest useful Qt object; do not launch a complete Anki window for
-  a unit test.
-- Trigger public actions or realistic input, then assert meaningful state, signals,
-  callbacks, or backend requests. Use `QSignalSpy` or a callback recorder when signal
-  arguments/count are the contract.
-- Await the event loop through a condition or signal with a bounded timeout; avoid
-  fixed sleeps.
-- Replace native dialogs, clipboard access, web requests, audio, and backend
-  operations at their boundary.
-- Keep `QApplication`, main-window state, and global hooks isolated and cleaned up.
+- フレームワークに依存しない判断は、まず通常の Python としてテストします。
+- 必要最小限の Qt オブジェクトを作り、Anki ウィンドウ全体を起動しないでください。
+- 公開操作または現実的な入力を行い、意味のある状態、シグナル、コールバック、バックエンド要求を確認します。シグナルの引数や回数が契約なら `QSignalSpy` またはコールバック記録用オブジェクトを使います。
+- イベントループは、固定時間の sleep ではなく条件またはシグナルを上限時間付きで待ちます。
+- ネイティブダイアログ、クリップボード、Web 要求、音声、バックエンド操作は境界で置き換えます。
+- `QApplication`、メインウィンドウの状態、グローバルフックを分離し、後片付けします。
 
-Generic example:
+一般的な例:
 
 ```python
 from unittest.mock import MagicMock
@@ -353,24 +260,17 @@ def test_submit_with_invalid_input_shows_error_without_saving() -> None:
 
 ### Rust
 
-Rust unit tests normally live beside the code in a `#[cfg(test)]` module. Follow the
-nearby crate's existing helpers and conventions.
+Rust のユニットテストは通常、コードの隣にある `#[cfg(test)]` モジュールに置きます。近くのクレートで使われているヘルパーと規約に従います。
 
-- Prefer inputs and assertions over extensive mocking.
-- Use `assert_eq!`/`assert_ne!` for diagnostic diffs and include a message when the
-  invariant is otherwise unclear.
-- Match the expected error variant or structured value instead of only calling
-  `is_err()` when the distinction matters.
-- Cover variants and transitions with distinct behavior, not properties guaranteed
-  by the type system.
-- Use a collection only when persistence is part of the unit; use pure domain values
-  otherwise.
-- Use small table-driven loops for one contract and include the input in assertion
-  messages.
-- `unwrap()` and `expect()` **may** be used in setup and when an unexpected error
-  should fail the test; do not use them to inspect the error path being tested.
+- 大量のモックより、入力とアサーションを優先します。
+- 診断しやすい差分を得るため `assert_eq!`/`assert_ne!` を使い、不変条件が自明でない場合はメッセージを付けます。
+- 区別が重要なら `is_err()` だけでなく、期待するエラーバリアントまたは構造化された値を照合します。
+- 型システムが保証するだけの性質ではなく、異なる動作をするバリアントや遷移を確認します。
+- 永続化がテスト対象の場合だけコレクションを使い、それ以外では純粋なドメイン値を優先します。
+- 1つの契約を確認する小さなテーブル駆動ループを使い、アサーションメッセージに入力を含めます。
+- setup や、予期しないエラーがテスト失敗になるべき箇所では `unwrap()` と `expect()` を使えます。検証対象のエラーパスを調べるためには使わないでください。
 
-Generic example:
+一般的な例:
 
 ```rust
 #[cfg(test)]
@@ -394,30 +294,18 @@ mod tests {
 }
 ```
 
-### Svelte, TypeScript, and JavaScript
+### Svelte、TypeScript、JavaScript
 
-Web unit tests use Vitest. The current configuration discovers colocated
-`*.test.ts`, `*.spec.ts`, `*.test.js`, and `*.spec.js` files, excluding
-`ts/tests/e2e/`.
+Web のユニットテストには Vitest を使います。現在の設定では、`ts/tests/e2e/` を除き、同じ場所にある `*.test.ts`、`*.spec.ts`、`*.test.js`、`*.spec.js` を検出します。
 
-- Test TypeScript/JavaScript logic and Svelte stores without a DOM unless rendering
-  and interaction prove an additional contract.
-- Add `// @vitest-environment jsdom` only when the test needs DOM APIs, and restore
-  any document/global state after the test.
-- Use `vi.fn()`/`vi.spyOn()` at external boundaries, fake timers for timer-driven
-  behavior, and restore both after the test.
-- Await promises/reactive updates instead of real time. For rendered behavior,
-  interact through the public UI and query by accessible role, label, or visible text
-  rather than internal state.
-- Prefer focused value/DOM assertions. Use snapshots only for small, stable output
-  whose entire structure is intentionally reviewed.
-- The repository does not currently configure a dedicated Svelte component-rendering
-  harness in the unit suite. If a behavior cannot be tested through extracted logic
-  or the existing DOM setup, agree on the appropriate harness or place the essential
-  browser contract in the existing Playwright suite rather than inventing a private
-  test setup.
+- 描画や操作で追加の契約を証明できる場合を除き、TypeScript/JavaScript のロジックと Svelte ストアを DOM なしでテストします。
+- DOM API が必要な場合だけ `// @vitest-environment jsdom` を追加し、ドキュメントやグローバル状態を復元します。
+- 外部境界では `vi.fn()`/`vi.spyOn()` を使い、タイマーに依存する動作にはフェイクタイマーを使います。どちらもテスト後に復元します。
+- 実時間ではなく promise やリアクティブ更新を待ちます。表示をテストする場合は公開 UI を操作し、内部状態ではなくアクセシブルなロール、ラベル、表示テキストで検索します。
+- 値や DOM に焦点を絞ったアサーションを優先します。構造全体が安定していてレビュー対象である場合に限り、小さなスナップショットを使います。
+- 現在、リポジトリのユニットテストには専用の Svelte コンポーネント描画環境がありません。抽出したロジックや既存の DOM 環境でテストできない動作については、専用環境を独自に導入せず、適切な環境を相談するか、必要なブラウザー上の契約を既存の Playwright テストに配置します。
 
-Generic TypeScript example:
+一般的な TypeScript の例:
 
 ```typescript
 import { expect, test, vi } from "vitest";
@@ -433,74 +321,47 @@ test("invalid input reports the error without saving", async () => {
 });
 ```
 
-For a Svelte component, the equivalent contract is expressed as a user action and a
-visible/accessibility result: enter invalid input, activate Submit, observe the error,
-and verify that saving did not occur. Do not call a component's private handler
-directly.
+Svelte コンポーネントでは、ユーザー操作と、画面またはアクセシビリティ上の結果で同じ契約を表します。無効な値を入力して送信し、エラーが表示され、保存されていないことを確認します。コンポーネントの非公開ハンドラーを直接呼び出さないでください。
 
-## Running and validating tests
+## テストの実行と検証
 
-Use the repository's `just` recipes:
+リポジトリの `just` レシピを使います。
 
 ```sh
 just test-rust  # Rust
-just test-py    # Python library and Python/Qt
-just test-ts    # TypeScript/JavaScript/Svelte unit tests
-just test       # every stack (Rust, Python, TS)
-just check      # required final formatting, build, lint, and test validation
+just test-py    # Python ライブラリと Python/Qt
+just test-ts    # TypeScript/JavaScript/Svelte のユニットテスト
+just test       # すべてのスタック（Rust、Python、TS）
+just check      # 必須の最終フォーマット、ビルド、lint、テスト検証
 ```
 
-During development, run the relevant stack frequently. Before considering a code
-change complete, run `just check`. See [Testing and Coverage](/developers/testing-coverage)
-for coverage commands and [End-to-End Testing](/developers/e2e-testing) when the
-selected boundary requires Playwright.
+開発中は関連するスタックを頻繁に実行します。変更を完了する前に `just check` を実行してください。カバレッジの確認には[テストとカバレッジ](/developers/testing-coverage)、Playwright が必要な場合は[エンドツーエンドテスト](/developers/e2e-testing)を参照してください。
 
-## Review checklist
+## レビューチェックリスト
 
-A test is ready when the answer to each relevant question is yes:
+テストが次の該当項目を満たすことを確認します。
 
-- Does the test name explain the behavior being checked?
-- Does the test clearly show when that behavior works and when it does not?
-- Were the relevant scenario categories considered at the lowest useful layer,
-  without duplication?
-- Is Arrange–Act–Assert clear, with minimal data and doubles only at meaningful
-  boundaries?
-- Is it deterministic, independent, cleaned up, and stable under behavior-preserving
-  refactoring?
-- For a bug fix, did the regression test fail before and pass after the fix when
-  practical?
-- Do the relevant `just` test recipe and `just check` pass?
+- テスト名から、確認する動作が分かるか。
+- その動作が成功する場合と失敗する場合が明確か。
+- 重複を避けつつ、関連するシナリオ分類を最も適切な層で検討したか。
+- Arrange–Act–Assert の流れが明確で、データが最小限であり、テストダブルを意味のある境界だけに使っているか。
+- 決定的で、独立しており、後片付けされ、動作を保つリファクタリングに対して安定しているか。
+- バグ修正の場合、可能なら修正前に回帰テストが失敗し、修正後に成功することを確認したか。
+- 関連する `just` テストレシピと `just check` が成功したか。
 
-## Instructions for coding assistants
+## コーディングアシスタントへの指示
 
-When this document is supplied to a coding assistant, the assistant must also inspect
-the production behavior, issue/diff, neighboring tests, available helpers, and test
-runner configuration. This guide does not replace repository context.
+このドキュメントがコーディングアシスタントに渡された場合は、本番コードの動作、課題や差分、近くのテスト、利用可能なヘルパー、テストランナーの設定も確認してください。このガイドだけでリポジトリの状況を把握したことにはなりません。
 
-Before editing, it should follow the quick summary, describe the expected behavior,
-identify the responsible layer, list the scenarios and selected test level, then
-follow local naming, fixtures, builders, and file placement. It **must not** invent
-APIs, dependencies, fixtures, or runner capabilities; change production visibility
-solely to reach private implementation; or weaken an assertion to make it pass. It
-should finish by reporting what was tested, intentionally omitted, and not validated.
+編集前に要約を確認し、期待動作を説明して、担当する層を特定し、シナリオと選択したテストレベルを列挙します。その後、ローカルの命名規則、フィクスチャ、ビルダー、配置場所に従ってください。API、依存関係、フィクスチャ、ランナーの機能を捏造しないこと、非公開実装に到達する目的だけで本番コードの公開範囲を変更しないこと、テストを通すためにアサーションを弱めないこと。最後に、実行したテスト、意図的に省略したテスト、未検証の項目を報告してください。
 
-## References and rationale
+## 参考資料と背景
 
-This guide adapts these references to Anki's architecture:
+このガイドは、Anki のアーキテクチャに合わせて次の資料を参考にしています。
 
-- Beginner introductions: [Getting Started With Testing in Python](https://realpython.com/python-testing/)
-  and [How to Use pytest](https://www.freecodecamp.org/news/how-to-use-pytest-a-guide-to-testing-in-python/).
-- General principles: [behavior over implementation](https://testing.googleblog.com/2013/08/testing-on-toilet-test-behavior-not.html),
-  [test sizes](https://testing.googleblog.com/2010/12/test-sizes.html),
-  [unit-test characteristics and Arrange–Act–Assert](https://learn.microsoft.com/en-us/dotnet/core/testing/unit-testing-best-practices),
-  and the [practical test pyramid](https://martinfowler.com/articles/practical-test-pyramid.html).
-- Python: pytest [fixtures](https://docs.pytest.org/en/stable/explanation/fixtures.html),
-  [parameterization](https://docs.pytest.org/en/stable/how-to/parametrize.html), and
-  [assertions](https://docs.pytest.org/en/stable/how-to/assert.html).
-- Rust: [test organization in The Rust Book](https://doc.rust-lang.org/book/ch11-03-test-organization.html).
-- Qt: [QtTest](https://doc.qt.io/qtforpython-6/PySide6/QtTest/index.html) and
-  [QSignalSpy](https://doc.qt.io/qt-6/qsignalspy.html).
-- Web: Vitest [mock functions](https://vitest.dev/guide/learn/mock-functions),
-  [timers](https://vitest.dev/guide/mocking/timers), and
-  [component testing](https://vitest.dev/guide/browser/component-testing), plus
-  Testing Library's [accessible query priority](https://testing-library.com/docs/queries/about/).
+- 入門資料: [Python のテスト入門](https://realpython.com/python-testing/) と [pytest の使い方](https://www.freecodecamp.org/news/how-to-use-pytest-a-guide-to-python/)。
+- 一般原則: [実装ではなく動作をテストする](https://testing.googleblog.com/2013/08/testing-on-toilet-test-behavior-not.html)、[テストサイズ](https://testing.googleblog.com/2010/12/test-sizes.html)、[ユニットテストの特性と Arrange–Act–Assert](https://learn.microsoft.com/en-us/dotnet/core/testing/unit-testing-best-practices)、[実践的なテストピラミッド](https://martinfowler.com/articles/practical-test-pyramid.html)。
+- Python: pytest の[フィクスチャ](https://docs.pytest.org/en/stable/explanation/fixtures.html)、[パラメーター化](https://docs.pytest.org/en/stable/how-to/parametrize.html)、[アサーション](https://docs.pytest.org/en/stable/how-to/assert.html)。
+- Rust: [The Rust Book のテスト構成](https://doc.rust-lang.org/book/ch11-03-test-organization.html)。
+- Qt: [QtTest](https://doc.qt.io/qtforpython-6/PySide6/QtTest/index.html) と [QSignalSpy](https://doc.qt.io/qt-6/qsignalspy.html)。
+- Web: Vitest の[モック関数](https://vitest.dev/guide/learn/mock-functions)、[タイマー](https://vitest.dev/guide/mocking/timers)、[コンポーネントテスト](https://vitest.dev/guide/browser/component-testing)、および Testing Library の[アクセシブルなクエリの優先順位](https://testing-library.com/docs/queries/about/)。

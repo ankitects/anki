@@ -1,81 +1,79 @@
 ---
-title: "Dependabot updates"
+title: "Dependabot の更新"
 ---
 
-Config lives in [`.github/dependabot.yml`](https://github.com/ankitects/anki/blob/main/.github/dependabot.yml).
-This page is for maintainers: how PRs are grouped, which ones to merge,
-and how to clear Rust advisories that Dependabot cannot fix on its own.
+設定は [`.github/dependabot.yml`](https://github.com/ankitects/anki/blob/main/.github/dependabot.yml)にあります。このページはメンテナー向けです。プルリクエストのグループ分け、取り込む対象、Dependabot が単独で修正できない Rust のアドバイザリへの対処方法を説明します。
 
-## Goals
+## 目標
 
-Version updates were accumulating faster than anyone reviewed them. Our solution is to fix grouping and slow the schedule, not turn updates off.
+バージョン更新が、誰もレビューできないほどの速さでたまっていました。更新を停止するのではなく、グループ分けを調整してスケジュールを遅らせることで対処します。
 
-Security updates stay **individual**. Each advisory needs its own review (false positives are common, so we need to know which CVE actually matters). GitHub also does not apply `open-pull-requests-limit` to security PRs.
+セキュリティ更新は**個別**に扱います。各アドバイザリは個別にレビューする必要があります（誤検知も多いため、どの CVE が実際に関係するのかを把握する必要があります）。GitHub はセキュリティ関連のプルリクエストには `open-pull-requests-limit` を適用しません。
 
-## What gets opened
+## 作成される更新
 
-Four ecosystems: Cargo, npm (Yarn), Python (`uv`), GitHub Actions.
+対象は4つのエコシステムです: Cargo、npm（Yarn）、Python（`uv`）、GitHub Actions。
 
-| Kind           | When                                                           | Shape                                          | What to do                                                                                       |
-| -------------- | -------------------------------------------------------------- | ---------------------------------------------- | ------------------------------------------------------------------------------------------------ |
-| Security       | As soon as GitHub publishes an advisory. Ignores the schedule. | One PR per advisory                            | Review and land promptly, or close if it does not apply                                          |
-| Minor / patch  | Quarterly                                                      | One grouped PR per ecosystem (`*-minor-patch`) | Merge if CI is green                                                                             |
-| Major          | Quarterly, after a 30-day cooldown                             | One grouped PR per ecosystem (`*-major`)       | **Do not merge.** Treat as a notification. If a bump is wanted, open a human PR for that package |
-| GitHub Actions | Quarterly                                                      | One grouped PR (`actions`)                     | Merge if CI is green                                                                             |
+| 種類 | タイミング | 形式 | 対応 |
+| --- | --- | --- | --- |
+| セキュリティ | GitHub がアドバイザリを公開するとすぐ。スケジュールは適用しません。 | アドバイザリごとに1件の PR | 速やかにレビューして取り込むか、該当しない場合は閉じる |
+| マイナー/パッチ | 四半期ごと | エコシステムごとに1件のグループ PR（`*-minor-patch`） | CI が成功していればマージ |
+| メジャー | 四半期ごと、30日のクールダウン期間後 | エコシステムごとに1件のグループ PR（`*-major`） | **マージしないでください。** 通知として扱います。更新する場合は、そのパッケージ専用の PR を人が作成します。 |
+| GitHub Actions | 四半期ごと | 1件のグループ PR（`actions`） | CI が成功していればマージ |
 
-`open-pull-requests-limit` is 2 for Cargo / npm / Python (one slot for minor/patch, one for major) and 1 for Actions. That limit applies only to **version** updates. Security PRs are unlimited.
+`open-pull-requests-limit` は Cargo、npm、Python では2（マイナー/パッチ用に1枠、メジャー用に1枠）、Actions では1です。この上限が適用されるのは**バージョン**更新のみです。セキュリティ関連の PR 数には上限がありません。
 
-Cooldown is 7 days for ordinary version bumps (a short supply-chain window) and 30 days for majors (`semver-major-days`). Security updates skip cooldown.
+通常のバージョン更新のクールダウン期間は7日（サプライチェーン攻撃への短い対策期間）、メジャー更新は30日（`semver-major-days`）です。セキュリティ更新にはクールダウン期間を適用しません。
 
-Dependabot PRs are exempt from the linked-issue requirement.
+Dependabot の PR には、関連 Issue の要件は適用されません。
 
-## Reviewing a PR
+## PR をレビューする
 
-1. Read the title / group name and put it in the table above;
-2. CI must be green. Dependency PRs do not need new tests, but `format`, `cargo deny`, and the existing suites still run;
-3. **npm:** if CI fails with `YN0028` / `yarn install --immutable`, Dependabot updated `package.json` and left `yarn.lock` stale. Check out the branch, run Yarn so the lockfile matches, and push;
-4. Close older individual version PRs that a newer grouped PR already covers. Dependabot often does this itself when it opens a replacement.
+1. タイトルまたはグループ名を確認し、上記の表に従って分類します。
+2. CI が成功していることを確認します。依存関係の PR には新しいテストは不要ですが、`format`、`cargo deny`、既存のテストスイートは引き続き実行されます。
+3. **npm:** CI が `YN0028` または `yarn install --immutable` で失敗した場合、Dependabot が `package.json` を更新し、`yarn.lock` が古いままになっています。ブランチをチェックアウトして Yarn を実行し、ロックファイルを更新してから push します。
+4. 新しいグループ PR がすでに含んでいる古い個別バージョン PR は閉じます。Dependabot が置き換え PR を作成すると、自動で閉じることもあります。
 
-### Security PRs
+### セキュリティ関連の PR
 
-Land these first. Confirm the advisory actually affects this repo: Dependabot matches on version, not on whether we call the vulnerable API.
+まず取り込みます。アドバイザリが実際にこのリポジトリに影響することを確認してください。Dependabot はバージョンを基準に一致させており、脆弱な API を使用しているかどうかは判定しません。
 
-If the bump is a major, or CI fails, do not force the Dependabot PR through. Open a normal PR with whatever code or lockfile changes are required.
+更新がメジャーバージョンの場合、または CI が失敗した場合は、Dependabot の PR を無理に通さないでください。必要なコードやロックファイルの変更を含む通常の PR を作成します。
 
-If we cannot bump yet, say so in the PR and follow the Rust ignore path below when `cargo-deny` is the failing check.
+まだ更新できない場合は PR にその旨を記載し、`cargo-deny` のチェックが失敗しているときは、下記の Rust の除外手順に従ってください。
 
-### Minor / patch grouped PRs
+### マイナー/パッチのグループ PR
 
-Low risk. Merge when CI is green. If one crate in the group breaks the build, do not merge the bundle, we should split or skip that crate.
+リスクは低い更新です。CI が成功したらマージします。グループ内のクレートが1つでもビルドを壊す場合は、まとめてマージせず、分割するか、そのクレートを除外してください。
 
-### Major grouped PRs
+### メジャーのグループ PR
 
-Majors often need code changes. The grouped PR exists so we are not flooded with one PR per package. _It is not meant to be merged as-is_. Pick the package we actually want, open a dedicated PR, and leave the rest.
+メジャー更新にはコード変更が必要なことがよくあります。パッケージごとの PR が大量に作られないよう、グループ PR を作成します。_そのままマージするためのものではありません。_ 実際に更新するパッケージだけを選び、専用の PR を作成してください。
 
 ### GitHub Actions
 
-Actions are pinned by SHA. Dependabot **security alerts are not generated for SHA-pinned actions** but Dependabot still opens the quarterly grouped version PR and bumps those SHAs to the latest release. So there is no immediate security PR for a vulnerable action. That is an accepted trade-off: SHA pins stop tag-rewrite supply-chain attacks, at the cost of losing action alerts.
+Actions は SHA で固定されています。SHA 固定の Actions に対する Dependabot の**セキュリティアラートは生成されません**が、Dependabot は四半期ごとにグループ化されたバージョン更新 PR を作成し、SHA を最新リリースに更新します。そのため、脆弱な Action があっても、即時のセキュリティ PR はありません。SHA 固定によりタグの書き換えを使ったサプライチェーン攻撃を防ぐ代わりに、Action のアラートを受け取れなくなることを許容しています。
 
-## Rust advisories (`cargo-deny`)
+## Rust のアドバイザリ（`cargo-deny`）
 
-CI runs `cargo deny check` on pushes and on PRs that touch `Cargo.lock`, `Cargo.toml`, or `.deny.toml`. Failures often look like Dependabot work but are not something Dependabot can finish, especially when the crate sits behind a git dependency.
+CI は `Cargo.lock`、`Cargo.toml`、`.deny.toml` を変更する push と PR で `cargo deny check` を実行します。特にクレートが Git 依存関係の先にある場合、失敗が Dependabot によるものに見えても、Dependabot だけでは解決できないことがあります。
 
-Worked example: [RUSTSEC-2026-0258](https://github.com/ankitects/anki/issues/5364) needed a `reqwest` bump inside the [ankitects/linkcheck](https://github.com/ankitects/linkcheck) fork, not a one-line change in this repo.
+実例: [RUSTSEC-2026-0258](https://github.com/ankitects/anki/issues/5364)では、このリポジトリの1行を変更するのではなく、[ankitects/linkcheck](https://github.com/ankitects/linkcheck) のフォーク内で `reqwest` を更新する必要がありました。
 
-1. Open the `RUSTSEC-…` advisory and note the crate and patched versions.
-2. See whether Dependabot already opened a security PR that bumps a crate we depend on directly. If CI is green, merge it.
-3. If the crate is **transitive through a git dep** (`linkcheck`, `percent-encoding-iri`, …):
-    - Land the bump in the fork.
-    - Point `Cargo.toml` at the new `rev`.
-    - Run `cargo update -p <crate>` (and any other crates the advisory names) so `Cargo.lock` moves.
-4. Run `cargo deny check` locally before pushing.
-5. Only if a bump is not feasible, add the id to `.deny.toml` `[advisories] ignore` with a comment stating why and what the alternative is. Existing ignores follow that pattern. Do not silence an advisory without a comment.
+1. `RUSTSEC-…` のアドバイザリを開き、影響するクレートと修正済みのバージョンを確認します。
+2. Dependabot が、直接依存するクレートを更新するセキュリティ PR をすでに作成していないか確認します。CI が成功していればマージします。
+3. クレートが **Git 依存関係を介した間接依存**（`linkcheck`、`percent-encoding-iri` など）の場合:
+    - フォーク内で更新を取り込みます。
+    - `Cargo.toml` の `rev` を新しい値にします。
+    - `cargo update -p <crate>`（およびアドバイザリに記載されたほかのクレート）を実行して `Cargo.lock` を更新します。
+4. push する前に、ローカルで `cargo deny check` を実行します。
+5. 更新がどうしてもできない場合に限り、`.deny.toml` の `[advisories] ignore` に ID を追加し、理由と代替案をコメントで記載します。既存の除外設定も同じ形式です。コメントなしでアドバイザリを無視しないでください。
 
-Dependabot cannot update git `rev` pins. Those bumps are always manual.
+Dependabot は Git の `rev` 固定を更新できません。こうした更新は常に手動で行います。
 
-## Changing the config
+## 設定を変更する
 
-- Do not group security updates;
-- Do not put majors in the minor/patch group;
-- `open-pull-requests-limit` cannot cap security PRs;
-- Cooldown keys are `default-days` and `semver-major-days`.
+- セキュリティ更新をグループ化しないでください。
+- メジャー更新をマイナー/パッチのグループに含めないでください。
+- `open-pull-requests-limit` でセキュリティ PR 数を制限することはできません。
+- クールダウン期間のキーは `default-days` と `semver-major-days` です。

@@ -1,42 +1,33 @@
 ---
-title: "The build system"
+title: "ビルドシステム"
 ---
 
-## Basic use
+## 基本的な使い方
 
-Basic use is described in [development.md](/developers/development).
+基本的な使い方は[開発ガイド](./development)で説明しています。
 
-## Architecture
+## アーキテクチャ
 
-The build/ folder is made up of 4 packages:
+`build/` フォルダーは4つのパッケージで構成されています。
 
-- build/configure defines the actions and inputs/outputs of the build graph -
-  this is where you add new build steps or modify existing ones. The defined
-  actions are converted at build time to a build.ninja file that Ninja executes.
-- build/ninja_gen is a library for writing a build.ninja file, and includes
-  various rules like "build a Rust crate" or "run a command".
-- build/archives is a helper to download/checksum/extract a dependency as part
-  of the build process.
-- build/runner serves a number of purposes:
-    - it's the entrypoint to the build process, taking care of generating
-      the build file and then invoking Ninja
-    - it wraps executable invocations in the build file, swallowing their output
-      if they exit successfully
-    - it provides a few helpers for multi-step processes that can't be easily
-      described in a cross-platform manner thanks to differences on Windows.
+- `build/configure` はビルドグラフのアクションと入出力を定義します。ビルド手順を追加または変更する場合は、ここを編集します。定義されたアクションはビルド時に `build.ninja` ファイルへ変換され、Ninja が実行します。
+- `build/ninja_gen` は `build.ninja` ファイルを生成するライブラリです。「Rust クレートをビルドする」「コマンドを実行する」などのルールも含みます。
+- `build/archives` は、ビルドプロセスの一環として依存関係をダウンロード、チェックサム検証、展開するヘルパーです。
+- `build/runner` は複数の役割を担います。
+    - ビルドファイルを生成して Ninja を呼び出す、ビルドプロセスのエントリーポイントです。
+    - ビルドファイル内の実行ファイルの呼び出しをラップし、正常終了した場合は出力を表示しません。
+    - Windows の違いなど、クロスプラットフォームで簡単に記述できない複数段階の処理に使うヘルパーを提供します。
 
-## Tracing build problems
+## ビルドの問題を調べる
 
-If you run into trouble with the build process:
+ビルドプロセスで問題が起きた場合:
 
-- You can see the executed commands with e.g. `./ninja pylib -v`
-- You can see the output of successful commands by defining N2_OUTPUT_SUCCESS=1
-- You can see what's triggering a rebuild of a target with e.g.
-  `./ninja qt/anki -d explain`.
-- You can browse the build graph via e.g. `./ninja -- -t browse wheels`
-- You can profile build performance with
-  https://discourse.cmake.org/t/profiling-build-performance/2443/3.
+- `./ninja pylib -v` などを使うと、実行されたコマンドを確認できます。
+- `N2_OUTPUT_SUCCESS=1` を設定すると、正常終了したコマンドの出力を確認できます。
+- `./ninja qt/anki -d explain` などを使うと、ターゲットの再ビルドが発生した理由を確認できます。
+- `./ninja -- -t browse wheels` などを使うと、ビルドグラフを確認できます。
+- ビルドのパフォーマンスは[こちら](https://discourse.cmake.org/t/profiling-build-performance/2443/3)を参考にプロファイルできます。
 
-## Packaging considerations
+## パッケージ化に関する注意
 
-See [this page](/developers/linux).
+[こちらのページ](/developers/linux)をご覧ください。

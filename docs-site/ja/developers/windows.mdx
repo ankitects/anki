@@ -2,48 +2,45 @@
 title: "Windows"
 ---
 
-## Minimum Requirements
+## 最低要件
 
-- **64-bit Windows 10** (version 1703 or newer)
-- Administrator access to install software
+- **64 ビット版 Windows 10**（バージョン 1703 以降）
+- ソフトウェアをインストールできる管理者権限
 
 ---
 
-## Install Rust
+## Rust をインストールする
 
-1. Visit the official Rust website (https://rustup.rs/)
-2. Download and install **rustup**
-3. During installation, accept the default options
+1. Rust の公式サイト（https://rustup.rs/）を開きます。
+2. **rustup** をダウンロードしてインストールします。
+3. インストール中は既定のオプションを選びます。
 
 > [!NOTE]
-> The Rust installer will offer to automatically download and install the required
-> MSVC build tools. If you prefer a minimal install without the full Visual
-> Studio IDE, do the following before installing Rust:
+> Rust のインストーラーは、必要な MSVC ビルドツールを自動でダウンロードしてインストールするよう提案します。Visual Studio IDE 全体を含まない最小構成を希望する場合は、Rust をインストールする前に次を行ってください。
 >
-> 1. Install **Visual Studio Build Tools** via winget:
+> 1. winget で **Visual Studio Build Tools** をインストールします。
 >     ```
 >     winget install Microsoft.VisualStudio.BuildTools
 >     ```
-> 2. Open the **Visual Studio Installer**, select **Build Tools**, click
->    **Modify**, then under **Individual components**, install:
+> 2. **Visual Studio Installer** を開き、**Build Tools** を選択して 「**変更**」をクリックします。次に「個別のコンポーネント」から以下をインストールします。
 >     - **MSVC Build Tools for x64/x86 (Latest)**
->     - **Windows 11 SDK** (or Windows 10 SDK if you're on Windows 10)
+>     - **Windows 11 SDK**（Windows 10 の場合は Windows 10 SDK）
 >
-> Then proceed with the Rust installation above.
+> その後、上記の手順に従って Rust をインストールします。
 
 > [!IMPORTANT]
-> **Windows ARM users**: After installing rustup, run the following command in a terminal, inside the project folder:
+> **Windows ARM ユーザー向け**: rustup のインストール後、プロジェクトフォルダー内のターミナルで次のコマンドを実行してください。
 >
 > ```bash
 > rustup target add x86_64-pc-windows-msvc
 > ```
 
-## Install MSYS2
+## MSYS2 をインストールする
 
-1. Visit the [MSYS2](https://www.msys2.org/) website
-2. Install it in the default location
-3. After installation, open the MSYS2 UCRT64 terminal
-4. Run the following command:
+1. [MSYS2](https://www.msys2.org/) のウェブサイトを開きます。
+2. 既定の場所にインストールします。
+3. インストール後、MSYS2 UCRT64 ターミナルを開きます。
+4. 次のコマンドを実行します。
 
 ```bash
 pacman -S git rsync
@@ -51,27 +48,20 @@ pacman -S git rsync
 
 ---
 
-### Configure the PATH environment variable
+### PATH 環境変数を設定する
 
-1. Search for and open **Edit the system environment variables** in the Start menu
-2. Click **Environment Variables**
-3. Edit the **Path** variable under **System Variables**
-4. Add the following path then reboot your computer: `C:\msys64\usr\bin`
+1. スタートメニューで 「**システム環境変数の編集**」を検索して開きます。
+2. **「環境変数」**をクリックします。
+3. 「システム環境変数」の **Path** を編集します。
+4. 次のパスを追加し、コンピューターを再起動します: `C:\msys64\usr\bin`
 
 > [!NOTE]
-> If you have native Windows apps relying on Git, e.g. the PowerShell extension
-> [posh-git](https://github.com/dahlbyk/posh-git), you may want to install
-> [Git for Windows](https://gitforwindows.org/) and put it on the path instead,
-> as msys Git may cause issues with them. You'll need to make sure rsync is
-> available some other way.
+> PowerShell 拡張の [posh-git](https://github.com/dahlbyk/posh-git) など、Git に依存する Windows ネイティブアプリを使っている場合は、代わりに [Git for Windows](https://gitforwindows.org/) をインストールして PATH に追加する方がよいことがあります。msys の Git では問題が起きる場合があります。rsync は別の方法で利用できるようにしてください。
 
-## Choose a good source code location
+## ソースコードの保存場所を選ぶ
 
-Anki's source files do not need to be in a specific location, but it's best to
-avoid long paths, as they can cause problems. Spaces in the path may cause
-problems.
+Anki のソースファイルを置く場所に決まりはありませんが、パスが長いと問題が起きることがあるため、長いパスは避けてください。パスにスペースが含まれている場合も問題が起きることがあります。
 
-## More
+## その他
 
-For info on running tests, building wheels and so on, please see
-[Development](/developers/development).
+テストの実行や wheel のビルドなどについては、[開発ガイド](/developers/development)をご覧ください。

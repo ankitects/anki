@@ -1,48 +1,35 @@
 ---
-title: "Anki Architecture"
+title: "Anki のアーキテクチャ"
 ---
 
-Very brief notes for now.
+現時点では、ごく簡単な説明のみです。
 
-## Backend/GUI
+## バックエンドと GUI
 
-At the highest level, Anki is logically separated into two parts.
+Anki は大きく分けて、論理上2つの部分で構成されています。
 
-A neat visualization of the file layout is available here:
+ファイル構成を視覚的に確認できる図はこちらです。
 [https://mango-dune-07a8b7110.1.azurestaticapps.net/?repo=ankitects%2Fanki](https://mango-dune-07a8b7110.1.azurestaticapps.net/?repo=ankitects%2Fanki)
-(or go to [https://githubnext.com/projects/repo-visualization#explore-for-yourself](https://githubnext.com/projects/repo-visualization#explore-for-yourself) and enter `ankitects/anki`).
+（または [https://githubnext.com/projects/repo-visualization#explore-for-yourself](https://githubnext.com/projects/repo-visualization#explore-for-yourself)を開き、`ankitects/anki` と入力してください。）
 
-### Library (rslib & pylib)
+### ライブラリ（rslib と pylib）
 
-The Python library (pylib) exports "backend" methods - opening collections,
-fetching and answering cards, and so on. It is used by Anki’s GUI, and can also
-be included in command line programs to access Anki decks without the GUI.
+Python ライブラリ（pylib）は、コレクションを開く、カードを取得して回答するなどの「バックエンド」メソッドを提供します。Anki の GUI から使われるほか、GUI を使わずに Anki のデッキにアクセスするコマンドラインプログラムにも組み込めます。
 
-The library is accessible in Python with "import anki". Its code lives in
-the `pylib/anki/` folder.
+Python からは `import anki` でライブラリにアクセスできます。コードは `pylib/anki/` フォルダーにあります。
 
-These days, the majority of backend logic lives in a Rust library (rslib, located in `rslib/`). Calls to pylib proxy requests to rslib, and return the results.
+現在、バックエンドのロジックの大半は Rust ライブラリ（`rslib/` にある rslib）にあります。pylib からの呼び出しは rslib に要求を転送し、結果を返します。
 
-pylib contains a private Python module called rsbridge (`pylib/rsbridge/`) that wraps the Rust code, making it accessible in Python.
+pylib には rsbridge（`pylib/rsbridge/`）という非公開の Python モジュールが含まれており、Rust コードをラップして Python から使えるようにします。
 
-### GUI (aqt & ts)
+### GUI（aqt と ts）
 
-Anki's _GUI_ is a mix of Qt (via the PyQt Python bindings for Qt), and
-TypeScript/HTML/CSS. The Qt code lives in `qt/aqt/`, and is importable in Python
-with "import aqt". The web code is split between `qt/aqt/data/web/` and `ts/`,
-with the majority of new code being placed in the latter, and copied into the
-former at build time.
+Anki の _GUI_ は、Qt（Qt 用の Python バインディングである PyQt 経由）と TypeScript/HTML/CSS で構成されています。Qt のコードは `qt/aqt/` にあり、Python から `import aqt` で読み込めます。Web コードは `qt/aqt/data/web/` と `ts/` に分かれています。新しいコードの大半は後者に置かれ、ビルド時に前者へコピーされます。
 
 ## Protobuf
 
-Anki uses Protocol Buffers to define backend methods, and the storage format of
-some items in a collection file. The definitions live in `proto/anki/`.
+Anki は Protocol Buffers を使ってバックエンドのメソッドや、コレクションファイル内の一部の項目の保存形式を定義しています。定義は `proto/anki/` にあります。
 
-The Python/Rust bridge uses them to pass data back and forth, and some of the
-TypeScript code also makes use of them, allowing data to be communicated in a
-type-safe manner between the different languages.
+Python/Rust ブリッジではデータのやり取りに使われ、一部の TypeScript コードも利用します。これにより、言語間で型安全にデータをやり取りできます。
 
-At the moment, the protobuf is not considered public API. Some pylib methods
-expose a protobuf object directly to callers, but when they do so, they use a
-type alias, so callers outside pylib should never need to import a generated
-\_pb2.py file.
+現時点で protobuf は公開 API と見なされていません。一部の pylib メソッドは protobuf オブジェクトを呼び出し元に直接公開しますが、その場合は型エイリアスを使います。したがって、pylib の外部の呼び出し元が生成済みの `_pb2.py` ファイルをインポートする必要はありません。

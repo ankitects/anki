@@ -1,69 +1,67 @@
 ---
-title: "Building and running Anki sync server in Docker"
+title: "Anki 同期サーバーを Docker でビルド・実行する"
 ---
 
-This is an example Dockerfile contributed by an Anki user, which shows how you can run a self-hosted sync server,
-similar to what AnkiWeb.net offers.
+これは Anki ユーザーから提供された Dockerfile の例です。AnkiWeb.net と同様のセルフホスト型同期サーバーを実行する方法を示しています。
 
-Building and running the sync server within a container has the advantage of fully isolating
-the build products and runtime dependencies from the rest of your system.
+コンテナ内で同期サーバーをビルド・実行すると、ビルド成果物と実行時の依存関係をシステムの他の部分から完全に分離できます。
 
-## Requirements
+## 必要条件
 
 - [x] [Docker](https://docs.docker.com/get-started/)
 
-| **Aspect**             | **Dockerfile**                                             | **Dockerfile.distroless**                                 |
-| ---------------------- | ---------------------------------------------------------- | --------------------------------------------------------- |
-| **Shell & Tools**      | ✅ Includes shell and tools                                | ❌ Minimal, no shell or tools                             |
-| **Debugging**          | ✅ Easier debugging with shell and tools                   | ❌ Harder to debug due to minimal environment             |
-| **Health Checks**      | ✅ Supports complex health checks                          | ❌ Health checks need to be simple or directly executable |
-| **Image Size**         | ❌ Larger image size                                       | ✅ Smaller image size                                     |
-| **Customization**      | ✅ Easier to customize with additional packages            | ❌ Limited customization options                          |
-| **Attack Surface**     | ❌ Larger attack surface due to more installed packages    | ✅ Reduced attack surface                                 |
-| **Libraries**          | ✅ More libraries available                                | ❌ Limited libraries                                      |
-| **Start-up Time**      | ❌ Slower start-up time due to larger image size           | ✅ Faster start-up time                                   |
-| **Tool Compatibility** | ✅ Compatible with more tools and libraries                | ❌ Compatibility limitations with certain tools           |
-| **Maintenance**        | ❌ Higher maintenance due to larger image and dependencies | ✅ Lower maintenance with minimal base image              |
-| **Custom uid/gid**     | ✅ It's possible to pass in PUID and PGID                  | ❌ PUID and PGID are not supported                        |
+| **項目** | **Dockerfile** | **Dockerfile.distroless** |
+| --- | --- | --- |
+| **シェルとツール** | ✅ シェルとツールを含む | ❌ 最小構成で、シェルやツールなし |
+| **デバッグ** | ✅ シェルとツールがあり容易 | ❌ 環境が最小限のため困難 |
+| **ヘルスチェック** | ✅ 複雑なチェックに対応 | ❌ 単純なもの、または直接実行できるものが必要 |
+| **イメージサイズ** | ❌ 大きい | ✅ 小さい |
+| **カスタマイズ** | ✅ パッケージを追加しやすい | ❌ カスタマイズの選択肢が限られる |
+| **攻撃対象領域** | ❌ インストール済みパッケージが多く広い | ✅ 小さい |
+| **ライブラリ** | ✅ 多くのライブラリを利用可能 | ❌ 利用できるライブラリが限られる |
+| **起動時間** | ❌ イメージが大きく時間がかかる | ✅ 起動が速い |
+| **ツールとの互換性** | ✅ 多くのツールやライブラリに対応 | ❌ 一部のツールとの互換性に制限あり |
+| **メンテナンス** | ❌ イメージと依存関係が大きく負担が増える | ✅ ベースイメージが最小限で負担が少ない |
+| **カスタム uid/gid** | ✅ PUID と PGID を指定可能 | ❌ PUID と PGID は非対応 |
 
-# Building image
+# イメージをビルドする
 
-To proceed with building, you must specify the Anki version you want, by replacing `<version>` with something like `24.11` and `<Dockerfile>` with the chosen Dockerfile (e.g., `Dockerfile` or `Dockerfile.distroless`)
+ビルドするには、使いたい Anki のバージョンを指定します。`<version>` を `24.11` のような値に、`<Dockerfile>` を使用する Dockerfile（例: `Dockerfile` または `Dockerfile.distroless`）に置き換えてください。
 
-The `--platform` option specifies which systems the image will be able to run on after it has been built. This is helpful in scenarios where you are building the image on one architecture (eg: an M series Mac) but running the image on another architecture (eg: x86 Linux server).
+`--platform` オプションでは、ビルド後のイメージを実行できるシステムを指定します。たとえば M シリーズ Mac でビルドし、x86 Linux サーバーで実行する場合に便利です。
 
-- `linux/amd64` is for x86 linux systems (Images built with this option will work on Windows as well through WSL2 which is included with Docker Desktop)
-- `linux/arm64` is for ARM systems (eg: M series Macs)
+- `linux/amd64`: x86 Linux システム向け（Docker Desktop に含まれる WSL2 を使えば Windows でも動作します）
+- `linux/arm64`: ARM システム向け（例: M シリーズ Mac）
 
-On Linux systems, you will have to configure a custom builder which supports ARM builds first as shown below. You can then run the Mac build command in the next step.
+Linux では、まず以下のように ARM ビルドに対応したカスタムビルダーを設定してください。その後、次の手順で Mac 用のビルドコマンドを実行できます。
 
 ```bash
-# Configuring multiplatform builder and activating it
+# マルチプラットフォームビルダーを設定して有効化
 docker buildx create --name multiplatform-builder --driver docker-container --driver-opt default-load=true --bootstrap --use
 ```
 
-On M-series Macs running Docker Desktop, you can build for both platforms using the default builder by running the command below:
+Docker Desktop を使う M シリーズ Mac では、既定のビルダーで次のコマンドを実行すれば両方のプラットフォーム向けにビルドできます。
 
 ```bash
-# Execute this command from this directory
+# このディレクトリで実行
 docker buildx build -f <Dockerfile> --platform linux/amd64,linux/arm64 --no-cache --build-arg ANKI_VERSION=<version> -t anki-sync-server .
 ```
 
-If the build fails with `Resource Exhausted:.... cannot allocate memory`, go to Docker Desktop > Settings > Resources and increase the memory limit.
+`Resource Exhausted:.... cannot allocate memory` が出てビルドに失敗した場合は、Docker Desktop の **Settings > Resources** でメモリ上限を増やしてください。
 
-If you are unsure of what platform your system is, just run the command below without the platform option.
+システムのプラットフォームが分からない場合は、プラットフォームオプションを付けずに次のコマンドを実行してください。
 
 ```bash
-# Execute this command from this directory
+# このディレクトリで実行
 docker buildx build -f <Dockerfile> --no-cache --build-arg ANKI_VERSION=<version> -t anki-sync-server .
 ```
 
-# Run container
+# コンテナを実行する
 
-Once done with build, you can proceed with running this image with the following command:
+ビルドが完了したら、次のコマンドでイメージを実行します。
 
 ```bash
-# this will create anki server
+# Anki サーバーを作成
 docker run -d \
     -e "SYNC_USER1=admin:admin" \
     -p 8080:8080 \
@@ -72,20 +70,12 @@ docker run -d \
     anki-sync-server
 ```
 
-If the image you are using was built with `Dockerfile` you can specify the
-`PUID` and `PGID` env variables for the user and group id of the process that
-will run the anki-sync-server process. This is valuable when you want the files
-written and read from the `/anki_data` volume to belong to a particular
-user/group e.g. to access it from the host or another container. Note the the
-ids chosen for `PUID` and `PGID` must not already be in use inside the
-container (1000 and above is fine). For example add `-e "PUID=1050"` and `-e
-"PGID=1050"` to the above command.
+`Dockerfile` でビルドしたイメージでは、Anki 同期サーバープロセスのユーザー ID とグループ ID として `PUID` と `PGID` の環境変数を指定できます。`/anki_data` ボリューム内のファイルをホストや別のコンテナから使う場合などに便利です。指定する `PUID` と `PGID` は、コンテナ内で未使用の値にしてください（1000 以上なら問題ありません）。たとえば、上記コマンドに `-e "PUID=1050"` と `-e "PGID=1050"` を追加します。
 
-If you want to have multiple Anki users that can sync their devices, you can
-specify multiple `SYNC_USER` as follows:
+複数の Anki ユーザーが端末を同期できるようにするには、次のように複数の `SYNC_USER` を指定します。
 
 ```bash
-# this will create anki server with multiple users
+# 複数ユーザー用の Anki サーバーを作成
 docker run -d \
     -e "SYNC_USER1=admin:admin" \
     -e "SYNC_USER2=admin2:admin2" \
@@ -95,26 +85,12 @@ docker run -d \
     anki-sync-server
 ```
 
-Moreover, you can pass additional env vars mentioned
-[here](/manual/sync-server). Note that `SYNC_BASE` and
-`SYNC_PORT` will be ignored. In the first case for safety reasons, to avoid
-accidentally placing data outside the volume and the second for simplicity
-since the internal port of the container does not matter given that you can
-change the external one.
+[こちら](/manual/sync-server)に記載された追加の環境変数も渡せます。ただし `SYNC_BASE` と `SYNC_PORT` は無視されます。前者はデータを誤ってボリューム外に置くことを防ぐため、後者はコンテナ内部のポートを変更する必要がなく、外部ポートを変更できるためです。
 
-# Upgrading
+# アップグレード
 
-If your image was built after January 2025 then you can just build a new image
-and start a new container with the same configuration as the previous
-container. Everything should work as expected.
+2025年1月以降にビルドしたイメージであれば、新しいイメージをビルドし、以前と同じ設定で新しいコンテナを起動するだけで問題ありません。
 
-If the image you were running was built **before January 2025** then it did not
-contain a volume, meaning all syncserver data was stored inside the container.
-If you discard the container, for example because you want to build a new
-container using an updated image, then your syncserver data will be lost.
+実行中のイメージが**2025年1月より前**にビルドされた場合、ボリュームが含まれていないため、同期サーバーのデータはすべてコンテナ内に保存されています。更新したイメージで新しいコンテナを作るなどの理由でコンテナを破棄すると、データが失われます。
 
-The easiest way of working around this is by ensuring at least one of your
-devices is fully in sync with your syncserver before upgrading the Docker
-container. Then after upgrading the container when you try to sync your device
-it will tell you that the server has no data. You will then be given the option
-of uploading all local data from the device to syncserver.
+回避するには、Docker コンテナをアップグレードする前に、少なくとも1台の端末を同期サーバーと完全に同期させてください。アップグレード後に端末を同期すると、サーバーにデータがないと表示されます。その後、端末にあるすべてのデータを同期サーバーにアップロードする選択肢が表示されます。

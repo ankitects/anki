@@ -1,75 +1,43 @@
 ---
-title: "SonarCloud analysis"
+title: "SonarCloud 解析"
 ---
 
-SonarCloud provides informative static-analysis and coverage results. Its
-Quality Gate is not a required merge check, so findings guide review without
-blocking maintainers. Automatic Analysis must remain disabled because this
-project uses CI-based analysis.
+SonarCloud は、静的解析とカバレッジに関する有用な結果を提供します。Quality Gate はマージに必須のチェックではありません。検出結果はレビューの参考に使われ、メンテナーの作業をブロックしません。このプロジェクトでは CI ベースの解析を使うため、自動解析は無効のままにしてください。
 
-For the test commands and coverage thresholds enforced by CI, see
-[Testing and Coverage](/developers/testing-coverage).
+CI で実行されるテストコマンドとカバレッジのしきい値は、[テストとカバレッジ](/developers/testing-coverage)をご覧ください。
 
-## Analysis matrix
+## 解析の対象
 
-| Event                          | Static analysis | Coverage in CI | Coverage in SonarCloud |
-| ------------------------------ | --------------- | -------------- | ---------------------- |
-| Internal pull request          | Yes             | Yes            | Yes                    |
-| Push to `main` or `release/**` | Yes             | Yes            | Yes                    |
-| Fork pull request              | Yes             | Yes            | No                     |
+| イベント | 静的解析 | CI のカバレッジ | SonarCloud のカバレッジ |
+| --- | --- | --- | --- |
+| 内部のプルリクエスト | あり | あり | あり |
+| `main` または `release/**` への push | あり | あり | あり |
+| フォークからのプルリクエスト | あり | あり | なし |
 
-Fork pull requests still run the complete test coverage and coverage-regression
-checks in the unprivileged CI workflow. Their reports are not imported by the
-privileged SonarCloud workflow, so SonarCloud does not calculate a coverage
-metric for those pull requests.
+フォークからのプルリクエストでも、権限を持たない CI ワークフローで、完全なテストカバレッジとカバレッジの低下チェックを実行します。レポートは権限を持つ SonarCloud ワークフローには取り込まれないため、SonarCloud はこれらの PR のカバレッジ指標を計算しません。
 
-The fork scan still reports static bugs, vulnerabilities, security hotspots,
-and code smells. Scanner-side Clippy and software composition analysis are
-disabled; Clippy remains part of the regular CI checks.
+フォークのスキャンでも、静的なバグ、脆弱性、セキュリティ上の注意点、コードの臭いは報告されます。スキャナー側の Clippy とソフトウェア構成解析は無効です。Clippy は通常の CI チェックで引き続き実行します。
 
-## How it runs
+## 実行方法
 
-`.github/workflows/sonar.yml` runs after the complete CI workflow succeeds.
-Keeping it separate prevents `SONAR_TOKEN` from being available to jobs that
-build or test contributor code.
+`.github/workflows/sonar.yml` は CI ワークフロー全体が成功した後に実行されます。別のワークフローにすることで、コントリビューターのコードをビルドまたはテストするジョブから `SONAR_TOKEN` を分離できます。
 
-1. The workflow validates the pull request number, state, head SHA,
-   repositories, and branches against the GitHub API. Invalid or stale context
-   fails closed instead of becoming a branch analysis.
-2. It checks out the exact commit tested by CI. Fork source is read only by the
-   scanner and is never built, installed, or used as tooling.
-3. It replaces `sonar-project.properties` with the default branch's trusted
-   copy, preventing a fork from changing the server or enabling build tools.
-   The analysed version comes from the same trusted checkout of `.version`, so
-   that new code is measured since the previous release rather than since a
-   constant version.
-4. For a pull request, it fetches the target branch from the trusted upstream
-   repository and pins it locally under the name passed as
-   `sonar.pullrequest.base`. SonarCloud derives the changed-file set from git,
-   so without the correct upstream base reference it may attribute unrelated
-   changes to the pull request. A fork's local base reference may be outdated.
-   The step logs the analysed commit, base repository and branch, base commit,
-   and merge-base, and fails closed if the reference cannot be resolved.
-5. For internal changes, it downloads the coverage artifact from the triggering
-   CI run. For forks, report paths are cleared and all sources are excluded only
-   from the coverage calculation.
-6. Only the scanner step receives `SONAR_TOKEN`.
+1. ワークフローは GitHub API を使い、PR 番号、状態、head SHA、リポジトリ、ブランチを検証します。無効または古いコンテキストはブランチ解析として扱わず、安全に失敗します。
+2. CI でテストした正確なコミットをチェックアウトします。フォークのソースコードはスキャナーが読み取るだけで、ビルド、インストール、ツールとしての実行はしません。
+3. フォークがサーバーを変更したりビルドツールを有効にしたりできないよう、`sonar-project.properties` をデフォルトブランチの信頼できるコピーに置き換えます。解析するバージョンも、同じ信頼できるチェックアウトにある `.version` から取得します。固定のバージョンではなく、前回のリリース以降の新しいコードを計測します。
+4. PR の場合、信頼できる上流リポジトリからターゲットブランチを取得し、`sonar.pullrequest.base` に渡す名前でローカルに固定します。SonarCloud は git から変更ファイルを判定するため、上流の正しい base 参照がないと、無関係な変更を PR に含める可能性があります。フォークのローカル base 参照は古いことがあります。この手順では解析対象コミット、base リポジトリとブランチ、base コミット、merge-base をログに記録し、参照を解決できない場合は安全に失敗します。
+5. 内部の変更では、起動元の CI 実行からカバレッジ成果物をダウンロードします。フォークではレポートのパスを消去し、カバレッジ計算からのみすべてのソースを除外します。
+6. `SONAR_TOKEN` を受け取るのはスキャナーのステップだけです。
 
-## Trust boundary
+## 信頼境界
 
 <Warning>
-    This workflow has access to the base repository's `SONAR_TOKEN`. Never add a build,
-    test, package install, PR-provided configuration, local Action from the PR, or
-    restored CI cache to it. In particular, do not invoke `just`, `cargo`, `npm`, `pip`,
-    or repository scripts in this workflow.
+    このワークフローは base リポジトリの `SONAR_TOKEN` にアクセスできます。ビルド、テスト、パッケージのインストール、PR から提供された設定、PR 内のローカル Action、復元された CI キャッシュを追加しないでください。特に、このワークフローから `just`、`cargo`、`npm`、`pip`、リポジトリのスクリプトを実行しないでください。
 </Warning>
 
-- Keep Automatic Analysis disabled and SonarCloud checks non-required.
-- Restrict `SONAR_TOKEN` to analysis of this project.
-- Keep scanner-side Clippy and software composition analysis disabled.
-- Do not import artifacts produced by a fork into the privileged scan.
+- 自動解析は無効のままにし、SonarCloud のチェックを必須にしないでください。
+- `SONAR_TOKEN` はこのプロジェクトの解析だけに使えるよう制限してください。
+- スキャナー側の Clippy とソフトウェア構成解析は無効のままにしてください。
+- フォークが作成した成果物を、権限を持つスキャンに取り込まないでください。
 
-The scanner necessarily parses untrusted source when analyzing a fork. These
-constraints prevent direct execution of contributor code and reduce the token's
-exposure, but they do not eliminate vulnerabilities in third-party Actions or
-analyzers.
+フォークを解析するとき、スキャナーは信頼できないソースコードを解析します。これらの制約によって、コントリビューターのコードを直接実行するのを防ぎ、トークンの露出を抑えますが、サードパーティーの Action や解析ツールの脆弱性をなくすものではありません。

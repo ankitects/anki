@@ -1,77 +1,50 @@
 ---
-title: "Contributing Code"
+title: "コードの貢献"
 ---
 
-For info on contributing things other than code, such as translations, decks
-and add-ons, please see [the contribution guide](/manual/contrib).
+翻訳、デッキ、アドオンなど、コード以外の貢献については[貢献ガイド](/manual/contrib)をご覧ください。
 
-## Help wanted
+## 協力を募集しています
 
-If you'd like to contribute but don't know what to work on, please take a look
-at the [issues tab](https://github.com/ankitects/anki/issues) of the Anki repo
-on GitHub.
+貢献したいものの、何に取り組めばよいか分からない場合は、Anki リポジトリの GitHub の[Issue 一覧](https://github.com/ankitects/anki/issues)をご覧ください。
 
-## Larger changes
+## 大規模な変更
 
-Before starting work on larger changes, especially ones that aren't listed on the
-issue tracker, please reach out on the forums before you begin work, so we can let
-you know whether they're likely to be accepted or not. When you spent a bunch of time
-on a PR that ends up getting rejected, it's no fun for either you or us.
+大規模な変更、特に Issue トラッカーに記載されていない変更に取りかかる前に、フォーラムで相談してください。受け入れられる可能性を事前にお伝えできます。多くの時間をかけたプルリクエストが却下されると、双方にとって残念な結果になります。
 
-## Consider an Add-on First
+## まずアドオンで実現できないか検討する
 
-Before submitting a PR for a new feature, please consider whether it could be
-implemented as an add-on instead. We aim to keep the core Anki codebase lean
-and maintainable. Many great ideas are better served as add-ons, where they
-can iterate faster and serve specific user needs without affecting all users.
+新機能のプルリクエストを送る前に、アドオンとして実装できないか検討してください。Anki 本体のコードベースは、できるだけ小さく保ち、保守しやすくする方針です。多くの優れたアイデアはアドオンにする方が適しています。より速く改善でき、すべてのユーザーに影響を与えずに特定のニーズに応えられます。
 
-See the [Add-on API documentation](https://addon-docs.ankiweb.net/) for
-guidance on building add-ons.
+アドオンの作成方法については、[アドオン API のドキュメント](https://addon-docs.ankiweb.net/)をご覧ください。
 
-## Pull Request Description
+## プルリクエストの説明
 
-When opening a pull request, fill in the provided template
-(`.github/pull_request_template.md`). It covers the required fields: linked
-issue, summary/motivation, how to test, and UI evidence for visual changes.
+プルリクエストを作成するときは、用意されているテンプレート（`.github/pull_request_template.md`）に記入してください。関連する Issue、概要と動機、テスト方法、UI に視覚的な変更がある場合の証拠など、必要な項目が記載されています。
 
-## Linked Issues
+## 関連する Issue
 
-Every pull request, except hotfixes and dependency updates, must be linked
-to an existing open issue. If no issue exists, please open one to describe
-the problem before submitting a PR. This helps us ensure we're solving the
-right problems and prevents wasted effort on both sides.
+緊急修正と依存関係の更新を除き、すべてのプルリクエストを既存の未解決 Issue に紐付けてください。該当する Issue がない場合は、プルリクエストを送る前に問題を説明する Issue を作成してください。適切な問題を解決していることを確認し、双方の無駄な作業を防ぐためです。
 
-PRs without a linked issue may be automatically closed after a short period.
+関連 Issue のないプルリクエストは、短期間後に自動で閉じられる場合があります。
 
-## Dependency updates
+## 依存関係の更新
 
-Dependabot PRs do not need a linked issue. Maintainers should follow
-[Dependabot updates](/developers/dependabot) when reviewing or landing them.
+Dependabot のプルリクエストには、関連 Issue は不要です。レビューや取り込みの際は[Dependabot の更新手順](/developers/dependabot)に従ってください。
 
-## Refactoring
+## リファクタリング
 
-Please avoid PRs that focus on refactoring. Every PR has a cost to review, and a chance
-of introducing accidental regressions, and often these costs are not worth it for
-slightly more elegant code.
+リファクタリングを主な目的とするプルリクエストは避けてください。すべてのプルリクエストにはレビューのコストがかかり、意図しない不具合を持ち込む可能性もあります。コードが少し洗練されるだけでは、こうしたコストに見合わないことがよくあります。
 
-That's not to say there's no value in refactoring. But such changes are usually better done
-in a PR that happens to be working in the same area - for example, making small changes
-to the code as part of fixing a bug, or a larger refactor when introducing a new feature.
+リファクタリングに価値がないという意味ではありません。同じ箇所を扱うプルリクエストの一部として行う方が適しています。たとえば、バグ修正に伴う小さな変更や、新機能の導入に伴う大規模なリファクタリングです。
 
-## Type hints
+## 型ヒント
 
-Most of Anki's Python code now has type hints, which improve code completion,
-and make it easier to discover errors during development. When adding new
-code, please make sure you add type hints as well, or the tests will fail.
+Anki の Python コードの大半には型ヒントがあり、コード補完が改善され、開発中にエラーを見つけやすくなります。新しいコードを追加する場合も型ヒントを記述してください。記述しないとテストに失敗します。
 
-Qt's stubs are not perfect, so you may sometimes need to use cast(), or silence
-a type error. When connecting signals, there's a qconnect() helper in aqt.utils
-that can be used to work around the type warnings without obscuring other errors
-such as a mistyped variable.
+Qt のスタブは完全ではないため、`cast()` を使ったり、型エラーを無視したりする必要がある場合があります。シグナルを接続する場合は、`aqt.utils` にある `qconnect()` ヘルパーを使うと、変数名の誤りなどほかのエラーを隠さずに型の警告へ対処できます。
 
-In cases where you have two modules that reference each other, you can fix the
-import cycle by using fully qualified names in the types, and enabling
-annotations. For example, instead of
+互いを参照する2つのモジュールがある場合は、型に完全修飾名を使い、アノテーションを有効にすると、循環インポートを解消できます。たとえば、次のコードではなく
 
 ```
 from aqt.browser import Browser
@@ -80,7 +53,7 @@ def myfunc(b: Browser) -> None:
   pass
 ```
 
-use the following instead:
+次のようにします。
 
 ```
 from __future__ import annotations
@@ -91,56 +64,37 @@ def myfunc(b: aqt.browser.Browser) -> None:
   pass
 ```
 
-## Hooks
+## フック
 
-If you're writing an add-on and would like to extend a function that doesn't
-currently have a hook, a pull request that adds the required hooks would be
-welcome. If you could mention your use case in the pull request, that would be
-appreciated.
+アドオンを作成していて、現在フックがない関数を拡張したい場合は、必要なフックを追加するプルリクエストを歓迎します。プルリクエストに用途を記載していただけると助かります。
 
-The hooks try to follow one of two formats:
+フック名は、次のいずれかの形式に沿うようにしています。
 
-[subject] [verb] - eg, note_type_added, card_will_render
+[対象] [動詞] - 例: `note_type_added`、`card_will_render`
 
-[module] [verb] [subject] - eg, browser_did_change_row, editor_did_update_tags
+[モジュール] [動詞] [対象] - 例: `browser_did_change_row`、`editor_did_update_tags`
 
-The qt code tends to use the second form, as the hooks tend to focus on
-particular screens. The pylib code tends to use the first form, as the focus
-is usually subjects like cards, notes, etc.
+Qt のコードでは、特定の画面に関するフックが多いため、2つ目の形式がよく使われます。pylib のコードでは、カードやノートなどの対象に焦点を当てるため、1つ目の形式がよく使われます。
 
-Using "did change" instead of the past tense "changed" can seem awkward, but
-makes it consistent with "will", and is similar to the naming style used in
-iOS's libraries.
+過去形の `changed` の代わりに `did change` を使うと不自然に感じるかもしれませんが、`will` と形式をそろえられ、iOS のライブラリで使われる命名方法にも似ています。
 
-In most cases, hooks are better added in the GUI code than in pylib.
+多くの場合、フックは pylib より GUI のコードに追加する方が適しています。
 
-The hook code is automatically generated using the definitions in
-pylib/tools/genhooks.py and qt/tools/genhooks_gui.py. Adding a new definition
-in one of those files will update the generated files.
+フックのコードは `pylib/tools/genhooks.py` と `qt/tools/genhooks_gui.py` の定義から自動生成されます。どちらかのファイルに新しい定義を追加すると、生成ファイルが更新されます。
 
-If you want to change an existing hook to, for example, receive an additional
-argument, you must leave the existing hook unchanged to preserve backwards
-compatibility. Create a new definition for your hook with a similar name and
-include the properties `replaces="name_of_old_hook"` and
-`replaced_hook_args=["..."]` in the definition of the new hook. If the old hook
-has a legacy hook, you must not add the legacy hook to the definition of the
-new hook.
+既存のフックに引数を追加するなど、変更する場合は、後方互換性を保つために既存のフックをそのまま残してください。名前の似た新しいフック定義を作成し、新しいフックの定義に `replaces="name_of_old_hook"` と `replaced_hook_args=["..."]` を指定します。古いフックに旧形式のフックがある場合、新しいフックの定義に旧形式のフックを追加しないでください。
 
-## Translations
+## 翻訳
 
-For information on adding new translatable strings to Anki, please see
-[the translation guide](/translators/anki/developers).
+Anki に翻訳可能な文字列を追加する方法は、[翻訳ガイド](/translators/anki/developers)をご覧ください。
 
-For information on translating the documentation, please see
-[translating the manual](/translators/anki/manual).
+ドキュメントの翻訳方法は、[マニュアルの翻訳](/translators/anki/manual)をご覧ください。
 
-## Tests Must Pass
+## テストを通す
 
-Please make sure 'ninja check' completes successfully before submitting code.
+コードを提出する前に、`ninja check` が正常に完了することを確認してください。
 
-[pre-commit](https://pre-commit.com/) is used to run that check from a Git hook.
-It is configured in `.pre-commit-config.yaml` at the repository root. After
-installing the dev dependencies (for example `uv sync --group dev`), run one of:
+Git フックからこのチェックを実行するには、[pre-commit](https://pre-commit.com/)を使います。リポジトリのルートにある `.pre-commit-config.yaml` で設定されています。開発用の依存関係をインストールした後（例: `uv sync --group dev`）、次のいずれかを実行します。
 
 ```
 uv run pre-commit install --hook-type pre-push
@@ -150,46 +104,28 @@ uv run pre-commit install --hook-type pre-push
 python3 -m pre_commit install --hook-type pre-push
 ```
 
-(`pre-commit` alone only works if that executable is on your `PATH`, for example
-after `pip install --user pre-commit` or with your virtual environment activated.)
+（`pre-commit` 実行ファイルが PATH にある場合、たとえば `pip install --user pre-commit` 後や仮想環境を有効にした場合は、`pre-commit` のみでも実行できます。）
 
-The bundled hook runs `./ninja check` on **pre-push** (not on every commit),
-because the full check suite can take a long time. You can still run
-`./ninja check` manually at any time.
+同梱のフックは、すべてのチェックに時間がかかるため、コミットごとではなく **pre-push** 時に `./ninja check` を実行します。必要に応じて、いつでも手動で `./ninja check` を実行できます。
 
-You may need to ensure your usual shell `PATH` is visible to the hook (for
-example if tools such as `ninja` are installed outside standard locations),
-because pre-commit does not use a login shell and a different path can cause
-extra rebuilds.
+`ninja` などのツールを標準以外の場所にインストールしている場合は、普段使うシェルの `PATH` がフックから参照できることを確認してください。pre-commit はログインシェルを使わないため、PATH の違いで余分な再ビルドが起きる場合があります。
 
-New or changed behavior must be covered by tests. Exceptions where tests are not
-required: version bumps, documentation-only changes, translation updates, dependency
-updates, and CI/build housekeeping (chore).
+新しい動作や変更した動作は、テストで確認してください。テストが不要な例外は、バージョン更新、ドキュメントのみの変更、翻訳の更新、依存関係の更新、CI/ビルドの保守作業（chore）です。
 
-## Code Style
+## コードスタイル
 
-Please use standard Python snake_case variable names and functions in newly
-introduced code. Because add-ons often rely on existing function names, if
-renaming an existing function, please add a legacy alias to the old function.
+新たに追加するコードでは、Python 標準の snake_case 形式の変数名と関数名を使ってください。既存の関数名を変更する場合、アドオンがその関数名に依存していることが多いため、古い関数名のエイリアスも追加してください。
 
-## Do One Thing
+## 1つの変更に絞る
 
-A patch or pull request should be the minimum necessary to address one issue.
-Please don't make a pull request for a bunch of unrelated changes, as they are
-difficult to review and will be rejected - split them up into separate
-requests instead.
+パッチやプルリクエストは、1つの問題を解決するために必要な最小限の変更にしてください。無関係な変更をまとめたプルリクエストはレビューが難しく、却下されるため、別々に分けてください。
 
-## AI-Assisted Contributions
+## AI を使った貢献
 
-Using AI tools to help write or review code is permitted. However, you must
-understand every change you submit. If you cannot explain what your changes
-do and how they interact with the rest of the system, your PR will be closed.
+コードの作成やレビューに AI ツールを使うことは認められています。ただし、提出する変更をすべて理解している必要があります。変更内容とコードベースへの影響を説明できない場合、プルリクエストは閉じられます。
 
-Please review AI-generated code carefully before submitting. PRs that appear
-to have been submitted without human review — e.g., irrelevant code, duplicate
-logic, or comments that don't match the implementation — may be closed without
-further discussion.
+AI が生成したコードは慎重にレビューしてください。人による確認なしで提出されたように見えるプルリクエスト（無関係なコード、重複したロジック、実装と合わないコメントなど）は、追加の議論なしに閉じられる場合があります。
 
-## License
+## ライセンス
 
-Please add yourself to the [CONTRIBUTORS](https://github.com/ankitects/anki/blob/main/CONTRIBUTORS) file in your first pull request.
+最初のプルリクエストで、[CONTRIBUTORS](https://github.com/ankitects/anki/blob/main/CONTRIBUTORS)ファイルに自分の名前を追加してください。

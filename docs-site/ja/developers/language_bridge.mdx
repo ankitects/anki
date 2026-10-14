@@ -1,88 +1,84 @@
 ---
-title: "Language Bridge"
+title: "言語間ブリッジ"
 ---
 
-Anki's codebase uses three layers.
+Anki のコードベースは、次の3つの層で構成されています。
 
-1. The web frontend, created in Svelte and typescript,
-2. The Python layer and
-3. The core Rust layer.
+1. Svelte と TypeScript で作られた Web フロントエンド
+2. Python 層
+3. Rust コア層
 
-Each layer can can makes RPC (Remote Procedure Call) to the layers below it. While it should be avoided, Python can also invoke Typescript functions. The Rust layers never make calls to the other layers. Note that it can make RPC to AnkiWeb and other servers, which is out of scope of this document.
+各層は、その下位の層に RPC（Remote Procedure Call）を行えます。避けるべきですが、Python から TypeScript の関数を呼び出すこともできます。Rust 層から他の層を呼び出すことはありません。AnkiWeb などのサーバーへの RPC は可能ですが、このドキュメントの対象外です。
 
-In this document we'll provide examples of bridge between languages, explaining:
+このドキュメントでは、言語間ブリッジの例を使って、次の点を説明します。
 
-- where the RPC is declared,
-- where it is called (with the appropriate imports) and
-- where it is implemented.
+- RPC の宣言場所
+- 適切なインポートを含む呼び出し場所
+- 実装場所
 
-Imitating those examples should allow you to make call and create new RPCs.
+これらの例に倣えば、新しい RPC を呼び出したり追加したりできます。
 
-## Declaring RPCs
+## RPC の宣言
 
-Let's consider the method `NewDeck` of `DecksServices`. It's declared in [decks.proto](https://github.com/ankitects/anki/blob/acaeee91fa853e4a7a78dcddbb832d009ec3529a/proto/anki/decks.proto#L14) as `rpc NewDeck(generic.Empty) returns (Deck);`. This means this methods takes no argument (technically, an argument containing no information), and returns a [`Deck`](https://github.com/ankitects/anki/blob/acaeee91fa853e4a7a78dcddbb832d009ec3529a/proto/anki/decks.proto#L54).
+`DecksServices` の `NewDeck` メソッドを例にします。このメソッドは [decks.proto](https://github.com/ankitects/anki/blob/acaeee91fa853e4a7a78dcddbb832d009ec3529a/proto/anki/decks.proto#L14) で `rpc NewDeck(generic.Empty) returns (Deck);` と宣言されています。引数を受け取らず（厳密には情報を含まない引数を受け取り）、[`Deck`](https://github.com/ankitects/anki/blob/acaeee91fa853e4a7a78dcddbb832d009ec3529a/proto/anki/decks.proto#L54) を返すという意味です。
 
-Read [protobuf](/developers/protobuf) to learn more about how those input and output types are defined.
+入出力の型の定義については、[protobuf](/developers/protobuf) を参照してください。
 
-If the RPC implementation is in Python, it should be declared in the service [frontend.proto](https://github.com/ankitects/anki/blob/acaeee91fa853e4a7a78dcddbb832d009ec3529a/proto/anki/frontend.proto#L24C3-L24C66)'s `FrontendService`. RPCs declared in any other services are implemented in Rust.
+RPC の実装が Python にある場合は、サービス [frontend.proto](https://github.com/ankitects/anki/blob/acaeee91fa853e4a7a78dcddbb832d009ec3529a/proto/anki/frontend.proto#L24C3-L24C66) の `FrontendService` に宣言します。他のサービスに宣言された RPC は Rust で実装します。
 
-## Making a Remote Procedure Call
+## リモートプロシージャコールを行う
 
-In this section we'll consider how to make Remote Procedure Call (RPC) from languages used in Anki. Languages used for AnkiDroid and AnkiMobile are out of scope of this document.
+ここでは、Anki で使われる言語から RPC（Remote Procedure Call）を行う方法を説明します。AnkiDroid と AnkiMobile で使われる言語は対象外です。
 
-### Making a RPC from Python
+### Python から RPC を行う
 
-Python can invoke the `NewDeck` method with [`col._backend.new_deck()`](https://github.com/ankitects/anki/blob/acaeee91fa853e4a7a78dcddbb832d009ec3529a/pylib/anki/decks.py#L168). This python method takes no argument and returns a `Deck` value.
+Python からは [`col._backend.new_deck()`](https://github.com/ankitects/anki/blob/acaeee91fa853e4a7a78dcddbb832d009ec3529a/pylib/anki/decks.py#L168) を使って `NewDeck` メソッドを呼び出せます。この Python メソッドは引数を取らず、`Deck` 値を返します。
 
-However, most Python code should not call this method directly. Instead it should call [`col.decks.new_deck()`](https://github.com/ankitects/anki/blob/acaeee91fa853e4a7a78dcddbb832d009ec3529a/pylib/anki/decks.py#L166). Generally speaking, all back-end functions called from Python should be called through a helper method defined in `pylib/anki/`. The `_backend` part is an implementation detail that most callers should ignore. This is especially important because add-ons should expect a relatively stable API independent of the implementation details of the RPC.
+ただし、ほとんどの Python コードでは、このメソッドを直接呼び出すべきではありません。代わりに [`col.decks.new_deck()`](https://github.com/ankitects/anki/blob/acaeee91fa853e4a7a78dcddbb832d009ec3529a/pylib/anki/decks.py#L166) を呼び出します。一般に、Python から呼ぶバックエンド関数は `pylib/anki/` に定義されたヘルパーメソッドを経由します。`_backend` の部分は実装の詳細なので、呼び出し側では通常意識する必要はありません。特にアドオンでは、RPC の実装詳細に左右されない、比較的安定した API を利用できることが重要です。
 
-### Invoking method from TypeScript
+### TypeScript からメソッドを呼び出す
 
-Let's consider the method [`rpc GetCsvMetadata(CsvMetadataRequest) returns (CsvMetadata);`](https://github.com/ankitects/anki/blob/acaeee91fa853e4a7a78dcddbb832d009ec3529a/proto/anki/import_export.proto#L20) from `ImportExportService`..
+`ImportExportService` の [`rpc GetCsvMetadata(CsvMetadataRequest) returns (CsvMetadata);`](https://github.com/ankitects/anki/blob/acaeee91fa853e4a7a78dcddbb832d009ec3529a/proto/anki/import_export.proto#L20) を例にします。
 
-It's used in the TypeScript class [`ImportCsvState`](https://github.com/ankitects/anki/blob/acaeee91fa853e4a7a78dcddbb832d009ec3529a/ts/routes/import-csv/lib.ts#L102), as an asynchronous function. It's argument is a single javascript object, whose keys are as in [`CsvMetadataRequest`](https://github.com/ankitects/anki/blob/acaeee91fa853e4a7a78dcddbb832d009ec3529a/proto/anki/import_export.proto#L138) and it returns a `CsvMetadata`.
+この RPC は TypeScript クラス [`ImportCsvState`](https://github.com/ankitects/anki/blob/acaeee91fa853e4a7a78dcddbb832d009ec3529a/ts/routes/import-csv/lib.ts#L102) で非同期関数として使われています。引数は [`CsvMetadataRequest`](https://github.com/ankitects/anki/blob/acaeee91fa853e4a7a78dcddbb832d009ec3529a/proto/anki/import_export.proto#L138) のフィールドをキーに持つ JavaScript オブジェクト1つで、戻り値は `CsvMetadata` です。
 
-The method was imported with `import { getCsvMetadata } from "@generated/backend";` and the types were imported with `import type { CsvMetadata } from "@generated/anki/import_export_pb";`. Note that it was not necessary to import the input type given that it's simply an untyped javascript object.
+メソッドは `import { getCsvMetadata } from "@generated/backend";` で、型は `import type { CsvMetadata } from "@generated/anki/import_export_pb";` でインポートします。入力は型指定のない JavaScript オブジェクトなので、入力型をインポートする必要はありません。
 
-## Implementation
+## 実装
 
-Let's now look at implementations of those RPCs.
+それぞれの RPC の実装を見ていきます。
 
-### Implementation in Rust
+### Rust での実装
 
-The method NewDeck is implemented in Rust's [DecksService](https://github.com/ankitects/anki/blob/acaeee91fa853e4a7a78dcddbb832d009ec3529a/rslib/src/decks/service.rs#L21) as `fn new_deck(&mut self) -> error::Result<anki_proto::decks::Deck>`. It should be noted that the method name was changed from Pascal case to snake case, and the rps's argument of type `generic.Empty` is ignored.
+`NewDeck` メソッドは Rust の [DecksService](https://github.com/ankitects/anki/blob/acaeee91fa853e4a7a78dcddbb832d009ec3529a/rslib/src/decks/service.rs#L21) に `fn new_deck(&mut self) -> error::Result<anki_proto::decks::Deck>` として実装されています。メソッド名は PascalCase から snake_case に変換され、RPC 引数の `generic.Empty` は無視されます。
 
-### Implementation in Python
+### Python での実装
 
-Let's consider the implementation of the method [DeckOptionsRequireClose](https://github.com/ankitects/anki/blob/acaeee91fa853e4a7a78dcddbb832d009ec3529a/qt/aqt/mediasrv.py#L578). It's defined as `def deck_options_require_close() -> bytes:`. In this case, there should be a returned value. However, it'll be ignored, so returning `b""` is perfectly fine.
+[DeckOptionsRequireClose](https://github.com/ankitects/anki/blob/acaeee91fa853e4a7a78dcddbb832d009ec3529a/qt/aqt/mediasrv.py#L578) メソッドの実装を例にします。これは `def deck_options_require_close() -> bytes:` と定義されています。この場合、戻り値はありますが使用されないため、`b""` を返して問題ありません。
 
-Note that the incoming HTTP request is not processed on the main thread. In order to do any work with the GUI, we should call `aqt.mw.taskman.run_on_main`.
+受信した HTTP リクエストはメインスレッドで処理されません。GUI を操作する場合は、`aqt.mw.taskman.run_on_main` を呼び出してください。
 
-## Invoking a TypeScript method from Python
+## Python から TypeScript のメソッドを呼び出す
 
-This case should be avoided if possible, as we generally should avoid
-calls to the upper layer. Contrary to the previous cases, we don't use
-protobuf.
+可能であればこの方法は避けてください。通常、上位層への呼び出しは避けるべきです。これまでの例とは異なり、protobuf は使いません。
 
-### Calling a TS function.
+### TS 関数の呼び出し
 
-Let's take as Example [`export function getTypedAnswer(): string | null`](https://github.com/ankitects/anki/blob/acaeee91fa853e4a7a78dcddbb832d009ec3529a/ts/reviewer/index.ts#L35). It's an exported function, and its return type can be encoded in JSON.
+例として [`export function getTypedAnswer(): string | null`](https://github.com/ankitects/anki/blob/acaeee91fa853e4a7a78dcddbb832d009ec3529a/ts/reviewer/index.ts#L35) を見てみましょう。これはエクスポートされた関数で、戻り値は JSON にエンコードできます。
 
-It's called in the Reviewer class through [`self.web.evalWithCallback("getTypedAnswer();", self._onTypedAnswer)`](https://github.com/ankitects/anki/blob/acaeee91fa853e4a7a78dcddbb832d009ec3529a/qt/aqt/reviewer.py#L785). The result is then sent to [`_onTypedAnswer`](https://github.com/ankitects/anki/blob/acaeee91fa853e4a7a78dcddbb832d009ec3529a/qt/aqt/reviewer.py#L787).
+Reviewer クラスから [`self.web.evalWithCallback("getTypedAnswer();", self._onTypedAnswer)`](https://github.com/ankitects/anki/blob/acaeee91fa853e4a7a78dcddbb832d009ec3529a/qt/aqt/reviewer.py#L785) を使って呼び出します。結果は [`_onTypedAnswer`](https://github.com/ankitects/anki/blob/acaeee91fa853e4a7a78dcddbb832d009ec3529a/qt/aqt/reviewer.py#L787) に渡されます。
 
-If no return value is needed, `web.eval` would have been sufficient.
+戻り値が不要なら、`web.eval` で十分です。
 
-### Calling a Svelte method
+### Svelte メソッドの呼び出し
 
-Let's now consider the case where the method we want to call is implemented in a Svelte library. Let's take as example [`deckOptionsPendingChanges`](https://github.com/ankitects/anki/blob/acaeee91fa853e4a7a78dcddbb832d009ec3529a/ts/routes/deck-options/%5BdeckId%5D/%2Bpage.svelte#L17). We define it with:
+呼び出したいメソッドが Svelte ライブラリに実装されている場合を考えます。例として [`deckOptionsPendingChanges`](https://github.com/ankitects/anki/blob/acaeee91fa853e4a7a78dcddbb832d009ec3529a/ts/routes/deck-options/%5BdeckId%5D/%2Bpage.svelte#L17) を使います。次のように定義します。
 
 ```js
 globalThis.anki || = {};
 globalThis.anki.methodName = async (): Promise<void>=>{body}
 ```
 
-Note that if the function is asynchronous, you can't directly send the
-result to a callback. Instead your function will have to call a post
-method that will be sent to Python or Rust.
+関数が非同期の場合、結果をコールバックに直接渡すことはできません。代わりに、Python または Rust に送る post メソッドを関数内から呼び出す必要があります。
 
-This method is called in [deckoptions.py](https://github.com/ankitects/anki/blob/acaeee91fa853e4a7a78dcddbb832d009ec3529a/qt/aqt/deckoptions.py#L68) with `self.web.eval("anki.deckOptionsPendingChanges();"`.
+このメソッドは [deckoptions.py](https://github.com/ankitects/anki/blob/acaeee91fa853e4a7a78dcddbb832d009ec3529a/qt/aqt/deckoptions.py#L68) で `self.web.eval("anki.deckOptionsPendingChanges();"` を使って呼び出します。

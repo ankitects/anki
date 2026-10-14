@@ -1,57 +1,54 @@
 ---
-title: "End-to-End Testing with Playwright"
+title: "Playwright によるエンドツーエンドテスト"
 ---
 
-Playwright drives a real headless Anki instance via its mediasrv HTTP API.
-Tests live in `ts/tests/e2e/` and are entirely separate from the Vitest unit tests.
+Playwright は mediasrv の HTTP API を介して、実際の Anki ヘッドレスインスタンスを操作します。テストは `ts/tests/e2e/` にあり、Vitest のユニットテストとは完全に分離されています。
 
-## Prerequisites
+## 前提条件
 
-Build Anki at least once before running e2e tests:
+エンドツーエンドテストを実行する前に、少なくとも一度 Anki をビルドしてください。
 
 ```shell
 just build
 ```
 
-That's it. `just test-e2e` automatically installs Playwright's Chromium browser
-into `out/playwright-browsers/` on the first run (idempotent on subsequent runs).
+これだけです。初回の `just test-e2e` 実行時に、Playwright の Chromium ブラウザーが `out/playwright-browsers/` に自動でインストールされます。2回目以降は再利用されます。
 
-## Running tests
+## テストを実行する
 
-### Managed mode (CI-style)
+### 管理モード（CI と同様）
 
-Playwright starts and stops a throwaway Anki instance automatically:
+Playwright が一時的な Anki インスタンスを自動で起動・停止します。
 
 ```shell
 just test-e2e
 ```
 
-The first run can be slow (~60 s) because Anki must fully initialise before tests start.
+初回は、テスト開始前に Anki の初期化が完了するまで待つため、約60秒かかることがあります。
 
-### Reuse-server mode (recommended for development)
+### サーバー再利用モード（開発向け）
 
-Start Anki once in a separate terminal, then reuse it across multiple test runs:
+別のターミナルで Anki を一度起動し、複数回のテストで使い回します。
 
 ```shell
-# Terminal 1 — keep running
+# ターミナル1 — 起動したままにする
 ./run
 
-# Terminal 2 — fast iteration
+# ターミナル2 — すばやく繰り返し実行
 ANKI_E2E_REUSE_SERVER=1 just test-e2e
 ```
 
-### Interactive UI mode
+### 対話型 UI モード
 
-Open Playwright's browser UI to inspect each test step with snapshots:
+Playwright のブラウザー UI を開き、スナップショットを使って各テスト手順を確認します。
 
 ```shell
 ANKI_E2E_REUSE_SERVER=1 just test-e2e --ui
 ```
 
-## Writing tests
+## テストを書く
 
-Add test files to `ts/tests/e2e/` with the `.test.ts` suffix and import from
-`./fixtures` instead of directly from `@playwright/test`:
+テストファイルは `ts/tests/e2e/` に `.test.ts` の拡張子で追加し、`@playwright/test` から直接インポートせず `./fixtures` からインポートしてください。
 
 ```typescript
 import { expect, test } from "./fixtures";
@@ -62,36 +59,30 @@ test("my feature works", async ({ page }) => {
 });
 ```
 
-`fixtures.ts` re-exports `expect` and a pre-configured `test` object. Add
-shared fixtures there as new features require them.
+`fixtures.ts` は `expect` と、設定済みの `test` オブジェクトを再エクスポートします。新機能に応じて共有フィクスチャを追加してください。
 
-## Calling the Anki API from tests
+## テストから Anki API を呼び出す
 
-Anki's `/_anki/` endpoints accept and return protobuf-encoded binary payloads
-(`Content-Type: application/binary`). Use `page.request.post` with
-`Buffer.from(protoMsg.toBinary())` and decode the response with the matching
-generated type from `ts/lib/generated/`.
+Anki の `/_anki/` エンドポイントは、protobuf でエンコードされたバイナリペイロードを受け取り、返します（`Content-Type: application/binary`）。`page.request.post` に `Buffer.from(protoMsg.toBinary())` を渡し、`ts/lib/generated/` にある対応する生成型でレスポンスをデコードしてください。
 
-## Accessing Anki pages
+## Anki のページにアクセスする
 
-Anki's mediasrv serves the following pages over HTTP (non-exhaustive):
+Anki の mediasrv は、以下のページを HTTP 経由で提供します（すべてではありません）。
 
-| URL pattern              | Description                   |
-| ------------------------ | ----------------------------- |
-| `/graphs`                | Statistics graphs (SvelteKit) |
-| `/deck-options/[deckId]` | Deck options (SvelteKit)      |
-| `/congrats`              | Post-study screen (SvelteKit) |
-| `/card-info/[cardId]`    | Card info (SvelteKit)         |
-| `/editor/?mode=[mode]`   | Editor (SvelteKit)            |
-| `/congrats`              | Congrats page (SvelteKit)     |
-| `/favicon.ico`           | Mediasrv liveness probe       |
+| URL パターン | 説明 |
+| --- | --- |
+| `/graphs` | 統計グラフ（SvelteKit） |
+| `/deck-options/[deckId]` | デッキオプション（SvelteKit） |
+| `/congrats` | 学習後の画面（SvelteKit） |
+| `/card-info/[cardId]` | カード情報（SvelteKit） |
+| `/editor/?mode=[mode]` | エディター（SvelteKit） |
+| `/congrats` | お祝い画面（SvelteKit） |
+| `/favicon.ico` | mediasrv の稼働確認エンドポイント |
 
 ## CI
 
-The e2e tests run as part of the `check-linux` job in `.github/workflows/ci.yml`,
-after the regular build and test steps. Screenshots and traces from failed runs
-are uploaded as artifacts and kept for 7 days.
+エンドツーエンドテストは、通常のビルドとテストの後に `.github/workflows/ci.yml` の `check-linux` ジョブの一部として実行されます。失敗した実行のスクリーンショットとトレースは成果物としてアップロードされ、7日間保存されます。
 
-## See also
+## 関連項目
 
-- [Writing Unit Tests for Anki](/developers/unit-testing)
+- [Anki のユニットテストを書く](/developers/unit-testing)
