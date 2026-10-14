@@ -878,19 +878,6 @@
               {
                 "group": "Desktop Manual",
                 "pages": [
-                  "ja/manual/intro"
-                ]
-              }
-            ]
-          }
-        ],
-        "tabs": [
-          {
-            "tab": "Manual",
-            "groups": [
-              {
-                "group": "Desktop Manual",
-                "pages": [
                   "ja/manual/intro",
                   "ja/manual/getting-started",
                   "ja/manual/background",
@@ -1225,6 +1212,17 @@
                   },
                   "ja/translators/ankimobile",
                   "ja/translators/ankidroid"
+                ]
+              }
+            ]
+          },
+          {
+            "tab": "リリース",
+            "groups": [
+              {
+                "group": "リリースノート",
+                "pages": [
+                  "ja/releases/intro"
                 ]
               }
             ]
