@@ -1,0 +1,25 @@
+name: Agent desktop E2E
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [e2e-computer-use-testing]
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v4
+      - run: npm install -g @openai/codex@0.160.1
+      - run: python3 tools/agent-e2e/run.py
+        env:
+          CODEX_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        if: always()
+        with:
+          name: agent-e2e
+          path: out/agent-e2e/

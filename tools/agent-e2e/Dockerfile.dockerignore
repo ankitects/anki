@@ -1,0 +1,10 @@
+out
+node_modules
+target
+.venv
+.ruff_cache
+**/__pycache__
+.DS_Store
+extra
+tools/agent-e2e
+.github/workflows/agent-e2e.yml
