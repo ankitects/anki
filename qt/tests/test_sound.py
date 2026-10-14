@@ -3,6 +3,7 @@
 
 import shutil
 import subprocess
+import threading
 import wave
 from pathlib import Path
 from unittest.mock import MagicMock
@@ -123,3 +124,21 @@ def test_mpvmanager_can_play_generated_wav(
     monkeypatch.setattr(aqt, "mw", mock_mw)
     manager = MpvManager(tmp_path, tmp_path)
     manager.play(SoundOrVideoTag(filename=str(generated_wav.name)), lambda _: None)
+
+
+@pytest.mark.skipif(is_lin, reason="mpv is not bundled for Linux")
+def test_mpvmanager_threads_are_shutdown(monkeypatch, tmp_path: Path):
+    mock_mw = MagicMock()
+    mock_mw.taskman.run_in_background.side_effect = (
+        lambda task, on_done=None, **kwargs: task()
+    )
+    monkeypatch.setattr(aqt, "mw", mock_mw)
+    before_threads = set(threading.enumerate())
+    manager = MpvManager(tmp_path, tmp_path)
+    manager.shutdown()
+    leaked = [
+        t
+        for t in threading.enumerate()
+        if t not in before_threads and t.name == "mpv-thread" and t.is_alive()
+    ]
+    assert not leaked, leaked
