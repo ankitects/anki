@@ -873,16 +873,16 @@
         "language": "ja",
         "tabs": [
           {
-            "tab": "Manual",
+            "tab": "マニュアル",
             "groups": [
               {
-                "group": "Desktop Manual",
+                "group": "デスクトップ版マニュアル",
                 "pages": [
                   "ja/manual/intro",
                   "ja/manual/getting-started",
                   "ja/manual/background",
                   {
-                    "group": "Platform Notes",
+                    "group": "プラットフォーム別の補足",
                     "icon": "computer",
                     "pages": [
                       "ja/manual/platform/intro",
@@ -901,7 +901,7 @@
                         ]
                       },
                       {
-                        "group": "MacOS",
+                        "group": "macOS",
                         "icon": "apple",
                         "pages": [
                           "ja/manual/platform/mac/intro",
@@ -930,7 +930,7 @@
                   "ja/manual/studying",
                   "ja/manual/editing",
                   {
-                    "group": "Card Templates",
+                    "group": "カードテンプレート",
                     "icon": "cards-blank",
                     "pages": [
                       "ja/manual/templates/intro",
@@ -948,7 +948,7 @@
                   "ja/manual/filtered-decks",
                   "ja/manual/searching",
                   {
-                    "group": "Importing",
+                    "group": "インポート",
                     "icon": "down-from-bracket",
                     "pages": [
                       "ja/manual/importing/intro",
@@ -978,7 +978,7 @@
             "tab": "AnkiMobile",
             "groups": [
               {
-                "group": "AnkiMobile Manual",
+                "group": "AnkiMobile マニュアル",
                 "pages": [
                   "ja/ankimobile/intro",
                   "ja/ankimobile/support",
@@ -1004,15 +1004,15 @@
             ]
           },
           {
-            "tab": "FAQs",
+            "tab": "よくある質問",
             "groups": [
               {
-                "group": "Support FAQs",
+                "group": "サポートに関するよくある質問",
                 "pages": [
                   "ja/faqs/intro",
                   "ja/faqs/restoring-an-automatic-backup-recovering-from-data-loss",
                   {
-                    "group": "Cards and Notes",
+                    "group": "カードとノート",
                     "icon": "cards-blank",
                     "pages": [
                       "ja/faqs/linking-cards-together",
@@ -1035,7 +1035,7 @@
                     ]
                   },
                   {
-                    "group": "Decks",
+                    "group": "デッキ",
                     "icon": "book-sparkles",
                     "pages": [
                       "ja/faqs/a-deck-i-want-has-disappeared-from-ankiweb",
@@ -1050,7 +1050,7 @@
                     ]
                   },
                   {
-                    "group": "Scheduling",
+                    "group": "学習スケジュール",
                     "icon": "calendar-clock",
                     "pages": [
                       "ja/faqs/anki-is-not-showing-me-all-my-cards",
@@ -1070,7 +1070,7 @@
                     ]
                   },
                   {
-                    "group": "Synchronising and Ankiweb",
+                    "group": "同期と AnkiWeb",
                     "icon": "globe-pointer",
                     "pages": [
                       "ja/faqs/ankiweb-account-removal",
@@ -1087,7 +1087,7 @@
                     ]
                   },
                   {
-                    "group": "Anki Desktop",
+                    "group": "Anki デスクトップ版",
                     "icon": "computer",
                     "pages": [
                       "ja/faqs/shortcut-not-working",
@@ -1101,7 +1101,7 @@
                     ]
                   },
                   {
-                    "group": "Anki Mobile",
+                    "group": "Anki モバイル版",
                     "icon": "mobile",
                     "pages": [
                       "ja/faqs/requesting-a-refund-for-ankimobile",
@@ -1110,7 +1110,7 @@
                     ]
                   },
                   {
-                    "group": "Other Apps",
+                    "group": "その他のアプリ",
                     "pages": [
                       "ja/faqs/ankidroid-has-a-separate-support-site",
                       "ja/faqs/anki-knockoffs",
@@ -1119,7 +1119,7 @@
                     ]
                   },
                   {
-                    "group": "Misc",
+                    "group": "その他",
                     "pages": [
                       "ja/faqs/anki-2.0-support-has-ended",
                       "ja/faqs/anki-2.0-add-ons",
@@ -1132,10 +1132,10 @@
             ]
           },
           {
-            "tab": "Add-ons",
+            "tab": "アドオン",
             "groups": [
               {
-                "group": "Add-on Development",
+                "group": "アドオン開発",
                 "pages": [
                   "ja/addons/intro",
                   "ja/addons/support",
@@ -1163,10 +1163,10 @@
             ]
           },
           {
-            "tab": "Developers",
+            "tab": "開発者向け",
             "groups": [
               {
-                "group": "Core Development",
+                "group": "Anki 本体の開発",
                 "pages": [
                   "ja/developers/development",
                   "ja/developers/api-python",
@@ -1194,14 +1194,14 @@
             ]
           },
           {
-            "tab": "Translators",
+            "tab": "翻訳者向け",
             "groups": [
               {
-                "group": "Translation Guide",
+                "group": "翻訳ガイド",
                 "pages": [
                   "ja/translators/intro",
                   {
-                    "group": "Translating Anki",
+                    "group": "Anki の翻訳",
                     "pages": [
                       "ja/translators/anki/intro",
                       "ja/translators/anki/core",
