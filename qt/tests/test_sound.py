@@ -5,6 +5,7 @@ import shutil
 import subprocess
 import wave
 from pathlib import Path
+from threading import Event
 from unittest.mock import MagicMock
 
 import pytest
@@ -112,7 +113,7 @@ def test_mpv_can_play_generated_wav(generated_wav: Path):
 @pytest.mark.skipif(is_lin, reason="mpv is not bundled for Linux")
 def test_mpvmanager_can_play_generated_wav(
     monkeypatch, tmp_path: Path, generated_wav: Path
-):
+) -> None:
     monkeypatch.setattr(
         MpvManager, "default_argv", MpvManager.default_argv + ["--ao=null", "--vo=null"]
     )
@@ -120,6 +121,23 @@ def test_mpvmanager_can_play_generated_wav(
     mock_mw.taskman.run_in_background.side_effect = (
         lambda task, on_done=None, **kwargs: task()
     )
+    mock_mw.taskman.run_on_main.side_effect = lambda callback: callback()
     monkeypatch.setattr(aqt, "mw", mock_mw)
-    manager = MpvManager(tmp_path, tmp_path)
-    manager.play(SoundOrVideoTag(filename=str(generated_wav.name)), lambda _: None)
+    loaded = Event()
+    completed = Event()
+
+    def on_done() -> None:
+        if loaded.is_set():
+            completed.set()
+
+    manager = MpvManager(str(tmp_path), str(tmp_path))
+    try:
+        manager.register_callback("file-loaded", loaded.set)
+        manager.play(SoundOrVideoTag(filename=generated_wav.name), on_done)
+        assert loaded.wait(timeout=10), "mpv did not load the generated WAV"
+        assert completed.wait(timeout=10), (
+            "mpv did not finish playing the generated WAV"
+        )
+    finally:
+        manager.shutdown()
+    assert not manager.is_running()
