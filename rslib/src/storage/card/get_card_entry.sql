@@ -7,4 +7,4 @@ SELECT cards.id,
   cards.ord,
   notes.mid
 FROM cards
-JOIN notes ON notes.id = cards.nid;
+  JOIN notes ON notes.id = cards.nid;
