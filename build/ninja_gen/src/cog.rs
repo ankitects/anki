@@ -9,7 +9,7 @@ use crate::input::BuildInput;
 use crate::inputs;
 use crate::Build;
 
-struct CogRender<'a> {
+pub struct CogRender<'a> {
     pub inputs: &'a BuildInput,
     pub deps: &'a BuildInput,
     pub check_only: bool,
