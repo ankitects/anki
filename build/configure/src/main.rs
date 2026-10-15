@@ -16,7 +16,7 @@ use std::env;
 use anyhow::Result;
 use aqt::build_and_check_aqt;
 use audio::build_audio;
-use docs::check_cog;
+use docs::check_docs;
 use installer::build_installer;
 use ninja_gen::glob;
 use ninja_gen::inputs;
@@ -66,7 +66,7 @@ fn main() -> Result<()> {
     check_rust(build)?;
     check_pylib(build)?;
     check_python(build)?;
-    check_cog(build)?;
+    check_docs(build)?;
 
     check_sql(build)?;
     check_minilints(build)?;

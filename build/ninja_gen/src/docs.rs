@@ -65,3 +65,17 @@ pub fn cog_render(
     )?;
     Ok(())
 }
+
+pub struct DocsCopy {}
+
+impl BuildAction for DocsCopy {
+    fn command(&self) -> &str {
+        "out/pyenv/bin/python tools/docs.py copy ar"
+    }
+
+    fn files(&mut self, build: &mut impl FilesHandle) {
+        build.add_inputs("", inputs![":pyenv:bin", "tools/docs.py"]);
+
+        build.add_output_stamp("tests/docs_copy");
+    }
+}

@@ -3,11 +3,23 @@
 use anyhow::Result;
 use ninja_gen::docs::cog_render;
 use ninja_gen::docs::CogRender;
+use ninja_gen::docs::DocsCopy;
 use ninja_gen::glob;
 use ninja_gen::inputs;
 use ninja_gen::Build;
 
-pub fn check_cog(build: &mut Build) -> Result<()> {
+pub fn check_docs(build: &mut Build) -> Result<()> {
+    check_cog(build)?;
+    check_copy(build)?;
+    Ok(())
+}
+
+fn check_copy(build: &mut Build) -> Result<()> {
+    build.add_action("check:format:copy", DocsCopy {})?;
+    Ok(())
+}
+
+fn check_cog(build: &mut Build) -> Result<()> {
     cog_render(
         build,
         "docs",
