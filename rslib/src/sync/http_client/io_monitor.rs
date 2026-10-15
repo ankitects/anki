@@ -17,7 +17,8 @@ use reqwest::Body;
 use reqwest::RequestBuilder;
 use reqwest::Response;
 use reqwest::StatusCode;
-use tokio::io::AsyncReadExt;
+use tokio::io::AsyncWrite;
+use tokio::io::AsyncWriteExt;
 use tokio::select;
 use tokio::time::interval;
 use tokio::time::Instant;
@@ -106,6 +107,24 @@ impl IoMonitor {
         request_body: Vec<u8>,
         stall_duration: Duration,
     ) -> HttpResult<Vec<u8>> {
+        let mut buf = vec![];
+        self.zstd_request_into_with_timeout(request, request_body, stall_duration, &mut buf)
+            .await?;
+        Ok(buf)
+    }
+
+    /// Like [Self::zstd_request_with_timeout], but streams the decompressed
+    /// response body into `writer` instead of buffering it in memory.
+    pub async fn zstd_request_into_with_timeout<W>(
+        &self,
+        request: RequestBuilder,
+        request_body: Vec<u8>,
+        stall_duration: Duration,
+        writer: &mut W,
+    ) -> HttpResult<()>
+    where
+        W: AsyncWrite + Unpin,
+    {
         let request_total = request_body.len() as u32;
         let request_body_stream = encode_zstd_body_stream(self.wrap_stream(
             true,
@@ -135,16 +154,18 @@ impl IoMonitor {
                 StreamReader::new(response_stream.map_err(|e| {
                     std::io::Error::new(ErrorKind::ConnectionAborted, format!("{e}"))
                 }));
-            let mut buf = Vec::with_capacity(response_total as usize);
-            reader
-                .read_to_end(&mut buf)
+            tokio::io::copy(&mut reader, writer)
                 .await
                 .or_http_err(StatusCode::SEE_OTHER, "reading stream")?;
-            Ok::<_, HttpError>(buf)
+            writer
+                .flush()
+                .await
+                .or_http_err(StatusCode::SEE_OTHER, "flushing stream")?;
+            Ok::<_, HttpError>(())
         };
         select! {
             // happy path
-            data = response_body_stream => Ok(data?),
+            data = response_body_stream => data,
             // timeout
             _ = self.timeout(stall_duration) => {
                 Err(HttpError {

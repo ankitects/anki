@@ -90,9 +90,19 @@ the following in your card template:
     {{tts en_US:Front}}
 ```
 
-On Windows, macOS, and iOS, Anki will use the OS’s built-in voices. On
-Linux, no voices are built in, but voices can be provided by add-ons,
-such as [this one](https://ankiweb.net/shared/info/391644525).
+On Windows, macOS, and iOS, Anki will use the OS’s built-in voices.
+
+On Linux, Anki does not ship a TTS engine. Cards with `{{tts}}` tags will
+show `no players found for TTSTag(...)` until you install a TTS add-on.
+The sample [gTTS text to speech support](https://ankiweb.net/shared/info/391644525)
+add-on is enough for many people:
+
+1. **Tools → Add-ons → Get Add-ons…**
+2. Paste `391644525` and click OK.
+3. Restart Anki.
+
+After installing the add-on, restart Anki. TTS tags can then use the
+languages supported by the add-on.
 
 To see a list of all available languages/voices, place the following on
 your card template:
@@ -488,3 +498,24 @@ If you don't want Anki to compare accents on characters in your typed input with
 
 This makes sure a difference in accents isn't marked as incorrect by Anki.
 For example, `بطيخ` would be treated the same as `بَطِّيخ` or `elite` would be treated same as `élite`.
+
+### Ignoring Capitalization
+
+If capitalization isn't what you're testing, you can use `type:ci` to make the
+comparison case-insensitive.
+
+```text
+{{type:ci:Front}}
+```
+
+With this, typing `paris` when the field contains `Paris` is not marked as
+incorrect. The correct answer is still shown with its original capitalization.
+
+The modifiers can be combined, in any order, so that both accents and
+capitalization are ignored:
+
+```text
+{{type:nc:ci:Front}}
+```
+
+They can be combined with `cloze` as well, e.g. `{{type:cloze:ci:Text}}`.

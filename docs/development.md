@@ -23,10 +23,8 @@ Pre-built Python packages are available on PyPI. They are useful if you wish to:
 - Get code completion when developing add-ons
 - Make command line scripts that modify .anki2 files via Anki's Python libraries
 
-You will need the 64 bit version of Python 3.9 or later installed. 3.9 is
-recommended, as Anki has only received minimal testing on 3.10+ so far, and some
-dependencies have not been fully updated yet. You can install Python from python.org
-or from your distro.
+You will need the 64 bit version of Python 3.10 or later installed. You can install
+Python from python.org or from your distro.
 
 For further instructions, please see https://betas.ankiweb.net/#via-pypipip. Note that
 in the provided commands, `--pre` tells pip to fetch alpha/beta versions. If you remove
@@ -49,7 +47,7 @@ On all platforms, you will need to install:
   placed on your path, or from your distro/homebrew if it's 1.10+.
     - On Windows, if you have WSL installed, it may conflict with MSYS2 bash. If you are getting an error, try running `C:\msys64\usr\bin\bash.exe tools/install-n2` instead.
 - (Optional) [just](https://just.systems/man/en/packages.html) command runner.
-  Install with `brew install just` or `uv tool install just`.
+  Install with `brew install just` or `uv tool install rust-just`.
   We are experimenting with `just` as the official tool for running
   Anki-specific commands, and it will likely become the source of truth
   in the future.

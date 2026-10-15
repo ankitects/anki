@@ -136,11 +136,14 @@ deck-config-bury-priority-tooltip =
 
 deck-config-ordering-title = Display Order
 deck-config-new-gather-priority = New card gather order
-deck-config-new-gather-priority-tooltip-2 =
+deck-config-new-gather-priority-tooltip-3 =
     `Deck`: Gathers cards from each subdeck in order, starting from the top. Cards from each subdeck are
     gathered in ascending position. If the daily limit of the selected deck is reached, gathering
     can stop before all subdecks have been checked. This order is fastest in large collections, and
     allows you to prioritize subdecks that are closer to the top.
+    
+    `Deck, then random notes`: Like `Random notes`, but goes through subdecks in order,
+    as `Deck` does, picking notes at random within each subdeck and gathering all of their cards.
     
     `Ascending position`: Gathers cards by ascending position (due #), which is typically
     the oldest-added first.

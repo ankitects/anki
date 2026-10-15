@@ -70,6 +70,21 @@ class AnkiWebViewKind(Enum):
     PREFERENCES = "preferences"
 
 
+def _is_internal_url(url: QUrl) -> bool:
+    from aqt import mw
+
+    server = QUrl(mw.serverURL())
+    if url.scheme() == server.scheme() and url.authority() == server.authority():
+        return True
+    # Vite server
+    return (
+        bool(hmr_mode)
+        and url.scheme() == "http"
+        and url.host() == "127.0.0.1"
+        and url.port() == 5173
+    )
+
+
 class AuthInterceptor(QWebEngineUrlRequestInterceptor):
     _api_enabled = False
 
@@ -80,7 +95,7 @@ class AuthInterceptor(QWebEngineUrlRequestInterceptor):
     def interceptRequest(self, info):
         from aqt.mediasrv import _APIKEY
 
-        if self._api_enabled and info.requestUrl().host() == "127.0.0.1":
+        if self._api_enabled and _is_internal_url(info.requestUrl()):
             info.setHttpHeader(b"Authorization", f"Bearer {_APIKEY}".encode("utf-8"))
 
 
@@ -254,13 +269,17 @@ class AnkiWebPage(QWebEnginePage):
     ) -> bool:
         from aqt.mediasrv import get_sveltekit_route
 
-        if (
-            not self.open_links_externally
-            or "_anki/pages" in url.path()
-            or url.path() == "/_anki/legacyPageData"
-            or get_sveltekit_route(url.path()[1:])
-        ):
+        if not self.open_links_externally:
             return super().acceptNavigationRequest(url, navType, isMainFrame)
+
+        if _is_internal_url(url):
+            path = url.path()
+            if (
+                path.startswith("/_anki/pages/")
+                or path == "/_anki/legacyPageData"
+                or get_sveltekit_route(path[1:])
+            ):
+                return super().acceptNavigationRequest(url, navType, isMainFrame)
 
         if not isMainFrame:
             return True

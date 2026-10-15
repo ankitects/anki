@@ -103,9 +103,9 @@ impl Collection {
     fn build_filtered_deck(&mut self, ctx: DeckFilterContext) -> Result<usize> {
         let start = -100_000;
         let mut position = start;
-        let fsrs = self.get_config_bool(BoolKey::Fsrs);
+        let fsrs_enabled = self.fsrs_enabled();
         for term in ctx.config.search_terms.iter().take(2) {
-            position = self.move_cards_matching_term(&ctx, term, position, fsrs)?;
+            position = self.move_cards_matching_term(&ctx, term, position, fsrs_enabled)?;
         }
 
         Ok((position - start) as usize)

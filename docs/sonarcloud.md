@@ -46,10 +46,20 @@ build or test contributor code.
    scanner and is never built, installed, or used as tooling.
 3. It replaces `sonar-project.properties` with the default branch's trusted
    copy, preventing a fork from changing the server or enabling build tools.
-4. For internal changes, it downloads the coverage artifact from the triggering
+   The analysed version comes from the same trusted checkout of `.version`, so
+   that new code is measured since the previous release rather than since a
+   constant version.
+4. For a pull request, it fetches the target branch from the trusted upstream
+   repository and pins it locally under the name passed as
+   `sonar.pullrequest.base`. SonarCloud derives the changed-file set from git,
+   so without the correct upstream base reference it may attribute unrelated
+   changes to the pull request. A fork's local base reference may be outdated.
+   The step logs the analysed commit, base repository and branch, base commit,
+   and merge-base, and fails closed if the reference cannot be resolved.
+5. For internal changes, it downloads the coverage artifact from the triggering
    CI run. For forks, report paths are cleared and all sources are excluded only
    from the coverage calculation.
-5. Only the scanner step receives `SONAR_TOKEN`.
+6. Only the scanner step receives `SONAR_TOKEN`.
 
 ## Trust boundary
 
