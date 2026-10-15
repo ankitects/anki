@@ -1,8 +1,8 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 use anyhow::Result;
-use ninja_gen::cog::cog_render;
-use ninja_gen::cog::CogRender;
+use ninja_gen::docs::cog_render;
+use ninja_gen::docs::CogRender;
 use ninja_gen::glob;
 use ninja_gen::inputs;
 use ninja_gen::Build;

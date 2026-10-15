@@ -3,7 +3,7 @@
 
 mod aqt;
 mod audio;
-mod cog;
+mod docs;
 mod installer;
 mod platform;
 mod pylib;
@@ -16,7 +16,7 @@ use std::env;
 use anyhow::Result;
 use aqt::build_and_check_aqt;
 use audio::build_audio;
-use cog::check_cog;
+use docs::check_cog;
 use installer::build_installer;
 use ninja_gen::glob;
 use ninja_gen::inputs;
