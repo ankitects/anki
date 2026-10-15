@@ -55,6 +55,7 @@ fn main() -> Result<()> {
 
     build_rust(build)?;
     build_pylib(build)?;
+    check_docs(build)?;
     build_and_check_web(build)?;
     build_and_check_aqt(build)?;
 
@@ -66,7 +67,6 @@ fn main() -> Result<()> {
     check_rust(build)?;
     check_pylib(build)?;
     check_python(build)?;
-    check_docs(build)?;
 
     check_sql(build)?;
     check_minilints(build)?;

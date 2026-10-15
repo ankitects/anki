@@ -4,6 +4,7 @@ use anyhow::Result;
 
 use crate::action::BuildAction;
 use crate::build::FilesHandle;
+use crate::glob;
 use crate::hash::simple_hash;
 use crate::input::BuildInput;
 use crate::inputs;
@@ -75,6 +76,7 @@ impl BuildAction for DocsCopy {
 
     fn files(&mut self, build: &mut impl FilesHandle) {
         build.add_inputs("", inputs![":pyenv:bin", "tools/docs.py"]);
+        build.add_inputs("", inputs![glob!["docs-site/*.mdx"]]);
 
         build.add_output_stamp("tests/docs_copy");
     }
