@@ -191,6 +191,7 @@ jobs:
     if: ${{ !github.event.release.prerelease }}
     runs-on: ubuntu-latest
     permissions: {}
+    environment: release
     env:
       TAG_NAME: ${{ github.event.release.tag_name }}
     steps:
