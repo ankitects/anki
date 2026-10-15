@@ -11,6 +11,8 @@ use std::thread;
 use std::thread::JoinHandle;
 use std::time::SystemTime;
 
+use anki_io::atomic_rename;
+use anki_io::new_tempfile_in;
 use anki_io::read_locked_db_file;
 use anki_proto::config::preferences::BackupLimits;
 use chrono::prelude::*;
@@ -92,9 +94,26 @@ fn backup_inner<P: AsRef<Path>>(
 }
 
 fn write_backup<S: AsRef<OsStr>>(col_data: &[u8], backup_folder: S, tr: &I18n) -> Result<()> {
-    let out_path =
-        Path::new(&backup_folder).join(format!("{}", Local::now().format(BACKUP_FORMAT_STRING)));
-    export_colpkg_from_data(out_path, col_data, tr)
+    write_backup_at(col_data, backup_folder, tr, Local::now())
+}
+
+/// The archive is built in a temporary file and renamed into place once it is
+/// complete. Writing to the destination directly truncates it before the first
+/// byte is written, so a write that fails partway - a full disk, a killed
+/// process - would leave a corrupt archive that still looks like a backup, and
+/// would already have destroyed any backup sharing its name.
+fn write_backup_at<S: AsRef<OsStr>>(
+    col_data: &[u8],
+    backup_folder: S,
+    tr: &I18n,
+    now: DateTime<Local>,
+) -> Result<()> {
+    let backup_folder = Path::new(&backup_folder);
+    let out_path = backup_folder.join(format!("{}", now.format(BACKUP_FORMAT_STRING)));
+    let tempfile = new_tempfile_in(backup_folder)?;
+    export_colpkg_from_data(tempfile.path(), col_data, tr)?;
+    atomic_rename(tempfile, &out_path, true)?;
+    Ok(())
 }
 
 fn thin_backups<P: AsRef<Path>>(backup_folder: P, limits: BackupLimits) -> Result<()> {
@@ -252,6 +271,107 @@ impl BackupFilter {
 #[cfg(test)]
 mod test {
     use super::*;
+
+    /// Mirrors the failure the reporter saw: the archive write dies partway
+    /// through. The child process runs with a one-block file size limit, so the
+    /// export fails once it exceeds it.
+    #[cfg(unix)]
+    const INTERRUPTED_BACKUP_DIR: &str = "ANKI_TEST_INTERRUPTED_BACKUP_DIR";
+
+    #[cfg(unix)]
+    fn write_backup_under_file_size_limit(backup_dir: &Path) {
+        let output = std::process::Command::new("sh")
+            // ignoring SIGXFSZ turns the oversized write into an error rather
+            // than killing the child outright
+            .args(["-c", "ulimit -f 1 && trap '' XFSZ && exec \"$@\"", "--"])
+            .arg(std::env::current_exe().unwrap())
+            .args([
+                "--exact",
+                "collection::backup::test::interrupted_backup_leaves_nothing_behind",
+                "--nocapture",
+            ])
+            .env(INTERRUPTED_BACKUP_DIR, backup_dir)
+            .output()
+            .unwrap();
+        assert!(
+            output.status.success(),
+            "the child did not report a failed write:\n{}\n{}",
+            String::from_utf8_lossy(&output.stdout),
+            String::from_utf8_lossy(&output.stderr)
+        );
+    }
+
+    #[cfg(unix)]
+    #[test]
+    fn interrupted_backup_leaves_nothing_behind() {
+        // the child half: perform the write that is expected to fail
+        if let Some(backup_dir) = std::env::var_os(INTERRUPTED_BACKUP_DIR) {
+            let col_data = vec![b'a'; 4 * 1024 * 1024];
+            write_backup_at(
+                &col_data,
+                &backup_dir,
+                &I18n::new(&["en"]),
+                backup_timestamp(),
+            )
+            .unwrap_err();
+            return;
+        }
+
+        let dir = tempfile::tempdir().unwrap();
+        write_backup_under_file_size_limit(dir.path());
+
+        // no archive, and no leftover temporary file either
+        let left_behind: Vec<_> = read_dir(dir.path())
+            .unwrap()
+            .map(|entry| entry.unwrap().file_name())
+            .collect();
+        assert!(
+            left_behind.is_empty(),
+            "interrupted backup left {left_behind:?} behind"
+        );
+    }
+
+    #[cfg(unix)]
+    #[test]
+    fn interrupted_backup_keeps_an_existing_backup_of_the_same_name() {
+        let dir = tempfile::tempdir().unwrap();
+        let existing = dir.path().join(format!(
+            "{}",
+            backup_timestamp().format(BACKUP_FORMAT_STRING)
+        ));
+        std::fs::write(&existing, b"an earlier backup").unwrap();
+
+        write_backup_under_file_size_limit(dir.path());
+
+        assert_eq!(
+            std::fs::read(&existing).unwrap(),
+            b"an earlier backup",
+            "interrupted backup truncated the existing archive"
+        );
+    }
+
+    #[test]
+    fn a_successful_backup_is_renamed_into_place() {
+        let dir = tempfile::tempdir().unwrap();
+        write_backup_at(b"col", dir.path(), &I18n::new(&["en"]), backup_timestamp()).unwrap();
+
+        let written: Vec<_> = read_dir(dir.path())
+            .unwrap()
+            .map(|entry| entry.unwrap().file_name().to_string_lossy().into_owned())
+            .collect();
+        assert_eq!(
+            written,
+            vec![format!(
+                "{}",
+                backup_timestamp().format(BACKUP_FORMAT_STRING)
+            )],
+            "expected one archive and no temporary file"
+        );
+    }
+
+    fn backup_timestamp() -> DateTime<Local> {
+        Local.timestamp_opt(1_700_000_000, 0).unwrap()
+    }
 
     macro_rules! backup {
         ($num_days_from_ce:expr) => {
