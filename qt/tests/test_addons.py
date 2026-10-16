@@ -9,8 +9,10 @@ from zipfile import ZipFile
 import pytest
 from mock import MagicMock
 
+import anki.lang
 from aqt.addons import (
     AddonManager,
+    ChooseAddonsToUpdateList,
     DownloadError,
     DownloadOk,
     InstallOk,
@@ -18,6 +20,7 @@ from aqt.addons import (
     download_and_install_addon,
     package_name_valid,
 )
+from aqt.qt import QApplication, QProxyStyle, QWidget
 
 
 def test_readMinimalManifest():
@@ -183,3 +186,45 @@ def test_download_addon_rejects_bad_content_disposition():
     assert isinstance(result, DownloadError)
     assert isinstance(result.exception, ValueError)
     assert "content-disposition" in str(result.exception)
+
+
+@pytest.fixture
+def style_named(qapp):
+    """Install an app-wide style with the given objectName, restoring it afterwards."""
+    original = qapp.style().objectName()
+
+    def install(name: str) -> None:
+        style = QProxyStyle("fusion")
+        style.setObjectName(name)
+        qapp.setStyle(style)
+
+    yield install
+    qapp.setStyle(original)
+
+
+def make_update_list(parent: QWidget) -> ChooseAddonsToUpdateList:
+    anki.lang.set_lang("en")
+    mgr = MagicMock()
+    mgr.addon_meta.return_value.human_name.return_value = "Example add-on"
+    updated_addons = [MagicMock(id=123, modified=0)]
+    return ChooseAddonsToUpdateList(parent, mgr, updated_addons)
+
+
+def test_update_list_uses_fusion_with_native_macos_style(style_named):
+    # Qt's native macOS style doesn't draw check indicators on macOS 27
+    style_named("macos")
+
+    parent = QWidget()
+    addons_list = make_update_list(parent)
+
+    assert addons_list.style().objectName() == "fusion"
+    assert addons_list.style() is not QApplication.style()
+
+
+def test_update_list_keeps_app_style_otherwise(style_named):
+    style_named("windows")
+
+    parent = QWidget()
+    addons_list = make_update_list(parent)
+
+    assert addons_list.style() is QApplication.style()
