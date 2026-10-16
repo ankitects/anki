@@ -459,6 +459,25 @@ deck-config-reschedule-cards-warning =
 
     Use this option sparingly, as it will add a review entry to each of your cards, and
     increase the size of your collection.
+deck-config-reschedule-no-added-workload = Reschedule without increasing workload...
+deck-config-reschedule-no-added-workload-title = Reschedule Cards (No Workload Increase)
+deck-config-reschedule-no-added-workload-rule-title = Safe Rescheduling Rule
+deck-config-reschedule-no-added-workload-rule-desc =
+    Only cards whose new due date is pushed further into the future are rescheduled. Cards that would become due today or sooner are left unchanged.
+deck-config-reschedule-total-examined = Cards examined: { $count }
+deck-config-reschedule-rescheduled-total = Cards to reschedule: { $count }
+deck-config-reschedule-future-pushed = Future reviews postponed: { $count }
+deck-config-reschedule-today-postponed = Overdue/today reviews postponed: { $count }
+deck-config-reschedule-preserved-total = Cards preserved: { $count }
+deck-config-reschedule-preserved-closer = Would become due sooner: { $count }
+deck-config-reschedule-preserved-today = Due today preserved: { $count }
+deck-config-reschedule-impact-title = Impact on Today's Reviews
+deck-config-reschedule-impact-reduced = Today's review queue: { $before } -> { $after } ({ $count } cards postponed past today)
+deck-config-reschedule-impact-unchanged = Today's review queue: { $count } (no additional reviews today)
+deck-config-reschedule-impact-guarantee = No card will become due earlier or add to today's reviews.
+deck-config-reschedule-confirm-button = Apply Reschedule
+deck-config-reschedule-preset-info = Preset: { $preset } (Desired retention: { $retention }%)
+deck-config-reschedule-success = Rescheduled { $count } cards for preset '{ $preset }'.
 deck-config-ignore-before-tooltip-2 = 
     If set, cards reviewed before the provided date will be ignored when optimizing FSRS parameters.
     This can be useful if you imported someone else's scheduling data, or have changed the way you use the answer buttons.
