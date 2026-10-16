@@ -1,11 +1,31 @@
 # Copyright: Ankitects Pty Ltd and contributors
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
+import runpy
 from unittest.mock import patch
 
 import pytest
 
+import anki.utils
 from anki.utils import int_version, int_version_to_str
+
+
+@pytest.mark.parametrize(
+    "value,expected",
+    [(None, False), ("", False), ("0", False), ("1", True), ("enabled", True)],
+)
+def test_dev_mode_respects_environment(
+    monkeypatch: pytest.MonkeyPatch, value: str | None, expected: bool
+) -> None:
+    if value is None:
+        monkeypatch.delenv("ANKIDEV", raising=False)
+    else:
+        monkeypatch.setenv("ANKIDEV", value)
+
+    # Read startup flags in fresh globals without changing the shared module.
+    startup_globals = runpy.run_path(anki.utils.__file__)
+
+    assert startup_globals["dev_mode"] is expected
 
 
 @pytest.mark.parametrize(
