@@ -39,7 +39,7 @@ pub fn import_colpkg(
     let mut tempfile = new_tempfile_in_parent_of(&col_path)?;
 
     let backup_file = open_file(colpkg_path)?;
-    let mut archive = ZipArchive::new(backup_file)?;
+    let mut archive = ZipArchive::new(backup_file).map_err(AnkiError::from_zip_import_error)?;
     let meta = Meta::from_archive(&mut archive)?;
 
     copy_collection(&mut archive, &mut tempfile, &meta)?;
@@ -140,12 +140,9 @@ fn copy_collection(
     writer: &mut impl Write,
     meta: &Meta,
 ) -> Result<()> {
-    let mut file =
-        archive
-            .by_name(meta.collection_filename())
-            .map_err(|_| AnkiError::ImportError {
-                source: ImportError::Corrupt,
-            })?;
+    let mut file = archive
+        .by_name(meta.collection_filename())
+        .map_err(AnkiError::from_zip_import_error)?;
     if !meta.zstd_compressed() {
         io::copy(&mut file, writer)?;
     } else {

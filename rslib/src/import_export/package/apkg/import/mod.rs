@@ -55,7 +55,7 @@ impl Collection {
         options: ImportAnkiPackageOptions,
     ) -> Result<OpOutput<NoteLog>> {
         let file = open_file(path)?;
-        let archive = ZipArchive::new(file)?;
+        let archive = ZipArchive::new(file).map_err(AnkiError::from_zip_import_error)?;
         let progress = self.new_progress_handler();
 
         self.transact(Op::Import, |col| {
@@ -146,7 +146,9 @@ impl ExchangeData {
 }
 
 fn collection_to_tempfile(meta: &Meta, archive: &mut ZipArchive<File>) -> Result<NamedTempFile> {
-    let mut zip_file = archive.by_name(meta.collection_filename())?;
+    let mut zip_file = archive
+        .by_name(meta.collection_filename())
+        .map_err(AnkiError::from_zip_import_error)?;
     let mut tempfile = new_tempfile()?;
     meta.copy(&mut zip_file, &mut tempfile)
         .with_context(|_| FileIoSnafu {

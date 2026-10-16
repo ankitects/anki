@@ -169,12 +169,6 @@ fn guess_reqwest_error(mut info: String) -> AnkiError {
     }
 }
 
-impl From<zip::result::ZipError> for AnkiError {
-    fn from(err: zip::result::ZipError) -> Self {
-        AnkiError::sync_error(err.to_string(), SyncErrorKind::Other)
-    }
-}
-
 impl SyncError {
     pub fn message(&self, tr: &I18n) -> String {
         match self.kind {
