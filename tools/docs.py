@@ -665,6 +665,7 @@ def copy_english_pages(
         content = (
             headmatter.group(0)
             + "\n"
+            + "{/* *--UNTRANSLATED--* */}\n"
             + '{/* This text is currently untranslated. Replace the below "Cog" comment with your translation of the page*/}\n'
             f"""{{/* <<<<cog from tools.auto_update_untranslated import auto_update_untranslated; cog.out(auto_update_untranslated("{source_path}", "{target_locale}"))>>>> */}}\n"""
             + f"<Danger>Error<br/> [View the English version](/{page.with_suffix('')})</Danger>\n"
