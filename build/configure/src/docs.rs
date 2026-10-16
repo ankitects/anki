@@ -14,7 +14,7 @@ pub fn check_docs(build: &mut Build) -> Result<()> {
     Ok(())
 }
 
-const LOCALES: &str = "ar,de,es,fa,fr,id,it,ja,pl,pt,ru,uk,uz,zh-Hans";
+const LOCALES: &str = "ar,de,es,fr,id,it,ja,pl,pt,ru,uk,uz,zh-Hans";
 
 fn check_copy(build: &mut Build) -> Result<()> {
     build.add_action("check:format:copy", DocsCopy { locale: LOCALES })?;
