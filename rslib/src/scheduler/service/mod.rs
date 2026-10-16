@@ -400,6 +400,7 @@ impl crate::services::BackendSchedulerService for Backend {
         Ok(ComputeFsrsParamsResponse {
             params,
             fsrs_items,
+            revlog_count: u32::MAX,
             health_check_passed: None,
         })
     }

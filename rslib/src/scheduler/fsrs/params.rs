@@ -99,10 +99,12 @@ impl Collection {
             fsrs_items_for_training(revlogs.clone(), timing.next_day_at, ignore_revlogs_before);
 
         let fsrs_items = items.len() as u32;
+        let revlog_count = revlogs.len() as u32;
         if fsrs_items == 0 {
             return Ok(ComputeFsrsParamsResponse {
                 params: current_params.to_vec(),
                 fsrs_items,
+                revlog_count,
                 health_check_passed: None,
             });
         }
@@ -204,6 +206,7 @@ impl Collection {
         Ok(ComputeFsrsParamsResponse {
             params,
             fsrs_items,
+            revlog_count,
             health_check_passed,
         })
     }
