@@ -22,6 +22,7 @@ FormatTimeSpan = _pb.FormatTimespanRequest
 langs = sorted(
     [
         ("Afrikaans", "af_ZA"),
+        ("Bahasa Indonesia", "id_ID"),
         ("Bahasa Melayu", "ms_MY"),
         ("Català", "ca_ES"),
         ("Dansk", "da_DK"),
@@ -103,6 +104,7 @@ compatMap = {
     "hr": "hr_HR",
     "hu": "hu_HU",
     "hy": "hy_AM",
+    "id": "id_ID",
     "it": "it_IT",
     "ja": "ja_JP",
     "jbo": "jbo_EN",
