@@ -30,6 +30,12 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             key={ExperimentalFeatureFlag.SVELTE_EDITOR}
             {labPerfs}
         ></LabItem>
+        <LabItem
+            title="Svelte card reviewer"
+            description="Uses a new method to handle displaying the reviewer which should improve card load times."
+            key={ExperimentalFeatureFlag.SVELTE_REVIEWER}
+            {labPerfs}
+        ></LabItem>
         <!-- <LabItem
             title="Ping"
             description="Enable this experiment and see an alert every time you load this profile. Used for testing the experiment interface."
