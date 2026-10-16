@@ -103,6 +103,22 @@ impl SqliteStorage {
             .map_err(Into::into)
     }
 
+    /// How many times the card has been answered Again since `day_start`.
+    pub(crate) fn failures_since(&self, card_id: CardId, day_start: TimestampSecs) -> Result<u32> {
+        self.db
+            .prepare_cached(include_str!("failures_today.sql"))?
+            .query_row(
+                params![
+                    card_id,
+                    day_start.as_millis().0,
+                    RevlogReviewKind::Manual as i64,
+                    RevlogReviewKind::Rescheduled as i64,
+                ],
+                |row| row.get(0),
+            )
+            .map_err(Into::into)
+    }
+
     /// Only intended to be used by the undo code, as Anki can not sync revlog
     /// deletions.
     pub(crate) fn remove_revlog_entry(&self, id: RevlogId) -> Result<()> {
