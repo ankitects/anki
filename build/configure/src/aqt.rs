@@ -21,6 +21,7 @@ use ninja_gen::Utf8Path;
 use ninja_gen::Utf8PathBuf;
 
 use crate::anki_version;
+use crate::installer::installer_template_inputs;
 use crate::python::BuildWheel;
 use crate::web::copy_mathjax;
 
@@ -374,7 +375,12 @@ fn check_python(build: &mut Build) -> Result<()> {
                 "$builddir/qt",
                 "$builddir/qt/tools",
             ],
-            deps: inputs![":pylib:anki", ":qt:aqt", glob!["qt/tests/**"]],
+            deps: inputs![
+                ":pylib:anki",
+                ":qt:aqt",
+                glob!["qt/tests/**"],
+                installer_template_inputs(build.host_platform)
+            ],
         },
     )?;
 
