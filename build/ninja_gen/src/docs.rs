@@ -4,12 +4,13 @@ use anyhow::Result;
 
 use crate::action::BuildAction;
 use crate::build::FilesHandle;
+use crate::glob;
 use crate::hash::simple_hash;
 use crate::input::BuildInput;
 use crate::inputs;
 use crate::Build;
 
-struct CogRender<'a> {
+pub struct CogRender<'a> {
     pub inputs: &'a BuildInput,
     pub deps: &'a BuildInput,
     pub check_only: bool,
@@ -17,7 +18,7 @@ struct CogRender<'a> {
 
 impl BuildAction for CogRender<'_> {
     fn command(&self) -> &str {
-        "$cog -I . --markers \"<<<cog >>> <<<end>>>\" $mode $in"
+        "$cog -I . --markers \"<<<<cog >>>> <<<<end>>>>\" $mode $in"
     }
 
     fn files(&mut self, build: &mut impl FilesHandle) {
@@ -64,4 +65,22 @@ pub fn cog_render(
         },
     )?;
     Ok(())
+}
+
+pub struct DocsCopy<'a> {
+    pub locale: &'a str,
+}
+
+impl BuildAction for DocsCopy<'_> {
+    fn command(&self) -> &str {
+        "out/pyenv/bin/python tools/docs.py copy $locale"
+    }
+
+    fn files(&mut self, build: &mut impl FilesHandle) {
+        build.add_inputs("", inputs![":pyenv:bin", "tools/docs.py"]);
+        build.add_inputs("", inputs![glob!["docs-site/*.mdx"]]);
+        build.add_variable("locale", self.locale);
+
+        build.add_output_stamp(format!("tests/docs_copy_{}.stamp", self.locale));
+    }
 }
