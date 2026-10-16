@@ -7,6 +7,15 @@ INTERNAL_DOCS_LINK_RE = re.compile(
     r'(?P<prefix>\]\(|href=["\"])\/(?P<path>(?:manual|ankimobile|faqs|addons|developers|translators|releases|index|automatic\-backups)(?:[/?#][^\s)"\']*)?)'
 )
 
+HEADER = """
+<div style="text-align: left !important; direction: ltr !important;">
+    <Warning>
+        <h3>Untranslated</h3>
+        This page is currently untranslated. If you want to help, see [/translators/docs](/translators/docs).
+    </Warning>
+</div>
+"""
+
 
 def localize_internal_links(content: str, target_locale: str) -> str:
     def replace_link(match: re.Match[str]) -> str:
@@ -21,4 +30,5 @@ def auto_update_untranslated(path: str, target_locale: str) -> str:
         content = content.split("---\n", 2)[-1]  # Remove front matter if present
         if content.endswith("```\n"):
             content = content + "\n"
+        content = HEADER + content
         return localize_internal_links(content, target_locale)

@@ -665,7 +665,7 @@ def copy_english_pages(
         content = (
             headmatter.group(0)
             + "\n"
-            + '{/* This text is currently untranslated. REMOVE THE BELOW "cog" COMMENTS WHEN TRANSLATING OR YOU RISK YOUR TRANSLATION WORK BEING OVERWRITTEN.*/}\n'
+            + '{/* This text is currently untranslated. Replace the below "Cog" comment with your translation of the page*/}\n'
             f"""{{/* <<<<cog from tools.auto_update_untranslated import auto_update_untranslated; cog.out(auto_update_untranslated("{source_path}", "{target_locale}"))>>>> */}}\n"""
             + "{/* <<<<end>>>> */}"
         )
