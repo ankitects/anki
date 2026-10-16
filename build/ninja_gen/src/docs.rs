@@ -67,17 +67,20 @@ pub fn cog_render(
     Ok(())
 }
 
-pub struct DocsCopy {}
+pub struct DocsCopy<'a> {
+    pub locale: &'a str,
+}
 
-impl BuildAction for DocsCopy {
+impl BuildAction for DocsCopy<'_> {
     fn command(&self) -> &str {
-        "out/pyenv/bin/python tools/docs.py copy ar"
+        "out/pyenv/bin/python tools/docs.py copy $locale"
     }
 
     fn files(&mut self, build: &mut impl FilesHandle) {
         build.add_inputs("", inputs![":pyenv:bin", "tools/docs.py"]);
         build.add_inputs("", inputs![glob!["docs-site/*.mdx"]]);
+        build.add_variable("locale", self.locale);
 
-        build.add_output_stamp("tests/docs_copy");
+        build.add_output_stamp(format!("tests/docs_copy_{}.stamp", self.locale));
     }
 }

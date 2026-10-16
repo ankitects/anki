@@ -731,23 +731,23 @@ def update_language_tabs_from_english(
 
 def run_copy(args: argparse.Namespace) -> None:
     docs_site_dir = Path(args.docs_site_dir)
-    target_locale = args.target_locale
     site_structure = load_site_structure(docs_site_dir)
     pages = get_english_docs_pages(docs_site_dir)
 
-    copied_pages, skipped_pages, skipped_from_nav = copy_english_pages(
-        docs_site_dir, target_locale, pages
-    )
-    site_structure, tab_count = update_language_tabs_from_english(
-        site_structure, target_locale, skipped_from_nav
-    )
-    write_site_structure(docs_site_dir, site_structure)
+    for target_locale in args.target_locale.split(","):
+        copied_pages, skipped_pages, skipped_from_nav = copy_english_pages(
+            docs_site_dir, target_locale, pages
+        )
+        site_structure, tab_count = update_language_tabs_from_english(
+            site_structure, target_locale, skipped_from_nav
+        )
+        write_site_structure(docs_site_dir, site_structure)
 
-    print(
-        f"Copied {copied_pages} English pages to {target_locale}/; "
-        f"skipped {skipped_pages} existing files."
-    )
-    print(f"Updated docs.json with {tab_count} tabs for {target_locale}.")
+        print(
+            f"Copied {copied_pages} English pages to {target_locale}/; "
+            f"skipped {skipped_pages} existing files."
+        )
+        print(f"Updated docs.json with {tab_count} tabs for {target_locale}.")
 
 
 def main(argv: list[str] | None = None) -> None:

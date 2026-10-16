@@ -14,8 +14,10 @@ pub fn check_docs(build: &mut Build) -> Result<()> {
     Ok(())
 }
 
+const LOCALES: &str = "ar,de,es,fa,fr,id,it,ja,pl,pt,ru,uk,uz,zh-Hans";
+
 fn check_copy(build: &mut Build) -> Result<()> {
-    build.add_action("check:format:copy", DocsCopy {})?;
+    build.add_action("check:format:copy", DocsCopy { locale: LOCALES })?;
     Ok(())
 }
 
@@ -36,9 +38,7 @@ fn check_cog(build: &mut Build) -> Result<()> {
     build.add_action(
         "docs-release:cog",
         CogRender {
-            inputs: &inputs![glob![
-                "docs-site/{ar,de,es,fa,fr,id,it,ja,pl,pt,ru,uk,uz,zh-Hans}/**/*.mdx"
-            ],],
+            inputs: &inputs![glob![format!("docs-site/{{{}}}/**/*.mdx", LOCALES)],],
             deps: &inputs![
                 glob!["docs-site/*.mdx"],
                 glob!["docs-site/addons/**.mdx"],
