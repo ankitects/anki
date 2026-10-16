@@ -34,23 +34,26 @@ fn check_cog(build: &mut Build) -> Result<()> {
         ],
     )?;
 
-    // For the mintlify-docs branch
-    build.add_action(
-        "docs-release:cog",
-        CogRender {
-            inputs: &inputs![glob![format!("docs-site/{{{}}}/**/*.mdx", LOCALES)],],
-            deps: &inputs![
-                glob!["docs-site/*.mdx"],
-                glob!["docs-site/addons/**.mdx"],
-                glob!["docs-site/ankimobile/**.mdx"],
-                glob!["docs-site/developers/**.mdx"],
-                glob!["docs-site/faqs/**.mdx"],
-                glob!["docs-site/manual/**.mdx"],
-                glob!["docs-site/releases/**.mdx"],
-                glob!["docs-site/translators/**.mdx"],
-            ],
-            check_only: false,
-        },
-    )?;
+    // Split to prevent command too long errors
+    for locale in LOCALES.split(',') {
+        // For the mintlify-docs branch
+        build.add_action(
+            format!("docs-release:cog:{locale}"),
+            CogRender {
+                inputs: &inputs![glob![format!("docs-site/{locale}/**/*.mdx")],],
+                deps: &inputs![
+                    glob!["docs-site/*.mdx"],
+                    glob!["docs-site/addons/**.mdx"],
+                    glob!["docs-site/ankimobile/**.mdx"],
+                    glob!["docs-site/developers/**.mdx"],
+                    glob!["docs-site/faqs/**.mdx"],
+                    glob!["docs-site/manual/**.mdx"],
+                    glob!["docs-site/releases/**.mdx"],
+                    glob!["docs-site/translators/**.mdx"],
+                ],
+                check_only: false,
+            },
+        )?;
+    }
     Ok(())
 }
