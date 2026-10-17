@@ -56,3 +56,7 @@ name = "testpypi"
 url = "https://test.pypi.org/simple/"
 publish-url = "https://test.pypi.org/legacy/"
 explicit = true
+
+[tool.pytest.ini_options]
+pythonpath = ["pylib", "out/pylib", "out/qt", "qt/tools"]
+addopts = "-p no:cacheprovider"
