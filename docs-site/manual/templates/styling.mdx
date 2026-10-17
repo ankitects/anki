@@ -57,6 +57,34 @@ example will use a yellow background on all cards except the first one:
 }
 ```
 
+## Cloze Styling
+
+You can style [cloze deletions](/manual/editing#cloze-deletion) with two CSS
+classes:
+
+- `.cloze` applies to the active cloze for the current card: the hidden
+  text's placeholder or hint on the question side, and the revealed text on
+  the answer side.
+- `.cloze-inactive` applies to other clozes whose text is shown on the
+  current card, on both the question and answer sides.
+
+For example, add the following to the note type's Styling section:
+
+```css
+.cloze {
+    font-weight: bold;
+}
+.cloze-inactive {
+    font-style: italic;
+}
+```
+
+For a note containing `{{c1::Paris}} is the capital of {{c2::France}}`, the
+first card shows `[...]` in bold and `France` in italics on the question
+side. On the answer side, `Paris` is bold and `France` remains italic.
+On the second card, `Paris` is italic on both sides, while the placeholder
+for `France`, and then its revealed answer, are bold.
+
 ## Image Resizing
 
 Anki shrinks images to fit the screen by default. You can change this by adding
