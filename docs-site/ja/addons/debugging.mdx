@@ -1,0 +1,83 @@
+---
+title: "デバッグ"
+---
+
+## 例外と標準出力・標準エラー出力
+
+コードで捕捉されない例外が発生すると、Anki の標準例外ハンドラーが捕捉し、ユーザーにエラーを表示します。
+
+ハンドラーは標準エラー出力に書き込まれた内容を捕捉するため、ポップアップでユーザーに表示したい場合を除き、標準エラー出力へのログ出力は避けてください。
+
+標準出力に表示されるテキストについては、[こちらのセクション](./console-output)をご覧ください。
+
+## Web ビュー
+
+Anki の起動前に環境変数 `QTWEBENGINE_REMOTE_DEBUGGING` を `8080` に設定すると、Chrome で `http://localhost:8080` にアクセスして、表示中のウェブページをデバッグできます。
+
+または、[このアドオン](https://ankiweb.net/shared/info/31746032)を使って、Anki 内でインスペクターを開くこともできます。
+
+## デバッグコンソール
+
+Anki には REPL もあります。プログラム内で[ショートカットキー](/manual/misc#debug-console)を押すとウィンドウが開きます。上部に式や文を入力し、Ctrl+Enter または Command+Enter を押して評価できます。使用例:
+
+```text
+    >>> mw
+    <no output>
+
+    >>> print(mw)
+    <aqt.main.AnkiQt object at 0x10c0ddc20>
+
+    >>> invalidName
+    Traceback (most recent call last):
+      File "/Users/dae/Lib/anki/qt/aqt/main.py", line 933, in onDebugRet
+        exec text
+      File "<string>", line 1, in <module>
+    NameError: name 'invalidName' is not defined
+
+    >>> a = [a for a in dir(mw.form) if a.startswith("action")]
+    ... print(a)
+    ... print()
+    ... pp(a)
+    ['actionAbout', 'actionCheckMediaDatabase', ...]
+
+    ['actionAbout',
+     'actionCheckMediaDatabase',
+     'actionDocumentation',
+     'actionDonate',
+     ...]
+
+    >>> pp(mw.reviewer.card)
+    <anki.cards.Card object at 0x112181150>
+
+    >>> pp(card()) # shortcut for mw.reviewer.card.__dict__
+    {'_note': <anki.notes.Note object at 0x11221da90>,
+     '_qa': [...]
+     'col': <anki.collection._Collection object at 0x1122415d0>,
+     'data': u'',
+     'did': 1,
+     'due': -1,
+     'factor': 2350,
+     'flags': 0,
+     'id': 1307820012852L,
+     [...]
+    }
+
+    >>> pp(bcard()) # shortcut for selected card in browser
+    <as above>
+```
+
+式の評価結果を確認するには、式を明示的に出力する必要があります。オブジェクトの詳細をすばやく表示できるように、Anki はスコープ内で `pp()`（pretty print）を使えます。また、Ctrl+Shift+Enter を押すと、上部の入力欄にあるテキストを `pp()` で囲んで実行できます。
+
+## PDB
+
+Linux を使っている場合、または Anki をソースから実行している場合は、pdb でスクリプトをデバッグできます。コード内の任意の場所に次の行を置くと、Anki がその位置に達したとき、ターミナルでデバッガーが起動します。
+
+```python
+    from aqt.qt import debug; debug()
+```
+
+または、シェルで `DEBUG=1` を設定すると、捕捉されなかった例外でデバッガーが起動します。
+
+## Python の assert
+
+Python の `assert` 文を使った実行時チェックは、デバッグモードでも Anki のリリースビルドでは評価されません。テストに `assert` を使いたい場合は、[PyPI のパッケージ版](https://betas.ankiweb.net/#via-pypipip)を使うか、[Anki をソースから実行](https://github.com/ankitects/anki/blob/main/docs/development.md)してください。

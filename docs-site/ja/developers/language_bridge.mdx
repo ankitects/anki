@@ -1,0 +1,84 @@
+---
+title: "言語間ブリッジ"
+---
+
+Anki のコードベースは、次の3つの層で構成されています。
+
+1. Svelte と TypeScript で作られた Web フロントエンド
+2. Python 層
+3. Rust コア層
+
+各層は、その下位の層に RPC（Remote Procedure Call）を行えます。避けるべきですが、Python から TypeScript の関数を呼び出すこともできます。Rust 層から他の層を呼び出すことはありません。AnkiWeb などのサーバーへの RPC は可能ですが、このドキュメントの対象外です。
+
+このドキュメントでは、言語間ブリッジの例を使って、次の点を説明します。
+
+- RPC の宣言場所
+- 適切なインポートを含む呼び出し場所
+- 実装場所
+
+これらの例に倣えば、新しい RPC を呼び出したり追加したりできます。
+
+## RPC の宣言
+
+`DecksServices` の `NewDeck` メソッドを例にします。このメソッドは [decks.proto](https://github.com/ankitects/anki/blob/acaeee91fa853e4a7a78dcddbb832d009ec3529a/proto/anki/decks.proto#L14) で `rpc NewDeck(generic.Empty) returns (Deck);` と宣言されています。引数を受け取らず（厳密には情報を含まない引数を受け取り）、[`Deck`](https://github.com/ankitects/anki/blob/acaeee91fa853e4a7a78dcddbb832d009ec3529a/proto/anki/decks.proto#L54) を返すという意味です。
+
+入出力の型の定義については、[protobuf](/developers/protobuf) を参照してください。
+
+RPC の実装が Python にある場合は、サービス [frontend.proto](https://github.com/ankitects/anki/blob/acaeee91fa853e4a7a78dcddbb832d009ec3529a/proto/anki/frontend.proto#L24C3-L24C66) の `FrontendService` に宣言します。他のサービスに宣言された RPC は Rust で実装します。
+
+## リモートプロシージャコールを行う
+
+ここでは、Anki で使われる言語から RPC（Remote Procedure Call）を行う方法を説明します。AnkiDroid と AnkiMobile で使われる言語は対象外です。
+
+### Python から RPC を行う
+
+Python からは [`col._backend.new_deck()`](https://github.com/ankitects/anki/blob/acaeee91fa853e4a7a78dcddbb832d009ec3529a/pylib/anki/decks.py#L168) を使って `NewDeck` メソッドを呼び出せます。この Python メソッドは引数を取らず、`Deck` 値を返します。
+
+ただし、ほとんどの Python コードでは、このメソッドを直接呼び出すべきではありません。代わりに [`col.decks.new_deck()`](https://github.com/ankitects/anki/blob/acaeee91fa853e4a7a78dcddbb832d009ec3529a/pylib/anki/decks.py#L166) を呼び出します。一般に、Python から呼ぶバックエンド関数は `pylib/anki/` に定義されたヘルパーメソッドを経由します。`_backend` の部分は実装の詳細なので、呼び出し側では通常意識する必要はありません。特にアドオンでは、RPC の実装詳細に左右されない、比較的安定した API を利用できることが重要です。
+
+### TypeScript からメソッドを呼び出す
+
+`ImportExportService` の [`rpc GetCsvMetadata(CsvMetadataRequest) returns (CsvMetadata);`](https://github.com/ankitects/anki/blob/acaeee91fa853e4a7a78dcddbb832d009ec3529a/proto/anki/import_export.proto#L20) を例にします。
+
+この RPC は TypeScript クラス [`ImportCsvState`](https://github.com/ankitects/anki/blob/acaeee91fa853e4a7a78dcddbb832d009ec3529a/ts/routes/import-csv/lib.ts#L102) で非同期関数として使われています。引数は [`CsvMetadataRequest`](https://github.com/ankitects/anki/blob/acaeee91fa853e4a7a78dcddbb832d009ec3529a/proto/anki/import_export.proto#L138) のフィールドをキーに持つ JavaScript オブジェクト1つで、戻り値は `CsvMetadata` です。
+
+メソッドは `import { getCsvMetadata } from "@generated/backend";` で、型は `import type { CsvMetadata } from "@generated/anki/import_export_pb";` でインポートします。入力は型指定のない JavaScript オブジェクトなので、入力型をインポートする必要はありません。
+
+## 実装
+
+それぞれの RPC の実装を見ていきます。
+
+### Rust での実装
+
+`NewDeck` メソッドは Rust の [DecksService](https://github.com/ankitects/anki/blob/acaeee91fa853e4a7a78dcddbb832d009ec3529a/rslib/src/decks/service.rs#L21) に `fn new_deck(&mut self) -> error::Result<anki_proto::decks::Deck>` として実装されています。メソッド名は PascalCase から snake_case に変換され、RPC 引数の `generic.Empty` は無視されます。
+
+### Python での実装
+
+[DeckOptionsRequireClose](https://github.com/ankitects/anki/blob/acaeee91fa853e4a7a78dcddbb832d009ec3529a/qt/aqt/mediasrv.py#L578) メソッドの実装を例にします。これは `def deck_options_require_close() -> bytes:` と定義されています。この場合、戻り値はありますが使用されないため、`b""` を返して問題ありません。
+
+受信した HTTP リクエストはメインスレッドで処理されません。GUI を操作する場合は、`aqt.mw.taskman.run_on_main` を呼び出してください。
+
+## Python から TypeScript のメソッドを呼び出す
+
+可能であればこの方法は避けてください。通常、上位層への呼び出しは避けるべきです。これまでの例とは異なり、protobuf は使いません。
+
+### TS 関数の呼び出し
+
+例として [`export function getTypedAnswer(): string | null`](https://github.com/ankitects/anki/blob/acaeee91fa853e4a7a78dcddbb832d009ec3529a/ts/reviewer/index.ts#L35) を見てみましょう。これはエクスポートされた関数で、戻り値は JSON にエンコードできます。
+
+Reviewer クラスから [`self.web.evalWithCallback("getTypedAnswer();", self._onTypedAnswer)`](https://github.com/ankitects/anki/blob/acaeee91fa853e4a7a78dcddbb832d009ec3529a/qt/aqt/reviewer.py#L785) を使って呼び出します。結果は [`_onTypedAnswer`](https://github.com/ankitects/anki/blob/acaeee91fa853e4a7a78dcddbb832d009ec3529a/qt/aqt/reviewer.py#L787) に渡されます。
+
+戻り値が不要なら、`web.eval` で十分です。
+
+### Svelte メソッドの呼び出し
+
+呼び出したいメソッドが Svelte ライブラリに実装されている場合を考えます。例として [`deckOptionsPendingChanges`](https://github.com/ankitects/anki/blob/acaeee91fa853e4a7a78dcddbb832d009ec3529a/ts/routes/deck-options/%5BdeckId%5D/%2Bpage.svelte#L17) を使います。次のように定義します。
+
+```js
+globalThis.anki || = {};
+globalThis.anki.methodName = async (): Promise<void>=>{body}
+```
+
+関数が非同期の場合、結果をコールバックに直接渡すことはできません。代わりに、Python または Rust に送る post メソッドを関数内から呼び出す必要があります。
+
+このメソッドは [deckoptions.py](https://github.com/ankitects/anki/blob/acaeee91fa853e4a7a78dcddbb832d009ec3529a/qt/aqt/deckoptions.py#L68) で `self.web.eval("anki.deckOptionsPendingChanges();"` を使って呼び出します。

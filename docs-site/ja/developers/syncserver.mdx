@@ -1,0 +1,96 @@
+---
+title: "Anki 同期サーバーを Docker でビルド・実行する"
+---
+
+これは Anki ユーザーから提供された Dockerfile の例です。AnkiWeb.net と同様のセルフホスト型同期サーバーを実行する方法を示しています。
+
+コンテナ内で同期サーバーをビルド・実行すると、ビルド成果物と実行時の依存関係をシステムの他の部分から完全に分離できます。
+
+## 必要条件
+
+- [x] [Docker](https://docs.docker.com/get-started/)
+
+| **項目** | **Dockerfile** | **Dockerfile.distroless** |
+| --- | --- | --- |
+| **シェルとツール** | ✅ シェルとツールを含む | ❌ 最小構成で、シェルやツールなし |
+| **デバッグ** | ✅ シェルとツールがあり容易 | ❌ 環境が最小限のため困難 |
+| **ヘルスチェック** | ✅ 複雑なチェックに対応 | ❌ 単純なもの、または直接実行できるものが必要 |
+| **イメージサイズ** | ❌ 大きい | ✅ 小さい |
+| **カスタマイズ** | ✅ パッケージを追加しやすい | ❌ カスタマイズの選択肢が限られる |
+| **攻撃対象領域** | ❌ インストール済みパッケージが多く広い | ✅ 小さい |
+| **ライブラリ** | ✅ 多くのライブラリを利用可能 | ❌ 利用できるライブラリが限られる |
+| **起動時間** | ❌ イメージが大きく時間がかかる | ✅ 起動が速い |
+| **ツールとの互換性** | ✅ 多くのツールやライブラリに対応 | ❌ 一部のツールとの互換性に制限あり |
+| **メンテナンス** | ❌ イメージと依存関係が大きく負担が増える | ✅ ベースイメージが最小限で負担が少ない |
+| **カスタム uid/gid** | ✅ PUID と PGID を指定可能 | ❌ PUID と PGID は非対応 |
+
+# イメージをビルドする
+
+ビルドするには、使いたい Anki のバージョンを指定します。`<version>` を `24.11` のような値に、`<Dockerfile>` を使用する Dockerfile（例: `Dockerfile` または `Dockerfile.distroless`）に置き換えてください。
+
+`--platform` オプションでは、ビルド後のイメージを実行できるシステムを指定します。たとえば M シリーズ Mac でビルドし、x86 Linux サーバーで実行する場合に便利です。
+
+- `linux/amd64`: x86 Linux システム向け（Docker Desktop に含まれる WSL2 を使えば Windows でも動作します）
+- `linux/arm64`: ARM システム向け（例: M シリーズ Mac）
+
+Linux では、まず以下のように ARM ビルドに対応したカスタムビルダーを設定してください。その後、次の手順で Mac 用のビルドコマンドを実行できます。
+
+```bash
+# マルチプラットフォームビルダーを設定して有効化
+docker buildx create --name multiplatform-builder --driver docker-container --driver-opt default-load=true --bootstrap --use
+```
+
+Docker Desktop を使う M シリーズ Mac では、既定のビルダーで次のコマンドを実行すれば両方のプラットフォーム向けにビルドできます。
+
+```bash
+# このディレクトリで実行
+docker buildx build -f <Dockerfile> --platform linux/amd64,linux/arm64 --no-cache --build-arg ANKI_VERSION=<version> -t anki-sync-server .
+```
+
+`Resource Exhausted:.... cannot allocate memory` が出てビルドに失敗した場合は、Docker Desktop の **Settings > Resources** でメモリ上限を増やしてください。
+
+システムのプラットフォームが分からない場合は、プラットフォームオプションを付けずに次のコマンドを実行してください。
+
+```bash
+# このディレクトリで実行
+docker buildx build -f <Dockerfile> --no-cache --build-arg ANKI_VERSION=<version> -t anki-sync-server .
+```
+
+# コンテナを実行する
+
+ビルドが完了したら、次のコマンドでイメージを実行します。
+
+```bash
+# Anki サーバーを作成
+docker run -d \
+    -e "SYNC_USER1=admin:admin" \
+    -p 8080:8080 \
+    --mount type=volume,src=anki-sync-server-data,dst=/anki_data \
+    --name anki-sync-server \
+    anki-sync-server
+```
+
+`Dockerfile` でビルドしたイメージでは、Anki 同期サーバープロセスのユーザー ID とグループ ID として `PUID` と `PGID` の環境変数を指定できます。`/anki_data` ボリューム内のファイルをホストや別のコンテナから使う場合などに便利です。指定する `PUID` と `PGID` は、コンテナ内で未使用の値にしてください（1000 以上なら問題ありません）。たとえば、上記コマンドに `-e "PUID=1050"` と `-e "PGID=1050"` を追加します。
+
+複数の Anki ユーザーが端末を同期できるようにするには、次のように複数の `SYNC_USER` を指定します。
+
+```bash
+# 複数ユーザー用の Anki サーバーを作成
+docker run -d \
+    -e "SYNC_USER1=admin:admin" \
+    -e "SYNC_USER2=admin2:admin2" \
+    -p 8080:8080 \
+    --mount type=volume,src=anki-sync-server-data,dst=/anki_data \
+    --name anki-sync-server \
+    anki-sync-server
+```
+
+[こちら](/manual/sync-server)に記載された追加の環境変数も渡せます。ただし `SYNC_BASE` と `SYNC_PORT` は無視されます。前者はデータを誤ってボリューム外に置くことを防ぐため、後者はコンテナ内部のポートを変更する必要がなく、外部ポートを変更できるためです。
+
+# アップグレード
+
+2025年1月以降にビルドしたイメージであれば、新しいイメージをビルドし、以前と同じ設定で新しいコンテナを起動するだけで問題ありません。
+
+実行中のイメージが**2025年1月より前**にビルドされた場合、ボリュームが含まれていないため、同期サーバーのデータはすべてコンテナ内に保存されています。更新したイメージで新しいコンテナを作るなどの理由でコンテナを破棄すると、データが失われます。
+
+回避するには、Docker コンテナをアップグレードする前に、少なくとも1台の端末を同期サーバーと完全に同期させてください。アップグレード後に端末を同期すると、サーバーにデータがないと表示されます。その後、端末にあるすべてのデータを同期サーバーにアップロードする選択肢が表示されます。

@@ -1,0 +1,69 @@
+---
+title: "テストとカバレッジ"
+---
+
+CI では Rust、Python、TypeScript のテストに加えて、lint と型チェックを実行します。カバレッジは `justfile` から CLI を直接呼び出して実行します。テストコマンドが必要とする生成済みのビルド成果物を準備するときだけ Ninja を使います。
+
+## クイックリファレンス
+
+```sh
+just test                        # すべてのテストを実行（カバレッジなし）
+just test --coverage             # すべてのテストを実行し、カバレッジのしきい値も確認
+just test --coverage --html      # 同上。out/coverage/ に HTML レポートも生成
+
+just test-rust                   # Rust のみ
+just test-rust --coverage
+just test-rust --coverage --html
+
+just test-py                     # Python（pylib と qt）のみ
+just test-py --coverage
+just test-py --coverage --html
+
+just test-ts                     # TypeScript/Svelte の Vitest のみ
+just test-ts --coverage
+just test-ts --coverage --html
+```
+
+HTML レポートは `out/coverage/` に書き出されます（git で無視されます）。
+
+## カバレッジツールとしきい値
+
+| 技術スタック | テストランナー | カバレッジツール | 最低値 |
+| --- | --- | --- | ---: |
+| Rust ワークスペース | `cargo-llvm-cov` 経由の `cargo nextest` | `cargo-llvm-cov` | 60% |
+| Python `pylib/anki` | `pytest pylib/tests` | `coverage.py` | 63% |
+| Python `qt/aqt` | `pytest qt/tests` | `coverage.py` | 20% |
+| TypeScript/Svelte | `vitest run` | Vitest V8 | 5% |
+
+Linux のプルリクエストでは、CI で `just test --coverage` を実行します。macOS と Windows のジョブでは、現時点でカバレッジを強制せず `just test` を実行します。
+
+## 補足
+
+- **Rust** — `cargo-llvm-cov` はグローバルな Cargo インストールを汚さないよう、必要に応じて `out/bin/` にインストールされます。カバレッジ実行では計測を有効にしてワークスペースを再ビルドするため、通常の `just test-rust` より時間がかかります。**Windows ARM64（`aarch64-pc-windows-msvc`）はサポート対象外です**。このターゲットでは Rust コンパイラーが不正な `.profraw` ファイルを生成します（[rust-lang/rust#150123](https://github.com/rust-lang/rust/issues/150123)、[cargo-llvm-cov#436](https://github.com/taiki-e/cargo-llvm-cov/issues/436)）。Windows ARM64 で `just test-rust --coverage` を実行すると、理由を示すメッセージが表示されて終了します。代わりにカバレッジなしで `just test-rust` を実行するか、CI（Linux）でのチェック結果を利用してください。
+- **Python** — `pylib` と `qt` では `PYTHONPATH` の設定とテストフォルダーが異なるため、カバレッジは2つのスイートに分けて計測します。
+- **TypeScript** — Vitest のモジュールグラフから到達できるコードのみが対象です。Svelte コンポーネントの描画動作は対象外です。
+
+## SonarCloud
+
+CI の push とプルリクエストが成功すると、SonarCloud が自動で実行されます。Python、TypeScript、Rust を静的解析します。内部のプルリクエストと信頼されたブランチへの push では、3つのスタックで生成されたカバレッジレポートも集計します。
+
+- **ダッシュボード**: https://sonarcloud.io/project/overview?id=ankitects_anki
+- **内部のカバレッジ**: `just test --coverage` が生成した LCOV/XML レポートを使います。
+- **フォークのカバレッジ**: CI では引き続きチェックしますが、SonarCloud には取り込みません。
+- **解析結果**: SonarCloud は解析対象となった各 PR に Quality Gate の状態を報告します。
+
+Quality Gate はブロックしない設定です。失敗してもマージを防ぎませんが、結果は PR で確認できます。
+
+解析対象の一覧とフォークに関する信頼境界については、[SonarCloud 解析](/developers/sonarcloud)をご覧ください。
+
+## 未対応の点と今後の改善
+
+- テストスイートの拡大と CI 時間の安定に合わせて、しきい値を段階的に引き上げる。
+- 適切な場合は、生成ファイルをカバレッジ計算の分母から除外する。
+- `out/coverage/` を CI 成果物として公開し、レビュアーが PR から HTML レポートを閲覧できるようにする。
+- 基準値が安定したら、差分・変更ファイル単位のカバレッジを検討する。リポジトリ全体のしきい値より、段階的な改善を適切に強制できる。
+- Svelte のカバレッジで描画後のコンポーネント動作も確認する場合は、コンポーネントテストまたはブラウザーテストを追加する。
+
+## 関連項目
+
+- [Anki のユニットテストを書く](/developers/unit-testing)

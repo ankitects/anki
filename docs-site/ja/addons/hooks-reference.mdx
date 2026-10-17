@@ -1,0 +1,186 @@
+---
+title: "フックリファレンス"
+description: "Anki のアドオン開発で利用できるフックとフィルターをまとめた自動生成リファレンス。"
+---
+
+このページでは、Anki で利用できるすべてのフックを紹介します。[`pylib/tools/genhooks.py`](https://github.com/ankitects/anki/blob/main/pylib/tools/genhooks.py) と [`qt/tools/genhooks_gui.py`](https://github.com/ankitects/anki/blob/main/qt/tools/genhooks_gui.py) から自動生成されます。
+
+使い方については[フックとフィルター](/addons/hooks-and-filters)をご覧ください。
+
+## バックエンドのフック (`anki.hooks`)
+
+{/* <<<cog from tools.mintlify_hooks import render_hooks; cog.out("\n" + render_hooks("pylib/tools/genhooks.py").strip())>>> */}
+
+### `card_odue_was_invalid`
+
+引数なし。
+
+説明なし。
+
+---
+
+### `schema_will_change`
+
+**引数:** <code>proceed: bool</code>\
+**戻り値:** <code>bool</code>
+
+説明なし。
+
+---
+
+### `notes_will_be_deleted`
+
+**引数:** <code>col: <a href='https://dev-docs.ankiweb.net/en/latest/autoapi/anki/collection#anki.collection.Collection'>anki.collection.Collection</a></code>, <code>ids: Sequence[<a href='https://dev-docs.ankiweb.net/en/latest/autoapi/anki/notes#anki.notes.NoteId'>anki.notes.NoteId</a>]</code>
+
+説明なし。
+
+---
+
+### `note_will_be_added`
+
+**引数:** <code>col: <a href='https://dev-docs.ankiweb.net/en/latest/autoapi/anki/collection#anki.collection.Collection'>anki.collection.Collection</a></code>, <code>note: <a href='https://dev-docs.ankiweb.net/en/latest/autoapi/anki/notes#anki.notes.Note'>anki.notes.Note</a></code>, <code>deck_id: <a href='https://dev-docs.ankiweb.net/en/latest/autoapi/anki/decks#anki.decks.DeckId'>anki.decks.DeckId</a></code>
+
+ノートがコレクションに追加される前に変更できます。
+
+このフックは、「追加」画面を使った場合と、
+AnkiConnect などのアドオンがノートを追加した場合の両方で呼び出されます。インポート時には呼び出されません。
+「追加」画面を変更する場合は、
+`gui_hooks.add_cards_will_add_note` を使ってください。
+
+---
+
+### `media_files_did_export` _(Obsolete)_
+
+**引数:** <code>count: int</code>
+
+<Warning>
+    
+ 非推奨です。使用しないでください。
+
+</Warning>
+
+---
+
+### `legacy_export_progress` _(Obsolete)_
+
+**引数:** <code>progress: str</code>
+
+<Warning>
+    
+ 非推奨です。使用しないでください。
+
+</Warning>
+
+---
+
+### `exporters_list_created`
+
+**引数:** <code>exporters: list[tuple[str, Any]]</code>
+
+説明なし。
+
+---
+
+### `media_file_filter`
+
+**引数:** <code>txt: str</code>\
+**戻り値:** <code>str</code>
+
+メディアの読み込み元となるファイルパスを変更できます。
+
+---
+
+### `field_filter`
+
+**引数:** <code>field_text: str</code>, <code>field_name: str</code>, <code>filter_name: str</code>, <code>ctx: <a href='https://dev-docs.ankiweb.net/en/latest/autoapi/anki/template#anki.template.TemplateRenderContext'>anki.template.TemplateRenderContext</a></code>\
+**戻り値:** <code>str</code>
+
+独自の `{{filters:..}}` を定義できます。
+
+アドオンでは `filter_name` を確認し、`field_text` を変更するかどうかを判断してから返せます。
+
+
+---
+
+### `note_will_flush`
+
+**引数:** <code>note: Note</code>
+
+ノートがデータベースに追加または更新される前に変更できます。
+
+---
+
+### `card_will_flush`
+
+**引数:** <code>card: Card</code>
+
+カードがデータベースに追加または更新される前に変更できます。
+
+---
+
+### `card_did_render`
+
+**引数:** <code>output: <a href='https://dev-docs.ankiweb.net/en/latest/autoapi/anki/template#anki.template.TemplateRenderOutput'>anki.template.TemplateRenderOutput</a></code>, <code>ctx: <a href='https://dev-docs.ankiweb.net/en/latest/autoapi/anki/template#anki.template.TemplateRenderContext'>anki.template.TemplateRenderContext</a></code>
+
+描画後に、生成されたテキストを変更できます。
+
+---
+
+### `importing_importers` _(Obsolete)_
+
+**引数:** <code>importers: list[tuple[str, Any]]</code>
+
+<Warning>
+    
+ 非推奨です。使用しないでください。
+
+</Warning>
+
+---
+
+### `deck_added` _(Obsolete)_
+
+**引数:** <code>deck: <a href='https://dev-docs.ankiweb.net/en/latest/autoapi/anki/decks#anki.decks.DeckDict'>anki.decks.DeckDict</a></code>
+
+<Warning>
+    
+ 非推奨です。使用しないでください。
+
+</Warning>
+
+---
+
+### `note_type_added` _(Obsolete)_
+
+**引数:** <code>notetype: <a href='https://dev-docs.ankiweb.net/en/latest/autoapi/anki/models#anki.models.NotetypeDict'>anki.models.NotetypeDict</a></code>
+
+<Warning>
+    
+ 非推奨です。使用しないでください。
+
+</Warning>
+
+---
+
+### `sync_stage_did_change` _(Obsolete)_
+
+**引数:** <code>stage: str</code>
+
+<Warning>
+    
+ 非推奨です。使用しないでください。
+
+</Warning>
+
+---
+
+### `sync_progress_did_change` _(Obsolete)_
+
+**引数:** <code>msg: str</code>
+
+<Warning>
+    
+ 非推奨です。使用しないでください。
+
+</Warning>
+{/* <<<end>>> */}

@@ -1,0 +1,51 @@
+---
+title: "テキスト読み上げのサポート"
+---
+
+<h1>Anki 2.1.20 以降</h1>
+
+[個々のフィールドでテキスト読み上げを使う](/manual/templates/fields#text-to-speech-for-individual-fields)をご覧ください。
+
+<h1>AnkiMobile 2.0.56 以降</h1>
+
+[TTS](/ankimobile/tts)をご覧ください。
+
+<h1>AnkiDroid</h1>
+
+AnkiDroid のマニュアルで TTS を検索してください。
+
+<h1>古いバージョンの Anki</h1>
+
+複数のテキスト読み上げプログラムやサービスに対応した、人気のアドオン AwesomeTTS があります。詳しくは[こちら](https://ankiweb.net/shared/info/814349176)をご覧ください。
+
+音声はコレクションにダウンロードされるため、AnkiWeb と同期すると、他の端末でも使えるようになります。
+
+生成したファイルをデスクトップ版以外でも使う場合は、「on the fly」ではなく、保存済みファイルを使うモードを選んでください。
+
+AnkiMobile 2.0.56 より古いバージョンには、端末上での TTS の公式サポートはありません。ただし、Apple は iOS 7 で TTS 対応を追加しており、利用する方法があります。以下はユーザーが提供した解決策です。
+
+```html
+<span id="word">{{Word}}</span>
+
+<script>
+    var w = document.getElementById("word");
+    window.setTimeout("speak(w.innerHTML)", 500);
+
+    function speak(word) {
+        var speech = new SpeechSynthesisUtterance();
+        speech.text = word;
+        speech.volume = 1; // 0 to 1
+        speech.rate = 1; // 0.1 to 9
+        speech.pitch = 1; // 0 to 2, 1=normal
+        speech.voice = window.speechSynthesis
+            .getVoices()
+            .filter((v) => v.lang == "en-GB")[0];
+        speechSynthesis.cancel();
+        speechSynthesis.speak(speech);
+    }
+</script>
+```
+
+`en-GB` は `en-US`、`de-DE`、`ja-JP`、`zh-HK` などに変更できます。利用できる言語は、次のページの例で確認できます。[https://developer.mozilla.org/en-US/docs/Web/API/SpeechSynthesis/getVoices](https://developer.mozilla.org/en-US/docs/Web/API/SpeechSynthesis/getVoices)
+
+読み上げたい言語の拡張音声ファイルをインストールする必要がある場合があります。**設定** アプリから **一般 > アクセシビリティ > 読み上げコンテンツ > 声** を開いてください。
