@@ -225,6 +225,16 @@ To change this behaviour, turn off **Reschedule
 cards based on my answers**. When this is turned off, cards are shown in a simple "preview mode", and
 when they are returned to their original deck, they are returned exactly as they started.
 
+Answers in preview mode are still saved in the card's review history, with
+the type **Filtered**. You can see them in the Card Info screen and in the
+"Filtered" counts in the statistics. They do not change the card's
+scheduling, and FSRS ignores them when it calculates memory states or
+optimizes parameters.
+
+Reviews of cards that are not yet due (see [Reviewing Ahead](#reviewing-ahead))
+also get the **Filtered** type, even when rescheduling is on. These reviews
+do change the card's scheduling, and FSRS uses them.
+
 ## Catching Up
 
 Filtered decks can be useful for catching up when you've fallen behind
