@@ -337,8 +337,13 @@ impl Collection {
         {
             let memory_states = fsrs.memory_state_batch(fsrs_items, starting_states)?;
 
+            let mut cards: HashMap<CardId, Card> = self
+                .all_cards_for_ids(&to_update, false)?
+                .into_iter()
+                .map(|card| (card.id, card))
+                .collect();
             for (card_id, memory_state) in to_update.into_iter().zip_eq(memory_states) {
-                let mut card = self.storage.get_card(card_id)?.or_not_found(card_id)?;
+                let mut card = cards.remove(&card_id).or_not_found(card_id)?;
                 let original = card.clone();
                 set_decay_and_desired_retention(&mut card);
                 card.memory_state = Some(memory_state.into());
