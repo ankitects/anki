@@ -460,6 +460,7 @@ class MPV(MPVBase):
     def __init__(self, *args, **kwargs):
         self._callbacks_queue = Queue()
         self._callbacks_initialized = False
+        self._init_event = threading.Event()
 
         super().__init__(*args, **kwargs)
         threading.Thread(target=self._register_callbacks, daemon=True).start()
@@ -501,6 +502,7 @@ class MPV(MPVBase):
         # completely set up.
         if hasattr(self, "on_init"):
             self.on_init()
+        self._init_event.set()
 
     #
     # Socket communication
