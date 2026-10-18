@@ -186,9 +186,13 @@ There are some special fields you can include in your templates:
 
     The type of card ("Forward", etc): {{Card}}
 
+    The card's unique ID: {{CardID}}
+
     The content of the front template
     (only valid in back template): {{FrontSide}}
 ```
+
+The `{{CardID}}` replacement was added in Anki 25.07.
 
 FrontSide will not automatically play any audio that was on the front side
 of the card. If you wish to have the same audio play automatically on both
