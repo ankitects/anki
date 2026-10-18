@@ -14,6 +14,9 @@ to use, and it is recommended for most users.
 MathJax is supported out of the box on Anki 2.1+, AnkiMobile, and
 AnkiDroid 2.9+.
 
+If you use cloze deletions with MathJax, see [cloze conflicts](#cloze-conflicts)
+for guidance on avoiding conflicting closing braces.
+
 To try it out:
 
 1. Type the following in a field:
@@ -324,9 +327,9 @@ conflict:
 ### Cloze Conflicts
 
 Cloze deletions are terminated with `}}`, which can conflict with a `}}`
-appearing in your LaTeX. To prevent LaTeX from being interpreted as a closing
-cloze marker, you can put a space between any double closing braces that do not
-indicate the end of the cloze, so
+appearing in MathJax or LaTeX code. To prevent math content from being
+interpreted as a closing cloze marker, you can put a space between any double
+closing braces that do not indicate the end of the cloze, so
 
 ```text
     {{c1::[$]\frac{foo}{\frac{bar}{baz}}[/$] blah blah blah.}}
