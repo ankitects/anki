@@ -11,6 +11,7 @@ use fsrs::FSRS5_DEFAULT_DECAY;
 use fsrs::FSRS6_DEFAULT_DECAY;
 use itertools::Either;
 use itertools::Itertools;
+use rayon::prelude::*;
 
 use super::params::ignore_revlogs_before_ms_from_config;
 use super::rescheduler::Rescheduler;
@@ -330,13 +331,18 @@ impl Collection {
         p.apply_slice_in_place(&mut fsrs_items);
         p.apply_slice_in_place(&mut starting_states);
 
-        for ((to_update, fsrs_items), starting_states) in to_update
+        let memory_states = fsrs_items
             .chunk_into_vecs(FSRS_BATCH_SIZE)
-            .zip_eq(fsrs_items.chunk_into_vecs(FSRS_BATCH_SIZE))
             .zip_eq(starting_states.chunk_into_vecs(FSRS_BATCH_SIZE))
-        {
-            let memory_states = fsrs.memory_state_batch(fsrs_items, starting_states)?;
+            .collect_vec()
+            .into_par_iter()
+            .map(|(items, states)| fsrs.memory_state_batch(items, states))
+            .collect::<std::result::Result<Vec<_>, _>>()?;
 
+        for (to_update, memory_states) in to_update
+            .chunk_into_vecs(FSRS_BATCH_SIZE)
+            .zip_eq(memory_states)
+        {
             let mut cards: HashMap<CardId, Card> = self
                 .all_cards_for_ids(&to_update, false)?
                 .into_iter()
