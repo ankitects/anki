@@ -165,6 +165,7 @@ class SidebarTreeView(QTreeView):
         if not self.isVisible():
             return
 
+        reveal_current = new_current is not None
         if not new_current and self.model() and (idx := self.currentIndex()):
             new_current = self.model().item_for_index(idx)
 
@@ -186,7 +187,7 @@ class SidebarTreeView(QTreeView):
             else:
                 self._expand_where_necessary(model)
             if new_current:
-                self.restore_current(new_current)
+                self.restore_current(new_current, reveal=reveal_current)
 
             self.setUpdatesEnabled(True)
 
@@ -199,14 +200,30 @@ class SidebarTreeView(QTreeView):
             parent=self.browser, op=lambda _: self._root_tree(), success=on_done
         ).run_in_background()
 
-    def restore_current(self, current: SidebarItem) -> None:
+    def restore_current(self, current: SidebarItem, *, reveal: bool = True) -> None:
         if current_item := self.find_item(current.has_same_id):
             index = self.model().index_for_item(current_item)
+            scroll = True
+            if not reveal:
+                parent = index.parent()
+                while parent.isValid():
+                    if not self.isExpanded(parent):
+                        scroll = False
+                        break
+                    parent = parent.parent()
 
-            self._selection_model().setCurrentIndex(
-                index, QItemSelectionModel.SelectionFlag.SelectCurrent
-            )
-            self.scrollTo(index, QAbstractItemView.ScrollHint.PositionAtCenter)
+            # Selecting a hidden item can also scroll to it and reopen its parents.
+            auto_scroll = self.hasAutoScroll()
+            if not scroll:
+                self.setAutoScroll(False)
+            try:
+                self._selection_model().setCurrentIndex(
+                    index, QItemSelectionModel.SelectionFlag.SelectCurrent
+                )
+            finally:
+                self.setAutoScroll(auto_scroll)
+            if scroll:
+                self.scrollTo(index, QAbstractItemView.ScrollHint.PositionAtCenter)
 
     def find_item(
         self,
