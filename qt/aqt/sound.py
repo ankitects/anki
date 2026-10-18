@@ -478,7 +478,7 @@ class MpvManager(MPV, SoundOrVideoPlayer):
 
     def play(self, tag: AVTag, on_done: OnDoneCallback) -> None:
         assert isinstance(tag, SoundOrVideoTag)
-        self._init_event.wait()
+        self._init_event.wait(timeout=5.0)
         self._on_done = on_done
         path = tag.path(self.media_folder)
 

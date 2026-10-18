@@ -470,39 +470,41 @@ class MPV(MPVBase):
         self._property_serials = {}
         self._new_serial = iter(range(sys.maxsize))
 
-        # Enumerate all methods and auto-register callbacks for
-        # events and property-changes.
-        for method_name, method in inspect.getmembers(self):
-            if not inspect.ismethod(method):
-                continue
+        try:
+            # Enumerate all methods and auto-register callbacks for
+            # events and property-changes.
+            for method_name, method in inspect.getmembers(self):
+                if not inspect.ismethod(method):
+                    continue
 
-            # Bypass MPVError: no such event 'init'
-            if method_name == "on_init":
-                continue
+                # Bypass MPVError: no such event 'init'
+                if method_name == "on_init":
+                    continue
 
-            if method_name.startswith("on_property_"):
-                name = method_name[12:]
-                name = name.replace("_", "-")
-                self.register_property_callback(name, method)
+                if method_name.startswith("on_property_"):
+                    name = method_name[12:]
+                    name = name.replace("_", "-")
+                    self.register_property_callback(name, method)
 
-            elif method_name.startswith("on_"):
-                name = method_name[3:]
-                name = name.replace("_", "-")
-                self.register_callback(name, method)
+                elif method_name.startswith("on_"):
+                    name = method_name[3:]
+                    name = name.replace("_", "-")
+                    self.register_callback(name, method)
 
-        self._callbacks_initialized = True
-        while True:
-            try:
-                message = self._callbacks_queue.get_nowait()
-            except Empty:
-                break
-            self._handle_event(message)
+            self._callbacks_initialized = True
+            while True:
+                try:
+                    message = self._callbacks_queue.get_nowait()
+                except Empty:
+                    break
+                self._handle_event(message)
 
-        # Simulate an init event when the process and all callbacks have been
-        # completely set up.
-        if hasattr(self, "on_init"):
-            self.on_init()
-        self._init_event.set()
+            # Simulate an init event when the process and all callbacks have been
+            # completely set up.
+            if hasattr(self, "on_init"):
+                self.on_init()
+        finally:
+            self._init_event.set()
 
     #
     # Socket communication
