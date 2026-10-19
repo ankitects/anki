@@ -637,6 +637,9 @@ def prefix_page_paths(group: dict | str, target_locale: str) -> dict | str:
     return updated_group
 
 
+UNTRANSLATED_MARKER = "{/* *--UNTRANSLATED--* */}"
+
+
 def copy_english_pages(
     docs_site_dir: Path, target_locale: str, pages: list[Path]
 ) -> tuple[int, int, set[Path]]:
@@ -646,7 +649,9 @@ def copy_english_pages(
     for page in pages:
         source_path = docs_site_dir / page
         target_path = docs_site_dir / target_locale / page
-        if target_path.exists():
+        if target_path.exists() and UNTRANSLATED_MARKER not in target_path.read_text(
+            encoding="utf-8"
+        ):
             skipped_pages += 1
             continue
         target_path.parent.mkdir(parents=True, exist_ok=True)
@@ -665,7 +670,7 @@ def copy_english_pages(
         content = (
             headmatter.group(0)
             + "\n"
-            + "{/* *--UNTRANSLATED--* */}\n"
+            + f"{UNTRANSLATED_MARKER}\n"
             + '{/* This text is currently untranslated. Replace the below "Cog" comment with your translation of the page*/}\n'
             f"""{{/* <<<<cog from tools.auto_update_untranslated import auto_update_untranslated; cog.out(auto_update_untranslated("{source_path}", "{target_locale}"))>>>> */}}\n"""
             + f"<Danger>Error<br/> [View the English version](/{page.with_suffix('')})</Danger>\n"
