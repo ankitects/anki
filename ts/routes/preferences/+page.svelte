@@ -27,7 +27,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     <div class="lab-grid">
         <LabItem
             title="Note Editor Rework"
-            description="Enables an experimental rework of the editor. You can also hold shift while opening the editor to temporarily toggle this option on or off. See <a href='https://forums.ankiweb.net/t/experimental-editor-testing/71454'>Anki&nbsp;forums</a>"
+            description="Enables an experimental rework of the editor. You can also hold shift while opening the editor to temporarily toggle this option on or off. <a href='https://forums.ankiweb.net/t/experimental-editor-testing/71454'>See&nbsp;forum&nbsp;post</a>"
             key={ExperimentalFeatureFlag.SVELTE_EDITOR}
             {labPerfs}
         ></LabItem>
