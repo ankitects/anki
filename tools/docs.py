@@ -642,10 +642,10 @@ UNTRANSLATED_MARKER = "{/* *--UNTRANSLATED--* */}"
 
 def copy_english_pages(
     docs_site_dir: Path, target_locale: str, pages: list[Path]
-) -> tuple[int, int, set[Path]]:
+) -> tuple[int, int, set[str]]:
     copied_pages = 0
     skipped_pages = 0
-    skipped_from_nav: set[Path] = set()
+    skipped_from_nav: set[str] = set()
     for page in pages:
         source_path = docs_site_dir / page
         target_path = docs_site_dir / target_locale / page
@@ -660,12 +660,7 @@ def copy_english_pages(
         if headmatter is None:
             print(f"WARN: no headmatter found in {source_path}")
             skipped_pages += 1
-            skipped_from_nav.add(page)
-            continue
-        if "<<<<cog" in content:
-            print(f"Skipping file with cog contents {source_path}")
-            skipped_pages += 1
-            skipped_from_nav.add(page)
+            skipped_from_nav.add(str(page.with_suffix("")))
             continue
         content = (
             headmatter.group(0)
@@ -687,7 +682,7 @@ def copy_english_pages(
 
 
 def update_language_tabs_from_english(
-    site_structure: dict, target_locale: str, excluded_pages: set[Path] | None = None
+    site_structure: dict, target_locale: str, excluded_pages: set[str] | None = None
 ) -> tuple[dict, int]:
     default_language = find_first(
         site_structure["navigation"]["languages"],
@@ -698,8 +693,7 @@ def update_language_tabs_from_english(
 
     def filter_group(group: dict | str):
         if isinstance(group, str):
-            path = Path(group)
-            if path in excluded_pages:
+            if group in excluded_pages:
                 return None
             return f"{target_locale}/{group}"
 
