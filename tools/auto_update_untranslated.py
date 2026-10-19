@@ -11,7 +11,7 @@ HEADER = """
 <div style="text-align: left !important; direction: ltr !important;">
     <Warning>
         <h3>Untranslated</h3>
-        This page is currently untranslated. If you want to help, see [/translators/docs](/translators/docs).
+        This page is currently untranslated. If you want to help, see [the translation guide](/translators/anki/manual).
     </Warning>
 </div>
 """
