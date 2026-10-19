@@ -3,6 +3,8 @@
 
 import re
 
+from tools.docs import UNTRANSLATED_MARKER
+
 INTERNAL_DOCS_LINK_RE = re.compile(
     r'(?P<prefix>\]\(|href=["\"])\/(?P<path>(?:manual|ankimobile|faqs|addons|developers|translators|releases|index|automatic\-backups)(?:[/?#][^\s)"\']*)?)'
 )
@@ -28,6 +30,9 @@ def auto_update_untranslated(path: str, target_locale: str) -> str:
     with open(path, "r", encoding="utf-8") as f:
         content = f.read()
         content = content.split("---\n", 2)[-1]  # Remove front matter if present
+        content = (
+            "\n" + UNTRANSLATED_MARKER + content
+        )  # Used if just docs-release is run locally.
         if content.endswith("```\n"):
             content = content + "\n"
         content = HEADER + content
