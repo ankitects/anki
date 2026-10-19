@@ -407,6 +407,12 @@ impl SqlWriter<'_> {
             PropertyKind::Interval(ivl) => write!(self.sql, "ivl {op} {ivl}").unwrap(),
             PropertyKind::Reps(reps) => write!(self.sql, "reps {op} {reps}").unwrap(),
             PropertyKind::Lapses(days) => write!(self.sql, "lapses {op} {days}").unwrap(),
+            // forgotten rate = lapses / reps; only valid for cards that have
+            // been reviewed at least once (reps > 0). The 1.0 * forces a
+            // floating point division instead of SQLite's integer division.
+            PropertyKind::ForgottenRate(rate) => {
+                write!(self.sql, "(reps > 0 and (1.0 * lapses / reps) {op} {rate})").unwrap()
+            }
             PropertyKind::Ease(ease) => {
                 write!(self.sql, "factor {} {}", op, (ease * 1000.0) as u32).unwrap()
             }
@@ -1352,6 +1358,19 @@ mod test {
 
         // props
         assert_eq!(s(ctx, "prop:lapses=3").0, "(lapses = 3)".to_string());
+        assert_eq!(
+            s(ctx, "prop:forgotten-rate>0.3").0,
+            "((reps > 0 and (1.0 * lapses / reps) > 0.3))".to_string()
+        );
+        assert_eq!(
+            s(ctx, "prop:forgotten-rate<=0.5").0,
+            "((reps > 0 and (1.0 * lapses / reps) <= 0.5))".to_string()
+        );
+        // fr is an alias for forgotten-rate
+        assert_eq!(
+            s(ctx, "prop:fr<=0.5").0,
+            "((reps > 0 and (1.0 * lapses / reps) <= 0.5))".to_string()
+        );
         assert_eq!(s(ctx, "prop:ease>=2.5").0, "(factor >= 2500)".to_string());
         assert_eq!(
             s(ctx, "prop:due!=-1").0,
