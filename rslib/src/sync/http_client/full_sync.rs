@@ -4,6 +4,7 @@
 use std::future::Future;
 use std::time::Duration;
 
+use tokio::io::AsyncWrite;
 use tokio::select;
 use tokio::time::interval;
 
@@ -54,13 +55,19 @@ impl HttpSyncClient {
         (io_monitor, update_progress)
     }
 
-    pub(in super::super) async fn download_with_progress(
+    /// Streams the downloaded collection into `writer`, instead of buffering it
+    /// in memory.
+    pub(in super::super) async fn download_into_with_progress<W>(
         &self,
         req: SyncRequest<EmptyInput>,
         progress: ThrottlingProgressHandler<FullSyncProgress>,
-    ) -> HttpResult<SyncResponse<Vec<u8>>> {
+        writer: &mut W,
+    ) -> HttpResult<()>
+    where
+        W: AsyncWrite + Unpin,
+    {
         let (io_monitor, progress_fut) = self.full_sync_progress_monitor(false, progress);
-        let output = self.request_ext(SyncMethod::Download, req, io_monitor);
+        let output = self.request_into(SyncMethod::Download, req, io_monitor, writer);
         select! {
             _ = progress_fut => unreachable!(),
             out = output => out

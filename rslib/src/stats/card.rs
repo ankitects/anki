@@ -112,6 +112,7 @@ impl Collection {
                 None
             },
             desired_retention: card.desired_retention,
+            fsrs_enabled,
         })
     }
 
