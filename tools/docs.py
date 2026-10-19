@@ -663,15 +663,24 @@ def copy_english_pages(
             skipped_pages += 1
             skipped_from_nav.add(str(page.with_suffix("")))
             continue
-        content = (
-            headmatter.group(0)
-            + "\n"
-            + f"{UNTRANSLATED_MARKER}\n"
-            + '{/* This text is currently untranslated. Replace the below "Cog" comment with your translation of the page*/}\n'
-            f"""{{/* <<<<cog from tools.auto_update_untranslated import auto_update_untranslated; cog.out(auto_update_untranslated("{source_path}", "{target_locale}"))>>>> */}}\n"""
-            + f"<Danger>Error<br/> [View the English version](/{page.with_suffix('')})</Danger>\n"
-            + "{/* <<<<end>>>> */}"
-        )
+        if "<<<<cog" in content:
+            content = (
+                headmatter.group(0)
+                + "\n"
+                + f"{UNTRANSLATED_MARKER}\n"
+                + "{/* You may translate the link for this text but since the contents of the destination page are generated automatically you shouldn't translate it fully. If you translate the link, remove the above marker */}\n"
+                + f"<Info>English only<br/> [View in English](/{page.with_suffix('')})</Info>\n"
+            )
+        else:
+            content = (
+                headmatter.group(0)
+                + "\n"
+                + f"{UNTRANSLATED_MARKER}\n"
+                + '{/* This text is currently untranslated. Replace the below "Cog" comment with your translation of the page */}\n'
+                f"""{{/* <<<<cog from tools.auto_update_untranslated import auto_update_untranslated; cog.out(auto_update_untranslated("{source_path}", "{target_locale}"))>>>> */}}\n"""
+                + f"<Danger>Error<br/> [View the English version](/{page.with_suffix('')})</Danger>\n"
+                + "{/* <<<<end>>>> */}"
+            )
 
         target_path.write_text(
             content,
