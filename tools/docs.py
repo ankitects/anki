@@ -655,6 +655,7 @@ def copy_english_pages(
         ):
             skipped_pages += 1
             continue
+        target_path.parent.mkdir(parents=True, exist_ok=True)
         page_path = page.with_suffix("").as_posix()
         content = source_path.read_text(encoding="utf-8")
         headmatter = re.match(r"^---\n(.*?)\n---", content, re.DOTALL)
