@@ -672,9 +672,11 @@ def copy_english_pages(
             skipped_pages += 1
             skipped_from_nav.add(page_path)
             continue
+        new_headmatter = headmatter.group(0)
+        new_headmatter = new_headmatter[:-3] + "noindex: true\n---"
         if "<<<<cog" in content:
             content = (
-                headmatter.group(0)
+                new_headmatter
                 + "\n"
                 + f"{UNTRANSLATED_MARKER}\n"
                 + "{/* You may translate the link for this text but since the contents of the destination page are generated automatically you shouldn't translate it fully. If you translate the link, remove the above marker */}\n"
@@ -682,7 +684,7 @@ def copy_english_pages(
             )
         else:
             content = (
-                headmatter.group(0)
+                new_headmatter
                 + "\n"
                 + '{/* This text is currently untranslated. Replace this and the below "Cog" comment with your translation of the page */}\n'
                 f"""{{/* <<<<cog from tools.auto_update_untranslated import auto_update_untranslated; cog.out(auto_update_untranslated("{source_path.as_posix()}", "{target_locale}"))>>>> */}}\n"""
