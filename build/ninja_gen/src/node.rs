@@ -226,9 +226,6 @@ impl BuildAction for Prettier {
     fn files(&mut self, build: &mut impl build::FilesHandle) {
         build.add_inputs("yarn", inputs![":yarn:bin"]);
         build.add_inputs("prettier", inputs![":node_modules:prettier"]);
-        if !self.check_only {
-            build.add_inputs("", inputs![":format:docs:copy"]);
-        }
         build.add_inputs("in", &self.inputs);
         build.add_variable("pattern", self.pattern);
         let (file_ext, mode) = if self.check_only {

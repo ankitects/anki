@@ -6,6 +6,7 @@ use ninja_gen::docs::CogRender;
 use ninja_gen::docs::DocsCopy;
 use ninja_gen::glob;
 use ninja_gen::inputs;
+use ninja_gen::node::Prettier;
 use ninja_gen::Build;
 
 pub fn check_docs(build: &mut Build) -> Result<()> {
@@ -18,9 +19,17 @@ const LOCALES: &str = "ar,de,es,fr,id,it,ja,pl,pt,ru,uk,uz,zh-Hans";
 
 fn check_copy(build: &mut Build) -> Result<()> {
     build.add_action(
-        "format:docs:copy",
+        "fix:docs:copy",
         DocsCopy {
             locale: LOCALES,
+            check_only: false,
+        },
+    )?;
+    build.add_action(
+        "fix:docs:copy:prettier",
+        Prettier {
+            inputs: inputs![glob!["docs-site/**/*.mdx"], ":fix:docs:copy"],
+            pattern: "docs-site/**/*.mdx",
             check_only: false,
         },
     )?;
@@ -51,7 +60,7 @@ fn check_cog(build: &mut Build) -> Result<()> {
     for locale in LOCALES.split(',') {
         // For the mintlify-docs branch
         build.add_action(
-            format!("docs-release:cog:{locale}"),
+            format!("docs:release:cog:{locale}"),
             CogRender {
                 inputs: &inputs![glob![format!("docs-site/{locale}/**/*.mdx")],],
                 deps: &inputs![

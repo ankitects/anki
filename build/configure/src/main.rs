@@ -55,8 +55,8 @@ fn main() -> Result<()> {
 
     build_rust(build)?;
     build_pylib(build)?;
-    check_docs(build)?;
     build_and_check_web(build)?;
+    check_docs(build)?;
     build_and_check_aqt(build)?;
 
     if env::var("OFFLINE_BUILD").is_err() {
