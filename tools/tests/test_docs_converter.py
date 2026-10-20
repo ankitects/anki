@@ -127,7 +127,9 @@ class TestCopySubcommand:
         )
 
         run_copy(
-            argparse.Namespace(target_locale="ar", docs_site_dir=str(docs_site_dir))
+            argparse.Namespace(
+                target_locale="ar", docs_site_dir=str(docs_site_dir), dry_run=False
+            )
         )
 
         # Check that pages with proper frontmatter were copied with cog markers
@@ -200,7 +202,9 @@ class TestCopySubcommand:
         )
 
         run_copy(
-            argparse.Namespace(target_locale="ar", docs_site_dir=str(docs_site_dir))
+            argparse.Namespace(
+                target_locale="ar", docs_site_dir=str(docs_site_dir), dry_run=False
+            )
         )
 
         # Existing target files should not be overwritten

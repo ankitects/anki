@@ -3,6 +3,7 @@
 import argparse
 import json
 import re
+import sys
 from collections.abc import Callable, Iterable
 from copy import deepcopy
 from dataclasses import dataclass
@@ -602,6 +603,11 @@ def add_copy_subcommand(subparsers: argparse._SubParsersAction) -> None:
         default="docs-site",
         help="Path to the docs-site directory.",
     )
+    copy_parser.add_argument(
+        "--dry-run",
+        action="store_true",
+        help="Perform a dry run without writing any files.",
+    )
     copy_parser.set_defaults(func=run_copy)
 
 
@@ -642,16 +648,18 @@ UNTRANSLATED_MARKER = "{/* *--UNTRANSLATED--* */}"
 
 
 def copy_english_pages(
-    docs_site_dir: Path, target_locale: str, pages: list[Path]
-) -> tuple[int, int, set[str]]:
-    copied_pages = 0
+    docs_site_dir: Path, target_locale: str, pages: list[Path], dry_run=False
+) -> tuple[list[str], int, int, set[str]]:
+    copied_pages = []
     skipped_pages = 0
+    overwritten_pages = 0
     skipped_from_nav: set[str] = set()
     for page in pages:
         source_path = docs_site_dir / page
         target_path = docs_site_dir / target_locale / page
-        if target_path.exists() and UNTRANSLATED_MARKER not in target_path.read_text(
-            encoding="utf-8"
+        new = True
+        if target_path.exists() and (
+            new := UNTRANSLATED_MARKER not in target_path.read_text(encoding="utf-8")
         ):
             skipped_pages += 1
             continue
@@ -683,13 +691,17 @@ def copy_english_pages(
                 + "{/* <<<<end>>>> */}"
             )
 
-        target_path.write_text(
-            content,
-            encoding="utf-8",
-        )
-        copied_pages += 1
+        if not dry_run:
+            target_path.write_text(
+                content,
+                encoding="utf-8",
+            )
 
-    return copied_pages, skipped_pages, skipped_from_nav
+        if new:
+            copied_pages.append(str(target_path))
+        overwritten_pages += 1 if not new else 0
+
+    return copied_pages, overwritten_pages, skipped_pages, skipped_from_nav
 
 
 def update_language_tabs_from_english(
@@ -745,21 +757,35 @@ def run_copy(args: argparse.Namespace) -> None:
     docs_site_dir = Path(args.docs_site_dir)
     site_structure = load_site_structure(docs_site_dir)
     pages = get_english_docs_pages(docs_site_dir)
-
+    all_copied_pages = []
+    all_overwritten_pages = 0
+    all_skipped_pages = 0
     for target_locale in args.target_locale.split(","):
-        copied_pages, skipped_pages, skipped_from_nav = copy_english_pages(
-            docs_site_dir, target_locale, pages
+        copied_pages, overwritten_pages, skipped_pages, skipped_from_nav = (
+            copy_english_pages(docs_site_dir, target_locale, pages, args.dry_run)
         )
+
+        all_copied_pages.extend(copied_pages)
+        all_overwritten_pages += overwritten_pages
+        all_skipped_pages += skipped_pages
+
+        if args.dry_run:
+            continue
+
         site_structure, tab_count = update_language_tabs_from_english(
             site_structure, target_locale, skipped_from_nav
         )
         write_site_structure(docs_site_dir, site_structure)
-
-        print(
-            f"Copied {copied_pages} English pages to {target_locale}/; "
-            f"skipped {skipped_pages} existing files."
-        )
         print(f"Updated docs.json with {tab_count} tabs for {target_locale}.")
+
+    print(
+        f"Copied {len(all_copied_pages)} English pages to {target_locale}/; "
+        f"overwritten {all_overwritten_pages} untranslated files; "
+        f"skipped {all_skipped_pages} translated files."
+    )
+    if args.dry_run and len(all_copied_pages) > 0:
+        print(f"Files missing: {all_copied_pages}")
+        sys.exit(1)
 
 
 def main(argv: list[str] | None = None) -> None:
