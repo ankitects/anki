@@ -73,11 +73,12 @@ pub struct DocsCopy<'a> {
 
 impl BuildAction for DocsCopy<'_> {
     fn command(&self) -> &str {
-        "out/pyenv/bin/python tools/docs.py copy $locale"
+        "$pyenv_bin $script copy $locale"
     }
 
     fn files(&mut self, build: &mut impl FilesHandle) {
-        build.add_inputs("", inputs![":pyenv:bin", "tools/docs.py"]);
+        build.add_inputs("pyenv_bin", inputs![":pyenv:bin"]);
+        build.add_inputs("script", inputs!["tools/docs.py"]);
         build.add_inputs("", inputs![glob!["docs-site/*.mdx"]]);
         build.add_variable("locale", self.locale);
 

@@ -655,13 +655,13 @@ def copy_english_pages(
         ):
             skipped_pages += 1
             continue
-        target_path.parent.mkdir(parents=True, exist_ok=True)
+        page_path = page.with_suffix("").as_posix()
         content = source_path.read_text(encoding="utf-8")
         headmatter = re.match(r"^---\n(.*?)\n---", content, re.DOTALL)
         if headmatter is None:
             print(f"WARN: no headmatter found in {source_path}")
             skipped_pages += 1
-            skipped_from_nav.add(str(page.with_suffix("")))
+            skipped_from_nav.add(page_path)
             continue
         if "<<<<cog" in content:
             content = (
@@ -669,16 +669,16 @@ def copy_english_pages(
                 + "\n"
                 + f"{UNTRANSLATED_MARKER}\n"
                 + "{/* You may translate the link for this text but since the contents of the destination page are generated automatically you shouldn't translate it fully. If you translate the link, remove the above marker */}\n"
-                + f"<Info>English only<br/> [View in English](/{page.with_suffix('')})</Info>\n"
+                + f"<Info>English only<br/> [View in English](/{page_path})</Info>\n"
             )
         else:
             content = (
                 headmatter.group(0)
                 + "\n"
                 + '{/* This text is currently untranslated. Replace this and the below "Cog" comment with your translation of the page */}\n'
-                f"""{{/* <<<<cog from tools.auto_update_untranslated import auto_update_untranslated; cog.out(auto_update_untranslated("{source_path}", "{target_locale}"))>>>> */}}\n"""
+                f"""{{/* <<<<cog from tools.auto_update_untranslated import auto_update_untranslated; cog.out(auto_update_untranslated("{source_path.as_posix()}", "{target_locale}"))>>>> */}}\n"""
                 + f"{UNTRANSLATED_MARKER}\n"  # Inside the cog statement to simplify what parts of the page to delete
-                + f"<Danger>Error<br/> [View the English version](/{page.with_suffix('')})</Danger>\n"
+                + f"<Danger>Error<br/> [View the English version](/{page_path})</Danger>\n"
                 + "{/* <<<<end>>>> */}"
             )
 
