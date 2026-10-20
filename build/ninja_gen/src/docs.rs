@@ -69,19 +69,52 @@ pub fn cog_render(
 
 pub struct DocsCopy<'a> {
     pub locale: &'a str,
+    pub check_only: bool,
 }
 
 impl BuildAction for DocsCopy<'_> {
     fn command(&self) -> &str {
-        "$pyenv_bin $script copy $locale"
+        "$pyenv_bin $script copy $locale $args"
     }
 
     fn files(&mut self, build: &mut impl FilesHandle) {
         build.add_inputs("pyenv_bin", inputs![":pyenv:bin"]);
         build.add_inputs("script", inputs!["tools/docs.py"]);
-        build.add_inputs("", inputs![glob!["docs-site/*.mdx"]]);
         build.add_variable("locale", self.locale);
+        build.add_variable("args", if self.check_only { "--dry-run" } else { "" });
 
-        build.add_output_stamp(format!("tests/docs_copy_{}.stamp", self.locale));
+        let inputs = inputs![
+            glob!["docs-site/*.mdx"],
+            glob!["docs-site/addons/**/*.mdx"],
+            glob!["docs-site/ankimobile/**/*.mdx"],
+            glob!["docs-site/developers/**/*.mdx"],
+            glob!["docs-site/faqs/**/*.mdx"],
+            glob!["docs-site/manual/**/*.mdx"],
+            glob!["docs-site/releases/**/*.mdx"],
+            glob!["docs-site/translators/**/*.mdx"],
+        ];
+        let outputs = build
+            .expand_inputs(&inputs)
+            .into_iter()
+            .flat_map(|p| {
+                let relative = p
+                    .strip_prefix("./")
+                    .unwrap_or(&p)
+                    .strip_prefix("docs-site/")
+                    .unwrap_or(p.strip_prefix("./").unwrap_or(&p));
+                self.locale
+                    .split(',')
+                    .map(move |locale| format!("docs-site/{}/{}", locale.trim(), relative))
+                    .collect::<Vec<_>>()
+            })
+            .collect::<Vec<_>>();
+
+        if self.check_only {
+            let hash = simple_hash(inputs![outputs]);
+            build.add_output_stamp(format!("tests/docs_copy_check_{hash}.stamp"));
+        } else {
+            build.add_inputs("", inputs);
+            build.add_outputs("", outputs);
+        }
     }
 }
