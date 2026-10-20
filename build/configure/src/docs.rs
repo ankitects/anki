@@ -17,7 +17,7 @@ pub fn check_docs(build: &mut Build) -> Result<()> {
 const LOCALES: &str = "ar,de,es,fr,id,it,ja,pl,pt,ru,uk,uz,zh-Hans";
 
 fn check_copy(build: &mut Build) -> Result<()> {
-    build.add_action("check:copy", DocsCopy { locale: LOCALES })?;
+    build.add_action("check:docs:copy", DocsCopy { locale: LOCALES })?;
     Ok(())
 }
 
