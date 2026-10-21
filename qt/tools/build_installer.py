@@ -26,7 +26,7 @@ _SUPPORT_PYTHON_TAG = "3.13"
 
 _MAC_SUPPORT_HASHES = {
     "support_package_hash": "sha256:1e4630ba00f90bde7e44e54386bc5b2b860dce473d70c2cef9fe651642820bc1",
-    "stub_binary_hash": "sha256:f4d35ca94b06004b3cfb35b8c3ab1444d8b9920c9e0fb08c833c0f6c181583a1",
+    "stub_binary_hash": "sha256:cfd17fdf6a7018105292c458764e2ba54f15dd2187da004eab902cea89cdbfc6",
 }
 
 # Hashes of the support packages/stub binaries pinned by support_revision and
