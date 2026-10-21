@@ -93,28 +93,38 @@ impl BuildAction for DocsCopy<'_> {
             glob!["docs-site/releases/**/*.mdx"],
             glob!["docs-site/translators/**/*.mdx"],
         ];
-        let outputs = build
-            .expand_inputs(&inputs)
-            .into_iter()
-            .flat_map(|p| {
-                let relative = p
-                    .strip_prefix("./")
-                    .unwrap_or(&p)
-                    .strip_prefix("docs-site/")
-                    .unwrap_or(p.strip_prefix("./").unwrap_or(&p));
-                self.locale
-                    .split(',')
-                    .map(move |locale| format!("docs-site/{}/{}", locale.trim(), relative))
-                    .collect::<Vec<_>>()
+        // Vec (Locale, Vec<Output>) to allow for multiple locales
+        let outputs: Vec<(String, Vec<String>)> = self
+            .locale
+            .split(',')
+            .map(|locale| {
+                let locale = locale.trim().to_string();
+                let files = build
+                    .expand_inputs(&inputs)
+                    .into_iter()
+                    .map(|p| {
+                        let relative = p
+                            .strip_prefix("./")
+                            .unwrap_or(&p)
+                            .strip_prefix("docs-site/")
+                            .unwrap_or(p.strip_prefix("./").unwrap_or(&p));
+                        format!("../docs-site/{}/{}", locale, relative)
+                    })
+                    .collect();
+                (locale, files)
             })
-            .collect::<Vec<_>>();
+            .collect();
 
         if self.check_only {
-            let hash = simple_hash(inputs![outputs]);
-            build.add_output_stamp(format!("tests/docs_copy_check_{hash}.stamp"));
+            for (_, output) in outputs {
+                let hash = simple_hash(inputs![output]);
+                build.add_output_stamp(format!("tests/docs_copy_check_{hash}.stamp"));
+            }
         } else {
-            build.add_inputs("", inputs);
-            build.add_outputs("", outputs);
+            for (locale, output) in outputs {
+                build.add_inputs("", &inputs);
+                build.add_outputs_ext(locale, output, true);
+            }
         }
     }
 }

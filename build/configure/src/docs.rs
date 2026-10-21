@@ -10,8 +10,8 @@ use ninja_gen::node::Prettier;
 use ninja_gen::Build;
 
 pub fn check_docs(build: &mut Build) -> Result<()> {
-    check_cog(build)?;
     check_copy(build)?;
+    check_cog(build)?;
     Ok(())
 }
 
@@ -65,7 +65,7 @@ fn check_cog(build: &mut Build) -> Result<()> {
         build.add_action(
             format!("docs:release:cog:{locale}"),
             CogRender {
-                inputs: &inputs![glob![format!("docs-site/{locale}/**/*.mdx")],],
+                inputs: &inputs![format!(":docs:release:copy:{locale}")],
                 deps: &inputs![
                     glob!["docs-site/*.mdx"],
                     glob!["docs-site/addons/**.mdx"],
