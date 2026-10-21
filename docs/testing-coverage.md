@@ -3,10 +3,10 @@
 
 # Testing and Coverage
 
-<!-- <<<cog
+<!-- <<<<cog
 from cogdocs import get_file_contents
 cog.out(get_file_contents("testing-coverage"))
->>> -->
+>>>> -->
 
 CI runs Rust, Python, and TypeScript tests plus lint/type checks. Coverage is
 orchestrated in `justfile` with direct CLI calls, using ninja only to prepare
@@ -96,4 +96,4 @@ boundary.
 
 - [Writing Unit Tests for Anki](https://anki.mintlify.app/developers/unit-testing)
 
-<!-- <<<end>>> -->
+<!-- <<<<end>>>> -->
