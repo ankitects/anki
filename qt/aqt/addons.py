@@ -1334,7 +1334,7 @@ class ChooseAddonsToUpdateList(QListWidget):
     ) -> None:
         QListWidget.__init__(self, parent)
         # QTBUG-150017: revert after upstream fix (Qt 6.12.1)
-        if self.style().objectName() == "macos":
+        if is_mac:
             self._fusion_style = QStyleFactory.create("fusion")
             self.setStyle(self._fusion_style)  # type: ignore
         self.mgr = mgr
