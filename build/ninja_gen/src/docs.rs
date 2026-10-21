@@ -103,12 +103,9 @@ impl BuildAction for DocsCopy<'_> {
                     .expand_inputs(&inputs)
                     .into_iter()
                     .map(|p| {
-                        let relative = p
-                            .strip_prefix("./")
-                            .unwrap_or(&p)
-                            .strip_prefix("docs-site/")
-                            .unwrap_or(p.strip_prefix("./").unwrap_or(&p));
-                        format!("../docs-site/{}/{}", locale, relative)
+                        let p = p.replace('\\', "/");
+                        let relative = p.strip_prefix("docs-site/").unwrap_or(&p);
+                        format!("../docs-site/{locale}/{relative}")
                     })
                     .collect();
                 (locale, files)
