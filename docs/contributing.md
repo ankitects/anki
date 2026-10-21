@@ -31,7 +31,7 @@ implemented as an add-on instead. We aim to keep the core Anki codebase lean
 and maintainable. Many great ideas are better served as add-ons, where they
 can iterate faster and serve specific user needs without affecting all users.
 
-See the [Add-on API documentation](https://addon-docs.ankiweb.net/) for
+See the [Add-on API documentation](https://anki.mintlify.app/addons/intro) for
 guidance on building add-ons.
 
 ## Pull Request Description
