@@ -1,6 +1,22 @@
 # Copyright: Ankitects Pty Ltd and contributors
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
+"""The stock note types, and the registry add-ons use to offer their own.
+
+`get_stock_notetypes()` returns a (name, getter) pair for each of the six
+built-in note types, in the order they appear in `notetypes.proto`. The
+getters hand back a note type that is already in the collection; they do
+not add it.
+
+To add an entry to the add/clone note type screen, append a (name, callable)
+pair to `models`. The name may itself be a callable returning a string, and
+the callable receives a collection and must return a note type. Extras are
+listed after the built-ins.
+
+The `addBasicModel` family is deprecated, and differs in one important way:
+those add the note type to the collection before returning it.
+"""
+
 from __future__ import annotations
 
 from collections.abc import Callable
@@ -28,6 +44,7 @@ def _get_stock_notetype(
 def get_stock_notetypes(
     col: anki.collection.Collection,
 ) -> list[tuple[str, Callable[[anki.collection.Collection], anki.models.NotetypeDict]]]:
+    """Return a (name, getter) pair for each stock note type and add-on extra."""
     out: list[
         tuple[str, Callable[[anki.collection.Collection], anki.models.NotetypeDict]]
     ] = []
