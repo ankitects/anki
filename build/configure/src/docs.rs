@@ -19,27 +19,30 @@ const LOCALES: &str = "ar,de,es,fr,id,it,ja,pl,pt,ru,uk,uz,zh-Hans";
 
 fn check_copy(build: &mut Build) -> Result<()> {
     build.add_action(
-        "fix:docs:copy",
+        "docs:release:copy",
         DocsCopy {
             locale: LOCALES,
             check_only: false,
         },
     )?;
+    // So we don't get a huge diff if we manually edit the mintlify-docs branch
     build.add_action(
-        "fix:docs:copy:prettier",
+        "docs:release:copy:prettier",
         Prettier {
-            inputs: inputs![glob!["docs-site/**/*.mdx"], ":fix:docs:copy"],
+            inputs: inputs![glob!["docs-site/**/*.mdx"], ":docs:release:copy"],
             pattern: "docs-site/**/*.mdx",
             check_only: false,
         },
     )?;
-    build.add_action(
+    // Disabled until we have enough translation interest to justify pre-filling all
+    // the untranslated pages
+    /* build.add_action(
         "check:format:docs:copy",
         DocsCopy {
             locale: LOCALES,
             check_only: true,
         },
-    )?;
+    )?; */
     Ok(())
 }
 
