@@ -203,7 +203,6 @@ int main(int argc, char *argv[]) {
     strcpy(path, install_path);
     strcat(path, "/app_packages");
     app_packages_path_str = Py_DecodeLocale(path, NULL);
-    free(path);
 
     debug_log("Adding app_packages as site directory: %S\n", app_packages_path_str);
 
@@ -237,6 +236,27 @@ int main(int argc, char *argv[]) {
         // crash_dialog("Could not add app_packages directory using site.addsitedir");
         exit(-15);
     }
+
+    {% if cookiecutter.allow_subprocesses %}
+    // Point sys.executable at python/bin/python so that the app can start Python subprocesses.
+    snprintf(path, PATH_MAX, "%s/python/bin/python", install_path);
+    debug_log("Setting sys.executable: %s\n", path);
+    module_attr = PyUnicode_FromString(path);
+    {% else %}
+    // Clear sys.executable so that subprocesses using that property don't fork-bomb.
+    debug_log("Clearing sys.executable");
+    module_attr = PyUnicode_FromString("");
+    {% endif -%}
+
+    if (module_attr == NULL
+        || PySys_SetObject("executable", module_attr) < 0
+        || PySys_SetObject("_base_executable", module_attr) < 0) {
+        // crash_dialog("Could not set sys.executable");
+        exit(-16);
+    }
+    Py_DECREF(module_attr);
+
+    free(path);
 
 
     // Start the app module.
