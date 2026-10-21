@@ -1,0 +1,48 @@
+---
+title: "Customizing MathJax"
+noindex: true
+---
+
+{/* This text is currently untranslated. Replace this and the below "Cog" comment with your translation of the page */}
+{/* <<<<cog from tools.auto_update_untranslated import auto_update_untranslated; cog.out(auto_update_untranslated("docs-site/faqs/customizing-mathjax.mdx", "de"))>>>> */}
+
+<div style="text-align: left !important; direction: ltr !important;">
+    <Warning>
+        <h3>Untranslated</h3>
+        This page is currently untranslated. If you want to help, see [the translation
+        guide](/de/translators/anki/manual).
+    </Warning>
+</div>
+
+{/* *--UNTRANSLATED--* */}
+Anki's bundled MathJax support is loaded before your card content, so if you wish to customize MathJax, you will need to do so in a specific way.
+
+For recent Anki versions, use something like this:
+
+```html
+<script>
+    MathJax.config.tex["macros"] = {
+        R: "{\\mathbb {R}}",
+    };
+    if (typeof is_already_run == "undefined") {
+        is_already_run = true;
+        MathJax.startup.getComponents();
+    }
+</script>
+```
+
+For older Anki versions:
+
+```html
+<script>
+    MathJax.Hub.Config({
+    ...
+    });
+    MathJax.Hub.Configured();
+</script>
+```
+
+Notes:
+
+- Please avoid changing the standard open/close tags (`\(` and `\[`), to something like `$` and `$$`, as Anki has special logic for cloze deletions, which will not work if you change the delimiter.
+  {/* <<<<end>>>> */}

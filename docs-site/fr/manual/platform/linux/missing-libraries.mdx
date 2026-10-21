@@ -1,0 +1,30 @@
+---
+title: "Missing Libraries"
+noindex: true
+---
+
+{/* This text is currently untranslated. Replace this and the below "Cog" comment with your translation of the page */}
+{/* <<<<cog from tools.auto_update_untranslated import auto_update_untranslated; cog.out(auto_update_untranslated("docs-site/manual/platform/linux/missing-libraries.mdx", "fr"))>>>> */}
+
+<div style="text-align: left !important; direction: ltr !important;">
+    <Warning>
+        <h3>Untranslated</h3>
+        This page is currently untranslated. If you want to help, see [the translation
+        guide](/fr/translators/anki/manual).
+    </Warning>
+</div>
+
+{/* *--UNTRANSLATED--* */}
+If Anki fails to start, please run it from a terminal with `anki`. If it says a
+library is missing, please install it and try again.
+
+If it complains about no platform being available, please start Anki with the
+following command line, which should reveal a missing library:
+
+```shell
+QT_DEBUG_PLUGINS=1 anki
+```
+
+After installing the library with `apt-get` or similar, repeat the process. You
+may need to do this a few times before all required libraries are installed.
+{/* <<<<end>>>> */}

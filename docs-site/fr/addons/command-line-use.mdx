@@ -1,0 +1,37 @@
+---
+title: "Command-Line Use"
+noindex: true
+---
+
+{/* This text is currently untranslated. Replace this and the below "Cog" comment with your translation of the page */}
+{/* <<<<cog from tools.auto_update_untranslated import auto_update_untranslated; cog.out(auto_update_untranslated("docs-site/addons/command-line-use.mdx", "fr"))>>>> */}
+
+<div style="text-align: left !important; direction: ltr !important;">
+    <Warning>
+        <h3>Untranslated</h3>
+        This page is currently untranslated. If you want to help, see [the translation
+        guide](/fr/translators/anki/manual).
+    </Warning>
+</div>
+
+{/* *--UNTRANSLATED--* */}
+The `anki` module can be used separately from Anki's GUI. It is
+strongly recommended you use it instead of attempting to read or
+write a .anki2 file directly.
+
+Install it with pip:
+
+```shell
+$ pip install anki
+```
+
+Then you can use it in a .py file, like so:
+
+```python
+from anki.collection import Collection
+col = Collection("/path/to/collection.anki2")
+print(col.sched.deck_due_tree())
+```
+
+See [the Anki module](./the-anki-module) for more.
+{/* <<<<end>>>> */}

@@ -1,0 +1,37 @@
+---
+title: "Display Issues on Linux"
+sidebarTitle: "Display Issues"
+description: "Display Issues"
+noindex: true
+---
+
+{/* This text is currently untranslated. Replace this and the below "Cog" comment with your translation of the page */}
+{/* <<<<cog from tools.auto_update_untranslated import auto_update_untranslated; cog.out(auto_update_untranslated("docs-site/manual/platform/linux/display-issues.mdx", "fr"))>>>> */}
+
+<div style="text-align: left !important; direction: ltr !important;">
+    <Warning>
+        <h3>Untranslated</h3>
+        This page is currently untranslated. If you want to help, see [the translation
+        guide](/fr/translators/anki/manual).
+    </Warning>
+</div>
+
+{/* *--UNTRANSLATED--* */}
+Hardware acceleration defaults to on. If you experience blank screens
+or display issues, you can try enabling software rendering.
+
+### Changing the Driver From the Preferences Screen
+
+In Anki 23.10+, you can change the graphics driver from preferences screen by
+navigating to **Tools → Preferences** and then selecting the driver from the
+dropdown menu.
+
+### Changing the Driver From the Terminal
+
+```
+echo software > ~/.local/share/Anki2/gldriver6
+```
+
+If you wish to switch back to the default, change `software` to `auto`, or
+remove that file.
+{/* <<<<end>>>> */}

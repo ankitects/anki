@@ -1,0 +1,23 @@
+---
+title: "Anki must be able to connect to a local port"
+noindex: true
+---
+
+{/* This text is currently untranslated. Replace this and the below "Cog" comment with your translation of the page */}
+{/* <<<<cog from tools.auto_update_untranslated import auto_update_untranslated; cog.out(auto_update_untranslated("docs-site/faqs/anki-must-be-able-to-connect-to-a-local-port.mdx", "es"))>>>> */}
+
+<div style="text-align: left !important; direction: ltr !important;">
+    <Warning>
+        <h3>Untranslated</h3>
+        This page is currently untranslated. If you want to help, see [the translation
+        guide](/es/translators/anki/manual).
+    </Warning>
+</div>
+
+{/* *--UNTRANSLATED--* */}
+When Anki 2.1 starts up, it listens on a port on localhost for requests from the user interface. If you have a proxy server configured on your machine, please go into your proxy settings and make sure that "bypass proxy server for local addresses" is enabled - otherwise Anki's user interface will have its local communication redirected through the proxy, which will prevent Anki from functioning.
+
+More info: [https://superuser.com/a/261434](https://superuser.com/a/261434)
+
+This problem may also occur if you have a firewall running on your machine that blocks local connections, or are using a VPN that is incorrectly redirecting local traffic.
+{/* <<<<end>>>> */}

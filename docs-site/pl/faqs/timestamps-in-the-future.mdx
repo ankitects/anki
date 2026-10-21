@@ -1,0 +1,37 @@
+---
+title: "Importing/exporting fails due to timestamps in the future"
+noindex: true
+---
+
+{/* This text is currently untranslated. Replace this and the below "Cog" comment with your translation of the page */}
+{/* <<<<cog from tools.auto_update_untranslated import auto_update_untranslated; cog.out(auto_update_untranslated("docs-site/faqs/timestamps-in-the-future.mdx", "pl"))>>>> */}
+
+<div style="text-align: left !important; direction: ltr !important;">
+    <Warning>
+        <h3>Untranslated</h3>
+        This page is currently untranslated. If you want to help, see [the translation
+        guide](/pl/translators/anki/manual).
+    </Warning>
+</div>
+
+{/* *--UNTRANSLATED--* */}
+Some shared decks include cards/notes with invalidate creation dates, eg
+they say cards were created in the year 40000 instead of the year 2023.
+This causes a variety of problems, and causes any cards created after
+importing such a deck to end up with similarly-invalid timestamps.
+
+To prevent this problem spreading, recent Anki versions will refuse to
+export decks that have invalid dates.
+
+## When exporting
+
+If you receive this message when exporting, you can fix it using one
+of the following methods:
+
+- On a 2.1.61+ computer version, use the Tools&gt;Check Database menu item.
+- On AnkiMobile 2.0.90+, use Check Database in the preferences screen.
+
+## When importing
+
+The Anki versions mentioned in the previous section can now automatically fix problem decks when importing.
+{/* <<<<end>>>> */}
