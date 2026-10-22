@@ -112,6 +112,8 @@ impl Rescheduler {
             .unwrap_or(&0)
     }
 
+    /// Returns the number of days in the future that a card will be scheduled
+    /// for. None if it should not be rescheduled (e.g. if it is overdue).
     pub fn find_interval(
         &self,
         interval: f32,
@@ -179,5 +181,236 @@ impl Rescheduler {
                 });
 
         select_weighted_interval(intervals, fuzz_seed)
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use std::collections::HashMap;
+
+    use super::*;
+
+    fn rescheduler_for_due_counts(
+        deck_config_id: DeckConfigId,
+        due_counts: &[(i32, usize)],
+        reviewed_today: usize,
+        easy_days: [EasyDay; 7],
+        today: i32,
+    ) -> Rescheduler {
+        let due_counts_map = due_counts
+            .iter()
+            .fold(HashMap::new(), |mut acc, &(due, count)| {
+                *acc.entry(due).or_default() += count;
+                acc
+            });
+        let due_today = due_counts_map
+            .iter()
+            .filter(|(due, _)| **due <= today)
+            .map(|(_, count)| *count)
+            .sum();
+
+        Rescheduler {
+            today,
+            next_day_at: TimestampSecs(0),
+            due_cnt_per_day_by_preset: HashMap::from([(deck_config_id, due_counts_map.clone())]),
+            due_today_by_preset: HashMap::from([(deck_config_id, due_today)]),
+            reviewed_today_by_preset: HashMap::from([(deck_config_id, reviewed_today)]),
+            easy_days_percentages_by_preset: HashMap::from([(deck_config_id, easy_days)]),
+        }
+    }
+
+    #[test]
+    fn rescheduler_find_interval_overdue_card_is_not_rescheduled() {
+        let deck_config_id = DeckConfigId(1);
+        let rescheduler = rescheduler_for_due_counts(
+            deck_config_id,
+            &[(5, 1), (6, 1)],
+            0,
+            [EasyDay::Normal; 7],
+            0,
+        );
+
+        assert_eq!(
+            rescheduler.find_interval(10.0, 1, 10, 20, deck_config_id, Some(1)),
+            None
+        );
+        assert_eq!(
+            rescheduler.find_interval(10.0, 1, 11, 20, deck_config_id, Some(1)),
+            None
+        );
+    }
+
+    #[test]
+    fn rescheduler_find_interval_never_goes_to_the_past_and_stays_in_bounds() {
+        let deck_config_id = DeckConfigId(1);
+        let rescheduler = rescheduler_for_due_counts(
+            deck_config_id,
+            &[(5, 1), (6, 1), (7, 1)],
+            0,
+            [EasyDay::Normal; 7],
+            0,
+        );
+
+        for (interval, minimum_interval, maximum_interval, days_elapsed) in [
+            (10.0, 1, 11, 5),
+            (4.0, 1, 3, 1),
+            (50.0, 10, 90, 5),
+            (10.0, 50, 5, 5),
+            (5.0, 1, 5, 5),
+        ] {
+            let Some(result) = rescheduler.find_interval(
+                interval,
+                minimum_interval,
+                maximum_interval,
+                days_elapsed,
+                deck_config_id,
+                Some(42),
+            ) else {
+                panic!("expected interval for interval={interval}, minimum={minimum_interval}, maximum={maximum_interval}, elapsed={days_elapsed}");
+            };
+
+            assert!(
+                result >= days_elapsed,
+                "interval moved into the past: {result} < {days_elapsed}"
+            );
+            let lower = minimum_interval.min(maximum_interval);
+            let upper = maximum_interval.max(minimum_interval);
+            assert!(
+                (lower..=upper).contains(&result),
+                "interval {result} out of bounds [{lower}, {upper}]"
+            );
+        }
+    }
+
+    #[test]
+    fn rescheduler_find_interval_is_deterministic_for_a_seed() {
+        let deck_config_id = DeckConfigId(1);
+        let rescheduler = rescheduler_for_due_counts(
+            deck_config_id,
+            &[(5, 1), (6, 1), (7, 1)],
+            0,
+            [EasyDay::Normal; 7],
+            0,
+        );
+
+        let first = rescheduler
+            .find_interval(10.0, 1, 11, 5, deck_config_id, Some(99))
+            .unwrap();
+        for _ in 0..10 {
+            let second = rescheduler
+                .find_interval(10.0, 1, 11, 5, deck_config_id, Some(99))
+                .unwrap();
+            assert_eq!(first, second);
+        }
+    }
+
+    #[test]
+    fn rescheduler_find_interval_prefers_lower_load_day() {
+        let deck_config_id = DeckConfigId(1);
+        let rescheduler = rescheduler_for_due_counts(
+            deck_config_id,
+            &[(5, 100), (6, 1)],
+            0,
+            [EasyDay::Normal; 7],
+            0,
+        );
+
+        let mut high_load_count = 0;
+        let mut low_load_count = 0;
+        let n = 100;
+
+        for seed in 0..n {
+            let selected = rescheduler
+                .find_interval(5.5, 5, 6, 0, deck_config_id, Some(seed))
+                .unwrap();
+            match selected {
+                5 => high_load_count += 1,
+                6 => low_load_count += 1,
+                other => panic!("unexpected interval: {other}"),
+            }
+        }
+
+        assert_eq!(low_load_count, n,);
+        assert_eq!(high_load_count, 0,);
+    }
+
+    #[test]
+    fn rescheduler_find_interval_avoids_zero_percent_easy_day_when_other_day_available() {
+        let deck_config_id = DeckConfigId(1);
+        let mut easy_days = [EasyDay::Normal; 7];
+        easy_days[0] = EasyDay::Minimum;
+        let rescheduler =
+            rescheduler_for_due_counts(deck_config_id, &[(5, 1), (6, 1)], 0, easy_days, 0);
+
+        let mut blocked_day_count = 0;
+        let mut preferred_day_count = 0;
+        let n = 100;
+
+        for seed in 0..n {
+            let selected = rescheduler
+                .find_interval(5.5, 5, 6, 0, deck_config_id, Some(seed))
+                .unwrap();
+            match selected {
+                5 => blocked_day_count += 1,
+                6 => preferred_day_count += 1,
+                other => panic!("unexpected interval: {other}"),
+            }
+        }
+
+        assert_eq!(preferred_day_count, n,);
+        assert_eq!(blocked_day_count, 0,);
+    }
+
+    #[test]
+    fn rescheduler_find_interval_returns_none_for_missing_preset() {
+        let deck_config_id = DeckConfigId(1);
+        let rescheduler = rescheduler_for_due_counts(
+            deck_config_id,
+            &[(5, 1), (6, 1)],
+            0,
+            [EasyDay::Normal; 7],
+            0,
+        );
+
+        assert!(rescheduler
+            .find_interval(10.0, 1, 11, 5, DeckConfigId(999), Some(1))
+            .is_none());
+    }
+
+    #[test]
+    fn rescheduler_update_due_cnt_per_day_tracks_today_boundaries() {
+        let deck_config_id = DeckConfigId(1);
+        let due_before = 5;
+        let due_after = 8;
+        let mut rescheduler = rescheduler_for_due_counts(
+            deck_config_id,
+            &[(due_before, 1), (due_after, 1)],
+            0,
+            [EasyDay::Normal; 7],
+            due_before,
+        );
+
+        assert_eq!(rescheduler.due_today_by_preset[&deck_config_id], 1);
+        rescheduler.update_due_cnt_per_day(due_before, due_after, deck_config_id);
+        assert_eq!(
+            rescheduler.due_cnt_per_day_by_preset[&deck_config_id][&due_before],
+            0
+        );
+        assert_eq!(
+            rescheduler.due_cnt_per_day_by_preset[&deck_config_id][&due_after],
+            2
+        );
+        assert_eq!(rescheduler.due_today_by_preset[&deck_config_id], 0);
+
+        rescheduler.update_due_cnt_per_day(due_after, due_before, deck_config_id);
+        assert_eq!(
+            rescheduler.due_cnt_per_day_by_preset[&deck_config_id][&due_after],
+            1
+        );
+        assert_eq!(
+            rescheduler.due_cnt_per_day_by_preset[&deck_config_id][&due_before],
+            1
+        );
+        assert_eq!(rescheduler.due_today_by_preset[&deck_config_id], 1);
     }
 }
