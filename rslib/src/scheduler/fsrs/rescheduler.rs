@@ -189,6 +189,10 @@ mod tests {
     use std::collections::HashMap;
 
     use super::*;
+    use crate::card::CardQueue;
+    use crate::card::CardType;
+    use crate::revlog::RevlogEntry;
+    use crate::revlog::RevlogReviewKind;
 
     fn rescheduler_for_due_counts(
         deck_config_id: DeckConfigId,
@@ -330,8 +334,8 @@ mod tests {
             }
         }
 
-        assert_eq!(low_load_count, n,);
-        assert_eq!(high_load_count, 0,);
+        assert_eq!(low_load_count, n);
+        assert_eq!(high_load_count, 0);
     }
 
     #[test]
@@ -357,8 +361,8 @@ mod tests {
             }
         }
 
-        assert_eq!(preferred_day_count, n,);
-        assert_eq!(blocked_day_count, 0,);
+        assert_eq!(preferred_day_count, n);
+        assert_eq!(blocked_day_count, 0);
     }
 
     #[test]
@@ -412,5 +416,50 @@ mod tests {
             1
         );
         assert_eq!(rescheduler.due_today_by_preset[&deck_config_id], 1);
+    }
+
+    // This test will need to be edited if the rescheduler no longer fetches
+    // due/reviewed counts from its preset.
+    #[test]
+    fn new_loads_correct_values_from_collection() -> Result<()> {
+        let mut col = Collection::new();
+        let mut note = NoteAdder::basic(&mut col).note();
+        let deck_id = DeckId(1);
+        col.add_note(&mut note, deck_id)?;
+
+        let mut card = col.storage.get_all_cards().pop().unwrap();
+        let today = col.timing_today()?.days_elapsed as i32;
+        card.ctype = CardType::Review;
+        card.queue = CardQueue::Review;
+        card.due = today;
+        col.storage.update_card(&card)?;
+
+        let revlog_id = TimestampMillis::now();
+        col.storage.add_revlog_entry(
+            &RevlogEntry {
+                id: revlog_id.into(),
+                cid: card.id,
+                usn: Usn(0),
+                button_chosen: 3,
+                interval: 1,
+                last_interval: 0,
+                ease_factor: 2500,
+                taken_millis: 1000,
+                review_kind: RevlogReviewKind::Review,
+            },
+            false,
+        )?;
+
+        let rescheduler = Rescheduler::new(&mut col)?;
+        let deck_config_id = DeckConfigId(1);
+
+        assert_eq!(
+            rescheduler.due_cnt_per_day_by_preset[&deck_config_id][&today],
+            1
+        );
+        assert_eq!(rescheduler.due_today_by_preset[&deck_config_id], 1);
+        assert_eq!(rescheduler.reviewed_today_by_preset[&deck_config_id], 1);
+
+        Ok(())
     }
 }
