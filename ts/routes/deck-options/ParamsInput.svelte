@@ -55,7 +55,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         if (validParamCounts.includes(newValue.length)) {
             value = newValue;
         } else {
-            alert(tr.deckConfigInvalidParameters());
+            alert(tr.deckConfigInvalidParameters2());
             input.value = stringValue;
         }
     }
