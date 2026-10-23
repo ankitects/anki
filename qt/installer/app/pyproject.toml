@@ -56,6 +56,7 @@ cleanup_paths = [
 ]
 console_app = false
 use_full_install_path = false
+allow_subprocesses = true
 
 permission.microphone = "The microphone will only be used when you tap the record button."
 permission.camera = "Add-ons may access your camera."
@@ -68,7 +69,7 @@ entitlement."com.apple.security.cs.disable-executable-page-protection" = true
 entitlement."com.apple.security.cs.allow-dyld-environment-variables" = true
 entitlement."com.apple.security.device.audio-input" = true
 support_revision = "15"
-stub_binary_revision = "16"
+stub_binary_revision = "17"
 
 [tool.briefcase.app.anki.linux]
 support_revision = "3.13.15+20260901"
@@ -79,8 +80,8 @@ supported = false
 [tool.briefcase.app.anki.windows]
 create_desktop_shortcut = true
 min_os_version = "17763"
-support_revision = "15"
-stub_binary_revision = "13"
+support_revision = "16"
+stub_binary_revision = "15"
 
 [tool.briefcase.app.anki.iOS]
 supported = false
