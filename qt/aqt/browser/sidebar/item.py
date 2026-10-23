@@ -35,10 +35,10 @@ class SidebarItemType(Enum):
 
     @staticmethod
     def section_roots() -> Iterable[SidebarItemType]:
-        return (type for type in SidebarItemType if type.name.endswith("_ROOT"))
+        return _SECTION_ROOTS
 
     def is_section_root(self) -> bool:
-        return self in self.section_roots()
+        return self in _SECTION_ROOT_SET
 
     def is_editable(self) -> bool:
         return self in (
@@ -57,6 +57,12 @@ class SidebarItemType(Enum):
             SidebarItemType.DECK,
             SidebarItemType.TAG,
         )
+
+
+_SECTION_ROOTS: tuple[SidebarItemType, ...] = tuple(
+    item_type for item_type in SidebarItemType if item_type.name.endswith("_ROOT")
+)
+_SECTION_ROOT_SET = frozenset(_SECTION_ROOTS)
 
 
 class SidebarItem:
