@@ -1,0 +1,18 @@
+---
+title: "はじめに"
+---
+
+## 翻訳
+
+- 日本語:
+    - [http://rs.luminousspice.com/ankiaddons21/](http://rs.luminousspice.com/ankiaddons21/)
+
+## 概要
+
+Anki の UI は主に Python/PyQt で書かれています。学習画面やエディターなど、一部の画面では TypeScript と Svelte も使われています。アドオンを作るには、基本的なプログラミング経験と Python の知識が必要です。[Python チュートリアル](http://docs.python.org/tutorial/)が入門に適しています。
+
+Anki のアドオンは Python モジュールとして実装され、Anki の起動時に読み込まれます。特定の操作が行われたとき（例: ブラウザー画面が読み込まれたとき）に通知を受け取るよう登録したり、その操作時に UI を変更したり（例: 新しいメニュー項目を追加）できます。
+
+[Anki のアーキテクチャの概要](https://github.com/ankitects/anki/blob/main/docs/architecture.md)も用意されています。
+
+Anki のアドオンはプレーンテキストエディターだけでも開発できますが、適切なコードエディターや IDE を使うと作業がずっと楽になります。詳しくは[エディターの設定](/addons/editor-setup)をご覧ください。

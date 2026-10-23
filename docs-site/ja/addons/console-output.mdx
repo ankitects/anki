@@ -1,0 +1,37 @@
+---
+title: "コンソール出力"
+---
+
+Anki は GUI アプリのため、標準出力へのテキスト（例: `print("foo")`）は通常ユーザーに表示されません。標準出力に出したテキストを表示することもできます。アドオンの開発中は、表示することをおすすめします。
+
+## 警告
+
+Anki は API の非推奨化に関する警告を標準出力に表示します。例:
+
+```
+addons21/mytest/__init__.py:10:getNote is deprecated: please use 'get_note'
+```
+
+こうした警告がループ内で発生する場合は、速やかに対処してください。コンソールが表示されていなくても Anki の動作が遅くなることがあります。
+
+## テキストを出力する
+
+アドオンのデバッグに標準出力へのテキスト出力が役立つことがあります。ただし、大量のテキスト（数百、数千項目を扱うループ内など）を出力するのは避けてください。コンソールが表示されていなくても、動作が遅くなることがあります。
+
+## コンソールを表示する
+
+### Windows
+
+`C:\Users\user\AppData\Local\Programs\Anki`（または `C:\Program Files\Anki`）にある `anki-console.bat` ファイルから Anki を起動すると、別のコンソールウィンドウが開きます。
+
+### macOS
+
+Terminal.app を開き、次のテキストを入力して Enter キーを押します。
+
+```
+/Applications/Anki.app/Contents/MacOS/anki
+```
+
+### Linux
+
+ターミナルまたは xterm を開き、`anki` で Anki を起動します。

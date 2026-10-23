@@ -1,0 +1,34 @@
+---
+title: "MathJax をカスタマイズする"
+---
+
+Anki に同梱されている MathJax はカードの内容より前に読み込まれます。そのため MathJax をカスタマイズする場合は、次の方法で設定してください。
+
+最近の Anki では、次のように記述します。
+
+```html
+<script>
+    MathJax.config.tex["macros"] = {
+        R: "{\\mathbb {R}}",
+    };
+    if (typeof is_already_run == "undefined") {
+        is_already_run = true;
+        MathJax.startup.getComponents();
+    }
+</script>
+```
+
+古いバージョンの Anki では、次のように記述します。
+
+```html
+<script>
+    MathJax.Hub.Config({
+    ...
+    });
+    MathJax.Hub.Configured();
+</script>
+```
+
+注意:
+
+- 標準の開始・終了区切り文字（`\(` と `\[`）を `$` や `$$` などに変更しないでください。Anki には穴埋め削除向けの専用処理があり、区切り文字を変えると動作しなくなります。
