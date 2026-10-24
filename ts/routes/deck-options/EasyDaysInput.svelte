@@ -2,9 +2,10 @@
 Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
-<script>
+<script lang="ts">
     import * as tr from "@generated/ftl";
     import Item from "$lib/components/Item.svelte";
+    import { onMount } from "svelte";
 
     const easyDays = [
         tr.deckConfigEasyDaysMonday(),
@@ -17,10 +18,45 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     ];
 
     export let values = [0, 0, 0, 0, 0, 0, 0];
+
+    let startY = 0;
+    let originalValues = [...values];
+
+    function handleTouchStart(): void {
+        startY = window.scrollY;
+        originalValues = [...values];
+    }
+
+    function handleTouchEnd(): void {
+        const deltaY = Math.abs(window.scrollY - startY);
+        if (deltaY > 1) {
+            // If the screen has scrolled
+            values = [...originalValues];
+        }
+    }
+
+    function onInput(event: Event, index: number): void {
+        values[index] = parseFloat((event.target as HTMLInputElement).value);
+    }
+
+    let touchDivRef: HTMLDivElement | null = null;
+
+    // Todo: Use on:touchstart. For some reason it doesn't work when added to the div in the markup, but works when added manually here.
+    onMount(() => {
+        touchDivRef?.addEventListener("touchstart", handleTouchStart, {
+            passive: true,
+        });
+        touchDivRef?.addEventListener("touchend", handleTouchEnd, { passive: true });
+
+        return () => {
+            touchDivRef?.removeEventListener("touchstart", handleTouchStart);
+            touchDivRef?.removeEventListener("touchend", handleTouchEnd);
+        };
+    });
 </script>
 
 <Item>
-    <div class="container">
+    <div class="container" bind:this={touchDivRef}>
         <div class="easy-days-settings">
             <span></span>
             <span class="header min-col">{tr.deckConfigEasyDaysMinimum()}</span>
@@ -31,8 +67,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                 <span class="day">{day}</span>
                 <div class="input-container">
                     <input
+                        on:input={(e) => onInput(e, index)}
                         type="range"
-                        bind:value={values[index]}
+                        value={values[index]}
                         step={0.5}
                         max={1.0}
                         min={0.0}
@@ -86,6 +123,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     .easy-days-settings input[type="range"] {
         width: 100%;
         cursor: pointer;
+        touch-action: auto;
     }
 
     .day {
