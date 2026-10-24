@@ -146,12 +146,12 @@ pub(crate) fn export_collection(
     Ok(())
 }
 
-fn file_options_stored() -> FileOptions<'static, ()> {
-    FileOptions::<'static, ()>::default().compression_method(CompressionMethod::Stored)
+fn file_options_stored() -> FileOptions<'static, 'static, ()> {
+    FileOptions::<'static, 'static, ()>::default().compression_method(CompressionMethod::Stored)
 }
 
-fn file_options_default() -> FileOptions<'static, ()> {
-    FileOptions::<'static, ()>::default()
+fn file_options_default() -> FileOptions<'static, 'static, ()> {
+    FileOptions::<'static, 'static, ()>::default()
 }
 
 fn write_collection(

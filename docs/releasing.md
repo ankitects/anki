@@ -3,10 +3,10 @@
 
 # Releasing
 
-<!-- <<<cog
+<!-- <<<<cog
 from cogdocs import get_file_contents
 cog.out(get_file_contents("releasing"))
->>> -->
+>>>> -->
 
 Releases are prepared with a script that a maintainer runs locally, then built
 and published by a GitHub Actions workflow:
@@ -328,7 +328,7 @@ To test the signing flow from a feature branch:
 Audio playback and recording is handled by the `anki-audio` package under **`qt/audio`**, which bundles mpv and lame for Windows and macOS. To update:
 
 1. Update the archive links in **`build/configure/src/audio.rs`** if you're updating the Windows pre-built binaries to new versions, then run `./tools/ninja audio_wheel` to test.
-2. Update the macOS build script at **`qt/audio/mpv.rb`** and test the Homebrew build locally by running the **`qt/audio/build.sh`** script.
+2. On macOS, mpv, lame and all their libraries are built from source. Update the pinned versions and checksums in **`qt/audio/macos/versions.env`**, then test locally by running **`qt/audio/build.sh`** and **`qt/audio/macos/test-in-vm.sh`**.
 3. Bump the version at **`qt/audio/.version`**.
 4. Submit a PR with the changes.
 5. Once the PR is merged to main, run the **`.github/workflows/publish-audio-package.yml`** workflow to publish the package to PyPI:
@@ -337,4 +337,4 @@ Audio playback and recording is handled by the `anki-audio` package under **`qt/
     ```
 6. Once the package is published, update the pinned `anki-audio` version in **`qt/pyproject.toml`** to the new version.
 
-<!-- <<<end>>> -->
+<!-- <<<<end>>>> -->
