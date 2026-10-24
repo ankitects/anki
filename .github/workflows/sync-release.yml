@@ -6,6 +6,7 @@ name: Sync release to main
 #   uploads it as an artifact
 # - opens a PR that merges the release branch (translations, version bump)
 #   back into main, and comments there how to submit the Flathub patch
+# - updates download links on the website.
 
 on:
   release:
@@ -26,9 +27,20 @@ jobs:
           ref: ${{ github.sha }}
           persist-credentials: true
 
+      - name: Setup build environment
+        uses: ./.github/actions/setup-anki
+
+      - name: Install just
+        uses: extractions/setup-just@53165ef7e734c5c07cb06b3c8e7b647c5aa16db3 #v4
+
       - name: Update docs branch
         run: |
-          git push --force origin "$GITHUB_SHA:refs/heads/mintlify-docs"
+          just docs-release
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git commit -m "Populate docs"
+          git push --force origin "HEAD:refs/heads/mintlify-docs"
 
   flathub:
     if: ${{ !github.event.release.prerelease }}
@@ -185,3 +197,25 @@ jobs:
           RUN_ID: ${{ github.run_id }}
           REPO: ${{ github.repository }}
           RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+
+  update-website:
+    if: ${{ !github.event.release.prerelease }}
+    runs-on: ubuntu-latest
+    permissions: {}
+    environment: release
+    env:
+      TAG_NAME: ${{ github.event.release.tag_name }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 #v4
+        with:
+          repository: ankitects/anki-landing-page
+          ssh-key: ${{ secrets.LANDING_PAGE_DEPLOY_KEY }}
+          persist-credentials: true
+      - run: |
+          sed -i "s/const ankiVersion = '.*';/const ankiVersion = '$TAG_NAME';/" \
+            src/lib/components/sections/Downloads.svelte
+          git diff --quiet && exit 0
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -am "Update Anki to $TAG_NAME"
+          git push

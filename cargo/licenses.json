@@ -96,14 +96,6 @@
     "repository": "https://github.com/dtolnay/anyhow"
   },
   {
-    "authors": "The Rust-Fuzz Project Developers|Nick Fitzgerald <fitzgen@gmail.com>|Manish Goregaokar <manishsmail@gmail.com>|Simonas Kazlauskas <arbitrary@kazlauskas.me>|Brian L. Troutwine <brian@troutwine.us>|Corey Farwell <coreyf@rwell.org>",
-    "description": "The trait for generating structured data from unstructured data",
-    "license": "Apache-2.0 OR MIT",
-    "license_file": null,
-    "name": "arbitrary",
-    "repository": "https://github.com/rust-fuzz/arbitrary/"
-  },
-  {
     "authors": "David Roundy <roundyd@physics.oregonstate.edu>",
     "description": "Macros to take array references of slices",
     "license": "BSD-2-Clause",
@@ -542,14 +534,6 @@
     "license_file": null,
     "name": "deranged",
     "repository": "https://github.com/jhpratt/deranged"
-  },
-  {
-    "authors": "The Rust-Fuzz Project Developers|Nick Fitzgerald <fitzgen@gmail.com>|Manish Goregaokar <manishsmail@gmail.com>|Andre Bogus <bogusandre@gmail.com>|Corey Farwell <coreyf@rwell.org>",
-    "description": "Derives arbitrary traits",
-    "license": "Apache-2.0 OR MIT",
-    "license_file": null,
-    "name": "derive_arbitrary",
-    "repository": "https://github.com/rust-fuzz/arbitrary"
   },
   {
     "authors": "Dima Kudosh <dimakudosh@gmail.com>",
@@ -1288,7 +1272,7 @@
     "repository": "https://github.com/bluk/leb128fmt"
   },
   {
-    "authors": "The Rust Project Developers",
+    "authors": null,
     "description": "Raw FFI bindings to platform libraries like libc.",
     "license": "Apache-2.0 OR MIT",
     "license_file": null,
@@ -1486,6 +1470,14 @@
     "license_file": null,
     "name": "new_debug_unreachable",
     "repository": "https://github.com/mbrubeck/rust-debug-unreachable"
+  },
+  {
+    "authors": null,
+    "description": "Rust friendly bindings to *nix APIs",
+    "license": "MIT",
+    "license_file": null,
+    "name": "nix",
+    "repository": "https://github.com/nix-rust/nix"
   },
   {
     "authors": "contact@geoffroycouprie.com",
@@ -2904,6 +2896,14 @@
     "repository": "https://github.com/kardeiz/type-map"
   },
   {
+    "authors": "Chip Senkbeil <chip@senkbeil.org>",
+    "description": "Provides typed variants of Path and PathBuf for Unix and Windows",
+    "license": "Apache-2.0 OR MIT",
+    "license_file": null,
+    "name": "typed-path",
+    "repository": "https://github.com/chipsenkbeil/typed-path"
+  },
+  {
     "authors": "Paho Lurie-Gregg <paho@paholg.com>|Andre Bogus <bogusandre@gmail.com>",
     "description": "Typenum is a Rust library for type-level numbers evaluated at     compile time. It currently supports bits, unsigned integers, and signed     integers. It also provides a type-level array of type-level numbers, but its     implementation is incomplete.",
     "license": "Apache-2.0 OR MIT",
@@ -3701,7 +3701,7 @@
     "license": "MIT",
     "license_file": null,
     "name": "zip",
-    "repository": "https://github.com/zip-rs/zip2.git"
+    "repository": "https://github.com/zip-rs/zip2"
   },
   {
     "authors": null,
