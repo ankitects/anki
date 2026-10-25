@@ -4,6 +4,8 @@
 import argparse
 import os
 import shutil
+import stat
+import subprocess
 import sys
 from pathlib import Path
 from typing import Any
@@ -428,3 +430,83 @@ def test_linux_zip_package_root_dir_includes_version(tmp_path: Path) -> None:
     assert app.app_name in root_folder_name
     assert app.version in root_folder_name
     assert "--" not in root_folder_name
+
+
+linux_install_script = (
+    installer_dir
+    / "linux-template"
+    / "{{ cookiecutter.format }}"
+    / "{{ cookiecutter.app_name }}"
+    / "install.sh"
+)
+
+
+def _write_executable(path: Path, content: str) -> None:
+    path.write_text(content, encoding="utf-8")
+    path.chmod(path.stat().st_mode | stat.S_IXUSR)
+
+
+@pytest.mark.skipif(sys.platform != "linux", reason="Linux install script")
+def test_install_script_with_restrictive_umask(tmp_path: Path) -> None:
+    """Installed files must be usable by all users, even when the archive was
+    extracted and install.sh was run with a restrictive umask."""
+    pkg = tmp_path / "pkg"
+    prefix = tmp_path / "prefix"
+    mime = tmp_path / "mime"
+    stubs = tmp_path / "stubs"
+    stubs.mkdir()
+    # Skip system dependency installation, and emulate xdg-mime copying the
+    # mime file into the system mime database.
+    _write_executable(stubs / "apt-get", "#!/bin/sh\nexit 0\n")
+    _write_executable(stubs / "apt-cache", "#!/bin/sh\nexit 1\n")
+    _write_executable(
+        stubs / "xdg-mime",
+        "#!/bin/sh\n"
+        'if [ "$1" = install ]; then\n'
+        '  mkdir -p "$FAKE_MIME/packages"\n'
+        '  cp -f "$2" "$FAKE_MIME/packages/"\n'
+        '  touch "$FAKE_MIME/mime.cache"\n'
+        "fi\n",
+    )
+
+    old_umask = os.umask(0o077)
+    try:
+        # the archive contents, as extracted with the restrictive umask
+        for name in (
+            "app/README",
+            "app_packages/pkg/mod.py",
+            "anki.1",
+            "anki.desktop",
+            "anki.png",
+            "anki.xml",
+            "anki.xpm",
+            "README.md",
+            "uninstall.sh",
+        ):
+            path = pkg / name
+            path.parent.mkdir(parents=True, exist_ok=True)
+            path.write_text("x\n", encoding="utf-8")
+        _write_executable(pkg / "anki", "#!/bin/sh\n")
+        (pkg / "python" / "bin").mkdir(parents=True)
+        _write_executable(pkg / "python" / "bin" / "python3", "#!/bin/sh\n")
+        shutil.copy(linux_install_script, pkg / "install.sh")
+
+        env = dict(
+            os.environ,
+            PATH=f"{stubs}{os.pathsep}{os.environ['PATH']}",
+            PREFIX=str(prefix),
+            FAKE_MIME=str(mime),
+        )
+        subprocess.run(
+            ["bash", "./install.sh"], cwd=pkg, env=env, check=True, capture_output=True
+        )
+    finally:
+        os.umask(old_umask)
+
+    assert (prefix / "bin" / "anki").is_symlink()
+    assert (mime / "packages" / "anki.xml").is_file()
+    for path in [*prefix.rglob("*"), *mime.rglob("*")]:
+        mode = path.stat().st_mode
+        assert mode & stat.S_IROTH, f"{path} is not world-readable"
+        if path.is_dir() or mode & stat.S_IXUSR:
+            assert mode & stat.S_IXOTH, f"{path} is not world-executable"
