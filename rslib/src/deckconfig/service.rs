@@ -154,6 +154,13 @@ impl crate::services::DeckConfigService for Collection {
 
         Ok(anki_proto::deck_config::GetRetentionWorkloadResponse { costs })
     }
+
+    fn simulate_reschedule(
+        &mut self,
+        input: anki_proto::deck_config::SimulateRescheduleRequest,
+    ) -> Result<anki_proto::deck_config::SimulateRescheduleResponse> {
+        self.simulate_reschedule(input)
+    }
 }
 
 impl From<DeckConfig> for anki_proto::deck_config::DeckConfig {
@@ -182,6 +189,7 @@ impl From<anki_proto::deck_config::UpdateDeckConfigsRequest> for UpdateDeckConfi
             apply_all_parent_limits: c.apply_all_parent_limits,
             fsrs: c.fsrs,
             fsrs_reschedule: c.fsrs_reschedule,
+            fsrs_reschedule_no_workload: c.fsrs_reschedule_no_workload,
             fsrs_health_check: c.fsrs_health_check,
         }
     }

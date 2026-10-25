@@ -172,6 +172,10 @@ export class DeckOptionsState {
         tick().then(() => this.markCurrentPresetAsLoaded());
     }
 
+    getCurrentId(): bigint {
+        return this.configs[this.selectedIdx].config.id;
+    }
+
     getCurrentName(): string {
         return this.configs[this.selectedIdx].config.name;
     }
@@ -246,6 +250,7 @@ export class DeckOptionsState {
 
     dataForSaving(
         mode: UpdateDeckConfigsMode,
+        fsrsRescheduleNoWorkload = false,
     ): PlainMessage<UpdateDeckConfigsRequest> {
         const modifiedConfigsExcludingCurrent = this.configs
             .map((c) => c.config)
@@ -272,6 +277,7 @@ export class DeckOptionsState {
             fsrs: get(this.fsrs),
             fsrsReschedule: get(this.fsrsReschedule),
             fsrsHealthCheck: get(this.fsrsHealthCheck),
+            fsrsRescheduleNoWorkload,
         };
     }
 
@@ -279,9 +285,9 @@ export class DeckOptionsState {
         return this._presetAssignmentsChanged;
     }
 
-    async save(mode: UpdateDeckConfigsMode): Promise<void> {
+    async save(mode: UpdateDeckConfigsMode, fsrsRescheduleNoWorkload = false): Promise<void> {
         await updateDeckConfigs(
-            this.dataForSaving(mode),
+            this.dataForSaving(mode, fsrsRescheduleNoWorkload),
         );
     }
 

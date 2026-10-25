@@ -303,6 +303,7 @@ mod test {
             apply_all_parent_limits: false,
             fsrs: false, // <-------- Disable FSRS
             fsrs_reschedule: false,
+            fsrs_reschedule_no_workload: false,
             fsrs_health_check: true,
         })?;
 
