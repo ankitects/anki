@@ -56,6 +56,14 @@
         width: 100%;
     }
 
+    h2 ~ :global(p) {
+        width: 100%;
+    }
+
+    .icon + :global(p) {
+        width: auto;
+    }
+
     .chapter-redirect {
         width: 100%;
         color: var(--fg-subtle);

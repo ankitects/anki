@@ -38,7 +38,6 @@ docs = [
   "sphinx-book-theme",
   "sphinx-autoapi",
   "sphinx-autobuild>=2024.10.3",
-  "click-extra[sphinx]", # for GitHub alerts
   "sphinxcontrib-mermaid>=2.1.0",
 ]
 
