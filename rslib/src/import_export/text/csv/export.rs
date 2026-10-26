@@ -5,12 +5,16 @@ use std::borrow::Cow;
 use std::collections::HashMap;
 use std::fs::File;
 use std::io::Write;
+use std::path::Path;
 use std::sync::Arc;
 use std::sync::LazyLock;
 
+use anki_io::atomic_rename;
+use anki_io::new_tempfile_in_parent_of;
 use anki_proto::import_export::ExportNoteCsvRequest;
 use itertools::Itertools;
 use regex::Regex;
+use tempfile::NamedTempFile;
 
 use super::metadata::Delimiter;
 use crate::import_export::text::csv::metadata::DelimeterExt;
@@ -35,16 +39,16 @@ impl Collection {
         let mut progress = self.new_progress_handler::<ExportProgress>();
         let mut incrementor = progress.incrementor(ExportProgress::Cards);
 
-        let mut writer = file_writer_with_header(path, with_html)?;
         let mut cards = self.search_cards(search, SortMode::NoOrder)?;
         cards.sort_unstable();
+        let (tempfile, mut writer) = temp_file_writer_with_header(path, with_html)?;
         for &card in &cards {
             incrementor.increment()?;
             writer
                 .write_record(self.card_record(card, with_html)?)
                 .or_invalid("invalid csv")?;
         }
-        writer.flush()?;
+        finish(writer, tempfile, path)?;
 
         Ok(cards.len())
     }
@@ -55,7 +59,7 @@ impl Collection {
 
         let guard = self.search_notes_into_table(Into::<SearchNode>::into(&mut request))?;
         let ctx = NoteContext::new(&request, guard.col)?;
-        let mut writer = note_file_writer_with_header(&request.out_path, &ctx)?;
+        let (tempfile, mut writer) = temp_note_file_writer_with_header(&request.out_path, &ctx)?;
         guard.col.storage.for_each_note_in_search(|note| {
             incrementor.increment()?;
             writer
@@ -63,7 +67,7 @@ impl Collection {
                 .or_invalid("invalid csv")?;
             Ok(())
         })?;
-        writer.flush()?;
+        finish(writer, tempfile, &request.out_path)?;
 
         Ok(incrementor.count())
     }
@@ -78,13 +82,34 @@ impl Collection {
     }
 }
 
-fn file_writer_with_header(path: &str, with_html: bool) -> Result<csv::Writer<File>> {
-    let mut file = File::create(path)?;
+/// The archive is built beside the destination and renamed over it once it is
+/// complete, the way the colpkg and apkg exporters do. Writing straight to the
+/// destination truncates it before the first record, so a cancelled or failed
+/// export would replace a previous export with a partial one that still parses
+/// as a complete, smaller file.
+fn temp_file_writer_with_header(
+    path: &str,
+    with_html: bool,
+) -> Result<(NamedTempFile, csv::Writer<File>)> {
+    let tempfile = new_tempfile_in_parent_of(Path::new(path))?;
+    let mut file = tempfile.as_file().try_clone()?;
     write_file_header(&mut file, with_html)?;
-    Ok(csv::WriterBuilder::new()
+    Ok((tempfile, csv_writer(file)))
+}
+
+fn csv_writer(file: File) -> csv::Writer<File> {
+    csv::WriterBuilder::new()
         .delimiter(DELIMITER.byte())
         .comment(Some(b'#'))
-        .from_writer(file))
+        .from_writer(file)
+}
+
+/// Flush the records, then put the finished file in place.
+fn finish(mut writer: csv::Writer<File>, tempfile: NamedTempFile, path: &str) -> Result<()> {
+    writer.flush()?;
+    drop(writer);
+    atomic_rename(tempfile, Path::new(path), false)?;
+    Ok(())
 }
 
 fn write_file_header(writer: &mut impl Write, with_html: bool) -> Result<()> {
@@ -93,13 +118,14 @@ fn write_file_header(writer: &mut impl Write, with_html: bool) -> Result<()> {
     Ok(())
 }
 
-fn note_file_writer_with_header(path: &str, ctx: &NoteContext) -> Result<csv::Writer<File>> {
-    let mut file = File::create(path)?;
+fn temp_note_file_writer_with_header(
+    path: &str,
+    ctx: &NoteContext,
+) -> Result<(NamedTempFile, csv::Writer<File>)> {
+    let tempfile = new_tempfile_in_parent_of(Path::new(path))?;
+    let mut file = tempfile.as_file().try_clone()?;
     write_note_file_header(&mut file, ctx)?;
-    Ok(csv::WriterBuilder::new()
-        .delimiter(DELIMITER.byte())
-        .comment(Some(b'#'))
-        .from_writer(file))
+    Ok((tempfile, csv_writer(file)))
 }
 
 fn write_note_file_header(writer: &mut impl Write, ctx: &NoteContext) -> Result<()> {
@@ -319,6 +345,24 @@ mod tests {
             with_guid: true,
             limit: None,
         }
+    }
+
+    #[test]
+    fn a_failed_card_csv_export_leaves_the_previous_file_alone() {
+        let (mut col, dir) = col_and_dir();
+        NoteAdder::basic(&mut col).add(&mut col);
+        let path = dir.path().join("cards.csv");
+        std::fs::write(&path, "previous export\n").unwrap();
+        // The search is resolved after the destination has been created, so an
+        // unparseable one fails once the old file is already gone.
+        assert!(col
+            .export_card_csv(path.to_str().unwrap(), "(", true)
+            .is_err());
+        assert_eq!(
+            std::fs::read_to_string(&path).unwrap(),
+            "previous export\n",
+            "a failed export must not touch the file it was going to replace"
+        );
     }
 
     #[test]
