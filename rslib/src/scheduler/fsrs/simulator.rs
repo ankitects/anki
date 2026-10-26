@@ -700,4 +700,42 @@ mod test {
 
         Ok(())
     }
+
+    #[test]
+    fn simulate_request_to_config_counts_already_introduced_cards() -> Result<()> {
+        let mut col = Collection::new();
+        let nt = col.get_notetype_by_name("Basic")?.unwrap();
+        col.set_config_bool(BoolKey::Fsrs, true, false).unwrap();
+
+        // Answer one card so one card is introduced today, and then simulate with two
+        // new cards to be introduced
+        let mut note = nt.new_note();
+        col.add_note(&mut note, DeckId(1))?;
+        col.answer_easy();
+
+        let req = SimulateFsrsReviewRequest {
+            desired_retention: 0.9,
+            deck_size: 2, // 2 additional new cards to be introduced
+            new_limit: 3,
+            days_to_simulate: 1,
+            search: "*".to_string(),
+            ..base_request()
+        };
+
+        let (config, cards) = col.simulate_request_to_config(&req)?;
+
+        let result = simulate(&config, &[], 0.9, Some(42), Some(cards))?;
+
+        assert_eq!(
+            result.cards.len(),
+            3,
+            "expected three cards total (1 already introduced + 2 new)"
+        );
+        assert_eq!(
+            result.learn_cnt_per_day[0], 2,
+            "expected two introduced cards on the first day of simulation"
+        );
+
+        Ok(())
+    }
 }
