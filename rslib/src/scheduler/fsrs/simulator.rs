@@ -521,10 +521,6 @@ mod test {
         }
     }
 
-    fn default_fsrs_params() -> Arc<Vec<f32>> {
-        Arc::new(fsrs::check_and_fill_parameters(&[]).unwrap())
-    }
-
     fn infer_ctype_from_queue(queue: CardQueue) -> CardType {
         // None of the code in this file references the card type but
         // this is included to match up with actual functionality in case it ever does.
@@ -547,7 +543,7 @@ mod test {
     }
 
     fn convert(card: Card) -> Option<fsrs::Card> {
-        let params = default_fsrs_params();
+        let params = Arc::new(fsrs::check_and_fill_parameters(&[]).unwrap());
         let memory_state = FsrsMemoryState {
             stability: 10.0,
             difficulty: 3.0,
@@ -628,7 +624,7 @@ mod test {
     }
 
     #[test]
-    fn request_config_uses_sm2_fallback_and_requested_step_counts() -> Result<()> {
+    fn request_config_uses_sm2_fallback_and_fills_fsrs_values() -> Result<()> {
         let mut col = Collection::new();
         let nt = col.get_notetype_by_name("Basic")?.unwrap();
         let mut note = nt.new_note();
@@ -661,6 +657,7 @@ mod test {
         let (_, cards) = col.simulate_request_to_config(&req)?;
 
         assert_eq!(cards.len(), 1);
+        // Make sure that the cards desired rentetion is filled in automatically
         assert!(
             (cards[0].desired_retention - 0.91).abs() < 1e-6,
             "expected desired retention to be 0.91, got {}",
