@@ -147,7 +147,7 @@ windows = { version = "0.61.3", features = ["Media_SpeechSynthesis", "Media_Core
 wiremock = "0.6.3"
 xz2 = "0.1.7"
 zip = { version = "9.0.5", default-features = false, features = ["deflate", "time"] }
-zstd = { version = "0.13.3", features = ["zstdmt"] }
+zstd = { version = "0.14.3", features = ["zstdmt"] }
 
 # Apply mild optimizations to our dependencies in dev mode, which among other things
 # improves sha2 performance by about 21x. Opt 1 chosen due to
