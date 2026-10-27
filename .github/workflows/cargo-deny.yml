@@ -11,6 +11,8 @@ on:
       - "Cargo.lock"
       - "**/Cargo.toml"
       - ".deny.toml"
+  schedule:
+    interval: "daily"
 
 concurrency:
   group: cargo-deny-${{ github.ref }}
