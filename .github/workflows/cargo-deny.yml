@@ -1,0 +1,39 @@
+name: cargo-deny
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main, 'release/**']
+  pull_request:
+    branches: [main]
+    types: [opened, synchronize, reopened, labeled]
+    paths:
+      - "Cargo.lock"
+      - "**/Cargo.toml"
+      - ".deny.toml"
+
+concurrency:
+  group: cargo-deny-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions: {}
+
+jobs:
+  check:
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 #v4
+        with:
+          persist-credentials: false
+
+      - name: Install cargo-deny
+        uses: taiki-e/install-action@67729d5c413db75907f0ad1e39bb04b9c868ff60 #v2.85.7
+        with:
+          tool: |
+            cargo-deny@0.20.2
+
+      - name: Run cargo-deny check
+        shell: bash
+        run: cargo deny check
