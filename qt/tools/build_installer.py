@@ -25,28 +25,28 @@ _CHROMIUM_PAK_LANG_REMAP = {"tl": "fil"}
 _SUPPORT_PYTHON_TAG = "3.13"
 
 _MAC_SUPPORT_HASHES = {
-    "support_package_hash": "sha256:1e4630ba00f90bde7e44e54386bc5b2b860dce473d70c2cef9fe651642820bc1",
-    "stub_binary_hash": "sha256:879b015bceb9260da6062ff39c70dcf87652380d1d9a0a2a0038875cec348022",
+    "support_package_hash": "sha256:61971e9dc3258c76033ef800412989ec92e14cf0653f2a19e006d167d5a1436c",
+    "stub_binary_hash": "sha256:cfd17fdf6a7018105292c458764e2ba54f15dd2187da004eab902cea89cdbfc6",
 }
 
 # Hashes of the support packages/stub binaries pinned by support_revision and
 # stub_binary_revision in pyproject.toml
 _SUPPORT_HASHES: dict[tuple[str, str], dict[str, str]] = {
     ("win32", "AMD64"): {
-        "support_package_hash": "sha256:791ada5e20aba24524f8d939cdeb069976d632a699fe5cb65274b23f4545e68a",
+        "support_package_hash": "sha256:0ba1ee4bfcbdc3a559d27e2e9ce76d04a7839947a23f46375872c755c0d463b8",
         "stub_binary_hash": "sha256:7a8d544123450499ce408e8bd0c7b17c664f32e3b1dcde72c4b885e33cd43bbb",
     },
     ("win32", "ARM64"): {
-        "support_package_hash": "sha256:1ab59dce63c61e780b6448bf38ad1b66d5428be831e42d1f09fc11258a4eab4f",
+        "support_package_hash": "sha256:ab7392ca44f98a50cc344b6a9038ad61323ddc3850690004f2cb7690e3f24b8d",
         "stub_binary_hash": "sha256:bd57e168ccfd18add46d4e328eb7d956f26e75e5a2b6a177c3254fa89deeb643",
     },
     ("darwin", "arm64"): _MAC_SUPPORT_HASHES,
     ("darwin", "x86_64"): _MAC_SUPPORT_HASHES,
     ("linux", "x86_64"): {
-        "support_package_hash": "sha256:8a689a077337bea6d1c4bc0b7df1d52fcaa28f5f67e50df8bf417c1e3f9d8874",
+        "support_package_hash": "sha256:df15fe60d3ff55bf9dcf25824b5572756bb8816ff93865a273d3301d7066a8b7",
     },
     ("linux", "aarch64"): {
-        "support_package_hash": "sha256:01ce0ce9189feaead3298abf10d4efe998c55a489b3d5d38ca4f83dda7e7977e",
+        "support_package_hash": "sha256:578d9da1983463ffb0c8c98ab0da2f18177f44069328eb0af847860c1eb05c3e",
     },
 }
 
