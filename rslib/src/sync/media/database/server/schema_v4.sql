@@ -1,13 +1,10 @@
 -- csum is no longer nulled on deletion
 -- sz renamed to size
 -- deleted renamed to mtime
-BEGIN EXCLUSIVE;
-
+BEGIN exclusive;
 ALTER TABLE media
-RENAME TO media_tmp;
-
+  RENAME TO media_tmp;
 DROP INDEX ix_usn;
-
 CREATE TABLE media (
   fname text NOT NULL PRIMARY KEY,
   csum blob NOT NULL,
@@ -16,55 +13,34 @@ CREATE TABLE media (
   usn int NOT NULL,
   mtime int NOT NULL
 );
-
-INSERT INTO
-  media (fname, csum, size, usn, mtime)
-SELECT
-  fname,
+INSERT INTO media (fname, csum, size, usn, mtime)
+SELECT fname,
   csum,
   sz,
   usn,
   deleted
-FROM
-  media_tmp
-WHERE
-  csum IS NOT NULL;
-
+FROM media_tmp
+WHERE csum IS NOT NULL;
 DROP TABLE media_tmp;
-
 CREATE INDEX ix_usn ON media (usn);
-
 DROP TABLE meta;
-
 -- columns renamed; file count added
 CREATE TABLE meta (
   last_usn int NOT NULL,
   total_bytes int NOT NULL,
   total_nonempty_files int NOT NULL
 );
-
-INSERT INTO
-  meta (last_usn, total_bytes, total_nonempty_files)
-SELECT
-  coalesce(max(usn), 0),
+INSERT INTO meta (last_usn, total_bytes, total_nonempty_files)
+SELECT coalesce(max(usn), 0),
   coalesce(sum(size), 0),
   0
-FROM
-  media;
-
+FROM media;
 UPDATE meta
-SET
-  total_nonempty_files = (
-    SELECT
-      COUNT(*)
-    FROM
-      media
-    WHERE
-      size > 0
+SET total_nonempty_files = (
+    SELECT COUNT(*)
+    FROM media
+    WHERE size > 0
   );
-
-PRAGMA user_version = 4;
-
+pragma user_version = 4;
 COMMIT;
-
-VACUUM;
+vacuum;

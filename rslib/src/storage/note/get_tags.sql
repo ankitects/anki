@@ -1,7 +1,5 @@
-SELECT
-  id,
+SELECT id,
   mod,
   usn,
   tags
-FROM
-  notes
+FROM notes

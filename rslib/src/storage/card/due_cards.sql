@@ -1,5 +1,4 @@
-SELECT
-  id,
+SELECT id,
   nid,
   due,
   cast(ivl AS integer),
@@ -7,14 +6,10 @@ SELECT
   did,
   odid,
   reps
-FROM
-  cards
-WHERE
-  did IN (
-    SELECT
-      id
-    FROM
-      active_decks
+FROM cards
+WHERE did IN (
+    SELECT id
+    FROM active_decks
   )
   AND (
     queue = ?

@@ -1,6 +1,5 @@
 UPDATE cards
-SET
-  due = (
+SET due = (
     CASE
       WHEN type = 0
       AND queue != 4 THEN 1000000 + due % 1000000
@@ -9,8 +8,7 @@ SET
   ),
   mod = ?1,
   usn = ?2
-WHERE
-  due != (
+WHERE due != (
     CASE
       WHEN type = 0
       AND queue != 4 THEN 1000000 + due % 1000000

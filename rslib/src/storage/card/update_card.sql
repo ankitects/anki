@@ -1,6 +1,5 @@
 UPDATE cards
-SET
-  nid = ?,
+SET nid = ?,
   did = ?,
   ord = ?,
   mod = ?,
@@ -12,10 +11,9 @@ SET
   factor = ?,
   reps = ?,
   lapses = ?,
-  LEFT = ?,
+  left = ?,
   odue = ?,
   odid = ?,
   flags = ?,
   data = ?
-WHERE
-  id = ?
+WHERE id = ?

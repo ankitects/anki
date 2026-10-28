@@ -1,5 +1,4 @@
-SELECT
-  fname,
+SELECT fname,
   usn,
   (
     CASE
@@ -7,9 +6,6 @@ SELECT
       ELSE ''
     END
   )
-FROM
-  media
-WHERE
-  usn > ?
-LIMIT
-  1000
+FROM media
+WHERE usn > ?
+LIMIT 1000

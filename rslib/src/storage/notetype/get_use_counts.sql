@@ -1,15 +1,9 @@
-SELECT
-  nt.id,
+SELECT nt.id,
   nt.name,
   (
-    SELECT
-      COUNT(*)
-    FROM
-      notes n
-    WHERE
-      nt.id = n.mid
+    SELECT COUNT(*)
+    FROM notes n
+    WHERE nt.id = n.mid
   )
-FROM
-  notetypes nt
-ORDER BY
-  nt.name
+FROM notetypes nt
+ORDER BY nt.name

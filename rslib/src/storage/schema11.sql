@@ -13,7 +13,6 @@ CREATE TABLE col (
   dconf text NOT NULL,
   tags text NOT NULL
 );
-
 CREATE TABLE notes (
   id integer PRIMARY KEY,
   guid text NOT NULL,
@@ -29,7 +28,6 @@ CREATE TABLE notes (
   flags integer NOT NULL,
   data text NOT NULL
 );
-
 CREATE TABLE cards (
   id integer PRIMARY KEY,
   nid integer NOT NULL,
@@ -44,13 +42,12 @@ CREATE TABLE cards (
   factor integer NOT NULL,
   reps integer NOT NULL,
   lapses integer NOT NULL,
-  LEFT integer NOT NULL,
+  left integer NOT NULL,
   odue integer NOT NULL,
   odid integer NOT NULL,
   flags integer NOT NULL,
   data text NOT NULL
 );
-
 CREATE TABLE revlog (
   id integer PRIMARY KEY,
   cid integer NOT NULL,
@@ -62,36 +59,25 @@ CREATE TABLE revlog (
   time integer NOT NULL,
   type integer NOT NULL
 );
-
 CREATE TABLE graves (
   usn integer NOT NULL,
   oid integer NOT NULL,
   type integer NOT NULL
 );
-
 -- syncing
 CREATE INDEX ix_notes_usn ON notes (usn);
-
 CREATE INDEX ix_cards_usn ON cards (usn);
-
 CREATE INDEX ix_revlog_usn ON revlog (usn);
-
 -- card spacing, etc
 CREATE INDEX ix_cards_nid ON cards (nid);
-
 -- scheduling and deck limiting
 CREATE INDEX ix_cards_sched ON cards (did, queue, due);
-
 -- revlog by card
 CREATE INDEX ix_revlog_cid ON revlog (cid);
-
 -- field uniqueness
 CREATE INDEX ix_notes_csum ON notes (csum);
-
-INSERT INTO
-  col
-VALUES
-  (
+INSERT INTO col
+VALUES (
     1,
     0,
     0,

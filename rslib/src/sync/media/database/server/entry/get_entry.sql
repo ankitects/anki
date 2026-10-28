@@ -1,10 +1,7 @@
-SELECT
-  fname,
+SELECT fname,
   csum,
   size,
   usn,
   mtime
-FROM
-  media
-WHERE
-  fname = ?;
+FROM media
+WHERE fname = ?;

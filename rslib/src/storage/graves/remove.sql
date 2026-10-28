@@ -1,4 +1,3 @@
 DELETE FROM graves
-WHERE
-  oid = ?
+WHERE oid = ?
   AND type = ?

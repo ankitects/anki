@@ -1,6 +1,5 @@
 UPDATE cards
-SET
-  odue = (
+SET odue = (
     CASE
       WHEN odue > 0
       AND (
@@ -14,8 +13,7 @@ SET
   ),
   mod = ?1,
   usn = ?2
-WHERE
-  odue != (
+WHERE odue != (
     CASE
       WHEN odue > 0
       AND (

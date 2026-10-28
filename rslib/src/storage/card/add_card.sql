@@ -1,5 +1,4 @@
-INSERT INTO
-  cards (
+INSERT INTO cards (
     id,
     nid,
     did,
@@ -13,26 +12,21 @@ INSERT INTO
     factor,
     reps,
     lapses,
-    LEFT,
+    left,
     odue,
     odid,
     flags,
     data
   )
-VALUES
-  (
+VALUES (
     (
       CASE
         WHEN ?1 IN (
-          SELECT
-            id
-          FROM
-            cards
+          SELECT id
+          FROM cards
         ) THEN (
-          SELECT
-            max(id) + 1
-          FROM
-            cards
+          SELECT max(id) + 1
+          FROM cards
         )
         ELSE ?1
       END

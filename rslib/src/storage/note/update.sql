@@ -1,6 +1,5 @@
 UPDATE notes
-SET
-  guid = ?,
+SET guid = ?,
   mid = ?,
   mod = ?,
   usn = ?,
@@ -8,5 +7,4 @@ SET
   flds = ?,
   sfld = ?,
   csum = ?
-WHERE
-  id = ?
+WHERE id = ?

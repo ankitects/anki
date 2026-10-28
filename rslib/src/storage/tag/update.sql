@@ -1,7 +1,5 @@
 UPDATE tags
-SET
-  tag = ?1,
+SET tag = ?1,
   usn = ?,
   collapsed = ?
-WHERE
-  tag = ?1
+WHERE tag = ?1

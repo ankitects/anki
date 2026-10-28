@@ -1,5 +1,4 @@
-SELECT
-  id,
+SELECT id,
   nid,
   did,
   ord,
@@ -12,10 +11,9 @@ SELECT
   factor,
   reps,
   lapses,
-  LEFT,
+  left,
   odue,
   odid,
   flags,
   data
-FROM
-  cards
+FROM cards

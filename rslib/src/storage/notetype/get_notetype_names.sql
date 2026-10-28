@@ -1,5 +1,3 @@
-SELECT
-  id,
+SELECT id,
   name
-FROM
-  notetypes
+FROM notetypes

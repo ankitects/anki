@@ -1,5 +1,5 @@
-INSERT OR REPLACE INTO
-  cards (
+INSERT
+  OR REPLACE INTO cards (
     id,
     nid,
     did,
@@ -13,14 +13,13 @@ INSERT OR REPLACE INTO
     factor,
     reps,
     lapses,
-    LEFT,
+    left,
     odue,
     odid,
     flags,
     data
   )
-VALUES
-  (
+VALUES (
     ?,
     ?,
     ?,

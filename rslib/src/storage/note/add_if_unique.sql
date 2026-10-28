@@ -1,5 +1,5 @@
-INSERT OR IGNORE INTO
-  notes (
+INSERT
+  OR IGNORE INTO notes (
     id,
     guid,
     mid,
@@ -12,5 +12,16 @@ INSERT OR IGNORE INTO
     flags,
     data
   )
-VALUES
-  (?, ?, ?, ?, ?, ?, ?, ?, ?, 0, "")
+VALUES (
+    ?,
+    ?,
+    ?,
+    ?,
+    ?,
+    ?,
+    ?,
+    ?,
+    ?,
+    0,
+    ""
+  )
