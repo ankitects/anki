@@ -18,6 +18,7 @@
     },
     "devDependencies": {
         "@bufbuild/protoc-gen-es": "^1.8.0",
+        "@bufbuild/buf": "^1.74.0",
         "@playwright/test": "^1.62.1",
         "@poppanator/sveltekit-svg": "^5.0.0",
         "@sveltejs/adapter-static": "^3.0.10",
