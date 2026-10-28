@@ -3,11 +3,11 @@
 
 syntax = "proto3";
 
-option java_multiple_files = true;
-
 package anki.backend;
 
 import "anki/links.proto";
+
+option java_multiple_files = true;
 
 message BackendInit {
   // Preferred translation languages, in priority order. Each entry is a Unicode

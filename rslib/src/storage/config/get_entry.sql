@@ -1,5 +1,8 @@
-SELECT val,
+SELECT
+  val,
   usn,
   mtime_secs
-FROM config
-WHERE KEY = ?
+FROM
+  config
+WHERE
+  KEY = ?

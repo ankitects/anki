@@ -1,14 +1,19 @@
-SELECT id,
+SELECT
+  id,
   nid,
   due,
   cast(mod AS integer),
   did,
   odid,
   reps
-FROM cards
-WHERE did IN (
-    SELECT id
-    FROM active_decks
+FROM
+  cards
+WHERE
+  did IN (
+    SELECT
+      id
+    FROM
+      active_decks
   )
   AND (
     queue IN (1, 4)

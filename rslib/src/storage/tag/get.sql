@@ -1,4 +1,6 @@
-SELECT tag,
+SELECT
+  tag,
   usn,
   collapsed
-FROM tags
+FROM
+  tags

@@ -3,12 +3,12 @@
 
 syntax = "proto3";
 
-option java_multiple_files = true;
-
 package anki.media;
 
 import "anki/generic.proto";
 import "anki/notetypes.proto";
+
+option java_multiple_files = true;
 
 service MediaService {
   rpc CheckMedia(generic.Empty) returns (CheckMediaResponse);
@@ -17,8 +17,7 @@ service MediaService {
   rpc TrashMediaFiles(TrashMediaFilesRequest) returns (generic.Empty);
   rpc EmptyTrash(generic.Empty) returns (generic.Empty);
   rpc RestoreTrash(generic.Empty) returns (generic.Empty);
-  rpc ExtractStaticMediaFiles(notetypes.NotetypeId)
-      returns (generic.StringList);
+  rpc ExtractStaticMediaFiles(notetypes.NotetypeId) returns (generic.StringList);
   rpc ExtractMediaFiles(generic.String) returns (generic.StringList);
   rpc GetAbsoluteMediaPath(generic.String) returns (generic.String);
 }

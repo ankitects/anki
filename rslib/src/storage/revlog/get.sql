@@ -1,4 +1,5 @@
-SELECT id,
+SELECT
+  id,
   cid,
   usn,
   ease,
@@ -7,4 +8,5 @@ SELECT id,
   factor,
   time,
   type
-FROM revlog
+FROM
+  revlog

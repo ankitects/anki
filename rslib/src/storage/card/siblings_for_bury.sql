@@ -1,7 +1,11 @@
-INSERT INTO search_cids
-SELECT id
-FROM cards
-WHERE id != :card_id
+INSERT INTO
+  search_cids
+SELECT
+  id
+FROM
+  cards
+WHERE
+  id != :card_id
   AND nid = :note_id
   AND (
     (

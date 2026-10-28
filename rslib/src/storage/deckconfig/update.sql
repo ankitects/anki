@@ -1,6 +1,8 @@
 UPDATE deck_config
-SET name = ?,
+SET
+  name = ?,
   mtime_secs = ?,
   usn = ?,
   config = ?
-WHERE id = ?;
+WHERE
+  id = ?;

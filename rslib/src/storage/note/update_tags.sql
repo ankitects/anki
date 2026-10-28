@@ -1,5 +1,7 @@
 UPDATE notes
-SET mod = ?,
+SET
+  mod = ?,
   usn = ?,
   tags = ?
-WHERE id = ?
+WHERE
+  id = ?

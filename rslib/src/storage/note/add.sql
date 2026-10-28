@@ -1,4 +1,5 @@
-INSERT INTO notes (
+INSERT INTO
+  notes (
     id,
     guid,
     mid,
@@ -11,15 +12,20 @@ INSERT INTO notes (
     flags,
     data
   )
-VALUES (
+VALUES
+  (
     (
       CASE
         WHEN ?1 IN (
-          SELECT id
-          FROM notes
+          SELECT
+            id
+          FROM
+            notes
         ) THEN (
-          SELECT max(id) + 1
-          FROM notes
+          SELECT
+            max(id) + 1
+          FROM
+            notes
         )
         ELSE ?1
       END

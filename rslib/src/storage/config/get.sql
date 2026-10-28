@@ -1,3 +1,6 @@
-SELECT val
-FROM config
-WHERE KEY = ?
+SELECT
+  val
+FROM
+  config
+WHERE
+  KEY = ?

@@ -1,4 +1,5 @@
-SELECT coalesce(
+SELECT
+  coalesce(
     sum(
       queue IN (:review_queue, :day_learn_queue)
       AND due <= :today
@@ -21,8 +22,12 @@ SELECT coalesce(
       0
     )
   ) AS first_learn_due
-FROM cards
-WHERE did IN (
-    SELECT id
-    FROM active_decks
+FROM
+  cards
+WHERE
+  did IN (
+    SELECT
+      id
+    FROM
+      active_decks
   )

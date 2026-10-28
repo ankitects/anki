@@ -1,5 +1,5 @@
-INSERT
-  OR IGNORE INTO revlog (
+INSERT OR IGNORE INTO
+  revlog (
     id,
     cid,
     usn,
@@ -10,16 +10,21 @@ INSERT
     time,
     type
   )
-VALUES (
+VALUES
+  (
     (
       CASE
         WHEN ?1
         AND ?2 IN (
-          SELECT id
-          FROM revlog
+          SELECT
+            id
+          FROM
+            revlog
         ) THEN (
-          SELECT max(id) + 1
-          FROM revlog
+          SELECT
+            max(id) + 1
+          FROM
+            revlog
         )
         ELSE ?2
       END

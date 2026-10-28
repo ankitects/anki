@@ -1,5 +1,5 @@
-INSERT
-  OR IGNORE INTO cards (
+INSERT OR IGNORE INTO
+  cards (
     id,
     nid,
     did,
@@ -13,13 +13,14 @@ INSERT
     factor,
     reps,
     lapses,
-    left,
+    LEFT,
     odue,
     odid,
     flags,
     data
   )
-VALUES (
+VALUES
+  (
     ?,
     ?,
     ?,

@@ -1,4 +1,5 @@
-SELECT id,
+SELECT
+  id,
   guid,
   mid,
   mod,
@@ -7,4 +8,5 @@ SELECT id,
   flds,
   cast(sfld AS text),
   csum
-FROM notes
+FROM
+  notes

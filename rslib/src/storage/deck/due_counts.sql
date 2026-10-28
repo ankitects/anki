@@ -1,4 +1,5 @@
-SELECT did,
+SELECT
+  did,
   -- new
   sum(queue = :new_queue),
   -- reviews
@@ -26,4 +27,5 @@ SELECT did,
   ),
   -- total
   COUNT(1)
-FROM cards
+FROM
+  cards

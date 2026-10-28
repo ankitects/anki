@@ -3,11 +3,11 @@
 
 syntax = "proto3";
 
-option java_multiple_files = true;
+package anki.ankihub;
 
 import "anki/generic.proto";
 
-package anki.ankihub;
+option java_multiple_files = true;
 
 service AnkiHubService {}
 

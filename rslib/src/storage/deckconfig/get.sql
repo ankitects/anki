@@ -1,6 +1,8 @@
-SELECT id,
+SELECT
+  id,
   name,
   mtime_secs,
   usn,
   config
-FROM deck_config
+FROM
+  deck_config

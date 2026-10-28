@@ -5,9 +5,15 @@ CREATE TABLE media (
   -- zero if deleted
   mtime int NOT NULL,
   dirty int NOT NULL
-) without rowid;
+) WITHOUT rowid;
+
 CREATE INDEX idx_media_dirty ON media (dirty)
-WHERE dirty = 1;
+WHERE
+  dirty = 1;
+
 CREATE TABLE meta (dirMod int, lastUsn int);
-INSERT INTO meta
-VALUES (0, 0);
+
+INSERT INTO
+  meta
+VALUES
+  (0, 0);
