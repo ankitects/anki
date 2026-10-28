@@ -8,6 +8,7 @@ use rusqlite::params;
 use rusqlite::Row;
 use unicase::UniCase;
 
+use super::ids_to_string;
 use crate::import_export::package::NoteMeta;
 use crate::notes::NoteTags;
 use crate::prelude::*;
@@ -30,6 +31,20 @@ impl super::SqliteStorage {
             .query_and_then(params![nid], row_to_note)?
             .next()
             .transpose()
+    }
+
+    /// The given notes, by id, read in one query; ids with no note are absent.
+    pub(crate) fn get_notes_by_id(&self, nids: &[NoteId]) -> Result<HashMap<NoteId, Note>> {
+        if nids.is_empty() {
+            return Ok(HashMap::new());
+        }
+        let mut sql = String::from(include_str!("get.sql"));
+        sql += " where id in ";
+        ids_to_string(&mut sql, nids);
+        self.db
+            .prepare(&sql)?
+            .query_and_then([], |row| row_to_note(row).map(|note| (note.id, note)))?
+            .collect()
     }
 
     pub fn get_note_without_fields(&self, nid: NoteId) -> Result<Option<Note>> {
