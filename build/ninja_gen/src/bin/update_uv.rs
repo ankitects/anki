@@ -9,7 +9,12 @@ use regex::Regex;
 use reqwest::blocking::Client;
 use serde_json::Value;
 
-fn fetch_uv_release_info() -> Result<String, Box<dyn Error>> {
+struct UvRelease {
+    archive: String,
+    version: String,
+}
+
+fn fetch_uv_release_info() -> Result<UvRelease, Box<dyn Error>> {
     let client = Client::new();
 
     println!("Fetching latest uv release info from GitHub...");
@@ -20,6 +25,10 @@ fn fetch_uv_release_info() -> Result<String, Box<dyn Error>> {
         .send()?;
 
     let release_info: Value = response.json()?;
+    let version = release_info["tag_name"]
+        .as_str()
+        .expect("tag_name should be a string")
+        .to_string();
     let assets = release_info["assets"]
         .as_array()
         .expect("assets should be an array");
@@ -75,10 +84,10 @@ fn fetch_uv_release_info() -> Result<String, Box<dyn Error>> {
         ));
     }
 
-    Ok(format!(
+    Ok(UvRelease {archive: format!(
         "pub fn uv_archive(platform: Platform) -> OnlineArchive {{\n    match platform {{\n{}\n    }}",
         match_blocks.join(",\n")
-    ))
+    ), version})
 }
 
 fn read_python_rs() -> Result<String, Box<dyn Error>> {
@@ -108,11 +117,19 @@ fn write_python_rs(content: &str) -> Result<(), Box<dyn Error>> {
     Ok(())
 }
 
+fn write_uv_version(version: &str) -> Result<(), Box<dyn Error>> {
+    let path = Path::new(".tool-versions");
+    println!("Writing to {}", path.display());
+    fs::write(path, format!("# To update, run 'cargo run --bin update_uv' from the repo root.\nuv {version}\n"))?;
+    Ok(())
+}
+
 fn main() -> Result<(), Box<dyn Error>> {
-    let new_uv_archive = fetch_uv_release_info()?;
+    let release = fetch_uv_release_info()?;
     let content = read_python_rs()?;
-    let updated_content = update_uv_text(&content, &new_uv_archive)?;
+    let updated_content = update_uv_text(&content, &release.archive)?;
     write_python_rs(&updated_content)?;
+    write_uv_version(&release.version)?;
     println!("Successfully updated uv_archive function in python.rs");
     Ok(())
 }

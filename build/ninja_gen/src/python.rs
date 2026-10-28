@@ -18,7 +18,7 @@ use crate::input::BuildInput;
 use crate::inputs;
 use crate::Build;
 
-// To update, run 'cargo run --bin update_uv'.
+// To update, run 'cargo run --bin update_uv' from the repo root.
 // You'll need to do this when bumping Python versions, as uv bakes in
 // the latest known version.
 // When updating Python version, make sure to update version tag in BuildWheel
