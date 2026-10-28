@@ -683,8 +683,71 @@ mod tests {
 
     mod update_memory_state {
         use anki_proto::scheduler::bury_or_suspend_cards_request::Mode;
+        use std::collections::HashMap;
+
+        use fsrs::DEFAULT_PARAMETERS;
 
         use super::*;
+        use crate::card::FsrsMemoryState;
+        use crate::revlog::RevlogReviewKind;
+
+        fn update_memory_state_with_card(
+            col: &mut Collection,
+            card_id: CardId,
+            reschedule: bool,
+        ) -> Result<()> {
+            let req = UpdateMemoryStateRequest {
+                params: DEFAULT_PARAMETERS.to_vec(),
+                preset_desired_retention: 0.9,
+                historical_retention: 0.9,
+                max_interval: 36500,
+                reschedule,
+                deck_desired_retention: HashMap::new(),
+            };
+            let entry = UpdateMemoryStateEntry {
+                req: Some(req),
+                search: Node::Search(SearchNode::CardIds(card_id.to_string())),
+                ignore_before: TimestampMillis(0),
+            };
+            col.transact(Op::UpdateDeckConfig, |col| {
+                col.update_memory_state(vec![entry])?;
+                Ok(())
+            })?;
+            Ok(())
+        }
+
+        fn create_review_card_with_revlog(
+            col: &mut Collection,
+            days_ago: i64,
+            last_interval: u32,
+        ) -> Result<CardId> {
+            let nt = col.get_notetype_by_name("Basic")?.unwrap();
+            let mut note = nt.new_note();
+            col.add_note(&mut note, DeckId(1))?;
+            let card_id = col.storage.card_ids_of_notes(&[note.id]).unwrap()[0];
+            let mut card = col.storage.get_card(card_id)?.unwrap();
+            card.ctype = CardType::Review;
+            card.queue = CardQueue::Review;
+            card.interval = last_interval;
+            card.due = last_interval as i32;
+            card.reps = 1;
+            card.last_review_time = Some(TimestampSecs::now().adding_secs(-(days_ago * 86400)));
+            col.storage.update_card(&card)?;
+
+            let rev = RevlogEntry {
+                id: card.last_review_time.unwrap().as_millis().into(),
+                cid: card_id,
+                usn: Usn(0),
+                button_chosen: 3,
+                interval: last_interval as i32,
+                last_interval: last_interval as i32,
+                ease_factor: 2500,
+                taken_millis: 0,
+                review_kind: RevlogReviewKind::Review,
+            };
+            col.storage.add_revlog_entry(&rev, false)?;
+            Ok(card_id)
+        }
 
         fn update_memory_state_for_card(
             col: &mut Collection,
@@ -707,20 +770,9 @@ mod tests {
         #[test]
         fn no_req_clears_fsrs_data() -> Result<()> {
             let mut col = Collection::new();
-            let nt = col.get_notetype_by_name("Basic")?.unwrap();
-            let mut note1 = nt.new_note();
-            col.add_note(&mut note1, DeckId(1))?;
-            let mut card = col
-                .storage
-                .all_cards_of_note(note1.id)?
-                .into_iter()
-                .next()
-                .unwrap();
-            let card_id = card.id;
-            // Make the card not new
-            card.ctype = CardType::Review;
-            card.interval = 1;
-            // Set FSRS parameters
+            let card_id = create_review_card_with_revlog(&mut col, 1, 1)?;
+            let mut card = col.storage.get_card(card_id)?.unwrap();
+
             card.memory_state = Some(FsrsMemoryState {
                 stability: 1.0,
                 difficulty: 1.0,
@@ -730,12 +782,15 @@ mod tests {
 
             col.storage.update_card(&card)?;
 
-            // Add a revlog entry so the card is found within update_memory_state
-            let mut rev = revlog(RevlogReviewKind::Review, 1);
-            rev.cid = card_id;
-            col.storage.add_revlog_entry(&rev, false)?;
-
-            update_memory_state_for_card(&mut col, card_id, None)?;
+            let entry = UpdateMemoryStateEntry {
+                req: None,
+                search: Node::Search(SearchNode::WholeCollection),
+                ignore_before: TimestampMillis(0),
+            };
+            col.transact(Op::UpdateDeckConfig, |col| {
+                col.update_memory_state(vec![entry])?;
+                Ok(())
+            })?;
 
             let card = col.storage.get_card(card_id)?.unwrap();
             assert_eq!(card.memory_state, None);
@@ -807,6 +862,145 @@ mod tests {
             // Suspended card does not get an extra review log
             assert_eq!(col.get_review_logs(card_id)?.entries.len(), 3);
 
+            Ok(())
+        }
+        fn reschedule_updates_interval_and_due_coherently() -> Result<()> {
+            let mut col = Collection::new();
+            let card_id = create_review_card_with_revlog(&mut col, 4, 10)?;
+
+            let before = col.storage.get_card(card_id)?.unwrap();
+            update_memory_state_with_card(&mut col, card_id, true)?;
+
+            let after = col.storage.get_card(card_id)?.unwrap();
+            assert!(after.memory_state.is_some());
+            assert!(after.interval > 0);
+            assert!(after.interval >= before.interval);
+            let last_review = before.last_review_time.unwrap();
+            let timing = col.timing_today()?;
+            let elapsed = timing.next_day_at.elapsed_days_since(last_review) as i32;
+            assert_eq!(
+                after.due,
+                (timing.days_elapsed as i32) + after.interval as i32 - elapsed
+            );
+            Ok(())
+        }
+
+        #[test]
+        fn reschedule_does_not_shrink_interval_when_fuzz_would() -> Result<()> {
+            let mut col = Collection::new();
+            let card_id = create_review_card_with_revlog(&mut col, 10, 16)?;
+            let before = col.storage.get_card(card_id)?.unwrap();
+
+            update_memory_state_with_card(&mut col, card_id, true)?;
+
+            let after = col.storage.get_card(card_id)?.unwrap();
+            assert!(after.interval >= before.interval);
+            Ok(())
+        }
+
+        #[test]
+        fn reschedule_batching_matches_update_one_card_at_a_time() -> Result<()> {
+            let mut batch_col = Collection::new();
+            let mut single_col = Collection::new();
+
+            let cards = [(3, 8), (4, 9), (5, 12), (6, 15), (7, 20), (8, 25), (9, 30)];
+
+            let batch_ids = cards
+                .iter()
+                .map(|(days_ago, interval)| {
+                    create_review_card_with_revlog(&mut batch_col, *days_ago, *interval)
+                })
+                .collect::<Result<Vec<_>>>()?;
+            let single_ids = cards
+                .iter()
+                .map(|(days_ago, interval)| {
+                    create_review_card_with_revlog(&mut single_col, *days_ago, *interval)
+                })
+                .collect::<Result<Vec<_>>>()?;
+
+            let batch_reqs = batch_ids
+                .iter()
+                .copied()
+                .map(|card_id| {
+                    let req = UpdateMemoryStateRequest {
+                        params: DEFAULT_PARAMETERS.to_vec(),
+                        preset_desired_retention: 0.9,
+                        historical_retention: 0.9,
+                        max_interval: 36500,
+                        reschedule: true,
+                        deck_desired_retention: HashMap::new(),
+                    };
+                    UpdateMemoryStateEntry {
+                        req: Some(req),
+                        search: Node::Search(SearchNode::CardIds(card_id.to_string())),
+                        ignore_before: TimestampMillis(0),
+                    }
+                })
+                .collect_vec();
+
+            batch_col.transact(Op::UpdateDeckConfig, |col| {
+                col.update_memory_state(batch_reqs)
+            })?;
+
+            for card_id in &single_ids {
+                update_memory_state_with_card(&mut single_col, *card_id, true)?;
+            }
+
+            let batch_cards = batch_col.storage.get_all_cards();
+            let single_cards = single_col.storage.get_all_cards();
+            for (batch_card, single_card) in batch_cards.iter().zip(single_cards.iter()) {
+                // Check that the cards have the same memory state values
+                assert_eq!(batch_card.memory_state, single_card.memory_state);
+                assert_eq!(batch_card.interval, single_card.interval);
+                assert_eq!(batch_card.due, single_card.due);
+            }
+
+            Ok(())
+        }
+
+        #[test]
+        fn reschedule_creates_one_rescheduled_review_log_entry() -> Result<()> {
+            let mut col = Collection::new();
+            let last_interval = 12;
+            let card_id = create_review_card_with_revlog(&mut col, 5, last_interval)?;
+
+            update_memory_state_with_card(&mut col, card_id, true)?;
+
+            let log = col
+                .storage
+                .get_all_revlog_entries_in_card_order()?
+                .into_iter()
+                .filter(|entry| {
+                    entry.cid == card_id && entry.review_kind == RevlogReviewKind::Rescheduled
+                })
+                .collect_vec();
+            assert_eq!(log.len(), 1);
+            assert_eq!(log[0].last_interval, last_interval as i32);
+            assert_eq!(
+                log[0].interval,
+                col.storage.get_card(card_id)?.unwrap().interval as i32
+            );
+            Ok(())
+        }
+
+        #[test]
+        fn reschedule_false_leaves_scheduling_fields_and_log_unchanged() -> Result<()> {
+            let mut col = Collection::new();
+            let card_id = create_review_card_with_revlog(&mut col, 4, 9)?;
+            let before = col.storage.get_card(card_id)?.unwrap();
+            let before_log_len = col.storage.get_all_revlog_entries_in_card_order()?.len();
+            assert!(before.memory_state.is_none());
+
+            update_memory_state_with_card(&mut col, card_id, false)?;
+
+            let after = col.storage.get_card(card_id)?.unwrap();
+            assert_eq!(after.interval, before.interval);
+            assert_eq!(after.due, before.due);
+            assert_eq!(
+                col.storage.get_all_revlog_entries_in_card_order()?.len(),
+                before_log_len
+            );
+            assert!(after.memory_state.is_some());
             Ok(())
         }
     }
