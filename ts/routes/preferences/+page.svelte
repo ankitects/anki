@@ -20,13 +20,14 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     <div class="alert alert-warning mb-0">
         <b>⚠️ Experimental Features</b>
         <br />
-        These features may change, break, or be removed without notice, use at your own risk.
+        These features may change, break, or be removed without notice. Add-on compatibility
+        is not guaranteed. Use at your own risk.
     </div>
 
     <div class="lab-grid">
         <LabItem
-            title="Svelte note editor"
-            description="Replaces the legacy editor with a new Svelte-based implementation. May affect addon compatibility. You can also hold shift while opening the editor to temporarily toggle this option on or off."
+            title="Note Editor Rework"
+            description="Enables an experimental rework of the editor. You can also hold shift while opening the editor to temporarily toggle this option on or off. <a href='https://forums.ankiweb.net/t/experimental-editor-testing/71454'>See&nbsp;forum&nbsp;post</a>"
             key={ExperimentalFeatureFlag.SVELTE_EDITOR}
             {labPerfs}
         ></LabItem>

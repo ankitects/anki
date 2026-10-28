@@ -135,3 +135,44 @@ test.each([
     expect(convertPastedImage).toHaveBeenCalledExactlyOnceWith({ data: pngBytes, ext: extension });
     expect(path).toMatch(new RegExp(`^/media/paste-[0-9a-f]{40}\\.${extension}$`));
 });
+
+async function pasteData(data: Record<string, string>, files: File[] = []): Promise<string> {
+    const clipboardData = new TestDataTransfer(data);
+    clipboardData.files = files;
+    const event = new ClipboardEvent("paste", {
+        clipboardData: clipboardData as unknown as DataTransfer,
+        cancelable: true,
+    });
+
+    await handlePaste(event, false);
+
+    expect(pasteHTML).toHaveBeenCalledOnce();
+    return vi.mocked(pasteHTML).mock.calls[0][0];
+}
+
+test("pasted plain text is escaped instead of being parsed as HTML", async () => {
+    expect(await pasteData({ "text/plain": "<b>Tom & Jerry</b>" })).toBe("&lt;b&gt;Tom &amp; Jerry&lt;/b&gt;");
+});
+
+test("pasted tabs and repeated spaces are kept as non-breaking spaces", async () => {
+    expect(await pasteData({ "text/plain": "a\tb  c d" })).toBe("a&nbsp;&nbsp;&nbsp; b&nbsp; c d");
+});
+
+test("pasted newlines become line breaks", async () => {
+    expect(await pasteData({ "text/plain": "one\ntwo\n\nthree" })).toBe("one<br>two<br><br>three");
+});
+
+test("pasted text/html is used as is when other types are also present", async () => {
+    const html = await pasteData(
+        {
+            "text/html": "<b>rich</b>",
+            "text/plain": "plain",
+            "text/uri-list": "https://example.com/image.png",
+        },
+        [new File([pngBytes], "image.png", { type: "image/png" })],
+    );
+
+    expect(html).toBe("<b>rich</b>");
+    expect(vi.mocked(pasteHTML).mock.calls[0][1]).toBe(false);
+    expect(addMediaFile).not.toHaveBeenCalled();
+});

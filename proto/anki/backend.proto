@@ -10,12 +10,21 @@ package anki.backend;
 import "anki/links.proto";
 
 message BackendInit {
+  // Preferred translation languages, in priority order. Each entry is a Unicode
+  // language identifier: language[-script][-region][-variant...], such as "en",
+  // "en-GB", "zh-Hant-TW", or "ca-ES-valencia". Hyphens and underscores are
+  // accepted as separators, and casing is normalized.
+  // Locale extensions (e.g. "pl-PL-u-fw-mon") and private-use subtags are not
+  // supported; remove them before passing a locale here.
+  // Invalid identifiers are ignored. English is always a fallback, and listing
+  // an English preference stops consideration of subsequent entries.
   repeated string preferred_langs = 1;
   string locale_folder_path = 2;
   bool server = 3;
 }
 
 message I18nBackendInit {
+  // Language identifiers in the same format as BackendInit.preferred_langs.
   repeated string preferred_langs = 4;
   string locale_folder_path = 5;
 }
