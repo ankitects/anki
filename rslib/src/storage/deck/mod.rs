@@ -6,9 +6,9 @@ use std::collections::HashSet;
 use std::iter;
 
 use prost::Message;
-use rusqlite::named_params;
 use rusqlite::params;
 use rusqlite::Row;
+use rusqlite::Statement;
 use unicase::UniCase;
 
 use super::SqliteStorage;
@@ -40,26 +40,11 @@ fn row_to_deck(row: &Row) -> Result<Deck> {
     })
 }
 
-fn row_to_due_counts(row: &Row) -> Result<(DeckId, DueCounts)> {
-    let deck_id = row.get(0)?;
-    let new = row.get(1)?;
-    let review = row.get(2)?;
-    let interday_learning: u32 = row.get(3)?;
-    let intraday_learning: u32 = row.get(4)?;
-    let total_cards: u32 = row.get(5)?;
-    // used as-is in v1/v2; recalculated in v3 after limits are applied
-    let learning = intraday_learning + interday_learning;
-    Ok((
-        deck_id,
-        DueCounts {
-            new,
-            review,
-            learning,
-            intraday_learning,
-            interday_learning,
-            total_cards,
-        },
-    ))
+/// The number of cards of `deck` and `queue` whose due value passes `stmt`'s
+/// comparison with `cutoff`. A range seek in the (did, queue, due) index, so
+/// it steps only over the cards it counts.
+fn due_cards(stmt: &mut Statement, deck: DeckId, queue: CardQueue, cutoff: u32) -> Result<u32> {
+    Ok(stmt.query_row(params![deck, queue as i8, cutoff], |row| row.get(0))?)
 }
 
 impl SqliteStorage {
@@ -297,22 +282,59 @@ impl SqliteStorage {
         day_cutoff: u32,
         learn_cutoff: u32,
     ) -> Result<HashMap<DeckId, DueCounts>> {
-        let params = named_params! {
-            ":new_queue": CardQueue::New as u8,
-            ":review_queue": CardQueue::Review as u8,
-            ":day_cutoff": day_cutoff,
-            ":learn_queue": CardQueue::Learn as u8,
-            ":learn_cutoff": learn_cutoff,
-            ":daylearn_queue": CardQueue::DayLearn as u8,
-            ":preview_queue": CardQueue::PreviewRepeat as u8,
-        }
-        .to_vec();
-        let sql = concat!(include_str!("due_counts.sql"), " group by did");
+        const NEW: i64 = CardQueue::New as i64;
+        const LEARN: i64 = CardQueue::Learn as i64;
+        const REVIEW: i64 = CardQueue::Review as i64;
+        const DAY_LEARN: i64 = CardQueue::DayLearn as i64;
+        const PREVIEW: i64 = CardQueue::PreviewRepeat as i64;
 
-        self.db
-            .prepare_cached(sql)?
-            .query_and_then(&*params, row_to_due_counts)?
-            .collect()
+        let mut on_or_before = self.db.prepare_cached(
+            "select count() from cards where did = ?1 and queue = ?2 and due <= ?3",
+        )?;
+        let mut before = self.db.prepare_cached(
+            "select count() from cards where did = ?1 and queue = ?2 and due < ?3",
+        )?;
+        let mut groups = self
+            .db
+            .prepare_cached("select did, queue, count() from cards group by did, queue")?;
+        let mut rows = groups.query([])?;
+
+        let mut counts: HashMap<DeckId, DueCounts> = HashMap::new();
+        while let Some(row) = rows.next()? {
+            let did: DeckId = row.get(0)?;
+            let cards: u32 = row.get(2)?;
+            let deck = counts.entry(did).or_default();
+            deck.total_cards += cards;
+            // a queue that is not an integer counts towards the total only
+            match row.get_ref(1)?.as_i64().ok() {
+                Some(NEW) => deck.new = cards,
+                Some(REVIEW) => {
+                    deck.review = due_cards(&mut on_or_before, did, CardQueue::Review, day_cutoff)?
+                }
+                Some(DAY_LEARN) => {
+                    deck.interday_learning =
+                        due_cards(&mut on_or_before, did, CardQueue::DayLearn, day_cutoff)?
+                }
+                Some(LEARN) => {
+                    deck.intraday_learning +=
+                        due_cards(&mut before, did, CardQueue::Learn, learn_cutoff)?
+                }
+                Some(PREVIEW) => {
+                    deck.intraday_learning += due_cards(
+                        &mut on_or_before,
+                        did,
+                        CardQueue::PreviewRepeat,
+                        learn_cutoff,
+                    )?
+                }
+                _ => {}
+            }
+        }
+        for deck in counts.values_mut() {
+            // used as-is in v1/v2; recalculated in v3 after limits are applied
+            deck.learning = deck.intraday_learning + deck.interday_learning;
+        }
+        Ok(counts)
     }
 
     /// Decks referenced by cards but missing.
