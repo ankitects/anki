@@ -1,20 +1,15 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
+import sqlFormatter from "@sqltools/formatter";
 import { createPatch } from "diff";
 import { readFileSync, writeFileSync } from "fs";
 import { argv } from "process";
-import { format } from "sql-formatter";
 
 function formatText(text: string): string {
-    let newText: string = format(text, {
-        language: "sqlite",
-        tabWidth: 2,
-        keywordCase: "upper",
-        paramTypes: {
-            numbered: ["?", "$"],
-            named: [":", "@", "$"],
-        },
+    let newText: string = sqlFormatter.format(text, {
+        indent: "  ",
+        reservedWordCase: "upper",
     });
     // downcase some keywords that Anki uses in tables/columns
     for (const keyword of ["type", "fields"]) {
@@ -26,25 +21,12 @@ function formatText(text: string): string {
     return newText;
 }
 
-// Files that are intentionally incomplete SQL fragments, completed in Rust at runtime.
-const skipFiles = ["field_names_for_notes.sql"];
-
 const [_tsx, _script, mode, ...files] = argv;
 const wantFix = mode == "fix";
 let errorFound = false;
 for (const path of files) {
-    if (skipFiles.some((name) => path.endsWith(name))) {
-        continue;
-    }
     const orig = readFileSync(path).toString();
-    let formatted: string;
-    try {
-        formatted = formatText(orig);
-    } catch (e) {
-        console.log(`Could not parse ${path}: ${(e as Error).message.split("\n")[0]}`);
-        errorFound = true;
-        continue;
-    }
+    const formatted = formatText(orig);
     if (orig !== formatted) {
         if (wantFix) {
             writeFileSync(path, formatted);

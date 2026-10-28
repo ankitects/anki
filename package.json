@@ -21,6 +21,7 @@
         "@bufbuild/protoc-gen-es": "^1.8.0",
         "@playwright/test": "^1.62.1",
         "@poppanator/sveltekit-svg": "^5.0.0",
+        "@sqltools/formatter": "^1.2.2",
         "@sveltejs/adapter-static": "^3.0.10",
         "@sveltejs/kit": "^2.70.3",
         "@sveltejs/vite-plugin-svelte": "5.1",
