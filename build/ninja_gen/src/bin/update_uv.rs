@@ -120,7 +120,10 @@ fn write_python_rs(content: &str) -> Result<(), Box<dyn Error>> {
 fn write_uv_version(version: &str) -> Result<(), Box<dyn Error>> {
     let path = Path::new(".tool-versions");
     println!("Writing to {}", path.display());
-    fs::write(path, format!("# To update, run 'cargo run --bin update_uv' from the repo root.\nuv {version}\n"))?;
+    fs::write(
+        path,
+        format!("# To update, run 'cargo run --bin update_uv' from the repo root.\nuv {version}\n"),
+    )?;
     Ok(())
 }
 
