@@ -17,8 +17,8 @@
         "test:e2e:ui": "playwright test --ui"
     },
     "devDependencies": {
-        "@bufbuild/protoc-gen-es": "^1.8.0",
         "@bufbuild/buf": "^1.74.0",
+        "@bufbuild/protoc-gen-es": "^1.8.0",
         "@playwright/test": "^1.62.1",
         "@poppanator/sveltekit-svg": "^5.0.0",
         "@sveltejs/adapter-static": "^3.0.10",
@@ -51,8 +51,8 @@
         "license-checker-rseidelsohn": "=4.4.2",
         "prettier": "^3.9.6",
         "prettier-plugin-svelte": "^3.5.2",
-        "sql-formatter": "^15.9.0",
         "sass": "<1.103",
+        "sql-formatter": "^15.9.0",
         "svelte": "^5.56.9",
         "svelte-check": "^4.7.6",
         "svelte-preprocess": "^6.0.5",
