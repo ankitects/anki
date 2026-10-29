@@ -775,6 +775,7 @@ mod tests {
             let mut card = col.storage.get_card(card_id)?.unwrap();
             card.interval = 910;
             card.due = 910;
+            col.storage.update_card(&card)?;
 
             assert_eq!(card.queue, CardQueue::Review);
             assert_eq!(card.ctype, CardType::Review);
@@ -801,6 +802,7 @@ mod tests {
             assert_eq!(suspend_updated_card.queue, CardQueue::Suspended);
             assert_eq!(suspend_updated_card.interval, card.interval);
             assert_eq!(suspend_updated_card.due, card.due);
+            assert!(suspend_updated_card.memory_state.is_some());
 
             // Suspended card does not get an extra review log
             assert_eq!(col.get_review_logs(card_id)?.entries.len(), 3);
