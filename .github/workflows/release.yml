@@ -294,32 +294,33 @@ jobs:
         with:
           creds: '{"clientId":"${{ secrets.AZURE_CLIENT_ID }}","clientSecret":"${{ secrets.AZURE_CLIENT_SECRET }}","subscriptionId":"${{ secrets.AZURE_SUBSCRIPTION_ID }}","tenantId":"${{ secrets.AZURE_TENANT_ID }}"}'
 
-      - name: Sign app binary
+      - name: Find unsigned binaries
+        id: unsigned
+        if: inputs.sign == true
+        shell: pwsh
+        run: .github/scripts/GetUnsignedFiles.ps1 x64
+
+      - name: Sign app binaries
         if: inputs.sign == true
         uses: azure/artifact-signing-action@c7ab2a863ab5f9a846ddb8265964877ef296ee82 #v2.0.0
         with:
           endpoint: https://eus.codesigning.azure.net/
           signing-account-name: anki-signing
           certificate-profile-name: ${{ secrets.AZURE_CERT_PROFILE_NAME }}
-          files: ${{ github.workspace }}\out\installer\build\anki\windows\visualstudio\x64\Release\Anki.exe
+          files: ${{ steps.unsigned.outputs.files }}
           file-digest: SHA256
           timestamp-rfc3161: http://timestamp.acs.microsoft.com
           timestamp-digest: SHA256
 
-      - name: Verify app binary signature
+      - name: Verify signatures
         if: inputs.sign == true
         shell: pwsh
         run: |
-          $sig = Get-AuthenticodeSignature "out\installer\build\anki\windows\visualstudio\x64\Release\Anki.exe"
-          if ($sig.Status -ne "Valid") {
-            Write-Error "Anki.exe signature status: $($sig.Status)"
-            exit 1
-          }
-          Write-Host "Anki.exe signed successfully: $($sig.SignerCertificate.Subject)"
+          .github/scripts/VerifySignatures.ps1 x64
 
       - name: Package installer
         # NOTE: we bypass the build system here to ensure installer:build is not run again (e.g. due to submodule clones),
-        # which will remove the Anki.exe signature
+        # which will remove the binary signatures
         run: out\pyenv\scripts\python.exe qt\tools\build_installer.py --version ${{ needs.prepare.outputs.pep440_version }} package
 
       - name: Sign MSI
@@ -361,7 +362,7 @@ jobs:
           path: out/wheels/anki-*.whl
 
   # Windows ARM uses a 4-job chain because azure/artifact-signing-action does not
-  # support ARM runners: build on ARM → sign EXE on x64 → package MSI on ARM → sign MSI on x64.
+  # support ARM runners: build on ARM → sign binaries on x64 → package MSI on ARM → sign MSI on x64.
   build-windows-arm:
     needs: prepare
     runs-on: windows-11-vs2026-arm
@@ -404,6 +405,12 @@ jobs:
     timeout-minutes: 15
     environment: ${{ inputs.sign == true && 'release' || '' }}
     steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 #v4
+        with:
+          ref: ${{ github.sha }}
+          sparse-checkout: .github/scripts
+          persist-credentials: false
+
       - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c #v8.0.1
         with:
           name: build-windows-arm
@@ -415,28 +422,29 @@ jobs:
         with:
           creds: '{"clientId":"${{ secrets.AZURE_CLIENT_ID }}","clientSecret":"${{ secrets.AZURE_CLIENT_SECRET }}","subscriptionId":"${{ secrets.AZURE_SUBSCRIPTION_ID }}","tenantId":"${{ secrets.AZURE_TENANT_ID }}"}'
 
-      - name: Sign app binary
+      - name: Find unsigned binaries
+        id: unsigned
+        if: inputs.sign == true
+        shell: pwsh
+        run: .github/scripts/GetUnsignedFiles.ps1 ARM64
+
+      - name: Sign app binaries
         if: inputs.sign == true
         uses: azure/artifact-signing-action@c7ab2a863ab5f9a846ddb8265964877ef296ee82 #v2.0.0
         with:
           endpoint: https://eus.codesigning.azure.net/
           signing-account-name: anki-signing
           certificate-profile-name: ${{ secrets.AZURE_CERT_PROFILE_NAME }}
-          files: ${{ github.workspace }}\out\installer\build\anki\windows\visualstudio\ARM64\Release\Anki.exe
+          files: ${{ steps.unsigned.outputs.files }}
           file-digest: SHA256
           timestamp-rfc3161: http://timestamp.acs.microsoft.com
           timestamp-digest: SHA256
 
-      - name: Verify app binary signature
+      - name: Verify signatures
         if: inputs.sign == true
         shell: pwsh
         run: |
-          $sig = Get-AuthenticodeSignature "out\installer\build\anki\windows\visualstudio\ARM64\Release\Anki.exe"
-          if ($sig.Status -ne "Valid") {
-            Write-Error "Anki.exe signature status: $($sig.Status)"
-            exit 1
-          }
-          Write-Host "Anki.exe signed successfully: $($sig.SignerCertificate.Subject)"
+          .github/scripts/VerifySignatures.ps1 ARM64
 
       - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a #v7.0.1
         with:
