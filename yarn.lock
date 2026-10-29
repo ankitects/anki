@@ -57,6 +57,89 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@bufbuild/buf-darwin-arm64@npm:1.74.0":
+  version: 1.74.0
+  resolution: "@bufbuild/buf-darwin-arm64@npm:1.74.0"
+  conditions: os=darwin & cpu=arm64
+  languageName: node
+  linkType: hard
+
+"@bufbuild/buf-darwin-x64@npm:1.74.0":
+  version: 1.74.0
+  resolution: "@bufbuild/buf-darwin-x64@npm:1.74.0"
+  conditions: os=darwin & cpu=x64
+  languageName: node
+  linkType: hard
+
+"@bufbuild/buf-linux-aarch64@npm:1.74.0":
+  version: 1.74.0
+  resolution: "@bufbuild/buf-linux-aarch64@npm:1.74.0"
+  conditions: os=linux & cpu=arm64
+  languageName: node
+  linkType: hard
+
+"@bufbuild/buf-linux-armv7@npm:1.74.0":
+  version: 1.74.0
+  resolution: "@bufbuild/buf-linux-armv7@npm:1.74.0"
+  conditions: os=linux & cpu=arm
+  languageName: node
+  linkType: hard
+
+"@bufbuild/buf-linux-x64@npm:1.74.0":
+  version: 1.74.0
+  resolution: "@bufbuild/buf-linux-x64@npm:1.74.0"
+  conditions: os=linux & cpu=x64
+  languageName: node
+  linkType: hard
+
+"@bufbuild/buf-win32-arm64@npm:1.74.0":
+  version: 1.74.0
+  resolution: "@bufbuild/buf-win32-arm64@npm:1.74.0"
+  conditions: os=win32 & cpu=arm64
+  languageName: node
+  linkType: hard
+
+"@bufbuild/buf-win32-x64@npm:1.74.0":
+  version: 1.74.0
+  resolution: "@bufbuild/buf-win32-x64@npm:1.74.0"
+  conditions: os=win32 & cpu=x64
+  languageName: node
+  linkType: hard
+
+"@bufbuild/buf@npm:^1.74.0":
+  version: 1.74.0
+  resolution: "@bufbuild/buf@npm:1.74.0"
+  dependencies:
+    "@bufbuild/buf-darwin-arm64": "npm:1.74.0"
+    "@bufbuild/buf-darwin-x64": "npm:1.74.0"
+    "@bufbuild/buf-linux-aarch64": "npm:1.74.0"
+    "@bufbuild/buf-linux-armv7": "npm:1.74.0"
+    "@bufbuild/buf-linux-x64": "npm:1.74.0"
+    "@bufbuild/buf-win32-arm64": "npm:1.74.0"
+    "@bufbuild/buf-win32-x64": "npm:1.74.0"
+  dependenciesMeta:
+    "@bufbuild/buf-darwin-arm64":
+      optional: true
+    "@bufbuild/buf-darwin-x64":
+      optional: true
+    "@bufbuild/buf-linux-aarch64":
+      optional: true
+    "@bufbuild/buf-linux-armv7":
+      optional: true
+    "@bufbuild/buf-linux-x64":
+      optional: true
+    "@bufbuild/buf-win32-arm64":
+      optional: true
+    "@bufbuild/buf-win32-x64":
+      optional: true
+  bin:
+    buf: bin/buf
+    protoc-gen-buf-breaking: bin/protoc-gen-buf-breaking
+    protoc-gen-buf-lint: bin/protoc-gen-buf-lint
+  checksum: 10c0/d36e5fc455e5108d21417f7e8ffb0a989cebbe197af7da7dc6bd0b7f80873feae2f8f8e02c1362209cee84fae8136723bbca0e6de1f0470d83719b7de583db56
+  languageName: node
+  linkType: hard
+
 "@bufbuild/protobuf@npm:1.10.0, @bufbuild/protobuf@npm:^1.10.0, @bufbuild/protobuf@npm:^1.2.1":
   version: 1.10.0
   resolution: "@bufbuild/protobuf@npm:1.10.0"
@@ -2300,6 +2383,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "anki@workspace:."
   dependencies:
+    "@bufbuild/buf": "npm:^1.74.0"
     "@bufbuild/protobuf": "npm:^1.2.1"
     "@bufbuild/protoc-gen-es": "npm:^1.8.0"
     "@floating-ui/dom": "npm:^1.8.0"
@@ -2353,6 +2437,7 @@ __metadata:
     prettier: "npm:^3.9.6"
     prettier-plugin-svelte: "npm:^3.5.2"
     sass: "npm:<1.103"
+    sql-formatter: "npm:^15.9.0"
     svelte: "npm:^5.56.9"
     svelte-check: "npm:^4.7.6"
     svelte-preprocess: "npm:^6.0.5"
@@ -2899,6 +2984,13 @@ __metadata:
   version: 7.2.0
   resolution: "commander@npm:7.2.0"
   checksum: 10c0/8d690ff13b0356df7e0ebbe6c59b4712f754f4b724d4f473d3cc5b3fdcf978e3a5dc3078717858a2ceb50b0f84d0660a7f22a96cdc50fb877d0c9bb31593d23a
+  languageName: node
+  linkType: hard
+
+"commander@npm:^2.19.0":
+  version: 2.20.3
+  resolution: "commander@npm:2.20.3"
+  checksum: 10c0/74c781a5248c2402a0a3e966a0a2bba3c054aad144f5c023364be83265e796b20565aa9feff624132ff629aa64e16999fa40a743c10c12f7c61e96a794b99288
   languageName: node
   linkType: hard
 
@@ -3543,6 +3635,13 @@ __metadata:
   dependencies:
     path-type: "npm:^4.0.0"
   checksum: 10c0/dcac00920a4d503e38bb64001acb19df4efc14536ada475725e12f52c16777afdee4db827f55f13a908ee7efc0cb282e2e3dbaeeb98c0993dd93d1802d3bf00c
+  languageName: node
+  linkType: hard
+
+"discontinuous-range@npm:1.0.0":
+  version: 1.0.0
+  resolution: "discontinuous-range@npm:1.0.0"
+  checksum: 10c0/487b105f83c1cc528e25e65d3c4b73958ec79769b7bd0e264414702a23a7e2b282c72982b4bef4af29fcab53f47816c3f0a5c40d85a99a490f4bc35b83dc00f8
   languageName: node
   linkType: hard
 
@@ -6241,6 +6340,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"moo@npm:^0.5.0":
+  version: 0.5.3
+  resolution: "moo@npm:0.5.3"
+  checksum: 10c0/5c5e00d7c57a69ce1cc2f21a90655ff10556481cc10fa70528c01e91f00deff8a65fa8da6dc7b27d136d66085055aab238fd1b19a75070263e0028e8f07c8213
+  languageName: node
+  linkType: hard
+
 "mri@npm:^1.1.0":
   version: 1.2.0
   resolution: "mri@npm:1.2.0"
@@ -6282,6 +6388,23 @@ __metadata:
   version: 1.4.0
   resolution: "natural-compare@npm:1.4.0"
   checksum: 10c0/f5f9a7974bfb28a91afafa254b197f0f22c684d4a1731763dda960d2c8e375b36c7d690e0d9dc8fba774c537af14a7e979129bca23d88d052fbeb9466955e447
+  languageName: node
+  linkType: hard
+
+"nearley@npm:^2.20.1":
+  version: 2.20.1
+  resolution: "nearley@npm:2.20.1"
+  dependencies:
+    commander: "npm:^2.19.0"
+    moo: "npm:^0.5.0"
+    railroad-diagrams: "npm:^1.0.0"
+    randexp: "npm:0.4.6"
+  bin:
+    nearley-railroad: bin/nearley-railroad.js
+    nearley-test: bin/nearley-test.js
+    nearley-unparse: bin/nearley-unparse.js
+    nearleyc: bin/nearleyc.js
+  checksum: 10c0/d25e1fd40b19c53a0ada6a688670f4a39063fd9553ab62885e81a82927d51572ce47193b946afa3d85efa608ba2c68f433c421f69b854bfb7f599eacb5fae37e
   languageName: node
   linkType: hard
 
@@ -6772,6 +6895,23 @@ __metadata:
   languageName: node
   linkType: hard
 
+"railroad-diagrams@npm:^1.0.0":
+  version: 1.0.0
+  resolution: "railroad-diagrams@npm:1.0.0"
+  checksum: 10c0/81bf8f86870a69fb9ed243102db9ad6416d09c4cb83964490d44717690e07dd982f671503236a1f8af28f4cb79d5d7a87613930f10ac08defa845ceb6764e364
+  languageName: node
+  linkType: hard
+
+"randexp@npm:0.4.6":
+  version: 0.4.6
+  resolution: "randexp@npm:0.4.6"
+  dependencies:
+    discontinuous-range: "npm:1.0.0"
+    ret: "npm:~0.1.10"
+  checksum: 10c0/14ee14b6d7f5ce69609b51cc914fb7a7c82ad337820a141c5f762c5ad1fe868f5191ea6e82359aee019b625ee1359486628fa833909d12c3b5dd9571908c3345
+  languageName: node
+  linkType: hard
+
 "read-installed-packages@npm:^2.0.1":
   version: 2.0.1
   resolution: "read-installed-packages@npm:2.0.1"
@@ -6922,6 +7062,13 @@ __metadata:
   bin:
     resolve: bin/resolve
   checksum: 10c0/0446f024439cd2e50c6c8fa8ba77eaa8370b4180f401a96abf3d1ebc770ac51c1955e12764cde449fde3fff480a61f84388e3505ecdbab778f4bef5f8212c729
+  languageName: node
+  linkType: hard
+
+"ret@npm:~0.1.10":
+  version: 0.1.15
+  resolution: "ret@npm:0.1.15"
+  checksum: 10c0/01f77cad0f7ea4f955852c03d66982609893edc1240c0c964b4c9251d0f9fb6705150634060d169939b096d3b77f4c84d6b6098a5b5d340160898c8581f1f63f
   languageName: node
   linkType: hard
 
@@ -7492,6 +7639,18 @@ __metadata:
   version: 1.1.3
   resolution: "sprintf-js@npm:1.1.3"
   checksum: 10c0/09270dc4f30d479e666aee820eacd9e464215cdff53848b443964202bf4051490538e5dd1b42e1a65cf7296916ca17640aebf63dae9812749c7542ee5f288dec
+  languageName: node
+  linkType: hard
+
+"sql-formatter@npm:^15.9.0":
+  version: 15.9.0
+  resolution: "sql-formatter@npm:15.9.0"
+  dependencies:
+    argparse: "npm:^2.0.1"
+    nearley: "npm:^2.20.1"
+  bin:
+    sql-formatter: bin/sql-formatter-cli.cjs
+  checksum: 10c0/03fda86f297c26575ad79dee4786be492b148d646811393c70aa9078a960169a75a1b91a3f28345eb8ab3c75b433acee0ec09939a4d21259bde609ab1a3a813d
   languageName: node
   linkType: hard
 

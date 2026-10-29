@@ -3,9 +3,9 @@
 
 syntax = "proto3";
 
-option java_multiple_files = true;
-
 package anki.generic;
+
+option java_multiple_files = true;
 
 message Empty {}
 

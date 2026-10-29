@@ -3,21 +3,20 @@
 
 syntax = "proto3";
 
-option java_multiple_files = true;
-
 package anki.frontend;
 
-import "anki/scheduler.proto";
 import "anki/generic.proto";
-import "anki/search.proto";
+import "anki/links.proto";
 import "anki/notes.proto";
 import "anki/notetypes.proto";
-import "anki/links.proto";
+import "anki/scheduler.proto";
+import "anki/search.proto";
+
+option java_multiple_files = true;
 
 service FrontendService {
   // Returns values from the reviewer
-  rpc GetSchedulingStatesWithContext(generic.Empty)
-      returns (SchedulingStatesWithContext);
+  rpc GetSchedulingStatesWithContext(generic.Empty) returns (SchedulingStatesWithContext);
   // Updates reviewer state
   rpc SetSchedulingStates(SetSchedulingStatesRequest) returns (generic.Empty);
 
@@ -32,8 +31,7 @@ service FrontendService {
   rpc deckOptionsReady(generic.Empty) returns (generic.Empty);
 
   // Editor
-  rpc ConvertPastedImage(ConvertPastedImageRequest)
-      returns (ConvertPastedImageResponse);
+  rpc ConvertPastedImage(ConvertPastedImageRequest) returns (ConvertPastedImageResponse);
   rpc OpenFilePicker(openFilePickerRequest) returns (generic.String);
   rpc OpenMedia(generic.String) returns (generic.Empty);
   rpc ShowInMediaFolder(generic.String) returns (generic.Empty);

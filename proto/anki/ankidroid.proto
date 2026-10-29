@@ -1,11 +1,11 @@
 syntax = "proto3";
 
-option java_multiple_files = true;
+package anki.ankidroid;
 
 import "anki/generic.proto";
 import "anki/scheduler.proto";
 
-package anki.ankidroid;
+option java_multiple_files = true;
 
 service AnkidroidService {
   rpc RunDbCommand(generic.Json) returns (generic.Json);
@@ -16,15 +16,13 @@ service AnkidroidService {
   rpc FlushQuery(generic.Int32) returns (generic.Empty);
   rpc GetNextResultPage(GetNextResultPageRequest) returns (DbResponse);
   rpc GetColumnNamesFromQuery(generic.String) returns (generic.StringList);
-  rpc GetActiveSequenceNumbers(generic.Empty)
-      returns (GetActiveSequenceNumbersResponse);
+  rpc GetActiveSequenceNumbers(generic.Empty) returns (GetActiveSequenceNumbersResponse);
 }
 
 // Implicitly includes any of the above methods that are not listed in the
 // backend service.
 service BackendAnkidroidService {
-  rpc SchedTimingTodayLegacy(SchedTimingTodayLegacyRequest)
-      returns (scheduler.SchedTimingTodayResponse);
+  rpc SchedTimingTodayLegacy(SchedTimingTodayLegacyRequest) returns (scheduler.SchedTimingTodayResponse);
   rpc LocalMinutesWestLegacy(generic.Int64) returns (generic.Int32);
   rpc SetPageSize(generic.Int64) returns (generic.Empty);
   rpc DebugProduceError(generic.String) returns (generic.Empty);

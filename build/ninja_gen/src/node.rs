@@ -241,6 +241,30 @@ impl BuildAction for Prettier {
     }
 }
 
+pub struct BufFormat {
+    pub inputs: BuildInput,
+    pub check_only: bool,
+}
+
+impl BuildAction for BufFormat {
+    fn command(&self) -> &str {
+        "$yarn buf format $mode proto"
+    }
+
+    fn files(&mut self, build: &mut impl build::FilesHandle) {
+        build.add_inputs("yarn", inputs![":yarn:bin"]);
+        build.add_inputs("buf", inputs![":node_modules:buf"]);
+        build.add_inputs("in", &self.inputs);
+        let (mode, kind) = if self.check_only {
+            ("--diff --exit-code", "check")
+        } else {
+            ("-w", "fix")
+        };
+        build.add_variable("mode", mode);
+        build.add_output_stamp(format!("tests/buf-format.{kind}"));
+    }
+}
+
 pub struct SvelteCheck {
     pub tsconfig: BuildInput,
     pub inputs: BuildInput,

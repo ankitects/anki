@@ -3,24 +3,21 @@
 
 syntax = "proto3";
 
-option java_multiple_files = true;
-
 package anki.card_rendering;
 
 import "anki/generic.proto";
 import "anki/notes.proto";
 import "anki/notetypes.proto";
 
+option java_multiple_files = true;
+
 service CardRenderingService {
   rpc ExtractAvTags(ExtractAvTagsRequest) returns (ExtractAvTagsResponse);
   rpc ExtractLatex(ExtractLatexRequest) returns (ExtractLatexResponse);
   rpc GetEmptyCards(generic.Empty) returns (EmptyCardsReport);
-  rpc RenderExistingCard(RenderExistingCardRequest)
-      returns (RenderCardResponse);
-  rpc RenderUncommittedCard(RenderUncommittedCardRequest)
-      returns (RenderCardResponse);
-  rpc RenderUncommittedCardLegacy(RenderUncommittedCardLegacyRequest)
-      returns (RenderCardResponse);
+  rpc RenderExistingCard(RenderExistingCardRequest) returns (RenderCardResponse);
+  rpc RenderUncommittedCard(RenderUncommittedCardRequest) returns (RenderCardResponse);
+  rpc RenderUncommittedCardLegacy(RenderUncommittedCardLegacyRequest) returns (RenderCardResponse);
   rpc StripAvTags(generic.String) returns (generic.String);
   rpc RenderMarkdown(RenderMarkdownRequest) returns (generic.String);
   rpc EncodeIriPaths(generic.String) returns (generic.String);
@@ -28,8 +25,7 @@ service CardRenderingService {
   rpc StripHtml(StripHtmlRequest) returns (generic.String);
   rpc HtmlToTextLine(HtmlToTextLineRequest) returns (generic.String);
   rpc CompareAnswer(CompareAnswerRequest) returns (generic.String);
-  rpc ExtractClozeForTyping(ExtractClozeForTypingRequest)
-      returns (generic.String);
+  rpc ExtractClozeForTyping(ExtractClozeForTypingRequest) returns (generic.String);
 }
 
 // Implicitly includes any of the above methods that are not listed in the

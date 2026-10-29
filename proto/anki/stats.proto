@@ -3,12 +3,12 @@
 
 syntax = "proto3";
 
-option java_multiple_files = true;
-
 package anki.stats;
 
-import "anki/generic.proto";
 import "anki/cards.proto";
+import "anki/generic.proto";
+
+option java_multiple_files = true;
 
 service StatsService {
   rpc CardStats(cards.CardId) returns (CardStatsResponse);

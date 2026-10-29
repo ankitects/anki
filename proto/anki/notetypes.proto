@@ -3,19 +3,18 @@
 
 syntax = "proto3";
 
-option java_multiple_files = true;
-
 package anki.notetypes;
 
-import "anki/generic.proto";
 import "anki/collection.proto";
+import "anki/generic.proto";
+
+option java_multiple_files = true;
 
 service NotetypesService {
   rpc AddNotetype(Notetype) returns (collection.OpChangesWithId);
   rpc UpdateNotetype(Notetype) returns (collection.OpChanges);
   rpc AddNotetypeLegacy(generic.Json) returns (collection.OpChangesWithId);
-  rpc UpdateNotetypeLegacy(UpdateNotetypeLegacyRequest)
-      returns (collection.OpChanges);
+  rpc UpdateNotetypeLegacy(UpdateNotetypeLegacyRequest) returns (collection.OpChanges);
   rpc AddOrUpdateNotetype(AddOrUpdateNotetypeRequest) returns (NotetypeId);
   rpc GetStockNotetypeLegacy(StockNotetype) returns (generic.Json);
   rpc GetNotetype(NotetypeId) returns (Notetype);
@@ -25,14 +24,11 @@ service NotetypesService {
   rpc GetNotetypeIdByName(generic.String) returns (NotetypeId);
   rpc RemoveNotetype(NotetypeId) returns (collection.OpChanges);
   rpc GetAuxNotetypeConfigKey(GetAuxConfigKeyRequest) returns (generic.String);
-  rpc GetAuxTemplateConfigKey(GetAuxTemplateConfigKeyRequest)
-      returns (generic.String);
-  rpc GetChangeNotetypeInfo(GetChangeNotetypeInfoRequest)
-      returns (ChangeNotetypeInfo);
+  rpc GetAuxTemplateConfigKey(GetAuxTemplateConfigKeyRequest) returns (generic.String);
+  rpc GetChangeNotetypeInfo(GetChangeNotetypeInfoRequest) returns (ChangeNotetypeInfo);
   rpc ChangeNotetype(ChangeNotetypeRequest) returns (collection.OpChanges);
   rpc GetFieldNames(NotetypeId) returns (generic.StringList);
-  rpc RestoreNotetypeToStock(RestoreNotetypeToStockRequest)
-      returns (collection.OpChanges);
+  rpc RestoreNotetypeToStock(RestoreNotetypeToStockRequest) returns (collection.OpChanges);
   rpc GetClozeFieldOrds(NotetypeId) returns (GetClozeFieldOrdsResponse);
 }
 
