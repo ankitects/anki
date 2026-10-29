@@ -347,6 +347,115 @@ mod tests {
         }
     }
 
+    /// Names of the files sitting in `dir`, sorted.
+    fn file_names(dir: &TempDir) -> Vec<String> {
+        let mut names: Vec<String> = std::fs::read_dir(dir.path())
+            .unwrap()
+            .map(|entry| entry.unwrap().file_name().to_string_lossy().into_owned())
+            .collect();
+        names.sort();
+        names
+    }
+
+    #[test]
+    fn a_failed_card_csv_export_reports_the_search_error() {
+        let (mut col, dir) = col_and_dir();
+        let path = dir.path().join("cards.csv");
+        // The search has to be resolved before the destination is touched, so
+        // an unparseable one must come back as a search error rather than as a
+        // failure to write the file.
+        let err = col
+            .export_card_csv(path.to_str().unwrap(), "(", true)
+            .unwrap_err();
+        assert!(
+            matches!(err, AnkiError::SearchError { .. }),
+            "expected a search error, got: {err:?}"
+        );
+    }
+
+    #[test]
+    fn a_failed_card_csv_export_leaves_no_temp_file_behind() {
+        let (mut col, dir) = col_and_dir();
+        let path = dir.path().join("cards.csv");
+        std::fs::write(&path, "previous export\n").unwrap();
+
+        assert!(col
+            .export_card_csv(path.to_str().unwrap(), "(", true)
+            .is_err());
+
+        // The temporary file is created next to the destination, which is a
+        // folder the user picked, so a failure must not litter it.
+        assert_eq!(
+            file_names(&dir),
+            vec!["cards.csv"],
+            "a failed export must not leave a temporary file next to the destination"
+        );
+    }
+
+    #[test]
+    fn a_successful_card_csv_export_leaves_no_temp_file_behind() {
+        let (mut col, dir) = col_and_dir();
+        NoteAdder::basic(&mut col).add(&mut col);
+        let path = dir.path().join("cards.csv");
+
+        col.export_card_csv(path.to_str().unwrap(), SearchNode::WholeCollection, true)
+            .unwrap();
+
+        assert_eq!(file_names(&dir), vec!["cards.csv"]);
+    }
+
+    #[test]
+    fn a_successful_note_csv_export_leaves_no_temp_file_behind() {
+        let (mut col, dir) = col_and_dir();
+        NoteAdder::basic(&mut col).add(&mut col);
+        let path = dir.path().join("notes.csv");
+
+        col.export_note_csv(note_csv_request(path.to_str().unwrap().into()))
+            .unwrap();
+
+        assert_eq!(file_names(&dir), vec!["notes.csv"]);
+    }
+
+    #[test]
+    fn a_card_csv_export_replaces_every_byte_of_a_longer_previous_file() {
+        let (mut col, dir) = col_and_dir();
+        NoteAdder::basic(&mut col).add(&mut col);
+        let path = dir.path().join("cards.csv");
+        let old = "stale\n".repeat(4096);
+        std::fs::write(&path, &old).unwrap();
+
+        col.export_card_csv(path.to_str().unwrap(), SearchNode::WholeCollection, true)
+            .unwrap();
+
+        let content = std::fs::read_to_string(&path).unwrap();
+        assert!(
+            content.starts_with("#separator:tab\n"),
+            "expected the new export, got: {}",
+            &content[..content.len().min(64)]
+        );
+        assert!(
+            !content.contains("stale"),
+            "the replaced file must not keep a tail of the longer file it replaced"
+        );
+    }
+
+    #[test]
+    fn a_note_csv_export_replaces_every_byte_of_a_longer_previous_file() {
+        let (mut col, dir) = col_and_dir();
+        NoteAdder::basic(&mut col).add(&mut col);
+        let path = dir.path().join("notes.csv");
+        std::fs::write(&path, "stale\n".repeat(4096)).unwrap();
+
+        col.export_note_csv(note_csv_request(path.to_str().unwrap().into()))
+            .unwrap();
+
+        let content = std::fs::read_to_string(&path).unwrap();
+        assert!(
+            !content.contains("stale"),
+            "the replaced file must not keep a tail of the longer file it replaced"
+        );
+    }
+
     #[test]
     fn a_failed_card_csv_export_leaves_the_previous_file_alone() {
         let (mut col, dir) = col_and_dir();
