@@ -57,7 +57,7 @@ async-stream = "0.3.6"
 async-trait = "0.1.92"
 axum = { version = "0.8.4", features = ["multipart", "macros"] }
 axum-client-ip = "1.1.3"
-axum-extra = { version = "0.10.1", features = ["typed-header"] }
+axum-extra = { version = "0.12.1", features = ["typed-header"] }
 bitflags = "2.9.1"
 blake3 = "1.8.2"
 bytes = "1.11.1"
@@ -65,12 +65,12 @@ camino = "1.1.10"
 chrono = { version = "0.4.41", default-features = false, features = ["std", "clock"] }
 clap = { version = "4.5.40", features = ["derive"] }
 coarsetime = "0.1.36"
-convert_case = "0.8.0"
-criterion = { version = "0.6.0" }
+convert_case = "0.12.0"
+criterion = { version = "0.8.2" }
 csv = "1.3.1"
 data-encoding = "2.9.0"
 difflib = "0.4.0"
-dirs = "6.0.0"
+dirs = "7.0.0"
 dunce = "1.0.5"
 embed-resource = "3.0.4"
 envy = "0.4.2"
@@ -87,8 +87,8 @@ hyper = "1"
 id_tree = "1.8.0"
 inflections = "1.1.1"
 intl-memoizer = "0.5.3"
-itertools = "0.14.0"
-junction = "1.2.0"
+itertools = "0.15.0"
+junction = "2.1.0"
 libc = "0.2"
 libc-stdhandle = "0.1"
 locale_config = "0.3.0"
@@ -100,20 +100,20 @@ num_enum = "0.7.3"
 once_cell = "1.21.3"
 pbkdf2 = { version = "0.12", features = ["simple"] }
 permutation = "0.4.1"
-phf = { version = "0.11.3", features = ["macros"] }
+phf = { version = "0.13.1", features = ["macros"] }
 pin-project = "1.1.10"
-prettyplease = "0.2.34"
-prost = "0.13"
-prost-build = "0.13"
-prost-reflect = "0.14.7"
-prost-types = "0.13"
+prettyplease = "0.3.0"
+prost = "0.14"
+prost-build = "0.14"
+prost-reflect = "0.16.5"
+prost-types = "0.14"
 pulldown-cmark = "0.13.5"
-pyo3 = { version = "0.29.0", features = ["extension-module", "abi3", "abi3-py39"] }
+pyo3 = { version = "0.30.1", features = ["extension-module", "abi3", "abi3-py39"] }
 rand = "0.10.1"
 rayon = "1.10.0"
 regex = "1.11.1"
 reqwest = { version = "0.12.20", default-features = false, features = ["json", "socks", "stream", "multipart"] }
-rusqlite = { version = "0.36.0", features = ["trace", "functions", "collation", "bundled"] }
+rusqlite = { version = "0.37.0", features = ["trace", "functions", "collation", "bundled"] }
 rustls-pemfile = "2.2.0"
 same-file = "1.0.6"
 scopeguard = "1.2.0"
@@ -122,17 +122,17 @@ serde-aux = "4.7.0"
 serde_json = "1.0.140"
 serde_repr = "0.1.20"
 serde_tuple = "1.1.0"
-sha1 = "0.10.6"
+sha1 = "0.11.0"
 sha2 = { version = "0.11.0" }
 snafu = { version = "0.8.6", features = ["rust_1_61"] }
-strum = { version = "0.27.1", features = ["derive"] }
-syn = { version = "2.0.103", features = ["parsing", "printing"] }
+strum = { version = "0.28.0", features = ["derive"] }
+syn = { version = "3.0.6", features = ["parsing", "printing"] }
 tar = "0.4.46"
 tempfile = "3.20.0"
 termcolor = "1.4.1"
 tokio = { version = "1.51.6", features = ["fs", "rt-multi-thread", "macros", "signal"] }
 tokio-util = { version = "0.7.15", features = ["io"] }
-tower-http = { version = "0.6.6", features = ["trace"] }
+tower-http = { version = "0.7.1", features = ["trace"] }
 tracing = { version = "0.1.41", features = ["max_level_trace", "release_max_level_debug"] }
 tracing-appender = "0.2.3"
 tracing-subscriber = { version = "0.3.20", features = ["fmt", "env-filter"] }
@@ -143,7 +143,7 @@ walkdir = "2.5.0"
 which = "8.0.0"
 widestring = "1.1.0"
 winapi = { version = "0.3", features = ["wincon", "winreg"] }
-windows = { version = "0.61.3", features = ["Media_SpeechSynthesis", "Media_Core", "Foundation_Collections", "Storage_Streams", "Win32_System_Console", "Win32_System_Registry", "Win32_System_SystemInformation", "Win32_Foundation", "Win32_UI_Shell", "Wdk_System_SystemServices"] }
+windows = { version = "0.62.2", features = ["Media_SpeechSynthesis", "Media_Core", "Foundation_Collections", "Storage_Streams", "Win32_System_Console", "Win32_System_Registry", "Win32_System_SystemInformation", "Win32_Foundation", "Win32_UI_Shell", "Wdk_System_SystemServices"] }
 wiremock = "0.6.3"
 xz2 = "0.1.7"
 zip = { version = "9.0.5", default-features = false, features = ["deflate", "time"] }
