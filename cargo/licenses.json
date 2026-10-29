@@ -1,13 +1,5 @@
 [
   {
-    "authors": null,
-    "description": "A cross-platform symbolication library written in Rust, using `gimli`",
-    "license": "Apache-2.0 OR MIT",
-    "license_file": null,
-    "name": "addr2line",
-    "repository": "https://github.com/gimli-rs/addr2line"
-  },
-  {
     "authors": "Jonas Schievink <jonasschievink@gmail.com>|oyvindln <oyvindln@users.noreply.github.com>",
     "description": "A simple clean-room implementation of the Adler-32 checksum",
     "license": "0BSD OR Apache-2.0 OR MIT",
@@ -94,14 +86,6 @@
     "license_file": null,
     "name": "anyhow",
     "repository": "https://github.com/dtolnay/anyhow"
-  },
-  {
-    "authors": "The Rust-Fuzz Project Developers|Nick Fitzgerald <fitzgen@gmail.com>|Manish Goregaokar <manishsmail@gmail.com>|Simonas Kazlauskas <arbitrary@kazlauskas.me>|Brian L. Troutwine <brian@troutwine.us>|Corey Farwell <coreyf@rwell.org>",
-    "description": "The trait for generating structured data from unstructured data",
-    "license": "Apache-2.0 OR MIT",
-    "license_file": null,
-    "name": "arbitrary",
-    "repository": "https://github.com/rust-fuzz/arbitrary/"
   },
   {
     "authors": "David Roundy <roundyd@physics.oregonstate.edu>",
@@ -214,14 +198,6 @@
     "license_file": null,
     "name": "axum-macros",
     "repository": "https://github.com/tokio-rs/axum"
-  },
-  {
-    "authors": "The Rust Project Developers",
-    "description": "A library to acquire a stack trace (backtrace) at runtime in a Rust program.",
-    "license": "Apache-2.0 OR MIT",
-    "license_file": null,
-    "name": "backtrace",
-    "repository": "https://github.com/rust-lang/backtrace-rs"
   },
   {
     "authors": "Marshall Pierce <marshall@mpierce.org>",
@@ -542,14 +518,6 @@
     "license_file": null,
     "name": "deranged",
     "repository": "https://github.com/jhpratt/deranged"
-  },
-  {
-    "authors": "The Rust-Fuzz Project Developers|Nick Fitzgerald <fitzgen@gmail.com>|Manish Goregaokar <manishsmail@gmail.com>|Andre Bogus <bogusandre@gmail.com>|Corey Farwell <coreyf@rwell.org>",
-    "description": "Derives arbitrary traits",
-    "license": "Apache-2.0 OR MIT",
-    "license_file": null,
-    "name": "derive_arbitrary",
-    "repository": "https://github.com/rust-fuzz/arbitrary"
   },
   {
     "authors": "Dima Kudosh <dimakudosh@gmail.com>",
@@ -888,14 +856,6 @@
     "repository": "https://github.com/rust-random/getrandom"
   },
   {
-    "authors": null,
-    "description": "A library for reading and writing the DWARF debugging format.",
-    "license": "Apache-2.0 OR MIT",
-    "license_file": null,
-    "name": "gimli",
-    "repository": "https://github.com/gimli-rs/gimli"
-  },
-  {
     "authors": "Carl Lerche <me@carllerche.com>|Sean McArthur <sean@seanmonstar.com>",
     "description": "An HTTP/2 client and server",
     "license": "MIT",
@@ -1208,14 +1168,6 @@
     "repository": "https://github.com/zbraniecki/pluralrules"
   },
   {
-    "authors": "quininer <quininer@live.com>",
-    "description": "The low-level `io_uring` userspace interface for Rust",
-    "license": "Apache-2.0 OR MIT",
-    "license_file": null,
-    "name": "io-uring",
-    "repository": "https://github.com/tokio-rs/io-uring"
-  },
-  {
     "authors": "Kris Price <kris@krisprice.nz>",
     "description": "Provides types and useful methods for working with IPv4 and IPv6 network addresses, commonly called IP prefixes. The new `IpNet`, `Ipv4Net`, and `Ipv6Net` types build on the existing `IpAddr`, `Ipv4Addr`, and `Ipv6Addr` types already provided in Rust's standard library and align to their design to stay consistent. The module also provides useful traits that extend `Ipv4Addr` and `Ipv6Addr` with methods for `Add`, `Sub`, `BitAnd`, and `BitOr` operations. The module only uses stable feature so it is guaranteed to compile using the stable toolchain.",
     "license": "Apache-2.0 OR MIT",
@@ -1288,7 +1240,7 @@
     "repository": "https://github.com/bluk/leb128fmt"
   },
   {
-    "authors": "The Rust Project Developers",
+    "authors": null,
     "description": "Raw FFI bindings to platform libraries like libc.",
     "license": "Apache-2.0 OR MIT",
     "license_file": null,
@@ -1488,6 +1440,14 @@
     "repository": "https://github.com/mbrubeck/rust-debug-unreachable"
   },
   {
+    "authors": null,
+    "description": "Rust friendly bindings to *nix APIs",
+    "license": "MIT",
+    "license_file": null,
+    "name": "nix",
+    "repository": "https://github.com/nix-rust/nix"
+  },
+  {
     "authors": "contact@geoffroycouprie.com",
     "description": "A byte-oriented, zero-copy, parser combinators library",
     "license": "MIT",
@@ -1566,14 +1526,6 @@
     "license_file": null,
     "name": "num_enum_derive",
     "repository": "https://github.com/illicitonion/num_enum"
-  },
-  {
-    "authors": null,
-    "description": "A unified interface for reading and writing object file formats.",
-    "license": "Apache-2.0 OR MIT",
-    "license_file": null,
-    "name": "object",
-    "repository": "https://github.com/gimli-rs/object"
   },
   {
     "authors": "Aleksey Kladov <aleksey.kladov@gmail.com>",
@@ -2150,14 +2102,6 @@
     "license_file": null,
     "name": "rusqlite",
     "repository": "https://github.com/rusqlite/rusqlite"
-  },
-  {
-    "authors": "Alex Crichton <alex@alexcrichton.com>",
-    "description": "Rust compiler symbol demangling.",
-    "license": "Apache-2.0 OR MIT",
-    "license_file": null,
-    "name": "rustc-demangle",
-    "repository": "https://github.com/rust-lang/rustc-demangle"
   },
   {
     "authors": "The Rust Project Developers",
@@ -2904,6 +2848,14 @@
     "repository": "https://github.com/kardeiz/type-map"
   },
   {
+    "authors": "Chip Senkbeil <chip@senkbeil.org>",
+    "description": "Provides typed variants of Path and PathBuf for Unix and Windows",
+    "license": "Apache-2.0 OR MIT",
+    "license_file": null,
+    "name": "typed-path",
+    "repository": "https://github.com/chipsenkbeil/typed-path"
+  },
+  {
     "authors": "Paho Lurie-Gregg <paho@paholg.com>|Andre Bogus <bogusandre@gmail.com>",
     "description": "Typenum is a Rust library for type-level numbers evaluated at     compile time. It currently supports bits, unsigned integers, and signed     integers. It also provides a type-level array of type-level numbers, but its     implementation is incomplete.",
     "license": "Apache-2.0 OR MIT",
@@ -3321,6 +3273,14 @@
   },
   {
     "authors": null,
+    "description": "Linking for Windows",
+    "license": "Apache-2.0 OR MIT",
+    "license_file": null,
+    "name": "windows-link",
+    "repository": "https://github.com/microsoft/windows-rs"
+  },
+  {
+    "authors": null,
     "description": "Windows numeric types",
     "license": "Apache-2.0 OR MIT",
     "license_file": null,
@@ -3369,6 +3329,14 @@
   },
   {
     "authors": "Microsoft",
+    "description": "Rust for Windows",
+    "license": "Apache-2.0 OR MIT",
+    "license_file": null,
+    "name": "windows-sys",
+    "repository": "https://github.com/microsoft/windows-rs"
+  },
+  {
+    "authors": null,
     "description": "Rust for Windows",
     "license": "Apache-2.0 OR MIT",
     "license_file": null,
@@ -3701,7 +3669,7 @@
     "license": "MIT",
     "license_file": null,
     "name": "zip",
-    "repository": "https://github.com/zip-rs/zip2.git"
+    "repository": "https://github.com/zip-rs/zip2"
   },
   {
     "authors": null,
@@ -3722,7 +3690,7 @@
   {
     "authors": "Alexandre Bury <alexandre.bury@gmail.com>",
     "description": "Binding for the zstd compression library.",
-    "license": "MIT",
+    "license": "BSD-3-Clause",
     "license_file": null,
     "name": "zstd",
     "repository": "https://github.com/gyscos/zstd-rs"
@@ -3730,7 +3698,7 @@
   {
     "authors": "Alexandre Bury <alexandre.bury@gmail.com>",
     "description": "Safe low-level bindings for the zstd compression library.",
-    "license": "Apache-2.0 OR MIT",
+    "license": "BSD-3-Clause",
     "license_file": null,
     "name": "zstd-safe",
     "repository": "https://github.com/gyscos/zstd-rs"
@@ -3738,7 +3706,7 @@
   {
     "authors": "Alexandre Bury <alexandre.bury@gmail.com>",
     "description": "Low-level bindings for the zstd compression library.",
-    "license": "Apache-2.0 OR MIT",
+    "license": "BSD-3-Clause",
     "license_file": null,
     "name": "zstd-sys",
     "repository": "https://github.com/gyscos/zstd-rs"

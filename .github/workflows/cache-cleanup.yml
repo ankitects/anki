@@ -1,0 +1,52 @@
+name: Clean up closed PR caches
+
+on:
+  pull_request_target:
+    types: [closed]
+
+permissions: {}
+
+jobs:
+  cleanup:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    permissions:
+      actions: write
+    steps:
+      # Fork PRs need pull_request_target for actions:write. Never check out
+      # or execute PR code in this privileged workflow.
+      - name: Delete caches scoped to the closed PR
+        uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea #v7.0.1
+        with:
+          script: |
+            const ref = `refs/pull/${context.payload.pull_request.number}/merge`;
+            const repo = { owner: context.repo.owner, repo: context.repo.repo };
+            // Collect all pages before deleting so pagination cannot skip entries.
+            const caches = await github.paginate(
+              github.rest.actions.getActionsCacheList,
+              { ...repo, ref, per_page: 100 },
+              response => response.data,
+            );
+
+            for (const cache of caches) {
+              if (cache.ref !== ref) {
+                throw new Error(`Refusing to delete cache ${cache.id} outside ${ref}`);
+              }
+            }
+
+            for (const cache of caches) {
+              try {
+                await github.rest.actions.deleteActionsCacheById({
+                  ...repo,
+                  cache_id: cache.id,
+                });
+              } catch (error) {
+                // Another cleanup or normal eviction may have removed it already.
+                if (error.status !== 404) {
+                  throw error;
+                }
+                core.info(`Cache ${cache.id} was already removed.`);
+              }
+            }
+
+            core.info(`Finished cleaning caches for ${ref}.`);
