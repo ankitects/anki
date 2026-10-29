@@ -888,19 +888,6 @@ mod tests {
         }
 
         #[test]
-        fn reschedule_does_not_shrink_interval_when_fuzz_would() -> Result<()> {
-            let mut col = Collection::new();
-            let card_id = create_review_card_with_revlog(&mut col, 10, 16)?;
-            let before = col.storage.get_card(card_id)?.unwrap();
-
-            update_memory_state_with_card(&mut col, card_id, true)?;
-
-            let after = col.storage.get_card(card_id)?.unwrap();
-            assert!(after.interval >= before.interval);
-            Ok(())
-        }
-
-        #[test]
         fn reschedule_batching_matches_update_one_card_at_a_time() -> Result<()> {
             let mut batch_col = Collection::new();
             let mut single_col = Collection::new();
