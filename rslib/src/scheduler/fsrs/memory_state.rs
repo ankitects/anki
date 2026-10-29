@@ -951,6 +951,8 @@ mod tests {
                 assert_eq!(batch_card.memory_state, single_card.memory_state);
                 assert_eq!(batch_card.interval, single_card.interval);
                 assert_eq!(batch_card.due, single_card.due);
+                assert!(batch_card.memory_state.is_some());
+                assert!(single_card.memory_state.is_some());
             }
 
             Ok(())
