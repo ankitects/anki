@@ -495,7 +495,9 @@ if is_win:
         try:
             import win32com.client
 
-            speaker = win32com.client.Dispatch("SAPI.SpVoice")
+            speaker: win32com.client.dynamic.CDispatch | None = (
+                win32com.client.Dispatch("SAPI.SpVoice")
+            )
         except Exception as exc:
             print("unable to activate sapi:", exc)
             speaker = None
@@ -528,6 +530,7 @@ if is_win:
             assert isinstance(tag, TTSTag)
             match = self.voice_for_tag(tag)
             assert match
+            assert self.speaker
             voice = cast(WindowsVoice, match.voice)
 
             try:

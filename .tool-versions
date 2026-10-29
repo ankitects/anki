@@ -1,0 +1,2 @@
+# To update, run 'cargo run --bin update_uv' from the repo root.
+uv 0.13.6
