@@ -782,15 +782,15 @@ mod tests {
             assert!(card.memory_state.is_some());
 
             update_memory_state_for_card(&mut col, card_id, req.clone())?;
-            let mut card = col.storage.get_card(card_id)?.unwrap();
+            let mut before_card = col.storage.get_card(card_id)?.unwrap();
 
-            assert_ne!(card.interval, 910);
-            assert_ne!(card.due, 910);
+            assert_ne!(before_card.interval, 910);
+            assert_ne!(before_card.due, 910);
 
-            card.interval = 909;
-            card.due = 909;
-            card.clear_fsrs_data();
-            col.storage.update_card(&card)?;
+            before_card.interval = 909;
+            before_card.due = 909;
+            before_card.clear_fsrs_data();
+            col.storage.update_card(&before_card)?;
             // One revlog entry for the initial grade, and one for the two reschedules
             assert_eq!(col.get_review_logs(card_id)?.entries.len(), 3);
 
@@ -800,8 +800,8 @@ mod tests {
 
             let suspend_updated_card = col.storage.get_card(card_id)?.unwrap();
             assert_eq!(suspend_updated_card.queue, CardQueue::Suspended);
-            assert_eq!(suspend_updated_card.interval, card.interval);
-            assert_eq!(suspend_updated_card.due, card.due);
+            assert_eq!(suspend_updated_card.interval, before_card.interval);
+            assert_eq!(suspend_updated_card.due, before_card.due);
             assert!(suspend_updated_card.memory_state.is_some());
 
             // Suspended card does not get an extra review log
