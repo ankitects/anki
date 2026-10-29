@@ -682,9 +682,9 @@ mod tests {
     }
 
     mod update_memory_state {
-        use anki_proto::scheduler::bury_or_suspend_cards_request::Mode;
         use std::collections::HashMap;
 
+        use anki_proto::scheduler::bury_or_suspend_cards_request::Mode;
         use fsrs::DEFAULT_PARAMETERS;
 
         use super::*;
@@ -864,6 +864,8 @@ mod tests {
 
             Ok(())
         }
+
+        #[test]
         fn reschedule_updates_interval_and_due_coherently() -> Result<()> {
             let mut col = Collection::new();
             let card_id = create_review_card_with_revlog(&mut col, 4, 10)?;
@@ -918,28 +920,24 @@ mod tests {
                 })
                 .collect::<Result<Vec<_>>>()?;
 
-            let batch_reqs = batch_ids
-                .iter()
-                .copied()
-                .map(|card_id| {
-                    let req = UpdateMemoryStateRequest {
-                        params: DEFAULT_PARAMETERS.to_vec(),
-                        preset_desired_retention: 0.9,
-                        historical_retention: 0.9,
-                        max_interval: 36500,
-                        reschedule: true,
-                        deck_desired_retention: HashMap::new(),
-                    };
-                    UpdateMemoryStateEntry {
-                        req: Some(req),
-                        search: Node::Search(SearchNode::CardIds(card_id.to_string())),
-                        ignore_before: TimestampMillis(0),
-                    }
-                })
-                .collect_vec();
+            let batch_req = UpdateMemoryStateRequest {
+                params: DEFAULT_PARAMETERS.to_vec(),
+                preset_desired_retention: 0.9,
+                historical_retention: 0.9,
+                max_interval: 36500,
+                reschedule: true,
+                deck_desired_retention: HashMap::new(),
+            };
+            let batch_entry = UpdateMemoryStateEntry {
+                req: Some(batch_req),
+                search: Node::Search(SearchNode::CardIds(
+                    batch_ids.iter().map(|id| id.to_string()).join(","),
+                )),
+                ignore_before: TimestampMillis(0),
+            };
 
             batch_col.transact(Op::UpdateDeckConfig, |col| {
-                col.update_memory_state(batch_reqs)
+                col.update_memory_state(vec![batch_entry])
             })?;
 
             for card_id in &single_ids {
