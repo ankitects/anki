@@ -1,13 +1,5 @@
 [
   {
-    "authors": null,
-    "description": "A cross-platform symbolication library written in Rust, using `gimli`",
-    "license": "Apache-2.0 OR MIT",
-    "license_file": null,
-    "name": "addr2line",
-    "repository": "https://github.com/gimli-rs/addr2line"
-  },
-  {
     "authors": "Jonas Schievink <jonasschievink@gmail.com>|oyvindln <oyvindln@users.noreply.github.com>",
     "description": "A simple clean-room implementation of the Adler-32 checksum",
     "license": "0BSD OR Apache-2.0 OR MIT",
@@ -206,14 +198,6 @@
     "license_file": null,
     "name": "axum-macros",
     "repository": "https://github.com/tokio-rs/axum"
-  },
-  {
-    "authors": "The Rust Project Developers",
-    "description": "A library to acquire a stack trace (backtrace) at runtime in a Rust program.",
-    "license": "Apache-2.0 OR MIT",
-    "license_file": null,
-    "name": "backtrace",
-    "repository": "https://github.com/rust-lang/backtrace-rs"
   },
   {
     "authors": "Marshall Pierce <marshall@mpierce.org>",
@@ -872,14 +856,6 @@
     "repository": "https://github.com/rust-random/getrandom"
   },
   {
-    "authors": null,
-    "description": "A library for reading and writing the DWARF debugging format.",
-    "license": "Apache-2.0 OR MIT",
-    "license_file": null,
-    "name": "gimli",
-    "repository": "https://github.com/gimli-rs/gimli"
-  },
-  {
     "authors": "Carl Lerche <me@carllerche.com>|Sean McArthur <sean@seanmonstar.com>",
     "description": "An HTTP/2 client and server",
     "license": "MIT",
@@ -1190,14 +1166,6 @@
     "license_file": null,
     "name": "intl_pluralrules",
     "repository": "https://github.com/zbraniecki/pluralrules"
-  },
-  {
-    "authors": "quininer <quininer@live.com>",
-    "description": "The low-level `io_uring` userspace interface for Rust",
-    "license": "Apache-2.0 OR MIT",
-    "license_file": null,
-    "name": "io-uring",
-    "repository": "https://github.com/tokio-rs/io-uring"
   },
   {
     "authors": "Kris Price <kris@krisprice.nz>",
@@ -1558,14 +1526,6 @@
     "license_file": null,
     "name": "num_enum_derive",
     "repository": "https://github.com/illicitonion/num_enum"
-  },
-  {
-    "authors": null,
-    "description": "A unified interface for reading and writing object file formats.",
-    "license": "Apache-2.0 OR MIT",
-    "license_file": null,
-    "name": "object",
-    "repository": "https://github.com/gimli-rs/object"
   },
   {
     "authors": "Aleksey Kladov <aleksey.kladov@gmail.com>",
@@ -2142,14 +2102,6 @@
     "license_file": null,
     "name": "rusqlite",
     "repository": "https://github.com/rusqlite/rusqlite"
-  },
-  {
-    "authors": "Alex Crichton <alex@alexcrichton.com>",
-    "description": "Rust compiler symbol demangling.",
-    "license": "Apache-2.0 OR MIT",
-    "license_file": null,
-    "name": "rustc-demangle",
-    "repository": "https://github.com/rust-lang/rustc-demangle"
   },
   {
     "authors": "The Rust Project Developers",
@@ -3321,6 +3273,14 @@
   },
   {
     "authors": null,
+    "description": "Linking for Windows",
+    "license": "Apache-2.0 OR MIT",
+    "license_file": null,
+    "name": "windows-link",
+    "repository": "https://github.com/microsoft/windows-rs"
+  },
+  {
+    "authors": null,
     "description": "Windows numeric types",
     "license": "Apache-2.0 OR MIT",
     "license_file": null,
@@ -3369,6 +3329,14 @@
   },
   {
     "authors": "Microsoft",
+    "description": "Rust for Windows",
+    "license": "Apache-2.0 OR MIT",
+    "license_file": null,
+    "name": "windows-sys",
+    "repository": "https://github.com/microsoft/windows-rs"
+  },
+  {
+    "authors": null,
     "description": "Rust for Windows",
     "license": "Apache-2.0 OR MIT",
     "license_file": null,
@@ -3722,7 +3690,7 @@
   {
     "authors": "Alexandre Bury <alexandre.bury@gmail.com>",
     "description": "Binding for the zstd compression library.",
-    "license": "MIT",
+    "license": "BSD-3-Clause",
     "license_file": null,
     "name": "zstd",
     "repository": "https://github.com/gyscos/zstd-rs"
@@ -3730,7 +3698,7 @@
   {
     "authors": "Alexandre Bury <alexandre.bury@gmail.com>",
     "description": "Safe low-level bindings for the zstd compression library.",
-    "license": "Apache-2.0 OR MIT",
+    "license": "BSD-3-Clause",
     "license_file": null,
     "name": "zstd-safe",
     "repository": "https://github.com/gyscos/zstd-rs"
@@ -3738,7 +3706,7 @@
   {
     "authors": "Alexandre Bury <alexandre.bury@gmail.com>",
     "description": "Low-level bindings for the zstd compression library.",
-    "license": "Apache-2.0 OR MIT",
+    "license": "BSD-3-Clause",
     "license_file": null,
     "name": "zstd-sys",
     "repository": "https://github.com/gyscos/zstd-rs"
