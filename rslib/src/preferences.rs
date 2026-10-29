@@ -101,6 +101,8 @@ impl Collection {
             load_balancer_enabled: self.get_config_bool(BoolKey::LoadBalancerEnabled),
             fsrs_short_term_with_steps_enabled: self
                 .get_config_bool(BoolKey::FsrsShortTermWithStepsEnabled),
+            bury_failed_cards: self.get_config_bool(BoolKey::BuryFailedCards),
+            bury_failed_cards_threshold: self.get_bury_failed_cards_threshold(),
         })
     }
 
@@ -125,6 +127,8 @@ impl Collection {
             BoolKey::FsrsShortTermWithStepsEnabled,
             s.fsrs_short_term_with_steps_enabled,
         )?;
+        self.set_config_bool_inner(BoolKey::BuryFailedCards, s.bury_failed_cards)?;
+        self.set_bury_failed_cards_threshold(s.bury_failed_cards_threshold)?;
         Ok(())
     }
 
