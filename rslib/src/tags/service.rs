@@ -247,6 +247,24 @@ mod tests {
     }
 
     #[test]
+    fn rename_tags_does_not_duplicate_existing_tag() -> Result<()> {
+        let mut col = Collection::new();
+        let note_id = add_note_with_tags(&mut col, &["biology::cells", "science::cells"])?;
+
+        let response = TagsService::rename_tags(
+            &mut col,
+            anki_proto::tags::RenameTagsRequest {
+                current_prefix: "biology".into(),
+                new_prefix: "science".into(),
+            },
+        )?;
+
+        assert_eq!(response.count, 1);
+        assert_eq!(stored_tags(&col, note_id)?, ["science::cells"]);
+        Ok(())
+    }
+
+    #[test]
     fn reparent_tags_moves_tag_under_parent() -> Result<()> {
         let mut col = Collection::new();
         let note_id = add_note_with_tags(&mut col, &["Source::Leaf"])?;
@@ -255,6 +273,24 @@ mod tests {
             &mut col,
             anki_proto::tags::ReparentTagsRequest {
                 tags: vec!["Source::Leaf".into()],
+                new_parent: "Target".into(),
+            },
+        )?;
+
+        assert_eq!(response.count, 1);
+        assert_eq!(stored_tags(&col, note_id)?, ["Target::Leaf"]);
+        Ok(())
+    }
+
+    #[test]
+    fn reparent_tags_does_not_duplicate_existing_tag() -> Result<()> {
+        let mut col = Collection::new();
+        let note_id = add_note_with_tags(&mut col, &["Leaf", "Target::Leaf"])?;
+
+        let response = TagsService::reparent_tags(
+            &mut col,
+            anki_proto::tags::ReparentTagsRequest {
+                tags: vec!["Leaf".into()],
                 new_parent: "Target".into(),
             },
         )?;
