@@ -1,0 +1,89 @@
+---
+title: "Anki 2.0 のアドオンを移行する"
+---
+
+## Python 3
+
+Anki 2.1 では Python 3 以降が必要です。マシンに Python 3 をインストールした後、`2to3` ツールを使って既存のスクリプトをフォルダーごとに Python 3 向けへ自動変換できます。例:
+
+```text
+    2to3-3.8 --output-dir=aqt3 -W -n aqt
+    mv aqt aqt-old
+    mv aqt3 aqt
+```
+
+多くの単純なコードは自動変換できますが、手作業で修正が必要な部分もあります。
+
+## Qt5 / PyQt5
+
+PyQt5 ではシグナルとスロットを接続する構文が変わりました。最近の PyQt4 も新しい構文に対応しているため、Anki 2.0 と 2.1 の両方のアドオンで同じ構文を使えます。
+
+詳しくは[こちら](http://pyqt.sourceforge.net/Docs/PyQt4/new_style_signals_slots.html)をご覧ください。
+
+あるアドオンの作成者は、次のツールを使うとコードを自動変換できたと報告しています。
+[https://github.com/rferrazz/pyqt4topyqt5](https://github.com/rferrazz/pyqt4topyqt5)
+
+Qt モジュールは `PyQt4` ではなく `PyQt5` にあります。条件付きでインポートすることもできますが、`aqt.qt` からインポートする方が簡単です。例:
+
+```python
+    from aqt.qt import *
+```
+
+これにより、Qt のバージョンを指定せずに `QDialog` などの Qt オブジェクトをすべてインポートできます。
+
+## 単一の .py アドオンには専用フォルダーが必要
+
+現在は各アドオンが専用のフォルダーに保存されます。以前 `demo.py` という名前のアドオンを使っていた場合は、`__init__.py` ファイルを含む `demo` フォルダーを作成してください。
+
+Anki 2.0 との互換性が不要なら、`demo.py` を `demo/__init__.py` に名前変更するだけで構いません。
+
+同じファイルで Anki 2.0 もサポートする場合は、元のファイルをフォルダー内にコピー（`demo.py` → `demo/demo.py`）し、`demo/__init__.py` に次を追加して相対インポートします。
+
+```python
+    from . import demo
+```
+
+AnkiWeb にアップロードするときは、フォルダーを ZIP にまとめる必要があります。詳しくは[アドオンの共有](./sharing)をご覧ください。
+
+## アップグレード時にフォルダー内のファイルが削除される
+
+アドオンをアップグレードすると、アドオンフォルダー内のすべてのファイルが削除されます。例外は[ユーザーフォルダー](./addon-config#user-files)だけです。単純なキーと値の設定以外にアドオンでファイルが必要な場合は、アップグレード時に失われないよう `user_files` フォルダーに保存してください。
+
+## 1つのコードベースで 2.0 と 2.1 の両方をサポートする
+
+ほとんどの Python 3 コードは Python 2 でも動作するため、Anki 2.0 と 2.1 の両方で動くようにアドオンを更新できます。対応する価値があるかどうかは、必要な変更によって異なります。
+
+スケジューラーに影響するアドオンの多くは、2.1 で動かすために必要な変更はわずかです。学習画面、ブラウザー、エディターの動作を変えるアドオンでは、より多くの作業が必要になることがあります。
+
+最も大きな変更は、サポート対象外になった QtWebKit から QtWebEngine への移行です。Web ビューを使った複雑な処理をしている場合は、Anki 2.1 への移行作業が必要になり、両方の Anki バージョンをサポートするのが難しい場合があります。
+
+アドオンが変更なし、または小さな変更だけで動作する場合は、`if` 文を追加して、同じファイルを Anki 2.0.x と 2.1.x の両方にアップロードするのが簡単かもしれません。
+
+大幅な変更が必要な場合は、Anki 2.0.x への更新提供を終了するか、バージョンごとにファイルを分けて管理する方が簡単かもしれません。
+
+## Web ビューの変更
+
+Qt 5 では WebKit が廃止され、Chromium ベースの WebEngine に置き換わりました。そのため、Anki の Web ビューは WebEngine を使うようになりました。主な変更点:
+
+- Anki の起動前に環境変数 `QTWEBENGINE_REMOTE_DEBUGGING` を `8080` に設定すると、外部の Chrome から `localhost:8080` にアクセスして Web ビューをデバッグできます。
+- WebEngine では Python との通信方法が異なります。Web ビュー用のラッパーである `AnkiWebView()` では、JavaScript の `pycmd(str)` 関数を使って `ankiwebview` の `onBridgeCmd(str)` メソッドを呼び出せます。学習画面やデッキブラウザーなど、Anki UI の複数の箇所でこの方法を使うよう変更されています。
+- JavaScript は非同期で評価されます。JavaScript 式の結果が必要な場合は、`ankiwebview` の `evalWithCallback()` を使います。
+- この非同期動作に伴い、`editor.saveNow()` にはコールバックが必要になりました。ブラウザーで処理を行うアドオンでは、まず `editor.saveNow()` を呼び出し、その後の処理をコールバック内で行う必要があるでしょう。また、`.onSearch()` の呼び出しは `.search()` / `.onSearchActivated()` に変更する必要があります。ブラウザーの `.deleteNotes()` が例になります。
+- WebKit で使えた `setScrollPosition()` などの操作は、JavaScript で実装する必要があります。
+- `mw.web.triggerPageAction(QWebEnginePage.Copy)` などのページ操作も非同期になりました。JavaScript または遅延処理を使うよう書き換えてください。
+- WebEngine には WebKit のような `keyPressEvent()` がありません。そのため、メニューやボタンに割り当てられていないショートカットを処理するコードが変更されました。`setStateShortcuts()` はフックを実行し、状態ごとのショートカットを調整できます。
+
+## 学習画面の変更
+
+Anki は次のカードを表示する前に、前のカードをフェードアウトするようになりました。そのため `showQuestion` フックの実行時には、次のカードは DOM にまだありません。適切なタイミングで JavaScript を実行する新しいフックがあります。詳しくは[こちら](./reviewer-javascript)をご覧ください。
+
+## アドオンの設定
+
+Anki 2.0 の小規模なアドオンの多くは、ユーザーがソースコードを編集して設定を変更していました。2.1 では、更新を確認してダウンロードするとユーザーの変更が上書きされるため、この方法はおすすめできません。2.1 では、この問題に対応する[設定システム](./addon-config#config-json)が用意されています。Anki 2.0 も引き続きサポートする場合は、次のようなコードを使えます。
+
+```python
+if getattr(getattr(mw, "addonManager", None), "getConfig", None):
+    config = mw.addonManager.getConfig(__name__)
+else:
+    config = dict(optionA=123, optionB=456)
+```

@@ -1,0 +1,15 @@
+---
+title: "Gnome/LinuxでGTKテーマがAnkiに反映されない問題"
+sidebarTitle: "GTKテーマの問題"
+description: "GTKテーマが正しく反映されない問題"
+---
+
+AnkiにGTKテーマを明示的に指定すると、この問題を回避できます。ターミナルで次のコマンドを実行してください。
+
+```shell
+theme=$(gsettings get org.gnome.desktop.interface gtk-theme)
+echo "gtk-theme-name=$theme" >> ~/.gtkrc-2.0
+echo "export GTK2_RC_FILES=$HOME/.gtkrc-2.0" >> ~/.profile
+```
+
+その後、コンピューターからログアウトしてログインし直すと、AnkiにGTKテーマが反映されるはずです。

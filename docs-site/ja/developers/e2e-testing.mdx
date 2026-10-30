@@ -1,0 +1,88 @@
+---
+title: "Playwright によるエンドツーエンドテスト"
+---
+
+Playwright は mediasrv の HTTP API を介して、実際の Anki ヘッドレスインスタンスを操作します。テストは `ts/tests/e2e/` にあり、Vitest のユニットテストとは完全に分離されています。
+
+## 前提条件
+
+エンドツーエンドテストを実行する前に、少なくとも一度 Anki をビルドしてください。
+
+```shell
+just build
+```
+
+これだけです。初回の `just test-e2e` 実行時に、Playwright の Chromium ブラウザーが `out/playwright-browsers/` に自動でインストールされます。2回目以降は再利用されます。
+
+## テストを実行する
+
+### 管理モード（CI と同様）
+
+Playwright が一時的な Anki インスタンスを自動で起動・停止します。
+
+```shell
+just test-e2e
+```
+
+初回は、テスト開始前に Anki の初期化が完了するまで待つため、約60秒かかることがあります。
+
+### サーバー再利用モード（開発向け）
+
+別のターミナルで Anki を一度起動し、複数回のテストで使い回します。
+
+```shell
+# ターミナル1 — 起動したままにする
+./run
+
+# ターミナル2 — すばやく繰り返し実行
+ANKI_E2E_REUSE_SERVER=1 just test-e2e
+```
+
+### 対話型 UI モード
+
+Playwright のブラウザー UI を開き、スナップショットを使って各テスト手順を確認します。
+
+```shell
+ANKI_E2E_REUSE_SERVER=1 just test-e2e --ui
+```
+
+## テストを書く
+
+テストファイルは `ts/tests/e2e/` に `.test.ts` の拡張子で追加し、`@playwright/test` から直接インポートせず `./fixtures` からインポートしてください。
+
+```typescript
+import { expect, test } from "./fixtures";
+
+test("my feature works", async ({ page }) => {
+    await page.goto("/some-anki-page");
+    await expect(page.locator("#some-element")).toBeVisible();
+});
+```
+
+`fixtures.ts` は `expect` と、設定済みの `test` オブジェクトを再エクスポートします。新機能に応じて共有フィクスチャを追加してください。
+
+## テストから Anki API を呼び出す
+
+Anki の `/_anki/` エンドポイントは、protobuf でエンコードされたバイナリペイロードを受け取り、返します（`Content-Type: application/binary`）。`page.request.post` に `Buffer.from(protoMsg.toBinary())` を渡し、`ts/lib/generated/` にある対応する生成型でレスポンスをデコードしてください。
+
+## Anki のページにアクセスする
+
+Anki の mediasrv は、以下のページを HTTP 経由で提供します（すべてではありません）。
+
+| URL パターン | 説明 |
+| --- | --- |
+| `/graphs` | 統計グラフ（SvelteKit） |
+| `/deck-options/[deckId]` | デッキオプション（SvelteKit） |
+| `/congrats` | 学習後の画面（SvelteKit） |
+| `/card-info/[cardId]` | カード情報（SvelteKit） |
+| `/editor/?mode=[mode]` | エディター（SvelteKit） |
+| `/congrats` | お祝い画面（SvelteKit） |
+| `/favicon.ico` | mediasrv の稼働確認エンドポイント |
+
+## CI
+
+エンドツーエンドテストは、通常のビルドとテストの後に `.github/workflows/ci.yml` の `check-linux` ジョブの一部として実行されます。失敗した実行のスクリーンショットとトレースは成果物としてアップロードされ、7日間保存されます。
+
+## 関連項目
+
+- [Anki のユニットテストを書く](/developers/unit-testing)
