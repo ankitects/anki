@@ -120,6 +120,21 @@ finds notes that have a Front field, empty or not.
 `fr*:text`\
 finds notes in a field starting with "fr". Requires Anki 2.1.24+, AnkiMobile 2.1.60+, or AnkiDroid 2.17+.
 
+### Numeric field comparisons
+
+`frequency>500`\
+finds notes where the Frequency field contains a number greater than 500.
+
+`frequency<=1.5`\
+finds notes where the Frequency field contains a number less than or equal to 1.5.
+
+`frequency=3`\
+finds notes where the Frequency field contains the number 3.
+
+The field content must be a number, ignoring surrounding whitespace, or the note
+does not match. Field names can use wildcards like other field searches. A field
+name not present in any note type matches nothing.
+
 ## Tags, decks, cards and notes
 
 `tag:animal`\
@@ -447,6 +462,11 @@ you need to tell Anki not to treat them specially. This is called "escaping a ch
   Colons have to be escaped using backslashes unless they are preceded by another, unescaped colon.
   For example, `w:3:30` searches for "3:30" on word boundary and doesn't require you to use a backslash.
   However, if you don't use a colon search, the colons need to be escaped like this: `3\:30`.
+
+- `<`, `>`, and `=`\
+  Text followed by one of these comparators and a number is a numeric field
+  comparison. To search the text literally, escape the comparator, for example
+  `x\<5`. Otherwise these characters are literal, so `<b>` needs no escaping.
 
 - `&`, `<`, and `>`\
   `&`, `<`, and `>` are treated as HTML when searching in Anki, and as such, searches
