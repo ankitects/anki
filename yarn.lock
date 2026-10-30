@@ -908,6 +908,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@jridgewell/sourcemap-codec@npm:^1.6.0":
+  version: 1.6.0
+  resolution: "@jridgewell/sourcemap-codec@npm:1.6.0"
+  checksum: 10c0/b5be700e45a775f218589c3466c4ffea630582b4988657652da464e5ab8a7d18bf928ee4fd2363fb346ede4bea9c6ff0bae05a538358c4565ece6199531b5f72
+  languageName: node
+  linkType: hard
+
 "@jridgewell/trace-mapping@npm:^0.3.19, @jridgewell/trace-mapping@npm:^0.3.24":
   version: 0.3.25
   resolution: "@jridgewell/trace-mapping@npm:0.3.25"
@@ -1196,6 +1203,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@rolldown/pluginutils@npm:^1.0.1":
+  version: 1.0.1
+  resolution: "@rolldown/pluginutils@npm:1.0.1"
+  checksum: 10c0/99d9b06d90196823e4d8c841f258db7a16e5dbba5824a2962b05d907b79f1ba929d56f22dd744fd530936e568c865ee56a719dc31e57e13bc0a8eb4764a8d8dd
+  languageName: node
+  linkType: hard
+
 "@rollup/pluginutils@npm:^5.1.0":
   version: 5.1.3
   resolution: "@rollup/pluginutils@npm:5.1.3"
@@ -1401,14 +1415,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@standard-schema/spec@npm:^1.0.0":
+"@standard-schema/spec@npm:^1.1.0":
   version: 1.1.0
   resolution: "@standard-schema/spec@npm:1.1.0"
   checksum: 10c0/d90f55acde4b2deb983529c87e8025fa693de1a5e8b49ecc6eb84d1fd96328add0e03d7d551442156c7432fd78165b2c26ff561b970a9a881f046abb78d6a526
   languageName: node
   linkType: hard
 
-"@sveltejs/acorn-typescript@npm:^1.0.10, @sveltejs/acorn-typescript@npm:^1.0.9":
+"@sveltejs/acorn-typescript@npm:^1.0.10":
   version: 1.0.13
   resolution: "@sveltejs/acorn-typescript@npm:1.0.13"
   peerDependencies:
@@ -1426,28 +1440,24 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@sveltejs/kit@npm:^2.70.3":
-  version: 2.70.3
-  resolution: "@sveltejs/kit@npm:2.70.3"
+"@sveltejs/kit@npm:^3.0.0":
+  version: 3.0.0
+  resolution: "@sveltejs/kit@npm:3.0.0"
   dependencies:
-    "@standard-schema/spec": "npm:^1.0.0"
-    "@sveltejs/acorn-typescript": "npm:^1.0.9"
-    "@types/cookie": "npm:^0.6.0"
-    acorn: "npm:^8.16.0"
-    cookie: "npm:^0.6.0"
-    devalue: "npm:^5.8.1"
+    "@rolldown/pluginutils": "npm:^1.0.1"
+    "@standard-schema/spec": "npm:^1.1.0"
+    cookie: "npm:^2.0.1"
+    devalue: "npm:^5.9.4"
     esm-env: "npm:^1.2.2"
-    kleur: "npm:^4.1.5"
-    magic-string: "npm:^0.30.5"
-    mrmime: "npm:^2.0.0"
-    set-cookie-parser: "npm:^3.0.0"
-    sirv: "npm:^3.0.0"
+    magic-string: "npm:^1.2.3"
+    mrmime: "npm:^2.0.1"
+    sirv: "npm:^3.0.2"
   peerDependencies:
     "@opentelemetry/api": ^1.0.0
-    "@sveltejs/vite-plugin-svelte": ^3.0.0 || ^4.0.0-next.1 || ^5.0.0 || ^6.0.0-next.0 || ^7.0.0
-    svelte: ^4.0.0 || ^5.0.0-next.0
-    typescript: ^5.3.3 || ^6.0.0
-    vite: ^5.0.3 || ^6.0.0 || ^7.0.0-beta.0 || ^8.0.0
+    "@sveltejs/vite-plugin-svelte": ^7.0.0
+    svelte: ^5.57.1
+    typescript: ^6.0.0
+    vite: ^8.0.12
   peerDependenciesMeta:
     "@opentelemetry/api":
       optional: true
@@ -1455,7 +1465,7 @@ __metadata:
       optional: true
   bin:
     svelte-kit: svelte-kit.js
-  checksum: 10c0/af0888aa65bfe71ed18fb1450449de4be8096a910536eb3a2695b013c18b9a1b0efe7efc5dc2b1f52f4ff990bc8ea4471c365010d5cf5eb4e76bd5d5d91b1a84
+  checksum: 10c0/54eefa860ddcf7c2b7d8812d411811c4a0ae7c0e0d4c1f96e1cee612d0c09c3434f92a6eda098b2dd836049f405f662c6ceb0ad656bd1fb4c922f5d47f44d469
   languageName: node
   linkType: hard
 
@@ -1527,13 +1537,6 @@ __metadata:
   dependencies:
     "@types/tern": "npm:*"
   checksum: 10c0/4d32ee8d335650956fc59b26f29909de0656ce9c68f7527caf2aa68e6a6a2e8be6ec7a6b80c02bfab7ac6b17040d6c2d83d394b9d00fdbf4b5588691f2efbba6
-  languageName: node
-  linkType: hard
-
-"@types/cookie@npm:^0.6.0":
-  version: 0.6.0
-  resolution: "@types/cookie@npm:0.6.0"
-  checksum: 10c0/5b326bd0188120fb32c0be086b141b1481fec9941b76ad537f9110e10d61ee2636beac145463319c71e4be67a17e85b81ca9e13ceb6e3bb63b93d16824d6c149
   languageName: node
   linkType: hard
 
@@ -2259,15 +2262,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"acorn@npm:^8.16.0":
-  version: 8.18.0
-  resolution: "acorn@npm:8.18.0"
-  bin:
-    acorn: bin/acorn
-  checksum: 10c0/be771be2135cc07910cf76f444ad514d7dcfd6d4a8026e597e93155275abc8ef61eee12211d52146e9d962874269b634f397464942087be013c89d0c54c5f8e5
-  languageName: node
-  linkType: hard
-
 "agent-base@npm:6":
   version: 6.0.2
   resolution: "agent-base@npm:6.0.2"
@@ -2310,7 +2304,7 @@ __metadata:
     "@popperjs/core": "npm:^2.11.8"
     "@sqltools/formatter": "npm:^1.2.2"
     "@sveltejs/adapter-static": "npm:^3.0.10"
-    "@sveltejs/kit": "npm:^2.70.3"
+    "@sveltejs/kit": "npm:^3.0.0"
     "@sveltejs/vite-plugin-svelte": "npm:5.1"
     "@types/bootstrap": "npm:^5.2.11"
     "@types/codemirror": "npm:^5.60.0"
@@ -5985,7 +5979,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"magic-string@npm:^0.30.11, magic-string@npm:^0.30.5":
+"magic-string@npm:^0.30.11":
   version: 0.30.12
   resolution: "magic-string@npm:0.30.12"
   dependencies:
@@ -6000,6 +5994,15 @@ __metadata:
   dependencies:
     "@jridgewell/sourcemap-codec": "npm:^1.5.0"
   checksum: 10c0/16826e415d04b88378f200fe022b53e638e3838b9e496edda6c0e086d7753a44a6ed187adc72d19f3623810589bf139af1a315541cd6a26ae0771a0193eaf7b8
+  languageName: node
+  linkType: hard
+
+"magic-string@npm:^1.2.3":
+  version: 1.4.4
+  resolution: "magic-string@npm:1.4.4"
+  dependencies:
+    "@jridgewell/sourcemap-codec": "npm:^1.6.0"
+  checksum: 10c0/046bf4f17264034ba25a9f93a238b35502e17e2365b70f8a0952a9f6d228dd711290f782697cc361f9c19f4f54fd7c2a35fb77b82b093b1eebb4b8d3af0746c7
   languageName: node
   linkType: hard
 
@@ -6252,6 +6255,13 @@ __metadata:
   version: 2.0.0
   resolution: "mrmime@npm:2.0.0"
   checksum: 10c0/312b35ed288986aec90955410b21ed7427fd1e4ee318cb5fc18765c8d029eeded9444faa46589e5b1ed6b35fb2054a802ac8dcb917ddf6b3e189cb3bf11a965c
+  languageName: node
+  linkType: hard
+
+"mrmime@npm:^2.0.1":
+  version: 2.0.1
+  resolution: "mrmime@npm:2.0.1"
+  checksum: 10c0/af05afd95af202fdd620422f976ad67dc18e6ee29beb03dd1ce950ea6ef664de378e44197246df4c7cdd73d47f2e7143a6e26e473084b9e4aa2095c0ad1e1761
   languageName: node
   linkType: hard
 
@@ -7224,13 +7234,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"set-cookie-parser@npm:^3.0.0":
-  version: 3.0.1
-  resolution: "set-cookie-parser@npm:3.0.1"
-  checksum: 10c0/29bd085ab3167fd0b3ee25b20575c1be845bf1c051b816c83ea99aada02c6a1bf16458e3c2825abf702bd09725bbb4868730737596b7a2d48f712551cf733d1d
-  languageName: node
-  linkType: hard
-
 "set-function-length@npm:^1.2.1, set-function-length@npm:^1.2.2":
   version: 1.2.2
   resolution: "set-function-length@npm:1.2.2"
@@ -7358,14 +7361,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"sirv@npm:^3.0.0":
-  version: 3.0.0
-  resolution: "sirv@npm:3.0.0"
+"sirv@npm:^3.0.2":
+  version: 3.0.2
+  resolution: "sirv@npm:3.0.2"
   dependencies:
     "@polka/url": "npm:^1.0.0-next.24"
     mrmime: "npm:^2.0.0"
     totalist: "npm:^3.0.0"
-  checksum: 10c0/282c52ee5a93cafa297096ad31aa6c3004a21d4c93abe728b701e51e4329acb887f6e92f07696225414fd6bb4a7782fd64a42d0b6b6467ae0f66bd3fde90b865
+  checksum: 10c0/5930e4397afdb14fbae13751c3be983af4bda5c9aadec832607dc2af15a7162f7d518c71b30e83ae3644b9a24cea041543cc969e5fe2b80af6ce8ea3174b2d04
   languageName: node
   linkType: hard
 
