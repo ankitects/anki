@@ -235,7 +235,7 @@ class MPVBase:
 
     def _start_thread(self):
         """Start up the communication threads."""
-        self._thread = threading.Thread(target=self._reader)
+        self._thread = threading.Thread(target=self._reader, name="mpv-thread")
         self._thread.daemon = True
         self._thread.start()
 
@@ -511,16 +511,25 @@ class MPV(MPVBase):
         """Start up the communication threads."""
         super()._start_thread()
         if not hasattr(self, "_event_thread"):
-            self._event_thread = threading.Thread(target=self._event_reader)
+            self._event_thread = threading.Thread(
+                target=self._event_reader, name="mpv-thread"
+            )
             self._event_thread.daemon = True
             self._event_thread.start()
+
+    def _stop_thread(self):
+        super()._stop_thread()
+        if hasattr(self, "_event_thread"):
+            self._event_queue.put(None)  # wake the reader immediately
+            self._event_thread.join()
+            del self._event_thread
 
     #
     # Event/callback API
     #
     def _event_reader(self):
         """Collect incoming event messages and call the event handler."""
-        while True:
+        while not self._stop_event.is_set():
             message = self._get_event(timeout=1)
             if message is None:
                 continue
