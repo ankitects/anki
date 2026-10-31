@@ -1,6 +1,7 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
+import { expect } from "@playwright/test";
 import type { Locator, Page, Request, Response } from "@playwright/test";
 
 // ---------------------------------------------------------------------------
@@ -67,6 +68,7 @@ export async function openChooserAndSelect(
     await chooserButton(page, kind).click();
     const modal = page.locator(".modal.show");
     await modal.waitFor({ state: "visible", timeout: 5_000 });
+    await expect(modal.locator(".search-input")).toBeFocused({ timeout: 5_000 });
     await modal.getByRole("button", { name: `Select ${itemName}` }).click();
     await modal.waitFor({ state: "hidden", timeout: 5_000 });
     await chooserButton(page, kind).filter({ hasText: itemName }).waitFor({

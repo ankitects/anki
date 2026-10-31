@@ -444,7 +444,7 @@ impl Collection {
         )
     }
 
-    fn fsrs_enabled(&self) -> bool {
+    pub fn fsrs_enabled(&self) -> bool {
         self.state
             // Card queues are re-built when the deck config is saved so this will be kept up to
             // date. See: https://github.com/ankitects/anki/blob/acdf486b290bd47d13e2e880fbb1c14773899091/rslib/src/ops.rs#L168-L181

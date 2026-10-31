@@ -180,8 +180,15 @@ where
     let existing_file_hash = existing_file_sha1(&target_path)?;
 
     if matches!(existing_file_hash, Some(hash) if hash == sha1) {
-        // existing file has same checksum, nothing to do
-        return Ok(normalized_name);
+        if let Some(normalised_existing_name) = fs::canonicalize(&target_path).ok().and_then(|p| {
+            p.file_name()?
+                .to_str()
+                .and_then(filename_if_normalized)
+                .map(Cow::into_owned)
+        }) {
+            // existing file has same checksum and normalised name, nothing to do
+            return Ok(normalised_existing_name.into());
+        }
     }
 
     let lowercased_name = normalized_name.to_lowercase();
@@ -507,6 +514,12 @@ mod test {
             "test.mp3"
         );
 
+        // same contents, filenames differ only by case
+        assert_eq!(
+            add_data_to_folder_uniquely(dpath, "Test.mp3", b"hello", h1).unwrap(),
+            "test.mp3"
+        );
+
         // different contents, filenames differ only by case
         let h2 = sha1_of_data(b"hello1");
         assert_eq!(
@@ -520,6 +533,31 @@ mod test {
             "test-88fdd585121a4ccb3d1540527aee53a77c77abb8.mp3"
         );
 
+        // filename normalisation
+        assert_eq!(normalize_filename("cafe\u{301}.mp3"), "caf\u{e9}.mp3");
+
+        let h3 = sha1_of_data(b"hello3");
+        assert_eq!(
+            add_data_to_folder_uniquely(dpath, "caf\u{e9}.mp3", b"hello3", h3).unwrap(),
+            "caf\u{e9}.mp3"
+        );
+
+        assert_eq!(
+            add_data_to_folder_uniquely(dpath, "cafe\u{301}.mp3", b"hello3", h3).unwrap(),
+            "caf\u{e9}.mp3"
+        );
+
+        assert_eq!(
+            add_data_to_folder_uniquely(dpath, "Cafe\u{301}.mp3", b"hello3", h3).unwrap(),
+            "caf\u{e9}.mp3"
+        );
+
+        let h4 = sha1_of_data(b"hello4");
+        assert_eq!(
+            add_data_to_folder_uniquely(dpath, "Cafe\u{301}.mp3", b"hello4", h4).unwrap(),
+            "caf\u{e9}-8f0bc65da355c6cb184de9d17bfe1baaeefbd443.mp3"
+        );
+
         let mut written_files = std::fs::read_dir(dpath)
             .unwrap()
             .map(|d| d.unwrap().file_name().to_string_lossy().into_owned())
@@ -528,6 +566,8 @@ mod test {
         assert_eq!(
             written_files,
             vec![
+                "caf\u{e9}-8f0bc65da355c6cb184de9d17bfe1baaeefbd443.mp3",
+                "caf\u{e9}.mp3",
                 "test-88fdd585121a4ccb3d1540527aee53a77c77abb8.mp3",
                 "test.mp3",
             ]

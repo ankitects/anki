@@ -14,7 +14,6 @@ use serde_repr::Deserialize_repr;
 use serde_repr::Serialize_repr;
 
 use crate::collection::Collection;
-use crate::config::BoolKey;
 use crate::config::SchedulerVersion;
 use crate::deckconfig::DeckConfig;
 use crate::decks::DeckId;
@@ -378,7 +377,7 @@ impl Collection {
             source: FilteredDeckError::CanNotMoveCardsInto,
         })?;
         let config = self.get_deck_config(config_id, true)?.unwrap();
-        let fsrs_enabled = self.get_config_bool(BoolKey::Fsrs);
+        let fsrs_enabled = self.fsrs_enabled();
         let mut steps_adjuster = RemainingStepsAdjuster::new(&config);
         let usn = self.usn()?;
         self.transact(Op::SetCardDeck, |col| {
