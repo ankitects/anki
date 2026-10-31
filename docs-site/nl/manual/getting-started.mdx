@@ -2,11 +2,11 @@
 title: "Getting Started"
 ---
 
-## Installing & Upgrading
+## Installeren & Updaten
 
-The Anki ecosystem is made up of Anki, AnkiMobile, AnkiDroid, and AnkiWeb, all of which are linked from our [official website](https://apps.ankiweb.net).
+Het Anki ecosysteem bestaat uit Anki, AnkiMobile, AnkiDroid en Ankiweb, deze zijn allemaal gelinkd op onze [officiele website](https://apps.ankiweb.net).
 
-For instructions on how to install and upgrade Anki for your computer, please read the links below:
+Instructies voor hoe je Anki installeert en update op je computer zijn te vinden via deze links:
 
 - [Windows](./manual/platform/windows/installing)
 - [Mac](./platform/mac/installing)
@@ -14,7 +14,7 @@ For instructions on how to install and upgrade Anki for your computer, please re
 
 ## Videos
 
-For a quick way to dive into Anki, have a look at these intro videos. Some were made with a previous Anki version, but the concepts are the same.
+Voor snelle manier om Anki te gebruiken, kijk naar deze intro videos. Sommige zijn wel gemaakt met een vorige versie van Anki, maar de concepten zijn hetzelfde.
 
 - [Shared Decks and Review Basics](http://www.youtube.com/watch?v=QS2G-k2hQyg&yt:cc=on)
 - [Syncing](https://www.youtube.com/watch?v=YkiM4DPzSVc&list=PLGgmaKOIHykFoomqkBJAyGiDQ2kyiuTao&yt:cc=on)
@@ -22,173 +22,172 @@ For a quick way to dive into Anki, have a look at these intro videos. Some were 
 - [Styling Cards](http://www.youtube.com/watch?v=F1j1Zx0mXME&yt:cc=on)
 - [Typing in the Answer](http://www.youtube.com/watch?v=5tYObQ3ocrw&yt:cc=on)
 
-## Key Concepts
+## Belangrijkste concepten
 
-### Cards
+### Kaarten
 
-A question and answer pair is called a _card_. It's similar to a paper flashcard with a question on the front and answer on the back. However, in Anki, a card doesn't look like a physical card, and when you show the answer the question remains visible by default. For example, if you're studying basic chemistry, you might see a question like:
+Een vraag en antwoord koppel is een _kaart_. Het is vergelijkbaar met een papieren flashcard met een vraag op de voorkant op voorkant en het antwoord op de achterkant. Maar, in Anki, een kaart ziet er niet uit als een fysieke kaart, en wanneer je het antwoord bekijkt is de vraag standaard nog altijd zichtbaar. Bijvoorbeeld, als je basis scheikunde aan het studeren bent zie je misschien een vraag zoals:
 
 ```text
-Q: Chemical symbol for oxygen?
+Q: Chemisch symbool voor zuurstof?
 ```
-
-After deciding the answer is O, you click the **Show Answer** button, and Anki shows you:
+Nadat je beslits hebt dat het antwoord O is, klik je op de **Toon Antwoord** knop, en Anki toont je:
 
 ```text
-Q: Chemical symbol for oxygen?
+Q: Chemisch symbool voor zuurstof?
 A: O
 ```
 
-After confirming that you are correct, you tell Anki how well you remembered the answer, and Anki will choose when to show you the card again. For example, Anki might decide to show you the card again in 3 days. In this case, we say the card now has a 3 day interval.
+Nadat je zeker bent dat je antwoord juist is, zeg je Anki hoe goed je je het antwoord herrinerde, en Anki zal kiezen wanneer je die kaart opnieuw ziet. Bijvoorbeeld, Anki beslit misschien om de kaart na 3 dagen opnieuw te tonen. In dat geval zeggen we dat de kaart nu een interval heeft van 3 dagen.
 
-#### Card States
+#### Kaart Staten
 
 <div id="types-of-cards" />
 
-- **New:** Cards that you have downloaded or created yourself, but have never studied before.
-- **Learning:** Cards that were seen for the first time recently, and are still being learned.
-- **Review:** Cards that you have finished learning. These cards will be shown again after their delay (interval) has elapsed. There are two types of review cards:
-    - **Young:** A young card is one that has an interval of less than 21 days.
-    - **Mature:** A mature card is one that has an interval of 21 days or greater.
-- **Relearn:** Cards that you forgot in the review stage. These cards are returned to the relearning state to be learned again.
+- **Nieuw:** Kaarten die je hebt gedownload of zelf gemaakt, maar nog nooit gestudeerd.
+- **Aan het leren:** Kaarten die je recent voor de eerst keer hebt gezien en nog steeds aan het leren bent.
+- **Review:** Kaarten die je volledig geleerd hebt. Deze kaarten zullen opnieuw getoond worden na dat hun delay (interval) voorbij is. Er zijn twee types van gereviewde kaarten:
+    - **Recent:** Een recente kaart is een kaart met een interval van minder dan 21 dagen.
+    - **Mature:** Een mature kaart is een kaart met een interval van 21 of meer dagen.
+- **Opnieuw te leren:** Kaarten die je vergeten was in het review stadium. Deze kaarten zijn nu weer in het "aan het leren" stadium om ze opnieuw te leren.
 
 ### Decks
 
-A _deck_ is a group of cards. You can place cards in different decks to study parts of your card collection instead of studying everything at once. Each deck can have different settings, such as how many new cards to show each day, or how long to wait until cards are shown again.
+Een _deck_ is een groep van kaarten. Je kan kaarten in verschillende decks om delen van je kaarten collectie te studeren in plaats van alles tegelijk te studeren. Ieder deck kan verschillende instellingen hebben, zoals hoeveel nieuwe kaarten je ziet per dag, of hoe lang je moet wachten om kaarten opnieuw te zien.
 
-Decks can contain other decks, which allows you to organize decks into a tree. Anki uses double colons ("::") to show different levels within the deck tree. For example, a deck called "Chinese::Hanzi" refers to a "Hanzi" deck, which is part of a "Chinese" deck. If you select "Hanzi", then only the Hanzi cards will be shown; if you select "Chinese", then all the Chinese cards will be shown, including the Hanzi cards.
+Decks kunnen andere decks bevatten, wat je toelaat om je decks in een tree te organizeren. Anki gebruikt twee dubbele punten ("::") om de verschillende niveaus in de deck tree te tonen. Bijvoorbeeld, een deck genaamd "Chinees::Hanzi" verwijst naar een deck "Hanzi", die deel is van het "Chinees" deck. Als je "Hanzi" selecteert, dan zullen enkel de Hanzi kaarten getoond worden; als je "Chinees" selecteert, dan zullen alle Chinese kaarten getoond worden, inclusief de Hanzi kaarten.
 
-To place decks within a tree, you can either name them with double colons between each level, or drag and drop them within the deck list. Decks that have been placed inside another deck are often called "subdecks", and top-level decks are called "parent decks".
+Om decks in een tree te plaatsen, kan je ofwel ze een naam geven met twee dubbele punten tussen niveaus, of het in de deck lijst slepen. Decks die geplaatst zijn in een andere deck worden vaak "subdecks" genoemd, en top-level decks worden "parent decks" genoemd.
 
-Anki starts with a deck called "Default"; any cards which have somehow become separated from other decks will go here. Anki will hide the default deck if it contains no cards and you have added other decks. Alternatively, you may rename this deck and use it for other cards.
+Anki begint met een deck genoemd "Standaard"; iedere kaart die op een of andere manier geen deel meer is van een deck komt hier terecht. Anki verbergt het standaard deck als het leeg is and je andere decks hebt toegevoegd. Je kan de naam van dit deck ook veranderen en het voor andere kaarten gebruiken.
 
-Decks in the deck list are sorted alphabetically. This can result in a surprising order if your deck names contain numbers. For example, "My Deck 10" will come before "My Deck 9", as 1 comes before 9. If you want "My deck 9" to appear earlier, you can rename it to "My deck 09", which appears before "My deck 10".
+Decks in de lijsts met decks zijn alfabetisch gestoord. Dit kan voor een vreemde volgorde zorgen als je deck namen nummers bevatten. Bijvoorbeeld, "Mijn deck 10" zal voor "Mijn Deck 9" komen, want 1 komt voor 9. Als je wilt dat "Mijn deck 9" eerder komt, kan je het hernoemen naar "Mijn deck 09", dat voor "Mijn deck 10" komt.
 
-Decks are best used to hold broad categories of cards, rather than specific topics such as "food verbs" or "lesson 1". For more information about this, please see the [using decks appropriately](./editing#using-decks-appropriately) section.
+Decks worden best gebruikt voor diverse soorten kaarten, in plaats van specifieke onderwerpen zoals "vogel namen" of "les 1". Voor meer informatie hiervoor, het deel over hoe je [decks gepast gebruikt](./editing#using-decks-appropriately). 
 
-For information on how the order of decks affects the order cards are studied in, please see the [display order](./studying#display-order) section.
+Voor informatie over hoe de volgorde van decks invloed heeft op de volgorde dat kaarten gestudeerd worden, moet je het deel over [display volgorde](./studying#display-order).
 
-### Notes & Fields
+### Notities & Velden
 
-When making flashcards, it’s often desirable to make more than one card that relates to the same information. For example, if you’re learning French, and you learn that the word _bonjour_ means hello, you may wish to create one card that shows you "bonjour" and asks you to remember "hello", and another card that shows you "hello" and asks you to remember "bonjour". One card is testing your ability to recognize the French word, and the other card is testing your ability to produce it.
+Bij het maken van flashcards is het vaak wenselijk om meer dan één kaart te maken die betrekking heeft op dezelfde informatie. Als je bijvoorbeeld Frans leert en je leert dat het woord _bonjour_ ‘hallo’ betekent, wil je misschien één kaart maken waarop ‘bonjour’ staat en waarop je wordt gevraagd om ‘hallo’ te onthouden, en een andere kaart waarop ‘hallo’ staat en waarop je wordt gevraagd om ‘bonjour’ te onthouden. De ene kaart test je vermogen om het Franse woord te herkennen, en de andere kaart test je vermogen om het te vormen.
 
-When using paper flashcards, your only option in this case is to write out the information twice, once for each card. Some flashcard programs make life easier by providing a feature to flip the front and back sides. This is an improvement over the paper situation, but there are two major downsides:
+Als je papieren flashcards gebruikt, heb je in dit geval geen andere keuze dan de informatie twee keer op te schrijven, één keer per kaart. Sommige flashcardprogramma’s maken het leven gemakkelijker door een functie te bieden waarmee je de voor- en achterkant kunt omdraaien. Dit is een verbetering ten opzichte van de papieren variant, maar er zijn twee grote nadelen:
 
-- Because such programs don’t track your performance of recognition and production separately, cards will tend not to be shown to you at the optimum time, meaning you forget more than you’d like, or you study more than is necessary.
-- Reversing the question and answer only works when you want exactly the same content on each side. This means it’s not possible to display extra info on the back of each card for example.
+- Omdat dergelijke programma’s je prestaties op het gebied van herkenning en productie niet afzonderlijk bijhouden, worden de kaarten je vaak niet op het juiste moment getoond. Dit betekent dat je meer vergeet dan je zou willen, of juist meer studeert dan nodig is.
+- Het omdraaien van de vraag en het antwoord werkt alleen als je aan beide kanten precies dezelfde informatie wilt hebben. Dit betekent dat het bijvoorbeeld niet mogelijk is om extra informatie op de achterkant van elke kaart weer te geven.
 
-Anki solves these problems by allowing you to split the content of your cards up into separate pieces of information. You can then tell Anki which pieces of information you want on each card, and Anki takes care of creating the cards for you, and updating them if you make any edits in the future.
+Anki lost deze problemen door je de inhoud van je kaarten te laten opsliptsen in apparte stukken informatie. Je kunt Anki dan zeggen welke stukken informatie je wilt op iedere kaart, and Anki maakt die kaarten dan voor jou en update ze als je in de toekomst wijzingen zou maken.
 
-Imagine we want to study French vocabulary, and we want to include a textbook page number on the back of each card. We want our cards to look like this:
+Stel je voor dat we Franse woordenschat willen studeren, en dat we een werkboek pagina nummer op de achterkant van iedere kaart willen. We willen dat onze kaarten er zo uit zien:
 
 ```text
 Q: Bonjour
-A: Hello
-   Page #12
+A: Hallo
+   Pagina #12
 ```
 
-And this:
+En zo:
 
 ```text
-Q: Hello
+Q: Hallo
 A: Bonjour
-   Page #12
+   Pagina #12
 ```
 
-In both cards, we have the same three related pieces of information: a French word, an English meaning, and a page number. If we put them together, they’d look like this:
+Op beide kaarten hebben we drie dezelfde gerelateerde stukken informatie: een Frans woord, een Nederlandse betekenis en een pagina nummer. Als we dat samen zetten, ziet dat er zo uit:
 
 ```text
-French: Bonjour
-English: Hello
-Page: 12
+Frans: Bonjour
+Nederlands: Hallo
+Pagina: 12
 ```
 
-In Anki, this collection of related information is called a _note_ and each piece of information is contained in a _field_. In this example, the note has three fields: "French", "English", and "Page".
+In Anki wordt deze collectie van gerelateerde informatie een _notitie_ genoemd en elk stuk informatie stat in een _veld_. In dit voorbeeld, de notitie heeft drie velden: "Frans", "Nederlands", en "Pagina".
 
-To add and edit fields, click the **Fields...** button while adding or editing notes. For more information on fields, please see the [Customizing Fields](./editing#customizing-fields) section.
+Om velden toe te voegen en aan te passen, click je op de **Velden...** knop terwijl je notities toevoegd of aanpast. Voor meer informaties over velden, zie dan het [Velden Aanpassen](./editing#customizing-fields) deel.
 
-### Card Types
+### Kaart Types
 
-In order for Anki to create cards based on our notes, we need to give it a blueprint that says which fields should be displayed on the front or back of each card. This blueprint is called a _card type_. Each type of note can have one or more card types; when you add a note, Anki will create one card for each card type.
+Om ervoor te zorgen dat Anki kaarten kan maken van onze notities, dan moeten we het een blueprint geven die zegt welke velden op de voorkant en achterkant moeten getoond worden van iedere kaart. Deze blueprint wordt een _kaart type_ genoemd. Elke soort notitie kan een of meerdere kaart types hebben; wanneer je een notitie toevoegd, zal Anki een kaart maken voor ieder kaart type.
 
-All card types have two _templates_, one for the question and one for the answer. In the previous French example, we wanted the back of our recognition card to look like this:
+Alle kaart types hebben twee _templates_, een voor de vraag en een voor het antwoord. In het vorige Franse voorbeeld, wilde we dat de achterkant van onze kaart er zo uit zag:
 
 ```text
 Q: Bonjour
-A: Hello
-   Page #12
+A: Hallo
+   Pagina #12
 ```
 
-To do this, we can set the answer template to:
+Om dit te doen kunnen we dit het antwoord template maken:
 
 ```text
-Q: {{French}}
-A: {{English}}<br>
-   Page #{{Page}}
+Q: {{Frans}}
+A: {{Nederlands}}<br>
+   Pagina #{{Pagina}}
 ```
 
-In card templates, field names are wrapped in double curly brackets, like `{{French}}` or `{{English}}`. Anki replaces those with the actual text the fields contain. This is called a ["Field replacement"](./templates/fields). Text not wrapped in double curly brackets appears the same on each card. For example, we won't need to add "Page #" on every note because the template will add it automatically to every card. The `<br>` tag is a special code that tells Anki to move to the next line. For details, see the [templates](./templates/intro) section.
+In kaart templates, veld namen zitten tusssen dubbele accoladen, zoals `{{Frans}}`of `{{Nederlands}}`. Anki vervangt ze met de daadwerkelijke tekst in de velden. Dit wordt een ["Veld vervanging"](./templates/fields) genoemd. Tekst die niet tussen dubbele accolades zit zal hetzelfde zijn op iedere kaart. Bijvoorbeeld, we moeten "Pagina #" niet toevoegen aan iedere notitie, want het template zal het automatisch toevoegen aan iedere kaart. De `<br>`tag is een speciale codie die Anki vertelt dat het naar de nieuwe lijn moet gaan. Voor detials, ziet dit[templates](./templates/intro) deel. 
 
-The production card's templates will also work in a similar way:
+De productie kaart zijn templates zal ook werken op een gelijkaardige manier:
 
 ```text
-Q: {{English}}
-A: {{French}}<br>
-   Page #{{Page}}
+Q: {{Nederlands}}
+A: {{Frans}}<br>
+   Pagina #{{Pagina}}
 ```
 
-After a card type has been created, every time you add a new note, a card will be created based on that card type. Card types make it easy to keep the formatting of your cards consistent and can greatly reduce the amount of effort involved in adding information. They also mean Anki can ensure related cards don't appear too close to each other, and they allow you to fix a typing mistake or factual error once and have all the related cards update at once.
+Nadat een kaarttype is aangemaakt, wordt er elke keer dat je een nieuwe notitie toevoegt een kaart aangemaakt op basis van dat kaarttype. Kaarttypes maken het eenvoudig om de opmaak van je kaarten consistent te houden en kunnen de inspanning die het toevoegen van informatie met zich meebrengt aanzienlijk verminderen. Ze zorgen er ook voor dat Anki kan voorkomen dat gerelateerde kaarten te dicht bij elkaar verschijnen, en ze stellen je in staat om een typefout of inhoudelijke fout één keer te corrigeren, waarna alle gerelateerde kaarten in één keer worden bijgewerkt.
 
-To add and edit card types, click the **Cards...** button while adding or editing notes. For more information on card types, please see the [Cards and Templates](./templates/intro) section.
+Om kaarttypes toe te voegen en te bewerken, klik je op de knop **Kaarten...** tijdens het toevoegen of bewerken van notities. Zie voor meer informatie over kaarttypes het gedeelte [Kaarten en sjablonen](./templates/intro).
 
-### Note Types
+### Notitie types
 
-Anki allows you to create different types of notes for different material. Each type of note has its own set of fields and card types. It's a good idea to create a separate note type for each broad topic you're studying. In the previous French example, we might create a note type called "French" for that. If we wanted to learn capital cities, we could create a note type for that as well, with fields such as "Country" and "Capital City".
+Met Anki kun je verschillende soorten notities aanmaken voor verschillende leerstof. Elk type notitie heeft zijn eigen set velden en kaarttypes. Het is een goed idee om voor elk breed onderwerp dat je bestudeert een apart notitietype aan te maken. In het eerdere voorbeeld over Frans zouden we daarvoor bijvoorbeeld een notitietype met de naam „Frans” kunnen aanmaken. Als we hoofdsteden zouden willen leren, zouden we daar ook een notitietype voor kunnen aanmaken, met velden zoals ‘Land’ en ‘Hoofdstad’.
 
-Anki comes with some standard note types included. These note types are provided to make Anki easier for new users, but in the long run it's recommended you create your own note types specifically for the content you are learning. The standard note types are:
+Anki wordt geleverd met een aantal standaard notitietypen. Deze notitietypen zijn bedoeld om Anki toegankelijker te maken voor nieuwe gebruikers, maar op de lange termijn is het aan te raden om je eigen notitietypen aan te maken, specifiek afgestemd op de leerstof die je bestudeert. De standaard notitietypen zijn:
 
-- **Basic**\
-  Has "Front" and "Back" fields, and will create one card. Text you enter in "Front" will appear on the front of the card, and text you enter in "Back" will appear on the back of the card.
-- **Basic (and reversed card)**\
-  Like "Basic", but creates two cards for the text you enter: front→back and back→front.
-- **Basic (optional reversed card)**\
-  Like "Basic", but has a third field called "Add Reverse". If you enter any text into that field, a reversed card (back→front) will also be created. For details, see the [Cards and Templates](./templates/intro) section.
-- **Basic (type in the answer)**\
-  This is essentially "Basic", with an extra text box on the front where you can type your answer in. When you reveal the back, Anki will show you any differences between your input and the actual answer. For details, see the [Checking Your Answer](./templates/fields#checking-your-answer) section.
+- **Basis**\
+  Bevat de velden „Voorzijde” en „Achterzijde” en maakt één kaart aan. De tekst die je in „Voorzijde” invoert, verschijnt op de voorzijde van de kaart, en de tekst die je in „Achterzijde” invoert, verschijnt op de achterzijde van de kaart.
+- **Basis (en omgekeerde kaart)**\
+  Net als „Basis”, maar er worden twee kaarten aangemaakt voor de tekst die je invoert: voorzijde→achterzijde en achterzijde→voorzijde.
+- **Basis (optionele omgekeerde kaart)**\
+  Net als “Basis”, maar heeft een derde veld genaamd “Omgekeerd toevoegen”. Als je tekst in dat veld invoert, wordt er ook een omgekeerde kaart (achterkant→voorkant) aangemaakt. Zie voor meer informatie het gedeelte [Kaarten en sjablonen](./templates/intro).
+- **Basic (typ het antwoord in)**\
+  Dit is in wezen “Basic”, maar dan met een extra tekstvak op de voorkant waar je je antwoord kunt intypen. Wanneer je de achterkant omdraait, laat Anki je eventuele verschillen zien tussen je invoer en het daadwerkelijke antwoord. Zie voor meer informatie het gedeelte [Je antwoord controleren](./templates/fields#checking-your-answer).
 - **Cloze**\
-  A note type that allows you to select text and turn it into a cloze deletion (e.g. "Humans landed on the moon in \[…​\]" → "Humans landed on the moon in 1969"). For details, see the [cloze deletion](./editing#cloze-deletion) section.
-- **Image Occlusion**\
-  Like the cloze note type, but it works with images instead of text, which is especially useful when studying material that heavily relies on images, such as anatomy and geography. For details, please see the [Image Occlusion](./editing#image-occlusion) section of the manual.
+  Een notitietype waarmee je tekst kunt selecteren en deze kunt omzetten in een cloze-oefening (bijv. “Mensen landden op de maan in \[…​\]” → “Mensen landden op de maan in 1969”). Zie voor meer informatie de paragraaf [Cloze-oefening](./editing#cloze-deletion).
+- **Afbeelding afdekken**\
+  Net als het notitietype ‘Cloze’, maar dan met afbeeldingen in plaats van tekst. Dit is vooral handig bij het bestuderen van materiaal dat sterk op afbeeldingen is gebaseerd, zoals anatomie en aardrijkskunde. Zie voor meer informatie de paragraaf [Afbeelding afdekken](./editing#image-occlusion) in de handleiding.
 
-To add your own note types and modify existing ones, you can use **Tools \> Manage Note Types** from the main Anki window.
+Om je eigen notitietypen toe te voegen en bestaande aan te passen, kun je in het hoofdvenster van Anki **Extra \> Notitietypen beheren** gebruiken.
 
-Notes and note types are common to your whole collection rather than limited to an individual deck. This means you can use different note types in a single deck, or have cards generated from the same note put into different decks. When you add notes using the Add window, you can select what note type to use and what deck to use, and these choices are completely independent of each other. You can also [change the note type of notes](./browsing#notes) after you've already created them.
+Notities en notitietypen gelden voor je hele verzameling en zijn niet beperkt tot een individueel kaartspel. Dit betekent dat je verschillende notitietypen in één kaartspel kunt gebruiken, of dat kaarten die op basis van dezelfde notitie zijn gegenereerd, in verschillende kaartspellen kunnen worden geplaatst. Wanneer je notities toevoegt via het venster Toevoegen, kun je selecteren welk notitietype je wilt gebruiken en in welk deck je de notitie wilt plaatsen; deze keuzes staan volledig los van elkaar. Je kunt ook [het notitietype van notities wijzigen](./browsing#notes) nadat je ze al hebt aangemaakt.
 
-### Collection
+### Collectie
 
-Your _collection_ is all the material stored in Anki: your cards, notes, decks, note types, deck options, and so on.
+Je _collectie_ is all het materiaal dat in Anki bewaard is: je kaarten, notities, decks, notitie types, deck opties, etc.
 
-## Shared Decks
+## Gedeelde Decks
 
-You can watch a video about [Shared Decks and Review Basics](http://www.youtube.com/watch?v=QS2G-k2hQyg&yt:cc=on) on YouTube.
+Je kunt op YouTube een video bekijken over [Gedeelde kaartensets en de basisprincipes van herhaling](http://www.youtube.com/watch?v=QS2G-k2hQyg&yt:cc=on).
 
-The easiest way to get started with Anki is to download a deck of cards someone else has shared:
+De eenvoudigste manier om met Anki aan de slag te gaan, is door een kaartenset te downloaden die iemand anders heeft gedeeld:
 
-1. Click the **Get Shared** button at the bottom of the deck list.
-2. When you've found a deck you're interested in, click the **Download** button to download a deck package.
-3. Double-click the downloaded package to import it into Anki, or go to **File \> Import**.
+1. Klik op de knop **Gedeelde downloaden** onderaan de lijst met kaartensets.
+2. Als je een deck hebt gevonden dat je interessant vindt, klik je op de knop **Download** om het deckpakket te downloaden.
+3. Dubbelklik op het gedownloade pakket om het in Anki te importeren, of ga naar **Bestand \> Importeren**.
 
-Note: It’s not currently possible to add shared decks directly to your AnkiWeb account. You need to first import them to the desktop app, AnkiMobile, or AnkiDroid, then [synchronize](./syncing) to upload the decks to AnkiWeb.
+Opmerking: Het is momenteel niet mogelijk om gedeelde kaartensets rechtstreeks aan je AnkiWeb-account toe te voegen. Je moet ze eerst importeren in de desktop-app, AnkiMobile of AnkiDroid, en vervolgens [synchroniseren](./syncing) om de kaartensets naar AnkiWeb te uploaden.
 
-Creating your own deck is the most effective way to learn a complex subject. Subjects like languages and the sciences can’t be understood simply by memorizing facts — you need explanation and context to learn them effectively. Furthermore, inputting the information yourself forces you to decide what the key points are, leading to a better understanding.
+Het maken van je eigen kaartenset is de meest effectieve manier om een complex onderwerp te leren. Onderwerpen zoals talen en exacte wetenschappen kun je niet begrijpen door alleen maar feiten uit het hoofd te leren — je hebt uitleg en context nodig om ze effectief te leren. Bovendien dwingt het zelf invoeren van de informatie je om te bepalen wat de belangrijkste punten zijn, wat leidt tot een beter begrip.
 
-If you are a language learner, you may be tempted to download a long list of words and their translations, but this won’t teach you a language any more than memorizing scientific equations will teach you astrophysics. To learn properly, you might need textbooks, teachers, or exposure to real-world sentences.
+Als je een taal aan het leren bent, kun je in de verleiding komen om een lange lijst met woorden en hun vertalingen te downloaden, maar hiermee leer je een taal net zo min als je astrofysica leert door wetenschappelijke vergelijkingen uit je hoofd te leren. Om de taal goed te leren, heb je wellicht studieboeken, docenten of blootstelling aan zinnen uit de praktijk nodig.
 
 ```text
 Do not learn if you do not understand.
 --SuperMemo
 ```
 
-Most shared decks are created by people who are learning material outside Anki, such as from textbooks, classes, TV, etc. They select the interesting points from what they learn and put them into Anki. They might not make any effort to add background information or explanations to the cards, because they already understand the material. So when someone else downloads their deck and tries to use it, they might find it very difficult as the background information and explanations are missing.
+De meeste gedeelde kaartensets zijn gemaakt door mensen die lesmateriaal buiten Anki om bestuderen, zoals uit leerboeken, lessen, tv, enz. Ze selecteren de interessante punten uit wat ze leren en zetten die in Anki. Ze doen misschien geen moeite om achtergrondinformatie of uitleg aan de kaarten toe te voegen, omdat ze de stof al begrijpen. Dus wanneer iemand anders hun kaartenset downloadt en probeert te gebruiken, kan het erg moeilijk zijn omdat de achtergrondinformatie en uitleg ontbreken.
 
-That is not to say shared decks are useless. If you’re studying textbook ABC and someone has shared a deck of ideas from ABC, that’s a great way to save some time. And for simple subjects that are basically a list of facts, such as capital city names or country flags, you probably don’t need any external material. However, for complex subjects, shared decks should be used as a _supplement_ to external material, not as a _replacement_ for it.
+Dat wil niet zeggen dat gedeelde decks nutteloos zijn. Als je leerboek ABC bestudeert en iemand heeft een deck met ideeën uit ABC gedeeld, is dat een geweldige manier om wat tijd te besparen. En voor eenvoudige onderwerpen die in feite een lijst met feiten zijn, zoals namen van hoofdsteden of vlaggen van landen, heb je waarschijnlijk geen extern materiaal nodig. Voor complexe onderwerpen moeten gedeelde decks echter worden gebruikt als een _aanvulling_ op extern materiaal, niet als een _vervanging_ ervan.
