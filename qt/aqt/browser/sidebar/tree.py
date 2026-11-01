@@ -244,31 +244,29 @@ class SidebarTreeView(QTreeView):
     ) -> None:
         scroll_to_first_match = searching
 
-        def expand_node(parent: QModelIndex) -> None:
+        def expand_node(item: SidebarItem) -> None:
             nonlocal scroll_to_first_match
 
-            for row in range(model.rowCount(parent)):
-                idx = model.index(row, 0, parent)
-                if not idx.isValid():
-                    continue
+            for child in item.children:
+                idx = model.index_for_item(child)
 
                 # descend into children first
-                expand_node(idx)
+                expand_node(child)
 
-                if item := model.item_for_index(idx):
-                    if item.show_expanded(searching):
-                        self.setExpanded(idx, True)
-                    if item.is_highlighted() and scroll_to_first_match:
-                        self._selection_model().setCurrentIndex(
-                            idx,
-                            QItemSelectionModel.SelectionFlag.SelectCurrent,
-                        )
-                        self.scrollTo(
-                            idx, QAbstractItemView.ScrollHint.PositionAtCenter
-                        )
-                        scroll_to_first_match = False
+                if child.show_expanded(searching):
+                    self.setExpanded(idx, True)
+                if child.is_highlighted() and scroll_to_first_match:
+                    self._selection_model().setCurrentIndex(
+                        idx,
+                        QItemSelectionModel.SelectionFlag.SelectCurrent,
+                    )
+                    self.scrollTo(idx, QAbstractItemView.ScrollHint.PositionAtCenter)
+                    scroll_to_first_match = False
 
-        expand_node(parent or QModelIndex())
+        if parent is not None and parent.isValid():
+            expand_node(model.item_for_index(parent))
+        else:
+            expand_node(model.root)
 
     def update_search(
         self,
