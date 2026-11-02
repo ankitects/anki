@@ -3,6 +3,12 @@
 
 import { type Page, test as base } from "@playwright/test";
 
+import { Empty } from "@generated/anki/generic_pb";
+import { AddNoteRequest, AddNoteResponse, Note } from "@generated/anki/notes_pb";
+import { NotetypeNames } from "@generated/anki/notetypes_pb";
+
+import { callRpc } from "./helpers";
+
 export { expect } from "@playwright/test";
 
 interface AnkiFixtures {
@@ -19,6 +25,18 @@ interface AnkiFixtures {
      * seeded with two fields the way Python drives the webview (editor_legacy.py).
      */
     legacyEditor: Page;
+    /**
+     * Page navigated to /editor/?mode=current — the "Edit Current" flow, which
+     * is what EditorMode calls edit mode — with bridgeCommand stubbed and an
+     * existing note loaded, so that the non-add code paths are exercised.
+     *
+     * Needed because NoteEditor.svelte only reloads the note on a noteText
+     * change when mode !== "add" (onOperationDidExecute), and reloadNote() can
+     * only replay a load that happened with initial: true.
+     *
+     * Creates one note in the collection on every test that uses it.
+     */
+    currentEditor: Page;
 }
 
 async function installBridgeStub(page: Page): Promise<void> {
@@ -34,6 +52,40 @@ async function installBridgeStub(page: Page): Promise<void> {
             (window as any).__bridgeCalls.push(cmd);
         };
     });
+}
+
+/**
+ * Persists a Basic note through the backend and returns the ids loadNote needs,
+ * so that current mode has something to load.
+ *
+ * Ids go over as strings: loadNoteInner() coerces them with BigInt().
+ */
+async function createNoteForEditing(
+    page: Page,
+): Promise<{ nid: string; notetypeId: string }> {
+    const notetypes = NotetypeNames.fromBinary(
+        await callRpc(page, "getNotetypeNames", new Empty()),
+    );
+    const basic = notetypes.entries.find((entry) => entry.name === "Basic");
+    if (!basic) {
+        throw new Error("Expected a stock Basic notetype in the e2e profile");
+    }
+    const response = AddNoteResponse.fromBinary(
+        await callRpc(
+            page,
+            "addNote",
+            new AddNoteRequest({
+                note: new Note({
+                    notetypeId: basic.id,
+                    fields: ["front", "back"],
+                    tags: [],
+                }),
+                // The Default deck always exists in a fresh profile.
+                deckId: 1n,
+            }),
+        ),
+    );
+    return { nid: response.noteId.toString(), notetypeId: basic.id.toString() };
 }
 
 export const test = base.extend<AnkiFixtures>({
@@ -99,5 +151,32 @@ export const test = base.extend<AnkiFixtures>({
         });
         await editorPage.waitForSelector(".field-container", { timeout: 15_000 });
         await use(editorPage);
+    },
+
+    currentEditor: async ({ page }, use) => {
+        await installBridgeStub(page);
+        await page.goto("/editor/?mode=current", { waitUntil: "domcontentloaded" });
+        await page.waitForSelector(".note-editor", { timeout: 15_000 });
+        await page.waitForFunction(
+            () => typeof (window as any).loadNote === "function",
+            { timeout: 15_000 },
+        );
+        const { nid, notetypeId } = await createNoteForEditing(page);
+        // Mirrors what qt/aqt/editor.py load_note() sends for Edit Current:
+        // nid + notetypeId + focusTo (editcurrent.py passes focusTo=0), with
+        // initial: true so that initialLoadArgs is recorded. reloadNote()
+        // replays that object, so the focusTo it carries matters.
+        await page.evaluate(
+            (args) =>
+                (window as any).loadNote({
+                    nid: args.nid,
+                    notetypeId: args.notetypeId,
+                    focusTo: 0,
+                    initial: true,
+                }),
+            { nid, notetypeId },
+        );
+        await page.waitForSelector(".field-container", { timeout: 15_000 });
+        await use(page);
     },
 });
