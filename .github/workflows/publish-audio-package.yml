@@ -44,7 +44,7 @@ jobs:
     strategy:
       matrix:
         include:
-          - runner: macos-14
+          - runner: macos-15
             artifact: wheel-macos-arm
             build_cmd: ./qt/audio/build.sh
             needs_signing: true
