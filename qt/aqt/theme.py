@@ -309,6 +309,9 @@ class ThemeManager:
 
         disabled_color = self.qcolor(colors.FG_DISABLED)
         palette.setColor(
+            QPalette.ColorGroup.Disabled, QPalette.ColorRole.WindowText, disabled_color
+        )
+        palette.setColor(
             QPalette.ColorGroup.Disabled, QPalette.ColorRole.Text, disabled_color
         )
         palette.setColor(

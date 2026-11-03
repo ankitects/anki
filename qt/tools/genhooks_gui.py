@@ -20,7 +20,7 @@ prefix = """\
 
 from __future__ import annotations
 
-from typing import Any, Callable, Sequence, Literal, Type
+from typing import TYPE_CHECKING, Any, Callable, Sequence, Literal, Type
 
 import anki
 import aqt
@@ -32,6 +32,9 @@ from anki.collection import OpChangesAfterUndo
 from aqt.qt import QDialog, QEvent, QMenu, QModelIndex, QWidget, QMimeData
 from aqt.tagedit import TagEdit
 from aqt.undo import UndoActionsInfo
+
+if TYPE_CHECKING:
+    import aqt.import_export.exporting
 """
 
 # Hook list

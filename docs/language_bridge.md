@@ -3,10 +3,10 @@
 
 # Language Bridge
 
-<!-- <<<cog
+<!-- <<<<cog
 from cogdocs import get_file_contents
 cog.out(get_file_contents("language_bridge"))
->>> -->
+>>>> -->
 
 Anki's codebase uses three layers.
 
@@ -93,4 +93,4 @@ method that will be sent to Python or Rust.
 
 This method is called in [deckoptions.py](https://github.com/ankitects/anki/blob/acaeee91fa853e4a7a78dcddbb832d009ec3529a/qt/aqt/deckoptions.py#L68) with `self.web.eval("anki.deckOptionsPendingChanges();"`.
 
-<!-- <<<end>>> -->
+<!-- <<<<end>>>> -->

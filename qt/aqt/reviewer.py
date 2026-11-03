@@ -1072,7 +1072,6 @@ timerStopped = false;
             if len(row) == 2:
                 subm = m.addMenu(row[0])
                 self._addMenuItems(subm, row[1])
-                qtMenuShortcutWorkaround(subm)
                 continue
             if len(row) == 4:
                 label, scut, func, opts = row
