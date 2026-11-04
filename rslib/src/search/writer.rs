@@ -8,6 +8,7 @@ use regex::Regex;
 
 use crate::notetype::NotetypeId as NotetypeIdType;
 use crate::prelude::*;
+use crate::search::parser::numeric_field_comparison;
 use crate::search::parser::parse;
 use crate::search::parser::FieldSearchMode;
 use crate::search::parser::Node;
@@ -67,8 +68,22 @@ fn write_node(node: &Node) -> String {
 fn write_search_node(node: &SearchNode) -> String {
     use SearchNode::*;
     match node {
-        UnqualifiedText(s) => maybe_quote(&s.replace(':', "\\:")),
+        UnqualifiedText(s) => {
+            let mut text = s.replace(':', "\\:");
+            if numeric_field_comparison(&text).is_some() {
+                text = escape_comparators(&text);
+            }
+            maybe_quote(&text)
+        }
         SingleField { field, text, mode } => write_single_field(field, text, *mode),
+        NumericField {
+            field,
+            operator,
+            value,
+        } => maybe_quote(&format!(
+            "{}{operator}{value}",
+            escape_comparators(&field.replace(':', "\\:"))
+        )),
         AddedInDays(u) => format!("added:{u}"),
         EditedInDays(u) => format!("edited:{u}"),
         IntroducedInDays(u) => format!("introduced:{u}"),
@@ -97,6 +112,12 @@ fn write_search_node(node: &SearchNode) -> String {
         DeckIdWithChildren(_) => "".to_string(),
         HasMemoryState => "".to_string(),
     }
+}
+
+fn escape_comparators(text: &str) -> String {
+    text.replace('<', r"\<")
+        .replace('>', r"\>")
+        .replace('=', r"\=")
 }
 
 /// Escape double quotes and wrap in double quotes if necessary.
@@ -235,6 +256,18 @@ mod test {
         assert_eq!(r#""aNd" "oR""#, normalize_search(r#""aNd" "oR""#).unwrap());
         // normalize numbers
         assert_eq!("prop:ease>1", normalize_search("prop:ease>1.0").unwrap());
+        assert_eq!(
+            "Frequency>500",
+            normalize_search("Frequency>500.0").unwrap()
+        );
+        assert_eq!(
+            "Frequency=500",
+            normalize_search("Frequency=500.0").unwrap()
+        );
+        assert_eq!(r"foo\:bar>5", normalize_search(r"foo\:bar>5").unwrap());
+        for input in [r"x\<5", "<b>", "a=b", "<=5", r"x\<a<5", r"x\\\<5"] {
+            assert_eq!(input, normalize_search(input).unwrap(), "{input}");
+        }
     }
 
     #[test]
