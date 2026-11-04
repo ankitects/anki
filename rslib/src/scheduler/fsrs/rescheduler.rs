@@ -188,11 +188,14 @@ impl Rescheduler {
 mod tests {
     use std::collections::HashMap;
 
+    use chrono::Timelike;
+
     use super::*;
     use crate::card::CardQueue;
     use crate::card::CardType;
     use crate::revlog::RevlogEntry;
     use crate::revlog::RevlogReviewKind;
+    use crate::tests::NoteAdder;
 
     fn rescheduler_for_due_counts(
         deck_config_id: DeckConfigId,
@@ -467,26 +470,72 @@ mod tests {
         assert_eq!(rescheduler.due_today_by_preset[&deck_config_id], 1);
     }
 
-    // This test will need to be edited if the rescheduler no longer fetches
-    // due/reviewed counts from its preset.
+    // Invariant: `due_today` only changes when a card crosses `today`; moves
+    // that stay on the same side of it leave it alone.
     #[test]
-    fn new_loads_correct_values_from_collection() -> Result<()> {
-        let mut col = Collection::new();
-        let mut note = NoteAdder::basic(&mut col).note();
-        let deck_id = DeckId(1);
-        col.add_note(&mut note, deck_id)?;
+    fn rescheduler_update_due_cnt_per_day_only_changes_due_today_when_crossing_today() {
+        let deck_config_id = DeckConfigId(1);
+        let today = 5;
+        let (overdue, future, later) = (3, 8, 9);
 
-        let mut card = col.storage.get_all_cards().pop().unwrap();
-        let today = col.timing_today()?.days_elapsed as i32;
+        // (due_before, due_after, expected change in due_today)
+        for (due_before, due_after, due_today_delta) in [
+            (future, later, 0),
+            (overdue, today, 0),
+            (today, overdue, 0),
+            (overdue, future, -1),
+            (today, future, -1),
+            (future, today, 1),
+            (future, overdue, 1),
+        ] {
+            let mut rescheduler = rescheduler_for_due_counts(
+                deck_config_id,
+                &[(overdue, 1), (today, 1), (future, 1), (later, 1)],
+                0,
+                [EasyDay::Normal; 7],
+                today,
+            );
+            assert_eq!(rescheduler.due_today_by_preset[&deck_config_id], 2);
+
+            rescheduler.update_due_cnt_per_day(due_before, due_after, deck_config_id);
+
+            let context = format!("{due_before} -> {due_after}");
+            assert_eq!(
+                rescheduler.due_today_by_preset[&deck_config_id] as i32,
+                2 + due_today_delta,
+                "unexpected due_today for {context}"
+            );
+            let counts = &rescheduler.due_cnt_per_day_by_preset[&deck_config_id];
+            assert_eq!(counts[&due_before], 0, "due_before count for {context}");
+            assert_eq!(counts[&due_after], 2, "due_after count for {context}");
+        }
+    }
+
+    /// Makes the day rollover 12 hours away, so that the day cannot change
+    /// while a test is running, however close to a rollover it is started.
+    fn collection_with_stable_day() -> Result<Collection> {
+        let mut col = Collection::new();
+        let local_hour = TimestampSecs::now().local_datetime()?.hour();
+        col.set_rollover_for_current_scheduler(((local_hour + 12) % 24) as u8)?;
+        Ok(col)
+    }
+
+    fn add_review_card(col: &mut Collection, deck_id: DeckId, due: i32) -> Result<Card> {
+        let mut note = NoteAdder::basic(col).note();
+        col.add_note(&mut note, deck_id)?;
+        let mut card = col.storage.all_cards_of_note(note.id)?.pop().unwrap();
         card.ctype = CardType::Review;
         card.queue = CardQueue::Review;
-        card.due = today;
+        card.due = due;
         col.storage.update_card(&card)?;
+        Ok(card)
+    }
 
-        let revlog_id = TimestampMillis::now();
+    /// Revlog ids are timestamps and must be unique, so the caller picks them.
+    fn add_review(col: &mut Collection, card: &Card, id: TimestampMillis) -> Result<()> {
         col.storage.add_revlog_entry(
             &RevlogEntry {
-                id: revlog_id.into(),
+                id: id.into(),
                 cid: card.id,
                 usn: Usn(0),
                 button_chosen: 3,
@@ -498,16 +547,67 @@ mod tests {
             },
             false,
         )?;
+        Ok(())
+    }
+
+    // This test will need to be edited if the rescheduler no longer fetches
+    // due/reviewed counts from its preset.
+    #[test]
+    fn new_loads_correct_values_from_collection() -> Result<()> {
+        let mut col = collection_with_stable_day()?;
+        let today = col.timing_today()?.days_elapsed as i32;
+
+        // Two decks share the default preset, a third one has its own.
+        let shared_preset = DeckConfigId(1);
+        let mut other_config = DeckConfig {
+            name: "Other preset".into(),
+            ..Default::default()
+        };
+        col.add_or_update_deck_config(&mut other_config)?;
+        let other_preset = other_config.id;
+        let deck_a = DeckId(1);
+        let deck_b = col.get_or_create_normal_deck("B")?.id;
+        let mut deck_c = col.get_or_create_normal_deck("C")?;
+        deck_c.normal_mut()?.config_id = other_preset.0;
+        col.update_deck(&mut deck_c)?;
+        let deck_c = deck_c.id;
+
+        let overdue = add_review_card(&mut col, deck_a, today - 3)?;
+        add_review_card(&mut col, deck_a, today)?;
+        add_review_card(&mut col, deck_b, today)?;
+        add_review_card(&mut col, deck_b, today + 5)?;
+        add_review_card(&mut col, deck_c, today + 5)?;
+        let c_today = add_review_card(&mut col, deck_c, today + 1)?;
+        // Not a review card, so must not be counted as due.
+        let mut new_note = NoteAdder::basic(&mut col).note();
+        col.add_note(&mut new_note, deck_a)?;
+
+        // Two reviews in the shared preset (one card reviewed twice), one in the
+        // other.
+        let now = TimestampMillis::now().0;
+        let review_id = |offset: i64| TimestampMillis(now - offset);
+        add_review(&mut col, &overdue, review_id(1))?;
+        add_review(&mut col, &overdue, review_id(2))?;
+        let b_card = add_review_card(&mut col, deck_b, today + 5)?;
+        add_review(&mut col, &b_card, review_id(3))?;
+        add_review(&mut col, &c_today, review_id(4))?;
 
         let rescheduler = Rescheduler::new(&mut col)?;
-        let deck_config_id = DeckConfigId(1);
 
+        assert_eq!(rescheduler.today, today);
+        // 3 overdue/today in the shared preset, plus the extra future card of B.
         assert_eq!(
-            rescheduler.due_cnt_per_day_by_preset[&deck_config_id][&today],
-            1
+            rescheduler.due_cnt_per_day_by_preset[&shared_preset],
+            HashMap::from([(today - 3, 1), (today, 2), (today + 5, 2)])
         );
-        assert_eq!(rescheduler.due_today_by_preset[&deck_config_id], 1);
-        assert_eq!(rescheduler.reviewed_today_by_preset[&deck_config_id], 1);
+        assert_eq!(
+            rescheduler.due_cnt_per_day_by_preset[&other_preset],
+            HashMap::from([(today + 5, 1), (today + 1, 1)])
+        );
+        assert_eq!(rescheduler.due_today_by_preset[&shared_preset], 3);
+        assert_eq!(rescheduler.due_today_by_preset[&other_preset], 0);
+        assert_eq!(rescheduler.reviewed_today_by_preset[&shared_preset], 2);
+        assert_eq!(rescheduler.reviewed_today_by_preset[&other_preset], 1);
 
         Ok(())
     }
