@@ -1,0 +1,35 @@
+---
+title: "Qt と PyQt"
+---
+
+概要で説明したように、Anki は UI の多くに PyQt を使っています。さまざまな GUI ウィジェットの表示方法を学ぶには、Qt のドキュメントと [PyQt のドキュメント](https://www.riverbankcomputing.com/static/Docs/PyQt6/sip-classes.html)が役立ちます。
+
+## Qt のバージョン
+
+Anki 2.1.50 以降は、PyQt5 と PyQt6 の個別のビルドが提供されています。一般に、Qt6 で動作するコードを書き、Qt のクラスを PyQt6 から直接ではなく `aqt.qt` からインポートすれば、Qt5 でも動作するはずです。
+
+## Designer ファイル
+
+Anki の UI の一部は `.ui` ファイルで定義されており、`qt/aqt/forms` にあります。Anki のビルドプロセスで、これらは `.py` ファイルに変換されます。同じ方法でアドオンの UI を作るには、Python と Qt Designer（macOS では Designer.app）をインストールしてください。Linux ではディストリビューションのパッケージとして利用できる場合があります。Windows と Mac では[Qt のインストール](https://download.qt.io/)時にインストールする必要があります。インストール後、pyqt6 の pip パッケージに含まれるプログラムを使って `.ui` ファイルをコンパイルします。
+
+PyQt6 用に生成した Python ファイルは PyQt5 では動作せず、その逆も同様です。両方をサポートするには、`pyuic5` と `pyuic6` を使って `.ui` ファイルをそれぞれビルドする必要があります。
+
+## ガベージコレクション
+
+Python ではオブジェクトがガベージコレクションされる点に注意してください。たとえば次のコードでは、関数が終了するとウィジェットが消えてしまいます。
+
+```python
+def myfunc():
+    widget = QWidget()
+    widget.show()
+```
+
+これを防ぐには、次のようにトップレベルのウィジェットを既存のオブジェクトに割り当てます。
+
+```python
+def myfunc():
+    mw.myWidget = widget = QWidget()
+    widget.show()
+```
+
+Qt オブジェクトを作成する際に、既存のオブジェクトを親として指定すれば、親が参照を保持するため、この方法が不要なこともあります。

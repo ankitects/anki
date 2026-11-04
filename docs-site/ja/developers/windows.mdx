@@ -1,0 +1,67 @@
+---
+title: "Windows"
+---
+
+## 最低要件
+
+- **64 ビット版 Windows 10**（バージョン 1703 以降）
+- ソフトウェアをインストールできる管理者権限
+
+---
+
+## Rust をインストールする
+
+1. Rust の公式サイト（https://rustup.rs/）を開きます。
+2. **rustup** をダウンロードしてインストールします。
+3. インストール中は既定のオプションを選びます。
+
+> [!NOTE]
+> Rust のインストーラーは、必要な MSVC ビルドツールを自動でダウンロードしてインストールするよう提案します。Visual Studio IDE 全体を含まない最小構成を希望する場合は、Rust をインストールする前に次を行ってください。
+>
+> 1. winget で **Visual Studio Build Tools** をインストールします。
+>     ```
+>     winget install Microsoft.VisualStudio.BuildTools
+>     ```
+> 2. **Visual Studio Installer** を開き、**Build Tools** を選択して 「**変更**」をクリックします。次に「個別のコンポーネント」から以下をインストールします。
+>     - **MSVC Build Tools for x64/x86 (Latest)**
+>     - **Windows 11 SDK**（Windows 10 の場合は Windows 10 SDK）
+>
+> その後、上記の手順に従って Rust をインストールします。
+
+> [!IMPORTANT]
+> **Windows ARM ユーザー向け**: rustup のインストール後、プロジェクトフォルダー内のターミナルで次のコマンドを実行してください。
+>
+> ```bash
+> rustup target add x86_64-pc-windows-msvc
+> ```
+
+## MSYS2 をインストールする
+
+1. [MSYS2](https://www.msys2.org/) のウェブサイトを開きます。
+2. 既定の場所にインストールします。
+3. インストール後、MSYS2 UCRT64 ターミナルを開きます。
+4. 次のコマンドを実行します。
+
+```bash
+pacman -S git rsync
+```
+
+---
+
+### PATH 環境変数を設定する
+
+1. スタートメニューで 「**システム環境変数の編集**」を検索して開きます。
+2. **「環境変数」**をクリックします。
+3. 「システム環境変数」の **Path** を編集します。
+4. 次のパスを追加し、コンピューターを再起動します: `C:\msys64\usr\bin`
+
+> [!NOTE]
+> PowerShell 拡張の [posh-git](https://github.com/dahlbyk/posh-git) など、Git に依存する Windows ネイティブアプリを使っている場合は、代わりに [Git for Windows](https://gitforwindows.org/) をインストールして PATH に追加する方がよいことがあります。msys の Git では問題が起きる場合があります。rsync は別の方法で利用できるようにしてください。
+
+## ソースコードの保存場所を選ぶ
+
+Anki のソースファイルを置く場所に決まりはありませんが、パスが長いと問題が起きることがあるため、長いパスは避けてください。パスにスペースが含まれている場合も問題が起きることがあります。
+
+## その他
+
+テストの実行や wheel のビルドなどについては、[開発ガイド](/developers/development)をご覧ください。

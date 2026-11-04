@@ -1,0 +1,91 @@
+---
+title: "Protocol Buffers"
+---
+
+ProtoBuf は、データの保存とサービス間の送信の両方に使われる形式です。基本型、リスト、レコードを使えるため、スキーマ付きの JSON に似ています。ただし通常は、人が読める形式ではなく、効率のよいバイト列として送信・保存されます。
+
+# Protocol Buffers
+
+Anki では[複数の Protocol Buffers 実装](/developers/architecture#protobuf)を使っており、それぞれに固有の注意点があります。このドキュメントでは、Anki に関係する特徴を説明し、よくある問題を避けられるようにします。
+
+Protobuf の型と構文については、公式の[言語ガイド](https://developers.google.com/protocol-buffers/docs/proto3)をご覧ください。
+
+## 共通の注意点
+
+### 名前
+
+生成コードでは、対象言語の命名規則が使われます。たとえば、メッセージのフィールド `foo_bar` にアクセスするには TypeScript では `fooBar` を使い、メッセージ `FooBar` によって作られる Rust の名前空間は `foo_bar` です。
+
+### 任意の値
+
+Python と TypeScript では、設定されていない任意の値は `None`、`null`、`undefined` ではなく、その型の既定値になります。例:
+
+```protobuf
+message Foo {
+  optional string name = 1;
+  optional int32 number = 2;
+}
+```
+
+```python
+message = Foo()
+assert message.number == 0
+assert message name == ""
+```
+
+Python では、メッセージの `HasField()` メソッドを使うと、フィールドが実際に設定されているか確認できます。
+
+```python
+message = Foo(name="")
+assert message.HasField("name")
+assert not message.HasField("number")
+```
+
+TypeScript では、さらに扱いにくいため、使用中のフィールドに既定値を使わない方が簡単な場合があります。たとえば `CsvMetadata` メッセージでは、インデックスが `0` の場合の曖昧さを避けるため、任意の0始まりではなく1始まりのインデックスを使います。
+
+### oneof
+
+oneof 内のすべてのフィールドは暗黙的に任意となるため、[前述の注意点](./#optional-values)は次のようなメッセージにも当てはまります。
+
+```protobuf
+message Foo {
+    oneof bar {
+      string name = 1;
+      int32 number = 2;
+    }
+}
+```
+
+`HasField()` に加えて、`WhichOneof()` を使うと、設定されているフィールド名を取得できます。
+
+```python
+message = Foo(name="")
+assert message.WhichOneof("bar") == "name"
+```
+
+### 後方互換性
+
+公式の[言語ガイド](https://developers.google.com/protocol-buffers/docs/proto3)では後方互換性について詳しく説明していますが、Anki は通常 Protobuf を異なるクライアント間の通信に使いません。そのため、フィールド番号の並び替えなどは通常問題になりません。
+
+ただし、データベースに保存される `Deck` などのメッセージもあります。互換性のない方法で変更すると、異なるプロトコルを持つクライアントが読み込む際に重大な問題が起きる可能性があります。このような変更が安全なのは、スキーマのアップグレード時だけです。「ダウングレード」で選択されるスキーマ11では、Protobuf メッセージを使わないためです。
+
+### フィールド番号
+
+15より大きいフィールド番号は、エンコードに追加の1バイトが必要です。そのため、`repeated` フィールドには1～15の番号を割り当てることをおすすめします。メッセージに `reserved` フィールドがある場合、通常は将来 `repeated` フィールドを追加するために番号を確保しています。
+
+## 実装ごとの注意点
+
+### Python
+
+Protobuf には公式の Python 実装と詳細な[リファレンス](https://developers.google.com/protocol-buffers/docs/reference/python-generated)があります。
+
+### TypeScript
+
+Anki は[protobuf-es](https://github.com/bufbuild/protobuf-es)を使っています。ドキュメントもいくつかあります。
+
+### Rust
+
+Anki は [prost クレート](https://docs.rs/prost/latest/prost/)を使っています。ドキュメントにも役立つ情報がありますが、生成コードを確認する場合は、`anki/rslib` 内から `cargo doc --open --document-private-items` を実行する方が便利です。`pb` モジュールに生成された Rust の型と実装があります。
+
+- `Foo foo = 1;` のような enum フィールドでは、`message.foo` は `i32` です。`Foo` への手動変換を避けるには、代わりにアクセサー `message.foo()` を使ってください。
+- Protobuf は oneof フィールドが必ず設定されることも、enum フィールドが有効な値を持つことも保証しません。そのため Rust コードでは多くの `Option` を処理する必要があります。Anki のほかの部分から無効なメッセージが送信されることは想定していないため、通常は `InvalidInput` エラーまたは `unwrap_or_default()` を使って問題ありません。

@@ -1,0 +1,75 @@
+---
+title: "モンキーパッチとメソッドのラップ"
+sidebarTitle: "モンキーパッチ"
+description: "モンキーパッチ"
+---
+
+フックがない関数を変更したい場合は、独自の関数で元の関数を上書きできます。これは「モンキーパッチ」と呼ばれることがあります。
+
+モンキーパッチは、テスト段階や新しいフックが Anki に追加されるまでの間は便利です。ただし、長期的に依存しないでください。モンキーパッチは非常に壊れやすく、Anki の更新時に動かなくなる傾向があります。
+
+例外は、Anki に大幅な変更を加えていて、新しいフックを追加するのが現実的でない場合です。その場合は残念ながら、Anki の更新に合わせてアドオンを定期的に修正する必要があるかもしれません。
+
+[aqt/editor.py](https://github.com/ankitects/anki/blob/main/qt/aqt/editor.py) には `setupButtons()` 関数があります。エディターに表示される太字や斜体などのボタンを作成する関数です。アドオンにボタンを追加するとします。
+
+Anki 2.1 では `setupButtons()` は使われなくなりました。以下のコードはモンキーパッチの仕組みを理解する参考にはなりますが、エディターにボタンを追加する場合は、前のセクションで説明した `setupEditorButtons` フックをご覧ください。
+
+最も簡単な方法は、Anki のソースコードから関数をコピーして末尾にコードを追加し、次のように元の関数を上書きすることです。
+
+```python
+from aqt.editor import Editor
+
+def mySetupButtons(self):
+    <copy & pasted code from original>
+    <custom add-on code>
+
+Editor.setupButtons = mySetupButtons
+```
+
+ただし、この方法は壊れやすく、将来 Anki の元のコードが更新された場合は、アドオンも更新する必要があります。よりよい方法は、元の関数を保存し、独自の関数から呼び出すことです。
+
+```python
+from aqt.editor import Editor
+
+def mySetupButtons(self):
+    origSetupButtons(self)
+    <custom add-on code>
+
+origSetupButtons = Editor.setupButtons
+Editor.setupButtons = mySetupButtons
+```
+
+よく使われる処理のため、Anki には `wrap()` 関数が用意されており、少し簡潔に書けます。実際の例:
+
+```python
+from anki.hooks import wrap
+from aqt.editor import Editor
+from aqt.utils import showInfo
+
+def buttonPressed(self):
+    showInfo("pressed " + `self`)
+
+def mySetupButtons(self):
+    # size=False は小さいボタンを使わないよう Anki に指示します。
+    # エディターのインスタンスをコールバックに渡すには lambda が必要です。
+    # バインド済みメソッドではなく関数を渡しているためです。
+    self._addButton("mybutton", lambda s=self: buttonPressed(self),
+                    text="PressMe", size=False)
+
+Editor.setupButtons = wrap(Editor.setupButtons, mySetupButtons)
+```
+
+既定では `wrap()` は元のコードの後に独自コードを実行します。3つ目の引数に `"before"` を渡すと順序を逆にできます。元のコードの前後で処理を実行するには、次のようにします。
+
+```python
+from anki.hooks import wrap
+from aqt.editor import Editor
+
+def mySetupButtons(self, _old):
+    <before code>
+    ret = _old(self)
+    <after code>
+    return ret
+
+Editor.setupButtons = wrap(Editor.setupButtons, mySetupButtons, "around")
+```

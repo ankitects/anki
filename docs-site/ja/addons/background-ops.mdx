@@ -1,0 +1,92 @@
+---
+title: "バックグラウンド処理"
+---
+
+アドオンで時間のかかる処理を直接実行すると、完了するまでユーザーインターフェース（UI）が応答しなくなります。進行状況のウィンドウは表示されず、アプリが停止したように見えます。ユーザーに不便をかけないよう、この状態を避けてください。
+
+UI は「メインスレッド」で動作します。アドオンで時間のかかる処理を直接実行すると、その処理もメインスレッドで動き、完了するまで UI のコードが実行されません。アドオンのコードをバックグラウンドスレッドで実行すれば、UI の動作を続けられます。
+
+ただし、UI を操作するコードはメインスレッドで実行する必要があります。アドオンをバックグラウンドだけで動かして UI にアクセスすると、Anki がクラッシュします。そのため、処理を使い分けてください。UI の操作はメインスレッドで行い、コレクションへのアクセスやネットワーク通信など時間のかかる処理はバックグラウンドで行います。Anki には、これを簡単に行うためのツールが用意されています。
+
+## 読み取り専用・取り消し不可の処理
+
+ノートのグループを集める処理やネットワーク通信など、時間のかかる処理には `QueryOp` をおすすめします。ネットワーク通信で使う場合は、後述するシリアル化についても確認してください。
+
+次の例では、`my_ui_action()` はすぐに戻り、処理は完了するまでバックグラウンドで実行されます。正常に終了すると `on_success` が呼び出されます。
+
+```python
+from anki.collection import Collection
+from aqt.operations import QueryOp
+from aqt.utils import showInfo
+from aqt import mw
+
+def my_background_op(col: Collection, note_ids: list[int]) -> int:
+    # 時間のかかる処理の例
+    for id in note_ids:
+        note = col.get_note(note_id)
+        # ...
+
+    return 123
+
+def on_success(count: int) -> None:
+    showInfo(f"my_background_op() returned {count}")
+
+def my_ui_action(note_ids: list[int]):
+    op = QueryOp(
+        # アクティブなウィンドウ（この場合はメインウィンドウ）
+        parent=mw,
+        # 便宜上、処理にはコレクションが渡されます。必要なければ無視できます。
+        op=lambda col: my_background_op(col, note_ids),
+        # op が正常に完了すると、この関数が呼び出され、op の戻り値が渡されます。
+        success=on_success,
+    )
+
+    # with_progress() を呼び出さない場合、進行状況のウィンドウは表示されません。
+    # 注: QueryOp.with_progress() は Anki 2.1.50 まで正常に動作しませんでした。
+    op.with_progress().run_in_background()
+```
+
+**バックグラウンド処理内で Qt/UI の関数を直接呼び出さないでください。**
+
+- 処理の完了後に UI を変更する必要がある場合（例: ツールチップの表示）は、成功時の関数で行ってください。
+- UI からデータが必要な場合（例: コンボボックスの値）は、処理を開始する前に取得してください。
+- バックグラウンド処理中に UI を更新する必要がある場合（例: 進行状況ウィンドウのテキスト更新）、処理はメインスレッドで更新を実行する必要があります。たとえばループ内では、次のようにします。
+
+```python
+if time.time() - last_progress >= 0.1:
+    aqt.mw.taskman.run_on_main(
+        lambda: aqt.mw.progress.update(
+            label=f"Remaining: {remaining}",
+            value=total - remaining,
+            max=total,
+        )
+    )
+    last_progress = time.time()
+```
+
+**処理は既定でシリアル化されます**
+
+コレクションに対する複数の読み取り処理が書き込み処理と同時に行われないよう、既定では一度に1つの処理だけが実行されます。
+
+コレクションに触れない処理（例: ネットワーク要求）では、このシリアル化を無効にして、ほかの処理と並行して実行できます。
+
+```python
+op.without_collection().run_in_background()
+```
+
+## コレクション処理
+
+コレクションを変更する取り消し可能な処理には、別の `CollectionOp` が用意されています。`QueryOp` と同様に動作しますが、変更に合わせて UI も更新します（例: ノートを変更した場合にブラウザー画面を更新）。
+
+取り消し可能な処理の多くには、[aqt/operations/\*.py](https://github.com/ankitects/anki/tree/main/qt/aqt/operations) に `CollectionOp` がすでに用意されています。独自の処理を作成する代わりに、そのいずれかを直接使えることがあります。例:
+
+```python
+from aqt.operations.note import remove_notes
+
+def my_ui_action(note_ids: list[int]) -> None:
+    remove_notes(parent=mw, note_ids=note_ids).run_in_background()
+```
+
+既定では、処理が成功するとツールチップが表示されます。別の処理を指定するには、`.success()` または `.failure()` を呼び出します。
+
+取り消し処理の詳細や、複数の処理を1つの取り消しステップにまとめる方法については、[フォーラムのページ](https://forums.ankiweb.net/t/add-on-porting-notes-for-anki-2-1-45/11212#undoredo-4)をご覧ください。

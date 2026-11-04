@@ -1,0 +1,38 @@
+---
+title: "macOSでのAnkiのインストールとアップグレード"
+sidebarTitle: "インストールとアップグレード"
+description: "インストールとアップグレード"
+---
+
+## 動作要件
+
+必要なmacOSのバージョンは、ダウンロードページに記載されています。
+
+古いコンピューターを使っている場合は、[リリースページ](https://github.com/ankitects/anki/releases)から以前のバージョンを入手できます。24.11以前のQt5ビルドは、macOS 10.14以降に対応しています。macOS 10.10〜10.13では、[Anki 2.1.35-alternate](https://github.com/ankitects/anki/releases/tag/2.1.35)を使う必要があります。
+
+## インストール
+
+1. [https://apps.ankiweb.net](https://apps.ankiweb.net)からAnkiをダウンロードします。
+2. ファイルをデスクトップまたはダウンロードフォルダーに保存します。
+3. ファイルを開き、Ankiをアプリケーションフォルダーまたはデスクトップにドラッグします。
+4. 配置した場所にあるAnkiをダブルクリックします。
+
+## アップグレード
+
+アップグレードするには、Ankiが開いていれば終了し、上記の手順に従ってください。以前のAnkiと同じ場所にAnkiのアイコンをドラッグし、確認が表示されたら古いバージョンを上書きします。カードのデータは保持されます。
+
+## Homebrew
+
+[Homebrew](https://brew.sh/)を使っている場合は、任意のターミナルアプリで`brew install --cask anki`を実行してAnkiをインストールできます。
+
+アップグレードには`brew upgrade`、アンインストールには`brew uninstall --cask anki`を使います。
+
+## アドオンの互換性
+
+一部のアドオンは、Ankiの最新リリースで動作しないことがあります。最新版にアップグレードした後、欠かせないアドオンが動作しなくなった場合は、[リリースページ](https://github.com/ankitects/anki/releases)から以前のAnkiをダウンロードできます。
+
+## 問題が発生した場合
+
+Ankiのインストール時や起動時に問題が発生した場合は、次のページを参照してください。
+
+- [表示の問題](./display-issues)
