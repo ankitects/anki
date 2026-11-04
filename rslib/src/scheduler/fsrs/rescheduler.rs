@@ -259,34 +259,59 @@ mod tests {
             0,
         );
 
-        for (interval, minimum_interval, maximum_interval, days_elapsed) in [
+        // (interval, minimum_interval, maximum_interval, days_elapsed)
+        let cases = [
             (10.0, 1, 11, 5),
             (4.0, 1, 3, 1),
             (50.0, 10, 90, 5),
+            // minimum > maximum
             (10.0, 50, 5, 5),
             (5.0, 1, 5, 5),
-        ] {
-            let Some(result) = rescheduler.find_interval(
-                interval,
-                minimum_interval,
-                maximum_interval,
-                days_elapsed,
-                deck_config_id,
-                Some(42),
-            ) else {
-                panic!("expected interval for interval={interval}, minimum={minimum_interval}, maximum={maximum_interval}, elapsed={days_elapsed}");
-            };
+            // very large interval, clamped to the maximum
+            (1.0e9, 1, 36500, 0),
+            (1.0e9, 1, 36500, 20000),
+            // very small interval, clamped to the minimum
+            (0.1, 1, 36500, 0),
+            (0.0, 1, 36500, 0),
+            (0.1, 3, 36500, 2),
+            // overdue: nothing to reschedule
+            (10.0, 1, 11, 100),
+        ];
 
-            assert!(
-                result >= days_elapsed,
-                "interval moved into the past: {result} < {days_elapsed}"
-            );
-            let lower = minimum_interval.min(maximum_interval);
-            let upper = maximum_interval.max(minimum_interval);
-            assert!(
-                (lower..=upper).contains(&result),
-                "interval {result} out of bounds [{lower}, {upper}]"
-            );
+        // Each seed picks a different candidate day, so check many of them.
+        for (interval, minimum_interval, maximum_interval, days_elapsed) in cases {
+            for seed in 0..50 {
+                let result = rescheduler.find_interval(
+                    interval,
+                    minimum_interval,
+                    maximum_interval,
+                    days_elapsed,
+                    deck_config_id,
+                    Some(seed),
+                );
+                let context = format!(
+                    "interval={interval}, minimum={minimum_interval}, \
+                     maximum={maximum_interval}, elapsed={days_elapsed}, seed={seed}"
+                );
+
+                // The maximum wins over the minimum when they conflict.
+                let lower = minimum_interval.min(maximum_interval);
+                let upper = maximum_interval;
+                if upper < days_elapsed {
+                    assert_eq!(result, None, "overdue card was rescheduled: {context}");
+                    continue;
+                }
+                let result = result.unwrap_or_else(|| panic!("expected interval: {context}"));
+
+                assert!(
+                    result >= days_elapsed,
+                    "interval moved into the past: {result} < {days_elapsed} ({context})"
+                );
+                assert!(
+                    (lower..=upper).contains(&result),
+                    "interval {result} out of bounds [{lower}, {upper}] ({context})"
+                );
+            }
         }
     }
 
@@ -353,8 +378,17 @@ mod tests {
     #[test]
     fn rescheduler_find_interval_avoids_zero_percent_easy_day_when_other_day_available() {
         let deck_config_id = DeckConfigId(1);
+        let blocked_interval = 5;
+        // The weekday of an interval depends on the local timezone, so derive it
+        // the same way `find_interval` does rather than hardcoding one.
+        let blocked_weekday = TimestampSecs(0)
+            .adding_secs((blocked_interval - 1) as i64 * 86400)
+            .local_datetime()
+            .unwrap()
+            .weekday()
+            .num_days_from_monday() as usize;
         let mut easy_days = [EasyDay::Normal; 7];
-        easy_days[0] = EasyDay::Minimum;
+        easy_days[blocked_weekday] = EasyDay::Minimum;
         let rescheduler =
             rescheduler_for_due_counts(deck_config_id, &[(5, 1), (6, 1)], 0, easy_days, 0);
 
