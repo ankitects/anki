@@ -223,6 +223,7 @@ mod tests {
         }
     }
 
+    // Invariant: overdue cards are left alone.
     #[test]
     fn rescheduler_find_interval_overdue_card_is_not_rescheduled() {
         let deck_config_id = DeckConfigId(1);
@@ -244,6 +245,9 @@ mod tests {
         );
     }
 
+    // Historical regression: fuzz could move an interval backwards
+    // during rescheduling. Also checks the invariant that the result always
+    // lies within the min/max interval bounds.
     #[test]
     fn rescheduler_find_interval_never_goes_to_the_past_and_stays_in_bounds() {
         let deck_config_id = DeckConfigId(1);
@@ -286,6 +290,7 @@ mod tests {
         }
     }
 
+    // Invariant: the same fuzz seed and inputs give the same result.
     #[test]
     fn rescheduler_find_interval_is_deterministic_for_a_seed() {
         let deck_config_id = DeckConfigId(1);
@@ -308,6 +313,8 @@ mod tests {
         }
     }
 
+    // Characterization of the load balancer: documents current
+    // behaviour, and may need updating if the weighting is retuned.
     #[test]
     fn rescheduler_find_interval_prefers_lower_load_day() {
         let deck_config_id = DeckConfigId(1);
@@ -338,6 +345,8 @@ mod tests {
         assert_eq!(high_load_count, 0);
     }
 
+    // Characterization of the load balancer's easy days handling:
+    // documents current behaviour, and may need updating if it is retuned.
     #[test]
     fn rescheduler_find_interval_avoids_zero_percent_easy_day_when_other_day_available() {
         let deck_config_id = DeckConfigId(1);
@@ -365,6 +374,7 @@ mod tests {
         assert_eq!(blocked_day_count, 0);
     }
 
+    // Historical regression: a missing preset used to panic.
     #[test]
     fn rescheduler_find_interval_returns_none_for_missing_preset() {
         let deck_config_id = DeckConfigId(1);
@@ -381,6 +391,8 @@ mod tests {
             .is_none());
     }
 
+    // Invariant: counts move between the right days, and `due_today` only
+    // changes when a card crosses `today`.
     #[test]
     fn rescheduler_update_due_cnt_per_day_tracks_today_boundaries() {
         let deck_config_id = DeckConfigId(1);
