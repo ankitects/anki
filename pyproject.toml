@@ -38,14 +38,13 @@ docs = [
   "sphinx-book-theme",
   "sphinx-autoapi",
   "sphinx-autobuild>=2024.10.3",
-  "click-extra[sphinx]", # for GitHub alerts
   "sphinxcontrib-mermaid>=2.1.0",
 ]
 
 # Local resolution guard; keep in sync with Dependabot cooldown.
 [tool.uv]
 exclude-newer = "7 days"
-exclude-newer-package = { anki-mac-helper = false, anki-audio = false, briefcase = false }
+exclude-newer-package = { anki-mac-helper = false, anki-audio = false, briefcase = false, certifi = false, pip = false, virtualenv = false }
 required-version = ">=0.9.25"
 
 [tool.uv.workspace]

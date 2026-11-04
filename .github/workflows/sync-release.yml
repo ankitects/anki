@@ -27,9 +27,20 @@ jobs:
           ref: ${{ github.sha }}
           persist-credentials: true
 
+      - name: Setup build environment
+        uses: ./.github/actions/setup-anki
+
+      - name: Install just
+        uses: extractions/setup-just@53165ef7e734c5c07cb06b3c8e7b647c5aa16db3 #v4
+
       - name: Update docs branch
         run: |
-          git push --force origin "$GITHUB_SHA:refs/heads/mintlify-docs"
+          just docs-release
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git commit -m "Populate docs"
+          git push --force origin "HEAD:refs/heads/mintlify-docs"
 
   flathub:
     if: ${{ !github.event.release.prerelease }}
@@ -48,6 +59,7 @@ jobs:
 
       - uses: astral-sh/setup-uv@c771a70e6277c0a99b617c7a806ffedaca235ff9 #v9.0.0
         with:
+          version-file: ".tool-versions"
           enable-cache: false
 
       # flatpak-pip-generator runs pip inside the SDK to pick wheels.

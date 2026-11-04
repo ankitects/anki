@@ -3,10 +3,10 @@
 
 # Anki development
 
-<!-- <<<cog
+<!-- <<<<cog
 from cogdocs import get_file_contents
 cog.out(get_file_contents("development"))
->>> -->
+>>>> -->
 
 ## Packaged betas
 
@@ -248,4 +248,4 @@ If you're using PyCharm:
   "-p [dev profile name]" without the quotes
 - click "Ok"
 
-<!-- <<<end>>> -->
+<!-- <<<<end>>>> -->
