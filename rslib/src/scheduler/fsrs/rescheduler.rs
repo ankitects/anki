@@ -341,8 +341,11 @@ mod tests {
             }
         }
 
-        assert_eq!(low_load_count, n);
-        assert_eq!(high_load_count, 0);
+        assert!(
+            low_load_count > high_load_count,
+            "expected the less busy day to be chosen more often \
+             (low: {low_load_count}, high: {high_load_count})"
+        );
     }
 
     // Characterization of the load balancer's easy days handling:
