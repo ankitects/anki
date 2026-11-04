@@ -55,6 +55,7 @@ from aqt.debug_console import show_debug_console
 from aqt.flags import FlagManager
 from aqt.legacy import install_pylib_legacy
 from aqt.mediasync import MediaSyncer
+from aqt.network import is_sync_offline
 from aqt.operations import QueryOp
 from aqt.operations.collection import redo, undo
 from aqt.operations.deck import set_current_deck
@@ -81,6 +82,7 @@ from aqt.utils import (
     restoreState,
     saveGeom,
     saveState,
+    show_warning,
     showInfo,
     showWarning,
     tooltip,
@@ -1090,6 +1092,8 @@ title="{}" {}>{}</button>""".format(
     def on_sync_button_clicked(self) -> None:
         if self.media_syncer.is_syncing():
             self.media_syncer.show_sync_log()
+        elif is_sync_offline(self.pm):
+            show_warning(tr.network_offline(), parent=self)
         else:
             auth = self.pm.sync_auth()
             if not auth:
@@ -1126,7 +1130,11 @@ title="{}" {}>{}</button>""".format(
 
     def can_auto_sync(self) -> bool:
         "True if syncing on startup/shutdown enabled."
-        return self._can_sync_unattended() and self.pm.auto_syncing_enabled()
+        return (
+            self._can_sync_unattended()
+            and self.pm.auto_syncing_enabled()
+            and not is_sync_offline(self.pm)
+        )
 
     def _can_sync_unattended(self) -> bool:
         return (
