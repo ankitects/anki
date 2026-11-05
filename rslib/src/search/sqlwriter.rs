@@ -248,7 +248,13 @@ impl SqlWriter<'_> {
                 .filter(|nt| nt.is_cloze())
                 .map(|nt| format!("n.mid = {}", nt.id))
                 .join(" or ");
-            write!(self.sql, "({cloze_notetypes_only_clause}) and ").unwrap();
+            let cloze_notetypes_only_clause = if cloze_notetypes_only_clause.is_empty() {
+                "false".into()
+            } else {
+                cloze_notetypes_only_clause
+            };
+            // wrapped in parentheses so that the clause can be negated
+            write!(self.sql, "(({cloze_notetypes_only_clause}) and ").unwrap();
         }
 
         if let Some(field_indicies_by_notetype) = self.included_fields_by_notetype()? {
@@ -295,6 +301,10 @@ impl SqlWriter<'_> {
                 "({sfld_expr} like ?{arg_idx} escape '\\' or {flds_expr} like ?{arg_idx} escape '\\')"
             )
             .unwrap();
+        }
+
+        if strip_clozes {
+            write!(self.sql, ")").unwrap();
         }
 
         Ok(())
@@ -1129,6 +1139,7 @@ mod test {
     use crate::collection::Collection;
     use crate::collection::CollectionBuilder;
     use crate::config::BoolKey;
+    use crate::tests::NoteAdder;
 
     // shortcut
     fn s(req: &mut Collection, search: &str) -> (String, Vec<String>) {
@@ -1452,7 +1463,7 @@ c.odue != 0 then c.odue else c.due end) != {days}) or (c.queue in (1,4) and
         assert_eq!(&s(ctx, "preset:typo").0, "(false)");
 
         // strip clozes
-        assert_eq!(&s(ctx, "sc:abcdef").0, "((n.mid = 1581236385343) and (coalesce(process_text(cast(n.sfld as text), 2), n.sfld) like ?1 escape '\\' or coalesce(process_text(n.flds, 2), n.flds) like ?1 escape '\\'))");
+        assert_eq!(&s(ctx, "sc:abcdef").0, "(((n.mid = 1581236385343) and (coalesce(process_text(cast(n.sfld as text), 2), n.sfld) like ?1 escape '\\' or coalesce(process_text(n.flds, 2), n.flds) like ?1 escape '\\')))");
     }
 
     #[test]
@@ -1480,6 +1491,36 @@ c.odue != 0 then c.odue else c.due end) != {days}) or (c.queue in (1,4) and
         writer.write_node_to_sql(&node).unwrap();
         assert_eq!(writer.sql, "extract_fsrs_variable(c.data, 's') is not null");
         assert_eq!(node.required_table(), RequiredTable::Cards);
+
+        Ok(())
+    }
+
+    #[test]
+    fn strip_clozes_search_can_be_negated() -> Result<()> {
+        let mut col = Collection::new();
+        let basic = NoteAdder::basic(&mut col)
+            .fields(&["foo", ""])
+            .add(&mut col);
+        let cloze_foo = NoteAdder::cloze(&mut col)
+            .fields(&["{{c1::foo}}", ""])
+            .add(&mut col);
+        let cloze_bar = NoteAdder::cloze(&mut col)
+            .fields(&["{{c1::bar}}", ""])
+            .add(&mut col);
+
+        assert_eq!(col.search_notes_unordered("sc:foo")?, vec![cloze_foo.id]);
+        let mut nids = col.search_notes_unordered("-sc:foo")?;
+        nids.sort();
+        assert_eq!(nids, vec![basic.id, cloze_bar.id]);
+
+        // without any cloze notetype, nothing can match
+        for nt in col.get_all_notetypes()? {
+            if nt.is_cloze() {
+                col.remove_notetype(nt.id)?;
+            }
+        }
+        assert_eq!(col.search_notes_unordered("sc:foo")?, vec![]);
+        assert_eq!(col.search_notes_unordered("-sc:foo")?, vec![basic.id]);
 
         Ok(())
     }
