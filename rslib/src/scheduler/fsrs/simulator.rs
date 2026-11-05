@@ -832,34 +832,36 @@ mod test {
         let nt = col.get_notetype_by_name("Basic")?.unwrap();
         col.set_config_bool(BoolKey::Fsrs, true, false).unwrap();
 
-        // Answer one card so one card is introduced today, and then simulate with two
-        // new cards to be introduced
+        // Answer one card so one card is introduced today, and then simulate with
+        // three new cards to be introduced
         let mut note = nt.new_note();
         col.add_note(&mut note, DeckId(1))?;
         col.answer_easy();
 
         let req = SimulateFsrsReviewRequest {
             desired_retention: 0.9,
-            deck_size: 2, // 2 additional new cards to be introduced
+            deck_size: 3, // 3 additional new cards to be introduced
             new_limit: 3,
             days_to_simulate: 1,
             search: "*".to_string(),
             ..base_request()
         };
 
-        let (config, cards) = col.simulate_request_to_config(&req)?;
+        let (_, cards) = col.simulate_request_to_config(&req)?;
 
-        let result = simulate(&config, &[], 0.9, Some(42), Some(cards))?;
+        // New cards are the only ones without a previous review.
+        let new_card_dues = cards
+            .iter()
+            .filter(|c| c.last_date == f32::NEG_INFINITY)
+            .map(|c| c.due)
+            .collect_vec();
 
-        assert_eq!(
-            result.cards.len(),
-            3,
-            "expected three cards total (1 already introduced + 2 new)"
-        );
-        assert_eq!(
-            result.learn_cnt_per_day[0], 2,
-            "expected two introduced cards on the first day of simulation"
-        );
+        // With a limit of 3 per day and 1 card already introduced today, only 2 of the
+        // new cards fit in the first day. Ignoring the already introduced card would
+        // give [0.0, 0.0, 0.0] instead.
+        assert_eq!(new_card_dues, vec![0.0, 0.0, 1.0]);
+        // The already introduced card is also part of the simulation.
+        assert_eq!(cards.len(), 4);
 
         Ok(())
     }
