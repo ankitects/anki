@@ -62,6 +62,7 @@ pub fn setup_venv(build: &mut Build) -> Result<()> {
         "protoc-gen-mypy",
         "complexipy",
         "cog",
+        "clang-format",
     ];
     build.add_action(
         "pyenv",
