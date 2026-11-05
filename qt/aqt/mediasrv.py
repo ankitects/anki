@@ -1224,6 +1224,7 @@ exposed_backend_list = [
     # DeckConfigService
     "get_ignored_before_count",
     "get_retention_workload",
+    "simulate_reschedule",
     # CardRenderingService
     "encode_iri_paths",
     "decode_iri_paths",
