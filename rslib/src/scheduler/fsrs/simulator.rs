@@ -667,8 +667,8 @@ mod test {
         }
     }
 
-    /// Adds a review card that has no memory state, as happens when its revlog is
-    /// truncated or ignored, so the simulator has to fall back to SM-2.
+    /// Adds a review card that has no memory state, as happens when its revlog
+    /// is truncated or ignored, so the simulator has to fall back to SM-2.
     fn col_with_review_card_without_memory_state() -> Result<(Collection, Card)> {
         let mut col = Collection::new();
         let nt = col.get_notetype_by_name("Basic")?.unwrap();
