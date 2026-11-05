@@ -459,7 +459,7 @@ fn parse_prop(prop_clause: &str) -> ParseResult<'_, SearchNode> {
             tag("r"),
             recognize(preceded(tag("cdn:"), alphanumeric1)),
             recognize(preceded(tag("cds:"), alphanumeric1)),
-            )),
+        )),
         // Do not recognize only the prefix of an unknown property name.
         |prop: &str| !prop_clause[prop.len()..].starts_with(char::is_alphabetic),
     )
@@ -1279,7 +1279,13 @@ mod test {
         );
 
         for clause in [
-            "abc", "rabc", "duefoo=1", "ratedfoo>1", "reschedfoo=1", "ivlfoo<3", "sfoo=1",
+            "abc",
+            "rabc",
+            "duefoo=1",
+            "ratedfoo>1",
+            "reschedfoo=1",
+            "ivlfoo<3",
+            "sfoo=1",
             "dfoo=1",
         ] {
             assert_err_kind(
