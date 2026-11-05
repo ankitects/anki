@@ -603,6 +603,50 @@ mod test {
     }
 
     #[test]
+    fn card_convert_resets_due_and_last_date_for_learn_and_buried_cards() {
+        // Non-trivial due and interval, so that treating these queues like review
+        // cards (due = 10, last_date = -5 here) would fail the assertions.
+        for queue in [
+            CardQueue::Learn,
+            CardQueue::SchedBuried,
+            CardQueue::UserBuried,
+        ] {
+            let converted = convert(Card {
+                due: 20,
+                original_due: 20,
+                interval: 15,
+                lapses: 2,
+                ..card_from_queue(queue)
+            })
+            .unwrap();
+            assert_eq!(converted.due, 0.0, "due for {queue:?}");
+            assert_eq!(converted.last_date, 0.0, "last_date for {queue:?}");
+            assert_eq!(converted.interval, 15.0, "interval for {queue:?}");
+            assert_eq!(converted.lapses, 2, "lapses for {queue:?}");
+        }
+    }
+
+    #[test]
+    fn card_convert_handles_day_learn_cards() {
+        // Cards in the day learning queue are converted like review cards: relative
+        // due and interval are kept, unlike intraday learning cards.
+        let day_learn = convert(Card {
+            queue: CardQueue::DayLearn,
+            ctype: CardType::Relearn,
+            due: 20,
+            original_due: 20,
+            interval: 15,
+            lapses: 2,
+            ..Default::default()
+        })
+        .unwrap();
+        assert_eq!(day_learn.due, 10.0);
+        assert_eq!(day_learn.last_date, -5.0);
+        assert_eq!(day_learn.interval, 15.0);
+        assert_eq!(day_learn.lapses, 2);
+    }
+
+    #[test]
     fn card_convert_handles_queues() {
         for queue in [
             CardQueue::Review,
