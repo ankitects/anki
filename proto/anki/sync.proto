@@ -3,11 +3,11 @@
 
 syntax = "proto3";
 
-option java_multiple_files = true;
-
 package anki.sync;
 
 import "anki/generic.proto";
+
+option java_multiple_files = true;
 
 // Syncing methods are only available with a Backend handle.
 service SyncService {}

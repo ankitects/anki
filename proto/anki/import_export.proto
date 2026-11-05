@@ -3,19 +3,18 @@
 
 syntax = "proto3";
 
-option java_multiple_files = true;
-
 package anki.import_export;
 
 import "anki/cards.proto";
 import "anki/collection.proto";
-import "anki/notes.proto";
 import "anki/generic.proto";
+import "anki/notes.proto";
+
+option java_multiple_files = true;
 
 service ImportExportService {
   rpc ImportAnkiPackage(ImportAnkiPackageRequest) returns (ImportResponse);
-  rpc GetImportAnkiPackagePresets(generic.Empty)
-      returns (ImportAnkiPackageOptions);
+  rpc GetImportAnkiPackagePresets(generic.Empty) returns (ImportAnkiPackageOptions);
   rpc ExportAnkiPackage(ExportAnkiPackageRequest) returns (generic.UInt32);
   rpc GetCsvMetadata(CsvMetadataRequest) returns (CsvMetadata);
   rpc ImportCsv(ImportCsvRequest) returns (ImportResponse);
@@ -28,10 +27,8 @@ service ImportExportService {
 // Implicitly includes any of the above methods that are not listed in the
 // backend service.
 service BackendImportExportService {
-  rpc ImportCollectionPackage(ImportCollectionPackageRequest)
-      returns (generic.Empty);
-  rpc ExportCollectionPackage(ExportCollectionPackageRequest)
-      returns (generic.Empty);
+  rpc ImportCollectionPackage(ImportCollectionPackageRequest) returns (generic.Empty);
+  rpc ExportCollectionPackage(ExportCollectionPackageRequest) returns (generic.Empty);
 }
 
 message ImportCollectionPackageRequest {

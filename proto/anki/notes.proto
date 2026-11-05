@@ -3,14 +3,14 @@
 
 syntax = "proto3";
 
-option java_multiple_files = true;
-
 package anki.notes;
 
-import "anki/notetypes.proto";
+import "anki/cards.proto";
 import "anki/collection.proto";
 import "anki/decks.proto";
-import "anki/cards.proto";
+import "anki/notetypes.proto";
+
+option java_multiple_files = true;
 
 service NotesService {
   rpc NewNote(notetypes.NotetypeId) returns (Note);
@@ -22,10 +22,8 @@ service NotesService {
   rpc GetNote(NoteId) returns (Note);
   rpc RemoveNotes(RemoveNotesRequest) returns (collection.OpChangesWithCount);
   rpc ClozeNumbersInNote(Note) returns (ClozeNumbersInNoteResponse);
-  rpc AfterNoteUpdates(AfterNoteUpdatesRequest)
-      returns (collection.OpChangesWithCount);
-  rpc FieldNamesForNotes(FieldNamesForNotesRequest)
-      returns (FieldNamesForNotesResponse);
+  rpc AfterNoteUpdates(AfterNoteUpdatesRequest) returns (collection.OpChangesWithCount);
+  rpc FieldNamesForNotes(FieldNamesForNotesRequest) returns (FieldNamesForNotesResponse);
   rpc NoteFieldsCheck(Note) returns (NoteFieldsCheckResponse);
   rpc CardsOfNote(NoteId) returns (cards.CardIds);
   rpc GetSingleNotetypeOfNotes(notes.NoteIds) returns (notetypes.NotetypeId);
