@@ -799,6 +799,34 @@ mod test {
     }
 
     #[test]
+    fn request_config_keeps_requested_step_counts() -> Result<()> {
+        let mut col = Collection::new();
+
+        // Different from each other and from the base request (3 and 2), so that
+        // swapping them or falling back to a default would be noticed.
+        let req = SimulateFsrsReviewRequest {
+            learning_step_count: 4,
+            relearning_step_count: 5,
+            ..base_request()
+        };
+        let (config, _) = col.simulate_request_to_config(&req)?;
+        assert_eq!(config.learning_step_count, 4);
+        assert_eq!(config.relearning_step_count, 5);
+
+        // No steps at all must be preserved too, not replaced by a default.
+        let req = SimulateFsrsReviewRequest {
+            learning_step_count: 0,
+            relearning_step_count: 0,
+            ..base_request()
+        };
+        let (config, _) = col.simulate_request_to_config(&req)?;
+        assert_eq!(config.learning_step_count, 0);
+        assert_eq!(config.relearning_step_count, 0);
+
+        Ok(())
+    }
+
+    #[test]
     fn simulate_request_to_config_counts_already_introduced_cards() -> Result<()> {
         let mut col = Collection::new();
         let nt = col.get_notetype_by_name("Basic")?.unwrap();
