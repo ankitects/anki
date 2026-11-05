@@ -647,7 +647,13 @@ mod test {
         card.decay = None;
         col.storage.update_card(&card)?;
 
+        // Use a decay that differs from the default so we can tell that it comes from
+        // the request's params and not from a fallback.
+        let mut params = fsrs::DEFAULT_PARAMETERS.to_vec();
+        params[20] = 0.3;
+
         let req = SimulateFsrsReviewRequest {
+            params: params.clone(),
             desired_retention: 0.91,
             deck_size: 1,
             new_limit: 0,
@@ -663,6 +669,20 @@ mod test {
             "expected desired retention to be 0.91, got {}",
             cards[0].desired_retention
         );
+        // Parameter 20 controls decay, so this also checks that the decay comes from
+        // the request.
+        assert_eq!(
+            *cards[0].parameters, params,
+            "expected the converted card to carry the requested params"
+        );
+        // The memory state must be the one derived from the card's ease and interval
+        let expected = FSRS::new(&req.params)?.memory_state_from_sm2(
+            card.ease_factor(),
+            card.interval as f32,
+            req.historical_retention,
+        )?;
+        assert_eq!(cards[0].stability, expected.stability);
+        assert_eq!(cards[0].difficulty, expected.difficulty);
         assert!(
             cards[0].stability > 0.0,
             "expected stability to be positive, got {}",
