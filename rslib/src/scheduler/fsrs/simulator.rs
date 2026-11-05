@@ -623,8 +623,9 @@ mod test {
         }
     }
 
-    #[test]
-    fn request_config_uses_sm2_fallback_and_fills_fsrs_values() -> Result<()> {
+    /// Adds a review card that has no memory state, as happens when its revlog is
+    /// truncated or ignored, so the simulator has to fall back to SM-2.
+    fn col_with_review_card_without_memory_state() -> Result<(Collection, Card)> {
         let mut col = Collection::new();
         let nt = col.get_notetype_by_name("Basic")?.unwrap();
         let mut note = nt.new_note();
@@ -646,6 +647,12 @@ mod test {
         card.desired_retention = None;
         card.decay = None;
         col.storage.update_card(&card)?;
+        Ok((col, card))
+    }
+
+    #[test]
+    fn request_config_uses_sm2_fallback_and_fills_fsrs_values() -> Result<()> {
+        let (mut col, card) = col_with_review_card_without_memory_state()?;
 
         // Use a decay that differs from the default so we can tell that it comes from
         // the request's params and not from a fallback.
@@ -717,6 +724,32 @@ mod test {
             card_1.stability, cards[0].stability,
             "expected stability to change with historical retention"
         );
+
+        Ok(())
+    }
+
+    #[test]
+    fn request_config_drops_cards_when_sm2_fallback_fails() -> Result<()> {
+        let (mut col, _) = col_with_review_card_without_memory_state()?;
+
+        let req = SimulateFsrsReviewRequest {
+            deck_size: 1,
+            new_limit: 0,
+            ..base_request()
+        };
+        let (_, cards) = col.simulate_request_to_config(&req)?;
+        assert_eq!(cards.len(), 1, "the card converts with a valid retention");
+
+        // A historical retention of 1.0 makes the SM-2 conversion return an error
+        // (infinite stability), so the card must be skipped instead of failing the
+        // whole simulation.
+        let req = SimulateFsrsReviewRequest {
+            historical_retention: 1.0,
+            ..req
+        };
+        let (config, cards) = col.simulate_request_to_config(&req)?;
+        assert!(cards.is_empty(), "expected the card to be dropped");
+        assert_eq!(config.deck_size, 0);
 
         Ok(())
     }
