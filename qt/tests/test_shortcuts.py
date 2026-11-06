@@ -18,8 +18,10 @@ from aqt.qt import (
     QApplication,
     QDialog,
     QKeySequence,
+    QLineEdit,
     QMainWindow,
     QMessageBox,
+    QPalette,
     QShortcut,
     Qt,
     QTimer,
@@ -37,6 +39,15 @@ from aqt.shortcuts import (
 def english() -> None:
     # labels are asserted in English, and other tests may change the language
     anki.lang.set_lang("en")
+
+
+def visible_labels(dialog: Preferences, section: int) -> list[str]:
+    table = dialog.shortcut_sections[section][1]
+    return [
+        table.item(row, 0).text()
+        for row in range(table.rowCount())
+        if not table.isRowHidden(row)
+    ]
 
 
 def make_profile_manager() -> ProfileManager:
@@ -116,25 +127,21 @@ def test_keybindings_editor_searches_and_saves_bindings(qapp) -> None:
     dialog.setup_configurable_shortcuts()
 
     assert dialog.form.tabWidget.tabText(3) == "Keybindings"
-    assert dialog.shortcut_tree.topLevelItem(0).text(0) == "Answer keys"
+    answer_keys = dialog.shortcut_sections[0][0]
+    assert answer_keys.title() == "Answer keys"
     dialog.shortcut_search.setText("Sync")
-    assert dialog.shortcut_tree.topLevelItem(0).isHidden()
+    assert answer_keys.isHidden()
 
     dialog.shortcut_search.setText("Add")
-    general = dialog.shortcut_tree.topLevelItem(3)
+    general = dialog.shortcut_sections[3][0]
     assert not general.isHidden()
-    assert (
-        sum(not general.child(i).isHidden() for i in range(general.childCount())) == 1
-    )
+    assert visible_labels(dialog, 3) == ["Add"]
 
     dialog.shortcut_search.clear()
     dialog.shortcut_key_filter.setKeySequence(QKeySequence("A"))
     dialog._filter_shortcuts()
     assert not general.isHidden()
-    assert (
-        sum(not general.child(i).isHidden() for i in range(general.childCount())) == 1
-    )
-    assert not general.child(3).isHidden()
+    assert visible_labels(dialog, 3) == ["Add"]
     dialog.shortcut_key_filter.clear()
 
     editor = dialog.shortcut_editors["global.add"]
@@ -200,8 +207,25 @@ def test_shortcut_edit_enter_confirms_and_escape_cancels(qapp) -> None:
     dialog.show()
     editor = dialog.shortcut_editors["global.add"]
 
+    def placeholder_alpha() -> int:
+        line_edit = editor.findChild(QLineEdit)
+        return line_edit.palette().color(QPalette.ColorRole.PlaceholderText).alpha()
+
+    # unset keys stay blank until they're being edited
+    assert placeholder_alpha() == 0
+
+    # Qt resets the placeholder when a key is cleared, but the filter keeps ours
+    key_filter = dialog.shortcut_key_filter
+    key_filter.setKeySequence(QKeySequence("A"))
+    key_filter.clear()
+    filter_line_edit = key_filter.findChild(QLineEdit)
+    qapp.processEvents()
+    filter_line_edit.repaint()
+    assert filter_line_edit.placeholderText() == "Search by keybinding"
+
     editor.setFocus()
     qapp.processEvents()
+    assert placeholder_alpha() > 0
     assert (
         dialog.shortcut_edit_hint.text() == "Press Enter to confirm, or Esc to cancel."
     )
@@ -216,7 +240,10 @@ def test_shortcut_edit_enter_confirms_and_escape_cancels(qapp) -> None:
     qapp.processEvents()
     assert editor.keySequence().toString() == "Ctrl+K"
     assert manager.get_shortcut("global.add", "a") == "Ctrl+K"
-    assert dialog.shortcut_edit_hint.text() == ""
+    assert (
+        dialog.shortcut_edit_hint.text()
+        == "Some settings will take effect after you restart Anki."
+    )
 
     editor.setFocus()
     qapp.processEvents()
@@ -326,13 +353,7 @@ def test_alternate_keybinding_can_be_edited(qapp) -> None:
 
     dialog.shortcut_key_filter.setKeySequence(QKeySequence("Ctrl+K"))
     dialog._filter_shortcuts()
-    general = dialog.shortcut_tree.topLevelItem(3)
-    visible = [
-        general.child(i).text(0)
-        for i in range(general.childCount())
-        if not general.child(i).isHidden()
-    ]
-    assert visible == ["Stats"]
+    assert visible_labels(dialog, 3) == ["Stats"]
 
     dialog.shortcut_editors["global.add.alternate"].setKeySequence(
         QKeySequence("Ctrl+K")
