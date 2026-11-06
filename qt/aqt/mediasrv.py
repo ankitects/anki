@@ -99,9 +99,16 @@ UNTRUSTED_MEDIA_CSP = "; ".join(
     )
 )
 
-
 # Our pages are always shown top-level
-TRUSTED_PAGE_CSP = "frame-ancestors 'none'"
+WEB_PAGE_CSP = "frame-ancestors 'none'"
+
+TRUSTED_PAGE_CSP = "; ".join(
+    (
+        WEB_PAGE_CSP,
+        "require-trusted-types-for 'script'",
+        "trusted-types default svelte-trusted-html anki-trusted anki-user-content",
+    )
+)
 
 
 def _untrusted_page_content_security_policy(port: int, script_src: str) -> str:
@@ -466,7 +473,7 @@ def _handle_builtin_file_request(request: BundledFileRequest) -> Response:
                 response.set_data(_strip_csp_meta(data))
                 response.headers["Content-Security-Policy"] = TRUSTED_PAGE_CSP
         elif mimetype == "text/html":
-            response.headers["Content-Security-Policy"] = TRUSTED_PAGE_CSP
+            response.headers["Content-Security-Policy"] = WEB_PAGE_CSP
 
         return response
     except FileNotFoundError:
@@ -1365,7 +1372,7 @@ def legacy_page_data() -> Response:
                 _legacy_editor_content_security_policy(aqt.mw.mediaServer.getPort())
             )
         else:
-            response.headers["Content-Security-Policy"] = TRUSTED_PAGE_CSP
+            response.headers["Content-Security-Policy"] = WEB_PAGE_CSP
         return response
     else:
         return _text_response(HTTPStatus.NOT_FOUND, "page not found")
