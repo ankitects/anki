@@ -35,6 +35,7 @@
         "@types/lodash-es": "^4.17.4",
         "@types/marked": "^5.0.0",
         "@types/node": "^22",
+        "@types/trusted-types": "^2.0.7",
         "@typescript-eslint/eslint-plugin": "^5.60.1",
         "@typescript-eslint/parser": "^5.60.1",
         "@vitest/coverage-v8": "4.1.11",
@@ -97,7 +98,7 @@
         "defaults",
         "not op_mini all",
         "not < 1%",
-        "Chrome 77",
+        "Chrome 83",
         "iOS 14.5"
     ],
     "type": "module",
