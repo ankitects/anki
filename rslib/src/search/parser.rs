@@ -389,7 +389,7 @@ fn search_node_for_text_with_argument<'a>(
         "w" => SearchNode::WordBoundary(unescape(val)?),
         "dupe" => parse_dupe(val)?,
         "has-cd" => SearchNode::CustomData(unescape(val)?),
-        "preset" => SearchNode::Preset(val.into()),
+        "preset" => SearchNode::Preset(unescape_quotes(val)),
         // anything else is a field search
         _ => parse_single_field(key, val)?,
     })
@@ -508,7 +508,9 @@ fn parse_prop(prop_clause: &str) -> ParseResult<'_, SearchNode> {
         },
         prop if prop.starts_with("cds:") => PropertyKind::CustomDataString {
             key: prop.strip_prefix("cds:").unwrap().into(),
-            value: num.into(),
+            // unescape \" like the writer expects (and like Regex/Preset do),
+            // so a value containing a quote round-trips through parse -> write
+            value: unescape_quotes(num),
         },
         _ => unreachable!(),
     };
