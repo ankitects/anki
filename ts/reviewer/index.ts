@@ -19,6 +19,8 @@ globalThis.anki.setupImageCloze = imageOcclusionAPI.setup; // deprecated
 import { bridgeCommand } from "@tslib/bridgecommand";
 import { registerPackage } from "@tslib/runtime-require";
 
+import { setInnerHTML as setInnerHTMLBase } from "@tslib/dom";
+import { trustedHTML } from "@tslib/trusted-types";
 import { allImagesLoaded, preloadAnswerImages } from "./images";
 import { preloadResources } from "./preload";
 
@@ -122,7 +124,7 @@ async function setInnerHTML(element: Element, html: string): Promise<void> {
         oldVideo.load();
     }
 
-    element.innerHTML = html;
+    setInnerHTMLBase(element, trustedHTML(html));
 
     for (const oldScript of element.getElementsByTagName("script")) {
         await replaceScript(oldScript);

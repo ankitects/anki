@@ -6,6 +6,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import Switch from "$lib/components/Switch.svelte";
     import type { PreferenceStore } from "$lib/sveltelib/preferences";
     import type { ExperimentalFeatureFlag } from "@generated/anki/config_pb";
+    import { trustedHTML } from "@tslib/trusted-types";
 
     export let title: string;
     export let description = "";
@@ -26,7 +27,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             <Switch id={title} bind:value on:input={onInput}></Switch>
         </div>
     </div>
-    {@html description}
+    {@html trustedHTML(description)}
 </label>
 
 <style>

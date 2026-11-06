@@ -785,6 +785,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         showToast,
     } from "../image-occlusion/toast-utils.svelte";
     import type { OpChanges } from "@generated/anki/collection_pb";
+    import { trustedHTML } from "@tslib/trusted-types";
 
     $: isIOImageLoaded = false;
     $: ioImageLoadedStore.set(isIOImageLoaded);
@@ -1462,7 +1463,7 @@ components and functionality for general note editing.
                 <Badge --badge-color="tomato" --icon-align="top">
                     <Icon icon={alertIcon} />
                 </Badge>
-                <span>{@html hint}</span>
+                <span>{@html trustedHTML(hint)}</span>
             </Notification>
         </Absolute>
     {/if}
@@ -1633,9 +1634,9 @@ components and functionality for general note editing.
             on:toggle={() => updateTagsCollapsed(!$tagsCollapsed)}
         >
             {#if tagAmount == 0}
-                {@html `${tr.editingTags()}`}
+                {@html trustedHTML(tr.editingTags())}
             {:else}
-                {@html `${tr.editingTagCount({ count: tagAmount })}`}
+                {@html trustedHTML(tr.editingTagCount({ count: tagAmount }))}
             {/if}
         </CollapseLabel>
         <Collapsible toggleDisplay collapse={$tagsCollapsed}>

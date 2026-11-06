@@ -4,6 +4,7 @@
 import { fragmentToString, nodeContainsInlineContent, nodeIsElement } from "@tslib/dom";
 import { createDummyDoc } from "@tslib/parsing";
 
+import { untrustedHTML } from "@tslib/trusted-types";
 import { decoratedElements } from "../decorated-elements";
 
 function adjustInputHTML(html: string): string {
@@ -24,7 +25,9 @@ export function storedToFragment(storedHTML: string): DocumentFragment {
     /* We need .createContextualFragment so that customElements are initialized */
     const fragment = document
         .createRange()
-        .createContextualFragment(createDummyDoc(adjustInputHTML(storedHTML)));
+        .createContextualFragment(
+            untrustedHTML(createDummyDoc(adjustInputHTML(storedHTML))) as unknown as string,
+        );
 
     adjustInputFragment(fragment);
     return fragment;

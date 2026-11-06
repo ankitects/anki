@@ -13,6 +13,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     import { buildNextLearnMsg } from "./lib";
     import { onMount } from "svelte";
+    import { untrustedHTML, trustedHTML } from "@tslib/trusted-types";
 
     export let info: CongratsInfoResponse;
     export let refreshPeriodically = true;
@@ -61,20 +62,20 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             {#if info.bridgeCommandsSupported}
                 {#if info.haveSchedBuried || info.haveUserBuried}
                     <p>
-                        {@html buriedMsg}
+                        {@html trustedHTML(buriedMsg)}
                     </p>
                 {/if}
 
                 {#if !info.isFilteredDeck}
                     <p>
-                        {@html customStudyMsg}
+                        {@html trustedHTML(customStudyMsg)}
                     </p>
                 {/if}
             {/if}
 
             {#if info.deckDescription}
                 <div class="description">
-                    {@html info.deckDescription}
+                    {@html untrustedHTML(info.deckDescription)}
                 </div>
             {/if}
         </div>

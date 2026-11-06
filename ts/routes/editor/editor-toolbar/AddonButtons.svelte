@@ -8,6 +8,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { toggleEditorButton } from "../old-editor-adapter";
     import { singleCallback } from "@tslib/typing";
     import { on } from "@tslib/events";
+    import { trustedHTML } from "@tslib/trusted-types";
 
     const { buttons } = $props<{ buttons: string[] }>();
 
@@ -58,7 +59,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <ButtonGroup>
     {#each buttons as button, index}
         <div style={getBorderRadius(index, buttons.length)}>
-            {@html button}
+            {@html trustedHTML(button)}
         </div>
     {/each}
 </ButtonGroup>

@@ -17,7 +17,9 @@ import {
 } from "@generated/backend";
 import * as tr from "@generated/ftl";
 import { bridgeCommand } from "@tslib/bridgecommand";
+import { setInnerHTML } from "@tslib/dom";
 import { shiftPressed } from "@tslib/keys";
+import { untrustedHTML } from "@tslib/trusted-types";
 import { pasteHTML } from "../old-editor-adapter";
 
 type ImageData = string | Uint8Array;
@@ -367,7 +369,7 @@ async function processDataTransferEvent(
 
 async function runPreFilter(html: string, internal = false): Promise<string> {
     const template = document.createElement("template");
-    template.innerHTML = html;
+    setInnerHTML(template, untrustedHTML(html));
     const content = template.content;
     for (const img of content.querySelectorAll("img")) {
         let src = img.getAttribute("src");

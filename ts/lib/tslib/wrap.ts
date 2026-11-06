@@ -2,6 +2,7 @@
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 import { getRange, getSelection } from "./cross-browser";
+import { untrustedHTML } from "./trusted-types";
 
 function wrappedExceptForWhitespace(text: string, front: string, back: string): string {
     const normalizedText = text
@@ -43,10 +44,10 @@ export function wrapInternal(
 
     if (plainText) {
         const new_ = wrappedExceptForWhitespace(span.innerText, front, back);
-        document.execCommand("inserttext", false, new_);
+        document.execCommand("inserttext", false, untrustedHTML(new_) as unknown as string);
     } else {
         const new_ = wrappedExceptForWhitespace(span.innerHTML, front, back);
-        document.execCommand("inserthtml", false, new_);
+        document.execCommand("inserthtml", false, untrustedHTML(new_) as unknown as string);
     }
 
     if (

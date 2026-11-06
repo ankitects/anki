@@ -3,6 +3,7 @@
     License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
+    import { trustedHTML } from "@tslib/trusted-types";
     import Tooltip from "bootstrap/js/dist/tooltip";
     import { onDestroy } from "svelte";
 
@@ -37,6 +38,9 @@
             offset,
             delay: { show: showDelay, hide: hideDelay },
             trigger,
+            sanitizeFn() {
+                trustedHTML(tooltip);
+            },
         });
     }
 

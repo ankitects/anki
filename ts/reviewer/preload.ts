@@ -1,6 +1,8 @@
 // Copyright: Anki Software, LLC and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
+import { setInnerHTML } from "@tslib/dom";
+import { trustedHTML } from "@tslib/trusted-types";
 import { preloadImages } from "./images";
 
 const template = document.createElement("template");
@@ -53,7 +55,7 @@ function preloadStyleSheets(fragment: DocumentFragment): Promise<void>[] {
 }
 
 function extractFontFaceRules(style: HTMLStyleElement): CSSFontFaceRule[] {
-    htmlDoc.head.innerHTML = "";
+    setInnerHTML(htmlDoc.head, trustedHTML(""));
     // must be attached to an HTMLDocument to access 'sheet' property
     htmlDoc.head.appendChild(style);
 
@@ -92,7 +94,7 @@ function preloadFonts(fragment: DocumentFragment): Promise<void>[] {
 }
 
 export async function preloadResources(html: string): Promise<void> {
-    template.innerHTML = html;
+    setInnerHTML(template, trustedHTML(html));
     const fragment = template.content;
     const styleSheets = preloadStyleSheets(fragment.cloneNode(true) as DocumentFragment);
     const images = preloadImages(fragment.cloneNode(true) as DocumentFragment);

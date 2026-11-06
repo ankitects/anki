@@ -5,6 +5,7 @@ import { updateAllState } from "$lib/components/WithState.svelte";
 import { execCommand } from "$lib/domlib";
 
 import { filterHTML } from "$lib/html-filter";
+import { untrustedHTML } from "@tslib/trusted-types";
 
 export function pasteHTML(
     html: string,
@@ -19,7 +20,7 @@ export function pasteHTML(
 }
 
 export function setFormat(cmd: string, arg?: string, _nosave = false): void {
-    execCommand(cmd, false, arg);
+    execCommand(cmd, false, untrustedHTML(arg ?? "") as unknown as string);
     updateAllState(new Event(cmd));
 }
 

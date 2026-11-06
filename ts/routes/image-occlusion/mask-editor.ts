@@ -7,6 +7,8 @@ import * as tr from "@generated/ftl";
 import { fabric } from "fabric";
 import { get } from "svelte/store";
 
+import { setInnerHTML } from "@tslib/dom";
+import { untrustedHTML } from "@tslib/trusted-types";
 import { optimumCssSizeForCanvas } from "./canvas-scale";
 import {
     hideAllGuessOne,
@@ -197,7 +199,7 @@ const addClozeNotesToTextEditor = (header: string, backExtra: string, tags: stri
         const textAreaId = `${note.id}--textarea`;
         const divElement = document.getElementById(divId)!;
         const textAreaElement = document.getElementById(textAreaId)! as HTMLTextAreaElement;
-        divElement.innerHTML = note.divValue;
+        setInnerHTML(divElement, untrustedHTML(note.divValue));
         textAreaElement.value = note.textareaValue;
     });
 };

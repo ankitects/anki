@@ -21,7 +21,14 @@ const configure = (proxy: any, _options: any) => {
 const viteConfig = defineViteConfig({
     plugins: [
         sveltekit(),
-        svg({ svgoOptions: { plugins: [{ name: "cleanupIds", params: { remove: false } }] } }),
+        svg({
+            svgoOptions: { plugins: [{ name: "cleanupIds", params: { remove: false } }] },
+            // The default component uses {@html "<path …/>"} with a plain string,
+            // which the default Trusted Types policy rejects.
+            preCompileHook: (_raw, { attributes, content }) =>
+                `<script>import { trustedHTML } from "@tslib/trusted-types";</script>`
+                + `<svg ${attributes ?? ""} {...$$props}>{@html trustedHTML(${JSON.stringify(content ?? "")})}</svg>`,
+        }),
     ],
     cacheDir: "../node_modules/.vite",
     build: {
