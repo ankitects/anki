@@ -122,6 +122,8 @@ fn setup_node(build: &mut Build) -> Result<()> {
                 "minus-thick.svg",
                 // QRadioButton
                 "circle-medium.svg",
+                // keybinding editor buttons
+                "close.svg",
             ].iter().map(|file| format!("@mdi/svg/svg/{file}").into()).collect(),
         },
     )?;

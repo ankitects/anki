@@ -124,12 +124,18 @@ class Overview:
         return False
 
     def _shortcutKeys(self) -> list[tuple[str, Callable]]:
+        def key(action_id: str, default: str) -> str:
+            return self.mw.pm.get_shortcut(action_id, default)
+
         return [
-            ("o", lambda: display_options_for_deck(self.mw.col.decks.current())),
-            ("r", self.rebuild_current_filtered_deck),
-            ("e", self.empty_current_filtered_deck),
-            ("c", self.onCustomStudyKey),
-            ("u", self.on_unbury),
+            (
+                key("overview.options", "o"),
+                lambda: display_options_for_deck(self.mw.col.decks.current()),
+            ),
+            (key("overview.rebuild", "r"), self.rebuild_current_filtered_deck),
+            (key("overview.empty", "e"), self.empty_current_filtered_deck),
+            (key("overview.custom_study", "c"), self.onCustomStudyKey),
+            (key("overview.unbury", "u"), self.on_unbury),
         ]
 
     def _current_deck_is_filtered(self) -> int:

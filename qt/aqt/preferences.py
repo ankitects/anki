@@ -20,7 +20,7 @@ from aqt.operations.collection import set_preferences
 from aqt.profiles import VideoDriver
 from aqt.qt import *
 from aqt.sync import sync_login
-from aqt.theme import Theme
+from aqt.theme import Theme, theme_manager
 from aqt.url_schemes import show_url_schemes_dialog
 from aqt.utils import (
     HelpPage,
@@ -34,6 +34,78 @@ from aqt.utils import (
     tr,
 )
 from aqt.webview import AnkiWebView, AnkiWebViewKind
+
+
+def _shortcut_contexts_overlap(action_id: str, other_id: str) -> bool:
+    "Global shortcuts are active on every screen, so they clash with all others."
+    context, other_context = action_id.split(".", 1)[0], other_id.split(".", 1)[0]
+    return context == other_context or "global" in (context, other_context)
+
+
+class ShortcutEdit(QKeySequenceEdit):
+    focusChanged = pyqtSignal(bool)
+    # Unlike editingFinished, which fires on a timer while the user may still
+    # cancel with Esc, this fires only once the edit is confirmed.
+    shortcutCommitted = pyqtSignal()
+
+    def setClearButtonEnabled(self, enable: bool) -> None:
+        super().setClearButtonEnabled(enable)
+        if enable:
+            self._set_button_icon("mdi:close")
+
+    def setPlaceholderText(self, text: str) -> None:
+        if line_edit := self.findChild(QLineEdit):
+            line_edit.setPlaceholderText(text)
+
+    def _set_button_icon(self, icon: str) -> None:
+        self._clear_button = self.findChild(QToolButton)
+        if self._clear_button is not None:
+            self._clear_button.setIcon(theme_manager.icon_from_resources(icon))
+
+    def focusInEvent(self, event: QFocusEvent | None) -> None:
+        self._key_before_edit = self.keySequence()
+        self._editing = True
+        self._set_button_icon("mdi:check")
+        if self._clear_button is not None:
+            self._clear_button.setToolTip(tr.preferences_keybindings_confirm())
+            self._clear_button.installEventFilter(self)
+        super().focusInEvent(event)
+        self.focusChanged.emit(True)
+
+    def focusOutEvent(self, event: QFocusEvent | None) -> None:
+        super().focusOutEvent(event)
+        self._editing = False
+        self._set_button_icon("mdi:close")
+        if self._clear_button is not None:
+            self._clear_button.setToolTip("")
+        self.focusChanged.emit(False)
+        if self.keySequence() != self._key_before_edit:
+            self.shortcutCommitted.emit()
+
+    def eventFilter(self, watched: QObject | None, event: QEvent | None) -> bool:
+        if (
+            watched == getattr(self, "_clear_button", None)
+            and getattr(self, "_editing", False)
+            and event is not None
+            and event.type() == QEvent.Type.MouseButtonPress
+        ):
+            self.clearFocus()
+            event.accept()
+            return True
+        return super().eventFilter(watched, event)
+
+    def keyPressEvent(self, event: QKeyEvent | None) -> None:
+        if event is not None and event.key() in (
+            Qt.Key.Key_Return,
+            Qt.Key.Key_Enter,
+            Qt.Key.Key_Escape,
+        ):
+            if event.key() == Qt.Key.Key_Escape:
+                self.setKeySequence(self._key_before_edit)
+            self.clearFocus()
+            event.accept()
+            return
+        super().keyPressEvent(event)
 
 
 class Preferences(QDialog):
@@ -69,7 +141,7 @@ class Preferences(QDialog):
         self.setup_collection()
         self.setup_profile()
         self.setup_global()
-        self.setup_configurable_answer_keys()
+        self.setup_configurable_shortcuts()
         self.show()
 
     def _setup_webview(self) -> None:
@@ -79,31 +151,231 @@ class Preferences(QDialog):
         layout.addWidget(self.web)
         self.web.load_sveltekit_page("preferences")
 
-    def setup_configurable_answer_keys(self):
-        """
-        Create a group box in Preferences with widgets that let the user edit answer keys.
-        """
-        ease_labels = (
-            (1, tr.studying_again()),
-            (2, tr.studying_hard()),
-            (3, tr.studying_good()),
-            (4, tr.studying_easy()),
-        )
+    def setup_configurable_shortcuts(self) -> None:
+        from aqt.shortcuts import SHORTCUT_DEFINITIONS
+
         group = self.form.preferences_answer_keys
-        group.setLayout(layout := QFormLayout())
-        tab_widget: QWidget = self.form.url_schemes
-        for ease, label in ease_labels:
-            layout.addRow(
-                label,
-                line_edit := QLineEdit(self.mw.pm.get_answer_key(ease) or ""),
+        review_layout = self.form.tab_3.layout()
+        assert review_layout is not None
+        review_layout.removeWidget(group)
+        tab = QWidget()
+        tab_layout = QVBoxLayout(tab)
+        tab_layout.addWidget(group)
+        group.setTitle("")
+        self.form.tabWidget.insertTab(
+            # after the Editing tab
+            self.form.tabWidget.indexOf(self.form.tab_1) + 1,
+            tab,
+            tr.preferences_keybindings(),
+        )
+        layout = QVBoxLayout(group)
+        filters = QHBoxLayout()
+        self.shortcut_search = QLineEdit(group)
+        self.shortcut_search.setPlaceholderText(
+            tr.preferences_keybindings_search_action()
+        )
+        self.shortcut_search.setClearButtonEnabled(True)
+        if clear_action := self.shortcut_search.findChild(
+            QAction, "_q_qlineeditclearaction"
+        ):
+            clear_action.setIcon(theme_manager.icon_from_resources("mdi:close"))
+        filters.addWidget(self.shortcut_search, 1)
+        self.shortcut_key_filter = ShortcutEdit(group)
+        self.shortcut_key_filter.setClearButtonEnabled(True)
+        self.shortcut_key_filter.setPlaceholderText(
+            tr.preferences_keybindings_search_keybinding()
+        )
+        self.shortcut_key_filter.setToolTip(
+            tr.preferences_keybindings_search_keybinding()
+        )
+        self.shortcut_key_filter.setAccessibleName(
+            tr.preferences_keybindings_search_keybinding()
+        )
+        filters.addWidget(self.shortcut_key_filter, 1)
+        layout.addLayout(filters)
+        self.shortcut_edit_hint = QLabel(group)
+        self.shortcut_edit_hint.setMinimumHeight(
+            self.shortcut_edit_hint.fontMetrics().height()
+        )
+        qconnect(
+            self.shortcut_key_filter.focusChanged,
+            self._set_shortcut_edit_hint,
+        )
+
+        self.shortcut_tree = QTreeWidget(group)
+        self.shortcut_tree.setColumnCount(2)
+        self.shortcut_tree.setHeaderLabels(
+            [
+                tr.preferences_keybindings_action(),
+                tr.preferences_keybindings_keybinding(),
+            ]
+        )
+        self.shortcut_tree.setRootIsDecorated(True)
+        self.shortcut_tree.setMinimumHeight(260)
+        header = self.shortcut_tree.header()
+        assert header is not None
+        header.setStretchLastSection(False)
+        header.setSectionResizeMode(0, QHeaderView.ResizeMode.Stretch)
+        header.setSectionResizeMode(1, QHeaderView.ResizeMode.ResizeToContents)
+        layout.addWidget(self.shortcut_tree)
+
+        self.shortcut_editors: dict[str, ShortcutEdit] = {}
+        categories: dict[str, QTreeWidgetItem] = {}
+        for definition in SHORTCUT_DEFINITIONS:
+            category = categories.get(definition.category)
+            if category is None:
+                category = QTreeWidgetItem(self.shortcut_tree, [definition.category])
+                categories[definition.category] = category
+            item = QTreeWidgetItem(category, [definition.label])
+            item.setData(0, Qt.ItemDataRole.UserRole, definition.id)
+            editor = ShortcutEdit(
+                QKeySequence(
+                    self.mw.pm.get_shortcut(definition.id, definition.default_key)
+                ),
+                self.shortcut_tree,
             )
-            QWidget.setTabOrder(tab_widget, line_edit)
-            tab_widget = line_edit
+            editor.setClearButtonEnabled(True)
+            editor.setToolTip(
+                tr.preferences_keybindings_default(key=definition.default_key)
+            )
+            self.shortcut_tree.setItemWidget(item, 1, editor)
+            self.shortcut_editors[definition.id] = editor
+            qconnect(editor.focusChanged, self._set_shortcut_edit_hint)
             qconnect(
-                line_edit.textChanged,
-                functools.partial(self.mw.pm.set_answer_key, ease),
+                editor.shortcutCommitted,
+                functools.partial(self._shortcut_edited, definition.id),
             )
-            line_edit.setPlaceholderText(tr.preferences_shortcut_placeholder())
+
+        self.shortcut_conflict_label = QLabel(group)
+        self.shortcut_conflict_label.setWordWrap(True)
+        self.shortcut_conflict_label.setStyleSheet("color: #c62828")
+        layout.addWidget(self.shortcut_conflict_label)
+        layout.addWidget(self.shortcut_edit_hint)
+        reset = QPushButton(tr.preferences_keybindings_reset(), group)
+        qconnect(reset.clicked, self._reset_shortcuts)
+        layout.addWidget(reset)
+        qconnect(self.shortcut_search.textChanged, self._filter_shortcuts)
+        qconnect(self.shortcut_key_filter.keySequenceChanged, self._filter_shortcuts)
+        self.shortcut_tree.expandAll()
+        self._update_shortcut_conflicts()
+
+    def _set_shortcut_edit_hint(self, editing: bool) -> None:
+        self.shortcut_edit_hint.setText(
+            tr.preferences_keybindings_edit_hint() if editing else ""
+        )
+
+    def _shortcut_edited(self, action_id: str) -> None:
+        from aqt.shortcuts import SHORTCUTS_BY_ID
+
+        definition = SHORTCUTS_BY_ID[action_id]
+        editor = self.shortcut_editors[action_id]
+        key = editor.keySequence().toString(QKeySequence.SequenceFormat.PortableText)
+        old_key = self.mw.pm.get_shortcut(action_id, definition.default_key)
+        conflicts = [
+            other
+            for other in SHORTCUTS_BY_ID.values()
+            if other.id != action_id
+            and _shortcut_contexts_overlap(other.id, action_id)
+            and QKeySequence(
+                self.mw.pm.get_shortcut(other.id, other.default_key)
+            ).toString(QKeySequence.SequenceFormat.PortableText)
+            == key
+        ]
+        if key and conflicts:
+            other = conflicts[0]
+            if len(conflicts) > 1 or not self._confirm_shortcut_swap(key, other.label):
+                editor.setKeySequence(QKeySequence(old_key))
+                return
+            self.mw.pm.set_shortcut(other.id, old_key)
+            self.shortcut_editors[other.id].setKeySequence(QKeySequence(old_key))
+        self.mw.pm.set_shortcut(action_id, key)
+        self._update_shortcut_conflicts()
+
+    def _confirm_shortcut_swap(self, key: str, other_action: str) -> bool:
+        dialog = QMessageBox(self)
+        dialog.setIcon(QMessageBox.Icon.Warning)
+        dialog.setWindowTitle(tr.preferences_keybindings())
+        dialog.setText(
+            tr.preferences_keybindings_conflict_prompt(key=key, action=other_action)
+        )
+        swap = dialog.addButton(
+            tr.preferences_keybindings_swap(), QMessageBox.ButtonRole.AcceptRole
+        )
+        dialog.addButton(
+            tr.preferences_keybindings_choose_another(),
+            QMessageBox.ButtonRole.RejectRole,
+        )
+        dialog.exec()
+        return dialog.clickedButton() == swap
+
+    def _reset_shortcuts(self) -> None:
+        from aqt.shortcuts import SHORTCUT_DEFINITIONS
+
+        self.mw.pm.reset_shortcuts()
+        for definition in SHORTCUT_DEFINITIONS:
+            self.shortcut_editors[definition.id].setKeySequence(
+                QKeySequence(definition.default_key)
+            )
+        self._update_shortcut_conflicts()
+
+    def _filter_shortcuts(self, _value: object = None) -> None:
+        from aqt.shortcuts import SHORTCUTS_BY_ID
+
+        query = self.shortcut_search.text().strip().casefold()
+        key_query = self.shortcut_key_filter.keySequence().toString(
+            QKeySequence.SequenceFormat.PortableText
+        )
+        for index in range(self.shortcut_tree.topLevelItemCount()):
+            category = self.shortcut_tree.topLevelItem(index)
+            assert category is not None
+            visible_children = 0
+            for child_index in range(category.childCount()):
+                item = category.child(child_index)
+                assert item is not None
+                definition = SHORTCUTS_BY_ID[item.data(0, Qt.ItemDataRole.UserRole)]
+                editor = self.shortcut_editors[definition.id]
+                key = editor.keySequence().toString(
+                    QKeySequence.SequenceFormat.PortableText
+                )
+                visible = query in definition.label.casefold() and (
+                    not key_query or key == key_query
+                )
+                item.setHidden(not visible)
+                visible_children += visible
+            category.setHidden(visible_children == 0)
+
+    def _update_shortcut_conflicts(self) -> None:
+        from aqt.shortcuts import SHORTCUT_DEFINITIONS, SHORTCUTS_BY_ID
+
+        bindings: dict[str, list[str]] = {}
+        for definition in SHORTCUT_DEFINITIONS:
+            key = (
+                self.shortcut_editors[definition.id]
+                .keySequence()
+                .toString(QKeySequence.SequenceFormat.PortableText)
+            )
+            if key:
+                bindings.setdefault(QKeySequence(key).toString(), []).append(
+                    definition.id
+                )
+        conflicts = []
+        for key, action_ids in bindings.items():
+            clashing = [
+                SHORTCUTS_BY_ID[action_id].label
+                for action_id in action_ids
+                if any(
+                    other != action_id and _shortcut_contexts_overlap(other, action_id)
+                    for other in action_ids
+                )
+            ]
+            if clashing:
+                conflicts.append(f"{key}: {', '.join(clashing)}")
+        self.shortcut_conflict_label.setText(
+            tr.preferences_keybindings_conflicts(conflicts="; ".join(conflicts))
+            if conflicts
+            else ""
+        )
+        self.shortcut_conflict_label.setVisible(bool(conflicts))
 
     def accept(self) -> None:
         self.accept_with_callback()
@@ -117,6 +389,7 @@ class Preferences(QDialog):
             self.update_profile()
             self.update_global()
             self.mw.pm.save()
+            self.mw.refresh_shortcuts()
             self.done(0)
             aqt.dialogs.markClosed("Preferences")
 

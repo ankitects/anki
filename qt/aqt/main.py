@@ -1176,18 +1176,48 @@ title="{}" {}>{}</button>""".format(
     ##########################################################################
 
     def setupKeys(self) -> None:
-        globalShortcuts = [
-            ("Ctrl+:", show_debug_console),
-            ("d", lambda: self.moveToState("deckBrowser")),
-            ("s", self.onStudyKey),
-            ("a", self.onAddCard),
-            ("b", self.onBrowse),
-            ("t", self.onStats),
-            ("Shift+t", self.onStats),
-            ("y", self.on_sync_button_clicked),
-        ]
-        self.applyShortcuts(globalShortcuts)
+        self._apply_global_shortcuts()
         self.stateShortcuts: list[QShortcut] = []
+        self.menuShortcuts: list[tuple[QAction, QKeySequence]] = []
+
+    def _apply_menu_shortcuts(self) -> None:
+        from aqt.shortcuts import MENU_ACTIONS, get_shortcut
+
+        self.menuShortcuts = []
+        for action_id, action_name in MENU_ACTIONS.items():
+            action: QAction = getattr(self.form, action_name)
+            key = QKeySequence(get_shortcut(self.pm, action_id))
+            action.setShortcut(key)
+            self.menuShortcuts.append((action, key))
+
+    def _apply_global_shortcuts(self) -> None:
+        def key(action_id: str, default: str) -> str:
+            return self.pm.get_shortcut(action_id, default)
+
+        globalShortcuts = [
+            (key("global.debug_console", "Ctrl+:"), show_debug_console),
+            (key("global.decks", "d"), lambda: self.moveToState("deckBrowser")),
+            (key("global.study", "s"), self.onStudyKey),
+            (key("global.add", "a"), self.onAddCard),
+            (key("global.browse", "b"), self.onBrowse),
+            (key("global.stats", "t"), self.onStats),
+            ("Shift+T", self.onStats),
+            (key("global.sync", "y"), self.on_sync_button_clicked),
+        ]
+        self.globalShortcuts = self.applyShortcuts(globalShortcuts)
+
+    def refresh_shortcuts(self) -> None:
+        "Reapply shortcuts after the user changes their keybindings."
+        for qs in self.globalShortcuts:
+            sip.delete(qs)  # type: ignore
+        self._apply_global_shortcuts()
+        self._apply_menu_shortcuts()
+        if self.state == "review":
+            self.clearStateShortcuts()
+            self.setStateShortcuts(self.reviewer._shortcutKeys())  # type: ignore
+        elif self.state == "overview":
+            self.clearStateShortcuts()
+            self.setStateShortcuts(self.overview._shortcutKeys())
 
     def _close_active_window(self) -> None:
         window = (
@@ -1221,6 +1251,8 @@ title="{}" {}>{}</button>""".format(
     ) -> list[QShortcut]:
         qshortcuts = []
         for key, fn in self._normalize_shortcuts(shortcuts):
+            if key.isEmpty():
+                continue
             scut = QShortcut(key, self, activated=fn)  # type: ignore
             scut.setAutoRepeat(False)
             qshortcuts.append(scut)
@@ -1231,11 +1263,21 @@ title="{}" {}>{}</button>""".format(
         # legacy hook
         runHook(f"{self.state}StateShortcuts", shortcuts)
         self.stateShortcuts = self.applyShortcuts(shortcuts)
+        state_keys = {shortcut.key() for shortcut in self.stateShortcuts}
+        # the current screen's shortcuts take priority over app-wide ones
+        for shortcut in self.globalShortcuts:
+            shortcut.setEnabled(shortcut.key() not in state_keys)
+        for action, key in self.menuShortcuts:
+            action.setShortcut(QKeySequence() if key in state_keys else key)
 
     def clearStateShortcuts(self) -> None:
         for qs in self.stateShortcuts:
             sip.delete(qs)  # type: ignore
         self.stateShortcuts = []
+        for shortcut in self.globalShortcuts:
+            shortcut.setEnabled(True)
+        for action, key in self.menuShortcuts:
+            action.setShortcut(key)
 
     def onStudyKey(self) -> None:
         if self.state == "overview":
@@ -1470,10 +1512,9 @@ title="{}" {}>{}</button>""".format(
         qconnect(m.actionResetZoom.triggered, lambda: self.web.setZoomFactor(1))
         # app-wide shortcut
         qconnect(m.actionFullScreen.triggered, self.on_toggle_full_screen)
-        m.actionFullScreen.setShortcut(
-            QKeySequence("F11") if is_lin else QKeySequence.StandardKey.FullScreen
-        )
         m.actionFullScreen.setShortcutContext(Qt.ShortcutContext.ApplicationShortcut)
+
+        self._apply_menu_shortcuts()
 
     def updateTitleBar(self) -> None:
         self.setWindowTitle("Anki")
