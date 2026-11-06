@@ -1178,31 +1178,29 @@ title="{}" {}>{}</button>""".format(
     def setupKeys(self) -> None:
         self._apply_global_shortcuts()
         self.stateShortcuts: list[QShortcut] = []
-        self.menuShortcuts: list[tuple[QAction, QKeySequence]] = []
+        self.menuShortcuts: list[tuple[QAction, list[QKeySequence]]] = []
 
     def _apply_menu_shortcuts(self) -> None:
-        from aqt.shortcuts import MENU_ACTIONS, get_shortcut
+        from aqt.shortcuts import MENU_ACTIONS, get_shortcuts
 
         self.menuShortcuts = []
         for action_id, action_name in MENU_ACTIONS.items():
             action: QAction = getattr(self.form, action_name)
-            key = QKeySequence(get_shortcut(self.pm, action_id))
-            action.setShortcut(key)
-            self.menuShortcuts.append((action, key))
+            keys = [QKeySequence(key) for key in get_shortcuts(self.pm, action_id)]
+            action.setShortcuts(keys)
+            self.menuShortcuts.append((action, keys))
 
     def _apply_global_shortcuts(self) -> None:
-        def key(action_id: str, default: str) -> str:
-            return self.pm.get_shortcut(action_id, default)
+        from aqt.shortcuts import bind
 
         globalShortcuts = [
-            (key("global.debug_console", "Ctrl+:"), show_debug_console),
-            (key("global.decks", "d"), lambda: self.moveToState("deckBrowser")),
-            (key("global.study", "s"), self.onStudyKey),
-            (key("global.add", "a"), self.onAddCard),
-            (key("global.browse", "b"), self.onBrowse),
-            (key("global.stats", "t"), self.onStats),
-            ("Shift+T", self.onStats),
-            (key("global.sync", "y"), self.on_sync_button_clicked),
+            *bind(self.pm, "global.debug_console", show_debug_console),
+            *bind(self.pm, "global.decks", lambda: self.moveToState("deckBrowser")),
+            *bind(self.pm, "global.study", self.onStudyKey),
+            *bind(self.pm, "global.add", self.onAddCard),
+            *bind(self.pm, "global.browse", self.onBrowse),
+            *bind(self.pm, "global.stats", self.onStats),
+            *bind(self.pm, "global.sync", self.on_sync_button_clicked),
         ]
         self.globalShortcuts = self.applyShortcuts(globalShortcuts)
 
@@ -1267,8 +1265,8 @@ title="{}" {}>{}</button>""".format(
         # the current screen's shortcuts take priority over app-wide ones
         for shortcut in self.globalShortcuts:
             shortcut.setEnabled(shortcut.key() not in state_keys)
-        for action, key in self.menuShortcuts:
-            action.setShortcut(QKeySequence() if key in state_keys else key)
+        for action, keys in self.menuShortcuts:
+            action.setShortcuts([key for key in keys if key not in state_keys])
 
     def clearStateShortcuts(self) -> None:
         for qs in self.stateShortcuts:
@@ -1276,8 +1274,8 @@ title="{}" {}>{}</button>""".format(
         self.stateShortcuts = []
         for shortcut in self.globalShortcuts:
             shortcut.setEnabled(True)
-        for action, key in self.menuShortcuts:
-            action.setShortcut(key)
+        for action, keys in self.menuShortcuts:
+            action.setShortcuts(keys)
 
     def onStudyKey(self) -> None:
         if self.state == "overview":

@@ -1,13 +1,27 @@
 # Copyright: Ankitects Pty Ltd and contributors
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
+"""
+Configurable keyboard shortcuts.
+
+To add a new shortcut:
+
+1. Add a definition to SHORTCUT_DEFINITIONS below, eg
+   _review("review.my_action", tr.some_label, "k"). It will then be listed in
+   the Keybindings tab of the preferences, with conflict checking and an
+   optional alternate key.
+2. Bind it where the screen's shortcuts are set up, eg in the reviewer's
+   _shortcutKeys(): *bind("review.my_action", self.my_action). Menu actions
+   are added to MENU_ACTIONS instead.
+"""
+
 from __future__ import annotations
 
 from collections.abc import Callable
 from dataclasses import dataclass
 from typing import TYPE_CHECKING
 
-from anki.utils import is_mac
+from anki.utils import is_mac, is_win
 from aqt.utils import tr
 
 if TYPE_CHECKING:
@@ -21,6 +35,7 @@ class ShortcutDefinition:
     _label: Callable[[], str]
     default_key: str
     _category: Callable[[], str]
+    default_alternate: str = ""
 
     @property
     def label(self) -> str:
@@ -44,33 +59,47 @@ def _flag_label(index: int) -> str:
     return f"{tr.browsing_flag()} {index}"
 
 
-def _answer(id: str, label: Callable[[], str], key: str) -> ShortcutDefinition:
+def _answer(
+    id: str, label: Callable[[], str], key: str, alternate: str = ""
+) -> ShortcutDefinition:
     return ShortcutDefinition(
-        id, label, key, tr.preferences_keybindings_category_answer_keys
+        id, label, key, tr.preferences_keybindings_category_answer_keys, alternate
     )
 
 
-def _review(id: str, label: Callable[[], str], key: str) -> ShortcutDefinition:
+def _review(
+    id: str, label: Callable[[], str], key: str, alternate: str = ""
+) -> ShortcutDefinition:
     return ShortcutDefinition(
-        id, label, key, tr.preferences_keybindings_category_review
+        id, label, key, tr.preferences_keybindings_category_review, alternate
     )
 
 
-def _overview(id: str, label: Callable[[], str], key: str) -> ShortcutDefinition:
+def _overview(
+    id: str, label: Callable[[], str], key: str, alternate: str = ""
+) -> ShortcutDefinition:
     return ShortcutDefinition(
-        id, label, key, tr.preferences_keybindings_category_overview
+        id, label, key, tr.preferences_keybindings_category_overview, alternate
     )
 
 
-def _general(id: str, label: Callable[[], str], key: str) -> ShortcutDefinition:
+def _general(
+    id: str, label: Callable[[], str], key: str, alternate: str = ""
+) -> ShortcutDefinition:
     return ShortcutDefinition(
-        id, label, key, tr.preferences_keybindings_category_general
+        id, label, key, tr.preferences_keybindings_category_general, alternate
     )
 
 
-def _menu(id: str, label: Callable[[], str], key: str) -> ShortcutDefinition:
+def _menu(
+    id: str, label: Callable[[], str], key: str, alternate: str = ""
+) -> ShortcutDefinition:
     return ShortcutDefinition(
-        id, lambda: _menu_label(label()), key, tr.preferences_keybindings_category_menus
+        id,
+        lambda: _menu_label(label()),
+        key,
+        tr.preferences_keybindings_category_menus,
+        alternate,
     )
 
 
@@ -83,9 +112,9 @@ SHORTCUT_DEFINITIONS = [
     _answer("review.answer.good", tr.studying_good, "3"),
     _answer("review.answer.easy", tr.studying_easy, "4"),
     _review("review.edit", tr.studying_edit, "e"),
-    _review("review.show_answer", tr.studying_show_answer, "Space"),
+    _review("review.show_answer", tr.studying_show_answer, "Space", "Return"),
     _review("review.more", tr.studying_more, "m"),
-    _review("review.replay_audio", tr.actions_replay_audio, "r"),
+    _review("review.replay_audio", tr.actions_replay_audio, "r", "F5"),
     *[
         _review(
             f"review.flag.{index}",
@@ -127,7 +156,7 @@ SHORTCUT_DEFINITIONS = [
     _general("global.study", tr.decks_study, "s"),
     _general("global.add", tr.actions_add, "a"),
     _general("global.browse", tr.qt_misc_browse, "b"),
-    _general("global.stats", tr.qt_misc_stats, "t"),
+    _general("global.stats", tr.qt_misc_stats, "t", "Shift+T"),
     _general("global.sync", tr.qt_misc_sync, "y"),
     _menu("global.switch_profile", tr.qt_accel_switch_profile, "Ctrl+Shift+P"),
     _menu("global.import", tr.qt_accel_import, "Ctrl+Shift+I"),
@@ -145,6 +174,7 @@ SHORTCUT_DEFINITIONS = [
         "global.full_screen",
         tr.qt_accel_full_screen,
         "Ctrl+Meta+F" if is_mac else "F11",
+        "Alt+Return" if is_win else "",
     ),
     _menu("global.guide", tr.qt_accel_guide, "F1"),
 ]
@@ -170,6 +200,63 @@ MENU_ACTIONS = {
 }
 
 
-def get_shortcut(pm: ProfileManager, action_id: str) -> str:
-    "The user's key for action_id, or its default."
-    return pm.get_shortcut(action_id, SHORTCUTS_BY_ID[action_id].default_key)
+# Each action can have a second key, stored under its id plus this suffix
+ALTERNATE_SUFFIX = ".alternate"
+
+SHORTCUT_SLOTS = [
+    slot
+    for definition in SHORTCUT_DEFINITIONS
+    for slot in (definition.id, definition.id + ALTERNATE_SUFFIX)
+]
+
+
+def definition_for_slot(slot_id: str) -> ShortcutDefinition:
+    return SHORTCUTS_BY_ID[slot_id.removesuffix(ALTERNATE_SUFFIX)]
+
+
+def default_for_slot(slot_id: str) -> str:
+    definition = definition_for_slot(slot_id)
+    if slot_id.endswith(ALTERNATE_SUFFIX):
+        return definition.default_alternate
+    return definition.default_key
+
+
+def get_shortcut(pm: ProfileManager, slot_id: str) -> str:
+    "The user's key for slot_id (an action id, or its alternate), or its default."
+    return pm.get_shortcut(slot_id, default_for_slot(slot_id))
+
+
+def get_shortcuts(pm: ProfileManager, action_id: str) -> list[str]:
+    "The user's primary and alternate keys for action_id, skipping unset ones."
+    return [
+        key
+        for slot_id in (action_id, action_id + ALTERNATE_SUFFIX)
+        if (key := get_shortcut(pm, slot_id))
+    ]
+
+
+def bind(
+    pm: ProfileManager, action_id: str, fn: Callable
+) -> list[tuple[str, Callable]]:
+    return [(key, fn) for key in get_shortcuts(pm, action_id)]
+
+
+# Hangul produced by each key of the standard (dubeolsik) Korean layout, so
+# shortcuts keep working when a Korean input method is active
+_KOREAN_KEYS = dict(
+    zip(
+        "qwertyuiopasdfghjklzxcvbnm",
+        "ㅂㅈㄷㄱㅅㅛㅕㅑㅐㅔㅁㄴㅇㄹㅎㅗㅓㅏㅣㅋㅌㅊㅍㅠㅜㅡ",
+    )
+)
+
+
+def key_variants(key: str) -> list[str]:
+    "key plus the equivalent keys on the keypad and Korean layout."
+    variants = [key]
+    if key == "Return":
+        variants.append("Enter")
+    *modifiers, last = key.split("+")
+    if len(last) == 1 and (hangul := _KOREAN_KEYS.get(last.lower())):
+        variants.append("+".join([*modifiers, hangul]))
+    return variants

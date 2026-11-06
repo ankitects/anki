@@ -25,7 +25,12 @@ from aqt.qt import (
     QTimer,
     QToolButton,
 )
-from aqt.shortcuts import SHORTCUT_DEFINITIONS, SHORTCUTS_BY_ID
+from aqt.shortcuts import (
+    SHORTCUT_DEFINITIONS,
+    SHORTCUTS_BY_ID,
+    get_shortcuts,
+    key_variants,
+)
 
 
 @pytest.fixture(autouse=True)
@@ -76,18 +81,18 @@ def test_screen_shortcut_overrides_conflicting_global_shortcut(qapp) -> None:
     window.globalShortcuts = [QShortcut(QKeySequence("a"), window)]
     window.stateShortcuts = []
     menu_action = QAction(window)
-    window.menuShortcuts = [(menu_action, QKeySequence("a"))]
+    window.menuShortcuts = [(menu_action, [QKeySequence("a"), QKeySequence("b")])]
 
     AnkiQt.setStateShortcuts(window, [("a", lambda: None)])
 
     assert not window.globalShortcuts[0].isEnabled()
-    assert menu_action.shortcut().isEmpty()
+    assert menu_action.shortcuts() == [QKeySequence("b")]
     assert len(window.stateShortcuts) == 1
 
     AnkiQt.clearStateShortcuts(window)
 
     assert window.globalShortcuts[0].isEnabled()
-    assert menu_action.shortcut() == QKeySequence("a")
+    assert menu_action.shortcuts() == [QKeySequence("a"), QKeySequence("b")]
     assert window.stateShortcuts == []
 
 
@@ -275,3 +280,63 @@ def test_menu_shortcuts_are_listed() -> None:
 
     assert SHORTCUTS_BY_ID["global.create_filtered"].default_key == "F"
     assert set(MENU_ACTIONS) <= set(SHORTCUTS_BY_ID)
+
+
+def test_alternate_keys_are_configurable() -> None:
+    manager = make_profile_manager()
+
+    assert get_shortcuts(manager, "global.stats") == ["t", "Shift+T"]
+    assert get_shortcuts(manager, "review.show_answer") == ["Space", "Return"]
+    assert get_shortcuts(manager, "review.replay_audio") == ["r", "F5"]
+    assert get_shortcuts(manager, "global.add") == ["a"]
+
+    manager.set_shortcut("global.stats.alternate", "")
+    manager.set_shortcut("global.add.alternate", "Ctrl+K")
+    manager.set_shortcut("review.answer.good.alternate", "j")
+
+    assert get_shortcuts(manager, "global.stats") == ["t"]
+    assert get_shortcuts(manager, "global.add") == ["a", "Ctrl+K"]
+    assert get_shortcuts(manager, "review.answer.good") == ["3", "j"]
+
+
+def test_key_variants_cover_keypad_and_korean_layout() -> None:
+    assert key_variants("Return") == ["Return", "Enter"]
+    assert key_variants("e") == ["e", "ㄷ"]
+    assert key_variants("Ctrl+Alt+N") == ["Ctrl+Alt+N", "Ctrl+Alt+ㅜ"]
+    assert key_variants("Shift+V") == ["Shift+V", "Shift+ㅍ"]
+    assert key_variants("Space") == ["Space"]
+    assert key_variants("Ctrl++") == ["Ctrl++"]
+    assert key_variants("3") == ["3"]
+
+
+def test_alternate_keybinding_can_be_edited(qapp) -> None:
+    dialog = Preferences.__new__(Preferences)
+    QDialog.__init__(dialog)
+    dialog.form = aqt.forms.preferences.Ui_Preferences()
+    dialog.form.setupUi(dialog)
+    manager = make_profile_manager()
+    dialog.mw = SimpleNamespace(pm=manager)
+    dialog.setup_configurable_shortcuts()
+
+    editor = dialog.shortcut_editors["global.stats.alternate"]
+    assert editor.keySequence().toString() == "Shift+T"
+    editor.setKeySequence(QKeySequence("Ctrl+K"))
+    dialog._shortcut_edited("global.stats.alternate")
+    assert get_shortcuts(manager, "global.stats") == ["t", "Ctrl+K"]
+
+    dialog.shortcut_key_filter.setKeySequence(QKeySequence("Ctrl+K"))
+    dialog._filter_shortcuts()
+    general = dialog.shortcut_tree.topLevelItem(3)
+    visible = [
+        general.child(i).text(0)
+        for i in range(general.childCount())
+        if not general.child(i).isHidden()
+    ]
+    assert visible == ["Stats"]
+
+    dialog.shortcut_editors["global.add.alternate"].setKeySequence(
+        QKeySequence("Ctrl+K")
+    )
+    dialog._update_shortcut_conflicts()
+    assert "Stats" in dialog.shortcut_conflict_label.text()
+    assert "Add" in dialog.shortcut_conflict_label.text()

@@ -124,18 +124,19 @@ class Overview:
         return False
 
     def _shortcutKeys(self) -> list[tuple[str, Callable]]:
-        def key(action_id: str, default: str) -> str:
-            return self.mw.pm.get_shortcut(action_id, default)
+        from aqt.shortcuts import bind
 
+        pm = self.mw.pm
         return [
-            (
-                key("overview.options", "o"),
+            *bind(
+                pm,
+                "overview.options",
                 lambda: display_options_for_deck(self.mw.col.decks.current()),
             ),
-            (key("overview.rebuild", "r"), self.rebuild_current_filtered_deck),
-            (key("overview.empty", "e"), self.empty_current_filtered_deck),
-            (key("overview.custom_study", "c"), self.onCustomStudyKey),
-            (key("overview.unbury", "u"), self.on_unbury),
+            *bind(pm, "overview.rebuild", self.rebuild_current_filtered_deck),
+            *bind(pm, "overview.empty", self.empty_current_filtered_deck),
+            *bind(pm, "overview.custom_study", self.onCustomStudyKey),
+            *bind(pm, "overview.unbury", self.on_unbury),
         ]
 
     def _current_deck_is_filtered(self) -> int:

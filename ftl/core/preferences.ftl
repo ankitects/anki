@@ -84,6 +84,7 @@ preferences-keybindings-search-action = Search by action
 preferences-keybindings-search-keybinding = Search by keybinding
 preferences-keybindings-action = Action
 preferences-keybindings-keybinding = Keybinding
+preferences-keybindings-alternate = Alternate
 preferences-keybindings-reset = Reset all keybindings to defaults
 preferences-keybindings-default = Default: { $key }
 preferences-keybindings-conflicts = Conflicting keybindings: { $conflicts }
