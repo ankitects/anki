@@ -48,33 +48,36 @@ impl Collection {
             .storage
             .get_note_tags_by_predicate(|tags| matcher.is_match(tags))?;
         let match_count = matched_notes.len();
-        if match_count == 0 {
-            // no matches; exit early so we don't clobber the empty tag entries
+        let old_tags = self
+            .storage
+            .get_tags_by_predicate(|tag| matcher.is_match(tag))?;
+        if match_count == 0 && old_tags.is_empty() {
             return Ok(0);
         }
+        let new_name = |cap: &str| {
+            old_to_new_names
+                .get(&UniCase::new(cap.to_string()))
+                .unwrap()
+                .clone()
+        };
 
         // remove old prefixes from the tag list
-        for tag in self
-            .storage
-            .get_tags_by_predicate(|tag| matcher.is_match(tag))?
-        {
-            self.remove_single_tag_undoable(tag)?;
+        for tag in &old_tags {
+            self.remove_single_tag_undoable(tag.clone())?;
         }
 
         // replace tags
         for mut note in matched_notes {
             let original = note.clone();
-            note.tags = matcher.replace_with_fn(&note.tags, |cap| {
-                old_to_new_names
-                    .get(&UniCase::new(cap.to_string()))
-                    .unwrap()
-                    .clone()
-            });
+            note.tags = matcher.replace_with_fn(&note.tags, &new_name);
             note.set_modified(usn);
             self.update_note_tags_undoable(&note, original)?;
         }
 
-        // update tag list
+        // update tag list, including tags not used by any note
+        for tag in old_tags {
+            matcher.replace_with_fn(&tag.name, &new_name);
+        }
         for tag in matcher.into_new_tags() {
             self.register_tag_string(tag, usn)?;
         }
@@ -138,6 +141,24 @@ mod test {
             .into_iter()
             .map(|t| t.name)
             .collect()
+    }
+
+    #[test]
+    fn reparent_unused_tags() -> Result<()> {
+        let mut col = Collection::new();
+        let nt = col.get_notetype_by_name("Basic")?.unwrap();
+        let mut note = nt.new_note();
+        note.tags = vec!["parent::child".into(), "parent::child::leaf".into()];
+        col.add_note(&mut note, DeckId(1))?;
+        note.tags.clear();
+        col.update_note(&mut note)?;
+
+        col.reparent_tags(&["parent::child".into()], Some("target".into()))?;
+        assert_eq!(alltags(&col), &["target::child", "target::child::leaf"]);
+
+        col.undo()?;
+        assert_eq!(alltags(&col), &["parent::child", "parent::child::leaf"]);
+        Ok(())
     }
 
     #[test]
