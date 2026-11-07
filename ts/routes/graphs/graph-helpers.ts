@@ -6,7 +6,7 @@
 @typescript-eslint/ban-ts-comment: "off" */
 
 import type { GraphPreferences } from "@generated/anki/stats_pb";
-import type { Bin, Selection } from "d3";
+import type { Bin, ScaleLinear, Selection } from "d3";
 import { sum } from "d3";
 
 import type { PreferenceStore } from "$lib/sveltelib/preferences";
@@ -104,4 +104,24 @@ export function numericMap<T>(obj: { [k: string]: T }): Map<number, T> {
 
 export function getNumericMapBinValue(d: Bin<Map<number, number>, number>): number {
     return sum(d, (d) => d[1]);
+}
+
+/** Thresholds for d3's bin() over the scale's domain, taken from its ticks. d3
+puts the days between a domain end and the nearest tick in a bin of their own,
+which can be a day wide or less and too thin to draw, so a bin at either end
+that is narrower than the rest is merged into its neighbour. */
+export function binThresholds(scale: ScaleLinear<number, number>, count: number): number[] {
+    const ticks = scale.ticks(count);
+    const [min, max] = scale.domain();
+    const thresholds = ticks.filter((t) => t > min && t < max);
+    if (ticks.length >= 2) {
+        const step = ticks[1] - ticks[0];
+        if (thresholds.length && thresholds[0] - min < step) {
+            thresholds.shift();
+        }
+        if (thresholds.length && max - thresholds[thresholds.length - 1] < step) {
+            thresholds.pop();
+        }
+    }
+    return thresholds;
 }
