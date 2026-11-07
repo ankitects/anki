@@ -19,6 +19,8 @@ def make_prefs() -> PreferencesProto:
     prefs.reviewing.time_limit_secs = 0
     prefs.reviewing.hide_audio_play_buttons = False
     prefs.reviewing.interrupt_audio_when_answering = False
+    prefs.reviewing.bury_failed_cards = True
+    prefs.reviewing.bury_failed_cards_threshold = 5
     prefs.editing.adding_defaults_to_current_deck = True
     prefs.editing.paste_images_as_png = False
     prefs.editing.paste_strips_formatting = True
@@ -47,6 +49,10 @@ def make_form(prefs: PreferencesProto) -> MagicMock:
     )
     form.interrupt_audio.isChecked.return_value = (
         prefs.reviewing.interrupt_audio_when_answering
+    )
+    form.buryFailedCards.isChecked.return_value = prefs.reviewing.bury_failed_cards
+    form.buryFailedCardsThreshold.value.return_value = (
+        prefs.reviewing.bury_failed_cards_threshold
     )
     form.useCurrent.currentIndex.return_value = (
         0 if prefs.editing.adding_defaults_to_current_deck else 1
