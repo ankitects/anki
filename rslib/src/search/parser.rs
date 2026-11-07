@@ -126,14 +126,22 @@ pub enum PropertyKind {
     Interval(u32),
     Reps(u32),
     Lapses(u32),
+    /// Forgotten rate (lapses / reps), only meaningful when reps > 0
+    ForgottenRate(f32),
     Ease(f32),
     Position(u32),
     Rated(i32, RatingKind),
     Stability(f32),
     Difficulty(f32),
     Retrievability(f32),
-    CustomDataNumber { key: String, value: f32 },
-    CustomDataString { key: String, value: String },
+    CustomDataNumber {
+        key: String,
+        value: f32,
+    },
+    CustomDataString {
+        key: String,
+        value: String,
+    },
 }
 
 #[derive(Debug, PartialEq, Eq, Clone)]
@@ -445,6 +453,8 @@ fn parse_resched(s: &str) -> ParseResult<'_, SearchNode> {
 /// eg prop:ivl>3, prop:ease!=2.5
 fn parse_prop(prop_clause: &str) -> ParseResult<'_, SearchNode> {
     let (tail, prop) = alt((
+        tag("forgotten-rate"),
+        tag("fr"),
         tag("ivl"),
         tag("due"),
         tag("reps"),
@@ -498,6 +508,7 @@ fn parse_prop(prop_clause: &str) -> ParseResult<'_, SearchNode> {
         "ivl" => PropertyKind::Interval(parse_u32(num, prop_clause)?),
         "reps" => PropertyKind::Reps(parse_u32(num, prop_clause)?),
         "lapses" => PropertyKind::Lapses(parse_u32(num, prop_clause)?),
+        "forgotten-rate" | "fr" => PropertyKind::ForgottenRate(parse_f32(num, prop_clause)?),
         "pos" => PropertyKind::Position(parse_u32(num, prop_clause)?),
         "s" => PropertyKind::Stability(parse_f32(num, prop_clause)?),
         "d" => PropertyKind::Difficulty(parse_f32(num, prop_clause)?),
@@ -1007,6 +1018,21 @@ mod test {
             vec![Search(Property {
                 operator: "<=".into(),
                 kind: PropertyKind::Ease(3.3)
+            })]
+        );
+        assert_eq!(
+            parse("prop:forgotten-rate>0.3")?,
+            vec![Search(Property {
+                operator: ">".into(),
+                kind: PropertyKind::ForgottenRate(0.3)
+            })]
+        );
+        // fr is an alias for forgotten-rate
+        assert_eq!(
+            parse("prop:fr>0.3")?,
+            vec![Search(Property {
+                operator: ">".into(),
+                kind: PropertyKind::ForgottenRate(0.3)
             })]
         );
         assert_eq!(

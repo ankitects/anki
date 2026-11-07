@@ -331,6 +331,12 @@ cards that have been answered less than 10 times.
 `prop:lapses>3`\
 cards that have lapsed more than 3 times.
 
+`prop:forgotten-rate>0.3`\
+cards whose forgotten rate (lapses divided by reps) is greater than 0.3,
+i.e. more than 30% of their reviews ended in a lapse. Cards that have never
+been reviewed (reps = 0) are ignored, as their rate is undefined. `prop:fr`
+is an alias for `prop:forgotten-rate`.
+
 `prop:ease!=2.5`\
 cards easier or harder than default ease.
 
