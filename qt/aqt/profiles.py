@@ -560,10 +560,39 @@ create table if not exists profiles
         self.meta["spacebar_rates_card"] = on
 
     def get_answer_key(self, ease: int) -> str | None:
-        return self.meta.setdefault("answer_keys", self.default_answer_keys).get(ease)
+        return self.meta.setdefault("answer_keys", dict(self.default_answer_keys)).get(
+            ease
+        )
 
     def set_answer_key(self, ease: int, key: str):
-        self.meta.setdefault("answer_keys", self.default_answer_keys)[ease] = key
+        self.meta.setdefault("answer_keys", dict(self.default_answer_keys))[ease] = key
+
+    def get_shortcut(self, action_id: str, default: str) -> str:
+        answer_ease = {
+            "review.answer.again": 1,
+            "review.answer.hard": 2,
+            "review.answer.good": 3,
+            "review.answer.easy": 4,
+        }.get(action_id)
+        if answer_ease is not None:
+            return self.get_answer_key(answer_ease) or ""
+        return self.meta.get("shortcuts", {}).get(action_id, default)
+
+    def set_shortcut(self, action_id: str, key: str) -> None:
+        answer_ease = {
+            "review.answer.again": 1,
+            "review.answer.hard": 2,
+            "review.answer.good": 3,
+            "review.answer.easy": 4,
+        }.get(action_id)
+        if answer_ease is not None:
+            self.set_answer_key(answer_ease, key)
+            return
+        self.meta.setdefault("shortcuts", {})[action_id] = key
+
+    def reset_shortcuts(self) -> None:
+        self.meta.pop("shortcuts", None)
+        self.meta.pop("answer_keys", None)
 
     def hide_top_bar(self) -> bool:
         return self.meta.get("hide_top_bar", False)
