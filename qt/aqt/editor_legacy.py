@@ -127,6 +127,24 @@ audio = (
 )
 
 
+def is_relative_image_only(html_content: str) -> bool:
+    """Whether the HTML is a single image with a relative src and nothing else.
+
+    Some apps (such as Discord) copy an image along with HTML like
+    <img src="image.png">. The path means nothing outside that app, and would
+    point to any media file with the same name."""
+    soup = BeautifulSoup(html_content, "html.parser")
+    images = soup.find_all("img")
+    if len(images) != 1 or soup.get_text(strip=True):
+        return False
+    src = images[0].get("src")
+    return (
+        isinstance(src, str)
+        and bool(src)
+        and not re.match(r"([a-z][a-z0-9+.-]*:|//)", src, re.IGNORECASE)
+    )
+
+
 class EditorMode(Enum):
     ADD_CARDS = 0
     EDIT_CURRENT = 1
@@ -1663,7 +1681,9 @@ class EditorWebView(AnkiWebView):
         )
 
         # try various content types in turn
-        if mime.hasHtml():
+        if mime.hasHtml() and not (
+            mime.hasImage() and is_relative_image_only(mime.html())
+        ):
             html_content = mime.html()[11:] if internal else mime.html()
             return html_content, internal
 
