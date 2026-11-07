@@ -22,11 +22,23 @@ use crate::notetype::NotetypeConfig;
 use crate::notetype::NotetypeSchema11;
 use crate::prelude::*;
 
+/// A corrupt blob otherwise surfaces as a bare decode error like
+/// `Config.a_format: buffer underflow`, which says nothing about where the
+/// problem is or how to repair it.
+fn decode_error(context: impl std::fmt::Display, err: prost::DecodeError) -> AnkiError {
+    AnkiError::ProtoError {
+        info: format!("{context}: {err}"),
+    }
+}
+
 fn row_to_notetype_core(row: &Row) -> Result<Notetype> {
-    let config = NotetypeConfig::decode(row.get_ref_unwrap(4).as_blob()?)?;
+    let id: NotetypeId = row.get(0)?;
+    let name: String = row.get(1)?;
+    let config = NotetypeConfig::decode(row.get_ref_unwrap(4).as_blob()?)
+        .map_err(|err| decode_error(format_args!("notetype '{name}' ({id})"), err))?;
     Ok(Notetype {
-        id: row.get(0)?,
-        name: row.get(1)?,
+        id,
+        name,
         mtime_secs: row.get(2)?,
         usn: row.get(3)?,
         config,
@@ -69,10 +81,15 @@ impl SqliteStorage {
         self.db
             .prepare_cached(include_str!("get_fields.sql"))?
             .query_and_then([ntid], |row| {
-                let config = NoteFieldConfig::decode(row.get_ref_unwrap(2).as_blob()?)?;
+                let ord: u32 = row.get(0)?;
+                let name: String = row.get(1)?;
+                let config =
+                    NoteFieldConfig::decode(row.get_ref_unwrap(2).as_blob()?).map_err(|err| {
+                        decode_error(format_args!("notetype {ntid} field '{name}' ({ord})"), err)
+                    })?;
                 Ok(NoteField {
-                    ord: Some(row.get(0)?),
-                    name: row.get(1)?,
+                    ord: Some(ord),
+                    name,
                     config,
                 })
             })?
@@ -83,10 +100,22 @@ impl SqliteStorage {
         self.db
             .prepare_cached(include_str!("get_templates.sql"))?
             .query_and_then([ntid], |row| {
-                let config = CardTemplateConfig::decode(row.get_ref_unwrap(4).as_blob()?)?;
+                let ord: Option<u32> = row.get(0)?;
+                let name: String = row.get(1)?;
+                let config = CardTemplateConfig::decode(row.get_ref_unwrap(4).as_blob()?).map_err(
+                    |err| {
+                        decode_error(
+                            format_args!(
+                                "notetype {ntid} template '{name}' ({})",
+                                ord.unwrap_or_default()
+                            ),
+                            err,
+                        )
+                    },
+                )?;
                 Ok(CardTemplate {
-                    ord: row.get(0)?,
-                    name: row.get(1)?,
+                    ord,
+                    name,
                     mtime_secs: row.get(2)?,
                     usn: row.get(3)?,
                     config,
