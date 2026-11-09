@@ -48,7 +48,7 @@ const viteConfig = defineViteConfig({
                 crawl: false,
                 entries: [],
             },
-            csp: { mode: "hash", directives: { "script-src": ["'self'"] } },
+            csp: { mode: "hash", directives: { "script-src": ["self"] } },
         }),
         svg({ svgoOptions: { plugins: [{ name: "cleanupIds", params: { remove: false } }] } }),
     ],
