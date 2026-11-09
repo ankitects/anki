@@ -3,7 +3,7 @@ Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
-    import LabelButton from "$lib/components/LabelButton.svelte";
+    import LabelButton from "#lib/components/LabelButton.svelte";
 
     const { children, onClick, tooltip, disabled = false } = $props();
 </script>

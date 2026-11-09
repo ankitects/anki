@@ -40,7 +40,7 @@
         "paths": {
             "@generated/*": ["../out/ts/lib/generated/*"],
             "@tslib/*": ["lib/tslib/*"],
-            "$lib/*": ["lib/*"]
+            "#lib/*": ["lib/*"]
         },
         "types": [],
         "verbatimModuleSyntax": true,

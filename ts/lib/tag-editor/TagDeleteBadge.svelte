@@ -3,9 +3,9 @@ Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
-    import Badge from "$lib/components/Badge.svelte";
-    import Icon from "$lib/components/Icon.svelte";
-    import { deleteIcon } from "$lib/components/icons";
+    import Badge from "#lib/components/Badge.svelte";
+    import Icon from "#lib/components/Icon.svelte";
+    import { deleteIcon } from "#lib/components/icons.js";
 
     let className: string = "";
     export { className as class };

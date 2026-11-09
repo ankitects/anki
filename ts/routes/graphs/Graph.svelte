@@ -3,7 +3,7 @@ Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
-    import TitledContainer from "$lib/components/TitledContainer.svelte";
+    import TitledContainer from "#lib/components/TitledContainer.svelte";
 
     // When title is null (default), the graph is inlined, not having TitledContainer wrapper.
     export let title: string | null = null;
@@ -30,7 +30,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 {/if}
 
 <style lang="scss">
-    @use "$lib/sass/elevation" as *;
+    @use "../../lib/sass/elevation" as *;
     .graph {
         /* See graph-styles.ts for constants referencing global styles */
         :global(.graph-element-clickable) {

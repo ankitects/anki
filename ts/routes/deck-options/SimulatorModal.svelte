@@ -4,7 +4,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
     import SpinBoxRow from "./SpinBoxRow.svelte";
-    import SettingTitle from "$lib/components/SettingTitle.svelte";
+    import SettingTitle from "#lib/components/SettingTitle.svelte";
     import Graph from "../graphs/Graph.svelte";
     import HoverColumns from "../graphs/HoverColumns.svelte";
     import CumulativeOverlay from "../graphs/CumulativeOverlay.svelte";
@@ -34,11 +34,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         SimulateFsrsWorkloadResponse,
     } from "@generated/anki/scheduler_pb";
     import type { DeckOptionsState } from "./lib";
-    import SwitchRow from "$lib/components/SwitchRow.svelte";
+    import SwitchRow from "#lib/components/SwitchRow.svelte";
     import GlobalLabel from "./GlobalLabel.svelte";
     import SpinBoxFloatRow from "./SpinBoxFloatRow.svelte";
     import { reviewOrderChoices } from "./choices";
-    import EnumSelectorRow from "$lib/components/EnumSelectorRow.svelte";
+    import EnumSelectorRow from "#lib/components/EnumSelectorRow.svelte";
     import { DeckConfig_Config_LeechAction } from "@generated/anki/deck_config_pb";
     import EasyDaysInput from "./EasyDaysInput.svelte";
     import Warning from "./Warning.svelte";

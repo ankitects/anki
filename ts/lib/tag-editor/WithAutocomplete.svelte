@@ -7,8 +7,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { createEventDispatcher, tick } from "svelte";
     import type { Writable } from "svelte/store";
 
-    import Popover from "$lib/components/Popover.svelte";
-    import WithFloating from "$lib/components/WithFloating.svelte";
+    import Popover from "#lib/components/Popover.svelte";
+    import WithFloating from "#lib/components/WithFloating.svelte";
 
     import AutocompleteItem from "./AutocompleteItem.svelte";
 

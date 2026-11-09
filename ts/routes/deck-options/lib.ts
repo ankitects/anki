@@ -17,7 +17,7 @@ import { tick } from "svelte";
 import type { Readable, Writable } from "svelte/store";
 import { get, readable, writable } from "svelte/store";
 
-import type { DynamicSvelteComponent } from "$lib/sveltelib/dynamicComponent";
+import type { DynamicSvelteComponent } from "#lib/sveltelib/dynamicComponent.js";
 
 export type DeckOptionsId = bigint;
 

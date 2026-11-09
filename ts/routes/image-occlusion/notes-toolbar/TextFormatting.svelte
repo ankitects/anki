@@ -5,14 +5,14 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <script lang="ts">
     import * as tr from "@generated/ftl";
 
-    import Icon from "$lib/components/Icon.svelte";
-    import IconButton from "$lib/components/IconButton.svelte";
+    import Icon from "#lib/components/Icon.svelte";
+    import IconButton from "#lib/components/IconButton.svelte";
     import {
         mdiFormatBold,
         mdiFormatItalic,
         mdiFormatUnderline,
-    } from "$lib/components/icons";
-    import { execCommand } from "$lib/domlib";
+    } from "#lib/components/icons.js";
+    import { execCommand } from "#lib/domlib/index.js";
 
     export let iconSize;
 

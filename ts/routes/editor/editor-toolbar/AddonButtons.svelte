@@ -3,7 +3,7 @@ Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
-    import ButtonGroup from "$lib/components/ButtonGroup.svelte";
+    import ButtonGroup from "#lib/components/ButtonGroup.svelte";
     import { bridgeCommand } from "@tslib/bridgecommand";
     import { toggleEditorButton } from "../old-editor-adapter";
     import { singleCallback } from "@tslib/typing";

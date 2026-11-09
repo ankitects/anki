@@ -5,7 +5,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <script lang="ts">
     import * as tr from "@generated/ftl";
 
-    import Container from "$lib/components/Container.svelte";
+    import Container from "#lib/components/Container.svelte";
 
     import type { IOMode } from "./lib";
     import MasksEditor from "./MaskEditor.svelte";

@@ -10,8 +10,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import type { Writable } from "svelte/store";
     import { writable } from "svelte/store";
 
-    import Shortcut from "$lib/components/Shortcut.svelte";
-    import { execCommand } from "$lib/domlib";
+    import Shortcut from "#lib/components/Shortcut.svelte";
+    import { execCommand } from "#lib/domlib/index.js";
 
     import { TagOptionsButton } from "./tag-options-button";
     import TagEditMode from "./TagEditMode.svelte";

@@ -5,7 +5,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <script lang="ts">
     import "../deck-options/deck-options-base.scss";
     import LabItem from "./LabItem.svelte";
-    import type { PreferenceStore } from "$lib/sveltelib/preferences";
+    import type { PreferenceStore } from "#lib/sveltelib/preferences.js";
     import { ExperimentalFeatureFlag } from "@generated/anki/config_pb";
 
     export let data: { labPerfs: PreferenceStore<any> };

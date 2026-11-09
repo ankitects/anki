@@ -5,8 +5,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <script context="module" lang="ts">
     import type { Writable } from "svelte/store";
 
-    import { resetAllState, updateAllState } from "$lib/components/WithState.svelte";
-    import type { DefaultSlotInterface } from "$lib/sveltelib/dynamic-slotting";
+    import { resetAllState, updateAllState } from "#lib/components/WithState.svelte";
+    import type { DefaultSlotInterface } from "#lib/sveltelib/dynamic-slotting.js";
 
     export function updateActiveButtons(event: Event) {
         updateAllState(event);
@@ -39,7 +39,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         AddonButtons,
     };
 
-    import contextProperty from "$lib/sveltelib/context-property";
+    import contextProperty from "#lib/sveltelib/context-property.js";
 
     const key = Symbol("editorToolbar");
     const [context, setContextProperty] = contextProperty<EditorToolbarAPI>(key);
@@ -51,9 +51,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { createEventDispatcher } from "svelte";
     import { writable } from "svelte/store";
 
-    import ButtonToolbar from "$lib/components/ButtonToolbar.svelte";
-    import DynamicallySlottable from "$lib/components/DynamicallySlottable.svelte";
-    import Item from "$lib/components/Item.svelte";
+    import ButtonToolbar from "#lib/components/ButtonToolbar.svelte";
+    import DynamicallySlottable from "#lib/components/DynamicallySlottable.svelte";
+    import Item from "#lib/components/Item.svelte";
 
     import BlockButtons from "./BlockButtons.svelte";
     import ImageOcclusionButton from "./ImageOcclusionButton.svelte";

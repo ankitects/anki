@@ -12,9 +12,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import type { ImportResponse } from "@generated/anki/import_export_pb";
     import { importDone } from "@generated/backend";
 
-    import BackendProgressIndicator from "$lib/components/BackendProgressIndicator.svelte";
-    import Container from "$lib/components/Container.svelte";
-    import ErrorPage from "$lib/components/ErrorPage.svelte";
+    import BackendProgressIndicator from "#lib/components/BackendProgressIndicator.svelte";
+    import Container from "#lib/components/Container.svelte";
+    import ErrorPage from "#lib/components/ErrorPage.svelte";
     import StickyHeader from "./StickyHeader.svelte";
 
     import ImportLogPage from "./ImportLogPage.svelte";

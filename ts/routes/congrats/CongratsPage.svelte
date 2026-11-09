@@ -8,8 +8,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import * as tr from "@generated/ftl";
     import { bridgeLink } from "@tslib/bridgecommand";
 
-    import Col from "$lib/components/Col.svelte";
-    import Container from "$lib/components/Container.svelte";
+    import Col from "#lib/components/Col.svelte";
+    import Container from "#lib/components/Container.svelte";
 
     import { buildNextLearnMsg } from "./lib";
     import { onMount } from "svelte";

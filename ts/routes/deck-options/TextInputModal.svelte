@@ -3,8 +3,8 @@ Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
-    import Modal from "$lib/components/Modal.svelte";
-    import { pageTheme } from "$lib/sveltelib/theme";
+    import Modal from "#lib/components/Modal.svelte";
+    import { pageTheme } from "#lib/sveltelib/theme.js";
 
     export let title: string;
     export let prompt: string;

@@ -18,7 +18,7 @@ import {
     mdiZoomIn,
     mdiZoomOut,
     mdiZoomReset,
-} from "$lib/components/icons";
+} from "#lib/components/icons.js";
 
 import { deleteItem, duplicateItem, groupShapes, selectAllShapes, unGroupShapes } from "./lib";
 import {

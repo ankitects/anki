@@ -3,9 +3,9 @@ Copyright: Ankitects Pty Ltd and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script>
-    import Col from "$lib/components/Col.svelte";
-    import ConfigInput from "$lib/components/ConfigInput.svelte";
-    import Row from "$lib/components/Row.svelte";
+    import Col from "#lib/components/Col.svelte";
+    import ConfigInput from "#lib/components/ConfigInput.svelte";
+    import Row from "#lib/components/Row.svelte";
 
     export let date;
     export let max = undefined;

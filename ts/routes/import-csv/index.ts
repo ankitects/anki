@@ -7,8 +7,8 @@ import { getCsvMetadata, getDeckNames, getNotetypeNames } from "@generated/backe
 import { ModuleName, setupI18n } from "@tslib/i18n";
 import { checkNightMode } from "@tslib/nightmode";
 
-import { modalsKey } from "$lib/components/context-keys";
-import ErrorPage from "$lib/components/ErrorPage.svelte";
+import { modalsKey } from "#lib/components/context-keys.js";
+import ErrorPage from "#lib/components/ErrorPage.svelte";
 
 import ImportCsvPage from "./ImportCsvPage.svelte";
 import { ImportCsvState } from "./lib";

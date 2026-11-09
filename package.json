@@ -5,6 +5,9 @@
     "author": "Ankitects Pty Ltd and contributors",
     "license": "AGPL-3.0-or-later",
     "description": "Anki JS support files",
+    "imports": {
+        "#lib/*": "./ts/lib/*"
+    },
     "scripts": {
         "dev": "cd ts && vite dev",
         "build": "cd ts && vite build",
