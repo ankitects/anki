@@ -10,7 +10,6 @@ extensions = [
     "myst_parser",
     "sphinx.ext.intersphinx",
     "autoapi.extension",
-    "click_extra.sphinx",
     "sphinxcontrib.mermaid",
 ]
 
@@ -19,7 +18,7 @@ source_suffix = {
     ".md": "markdown",
 }
 
-myst_enable_extensions = ["colon_fence", "deflist"]
+myst_enable_extensions = ["colon_fence", "deflist", "alert"]
 html_theme = "sphinx_book_theme"
 html_logo = "_static/logo.png"
 html_favicon = "_static/favicon.svg"

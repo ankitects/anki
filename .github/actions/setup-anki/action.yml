@@ -74,7 +74,7 @@ runs:
       id: setup-uv
       uses: astral-sh/setup-uv@94527f2e458b27549849d47d273a16bec83a01e9 #v7
       with:
-        version: "0.11.8"
+        version-file: ".tool-versions"
         enable-cache: true
         cache-python: true
         prune-cache: ${{ runner.os != 'Windows' }} # Windows file-locking breaks cache pruning

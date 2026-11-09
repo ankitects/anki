@@ -44,7 +44,7 @@ jobs:
     strategy:
       matrix:
         include:
-          - runner: macos-14
+          - runner: macos-15
             artifact: wheel-macos-arm
             build_cmd: ./qt/audio/build.sh
             needs_signing: true
@@ -56,7 +56,7 @@ jobs:
             artifact: wheel-windows-x64
             build_cmd: tools\ninja audio_wheel
             needs_signing: false
-          - runner: windows-11-arm
+          - runner: windows-11-vs2026-arm
             artifact: wheel-windows-arm
             build_cmd: tools\ninja audio_wheel
             needs_signing: false
@@ -84,6 +84,21 @@ jobs:
         run: ${{ matrix.build_cmd }}
         env:
           SIGN_IDENTITY: ${{ matrix.needs_signing && inputs.sign-macos == true && secrets.APPLE_SIGNING_IDENTITY || '' }}
+
+      - name: Check wheel binaries
+        if: runner.os == 'macOS'
+        run: |
+          WHEEL_DIR="$RUNNER_TEMP/wheel"
+          rm -rf "$WHEEL_DIR"
+          mkdir -p "$WHEEL_DIR"
+          unzip -q out/wheels/anki_audio-*.whl -d "$WHEEL_DIR"
+          qt/audio/macos/check-binaries.sh "$WHEEL_DIR/anki_audio"
+
+      - name: Smoke test
+        if: runner.os == 'macOS'
+        run: |
+          brew install ffmpeg
+          qt/audio/macos/smoke-test.sh "$RUNNER_TEMP/wheel/anki_audio"
 
       - name: Clean up signing credentials
         if: always() && matrix.needs_signing && inputs.sign-macos == true
@@ -119,7 +134,7 @@ jobs:
           merge-multiple: true
 
       - name: Publish to TestPyPI
-        uses: pypa/gh-action-pypi-publish@dc37677b2e1c63e2034f94d8a5b11f265b73ba33 #v1.14.2
+        uses: pypa/gh-action-pypi-publish@7245906fb61fa33a13554f9d5fb856fe61758086 #v1.14.3
         with:
           packages-dir: dist/
           repository-url: https://test.pypi.org/legacy/
@@ -145,6 +160,6 @@ jobs:
           merge-multiple: true
 
       - name: Publish to PyPI
-        uses: pypa/gh-action-pypi-publish@dc37677b2e1c63e2034f94d8a5b11f265b73ba33 #v1.14.2
+        uses: pypa/gh-action-pypi-publish@7245906fb61fa33a13554f9d5fb856fe61758086 #v1.14.3
         with:
           packages-dir: dist/

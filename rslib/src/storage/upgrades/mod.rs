@@ -82,6 +82,7 @@ mod test {
     use super::*;
     use crate::collection::CollectionBuilder;
     use crate::prelude::*;
+    use crate::tags::Tag;
 
     #[test]
     #[allow(clippy::assertions_on_constants)]
@@ -93,23 +94,82 @@ mod test {
     }
 
     #[test]
-    fn valid_ease_factor_survives_upgrade_roundtrip() -> Result<()> {
+    fn migrated_entities_survive_schema_11_roundtrip() -> Result<()> {
         let tempfile = new_tempfile()?;
         let mut col = CollectionBuilder::default()
             .set_collection_path(tempfile.path())
             .build()?;
-        let nt = col.get_notetype_by_name("Basic")?.unwrap();
+
+        let mut nt = col.basic_notetype();
+        nt.id = NotetypeId(0);
+        nt.name = "Migration notetype".into();
+        nt.add_field("Extra");
+        nt.add_template("Extra card", "{{Extra}}", "{{FrontSide}}");
+        col.add_notetype(&mut nt, true)?;
+        let original_notetype = col.storage.get_notetype(nt.id)?.unwrap();
+
+        let mut deck_config = DeckConfig {
+            name: "Migration preset".into(),
+            ..Default::default()
+        };
+        deck_config.inner.learn_steps = vec![2.0, 20.0];
+        col.add_or_update_deck_config(&mut deck_config)?;
+        let original_deck_config = col
+            .storage
+            .get_deck_config(deck_config.id)?
+            .expect("added deck config");
+
+        let mut deck = Deck::new_normal();
+        deck.name = NativeDeckName::from_human_name("Migration deck");
+        deck.normal_mut()?.config_id = deck_config.id.0;
+        col.add_or_update_deck(&mut deck)?;
+        let original_deck = col.storage.get_deck(deck.id)?.expect("added deck");
+
         let mut note = nt.new_note();
-        col.add_note(&mut note, DeckId(1))?;
+        note.set_field(0, "Migration question")?;
+        note.set_field(1, "Migration answer")?;
+        note.set_field(2, "Migration extra")?;
+        col.add_note(&mut note, deck.id)?;
         col.storage
             .db
             .execute("update cards set factor = 1400", [])?;
+        col.set_config("migrationTest", &vec![1, 2, 3])?;
+        let tag = Tag::new("migration::tag".into(), Usn(7));
+        col.storage.register_tag(&tag)?;
+        col.storage.add_card_grave(CardId(123), Usn(-1))?;
+
+        let original_note = col.storage.get_note(note.id)?.unwrap();
+        let original_cards = col.storage.get_all_cards();
+
         col.close(Some(SchemaVersion::V11))?;
-        let col = CollectionBuilder::default()
+        let mut col = CollectionBuilder::default()
             .set_collection_path(tempfile.path())
             .build()?;
-        let card = &col.storage.get_all_cards()[0];
-        assert_eq!(card.ease_factor, 1400);
+
+        assert_eq!(
+            col.storage.db_scalar::<u8>("select ver from col")?,
+            SCHEMA_MAX_VERSION
+        );
+        assert_eq!(
+            col.get_notetype(nt.id)?.as_deref(),
+            Some(&original_notetype)
+        );
+        assert_eq!(col.get_deck(deck.id)?.as_deref(), Some(&original_deck));
+        assert_eq!(
+            col.get_deck_config(deck_config.id, false)?,
+            Some(original_deck_config)
+        );
+        assert_eq!(
+            col.get_config_optional::<Vec<i32>, _>("migrationTest"),
+            Some(vec![1, 2, 3])
+        );
+        assert_eq!(col.storage.all_tags()?, vec![tag]);
+        assert_eq!(col.storage.get_note(note.id)?, Some(original_note));
+        assert_eq!(col.storage.get_all_cards(), original_cards);
+        assert_eq!(
+            col.storage.pending_graves(Usn(-1))?.cards,
+            vec![CardId(123)]
+        );
         Ok(())
     }
 }
