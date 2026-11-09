@@ -12,7 +12,7 @@ import type { Bin } from "d3";
 import { bin, interpolateBlues, min, scaleLinear, scaleSequential, sum } from "d3";
 
 import type { SearchDispatch, TableDatum } from "./graph-helpers";
-import { getNumericMapBinValue, GraphRange, numericMap } from "./graph-helpers";
+import { binThresholds, getNumericMapBinValue, GraphRange, numericMap } from "./graph-helpers";
 import type { HistogramData } from "./histogram-graph";
 
 export interface GraphData {
@@ -26,7 +26,7 @@ export function gatherData(data: GraphsResponse): GraphData {
 function makeQuery(start: number, end: number): string {
     const include = `"added:${start}"`;
 
-    if (start === 1) {
+    if (end < 1) {
         return include;
     }
 
@@ -72,7 +72,7 @@ export function buildHistogram(
             return m[0];
         })
         .domain(scale.domain() as any)
-        .thresholds(scale.ticks(desiredBars))(data.daysAdded.entries() as any);
+        .thresholds(binThresholds(scale, desiredBars))(data.daysAdded.entries() as any);
 
     // empty graph?
     const accessor = getNumericMapBinValue as any;
@@ -110,8 +110,8 @@ export function buildHistogram(
     }
 
     function onClick(bin: Bin<number, number>): void {
-        const start = Math.abs(bin.x0!) + 1;
-        const end = Math.abs(bin.x1!) + 1;
+        const start = 1 - bin.x0!;
+        const end = 1 - bin.x1!;
         const query = makeQuery(start, end);
         dispatch("search", { query });
     }
