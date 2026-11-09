@@ -8,17 +8,27 @@ from __future__ import annotations
 import os
 import tempfile
 from pathlib import Path
+from unittest import mock
 
 import pytest
 
 from aqt.mediasrv import (
+    TRUSTED_PAGE_CSP,
     UNTRUSTED_MEDIA_CSP,
+    BundledFileRequest,
+    LegacyPage,
     LocalFileRequest,
+    NotFound,
+    PageContext,
     UnsafePathException,
+    _extract_addon_request,
+    _handle_builtin_file_request,
     _handle_local_file_request,
     _legacy_editor_content_security_policy,
+    _untrusted_sveltekit_content_security_policy,
     ensure_safe_path,
     is_localhost_origin,
+    legacy_page_data,
 )
 
 
@@ -244,3 +254,230 @@ class TestEditorPageCSP:
         assert "frame-src" not in directives
         assert "child-src" not in directives
         assert "img-src" not in directives
+
+    @pytest.mark.parametrize(
+        "csp",
+        [
+            _legacy_editor_content_security_policy(port=12345),
+            _untrusted_sveltekit_content_security_policy(12345, "'sha256-abc='"),
+        ],
+    )
+    def test_editor_csp_blocks_navigation_and_framing(self, csp: str) -> None:
+        """Field content must not navigate the editor webview via a form, and
+        the editor itself must not be framed by other pages."""
+        directives = _csp_directives(csp)
+        assert directives["form-action"] == "'none'"
+        assert directives["frame-ancestors"] == "'none'"
+
+    def test_sveltekit_editor_csp_allows_render_script_hash(self) -> None:
+        csp = _untrusted_sveltekit_content_security_policy(12345, "'sha256-abc='")
+        directives = _csp_directives(csp)
+        assert directives["script-src"].split() == [
+            "http://127.0.0.1:12345/_anki/",
+            "http://127.0.0.1:12345/_app/",
+            "http://127.0.0.1:12345/_addons/",
+            "'sha256-abc='",
+        ]
+
+
+class TestTrustedPageCSP:
+    """Internal pages are only shown top-level. Refusing frame ancestors keeps
+    note HTML in the editor from embedding them in the API-access profile
+    (GHSA-jw6j-j4mf-8jgm)."""
+
+    SVELTEKIT_INDEX = (
+        b'<html><head><meta http-equiv="content-security-policy" '
+        b"content=\"script-src 'self' 'sha256-abc='\"></head></html>"
+    )
+
+    def _mock_mw(self, monkeypatch) -> mock.Mock:
+        import aqt
+
+        mw = mock.Mock()
+        mw.mediaServer.getPort.return_value = 12345
+        monkeypatch.setattr(aqt, "mw", mw, raising=False)
+        return mw
+
+    def _serve_builtin(self, monkeypatch, request: BundledFileRequest, data: bytes):
+        from aqt import mediasrv
+
+        self._mock_mw(monkeypatch)
+        monkeypatch.setattr(mediasrv, "_builtin_data", lambda path: data)
+        with mediasrv.app.test_request_context():
+            return _handle_builtin_file_request(request)
+
+    def test_trusted_sveltekit_page_refuses_framing(self, monkeypatch) -> None:
+        request = BundledFileRequest(
+            "sveltekit/index.html", sveltekit_route="deck-options"
+        )
+        resp = self._serve_builtin(monkeypatch, request, self.SVELTEKIT_INDEX)
+        assert _get_csp(resp) == TRUSTED_PAGE_CSP
+        assert b"content-security-policy" not in resp.get_data()
+
+    @pytest.mark.parametrize("route", ["editor", "image-occlusion"])
+    def test_untrusted_sveltekit_page_refuses_framing(
+        self, monkeypatch, route: str
+    ) -> None:
+        request = BundledFileRequest("sveltekit/index.html", sveltekit_route=route)
+        resp = self._serve_builtin(monkeypatch, request, self.SVELTEKIT_INDEX)
+        csp = _get_csp(resp)
+        assert csp is not None
+        directives = _csp_directives(csp)
+        assert directives["form-action"] == "'none'"
+        assert directives["frame-ancestors"] == "'none'"
+        assert "'sha256-abc='" in directives["script-src"]
+
+    def test_bundled_html_page_refuses_framing(self, monkeypatch) -> None:
+        request = BundledFileRequest("pages/deckconfig.html")
+        resp = self._serve_builtin(monkeypatch, request, b"<html></html>")
+        assert _get_csp(resp) == TRUSTED_PAGE_CSP
+
+    def test_bundled_asset_has_no_csp(self, monkeypatch) -> None:
+        request = BundledFileRequest("js/foo.js")
+        resp = self._serve_builtin(monkeypatch, request, b"console.log(1)")
+        assert _get_csp(resp) is None
+
+    @pytest.mark.parametrize(
+        "context", [PageContext.REVIEWER, PageContext.PREVIEWER, PageContext.UNKNOWN]
+    )
+    def test_legacy_page_refuses_framing(self, monkeypatch, context) -> None:
+        from aqt.mediasrv import app
+
+        mw = self._mock_mw(monkeypatch)
+        mw.mediaServer.get_page.return_value = LegacyPage("<html></html>", context)
+        with app.test_request_context("/_anki/legacyPageData?id=1"):
+            resp = legacy_page_data()
+        assert _get_csp(resp) == TRUSTED_PAGE_CSP
+
+    def test_legacy_editor_page_gets_editor_csp(self, monkeypatch) -> None:
+        from aqt.mediasrv import app
+
+        mw = self._mock_mw(monkeypatch)
+        mw.mediaServer.get_page.return_value = LegacyPage(
+            "<html></html>", PageContext.EDITOR
+        )
+        with app.test_request_context("/_anki/legacyPageData?id=1"):
+            resp = legacy_page_data()
+        assert _get_csp(resp) == _legacy_editor_content_security_policy(12345)
+
+
+class TestAddonRequestExtraction:
+    def _mock_mw(self, monkeypatch) -> mock.Mock:
+        import aqt
+
+        mw = mock.Mock()
+        mw.addonManager.getWebExports.return_value = "bar"
+        mw.addonManager.addonsFolder.return_value = "addons2"
+        monkeypatch.setattr(aqt, "mw", mw, raising=False)
+        return mw
+
+    def test_only_addons_prefix_matched(self, monkeypatch) -> None:
+        self._mock_mw(monkeypatch)
+        assert _extract_addon_request("_addons/foo/bar") == LocalFileRequest(
+            root="addons2", path="foo/bar", untrusted=False
+        )
+        assert _extract_addon_request("_anki/foo/bar") is None
+
+    def test_no_fallback(self, monkeypatch) -> None:
+        """If the prefix matches but other conditions don't apply (e.g., no pattern matches), NotFound should be returned."""
+        mw = self._mock_mw(monkeypatch)
+
+        # Add-on manager is not set
+        manager = mw.addonManager
+        del mw.addonManager
+        assert isinstance(_extract_addon_request("_addons/foo/bar"), NotFound)
+        mw.addonManager = manager
+
+        # No subpath
+        assert isinstance(_extract_addon_request("_addons/"), NotFound)
+
+        # Empty add-on name
+        assert isinstance(_extract_addon_request("_addons//bar"), NotFound)
+
+        # No pattern
+        mw.addonManager.getWebExports.return_value = ""
+        assert isinstance(_extract_addon_request("_addons/foo/bar"), NotFound)
+
+        # No matching pattern
+        mw.addonManager.getWebExports.return_value = "bar"
+        assert isinstance(_extract_addon_request("_addons/foo/baz"), NotFound)
+
+
+class TestAddonPathTraversal:
+    """/_addons/ URLs that match no add-on must not fall through to collection
+    media."""
+
+    def _get(self, monkeypatch, media_dir: str, url: str):
+        import aqt
+        from aqt.mediasrv import app
+
+        mw = mock.Mock()
+        mw.addonManager.getWebExports.return_value = None
+        mw.col.media.dir.return_value = media_dir
+        monkeypatch.setattr(aqt, "mw", mw, raising=False)
+        client = app.test_client()
+        return client.get(url, base_url="http://127.0.0.1:40000")
+
+    def test_media_file_is_served_directly(self, monkeypatch) -> None:
+        """Control: the file is reachable as plain media."""
+        with tempfile.TemporaryDirectory(ignore_cleanup_errors=True) as media_dir:
+            _make_media_file(media_dir, "file.js")
+            resp = self._get(monkeypatch, media_dir, "/file.js")
+            assert resp.status_code == 200
+
+    @pytest.mark.parametrize(
+        "url",
+        [
+            # encoded backslash
+            "/_addons/..%5cfile.js",
+            # encoded slash
+            "/_addons/..%2ffile.js",
+            "/_addons/..%2Ffile.js",
+            "/_addons/%2e%2e%2ffile.js",
+            "/_addons/foo/..%2f..%2ffile.js",
+        ],
+    )
+    def test_encoded_traversal_does_not_reach_media(
+        self, monkeypatch, url: str
+    ) -> None:
+        with tempfile.TemporaryDirectory(ignore_cleanup_errors=True) as media_dir:
+            _make_media_file(media_dir, "file.js")
+            resp = self._get(monkeypatch, media_dir, url)
+            assert resp.status_code == 404
+
+
+class TestOpenLink:
+    """Only https links are opened."""
+
+    def _open_link(self, monkeypatch, url: str) -> mock.Mock:
+        import aqt
+        from anki import generic_pb2
+        from aqt import mediasrv
+
+        mw = mock.Mock()
+        mw.taskman.run_on_main.side_effect = lambda fn: fn()
+        monkeypatch.setattr(aqt, "mw", mw, raising=False)
+        open_link_mock = mock.Mock()
+        monkeypatch.setattr(mediasrv, "openLink", open_link_mock)
+        with mediasrv.app.test_request_context(
+            method="POST", data=generic_pb2.String(val=url).SerializeToString()
+        ):
+            mediasrv.open_link()
+        return open_link_mock
+
+    def test_opens_https_link(self, monkeypatch) -> None:
+        url = "https://docs.ankiweb.net/"
+        self._open_link(monkeypatch, url).assert_called_once_with(url)
+
+    @pytest.mark.parametrize(
+        "url",
+        [
+            "file:///etc/hosts",
+            "http://example.com/",
+            "javascript:alert(1)",
+            "/_anki/legacyPageData?id=1",
+            "",
+        ],
+    )
+    def test_ignores_other_links(self, monkeypatch, url: str) -> None:
+        self._open_link(monkeypatch, url).assert_not_called()

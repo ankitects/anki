@@ -1,0 +1,799 @@
+# Copyright: Ankitects Pty Ltd and contributors
+# License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
+import argparse
+import json
+import re
+import sys
+from collections.abc import Callable, Iterable
+from copy import deepcopy
+from dataclasses import dataclass
+from pathlib import Path
+from typing import TypeVar
+
+T = TypeVar("T")
+
+TITLE_RE = re.compile(r"# (.*?)(?:$|\{)", re.MULTILINE)
+TITLE_REPLACE_RE = re.compile(r"#(.*)$", re.MULTILINE)
+HEADING_ANCHOR_RE = re.compile(
+    r"^(?P<hashes>#{1,6})\s+(?P<title>.*?)\s*\{#(?P<anchor>[A-Za-z0-9][A-Za-z0-9_:\-.]*)\}\s*$",
+    re.MULTILINE,
+)
+QUICKLINK_RE = re.compile(
+    r"(?<!\]\()<(?P<link>(?:https?|ftp|mailto):[^> ]+|[^<> ]+@[^<> ]+)>",
+    re.DOTALL,
+)
+
+# HTML/MDX safety normalization helpers.
+HTML_TAG_RE = re.compile(r"(</?[A-Za-z][^>]*>)")
+HTML_UNQUOTED_ATTR_RE = re.compile(
+    r'(?P<name>[A-Za-z_:][A-Za-z0-9_:.\-]*)=(?P<value>[^\s"\'=<>`]+?)(?=(?:\s|/?>))'
+)
+VOID_HTML_TAG_NAME_RE = re.compile(r"^<\s*/?\s*([A-Za-z][A-Za-z0-9:-]*)")
+
+# Markdown code regions where literal text should be preserved.
+MARKDOWN_FENCED_CODE_RE = re.compile(r"(```[\s\S]*?```)")
+MARKDOWN_INLINE_CODE_RE = re.compile(r"(`[^`\n]*`)")
+
+# Markdown link cleanup helpers.
+MARKDOWN_LINK_MD_RE = re.compile(
+    r"(\[[^\]]+\]\()(?!(?:https?|ftp)://)(?P<path>[^)\s]+?)\.(:?md|html)(?P<suffix>[#?][^)\s]+)?\)"
+)
+SUMMARY_LINK_RE = re.compile(r"^\s*[-*+]\s+\[(?P<title>[^\]]+)\]\((?P<link>[^)]+)\)")
+ADMONISH_BLOCK_RE = re.compile(
+    r"```admonish\s+(?P<kind>[A-Za-z]+)\n(?P<body>[\s\S]*?)\n```"
+)
+
+# Mirrors the replacement rules listed in docs-relative-links branch commits.
+HTML_PATH_AND_SUFFIX_RE = r"(?P<path>.+?)(?:\.html)?(?P<suffix>(?:[?#][^)\]\s]*)?\))"
+PATH_AND_SUFFIX_REPLACEMENT = r"\g<path>\g<suffix>"
+VOID_HTML_ELEMENTS = {
+    "area",
+    "base",
+    "br",
+    "col",
+    "embed",
+    "hr",
+    "img",
+    "input",
+    "link",
+    "meta",
+    "param",
+    "source",
+    "track",
+    "wbr",
+}
+
+
+def admonish_callout_rule(
+    admonish_kind: str, callout: str, heading: str = ""
+) -> tuple[str, str, str]:
+    return (admonish_kind, callout, heading)
+
+
+ADMONISH_CALLOUT_REPLACEMENTS = [
+    admonish_callout_rule("summary", "Note", "Summary"),
+    admonish_callout_rule("warning", "Warning"),
+    admonish_callout_rule("note", "Note"),
+    admonish_callout_rule("info", "Info"),
+    admonish_callout_rule("danger", "Danger"),
+    admonish_callout_rule("caution", "Warning"),
+    admonish_callout_rule("example", "Info"),
+]
+
+
+def relative_link_rule(domain: str, prefix: str) -> tuple[str, re.Pattern[str], str]:
+    pattern = re.compile(rf"https?://{re.escape(domain)}/{HTML_PATH_AND_SUFFIX_RE}")
+    replacement = f"/{prefix}/{PATH_AND_SUFFIX_REPLACEMENT}"
+    return (domain, pattern, replacement)
+
+
+# If the repo you are importing has more than one domain, add more rules here.
+DOCS_RELATIVE_LINK_REPLACEMENTS = [
+    # en
+    relative_link_rule("docs.ankiweb.net", "manual"),
+    relative_link_rule("addon-docs.ankiweb.net", "addons"),
+    relative_link_rule("faqs.ankiweb.net", "faqs"),
+    relative_link_rule("betas.ankiweb.net", "releases/betas"),
+    relative_link_rule("docs.ankimobile.net", "ankimobile"),
+    # ar
+    relative_link_rule("www.abdnh.net/anki-faqs", "faqs"),
+    relative_link_rule("www.abdnh.net/anki-manual", "manual"),
+]
+
+
+def format_page(
+    content: str, language_code_url: str = "", sidebar_title: str = ""
+) -> str:
+    title_match = TITLE_RE.search(content)
+    content = TITLE_REPLACE_RE.sub("", content, 1)
+
+    def title_hash(title: str) -> str:
+        return re.sub(r"[^\w]", "", title.lower())
+
+    def sanitize_title(title: str) -> str:
+        return title.replace('"', '\\"').strip()
+
+    if title_match:
+        title = title_match.group(1)
+        sidebar_title = (
+            "" if title_hash(sidebar_title) == title_hash(title) else sidebar_title
+        )
+        title = sanitize_title(title)
+        sidebar_title = sanitize_title(sidebar_title)
+        content = (
+            "---\n"
+            f'title: "{title}"\n'
+            f"""{f'sidebarTitle: "{sidebar_title}"\n' if sidebar_title else ""}"""
+            f"""{f'description: "{sidebar_title}"\n' if sidebar_title else ""}"""
+            "---\n"
+            f"{content}"
+        )
+    else:
+        print(f"WARN: could not find title in {content[:5]} or in SUMMARY.md")
+
+    def replace_quicklink(match: re.Match[str]) -> str:
+        link = match.group("link")
+
+        link_title = link
+        for domain, _, _ in DOCS_RELATIVE_LINK_REPLACEMENTS:
+            if link.startswith(f"https://{domain}/"):
+                # Format link titles for internal links
+                link_title = (
+                    link.split("/")[-1]
+                    .split("#")[-1]
+                    .split("?", 1)[0]
+                    .split(".", 1)[0]
+                    .replace("-", " ")
+                    .strip()
+                )
+                break
+
+        if "@" in link and not link.startswith("mailto:"):
+            return f"[{link_title}](mailto:{link})"
+        return f"[{link_title}]({link})"
+
+    def replace_admonish(match: re.Match[str]) -> str:
+        kind = match.group("kind").lower()
+        body = match.group("body")
+        for admonish_kind, callout, heading in ADMONISH_CALLOUT_REPLACEMENTS:
+            if kind != admonish_kind:
+                continue
+            title = f"**{heading}**\n\n" if heading else ""
+            return f"<{callout}>\n{title}{body}\n</{callout}>"
+        return match.group(0)
+
+    content = ADMONISH_BLOCK_RE.sub(replace_admonish, content)
+    content = QUICKLINK_RE.sub(replace_quicklink, content)
+    # Convert intra-manual links like foo.md or foo.md#bar to extensionless links.
+    content = MARKDOWN_LINK_MD_RE.sub(r"\1\g<path>\g<suffix>)", content)
+
+    for _, pattern, replacement in DOCS_RELATIVE_LINK_REPLACEMENTS:
+        # Language pages receive a language prefix, e.g. /ar/manual/...
+        if language_code_url:
+            replacement = f"/{language_code_url}{replacement}"
+        content = pattern.sub(replacement, content)
+
+    # Remove toc
+    content = re.sub(r"<!--\s*toc\s*-->", "", content, flags=re.IGNORECASE)
+    # Escape plain text nodes for MDX while preserving actual HTML tags.
+    content = escape_text_preserve_html(content)
+    content = content.replace("(media", "(/media")
+    # Skips any links with /, :, ? or . in them, as those are likely to be external links.
+    content = re.sub(r"\]\(([^./][a-zA-Z0-9_\-#/]+?\))", r"](./\1", content)
+
+    return content
+
+
+def group_pages(group: dict | str) -> list[str]:
+    if isinstance(group, str):
+        return [group]
+
+    pages = group["pages"]
+    return [page for p in pages for page in group_pages(p)]
+
+
+def find_first(
+    items: Iterable[T], predicate: Callable[[T], bool], item_name: str = "item"
+) -> T:
+    for item in items:
+        if predicate(item):
+            return item
+    raise ValueError(f"could not find {item_name}")
+
+
+@dataclass
+class Page:
+    src: Path
+    root_dest: Path
+    dest: Path
+
+
+def extract_summary_titles(summary_path: Path) -> dict[str, str]:
+    if not summary_path.exists():
+        return {}
+
+    entries: dict[str, str] = {}
+    for line in summary_path.read_text(encoding="utf-8").splitlines():
+        match = SUMMARY_LINK_RE.match(line)
+        if not match:
+            continue
+
+        title = match.group("title").strip()
+        link = match.group("link").split("#", 1)[0].split("?", 1)[0].strip()
+        if not link or "://" in link or link.startswith("/"):
+            continue
+
+        link_path = Path(link)
+        if link_path.suffix not in {".md", ".mdx", ".html"}:
+            continue
+
+        normalized_path = link_path.with_suffix("").as_posix().lstrip("./")
+        entries[normalized_path] = title
+
+    return entries
+
+
+ORDERED_TABS = [
+    "Manual",
+    "AnkiMobile",
+    "FAQs",
+    "Add-ons",
+    "Developers",
+    "Translators",
+    "Releases",
+]
+
+FOLDER_TO_TAB_TITLE = {
+    "manual": "Manual",
+    "ankimobile": "AnkiMobile",
+    "faqs": "FAQs",
+    "addons": "Add-ons",
+    "developers": "Developers",
+    "translators": "Translators",
+    "releases": "Releases",
+}
+
+
+def escape_text_preserve_html(raw: str) -> str:
+    # In indented code blocks, always escape angle brackets as literal text.
+    lines = raw.splitlines(keepends=True)
+    in_tabbed_area = False
+    in_escaped_block = False
+    in_other_indent = False
+    for idx, line in enumerate(lines):
+
+        def exit_current_tabbed_area():
+            nonlocal in_tabbed_area
+            if in_tabbed_area:
+                lines.insert(idx - 1, "```\n")
+                in_tabbed_area = False
+
+        if line.startswith("```"):
+            in_escaped_block = not in_escaped_block
+        if (
+            line.startswith("-")
+            or line.startswith("*")
+            or line.startswith("+")
+            or line.strip().startswith("$$")
+        ):
+            in_other_indent = True
+            exit_current_tabbed_area()
+        elif line.strip() == "":
+            in_other_indent = False
+        if len(line.strip()) > 0 and not in_escaped_block and not in_other_indent:
+            tabbed = (
+                line.startswith("    ") or line.startswith("\t") or line.startswith(">")
+            )
+            if tabbed and not in_tabbed_area:
+                code_type = "python" if "import" in line else "text"
+                lines.insert(idx, f"```{code_type}\n")
+                in_tabbed_area = True
+            elif not tabbed and in_tabbed_area:
+                exit_current_tabbed_area()
+
+    if in_tabbed_area:
+        lines.append("```\n")
+
+    raw = "".join(lines)
+
+    # Split into HTML tags and non-tag text so they can be normalized separately.
+    parts = MARKDOWN_FENCED_CODE_RE.split(raw)
+    for idx, part in enumerate(parts):
+        html_parts = HTML_TAG_RE.split(part)
+        for f_idx, html_part in enumerate(html_parts):
+            if MARKDOWN_FENCED_CODE_RE.fullmatch(part):
+                continue
+
+            if HTML_TAG_RE.fullmatch(html_part):
+                # Normalize HTML attributes for MDX parser compatibility.
+                tag = HTML_UNQUOTED_ATTR_RE.sub(r'\g<name>="\g<value>"', html_part)
+                tag = tag.replace("../img/", "/media/")
+                tag_name_match = VOID_HTML_TAG_NAME_RE.match(tag)
+                if (
+                    tag_name_match
+                    and tag.startswith("</")
+                    and tag_name_match.group(1).lower() in VOID_HTML_ELEMENTS
+                ):
+                    # Drop invalid closing tags for void elements like </br>.
+                    html_parts[f_idx] = ""
+                    continue
+                if (
+                    tag_name_match
+                    and not tag.startswith("</")
+                    and not tag.rstrip().endswith("/>")
+                    and tag_name_match.group(1).lower() in VOID_HTML_ELEMENTS
+                ):
+                    # Ensure void elements are self-closing, e.g. <br />.
+                    tag = tag[:-1].rstrip() + " />"
+                html_parts[f_idx] = tag
+                continue
+
+            inline_parts = MARKDOWN_INLINE_CODE_RE.split(html_part)
+            for i_idx, inline_part in enumerate(inline_parts):
+                if MARKDOWN_INLINE_CODE_RE.fullmatch(inline_part):
+                    continue
+
+                # This code deals with the parts that aren't inline
+                # Preserve {#anchor} patterns while escaping other curly braces
+                def escape_braces(text: str) -> str:
+                    # Find all {#anchor} patterns and protect them
+                    anchor_pattern = r"[^{]\{#[A-Za-z0-9][A-Za-z0-9_:\-.]*\}"
+                    anchors: dict[str, str] = {}
+                    placeholder_prefix = "\x00ANCHOR_"
+
+                    # Replace anchors with placeholders
+                    for match in re.finditer(anchor_pattern, text):
+                        anchor = match.group(0)
+                        placeholder = f"{placeholder_prefix}{len(anchors)}\x00"
+                        anchors[placeholder] = anchor
+                        text = text.replace(anchor, placeholder)
+
+                    # Escape remaining braces
+                    text = text.replace("{", "\\{").replace("}", "\\}")
+
+                    # Restore anchors
+                    for placeholder, anchor in anchors.items():
+                        text = text.replace(placeholder, anchor)
+
+                    return text
+
+                inline_part = escape_braces(inline_part)
+                inline_part = inline_part.replace("<!--", "{/*").replace("-->", "*/}")
+                inline_part = inline_part.replace("<", "&lt;").replace(">", "&gt;")
+                inline_part = (
+                    inline_part.replace("$$", "LATEX")
+                    .replace("$", "\\$")
+                    .replace("\\\\$", "\\$")
+                    .replace("LATEX", "$$")
+                )
+                inline_parts[i_idx] = inline_part
+
+            html_parts[f_idx] = "".join(inline_parts)
+
+        parts[idx] = "".join(html_parts)
+
+    return "".join(parts)
+
+
+def add_convert_subcommand(subparsers: argparse._SubParsersAction) -> None:
+    convert_parser = subparsers.add_parser(
+        "convert",
+        help="Convert docs into docs-site format.",
+        formatter_class=argparse.RawTextHelpFormatter,
+    )
+    convert_parser.add_argument(
+        "source_docs_dir",
+        help="Path to the directory of the docs you want to import.",
+    )
+    convert_parser.add_argument(
+        "tab",
+        default="Manual",
+        choices=FOLDER_TO_TAB_TITLE.keys(),
+        help="Navigation tab to import to. Case sensitive.",
+    )
+    convert_parser.add_argument(
+        "language_code",
+        default="en",
+        help="Language code to import (use 'en' for default language paths).",
+    )
+    convert_parser.add_argument(
+        "--docs-site-dir",
+        default="docs-site",
+        help="Path to the destination directory.",
+    )
+    convert_parser.set_defaults(func=run_convert)
+
+
+def build_parser() -> argparse.ArgumentParser:
+    parser = argparse.ArgumentParser(
+        description="Convert anki docs from a repo that follows the same format as the anki-manual repo into the main repos mintlify format.",
+        epilog=(
+            "Examples:\n"
+            "  %(prog)s convert ../anki-manual manual en\n"
+            "  %(prog)s convert ../anki-faqs faqs ar\n"
+            "  %(prog)s copy ar"
+        ),
+        formatter_class=argparse.RawTextHelpFormatter,
+    )
+    subparsers = parser.add_subparsers(dest="command", required=True)
+    add_convert_subcommand(subparsers)
+    add_copy_subcommand(subparsers)
+
+    return parser
+
+
+def load_site_structure(docs_site_dir: Path) -> dict:
+    with open(docs_site_dir / "docs.json", encoding="utf-8") as file:
+        return json.load(file)
+
+
+def write_site_structure(docs_site_dir: Path, site_structure: dict) -> None:
+    with open(docs_site_dir / "docs.json", "w", encoding="utf-8") as file:
+        json.dump(site_structure, file, indent=2)
+
+
+def run_convert(args: argparse.Namespace) -> None:
+
+    language_code = args.language_code
+    docs_site_dir = Path(args.docs_site_dir)
+    src_docs_dir = Path(args.source_docs_dir).resolve()
+    if src_docs_dir.name != "src":
+        src_docs_dir /= "src"
+    tab_folder = args.tab
+    tab_name = FOLDER_TO_TAB_TITLE[tab_folder]
+
+    language_code_path_str = "" if language_code == "en" else language_code
+    language_code_path = Path(language_code_path_str)
+
+    language_dir = docs_site_dir / language_code_path
+    tab_dest_dir = language_dir / tab_folder
+
+    print(str(tab_dest_dir))
+
+    site_structure = load_site_structure(docs_site_dir)
+
+    # print(site_structure)
+
+    default_language = find_first(
+        site_structure["navigation"]["languages"],
+        lambda lang: lang["language"] == "en",
+        "language 'en'",
+    )
+    default_tab = find_first(
+        default_language["tabs"],
+        lambda tab: tab["tab"] == tab_name,
+        f"{tab_name} tab",
+    )
+    main_group = default_tab["groups"][0]
+    default_language_pages = group_pages(main_group)
+    summary_titles = extract_summary_titles(src_docs_dir / "SUMMARY.md")
+
+    source_contents = sorted(
+        path.resolve()
+        for path in src_docs_dir.rglob("*")
+        if path.is_file() and path.suffix in {".md", ".mdx"}
+    )
+
+    paths: list[Page] = []
+    for path in source_contents:
+        relative_src = path.relative_to(src_docs_dir)
+        root_dest = Path(tab_folder) / relative_src.with_suffix("")
+        dest = language_code_path / root_dest if language_code_path else root_dest
+        paths.append(Page(src=path, root_dest=root_dest, dest=dest))
+
+    to_move = [
+        page for page in paths if page.root_dest.as_posix() in default_language_pages
+    ]
+    unmoved = [
+        page
+        for page in paths
+        if page.root_dest.as_posix() not in default_language_pages
+    ]
+
+    if unmoved:
+        print(f"unimported pages: {unmoved}")
+
+    # print(f"Source docs: {default_language}")
+
+    for page in to_move:
+        output_path = docs_site_dir / page.dest.parent / f"{page.dest.name}.mdx"
+        output_path.parent.mkdir(parents=True, exist_ok=True)
+        content = page.src.read_text(encoding="utf-8")
+        relative_src_key = page.src.relative_to(src_docs_dir).with_suffix("").as_posix()
+        metadata_title = summary_titles.get(relative_src_key, "")
+        output_path.write_text(
+            format_page(content, language_code_path_str, metadata_title),
+            encoding="utf-8",
+        )
+
+    new_tab = deepcopy(default_tab)
+    new_group = new_tab["groups"][0]
+
+    def update_page_paths(group: dict | str):
+        if isinstance(group, str):
+            path = Path(group)
+            if (
+                any(path == page.root_dest for page in to_move)
+                or "hooks-reference" in group
+            ):
+                return (
+                    (language_code_path / path).as_posix()
+                    if language_code_path
+                    else path.as_posix()
+                )
+            else:
+                return None
+
+        pages = group["pages"]
+        group["pages"] = [update_page_paths(p) for p in pages]
+        group["pages"] = [p for p in group["pages"] if p is not None]
+        return group
+
+    update_page_paths(new_group)
+
+    target_language = next(
+        (
+            lang
+            for lang in site_structure["navigation"]["languages"]
+            if lang["language"] == language_code
+        ),
+        None,
+    )
+    if target_language is None:
+        target_language = deepcopy(default_language)
+        target_language["language"] = language_code
+        site_structure["navigation"]["languages"].append(target_language)
+
+    target_language["tabs"] = [
+        tab for tab in target_language["tabs"] if tab.get("tab", None) != tab_name
+    ]
+    target_language["tabs"].append(new_tab)
+
+    # Sort the tabs according to ORDERED_TABS
+    target_language["tabs"].sort(
+        key=lambda tab: (
+            ORDERED_TABS.index(tab["tab"])
+            if tab["tab"] in ORDERED_TABS
+            else len(ORDERED_TABS)
+        )
+    )
+
+    write_site_structure(docs_site_dir, site_structure)
+
+    print("")
+    print(f"Imported {len(to_move)} pages to {language_code_path_str}/{tab_folder}.")
+    print(
+        "Please run ./check to format the newly imported pages before submitting any changes"
+    )
+
+
+# ---------------------------------------------------------------------------
+# copy subcommand
+# ---------------------------------------------------------------------------
+
+ENGLISH_DOCS_FOLDERS = (
+    "manual",
+    "ankimobile",
+    "faqs",
+    "addons",
+    "developers",
+    "translators",
+    "releases",
+)
+
+ENGLISH_DOCS_ROOT_FILES = (
+    "index.mdx",
+    "automatic-backups.mdx",
+)
+
+
+def add_copy_subcommand(subparsers: argparse._SubParsersAction) -> None:
+    copy_parser = subparsers.add_parser(
+        "copy",
+        help="Copy all English docs-site pages to another language and update docs.json.",
+        formatter_class=argparse.RawTextHelpFormatter,
+    )
+    copy_parser.add_argument(
+        "target_locale",
+        metavar="target-locale",
+        help="Language code to copy the docs to",
+    )
+    copy_parser.add_argument(
+        "--docs-site-dir",
+        default="docs-site",
+        help="Path to the docs-site directory.",
+    )
+    copy_parser.add_argument(
+        "--dry-run",
+        action="store_true",
+        help="Perform a dry run without writing any files.",
+    )
+    copy_parser.set_defaults(func=run_copy)
+
+
+def get_english_docs_pages(docs_site_dir: Path) -> list[Path]:
+    pages: list[Path] = []
+
+    for folder in ENGLISH_DOCS_FOLDERS:
+        folder_path = docs_site_dir / folder
+        if not folder_path.exists():
+            continue
+
+        pages.extend(
+            sorted(
+                path.relative_to(docs_site_dir) for path in folder_path.rglob("*.mdx")
+            )
+        )
+
+    for file_name in ENGLISH_DOCS_ROOT_FILES:
+        file_path = docs_site_dir / file_name
+        if file_path.exists():
+            pages.append(Path(file_name))
+
+    return pages
+
+
+def prefix_page_paths(group: dict | str, target_locale: str) -> dict | str:
+    if isinstance(group, str):
+        return f"{target_locale}/{group}"
+
+    updated_group = deepcopy(group)
+    updated_group["pages"] = [
+        prefix_page_paths(page, target_locale) for page in updated_group["pages"]
+    ]
+    return updated_group
+
+
+UNTRANSLATED_MARKER = "{/* *--UNTRANSLATED--* */}"
+
+
+def copy_english_pages(
+    docs_site_dir: Path, target_locale: str, pages: list[Path], dry_run=False
+) -> tuple[list[str], int, int, set[str]]:
+    copied_pages = []
+    skipped_pages = 0
+    overwritten_pages = 0
+    skipped_from_nav: set[str] = set()
+    for page in pages:
+        source_path = docs_site_dir / page
+        target_path = docs_site_dir / target_locale / page
+        new = True
+        if target_path.exists() and (
+            new := UNTRANSLATED_MARKER not in target_path.read_text(encoding="utf-8")
+        ):
+            skipped_pages += 1
+            continue
+        target_path.parent.mkdir(parents=True, exist_ok=True)
+        page_path = page.with_suffix("").as_posix()
+        content = source_path.read_text(encoding="utf-8")
+        headmatter = re.match(r"^---\n(.*?)\n---", content, re.DOTALL)
+        if headmatter is None:
+            print(f"WARN: no headmatter found in {source_path}")
+            skipped_pages += 1
+            skipped_from_nav.add(page_path)
+            continue
+        new_headmatter = headmatter.group(0)
+        new_headmatter = new_headmatter[:-3] + "noindex: true\n---"
+        if "<<<<cog" in content:
+            content = (
+                new_headmatter
+                + "\n"
+                + f"{UNTRANSLATED_MARKER}\n"
+                + "{/* You may translate the link for this text but since the contents of the destination page are generated automatically you shouldn't translate it fully. If you translate the link, remove the above marker */}\n"
+                + f"<Info>English only<br/> [View in English](/{page_path})</Info>\n"
+            )
+        else:
+            content = (
+                new_headmatter
+                + "\n"
+                + '{/* This text is currently untranslated. Replace this and the below "Cog" comment with your translation of the page */}\n'
+                f"""{{/* <<<<cog from tools.auto_update_untranslated import auto_update_untranslated; cog.out(auto_update_untranslated("{source_path.as_posix()}", "{target_locale}"))>>>> */}}\n"""
+                + f"{UNTRANSLATED_MARKER}\n"  # Inside the cog statement to simplify what parts of the page to delete
+                + f"<Danger>Error<br/> [View the English version](/{page_path})</Danger>\n"
+                + "{/* <<<<end>>>> */}"
+            )
+
+        if not dry_run:
+            target_path.write_text(
+                content,
+                encoding="utf-8",
+            )
+
+        if new:
+            copied_pages.append(str(target_path))
+        overwritten_pages += 1 if not new else 0
+
+    return copied_pages, overwritten_pages, skipped_pages, skipped_from_nav
+
+
+def update_language_tabs_from_english(
+    site_structure: dict, target_locale: str, excluded_pages: set[str] | None = None
+) -> tuple[dict, int]:
+    default_language = find_first(
+        site_structure["navigation"]["languages"],
+        lambda lang: lang["language"] == "en",
+        "language 'en'",
+    )
+    excluded_pages = excluded_pages or set()
+
+    def filter_group(group: dict | str):
+        if isinstance(group, str):
+            if group in excluded_pages:
+                return None
+            return f"{target_locale}/{group}"
+
+        updated_group = deepcopy(group)
+        updated_group["pages"] = [
+            nested_page
+            for nested_page in (filter_group(page) for page in updated_group["pages"])
+            if nested_page is not None
+        ]
+        return updated_group
+
+    localized_tabs = deepcopy(default_language["tabs"])
+    for tab in localized_tabs:
+        tab["groups"] = [
+            group
+            for group in (filter_group(group) for group in tab["groups"])
+            if group is not None
+        ]
+
+    target_language = next(
+        (
+            lang
+            for lang in site_structure["navigation"]["languages"]
+            if lang["language"] == target_locale
+        ),
+        None,
+    )
+    if target_language is None:
+        target_language = deepcopy(default_language)
+        target_language["language"] = target_locale
+        site_structure["navigation"]["languages"].append(target_language)
+
+    target_language["tabs"] = localized_tabs
+    return site_structure, len(localized_tabs)
+
+
+def run_copy(args: argparse.Namespace) -> None:
+    docs_site_dir = Path(args.docs_site_dir)
+    site_structure = load_site_structure(docs_site_dir)
+    pages = get_english_docs_pages(docs_site_dir)
+    all_copied_pages = []
+    all_overwritten_pages = 0
+    all_skipped_pages = 0
+    for target_locale in args.target_locale.split(","):
+        copied_pages, overwritten_pages, skipped_pages, skipped_from_nav = (
+            copy_english_pages(docs_site_dir, target_locale, pages, args.dry_run)
+        )
+
+        all_copied_pages.extend(copied_pages)
+        all_overwritten_pages += overwritten_pages
+        all_skipped_pages += skipped_pages
+
+        if args.dry_run:
+            continue
+
+        site_structure, tab_count = update_language_tabs_from_english(
+            site_structure, target_locale, skipped_from_nav
+        )
+        write_site_structure(docs_site_dir, site_structure)
+        print(f"Updated docs.json with {tab_count} tabs for {target_locale}.")
+
+    print(
+        f"Copied {len(all_copied_pages)} English pages to {target_locale}/; "
+        f"overwritten {all_overwritten_pages} untranslated files; "
+        f"skipped {all_skipped_pages} translated files."
+    )
+    if args.dry_run and len(all_copied_pages) > 0:
+        print(f"Files missing: {all_copied_pages}")
+        sys.exit(1)
+
+
+def main(argv: list[str] | None = None) -> None:
+    args = build_parser().parse_args(argv)
+    args.func(args)
+
+
+if __name__ == "__main__":
+    main()

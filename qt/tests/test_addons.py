@@ -1,6 +1,7 @@
 # Copyright: Ankitects Pty Ltd and contributors
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
+import io
 import os.path
 from tempfile import TemporaryDirectory
 from zipfile import ZipFile
@@ -8,7 +9,18 @@ from zipfile import ZipFile
 import pytest
 from mock import MagicMock
 
-from aqt.addons import AddonManager, DownloadError, download_addon, package_name_valid
+import anki.lang
+from aqt.addons import (
+    AddonManager,
+    ChooseAddonsToUpdateList,
+    DownloadError,
+    DownloadOk,
+    InstallOk,
+    download_addon,
+    download_and_install_addon,
+    package_name_valid,
+)
+from aqt.qt import QApplication, QWidget
 
 
 def test_readMinimalManifest():
@@ -85,6 +97,68 @@ def addon_manager(tmp_path) -> AddonManager:
     return adm
 
 
+def test_install_prefers_packaged_name(addon_manager):
+    data = io.BytesIO()
+    with ZipFile(data, "w") as zfile:
+        zfile.writestr(
+            "manifest.json",
+            '{"package": "12345", "name": "Packaged & Name"}',
+        )
+
+    result = addon_manager.install(
+        data, manifest={"package": "12345", "name": "Fallback Name"}
+    )
+
+    assert isinstance(result, InstallOk)
+    assert result.name == "Packaged & Name"
+
+
+def _addon_download(data: bytes, filename: str = "Fallback_Name.zip") -> DownloadOk:
+    return DownloadOk(
+        data=data,
+        filename=filename,
+        mod_time=0,
+        min_point_version=0,
+        max_point_version=0,
+        branch_index=0,
+    )
+
+
+def test_download_prefers_packaged_name(monkeypatch, addon_manager):
+    data = io.BytesIO()
+    with ZipFile(data, "w") as zfile:
+        zfile.writestr(
+            "manifest.json",
+            '{"package": "12345", "name": "Packaged & Name"}',
+        )
+
+    monkeypatch.setattr(
+        "aqt.addons.download_addon",
+        lambda _client, _id: _addon_download(data.getvalue()),
+    )
+
+    _, result = download_and_install_addon(addon_manager, MagicMock(), 12345)
+
+    assert isinstance(result, InstallOk)
+    assert result.name == "Packaged & Name"
+
+
+def test_download_falls_back_to_filename_name(monkeypatch, addon_manager):
+    data = io.BytesIO()
+    with ZipFile(data, "w") as zfile:
+        zfile.writestr("__init__.py", "")
+
+    monkeypatch.setattr(
+        "aqt.addons.download_addon",
+        lambda _client, _id: _addon_download(data.getvalue()),
+    )
+
+    _, result = download_and_install_addon(addon_manager, MagicMock(), 12345)
+
+    assert isinstance(result, InstallOk)
+    assert result.name == "Fallback Name"
+
+
 def test_install_extracts_safe_files(tmp_path, addon_manager):
     zfn = os.path.join(tmp_path, "addon.zip")
     with ZipFile(zfn, "w") as zfile:
@@ -112,3 +186,31 @@ def test_download_addon_rejects_bad_content_disposition():
     assert isinstance(result, DownloadError)
     assert isinstance(result.exception, ValueError)
     assert "content-disposition" in str(result.exception)
+
+
+def make_update_list(parent: QWidget) -> ChooseAddonsToUpdateList:
+    anki.lang.set_lang("en")
+    mgr = MagicMock()
+    mgr.addon_meta.return_value.human_name.return_value = "Example add-on"
+    updated_addons = [MagicMock(id=123, modified=0)]
+    return ChooseAddonsToUpdateList(parent, mgr, updated_addons)
+
+
+def test_update_list_uses_fusion_on_macos(qapp, monkeypatch):
+    # Qt's native macOS style doesn't draw check indicators on macOS 27
+    monkeypatch.setattr("aqt.addons.is_mac", True)
+    parent = QWidget()
+
+    addons_list = make_update_list(parent)
+
+    assert addons_list.style().objectName() == "fusion"
+    assert addons_list.style() is not QApplication.style()
+
+
+def test_update_list_keeps_app_style_elsewhere(qapp, monkeypatch):
+    monkeypatch.setattr("aqt.addons.is_mac", False)
+    parent = QWidget()
+
+    addons_list = make_update_list(parent)
+
+    assert addons_list.style() is QApplication.style()
