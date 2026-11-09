@@ -1,10 +1,19 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 import svg from "@poppanator/sveltekit-svg";
+import adapter from "@sveltejs/adapter-static";
 import { sveltekit } from "@sveltejs/kit/vite";
+import { vitePreprocess } from "@sveltejs/vite-plugin-svelte";
 import { realpathSync } from "fs";
+import { dirname, join } from "path";
+import preprocess from "svelte-preprocess";
+import { fileURLToPath } from "url";
 import { defineConfig as defineViteConfig, mergeConfig } from "vite";
 import { defineConfig as defineVitestConfig } from "vitest/config";
+
+// This prevents errors being shown when opening VSCode on the root of the
+// project, instead of the ts folder.
+const tsFolder = dirname(fileURLToPath(import.meta.url));
 
 const configure = (proxy: any, _options: any) => {
     proxy.on("error", (err: any) => {
@@ -20,7 +29,27 @@ const configure = (proxy: any, _options: any) => {
 
 const viteConfig = defineViteConfig({
     plugins: [
-        sveltekit(),
+        sveltekit({
+            // preprocess() slows things down by about 10%, but allows us to use :global { ... }
+            preprocess: [vitePreprocess(), preprocess()],
+            adapter: adapter(
+                { pages: "../out/sveltekit", fallback: "index.html", precompress: false },
+            ),
+            alias: {
+                "@tslib": join(tsFolder, "lib/tslib"),
+                "@generated": join(tsFolder, "../out/ts/lib/generated"),
+            },
+            files: {
+                routes: join(tsFolder, "routes"),
+            },
+            // outside of out/; as things break when out/ is a symlink
+            outDir: join(tsFolder, ".svelte-kit"),
+            prerender: {
+                crawl: false,
+                entries: [],
+            },
+            csp: { mode: "hash", directives: { "script-src": ["'self'"] } },
+        }),
         svg({ svgoOptions: { plugins: [{ name: "cleanupIds", params: { remove: false } }] } }),
     ],
     cacheDir: "../node_modules/.vite",
