@@ -3,6 +3,7 @@
 
 import platform
 from collections.abc import Callable
+from datetime import date
 
 import aqt.forms
 from anki.lang import without_unicode_isolation
@@ -235,6 +236,7 @@ def show(mw: aqt.AnkiQt) -> QDialog:
     abouttext += "<p>" + tr.about_written_by_damien_elmes_with_patches(
         cont=", ".join(allusers) + f", {tr.about_and_others()}"
     )
+    abouttext += f"<p>{tr.about_copyright(year=str(date.today().year))}"
     abouttext += f"<p>{tr.about_if_you_have_contributed_and_are()}"
     abouttext += f"<p>{tr.about_a_big_thanks_to_all_the()}"
     abt.label.setMinimumWidth(800)
