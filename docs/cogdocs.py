@@ -17,8 +17,9 @@ def get_file_contents(file_path):
                 return f"]({target})"
 
             # Resolve same-page anchors against the current document.
-            if target.startswith("#"):
-                target = f"/{file_path.split('/')[-1].removesuffix('.mdx')}{target}"
+            if target.startswith("#") or target.startswith("./#"):
+                target = target.removeprefix("./")
+                target = f"/developers/{file_path.split('/')[-1].removesuffix('.mdx')}{target}"
             elif target.startswith("./"):
                 target = target[1:]
             elif not target.startswith("/"):

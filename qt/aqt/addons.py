@@ -451,7 +451,7 @@ class AddonManager:
     ) -> InstallOk | InstallError:
         """Install add-on from path or file-like object. Metadata is read
         from the manifest file, with keys overridden by supplying a 'manifest'
-        dictionary"""
+        dictionary, except for a non-empty packaged name."""
         try:
             zfile = ZipFile(file)
         except zipfile.BadZipfile:
@@ -459,8 +459,11 @@ class AddonManager:
 
         with zfile:
             file_manifest = self.readManifestFile(zfile)
+            packaged_name = file_manifest.get("name")
             if manifest:
                 file_manifest.update(manifest)
+            if packaged_name:
+                file_manifest["name"] = packaged_name
             manifest = file_manifest
             if not manifest:
                 return InstallError(errmsg="manifest")
@@ -1330,6 +1333,10 @@ class ChooseAddonsToUpdateList(QListWidget):
         updated_addons: list[AddonInfo],
     ) -> None:
         QListWidget.__init__(self, parent)
+        # QTBUG-150017: revert after upstream fix (Qt 6.12.1)
+        if is_mac:
+            self._fusion_style = QStyleFactory.create("fusion")
+            self.setStyle(self._fusion_style)  # type: ignore
         self.mgr = mgr
         self.updated_addons = sorted(updated_addons, key=lambda addon: addon.modified)
         self.ignore_check_evt = False

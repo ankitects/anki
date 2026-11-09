@@ -33,13 +33,13 @@ pub(crate) fn extract_into_media_folder(
 
     for i in 0..zip.len() {
         let mut file = zip.by_index(i)?;
-        let name = file.name();
+        let name = file.name()?;
         if name == "_meta" {
             continue;
         }
 
         let real_name = fmap
-            .get(name)
+            .get(name.as_ref())
             .ok_or_else(|| AnkiError::sync_error("malformed zip", SyncErrorKind::Other))?;
 
         let mut data = Vec::with_capacity(file.size() as usize);

@@ -400,9 +400,7 @@ class Preferences(QDialog):
         self.setupOptions()
 
     def update_global(self) -> None:
-        restart_required = False
-
-        self.update_video_driver()
+        restart_required = self.update_video_driver()
 
         newScale = self.form.uiScale.value() / 100
         if newScale != self.mw.pm.uiScale():
@@ -410,7 +408,8 @@ class Preferences(QDialog):
             restart_required = True
 
         col = self.mw.col
-        if col._get_experiments_dirty() != col._experiments:
+        # This notification is disabled in safe mode to prevent it from triggering due to col._experiments always being empty.
+        if not self.mw.safeMode and col._get_experiments_dirty() != col._experiments:
             restart_required = True
 
         if restart_required:
@@ -474,11 +473,13 @@ class Preferences(QDialog):
             self.video_drivers.index(self.mw.pm.video_driver())
         )
 
-    def update_video_driver(self) -> None:
+    def update_video_driver(self) -> bool:
+        """Returns True if the video driver was changed."""
         new_driver = self.video_drivers[self.form.video_driver.currentIndex()]
         if new_driver != self.mw.pm.video_driver():
             self.mw.pm.set_video_driver(new_driver)
-            showInfo(tr.preferences_changes_will_take_effect_when_you())
+            return True
+        return False
 
 
 def video_driver_name_for_platform(driver: VideoDriver) -> str:
