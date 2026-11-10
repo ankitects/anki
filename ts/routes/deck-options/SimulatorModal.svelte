@@ -267,16 +267,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 
     function exportSimulationHistory() {
-        const csv = simulationHistoryCsv(simulationRuns);
-        const url = URL.createObjectURL(new Blob([csv], { type: "text/csv;charset=utf-8" }));
-        const anchor = document.createElement("a");
-        anchor.href = url;
-        anchor.download = "anki-fsrs-simulation-history.csv";
-        document.body.appendChild(anchor);
-        anchor.click();
-        anchor.remove();
-        // Leave time for the embedded browser to pick up the download.
-        setTimeout(() => URL.revokeObjectURL(url), 30_000);
+        // QtWebEngine downloads are rejected unless explicitly accepted by the
+        // host application; use Anki's bridge to open a native Save dialog.
+        pycmd("exportFsrsSimulatorCsv:" + simulationHistoryCsv(simulationRuns));
     }
 
     function saveConfigToPreset() {
