@@ -5,9 +5,9 @@ import adapter from "@sveltejs/adapter-static";
 import { sveltekit } from "@sveltejs/kit/vite";
 import { vitePreprocess } from "@sveltejs/vite-plugin-svelte";
 import { realpathSync } from "fs";
-import { dirname, join } from "path";
+import { dirname, join } from "node:path";
 import preprocess from "svelte-preprocess";
-import { fileURLToPath } from "url";
+import { fileURLToPath } from "node:url";
 import { defineConfig as defineViteConfig, mergeConfig } from "vite";
 import { defineConfig as defineVitestConfig } from "vitest/config";
 
