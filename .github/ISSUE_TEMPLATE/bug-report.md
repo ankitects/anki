@@ -26,13 +26,10 @@ Issues that are vague or don't describe the problem may be closed without furthe
 and can't, or where something gets in the way. Describe the situation, the problem you
 want to solve, not the feature you have in mind. -->
 
-
 ### What you expected instead
 
 <!-- What should happen, or what you need to be able to do, and what it costs
 you that it doesn't. -->
-
-
 
 ### Steps to reproduce
 
@@ -57,13 +54,9 @@ Paste debug info here
 
 <!-- e.g. all users, macOS only, people using FSRS; every review, once a week. -->
 
-
-
 ### How do you deal with it today?
 
 <!-- Workarounds, add-ons, other tools, or just living with it. -->
-
-
 
 ## Proposed solution (optional)
 
@@ -71,9 +64,9 @@ Paste debug info here
 where the bug comes from. Mockups and code sketches are welcome. A well-described problem
 is what lets us find the best solution, so this part is optional. -->
 
-
-
 ## Related links
 
 <!-- Forum threads, issues, PRs or add-ons related to this. -->
-````
+
+```
+```
