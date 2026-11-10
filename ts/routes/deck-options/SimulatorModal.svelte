@@ -45,6 +45,12 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import type { ComputeRetentionProgress } from "@generated/anki/collection_pb";
     import Modal from "bootstrap/js/dist/modal";
     import { onMount } from "svelte";
+    import {
+        recordSimulation,
+        simulationHistoryCsv,
+        simulationTotals,
+        type SimulationRun,
+    } from "./simulator-history";
 
     export let state: DeckOptionsState;
     export let simulateFsrsRequest: SimulateFsrsReviewRequest;
@@ -65,6 +71,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     let svg: HTMLElement | SVGElement | null = null;
     let simulationNumber = 0;
+    let simulationRuns: SimulationRun[] = [];
     let points: (WorkloadPoint | Point)[] = [];
     const newCardsIgnoreReviewLimit = state.newCardsIgnoreReviewLimit;
     let smooth = true;
@@ -153,6 +160,14 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     async function simulateFsrs(): Promise<void> {
         let resp: SimulateFsrsReviewResponse | undefined;
         updateRequest();
+        // Keep the settings used by this run, even when the UI changes later.
+        const settings = {
+            daysToSimulate: simulateFsrsRequest.daysToSimulate,
+            deckSize: simulateFsrsRequest.deckSize,
+            desiredRetention: simulateFsrsRequest.desiredRetention,
+            newLimit: simulateFsrsRequest.newLimit,
+            reviewLimit: simulateFsrsRequest.reviewLimit,
+        };
         try {
             await runWithBackendProgress(
                 async () => {
@@ -165,6 +180,15 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             simulating = false;
             if (resp) {
                 simulationNumber += 1;
+                simulationRuns = [
+                    ...simulationRuns,
+                    recordSimulation(
+                        simulationNumber,
+                        settings,
+                        resp.dailyNewCount,
+                        resp.dailyReviewCount,
+                    ),
+                ];
                 const dailyTotalCount = addArrays(
                     resp.dailyReviewCount,
                     resp.dailyNewCount,
@@ -232,6 +256,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     function clearSimulation() {
         points = points.filter((p) => p.label !== simulationNumber);
+        simulationRuns = simulationRuns.filter((run) => run.number !== simulationNumber);
         simulationNumber = Math.max(0, simulationNumber - 1);
         tableData = renderSimulationChart(
             svg as SVGElement,
@@ -239,6 +264,19 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             points,
             simulateSubgraph,
         );
+    }
+
+    function exportSimulationHistory() {
+        const csv = simulationHistoryCsv(simulationRuns);
+        const url = URL.createObjectURL(new Blob([csv], { type: "text/csv;charset=utf-8" }));
+        const anchor = document.createElement("a");
+        anchor.href = url;
+        anchor.download = "anki-fsrs-simulation-history.csv";
+        document.body.appendChild(anchor);
+        anchor.click();
+        anchor.remove();
+        // Leave time for the embedded browser to pick up the download.
+        setTimeout(() => URL.revokeObjectURL(url), 30_000);
     }
 
     function saveConfigToPreset() {
@@ -636,6 +674,52 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
                     <TableData {tableData} />
                 </Graph>
+
+                {#if !workload && simulationRuns.length}
+                    <details class="mt-3">
+                        <summary>{tr.deckConfigSimulationHistory()}</summary>
+                        <div class="table-responsive">
+                            <table class="table table-sm table-striped align-middle">
+                                <thead>
+                                    <tr>
+                                        <th scope="col">{tr.deckConfigSimulationRun()}</th>
+                                        <th scope="col">{tr.deckConfigSimulationDays()}</th>
+                                        <th scope="col">{tr.deckConfigDesiredRetention()}</th>
+                                        <th scope="col">{tr.deckConfigSimulationNewLimit()}</th>
+                                        <th scope="col">{tr.deckConfigSimulationReviewLimit()}</th>
+                                        <th scope="col">{tr.deckConfigAdditionalNewCardsToSimulate()}</th>
+                                        <th scope="col">{tr.deckConfigSimulationNew()}</th>
+                                        <th scope="col">{tr.deckConfigSimulationReviews()}</th>
+                                        <th scope="col">{tr.deckConfigSimulationTotal()}</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {#each simulationRuns as run (run.number)}
+                                        <tr>
+                                            <th scope="row">#{run.number}</th>
+                                            <td>{run.daysToSimulate}</td>
+                                            <td>{(run.desiredRetention * 100).toFixed(1)}%</td>
+                                            <td>{run.newLimit}</td>
+                                            <td>{run.reviewLimit}</td>
+                                            <td>{run.deckSize}</td>
+                                            <td>{simulationTotals(run).newCards}</td>
+                                            <td>{simulationTotals(run).reviews}</td>
+                                            <td>{simulationTotals(run).total}</td>
+                                        </tr>
+                                    {/each}
+                                </tbody>
+                            </table>
+                        </div>
+                        <button
+                            type="button"
+                            class="btn btn-outline-secondary btn-sm"
+                            disabled={computing}
+                            on:click={exportSimulationHistory}
+                        >
+                            {tr.deckConfigSimulationExportCsv()}
+                        </button>
+                    </details>
+                {/if}
             </div>
         </div>
     </div>
