@@ -16,6 +16,8 @@ from aqt.utils import (
     disable_help_button,
     restoreGeom,
     saveGeom,
+    getSaveFile,
+    showWarning,
     tr,
 )
 from aqt.webview import AnkiWebView, AnkiWebViewKind
@@ -44,6 +46,7 @@ class DeckOptionsDialog(QDialog):
         restoreGeom(self, self.TITLE, default_size=(800, 800))
 
         self.web = AnkiWebView(kind=AnkiWebViewKind.DECK_OPTIONS)
+        self.web.set_bridge_command(self._on_bridge_cmd, self)
         self.web.load_sveltekit_page(f"deck-options/{self._deck['id']}")
         layout = QVBoxLayout()
         layout.setContentsMargins(0, 0, 0, 0)
@@ -54,6 +57,30 @@ class DeckOptionsDialog(QDialog):
         self.setWindowTitle(
             without_unicode_isolation(tr.actions_options_for(val=self._deck["name"]))
         )
+
+    def _on_bridge_cmd(self, cmd: str) -> None:
+        prefix = "exportFsrsSimulatorCsv:"
+        if not cmd.startswith(prefix):
+            return
+
+        csv = cmd[len(prefix) :]
+        if not csv:
+            return
+
+        path = getSaveFile(
+            self,
+            title=tr.deck_config_simulation_export_csv(),
+            dir_description="fsrsSimulation",
+            key="CSV",
+            ext=".csv",
+            fname="anki-fsrs-simulation-history.csv",
+        )
+        if path:
+            try:
+                with open(path, "w", encoding="utf-8-sig", newline="") as out:
+                    out.write(csv)
+            except OSError as err:
+                showWarning(str(err), parent=self)
 
     def set_ready(self):
         self._ready = True
