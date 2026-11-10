@@ -7,6 +7,7 @@ import { ConvertPastedImageResponse, ReadClipboardResponse } from "@generated/an
 import { Bool, String as GenericString } from "@generated/anki/generic_pb";
 import {
     addMediaFile,
+    addMediaFromUrl,
     convertPastedImage,
     getAbsoluteMediaPath,
     getConfigBool,
@@ -59,6 +60,7 @@ afterEach(() => {
 vi.mock("@generated/backend", async (importOriginal) => ({
     ...(await importOriginal<object>()),
     addMediaFile: vi.fn(),
+    addMediaFromUrl: vi.fn(),
     convertPastedImage: vi.fn(),
     getAbsoluteMediaPath: vi.fn(),
     getConfigBool: vi.fn(),
@@ -175,4 +177,51 @@ test("pasted text/html is used as is when other types are also present", async (
     expect(html).toBe("<b>rich</b>");
     expect(vi.mocked(pasteHTML).mock.calls[0][1]).toBe(false);
     expect(addMediaFile).not.toHaveBeenCalled();
+});
+
+function pastedImage(): File {
+    const file = new File([pngBytes], "image.png", { type: "image/png" });
+    // jsdom's File has no arrayBuffer().
+    file.arrayBuffer = async () => pngBytes.slice().buffer;
+    return file;
+}
+
+test.each([
+    "<img src=\"image.png\">",
+    "<html><body><!--StartFragment--><img src=\"image.png\" alt=\"\"><!--EndFragment--></body></html>",
+    "<img src=\"/attachments/image.png\">",
+])("the clipboard image replaces image-only HTML with a relative src: %s", async (html) => {
+    vi.mocked(convertPastedImage).mockResolvedValue(new ConvertPastedImageResponse({ data: pngBytes }));
+
+    const pasted = await pasteData({ "text/html": html }, [pastedImage()]);
+
+    expect(addMediaFile).toHaveBeenCalledExactlyOnceWith({
+        desiredName: expect.stringMatching(/^paste-[0-9a-f]{40}\.jpg$/),
+        data: pngBytes,
+    });
+    expect(pasted).toMatch(/^<img src="paste-[0-9a-f]{40}\.jpg">$/);
+});
+
+test("a relative image is kept when the clipboard holds no image", async () => {
+    expect(await pasteData({ "text/html": "<img src=\"image.png\">" })).toBe("<img src=\"image.png\">");
+    expect(addMediaFile).not.toHaveBeenCalled();
+});
+
+test.each([
+    "<b>caption</b><img src=\"image.png\">",
+    "<img src=\"one.png\"><img src=\"two.png\">",
+])("HTML with text or several images is kept: %s", async (html) => {
+    expect(await pasteData({ "text/html": html }, [pastedImage()])).toBe(html);
+    expect(addMediaFile).not.toHaveBeenCalled();
+});
+
+test.each([
+    "https://example.com/image.png",
+    "//example.com/image.png",
+])("an image with an absolute src is not replaced by the clipboard image: %s", async (src) => {
+    vi.mocked(addMediaFromUrl).mockResolvedValue({ filename: "image.png" } as never);
+
+    await pasteData({ "text/html": `<img src="${src}">` }, [pastedImage()]);
+
+    expect(convertPastedImage).not.toHaveBeenCalled();
 });
