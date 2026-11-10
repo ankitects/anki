@@ -6,7 +6,7 @@ from __future__ import annotations
 import json
 import random
 import re
-from collections.abc import Callable, Generator, Sequence
+from collections.abc import Callable, Sequence
 from dataclasses import dataclass
 from enum import Enum, auto
 from functools import partial
@@ -29,7 +29,6 @@ from anki.scheduler.v3 import (
 from anki.scheduler.v3 import Scheduler as V3Scheduler
 from anki.tags import MARKED_TAG
 from anki.types import assert_exhaustive
-from anki.utils import is_mac
 from aqt import AnkiQt, gui_hooks
 from aqt.browser.card_info import PreviousReviewerCardInfo, ReviewerCardInfo
 from aqt.deckoptions import confirm_deck_then_display_options
@@ -47,6 +46,7 @@ from aqt.operations.scheduling import (
 from aqt.operations.tag import add_tags_to_notes, remove_tags_from_notes
 from aqt.profiles import VideoDriver
 from aqt.qt import *
+from aqt.shortcuts import get_shortcuts, key_variants
 from aqt.sound import av_player, play_clicked_audio, record_audio
 from aqt.theme import theme_manager
 from aqt.toolbar import BottomBar
@@ -572,73 +572,54 @@ class Reviewer:
     # Handlers
     ############################################################
 
-    def korean_shortcuts(
-        self,
-    ) -> Sequence[tuple[str, Callable] | tuple[Qt.Key, Callable]]:
-        return [
-            ("ㄷ", self.mw.onEditCurrent),
-            ("ㅡ", self.showContextMenu),
-            ("ㄱ", self.replayAudio),
-            ("Ctrl+Alt+ㅜ", self.forget_current_card),
-            # does not work
-            # ("Ctrl+Alt+ㄷ", self.on_create_copy),
-            # does not work
-            # ("Ctrl+Shift+ㅇ", self.on_set_due),
-            ("ㅍ", self.onReplayRecorded),
-            ("Shift+ㅍ", self.onRecordVoice),
-            ("ㅐ", self.onOptions),
-            ("ㅑ", self.on_card_info),
-            ("Ctrl+Alt+ㅑ", self.on_previous_card_info),
-            ("ㅕ", self.mw.undo),
-        ]
-
     def _shortcutKeys(
         self,
     ) -> Sequence[tuple[str, Callable] | tuple[Qt.Key, Callable]]:
-        def generate_default_answer_keys() -> Generator[
-            tuple[str, partial], None, None
-        ]:
-            for ease in aqt.mw.pm.default_answer_keys:
-                key = aqt.mw.pm.get_answer_key(ease)
-                if not key:
-                    continue
-                ease = cast(Literal[1, 2, 3, 4], ease)
-                answer_card_according_to_pressed_key = partial(self._answerCard, ease)
-                yield (key, answer_card_according_to_pressed_key)
+        def bind(action_id: str, fn: Callable) -> list[tuple[str, Callable]]:
+            return [
+                (variant, fn)
+                for key in get_shortcuts(self.mw.pm, action_id)
+                for variant in key_variants(key)
+            ]
+
+        def answer(ease: Literal[1, 2, 3, 4]) -> Callable:
+            return partial(self._answerCard, ease)
 
         return [
-            ("e", self.mw.onEditCurrent),
-            (" ", self.onEnterKey),
-            (Qt.Key.Key_Return, self.onEnterKey),
-            (Qt.Key.Key_Enter, self.onEnterKey),
-            ("m", self.showContextMenu),
-            ("r", self.replayAudio),
-            (Qt.Key.Key_F5, self.replayAudio),
+            *bind("review.edit", self.mw.onEditCurrent),
+            *bind("review.show_answer", self.onEnterKey),
+            *bind("review.more", self.showContextMenu),
+            *bind("review.replay_audio", self.replayAudio),
             *(
-                (f"Ctrl+{flag.index}", self.set_flag_func(flag.index))
+                shortcut
                 for flag in self.mw.flags.all()
+                for shortcut in bind(
+                    f"review.flag.{flag.index}", self.set_flag_func(flag.index)
+                )
             ),
-            ("*", self.toggle_mark_on_current_note),
-            ("=", self.bury_current_note),
-            ("-", self.bury_current_card),
-            ("!", self.suspend_current_note),
-            ("@", self.suspend_current_card),
-            ("Ctrl+Alt+N", self.forget_current_card),
-            ("Ctrl+Alt+E", self.on_create_copy),
-            ("Ctrl+Backspace" if is_mac else "Ctrl+Delete", self.delete_current_note),
-            ("Ctrl+Shift+D", self.on_set_due),
-            ("v", self.onReplayRecorded),
-            ("Shift+v", self.onRecordVoice),
-            ("o", self.onOptions),
-            ("i", self.on_card_info),
-            ("Ctrl+Alt+i", self.on_previous_card_info),
-            *generate_default_answer_keys(),
-            ("u", self.mw.undo),
-            ("5", self.on_pause_audio),
-            ("6", self.on_seek_backward),
-            ("7", self.on_seek_forward),
-            ("Shift+A", self.toggle_auto_advance),
-            *self.korean_shortcuts(),
+            *bind("review.mark", self.toggle_mark_on_current_note),
+            *bind("review.bury_note", self.bury_current_note),
+            *bind("review.bury_card", self.bury_current_card),
+            *bind("review.suspend_note", self.suspend_current_note),
+            *bind("review.suspend_card", self.suspend_current_card),
+            *bind("review.forget", self.forget_current_card),
+            *bind("review.create_copy", self.on_create_copy),
+            *bind("review.delete_note", self.delete_current_note),
+            *bind("review.set_due", self.on_set_due),
+            *bind("review.replay_recorded", self.onReplayRecorded),
+            *bind("review.record", self.onRecordVoice),
+            *bind("review.options", self.onOptions),
+            *bind("review.card_info", self.on_card_info),
+            *bind("review.previous_card_info", self.on_previous_card_info),
+            *bind("review.answer.again", answer(1)),
+            *bind("review.answer.hard", answer(2)),
+            *bind("review.answer.good", answer(3)),
+            *bind("review.answer.easy", answer(4)),
+            *bind("review.undo", self.mw.undo),
+            *bind("review.pause_audio", self.on_pause_audio),
+            *bind("review.seek_backward", self.on_seek_backward),
+            *bind("review.seek_forward", self.on_seek_forward),
+            *bind("review.auto_advance", self.toggle_auto_advance),
         ]
 
     def on_pause_audio(self) -> None:
@@ -996,6 +977,9 @@ timerStopped = false;
 
     # note the shortcuts listed here also need to be defined above
     def _contextMenu(self) -> list[Any]:
+        def key(action_id: str) -> str:
+            return next(iter(get_shortcuts(self.mw.pm, action_id)), "")
+
         currentFlag = self.card and self.card.user_flag()
         opts = [
             [
@@ -1003,52 +987,80 @@ timerStopped = false;
                 [
                     [
                         flag.label,
-                        f"Ctrl+{flag.index}",
+                        key(f"review.flag.{flag.index}"),
                         self.set_flag_func(flag.index),
                         dict(checked=currentFlag == flag.index),
                     ]
                     for flag in self.mw.flags.all()
                 ],
             ],
-            [tr.studying_bury_card(), "-", self.bury_current_card],
+            [tr.studying_bury_card(), key("review.bury_card"), self.bury_current_card],
             [
                 tr.actions_with_ellipsis(action=tr.actions_forget_card()),
-                "Ctrl+Alt+N",
+                key("review.forget"),
                 self.forget_current_card,
             ],
             [
                 tr.actions_with_ellipsis(action=tr.actions_set_due_date()),
-                "Ctrl+Shift+D",
+                key("review.set_due"),
                 self.on_set_due,
             ],
-            [tr.actions_suspend_card(), "@", self.suspend_current_card],
-            [tr.actions_options(), "O", self.onOptions],
-            [tr.actions_card_info(), "I", self.on_card_info],
-            [tr.actions_previous_card_info(), "Ctrl+Alt+I", self.on_previous_card_info],
+            [
+                tr.actions_suspend_card(),
+                key("review.suspend_card"),
+                self.suspend_current_card,
+            ],
+            [tr.actions_options(), key("review.options"), self.onOptions],
+            [tr.actions_card_info(), key("review.card_info"), self.on_card_info],
+            [
+                tr.actions_previous_card_info(),
+                key("review.previous_card_info"),
+                self.on_previous_card_info,
+            ],
             None,
-            [tr.studying_mark_note(), "*", self.toggle_mark_on_current_note],
-            [tr.studying_bury_note(), "=", self.bury_current_note],
-            [tr.studying_suspend_note(), "!", self.suspend_current_note],
+            [
+                tr.studying_mark_note(),
+                key("review.mark"),
+                self.toggle_mark_on_current_note,
+            ],
+            [tr.studying_bury_note(), key("review.bury_note"), self.bury_current_note],
+            [
+                tr.studying_suspend_note(),
+                key("review.suspend_note"),
+                self.suspend_current_note,
+            ],
             [
                 tr.actions_with_ellipsis(action=tr.actions_create_copy()),
-                "Ctrl+Alt+E",
+                key("review.create_copy"),
                 self.on_create_copy,
             ],
             [
                 tr.studying_delete_note(),
-                "Ctrl+Backspace" if is_mac else "Ctrl+Delete",
+                key("review.delete_note"),
                 self.delete_current_note,
             ],
             None,
-            [tr.actions_replay_audio(), "R", self.replayAudio],
-            [tr.studying_pause_audio(), "5", self.on_pause_audio],
-            [tr.studying_audio_5s(), "6", self.on_seek_backward],
-            [tr.studying_audio_and5s(), "7", self.on_seek_forward],
-            [tr.studying_record_own_voice(), "Shift+V", self.onRecordVoice],
-            [tr.studying_replay_own_voice(), "V", self.onReplayRecorded],
+            [tr.actions_replay_audio(), key("review.replay_audio"), self.replayAudio],
+            [tr.studying_pause_audio(), key("review.pause_audio"), self.on_pause_audio],
+            [
+                tr.studying_audio_5s(),
+                key("review.seek_backward"),
+                self.on_seek_backward,
+            ],
+            [
+                tr.studying_audio_and5s(),
+                key("review.seek_forward"),
+                self.on_seek_forward,
+            ],
+            [tr.studying_record_own_voice(), key("review.record"), self.onRecordVoice],
+            [
+                tr.studying_replay_own_voice(),
+                key("review.replay_recorded"),
+                self.onReplayRecorded,
+            ],
             [
                 tr.actions_auto_advance(),
-                "Shift+A",
+                key("review.auto_advance"),
                 self.toggle_auto_advance,
                 dict(checked=self.auto_advance_enabled),
             ],
