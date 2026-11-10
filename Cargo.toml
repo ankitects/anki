@@ -113,7 +113,7 @@ rand = "0.10.1"
 rayon = "1.10.0"
 regex = "1.11.1"
 reqwest = { version = "0.12.20", default-features = false, features = ["json", "socks", "stream", "multipart"] }
-rusqlite = { version = "0.36.0", features = ["trace", "functions", "collation", "bundled"] }
+rusqlite = { version = "0.41.1", default-features = false, features = ["trace", "functions", "collation", "bundled", "fallible_uint", "cache"] }
 rustls-pemfile = "2.2.0"
 same-file = "1.0.6"
 scopeguard = "1.2.0"
