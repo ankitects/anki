@@ -630,3 +630,13 @@ deck-config-fsrs-on-all-clients =
     Please ensure all of your Anki clients are Anki(Mobile) 23.10+ or AnkiDroid 2.17+. FSRS will
     not work correctly if one of your clients is older.
 deck-config-optimize-all-tip = You can optimize all presets at once by using the dropdown button next to "Save".
+\n# Detailed breakdown of completed FSRS simulator runs.
+deck-config-simulation-history = Simulation history
+deck-config-simulation-run = Run
+deck-config-simulation-days = Days
+deck-config-simulation-new-limit = New/day
+deck-config-simulation-review-limit = Reviews/day
+deck-config-simulation-new = New
+deck-config-simulation-reviews = Reviews
+deck-config-simulation-total = Total
+deck-config-simulation-export-csv = Export CSV
