@@ -95,7 +95,7 @@ jobs:
       - name: Install n2
         run: tools/install-n2
         env:
-          RUSTFLAGS: "--cap-lints warn"
+          CARGO_BUILD_WARNINGS: allow
 
       - name: Install just
         uses: extractions/setup-just@53165ef7e734c5c07cb06b3c8e7b647c5aa16db3 #v4
