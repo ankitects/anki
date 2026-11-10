@@ -880,14 +880,6 @@
     "repository": "https://github.com/rust-lang/hashbrown"
   },
   {
-    "authors": "Amanieu d'Antras <amanieu@gmail.com>",
-    "description": "A Rust port of Google's SwissTable hash map",
-    "license": "Apache-2.0 OR MIT",
-    "license_file": null,
-    "name": "hashbrown",
-    "repository": "https://github.com/rust-lang/hashbrown"
-  },
-  {
     "authors": null,
     "description": "A Rust port of Google's SwissTable hash map",
     "license": "Apache-2.0 OR MIT",
@@ -2112,14 +2104,6 @@
     "repository": "https://github.com/briansmith/ring"
   },
   {
-    "authors": null,
-    "description": "Helping to implement SQLite VFS.",
-    "license": "MIT",
-    "license_file": null,
-    "name": "rsqlite-vfs",
-    "repository": null
-  },
-  {
     "authors": "The rusqlite developers",
     "description": "Ergonomic wrapper for SQLite",
     "license": "MIT",
@@ -2486,14 +2470,6 @@
     "license_file": null,
     "name": "spin",
     "repository": "https://github.com/mvdnes/spin-rs.git"
-  },
-  {
-    "authors": "Spxg <unsafe@outlook.es>",
-    "description": "`wasm32-unknown-unknown` bindings to the libsqlite3 library.",
-    "license": "MIT",
-    "license_file": null,
-    "name": "sqlite-wasm-rs",
-    "repository": "https://github.com/Spxg/sqlite-wasm-rs"
   },
   {
     "authors": "Robert Grosse <n210241048576@gmail.com>",
