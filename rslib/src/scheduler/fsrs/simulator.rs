@@ -450,26 +450,6 @@ mod test {
         }
 
         #[test]
-        fn learning_and_buried_cards_have_zero_due_and_last_date() {
-            for queue in [
-                CardQueue::Learn,
-                CardQueue::SchedBuried,
-                CardQueue::UserBuried,
-            ] {
-                let converted = convert(card(queue, 30, 7)).unwrap();
-                assert_eq!(converted.due, 0.0, "queue: {queue:?}");
-                assert_eq!(converted.last_date, 0.0, "queue: {queue:?}");
-                assert_eq!(converted.id, 123);
-                assert_eq!(converted.interval, 7.0);
-                assert_eq!(converted.lapses, 2);
-                assert_eq!(converted.stability, memory_state().stability);
-                assert_eq!(converted.difficulty, memory_state().difficulty);
-                assert_eq!(converted.desired_retention, 0.85);
-                assert_eq!(*converted.parameters, fsrs::DEFAULT_PARAMETERS.to_vec());
-            }
-        }
-
-        #[test]
         fn unsupported_queues_are_not_converted() {
             for queue in [
                 CardQueue::New,
@@ -478,18 +458,6 @@ mod test {
             ] {
                 assert!(convert(card(queue, 30, 7)).is_none(), "queue: {queue:?}");
             }
-        }
-
-        #[test]
-        fn filtered_review_card_uses_original_due() {
-            let card = Card {
-                original_due: 14,
-                original_deck_id: DeckId(1),
-                ..card(CardQueue::Review, 30, 7)
-            };
-            let converted = convert(card).unwrap();
-            assert_eq!(converted.due, 4.0);
-            assert_eq!(converted.last_date, -3.0);
         }
 
         #[test]
@@ -817,11 +785,12 @@ mod test {
             due: 7,
             original_due: 42,
             original_deck_id: DeckId(1),
-            interval: 15,
+            interval: 40,
             ..Default::default()
         })
         .unwrap();
         assert_eq!(filtered.due, 32.0);
+        assert_eq!(filtered.last_date, -8.0);
     }
 
     #[test]
@@ -847,6 +816,7 @@ mod test {
             CardQueue::UserBuried,
         ] {
             let converted = convert(Card {
+                id: CardId(123),
                 due: 20,
                 original_due: 20,
                 interval: 15,
@@ -858,6 +828,9 @@ mod test {
             assert_eq!(converted.last_date, 0.0, "last_date for {queue:?}");
             assert_eq!(converted.interval, 15.0, "interval for {queue:?}");
             assert_eq!(converted.lapses, 2, "lapses for {queue:?}");
+            assert_eq!(converted.id, 123, "id for {queue:?}");
+            assert_eq!(converted.stability, 10.0, "stability for {queue:?}");
+            assert_eq!(converted.difficulty, 3.0, "difficulty for {queue:?}");
         }
     }
 
