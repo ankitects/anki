@@ -65,6 +65,8 @@ runs:
     # Reads toolchain version from rust-toolchain.toml automatically.
     - name: Install Rust toolchain
       uses: actions-rust-lang/setup-rust-toolchain@a188e68d0fd2bd36ad51dccb2b07ba6e75105f30 #v1
+      env:
+        CARGO_BUILD_WARNINGS: allow
       with:
         components: clippy, llvm-tools-preview
         cache: false # ci.yml manages its own cargo cache
