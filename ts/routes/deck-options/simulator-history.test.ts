@@ -19,8 +19,9 @@ const settings = {
 test("recording a simulation keeps a snapshot of inputs and backend results", () => {
     const newCounts = [2, 3];
     const reviewCounts = [10, 12];
-    const run = recordSimulation(1, settings, newCounts, reviewCounts);
-    settings.newLimit = 500;
+    const mutableSettings = { ...settings };
+    const run = recordSimulation(1, mutableSettings, newCounts, reviewCounts);
+    mutableSettings.newLimit = 500;
     newCounts[0] = 999;
     reviewCounts[1] = 999;
     expect(run.newLimit).toBe(10);
