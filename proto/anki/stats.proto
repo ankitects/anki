@@ -68,6 +68,7 @@ message CardStatsResponse {
   optional string original_deck = 22;
   optional float desired_retention = 23;
   repeated float fsrs_params = 24;
+  bool fsrs_enabled = 25;
 }
 
 message GraphsRequest {
@@ -228,6 +229,8 @@ message CardEntry {
   int64 id = 1;
   int64 note_id = 2;
   int64 deck_id = 3;
+  uint32 template_idx = 4;
+  int64 notetype_id = 5;
 }
 
 message DeckEntry {

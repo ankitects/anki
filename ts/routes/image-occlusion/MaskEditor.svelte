@@ -108,6 +108,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     :global(.top-toolbar-wrapper) {
         grid-column: 2;
         grid-row: 1;
+        // let the column shrink so the toolbar scrolls instead of overflowing
+        min-width: 0;
     }
 
     .editor-main {

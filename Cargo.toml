@@ -1,6 +1,6 @@
 [workspace.package]
 version = "0.0.0"
-authors = ["Ankitects Pty Ltd and contributors <https://help.ankiweb.net>"]
+authors = ["Ankitects Pty Ltd and contributors <https://faqs.ankiweb.net/>"]
 edition = "2021"
 license = "AGPL-3.0-or-later"
 rust-version = "1.80"
@@ -54,7 +54,7 @@ ammonia = "4.1.2"
 anyhow = "1.0.98"
 async-compression = { version = "0.4.24", features = ["zstd", "tokio"] }
 async-stream = "0.3.6"
-async-trait = "0.1.88"
+async-trait = "0.1.92"
 axum = { version = "0.8.4", features = ["multipart", "macros"] }
 axum-client-ip = "1.1.3"
 axum-extra = { version = "0.10.1", features = ["typed-header"] }
@@ -66,7 +66,7 @@ chrono = { version = "0.4.41", default-features = false, features = ["std", "clo
 clap = { version = "4.5.40", features = ["derive"] }
 coarsetime = "0.1.36"
 convert_case = "0.8.0"
-criterion = { version = "0.6.0" }
+criterion = { version = "0.8.2" }
 csv = "1.3.1"
 data-encoding = "2.9.0"
 difflib = "0.4.0"
@@ -107,9 +107,9 @@ prost = "0.13"
 prost-build = "0.13"
 prost-reflect = "0.14.7"
 prost-types = "0.13"
-pulldown-cmark = "0.13.0"
+pulldown-cmark = "0.13.5"
 pyo3 = { version = "0.29.0", features = ["extension-module", "abi3", "abi3-py39"] }
-rand = "0.9.4"
+rand = "0.10.1"
 rayon = "1.10.0"
 regex = "1.11.1"
 reqwest = { version = "0.12.20", default-features = false, features = ["json", "socks", "stream", "multipart"] }
@@ -130,7 +130,7 @@ syn = { version = "2.0.103", features = ["parsing", "printing"] }
 tar = "0.4.46"
 tempfile = "3.20.0"
 termcolor = "1.4.1"
-tokio = { version = "1.45", features = ["fs", "rt-multi-thread", "macros", "signal"] }
+tokio = { version = "1.51.6", features = ["fs", "rt-multi-thread", "macros", "signal"] }
 tokio-util = { version = "0.7.15", features = ["io"] }
 tower-http = { version = "0.6.6", features = ["trace"] }
 tracing = { version = "0.1.41", features = ["max_level_trace", "release_max_level_debug"] }
@@ -146,8 +146,8 @@ winapi = { version = "0.3", features = ["wincon", "winreg"] }
 windows = { version = "0.61.3", features = ["Media_SpeechSynthesis", "Media_Core", "Foundation_Collections", "Storage_Streams", "Win32_System_Console", "Win32_System_Registry", "Win32_System_SystemInformation", "Win32_Foundation", "Win32_UI_Shell", "Wdk_System_SystemServices"] }
 wiremock = "0.6.3"
 xz2 = "0.1.7"
-zip = { version = "4.1.0", default-features = false, features = ["deflate", "time"] }
-zstd = { version = "0.13.3", features = ["zstdmt"] }
+zip = { version = "9.0.5", default-features = false, features = ["deflate", "time"] }
+zstd = { version = "0.14.3", features = ["zstdmt"] }
 
 # Apply mild optimizations to our dependencies in dev mode, which among other things
 # improves sha2 performance by about 21x. Opt 1 chosen due to

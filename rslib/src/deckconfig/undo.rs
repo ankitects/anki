@@ -67,3 +67,111 @@ impl Collection {
         Ok(())
     }
 }
+
+#[cfg(test)]
+mod tests {
+
+    use super::*;
+
+    #[test]
+    fn remove_deck_config_undoable_removes_config() -> Result<()> {
+        let mut col = Collection::new();
+        let mut config = DeckConfig::default();
+        let config_id = DeckConfigId(TimestampMillis::now().0);
+        config.id.0 = config_id.0;
+        col.storage
+            .add_or_update_deck_config_with_existing_id(&config)?;
+        col.remove_deck_config_undoable(config)?;
+        let returned_config = col.storage.get_deck_config(config_id)?;
+        assert_eq!(returned_config, None);
+
+        Ok(())
+    }
+
+    #[test]
+    fn add_deck_config_undoable_adds_config() -> Result<()> {
+        let mut col = Collection::new();
+        let mut config = DeckConfig::default();
+        let config_id = DeckConfigId(TimestampMillis::now().0);
+        config.id.0 = config_id.0;
+        col.add_deck_config_undoable(&mut config)?;
+        let returned_config = col.storage.get_deck_config(config_id)?;
+        assert_eq!(returned_config, Some(config));
+
+        Ok(())
+    }
+
+    #[test]
+    fn add_deck_config_undoable_gives_unique_id() -> Result<()> {
+        let mut col = Collection::new();
+        let mut config = DeckConfig::default();
+        let config_id = DeckConfigId(TimestampMillis::now().0);
+        config.id.0 = config_id.0;
+        // Add same config twice
+        col.add_deck_config_undoable(&mut config)?;
+        col.add_deck_config_undoable(&mut config)?;
+        let returned_config = col.storage.get_deck_config(config_id)?.unwrap();
+        assert_ne!(returned_config.id, config.id);
+
+        Ok(())
+    }
+
+    #[test]
+    fn add_deck_config_if_unique_undoable_adds_config() -> Result<()> {
+        let mut col = Collection::new();
+        let mut config = DeckConfig::default();
+        let config_id = DeckConfigId(TimestampMillis::now().0);
+        config.id.0 = config_id.0;
+        col.add_deck_config_if_unique_undoable(&config)?;
+        let returned_config = col.storage.get_deck_config(config_id)?;
+        assert_eq!(returned_config, Some(config));
+
+        Ok(())
+    }
+
+    #[test]
+    fn add_deck_config_if_unique_undoable_ignores_existing_config() -> Result<()> {
+        let mut col = Collection::new();
+        let mut config = DeckConfig::default();
+        let original_name = config.name.clone();
+        let config_id = DeckConfigId(TimestampMillis::now().0);
+        config.id.0 = config_id.0;
+        // Try to add same config twice
+        col.add_deck_config_if_unique_undoable(&config)?;
+        config.name = "renamed".into();
+        col.add_deck_config_if_unique_undoable(&config)?;
+        let returned_config = col.storage.get_deck_config(config_id)?.unwrap();
+        assert_eq!(returned_config.name, original_name);
+
+        Ok(())
+    }
+
+    #[test]
+    fn update_deck_config_undoable_updates_config() -> Result<()> {
+        let mut col = Collection::new();
+        let mut config = DeckConfig::default();
+        let config_id = DeckConfigId(TimestampMillis::now().0);
+        config.id.0 = config_id.0;
+        col.add_deck_config_undoable(&mut config)?;
+        let mut new_config = config.clone();
+        new_config.name = "new name".into();
+        col.update_deck_config_undoable(&new_config, config)?;
+        let returned_config = col.storage.get_deck_config(config_id)?.unwrap();
+        assert_eq!(returned_config, new_config);
+
+        Ok(())
+    }
+
+    #[test]
+    fn restore_deleted_deck_config_restores_config() -> Result<()> {
+        let mut col = Collection::new();
+        let mut config = DeckConfig::default();
+        let config_id = DeckConfigId(TimestampMillis::now().0);
+        config.id.0 = config_id.0;
+        col.restore_deleted_deck_config(config.clone())?;
+        let returned_config = col.storage.get_deck_config(config_id)?;
+        assert_eq!(returned_config, Some(config));
+
+        Ok(())
+    }
+}

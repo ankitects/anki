@@ -9,8 +9,10 @@ use std::time::Duration;
 
 use reqwest::Client;
 use reqwest::Error;
+use reqwest::RequestBuilder;
 use reqwest::StatusCode;
 use reqwest::Url;
+use tokio::io::AsyncWrite;
 
 use crate::notes;
 use crate::sync::collection::protocol::AsSyncEndpoint;
@@ -61,22 +63,47 @@ impl HttpSyncClient {
         request: SyncRequest<I>,
         io_monitor: IoMonitor,
     ) -> HttpResult<SyncResponse<O>> {
+        let (builder, data) = self.build_request(method, request);
+        io_monitor
+            .zstd_request_with_timeout(builder, data, self.io_timeout)
+            .await
+            .map(SyncResponse::from_vec)
+    }
+
+    /// Like [Self::request_ext], but streams the response body into `writer`.
+    async fn request_into<I, W>(
+        &self,
+        method: impl AsSyncEndpoint,
+        request: SyncRequest<I>,
+        io_monitor: IoMonitor,
+        writer: &mut W,
+    ) -> HttpResult<()>
+    where
+        W: AsyncWrite + Unpin,
+    {
+        let (builder, data) = self.build_request(method, request);
+        io_monitor
+            .zstd_request_into_with_timeout(builder, data, self.io_timeout, writer)
+            .await
+    }
+
+    fn build_request<I>(
+        &self,
+        method: impl AsSyncEndpoint,
+        request: SyncRequest<I>,
+    ) -> (RequestBuilder, Vec<u8>) {
         let header = SyncHeader {
             sync_version: request.sync_version,
             sync_key: self.sync_key.clone(),
             client_ver: request.client_version,
             session_key: self.session_key.clone(),
         };
-        let data = request.data;
         let url = method.as_sync_endpoint(&self.endpoint);
-        let request = self
+        let builder = self
             .client
             .post(url)
             .header(&SYNC_HEADER_NAME, serde_json::to_string(&header).unwrap());
-        io_monitor
-            .zstd_request_with_timeout(request, data, self.io_timeout)
-            .await
-            .map(SyncResponse::from_vec)
+        (builder, request.data)
     }
 
     #[cfg(test)]

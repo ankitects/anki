@@ -3,10 +3,10 @@
 
 # Writing Unit Tests for Anki
 
-<!-- <<<cog
+<!-- <<<<cog
 from cogdocs import get_file_contents
 cog.out(get_file_contents("unit-testing"))
->>> -->
+>>>> -->
 
 This guide helps maintainers, contributors, and coding assistants write unit and
 component tests for Anki. It is independent of any particular feature, module, or
@@ -511,4 +511,4 @@ This guide adapts these references to Anki's architecture:
   [component testing](https://vitest.dev/guide/browser/component-testing), plus
   Testing Library's [accessible query priority](https://testing-library.com/docs/queries/about/).
 
-<!-- <<<end>>> -->
+<!-- <<<<end>>>> -->

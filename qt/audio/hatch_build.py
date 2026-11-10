@@ -56,6 +56,11 @@ class CustomBuildHook(BuildHookInterface):
         dst_dir = Path(self.root) / "anki_audio"
         dst_dir.mkdir(exist_ok=True)
 
+        # Remove libraries left over from an earlier build
+        for stale_dir in (dst_dir / "libs", dst_dir / "lib"):
+            if stale_dir.is_dir():
+                shutil.rmtree(stale_dir)
+
         # Copy main binaries
         for src_file in binary_files:
             if src_file.exists():
