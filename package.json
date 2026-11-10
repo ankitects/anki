@@ -2,7 +2,7 @@
     "name": "anki",
     "version": "0.1.0",
     "private": true,
-    "author": "Ankitects Pty Ltd and contributors",
+    "author": "Anki Software, LLC and contributors",
     "license": "AGPL-3.0-or-later",
     "description": "Anki JS support files",
     "scripts": {
