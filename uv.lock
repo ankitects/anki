@@ -79,13 +79,13 @@ requires-dist = [
 
 [[package]]
 name = "anki-audio"
-version = "0.2.3"
+version = "0.2.4"
 source = { registry = "https://pypi.org/simple" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/d6/e7/f4557da402db5bec81ed61b0867dd005630ddd263d20902e951f47d0647a/anki_audio-0.2.3-cp310-abi3-macosx_12_0_arm64.whl", hash = "sha256:e821247de5a6e2d7b80a9b139e851dc827ed5596f6f3efbf64bd1e6582722f9d", size = 26340116, upload-time = "2026-08-25T18:31:51.797Z" },
-    { url = "https://files.pythonhosted.org/packages/57/23/2252aa30ab048d2e9efa4a6b5602b91f4f855c7e3428dbffa20c726d8bf2/anki_audio-0.2.3-cp310-abi3-macosx_12_0_x86_64.whl", hash = "sha256:b2d3b46f4036b15ba3676f5641b0ca617fb9002e9d3ae5bed9a196ac4af3071d", size = 29828402, upload-time = "2026-08-25T18:31:55.312Z" },
-    { url = "https://files.pythonhosted.org/packages/bc/97/3b082aec19e68bc0c66813e6259e6780ac074998e00e711cfd96b9b060e1/anki_audio-0.2.3-cp310-abi3-win_amd64.whl", hash = "sha256:20880906a05eb55f78c6743a1fb52d31d7aaebc769dc890e78b64a96f61c8fd6", size = 24728253, upload-time = "2026-08-25T18:31:59.039Z" },
-    { url = "https://files.pythonhosted.org/packages/63/47/23aeddcf612a52ddfb2fecd970fd5922bc7126bfdf866d378602197884ca/anki_audio-0.2.3-cp310-abi3-win_arm64.whl", hash = "sha256:b60c79707f7d6241c41945714bd8718f479b8bde4b1d37c62490b317ce8df722", size = 21655281, upload-time = "2026-08-25T18:32:02.68Z" },
+    { url = "https://files.pythonhosted.org/packages/ae/c6/1123950b1072fdb12de0170e7630cf1e60c6ca80ba811c06f28bf5b9e497/anki_audio-0.2.4-cp310-abi3-macosx_12_0_arm64.whl", hash = "sha256:edc6f9c4440772f33dfa812cd328214cb423b774d590b4d0f5a430adffdc4b4b", size = 17823624, upload-time = "2026-11-05T14:42:42.231Z" },
+    { url = "https://files.pythonhosted.org/packages/f1/14/6755ef669ce470ca3a7e3795a73fc25f6a3dfc833a8deb751d52b90b0caf/anki_audio-0.2.4-cp310-abi3-macosx_12_0_x86_64.whl", hash = "sha256:19d3626cee449bb93697ca16f17276e5b5061993911dc8bc99006010e048c5f8", size = 20101936, upload-time = "2026-11-05T14:42:45.511Z" },
+    { url = "https://files.pythonhosted.org/packages/5a/cd/ee17fb99000433344e947d157f3a6756517104728c3aa160712f0fa339b3/anki_audio-0.2.4-cp310-abi3-win_amd64.whl", hash = "sha256:cb3754861fa02cd7cdc09b494be10ab673f47cc8c4256efd38c87af588072410", size = 24728251, upload-time = "2026-11-05T14:42:49.274Z" },
+    { url = "https://files.pythonhosted.org/packages/83/a7/1635e2ed96be34bc776eb0b1a6fe8d16dd57ade86fe8a6ee32d1b5a2bcfd/anki_audio-0.2.4-cp310-abi3-win_arm64.whl", hash = "sha256:a82a06bfeb44e889b94d173287997644ea96cd04a2681dfb57364d829db4d564", size = 21655281, upload-time = "2026-11-05T14:42:52.603Z" },
 ]
 
 [[package]]
@@ -247,7 +247,7 @@ qt69 = [
 
 [package.metadata]
 requires-dist = [
-    { name = "anki-audio", marker = "(sys_platform == 'darwin' and extra == 'audio') or (sys_platform == 'win32' and extra == 'audio')", specifier = "==0.2.3" },
+    { name = "anki-audio", marker = "(sys_platform == 'darwin' and extra == 'audio') or (sys_platform == 'win32' and extra == 'audio')", specifier = "==0.2.4" },
     { name = "anki-mac-helper", marker = "sys_platform == 'darwin'", specifier = ">=0.1.1" },
     { name = "beautifulsoup4" },
     { name = "flask", extras = ["async"] },
@@ -869,11 +869,11 @@ wheels = [
 
 [[package]]
 name = "filelock"
-version = "3.25.2"
+version = "4.2.1"
 source = { registry = "https://pypi.org/simple" }
-sdist = { url = "https://files.pythonhosted.org/packages/94/b8/00651a0f559862f3bb7d6f7477b192afe3f583cc5e26403b44e59a55ab34/filelock-3.25.2.tar.gz", hash = "sha256:b64ece2b38f4ca29dd3e810287aa8c48182bbecd1ae6e9ae126c9b35f1382694", size = 40480, upload-time = "2026-03-11T20:45:38.487Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/d5/98/771d8ca889f220d7d7e352addf500666368f0fd081c6080a83767580c6e4/filelock-4.2.1.tar.gz", hash = "sha256:c4c937ccac2a813cee448e662a56366cfb374c0f8702e75f295c412cc1c5d5a3", size = 650997, upload-time = "2026-10-17T16:48:14.435Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/a4/a5/842ae8f0c08b61d6484b52f99a03510a3a72d23141942d216ebe81fefbce/filelock-3.25.2-py3-none-any.whl", hash = "sha256:ca8afb0da15f229774c9ad1b455ed96e85a81373065fb10446672f64444ddf70", size = 26759, upload-time = "2026-03-11T20:45:37.437Z" },
+    { url = "https://files.pythonhosted.org/packages/28/00/db89d339bc4ecdc8087fa7b8607ba22ffc27bf96286f340c9620bea428b3/filelock-4.2.1-py3-none-any.whl", hash = "sha256:7be2662e9e826b9bba28afc0f843a123280d799a2ea44bb5d35ccec67905ae44", size = 162455, upload-time = "2026-10-17T16:48:12.937Z" },
 ]
 
 [[package]]
@@ -912,14 +912,14 @@ wheels = [
 
 [[package]]
 name = "gitpython"
-version = "3.1.62"
+version = "3.2.1"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "gitdb" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/e0/db/3ca813cbacb23ab6fe46ff38a9b5ef8e73e970c8051f2ce903aacafe0446/gitpython-3.1.62.tar.gz", hash = "sha256:1791de66309bc0c7cfca40bf8d2e3de7ca091cbf94e6051be1ad0722c61062af", size = 231728, upload-time = "2026-09-07T02:57:21.155Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/c0/ff/fee293f1ec3e1b64db6eb270e00964f29c086d769201474cedb8d1608930/gitpython-3.2.1.tar.gz", hash = "sha256:0f1229ec5c057bdabdeeda8bda4f17bda679ab33dbccc00f24e6a480553c8613", size = 241688, upload-time = "2026-10-14T12:20:20.589Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/d6/0b/29d7965215f8ef830a7ca1f42997fe13e5693d85e9edb18f938d063ef5f2/gitpython-3.1.62-py3-none-any.whl", hash = "sha256:7002251225e10e29d2e1f49e6532613fe5d5d9f0b6f1f02997a52b38fe56899e", size = 222753, upload-time = "2026-09-07T02:57:19.762Z" },
+    { url = "https://files.pythonhosted.org/packages/6b/50/2a923c4dc02522ff9567f07c67ed1deca6d5fa9474f4708168b8088dfa37/gitpython-3.2.1-py3-none-any.whl", hash = "sha256:d66b0832aa8755c1a84892937282df0befb16c97e5a64aeebd68be9c5e323f53", size = 231548, upload-time = "2026-10-14T12:20:18.844Z" },
 ]
 
 [[package]]
@@ -2228,11 +2228,11 @@ wheels = [
 
 [[package]]
 name = "setuptools"
-version = "83.0.0"
+version = "84.1.0"
 source = { registry = "https://pypi.org/simple" }
-sdist = { url = "https://files.pythonhosted.org/packages/34/26/f5d29e25ffdb535afef2d35cdb55b325298f96debd670da4c325e08d70f4/setuptools-83.0.0.tar.gz", hash = "sha256:025bccbbf0fa05b6192bc64ae1e7b16e001fd6d6d4d5de03c97b1c1ade523bef", size = 1154254, upload-time = "2026-07-04T15:31:22.699Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/73/eb/7e5f628ee2eb168fecbf8026de7856b2543d6d609cc85f086b9a91ac93d6/setuptools-84.1.0.tar.gz", hash = "sha256:23657205b63d4d31395ab917815247f694aafad28cd21316bf5fd45a51048ea0", size = 1171783, upload-time = "2026-10-19T20:11:43.489Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/5d/40/e1e72872c6354b306daef1703549e8e83b4d43cfea356311bf722a043752/setuptools-83.0.0-py3-none-any.whl", hash = "sha256:29b23c360f22f414dc7336bb39178cc7bcbf6021ed2733cde173f09dba19abb3", size = 1008090, upload-time = "2026-07-04T15:31:20.885Z" },
+    { url = "https://files.pythonhosted.org/packages/18/02/b4bbb90f8f29e334898ff45c6d9b1fffaa6f378017052b3023a06262b5f7/setuptools-84.1.0-py3-none-any.whl", hash = "sha256:5231689c6ac8156cd155cfb98c3fd6fb252c3e7e9bd3d78b64d3c55f132624c9", size = 819380, upload-time = "2026-10-19T20:11:41.684Z" },
 ]
 
 [[package]]
@@ -2652,7 +2652,7 @@ wheels = [
 
 [[package]]
 name = "virtualenv"
-version = "21.14.12"
+version = "21.14.13"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "distlib" },
@@ -2661,9 +2661,9 @@ dependencies = [
     { name = "platformdirs" },
     { name = "python-discovery" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/c9/2c/1a69b3346931e9a7db9cc00cc0fa847c843a85fa7cf52a598f57261c68df/virtualenv-21.14.12.tar.gz", hash = "sha256:bbcfb78e36c22ad70c6917c4aecb5e63477d3c138e9f88c946f320e31859c76a", size = 5562800, upload-time = "2026-10-21T01:58:51.724Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/70/aa/bff50daee0488e16d611258a9b6c5a1d0c9e128f8ca424e9f4e1c0444ef2/virtualenv-21.14.13.tar.gz", hash = "sha256:de5307ba4b9a0001d9c8ea02832d38f63ca432880f416c1bface61c4323fd905", size = 5570301, upload-time = "2026-10-22T20:10:16.952Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/a0/92/f3b8af2d36ddec4dc61dc25655dc010e419ff456cb4ca0e720c8112f1047/virtualenv-21.14.12-py3-none-any.whl", hash = "sha256:7820aeaef23f1f59a96458edfc7f9d3deac937155718de15f1c9a64471e15551", size = 5556824, upload-time = "2026-10-21T01:58:48.505Z" },
+    { url = "https://files.pythonhosted.org/packages/bb/a9/c10d8a44a29fb94a18b43fdf11f38caca53ae7c9406f11a72b1cb8f624f1/virtualenv-21.14.13-py3-none-any.whl", hash = "sha256:5fbb04138a4861580b78ba9110d529a26bc48fcc93c8ec36bc0202eeed96a788", size = 5557094, upload-time = "2026-10-22T20:10:15.096Z" },
 ]
 
 [[package]]
