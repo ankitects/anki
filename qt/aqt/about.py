@@ -3,11 +3,10 @@
 
 import platform
 from collections.abc import Callable
-from datetime import date
 
 import aqt.forms
 from anki.lang import without_unicode_isolation
-from anki.utils import version_with_build
+from anki.utils import int_version, version_with_build
 from aqt.errors import addon_debug_info
 from aqt.qt import *
 from aqt.utils import disable_help_button, supportText, tooltip, tr
@@ -236,9 +235,11 @@ def show(mw: aqt.AnkiQt) -> QDialog:
     abouttext += "<p>" + tr.about_written_by_damien_elmes_with_patches(
         cont=", ".join(allusers) + f", {tr.about_and_others()}"
     )
-    abouttext += f"<p>{tr.about_copyright(year=str(date.today().year))}"
     abouttext += f"<p>{tr.about_if_you_have_contributed_and_are()}"
     abouttext += f"<p>{tr.about_a_big_thanks_to_all_the()}"
+    # int_version() is YYMMPP; the copyright year is the publication year
+    publication_year = 2000 + int_version() // 10_000
+    abouttext += f"<p>{tr.about_copyright(year=str(publication_year))}"
     abt.label.setMinimumWidth(800)
     abt.label.setMinimumHeight(600)
     dialog.show()
