@@ -45,6 +45,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import type { ComputeRetentionProgress } from "@generated/anki/collection_pb";
     import Modal from "bootstrap/js/dist/modal";
     import { onMount } from "svelte";
+
+    // The Qt webview provides this global bridge at runtime.
+    declare function pycmd(cmd: string): void;
     import {
         recordSimulation,
         simulationHistoryCsv,
