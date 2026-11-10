@@ -228,7 +228,7 @@ jobs:
         if: >-
           github.event.workflow_run.event != 'pull_request'
           || steps.pr.outputs.number != ''
-        uses: SonarSource/sonarqube-scan-action@4d1dc0c91ee400dcf8a6dddf2f705ac36542e304 #v8.4.0
+        uses: SonarSource/sonarqube-scan-action@e805d875275f728fac1885b413934be6d7c63f65 #v8.4.1
         with:
           args: >-
             -Dsonar.scm.revision=${{ github.event.workflow_run.head_sha }}
