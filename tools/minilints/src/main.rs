@@ -106,7 +106,7 @@ impl LintContext {
         if self.nonstandard_headers.contains(&path) {
             return Ok(());
         }
-        let missing = !head.contains("Ankitects Pty Ltd and contributors");
+        let missing = !head.contains("Anki Software, LLC and contributors");
         if missing {
             if self.want_fix {
                 LazyCell::force(&self.unstaged_changes);
@@ -256,18 +256,18 @@ fn head_of_file(path: &Utf8Path) -> Result<String> {
 fn fix_copyright(path: &Utf8Path) -> Result<()> {
     let header = match path.extension().unwrap() {
         "py" => {
-            r#"# Copyright: Ankitects Pty Ltd and contributors
+            r#"# Copyright: Anki Software, LLC and contributors
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 "#
         }
         "ts" | "rs" | "mjs" => {
-            r#"// Copyright: Ankitects Pty Ltd and contributors
+            r#"// Copyright: Anki Software, LLC and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 "#
         }
         "svelte" => {
             r#"<!--
-Copyright: Ankitects Pty Ltd and contributors
+Copyright: Anki Software, LLC and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 "#
