@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# Copyright: Ankitects Pty Ltd and contributors
+# Copyright: Anki Software, LLC and contributors
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 import json
 import re
@@ -71,7 +71,7 @@ for line in re.split(r"[;\{\}]|\*\/", data):
 
 
 copyright_notice = """\
-# Copyright: Ankitects Pty Ltd and contributors
+# Copyright: Anki Software, LLC and contributors
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html\n
 """
 
