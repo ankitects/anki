@@ -28,14 +28,7 @@ def with_fixes_for_qt6(code: str) -> str:
         r'(?:QtGui\.QApplication\.)?_?translate\(".*?", "(.*?)"', "tr.\\1(", code
     )
     outlines = []
-    qt_bad_types = [
-        ".connect(",
-    ]
     for line in code.splitlines():
-        for substr in qt_bad_types:
-            if substr in line:
-                line = line + "  # type: ignore"
-                break
         if line == "from . import icons_rc":
             continue
         line = line.replace(":/icons/", "icons:")
