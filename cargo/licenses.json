@@ -24,14 +24,6 @@
     "repository": "https://github.com/rust-ammonia/ammonia"
   },
   {
-    "authors": "RumovZ",
-    "description": "Parser for the Android-specific tzdata file",
-    "license": "Apache-2.0 OR MIT",
-    "license_file": null,
-    "name": "android-tzdata",
-    "repository": "https://github.com/RumovZ/android-tzdata"
-  },
-  {
     "authors": "Nicolas Silva <nical@fastmail.com>",
     "description": "Minimal Android system properties wrapper",
     "license": "Apache-2.0 OR MIT",
@@ -86,14 +78,6 @@
     "license_file": null,
     "name": "anyhow",
     "repository": "https://github.com/dtolnay/anyhow"
-  },
-  {
-    "authors": "David Roundy <roundyd@physics.oregonstate.edu>",
-    "description": "Macros to take array references of slices",
-    "license": "BSD-2-Clause",
-    "license_file": null,
-    "name": "arrayref",
-    "repository": "https://github.com/droundy/arrayref"
   },
   {
     "authors": "bluss",
@@ -321,8 +305,8 @@
   },
   {
     "authors": "Frank Denis <github@pureftpd.org>",
-    "description": "Time and duration crate optimized for speed",
-    "license": "ISC",
+    "description": "Coarse monotonic clock, cached timestamps, and duration measurements for fast timekeeping",
+    "license": "BSD-2-Clause",
     "license_file": null,
     "name": "coarsetime",
     "repository": "https://github.com/jedisct1/rust-coarsetime"
@@ -488,7 +472,7 @@
     "repository": "https://github.com/BurntSushi/rust-csv"
   },
   {
-    "authors": "Julien Cretin <git@ia0.eu>",
+    "authors": null,
     "description": "Efficient and customizable data-encoding functions like base64, base32, and hex",
     "license": "MIT",
     "license_file": null,
@@ -1278,14 +1262,6 @@
     "license_file": null,
     "name": "libsqlite3-sys",
     "repository": "https://github.com/rusqlite/rusqlite"
-  },
-  {
-    "authors": null,
-    "description": "A memory-safe zlib implementation written in rust",
-    "license": "Zlib",
-    "license_file": null,
-    "name": "libz-rs-sys",
-    "repository": "https://github.com/trifectatechfoundation/zlib-rs"
   },
   {
     "authors": "Dan Gohman <dev@sunfishcode.online>",
@@ -2288,7 +2264,7 @@
     "repository": "https://github.com/serde-rs/serde"
   },
   {
-    "authors": "Erick Tryzelaar <erick.tryzelaar@gmail.com>|David Tolnay <dtolnay@gmail.com>",
+    "authors": null,
     "description": "A JSON serialization file format",
     "license": "Apache-2.0 OR MIT",
     "license_file": null,
@@ -2536,6 +2512,14 @@
     "repository": "https://github.com/dalek-cryptography/subtle"
   },
   {
+    "authors": "Chris Morgan <me@chrismorgan.info>",
+    "description": "Create symlinks in a cross-platform manner",
+    "license": "Apache-2.0 OR MIT",
+    "license_file": null,
+    "name": "symlink",
+    "repository": "https://gitlab.com/chris-morgan/symlink"
+  },
+  {
     "authors": "David Tolnay <dtolnay@gmail.com>",
     "description": "Parser for Rust source code",
     "license": "Apache-2.0 OR MIT",
@@ -2605,22 +2589,6 @@
     "license": "Apache-2.0 OR MIT",
     "license_file": null,
     "name": "thiserror",
-    "repository": "https://github.com/dtolnay/thiserror"
-  },
-  {
-    "authors": "David Tolnay <dtolnay@gmail.com>",
-    "description": "derive(Error)",
-    "license": "Apache-2.0 OR MIT",
-    "license_file": null,
-    "name": "thiserror",
-    "repository": "https://github.com/dtolnay/thiserror"
-  },
-  {
-    "authors": "David Tolnay <dtolnay@gmail.com>",
-    "description": "Implementation detail of the `thiserror` crate",
-    "license": "Apache-2.0 OR MIT",
-    "license_file": null,
-    "name": "thiserror-impl",
     "repository": "https://github.com/dtolnay/thiserror"
   },
   {
@@ -2962,7 +2930,7 @@
   {
     "authors": "kwantam <kwantam@gmail.com>|Manish Goregaokar <manishsmail@gmail.com>",
     "description": "This crate provides functions for normalization of Unicode strings, including Canonical and Compatible Decomposition and Recomposition, as described in Unicode Standard Annex #15.",
-    "license": "Apache-2.0 OR MIT",
+    "license": "(Apache-2.0 OR MIT) AND Unicode-3.0",
     "license_file": null,
     "name": "unicode-normalization",
     "repository": "https://github.com/unicode-rs/unicode-normalization"
@@ -3678,6 +3646,14 @@
     "license_file": null,
     "name": "zlib-rs",
     "repository": "https://github.com/trifectatechfoundation/zlib-rs"
+  },
+  {
+    "authors": "David Tolnay <dtolnay@gmail.com>",
+    "description": "A double-to-string conversion algorithm based on Schubfach and xjb",
+    "license": "MIT",
+    "license_file": null,
+    "name": "zmij",
+    "repository": "https://github.com/dtolnay/zmij"
   },
   {
     "authors": null,
