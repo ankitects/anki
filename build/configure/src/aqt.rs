@@ -368,12 +368,6 @@ fn check_python(build: &mut Build) -> Result<()> {
         "check:pytest:aqt",
         PythonTest {
             folder: "qt/tests",
-            python_path: &[
-                "pylib",
-                "$builddir/pylib",
-                "$builddir/qt",
-                "$builddir/qt/tools",
-            ],
             deps: inputs![":pylib:anki", ":qt:aqt", glob!["qt/tests/**"]],
         },
     )?;

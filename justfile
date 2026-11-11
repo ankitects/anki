@@ -59,6 +59,11 @@ test-rust coverage='' html='':
 test-py coverage='' html='':
     just {{ if coverage == "--coverage" { "_coverage-py " + html } else { "_test-py" } }}
 
+# Run pytest with custom arguments, e.g. `just pytest qt/tests/test_foo.py::test_bar -x`
+pytest *args:
+    {{ ninja }} pylib qt
+    {{ if os_family() == "windows" { "out\\pyenv\\Scripts\\python" } else { "out/pyenv/bin/python" } }} -m pytest {{ args }}
+
 # Run TypeScript/Svelte Vitest tests. Pass --coverage to enforce coverage, and --html to include an HTML report.
 [arg("coverage", long="coverage", value="--coverage")]
 [arg("html", long="html", value="--html")]
