@@ -40,7 +40,7 @@
     "repository": "https://github.com/nical/android_system_properties"
   },
   {
-    "authors": "Ankitects Pty Ltd and contributors <https://faqs.ankiweb.net/>",
+    "authors": "Anki Software, LLC and contributors <https://faqs.ankiweb.net/>",
     "description": "Anki's Rust library code",
     "license": "AGPL-3.0-or-later",
     "license_file": null,
@@ -48,7 +48,7 @@
     "repository": null
   },
   {
-    "authors": "Ankitects Pty Ltd and contributors <https://faqs.ankiweb.net/>",
+    "authors": "Anki Software, LLC and contributors <https://faqs.ankiweb.net/>",
     "description": "Anki's Rust library i18n code",
     "license": "AGPL-3.0-or-later",
     "license_file": null,
@@ -56,7 +56,7 @@
     "repository": null
   },
   {
-    "authors": "Ankitects Pty Ltd and contributors <https://faqs.ankiweb.net/>",
+    "authors": "Anki Software, LLC and contributors <https://faqs.ankiweb.net/>",
     "description": "Utils for better I/O error reporting",
     "license": "AGPL-3.0-or-later",
     "license_file": null,
@@ -64,7 +64,7 @@
     "repository": null
   },
   {
-    "authors": "Ankitects Pty Ltd and contributors <https://faqs.ankiweb.net/>",
+    "authors": "Anki Software, LLC and contributors <https://faqs.ankiweb.net/>",
     "description": "Anki's Rust library protobuf code",
     "license": "AGPL-3.0-or-later",
     "license_file": null,
@@ -72,7 +72,7 @@
     "repository": null
   },
   {
-    "authors": "Ankitects Pty Ltd and contributors <https://faqs.ankiweb.net/>",
+    "authors": "Anki Software, LLC and contributors <https://faqs.ankiweb.net/>",
     "description": "Helpers for interface code generation",
     "license": "AGPL-3.0-or-later",
     "license_file": null,
@@ -712,6 +712,14 @@
     "repository": "https://github.com/orlp/foldhash"
   },
   {
+    "authors": "Orson Peters <orsonpeters@gmail.com>",
+    "description": "A fast, non-cryptographic, minimally DoS-resistant hashing algorithm.",
+    "license": "Zlib",
+    "license_file": null,
+    "name": "foldhash",
+    "repository": "https://github.com/orlp/foldhash"
+  },
+  {
     "authors": "Steven Fackler <sfackler@gmail.com>",
     "description": "A framework for Rust wrappers over C APIs",
     "license": "Apache-2.0 OR MIT",
@@ -872,12 +880,20 @@
     "repository": "https://github.com/rust-lang/hashbrown"
   },
   {
-    "authors": "kyren <kerriganw@gmail.com>",
+    "authors": null,
+    "description": "A Rust port of Google's SwissTable hash map",
+    "license": "Apache-2.0 OR MIT",
+    "license_file": null,
+    "name": "hashbrown",
+    "repository": "https://github.com/rust-lang/hashbrown"
+  },
+  {
+    "authors": null,
     "description": "HashMap-like containers that hold their key-value pairs in a user controllable order",
     "license": "Apache-2.0 OR MIT",
     "license_file": null,
     "name": "hashlink",
-    "repository": "https://github.com/kyren/hashlink"
+    "repository": "https://github.com/djc/hashlink"
   },
   {
     "authors": "Sean McArthur <sean@seanmonstar.com>",
@@ -1221,7 +1237,7 @@
     "license": "Apache-2.0 OR MIT",
     "license_file": null,
     "name": "js-sys",
-    "repository": "https://github.com/rustwasm/wasm-bindgen/tree/master/crates/js-sys"
+    "repository": "https://github.com/wasm-bindgen/wasm-bindgen/tree/master/crates/js-sys"
   },
   {
     "authors": "Marvin Löbel <loebel.marvin@gmail.com>",
@@ -1734,14 +1750,6 @@
     "license_file": null,
     "name": "pin-project-lite",
     "repository": "https://github.com/taiki-e/pin-project-lite"
-  },
-  {
-    "authors": "Josef Brandl <mail@josefbrandl.de>",
-    "description": "Utilities for pinning",
-    "license": "Apache-2.0 OR MIT",
-    "license_file": null,
-    "name": "pin-utils",
-    "repository": "https://github.com/rust-lang-nursery/pin-utils"
   },
   {
     "authors": "Alex Crichton <alex@alexcrichton.com>",
@@ -3101,15 +3109,7 @@
     "license": "Apache-2.0 OR MIT",
     "license_file": null,
     "name": "wasm-bindgen",
-    "repository": "https://github.com/rustwasm/wasm-bindgen"
-  },
-  {
-    "authors": "The wasm-bindgen Developers",
-    "description": "Backend code generation of the wasm-bindgen tool",
-    "license": "Apache-2.0 OR MIT",
-    "license_file": null,
-    "name": "wasm-bindgen-backend",
-    "repository": "https://github.com/rustwasm/wasm-bindgen/tree/master/crates/backend"
+    "repository": "https://github.com/wasm-bindgen/wasm-bindgen"
   },
   {
     "authors": "The wasm-bindgen Developers",
@@ -3117,7 +3117,7 @@
     "license": "Apache-2.0 OR MIT",
     "license_file": null,
     "name": "wasm-bindgen-futures",
-    "repository": "https://github.com/rustwasm/wasm-bindgen/tree/master/crates/futures"
+    "repository": "https://github.com/wasm-bindgen/wasm-bindgen/tree/master/crates/futures"
   },
   {
     "authors": "The wasm-bindgen Developers",
@@ -3125,15 +3125,15 @@
     "license": "Apache-2.0 OR MIT",
     "license_file": null,
     "name": "wasm-bindgen-macro",
-    "repository": "https://github.com/rustwasm/wasm-bindgen/tree/master/crates/macro"
+    "repository": "https://github.com/wasm-bindgen/wasm-bindgen/tree/master/crates/macro"
   },
   {
     "authors": "The wasm-bindgen Developers",
-    "description": "The part of the implementation of the `#[wasm_bindgen]` attribute that is not in the shared backend crate",
+    "description": "Implementation APIs for the `#[wasm_bindgen]` attribute",
     "license": "Apache-2.0 OR MIT",
     "license_file": null,
     "name": "wasm-bindgen-macro-support",
-    "repository": "https://github.com/rustwasm/wasm-bindgen/tree/master/crates/macro-support"
+    "repository": "https://github.com/wasm-bindgen/wasm-bindgen/tree/main/crates/macro-support"
   },
   {
     "authors": "The wasm-bindgen Developers",
@@ -3141,7 +3141,7 @@
     "license": "Apache-2.0 OR MIT",
     "license_file": null,
     "name": "wasm-bindgen-shared",
-    "repository": "https://github.com/rustwasm/wasm-bindgen/tree/master/crates/shared"
+    "repository": "https://github.com/wasm-bindgen/wasm-bindgen/tree/master/crates/shared"
   },
   {
     "authors": "Nick Fitzgerald <fitzgen@gmail.com>",
@@ -3181,7 +3181,7 @@
     "license": "Apache-2.0 OR MIT",
     "license_file": null,
     "name": "web-sys",
-    "repository": "https://github.com/rustwasm/wasm-bindgen/tree/master/crates/web-sys"
+    "repository": "https://github.com/wasm-bindgen/wasm-bindgen/tree/master/crates/web-sys"
   },
   {
     "authors": null,
