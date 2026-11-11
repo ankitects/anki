@@ -4,6 +4,8 @@ from __future__ import annotations
 
 import time
 from collections.abc import Callable, Sequence
+from itertools import compress, count, repeat
+from operator import eq
 from typing import Any
 
 import aqt
@@ -134,20 +136,19 @@ class DataModel(QAbstractTableModel):
         Cells of disabled (deleted) rows are not counted, as in flags().
         """
         disabled = {item for item, row in self._rows.items() if row.is_disabled}
-        count = 0
+        cells = 0
         for i in range(len(selection)):
             selection_range = selection[i]
             if not selection_range.isValid():
                 continue
-            rows = range(selection_range.top(), selection_range.bottom() + 1)
+            top, bottom = selection_range.top(), selection_range.bottom()
+            enabled_rows = bottom - top + 1
             if disabled:
-                enabled_rows = sum(
-                    1 for row in rows if self._items[row] not in disabled
+                enabled_rows -= sum(
+                    map(disabled.__contains__, self._items[top : bottom + 1])
                 )
-            else:
-                enabled_rows = len(rows)
-            count += enabled_rows * selection_range.width()
-        return count
+            cells += enabled_rows * selection_range.width()
+        return cells
 
     # Reset
 
@@ -218,14 +219,11 @@ class DataModel(QAbstractTableModel):
     # Get row numbers from items
 
     def get_item_row(self, item: ItemId) -> int | None:
-        for row, i in enumerate(self._items):
-            if i == item:
-                return row
-        return None
+        return next(compress(count(), map(eq, self._items, repeat(item))), None)
 
     def get_item_rows(self, items: Sequence[ItemId]) -> list[int]:
         wanted = set(items)
-        return [row for row, i in enumerate(self._items) if i in wanted]
+        return list(compress(count(), map(wanted.__contains__, self._items)))
 
     def get_card_row(self, card_id: CardId) -> int | None:
         return self.get_item_row(self._state.get_item_from_card_id(card_id))
