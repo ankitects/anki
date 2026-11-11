@@ -276,6 +276,8 @@ def setupLangAndBackend(
         lang = pm.meta["defaultLang"]
     else:
         lang = force or pm.meta["defaultLang"]
+    if not lang:
+        lang = anki.lang.get_def_lang(force)[1]
     lang = anki.lang.lang_to_disk_lang(lang)
 
     # set active language
