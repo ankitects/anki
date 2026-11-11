@@ -139,6 +139,10 @@ impl LintContext {
         // On pull requests, HEAD is GitHub's test merge commit, which is authored with
         // the PR opener's GitHub commit email. That can differ from the email used for
         // the commits in the PR, so the last non-merge PR commit is also accepted.
+        //
+        // Note that this commit is not necessarily authored by the PR opener: if an
+        // existing contributor pushes the last commit to the branch, the check passes
+        // even if the opener has not added themselves to CONTRIBUTORS.
         if env::var("GITHUB_EVENT_NAME").as_deref() == Ok("pull_request") {
             let pr_author = git_stdout(&[
                 "log",
