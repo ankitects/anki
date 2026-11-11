@@ -237,7 +237,6 @@ def show(mw: aqt.AnkiQt) -> QDialog:
     )
     abouttext += f"<p>{tr.about_if_you_have_contributed_and_are()}"
     abouttext += f"<p>{tr.about_a_big_thanks_to_all_the()}"
-    # int_version() is YYMMPP; the copyright year is the publication year
     publication_year = 2000 + int_version() // 10_000
     abouttext += f"<p>{tr.about_copyright(year=str(publication_year))}"
     abt.label.setMinimumWidth(800)
