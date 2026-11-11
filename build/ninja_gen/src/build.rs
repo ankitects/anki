@@ -7,6 +7,7 @@ use std::fmt::Display;
 use std::fmt::Write;
 
 use anyhow::Result;
+use camino::Utf8Path;
 use camino::Utf8PathBuf;
 use itertools::Itertools;
 
@@ -432,7 +433,7 @@ pub trait FilesHandle {
     /// Add outputs to the build statement. Can be called multiple times with
     /// different variables.
     /// - Each output automatically has $builddir/ prefixed to it if it does not
-    ///   already start with it.
+    ///   already start with it, and is not an absolute path.
     /// - If the variable name is non-empty, a variable of the same name will be
     ///   created so the file list can be accessed in the command. By
     ///   convention, this is often `out`.
@@ -515,7 +516,10 @@ impl FilesHandle for BuildStatement<'_> {
     ) {
         let outputs = outputs.into_iter().map(|v| {
             let v = v.as_ref();
-            let v = if !v.starts_with("$builddir/") && !v.starts_with("$builddir\\") {
+            let v = if !v.starts_with("$builddir/")
+                && !v.starts_with("$builddir\\")
+                && !Utf8Path::new(v).is_absolute()
+            {
                 format!("$builddir/{v}")
             } else {
                 v.to_owned()

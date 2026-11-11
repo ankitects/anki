@@ -10,7 +10,7 @@ use itertools::Itertools;
 
 use crate::archives::with_exe;
 use crate::build::BuildProfile;
-use crate::input::space_separated;
+use crate::input::join_inputs;
 use crate::Build;
 
 fn profile_output_dir(profile: BuildProfile) -> &'static str {
@@ -52,12 +52,7 @@ impl Build {
 
         for (group, targets) in self.groups.iter().sorted() {
             let group = group.replace(':', "_");
-            writeln!(
-                &mut buf,
-                "build {group}: phony {}",
-                space_separated(targets)
-            )
-            .unwrap();
+            writeln!(&mut buf, "build {group}: phony {}", join_inputs(targets)).unwrap();
             buf.push('\n');
         }
 

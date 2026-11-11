@@ -1,6 +1,7 @@
 // Copyright: Anki Software, LLC and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 use anyhow::Result;
+use camino::Utf8PathBuf;
 
 use crate::action::BuildAction;
 use crate::build::FilesHandle;
@@ -93,6 +94,10 @@ impl BuildAction for DocsCopy<'_> {
             glob!["docs-site/releases/**/*.mdx"],
             glob!["docs-site/translators/**/*.mdx"],
         ];
+        // Absolute, so the build tool does not canonicalize these to the same
+        // nodes as relative docs-site/ inputs of other actions (such as
+        // check:format:prettier), which would make those actions run the copy.
+        let repo_root = Utf8PathBuf::from_path_buf(dunce::canonicalize(".").unwrap()).unwrap();
         // Vec (Locale, Vec<Output>) to allow for multiple locales
         let outputs: Vec<(String, Vec<String>)> = self
             .locale
@@ -105,7 +110,7 @@ impl BuildAction for DocsCopy<'_> {
                     .map(|p| {
                         let p = p.replace('\\', "/");
                         let relative = p.strip_prefix("docs-site/").unwrap_or(&p);
-                        format!("../docs-site/{locale}/{relative}")
+                        format!("{repo_root}/docs-site/{locale}/{relative}")
                     })
                     .collect();
                 (locale, files)
