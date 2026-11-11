@@ -477,4 +477,42 @@ mod test {
             );
         }
     }
+
+    #[test]
+    fn numeric_field_search_uses_named_field_not_sort_field() -> Result<()> {
+        let mut col = Collection::new();
+        let mut nt = col.get_notetype_by_name("Basic")?.unwrap().as_ref().clone();
+        nt.add_field("Frequency");
+        col.update_notetype(&mut nt, false)?;
+
+        let nt = col.get_notetype_by_name("Basic")?.unwrap();
+        assert_ne!(nt.config.sort_field_idx, 2);
+
+        for frequency in ["499", "500", "550", "600", "1500", "abc"] {
+            let mut note = nt.new_note();
+            note.set_field(0, "not numeric")?;
+            note.set_field(2, frequency)?;
+            col.add_note(&mut note, DeckId(1))?;
+        }
+
+        let mut matching_frequencies = |query: &str| -> Result<Vec<String>> {
+            let mut ids = col.search_notes(query, SortMode::NoOrder)?;
+            ids.sort();
+            ids.into_iter()
+                .map(|id| Ok(col.storage.get_note(id)?.unwrap().fields()[2].clone()))
+                .collect()
+        };
+
+        assert_eq!(
+            matching_frequencies("Frequency>500 Frequency<600")?,
+            ["550"]
+        );
+        assert_eq!(matching_frequencies("Frequency<500")?, ["499"]);
+        assert_eq!(matching_frequencies("Frequency<=500")?, ["499", "500"]);
+        assert_eq!(matching_frequencies("Frequency=500")?, ["500"]);
+        assert_eq!(matching_frequencies("Frequency>=600")?, ["600", "1500"]);
+        assert_eq!(matching_frequencies("Frequency>600")?, ["1500"]);
+
+        Ok(())
+    }
 }
