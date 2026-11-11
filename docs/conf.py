@@ -1,8 +1,11 @@
+# Copyright: Anki Software, LLC and contributors
+# License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
+
 from pathlib import Path
 
 project = "Anki"
-copyright = "Ankitects Pty Ltd and contributors"
-author = "Ankitects Pty Ltd and contributors"
+copyright = "Anki Software, LLC and contributors"
+author = "Anki Software, LLC and contributors"
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -10,7 +13,6 @@ extensions = [
     "myst_parser",
     "sphinx.ext.intersphinx",
     "autoapi.extension",
-    "click_extra.sphinx",
     "sphinxcontrib.mermaid",
 ]
 
@@ -19,7 +21,7 @@ source_suffix = {
     ".md": "markdown",
 }
 
-myst_enable_extensions = ["colon_fence", "deflist"]
+myst_enable_extensions = ["colon_fence", "deflist", "alert"]
 html_theme = "sphinx_book_theme"
 html_logo = "_static/logo.png"
 html_favicon = "_static/favicon.svg"

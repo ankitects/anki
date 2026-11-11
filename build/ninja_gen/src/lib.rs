@@ -1,14 +1,14 @@
-// Copyright: Ankitects Pty Ltd and contributors
+// Copyright: Anki Software, LLC and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 pub mod action;
 pub mod archives;
 pub mod build;
 pub mod cargo;
-pub mod cog;
 pub mod command;
 pub mod configure;
 pub mod copy;
+pub mod docs;
 pub mod git;
 pub mod hash;
 pub mod input;
