@@ -340,11 +340,7 @@ fn generate_js_licenses() -> Result<String> {
     } else {
         "out/extracted/node/bin/yarn"
     };
-    let output = Command::run_with_output([
-        yarn,
-        "run",
-        "generate-licenses",
-    ])?;
+    let output = Command::run_with_output([yarn, "run", "generate-licenses"])?;
 
     Ok(output.stdout)
 }
