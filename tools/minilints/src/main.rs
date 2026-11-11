@@ -220,7 +220,7 @@ impl LintContext {
 
     fn check_ts_licenses(&mut self) -> Result<()> {
         let license_path = Path::new("ts/licenses.json");
-        let licenses = generate_js_licenses()?;
+        let licenses = generate_ts_licenses()?;
         let existing_licenses = read_to_string(license_path)?;
         if licenses != existing_licenses {
             if self.want_fix {
@@ -334,11 +334,18 @@ fn generate_rust_licences() -> Result<String> {
     Ok(serde_json::to_string_pretty(&filtered)?)
 }
 
-fn generate_js_licenses() -> Result<String> {
-    let yarn = if cfg!(windows) {
+fn generate_ts_licenses() -> Result<String> {
+    let bundled = if cfg!(windows) {
         "out/extracted/node/yarn.cmd"
     } else {
         "out/extracted/node/bin/yarn"
+    };
+    let yarn = if Path::new(bundled).exists() {
+        bundled
+    } else if cfg!(windows) {
+        "yarn.cmd"
+    } else {
+        "yarn"
     };
     let output = Command::run_with_output([yarn, "run", "generate-licenses"])?;
 
