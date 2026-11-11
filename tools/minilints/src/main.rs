@@ -335,14 +335,15 @@ fn generate_rust_licences() -> Result<String> {
 }
 
 fn generate_js_licenses() -> Result<String> {
+    let yarn = if cfg!(windows) {
+        "out/extracted/node/yarn.cmd"
+    } else {
+        "out/extracted/node/bin/yarn"
+    };
     let output = Command::run_with_output([
-        "node_modules/.bin/license-checker-rseidelsohn",
-        "--production",
-        "--json",
-        "--excludePackages",
-        "anki",
-        "--relativeLicensePath",
-        "--relativeModulePath",
+        yarn,
+        "run",
+        "generate-licenses",
     ])?;
 
     Ok(output.stdout)

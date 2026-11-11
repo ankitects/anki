@@ -14,7 +14,8 @@
         "vitest:once": "cd ts && vitest run",
         "vitest": "cd ts && vitest",
         "test:e2e": "playwright test",
-        "test:e2e:ui": "playwright test --ui"
+        "test:e2e:ui": "playwright test --ui",
+        "generate-licenses": "license-checker-rseidelsohn --production --json --excludePackages anki --relativeLicensePath --relativeModulePath"
     },
     "devDependencies": {
         "@bufbuild/protoc-gen-es": "^1.8.0",
