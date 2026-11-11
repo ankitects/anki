@@ -6,7 +6,7 @@ from collections.abc import Callable
 
 import aqt.forms
 from anki.lang import without_unicode_isolation
-from anki.utils import version_with_build
+from anki.utils import int_version, version_with_build
 from aqt.errors import addon_debug_info
 from aqt.qt import *
 from aqt.utils import disable_help_button, supportText, tooltip, tr
@@ -237,6 +237,8 @@ def show(mw: aqt.AnkiQt) -> QDialog:
     )
     abouttext += f"<p>{tr.about_if_you_have_contributed_and_are()}"
     abouttext += f"<p>{tr.about_a_big_thanks_to_all_the()}"
+    publication_year = 2000 + int_version() // 10_000
+    abouttext += f"<p>{tr.about_copyright(year=str(publication_year))}"
     abt.label.setMinimumWidth(800)
     abt.label.setMinimumHeight(600)
     dialog.show()
