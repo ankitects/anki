@@ -59,4 +59,5 @@ explicit = true
 
 [tool.pytest.ini_options]
 pythonpath = ["pylib", "out/pylib", "out/qt", "qt/tools"]
-addopts = "-p no:cacheprovider"
+addopts = "-p no:cacheprovider --import-mode=importlib"
+testpaths = ["pylib/tests", "qt/tests", "tools/tests"]
