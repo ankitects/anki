@@ -72,10 +72,11 @@ jobs:
         with:
           node-version: '20'
 
-      - name: Install Yarn
+      - name: Install JS dependencies
         if: steps.non-doc-changes.outputs.any_changed == 'true'
         run: |
-          corepack enable yarn
+          corepack enable
+          yarn install --immutable
 
       - name: Run minilints
         if: steps.non-doc-changes.outputs.any_changed == 'true'
