@@ -24,10 +24,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import LatexButton from "./LatexButton.svelte";
     import {
         filenameToLink,
-        isAudio,
         openFilePickerForMedia,
     } from "../rich-text-input/data-transfer";
-    import { addMediaFromPath, playFile, recordAudio } from "@generated/backend";
+    import { addMediaFromPath, recordAudio } from "@generated/backend";
     import { bridgeCommand } from "@tslib/bridgecommand";
     import { promiseWithResolver } from "@tslib/promise";
     import type { RichTextInputAPI } from "../rich-text-input";
@@ -40,9 +39,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     async function attachPath(path: string) {
         const filename = (await addMediaFromPath({ path })).val;
         setFormat("inserthtml", filenameToLink(filename));
-        if (isAudio(filename)) {
-            await playFile({ val: filename });
-        }
     }
 
     let mediaPromise: Promise<string>;
