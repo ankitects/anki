@@ -160,6 +160,8 @@ def get_briefcase_config_args(
     config_args = [
         "-C",
         f'version="{version}"',
+        "-C",
+        f'anki_version="{version}"',
     ]
     requires = []
     if aqt_wheel:
