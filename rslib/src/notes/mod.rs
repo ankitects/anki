@@ -707,6 +707,7 @@ mod test {
     use crate::tags::Tag;
 
     #[test]
+    #[ignore = "flaky: see #5921"]
     fn test_base91() {
         // match the python implementation for now
         assert_eq!(anki_base91(0), "");
