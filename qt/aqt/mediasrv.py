@@ -1264,7 +1264,7 @@ def raw_backend_request(endpoint: str) -> Callable[[], bytes]:
         output = getattr(aqt.mw.col._backend, f"{endpoint}_raw")(request.data)
         op_changes_type = int(request.headers.get("Anki-Op-Changes", "0"))
         if op_changes_type:
-            webview_id = request.headers["Anki-Webview-Id"]
+            webview_id = request.headers.get("Anki-Webview-Id")
             op_message_types = (OpChanges, OpChangesOnly, NestedOpChanges)
             try:
                 response = op_message_types[op_changes_type - 1]()
@@ -1276,14 +1276,8 @@ def raw_backend_request(endpoint: str) -> Callable[[], bytes]:
                 raise ValueError(f"unhandled op changes level: {op_changes_type}")
 
             def handle_on_main() -> None:
-                webview = aqt.mw.mediaServer.get_webview(webview_id)
-                if webview:
-                    on_op_finished(aqt.mw, changes, webview)
-                else:
-                    logger.warning(
-                        "skipped op handling for request as webview was destroyed: %s",
-                        endpoint,
-                    )
+                webview = aqt.mw.mediaServer.get_webview(webview_id) if webview_id else None
+                on_op_finished(aqt.mw, changes, webview)
 
             aqt.mw.taskman.run_on_main(handle_on_main)
 
