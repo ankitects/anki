@@ -4,7 +4,7 @@ about-anki-is-a-friendly-intelligent-spaced = Anki is a friendly, intelligent sp
 about-anki-is-licensed-under-the-agpl3 = Anki is licensed under the AGPL3 license. Please see the license file in the source distribution for more information.
 about-copied-to-clipboard = Copied to clipboard
 about-copy-debug-info = Copy Debug Info
-about-copyright = Copyright © 2006–{ $year } Anki Software, LLC and contributors
+about-copyright = Copyright © Anki Software, LLC and contributors
 about-if-you-have-contributed-and-are = If you have contributed and are not on this list, please get in touch.
 about-version = Version { $val }
 about-visit-website = <a href='{ $val }'>Visit website</a>
