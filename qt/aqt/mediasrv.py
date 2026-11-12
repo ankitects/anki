@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import asyncio
 import enum
+import itertools
 import logging
 import mimetypes
 import os
@@ -208,6 +209,7 @@ class MediaServer(threading.Thread):
         self._webviews: weakref.WeakValueDictionary[str, AnkiWebView] = (
             weakref.WeakValueDictionary()
         )
+        self._webview_counter = itertools.count()
 
     def run(self) -> None:
         try:
@@ -270,8 +272,10 @@ class MediaServer(threading.Thread):
         except KeyError:
             pass
 
-    def register_webview(self, webview: AnkiWebView) -> None:
-        self._webviews[str(id(webview))] = webview
+    def register_webview(self, webview: AnkiWebView) -> int:
+        webview_id = next(self._webview_counter)
+        self._webviews[str(webview_id)] = webview
+        return webview_id
 
     def get_webview(self, id: str) -> AnkiWebView | None:
         return self._webviews.get(id)
@@ -1276,7 +1280,9 @@ def raw_backend_request(endpoint: str) -> Callable[[], bytes]:
                 raise ValueError(f"unhandled op changes level: {op_changes_type}")
 
             def handle_on_main() -> None:
-                webview = aqt.mw.mediaServer.get_webview(webview_id) if webview_id else None
+                webview = (
+                    aqt.mw.mediaServer.get_webview(webview_id) if webview_id else None
+                )
                 on_op_finished(aqt.mw, changes, webview)
 
             aqt.mw.taskman.run_on_main(handle_on_main)

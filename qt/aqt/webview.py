@@ -106,8 +106,8 @@ class AuthInterceptor(QWebEngineUrlRequestInterceptor):
 
 
 class WebviewIdInterceptor(QWebEngineUrlRequestInterceptor):
-    def __init__(self, webview: AnkiWebView):
-        self.webview = webview
+    def __init__(self, webview: AnkiWebView, webview_id: int):
+        self.webview_id = webview_id
         super().__init__(webview)
 
     def interceptRequest(self, info):
@@ -117,9 +117,7 @@ class WebviewIdInterceptor(QWebEngineUrlRequestInterceptor):
             == QWebEngineUrlRequestInfo.ResourceType.ResourceTypeXhr
             and info.requestMethod() == b"POST"
         ):
-            info.setHttpHeader(
-                b"Anki-Webview-Id", str(id(self.webview)).encode("utf-8")
-            )
+            info.setHttpHeader(b"Anki-Webview-Id", str(self.webview_id).encode("utf-8"))
 
 
 def _create_bridge_script() -> QWebEngineScript:
@@ -446,8 +444,8 @@ class AnkiWebView(QWebEngineView):
         self._kind = kind
         self.set_title(kind.value)
         self.setPage(AnkiWebPage(self._onBridgeCmd, kind, self))
-        mw.mediaServer.register_webview(self)
-        self.page().setUrlRequestInterceptor(WebviewIdInterceptor(self))
+        webview_id = mw.mediaServer.register_webview(self)
+        self.page().setUrlRequestInterceptor(WebviewIdInterceptor(self, webview_id))
         # reduce flicker
         self.page().setBackgroundColor(theme_manager.qcolor(colors.CANVAS))
 
