@@ -1262,9 +1262,9 @@ def raw_backend_request(endpoint: str) -> Callable[[], bytes]:
 
     def wrapped() -> bytes:
         output = getattr(aqt.mw.col._backend, f"{endpoint}_raw")(request.data)
-        webview_id = request.headers["Anki-Webview-Id"]
         op_changes_type = int(request.headers.get("Anki-Op-Changes", "0"))
         if op_changes_type:
+            webview_id = request.headers["Anki-Webview-Id"]
             op_message_types = (OpChanges, OpChangesOnly, NestedOpChanges)
             try:
                 response = op_message_types[op_changes_type - 1]()
