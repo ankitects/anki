@@ -1,4 +1,4 @@
-// Copyright: Ankitects Pty Ltd and contributors
+// Copyright: Anki Software, LLC and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 import { SimulateFsrsReviewRequest, SimulateFsrsReviewResponse } from "@generated/anki/scheduler_pb";
 import { expect, test } from "../../tests/e2e/fixtures";

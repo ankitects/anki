@@ -1,7 +1,7 @@
 use std::collections::HashSet;
 use std::path::Path;
 
-// Copyright: Ankitects Pty Ltd and contributors
+// Copyright: Anki Software, LLC and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 use anki_proto::generic;
 use anki_proto::media::AddMediaFileRequest;

@@ -1,4 +1,4 @@
-// Copyright: Ankitects Pty Ltd and contributors
+// Copyright: Anki Software, LLC and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 use std::collections::HashSet;
@@ -44,7 +44,7 @@ pub(crate) fn write_ts_interface(services: &[BackendService]) -> Result<()> {
 }
 
 fn ts_header() -> String {
-    r#"// Copyright: Ankitects Pty Ltd and contributors
+    r#"// Copyright: Anki Software, LLC and contributors
 // License: GNU AGPL, version 3 or later; https://www.gnu.org/licenses/agpl.html
 
 import type { PlainMessage } from "@bufbuild/protobuf";
