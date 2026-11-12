@@ -205,7 +205,9 @@ class MediaServer(threading.Thread):
         # map of webview ids to pages
         self._legacy_pages: dict[int, LegacyPage] = {}
         # used to identify request handlers
-        self._webviews = weakref.WeakValueDictionary()
+        self._webviews: weakref.WeakValueDictionary[str, AnkiWebView] = (
+            weakref.WeakValueDictionary()
+        )
 
     def run(self) -> None:
         try:
