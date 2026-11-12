@@ -59,6 +59,7 @@ jobs:
           files_ignore: |
             **/*.md
             **/*.mdx
+            docs-site/**/*.json
             docs/**/*.png
             docs/**/*.svg
             docs-site/**/*.png
