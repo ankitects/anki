@@ -20,7 +20,7 @@ from dataclasses import dataclass
 from errno import EPROTOTYPE
 from http import HTTPStatus
 from pathlib import Path
-from typing import Any, Generic, cast
+from typing import TYPE_CHECKING, Any, Generic, cast
 
 import flask
 import stringcase
@@ -56,7 +56,10 @@ from aqt.utils import (
     show_warning,
     tr,
 )
-from aqt.webview import AnkiWebView
+
+if TYPE_CHECKING:
+    from aqt.webview import AnkiWebView
+
 
 # https://forums.ankiweb.net/t/anki-crash-when-using-a-specific-deck/22266
 waitress.wasyncore._DISCONNECTED = waitress.wasyncore._DISCONNECTED.union({EPROTOTYPE})  # type: ignore
