@@ -1,8 +1,11 @@
+# Copyright: Anki Software, LLC and contributors
+# License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
+
 from pathlib import Path
 
 project = "Anki"
-copyright = "Ankitects Pty Ltd and contributors"
-author = "Ankitects Pty Ltd and contributors"
+copyright = "Anki Software, LLC and contributors"
+author = "Anki Software, LLC and contributors"
 
 ROOT = Path(__file__).resolve().parents[1]
 

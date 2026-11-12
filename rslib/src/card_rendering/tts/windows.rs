@@ -1,4 +1,4 @@
-// Copyright: Ankitects Pty Ltd and contributors
+// Copyright: Anki Software, LLC and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 use std::fs::File;
@@ -65,7 +65,7 @@ fn synthesize_stream(
             details: WindowsErrorDetails::SettingRate(speed),
         })?;
     let async_op = synthesizer.SynthesizeTextToStreamAsync(&to_hstring(text))?;
-    let stream = async_op.get().context(WindowsSnafu {
+    let stream = async_op.join().context(WindowsSnafu {
         details: WindowsErrorDetails::Synthesizing,
     })?;
     Ok(stream)
