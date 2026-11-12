@@ -9,20 +9,33 @@ use std::path::Path;
 use std::path::PathBuf;
 use std::thread;
 use std::thread::JoinHandle;
+use std::time::Duration;
 use std::time::SystemTime;
 
 use anki_io::atomic_rename;
-use anki_io::new_tempfile_in;
 use anki_io::read_locked_db_file;
+use anki_io::FileIoSnafu;
+use anki_io::FileOp;
 use anki_proto::config::preferences::BackupLimits;
 use chrono::prelude::*;
 use itertools::Itertools;
+use tempfile::NamedTempFile;
 use tracing::error;
 
 use crate::import_export::package::export_colpkg_from_data;
 use crate::prelude::*;
 
 const BACKUP_FORMAT_STRING: &str = "backup-%Y-%m-%d-%H.%M.%S.colpkg";
+
+/// Name prefix of the file a backup is written to before it is renamed into
+/// place. A process killed mid-write never runs that file's destructor, and the
+/// name does not parse as a backup, so `thin_backups` looks for this prefix to
+/// remove what such a write left behind.
+const PARTIAL_BACKUP_PREFIX: &str = ".partial-backup-";
+
+/// A partial backup untouched for this long cannot belong to a write that is
+/// still in progress.
+const STALE_PARTIAL_BACKUP_AGE: Duration = Duration::from_secs(60 * 60);
 
 impl Collection {
     /// Create a backup if enough time has elapsed, or if forced.
@@ -110,13 +123,25 @@ fn write_backup_at<S: AsRef<OsStr>>(
 ) -> Result<()> {
     let backup_folder = Path::new(&backup_folder);
     let out_path = backup_folder.join(format!("{}", now.format(BACKUP_FORMAT_STRING)));
-    let tempfile = new_tempfile_in(backup_folder)?;
+    let tempfile = partial_backup_file(backup_folder)?;
     export_colpkg_from_data(tempfile.path(), col_data, tr)?;
     atomic_rename(tempfile, &out_path, true)?;
     Ok(())
 }
 
+fn partial_backup_file(backup_folder: &Path) -> Result<NamedTempFile> {
+    Ok(tempfile::Builder::new()
+        .prefix(PARTIAL_BACKUP_PREFIX)
+        .tempfile_in(backup_folder)
+        .context(FileIoSnafu {
+            path: backup_folder,
+            op: FileOp::Create,
+        })?)
+}
+
 fn thin_backups<P: AsRef<Path>>(backup_folder: P, limits: BackupLimits) -> Result<()> {
+    let backup_folder = backup_folder.as_ref();
+    remove_stale_partial_backups(backup_folder, SystemTime::now());
     let backups =
         read_dir(backup_folder)?.filter_map(|entry| entry.ok().and_then(Backup::from_entry));
     let obsolete_backups = BackupFilter::new(Local::now(), limits).obsolete_backups(backups);
@@ -127,6 +152,34 @@ fn thin_backups<P: AsRef<Path>>(backup_folder: P, limits: BackupLimits) -> Resul
     }
 
     Ok(())
+}
+
+/// Remove files left by backups that never finished, for example because Anki
+/// was killed while writing one. They do not parse as backups, so the thinning
+/// in `thin_backups` would otherwise keep them, each the size of the collection.
+/// Failures are logged rather than returned, as they must not fail the backup
+/// that has just been written.
+fn remove_stale_partial_backups(backup_folder: &Path, now: SystemTime) {
+    let Ok(entries) = read_dir(backup_folder) else {
+        return;
+    };
+    for entry in entries.flatten() {
+        let is_partial = entry
+            .file_name()
+            .to_str()
+            .is_some_and(|name| name.starts_with(PARTIAL_BACKUP_PREFIX));
+        let is_stale = entry
+            .metadata()
+            .and_then(|meta| meta.modified())
+            .ok()
+            .and_then(|modified| now.duration_since(modified).ok())
+            .is_some_and(|age| age > STALE_PARTIAL_BACKUP_AGE);
+        if is_partial && is_stale {
+            if let Err(error) = remove_file(entry.path()) {
+                error!("failed to remove {:?}: {error:?}", entry.path());
+            }
+        }
+    }
 }
 
 fn datetime_from_file_name(file_name: &str) -> Option<DateTime<Local>> {
@@ -274,7 +327,9 @@ mod test {
 
     /// Mirrors the failure the reporter saw: the archive write dies partway
     /// through. The child process runs with a one-block file size limit, so the
-    /// export fails once it exceeds it.
+    /// export fails once it exceeds it. The collection is written before the
+    /// rest of the archive and its data is incompressible, so the limit is hit
+    /// while the collection itself is being written.
     #[cfg(unix)]
     const INTERRUPTED_BACKUP_DIR: &str = "ANKI_TEST_INTERRUPTED_BACKUP_DIR";
 
@@ -306,7 +361,7 @@ mod test {
     fn interrupted_backup_leaves_nothing_behind() {
         // the child half: perform the write that is expected to fail
         if let Some(backup_dir) = std::env::var_os(INTERRUPTED_BACKUP_DIR) {
-            let col_data = vec![b'a'; 4 * 1024 * 1024];
+            let col_data = incompressible_bytes(4 * 1024 * 1024);
             write_backup_at(
                 &col_data,
                 &backup_dir,
@@ -367,6 +422,90 @@ mod test {
             )],
             "expected one archive and no temporary file"
         );
+    }
+
+    /// Bytes zstd cannot shrink. Repeating one byte would compress a 4 MB
+    /// collection to a few hundred bytes, so the size limit would only be hit
+    /// later, by the dummy collection written after it.
+    fn incompressible_bytes(len: usize) -> Vec<u8> {
+        let mut state = 0x2545_f491_4f6c_dd1d_u64;
+        (0..len)
+            .map(|_| {
+                // xorshift64
+                state ^= state << 13;
+                state ^= state >> 7;
+                state ^= state << 17;
+                state as u8
+            })
+            .collect()
+    }
+
+    fn file_names(dir: &Path) -> Vec<String> {
+        let mut names: Vec<_> = read_dir(dir)
+            .unwrap()
+            .map(|entry| entry.unwrap().file_name().to_string_lossy().into_owned())
+            .collect();
+        names.sort();
+        names
+    }
+
+    #[test]
+    fn partial_backups_are_named_so_thinning_can_find_them() {
+        let dir = tempfile::tempdir().unwrap();
+        let partial = partial_backup_file(dir.path()).unwrap();
+        let name = partial.path().file_name().unwrap().to_string_lossy();
+        assert!(name.starts_with(PARTIAL_BACKUP_PREFIX), "got {name}");
+        assert!(
+            datetime_from_file_name(&name).is_none(),
+            "a partial backup must not be mistaken for a finished one"
+        );
+    }
+
+    #[test]
+    fn thinning_removes_a_stale_partial_backup() {
+        let dir = tempfile::tempdir().unwrap();
+        // what a write killed before it could clean up leaves behind
+        let partial = partial_backup_file(dir.path()).unwrap();
+        let (file, path) = partial.keep().unwrap();
+        file.set_modified(SystemTime::now() - STALE_PARTIAL_BACKUP_AGE * 2)
+            .unwrap();
+        drop(file);
+        assert!(path.exists());
+
+        thin_backups(dir.path(), BackupLimits::default()).unwrap();
+
+        assert!(
+            file_names(dir.path()).is_empty(),
+            "{:?}",
+            file_names(dir.path())
+        );
+    }
+
+    #[test]
+    fn a_recent_partial_backup_is_left_alone() {
+        let dir = tempfile::tempdir().unwrap();
+        // a backup that may still be writing
+        let (_file, path) = partial_backup_file(dir.path()).unwrap().keep().unwrap();
+
+        remove_stale_partial_backups(dir.path(), SystemTime::now());
+
+        assert!(path.exists(), "a partial backup in progress was removed");
+    }
+
+    #[test]
+    fn only_files_with_the_partial_prefix_are_removed() {
+        let dir = tempfile::tempdir().unwrap();
+        let unrelated = ["notes.txt", ".tmpAbC123", "backup-partial.colpkg"];
+        for name in unrelated {
+            std::fs::write(dir.path().join(name), b"keep").unwrap();
+        }
+        let later = SystemTime::now() + STALE_PARTIAL_BACKUP_AGE * 2;
+
+        remove_stale_partial_backups(dir.path(), later);
+
+        let mut expected: Vec<_> = unrelated.iter().map(|s| s.to_string()).collect();
+        expected.sort();
+        assert_eq!(file_names(dir.path()), expected);
     }
 
     fn backup_timestamp() -> DateTime<Local> {
