@@ -13,6 +13,7 @@ import secrets
 import sys
 import threading
 import traceback
+import weakref
 from collections.abc import Callable
 from dataclasses import dataclass
 from errno import EPROTOTYPE
@@ -54,6 +55,7 @@ from aqt.utils import (
     show_warning,
     tr,
 )
+from aqt.webview import AnkiWebView
 
 # https://forums.ankiweb.net/t/anki-crash-when-using-a-specific-deck/22266
 waitress.wasyncore._DISCONNECTED = waitress.wasyncore._DISCONNECTED.union({EPROTOTYPE})  # type: ignore
@@ -202,6 +204,8 @@ class MediaServer(threading.Thread):
         self.is_shutdown = False
         # map of webview ids to pages
         self._legacy_pages: dict[int, LegacyPage] = {}
+        # used to identify request handlers
+        self._webviews = weakref.WeakValueDictionary()
 
     def run(self) -> None:
         try:
@@ -263,6 +267,12 @@ class MediaServer(threading.Thread):
             del self._legacy_pages[id]
         except KeyError:
             pass
+
+    def register_webview(self, webview: AnkiWebView) -> None:
+        self._webviews[str(id(webview))] = webview
+
+    def get_webview(self, id: str) -> AnkiWebView | None:
+        return self._webviews.get(id)
 
 
 @app.route("/favicon.ico")
@@ -1250,6 +1260,7 @@ def raw_backend_request(endpoint: str) -> Callable[[], bytes]:
 
     def wrapped() -> bytes:
         output = getattr(aqt.mw.col._backend, f"{endpoint}_raw")(request.data)
+        webview_id = request.headers["Anki-Webview-Id"]
         op_changes_type = int(request.headers.get("Anki-Op-Changes", "0"))
         if op_changes_type:
             op_message_types = (OpChanges, OpChangesOnly, NestedOpChanges)
@@ -1263,8 +1274,14 @@ def raw_backend_request(endpoint: str) -> Callable[[], bytes]:
                 raise ValueError(f"unhandled op changes level: {op_changes_type}")
 
             def handle_on_main() -> None:
-                handler = active_window_or_main()
-                on_op_finished(aqt.mw, changes, handler)
+                webview = aqt.mw.mediaServer.get_webview(webview_id)
+                if webview:
+                    on_op_finished(aqt.mw, changes, webview)
+                else:
+                    logger.warning(
+                        "skipped op handling for request as webview was destroyed: %s",
+                        endpoint,
+                    )
 
             aqt.mw.taskman.run_on_main(handle_on_main)
 
