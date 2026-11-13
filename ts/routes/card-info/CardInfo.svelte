@@ -1,5 +1,5 @@
 <!--
-Copyright: Ankitects Pty Ltd and contributors
+Copyright: Anki Software, LLC and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
@@ -17,7 +17,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     export let showRevlog: boolean = true;
     export let showCurve: boolean = true;
 
-    $: fsrsEnabled = stats?.memoryState != null;
+    $: fsrsEnabled = stats?.fsrsEnabled ?? false;
     $: desiredRetention = stats?.desiredRetention ?? 0.9;
     $: decay = (() => {
         const paramsLength = stats?.fsrsParams?.length ?? 0;

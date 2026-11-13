@@ -1,4 +1,4 @@
-// Copyright: Ankitects Pty Ltd and contributors
+// Copyright: Anki Software, LLC and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 use async_trait::async_trait;
@@ -103,8 +103,7 @@ impl SyncProtocol for HttpSyncClient {
     }
 
     async fn download(&self, req: SyncRequest<EmptyInput>) -> HttpResult<SyncResponse<Vec<u8>>> {
-        self.download_with_progress(req, ThrottlingProgressHandler::default())
-            .await
+        self.request(SyncMethod::Download, req).await
     }
 }
 

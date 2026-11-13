@@ -1,4 +1,4 @@
-// Copyright: Ankitects Pty Ltd and contributors
+// Copyright: Anki Software, LLC and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 syntax = "proto3";
@@ -167,6 +167,7 @@ message CompareAnswerRequest {
   string expected = 1;
   string provided = 2;
   bool combining = 3;
+  bool ignore_case = 4;
 }
 
 message ExtractClozeForTypingRequest {

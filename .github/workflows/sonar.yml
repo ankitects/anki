@@ -89,7 +89,7 @@ jobs:
       # internal CI. Fork CI still generates and checks the same reports.
       - name: Download coverage reports
         if: env.IS_INTERNAL == 'true'
-        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 #v4.3.0
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 #v8.0.2
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           run-id: ${{ github.event.workflow_run.id }}
@@ -99,7 +99,7 @@ jobs:
       - name: Download PR context
         if: github.event.workflow_run.event == 'pull_request'
         continue-on-error: true
-        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 #v4.3.0
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 #v8.0.2
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           run-id: ${{ github.event.workflow_run.id }}
@@ -173,6 +173,54 @@ jobs:
           echo "head_ref=$api_head_ref" >> "$GITHUB_OUTPUT"
           echo "base_ref=$api_base_ref" >> "$GITHUB_OUTPUT"
 
+      # SonarCloud PR analysis derives the changed-file set from git. Without
+      # the correct upstream base reference, it may attribute unrelated changes
+      # to the PR. The fork checkout may contain an outdated base branch, so
+      # fetch the base branch from the trusted upstream
+      # repository (github.repository, never the fork) and pin it under the same
+      # name passed as sonar.pullrequest.base. The upstream repository is public
+      # and read as data; nothing from it is built or executed. Fail closed if
+      # the reference cannot be resolved rather than scanning against a missing
+      # base.
+      - name: Fetch base branch for PR diff
+        if: >-
+          github.event.workflow_run.event == 'pull_request'
+          && steps.pr.outputs.number != ''
+        shell: bash
+        env:
+          GH_REPO: ${{ github.repository }}
+          BASE_REF: ${{ steps.pr.outputs.base_ref }}
+          HEAD_SHA: ${{ github.event.workflow_run.head_sha }}
+        run: |
+          set -euo pipefail
+
+          fail() {
+            echo "::error::$1"
+            exit 1
+          }
+
+          upstream="https://github.com/${GH_REPO}.git"
+
+          git fetch --no-tags --prune "$upstream" \
+            "+refs/heads/${BASE_REF}:refs/heads/${BASE_REF}" ||
+            fail "Unable to fetch base branch '${BASE_REF}' from ${upstream}"
+
+          base_sha=$(git rev-parse --verify "refs/heads/${BASE_REF}") ||
+            fail "Base branch '${BASE_REF}' missing after fetch"
+
+          merge_base=$(git merge-base "$HEAD_SHA" "refs/heads/${BASE_REF}") ||
+            fail "No common ancestor between ${HEAD_SHA} and '${BASE_REF}'"
+
+          echo "::group::Pull request diff reference"
+          echo "Analyzed head commit : ${HEAD_SHA}"
+          echo "Base repository      : ${GH_REPO}"
+          echo "Base branch          : ${BASE_REF}"
+          echo "Base branch commit   : ${base_sha}"
+          echo "Merge-base commit    : ${merge_base}"
+          echo "Files changed vs merge-base:"
+          git diff --name-only "${merge_base}" "${HEAD_SHA}" | sed 's/^/  /'
+          echo "::endgroup::"
+
       # The token is supplied only here. Quality Gate results are informative
       # (sonar.qualitygate.wait=false); keep Sonar out of required checks.
       # Technical scanner failures remain visible, but do not block merges.
@@ -180,7 +228,7 @@ jobs:
         if: >-
           github.event.workflow_run.event != 'pull_request'
           || steps.pr.outputs.number != ''
-        uses: SonarSource/sonarqube-scan-action@713881670b6b3676cda39549040e2d88c70d582e #v8.2.0
+        uses: SonarSource/sonarqube-scan-action@e805d875275f728fac1885b413934be6d7c63f65 #v8.4.1
         with:
           args: >-
             -Dsonar.scm.revision=${{ github.event.workflow_run.head_sha }}

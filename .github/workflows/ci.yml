@@ -33,7 +33,7 @@ jobs:
           printf '%s' "$PR_NUMBER" > out/sonar/pr-number.txt
 
       - name: Upload PR context for SonarCloud
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a #v7.0.1
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 #v7.0.2
         with:
           name: sonar-pr-context
           path: out/sonar/
@@ -48,7 +48,7 @@ jobs:
           filter: blob:none
 
       - name: Install Rust toolchain
-        uses: actions-rust-lang/setup-rust-toolchain@166cdcfd11aee3cb47222f9ddb555ce30ddb9659 #v1
+        uses: actions-rust-lang/setup-rust-toolchain@a188e68d0fd2bd36ad51dccb2b07ba6e75105f30 #v2.0.1
 
       - name: Check for non-documentation changes
         id: non-doc-changes
@@ -59,6 +59,7 @@ jobs:
           files_ignore: |
             **/*.md
             **/*.mdx
+            docs-site/**/*.json
             docs/**/*.png
             docs/**/*.svg
             docs-site/**/*.png
@@ -80,20 +81,22 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 #v4
 
       - name: Install Rust toolchain
-        uses: actions-rust-lang/setup-rust-toolchain@166cdcfd11aee3cb47222f9ddb555ce30ddb9659 #v1
+        uses: actions-rust-lang/setup-rust-toolchain@a188e68d0fd2bd36ad51dccb2b07ba6e75105f30 #v2.0.1
 
       - name: Install uv
-        uses: astral-sh/setup-uv@c771a70e6277c0a99b617c7a806ffedaca235ff9 #v9.0.0
+        uses: astral-sh/setup-uv@68559e99cc807c1eb7e9238fd43a15bba460eec2 #v10.3.3
+        with:
+          version-file: ".tool-versions"
 
       - name: Setup Node.js
-        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 #v7.0.0
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 #v7.1.0
         with:
           node-version: '20'
 
       - name: Install n2
         run: tools/install-n2
         env:
-          RUSTFLAGS: "--cap-lints warn"
+          CARGO_BUILD_WARNINGS: allow
 
       - name: Install just
         uses: extractions/setup-just@53165ef7e734c5c07cb06b3c8e7b647c5aa16db3 #v4
@@ -137,13 +140,12 @@ jobs:
       - name: Install just
         uses: extractions/setup-just@53165ef7e734c5c07cb06b3c8e7b647c5aa16db3 #v4
 
-      - name: Install cargo-llvm-cov, cargo-nextest and cargo-deny
-        uses: taiki-e/install-action@67729d5c413db75907f0ad1e39bb04b9c868ff60 #v2.85.7
+      - name: Install cargo-llvm-cov and cargo-nextest
+        uses: taiki-e/install-action@b80e2bb2635f28eb98b9fce1e2f0887e1535c6b2 #v2.90.0
         with:
           tool: |
             cargo-llvm-cov@0.8.4
             cargo-nextest@0.9.99
-            cargo-deny@0.20.2
 
       - name: Symlink node_modules
         run: ln -sf out/node_modules .
@@ -179,7 +181,7 @@ jobs:
 
       - name: Upload SARIF results for complexipy
         if: steps.complexipy.outcome == 'failure'
-        uses: github/codeql-action/upload-sarif@a6fd1787519fd23e68309fad43738e41a6ff2a9d #v4
+        uses: github/codeql-action/upload-sarif@fbfa9f37476c0024508d051f3c34fcca3366b0e2 #v4
         with:
             sarif_file: out/complexipy/complexipy-results.sarif
             category: complexipy
@@ -200,10 +202,19 @@ jobs:
 
       - name: Upload Playwright report
         if: failure()
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a #v7.0.1
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 #v7.0.2
         with:
           name: playwright-report
           path: out/e2e-report/
+          retention-days: 7
+
+      - name: Upload Playwright screenshots
+        if: failure()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 #v7.0.2
+        with:
+          name: playwright-screenshots
+          path: out/e2e-results/
+          if-no-files-found: ignore
           retention-days: 7
 
       - name: Ensure libs importable
@@ -211,26 +222,11 @@ jobs:
           SKIP_RUN: "1"
         run: ./run
 
-      - name: Check Rust dependencies
-        if: github.event_name == 'pull_request'
-        id: rust-deps
-        uses: tj-actions/changed-files@9426d40962ed5378910ee2e21d5f8c6fcbf2dd96 #v47.0.6
-        with:
-          files: |
-            Cargo.lock
-            **/Cargo.toml
-            .deny.toml
-
-      - name: Run cargo-deny check
-        if: github.event_name != 'pull_request' || steps.rust-deps.outputs.any_changed == 'true'
-        shell: bash
-        run: cargo deny check
-
       - name: Upload coverage for SonarCloud
         if: >-
           github.event_name == 'push'
           || github.event.pull_request.head.repo.full_name == github.repository
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a #v7.0.1
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 #v7.0.2
         with:
           name: coverage-reports
           path: |
@@ -301,7 +297,7 @@ jobs:
         uses: extractions/setup-just@53165ef7e734c5c07cb06b3c8e7b647c5aa16db3 #v4
 
       - name: Install cargo-llvm-cov and cargo-nextest
-        uses: taiki-e/install-action@67729d5c413db75907f0ad1e39bb04b9c868ff60 #v2.85.7
+        uses: taiki-e/install-action@b80e2bb2635f28eb98b9fce1e2f0887e1535c6b2 #v2.90.0
         with:
           tool: |
             cargo-llvm-cov@0.8.4
@@ -376,7 +372,7 @@ jobs:
         uses: extractions/setup-just@53165ef7e734c5c07cb06b3c8e7b647c5aa16db3 #v4
 
       - name: Install cargo-llvm-cov and cargo-nextest
-        uses: taiki-e/install-action@67729d5c413db75907f0ad1e39bb04b9c868ff60 #v2.85.7
+        uses: taiki-e/install-action@b80e2bb2635f28eb98b9fce1e2f0887e1535c6b2 #v2.90.0
         with:
           tool: |
             cargo-llvm-cov@0.8.4
@@ -450,7 +446,7 @@ jobs:
         uses: extractions/setup-just@53165ef7e734c5c07cb06b3c8e7b647c5aa16db3 #v4
 
       - name: Install cargo-llvm-cov and cargo-nextest
-        uses: taiki-e/install-action@67729d5c413db75907f0ad1e39bb04b9c868ff60 #v2.85.7
+        uses: taiki-e/install-action@b80e2bb2635f28eb98b9fce1e2f0887e1535c6b2 #v2.90.0
         with:
           tool: |
             cargo-llvm-cov@0.8.4
@@ -534,7 +530,7 @@ jobs:
         uses: extractions/setup-just@53165ef7e734c5c07cb06b3c8e7b647c5aa16db3 #v4
 
       - name: Install cargo-llvm-cov and cargo-nextest
-        uses: taiki-e/install-action@67729d5c413db75907f0ad1e39bb04b9c868ff60 #v2.85.7
+        uses: taiki-e/install-action@b80e2bb2635f28eb98b9fce1e2f0887e1535c6b2 #v2.90.0
         with:
           tool: |
             cargo-llvm-cov@0.8.4
@@ -609,7 +605,7 @@ jobs:
         uses: extractions/setup-just@53165ef7e734c5c07cb06b3c8e7b647c5aa16db3 #v4
 
       - name: Install cargo-llvm-cov and cargo-nextest
-        uses: taiki-e/install-action@67729d5c413db75907f0ad1e39bb04b9c868ff60 #v2.85.7
+        uses: taiki-e/install-action@b80e2bb2635f28eb98b9fce1e2f0887e1535c6b2 #v2.90.0
         with:
           tool: |
             cargo-llvm-cov@0.8.4

@@ -1,9 +1,9 @@
-// Copyright: Ankitects Pty Ltd and contributors
+// Copyright: Anki Software, LLC and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 mod aqt;
 mod audio;
-mod cog;
+mod docs;
 mod installer;
 mod platform;
 mod pylib;
@@ -16,7 +16,7 @@ use std::env;
 use anyhow::Result;
 use aqt::build_and_check_aqt;
 use audio::build_audio;
-use cog::check_cog;
+use docs::check_docs;
 use installer::build_installer;
 use ninja_gen::glob;
 use ninja_gen::inputs;
@@ -56,6 +56,7 @@ fn main() -> Result<()> {
     build_rust(build)?;
     build_pylib(build)?;
     build_and_check_web(build)?;
+    check_docs(build)?;
     build_and_check_aqt(build)?;
 
     if env::var("OFFLINE_BUILD").is_err() {
@@ -66,7 +67,6 @@ fn main() -> Result<()> {
     check_rust(build)?;
     check_pylib(build)?;
     check_python(build)?;
-    check_cog(build)?;
 
     check_sql(build)?;
     check_minilints(build)?;

@@ -1,5 +1,5 @@
 <!--
-    Copyright: Ankitects Pty Ltd and contributors
+    Copyright: Anki Software, LLC and contributors
     License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
@@ -54,6 +54,14 @@
     h2 {
         margin-bottom: 1em;
         width: 100%;
+    }
+
+    h2 ~ :global(p) {
+        width: 100%;
+    }
+
+    .icon + :global(p) {
+        width: auto;
     }
 
     .chapter-redirect {

@@ -1,4 +1,4 @@
-// Copyright: Ankitects Pty Ltd and contributors
+// Copyright: Anki Software, LLC and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 use std::fmt::Write;
@@ -99,7 +99,7 @@ export { FluentBundle, FluentResource } from '@fluent/bundle';
 }
 
 fn header() -> String {
-    "// Copyright: Ankitects Pty Ltd and contributors
+    "// Copyright: Anki Software, LLC and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 "
