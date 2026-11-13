@@ -101,7 +101,9 @@ fn write_search_node(node: &SearchNode) -> String {
         CardIds(s) => format!("cid:{s}"),
         Property { operator, kind } => write_property(operator, kind),
         WholeCollection => "deck:*".to_string(),
-        Regex(s) => maybe_quote(&format!("re:{s}")),
+        // regexes are always quoted, so the user can keep editing one without
+        // re-adding the quotes that more complex patterns need
+        Regex(s) => quote(&format!("re:{s}")),
         NoCombining(s) => maybe_quote(&format!("nc:{s}")),
         StripClozes(s) => maybe_quote(&format!("sc:{s}")),
         WordBoundary(s) => maybe_quote(&format!("w:{s}")),
@@ -123,10 +125,15 @@ fn escape_comparators(text: &str) -> String {
 /// Escape double quotes and wrap in double quotes if necessary.
 fn maybe_quote(txt: &str) -> String {
     if needs_quotation(txt) {
-        format!("\"{}\"", txt.replace('\"', "\\\""))
+        quote(txt)
     } else {
         txt.replace('\"', "\\\"")
     }
+}
+
+/// Escape double quotes and wrap in double quotes.
+fn quote(txt: &str) -> String {
+    format!("\"{}\"", txt.replace('\"', "\\\""))
 }
 
 /// Checks for the reserved keywords "and" and "or", a prepended hyphen,
@@ -151,7 +158,13 @@ fn write_single_field(field: &str, text: &str, mode: FieldSearchMode) -> String 
     } else {
         text.to_string()
     };
-    maybe_quote(&format!("{}:{}{}", field.replace(':', "\\:"), prefix, text))
+    let search = format!("{}:{}{}", field.replace(':', "\\:"), prefix, text);
+    if mode == FieldSearchMode::Regex {
+        // like re:, see write_search_node()
+        quote(&search)
+    } else {
+        maybe_quote(&search)
+    }
 }
 
 fn write_template(template: &TemplateKind) -> String {
@@ -268,6 +281,40 @@ mod test {
         for input in [r"x\<5", "<b>", "a=b", "<=5", r"x\<a<5", r"x\\\<5"] {
             assert_eq!(input, normalize_search(input).unwrap(), "{input}");
         }
+    }
+
+    #[test]
+    fn regex_searches_stay_quoted() {
+        for (input, expected) in [
+            // quotes the user typed are kept, so the regex can be edited without
+            // re-adding them
+            (r#""re:foo""#, r#""re:foo""#),
+            (r#""re:\d""#, r#""re:\d""#),
+            (r#""front:re:te.*st""#, r#""front:re:te.*st""#),
+            (r#""tag:re:.ne|tw.""#, r#""tag:re:.ne|tw.""#),
+            // and added when the user typed none
+            ("re:foo", r#""re:foo""#),
+            ("front:re:foo", r#""front:re:foo""#),
+            ("-re:foo", r#"-"re:foo""#),
+            // escaped double quotes survive
+            (r#"re:te\"st"#, r#""re:te\"st""#),
+        ] {
+            let normalized = normalize_search(input).unwrap();
+            assert_eq!(expected, normalized, "{input}");
+            // the quoted form must still mean the same search
+            assert_eq!(
+                parse(input).unwrap(),
+                parse(&normalized).unwrap(),
+                "{input}"
+            );
+        }
+        // non-regex searches still lose redundant quotes
+        assert_eq!("front:foo", normalize_search(r#""front:foo""#).unwrap());
+        assert_eq!(
+            r"front:re\:foo",
+            normalize_search(r"front:re\:foo").unwrap()
+        );
+        assert_eq!("nc:foo", normalize_search(r#""nc:foo""#).unwrap());
     }
 
     #[test]
