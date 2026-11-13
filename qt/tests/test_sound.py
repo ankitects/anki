@@ -116,10 +116,5 @@ def test_mpvmanager_can_play_generated_wav(
     monkeypatch.setattr(
         MpvManager, "default_argv", MpvManager.default_argv + ["--ao=null", "--vo=null"]
     )
-    mock_mw = MagicMock()
-    mock_mw.taskman.run_in_background.side_effect = (
-        lambda task, on_done=None, **kwargs: task()
-    )
-    monkeypatch.setattr(aqt, "mw", mock_mw)
     manager = MpvManager(tmp_path, tmp_path)
     manager.play(SoundOrVideoTag(filename=str(generated_wav.name)), lambda _: None)
