@@ -39,11 +39,14 @@ class LinuxZipMixin(LinuxMixin):
     supports_external_packaging = True
     supported_env_managers: Collection[EnvManagerT] = {"venv", "uv"}
 
-    def version_name(self, app: FinalizedAppConfig):
-        return f"{app.app_name}-{app.version}{get_platform_suffix()}"
-
     def root_folder_name(self, app: FinalizedAppConfig) -> str:
-        return self.version_name(app)
+        # Briefcase normalizes app.version (26.09.3 -> 26.9.3), so use the
+        # version as given to build_installer.py, which names the final file.
+        version = getattr(app, "anki_version", None) or app.version
+        # The platform suffix ends in .tar so the .tar.zst extension survives
+        # the rename in build_installer.py; the folder itself shouldn't have it.
+        suffix = get_platform_suffix().removesuffix(".tar")
+        return f"{app.app_name}-{version}{suffix}"
 
     def project_path(self, app):
         return self.bundle_path(app) / app.app_name
@@ -53,7 +56,7 @@ class LinuxZipMixin(LinuxMixin):
 
     def distribution_filename(self, app: FinalizedAppConfig) -> str:
         app = cast(LinuxZipAppConfig, app)
-        return f"{self.version_name(app)}.tar.zst"
+        return f"{self.root_folder_name(app)}.tar.zst"
 
     def distribution_path(self, app: FinalizedAppConfig):
         return self.dist_path / self.distribution_filename(app)
