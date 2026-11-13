@@ -228,6 +228,7 @@ def show(mw: aqt.AnkiQt) -> QDialog:
             "Sagiv Marzini",
             "Zhanibek Rassululy",
             "Harvey Randall (hnvy)",
+            "Tuncay Kaptan",
         )
     )
 
