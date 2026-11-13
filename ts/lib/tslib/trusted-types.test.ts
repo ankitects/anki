@@ -4,7 +4,7 @@
 
 import { expect, test } from "vitest";
 
-import {untrustedHTML} from "./trusted-types";
+import { untrustedHTML } from "./trusted-types";
 
 test.each([
     ["script", "<script>alert(1)</script>"],
