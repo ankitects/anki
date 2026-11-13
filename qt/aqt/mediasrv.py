@@ -276,8 +276,13 @@ class MediaServer(threading.Thread):
             pass
 
     def register_webview(self, webview: AnkiWebView) -> int:
+        from aqt.webview import WebviewIdInterceptor
+
         webview_id = next(self._webview_counter)
         self._webviews[str(webview_id)] = webview
+        webview.page().setUrlRequestInterceptor(
+            WebviewIdInterceptor(webview, webview_id)
+        )
         return webview_id
 
     def get_webview(self, id: str) -> AnkiWebView | None:

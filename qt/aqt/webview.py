@@ -444,8 +444,7 @@ class AnkiWebView(QWebEngineView):
         self._kind = kind
         self.set_title(kind.value)
         self.setPage(AnkiWebPage(self._onBridgeCmd, kind, self))
-        webview_id = mw.mediaServer.register_webview(self)
-        self.page().setUrlRequestInterceptor(WebviewIdInterceptor(self, webview_id))
+        mw.mediaServer.register_webview(self)
         # reduce flicker
         self.page().setBackgroundColor(theme_manager.qcolor(colors.CANVAS))
 
