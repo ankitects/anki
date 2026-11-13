@@ -12,6 +12,8 @@ from unittest import mock
 
 import pytest
 
+from anki.collection import OpChanges
+from aqt import mediasrv
 from aqt.mediasrv import (
     TRUSTED_PAGE_CSP,
     UNTRUSTED_MEDIA_CSP,
@@ -30,6 +32,7 @@ from aqt.mediasrv import (
     is_localhost_origin,
     legacy_page_data,
 )
+from aqt.webview import AnkiWebView
 
 
 class TestEnsureSafePath:
@@ -495,3 +498,44 @@ class TestOpenLink:
     )
     def test_ignores_other_links(self, monkeypatch, url: str) -> None:
         self._open_link(monkeypatch, url).assert_not_called()
+
+
+class TestOperationRouting:
+    """Op changes from a webview request must not be echoed back to that webview."""
+
+    def test_op_changes_are_attributed_to_originating_webview(self) -> None:
+        changes = OpChanges(note_text=True)
+        webview = mock.Mock()
+        with (
+            mock.patch("aqt.mw") as mw,
+            mock.patch.object(mediasrv, "on_op_finished") as on_op_finished,
+            mediasrv.app.test_request_context(
+                method="POST",
+                data=b"",
+                headers={"Anki-Op-Changes": "1", "Anki-Webview-Id": "7"},
+            ),
+        ):
+            mw.col._backend.update_notes_raw.return_value = changes.SerializeToString()
+            mw.mediaServer.get_webview.side_effect = lambda id: (
+                webview if id == "7" else None
+            )
+            mw.taskman.run_on_main.side_effect = lambda fn: fn()
+
+            mediasrv.raw_backend_request("update_notes")()
+
+        on_op_finished.assert_called_once_with(mw, changes, webview)
+
+    def test_webview_does_not_receive_its_own_operations(self) -> None:
+        webview = mock.Mock(spec=AnkiWebView)
+        AnkiWebView.on_operation_did_execute(
+            webview, OpChanges(note_text=True), webview
+        )
+        webview.eval.assert_not_called()
+
+    def test_webview_receives_operations_from_elsewhere(self) -> None:
+        webview = mock.Mock(spec=AnkiWebView)
+        AnkiWebView.on_operation_did_execute(
+            webview, OpChanges(note_text=True), object()
+        )
+        webview.eval.assert_called_once()
+        assert "onOperationDidExecute" in webview.eval.call_args.args[0]
