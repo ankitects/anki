@@ -1253,7 +1253,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     }
 
     async function reloadNote() {
-        await loadNote(initialLoadArgs!);
+        // initialLoadArgs still carries the focusTo value the note was originally
+        // opened with, so replaying it verbatim sends the cursor to that field.
+        // Keep the user in the field they were last editing instead.
+        await loadNote({ ...initialLoadArgs!, focusTo: lastFocusedFieldIndex });
     }
 
     async function reloadNoteIfEmpty(deckId: bigint | null, notetypeId: bigint | null) {
@@ -1383,6 +1386,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     const focusedField: NoteEditorAPI["focusedField"] = writable(null);
     const focusedInput: NoteEditorAPI["focusedInput"] = writable(null);
     let focusedFieldIndex = 0;
+    // Unlike focusedFieldIndex, this is not cleared when a field loses focus, so
+    // a reload that happens while no field has focus (eg. after a save) can put
+    // the cursor back where the user left it, instead of the first field.
+    let lastFocusedFieldIndex = 0;
     const focusEventQueue = new SerialQueue();
 
     const api: NoteEditorAPI = {
@@ -1502,6 +1509,7 @@ components and functionality for general note editing.
                         focusEventQueue.run(async () => {
                             $focusedField = fields[index];
                             focusedFieldIndex = index;
+                            lastFocusedFieldIndex = index;
                             setAddonButtonsDisabled(false);
                             bridgeCommand(`focus:${index}`);
                         })}
