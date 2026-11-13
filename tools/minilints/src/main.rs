@@ -48,6 +48,7 @@ fn main() -> Result<()> {
     let mut ctx = LintContext::new(want_fix);
     ctx.check_contributors()?;
     ctx.check_rust_licenses()?;
+    ctx.check_ts_licenses()?;
     ctx.walk_folders(Path::new("."))?;
     if ctx.found_problems {
         std::process::exit(1);
@@ -219,7 +220,7 @@ impl LintContext {
 
     fn check_rust_licenses(&mut self) -> Result<()> {
         let license_path = Path::new("cargo/licenses.json");
-        let licenses = generate_licences()?;
+        let licenses = generate_rust_licences()?;
         let existing_licenses = read_to_string(license_path)?;
         if licenses != existing_licenses {
             if self.want_fix {
@@ -227,6 +228,21 @@ impl LintContext {
                 write_file(license_path, licenses)?;
             } else {
                 println!("cargo/licenses.json is out of date; run ./ninja fix:minilints");
+                self.found_problems = true;
+            }
+        }
+        Ok(())
+    }
+
+    fn check_ts_licenses(&mut self) -> Result<()> {
+        let license_path = Path::new("ts/licenses.json");
+        let licenses = generate_ts_licenses()?;
+        let existing_licenses = read_to_string(license_path)?;
+        if licenses != existing_licenses {
+            if self.want_fix {
+                write_file(license_path, licenses)?;
+            } else {
+                println!("ts/licenses.json is out of date; run ./ninja fix:minilints");
                 self.found_problems = true;
             }
         }
@@ -314,7 +330,7 @@ fn check_for_unstaged_changes() {
     }
 }
 
-fn generate_licences() -> Result<String> {
+fn generate_rust_licences() -> Result<String> {
     Command::run("cargo install cargo-license@0.7.0")?;
     let output = Command::run_with_output([
         "cargo-license",
@@ -338,4 +354,22 @@ fn generate_licences() -> Result<String> {
         .collect();
 
     Ok(serde_json::to_string_pretty(&filtered)?)
+}
+
+fn generate_ts_licenses() -> Result<String> {
+    let bundled = if cfg!(windows) {
+        "out/extracted/node/yarn.cmd"
+    } else {
+        "out/extracted/node/bin/yarn"
+    };
+    let yarn = if Path::new(bundled).exists() {
+        bundled
+    } else if cfg!(windows) {
+        "yarn.cmd"
+    } else {
+        "yarn"
+    };
+    let output = Command::run_with_output([yarn, "run", "generate-licenses"])?;
+
+    Ok(output.stdout)
 }

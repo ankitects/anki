@@ -5,28 +5,28 @@
         "path": "node_modules/@bufbuild/protobuf",
         "licenseFile": "node_modules/@bufbuild/protobuf/README.md"
     },
-    "@floating-ui/core@1.6.8": {
+    "@floating-ui/core@1.8.0": {
         "licenses": "MIT",
         "repository": "https://github.com/floating-ui/floating-ui",
         "publisher": "atomiks",
         "path": "node_modules/@floating-ui/core",
         "licenseFile": "node_modules/@floating-ui/core/LICENSE"
     },
-    "@floating-ui/dom@1.6.11": {
+    "@floating-ui/dom@1.8.0": {
         "licenses": "MIT",
         "repository": "https://github.com/floating-ui/floating-ui",
         "publisher": "atomiks",
         "path": "node_modules/@floating-ui/dom",
         "licenseFile": "node_modules/@floating-ui/dom/LICENSE"
     },
-    "@floating-ui/utils@0.2.8": {
+    "@floating-ui/utils@0.2.12": {
         "licenses": "MIT",
         "repository": "https://github.com/floating-ui/floating-ui",
         "publisher": "atomiks",
         "path": "node_modules/@floating-ui/utils",
         "licenseFile": "node_modules/@floating-ui/utils/LICENSE"
     },
-    "@fluent/bundle@0.18.0": {
+    "@fluent/bundle@0.19.1": {
         "licenses": "Apache-2.0",
         "repository": "https://github.com/projectfluent/fluent.js",
         "publisher": "Mozilla",
@@ -49,7 +49,7 @@
         "path": "node_modules/@popperjs/core",
         "licenseFile": "node_modules/@popperjs/core/LICENSE.md"
     },
-    "@tootallnate/once@2.0.0": {
+    "@tootallnate/once@2.0.1": {
         "licenses": "MIT",
         "repository": "https://github.com/TooTallNate/once",
         "publisher": "Nathan Rajlich",
@@ -106,14 +106,14 @@
         "path": "node_modules/asynckit",
         "licenseFile": "node_modules/asynckit/LICENSE"
     },
-    "bootstrap-icons@1.11.3": {
+    "bootstrap-icons@1.13.1": {
         "licenses": "MIT",
         "repository": "https://github.com/twbs/icons",
         "publisher": "mdo",
         "path": "node_modules/bootstrap-icons",
         "licenseFile": "node_modules/bootstrap-icons/LICENSE"
     },
-    "bootstrap@5.3.3": {
+    "bootstrap@5.3.8": {
         "licenses": "MIT",
         "repository": "https://github.com/twbs/bootstrap",
         "publisher": "The Bootstrap Authors",
@@ -461,8 +461,8 @@
         "repository": "https://github.com/ljharb/es-define-property",
         "publisher": "Jordan Harband",
         "email": "ljharb@gmail.com",
-        "path": "node_modules/form-data/node_modules/es-define-property",
-        "licenseFile": "node_modules/form-data/node_modules/es-define-property/LICENSE"
+        "path": "node_modules/es-define-property",
+        "licenseFile": "node_modules/es-define-property/LICENSE"
     },
     "es-errors@1.3.0": {
         "licenses": "MIT",
@@ -485,16 +485,16 @@
         "repository": "https://github.com/ljharb/es-object-atoms",
         "publisher": "Jordan Harband",
         "email": "ljharb@gmail.com",
-        "path": "node_modules/form-data/node_modules/es-object-atoms",
-        "licenseFile": "node_modules/form-data/node_modules/es-object-atoms/LICENSE"
+        "path": "node_modules/es-set-tostringtag/node_modules/es-object-atoms",
+        "licenseFile": "node_modules/es-set-tostringtag/node_modules/es-object-atoms/LICENSE"
     },
     "es-set-tostringtag@2.1.0": {
         "licenses": "MIT",
         "repository": "https://github.com/es-shims/es-set-tostringtag",
         "publisher": "Jordan Harband",
         "email": "ljharb@gmail.com",
-        "path": "node_modules/form-data/node_modules/es-set-tostringtag",
-        "licenseFile": "node_modules/form-data/node_modules/es-set-tostringtag/LICENSE"
+        "path": "node_modules/es-set-tostringtag",
+        "licenseFile": "node_modules/es-set-tostringtag/LICENSE"
     },
     "escodegen@2.1.0": {
         "licenses": "BSD-2-Clause",
@@ -530,7 +530,7 @@
         "path": "node_modules/fabric",
         "licenseFile": "node_modules/fabric/LICENSE"
     },
-    "form-data@4.0.4": {
+    "form-data@4.0.6": {
         "licenses": "MIT",
         "repository": "https://github.com/form-data/form-data",
         "publisher": "Felix Geisendörfer",
@@ -551,8 +551,8 @@
         "repository": "https://github.com/ljharb/get-intrinsic",
         "publisher": "Jordan Harband",
         "email": "ljharb@gmail.com",
-        "path": "node_modules/form-data/node_modules/get-intrinsic",
-        "licenseFile": "node_modules/form-data/node_modules/get-intrinsic/LICENSE"
+        "path": "node_modules/es-set-tostringtag/node_modules/get-intrinsic",
+        "licenseFile": "node_modules/es-set-tostringtag/node_modules/get-intrinsic/LICENSE"
     },
     "get-proto@1.0.1": {
         "licenses": "MIT",
@@ -567,8 +567,8 @@
         "repository": "https://github.com/ljharb/gopd",
         "publisher": "Jordan Harband",
         "email": "ljharb@gmail.com",
-        "path": "node_modules/dunder-proto/node_modules/gopd",
-        "licenseFile": "node_modules/dunder-proto/node_modules/gopd/LICENSE"
+        "path": "node_modules/gopd",
+        "licenseFile": "node_modules/gopd/LICENSE"
     },
     "hammerjs@2.0.8": {
         "licenses": "MIT",
@@ -583,16 +583,16 @@
         "repository": "https://github.com/inspect-js/has-symbols",
         "publisher": "Jordan Harband",
         "email": "ljharb@gmail.com",
-        "path": "node_modules/has-symbols",
-        "licenseFile": "node_modules/has-symbols/LICENSE"
+        "path": "node_modules/has-tostringtag/node_modules/has-symbols",
+        "licenseFile": "node_modules/has-tostringtag/node_modules/has-symbols/LICENSE"
     },
     "has-symbols@1.1.0": {
         "licenses": "MIT",
         "repository": "https://github.com/inspect-js/has-symbols",
         "publisher": "Jordan Harband",
         "email": "ljharb@gmail.com",
-        "path": "node_modules/form-data/node_modules/has-symbols",
-        "licenseFile": "node_modules/form-data/node_modules/has-symbols/LICENSE"
+        "path": "node_modules/has-symbols",
+        "licenseFile": "node_modules/has-symbols/LICENSE"
     },
     "has-tostringtag@1.0.2": {
         "licenses": "MIT",
@@ -609,6 +609,14 @@
         "email": "ljharb@gmail.com",
         "path": "node_modules/hasown",
         "licenseFile": "node_modules/hasown/LICENSE"
+    },
+    "hasown@2.0.4": {
+        "licenses": "MIT",
+        "repository": "https://github.com/inspect-js/hasOwn",
+        "publisher": "Jordan Harband",
+        "email": "ljharb@gmail.com",
+        "path": "node_modules/form-data/node_modules/hasown",
+        "licenseFile": "node_modules/form-data/node_modules/hasown/LICENSE"
     },
     "html-encoding-sniffer@3.0.0": {
         "licenses": "MIT",
@@ -684,7 +692,7 @@
         "path": "node_modules/jsdom",
         "licenseFile": "node_modules/jsdom/LICENSE.txt"
     },
-    "lodash-es@4.17.23": {
+    "lodash-es@4.18.1": {
         "licenses": "MIT",
         "repository": "https://github.com/lodash/lodash",
         "publisher": "John-David Dalton",
@@ -915,7 +923,7 @@
         "path": "node_modules/whatwg-url",
         "licenseFile": "node_modules/whatwg-url/LICENSE.txt"
     },
-    "ws@8.18.0": {
+    "ws@8.21.0": {
         "licenses": "MIT",
         "repository": "https://github.com/websockets/ws",
         "publisher": "Einar Otto Stangvik",
