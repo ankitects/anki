@@ -16,14 +16,17 @@ if (typeof trustedTypes === "undefined") {
 }
 
 trustedTypes!.createPolicy("default", {
-    createHTML(_input: string) {
-        throw TypeError("Please refactor this code to use the Trusted Types API");
+    createHTML(input: string) {
+        console.trace("Raw string passed to HTML sink:", input);
+        return input;
     },
-    createScript(_input: string) {
-        throw TypeError("Please refactor this code to use the Trusted Types API");
+    createScript(input: string) {
+        console.trace("Raw string passed to JavaScript sink:", input);
+        return input;
     },
-    createScriptURL(_input: string) {
-        throw TypeError("Please refactor this code to use the Trusted Types API");
+    createScriptURL(input: string) {
+        console.trace("Raw string passed to JavaScript URL sink:", input);
+        return input;
     },
 });
 

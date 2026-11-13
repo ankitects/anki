@@ -24,7 +24,7 @@ const viteConfig = defineViteConfig({
         svg({
             svgoOptions: { plugins: [{ name: "cleanupIds", params: { remove: false } }] },
             // The default component uses {@html "<path …/>"} with a plain string,
-            // which the default Trusted Types policy rejects.
+            // which our default Trusted Types policy warns about.
             preCompileHook: (_raw, { attributes, content }) =>
                 `<script>import { trustedHTML } from "@tslib/trusted-types";</script>`
                 + `<svg ${attributes ?? ""} {...$$props}>{@html trustedHTML(${JSON.stringify(content ?? "")})}</svg>`,
