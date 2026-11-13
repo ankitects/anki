@@ -40,7 +40,7 @@ function packCustomData(
     states.easy!.customData = JSON.stringify(customData.easy);
 }
 
-type StateMutatorFn = (states: JsonValue, customData: CustomDataStates, ctx: SchedulingContext) => Promise<void>;
+export type StateMutatorFn = (states: JsonValue, customData: CustomDataStates, ctx: SchedulingContext) => Promise<void>;
 
 export async function mutateNextCardStates(
     key: string,
@@ -51,7 +51,6 @@ export async function mutateNextCardStates(
     await setSchedulingStates({ key, states: updatedStates });
 }
 
-/** Exported only for tests */
 export async function applyStateTransform(
     states: SchedulingStatesWithContext,
     transform: StateMutatorFn,
