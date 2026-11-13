@@ -131,7 +131,7 @@ _SVELTEKIT_CSP_META_RE = re.compile(
 def _sveltekit_render_script_hash(html: bytes) -> str | None:
     """Extract the hash SvelteKit computed for its inline render script.
 
-    SvelteKit (csp.mode = 'hash' in svelte.config.js) bakes this into a
+    SvelteKit (csp.mode = 'hash' in ts/vite.config.ts) bakes this into a
     <meta http-equiv="content-security-policy"> tag in the built HTML.
     """
     match = _SVELTEKIT_CSP_META_RE.search(html)

@@ -4,9 +4,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
     import * as tr from "@generated/ftl";
-    import DynamicallySlottable from "$lib/components/DynamicallySlottable.svelte";
-    import Item from "$lib/components/Item.svelte";
-    import TitledContainer from "$lib/components/TitledContainer.svelte";
+    import DynamicallySlottable from "#lib/components/DynamicallySlottable.svelte";
+    import Item from "#lib/components/Item.svelte";
+    import TitledContainer from "#lib/components/TitledContainer.svelte";
     import type { DeckOptionsState } from "./lib";
     import Warning from "./Warning.svelte";
     import EasyDaysInput from "./EasyDaysInput.svelte";

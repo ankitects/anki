@@ -5,15 +5,15 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <script lang="ts">
     import * as tr from "@generated/ftl";
 
-    import CheckBox from "$lib/components/CheckBox.svelte";
-    import DropdownItem from "$lib/components/DropdownItem.svelte";
-    import Icon from "$lib/components/Icon.svelte";
-    import IconButton from "$lib/components/IconButton.svelte";
-    import { cogIcon } from "$lib/components/icons";
-    import Popover from "$lib/components/Popover.svelte";
-    import WithFloating from "$lib/components/WithFloating.svelte";
+    import CheckBox from "#lib/components/CheckBox.svelte";
+    import DropdownItem from "#lib/components/DropdownItem.svelte";
+    import Icon from "#lib/components/Icon.svelte";
+    import IconButton from "#lib/components/IconButton.svelte";
+    import { cogIcon } from "#lib/components/icons.js";
+    import Popover from "#lib/components/Popover.svelte";
+    import WithFloating from "#lib/components/WithFloating.svelte";
 
-    import { mathjaxConfig } from "$lib/editable/mathjax-element.svelte";
+    import { mathjaxConfig } from "#lib/editable/mathjax-element.svelte.js";
     import { shrinkImagesByDefault } from "../image-overlay/ImageOverlay.svelte";
     import { closeHTMLTags } from "../plain-text-input/PlainTextInput.svelte";
     import { setColConfig } from "@tslib/profile";

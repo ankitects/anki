@@ -10,8 +10,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { createEventDispatcher, onMount } from "svelte";
     import Modal from "./Modal.svelte";
 
-    import { infoCircle } from "$lib/components/icons";
-    import { pageTheme } from "$lib/sveltelib/theme";
+    import { infoCircle } from "#lib/components/icons.js";
+    import { pageTheme } from "#lib/sveltelib/theme.js";
 
     import Badge from "./Badge.svelte";
     import Col from "./Col.svelte";

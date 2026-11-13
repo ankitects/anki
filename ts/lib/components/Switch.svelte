@@ -3,7 +3,7 @@ Copyright: Anki Software, LLC and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
-    import { pageTheme } from "$lib/sveltelib/theme";
+    import { pageTheme } from "#lib/sveltelib/theme.js";
 
     export let id: string | undefined;
     export let value: boolean;

@@ -5,11 +5,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <script lang="ts">
     import { writable } from "svelte/store";
 
-    import Col from "$lib/components/Col.svelte";
-    import ConfigInput from "$lib/components/ConfigInput.svelte";
-    import RevertButton from "$lib/components/RevertButton.svelte";
-    import Row from "$lib/components/Row.svelte";
-    import type { Breakpoint } from "$lib/components/types";
+    import Col from "#lib/components/Col.svelte";
+    import ConfigInput from "#lib/components/ConfigInput.svelte";
+    import RevertButton from "#lib/components/RevertButton.svelte";
+    import Row from "#lib/components/Row.svelte";
+    import type { Breakpoint } from "#lib/components/types.js";
 
     import TagEditor from "./TagEditor.svelte";
 

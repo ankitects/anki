@@ -10,13 +10,13 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import type Carousel from "bootstrap/js/dist/carousel";
     import type Modal from "bootstrap/js/dist/modal";
 
-    import EnumSelectorRow from "$lib/components/EnumSelectorRow.svelte";
-    import HelpModal from "$lib/components/HelpModal.svelte";
-    import Row from "$lib/components/Row.svelte";
-    import SettingTitle from "$lib/components/SettingTitle.svelte";
-    import SwitchRow from "$lib/components/SwitchRow.svelte";
-    import TitledContainer from "$lib/components/TitledContainer.svelte";
-    import type { HelpItem } from "$lib/components/types";
+    import EnumSelectorRow from "#lib/components/EnumSelectorRow.svelte";
+    import HelpModal from "#lib/components/HelpModal.svelte";
+    import Row from "#lib/components/Row.svelte";
+    import SettingTitle from "#lib/components/SettingTitle.svelte";
+    import SwitchRow from "#lib/components/SwitchRow.svelte";
+    import TitledContainer from "#lib/components/TitledContainer.svelte";
+    import type { HelpItem } from "#lib/components/types.js";
 
     import ImportPage from "../import-page/ImportPage.svelte";
     import { updateChoices } from "./choices";

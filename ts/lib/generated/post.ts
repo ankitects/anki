@@ -40,7 +40,7 @@ async function postProtoInner(
     const result = await fetch(url, {
         method: "POST",
         headers: { "Content-Type": "application/binary", "Anki-Op-Changes": opChangesType.toString() },
-        body,
+        body: body as Uint8Array<ArrayBuffer>,
         signal,
     });
     if (!result.ok) {

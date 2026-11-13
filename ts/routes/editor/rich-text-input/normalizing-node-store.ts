@@ -1,10 +1,10 @@
 // Copyright: Anki Software, LLC and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-import type { NodeStore } from "$lib/sveltelib/node-store";
-import { nodeStore } from "$lib/sveltelib/node-store";
+import type { NodeStore } from "#lib/sveltelib/node-store.js";
+import { nodeStore } from "#lib/sveltelib/node-store.js";
 
-import type { DecoratedElement } from "$lib/editable/decorated";
+import type { DecoratedElement } from "#lib/editable/decorated.js";
 import { decoratedElements } from "../decorated-elements";
 
 function normalizeFragment(fragment: DocumentFragment): void {

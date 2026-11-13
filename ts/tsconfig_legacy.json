@@ -36,11 +36,10 @@
             "..",
             "../out"
         ],
-        "baseUrl": ".",
         "paths": {
             "@generated/*": ["../out/ts/lib/generated/*"],
-            "@tslib/*": ["lib/tslib/*"],
-            "$lib/*": ["lib/*"]
+            "@tslib/*": ["./lib/tslib/*"],
+            "#lib/*": ["./lib/*"]
         },
         "types": [],
         "verbatimModuleSyntax": true,
@@ -52,7 +51,7 @@
         "strictPropertyInitialization": true,
         "noImplicitThis": true,
         "alwaysStrict": true,
-        "moduleResolution": "node",
+        "moduleResolution": "bundler",
         "allowSyntheticDefaultImports": true,
         "esModuleInterop": true,
         "jsx": "react",

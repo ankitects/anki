@@ -7,9 +7,9 @@ import { on } from "@tslib/events";
 import type { Unsubscriber } from "svelte/store";
 import { get } from "svelte/store";
 
-import { moveChildOutOfElement } from "$lib/domlib/move-nodes";
-import { placeCaretAfter } from "$lib/domlib/place-caret";
-import { isComposing } from "$lib/sveltelib/composition";
+import { moveChildOutOfElement } from "#lib/domlib/move-nodes.js";
+import { placeCaretAfter } from "#lib/domlib/place-caret.js";
+import { isComposing } from "#lib/sveltelib/composition.js";
 
 import type { FrameElement } from "./frame-element";
 

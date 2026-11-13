@@ -3,12 +3,12 @@ Copyright: Anki Software, LLC and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
-    /* import type { SlotHostProps } from "$lib/sveltelib/dynamic-slotting"; */
+    /* import type { SlotHostProps } from "#lib/sveltelib/dynamic-slotting.js"; */
     import dynamicSlotting, {
         defaultInterface,
         defaultProps,
         setSlotHostContext as defaultContext,
-    } from "$lib/sveltelib/dynamic-slotting";
+    } from "#lib/sveltelib/dynamic-slotting.js";
 
     function id<T>(value: T): T {
         return value;

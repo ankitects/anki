@@ -9,11 +9,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { createEventDispatcher } from "svelte";
     import { get } from "svelte/store";
 
-    import ButtonGroup from "$lib/components/ButtonGroup.svelte";
-    import Icon from "$lib/components/Icon.svelte";
-    import IconButton from "$lib/components/IconButton.svelte";
-    import { clozeIcon, incrementClozeIcon } from "$lib/components/icons";
-    import Shortcut from "$lib/components/Shortcut.svelte";
+    import ButtonGroup from "#lib/components/ButtonGroup.svelte";
+    import Icon from "#lib/components/Icon.svelte";
+    import IconButton from "#lib/components/IconButton.svelte";
+    import { clozeIcon, incrementClozeIcon } from "#lib/components/icons.js";
+    import Shortcut from "#lib/components/Shortcut.svelte";
 
     import { context as noteEditorContext } from "./NoteEditor.svelte";
     import { editingInputIsRichText } from "./rich-text-input";

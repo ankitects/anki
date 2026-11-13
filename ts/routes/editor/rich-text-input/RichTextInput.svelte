@@ -5,9 +5,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <script context="module" lang="ts">
     import { writable } from "svelte/store";
 
-    import type { InputHandlerAPI } from "$lib/sveltelib/input-handler";
+    import type { InputHandlerAPI } from "#lib/sveltelib/input-handler.js";
 
-    import type { ContentEditableAPI } from "$lib/editable/ContentEditable.svelte";
+    import type { ContentEditableAPI } from "#lib/editable/ContentEditable.svelte";
     import type { EditingInputAPI, FocusableInputAPI } from "../EditingArea.svelte";
     import type { SurroundedAPI } from "../surround";
 
@@ -33,8 +33,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
     import { registerPackage } from "@tslib/runtime-require";
 
-    import contextProperty from "$lib/sveltelib/context-property";
-    import lifecycleHooks from "$lib/sveltelib/lifecycle-hooks";
+    import contextProperty from "#lib/sveltelib/context-property.js";
+    import lifecycleHooks from "#lib/sveltelib/lifecycle-hooks.js";
 
     import { Surrounder } from "../surround";
 
@@ -69,12 +69,12 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { getAllContexts, getContext, mount, onMount, tick } from "svelte";
     import type { Readable } from "svelte/store";
 
-    import { placeCaretAfterContent } from "$lib/domlib/place-caret";
-    import useDOMMirror from "$lib/sveltelib/dom-mirror";
-    import useInputHandler from "$lib/sveltelib/input-handler";
-    import { pageTheme } from "$lib/sveltelib/theme";
+    import { placeCaretAfterContent } from "#lib/domlib/place-caret.js";
+    import useDOMMirror from "#lib/sveltelib/dom-mirror.js";
+    import useInputHandler from "#lib/sveltelib/input-handler.js";
+    import { pageTheme } from "#lib/sveltelib/theme.js";
 
-    import ContentEditable from "$lib/editable/ContentEditable.svelte";
+    import ContentEditable from "#lib/editable/ContentEditable.svelte";
     import { context as editingAreaContext } from "../EditingArea.svelte";
     import { Flag } from "../helpers";
     import { context as noteEditorContext } from "../NoteEditor.svelte";

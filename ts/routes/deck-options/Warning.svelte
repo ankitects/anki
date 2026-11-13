@@ -6,7 +6,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { withoutUnicodeIsolation } from "@tslib/i18n";
     import { slide } from "svelte/transition";
 
-    import Row from "$lib/components/Row.svelte";
+    import Row from "#lib/components/Row.svelte";
 
     export let warning: string;
     export let className = "alert-warning";

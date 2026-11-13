@@ -6,10 +6,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import type { GraphsResponse } from "@generated/anki/stats_pb";
     import * as tr from "@generated/ftl";
     import { HelpPage } from "@tslib/help-page";
-    import HelpModal from "$lib/components/HelpModal.svelte";
+    import HelpModal from "#lib/components/HelpModal.svelte";
     import type Carousel from "bootstrap/js/dist/carousel";
     import type Modal from "bootstrap/js/dist/modal";
-    import type { HelpItem } from "$lib/components/types";
+    import type { HelpItem } from "#lib/components/types.js";
 
     import { type RevlogRange } from "./graph-helpers";
     import { DisplayMode, type PeriodTrueRetentionData, Scope } from "./true-retention";
