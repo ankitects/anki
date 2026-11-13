@@ -249,7 +249,9 @@ pub fn check_minilints(build: &mut Build) -> Result<()> {
             "{target,extra,.mypy_cache,node_modules,ts/.svelte-kit}/**"
         ],
         "Cargo.lock",
-        ":node_modules"
+        "cargo/licenses.json",
+        ":node_modules",
+        "ts/licenses.json",
     ];
 
     build.add_action(
