@@ -119,7 +119,7 @@ impl Collection {
     }
 }
 
-fn default_template_map(
+pub(super) fn default_template_map(
     current_notetype: &Notetype,
     new_notetype: &Notetype,
 ) -> Option<Vec<Option<usize>>> {
@@ -171,7 +171,10 @@ fn default_template_map(
     }
 }
 
-fn default_field_map(current_notetype: &Notetype, new_notetype: &Notetype) -> Vec<Option<usize>> {
+pub(super) fn default_field_map(
+    current_notetype: &Notetype,
+    new_notetype: &Notetype,
+) -> Vec<Option<usize>> {
     // name -> (ordinal, is_used)
     let mut existing_fields: HashMap<&str, (usize, bool)> = current_notetype
         .fields
