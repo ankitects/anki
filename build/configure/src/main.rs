@@ -46,12 +46,12 @@ fn main() -> Result<()> {
     let build = &mut build;
 
     setup_protoc(build)?;
-    check_proto(build, inputs![glob!["proto/**/*.proto"]])?;
 
     if env::var("OFFLINE_BUILD").is_err() {
         setup_uv(build, build.host_platform)?;
     }
     setup_venv(build)?;
+    check_proto(build, inputs![glob!["proto/**/*.proto"]])?;
 
     build_rust(build)?;
     build_pylib(build)?;
