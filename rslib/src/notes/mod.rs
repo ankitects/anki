@@ -971,6 +971,8 @@ mod test {
         assert_eq!(note.fields[0], "bar");
 
         // Note is not marked as modified if no changes
+        note.checksum = None;
+        note.sort_field = None;
         let mtime = note.mtime;
         col.update_note(&mut note)?;
         assert_eq!(note.mtime, mtime);
