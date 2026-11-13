@@ -3,6 +3,8 @@
 
 from __future__ import annotations
 
+from collections.abc import Sequence
+
 from anki.collection import OpChanges, OpChangesWithId
 from anki.models import ChangeNotetypeRequest, NotetypeDict, NotetypeId
 from anki.stdmodels import StockNotetypeKind
@@ -35,6 +37,14 @@ def remove_notetype(
     notetype_id: NotetypeId,
 ) -> CollectionOp[OpChanges]:
     return CollectionOp(parent, lambda col: col.models.remove(notetype_id))
+
+
+def remove_notetypes(
+    *,
+    parent: QWidget,
+    notetype_ids: Sequence[NotetypeId],
+) -> CollectionOp[OpChanges]:
+    return CollectionOp(parent, lambda col: col.models.remove_multiple(notetype_ids))
 
 
 def change_notetype_of_notes(
