@@ -1,0 +1,46 @@
+---
+title: "学習画面の JavaScript"
+---
+
+カードの学習に限らない一般的な方法については、[Web ビューのセクション](./hooks-and-filters#webview)をご覧ください。
+
+Anki には、学習画面、プレビュー画面、カードレイアウト画面に表示する前に、問題と解答の HTML を変更するフックがあります。カードに JavaScript を追加する際に便利です。カードから外部リソースを読み込む場合は、[Web ビューで外部リソースを管理する](./hooks-and-filters#managing-external-resources-in-webviews)をご覧ください。
+
+例:
+
+```python
+from aqt import gui_hooks
+def prepare(html, card, context):
+    return html + """
+<script>
+document.body.style.background = "blue";
+</script>"""
+gui_hooks.card_will_show.append(prepare)
+```
+
+このフックには3つの引数が渡されます。問題または解答の HTML、現在のカードオブジェクト（たとえば特定のノートタイプだけを対象にできます）、フックが実行されている状況を表す文字列です。
+
+変更した HTML を返してください。
+
+状況を表す値は、`"reviewQuestion"`、`"reviewAnswer"`、`"clayoutQuestion"`、`"clayoutAnswer"`、`"previewQuestion"`、`"previewAnswer"` のいずれかです。
+
+カードレイアウト画面の解答プレビューと、「両面を表示」に設定されたプレビューでは、`"Answer"` の状況だけが使われます。そのため、カードの裏面に追加する JavaScript は、表面にだけ追加される JavaScript に依存しないようにしてください。
+
+Anki は新しいテキストを表示する前に前のテキストをフェードアウトします。そのため、適切なタイミングでスクロールするなどの処理には、JavaScript のフックが必要です。次のように使えます。
+
+```python
+from aqt import gui_hooks
+def prepare(html, card, context):
+    return html + """
+<script>
+onUpdateHook.push(function () {
+    window.scrollTo(0, 2000);
+})
+</script>"""
+gui_hooks.card_will_show.append(prepare)
+```
+
+- `onUpdateHook` は、新しいカードが DOM に追加された後、表示される前に実行されます。
+- `onShownHook` は、カードがフェードインした後に実行されます。
+
+問題または解答を表示するたびに、フックはリセットされます。

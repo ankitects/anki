@@ -1,0 +1,272 @@
+---
+title: "数式と記号"
+sidebarTitle: "数式と記号"
+description: "数式と記号"
+---
+
+## MathJax
+
+[MathJax](https://www.mathjax.org)は、数式や化学式などの組版に便利な、最新のブラウザー上で動作するシステムです。追加ソフトウェアのインストールが不要で簡単に使えるため、ほとんどのユーザーにおすすめです。
+
+MathJaxはAnki 2.1以降、AnkiMobile、AnkiDroid 2.9以降で初期状態から使えます。
+
+試してみましょう。
+
+1. フィールドに次の内容を入力します。
+
+```text
+       \sqrt{x}
+```
+
+2. 入力したテキストを選択します。
+
+3. エディターの一番右にあるボタンをクリックし、メニューから「MathJaxインライン」を選びます。テキストが次のように変わります。
+
+```text
+       \(\sqrt{x}\)
+```
+
+4. **カード...** ボタンをクリックします。カードを復習するときに数式がどのように表示されるか、プレビューで確認できます。
+
+        $$
+        \sqrt\{x\}
+        $$
+
+AnkiのMathJaxはTeX形式の内容を想定しています。TeXの書式に慣れていない場合は、[こちらの早見表](https://math.meta.stackexchange.com/questions/5020/mathjax-basic-tutorial-and-quick-reference)を参照してください。なお、手順1の記法はAnkiでは使いません。Ankiではインライン数式に`\(`と`\)`を、別行立ての数式に`\[`と`\]`を使います。
+
+MathJaxの式に改行を入れる場合は、通常の<kbd>Enter</kbd>ではなく<kbd>Shift</kbd>+<kbd>Enter</kbd>を使ってください。通常の改行を入れると、MathJaxが正しく動作しなくなります。
+
+Ankiには、化学式を表示するためのmhchem対応機能が組み込まれています。詳しくは「化学式」の節と、その後の節を参照してください。
+[https://mhchem.github.io/MathJax-mhchem/](https://mhchem.github.io/MathJax-mhchem/)
+
+### MathJaxをカスタマイズする
+
+Ankiに組み込まれたMathJaxはカードの内容より先に読み込まれます。そのため、MathJaxをカスタマイズするには決められた方法で行う必要があります。次に例を示します。
+
+```javascript
+<script>
+MathJax.config.tex['macros'] = {
+    R: '{\\mathbb {R}}',
+};
+if (typeof is_already_run == 'undefined') {
+  is_already_run = true
+  MathJax.startup.getComponents();
+}
+</script>
+```
+
+<Note>
+    Ankiには穴埋め削除用の特別な処理があります。MathJax数式の初期設定の区切り記号を変更すると、この処理が正しく動かなくなることがあります。
+</Note>
+
+## LaTeX
+
+LaTeXは、数式、化学式、楽譜などの入力に使える高機能な組版システムです。AnkiではLaTeXコードをノートに入力できるよう、一部の機能に対応しています。カードを復習すると、AnkiがLaTeXを呼び出して生成した画像を表示します。
+
+LaTeXは設定に手間がかかり、画像を生成できるのはAnkiデスクトップ版だけです（生成済みの画像はモバイル版でも表示できます）。MathJaxより複雑な機能が必要なユーザーに限り、LaTeXの使用をおすすめします。
+
+### LaTeXを有効にする
+
+<Danger>
+LaTeXコードには、Anki以外のデータを読み書きする悪意のあるコマンドを含められます。そのため、最近のAnkiでは初期設定でLaTeX画像の生成を拒否します。
+
+**共有デッキを使う場合や、今後共有デッキをインポートする可能性がある場合は、この設定を有効にしないことを強くおすすめします。有効にすると、共有デッキの作者にコンピューターへのアクセスを許す可能性があります。**
+</Danger>
+
+自分のカードでLaTeXを使うには、設定画面で**LaTeX画像を生成**を有効にします。
+
+共有デッキを使う場合、この設定を有効にする必要はありません。共有デッキの作者が共有前にすべての画像を正しく生成していれば、画像はすでに利用できます。
+
+### 必要な知識
+
+AnkiのLaTeX対応は、すぐに使える状態に設定されるものではありません。LaTeXの使い方を知っていて、インストール済みであることを前提としています。LaTeXを使ったことがない場合は、インターネット上の入門ガイドを参照してください。マークアップに問題がある場合は、LaTeXのフォーラムで質問してください。
+
+LaTeXをインストールするには、WindowsではMiKTeX、macOSではMacTeX、Linuxではディストリビューションのパッケージマネージャーを使います。dvipngもインストールする必要があります。
+
+Windowsでは、MiKTeXのメンテナンス画面で設定を開き、「不足しているパッケージをその場でインストール」を「確認」ではなく「常に」にしてください。それでも問題が続く場合、必要なパッケージがすべて取得されるまでAnkiを管理者として実行すると解決したという報告があります。
+
+macOSでは、LaTeXはMacTeXとBasicTeXでのみ動作確認されています。BasicTeXを使う場合は、次のコマンドでdvipngを別途インストールします。
+
+```text
+    sudo tlmgr update --self; sudo tlmgr install dvipng
+```
+
+コマンドがPATHに含まれていない場合は、/usr/local/texlive/2014basic/bin/x86_64-darwin/tlmgrのように、完全なパスを指定する必要があります。
+
+上記以外のLaTeXパッケージを使う場合は、[edit LaTeXアドオン](https://ankiweb.net/shared/info/937148547)でlatexとdvipngの完全なパスを指定してください。
+
+### Web／モバイル
+
+LaTeXを含むカードを復習すると、Ankiは画像を生成し、後で使えるようコレクションのメディアフォルダーに保存します。Web版とモバイル版は、画像がすでに存在していれば表示できますが、自分で画像を生成することはできません。
+
+ほかのクライアントで学習する前に、すべてのカードを最低1回復習する手間を省くため、Ankiでは画像を一括生成できます。**ツール &gt; メディアをチェック**を開き、すべての画像を生成してください。その後同期すると、生成したメディアがAnkiWebやほかのクライアントにアップロードされます。
+
+### 例
+
+LaTeXの内容を入力する一般的な方法は、`\[latex\]`と`\[/latex\]`タグで囲むことです。エディターには、この操作を簡単に行うボタンがあります。詳しくは[エディター](./editing)の節を参照してください。
+
+`\[latex\]`タグはフィールド内で使う必要があります。カードテンプレート内で使うと[問題が起きます](./templates/fields)。
+
+たとえば、Ankiのフラッシュカードの表面に次のように入力すると、
+
+```text
+    Does [latex]\begin{math}\sum_{k = 1}^{\infty}\frac{1}{k}\end{math}[/latex] converge?
+```
+
+カードを表示したときに次のようになります。
+
+![収束に関する問題](/media/convergence_question.png)
+
+上の例の式は「テキスト数式」と呼ばれます。数式以外の文章の中に表示されるためです。対照的に、次の例は「別行立て数式」です。
+
+```text
+    Does the sum below converge?
+
+    [latex]\begin{displaymath}\sum_{k = 1}^{\infty}\frac{1}{k}\end{displaymath}[/latex]
+```
+
+![収束に関する問題2](/media/convergence_question_2.png)
+
+「テキスト数式」と「別行立て数式」は、最もよく使われるLaTeX表現です。Ankiでは、これらの短縮形も利用できます。次の形式の式は、
+
+```text
+    [latex]\begin{math}...\end{math}[/latex]
+```
+
+次のように短縮できます。
+
+```text
+    [$]...[/$]
+```
+
+また、次の形式の式は、
+
+```text
+    [latex]\begin{displaymath}...\end{displaymath}[/latex]
+```
+
+次のように短縮できます。
+
+```text
+    [$$]...[/$$]
+```
+
+たとえば、先ほどの2つのLaTeXコードは、それぞれ次のように書けます。
+
+```text
+    Does [$]\sum_{k = 1}^{\infty}\frac{1}{k}[/$] converge?
+```
+
+および
+
+```text
+    Does the sum below converge?
+
+    [$$]\sum_{k = 1}^{\infty}\frac{1}{k}[/$$]
+```
+
+### パッケージ
+
+LaTeXのプリアンブルをカスタマイズして、化学や音楽などの独自パッケージを読み込めます。たとえば、インターネットでchemtexのサンプルファイルを見つけたとします。
+
+```text
+    \documentclass[a4paper,12pt]{report}
+    \usepackage{chemtex}
+    \begin{document}
+
+    \initial
+    \begin{figure}[h]\centering
+    \parbox{.3\textwidth}{\ethene{H}{H$_3$C}{CH$_3$}{Br}}
+    \hfil
+    \parbox{.3\textwidth}{\cbranch{H}{S}{H}{S}{C}{S}{}{S}{H}
+      \xi=-200 \cright{}{Q}{C}{D}{O}{S}{OH}}
+    \hfil
+    \parbox{.3\textwidth}{\hetisix{Q}{Q}{Q}{Q}{Q}{Q}{O}{Q}{O}
+      \xi=-171 \fuseup{Q}{Q}{Q}{Q}{D}{Q}{D}{Q}{D}}
+    \caption{Chemie mit {\tt CHEMTEX}\label{a1}}
+    \end{figure}
+
+    \end{document}
+```
+
+まず、パッケージとMiKTeX/MacTeXのドキュメントに従ってパッケージをインストールします。動作を確認するには、上記のようなコードを.latexファイルに入れ、コマンドラインからコンパイルできるか試してください。パッケージが利用でき、正常に動作することを確認したら、Ankiに組み込みます。
+
+Ankiでパッケージを使うには、メイン画面の「追加」をクリックし、ノートタイプ選択ボタンをクリックします。「管理」をクリックして使うノートタイプを選び、「オプション」をクリックしてください。LaTeXのヘッダーとフッターが表示されます。ヘッダーは次のようになっています。
+
+```text
+    \documentclass[12pt]{article}
+    \special{papersize=3in,5in}
+    \usepackage{amssymb,amsmath}
+    \pagestyle{empty}
+    \setlength{\parindent}{0in}
+    \begin{document}
+```
+
+chemtexを使うには、先ほどの例にusepackage行を追加し、次のようにします。
+
+```text
+    \documentclass[12pt]{article}
+    \special{papersize=3in,5in}
+    \usepackage{amssymb,amsmath}
+    \usepackage{chemtex}
+    \pagestyle{empty}
+    \setlength{\parindent}{0in}
+    \begin{document}
+```
+
+その後、Ankiのカードに次のような行を含められます。
+
+```text
+    [latex]\ethene{H}{H$_3$C}{CH$_3$}{Br}[/latex]
+```
+
+### テンプレートとの競合
+
+Anki 2.1.20、AnkiMobile 2.0.56、AnkiDroid 2.13以降では、この回避策は不要です。フィールド内の`{{field}}`テキストが問題を起こさなくなりました。古いバージョンにも対応する必要があり、この構文を使い続ける場合は、表面と裏面のテンプレートの最初に`{{=<% %>=}}`を記述してください。最近のAnkiでは、この記述はテンプレートの先頭以外では認識されません。
+
+古いバージョンの場合：
+
+数式を書くとき、LaTeXコード内に`{{`や`}}`が含まれることは珍しくありません。LaTeX数式とAnkiのフィールド置換が競合しないよう、区切り記号を別のものに変更できます。
+
+たとえば、次のテンプレートを
+
+```text
+    {{latex field}}
+```
+
+次のように変更すると、LaTeXと競合しにくくなります。
+
+```text
+    {{=<% %>=}}
+    <%latex field%>
+```
+
+### 穴埋めとの競合
+
+穴埋め削除は`}}`で終わります。LaTeX内に`}}`があると競合することがあります。穴埋めの終端ではない二重の閉じ波かっこの間に空白を入れると、LaTeXが穴埋めの終端として解釈されるのを防げます。つまり、次のコードは動作しませんが、
+
+```text
+    {{c1::[$]\frac{foo}{\frac{bar}{baz}}[/$] blah blah blah.}}
+```
+
+次のコードは動作します。
+
+```text
+    {{c1::[$]\frac{foo}{\frac{bar}{baz} }[/$] blah blah blah.}}
+```
+
+数式モードではLaTeXが空白を無視するため、式の表示は変わりません。プログラミング言語の学習用に穴埋めカードを作る場合など、表示テキストに余計な空白を入れたくなければ、カードをHTMLモードで編集するときにHTMLコメントを使う方法もあります。
+
+```text
+    {{c1::[$]\frac{foo}{\frac{bar}{baz}<!-- -->}[/$] blah blah blah.}}
+```
+
+穴埋めテキスト内で`::`を使う場合も、どちらかの回避策を利用できます。次のノートでは、最初に生成されるカードに「C++の[type]は型安全な共用体」と表示されます。
+
+```text
+    {{c1::std:<!-- -->:variant::~type~}} in C++ is a {{c2::type-safe union}}
+```
+
+### 安全でないコマンド
+
+Ankiでは、`\input`や`\def`など一部のコマンドをカードやテンプレート内で使えません。許可すると、悪意のある共有デッキがシステムに損害を与える可能性があるためです。安全のため、これらのコマンドはコメント内でも禁止されています。使った覚えがないのにエラーが出る場合は、ヘッダー、テンプレート、カード内のコメントも確認してください。これらのコマンドが必要な場合は、前の節で説明したようにシステムパッケージに追加し、そのパッケージを読み込んでください。

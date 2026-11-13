@@ -1,0 +1,105 @@
+---
+title: "Docker で Anki をビルドして実行する"
+---
+
+これは Anki ユーザーから寄稿された Dockerfile の例です。X11 ソケット経由で GUI を表示し、コンテナー内で Anki をビルドして実行できます。
+
+Anki をコンテナー内でビルドして実行すると、ビルド成果物や実行時の依存関係をシステムのほかの部分から完全に分離できます。ただし、Wayland 上でネイティブ表示できない、デスクトップアイコンやファイルタイプとの統合がないなどの欠点があり、やや特殊な方法です。この Dockerfile をそのまま使わない場合でも、参考になるかもしれません。
+
+Anki の Linux CI は GitHub Actions で実行されます。CI がインストールするパッケージ一覧は [`setup-anki`](https://github.com/ankitects/anki/blob/main/.github/actions/setup-anki/action.yml)、その後のビルド手順は [`.github/workflows/ci.yml`](https://github.com/ankitects/anki/blob/main/.github/workflows/ci.yml)を参考にできます。
+
+# Docker イメージをビルドする
+
+最適な結果を得るには、BuildKit を有効にしてください（`export DOCKER_BUILDKIT=1`）。
+
+このディレクトリで次のように Docker イメージをビルドできます。
+
+```bash
+docker build --tag anki --file Dockerfile ../../
+```
+
+完了したら `docker image ls` を実行し、イメージが作成されたことを確認します。
+
+プロジェクトのルートディレクトリからビルドする場合は、次のコマンドを使います。
+
+```bash
+docker build --tag anki --file docs/docker/Dockerfile .
+```
+
+# Docker イメージを実行する
+
+Anki は GUI を起動するため、ユーザー側で追加の設定が必要です。以下の手順は Linux（Debian 11）で確認しています。ほかの OS では適宜調整してください。
+
+Docker コンテナーから GUI を表示するには、次を実行します。
+
+```bash
+xhost +local:root
+```
+
+Anki の使用後は、次を実行して設定を戻します。
+
+```bash
+xhost -local:root
+```
+
+次に、`docker run` コマンドを作成します。
+
+```bash
+docker run --rm -it \
+    --name anki \
+    --volume $HOME/.local/share:$HOME/.local/share:rw \
+    --volume /etc/passwd:/etc/passwd:ro \
+    --user $(id -u):$(id -g) \
+    --volume /tmp/.X11-unix:/tmp/.X11-unix:rw \
+    --env DISPLAY=$DISPLAY \
+    anki
+```
+
+引数の意味は次のとおりです。
+
+- 現在のユーザーの `~/.local/share` ディレクトリをコンテナーにマウントします。Anki はこのディレクトリにデータを保存します。マウントしないと、コンテナー終了時に変更が失われます。変更を保存できるよう、読み書き可能（`rw`）でマウントします。
+
+    ```bash
+    --volume $HOME/.local/share:$HOME/.local/share:rw
+    ```
+
+- コンテナー内で現在のユーザーとして実行できるよう、`/etc/passwd` をマウントします。内容を変更する必要はないため、読み取り専用にします。
+
+    ```bash
+    --volume /etc/passwd:/etc/passwd:ro
+    ```
+
+- ユーザー ID とグループ ID を指定してコンテナーを実行し、現在のユーザーとして操作します。
+
+    ```bash
+    --user $(id -u):$(id -g)
+    ```
+
+- 画面を表示するために、X11 ディレクトリをマウントします。
+
+    ```bash
+    --volume /tmp/.X11-unix:/tmp/.X11-unix:rw
+    ```
+
+- 画面の表示先をコンテナーが認識できるよう、`DISPLAY` 変数を渡します。
+
+    ```bash
+    --env DISPLAY=$DISPLAY
+    ```
+
+# コマンドラインから Docker 版 Anki を簡単に起動する
+
+`docker run` コマンドを実行するシェル関数を作成できます。そうすれば、コマンドラインで `anki` と入力するだけで Docker 内の Anki が開きます。イメージ名は Anki のビルド時に使った名前に変更してください。
+
+```bash
+anki() {
+    docker run --rm -it \
+        --name anki \
+        --volume $HOME/.local/share:$HOME/.local/share:rw \
+        --volume /etc/passwd:/etc/passwd:ro \
+        --user $(id -u):$(id -g) \
+        --volume /tmp/.X11-unix:/tmp/.X11-unix:rw \
+        --env DISPLAY=$DISPLAY \
+        anki "$@"
+}
+```

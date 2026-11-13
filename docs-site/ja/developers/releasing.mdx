@@ -1,0 +1,259 @@
+---
+title: "リリース"
+---
+
+リリースは、メンテナーがローカルでスクリプトを実行して準備し、その後 GitHub Actions ワークフローでビルド・公開します。
+
+1. **`tools/prepare_release.py`** — 最初に自分のマシンで実行します。バージョンを検証し、対応する `release/YY.MM` ブランチをチェックアウトして、CI の成功とタグ・リリースの重複がないことを確認します。翻訳を同期した後、更新した `.version` をコミットしてブランチを push します。`release/**` ブランチでは、そのコミットを対象に CI が自動実行されます。`--skip-ci-check` を指定すると CI の確認を省略できます。
+2. **`.github/workflows/release.yml`** — 準備したコミットで CI が成功した後に手動実行します。全プラットフォーム（Linux x86/ARM、macOS Intel/ARM、Windows）向けのインストーラーと wheel をビルドします。オプションで macOS/Windows 成果物への署名、GitHub のドラフトリリース作成、TestPyPI と PyPI への wheel 公開も行えます。
+
+`release.yml` は `workflow_dispatch` で起動し、`release` 同時実行グループを使うため、2つのリリースビルドが同時に実行されることはありません。
+
+## 準備スクリプトの要件
+
+準備スクリプトは手元のマシンで実行するため、次のものが必要です。
+
+- 作業ツリーがクリーンであること。未コミットの変更があるとスクリプトは停止します。
+- 認証済みの `gh` CLI。`ankitects/anki` と2つの翻訳リポジトリへの push 権限が必要です。
+- `PATH` 上の `rsync`。翻訳テンプレートのコピーに使います。
+- `packaging` モジュールを使える Python インタープリター。プロジェクトの `uv` 環境に含まれています。
+
+スクリプトは `.version` をコミットする前に、翻訳テンプレートのコミットを翻訳リポジトリへ push します。その後に失敗した場合も、その push は残ります。新たにコピーするものがなければ翻訳処理は何もしないため、スクリプトを再実行しても安全です。
+
+## バージョン形式
+
+バージョンは PEP 440 に沿ったカレンダーバージョニングです。安定版は `YY.MM`（例: `26.04`）で、任意で `.patch`（例: `26.04.1`）やプレリリース接尾辞（`b1`、`rc1`、`a1`）を付けられます。月は2桁で指定してください。
+
+例: `26.05b1`（ベータ版）、`26.05rc1`（リリース候補）、`26.05`（安定版）、`26.05.1`（パッチ版）。
+
+## リリースブランチの手順
+
+すべてのリリースは `release/YY.MM` ブランチから作成します。ブランチ名にはプレリリース接尾辞を含めず、メジャーバージョン（`YY.MM`）だけを使います。ベータ版、リリース候補、安定版は同じブランチから作成します。
+
+### 通常のリリース
+
+1. `main` からリリースブランチを作成します。
+
+    ```
+    git checkout -b release/26.05 main
+    git push origin release/26.05
+    ```
+
+2. `release/**` ブランチへの push で CI が自動実行されます。
+
+3. リリースを準備します（ブランチ上の `.version` が更新されます）。
+
+    ```
+    just release::prepare --version 26.05b1
+    ```
+
+4. TestPyPI で確認します。
+
+    ```
+    just release::testpypi --ref release/26.05
+    ```
+
+5. リリース全体を公開します。
+
+    ```
+    just release::public --ref release/26.05
+    ```
+
+6. 同じサイクルで後続のプレリリースまたは安定版を出す場合は、新しいバージョン（例: `26.05b2`、`26.05rc1`、`26.05`）で手順3〜5を繰り返します。
+
+7. 安定版のリリース後、`.version` の更新や cherry-pick した修正を取り込むため、リリースブランチを `main` にマージします。
+
+    ```
+    git checkout main
+    git merge release/26.05
+    git push origin main
+    ```
+
+8. 安定版の公開後にリリースブランチを削除します。
+
+9. Flathub の更新を提出します。安定版が公開されると、`.github/workflows/sync-release.yml` が [flathub/net.ankiweb.Anki](https://github.com/flathub/net.ankiweb.Anki) を新しいバージョンに更新するパッチを作成します。ワークフローはパッチを成果物としてアップロードし、Flathub の PR を作成するための報告とコマンドをリリース PR にコメントします。報告の「対応が必要」欄に問題があれば修正してください。手動の手順は [updating-anki.md](https://github.com/flathub/net.ankiweb.Anki/blob/master/updating-anki.md) を参照してください。
+
+### セキュリティリリースとホットフィックス
+
+セキュリティ修正では、管理者がまず一時的なプライベートフォークを使って[セキュリティアドバイザリ](https://github.com/ankitects/anki/security/advisories)を作成します。通常の PR 手順に沿って、プライベートフォークで修正します。修正のリリース準備が整うまで、公開 PR を作成したりアドバイザリを公開したりしないでください。
+
+修正の準備ができたら、次の手順に進みます。
+
+1. 最新のリリースタグからリリースブランチを作成します。
+
+    ```
+    git checkout -b release/26.05 26.05
+    ```
+
+2. 修正をリリースブランチに cherry-pick します。
+3. ブランチを push し、CI の完了を待ちます。
+
+    ```
+    git push origin release/26.05
+    ```
+
+4. リリースを準備して公開します。
+
+    ```
+    just release::prepare --version 26.05.1
+    just release::public --ref release/26.05
+    ```
+
+5. リリースブランチを `main` にマージします。
+6. セキュリティパッチの場合は、必要に応じてアドバイザリを公開し、報告者に謝意を示します。
+
+## リリース手順の概要
+
+```{mermaid}
+flowchart LR
+    A["<b>prepare_release.py</b><br/><i>ローカル</i><br/>バージョンを検証<br/>リリースブランチをチェックアウト<br/>CI を確認<br/>タグの重複を確認<br/>翻訳を同期<br/>.version を更新<br/>ブランチに push"] --> B["<b>CI (ci.yml)</b><br/>release/** ブランチへの push で<br/>自動実行"]
+    B --> C["<b>release.yml</b><br/>全プラットフォームをビルド<br/>macOS/Windows の署名（任意）<br/>GitHub ドラフトリリース作成（任意）<br/>TestPyPI/PyPI に公開（任意）"]
+
+    style A fill:#2d333b,stroke:#539bf5,color:#adbac7
+    style B fill:#2d333b,stroke:#e5c07b,color:#adbac7
+    style C fill:#2d333b,stroke:#7ee787,color:#adbac7
+```
+
+## リリースワークフローのジョブ
+
+```{mermaid}
+flowchart TD
+    prepare[prepare<br/><i>バージョン検証、<br/>CI と重複を確認</i>]
+
+    prepare --> mac["build-and-sign-mac<br/>ARM"]
+    prepare --> macint["build-and-sign-mac-intel<br/>Intel"]
+    prepare --> win["build-and-sign-windows"]
+    prepare --> lin[build-linux-x86<br/><i>インストーラー + wheel</i>]
+    prepare --> linarmw[build-linux-arm-wheels]
+    prepare --> linarmi[build-linux-arm-installer]
+
+    mac --> release
+    macint --> release
+    win --> release
+    lin --> release
+    linarmw --> release
+    linarmi --> release
+
+    release["release<br/>GitHub ドラフトリリース<br/><i>draft-release の場合</i>"]
+
+    mac --> testpypi
+    macint --> testpypi
+    win --> testpypi
+    lin --> testpypi
+    linarmw --> testpypi
+    linarmi --> testpypi
+
+    testpypi["publish-testpypi<br/>TestPyPI<br/><i>publish-testpypi または publish-pypi の場合</i>"]
+
+    release --> pypi
+    testpypi --> pypi
+
+    pypi["publish-pypi<br/>PyPI<br/><i>publish-pypi の場合</i>"]
+
+    style prepare fill:#2d333b,stroke:#539bf5,color:#adbac7
+    style mac fill:#2d333b,stroke:#e5c07b,color:#adbac7
+    style macint fill:#2d333b,stroke:#e5c07b,color:#adbac7
+    style win fill:#2d333b,stroke:#e5c07b,color:#adbac7
+    style lin fill:#2d333b,stroke:#e5c07b,color:#adbac7
+    style linarmw fill:#2d333b,stroke:#e5c07b,color:#adbac7
+    style linarmi fill:#2d333b,stroke:#e5c07b,color:#adbac7
+    style release fill:#2d333b,stroke:#7ee787,color:#adbac7
+    style testpypi fill:#2d333b,stroke:#7ee787,color:#adbac7
+    style pypi fill:#2d333b,stroke:#7ee787,color:#adbac7
+```
+
+## 入力
+
+**prepare_release.py:** `version` 引数と、任意の `--skip-ci-check` フラグを受け取ります。リリースブランチはバージョンから決まるため、ブランチ引数はありません。
+
+**release:** `version`（公開リリース操作では `.version` と一致する必要があります）と、5つの真偽値入力を受け取ります。
+
+- `sign`: macOS と Windows の成果物に署名します。
+- `draft-release`: GitHub のドラフトリリースを作成します。
+- `publish-testpypi`: wheel を TestPyPI に公開します。
+- `publish-pypi`: wheel を PyPI に公開します。
+- `skip-ci-check`: CI の状態確認を省略します。
+
+真偽値の既定値はすべて `false` です。リリース以外の実行では、リポジトリにある `.version` を使うため、準備手順なしでビルドできます。
+
+通常の公開リリースでは、最初の4項目を有効にします。`sign=true`、`draft-release=true`、`publish-testpypi=true`、`publish-pypi=true` を指定してください。
+
+## 環境による承認ゲート
+
+リリースワークフローは GitHub の[環境](https://docs.github.com/en/actions/deployment/targeting-different-environments/using-environments-for-deployment)を手動承認ゲートとして使います。署名資格情報にアクセスするジョブや成果物を公開するジョブは、実行前にレビュアーの承認が必要です。
+
+- **`release`** — `sign`、`draft-release`、`publish-testpypi`、`publish-pypi` のいずれかを有効にした場合に必要です。コード署名シークレット、リリーストークン、PyPI/TestPyPI の Trusted Publishing/OIDC を保護します。
+
+`sign` を無効にすると、macOS と Windows のビルドジョブは `release` 環境を使わずに実行されます。そのため承認は不要で、署名シークレットにもアクセスできません。
+
+## ワークフロー入力の動作
+
+`release.yml` は、署名と公開の対象を個別の真偽値入力で制御します。
+
+| 入力 | 動作 |
+| --- | --- |
+| `sign` | macOS と Windows の成果物に署名します。`release` 環境が必要です。`false` の場合、署名なしの成果物をアップロードし、署名シークレットにはアクセスしません。 |
+| `draft-release` | 生成されたリリースノートとインストーラーを含む GitHub ドラフトリリースを作成します。`sign=true`、`release` 環境、（省略しない限り）CI 成功、タグ・リリースの重複なし、`version` と `.version` の一致が必要です。 |
+| `publish-testpypi` | wheel を TestPyPI に公開します。`release` 環境が必要です。 |
+| `publish-pypi` | wheel を PyPI に公開します。`release` 環境、（省略しない限り）CI 成功、`version` と `.version` の一致が必要です。先に TestPyPI 公開ジョブが実行され、完了を待ちます。`draft-release=true` でない限り署名は不要です。 |
+| `skip-ci-check` | CI の状態確認を省略します。ホットフィックスリリースに便利です。 |
+| `version` | `draft-release` または `publish-pypi` では `.version` と一致する必要があります。ビルドのみ、署名のみ、TestPyPI のみの実行では無視され、ブランチの `.version` が自動的に使われます。 |
+
+## just でリリースを実行する
+
+`release.just` に定義された `release` モジュールは、準備スクリプトと `release.yml` の起動をまとめています。`release::prepare` はローカルで実行し、`--ref` は不要です。それ以外のレシピは `release.yml` を起動するため、リリースブランチを指す `--ref` が必要です。
+
+利用可能なレシピと引数を確認するには、`just --list --list-submodules` を実行してください。
+
+## 機能ブランチからリリースワークフローをテストする
+
+テスト目的なら、どのブランチからでも `release.yml` を起動できます。リリース時のガードは `draft-release` または `publish-pypi` が有効な場合にのみ適用されます。テストビルドを行う手順は次のとおりです。
+
+1. すべての真偽値入力を `false` のままにして、ブランチから `release.yml` を起動します。
+    ```
+    just release::build --ref <your-branch>
+    ```
+2. ワークフローはブランチの `.version` をそのまま読み込みます（リリース以外では `version` 入力は無視されるため、準備手順は不要です）。
+3. リリース時のガード（CI 確認、タグの重複確認）はすべて省略されます。
+4. 成果物はワークフロー実行にアップロードされますが、公開やタグ付けは行われません。
+
+### コード署名のテスト
+
+機能ブランチから署名手順をテストするには、次の手順に従います。
+
+1. リポジトリの **Settings → Environments → `release`** で、ブランチを一時的にデプロイ許可対象に追加します。
+2. ワークフローを起動します。
+    ```
+    just release::sign --ref <your-branch>
+    ```
+3. 表示されたら、環境デプロイを承認します。
+4. テスト後、環境の許可ブランチから自分のブランチを削除します。
+
+> **注:** `workflow_dispatch` ワークフローが GitHub Actions の UI に表示されるのは、ワークフローファイルが既定ブランチに存在する場合だけです。`release.yml` が新規作成またはブランチ上で変更された場合は、既定ブランチにマージされるまで UI の一覧に表示されません。その場合は `gh workflow run` で起動してください。
+
+## 重要事項
+
+- リリースワークフローは `github.sha` が指すコミットをそのままビルドします。`.version` は更新しません（更新は準備スクリプトが行います）。準備コミットを push する前にリリースを起動すると、起動時点で HEAD にある `.version` が使われます。
+- `draft-release=true` かつ `sign=false` の設定は拒否されます。ドラフトリリースには署名済みインストーラーが必要です。
+- `publish-pypi=true` の場合、wheel はまず TestPyPI に公開され、TestPyPI のジョブが成功した後に PyPI へ公開されます。`draft-release=true` も指定した場合は、GitHub のドラフトリリースが成功するまで PyPI 公開を待ちます。
+- プレリリースバージョン（例: `26.05b1`）は、GitHub のドラフトリリースで自動的にプレリリースとしてマークされます。
+
+## 告知
+
+- GitHub のドラフトリリースが作成されたら、必要に応じて生成された変更履歴を編集し、**Publish release** をクリックします。
+- [ベータテスト](https://forums.ankiweb.net/c/anki/beta-testing/13)カテゴリにフォーラムトピックを作成します。安定版ではトピックをロックし、問題の報告は新しいトピックに投稿するよう案内してください。
+- 安定版では、[ankitects/anki-landing-page](https://github.com/ankitects/anki-landing-page) のバージョンを更新します（[例](https://github.com/ankitects/anki-landing-page/commit/2362eb2202f174df2aad1dc5336e1b5195a7af85)）。
+
+## 音声パッケージ
+
+音声の再生と録音は、Windows と macOS 向けの mpv と lame を同梱する **`qt/audio`** 配下の `anki-audio` パッケージが担当します。更新するには次の手順に従います。
+
+1. Windows の事前ビルド済みバイナリを新しいバージョンに更新する場合は、**`build/configure/src/audio.rs`** のアーカイブリンクを更新し、`./tools/ninja audio_wheel` を実行して確認します。
+2. macOS のビルドスクリプト **`qt/audio/mpv.rb`** を更新します。**`qt/audio/build.sh`** を実行し、Homebrew ビルドをローカルで確認します。
+3. **`qt/audio/.version`** のバージョンを更新します。
+4. 変更を PR として提出します。
+5. PR が `main` にマージされたら、**`.github/workflows/publish-audio-package.yml`** ワークフローを実行してパッケージを PyPI に公開します。
+    ```
+    gh workflow run publish-audio-package.yml -f sign-macos=true -f publish-testpypi=true -f publish-pypi=true
+    ```
+6. パッケージの公開後、**`qt/pyproject.toml`** で `anki-audio` の固定バージョンを新しいバージョンに更新します。

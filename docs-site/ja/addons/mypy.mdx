@@ -1,0 +1,65 @@
+---
+title: "MyPy"
+---
+
+## MyPy を使う
+
+[PyCharm の設定](./editor-setup)時にインストールした型ヒントを使い、MyPy というツールでコードをチェックできます。MyPy は、関数名の入力ミスや整数を想定する箇所に文字列を渡した場合など、Anki の関数を誤って呼び出しているケースを検出します。
+
+PyCharm の左下にある「Terminal」をクリックし、`mypy myaddon` と入力します。処理後、成功したこと、または見つかった間違いが表示されます。たとえば、フックの使い方を誤っている場合:
+
+```python
+from aqt import gui_hooks
+
+def myfunc() -> None:
+  print("myfunc")
+
+gui_hooks.reviewer_did_show_answer.append(myfunc)
+```
+
+MyPy は次のように報告します。
+
+```text
+    myaddon/__init__.py:5: error: Argument 1 to "append" of "list" has incompatible type "Callable[[], Any]"; expected "Callable[[Card], None]"
+    Found 1 error in 1 file (checked 1 source file)
+```
+
+これは、フックが最初の引数としてカードを受け取る関数を想定しているという意味です。例:
+
+```python
+from anki.cards import Card
+
+def myfunc(card: Card) -> None:
+  print("myfunc")
+```
+
+## 既存のアドオンをチェックする
+
+MyPy の `check_untyped_defs` オプションを使うと、コードに型ヒントがなくてもある程度の型チェックができます。ただし、十分に活用するには独自のコードにも型ヒントを追加する必要があります。最初は時間がかかりますが、長期的にはコードを読み解きやすくなり、普段あまり実行しない部分の問題も検出できます。また、Anki の新しいバージョンへの更新で起きる問題も確認しやすくなります。
+
+規模の大きい既存のアドオンでは、`monkeytype` などのツールでコードに型を自動追加する方法もあります。
+
+<details>
+<summary>Monkeytype</summary>
+'test' というアドオンで monkeytype を使う例:
+
+```shell
+% /usr/local/bin/python3.8 -m venv pyenv
+% cd pyenv && . bin/activate
+(pyenv) % pip install aqt monkeytype
+(pyenv) % monkeytype run bin/anki
+```
+
+その後、アドオンを操作して実行時の型情報を収集し、終わったら Anki を閉じます。
+
+次に、Monkeytype が処理できないため、関数の外でメニューを変更するコードなど、トップレベルで実行される処理をコメントアウトします。最後に、次のように変更したファイルを生成します。
+
+```shell
+(pyenv) % PYTHONPATH=~/Library/Application\ Support/Anki2/addons21 monkeytype apply test
+```
+
+</details>
+
+型ヒントを使うアドオンの例:
+
+[https://github.com/ankitects/anki-addons/blob/master/demos/](https://github.com/ankitects/anki-addons/blob/master/demos/)
