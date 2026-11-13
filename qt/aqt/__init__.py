@@ -184,7 +184,7 @@ class DialogManager:
             return None
 
         # ask all windows to close and await a reply
-        for name, (creator, instance) in self._dialogs.items():
+        for _, (_, instance) in self._dialogs.items():
             if not instance:
                 continue
 
