@@ -1,5 +1,7 @@
 // Copyright: Anki Software, LLC and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
+import { setInnerHTML } from "@tslib/dom";
+import { trustedHTML } from "@tslib/trusted-types";
 import { noop } from "lodash-es";
 
 const template = document.createElement("template");
@@ -35,7 +37,7 @@ function createImage(src: string): HTMLImageElement {
 }
 
 export function preloadAnswerImages(html: string): void {
-    template.innerHTML = html;
+    setInnerHTML(template, trustedHTML(html));
     extractImageSrcs(template.content).forEach(createImage);
 }
 

@@ -5,6 +5,8 @@ import { on } from "@tslib/events";
 
 import { placeCaretAfter, placeCaretBefore } from "$lib/domlib/place-caret";
 
+import { setInnerHTML } from "@tslib/dom";
+import { trustedHTML } from "@tslib/trusted-types";
 import { mount, tick } from "svelte";
 import type { DecoratedElement, DecoratedElementConstructor } from "./decorated";
 import { FrameElement, frameElement } from "./frame-element";
@@ -119,7 +121,7 @@ export const Mathjax: DecoratedElementConstructor = class Mathjax extends HTMLEl
         }
 
         this.dataset.mathjax = this.innerHTML;
-        this.innerHTML = "";
+        setInnerHTML(this, trustedHTML(""));
         this.style.whiteSpace = "normal";
 
         const props = $state<MathjaxProps>({
@@ -159,7 +161,7 @@ export const Mathjax: DecoratedElementConstructor = class Mathjax extends HTMLEl
             this.parentElement.replaceWith(this);
         }
 
-        this.innerHTML = this.dataset.mathjax ?? "";
+        setInnerHTML(this, trustedHTML(this.dataset.mathjax ?? ""));
         delete this.dataset.mathjax;
         this.removeAttribute("style");
         this.removeAttribute("focusonmount");

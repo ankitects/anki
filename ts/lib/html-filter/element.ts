@@ -36,7 +36,7 @@ const allow = (attrs: string[]): FilterMethod => (element: Element): void =>
 
 function convertToDiv(element: Element): void {
     const div = document.createElement("div");
-    div.innerHTML = element.innerHTML;
+    div.append(...element.childNodes);
     element.replaceWith(div);
 }
 

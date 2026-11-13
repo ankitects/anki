@@ -16,6 +16,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import Mapper from "./Mapper.svelte";
     import NotetypeSelector from "./NotetypeSelector.svelte";
     import StickyHeader from "./StickyHeader.svelte";
+    import { trustedHTML } from "@tslib/trusted-types";
 
     export let state: ChangeNotetypeState;
     $: info = state.info;
@@ -47,7 +48,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                     <Mapper {state} ctx={MapContext.Template} />
                 {:else}
                     <div>
-                        {@html renderMarkdown(tr.changeNotetypeToFromCloze())}
+                        {@html trustedHTML(
+                            renderMarkdown(tr.changeNotetypeToFromCloze()),
+                        )}
                     </div>
                 {/if}
             </Row>

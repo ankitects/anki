@@ -931,7 +931,7 @@ html {{ {font} }}
 (function(){{
     document.title = `{self.title}`;
     const style = document.createElement('style');
-    style.innerHTML = `{css}`;
+    style.textContent = `{css}`;
     document.head.appendChild(style);
     document.body.classList.add({", ".join([f'"{c}"' for c in body_classes])});
     {night_mode}
