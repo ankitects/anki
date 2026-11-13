@@ -1,4 +1,4 @@
-# Copyright: Ankitects Pty Ltd and contributors
+# Copyright: Anki Software, LLC and contributors
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 """
@@ -122,7 +122,7 @@ class DB(DeprecatedNamesMixin):
         if autocommit:
             self._db.isolation_level = None
         else:
-            self._db.isolation_level = ""
+            self._db.isolation_level = "DEFERRED"
 
     # strip out invalid utf-8 when reading from db
     def _text_factory(self, data: bytes) -> str:

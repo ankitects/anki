@@ -51,7 +51,7 @@ runs:
     - name: Install rsync (Windows)
       if: runner.os == 'Windows'
       id: setup-msys2
-      uses: msys2/setup-msys2@e9898307ac31d1a803454791be09ab9973336e1c #v2
+      uses: msys2/setup-msys2@ec48f7c5447b3140e2b088413ae3a55687bccb6e #v2
       with:
         update: false
         install: rsync
@@ -64,7 +64,9 @@ runs:
 
     # Reads toolchain version from rust-toolchain.toml automatically.
     - name: Install Rust toolchain
-      uses: actions-rust-lang/setup-rust-toolchain@46268bd060767258de96ed93c1251119784f2ab6 #v1
+      uses: actions-rust-lang/setup-rust-toolchain@a188e68d0fd2bd36ad51dccb2b07ba6e75105f30 #v1
+      env:
+        CARGO_BUILD_WARNINGS: allow
       with:
         components: clippy, llvm-tools-preview
         cache: false # ci.yml manages its own cargo cache
@@ -72,9 +74,9 @@ runs:
 
     - name: Install uv
       id: setup-uv
-      uses: astral-sh/setup-uv@94527f2e458b27549849d47d273a16bec83a01e9 #v7
+      uses: astral-sh/setup-uv@68559e99cc807c1eb7e9238fd43a15bba460eec2 #v10.3.3
       with:
-        version: "0.11.8"
+        version-file: ".tool-versions"
         enable-cache: true
         cache-python: true
         prune-cache: ${{ runner.os != 'Windows' }} # Windows file-locking breaks cache pruning

@@ -1,4 +1,4 @@
-// Copyright: Ankitects Pty Ltd and contributors
+// Copyright: Anki Software, LLC and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 mod cards;
@@ -8,6 +8,7 @@ mod notes;
 
 use std::fs::File;
 use std::path::Path;
+use std::path::PathBuf;
 
 use anki_io::new_tempfile;
 use anki_io::open_file;
@@ -147,11 +148,12 @@ impl ExchangeData {
 
 fn collection_to_tempfile(meta: &Meta, archive: &mut ZipArchive<File>) -> Result<NamedTempFile> {
     let mut zip_file = archive.by_name(meta.collection_filename())?;
+    let filename = PathBuf::from(zip_file.name()?.as_ref());
     let mut tempfile = new_tempfile()?;
     meta.copy(&mut zip_file, &mut tempfile)
         .with_context(|_| FileIoSnafu {
             path: tempfile.path(),
-            op: FileOp::copy(zip_file.name()),
+            op: FileOp::copy(filename),
         })?;
 
     Ok(tempfile)

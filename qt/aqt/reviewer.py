@@ -1,4 +1,4 @@
-# Copyright: Ankitects Pty Ltd and contributors
+# Copyright: Anki Software, LLC and contributors
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 from __future__ import annotations
@@ -1072,7 +1072,6 @@ timerStopped = false;
             if len(row) == 2:
                 subm = m.addMenu(row[0])
                 self._addMenuItems(subm, row[1])
-                qtMenuShortcutWorkaround(subm)
                 continue
             if len(row) == 4:
                 label, scut, func, opts = row

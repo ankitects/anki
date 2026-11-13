@@ -1,10 +1,12 @@
 name: Sync release to main
 
 # Once a stable release is published:
+# - points the mintlify-docs branch (deployed by Mintlify) at the release
 # - builds a patch that moves flathub/net.ankiweb.Anki to the new release, and
 #   uploads it as an artifact
 # - opens a PR that merges the release branch (translations, version bump)
 #   back into main, and comments there how to submit the Flathub patch
+# - updates download links on the website.
 
 on:
   release:
@@ -14,6 +16,32 @@ permissions:
   contents: read
 
 jobs:
+  deploy-docs:
+    if: ${{ !github.event.release.prerelease }}
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 #v4
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: true
+
+      - name: Setup build environment
+        uses: ./.github/actions/setup-anki
+
+      - name: Install just
+        uses: extractions/setup-just@53165ef7e734c5c07cb06b3c8e7b647c5aa16db3 #v4
+
+      - name: Update docs branch
+        run: |
+          just docs-release
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git commit -m "Populate docs"
+          git push --force origin "HEAD:refs/heads/mintlify-docs"
+
   flathub:
     if: ${{ !github.event.release.prerelease }}
     runs-on: ubuntu-latest
@@ -29,8 +57,9 @@ jobs:
           repository: flathub/net.ankiweb.Anki
           persist-credentials: false
 
-      - uses: astral-sh/setup-uv@c771a70e6277c0a99b617c7a806ffedaca235ff9 #v9.0.0
+      - uses: astral-sh/setup-uv@68559e99cc807c1eb7e9238fd43a15bba460eec2 #v10.3.3
         with:
+          version-file: ".tool-versions"
           enable-cache: false
 
       # flatpak-pip-generator runs pip inside the SDK to pick wheels.
@@ -71,7 +100,7 @@ jobs:
           cat "$RUNNER_TEMP/flathub/report.md" >> "$GITHUB_STEP_SUMMARY"
           echo "has-patch=true" >> "$GITHUB_OUTPUT"
 
-      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a #v7.0.1
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 #v7.0.2
         if: ${{ steps.patch.outputs.has-patch }}
         with:
           name: flathub-${{ github.event.release.tag_name }}
@@ -124,7 +153,7 @@ jobs:
           RELEASE_SHA: ${{ github.sha }}
           RELEASE_URL: ${{ github.event.release.html_url }}
 
-      - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c #v8.0.1
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 #v8.0.2
         if: ${{ needs.flathub.outputs.has-patch }}
         with:
           name: flathub-${{ github.event.release.tag_name }}
@@ -169,3 +198,25 @@ jobs:
           RUN_ID: ${{ github.run_id }}
           REPO: ${{ github.repository }}
           RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+
+  update-website:
+    if: ${{ !github.event.release.prerelease }}
+    runs-on: ubuntu-latest
+    permissions: {}
+    environment: release
+    env:
+      TAG_NAME: ${{ github.event.release.tag_name }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 #v4
+        with:
+          repository: ankitects/anki-landing-page
+          ssh-key: ${{ secrets.LANDING_PAGE_DEPLOY_KEY }}
+          persist-credentials: true
+      - run: |
+          sed -i "s/const ankiVersion = '.*';/const ankiVersion = '$TAG_NAME';/" \
+            src/lib/components/sections/Downloads.svelte
+          git diff --quiet && exit 0
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -am "Update Anki to $TAG_NAME"
+          git push
