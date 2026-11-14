@@ -3,9 +3,9 @@
 
 syntax = "proto3";
 
-option java_multiple_files = true;
-
 package anki.ankiweb;
+
+option java_multiple_files = true;
 
 service AnkiwebService {}
 

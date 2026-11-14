@@ -66,6 +66,7 @@ fn setup_node(build: &mut Build) -> Result<()> {
             "vitest",
             "protoc-gen-es",
             "prettier",
+            "buf",
         ],
         hashmap! {
             "jquery" => vec![
