@@ -1,14 +1,10 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-use std::collections::HashMap;
-
 use fsrs::FSRS;
 
-use super::memory_state::fsrs_items_for_memory_states;
-use super::memory_state::get_decay_from_params;
 use super::memory_state::ComputeMemoryProgress;
-use super::params::ignore_revlogs_before_ms_from_config;
+use super::repair::set_preset_retention_and_decay;
 use crate::card::CardType;
 use crate::prelude::*;
 use crate::search::SearchNode;
@@ -48,16 +44,8 @@ impl Collection {
                 if !deck_ids.is_empty() {
                     let search = SearchNode::DeckIdsWithoutChildren(comma_separated_ids(&deck_ids));
                     let cards = col.all_cards_for_search(search.clone())?;
-                    let revlog = col.revlog_for_srs(search)?;
-                    let mut items: HashMap<_, _> = fsrs_items_for_memory_states(
-                        &fsrs,
-                        revlog,
-                        timing.next_day_at,
-                        config.inner.historical_retention,
-                        ignore_revlogs_before_ms_from_config(&config)?,
-                    )?
-                    .into_iter()
-                    .collect();
+                    let mut items =
+                        col.fsrs_items_by_card(&fsrs, search, &config, timing.next_day_at)?;
                     progress.update(false, |p| p.total_cards += cards.len() as u32)?;
                     for mut card in cards {
                         if card.ctype != CardType::New
@@ -69,10 +57,12 @@ impl Collection {
                                 items.remove(&card.id).flatten(),
                                 config.inner.historical_retention,
                             )?;
-                            let deck = &decks[&card.original_or_current_deck_id()];
-                            card.desired_retention =
-                                Some(deck.effective_desired_retention(&config));
-                            card.decay = Some(get_decay_from_params(&fsrs::DEFAULT_PARAMETERS));
+                            set_preset_retention_and_decay(
+                                &mut card,
+                                &decks,
+                                &config,
+                                &fsrs::DEFAULT_PARAMETERS,
+                            );
                             col.update_card_inner(&mut card, original, usn)?;
                         }
                         progress.update(true, |p| p.current_cards += 1)?;

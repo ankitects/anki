@@ -152,7 +152,7 @@ impl<'a> FsrsMetricContext<'a> {
         state: FsrsMemoryState,
         elapsed_days: f32,
     ) -> Result<f32> {
-        let config_id = self.config_id_for_deck(deck_id)?;
+        let (_, config_id) = self.home_deck_and_config_id(deck_id)?;
         let retrievability = self
             .model(config_id)?
             .current_retrievability(state.into(), elapsed_days.max(0.0));
@@ -166,13 +166,7 @@ impl<'a> FsrsMetricContext<'a> {
         state: FsrsMemoryState,
         elapsed_days: f32,
     ) -> Result<f32> {
-        let deck = self
-            .decks
-            .get(&deck_id)
-            .or_invalid("missing deck for card")?;
-        let config_id = deck
-            .config_id()
-            .or_invalid("card belongs to a filtered deck")?;
+        let (deck, config_id) = self.home_deck_and_config_id(deck_id)?;
         let config = self
             .configs
             .get(&config_id)
@@ -210,12 +204,15 @@ impl<'a> FsrsMetricContext<'a> {
         }
     }
 
-    fn config_id_for_deck(&self, deck_id: DeckId) -> Result<DeckConfigId> {
-        self.decks
+    fn home_deck_and_config_id(&self, deck_id: DeckId) -> Result<(&'a Deck, DeckConfigId)> {
+        let deck = self
+            .decks
             .get(&deck_id)
-            .or_invalid("missing deck for card")?
+            .or_invalid("missing deck for card")?;
+        let config_id = deck
             .config_id()
-            .or_invalid("card belongs to a filtered deck")
+            .or_invalid("card belongs to a filtered deck")?;
+        Ok((deck, config_id))
     }
 
     fn model(&mut self, config_id: DeckConfigId) -> Result<&FSRS> {

@@ -10,6 +10,7 @@ use super::memory_state::fsrs_items_for_memory_states;
 use super::memory_state::fsrs_memory_state_for_fsrs;
 use super::memory_state::get_decay_from_params;
 use super::memory_state::ComputeMemoryProgress;
+use super::memory_state::FsrsItemForMemoryState;
 use super::params::ignore_revlogs_before_ms_from_config;
 use crate::card::FsrsMemoryState;
 use crate::prelude::*;
@@ -124,7 +125,41 @@ pub(crate) fn scale_state_to_interval(
     }
 }
 
+/// Stores the preset's desired retention and the decay of `params` on the
+/// card, for legacy consumers of these scalar fields.
+pub(super) fn set_preset_retention_and_decay(
+    card: &mut Card,
+    decks: &HashMap<DeckId, Deck>,
+    config: &DeckConfig,
+    params: &[f32],
+) {
+    let deck = &decks[&card.original_or_current_deck_id()];
+    card.desired_retention = Some(deck.effective_desired_retention(config));
+    card.decay = Some(get_decay_from_params(params));
+}
+
 impl Collection {
+    /// Replays the review history of the cards matching `search` under
+    /// `config`'s history settings, keyed by card.
+    pub(super) fn fsrs_items_by_card(
+        &mut self,
+        fsrs: &FSRS,
+        search: SearchNode,
+        config: &DeckConfig,
+        next_day_at: TimestampSecs,
+    ) -> Result<HashMap<CardId, Option<FsrsItemForMemoryState>>> {
+        let revlog = self.revlog_for_srs(search)?;
+        Ok(fsrs_items_for_memory_states(
+            fsrs,
+            revlog,
+            next_day_at,
+            config.inner.historical_retention,
+            ignore_revlogs_before_ms_from_config(config)?,
+        )?
+        .into_iter()
+        .collect())
+    }
+
     pub(crate) fn fsrs_config_for_card(&mut self, card: &Card) -> Result<DeckConfig> {
         let deck = self
             .get_deck(card.original_or_current_deck_id())?
@@ -190,16 +225,12 @@ impl Collection {
             let config = &configs[&id];
             let fsrs = FSRS::new(config.fsrs_params())?;
             let ids: Vec<_> = cards.iter().map(|card| card.id).collect();
-            let revlog = self.revlog_for_srs(SearchNode::CardIds(comma_separated_ids(&ids)))?;
-            let mut items: HashMap<_, _> = fsrs_items_for_memory_states(
+            let mut items = self.fsrs_items_by_card(
                 &fsrs,
-                revlog,
+                SearchNode::CardIds(comma_separated_ids(&ids)),
+                config,
                 timing.next_day_at,
-                config.inner.historical_retention,
-                ignore_revlogs_before_ms_from_config(config)?,
-            )?
-            .into_iter()
-            .collect();
+            )?;
             for mut card in cards {
                 let original = card.clone();
                 let stored = card.memory_state.unwrap();
@@ -215,9 +246,7 @@ impl Collection {
                     )
                     .or_invalid("invalid incomplete FSRS memory state")?
                 });
-                let deck = &decks[&card.original_or_current_deck_id()];
-                card.desired_retention = Some(deck.effective_desired_retention(config));
-                card.decay = Some(get_decay_from_params(config.fsrs_params()));
+                set_preset_retention_and_decay(&mut card, &decks, config, config.fsrs_params());
                 self.update_card_inner(&mut card, original, usn)?;
                 repaired += 1;
                 progress.update(true, |p| p.current_cards += 1)?;
