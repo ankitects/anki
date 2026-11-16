@@ -1185,7 +1185,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@sveltejs/kit@npm:^3.0.0":
+"@sveltejs/kit@npm:^3.1.1":
   version: 3.1.1
   resolution: "@sveltejs/kit@npm:3.1.1"
   dependencies:
@@ -2032,7 +2032,7 @@ __metadata:
     "@popperjs/core": "npm:^2.11.8"
     "@sqltools/formatter": "npm:^1.2.2"
     "@sveltejs/adapter-static": "npm:^4.0.0"
-    "@sveltejs/kit": "npm:^3.0.0"
+    "@sveltejs/kit": "npm:^3.1.1"
     "@sveltejs/vite-plugin-svelte": "npm:^7.0.0"
     "@types/bootstrap": "npm:^5.2.11"
     "@types/codemirror": "npm:^5.60.0"
