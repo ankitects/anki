@@ -26,6 +26,10 @@ Date: 2026-09-24
   fsrs-rs upstream `c137ee6e096f9217632397a8fb2bdb6f6e1b92ae`, including empty
   parameters selecting FSRS7, model-version introspection, fast-state validation,
   corrected SM-2 conversion, and removal of Burn.
+- Open fsrs-rs PR open-spaced-repetition/fsrs-rs#485 adds
+  `FSRS::scale_memory_state_to_interval`. Once released and pinned, it would replace
+  Anki's own `scale_state_to_interval` solver in
+  `rslib/src/scheduler/fsrs/repair.rs`; this PR keeps the local solver until then.
 
 This document now records both the porting analysis and the implementation on
 `codex/fsrs7-upstream`. The fork should still not be cherry-picked wholesale: it
@@ -46,13 +50,16 @@ a 34-value parameter slot. It needs one coherent FSRS7 state-and-metrics convers
 5. move R-dependent queue/search ordering out of the legacy scalar-decay SQL path;
 6. train/evaluate FSRS7 on fractional same-day targets with scheduling penalties always
    enabled;
-7. port the concurrent Optimize All Presets execution and its multi-progress UI;
-8. add the requested **New card intervals at graduation** comparison table by simulating
-   the real scheduler state machine;
+7. (Moved to a follow-up, see Implementation status.) Concurrent Optimize All
+   Presets execution and its multi-progress UI. This PR keeps upstream's sequential
+   `compute_params` loop, now trained as FSRS-7;
+8. (Moved to a follow-up.) The requested **New card intervals at graduation**
+   comparison table, simulating the real scheduler state machine;
 9. retain model-generated intraday intervals after configured steps, without changing
    upstream daily-limit accounting; and
-10. expose read-only batch card-details/current-metrics APIs so add-ons can obtain
-    correct FSRS7 R without reimplementing its model boundary.
+10. (Moved to a follow-up.) Read-only batch card-details/current-metrics APIs so
+    add-ons can obtain correct FSRS7 R without reimplementing its model boundary. This
+    PR keeps the core `UpdateCards` behavior for legacy S90+difficulty writes.
 
 This implementation pins an audited git revision rather than a published crate release.
 The final upstream PR should preferably use an agreed tagged/published fsrs-rs
@@ -64,25 +71,43 @@ security update (RUSTSEC-2026-0285) and rustls-webpki 0.103.15.
 
 ## Implementation status on the upstream branch
 
-The requested production scope is implemented on `codex/fsrs7-upstream`, on
+The requested production scope was implemented on `codex/fsrs7-upstream`, on
 the implementation baseline above. The implementation was reconstructed as an upstream
 change instead of transplanting the fork's bundled feature commits.
 
-| Area                             | Status on this branch                                                                                                                            |
-| -------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------ |
-| FSRS7 dependency/model           | Pins the audited 34-parameter fsrs-rs revision; implicit model selection and updated license/advisory metadata.                                  |
-| State persistence                | Stores S90 plus slow internal stability, optional fast stability, and difficulty; old state remains readable.                                    |
-| Scheduling/training              | Uses actual fractional elapsed time for every FSRS7 review, including multi-day reviews, and always enables the scheduling-penalty model.        |
-| Exact R and relative overdueness | Uses one preset-aware backend metric context with cached models and full memory state.                                                           |
-| R consumers                      | Browser cells/order, `prop:r`, filtered decks, main queue ordering, Card Info, and graphs use exact FSRS7 math.                                  |
-| SQL ordering                     | FSRS7 R-dependent ordering is computed before limits in Rust; `prop:r` uses an operation-scoped temporary table.                                 |
-| Queue performance                | Bulk-reads due candidates and state once, reuses preset models, and retains signed FNV ties and post-sort limits; opt-in synthetic benchmark.    |
-| Intraday intervals               | Configured steps take precedence; model intervals below twelve hours use learning/relearning queues, including after the last step.              |
-| Foreign/legacy state repair      | Repairs incomplete FSRS7 traces on open/sync/Check Database; replays imports under destination presets; calibrates legacy API S90/D writes.      |
-| Batch read APIs                  | Read-only card details and current memory metrics, with optional exact R and selected note fields; Python wrappers and contract tests.           |
-| Optimize All Presets             | Prepares data serially, balances concurrent worker lanes, preserves best-effort updates, and reports aggregate/per-preset progress and failures. |
-| New-card interval table          | Simulates the actual learning state machine for the eight requested answer paths and compares current/selected retention.                        |
-| Documentation                    | Deck options, search, filtered-deck, and statistics manuals describe the new behavior.                                                           |
+Three features were later split out of the PR (ankitects/anki#5687) into branches
+stacked on it, pushed to the fork `JSchoreels/anki` (PRs not opened yet). Their design
+notes remain in this document:
+
+- `codex/fsrs7-optimize-all-parallel`: concurrent Optimize All with job lanes and the
+  per-preset multi-progress Qt dialog;
+- `codex/fsrs7-new-card-intervals`: the **New card intervals at graduation** table;
+- `codex/fsrs7-addon-read-apis`: the read-only `card_details()` /
+  `card_memory_metrics()` batch add-on APIs.
+
+The PR branch also gained five deduplication commits (shared exact-R ordering keys,
+FNV tie-break and comparator for queue and filtered decks in
+`scheduler/fsrs/metrics.rs`; shared per-card elapsed time and R; one FSRS-7
+answer-button override helper, `apply_model_intervals` in
+`states/button_intervals.rs`; shared revlog replay in preset upgrade/repair;
+`DeckConfig::uses_fsrs7()`) and a SQL formatting fix. The Browser R sort keeps its own
+comparator, and the queue keeps upstream's SQL-equivalent elapsed-time fallback.
+
+| Area                             | Status on this branch                                                                                                                                       |
+| -------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| FSRS7 dependency/model           | Pins the audited 34-parameter fsrs-rs revision; implicit model selection and updated license/advisory metadata.                                             |
+| State persistence                | Stores S90 plus slow internal stability, optional fast stability, and difficulty; old state remains readable.                                               |
+| Scheduling/training              | Uses actual fractional elapsed time for every FSRS7 review, including multi-day reviews, and always enables the scheduling-penalty model.                   |
+| Exact R and relative overdueness | Uses one preset-aware backend metric context with cached models and full memory state.                                                                      |
+| R consumers                      | Browser cells/order, `prop:r`, filtered decks, main queue ordering, Card Info, and graphs use exact FSRS7 math.                                             |
+| SQL ordering                     | FSRS7 R-dependent ordering is computed before limits in Rust; `prop:r` uses an operation-scoped temporary table.                                            |
+| Queue performance                | Bulk-reads due candidates and state once, reuses preset models, and retains signed FNV ties and post-sort limits; opt-in synthetic benchmark.               |
+| Intraday intervals               | Configured steps take precedence; model intervals below twelve hours use learning/relearning queues, including after the last step.                         |
+| Foreign/legacy state repair      | Repairs incomplete FSRS7 traces on open/sync/Check Database; replays imports under destination presets; calibrates legacy API S90/D writes.                 |
+| Batch read APIs                  | Moved to `codex/fsrs7-addon-read-apis`. The PR keeps core `UpdateCards` behavior for legacy S90+difficulty writes (`api-python.mdx`).                       |
+| Optimize All Presets             | PR: upstream's sequential `compute_params` loop writing `fsrs_params_7` with FSRS-7 training. Concurrent lanes/dialog: `codex/fsrs7-optimize-all-parallel`. |
+| New-card interval table          | Moved to `codex/fsrs7-new-card-intervals`.                                                                                                                  |
+| Documentation                    | Deck options, search, filtered-deck, and statistics manuals describe the new behavior.                                                                      |
 
 The implementation deliberately does **not** add FSRS version selectors, a same-day
 optimization toggle, a penalty toggle, RWKV, Dynamic Desired Retention, review-fuzz or
@@ -93,7 +118,8 @@ to distinguish legacy parameter families; it is not configuration or UI.
 The source tree does not contain an upstream `RELEASE.md`; the manual updates describe
 the user-visible behavior.
 
-Verification results are recorded near the acceptance matrix below. The remaining
+Verification results are recorded near the acceptance matrix below. `just check`
+passed on the PR branch and on each follow-up branch after the split. The remaining
 external dependency-readiness item is agreement on a release/tag or acceptance of the
 exact fsrs-rs git revision used here.
 
@@ -115,8 +141,9 @@ this upstream plan:
 - kept scalar add-on math APIs source-compatible, but documented their FSRS7 assumptions
   instead of describing them as exact; and
 - restored Optimize All Presets aggregate progress, review-weighted ETA, active-job
-  bars, and completion/skip details. Its balanced concurrent backend and the **New card
-  intervals at graduation** table were already present and remain included.
+  bars, and completion/skip details in the fork. Its balanced concurrent backend and the
+  **New card intervals at graduation** table were already present there. In the
+  upstream PR these now live in follow-up branches (see Implementation status).
 
 Regression coverage now includes equal-slow-stability states with distinct fast traces
 and difficulty, global descending queue interleaving, exact Relative Overdueness target
@@ -243,7 +270,9 @@ scalar-decay substitute. Repair is transactional and retains due dates/intervals
 For truncated FSRS history, restoring difficulty from the first revlog's FSRS factor
 changes the FSRS7 curve. Both traces must be rescaled again to retain the first known
 interval at historical retention. The library's corrected SM2 conversion alone does
-not cover this Anki-side difficulty override.
+not cover this Anki-side difficulty override. Anki's own `scale_state_to_interval`
+solver does this rescaling today; fsrs-rs#485 (open) would provide
+`FSRS::scale_memory_state_to_interval` to replace it once released.
 
 Legacy API callers that intentionally write only S90/D receive the calibrated
 approximation; replaying history would overwrite their explicit edit. Scheduled APKG
@@ -364,6 +393,11 @@ computes full-state keys before applying review limits, and retains the SQL-comp
 signed FNV id/mtime tiebreak. Upstream should port the corrected architecture, not the
 older audited implementation.
 
+On the PR branch, queue and filtered decks share one set of exact-R ordering keys,
+FNV tie-break and comparator in `scheduler/fsrs/metrics.rs`, plus shared per-card
+elapsed time and R. The Browser R sort keeps its own comparator, and the queue keeps
+upstream's SQL-equivalent elapsed-time fallback.
+
 The follow-up port removes its per-candidate `get_card()` lookup: a narrow storage
 projection reads scheduling fields and shared-decoder memory state in one union of
 due day queues and due-now second queues. No SQL limit is applied before exact
@@ -435,18 +469,21 @@ Audit and route all of these through full-state, preset-aware math:
 - simulator/optimal-retention final-state calculations; and
 - Card Info's forgetting curve.
 
-### Why the PR includes batch add-on read APIs
+### Batch add-on read APIs (follow-up: `codex/fsrs7-addon-read-apis`)
 
-The APIs adapted from fork commit `127842766` are intentionally part of this PR,
-even though core scheduling does not require a new public endpoint. FSRS7 makes
-scalar add-on R calculations incorrect. `card_memory_metrics()` and `card_details()`
-provide a supported alternative that resolves the home preset and complete state in
-the backend, reuses models per request, and avoids repeated Card Info history work.
-They do not initialize state, replay history, or write cards. Missing states remain
-absent. Input order/duplicates are preserved and missing IDs omitted. Selected note
-values are optional and raw, with case-sensitive names and note-type order. The
-Python/protobuf docs and implementation comments explain this boundary. No scalar
-math helper, preset overlay, or public batch optimizer is added.
+The APIs adapted from fork commit `127842766` were split out of the PR into
+`codex/fsrs7-addon-read-apis`. The PR keeps the core `UpdateCards` behavior for legacy
+S90+difficulty writes, documented in `docs-site/developers/api-python.mdx` under
+"Writing FSRS memory states". The rationale for the follow-up: core scheduling does not
+require a new public endpoint, but FSRS7 makes scalar add-on R calculations incorrect.
+`card_memory_metrics()` and `card_details()` provide a supported alternative that
+resolves the home preset and complete state in the backend, reuses models per request,
+and avoids repeated Card Info history work. They do not initialize state, replay
+history, or write cards. Missing states remain absent. Input order/duplicates are
+preserved and missing IDs omitted. Selected note values are optional and raw, with
+case-sensitive names and note-type order. The Python/protobuf docs and implementation
+comments explain this boundary. No scalar math helper, preset overlay, or public batch
+optimizer is added.
 
 The fork's stats retrievability graph remains a useful batch-oriented reference because
 it caches `FSRS` by preset and passes the full state. On the remediation branch,
@@ -473,8 +510,10 @@ For a 34-parameter model, production behavior should be fixed rather than config
   same-card/windowed training behavior receives correct groupings;
 - set `enable_sched_penalties = true` explicitly for every FSRS7 optimizer/evaluation
   input, regardless of the dependency's default; and
-- use one training-item preparation path for Optimize, Optimize All, Evaluate, and
-  health checks.
+- share one training-item preparation function, `fsrs_items_for_training`, between
+  Optimize, Optimize All, Evaluate, and health checks. (The follow-up
+  `codex/fsrs7-optimize-all-parallel` adds `prepare_compute_params` /
+  `compute_params_from_prepared` on top of it; they are not in the PR.)
 
 Do not add `fsrs7IncludeSameDayOptimize` or `fsrs7EnableSchedulingPenalties` fields,
 deck-config `other` keys, switches, comparison modals, or request overrides. Legacy
@@ -493,10 +532,19 @@ or minimum-interval control is added. Intraday answers do not consume daily revi
 limits; original review answers and interday learning still do, preserving upstream
 accounting. This is tested for normal and both exact-R review orders.
 
-## Optimize All Presets improvements to port
+## Optimize All Presets (follow-up: `codex/fsrs7-optimize-all-parallel`)
 
-The concurrency work from `e3cb450a9` is worth extracting and adapting to current
-upstream:
+On the PR branch, Optimize All is upstream's sequential `compute_params` loop again.
+It writes `fsrs_params_7` with FSRS-7 training (same-day targets, scheduling
+penalties, `params_to_keep`) and sets `LastFsrsOptimize` once after the loop.
+`qt/aqt/mediasrv.py` is identical to upstream, which already shows Optimize All
+progress (preset x/y, % of reviews).
+
+The rest of this section is the design of the follow-up branch, which holds the
+concurrency work from `e3cb450a9` adapted to current upstream
+(`ComputeAllParamsProgress` proto, `qt/aqt/progress.py`, the `compute_all_params`
+mediasrv handler, `prepare_compute_params`, `compute_params_from_prepared`,
+`PreparedComputeParams`, `TrainingTargetCounts`):
 
 1. prepare each preset's collection-bound, read-only training data sequentially;
 2. skip zero-target presets before worker creation;
@@ -525,8 +573,8 @@ At the audited `origin/main`, the backend/protobuf and generic multi-bar dialog
 machinery were present, but a later merge had removed the `compute_all_params` branch
 from `qt/aqt/mediasrv.py::_update_deck_configs()`. The remediation branch restores the
 handler from `e3cb450a9`, adapted to the current update-deck-config success behavior.
-This branch includes a Rust regression test that preserves the per-preset failure flag
-through the progress protobuf. A focused Qt regression test that feeds a
+The follow-up branch includes a Rust regression test that preserves the per-preset
+failure flag through the progress protobuf. A focused Qt regression test that feeds a
 `ComputeAllParamsProgress` message and verifies details/bars would still be useful; the
 Python bridge currently relies on the Qt suite, typing, and integration coverage.
 
@@ -535,12 +583,17 @@ dynamically only when details or multiple bars are present. Benchmark for nested
 parallelism: fsrs-rs may already use threaded kernels, so the lane count should be
 bounded if concurrent presets oversubscribe typical machines.
 
-Upstream currently logs a per-preset failure and continues. This branch preserves that
+Upstream currently logs a per-preset failure and continues. The follow-up preserves that
 best-effort policy, carries a failure flag through progress, visibly reports the failed
 preset name, and leaves its old parameters unchanged. Whether Optimize All should
 instead be atomic is listed as a product decision below.
 
-## “New card intervals at graduation” table
+## “New card intervals at graduation” table (follow-up: `codex/fsrs7-new-card-intervals`)
+
+This feature is not in the PR. It lives in `codex/fsrs7-new-card-intervals`
+(`get_fsrs_new_card_intervals`, the scheduler.proto RPC, the `FsrsOptions.svelte`
+table, ftl strings, and the e2e assertion for the table). The design below is for that
+branch.
 
 Port only the table from `5bad1c567`, not the custom review-fuzz feature bundled in that
 commit.
@@ -580,7 +633,10 @@ wording/row semantics should receive product review.
 
 ## Proposed PR commit structure and primary files
 
-A single PR can remain reviewable if split into these focused commits:
+A single PR can remain reviewable if split into these focused commits. Rows 5 and 6 were
+moved out of the PR into the follow-up branches `codex/fsrs7-optimize-all-parallel` and
+`codex/fsrs7-new-card-intervals`; the batch read APIs have their own branch,
+`codex/fsrs7-addon-read-apis`.
 
 | Commit | Scope                                                           | Primary files                                                                                                                                                                             |
 | ------ | --------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -588,8 +644,8 @@ A single PR can remain reviewable if split into these focused commits:
 | 2      | dual-trace/S90 persistence and migration                        | `proto/anki/cards.proto`, `rslib/src/card/{mod.rs,service.rs}`, `rslib/src/storage/card/data.rs`, `rslib/src/scheduler/fsrs/memory_state.rs`, `rslib/src/dbcheck.rs`, import/export tests |
 | 3      | FSRS7 training/evaluation/simulator correctness                 | `rslib/src/scheduler/fsrs/{params.rs,simulator.rs,rescheduler.rs}`, scheduler answering/states/service files, progress conversion                                                         |
 | 4      | canonical exact metrics and all ordering/search/stats consumers | `rslib/src/scheduler/fsrs/memory_state.rs` or a new `metrics.rs`, queue builder, filtered scheduler, search, browser table, stats, Card Info curve                                        |
-| 5      | concurrent Optimize All and multi-progress UI                   | `proto/anki/collection.proto`, `rslib/src/deckconfig/update.rs`, optionally a small `fsrs/batch.rs`, `rslib/src/progress.rs`, `qt/aqt/{mediasrv.py,progress.py}`                          |
-| 6      | new-card interval table                                         | `proto/anki/scheduler.proto`, `rslib/src/scheduler/service/mod.rs`, `qt/aqt/mediasrv.py`, `ts/routes/deck-options/FsrsOptions.svelte`, `ftl/core/deck-config.ftl`                         |
+| 5      | (follow-up) concurrent Optimize All and multi-progress UI       | `proto/anki/collection.proto`, `rslib/src/deckconfig/update.rs`, optionally a small `fsrs/batch.rs`, `rslib/src/progress.rs`, `qt/aqt/{mediasrv.py,progress.py}`                          |
+| 6      | (follow-up) new-card interval table                             | `proto/anki/scheduler.proto`, `rslib/src/scheduler/service/mod.rs`, `qt/aqt/mediasrv.py`, `ts/routes/deck-options/FsrsOptions.svelte`, `ftl/core/deck-config.ftl`                         |
 | 7      | release notes/docs and final cross-surface tests                | `RELEASE.md`, relevant architecture/search/card-data documentation, Rust/Python/TypeScript tests                                                                                          |
 
 Generated files under `out/` should be produced by the normal build but not treated as
@@ -599,10 +655,11 @@ hand-edited source.
 
 The following matrix is the recommended upstream merge coverage; several cases
 specifically prevent the audited fork's former scalar approximation from passing. The
-branch includes focused Rust coverage for the critical state/math, search, queue,
-training, Optimize All, persistence, and interval-preview paths, plus a TypeScript
-full-state curve fixture. A few UI/integration rows are called out after the verification
-results as additional pre-merge hardening rather than being overstated as isolated tests.
+PR branch includes focused Rust coverage for the critical state/math, search, queue,
+training, and persistence paths, plus a TypeScript full-state curve fixture. The
+Optimize All lane, interval-preview, and batch-API rows below belong to the follow-up
+branches. A few UI/integration rows are called out after the verification results as
+additional pre-merge hardening rather than being overstated as isolated tests.
 
 ### State and math
 
@@ -640,24 +697,31 @@ results as additional pre-merge hardening rather than being overstated as isolat
 - every FSRS7 optimize/evaluate/health input has scheduling penalties enabled.
 - invalid/non-finite/wrong-length optimizer output is rejected, but raw logloss does not
   override a valid penalty-trained result.
-- Optimize All lane assignment is balanced and largest-first; output application is in
-  input order.
-- zero-target, failure, cancellation, and all-success cases have correct progress and do
-  not mutate deck configs from worker threads.
-- Qt progress conversion renders aggregate state, active bars, completion log, and skip/
-  failure status.
+- (Follow-up `codex/fsrs7-optimize-all-parallel`.) Optimize All lane assignment is
+  balanced and largest-first; output application is in input order.
+- (Same follow-up.) zero-target, failure, cancellation, and all-success cases have
+  correct progress and do not mutate deck configs from worker threads.
+- (Same follow-up.) Qt progress conversion renders aggregate state, active bars,
+  completion log, and skip/failure status.
 
 ### UI, IPC, and compatibility
 
-- New-card interval preview returns exactly eight rows for both retention columns,
-  including fractional same-day follow-ups.
-- A slower obsolete preview response cannot overwrite a newer selection.
+- (Follow-up `codex/fsrs7-new-card-intervals`.) New-card interval preview returns
+  exactly eight rows for both retention columns, including fractional same-day
+  follow-ups.
+- (Same follow-up.) A slower obsolete preview response cannot overwrite a newer
+  selection.
 - Scheduling exports preserve `fsrs_params_7`, `s_int`, and `s_fast`; exports without
   scheduling strip FSRS state as before.
 - Old 17/19/21 presets load unchanged; old card data without the new optional keys loads
   without corruption.
 - Python/protobuf conversions expose optional new fields without breaking callers that
   only read `stability` and `difficulty`.
+
+Verification figures below were measured on the single-branch implementation, before the
+three features were split out. After the split, `just check` passed on the PR branch and
+on each follow-up branch, and `just test-e2e` passed 28/28 on the PR branch before the
+deduplication commits. The other figures were not re-measured.
 
 The initial port was verified on 2026-09-11 with:
 
@@ -675,13 +739,13 @@ is the primary verification for exact queue interleaving, limits, search sorting
 state math, and fractional same-day behavior; the TypeScript fixture verifies the
 FSRS7 Card Info mixture curve.
 
-Additional pre-merge hardening that is not yet represented by a dedicated isolated
-test on this branch: stale-response suppression in the Svelte interval table, Qt
-rendering of each multi-progress status, and a large-collection benchmark for the
-operation-scoped `prop:r` table. Scheduled APKG destination-preset compatibility is
-now implemented and covered by a replay/undo regression with source presets omitted.
-Both FSRS7 and explicitly retained FSRS6 destination presets are covered.
-Cross-client preservation of the optional state fields
+Additional pre-merge hardening that is not yet represented by a dedicated isolated test
+on this branch: a large-collection benchmark for the operation-scoped `prop:r` table.
+The follow-ups still lack dedicated tests for stale-response suppression in the Svelte
+interval table and for Qt rendering of each multi-progress status. Scheduled APKG
+destination-preset compatibility is now implemented and covered by a replay/undo
+regression with source presets omitted. Both FSRS7 and explicitly retained FSRS6
+destination presets are covered. Cross-client preservation of the optional state fields
 also requires AnkiMobile/AnkiDroid coordination outside this repository.
 
 The 2026-09-24 follow-up adds automatic empty-preset migration and pins fsrs-rs
@@ -702,18 +766,21 @@ order, and newly due cards joining the R-sorted queue without replacing the disp
 question. State tests cover missing/null internal traces, no-history S90 calibration,
 fractional-history replay, truncated-history difficulty calibration, legacy API
 writes/undo, and imports into different FSRS7 or retained FSRS6 destination presets.
-Rust and Python batch API tests cover optional metrics/fields, missing IDs, duplicate
-order, raw field values, and read-only behavior. The adapted browser test covers empty
-parameter evaluation, first optimization, and the interval table without selectors.
+Rust and Python batch API tests (now in `codex/fsrs7-addon-read-apis`) cover optional
+metrics/fields, missing IDs, duplicate order, raw field values, and read-only behavior.
+The adapted browser test covers empty parameter evaluation and first optimization
+without selectors; its assertion for the interval table moved to
+`codex/fsrs7-new-card-intervals`.
 
-The browser suite passed **28/28** on the clean follow-up rerun. Its first run passed
-27/28 and hit the previously observed unrelated editor context-switch click timeout;
-the new FSRS test passed on both runs. The release benchmark passed through 100k cards;
-measurements and their limits are recorded in the queue section above.
-The final `just check` passed after the destination-model and deterministic undo
-fixes, including Rust/Python/Qt/TypeScript checks, lint, formatting, and dependency
-checks. No user collection was used for verification. Changes remain uncommitted in
-the upstream-port worktree; this follow-up did not modify the fork's source checkout.
+Before the split, the browser suite passed **28/28** on the clean follow-up rerun (it
+passed 28/28 again on the PR branch after the split, before the deduplication commits).
+Its first run passed 27/28 and hit the previously observed unrelated editor
+context-switch click timeout; the new FSRS test passed on both runs. The release
+benchmark passed through 100k cards; measurements and their limits are recorded in the
+queue section above. The final `just check` passed after the destination-model and
+deterministic undo fixes, including Rust/Python/Qt/TypeScript checks, lint, formatting,
+and dependency checks. No user collection was used for verification. This follow-up did
+not modify the fork's source checkout.
 
 ## Features intentionally excluded from the minimal production PR
 
@@ -726,7 +793,10 @@ the upstream-port worktree; this follow-up did not modify the fork's source chec
 - add-on FSRS preset overlays and batch optimization public APIs;
 - custom minimum FSRS interval, learning-queue bypass, review-fuzz controls, and load
   balancer changes that are not already upstream;
-- fork update/release/portable-build infrastructure; and
+- fork update/release/portable-build infrastructure;
+- concurrent Optimize All with its multi-progress dialog, the new-card interval table,
+  and the batch add-on read APIs, which were developed here but split into the
+  follow-up branches listed in Implementation status; and
 - compatibility with the fork's temporary numbered protobuf fields or
   `jschoreels.fsrs` storage, unless upstream explicitly decides to support migration
   from fork-created collections.
@@ -740,40 +810,43 @@ the PR:
 
 1. **Runtime FSRS-generated same-day intervals after configured steps.** **Resolved:
    included.** Configured steps take precedence; afterward FSRS7 may emit second-based
-   learning/relearning intervals. Fractional elapsed input applies to all FSRS7
-   reviews, not only learning. The fork's queue-bypass/minimum controls stay excluded.
-   No special daily-limit bypass is needed with upstream's learning queues.
+   learning/relearning intervals. Fractional elapsed input applies to all FSRS7 reviews,
+   not only learning. The fork's queue-bypass/minimum controls stay excluded. No special
+   daily-limit bypass is needed with upstream's learning queues.
 2. **Automatic upgrade of existing presets.** **Resolved by the requested change:**
    empty presets upgrade to FSRS7 atomically with their card states. Explicit
-   17/19/21-value presets remain on their selected model until Reset/Optimize.
-   Due dates are preserved. A dedicated Qt startup progress dialog remains UI work;
-   backend progress, transactional retry, and sync handling are included.
+   17/19/21-value presets remain on their selected model until Reset/Optimize. Due dates
+   are preserved. A dedicated Qt startup progress dialog remains UI work; backend
+   progress, transactional retry, and sync handling are included.
 3. **Cross-client rollout.** Older clients may preserve, ignore, or overwrite the new
    JSON/protobuf state fields. Exact behavior after an older client edits a card needs
    verification with AnkiMobile/AnkiDroid and may require coordinated releases or lazy
    reconstruction. **Branch choice: optional fields and legacy fallbacks are preserved;
    coordinated mobile validation remains outside this repository change.**
-4. **Optimize All failure atomicity.** Upstream currently continues after a preset
-   failure. Recommendation: retain best-effort behavior for minimality, keep old params
-   for failed presets, and show the failures. An all-or-nothing policy would be a
-   separate behavior change. **Branch choice: best-effort.**
+4. **Optimize All failure atomicity (follow-up question).** This applies to
+   `codex/fsrs7-optimize-all-parallel`; the PR keeps upstream's sequential loop.
+   Upstream currently continues after a preset failure. Recommendation: retain
+   best-effort behavior for minimality, keep old params for failed presets, and show the
+   failures. An all-or-nothing policy would be a separate behavior change. **Branch
+   choice: best-effort.**
 5. **`prop:r` large-collection cost.** A full operation-local metric table is correct
    but O(collection). Recommendation: use batch reads/inserts in the first PR and add a
    benchmark; more sophisticated predicate prefiltering can follow if necessary.
    **Branch choice: batched operation-scoped table; a large-collection benchmark remains
    advisable before merge.**
-6. **Public add-on metrics API.** **Resolved: include read-only batch card-details and
-   FSRS-metrics endpoints adapted from `127842766`.** Card IDs let Anki resolve the
-   complete state/current home preset; code and PR rationale explain why this avoids
-   add-on scalar-math errors and repeated historical Card Info computation. No new
-   public scalar API, preset overlays, or batch optimizer is added.
+6. **Public add-on metrics API.** **Moved to `codex/fsrs7-addon-read-apis`:** read-only
+   batch card-details and FSRS-metrics endpoints adapted from `127842766`. Card IDs let
+   Anki resolve the complete state/current home preset; code and PR rationale explain
+   why this avoids add-on scalar-math errors and repeated historical Card Info
+   computation. No new public scalar API, preset overlays, or batch optimizer is added.
 7. **35-value preview parameter migration.** Upstream has never stored the fork's
    preview layout. Recommendation: reject it as invalid unless official migration from
    the fork is an explicit goal. **Branch choice: no fork-format migration.**
-8. **New-card table wording.** The requested title says “at graduation”, but four rows
-   can show learning intervals and the arrow rows are two-answer paths. Product should
-   confirm whether to retain the title, rename it, or add explanatory text. **Branch
-   choice: retain the requested title.**
+8. **New-card table wording (follow-up question).** This applies to
+   `codex/fsrs7-new-card-intervals`. The requested title says “at graduation”, but four
+   rows can show learning intervals and the arrow rows are two-answer paths. Product
+   should confirm whether to retain the title, rename it, or add explanatory text.
+   **Branch choice: retain the requested title.**
 9. **Frontend vs backend forgetting-curve generation.** Mirroring the complete formula
    in TypeScript is the smallest patch; backend-sampled curves remove formula drift but
    enlarge the IPC. Recommendation: TypeScript plus fsrs-rs parity fixtures for this PR.
@@ -784,7 +857,8 @@ the PR:
 Treat the PR as an FSRS state-and-math boundary change, not a parameter-count update.
 The smallest safe implementation keeps model selection implicit, preserves S90 for
 existing user-facing semantics, reconstructs the two internal traces from history, and
-introduces one full-state/preset-aware metric layer used everywhere. Build the requested
-Optimize All and interval-table UX on top of that boundary. Anything that still accepts
+introduces one full-state/preset-aware metric layer used everywhere. The requested
+Optimize All and interval-table UX, and the add-on read APIs, are built on top of that
+boundary in the stacked follow-up branches. Anything that still accepts
 only a scalar stability, reads a single decay for 34 parameters, or lets SQL apply a
 limit before exact R calculation should block the PR from being called complete.
