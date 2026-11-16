@@ -34,46 +34,14 @@ impl LearnState {
             good: self.answer_good(ctx),
             easy: self.answer_easy(ctx).into(),
         };
-        if ctx.fsrs7 {
-            if let Some(states) = &ctx.fsrs_next_states {
-                let intervals = super::button_intervals::button_intervals(
-                    ctx,
-                    [
-                        ctx.steps
-                            .again_delay_secs_learn()
-                            .is_none()
-                            .then_some(states.again.interval),
-                        ctx.steps
-                            .hard_delay_secs(self.remaining_steps)
-                            .is_none()
-                            .then_some(states.hard.interval),
-                        ctx.steps
-                            .good_delay_secs(self.remaining_steps)
-                            .is_none()
-                            .then_some(states.good.interval),
-                        Some(states.easy.interval),
-                    ],
-                    None,
-                );
-                for ((target, item), (interval, remaining)) in [
-                    &mut next.again,
-                    &mut next.hard,
-                    &mut next.good,
-                    &mut next.easy,
-                ]
-                .into_iter()
-                .zip([&states.again, &states.hard, &states.good, &states.easy])
-                .zip(
-                    intervals
-                        .into_iter()
-                        .zip([ctx.steps.remaining_for_failed(), 0, 0, 0]),
-                ) {
-                    if let Some(interval) = interval {
-                        *target = interval.learning(remaining, Some(item.memory.into()), ctx);
-                    }
-                }
-            }
-        }
+        super::button_intervals::apply_model_intervals(
+            &mut next,
+            ctx,
+            ctx.steps,
+            Some(self.remaining_steps),
+            None,
+            |interval, _, memory, remaining| interval.learning(remaining, Some(memory), ctx),
+        );
         next
     }
 

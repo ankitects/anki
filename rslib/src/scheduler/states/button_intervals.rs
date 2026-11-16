@@ -7,7 +7,9 @@
 //! fuzz and limits.
 
 use super::fuzz::minimum_review_fuzz_interval;
+use super::steps::LearningSteps;
 use super::*;
+use crate::card::FsrsMemoryState;
 
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub(super) enum ButtonInterval {
@@ -53,6 +55,58 @@ pub(super) fn button_intervals(
             Some(ButtonInterval::Days(days))
         }
     })
+}
+
+/// Replaces each answer in `next` with FSRS-7's model interval, except where
+/// `steps` still has a configured step. `remaining_steps` is the learning
+/// position, or None for a review, whose passing buttons have no steps.
+/// `state_for` builds the answer from its interval, the original answer, the
+/// model's memory state and the steps left after the answer.
+pub(super) fn apply_model_intervals(
+    next: &mut SchedulingStates,
+    ctx: &StateContext,
+    steps: LearningSteps,
+    remaining_steps: Option<u32>,
+    previous_review_interval: Option<u32>,
+    mut state_for: impl FnMut(ButtonInterval, CardState, FsrsMemoryState, u32) -> CardState,
+) {
+    if !ctx.fsrs7 {
+        return;
+    }
+    let Some(states) = &ctx.fsrs_next_states else {
+        return;
+    };
+    let has_step = [
+        steps.again_delay_secs_learn().is_some(),
+        remaining_steps.is_some_and(|remaining| steps.hard_delay_secs(remaining).is_some()),
+        remaining_steps.is_some_and(|remaining| steps.good_delay_secs(remaining).is_some()),
+        false,
+    ];
+    let items = [&states.again, &states.hard, &states.good, &states.easy];
+    let intervals = button_intervals(
+        ctx,
+        std::array::from_fn(|index| (!has_step[index]).then_some(items[index].interval)),
+        previous_review_interval,
+    );
+    for (index, (target, interval)) in [
+        &mut next.again,
+        &mut next.hard,
+        &mut next.good,
+        &mut next.easy,
+    ]
+    .into_iter()
+    .zip(intervals)
+    .enumerate()
+    {
+        if let Some(interval) = interval {
+            let remaining = if index == 0 {
+                steps.remaining_for_failed()
+            } else {
+                0
+            };
+            *target = state_for(interval, *target, items[index].memory.into(), remaining);
+        }
+    }
 }
 
 impl ButtonInterval {
