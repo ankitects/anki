@@ -1,4 +1,4 @@
-// Copyright: Ankitects Pty Ltd and contributors
+// Copyright: Anki Software, LLC and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 use std::cell::LazyCell;
@@ -49,6 +49,7 @@ fn main() -> Result<()> {
     let mut ctx = LintContext::new(want_fix);
     ctx.check_contributors()?;
     ctx.check_rust_licenses()?;
+    ctx.check_ts_licenses()?;
     ctx.walk_folders(Path::new("."))?;
     if ctx.found_problems {
         std::process::exit(1);
@@ -107,7 +108,7 @@ impl LintContext {
         if self.nonstandard_headers.contains(&path) {
             return Ok(());
         }
-        let missing = !head.contains("Ankitects Pty Ltd and contributors");
+        let missing = !head.contains("Anki Software, LLC and contributors");
         if missing {
             if self.want_fix {
                 LazyCell::force(&self.unstaged_changes);
@@ -136,19 +137,29 @@ impl LintContext {
     fn check_contributors(&self) -> Result<()> {
         let antispam = ", at the domain ";
 
-        let last_author = String::from_utf8(
-            Command::new("git")
-                .args(["log", "-1", "--pretty=format:%ae"])
-                .output()?
-                .stdout,
-        )?;
+        let mut authors = vec![git_stdout(&["log", "-1", "--pretty=format:%ae"])?];
+        // On pull requests, HEAD is GitHub's test merge commit, which is authored with
+        // the PR opener's GitHub commit email. That can differ from the email used for
+        // the commits in the PR, so the last non-merge PR commit is also accepted.
+        //
+        // Note that this commit is not necessarily authored by the PR opener: if an
+        // existing contributor pushes the last commit to the branch, the check passes
+        // even if the opener has not added themselves to CONTRIBUTORS.
+        if env::var("GITHUB_EVENT_NAME").as_deref() == Ok("pull_request") {
+            let pr_author = git_stdout(&[
+                "log",
+                "-1",
+                "--no-merges",
+                "--first-parent",
+                "--pretty=format:%ae",
+                "HEAD^1..HEAD^2",
+            ])?;
+            if !pr_author.is_empty() && !authors.contains(&pr_author) {
+                authors.push(pr_author);
+            }
+        }
 
-        let all_contributors = String::from_utf8(
-            Command::new("git")
-                .args(["log", "--pretty=format:%ae", "CONTRIBUTORS"])
-                .output()?
-                .stdout,
-        )?;
+        let all_contributors = git_stdout(&["log", "--pretty=format:%ae", "CONTRIBUTORS"])?;
         let all_contributors = all_contributors.lines().collect::<HashSet<&str>>();
         let normalized_contributors: HashSet<&str> = all_contributors
             .iter()
@@ -161,17 +172,19 @@ impl LintContext {
             "github-actions[bot]@users.noreply.github.com",
         ];
 
-        if BOT_EMAILS.contains(&last_author.as_str())
-            || normalized_contributors.contains(normalize_email(&last_author))
-        {
+        if authors.iter().any(|author| {
+            BOT_EMAILS.contains(&author.as_str())
+                || normalized_contributors.contains(normalize_email(author))
+        }) {
             return Ok(());
         }
 
         if let Ok(bypass) = std::env::var("CONTRIBUTORS_BYPASS_EMAILS") {
-            if bypass
-                .split(',')
-                .any(|e| noreply_aware_match(e.trim(), &last_author))
-            {
+            if bypass.split(',').any(|e| {
+                authors
+                    .iter()
+                    .any(|author| noreply_aware_match(e.trim(), author))
+            }) {
                 println!("Author allowlisted via CONTRIBUTORS_BYPASS_EMAILS.");
                 return Ok(());
             }
@@ -189,7 +202,11 @@ impl LintContext {
 
         println!(
             "Author {} NOT found in list",
-            last_author.replace('@', antispam)
+            authors
+                .iter()
+                .map(|a| a.replace('@', antispam))
+                .collect::<Vec<_>>()
+                .join(" or ")
         );
 
         println!(
@@ -204,7 +221,7 @@ impl LintContext {
 
     fn check_rust_licenses(&mut self) -> Result<()> {
         let license_path = Path::new("cargo/licenses.json");
-        let licenses = generate_licences()?;
+        let licenses = generate_rust_licences()?;
         let existing_licenses = read_to_string(license_path)?;
         if licenses != existing_licenses {
             if self.want_fix {
@@ -217,6 +234,27 @@ impl LintContext {
         }
         Ok(())
     }
+
+    fn check_ts_licenses(&mut self) -> Result<()> {
+        let license_path = Path::new("ts/licenses.json");
+        let licenses = generate_ts_licenses()?;
+        let existing_licenses = read_to_string(license_path)?;
+        if licenses != existing_licenses {
+            if self.want_fix {
+                write_file(license_path, licenses)?;
+            } else {
+                println!("ts/licenses.json is out of date; run ./ninja fix:minilints");
+                self.found_problems = true;
+            }
+        }
+        Ok(())
+    }
+}
+
+fn git_stdout(args: &[&str]) -> Result<String> {
+    Ok(String::from_utf8(
+        Command::new("git").args(args).output()?.stdout,
+    )?)
 }
 
 fn noreply_aware_match(bypass_email: &str, commit_email: &str) -> bool {
@@ -257,18 +295,18 @@ fn head_of_file(path: &Utf8Path) -> Result<String> {
 fn fix_copyright(path: &Utf8Path) -> Result<()> {
     let header = match path.extension().unwrap() {
         "py" => {
-            r#"# Copyright: Ankitects Pty Ltd and contributors
+            r#"# Copyright: Anki Software, LLC and contributors
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 "#
         }
         "ts" | "rs" | "mjs" => {
-            r#"// Copyright: Ankitects Pty Ltd and contributors
+            r#"// Copyright: Anki Software, LLC and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 "#
         }
         "svelte" => {
             r#"<!--
-Copyright: Ankitects Pty Ltd and contributors
+Copyright: Anki Software, LLC and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 "#
@@ -293,7 +331,7 @@ fn check_for_unstaged_changes() {
     }
 }
 
-fn generate_licences() -> Result<String> {
+fn generate_rust_licences() -> Result<String> {
     Command::run("cargo install cargo-license@0.7.0")?;
     let output = Command::run_with_output([
         "cargo-license",
@@ -317,4 +355,22 @@ fn generate_licences() -> Result<String> {
         .collect();
 
     Ok(serde_json::to_string_pretty(&filtered)?)
+}
+
+fn generate_ts_licenses() -> Result<String> {
+    let bundled = if cfg!(windows) {
+        "out/extracted/node/yarn.cmd"
+    } else {
+        "out/extracted/node/bin/yarn"
+    };
+    let yarn = if Path::new(bundled).exists() {
+        bundled
+    } else if cfg!(windows) {
+        "yarn.cmd"
+    } else {
+        "yarn"
+    };
+    let output = Command::run_with_output([yarn, "run", "generate-licenses"])?;
+
+    Ok(output.stdout)
 }

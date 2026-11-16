@@ -1,4 +1,4 @@
-// Copyright: Ankitects Pty Ltd and contributors
+// Copyright: Anki Software, LLC and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 /// The minimum schema version we can open.
@@ -41,10 +41,11 @@ impl SqliteStorage {
                 .execute_batch(include_str!("schema18_upgrade.sql"))?;
         }
 
-        // in some future schema upgrade, we may want to change
-        // _collapsed to _expanded in DeckCommon and invert existing values, so
-        // that we can avoid serializing the values in the default case, and use
-        // DeckCommon::default() in new_normal() and new_filtered()
+        // In a future schema upgrade:
+        // - Change _collapsed to _expanded in DeckCommon and invert existing values, so
+        //   that we can avoid serializing the values in the default case, and use
+        //   DeckCommon::default() in new_normal() and new_filtered()
+        // - Upgrade unicase and update indexes (#5863)
 
         Ok(())
     }
