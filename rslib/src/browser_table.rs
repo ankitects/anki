@@ -142,6 +142,11 @@ impl Card {
             Some(timing.now.elapsed_secs_since(last_review_time) as u32)
         }
     }
+
+    /// [Card::seconds_since_last_review] in days, as FSRS metrics expect.
+    pub(crate) fn days_since_last_review(&self, timing: &SchedTimingToday) -> f32 {
+        self.seconds_since_last_review(timing).unwrap_or_default() as f32 / 86_400.0
+    }
 }
 
 impl Note {

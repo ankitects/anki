@@ -163,10 +163,9 @@ impl Collection {
         let mut metrics = FsrsMetricContext::new(&decks, &configs);
         let mut cards_with_keys = Vec::new();
         for card in self.all_cards_for_search(search)? {
-            let memory = card.memory_state.map(|state| {
-                let elapsed = card.seconds_since_last_review(&ctx.timing).unwrap_or_default();
-                (state, elapsed as f32 / 86_400.0)
-            });
+            let memory = card
+                .memory_state
+                .map(|state| (state, card.days_since_last_review(&ctx.timing)));
             let key = metrics.exact_order_key(
                 order,
                 card.original_or_current_deck_id(),

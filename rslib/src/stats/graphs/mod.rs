@@ -65,13 +65,8 @@ impl Collection {
         let mut metrics = FsrsMetricContext::new(&decks, &configs);
         let mut fsrs_retrievability = HashMap::new();
         for card in &cards {
-            if let Some(state) = card.memory_state {
-                let elapsed_days =
-                    card.seconds_since_last_review(&timing).unwrap_or_default() as f32 / 86_400.0;
-                fsrs_retrievability.insert(
-                    card.id,
-                    metrics.current_retrievability(card, state, elapsed_days)?,
-                );
+            if let Some(retrievability) = metrics.card_retrievability(card, &timing)? {
+                fsrs_retrievability.insert(card.id, retrievability);
             }
         }
         let ctx = GraphsContext {

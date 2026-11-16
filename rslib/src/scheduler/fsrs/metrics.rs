@@ -133,6 +133,19 @@ impl<'a> FsrsMetricContext<'a> {
         )
     }
 
+    /// Current retrievability of a card with a memory state.
+    pub(crate) fn card_retrievability(
+        &mut self,
+        card: &Card,
+        timing: &SchedTimingToday,
+    ) -> Result<Option<f32>> {
+        card.memory_state
+            .map(|state| {
+                self.current_retrievability(card, state, card.days_since_last_review(timing))
+            })
+            .transpose()
+    }
+
     pub(crate) fn current_retrievability_for_deck(
         &mut self,
         deck_id: DeckId,
@@ -230,14 +243,12 @@ mod tests {
         let low = ExactOrderKey::new(0.2, CardId(3), TimestampSecs(0));
         let high = ExactOrderKey::new(0.8, CardId(1), TimestampSecs(0));
         let tie = ExactOrderKey::new(0.8, CardId(2), TimestampSecs(0));
-        let ascending = ExactFsrsOrder::for_filtered_order(
-            FilteredSearchOrder::RetrievabilityAscending,
-        )
-        .unwrap();
-        let descending = ExactFsrsOrder::for_filtered_order(
-            FilteredSearchOrder::RetrievabilityDescending,
-        )
-        .unwrap();
+        let ascending =
+            ExactFsrsOrder::for_filtered_order(FilteredSearchOrder::RetrievabilityAscending)
+                .unwrap();
+        let descending =
+            ExactFsrsOrder::for_filtered_order(FilteredSearchOrder::RetrievabilityDescending)
+                .unwrap();
 
         assert_eq!(ascending.compare(&low, &high), Ordering::Less);
         assert_eq!(descending.compare(&low, &high), Ordering::Greater);

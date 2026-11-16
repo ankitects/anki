@@ -225,13 +225,8 @@ impl Collection {
         let cards = self.storage.all_cards_for_fsrs_metrics()?;
         let mut rows = Vec::new();
         for card in cards {
-            if let Some(state) = card.memory_state {
-                let elapsed_days =
-                    card.seconds_since_last_review(&timing).unwrap_or_default() as f32 / 86_400.0;
-                rows.push((
-                    card.id.0,
-                    metrics.current_retrievability(&card, state, elapsed_days)?,
-                ));
+            if let Some(retrievability) = metrics.card_retrievability(&card, &timing)? {
+                rows.push((card.id.0, retrievability));
             }
         }
         let mut insert = self.storage.db.prepare_cached(&format!(
@@ -280,13 +275,7 @@ impl Collection {
         let mut metrics = FsrsMetricContext::new(&decks, &configs);
         let mut with_retrievability = Vec::with_capacity(ids.len());
         for card in cards {
-            let retrievability = if let Some(state) = card.memory_state {
-                let elapsed_days =
-                    card.seconds_since_last_review(&timing).unwrap_or_default() as f32 / 86_400.0;
-                Some(metrics.current_retrievability(&card, state, elapsed_days)?)
-            } else {
-                None
-            };
+            let retrievability = metrics.card_retrievability(&card, &timing)?;
             with_retrievability.push((card.id, retrievability));
         }
         with_retrievability.sort_by(|(cid_a, r_a), (cid_b, r_b)| {

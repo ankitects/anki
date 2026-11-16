@@ -284,6 +284,10 @@ impl QueueBuilder {
     }
 }
 
+/// Unlike [Card::seconds_since_last_review], a card without a stored review
+/// time is measured like upstream's SQL queue ordering
+/// (extract_fsrs_relative_retrievability): whole days since its review day,
+/// or seconds since its due time for intraday learning, never negative.
 fn elapsed_seconds_since_last_review(card: &DueCardWithState, timing: SchedTimingToday) -> u32 {
     if let Some(last_review) = card.last_review_time {
         timing.now.elapsed_secs_since(last_review).max(0) as u32
