@@ -23,7 +23,6 @@ pub struct OnlineArchive {
 pub enum Platform {
     LinuxX64,
     LinuxArm,
-    /* TODO OpenBSD */
     MacX64,
     MacArm,
     WindowsX64,
@@ -37,7 +36,7 @@ impl Platform {
         match (os, arch) {
             ("linux", "x86_64") => Self::LinuxX64,
             ("linux", "aarch64") => Self::LinuxArm,
-            ("openbsd", "x86_64") => Self::LinuxX64, /* TODO OpenBSD */
+            ("openbsd", "x86_64") => Self::LinuxX64,
             ("macos", "x86_64") => Self::MacX64,
             ("macos", "aarch64") => Self::MacArm,
             ("windows", "x86_64") => Self::WindowsX64,

@@ -73,13 +73,10 @@ pub fn setup_venv(build: &mut Build) -> Result<()> {
                 "qt/pyproject.toml",
                 "uv.lock"
             ],
-            extra_args: if cfg!(target_os = "openbsd") {
-		    // TODO OpenBSD
-		    //     ruff does build but its kinda annoying
-		    //     and with uv u gotta set up memory limits
-                    "--package anki --group dev --no-install-package ruff"
+            extra_args: if std::env::var_os("ANKI_BACKEND_ONLY").is_some() {
+                "--package anki --group dev --no-install-package ruff"
             } else {
-                    "--all-packages --extra qt --extra audio"
+                "--all-packages --extra qt --extra audio"
             },
             extra_binary_exports,
         },
