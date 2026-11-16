@@ -84,6 +84,9 @@ pub fn setup_venv(build: &mut Build) -> Result<()> {
             extra_binary_exports,
         },
     )?;
+    if let Ok(ruff) = std::env::var("RUFF_BINARY") {
+        build.add_dependency("pyenv:ruff", inputs![ruff]);
+    }
 
     Ok(())
 }
@@ -158,7 +161,9 @@ impl BuildAction for BuildWheel {
         build.add_variable("out_dir", "$builddir/wheels/");
 
         // Calculate the wheel filename that uv will generate
-        let tag = if let Some(platform) = self.platform {
+        let tag = if let Ok(tag) = std::env::var("ANKI_WHEEL_TAG") {
+            tag
+        } else if let Some(platform) = self.platform {
             let platform_tag = match platform {
                 Platform::LinuxX64 => "manylinux_2_35_x86_64",
                 Platform::LinuxArm => "manylinux_2_35_aarch64",

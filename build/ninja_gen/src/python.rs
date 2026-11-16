@@ -145,6 +145,9 @@ impl BuildAction for PythonEnvironment {
 
         build.add_outputs_ext("bin", bin_path("python"), true);
         for binary in self.extra_binary_exports {
+            if *binary == "ruff" && env::var("RUFF_BINARY").is_ok() {
+                continue;
+            }
             build.add_outputs_ext(*binary, bin_path(binary), true);
         }
         build.add_output_stamp(format!("{}/.stamp", self.venv_folder));
