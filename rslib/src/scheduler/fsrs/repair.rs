@@ -177,7 +177,7 @@ impl Collection {
                 .get(&home_deck)
                 .and_then(|deck| deck.config_id())
                 .and_then(|id| configs.get(&id))
-                .is_some_and(|config| config.fsrs_params().len() == 34)
+                .is_some_and(DeckConfig::uses_fsrs7)
             {
                 ids.push(id);
             }

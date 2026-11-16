@@ -159,7 +159,7 @@ impl CardContext<'_> {
         if let Some(state) = card.memory_state {
             let config = self.target_col.fsrs_config_for_card(card)?;
             if source_params != Some(config.fsrs_params())
-                || (config.fsrs_params().len() == 34
+                || (config.uses_fsrs7()
                     && (state.stability_fast.is_none()
                         || self.incomplete_fsrs_cards.contains(&old_id)))
             {

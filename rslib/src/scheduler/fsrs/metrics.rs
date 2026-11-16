@@ -86,6 +86,18 @@ impl ExactOrderKey {
     }
 }
 
+/// Retrievability of `state` after `elapsed_days` (negative counts as zero).
+/// Fails if the parameters produce a non-finite value.
+pub(crate) fn checked_current_retrievability(
+    fsrs: &FSRS,
+    state: FsrsMemoryState,
+    elapsed_days: f32,
+) -> Result<f32> {
+    let retrievability = fsrs.current_retrievability(state.into(), elapsed_days.max(0.0));
+    require!(retrievability.is_finite(), "invalid FSRS parameter values");
+    Ok(retrievability)
+}
+
 /// SM-2 relative overdueness, used for cards without a memory state.
 fn sm2_relative_overdueness_key(due: i32, interval: u32, timing: SchedTimingToday) -> f32 {
     let due = due as i64;
@@ -153,11 +165,7 @@ impl<'a> FsrsMetricContext<'a> {
         elapsed_days: f32,
     ) -> Result<f32> {
         let (_, config_id) = self.home_deck_and_config_id(deck_id)?;
-        let retrievability = self
-            .model(config_id)?
-            .current_retrievability(state.into(), elapsed_days.max(0.0));
-        require!(retrievability.is_finite(), "invalid FSRS parameter values");
-        Ok(retrievability)
+        checked_current_retrievability(self.model(config_id)?, state, elapsed_days)
     }
 
     pub(crate) fn relative_overdueness_for_deck(

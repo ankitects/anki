@@ -11,6 +11,7 @@ use fsrs::FSRS5_DEFAULT_DECAY;
 use itertools::Either;
 use itertools::Itertools;
 
+use super::metrics::checked_current_retrievability;
 use super::params::ignore_revlogs_before_ms_from_config;
 use super::rescheduler::Rescheduler;
 use crate::card::CardQueue;
@@ -41,7 +42,7 @@ pub(crate) fn get_decay_from_params(params: &[f32]) -> f32 {
         fsrs::DEFAULT_PARAMETERS[23]
     } else if params.len() < 21 {
         FSRS5_DEFAULT_DECAY // default decay for FSRS-4.5 and FSRS-5
-    } else if params.len() >= 34 {
+    } else if params.len() >= fsrs::DEFAULT_PARAMETERS.len() {
         // FSRS-7 uses a mixture curve. This value is retained only for old
         // compatibility consumers; built-in metrics use the complete state.
         params[23]
@@ -67,10 +68,7 @@ pub(crate) fn fsrs_current_retrievability_for_state(
     state: FsrsMemoryState,
     elapsed_days: f32,
 ) -> Result<f32> {
-    let retrievability =
-        FSRS::new(params)?.current_retrievability(state.into(), elapsed_days.max(0.0));
-    require!(retrievability.is_finite(), "invalid FSRS parameter values");
-    Ok(retrievability)
+    checked_current_retrievability(&FSRS::new(params)?, state, elapsed_days)
 }
 
 #[derive(Debug, Clone)]

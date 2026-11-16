@@ -119,7 +119,7 @@ impl CardStateUpdater {
             fsrs_next_states: self.fsrs_next_states.clone(),
             fsrs_short_term_with_steps_enabled: self.fsrs_short_term_with_steps,
             fsrs_allow_short_term: self.fsrs_allow_short_term,
-            fsrs7: self.config.fsrs_params().len() == 34,
+            fsrs7: self.config.uses_fsrs7(),
         }
     }
 

@@ -844,13 +844,7 @@ impl super::SqliteStorage {
 
     #[cfg(test)]
     pub(crate) fn get_all_cards(&self) -> Vec<Card> {
-        self.db
-            .prepare("SELECT * FROM cards")
-            .unwrap()
-            .query_and_then([], row_to_card)
-            .unwrap()
-            .collect::<rusqlite::Result<_>>()
-            .unwrap()
+        self.all_cards_for_fsrs_metrics().unwrap()
     }
 }
 

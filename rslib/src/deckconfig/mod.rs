@@ -129,6 +129,11 @@ impl DeckConfig {
         }
     }
 
+    /// True if [DeckConfig::fsrs_params] selects the FSRS-7 model.
+    pub(crate) fn uses_fsrs7(&self) -> bool {
+        self.fsrs_params().len() == fsrs::DEFAULT_PARAMETERS.len()
+    }
+
     pub(crate) fn has_empty_fsrs_params(&self) -> bool {
         self.inner.fsrs_params_7.is_empty()
             && self.inner.fsrs_params_6.is_empty()
