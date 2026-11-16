@@ -91,11 +91,11 @@ function preloadFonts(fragment: DocumentFragment): Promise<void>[] {
     return promises;
 }
 
-export async function preloadResources(html: string): Promise<void> {
+export async function preloadResources(html: string, decodeImagesAsync: boolean): Promise<void> {
     template.innerHTML = html;
     const fragment = template.content;
     const styleSheets = preloadStyleSheets(fragment.cloneNode(true) as DocumentFragment);
-    const images = preloadImages(fragment.cloneNode(true) as DocumentFragment);
+    const images = preloadImages(fragment.cloneNode(true) as DocumentFragment, decodeImagesAsync);
     const fonts = preloadFonts(fragment.cloneNode(true) as DocumentFragment);
 
     let timeout: number;
