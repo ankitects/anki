@@ -495,13 +495,6 @@ deck-config-percent-input = { $pct }%
 # This message appears during FSRS parameter optimization.
 deck-config-checking-for-improvement = Checking for improvement...
 deck-config-optimizing-preset = Optimizing preset { $current_count }/{ $total_count }...
-deck-config-optimizing-presets = Optimizing presets: { $current }/{ $total } ({ $percent }%)
-deck-config-optimization-elapsed = elapsed: { $duration }
-deck-config-optimization-remaining = remaining: { $duration }
-deck-config-optimization-skipped = [SKIP] { $count } presets with no reviews
-deck-config-optimization-done = [DONE] { $name } - { $duration } ({ $reviews } reviews, long-term: { $long_term }, same-day: { $same_day })
-deck-config-optimization-failed = [FAILED] { $name } - existing parameters kept
-deck-config-optimization-preset-progress = { $name } ({ $reviews } reviews)
 deck-config-fsrs-must-be-enabled = FSRS must be enabled first.
 deck-config-fsrs-params-optimal = The FSRS parameters are currently optimal. This is expected once parameters are well-fitted to your review history. You can try optimizing again after doing more reviews.
 deck-config-fsrs-confirm-save-and-optimize = This will save any other changes you have made. Are you sure?
