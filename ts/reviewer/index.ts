@@ -165,7 +165,7 @@ export async function _updateQA(
             console.error(error);
         }
     }
-    await preloadResources(html);
+    await preloadResources(html, true);
 
     qa.style.opacity = "0";
 
@@ -218,7 +218,7 @@ export function _showQuestion(q: string, a: string, bodyclass: string): void {
                     _lazyLoadMathJax();
                 }
                 // preload images
-                allImagesLoaded().then(() => preloadAnswerImages(a));
+                allImagesLoaded().then(() => preloadAnswerImages(a, true));
             },
         )
     );
