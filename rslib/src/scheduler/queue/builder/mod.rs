@@ -28,6 +28,7 @@ use crate::deckconfig::ReviewCardOrder;
 use crate::deckconfig::ReviewMix;
 use crate::decks::limits::LimitTreeMap;
 use crate::prelude::*;
+use crate::scheduler::fsrs::metrics::ExactFsrsOrder;
 use crate::scheduler::states::load_balancer::LoadBalancer;
 use crate::scheduler::timing::SchedTimingToday;
 
@@ -282,13 +283,13 @@ impl QueueBuilder {
 
 impl Context {
     fn uses_exact_retrievability_order(&self) -> bool {
+        self.exact_fsrs_order().is_some()
+    }
+
+    fn exact_fsrs_order(&self) -> Option<ExactFsrsOrder> {
         self.fsrs
-            && matches!(
-                self.sort_options.review_order,
-                ReviewCardOrder::RetrievabilityAscending
-                    | ReviewCardOrder::RetrievabilityDescending
-                    | ReviewCardOrder::RelativeOverdueness
-            )
+            .then(|| ExactFsrsOrder::for_review_order(self.sort_options.review_order))
+            .flatten()
     }
 }
 
