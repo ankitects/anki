@@ -26,20 +26,22 @@ function extractImageSrcs(fragment: DocumentFragment): string[] {
     return srcs;
 }
 
-function createImage(src: string): HTMLImageElement {
+function createImage(src: string, async: boolean): HTMLImageElement {
     const img = new Image();
-    img.decoding = "async";
     img.src = src;
-    img.decode().catch(noop);
+    if (async) {
+        img.decoding = "async";
+        img.decode().catch(noop);
+    }
     return img;
 }
 
-export function preloadAnswerImages(html: string): void {
+export function preloadAnswerImages(html: string, async: boolean): void {
     template.innerHTML = html;
-    extractImageSrcs(template.content).forEach(createImage);
+    extractImageSrcs(template.content).forEach((src) => createImage(src, async));
 }
 
 /** Prevent flickering & layout shift on image load */
-export function preloadImages(fragment: DocumentFragment): Promise<void>[] {
-    return extractImageSrcs(fragment).map(createImage).map(imageLoaded);
+export function preloadImages(fragment: DocumentFragment, async: boolean): Promise<void>[] {
+    return extractImageSrcs(fragment).map((src) => createImage(src, async)).map(imageLoaded);
 }
