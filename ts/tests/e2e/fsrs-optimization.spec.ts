@@ -60,5 +60,4 @@ test("empty FSRS parameters evaluate and optimize as FSRS7 without selectors", a
     await expect(parameters).not.toHaveValue("");
     await evaluate();
     expect(evaluations[1]).toEqual(defaults);
-    await expect(page.getByText("New card intervals at graduation", { exact: true })).toBeVisible();
 });

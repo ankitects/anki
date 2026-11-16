@@ -1217,7 +1217,6 @@ exposed_backend_list = [
     # SchedulerService
     "compute_fsrs_params",
     "compute_optimal_retention",
-    "get_fsrs_new_card_intervals",
     "set_wants_abort",
     "evaluate_params_legacy",
     "get_optimal_retention_parameters",
