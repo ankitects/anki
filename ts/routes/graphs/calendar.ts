@@ -45,10 +45,7 @@ interface DayDatum {
     date: Date;
 }
 
-export function gatherData(
-    data: GraphsResponse,
-    firstDayOfWeek: Weekday,
-): GraphData {
+export function gatherData(data: GraphsResponse, firstDayOfWeek: Weekday): GraphData {
     const reviewCount = new Map(
         Object.entries(data.reviews!.count).map(([k, v]) => {
             return [Number(k), v.learn + v.relearn + v.mature + v.filtered + v.young];
@@ -60,7 +57,12 @@ export function gatherData(
         weekdayLabels.push((firstDayOfWeek + i) % 7);
     }
 
-    return { reviewCount, timeFunction, weekdayLabels, rolloverHour: data.rolloverHour };
+    return {
+        reviewCount,
+        timeFunction,
+        weekdayLabels,
+        rolloverHour: data.rolloverHour,
+    };
 }
 
 export function renderCalendar(
@@ -112,8 +114,7 @@ export function renderCalendar(
     const startDate = timeYear(nowForYear);
     const oneYearAgoFromNow = new Date(now);
     oneYearAgoFromNow.setFullYear(now.getFullYear() - 1);
-    for (let i = 0; i < 365; i++) {
-        const date = timeDay.offset(startDate, i);
+    for (const date of timeDay.range(startDate, timeYear.offset(startDate, 1))) {
         if (date > now) {
             // don't fill out future dates
             continue;
