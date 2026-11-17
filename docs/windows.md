@@ -52,7 +52,7 @@ cog.out(get_file_contents("windows"))
 4. Run the following command:
 
 ```bash
-pacman -S git rsync diffutils
+pacman -S git rsync
 ```
 
 ---
