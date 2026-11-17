@@ -421,6 +421,7 @@ def test_linux_zip_package_root_dir_includes_version(tmp_path: Path) -> None:
     app = MagicMock()
     app.app_name = "anki"
     app.version = "25.09"
+    app.anki_version = None
 
     mixin = LinuxZipMixin()
     root_folder_name = mixin.root_folder_name(app)
@@ -428,3 +429,28 @@ def test_linux_zip_package_root_dir_includes_version(tmp_path: Path) -> None:
     assert app.app_name in root_folder_name
     assert app.version in root_folder_name
     assert "--" not in root_folder_name
+
+
+@pytest.mark.parametrize("machine", ["x86_64", "aarch64"])
+def test_linux_zip_root_dir_matches_package_name(monkeypatch, machine: str) -> None:
+    from briefcase_plugins.platforms.linux.zip import LinuxZipMixin
+
+    monkeypatch.setattr("sys.platform", "linux")
+    monkeypatch.setattr("platform.machine", lambda: machine)
+    app = MagicMock()
+    app.app_name = "anki"
+    # Briefcase normalizes the version it was given, dropping the zero padding
+    app.version = "26.9.3"
+    app.anki_version = "26.09.3"
+
+    mixin = LinuxZipMixin()
+    assert mixin.root_folder_name(app) == f"anki-26.09.3-linux-{machine}"
+    assert mixin.distribution_filename(app) == f"anki-26.09.3-linux-{machine}.tar.zst"
+
+
+def test_briefcase_config_passes_unnormalized_version(
+    out_dir: Path, cmd_args: argparse.Namespace
+) -> None:
+    cmd_args.version = "26.09.3"
+    config = get_briefcase_config_args(cmd_args)
+    assert 'anki_version="26.09.3"' in config
