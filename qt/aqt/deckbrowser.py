@@ -78,10 +78,11 @@ class DeckBrowser:
         self.web.set_bridge_command(self._linkHandler, self)
         # redraw top bar for theme change
         self.mw.toolbar.redraw()
-        self.refresh()
+        # the webview still holds the previous screen, so don't keep its scroll
+        self.refresh(keep_scroll=False)
 
-    def refresh(self) -> None:
-        self._renderPage()
+    def refresh(self, keep_scroll: bool = True) -> None:
+        self._renderPage(keep_scroll=keep_scroll)
         self._refresh_needed = False
 
     def refresh_if_needed(self) -> None:
@@ -155,7 +156,7 @@ class DeckBrowser:
 </center>
 """
 
-    def _renderPage(self, reuse: bool = False) -> None:
+    def _renderPage(self, reuse: bool = False, keep_scroll: bool = False) -> None:
         if not reuse:
 
             def get_data(col: Collection) -> RenderData:
@@ -168,7 +169,10 @@ class DeckBrowser:
 
             def success(output: RenderData) -> None:
                 self._render_data = output
-                self.__renderPage(None)
+                if keep_scroll:
+                    self.web.evalWithCallback("window.pageYOffset", self.__renderPage)
+                else:
+                    self.__renderPage(None)
 
             QueryOp(
                 parent=self.mw,
