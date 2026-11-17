@@ -567,6 +567,8 @@ mod tests {
 
         card.memory_state = Some(FsrsMemoryState {
             stability: 10.0,
+            stability_internal: 10.0,
+            stability_fast: None,
             difficulty: 5.0,
         });
         col.storage.update_card(&card)?;

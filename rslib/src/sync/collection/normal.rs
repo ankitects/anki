@@ -11,6 +11,7 @@ use crate::error::SyncError;
 use crate::error::SyncErrorKind;
 use crate::prelude::Usn;
 use crate::progress::ThrottlingProgressHandler;
+use crate::scheduler::fsrs::ReplaySync;
 use crate::sync::collection::progress::SyncStage;
 use crate::sync::collection::protocol::EmptyInput;
 use crate::sync::collection::protocol::SyncProtocol;
@@ -67,8 +68,7 @@ impl NormalSyncer<'_> {
     }
 
     pub async fn sync(&mut self) -> error::Result<SyncOutput> {
-        self.col.upgrade_empty_fsrs_presets()?;
-        self.col.repair_incomplete_fsrs7_states()?;
+        self.col.refresh_fsrs_states(ReplaySync::Preserve)?;
         debug!("fetching meta...");
         let local = self.col.sync_meta()?;
         let local_bytes = local.collection_bytes;
@@ -95,8 +95,7 @@ impl NormalSyncer<'_> {
                         // Upgrade newly received empty presets only after the
                         // sync transaction completes. The resulting -1 USNs
                         // remain pending for the next upload.
-                        self.col.upgrade_empty_fsrs_presets()?;
-                        self.col.repair_incomplete_fsrs7_states()?;
+                        self.col.refresh_fsrs_states(ReplaySync::Upload)?;
                         Ok(success)
                     }
                     Err(e) => {
@@ -236,6 +235,99 @@ mod tests {
                 target.get_deck_config(DeckConfigId(1), false)?.unwrap().usn,
                 Usn(-1)
             );
+            Ok(())
+        })
+        .await
+    }
+
+    #[tokio::test]
+    async fn offline_upgrade_keeps_the_newer_answer_and_its_revlog_on_both_clients() -> Result<()> {
+        with_active_server(|client| async move {
+            let ctx = SyncTestContext::new(client);
+            let mut source = ctx.col1();
+            source.set_config_bool(crate::config::BoolKey::Fsrs, true, false)?;
+            let mut config = source.get_deck_config(DeckConfigId(1), false)?.unwrap();
+            config.clear_fsrs_params();
+            config.inner.fsrs_params_6 = fsrs::FSRS6_DEFAULT_PARAMETERS.to_vec();
+            source.add_or_update_deck_config(&mut config)?;
+            NoteAdder::basic(&mut source).add(&mut source);
+            let cid = source.answer_easy().card_id;
+            let mut card = source.storage.get_card(cid)?.unwrap();
+            card.due = source.timing_today()?.days_elapsed as i32;
+            let baseline = TimestampSecs::now().adding_secs(-60);
+            card.mtime = baseline;
+            source.storage.update_card(&card)?;
+            config.clear_fsrs_params();
+            source.add_or_update_deck_config(&mut config)?;
+            source.full_upload_with_server(ctx.client.clone()).await?;
+            ctx.col2()
+                .full_download_with_server(ctx.client.clone())
+                .await?;
+
+            let mut legacy = CollectionBuilder::new(ctx.folder.path().join("col1.anki2"))
+                .set_skip_fsrs_defaults_upgrade()
+                .build()?;
+            legacy.answer_again();
+            let mut answer = legacy.storage.get_card(cid)?.unwrap();
+            // A real answer and the offline snapshot may share the same second.
+            answer.mtime = baseline;
+            answer.memory_state.as_mut().unwrap().stability_fast = None;
+            legacy.storage.update_card(&answer)?;
+            assert_eq!((answer.reps, answer.lapses), (2, 1));
+            let mut sender = NormalSyncer::new(&mut legacy, ctx.client.clone());
+            let state =
+                online_sync_status_check(sender.col.sync_meta()?, &mut sender.server).await?;
+            sender.col.storage.begin_trx()?;
+            sender.normal_sync_inner(state).await?;
+            sender.col.storage.commit_trx()?;
+
+            let mut upgraded = ctx.col2();
+            assert_eq!(upgraded.storage.get_card(cid)?.unwrap().mtime, baseline);
+            NormalSyncer::new(&mut upgraded, ctx.client.clone())
+                .sync()
+                .await?;
+            // The first exchange downloads the newer answer; the next sends its rebuilt
+            // traces.
+            NormalSyncer::new(&mut upgraded, ctx.client.clone())
+                .sync()
+                .await?;
+            NormalSyncer::new(&mut legacy, ctx.client.clone())
+                .sync()
+                .await?;
+            for client in [&mut upgraded, &mut legacy] {
+                let card = client.storage.get_card(cid)?.unwrap();
+                assert_eq!(
+                    (
+                        card.reps,
+                        card.lapses,
+                        card.queue,
+                        card.interval,
+                        card.due,
+                        card.mtime
+                    ),
+                    (
+                        2,
+                        1,
+                        answer.queue,
+                        answer.interval,
+                        answer.due,
+                        answer.mtime
+                    )
+                );
+                let grades: Vec<_> = client
+                    .storage
+                    .get_revlog_entries_for_card(cid)?
+                    .into_iter()
+                    .filter_map(|e| (e.button_chosen > 0).then_some(e.button_chosen))
+                    .collect();
+                assert_eq!(grades, [4, 1]);
+                let state = card.memory_state.unwrap();
+                let replay = client.compute_memory_state(cid)?.state.unwrap();
+                assert!(
+                    (state.stability_fast.unwrap() - replay.stability_fast.unwrap()).abs() < 0.001
+                );
+                assert!((state.stability - replay.stability).abs() < 0.001);
+            }
             Ok(())
         })
         .await

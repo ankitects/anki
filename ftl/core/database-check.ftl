@@ -58,6 +58,8 @@ database-check-fixed-invalid-ids =
 # "db-check" is always in English
 database-check-notetypes-recovered = One or more note types were missing. The notes that used them have been given new note types starting with "db-check", but field names and card design have been lost, so you may be better off restoring from an automatic backup.
 
+database-check-invalid-fsrs-cutoff = The preset “{ $preset }” has an invalid “Ignore cards reviewed before” date. Enter a valid date or clear it in Deck Options.
+
 ## Progress info
 
 database-check-checking-integrity = Checking collection...

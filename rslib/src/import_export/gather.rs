@@ -61,7 +61,10 @@ impl ExchangeData {
                     .iter()
                     .filter_map(|deck| {
                         let config = configs.get(&deck.config_id()?)?;
-                        Some((deck.id, config.fsrs_params().clone()))
+                        // A package exported without presets contains a generated,
+                        // unmodified Default preset. Its model is unknown.
+                        (config.id != DeckConfigId(1) || config.mtime_secs.0 != 0)
+                            .then(|| (deck.id, config.fsrs_params().clone()))
                     })
                     .collect();
             }

@@ -545,7 +545,7 @@ either in reviews per day or in minutes of studying per day.
   the maximum number of reviews per day.
 - **Maximum interval** controls the maximum interval length (in days).
 
-To make the simulation as realistic as possible, the simulator takes into account the real memory states (difficulty, stability, retrievability) of your cards.
+The no-review estimate uses both FSRS7 memory components and the time since each card’s last review. Simulations with future reviews use the simulator library’s single-stability approximation for existing FSRS7 cards.
 It also uses your FSRS parameters and the value of desired retention, therefore changing them will affect the simulation.
 
 #### Learning and Relearning Steps

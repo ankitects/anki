@@ -101,8 +101,15 @@ impl Collection {
         let counts = queues.counts();
         let exact_order = queues.exact_retrievability_order;
         let entries: Vec<_> = if intraday_learning_only && exact_order {
-            // Due intraday entries are mixed into the globally sorted main queue.
-            queues.main.iter().map(Into::into).collect()
+            // Due intraday entries are mixed into the globally sorted main
+            // queue, as learning entries. Skip the others before loading.
+            queues
+                .main
+                .iter()
+                .filter(|entry| entry.kind == MainQueueEntryKind::InterdayLearning)
+                .map(Into::into)
+                .chain(queues.intraday_ahead_iter().map(Into::into))
+                .collect()
         } else if intraday_learning_only {
             queues
                 .intraday_now_iter()
@@ -174,11 +181,7 @@ impl CardQueues {
             .filter(|_| !self.exact_retrievability_order)
             .map(Into::into)
             .chain(self.main.iter().map(Into::into))
-            .chain(
-                self.intraday_ahead_iter()
-                    .filter(|_| !self.exact_retrievability_order)
-                    .map(Into::into),
-            )
+            .chain(self.intraday_ahead_iter().map(Into::into))
     }
 
     /// Remove the provided card from the top of the queues and
@@ -211,7 +214,7 @@ impl CardQueues {
     /// cutoff is updated to the current time first, and any newly-due learning
     /// cards are added to the counts.
     pub(crate) fn counts(&mut self) -> Counts {
-        if self.counts.all_zero() && !self.exact_retrievability_order {
+        if self.counts.all_zero() {
             // we discard the returned undo information in this case
             self.update_learning_cutoff_and_count();
         }

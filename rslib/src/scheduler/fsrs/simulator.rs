@@ -129,6 +129,14 @@ impl Collection {
         &mut self,
         req: &SimulateFsrsReviewRequest,
     ) -> Result<(SimulatorConfig, Vec<fsrs::Card>)> {
+        self.simulation_cards(req, |_, _, _| {})
+    }
+
+    fn simulation_cards(
+        &mut self,
+        req: &SimulateFsrsReviewRequest,
+        mut observe_state: impl FnMut(&FSRS, fsrs::MemoryState, f32),
+    ) -> Result<(SimulatorConfig, Vec<fsrs::Card>)> {
         let guard = self.search_cards_into_table(&req.search, SortMode::NoOrder)?;
         let revlogs = guard
             .col
@@ -142,7 +150,8 @@ impl Collection {
                 self.compute_and_update_memory_state(c)?;
             }
         }
-        let days_elapsed = self.timing_today().unwrap().days_elapsed as i32;
+        let timing = self.timing_today()?;
+        let days_elapsed = timing.days_elapsed as i32;
         let new_cards = cards
             .iter()
             .filter(|c| c.ctype == CardType::New && c.queue != CardQueue::Suspended)
@@ -168,13 +177,16 @@ impl Collection {
                         .ok()?
                         .into(),
                 };
-                Card::convert(
+                let elapsed = c.days_since_last_review(&timing);
+                let card = Card::convert(
                     c,
                     days_elapsed,
                     memory_state,
                     desired_retention,
                     fsrs_card_params.clone(),
-                )
+                )?;
+                observe_state(&fsrs, memory_state.into(), elapsed);
+                Some(card)
             })
             .collect_vec();
         let introduced_today_count = self
@@ -283,7 +295,11 @@ impl Collection {
         &mut self,
         req: SimulateFsrsReviewRequest,
     ) -> Result<SimulateFsrsWorkloadResponse> {
-        let (config, cards) = self.simulate_request_to_config(&req)?;
+        let mut reviewless_end_memorized = 0.0;
+        let (config, cards) = self.simulation_cards(&req, |model, state, elapsed| {
+            reviewless_end_memorized +=
+                model.current_retrievability(state, elapsed + req.days_to_simulate as f32);
+        })?;
         let dr_workload = (70u32..=99u32)
             .into_par_iter()
             .map(|dr| {
@@ -307,9 +323,6 @@ impl Collection {
                 ))
             })
             .collect::<Result<HashMap<_, _>>>()?;
-        let reviewless_end_memorized = cards
-            .iter()
-            .fold(0., |p, c| p + c.retention_on(req.days_to_simulate as f32));
         Ok(SimulateFsrsWorkloadResponse {
             reviewless_end_memorized,
             memorized: dr_workload.iter().map(|(k, v)| (*k, v.0)).collect(),
@@ -389,6 +402,31 @@ mod test {
             learning_step_count: 3u32,
             relearning_step_count: 2u32,
         }
+    }
+
+    #[test]
+    fn reviewless_forecast_uses_both_traces_and_the_last_review_time() -> Result<()> {
+        let mut col = Collection::new();
+        col.set_config_bool(BoolKey::Fsrs, true, false)?;
+        crate::tests::NoteAdder::basic(&mut col).add(&mut col);
+        let id = col.answer_easy().card_id;
+        let mut card = col.storage.get_card(id)?.unwrap();
+        card.last_review_time = Some(col.timing_today()?.now.adding_secs(-2 * 86_400));
+        col.storage.update_card(&card)?;
+        let req = SimulateFsrsReviewRequest {
+            days_to_simulate: 10,
+            deck_size: 0,
+            new_limit: 0,
+            ..base_request()
+        };
+        let expected =
+            FSRS::new(&[])?.current_retrievability(card.memory_state.unwrap().into(), 12.0);
+        let forecast = col.simulate_workload(req)?.reviewless_end_memorized;
+        assert!(
+            (forecast - expected).abs() < 1e-5,
+            "{forecast} != {expected}"
+        );
+        Ok(())
     }
 
     #[test]
@@ -552,6 +590,8 @@ mod test {
         let params = Arc::new(fsrs::check_and_fill_parameters(&[]).unwrap());
         let memory_state = FsrsMemoryState {
             stability: 10.0,
+            stability_internal: 10.0,
+            stability_fast: None,
             difficulty: 3.0,
         };
         Card::convert(card, 10, memory_state, 0.85, params.clone())

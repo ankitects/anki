@@ -2,7 +2,6 @@
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 use super::DueCard;
-use super::DueCardWithState;
 use super::NewCard;
 use super::QueueBuilder;
 use crate::card::CardQueue;
@@ -13,13 +12,11 @@ use crate::scheduler::fsrs::metrics::ExactFsrsOrder;
 use crate::scheduler::fsrs::metrics::ExactOrderKey;
 use crate::scheduler::fsrs::metrics::FsrsMetricContext;
 use crate::scheduler::queue::DueCardKind;
-use crate::scheduler::timing::SchedTimingToday;
 use crate::storage::card::NewCardSorting;
 
 #[derive(Debug, Clone, Copy)]
 struct DueCardForRetrievabilitySort {
     card: DueCard,
-    counts_towards_review_limit: bool,
     interday_or_review: bool,
 }
 
@@ -58,11 +55,14 @@ impl QueueBuilder {
                     matches!(card.queue, CardQueue::Review | CardQueue::DayLearn);
                 let candidate = DueCardForRetrievabilitySort {
                     card: card.card,
-                    counts_towards_review_limit: interday_or_review,
                     interday_or_review,
                 };
                 let memory = card.memory_state.map(|state| {
-                    let elapsed = elapsed_seconds_since_last_review(&card, self.context.timing);
+                    let elapsed = self.context.timing.fsrs_elapsed_seconds(
+                        card.last_review_time,
+                        card.original_or_current_due(),
+                        card.interval,
+                    );
                     (state, elapsed as f32 / 86_400.0)
                 });
                 let key = metrics.exact_order_key(
@@ -83,7 +83,7 @@ impl QueueBuilder {
         with_keys.sort_unstable_by(|(_, key_a), (_, key_b)| order.compare(key_a, key_b));
 
         for (candidate, _) in with_keys {
-            if candidate.counts_towards_review_limit
+            if candidate.interday_or_review
                 && (self.limits.root_limit_reached(LimitKind::Review)
                     || self
                         .limits
@@ -95,7 +95,7 @@ impl QueueBuilder {
                 .add_due_card_for_retrievability_sort(candidate.card, candidate.interday_or_review)
             {
                 self.retrievability_sorted_non_new.push(candidate.card);
-                if candidate.counts_towards_review_limit {
+                if candidate.interday_or_review {
                     self.limits.decrement_deck_and_parent_limits(
                         candidate.card.current_deck_id,
                         LimitKind::Review,
@@ -281,23 +281,5 @@ impl QueueBuilder {
     // when the base salt is a small integer.
     fn knuth_salt(base_salt: u32) -> u32 {
         base_salt.wrapping_mul(2654435761)
-    }
-}
-
-/// Unlike [Card::seconds_since_last_review], a card without a stored review
-/// time is measured like upstream's SQL queue ordering
-/// (extract_fsrs_relative_retrievability): whole days since its review day,
-/// or seconds since its due time for intraday learning, never negative.
-fn elapsed_seconds_since_last_review(card: &DueCardWithState, timing: SchedTimingToday) -> u32 {
-    if let Some(last_review) = card.last_review_time {
-        timing.now.elapsed_secs_since(last_review).max(0) as u32
-    } else {
-        // Preserve the legacy due/interval estimate when no timestamp was stored.
-        let due = card.original_or_current_due() as i64;
-        if due > 365_000 {
-            timing.now.elapsed_secs_since(TimestampSecs(due)).max(0) as u32
-        } else {
-            ((timing.days_elapsed as i64 - due + card.interval as i64).max(0) * 86_400) as u32
-        }
     }
 }

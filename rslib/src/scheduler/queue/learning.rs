@@ -61,9 +61,7 @@ impl CardQueues {
             .iter()
             .filter(|e| e.due > last_ahead_cutoff && e.due <= new_ahead_cutoff)
             .count();
-        if !self.exact_retrievability_order {
-            self.counts.learning += new_learning_cards;
-        }
+        self.counts.learning += new_learning_cards;
 
         change
     }
@@ -140,7 +138,7 @@ impl CardQueues {
     /// Adds an intraday learning card to the correct position of the queue, and
     /// increments learning count if card is due.
     pub(super) fn insert_intraday_learning_card(&mut self, entry: LearningQueueEntry) {
-        if !self.exact_retrievability_order && entry.due <= self.current_learn_ahead_cutoff() {
+        if entry.due <= self.current_learn_ahead_cutoff() {
             self.counts.learning += 1;
         }
 
@@ -159,11 +157,10 @@ impl CardQueues {
     ) -> Option<LearningQueueEntry> {
         if let Some(position) = self.intraday_learning.iter().position(|e| e.id == card_id) {
             let entry = self.intraday_learning.remove(position).unwrap();
-            if !self.exact_retrievability_order
-                && entry.due
-                    <= self
-                        .current_learning_cutoff
-                        .adding_secs(self.learn_ahead_secs)
+            if entry.due
+                <= self
+                    .current_learning_cutoff
+                    .adding_secs(self.learn_ahead_secs)
             {
                 // Theoretically this should never go below zero.
                 self.counts.learning = self.counts.learning.saturating_sub(1);

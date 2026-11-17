@@ -1,4 +1,4 @@
-// Copyright: Ankitects Pty Ltd and contributors
+// Copyright: Anki Software, LLC and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 //! Convert FSRS7's fractional intervals only after evaluating all answer
@@ -11,17 +11,11 @@ use super::steps::LearningSteps;
 use super::*;
 use crate::card::FsrsMemoryState;
 
-#[derive(Clone, Copy, Debug, PartialEq)]
-pub(super) enum ButtonInterval {
-    Secs(u32),
-    Days(u32),
-}
-
 pub(super) fn button_intervals(
     ctx: &StateContext,
     intervals: [Option<f32>; 4],
     previous_review_interval: Option<u32>,
-) -> [Option<ButtonInterval>; 4] {
+) -> [Option<IntervalKind>; 4] {
     let mut previous_secs = 0;
     let mut previous_days = 0;
     std::array::from_fn(|index| {
@@ -31,7 +25,7 @@ pub(super) fn button_intervals(
                 .max(1)
                 .max(previous_secs);
             previous_secs = secs;
-            Some(ButtonInterval::Secs(secs))
+            Some(IntervalKind::InSecs(secs))
         } else {
             let floor = previous_days + 1;
             let days = if index == 0 && previous_review_interval.is_some() {
@@ -52,7 +46,7 @@ pub(super) fn button_intervals(
                 ctx.with_review_fuzz(interval, min, max)
             };
             previous_days = days;
-            Some(ButtonInterval::Days(days))
+            Some(IntervalKind::InDays(days))
         }
     })
 }
@@ -68,7 +62,7 @@ pub(super) fn apply_model_intervals(
     steps: LearningSteps,
     remaining_steps: Option<u32>,
     previous_review_interval: Option<u32>,
-    mut state_for: impl FnMut(ButtonInterval, CardState, FsrsMemoryState, u32) -> CardState,
+    mut state_for: impl FnMut(IntervalKind, CardState, FsrsMemoryState, u32) -> CardState,
 ) {
     if !ctx.fsrs7 {
         return;
@@ -109,7 +103,7 @@ pub(super) fn apply_model_intervals(
     }
 }
 
-impl ButtonInterval {
+impl IntervalKind {
     pub(super) fn learning(
         self,
         remaining_steps: u32,
@@ -117,14 +111,14 @@ impl ButtonInterval {
         ctx: &StateContext,
     ) -> CardState {
         match self {
-            Self::Secs(scheduled_secs) => LearnState {
+            Self::InSecs(scheduled_secs) => LearnState {
                 remaining_steps,
                 scheduled_secs,
                 elapsed_secs: 0,
                 memory_state,
             }
             .into(),
-            Self::Days(scheduled_days) => ReviewState {
+            Self::InDays(scheduled_days) => ReviewState {
                 scheduled_days,
                 ease_factor: ctx.initial_ease_factor,
                 memory_state,
@@ -137,7 +131,7 @@ impl ButtonInterval {
     pub(super) fn reviewing(self, mut review: ReviewState, remaining_steps: u32) -> CardState {
         review.elapsed_days = 0;
         match self {
-            Self::Secs(scheduled_secs) => {
+            Self::InSecs(scheduled_secs) => {
                 review.scheduled_days = 1;
                 RelearnState {
                     learning: LearnState {
@@ -150,7 +144,7 @@ impl ButtonInterval {
                 }
                 .into()
             }
-            Self::Days(days) => {
+            Self::InDays(days) => {
                 review.scheduled_days = days;
                 review.into()
             }
@@ -233,24 +227,24 @@ mod tests {
         assert_eq!(
             button_intervals(&ctx, [Some(0.01), Some(0.005), Some(0.5), Some(0.75)], None),
             [
-                Some(ButtonInterval::Secs(864)),
-                Some(ButtonInterval::Secs(864)),
-                Some(ButtonInterval::Days(1)),
-                Some(ButtonInterval::Days(2))
+                Some(IntervalKind::InSecs(864)),
+                Some(IntervalKind::InSecs(864)),
+                Some(IntervalKind::InDays(1)),
+                Some(IntervalKind::InDays(2))
             ]
         );
         ctx.maximum_review_interval = 2;
         assert_eq!(
             button_intervals(&ctx, [Some(3.0); 4], Some(1)),
-            [Some(ButtonInterval::Days(2)); 4]
+            [Some(IntervalKind::InDays(2)); 4]
         );
         assert_eq!(
             button_intervals(&ctx, [None, None, Some(2.0), Some(2.0)], None),
             [
                 None,
                 None,
-                Some(ButtonInterval::Days(2)),
-                Some(ButtonInterval::Days(2))
+                Some(IntervalKind::InDays(2)),
+                Some(IntervalKind::InDays(2))
             ]
         );
     }

@@ -34,11 +34,18 @@ const EXISTING_MP3_DATA: &[u8] = b"4";
 
 #[test]
 fn scheduled_import_replays_state_under_retained_destination_preset() -> Result<()> {
-    scheduled_import_replays_under_preset(false)?;
-    scheduled_import_replays_under_preset(true)
+    for legacy_destination in [false, true] {
+        scheduled_import_replays_under_preset(legacy_destination, true, false)?;
+        scheduled_import_replays_under_preset(legacy_destination, false, true)?;
+    }
+    Ok(())
 }
 
-fn scheduled_import_replays_under_preset(legacy_destination: bool) -> Result<()> {
+fn scheduled_import_replays_under_preset(
+    legacy_destination: bool,
+    export_presets: bool,
+    import_presets: bool,
+) -> Result<()> {
     use crate::card::CardQueue;
     use crate::card::CardType;
     use crate::revlog::RevlogEntry;
@@ -91,7 +98,7 @@ fn scheduled_import_replays_under_preset(legacy_destination: bool) -> Result<()>
         &path,
         ExportAnkiPackageOptions {
             with_scheduling: true,
-            with_deck_configs: true,
+            with_deck_configs: export_presets,
             with_media: false,
             legacy: false,
         },
@@ -102,7 +109,7 @@ fn scheduled_import_replays_under_preset(legacy_destination: bool) -> Result<()>
         &path,
         ImportAnkiPackageOptions {
             with_scheduling: true,
-            with_deck_configs: false,
+            with_deck_configs: import_presets,
             ..Default::default()
         },
     )?;

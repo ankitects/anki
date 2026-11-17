@@ -43,7 +43,7 @@ impl Collection {
         Ok(added)
     }
 
-    pub(super) fn update_card_undoable(&mut self, card: &mut Card, original: Card) -> Result<()> {
+    pub(crate) fn update_card_undoable(&mut self, card: &mut Card, original: Card) -> Result<()> {
         require!(card.id.0 != 0, "card id not set");
         self.save_undo(UndoableCardChange::Updated(Box::new(original)));
         self.storage.update_card(card)

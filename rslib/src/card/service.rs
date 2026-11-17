@@ -39,10 +39,22 @@ impl crate::services::CardsService for Collection {
                 state.stability_internal.is_none() || state.stability_fast.is_none()
             });
             let mut card: Card = proto.try_into()?;
-            if incomplete {
-                let config = self.fsrs_config_for_card(&card)?;
+            let edited_s90 = if let Some(state) = card.memory_state {
+                self.storage
+                    .get_card(card.id)?
+                    .and_then(|old| old.memory_state)
+                    .is_some_and(|old| {
+                        state.stability != old.stability
+                            && state.stability_internal == old.stability_internal
+                            && state.stability_fast == old.stability_fast
+                    })
+            } else {
+                false
+            };
+            if incomplete || edited_s90 {
+                let config = self.deck_config_for_card(&card)?;
                 let model = fsrs::FSRS::new(config.fsrs_params())?;
-                if model.version() == fsrs::ModelVersion::Fsrs7 {
+                if edited_s90 || model.version() == fsrs::ModelVersion::Fsrs7 {
                     let state = card.memory_state.unwrap();
                     // Legacy callers explicitly set public S90/D. Respect their
                     // edit, rather than treating S90 as the internal slow trace.
@@ -235,6 +247,68 @@ mod tests {
         );
         col.undo()?;
         assert_eq!(col.storage.get_card(cid)?.unwrap(), original);
+        Ok(())
+    }
+
+    fn update_card_via_service(col: &mut Collection, card: Card) -> Result<()> {
+        let _ = CardsService::update_cards(
+            col,
+            anki_proto::cards::UpdateCardsRequest {
+                cards: vec![card.into()],
+                ..Default::default()
+            },
+        )?;
+        Ok(())
+    }
+
+    #[test]
+    fn an_s90_edit_with_the_old_traces_rebuilds_the_traces() -> Result<()> {
+        let mut col = Collection::new();
+        let note = NoteAdder::basic(&mut col).add(&mut col);
+        let cid = col.storage.card_ids_of_notes(&[note.id])?[0];
+        let fsrs = fsrs::FSRS::new(&fsrs::DEFAULT_PARAMETERS)?;
+        let mut card = col.storage.get_card(cid)?.unwrap();
+        card.memory_state =
+            crate::scheduler::fsrs::repair::fsrs_memory_state_for_s90_and_difficulty(
+                &fsrs, 10.0, 6.0,
+            );
+        col.storage.update_card(&card)?;
+
+        // An add-on reads the card, changes the S90 and writes it back.
+        let mut card = col.storage.get_card(cid)?.unwrap();
+        card.memory_state.as_mut().unwrap().stability = 50.0;
+        update_card_via_service(&mut col, card)?;
+
+        let state = col.storage.get_card(cid)?.unwrap().memory_state.unwrap();
+        assert_eq!(state.stability, 50.0);
+        assert!((fsrs.interval_at_retrievability(state.into(), 0.9) - 50.0).abs() < 0.01);
+        Ok(())
+    }
+
+    #[test]
+    fn an_s90_edit_in_an_fsrs6_preset_changes_the_stability_the_model_uses() -> Result<()> {
+        let mut col = Collection::new();
+        let mut config = col.get_deck_config(DeckConfigId(1), false)?.unwrap();
+        config.inner.fsrs_params_7.clear();
+        config.inner.fsrs_params_6 = fsrs::FSRS6_DEFAULT_PARAMETERS.to_vec();
+        col.add_or_update_deck_config(&mut config)?;
+        let note = NoteAdder::basic(&mut col).add(&mut col);
+        let cid = col.storage.card_ids_of_notes(&[note.id])?[0];
+        let mut card = col.storage.get_card(cid)?.unwrap();
+        card.memory_state = Some(crate::card::FsrsMemoryState {
+            stability: 10.0,
+            stability_internal: 10.0,
+            stability_fast: None,
+            difficulty: 6.0,
+        });
+        col.storage.update_card(&card)?;
+
+        let mut card = col.storage.get_card(cid)?.unwrap();
+        card.memory_state.as_mut().unwrap().stability = 50.0;
+        update_card_via_service(&mut col, card)?;
+
+        let state = col.storage.get_card(cid)?.unwrap().memory_state.unwrap();
+        assert_eq!((state.stability, state.stability_internal), (50.0, 50.0));
         Ok(())
     }
 

@@ -351,10 +351,28 @@ fn ensure_u32_valid(val: &mut u32, default: u32, min: u32, max: u32) {
 
 #[cfg(test)]
 mod tests {
-
     use std::assert_matches;
 
     use super::*;
+
+    #[test]
+    fn empty_params_use_fsrs7_defaults() {
+        assert_eq!(
+            DeckConfig::default().fsrs_params().as_slice(),
+            fsrs::DEFAULT_PARAMETERS.as_slice()
+        );
+    }
+
+    #[test]
+    fn new_collections_store_fsrs7_defaults_explicitly() -> Result<()> {
+        let col = Collection::new();
+        let config = col.get_deck_config(DeckConfigId(1), false)?.unwrap();
+        assert_eq!(
+            config.inner.fsrs_params_7.as_slice(),
+            fsrs::DEFAULT_PARAMETERS.as_slice()
+        );
+        Ok(())
+    }
 
     #[test]
     fn get_deck_config_returns_created_config() -> Result<()> {
@@ -546,20 +564,4 @@ mod tests {
 
         Ok(())
     }
-
-    #[test]
-    fn empty_params_use_fsrs7_defaults() {
-        assert_eq!(
-            DeckConfig::default().fsrs_params().as_slice(),
-            fsrs::DEFAULT_PARAMETERS.as_slice()
-        );
-    }
-
-    #[test]
-    fn new_collections_store_fsrs7_defaults_explicitly() -> Result<()> {
-        let col = Collection::new();
-        let config = col.get_deck_config(DeckConfigId(1), false)?.unwrap();
-        assert_eq!(
-            config.inner.fsrs_params_7.as_slice(),
-            fsrs::DEFAULT_PARAMETERS.as_slice()
-        );
+}

@@ -1,4 +1,4 @@
-// Copyright: Ankitects Pty Ltd and contributors
+// Copyright: Anki Software, LLC and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 use std::collections::HashMap;
@@ -12,6 +12,7 @@ use super::memory_state::get_decay_from_params;
 use super::memory_state::ComputeMemoryProgress;
 use super::memory_state::FsrsItemForMemoryState;
 use super::params::ignore_revlogs_before_ms_from_config;
+use super::ReplaySync;
 use crate::card::FsrsMemoryState;
 use crate::prelude::*;
 use crate::search::SearchNode;
@@ -138,6 +139,14 @@ pub(super) fn set_preset_retention_and_decay(
     card.decay = Some(get_decay_from_params(params));
 }
 
+/// An invalid cutoff is editable in Deck Options. Defer this preset without
+/// discarding its cutoff or preventing other presets from being repaired.
+pub(super) fn migration_history_cutoff(config: &DeckConfig) -> Option<TimestampMillis> {
+    ignore_revlogs_before_ms_from_config(config).inspect_err(|err| {
+        tracing::warn!(preset = %config.name, %err, "FSRS replay deferred; correct the ignore-before date in Deck Options");
+    }).ok()
+}
+
 impl Collection {
     /// Replays the review history of the cards matching `search` under
     /// `config`'s history settings, keyed by card.
@@ -147,6 +156,7 @@ impl Collection {
         search: SearchNode,
         config: &DeckConfig,
         next_day_at: TimestampSecs,
+        cutoff: TimestampMillis,
     ) -> Result<HashMap<CardId, Option<FsrsItemForMemoryState>>> {
         let revlog = self.revlog_for_srs(search)?;
         Ok(fsrs_items_for_memory_states(
@@ -154,30 +164,26 @@ impl Collection {
             revlog,
             next_day_at,
             config.inner.historical_retention,
-            ignore_revlogs_before_ms_from_config(config)?,
+            cutoff,
         )?
         .into_iter()
         .collect())
     }
 
-    pub(crate) fn fsrs_config_for_card(&mut self, card: &Card) -> Result<DeckConfig> {
-        let deck = self
-            .get_deck(card.original_or_current_deck_id())?
-            .or_not_found(card.deck_id)?;
-        let id = deck.config_id().or_invalid("card has no home preset")?;
-        self.get_deck_config(id, true)?.or_not_found(id)
-    }
-
     pub(crate) fn incomplete_fsrs7_card_ids(&self) -> Result<Vec<CardId>> {
         let decks = self.storage.get_decks_map()?;
         let configs = self.storage.get_deck_config_map()?;
+        let eligible: std::collections::HashSet<_> = configs
+            .values()
+            .filter(|config| config.uses_fsrs7() && migration_history_cutoff(config).is_some())
+            .map(|config| config.id)
+            .collect();
         let mut ids = Vec::new();
         for (id, home_deck) in self.storage.cards_with_incomplete_fsrs_state()? {
             if decks
                 .get(&home_deck)
                 .and_then(|deck| deck.config_id())
-                .and_then(|id| configs.get(&id))
-                .is_some_and(DeckConfig::uses_fsrs7)
+                .is_some_and(|id| eligible.contains(&id))
             {
                 ids.push(id);
             }
@@ -185,7 +191,7 @@ impl Collection {
         Ok(ids)
     }
 
-    pub(crate) fn repair_incomplete_fsrs7_states(&mut self) -> Result<usize> {
+    pub(crate) fn repair_incomplete_fsrs7_states(&mut self, sync: ReplaySync) -> Result<usize> {
         if self.server {
             return Ok(0);
         }
@@ -193,12 +199,16 @@ impl Collection {
         if ids.is_empty() {
             return Ok(0);
         }
-        self.transact_no_undo_after_sync(|col| col.rebuild_fsrs_states_inner(&ids))
+        self.transact_no_undo_after_sync(|col| col.rebuild_fsrs_states_inner(&ids, sync))
     }
 
     /// Caller supplies a transaction. Rebuild under the destination preset,
     /// without changing due dates, queues or intervals.
-    pub(crate) fn rebuild_fsrs_states_inner(&mut self, ids: &[CardId]) -> Result<usize> {
+    pub(crate) fn rebuild_fsrs_states_inner(
+        &mut self,
+        ids: &[CardId],
+        sync: ReplaySync,
+    ) -> Result<usize> {
         if ids.is_empty() {
             return Ok(0);
         }
@@ -223,6 +233,9 @@ impl Collection {
         let mut repaired = 0;
         for (id, cards) in groups {
             let config = &configs[&id];
+            let Some(cutoff) = migration_history_cutoff(config) else {
+                continue;
+            };
             let fsrs = FSRS::new(config.fsrs_params())?;
             let ids: Vec<_> = cards.iter().map(|card| card.id).collect();
             let mut items = self.fsrs_items_by_card(
@@ -230,6 +243,7 @@ impl Collection {
                 SearchNode::CardIds(comma_separated_ids(&ids)),
                 config,
                 timing.next_day_at,
+                cutoff,
             )?;
             for mut card in cards {
                 let original = card.clone();
@@ -247,7 +261,8 @@ impl Collection {
                     .or_invalid("invalid incomplete FSRS memory state")?
                 });
                 set_preset_retention_and_decay(&mut card, &decks, config, config.fsrs_params());
-                self.update_card_inner(&mut card, original, usn)?;
+                card.usn = sync.card_usn(original.usn, usn);
+                self.update_card_undoable(&mut card, original)?;
                 repaired += 1;
                 progress.update(true, |p| p.current_cards += 1)?;
             }
@@ -285,7 +300,7 @@ mod tests {
                 false,
             )?;
         }
-        assert_eq!(col.repair_incomplete_fsrs7_states()?, 1);
+        assert_eq!(col.repair_incomplete_fsrs7_states(ReplaySync::Preserve)?, 1);
         let repaired = col.storage.get_card(cid)?.unwrap();
         let model = FSRS::new(&fsrs::DEFAULT_PARAMETERS)?;
         let expected = model.memory_state(
@@ -323,7 +338,7 @@ mod tests {
             "update cards set type=2, queue=2, due=123, ivl=30, data=? where id=?",
             (r#"{ "s": 20, "d": 6, "s_int": null, "s_fast": 2 }"#, cid),
         )?;
-        assert_eq!(col.repair_incomplete_fsrs7_states()?, 1);
+        assert_eq!(col.repair_incomplete_fsrs7_states(ReplaySync::Preserve)?, 1);
         let card = col.storage.get_card(cid)?.unwrap();
         let state = card.memory_state.unwrap();
         assert_eq!((card.due, card.interval), (123, 30));
@@ -331,7 +346,7 @@ mod tests {
         let fsrs = FSRS::new(&fsrs::DEFAULT_PARAMETERS)?;
         assert!((fsrs.interval_at_retrievability(state.into(), 0.9) - 20.0).abs() < 0.01);
         assert!(col.incomplete_fsrs7_card_ids()?.is_empty());
-        assert_eq!(col.repair_incomplete_fsrs7_states()?, 0);
+        assert_eq!(col.repair_incomplete_fsrs7_states(ReplaySync::Preserve)?, 0);
         assert_eq!(col.storage.get_card(cid)?.unwrap(), card);
         Ok(())
     }

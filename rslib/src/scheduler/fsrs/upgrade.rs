@@ -1,20 +1,43 @@
-// Copyright: Ankitects Pty Ltd and contributors
+// Copyright: Anki Software, LLC and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 use fsrs::FSRS;
 
 use super::memory_state::ComputeMemoryProgress;
+use super::repair::migration_history_cutoff;
 use super::repair::set_preset_retention_and_decay;
 use crate::card::CardType;
 use crate::prelude::*;
 use crate::search::SearchNode;
 use crate::storage::comma_separated_ids;
 
+/// Offline replay must leave already-synced cards clean: an older client may
+/// have answered one within the same modification-timestamp second.
+#[derive(Clone, Copy)]
+pub(crate) enum ReplaySync {
+    Preserve,
+    Upload,
+}
+
+impl ReplaySync {
+    pub(super) fn card_usn(self, original: Usn, pending: Usn) -> Usn {
+        match self {
+            Self::Preserve => original,
+            Self::Upload => pending,
+        }
+    }
+}
+
 impl Collection {
+    pub(crate) fn refresh_fsrs_states(&mut self, sync: ReplaySync) -> Result<()> {
+        self.upgrade_empty_fsrs_presets(sync)?;
+        self.repair_incomplete_fsrs7_states(sync)?;
+        Ok(())
+    }
     /// Empty presets follow the current defaults. Upgrade their cards and pin
     /// the chosen defaults atomically, before exposing them to R consumers.
     /// Explicit legacy parameter arrays continue to select their old model.
-    pub(crate) fn upgrade_empty_fsrs_presets(&mut self) -> Result<()> {
+    pub(crate) fn upgrade_empty_fsrs_presets(&mut self, sync: ReplaySync) -> Result<()> {
         if self.server {
             return Ok(());
         }
@@ -23,11 +46,12 @@ impl Collection {
             .all_deck_config()?
             .into_iter()
             .filter(DeckConfig::has_empty_fsrs_params)
+            .filter_map(|config| migration_history_cutoff(&config).map(|cutoff| (config, cutoff)))
             .collect();
         if configs.is_empty() {
             return Ok(());
         }
-        configs.sort_by_key(|config| config.id);
+        configs.sort_by_key(|(config, _)| config.id);
         self.transact_no_undo_after_sync(|col| {
             let decks = col.storage.get_decks_map()?;
             let timing = col.timing_today()?;
@@ -35,7 +59,7 @@ impl Collection {
             let fsrs_enabled = col.get_config_bool(BoolKey::Fsrs);
             let fsrs = FSRS::new(&[])?;
             let mut progress = col.new_progress_handler::<ComputeMemoryProgress>();
-            for mut config in configs {
+            for (mut config, cutoff) in configs {
                 let deck_ids: Vec<_> = decks
                     .values()
                     .filter(|deck| deck.config_id() == Some(config.id))
@@ -45,7 +69,7 @@ impl Collection {
                     let search = SearchNode::DeckIdsWithoutChildren(comma_separated_ids(&deck_ids));
                     let cards = col.all_cards_for_search(search.clone())?;
                     let mut items =
-                        col.fsrs_items_by_card(&fsrs, search, &config, timing.next_day_at)?;
+                        col.fsrs_items_by_card(&fsrs, search, &config, timing.next_day_at, cutoff)?;
                     progress.update(false, |p| p.total_cards += cards.len() as u32)?;
                     for mut card in cards {
                         if card.ctype != CardType::New
@@ -63,14 +87,16 @@ impl Collection {
                                 &config,
                                 &fsrs::DEFAULT_PARAMETERS,
                             );
-                            col.update_card_inner(&mut card, original, usn)?;
+                            card.usn = sync.card_usn(original.usn, usn);
+                            col.update_card_undoable(&mut card, original)?;
                         }
                         progress.update(true, |p| p.current_cards += 1)?;
                     }
                 }
                 let original = config.clone();
                 config.inner.fsrs_params_7 = fsrs::DEFAULT_PARAMETERS.to_vec();
-                col.update_deck_config_inner(&mut config, original, Some(usn))?;
+                config.usn = usn;
+                col.update_deck_config_inner(&mut config, original, None)?;
                 progress.check_cancelled()?;
             }
             Ok(())
@@ -176,7 +202,8 @@ mod tests {
             .abs()
                 < 0.0001
         );
-        assert_eq!(upgraded.usn, Usn(-1));
+        assert_eq!(upgraded.usn, card.usn);
+        assert_eq!(upgraded.mtime, card.mtime);
         let modified = col.storage.get_collection_timestamps()?.collection_change;
         col.close(None)?;
 
@@ -215,7 +242,7 @@ mod tests {
         let new_note = NoteAdder::basic(&mut col).add(&mut col);
         let new_card = col.storage.all_cards_of_note(new_note.id)?.remove(0);
 
-        col.upgrade_empty_fsrs_presets()?;
+        col.upgrade_empty_fsrs_presets(ReplaySync::Preserve)?;
 
         let upgraded = col.storage.get_card(card.id)?.unwrap();
         assert_eq!(
@@ -247,40 +274,38 @@ mod tests {
     }
 
     #[test]
-    fn upgrade_rolls_back_all_presets_and_cards_on_error_and_can_retry() -> Result<()> {
-        let mut col = Collection::new();
-        col.set_config_bool(BoolKey::Fsrs, true, false)?;
+    fn invalid_cutoff_defers_only_its_preset_until_corrected() -> Result<()> {
+        let file = new_tempfile()?;
+        let mut col = CollectionBuilder::new(file.path()).build()?;
         empty_default_preset(&mut col)?;
-        let card = legacy_card(&mut col, DeckId(1))?;
-        let invalid_deck = DeckAdder::new("Invalid date")
-            .with_config(|config| config.inner.ignore_revlogs_before_date = "invalid".into())
-            .add(&mut col);
-        let original_config = col.get_deck_config(DeckConfigId(1), false)?.unwrap();
-
-        let error = col.upgrade_empty_fsrs_presets().unwrap_err();
-
-        assert!(matches!(error, AnkiError::InvalidInput { .. }));
-        assert_eq!(col.storage.get_card(card.id)?.unwrap(), card);
-        assert_eq!(
-            col.get_deck_config(DeckConfigId(1), false)?.unwrap(),
-            original_config
-        );
-        let mut fixed = col
-            .get_deck_config(invalid_deck.config_id().unwrap(), false)?
+        let invalid = DeckAdder::new("Invalid cutoff")
+            .with_config(|config| {
+                config.name = "Invalid cutoff".into();
+                config.inner.ignore_revlogs_before_date = "2025-02-30".into();
+            })
+            .add(&mut col)
+            .config_id()
             .unwrap();
-        fixed.inner.ignore_revlogs_before_date.clear();
-        col.add_or_update_deck_config(&mut fixed)?;
-        col.upgrade_empty_fsrs_presets()?;
-        assert!(col
-            .storage
-            .get_card(card.id)?
-            .unwrap()
-            .memory_state
-            .unwrap()
-            .stability_fast
-            .is_some());
+        col.close(None)?;
+        let mut col = CollectionBuilder::new(file.path()).build()?;
         assert_eq!(
             col.get_deck_config(DeckConfigId(1), false)?
+                .unwrap()
+                .inner
+                .fsrs_params_7,
+            fsrs::DEFAULT_PARAMETERS
+        );
+        let mut config = col.get_deck_config(invalid, false)?.unwrap();
+        assert!(config.has_empty_fsrs_params());
+        let diagnostics = col.check_database()?.to_i18n_strings(&col.tr);
+        assert!(diagnostics
+            .iter()
+            .any(|message| message.contains("Invalid cutoff")));
+        config.inner.ignore_revlogs_before_date.clear();
+        col.add_or_update_deck_config(&mut config)?;
+        col.upgrade_empty_fsrs_presets(ReplaySync::Preserve)?;
+        assert_eq!(
+            col.get_deck_config(invalid, false)?
                 .unwrap()
                 .inner
                 .fsrs_params_7,
@@ -297,7 +322,7 @@ mod tests {
         col.storage.set_last_sync(server_time)?;
         col.storage.set_modified_time(server_time)?;
 
-        col.upgrade_empty_fsrs_presets()?;
+        col.upgrade_empty_fsrs_presets(ReplaySync::Preserve)?;
 
         assert!(col
             .storage

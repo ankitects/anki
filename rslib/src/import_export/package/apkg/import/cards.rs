@@ -13,6 +13,7 @@ use crate::config::SchedulerVersion;
 use crate::import_export::gather::ExchangeData;
 use crate::prelude::*;
 use crate::revlog::RevlogEntry;
+use crate::scheduler::fsrs::ReplaySync;
 
 type CardAsNidAndOrd = (NoteId, u16);
 
@@ -105,7 +106,7 @@ impl Context<'_> {
         // A retained destination preset may differ from the source, even if
         // the source had a complete state. Replay only after importing history.
         ctx.target_col
-            .rebuild_fsrs_states_inner(&ctx.rebuild_fsrs_states)?;
+            .rebuild_fsrs_states_inner(&ctx.rebuild_fsrs_states, ReplaySync::Upload)?;
         Ok(())
     }
 }
@@ -157,7 +158,7 @@ impl CardContext<'_> {
         let old_id = self.uniquify_card_id(card);
 
         if let Some(state) = card.memory_state {
-            let config = self.target_col.fsrs_config_for_card(card)?;
+            let config = self.target_col.deck_config_for_card(card)?;
             if source_params != Some(config.fsrs_params())
                 || (config.uses_fsrs7()
                     && (state.stability_fast.is_none()

@@ -11,3 +11,5 @@ pub mod retention;
 pub mod simulator;
 pub mod try_collect;
 mod upgrade;
+
+pub(crate) use upgrade::ReplaySync;

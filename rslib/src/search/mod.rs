@@ -8,7 +8,6 @@ mod sqlwriter;
 pub(crate) mod writer;
 
 use std::borrow::Cow;
-use std::cmp::Ordering;
 
 pub use builder::JoinSearches;
 pub use builder::Negated;
@@ -163,12 +162,6 @@ impl Collection {
     where
         N: TryIntoSearch,
     {
-        if let Some(reverse) = exact_retrievability_sort_mode(ReturnItemType::Cards, &mode) {
-            let top_node = search.try_into_search()?;
-            let mut ids = self.search_card_ids_for_node(&top_node, mode.required_table())?;
-            self.sort_card_ids_by_exact_retrievability(&mut ids, reverse)?;
-            return Ok(ids);
-        }
         self.search(search, mode)
     }
 
@@ -190,21 +183,17 @@ impl Collection {
 impl Collection {
     fn with_exact_retrievability_table<R>(
         &mut self,
-        needed: bool,
+        top_node: &Node,
+        sorting_by_r: bool,
         op: impl FnOnce(&mut Self) -> Result<R>,
     ) -> Result<R> {
-        if needed {
-            if let Err(err) = self.setup_exact_retrievability_table() {
-                let _ = self.clear_exact_retrievability_table();
-                return Err(err);
-            }
+        if !sorting_by_r && !has_retrievability_property(top_node) {
+            return op(self);
         }
-        let result = op(self);
-        let cleanup = if needed {
-            self.clear_exact_retrievability_table()
-        } else {
-            Ok(())
-        };
+        let result = self
+            .setup_exact_retrievability_table(top_node)
+            .and_then(|()| op(self));
+        let cleanup = self.clear_exact_retrievability_table();
         match (result, cleanup) {
             (Err(err), _) => Err(err),
             (Ok(_), Err(err)) => Err(err),
@@ -212,7 +201,7 @@ impl Collection {
         }
     }
 
-    fn setup_exact_retrievability_table(&mut self) -> Result<()> {
+    fn setup_exact_retrievability_table(&mut self, top_node: &Node) -> Result<()> {
         self.storage.db.execute_batch(&format!(
             "drop table if exists {EXACT_RETRIEVABILITY_TABLE};\
              create temporary table {EXACT_RETRIEVABILITY_TABLE}(\
@@ -222,18 +211,18 @@ impl Collection {
         let decks = self.storage.get_decks_map()?;
         let configs = self.storage.get_deck_config_map()?;
         let mut metrics = FsrsMetricContext::new(&decks, &configs);
-        let cards = self.storage.all_cards_for_fsrs_metrics()?;
-        let mut rows = Vec::new();
-        for card in cards {
-            if let Some(retrievability) = metrics.card_retrievability(&card, &timing)? {
-                rows.push((card.id.0, retrievability));
-            }
-        }
+        let (sql, args) = SqlWriter::new(self, ReturnItemType::Cards).build_query(
+            &without_retrievability_properties(top_node, false),
+            RequiredTable::Cards,
+        )?;
+        let cards = self.storage.cards_with_memory_state_in(&sql, &args)?;
         let mut insert = self.storage.db.prepare_cached(&format!(
-            "insert into {EXACT_RETRIEVABILITY_TABLE}(cid, retrievability) values (?, ?)"
+            "insert into {EXACT_RETRIEVABILITY_TABLE} values (?, ?)"
         ))?;
-        for (cid, retrievability) in rows {
-            insert.execute(rusqlite::params![cid, retrievability])?;
+        for card in cards {
+            if let Some(r) = metrics.card_retrievability(&card, &timing)? {
+                insert.execute(rusqlite::params![card.id, r])?;
+            }
         }
         Ok(())
     }
@@ -246,54 +235,6 @@ impl Collection {
         Ok(())
     }
 
-    fn search_card_ids_for_node(
-        &mut self,
-        top_node: &Node,
-        required_table: RequiredTable,
-    ) -> Result<Vec<CardId>> {
-        self.with_exact_retrievability_table(has_retrievability_property(top_node), |col| {
-            let writer = SqlWriter::new(col, ReturnItemType::Cards);
-            let (sql, args) = writer.build_query(top_node, required_table)?;
-            let mut stmt = col.storage.db.prepare(&sql)?;
-            let ids = stmt
-                .query_map(params_from_iter(args.iter()), |row| row.get(0))?
-                .collect::<std::result::Result<_, _>>()
-                .map_err(Into::into);
-            ids
-        })
-    }
-
-    fn sort_card_ids_by_exact_retrievability(
-        &mut self,
-        ids: &mut [CardId],
-        reverse: bool,
-    ) -> Result<()> {
-        let timing = self.timing_today()?;
-        let cards = self.all_cards_for_ids(ids, false)?;
-        let decks = self.storage.get_decks_map()?;
-        let configs = self.storage.get_deck_config_map()?;
-        let mut metrics = FsrsMetricContext::new(&decks, &configs);
-        let mut with_retrievability = Vec::with_capacity(ids.len());
-        for card in cards {
-            let retrievability = metrics.card_retrievability(&card, &timing)?;
-            with_retrievability.push((card.id, retrievability));
-        }
-        with_retrievability.sort_by(|(cid_a, r_a), (cid_b, r_b)| {
-            let order = match (r_a, r_b) {
-                (Some(a), Some(b)) => a.total_cmp(b),
-                (None, Some(_)) => Ordering::Less,
-                (Some(_), None) => Ordering::Greater,
-                (None, None) => Ordering::Equal,
-            };
-            let order = if reverse { order.reverse() } else { order };
-            order.then_with(|| cid_a.cmp(cid_b))
-        });
-        for (target, (cid, _)) in ids.iter_mut().zip(with_retrievability) {
-            *target = cid;
-        }
-        Ok(())
-    }
-
     fn search<T, N>(&mut self, search: N, mode: SortMode) -> Result<Vec<T>>
     where
         N: TryIntoSearch,
@@ -301,17 +242,21 @@ impl Collection {
     {
         let item_type = T::as_return_item_type();
         let top_node = search.try_into_search()?;
-        self.with_exact_retrievability_table(has_retrievability_property(&top_node), |col| {
-            let writer = SqlWriter::new(col, item_type);
-            let (mut sql, args) = writer.build_query(&top_node, mode.required_table())?;
-            col.add_order(&mut sql, item_type, mode)?;
+        self.with_exact_retrievability_table(
+            &top_node,
+            exact_retrievability_sort(item_type, &mode),
+            |col| {
+                let writer = SqlWriter::new(col, item_type);
+                let (mut sql, args) = writer.build_query(&top_node, mode.required_table())?;
+                col.add_order(&mut sql, item_type, mode)?;
 
-            let mut stmt = col.storage.db.prepare(&sql)?;
-            let ids = stmt
-                .query_map(params_from_iter(args.iter()), |row| row.get(0))?
-                .collect::<std::result::Result<_, _>>()?;
-            Ok(ids)
-        })
+                let mut stmt = col.storage.db.prepare(&sql)?;
+                let ids = stmt
+                    .query_map(params_from_iter(args.iter()), |row| row.get(0))?
+                    .collect::<std::result::Result<_, _>>()?;
+                Ok(ids)
+            },
+        )
     }
 
     fn add_order(
@@ -345,21 +290,12 @@ impl Collection {
         mode: SortMode,
     ) -> Result<CardTableGuard<'_>> {
         let top_node = search.try_into_search()?;
-        if let Some(reverse) = exact_retrievability_sort_mode(ReturnItemType::Cards, &mode) {
-            let mut ids = self.search_card_ids_for_node(&top_node, mode.required_table())?;
-            self.sort_card_ids_by_exact_retrievability(&mut ids, reverse)?;
-            self.storage
-                .setup_searched_cards_table_to_preserve_order()?;
-            self.storage.set_search_table_to_card_ids(&ids)?;
-            return Ok(CardTableGuard {
-                cards: ids.len(),
-                col: self,
-            });
-        }
         let want_order = mode != SortMode::NoOrder;
 
-        let cards =
-            self.with_exact_retrievability_table(has_retrievability_property(&top_node), |col| {
+        let cards = self.with_exact_retrievability_table(
+            &top_node,
+            exact_retrievability_sort(ReturnItemType::Cards, &mode),
+            |col| {
                 let writer = SqlWriter::new(col, ReturnItemType::Cards);
                 let (mut sql, args) = writer.build_query(&top_node, mode.required_table())?;
                 col.add_order(&mut sql, ReturnItemType::Cards, mode)?;
@@ -376,7 +312,8 @@ impl Collection {
                     .prepare(&sql)?
                     .execute(params_from_iter(args))
                     .map_err(Into::into)
-            })?;
+            },
+        )?;
 
         Ok(CardTableGuard { cards, col: self })
     }
@@ -457,16 +394,42 @@ impl Collection {
     }
 }
 
-fn exact_retrievability_sort_mode(item_type: ReturnItemType, mode: &SortMode) -> Option<bool> {
-    match (item_type, mode) {
+fn exact_retrievability_sort(item_type: ReturnItemType, mode: &SortMode) -> bool {
+    matches!(
+        (item_type, mode),
         (
             ReturnItemType::Cards,
             SortMode::Builtin {
                 column: Column::Retrievability,
-                reverse,
-            },
-        ) => Some(*reverse),
-        _ => None,
+                ..
+            }
+        )
+    )
+}
+
+/// A search that matches at least the cards `node` matches. Each R property
+/// becomes true, or false under an odd number of NOTs.
+fn without_retrievability_properties(node: &Node, negated: bool) -> Node {
+    match node {
+        Node::Not(inner) => Node::Not(Box::new(without_retrievability_properties(inner, !negated))),
+        Node::Group(nodes) => Node::Group(
+            nodes
+                .iter()
+                .map(|node| without_retrievability_properties(node, negated))
+                .collect(),
+        ),
+        Node::Search(SearchNode::Property {
+            kind: PropertyKind::Retrievability(_),
+            ..
+        }) => {
+            let all = Node::Search(SearchNode::WholeCollection);
+            if negated {
+                Node::Not(Box::new(all))
+            } else {
+                all
+            }
+        }
+        other => other.clone(),
     }
 }
 
@@ -533,12 +496,8 @@ fn card_order_from_sort_column(column: Column, timing: SchedTimingToday) -> Cow<
         Column::Stability => "extract_fsrs_variable(c.data, 's') asc".into(),
         Column::Difficulty => "extract_fsrs_variable(c.data, 'd') asc".into(),
         Column::Retrievability => format!(
-            "extract_fsrs_retrievability(c.data, case when c.odue !=0 then c.odue else c.due end, c.ivl, {}, {}, {}) asc",
-            timing.days_elapsed,
-            timing.next_day_at.0,
-            timing.now.0,
-        )
-        .into(),
+            "(select retrievability from {EXACT_RETRIEVABILITY_TABLE} where cid = c.id) asc, c.id"
+        ).into(),
     }
 }
 
@@ -637,44 +596,6 @@ mod test {
     }
 
     #[test]
-    fn numeric_field_search_uses_named_field_not_sort_field() -> Result<()> {
-        let mut col = Collection::new();
-        let mut nt = col.get_notetype_by_name("Basic")?.unwrap().as_ref().clone();
-        nt.add_field("Frequency");
-        col.update_notetype(&mut nt, false)?;
-
-        let nt = col.get_notetype_by_name("Basic")?.unwrap();
-        assert_ne!(nt.config.sort_field_idx, 2);
-
-        for frequency in ["499", "500", "550", "600", "1500", "abc"] {
-            let mut note = nt.new_note();
-            note.set_field(0, "not numeric")?;
-            note.set_field(2, frequency)?;
-            col.add_note(&mut note, DeckId(1))?;
-        }
-
-        let mut matching_frequencies = |query: &str| -> Result<Vec<String>> {
-            let mut ids = col.search_notes(query, SortMode::NoOrder)?;
-            ids.sort();
-            ids.into_iter()
-                .map(|id| Ok(col.storage.get_note(id)?.unwrap().fields()[2].clone()))
-                .collect()
-        };
-
-        assert_eq!(
-            matching_frequencies("Frequency>500 Frequency<600")?,
-            ["550"]
-        );
-        assert_eq!(matching_frequencies("Frequency<500")?, ["499"]);
-        assert_eq!(matching_frequencies("Frequency<=500")?, ["499", "500"]);
-        assert_eq!(matching_frequencies("Frequency=500")?, ["500"]);
-        assert_eq!(matching_frequencies("Frequency>=600")?, ["600", "1500"]);
-        assert_eq!(matching_frequencies("Frequency>600")?, ["1500"]);
-
-        Ok(())
-    }
-
-    #[test]
     fn retrievability_search_and_sort_use_complete_fsrs7_state() -> Result<()> {
         let mut col = Collection::new();
         let config_id = col.get_deck(DeckId(1))?.unwrap().config_id().unwrap();
@@ -741,10 +662,64 @@ mod test {
     }
 
     #[test]
+    fn retrievability_search_computes_r_only_for_cards_the_rest_can_match() -> Result<()> {
+        let mut col = Collection::new();
+        let other_deck = col.get_or_create_normal_deck("other")?.id;
+        let nt = col.get_notetype_by_name("Basic")?.unwrap();
+        let timing = col.timing_today()?;
+        let mut ids = vec![];
+        for (deck, days) in [(DeckId(1), 1), (other_deck, 30)] {
+            let mut note = nt.new_note();
+            col.add_note(&mut note, deck)?;
+            let mut card = col.storage.all_cards_of_note(note.id)?.remove(0);
+            card.ctype = CardType::Review;
+            card.queue = CardQueue::Review;
+            card.interval = 10;
+            card.memory_state = Some(FsrsMemoryState {
+                stability: 10.0,
+                stability_internal: 10.0,
+                stability_fast: Some(5.0),
+                difficulty: 5.0,
+            });
+            card.last_review_time = Some(timing.now.adding_secs(-days * 86_400));
+            col.storage.update_card(&card)?;
+            ids.push(card.id);
+        }
+
+        let rows_for = |col: &mut Collection, search: &str| -> Result<u32> {
+            let node = search.try_into_search()?;
+            col.with_exact_retrievability_table(&node, false, |col| {
+                Ok(col.storage.db.query_row(
+                    &format!("select count(*) from {EXACT_RETRIEVABILITY_TABLE}"),
+                    [],
+                    |row| row.get(0),
+                )?)
+            })
+        };
+        assert_eq!(rows_for(&mut col, "deck:other prop:r<0.99")?, 1);
+        assert_eq!(rows_for(&mut col, "prop:r<0.99")?, 2);
+        // Under a NOT, the relaxed search must still match every card.
+        assert_eq!(rows_for(&mut col, "-(deck:other -prop:r<0.5)")?, 2);
+
+        assert_eq!(
+            col.search_cards("deck:other prop:r<0.99", SortMode::NoOrder)?,
+            vec![ids[1]]
+        );
+        let mut matched = col.search_cards("-prop:r<0.5 or deck:other", SortMode::NoOrder)?;
+        matched.sort();
+        let mut expected = ids.clone();
+        expected.sort();
+        assert_eq!(matched, expected);
+        Ok(())
+    }
+
+    #[test]
     fn exact_retrievability_table_is_cleared_after_search_errors() -> Result<()> {
         let mut col = Collection::new();
         let result: Result<()> =
-            col.with_exact_retrievability_table(true, |_| invalid_input!("forced search failure"));
+            col.with_exact_retrievability_table(&"prop:r<0.5".try_into_search()?, false, |_| {
+                invalid_input!("forced search failure")
+            });
         assert!(result.is_err());
         let count: u32 = col.storage.db.query_row(
             "select count(*) from sqlite_temp_master where name = ?",
@@ -752,3 +727,44 @@ mod test {
             |row| row.get(0),
         )?;
         assert_eq!(count, 0);
+        Ok(())
+    }
+
+    #[test]
+    fn numeric_field_search_uses_named_field_not_sort_field() -> Result<()> {
+        let mut col = Collection::new();
+        let mut nt = col.get_notetype_by_name("Basic")?.unwrap().as_ref().clone();
+        nt.add_field("Frequency");
+        col.update_notetype(&mut nt, false)?;
+
+        let nt = col.get_notetype_by_name("Basic")?.unwrap();
+        assert_ne!(nt.config.sort_field_idx, 2);
+
+        for frequency in ["499", "500", "550", "600", "1500", "abc"] {
+            let mut note = nt.new_note();
+            note.set_field(0, "not numeric")?;
+            note.set_field(2, frequency)?;
+            col.add_note(&mut note, DeckId(1))?;
+        }
+
+        let mut matching_frequencies = |query: &str| -> Result<Vec<String>> {
+            let mut ids = col.search_notes(query, SortMode::NoOrder)?;
+            ids.sort();
+            ids.into_iter()
+                .map(|id| Ok(col.storage.get_note(id)?.unwrap().fields()[2].clone()))
+                .collect()
+        };
+
+        assert_eq!(
+            matching_frequencies("Frequency>500 Frequency<600")?,
+            ["550"]
+        );
+        assert_eq!(matching_frequencies("Frequency<500")?, ["499"]);
+        assert_eq!(matching_frequencies("Frequency<=500")?, ["499", "500"]);
+        assert_eq!(matching_frequencies("Frequency=500")?, ["500"]);
+        assert_eq!(matching_frequencies("Frequency>=600")?, ["600", "1500"]);
+        assert_eq!(matching_frequencies("Frequency>600")?, ["1500"]);
+
+        Ok(())
+    }
+}

@@ -1,0 +1,4 @@
+## Unreleased
+
+- Added FSRS7 scheduling for new presets and for existing presets with no saved parameters. Presets with saved legacy parameters keep their current model until the parameters are reset or optimized.
+- FSRS7 uses both memory components for recall searches, graphs, review ordering and the no-review workload estimate. The Stability shown in the browser and returned to add-ons is the interval at which predicted recall reaches 90%.
