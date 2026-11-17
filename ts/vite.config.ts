@@ -1,4 +1,4 @@
-// Copyright: Ankitects Pty Ltd and contributors
+// Copyright: Anki Software, LLC and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 import svg from "@poppanator/sveltekit-svg";
 import { sveltekit } from "@sveltejs/kit/vite";
@@ -56,7 +56,7 @@ const vitestConfig = defineVitestConfig({
         include: ["**/*.{test,spec}.{js,ts}"],
         exclude: ["tests/e2e/**", "node_modules/**"],
         coverage: {
-            include: ["lib/**", "routes/**", "editable/**", "editor/**", "html-filter/**", "reviewer/**", "tools/**"],
+            include: ["{lib,routes,editable,editor,html-filter,reviewer,tools}/**/*.{ts,js,svelte}"],
             // The test command runs from ts/. Emit repository-relative LCOV paths
             // so a later SonarCloud job can resolve them after downloading the
             // report into a fresh checkout.

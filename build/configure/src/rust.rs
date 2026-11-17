@@ -1,4 +1,4 @@
-// Copyright: Ankitects Pty Ltd and contributors
+// Copyright: Anki Software, LLC and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 use std::env;
@@ -248,7 +248,10 @@ pub fn check_minilints(build: &mut Build) -> Result<()> {
             "**/*.{py,rs,ts,svelte,mjs,md}",
             "{target,extra,.mypy_cache,node_modules,ts/.svelte-kit}/**"
         ],
-        "Cargo.lock"
+        "Cargo.lock",
+        "cargo/licenses.json",
+        ":node_modules",
+        "ts/licenses.json",
     ];
 
     build.add_action(

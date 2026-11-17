@@ -1,4 +1,4 @@
-// Copyright: Ankitects Pty Ltd and contributors
+// Copyright: Anki Software, LLC and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 use anki_proto::ankidroid::DbResponse;
 use anki_proto::ankidroid::GetActiveSequenceNumbersResponse;
@@ -58,7 +58,7 @@ impl crate::services::AnkidroidService for Collection {
     ) -> error::Result<generic::StringList> {
         let stmt = self.storage.db.prepare(&input.val)?;
         let names = stmt.column_names();
-        let names: Vec<_> = names.iter().map(ToString::to_string).collect();
+        let names: Vec<_> = names.map(ToString::to_string).collect();
         Ok(names.into())
     }
 

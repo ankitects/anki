@@ -1,4 +1,4 @@
-# Copyright: Ankitects Pty Ltd and contributors
+# Copyright: Anki Software, LLC and contributors
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 from __future__ import annotations
 
@@ -280,7 +280,8 @@ class Overview:
     # Bottom area
     ######################################################################
 
-    def _renderBottom(self) -> None:
+    def _make_bottom_links(self) -> list[list[str]]:
+        """Create a list of lists, each holding [shortcut, pycmd, button text]."""
         links = [
             ["O", "opts", tr.actions_options()],
         ]
@@ -295,6 +296,10 @@ class Overview:
             links.append(["U", "unbury", tr.studying_unbury()])
         if not is_dyn:
             links.append(["", "description", tr.scheduling_description()])
+        return links
+
+    def _renderBottom(self) -> None:
+        links = self._make_bottom_links()
         link_handler = gui_hooks.overview_will_render_bottom(
             self._linkHandler,
             links,

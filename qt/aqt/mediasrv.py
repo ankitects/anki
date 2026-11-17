@@ -1,4 +1,4 @@
-# Copyright: Ankitects Pty Ltd and contributors
+# Copyright: Anki Software, LLC and contributors
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 from __future__ import annotations
@@ -104,11 +104,12 @@ UNTRUSTED_MEDIA_CSP = "; ".join(
 TRUSTED_PAGE_CSP = "frame-ancestors 'none'"
 
 
-def _untrusted_page_content_security_policy(script_src: str) -> str:
+def _untrusted_page_content_security_policy(port: int, script_src: str) -> str:
     """CSP for pages that show user content, e.g. note fields in the editor."""
     return "; ".join(
         (
             f"script-src {script_src}",
+            f"base-uri http://127.0.0.1:{port}",
             "form-action 'none'",
             TRUSTED_PAGE_CSP,
         )
@@ -120,7 +121,7 @@ def _legacy_editor_content_security_policy(port: int) -> str:
         f"http://127.0.0.1:{port}/_anki/",
         f"http://127.0.0.1:{port}/_addons/",
     )
-    return _untrusted_page_content_security_policy(" ".join(csp_paths))
+    return _untrusted_page_content_security_policy(port, " ".join(csp_paths))
 
 
 _SVELTEKIT_CSP_META_RE = re.compile(
@@ -155,7 +156,7 @@ def _untrusted_sveltekit_content_security_policy(
     ]
     if script_hash:
         csp_paths.append(script_hash)
-    return _untrusted_page_content_security_policy(" ".join(csp_paths))
+    return _untrusted_page_content_security_policy(port, " ".join(csp_paths))
 
 
 @dataclass
@@ -604,31 +605,32 @@ def _extract_addon_request(path: str) -> LocalFileRequest | NotFound | None:
         return None
 
     addon_path = path[len(prefix) :]
+    not_found_error = NotFound(message=f"couldn't locate item in add-on folder {path}")
 
     try:
         manager = aqt.mw.addonManager
     except AttributeError as error:
         if dev_mode:
             print(f"_redirectWebExports: {error}")
-        return None
+        return not_found_error
 
     try:
         addon, sub_path = addon_path.split("/", 1)
     except ValueError:
-        return None
+        return not_found_error
     if not addon:
-        return None
+        return not_found_error
 
     pattern = manager.getWebExports(addon)
     if not pattern:
-        return None
+        return not_found_error
 
     if re.fullmatch(pattern, sub_path):
         return LocalFileRequest(
             root=manager.addonsFolder(), path=addon_path, untrusted=False
         )
 
-    return NotFound(message=f"couldn't locate item in add-on folder {path}")
+    return not_found_error
 
 
 def _extract_request(
@@ -1028,7 +1030,10 @@ def open_link() -> bytes:
     req = generic_pb2.String()
     req.ParseFromString(request.data)
     url = req.val
-    aqt.mw.taskman.run_on_main(lambda: openLink(url))
+    if url.startswith("https:"):
+        aqt.mw.taskman.run_on_main(lambda: openLink(url))
+    else:
+        logger.warning("refused to open non-https link: %s", url)
     return b""
 
 
