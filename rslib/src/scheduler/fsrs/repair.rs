@@ -61,8 +61,13 @@ pub(super) fn set_preset_retention_and_decay(
     config: &DeckConfig,
     params: &[f32],
 ) {
-    let deck = &decks[&card.original_or_current_deck_id()];
-    card.desired_retention = Some(deck.effective_desired_retention(config));
+    card.desired_retention = Some(
+        decks
+            .get(&card.original_or_current_deck_id())
+            .map_or(config.inner.desired_retention, |deck| {
+                deck.effective_desired_retention(config)
+            }),
+    );
     card.decay = Some(get_decay_from_params(params));
 }
 
@@ -116,17 +121,13 @@ impl Collection {
             .filter(|config| config.uses_fsrs7() && migration_history_cutoff(config).is_some())
             .map(|config| config.id)
             .collect();
-        let mut ids = Vec::new();
-        for (id, home_deck) in self.storage.cards_with_incomplete_fsrs_state()? {
-            if decks
-                .get(&home_deck)
-                .and_then(|deck| deck.config_id())
-                .is_some_and(|id| eligible.contains(&id))
-            {
-                ids.push(id);
-            }
-        }
-        Ok(ids)
+        let home_decks: Vec<_> = decks
+            .values()
+            .filter(|deck| deck.config_id().is_some_and(|id| eligible.contains(&id)))
+            .map(|deck| deck.id)
+            .collect();
+        self.storage
+            .cards_with_incomplete_fsrs_state(Some(&home_decks))
     }
 
     pub(crate) fn repair_incomplete_fsrs7_states(&mut self, sync: ReplaySync) -> Result<usize> {

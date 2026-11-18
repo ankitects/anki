@@ -71,9 +71,8 @@ impl ExchangeData {
             self.incomplete_fsrs_cards = guard
                 .col
                 .storage
-                .cards_with_incomplete_fsrs_state()?
+                .cards_with_incomplete_fsrs_state(None)?
                 .into_iter()
-                .map(|(id, _)| id)
                 .collect();
             self.revlog = guard.col.gather_revlog()?;
             if !allow_filtered {

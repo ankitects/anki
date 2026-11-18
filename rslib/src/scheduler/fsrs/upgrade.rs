@@ -287,6 +287,58 @@ mod tests {
     }
 
     #[test]
+    fn repair_candidates_follow_the_home_preset_while_exports_keep_all_legacy_states() -> Result<()>
+    {
+        let mut col = Collection::new();
+        let legacy = DeckAdder::new("FSRS6")
+            .with_config(|config| {
+                config.inner.fsrs_params_6 = fsrs::FSRS6_DEFAULT_PARAMETERS.to_vec()
+            })
+            .add(&mut col);
+        let filtered = DeckAdder::new("Filtered").filtered(true).add(&mut col);
+        let mut fsrs7_card = legacy_card(&mut col, DeckId(1))?;
+        fsrs7_card.original_deck_id = fsrs7_card.deck_id;
+        fsrs7_card.deck_id = filtered.id;
+        col.storage.update_card(&fsrs7_card)?;
+        let fsrs6_card = legacy_card(&mut col, legacy.id)?;
+
+        assert_eq!(col.incomplete_fsrs7_card_ids()?, vec![fsrs7_card.id]);
+        let mut all = col.storage.cards_with_incomplete_fsrs_state(None)?;
+        all.sort_unstable();
+        assert_eq!(all, vec![fsrs7_card.id, fsrs6_card.id]);
+        Ok(())
+    }
+
+    #[test]
+    fn upgrade_uses_preset_retention_when_the_original_deck_is_missing() -> Result<()> {
+        let mut col = Collection::new();
+        empty_default_preset(&mut col)?;
+        let mut card = legacy_card(&mut col, DeckId(1))?;
+        card.original_deck_id = DeckId(12345);
+        col.storage.update_card(&card)?;
+
+        col.upgrade_empty_fsrs_presets(ReplaySync::Preserve)?;
+
+        let upgraded = col.storage.get_card(card.id)?.unwrap();
+        let config = col.get_deck_config(DeckConfigId(1), false)?.unwrap();
+        assert_eq!(
+            upgraded.desired_retention,
+            Some(config.inner.desired_retention)
+        );
+        assert!(upgraded.memory_state.unwrap().stability_fast.is_some());
+        assert_eq!(
+            (
+                upgraded.original_deck_id,
+                upgraded.due,
+                upgraded.interval,
+                upgraded.usn
+            ),
+            (card.original_deck_id, card.due, card.interval, card.usn)
+        );
+        Ok(())
+    }
+
+    #[test]
     fn invalid_cutoff_defers_only_its_preset_until_corrected() -> Result<()> {
         let file = new_tempfile()?;
         let mut col = CollectionBuilder::new(file.path()).build()?;
