@@ -308,6 +308,21 @@ fn add_extract_fsrs_variable(db: &Connection) -> rusqlite::Result<()> {
     )
 }
 
+/// The scalar SQL functions have no model parameters. Anchor their legacy
+/// forgetting curve at the card's public S90.
+fn legacy_curve_retrievability(
+    state: crate::card::FsrsMemoryState,
+    seconds: u32,
+    decay: f32,
+) -> f32 {
+    let scalar_state = fsrs::MemoryState {
+        stability: state.stability,
+        stability_fast: state.stability,
+        difficulty: state.difficulty,
+    };
+    fsrs::current_retrievability(scalar_state, seconds as f32 / 86_400.0, decay)
+}
+
 /// eg. extract_fsrs_retrievability(card.data, card.due, card.ivl,
 /// timing.days_elapsed, timing.next_day_at, timing.now) -> float | null
 fn add_extract_fsrs_retrievability(db: &Connection) -> rusqlite::Result<()> {
@@ -357,9 +372,9 @@ fn add_extract_fsrs_retrievability(db: &Connection) -> rusqlite::Result<()> {
                 (today as u32).saturating_sub(review_day) * 86_400
             };
             let decay = card_data.decay.unwrap_or(FSRS5_DEFAULT_DECAY);
-            let retrievability = card_data.memory_state().map(|state| {
-                fsrs::current_retrievability(state.into(), seconds_elapsed as f32 / 86_400.0, decay)
-            });
+            let retrievability = card_data
+                .memory_state()
+                .map(|state| legacy_curve_retrievability(state, seconds_elapsed, decay));
             Ok(retrievability)
         },
     )
@@ -427,12 +442,8 @@ fn add_extract_fsrs_relative_retrievability(db: &Connection) -> rusqlite::Result
                                 secs_elapsed
                             };
 
-                        let current_retrievability = fsrs::current_retrievability(
-                            state.into(),
-                            seconds_elapsed as f32 / 86_400.0,
-                            decay,
-                        )
-                        .max(0.0001);
+                        let current_retrievability =
+                            legacy_curve_retrievability(state, seconds_elapsed, decay).max(0.0001);
 
                         return Ok(Some(
                             -(current_retrievability.powf(-1.0 / decay) - 1.)
@@ -835,6 +846,28 @@ mod test {
         col.close(Some(SchemaVersion::V18)).unwrap();
 
         assert_eq!(stored_schema_version(tempfile.path()), SCHEMA_MAX_VERSION);
+    }
+
+    #[test]
+    fn legacy_retrievability_sql_uses_public_stability() -> rusqlite::Result<()> {
+        let db = Connection::open_in_memory()?;
+        add_extract_fsrs_retrievability(&db)?;
+        add_extract_fsrs_relative_retrievability(&db)?;
+        // At the public S90, both cards are exactly due for a 90% target.
+        for data in [
+            r#"{"s":20,"s_int":40,"s_fast":3,"d":5,"decay":0.2,"dr":0.9}"#,
+            r#"{"s":20,"d":5,"decay":0.2,"dr":0.9}"#,
+        ] {
+            let (r, relative): (f32, f32) = db.query_row(
+                "select extract_fsrs_retrievability(?1, 20, 20, 20, 0, 0),
+                        extract_fsrs_relative_retrievability(?1, 20, 20, 20, 0, 0)",
+                [data],
+                |row| Ok((row.get(0)?, row.get(1)?)),
+            )?;
+            assert!((r - 0.9).abs() < 1e-5, "{r}");
+            assert!((relative + 1.0).abs() < 1e-5, "{relative}");
+        }
+        Ok(())
     }
 
     #[test]
