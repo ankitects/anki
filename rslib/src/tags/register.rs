@@ -121,6 +121,16 @@ impl Collection {
         let mut tag = Tag::new(tag, usn);
         self.register_tag(&mut tag)
     }
+
+    /// Like [register_tag_string()], but a newly added tag starts expanded.
+    /// An existing tag keeps its current state.
+    pub(super) fn register_expanded_tag_string(&mut self, tag: String, usn: Usn) -> Result<bool> {
+        let mut tag = Tag {
+            expanded: true,
+            ..Tag::new(tag, usn)
+        };
+        self.register_tag(&mut tag)
+    }
 }
 
 impl Collection {
