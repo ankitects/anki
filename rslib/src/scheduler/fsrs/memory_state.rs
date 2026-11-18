@@ -565,12 +565,14 @@ pub(crate) fn fsrs_item_for_memory_state(
             if first_review.ease_factor <= 1.1 {
                 starting_state.difficulty = (first_review.ease_factor - 0.1) * 9.0 + 1.0;
                 if fsrs.version() == fsrs::ModelVersion::Fsrs7 {
-                    starting_state = super::repair::scale_state_to_interval(
-                        fsrs,
-                        starting_state,
-                        first_review.interval,
-                        historical_retention,
-                    );
+                    // Keep the bridge state if the historical retention was zero.
+                    starting_state = fsrs
+                        .scale_memory_state_to_interval(
+                            starting_state,
+                            first_review.interval,
+                            historical_retention,
+                        )
+                        .unwrap_or(starting_state);
                 }
             }
             // remove the first review because it has been converted to the starting state
@@ -615,13 +617,13 @@ mod tests {
             &fsrs,
             vec![entry],
             TimestampSecs(1_700_100_000),
-            0.9,
+            0.85,
             0.into(),
         )?
         .unwrap();
         let state = item.starting_state.unwrap();
         assert!((state.difficulty - 9.55).abs() < 0.001);
-        assert!((fsrs.interval_at_retrievability(state, 0.9) - 30.0).abs() < 0.01);
+        assert!((fsrs.interval_at_retrievability(state, 0.85) - 30.0).abs() < 0.01);
         Ok(())
     }
 

@@ -1355,8 +1355,7 @@ dependencies = [
 [[package]]
 name = "fsrs"
 version = "7.0.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "5cfbc88edd1cc96cec10317192b57cc5a5c50bd48f3144d3920b9bf5da87fa69"
+source = "git+https://github.com/open-spaced-repetition/fsrs-rs.git?rev=9fb03928d8c8fd84f5b9df2b2f6ddc631e6cae81#9fb03928d8c8fd84f5b9df2b2f6ddc631e6cae81"
 dependencies = [
  "bytemuck",
  "itertools 0.15.0",

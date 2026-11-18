@@ -44,87 +44,13 @@ pub(crate) fn fsrs_memory_state_for_s90_and_difficulty(
         difficulty: difficulty.clamp(1.0, 10.0),
         ..shape
     };
-    let state = scale_state_to_interval(fsrs, shape, s90, 0.9);
+    let state = fsrs.scale_memory_state_to_interval(shape, s90, 0.9).ok()?;
     Some(FsrsMemoryState {
         stability: s90,
         stability_internal: state.stability,
         stability_fast: Some(state.stability_fast),
         difficulty: state.difficulty,
     })
-}
-
-const STABILITY_MIN: f32 = 0.0001;
-const STABILITY_MAX: f32 = 36_500.0;
-
-/// Scale both traces of `shape` until its forgetting curve reaches
-/// `retention` at `interval`, while preserving the trace ratio and difficulty.
-pub(crate) fn scale_state_to_interval(
-    fsrs: &FSRS,
-    shape: MemoryState,
-    interval: f32,
-    retention: f32,
-) -> MemoryState {
-    const TOLERANCE: f64 = 1e-5;
-    const MAX_STEPS: usize = 64;
-
-    let ratio = shape.stability_fast / shape.stability;
-    if !(ratio.is_finite()
-        && ratio > 0.0
-        && interval.is_finite()
-        && interval > 0.0
-        && retention > 0.0
-        && retention < 1.0)
-    {
-        return shape;
-    }
-
-    let target = (interval.clamp(STABILITY_MIN, STABILITY_MAX) as f64).ln();
-    let state_at = |log_stability: f64| {
-        let stability = (log_stability.exp() as f32).clamp(STABILITY_MIN, STABILITY_MAX);
-        MemoryState {
-            stability,
-            stability_fast: (stability * ratio).clamp(STABILITY_MIN, STABILITY_MAX),
-            difficulty: shape.difficulty,
-        }
-    };
-    let error_at = |log_stability: f64| {
-        let reached = fsrs.interval_at_retrievability(state_at(log_stability), retention);
-        (reached.max(f32::MIN_POSITIVE) as f64).ln() - target
-    };
-
-    let mut low = (STABILITY_MIN as f64).ln();
-    let mut high = (STABILITY_MAX as f64).ln();
-    let mut x = (shape.stability.clamp(STABILITY_MIN, STABILITY_MAX) as f64).ln();
-    let mut error = error_at(x);
-    let mut previous: Option<(f64, f64)> = None;
-    for _ in 0..MAX_STEPS {
-        if !error.is_finite() || error.abs() <= TOLERANCE {
-            break;
-        }
-        if error < 0.0 {
-            low = x;
-        } else {
-            high = x;
-        }
-        let mut next = match previous {
-            Some((previous_x, previous_error)) if error != previous_error => {
-                x - error * (x - previous_x) / (error - previous_error)
-            }
-            _ => x - error,
-        };
-        if !(next > low && next < high) {
-            next = 0.5 * (low + high);
-        }
-        previous = Some((x, error));
-        x = next;
-        error = error_at(x);
-    }
-
-    if error.is_finite() {
-        state_at(x)
-    } else {
-        shape
-    }
 }
 
 /// Stores the preset's desired retention and the decay of `params` on the
