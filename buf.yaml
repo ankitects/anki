@@ -1,0 +1,25 @@
+version: v2
+modules:
+  - path: proto
+lint:
+  use:
+    - BASIC
+  # Anki keeps separate protobuf packages together in proto/anki.
+  except:
+    - DIRECTORY_SAME_PACKAGE
+    - PACKAGE_DIRECTORY_MATCH
+  # Keep lint enabled for other schemas without renaming existing API members.
+  ignore_only:
+    ENUM_VALUE_UPPER_SNAKE_CASE:
+      - proto/anki/search.proto
+    FIELD_LOWER_SNAKE_CASE:
+      - proto/anki/ankidroid.proto
+      - proto/anki/stats.proto
+    IMPORT_USED:
+      - proto/anki/frontend.proto
+    MESSAGE_PASCAL_CASE:
+      - proto/anki/frontend.proto
+    ONEOF_LOWER_SNAKE_CASE:
+      - proto/anki/ankidroid.proto
+    RPC_PASCAL_CASE:
+      - proto/anki/frontend.proto
