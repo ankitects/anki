@@ -68,8 +68,9 @@ impl Collection {
         self.transact_inner(Some(op), false, func)
     }
 
-    /// Record state changes without creating an undo entry or clearing pending redo.
-    /// Only use for changes that do not affect replay of past operations.
+    /// Record state changes without creating an undo entry or clearing pending
+    /// redo. Only use for changes that do not affect replay of past
+    /// operations.
     pub(crate) fn transact_preserving_redo<F, R>(&mut self, func: F) -> Result<OpOutput<R>>
     where
         F: FnOnce(&mut Collection) -> Result<R>,
