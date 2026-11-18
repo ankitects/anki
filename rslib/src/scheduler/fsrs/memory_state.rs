@@ -719,6 +719,15 @@ mod tests {
         fn create_review_card_with_revlog(
             col: &mut Collection,
             days_ago: i64,
+            interval: u32,
+        ) -> Result<CardId> {
+            create_review_card_with_revlog_and_last_interval(col, days_ago, interval, interval)
+        }
+
+        fn create_review_card_with_revlog_and_last_interval(
+            col: &mut Collection,
+            days_ago: i64,
+            interval: u32,
             last_interval: u32,
         ) -> Result<CardId> {
             let nt = col.get_notetype_by_name("Basic")?.unwrap();
@@ -728,8 +737,8 @@ mod tests {
             let mut card = col.storage.get_card(card_id)?.unwrap();
             card.ctype = CardType::Review;
             card.queue = CardQueue::Review;
-            card.interval = last_interval;
-            card.due = last_interval as i32;
+            card.interval = interval;
+            card.due = interval as i32;
             card.reps = 1;
             card.last_review_time = Some(TimestampSecs::now().adding_secs(-(days_ago * 86400)));
             col.storage.update_card(&card)?;
@@ -739,13 +748,13 @@ mod tests {
                 cid: card_id,
                 usn: Usn(0),
                 button_chosen: 3,
-                interval: last_interval as i32,
+                interval: interval as i32,
                 last_interval: last_interval as i32,
                 ease_factor: 2500,
                 taken_millis: 0,
                 review_kind: RevlogReviewKind::Review,
             };
-            col.storage.add_revlog_entry(&rev, false)?;
+            col.storage.add_revlog_entry(&rev, true)?;
             Ok(card_id)
         }
 
@@ -862,6 +871,40 @@ mod tests {
             // Suspended card does not get an extra review log
             assert_eq!(col.get_review_logs(card_id)?.entries.len(), 3);
 
+            Ok(())
+        }
+
+        #[test]
+        fn rescheduled_card_doesnt_fuzz_backwards() -> Result<()> {
+            let mut col = Collection::new();
+            // Works without this but good as a precaution
+            col.set_config_bool(BoolKey::LoadBalancerEnabled, false, false)?;
+
+            let phony_ivl = 4;
+            let normal = create_review_card_with_revlog_and_last_interval(
+                &mut col,
+                phony_ivl as i64,
+                phony_ivl,
+                0,
+            )?;
+            update_memory_state_with_card(&mut col, normal, true)?;
+            let raw_ivl = col.storage.get_card(normal)?.unwrap().interval;
+
+            let mut interval_with_previous_of = |previous_interval: u32| -> Result<u32> {
+                let card_id = create_review_card_with_revlog_and_last_interval(
+                    &mut col,
+                    phony_ivl as i64,
+                    phony_ivl,
+                    previous_interval,
+                )?;
+
+                update_memory_state_with_card(&mut col, card_id, true)?;
+                let card = col.storage.get_card(card_id)?.unwrap();
+                Ok(card.interval)
+            };
+
+            assert_eq!(interval_with_previous_of(raw_ivl + 1)?, raw_ivl + 1);
+            assert_eq!(interval_with_previous_of(raw_ivl * 2 + 10)?, raw_ivl);
             Ok(())
         }
 
