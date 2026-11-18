@@ -8,6 +8,7 @@ use anki_proto::tags::TagTreeNode;
 use unicase::UniCase;
 
 use super::immediate_parent_name_unicase;
+use super::register::normalize_tag_name;
 use super::Tag;
 use crate::prelude::*;
 
@@ -20,9 +21,14 @@ impl Collection {
     }
 
     pub fn set_tag_collapsed(&mut self, tag: &str, collapsed: bool) -> Result<OpOutput<()>> {
-        self.transact(Op::SkipUndo, |col| {
-            col.set_tag_collapsed_inner(tag, collapsed, col.usn()?)
-        })
+        let update = |col: &mut Self| col.set_tag_collapsed_inner(tag, collapsed, col.usn()?);
+        if self.storage.get_tag(&normalize_tag_name(tag)?)?.is_some() {
+            self.transact_preserving_redo(update)
+        } else {
+            // An implicit parent may have no tag record until it is expanded.
+            // Registering a new tag remains a collection edit.
+            self.transact(Op::SkipUndo, update)
+        }
     }
 }
 
