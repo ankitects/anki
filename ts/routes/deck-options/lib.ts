@@ -465,12 +465,14 @@ export async function commitEditing(): Promise<void> {
     await tick();
 }
 
+/** The newest non-empty parameter list, as `DeckConfig::fsrs_params()` in
+ * the backend. An empty list means the FSRS-7 defaults. */
 export function fsrsParams(config: DeckConfig_Config): number[] {
     if (config.fsrsParams7?.length) {
         return config.fsrsParams7;
-    } else if (config.fsrsParams6) {
+    } else if (config.fsrsParams6?.length) {
         return config.fsrsParams6;
-    } else if (config.fsrsParams5) {
+    } else if (config.fsrsParams5?.length) {
         return config.fsrsParams5;
     } else {
         return config.fsrsParams4;

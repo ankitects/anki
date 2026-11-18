@@ -1,6 +1,7 @@
 // Copyright: Anki Software, LLC and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
+use std::borrow::Cow;
 use std::cmp::Ordering;
 use std::collections::HashMap;
 use std::hash::Hasher;
@@ -164,8 +165,8 @@ impl<'a> FsrsMetricContext<'a> {
         state: FsrsMemoryState,
         elapsed_days: f32,
     ) -> Result<f32> {
-        let (_, config_id) = self.home_deck_and_config_id(deck_id)?;
-        checked_current_retrievability(self.model(config_id)?, state, elapsed_days)
+        let config = self.metric_config(self.decks.get(&deck_id));
+        checked_current_retrievability(self.model(&config)?, state, elapsed_days)
     }
 
     pub(crate) fn relative_overdueness_for_deck(
@@ -174,14 +175,13 @@ impl<'a> FsrsMetricContext<'a> {
         state: FsrsMemoryState,
         elapsed_days: f32,
     ) -> Result<f32> {
-        let (deck, config_id) = self.home_deck_and_config_id(deck_id)?;
-        let config = self
-            .configs
-            .get(&config_id)
-            .or_invalid("missing deck config for card")?;
-        let desired_retention = deck.effective_desired_retention(config);
+        let deck = self.decks.get(&deck_id);
+        let config = self.metric_config(deck);
+        let desired_retention = deck
+            .map(|deck| deck.effective_desired_retention(&config))
+            .unwrap_or(config.inner.desired_retention);
         let interval = self
-            .model(config_id)?
+            .model(&config)?
             .interval_at_retrievability(state.into(), desired_retention.clamp(0.0001, 0.9999));
         let key = -elapsed_days.max(0.0) / interval.max(0.0001);
         require!(key.is_finite(), "invalid FSRS parameter values");
@@ -212,27 +212,23 @@ impl<'a> FsrsMetricContext<'a> {
         }
     }
 
-    fn home_deck_and_config_id(&self, deck_id: DeckId) -> Result<(&'a Deck, DeckConfigId)> {
-        let deck = self
-            .decks
-            .get(&deck_id)
-            .or_invalid("missing deck for card")?;
-        let config_id = deck
-            .config_id()
-            .or_invalid("card belongs to a filtered deck")?;
-        Ok((deck, config_id))
+    /// Match get_deck_config(..., true) for cards with a broken home-deck
+    /// reference.
+    fn metric_config(&self, deck: Option<&Deck>) -> Cow<'a, DeckConfig> {
+        deck.and_then(Deck::config_id)
+            .and_then(|id| self.configs.get(&id))
+            .or_else(|| self.configs.get(&DeckConfigId(1)))
+            .map(Cow::Borrowed)
+            .unwrap_or_default()
     }
 
-    fn model(&mut self, config_id: DeckConfigId) -> Result<&FSRS> {
-        if !self.models.contains_key(&config_id) {
-            let config = self
-                .configs
-                .get(&config_id)
-                .or_invalid("missing deck config for card")?;
-            self.models
-                .insert(config_id, FSRS::new(config.fsrs_params())?);
-        }
-        Ok(self.models.get(&config_id).unwrap())
+    fn model(&mut self, config: &DeckConfig) -> Result<&FSRS> {
+        Ok(match self.models.entry(config.id) {
+            std::collections::hash_map::Entry::Occupied(entry) => entry.into_mut(),
+            std::collections::hash_map::Entry::Vacant(entry) => {
+                entry.insert(FSRS::new(config.fsrs_params())?)
+            }
+        })
     }
 }
 
@@ -242,6 +238,40 @@ mod tests {
 
     use super::*;
     use crate::card::Card;
+
+    #[test]
+    fn metrics_use_the_default_preset_for_broken_home_deck_references() -> Result<()> {
+        let mut col = Collection::new();
+        let mut config = col.get_deck_config(DeckConfigId(1), false)?.unwrap();
+        config.inner.fsrs_params_7 = DEFAULT_PARAMETERS.to_vec();
+        config.inner.fsrs_params_7[24] = 0.9;
+        config.inner.desired_retention = 0.85;
+        let fsrs = FSRS::new(config.fsrs_params())?;
+        let configs = HashMap::from([(config.id, config)]);
+        let filtered = crate::tests::DeckAdder::new("Filtered")
+            .filtered(true)
+            .add(&mut col);
+        let mut broken = col.get_or_create_normal_deck("Missing preset")?;
+        broken.normal_mut()?.config_id = 999;
+        broken.normal_mut()?.desired_retention = Some(0.8);
+        let mut decks = col.storage.get_decks_map()?;
+        decks.insert(broken.id, broken.clone());
+        let mut metrics = FsrsMetricContext::new(&decks, &configs);
+        let state = FsrsMemoryState {
+            stability: 10.0,
+            stability_internal: 10.0,
+            stability_fast: Some(5.0),
+            difficulty: 8.0,
+        };
+        for (home, target) in [(DeckId(999), 0.85), (filtered.id, 0.85), (broken.id, 0.8)] {
+            let r = metrics.current_retrievability_for_deck(home, state, 20.0)?;
+            assert_eq!(r, fsrs.current_retrievability(state.into(), 20.0));
+            let key = metrics.relative_overdueness_for_deck(home, state, 20.0)?;
+            let expected = -20.0 / fsrs.interval_at_retrievability(state.into(), target);
+            assert!((key - expected).abs() < 1e-6);
+        }
+        Ok(())
+    }
 
     #[test]
     fn exact_order_descending_reverses_keys_but_not_tie_breaks() {
