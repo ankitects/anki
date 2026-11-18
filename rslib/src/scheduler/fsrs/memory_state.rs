@@ -724,11 +724,38 @@ mod tests {
             create_review_card_with_revlog_and_last_interval(col, days_ago, interval, interval)
         }
 
+        fn create_review_card_with_revlog_and_now(
+            col: &mut Collection,
+            days_ago: i64,
+            interval: u32,
+            now: TimestampSecs,
+        ) -> Result<CardId> {
+            create_review_card_with_revlog_last_interval_and_now(
+                col, days_ago, interval, interval, now,
+            )
+        }
+
         fn create_review_card_with_revlog_and_last_interval(
             col: &mut Collection,
             days_ago: i64,
             interval: u32,
             last_interval: u32,
+        ) -> Result<CardId> {
+            create_review_card_with_revlog_last_interval_and_now(
+                col,
+                days_ago,
+                interval,
+                last_interval,
+                TimestampSecs::now(),
+            )
+        }
+
+        fn create_review_card_with_revlog_last_interval_and_now(
+            col: &mut Collection,
+            days_ago: i64,
+            interval: u32,
+            last_interval: u32,
+            now: TimestampSecs,
         ) -> Result<CardId> {
             let nt = col.get_notetype_by_name("Basic")?.unwrap();
             let mut note = nt.new_note();
@@ -740,7 +767,7 @@ mod tests {
             card.interval = interval;
             card.due = interval as i32;
             card.reps = 1;
-            card.last_review_time = Some(TimestampSecs::now().adding_secs(-(days_ago * 86400)));
+            card.last_review_time = Some(now.adding_secs(-(days_ago * 86400)));
             col.storage.update_card(&card)?;
 
             let rev = RevlogEntry {
@@ -932,21 +959,45 @@ mod tests {
 
         #[test]
         fn reschedule_batching_matches_update_one_card_at_a_time() -> Result<()> {
+            use rand::RngExt;
+
             let mut batch_col = Collection::new();
             let mut single_col = Collection::new();
 
-            let cards = [(3, 8), (4, 9), (5, 12), (6, 15), (7, 20), (8, 25), (9, 30)];
+            batch_col.set_config_bool(BoolKey::LoadBalancerEnabled, false, false)?;
+
+            let mut rng: rand::rngs::StdRng = rand::SeedableRng::seed_from_u64(42);
+
+            let rand_card = |_i| {
+                let days_ago = rng.random_range(1..=30);
+                let interval = rng.random_range(1..=365);
+                (days_ago, interval)
+            };
+
+            let cards = (0..10_000).map(rand_card).collect::<Vec<_>>();
+
+            let now = TimestampSecs::now();
 
             let batch_ids = cards
                 .iter()
                 .map(|(days_ago, interval)| {
-                    create_review_card_with_revlog(&mut batch_col, *days_ago, *interval)
+                    create_review_card_with_revlog_and_now(
+                        &mut batch_col,
+                        *days_ago,
+                        *interval,
+                        now,
+                    )
                 })
                 .collect::<Result<Vec<_>>>()?;
             let single_ids = cards
                 .iter()
                 .map(|(days_ago, interval)| {
-                    create_review_card_with_revlog(&mut single_col, *days_ago, *interval)
+                    create_review_card_with_revlog_and_now(
+                        &mut single_col,
+                        *days_ago,
+                        *interval,
+                        now,
+                    )
                 })
                 .collect::<Result<Vec<_>>>()?;
 
@@ -976,14 +1027,44 @@ mod tests {
 
             let batch_cards = batch_col.storage.get_all_cards();
             let single_cards = single_col.storage.get_all_cards();
+
+            let mut interval_differences = vec![];
+            let mut memory_state_differences = vec![];
+            let mut due_differences = vec![];
+
             for (batch_card, single_card) in batch_cards.iter().zip(single_cards.iter()) {
                 // Check that the cards have the same memory state values
-                assert_eq!(batch_card.memory_state, single_card.memory_state);
-                assert_eq!(batch_card.interval, single_card.interval);
-                assert_eq!(batch_card.due, single_card.due);
+                if batch_card.memory_state != single_card.memory_state {
+                    memory_state_differences.push(batch_card.id);
+                }
+                if batch_card.interval != single_card.interval {
+                    interval_differences.push(batch_card.id);
+                }
+                if batch_card.due != single_card.due {
+                    due_differences.push(batch_card.id);
+                }
                 assert!(batch_card.memory_state.is_some());
                 assert!(single_card.memory_state.is_some());
             }
+
+            assert!(
+                interval_differences.is_empty(),
+                "Interval differences found for {} cards: {:?}",
+                interval_differences.len(),
+                interval_differences
+            );
+            assert!(
+                memory_state_differences.is_empty(),
+                "Memory state differences found for {} cards: {:?}",
+                memory_state_differences.len(),
+                memory_state_differences
+            );
+            assert!(
+                due_differences.is_empty(),
+                "Due differences found for {} cards: {:?}",
+                due_differences.len(),
+                due_differences
+            );
 
             Ok(())
         }
