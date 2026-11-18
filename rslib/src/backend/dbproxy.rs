@@ -127,7 +127,7 @@ pub(super) fn db_command_bytes_inner(col: &mut Collection, input: &[u8]) -> Resu
             args,
             first_row_only,
         } => {
-            update_state_after_modification(col, &sql);
+            update_state_after_modification(col, &sql)?;
             if first_row_only {
                 db_query_row(&col.storage, &sql, &args)?
             } else {
@@ -152,29 +152,28 @@ pub(super) fn db_command_bytes_inner(col: &mut Collection, input: &[u8]) -> Resu
             DbResult::None
         }
         DbRequest::ExecuteMany { sql, args } => {
-            update_state_after_modification(col, &sql);
+            update_state_after_modification(col, &sql)?;
             db_execute_many(&col.storage, &sql, &args)?
         }
     };
     Ok(resp)
 }
 
-fn update_state_after_modification(col: &mut Collection, sql: &str) {
-    if !is_dql(sql) {
+fn update_state_after_modification(col: &mut Collection, sql: &str) -> Result<()> {
+    if !is_read(&col.storage, sql)? {
         // println!("clearing undo+study due to {}", sql);
         col.update_state_after_dbproxy_modification();
     }
+    Ok(())
 }
 
-/// Anything other than a select statement is false.
-fn is_dql(sql: &str) -> bool {
-    let head: String = sql
-        .trim_start()
-        .chars()
-        .take(10)
-        .map(|c| c.to_ascii_lowercase())
-        .collect();
-    head.starts_with("select")
+/// True if the statement only reads: SQLite reports it as read-only, and it
+/// returns a result set. The second check keeps SAVEPOINT/BEGIN/COMMIT/
+/// ATTACH/DETACH (which SQLite calls read-only) classed as modifications.
+/// The statement is cached, so the query that follows reuses it.
+fn is_read(storage: &SqliteStorage, sql: &str) -> Result<bool> {
+    let stmt = storage.db.prepare_cached(sql)?;
+    Ok(stmt.readonly() && stmt.column_count() > 0)
 }
 
 pub(crate) fn db_command_proto(col: &mut Collection, input: &[u8]) -> Result<DbResponse> {
@@ -241,4 +240,71 @@ pub(super) fn db_execute_many(
     }
 
     Ok(DbResult::None)
+}
+
+#[cfg(test)]
+mod test {
+    use super::*;
+
+    fn run(col: &mut Collection, sql: &str) -> Result<DbResult> {
+        let req = serde_json::json!({
+            "kind": "query",
+            "sql": sql,
+            "args": [],
+            "first_row_only": false,
+        });
+        db_command_bytes_inner(col, req.to_string().as_bytes())
+    }
+
+    /// Collection with one undoable operation on the stack.
+    fn col_with_undo_step() -> Collection {
+        let mut col = Collection::new();
+        col.add_deck(&mut Deck::new_normal()).unwrap();
+        assert!(col.undo_status().undo.is_some());
+        col
+    }
+
+    fn assert_keeps_undo(sql: &str) {
+        let mut col = col_with_undo_step();
+        run(&mut col, sql).unwrap();
+        assert!(col.undo_status().undo.is_some(), "undo lost by: {sql}");
+    }
+
+    fn assert_clears_undo(sql: &str) {
+        let mut col = col_with_undo_step();
+        run(&mut col, sql).unwrap();
+        assert!(col.undo_status().undo.is_none(), "undo kept by: {sql}");
+    }
+
+    #[test]
+    fn reads_keep_undo_whatever_their_first_word() {
+        assert_keeps_undo("select 1");
+        assert_keeps_undo("with t as (select 1 as x) select x from t");
+        assert_keeps_undo("pragma table_info(cards)");
+        assert_keeps_undo("values (1)");
+        // a read that matches nothing is still a read
+        assert_keeps_undo("select * from cards where 0");
+    }
+
+    #[test]
+    fn writes_clear_undo() {
+        assert_clears_undo("create temp table t (x)");
+        assert_clears_undo("with t as (select 1 as x) insert into config(key, val, usn, mtime_secs) select 'k', x, 0, 0 from t");
+        assert_clears_undo(
+            "insert into config(key, val, usn, mtime_secs) values ('k', 1, 0, 0) returning key",
+        );
+        assert_clears_undo("delete from graves");
+    }
+
+    #[test]
+    fn read_only_statements_without_a_result_set_count_as_writes() {
+        assert_clears_undo("savepoint x");
+    }
+
+    #[test]
+    fn invalid_sql_errors_without_dropping_state() {
+        let mut col = col_with_undo_step();
+        assert!(run(&mut col, "selec nonsense").is_err());
+        assert!(col.undo_status().undo.is_some());
+    }
 }
