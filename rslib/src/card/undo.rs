@@ -49,6 +49,16 @@ impl Collection {
         self.storage.update_card(card)
     }
 
+    pub(crate) fn clear_invalid_fsrs_state_undoable(
+        &mut self,
+        original: Card,
+        usn: Usn,
+    ) -> Result<()> {
+        let cid = original.id;
+        self.save_undo(UndoableCardChange::Updated(Box::new(original)));
+        self.storage.clear_invalid_fsrs_state(cid, usn)
+    }
+
     pub(crate) fn remove_card_and_add_grave_undoable(
         &mut self,
         card: Card,

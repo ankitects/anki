@@ -28,29 +28,42 @@ pub(crate) fn fsrs_memory_state_for_s90_and_difficulty(
     s90: f32,
     difficulty: f32,
 ) -> Option<FsrsMemoryState> {
-    if !s90.is_finite() || s90 <= 0.0 || !difficulty.is_finite() {
-        return None;
+    try_recover_fsrs_state_from_s90(fsrs, s90, difficulty)
+        .ok()
+        .flatten()
+}
+
+/// An unusable S90 cannot yield a memory estimate. Calibration failures for a
+/// usable S90 must leave it available for a later repair.
+fn try_recover_fsrs_state_from_s90(
+    fsrs: &FSRS,
+    s90: f32,
+    difficulty: f32,
+) -> Result<Option<FsrsMemoryState>> {
+    if !s90.is_finite() || s90 <= 0.0 {
+        return Ok(None);
     }
+    require!(difficulty.is_finite(), "invalid FSRS difficulty");
     if fsrs.version() != fsrs::ModelVersion::Fsrs7 {
-        return Some(FsrsMemoryState {
+        return Ok(Some(FsrsMemoryState {
             stability: s90,
             stability_internal: s90,
             stability_fast: None,
             difficulty: difficulty.clamp(1.0, 10.0),
-        });
+        }));
     }
-    let shape = fsrs.memory_state_from_sm2(2.5, s90, 0.9).ok()?;
+    let shape = fsrs.memory_state_from_sm2(2.5, s90, 0.9)?;
     let shape = MemoryState {
         difficulty: difficulty.clamp(1.0, 10.0),
         ..shape
     };
-    let state = fsrs.scale_memory_state_to_interval(shape, s90, 0.9).ok()?;
-    Some(FsrsMemoryState {
+    let state = fsrs.scale_memory_state_to_interval(shape, s90, 0.9)?;
+    Ok(Some(FsrsMemoryState {
         stability: s90,
         stability_internal: state.stability,
         stability_fast: Some(state.stability_fast),
         difficulty: state.difficulty,
-    })
+    }))
 }
 
 /// Stores the preset's desired retention and the decay of `params` on the
@@ -187,20 +200,19 @@ impl Collection {
             for mut card in cards {
                 let original = card.clone();
                 let stored = card.memory_state.unwrap();
-                card.memory_state = Some(if let Some(state) = states.remove(&card.id) {
+                card.memory_state = if let Some(state) = states.remove(&card.id) {
                     card.last_review_time = self.storage.time_of_last_review(card.id)?;
-                    state
+                    Some(state)
                 } else {
-                    fsrs_memory_state_for_s90_and_difficulty(
-                        &fsrs,
-                        stored.stability,
-                        stored.difficulty,
-                    )
-                    .or_invalid("invalid incomplete FSRS memory state")?
-                });
-                set_preset_retention_and_decay(&mut card, &decks, config, config.fsrs_params());
+                    try_recover_fsrs_state_from_s90(&fsrs, stored.stability, stored.difficulty)?
+                };
                 card.usn = sync.card_usn(original.usn, usn);
-                self.update_card_undoable(&mut card, original)?;
+                if card.memory_state.is_some() {
+                    set_preset_retention_and_decay(&mut card, &decks, config, config.fsrs_params());
+                    self.update_card_undoable(&mut card, original)?;
+                } else {
+                    self.clear_invalid_fsrs_state_undoable(original, card.usn)?;
+                }
                 repaired += 1;
                 progress.update(true, |p| p.current_cards += 1)?;
             }
@@ -264,6 +276,12 @@ mod tests {
             repaired.last_review_time,
             Some(TimestampSecs(1_700_000_600))
         );
+        col.storage.db.execute(
+            "update cards set data=? where id=?",
+            (r#"{"s":-1,"d":6}"#, cid),
+        )?;
+        assert_eq!(col.repair_incomplete_fsrs7_states(ReplaySync::Preserve)?, 1);
+        assert_eq!(col.storage.get_card(cid)?.unwrap(), repaired);
         Ok(())
     }
 
@@ -290,11 +308,51 @@ mod tests {
     }
 
     #[test]
+    fn an_invalid_s90_without_usable_history_clears_only_the_memory_estimate() -> Result<()> {
+        for (sync, expected_usn) in [
+            (ReplaySync::Preserve, Usn(37)),
+            (ReplaySync::Upload, Usn(-1)),
+        ] {
+            let mut col = Collection::new();
+            col.set_config_bool(BoolKey::Fsrs, true, false)?;
+            let note = NoteAdder::basic(&mut col).add(&mut col);
+            let cid = col.storage.card_ids_of_notes(&[note.id])?[0];
+            col.storage.db.execute(
+                "update cards set data=?, mod=1700000001, usn=37, type=2, queue=-1, due=123, ivl=30, reps=8, lapses=2 where id=?",
+                (r#"{"s":-1,"s_int":17,"d":5,"dr":0.85,"decay":0.25,"lrt":1700000000,"cd":"{\"addon\":1}","extra":{"value":42}}"#, cid),
+            )?;
+            let entry = crate::revlog::RevlogEntry {
+                id: RevlogId(1_700_000_000_000),
+                cid,
+                review_kind: crate::revlog::RevlogReviewKind::Manual,
+                ..Default::default()
+            };
+            col.storage.add_revlog_entry(&entry, false)?;
+            let mut expected = col.storage.get_card(cid)?.unwrap();
+            expected.memory_state = None;
+            expected.usn = expected_usn;
+
+            assert_eq!(col.repair_incomplete_fsrs7_states(sync)?, 1);
+            assert_eq!(col.storage.get_card(cid)?.unwrap(), expected);
+            let extra: i64 = col.storage.db.query_row(
+                "select json_extract(data, '$.extra.value') from cards where id=?",
+                [cid],
+                |row| row.get(0),
+            )?;
+            assert_eq!(extra, 42);
+            assert_eq!(col.storage.get_revlog_entries_for_card(cid)?, vec![entry]);
+            assert_eq!(col.repair_incomplete_fsrs7_states(sync)?, 0);
+        }
+        Ok(())
+    }
+
+    #[test]
     fn invalid_legacy_state_is_rejected() -> Result<()> {
         let fsrs = FSRS::new(&fsrs::DEFAULT_PARAMETERS)?;
         for (s, d) in [(0.0, 5.0), (f32::NAN, 5.0), (20.0, f32::INFINITY)] {
             assert!(fsrs_memory_state_for_s90_and_difficulty(&fsrs, s, d).is_none());
         }
+        assert!(try_recover_fsrs_state_from_s90(&fsrs, 20.0, f32::INFINITY).is_err());
         Ok(())
     }
 }

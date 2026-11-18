@@ -224,6 +224,17 @@ impl super::SqliteStorage {
         Ok(())
     }
 
+    /// Retain unrelated (including unrecognized) card data during repair.
+    pub(crate) fn clear_invalid_fsrs_state(&self, cid: CardId, usn: Usn) -> Result<()> {
+        self.db
+            .prepare_cached(
+                "update cards set data = json_remove(data, '$.s', '$.s_int', '$.s_fast', '$.d'),
+             usn = ? where id = ?",
+            )?
+            .execute((usn, cid))?;
+        Ok(())
+    }
+
     pub(crate) fn add_card(&self, card: &mut Card) -> Result<()> {
         let now = TimestampMillis::now().0;
         let mut stmt = self.db.prepare_cached(include_str!("add_card.sql"))?;
