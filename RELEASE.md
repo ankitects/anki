@@ -6,3 +6,4 @@
 - Recall searches, graphs and ordering use the Default preset when a card's home deck or preset is missing. Deck Options shows saved FSRS-4.5 and FSRS-5 parameters when the newer parameter slots are empty.
 - Legacy SQL recall functions use the displayed Stability as the interval at which predicted recall reaches 90%.
 - When a damaged card has no usable stability or review history, FSRS7 repair clears only its memory estimate. The card keeps its schedule and review history.
+- Card Info uses the latest rated scheduling review when the saved review time is missing. With no such review, it estimates recall from the card's schedule and leaves the review time empty.
