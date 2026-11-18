@@ -720,43 +720,11 @@ mod tests {
             col: &mut Collection,
             days_ago: i64,
             interval: u32,
+            last_interval: Option<u32>,
+            now: Option<TimestampSecs>,
         ) -> Result<CardId> {
-            create_review_card_with_revlog_and_last_interval(col, days_ago, interval, interval)
-        }
-
-        fn create_review_card_with_revlog_and_now(
-            col: &mut Collection,
-            days_ago: i64,
-            interval: u32,
-            now: TimestampSecs,
-        ) -> Result<CardId> {
-            create_review_card_with_revlog_last_interval_and_now(
-                col, days_ago, interval, interval, now,
-            )
-        }
-
-        fn create_review_card_with_revlog_and_last_interval(
-            col: &mut Collection,
-            days_ago: i64,
-            interval: u32,
-            last_interval: u32,
-        ) -> Result<CardId> {
-            create_review_card_with_revlog_last_interval_and_now(
-                col,
-                days_ago,
-                interval,
-                last_interval,
-                TimestampSecs::now(),
-            )
-        }
-
-        fn create_review_card_with_revlog_last_interval_and_now(
-            col: &mut Collection,
-            days_ago: i64,
-            interval: u32,
-            last_interval: u32,
-            now: TimestampSecs,
-        ) -> Result<CardId> {
+            let last_interval = last_interval.unwrap_or(interval);
+            let now = now.unwrap_or_else(TimestampSecs::now);
             let nt = col.get_notetype_by_name("Basic")?.unwrap();
             let mut note = nt.new_note();
             col.add_note(&mut note, DeckId(1))?;
@@ -806,7 +774,7 @@ mod tests {
         #[test]
         fn no_req_clears_fsrs_data() -> Result<()> {
             let mut col = Collection::new();
-            let card_id = create_review_card_with_revlog(&mut col, 1, 1)?;
+            let card_id = create_review_card_with_revlog(&mut col, 1, 1, None, None)?;
             let mut card = col.storage.get_card(card_id)?.unwrap();
 
             card.memory_state = Some(FsrsMemoryState {
@@ -908,21 +876,23 @@ mod tests {
             col.set_config_bool(BoolKey::LoadBalancerEnabled, false, false)?;
 
             let phony_ivl = 4;
-            let normal = create_review_card_with_revlog_and_last_interval(
+            let normal = create_review_card_with_revlog(
                 &mut col,
                 phony_ivl as i64,
                 phony_ivl,
-                0,
+                Some(0),
+                None,
             )?;
             update_memory_state_with_card(&mut col, normal, true)?;
             let raw_ivl = col.storage.get_card(normal)?.unwrap().interval;
 
             let mut interval_with_previous_of = |previous_interval: u32| -> Result<u32> {
-                let card_id = create_review_card_with_revlog_and_last_interval(
+                let card_id = create_review_card_with_revlog(
                     &mut col,
                     phony_ivl as i64,
                     phony_ivl,
-                    previous_interval,
+                    Some(previous_interval),
+                    None,
                 )?;
 
                 update_memory_state_with_card(&mut col, card_id, true)?;
@@ -938,7 +908,7 @@ mod tests {
         #[test]
         fn reschedule_updates_interval_and_due_coherently() -> Result<()> {
             let mut col = Collection::new();
-            let card_id = create_review_card_with_revlog(&mut col, 4, 10)?;
+            let card_id = create_review_card_with_revlog(&mut col, 4, 10, None, None)?;
 
             let before = col.storage.get_card(card_id)?.unwrap();
             update_memory_state_with_card(&mut col, card_id, true)?;
@@ -981,22 +951,24 @@ mod tests {
             let batch_ids = cards
                 .iter()
                 .map(|(days_ago, interval)| {
-                    create_review_card_with_revlog_and_now(
+                    create_review_card_with_revlog(
                         &mut batch_col,
                         *days_ago,
                         *interval,
-                        now,
+                        None,
+                        Some(now),
                     )
                 })
                 .collect::<Result<Vec<_>>>()?;
             let single_ids = cards
                 .iter()
                 .map(|(days_ago, interval)| {
-                    create_review_card_with_revlog_and_now(
+                    create_review_card_with_revlog(
                         &mut single_col,
                         *days_ago,
                         *interval,
-                        now,
+                        None,
+                        Some(now),
                     )
                 })
                 .collect::<Result<Vec<_>>>()?;
@@ -1073,7 +1045,7 @@ mod tests {
         fn reschedule_creates_one_rescheduled_review_log_entry() -> Result<()> {
             let mut col = Collection::new();
             let last_interval = 12;
-            let card_id = create_review_card_with_revlog(&mut col, 5, last_interval)?;
+            let card_id = create_review_card_with_revlog(&mut col, 5, last_interval, None, None)?;
 
             update_memory_state_with_card(&mut col, card_id, true)?;
 
@@ -1097,7 +1069,7 @@ mod tests {
         #[test]
         fn reschedule_false_leaves_scheduling_fields_and_log_unchanged() -> Result<()> {
             let mut col = Collection::new();
-            let card_id = create_review_card_with_revlog(&mut col, 4, 9)?;
+            let card_id = create_review_card_with_revlog(&mut col, 4, 9, None, None)?;
             let before = col.storage.get_card(card_id)?.unwrap();
             let before_log_len = col.storage.get_all_revlog_entries_in_card_order()?.len();
             assert!(before.memory_state.is_none());
@@ -1120,7 +1092,7 @@ mod tests {
             let mut col = Collection::new();
 
             for card_type in [CardType::Learn, CardType::Relearn] {
-                let card_id = create_review_card_with_revlog(&mut col, 4, 10)?;
+                let card_id = create_review_card_with_revlog(&mut col, 4, 10, None, None)?;
                 let mut before = col.storage.get_card(card_id)?.unwrap();
                 before.ctype = card_type;
                 before.queue = CardQueue::Learn;
@@ -1146,7 +1118,7 @@ mod tests {
         #[test]
         fn reset_revlog_leaves_card_unchanged_and_clears_memory_state() -> Result<()> {
             let mut col = Collection::new();
-            let card_id = create_review_card_with_revlog(&mut col, 4, 10)?;
+            let card_id = create_review_card_with_revlog(&mut col, 4, 10, None, None)?;
 
             update_memory_state_with_card(&mut col, card_id, true)?;
 
