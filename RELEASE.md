@@ -7,3 +7,4 @@
 - Legacy SQL recall functions use the displayed Stability as the interval at which predicted recall reaches 90%.
 - When a damaged card has no usable stability or review history, FSRS7 repair clears only its memory estimate. The card keeps its schedule and review history.
 - Card Info uses the latest rated scheduling review when the saved review time is missing. With no such review, it estimates recall from the card's schedule and leaves the review time empty.
+- Workload simulations now start existing FSRS7 cards at their full memory state's 90% recall interval, within the range the simulator can represent. Later simulated reviews still use a single stability value.
