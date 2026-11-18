@@ -14,7 +14,12 @@ pub(crate) enum UndoableTagChange {
 impl Collection {
     pub(crate) fn undo_tag_change(&mut self, change: UndoableTagChange) -> Result<()> {
         match change {
-            UndoableTagChange::Added(tag) => self.remove_single_tag_undoable(*tag),
+            UndoableTagChange::Added(tag) => {
+                // the tag may have changed since it was added, eg by an expand/collapse
+                // that skipped the undo queue, so the redo entry needs its current state
+                let current = self.storage.get_tag(&tag.name)?.unwrap_or(*tag);
+                self.remove_single_tag_undoable(current)
+            }
             UndoableTagChange::Removed(tag) => self.register_tag_undoable(&tag),
             UndoableTagChange::Updated(tag) => {
                 let current = self
@@ -45,6 +50,29 @@ impl Collection {
     pub(super) fn remove_single_tag_undoable(&mut self, tag: Tag) -> Result<()> {
         self.storage.remove_single_tag(&tag.name)?;
         self.save_undo(UndoableTagChange::Removed(Box::new(tag)));
+        Ok(())
+    }
+}
+
+#[cfg(test)]
+mod test {
+    use crate::prelude::*;
+
+    #[test]
+    fn redo_keeps_expanded_state_saved_after_adding() -> Result<()> {
+        let mut col = Collection::new();
+        let nt = col.get_notetype_by_name("Basic")?.unwrap();
+        let mut note = nt.new_note();
+        note.tags = vec!["parent".into(), "parent::child".into()];
+        col.add_note(&mut note, DeckId(1))?;
+        col.set_tag_collapsed("parent", false)?;
+
+        col.undo()?;
+        assert!(col.storage.get_tag("parent")?.is_none());
+        col.redo()?;
+
+        assert!(col.storage.get_tag("parent")?.unwrap().expanded);
+
         Ok(())
     }
 }
