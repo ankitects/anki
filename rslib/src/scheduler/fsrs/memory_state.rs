@@ -1114,5 +1114,80 @@ mod tests {
             assert!(after.memory_state.is_some());
             Ok(())
         }
+
+        #[test]
+        fn learning_cards_not_rescheduled() -> Result<()> {
+            let mut col = Collection::new();
+
+            for card_type in [CardType::Learn, CardType::Relearn] {
+                let card_id = create_review_card_with_revlog(&mut col, 4, 10)?;
+                let mut before = col.storage.get_card(card_id)?.unwrap();
+                before.ctype = card_type;
+                before.queue = CardQueue::Learn;
+                before.interval = 10000;
+                before.due = 123456;
+                col.storage.update_card(&before)?;
+
+                let before_log_len = col.get_review_logs(card_id)?.entries.len();
+
+                update_memory_state_with_card(&mut col, card_id, true)?;
+
+                let after = col.storage.get_card(card_id)?.unwrap();
+                assert_eq!(after.ctype, card_type);
+                assert_eq!(after.interval, before.interval);
+                assert_eq!(after.due, before.due);
+                assert!(after.memory_state.is_some());
+                assert_eq!(col.get_review_logs(card_id)?.entries.len(), before_log_len);
+            }
+
+            Ok(())
+        }
+
+        #[test]
+        fn reset_revlog_leaves_card_unchanged_and_clears_memory_state() -> Result<()> {
+            let mut col = Collection::new();
+            let card_id = create_review_card_with_revlog(&mut col, 4, 10)?;
+
+            update_memory_state_with_card(&mut col, card_id, true)?;
+
+            let before = col.storage.get_card(card_id)?.unwrap();
+            let before_log_len = col.get_review_logs(card_id)?.entries.len();
+
+            assert!(before.memory_state.is_some());
+
+            let reset = RevlogEntry {
+                id: before
+                    .last_review_time
+                    .unwrap()
+                    .as_millis()
+                    .0
+                    .saturating_add(1)
+                    .into(),
+                cid: card_id,
+                usn: Usn(0),
+                button_chosen: 0,
+                interval: 0,
+                last_interval: before.interval as i32,
+                ease_factor: 0,
+                taken_millis: 0,
+                review_kind: RevlogReviewKind::Manual,
+            };
+            col.storage.add_revlog_entry(&reset, true)?;
+
+            update_memory_state_with_card(&mut col, card_id, true)?;
+
+            let after = col.storage.get_card(card_id)?.unwrap();
+            assert_eq!(after.interval, before.interval);
+            assert_eq!(after.due, before.due);
+            assert_eq!(after.memory_state, None);
+            assert_eq!(after.desired_retention, Some(0.9));
+            assert!(after.decay.is_some());
+            assert_eq!(
+                col.get_review_logs(card_id)?.entries.len(),
+                before_log_len + 1
+            );
+
+            Ok(())
+        }
     }
 }
