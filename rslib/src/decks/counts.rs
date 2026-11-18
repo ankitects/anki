@@ -4,7 +4,7 @@ use std::collections::HashMap;
 
 use crate::prelude::*;
 
-#[derive(Debug)]
+#[derive(Debug, Default)]
 pub(crate) struct DueCounts {
     pub new: u32,
     pub review: u32,
