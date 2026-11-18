@@ -54,9 +54,11 @@ impl Collection {
         configs.sort_by_key(|(config, _)| config.id);
         self.transact_no_undo_after_sync(|col| {
             let decks = col.storage.get_decks_map()?;
-            let timing = col.timing_today()?;
             let usn = col.usn()?;
             let fsrs_enabled = col.get_config_bool(BoolKey::Fsrs);
+            let should_upgrade = |card: &Card| {
+                card.ctype != CardType::New && (fsrs_enabled || card.memory_state.is_some())
+            };
             let fsrs = FSRS::new(&[])?;
             let mut progress = col.new_progress_handler::<ComputeMemoryProgress>();
             for (mut config, cutoff) in configs {
@@ -68,19 +70,30 @@ impl Collection {
                 if !deck_ids.is_empty() {
                     let search = SearchNode::DeckIdsWithoutChildren(comma_separated_ids(&deck_ids));
                     let cards = col.all_cards_for_search(search.clone())?;
-                    let mut items =
-                        col.fsrs_items_by_card(&fsrs, search, &config, timing.next_day_at, cutoff)?;
                     progress.update(false, |p| p.total_cards += cards.len() as u32)?;
+                    let mut states = col.replay_fsrs_states(
+                        &fsrs,
+                        search,
+                        cards
+                            .iter()
+                            .filter(|card| should_upgrade(card))
+                            .map(|card| card.id),
+                        &config,
+                        cutoff,
+                        &mut progress,
+                    )?;
                     for mut card in cards {
-                        if card.ctype != CardType::New
-                            && (fsrs_enabled || card.memory_state.is_some())
-                        {
+                        if should_upgrade(&card) {
                             let original = card.clone();
-                            card.set_memory_state(
-                                &fsrs,
-                                items.remove(&card.id).flatten(),
-                                config.inner.historical_retention,
-                            )?;
+                            if let Some(state) = states.remove(&card.id) {
+                                card.memory_state = Some(state);
+                            } else {
+                                card.set_memory_state(
+                                    &fsrs,
+                                    None,
+                                    config.inner.historical_retention,
+                                )?;
+                            }
                             set_preset_retention_and_decay(
                                 &mut card,
                                 &decks,

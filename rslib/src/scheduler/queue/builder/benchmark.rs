@@ -5,6 +5,7 @@ use std::hint::black_box;
 use std::time::Instant;
 
 use super::*;
+use crate::card::CardQueue;
 use crate::card::CardType;
 use crate::card::FsrsMemoryState;
 use crate::notes::AddNoteRequest;

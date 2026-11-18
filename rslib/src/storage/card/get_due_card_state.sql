@@ -1,12 +1,19 @@
 SELECT id,
   nid,
-  did,
-  CAST(mod AS integer),
-  queue,
   due,
-  CAST(ivl AS integer),
+  cast(ivl AS integer),
+  cast(mod AS integer),
+  did,
+  odid,
   reps,
   odue,
-  odid,
   data
 FROM cards
+WHERE did IN (
+    SELECT id
+    FROM active_decks
+  )
+  AND (
+    queue = ?
+    AND due <= ?
+  )

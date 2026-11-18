@@ -122,31 +122,38 @@ fn row_to_new_card(row: &Row) -> result::Result<NewCard, rusqlite::Error> {
     })
 }
 
+fn row_to_due_card(row: &Row, kind: DueCardKind) -> rusqlite::Result<DueCard> {
+    Ok(DueCard {
+        id: row.get(0)?,
+        note_id: row.get(1)?,
+        due: row.get(2).ok().unwrap_or_default(),
+        mtime: row.get(4)?,
+        current_deck_id: row.get(5)?,
+        original_deck_id: row.get(6)?,
+        reps: row.get(7)?,
+        kind,
+    })
+}
+
 impl super::SqliteStorage {
-    /// Keep day and second cutoffs separate so both ranges use the scheduling
-    /// index. Exact R sorting and limits are applied by the queue builder.
-    pub(crate) fn due_cards_with_state_in_active_decks(
+    /// Batch-read due reviews for exact retrievability scoring before limits.
+    pub(crate) fn due_reviews_with_state_in_active_decks(
         &self,
-        timing: SchedTimingToday,
+        day: u32,
     ) -> Result<Vec<DueCardWithState>> {
-        self.db.prepare_cached(concat!(
-            include_str!("get_due_card_state.sql"),
-            " where did in (select id from active_decks) and queue in (2, 3) and due <= ?1 union all ",
-            include_str!("get_due_card_state.sql"),
-            " where did in (select id from active_decks) and queue in (1, 4) and due <= ?2"
-        ))?.query_and_then(params![timing.days_elapsed, timing.now.min(timing.next_day_at)], |row| -> Result<_> {
-            let queue = row.get(4)?;
-            let data: CardData = row.get(10)?;
-            Ok(DueCardWithState {
-                card: DueCard {
-                    id: row.get(0)?, note_id: row.get(1)?, current_deck_id: row.get(2)?, mtime: row.get(3)?,
-                    due: row.get(5).ok().unwrap_or_default(), reps: row.get(7)?, original_deck_id: row.get(9)?,
-                    kind: if queue == CardQueue::Review { DueCardKind::Review } else { DueCardKind::Learning },
-                },
-                queue, interval: row.get(6)?, original_due: row.get(8).ok().unwrap_or_default(),
-                memory_state: data.memory_state(), last_review_time: data.last_review_time,
-            })
-        })?.collect()
+        self.db
+            .prepare_cached(include_str!("get_due_card_state.sql"))?
+            .query_and_then(params![CardQueue::Review as i8, day], |row| {
+                let data: CardData = row.get(9)?;
+                Ok(DueCardWithState {
+                    card: row_to_due_card(row, DueCardKind::Review)?,
+                    interval: row.get(3)?,
+                    original_due: row.get(8).ok().unwrap_or_default(),
+                    memory_state: data.memory_state(),
+                    last_review_time: data.last_review_time,
+                })
+            })?
+            .collect()
     }
 
     /// Detect incomplete states before deserialization fills the old scalar
@@ -358,16 +365,7 @@ impl super::SqliteStorage {
         };
         let mut rows = stmt.query(params![queue as i8, timing.days_elapsed])?;
         while let Some(row) = rows.next()? {
-            if !func(DueCard {
-                id: row.get(0)?,
-                note_id: row.get(1)?,
-                due: row.get(2).ok().unwrap_or_default(),
-                mtime: row.get(4)?,
-                current_deck_id: row.get(5)?,
-                original_deck_id: row.get(6)?,
-                reps: row.get(7)?,
-                kind,
-            })? {
+            if !func(row_to_due_card(row, kind)?)? {
                 break;
             }
         }

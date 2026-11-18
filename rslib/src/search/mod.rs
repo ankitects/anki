@@ -644,7 +644,7 @@ mod test {
         keyed.sort_by(|a, b| a.1.total_cmp(&b.1));
 
         let sorted = col.search_cards(
-            "",
+            "prop:r>0",
             SortMode::Builtin {
                 column: Column::Retrievability,
                 reverse: false,

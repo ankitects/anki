@@ -2,19 +2,20 @@
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 use std::collections::HashMap;
+use std::collections::HashSet;
 
 use fsrs::MemoryState;
 use fsrs::FSRS;
 
+use super::memory_state::for_each_replayed_state;
 use super::memory_state::fsrs_items_for_memory_states;
-use super::memory_state::fsrs_memory_state_for_fsrs;
 use super::memory_state::get_decay_from_params;
 use super::memory_state::ComputeMemoryProgress;
-use super::memory_state::FsrsItemForMemoryState;
 use super::params::ignore_revlogs_before_ms_from_config;
 use super::ReplaySync;
 use crate::card::FsrsMemoryState;
 use crate::prelude::*;
+use crate::progress::ThrottlingProgressHandler;
 use crate::search::SearchNode;
 use crate::storage::comma_separated_ids;
 
@@ -148,18 +149,21 @@ pub(super) fn migration_history_cutoff(config: &DeckConfig) -> Option<TimestampM
 }
 
 impl Collection {
-    /// Replays the review history of the cards matching `search` under
-    /// `config`'s history settings, keyed by card.
-    pub(super) fn fsrs_items_by_card(
+    /// Replay the eligible cards with usable history under the destination
+    /// preset. Callers decide how to handle cards without history.
+    pub(super) fn replay_fsrs_states(
         &mut self,
         fsrs: &FSRS,
         search: SearchNode,
+        eligible: impl Iterator<Item = CardId>,
         config: &DeckConfig,
-        next_day_at: TimestampSecs,
         cutoff: TimestampMillis,
-    ) -> Result<HashMap<CardId, Option<FsrsItemForMemoryState>>> {
+        progress: &mut ThrottlingProgressHandler<ComputeMemoryProgress>,
+    ) -> Result<HashMap<CardId, FsrsMemoryState>> {
+        let next_day_at = self.timing_today()?.next_day_at;
+        let eligible: HashSet<_> = eligible.collect();
         let revlog = self.revlog_for_srs(search)?;
-        Ok(fsrs_items_for_memory_states(
+        let items = fsrs_items_for_memory_states(
             fsrs,
             revlog,
             next_day_at,
@@ -167,13 +171,21 @@ impl Collection {
             cutoff,
         )?
         .into_iter()
-        .collect())
+        .filter(|(id, _)| eligible.contains(id))
+        .filter_map(|(id, item)| item.map(|item| (id, item)))
+        .collect();
+        let mut states = HashMap::new();
+        for_each_replayed_state(fsrs, items, |id, state| {
+            states.insert(id, state);
+            progress.update(true, |_| ())
+        })?;
+        Ok(states)
     }
 
     pub(crate) fn incomplete_fsrs7_card_ids(&self) -> Result<Vec<CardId>> {
         let decks = self.storage.get_decks_map()?;
         let configs = self.storage.get_deck_config_map()?;
-        let eligible: std::collections::HashSet<_> = configs
+        let eligible: HashSet<_> = configs
             .values()
             .filter(|config| config.uses_fsrs7() && migration_history_cutoff(config).is_some())
             .map(|config| config.id)
@@ -226,7 +238,6 @@ impl Collection {
             configs.get(&id).or_not_found(id)?;
             groups.entry(id).or_default().push(card);
         }
-        let timing = self.timing_today()?;
         let usn = self.usn()?;
         let mut progress = self.new_progress_handler::<ComputeMemoryProgress>();
         progress.update(false, |p| p.total_cards = ids.len() as u32)?;
@@ -238,20 +249,20 @@ impl Collection {
             };
             let fsrs = FSRS::new(config.fsrs_params())?;
             let ids: Vec<_> = cards.iter().map(|card| card.id).collect();
-            let mut items = self.fsrs_items_by_card(
+            let mut states = self.replay_fsrs_states(
                 &fsrs,
                 SearchNode::CardIds(comma_separated_ids(&ids)),
+                ids.into_iter(),
                 config,
-                timing.next_day_at,
                 cutoff,
+                &mut progress,
             )?;
             for mut card in cards {
                 let original = card.clone();
                 let stored = card.memory_state.unwrap();
-                card.memory_state = Some(if let Some(item) = items.remove(&card.id).flatten() {
-                    let state = fsrs.memory_state(item.item, item.starting_state)?;
+                card.memory_state = Some(if let Some(state) = states.remove(&card.id) {
                     card.last_review_time = self.storage.time_of_last_review(card.id)?;
-                    fsrs_memory_state_for_fsrs(&fsrs, state)
+                    state
                 } else {
                     fsrs_memory_state_for_s90_and_difficulty(
                         &fsrs,

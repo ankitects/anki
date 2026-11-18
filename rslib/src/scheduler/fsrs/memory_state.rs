@@ -87,18 +87,6 @@ pub(crate) struct UpdateMemoryStateEntry {
     pub ignore_before: TimestampMillis,
 }
 
-trait ChunkIntoVecs<T> {
-    fn chunk_into_vecs(&mut self, chunk_size: usize) -> impl Iterator<Item = Vec<T>>;
-}
-
-impl<T> ChunkIntoVecs<T> for Vec<T> {
-    fn chunk_into_vecs(&mut self, chunk_size: usize) -> impl Iterator<Item = Vec<T>> {
-        std::iter::from_fn(move || {
-            (!self.is_empty()).then(|| self.drain(..chunk_size.min(self.len())).collect())
-        })
-    }
-}
-
 impl Collection {
     /// For each provided set of params, locate cards with the provided search,
     /// and update their memory state.
@@ -332,44 +320,15 @@ impl Collection {
         usn: Usn,
         mut on_updated_card: impl FnMut() -> Result<()>,
     ) -> Result<()> {
-        const FSRS_BATCH_SIZE: usize = 1000;
-
-        let mut to_update = Vec::new();
-        let mut fsrs_items = Vec::new();
-        let mut starting_states = Vec::new();
-
-        for (card_id, item) in items.into_iter() {
-            to_update.push(card_id);
-            fsrs_items.push(item.item);
-            starting_states.push(item.starting_state);
-        }
-
-        // fsrs.memory_state_batch is O(nm) where n is the number of cards and m is the
-        // max review count between all items. Therefore we want to pass batches
-        // to fsrs.memory_state_batch where the review count is relatively even.
-        let mut p = permutation::sort_unstable_by_key(&fsrs_items, |item| item.reviews.len());
-        p.apply_slice_in_place(&mut to_update);
-        p.apply_slice_in_place(&mut fsrs_items);
-        p.apply_slice_in_place(&mut starting_states);
-
-        for ((to_update, fsrs_items), starting_states) in to_update
-            .chunk_into_vecs(FSRS_BATCH_SIZE)
-            .zip_eq(fsrs_items.chunk_into_vecs(FSRS_BATCH_SIZE))
-            .zip_eq(starting_states.chunk_into_vecs(FSRS_BATCH_SIZE))
-        {
-            let memory_states = fsrs.memory_state_batch(fsrs_items, starting_states)?;
-
-            for (card_id, memory_state) in to_update.into_iter().zip_eq(memory_states) {
-                let mut card = self.storage.get_card(card_id)?.or_not_found(card_id)?;
-                let original = card.clone();
-                set_decay_and_desired_retention(&mut card);
-                card.memory_state = Some(fsrs_memory_state_for_fsrs(fsrs, memory_state));
-                maybe_reschedule_card(&mut card, self, fsrs)?;
-                self.update_card_inner(&mut card, original, usn)?;
-                on_updated_card()?;
-            }
-        }
-        Ok(())
+        for_each_replayed_state(fsrs, items, |card_id, state| {
+            let mut card = self.storage.get_card(card_id)?.or_not_found(card_id)?;
+            let original = card.clone();
+            set_decay_and_desired_retention(&mut card);
+            card.memory_state = Some(state);
+            maybe_reschedule_card(&mut card, self, fsrs)?;
+            self.update_card_inner(&mut card, original, usn)?;
+            on_updated_card()
+        })
     }
 
     pub fn compute_memory_state(&mut self, card_id: CardId) -> Result<ComputeMemoryStateResponse> {
@@ -458,6 +417,31 @@ pub(crate) struct FsrsItemForMemoryState {
     /// review
     pub starting_state: Option<MemoryState>,
     pub filtered_revlogs: Vec<RevlogEntry>,
+}
+
+pub(super) fn for_each_replayed_state(
+    fsrs: &FSRS,
+    mut items: Vec<(CardId, FsrsItemForMemoryState)>,
+    mut visit: impl FnMut(CardId, FsrsMemoryState) -> Result<()>,
+) -> Result<()> {
+    const FSRS_BATCH_SIZE: usize = 1000;
+
+    // Preserve processing order for rescheduling, where each card can change
+    // the load-balancing counts used by the next one.
+    permutation::sort_unstable_by_key(&items, |(_, item)| item.item.reviews.len())
+        .apply_slice_in_place(&mut items);
+    for batch in &items.into_iter().chunks(FSRS_BATCH_SIZE) {
+        let (ids, (histories, starts)): (Vec<_>, (Vec<_>, Vec<_>)) = batch
+            .map(|(id, item)| (id, (item.item, item.starting_state)))
+            .unzip();
+        for (id, state) in ids
+            .into_iter()
+            .zip_eq(fsrs.memory_state_batch(histories, starts)?)
+        {
+            visit(id, fsrs_memory_state_for_fsrs(fsrs, state))?;
+        }
+    }
+    Ok(())
 }
 
 /// Like [fsrs_item_for_memory_state], but for updating multiple cards at once.
