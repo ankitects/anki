@@ -6,6 +6,7 @@ use std::collections::HashSet;
 
 use regex::Captures;
 use regex::Regex;
+use unicase::UniCase;
 
 use super::join_tags;
 use super::split_tags;
@@ -76,7 +77,7 @@ impl TagMatcher {
             })
             .collect();
 
-        join_tags(tags.as_slice())
+        join_unique_tags(tags)
     }
 
     /// The `replacement` function should return the text to use as a
@@ -107,7 +108,7 @@ impl TagMatcher {
             })
             .collect();
 
-        join_tags(tags.as_slice())
+        join_unique_tags(tags)
     }
 
     /// Remove any matching tags. Does not update seen_tags.
@@ -125,6 +126,13 @@ impl TagMatcher {
     pub fn into_new_tags(self) -> HashSet<String> {
         self.new_tags
     }
+}
+
+/// Renaming can turn two different tags into the same one, so drop repeats.
+fn join_unique_tags(mut tags: Vec<String>) -> String {
+    let mut seen = HashSet::new();
+    tags.retain(|tag| seen.insert(UniCase::new(tag.clone())));
+    join_tags(&tags)
 }
 
 #[cfg(test)]
@@ -149,14 +157,14 @@ mod test {
         let mut as_xxx = |text| re.replace(text, "xxx");
 
         assert_eq!(&as_xxx(" baz FOO "), " baz xxx ");
-        assert_eq!(&as_xxx(" x foo::bar x "), " x xxx::bar x ");
+        assert_eq!(&as_xxx(" x foo::bar y "), " x xxx::bar y ");
         assert_eq!(
-            &as_xxx(" x foo::bar bar::foo x "),
-            " x xxx::bar bar::foo x "
+            &as_xxx(" x foo::bar bar::foo y "),
+            " x xxx::bar bar::foo y "
         );
         assert_eq!(
-            &as_xxx(" x foo::bar foo::bar::baz x "),
-            " x xxx::bar xxx::bar::baz x "
+            &as_xxx(" x foo::bar foo::bar::baz y "),
+            " x xxx::bar xxx::bar::baz y "
         );
 
         Ok(())
