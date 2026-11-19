@@ -288,6 +288,22 @@ impl SqliteStorage {
         Ok(())
     }
 
+    /// The cards of a notetype grouped by note, each note's cards in card id
+    /// order, as [Self::existing_cards_for_note] returns them.
+    pub(crate) fn existing_cards_for_notetype_by_note(
+        &self,
+        ntid: NotetypeId,
+    ) -> Result<HashMap<NoteId, Vec<AlreadyGeneratedCardInfo>>> {
+        let mut by_note: HashMap<NoteId, Vec<AlreadyGeneratedCardInfo>> = HashMap::new();
+        for card in self.existing_cards_for_notetype(ntid)? {
+            by_note.entry(card.nid).or_default().push(card);
+        }
+        for cards in by_note.values_mut() {
+            cards.sort_unstable_by_key(|card| card.id);
+        }
+        Ok(by_note)
+    }
+
     pub(crate) fn existing_cards_for_notetype(
         &self,
         ntid: NotetypeId,
