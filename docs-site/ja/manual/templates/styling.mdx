@@ -1,0 +1,354 @@
+---
+title: "スタイルとHTML"
+---
+
+## カードのスタイル設定
+
+[カードのスタイル設定に関する動画](http://www.youtube.com/watch?v=F1j1Zx0mXME&yt:cc=on)をYouTubeで視聴できます。動画ではAnki 2.0の画面を使っていますが、基本的な考え方はほぼ同じです。
+
+カード画面で「裏面テンプレート」の隣にある「スタイル」ボタンをクリックすると、スタイル欄を開けます。ここではカードの背景色、初期設定のフォント、テキストの配置などを変更できます。
+
+標準で設定できる項目は次のとおりです。
+
+**font-family**\
+カードで使うフォント名です。「MS Unicode」のようにフォント名に空白が含まれる場合は、font-family: "MS Unicode";のようにフォント名を二重引用符で囲みます。1枚のカードで複数のフォントを使うこともできます。詳しくは後述します。
+
+**font-size**\
+フォントサイズをピクセル単位で指定します。変更するときは、末尾にpxを付けてください。
+
+**text-align**\
+テキストを中央、左、右のどこに配置するかを指定します。
+
+**color**\
+テキストの色です。「blue」や「lightyellow」などの色名を使うか、HTMLカラーコードで任意の色を指定できます。詳しくは[このページ](https://htmlcolorcodes.com/)を参照してください。
+
+**background-color**\
+カードの背景色です。
+
+スタイル欄には任意のCSSを記述できます。上級者であれば、背景画像やグラデーションなども追加できます。特定の書式設定方法を知りたい場合は、CSSの解説をWebで検索してください。多くの資料が公開されています。
+
+スタイルはそのノートタイプのすべてのカードで共有されます。そのため、変更すると全カードに反映されます。カードごとに異なるスタイルを指定することもできます。次の例では、1枚目を除くすべてのカードの背景を黄色にします。
+
+```css
+.card {
+    background-color: yellow;
+}
+.card1 {
+    background-color: blue;
+}
+```
+
+## 画像のサイズ変更
+
+初期設定では、画像は画面に収まるよう縮小されます。スタイル欄の末尾（初期設定の.card { ... }の外側）に次のコードを追加すると、この動作を変更できます。
+
+```css
+img {
+    max-width: none;
+    max-height: none;
+}
+```
+
+AnkiDroidでは、[画像を画面に合わせて拡大縮小する際に問題](https://github.com/ankidroid/Anki-Android/issues/3612)が起きることがあります。CSSで画像の最大サイズを設定すると解決するはずですが、AnkiDroid 2.9では無視されるようです。その場合は、次の例のように各スタイル指定の末尾に!importantを付けてください。
+
+```css
+img {
+    max-width: 300px !important;
+    max-height: 300px !important;
+}
+```
+
+画像のスタイルを変更した結果、マーク付きカードに表示される星まで大きくなりすぎる場合は、次のように対象を指定できます。
+
+```css
+img#star {
+  ...;
+}
+```
+
+Chromeを使うと、カードのスタイルを対話的に確認できます。
+
+[Webビューの変更](/addons/porting2.0#webview-changes)
+
+Anki 2.1.50以降では、エディター内で画像サイズを変更できます。
+
+## フィールドのスタイル設定
+
+初期設定のスタイルはカード全体に適用されます。特定のフィールドやカードの一部だけ、別のフォントや色などを使うこともできます。適切なフォントを選ばないと文字を正しく表示できないことがあるため、外国語の学習では特に重要です。
+
+たとえば、「Expression」フィールドにmacOSのタイ語フォント「Ayuthaya」を使いたいとします。テンプレートがすでに次のようになっているとします。
+
+```text
+    What is {{Expression}}?
+
+    {{Notes}}
+```
+
+スタイルを適用するテキストをHTMLで囲みます。テキストの前に次のコードを置きます。
+
+```text
+    <div class=mystyle1>
+```
+
+テキストの後ろには次のコードを置きます。
+
+```text
+    </div>
+```
+
+このようにテキストを囲むと、囲まれた部分に「mystyle1」というカスタムスタイルを適用できます。このスタイルは後で作成します。
+
+「What is …?」全体にタイ語フォントを使う場合は、次のようにします。
+
+```text
+    <div class=mystyle1>What is {{Expression}}?</div>
+
+    {{Notes}}
+```
+
+Expressionフィールドだけにタイ語フォントを使う場合は、次のようにします。
+
+```text
+    What is <div class=mystyle1>{{Expression}}</div>?
+
+    {{Notes}}
+```
+
+テンプレートを編集したら、2つのテンプレートの間にあるスタイル欄を開きます。編集前は次のようになっています。
+
+```css
+.card {
+    font-family: arial;
+    font-size: 20px;
+    text-align: center;
+    color: black;
+    background-color: white;
+}
+```
+
+末尾に新しいスタイルを追加し、次のようにします。
+
+```css
+.card {
+    font-family: arial;
+    font-size: 20px;
+    text-align: center;
+    color: black;
+    background-color: white;
+}
+
+.mystyle1 {
+    font-family: ayuthaya;
+}
+```
+
+このスタイルには任意の設定を含められます。フォントサイズも大きくするには、mystyle1の部分を次のようにします。
+
+```css
+.mystyle1 {
+    font-family: ayuthaya;
+    font-size: 30px;
+}
+```
+
+デッキにカスタムフォントを含めれば、コンピューターやモバイル端末にフォントをインストールせずに使えます。詳しくは[フォントのインストール](./#installing-fonts)を参照してください。
+
+## 音声の再生ボタン
+
+カードに音声やテキスト読み上げを含めると、音声を再生するボタンが表示されます。
+
+ボタンを表示したくない場合は、設定画面で非表示にできます。
+
+カードのスタイルでボタンの見た目をカスタマイズできます。たとえば、小さくして色を付けるには、次のようにします。
+
+```css
+.replay-button svg {
+    width: 20px;
+    height: 20px;
+}
+.replay-button svg circle {
+    fill: blue;
+}
+.replay-button svg path {
+    stroke: white;
+    fill: green;
+}
+```
+
+## テキストの方向
+
+アラビア語やヘブライ語など、右から左に書く言語を使う場合は、.cardセクションにCSSのdirectionプロパティを追加すると、復習時に正しく表示できます。
+
+```css
+.card {
+    direction: rtl;
+}
+```
+
+この設定はカード全体の方向を変更します。特定のフィールドだけ方向を変えるには、次のようにHTMLでフィールド参照を囲みます。
+
+```text
+    <div dir="rtl">{{Front}}</div>
+```
+
+エディター内でのフィールドの方向を変更する方法は、[編集](../editing#customizing-fields)の節を参照してください。
+
+## コード例の表示
+
+Ankiのカードにコードを含める場合は、HTMLタグでコードとして書式設定できます。そのためには[HTMLビュー](../editing#editing-features)を開きます。
+
+### インラインコード
+
+テキストを<code>タグで囲みます。
+
+```html
+<code>console.log("Hello World!");</code>
+```
+
+### コードブロック
+
+複数行のコードには<pre><code>を使います。
+
+```html
+<pre><code>
+function square(number) {
+  return number * number;
+};
+</code></pre>
+```
+
+## その他のHTML
+
+テンプレートには任意のHTMLを含められます。つまり、インターネット上のWebページで使われるレイアウトをカードにも適用できます。表、リスト、画像、外部ページへのリンクなども使えます。たとえば表を使えば、カードの表面と裏面を上下ではなく左右に並べられます。
+
+HTMLの機能をすべて説明することはこのマニュアルの範囲外ですが、Web上には分かりやすい入門ガイドが多数あります。
+
+## ブラウザーでの表示
+
+カードテンプレートが複雑だと、[カード一覧](../browsing#cardnote-table)の問題列と解答列（「表面」「裏面」と呼ばれます）が読みにくくなることがあります。「ブラウザーでの表示」オプションを使うと、ブラウザー内だけで使うカスタムテンプレートを定義できます。重要なフィールドだけを表示したり、順序を変更したりできます。構文は通常のカードテンプレートと同じです。
+
+このオプションを使うと、問題列のテキストが解答列の先頭にも繰り返される場合、Ankiは問題列にだけそのテキストを表示します。たとえば、問題列が「ラダックの人々が話す言語は」で、解答が「ラダックの人々が話す言語はラダック語です」の場合、解答列には「ラダック語です」だけが表示され、前半は省略されます。
+
+## プラットフォーム別のCSS
+
+Ankiには、プラットフォームごとに異なるスタイルを設定するためのCSSクラスがあります。次の例では、復習する環境に応じてフォントを変えています。
+
+```css
+/* Windows */
+.win .example {
+    font-family: "Example1";
+}
+/* macOS */
+.mac .example {
+    font-family: "Example2";
+}
+/* Linux desktops */
+.linux:not(.android) .example {
+    font-family: "Example3";
+}
+/* both Linux desktops, and Android devices */
+.linux .example {
+    font-family: "Example4";
+}
+/* both Android and iOS */
+.mobile .example {
+    font-family: "Example5";
+}
+/* iOS */
+.iphone .example,
+.ipad .example {
+    font-family: "Example6";
+}
+/* Android */
+.android .example {
+    font-family: "Example7";
+}
+```
+
+テンプレートは次のようにします。
+
+```html
+<div class="example">{{Field}}</div>
+```
+
+AnkiWebで使うブラウザーに応じてスタイルを変えるには、.gecko、.opera、.ieなどのプロパティも使えます。利用可能なオプションの一覧は[こちら](http://rafael.adm.br/css_browser_selector/)を参照してください。
+
+## フォントのインストール
+
+Ankiにフォントを直接インストールできます。新しいフォントをインストールする権限がない職場や学校のコンピューター、またはモバイル端末でAnkiを使う場合に便利です。
+
+AnkiはTrueType（.ttf）、OpenType（.otf）、Web Open Font Format（.woff）など、広く使われているフォント形式に対応しています。
+
+### メディアフォルダーにフォントを追加する
+
+Arial.ttfなど、対応するフォントをダウンロードしたら、メディアフォルダーに追加します。
+
+1. ファイル名の先頭にアンダースコアを付け、_arial.ttfのように変更します。アンダースコアがあると、Ankiはそのファイルがテンプレートで使われていると認識し、未使用メディアの確認時に削除しません。
+2. ファイルブラウザーでAnkiのアプリケーションデータフォルダーを開きます（詳しくは[ファイルの保存場所](../files#file-locations)を参照してください）。次に、プロフィールフォルダー（例：「User 1」）を開きます。
+3. フォルダー内にcollection.mediaというフォルダーがあります。名前を変更したファイルをそこに移動します。
+
+### テンプレートでフォントを使う
+
+フォントをメディアフォルダーに追加したら、テンプレートを更新します。
+
+1. メイン画面の上部にある**追加**をクリックし、左上のボタンから変更するノートタイプを選びます。
+2. **カード**をクリックします。
+3. スタイル欄の末尾（最後の}の後ろ）に次のコードを追加します。_arial.ttfはメディアフォルダーにコピーしたファイル名に置き換えてください。
+
+```css
+@font-face {
+    font-family: myfont;
+    src: url("_arial.ttf");
+}
+```
+
+変更するのは「arial」の部分だけです。「myfont」は変更しないでください。
+
+その後、カード全体または個々のフィールドにフォントを設定できます。カード全体を変更するには、.cardセクションのfont-family:行を探し、フォント名を「myfont」にします。特定のフィールドだけ変更するには、上記の[フィールドのスタイル設定](./#field-styling)を参照してください。
+
+ファイル名は完全に一致させてください。ファイル名がarial.TTFなのにカードテンプレートでarial.ttfと書くと、機能しません。
+
+## 夜間モード
+
+設定画面で夜間モードが有効なときのテンプレートの表示をカスタマイズできます。
+
+たとえば、明るめの灰色の背景にするには、次のようにします。
+
+```css
+.card.nightMode {
+    background-color: #555;
+}
+```
+
+「myclass」スタイルを使っている場合、夜間モードでテキストを黄色にするには次のようにします。
+
+```css
+.nightMode .myclass {
+    color: yellow;
+}
+```
+
+## フェードとスクロール
+
+初期設定では、Ankiは解答まで自動的にスクロールします。id=answerが付いたHTML要素を探してそこまでスクロールします。スクロール位置を調整するには別の要素にidを付け、スクロールを無効にするにはid=answerを削除します。
+
+初期設定では、カードの問題側がフェードインします。この遅延を調整するには、表面テンプレートの先頭に次のコードを追加します。
+
+```html
+<script>
+    qFade = 100;
+    if (typeof anki !== "undefined") anki.qFade = qFade;
+</script>
+```
+
+初期値は100ミリ秒です。フェードを無効にするには0を設定します。
+
+## JavaScript
+
+AnkiのカードはWebページとして扱われるため、カードテンプレートにJavaScriptを埋め込めます。詳しい解説は、フォーラムの[こちらの投稿](https://forums.ankiweb.net/t/card-templates-user-input-101-buttons-keyboard-shortcuts-etc-guide/13756)を参照してください。
+
+JavaScriptは高度な機能であり、さまざまな問題が起きる可能性があります。そのため、**JavaScript機能はサポートや保証の対象外です**。JavaScriptの作成支援は行っておらず、作成したコードが今後のAnkiの更新後も修正なしで動作することを保証できません。発生した問題を自分で解決できない場合は、JavaScriptを使わないでください。
+
+カード表示の実装はAnkiクライアントごとに異なる場合があるため、複数のプラットフォームで動作を確認する必要があります。カードを復習する際、長時間動作するWebページを維持し、その一部を動的に更新するクライアントもあります。その場合、document.write()のような処理ではなく、document.getElementById()などを使って文書内の該当箇所を更新する必要があります。
+
+window.alertなどの関数は使えない場合があります。AnkiはJavaScriptのエラーをターミナルに出力するため、確認するには[コンソールを表示](/addons/console-output#console-output)してください。JavaScriptの問題をデバッグするには、Chromeの[インスペクター](/addons/debugging#webviews)を使えます。
