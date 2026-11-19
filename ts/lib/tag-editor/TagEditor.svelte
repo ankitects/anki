@@ -11,7 +11,6 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { writable } from "svelte/store";
 
     import Shortcut from "$lib/components/Shortcut.svelte";
-    import { execCommand } from "$lib/domlib";
 
     import { TagOptionsButton } from "./tag-options-button";
     import TagEditMode from "./TagEditMode.svelte";
@@ -344,17 +343,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         }
     }
 
-    /* TODO replace with navigator.clipboard once available */
     function copyToClipboard(content: string): void {
-        const textarea = document.createElement("textarea");
-        textarea.value = content;
-        textarea.setAttribute("readonly", "");
-        textarea.style.position = "absolute";
-        textarea.style.left = "-9999px";
-        document.body.appendChild(textarea);
-        textarea.select();
-        execCommand("copy");
-        document.body.removeChild(textarea);
+        navigator.clipboard.writeText(content);
     }
 
     function selectAllTags() {
