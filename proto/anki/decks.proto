@@ -3,12 +3,12 @@
 
 syntax = "proto3";
 
-option java_multiple_files = true;
-
 package anki.decks;
 
-import "anki/generic.proto";
 import "anki/collection.proto";
+import "anki/generic.proto";
+
+option java_multiple_files = true;
 
 service DecksService {
   rpc NewDeck(generic.Empty) returns (Deck);
@@ -28,12 +28,10 @@ service DecksService {
   rpc GetDeckAndChildNames(DeckId) returns (DeckNames);
   rpc NewDeckLegacy(generic.Bool) returns (generic.Json);
   rpc RemoveDecks(DeckIds) returns (collection.OpChangesWithCount);
-  rpc ReparentDecks(ReparentDecksRequest)
-      returns (collection.OpChangesWithCount);
+  rpc ReparentDecks(ReparentDecksRequest) returns (collection.OpChangesWithCount);
   rpc RenameDeck(RenameDeckRequest) returns (collection.OpChanges);
   rpc GetOrCreateFilteredDeck(DeckId) returns (FilteredDeckForUpdate);
-  rpc AddOrUpdateFilteredDeck(FilteredDeckForUpdate)
-      returns (collection.OpChangesWithId);
+  rpc AddOrUpdateFilteredDeck(FilteredDeckForUpdate) returns (collection.OpChangesWithId);
   rpc FilteredDeckOrderLabels(generic.Empty) returns (generic.StringList);
   rpc SetCurrentDeck(DeckId) returns (collection.OpChanges);
   rpc GetCurrentDeck(generic.Empty) returns (Deck);

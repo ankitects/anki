@@ -3,15 +3,15 @@
 
 syntax = "proto3";
 
+package anki.deck_config;
+
+import "anki/collection.proto";
+import "anki/decks.proto";
+import "anki/generic.proto";
+
 option java_multiple_files = true;
 // the DeckConfig message clashes with the name of the file
 option java_outer_classname = "DeckConf";
-
-package anki.deck_config;
-
-import "anki/generic.proto";
-import "anki/collection.proto";
-import "anki/decks.proto";
 
 service DeckConfigService {
   rpc AddOrUpdateDeckConfigLegacy(generic.Json) returns (DeckConfigId);
@@ -21,12 +21,9 @@ service DeckConfigService {
   rpc NewDeckConfigLegacy(generic.Empty) returns (generic.Json);
   rpc RemoveDeckConfig(DeckConfigId) returns (generic.Empty);
   rpc GetDeckConfigsForUpdate(decks.DeckId) returns (DeckConfigsForUpdate);
-  rpc UpdateDeckConfigs(UpdateDeckConfigsRequest)
-      returns (collection.OpChanges);
-  rpc GetIgnoredBeforeCount(GetIgnoredBeforeCountRequest)
-      returns (GetIgnoredBeforeCountResponse);
-  rpc GetRetentionWorkload(GetRetentionWorkloadRequest)
-      returns (GetRetentionWorkloadResponse);
+  rpc UpdateDeckConfigs(UpdateDeckConfigsRequest) returns (collection.OpChanges);
+  rpc GetIgnoredBeforeCount(GetIgnoredBeforeCountRequest) returns (GetIgnoredBeforeCountResponse);
+  rpc GetRetentionWorkload(GetRetentionWorkloadRequest) returns (GetRetentionWorkloadResponse);
 }
 
 // Implicitly includes any of the above methods that are not listed in the
