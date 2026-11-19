@@ -1,0 +1,9 @@
+[Desktop Entry]
+Name=Anki (dev)
+Comment=Spaced repetition flashcard program
+Exec=bash -c 'cd ANKI_SRC && just run'
+Icon=ANKI_SRC/qt/aqt/data/qt/icons/anki.png
+Terminal=false
+Type=Application
+Categories=Education;
+StartupWMClass=anki
