@@ -16,6 +16,7 @@ from anki.sync import SyncOutput, SyncStatus
 from anki.sync_pb2 import SyncAuth
 from anki.utils import plat_desc
 from aqt import gui_hooks
+from aqt.network import is_sync_offline
 from aqt.qt import (
     QDialog,
     QDialogButtonBox,
@@ -95,6 +96,10 @@ def sync_collection(mw: aqt.main.AnkiQt, on_done: Callable[[], None]) -> None:
     auth = mw.pm.sync_auth()
     if not auth:
         raise Exception("expected auth")
+    if is_sync_offline(mw.pm):
+        show_warning(tr.network_offline(), parent=mw)
+        on_done()
+        return
 
     def on_timer() -> None:
         on_normal_sync_timer(mw)
