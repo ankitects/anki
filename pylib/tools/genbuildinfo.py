@@ -5,7 +5,8 @@ import sys
 
 version_file = sys.argv[1]
 buildhash_file = sys.argv[2]
-outpath = sys.argv[3]
+buildtime_file = sys.argv[3]
+outpath = sys.argv[4]
 
 with open(version_file, "r", encoding="utf8") as f:
     version = f.read().strip()
@@ -13,7 +14,11 @@ with open(version_file, "r", encoding="utf8") as f:
 with open(buildhash_file, "r", encoding="utf8") as f:
     buildhash = f.read().strip()
 
+with open(buildtime_file, "r", encoding="utf8") as f:
+    buildtime = f.read().strip()
+
 with open(outpath, "w", encoding="utf8") as f:
     # if we switch to uppercase we'll need to add legacy aliases
     f.write(f"version = '{version}'\n")
     f.write(f"buildhash = '{buildhash}'\n")
+    f.write(f"buildtime = '{buildtime}'\n")
