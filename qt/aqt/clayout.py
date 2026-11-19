@@ -996,7 +996,7 @@ class SelectStockNotetype(QDialog):
         disable_help_button(self)
         stock_types = stdmodels.get_stock_notetypes(mw.col)
 
-        for name, func in stock_types:
+        for name, _func in stock_types:
             item = QListWidgetItem(name)
             self.dialog.models.addItem(item)
         self.dialog.models.setCurrentRow(0)
