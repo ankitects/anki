@@ -131,11 +131,11 @@ function fabricObjectToBaseShapeOrShapes(
     // Prevents the original fabric object from mutating when a non-primitive
     // property of a Shape mutates.
     const cloned = cloneDeep(object);
-    if (parentObject) {
-        const scaling = parentObject.getObjectScaling();
-        cloned.width = cloned.width! * scaling.scaleX;
-        cloned.height = cloned.height! * scaling.scaleY;
-    }
+    const containerScaling = parentObject?.getObjectScaling() ?? { scaleX: 1, scaleY: 1 };
+    bakeDisplayedSize(cloned, {
+        scaleX: object.scaleX! * containerScaling.scaleX,
+        scaleY: object.scaleY! * containerScaling.scaleY,
+    });
 
     switch (object.type) {
         case "rect":
@@ -172,6 +172,26 @@ function fabricObjectToBaseShapeOrShapes(
 
     shape = shape.toNormal(size);
     return shape;
+}
+
+// Apply the container's (group/selection) scale to the shape's
+// dimensions, so it's dimensions are saved correctly.
+function bakeDisplayedSize(object: fabric.Object, scaling: { scaleX: number; scaleY: number }): void {
+    if (object instanceof fabric.IText) {
+        // text stores its size in its scale rather than its geometry
+        object.scaleX = scaling.scaleX;
+        object.scaleY = scaling.scaleY;
+    } else if (object instanceof fabric.Rect) {
+        object.width = object.width! * scaling.scaleX;
+        object.height = object.height! * scaling.scaleY;
+    } else if (object instanceof fabric.Ellipse) {
+        object.rx = object.rx! * scaling.scaleX;
+        object.ry = object.ry! * scaling.scaleY;
+    } else if (object instanceof fabric.Polygon) {
+        object.points = object.points!.map((point) =>
+            new fabric.Point(point.x * scaling.scaleX, point.y * scaling.scaleY)
+        );
+    }
 }
 
 /** generate cloze data in form of
