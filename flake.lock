@@ -1,0 +1,105 @@
+{
+  "nodes": {
+    "ankiquest-dev": {
+      "inputs": {
+        "nixos-wsl": "nixos-wsl",
+        "nixpkgs": "nixpkgs",
+        "rust-overlay": "rust-overlay"
+      },
+      "locked": {
+        "lastModified": 1795191613,
+        "narHash": "sha256-YKqNUtxwPkXrGsbGP1ySBg6oiVFa6E7ETzTgVj6y45E=",
+        "owner": "AnkiQuest",
+        "repo": "AnkiQuest-Dev",
+        "rev": "90279e125b4b5077bc67d228fe81d913cc8330f6",
+        "type": "github"
+      },
+      "original": {
+        "owner": "AnkiQuest",
+        "repo": "AnkiQuest-Dev",
+        "type": "github"
+      }
+    },
+    "flake-compat": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1767039857,
+        "narHash": "sha256-vNpUSpF5Nuw8xvDLj2KCwwksIbjua2LZCqhV1LNRDns=",
+        "owner": "edolstra",
+        "repo": "flake-compat",
+        "rev": "5edf11c44bc78a0d334f6334cdaf7d60d732daab",
+        "type": "github"
+      },
+      "original": {
+        "owner": "edolstra",
+        "repo": "flake-compat",
+        "type": "github"
+      }
+    },
+    "nixos-wsl": {
+      "inputs": {
+        "flake-compat": "flake-compat",
+        "nixpkgs": [
+          "ankiquest-dev",
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1794368463,
+        "narHash": "sha256-ncpk0eCCyhU7M7U/PGbtwb1PXqobksBBYbJJ13abV2g=",
+        "ref": "refs/heads/main",
+        "rev": "05721a428830972f025a8575b1a19c418d422d1b",
+        "shallow": true,
+        "type": "git",
+        "url": "https://github.com/nix-community/NixOS-WSL"
+      },
+      "original": {
+        "shallow": true,
+        "type": "git",
+        "url": "https://github.com/nix-community/NixOS-WSL"
+      }
+    },
+    "nixpkgs": {
+      "locked": {
+        "lastModified": 1795085501,
+        "narHash": "sha256-kqy60mdSH4GQAv3kzSeefteaiCv9arf3P+auosZrpo0=",
+        "rev": "0bb8272318b4ca41bf0edc6224df3e3e3046b70d",
+        "type": "tarball",
+        "url": "https://releases.nixos.org/nixos/unstable/nixos-26.11pre1124497.0bb8272318b4/nixexprs.tar.xz"
+      },
+      "original": {
+        "type": "tarball",
+        "url": "https://channels.nixos.org/nixos-unstable/nixexprs.tar.xz"
+      }
+    },
+    "root": {
+      "inputs": {
+        "ankiquest-dev": "ankiquest-dev"
+      }
+    },
+    "rust-overlay": {
+      "inputs": {
+        "nixpkgs": [
+          "ankiquest-dev",
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1795168384,
+        "narHash": "sha256-aQ4Ns5O78Pg6B1i2hNRbI1HpRtnZst/jW34MSOOeaX4=",
+        "ref": "refs/heads/master",
+        "rev": "a5c999945da3991d7aa3cc2a6075cfd22bd387e9",
+        "shallow": true,
+        "type": "git",
+        "url": "https://github.com/oxalica/rust-overlay"
+      },
+      "original": {
+        "shallow": true,
+        "type": "git",
+        "url": "https://github.com/oxalica/rust-overlay"
+      }
+    }
+  },
+  "root": "root",
+  "version": 7
+}
