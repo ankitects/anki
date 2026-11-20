@@ -745,6 +745,16 @@ impl Collection {
         input: RwkvPrepareOfflineRequest,
     ) -> Result<RwkvPrepareOfflineResponse> {
         require!(!input.model_path.is_empty(), "missing RWKV model path");
+
+        // The model files come from the user, not from the app's assets: say
+        // which one is missing now, instead of failing later on the build
+        // thread.
+        for model_path in [&input.model_path, &input.instant_model_path] {
+            require!(
+                model_path.is_empty() || Path::new(model_path).is_file(),
+                "RWKV model file not found: {model_path}"
+            );
+        }
         require!(
             input.model_kind.is_empty() || input.model_kind == "sm72",
             "unsupported RWKV offline model kind"

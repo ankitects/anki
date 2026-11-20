@@ -1084,7 +1084,11 @@ message FsrsIntervalAtRetrievabilityByConfigBatchResponse {
 }
 
 message RwkvPrepareOfflineRequest {
-  // The RWKV model file (the app installs it from its assets).
+  // The RWKV model file. The weights are not part of the backend: the app
+  // passes a file the user supplied. Give each model file its own path (for
+  // example named by its hash); a file replaced in place under a known path
+  // is refused until the process restarts, because the loaded engine and the
+  // saved state belong to the old model.
   string model_path = 1;
   // How card/note states are kept: "f32", "int8" or "int4"; empty: int8 (the
   // fork's desktop default).

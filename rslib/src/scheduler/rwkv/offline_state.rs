@@ -31,6 +31,7 @@ use std::io::Write;
 use std::path::Path;
 use std::path::PathBuf;
 use std::sync::Mutex;
+use std::time::SystemTime;
 
 use super::offline::SelectedOfflineModel;
 use super::offline_engine::Engine;
@@ -75,20 +76,74 @@ pub(super) fn header(model: &SelectedOfflineModel) -> io::Result<String> {
     ))
 }
 
-/// A model file's size and FNV-1a hash, read once per file (they don't change
-/// while the app runs).
+/// What a model file looked like when it was hashed: its size and
+/// modification time.
+#[derive(Clone, Copy, PartialEq)]
+struct FileStamp {
+    len: u64,
+    modified: Option<SystemTime>,
+}
+
+impl FileStamp {
+    fn of(path: &Path) -> io::Result<Self> {
+        let metadata = fs::metadata(path)?;
+        Ok(Self {
+            len: metadata.len(),
+            modified: metadata.modified().ok(),
+        })
+    }
+}
+
+/// A model file's size and FNV-1a hash, read once per file.
+///
+/// The model is a file the user supplies, so the hash is cached by path and
+/// the file's stamp. A file replaced in place under the same path is refused:
+/// the loaded engine and the saved state would still belong to the old
+/// model. The caller gives each model file its own path instead.
 fn hash_model(path: &Path) -> io::Result<String> {
-    static HASHED: Mutex<Vec<(PathBuf, String)>> = Mutex::new(Vec::new());
+    static HASHED: Mutex<Vec<(PathBuf, FileStamp, String)>> = Mutex::new(Vec::new());
+    let stamp = FileStamp::of(path)?;
     let mut cached = HASHED.lock().unwrap();
-    if let Some((_, hashed)) = cached.iter().find(|(known, _)| known == path) {
+
+    // known path: reuse the hash, unless the file changed under it
+    if let Some((_, known, hashed)) = cached.iter().find(|(known, ..)| known == path) {
+        if *known != stamp {
+            return Err(io::Error::other(format!(
+                "RWKV model file changed in place: {}; give the new model its own path",
+                path.display()
+            )));
+        }
         return Ok(hashed.clone());
     }
+
     let bytes = fs::read(path)?;
     let mut hash = fnv::FnvHasher::default();
     hash.write(&bytes);
     let hashed = format!("{} {:016x}", bytes.len(), hash.finish());
-    cached.push((path.to_path_buf(), hashed.clone()));
+    cached.push((path.to_path_buf(), stamp, hashed.clone()));
     Ok(hashed)
+}
+
+/// A user-supplied model file replaced in place must not keep the old
+/// model's hash: the saved state would be reused with the new model.
+#[cfg(test)]
+#[test]
+fn model_replaced_in_place_is_refused() -> io::Result<()> {
+    let dir = tempfile::tempdir()?;
+    let path = dir.path().join("model.bin");
+    fs::write(&path, [1u8; 16])?;
+    let first = hash_model(&path)?;
+    assert_eq!(hash_model(&path)?, first);
+
+    // a different model under the same path
+    fs::write(&path, [2u8; 32])?;
+    assert!(hash_model(&path).is_err());
+
+    // the same model under its own path is fine
+    let other = dir.path().join("other.bin");
+    fs::write(&other, [2u8; 32])?;
+    assert_ne!(hash_model(&other)?, first);
+    Ok(())
 }
 
 #[cfg(test)]
