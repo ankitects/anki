@@ -1,4 +1,4 @@
-// Copyright: Ankitects Pty Ltd and contributors
+// Copyright: Anki Software, LLC and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 use anyhow::Result;
@@ -66,6 +66,7 @@ fn setup_node(build: &mut Build) -> Result<()> {
             "vitest",
             "protoc-gen-es",
             "prettier",
+            "buf",
         ],
         hashmap! {
             "jquery" => vec![
