@@ -10,7 +10,8 @@ use std::sync::Arc;
 use std::sync::LazyLock;
 
 use anki_io::atomic_rename;
-use anki_io::new_tempfile_in_parent_of;
+use anki_io::FileIoSnafu;
+use anki_io::FileOp;
 use anki_proto::import_export::ExportNoteCsvRequest;
 use itertools::Itertools;
 use regex::Regex;
@@ -91,10 +92,36 @@ fn temp_file_writer_with_header(
     path: &str,
     with_html: bool,
 ) -> Result<(NamedTempFile, csv::Writer<File>)> {
-    let tempfile = new_tempfile_in_parent_of(Path::new(path))?;
+    let tempfile = export_tempfile(Path::new(path))?;
     let mut file = tempfile.as_file().try_clone()?;
     write_file_header(&mut file, with_html)?;
     Ok((tempfile, csv_writer(file)))
+}
+
+/// Create the file an export is written to before it is renamed over `path`.
+///
+/// A `NamedTempFile` is owner-only on Unix, but the export used to be written
+/// with `File::create`, which keeps an existing file's permissions and gives a
+/// new one 0666 narrowed by the umask. Doing the same keeps an export readable by
+/// whoever could read it before.
+fn export_tempfile(path: &Path) -> Result<NamedTempFile> {
+    let dir = path.parent().unwrap_or(path);
+    let mut builder = tempfile::Builder::new();
+    #[cfg(unix)]
+    {
+        use std::os::unix::fs::PermissionsExt;
+        // passed to open(), so the umask applies as it does for File::create
+        builder.permissions(std::fs::Permissions::from_mode(0o666));
+    }
+    let tempfile = builder.tempfile_in(dir).context(FileIoSnafu {
+        path: dir,
+        op: FileOp::Create,
+    })?;
+    #[cfg(unix)]
+    if let Ok(existing) = std::fs::metadata(path) {
+        tempfile.as_file().set_permissions(existing.permissions())?;
+    }
+    Ok(tempfile)
 }
 
 fn csv_writer(file: File) -> csv::Writer<File> {
@@ -122,7 +149,7 @@ fn temp_note_file_writer_with_header(
     path: &str,
     ctx: &NoteContext,
 ) -> Result<(NamedTempFile, csv::Writer<File>)> {
-    let tempfile = new_tempfile_in_parent_of(Path::new(path))?;
+    let tempfile = export_tempfile(Path::new(path))?;
     let mut file = tempfile.as_file().try_clone()?;
     write_note_file_header(&mut file, ctx)?;
     Ok((tempfile, csv_writer(file)))
@@ -355,6 +382,50 @@ mod tests {
             .collect();
         names.sort();
         names
+    }
+
+    #[cfg(unix)]
+    fn mode(path: &Path) -> u32 {
+        use std::os::unix::fs::PermissionsExt;
+        std::fs::metadata(path).unwrap().permissions().mode() & 0o777
+    }
+
+    #[cfg(unix)]
+    #[test]
+    fn a_new_export_gets_the_permissions_file_create_would_give_it() {
+        let (mut col, dir) = col_and_dir();
+        NoteAdder::basic(&mut col).add(&mut col);
+        // compared with a file made the old way, so the test holds for any umask
+        let reference = dir.path().join("reference");
+        File::create(&reference).unwrap();
+        let path = dir.path().join("cards.csv");
+
+        col.export_card_csv(path.to_str().unwrap(), SearchNode::WholeCollection, true)
+            .unwrap();
+
+        assert_eq!(mode(&path), mode(&reference));
+    }
+
+    #[cfg(unix)]
+    #[test]
+    fn replacing_an_export_keeps_its_permissions() {
+        use std::os::unix::fs::PermissionsExt;
+        let (mut col, dir) = col_and_dir();
+        NoteAdder::basic(&mut col).add(&mut col);
+        let path = dir.path().join("notes.csv");
+        std::fs::write(&path, "previous export\n").unwrap();
+        std::fs::set_permissions(&path, std::fs::Permissions::from_mode(0o640)).unwrap();
+
+        col.export_note_csv(note_csv_request(path.to_str().unwrap().into()))
+            .unwrap();
+
+        assert_eq!(mode(&path), 0o640);
+        assert!(
+            !std::fs::read_to_string(&path)
+                .unwrap()
+                .contains("previous export"),
+            "the export was not replaced"
+        );
     }
 
     #[test]
