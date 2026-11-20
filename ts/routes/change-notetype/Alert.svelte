@@ -7,9 +7,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { onEnterOrSpace } from "@tslib/keys";
     import { slide } from "svelte/transition";
 
-    import Badge from "$lib/components/Badge.svelte";
-    import Icon from "$lib/components/Icon.svelte";
-    import { minusIcon, plusIcon } from "$lib/components/icons";
+    import Badge from "#lib/components/Badge.svelte";
+    import Icon from "#lib/components/Icon.svelte";
+    import { minusIcon, plusIcon } from "#lib/components/icons.js";
 
     import { MapContext } from "./lib";
 

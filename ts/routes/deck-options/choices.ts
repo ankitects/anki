@@ -13,7 +13,7 @@ import {
 } from "@generated/anki/deck_config_pb";
 import * as tr from "@generated/ftl";
 
-import type { Choice } from "$lib/components/EnumSelector.svelte";
+import type { Choice } from "#lib/components/EnumSelector.svelte";
 
 export function newGatherPriorityChoices(): Choice<DeckConfig_Config_NewCardGatherPriority>[] {
     return [

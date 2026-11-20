@@ -8,10 +8,10 @@ import { isApplePlatform } from "@tslib/platform";
 import { registerShortcut } from "@tslib/shortcuts";
 import type { Callback } from "@tslib/typing";
 
-import type { SelectionLocation } from "$lib/domlib/location";
-import { restoreSelection, saveSelection } from "$lib/domlib/location";
-import { placeCaretAfterContent } from "$lib/domlib/place-caret";
-import { HandlerList } from "$lib/sveltelib/handler-list";
+import type { SelectionLocation } from "#lib/domlib/location/index.js";
+import { restoreSelection, saveSelection } from "#lib/domlib/location/index.js";
+import { placeCaretAfterContent } from "#lib/domlib/place-caret.js";
+import { HandlerList } from "#lib/sveltelib/handler-list.js";
 
 /**
  * Workaround: If you try to invoke an IME after calling

@@ -3,7 +3,7 @@
 
 import type { ImportResponse_Note } from "@generated/anki/import_export_pb";
 
-import type { IconData } from "$lib/components/types";
+import type { IconData } from "#lib/components/types.js";
 
 export type LogQueue = {
     notes: ImportResponse_Note[];
