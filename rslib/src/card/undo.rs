@@ -43,10 +43,20 @@ impl Collection {
         Ok(added)
     }
 
-    pub(super) fn update_card_undoable(&mut self, card: &mut Card, original: Card) -> Result<()> {
+    pub(crate) fn update_card_undoable(&mut self, card: &mut Card, original: Card) -> Result<()> {
         require!(card.id.0 != 0, "card id not set");
         self.save_undo(UndoableCardChange::Updated(Box::new(original)));
         self.storage.update_card(card)
+    }
+
+    pub(crate) fn clear_invalid_fsrs_state_undoable(
+        &mut self,
+        original: Card,
+        usn: Usn,
+    ) -> Result<()> {
+        let cid = original.id;
+        self.save_undo(UndoableCardChange::Updated(Box::new(original)));
+        self.storage.clear_invalid_fsrs_state(cid, usn)
     }
 
     pub(crate) fn remove_card_and_add_grave_undoable(

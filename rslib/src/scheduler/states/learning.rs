@@ -27,13 +27,22 @@ impl LearnState {
     }
 
     pub(crate) fn next_states(self, ctx: &StateContext) -> SchedulingStates {
-        SchedulingStates {
+        let mut next = SchedulingStates {
             current: self.into(),
             again: self.answer_again(ctx),
             hard: self.answer_hard(ctx),
             good: self.answer_good(ctx),
             easy: self.answer_easy(ctx).into(),
-        }
+        };
+        super::button_intervals::apply_model_intervals(
+            &mut next,
+            ctx,
+            ctx.steps,
+            Some(self.remaining_steps),
+            None,
+            |interval, _, memory, remaining| interval.learning(remaining, Some(memory), ctx),
+        );
+        next
     }
 
     fn answer_again(self, ctx: &StateContext) -> CardState {

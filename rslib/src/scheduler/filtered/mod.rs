@@ -10,6 +10,9 @@ use crate::decks::FilteredDeck;
 use crate::decks::FilteredSearchTerm;
 use crate::error::FilteredDeckError;
 use crate::prelude::*;
+use crate::scheduler::fsrs::metrics::ExactFsrsOrder;
+use crate::scheduler::fsrs::metrics::ExactOrderKey;
+use crate::scheduler::fsrs::metrics::FsrsMetricContext;
 use crate::scheduler::timing::SchedTimingToday;
 use crate::search::writer::deck_search;
 use crate::search::writer::normalize_search;
@@ -128,6 +131,13 @@ impl Collection {
                 format!("({})", term.search)
             }
         );
+        if fsrs {
+            if let Some(order) = ExactFsrsOrder::for_filtered_order(term.order()) {
+                return self.move_cards_matching_term_with_exact_fsrs_order(
+                    ctx, term, &search, position, order,
+                );
+            }
+        }
         let order = order_and_limit_for_search(term, ctx.timing, fsrs);
 
         for mut card in self.all_cards_for_search_in_order(&search, SortMode::Custom(order))? {
@@ -137,6 +147,43 @@ impl Collection {
             position += 1;
         }
 
+        Ok(position)
+    }
+
+    fn move_cards_matching_term_with_exact_fsrs_order(
+        &mut self,
+        ctx: &DeckFilterContext,
+        term: &FilteredSearchTerm,
+        search: &str,
+        mut position: i32,
+        order: ExactFsrsOrder,
+    ) -> Result<i32> {
+        let decks = self.storage.get_decks_map()?;
+        let configs = self.storage.get_deck_config_map()?;
+        let mut metrics = FsrsMetricContext::new(&decks, &configs);
+        let mut cards_with_keys = Vec::new();
+        for card in self.all_cards_for_search(search)? {
+            let memory = card
+                .memory_state
+                .map(|state| (state, card.days_since_last_review(&ctx.timing)));
+            let key = metrics.exact_order_key(
+                order,
+                card.original_or_current_deck_id(),
+                memory,
+                card.original_or_current_due(),
+                card.interval,
+                ctx.timing,
+            )?;
+            cards_with_keys.push((ExactOrderKey::new(key, card.id, card.mtime), card));
+        }
+        cards_with_keys.sort_unstable_by(|(key_a, _), (key_b, _)| order.compare(key_a, key_b));
+
+        for (_, mut card) in cards_with_keys.into_iter().take(term.limit as usize) {
+            let original = card.clone();
+            card.move_into_filtered_deck(ctx, position);
+            self.update_card_inner(&mut card, original, ctx.usn)?;
+            position += 1;
+        }
         Ok(position)
     }
 

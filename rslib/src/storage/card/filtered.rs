@@ -281,6 +281,8 @@ mod test {
             let mut card = col.storage.get_card(id).unwrap().unwrap();
             card.memory_state = Some(FsrsMemoryState {
                 stability,
+                stability_internal: stability,
+                stability_fast: None,
                 difficulty: 5.0,
             });
             card.last_review_time = Some(TimestampSecs(NOW - 10 * 86_400));

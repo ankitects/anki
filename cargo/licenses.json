@@ -240,6 +240,14 @@
     "repository": "https://github.com/fitzgen/bumpalo"
   },
   {
+    "authors": "Lokathor <zefria@gmail.com>",
+    "description": "A crate for mucking around with piles of bytes.",
+    "license": "Apache-2.0 OR MIT OR Zlib",
+    "license_file": null,
+    "name": "bytemuck",
+    "repository": "https://github.com/Lokathor/bytemuck"
+  },
+  {
     "authors": "Carl Lerche <me@carllerche.com>|Sean McArthur <sean@seanmonstar.com>",
     "description": "Types and traits for working with bytes",
     "license": "MIT",
@@ -1232,6 +1240,14 @@
     "repository": "https://github.com/rust-lang/libc"
   },
   {
+    "authors": "Alex Crichton <alex@alexcrichton.com>|Amanieu d'Antras <amanieu@gmail.com>|Jorge Aparicio <japaricious@gmail.com>|Trevor Gross <tg@trevorgross.com>",
+    "description": "libm in pure Rust",
+    "license": "MIT",
+    "license_file": null,
+    "name": "libm",
+    "repository": "https://github.com/rust-lang/compiler-builtins"
+  },
+  {
     "authors": "4lDO2 <4lDO2@protonmail.com>",
     "description": "Redox stable ABI",
     "license": "MIT",
@@ -1760,14 +1776,6 @@
     "repository": "https://github.com/dtolnay/prettyplease"
   },
   {
-    "authors": "Gianmarco Garrisi <gianmarcogarrisi@tutanota.com>",
-    "description": "A Priority Queue implemented as a heap with a function to efficiently change the priority of an item.",
-    "license": "LGPL-3.0-or-later OR MPL-2.0",
-    "license_file": null,
-    "name": "priority-queue",
-    "repository": "https://github.com/garro95/priority-queue"
-  },
-  {
     "authors": "Bastian Köcher <git@kchr.de>",
     "description": "Replacement for crate (macro_rules keyword) in proc-macros",
     "license": "Apache-2.0 OR MIT",
@@ -1945,6 +1953,14 @@
   },
   {
     "authors": "The Rand Project Developers",
+    "description": "Sampling from random number distributions",
+    "license": "Apache-2.0 OR MIT",
+    "license_file": null,
+    "name": "rand_distr",
+    "repository": "https://github.com/rust-random/rand_distr"
+  },
+  {
+    "authors": "The Rand Project Developers",
     "description": "Selected PCG random number generators",
     "license": "Apache-2.0 OR MIT",
     "license_file": null,
@@ -2110,6 +2126,14 @@
     "license_file": null,
     "name": "ryu",
     "repository": "https://github.com/dtolnay/ryu"
+  },
+  {
+    "authors": "Lokathor <zefria@gmail.com>",
+    "description": "Crate that exposes `core::arch` safely via `#[cfg()]`.",
+    "license": "Apache-2.0 OR MIT OR Zlib",
+    "license_file": null,
+    "name": "safe_arch",
+    "repository": "https://github.com/Lokathor/safe_arch"
   },
   {
     "authors": "Andrew Gallant <jamslam@gmail.com>",
@@ -3126,6 +3150,14 @@
     "license_file": null,
     "name": "webpki-roots",
     "repository": "https://github.com/rustls/webpki-roots"
+  },
+  {
+    "authors": "Lokathor <zefria@gmail.com>",
+    "description": "A crate to help you go wide.",
+    "license": "Apache-2.0 OR MIT OR Zlib",
+    "license_file": null,
+    "name": "wide",
+    "repository": "https://github.com/Lokathor/wide"
   },
   {
     "authors": "Andrew Gallant <jamslam@gmail.com>",

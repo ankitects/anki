@@ -14,6 +14,8 @@ use crate::card::FsrsMemoryState;
 use crate::prelude::*;
 use crate::serde::default_on_invalid;
 
+const MIN_PERSISTED_FSRS_STABILITY: f32 = 0.0001;
+
 /// Helper for serdeing the card data column.
 #[derive(Debug, Clone, PartialEq, Default, Serialize, Deserialize)]
 #[serde(default)]
@@ -30,6 +32,18 @@ pub(crate) struct CardData {
         deserialize_with = "default_on_invalid"
     )]
     pub(crate) fsrs_stability: Option<f32>,
+    #[serde(
+        rename = "s_int",
+        skip_serializing_if = "Option::is_none",
+        deserialize_with = "default_on_invalid"
+    )]
+    pub(crate) fsrs_stability_internal: Option<f32>,
+    #[serde(
+        rename = "s_fast",
+        skip_serializing_if = "Option::is_none",
+        deserialize_with = "default_on_invalid"
+    )]
+    pub(crate) fsrs_stability_fast: Option<f32>,
     #[serde(
         rename = "d",
         skip_serializing_if = "Option::is_none",
@@ -66,6 +80,8 @@ impl CardData {
         Self {
             original_position: card.original_position,
             fsrs_stability: card.memory_state.as_ref().map(|m| m.stability),
+            fsrs_stability_internal: card.memory_state.as_ref().map(|m| m.stability_internal),
+            fsrs_stability_fast: card.memory_state.as_ref().and_then(|m| m.stability_fast),
             fsrs_difficulty: card.memory_state.as_ref().map(|m| m.difficulty),
             fsrs_desired_retention: card.desired_retention,
             decay: card.decay,
@@ -83,6 +99,8 @@ impl CardData {
             if let Some(difficulty) = self.fsrs_difficulty {
                 return Some(FsrsMemoryState {
                     stability,
+                    stability_internal: self.fsrs_stability_internal.unwrap_or(stability),
+                    stability_fast: self.fsrs_stability_fast,
                     difficulty,
                 });
             }
@@ -92,7 +110,16 @@ impl CardData {
 
     pub(crate) fn convert_to_json(&mut self) -> Result<String> {
         if let Some(v) = &mut self.fsrs_stability {
-            round_to_places(v, 4)
+            round_fsrs_stability(v)
+        }
+        if let Some(v) = &mut self.fsrs_stability_internal {
+            round_fsrs_stability(v)
+        }
+        if let Some(v) = &mut self.fsrs_stability_fast {
+            round_fsrs_stability(v)
+        }
+        if self.fsrs_difficulty.is_some() && self.fsrs_stability == Some(0.0) {
+            self.fsrs_stability = Some(MIN_PERSISTED_FSRS_STABILITY);
         }
         if let Some(v) = &mut self.fsrs_difficulty {
             round_to_places(v, 3)
@@ -110,6 +137,14 @@ impl CardData {
 fn round_to_places(value: &mut f32, decimal_places: u32) {
     let factor = 10_f32.powi(decimal_places as i32);
     *value = (*value * factor).round() / factor;
+}
+
+fn round_fsrs_stability(value: &mut f32) {
+    let was_positive = *value > 0.0;
+    round_to_places(value, 4);
+    if was_positive && *value == 0.0 {
+        *value = MIN_PERSISTED_FSRS_STABILITY;
+    }
 }
 
 impl FromSql for CardData {
@@ -173,6 +208,8 @@ mod test {
         let mut data = CardData {
             original_position: None,
             fsrs_stability: Some(123.45678),
+            fsrs_stability_internal: Some(234.56789),
+            fsrs_stability_fast: None,
             fsrs_difficulty: Some(1.234567),
             fsrs_desired_retention: Some(0.987654),
             decay: Some(0.123456),
@@ -181,7 +218,38 @@ mod test {
         };
         assert_eq!(
             data.convert_to_json().unwrap(),
-            r#"{"s":123.4568,"d":1.235,"dr":0.99,"decay":0.123}"#
+            r#"{"s":123.4568,"s_int":234.5679,"d":1.235,"dr":0.99,"decay":0.123}"#
         );
+    }
+
+    #[test]
+    fn compact_floats_preserves_tiny_positive_fsrs_stability() {
+        let mut data = CardData {
+            fsrs_stability: Some(0.00001),
+            fsrs_stability_internal: Some(0.0005),
+            fsrs_stability_fast: Some(0.00001),
+            fsrs_difficulty: Some(9.932),
+            ..Default::default()
+        };
+        assert_eq!(
+            data.convert_to_json().unwrap(),
+            r#"{"s":0.0001,"s_int":0.0005,"s_fast":0.0001,"d":9.932}"#
+        );
+    }
+
+    #[test]
+    fn dual_stability_state_roundtrips_through_card_data() {
+        let state = FsrsMemoryState {
+            stability: 12.3456,
+            stability_internal: 23.4567,
+            stability_fast: Some(4.5678),
+            difficulty: 7.891,
+        };
+        let card = Card {
+            memory_state: Some(state),
+            ..Default::default()
+        };
+        let json = CardData::from_card(&card).convert_to_json().unwrap();
+        assert_eq!(CardData::from_str(&json).memory_state(), Some(state));
     }
 }

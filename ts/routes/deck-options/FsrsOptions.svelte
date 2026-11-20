@@ -260,7 +260,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                     }
 
                     if (!alreadyOptimal) {
-                        $config.fsrsParams6 = resp.params;
+                        $config.fsrsParams7 = resp.params;
                         setTimeout(() => {
                             optimized = true;
                         }, 201);
@@ -401,7 +401,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <Warning warning={desiredRetentionWarning} className={retentionWarningClass} />
 
 <div class="ms-1 me-1">
-    <ParamsInputRow bind:value={$config.fsrsParams6} defaultValue={[]}>
+    <ParamsInputRow
+        bind:value={$config.fsrsParams7}
+        defaultValue={defaults.fsrsParams7}
+    >
         <SettingTitle on:click={() => openHelpModal("modelParams")}>
             {tr.deckConfigWeights()}
         </SettingTitle>
