@@ -2,10 +2,11 @@ name: CI
 
 on:
   workflow_dispatch:
+  # master: AnkiQuest-Anki's default branch
   push:
-    branches: [main, 'release/**']
+    branches: [main, master, 'release/**']
   pull_request:
-    branches: [main]
+    branches: [main, master]
     types: [opened, synchronize, reopened, labeled]
 
 concurrency:
@@ -188,7 +189,8 @@ jobs:
         id: complexipy
         continue-on-error: true
         run: |
-          git fetch origin main:main 2>/dev/null || true
+          # complexipy compares against a local branch named main: the default branch
+          git fetch origin "${{ github.event.repository.default_branch }}:main" 2>/dev/null || true
           just complexipy-diff
 
       - name: Upload SARIF results for complexipy
@@ -199,7 +201,7 @@ jobs:
             category: complexipy
 
       - name: Cache coverage baseline
-        if: github.ref_name == 'main'
+        if: github.ref_name == github.event.repository.default_branch
         uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 #v6.1.0
         with:
           path: out/coverage
