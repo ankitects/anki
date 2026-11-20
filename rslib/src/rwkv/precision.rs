@@ -148,9 +148,11 @@ fn read_shift(cursor: &mut Cursor<'_>) -> io::Result<Vec<f32>> {
     }
     cursor
         .bytes(count * 2)?
-        .chunks_exact(2)
+        .as_chunks::<2>()
+        .0
+        .iter()
         .map(|bytes| {
-            let value = f16::from_bits(u16::from_le_bytes(bytes.try_into().unwrap())).to_f32();
+            let value = f16::from_bits(u16::from_le_bytes(*bytes)).to_f32();
             if value.is_finite() {
                 Ok(value)
             } else {
@@ -249,7 +251,7 @@ pub(super) struct PackedMatrix {
 
 fn encode_matrix(precision: StatePrecision, values: &[f32], out: &mut Vec<u8>) {
     out.reserve(values.len() / HEAD_SIZE * precision.row_bytes());
-    for row in values.chunks_exact(HEAD_SIZE) {
+    for row in values.as_chunks::<HEAD_SIZE>().0 {
         let maximum = row.iter().map(|v| v.abs()).fold(0.0_f32, f32::max);
         let scale = if maximum == 0.0 {
             1.0
@@ -275,7 +277,9 @@ fn encode_matrix(precision: StatePrecision, values: &[f32], out: &mut Vec<u8>) {
 
 fn decode_matrix(precision: StatePrecision, bytes: &[u8], out: &mut [f32]) {
     for (row, encoded) in out
-        .chunks_exact_mut(HEAD_SIZE)
+        .as_chunks_mut::<HEAD_SIZE>()
+        .0
+        .iter_mut()
         .zip(bytes.chunks_exact(precision.row_bytes()))
     {
         let scale = f32::from_le_bytes(encoded[..4].try_into().unwrap());

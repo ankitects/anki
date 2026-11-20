@@ -144,6 +144,10 @@ fn row_to_revlog_entry(row: &Row) -> Result<RevlogEntry> {
     })
 }
 
+/// Historical review rows, the ids of the ignored reviews that matched, and
+/// the (count, last id) identity of the rows.
+type RwkvHistoricalReviewRows = (Vec<RwkvHistoricalReviewRow>, Vec<i64>, (u64, i64));
+
 impl SqliteStorage {
     fn qualified_retrievability_cache_table(table: &str) -> String {
         format!("{RETRIEVABILITY_CACHE_DB_SCHEMA}.{table}")
@@ -783,7 +787,7 @@ impl SqliteStorage {
         preserved_learning_start_cutoffs: &HashMap<i64, i64>,
         // Only this card's reviews (what is kept of a card depends only on its own).
         card_id: Option<CardId>,
-    ) -> Result<(Vec<RwkvHistoricalReviewRow>, Vec<i64>, (u64, i64))> {
+    ) -> Result<RwkvHistoricalReviewRows> {
         let (ignored_clause, active_ignored_review_ids) = if ignored_review_ids.is_empty() {
             (String::new(), Vec::new())
         } else {

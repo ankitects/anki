@@ -788,7 +788,7 @@ impl Collection {
         let previous: Option<crate::config::RwkvHistoryResetMirror> =
             self.storage.get_config_value(&key)?;
         if (boundary > 0 || previous.is_some())
-            && previous.map_or(true, |mirror| mirror.after != Some(boundary))
+            && previous.is_none_or(|mirror| mirror.after != Some(boundary))
         {
             let mirror = crate::config::RwkvHistoryResetMirror::new(Some(boundary), previous);
             self.set_config(key.as_str(), &mirror)?;

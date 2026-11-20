@@ -139,6 +139,13 @@ impl CollectionBuilder {
     }
 }
 
+/// A card's cached last review time: the (mtime, reps, reset boundary) it is
+/// valid for, and the time.
+pub(crate) type RwkvLastReviewTime = (
+    (crate::timestamp::TimestampSecs, u32, Option<i64>),
+    Option<crate::timestamp::TimestampSecs>,
+);
+
 #[derive(Debug, Default)]
 pub struct CollectionState {
     pub(crate) undo: UndoManager,
@@ -167,13 +174,7 @@ pub struct CollectionState {
     /// Last review time by card, valid while mtime, reps and reset boundary
     /// match: each queue build looked it up in the revlog for every due
     /// card.
-    pub(crate) rwkv_last_review_times: HashMap<
-        CardId,
-        (
-            (crate::timestamp::TimestampSecs, u32, Option<i64>),
-            Option<crate::timestamp::TimestampSecs>,
-        ),
-    >,
+    pub(crate) rwkv_last_review_times: HashMap<CardId, RwkvLastReviewTime>,
     pub(crate) fsrs_preset_overlay_cache: Option<FsrsPresetOverlayCache>,
     /// Unfiltered per-note field populations used by add-on percentile rules.
     pub(crate) addon_retention_populations: HashMap<(NotetypeId, u16), Arc<Vec<f64>>>,

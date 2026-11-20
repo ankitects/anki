@@ -485,7 +485,7 @@ impl WarmUpStateSpill {
             // Only one serialized module is held at a time. Do not build a
             // serialized snapshot or drain the maps before publishing the file.
             for (id, state) in states.iter() {
-                let bytes = serialize_module_state(&state);
+                let bytes = serialize_module_state(state);
                 max_state_bytes = max_state_bytes.max(bytes.len());
                 io::Write::write_all(&mut out, &id.to_le_bytes())?;
                 hasher.update(&id.to_le_bytes());
@@ -4027,8 +4027,10 @@ impl<'a> Cursor<'a> {
         // decoding element by element on the state-restore path.
         Ok(self
             .bytes(byte_len)?
-            .chunks_exact(std::mem::size_of::<f32>())
-            .map(|bytes| f32::from_le_bytes([bytes[0], bytes[1], bytes[2], bytes[3]]))
+            .as_chunks::<{ std::mem::size_of::<f32>() }>()
+            .0
+            .iter()
+            .map(|bytes| f32::from_le_bytes(*bytes))
             .collect())
     }
 
@@ -4366,7 +4368,7 @@ impl SrsModel {
             .apply_batch(&scratch.head, rows, &mut scratch.logits);
         for (retrievability, logits) in retrievabilities
             .iter_mut()
-            .zip(scratch.logits.chunks_exact(4))
+            .zip(scratch.logits.as_chunks::<4>().0)
         {
             let mut probabilities = [0.0; 4];
             softmax_into(logits, &mut probabilities);
@@ -5727,8 +5729,10 @@ fn read_half_module_state(
         input.read_exact(buffer)?;
         Ok(Some(
             buffer
-                .chunks_exact(2)
-                .map(|bytes| half::f16::from_le_bytes([bytes[0], bytes[1]]).to_f32())
+                .as_chunks::<2>()
+                .0
+                .iter()
+                .map(|bytes| half::f16::from_le_bytes(*bytes).to_f32())
                 .collect(),
         ))
     }
@@ -6503,7 +6507,9 @@ fn write_f32_slice(out: &mut Vec<u8>, values: &[f32]) {
     let start = out.len();
     out.resize(start + std::mem::size_of_val(values), 0);
     for (bytes, value) in out[start..]
-        .chunks_exact_mut(std::mem::size_of::<f32>())
+        .as_chunks_mut::<{ std::mem::size_of::<f32>() }>()
+        .0
+        .iter_mut()
         .zip(values)
     {
         bytes.copy_from_slice(&value.to_le_bytes());
@@ -6514,7 +6520,7 @@ fn write_state_cache_f32_slice(out: &mut impl io::Write, values: &[f32]) -> io::
     write_state_cache_u32(out, values.len())?;
     let mut buffer = [0_u8; 8192];
     for values in values.chunks(buffer.len() / 4) {
-        for (destination, value) in buffer.chunks_exact_mut(4).zip(values) {
+        for (destination, value) in buffer.as_chunks_mut::<4>().0.iter_mut().zip(values) {
             destination.copy_from_slice(&value.to_le_bytes());
         }
         out.write_all(&buffer[..values.len() * 4])?;
@@ -9488,7 +9494,7 @@ fn time_shift_mix_row(
     for channel in 0..D_MODEL {
         shift_delta[channel] = x_shift[channel] - x[channel];
     }
-    for (mixed, weights) in mixed.iter_mut().zip(lerp_weights.chunks_exact(D_MODEL)) {
+    for (mixed, weights) in mixed.iter_mut().zip(lerp_weights.as_chunks::<D_MODEL>().0) {
         let mixed = &mut mixed[row * D_MODEL..(row + 1) * D_MODEL];
         for channel in 0..D_MODEL {
             mixed[channel] = x[channel] + weights[channel] * shift_delta[channel];

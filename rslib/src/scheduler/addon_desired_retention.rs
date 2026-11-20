@@ -493,7 +493,7 @@ impl AddonRetentionRules {
                 }
             };
             let allowed = |id: &CardId| {
-                scope.as_ref().map_or(true, |scope| scope.contains(id)) && !exclusion.contains(id)
+                scope.as_ref().is_none_or(|scope| scope.contains(id)) && !exclusion.contains(id)
             };
             // Without a scope/exclusion search, the population depends only
             // on note fields and card/note membership, not on review answers.

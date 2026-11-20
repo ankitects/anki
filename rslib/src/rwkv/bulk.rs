@@ -27,8 +27,6 @@
 use std::collections::HashMap;
 use std::sync::Mutex;
 
-use rayon::prelude::*;
-
 use super::*;
 
 /// Rows per bulk replay chunk (the fork: 8,192). kuma3: a chunk holds the f32

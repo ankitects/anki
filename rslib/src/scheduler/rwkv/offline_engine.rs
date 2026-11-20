@@ -55,43 +55,8 @@ fn small_precision(precision: StatePrecision) -> rwkv_small::StatePrecision {
     }
 }
 
-fn small_inputs(inputs: Vec<ReviewInput>) -> Vec<rwkv_small::ReviewInput> {
-    inputs
-        .into_iter()
-        .map(|input| {
-            let ReviewInput {
-                card_id,
-                note_id,
-                deck_id,
-                preset_id,
-                is_query,
-                ease,
-                duration_millis,
-                card_type,
-                day_offset,
-                current_elapsed_days,
-                current_elapsed_seconds,
-                target_retentions,
-                enforce_grade_order,
-            } = input;
-            rwkv_small::ReviewInput {
-                card_id,
-                note_id,
-                deck_id,
-                preset_id,
-                is_query,
-                ease,
-                duration_millis,
-                card_type,
-                day_offset,
-                current_elapsed_days,
-                current_elapsed_seconds,
-                target_retentions,
-                enforce_grade_order,
-            }
-        })
-        .collect()
-}
+/// The four answers' intervals in days and their S90s.
+type CurvePair = ([Option<f32>; 4], [Option<f32>; 4]);
 
 impl Engine {
     pub(super) fn load_with_precision(
@@ -221,9 +186,7 @@ impl Engine {
     ) -> io::Result<Vec<(usize, f32)>> {
         match self {
             Self::Big(engine) => engine.warm_up_reviews(reviews, record_predictions),
-            Self::Small(engine) => {
-                engine.warm_up_reviews(small_inputs(reviews), record_predictions)
-            }
+            Self::Small(engine) => engine.warm_up_reviews(reviews, record_predictions),
             // both models see every answer, in parallel; the recorded
             // predictions are RWKV-Instant's recall
             Self::Pair { curve, instant } => {
@@ -242,10 +205,7 @@ impl Engine {
     /// unrounded intervals in days at the input's target retentions, and
     /// their S90s (the desktop's `predict_many`: a query pass plus one per
     /// simulated answer).
-    pub(super) fn curve_from_warm_up(
-        &mut self,
-        input: ReviewInput,
-    ) -> io::Result<([Option<f32>; 4], [Option<f32>; 4])> {
+    pub(super) fn curve_from_warm_up(&mut self, input: ReviewInput) -> io::Result<CurvePair> {
         Ok(match self {
             Self::Big(engine) => {
                 let state = engine.warm_up_state(&input);
@@ -254,7 +214,6 @@ impl Engine {
                 out.first().map(|o| (o.intervals, o.s90s))
             }
             Self::Small(engine) => {
-                let input = small_inputs(vec![input]).remove(0);
                 let state = engine.warm_up_state(&input);
                 let out = engine
                     .predict_many(vec![rwkv_small::ReviewPredictionRequest { input, state }])?;
@@ -290,7 +249,7 @@ impl Engine {
                     .collect()
             }
             Self::Small(engine) => {
-                let requests = small_inputs(inputs)
+                let requests = inputs
                     .into_iter()
                     .map(|input| {
                         let state = engine.warm_up_state(&input);
@@ -313,9 +272,7 @@ impl Engine {
     ) -> io::Result<Vec<f32>> {
         match self {
             Self::Big(engine) => engine.predict_retrievability_many_from_warm_up(inputs),
-            Self::Small(engine) => {
-                engine.predict_retrievability_many_from_warm_up(small_inputs(inputs))
-            }
+            Self::Small(engine) => engine.predict_retrievability_many_from_warm_up(inputs),
             Self::Pair { instant, .. } => instant.predict_retrievability_many_from_warm_up(inputs),
         }
     }

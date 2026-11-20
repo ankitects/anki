@@ -1366,7 +1366,7 @@ impl Collection {
         const FILTERED: u32 = 3;
         Ok(match (previous_kind, previous_ease) {
             (1, 1) | (2, 1 | 2) => Some(RELEARNING),
-            (0 | 1 | 2, _) => Some(FILTERED),
+            (0..=2, _) => Some(FILTERED),
             // Only a synthetic repeat chains; a real filtered-deck answer
             // returns to Review when the card is answered normally.
             (3, _)
