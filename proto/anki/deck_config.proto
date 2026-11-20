@@ -76,6 +76,10 @@ message DeckConfig {
       NEW_CARD_GATHER_PRIORITY_RANDOM_NOTES = 3;
       // Siblings are neither grouped nor ordered.
       NEW_CARD_GATHER_PRIORITY_RANDOM_CARDS = 4;
+      // Descending RWKV retrievability, then ascending position.
+      NEW_CARD_GATHER_PRIORITY_DESCENDING_RETRIEVABILITY = 6;
+      // Ascending RWKV retrievability, then ascending position.
+      NEW_CARD_GATHER_PRIORITY_ASCENDING_RETRIEVABILITY = 7;
     }
     enum NewCardSortOrder {
       // Ascending card template ordinal.
@@ -126,12 +130,31 @@ message DeckConfig {
       QUESTION_ACTION_SHOW_ANSWER = 0;
       QUESTION_ACTION_SHOW_REMINDER = 1;
     }
+    enum FsrsVersion {
+      FSRS_VERSION_SEVEN = 0;
+      FSRS_VERSION_SIX = 1;
+      FSRS_VERSION_FIVE = 2;
+      FSRS_VERSION_FOUR = 3;
+    }
     repeated float learn_steps = 1;
     repeated float relearn_steps = 2;
 
     repeated float fsrs_params_4 = 3;
     repeated float fsrs_params_5 = 5;
     repeated float fsrs_params_6 = 6;
+    repeated float fsrs_params_7 = 52;
+    uint32 fsrs_minimum_interval_secs = 54;
+    bool fsrs_dynamic_desired_retention_enabled = 55;
+    repeated float fsrs_dynamic_desired_retention_params = 56;
+    repeated float fsrs_dynamic_desired_retention_weights = 57;
+    repeated float fsrs_dynamic_desired_retention_avg_drs = 58;
+    float fsrs_dynamic_desired_retention_min = 59;
+    float fsrs_dynamic_desired_retention_max = 60;
+    repeated float fsrs_dynamic_desired_retention_fsrs_eq_weights = 61;
+    repeated float fsrs_dynamic_desired_retention_fsrs_eq_drs = 62;
+    bool fsrs_dynamic_desired_retention_clamp = 63;
+    repeated float fsrs_dynamic_desired_retention_fixed_target_weights = 64;
+    repeated float fsrs_dynamic_desired_retention_fixed_target_drs = 65;
 
     // consider saving remaining ones for fsrs param changes
     reserved 7 to 8;
@@ -165,6 +188,24 @@ message DeckConfig {
 
     LeechAction leech_action = 21;
     uint32 leech_threshold = 22;
+    bool leech_only_if_young = 66;
+    bool rwkv_review_enabled = 67;
+    uint32 rwkv_review_batch_size = 68;
+    uint32 rwkv_review_refresh_interval = 69;
+    bool rwkv_review_refresh_on_exit = 70;
+    // Retained for compatibility; Instant uses the global same-day setting.
+    bool rwkv_review_allow_same_day_review = 71;
+    bool rwkv_review_instant_order_enabled = 72;
+    bool rwkv_review_dynamic_preset_replay = 73;
+    bool rwkv_review_candidate_refresh_enabled = 74;
+    reserved 75, 76, 77, 80, 81;
+    uint32 rwkv_review_min_intervening_reviews = 78;
+    uint32 rwkv_review_min_elapsed_secs = 79;
+    bool rwkv_review_first_review_elapsed_from_card_creation = 82;
+    bool rwkv_review_enforce_grade_order = 83;
+    uint32 rwkv_review_minimum_reviews_per_day = 84;
+    bool same_day_reviews_ignore_review_limit = 85;
+    bool rwkv_review_precompute_next_card = 86;
 
     bool disable_autoplay = 23;
     uint32 cap_answer_time_to_secs = 24;
@@ -185,6 +226,12 @@ message DeckConfig {
     float desired_retention = 37;
     string ignore_revlogs_before_date = 46;
     repeated float easy_days_percentages = 4;
+    optional float review_fuzz_base = 47;
+    optional float review_fuzz_factor_short = 48;
+    optional float review_fuzz_factor_mid = 49;
+    optional float review_fuzz_factor_long = 50;
+    optional bool review_fuzz_enabled = 51;
+    FsrsVersion fsrs_version = 53;
     // used for fsrs_reschedule in the past
     reserved 39;
     float historical_retention = 40;
@@ -217,11 +264,15 @@ message DeckConfigsForUpdate {
       bool new_today_active = 6;
       // Deck-specific desired retention override
       optional float desired_retention = 7;
+      // Deck-specific RWKV option; absent when older clients save options.
+      optional bool rwkv_respect_subdeck_minimums = 8;
+      bool rwkv_apply_respect_subdeck_minimums_to_children = 9;
     }
     string name = 1;
     int64 config_id = 2;
     repeated int64 parent_config_ids = 3;
     Limits limits = 4;
+    repeated int64 subtree_config_ids = 5;
   }
 
   repeated ConfigWithExtra all_config = 1;
@@ -233,10 +284,43 @@ message DeckConfigsForUpdate {
   // only applies to v3 scheduler
   bool new_cards_ignore_review_limit = 7;
   bool fsrs = 8;
+  bool load_balancer_enabled = 13;
+  bool fsrs_short_term_with_steps_enabled = 14;
+  bool fsrs_learning_queues_disabled = 15;
   bool fsrs_health_check = 11;
   bool fsrs_legacy_evaluate = 12;
   bool apply_all_parent_limits = 9;
   uint32 days_since_last_fsrs_optimize = 10;
+  bool review_fuzz_enabled = 16;
+  float review_fuzz_base = 17;
+  float review_fuzz_factor_short = 18;
+  float review_fuzz_factor_mid = 19;
+  float review_fuzz_factor_long = 20;
+  // Desktop-local settings supplied by the GUI, never stored in the collection.
+  RwkvProfileSettings rwkv_profile_settings = 21;
+  // Desktop-only inputs for the RWKV model-state estimate.
+  RwkvCollectionCounts rwkv_collection_counts = 22;
+}
+
+message RwkvCollectionCounts {
+  uint64 cards = 1;
+  uint64 notes = 2;
+}
+
+message RwkvProfileSettings {
+  // The model size: "legacy" (Big), "sm72e25" (Small, the default) or "tiny"
+  // (Tiny); older small model keys and "sm92" are preserved values.
+  string model = 1;
+  string state_precision = 2;
+  // Was the opt-in specialized_instant_model, whose meaning single_model
+  // reverses.
+  reserved 3;
+  // Opt-out: with RWKV-Instant and RWKV-Curve both in use, run one model for
+  // both schedulers instead of RWKV-Instant's own model (Small: the show-time
+  // instant-only model, stage 2, SM98; Tiny: the smaller instant-only model,
+  // SM101) beside the release (two model states, the default). Ignored for
+  // RWKV-Instant without RWKV-Curve: the instant model alone.
+  bool single_model = 4;
 }
 
 enum UpdateDeckConfigsMode {
@@ -259,4 +343,14 @@ message UpdateDeckConfigsRequest {
   bool apply_all_parent_limits = 9;
   bool fsrs_reschedule = 10;
   bool fsrs_health_check = 11;
+  bool load_balancer_enabled = 12;
+  bool fsrs_short_term_with_steps_enabled = 13;
+  bool fsrs_learning_queues_disabled = 14;
+  optional bool review_fuzz_enabled = 15;
+  optional float review_fuzz_base = 16;
+  optional float review_fuzz_factor_short = 17;
+  optional float review_fuzz_factor_mid = 18;
+  optional float review_fuzz_factor_long = 19;
+  // Applied by the desktop GUI only after the deck configuration save succeeds.
+  RwkvProfileSettings rwkv_profile_settings = 20;
 }

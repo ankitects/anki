@@ -43,6 +43,12 @@ deck-config-new-cards-ignore-review-limit-tooltip =
     By default, the review limit also applies to new cards, and no new cards will be
     shown when the review limit has been reached. If this option is enabled, new cards
     will be shown regardless of the review limit.
+deck-config-same-day-reviews-ignore-review-limit = Same-day reviews ignore review limit
+deck-config-same-day-reviews-ignore-review-limit-tooltip =
+    Cards already answered during the current scheduler day can be shown again
+    after the maximum reviews/day limit is reached. Repeated answers do not
+    reduce the number of other review cards available that day. Intraday
+    learning and relearning cards already behave this way.
 deck-config-apply-all-parent-limits = Limits start from top
 deck-config-apply-all-parent-limits-tooltip =
     By default, the daily limits of a higher-level deck do not apply if you're studying from its subdeck.
@@ -105,6 +111,11 @@ deck-config-leech-action-tooltip =
     
     `Suspend Card`: In addition to tagging the note, hide the card until it is
     manually unsuspended.
+deck-config-leech-only-if-young = Only mark if young again
+deck-config-leech-only-if-young-tooltip =
+    If enabled, cards are only marked as leeches at the configured threshold
+    when pressing `Again` makes the card young again:
+    stability under 21 days with FSRS, or interval under 21 days without FSRS.
 
 ## Burying section
 
@@ -150,6 +161,10 @@ deck-config-new-gather-priority-tooltip-3 =
     
     `Descending position`: Gathers cards by descending position (due #), which is typically
     the latest-added first.
+
+    `Ascending/descending retrievability (RWKV)`: Gathers cards by RWKV retrievability when
+    RWKV queue scores are available. Cards without an RWKV score fall back to ascending position.
+    These are desktop-only RWKV gather modes.
     
     `Random notes`: Picks notes at random, then gathers all of its cards.
     
@@ -175,13 +190,28 @@ deck-config-new-card-sort-order-tooltip-2 =
     `Random`: Shows cards in a random order.
 deck-config-new-review-priority = New/review order
 deck-config-new-review-priority-tooltip = When to show new cards in relation to review cards.
+deck-config-reviews-per-new-card = Reviews per new card
+deck-config-reviews-per-new-card-tooltip =
+    When new cards are mixed with reviews, show one new card after this many reviews.
+    0 spreads today's new cards evenly over the reviews.
 deck-config-interday-step-priority = Interday learning/review order
 deck-config-interday-step-priority-tooltip =
     When to show (re)learning cards that cross a day boundary.
     
-    The review limit is always applied first to interday learning cards, and
-    then review cards. This option will control the order the gathered cards are shown in,
-    but interday learning cards will always be gathered first.
+    With FSRS retrievability or Relative Overdueness sorting, Before and After
+    place interday learning cards before or after the other due cards, keeping
+    the selected sort order within each group. Mix sorts all due cards together.
+    This option does not change the order of intraday learning cards.
+
+    Review limits still determine which cards are available. With other review
+    sort orders, interday learning cards are gathered before review cards.
+deck-config-intraday-step-priority = Intraday learning/review order
+deck-config-intraday-step-priority-tooltip =
+    With FSRS retrievability or Relative Overdueness sorting, show due intraday
+    learning and relearning cards before or after the other cards, keeping the
+    selected sort within each group. Mix keeps them in the shared sorted order.
+    Future learning steps still wait until their due time. With other review
+    sort orders, due intraday learning cards already have priority.
 deck-config-review-sort-order = Review sort order
 deck-config-review-sort-order-tooltip =
     The default order prioritizes cards that have been waiting longest, so that
@@ -204,6 +234,10 @@ deck-config-new-gather-priority-deck-then-random-notes = Deck, then random notes
 deck-config-new-gather-priority-position-lowest-first = Ascending position
 # Gather new cards ordered by position number, descending (highest to lowest).
 deck-config-new-gather-priority-position-highest-first = Descending position
+# Gather new cards ordered by RWKV retrievability percentage, ascending (0% to 100%, least retrievable to most easily retrievable).
+deck-config-new-gather-priority-ascending-retrievability = Ascending retrievability (RWKV)
+# Gather new cards ordered by RWKV retrievability percentage, descending (100% to 0%, most easily retrievable to least retrievable).
+deck-config-new-gather-priority-descending-retrievability = Descending retrievability (RWKV)
 # Gather the cards ordered by random notes, ensuring all cards of the same note are grouped together.
 deck-config-new-gather-priority-random-notes = Random notes
 # Gather new cards randomly.
@@ -294,7 +328,11 @@ deck-config-advanced-title = Advanced
 deck-config-maximum-interval-tooltip =
     The maximum number of days a review card will wait. When reviews have
     reached the limit, `Hard`, `Good` and `Easy` will all give the same delay.
-    The shorter you set this, the greater your workload will be.
+    The shorter you set this, the greater your workload will be. You can enter
+    values like 1d, 1w, 1m, or 1y.
+deck-config-fsrs-minimum-interval-tooltip =
+    The minimum interval for FSRS same-day learning and relearning cards, such as
+    1s, 1m, 1h, or 1d.
 deck-config-starting-ease-tooltip =
     The ease multiplier new cards start with. By default, the `Good` button on a
     newly-learned card will delay the next review by 2.5x the previous delay.
@@ -308,6 +346,198 @@ deck-config-interval-modifier-tooltip =
 deck-config-hard-interval-tooltip = The multiplier applied to a review interval when answering `Hard`.
 deck-config-new-interval-tooltip = The multiplier applied to a review interval when answering `Again`.
 deck-config-minimum-interval-tooltip = The minimum interval given to a review card after answering `Again`.
+
+## RWKV model and recurrent state precision. Keep f32, int8 and int4 cards + int8 notes unchanged.
+
+deck-config-rwkv-model-and-storage = Model and storage
+deck-config-rwkv-profile-settings-scope = Applies to all decks in this profile on this computer. These settings do not sync. Saving a different model prompts you to rebuild RWKV state when needed.
+deck-config-rwkv-precision = Storage precision
+deck-config-rwkv-model = Prediction model
+deck-config-rwkv-model-sm40 = SM40 — smaller model
+deck-config-rwkv-model-sm36 = SM36 Muon
+deck-config-rwkv-model-sm55 = SM55 — previous smaller model
+deck-config-rwkv-model-sm56 = Previous smaller model (SM56)
+deck-config-rwkv-model-sm72 = Previous smaller model (SM72, cool-down from epoch 15)
+deck-config-rwkv-model-sm72e20 = Previous smaller model (SM72, cool-down from epoch 20)
+deck-config-rwkv-model-sm92 = Show-time retrain of the release (SM92)
+deck-config-rwkv-model-big = Big
+deck-config-rwkv-model-small = Small
+deck-config-rwkv-model-tiny = Tiny
+deck-config-rwkv-model-size-heading = Model size
+deck-config-rwkv-model-estimate-summary = Estimated model state for { $cards } cards and { $notes } notes.
+deck-config-rwkv-model-estimate-no-counts = Estimated model state
+deck-config-rwkv-model-per-card-note = { $size } per card + note
+deck-config-rwkv-model-state-ram-disk = Estimated state RAM / disk
+deck-config-rwkv-model-state-unavailable = Estimate unavailable
+deck-config-rwkv-model-both-separate = Both schedulers · separate models
+deck-config-rwkv-model-both-shared = Both schedulers · one shared model
+deck-config-rwkv-model-curve-only = Curve only
+deck-config-rwkv-model-instant-only = Instant only
+deck-config-rwkv-model-logloss = LogLoss
+deck-config-rwkv-model-curve-label = Curve
+deck-config-rwkv-model-instant-label = Instant
+deck-config-rwkv-model-baseline = Baseline
+deck-config-rwkv-model-not-used = Not used
+deck-config-rwkv-model-rebuild-baseline = Model replay time: baseline
+deck-config-rwkv-model-rebuild-saving = About { $percent }% less model replay time
+deck-config-rwkv-model-loss-legend = LogLoss is relative to Big with the same scheduler settings; lower is better.
+deck-config-rwkv-model-estimates-help = About these estimates
+deck-config-rwkv-model-estimates-explanation = State estimates use this profile's card and note counts and the selected storage precision. They include model state only, not model weights, shared state, cache overhead, or other Anki memory and disk use. Actual usage can be lower when some cards have no state.
+deck-config-rwkv-model-estimates-loss = Factory LogLoss comes from 722 held-out users; the figures can vary across collections.
+deck-config-rwkv-model-estimates-rebuild = Replay-time comparisons use a synthetic benchmark at the default state precision. They exclude history loading and cache writes; your results depend on your computer and review history.
+deck-config-rwkv-model-sm92-description = Kept from an earlier version: one model for both schedulers. Pick a size above to switch.
+deck-config-rwkv-single-model = Use one model for RWKV
+deck-config-rwkv-single-model-explanation = When your presets use both RWKV-Instant and RWKV-Curve (including as Instant's fallback), each normally uses its own model of the chosen size. Turn this on to use the size's Curve model for both: it uses less memory, but Instant predictions are slightly less accurate.
+deck-config-rwkv-single-model-instant-only = If you use Instant without Curve, the size's Instant model always runs alone. FSRS supplies due dates and memory states, and RWKV workload simulation is unavailable.
+deck-config-rwkv-workload-needs-curve = RWKV workload simulation needs RWKV-Curve. Turn on RWKV-Curve in a preset (as its scheduler or as RWKV-Instant's fallback) and save to simulate RWKV workload.
+deck-config-rwkv-model-size-migration = Older small models saved by earlier versions switch to Small when you save.
+# Preserve the links and URL variables.
+deck-config-rwkv-model-results = Results: <a href="{ $factory }">Model Factory results</a> · <a href="{ $backup }">Matched backup comparison</a>
+deck-config-rwkv-f32 = f32 — full precision fallback
+deck-config-rwkv-int8 = int8 — cards and notes
+deck-config-rwkv-int4-cards-int8-notes = int4 cards + int8 notes — default
+deck-config-rwkv-precision-explanation = Applies to card and note state in memory and on disk for this profile. Computation remains at full precision. int4 cards + int8 notes saves more memory but can change predictions; note state stays at int8.
+
+deck-config-rwkv-description =
+    RWKV is a neural network designed to improve predictions of retrievability:
+    the chance of remembering a card. It has two variants: Curve sets answer
+    intervals, while Instant selects reviews. Instant is recommended, but it
+    adapts to your reviews on the fly, so the due count can fluctuate considerably
+    during a session. Setting a daily review limit is recommended.
+deck-config-rwkv-read-more = Read more about RWKV
+deck-config-rwkv-recommended = Recommended
+deck-config-rwkv-instant-subtitle = Review queue
+deck-config-rwkv-curve-subtitle = Answer intervals
+deck-config-rwkv-instant-description =
+    Instant replaces FSRS and Curve for review selection; scheduled due dates
+    are ignored.
+deck-config-rwkv-curve-description =
+    Curve replaces FSRS due dates with RWKV dates, useful for your next synced
+    mobile session. Instant ignores these dates.
+deck-config-rwkv-review-enabled = Use RWKV-Curve for answer intervals
+deck-config-rwkv-review-enabled-tooltip =
+    On this computer, use RWKV-Curve to calculate the next intervals shown for
+    Again, Hard, Good, and Easy. This does not enable RWKV-Instant review queue
+    ordering; that is controlled separately. Other devices
+    continue to use FSRS or SM-2.
+deck-config-rwkv-review-enforce-grade-order = Enforce Again ≤ Hard ≤ Good ≤ Easy intervals
+deck-config-rwkv-review-enforce-grade-order-tooltip =
+    Keep Again, Hard, Good, and Easy in a sensible interval order. When RWKV's
+    four predictions disagree, Anki gently balances the conflicting predictions
+    before choosing the intervals. Turn this off to use the raw RWKV-Curve
+    results.
+deck-config-rwkv-review-instant-order = Use RWKV-Instant to choose review cards
+deck-config-rwkv-review-instant-order-recommended = Recommended: Use Ascending Retrievability or Random
+deck-config-rwkv-review-instant-order-tooltip =
+    RWKV decides which review cards are ready, and your selected review sort
+    order determines how those cards are shown. A card may appear before its
+    normal due date, or wait longer, depending on whether your estimated chance
+    of remembering it has fallen to your Desired Retention. This setting is
+    independent of RWKV-Curve: turn Curve off to keep FSRS intervals, or leave
+    this off to use RWKV-Curve intervals without RWKV-Instant queue selection.
+deck-config-rwkv-review-minimum-reviews-per-day = Minimum reviews per day
+deck-config-rwkv-review-minimum-reviews-per-day-tooltip =
+    If RWKV-Instant finds fewer reviews than this daily target, pull forward the
+    lowest-retrievability review cards from this deck and its subdecks until the
+    target is met. Reviews already completed today count toward the target. The
+    normal maximum review limits and same-day repeat safeguards still apply.
+deck-config-rwkv-review-respect-subdeck-minimums = Also honor subdeck minimums
+deck-config-rwkv-apply-respect-subdeck-minimums-to-children = Apply this setting to all subdecks on save
+deck-config-rwkv-review-respect-subdeck-minimums-tooltip =
+    When studying this deck, also meet the minimum reviews set on its direct
+    subdecks. A subdeck can also honor its own subdecks' minimums by enabling
+    this option. Reviews selected for subdeck minimums count toward this deck's
+    minimum, but may add reviews beyond it. Turn this off to use this deck's
+    minimum across its whole tree. This option belongs to the deck, not its
+    preset; you can apply it to all subdecks when saving.
+deck-config-rwkv-review-candidate-refresh = Use faster, approximate queue updates
+deck-config-rwkv-review-candidate-refresh-tooltip =
+    After the first full update, RWKV rechecks only the cards most likely to
+    appear next. This makes queue updates faster for large decks, but other
+    cards keep an older estimate until a later update. Anki automatically bounds
+    the number rechecked at once. This setting applies when precomputation is on.
+deck-config-rwkv-review-precompute-next-card = Precompute next card before this card answer
+deck-config-rwkv-review-precompute-next-card-tooltip =
+    Use the queue scores computed before your answer to choose the next card,
+    then update the scores in the background. This can show the next card
+    faster, but it may not have the lowest retrievability after your answer.
+    When disabled with retrievability ordering, Anki updates the full queue after
+    every answer before showing the next card. Anki also waits when the queue
+    must be rebuilt.
+deck-config-rwkv-review-refresh-interval = Update the RWKV queue every
+deck-config-rwkv-review-refresh-interval-tooltip =
+    How many answers to wait between RWKV queue updates. 1 updates the queue
+    after every answer. Higher values reduce the work RWKV does while you
+    review, but the queue may use older estimates between updates. With
+    precomputation off and retrievability ordering, Anki updates after every answer.
+deck-config-rwkv-review-refresh-on-exit = Update the RWKV queue after reviewing
+deck-config-rwkv-review-refresh-on-exit-tooltip =
+    If you answered at least one card, update the RWKV estimates in the
+    background when you leave the reviewer. This helps prepare an up-to-date
+    queue for your next review session.
+deck-config-scheduler-review = Review scheduler
+deck-config-scheduler-enable-fsrs = Machine Learning Based scheduling
+deck-config-scheduler-disabled = Machine learning scheduling is disabled for this collection. Selecting a model enables it; RWKV settings remain independent.
+deck-config-scheduler-due-dates = Fallback
+deck-config-scheduler-due-dates-description = Writes due dates for mobile sync and statistics. Instant selects reviews independently of these dates.
+deck-config-scheduler-recommended = Recommended: { $scheduler }
+deck-config-apply-schedule-to-all-presets = Apply Schedule to All Presets
+deck-config-apply-schedule-description = Choose what to copy from the current preset. Click Save in Deck Options to save the changes.
+deck-config-copy-scheduler = Scheduler
+deck-config-copy-scheduler-description = The selected review scheduler.
+deck-config-copy-fallback = Fallback
+deck-config-copy-fallback-description = The due-date calculator for RWKV-Instant presets. Other review schedulers calculate their own due dates.
+deck-config-copy-settings = Settings
+deck-config-copy-settings-description = FSRS and RWKV preset model settings, including parameters, interval limits, optimization options, Dynamic DR, and repeat spacing.
+deck-config-copy-retention = Desired Retention
+deck-config-copy-retention-description = The preset's desired retention. Deck-specific retention overrides remain unchanged.
+deck-config-apply-schedule = Apply
+deck-config-fsrs-description =
+    FSRS uses your review history to predict retrievability and schedule reviews
+    at your desired retention. FSRS-7 provides more accurate predictions than
+    FSRS-6 on average.
+deck-config-fsrs-read-more = Read more about FSRS
+deck-config-rwkv-review-allow-same-day-review = Allow a card to repeat on the same day
+deck-config-rwkv-review-allow-same-day-review-tooltip =
+    When a card's estimated chance of recall is at or below your Desired
+    Retention, RWKV may show it again later the same day. When this is off, a
+    review card you answer will not appear again until the next day.
+# The variables become editable number fields that include their units.
+deck-config-rwkv-repeat-spacing = Minimum { $reviews-field } and { $seconds-field } between repeats
+deck-config-rwkv-repeat-spacing-title = Minimum spacing between repeats
+deck-config-rwkv-repeat-spacing-tooltip =
+    Before RWKV repeats a card, both minimums must be met: the number of other
+    reviews in the selected deck tree and the time since the card's last review.
+    Set either value to 0 to remove that minimum.
+deck-config-rwkv-repeat-reviews-unit =
+    { $count ->
+        [one] review
+       *[other] reviews
+    }
+deck-config-rwkv-repeat-seconds-unit =
+    { $count ->
+        [one] second
+       *[other] seconds
+    }
+deck-config-rwkv-review-min-intervening-reviews = Minimum other reviews before a repeat
+deck-config-rwkv-review-min-intervening-reviews-tooltip =
+    How many other cards you must review before RWKV may repeat the same card. 0
+    means no minimum. If you also set a minimum time, both limits must be met.
+deck-config-rwkv-review-min-elapsed-secs = Minimum seconds before a repeat
+deck-config-rwkv-review-min-elapsed-secs-tooltip =
+    How long RWKV must wait before repeating the same card. 0 means no minimum.
+    If you also set a minimum number of other reviews, both limits must be met.
+deck-config-rwkv-review-first-review-elapsed-from-card-creation = Predict R for new cards based on creation time
+deck-config-rwkv-review-first-review-elapsed-from-card-creation-tooltip =
+    Use the time since a new card was created when predicting R before its first
+    learning review. The first answer is recorded with elapsed time unknown, so
+    creation time does not affect later predictions. This is always enabled.
+deck-config-rwkv-review-dynamic-preset-replay = Dynamic Preset Addon Support
+deck-config-rwkv-review-dynamic-preset-replay-tooltip =
+    RWKV always resolves each card's current add-on preset once when rebuilding
+    review history. Turn this on only if the add-on can move a card between
+    presets over time; RWKV will then reapply its rules at every historical
+    review. Leaving this off reuses the initially resolved preset for the card.
 deck-config-custom-scheduling = Custom scheduling
 deck-config-custom-scheduling-tooltip = Affects the entire collection. Use at your own risk!
 
@@ -326,6 +556,19 @@ deck-config-easy-days-reduced = Reduced
 deck-config-easy-days-minimum = Minimum
 deck-config-easy-days-no-normal-days = At least one day should be set to '{ deck-config-easy-days-normal }'.
 deck-config-easy-days-change = Existing reviews will not be rescheduled unless '{ deck-config-reschedule-cards-on-change }' is enabled in the FSRS options.
+deck-config-load-balancer-enabled = Enable load balancer
+deck-config-review-fuzz-enabled = Enable review fuzz
+deck-config-load-balancer-enabled-tooltip = Redistributes day-based review intervals within the available fuzz range to smooth out workload. Affects the entire collection.
+deck-config-review-fuzz-enabled-tooltip = Enables the review fuzz window for this preset. When disabled, day-based review intervals are scheduled without fuzz.
+deck-config-review-fuzz-title = Review fuzz
+deck-config-review-fuzz-base = Base fuzz (days)
+deck-config-review-fuzz-factor-short = Fuzz factor (2.5-7 days)
+deck-config-review-fuzz-factor-mid = Fuzz factor (7-20 days)
+deck-config-review-fuzz-factor-long = Fuzz factor (20+ days)
+deck-config-review-fuzz-preview = Review fuzz preview
+deck-config-default-fuzz = Default fuzz
+deck-config-current-fuzz = Current fuzz
+deck-config-selected-fuzz = Selected fuzz
 
 ## Adding/renaming
 
@@ -346,6 +589,7 @@ deck-config-confirm-remove-name = Remove { $name }?
 ## Other Buttons
 
 deck-config-save-button = Save
+deck-config-save-and-close = Save and Close
 deck-config-save-to-all-subdecks = Save to All Subdecks
 deck-config-save-and-optimize = Optimize All Presets
 deck-config-revert-button-tooltip = Restore this setting to its default value?
@@ -386,7 +630,7 @@ deck-config-which-deck = Which deck would you like to display options for?
 
 deck-config-updating-cards = Updating cards: { $current_cards_count }/{ $total_cards_count }...
 deck-config-invalid-parameters = The provided FSRS parameters are invalid. Leave them blank to use the default values.
-deck-config-placeholder-parameters = 
+deck-config-placeholder-parameters =
     Default parameters
     (Press "{deck-config-optimize-button}" periodically to allow FSRS to better adjust to your memory)
 deck-config-manual-parameter-edit-warning = The parameters should only be modified using the optimize button. Manually editing them is heavily advised against.
@@ -398,6 +642,7 @@ deck-config-must-have-400-reviews =
     } You must have at least 400 reviews for this operation.
 # Numbers that control how aggressively the FSRS algorithm schedules cards
 deck-config-weights = FSRS parameters
+deck-config-fsrs-version = FSRS version
 deck-config-compute-optimal-weights = Optimize FSRS parameters
 deck-config-optimize-button = Optimize Current Preset
 # Indicates that a given function or label, provided via the "text" variable, operates slowly.
@@ -407,19 +652,28 @@ deck-config-ignore-before = Ignore cards reviewed before
 deck-config-time-to-optimize = It's been a while - using the Optimize All Presets button is recommended.
 deck-config-evaluate-button = Evaluate
 deck-config-desired-retention = Desired retention
+deck-config-new-card-intervals = New card intervals at graduation
+deck-config-current-dr = Current DR
+deck-config-selected-dr = Selected DR
+deck-config-again-then-good = Again -> Good
+deck-config-again-then-again = Again -> Again
+deck-config-good-then-again = Good -> Again
+deck-config-good-then-good = Good -> Good
 deck-config-historical-retention = Historical retention
 deck-config-smaller-is-better = Smaller numbers indicate a better fit to your review history.
 deck-config-steps-too-large-for-fsrs = When FSRS is enabled, steps of 1 day or more are not recommended.
 deck-config-get-params = Get Params
 deck-config-complete = { $num }% complete.
 deck-config-iterations = Iteration: { $count }...
+deck-config-saving-optimized-presets = Saving optimized presets: { $current_count }/{ $total_count }...
+deck-config-rescheduling-cards = Rescheduling cards: { $current_cards_count }/{ $total_cards_count }...
 deck-config-reschedule-cards-on-change = Reschedule cards on change
 deck-config-fsrs-tooltip =
     Affects the entire collection.
 
-    The Free Spaced Repetition Scheduler (FSRS) is an alternative to Anki's legacy SuperMemo 2 (SM-2) algorithm.
-    By more accurately determining how likely you are to forget a card, it can help you remember
-    more material in the same amount of time. This setting is shared by all presets.
+    Machine learning scheduling uses predictions of how likely you are to remember
+    a card to guide reviews, as an alternative to Anki's legacy SuperMemo 2 (SM-2)
+    algorithm. This switch is shared by all presets.
 
 deck-config-desired-retention-tooltip =
     By default, Anki schedules cards so that you have a 90% chance of remembering them when
@@ -473,8 +727,8 @@ deck-config-compute-optimal-weights-tooltip2 =
     optimizing the parameters.
 
 deck-config-please-save-your-changes-first = Please save your changes first.
-deck-config-workload-factor-change = Approximate workload: {$factor}x
-    (compared to {$previousDR}% desired retention)
+deck-config-workload-factor-change = Approximate workload: {$factor}x (vs initial DR: {$previousDR}%).
+deck-config-workload-factor-note = FSRS interval-based workload only.
 deck-config-workload-factor-unchanged = The higher your desired retention, the more frequently cards will be shown to you.
 deck-config-desired-retention-too-low = Your desired retention is very low, which can lead to very long intervals.
 deck-config-desired-retention-too-high = Your desired retention is very high, which can lead to very short intervals.
@@ -507,7 +761,7 @@ deck-config-desired-retention-below-optimal = Your desired retention is below op
 deck-config-fsrs-simulator-experimental = FSRS Simulator (Experimental)
 deck-config-fsrs-simulate-desired-retention-experimental = FSRS Desired Retention Simulator (Experimental)
 deck-config-fsrs-simulate-save-preset = After optimizing, please save your deck preset before running the simulator.
-deck-config-fsrs-desired-retention-help-me-decide-experimental = Help Me Decide (Experimental)
+deck-config-fsrs-desired-retention-help-me-decide-experimental = Desired Retention: Help Me Decide
 deck-config-additional-new-cards-to-simulate = Additional new cards to simulate
 deck-config-simulate = Simulate
 deck-config-clear-last-simulate = Clear Last Simulation
@@ -521,13 +775,73 @@ deck-config-save-options-to-preset-confirm = Overwrite the options in your curre
 # to show the total number of cards that can be recalled or retrieved on a
 # specific date.
 deck-config-fsrs-simulator-radio-memorized = Memorized
-deck-config-fsrs-simulator-radio-efficiency = Efficiency
-deck-config-fsrs-simulator-ratio-tooltip2 = { $time } memorized cards per hour
+deck-config-fsrs-simulator-radio-efficiency = Net efficiency
+deck-config-fsrs-simulator-radio-weighted-memorized = R*f(S)
+deck-config-fsrs-simulator-radio-weighted-efficiency = Net R*f(S)/t
+deck-config-fsrs-simulator-split-by-preset = Split by active preset
+deck-config-fsrs-simulator-ratio-tooltip2 = { $time } net memorized cards per hour
+deck-config-fsrs-simulator-weighted-memorized-tooltip = { $memorized } R*f(S)
+deck-config-fsrs-simulator-weighted-ratio-tooltip = { $time } net R*f(S) per hour
+
+## Experimental FSRS/RWKV shared-learner comparison.
+
+deck-config-rwkv-comparison-learner = Simulated learner
+deck-config-rwkv-comparison-learner-fsrs = FSRS-based learner
+deck-config-rwkv-comparison-learner-rwkv = RWKV-based learner
+deck-config-rwkv-comparison-scorer = Estimate memorized with
+deck-config-rwkv-comparison-scenario = Performance scenario
+deck-config-rwkv-comparison-steady = Steady
+deck-config-rwkv-comparison-temporary-drop = Temporary drop: −15 points in the middle third
+deck-config-rwkv-comparison-persistent-drop = Persistent drop: −15 points after the first third
+deck-config-rwkv-comparison-temporary-improvement = Temporary improvement: +10 points in the middle third
+deck-config-rwkv-comparison-steady-short = steady
+deck-config-rwkv-comparison-temporary-drop-short = temporary drop
+deck-config-rwkv-comparison-persistent-drop-short = persistent drop
+deck-config-rwkv-comparison-temporary-improvement-short = temporary improvement
+deck-config-rwkv-comparison-sample = Sampled cards (0 for all)
+deck-config-rwkv-comparison-step = Retention step (percentage points)
+deck-config-rwkv-comparison-runs = Paired simulation runs
+deck-config-rwkv-comparison-both-learners = Compare both answer models
+deck-config-rwkv-comparison-graph-learner = Answer model for graph
+deck-config-rwkv-comparison-both-run-learner = both answer models
+deck-config-rwkv-comparison-graph-answer-note = The graph shows the selected answer model for paired runs. Single-model runs keep their original answer model.
+deck-config-rwkv-comparison-agreement-min-retention = Minimum retention shown in agreement (%)
+deck-config-rwkv-comparison-agreement-title = Scheduler agreement on net efficiency
+deck-config-rwkv-comparison-agreement-help =
+    Each cell compares RWKV scheduling with FSRS scheduling at the same requested retention.
+    The two lines use FSRS and RWKV to predict answers; each line shows the percentage change using FSRS and RWKV to estimate memory, in that order.
+    A winner requires all four comparisons to agree. Differences shown as 0.0% count as ties. A percentage is unavailable if review time is zero or FSRS efficiency is not positive.
+    These are unsmoothed simulated averages, not proof of a real-world advantage; small differences may be noise. Smoothing the graph does not change this table.
+    To compare horizons, change Days to simulate and run again. Each row keeps its own settings and card sample.
+deck-config-rwkv-comparison-agreement-run = Run { $run }: { $preset }, { $days } days
+deck-config-rwkv-comparison-agreement-retention = Requested retention
+deck-config-rwkv-comparison-agreement-fsrs = FSRS scheduler higher
+deck-config-rwkv-comparison-agreement-rwkv = RWKV scheduler higher
+deck-config-rwkv-comparison-agreement-mixed = Mixed / tied
+deck-config-rwkv-comparison-agreement-unavailable = Unavailable
+deck-config-rwkv-comparison-agreement-fsrs-answers = FSRS answers
+deck-config-rwkv-comparison-agreement-rwkv-answers = RWKV answers
+deck-config-rwkv-comparison-agreement-memory-order = Memory estimates: FSRS / RWKV
+deck-config-rwkv-comparison-agreement-empty = No tested retentions at or above the minimum.
+deck-config-rwkv-comparison-agreement-both-help = Running both answer models takes longer; each uses the same cards, starting state, scenario, and background reviews.
+deck-config-rwkv-comparison-assumptions =
+    Both schedulers use the same cards, starting due dates, simulated learner and average time per grade. Both models estimate memory from each scheduler's simulated answers; change the scoring model without rerunning.
+    The last year of reviews on other cards is replayed as fixed background activity for RWKV, including in the no-review baseline. The learner and background remain assumptions, and sampled results are estimates. One paired run can be noisy.
+    More cards, finer steps, background reviews and more runs take longer. Review ordering is approximated.
+    The day-level comparison excludes simulated learning and relearning steps, easy days, dynamic retention, preset switching and the RWKV-Instant queue.
+deck-config-rwkv-comparison-run-details = Run { $run }, { $preset }, { $learner }, { $scenario }: { $sampled } of { $total } cards simulated; { $estimated } sampled cards used estimated FSRS states; { $background } reviews in the one-year background pattern; { $days } days, { $runs } paired runs, { $step }-point retention step.
+deck-config-rwkv-comparison-matched-memory-help =
+    The chart compares the same requested retention, which can produce different simulated memory.
+    Below, each FSRS point is matched with the cheapest RWKV point on the tested grid with at least as much simulated memory.
+    Negative savings mean RWKV took more time; unmatched targets are excluded. Selecting the cheapest point can make savings look optimistic when runs are noisy.
+deck-config-rwkv-comparison-no-memory-match = No tested points matched in simulated memory.
 
 ## Messages related to the FSRS scheduler’s health check. The health check determines whether the correlation between FSRS predictions and your memory is good or bad. It can be optionally triggered as part of the "Optimize" function.
 
 # Checkbox
 deck-config-health-check = Check health when optimizing
+# Button
+deck-config-health-check-button = Check Health
 # Message box showing the result of the health check
 deck-config-fsrs-bad-fit-warning = Health Check:
     Your memory is difficult for FSRS to predict. Recommendations:
@@ -544,19 +858,19 @@ deck-config-fsrs-good-fit = Health Check:
 ## NO NEED TO TRANSLATE. This text is no longer used by Anki, and will be removed in the future.
 
 deck-config-description-new-handling = Anki 2.1.41+ handling
-deck-config-fsrs-simulator-radio-ratio = Time / Memorized Ratio
-# $time here is pre-formatted e.g. "10 Seconds" 
-deck-config-fsrs-simulator-ratio-tooltip = { $time } per memorized card
 deck-config-unable-to-determine-desired-retention =
     Unable to determine a minimum recommended retention.
 deck-config-predicted-minimum-recommended-retention = Minimum recommended retention: { $num }
 deck-config-compute-minimum-recommended-retention = Minimum recommended retention
 deck-config-compute-optimal-retention-tooltip4 =
-    This tool will attempt to find the desired retention value 
+    This tool will attempt to find the desired retention value
     that will lead to the most material learnt, in the least amount of time. The calculated number can serve as a reference
-    when deciding what to set your desired retention to. You may wish to choose a higher desired retention if you’re 
+    when deciding what to set your desired retention to. You may wish to choose a higher desired retention if you’re
     willing to invest more study time to achieve it. Setting your desired retention lower than the minimum
     is not recommended, as it will lead to a higher workload, because of the high forgetting rate.
+deck-config-fsrs-simulator-radio-ratio = Time / Memorized Ratio
+# $time here is pre-formatted e.g. "10 Seconds"
+deck-config-fsrs-simulator-ratio-tooltip = { $time } per memorized card
 deck-config-plotted-on-x-axis = (Plotted on the X-axis)
 deck-config-a-100-day-interval = 
     { $days ->
