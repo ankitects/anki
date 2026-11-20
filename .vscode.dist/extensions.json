@@ -6,7 +6,7 @@
         "charliermarsh.ruff",
         "rust-lang.rust-analyzer",
         "svelte.svelte-vscode",
-        "zxh404.vscode-proto3",
+        "drblury.protobuf-vsc",
         "usernamehw.errorlens",
         "eamodio.gitlens",
         "unifiedjs.vscode-mdx"
