@@ -126,6 +126,10 @@ message Preferences {
     uint32 time_limit_secs = 5;
     bool load_balancer_enabled = 6;
     bool fsrs_short_term_with_steps_enabled = 7;
+    // Bury a card for the rest of the day once it has been answered Again
+    // bury_failed_cards_threshold times today.
+    bool bury_failed_cards = 8;
+    uint32 bury_failed_cards_threshold = 9;
   }
   message Editing {
     bool adding_defaults_to_current_deck = 1;

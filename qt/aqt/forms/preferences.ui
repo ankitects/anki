@@ -462,6 +462,49 @@
              </widget>
             </item>
             <item>
+             <layout class="QHBoxLayout" name="buryFailedCardsLayout">
+              <item>
+               <widget class="QCheckBox" name="buryFailedCards">
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
+                <property name="text">
+                 <string>preferences_bury_failed_cards</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QSpinBox" name="buryFailedCardsThreshold">
+                <property name="suffix">
+                 <string>preferences_bury_failed_cards_suffix</string>
+                </property>
+                <property name="minimum">
+                 <number>1</number>
+                </property>
+                <property name="maximum">
+                 <number>999</number>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <spacer name="buryFailedCardsSpacer">
+                <property name="orientation">
+                 <enum>Qt::Orientation::Horizontal</enum>
+                </property>
+                <property name="sizeHint" stdset="0">
+                 <size>
+                  <width>0</width>
+                  <height>0</height>
+                 </size>
+                </property>
+               </spacer>
+              </item>
+             </layout>
+            </item>
+            <item>
              <widget class="QPushButton" name="url_schemes">
               <property name="text">
                <string>preferences_url_schemes</string>

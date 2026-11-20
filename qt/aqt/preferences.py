@@ -48,6 +48,7 @@ class Preferences(QDialog):
             self.form.dayOffset,
             self.form.timeLimit,
             self.form.network_timeout,
+            self.form.buryFailedCardsThreshold,
         ):
             spinbox.setSuffix(f" {spinbox.suffix()}")
 
@@ -149,6 +150,10 @@ class Preferences(QDialog):
         form.showProgress.setChecked(reviewing.show_remaining_due_counts)
         form.showPlayButtons.setChecked(not reviewing.hide_audio_play_buttons)
         form.interrupt_audio.setChecked(reviewing.interrupt_audio_when_answering)
+        form.buryFailedCards.setChecked(reviewing.bury_failed_cards)
+        form.buryFailedCardsThreshold.setValue(reviewing.bury_failed_cards_threshold)
+        form.buryFailedCardsThreshold.setEnabled(reviewing.bury_failed_cards)
+        qconnect(form.buryFailedCards.toggled, form.buryFailedCardsThreshold.setEnabled)
 
         editing = self.prefs.editing
         form.useCurrent.setCurrentIndex(
@@ -184,6 +189,8 @@ class Preferences(QDialog):
         reviewing.time_limit_secs = form.timeLimit.value() * 60
         reviewing.hide_audio_play_buttons = not self.form.showPlayButtons.isChecked()
         reviewing.interrupt_audio_when_answering = self.form.interrupt_audio.isChecked()
+        reviewing.bury_failed_cards = form.buryFailedCards.isChecked()
+        reviewing.bury_failed_cards_threshold = form.buryFailedCardsThreshold.value()
 
         editing = self.prefs.editing
         editing.adding_defaults_to_current_deck = not form.useCurrent.currentIndex()
