@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import asyncio
 import enum
+import itertools
 import logging
 import mimetypes
 import os
@@ -13,12 +14,13 @@ import secrets
 import sys
 import threading
 import traceback
+import weakref
 from collections.abc import Callable
 from dataclasses import dataclass
 from errno import EPROTOTYPE
 from http import HTTPStatus
 from pathlib import Path
-from typing import Any, Generic, cast
+from typing import TYPE_CHECKING, Any, Generic, cast
 
 import flask
 import stringcase
@@ -54,6 +56,10 @@ from aqt.utils import (
     show_warning,
     tr,
 )
+
+if TYPE_CHECKING:
+    from aqt.webview import AnkiWebView
+
 
 # https://forums.ankiweb.net/t/anki-crash-when-using-a-specific-deck/22266
 waitress.wasyncore._DISCONNECTED = waitress.wasyncore._DISCONNECTED.union({EPROTOTYPE})  # type: ignore
@@ -203,6 +209,11 @@ class MediaServer(threading.Thread):
         self.is_shutdown = False
         # map of webview ids to pages
         self._legacy_pages: dict[int, LegacyPage] = {}
+        # used to identify request handlers
+        self._webviews: weakref.WeakValueDictionary[str, AnkiWebView] = (
+            weakref.WeakValueDictionary()
+        )
+        self._webview_counter = itertools.count()
 
     def run(self) -> None:
         try:
@@ -264,6 +275,19 @@ class MediaServer(threading.Thread):
             del self._legacy_pages[id]
         except KeyError:
             pass
+
+    def register_webview(self, webview: AnkiWebView) -> int:
+        from aqt.webview import WebviewIdInterceptor
+
+        webview_id = next(self._webview_counter)
+        self._webviews[str(webview_id)] = webview
+        webview.page().setUrlRequestInterceptor(
+            WebviewIdInterceptor(webview, webview_id)
+        )
+        return webview_id
+
+    def get_webview(self, id: str) -> AnkiWebView | None:
+        return self._webviews.get(id)
 
 
 @app.route("/favicon.ico")
@@ -1253,6 +1277,7 @@ def raw_backend_request(endpoint: str) -> Callable[[], bytes]:
         output = getattr(aqt.mw.col._backend, f"{endpoint}_raw")(request.data)
         op_changes_type = int(request.headers.get("Anki-Op-Changes", "0"))
         if op_changes_type:
+            webview_id = request.headers.get("Anki-Webview-Id")
             op_message_types = (OpChanges, OpChangesOnly, NestedOpChanges)
             try:
                 response = op_message_types[op_changes_type - 1]()
@@ -1264,8 +1289,10 @@ def raw_backend_request(endpoint: str) -> Callable[[], bytes]:
                 raise ValueError(f"unhandled op changes level: {op_changes_type}")
 
             def handle_on_main() -> None:
-                handler = active_window_or_main()
-                on_op_finished(aqt.mw, changes, handler)
+                webview = (
+                    aqt.mw.mediaServer.get_webview(webview_id) if webview_id else None
+                )
+                on_op_finished(aqt.mw, changes, webview)
 
             aqt.mw.taskman.run_on_main(handle_on_main)
 
