@@ -1,0 +1,114 @@
+---
+title: "Windows'da ishga tushirish muammolari"
+sidebarTitle: "Ishga tushirish muammolari"
+description: "Ishga tushirish muammolari"
+---
+
+## Xato yoʻq, lekin ilova koʻrinmaydi
+
+Anki'ni ishga tushirganingizda hech qanday xato xabarisiz u ekranda paydo
+boʻlmasa, quyidagilarni sinab koʻrishingiz mumkin:
+
+- Qoʻshimcha va tashqi monitorlarni uzib qoʻying.
+- [Anki'ning eng yangi versiyasini](https://apps.ankiweb.net/) oʻrnating.
+- Agar [kasr ajratuvchi belgi](https://forums.ankiweb.net/t/windows-update-broke-anki/1822/75) (decimal separator) nuqta boʻlmasa, uni sozlang.
+- Anki'ning eski [2.1.35-alternate](https://github.com/ankitects/anki/releases/tag/2.1.35) versiyasini oʻrnating.
+
+## Windows yangilanishlari
+
+Anki'ni ishga tushirganingizda quyidagiga oʻxshash xabar chiqishi mumkin:
+
+- _Error loading Python DLL_
+- _The program can't start because api-ms-win.... is missing_
+- _Failed to execute script runanki_
+- _Failed to execute script pyi_rth_multiprocessing_
+- _Failed to execute script pyi_rth_win32comgenpy_
+
+Bu xatolar odatda kompyuteringizda Windows yangilanishi yoki Windows kutubxonasi
+yoʻqligi sababli chiqadi.
+
+Windows Update (Windows yangilanishlari) boʻlimini ochib, tizimingizda barcha
+yangilanishlar oʻrnatilganiga ishonch hosil qiling. Biror yangilanish
+oʻrnatilgan boʻlsa, oʻrnatilgach qurilmangizni qayta ishga tushiring.
+
+## Windows 7/8
+
+Windows 7/8 da qoʻshimcha yangilanishlarni qoʻlda oʻrnatish kerak boʻlishi
+mumkin. Quyidagilarni sinab koʻring:
+
+- [https://www.microsoft.com/en-us/download/details.aspx?id=48234](https://www.microsoft.com/en-us/download/details.aspx?id=48234)
+- [https://aka.ms/vs/15/release/vc_redist.x64.exe](https://aka.ms/vs/15/release/vc_redist.x64.exe)
+- [http://www.catalog.update.microsoft.com/Search.aspx?q=kb4474419](http://www.catalog.update.microsoft.com/Search.aspx?q=kb4474419)
+- [http://www.catalog.update.microsoft.com/Search.aspx?q=kb4490628](http://www.catalog.update.microsoft.com/Search.aspx?q=kb4490628)
+
+## Video drayver muammolari
+
+[Koʻrinish (ekran) muammolari](./display-issues) sahifasiga qarang.
+
+## Bir nechta monitor
+
+Agar _LoadLibrary failed with error 126_ xatosi chiqsa, buning sababi Anki
+qurilgan vositalar toʻplami (toolkit) [bir nechta monitor](https://forums.ankiweb.net/t/error-126-on-open-anki-desktop/13967)
+bilan ishlashda qiynalishi boʻlishi mumkin.
+
+## Antivirus/xavfsizlik devori (firewall) dasturlari
+
+Kompyuteringizdagi uchinchi tomon dasturlari Anki'ning ishga tushishiga
+toʻsqinlik qilishi mumkin. Anki uchun istisno (exception) qoʻshib koʻring yoki
+yordam beradimi-yoʻqmi, tekshirish uchun antivirus/xavfsizlik devorini
+vaqtincha oʻchirib qoʻying.
+
+## Administrator huquqi
+
+Ayrim foydalanuvchilar Anki belgisini sichqonchaning oʻng tugmasi bilan bosib,
+"Run as administrator" (Administrator sifatida ishga tushirish) ni
+tanlamaguncha Anki ishlamaganini xabar qilgan. Anki barcha maʼlumotlarini
+foydalanuvchi papkangizda saqlaydi va administrator huquqini talab qilmasligi
+kerak, lekin boshqa usullar ish bermasa, buni ham sinab koʻrishingiz mumkin.
+
+## Yangilangandan keyin bir nechta Anki nusxasi qolib ketishi
+
+Yangilash jarayoni natijasida kompyuteringizda bir nechta Anki oʻrnatilgan boʻlib
+qolsa (masalan, `C:\Program Files\Anki` va `C:\Program Files (x86)\Anki`
+ichida), ular ishlamaydigan holatda qolishi va Anki hech qanday xato xabarisiz
+ishga tushmasligi mumkin.
+
+Kompyuteringizdagi Anki'ning barcha nusxalarini oʻchirib tashlab koʻring. Buning
+uchun Windows Settings &gt; Apps & features (yoki Apps &gt; Installed apps)
+boʻlimidan ularni topib oʻchiring yoki har bir Anki dastur papkasidagi
+`uninstall.exe` ni ishga tushiring. Shundan keyin Anki'ni qaytadan oʻrnating.
+
+## Xatolarni aniqlash (debugging)
+
+Anki'ni terminaldan ishga tushirish ayrim xatolar haqida bir oz koʻproq maʼlumot
+berishi mumkin. Anki'ning eng yangi versiyasini oʻrnatib, barcha Windows
+yangilanishlari oʻrnatilganiga ishonch hosil qilgach, Anki'ni toʻgʻridan-toʻgʻri
+ishga tushirish oʻrniga <kbd>Windows</kbd> tugmasini bosing (yoki Start
+menyusini oching), `cmd` deb yozing va Command Prompt (buyruq qatori) ni ishga
+tushiring. Terminal oynasi ochilgach, quyidagi buyruqni qoʻyib
+(paste), <kbd>Enter</kbd> tugmasini bosing. (Anki standart boʻlmagan joyga oʻrnatilgan
+boʻlsa, yoʻl boshqacha boʻladi.)
+
+```
+%LocalAppData%\Programs\Anki\anki-console.bat
+```
+
+Anki 25.07 dan 25.09.4 gacha boʻlgan versiyalari uchun quyidagini qoʻying:
+
+```
+%LocalAppData%\Programs\Anki\anki-console.exe
+```
+
+Ehtimol, Anki avvalgidek ochilmaydi, lekin terminal oynasidagi chiqish muammo
+sababi haqida nimadir koʻrsatishi mumkin.
+
+## Boshqa hech narsa yordam bermasa
+
+Yuqoridagi yechimlarni sinab koʻrgach ham Anki'ni ishga tushira olmasangiz,
+sizda ikkita variant qoladi:
+
+- [Python orqali ishga tushirib](/faqs/running-from-python) koʻrishingiz mumkin.
+- Eski vositalar toʻplami (toolkit) bilan qurilgan Anki'ning eski versiyasini,
+  masalan, [2.1.35-alternate](https://github.com/ankitects/anki/releases/tag/2.1.35)
+  yoki [2.1.15](https://github.com/ankitects/anki/releases/tag/2.1.15) ni sinab
+  koʻrishingiz mumkin.

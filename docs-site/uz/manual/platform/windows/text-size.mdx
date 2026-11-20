@@ -1,0 +1,26 @@
+---
+title: "Matn oʻlchami"
+---
+
+Matn oʻlchami notoʻgʻri koʻrinsa, ikkita muhit oʻzgaruvchisini (environment
+variable) sinab koʻrishingiz mumkin:
+
+- ANKI_NOHIGHDPI=1 Qt'ning yuqori DPI (high dpi) qoʻllab-quvvatlashining baʼzi
+  qismlarini oʻchiradi.
+
+- ANKI_WEBSCALE=1 Anki'ning veb-koʻrinishlari (masalan, toʻplamlar roʻyxati,
+  oʻrganish oynasi va hokazo) masshtabini oʻzgartiradi, menyu paneli kabi
+  interfeys elementlariga esa tegmaydi. 1 oʻrniga kerakli masshtabni yozing,
+  masalan, 1.5 yoki 0.75.
+
+Windows'da Anki'ni ishga tushirishni osonlashtirish uchun bularni batch (.bat)
+faylga qoʻshishingiz mumkin. Masalan, ish stolida startanki.bat nomli fayl
+yarating va ichiga quyidagi matnni yozing:
+
+```text
+    set ANKI_WEBSCALE=0.75
+    start "Anki" "%LocalAppData%\Programs\Anki\anki.exe"
+```
+
+Saqlagach, shu faylga ikki marta bosib, Anki'ni shu sozlama bilan ishga
+tushirishingiz mumkin.
