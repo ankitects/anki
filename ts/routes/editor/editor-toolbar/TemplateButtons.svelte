@@ -6,17 +6,17 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import * as tr from "@generated/ftl";
     import { getPlatformString } from "@tslib/shortcuts";
 
-    import ButtonGroup from "$lib/components/ButtonGroup.svelte";
+    import ButtonGroup from "#lib/components/ButtonGroup.svelte";
     import ButtonGroupItem, {
         createProps,
         setSlotHostContext,
         updatePropsList,
-    } from "$lib/components/ButtonGroupItem.svelte";
-    import DynamicallySlottable from "$lib/components/DynamicallySlottable.svelte";
-    import Icon from "$lib/components/Icon.svelte";
-    import IconButton from "$lib/components/IconButton.svelte";
-    import { micIcon, paperclipIcon } from "$lib/components/icons";
-    import Shortcut from "$lib/components/Shortcut.svelte";
+    } from "#lib/components/ButtonGroupItem.svelte";
+    import DynamicallySlottable from "#lib/components/DynamicallySlottable.svelte";
+    import Icon from "#lib/components/Icon.svelte";
+    import IconButton from "#lib/components/IconButton.svelte";
+    import { micIcon, paperclipIcon } from "#lib/components/icons.js";
+    import Shortcut from "#lib/components/Shortcut.svelte";
 
     import { context } from "../NoteEditor.svelte";
     import { setFormat } from "../old-editor-adapter";

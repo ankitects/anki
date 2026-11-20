@@ -17,8 +17,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import * as tr from "@generated/ftl";
     import { runWithBackendProgress } from "@tslib/progress";
 
-    import SettingTitle from "$lib/components/SettingTitle.svelte";
-    import SwitchRow from "$lib/components/SwitchRow.svelte";
+    import SettingTitle from "#lib/components/SettingTitle.svelte";
+    import SwitchRow from "#lib/components/SwitchRow.svelte";
 
     import GlobalLabel from "./GlobalLabel.svelte";
     import { commitEditing, fsrsParams, type DeckOptionsState, ValueTab } from "./lib";
@@ -34,8 +34,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     } from "@generated/anki/deck_config_pb";
     import type Modal from "bootstrap/js/dist/modal";
     import TabbedValue from "./TabbedValue.svelte";
-    import Item from "$lib/components/Item.svelte";
-    import DynamicallySlottable from "$lib/components/DynamicallySlottable.svelte";
+    import Item from "#lib/components/Item.svelte";
+    import DynamicallySlottable from "#lib/components/DynamicallySlottable.svelte";
 
     export let state: DeckOptionsState;
     export let openHelpModal: (String) => void;

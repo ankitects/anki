@@ -12,18 +12,18 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { getContext, onDestroy, onMount } from "svelte";
     import { writable, type Readable } from "svelte/store";
 
-    import DropdownItem from "$lib/components/DropdownItem.svelte";
-    import Icon from "$lib/components/Icon.svelte";
-    import IconButton from "$lib/components/IconButton.svelte";
+    import DropdownItem from "#lib/components/DropdownItem.svelte";
+    import Icon from "#lib/components/Icon.svelte";
+    import IconButton from "#lib/components/IconButton.svelte";
     import {
         mdiEye,
         mdiFormatAlignCenter,
         mdiSquare,
         mdiViewDashboard,
-    } from "$lib/components/icons";
-    import Popover from "$lib/components/Popover.svelte";
-    import Shortcut from "$lib/components/Shortcut.svelte";
-    import WithFloating from "$lib/components/WithFloating.svelte";
+    } from "#lib/components/icons.js";
+    import Popover from "#lib/components/Popover.svelte";
+    import Shortcut from "#lib/components/Shortcut.svelte";
+    import WithFloating from "#lib/components/WithFloating.svelte";
 
     import {
         hideAllGuessOne,

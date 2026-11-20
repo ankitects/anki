@@ -10,7 +10,7 @@ import {
     mdiRectangleOutline,
     mdiTextBox,
     mdiVectorPolygonVariant,
-} from "$lib/components/icons";
+} from "#lib/components/icons.js";
 
 import {
     cursorKeyCombination,

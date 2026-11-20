@@ -41,7 +41,7 @@ pub(crate) fn order_and_limit_for_search(
         }
         FilteredSearchOrder::RelativeOverdueness => {
             temp_string =
-                format!("extract_fsrs_relative_retrievability(data, case when odue !=0 then odue else due end, ivl, {today}, {next_day_at}, {now}) asc");
+                format!("extract_fsrs_relative_retrievability(c.data, case when c.odue !=0 then c.odue else c.due end, c.ivl, {today}, {next_day_at}, {now}) asc");
             &temp_string
         }
     };
@@ -70,6 +70,7 @@ fn build_retrievability_query(
 #[cfg(test)]
 mod test {
     use rusqlite::params;
+    use strum::IntoEnumIterator;
 
     use super::*;
     use crate::card::FsrsMemoryState;
@@ -318,6 +319,23 @@ mod test {
             // would fail on the old empty-order SQL (leading comma)
             let cards = cards_in_order(&mut col, order, 2, false);
             assert_eq!(cards.len(), 2, "order {order:?}");
+        }
+    }
+
+    /// Confirm no SQL errors with joined cards and notes tables.
+    #[test]
+    fn sql_clauses_work_with_joined_tables() {
+        let mut col = Collection::new();
+        for order in FilteredSearchOrder::iter() {
+            for fsrs in [false, true] {
+                let clause = order_and_limit_for_search(&term(order, 10), timing(), fsrs);
+                // cards and notes joined
+                col.search_cards("*", SortMode::Custom(clause.clone()))
+                    .unwrap();
+                // cards only
+                col.search_cards("", SortMode::Custom(clause.clone()))
+                    .unwrap();
+            }
         }
     }
 }

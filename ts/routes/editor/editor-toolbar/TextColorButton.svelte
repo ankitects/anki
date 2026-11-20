@@ -9,12 +9,12 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { singleCallback } from "@tslib/typing";
     import { onMount } from "svelte";
 
-    import Icon from "$lib/components/Icon.svelte";
-    import IconButton from "$lib/components/IconButton.svelte";
-    import { chevronDown } from "$lib/components/icons";
-    import { textColorIcon } from "$lib/components/icons";
-    import Shortcut from "$lib/components/Shortcut.svelte";
-    import type { FormattingNode, MatchType } from "$lib/domlib/surround";
+    import Icon from "#lib/components/Icon.svelte";
+    import IconButton from "#lib/components/IconButton.svelte";
+    import { chevronDown } from "#lib/components/icons.js";
+    import { textColorIcon } from "#lib/components/icons.js";
+    import Shortcut from "#lib/components/Shortcut.svelte";
+    import type { FormattingNode, MatchType } from "#lib/domlib/surround/index.js";
 
     import { withFontColor } from "../helpers";
     import { surrounder } from "../rich-text-input";
