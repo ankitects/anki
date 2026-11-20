@@ -2,16 +2,20 @@
   "nodes": {
     "ankiquest-dev": {
       "inputs": {
+        "nix-darwin": "nix-darwin",
         "nixos-wsl": "nixos-wsl",
-        "nixpkgs": "nixpkgs",
+        "nixpkgs": [
+          "nixpkgs"
+        ],
+        "nixpkgs-x86_64-darwin": "nixpkgs-x86_64-darwin",
         "rust-overlay": "rust-overlay"
       },
       "locked": {
-        "lastModified": 1795191771,
-        "narHash": "sha256-n3ajC9P6q7BDblBdkpYMhzuQnWwplTujPGT+Hif9QzA=",
+        "lastModified": 1795193380,
+        "narHash": "sha256-ftUrmL58YTMQWFjLtxfSJBzu9d/ALnZgEu4sRiMqo0Q=",
         "owner": "AnkiQuest",
         "repo": "AnkiQuest-Dev",
-        "rev": "1a5831ff855937ae086a8a0441e371b079fe9ace",
+        "rev": "16ac7913f4e1ab51bbd05c924f3384034bc09804",
         "type": "github"
       },
       "original": {
@@ -34,6 +38,28 @@
         "owner": "edolstra",
         "repo": "flake-compat",
         "type": "github"
+      }
+    },
+    "nix-darwin": {
+      "inputs": {
+        "nixpkgs": [
+          "ankiquest-dev",
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1793418699,
+        "narHash": "sha256-+RpTlcdh9KqZ+ZiLkNSTvibQWm935EcIdBzRPCTFsrQ=",
+        "ref": "refs/heads/master",
+        "rev": "ff0e21a414d4547183396da1b44a66f2577b65e9",
+        "shallow": true,
+        "type": "git",
+        "url": "https://github.com/nix-darwin/nix-darwin"
+      },
+      "original": {
+        "shallow": true,
+        "type": "git",
+        "url": "https://github.com/nix-darwin/nix-darwin"
       }
     },
     "nixos-wsl": {
@@ -61,20 +87,37 @@
     },
     "nixpkgs": {
       "locked": {
-        "lastModified": 1795085501,
-        "narHash": "sha256-kqy60mdSH4GQAv3kzSeefteaiCv9arf3P+auosZrpo0=",
-        "rev": "0bb8272318b4ca41bf0edc6224df3e3e3046b70d",
+        "lastModified": 1794890597,
+        "narHash": "sha256-lME2lHoDHAaSHP3/okgiVoJ0icVEvsQH8LeU3We7tcc=",
+        "owner": "nixos",
+        "repo": "nixpkgs",
+        "rev": "04906337b6d53e8bb0eaf0470ae9f070a4d4eb55",
+        "type": "github"
+      },
+      "original": {
+        "owner": "nixos",
+        "ref": "nixos-unstable",
+        "repo": "nixpkgs",
+        "type": "github"
+      }
+    },
+    "nixpkgs-x86_64-darwin": {
+      "locked": {
+        "lastModified": 1795137884,
+        "narHash": "sha256-xVwloUjz7paCDnvN5dkrasmAGV+O6uyRUPFHxv2w3VA=",
+        "rev": "ab5c18fdedfc8f9bbc9d773f10a540790e2787a7",
         "type": "tarball",
-        "url": "https://releases.nixos.org/nixos/unstable/nixos-26.11pre1124497.0bb8272318b4/nixexprs.tar.xz"
+        "url": "https://releases.nixos.org/nixos/26.05/nixos-26.05.14894.ab5c18fdedfc/nixexprs.tar.xz"
       },
       "original": {
         "type": "tarball",
-        "url": "https://channels.nixos.org/nixos-unstable/nixexprs.tar.xz"
+        "url": "https://channels.nixos.org/nixos-26.05/nixexprs.tar.xz"
       }
     },
     "root": {
       "inputs": {
-        "ankiquest-dev": "ankiquest-dev"
+        "ankiquest-dev": "ankiquest-dev",
+        "nixpkgs": "nixpkgs"
       }
     },
     "rust-overlay": {
