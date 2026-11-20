@@ -230,6 +230,8 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
                         currentParams: params,
                         numOfRelearningSteps: numOfRelearningStepsInDay,
                         healthCheck: $healthCheck,
+                        dynamicDesiredRetentionEnabled:
+                            $config.fsrsDynamicDesiredRetentionEnabled,
                     });
 
                     const alreadyOptimal =

@@ -84,6 +84,7 @@ def grade_now(
         lambda col: col._backend.grade_now(
             card_ids=card_ids,
             rating=rating,
+            card_options=[],
         ),
     ).success(
         lambda _: tooltip(

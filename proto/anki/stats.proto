@@ -16,8 +16,7 @@ service StatsService {
   rpc Graphs(GraphsRequest) returns (GraphsResponse);
   rpc GetGraphPreferences(generic.Empty) returns (GraphPreferences);
   rpc SetGraphPreferences(GraphPreferences) returns (generic.Empty);
-  rpc CardMemoryMetrics(CardMemoryMetricsRequest)
-      returns (CardMemoryMetricsResponse);
+  rpc CardMemoryMetrics(CardMemoryMetricsRequest) returns (CardMemoryMetricsResponse);
   rpc CardDetails(CardDetailsRequest) returns (CardDetailsResponse);
 }
 

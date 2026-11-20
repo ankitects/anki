@@ -14,8 +14,7 @@ service GithubService {}
 service BackendGithubService {
   rpc GetLatestRelease(LatestReleaseRequest) returns (GithubRelease);
   rpc DownloadRelease(GithubRelease) returns (generic.String);
-  rpc ExtractPortableUpdate(ExtractPortableUpdateRequest)
-      returns (generic.Empty);
+  rpc ExtractPortableUpdate(ExtractPortableUpdateRequest) returns (generic.Empty);
 }
 
 message LatestReleaseRequest {

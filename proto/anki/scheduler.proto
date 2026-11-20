@@ -18,8 +18,7 @@ service SchedulerService {
   rpc GetQueuedCards(GetQueuedCardsRequest) returns (QueuedCards);
   // Rebuilds and retains the queue while treating the supplied card as already
   // displayed, and returns the resulting counts without fetching another card.
-  rpc RebuildQueuedCardsPreservingCurrentCard(cards.CardId)
-      returns (QueuedCards);
+  rpc RebuildQueuedCardsPreservingCurrentCard(cards.CardId) returns (QueuedCards);
   rpc AnswerCard(CardAnswer) returns (collection.OpChanges);
   rpc SchedTimingToday(generic.Empty) returns (SchedTimingTodayResponse);
   rpc StudiedToday(generic.Empty) returns (generic.String);
@@ -43,28 +42,20 @@ service SchedulerService {
   rpc SortCards(SortCardsRequest) returns (collection.OpChangesWithCount);
   rpc SortDeck(SortDeckRequest) returns (collection.OpChangesWithCount);
   rpc GetSchedulingStates(cards.CardId) returns (SchedulingStates);
-  rpc GetSchedulingStatesWithOpts(GetSchedulingStatesRequest)
-      returns (SchedulingStates);
+  rpc GetSchedulingStatesWithOpts(GetSchedulingStatesRequest) returns (SchedulingStates);
   rpc DescribeNextStates(SchedulingStates) returns (generic.StringList);
   rpc StateIsLeech(SchedulingState) returns (generic.Bool);
   rpc UpgradeScheduler(generic.Empty) returns (generic.Empty);
   rpc CustomStudy(CustomStudyRequest) returns (collection.OpChanges);
   rpc CustomStudyDefaults(CustomStudyDefaultsRequest) returns (CustomStudyDefaultsResponse);
   rpc RepositionDefaults(generic.Empty) returns (RepositionDefaultsResponse);
-  rpc ComputeFsrsParams(ComputeFsrsParamsRequest)
-      returns (ComputeFsrsParamsResponse);
-  rpc ComputeFsrsParamsBatch(ComputeFsrsParamsBatchRequest)
-      returns (ComputeFsrsParamsBatchResponse);
-  rpc GetOptimalRetentionParameters(GetOptimalRetentionParametersRequest)
-      returns (GetOptimalRetentionParametersResponse);
-  rpc ComputeOptimalRetention(SimulateFsrsReviewRequest)
-      returns (ComputeOptimalRetentionResponse);
-  rpc SimulateFsrsReview(SimulateFsrsReviewRequest)
-      returns (SimulateFsrsReviewResponse);
-  rpc SimulateFsrsWorkload(SimulateFsrsReviewRequest)
-      returns (SimulateFsrsWorkloadResponse);
-  rpc GetFsrsNewCardIntervals(GetFsrsNewCardIntervalsRequest)
-      returns (generic.StringList);
+  rpc ComputeFsrsParams(ComputeFsrsParamsRequest) returns (ComputeFsrsParamsResponse);
+  rpc ComputeFsrsParamsBatch(ComputeFsrsParamsBatchRequest) returns (ComputeFsrsParamsBatchResponse);
+  rpc GetOptimalRetentionParameters(GetOptimalRetentionParametersRequest) returns (GetOptimalRetentionParametersResponse);
+  rpc ComputeOptimalRetention(SimulateFsrsReviewRequest) returns (ComputeOptimalRetentionResponse);
+  rpc SimulateFsrsReview(SimulateFsrsReviewRequest) returns (SimulateFsrsReviewResponse);
+  rpc SimulateFsrsWorkload(SimulateFsrsReviewRequest) returns (SimulateFsrsWorkloadResponse);
+  rpc GetFsrsNewCardIntervals(GetFsrsNewCardIntervalsRequest) returns (generic.StringList);
   rpc EvaluateParams(EvaluateParamsRequest) returns (EvaluateParamsResponse);
   rpc EvaluateParamsLegacy(EvaluateParamsLegacyRequest) returns (EvaluateParamsResponse);
   rpc ComputeMemoryState(cards.CardId) returns (ComputeMemoryStateResponse);
@@ -74,123 +65,86 @@ service SchedulerService {
   rpc FuzzDelta(FuzzDeltaRequest) returns (FuzzDeltaResponse);
   // Build answer states after replacing any supplied intervals with
   // unrounded day values from an external scheduler such as RWKV-Curve.
-  rpc SchedulingStatesWithIntervals(SchedulingStatesWithIntervalsRequest)
-      returns (SchedulingStates);
+  rpc SchedulingStatesWithIntervals(SchedulingStatesWithIntervalsRequest) returns (SchedulingStates);
   // Helper APIs for add-ons that need scheduler-accurate FSRS math.
-  rpc FsrsCurrentRetrievability(FsrsCurrentRetrievabilityRequest)
-      returns (FsrsCurrentRetrievabilityResponse);
-  rpc FsrsNextInterval(FsrsNextIntervalRequest)
-      returns (FsrsNextIntervalResponse);
-  rpc FsrsIntervalAtRetrievability(FsrsIntervalAtRetrievabilityRequest)
-      returns (FsrsIntervalAtRetrievabilityResponse);
-  rpc FsrsIntervalAtRetrievabilityBatch(
-      FsrsIntervalAtRetrievabilityBatchRequest)
-      returns (FsrsIntervalAtRetrievabilityBatchResponse);
-  rpc FsrsIntervalAtRetrievabilityVariableBatch(
-      FsrsIntervalAtRetrievabilityVariableBatchRequest)
-      returns (FsrsIntervalAtRetrievabilityVariableBatchResponse);
-  rpc FsrsDesiredRetentionForIntervalsBatch(
-      FsrsDesiredRetentionForIntervalsBatchRequest)
-      returns (FsrsDesiredRetentionForIntervalsBatchResponse);
-  rpc FsrsIntervalAtRetrievabilityByConfigBatch(
-      FsrsIntervalAtRetrievabilityByConfigBatchRequest)
-      returns (FsrsIntervalAtRetrievabilityByConfigBatchResponse);
+  rpc FsrsCurrentRetrievability(FsrsCurrentRetrievabilityRequest) returns (FsrsCurrentRetrievabilityResponse);
+  rpc FsrsNextInterval(FsrsNextIntervalRequest) returns (FsrsNextIntervalResponse);
+  rpc FsrsIntervalAtRetrievability(FsrsIntervalAtRetrievabilityRequest) returns (FsrsIntervalAtRetrievabilityResponse);
+  rpc FsrsIntervalAtRetrievabilityBatch(FsrsIntervalAtRetrievabilityBatchRequest) returns (FsrsIntervalAtRetrievabilityBatchResponse);
+  rpc FsrsIntervalAtRetrievabilityVariableBatch(FsrsIntervalAtRetrievabilityVariableBatchRequest) returns (FsrsIntervalAtRetrievabilityVariableBatchResponse);
+  rpc FsrsDesiredRetentionForIntervalsBatch(FsrsDesiredRetentionForIntervalsBatchRequest) returns (FsrsDesiredRetentionForIntervalsBatchResponse);
+  rpc FsrsIntervalAtRetrievabilityByConfigBatch(FsrsIntervalAtRetrievabilityByConfigBatchRequest) returns (FsrsIntervalAtRetrievabilityByConfigBatchResponse);
   // Installs a transient desktop-only RWKV retrievability map used by review
   // queue ordering. Empty scores clear the map.
-  rpc SetRwkvReviewQueueScores(RwkvReviewQueueScoresRequest)
-      returns (generic.Empty);
+  rpc SetRwkvReviewQueueScores(RwkvReviewQueueScoresRequest) returns (generic.Empty);
   // Updates or removes one already-answered card's transient queue score
   // without invalidating the retained queue behind it.
-  rpc PatchAnsweredCardRwkvReviewQueueScore(
-      RwkvAnsweredCardQueueScorePatchRequest) returns (generic.Empty);
+  rpc PatchAnsweredCardRwkvReviewQueueScore(RwkvAnsweredCardQueueScorePatchRequest) returns (generic.Empty);
   // Incrementally installs transient desktop-only RWKV score maps used only
   // while rendering deck-browser counts. Each request replaces one disjoint
   // deck scope; ClearRwkvDeckCountScores removes every scope.
-  rpc SetRwkvDeckCountScores(RwkvReviewQueueScoresRequest)
-      returns (generic.Empty);
+  rpc SetRwkvDeckCountScores(RwkvReviewQueueScoresRequest) returns (generic.Empty);
   rpc ClearRwkvDeckCountScores(generic.Empty) returns (generic.Empty);
   // Updates session-local repeat-spacing metadata on the active transient RWKV
   // review queue map without replacing retrievability scores.
-  rpc UpdateRwkvReviewQueueInterveningReviews(
-      RwkvReviewQueueInterveningReviewsRequest) returns (generic.Empty);
+  rpc UpdateRwkvReviewQueueInterveningReviews(RwkvReviewQueueInterveningReviewsRequest) returns (generic.Empty);
   // Installs a transient desktop-only RWKV retrievability map used by stats
   // graphs. Scores are scoped to the supplied search.
-  rpc SetRwkvStatsGraphScores(RwkvStatsGraphScoresRequest)
-      returns (generic.Empty);
+  rpc SetRwkvStatsGraphScores(RwkvStatsGraphScoresRequest) returns (generic.Empty);
   // Installs or clears a transient desktop-only RWKV retrievability score
   // computed while rendering card info.
   rpc SetRwkvCardInfoScore(RwkvCardInfoScoreRequest) returns (generic.Empty);
   // Returns the active transient desktop-only RWKV retrievability score for a
   // card, if one has been installed for the current scheduler day.
-  rpc GetRwkvRetrievabilityScore(cards.CardId)
-      returns (RwkvRetrievabilityScoreResponse);
+  rpc GetRwkvRetrievabilityScore(cards.CardId) returns (RwkvRetrievabilityScoreResponse);
   // Stores derived local RWKV review-time retrievability cache rows.
-  rpc SetRwkvReviewRetrievabilityCacheRows(
-      RwkvReviewRetrievabilityCacheRowsRequest) returns (generic.UInt32);
+  rpc SetRwkvReviewRetrievabilityCacheRows(RwkvReviewRetrievabilityCacheRowsRequest) returns (generic.UInt32);
   // Clears both local derived historical prediction tables without changing
   // reviews.
   rpc ClearReviewRetrievabilityCache(generic.Empty) returns (generic.Empty);
   // Applies desktop-computed RWKV reschedule intervals and S90 values.
-  rpc ApplyRwkvReviewReschedule(RwkvReviewRescheduleRequest)
-      returns (collection.OpChangesWithCount);
-  rpc RwkvReviewInputRowsForCards(RwkvReviewInputRowsForCardsRequest)
-      returns (RwkvReviewInputRowsForCardsResponse);
-  rpc RwkvReviewInputRowsForSearch(RwkvReviewInputRowsForSearchRequest)
-      returns (RwkvReviewInputRowsForCardsResponse);
-  rpc RwkvReviewInputRowsForDeckReviewQueue(
-      RwkvReviewInputRowsForDeckReviewQueueRequest)
-      returns (RwkvReviewInputRowsForCardsResponse);
-  rpc GetFsrsPresetIdsForCards(cards.CardIds)
-      returns (FsrsPresetIdsForCardsResponse);
+  rpc ApplyRwkvReviewReschedule(RwkvReviewRescheduleRequest) returns (collection.OpChangesWithCount);
+  rpc RwkvReviewInputRowsForCards(RwkvReviewInputRowsForCardsRequest) returns (RwkvReviewInputRowsForCardsResponse);
+  rpc RwkvReviewInputRowsForSearch(RwkvReviewInputRowsForSearchRequest) returns (RwkvReviewInputRowsForCardsResponse);
+  rpc RwkvReviewInputRowsForDeckReviewQueue(RwkvReviewInputRowsForDeckReviewQueueRequest) returns (RwkvReviewInputRowsForCardsResponse);
+  rpc GetFsrsPresetIdsForCards(cards.CardIds) returns (FsrsPresetIdsForCardsResponse);
   // Computes the canonical RWKV history identity inside the collection
   // backend, avoiding a full revlog transfer through Python when validating a
   // persisted state cache.
-  rpc RwkvHistoricalReviewFingerprint(RwkvHistoricalReviewFingerprintRequest)
-      returns (RwkvHistoricalReviewFingerprintResponse);
-  rpc RwkvHistoricalReviewInputs(RwkvHistoricalReviewInputsRequest)
-      returns (RwkvHistoricalReviewInputsResponse);
+  rpc RwkvHistoricalReviewFingerprint(RwkvHistoricalReviewFingerprintRequest) returns (RwkvHistoricalReviewFingerprintResponse);
+  rpc RwkvHistoricalReviewInputs(RwkvHistoricalReviewInputsRequest) returns (RwkvHistoricalReviewInputsResponse);
   // RWKV-Instant for clients without the desktop's Python: loads the model,
   // replays the review history, and from then on installs the transient score
   // maps inside the backend. Cheap to call again when nothing changed.
-  rpc RwkvPrepareOffline(RwkvPrepareOfflineRequest)
-      returns (RwkvPrepareOfflineResponse);
+  rpc RwkvPrepareOffline(RwkvPrepareOfflineRequest) returns (RwkvPrepareOfflineResponse);
   // Rescores every Instant-enabled deck and installs the deck count scores.
-  rpc RwkvOfflineInstantPassStep(RwkvOfflineInstantPassStepRequest)
-      returns (RwkvOfflineInstantPassProgress);
+  rpc RwkvOfflineInstantPassStep(RwkvOfflineInstantPassStepRequest) returns (RwkvOfflineInstantPassProgress);
   // Projected recall of review cards at later times, "if you stop reviewing
   // now" (kuma3's version of the desktop rwkv_forecast add-on).
-  rpc RwkvOfflineForecast(RwkvOfflineForecastRequest)
-      returns (RwkvOfflineForecastResponse);
+  rpc RwkvOfflineForecast(RwkvOfflineForecastRequest) returns (RwkvOfflineForecastResponse);
   // The recall RWKV predicted just before the given answers (the desktop's
   // calibration data, for kuma3's Search Stats Extended graphs); the first
   // call starts recording it with a full replay in the background.
-  rpc RwkvOfflineCalibration(RwkvOfflineCalibrationRequest)
-      returns (RwkvOfflineCalibrationResponse);
+  rpc RwkvOfflineCalibration(RwkvOfflineCalibrationRequest) returns (RwkvOfflineCalibrationResponse);
   // "Reschedule Cards with RWKV-Curve Intervals" for clients without the
   // desktop's Python: the deck's review cards in Curve presets get their
   // current curve's interval and S90 (as ApplyRwkvReviewReschedule).
-  rpc RwkvOfflineCurveReschedule(decks.DeckId)
-      returns (collection.OpChangesWithCount);
+  rpc RwkvOfflineCurveReschedule(decks.DeckId) returns (collection.OpChangesWithCount);
   // Deck Options' RWKV workload simulation and "Compare RWKV with FSRS" for
   // clients without the desktop's Python: started on its own thread (the
   // standard order applies until it is done), then polled.
-  rpc RwkvOfflineWorkloadStart(SimulateFsrsReviewRequest)
-      returns (generic.Empty);
-  rpc RwkvOfflineWorkloadResult(generic.Empty)
-      returns (RwkvOfflineWorkloadResultResponse);
+  rpc RwkvOfflineWorkloadStart(SimulateFsrsReviewRequest) returns (generic.Empty);
+  rpc RwkvOfflineWorkloadResult(generic.Empty) returns (RwkvOfflineWorkloadResultResponse);
   rpc RwkvOfflineWorkloadCancel(generic.Empty) returns (generic.Empty);
-  rpc RwkvOfflineWorkloadProgress(generic.Empty)
-      returns (collection.ComputeRetentionProgress);
+  rpc RwkvOfflineWorkloadProgress(generic.Empty) returns (collection.ComputeRetentionProgress);
   // False when RWKV-Instant runs its Instant model alone (no RWKV-Curve).
   rpc RwkvOfflineWorkloadAvailable(generic.Empty) returns (generic.Bool);
   // Computes the RWKV answer-time head's history features for cards from the
   // canonical RWKV history (the same traversal as the inputs above).
-  rpc RwkvAnswerTimeHistoryFeatures(RwkvAnswerTimeHistoryFeaturesRequest)
-      returns (RwkvAnswerTimeHistoryFeaturesResponse);
+  rpc RwkvAnswerTimeHistoryFeatures(RwkvAnswerTimeHistoryFeaturesRequest) returns (RwkvAnswerTimeHistoryFeaturesResponse);
   // Deletes calibration rows that a completed RWKV calibration recompute
   // superseded.
-  rpc PruneRwkvReviewRetrievabilityCacheRows(
-      PruneRwkvReviewRetrievabilityCacheRowsRequest) returns (generic.UInt32);
+  rpc PruneRwkvReviewRetrievabilityCacheRows(PruneRwkvReviewRetrievabilityCacheRowsRequest) returns (generic.UInt32);
   // Comparison-only predictions. These do not change card or review state.
   rpc FsrsSixCurrentScores(cards.CardIds) returns (Fsrs6CurrentScoresResponse);
   rpc FsrsSixComparisonFingerprint(generic.String) returns (generic.String);
@@ -201,22 +155,17 @@ service SchedulerService {
 service BackendSchedulerService {
   // Rebuilds historical FSRS predictions and validation folds for every deck
   // preset.
-  rpc RebuildFsrsReviewRetrievabilityCache(generic.Empty)
-      returns (generic.UInt32);
+  rpc RebuildFsrsReviewRetrievabilityCache(generic.Empty) returns (generic.UInt32);
   // kuma3: the same without the validation folds: each preset's current
   // parameters over the whole history (rows of role final_fit), one pass.
   rpc FsrsCalibrationFinalFit(generic.Empty) returns (generic.UInt32);
-  rpc ComputeFsrsReviewRetrievabilityCalibration(
-      ComputeFsrsReviewRetrievabilityCalibrationRequest)
-      returns (generic.UInt32);
-  rpc ComputeFsrsParamsFromItems(ComputeFsrsParamsFromItemsRequest)
-      returns (ComputeFsrsParamsResponse);
+  rpc ComputeFsrsReviewRetrievabilityCalibration(ComputeFsrsReviewRetrievabilityCalibrationRequest) returns (generic.UInt32);
+  rpc ComputeFsrsParamsFromItems(ComputeFsrsParamsFromItemsRequest) returns (ComputeFsrsParamsResponse);
   // Generates parameters used for FSRS's scheduler benchmarks.
   rpc FsrsBenchmark(FsrsBenchmarkRequest) returns (FsrsBenchmarkResponse);
   // Used for exporting revlogs for algorithm research.
   rpc ExportDataset(ExportDatasetRequest) returns (generic.Empty);
-  rpc ComputeFsrsSixComparison(ComputeFsrs6ComparisonRequest)
-      returns (ComputeFsrs6ComparisonResponse);
+  rpc ComputeFsrsSixComparison(ComputeFsrs6ComparisonRequest) returns (ComputeFsrs6ComparisonResponse);
 }
 
 message SchedulingState {
