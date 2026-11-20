@@ -8,7 +8,7 @@ use std::time::Instant;
 
 use rand::rngs::StdRng;
 use rand::seq::SliceRandom;
-use rand::Rng;
+use rand::RngExt;
 use rand::SeedableRng;
 use serde::Deserialize;
 use serde_json::json;

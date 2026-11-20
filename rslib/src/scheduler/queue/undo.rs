@@ -31,6 +31,8 @@ impl Collection {
     pub(crate) fn undo_queue_change(&mut self, change: UndoableQueueChange) -> Result<()> {
         match change {
             UndoableQueueChange::CardAnswered(update) => {
+                // shown next, also when the queues were rebuilt since the answer
+                self.state.shown_card = Some((update.entry.card_id(), update.entry.mtime()));
                 if let Some(queues) = self.get_or_invalidate_queues(update.queue_build_time)? {
                     queues.restore_cutoff(&update.cutoff_snapshot);
                     if let Some(learning) = &update.learning_requeue {
@@ -57,6 +59,14 @@ impl Collection {
                 Ok(())
             }
             UndoableQueueChange::CardAnswerUndone(update) => {
+                // answered again (redo): not the card on screen any more
+                if self
+                    .state
+                    .shown_card
+                    .is_some_and(|(card_id, _)| card_id == update.entry.card_id())
+                {
+                    self.state.shown_card = None;
+                }
                 if let Some(queues) = self.get_or_invalidate_queues(update.queue_build_time)? {
                     queues.pop_entry(update.entry.card_id())?;
                     if let Some(learning) = update.learning_requeue {
@@ -130,12 +140,13 @@ mod test {
         let sibling = col.storage.get_card(sibling_cid)?.unwrap();
         assert_eq!(sibling.queue, CardQueue::SchedBuried);
 
-        // make it due now, with 7 lapses. we use the storage layer directly,
-        // bypassing undo
+        // Make it due now with 7 lapses and a review from before today, so the
+        // next failure counts. We use the storage layer directly, bypassing undo.
         let mut card = col.storage.get_card(cid)?.unwrap();
         assert_eq!(card.ctype, CardType::Review);
         card.lapses = 7;
         card.due = 0;
+        card.last_review_time = Some(col.timing_today()?.next_day_at.adding_secs(-86_401));
         col.storage.update_card(&card)?;
 
         // fail it, which should cause it to be marked as a leech
@@ -153,7 +164,10 @@ mod test {
             );
 
             let note = col.storage.get_note(nid)?.unwrap();
-            assert_eq!(note.tags, vec!["leech".to_string()]);
+            assert_eq!(
+                note.tags,
+                vec!["auto-suspend".to_string(), "leech".to_string()]
+            );
             assert!(!col.storage.all_tags()?.is_empty());
 
             let deck = col.get_deck(DeckId(1))?.unwrap();

@@ -9,7 +9,7 @@ use std::io::Write;
 use serde::Deserialize;
 use serde_tuple::Serialize_tuple;
 use unicode_normalization::is_nfc;
-use zip::write::FileOptions;
+use zip::write::SimpleFileOptions;
 use zip::ZipWriter;
 
 use crate::media::files::sha1_of_data;
@@ -27,8 +27,7 @@ pub struct ZipFileMetadata {
 /// The metadata is in a different format to the upload case, since deletions
 /// don't need to be represented.
 pub fn zip_files_for_download(files: Vec<(String, Vec<u8>)>) -> Result<Vec<u8>> {
-    let options: FileOptions<'_, '_, ()> =
-        FileOptions::default().compression_method(zip::CompressionMethod::Stored);
+    let options = SimpleFileOptions::default().compression_method(zip::CompressionMethod::Stored);
     let mut zip = ZipWriter::new(io::Cursor::new(vec![]));
     let mut entries = HashMap::new();
 
@@ -48,8 +47,7 @@ pub fn zip_files_for_download(files: Vec<(String, Vec<u8>)>) -> Result<Vec<u8>> 
 }
 
 pub fn zip_files_for_upload(entries_: Vec<(String, Option<Vec<u8>>)>) -> Result<Vec<u8>> {
-    let options: FileOptions<'_, '_, ()> =
-        FileOptions::default().compression_method(zip::CompressionMethod::Stored);
+    let options = SimpleFileOptions::default().compression_method(zip::CompressionMethod::Stored);
     let mut zip = ZipWriter::new(io::Cursor::new(vec![]));
     let mut entries = vec![];
 

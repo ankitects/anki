@@ -32,6 +32,18 @@ impl Collection {
         self.set_modified_time_undoable(TimestampMillis::now(), stamps.collection_change)
     }
 
+    /// Keep a reconciled sync change pending even when the server timestamp is
+    /// at or slightly ahead of the local clock.
+    pub(crate) fn set_modified_after_last_sync(&mut self) -> Result<()> {
+        let stamps = self.storage.get_collection_timestamps()?;
+        let modified = TimestampMillis(
+            TimestampMillis::now()
+                .0
+                .max(stamps.last_sync.0.saturating_add(1)),
+        );
+        self.set_modified_time_undoable(modified, stamps.collection_change)
+    }
+
     /// Forces the next sync in one direction.
     pub fn set_schema_modified(&mut self) -> Result<()> {
         let stamps = self.storage.get_collection_timestamps()?;
@@ -43,13 +55,9 @@ impl Collection {
         Ok(self
             .state
             .last_backup_modified
+            .lock()
+            .unwrap()
             .map(|last_backup| last_backup != stamps.collection_change)
             .unwrap_or(true))
-    }
-
-    pub(crate) fn update_last_backup_timestamp(&mut self) -> Result<()> {
-        self.state.last_backup_modified =
-            Some(self.storage.get_collection_timestamps()?.collection_change);
-        Ok(())
     }
 }

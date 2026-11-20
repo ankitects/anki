@@ -1,6 +1,9 @@
 // Copyright: Anki Software, LLC and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
+use super::button_intervals::button_intervals;
+use super::button_intervals::ButtonInterval;
+use super::button_intervals::DayRule;
 use super::interval_kind::IntervalKind;
 use super::CardState;
 use super::ReviewState;
@@ -27,176 +30,247 @@ impl LearnState {
     }
 
     pub(crate) fn next_states(self, ctx: &StateContext) -> SchedulingStates {
+        let intervals = self.fsrs_button_intervals(ctx);
         SchedulingStates {
             current: self.into(),
-            again: self.answer_again(ctx),
-            hard: self.answer_hard(ctx),
-            good: self.answer_good(ctx),
-            easy: self.answer_easy(ctx).into(),
+            again: self.answer_again(ctx, intervals[0]),
+            hard: self.answer_hard(ctx, intervals[1]),
+            good: self.answer_good(ctx, intervals[2]),
+            easy: self.answer_easy(ctx, intervals[3]),
+            dynamic_desired_retentions: None,
+            dynamic_desired_retention_enabled: false,
         }
     }
 
-    fn answer_again(self, ctx: &StateContext) -> CardState {
-        let memory_state = ctx.fsrs_next_states.as_ref().map(|s| s.again.memory.into());
-        if let Some(again_delay) = ctx.steps.again_delay_secs_learn() {
-            LearnState {
-                remaining_steps: ctx.steps.remaining_for_failed(),
-                scheduled_secs: again_delay,
-                elapsed_secs: 0,
-                memory_state,
-            }
-            .into()
-        } else {
-            let (minimum, maximum) = ctx.min_and_max_review_intervals(1);
-            let (interval, short_term) = if let Some(states) = &ctx.fsrs_next_states {
-                (
-                    states.again.interval,
-                    ctx.fsrs_allow_short_term
-                        && (ctx.fsrs_short_term_with_steps_enabled || ctx.steps.is_empty())
-                        && states.again.interval < 0.5,
-                )
-            } else {
-                (ctx.graduating_interval_good as f32, false)
-            };
-
-            if short_term {
-                LearnState {
-                    remaining_steps: ctx.steps.remaining_for_failed(),
-                    scheduled_secs: (interval * 86_400.0) as u32,
-                    elapsed_secs: 0,
-                    memory_state,
-                }
-                .into()
-            } else {
-                ReviewState {
-                    scheduled_days: ctx.with_review_fuzz(
-                        interval.round().max(1.0),
-                        minimum,
-                        maximum,
-                    ),
-                    ease_factor: ctx.initial_ease_factor,
-                    memory_state,
-                    ..Default::default()
-                }
-                .into()
-            }
-        }
-    }
-
-    fn answer_hard(self, ctx: &StateContext) -> CardState {
-        let memory_state = ctx.fsrs_next_states.as_ref().map(|s| s.hard.memory.into());
-        if let Some(hard_delay) = ctx.steps.hard_delay_secs(self.remaining_steps) {
-            LearnState {
-                scheduled_secs: hard_delay,
-                elapsed_secs: 0,
-                memory_state,
-                ..self
-            }
-            .into()
-        } else {
-            let (minimum, maximum) = ctx.min_and_max_review_intervals(1);
-            let (interval, short_term) = if let Some(states) = &ctx.fsrs_next_states {
-                (
-                    states.hard.interval,
-                    ctx.fsrs_allow_short_term
-                        && (ctx.fsrs_short_term_with_steps_enabled || ctx.steps.is_empty())
-                        && states.hard.interval < 0.5,
-                )
-            } else {
-                (ctx.graduating_interval_good as f32, false)
-            };
-
-            if short_term {
-                LearnState {
-                    scheduled_secs: (interval * 86_400.0) as u32,
-                    elapsed_secs: 0,
-                    memory_state,
-                    ..self
-                }
-                .into()
-            } else {
-                ReviewState {
-                    scheduled_days: ctx.with_review_fuzz(
-                        interval.round().max(1.0),
-                        minimum,
-                        maximum,
-                    ),
-                    ease_factor: ctx.initial_ease_factor,
-                    memory_state,
-                    ..Default::default()
-                }
-                .into()
-            }
-        }
-    }
-
-    fn answer_good(self, ctx: &StateContext) -> CardState {
-        let memory_state = ctx.fsrs_next_states.as_ref().map(|s| s.good.memory.into());
-        if let Some(good_delay) = ctx.steps.good_delay_secs(self.remaining_steps) {
-            LearnState {
-                remaining_steps: ctx.steps.remaining_for_good(self.remaining_steps),
-                scheduled_secs: good_delay,
-                elapsed_secs: 0,
-                memory_state,
-            }
-            .into()
-        } else {
-            let (minimum, maximum) = ctx.min_and_max_review_intervals(1);
-            let (interval, short_term) = if let Some(states) = &ctx.fsrs_next_states {
-                (
-                    states.good.interval,
-                    ctx.fsrs_allow_short_term
-                        && (ctx.fsrs_short_term_with_steps_enabled || ctx.steps.is_empty())
-                        && states.good.interval < 0.5,
-                )
-            } else {
-                (ctx.graduating_interval_good as f32, false)
-            };
-
-            if short_term {
-                LearnState {
-                    scheduled_secs: (interval * 86_400.0) as u32,
-                    elapsed_secs: 0,
-                    memory_state,
-                    ..self
-                }
-                .into()
-            } else {
-                ReviewState {
-                    scheduled_days: ctx.with_review_fuzz(
-                        interval.round().max(1.0),
-                        minimum,
-                        maximum,
-                    ),
-                    ease_factor: ctx.initial_ease_factor,
-                    memory_state,
-                    ..Default::default()
-                }
-                .into()
-            }
-        }
-    }
-
-    fn answer_easy(self, ctx: &StateContext) -> ReviewState {
-        let (mut minimum, maximum) = ctx.min_and_max_review_intervals(1);
-        let interval = if let Some(states) = &ctx.fsrs_next_states {
-            let good = ctx.with_review_fuzz(states.good.interval, minimum, maximum);
-            minimum = good + 1;
-            states.easy.interval.round().max(1.0) as u32
-        } else {
-            ctx.graduating_interval_easy
+    fn fsrs_button_intervals(self, ctx: &StateContext) -> [Option<ButtonInterval>; 4] {
+        let Some(states) = &ctx.fsrs_next_states else {
+            return [None; 4];
         };
+        let steps = ctx.fsrs_uses_learning_queues();
+        let again_step = steps && ctx.steps.again_delay_secs_learn().is_some();
+        let hard_step = steps && ctx.steps.hard_delay_secs(self.remaining_steps).is_some();
+        let good_step = steps && ctx.steps.good_delay_secs(self.remaining_steps).is_some();
+        button_intervals(
+            ctx,
+            [
+                (!again_step).then_some(states.again.interval),
+                (!hard_step).then_some(states.hard.interval),
+                (!good_step).then_some(states.good.interval),
+                Some(states.easy.interval),
+            ],
+            DayRule::Graduating,
+        )
+    }
+
+    fn graduate(
+        remaining_steps: u32,
+        interval: ButtonInterval,
+        memory_state: Option<FsrsMemoryState>,
+        ctx: &StateContext,
+    ) -> CardState {
+        match interval {
+            ButtonInterval::Secs(scheduled_secs) => LearnState {
+                remaining_steps,
+                scheduled_secs,
+                elapsed_secs: 0,
+                memory_state,
+            }
+            .into(),
+            ButtonInterval::Days {
+                days,
+                fuzz_delta_days,
+            } => ReviewState {
+                scheduled_days: days,
+                fuzz_delta_days,
+                ease_factor: ctx.initial_ease_factor,
+                memory_state,
+                ..Default::default()
+            }
+            .into(),
+        }
+    }
+
+    fn graduate_sm2(ctx: &StateContext, interval: u32) -> CardState {
+        let (minimum, maximum) = ctx.min_and_max_review_intervals(1);
+        let (scheduled_days, fuzz_delta_days) =
+            ctx.with_review_fuzz_and_delta(interval.max(1) as f32, minimum, maximum);
         ReviewState {
-            scheduled_days: ctx.with_review_fuzz(interval as f32, minimum, maximum),
+            scheduled_days,
+            fuzz_delta_days,
             ease_factor: ctx.initial_ease_factor,
-            memory_state: ctx.fsrs_next_states.as_ref().map(|s| s.easy.memory.into()),
             ..Default::default()
+        }
+        .into()
+    }
+
+    fn answer_again(self, ctx: &StateContext, interval: Option<ButtonInterval>) -> CardState {
+        let memory_state = ctx.fsrs_next_states.as_ref().map(|s| s.again.memory.into());
+        if ctx.fsrs_uses_learning_queues() {
+            if let Some(again_delay) = ctx.steps.again_delay_secs_learn() {
+                return LearnState {
+                    remaining_steps: ctx.steps.remaining_for_failed(),
+                    scheduled_secs: again_delay,
+                    elapsed_secs: 0,
+                    memory_state,
+                }
+                .into();
+            }
+        }
+        match interval {
+            Some(interval) => Self::graduate(
+                ctx.steps.remaining_for_failed(),
+                interval,
+                memory_state,
+                ctx,
+            ),
+            None => Self::graduate_sm2(ctx, ctx.graduating_interval_good),
+        }
+    }
+
+    fn answer_hard(self, ctx: &StateContext, interval: Option<ButtonInterval>) -> CardState {
+        let memory_state = ctx.fsrs_next_states.as_ref().map(|s| s.hard.memory.into());
+        if ctx.fsrs_uses_learning_queues() {
+            if let Some(hard_delay) = ctx.steps.hard_delay_secs(self.remaining_steps) {
+                return LearnState {
+                    scheduled_secs: hard_delay,
+                    elapsed_secs: 0,
+                    memory_state,
+                    ..self
+                }
+                .into();
+            }
+        }
+        match interval {
+            Some(interval) => Self::graduate(0, interval, memory_state, ctx),
+            None => Self::graduate_sm2(ctx, ctx.graduating_interval_good),
+        }
+    }
+
+    fn answer_good(self, ctx: &StateContext, interval: Option<ButtonInterval>) -> CardState {
+        let memory_state = ctx.fsrs_next_states.as_ref().map(|s| s.good.memory.into());
+        if ctx.fsrs_uses_learning_queues() {
+            if let Some(good_delay) = ctx.steps.good_delay_secs(self.remaining_steps) {
+                return LearnState {
+                    remaining_steps: ctx.steps.remaining_for_good(self.remaining_steps),
+                    scheduled_secs: good_delay,
+                    elapsed_secs: 0,
+                    memory_state,
+                }
+                .into();
+            }
+        }
+        match interval {
+            Some(interval) => Self::graduate(0, interval, memory_state, ctx),
+            None => Self::graduate_sm2(ctx, ctx.graduating_interval_good),
+        }
+    }
+
+    fn answer_easy(self, ctx: &StateContext, interval: Option<ButtonInterval>) -> CardState {
+        let memory_state = ctx.fsrs_next_states.as_ref().map(|s| s.easy.memory.into());
+        match interval {
+            Some(interval) => Self::graduate(0, interval, memory_state, ctx),
+            None => Self::graduate_sm2(ctx, ctx.graduating_interval_easy),
         }
     }
 }
 
 #[cfg(test)]
-mod tests {
+mod test {
+    use fsrs::ItemState;
+    use fsrs::MemoryState;
+    use fsrs::NextStates;
+
+    use super::*;
+    use crate::scheduler::states::steps::LearningSteps;
+
+    fn fsrs_item_state(interval: f32) -> ItemState {
+        ItemState {
+            interval,
+            memory: MemoryState {
+                stability: 0.1,
+                difficulty: 5.0,
+                stability_fast: 0.1,
+            },
+        }
+    }
+
+    #[test]
+    fn fsrs_short_term_intervals_are_at_least_one_second() {
+        let mut ctx = StateContext::defaults_for_testing();
+        ctx.steps = LearningSteps::new(&[]);
+        ctx.fsrs_allow_short_term = true;
+        ctx.fsrs_short_term_with_steps_enabled = true;
+        ctx.fsrs_minimum_interval_secs = 5;
+        ctx.fsrs_next_states = Some(NextStates {
+            again: fsrs_item_state(0.000001),
+            hard: fsrs_item_state(0.000001),
+            good: fsrs_item_state(0.000001),
+            easy: fsrs_item_state(1.0),
+        });
+
+        let state = LearnState {
+            remaining_steps: 0,
+            scheduled_secs: 0,
+            elapsed_secs: 0,
+            memory_state: None,
+        };
+        let next = state.next_states(&ctx);
+
+        let CardState::Normal(super::super::NormalState::Learning(again)) = next.again else {
+            panic!("Again should stay in learning");
+        };
+        assert_eq!(again.scheduled_secs, 5);
+
+        let CardState::Normal(super::super::NormalState::Learning(hard)) = next.hard else {
+            panic!("Hard should stay in learning");
+        };
+        assert_eq!(hard.scheduled_secs, 5);
+
+        let CardState::Normal(super::super::NormalState::Learning(good)) = next.good else {
+            panic!("Good should stay in learning");
+        };
+        assert_eq!(good.scheduled_secs, 5);
+    }
+
+    #[test]
+    fn fsrs_short_term_can_follow_configured_learning_steps() {
+        let mut ctx = StateContext::defaults_for_testing();
+        ctx.steps = LearningSteps::new(&[1.0]);
+        ctx.fsrs_allow_short_term = true;
+        ctx.fsrs_short_term_with_steps_enabled = true;
+        ctx.fsrs_minimum_interval_secs = 5;
+        ctx.fsrs_next_states = Some(NextStates {
+            again: fsrs_item_state(0.000001),
+            hard: fsrs_item_state(0.000001),
+            good: fsrs_item_state(0.000001),
+            easy: fsrs_item_state(1.0),
+        });
+
+        let state = LearnState {
+            remaining_steps: 1,
+            scheduled_secs: 60,
+            elapsed_secs: 0,
+            memory_state: None,
+        };
+        let next = state.next_states(&ctx);
+
+        let CardState::Normal(super::super::NormalState::Learning(good)) = next.good else {
+            panic!("Good should stay in short-term learning after final configured step");
+        };
+        assert_eq!(good.remaining_steps, 0);
+        assert_eq!(good.scheduled_secs, 5);
+
+        let followup = good.next_states(&ctx);
+        let CardState::Normal(super::super::NormalState::Learning(hard)) = followup.hard else {
+            panic!("Hard should stay in FSRS short-term learning");
+        };
+        assert_eq!(hard.remaining_steps, 0);
+        assert_eq!(hard.scheduled_secs, 5);
+    }
+}
+
+#[cfg(test)]
+mod upstream_tests {
     use super::super::steps::LearningSteps;
     use super::*;
     use crate::scheduler::states::NormalState;
@@ -241,7 +315,11 @@ mod tests {
             steps: LearningSteps::new(&[]),
             ..StateContext::defaults_for_testing()
         };
-        assert!(ctx.steps.is_empty(), "precondition: no steps configured");
+        assert_eq!(
+            ctx.steps.remaining_for_failed(),
+            0,
+            "precondition: no steps configured"
+        );
         // remaining_steps is irrelevant here: with no steps configured,
         // again_delay_secs_learn() always returns None regardless of position.
         let state = learn_state(0);
@@ -293,7 +371,11 @@ mod tests {
             steps: LearningSteps::new(&[]),
             ..StateContext::defaults_for_testing()
         };
-        assert!(ctx.steps.is_empty(), "precondition: no steps configured");
+        assert_eq!(
+            ctx.steps.remaining_for_failed(),
+            0,
+            "precondition: no steps configured"
+        );
         // remaining_steps is irrelevant: hard_delay_secs() returns None whenever steps
         // is empty.
         let state = learn_state(1);

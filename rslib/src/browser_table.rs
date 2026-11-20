@@ -3,7 +3,6 @@
 
 use std::sync::Arc;
 
-use fsrs::FSRS5_DEFAULT_DECAY;
 use itertools::Itertools;
 use strum::Display;
 use strum::EnumIter;
@@ -69,6 +68,8 @@ struct RowContext {
     tr: I18n,
     timing: SchedTimingToday,
     render_context: RenderContext,
+    fsrs_retrievability: Option<f32>,
+    fsrs_stability: Option<f32>,
 }
 
 enum RenderContext {
@@ -130,15 +131,16 @@ impl Card {
     /// 'set due date' or an add-on has changed the due date.
     pub(crate) fn seconds_since_last_review(&self, timing: &SchedTimingToday) -> Option<u32> {
         if let Some(last_review_time) = self.last_review_time {
-            Some(timing.now.elapsed_secs_since(last_review_time) as u32)
+            Some(timing.now.elapsed_secs_since_clamped(last_review_time))
         } else if self.is_due_in_days() {
             self.due_time(timing).map(|due| {
-                (due.adding_secs(-86_400 * self.interval as i64)
-                    .elapsed_secs()) as u32
+                let last_review_time =
+                    due.adding_secs(-86_400_i64.saturating_mul(self.interval as i64));
+                timing.now.elapsed_secs_since_clamped(last_review_time)
             })
         } else {
             let last_review_time = TimestampSecs(self.original_or_current_due() as i64);
-            Some(timing.now.elapsed_secs_since(last_review_time) as u32)
+            Some(timing.now.elapsed_secs_since_clamped(last_review_time))
         }
     }
 }
@@ -385,6 +387,18 @@ impl RowContext {
             None
         };
         let timing = col.timing_today()?;
+        let fsrs_retrievability = cards[0]
+            .memory_state
+            .zip(cards[0].seconds_since_last_review(&timing))
+            .map(|(state, seconds)| {
+                col.fsrs_current_retrievability_for_card_state(
+                    cards[0].id,
+                    state,
+                    seconds as f32 / 86_400.0,
+                )
+            })
+            .transpose()?;
+        let fsrs_stability = cards[0].memory_state.map(|state| state.stability);
         let render_context = if with_card_render {
             RenderContext::new(col, &cards[0], &note, &notetype)
         } else {
@@ -401,6 +415,8 @@ impl RowContext {
             tr: col.tr.clone(),
             timing,
             render_context,
+            fsrs_retrievability,
+            fsrs_stability,
         })
     }
 
@@ -522,10 +538,8 @@ impl RowContext {
     }
 
     fn fsrs_stability_str(&self) -> String {
-        self.cards[0]
-            .memory_state
-            .as_ref()
-            .map(|s| time_span(s.stability * 86400.0, &self.tr, false))
+        self.fsrs_stability
+            .map(|stability| time_span(stability * 86400.0, &self.tr, false))
             .unwrap_or_default()
     }
 
@@ -538,16 +552,8 @@ impl RowContext {
     }
 
     fn fsrs_retrievability_str(&self) -> String {
-        self.cards[0]
-            .memory_state
-            .as_ref()
-            .zip(self.cards[0].seconds_since_last_review(&self.timing))
-            .zip(Some(self.cards[0].decay.unwrap_or(FSRS5_DEFAULT_DECAY)))
-            .map(|((state, seconds), decay)| {
-                let r =
-                    fsrs::current_retrievability((*state).into(), seconds as f32 / 86_400.0, decay);
-                format!("{:.0}%", r * 100.)
-            })
+        self.fsrs_retrievability
+            .map(|r| format!("{:.0}%", r * 100.))
             .unwrap_or_default()
     }
 
@@ -590,17 +596,19 @@ impl RowContext {
                 CardType::Review | CardType::Relearn => (),
             }
         }
-        let intervals: Vec<u32> = self
+        let intervals: Vec<u64> = self
             .cards
             .iter()
             .filter(|c| matches!(c.ctype, CardType::Review | CardType::Relearn))
-            .map(|c| c.interval)
+            .map(|c| c.interval as u64)
             .collect();
         if intervals.is_empty() {
             "".into()
         } else {
+            // u64: the seconds overflow u32 past 49,710 days (spec
+            // ui.browser-interval-average)
             time_span(
-                (intervals.iter().sum::<u32>() * 86400 / (intervals.len() as u32)) as f32,
+                (intervals.iter().sum::<u64>() * 86400 / (intervals.len() as u64)) as f32,
                 &self.tr,
                 false,
             )
@@ -681,5 +689,152 @@ impl RowContext {
                 }
             }
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use anki_proto::deck_config::deck_configs_for_update::current_deck::Limits;
+    use anki_proto::deck_config::UpdateDeckConfigsMode;
+
+    use super::*;
+    use crate::card::FsrsMemoryState;
+    use crate::deckconfig::FsrsVersion;
+    use crate::deckconfig::UpdateDeckConfigsRequest;
+    use crate::scheduler::fsrs::memory_state::fsrs_current_retrievability_for_state;
+    use crate::search::SortMode;
+
+    fn fsrs7_params_for_retrievability_test() -> Vec<f32> {
+        vec![
+            0.4843, 3.0562, 10.9946, 32.7202, 5.6296, 0.5900, 3.1230, 2.4679, 0.2733, 1.4895,
+            0.4868, 0.0010, 0.8082, 0.1723, 0.6389, 1.5767, 0.8918, 0.3341, 3.5942, 0.3455, 0.0022,
+            0.2834, 2.6418, 0.5604, 1.3042, 2.5054, 0.9376, 0.0611, 0.0830, 0.6339, 0.9846, 0.2485,
+            0.6014, 0.0545,
+        ]
+    }
+
+    fn set_selected_fsrs7_params(col: &mut Collection, params: Vec<f32>) -> Result<()> {
+        let output = col.get_deck_configs_for_update(DeckId(1))?;
+        let mut input = UpdateDeckConfigsRequest {
+            target_deck_id: DeckId(1),
+            configs: output
+                .all_config
+                .into_iter()
+                .map(|c| c.config.unwrap().into())
+                .collect(),
+            removed_config_ids: vec![],
+            mode: UpdateDeckConfigsMode::Normal,
+            card_state_customizer: String::new(),
+            limits: Limits::default(),
+            new_cards_ignore_review_limit: false,
+            apply_all_parent_limits: false,
+            fsrs: true,
+            load_balancer_enabled: false,
+            fsrs_short_term_with_steps_enabled: false,
+            fsrs_learning_queues_disabled: false,
+            fsrs_reschedule: false,
+            fsrs_health_check: true,
+            review_fuzz_config: Default::default(),
+        };
+        input.configs[0].inner.fsrs_version = FsrsVersion::Seven as i32;
+        input.configs[0].inner.fsrs_params_7 = params;
+        col.update_deck_configs(input)?;
+        Ok(())
+    }
+
+    #[test]
+    fn retrievability_cell_uses_selected_model_curve() -> Result<()> {
+        let mut col = Collection::new();
+        let params = fsrs7_params_for_retrievability_test();
+        set_selected_fsrs7_params(&mut col, params.clone())?;
+
+        let nt = col.get_notetype_by_name("Basic")?.unwrap();
+        let mut note = nt.new_note();
+        col.add_note(&mut note, DeckId(1))?;
+        let cid = col.search_cards("", SortMode::NoOrder)?[0];
+
+        let mut card = col.storage.get_card(cid)?.unwrap();
+        let stability = 42.0;
+        let elapsed_days = 120.0;
+        let timing = col.timing_today()?;
+        let state = FsrsMemoryState {
+            stability,
+            stability_internal: stability,
+            stability_fast: Some(17.0),
+            difficulty: 8.0,
+        };
+        card.memory_state = Some(state);
+        card.last_review_time = Some(timing.now.adding_secs(-(elapsed_days as i64) * 86_400));
+        card.decay = Some(params[23]);
+        col.storage.update_card(&card)?;
+
+        let ctx = RowContext::new(&mut col, cid.0, false, false)?;
+        let actual = ctx.get_cell_text(Column::Retrievability)?;
+        let expected = fsrs_current_retrievability_for_state(&params, state, elapsed_days)?;
+        assert_eq!(actual, format!("{:.0}%", expected * 100.0));
+        Ok(())
+    }
+
+    // Pins spec/ui.md#ui.browser-interval-average: the average does not
+    // overflow when the intervals add up to more than 49,710 days.
+    #[test]
+    fn interval_cell_averages_long_intervals_without_overflow() -> Result<()> {
+        let mut col = Collection::new();
+        let nt = col
+            .get_notetype_by_name("Basic (and reversed card)")?
+            .unwrap();
+        let mut note = nt.new_note();
+        note.set_field(0, "front")?;
+        note.set_field(1, "back")?;
+        col.add_note(&mut note, DeckId(1))?;
+        for (cid, interval) in col
+            .search_cards("", SortMode::NoOrder)?
+            .into_iter()
+            .zip([30_000, 32_000])
+        {
+            let mut card = col.storage.get_card(cid)?.unwrap();
+            card.ctype = CardType::Review;
+            card.queue = CardQueue::Review;
+            card.interval = interval;
+            col.storage.update_card(&card)?;
+        }
+
+        let ctx = RowContext::new(&mut col, note.id.0, true, false)?;
+        let expected = time_span(31_000.0 * 86_400.0, &ctx.tr, false);
+        assert_eq!(ctx.get_cell_text(Column::Interval)?, expected);
+        Ok(())
+    }
+
+    #[test]
+    fn stability_cell_uses_s90_for_fsrs7() -> Result<()> {
+        let mut col = Collection::new();
+        let params = fsrs7_params_for_retrievability_test();
+        set_selected_fsrs7_params(&mut col, params)?;
+
+        let nt = col.get_notetype_by_name("Basic")?.unwrap();
+        let mut note = nt.new_note();
+        col.add_note(&mut note, DeckId(1))?;
+        let cid = col.search_cards("", SortMode::NoOrder)?[0];
+
+        let mut card = col.storage.get_card(cid)?.unwrap();
+        let stability = 42.0;
+        let s90 = col.fsrs_interval_at_retrievability_for_card(cid, stability, 0.9)?;
+        card.memory_state = Some(FsrsMemoryState {
+            stability: s90,
+            stability_internal: stability,
+            stability_fast: None,
+            difficulty: 5.0,
+        });
+        col.storage.update_card(&card)?;
+
+        let ctx = RowContext::new(&mut col, cid.0, false, false)?;
+        let actual = ctx.get_cell_text(Column::Stability)?;
+        assert!(
+            (s90 - stability).abs() > 0.001,
+            "test requires fsrs7 s90 to differ from raw stability"
+        );
+        let expected = time_span(s90 * 86400.0, &ctx.tr, false);
+        assert_eq!(actual, expected);
+        Ok(())
     }
 }

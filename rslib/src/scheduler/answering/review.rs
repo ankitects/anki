@@ -5,6 +5,7 @@ use super::CardStateUpdater;
 use super::RevlogEntryPartial;
 use crate::card::CardQueue;
 use crate::card::CardType;
+use crate::prelude::*;
 use crate::scheduler::states::CardState;
 use crate::scheduler::states::ReviewState;
 
@@ -13,7 +14,7 @@ impl CardStateUpdater {
         &mut self,
         current: CardState,
         next: ReviewState,
-    ) -> RevlogEntryPartial {
+    ) -> Result<RevlogEntryPartial> {
         self.card.queue = CardQueue::Review;
         self.card.ctype = CardType::Review;
         self.card.interval = next.scheduled_days;
@@ -24,9 +25,9 @@ impl CardStateUpdater {
         if let Some(position) = current.new_position() {
             self.card.original_position = Some(position)
         }
-        self.card.memory_state = next.memory_state;
+        self.card.memory_state = self.memory_state_for_storage(next.memory_state)?;
 
-        RevlogEntryPartial::new(
+        Ok(RevlogEntryPartial::new(
             current,
             next.into(),
             self.card
@@ -34,6 +35,6 @@ impl CardStateUpdater {
                 .map(|d| d.difficulty_shifted())
                 .unwrap_or(next.ease_factor),
             self.secs_until_rollover(),
-        )
+        ))
     }
 }

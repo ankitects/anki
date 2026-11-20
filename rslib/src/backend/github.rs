@@ -23,20 +23,38 @@ use crate::updates::updates_dir;
 use crate::updates::user_agent;
 use crate::updates::DownloadUpdateProgress;
 
-const ALL_RELEASES_URL: &str = "https://api.github.com/repos/ankitects/anki/releases";
-const LATEST_RELEASE_URL: &str = "https://api.github.com/repos/ankitects/anki/releases/latest";
+const ALL_RELEASES_URL: &str = "https://api.github.com/repos/JSchoreels/anki/releases";
+const LATEST_RELEASE_URL: &str = "https://api.github.com/repos/JSchoreels/anki/releases/latest";
 
-// NOTE: must match platform suffixes in build_installer.py
-fn get_platform_suffix() -> Option<&'static str> {
-    match (std::env::consts::OS, std::env::consts::ARCH) {
-        ("windows", "x86_64") => Some("-win-x64"),
-        ("windows", "aarch64") => Some("-win-arm64"),
-        ("macos", "x86_64") => Some("-mac-intel"),
-        ("macos", "aarch64") => Some("-mac-apple"),
-        ("linux", "x86_64") => Some("-linux-x86_64"),
-        ("linux", "aarch64") => Some("-linux-aarch64"),
+// NOTE: must match filenames produced by build_installer.py
+fn platform_release_suffix(os: &str, arch: &str, portable: bool) -> Option<&'static str> {
+    match (os, arch, portable) {
+        ("windows", "x86_64", false) => Some("-win-x64.msi"),
+        ("windows", "aarch64", false) => Some("-win-arm64.msi"),
+        ("macos", "x86_64", false) => Some("-mac-intel.dmg"),
+        ("macos", "aarch64", false) => Some("-mac-apple.dmg"),
+        ("linux", "x86_64", false) => Some("-linux-x86_64.tar.zst"),
+        ("linux", "aarch64", false) => Some("-linux-aarch64.tar.zst"),
+        ("windows", "x86_64", true) => Some("-portable-win-x64.zip"),
+        ("windows", "aarch64", true) => Some("-portable-win-arm64.zip"),
+        ("macos", "x86_64", true) => Some("-portable-mac-intel.zip"),
+        ("macos", "aarch64", true) => Some("-portable-mac-apple.zip"),
+        ("linux", "x86_64", true) => Some("-portable-linux-x86_64.tar.zst"),
+        ("linux", "aarch64", true) => Some("-portable-linux-aarch64.tar.zst"),
         _ => None,
     }
+}
+
+fn find_platform_release_asset<'a>(
+    assets: &'a [Value],
+    suffix: &str,
+    portable: bool,
+) -> Option<&'a Value> {
+    assets.iter().find(|asset| {
+        asset["name"].as_str().is_some_and(|filename| {
+            filename.contains("-portable-") == portable && filename.ends_with(suffix)
+        })
+    })
 }
 
 fn release_is_downloaded(filename: &str, checksum: &str) -> Result<bool> {
@@ -62,9 +80,22 @@ fn release_is_downloaded(filename: &str, checksum: &str) -> Result<bool> {
 }
 
 impl BackendGithubService for Backend {
+    fn extract_portable_update(
+        &self,
+        input: anki_proto::github::ExtractPortableUpdateRequest,
+    ) -> Result<()> {
+        crate::updates::extract_portable_update(
+            std::path::Path::new(&input.archive_path),
+            std::path::Path::new(&input.destination),
+            &mut self.new_progress_handler::<DownloadUpdateProgress>(),
+        )
+    }
+
     fn get_latest_release(&self, input: LatestReleaseRequest) -> Result<GithubRelease> {
         let no_updates_msg = self.tr.errors_no_updates_available();
-        let platform_suffix = get_platform_suffix().or_invalid(no_updates_msg.clone())?;
+        let suffix =
+            platform_release_suffix(std::env::consts::OS, std::env::consts::ARCH, input.portable)
+                .or_invalid(no_updates_msg.clone())?;
         let url = if input.include_prerelease {
             ALL_RELEASES_URL
         } else {
@@ -91,34 +122,33 @@ impl BackendGithubService for Backend {
             let tag_name = release_info["tag_name"]
                 .as_str()
                 .or_invalid("release tag not found")?;
+            let target_commitish = release_info["target_commitish"]
+                .as_str()
+                .or_invalid("release target commit not found")?;
             let assets = release_info["assets"]
                 .as_array()
                 .or_invalid("assets should be an array")?;
-            let mut release: Option<GithubRelease> = None;
-            for asset in assets {
-                let filename = asset["name"]
-                    .as_str()
-                    .or_invalid("release name not found")?;
-                let url = asset["browser_download_url"]
-                    .as_str()
-                    .or_invalid("download URL not found")?;
-                let checksum = asset["digest"]
-                    .as_str()
-                    .or_invalid("release digest not found")?
-                    .split_once("sha256:")
-                    .or_invalid("sha256 suffix not found")?
-                    .1;
-                if filename.contains(platform_suffix) {
-                    release = Some(GithubRelease {
-                        tag_name: tag_name.into(),
-                        filename: filename.into(),
-                        url: url.into(),
-                        checksum: checksum.into(),
-                    });
-                    break;
-                }
-            }
-            release.or_invalid(no_updates_msg)
+            let asset = find_platform_release_asset(assets, suffix, input.portable)
+                .or_invalid(no_updates_msg)?;
+            let filename = asset["name"]
+                .as_str()
+                .or_invalid("release name not found")?;
+            let url = asset["browser_download_url"]
+                .as_str()
+                .or_invalid("download URL not found")?;
+            let checksum = asset["digest"]
+                .as_str()
+                .or_invalid("release digest not found")?
+                .split_once("sha256:")
+                .or_invalid("sha256 suffix not found")?
+                .1;
+            Ok(GithubRelease {
+                tag_name: tag_name.into(),
+                filename: filename.into(),
+                url: url.into(),
+                checksum: checksum.into(),
+                target_commitish: target_commitish.into(),
+            })
         })
     }
 
@@ -153,5 +183,101 @@ impl BackendGithubService for Backend {
             .or_invalid("non-unicode filename")?
             .to_string();
         Ok(output_path.into())
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use serde_json::json;
+
+    use super::*;
+
+    #[test]
+    fn update_asset_selection_matches_edition_platform_and_architecture() {
+        for (os, arch, installer, portable) in [
+            (
+                "windows",
+                "x86_64",
+                "anki-1.2.3-win-x64.msi",
+                "anki-1.2.3-portable-win-x64.zip",
+            ),
+            (
+                "windows",
+                "aarch64",
+                "anki-1.2.3-win-arm64.msi",
+                "anki-1.2.3-portable-win-arm64.zip",
+            ),
+            (
+                "macos",
+                "aarch64",
+                "anki-1.2.3-mac-apple.dmg",
+                "anki-1.2.3-portable-mac-apple.zip",
+            ),
+            (
+                "macos",
+                "x86_64",
+                "anki-1.2.3-mac-intel.dmg",
+                "anki-1.2.3-portable-mac-intel.zip",
+            ),
+            (
+                "linux",
+                "x86_64",
+                "anki-1.2.3-linux-x86_64.tar.zst",
+                "anki-1.2.3-portable-linux-x86_64.tar.zst",
+            ),
+            (
+                "linux",
+                "aarch64",
+                "anki-1.2.3-linux-aarch64.tar.zst",
+                "anki-1.2.3-portable-linux-aarch64.tar.zst",
+            ),
+        ] {
+            let release_assets = json!([
+                { "name": "anki-1.2.3-portable-win-x86.zip" },
+                { "name": portable },
+                { "name": installer },
+            ]);
+            for (is_portable, expected) in [(false, installer), (true, portable)] {
+                let suffix = platform_release_suffix(os, arch, is_portable).unwrap();
+                let selected = find_platform_release_asset(
+                    release_assets.as_array().unwrap(),
+                    suffix,
+                    is_portable,
+                )
+                .unwrap();
+
+                assert_eq!(selected["name"].as_str(), Some(expected));
+                let wrong_edition =
+                    json!([{ "name": if is_portable { installer } else { portable } }]);
+                assert!(find_platform_release_asset(
+                    wrong_edition.as_array().unwrap(),
+                    suffix,
+                    is_portable,
+                )
+                .is_none());
+            }
+        }
+    }
+
+    #[test]
+    fn portable_download_is_not_an_installer_fallback() {
+        let release_assets = json!([
+            { "name": "anki-1.2.3-portable-win-x64.msi" },
+        ]);
+
+        assert!(find_platform_release_asset(
+            release_assets.as_array().unwrap(),
+            "-win-x64.msi",
+            false
+        )
+        .is_none());
+    }
+
+    #[test]
+    fn unsupported_update_platform_has_no_download() {
+        for portable in [false, true] {
+            assert!(platform_release_suffix("freebsd", "x86_64", portable).is_none());
+            assert!(platform_release_suffix("windows", "x86", portable).is_none());
+        }
     }
 }

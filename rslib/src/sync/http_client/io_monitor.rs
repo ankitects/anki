@@ -209,6 +209,7 @@ mod test {
     use async_stream::stream;
     use futures::pin_mut;
     use futures::StreamExt;
+    use futures::TryStreamExt;
     use tokio::select;
     use tokio::time::sleep;
     use wiremock::matchers::method;
@@ -287,12 +288,16 @@ mod test {
     #[tokio::test]
     async fn http_success() {
         let mock_server = MockServer::start().await;
+        let body_chunks: Vec<_> = crate::sync::request::header_and_stream::encode_zstd_body(vec![])
+            .try_collect()
+            .await
+            .unwrap();
         Mock::given(method("POST"))
             .and(path("/"))
             .respond_with(
                 ResponseTemplate::new(200)
                     .insert_header(ORIGINAL_SIZE.as_str(), "0")
-                    .set_body_bytes(zstd::encode_all(&[][..], 0).unwrap()),
+                    .set_body_bytes(body_chunks.concat()),
             )
             .mount(&mock_server)
             .await;
@@ -300,7 +305,7 @@ mod test {
         let req = monitor.zstd_request_with_timeout(
             reqwest::Client::new().post(mock_server.uri()),
             vec![],
-            millis(10),
+            millis(1_000),
         );
         req.await.unwrap();
     }
@@ -320,5 +325,43 @@ mod test {
             millis(10),
         );
         req.await.unwrap_err();
+    }
+
+    #[tokio::test]
+    async fn streamed_response_is_decompressed_and_flushed_to_disk() {
+        let mock_server = MockServer::start().await;
+        let body: Vec<u8> = (0..=255).cycle().take(256 * 1024).collect();
+        let body_chunks: Vec<_> =
+            crate::sync::request::header_and_stream::encode_zstd_body(body.clone())
+                .try_collect()
+                .await
+                .unwrap();
+        Mock::given(method("POST"))
+            .and(path("/"))
+            .respond_with(
+                ResponseTemplate::new(200)
+                    .insert_header(ORIGINAL_SIZE.as_str(), body.len().to_string())
+                    .set_body_bytes(body_chunks.concat()),
+            )
+            .mount(&mock_server)
+            .await;
+        let temp = tempfile::NamedTempFile::new().unwrap();
+        let file = tokio::fs::File::from_std(temp.as_file().try_clone().unwrap());
+        // A response smaller than this buffer needs an explicit flush to reach disk.
+        let mut writer = tokio::io::BufWriter::with_capacity(1024 * 1024, file);
+        let monitor = IoMonitor::new();
+
+        monitor
+            .zstd_request_into_with_timeout(
+                reqwest::Client::new().post(mock_server.uri()),
+                vec![],
+                millis(1_000),
+                &mut writer,
+            )
+            .await
+            .unwrap();
+
+        assert_eq!(anki_io::read_file(temp.path()).unwrap(), body);
+        assert_eq!(monitor.0.lock().unwrap().bytes_received, body.len() as u32);
     }
 }

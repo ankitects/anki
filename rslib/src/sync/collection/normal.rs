@@ -11,6 +11,7 @@ use crate::error::SyncError;
 use crate::error::SyncErrorKind;
 use crate::prelude::Usn;
 use crate::progress::ThrottlingProgressHandler;
+use crate::revlog::RevlogId;
 use crate::sync::collection::progress::SyncStage;
 use crate::sync::collection::protocol::EmptyInput;
 use crate::sync::collection::protocol::SyncProtocol;
@@ -23,6 +24,10 @@ pub struct NormalSyncer<'a> {
     pub(in crate::sync) col: &'a mut Collection,
     pub(in crate::sync) server: HttpSyncClient,
     pub(in crate::sync) progress: ThrottlingProgressHandler<NormalSyncProgress>,
+    remote_collection_changed: bool,
+    remote_review_ids: Vec<RevlogId>,
+    remote_non_review_collection_changed: bool,
+    pub(in crate::sync) rwkv_mirrors_need_upload: bool,
 }
 
 #[derive(Default, Debug, Clone, Copy)]
@@ -63,10 +68,39 @@ impl NormalSyncer<'_> {
             progress: col.new_progress_handler(),
             col,
             server,
+            remote_collection_changed: false,
+            remote_review_ids: vec![],
+            remote_non_review_collection_changed: false,
+            rwkv_mirrors_need_upload: false,
         }
     }
 
     pub async fn sync(&mut self) -> error::Result<SyncOutput> {
+        self.rwkv_mirrors_need_upload = false;
+        let first = self.sync_once().await?;
+        if self.rwkv_mirrors_need_upload && first.required == SyncActionRequired::NoChanges {
+            // Send boundaries recovered from a stale legacy config snapshot
+            // back to the server before reporting the sync as complete.
+            self.rwkv_mirrors_need_upload = false;
+            let mut second = self.sync_once().await?;
+            if second.server_message.is_empty() {
+                second.server_message = first.server_message;
+            }
+            if second.new_endpoint.is_none() {
+                second.new_endpoint = first.new_endpoint;
+            }
+            second.remote_collection_changed |= first.remote_collection_changed;
+            second.remote_non_review_collection_changed |=
+                first.remote_non_review_collection_changed;
+            let mut review_ids = first.remote_review_ids;
+            review_ids.extend(second.remote_review_ids);
+            second.remote_review_ids = review_ids;
+            return Ok(second);
+        }
+        Ok(first)
+    }
+
+    async fn sync_once(&mut self) -> error::Result<SyncOutput> {
         debug!("fetching meta...");
         let local = self.col.sync_meta()?;
         let local_bytes = local.collection_bytes;
@@ -128,6 +162,14 @@ impl NormalSyncer<'_> {
         self.process_unchunked_changes(&state).await?;
         debug!("begin stream from server");
         self.process_chunks_from_server(&state).await?;
+        let foreign_cards = self.col.storage.card_ids_with_foreign_fsrs_state()?;
+        match self
+            .col
+            .repair_foreign_fsrs_memory_states_inner(foreign_cards)
+        {
+            Ok(cards) => debug!(cards, "repaired foreign FSRS memory states"),
+            Err(err) => tracing::warn!(?err, "repairing foreign FSRS memory states failed"),
+        }
         debug!("begin stream to server");
         self.send_chunks_to_server(&state).await?;
 
@@ -138,8 +180,27 @@ impl NormalSyncer<'_> {
         self.sanity_check().await?;
         debug!("finalize");
         self.finalize(&state).await?;
+        if self.rwkv_mirrors_need_upload {
+            self.col.set_modified_after_last_sync()?;
+        }
         state.required = SyncActionRequired::NoChanges;
-        Ok(state.into())
+        let mut output: SyncOutput = state.into();
+        output.remote_collection_changed = self.remote_collection_changed;
+        output.remote_review_ids = std::mem::take(&mut self.remote_review_ids);
+        output.remote_non_review_collection_changed = self.remote_non_review_collection_changed;
+        Ok(output)
+    }
+
+    pub(in crate::sync) fn mark_remote_non_review_collection_changed(&mut self, changed: bool) {
+        self.remote_non_review_collection_changed |= changed;
+    }
+
+    pub(in crate::sync) fn mark_remote_collection_changed(&mut self, changed: bool) {
+        self.remote_collection_changed |= changed;
+    }
+
+    pub(in crate::sync) fn record_remote_review(&mut self, review_id: RevlogId) {
+        self.remote_review_ids.push(review_id);
     }
 }
 
@@ -151,6 +212,9 @@ pub struct SyncOutput {
     pub new_endpoint: Option<String>,
     #[allow(unused)]
     pub(crate) server_media_usn: Usn,
+    pub remote_collection_changed: bool,
+    pub remote_review_ids: Vec<RevlogId>,
+    pub remote_non_review_collection_changed: bool,
 }
 
 impl From<ClientSyncState> for SyncOutput {
@@ -161,6 +225,9 @@ impl From<ClientSyncState> for SyncOutput {
             host_number: s.host_number,
             new_endpoint: s.new_endpoint,
             server_media_usn: s.server_media_usn,
+            remote_collection_changed: false,
+            remote_review_ids: vec![],
+            remote_non_review_collection_changed: false,
         }
     }
 }

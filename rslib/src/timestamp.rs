@@ -24,12 +24,20 @@ impl TimestampSecs {
         self.0 - other.0
     }
 
+    pub(crate) fn elapsed_secs_since_clamped(self, other: TimestampSecs) -> u32 {
+        self.0.saturating_sub(other.0).clamp(0, u32::MAX as i64) as u32
+    }
+
     pub fn elapsed_secs(self) -> u64 {
         (Self::now().0 - self.0).max(0) as u64
     }
 
     pub fn elapsed_days_since(self, other: TimestampSecs) -> u64 {
         (self.0 - other.0).max(0) as u64 / 86_400
+    }
+
+    pub(crate) fn elapsed_days_since_clamped(self, other: TimestampSecs) -> u32 {
+        ((self.0.saturating_sub(other.0).max(0) as u64) / 86_400).min(u32::MAX as u64) as u32
     }
 
     pub fn as_millis(self) -> TimestampMillis {
@@ -116,5 +124,27 @@ fn elapsed() -> time::Duration {
         time::SystemTime::now()
             .duration_since(time::SystemTime::UNIX_EPOCH)
             .unwrap()
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn elapsed_seconds_clamp_future_and_out_of_range_values() {
+        let now = TimestampSecs(100);
+
+        assert_eq!(now.elapsed_secs_since_clamped(TimestampSecs(101)), 0);
+        assert_eq!(now.elapsed_secs_since_clamped(TimestampSecs(40)), 60);
+        assert_eq!(now.elapsed_days_since_clamped(TimestampSecs(101)), 0);
+        assert_eq!(
+            now.elapsed_secs_since_clamped(TimestampSecs(i64::MIN)),
+            u32::MAX
+        );
+        assert_eq!(
+            now.elapsed_days_since_clamped(TimestampSecs(i64::MIN)),
+            u32::MAX
+        );
     }
 }

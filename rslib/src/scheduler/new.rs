@@ -58,6 +58,7 @@ impl Card {
             self.lapses = 0;
         }
         self.memory_state = None;
+        self.rwkv_history_reset_after = None;
 
         last_position.is_none()
     }

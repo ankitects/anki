@@ -23,6 +23,11 @@ impl From<SchedulingStates> for anki_proto::scheduler::SchedulingStates {
             hard: Some(choices.hard.into()),
             good: Some(choices.good.into()),
             easy: Some(choices.easy.into()),
+            dynamic_desired_retentions: choices
+                .dynamic_desired_retentions
+                .map(|retentions| retentions.to_vec())
+                .unwrap_or_default(),
+            dynamic_desired_retention_enabled: choices.dynamic_desired_retention_enabled,
         }
     }
 }
@@ -35,6 +40,8 @@ impl From<anki_proto::scheduler::SchedulingStates> for SchedulingStates {
             hard: choices.hard.unwrap_or_default().into(),
             good: choices.good.unwrap_or_default().into(),
             easy: choices.easy.unwrap_or_default().into(),
+            dynamic_desired_retentions: choices.dynamic_desired_retentions.try_into().ok(),
+            dynamic_desired_retention_enabled: choices.dynamic_desired_retention_enabled,
         }
     }
 }

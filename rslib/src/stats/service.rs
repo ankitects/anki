@@ -12,6 +12,43 @@ impl crate::services::StatsService for Collection {
         self.card_stats(input.cid.into())
     }
 
+    fn card_memory_metrics(
+        &mut self,
+        input: anki_proto::stats::CardMemoryMetricsRequest,
+    ) -> error::Result<anki_proto::stats::CardMemoryMetricsResponse> {
+        Ok(anki_proto::stats::CardMemoryMetricsResponse {
+            entries: self.card_memory_metrics(
+                &input
+                    .card_ids
+                    .into_iter()
+                    .map(Into::into)
+                    .collect::<Vec<_>>(),
+                input.include_retrievability,
+            )?,
+        })
+    }
+
+    fn card_details(
+        &mut self,
+        input: anki_proto::stats::CardDetailsRequest,
+    ) -> error::Result<anki_proto::stats::CardDetailsResponse> {
+        Ok(anki_proto::stats::CardDetailsResponse {
+            entries: self.card_details(
+                &input
+                    .card_ids
+                    .into_iter()
+                    .map(Into::into)
+                    .collect::<Vec<_>>(),
+                input.include_memory_state,
+                input.include_retrievability,
+                input
+                    .note_fields
+                    .as_ref()
+                    .map(|selection| selection.names.as_slice()),
+            )?,
+        })
+    }
+
     fn get_review_logs(
         &mut self,
         input: anki_proto::cards::CardId,

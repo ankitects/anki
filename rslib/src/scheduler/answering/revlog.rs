@@ -52,4 +52,8 @@ impl RevlogEntryPartial {
             review_kind: self.review_kind,
         }
     }
+
+    pub(super) fn set_review_kind(&mut self, review_kind: RevlogReviewKind) {
+        self.review_kind = review_kind;
+    }
 }

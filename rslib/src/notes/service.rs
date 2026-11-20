@@ -320,13 +320,13 @@ mod test {
             })
             .collect();
 
-        // No undo
+        // No undo entry, and the adding stays undoable (kuma3)
         let request = UpdateNotesRequest {
             notes: notes.clone(),
             skip_undo_entry: true,
         };
         let _ = NotesService::update_notes(&mut col, request)?;
-        assert_eq!(col.can_undo(), None);
+        assert_eq!(col.can_undo(), Some(&Op::AddNote));
 
         // With undo
         let notes: Vec<anki_proto::notes::Note> = col

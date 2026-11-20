@@ -39,6 +39,10 @@ impl NormalSyncer<'_> {
             decks = remote.decks.len(),
             "removed on remote"
         );
+        let remote_deletions =
+            !remote.cards.is_empty() || !remote.notes.is_empty() || !remote.decks.is_empty();
+        self.mark_remote_collection_changed(remote_deletions);
+        self.mark_remote_non_review_collection_changed(remote_deletions);
 
         let mut local = self.col.storage.pending_graves(state.pending_usn)?;
         self.col

@@ -19,6 +19,12 @@ mod upgrades;
 
 use std::fmt::Write;
 
+pub(crate) use revlog::FsrsReviewRetrievabilityCacheRow;
+pub(crate) use revlog::FsrsReviewRetrievabilitySampleRole;
+pub(crate) use revlog::RwkvHistoricalReviewRow;
+pub(crate) use revlog::RwkvReviewRetrievabilityCacheRow;
+pub(crate) use revlog::RwkvReviewRetrievabilitySampleRole;
+pub(crate) use revlog::RWKV_HISTORY_RESET_AFTER_SQL;
 pub(crate) use sqlite::ProcessTextFlags;
 pub(crate) use sqlite::SqliteStorage;
 

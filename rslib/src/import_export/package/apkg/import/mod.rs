@@ -39,6 +39,7 @@ type TemplateMap = std::collections::HashMap<u16, u16>;
 struct Context<'a> {
     target_col: &'a mut Collection,
     merge_notetypes: bool,
+    with_scheduling: bool,
     update_notes: UpdateCondition,
     update_notetypes: UpdateCondition,
     media_manager: MediaManager,
@@ -92,6 +93,7 @@ impl<'a> Context<'a> {
         Ok(Self {
             target_col,
             merge_notetypes: options.merge_notetypes,
+            with_scheduling: options.with_scheduling,
             update_notes: options.update_notes(),
             update_notetypes: options.update_notetypes(),
             media_manager,
@@ -113,12 +115,18 @@ impl<'a> Context<'a> {
         let mut media_map = self.prepare_media()?;
         let note_imports = self.import_notes_and_notetypes(&mut media_map)?;
         let imported_decks = self.import_decks_and_configs()?;
-        self.import_cards_and_revlog(
+        let foreign_fsrs_card_ids = self.import_cards_and_revlog(
             &note_imports.id_map,
             &notetypes,
             &note_imports.remapped_templates,
             &imported_decks,
         )?;
+        if let Err(err) = self
+            .target_col
+            .repair_foreign_fsrs_memory_states_inner(foreign_fsrs_card_ids)
+        {
+            tracing::warn!(?err, "repairing imported foreign FSRS memory states failed");
+        }
         self.copy_media(&mut media_map)?;
         Ok(note_imports.log)
     }
@@ -141,6 +149,13 @@ impl ExchangeData {
         progress.set(ImportProgress::Gathering)?;
         let mut data = ExchangeData::default();
         data.gather_data(&mut col, search, with_scheduling, with_deck_configs)?;
+        if with_scheduling {
+            data.foreign_fsrs_card_ids = col
+                .storage
+                .card_ids_with_foreign_fsrs_state()?
+                .into_iter()
+                .collect();
+        }
 
         Ok(data)
     }

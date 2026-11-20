@@ -15,6 +15,13 @@ use crate::revlog::RevlogEntry;
 
 type CardAsNidAndOrd = (NoteId, u16);
 
+struct CardImportSettings {
+    usn: Usn,
+    days_elapsed: u32,
+    reset_new_history: bool,
+    cards_with_source_history: HashSet<CardId>,
+}
+
 struct CardContext<'a> {
     target_col: &'a mut Collection,
     usn: Usn,
@@ -30,14 +37,15 @@ struct CardContext<'a> {
     scheduler_version: SchedulerVersion,
     existing_cards: HashSet<CardAsNidAndOrd>,
     existing_card_ids: HashSet<CardId>,
+    reset_new_history: bool,
+    cards_with_source_history: HashSet<CardId>,
 
     imported_cards: HashMap<CardId, CardId>,
 }
 
 impl<'c> CardContext<'c> {
     fn new<'a: 'c>(
-        usn: Usn,
-        days_elapsed: u32,
+        settings: CardImportSettings,
         target_col: &'a mut Collection,
         imported_notes: &'a HashMap<NoteId, NoteId>,
         notetype_map: &'a HashMap<NoteId, NotetypeId>,
@@ -45,12 +53,12 @@ impl<'c> CardContext<'c> {
         imported_decks: &'a HashMap<DeckId, DeckId>,
     ) -> Result<Self> {
         let existing_cards = target_col.storage.all_cards_as_nid_and_ord()?;
-        let collection_delta = target_col.collection_delta(days_elapsed)?;
+        let collection_delta = target_col.collection_delta(settings.days_elapsed)?;
         let scheduler_version = target_col.scheduler_info()?.version;
         let existing_card_ids = target_col.storage.get_all_card_ids()?;
         Ok(Self {
             target_col,
-            usn,
+            usn: settings.usn,
             imported_notes,
             notetype_map,
             remapped_templates,
@@ -59,6 +67,8 @@ impl<'c> CardContext<'c> {
             collection_delta,
             scheduler_version,
             existing_card_ids,
+            reset_new_history: settings.reset_new_history,
+            cards_with_source_history: settings.cards_with_source_history,
             imported_cards: HashMap::new(),
         })
     }
@@ -78,10 +88,14 @@ impl Context<'_> {
         notetype_map: &HashMap<NoteId, NotetypeId>,
         remapped_templates: &HashMap<NotetypeId, TemplateMap>,
         imported_decks: &HashMap<DeckId, DeckId>,
-    ) -> Result<()> {
+    ) -> Result<Vec<CardId>> {
         let mut ctx = CardContext::new(
-            self.usn,
-            self.data.days_elapsed,
+            CardImportSettings {
+                usn: self.usn,
+                days_elapsed: self.data.days_elapsed,
+                reset_new_history: !self.with_scheduling,
+                cards_with_source_history: self.data.revlog.iter().map(|entry| entry.cid).collect(),
+            },
             self.target_col,
             imported_notes,
             notetype_map,
@@ -92,7 +106,13 @@ impl Context<'_> {
             return Err(AnkiError::SchedulerUpgradeRequired);
         }
         ctx.import_cards(mem::take(&mut self.data.cards))?;
-        ctx.import_revlog(mem::take(&mut self.data.revlog))
+        ctx.import_revlog(mem::take(&mut self.data.revlog))?;
+        Ok(self
+            .data
+            .foreign_fsrs_card_ids
+            .iter()
+            .filter_map(|old_id| ctx.imported_cards.get(old_id).copied())
+            .collect())
     }
 }
 
@@ -139,7 +159,17 @@ impl CardContext<'_> {
         card.shift_collection_relative_dates(self.collection_delta);
         let old_id = self.uniquify_card_id(card);
 
+        if card.ctype == CardType::New
+            && (self.reset_new_history || !self.cards_with_source_history.contains(&old_id))
+        {
+            card.rwkv_history_reset_after = self
+                .target_col
+                .storage
+                .last_unreset_review(card.id)?
+                .map(|id| id.0);
+        }
         self.target_col.add_card_if_unique_undoable(card)?;
+        self.target_col.mirror_rwkv_history_reset(card)?;
         self.existing_card_ids.insert(card.id);
         self.imported_cards.insert(old_id, card.id);
 

@@ -101,6 +101,8 @@ impl Collection {
             load_balancer_enabled: self.get_config_bool(BoolKey::LoadBalancerEnabled),
             fsrs_short_term_with_steps_enabled: self
                 .get_config_bool(BoolKey::FsrsShortTermWithStepsEnabled),
+            show_fuzz_delta_on_buttons: self
+                .get_config_bool(BoolKey::ShowFuzzDeltaAboveAnswerButtons),
         })
     }
 
@@ -124,6 +126,10 @@ impl Collection {
         self.set_config_bool_inner(
             BoolKey::FsrsShortTermWithStepsEnabled,
             s.fsrs_short_term_with_steps_enabled,
+        )?;
+        self.set_config_bool_inner(
+            BoolKey::ShowFuzzDeltaAboveAnswerButtons,
+            s.show_fuzz_delta_on_buttons,
         )?;
         Ok(())
     }
@@ -151,6 +157,29 @@ impl Collection {
         self.set_config_string_inner(StringKey::DefaultSearchText, &s.default_search_text)?;
         self.set_config_bool_inner(BoolKey::IgnoreAccentsInSearch, s.ignore_accents_in_search)?;
         self.set_config_bool_inner(BoolKey::RenderLatex, s.render_latex)?;
+        Ok(())
+    }
+}
+
+#[cfg(test)]
+mod test {
+    use super::*;
+    use crate::config::BoolKey;
+
+    #[test]
+    fn reviewing_preferences_include_fuzz_delta_toggle() -> Result<()> {
+        let mut col = Collection::new();
+        assert!(!col.get_config_bool(BoolKey::ShowFuzzDeltaAboveAnswerButtons));
+
+        let mut reviewing = col.get_reviewing_preferences()?;
+        assert!(!reviewing.show_fuzz_delta_on_buttons);
+
+        reviewing.show_fuzz_delta_on_buttons = true;
+        col.set_reviewing_preferences(reviewing)?;
+
+        assert!(col.get_config_bool(BoolKey::ShowFuzzDeltaAboveAnswerButtons));
+        assert!(col.get_reviewing_preferences()?.show_fuzz_delta_on_buttons);
+
         Ok(())
     }
 }

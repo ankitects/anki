@@ -101,6 +101,8 @@ pub struct Card {
     pub(crate) desired_retention: Option<f32>,
     pub(crate) decay: Option<f32>,
     pub(crate) last_review_time: Option<TimestampSecs>,
+    /// Reviews at or before this ID belong to a previous RWKV learning history.
+    pub(crate) rwkv_history_reset_after: Option<i64>,
     /// JSON object or empty; exposed through the reviewer for persisting custom
     /// state
     pub(crate) custom_data: String,
@@ -108,8 +110,12 @@ pub struct Card {
 
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub struct FsrsMemoryState {
-    /// The expected memory stability, in days.
+    /// The interval where retrievability reaches 90%, in days.
     pub stability: f32,
+    /// The model's internal stability, in days.
+    pub stability_internal: f32,
+    /// FSRS-7's fast stability trace, in days. Missing on older card data.
+    pub stability_fast: Option<f32>,
     /// A number in the range 1.0-10.0. Use difficulty() for a normalized
     /// number.
     pub difficulty: f32,
@@ -153,6 +159,7 @@ impl Default for Card {
             desired_retention: None,
             decay: None,
             last_review_time: None,
+            rwkv_history_reset_after: None,
             custom_data: String::new(),
         }
     }
@@ -390,6 +397,9 @@ impl Collection {
                 let original = card.clone();
                 steps_adjuster.adjust_remaining_steps(col, &mut card)?;
                 card.set_deck(deck_id);
+                if fsrs_enabled {
+                    col.recompute_fsrs_data_for_card(&mut card)?;
+                }
                 col.update_card_inner(&mut card, original, usn)?;
             }
             // Only recompute when at least one card actually moved. Besides
@@ -404,10 +414,11 @@ impl Collection {
 
                 col.update_memory_state(vec![UpdateMemoryStateEntry {
                     req: Some(UpdateMemoryStateRequest {
-                        params: config.fsrs_params().clone(),
+                        params: config.fsrs_params().to_vec(),
                         preset_desired_retention: config.inner.desired_retention,
                         historical_retention: config.inner.historical_retention,
                         max_interval: config.inner.maximum_review_interval,
+                        review_fuzz_config: col.review_fuzz_config(),
                         reschedule: false,
                         deck_desired_retention,
                     }),
@@ -417,6 +428,9 @@ impl Collection {
                     ])
                     .try_into_search()?,
                     ignore_before: ignore_revlogs_before_ms_from_config(&config)?,
+                    preset_name: config.name.clone(),
+                    current_preset: 1,
+                    total_presets: 1,
                 }])?;
             }
             Ok(count)
@@ -521,8 +535,9 @@ impl<'a> RemainingStepsAdjuster<'a> {
 impl From<FsrsMemoryState> for MemoryState {
     fn from(value: FsrsMemoryState) -> Self {
         MemoryState {
-            stability: value.stability,
+            stability: value.stability_internal,
             difficulty: value.difficulty,
+            stability_fast: value.stability_fast.unwrap_or(value.stability_internal),
         }
     }
 }
@@ -531,6 +546,8 @@ impl From<MemoryState> for FsrsMemoryState {
     fn from(value: MemoryState) -> Self {
         FsrsMemoryState {
             stability: value.stability,
+            stability_internal: value.stability,
+            stability_fast: Some(value.stability_fast),
             difficulty: value.difficulty,
         }
     }
@@ -538,11 +555,25 @@ impl From<MemoryState> for FsrsMemoryState {
 
 #[cfg(test)]
 mod test {
+    use fsrs::DEFAULT_PARAMETERS;
+
+    use crate::card::FsrsMemoryState;
     use crate::config::BoolKey;
+    use crate::deckconfig::FsrsVersion;
     use crate::prelude::*;
+    use crate::scheduler::fsrs::memory_state::get_decay_from_params;
     use crate::tests::open_test_collection_with_learning_card;
     use crate::tests::open_test_collection_with_relearning_card;
     use crate::tests::DeckAdder;
+
+    fn assert_memory_state_close(actual: FsrsMemoryState, expected: FsrsMemoryState) {
+        assert_eq!(actual.stability.round(), expected.stability.round());
+        assert_eq!(
+            actual.stability_internal.round(),
+            expected.stability_internal.round()
+        );
+        assert_eq!(actual.difficulty.round(), expected.difficulty.round());
+    }
 
     #[test]
     fn should_increase_remaining_learning_steps_if_new_deck_has_more_unpassed_ones() {
@@ -586,6 +617,34 @@ mod test {
 
         assert_eq!(col.get_first_card().remaining_steps, 1);
 
+        Ok(())
+    }
+
+    #[test]
+    fn should_recompute_fsrs_memory_state_with_target_deck_params() -> Result<()> {
+        let mut col = Collection::new();
+        col.set_config_bool(BoolKey::Fsrs, true, false)?;
+        NoteAdder::basic(&mut col).add(&mut col);
+        let answer = col.answer_easy();
+        let before = col.storage.get_card(answer.card_id)?.unwrap();
+        assert!(before.memory_state.is_some());
+
+        let target_params = DEFAULT_PARAMETERS[0..21].to_vec();
+        let target_deck = DeckAdder::new("target")
+            .with_config(|config| {
+                config.inner.fsrs_version = FsrsVersion::Six as i32;
+                config.inner.fsrs_params_6 = target_params.clone();
+            })
+            .add(&mut col);
+
+        col.set_deck(&[answer.card_id], target_deck.id)?;
+        let moved = col.storage.get_card(answer.card_id)?.unwrap();
+        assert_eq!(moved.deck_id, target_deck.id);
+        assert!((moved.decay.unwrap() - get_decay_from_params(&target_params)).abs() < 0.001);
+
+        let expected = col.compute_memory_state(answer.card_id)?;
+
+        assert_memory_state_close(moved.memory_state.unwrap(), expected.state.unwrap().into());
         Ok(())
     }
 
@@ -699,12 +758,20 @@ mod test {
         let mut target_note = nt.new_note();
         col.add_note(&mut target_note, target.id)?;
         let target_card_id = col.storage.card_ids_of_notes(&[target_note.id]).unwrap()[0];
-        col.grade_now(&[target_card_id], 3)?;
+        col.grade_now(anki_proto::scheduler::GradeNowRequest {
+            card_ids: vec![target_card_id.into()],
+            rating: anki_proto::scheduler::card_answer::Rating::Easy as i32,
+            card_options: vec![],
+        })?;
 
         let mut source_note = nt.new_note();
         col.add_note(&mut source_note, DeckId(1))?;
         let source_card_id = col.storage.card_ids_of_notes(&[source_note.id]).unwrap()[0];
-        col.grade_now(&[source_card_id], 3)?;
+        col.grade_now(anki_proto::scheduler::GradeNowRequest {
+            card_ids: vec![source_card_id.into()],
+            rating: anki_proto::scheduler::card_answer::Rating::Easy as i32,
+            card_options: vec![],
+        })?;
 
         // Fake a sync after the cards exist, before moving anything.
         col.before_upload()?;

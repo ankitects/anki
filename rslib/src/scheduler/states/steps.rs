@@ -20,11 +20,18 @@ impl LearningSteps<'_> {
     }
 
     /// Strip off 'learning today', and ensure index is in bounds.
-    fn get_index(self, remaining: u32) -> usize {
+    fn get_index(self, remaining: u32) -> Option<usize> {
+        let remaining = remaining % 1000;
+        if remaining == 0 || self.steps.is_empty() {
+            return None;
+        }
+
         let total = self.steps.len();
-        total
-            .saturating_sub((remaining % 1000) as usize)
-            .min(total.saturating_sub(1))
+        Some(
+            total
+                .saturating_sub(remaining as usize)
+                .min(total.saturating_sub(1)),
+        )
     }
 
     fn secs_at_index(&self, index: usize) -> Option<u32> {
@@ -36,7 +43,7 @@ impl LearningSteps<'_> {
     }
 
     pub(crate) fn hard_delay_secs(self, remaining: u32) -> Option<u32> {
-        let idx = self.get_index(remaining);
+        let idx = self.get_index(remaining)?;
         self.secs_at_index(idx)
             // if current is invalid, try first step
             .or_else(|| self.steps.first().copied().map(to_secs))
@@ -66,26 +73,24 @@ impl LearningSteps<'_> {
     }
 
     pub(crate) fn good_delay_secs(self, remaining: u32) -> Option<u32> {
-        let idx = self.get_index(remaining);
+        let idx = self.get_index(remaining)?;
         self.secs_at_index(idx + 1)
     }
 
     pub(crate) fn current_delay_secs(self, remaining: u32) -> u32 {
-        let idx = self.get_index(remaining);
-        self.secs_at_index(idx).unwrap_or_default()
+        self.get_index(remaining)
+            .and_then(|idx| self.secs_at_index(idx))
+            .unwrap_or_default()
     }
 
     pub(crate) fn remaining_for_good(self, remaining: u32) -> u32 {
-        let idx = self.get_index(remaining);
-        self.steps.len().saturating_sub(idx + 1) as u32
+        self.get_index(remaining)
+            .map(|idx| self.steps.len().saturating_sub(idx + 1) as u32)
+            .unwrap_or_default()
     }
 
     pub(crate) fn remaining_for_failed(self) -> u32 {
         self.steps.len() as u32
-    }
-
-    pub(crate) fn is_empty(&self) -> bool {
-        self.steps.is_empty()
     }
 }
 
@@ -132,6 +137,13 @@ mod test {
         assert_delay_secs!([1.0, 10.0, 100.0], 3, Some(60), Some(330), Some(600));
         assert_delay_secs!([1.0, 10.0, 100.0], 2, Some(60), Some(600), Some(6000));
         assert_delay_secs!([1.0, 10.0, 100.0], 1, Some(60), Some(6000), None);
+    }
+
+    #[test]
+    fn no_remaining_steps_skips_configured_delays() {
+        assert_delay_secs!([1.0, 10.0], 0, Some(60), None, None);
+        assert_eq!(LearningSteps::new(&[1.0, 10.0]).current_delay_secs(0), 0);
+        assert_eq!(LearningSteps::new(&[1.0, 10.0]).remaining_for_good(0), 0);
     }
 
     #[test]

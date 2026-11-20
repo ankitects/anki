@@ -45,7 +45,7 @@ impl crate::services::CollectionService for Collection {
     }
 
     fn latest_progress(&mut self) -> error::Result<anki_proto::collection::Progress> {
-        let progress = self.state.progress.lock().unwrap().last_progress;
+        let progress = self.state.progress.lock().unwrap().last_progress.clone();
         Ok(progress_to_proto(progress, &self.tr))
     }
 

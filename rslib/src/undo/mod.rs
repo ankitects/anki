@@ -11,6 +11,7 @@ pub use crate::ops::Op;
 use crate::ops::OpChanges;
 use crate::ops::StateChanges;
 use crate::prelude::*;
+use crate::revlog::undo::UndoableRevlogChange;
 
 const UNDO_LIMIT: usize = 30;
 
@@ -282,6 +283,22 @@ impl Collection {
         let reverted_to = step.timestamp;
         let changes = step.changes;
         let counter = step.counter;
+        // Undo removes the desktop reviewer's synthetic marker for each
+        // affected card; redo must not recreate it.
+        let affected_rwkv_cards: Vec<_> = if self.state.rwkv_synthetic_filtered_answers.is_empty() {
+            Vec::new()
+        } else {
+            changes
+                .iter()
+                .filter_map(|change| match change {
+                    UndoableChange::Revlog(UndoableRevlogChange::Added(entry))
+                    | UndoableChange::Revlog(UndoableRevlogChange::Removed(entry)) => {
+                        Some(entry.cid)
+                    }
+                    _ => None,
+                })
+                .collect()
+        };
         self.state.undo.mode = mode;
         let res = self.transact(undone_op.clone(), |col| {
             for change in changes.into_iter().rev() {
@@ -295,6 +312,11 @@ impl Collection {
             })
         });
         self.state.undo.mode = UndoMode::NormalOp;
+        if res.is_ok() {
+            for card_id in affected_rwkv_cards {
+                self.state.rwkv_synthetic_filtered_answers.remove(&card_id);
+            }
+        }
         res
     }
 }

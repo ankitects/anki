@@ -693,7 +693,7 @@ fn missing_cloze_filter(
 ) -> bool {
     parsed_templates
         .first()
-        .map_or(true, |t| !has_cloze(&t.0) || !has_cloze(&t.1))
+        .is_none_or(|t| !has_cloze(&t.0) || !has_cloze(&t.1))
 }
 
 /// True if the template is non-empty and has a cloze field.

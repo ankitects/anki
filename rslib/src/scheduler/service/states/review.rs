@@ -7,6 +7,7 @@ impl From<anki_proto::scheduler::scheduling_state::Review> for ReviewState {
     fn from(state: anki_proto::scheduler::scheduling_state::Review) -> Self {
         ReviewState {
             scheduled_days: state.scheduled_days,
+            fuzz_delta_days: state.fuzz_delta_days,
             elapsed_days: state.elapsed_days,
             ease_factor: state.ease_factor,
             lapses: state.lapses,
@@ -20,6 +21,7 @@ impl From<ReviewState> for anki_proto::scheduler::scheduling_state::Review {
     fn from(state: ReviewState) -> Self {
         anki_proto::scheduler::scheduling_state::Review {
             scheduled_days: state.scheduled_days,
+            fuzz_delta_days: state.fuzz_delta_days,
             elapsed_days: state.elapsed_days,
             ease_factor: state.ease_factor,
             lapses: state.lapses,
