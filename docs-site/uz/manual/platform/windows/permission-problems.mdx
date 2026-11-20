@@ -1,0 +1,42 @@
+---
+title: "Windows'da ruxsat muammolari"
+sidebarTitle: "Ruxsat muammolari"
+description: "Ruxsat muammolari"
+---
+
+## Ruxsat muammolari
+
+Agar "access denied" (kirish rad etildi) xabarlari chiqsa, Anki'ning ayrim
+fayllari faqat oʻqish (read only) rejimiga qoʻyilgan boʻlishi mumkin, yaʼni Anki
+ularga yoza olmaydi.
+
+Muammoni hal qilish uchun quyidagilarni bajaring:
+
+- Start panelining qidiruv maydoniga `cmd.exe` deb yozing va <kbd>Enter</kbd> tugmasini bosing
+- ochilgan oynaga quyidagini yozing va foydalanuvchi nomingizni koʻrish uchun <kbd>Enter</kbd> tugmasini bosing:
+
+whoami
+
+- quyidagini yozing, har bir qatordan keyin <kbd>Enter</kbd> tugmasini bosing va \_\_\_\_ oʻrniga (:F qismini saqlagan holda) oldingi buyruqdan olgan foydalanuvchi nomingizni qoʻying
+
+cd %APPDATA%
+
+icacls Anki2 /grant \_\_\_\_:F /t
+
+Bu buyruq Anki maʼlumotlar papkasidagi ruxsatlarni tuzatishi kerak, shundan keyin dasturni ishga tushira olishingiz kerak.
+
+## Antivirus/Xavfsizlik devori/Zararli dasturlardan himoya
+
+Ayrim foydalanuvchilar "permission denied" (ruxsat rad etildi) yoki "readonly" (faqat oʻqish) xatolariga duch kelgan, buning sababi kompyuterlariga oʻrnatilgan xavfsizlik dasturlari boʻlgan. Anki uchun istisno (exception) qoʻshishingiz yoki sabab shu emasligini aniqlash uchun dasturni vaqtincha oʻchirib koʻrishingiz kerak boʻlishi mumkin. Ayrim foydalanuvchilar dasturni oddiygina oʻchirib qoʻyish muammoni hal qilmaganini, ular Anki uchun istisno qoʻshishga yoki bu dasturni butunlay oʻchirib tashlashga (uninstall) majbur boʻlganini aytgan.
+
+## Ruxsat muammolarini aniqlash (debugging)
+
+Antivirus va shunga oʻxshash dasturlarni sabab emasligini aniqlab, ruxsatlarni tuzatish uchun yuqoridagi qadamlarni bajargandan keyin ham muammo saqlansa va siz OneDrive'dan foydalanmasangiz, `cmd.exe` da quyidagi buyruqlarni bajaring, har biridan keyin <kbd>Enter</kbd> tugmasini bosing.
+
+whoami
+
+cd %APPDATA%
+
+icacls Anki2 /t
+
+Keyin koʻrgan natijangizni nusxalab joylashtiring yoki ekran rasmini (skrinshot) oling va uni bizga qoʻllab-quvvatlash murojaati (support ticket) orqali yuboring.
