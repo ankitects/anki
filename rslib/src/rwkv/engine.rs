@@ -30,17 +30,28 @@ use crate::card::CardType;
 use crate::rwkv::answer_time as answer_time_items;
 use crate::rwkv::answer_time::set_answer_time_elapsed;
 use crate::rwkv::answer_time::ANSWER_TIME_FORMAT_VERSION;
+use crate::scheduler::rwkv::relative_overdueness;
 
 #[path = "architecture.rs"]
 mod architecture;
 #[path = "bulk.rs"]
 mod bulk;
 use architecture::*;
+#[path = "instant_forecast_queue.rs"]
+mod instant_forecast_queue;
+#[path = "instant_forecast_sampling.rs"]
+mod instant_forecast_sampling;
+#[path = "instant_workload_forecast.rs"]
+mod instant_workload_forecast;
 #[cfg(test)]
 #[path = "model_bench.rs"]
 mod model_bench;
 #[path = "precision.rs"]
 mod precision;
+#[path = "workload_comparison.rs"]
+mod workload_comparison;
+#[path = "workload_forecast.rs"]
+mod workload_forecast;
 pub use precision::StatePrecision;
 #[cfg(test)]
 #[path = "collection_benchmark.rs"]
@@ -69,17 +80,15 @@ mod query_math_bench;
 #[cfg(test)]
 #[path = "review_order_bench.rs"]
 mod review_order_bench;
+#[cfg(all(test, unix))]
+#[path = "runtime_precision_bench.rs"]
+mod runtime_precision_bench;
 #[cfg(test)]
 #[path = "state_scope_bench.rs"]
 mod state_scope_bench;
 #[cfg(test)]
 #[path = "weight_precision_bench.rs"]
 mod weight_precision_bench;
-
-/// A card's predicted retrievability relative to its target retention.
-fn relative_overdueness(retrievability: f32, target_retention: f32) -> f32 {
-    retrievability / target_retention.max(0.0001)
-}
 
 const CARD_FEATURES: usize = 92;
 const HEADS: usize = 4;
@@ -476,7 +485,7 @@ impl WarmUpStateSpill {
             // Only one serialized module is held at a time. Do not build a
             // serialized snapshot or drain the maps before publishing the file.
             for (id, state) in states.iter() {
-                let bytes = serialize_module_state(state);
+                let bytes = serialize_module_state(&state);
                 max_state_bytes = max_state_bytes.max(bytes.len());
                 io::Write::write_all(&mut out, &id.to_le_bytes())?;
                 hasher.update(&id.to_le_bytes());
@@ -2464,7 +2473,7 @@ insert into segments (
                     let interval = intervals[position]
                         .unwrap_or(1)
                         .clamp(1, config.max_interval);
-                    if review_count % config.state_update_interval == 0 {
+                    if review_count.is_multiple_of(config.state_update_interval) {
                         self.apply_simulation_answer(&answer_input, states)?;
                     }
 
@@ -4224,6 +4233,20 @@ impl SrsModel {
         self.review_retrievability_query_refs(&items)
     }
 
+    fn review_retrievability_many_borrowed(
+        &self,
+        items: &[ReviewPredictionBorrowedWorkItem<'_>],
+    ) -> io::Result<Vec<f32>> {
+        let items = items
+            .iter()
+            .map(|item| ReviewPredictionQueryRef {
+                features: &item.features,
+                state: item.state,
+            })
+            .collect::<Vec<_>>();
+        self.review_retrievability_query_refs(&items)
+    }
+
     fn review_retrievability_query_refs(
         &self,
         items: &[ReviewPredictionQueryRef<'_>],
@@ -5278,6 +5301,52 @@ impl StreamIds {
 struct ForecastDecodedStates {
     card: HashMap<i64, ModuleState>,
     note: HashMap<i64, ModuleState>,
+    bytes: usize,
+}
+
+impl ForecastDecodedStates {
+    fn new(base: &ReviewStateMaps, ids: &StreamIds, budget: usize) -> io::Result<Self> {
+        fn add(
+            source: &impl StateMap,
+            ids: &HashSet<i64>,
+            target: &mut HashMap<i64, ModuleState>,
+            bytes: &mut usize,
+            budget: usize,
+        ) -> io::Result<()> {
+            for id in ids {
+                if *bytes >= budget {
+                    break;
+                }
+                let Some(state) = source.state(id).filter(|state| state.packed.is_some()) else {
+                    continue;
+                };
+                let decoded = state.try_decoded()?.into_owned();
+                let size = forecast_decoded_state_size(&decoded);
+                if size <= budget.saturating_sub(*bytes) {
+                    target.insert(*id, decoded);
+                    *bytes += size;
+                }
+            }
+            Ok(())
+        }
+
+        let mut cache = Self::default();
+        add(
+            &base.card,
+            &ids.card,
+            &mut cache.card,
+            &mut cache.bytes,
+            budget,
+        )?;
+        add(
+            &base.note,
+            &ids.note,
+            &mut cache.note,
+            &mut cache.bytes,
+            budget,
+        )?;
+        Ok(cache)
+    }
 }
 
 fn forecast_decoded_state_size(state: &ModuleState) -> usize {
@@ -5316,6 +5385,17 @@ impl<'a> SimulationStates<'a> {
             preset: HashMap::new(),
             global: None,
         }
+    }
+
+    fn with_forecast_cache(
+        base: &'a ReviewStateMaps,
+        decoded: &'a ForecastDecodedStates,
+        own_budget: usize,
+    ) -> Self {
+        let mut states = Self::new(base);
+        states.decoded = Some(decoded);
+        states.decoded_own_budget = own_budget;
+        states
     }
 
     fn state_view(&self, input: &ReviewInput) -> SrsStateView<'_> {
@@ -5599,7 +5679,7 @@ fn read_file_module_state(input: &mut impl io::Read, layers: usize) -> io::Resul
             }) && layer
                 .channel_shift
                 .as_ref()
-                .map_or(true, |c| c.len() == D_MODEL)
+                .is_none_or(|c| c.len() == D_MODEL)
         });
     if !shape_ok {
         return Err(damaged());
@@ -10755,6 +10835,138 @@ order by e.id, e.cid
 
     #[test]
     #[ignore]
+    fn rwkv_workload_forecast_collection_benchmark() {
+        let Ok(collection_path) = std::env::var("ANKI_RWKV_FORECAST_BENCH_COLLECTION") else {
+            eprintln!(
+                "set ANKI_RWKV_FORECAST_BENCH_COLLECTION to a copied collection.anki2 path to run this benchmark"
+            );
+            return;
+        };
+        let weights_path = std::env::var("ANKI_RWKV_FORECAST_BENCH_MODEL").unwrap_or_else(|_| {
+            PathBuf::from(env!("CARGO_MANIFEST_DIR"))
+                .join(MODEL_PATH)
+                .display()
+                .to_string()
+        });
+        let days = scan_bench_env_usize("ANKI_RWKV_FORECAST_BENCH_DAYS", 30) as u32;
+        let paths = scan_bench_env_usize("ANKI_RWKV_FORECAST_BENCH_PATHS", 200) as u32;
+        let review_limit = scan_bench_env_usize("ANKI_RWKV_FORECAST_BENCH_REVIEW_LIMIT", 9_999);
+        let state_update_interval =
+            scan_bench_env_usize("ANKI_RWKV_FORECAST_BENCH_STATE_UPDATE_INTERVAL", 1) as u32;
+        let single_step_answers =
+            scan_bench_env_usize("ANKI_RWKV_FORECAST_BENCH_SINGLE_STEP", 0) == 1;
+
+        let reviews =
+            collection_reviews_for_scan_bench(std::path::Path::new(&collection_path), 0, None)
+                .expect("collection review load failed");
+        let mut inference =
+            RwkvInference::load(std::path::PathBuf::from(weights_path), 0.9, 36_500)
+                .expect("RWKV load failed");
+        let warmup_started = std::time::Instant::now();
+        inference
+            .warm_up_reviews(reviews.clone(), false)
+            .expect("RWKV warm-up failed");
+        let warmup_ms = warmup_started.elapsed().as_secs_f64() * 1000.0;
+        let today = reviews
+            .iter()
+            .filter_map(|review| review.day_offset)
+            .max()
+            .unwrap_or(0);
+        let mut latest_by_card: HashMap<i64, (&ReviewInput, i64)> = HashMap::new();
+        for review in &reviews {
+            let entry = latest_by_card.entry(review.card_id).or_insert((review, 0));
+            entry.0 = review;
+            entry.1 += 1;
+        }
+        let mut card_ids = latest_by_card.keys().copied().collect::<Vec<_>>();
+        card_ids.sort_unstable();
+        // Every reviewed card, due where the curve says (the collection copy
+        // carries no due dates in its review inputs).
+        let cards = card_ids
+            .iter()
+            .map(|card_id| {
+                let (review, reps) = latest_by_card[card_id];
+                let elapsed_days = (today - review.day_offset.unwrap_or(today)).max(0);
+                RwkvForecastCard {
+                    input: RwkvWorkloadSimulationInput {
+                        review_input: ReviewInput {
+                            is_query: true,
+                            ease: None,
+                            duration_millis: None,
+                            card_type: Some(CardType::Review as i64),
+                            day_offset: Some(today),
+                            current_elapsed_days: Some(elapsed_days),
+                            current_elapsed_seconds: Some(elapsed_days * 86_400),
+                            target_retentions: [None; 4],
+                            ..review.clone()
+                        },
+                        interval_days: Some(elapsed_days.max(1)),
+                        ease_factor: Some(2500),
+                        reps: Some(reps),
+                        lapses: Some(0),
+                    },
+                    due_day: None,
+                    group: review.deck_id.unwrap_or(0),
+                    desired_retention: 0.9,
+                    scheduler: RwkvForecastScheduler::Rwkv,
+                    fsrs_memory: None,
+                    fsrs_parameters: vec![],
+                    historical_retention: 0.9,
+                }
+            })
+            .collect::<Vec<_>>();
+        println!("collection_reviews={}", reviews.len());
+        println!("warmup_ms={warmup_ms:.1}");
+        println!("forecast_cards={}", cards.len());
+        let started = std::time::Instant::now();
+        let output = inference
+            .forecast_workload_from_warm_up(
+                cards,
+                RwkvWorkloadForecastConfig {
+                    days,
+                    paths,
+                    seed: 0,
+                    groups: vec![],
+                    default_review_limit: review_limit as u32,
+                    default_new_limit: 0,
+                    new_cards_ignore_review_limit: false,
+                    max_interval: 36_500,
+                    review_order: ReviewCardOrder::Day,
+                    suspend_after_lapses: None,
+                    state_update_interval,
+                    single_step_answers,
+                    review_model: RwkvWorkloadReviewModel {
+                        grade_seconds: [12.0, 9.0, 7.0, 5.0],
+                        bucket_probabilities: vec![],
+                    },
+                },
+                &mut |_, _| Ok(()),
+            )
+            .expect("forecast failed");
+        let elapsed_ms = started.elapsed().as_secs_f64() * 1000.0;
+        let total_done = output.days.iter().map(|day| day.done.mean).sum::<f32>();
+        println!(
+            "days={days} paths={paths} state_update_interval={state_update_interval} single_step={single_step_answers} forecast_ms={elapsed_ms:.1} mean_reviews={total_done:.1} reviews_per_s={:.0}",
+            total_done as f64 * paths as f64 / (elapsed_ms / 1000.0)
+        );
+        for day in output.days.iter().take(days as usize) {
+            println!(
+                "day={} due_mean={:.1} due_p1={:.0} due_p5={:.0} due_p50={:.0} due_p95={:.0} due_p99={:.0} done_mean={:.1} minutes_mean={:.1}",
+                day.day,
+                day.due.mean,
+                day.due.p1,
+                day.due.p5,
+                day.due.p50,
+                day.due.p95,
+                day.due.p99,
+                day.done.mean,
+                day.seconds.mean / 60.0
+            );
+        }
+    }
+
+    #[test]
+    #[ignore]
     fn rwkv_workload_simulation_collection_benchmark() {
         let Ok(collection_path) = std::env::var("ANKI_RWKV_SIM_BENCH_COLLECTION") else {
             eprintln!(
@@ -13209,6 +13421,90 @@ order by e.id, e.cid
         let actual = worker.selected_answer_intervals_for_inputs(&inputs, &states, &ANSWER_EASES);
         let expected = ordered.map(|days| days.map(|days| clamped_interval_days(days, 36_500)));
         assert_eq!(actual, expected);
+    }
+
+    #[test]
+    fn forecast_decoded_cache_matches_packed_streams_after_answers() {
+        let Some(weights) = embedded_weights_path() else {
+            eprintln!("skipping: embedded RWKV weights not found");
+            return;
+        };
+        for precision in [StatePrecision::F32, StatePrecision::Int4CardsInt8Notes] {
+            let mut inference =
+                RwkvInference::load_with_precision(weights.clone(), 0.9, 36_500, precision)
+                    .unwrap();
+            let reviews = precision_tests::reviews(14);
+            inference.warm_up_reviews(reviews.clone(), false).unwrap();
+            let resident_before = precision_tests::snapshot_bytes(&inference);
+            let inputs = reviews
+                .iter()
+                .map(|review_input| RwkvWorkloadSimulationInput {
+                    review_input: review_input.clone(),
+                    interval_days: Some(1),
+                    ease_factor: Some(2500),
+                    reps: Some(1),
+                    lapses: Some(0),
+                })
+                .collect::<Vec<_>>();
+            let ids = StreamIds::for_workload_inputs(&inputs);
+            let cache =
+                ForecastDecodedStates::new(&inference.warm_up_states, &ids, 8_000_000).unwrap();
+            assert_eq!(cache.bytes == 0, precision == StatePrecision::F32);
+            assert!(cache.bytes <= 8_000_000);
+            let empty = ForecastDecodedStates::new(&inference.warm_up_states, &ids, 0).unwrap();
+            assert_eq!(empty.bytes, 0);
+
+            for own_budget in [0, 16_384, 8_000_000] {
+                let mut reference = SimulationStates::new(&inference.warm_up_states);
+                let mut cached = SimulationStates::with_forecast_cache(
+                    &inference.warm_up_states,
+                    &cache,
+                    own_budget,
+                );
+                let mut reference_worker =
+                    inference.workload_worker(inference.features.clone(), HashMap::new());
+                let mut cached_worker =
+                    inference.workload_worker(inference.features.clone(), HashMap::new());
+                for answer in reviews.iter().take(12) {
+                    for query in reviews.iter().take(8) {
+                        let left = reference_worker
+                            .review_heads_for_state(query, reference.state_view(query).as_ref())
+                            .unwrap();
+                        let right = cached_worker
+                            .review_heads_for_state(query, cached.state_view(query).as_ref())
+                            .unwrap();
+                        assert_eq!(
+                            left.retrievability.to_bits(),
+                            right.retrievability.to_bits()
+                        );
+                    }
+                    reference_worker
+                        .apply_simulation_answer(answer, &mut reference)
+                        .unwrap();
+                    cached_worker
+                        .apply_simulation_answer(answer, &mut cached)
+                        .unwrap();
+                    assert!(cached.decoded_own_bytes <= own_budget);
+                }
+            }
+            if precision != StatePrecision::F32 {
+                let input = &reviews[0];
+                let mut cached = SimulationStates::with_forecast_cache(
+                    &inference.warm_up_states,
+                    &cache,
+                    8_000_000,
+                );
+                let mut worker =
+                    inference.workload_worker(inference.features.clone(), HashMap::new());
+                let mut state = worker
+                    .review_heads_for_state(input, cached.state_view(input).as_ref())
+                    .unwrap()
+                    .next_state;
+                state.card.packed = Some(b"invalid state".to_vec());
+                assert!(cached.store(input, state).is_err());
+            }
+            assert_eq!(precision_tests::snapshot_bytes(&inference), resident_before);
+        }
     }
 
     #[test]

@@ -2,9 +2,13 @@
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 use anki_proto::deck_config::deck_config::config::ReviewCardOrder;
+use prost::Message;
 
 use crate::deckconfig::DeckConfig;
+use crate::deckconfig::DeckConfigId;
 use crate::decks::Deck;
+use crate::decks::DeckId;
+use crate::decks::NativeDeckName;
 
 #[derive(Debug, Clone)]
 pub struct ReviewInput {
@@ -272,6 +276,64 @@ pub struct RwkvInstantForecastCard {
     pub fsrs_enabled: bool,
 }
 
+/// Read-only copies of Anki's deck and preset settings for queue simulation.
+pub fn decode_instant_forecast_decks(
+    decks: Vec<Vec<u8>>,
+    configs: Vec<Vec<u8>>,
+) -> std::io::Result<(Vec<Deck>, Vec<DeckConfig>)> {
+    let invalid = |error: String| std::io::Error::new(std::io::ErrorKind::InvalidInput, error);
+    let mut decks = decks
+        .into_iter()
+        .map(|bytes| {
+            let value = anki_proto::decks::Deck::decode(bytes.as_slice())
+                .map_err(|error| invalid(error.to_string()))?;
+            Deck::try_from(value).map_err(|error| invalid(error.to_string()))
+        })
+        .collect::<std::io::Result<Vec<_>>>()?;
+    let mut configs = configs
+        .into_iter()
+        .map(|bytes| {
+            anki_proto::deck_config::DeckConfig::decode(bytes.as_slice())
+                .map(DeckConfig::from)
+                .map_err(|error| invalid(error.to_string()))
+        })
+        .collect::<std::io::Result<Vec<_>>>()?;
+    decks.sort_by(|a, b| a.name.as_native_str().cmp(b.name.as_native_str()));
+    if let Some(first) = decks.first() {
+        let root_name = first.name.as_native_str();
+        let is_tree = decks.iter().all(|deck| {
+            let name = deck.name.as_native_str();
+            name == root_name
+                || name
+                    .strip_prefix(root_name)
+                    .is_some_and(|suffix| suffix.starts_with('\u{1f}'))
+        });
+        if !is_tree {
+            // LimitTreeMap represents one tree. An unlimited virtual root
+            // lets a search spanning separate trees retain each real root's
+            // limits without imposing one deck's limits on another.
+            let mut name = "__rwkv_forecast_root__".to_owned();
+            while decks.iter().any(|deck| deck.name.as_native_str() == name) {
+                name.push('_');
+            }
+            let mut root = Deck::new_normal();
+            root.id = DeckId(i64::MIN);
+            root.name = NativeDeckName::from_human_name(&name);
+            root.normal_mut().expect("new deck is normal").config_id = i64::MIN;
+            let mut root_config = DeckConfig {
+                id: DeckConfigId(i64::MIN),
+                ..Default::default()
+            };
+            root_config.inner.reviews_per_day = i32::MAX as u32;
+            root_config.inner.new_per_day = i32::MAX as u32;
+            root_config.inner.rwkv_review_minimum_reviews_per_day = 0;
+            decks.insert(0, root);
+            configs.push(root_config);
+        }
+    }
+    Ok((decks, configs))
+}
+
 /// One answer grade's response-time regression against historical Instant R.
 #[derive(Clone, Copy)]
 pub struct RwkvInstantReviewTimeGrade {
@@ -286,6 +348,46 @@ pub struct RwkvInstantReviewTimeModel {
     /// Mean of per-day mean durations in the sampled historical pool.
     pub reference_seconds: f32,
     pub grades: [Option<RwkvInstantReviewTimeGrade>; 4],
+}
+
+impl RwkvInstantReviewTimeModel {
+    pub(crate) fn valid(&self) -> bool {
+        self.reference_seconds.is_finite()
+            && self.reference_seconds > 0.0
+            && self.grades.iter().flatten().all(|grade| {
+                grade.intercept.is_finite()
+                    && grade.slope.is_finite()
+                    && grade.min_recall.is_finite()
+                    && grade.max_recall.is_finite()
+                    && (0.0..=1.0).contains(&grade.min_recall)
+                    && (grade.min_recall..=1.0).contains(&grade.max_recall)
+                    && grade.fallback_seconds.is_finite()
+                    && grade.fallback_seconds > 0.0
+            })
+    }
+
+    pub(crate) fn duration_millis(&self, sampled: u32, recall: f32, ease: u8) -> u32 {
+        let Some(grade) = ease
+            .checked_sub(1)
+            .and_then(|index| self.grades.get(index as usize))
+            .and_then(|grade| *grade)
+        else {
+            return sampled;
+        };
+        if !recall.is_finite() {
+            return sampled;
+        }
+        let recall = recall.clamp(grade.min_recall, grade.max_recall);
+        let predicted = grade.intercept + grade.slope * (1.0 - recall);
+        let seconds = if predicted.is_finite() && predicted > 0.0 {
+            predicted
+        } else {
+            grade.fallback_seconds
+        };
+        (f64::from(sampled) * f64::from(seconds) / f64::from(self.reference_seconds))
+            .round()
+            .min(f64::from(u32::MAX)) as u32
+    }
 }
 
 pub struct RwkvInstantForecastConfig {

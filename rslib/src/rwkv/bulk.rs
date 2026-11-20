@@ -73,6 +73,38 @@ pub(super) fn warm_up_reviews_bulk(
     )
 }
 
+/// Advance a simulation's private state without computing unused answer heads.
+/// The feature prepass and stream recurrence preserve the recorded order.
+pub(super) fn replay_simulation_background(
+    inference: &mut RwkvInference,
+    states: &mut ReviewStateMaps,
+    inputs: &[ReviewInput],
+) {
+    if inputs.is_empty() {
+        return;
+    }
+    let mut features = Vec::with_capacity(inputs.len() * CARD_FEATURES);
+    for input in inputs {
+        features.extend(inference.features.features_for(input));
+        inference.features.store_review(input);
+    }
+    let model = inference.model.clone();
+    let mut x = feature_mlp_rows(&model, &features, inputs.len());
+    if SMALL_MODEL {
+        run_interleaved(
+            &model,
+            inputs,
+            states,
+            &mut x,
+            None,
+            BULK_CHUNK_ROWS,
+            QueryRecurrence::Exact,
+        );
+    } else {
+        run_state_only_module_wavefront(&model, inputs, states, x, BULK_CHUNK_ROWS);
+    }
+}
+
 pub(super) fn warm_up_reviews_post_bulk(
     inference: &mut RwkvInference,
     reviews: Vec<ReviewInput>,
