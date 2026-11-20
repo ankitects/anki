@@ -1,4 +1,4 @@
-// Copyright: Ankitects Pty Ltd and contributors
+// Copyright: Anki Software, LLC and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 use std::collections::HashMap;
@@ -311,7 +311,7 @@ pub(crate) fn open_or_create<P: AsRef<Path>>(path: P) -> error::Result<Connectio
         db.trace_v2(
             rusqlite::trace::TraceEventCodes::SQLITE_TRACE_STMT,
             Some(trace),
-        );
+        )?;
     }
 
     db.pragma_update(None, "page_size", 4096)?;

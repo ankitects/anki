@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# Copyright: Ankitects Pty Ltd and contributors
+# Copyright: Anki Software, LLC and contributors
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 """
 Compare line coverage percentages between a baseline and the current run.

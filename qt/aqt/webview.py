@@ -1,4 +1,4 @@
-# Copyright: Ankitects Pty Ltd and contributors
+# Copyright: Anki Software, LLC and contributors
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 from __future__ import annotations
@@ -95,8 +95,29 @@ class AuthInterceptor(QWebEngineUrlRequestInterceptor):
     def interceptRequest(self, info):
         from aqt.mediasrv import _APIKEY
 
-        if self._api_enabled and _is_internal_url(info.requestUrl()):
+        if (
+            self._api_enabled
+            and _is_internal_url(info.requestUrl())
+            and info.resourceType()
+            == QWebEngineUrlRequestInfo.ResourceType.ResourceTypeXhr
+            and info.requestMethod() == b"POST"
+        ):
             info.setHttpHeader(b"Authorization", f"Bearer {_APIKEY}".encode("utf-8"))
+
+
+class WebviewIdInterceptor(QWebEngineUrlRequestInterceptor):
+    def __init__(self, webview: AnkiWebView, webview_id: int):
+        self.webview_id = webview_id
+        super().__init__(webview)
+
+    def interceptRequest(self, info):
+        if (
+            _is_internal_url(info.requestUrl())
+            and info.resourceType()
+            == QWebEngineUrlRequestInfo.ResourceType.ResourceTypeXhr
+            and info.requestMethod() == b"POST"
+        ):
+            info.setHttpHeader(b"Anki-Webview-Id", str(self.webview_id).encode("utf-8"))
 
 
 def _create_bridge_script() -> QWebEngineScript:
@@ -417,10 +438,13 @@ class AnkiWebView(QWebEngineView):
         title: str = "",  # used by add-ons; in Anki code use kind instead to set title
         kind: AnkiWebViewKind = AnkiWebViewKind.DEFAULT,
     ) -> None:
+        from aqt import mw
+
         QWebEngineView.__init__(self, parent=parent)
         self._kind = kind
         self.set_title(kind.value)
         self.setPage(AnkiWebPage(self._onBridgeCmd, kind, self))
+        mw.mediaServer.register_webview(self)
         # reduce flicker
         self.page().setBackgroundColor(theme_manager.qcolor(colors.CANVAS))
 
@@ -1025,7 +1049,7 @@ html {{ {font} }}
     def on_operation_did_execute(
         self, changes: OpChanges, handler: object | None
     ) -> None:
-        if handler is self.parentWidget():
+        if handler is self:
             return
 
         changes_json = to_json_bytes(MessageToDict(changes)).decode()

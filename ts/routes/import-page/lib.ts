@@ -1,4 +1,4 @@
-// Copyright: Ankitects Pty Ltd and contributors
+// Copyright: Anki Software, LLC and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 import type { ImportResponse_Log, ImportResponse_Note } from "@generated/anki/import_export_pb";
@@ -6,7 +6,7 @@ import { CsvMetadata_DupeResolution } from "@generated/anki/import_export_pb";
 import { searchInBrowser } from "@generated/backend";
 import * as tr from "@generated/ftl";
 
-import { checkCircle, closeBox, newBox, updateIcon } from "$lib/components/icons";
+import { checkCircle, closeBox, newBox, updateIcon } from "#lib/components/icons.js";
 
 import type { LogQueue, NoteRow, SummarizedLogQueues } from "./types";
 

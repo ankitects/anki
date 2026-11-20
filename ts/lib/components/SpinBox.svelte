@@ -1,5 +1,5 @@
 <!--
-Copyright: Ankitects Pty Ltd and contributors
+Copyright: Anki Software, LLC and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
@@ -7,7 +7,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { isDesktop } from "@tslib/platform";
     import { tick } from "svelte";
 
-    import { chevronDown, chevronUp } from "$lib/components/icons";
+    import { chevronDown, chevronUp } from "#lib/components/icons.js";
 
     import Icon from "./Icon.svelte";
     import IconConstrain from "./IconConstrain.svelte";
