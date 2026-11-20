@@ -257,6 +257,7 @@ mod tests {
     }
 
     #[test]
+    #[cfg_attr(not(rwkv_models), ignore = "needs RWKV model files in qt/aqt/rwkv_inference")]
     fn rwkv_weight_precision_fused_preserves_complete_replay_states_and_bounds_query_error() {
         let path = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join(MODEL_PATH);
         let data = encode(&WeightMap::load(&path).unwrap());

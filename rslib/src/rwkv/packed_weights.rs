@@ -55,6 +55,7 @@ mod tests {
     use super::super::*;
 
     #[test]
+    #[cfg_attr(not(rwkv_models), ignore = "needs RWKV model files in qt/aqt/rwkv_inference")]
     fn rwkv_weight_precision_resident_projection_matches_decoded_scalar_block_and_gemm() {
         let path = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join(MODEL_PATH);
         let data = super::super::weight_precision_bench::encode(&WeightMap::load(&path).unwrap());
@@ -88,6 +89,7 @@ mod tests {
     }
 
     #[test]
+    #[cfg_attr(not(rwkv_models), ignore = "needs RWKV model files in qt/aqt/rwkv_inference")]
     fn rwkv_weight_precision_resident_replay_and_queries_match_decoded_model() {
         let path = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join(MODEL_PATH);
         let data = super::super::weight_precision_bench::encode(&WeightMap::load(&path).unwrap());

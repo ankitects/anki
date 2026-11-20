@@ -67,6 +67,10 @@ fn answer_with_kind(
 }
 
 #[test]
+#[cfg_attr(
+    not(rwkv_models),
+    ignore = "needs RWKV model files in qt/aqt/rwkv_inference"
+)]
 fn normal_review_with_a_future_due_date_uses_review_kind() -> Result<()> {
     let (mut col, _dir) = open_fs_test_collection("rwkv-early-kind");
     col.set_config_bool(BoolKey::Fsrs, false, false)?;
@@ -88,6 +92,10 @@ fn normal_review_with_a_future_due_date_uses_review_kind() -> Result<()> {
 }
 
 #[test]
+#[cfg_attr(
+    not(rwkv_models),
+    ignore = "needs RWKV model files in qt/aqt/rwkv_inference"
+)]
 fn rescheduled_filtered_review_uses_filtered_kind() -> Result<()> {
     let (mut col, _dir) = open_fs_test_collection("rwkv-filtered-kind");
     col.set_config_bool(BoolKey::Fsrs, false, false)?;
@@ -111,6 +119,10 @@ fn rescheduled_filtered_review_uses_filtered_kind() -> Result<()> {
 }
 
 #[test]
+#[cfg_attr(
+    not(rwkv_models),
+    ignore = "needs RWKV model files in qt/aqt/rwkv_inference"
+)]
 fn graduating_filtered_new_card_uses_filtered_kind() -> Result<()> {
     let (mut col, _dir) = open_fs_test_collection("rwkv-filtered-new-kind");
     col.set_config_bool(BoolKey::Fsrs, false, false)?;
@@ -133,6 +145,10 @@ fn graduating_filtered_new_card_uses_filtered_kind() -> Result<()> {
 }
 
 #[test]
+#[cfg_attr(
+    not(rwkv_models),
+    ignore = "needs RWKV model files in qt/aqt/rwkv_inference"
+)]
 fn filtered_learning_without_memory_remains_a_counted_learning_answer() -> Result<()> {
     let (mut col, _dir) = open_fs_test_collection("rwkv-filtered-learning-kind");
     col.set_config_bool(BoolKey::Fsrs, false, false)?;
@@ -154,6 +170,10 @@ fn filtered_learning_without_memory_remains_a_counted_learning_answer() -> Resul
 }
 
 #[test]
+#[cfg_attr(
+    not(rwkv_models),
+    ignore = "needs RWKV model files in qt/aqt/rwkv_inference"
+)]
 fn filtered_learning_with_memory_uses_filtered_kind() -> Result<()> {
     let (mut col, _dir) = open_fs_test_collection("rwkv-filtered-fsrs-kind");
     col.set_config_bool(BoolKey::Fsrs, true, false)?;
@@ -175,6 +195,10 @@ fn filtered_learning_with_memory_uses_filtered_kind() -> Result<()> {
 }
 
 #[test]
+#[cfg_attr(
+    not(rwkv_models),
+    ignore = "needs RWKV model files in qt/aqt/rwkv_inference"
+)]
 fn preview_answer_is_excluded_from_model_history() -> Result<()> {
     let (mut col, _dir) = open_fs_test_collection("rwkv-filtered-preview-kind");
     let card = CardAdder::new().add(&mut col)[0].id;
@@ -197,6 +221,10 @@ fn preview_answer_is_excluded_from_model_history() -> Result<()> {
 }
 
 #[test]
+#[cfg_attr(
+    not(rwkv_models),
+    ignore = "needs RWKV model files in qt/aqt/rwkv_inference"
+)]
 fn curve_scores_filtered_new_card_with_filtered_context() -> Result<()> {
     let (mut col, _dir) = open_fs_test_collection("rwkv-filtered-curve");
     let card = CardAdder::new().add(&mut col)[0].id;
@@ -245,6 +273,10 @@ fn curve_scores_filtered_new_card_with_filtered_context() -> Result<()> {
 }
 
 #[test]
+#[cfg_attr(
+    not(rwkv_models),
+    ignore = "needs RWKV model files in qt/aqt/rwkv_inference"
+)]
 fn curve_uses_the_scheduler_elapsed_time_for_a_learning_step() -> Result<()> {
     let (mut col, _dir) = open_fs_test_collection("rwkv-learning-curve");
     col.set_config_bool(BoolKey::Fsrs, false, false)?;
@@ -292,6 +324,10 @@ fn curve_uses_the_scheduler_elapsed_time_for_a_learning_step() -> Result<()> {
 }
 
 #[test]
+#[cfg_attr(
+    not(rwkv_models),
+    ignore = "needs RWKV model files in qt/aqt/rwkv_inference"
+)]
 fn ordinary_filtered_review_does_not_make_next_review_synthetic() -> Result<()> {
     let (mut col, _dir) = open_fs_test_collection("rwkv-filtered-repeat-kind");
     col.set_config_bool(BoolKey::Fsrs, false, false)?;
@@ -319,6 +355,10 @@ fn ordinary_filtered_review_does_not_make_next_review_synthetic() -> Result<()> 
 }
 
 #[test]
+#[cfg_attr(
+    not(rwkv_models),
+    ignore = "needs RWKV model files in qt/aqt/rwkv_inference"
+)]
 fn synthetic_filtered_repeats_chain_but_undo_redo_clears_the_marker() -> Result<()> {
     let (mut col, _dir) = open_fs_test_collection("rwkv-synthetic-repeat-kind");
     col.set_config_bool(BoolKey::Fsrs, false, false)?;
@@ -347,6 +387,10 @@ fn synthetic_filtered_repeats_chain_but_undo_redo_clears_the_marker() -> Result<
 }
 
 #[test]
+#[cfg_attr(
+    not(rwkv_models),
+    ignore = "needs RWKV model files in qt/aqt/rwkv_inference"
+)]
 fn undo_of_another_card_keeps_the_synthetic_repeat_marker() -> Result<()> {
     let (mut col, _dir) = open_fs_test_collection("rwkv-other-undo-kind");
     col.set_config_bool(BoolKey::Fsrs, false, false)?;
@@ -375,6 +419,10 @@ fn undo_of_another_card_keeps_the_synthetic_repeat_marker() -> Result<()> {
 }
 
 #[test]
+#[cfg_attr(
+    not(rwkv_models),
+    ignore = "needs RWKV model files in qt/aqt/rwkv_inference"
+)]
 fn explicit_answer_kind_is_preserved() -> Result<()> {
     let (mut col, _dir) = open_fs_test_collection("rwkv-explicit-kind");
     let card = CardAdder::new().add(&mut col)[0].id;
@@ -388,6 +436,10 @@ fn explicit_answer_kind_is_preserved() -> Result<()> {
 }
 
 #[test]
+#[cfg_attr(
+    not(rwkv_models),
+    ignore = "needs RWKV model files in qt/aqt/rwkv_inference"
+)]
 fn disabled_rwkv_keeps_ankis_filtered_review_kind() -> Result<()> {
     let (mut col, _dir) = open_fs_test_collection("rwkv-disabled-kind");
     col.set_config_bool(BoolKey::Fsrs, false, false)?;

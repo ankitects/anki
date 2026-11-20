@@ -29,12 +29,12 @@ include!("engine.rs");
 mod app_speed_bench;
 #[cfg(test)]
 mod checkpoint_compression_bench;
-#[cfg(all(test, not(feature = "rwkv-sm40")))]
+#[cfg(all(test, rwkv_vectors, not(feature = "rwkv-sm40")))]
 #[path = "legacy_tests.rs"]
 mod legacy_tests;
 #[cfg(test)]
 mod model_size_bench;
-#[cfg(all(test, feature = "rwkv-sm40"))]
+#[cfg(all(test, rwkv_vectors, feature = "rwkv-sm40"))]
 #[path = "sm40_tests.rs"]
 mod sm40_tests;
 

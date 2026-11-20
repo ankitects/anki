@@ -2336,6 +2336,10 @@ mod test {
     }
 
     #[test]
+    #[cfg_attr(
+        not(rwkv_models),
+        ignore = "needs RWKV model files in qt/aqt/rwkv_inference"
+    )]
     fn same_day_review_kind_ignores_reviews_before_reset() -> Result<()> {
         let (mut col, _dir) = open_fs_test_collection("rwkv-same-day-reset");
         let card_id = CardAdder::new().add(&mut col)[0].id;
@@ -2406,6 +2410,10 @@ mod test {
     }
 
     #[test]
+    #[cfg_attr(
+        not(rwkv_models),
+        ignore = "needs RWKV model files in qt/aqt/rwkv_inference"
+    )]
     fn first_answer_after_unlogged_reset_updates_the_resident_model() -> Result<()> {
         let (mut col, _dir) = open_fs_test_collection("rwkv-new-reset-model");
         let first = CardAdder::new().add(&mut col)[0].id;

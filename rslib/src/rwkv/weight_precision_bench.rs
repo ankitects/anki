@@ -283,6 +283,7 @@ fn rwkv_weight_precision_rejects_truncated_scales_codes_and_padding() {
 }
 
 #[test]
+#[cfg_attr(not(rwkv_models), ignore = "needs RWKV model files in qt/aqt/rwkv_inference")]
 fn rwkv_weight_precision_native_model_loads_packed_round_trip() {
     let path = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join(MODEL_PATH);
     let weights = WeightMap::load(&path).unwrap();

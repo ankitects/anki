@@ -35,6 +35,10 @@ fn answer(col: &mut Collection, card_id: CardId, rating: Rating, s90: Option<f32
 }
 
 #[test]
+#[cfg_attr(
+    not(rwkv_models),
+    ignore = "needs RWKV model files in qt/aqt/rwkv_inference"
+)]
 fn preview_does_not_apply_offline_or_desktop_curve_stability() -> Result<()> {
     let (mut col, _dir) = open_fs_test_collection("rwkv-preview-s90");
     col.set_config_bool(BoolKey::Fsrs, true, false)?;

@@ -148,6 +148,10 @@ fn model_replaced_in_place_is_refused() -> io::Result<()> {
 
 #[cfg(test)]
 #[test]
+#[cfg_attr(
+    not(rwkv_models),
+    ignore = "needs RWKV model files in qt/aqt/rwkv_inference"
+)]
 fn sm72_input_rule_changes_the_saved_state_header() -> io::Result<()> {
     let mut model = SelectedOfflineModel {
         model: super::offline::OfflineModel {

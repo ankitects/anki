@@ -358,6 +358,10 @@ mod tests {
     }
 
     #[test]
+    #[cfg_attr(
+        not(rwkv_models),
+        ignore = "needs RWKV model files in qt/aqt/rwkv_inference"
+    )]
     fn sm72_offline_engine_enables_the_leak_free_rule() {
         let weights = model_file("sm72/weights.f32.bin");
         let predict = |precision, leak_free| {
@@ -441,6 +445,10 @@ mod tests {
     /// alone and RWKV-Curve as its two-head model alone, and its saved
     /// state loads back to the same answers.
     #[test]
+    #[cfg_attr(
+        not(rwkv_models),
+        ignore = "needs RWKV model files in qt/aqt/rwkv_inference"
+    )]
     fn a_pair_is_its_two_models_side_by_side() {
         let load = |file: &str| {
             Engine::load_with_precision(model_file(file), 0.9, 36_500, StatePrecision::Int8, true)

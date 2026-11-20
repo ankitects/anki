@@ -12047,6 +12047,7 @@ order by e.id, e.cid
     }
 
     #[test]
+    #[cfg_attr(not(rwkv_models), ignore = "needs RWKV model files in qt/aqt/rwkv_inference")]
     fn spill_stash_restores_empty_resident_state() {
         let weights = embedded_weights_path().expect("embedded RWKV weights");
         let mut inference = RwkvInference::load(weights, 0.9, 36_500).unwrap();
@@ -12066,6 +12067,7 @@ order by e.id, e.cid
     }
 
     #[test]
+    #[cfg_attr(not(rwkv_models), ignore = "needs RWKV model files in qt/aqt/rwkv_inference")]
     fn spill_restore_keeps_stash_for_retry_when_file_is_missing_truncated_or_corrupt() {
         let weights = embedded_weights_path().expect("embedded RWKV weights");
         let mut inference = RwkvInference::load(weights, 0.9, 36_500).unwrap();
@@ -12134,6 +12136,7 @@ order by e.id, e.cid
     }
 
     #[test]
+    #[cfg_attr(not(rwkv_models), ignore = "needs RWKV model files in qt/aqt/rwkv_inference")]
     fn discard_stashed_warm_up_state_allows_another_stash() {
         let weights = embedded_weights_path().expect("embedded RWKV weights");
         let mut inference = RwkvInference::load(weights, 0.9, 36_500).unwrap();
@@ -12168,6 +12171,7 @@ order by e.id, e.cid
     }
 
     #[test]
+    #[cfg_attr(not(rwkv_models), ignore = "needs RWKV model files in qt/aqt/rwkv_inference")]
     fn discard_stashed_warm_up_state_ignores_spill_delete_errors() {
         let weights = embedded_weights_path().expect("embedded RWKV weights");
         let mut inference = RwkvInference::load(weights, 0.9, 36_500).unwrap();
@@ -12185,6 +12189,7 @@ order by e.id, e.cid
     }
 
     #[test]
+    #[cfg_attr(not(rwkv_models), ignore = "needs RWKV model files in qt/aqt/rwkv_inference")]
     fn spill_write_failure_keeps_resident_state_and_allows_in_memory_stash() {
         let weights = embedded_weights_path().expect("embedded RWKV weights");
         let mut inference = RwkvInference::load(weights, 0.9, 36_500).unwrap();
@@ -12363,6 +12368,7 @@ order by e.id, e.cid
     }
 
     #[test]
+    #[cfg_attr(not(rwkv_models), ignore = "needs RWKV model files in qt/aqt/rwkv_inference")]
     fn full_state_checkpoint_bounds_sqlite_memory() {
         // SQLite's memory high-water counter is process-wide. Isolate this
         // measurement from other tests, including when the suite runs in parallel.
@@ -13058,6 +13064,7 @@ order by e.id, e.cid
     }
 
     #[test]
+    #[cfg_attr(not(rwkv_models), ignore = "needs RWKV model files in qt/aqt/rwkv_inference")]
     fn batched_retrievability_matches_scalar_query_path() {
         let model_path = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join(MODEL_PATH);
         assert!(model_path.exists(), "RWKV parity model is missing");

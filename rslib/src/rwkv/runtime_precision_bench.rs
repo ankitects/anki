@@ -122,6 +122,7 @@ fn hybrid_runtime() -> RwkvInference {
 }
 
 #[test]
+#[cfg_attr(not(rwkv_models), ignore = "needs RWKV model files in qt/aqt/rwkv_inference")]
 fn rwkv_hybrid_precision_preserves_replay_across_chunks() {
     let reviews = super::precision_tests::reviews(51);
     let mut sequential = hybrid_runtime();

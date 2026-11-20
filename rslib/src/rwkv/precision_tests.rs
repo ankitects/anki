@@ -87,6 +87,7 @@ fn rwkv_state_precision_rejects_removed_full_int4_without_panicking() {
 }
 
 #[test]
+#[cfg_attr(not(rwkv_models), ignore = "needs RWKV model files in qt/aqt/rwkv_inference")]
 fn rwkv_state_precision_mixed_packs_cards_as_int4_and_notes_as_int8() {
     for weights in models() {
         check_mixed_packs_cards_as_int4_and_notes_as_int8(&weights);
@@ -122,6 +123,7 @@ fn check_mixed_packs_cards_as_int4_and_notes_as_int8(weights: &Path) {
 }
 
 #[test]
+#[cfg_attr(not(rwkv_models), ignore = "needs RWKV model files in qt/aqt/rwkv_inference")]
 fn rwkv_state_precision_bulk_matches_answers_across_chunk_boundaries() {
     let reviews = reviews(51);
     for (weights, (precision, shared)) in models()
@@ -161,6 +163,7 @@ fn rwkv_state_precision_bulk_matches_answers_across_chunk_boundaries() {
 }
 
 #[test]
+#[cfg_attr(not(rwkv_models), ignore = "needs RWKV model files in qt/aqt/rwkv_inference")]
 fn rwkv_state_precision_queries_and_undo_read_packed_history() {
     for (weights, (precision, shared)) in models().into_iter().flat_map(|weights| {
         PRECISIONS
@@ -249,6 +252,7 @@ fn rwkv_state_precision_queries_and_undo_read_packed_history() {
 }
 
 #[test]
+#[cfg_attr(not(rwkv_models), ignore = "needs RWKV model files in qt/aqt/rwkv_inference")]
 fn rwkv_state_precision_queue_scoring_reports_invalid_resident_state() {
     for weights in models() {
         check_queue_scoring_reports_invalid_resident_state(&weights);
@@ -302,6 +306,7 @@ fn check_queue_scoring_reports_invalid_resident_state(weights: &Path) {
 }
 
 #[test]
+#[cfg_attr(not(rwkv_models), ignore = "needs RWKV model files in qt/aqt/rwkv_inference")]
 fn rwkv_state_precision_session_checkpoints_and_spills_preserve_continuation() {
     let reviews = reviews(49);
     for (weights, (precision, shared)) in models()
@@ -388,6 +393,7 @@ fn stored_layer_bytes(precision: StatePrecision, channel_mixer: bool) -> usize {
 /// the same. Per card + note, int8: small 4,554 B, tiny 3,134 B; int4 cards +
 /// int8 notes: 3,530 B and 2,622 B; f32: 13,640 B and 9,276 B.
 #[test]
+#[cfg_attr(not(rwkv_models), ignore = "needs RWKV model files in qt/aqt/rwkv_inference")]
 fn rwkv_state_precision_stored_sizes_of_the_small_and_tiny_models() {
     if !SMALL_MODEL {
         return;

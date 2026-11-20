@@ -1123,6 +1123,10 @@ mod tests {
     }
 
     #[test]
+    #[cfg_attr(
+        not(rwkv_models),
+        ignore = "needs RWKV model files in qt/aqt/rwkv_inference"
+    )]
     fn rwkv_runtime_restores_each_model_at_each_precision() {
         for precision in [
             StatePrecision::F32,
@@ -1172,6 +1176,10 @@ mod tests {
     }
 
     #[test]
+    #[cfg_attr(
+        not(rwkv_models),
+        ignore = "needs RWKV model files in qt/aqt/rwkv_inference"
+    )]
     fn rwkv_runtime_feeds_leak_free_inputs_to_leak_free_models() {
         assert_eq!(ModelKind::parse("sm72").unwrap(), ModelKind::Sm72);
         assert_eq!(ModelKind::parse("sm72e20").unwrap(), ModelKind::Sm72e20);
@@ -1250,6 +1258,10 @@ mod tests {
     /// `time_head.f32.bin` loads as before and predicts no answer time, and
     /// loading the head changes no grade output.
     #[test]
+    #[cfg_attr(
+        not(rwkv_models),
+        ignore = "needs RWKV model files in qt/aqt/rwkv_inference"
+    )]
     fn rwkv_runtime_answer_time_head_is_optional_and_leaves_grades_unchanged() {
         for (model, folder) in [(ModelKind::Sm72e25, "sm72e25"), (ModelKind::Sm92, "sm92")] {
             check_answer_time_head_is_optional(model, folder);
@@ -1420,6 +1432,10 @@ mod tests {
     /// buttons, one card layer, no answer-time head, at every state
     /// precision.
     #[test]
+    #[cfg_attr(
+        not(rwkv_models),
+        ignore = "needs RWKV model files in qt/aqt/rwkv_inference"
+    )]
     fn rwkv_sm106_alone_is_a_full_tiny_model() {
         assert!(!ModelKind::Sm106.instant_only() && ModelKind::Sm106.leak_free_inputs());
         assert!(ModelKind::Sm106.small() && ModelKind::Sm106.card_layers() == Some(1));
@@ -1944,6 +1960,10 @@ mod tests {
     }
 
     #[test]
+    #[cfg_attr(
+        not(rwkv_models),
+        ignore = "needs RWKV model files in qt/aqt/rwkv_inference"
+    )]
     fn instant_forecast_pulls_future_card_for_daily_minimum() {
         if super::super::SMALL_MODEL {
             check_instant_forecast_pulls_future_card(load(ModelKind::Sm57, StatePrecision::F32));
@@ -2362,6 +2382,10 @@ mod tests {
     /// Small pair runs on the small engine: only Legacy beside SM99, never
     /// a big model beside a small one or SM99 as the release side.
     #[test]
+    #[cfg_attr(
+        not(rwkv_models),
+        ignore = "needs RWKV model files in qt/aqt/rwkv_inference"
+    )]
     fn rwkv_big_pair_accepts_only_the_big_models() {
         assert_eq!(ModelKind::parse("sm99").unwrap(), ModelKind::Sm99);
         assert!(ModelKind::Sm99.instant_only() && ModelKind::Sm99.leak_free_inputs());
@@ -2406,6 +2430,10 @@ mod tests {
     }
 
     #[test]
+    #[cfg_attr(
+        not(rwkv_models),
+        ignore = "needs RWKV model files in qt/aqt/rwkv_inference"
+    )]
     fn rwkv_big_pair_matches_each_model_alone() {
         for precision in [
             StatePrecision::F32,
@@ -2423,6 +2451,10 @@ mod tests {
     /// The instant-only big model (SM99) alone (Big with RWKV-Instant and no
     /// RWKV-Curve) gives its instant outputs and never a curve output.
     #[test]
+    #[cfg_attr(
+        not(rwkv_models),
+        ignore = "needs RWKV model files in qt/aqt/rwkv_inference"
+    )]
     fn rwkv_big_instant_only_runtime_serves_no_curve() {
         for precision in [
             StatePrecision::F32,
@@ -2440,6 +2472,10 @@ mod tests {
     }
 
     #[test]
+    #[cfg_attr(
+        not(rwkv_models),
+        ignore = "needs RWKV model files in qt/aqt/rwkv_inference"
+    )]
     fn rwkv_big_pair_state_round_trips() {
         let precision = StatePrecision::Int4CardsInt8Notes;
         check_pair_state_round_trips(|| big_pair(precision), load(ModelKind::Legacy, precision));
@@ -2453,6 +2489,10 @@ mod tests {
     /// restores the cache first), and every undo state of another engine or
     /// pairing.
     #[test]
+    #[cfg_attr(
+        not(rwkv_models),
+        ignore = "needs RWKV model files in qt/aqt/rwkv_inference"
+    )]
     fn rwkv_switching_sizes_never_reuses_another_layout_state() {
         let precision = StatePrecision::Int4CardsInt8Notes;
         let answers = crate::rwkv::precision_tests::reviews(14);
@@ -2551,6 +2591,10 @@ mod tests {
     /// big model (the pair header plus two big states), the stored state the
     /// desktop keeps per card and note.
     #[test]
+    #[cfg_attr(
+        not(rwkv_models),
+        ignore = "needs RWKV model files in qt/aqt/rwkv_inference"
+    )]
     fn rwkv_big_pair_stores_two_big_states_per_card_and_note() {
         let answers = crate::rwkv::precision_tests::reviews(14);
         for precision in [
