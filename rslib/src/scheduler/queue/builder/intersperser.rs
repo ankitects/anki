@@ -13,6 +13,8 @@ where
     one_len: usize,
     two_len: usize,
     ratio: f32,
+    one_offset: usize,
+    two_offset: usize,
 }
 
 impl<I, I2> Intersperser<I, I2>
@@ -20,10 +22,10 @@ where
     I: ExactSizeIterator,
     I2: ExactSizeIterator<Item = I::Item>,
 {
-    pub fn new(one: I, two: I2) -> Self {
+    pub fn new(one: I, two: I2, one_offset: usize, two_offset: usize) -> Self {
         let one_len = one.len();
         let two_len = two.len();
-        let ratio = (one_len + 1) as f32 / (two_len + 1) as f32;
+        let ratio = (one_len + one_offset + 1) as f32 / (two_len + two_offset + 1) as f32;
         Intersperser {
             one,
             two,
@@ -32,6 +34,8 @@ where
             one_len,
             two_len,
             ratio,
+            one_offset,
+            two_offset,
         }
     }
 
@@ -72,8 +76,8 @@ where
     fn next(&mut self) -> Option<Self::Item> {
         match (self.one_idx(), self.two_idx()) {
             (Some(idx1), Some(idx2)) => {
-                let relative_idx2 = (idx2 + 1) as f32 * self.ratio;
-                if relative_idx2 < (idx1 + 1) as f32 {
+                let relative_idx2 = (idx2 + self.two_offset + 1) as f32 * self.ratio;
+                if relative_idx2 < (idx1 + self.one_offset + 1) as f32 {
                     self.next_two()
                 } else {
                     self.next_one()
@@ -103,7 +107,7 @@ mod test {
     use super::Intersperser;
 
     fn intersperse(a: &[u32], b: &[u32]) -> Vec<u32> {
-        Intersperser::new(a.iter().cloned(), b.iter().cloned()).collect()
+        Intersperser::new(a.iter().cloned(), b.iter().cloned(), 0, 0).collect()
     }
 
     #[test]
