@@ -10,8 +10,11 @@ workspace = ".."
 description = "Anki's Rust library code"
 
 [features]
-# Selects the primary RWKV engine for offline comparisons; both models are
-# always available at runtime.
+# kuma3: off, so crate::rwkv is the big model and crate::rwkv::alternate the
+# small one, as kuma3's offline runtime (scheduler/rwkv/offline_engine.rs)
+# expects; the fork's own runtime (rwkv/runtime.rs) picks either way.
+default = []
+# Select the primary engine for offline comparisons; both models are always available at runtime.
 rwkv-sm40 = []
 bench = ["criterion"]
 rustls = ["reqwest/rustls-tls", "reqwest/rustls-tls-native-roots"]
@@ -44,6 +47,9 @@ async-stream.workspace = true
 reqwest = { workspace = true, features = ["native-tls"] }
 wiremock.workspace = true
 
+[target.'cfg(unix)'.dev-dependencies]
+libc.workspace = true
+
 [dependencies]
 criterion = { workspace = true, optional = true }
 
@@ -57,6 +63,7 @@ axum.workspace = true
 axum-client-ip.workspace = true
 axum-extra.workspace = true
 bitflags.workspace = true
+blake2.workspace = true
 blake3.workspace = true
 bytes.workspace = true
 chrono.workspace = true
@@ -72,8 +79,8 @@ fluent.workspace = true
 fluent-bundle.workspace = true
 fnv.workspace = true
 fsrs.workspace = true
-half.workspace = true
 futures.workspace = true
+half.workspace = true
 hex.workspace = true
 htmlescape.workspace = true
 hyper.workspace = true
@@ -107,6 +114,7 @@ sha1.workspace = true
 sha2.workspace = true
 snafu.workspace = true
 strum.workspace = true
+tar.workspace = true
 tempfile.workspace = true
 tokio.workspace = true
 tokio-util.workspace = true
