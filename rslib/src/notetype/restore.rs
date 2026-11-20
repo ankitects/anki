@@ -4,6 +4,8 @@
 use anki_proto::notetypes::stock_notetype::Kind;
 use anki_proto::notetypes::stock_notetype::OriginalStockKind;
 
+use crate::notetype::notetypechange::default_field_map;
+use crate::notetype::notetypechange::default_template_map;
 use crate::notetype::stock::get_original_stock_notetype;
 use crate::notetype::stock::StockKind;
 use crate::prelude::*;
@@ -37,12 +39,18 @@ impl Collection {
         }
 
         let mut stock_nt = get_original_stock_notetype(stock_kind, &self.tr)?;
-        for (idx, item) in stock_nt.templates.iter_mut().enumerate() {
-            item.ord = Some(idx as u32);
+        // Map stock fields and templates to the existing ones by name, so reordering
+        // them doesn't move content into the wrong place. Unmatched ones take the
+        // remaining existing ones in order. Cloze templates are mapped by position.
+        let template_map = default_template_map(&nt, &stock_nt)
+            .unwrap_or_else(|| (0..stock_nt.templates.len()).map(Some).collect());
+        let field_map = default_field_map(&nt, &stock_nt);
+        for (item, ord) in stock_nt.templates.iter_mut().zip(template_map) {
+            item.ord = ord.map(|ord| ord as u32);
         }
         nt.templates = stock_nt.templates;
-        for (idx, item) in stock_nt.fields.iter_mut().enumerate() {
-            item.ord = Some(idx as u32);
+        for (item, ord) in stock_nt.fields.iter_mut().zip(field_map) {
+            item.ord = ord.map(|ord| ord as u32);
         }
         nt.fields = stock_nt.fields;
         nt.config.css = stock_nt.config.css;
@@ -89,6 +97,51 @@ mod test {
             col.storage.db_scalar::<u32>("select count(*) from cards")?,
             1
         );
+
+        Ok(())
+    }
+
+    #[test]
+    fn reordered_fields_keep_their_content() -> Result<()> {
+        let mut col = Collection::new();
+        for (mut nt, fields, q_format) in [
+            (col.basic_notetype(), ["front", "back"], "{{Front}}"),
+            (
+                col.cloze_notetype(),
+                ["{{c1::text}}", "extra"],
+                "{{cloze:Text}}",
+            ),
+        ] {
+            let note = NoteAdder::new(&nt).fields(&fields).add(&mut col);
+            nt.fields.swap(0, 1);
+            col.update_notetype(&mut nt, false)?;
+
+            col.restore_notetype_to_stock(nt.id, None)?;
+            let note = col.storage.get_note(note.id)?.unwrap();
+            assert_eq!(note.fields(), &fields);
+            let restored = col.get_notetype(nt.id)?.unwrap();
+            assert_eq!(restored.templates[0].config.q_format, q_format);
+        }
+
+        Ok(())
+    }
+
+    #[test]
+    fn reordered_templates_keep_their_cards() -> Result<()> {
+        let mut col = Collection::new();
+        let mut nt = col.basic_rev_notetype();
+        let note = NoteAdder::new(&nt).fields(&["front", "back"]).add(&mut col);
+        let card_ids_by_template = |col: &Collection| -> Result<Vec<CardId>> {
+            let mut cards = col.storage.all_cards_of_note(note.id)?;
+            cards.sort_by_key(|card| card.template_idx);
+            Ok(cards.into_iter().map(|card| card.id).collect())
+        };
+        let original_cards = card_ids_by_template(&col)?;
+        nt.templates.swap(0, 1);
+        col.update_notetype(&mut nt, false)?;
+
+        col.restore_notetype_to_stock(nt.id, None)?;
+        assert_eq!(card_ids_by_template(&col)?, original_cards);
 
         Ok(())
     }
