@@ -10,6 +10,9 @@ workspace = ".."
 description = "Anki's Rust library code"
 
 [features]
+# Selects the primary RWKV engine for offline comparisons; both models are
+# always available at runtime.
+rwkv-sm40 = []
 bench = ["criterion"]
 rustls = ["reqwest/rustls-tls", "reqwest/rustls-tls-native-roots"]
 native-tls = ["reqwest/native-tls"]
@@ -69,6 +72,7 @@ fluent.workspace = true
 fluent-bundle.workspace = true
 fnv.workspace = true
 fsrs.workspace = true
+half.workspace = true
 futures.workspace = true
 hex.workspace = true
 htmlescape.workspace = true

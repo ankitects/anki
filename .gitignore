@@ -24,3 +24,7 @@ ts/.svelte-kit
 docs/_build/
 docs/autoapi/
 .complexipy_cache
+
+# AnkiQuest: the RWKV weights have no public licence; never commit them.
+# Place a model directory here locally to run the RWKV tests.
+/qt/aqt/rwkv_inference
