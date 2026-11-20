@@ -305,6 +305,21 @@ mod tests {
     }
 
     #[test]
+    fn expanding_a_tag_preserves_pending_redo() -> Result<()> {
+        let mut col = Collection::new();
+        let note_id = add_note_with_tags(&mut col, &["Parent", "Parent::Child", "Source"])?;
+        col.remove_tags("Source")?;
+        col.undo()?;
+
+        col.set_tag_collapsed("Parent", false)?;
+        col.redo()?;
+
+        assert_eq!(stored_tags(&col, note_id)?, ["Parent", "Parent::Child"]);
+        assert!(col.storage.get_tag("Parent")?.unwrap().expanded);
+        Ok(())
+    }
+
+    #[test]
     fn find_and_replace_tag_targets_all_notes_when_ids_are_empty() -> Result<()> {
         let mut col = Collection::new();
         let first = add_note_with_tags(&mut col, &["Alpha"])?;

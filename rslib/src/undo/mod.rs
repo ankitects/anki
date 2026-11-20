@@ -69,11 +69,11 @@ impl UndoManager {
         }
     }
 
-    fn begin_step(&mut self, op: Option<Op>) {
+    fn begin_step(&mut self, op: Option<Op>, preserve_redo: bool) {
         if op.is_none() {
             self.undo_steps.clear();
             self.redo_steps.clear();
-        } else if self.mode == UndoMode::NormalOp {
+        } else if self.mode == UndoMode::NormalOp && !preserve_redo {
             // a normal op clears the redo queue
             self.redo_steps.clear();
         }
@@ -162,7 +162,7 @@ impl UndoManager {
     /// Start a new step with a custom name, and return its associated
     /// counter value, which can be used with `merge_undoable_ops`.
     fn add_custom_step(&mut self, name: String) -> usize {
-        self.begin_step(Some(Op::Custom(name)));
+        self.begin_step(Some(Op::Custom(name)), false);
         self.end_step(false);
         self.counter
     }
@@ -215,8 +215,8 @@ impl Collection {
 
 impl Collection {
     /// If op is None, clears the undo/redo queues.
-    pub(crate) fn begin_undoable_operation(&mut self, op: Option<Op>) {
-        self.state.undo.begin_step(op);
+    pub(crate) fn begin_undoable_operation(&mut self, op: Option<Op>, preserve_redo: bool) {
+        self.state.undo.begin_step(op, preserve_redo);
     }
 
     /// Called at the end of a successful transaction.
@@ -226,7 +226,7 @@ impl Collection {
     }
 
     pub(crate) fn discard_undo_and_study_queues(&mut self) {
-        self.state.undo.begin_step(None);
+        self.state.undo.begin_step(None, false);
         self.clear_study_queues();
     }
 
