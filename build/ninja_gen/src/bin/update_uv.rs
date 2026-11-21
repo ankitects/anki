@@ -146,7 +146,7 @@ mod tests {
         let content = fs::read_to_string("src/python.rs").unwrap();
         let original_lines = content.lines().count();
 
-        const EXPECTED_LINES_REMOVED: usize = 38;
+        const EXPECTED_LINES_REMOVED: usize = 39;
 
         let updated = update_uv_text(&content, "").unwrap();
         let updated_lines = updated.lines().count();
