@@ -36,6 +36,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 <div
     bind:this={container}
     class="tooltip"
+    hidden={!show}
     style="left: {adjustedX}px; top: {adjustedY}px; opacity: {show ? 1 : 0}"
 >
     {@html html}
