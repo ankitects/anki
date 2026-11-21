@@ -173,6 +173,20 @@ message GraphsResponse {
     TrueRetention year = 5;
     TrueRetention all_time = 6;
   }
+  // Daily totals behind the rolling retention graph. Uses the same reviews
+  // as TrueRetentionStats.
+  message RetentionOverTime {
+    message Day {
+      uint32 reviews = 1;
+      uint32 passed = 2;
+      // Reviews with an RWKV-Instant prediction made just before the answer,
+      // and the sum of those predictions.
+      uint32 predicted_reviews = 3;
+      float predicted_sum = 4;
+    }
+    // Keyed by day: 0 is today, -1 yesterday.
+    map<int32, Day> days = 1;
+  }
 
   Buttons buttons = 1;
   CardCounts card_counts = 2;
@@ -189,6 +203,7 @@ message GraphsResponse {
   bool fsrs = 13;
   Intervals stability = 14;
   TrueRetentionStats true_retention = 15;
+  RetentionOverTime retention_over_time = 16;
 }
 
 message GraphPreferences {

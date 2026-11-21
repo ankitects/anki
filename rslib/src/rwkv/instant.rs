@@ -38,11 +38,13 @@ impl InstantModel {
     }
 
     /// Feed answered reviews (oldest first) into the recurrent state.
-    pub(crate) fn replay(&mut self, reviews: Vec<ReviewInput>) -> io::Result<()> {
+    /// Returns the recall predicted just before each answer, as (index into
+    /// `reviews`, probability).
+    pub(crate) fn replay(&mut self, reviews: Vec<ReviewInput>) -> io::Result<Vec<(usize, f32)>> {
         if reviews.is_empty() {
-            return Ok(());
+            return Ok(vec![]);
         }
-        self.engine.warm_up_reviews(reviews, false).map(|_| ())
+        self.engine.warm_up_reviews(reviews, true)
     }
 
     /// Probability of recall if each card were shown now. Queries do not

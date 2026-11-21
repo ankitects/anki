@@ -71,6 +71,8 @@ pub(crate) struct InstantHistory {
     last_revlog_id: i64,
     revlog_count: i64,
     cards: HashMap<i64, CardHistory>,
+    /// Recall predicted just before each replayed answer, by revlog id.
+    predictions: HashMap<i64, f32>,
 }
 
 impl fmt::Debug for InstantHistory {
@@ -99,6 +101,7 @@ impl InstantHistory {
             last_revlog_id: 0,
             revlog_count: 0,
             cards: HashMap::new(),
+            predictions: HashMap::new(),
         })
     }
 
@@ -196,8 +199,20 @@ impl InstantHistory {
         }
     }
 
-    fn replay(&mut self, inputs: Vec<ReviewInput>) -> Result<()> {
-        self.model.replay(inputs).or_invalid("RWKV replay")
+    /// The recall the model predicted just before the answer with this
+    /// revlog id, if the answer is part of the replayed history.
+    pub(crate) fn prediction_for_review(&self, review_id: RevlogId) -> Option<f32> {
+        self.predictions.get(&review_id.0).copied()
+    }
+
+    fn replay(&mut self, review_ids: Vec<i64>, inputs: Vec<ReviewInput>) -> Result<()> {
+        let predictions = self.model.replay(inputs).or_invalid("RWKV replay")?;
+        self.predictions.extend(
+            predictions
+                .into_iter()
+                .filter_map(|(index, prediction)| Some((*review_ids.get(index)?, prediction))),
+        );
+        Ok(())
     }
 }
 
@@ -266,6 +281,7 @@ impl Collection {
         }
         let rows = self.instant_history_rows(Some(history.last_revlog_id))?;
         let mut inputs = Vec::with_capacity(rows.len());
+        let mut review_ids = Vec::with_capacity(rows.len());
         for row in &rows {
             let previous_kind = history.cards.get(&row.card_id).map(|card| card.last_kind);
             if row.review_kind == 0 && previous_kind.is_some_and(|kind| kind != 0) {
@@ -277,8 +293,9 @@ impl Collection {
                 previous_kind.is_none() && row.review_kind == 0,
                 timing,
             ));
+            review_ids.push(row.review_id);
         }
-        history.replay(inputs)?;
+        history.replay(review_ids, inputs)?;
         history.last_revlog_id = last_revlog_id;
         history.revlog_count = revlog_count;
         Ok(true)
@@ -295,6 +312,7 @@ impl Collection {
         let rows = self.instant_history_rows(None)?;
         let starts = replay_starts(&rows);
         let mut inputs = Vec::with_capacity(REPLAY_CHUNK);
+        let mut review_ids = Vec::with_capacity(REPLAY_CHUNK);
         let mut replayed = 0;
         for row in &rows {
             let (start_id, learning_start_id) = starts[&row.card_id];
@@ -303,12 +321,13 @@ impl Collection {
             }
             let input = history.answer_input(row, Some(row.review_id) == learning_start_id, timing);
             inputs.push(input);
+            review_ids.push(row.review_id);
             replayed += 1;
             if inputs.len() == REPLAY_CHUNK {
-                history.replay(std::mem::take(&mut inputs))?;
+                history.replay(std::mem::take(&mut review_ids), std::mem::take(&mut inputs))?;
             }
         }
-        history.replay(inputs)?;
+        history.replay(review_ids, inputs)?;
         history.last_revlog_id = last_revlog_id;
         history.revlog_count = revlog_count;
         tracing::debug!(
