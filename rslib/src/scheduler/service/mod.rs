@@ -40,6 +40,10 @@ impl crate::services::SchedulerService for Collection {
     }
 
     /// Fetch data from DB and return rendered string.
+    fn time_budget_status(&mut self) -> Result<scheduler::TimeBudgetStatusResponse> {
+        self.time_budget_status()
+    }
+
     fn studied_today(&mut self) -> Result<generic::String> {
         self.studied_today().map(Into::into)
     }

@@ -130,6 +130,9 @@ pub struct CollectionState {
     pub(crate) deck_cache: HashMap<DeckId, Arc<Deck>>,
     pub(crate) scheduler_info: Option<SchedulerInfo>,
     pub(crate) card_queues: Option<CardQueues>,
+    /// RWKV-Instant model with the review log replayed, for time-budget
+    /// study sessions.
+    pub(crate) instant_history: Option<crate::scheduler::time_budget::history::InstantHistory>,
     pub(crate) active_browser_columns: Option<Arc<Vec<browser_table::Column>>>,
     /// True if legacy Python code has executed SQL that has modified the
     /// database, requiring modification time to be bumped.

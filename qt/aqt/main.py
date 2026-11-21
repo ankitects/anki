@@ -1355,6 +1355,11 @@ title="{}" {}>{}</button>""".format(
             parent=self, include_prerelease=version.is_prerelease, on_success=on_success
         ).with_progress().run_in_background()
 
+    def on_time_budgets(self) -> None:
+        from aqt.time_budget import open_time_budget_dialog
+
+        open_time_budget_dialog(self)
+
     def onNoteTypes(self) -> None:
         import aqt.models
 
@@ -1456,6 +1461,9 @@ title="{}" {}>{}</button>""".format(
         qconnect(m.actionCreateFiltered.triggered, self.onCram)
         qconnect(m.actionEmptyCards.triggered, self.onEmptyCards)
         qconnect(m.actionNoteTypes.triggered, self.onNoteTypes)
+        time_budgets = QAction(tr.qt_misc_time_budget_menu(), self)
+        m.menuTools.insertAction(m.actionNoteTypes, time_budgets)
+        qconnect(time_budgets.triggered, self.on_time_budgets)
         qconnect(m.action_check_for_updates.triggered, self.on_check_for_updates)
         qconnect(m.actionPreferences.triggered, self.onPrefs)
 

@@ -93,6 +93,7 @@ dependencies = [
  "fnv",
  "fsrs",
  "futures",
+ "half",
  "hex",
  "htmlescape",
  "hyper",

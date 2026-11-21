@@ -92,6 +92,15 @@ impl Collection {
         fetch_limit: usize,
         intraday_learning_only: bool,
     ) -> Result<QueuedCards> {
+        let deck_id = self.get_current_deck_id();
+        if let Some(budget) = self.active_time_budget(deck_id)? {
+            return self.get_time_budget_queued_cards(
+                &budget,
+                deck_id,
+                fetch_limit,
+                intraday_learning_only,
+            );
+        }
         let queues = self.get_queues()?;
         let counts = queues.counts();
         let entries: Vec<_> = if intraday_learning_only {
@@ -138,7 +147,10 @@ impl Collection {
     }
 }
 
-fn new_scheduling_context(col: &mut Collection, card: &Card) -> Result<SchedulingContext> {
+pub(crate) fn new_scheduling_context(
+    col: &mut Collection,
+    card: &Card,
+) -> Result<SchedulingContext> {
     Ok(SchedulingContext {
         deck_name: col
             .get_deck(card.original_or_current_deck_id())?

@@ -16,6 +16,7 @@ pub(crate) mod queue;
 mod reviews;
 mod service;
 pub mod states;
+pub(crate) mod time_budget;
 pub mod timespan;
 pub mod timing;
 mod upgrade;

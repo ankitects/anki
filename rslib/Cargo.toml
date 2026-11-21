@@ -70,6 +70,7 @@ fluent-bundle.workspace = true
 fnv.workspace = true
 fsrs.workspace = true
 futures.workspace = true
+half.workspace = true
 hex.workspace = true
 htmlescape.workspace = true
 hyper.workspace = true

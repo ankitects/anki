@@ -75,6 +75,26 @@ qt-misc-layout-auto-enabled = Responsive layout enabled
 qt-misc-layout-vertical-enabled = Vertical layout enabled
 qt-misc-layout-horizontal-enabled = Horizontal layout enabled
 
+qt-misc-time-budget-title = RWKV Time Budgets
+qt-misc-time-budget-menu = RWKV Time Budgets...
+qt-misc-time-budget-intro =
+    Decks with a time budget are studied with RWKV-Instant. Cards with the lowest
+    predicted recall are shown first, including cards that are not due yet, until
+    the day's time is used up. Answers are still scheduled by FSRS.
+qt-misc-time-budget-deck = Deck
+qt-misc-time-budget-enabled = Enabled
+qt-misc-time-budget-minutes = Minutes per day
+qt-misc-time-budget-max-reviews = Max reviews per card per day
+qt-misc-time-budget-min-dr = Minimum DR %
+qt-misc-time-budget-max-dr = Maximum DR %
+qt-misc-time-budget-help-max-reviews = A card answered this many times today is not shown again today.
+qt-misc-time-budget-help-min-dr = Cards below this predicted recall are shown even after the time is used up.
+qt-misc-time-budget-help-max-dr = Only cards below this predicted recall are shown. The session ends early when none are left.
+qt-misc-time-budget-min-above-max = The minimum DR can't be higher than the maximum DR ({ $deck }).
+qt-misc-time-budget-minutes-left = { $minutes } min
+qt-misc-time-budget-time-left = Time left
+qt-misc-time-budget-cards-below-target = Cards below target
+
 ## deprecated- these strings will be removed in the future, and do not need
 ## to be translated
 

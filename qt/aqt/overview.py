@@ -21,6 +21,7 @@ from aqt.operations.scheduling import (
     unbury_deck,
 )
 from aqt.sound import av_player
+from aqt.time_budget import format_remaining, remaining_for_deck
 from aqt.toolbar import BottomBar
 from aqt.utils import askUserDialog, openLink, shortcut, tooltip, tr
 
@@ -228,6 +229,9 @@ class Overview:
     def _table(self) -> str:
         counts = list(self.mw.col.sched.counts())
         current_did = self.mw.col.decks.get_current_id()
+        remaining = remaining_for_deck(self.mw.col, current_did)
+        if remaining is not None:
+            return self._time_budget_table(remaining, sum(counts))
         deck_node = self.mw.col.sched.deck_due_tree(current_did)
 
         but = self.mw.button
@@ -261,6 +265,26 @@ class Overview:
 {number_row(tr.actions_new(), "new-count", counts[0], buried_new)}
 {number_row(tr.scheduling_learning(), "learn-count", counts[1], buried_learning)}
 {number_row(tr.studying_to_review(), "review-count", counts[2], buried_review)}
+</table>
+</td><td align=center>
+{but("study", tr.studying_study_now(), id="study", extra=" autofocus")}</td></tr></table>"""
+
+    def _time_budget_table(self, remaining_secs: int, cards: int) -> str:
+        """The study table of a deck covered by an RWKV-Instant time budget."""
+        but = self.mw.button
+        klass = "time-budget" if remaining_secs > 0 else "zero-count"
+        return f"""
+<table width=400 cellpadding=5>
+<tr><td align=center valign=top>
+<table cellspacing=5>
+<tr>
+    <td>{tr.qt_misc_time_budget_time_left()}:</td>
+    <td><b><span class={klass}>{format_remaining(remaining_secs)}</span></b></td>
+</tr>
+<tr>
+    <td>{tr.qt_misc_time_budget_cards_below_target()}:</td>
+    <td><b><span class=review-count>{cards}</span></b></td>
+</tr>
 </table>
 </td><td align=center>
 {but("study", tr.studying_study_now(), id="study", extra=" autofocus")}</td></tr></table>"""

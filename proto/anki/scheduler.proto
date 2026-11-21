@@ -24,6 +24,8 @@ service SchedulerService {
   rpc ExtendLimits(ExtendLimitsRequest) returns (generic.Empty);
   rpc CountsForDeckToday(decks.DeckId) returns (CountsForDeckTodayResponse);
   rpc CongratsInfo(generic.Empty) returns (CongratsInfoResponse);
+  // Remaining study time for decks with an RWKV-Instant time budget.
+  rpc TimeBudgetStatus(generic.Empty) returns (TimeBudgetStatusResponse);
   rpc RestoreBuriedAndSuspendedCards(cards.CardIds)
       returns (collection.OpChanges);
   rpc UnburyDeck(UnburyDeckRequest) returns (collection.OpChanges);
@@ -482,4 +484,14 @@ message FuzzDeltaRequest {
 
 message FuzzDeltaResponse {
   sint32 delta_days = 1;
+}
+
+message TimeBudgetStatusResponse {
+  message Deck {
+    int64 deck_id = 1;
+    uint32 budget_secs = 2;
+    // Negative once the budget is used up.
+    int32 remaining_secs = 3;
+  }
+  repeated Deck decks = 1;
 }
