@@ -10,7 +10,6 @@ use crate::prelude::*;
 pub enum BoolKey {
     ApplyAllParentLimits,
     BrowserTableShowNotesMode,
-    BuryFailedCards,
     CardCountsSeparateInactive,
     CollapseCardState,
     CollapseDecks,
