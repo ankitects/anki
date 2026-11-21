@@ -91,7 +91,9 @@ pub fn setup_venv(build: &mut Build) -> Result<()> {
             ) {
                 (true, true) => "--package anki --group dev --no-install-package ruff",
                 (true, false) => "--package anki --group dev",
-                (false, true) => "--all-packages --extra qt --extra audio --no-install-package ruff",
+                (false, true) => {
+                    "--all-packages --extra qt --extra audio --no-install-package ruff"
+                }
                 (false, false) => "--all-packages --extra qt --extra audio",
             },
             extra_binary_exports,
