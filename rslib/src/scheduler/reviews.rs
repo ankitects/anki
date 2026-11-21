@@ -158,6 +158,7 @@ impl Collection {
                     }
                 };
                 let original = card.clone();
+                col.prepare_rwkv_new_card_reset(&mut card)?;
                 let days_from_today = distribution.sample(&mut rng);
                 card.set_due_date(
                     today,
@@ -177,24 +178,54 @@ impl Collection {
         })
     }
 
-    pub fn grade_now(&mut self, cids: &[CardId], rating: i32) -> Result<OpOutput<()>> {
+    pub fn grade_now(
+        &mut self,
+        input: anki_proto::scheduler::GradeNowRequest,
+    ) -> Result<OpOutput<()>> {
+        let cids = input.card_ids.into_newtype(CardId);
+        let mut card_options_by_id: HashMap<_, _> = input
+            .card_options
+            .into_iter()
+            .map(|options| (CardId(options.card_id), options))
+            .collect();
+        let rating = input.rating;
+
         self.transact(Op::GradeNow, |col| {
-            for &card_id in cids {
-                let states = col.get_scheduling_states(card_id)?;
+            for &card_id in &cids {
+                let options = card_options_by_id.remove(&card_id);
+                let desired_retention_override = options
+                    .as_ref()
+                    .and_then(|options| options.desired_retention_override);
+                let mut states: anki_proto::scheduler::SchedulingStates =
+                    if let Some(states) = options.and_then(|options| options.scheduling_states) {
+                        states
+                    } else {
+                        col.get_scheduling_states_with_desired_retention_override(
+                            card_id,
+                            desired_retention_override,
+                        )?
+                        .into()
+                    };
                 let new_state = match rating {
-                    0 => states.again,
-                    1 => states.hard,
-                    2 => states.good,
-                    3 => states.easy,
+                    0 => states.again.take(),
+                    1 => states.hard.take(),
+                    2 => states.good.take(),
+                    3 => states.easy.take(),
                     _ => invalid_input!("invalid rating"),
-                };
+                }
+                .unwrap_or_default();
                 let mut answer: CardAnswer = anki_proto::scheduler::CardAnswer {
                     card_id: card_id.into(),
-                    current_state: Some(states.current.into()),
-                    new_state: Some(new_state.into()),
+                    current_state: states.current.take(),
+                    new_state: Some(new_state),
                     rating,
                     milliseconds_taken: 0,
                     answered_at_millis: TimestampMillis::now().into(),
+                    desired_retention_override,
+                    desired_retention_override_is_final: false,
+                    rwkv_s90: None,
+                    rwkv_retrievability: None,
+                    rwkv_review_kind: None,
                 }
                 .into();
                 // Process the card without updating queues yet
@@ -210,6 +241,45 @@ impl Collection {
 mod test {
     use super::*;
     use crate::prelude::*;
+
+    #[test]
+    fn grade_now_desired_retention_override_is_saved() -> Result<()> {
+        let mut col = Collection::new();
+        col.set_config_bool(BoolKey::Fsrs, true, false)?;
+
+        let nt = col.get_notetype_by_name("Basic")?.unwrap();
+        let mut note = nt.new_note();
+        col.add_note(&mut note, DeckId(1))?;
+
+        let mut card = col.get_first_card();
+        card.ctype = CardType::Review;
+        card.queue = CardQueue::Review;
+        card.interval = 10;
+        card.due = col.timing_today()?.days_elapsed as i32;
+        card.memory_state = Some(crate::card::FsrsMemoryState {
+            stability: 10.0,
+            stability_internal: 10.0,
+            stability_fast: None,
+            difficulty: 5.0,
+        });
+        card.last_review_time = Some(TimestampSecs::now().adding_secs(-5 * 86_400));
+        col.storage.update_card(&card)?;
+
+        col.grade_now(anki_proto::scheduler::GradeNowRequest {
+            card_ids: vec![card.id.into()],
+            rating: anki_proto::scheduler::card_answer::Rating::Good as i32,
+            card_options: vec![anki_proto::scheduler::grade_now_request::CardOptions {
+                card_id: card.id.into(),
+                desired_retention_override: Some(0.72),
+                scheduling_states: None,
+            }],
+        })?;
+
+        let card = col.storage.get_card(card.id)?.unwrap();
+        assert_eq!(card.desired_retention, Some(0.72));
+
+        Ok(())
+    }
 
     #[test]
     fn parse() -> Result<()> {

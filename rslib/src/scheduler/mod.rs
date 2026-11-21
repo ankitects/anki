@@ -6,6 +6,7 @@ use crate::config::SchedulerVersion;
 use crate::error::Result;
 use crate::prelude::*;
 
+pub(crate) mod addon_desired_retention;
 pub mod answering;
 pub mod bury_and_suspend;
 pub(crate) mod congrats;
@@ -14,6 +15,7 @@ pub mod fsrs;
 pub mod new;
 pub(crate) mod queue;
 mod reviews;
+pub(crate) mod rwkv;
 mod service;
 pub mod states;
 pub mod timespan;

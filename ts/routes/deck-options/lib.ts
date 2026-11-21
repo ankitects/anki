@@ -17,7 +17,7 @@ import { tick } from "svelte";
 import type { Readable, Writable } from "svelte/store";
 import { get, readable, writable } from "svelte/store";
 
-import type { DynamicSvelteComponent } from "$lib/sveltelib/dynamicComponent";
+import type { DynamicSvelteComponent } from "#lib/sveltelib/dynamicComponent.js";
 
 export type DeckOptionsId = bigint;
 
@@ -64,6 +64,13 @@ export class DeckOptionsState {
     readonly fsrsReschedule: Writable<boolean> = writable(false);
     readonly fsrsHealthCheck: Writable<boolean>;
     readonly legacyEvaluate: boolean;
+    /** Scheduler settings the RWKV/FSRS-7 backend saves with the deck options;
+     * this page does not edit them, so they are sent back as loaded. */
+    private readonly schedulerFlags: {
+        loadBalancerEnabled: boolean;
+        fsrsShortTermWithStepsEnabled: boolean;
+        fsrsLearningQueuesDisabled: boolean;
+    };
     readonly daysSinceLastOptimization: Writable<number>;
     readonly currentPresetName: Writable<string>;
     /** Used to detect if there are any pending changes */
@@ -107,6 +114,11 @@ export class DeckOptionsState {
         this.fsrs = writable(data.fsrs);
         this.fsrsHealthCheck = writable(data.fsrsHealthCheck);
         this.legacyEvaluate = data.fsrsLegacyEvaluate;
+        this.schedulerFlags = {
+            loadBalancerEnabled: data.loadBalancerEnabled,
+            fsrsShortTermWithStepsEnabled: data.fsrsShortTermWithStepsEnabled,
+            fsrsLearningQueuesDisabled: data.fsrsLearningQueuesDisabled,
+        };
         this.daysSinceLastOptimization = writable(data.daysSinceLastFsrsOptimize);
 
         // decrement the use count of the starting item, as we'll apply +1 to currently
@@ -272,6 +284,7 @@ export class DeckOptionsState {
             fsrs: get(this.fsrs),
             fsrsReschedule: get(this.fsrsReschedule),
             fsrsHealthCheck: get(this.fsrsHealthCheck),
+            ...this.schedulerFlags,
         };
     }
 

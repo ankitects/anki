@@ -34,16 +34,16 @@ impl CardQueues {
         let cutoff = self.current_learning_cutoff;
         self.intraday_learning
             .iter()
-            .filter(move |e| e.due <= cutoff)
+            .filter(move |e| e.due <= cutoff && !self.rwkv_blocks_learning_card(e.id))
     }
 
     /// Intraday learning cards that can be shown after the main queue is empty.
     pub(super) fn intraday_ahead_iter(&self) -> impl Iterator<Item = &LearningQueueEntry> {
         let cutoff = self.current_learning_cutoff;
         let ahead_cutoff = self.current_learn_ahead_cutoff();
-        self.intraday_learning
-            .iter()
-            .filter(move |e| e.due > cutoff && e.due <= ahead_cutoff)
+        self.intraday_learning.iter().filter(move |e| {
+            e.due > cutoff && e.due <= ahead_cutoff && !self.rwkv_blocks_learning_card(e.id)
+        })
     }
 
     /// Increase the cutoff to the current time, and increase the learning count
@@ -171,7 +171,7 @@ impl CardQueues {
         }
     }
 
-    fn current_learn_ahead_cutoff(&self) -> TimestampSecs {
+    pub(super) fn current_learn_ahead_cutoff(&self) -> TimestampSecs {
         self.current_learning_cutoff
             .adding_secs(self.learn_ahead_secs)
     }

@@ -69,6 +69,9 @@ impl From<SyncOutput> for anki_proto::sync::SyncCollectionResponse {
                 }
             },
             server_media_usn: o.server_media_usn.0,
+            remote_collection_changed: o.remote_collection_changed,
+            remote_review_ids: o.remote_review_ids.into_iter().map(|id| id.0).collect(),
+            remote_non_review_collection_changed: (o.remote_non_review_collection_changed),
         }
     }
 }
@@ -432,7 +435,16 @@ impl Backend {
         };
 
         // ensure re-opened regardless of outcome
-        col.replace(builder.build()?);
+        let mut reopened = builder.build()?;
+        if !self.server {
+            if let Err(err) = reopened.repair_foreign_fsrs_memory_states() {
+                tracing::warn!(
+                    ?err,
+                    "repairing foreign FSRS memory states after full sync failed"
+                );
+            }
+        }
+        col.replace(reopened);
 
         let result = match result {
             Ok(sync_result) => {

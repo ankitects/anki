@@ -20,7 +20,6 @@ use crate::error::AnkiError;
 use crate::error::OrInvalid;
 use crate::notetype::CardGenContext;
 use crate::notetype::NoteField;
-use crate::ops::StateChanges;
 use crate::prelude::*;
 use crate::template::field_is_empty;
 use crate::text::ensure_string_in_nfc;
@@ -409,22 +408,13 @@ impl Collection {
                 Ok(())
             })
         } else {
-            self.transact_no_undo(|col| {
+            // kuma3: no undo entry, but Anki's undo stays (upstream cleared it, so every
+            // Anki XP progress write took away the last answer's undo)
+            self.transact(Op::SkipUndo, |col| {
                 for mut note in notes {
                     col.update_note_inner(&mut note)?;
                 }
-                Ok(OpOutput {
-                    output: (),
-                    changes: OpChanges {
-                        op: Op::UpdateNote,
-                        changes: StateChanges {
-                            note: true,
-                            tag: true,
-                            card: true,
-                            ..Default::default()
-                        },
-                    },
-                })
+                Ok(())
             })
         }
     }

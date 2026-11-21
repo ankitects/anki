@@ -3,7 +3,6 @@
 
 use std::collections::HashMap;
 use std::path::Path;
-use std::time;
 
 use anki_io::read_dir_files;
 use tracing::debug;
@@ -136,11 +135,7 @@ where
             let previous_mtime = mtimes.remove(fname.as_ref());
 
             // skip files that have not been modified
-            let mtime = metadata
-                .modified()?
-                .duration_since(time::UNIX_EPOCH)
-                .unwrap()
-                .as_secs() as i64;
+            let mtime = mtime_as_i64(dentry.path())?;
             if let Some(previous_mtime) = previous_mtime {
                 if previous_mtime == mtime {
                     debug!(fname = fname.as_ref(), "mtime unchanged");
@@ -165,7 +160,7 @@ where
             );
 
             self.checked += 1;
-            if self.checked % 10 == 0 {
+            if self.checked.is_multiple_of(10) {
                 self.fire_progress_cb()?;
             }
         }
@@ -208,7 +203,7 @@ where
             })?;
 
             self.checked += 1;
-            if self.checked % 10 == 0 {
+            if self.checked.is_multiple_of(10) {
                 self.fire_progress_cb()?;
             }
         }
@@ -227,7 +222,7 @@ where
             })?;
 
             self.checked += 1;
-            if self.checked % 10 == 0 {
+            if self.checked.is_multiple_of(10) {
                 self.fire_progress_cb()?;
             }
         }
@@ -294,12 +289,7 @@ mod test {
                 MediaEntry {
                     fname: "file.jpg".into(),
                     sha1: Some(sha1_of_data(b"hello")),
-                    mtime: f1
-                        .metadata()?
-                        .modified()?
-                        .duration_since(time::UNIX_EPOCH)
-                        .unwrap()
-                        .as_secs() as i64,
+                    mtime: mtime_as_i64(&f1)?,
                     sync_required: true,
                 }
             );
@@ -328,12 +318,7 @@ mod test {
                 MediaEntry {
                     fname: "file.jpg".into(),
                     sha1: Some(sha1_of_data(b"hello1")),
-                    mtime: f1
-                        .metadata()?
-                        .modified()?
-                        .duration_since(time::UNIX_EPOCH)
-                        .unwrap()
-                        .as_secs() as i64,
+                    mtime: mtime_as_i64(&f1)?,
                     sync_required: true,
                 }
             );
@@ -365,6 +350,68 @@ mod test {
             }
         );
 
+        Ok(())
+    }
+
+    #[test]
+    fn scan_skips_files_with_the_mtime_stored_by_media_addition() -> Result<()> {
+        let dir = tempdir()?;
+        let file = dir.path().join("file.jpg");
+        write_file(&file, "hello")?;
+        // MediaManager and media downloads record mtimes with this helper.
+        let mtimes = HashMap::from([("file.jpg".into(), mtime_as_i64(&file)?)]);
+
+        let (changed, removed) =
+            ChangeTracker::new(dir.path(), |_| true).media_folder_changes(mtimes)?;
+
+        assert!(changed.is_empty());
+        assert!(removed.is_empty());
+        Ok(())
+    }
+
+    #[test]
+    fn scan_refreshes_legacy_second_mtimes_only_once() -> Result<()> {
+        let dir = tempdir()?;
+        let file = dir.path().join("file.jpg");
+        write_file(&file, "hello")?;
+        let current_mtime = mtime_as_i64(&file)?;
+        let mtimes = HashMap::from([("file.jpg".into(), current_mtime / 1000)]);
+
+        let (changed, removed) =
+            ChangeTracker::new(dir.path(), |_| true).media_folder_changes(mtimes)?;
+        assert!(removed.is_empty());
+        assert_eq!(changed.len(), 1);
+        assert_eq!(changed[0].fname, "file.jpg");
+        assert_eq!(changed[0].mtime, current_mtime);
+        assert_eq!(changed[0].sha1, Some(sha1_of_data(b"hello")));
+        assert!(!changed[0].is_new);
+
+        let mtimes = HashMap::from([("file.jpg".into(), changed[0].mtime)]);
+        let (changed, removed) =
+            ChangeTracker::new(dir.path(), |_| true).media_folder_changes(mtimes)?;
+        assert!(changed.is_empty());
+        assert!(removed.is_empty());
+        Ok(())
+    }
+
+    #[test]
+    fn scan_detects_a_file_changed_within_the_same_second() -> Result<()> {
+        let dir = tempdir()?;
+        let file = dir.path().join("file.jpg");
+        write_file(&file, "before")?;
+        let before = time::UNIX_EPOCH + Duration::from_millis(1_000_100);
+        set_file_times(&file, FileTimes::new().set_modified(before))?;
+        let mtimes = HashMap::from([("file.jpg".into(), mtime_as_i64(&file)?)]);
+        write_file(&file, "after")?;
+        let after = before + Duration::from_millis(100);
+        set_file_times(&file, FileTimes::new().set_modified(after))?;
+
+        let (changed, removed) =
+            ChangeTracker::new(dir.path(), |_| true).media_folder_changes(mtimes)?;
+        assert!(removed.is_empty());
+        assert_eq!(changed.len(), 1);
+        assert_eq!(changed[0].sha1, Some(sha1_of_data(b"after")));
+        assert_eq!(changed[0].mtime, mtime_as_i64(&file)?);
         Ok(())
     }
 }

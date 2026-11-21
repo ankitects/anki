@@ -8,6 +8,7 @@ use std::io::Read;
 pub(super) use anki_proto::import_export::package_metadata::Version;
 pub(super) use anki_proto::import_export::PackageMetadata as Meta;
 use prost::Message;
+use zip::result::ZipError;
 use zip::ZipArchive;
 use zstd::stream::copy_decode;
 
@@ -69,11 +70,15 @@ impl MetaExt for Meta {
     /// Extracts meta data from an archive and checks if its version is
     /// supported.
     fn from_archive(archive: &mut ZipArchive<File>) -> Result<Self> {
-        let meta_bytes = archive.by_name("meta").ok().and_then(|mut meta_file| {
-            let mut buf = vec![];
-            meta_file.read_to_end(&mut buf).ok()?;
-            Some(buf)
-        });
+        let meta_bytes = match archive.by_name("meta") {
+            Ok(mut meta_file) => {
+                let mut buf = vec![];
+                meta_file.read_to_end(&mut buf)?;
+                Some(buf)
+            }
+            Err(ZipError::FileNotFound) => None,
+            Err(error) => return Err(error.into()),
+        };
         let meta = if let Some(bytes) = meta_bytes {
             let meta: Meta = Message::decode(&*bytes)?;
             if meta.version() == Version::Unknown {
@@ -83,8 +88,15 @@ impl MetaExt for Meta {
             }
             meta
         } else {
+            // A modern package also contains a legacy dummy collection. Missing
+            // metadata must not make that dummy look like a usable backup.
+            if archive.index_for_name("collection.anki21b").is_some() {
+                return Err(AnkiError::ImportError {
+                    source: ImportError::Corrupt,
+                });
+            }
             Meta {
-                version: if archive.by_name("collection.anki21").is_ok() {
+                version: if archive.index_for_name("collection.anki21").is_some() {
                     Version::Legacy2
                 } else {
                     Version::Legacy1

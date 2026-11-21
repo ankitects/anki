@@ -7,11 +7,20 @@ use std::hash::Hasher;
 use fnv::FnvHasher;
 
 use super::NewCard;
+use super::NewCardGatherPriority;
 use super::NewCardSortOrder;
 use super::QueueBuilder;
 
 impl QueueBuilder {
     pub(super) fn sort_new(&mut self) {
+        if matches!(
+            self.context.sort_options.new_gather_priority,
+            NewCardGatherPriority::AscendingRetrievability
+                | NewCardGatherPriority::DescendingRetrievability
+        ) {
+            return;
+        }
+
         match self.context.sort_options.new_order {
             // preserve gather order
             NewCardSortOrder::NoSort => (),

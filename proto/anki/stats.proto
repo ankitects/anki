@@ -16,17 +16,80 @@ service StatsService {
   rpc Graphs(GraphsRequest) returns (GraphsResponse);
   rpc GetGraphPreferences(generic.Empty) returns (GraphPreferences);
   rpc SetGraphPreferences(GraphPreferences) returns (generic.Empty);
+  rpc CardMemoryMetrics(CardMemoryMetricsRequest) returns (CardMemoryMetricsResponse);
+  rpc CardDetails(CardDetailsRequest) returns (CardDetailsResponse);
 }
 
 // Implicitly includes any of the above methods that are not listed in the
 // backend service.
 service BackendStatsService {}
 
+// Current values only: no historical memory-state reconstruction or card
+// writes.
+message CardMemoryMetricsRequest {
+  repeated int64 card_ids = 1;
+  bool include_retrievability = 2;
+}
+
+message CardMemoryMetrics {
+  int64 card_id = 1;
+  optional cards.FsrsMemoryState memory_state = 2;
+  optional float desired_retention = 3;
+  optional float fsrs_retrievability = 4;
+}
+
+message CardMemoryMetricsResponse {
+  // Input order and duplicates are preserved; missing cards are omitted.
+  repeated CardMemoryMetrics entries = 1;
+}
+
+// Compact current card data with optional selected note fields and metrics.
+message CardDetailsRequest {
+  repeated int64 card_ids = 1;
+  bool include_memory_state = 2;
+  bool include_retrievability = 3;
+  optional NoteFieldSelection note_fields = 4;
+}
+
+message NoteFieldSelection {
+  repeated string names = 1;
+}
+
+message SelectedNoteFields {
+  message Field {
+    string name = 1;
+    string value = 2;
+    uint32 order = 3;
+  }
+  repeated Field fields = 1;
+}
+
+message CardDetails {
+  int64 card_id = 1;
+  uint32 ctype = 2;
+  sint32 queue = 3;
+  sint32 due = 4;
+  uint32 interval = 5;
+  uint32 reps = 6;
+  optional CardMemoryMetrics metrics = 7;
+  // Absent if not requested, or the note/type/selected field is missing.
+  optional SelectedNoteFields note_fields = 8;
+}
+
+message CardDetailsResponse {
+  // Input order and duplicates are preserved; missing cards are omitted.
+  repeated CardDetails entries = 1;
+}
+
 message ReviewLogs {
   repeated CardStatsResponse.StatsRevlogEntry entries = 1;
 }
 
 message CardStatsResponse {
+  message CardInfoRow {
+    string label = 1;
+    string value = 2;
+  }
   message StatsRevlogEntry {
     int64 time = 1;
     RevlogEntry.ReviewKind review_kind = 2;
@@ -69,6 +132,9 @@ message CardStatsResponse {
   optional float desired_retention = 23;
   repeated float fsrs_params = 24;
   bool fsrs_enabled = 25;
+  repeated CardInfoRow extra_rows = 26;
+  // Desktop diagnostics may be temporarily busy or waiting for state recovery.
+  bool rwkv_retry_pending = 27;
 }
 
 message GraphsRequest {
@@ -88,10 +154,18 @@ message GraphsResponse {
     float average = 2;
   }
   message Retrievability {
+    message Series {
+      map<uint32, uint32> retrievability = 1;
+      float average = 2;
+      float sum_by_card = 3;
+      float sum_by_note = 4;
+    }
     map<uint32, uint32> retrievability = 1;
     float average = 2;
     float sum_by_card = 3;
     float sum_by_note = 4;
+    Series fsrs = 5;
+    Series rwkv = 6;
   }
   message FutureDue {
     map<int32, uint32> future_due = 1;

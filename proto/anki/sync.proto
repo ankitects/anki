@@ -69,6 +69,12 @@ message SyncCollectionResponse {
   ChangesRequired required = 3;
   optional string new_endpoint = 4;
   int32 server_media_usn = 5;
+  // True when normal sync downloaded collection objects or deletions.
+  bool remote_collection_changed = 6;
+  // Review entries downloaded during normal sync.
+  repeated int64 remote_review_ids = 7;
+  // True when downloaded collection changes included anything besides reviews.
+  bool remote_non_review_collection_changed = 8;
 }
 
 message MediaSyncStatusResponse {

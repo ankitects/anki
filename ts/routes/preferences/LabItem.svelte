@@ -3,8 +3,8 @@ Copyright: Anki Software, LLC and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
-    import Switch from "$lib/components/Switch.svelte";
-    import type { PreferenceStore } from "$lib/sveltelib/preferences";
+    import Switch from "#lib/components/Switch.svelte";
+    import type { PreferenceStore } from "#lib/sveltelib/preferences.js";
     import type { ExperimentalFeatureFlag } from "@generated/anki/config_pb";
 
     export let title: string;

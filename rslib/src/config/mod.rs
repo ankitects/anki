@@ -23,6 +23,32 @@ pub use self::number::I32ConfigKey;
 pub use self::string::StringKey;
 use crate::import_export::package::UpdateCondition;
 use crate::prelude::*;
+use crate::scheduler::fsrs::preset::FSRS_PRESET_OVERLAY_CONFIG_KEY;
+
+/// Synchronized separately from card data so older clients can rewrite cards
+/// without discarding the RWKV history boundary.
+pub(crate) const RWKV_HISTORY_RESET_CONFIG_PREFIX: &str = "rwkvHistoryReset_";
+
+pub(crate) fn rwkv_history_reset_config_key(card_id: CardId) -> String {
+    format!("{RWKV_HISTORY_RESET_CONFIG_PREFIX}{}", card_id.0)
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, serde::Deserialize)]
+pub(crate) struct RwkvHistoryResetMirror {
+    /// Zero clears the boundary; None restores the card-data fallback.
+    pub after: Option<i64>,
+    /// Lets a newer boundary survive an older client's stale config snapshot.
+    pub updated: i64,
+}
+
+impl RwkvHistoryResetMirror {
+    pub(crate) fn new(after: Option<i64>, previous: Option<Self>) -> Self {
+        let updated = TimestampMillis::now()
+            .0
+            .max(previous.map_or(0, |old| old.updated.saturating_add(1)));
+        Self { after, updated }
+    }
+}
 
 /// Only used when updating/undoing.
 #[derive(Debug)]
@@ -134,12 +160,12 @@ impl Collection {
     where
         K: Into<&'a str>,
     {
-        let entry = ConfigEntry::boxed(
-            key.into(),
-            serde_json::to_vec(val)?,
-            self.usn()?,
-            TimestampSecs::now(),
-        );
+        let key = key.into();
+        let value = serde_json::to_vec(val)?;
+        if key == FSRS_PRESET_OVERLAY_CONFIG_KEY {
+            self.validate_fsrs_preset_overlay_json(&value)?;
+        }
+        let entry = ConfigEntry::boxed(key, value, self.usn()?, TimestampSecs::now());
         self.set_config_undoable(entry)
     }
 
@@ -147,7 +173,8 @@ impl Collection {
     where
         K: Into<&'a str>,
     {
-        self.remove_config_undoable(key.into())
+        let key = key.into();
+        self.remove_config_undoable(key)
     }
 
     /// Remove all keys starting with provided prefix, which must end with '_'.

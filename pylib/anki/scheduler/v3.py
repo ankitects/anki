@@ -53,7 +53,9 @@ class Scheduler(SchedulerBaseWithLegacy):
     ) -> QueuedCards:
         "Returns zero or more pending cards, and the remaining counts. Idempotent."
         return self.col._backend.get_queued_cards(
-            fetch_limit=fetch_limit, intraday_learning_only=intraday_learning_only
+            fetch_limit=fetch_limit,
+            intraday_learning_only=intraday_learning_only,
+            skip_scheduling_states=False,
         )
 
     def describe_next_states(self, next_states: SchedulingStates) -> Sequence[str]:

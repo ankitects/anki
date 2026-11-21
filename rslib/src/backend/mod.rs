@@ -127,6 +127,19 @@ impl Backend {
         )
     }
 
+    /// Publish unlocked work only into the collection that prepared it.
+    pub(crate) fn with_col_in_session<F, T>(&self, session: &Arc<()>, func: F) -> Result<T>
+    where
+        F: FnOnce(&mut Collection) -> Result<T>,
+    {
+        self.with_col(|col| {
+            if !Arc::ptr_eq(&col.session_id, session) {
+                return Err(AnkiError::Interrupted);
+            }
+            func(col)
+        })
+    }
+
     fn runtime_handle(&self) -> runtime::Handle {
         self.runtime
             .get_or_init(|| {

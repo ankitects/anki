@@ -9,7 +9,9 @@ use rusqlite::Row;
 use serde_json::Value;
 
 use super::SqliteStorage;
+use crate::deckconfig::deck_config_inner_for_storage;
 use crate::deckconfig::ensure_deck_config_values_valid;
+use crate::deckconfig::restore_fork_fields_from_other;
 use crate::deckconfig::DeckConfSchema11;
 use crate::deckconfig::DeckConfig;
 use crate::deckconfig::DeckConfigId;
@@ -18,6 +20,7 @@ use crate::prelude::*;
 
 fn row_to_deckconf(row: &Row, fix_invalid: bool) -> Result<DeckConfig> {
     let mut config = DeckConfigInner::decode(row.get_ref_unwrap(4).as_blob()?)?;
+    restore_fork_fields_from_other(&mut config);
     if fix_invalid {
         ensure_deck_config_values_valid(&mut config);
     }
@@ -72,7 +75,7 @@ impl SqliteStorage {
 
     pub(crate) fn add_deck_conf(&self, conf: &mut DeckConfig) -> Result<()> {
         let mut conf_bytes = vec![];
-        conf.inner.encode(&mut conf_bytes)?;
+        deck_config_inner_for_storage(&conf.inner).encode(&mut conf_bytes)?;
         self.db
             .prepare_cached(include_str!("add.sql"))?
             .execute(params![
@@ -91,7 +94,7 @@ impl SqliteStorage {
 
     pub(crate) fn add_deck_conf_if_unique(&self, conf: &DeckConfig) -> Result<bool> {
         let mut conf_bytes = vec![];
-        conf.inner.encode(&mut conf_bytes)?;
+        deck_config_inner_for_storage(&conf.inner).encode(&mut conf_bytes)?;
         self.db
             .prepare_cached(include_str!("add_if_unique.sql"))?
             .execute(params![
@@ -107,7 +110,7 @@ impl SqliteStorage {
 
     pub(crate) fn update_deck_conf(&self, conf: &DeckConfig) -> Result<()> {
         let mut conf_bytes = vec![];
-        conf.inner.encode(&mut conf_bytes)?;
+        deck_config_inner_for_storage(&conf.inner).encode(&mut conf_bytes)?;
         self.db
             .prepare_cached(include_str!("update.sql"))?
             .execute(params![
@@ -128,7 +131,7 @@ impl SqliteStorage {
     ) -> Result<()> {
         require!(conf.id.0 != 0, "deck with id 0");
         let mut conf_bytes = vec![];
-        conf.inner.encode(&mut conf_bytes)?;
+        deck_config_inner_for_storage(&conf.inner).encode(&mut conf_bytes)?;
         self.db
             .prepare_cached(include_str!("add_or_update.sql"))?
             .execute(params![

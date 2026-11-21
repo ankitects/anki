@@ -11,7 +11,9 @@ use rand::rngs::StdRng;
 use rand::SeedableRng;
 
 use super::fuzz::constrained_fuzz_bounds;
+use super::fuzz::ReviewFuzzConfig;
 use crate::card::CardId;
+use crate::deckconfig::DeckConfig;
 use crate::deckconfig::DeckConfigId;
 use crate::error::InvalidInputError;
 use crate::notes::NoteId;
@@ -19,11 +21,6 @@ use crate::prelude::*;
 use crate::storage::SqliteStorage;
 
 const MAX_LOAD_BALANCE_INTERVAL: usize = 90;
-// due to the nature of load balancing, we may schedule things in the future and
-// so need to keep more than just the `MAX_LOAD_BALANCE_INTERVAL` days in our
-// cache. a flat 10% increase over the max interval should be enough to not have
-// problems
-const LOAD_BALANCE_DAYS: usize = (MAX_LOAD_BALANCE_INTERVAL as f32 * 1.1) as usize;
 // when bury siblings is enabled, we try and make it so siblings are not
 // scheduled on the same days. a day with a sibling is set to a very low
 // (non-zero to make algorithms simpler) weight. to further disperse siblings,
@@ -119,8 +116,9 @@ impl LoadBalancerContext<'_> {
 pub struct LoadBalancer {
     /// Load balancer operates at the preset level, it only counts
     /// cards in the same preset as the card being balanced.
-    days_by_preset: HashMap<DeckConfigId, [LoadBalancerDay; LOAD_BALANCE_DAYS]>,
+    days_by_preset: HashMap<DeckConfigId, Vec<LoadBalancerDay>>,
     easy_days_percentages_by_preset: HashMap<DeckConfigId, [EasyDay; 7]>,
+    review_fuzz_config: ReviewFuzzConfig,
     next_day_at: TimestampSecs,
 }
 
@@ -128,11 +126,14 @@ impl LoadBalancer {
     pub fn new(
         today: u32,
         did_to_dcid: HashMap<DeckId, DeckConfigId>,
+        review_fuzz_config: ReviewFuzzConfig,
         next_day_at: TimestampSecs,
         storage: &SqliteStorage,
     ) -> Result<LoadBalancer> {
+        let configs = storage.get_deck_config_map()?;
+        let cache_days = required_load_balance_days(&configs, review_fuzz_config);
         let cards_on_each_day =
-            storage.get_all_cards_due_in_range(today, today + LOAD_BALANCE_DAYS as u32)?;
+            storage.get_all_cards_due_in_range(today, today + cache_days as u32)?;
         let days_by_preset = cards_on_each_day
             .into_iter()
             // for each day, group all cards on each day by their deck config id
@@ -149,29 +150,32 @@ impl LoadBalancer {
                     )
             })
             .enumerate()
-            // consolidate card by day groups into groups of [LoadBalancerDay; LOAD_BALANCE_DAYS]s
+            // consolidate card by day groups into per-preset day caches
             .fold(
-                HashMap::new(),
+                HashMap::<DeckConfigId, Vec<LoadBalancerDay>>::new(),
                 |mut deckconfig_group, (day_index, days_grouped_by_dcid)| {
                     for (group, cards) in days_grouped_by_dcid.into_iter() {
-                        let day = deckconfig_group
-                            .entry(*group)
-                            .or_insert_with(|| std::array::from_fn(|_| LoadBalancerDay::default()));
+                        let day = deckconfig_group.entry(*group).or_insert_with(|| {
+                            std::iter::repeat_with(LoadBalancerDay::default)
+                                .take(cache_days)
+                                .collect()
+                        });
 
-                        for (cid, nid) in cards {
-                            day[day_index].add(cid, nid);
-                        }
+                        day[day_index] = LoadBalancerDay {
+                            notes: cards.iter().map(|(_, nid)| *nid).collect(),
+                            cards,
+                        };
                     }
 
                     deckconfig_group
                 },
             );
-        let configs = storage.get_deck_config_map()?;
-        let easy_days_percentages_by_preset = build_easy_days_percentages(configs)?;
+        let easy_days_percentages_by_preset = build_easy_days_percentages(&configs)?;
 
         Ok(LoadBalancer {
             days_by_preset,
             easy_days_percentages_by_preset,
+            review_fuzz_config,
             next_day_at,
         })
     }
@@ -217,13 +221,14 @@ impl LoadBalancer {
         note_id: Option<NoteId>,
     ) -> Option<u32> {
         // if we're sending a card far out into the future, the need to balance is low
-        if interval as usize > MAX_LOAD_BALANCE_INTERVAL
+        if interval > MAX_LOAD_BALANCE_INTERVAL as f32
             || minimum as usize > MAX_LOAD_BALANCE_INTERVAL
         {
             return None;
         }
 
-        let (before_days, after_days) = constrained_fuzz_bounds(interval, minimum, maximum);
+        let (before_days, after_days) =
+            constrained_fuzz_bounds(interval, minimum, maximum, self.review_fuzz_config);
 
         let days = self.days_by_preset.get(&deckconfig_id)?;
         let interval_days = &days[before_days as usize..=after_days as usize];
@@ -281,6 +286,30 @@ impl LoadBalancer {
     }
 }
 
+fn required_load_balance_days(
+    configs: &HashMap<DeckConfigId, DeckConfig>,
+    review_fuzz_config: ReviewFuzzConfig,
+) -> usize {
+    configs
+        .values()
+        .map(|config| load_balance_days_for_config(config, review_fuzz_config))
+        .max()
+        .unwrap_or(MAX_LOAD_BALANCE_INTERVAL + 1)
+}
+
+fn load_balance_days_for_config(
+    config: &DeckConfig,
+    review_fuzz_config: ReviewFuzzConfig,
+) -> usize {
+    let (_, after_days) = constrained_fuzz_bounds(
+        MAX_LOAD_BALANCE_INTERVAL as f32,
+        1,
+        config.inner.maximum_review_interval,
+        review_fuzz_config,
+    );
+    after_days as usize + 1
+}
+
 pub(crate) fn parse_easy_days_percentages(percentages: &[f32]) -> Result<[EasyDay; 7]> {
     if percentages.is_empty() {
         return Ok([EasyDay::Normal; 7]);
@@ -298,14 +327,14 @@ pub(crate) fn parse_easy_days_percentages(percentages: &[f32]) -> Result<[EasyDa
 }
 
 pub(crate) fn build_easy_days_percentages(
-    configs: HashMap<DeckConfigId, DeckConfig>,
+    configs: &HashMap<DeckConfigId, DeckConfig>,
 ) -> Result<HashMap<DeckConfigId, [EasyDay; 7]>> {
     configs
-        .into_iter()
+        .iter()
         .map(|(dcid, conf)| {
             let easy_days_percentages =
                 parse_easy_days_percentages(&conf.inner.easy_days_percentages)?;
-            Ok((dcid, easy_days_percentages))
+            Ok((*dcid, easy_days_percentages))
         })
         .collect()
 }
@@ -368,7 +397,7 @@ pub(crate) fn calculate_easy_days_modifiers(
 // 0.00 is actually a not-actually-zero-but-really small number for ease of
 // implementation
 fn calculate_sibling_modifiers(
-    days_by_preset: &HashMap<DeckConfigId, [LoadBalancerDay; LOAD_BALANCE_DAYS]>,
+    days_by_preset: &HashMap<DeckConfigId, Vec<LoadBalancerDay>>,
     before_days: u32,
     after_days: u32,
     nid: Option<NoteId>,
@@ -453,4 +482,187 @@ pub(crate) fn interval_to_weekday(interval: u32, next_day_at: TimestampSecs) -> 
         .local_datetime()
         .unwrap();
     target_datetime.weekday().num_days_from_monday() as usize
+}
+
+#[cfg(test)]
+mod test {
+    use super::*;
+    use crate::scheduler::states::StateContext;
+
+    #[test]
+    fn initialization_preserves_day_loads_and_siblings_across_decks() -> Result<()> {
+        let mut col = Collection::new();
+        let mut other_config = DeckConfig {
+            id: DeckConfigId(0),
+            ..Default::default()
+        };
+        col.add_or_update_deck_config(&mut other_config)?;
+        let presets = HashMap::from([
+            (DeckId(1), DeckConfigId(1)),
+            (DeckId(2), DeckConfigId(1)),
+            (DeckId(3), other_config.id),
+        ]);
+        let mut same_day_siblings = Vec::new();
+        for (deck, note, due) in [(1, 11, 10), (2, 11, 10), (1, 12, 11), (3, 11, 10)] {
+            let mut card = Card {
+                deck_id: DeckId(deck),
+                note_id: NoteId(note),
+                due,
+                ..Default::default()
+            };
+            col.add_card(&mut card)?;
+            if deck < 3 && due == 10 {
+                same_day_siblings.push(card.id);
+            }
+        }
+        let mut balancer = LoadBalancer::new(
+            10,
+            presets,
+            ReviewFuzzConfig::default(),
+            TimestampSecs(0),
+            &col.storage,
+        )?;
+        let days = balancer.days_by_preset.get_mut(&DeckConfigId(1)).unwrap();
+        assert_eq!(days[0].cards.len(), 2);
+        assert_eq!(days[1].cards.len(), 1);
+        assert!(days[0].has_sibling(&NoteId(11)));
+        assert!(days[1].has_sibling(&NoteId(12)));
+        days[0].remove(same_day_siblings[0]);
+        assert!(days[0].has_sibling(&NoteId(11)));
+        days[0].remove(same_day_siblings[1]);
+        assert!(!days[0].has_sibling(&NoteId(11)));
+        assert_eq!(balancer.days_by_preset[&other_config.id][0].cards.len(), 1);
+        Ok(())
+    }
+
+    #[test]
+    fn cache_days_expand_to_cover_configured_fuzz() {
+        let config = DeckConfig::default();
+        let review_fuzz_config = ReviewFuzzConfig {
+            base: 20.0,
+            factor_short: 0.3,
+            factor_mid: 0.2,
+            factor_long: 0.1,
+        };
+
+        let (_, after_days) = constrained_fuzz_bounds(
+            MAX_LOAD_BALANCE_INTERVAL as f32,
+            1,
+            config.inner.maximum_review_interval,
+            review_fuzz_config,
+        );
+
+        assert_eq!(
+            load_balance_days_for_config(&config, review_fuzz_config),
+            after_days as usize + 1
+        );
+        assert!(load_balance_days_for_config(&config, review_fuzz_config) > 99);
+    }
+
+    #[test]
+    fn find_interval_handles_ranges_past_previous_fixed_cache() {
+        let dcid = DeckConfigId(1);
+        let config = DeckConfig::default();
+        let review_fuzz_config = ReviewFuzzConfig {
+            base: 20.0,
+            factor_short: 0.3,
+            factor_mid: 0.2,
+            factor_long: 0.1,
+        };
+        let cache_days = load_balance_days_for_config(&config, review_fuzz_config);
+        let (before_days, after_days) = constrained_fuzz_bounds(
+            90.0,
+            1,
+            config.inner.maximum_review_interval,
+            review_fuzz_config,
+        );
+
+        let load_balancer = LoadBalancer {
+            days_by_preset: HashMap::from([(
+                dcid,
+                std::iter::repeat_with(LoadBalancerDay::default)
+                    .take(cache_days)
+                    .collect(),
+            )]),
+            easy_days_percentages_by_preset: HashMap::from([(dcid, [EasyDay::Normal; 7])]),
+            review_fuzz_config,
+            next_day_at: TimestampSecs(0),
+        };
+
+        let selected = load_balancer.find_interval(90.0, 1, 36_500, dcid, Some(1), None);
+
+        assert!(selected.is_some());
+        assert!(selected.unwrap() >= before_days);
+        assert!(selected.unwrap() <= after_days);
+    }
+
+    #[test]
+    fn find_interval_skips_fractional_intervals_past_limit() {
+        let dcid = DeckConfigId(1);
+        let config = DeckConfig::default();
+        let review_fuzz_config = ReviewFuzzConfig::default();
+        let cache_days = load_balance_days_for_config(&config, review_fuzz_config);
+
+        let load_balancer = LoadBalancer {
+            days_by_preset: HashMap::from([(
+                dcid,
+                std::iter::repeat_with(LoadBalancerDay::default)
+                    .take(cache_days)
+                    .collect(),
+            )]),
+            easy_days_percentages_by_preset: HashMap::from([(dcid, [EasyDay::Normal; 7])]),
+            review_fuzz_config,
+            next_day_at: TimestampSecs(0),
+        };
+
+        assert_eq!(
+            load_balancer.find_interval(90.1, 1, 36_500, dcid, Some(1), None),
+            None
+        );
+    }
+
+    #[test]
+    fn state_context_reports_load_balanced_fuzz_delta() {
+        let dcid = DeckConfigId(1);
+        let load_balancer = LoadBalancer {
+            days_by_preset: HashMap::from([(
+                dcid,
+                std::iter::repeat_with(LoadBalancerDay::default)
+                    .take(10)
+                    .collect(),
+            )]),
+            easy_days_percentages_by_preset: HashMap::from([(dcid, [EasyDay::Normal; 7])]),
+            review_fuzz_config: ReviewFuzzConfig::default(),
+            next_day_at: TimestampSecs(0),
+        };
+        let interval: f32 = 7.0;
+        let minimum = 1;
+        let maximum = 36_500;
+        let unfuzzed = interval.round() as u32;
+        let fuzz_seed = (0_u64..100)
+            .find(|seed| {
+                load_balancer
+                    .find_interval(interval, minimum, maximum, dcid, Some(*seed), None)
+                    .is_some_and(|selected| selected != unfuzzed)
+            })
+            .expect(
+                "test setup should find a seed that load balances away from the unfuzzed interval",
+            );
+        let expected = load_balancer
+            .find_interval(interval, minimum, maximum, dcid, Some(fuzz_seed), None)
+            .unwrap();
+
+        let mut ctx = StateContext::defaults_for_testing();
+        ctx.fuzz_factor = None;
+        ctx.load_balancer_ctx = Some(
+            load_balancer
+                .review_context(None, dcid)
+                .set_fuzz_seed(Some(fuzz_seed)),
+        );
+
+        assert_eq!(
+            ctx.with_review_fuzz_and_delta(interval, minimum, maximum),
+            (expected, expected as i32 - unfuzzed as i32)
+        );
+    }
 }

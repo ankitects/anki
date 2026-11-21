@@ -44,7 +44,7 @@ fn build_sveltekit(build: &mut Build) -> Result<()> {
             output_folder: inputs!["sveltekit"],
             deps: inputs![
                 "ts/tsconfig.json",
-                glob!["ts/**", "ts/.svelte-kit/**"],
+                glob!["ts/**", "{ts/.svelte-kit,ts/node_modules}/**"],
                 ":ts:lib"
             ],
         },
@@ -302,7 +302,8 @@ fn build_and_check_reviewer(build: &mut Build) -> Result<()> {
 }
 
 fn check_web(build: &mut Build) -> Result<()> {
-    let fmt_excluded = "{target,extra,.mypy_cache,ts/.svelte-kit,node_modules,.venv}/**";
+    let fmt_excluded =
+        "{target,extra,.mypy_cache,ts/.svelte-kit,node_modules,ts/node_modules,.venv}/**";
     let dprint_files = inputs![glob!["**/*.{ts,mjs,js,md,json,toml,scss}", fmt_excluded]];
     let prettier_pattern = "{**/*.svelte,docs-site/**/*.mdx}";
     let prettier_files = inputs![
@@ -346,7 +347,7 @@ fn check_web(build: &mut Build) -> Result<()> {
             deps: inputs![
                 ":node_modules",
                 ":ts:generated",
-                glob!["ts/{svelte.config.js,vite.config.ts,tsconfig.json}"],
+                glob!["ts/{vite.config.ts,tsconfig.json}"],
                 glob!["ts/{lib,routes,reviewer}/**/*"],
             ],
         },
@@ -358,13 +359,16 @@ fn check_web(build: &mut Build) -> Result<()> {
             inputs: inputs![
                 ":node_modules",
                 ":ts:generated",
-                glob!["ts/**/*", "ts/.svelte-kit/**"],
+                glob!["ts/**/*", "{ts/.svelte-kit,ts/node_modules}/**"],
             ],
         },
     )?;
     let eslint_rc = inputs![".eslintrc.cjs"];
     for folder in ["ts", "qt/aqt/data/web/js"] {
-        let inputs = inputs![glob![format!("{folder}/**"), "ts/.svelte-kit/**"]];
+        let inputs = inputs![glob![
+            format!("{folder}/**"),
+            "{ts/.svelte-kit,ts/node_modules}/**"
+        ]];
         build.add_action(
             "check:eslint",
             Eslint {

@@ -5,17 +5,17 @@
 @typescript-eslint/no-explicit-any: "off",
  */
 
-import "$lib/sveltelib/export-runtime";
+import "#lib/sveltelib/export-runtime.js";
 import "./deck-options-base.scss";
 
 import { getDeckConfigsForUpdate } from "@generated/backend";
 import { ModuleName, setupI18n } from "@tslib/i18n";
 import { checkNightMode } from "@tslib/nightmode";
 
-import { modalsKey, touchDeviceKey } from "$lib/components/context-keys";
-import EnumSelectorRow from "$lib/components/EnumSelectorRow.svelte";
-import SwitchRow from "$lib/components/SwitchRow.svelte";
-import TitledContainer from "$lib/components/TitledContainer.svelte";
+import { modalsKey, touchDeviceKey } from "#lib/components/context-keys.js";
+import EnumSelectorRow from "#lib/components/EnumSelectorRow.svelte";
+import SwitchRow from "#lib/components/SwitchRow.svelte";
+import TitledContainer from "#lib/components/TitledContainer.svelte";
 
 import DeckOptionsPage from "./DeckOptionsPage.svelte";
 import { DeckOptionsState } from "./lib";

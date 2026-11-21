@@ -47,6 +47,18 @@ pub enum QueueEntryKind {
     Review,
 }
 
+impl QueueEntry {
+    /// kuma3: the entry of a card that can be in a queue (not buried or
+    /// suspended).
+    pub(crate) fn of_queued_card(card: &Card) -> Option<Self> {
+        (!matches!(
+            card.queue,
+            CardQueue::Suspended | CardQueue::SchedBuried | CardQueue::UserBuried
+        ))
+        .then(|| card.into())
+    }
+}
+
 impl From<&Card> for QueueEntry {
     fn from(card: &Card) -> Self {
         let kind = match card.queue {

@@ -46,8 +46,7 @@ impl Collection {
             .or_not_found(deck_id)?;
         let available_new_including_children =
             sum_deck_tree_node(&subtree, |node| node.new_uncapped);
-        let available_review_including_children =
-            sum_deck_tree_node(&subtree, |node| node.review_uncapped);
+        let available_review_including_children = subtree.review_uncapped_including_children;
         let (
             available_new,
             available_new_in_children,

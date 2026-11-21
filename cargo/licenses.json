@@ -208,6 +208,14 @@
     "repository": "https://github.com/bitflags/bitflags"
   },
   {
+    "authors": "RustCrypto Developers",
+    "description": "BLAKE2 hash functions",
+    "license": "Apache-2.0 OR MIT",
+    "license_file": null,
+    "name": "blake2",
+    "repository": "https://github.com/RustCrypto/hashes"
+  },
+  {
     "authors": "Jack O'Connor <oconnor663@gmail.com>|Samuel Neves",
     "description": "the BLAKE3 hash function",
     "license": "Apache-2.0 OR Apache-2.0 WITH LLVM-exception OR CC0-1.0",
@@ -238,6 +246,14 @@
     "license_file": null,
     "name": "bumpalo",
     "repository": "https://github.com/fitzgen/bumpalo"
+  },
+  {
+    "authors": "Lokathor <zefria@gmail.com>",
+    "description": "A crate for mucking around with piles of bytes.",
+    "license": "Apache-2.0 OR MIT OR Zlib",
+    "license_file": null,
+    "name": "bytemuck",
+    "repository": "https://github.com/Lokathor/bytemuck"
   },
   {
     "authors": "Carl Lerche <me@carllerche.com>|Sean McArthur <sean@seanmonstar.com>",
@@ -430,6 +446,14 @@
     "license_file": null,
     "name": "crossbeam-utils",
     "repository": "https://github.com/crossbeam-rs/crossbeam"
+  },
+  {
+    "authors": "Eira Fransham <jackefransham@gmail.com>",
+    "description": "Crunchy unroller: deterministically unroll constant loops",
+    "license": "MIT",
+    "license_file": null,
+    "name": "crunchy",
+    "repository": "https://github.com/eira-fransham/crunchy"
   },
   {
     "authors": "RustCrypto Developers",
@@ -630,6 +654,14 @@
     "license_file": null,
     "name": "fastrand",
     "repository": "https://github.com/smol-rs/fastrand"
+  },
+  {
+    "authors": "Alex Crichton <alex@alexcrichton.com>",
+    "description": "Platform-agnostic accessors of timestamps in File metadata",
+    "license": "Apache-2.0 OR MIT",
+    "license_file": null,
+    "name": "filetime",
+    "repository": "https://github.com/alexcrichton/filetime"
   },
   {
     "authors": "bluss",
@@ -854,6 +886,14 @@
     "license_file": null,
     "name": "h2",
     "repository": "https://github.com/hyperium/h2"
+  },
+  {
+    "authors": "Kathryn Long <squeeself@gmail.com>",
+    "description": "Half-precision floating point f16 and bf16 types for Rust implementing the IEEE 754-2008 standard binary16 and bfloat16 types.",
+    "license": "Apache-2.0 OR MIT",
+    "license_file": null,
+    "name": "half",
+    "repository": "https://github.com/VoidStarKat/half-rs"
   },
   {
     "authors": "Amanieu d'Antras <amanieu@gmail.com>",
@@ -1230,6 +1270,14 @@
     "license_file": null,
     "name": "libc",
     "repository": "https://github.com/rust-lang/libc"
+  },
+  {
+    "authors": "Alex Crichton <alex@alexcrichton.com>|Amanieu d'Antras <amanieu@gmail.com>|Jorge Aparicio <japaricious@gmail.com>|Trevor Gross <tg@trevorgross.com>",
+    "description": "libm in pure Rust",
+    "license": "MIT",
+    "license_file": null,
+    "name": "libm",
+    "repository": "https://github.com/rust-lang/compiler-builtins"
   },
   {
     "authors": "4lDO2 <4lDO2@protonmail.com>",
@@ -1760,14 +1808,6 @@
     "repository": "https://github.com/dtolnay/prettyplease"
   },
   {
-    "authors": "Gianmarco Garrisi <gianmarcogarrisi@tutanota.com>",
-    "description": "A Priority Queue implemented as a heap with a function to efficiently change the priority of an item.",
-    "license": "LGPL-3.0-or-later OR MPL-2.0",
-    "license_file": null,
-    "name": "priority-queue",
-    "repository": "https://github.com/garro95/priority-queue"
-  },
-  {
     "authors": "Bastian Köcher <git@kchr.de>",
     "description": "Replacement for crate (macro_rules keyword) in proc-macros",
     "license": "Apache-2.0 OR MIT",
@@ -1945,6 +1985,14 @@
   },
   {
     "authors": "The Rand Project Developers",
+    "description": "Sampling from random number distributions",
+    "license": "Apache-2.0 OR MIT",
+    "license_file": null,
+    "name": "rand_distr",
+    "repository": "https://github.com/rust-random/rand_distr"
+  },
+  {
+    "authors": "The Rand Project Developers",
     "description": "Selected PCG random number generators",
     "license": "Apache-2.0 OR MIT",
     "license_file": null,
@@ -2110,6 +2158,14 @@
     "license_file": null,
     "name": "ryu",
     "repository": "https://github.com/dtolnay/ryu"
+  },
+  {
+    "authors": "Lokathor <zefria@gmail.com>",
+    "description": "Crate that exposes `core::arch` safely via `#[cfg()]`.",
+    "license": "Apache-2.0 OR MIT OR Zlib",
+    "license_file": null,
+    "name": "safe_arch",
+    "repository": "https://github.com/Lokathor/safe_arch"
   },
   {
     "authors": "Andrew Gallant <jamslam@gmail.com>",
@@ -2510,6 +2566,14 @@
     "license_file": null,
     "name": "system-configuration-sys",
     "repository": "https://github.com/mullvad/system-configuration-rs"
+  },
+  {
+    "authors": "Alex Crichton <alex@alexcrichton.com>",
+    "description": "A Rust implementation of a TAR file reader and writer. This library does not currently handle compression, but it is abstract over all I/O readers and writers. Additionally, great lengths are taken to ensure that the entire contents are never required to be entirely resident in memory all at once.",
+    "license": "Apache-2.0 OR MIT",
+    "license_file": null,
+    "name": "tar",
+    "repository": "https://github.com/composefs/tar-rs"
   },
   {
     "authors": "Steven Allen <steven@stebalien.com>|The Rust Project Developers|Ashley Mannix <ashleymannix@live.com.au>|Jason White <me@jasonwhite.io>",
@@ -3128,6 +3192,14 @@
     "repository": "https://github.com/rustls/webpki-roots"
   },
   {
+    "authors": "Lokathor <zefria@gmail.com>",
+    "description": "A crate to help you go wide.",
+    "license": "Apache-2.0 OR MIT OR Zlib",
+    "license_file": null,
+    "name": "wide",
+    "repository": "https://github.com/Lokathor/wide"
+  },
+  {
     "authors": "Andrew Gallant <jamslam@gmail.com>",
     "description": "A dumping ground for high level safe wrappers over windows-sys.",
     "license": "MIT OR Unlicense",
@@ -3526,6 +3598,14 @@
     "license_file": null,
     "name": "writeable",
     "repository": "https://github.com/unicode-org/icu4x"
+  },
+  {
+    "authors": "Steven Allen <steven@stebalien.com>",
+    "description": "unix extended filesystem attributes",
+    "license": "Apache-2.0 OR MIT",
+    "license_file": null,
+    "name": "xattr",
+    "repository": "https://github.com/Stebalien/xattr"
   },
   {
     "authors": "Manish Goregaokar <manishsmail@gmail.com>",

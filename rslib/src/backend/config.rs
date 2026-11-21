@@ -39,7 +39,11 @@ impl From<BoolKeyProto> for BoolKey {
             BoolKeyProto::RenderLatex => BoolKey::RenderLatex,
             BoolKeyProto::LoadBalancerEnabled => BoolKey::LoadBalancerEnabled,
             BoolKeyProto::FsrsShortTermWithStepsEnabled => BoolKey::FsrsShortTermWithStepsEnabled,
+            BoolKeyProto::FsrsLearningQueuesDisabled => BoolKey::FsrsLearningQueuesDisabled,
             BoolKeyProto::FsrsLegacyEvaluate => BoolKey::FsrsLegacyEvaluate,
+            BoolKeyProto::ShowFuzzDeltaAboveAnswerButtons => {
+                BoolKey::ShowFuzzDeltaAboveAnswerButtons
+            }
         }
     }
 }

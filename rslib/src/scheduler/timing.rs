@@ -18,6 +18,13 @@ pub struct SchedTimingToday {
     pub next_day_at: TimestampSecs,
 }
 
+impl SchedTimingToday {
+    pub(crate) fn is_today(self, timestamp: TimestampSecs) -> bool {
+        let today_start = self.next_day_at.0.saturating_sub(86_400);
+        timestamp.0 >= today_start && timestamp.0 < self.next_day_at.0
+    }
+}
+
 /// Timing information for the current day.
 /// - creation_secs is a UNIX timestamp of the collection creation time
 /// - creation_utc_offset is the UTC offset at collection creation time
@@ -190,6 +197,23 @@ mod test {
     use chrono::TimeZone;
 
     use super::*;
+
+    #[test]
+    fn is_today_uses_scheduler_rollover_boundaries() {
+        let timing = SchedTimingToday {
+            now: TimestampSecs(100_000),
+            days_elapsed: 1,
+            next_day_at: TimestampSecs(120_000),
+        };
+        for (timestamp, expected) in [
+            (33_599, false),
+            (33_600, true),
+            (119_999, true),
+            (120_000, false),
+        ] {
+            assert_eq!(timing.is_today(TimestampSecs(timestamp)), expected);
+        }
+    }
 
     // test helper
     impl SchedTimingToday {

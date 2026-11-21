@@ -6,7 +6,7 @@ import { CsvMetadata_DupeResolution } from "@generated/anki/import_export_pb";
 import { searchInBrowser } from "@generated/backend";
 import * as tr from "@generated/ftl";
 
-import { checkCircle, closeBox, newBox, updateIcon } from "$lib/components/icons";
+import { checkCircle, closeBox, newBox, updateIcon } from "#lib/components/icons.js";
 
 import type { LogQueue, NoteRow, SummarizedLogQueues } from "./types";
 

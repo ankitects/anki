@@ -31,6 +31,8 @@ impl ReschedulingFilterState {
                 hard: maybe_wrap(normal.hard),
                 good: maybe_wrap(normal.good),
                 easy: maybe_wrap(normal.easy),
+                dynamic_desired_retentions: normal.dynamic_desired_retentions,
+                dynamic_desired_retention_enabled: normal.dynamic_desired_retention_enabled,
             }
         } else {
             // card is marked as filtered, but not in a filtered deck; convert to normal

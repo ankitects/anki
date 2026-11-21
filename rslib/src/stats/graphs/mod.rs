@@ -13,15 +13,23 @@ mod retrievability;
 mod reviews;
 mod today;
 
+use std::collections::HashMap;
+
+use fsrs::FSRS;
+
 use crate::config::BoolKey;
 use crate::config::Weekday;
 use crate::prelude::*;
 use crate::revlog::RevlogEntry;
+use crate::scheduler::fsrs::preset::FsrsPresetId;
 use crate::search::SortMode;
 
 struct GraphsContext {
     revlog: Vec<RevlogEntry>,
     cards: Vec<Card>,
+    fsrs_by_preset: HashMap<FsrsPresetId, FSRS>,
+    fsrs_preset_by_card: HashMap<CardId, FsrsPresetId>,
+    rwkv_retrievability_scores: Option<HashMap<CardId, f32>>,
     next_day_start: TimestampSecs,
     days_elapsed: u32,
     local_offset_secs: i64,
@@ -33,12 +41,21 @@ impl Collection {
         search: &str,
         days: u32,
     ) -> Result<anki_proto::stats::GraphsResponse> {
-        let guard = self.search_cards_into_table(search, SortMode::NoOrder)?;
+        let guard = self.search_cards_into_table_with_stats_search(
+            search,
+            SortMode::NoOrder,
+            Some(search),
+        )?;
         let all = search.trim().is_empty();
-        guard.col.graph_data(all, days)
+        guard.col.graph_data(search, all, days)
     }
 
-    fn graph_data(&mut self, all: bool, days: u32) -> Result<anki_proto::stats::GraphsResponse> {
+    fn graph_data(
+        &mut self,
+        search: &str,
+        all: bool,
+        days: u32,
+    ) -> Result<anki_proto::stats::GraphsResponse> {
         let timing = self.timing_today()?;
         let revlog_start = if days > 0 {
             timing
@@ -55,10 +72,51 @@ impl Collection {
             self.storage
                 .get_revlog_entries_for_searched_cards_after_stamp(revlog_start)?
         };
+        let cards = self.storage.all_searched_cards()?;
+        let rwkv_retrievability_scores =
+            self.rwkv_stats_graph_scores_for_search(timing.days_elapsed, Some(search));
+        let fsrs_cards: Vec<Card> = cards
+            .iter()
+            .filter(|card| card.memory_state.is_some())
+            .cloned()
+            .collect();
+        let fsrs_preset_start = std::time::Instant::now();
+        let fsrs_presets_by_card = self.fsrs_presets_for_cards(&fsrs_cards)?;
+        tracing::debug!(
+            searched_cards = cards.len(),
+            rwkv_scored_cards = rwkv_retrievability_scores
+                .as_ref()
+                .map(|scores| scores.len())
+                .unwrap_or_default(),
+            fsrs_cards = fsrs_cards.len(),
+            elapsed_ms = fsrs_preset_start.elapsed().as_secs_f64() * 1000.0,
+            "resolved FSRS presets for stats graphs"
+        );
+        let mut fsrs_by_preset = HashMap::new();
+        let mut fsrs_preset_by_card = HashMap::new();
+        let fsrs_build_start = std::time::Instant::now();
+        for (card_id, fsrs_preset) in fsrs_presets_by_card {
+            let preset_id = fsrs_preset.id.clone();
+            fsrs_preset_by_card.insert(card_id, preset_id.clone());
+            if let std::collections::hash_map::Entry::Vacant(entry) =
+                fsrs_by_preset.entry(preset_id)
+            {
+                entry.insert(fsrs_preset.fsrs()?);
+            }
+        }
+        tracing::debug!(
+            presets = fsrs_by_preset.len(),
+            cards = fsrs_preset_by_card.len(),
+            elapsed_ms = fsrs_build_start.elapsed().as_secs_f64() * 1000.0,
+            "built FSRS instances for stats graphs"
+        );
         let ctx = GraphsContext {
             revlog,
             days_elapsed: timing.days_elapsed,
-            cards: self.storage.all_searched_cards()?,
+            cards,
+            fsrs_by_preset,
+            fsrs_preset_by_card,
+            rwkv_retrievability_scores,
             next_day_start: timing.next_day_at,
             local_offset_secs,
         };

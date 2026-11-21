@@ -9,12 +9,12 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { getPlatformString } from "@tslib/shortcuts";
     import { createEventDispatcher, getContext } from "svelte";
 
-    import DropdownItem from "$lib/components/DropdownItem.svelte";
-    import Icon from "$lib/components/Icon.svelte";
-    import IconConstrain from "$lib/components/IconConstrain.svelte";
-    import { dotsIcon } from "$lib/components/icons";
-    import Popover from "$lib/components/Popover.svelte";
-    import WithFloating from "$lib/components/WithFloating.svelte";
+    import DropdownItem from "#lib/components/DropdownItem.svelte";
+    import Icon from "#lib/components/Icon.svelte";
+    import IconConstrain from "#lib/components/IconConstrain.svelte";
+    import { dotsIcon } from "#lib/components/icons.js";
+    import Popover from "#lib/components/Popover.svelte";
+    import WithFloating from "#lib/components/WithFloating.svelte";
 
     const dispatch = createEventDispatcher();
 

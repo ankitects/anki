@@ -172,6 +172,8 @@ message DeckTreeNode {
 
   // with children, without any limits
   uint32 total_including_children = 14;
+  // Uses this deck's study scope, which can differ from its children's scopes.
+  uint32 review_uncapped_including_children = 17;
 
   bool filtered = 16;
 

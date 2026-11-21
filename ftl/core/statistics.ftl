@@ -101,8 +101,9 @@ statistics-counts-separate-suspended-buried-cards = Separate suspended/buried ca
 
 ## Retention represents your actual retention from past reviews, in
 ## comparison to the "desired retention" setting of FSRS, which forecasts
-## future retention. Retention is the percentage of all reviewed cards
-## that were marked as "Hard," "Good," or "Easy" within a specific time period.
+## future retention. Retention is the percentage of cards whose first review of
+## the day with an interval ≥ 1 day was marked as "Hard," "Good," or "Easy"
+## within a specific time period.
 ##
 ## Most of these strings are used as column / row headings in a table.
 ## (Excluding -title and -subtitle)
@@ -113,7 +114,7 @@ statistics-counts-separate-suspended-buried-cards = Separate suspended/buried ca
 ##      window is certain sizes.
 
 statistics-true-retention-title = Retention
-statistics-true-retention-subtitle = Pass rate of cards with an interval ≥ 1 day.
+statistics-true-retention-subtitle = Pass rate for each card's first review of the day with an interval ≥ 1 day.
 statistics-true-retention-tooltip = If you are using FSRS, your retention is expected to be close to your desired retention. Please keep in mind that data for a single day is noisy, so it's better to look at monthly data.
 statistics-true-retention-range = Range
 statistics-true-retention-pass = Pass

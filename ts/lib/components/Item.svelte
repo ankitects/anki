@@ -3,8 +3,8 @@ Copyright: Anki Software, LLC and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
-    import type { SlotHostProps } from "$lib/sveltelib/dynamic-slotting";
-    import { defaultSlotHostContext } from "$lib/sveltelib/dynamic-slotting";
+    import type { SlotHostProps } from "#lib/sveltelib/dynamic-slotting.js";
+    import { defaultSlotHostContext } from "#lib/sveltelib/dynamic-slotting.js";
 
     export let id: string | undefined = undefined;
     export let hostProps: SlotHostProps | undefined = undefined;

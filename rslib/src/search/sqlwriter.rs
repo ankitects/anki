@@ -15,6 +15,7 @@ use super::parser::SearchNode;
 use super::parser::StateKind;
 use super::parser::TemplateKind;
 use super::ReturnItemType;
+use super::RWKV_DUE_TABLE;
 use crate::card::CardQueue;
 use crate::card::CardType;
 use crate::collection::Collection;
@@ -42,6 +43,8 @@ pub(crate) struct SqlWriter<'a> {
     args: Vec<String>,
     normalize_note_text: bool,
     table: RequiredTable,
+    card_id_filter_table: Option<&'static str>,
+    first_grade_table: Option<&'static str>,
 }
 
 impl SqlWriter<'_> {
@@ -56,7 +59,19 @@ impl SqlWriter<'_> {
             args,
             normalize_note_text,
             table: item_type.required_table(),
+            card_id_filter_table: None,
+            first_grade_table: None,
         }
+    }
+
+    pub(super) fn with_card_id_filter_table(mut self, table: &'static str) -> Self {
+        self.card_id_filter_table = Some(table);
+        self
+    }
+
+    pub(super) fn with_first_grade_table(mut self, table: &'static str) -> Self {
+        self.first_grade_table = Some(table);
+        self
     }
 
     pub(super) fn build_query(
@@ -70,18 +85,76 @@ impl SqlWriter<'_> {
         Ok((self.sql, self.args))
     }
 
+    /// Builds one query over the card id filter table that returns each card
+    /// id with the index of the first node in `nodes` it matches, or null if
+    /// it matches none. SQLite stops evaluating a CASE at its first true
+    /// branch, so later nodes only run for cards earlier nodes did not match.
+    pub(super) fn build_first_match_query(
+        mut self,
+        nodes: &[&Node],
+    ) -> Result<(String, Vec<String>)> {
+        let filter_table = self
+            .card_id_filter_table
+            .or_invalid("first-match queries need a card id filter table")?;
+        require!(!nodes.is_empty(), "first-match queries need a search");
+        self.table = nodes.iter().fold(RequiredTable::Cards, |table, node| {
+            table.combine(node.required_table())
+        });
+        self.sql.push_str("select c.id, case");
+        for (index, node) in nodes.iter().enumerate() {
+            self.sql.push_str(" when (");
+            self.write_node_to_sql(&cheap_terms_first(node))?;
+            write!(self.sql, ") then {index}").unwrap();
+        }
+        match self.table {
+            RequiredTable::Cards => write!(
+                self.sql,
+                " end from {filter_table} sc cross join cards c where sc.cid=c.id"
+            ),
+            _ => write!(
+                self.sql,
+                " end from {filter_table} sc cross join cards c cross join notes n \
+                 where sc.cid=c.id and c.nid=n.id"
+            ),
+        }
+        .unwrap();
+        Ok((self.sql, self.args))
+    }
+
     fn write_table_sql(&mut self) {
-        let sql = match self.table {
-            RequiredTable::Cards => "select c.id from cards c where ",
-            RequiredTable::Notes => "select n.id from notes n where ",
-            _ => match self.item_type {
-                ReturnItemType::Cards => "select c.id from cards c, notes n where c.nid=n.id and ",
-                ReturnItemType::Notes => {
-                    "select distinct n.id from cards c, notes n where c.nid=n.id and "
+        if let Some(filter_table) = self.card_id_filter_table {
+            let sql = match self.table {
+                RequiredTable::Cards => {
+                    format!("select c.id from {filter_table} sc, cards c where sc.cid=c.id and ")
                 }
-            },
-        };
-        self.sql.push_str(sql);
+                RequiredTable::Notes => format!(
+                    "select n.id from {filter_table} sc, cards c, notes n where sc.cid=c.id and c.nid=n.id and "
+                ),
+                _ => match self.item_type {
+                    ReturnItemType::Cards => format!(
+                        "select c.id from {filter_table} sc, cards c, notes n where sc.cid=c.id and c.nid=n.id and "
+                    ),
+                    ReturnItemType::Notes => format!(
+                        "select distinct n.id from {filter_table} sc, cards c, notes n where sc.cid=c.id and c.nid=n.id and "
+                    ),
+                },
+            };
+            self.sql.push_str(&sql);
+        } else {
+            let sql = match self.table {
+                RequiredTable::Cards => "select c.id from cards c where ",
+                RequiredTable::Notes => "select n.id from notes n where ",
+                _ => match self.item_type {
+                    ReturnItemType::Cards => {
+                        "select c.id from cards c, notes n where c.nid=n.id and "
+                    }
+                    ReturnItemType::Notes => {
+                        "select distinct n.id from cards c, notes n where c.nid=n.id and "
+                    }
+                },
+            };
+            self.sql.push_str(sql);
+        }
     }
 
     /// As an optimization we can omit the cards or notes tables from
@@ -146,7 +219,22 @@ impl SqlWriter<'_> {
                 field,
                 operator,
                 value,
-            } => self.write_numeric_field(&norm(field), operator, *value)?,
+            } => {
+                let comparisons = [(operator.as_str(), *value)];
+                self.write_numeric_field(&norm(field), &comparisons)?
+            }
+            SearchNode::NumericFieldRange {
+                field,
+                min,
+                max,
+                min_inclusive,
+                max_inclusive,
+            } => {
+                let min_op = if *min_inclusive { ">=" } else { ">" };
+                let max_op = if *max_inclusive { "<=" } else { "<" };
+                let comparisons = [(min_op, *min), (max_op, *max)];
+                self.write_numeric_field(&norm(field), &comparisons)?
+            }
             SearchNode::Duplicates { notetype_id, text } => {
                 self.write_dupe(*notetype_id, &self.norm_note(text))?
             }
@@ -185,6 +273,7 @@ impl SqlWriter<'_> {
             SearchNode::DeckIdWithChildren(did) => self.write_deck_id_with_children(*did)?,
             SearchNode::Notetype(notetype) => self.write_notetype(&norm(notetype)),
             SearchNode::Rated { days, ease } => self.write_rated(">", -i64::from(*days), ease)?,
+            SearchNode::FirstGrade(button) => self.write_first_grade(*button),
 
             SearchNode::Tag { tag, mode } => self.write_tag(&norm(tag), *mode),
             SearchNode::State(state) => self.write_state(state)?,
@@ -206,6 +295,31 @@ impl SqlWriter<'_> {
             }
         };
         Ok(())
+    }
+
+    fn write_first_grade(&mut self, button: u8) {
+        if let Some(table) = self.first_grade_table {
+            write!(
+                self.sql,
+                "c.id in (select cid from {table} where ease = {button})"
+            )
+            .unwrap();
+        } else {
+            write!(
+                self.sql,
+                "exists (
+                select 1 from revlog r
+                where r.cid = c.id
+                and r.ease = {button}
+                and r.id = (
+                    select min(first.id) from revlog first
+                    where first.cid = c.id
+                    and first.ease between 1 and 4
+                )
+            )"
+            )
+            .unwrap();
+        }
     }
 
     fn write_unqualified(
@@ -431,25 +545,30 @@ impl SqlWriter<'_> {
                 self.args.push(value.clone());
                 write!(self.sql, "extract_custom_data(c.data, ?) {op} ?").unwrap();
             }
-            PropertyKind::Stability(s) => {
-                write!(self.sql, "extract_fsrs_variable(c.data, 's') {op} {s}").unwrap()
-            }
+            PropertyKind::Stability(s) => write!(
+                self.sql,
+                "(select s90 from search_exact_retrievability where cid = c.id) {op} {s}"
+            )
+            .unwrap(),
             PropertyKind::Difficulty(d) => {
                 let d = d * 9.0 + 1.0;
                 write!(self.sql, "extract_fsrs_variable(c.data, 'd') {op} {d}").unwrap()
             }
-            PropertyKind::Retrievability(r) => {
-                let (elap, next_day_at, now) = {
-                    let timing = self.col.timing_today()?;
-                    (timing.days_elapsed, timing.next_day_at, timing.now)
-                };
-                const NEW_TYPE: i8 = CardType::New as i8;
-                write!(
-                    self.sql,
-                    "case when c.type = {NEW_TYPE} then false else (extract_fsrs_retrievability(c.data, case when c.odue !=0 then c.odue else c.due end, c.ivl, {elap}, {next_day_at}, {now}) {op} {r}) end"
-                )
-                .unwrap()
-            }
+            PropertyKind::Retrievability(r) => write!(
+                self.sql,
+                "(select fsrs_r from search_exact_retrievability where cid = c.id) {op} {r}"
+            )
+            .unwrap(),
+            PropertyKind::RwkvRetrievability(r) => write!(
+                self.sql,
+                "(select rwkv_r from search_exact_retrievability where cid = c.id) {op} {r}"
+            )
+            .unwrap(),
+            PropertyKind::RwkvCurveRetrievability(r) => write!(
+                self.sql,
+                "(select rwkv_curve_r from search_exact_retrievability where cid = c.id) {op} {r}"
+            )
+            .unwrap(),
         }
 
         Ok(())
@@ -497,6 +616,16 @@ impl SqlWriter<'_> {
                 lrn = CardQueue::Learn as i8,
                 previewrepeat = CardQueue::PreviewRepeat as i8,
                 learncutoff = TimestampSecs::now().0 + (self.col.learn_ahead_secs() as i64),
+            ),
+            StateKind::RwkvDue => write!(
+                self.sql,
+                "exists (select 1 from {RWKV_DUE_TABLE} rd \
+                 where rd.cid = c.id and rd.kind = 0)"
+            ),
+            StateKind::RwkvCurveDue => write!(
+                self.sql,
+                "exists (select 1 from {RWKV_DUE_TABLE} rd \
+                 where rd.cid = c.id and rd.kind = 1)"
             ),
             StateKind::UserBuried => write!(self.sql, "c.queue = {}", CardQueue::UserBuried as i8),
             StateKind::SchedBuried => {
@@ -617,73 +746,66 @@ impl SqlWriter<'_> {
         write!(self.sql, "regexp_fields(?{}, n.flds)", self.args.len()).unwrap();
     }
 
+    /// Strips combining characters from the named fields only, as processing
+    /// the whole note dominates the cost of the search on large notes.
     fn write_single_field_nc(&mut self, field_name: &str, val: &str) -> Result<()> {
-        let field_indicies_by_notetype = self.num_fields_and_fields_indices_by_notetype(
-            field_name,
-            matches!(val, "*" | "_*" | "*_"),
-        )?;
-        if field_indicies_by_notetype.is_empty() {
-            write!(self.sql, "false").unwrap();
-            return Ok(());
-        }
-
-        let val = to_sql(val);
-        let val = without_combining(&val);
-        self.args.push(val.into());
-        let arg_idx = self.args.len();
-        let field_idx_str = format!("' || ?{arg_idx} || '");
-        let other_idx_str = "%".to_string();
-
-        let notetype_clause = |ctx: &FieldQualifiedSearchContext| -> String {
-            let field_index_clause = |range: &Range<u32>| {
-                let f = (0..ctx.total_fields_in_note)
-                    .filter_map(|i| {
-                        if i as u32 == range.start {
-                            Some(&field_idx_str)
-                        } else if range.contains(&(i as u32)) {
-                            None
-                        } else {
-                            Some(&other_idx_str)
-                        }
-                    })
-                    .join("\x1f");
-                format!(
-                    "coalesce(process_text(n.flds, {}), n.flds) like '{f}' escape '\\'",
-                    ProcessTextFlags::NoCombining.bits()
-                )
-            };
-
-            let all_field_clauses = ctx
-                .field_ranges_to_search
+        let re = format!("(?is)^{}$", to_re(&without_combining(val)));
+        let bits = ProcessTextFlags::NoCombining.bits();
+        self.write_selected_fields(field_name, re, |arg_idx, field_indices| {
+            let field_clauses = field_indices
                 .iter()
-                .map(field_index_clause)
+                .map(|idx| {
+                    let field = format!("field_at_index(n.flds, {idx})");
+                    format!("coalesce(process_text({field}, {bits}), {field}) regexp ?{arg_idx}")
+                })
                 .join(" or ");
-            format!("(n.mid = {mid} and ({all_field_clauses}))", mid = ctx.ntid)
-        };
-        let all_notetype_clauses = field_indicies_by_notetype
-            .iter()
-            .map(notetype_clause)
-            .join(" or ");
-        write!(self.sql, "({all_notetype_clauses})").unwrap();
-
-        Ok(())
+            format!("({field_clauses})")
+        })
     }
 
     fn write_single_field_regexp(&mut self, field_name: &str, val: &str) -> Result<()> {
+        self.write_regexp_fields(field_name, format!("(?i){val}"))
+    }
+
+    /// Matches each named field on its own with the same wildcard semantics
+    /// as all-field searches.
+    fn write_single_field(&mut self, field_name: &str, val: &str) -> Result<()> {
+        self.write_regexp_fields(field_name, format!("(?is)^{}$", to_re(val)))
+    }
+
+    /// `regexp_fields` stops after the last named field, so large later fields
+    /// are not scanned.
+    fn write_regexp_fields(&mut self, field_name: &str, re: String) -> Result<()> {
+        self.write_selected_fields(field_name, re, |arg_idx, field_indices| {
+            let field_index_list = field_indices.iter().join(", ");
+            format!("regexp_fields(?{arg_idx}, n.flds, {field_index_list})")
+        })
+    }
+
+    /// Writes a clause per notetype containing the named field, using
+    /// `field_clause` to match the regex argument against its field indices.
+    fn write_selected_fields(
+        &mut self,
+        field_name: &str,
+        re: String,
+        field_clause: impl Fn(usize, &[u32]) -> String,
+    ) -> Result<()> {
         let field_indicies_by_notetype = self.fields_indices_by_notetype(field_name)?;
         if field_indicies_by_notetype.is_empty() {
             write!(self.sql, "false").unwrap();
             return Ok(());
         }
 
-        self.args.push(format!("(?i){val}"));
+        self.args.push(re);
         let arg_idx = self.args.len();
 
         let all_notetype_clauses = field_indicies_by_notetype
             .iter()
             .map(|(mid, field_indices)| {
-                let field_index_list = field_indices.iter().join(", ");
-                format!("(n.mid = {mid} and regexp_fields(?{arg_idx}, n.flds, {field_index_list}))")
+                format!(
+                    "(n.mid = {mid} and {})",
+                    field_clause(arg_idx, field_indices)
+                )
             })
             .join(" or ");
 
@@ -692,54 +814,7 @@ impl SqlWriter<'_> {
         Ok(())
     }
 
-    fn write_single_field(&mut self, field_name: &str, val: &str) -> Result<()> {
-        let field_indicies_by_notetype = self.num_fields_and_fields_indices_by_notetype(
-            field_name,
-            matches!(val, "*" | "_*" | "*_"),
-        )?;
-        if field_indicies_by_notetype.is_empty() {
-            write!(self.sql, "false").unwrap();
-            return Ok(());
-        }
-
-        self.args.push(to_sql(val).into());
-        let arg_idx = self.args.len();
-        let field_idx_str = format!("' || ?{arg_idx} || '");
-        let other_idx_str = "%".to_string();
-
-        let notetype_clause = |ctx: &FieldQualifiedSearchContext| -> String {
-            let field_index_clause = |range: &Range<u32>| {
-                let f = (0..ctx.total_fields_in_note)
-                    .filter_map(|i| {
-                        if i as u32 == range.start {
-                            Some(&field_idx_str)
-                        } else if range.contains(&(i as u32)) {
-                            None
-                        } else {
-                            Some(&other_idx_str)
-                        }
-                    })
-                    .join("\x1f");
-                format!("n.flds like '{f}' escape '\\'")
-            };
-
-            let all_field_clauses = ctx
-                .field_ranges_to_search
-                .iter()
-                .map(field_index_clause)
-                .join(" or ");
-            format!("(n.mid = {mid} and ({all_field_clauses}))", mid = ctx.ntid)
-        };
-        let all_notetype_clauses = field_indicies_by_notetype
-            .iter()
-            .map(notetype_clause)
-            .join(" or ");
-        write!(self.sql, "({all_notetype_clauses})").unwrap();
-
-        Ok(())
-    }
-
-    fn write_numeric_field(&mut self, field_name: &str, operator: &str, value: f64) -> Result<()> {
+    fn write_numeric_field(&mut self, field_name: &str, comparisons: &[(&str, f64)]) -> Result<()> {
         let field_indices_by_notetype = self.fields_indices_by_notetype(field_name)?;
         if field_indices_by_notetype.is_empty() {
             write!(self.sql, "false").unwrap();
@@ -757,9 +832,11 @@ impl SqlWriter<'_> {
                     .iter()
                     .map(|idx| {
                         let field = format!("trim(field_at_index(n.flds, {idx}))");
-                        format!(
-                            "({field} regexp ?{arg_idx} and cast({field} as real) {operator} {value})"
-                        )
+                        let comparisons = comparisons
+                            .iter()
+                            .map(|(op, value)| format!("cast({field} as real) {op} {value}"))
+                            .join(" and ");
+                        format!("({field} regexp ?{arg_idx} and {comparisons})")
                     })
                     .join(" or ");
                 format!("(n.mid = {mid} and ({field_clauses}))")
@@ -769,36 +846,6 @@ impl SqlWriter<'_> {
         write!(self.sql, "({all_notetype_clauses})").unwrap();
 
         Ok(())
-    }
-
-    fn num_fields_and_fields_indices_by_notetype(
-        &mut self,
-        field_name: &str,
-        test_for_nonempty: bool,
-    ) -> Result<Vec<FieldQualifiedSearchContext>> {
-        let matches_glob = glob_matcher(field_name);
-
-        let mut field_map = vec![];
-        for nt in self.col.get_all_notetypes()? {
-            let matched_fields = nt
-                .fields
-                .iter()
-                .filter(|&field| matches_glob(&field.name))
-                .map(|field| field.ord.unwrap_or_default())
-                .collect_ranges(!test_for_nonempty);
-            if !matched_fields.is_empty() {
-                field_map.push(FieldQualifiedSearchContext {
-                    ntid: nt.id,
-                    total_fields_in_note: nt.fields.len(),
-                    field_ranges_to_search: matched_fields,
-                });
-            }
-        }
-
-        // for now, sort the map for the benefit of unit tests
-        field_map.sort_by_key(|v| v.ntid);
-
-        Ok(field_map)
     }
 
     fn fields_indices_by_notetype(
@@ -1082,14 +1129,6 @@ impl<
     }
 }
 
-struct FieldQualifiedSearchContext {
-    ntid: NotetypeId,
-    total_fields_in_note: usize,
-    /// This may include more than one field in the case the user
-    /// has searched with a wildcard, eg f*:foo.
-    field_ranges_to_search: Vec<Range<u32>>,
-}
-
 struct UnqualifiedSearchContext {
     ntid: NotetypeId,
     total_fields_in_note: usize,
@@ -1103,6 +1142,51 @@ struct UnqualifiedRegexSearchContext {
     /// Unlike the other contexts, this contains each individual index
     /// instead of a list of ranges.
     fields_to_search: Vec<u32>,
+}
+
+/// Returns an equivalent search whose AND-only groups list terms that read
+/// note text after the other terms, keeping the relative order within each
+/// kind. SQL evaluates AND chains left to right and stops at the first false
+/// term, so cheap card, deck, notetype and tag checks can then skip field
+/// matching; reordering AND terms does not change which cards match. Groups
+/// containing OR are left in place, as their order also encodes precedence.
+fn cheap_terms_first(node: &Node) -> Node {
+    match node {
+        Node::Group(nodes) => reorder_and_terms(nodes.iter().map(cheap_terms_first).collect()),
+        Node::Not(inner) => Node::Not(Box::new(cheap_terms_first(inner))),
+        _ => node.clone(),
+    }
+}
+
+fn reorder_and_terms(nodes: Vec<Node>) -> Node {
+    if nodes.iter().any(|node| matches!(node, Node::Or)) {
+        return Node::Group(nodes);
+    }
+    let (expensive, cheap): (Vec<Node>, Vec<Node>) = nodes
+        .into_iter()
+        .filter(|node| !matches!(node, Node::And))
+        .partition(reads_note_text);
+    Node::Group(Itertools::intersperse(cheap.into_iter().chain(expensive), Node::And).collect())
+}
+
+/// True if matching the node compares search text against note fields.
+fn reads_note_text(node: &Node) -> bool {
+    match node {
+        Node::And | Node::Or => false,
+        Node::Not(inner) => reads_note_text(inner),
+        Node::Group(nodes) => nodes.iter().any(reads_note_text),
+        Node::Search(search) => matches!(
+            search,
+            SearchNode::UnqualifiedText(_)
+                | SearchNode::SingleField { .. }
+                | SearchNode::NumericField { .. }
+                | SearchNode::NumericFieldRange { .. }
+                | SearchNode::Regex(_)
+                | SearchNode::NoCombining(_)
+                | SearchNode::StripClozes(_)
+                | SearchNode::WordBoundary(_)
+        ),
+    }
 }
 
 impl Node {
@@ -1128,6 +1212,7 @@ impl SearchNode {
             SearchNode::DeckIdsWithoutChildren(_) => RequiredTable::Cards,
             SearchNode::DeckIdWithChildren(_) => RequiredTable::Cards,
             SearchNode::Rated { .. } => RequiredTable::Cards,
+            SearchNode::FirstGrade(_) => RequiredTable::Cards,
             SearchNode::State(_) => RequiredTable::Cards,
             SearchNode::Flag(_) => RequiredTable::Cards,
             SearchNode::CardIds(_) => RequiredTable::Cards,
@@ -1139,6 +1224,7 @@ impl SearchNode {
             SearchNode::UnqualifiedText(_) => RequiredTable::Notes,
             SearchNode::SingleField { .. } => RequiredTable::Notes,
             SearchNode::NumericField { .. } => RequiredTable::Notes,
+            SearchNode::NumericFieldRange { .. } => RequiredTable::Notes,
             SearchNode::Tag { .. } => RequiredTable::Notes,
             SearchNode::Duplicates { .. } => RequiredTable::Notes,
             SearchNode::Regex(_) => RequiredTable::Notes,
@@ -1205,13 +1291,13 @@ mod test {
             s(ctx, "front:te*st"),
             (
                 concat!(
-                    "(((n.mid = 1581236385344 and (n.flds like '' || ?1 || '\u{1f}%' escape '\\')) or ",
-                    "(n.mid = 1581236385345 and (n.flds like '' || ?1 || '\u{1f}%\u{1f}%' escape '\\')) or ",
-                    "(n.mid = 1581236385346 and (n.flds like '' || ?1 || '\u{1f}%' escape '\\')) or ",
-                    "(n.mid = 1581236385347 and (n.flds like '' || ?1 || '\u{1f}%' escape '\\'))))"
+                    "(((n.mid = 1581236385344 and regexp_fields(?1, n.flds, 0)) or ",
+                    "(n.mid = 1581236385345 and regexp_fields(?1, n.flds, 0)) or ",
+                    "(n.mid = 1581236385346 and regexp_fields(?1, n.flds, 0)) or ",
+                    "(n.mid = 1581236385347 and regexp_fields(?1, n.flds, 0))))"
                 )
                 .into(),
-                vec!["te%st".into()]
+                vec!["(?is)^te.*st$".into()]
             )
         );
         // field search with regex
@@ -1233,13 +1319,13 @@ mod test {
             s(ctx, "front:nc:frânçais"),
             (
                 concat!(
-                    "(((n.mid = 1581236385344 and (coalesce(process_text(n.flds, 1), n.flds) like '' || ?1 || '\u{1f}%' escape '\\')) or ",
-                    "(n.mid = 1581236385345 and (coalesce(process_text(n.flds, 1), n.flds) like '' || ?1 || '\u{1f}%\u{1f}%' escape '\\')) or ",
-                    "(n.mid = 1581236385346 and (coalesce(process_text(n.flds, 1), n.flds) like '' || ?1 || '\u{1f}%' escape '\\')) or ",
-                    "(n.mid = 1581236385347 and (coalesce(process_text(n.flds, 1), n.flds) like '' || ?1 || '\u{1f}%' escape '\\'))))"
+                    "(((n.mid = 1581236385344 and (coalesce(process_text(field_at_index(n.flds, 0), 1), field_at_index(n.flds, 0)) regexp ?1)) or ",
+                    "(n.mid = 1581236385345 and (coalesce(process_text(field_at_index(n.flds, 0), 1), field_at_index(n.flds, 0)) regexp ?1)) or ",
+                    "(n.mid = 1581236385346 and (coalesce(process_text(field_at_index(n.flds, 0), 1), field_at_index(n.flds, 0)) regexp ?1)) or ",
+                    "(n.mid = 1581236385347 and (coalesce(process_text(field_at_index(n.flds, 0), 1), field_at_index(n.flds, 0)) regexp ?1))))"
                 )
                 .into(),
-                vec!["francais".into()]
+                vec!["(?is)^francais$".into()]
             )
         );
         // all field search
@@ -1378,6 +1464,11 @@ mod test {
             )
         );
         assert_eq!(s(ctx, "rated:0").0, s(ctx, "rated:1").0);
+        let first_grade_sql = s(ctx, "firstgrade:2").0;
+        assert!(first_grade_sql.contains("r.ease = 2"));
+        assert!(first_grade_sql.contains("r.cid = c.id"));
+        assert!(first_grade_sql.contains("first.cid = c.id"));
+        assert!(first_grade_sql.contains("first.ease between 1 and 4"));
 
         // resched
         assert_eq!(
@@ -1402,6 +1493,15 @@ c.odue != 0 then c.odue else c.due end) != {days}) or (c.queue in (1,4) and
             )
         );
         assert_eq!(s(ctx, "prop:rated>-5:3").0, s(ctx, "rated:5:3").0);
+        assert!(s(ctx, "prop:r<0.9")
+            .0
+            .contains("select fsrs_r from search_exact_retrievability"));
+        assert!(s(ctx, "prop:rwkv:r>=0.8")
+            .0
+            .contains("select rwkv_r from search_exact_retrievability"));
+        assert!(s(ctx, "prop:rwkv-curve:r=0.7")
+            .0
+            .contains("select rwkv_curve_r from search_exact_retrievability"));
         assert_eq!(
             s(ctx, "prop:cdn:r=1"),
             (
@@ -1502,7 +1602,11 @@ c.odue != 0 then c.odue else c.due end) != {days}) or (c.queue in (1,4) and
         let mut reviewed_note = nt.new_note();
         col.add_note(&mut reviewed_note, DeckId(1))?;
         let reviewed_cid = col.storage.card_ids_of_notes(&[reviewed_note.id]).unwrap()[0];
-        col.grade_now(&[reviewed_cid], 3)?;
+        col.grade_now(anki_proto::scheduler::GradeNowRequest {
+            card_ids: vec![reviewed_cid.into()],
+            rating: anki_proto::scheduler::card_answer::Rating::Easy as i32,
+            card_options: vec![],
+        })?;
 
         let mut new_note = nt.new_note();
         col.add_note(&mut new_note, DeckId(1))?;
@@ -1552,6 +1656,39 @@ c.odue != 0 then c.odue else c.due end) != {days}) or (c.queue in (1,4) and
             Node::Group(parse("test nid:1").unwrap()).required_table(),
             RequiredTable::Notes
         );
+    }
+
+    #[test]
+    fn first_match_query_checks_cheap_and_terms_before_note_text() -> Result<()> {
+        let mut col = Collection::new();
+        let searches = [
+            Node::Group(parse("re:abc tag:foo")?),
+            Node::Group(parse("re:abc or tag:foo")?),
+        ];
+        let nodes: Vec<&Node> = searches.iter().collect();
+
+        let (sql, args) = SqlWriter::new(&mut col, ReturnItemType::Cards)
+            .with_card_id_filter_table("filter")
+            .build_first_match_query(&nodes)?;
+
+        assert_eq!(
+            sql,
+            "select c.id, case \
+             when ((n.tags regexp ? and n.flds regexp ?2)) then 0 \
+             when ((n.flds regexp ?3 or n.tags regexp ?)) then 1 \
+             end from filter sc cross join cards c cross join notes n \
+             where sc.cid=c.id and c.nid=n.id"
+        );
+        assert_eq!(
+            args,
+            vec![
+                "(?i).* foo(::| ).*".to_string(),
+                "(?i)abc".to_string(),
+                "(?i)abc".to_string(),
+                "(?i).* foo(::| ).*".to_string(),
+            ]
+        );
+        Ok(())
     }
 
     #[allow(clippy::single_range_in_vec_init)]

@@ -1,0 +1,148 @@
+{
+  "nodes": {
+    "ankiquest-dev": {
+      "inputs": {
+        "nix-darwin": "nix-darwin",
+        "nixos-wsl": "nixos-wsl",
+        "nixpkgs": [
+          "nixpkgs"
+        ],
+        "nixpkgs-x86_64-darwin": "nixpkgs-x86_64-darwin",
+        "rust-overlay": "rust-overlay"
+      },
+      "locked": {
+        "lastModified": 1795193380,
+        "narHash": "sha256-ftUrmL58YTMQWFjLtxfSJBzu9d/ALnZgEu4sRiMqo0Q=",
+        "owner": "AnkiQuest",
+        "repo": "AnkiQuest-Dev",
+        "rev": "16ac7913f4e1ab51bbd05c924f3384034bc09804",
+        "type": "github"
+      },
+      "original": {
+        "owner": "AnkiQuest",
+        "repo": "AnkiQuest-Dev",
+        "type": "github"
+      }
+    },
+    "flake-compat": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1767039857,
+        "narHash": "sha256-vNpUSpF5Nuw8xvDLj2KCwwksIbjua2LZCqhV1LNRDns=",
+        "owner": "edolstra",
+        "repo": "flake-compat",
+        "rev": "5edf11c44bc78a0d334f6334cdaf7d60d732daab",
+        "type": "github"
+      },
+      "original": {
+        "owner": "edolstra",
+        "repo": "flake-compat",
+        "type": "github"
+      }
+    },
+    "nix-darwin": {
+      "inputs": {
+        "nixpkgs": [
+          "ankiquest-dev",
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1793418699,
+        "narHash": "sha256-+RpTlcdh9KqZ+ZiLkNSTvibQWm935EcIdBzRPCTFsrQ=",
+        "ref": "refs/heads/master",
+        "rev": "ff0e21a414d4547183396da1b44a66f2577b65e9",
+        "shallow": true,
+        "type": "git",
+        "url": "https://github.com/nix-darwin/nix-darwin"
+      },
+      "original": {
+        "shallow": true,
+        "type": "git",
+        "url": "https://github.com/nix-darwin/nix-darwin"
+      }
+    },
+    "nixos-wsl": {
+      "inputs": {
+        "flake-compat": "flake-compat",
+        "nixpkgs": [
+          "ankiquest-dev",
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1794368463,
+        "narHash": "sha256-ncpk0eCCyhU7M7U/PGbtwb1PXqobksBBYbJJ13abV2g=",
+        "ref": "refs/heads/main",
+        "rev": "05721a428830972f025a8575b1a19c418d422d1b",
+        "shallow": true,
+        "type": "git",
+        "url": "https://github.com/nix-community/NixOS-WSL"
+      },
+      "original": {
+        "shallow": true,
+        "type": "git",
+        "url": "https://github.com/nix-community/NixOS-WSL"
+      }
+    },
+    "nixpkgs": {
+      "locked": {
+        "lastModified": 1794890597,
+        "narHash": "sha256-lME2lHoDHAaSHP3/okgiVoJ0icVEvsQH8LeU3We7tcc=",
+        "owner": "nixos",
+        "repo": "nixpkgs",
+        "rev": "04906337b6d53e8bb0eaf0470ae9f070a4d4eb55",
+        "type": "github"
+      },
+      "original": {
+        "owner": "nixos",
+        "ref": "nixos-unstable",
+        "repo": "nixpkgs",
+        "type": "github"
+      }
+    },
+    "nixpkgs-x86_64-darwin": {
+      "locked": {
+        "lastModified": 1795137884,
+        "narHash": "sha256-xVwloUjz7paCDnvN5dkrasmAGV+O6uyRUPFHxv2w3VA=",
+        "rev": "ab5c18fdedfc8f9bbc9d773f10a540790e2787a7",
+        "type": "tarball",
+        "url": "https://releases.nixos.org/nixos/26.05/nixos-26.05.14894.ab5c18fdedfc/nixexprs.tar.xz"
+      },
+      "original": {
+        "type": "tarball",
+        "url": "https://channels.nixos.org/nixos-26.05/nixexprs.tar.xz"
+      }
+    },
+    "root": {
+      "inputs": {
+        "ankiquest-dev": "ankiquest-dev",
+        "nixpkgs": "nixpkgs"
+      }
+    },
+    "rust-overlay": {
+      "inputs": {
+        "nixpkgs": [
+          "ankiquest-dev",
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1795168384,
+        "narHash": "sha256-aQ4Ns5O78Pg6B1i2hNRbI1HpRtnZst/jW34MSOOeaX4=",
+        "ref": "refs/heads/master",
+        "rev": "a5c999945da3991d7aa3cc2a6075cfd22bd387e9",
+        "shallow": true,
+        "type": "git",
+        "url": "https://github.com/oxalica/rust-overlay"
+      },
+      "original": {
+        "shallow": true,
+        "type": "git",
+        "url": "https://github.com/oxalica/rust-overlay"
+      }
+    }
+  },
+  "root": "root",
+  "version": 7
+}

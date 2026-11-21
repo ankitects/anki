@@ -137,19 +137,48 @@ message Progress {
     ComputeRetentionProgress compute_retention = 10;
     ComputeMemoryProgress compute_memory = 11;
     DownloadUpdateProgress download_update = 12;
+    ComputeAllParamsProgress compute_all_params = 13;
   }
 }
 
 message ComputeParamsProgress {
+  enum Phase {
+    OPTIMIZING_FSRS_PARAMS = 0;
+    TRAINING_DYNAMIC_DESIRED_RETENTION = 1;
+  }
   // Current iteration
   uint32 current = 1;
   // Total iterations
   uint32 total = 2;
+  // Total training targets used by optimizer (long-term + same-day)
   uint32 reviews = 3;
   // Only used in 'compute all params' case
   uint32 current_preset = 4;
   // Only used in 'compute all params' case
   uint32 total_presets = 5;
+  // Targets where delta_t >= 1 day
+  uint32 long_term_reviews = 6;
+  // Targets where delta_t < 1 day (same-day / short-term)
+  uint32 short_term_reviews = 7;
+  Phase phase = 8;
+}
+
+message ComputeAllParamsProgress {
+  uint32 current = 1;
+  uint32 total = 2;
+  repeated Preset presets = 3;
+
+  message Preset {
+    string name = 1;
+    uint32 current = 2;
+    uint32 total = 3;
+    uint32 reviews = 4;
+    uint32 long_term_reviews = 5;
+    uint32 short_term_reviews = 6;
+    bool finished = 7;
+    bool skipped = 8;
+    ComputeParamsProgress.Phase phase = 9;
+  }
 }
 
 message ComputeRetentionProgress {
@@ -161,6 +190,21 @@ message ComputeMemoryProgress {
   uint32 current_cards = 1;
   uint32 total_cards = 2;
   string label = 3;
+  string preset_name = 4;
+  uint32 current_preset = 5;
+  uint32 total_presets = 6;
+  bool rescheduling = 7;
+  repeated Preset presets = 8;
+  bool saving = 9;
+
+  message Preset {
+    string name = 1;
+    uint32 current_cards = 2;
+    uint32 total_cards = 3;
+    bool finished = 4;
+    bool rescheduling = 5;
+    bool saving = 6;
+  }
 }
 
 message CreateBackupRequest {

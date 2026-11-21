@@ -2,8 +2,10 @@
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 use anki_proto::scheduler::SimulateFsrsReviewRequest;
 use fsrs::extract_simulator_config;
+use fsrs::optimal_retention;
 use fsrs::SimulatorConfig;
 
+use super::legacy_fsrs_params;
 use crate::prelude::*;
 use crate::revlog::RevlogEntry;
 
@@ -20,9 +22,9 @@ impl Collection {
             invalid_input!("no days to simulate")
         }
         let (config, cards) = self.simulate_request_to_config(&req)?;
-        Ok(fsrs::optimal_retention(
+        Ok(optimal_retention(
             &config,
-            &req.params,
+            legacy_fsrs_params(&req.params),
             |ip| {
                 anki_progress
                     .update(false, |p| {
@@ -33,7 +35,7 @@ impl Collection {
             Some(cards),
             None,
         )?
-        .clamp(0.7, 0.95))
+        .clamp(0.1, 0.99))
     }
 
     pub fn get_optimal_retention_parameters(

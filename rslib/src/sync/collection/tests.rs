@@ -24,12 +24,15 @@ use wiremock::MockServer;
 use wiremock::ResponseTemplate;
 
 use crate::card::CardQueue;
+use crate::card::CardType;
+use crate::collection::Collection;
 use crate::collection::CollectionBuilder;
 use crate::deckconfig::DeckConfig;
 use crate::decks::DeckKind;
 use crate::error::SyncError;
 use crate::error::SyncErrorKind;
 use crate::log::set_global_logger;
+use crate::notes::AddNoteRequest;
 use crate::notetype::all_stock_notetypes;
 use crate::prelude::*;
 use crate::revlog::RevlogEntry;
@@ -52,6 +55,9 @@ use crate::sync::http_server::SyncServerConfig;
 use crate::sync::login::HostKeyRequest;
 use crate::sync::login::SyncAuth;
 use crate::sync::request::IntoSyncRequest;
+
+const FSRS_REVIEW_RETRIEVABILITY_CACHE_TABLE: &str = "search_stats_fsrs_review_retrievability";
+const RWKV_REVIEW_RETRIEVABILITY_CACHE_TABLE: &str = "search_stats_rwkv_review_retrievability";
 
 struct TestAuth {
     username: String,
@@ -122,6 +128,46 @@ fn unwrap_sync_err_kind(err: AnkiError) -> SyncErrorKind {
         panic!("not sync err: {err:?}");
     };
     kind
+}
+
+fn main_table_exists(col: &Collection, table: &str) -> Result<bool> {
+    col.storage
+        .db
+        .prepare("SELECT null FROM main.sqlite_master WHERE type = 'table' AND name = ?")?
+        .exists([table])
+        .map_err(Into::into)
+}
+
+fn add_legacy_retrievability_cache_tables(col: &Collection) -> Result<()> {
+    col.storage.db.execute_batch(&format!(
+        "
+        CREATE TABLE main.{FSRS_REVIEW_RETRIEVABILITY_CACHE_TABLE} (
+            revlog_id INTEGER NOT NULL,
+            prediction REAL NOT NULL,
+            source TEXT NOT NULL,
+            updated_at INTEGER NOT NULL,
+            sample_role TEXT NOT NULL DEFAULT 'final_fit',
+            fold_index INTEGER NOT NULL DEFAULT -1,
+            PRIMARY KEY (revlog_id, sample_role, fold_index, source)
+        );
+        INSERT INTO main.{FSRS_REVIEW_RETRIEVABILITY_CACHE_TABLE}
+            (revlog_id, prediction, source, updated_at, sample_role, fold_index)
+        VALUES (1, 0.25, 'legacy_fsrs', 123, 'validation_fold', 2);
+        CREATE TABLE main.{RWKV_REVIEW_RETRIEVABILITY_CACHE_TABLE} (
+            revlog_id INTEGER NOT NULL,
+            prediction REAL NOT NULL,
+            source TEXT NOT NULL,
+            updated_at INTEGER NOT NULL,
+            sample_role TEXT NOT NULL DEFAULT 'final_fit',
+            fold_index INTEGER NOT NULL DEFAULT -1,
+            PRIMARY KEY (revlog_id, sample_role, fold_index, source)
+        );
+        INSERT INTO main.{RWKV_REVIEW_RETRIEVABILITY_CACHE_TABLE}
+            (revlog_id, prediction, source, updated_at, sample_role, fold_index)
+        VALUES (2, 0.75, 'legacy_rwkv', 456, 'test_fold', 0);
+        "
+    ))?;
+    Ok(())
 }
 
 #[tokio::test]
@@ -288,6 +334,244 @@ async fn sync_roundtrip() -> Result<()> {
     .await
 }
 
+#[tokio::test]
+async fn normal_sync_transfers_large_batches_between_clients() -> Result<()> {
+    with_active_server(|client| async move {
+        let ctx = SyncTestContext::new(client);
+        upload_download(&ctx).await?;
+        let mut desktop = ctx.col1();
+        let mut other = ctx.col2();
+        let notetype = desktop.basic_notetype();
+        let mut requests = (0..600)
+            .map(|index| {
+                let mut note = notetype.new_note();
+                note.set_field(0, format!("sync batch note {index}"))?;
+                Ok(AddNoteRequest {
+                    note,
+                    deck_id: DeckId(1),
+                })
+            })
+            .collect::<Result<Vec<_>>>()?;
+        desktop.add_notes(&mut requests)?;
+
+        ctx.normal_sync(&mut desktop).await;
+        assert!(ctx.normal_sync(&mut other).await.remote_collection_changed);
+        assert_eq!(other.storage.get_all_note_ids()?.len(), 601);
+        assert_eq!(other.storage.get_all_card_ids()?.len(), 601);
+        for request in &requests {
+            let received = other.storage.get_note(request.note.id)?.unwrap();
+            assert_eq!(received.fields(), request.note.fields());
+        }
+        Ok(())
+    })
+    .await
+}
+
+#[tokio::test]
+async fn deck_options_metadata_syncs_after_opaque_client_edits() -> Result<()> {
+    with_active_server(|client| async move {
+        let ctx = SyncTestContext::new(client);
+        upload_download(&ctx).await?;
+        let mut desktop = ctx.col1();
+        let mut other_client = ctx.col2();
+        let mut config = DeckConfig {
+            name: "Custom display order".into(),
+            ..Default::default()
+        };
+        config.inner.review_order =
+            crate::deckconfig::ReviewCardOrder::RetrievabilityDescending as i32;
+        let metadata = json!({
+            "intraday_learning_mix": crate::deckconfig::ReviewMix::AfterReviews as i32,
+            "future_option": "preserve",
+        });
+        config.inner.other = serde_json::to_vec(&json!({
+            "jschoreels.deckoptions": metadata,
+        }))?;
+        desktop.transact_no_undo(|col| col.add_or_update_deck_config(&mut config))?;
+        let config_id = config.id;
+        ctx.normal_sync(&mut desktop).await;
+        assert!(
+            ctx.normal_sync(&mut other_client)
+                .await
+                .remote_collection_changed
+        );
+
+        // An unsupported client edits known preset settings without interpreting
+        // the namespaced options carried by the generic sync representation.
+        let original = other_client.get_deck_config(config_id, false)?.unwrap();
+        let original_collection_modified = other_client.sync_meta()?.modified;
+        let mut wire =
+            serde_json::to_value(crate::deckconfig::DeckConfSchema11::from(original.clone()))?;
+        assert_eq!(wire["jschoreels.deckoptions"], metadata);
+        wire["name"] = json!("Edited on another client");
+        wire["rev"]["perDay"] = json!(123);
+        // Preset conflict resolution uses seconds. Give this sequential edit an
+        // explicit later timestamp instead of depending on wall-clock rollover.
+        wire["mod"] = json!(original.mtime_secs.adding_secs(1).0);
+        let mut config =
+            DeckConfig::from(serde_json::from_value::<crate::deckconfig::DeckConfSchema11>(wire)?);
+        config.usn = other_client.usn()?;
+        other_client
+            .transact_no_undo(|col| col.update_deck_config_inner(&mut config, original, None))?;
+        // Normal sync also compares millisecond collection timestamps. Ensure
+        // this immediate test edit cannot equal the preceding sync timestamp.
+        other_client
+            .storage
+            .set_modified_time(TimestampMillis(original_collection_modified.0 + 1))?;
+        let edited = other_client.get_deck_config(config_id, false)?.unwrap();
+        assert_eq!(edited.name, "Edited on another client");
+        ctx.normal_sync(&mut other_client).await;
+        assert!(
+            ctx.normal_sync(&mut desktop)
+                .await
+                .remote_collection_changed
+        );
+
+        let config = desktop.get_deck_config(config_id, false)?.unwrap();
+        assert_eq!(
+            config.intraday_learning_mix(),
+            crate::deckconfig::ReviewMix::AfterReviews
+        );
+        assert_eq!(config.name, "Edited on another client");
+        assert_eq!(config.inner.reviews_per_day, 123);
+        assert_eq!(
+            config.inner.review_order,
+            crate::deckconfig::ReviewCardOrder::RetrievabilityDescending as i32
+        );
+        let wire = serde_json::to_value(crate::deckconfig::DeckConfSchema11::from(config))?;
+        assert_eq!(wire["jschoreels.deckoptions"], metadata);
+        Ok(())
+    })
+    .await
+}
+
+fn update_rwkv_sync_test_card(
+    col: &mut Collection,
+    card_id: CardId,
+    boundary: Option<i64>,
+) -> Result<()> {
+    col.transact(Op::UpdateCard, |col| {
+        let original = col.storage.get_card(card_id)?.unwrap();
+        let mut card = original.clone();
+        card.ctype = CardType::Review;
+        card.queue = CardQueue::Review;
+        card.rwkv_history_reset_after = boundary;
+        col.mirror_rwkv_history_reset(&card)?;
+        col.update_card_inner(&mut card, original, col.usn()?)?;
+        Ok(())
+    })?;
+    Ok(())
+}
+
+async fn stale_legacy_card_edit_preserves_rwkv_boundary(
+    initial_boundary: Option<i64>,
+    final_boundary: Option<i64>,
+) -> Result<()> {
+    with_active_server(|client| async move {
+        let ctx = SyncTestContext::new(client);
+        upload_download(&ctx).await?;
+        let mut desktop = ctx.col1();
+        let mut legacy = ctx.col2();
+        let card_id = *desktop.storage.get_all_card_ids()?.iter().next().unwrap();
+        desktop.transact(Op::UpdateCard, |col| {
+            for review_id in [1_700_000_000_000, 1_700_000_001_000] {
+                col.add_revlog_entry_undoable(RevlogEntry {
+                    id: RevlogId(review_id),
+                    cid: card_id,
+                    usn: col.usn()?,
+                    button_chosen: 3,
+                    interval: 1,
+                    ease_factor: 2_500,
+                    ..Default::default()
+                })?;
+            }
+            Ok(())
+        })?;
+
+        if initial_boundary.is_some() {
+            update_rwkv_sync_test_card(&mut desktop, card_id, initial_boundary)?;
+            ctx.normal_sync(&mut desktop).await;
+            ctx.normal_sync(&mut legacy).await;
+        }
+        update_rwkv_sync_test_card(&mut desktop, card_id, final_boundary)?;
+        ctx.normal_sync(&mut desktop).await;
+        let server_mtime = desktop.sync_meta()?.modified.0;
+        let card_mtime = desktop.storage.get_card(card_id)?.unwrap().mtime.0;
+
+        // The older client was offline during the new boundary decision. Its
+        // card edit discards the unknown field and syncs its stale config.
+        while TimestampMillis::now().0 <= server_mtime || TimestampSecs::now().0 <= card_mtime {
+            tokio::task::yield_now().await;
+        }
+        legacy.transact(Op::UpdateCard, |col| {
+            let original = col.storage.get_card(card_id)?.unwrap();
+            let mut card = original.clone();
+            card.rwkv_history_reset_after = None;
+            card.flags = 1;
+            card.ctype = CardType::Review;
+            card.queue = CardQueue::Review;
+            col.update_card_inner(&mut card, original, col.usn()?)?;
+            Ok(())
+        })?;
+        ctx.normal_sync(&mut legacy).await;
+        let stale: Option<crate::config::RwkvHistoryResetMirror> = legacy
+            .storage
+            .get_config_value(&crate::config::rwkv_history_reset_config_key(card_id))?;
+        assert_eq!(stale.and_then(|mirror| mirror.after), initial_boundary);
+        let synced = ctx.normal_sync(&mut desktop).await;
+        assert_eq!(synced.required, SyncActionRequired::NoChanges);
+        let card = desktop.storage.get_card(card_id)?.unwrap();
+        assert_eq!(card.flags, 1);
+        assert_eq!(card.rwkv_history_reset_after, final_boundary);
+        let expected_reviews = if final_boundary.is_some() { 1 } else { 2 };
+        assert_eq!(
+            desktop
+                .rwkv_historical_review_inputs(Default::default())?
+                .reviews
+                .len(),
+            expected_reviews
+        );
+        assert!(!desktop
+            .storage
+            .get_collection_timestamps()?
+            .collection_changed_since_sync());
+
+        // A fresh device must get the reconciled boundary from the server in
+        // the same sync, with no local copy to rescue it.
+        let third_path = ctx.folder.path().join("third.anki2");
+        let third = CollectionBuilder::new(&third_path).build()?;
+        ctx.full_download(third).await;
+        let mut third = CollectionBuilder::new(&third_path).build()?;
+        assert_eq!(
+            third
+                .storage
+                .get_card(card_id)?
+                .unwrap()
+                .rwkv_history_reset_after,
+            final_boundary
+        );
+        assert_eq!(
+            third
+                .rwkv_historical_review_inputs(Default::default())?
+                .reviews
+                .len(),
+            expected_reviews
+        );
+        Ok(())
+    })
+    .await
+}
+
+#[tokio::test]
+async fn rwkv_boundary_survives_older_client_stale_sync() -> Result<()> {
+    stale_legacy_card_edit_preserves_rwkv_boundary(None, Some(1_700_000_000_123)).await
+}
+
+#[tokio::test]
+async fn rwkv_scheduled_restore_survives_older_client_stale_sync() -> Result<()> {
+    stale_legacy_card_edit_preserves_rwkv_boundary(Some(1_700_000_000_123), None).await
+}
+
 /// See issue #5109
 #[tokio::test]
 async fn new_empty_collection_should_not_require_full_sync() -> Result<()> {
@@ -326,6 +610,44 @@ async fn new_empty_collection_should_not_require_full_sync() -> Result<()> {
             state.required,
             SyncActionRequired::FullSyncRequired { .. }
         ));
+
+        Ok(())
+    })
+    .await
+}
+
+#[tokio::test]
+async fn check_database_legacy_retrievability_cache_cleanup_reaches_server() -> Result<()> {
+    with_active_server(|client| async move {
+        let ctx = SyncTestContext::new(client);
+        upload_download(&ctx).await?;
+
+        let mut col1 = ctx.col1();
+        add_legacy_retrievability_cache_tables(&col1)?;
+        col1.check_database()?;
+
+        let out = ctx.normal_sync(&mut col1).await;
+        assert_eq!(
+            out.required,
+            SyncActionRequired::FullSyncRequired {
+                upload_ok: true,
+                download_ok: true,
+            }
+        );
+        ctx.full_upload(col1).await;
+
+        let col2 = ctx.col2();
+        ctx.full_download(col2).await;
+
+        let col2 = ctx.col2();
+        assert!(!main_table_exists(
+            &col2,
+            FSRS_REVIEW_RETRIEVABILITY_CACHE_TABLE
+        )?);
+        assert!(!main_table_exists(
+            &col2,
+            RWKV_REVIEW_RETRIEVABILITY_CACHE_TABLE
+        )?);
 
         Ok(())
     })
@@ -619,6 +941,69 @@ async fn upload_download(ctx: &SyncTestContext) -> Result<()> {
     Ok(())
 }
 
+#[tokio::test]
+async fn rwkv_reset_history_survives_normal_sync_between_clients() -> Result<()> {
+    use anki_proto::scheduler::card_answer::Rating;
+    use anki_proto::scheduler::GradeNowRequest;
+    use anki_proto::scheduler::ScheduleCardsAsNewRequest;
+
+    use crate::services::SchedulerService;
+
+    with_active_server(|client| async move {
+        let ctx = SyncTestContext::new(client);
+        let mut source = ctx.col1();
+        col1_setup(&mut source);
+        let card_id = source.get_first_card().id;
+        let grade = || GradeNowRequest {
+            card_ids: vec![card_id.0],
+            rating: Rating::Easy as i32,
+            card_options: vec![],
+        };
+        source.grade_now(grade())?;
+        let old_history = source.rwkv_historical_review_inputs(Default::default())?;
+        assert_eq!(old_history.reviews.len(), 1);
+        let old_review_id = old_history.reviews[0].review_id;
+
+        let initial_sync = ctx.normal_sync(&mut source).await;
+        assert!(matches!(
+            initial_sync.required,
+            SyncActionRequired::FullSyncRequired { .. }
+        ));
+        ctx.full_upload(source).await;
+        ctx.full_download(ctx.col2()).await;
+
+        let mut source = ctx.col1();
+        let mut other = ctx.col2();
+        let _ = SchedulerService::schedule_cards_as_new(
+            &mut source,
+            ScheduleCardsAsNewRequest {
+                card_ids: vec![card_id.0],
+                log: false,
+                ..Default::default()
+            },
+        )?;
+        assert!(source
+            .rwkv_historical_review_inputs(Default::default())?
+            .reviews
+            .is_empty());
+        source.grade_now(grade())?;
+        let fresh = source.rwkv_historical_review_inputs(Default::default())?;
+        assert_eq!(fresh.reviews.len(), 1);
+        assert!(fresh.reviews[0].review_id > old_review_id);
+
+        ctx.normal_sync(&mut source).await;
+        ctx.normal_sync(&mut other).await;
+        assert_eq!(
+            other
+                .rwkv_historical_review_inputs(Default::default())?
+                .reviews,
+            fresh.reviews
+        );
+        Ok(())
+    })
+    .await
+}
+
 // Regular syncs
 /////////////////////
 
@@ -634,6 +1019,11 @@ async fn regular_sync(ctx: &SyncTestContext) -> Result<()> {
         name: "new dconf".into(),
         ..Default::default()
     };
+    dconf.inner.review_fuzz_base = None;
+    dconf.inner.review_fuzz_factor_short = None;
+    dconf.inner.review_fuzz_factor_mid = None;
+    dconf.inner.review_fuzz_factor_long = None;
+    dconf.inner.review_fuzz_enabled = None;
     col1.add_or_update_deck_config(&mut dconf)?;
     if let DeckKind::Normal(deck) = &mut deck.kind {
         deck.config_id = dconf.id.0;
@@ -681,10 +1071,16 @@ async fn regular_sync(ctx: &SyncTestContext) -> Result<()> {
 
     let out = ctx.normal_sync(&mut col1).await;
     assert_eq!(out.required, SyncActionRequired::NoChanges);
+    assert!(!out.remote_collection_changed);
+    assert!(out.remote_review_ids.is_empty());
+    assert!(!out.remote_non_review_collection_changed);
 
     // sync the other collection
     let out = ctx.normal_sync(&mut col2).await;
     assert_eq!(out.required, SyncActionRequired::NoChanges);
+    assert!(out.remote_collection_changed);
+    assert_eq!(out.remote_review_ids, vec![RevlogId(123)]);
+    assert!(out.remote_non_review_collection_changed);
 
     let ntid = nt.id;
     let deckid = deck.id;
@@ -747,6 +1143,41 @@ async fn regular_sync(ctx: &SyncTestContext) -> Result<()> {
 
     // make sure everything has been transferred across
     compare_sides(&mut col1, &mut col2)?;
+
+    // A review-only download is reported separately from other collection
+    // changes, although answering also updates the reviewed card.
+    col1.storage.add_revlog_entry(
+        &RevlogEntry {
+            id: RevlogId(124),
+            cid: cardid,
+            usn: Usn(-1),
+            interval: 11,
+            ..Default::default()
+        },
+        true,
+    )?;
+    col1.get_and_update_card(cardid, |card| {
+        card.interval = 11;
+        card.due += 11;
+        Ok(())
+    })?;
+    ctx.normal_sync(&mut col1).await;
+    let out = ctx.normal_sync(&mut col2).await;
+    assert!(out.remote_collection_changed);
+    assert_eq!(out.remote_review_ids, vec![RevlogId(124)]);
+    assert!(!out.remote_non_review_collection_changed);
+    compare_sides(&mut col1, &mut col2)?;
+
+    // Moving a card to another deck changes the identity of its reviews.
+    col1.get_and_update_card(cardid, |card| {
+        card.deck_id = DeckId(1);
+        Ok(())
+    })?;
+    ctx.normal_sync(&mut col1).await;
+    let out = ctx.normal_sync(&mut col2).await;
+    assert!(out.remote_collection_changed);
+    assert!(out.remote_review_ids.is_empty());
+    assert!(out.remote_non_review_collection_changed);
 
     // make some modifications
     let mut note = col2.storage.get_note(note.id)?.unwrap();
@@ -814,4 +1245,64 @@ async fn regular_sync(ctx: &SyncTestContext) -> Result<()> {
         SyncActionRequired::FullSyncRequired { .. }
     ));
     Ok(())
+}
+
+#[tokio::test]
+async fn synced_dynamic_retention_rules_drive_the_other_client() -> Result<()> {
+    use anki_proto::scheduler::card_answer::Rating;
+    use anki_proto::scheduler::GradeNowRequest;
+    use anki_proto::scheduler::RwkvReviewInputRowsForCardsRequest;
+
+    use crate::config::BoolKey;
+
+    with_active_server(|client| async move {
+        let ctx = SyncTestContext::new(client);
+        let mut source = ctx.col1();
+        col1_setup(&mut source);
+        source.set_config_bool(BoolKey::Fsrs, true, false)?;
+        let card_id = source.get_first_card().id;
+        let grade = || GradeNowRequest {
+            card_ids: vec![card_id.0],
+            rating: Rating::Easy as i32,
+            card_options: vec![],
+        };
+        source.grade_now(grade())?;
+        assert!(matches!(
+            ctx.normal_sync(&mut source).await.required,
+            SyncActionRequired::FullSyncRequired { .. }
+        ));
+        ctx.full_upload(source).await;
+        ctx.full_download(ctx.col2()).await;
+
+        let mut source = ctx.col1();
+        let mut other = ctx.col2();
+        let rules = serde_json::json!({
+            "version": 1,
+            "rules": [{"query": "deck:Default", "desired_retention": 0.75}],
+            "grade_rules": [{"grade": "easy", "mode": "absolute", "value": 0.85}]
+        });
+        source.set_config_json(
+            crate::scheduler::addon_desired_retention::CONFIG_KEY,
+            &rules,
+            false,
+        )?;
+        ctx.normal_sync(&mut source).await;
+        ctx.normal_sync(&mut other).await;
+        assert_eq!(
+            other.get_config_optional::<serde_json::Value, _>(
+                crate::scheduler::addon_desired_retention::CONFIG_KEY
+            ),
+            Some(rules)
+        );
+        let rows = other.rwkv_review_input_rows_for_cards(RwkvReviewInputRowsForCardsRequest {
+            card_ids: vec![card_id.0],
+            include_disabled_decks: true,
+            ..Default::default()
+        })?;
+        assert_eq!(rows.rows[0].target_retention, 0.75);
+        other.grade_now(grade())?;
+        assert_eq!(other.get_first_card().desired_retention, Some(0.85));
+        Ok(())
+    })
+    .await
 }

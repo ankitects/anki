@@ -21,6 +21,7 @@ preferences-preferences = Preferences
 preferences-scheduling = Scheduling
 preferences-show-learning-cards-with-larger-steps = Show learning cards with larger steps before reviews
 preferences-show-next-review-time-above-answer = Show next review time above answer buttons
+preferences-show-fuzz-delta-above-answer-buttons = Show fuzz delta next to answer button intervals
 preferences-spacebar-rates-card = Spacebar (or enter) also answers card
 preferences-show-play-buttons-on-cards-with = Show play buttons on cards with audio
 preferences-show-remaining-card-count = Show remaining card count
