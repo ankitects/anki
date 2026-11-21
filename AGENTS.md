@@ -12,14 +12,14 @@ All under [github.com/AnkiQuest](https://github.com/AnkiQuest). Every default br
 |---|---|---|
 | AnkiQuest-Server | none | The server (Rust), its web pages (TypeScript), the API examples, the shared fixtures and the pose masters. |
 | AnkiQuest-Desktop | none | The Anki desktop add-on (Python). |
-| AnkiQuest-Android | ankidroid/Anki-Android | The Android app (Kotlin): AnkiDroid with AnkiQuest added. |
+| AnkiQuest-Android | ankidroid/Anki-Android | The Android app (Kotlin): AnkiDroid with AnkiQuest added, and AnkiQuest Lite for stock AnkiDroid users (coming). |
 | AnkiQuest-Anki | ankitects/anki | Anki's core for the Android app: upstream plus RWKV and FSRS-7. |
 | AnkiQuest-Android-Backend | ankidroid/Anki-Android-Backend | The app's Rust backend, built from AnkiQuest-Anki; published to Maven Central. |
 | AnkiQuest-GarmAnki | sypianski/garmanki | Garmin watch app and its Android companion. |
 | AnkiQuest-Android-MCP | ankimcp/ankidroid-mcp | MCP server on Android for AnkiDroid and AnkiQuest. |
 | AnkiQuest-AnkiConnectAndroid | KamWithK/AnkiconnectAndroid | AnkiConnect on Android for AnkiDroid and AnkiQuest. |
 | AnkiQuest-Dev | none | The development environment: dev shells, toolchain pins, shared workflows and label set, NixOS on WSL, NixOS and nix-darwin modules, Windows and dev container setup. |
-| AnkiQuest-Hosting | none | The server hosts' NixOS configuration. |
+| AnkiQuest-Hosting | none | The NixOS configuration of the aws host that serves ankiquest.org; a submodule of float3/nixos at `nixos/hosts/aws`. |
 | AnkiQuest-Sync | none | Scheduled jobs: fork sync, watched sources, `AGENTS.md` distribution. |
 | AnkiQuest-Agents | none | The source of every `AGENTS.md`. |
 | AnkiQuest.github.io | none | The art gallery (coming). |
@@ -128,7 +128,7 @@ KamWithK/AnkiconnectAndroid     --pr-->  AnkiQuest/AnkiQuest-AnkiConnectAndroid 
 
 Every AnkiQuest repository is under the AGPL wherever its upstream allows it (hill, 2026-11-20).
 
-- Our code and every new repository are AGPL-3.0-or-later: a `LICENSE` with the AGPL text, and the license field set wherever a manifest has one (`Cargo.toml`, `package.json`, `pyproject.toml`). AnkiQuest-Server, AnkiQuest-Desktop and the AnkiQuest code in AnkiQuest-Android are AGPL-3.0-only today; they keep that, in new files too, until hill decides in AnkiQuest/AnkiQuest-Server#95.
+- Our code and every new repository are AGPL-3.0-or-later: a `LICENSE` with the AGPL text, and the license field set wherever a manifest has one (`Cargo.toml`, `package.json`, `pyproject.toml`). AnkiQuest-Server and AnkiQuest-Desktop are AGPL-3.0-or-later (hill, 2026-11-20: AnkiQuest/AnkiQuest-Server#102, AnkiQuest/AnkiQuest-Desktop#407); the AnkiQuest code in AnkiQuest-Android is moving to it in AnkiQuest/AnkiQuest-Android#447 and stays AGPL-3.0-only until that merges.
 - In forks, upstream code keeps its licence and notices. Our additions are AGPL-3.0-or-later where upstream's licence allows combining them: GPL-3.0 and AGPL-3.0 do (GPLv3 section 13). With a permissive upstream (MIT, BSD, Apache-2.0), our files are AGPL-3.0-or-later and upstream's notices stay.
 - Branches meant for upstream (`ankiquest-support`, `ankidroid-provider-check`, the `upstream/*` pull request branches) use upstream's licence.
 - Exception: the API library that third-party apps link (`api/` in AnkiQuest-Android, published as `org.ankiquest:api`) stays LGPL-3.0-or-later, AnkiDroid's licence for it, so apps under any licence can use it. Our changes to it are LGPL-3.0-or-later too; never move AGPL code into it.
