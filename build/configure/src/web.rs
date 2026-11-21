@@ -8,7 +8,6 @@ use ninja_gen::glob;
 use ninja_gen::hashmap;
 use ninja_gen::input::BuildInput;
 use ninja_gen::inputs;
-use ninja_gen::node::node_archive;
 use ninja_gen::node::CompileSass;
 use ninja_gen::node::DPrint;
 use ninja_gen::node::EsbuildScript;
@@ -54,7 +53,7 @@ fn build_sveltekit(build: &mut Build) -> Result<()> {
 fn setup_node(build: &mut Build) -> Result<()> {
     ninja_gen::node::setup_node(
         build,
-        node_archive(build.host_platform),
+        build.host_platform,
         &[
             "dprint",
             "svelte-check",

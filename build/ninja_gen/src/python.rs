@@ -25,6 +25,7 @@ use crate::Build;
 // too.
 pub fn uv_archive(platform: Platform) -> OnlineArchive {
     match platform {
+        Platform::OpenBSDX64 => panic!("Set UV_BINARY to a native OpenBSD uv executable"),
         Platform::LinuxX64 => {
             OnlineArchive {
                 url: "https://github.com/astral-sh/uv/releases/download/0.13.7/uv-x86_64-unknown-linux-gnu.tar.gz",

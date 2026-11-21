@@ -54,6 +54,15 @@ fn normalize_version(version: &str) -> String {
         .join(".")
 }
 
+fn openbsd_wheel_platform_tag() -> String {
+    let output = std::process::Command::new("uname")
+        .arg("-r")
+        .output()
+        .expect("failed to get OpenBSD version");
+    let version = String::from_utf8_lossy(&output.stdout);
+    format!("openbsd_{}_amd64", version.trim().replace('.', "_"))
+}
+
 pub fn setup_venv(build: &mut Build) -> Result<()> {
     let extra_binary_exports = &[
         "mypy",
@@ -73,10 +82,14 @@ pub fn setup_venv(build: &mut Build) -> Result<()> {
                 "qt/pyproject.toml",
                 "uv.lock"
             ],
-            extra_args: if std::env::var_os("ANKI_BACKEND_ONLY").is_some() {
-                "--package anki --group dev --no-install-package ruff"
-            } else {
-                "--all-packages --extra qt --extra audio"
+            extra_args: match (
+                std::env::var_os("ANKI_BACKEND_ONLY").is_some(),
+                build.host_platform == Platform::OpenBSDX64,
+            ) {
+                (true, true) => "--package anki --group dev --no-install-package ruff",
+                (true, false) => "--package anki --group dev",
+                (false, true) => "--all-packages --extra qt --extra audio --no-install-package ruff",
+                (false, false) => "--all-packages --extra qt --extra audio",
             },
             extra_binary_exports,
         },
@@ -162,12 +175,13 @@ impl BuildAction for BuildWheel {
             tag
         } else if let Some(platform) = self.platform {
             let platform_tag = match platform {
-                Platform::LinuxX64 => "manylinux_2_35_x86_64",
-                Platform::LinuxArm => "manylinux_2_35_aarch64",
-                Platform::MacX64 => "macosx_12_0_x86_64",
-                Platform::MacArm => "macosx_12_0_arm64",
-                Platform::WindowsX64 => "win_amd64",
-                Platform::WindowsArm => "win_arm64",
+                Platform::LinuxX64 => "manylinux_2_35_x86_64".to_owned(),
+                Platform::LinuxArm => "manylinux_2_35_aarch64".to_owned(),
+                Platform::OpenBSDX64 => openbsd_wheel_platform_tag(),
+                Platform::MacX64 => "macosx_12_0_x86_64".to_owned(),
+                Platform::MacArm => "macosx_12_0_arm64".to_owned(),
+                Platform::WindowsX64 => "win_amd64".to_owned(),
+                Platform::WindowsArm => "win_arm64".to_owned(),
             };
             format!("cp310-abi3-{platform_tag}")
         } else {
