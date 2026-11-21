@@ -171,9 +171,13 @@ jobs:
           key: coverage-baseline-linux-${{ github.sha }}
           restore-keys: coverage-baseline-linux-
 
+      # The restored build cache (all of out/) can hold an older run's
+      # coverage-baseline; mv would then nest this baseline inside it.
       - name: Move restored baseline aside
         if: github.event_name == 'pull_request'
-        run: test -d out/coverage && mv out/coverage out/coverage-baseline || true
+        run: |
+          rm -rf out/coverage-baseline
+          test -d out/coverage && mv out/coverage out/coverage-baseline || true
 
       - name: Build
         run: just build
