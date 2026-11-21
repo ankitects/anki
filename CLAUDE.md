@@ -1,3 +1,5 @@
+@AGENTS.md
+
 # Claude Code Configuration
 
 > **Note:** Every command you need — building, running, testing, linting,
