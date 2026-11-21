@@ -129,7 +129,7 @@ fn relocate_retrievability_cache(collection_path: &Path, cache_path: &Path) -> R
         // Checkpoint before moving: committed predictions may still be in the WAL.
         // Switching journal mode also refuses relocation while another reader is busy.
         let mode = (|| -> rusqlite::Result<String> {
-            let old_db = Connection::open(&old_path)?;
+            let old_db = Connection::open(sqlite_path(&old_path))?;
             old_db.query_row("PRAGMA journal_mode = DELETE", [], |row| row.get(0))
         })();
         match mode {
@@ -150,6 +150,30 @@ fn relocate_retrievability_cache(collection_path: &Path, cache_path: &Path) -> R
     Ok(())
 }
 
+/// The path SQLite opens for a cache file. On Windows, SQLite passes paths
+/// to the Win32 API, which rejects those of 260 characters (MAX_PATH) or more
+/// unless they are verbatim (`\\?\`). The cache paths are longer than the
+/// collection's, so they cross the limit first. Rust's file APIs add the
+/// prefix themselves; SQLite needs it in the path.
+#[cfg(windows)]
+fn sqlite_path(path: &Path) -> PathBuf {
+    if path == Path::new(":memory:") {
+        return path.to_owned();
+    }
+    let (Some(dir), Some(name)) = (path.parent(), path.file_name()) else {
+        return path.to_owned();
+    };
+    match std::fs::canonicalize(dir) {
+        Ok(dir) => dir.join(name),
+        Err(_) => path.to_owned(),
+    }
+}
+
+#[cfg(not(windows))]
+fn sqlite_path(path: &Path) -> PathBuf {
+    path.to_owned()
+}
+
 fn retrievability_cache_is_busy(err: &rusqlite::Error) -> bool {
     matches!(
         err.sqlite_error_code(),
@@ -167,7 +191,7 @@ fn attach_retrievability_cache_db(db: &Connection, collection_path: Option<&Path
     let attach = || -> rusqlite::Result<()> {
         db.execute(
             &format!("ATTACH DATABASE ? AS {RETRIEVABILITY_CACHE_DB_SCHEMA}"),
-            [cache_path.to_string_lossy().as_ref()],
+            [sqlite_path(&cache_path).to_string_lossy().as_ref()],
         )?;
         db.pragma_update(Some(RETRIEVABILITY_CACHE_DB_SCHEMA), "journal_mode", "wal")
     };
