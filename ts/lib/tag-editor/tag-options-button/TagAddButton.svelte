@@ -1,5 +1,5 @@
 <!--
-Copyright: Ankitects Pty Ltd and contributors
+Copyright: Anki Software, LLC and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
@@ -7,10 +7,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { getPlatformString } from "@tslib/shortcuts";
     import { createEventDispatcher } from "svelte";
 
-    import Icon from "$lib/components/Icon.svelte";
-    import IconConstrain from "$lib/components/IconConstrain.svelte";
-    import { addTagIcon, tagIcon } from "$lib/components/icons";
-    import Shortcut from "$lib/components/Shortcut.svelte";
+    import Icon from "#lib/components/Icon.svelte";
+    import IconConstrain from "#lib/components/IconConstrain.svelte";
+    import { addTagIcon, tagIcon } from "#lib/components/icons.js";
+    import Shortcut from "#lib/components/Shortcut.svelte";
 
     import { currentTagInput } from "../TagInput.svelte";
 

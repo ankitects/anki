@@ -1,5 +1,5 @@
 <!--
-Copyright: Ankitects Pty Ltd and contributors
+Copyright: Anki Software, LLC and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
@@ -12,13 +12,13 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import type Carousel from "bootstrap/js/dist/carousel";
     import type Modal from "bootstrap/js/dist/modal";
 
-    import DynamicallySlottable from "$lib/components/DynamicallySlottable.svelte";
-    import EnumSelectorRow from "$lib/components/EnumSelectorRow.svelte";
-    import HelpModal from "$lib/components/HelpModal.svelte";
-    import Item from "$lib/components/Item.svelte";
-    import SettingTitle from "$lib/components/SettingTitle.svelte";
-    import TitledContainer from "$lib/components/TitledContainer.svelte";
-    import type { HelpItem } from "$lib/components/types";
+    import DynamicallySlottable from "#lib/components/DynamicallySlottable.svelte";
+    import EnumSelectorRow from "#lib/components/EnumSelectorRow.svelte";
+    import HelpModal from "#lib/components/HelpModal.svelte";
+    import Item from "#lib/components/Item.svelte";
+    import SettingTitle from "#lib/components/SettingTitle.svelte";
+    import TitledContainer from "#lib/components/TitledContainer.svelte";
+    import type { HelpItem } from "#lib/components/types.js";
 
     import {
         newGatherPriorityChoices,
@@ -78,7 +78,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     const settings = {
         newGatherPriority: {
             title: tr.deckConfigNewGatherPriority(),
-            help: tr.deckConfigNewGatherPriorityTooltip2() + currentDeck,
+            help: tr.deckConfigNewGatherPriorityTooltip3() + currentDeck,
         },
         newCardSortOrder: {
             title: tr.deckConfigNewCardSortOrder(),

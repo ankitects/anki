@@ -3,10 +3,10 @@
 
 # End-to-End Testing with Playwright
 
-<!-- <<<cog
+<!-- <<<<cog
 from cogdocs import get_file_contents
 cog.out(get_file_contents("e2e-testing"))
->>> -->
+>>>> -->
 
 Playwright drives a real headless Anki instance via its mediasrv HTTP API.
 Tests live in `ts/tests/e2e/` and are entirely separate from the Vitest unit tests.
@@ -98,4 +98,8 @@ The e2e tests run as part of the `check-linux` job in `.github/workflows/ci.yml`
 after the regular build and test steps. Screenshots and traces from failed runs
 are uploaded as artifacts and kept for 7 days.
 
-<!-- <<<end>>> -->
+## See also
+
+- [Writing Unit Tests for Anki](https://anki.mintlify.app/developers/unit-testing)
+
+<!-- <<<<end>>>> -->

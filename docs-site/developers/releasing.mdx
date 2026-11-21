@@ -84,16 +84,29 @@ candidates, and the stable release all come from the same branch.
 6. For subsequent pre-releases or the stable release from the same cycle,
    repeat steps 3-5 with the new version (e.g. `26.05b2`, `26.05rc1`, `26.05`).
 
-7. After the stable release, merge the release branch back to `main` to pick up
-   the `.version` bump and any cherry-picked fixes:
+7. Merge the release branch back to `main`. When a stable release is published,
+   `.github/workflows/sync-release.yml` opens a PR from `release/26.05` to
+   `main`, which brings in the `.version` bump, the translation updates, and any
+   cherry-picked fixes. Review the PR and merge it.
 
-    ```
-    git checkout main
-    git merge release/26.05
-    git push origin main
-    ```
+8. Delete the release branch after the merge PR is merged.
 
-8. Delete the release branch after the stable release is published.
+9. Submit the Flathub update. When a stable release is published,
+   `.github/workflows/sync-release.yml` makes a patch that moves
+   [flathub/net.ankiweb.Anki](https://github.com/flathub/net.ankiweb.Anki)
+   to the new version. The workflow uploads the patch as an artifact, and
+   comments on the release PR with a report and the commands to open the
+   Flathub PR. Fix the problems in the report's "Needs attention" section, if
+   there are any. See
+   [updating-anki.md](https://github.com/flathub/net.ankiweb.Anki/blob/master/updating-anki.md)
+   for the manual steps.
+
+10. Approve the website update. When a stable release is published, the
+    `update-website` job in `.github/workflows/sync-release.yml` sets the
+    download version in
+    [ankitects/anki-landing-page](https://github.com/ankitects/anki-landing-page)
+    to the new version, then pushes the change. This job uses the `release`
+    environment, so a reviewer must approve it before it runs.
 
 ### Security and hotfix releases
 
@@ -221,7 +234,8 @@ artifacts require a reviewer to approve the deployment before they run:
 
 - **`release`** — Required when `sign`, `draft-release`, `publish-testpypi`, or
   `publish-pypi` is enabled. Protects code-signing secrets, the release token,
-  and PyPI/TestPyPI trusted publishing/OIDC.
+  and PyPI/TestPyPI trusted publishing/OIDC. The `update-website` job in
+  `sync-release.yml` also uses it, to protect the landing page deploy key.
 
 When `sign` is disabled, the macOS and Windows build jobs run without the
 `release` environment so they do not require approval and cannot access signing
@@ -302,14 +316,13 @@ To test the signing flow from a feature branch:
 
 - Once a GitHub release draft is created, modify the generated changelog if necessary then click **Publish release**.
 - Create a forum topic on the [Beta Testing](https://forums.ankiweb.net/c/anki/beta-testing/13) category. For stable releases, lock the topic and ask users to report issues on a new topic.
-- For stable releases, update the version in [ankitects/anki-landing-page](https://github.com/ankitects/anki-landing-page) (See [example](https://github.com/ankitects/anki-landing-page/commit/2362eb2202f174df2aad1dc5336e1b5195a7af85)).
 
 ## Audio package
 
 Audio playback and recording is handled by the `anki-audio` package under **`qt/audio`**, which bundles mpv and lame for Windows and macOS. To update:
 
 1. Update the archive links in **`build/configure/src/audio.rs`** if you're updating the Windows pre-built binaries to new versions, then run `./tools/ninja audio_wheel` to test.
-2. Update the macOS build script at **`qt/audio/mpv.rb`** and test the Homebrew build locally by running the **`qt/audio/build.sh`** script.
+2. On macOS, mpv, lame and all their libraries are built from source. Update the pinned versions and checksums in **`qt/audio/macos/versions.env`**, then test locally by running **`qt/audio/build.sh`** and **`qt/audio/macos/test-in-vm.sh`**.
 3. Bump the version at **`qt/audio/.version`**.
 4. Submit a PR with the changes.
 5. Once the PR is merged to main, run the **`.github/workflows/publish-audio-package.yml`** workflow to publish the package to PyPI:

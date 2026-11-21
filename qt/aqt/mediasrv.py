@@ -1,10 +1,11 @@
-# Copyright: Ankitects Pty Ltd and contributors
+# Copyright: Anki Software, LLC and contributors
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 from __future__ import annotations
 
 import asyncio
 import enum
+import itertools
 import logging
 import mimetypes
 import os
@@ -13,12 +14,13 @@ import secrets
 import sys
 import threading
 import traceback
+import weakref
 from collections.abc import Callable
 from dataclasses import dataclass
 from errno import EPROTOTYPE
 from http import HTTPStatus
 from pathlib import Path
-from typing import Any, Generic, cast
+from typing import TYPE_CHECKING, Any, Generic, cast
 
 import flask
 import stringcase
@@ -55,6 +57,10 @@ from aqt.utils import (
     tr,
 )
 
+if TYPE_CHECKING:
+    from aqt.webview import AnkiWebView
+
+
 # https://forums.ankiweb.net/t/anki-crash-when-using-a-specific-deck/22266
 waitress.wasyncore._DISCONNECTED = waitress.wasyncore._DISCONNECTED.union({EPROTOTYPE})  # type: ignore
 
@@ -74,6 +80,7 @@ class LocalFileRequest:
 
 UNTRUSTED_MEDIA_CSP = "; ".join(
     (
+        # Disallow everything by default
         "default-src 'none'",
         "script-src 'none'",
         "connect-src 'none'",
@@ -82,9 +89,37 @@ UNTRUSTED_MEDIA_CSP = "; ".join(
         "child-src 'none'",
         "base-uri 'none'",
         "form-action 'none'",
-        "sandbox",
+        # Allow same-origin styles, images, fonts and media, so that an SVG or HTML
+        # file can use the resources next to it. 'unsafe-inline' is needed for
+        # <style> elements and style= attributes inside SVGs.
+        "style-src 'self' 'unsafe-inline'",
+        "img-src 'self'",
+        "font-src 'self'",
+        "media-src 'self'",
+        # The sandbox blocks scripts, forms, popups and top-level navigation.
+        # allow-same-origin is required for fonts (font loads use CORS, and we send
+        # no CORS headers) and to avoid stuck :hover styles under site isolation.
+        # Never add allow-scripts: with allow-same-origin, that would give media
+        # access to the parent page.
+        "sandbox allow-same-origin",
     )
 )
+
+
+# Our pages are always shown top-level
+TRUSTED_PAGE_CSP = "frame-ancestors 'none'"
+
+
+def _untrusted_page_content_security_policy(port: int, script_src: str) -> str:
+    """CSP for pages that show user content, e.g. note fields in the editor."""
+    return "; ".join(
+        (
+            f"script-src {script_src}",
+            f"base-uri http://127.0.0.1:{port}",
+            "form-action 'none'",
+            TRUSTED_PAGE_CSP,
+        )
+    )
 
 
 def _legacy_editor_content_security_policy(port: int) -> str:
@@ -92,7 +127,7 @@ def _legacy_editor_content_security_policy(port: int) -> str:
         f"http://127.0.0.1:{port}/_anki/",
         f"http://127.0.0.1:{port}/_addons/",
     )
-    return "; ".join((f"script-src {' '.join(csp_paths)}",))
+    return _untrusted_page_content_security_policy(port, " ".join(csp_paths))
 
 
 _SVELTEKIT_CSP_META_RE = re.compile(
@@ -103,7 +138,7 @@ _SVELTEKIT_CSP_META_RE = re.compile(
 def _sveltekit_render_script_hash(html: bytes) -> str | None:
     """Extract the hash SvelteKit computed for its inline render script.
 
-    SvelteKit (csp.mode = 'hash' in svelte.config.js) bakes this into a
+    SvelteKit (csp.mode = 'hash' in ts/vite.config.ts) bakes this into a
     <meta http-equiv="content-security-policy"> tag in the built HTML.
     """
     match = _SVELTEKIT_CSP_META_RE.search(html)
@@ -127,7 +162,7 @@ def _untrusted_sveltekit_content_security_policy(
     ]
     if script_hash:
         csp_paths.append(script_hash)
-    return "; ".join((f"script-src {' '.join(csp_paths)}",))
+    return _untrusted_page_content_security_policy(port, " ".join(csp_paths))
 
 
 @dataclass
@@ -174,6 +209,11 @@ class MediaServer(threading.Thread):
         self.is_shutdown = False
         # map of webview ids to pages
         self._legacy_pages: dict[int, LegacyPage] = {}
+        # used to identify request handlers
+        self._webviews: weakref.WeakValueDictionary[str, AnkiWebView] = (
+            weakref.WeakValueDictionary()
+        )
+        self._webview_counter = itertools.count()
 
     def run(self) -> None:
         try:
@@ -235,6 +275,19 @@ class MediaServer(threading.Thread):
             del self._legacy_pages[id]
         except KeyError:
             pass
+
+    def register_webview(self, webview: AnkiWebView) -> int:
+        from aqt.webview import WebviewIdInterceptor
+
+        webview_id = next(self._webview_counter)
+        self._webviews[str(webview_id)] = webview
+        webview.page().setUrlRequestInterceptor(
+            WebviewIdInterceptor(webview, webview_id)
+        )
+        return webview_id
+
+    def get_webview(self, id: str) -> AnkiWebView | None:
+        return self._webviews.get(id)
 
 
 @app.route("/favicon.ico")
@@ -433,8 +486,11 @@ def _handle_builtin_file_request(request: BundledFileRequest) -> Response:
                     )
                 )
             elif is_index:
-                # Strip the default CSP directive set in the SvelteKit config
+                # Replace the default CSP directive set in the SvelteKit config
                 response.set_data(_strip_csp_meta(data))
+                response.headers["Content-Security-Policy"] = TRUSTED_PAGE_CSP
+        elif mimetype == "text/html":
+            response.headers["Content-Security-Policy"] = TRUSTED_PAGE_CSP
 
         return response
     except FileNotFoundError:
@@ -510,7 +566,7 @@ def get_sveltekit_route(path: str) -> str | None:
 
 
 def is_untrusted_sveltekit_route(route: str) -> bool:
-    return route == "editor"
+    return route in ("editor", "image-occlusion")
 
 
 def _extract_internal_request(
@@ -573,31 +629,32 @@ def _extract_addon_request(path: str) -> LocalFileRequest | NotFound | None:
         return None
 
     addon_path = path[len(prefix) :]
+    not_found_error = NotFound(message=f"couldn't locate item in add-on folder {path}")
 
     try:
         manager = aqt.mw.addonManager
     except AttributeError as error:
         if dev_mode:
             print(f"_redirectWebExports: {error}")
-        return None
+        return not_found_error
 
     try:
         addon, sub_path = addon_path.split("/", 1)
     except ValueError:
-        return None
+        return not_found_error
     if not addon:
-        return None
+        return not_found_error
 
     pattern = manager.getWebExports(addon)
     if not pattern:
-        return None
+        return not_found_error
 
     if re.fullmatch(pattern, sub_path):
         return LocalFileRequest(
             root=manager.addonsFolder(), path=addon_path, untrusted=False
         )
 
-    return NotFound(message=f"couldn't locate item in add-on folder {path}")
+    return not_found_error
 
 
 def _extract_request(
@@ -705,6 +762,19 @@ def import_done() -> bytes:
                 window.show()
 
     aqt.mw.taskman.run_on_main(update_window_modality)
+    return b""
+
+
+def import_dialog_require_close() -> bytes:
+    def handle_on_main() -> None:
+        if window := aqt.mw.app.activeModalWidget():
+            from aqt.import_export.import_dialog import ImportDialog
+
+            if isinstance(window, ImportDialog):
+                window.reject()
+
+    aqt.mw.taskman.run_on_main(handle_on_main)
+
     return b""
 
 
@@ -864,12 +934,15 @@ async def open_file_picker() -> bytes:
 
 
 def open_media() -> bytes:
+    from aqt.editor_legacy import pics
     from aqt.utils import openFolder
 
     req = generic_pb2.String()
     req.ParseFromString(request.data)
     path = os.path.join(aqt.mw.col.media.dir(), req.val)
-    aqt.mw.taskman.run_on_main(lambda: openFolder(path))
+    _, ext = os.path.splitext(path)
+    if ext[1:] in pics:
+        aqt.mw.taskman.run_on_main(lambda: openFolder(path))
 
     return b""
 
@@ -981,7 +1054,10 @@ def open_link() -> bytes:
     req = generic_pb2.String()
     req.ParseFromString(request.data)
     url = req.val
-    aqt.mw.taskman.run_on_main(lambda: openLink(url))
+    if url.startswith("https:"):
+        aqt.mw.taskman.run_on_main(lambda: openLink(url))
+    else:
+        logger.warning("refused to open non-https link: %s", url)
     return b""
 
 
@@ -1089,6 +1165,7 @@ post_handler_list = [
     set_scheduling_states,
     change_notetype,
     import_done,
+    import_dialog_require_close,
     search_in_browser,
     deck_options_require_close,
     deck_options_ready,
@@ -1200,6 +1277,7 @@ def raw_backend_request(endpoint: str) -> Callable[[], bytes]:
         output = getattr(aqt.mw.col._backend, f"{endpoint}_raw")(request.data)
         op_changes_type = int(request.headers.get("Anki-Op-Changes", "0"))
         if op_changes_type:
+            webview_id = request.headers.get("Anki-Webview-Id")
             op_message_types = (OpChanges, OpChangesOnly, NestedOpChanges)
             try:
                 response = op_message_types[op_changes_type - 1]()
@@ -1211,8 +1289,10 @@ def raw_backend_request(endpoint: str) -> Callable[[], bytes]:
                 raise ValueError(f"unhandled op changes level: {op_changes_type}")
 
             def handle_on_main() -> None:
-                handler = active_window_or_main()
-                on_op_finished(aqt.mw, changes, handler)
+                webview = (
+                    aqt.mw.mediaServer.get_webview(webview_id) if webview_id else None
+                )
+                on_op_finished(aqt.mw, changes, webview)
 
             aqt.mw.taskman.run_on_main(handle_on_main)
 
@@ -1311,6 +1391,8 @@ def legacy_page_data() -> Response:
             response.headers["Content-Security-Policy"] = (
                 _legacy_editor_content_security_policy(aqt.mw.mediaServer.getPort())
             )
+        else:
+            response.headers["Content-Security-Policy"] = TRUSTED_PAGE_CSP
         return response
     else:
         return _text_response(HTTPStatus.NOT_FOUND, "page not found")

@@ -1,5 +1,5 @@
 <!--
-Copyright: Ankitects Pty Ltd and contributors
+Copyright: Anki Software, LLC and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
@@ -8,12 +8,12 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import type Carousel from "bootstrap/js/dist/carousel";
     import type Modal from "bootstrap/js/dist/modal";
 
-    import EnumSelectorRow from "$lib/components/EnumSelectorRow.svelte";
-    import HelpModal from "$lib/components/HelpModal.svelte";
-    import SettingTitle from "$lib/components/SettingTitle.svelte";
-    import TitledContainer from "$lib/components/TitledContainer.svelte";
-    import type { HelpItem } from "$lib/components/types";
-    import TagsRow from "$lib/tag-editor/TagsRow.svelte";
+    import EnumSelectorRow from "#lib/components/EnumSelectorRow.svelte";
+    import HelpModal from "#lib/components/HelpModal.svelte";
+    import SettingTitle from "#lib/components/SettingTitle.svelte";
+    import TitledContainer from "#lib/components/TitledContainer.svelte";
+    import type { HelpItem } from "#lib/components/types.js";
+    import TagsRow from "#lib/tag-editor/TagsRow.svelte";
 
     import { dupeResolutionChoices, matchScopeChoices } from "./choices";
     import type { ImportCsvState } from "./lib";

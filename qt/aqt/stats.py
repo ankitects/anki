@@ -1,4 +1,4 @@
-# Copyright: Ankitects Pty Ltd and contributors
+# Copyright: Anki Software, LLC and contributors
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 from __future__ import annotations
 
@@ -138,7 +138,7 @@ class NewDeckStats(QDialog):
         return False
 
     def refresh(self) -> None:
-        self.form.web.load_sveltekit_page("graphs")
+        self.form.web.load_sveltekit_page("graphs", cache_bust=True)
 
 
 class DeckStats(QDialog):

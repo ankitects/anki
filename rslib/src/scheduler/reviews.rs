@@ -1,4 +1,4 @@
-// Copyright: Ankitects Pty Ltd and contributors
+// Copyright: Anki Software, LLC and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 use std::collections::HashMap;
@@ -138,7 +138,7 @@ impl Collection {
         let mut rng = rand::rng();
         let distribution = Uniform::new_inclusive(spec.min, spec.max).unwrap();
         let mut decks_initial_ease: HashMap<DeckId, f32> = HashMap::new();
-        let fsrs_enabled = self.get_config_bool(BoolKey::Fsrs);
+        let fsrs_enabled = self.fsrs_enabled();
         self.transact(Op::SetDueDate, |col| {
             for mut card in col.all_cards_for_ids(cids, false)? {
                 let deck_id = card.original_deck_id.or(card.deck_id);

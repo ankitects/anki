@@ -3,17 +3,17 @@
 
 # Anki development
 
-<!-- <<<cog
+<!-- <<<<cog
 from cogdocs import get_file_contents
 cog.out(get_file_contents("development"))
->>> -->
+>>>> -->
 
 ## Packaged betas
 
 For non-developers who want to try beta versions, the easiest way is to use a
 packaged version - please see:
 
-https://betas.ankiweb.net/
+[/releases/betas/intro](https://anki.mintlify.app/releases/betas/intro)
 
 ## Pre-built Python wheels
 
@@ -23,12 +23,10 @@ Pre-built Python packages are available on PyPI. They are useful if you wish to:
 - Get code completion when developing add-ons
 - Make command line scripts that modify .anki2 files via Anki's Python libraries
 
-You will need the 64 bit version of Python 3.9 or later installed. 3.9 is
-recommended, as Anki has only received minimal testing on 3.10+ so far, and some
-dependencies have not been fully updated yet. You can install Python from python.org
-or from your distro.
+You will need the 64 bit version of Python 3.10 or later installed. You can install
+Python from python.org or from your distro.
 
-For further instructions, please see https://betas.ankiweb.net/#via-pypipip. Note that
+For further instructions, please see [/releases/betas/intro#via-pypi/pip](https://anki.mintlify.app/releases/betas/intro#via-pypi/pip). Note that
 in the provided commands, `--pre` tells pip to fetch alpha/beta versions. If you remove
 `--pre`, it will download the latest stable version instead.
 
@@ -49,7 +47,7 @@ On all platforms, you will need to install:
   placed on your path, or from your distro/homebrew if it's 1.10+.
     - On Windows, if you have WSL installed, it may conflict with MSYS2 bash. If you are getting an error, try running `C:\msys64\usr\bin\bash.exe tools/install-n2` instead.
 - (Optional) [just](https://just.systems/man/en/packages.html) command runner.
-  Install with `brew install just` or `uv tool install just`.
+  Install with `brew install just` or `uv tool install rust-just`.
   We are experimenting with `just` as the official tool for running
   Anki-specific commands, and it will likely become the source of truth
   in the future.
@@ -146,7 +144,7 @@ To build wheels on Mac/Linux:
 (on Windows, `.\tools\build.bat`)
 
 The generated wheels are in out/wheels. You can then install them by copying the paths into a pip install command.
-Follow the steps [on the beta site](https://betas.ankiweb.net/#via-pypipip), but replace the
+Follow the steps [on the beta site](https://anki.mintlify.app/releases/betas/intro#via-pypi/pip), but replace the
 `pip install --upgrade --pre aqt` line with something like:
 
 ```
@@ -231,7 +229,7 @@ Depending on your operating system, this produces a file under `out/installer/di
 ### Issues During Building
 
 If you are experiencing issues building the installer, make sure that all dependencies
-are installed. See [Building from source](https://anki.mintlify.app/development#building-from-source) for more info.
+are installed. See [Building from source](https://anki.mintlify.app/developers/development#building-from-source) for more info.
 
 ## Releasing
 
@@ -250,4 +248,4 @@ If you're using PyCharm:
   "-p [dev profile name]" without the quotes
 - click "Ok"
 
-<!-- <<<end>>> -->
+<!-- <<<<end>>>> -->

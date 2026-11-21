@@ -1,18 +1,18 @@
-// Copyright: Ankitects Pty Ltd and contributors
+// Copyright: Anki Software, LLC and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 //! By default, the Qt translations will be included in rslib. EXTRA_FTL_ROOT
 //! can be set to an external folder so the mobile clients can use their own
 //! translations instead.
 
-use std::collections::HashMap;
+use std::collections::BTreeMap;
 use std::fs;
 use std::path::Path;
 use std::path::PathBuf;
 
-pub type TranslationsByRepo = HashMap<String, String>;
-pub type TranslationsByFile = HashMap<String, TranslationsByRepo>;
-pub type TranslationsByLang = HashMap<String, TranslationsByFile>;
+pub type TranslationsByRepo = BTreeMap<String, String>;
+pub type TranslationsByFile = BTreeMap<String, TranslationsByRepo>;
+pub type TranslationsByLang = BTreeMap<String, TranslationsByFile>;
 
 /// Read the contents of the FTL files into a TranslationMap structure.
 pub fn get_ftl_data() -> TranslationsByLang {

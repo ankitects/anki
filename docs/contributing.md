@@ -3,10 +3,10 @@
 
 # Contributing Code
 
-<!-- <<<cog
+<!-- <<<<cog
 from cogdocs import get_file_contents
 cog.out(get_file_contents("contributing"))
->>> -->
+>>>> -->
 
 For info on contributing things other than code, such as translations, decks
 and add-ons, please see [the contribution guide](https://anki.mintlify.app/manual/contrib).
@@ -31,7 +31,7 @@ implemented as an add-on instead. We aim to keep the core Anki codebase lean
 and maintainable. Many great ideas are better served as add-ons, where they
 can iterate faster and serve specific user needs without affecting all users.
 
-See the [Add-on API documentation](https://addon-docs.ankiweb.net/) for
+See the [Add-on API documentation](https://anki.mintlify.app/addons/intro) for
 guidance on building add-ons.
 
 ## Pull Request Description
@@ -137,6 +137,9 @@ new hook.
 For information on adding new translatable strings to Anki, please see
 [the translation guide](https://anki.mintlify.app/translators/anki/developers).
 
+For information on translating the documentation, please see
+[translating the manual](https://anki.mintlify.app/translators/anki/manual).
+
 ## Tests Must Pass
 
 Please make sure 'ninja check' completes successfully before submitting code.
@@ -197,4 +200,4 @@ further discussion.
 
 Please add yourself to the [CONTRIBUTORS](https://github.com/ankitects/anki/blob/main/CONTRIBUTORS) file in your first pull request.
 
-<!-- <<<end>>> -->
+<!-- <<<<end>>>> -->

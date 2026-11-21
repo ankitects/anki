@@ -1,14 +1,14 @@
 <!--
-Copyright: Ankitects Pty Ltd and contributors
+Copyright: Anki Software, LLC and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
     import * as tr from "@generated/ftl";
     import { getPlatformString } from "@tslib/shortcuts";
 
-    import ButtonGroup from "$lib/components/ButtonGroup.svelte";
-    import LabelButton from "$lib/components/LabelButton.svelte";
-    import Shortcut from "$lib/components/Shortcut.svelte";
+    import ButtonGroup from "#lib/components/ButtonGroup.svelte";
+    import LabelButton from "#lib/components/LabelButton.svelte";
+    import Shortcut from "#lib/components/Shortcut.svelte";
 
     import type { ChangeNotetypeState } from "./lib";
 

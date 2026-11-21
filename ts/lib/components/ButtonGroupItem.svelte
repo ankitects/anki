@@ -1,16 +1,16 @@
 <!--
-    Copyright: Ankitects Pty Ltd and contributors
+    Copyright: Anki Software, LLC and contributors
     License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script context="module" lang="ts">
     import type { Writable } from "svelte/store";
     import { get, writable } from "svelte/store";
 
-    import contextProperty from "$lib/sveltelib/context-property";
+    import contextProperty from "#lib/sveltelib/context-property.js";
     import type {
         GetSlotHostProps,
         SlotHostProps,
-    } from "$lib/sveltelib/dynamic-slotting";
+    } from "#lib/sveltelib/dynamic-slotting.js";
 
     enum ButtonPosition {
         Standalone,

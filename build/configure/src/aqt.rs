@@ -1,4 +1,4 @@
-// Copyright: Ankitects Pty Ltd and contributors
+// Copyright: Anki Software, LLC and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 use anyhow::Result;
@@ -368,12 +368,6 @@ fn check_python(build: &mut Build) -> Result<()> {
         "check:pytest:aqt",
         PythonTest {
             folder: "qt/tests",
-            python_path: &[
-                "pylib",
-                "$builddir/pylib",
-                "$builddir/qt",
-                "$builddir/qt/tools",
-            ],
             deps: inputs![":pylib:anki", ":qt:aqt", glob!["qt/tests/**"]],
         },
     )?;

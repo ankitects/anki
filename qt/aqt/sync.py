@@ -1,4 +1,4 @@
-# Copyright: Ankitects Pty Ltd and contributors
+# Copyright: Anki Software, LLC and contributors
 # License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 from __future__ import annotations
@@ -359,7 +359,7 @@ def get_id_and_pass_from_user(
     vbox = QVBoxLayout()
     info_label = QLabel(
         without_unicode_isolation(
-            tr.sync_account_required(link="https://ankiweb.net/account/register")
+            tr.sync_account_required(link="https://ankiweb.net/account/signup")
         )
     )
     info_label.setOpenExternalLinks(True)

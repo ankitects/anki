@@ -1,5 +1,5 @@
 <!--
-Copyright: Ankitects Pty Ltd and contributors
+Copyright: Anki Software, LLC and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script context="module" lang="ts">
@@ -31,10 +31,11 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 </script>
 
 <script lang="ts">
+    import { randomUUID } from "@tslib/uuid";
     import { onDestroy } from "svelte";
     import { writable } from "svelte/store";
 
-    import { pageTheme } from "$lib/sveltelib/theme";
+    import { pageTheme } from "#lib/sveltelib/theme.js";
 
     import { convertMathjax, unescapeSomeEntities } from "./mathjax";
     import { CooldownTimer } from "./cooldown-timer";
@@ -65,7 +66,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     $: empty = title === "MathJax";
     $: encoded = encodeURIComponent(converted);
 
-    const uuid = crypto.randomUUID();
+    const uuid = randomUUID();
     const imageHeight = writable(0);
     imageToHeightMap.set(uuid, imageHeight);
 

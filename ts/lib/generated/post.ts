@@ -1,4 +1,4 @@
-// Copyright: Ankitects Pty Ltd and contributors
+// Copyright: Anki Software, LLC and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 export interface PostProtoOptions {
@@ -40,7 +40,7 @@ async function postProtoInner(
     const result = await fetch(url, {
         method: "POST",
         headers: { "Content-Type": "application/binary", "Anki-Op-Changes": opChangesType.toString() },
-        body,
+        body: body as Uint8Array<ArrayBuffer>,
         signal,
     });
     if (!result.ok) {
@@ -50,7 +50,7 @@ async function postProtoInner(
         } catch {
             // ignore
         }
-        throw new Error(`${result.status}: ${msg}`);
+        throw new Error(process.env.NODE_ENV === "production" ? `${msg}` : `${result.status}: ${msg}`);
     }
     const blob = await result.blob();
     const respBuf = await new Response(blob).arrayBuffer();
