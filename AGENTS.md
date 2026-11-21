@@ -18,11 +18,10 @@ All under [github.com/AnkiQuest](https://github.com/AnkiQuest). Every default br
 | AnkiQuest-GarmAnki | sypianski/garmanki | Garmin watch app and its Android companion. |
 | AnkiQuest-Android-MCP | ankimcp/ankidroid-mcp | MCP server on Android for AnkiDroid and AnkiQuest. |
 | AnkiQuest-AnkiConnectAndroid | KamWithK/AnkiconnectAndroid | AnkiConnect on Android for AnkiDroid and AnkiQuest. |
-| AnkiQuest-Dev | none | The development environment: dev shells, pinned toolchains, shared Nix and the WSL host. |
+| AnkiQuest-Dev | none | The development environment: dev shells, toolchain pins, shared workflows and label set, NixOS on WSL, NixOS and nix-darwin modules, Windows and dev container setup. |
 | AnkiQuest-Hosting | none | The server hosts' NixOS configuration. |
 | AnkiQuest-Sync | none | Scheduled jobs: fork sync, watched sources, `AGENTS.md` distribution. |
 | AnkiQuest-Agents | none | The source of every `AGENTS.md`. |
-| AnkiQuest-Dev | none | The development environment: dev shells, toolchain pins, NixOS on WSL, NixOS and nix-darwin modules, Windows and dev container setup. |
 | AnkiQuest.github.io | none | The art gallery (coming). |
 
 ## People
