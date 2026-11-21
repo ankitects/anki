@@ -96,7 +96,7 @@ pub struct PythonEnvironment {
     // todo: rename
     pub venv_folder: &'static str,
     pub extra_args: &'static str,
-    pub extra_binary_exports: &'static [&'static str],
+    pub extra_binary_exports: Vec<&'static str>,
 }
 
 impl BuildAction for PythonEnvironment {
@@ -145,10 +145,7 @@ impl BuildAction for PythonEnvironment {
         }
 
         build.add_outputs_ext("bin", bin_path("python"), true);
-        for binary in self.extra_binary_exports {
-            if *binary == "ruff" && env::var("RUFF_BINARY").is_ok() {
-                continue;
-            }
+        for binary in &self.extra_binary_exports {
             build.add_outputs_ext(*binary, bin_path(binary), true);
         }
         build.add_output_stamp(format!("{}/.stamp", self.venv_folder));

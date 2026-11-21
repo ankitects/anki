@@ -64,7 +64,7 @@ fn openbsd_wheel_platform_tag() -> String {
 }
 
 pub fn setup_venv(build: &mut Build) -> Result<()> {
-    let extra_binary_exports = &[
+    let mut extra_binary_exports = vec![
         "mypy",
         "ruff",
         "pytest",
@@ -72,6 +72,9 @@ pub fn setup_venv(build: &mut Build) -> Result<()> {
         "complexipy",
         "cog",
     ];
+    if std::env::var_os("RUFF_BINARY").is_some() {
+        extra_binary_exports.retain(|binary| *binary != "ruff");
+    }
     build.add_action(
         "pyenv",
         PythonEnvironment {
