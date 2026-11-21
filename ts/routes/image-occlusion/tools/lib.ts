@@ -172,6 +172,10 @@ export const moveShapeToCanvasBoundaries = (canvas: fabric.Canvas, boundingBox: 
         if (!activeObject) {
             return;
         }
+        if (activeObject instanceof fabric.ActiveSelection) {
+            saveNeededStore.set(true);
+            return;
+        }
         if (activeObject.type === "rect") {
             modifiedRectangle(boundingBox, activeObject);
         }
