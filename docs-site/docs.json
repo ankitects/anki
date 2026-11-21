@@ -333,8 +333,7 @@
                     "icon": "mobile",
                     "pages": [
                       "faqs/requesting-a-refund-for-ankimobile",
-                      "faqs/retrieving-ankimobile-crash-logs",
-                      "faqs/why-does-ankimobile-cost-more-than-a-typical-mobile-app"
+                      "faqs/retrieving-ankimobile-crash-logs"
                     ]
                   },
                   {
@@ -865,8 +864,7 @@
                     "icon": "mobile",
                     "pages": [
                       "ar/faqs/requesting-a-refund-for-ankimobile",
-                      "ar/faqs/retrieving-ankimobile-crash-logs",
-                      "ar/faqs/why-does-ankimobile-cost-more-than-a-typical-mobile-app"
+                      "ar/faqs/retrieving-ankimobile-crash-logs"
                     ]
                   },
                   {
