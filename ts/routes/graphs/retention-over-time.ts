@@ -22,16 +22,10 @@ export interface RetentionPoint {
     day: number;
     reviews: number;
     /** Undefined when there were no reviews in the window. */
-    actual?: number;
-    predictedReviews: number;
-    /** Undefined when no review in the window has a prediction. */
-    predicted?: number;
+    retention?: number;
 }
 
-type DayTotals = Pick<
-    GraphsResponse_RetentionOverTime_Day,
-    "reviews" | "passed" | "predictedReviews" | "predictedSum"
->;
+type DayTotals = Pick<GraphsResponse_RetentionOverTime_Day, "reviews" | "passed">;
 
 function firstDay(days: Map<number, DayTotals>, range: GraphRange): number {
     switch (range) {
@@ -55,15 +49,11 @@ export function rollingRetention(
     const points: RetentionPoint[] = [];
     let reviews = 0;
     let passed = 0;
-    let predictedReviews = 0;
-    let predictedSum = 0;
     const add = (day: number, sign: number): void => {
         const totals = days.get(day);
         if (totals) {
             reviews += sign * totals.reviews;
             passed += sign * totals.passed;
-            predictedReviews += sign * totals.predictedReviews;
-            predictedSum += sign * totals.predictedSum;
         }
     };
     // prime the window with the days before the first point
@@ -75,9 +65,7 @@ export function rollingRetention(
         points.push({
             day,
             reviews,
-            actual: reviews ? passed / reviews : undefined,
-            predictedReviews,
-            predicted: predictedReviews ? predictedSum / predictedReviews : undefined,
+            retention: reviews ? passed / reviews : undefined,
         });
         add(day - WINDOW_DAYS + 1, -1);
     }
@@ -106,7 +94,7 @@ export function renderRetentionOverTime(
     const svg = select(svgElem);
     const trans = svg.transition().duration(600) as any;
 
-    const values = points.flatMap((p) => [p.actual, p.predicted]).filter((v): v is number => v !== undefined);
+    const values = points.map((p) => p.retention).filter((v): v is number => v !== undefined);
     if (!values.length) {
         setDataAvailable(svg, false);
         return;
@@ -143,32 +131,21 @@ export function renderRetentionOverTime(
         )
         .attr("direction", "ltr");
 
-    const path = (key: "actual" | "predicted"): string =>
-        line<RetentionPoint>()
-            .defined((p) => p[key] !== undefined)
-            .x((p) => x(p.day)!)
-            .y((p) => y(p[key]!)!)(points) ?? "";
-    svg.select("path.retention-actual").transition(trans).attr("d", path("actual"));
-    svg.select("path.retention-predicted").transition(trans).attr("d", path("predicted"));
+    const path = line<RetentionPoint>()
+        .defined((p) => p.retention !== undefined)
+        .x((p) => x(p.day)!)
+        .y((p) => y(p.retention!)!)(points) ?? "";
+    svg.select("path.retention-line").transition(trans).attr("d", path);
 
     function tooltipText(p: RetentionPoint): string {
         const lines = [
             tr.statisticsDaysAgoRange({ daysStart: -p.day, daysEnd: -p.day + WINDOW_DAYS - 1 }),
         ];
-        if (p.actual !== undefined) {
+        if (p.retention !== undefined) {
             lines.push(
-                tr.statisticsRetentionValueWithReviews({
-                    label: tr.statisticsRetentionActual(),
-                    percent: percent(p.actual),
+                tr.statisticsRetentionOverTimeValue({
+                    percent: percent(p.retention),
                     reviews: p.reviews,
-                }),
-            );
-        }
-        if (p.predicted !== undefined) {
-            lines.push(
-                tr.statisticsRetentionValue({
-                    label: tr.statisticsRetentionPredicted(),
-                    percent: percent(p.predicted),
                 }),
             );
         }

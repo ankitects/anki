@@ -38,54 +38,18 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     </InputBox>
 
     <svg bind:this={svg} viewBox={`0 0 ${bounds.width} ${bounds.height}`}>
-        <path class="retention-actual" />
-        <path class="retention-predicted" />
+        <path class="retention-line" />
         <HoverColumns />
         <AxisTicks {bounds} />
         <NoDataOverlay {bounds} />
     </svg>
-
-    <div class="legend">
-        <span>
-            <span class="swatch actual"></span>
-            {tr.statisticsRetentionActual()}
-        </span>
-        <span>
-            <span class="swatch predicted"></span>
-            {tr.statisticsRetentionPredicted()}
-        </span>
-    </div>
 </Graph>
 
 <style lang="scss">
-    .retention-actual,
-    .retention-predicted {
+    .retention-line {
         fill: none;
+        stroke: var(--state-review);
         stroke-width: 2;
         pointer-events: none;
-    }
-    .retention-actual {
-        stroke: var(--state-review);
-    }
-    .retention-predicted {
-        stroke: var(--state-learn);
-        stroke-dasharray: 6 4;
-    }
-    .legend {
-        display: flex;
-        justify-content: center;
-        gap: 1.5em;
-        font-size: small;
-    }
-    .swatch {
-        display: inline-block;
-        width: 1.5em;
-        height: 0;
-        margin-inline-end: 0.4em;
-        vertical-align: middle;
-        border-top: 2px solid var(--state-review);
-        &.predicted {
-            border-top: 2px dashed var(--state-learn);
-        }
     }
 </style>

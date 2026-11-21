@@ -63,20 +63,12 @@ impl Collection {
             next_day_start: timing.next_day_at,
             local_offset_secs,
         };
-        // A failure to replay the history only leaves the prediction line
-        // empty.
-        let history = self
-            .instant_history()
-            .inspect_err(|err| tracing::warn!("RWKV history unavailable for stats: {err}"))
-            .ok();
-        let retention_over_time =
-            ctx.retention_over_time(|id| history.as_ref()?.prediction_for_review(id));
         let (eases, difficulty) = ctx.eases();
         let resp = anki_proto::stats::GraphsResponse {
             added: Some(ctx.added_days()),
             reviews: Some(ctx.review_counts_and_times()),
             true_retention: Some(ctx.calculate_true_retention()),
-            retention_over_time: Some(retention_over_time),
+            retention_over_time: Some(ctx.retention_over_time()),
             future_due: Some(ctx.future_due()),
             intervals: Some(ctx.intervals()),
             stability: Some(ctx.stability()),

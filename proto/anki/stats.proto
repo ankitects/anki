@@ -179,10 +179,6 @@ message GraphsResponse {
     message Day {
       uint32 reviews = 1;
       uint32 passed = 2;
-      // Reviews with an RWKV-Instant prediction made just before the answer,
-      // and the sum of those predictions.
-      uint32 predicted_reviews = 3;
-      float predicted_sum = 4;
     }
     // Keyed by day: 0 is today, -1 yesterday.
     map<int32, Day> days = 1;

@@ -137,12 +137,9 @@ statistics-true-retention-all-time = All time
 # percentage cannot be calculated and is displayed as "N/A."
 statistics-true-retention-not-applicable = N/A
 statistics-retention-over-time-title = Retention Over Time
-statistics-retention-over-time-subtitle = Pass rate over the previous 7 days, compared with the recall RWKV-Instant predicted just before each review.
-statistics-retention-actual = Retention % (Actual)
-statistics-retention-predicted = Retention % (Predicted)
-# Tooltip line, eg "Retention % (Actual): 91.2% (120 reviews)"
-statistics-retention-value-with-reviews = { $label }: { $percent }% ({ $reviews } reviews)
-statistics-retention-value = { $label }: { $percent }%
+statistics-retention-over-time-subtitle = Pass rate over the previous 7 days, for cards with an interval ≥ 1 day.
+# Tooltip line, eg "Retention: 91.2% (120 reviews)"
+statistics-retention-over-time-value = Retention: { $percent }% ({ $reviews } reviews)
 
 ##
 
