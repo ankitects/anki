@@ -1,16 +1,6 @@
 // Copyright: Anki Software, LLC and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-use std::borrow::Cow;
-use std::fs;
-use std::fs::FileTimes;
-use std::io;
-use std::io::Read;
-use std::path::Path;
-use std::path::PathBuf;
-use std::sync::LazyLock;
-use std::time;
-
 use anki_io::create_dir;
 use anki_io::open_file;
 use anki_io::set_file_times;
@@ -21,6 +11,15 @@ use anki_io::FileOp;
 use regex::Regex;
 use sha1::Digest;
 use sha1::Sha1;
+use std::borrow::Cow;
+use std::fs;
+use std::fs::FileTimes;
+use std::io;
+use std::io::Read;
+use std::path::Path;
+use std::path::PathBuf;
+use std::sync::LazyLock;
+use std::time;
 use tracing::debug;
 use unic_ucd_category::GeneralCategory;
 use unicode_normalization::is_nfc;
@@ -209,10 +208,37 @@ where
 
     // give it a unique name based on its hash
     let hashed_name = add_hash_suffix_to_file_stem(normalized_name.as_ref(), &sha1);
-    target_path.set_file_name(&hashed_name);
+    let mut target_name = hashed_name.clone();
+    let mut suffix = 1;
 
-    write_file(&target_path, data)?;
-    Ok(hashed_name.into())
+    loop {
+        target_path.set_file_name(&target_name);
+
+        match existing_file_sha1(&target_path)? {
+            Some(existing_hash) if existing_hash == sha1 => {
+                return Ok(target_name.into());
+            }
+            Some(_) => {
+                let suffix_str = suffix.to_string();
+                let (stem, ext) = split_and_truncate_filename(
+                    &hashed_name,
+                    MAX_MEDIA_FILENAME_LENGTH - suffix_str.len() - 1,
+                );
+
+                target_name = if ext.is_empty() {
+                    format!("{stem}-{suffix_str}")
+                } else {
+                    format!("{stem}-{suffix_str}.{ext}")
+                };
+
+                suffix += 1;
+            }
+            None => {
+                write_file(&target_path, data)?;
+                return Ok(target_name.into());
+            }
+        }
+    }
 }
 
 /// Convert foo.jpg into foo-abcde12345679.jpg
@@ -576,7 +602,6 @@ mod test {
         // remove
         remove_files(dpath, written_files.as_slice()).unwrap();
     }
-
     #[test]
     fn truncation() {
         let one_less = "x".repeat(MAX_MEDIA_FILENAME_LENGTH - 1);
@@ -606,5 +631,42 @@ mod test {
             ),
             Cow::<str>::Owned(format!("{}_", " ".repeat(MAX_MEDIA_FILENAME_LENGTH - 2)))
         );
+    }
+    #[test]
+    fn reimport_preserves_edited_conflict_file() {
+        let dir = tempdir().unwrap();
+        let dpath = dir.path();
+
+        let original = b"original";
+        let incoming = b"incoming";
+
+        let original_hash = sha1_of_data(original);
+        let incoming_hash = sha1_of_data(incoming);
+
+        add_data_to_folder_uniquely(dpath, "image.png", original, original_hash).unwrap();
+
+        let conflict_name =
+            add_data_to_folder_uniquely(dpath, "image.png", incoming, incoming_hash)
+                .unwrap()
+                .into_owned();
+
+        std::fs::write(dpath.join(&conflict_name), b"edited").unwrap();
+
+        let reimported_name =
+            add_data_to_folder_uniquely(dpath, "image.png", incoming, incoming_hash)
+                .unwrap()
+                .into_owned();
+
+        assert_eq!(
+            std::fs::read(dpath.join(&conflict_name)).unwrap(),
+            b"edited"
+        );
+
+        assert_eq!(
+            std::fs::read(dpath.join(&reimported_name)).unwrap(),
+            incoming
+        );
+
+        assert_ne!(conflict_name, reimported_name);
     }
 }
