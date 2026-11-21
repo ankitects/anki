@@ -1065,6 +1065,58 @@ mod test {
         Ok(())
     }
 
+    /// A collection path just under Windows' MAX_PATH (260 characters), so
+    /// its cache paths, which are longer, go past it.
+    fn long_collection_path(dir: &Path) -> Result<PathBuf> {
+        const COLLECTION_PATH_LEN: usize = 240;
+        let file_name = "collection.anki2";
+        let pad = COLLECTION_PATH_LEN - dir.join(file_name).as_os_str().len() - 1;
+        let collection_dir = dir.join("d".repeat(pad));
+        std::fs::create_dir_all(&collection_dir)?;
+        Ok(collection_dir.join(file_name))
+    }
+
+    #[test]
+    fn collection_open_attaches_cache_past_max_path() -> Result<()> {
+        let dir = tempfile::tempdir()?;
+        let collection_path = long_collection_path(dir.path())?;
+        let cache_path = retrievability_cache_path(&collection_path);
+        assert!(cache_path.as_os_str().len() >= 260);
+
+        let col = CollectionBuilder::new(&collection_path).build()?;
+        let count: i64 = col.storage.db.query_row(
+            "SELECT count(*) FROM retrievability_cache.search_stats_rwkv_review_retrievability",
+            [],
+            |row| row.get(0),
+        )?;
+        assert_eq!(count, 0);
+        assert!(cache_path.is_file());
+        Ok(())
+    }
+
+    #[test]
+    fn collection_open_relocates_cache_past_max_path() -> Result<()> {
+        let dir = tempfile::tempdir()?;
+        let collection_path = long_collection_path(dir.path())?;
+        let old_path = collection_path.with_extension("retrievability-cache.sqlite");
+        assert!(old_path.as_os_str().len() >= 260);
+
+        // Create the legacy cache at a short path; std moves it past MAX_PATH.
+        let short_path = dir.path().join("legacy.sqlite");
+        Connection::open(&short_path)?.execute_batch("CREATE TABLE sentinel (value)")?;
+        std::fs::rename(&short_path, &old_path)?;
+
+        let col = CollectionBuilder::new(&collection_path).build()?;
+        let sentinels: i64 = col.storage.db.query_row(
+            "SELECT count(*) FROM retrievability_cache.sqlite_master WHERE name = 'sentinel'",
+            [],
+            |row| row.get(0),
+        )?;
+        assert_eq!(sentinels, 1);
+        assert!(!old_path.exists());
+        Ok(())
+    }
+
     #[test]
     fn regexp_fields_matches_only_selected_fields() -> rusqlite::Result<()> {
         let db = Connection::open_in_memory()?;
