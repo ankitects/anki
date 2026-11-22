@@ -143,6 +143,8 @@ statistics-retention-over-time-value = Retention: { $percent }% ({ $reviews } re
 # Caption under the graph. min/max are the minimum and maximum desired
 # retention set in the deck's RWKV time budget.
 statistics-retention-over-time-target-band = Target retention from this deck's time budget: { $min }%–{ $max }%
+statistics-retention-over-time-above-target = Higher than target retention: Add more cards per day, or lower time per day
+statistics-retention-over-time-below-target = Lower than target retention: Add less cards per day, or increase daily study time
 
 ##
 

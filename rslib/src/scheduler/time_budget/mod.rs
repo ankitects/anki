@@ -46,15 +46,72 @@ pub(crate) const TIME_BUDGET_CONFIG_KEY: &str = "rwkvTimeBudget";
 const STUDIED_CONDITION: &str =
     "r.ease between 1 and 4 and r.type in (0, 1, 2, 3) and not (r.type = 3 and r.factor = 0)";
 
-#[derive(Serialize, Deserialize, Debug, Default, Clone, PartialEq)]
+/// Stored settings: the time per deck, and the review and retention limits
+/// shared by all decks with a budget.
+#[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
 #[serde(default, rename_all = "camelCase")]
 pub(crate) struct TimeBudgetConfig {
     /// Keyed by deck id.
-    pub decks: HashMap<String, DeckTimeBudget>,
+    pub decks: HashMap<String, DeckBudgetEntry>,
+    pub max_reviews_per_card: u32,
+    pub min_dr: u32,
+    pub max_dr: u32,
+}
+
+impl Default for TimeBudgetConfig {
+    fn default() -> Self {
+        let defaults = DeckTimeBudget::default();
+        Self {
+            decks: HashMap::new(),
+            max_reviews_per_card: defaults.max_reviews_per_card,
+            min_dr: defaults.min_dr,
+            max_dr: defaults.max_dr,
+        }
+    }
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
 #[serde(default, rename_all = "camelCase")]
+pub(crate) struct DeckBudgetEntry {
+    pub enabled: bool,
+    /// Desired study time per day.
+    pub minutes: u32,
+}
+
+impl Default for DeckBudgetEntry {
+    fn default() -> Self {
+        let defaults = DeckTimeBudget::default();
+        Self {
+            enabled: defaults.enabled,
+            minutes: defaults.minutes,
+        }
+    }
+}
+
+impl TimeBudgetConfig {
+    /// The active budget of a deck, with the shared limits applied.
+    fn budget_for(&self, deck_id: DeckId) -> Option<DeckTimeBudget> {
+        let entry = self.decks.get(&deck_id.0.to_string())?;
+        Some(DeckTimeBudget {
+            enabled: entry.enabled,
+            minutes: entry.minutes,
+            max_reviews_per_card: self.max_reviews_per_card,
+            min_dr: self.min_dr,
+            max_dr: self.max_dr,
+        })
+        .filter(DeckTimeBudget::is_active)
+    }
+
+    fn active_deck_ids(&self) -> impl Iterator<Item = DeckId> + '_ {
+        self.decks
+            .keys()
+            .filter_map(|id| id.parse().ok().map(DeckId))
+            .filter(|id| self.budget_for(*id).is_some())
+    }
+}
+
+/// The settings that apply to one deck with a budget.
+#[derive(Debug, Clone, PartialEq)]
 pub(crate) struct DeckTimeBudget {
     pub enabled: bool,
     /// Desired study time per day.
@@ -144,7 +201,7 @@ impl Collection {
         deck_id: DeckId,
     ) -> Result<Option<ActiveTimeBudget>> {
         let config = self.time_budget_config();
-        if !config.decks.values().any(DeckTimeBudget::is_active) {
+        if config.active_deck_ids().next().is_none() {
             return Ok(None);
         }
         let Some(deck) = self.storage.get_deck(deck_id)? else {
@@ -155,15 +212,8 @@ impl Collection {
         }
         let parents = self.storage.parent_decks(&deck)?;
         for deck in std::iter::once(deck).chain(parents) {
-            if let Some(budget) = config
-                .decks
-                .get(&deck.id.0.to_string())
-                .filter(|budget| budget.is_active())
-            {
-                return Ok(Some(ActiveTimeBudget {
-                    root: deck,
-                    budget: budget.clone(),
-                }));
+            if let Some(budget) = config.budget_for(deck.id) {
+                return Ok(Some(ActiveTimeBudget { root: deck, budget }));
             }
         }
         Ok(None)
@@ -198,14 +248,9 @@ impl Collection {
     pub(crate) fn time_budget_status(&mut self) -> Result<TimeBudgetStatusResponse> {
         let config = self.time_budget_config();
         let mut decks = vec![];
-        for (deck_id, budget) in config.decks {
-            let Ok(deck_id) = deck_id.parse() else {
-                continue;
-            };
-            if !budget.is_active() {
-                continue;
-            }
-            let Some(deck) = self.storage.get_deck(DeckId(deck_id))? else {
+        for deck_id in config.active_deck_ids() {
+            let budget = config.budget_for(deck_id).expect("active deck");
+            let Some(deck) = self.storage.get_deck(deck_id)? else {
                 continue;
             };
             if deck.is_filtered() {
@@ -214,7 +259,7 @@ impl Collection {
             let active = ActiveTimeBudget { root: deck, budget };
             let remaining = self.remaining_budget_secs(&active)?;
             decks.push(time_budget_status_response::Deck {
-                deck_id,
+                deck_id: deck_id.0,
                 budget_secs: active.budget.budget_secs() as u32,
                 remaining_secs: remaining.clamp(i32::MIN as i64, i32::MAX as i64) as i32,
             });
@@ -400,12 +445,16 @@ mod test {
             .due_dates(["5"])
             .add(col)
             .remove(0);
+        // Revlog ids must not collide: on a collision the id is moved to the
+        // current time, which would count as study time today.
+        static NEXT_OFFSET: std::sync::atomic::AtomicI64 = std::sync::atomic::AtomicI64::new(0);
         let now = TimestampMillis::now().0;
-        for (index, (days_ago, button, kind)) in answers.iter().enumerate() {
+        for (days_ago, button, kind) in answers {
+            let offset = NEXT_OFFSET.fetch_add(1, std::sync::atomic::Ordering::Relaxed);
             col.storage
                 .add_revlog_entry(
                     &RevlogEntry {
-                        id: RevlogId(now - days_ago * DAY_MILLIS - 60_000 + index as i64),
+                        id: RevlogId(now - days_ago * DAY_MILLIS - 60_000 - offset),
                         cid: card.id,
                         button_chosen: *button,
                         interval: 1,
@@ -414,7 +463,7 @@ mod test {
                         review_kind: *kind,
                         ..Default::default()
                     },
-                    true,
+                    false,
                 )
                 .unwrap();
         }
@@ -423,7 +472,17 @@ mod test {
 
     fn set_budget(col: &mut Collection, deck: DeckId, budget: DeckTimeBudget) {
         let config = TimeBudgetConfig {
-            decks: [(deck.0.to_string(), budget)].into(),
+            decks: [(
+                deck.0.to_string(),
+                DeckBudgetEntry {
+                    enabled: budget.enabled,
+                    minutes: budget.minutes,
+                },
+            )]
+            .into(),
+            max_reviews_per_card: budget.max_reviews_per_card,
+            min_dr: budget.min_dr,
+            max_dr: budget.max_dr,
         };
         col.set_config(TIME_BUDGET_CONFIG_KEY, &config).unwrap();
     }
@@ -506,6 +565,33 @@ mod test {
         assert!(card.due > col.timing_today()?.days_elapsed as i32);
         assert_eq!(queued_ids(&mut col), vec![strong]);
         Ok(())
+    }
+
+    #[test]
+    fn limits_are_shared_by_all_decks() {
+        let config: TimeBudgetConfig = serde_json::from_str(
+            r#"{"decks": {"1": {"minutes": 65, "minDr": 10}, "2": {"enabled": false}},
+                "maxReviewsPerCard": 2, "maxDr": 90}"#,
+        )
+        .unwrap();
+        let budget = config.budget_for(DeckId(1)).unwrap();
+        assert_eq!(
+            budget,
+            DeckTimeBudget {
+                enabled: true,
+                minutes: 65,
+                max_reviews_per_card: 2,
+                // unset shared values use the defaults; older per-deck values
+                // are ignored
+                min_dr: 60,
+                max_dr: 90,
+            }
+        );
+        assert_eq!(config.budget_for(DeckId(2)), None);
+        assert_eq!(
+            config.active_deck_ids().collect::<Vec<_>>(),
+            vec![DeckId(1)]
+        );
     }
 
     #[test]

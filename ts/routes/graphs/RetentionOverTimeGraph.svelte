@@ -39,7 +39,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     </InputBox>
 
     <svg bind:this={svg} viewBox={`0 0 ${bounds.width} ${bounds.height}`}>
-        <rect class="target-band" />
+        <rect class="band-above" />
+        <rect class="band-target" />
+        <rect class="band-below" />
         <path class="retention-line" />
         <HoverColumns />
         <AxisTicks {bounds} />
@@ -47,24 +49,53 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     </svg>
 
     {#if band}
-        <div class="band-caption">
-            <span class="swatch"></span>
-            {tr.statisticsRetentionOverTimeTargetBand({
-                min: String(Math.round(band.min * 100)),
-                max: String(Math.round(band.max * 100)),
-            })}
+        <div class="band-key">
+            <div>
+                <span class="swatch above"></span>
+                {tr.statisticsRetentionOverTimeAboveTarget()}
+            </div>
+            <div>
+                <span class="swatch target"></span>
+                {tr.statisticsRetentionOverTimeTargetBand({
+                    min: String(Math.round(band.min * 100)),
+                    max: String(Math.round(band.max * 100)),
+                })}
+            </div>
+            <div>
+                <span class="swatch below"></span>
+                {tr.statisticsRetentionOverTimeBelowTarget()}
+            </div>
         </div>
     {/if}
 </Graph>
 
 <style lang="scss">
-    .target-band {
-        fill: #22c55e;
+    $above: #eab308;
+    $target: #22c55e;
+    $below: #ef4444;
+
+    .band-above,
+    .band-target,
+    .band-below {
         fill-opacity: 0.15;
         pointer-events: none;
     }
-    .band-caption {
-        text-align: center;
+    .band-above {
+        fill: $above;
+    }
+    .band-target {
+        fill: $target;
+    }
+    .band-below {
+        fill: $below;
+    }
+    .band-key {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        width: fit-content;
+        margin: 0 auto;
+        gap: 0.2em;
         font-size: small;
     }
     .swatch {
@@ -73,7 +104,15 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         height: 0.8em;
         margin-inline-end: 0.3em;
         vertical-align: middle;
-        background: rgba(34, 197, 94, 0.25);
+        &.above {
+            background: rgba($above, 0.3);
+        }
+        &.target {
+            background: rgba($target, 0.3);
+        }
+        &.below {
+            background: rgba($below, 0.3);
+        }
     }
     .retention-line {
         fill: none;

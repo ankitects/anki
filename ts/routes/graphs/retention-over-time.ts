@@ -147,13 +147,20 @@ export function renderRetentionOverTime(
         )
         .attr("direction", "ltr");
 
-    svg.select("rect.target-band")
-        .attr("display", band ? null : "none")
-        .attr("x", bounds.marginLeft)
-        .attr("width", bounds.width - bounds.marginLeft - bounds.marginRight)
-        .transition(trans)
-        .attr("y", band ? y(band.max)! : 0)
-        .attr("height", band ? y(band.min)! - y(band.max)! : 0);
+    // shade above the target (yellow), the target itself (green) and below
+    // it (red)
+    const shade = (klass: string, top: number, bottom: number): void => {
+        svg.select(`rect.${klass}`)
+            .attr("display", band ? null : "none")
+            .attr("x", bounds.marginLeft)
+            .attr("width", bounds.width - bounds.marginLeft - bounds.marginRight)
+            .transition(trans)
+            .attr("y", band ? y(top)! : 0)
+            .attr("height", band ? Math.max(0, y(bottom)! - y(top)!) : 0);
+    };
+    shade("band-above", 1, band?.max ?? 1);
+    shade("band-target", band?.max ?? 1, band?.min ?? 1);
+    shade("band-below", band?.min ?? 1, yMin);
 
     const path = line<RetentionPoint>()
         .defined((p) => p.retention !== undefined)
