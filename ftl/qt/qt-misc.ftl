@@ -91,9 +91,15 @@ qt-misc-time-budget-min-above-max = The minimum DR can't be higher than the maxi
 qt-misc-time-budget-show-advanced = Show advanced settings
 qt-misc-time-budget-hide-advanced = Hide advanced settings
 qt-misc-time-budget-advanced-intro = These apply to all enabled decks.
+qt-misc-time-budget-order = Card order
+qt-misc-time-budget-order-drag = Drag to reorder.
+qt-misc-time-budget-order-help = Drag to choose which cards are shown first. Reviews are shown lowest predicted recall first; new cards follow the deck's new card limit and order, and are only shown while time is left.
+qt-misc-time-budget-first-review = First daily review
+qt-misc-time-budget-new-cards = New cards
+qt-misc-time-budget-re-review = Re-reviews
 qt-misc-time-budget-minutes-left = { $minutes } min
 qt-misc-time-budget-time-left = Time left
-qt-misc-time-budget-cards-below-target = Cards below target
+qt-misc-time-budget-cards-below-target = Cards to study
 
 ## deprecated- these strings will be removed in the future, and do not need
 ## to be translated

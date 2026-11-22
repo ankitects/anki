@@ -34,6 +34,7 @@ use super::queue::QueueEntryKind;
 use super::queue::QueuedCard;
 use super::queue::QueuedCards;
 use crate::card::CardQueue;
+use crate::decks::limits::RemainingLimits;
 use crate::decks::Deck;
 use crate::prelude::*;
 use crate::storage::ids_to_string;
@@ -56,6 +57,35 @@ pub(crate) struct TimeBudgetConfig {
     pub max_reviews_per_card: u32,
     pub min_dr: u32,
     pub max_dr: u32,
+    /// Which group of cards is shown first.
+    pub order: Vec<CardGroup>,
+}
+
+/// The groups a session draws from, in a configurable order.
+#[derive(Serialize, Deserialize, Debug, Clone, Copy, PartialEq, Eq, Hash)]
+#[serde(rename_all = "camelCase")]
+pub(crate) enum CardGroup {
+    /// Cards not answered yet today, lowest predicted recall first.
+    FirstReview,
+    /// New cards, within the deck's new card limit, in the deck's order.
+    New,
+    /// Cards answered earlier today, lowest predicted recall first.
+    ReReview,
+}
+
+pub(crate) const DEFAULT_ORDER: [CardGroup; 3] =
+    [CardGroup::FirstReview, CardGroup::New, CardGroup::ReReview];
+
+/// Every group exactly once: `order` first, then any it leaves out in the
+/// default order.
+fn complete_order(order: &[CardGroup]) -> Vec<CardGroup> {
+    let mut out: Vec<CardGroup> = vec![];
+    for group in order.iter().chain(DEFAULT_ORDER.iter()) {
+        if !out.contains(group) {
+            out.push(*group);
+        }
+    }
+    out
 }
 
 impl Default for TimeBudgetConfig {
@@ -66,6 +96,7 @@ impl Default for TimeBudgetConfig {
             max_reviews_per_card: defaults.max_reviews_per_card,
             min_dr: defaults.min_dr,
             max_dr: defaults.max_dr,
+            order: DEFAULT_ORDER.to_vec(),
         }
     }
 }
@@ -98,6 +129,7 @@ impl TimeBudgetConfig {
             max_reviews_per_card: self.max_reviews_per_card,
             min_dr: self.min_dr,
             max_dr: self.max_dr,
+            order: complete_order(&self.order),
         })
         .filter(DeckTimeBudget::is_active)
     }
@@ -122,6 +154,7 @@ pub(crate) struct DeckTimeBudget {
     pub min_dr: u32,
     /// Percent. Only cards below this are shown.
     pub max_dr: u32,
+    pub order: Vec<CardGroup>,
 }
 
 impl Default for DeckTimeBudget {
@@ -132,6 +165,7 @@ impl Default for DeckTimeBudget {
             max_reviews_per_card: 3,
             min_dr: 60,
             max_dr: 95,
+            order: DEFAULT_ORDER.to_vec(),
         }
     }
 }
@@ -164,30 +198,85 @@ pub(crate) struct ActiveTimeBudget {
     pub budget: DeckTimeBudget,
 }
 
+/// Cards scored together and shown in turn, without scoring again.
+const BATCH_SIZE: usize = 10;
+/// The next batch is scored once this many cards of the current one are left
+/// (after five of ten have been answered).
+const REFILL_AT: usize = 5;
+
+/// The next cards of a time-budget session, lowest predicted recall first.
+/// Answered cards are removed; the batch is dropped whenever Anki's study
+/// queues would be rebuilt (edits, undo, setting changes).
+#[derive(Debug, Clone)]
+pub(crate) struct TimeBudgetBatch {
+    study_deck: DeckId,
+    budget: DeckTimeBudget,
+    day: u32,
+    cards: Vec<Candidate>,
+    /// Cards eligible when scored, minus those answered since.
+    new_count: usize,
+    learning_count: usize,
+    review_count: usize,
+}
+
+impl TimeBudgetBatch {
+    fn serves(&self, study_deck: DeckId, budget: &DeckTimeBudget, day: u32) -> bool {
+        self.study_deck == study_deck && &self.budget == budget && self.day == day
+    }
+}
+
 #[derive(Debug, Clone, Copy, PartialEq)]
 struct Candidate {
     card_id: CardId,
+    /// Unused for new cards.
     retrievability: f32,
     learning: bool,
+    group: CardGroup,
 }
 
-/// Cards to show, lowest recall first. The card answered last is not
-/// repeated straight away when another card can be shown instead.
+impl Candidate {
+    /// Whether the card may be shown, given the recall threshold and whether
+    /// time is left. New cards are only introduced while time is left.
+    fn eligible(&self, threshold: f32, time_left: bool) -> bool {
+        match self.group {
+            CardGroup::New => time_left,
+            CardGroup::FirstReview | CardGroup::ReReview => self.retrievability < threshold,
+        }
+    }
+}
+
+/// Cards to show: the groups in `order`; reviews lowest recall first, new
+/// cards in the order given. The card answered last is not repeated
+/// straight away when another card can be shown instead.
 fn select_candidates(
-    mut candidates: Vec<Candidate>,
+    candidates: Vec<Candidate>,
     threshold: f32,
+    time_left: bool,
+    order: &[CardGroup],
     last_answered: Option<CardId>,
 ) -> Vec<Candidate> {
-    candidates.retain(|candidate| candidate.retrievability < threshold);
-    candidates.sort_by(|a, b| {
+    let (new_cards, mut reviews): (Vec<Candidate>, Vec<Candidate>) = candidates
+        .into_iter()
+        .filter(|candidate| candidate.eligible(threshold, time_left))
+        .partition(|candidate| candidate.group == CardGroup::New);
+    reviews.sort_by(|a, b| {
         a.retrievability
             .total_cmp(&b.retrievability)
             .then(a.card_id.cmp(&b.card_id))
     });
-    if candidates.len() > 1 && Some(candidates[0].card_id) == last_answered {
-        candidates.swap(0, 1);
+    let mut selected: Vec<Candidate> = vec![];
+    for group in complete_order(order) {
+        let source = if group == CardGroup::New {
+            &new_cards
+        } else {
+            &reviews
+        };
+        selected.extend(source.iter().filter(|card| card.group == group));
     }
-    candidates
+    if selected.len() > 1 && Some(selected[0].card_id) == last_answered {
+        selected.swap(0, 1);
+    }
+    selected
 }
 
 impl Collection {
@@ -265,7 +354,7 @@ impl Collection {
             let done = !self
                 .time_budget_candidates(&active, deck_id)?
                 .iter()
-                .any(|candidate| candidate.retrievability < threshold);
+                .any(|candidate| candidate.eligible(threshold, remaining > 0));
             decks.push(time_budget_status_response::Deck {
                 deck_id: deck_id.0,
                 budget_secs: active.budget.budget_secs() as u32,
@@ -277,7 +366,8 @@ impl Collection {
         Ok(TimeBudgetStatusResponse { decks })
     }
 
-    /// The study queue of a deck covered by a time budget.
+    /// The study queue of a deck covered by a time budget. Cards are scored
+    /// in batches: see [TimeBudgetBatch].
     pub(crate) fn get_time_budget_queued_cards(
         &mut self,
         active: &ActiveTimeBudget,
@@ -287,19 +377,40 @@ impl Collection {
     ) -> Result<QueuedCards> {
         // Anki's own queues are not used while a budget applies; answering
         // without them is supported.
-        self.clear_study_queues();
+        self.state.card_queues = None;
         let remaining_secs = self.remaining_budget_secs(active)?;
         let threshold = active.budget.threshold(remaining_secs);
-        let candidates = self.time_budget_candidates(active, study_deck)?;
-        let last_answered = self.card_answered_last_today()?;
-        let selected = select_candidates(candidates, threshold, last_answered);
+        let time_left = remaining_secs > 0;
+        let day = self.timing_today()?.days_elapsed;
 
-        let learning_count = selected.iter().filter(|c| c.learning).count();
-        let review_count = selected.len() - learning_count;
+        let mut refilled = false;
+        if !self
+            .state
+            .time_budget_batch
+            .as_ref()
+            .is_some_and(|batch| batch.serves(study_deck, &active.budget, day))
+        {
+            self.refill_time_budget_batch(active, study_deck, remaining_secs, day)?;
+            refilled = true;
+        }
+        // A batch scored before the time ran out may hold cards that are no
+        // longer eligible.
+        let mut usable = self.usable_batch_cards(threshold, time_left);
+        if usable.is_empty() && !refilled {
+            self.refill_time_budget_batch(active, study_deck, remaining_secs, day)?;
+            usable = self.usable_batch_cards(threshold, time_left);
+        }
+        let batch = self.state.time_budget_batch.as_ref().expect("filled above");
+        let (new_count, learning_count, review_count) = if usable.is_empty() {
+            (0, 0, 0)
+        } else {
+            (batch.new_count, batch.learning_count, batch.review_count)
+        };
+
         let cards = if intraday_learning_only {
             vec![]
         } else {
-            selected
+            usable
                 .iter()
                 .take(fetch_limit)
                 .map(|candidate| self.time_budget_queued_card(candidate))
@@ -307,10 +418,97 @@ impl Collection {
         };
         Ok(QueuedCards {
             cards,
-            new_count: 0,
+            new_count,
             learning_count,
             review_count,
         })
+    }
+
+    fn usable_batch_cards(&self, threshold: f32, time_left: bool) -> Vec<Candidate> {
+        self.state
+            .time_budget_batch
+            .as_ref()
+            .map(|batch| {
+                batch
+                    .cards
+                    .iter()
+                    .filter(|card| card.eligible(threshold, time_left))
+                    .copied()
+                    .collect()
+            })
+            .unwrap_or_default()
+    }
+
+    /// Scores every card and keeps the best [BATCH_SIZE].
+    fn refill_time_budget_batch(
+        &mut self,
+        active: &ActiveTimeBudget,
+        study_deck: DeckId,
+        remaining_secs: i64,
+        day: u32,
+    ) -> Result<()> {
+        let candidates = self.time_budget_candidates(active, study_deck)?;
+        let last_answered = self.card_answered_last_today()?;
+        let selected = select_candidates(
+            candidates,
+            active.budget.threshold(remaining_secs),
+            remaining_secs > 0,
+            &active.budget.order,
+            last_answered,
+        );
+        let new_count = selected
+            .iter()
+            .filter(|c| c.group == CardGroup::New)
+            .count();
+        let learning_count = selected.iter().filter(|c| c.learning).count();
+        self.state.time_budget_batch = Some(TimeBudgetBatch {
+            study_deck,
+            budget: active.budget.clone(),
+            day,
+            review_count: selected.len() - learning_count - new_count,
+            new_count,
+            learning_count,
+            cards: selected.into_iter().take(BATCH_SIZE).collect(),
+        });
+        Ok(())
+    }
+
+    pub(crate) fn remove_from_time_budget_batch(&mut self, card_id: CardId) {
+        if let Some(batch) = self.state.time_budget_batch.as_mut() {
+            if let Some(index) = batch.cards.iter().position(|card| card.card_id == card_id) {
+                let card = batch.cards.remove(index);
+                if card.group == CardGroup::New {
+                    batch.new_count = batch.new_count.saturating_sub(1);
+                } else if card.learning {
+                    batch.learning_count = batch.learning_count.saturating_sub(1);
+                } else {
+                    batch.review_count = batch.review_count.saturating_sub(1);
+                }
+            }
+        }
+    }
+
+    /// Scores the next batch ahead of time once [REFILL_AT] cards of the
+    /// current one are left, or if there is none yet. Called in the
+    /// background after each answer, so the reviewer rarely waits on
+    /// scoring. Returns true if a batch was scored.
+    pub(crate) fn prefetch_time_budget_cards(&mut self) -> Result<bool> {
+        let study_deck = self.get_current_deck_id();
+        let Some(active) = self.active_time_budget(study_deck)? else {
+            return Ok(false);
+        };
+        let day = self.timing_today()?.days_elapsed;
+        let needed = match self.state.time_budget_batch.as_ref() {
+            Some(batch) if batch.serves(study_deck, &active.budget, day) => {
+                batch.cards.len() <= REFILL_AT
+            }
+            _ => true,
+        };
+        if needed {
+            let remaining_secs = self.remaining_budget_secs(&active)?;
+            self.refill_time_budget_batch(&active, study_deck, remaining_secs, day)?;
+        }
+        Ok(needed)
     }
 
     fn time_budget_queued_card(&mut self, candidate: &Candidate) -> Result<QueuedCard> {
@@ -321,7 +519,9 @@ impl Collection {
         let states = self.get_scheduling_states(card.id)?;
         Ok(QueuedCard {
             context: super::queue::new_scheduling_context(self, &card)?,
-            kind: if candidate.learning {
+            kind: if candidate.group == CardGroup::New {
+                QueueEntryKind::New
+            } else if candidate.learning {
                 QueueEntryKind::Learning
             } else {
                 QueueEntryKind::Review
@@ -332,8 +532,8 @@ impl Collection {
     }
 
     /// Learning, review and relearning cards of the study deck and its
-    /// subdecks, with their predicted recall. Cards at today's review cap are
-    /// left out.
+    /// subdecks, with their predicted recall, and the new cards the deck may
+    /// introduce today. Cards at today's review cap are left out.
     fn time_budget_candidates(
         &mut self,
         active: &ActiveTimeBudget,
@@ -365,8 +565,9 @@ impl Collection {
                 max_reviews == 0 || answers_today.get(card_id).copied().unwrap_or(0) < max_reviews
             })
             .collect();
+        let new_cards = self.time_budget_new_cards(&study_deck, &ids)?;
         if card_ids.is_empty() {
-            return Ok(vec![]);
+            return Ok(new_cards);
         }
         let cards = self.all_cards_for_ids(&card_ids, false)?;
         let presets: HashMap<DeckId, i64> = self
@@ -391,6 +592,50 @@ impl Collection {
                 card_id: card.id,
                 retrievability,
                 learning: matches!(card.queue, CardQueue::Learn | CardQueue::DayLearn),
+                group: if answers_today.contains_key(&card.id) {
+                    CardGroup::ReReview
+                } else {
+                    CardGroup::FirstReview
+                },
+            })
+            .chain(new_cards)
+            .collect())
+    }
+
+    /// New cards of the study deck's tree, up to the deck's remaining new
+    /// card limit for today (the review limit does not apply), in due
+    /// (position) order.
+    fn time_budget_new_cards(
+        &mut self,
+        study_deck: &Deck,
+        deck_ids_sql: &str,
+    ) -> Result<Vec<Candidate>> {
+        let today = self.timing_today()?.days_elapsed;
+        let config = match study_deck.config_id() {
+            Some(id) => self.get_deck_config(id, true)?,
+            None => None,
+        };
+        let limit = RemainingLimits::new(study_deck, config.as_ref(), today, true).new;
+        if limit == 0 {
+            return Ok(vec![]);
+        }
+        let card_ids: Vec<CardId> = self
+            .storage
+            .db
+            .prepare(&format!(
+                "select id from cards where did in {deck_ids_sql} and queue = {}
+                 order by due, ord, id limit {limit}",
+                CardQueue::New as i8
+            ))?
+            .query_map([], |row| row.get(0))?
+            .collect::<std::result::Result<_, _>>()?;
+        Ok(card_ids
+            .into_iter()
+            .map(|card_id| Candidate {
+                card_id,
+                retrievability: 0.0,
+                learning: false,
+                group: CardGroup::New,
             })
             .collect())
     }
@@ -486,6 +731,7 @@ mod test {
             max_reviews_per_card: budget.max_reviews_per_card,
             min_dr: budget.min_dr,
             max_dr: budget.max_dr,
+            order: budget.order,
         };
         col.set_config(TIME_BUDGET_CONFIG_KEY, &config).unwrap();
     }
@@ -588,6 +834,7 @@ mod test {
                 // are ignored
                 min_dr: 60,
                 max_dr: 90,
+                order: DEFAULT_ORDER.to_vec(),
             }
         );
         assert_eq!(config.budget_for(DeckId(2)), None);
@@ -595,6 +842,99 @@ mod test {
             config.active_deck_ids().collect::<Vec<_>>(),
             vec![DeckId(1)]
         );
+    }
+
+    #[test]
+    fn cards_are_scored_in_batches_and_refilled_ahead() -> Result<()> {
+        use RevlogReviewKind::*;
+        let mut col = Collection::new();
+        let deck = DeckAdder::new("Batch").add(&mut col);
+        for index in 0..16 {
+            let button = if index % 2 == 0 { 1 } else { 3 };
+            review_card(
+                &mut col,
+                deck.id,
+                &[(30 + index, 3, Learning), (10, button, Review)],
+            );
+        }
+        col.set_current_deck(deck.id)?;
+        set_budget(
+            &mut col,
+            deck.id,
+            DeckTimeBudget {
+                max_dr: 100,
+                max_reviews_per_card: 1,
+                ..Default::default()
+            },
+        );
+        let batch_len =
+            |col: &Collection| col.state.time_budget_batch.as_ref().unwrap().cards.len();
+
+        // one batch of ten is scored; the counts cover every eligible card
+        let queue = col.get_queued_cards(100, false)?;
+        let first: Vec<_> = queue.cards.iter().map(|queued| queued.card.id).collect();
+        assert_eq!(first.len(), 10);
+        assert_eq!(queue.review_count, 16);
+
+        // answers are served from the batch without scoring again
+        col.answer_good();
+        assert_eq!(batch_len(&col), 9);
+        assert_eq!(queued_ids(&mut col), first[1..]);
+        for _ in 0..3 {
+            col.answer_good();
+        }
+        assert!(!col.prefetch_time_budget_cards()?);
+        assert_eq!(batch_len(&col), 6);
+
+        // after the fifth answer, the next batch is scored ahead of time
+        col.answer_good();
+        assert_eq!(batch_len(&col), 5);
+        assert!(col.prefetch_time_budget_cards()?);
+        assert_eq!(batch_len(&col), 10);
+        assert_eq!(col.get_queued_cards(1, false)?.review_count, 11);
+
+        // without a prefetch, a used-up batch is refilled when needed
+        for _ in 0..10 {
+            col.answer_good();
+        }
+        assert_eq!(batch_len(&col), 0);
+        assert_eq!(queued_ids(&mut col).len(), 1);
+        col.answer_good();
+        assert!(queued_ids(&mut col).is_empty());
+        Ok(())
+    }
+
+    #[test]
+    fn new_cards_follow_the_deck_limit_and_order() -> Result<()> {
+        use RevlogReviewKind::*;
+        let mut col = Collection::new();
+        let deck = DeckAdder::new("Mixed")
+            .with_config(|config| config.inner.new_per_day = 2)
+            .add(&mut col);
+        let review = review_card(&mut col, deck.id, &[(20, 3, Learning), (10, 1, Review)]);
+        let new_cards: Vec<CardId> = (0..3)
+            .map(|_| CardAdder::new().deck(deck.id).add(&mut col)[0].id)
+            .collect();
+        col.set_current_deck(deck.id)?;
+        let mut budget = DeckTimeBudget {
+            max_dr: 100,
+            ..Default::default()
+        };
+        set_budget(&mut col, deck.id, budget.clone());
+        // first reviews, then at most two new cards in deck order
+        let queue = col.get_queued_cards(100, false)?;
+        let ids: Vec<_> = queue.cards.iter().map(|queued| queued.card.id).collect();
+        assert_eq!(ids, vec![review, new_cards[0], new_cards[1]]);
+        assert_eq!((queue.new_count, queue.review_count), (2, 1));
+        assert_eq!(queue.cards[1].kind, QueueEntryKind::New);
+
+        budget.order = vec![CardGroup::New, CardGroup::FirstReview, CardGroup::ReReview];
+        set_budget(&mut col, deck.id, budget);
+        assert_eq!(
+            queued_ids(&mut col),
+            vec![new_cards[0], new_cards[1], review]
+        );
+        Ok(())
     }
 
     #[test]
@@ -676,18 +1016,26 @@ mod test {
     }
 
     fn candidate(id: i64, retrievability: f32) -> Candidate {
+        grouped(id, retrievability, CardGroup::FirstReview)
+    }
+
+    fn grouped(id: i64, retrievability: f32, group: CardGroup) -> Candidate {
         Candidate {
             card_id: CardId(id),
             retrievability,
             learning: false,
+            group,
         }
+    }
+
+    fn select(candidates: Vec<Candidate>, last_answered: Option<CardId>) -> Vec<Candidate> {
+        select_candidates(candidates, 0.95, true, &DEFAULT_ORDER, last_answered)
     }
 
     #[test]
     fn selection_orders_by_recall_and_applies_threshold() {
-        let selected = select_candidates(
+        let selected = select(
             vec![candidate(1, 0.9), candidate(2, 0.5), candidate(3, 0.97)],
-            0.95,
             None,
         );
         assert_eq!(selected, vec![candidate(2, 0.5), candidate(1, 0.9)]);
@@ -695,15 +1043,49 @@ mod test {
 
     #[test]
     fn last_answered_card_is_not_repeated_immediately() {
-        let selected = select_candidates(
-            vec![candidate(1, 0.4), candidate(2, 0.5)],
-            0.95,
-            Some(CardId(1)),
-        );
+        let selected = select(vec![candidate(1, 0.4), candidate(2, 0.5)], Some(CardId(1)));
         assert_eq!(selected[0].card_id, CardId(2));
         // ...unless it is the only card left
-        let selected = select_candidates(vec![candidate(1, 0.4)], 0.95, Some(CardId(1)));
+        let selected = select(vec![candidate(1, 0.4)], Some(CardId(1)));
         assert_eq!(selected[0].card_id, CardId(1));
+    }
+
+    #[test]
+    fn groups_follow_the_configured_order() {
+        use CardGroup::*;
+        let cards = vec![
+            grouped(1, 0.3, ReReview),
+            grouped(2, 0.8, FirstReview),
+            grouped(3, 0.0, New),
+            grouped(4, 0.5, FirstReview),
+            grouped(5, 0.0, New),
+            grouped(6, 0.99, ReReview),
+        ];
+        let ids = |selected: Vec<Candidate>| -> Vec<i64> {
+            selected.iter().map(|card| card.card_id.0).collect()
+        };
+        // default: first reviews by recall, new cards in deck order, then re-reviews
+        assert_eq!(ids(select(cards.clone(), None)), vec![4, 2, 3, 5, 1]);
+        assert_eq!(
+            ids(select_candidates(
+                cards.clone(),
+                0.95,
+                true,
+                &[ReReview, New, FirstReview],
+                None
+            )),
+            vec![1, 3, 5, 4, 2]
+        );
+        // an incomplete order falls back to the default for the rest
+        assert_eq!(
+            ids(select_candidates(cards.clone(), 0.95, true, &[New], None)),
+            vec![3, 5, 4, 2, 1]
+        );
+        // no new cards once the time is used up
+        assert_eq!(
+            ids(select_candidates(cards, 0.95, false, &DEFAULT_ORDER, None)),
+            vec![4, 2, 1]
+        );
     }
 
     #[test]

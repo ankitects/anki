@@ -218,11 +218,13 @@ impl Collection {
     /// transaction, you probably don't need this.
     pub(crate) fn clear_study_queues(&mut self) {
         self.state.card_queues = None;
+        self.state.time_budget_batch = None;
     }
 
     pub(crate) fn maybe_clear_study_queues_after_op(&mut self, op: &OpChanges) {
         if op.op != Op::AnswerCard && op.requires_study_queue_rebuild() {
             self.state.card_queues = None;
+            self.state.time_budget_batch = None;
         }
     }
 
@@ -232,6 +234,7 @@ impl Collection {
         timing: SchedTimingToday,
         is_finished_preview: bool,
     ) -> Result<()> {
+        self.remove_from_time_budget_batch(card.id);
         if let Some(queues) = &mut self.state.card_queues {
             let entry = queues.pop_entry(card.id)?;
             let requeued_learning = if is_finished_preview {

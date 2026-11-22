@@ -15,9 +15,13 @@ from collections.abc import Sequence
 from dataclasses import dataclass, field
 from typing import TYPE_CHECKING, Any
 
+import aqt
+from anki.cards import Card
 from anki.collection import Collection
 from anki.decks import DeckId
 from anki.scheduler.base import TimeBudgetDeck
+from aqt import gui_hooks
+from aqt.operations import QueryOp
 from aqt.qt import *
 from aqt.utils import disable_help_button, restoreGeom, saveGeom, showWarning, tr
 
@@ -30,6 +34,30 @@ DEFAULT_MINUTES = 30
 DEFAULT_MAX_REVIEWS_PER_CARD = 3
 DEFAULT_MIN_DR = 60
 DEFAULT_MAX_DR = 95
+
+# Groups of cards a session draws from; see CardGroup in
+# rslib/src/scheduler/time_budget.
+FIRST_REVIEW = "firstReview"
+NEW_CARDS = "new"
+RE_REVIEW = "reReview"
+DEFAULT_ORDER = (FIRST_REVIEW, NEW_CARDS, RE_REVIEW)
+
+
+def complete_order(order: Sequence[str]) -> list[str]:
+    """Each known group once: `order` first, then the rest in default order."""
+    out: list[str] = []
+    for group in [*order, *DEFAULT_ORDER]:
+        if group in DEFAULT_ORDER and group not in out:
+            out.append(group)
+    return out
+
+
+def group_label(group: str) -> str:
+    return {
+        FIRST_REVIEW: tr.qt_misc_time_budget_first_review,
+        NEW_CARDS: tr.qt_misc_time_budget_new_cards,
+        RE_REVIEW: tr.qt_misc_time_budget_re_review,
+    }[group]()
 
 
 @dataclass
@@ -46,6 +74,7 @@ class TimeBudgetSettings:
     max_reviews_per_card: int = DEFAULT_MAX_REVIEWS_PER_CARD
     min_dr: int = DEFAULT_MIN_DR
     max_dr: int = DEFAULT_MAX_DR
+    order: list[str] = field(default_factory=lambda: list(DEFAULT_ORDER))
 
     @classmethod
     def from_json(cls, data: dict[str, Any]) -> TimeBudgetSettings:
@@ -66,6 +95,7 @@ class TimeBudgetSettings:
             ),
             min_dr=int(data.get("minDr", default.min_dr)),
             max_dr=int(data.get("maxDr", default.max_dr)),
+            order=complete_order(data.get("order") or []),
         )
 
     def to_json(self) -> dict[str, Any]:
@@ -77,6 +107,7 @@ class TimeBudgetSettings:
             "maxReviewsPerCard": self.max_reviews_per_card,
             "minDr": self.min_dr,
             "maxDr": self.max_dr,
+            "order": self.order,
         }
 
 
@@ -215,6 +246,25 @@ class TimeBudgetDialog(QDialog):
         ):
             spin.setToolTip(tip)
             form.addRow(label, spin)
+
+        # card order: drag to reorder
+        self.order = QListWidget(self)
+        self.order.setDragDropMode(QAbstractItemView.DragDropMode.InternalMove)
+        self.order.setDefaultDropAction(Qt.DropAction.MoveAction)
+        for group in complete_order(self.settings.order):
+            item = QListWidgetItem(group_label(group))
+            item.setData(Qt.ItemDataRole.UserRole, group)
+            self.order.addItem(item)
+        self.order.setToolTip(tr.qt_misc_time_budget_order_help())
+        row_height = self.order.sizeHintForRow(0)
+        self.order.setFixedHeight(row_height * self.order.count() + 6)
+        self.order.setFixedWidth(self.order.sizeHintForColumn(0) + 40)
+        order_label = QLabel(tr.qt_misc_time_budget_order())
+        order_label.setToolTip(tr.qt_misc_time_budget_order_help())
+        form.addRow(order_label, self.order)
+        hint = QLabel(tr.qt_misc_time_budget_order_drag())
+        hint.setEnabled(False)
+        form.addRow("", hint)
         layout.addWidget(self.advanced)
         self._set_advanced_visible(False)
 
@@ -290,6 +340,15 @@ class TimeBudgetDialog(QDialog):
         update(enabled.isChecked())
         qconnect(enabled.toggled, update)
 
+    def selected_order(self) -> list[str]:
+        return complete_order(
+            [
+                item.data(Qt.ItemDataRole.UserRole)
+                for row in range(self.order.count())
+                if (item := self.order.item(row)) is not None
+            ]
+        )
+
     def settings_from_dialog(self) -> TimeBudgetSettings | None:
         """Updated settings, or None (after warning) if invalid. Settings of
         decks that are not shown are kept."""
@@ -310,6 +369,7 @@ class TimeBudgetDialog(QDialog):
             max_reviews_per_card=self.max_reviews.value(),
             min_dr=self.min_dr.value(),
             max_dr=self.max_dr.value(),
+            order=self.selected_order(),
         )
 
     def accept(self) -> None:
@@ -329,3 +389,20 @@ class TimeBudgetDialog(QDialog):
 
 def open_time_budget_dialog(mw: aqt.main.AnkiQt) -> TimeBudgetDialog:
     return TimeBudgetDialog(mw)
+
+
+def _prefetch_after_question(_card: Card) -> None:
+    """Score the next batch of a time-budget session while the question is
+    on screen, so the next card rarely waits for it. A no-op unless the
+    current batch is running low (see rslib/src/scheduler/time_budget)."""
+    mw = aqt.mw
+    if mw is None or mw.col is None:
+        return
+    QueryOp(
+        parent=mw,
+        op=lambda col: col.sched.prefetch_time_budget_cards(),
+        success=lambda _scored: None,
+    ).failure(lambda _err: None).run_in_background()
+
+
+gui_hooks.reviewer_did_show_question.append(_prefetch_after_question)

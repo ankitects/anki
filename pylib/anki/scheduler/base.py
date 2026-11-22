@@ -92,6 +92,10 @@ class SchedulerBase(DeprecatedNamesMixin):
         "Remaining study time of decks with an RWKV-Instant time budget."
         return self.col._backend.time_budget_status()
 
+    def prefetch_time_budget_cards(self) -> bool:
+        "Score the next cards of a time-budget session ahead of time, if due."
+        return self.col._backend.prefetch_time_budget_cards()
+
     def have_buried_siblings(self) -> bool:
         return self.congratulations_info().have_sched_buried
 

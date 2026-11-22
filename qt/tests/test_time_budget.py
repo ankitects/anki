@@ -42,6 +42,7 @@ def test_settings_round_trip_with_shared_limits() -> None:
             "maxReviewsPerCard": 3,
             "minDr": 70,
             "maxDr": 95,
+            "order": ["firstReview", "new", "reReview"],
         }
     finally:
         col.close()
@@ -92,3 +93,20 @@ def test_done_decks_show_a_checkmark() -> None:
         _plain(format_status(TimeBudgetDeck(remaining_secs=6 * 60, done=False)))
         == "6 min"
     )
+
+
+def test_card_order_is_completed_and_kept() -> None:
+    from aqt.time_budget import complete_order
+
+    assert complete_order([]) == ["firstReview", "new", "reReview"]
+    assert complete_order(["reReview", "bogus", "reReview"]) == [
+        "reReview",
+        "firstReview",
+        "new",
+    ]
+    col = _collection()
+    try:
+        save_settings(col, TimeBudgetSettings(order=["new", "firstReview", "reReview"]))
+        assert load_settings(col).order == ["new", "firstReview", "reReview"]
+    finally:
+        col.close()
