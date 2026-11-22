@@ -6,7 +6,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import type { OpChanges, Progress } from "@generated/anki/collection_pb";
     import { runWithBackendProgress } from "@tslib/progress";
 
-    import { pageTheme } from "$lib/sveltelib/theme";
+    import { pageTheme } from "#lib/sveltelib/theme.js";
 
     type ResultWithChanges = OpChanges | { changes?: OpChanges };
 

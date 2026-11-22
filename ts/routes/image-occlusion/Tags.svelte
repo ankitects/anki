@@ -3,8 +3,8 @@ Copyright: Anki Software, LLC and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
-    import Row from "$lib/components/Row.svelte";
-    import TagEditor from "$lib/tag-editor/TagEditor.svelte";
+    import Row from "#lib/components/Row.svelte";
+    import TagEditor from "#lib/tag-editor/TagEditor.svelte";
 
     export let tagsWritable;
     let globalTags: string[];

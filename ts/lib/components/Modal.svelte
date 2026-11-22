@@ -6,7 +6,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import Modal from "bootstrap/js/dist/modal";
     import { getContext, onDestroy, onMount } from "svelte";
 
-    import { registerModalClosingHandler } from "$lib/sveltelib/modal-closing";
+    import { registerModalClosingHandler } from "#lib/sveltelib/modal-closing.js";
 
     import { modalsKey } from "./context-keys";
 
