@@ -39,7 +39,7 @@ When a decision or action is left for hill, ask hill a question with the options
 ## Glossary
 
 - Companion: a character (Aki, Ankilope, Bluma, Anki-tan).
-- Pose: one picture of a companion. Its master is `static/<companion>/<pose>.png` in AnkiQuest-Server; every other copy (Android drawable, add-on art, share card) is an exported copy of that pose, generated and hash-checked. A pose exists only when it is drawn for every live companion.
+- Pose: one picture of a companion. Its master is `static/<companion>/<pose>.png` in AnkiQuest-Server; every other copy (Android drawable, add-on art, share card) is an exported copy of that pose, generated and hash-checked. The goal is every pose drawn for every companion (see Companion art).
 - Mood: today's streak state, computed by the shared rule in `tests/fixtures/streak_moods.json`. Each mood names the pose it shows; several moods may show the same pose (`frozen_1` and `thawing` both show `frozen`). That is a mapping, not a fallback.
 - Moment: something that happened worth telling (milestone, level up, place, deck conquered), shown as a card.
 - Share: send a moment, board place or deck to friends in AnkiQuest or to another app. Don't say "shareable".
@@ -120,6 +120,8 @@ ankimcp/ankidroid-mcp           --pr-->  AnkiQuest/AnkiQuest-Android-MCP master
 KamWithK/AnkiconnectAndroid     --pr-->  AnkiQuest/AnkiQuest-AnkiConnectAndroid master
 ```
 
+The full, generated map of every repository, upstream, package, submodule and shared workflow, with pinned versions and what is out of date, is <https://ankiquest.github.io/wiring.mmd> (Mermaid source) and <https://ankiquest.github.io/wiring.html> (rendered); read it when a change crosses repositories.
+
 - **Every fork** has one branch of ours, `master`: upstream's default branch plus our changes, consolidated. Upstream comes in through the sync job's pull request, merged as a merge commit; never squash or rebase it. Work from `master` and open pull requests against it.
 - **Core forks** (AnkiQuest-Anki, AnkiQuest-Android-Backend): AnkiQuest-Anki `master` is ankitects/anki `main` plus the RWKV engine and FSRS-7 carried from JSchoreels' and kuma3's forks. AnkiQuest-Android-Backend `master` is upstream plus kuma3's backend wiring, with its `anki` submodule on a commit of AnkiQuest-Anki `master`; it publishes `org.ankiquest:anki-backend-android`, `anki-backend-core` and `anki-android-backend-testing` to Maven Central on a `*-ankiquest.*` tag.
 - **Third-party app forks** (AnkiQuest-GarmAnki, AnkiQuest-Android-MCP, AnkiQuest-AnkiConnectAndroid): `master` is our version, with CI, Nix and the AnkiQuest API library `org.ankiquest:api` (coming). The branches `ankidroid-provider-check` and `ankiquest-support` stay ready to propose upstream: upstream's style and languages, no AnkiQuest-only changes. Keep upstream's languages for upstream's code in every fork.
@@ -149,16 +151,28 @@ AnkiQuest has two clients: the Android app ([AnkiQuest/AnkiQuest-Android](https:
 
 ## Companion art
 
-Every picture of a companion is a pose, including those on moments, share cards, widgets and notifications. The section and tool names keep "art"; the rules speak of poses, masters and exported copies.
+Every picture of a companion is a pose, including those on moments, share cards, widgets, notifications and the launcher icon. The section and tool names keep "art"; the rules speak of poses, masters and exported copies.
 
-- Masters live only in `static/<companion>/` in AnkiQuest-Server. Every exported copy (share cards, add-on, Android, docs) is generated from its master by the exporters and hash-checked in CI; never commit a hand-made copy.
-- Never delete a master, even when nothing uses it any more: AnkiQuest-Server keeps old and retired art, so it can be reused or merged later. A master nothing uses moves to `static/retired/<companion>/`; Anki-tan's stays in `static/anki-tan/archive/`, next to its licence. Never delete a picture that can't be regenerated, such as a hand-made copy or a review sheet: it moves there too and counts as a master. Exported copies are generated: overwrite them, and delete a copy that was renamed, retired or is no longer used, together with its references; git history keeps the old files. Don't keep unused copies in the clients (hill, 2026-11-21).
-- Every live companion has every pose listed in [`tests/fixtures/companion_poses.json`](https://github.com/AnkiQuest/AnkiQuest-Server/blob/master/tests/fixtures/companion_poses.json) in AnkiQuest-Server; both clients use that list.
-- A new companion goes live only with every pose drawn.
-- A PR that adds a pose to the list adds its master for every live companion. CI fails a PR that adds a pose without them. A mood that needs a new picture adds a pose this way; otherwise it maps to an existing pose.
-- No placeholder pictures: no stand-in, recoloured or borrowed picture for a missing pose.
-- One exception (hill, 2026-11-19): Anki-tan goes live before her missing extensions are drawn (`streak_hot`, `streak_blazing`, `frozen_2`, `frozen_3`, `abandoned`, `leech_defeated`, `winner`); they show their fallbacks until then. Drawing them comes first in AnkiQuest/AnkiQuest-Server#57. No other companion goes live with missing poses.
-- Until the missing poses are drawn (AnkiQuest/AnkiQuest-Server#57), the clients keep the current fallbacks: a missing extension shows the fallback the list gives it (a streak tier shows streak, frozen 3 shows frozen), and Bluma shows Ankilope's poses recoloured where hers are missing. These are the only poses not drawn for every live companion, and they are temporary. Once every live companion has every pose, remove the fallbacks from the list and both clients.
+### The matrix
+
+The art is a matrix: companions by poses. The goal is a full matrix: every pose that exists for one companion exists for all of them, so no pose is unique to one companion (hill, 2026-11-21). [`tests/fixtures/companion_poses.json`](https://github.com/AnkiQuest/AnkiQuest-Server/blob/master/tests/fixtures/companion_poses.json) in AnkiQuest-Server lists every pose once, and both clients and the gallery use that list.
+
+- **Core**: what a companion needs to go live. The core moods (face, asleep, happy, streak, sad, hopeful, frozen, neglected), the moment and share-card pictures the apps show (places, level up, goal, achievement, challenge and the others the fixture lists) and the launcher icon moods.
+- **Extensions**: variants and tiers of a core pose, each with a fallback the fixture names: frozen 2 and 3 after frozen, fire 2 and 3 after fire, abandoned and dead after neglected, and so on. A missing extension shows its fallback.
+- A new companion goes live only with every core pose drawn. Ankilope, Bluma and Anki-tan stay live while their missing core poses are drawn (hill, 2026-11-21); until then each shows the fallback the fixture gives it. Drawing them comes first, in AnkiQuest/AnkiQuest-Server#57 (poses) and #116 (icons and moment pictures).
+- A PR that adds a pose to the list adds its master for every live companion; CI fails it otherwise. A mood that needs a new picture adds a pose this way; otherwise it maps to an existing pose.
+- No placeholder pictures: no stand-in, recoloured or borrowed picture for a missing pose. Bluma's poses recoloured from Ankilope's are the last ones and go once hers are drawn.
+- Framing (hill, 2026-11-21): `face` and the launcher icons are headshots, showing the face; every other pose, core moods included, is a full-body picture. A headshot or bust drawn for any other pose doesn't count as its master.
+- Every drawing still needed is recorded in an issue in AnkiQuest-Server (#57, #116), for Astra to draw and PR.
+
+### Masters, archive and exported copies
+
+- Masters live only in `static/<companion>/` in AnkiQuest-Server, one file per pose.
+- `static/archive/` holds every picture that is not a current master, apart from them: `static/archive/<companion>/` for masters that were replaced, redrawn or retired, and `static/archive/anki-tan-pack/` for Shigeyuki's source pack, next to its licence; pack pictures no other companion will get stay there. Never delete a master or a picture that can't be regenerated: move it to the archive. The archive is never exported to a client.
+- A picture stays outside the archive only while something uses it: it is the master of a pose of a live or planned companion, or an exporter, the server or the website reads it. Everything else moves to the archive (hill, 2026-11-21).
+- Don't commit what a build can generate, such as smaller sizes of a master (`face-192`, `face-32`); generate them from the master, and don't archive them.
+- Every exported copy (share cards, add-on, Android, docs, gallery) is generated from its master by the exporters and hash-checked in CI; never commit a hand-made copy. Overwrite copies when their master changes, and delete a copy nothing uses, with its references; git history keeps old files. Generated copies are checked in only where a client's build still needs them; the goal is for every build to fetch them from AnkiQuest-Server instead, so binaries live in one repository.
+- The gallery (AnkiQuest.github.io) shows the matrix of all companions and poses, a page per companion with what it is missing and why, the licence of every picture, and the archive in a section of its own.
 
 ## Writing
 
