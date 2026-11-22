@@ -129,7 +129,7 @@ fn relocate_retrievability_cache(collection_path: &Path, cache_path: &Path) -> R
         // Checkpoint before moving: committed predictions may still be in the WAL.
         // Switching journal mode also refuses relocation while another reader is busy.
         let mode = (|| -> rusqlite::Result<String> {
-            let old_db = Connection::open(&old_path)?;
+            let old_db = Connection::open(sqlite_path(&old_path))?;
             old_db.query_row("PRAGMA journal_mode = DELETE", [], |row| row.get(0))
         })();
         match mode {
@@ -150,6 +150,30 @@ fn relocate_retrievability_cache(collection_path: &Path, cache_path: &Path) -> R
     Ok(())
 }
 
+/// The path SQLite opens for a cache file. On Windows, SQLite passes paths
+/// to the Win32 API, which rejects those of 260 characters (MAX_PATH) or more
+/// unless they are verbatim (`\\?\`). The cache paths are longer than the
+/// collection's, so they cross the limit first. Rust's file APIs add the
+/// prefix themselves; SQLite needs it in the path.
+#[cfg(windows)]
+fn sqlite_path(path: &Path) -> PathBuf {
+    if path == Path::new(":memory:") {
+        return path.to_owned();
+    }
+    let (Some(dir), Some(name)) = (path.parent(), path.file_name()) else {
+        return path.to_owned();
+    };
+    match std::fs::canonicalize(dir) {
+        Ok(dir) => dir.join(name),
+        Err(_) => path.to_owned(),
+    }
+}
+
+#[cfg(not(windows))]
+fn sqlite_path(path: &Path) -> PathBuf {
+    path.to_owned()
+}
+
 fn retrievability_cache_is_busy(err: &rusqlite::Error) -> bool {
     matches!(
         err.sqlite_error_code(),
@@ -167,7 +191,7 @@ fn attach_retrievability_cache_db(db: &Connection, collection_path: Option<&Path
     let attach = || -> rusqlite::Result<()> {
         db.execute(
             &format!("ATTACH DATABASE ? AS {RETRIEVABILITY_CACHE_DB_SCHEMA}"),
-            [cache_path.to_string_lossy().as_ref()],
+            [sqlite_path(&cache_path).to_string_lossy().as_ref()],
         )?;
         db.pragma_update(Some(RETRIEVABILITY_CACHE_DB_SCHEMA), "journal_mode", "wal")
     };
@@ -1062,6 +1086,58 @@ mod test {
             );
             assert!(cache_path.is_file());
         }
+        Ok(())
+    }
+
+    /// A collection path just under Windows' MAX_PATH (260 characters), so
+    /// its cache paths, which are longer, go past it.
+    fn long_collection_path(dir: &Path) -> Result<PathBuf> {
+        const COLLECTION_PATH_LEN: usize = 240;
+        let file_name = "collection.anki2";
+        let pad = COLLECTION_PATH_LEN - dir.join(file_name).as_os_str().len() - 1;
+        let collection_dir = dir.join("d".repeat(pad));
+        std::fs::create_dir_all(&collection_dir)?;
+        Ok(collection_dir.join(file_name))
+    }
+
+    #[test]
+    fn collection_open_attaches_cache_past_max_path() -> Result<()> {
+        let dir = tempfile::tempdir()?;
+        let collection_path = long_collection_path(dir.path())?;
+        let cache_path = retrievability_cache_path(&collection_path);
+        assert!(cache_path.as_os_str().len() >= 260);
+
+        let col = CollectionBuilder::new(&collection_path).build()?;
+        let count: i64 = col.storage.db.query_row(
+            "SELECT count(*) FROM retrievability_cache.search_stats_rwkv_review_retrievability",
+            [],
+            |row| row.get(0),
+        )?;
+        assert_eq!(count, 0);
+        assert!(cache_path.is_file());
+        Ok(())
+    }
+
+    #[test]
+    fn collection_open_relocates_cache_past_max_path() -> Result<()> {
+        let dir = tempfile::tempdir()?;
+        let collection_path = long_collection_path(dir.path())?;
+        let old_path = collection_path.with_extension("retrievability-cache.sqlite");
+        assert!(old_path.as_os_str().len() >= 260);
+
+        // Create the legacy cache at a short path; std moves it past MAX_PATH.
+        let short_path = dir.path().join("legacy.sqlite");
+        Connection::open(&short_path)?.execute_batch("CREATE TABLE sentinel (value)")?;
+        std::fs::rename(&short_path, &old_path)?;
+
+        let col = CollectionBuilder::new(&collection_path).build()?;
+        let sentinels: i64 = col.storage.db.query_row(
+            "SELECT count(*) FROM retrievability_cache.sqlite_master WHERE name = 'sentinel'",
+            [],
+            |row| row.get(0),
+        )?;
+        assert_eq!(sentinels, 1);
+        assert!(!old_path.exists());
         Ok(())
     }
 
