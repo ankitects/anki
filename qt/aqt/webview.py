@@ -472,7 +472,9 @@ class AnkiWebView(QWebEngineView):
             self._hook_subscriptions.append((hook, handler))
         qconnect(self.loadFinished, self._on_load_finished)
 
-    def _on_load_finished(self) -> None:
+    def _on_load_finished(self, ok: bool) -> None:
+        if not ok:
+            return
         self.eval(
             """
         document.addEventListener("keydown", function(evt) {
@@ -615,6 +617,7 @@ class AnkiWebView(QWebEngineView):
         # allow queuing actions when loading url directly
         self._domDone = False
         self.allow_drops = False
+        self._uses_dynamic_styling = False
         super().load(url)
 
     def app_zoom_factor(self) -> float:
