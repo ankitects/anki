@@ -110,3 +110,15 @@ def test_card_order_is_completed_and_kept() -> None:
         assert load_settings(col).order == ["new", "firstReview", "reReview"]
     finally:
         col.close()
+
+
+def test_done_is_only_worked_out_when_asked() -> None:
+    col = _collection()
+    try:
+        deck = DeckId(col.decks.id("Empty"))
+        save_settings(col, TimeBudgetSettings(decks={deck: DeckBudget(minutes=10)}))
+        # the quick status leaves `done` alone; the full one sees no cards left
+        assert not col.sched.time_budget_status()[0].done
+        assert col.sched.time_budget_status(check_done=True)[0].done
+    finally:
+        col.close()

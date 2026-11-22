@@ -179,6 +179,8 @@ class DeckBrowser:
             def success(output: RenderData) -> None:
                 self._render_data = output
                 self.__renderPage(None)
+                if output.time_budgets:
+                    self._check_time_budgets_done(output)
 
             QueryOp(
                 parent=self.mw,
@@ -187,6 +189,27 @@ class DeckBrowser:
             ).run_in_background()
         else:
             self.web.evalWithCallback("window.pageYOffset", self.__renderPage)
+
+    def _check_time_budgets_done(self, data: RenderData) -> None:
+        """Shows a checkmark for time-budget decks with nothing left today.
+        This needs the RWKV model, which may first be loaded or rebuilt from
+        the review log, so the deck list is shown before it is known."""
+
+        def success(budgets: dict[DeckId, TimeBudgetDeck]) -> None:
+            if self._render_data is not data:
+                # the deck list was refreshed meanwhile
+                return
+            data.time_budgets = budgets
+            if self.mw.state == "deckBrowser" and any(b.done for b in budgets.values()):
+                self._renderPage(reuse=True)
+
+        QueryOp(
+            parent=self.mw,
+            op=lambda col: status_by_deck(
+                col.sched.time_budget_status(check_done=True)
+            ),
+            success=success,
+        ).failure(lambda _err: None).run_in_background()
 
     def __renderPage(self, offset: int | None) -> None:
         data = self._render_data

@@ -334,8 +334,17 @@ impl Collection {
         Ok(active.budget.budget_secs() - self.secs_studied_today(&deck_ids)?)
     }
 
-    pub(crate) fn time_budget_status(&mut self) -> Result<TimeBudgetStatusResponse> {
+    /// Time left for each deck with a budget. With `check_done`, also
+    /// whether anything is left to study, which needs the RWKV model: a stale
+    /// model is rebuilt first, so only call that in the background.
+    pub(crate) fn time_budget_status(
+        &mut self,
+        check_done: bool,
+    ) -> Result<TimeBudgetStatusResponse> {
         let config = self.time_budget_config();
+        if check_done && config.active_deck_ids().next().is_some() {
+            self.rebuild_stale_instant_history()?;
+        }
         let mut decks = vec![];
         for deck_id in config.active_deck_ids() {
             let budget = config.budget_for(deck_id).expect("active deck");
@@ -347,14 +356,15 @@ impl Collection {
             }
             let active = ActiveTimeBudget { root: deck, budget };
             let remaining = self.remaining_budget_secs(&active)?;
-            // The deck list requests this in the background, so the review
-            // log replay this needs also keeps the first card of a session
-            // from waiting on it.
+            // The deck list requests this in the background after showing
+            // the times, so loading or replaying the model here also keeps
+            // the first card of a session from waiting on it.
             let threshold = active.budget.threshold(remaining);
-            let done = !self
-                .time_budget_candidates(&active, deck_id)?
-                .iter()
-                .any(|candidate| candidate.eligible(threshold, remaining > 0));
+            let done = check_done
+                && !self
+                    .time_budget_candidates(&active, deck_id)?
+                    .iter()
+                    .any(|candidate| candidate.eligible(threshold, remaining > 0));
             decks.push(time_budget_status_response::Deck {
                 deck_id: deck_id.0,
                 budget_secs: active.budget.budget_secs() as u32,
@@ -497,13 +507,18 @@ impl Collection {
         let Some(active) = self.active_time_budget(study_deck)? else {
             return Ok(false);
         };
+        // A full replay (after an undo, say) happens here, off the
+        // reviewer's thread; the batch scored with the stale model is
+        // replaced.
+        let rebuilt = self.rebuild_stale_instant_history()?;
         let day = self.timing_today()?.days_elapsed;
-        let needed = match self.state.time_budget_batch.as_ref() {
-            Some(batch) if batch.serves(study_deck, &active.budget, day) => {
-                batch.cards.len() <= REFILL_AT
-            }
-            _ => true,
-        };
+        let needed = rebuilt
+            || match self.state.time_budget_batch.as_ref() {
+                Some(batch) if batch.serves(study_deck, &active.budget, day) => {
+                    batch.cards.len() <= REFILL_AT
+                }
+                _ => true,
+            };
         if needed {
             let remaining_secs = self.remaining_budget_secs(&active)?;
             self.refill_time_budget_batch(&active, study_deck, remaining_secs, day)?;
@@ -794,7 +809,7 @@ mod test {
         assert_eq!(ids, vec![weak, strong]);
         assert_eq!(queue.review_count, 2);
         // the remaining time is shown for the configured deck
-        let status = col.time_budget_status()?;
+        let status = col.time_budget_status(true)?;
         assert_eq!(status.decks.len(), 1);
         assert_eq!(status.decks[0].deck_id, parent.id.0);
         assert_eq!(status.decks[0].remaining_secs, 30 * 60);
@@ -982,7 +997,7 @@ mod test {
         };
         set_budget(&mut col, deck.id, budget.clone());
         assert_eq!(queued_ids(&mut col), vec![card]);
-        assert!(!col.time_budget_status()?.decks[0].done);
+        assert!(!col.time_budget_status(true)?.decks[0].done);
 
         // a minute and a half studied today: only cards below the minimum
         col.storage.add_revlog_entry(
@@ -999,7 +1014,7 @@ mod test {
         )?;
         assert!(queued_ids(&mut col).is_empty());
         // time is up and nothing is below the minimum: done for today
-        assert!(col.time_budget_status()?.decks[0].done);
+        assert!(col.time_budget_status(true)?.decks[0].done);
         set_budget(
             &mut col,
             deck.id,
@@ -1009,7 +1024,7 @@ mod test {
             },
         );
         assert_eq!(queued_ids(&mut col), vec![card]);
-        let status = col.time_budget_status()?;
+        let status = col.time_budget_status(true)?;
         assert_eq!(status.decks[0].remaining_secs, -30);
         assert!(!status.decks[0].done);
         Ok(())

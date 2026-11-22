@@ -183,7 +183,11 @@ impl Collection {
             .map_err(Into::into)
     }
 
-    pub fn close(self, desired_version: Option<SchemaVersion>) -> Result<()> {
+    pub fn close(mut self, desired_version: Option<SchemaVersion>) -> Result<()> {
+        // a cache: failing to save it must not prevent closing
+        if let Err(err) = self.save_instant_history() {
+            tracing::warn!("could not save RWKV-Instant state: {err}");
+        }
         self.storage.close(desired_version)
     }
 
