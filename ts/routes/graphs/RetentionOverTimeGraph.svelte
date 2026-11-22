@@ -14,7 +14,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import HoverColumns from "./HoverColumns.svelte";
     import InputBox from "./InputBox.svelte";
     import NoDataOverlay from "./NoDataOverlay.svelte";
-    import { renderRetentionOverTime } from "./retention-over-time";
+    import { renderRetentionOverTime, targetBand } from "./retention-over-time";
 
     export let sourceData: GraphsResponse | null = null;
     export let revlogRange: RevlogRange;
@@ -27,6 +27,7 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     $: if (sourceData) {
         renderRetentionOverTime(svg as SVGElement, bounds, sourceData, graphRange);
     }
+    $: band = sourceData ? targetBand(sourceData) : undefined;
 
     const title = tr.statisticsRetentionOverTimeTitle();
     const subtitle = tr.statisticsRetentionOverTimeSubtitle();
@@ -38,14 +39,42 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     </InputBox>
 
     <svg bind:this={svg} viewBox={`0 0 ${bounds.width} ${bounds.height}`}>
+        <rect class="target-band" />
         <path class="retention-line" />
         <HoverColumns />
         <AxisTicks {bounds} />
         <NoDataOverlay {bounds} />
     </svg>
+
+    {#if band}
+        <div class="band-caption">
+            <span class="swatch"></span>
+            {tr.statisticsRetentionOverTimeTargetBand({
+                min: String(Math.round(band.min * 100)),
+                max: String(Math.round(band.max * 100)),
+            })}
+        </div>
+    {/if}
 </Graph>
 
 <style lang="scss">
+    .target-band {
+        fill: #22c55e;
+        fill-opacity: 0.15;
+        pointer-events: none;
+    }
+    .band-caption {
+        text-align: center;
+        font-size: small;
+    }
+    .swatch {
+        display: inline-block;
+        width: 1em;
+        height: 0.8em;
+        margin-inline-end: 0.3em;
+        vertical-align: middle;
+        background: rgba(34, 197, 94, 0.25);
+    }
     .retention-line {
         fill: none;
         stroke: var(--state-review);

@@ -509,6 +509,36 @@ mod test {
     }
 
     #[test]
+    fn stats_show_target_band_of_current_deck_budget() -> Result<()> {
+        let mut col = Collection::new();
+        let parent = DeckAdder::new("Parent").add(&mut col);
+        let child = DeckAdder::new("Parent::Child").add(&mut col);
+        col.set_current_deck(child.id)?;
+        let band = |col: &mut Collection, search| -> Result<_> {
+            let retention = col
+                .graph_data_for_search(search, 30)?
+                .retention_over_time
+                .unwrap();
+            Ok((retention.target_min, retention.target_max))
+        };
+        assert_eq!(band(&mut col, "deck:current")?, (None, None));
+
+        set_budget(
+            &mut col,
+            parent.id,
+            DeckTimeBudget {
+                min_dr: 70,
+                max_dr: 90,
+                ..Default::default()
+            },
+        );
+        assert_eq!(band(&mut col, "deck:current")?, (Some(0.7), Some(0.9)));
+        // the whole collection is not covered by one budget
+        assert_eq!(band(&mut col, "")?, (None, None));
+        Ok(())
+    }
+
+    #[test]
     fn used_budget_falls_back_to_minimum_recall() -> Result<()> {
         use RevlogReviewKind::*;
         let mut col = Collection::new();

@@ -182,6 +182,10 @@ message GraphsResponse {
     }
     // Keyed by day: 0 is today, -1 yesterday.
     map<int32, Day> days = 1;
+    // Minimum and maximum desired retention (0-1) of the time budget that
+    // covers the current deck, when the stats show the current deck.
+    optional float target_min = 2;
+    optional float target_max = 3;
   }
 
   Buttons buttons = 1;

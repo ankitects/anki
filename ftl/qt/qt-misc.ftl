@@ -77,10 +77,7 @@ qt-misc-layout-horizontal-enabled = Horizontal layout enabled
 
 qt-misc-time-budget-title = RWKV Time Budgets
 qt-misc-time-budget-menu = RWKV Time Budgets...
-qt-misc-time-budget-intro =
-    Decks with a time budget are studied with RWKV-Instant. Cards with the lowest
-    predicted recall are shown first, including cards that are not due yet, until
-    the day's time is used up. Answers are still scheduled by FSRS.
+qt-misc-time-budget-intro = Decks with a time budget are studied with RWKV-Instant. Cards with the lowest predicted recall are shown first, including cards that are not due yet, until the day's time is used up. Answers are still scheduled by FSRS.
 qt-misc-time-budget-deck = Deck
 qt-misc-time-budget-enabled = Enabled
 qt-misc-time-budget-minutes = Minutes per day

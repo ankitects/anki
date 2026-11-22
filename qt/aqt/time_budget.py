@@ -164,6 +164,7 @@ class TimeBudgetDialog(QDialog):
             vertical.setVisible(False)
         header = self.table.horizontalHeader()
         if header is not None:
+            header.setSectionResizeMode(QHeaderView.ResizeMode.ResizeToContents)
             header.setSectionResizeMode(self.COL_DECK, QHeaderView.ResizeMode.Stretch)
         for row, (did, name) in enumerate(self.decks):
             self._populate_row(row, name, self.budgets.get(did))
@@ -176,7 +177,7 @@ class TimeBudgetDialog(QDialog):
         qconnect(buttons.rejected, self.reject)
         layout.addWidget(buttons)
 
-        self.resize(800, 400)
+        self.resize(1000, 400)
         restoreGeom(self, "timeBudgets")
         self.show()
 

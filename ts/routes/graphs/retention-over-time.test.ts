@@ -3,8 +3,10 @@
 
 import { describe, expect, test } from "vitest";
 
+import type { GraphsResponse } from "@generated/anki/stats_pb";
 import { GraphRange } from "./graph-helpers";
-import { rollingRetention } from "./retention-over-time";
+
+import { rollingRetention, targetBand } from "./retention-over-time";
 
 function day(reviews: number, passed: number) {
     return { reviews, passed };
@@ -37,5 +39,16 @@ describe("rollingRetention", () => {
     test("all time starts at the oldest day", () => {
         const points = rollingRetention(new Map([[-400, day(1, 1)]]), GraphRange.AllTime);
         expect(points[0].day).toBe(-400);
+    });
+});
+
+describe("targetBand", () => {
+    test("needs both ends", () => {
+        const data = (retentionOverTime: object) => ({ retentionOverTime }) as unknown as GraphsResponse;
+        expect(targetBand(data({ days: {}, targetMin: 0.6, targetMax: 0.95 }))).toEqual({
+            min: 0.6,
+            max: 0.95,
+        });
+        expect(targetBand(data({ days: {} }))).toBeUndefined();
     });
 });

@@ -80,6 +80,20 @@ function gatherDays(data: GraphsResponse): Map<number, DayTotals> {
     return days;
 }
 
+export interface TargetBand {
+    min: number;
+    max: number;
+}
+
+/** The time budget's minimum and maximum desired retention, if any. */
+export function targetBand(data: GraphsResponse): TargetBand | undefined {
+    const retention = data.retentionOverTime;
+    if (retention?.targetMin === undefined || retention.targetMax === undefined) {
+        return undefined;
+    }
+    return { min: retention.targetMin, max: retention.targetMax };
+}
+
 function percent(value: number): string {
     return localizedNumber(value * 100, 1);
 }
@@ -115,8 +129,10 @@ export function renderRetentionOverTime(
         )
         .attr("direction", "ltr");
 
-    // zoom in on the range in use, in steps of 5%
-    const yMin = Math.max(0, Math.floor((Math.min(...values) - 0.02) * 20) / 20);
+    // zoom in on the range in use (including the target band), in steps of 5%
+    const band = targetBand(sourceData);
+    const lowest = Math.min(...values, band?.min ?? 1);
+    const yMin = Math.max(0, Math.floor((lowest - 0.02) * 20) / 20);
     const y = scaleLinear()
         .domain([yMin, 1])
         .range([bounds.height - bounds.marginBottom, bounds.marginTop]);
@@ -130,6 +146,14 @@ export function renderRetentionOverTime(
             )
         )
         .attr("direction", "ltr");
+
+    svg.select("rect.target-band")
+        .attr("display", band ? null : "none")
+        .attr("x", bounds.marginLeft)
+        .attr("width", bounds.width - bounds.marginLeft - bounds.marginRight)
+        .transition(trans)
+        .attr("y", band ? y(band.max)! : 0)
+        .attr("height", band ? y(band.min)! - y(band.max)! : 0);
 
     const path = line<RetentionPoint>()
         .defined((p) => p.retention !== undefined)
