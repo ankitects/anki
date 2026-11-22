@@ -129,9 +129,10 @@ def remaining_for_deck(col: Collection, deck_id: DeckId) -> int | None:
 class TimeBudgetDialog(QDialog):
     """Time per top-level deck, with the shared limits behind a toggle."""
 
-    COL_DECK = 0
-    COL_ENABLED = 1
+    COL_ENABLED = 0
+    COL_DECK = 1
     COL_MINUTES = 2
+    DISABLED_OPACITY = 0.5
 
     def __init__(self, mw: aqt.main.AnkiQt) -> None:
         super().__init__(mw)
@@ -159,8 +160,8 @@ class TimeBudgetDialog(QDialog):
         self.table = QTableWidget(len(self.decks), 3, self)
         self.table.setHorizontalHeaderLabels(
             [
-                tr.qt_misc_time_budget_deck(),
                 tr.qt_misc_time_budget_enabled(),
+                tr.qt_misc_time_budget_deck(),
                 tr.qt_misc_time_budget_minutes(),
             ]
         )
@@ -171,6 +172,7 @@ class TimeBudgetDialog(QDialog):
         if header is not None:
             header.setSectionResizeMode(QHeaderView.ResizeMode.ResizeToContents)
             header.setSectionResizeMode(self.COL_DECK, QHeaderView.ResizeMode.Stretch)
+        self.enabled_by_row: dict[int, QCheckBox] = {}
         self.minutes_by_row: dict[int, QSpinBox] = {}
         for row, (did, name) in enumerate(self.decks):
             self._populate_row(row, name, self.settings.decks.get(did))
@@ -249,27 +251,44 @@ class TimeBudgetDialog(QDialog):
         return spin
 
     def _populate_row(self, row: int, name: str, deck: DeckBudget | None) -> None:
+        # The table shows its cell widgets when laying out, so each widget
+        # sits in a container whose contents can be hidden or faded.
+        def container(widget: QWidget) -> QWidget:
+            cell = QWidget(self.table)
+            layout = QHBoxLayout(cell)
+            layout.setContentsMargins(0, 0, 0, 0)
+            widget.setParent(cell)
+            layout.addWidget(widget)
+            return cell
+
+        enabled = QCheckBox()
+        enabled.setChecked(deck is not None and deck.enabled)
+        enabled_cell = container(enabled)
+        enabled_cell.layout().setAlignment(Qt.AlignmentFlag.AlignCenter)  # type: ignore[union-attr]
+        self.table.setCellWidget(row, self.COL_ENABLED, enabled_cell)
+        self.enabled_by_row[row] = enabled
+
         item = QTableWidgetItem(name)
         item.setFlags(item.flags() & ~Qt.ItemFlag.ItemIsEditable)
         self.table.setItem(row, self.COL_DECK, item)
 
-        enabled = QCheckBox(self.table)
-        enabled.setChecked(deck is not None and deck.enabled)
-        self.table.setCellWidget(row, self.COL_ENABLED, enabled)
-
-        # The table shows its cell widgets when laying out, so the spin box
-        # sits in a container and only the spin box is hidden.
-        cell = QWidget(self.table)
-        cell_layout = QHBoxLayout(cell)
-        cell_layout.setContentsMargins(0, 0, 0, 0)
         minutes = self._spin(1, 24 * 60, (deck or DeckBudget()).minutes)
-        minutes.setParent(cell)
-        cell_layout.addWidget(minutes)
-        self.table.setCellWidget(row, self.COL_MINUTES, cell)
+        self.table.setCellWidget(row, self.COL_MINUTES, container(minutes))
         self.minutes_by_row[row] = minutes
-        # time only applies to enabled decks
-        minutes.setVisible(enabled.isChecked())
-        qconnect(enabled.toggled, minutes.setVisible)
+
+        def update(checked: bool) -> None:
+            # Unticked rows are faded, and time only applies to enabled decks.
+            opacity = 1.0 if checked else self.DISABLED_OPACITY
+            effect = QGraphicsOpacityEffect(enabled_cell)
+            effect.setOpacity(opacity)
+            enabled_cell.setGraphicsEffect(effect)
+            colour = self.table.palette().color(QPalette.ColorRole.Text)
+            colour.setAlphaF(opacity)
+            item.setForeground(colour)
+            minutes.setVisible(checked)
+
+        update(enabled.isChecked())
+        qconnect(enabled.toggled, update)
 
     def settings_from_dialog(self) -> TimeBudgetSettings | None:
         """Updated settings, or None (after warning) if invalid. Settings of
@@ -280,9 +299,8 @@ class TimeBudgetDialog(QDialog):
             return None
         decks = dict(self.settings.decks)
         for row, (did, _name) in enumerate(self.decks):
-            enabled = self.table.cellWidget(row, self.COL_ENABLED)
+            enabled = self.enabled_by_row[row]
             minutes = self.minutes_by_row[row]
-            assert isinstance(enabled, QCheckBox)
             if enabled.isChecked() or did in decks:
                 decks[did] = DeckBudget(
                     enabled=enabled.isChecked(), minutes=minutes.value()
