@@ -81,3 +81,14 @@ def test_format_remaining_rounds_up_and_clamps() -> None:
     assert _plain(format_remaining(65 * 60)) == "65 min"
     assert _plain(format_remaining(61)) == "2 min"
     assert _plain(format_remaining(-30)) == "0 min"
+
+
+def test_done_decks_show_a_checkmark() -> None:
+    from anki.scheduler.base import TimeBudgetDeck
+    from aqt.time_budget import format_status
+
+    assert format_status(TimeBudgetDeck(remaining_secs=6 * 60, done=True)) == "✅"
+    assert (
+        _plain(format_status(TimeBudgetDeck(remaining_secs=6 * 60, done=False)))
+        == "6 min"
+    )

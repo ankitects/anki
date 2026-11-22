@@ -92,6 +92,18 @@ def remaining_secs_by_deck(status: Sequence[TimeBudgetDeck]) -> dict[DeckId, int
     return {DeckId(deck.deck_id): deck.remaining_secs for deck in status}
 
 
+def status_by_deck(status: Sequence[TimeBudgetDeck]) -> dict[DeckId, TimeBudgetDeck]:
+    return {DeckId(deck.deck_id): deck for deck in status}
+
+
+DONE_MARK = "\N{WHITE HEAVY CHECK MARK}"
+
+
+def format_status(deck: TimeBudgetDeck) -> str:
+    """A checkmark once nothing is left to study today, else the time left."""
+    return DONE_MARK if deck.done else format_remaining(deck.remaining_secs)
+
+
 def format_remaining(remaining_secs: int) -> str:
     minutes = max(0, math.ceil(remaining_secs / 60))
     return tr.qt_misc_time_budget_minutes_left(minutes=str(minutes))
@@ -159,6 +171,7 @@ class TimeBudgetDialog(QDialog):
         if header is not None:
             header.setSectionResizeMode(QHeaderView.ResizeMode.ResizeToContents)
             header.setSectionResizeMode(self.COL_DECK, QHeaderView.ResizeMode.Stretch)
+        self.minutes_by_row: dict[int, QSpinBox] = {}
         for row, (did, name) in enumerate(self.decks):
             self._populate_row(row, name, self.settings.decks.get(did))
         layout.addWidget(self.table)
@@ -244,9 +257,19 @@ class TimeBudgetDialog(QDialog):
         enabled.setChecked(deck is not None and deck.enabled)
         self.table.setCellWidget(row, self.COL_ENABLED, enabled)
 
+        # The table shows its cell widgets when laying out, so the spin box
+        # sits in a container and only the spin box is hidden.
+        cell = QWidget(self.table)
+        cell_layout = QHBoxLayout(cell)
+        cell_layout.setContentsMargins(0, 0, 0, 0)
         minutes = self._spin(1, 24 * 60, (deck or DeckBudget()).minutes)
-        minutes.setParent(self.table)
-        self.table.setCellWidget(row, self.COL_MINUTES, minutes)
+        minutes.setParent(cell)
+        cell_layout.addWidget(minutes)
+        self.table.setCellWidget(row, self.COL_MINUTES, cell)
+        self.minutes_by_row[row] = minutes
+        # time only applies to enabled decks
+        minutes.setVisible(enabled.isChecked())
+        qconnect(enabled.toggled, minutes.setVisible)
 
     def settings_from_dialog(self) -> TimeBudgetSettings | None:
         """Updated settings, or None (after warning) if invalid. Settings of
@@ -258,8 +281,8 @@ class TimeBudgetDialog(QDialog):
         decks = dict(self.settings.decks)
         for row, (did, _name) in enumerate(self.decks):
             enabled = self.table.cellWidget(row, self.COL_ENABLED)
-            minutes = self.table.cellWidget(row, self.COL_MINUTES)
-            assert isinstance(enabled, QCheckBox) and isinstance(minutes, QSpinBox)
+            minutes = self.minutes_by_row[row]
+            assert isinstance(enabled, QCheckBox)
             if enabled.isChecked() or did in decks:
                 decks[did] = DeckBudget(
                     enabled=enabled.isChecked(), minutes=minutes.value()

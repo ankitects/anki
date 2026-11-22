@@ -492,6 +492,9 @@ message TimeBudgetStatusResponse {
     uint32 budget_secs = 2;
     // Negative once the budget is used up.
     int32 remaining_secs = 3;
+    // No card is left to show today: none is below the maximum DR, or the
+    // time is used up and none is below the minimum DR.
+    bool done = 4;
   }
   repeated Deck decks = 1;
 }

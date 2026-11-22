@@ -12,6 +12,7 @@ import aqt
 import aqt.operations
 from anki.collection import Collection, OpChanges
 from anki.decks import DeckCollapseScope, DeckId, DeckTreeNode
+from anki.scheduler.base import TimeBudgetDeck
 from aqt import AnkiQt, gui_hooks
 from aqt.deckoptions import display_options_for_deck_id
 from aqt.operations import QueryOp
@@ -26,9 +27,9 @@ from aqt.operations.deck import (
 from aqt.qt import *
 from aqt.sound import av_player
 from aqt.time_budget import (
-    format_remaining,
+    format_status,
     open_time_budget_dialog,
-    remaining_secs_by_deck,
+    status_by_deck,
 )
 from aqt.toolbar import BottomBar
 from aqt.utils import getOnlyText, openLink, shortcut, showInfo, tr
@@ -48,7 +49,7 @@ class RenderData:
     studied_today: str
     sched_upgrade_required: bool
     # remaining seconds, keyed by decks with an RWKV-Instant time budget
-    time_budgets: dict[DeckId, int] = field(default_factory=dict)
+    time_budgets: dict[DeckId, TimeBudgetDeck] = field(default_factory=dict)
 
 
 @dataclass
@@ -68,7 +69,7 @@ class DeckBrowserContent:
 @dataclass
 class RenderDeckNodeContext:
     current_deck_id: DeckId
-    time_budgets: dict[DeckId, int] = field(default_factory=dict)
+    time_budgets: dict[DeckId, TimeBudgetDeck] = field(default_factory=dict)
 
 
 class DeckBrowser:
@@ -172,7 +173,7 @@ class DeckBrowser:
                     current_deck_id=col.decks.get_current_id(),
                     studied_today=col.studied_today(),
                     sched_upgrade_required=not col.v3_scheduler(),
-                    time_budgets=remaining_secs_by_deck(col.sched.time_budget_status()),
+                    time_budgets=status_by_deck(col.sched.time_budget_status()),
                 )
 
             def success(output: RenderData) -> None:
@@ -298,15 +299,19 @@ class DeckBrowser:
                 klass = "zero-count"
             return f'<span class="{klass}">{cnt}</span>'
 
-        remaining = (
-            None if node.filtered else ctx.time_budgets.get(DeckId(node.deck_id))
-        )
-        if remaining is not None:
-            # RWKV-Instant time budget: show the time left instead of counts
-            budget_class = "time-budget" if remaining > 0 else "zero-count"
+        budget = None if node.filtered else ctx.time_budgets.get(DeckId(node.deck_id))
+        if budget is not None:
+            # RWKV-Instant time budget: show the time left (or a checkmark
+            # once done) instead of counts
+            if budget.done:
+                budget_class = "time-budget-done"
+            elif budget.remaining_secs > 0:
+                budget_class = "time-budget"
+            else:
+                budget_class = "zero-count"
             buf += "<td align=end colspan=3><span class='%s'>%s</span></td>" % (
                 budget_class,
-                format_remaining(remaining),
+                format_status(budget),
             )
             in_time_budget = True
         elif in_time_budget and not node.filtered:

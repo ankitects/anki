@@ -258,19 +258,22 @@ impl Collection {
             }
             let active = ActiveTimeBudget { root: deck, budget };
             let remaining = self.remaining_budget_secs(&active)?;
+            // The deck list requests this in the background, so the review
+            // log replay this needs also keeps the first card of a session
+            // from waiting on it.
+            let threshold = active.budget.threshold(remaining);
+            let done = !self
+                .time_budget_candidates(&active, deck_id)?
+                .iter()
+                .any(|candidate| candidate.retrievability < threshold);
             decks.push(time_budget_status_response::Deck {
                 deck_id: deck_id.0,
                 budget_secs: active.budget.budget_secs() as u32,
                 remaining_secs: remaining.clamp(i32::MIN as i64, i32::MAX as i64) as i32,
+                done,
             });
         }
         decks.sort_by_key(|deck| deck.deck_id);
-        if !decks.is_empty() {
-            // The deck list requests this in the background, so replaying the
-            // review log here keeps the first card of a session from waiting
-            // on it.
-            self.instant_history()?;
-        }
         Ok(TimeBudgetStatusResponse { decks })
     }
 
@@ -639,6 +642,7 @@ mod test {
         };
         set_budget(&mut col, deck.id, budget.clone());
         assert_eq!(queued_ids(&mut col), vec![card]);
+        assert!(!col.time_budget_status()?.decks[0].done);
 
         // a minute and a half studied today: only cards below the minimum
         col.storage.add_revlog_entry(
@@ -654,6 +658,8 @@ mod test {
             true,
         )?;
         assert!(queued_ids(&mut col).is_empty());
+        // time is up and nothing is below the minimum: done for today
+        assert!(col.time_budget_status()?.decks[0].done);
         set_budget(
             &mut col,
             deck.id,
@@ -663,7 +669,9 @@ mod test {
             },
         );
         assert_eq!(queued_ids(&mut col), vec![card]);
-        assert_eq!(col.time_budget_status()?.decks[0].remaining_secs, -30);
+        let status = col.time_budget_status()?;
+        assert_eq!(status.decks[0].remaining_secs, -30);
+        assert!(!status.decks[0].done);
         Ok(())
     }
 
