@@ -7,6 +7,7 @@ Code for generating hooks.
 
 from __future__ import annotations
 
+import os
 import subprocess
 import sys
 from dataclasses import dataclass
@@ -205,4 +206,6 @@ def write_file(path: str, hooks: list[Hook], prefix: str, suffix: str):
 
     with open(path, "wb") as file:
         file.write(code.encode("utf8"))
-    subprocess.run([sys.executable, "-m", "ruff", "format", "-q", path], check=True)
+    ruff = os.environ.get("RUFF_BINARY")
+    command = [ruff] if ruff else [sys.executable, "-m", "ruff"]
+    subprocess.run([*command, "format", "-q", path], check=True)

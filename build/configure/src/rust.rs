@@ -133,7 +133,7 @@ fn build_proto_descriptors_and_interfaces(build: &mut Build) -> Result<()> {
 }
 
 fn build_rsbridge(build: &mut Build) -> Result<()> {
-    let features = if cfg!(target_os = "linux") {
+    let features = if cfg!(target_os = "linux") || cfg!(target_os = "openbsd") {
         "rustls"
     } else {
         "native-tls"
