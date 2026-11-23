@@ -649,7 +649,7 @@ class AnkiWebView(QWebEngineView):
         settings.setAttribute(
             QWebEngineSettings.WebAttribute.JavascriptCanAccessClipboard, value
         )
-        settings.setAttribute(QWebEngineSettings.WebAttribute.JavascriptCanPaste, True)
+        settings.setAttribute(QWebEngineSettings.WebAttribute.JavascriptCanPaste, value)
 
     def _getQtIntScale(self, screen: QWidget) -> int:
         # try to detect if Qt has scaled the screen
