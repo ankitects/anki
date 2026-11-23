@@ -207,7 +207,7 @@ class Browser(QMainWindow):
             self._update_current_actions()
 
         # changes.card is required for updating flag icon
-        if changes.note_text or changes.card:
+        if changes.note_text or changes.card or changes.deck:
             self._renderPreview()
 
     def on_focus_change(self, new: QWidget | None, old: QWidget | None) -> None:
