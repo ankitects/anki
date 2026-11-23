@@ -37,6 +37,9 @@ pub fn uv_archive(platform: Platform) -> OnlineArchive {
                 sha256: "71279f8d3c67241e807b9d8db872d1bf541579fb9f08b7d1eb1682196d1e57dc",
             }
         },
+        Platform::OpenBSDX64 => {
+            panic!("Set UV_BINARY to a native OpenBSDX64 uv executable")
+        },
         Platform::MacX64 => {
             OnlineArchive {
                 url: "https://github.com/astral-sh/uv/releases/download/0.13.7/uv-x86_64-apple-darwin.tar.gz",
@@ -95,7 +98,7 @@ pub struct PythonEnvironment {
     // todo: rename
     pub venv_folder: &'static str,
     pub extra_args: &'static str,
-    pub extra_binary_exports: &'static [&'static str],
+    pub extra_binary_exports: Vec<&'static str>,
 }
 
 impl BuildAction for PythonEnvironment {
@@ -144,7 +147,7 @@ impl BuildAction for PythonEnvironment {
         }
 
         build.add_outputs_ext("bin", bin_path("python"), true);
-        for binary in self.extra_binary_exports {
+        for binary in &self.extra_binary_exports {
             build.add_outputs_ext(*binary, bin_path(binary), true);
         }
         build.add_output_stamp(format!("{}/.stamp", self.venv_folder));

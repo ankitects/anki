@@ -2569,6 +2569,7 @@ dependencies = [
  "reqwest",
  "serde_json",
  "sha2 0.11.1",
+ "strum",
  "walkdir",
  "which",
 ]
