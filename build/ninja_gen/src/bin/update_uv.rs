@@ -41,6 +41,7 @@ fn fetch_uv_release_info() -> Result<UvRelease, Box<dyn Error>> {
         ("MacArm", "aarch64-apple-darwin"),
         ("WindowsX64", "x86_64-pc-windows-msvc"),
         ("WindowsArm", "aarch64-pc-windows-msvc"),
+        ("OpenBSDX64", "x86_64-unknown-openbsd"),
     ];
 
     let mut match_blocks = Vec::new();
@@ -53,6 +54,9 @@ fn fetch_uv_release_info() -> Result<UvRelease, Box<dyn Error>> {
         });
         if asset.is_none() {
             eprintln!("No asset found for platform {platform} pattern {pattern}");
+            match_blocks.push(format!(
+            "        Platform::{platform} => {{\n            panic!(\"Set UV_BINARY to a native {platform} uv executable\")\n        }}"
+            ));
             continue;
         }
         let asset = asset.unwrap();
@@ -146,7 +150,7 @@ mod tests {
         let content = fs::read_to_string("src/python.rs").unwrap();
         let original_lines = content.lines().count();
 
-        const EXPECTED_LINES_REMOVED: usize = 39;
+        const EXPECTED_LINES_REMOVED: usize = 42;
 
         let updated = update_uv_text(&content, "").unwrap();
         let updated_lines = updated.lines().count();
