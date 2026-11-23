@@ -37,6 +37,9 @@ pub fn uv_archive(platform: Platform) -> OnlineArchive {
                 sha256: "71279f8d3c67241e807b9d8db872d1bf541579fb9f08b7d1eb1682196d1e57dc",
             }
         },
+        Platform::OpenBSDX64 => {
+            panic!("Set UV_BINARY to a native OpenBSDX64 uv executable")
+        },
         Platform::MacX64 => {
             OnlineArchive {
                 url: "https://github.com/astral-sh/uv/releases/download/0.13.7/uv-x86_64-apple-darwin.tar.gz",
@@ -60,9 +63,6 @@ pub fn uv_archive(platform: Platform) -> OnlineArchive {
                 url: "https://github.com/astral-sh/uv/releases/download/0.13.7/uv-aarch64-pc-windows-msvc.zip",
                 sha256: "505d9e65e7692bac3ddf98c66754aa26c5050c409c184af30a881a0a72cc85e3",
             }
-        },
-        Platform::OpenBSDX64 => {
-            panic!("Set UV_BINARY to a native OpenBSDX64 uv executable")
         }
     }
 }

@@ -7,6 +7,7 @@ use std::collections::HashMap;
 use anyhow::Result;
 use camino::Utf8Path;
 use camino::Utf8PathBuf;
+use strum::EnumIter;
 
 use crate::action::BuildAction;
 use crate::input::BuildInput;
@@ -19,7 +20,7 @@ pub struct OnlineArchive {
     pub sha256: &'static str,
 }
 
-#[derive(Debug, PartialEq, Eq, Clone, Copy)]
+#[derive(Debug, PartialEq, Eq, Clone, Copy, EnumIter)]
 pub enum Platform {
     LinuxX64,
     LinuxArm,
