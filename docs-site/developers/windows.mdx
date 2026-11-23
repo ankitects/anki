@@ -68,8 +68,13 @@ pacman -S git rsync diffutils
 ## Choose a good source code location
 
 Anki's source files do not need to be in a specific location, but it's best to
-avoid long paths, as they can cause problems. Spaces in the path may cause
-problems.
+avoid long paths, as they can cause problems. The path must not contain spaces.
+
+> [!NOTE]
+> On some Windows 11 systems, Smart App Control may block files created
+> during the build. Symptoms include security pop-ups and a build error
+> mentioning `os error 4551`. You can check its status under
+> Windows Security > App & browser control > Smart App Control settings.
 
 ## More
 
