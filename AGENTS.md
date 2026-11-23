@@ -39,7 +39,7 @@ When a decision or action is left for hill, ask hill a question with the options
 ## Glossary
 
 - Companion: a character (Aki, Ankilope, Bluma, Anki-tan).
-- Pose: one picture of a companion. Its master is `static/<companion>/<pose>.png` in AnkiQuest-Server; every other copy (Android drawable, add-on art, share card) is an exported copy of that pose, generated and hash-checked. The goal is every pose drawn for every companion (see Companion art).
+- Pose: one picture of a companion. Its master is `<companion folder>/<pose>.png` in AnkiQuest-Art; every other copy (Android drawable, add-on art, share card) is an exported copy of that pose, made by AnkiQuest-Art's exporter and published in its releases. The goal is every pose drawn for every companion (see Companion art).
 - Mood: today's streak state, computed by the shared rule in `tests/fixtures/streak_moods.json`. Each mood names the pose it shows; several moods may show the same pose (`frozen_1` and `thawing` both show `frozen`). That is a mapping, not a fallback.
 - Moment: something that happened worth telling (milestone, level up, place, deck conquered), shown as a card.
 - Share: send a moment, board place or deck to friends in AnkiQuest or to another app. Don't say "shareable".
@@ -83,10 +83,10 @@ Write new code in Rust, or TypeScript for the web, when the platform allows it. 
 
 - Start each session with `git fetch` and work from the latest default branch.
 - Never push to the default branch; open a pull request.
-- Pull requests by hill or Claude need an approving review from Aldana or Astra (the AldanaBRZ account). Pull requests by Aldana or Astra need an approving review from hill or Claude (the float3 account). One approval from the other side is enough; merge only once it is given and every check is green on the final commit. hill may merge trivially correct changes (documentation, AGENTS.md, README, labels, search and replace) without that review. The "Update AGENTS.md from AnkiQuest-Agents" pull requests opened by AnkiQuest-Sync need no review: the rules were reviewed here, in AnkiQuest-Agents (hill, 2026-11-20).
+- Pull requests by hill or Claude need an approving review from Aldana or Astra (the AldanaBRZ account). Pull requests by Aldana or Astra need an approving review from hill or Claude (the float3 account). One approval from the other side is enough; merge only once it is given and every check is green on the final commit. hill may merge trivially correct changes (documentation, AGENTS.md, README, labels, search and replace) without that review. The "Update AGENTS.md from AnkiQuest-Agents" pull requests opened by AnkiQuest-Sync need no review: the rules were reviewed here, in AnkiQuest-Agents. Nor do its "Use AnkiQuest-Art <tag>" pull requests: the art was reviewed in AnkiQuest-Art. Both merge once every check is green.
 - AnkiQuest-Server, AnkiQuest-Desktop and AnkiQuest-Android merge through the merge queue on `master`, with the same settings: merge method Merge, build concurrency 5, group size 1 to 5, wait 5 minutes for the minimum group size, "Only merge non-failing pull requests", status check timeout 360 minutes (merge-group runs take up to four hours), and "Require branches to be up to date before merging" off, since the queue tests every pull request on top of the latest `master` and the ones queued ahead of it. Review settings: one approval, stale approvals dismissed on push, conversations resolved before merging, merge commits only. A repository that adds a merge queue uses the same settings; a change to them is made in every such repository at once. Every workflow with a required check also runs on `merge_group`. A job that cannot run in a merge group is skipped there by an `if:` on the job, which counts as passing; a path or branch filter on the workflow would leave the check pending and stall the queue.
 - Commit messages: subject in the imperative, capitalised, at most 50 characters (72 hard limit), no full stop; a blank line; a body wrapped at 72 characters that explains what and why, not how.
-- Name every model that did the work, the way ankidroid/Anki-Android#23564 does (hill, 2026-11-20). Each commit ends with one `Assisted-by: <model> <reasoning effort>` trailer per model that worked on it, such as `Assisted-by: Claude Opus 5.5` or `Assisted-by: GPT-6.2-Sol xhigh`; leave out the effort when the tool has none. A pull request description starts with a note listing every model that worked on any of its commits:
+- Name every model that did the work, the way ankidroid/Anki-Android#23564 does. Each commit ends with one `Assisted-by: <model> <reasoning effort>` trailer per model that worked on it, such as `Assisted-by: Claude Opus 5.5` or `Assisted-by: GPT-6.2-Sol xhigh`; leave out the effort when the tool has none. A pull request description starts with a note listing every model that worked on any of its commits:
 
   ```
   > [!NOTE]
@@ -95,6 +95,7 @@ Write new code in Rust, or TypeScript for the web, when the platform allows it. 
   ```
 
   Issues, comments and reviews an agent writes end with the same `Assisted-by` lines. No generated footer (`_Generated by ..._`) and no tool name in the line. Don't edit old posts to match. Generated images name the model that drew them in the pull request and in their generation record. If the tool does not say which model it used, write that instead of guessing.
+- Keep the maintainers' private context out of everything committed or posted: code, comments, docs, commit messages, pull requests, issues and reviews. No quotes from or accounts of chats with hill, Aldana or Astra, no attributions like "(hill, <date>)" or "hill decided on <date>", and no dates of decisions; state the rule or the reason itself. Nothing about anyone's local setup either: operating system, shell, paths, machine or host names, sandboxes, network limits, missing tools or emulators. Testing notes say what ran and what didn't ("Emulator tests: not run"), not why in terms of a machine. Dates that are part of the content stay: releases, licence years, changelogs.
 - Never link to an agent session (such as `claude.ai/code/session_…`) in commits, pull requests, issues or comments.
 - No emoji in commits, pull requests, issues or comments.
 - Never commit secrets, tokens or personal data. Secrets live on the servers, outside the repositories.
@@ -131,13 +132,13 @@ The full, generated map of every repository, upstream, package, submodule and sh
 
 ## Licence
 
-Every AnkiQuest repository is under the AGPL wherever its upstream allows it (hill, 2026-11-20).
+Every AnkiQuest repository is under the AGPL wherever its upstream allows it.
 
-- Our code and every new repository are AGPL-3.0-or-later: a `LICENSE` with the AGPL text, and the license field set wherever a manifest has one (`Cargo.toml`, `package.json`, `pyproject.toml`). AnkiQuest-Server and AnkiQuest-Desktop are AGPL-3.0-or-later (hill, 2026-11-20: AnkiQuest/AnkiQuest-Server#102, AnkiQuest/AnkiQuest-Desktop#407); the AnkiQuest code in AnkiQuest-Android is moving to it in AnkiQuest/AnkiQuest-Android#447 and stays AGPL-3.0-only until that merges.
+- Our code and every new repository are AGPL-3.0-or-later: a `LICENSE` with the AGPL text, and the license field set wherever a manifest has one (`Cargo.toml`, `package.json`, `pyproject.toml`). AnkiQuest-Server and AnkiQuest-Desktop are AGPL-3.0-or-later (AnkiQuest/AnkiQuest-Server#102, AnkiQuest/AnkiQuest-Desktop#407); so is the AnkiQuest code in AnkiQuest-Android (AnkiQuest/AnkiQuest-Android#447).
 - In forks, upstream code keeps its licence and notices. Our additions are AGPL-3.0-or-later where upstream's licence allows combining them: GPL-3.0 and AGPL-3.0 do (GPLv3 section 13). With a permissive upstream (MIT, BSD, Apache-2.0), our files are AGPL-3.0-or-later and upstream's notices stay.
 - Branches meant for upstream (`ankiquest-support`, `ankidroid-provider-check`, the `upstream/*` pull request branches) use upstream's licence.
 - Exception: the API library that third-party apps link (`api/` in AnkiQuest-Android, published as `org.ankiquest:api`) stays LGPL-3.0-or-later, AnkiDroid's licence for it, so apps under any licence can use it. Our changes to it are LGPL-3.0-or-later too; never move AGPL code into it.
-- Poses keep the licence of their masters: Anki-tan's are CC BY-SA 4.0 (`static/anki-tan/LICENSE` in AnkiQuest-Server, by Shigeyuki), the other companions' fall under AnkiQuest-Server's licence. Don't change the licensing of a pose; that is hill's decision.
+- Poses keep the licence of their masters: Anki-tan's are CC BY-SA 4.0 (`anki-tan/LICENSE` in AnkiQuest-Art, by Shigeyuki), the other companions' fall under AnkiQuest-Art's licence. Don't change the licensing of a pose; that is hill's decision.
 - SPDX headers (`SPDX-License-Identifier: AGPL-3.0-or-later`) go in new files where the repository already uses them, such as AnkiQuest-Android. Don't add or change headers in upstream files in bulk.
 
 ## Desktop and Android parity
@@ -155,23 +156,23 @@ Every picture of a companion is a pose, including those on moments, share cards,
 
 ### The matrix
 
-The art is a matrix: companions by poses. The goal is a full matrix: every pose that exists for one companion exists for all of them, so no pose is unique to one companion (hill, 2026-11-21). [`tests/fixtures/companion_poses.json`](https://github.com/AnkiQuest/AnkiQuest-Server/blob/master/tests/fixtures/companion_poses.json) in AnkiQuest-Server lists every pose once, and both clients and the gallery use that list.
+The art is a matrix: companions by poses. The goal is a full matrix: every pose that exists for one companion exists for all of them, so no pose is unique to one companion. `poses.json` in AnkiQuest-Art lists every pose once, with each extension's fallback and the core poses' temporary fallbacks; every repository reads it from the Art release it pins.
 
 - **Core**: what a companion needs to go live. The core moods (face, asleep, happy, streak, sad, hopeful, frozen, neglected), the moment and share-card pictures the apps show (places, level up, goal, achievement, challenge and the others the fixture lists) and the launcher icon moods.
-- **Extensions**: variants and tiers of a core pose, each with a fallback the fixture names: frozen 2 and 3 after frozen, fire 2 and 3 after fire, abandoned and dead after neglected, and so on. A missing extension shows its fallback.
-- A new companion goes live only with every core pose drawn. Ankilope, Bluma and Anki-tan stay live while their missing core poses are drawn (hill, 2026-11-21); until then each shows the fallback the fixture gives it. Drawing them comes first, in AnkiQuest/AnkiQuest-Server#57 (poses) and #116 (icons and moment pictures).
+- **Extensions**: variants and tiers of a core pose, each with a fallback `poses.json` names: frozen 2 and 3 after frozen, fire 2 and 3 after fire, abandoned and dead after neglected, and so on. A missing extension shows its fallback.
+- A new companion goes live only with every core pose drawn. Ankilope, Bluma and Anki-tan stay live while their missing core poses are drawn; until then each shows the fallback `poses.json` gives it (`core_fallbacks` for core poses). Drawing them comes first, in AnkiQuest/AnkiQuest-Server#57 (poses) and #116 (icons and moment pictures).
 - A PR that adds a pose to the list adds its master for every live companion; CI fails it otherwise. A mood that needs a new picture adds a pose this way; otherwise it maps to an existing pose.
 - No placeholder pictures: no stand-in, recoloured or borrowed picture for a missing pose. Bluma's poses recoloured from Ankilope's are the last ones and go once hers are drawn.
-- Framing (hill, 2026-11-21): `face` and the launcher icons are headshots, showing the face; every other pose, core moods included, is a full-body picture. A headshot or bust drawn for any other pose doesn't count as its master.
+- Framing: `face` and the launcher icons are headshots, showing the face; every other pose, core moods included, is a full-body picture. A headshot or bust drawn for any other pose doesn't count as its master.
 - Every drawing still needed is recorded in an issue in AnkiQuest-Server (#57, #116), for Astra to draw and PR.
 
 ### Masters, archive and exported copies
 
-- Masters live only in `static/<companion>/` in AnkiQuest-Server, one file per pose.
-- `static/archive/` holds every picture that is not a current master, apart from them: `static/archive/<companion>/` for masters that were replaced, redrawn or retired, and `static/archive/anki-tan-pack/` for Shigeyuki's source pack, next to its licence; pack pictures no other companion will get stay there. Never delete a master or a picture that can't be regenerated: move it to the archive. The archive is never exported to a client.
-- A picture stays outside the archive only while something uses it: it is the master of a pose of a live or planned companion, or an exporter, the server or the website reads it. Everything else moves to the archive (hill, 2026-11-21).
-- Don't commit what a build can generate, such as smaller sizes of a master (`face-192`, `face-32`); generate them from the master, and don't archive them.
-- Every exported copy (share cards, add-on, Android, docs, gallery) is generated from its master by the exporters and hash-checked in CI; never commit a hand-made copy. Overwrite copies when their master changes, and delete a copy nothing uses, with its references; git history keeps old files. Generated copies are checked in only where a client's build still needs them; the goal is for every build to fetch them from AnkiQuest-Server instead, so binaries live in one repository.
+- Masters live only in AnkiQuest-Art, at `<companion folder>/<pose>.png`. A picture several poses share is named after its main pose (core, then extension, then moment picture), and `manifest.json` names it for the other poses. No two pictures in AnkiQuest-Art have the same bytes; `art-check` fails on a copy, in the archive too.
+- `archive/` in AnkiQuest-Art holds every picture that is not a current master: `archive/<companion>/` for masters that were replaced, redrawn or retired, and `archive/anki-tan-pack/` for Shigeyuki's source pack, next to its licence. Never delete a master or a picture that can't be regenerated: move it to the archive. The archive is never exported to a client.
+- A picture stays outside the archive only while something uses it: it is the master of a pose of a live or planned companion, or an exporter, the server or the website reads it. Everything else moves to the archive.
+- Every exported copy (share cards, add-on, Android, gallery) is made by `tools/art-export` in AnkiQuest-Art and published in an AnkiQuest-Art release (`art-<N>`), with the masters, `manifest.json` and `poses.json`. No other repository commits a picture of a companion, generates copies itself or takes AnkiQuest-Art as a submodule.
+- Every repository that uses art pins one release in `ankiquest-art.json` (tag, Art commit, SHA-256 of each asset), downloads only the assets it needs and checks their SHA-256 before use; Nix builds read the hashes from that file. AnkiQuest-Sync updates the pin in every repository when AnkiQuest-Art publishes a release; never edit the file by hand.
 - The gallery (AnkiQuest.github.io) shows the matrix of all companions and poses, a page per companion with what it is missing and why, the licence of every picture, and the archive in a section of its own.
 
 ## Writing
