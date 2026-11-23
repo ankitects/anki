@@ -211,13 +211,30 @@ class Reviewer:
             self.mw.fade_in_webview()
             self._refresh_needed = None
         elif self._refresh_needed is RefreshNeeded.FLAG:
-            self.card.load()
-            self._update_flag_icon()
+            if self.card:
+                self._reload_and_redraw_if_changed()
+                self._update_flag_icon()
             # for when modified in browser
             self.mw.fade_in_webview()
             self._refresh_needed = None
         elif self._refresh_needed:
             assert_exhaustive(self._refresh_needed)
+
+    def _reload_and_redraw_if_changed(self) -> bool:
+        if self.card is None:
+            return False
+        old_output = self.card._render_output
+        self.card.load()
+        if old_output is None:
+            return False
+        new_output = self.card.render_output()
+        if self.state == "answer":
+            changed = new_output.answer_and_style() != old_output.answer_and_style()
+        else:
+            changed = new_output.question_and_style() != old_output.question_and_style()
+        if changed:
+            self._redraw_current_card()
+        return changed
 
     def op_executed(
         self, changes: OpChanges, handler: object | None, focused: bool
@@ -1111,7 +1128,9 @@ timerStopped = false;
 
     def toggle_mark_on_current_note(self) -> None:
         def redraw_mark(out: OpChangesWithCount) -> None:
-            self.card.load()
+            if not self.card:
+                return
+            self._reload_and_redraw_if_changed()
             self._update_mark_icon()
 
         note = self.card.note()
