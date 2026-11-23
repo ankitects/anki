@@ -24,8 +24,6 @@ pub use self::string::StringKey;
 use crate::import_export::package::UpdateCondition;
 use crate::prelude::*;
 
-const DEFAULT_BURY_FAILED_CARDS_THRESHOLD: u32 = 5;
-
 /// Only used when updating/undoing.
 #[derive(Debug)]
 pub(crate) struct ConfigEntry {
@@ -49,7 +47,6 @@ impl ConfigEntry {
 #[derive(IntoStaticStr)]
 #[strum(serialize_all = "camelCase")]
 pub(crate) enum ConfigKey {
-    BuryFailedCardsThreshold,
     CreationOffset,
     FirstDayOfWeek,
     LocalOffset,
@@ -273,19 +270,6 @@ impl Collection {
 
     pub(crate) fn set_answer_time_limit_secs(&mut self, secs: u32) -> Result<()> {
         self.set_config(ConfigKey::AnswerTimeLimitSecs, &secs)
-            .map(|_| ())
-    }
-
-    /// Number of times a card may be answered Again in a day before it is
-    /// buried, when [BoolKey::BuryFailedCards] is enabled.
-    pub(crate) fn get_bury_failed_cards_threshold(&self) -> u32 {
-        self.get_config_optional(ConfigKey::BuryFailedCardsThreshold)
-            .unwrap_or(DEFAULT_BURY_FAILED_CARDS_THRESHOLD)
-            .max(1)
-    }
-
-    pub(crate) fn set_bury_failed_cards_threshold(&mut self, count: u32) -> Result<()> {
-        self.set_config(ConfigKey::BuryFailedCardsThreshold, &count)
             .map(|_| ())
     }
 

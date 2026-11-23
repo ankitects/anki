@@ -136,6 +136,15 @@ statistics-true-retention-all-time = All time
 # If there are no reviews within a specific time period, the retention
 # percentage cannot be calculated and is displayed as "N/A."
 statistics-true-retention-not-applicable = N/A
+statistics-retention-over-time-title = Retention Over Time
+statistics-retention-over-time-subtitle = Pass rate over the previous 7 days, for cards with an interval ≥ 1 day.
+# Tooltip line, eg "Retention: 91.2% (120 reviews)"
+statistics-retention-over-time-value = Retention: { $percent }% ({ $reviews } reviews)
+# Caption under the graph. min/max are the minimum and maximum desired
+# retention set in the deck's RWKV time budget.
+statistics-retention-over-time-target-band = Target retention from this deck's time budget: { $min }%–{ $max }%
+statistics-retention-over-time-above-target = Higher than target retention: Add more cards per day, or lower time per day
+statistics-retention-over-time-below-target = Lower than target retention: Add less cards per day, or increase daily study time
 
 ##
 

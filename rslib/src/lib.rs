@@ -34,6 +34,7 @@ mod preferences;
 pub mod prelude;
 mod progress;
 pub mod revlog;
+pub(crate) mod rwkv;
 pub mod scheduler;
 pub mod search;
 pub mod serde;

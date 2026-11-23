@@ -5,13 +5,14 @@ from __future__ import annotations
 
 import html
 from copy import deepcopy
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import Any
 
 import aqt
 import aqt.operations
 from anki.collection import Collection, OpChanges
 from anki.decks import DeckCollapseScope, DeckId, DeckTreeNode
+from anki.scheduler.base import TimeBudgetDeck
 from aqt import AnkiQt, gui_hooks
 from aqt.deckoptions import display_options_for_deck_id
 from aqt.operations import QueryOp
@@ -25,6 +26,11 @@ from aqt.operations.deck import (
 )
 from aqt.qt import *
 from aqt.sound import av_player
+from aqt.time_budget import (
+    format_status,
+    open_time_budget_dialog,
+    status_by_deck,
+)
 from aqt.toolbar import BottomBar
 from aqt.utils import getOnlyText, openLink, shortcut, showInfo, tr
 
@@ -42,6 +48,8 @@ class RenderData:
     current_deck_id: DeckId
     studied_today: str
     sched_upgrade_required: bool
+    # remaining seconds, keyed by decks with an RWKV-Instant time budget
+    time_budgets: dict[DeckId, TimeBudgetDeck] = field(default_factory=dict)
 
 
 @dataclass
@@ -61,6 +69,7 @@ class DeckBrowserContent:
 @dataclass
 class RenderDeckNodeContext:
     current_deck_id: DeckId
+    time_budgets: dict[DeckId, TimeBudgetDeck] = field(default_factory=dict)
 
 
 class DeckBrowser:
@@ -164,11 +173,14 @@ class DeckBrowser:
                     current_deck_id=col.decks.get_current_id(),
                     studied_today=col.studied_today(),
                     sched_upgrade_required=not col.v3_scheduler(),
+                    time_budgets=status_by_deck(col.sched.time_budget_status()),
                 )
 
             def success(output: RenderData) -> None:
                 self._render_data = output
                 self.__renderPage(None)
+                if output.time_budgets:
+                    self._check_time_budgets_done(output)
 
             QueryOp(
                 parent=self.mw,
@@ -177,6 +189,27 @@ class DeckBrowser:
             ).run_in_background()
         else:
             self.web.evalWithCallback("window.pageYOffset", self.__renderPage)
+
+    def _check_time_budgets_done(self, data: RenderData) -> None:
+        """Shows a checkmark for time-budget decks with nothing left today.
+        This needs the RWKV model, which may first be loaded or rebuilt from
+        the review log, so the deck list is shown before it is known."""
+
+        def success(budgets: dict[DeckId, TimeBudgetDeck]) -> None:
+            if self._render_data is not data:
+                # the deck list was refreshed meanwhile
+                return
+            data.time_budgets = budgets
+            if self.mw.state == "deckBrowser" and any(b.done for b in budgets.values()):
+                self._renderPage(reuse=True)
+
+        QueryOp(
+            parent=self.mw,
+            op=lambda col: status_by_deck(
+                col.sched.time_budget_status(check_done=True)
+            ),
+            success=success,
+        ).failure(lambda _err: None).run_in_background()
 
     def __renderPage(self, offset: int | None) -> None:
         data = self._render_data
@@ -223,14 +256,22 @@ class DeckBrowser:
         )
         buf += self._topLevelDragRow()
 
-        ctx = RenderDeckNodeContext(current_deck_id=self._render_data.current_deck_id)
+        ctx = RenderDeckNodeContext(
+            current_deck_id=self._render_data.current_deck_id,
+            time_budgets=self._render_data.time_budgets,
+        )
 
         for child in top.children:
             buf += self._render_deck_node(child, ctx)
 
         return buf
 
-    def _render_deck_node(self, node: DeckTreeNode, ctx: RenderDeckNodeContext) -> str:
+    def _render_deck_node(
+        self,
+        node: DeckTreeNode,
+        ctx: RenderDeckNodeContext,
+        in_time_budget: bool = False,
+    ) -> str:
         if node.collapsed:
             prefix = "+"
         else:
@@ -281,14 +322,33 @@ class DeckBrowser:
                 klass = "zero-count"
             return f'<span class="{klass}">{cnt}</span>'
 
-        review = nonzeroColour(node.review_count, "review-count")
-        learn = nonzeroColour(node.learn_count, "learn-count")
+        budget = None if node.filtered else ctx.time_budgets.get(DeckId(node.deck_id))
+        if budget is not None:
+            # RWKV-Instant time budget: show the time left (or a checkmark
+            # once done) instead of counts
+            if budget.done:
+                budget_class = "time-budget-done"
+            elif budget.remaining_secs > 0:
+                budget_class = "time-budget"
+            else:
+                budget_class = "zero-count"
+            buf += "<td align=end colspan=3><span class='%s'>%s</span></td>" % (
+                budget_class,
+                format_status(budget),
+            )
+            in_time_budget = True
+        elif in_time_budget and not node.filtered:
+            # studied with the parent's budget
+            buf += "<td colspan=3></td>"
+        else:
+            review = nonzeroColour(node.review_count, "review-count")
+            learn = nonzeroColour(node.learn_count, "learn-count")
 
-        buf += ("<td align=end>%s</td>" * 3) % (
-            nonzeroColour(node.new_count, "new-count"),
-            learn,
-            review,
-        )
+            buf += ("<td align=end>%s</td>" * 3) % (
+                nonzeroColour(node.new_count, "new-count"),
+                learn,
+                review,
+            )
         # options
         buf += (
             "<td align=center class=opts><a onclick='return pycmd(\"opts:%d\");'>"
@@ -297,7 +357,7 @@ class DeckBrowser:
         # children
         if not node.collapsed:
             for child in node.children:
-                buf += self._render_deck_node(child, ctx)
+                buf += self._render_deck_node(child, ctx, in_time_budget)
         return buf
 
     def _topLevelDragRow(self) -> str:
@@ -314,6 +374,9 @@ class DeckBrowser:
         a = m.addAction(tr.actions_options())
         assert a is not None
         qconnect(a.triggered, lambda b, did=did: self._options(DeckId(int(did))))
+        a = m.addAction(tr.qt_misc_time_budget_menu())
+        assert a is not None
+        qconnect(a.triggered, lambda b: open_time_budget_dialog(self.mw))
         a = m.addAction(tr.actions_export())
         assert a is not None
         qconnect(a.triggered, lambda b, did=did: self._export(DeckId(int(did))))

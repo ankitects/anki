@@ -48,6 +48,7 @@ import { RevlogRange } from "./graph-helpers";
 import HourGraph from "./HourGraph.svelte";
 import IntervalsGraph from "./IntervalsGraph.svelte";
 import RangeBox from "./RangeBox.svelte";
+import RetentionOverTimeGraph from "./RetentionOverTimeGraph.svelte";
 import RetrievabilityGraph from "./RetrievabilityGraph.svelte";
 import ReviewsGraph from "./ReviewsGraph.svelte";
 import StabilityGraph from "./StabilityGraph.svelte";
@@ -64,6 +65,7 @@ export const graphComponents = {
     EaseGraph,
     DifficultyGraph,
     RetrievabilityGraph,
+    RetentionOverTimeGraph,
     HourGraph,
     ButtonsGraph,
     AddedGraph,

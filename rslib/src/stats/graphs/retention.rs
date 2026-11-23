@@ -7,7 +7,16 @@ use anki_proto::stats::graphs_response::TrueRetentionStats;
 
 use super::GraphsContext;
 use super::TimestampSecs;
+use crate::revlog::RevlogEntry;
 use crate::revlog::RevlogReviewKind;
+
+/// A rated review of a card with an interval of at least a day.
+pub(super) fn counts_toward_true_retention(review: &RevlogEntry) -> bool {
+    review.has_rating_and_affects_scheduling()
+        && (review.review_kind == RevlogReviewKind::Review
+            || review.last_interval <= -86400
+            || review.last_interval >= 1)
+}
 
 impl GraphsContext {
     pub fn calculate_true_retention(&self) -> TrueRetentionStats {
@@ -52,13 +61,7 @@ impl GraphsContext {
 
         self.revlog
             .iter()
-            .filter(|review| {
-                review.has_rating_and_affects_scheduling()
-                    // cards with an interval ≥ 1 day
-                    && (review.review_kind == RevlogReviewKind::Review
-                        || review.last_interval <= -86400
-                        || review.last_interval >= 1)
-            })
+            .filter(|review| counts_toward_true_retention(review))
             .for_each(|review| {
                 for (period_name, start, end) in &periods {
                     if review.id.as_secs() >= *start && review.id.as_secs() < *end {

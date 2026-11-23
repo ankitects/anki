@@ -1,0 +1,408 @@
+# Copyright: Ankitects Pty Ltd and contributors
+# License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
+
+"""RWKV-Instant time budgets.
+
+A deck with a time budget (and its subdecks) is studied by predicted recall
+instead of due date; see rslib/src/scheduler/time_budget. This module holds
+the settings dialog and the helpers used to show the remaining time.
+"""
+
+from __future__ import annotations
+
+import math
+from collections.abc import Sequence
+from dataclasses import dataclass, field
+from typing import TYPE_CHECKING, Any
+
+import aqt
+from anki.cards import Card
+from anki.collection import Collection
+from anki.decks import DeckId
+from anki.scheduler.base import TimeBudgetDeck
+from aqt import gui_hooks
+from aqt.operations import QueryOp
+from aqt.qt import *
+from aqt.utils import disable_help_button, restoreGeom, saveGeom, showWarning, tr
+
+if TYPE_CHECKING:
+    import aqt.main
+
+CONFIG_KEY = "rwkvTimeBudget"
+
+DEFAULT_MINUTES = 30
+DEFAULT_MAX_REVIEWS_PER_CARD = 3
+DEFAULT_MIN_DR = 60
+DEFAULT_MAX_DR = 95
+
+# Groups of cards a session draws from; see CardGroup in
+# rslib/src/scheduler/time_budget.
+FIRST_REVIEW = "firstReview"
+NEW_CARDS = "new"
+RE_REVIEW = "reReview"
+DEFAULT_ORDER = (FIRST_REVIEW, NEW_CARDS, RE_REVIEW)
+
+
+def complete_order(order: Sequence[str]) -> list[str]:
+    """Each known group once: `order` first, then the rest in default order."""
+    out: list[str] = []
+    for group in [*order, *DEFAULT_ORDER]:
+        if group in DEFAULT_ORDER and group not in out:
+            out.append(group)
+    return out
+
+
+def group_label(group: str) -> str:
+    return {
+        FIRST_REVIEW: tr.qt_misc_time_budget_first_review,
+        NEW_CARDS: tr.qt_misc_time_budget_new_cards,
+        RE_REVIEW: tr.qt_misc_time_budget_re_review,
+    }[group]()
+
+
+@dataclass
+class DeckBudget:
+    enabled: bool = True
+    minutes: int = DEFAULT_MINUTES
+
+
+@dataclass
+class TimeBudgetSettings:
+    """The time per deck, and the limits shared by all enabled decks."""
+
+    decks: dict[DeckId, DeckBudget] = field(default_factory=dict)
+    max_reviews_per_card: int = DEFAULT_MAX_REVIEWS_PER_CARD
+    min_dr: int = DEFAULT_MIN_DR
+    max_dr: int = DEFAULT_MAX_DR
+    order: list[str] = field(default_factory=lambda: list(DEFAULT_ORDER))
+
+    @classmethod
+    def from_json(cls, data: dict[str, Any]) -> TimeBudgetSettings:
+        default = cls()
+        decks: dict[DeckId, DeckBudget] = {}
+        for deck_id, deck in (data.get("decks") or {}).items():
+            try:
+                decks[DeckId(int(deck_id))] = DeckBudget(
+                    enabled=bool(deck.get("enabled", True)),
+                    minutes=int(deck.get("minutes", DEFAULT_MINUTES)),
+                )
+            except (AttributeError, TypeError, ValueError):
+                continue
+        return cls(
+            decks=decks,
+            max_reviews_per_card=int(
+                data.get("maxReviewsPerCard", default.max_reviews_per_card)
+            ),
+            min_dr=int(data.get("minDr", default.min_dr)),
+            max_dr=int(data.get("maxDr", default.max_dr)),
+            order=complete_order(data.get("order") or []),
+        )
+
+    def to_json(self) -> dict[str, Any]:
+        return {
+            "decks": {
+                str(did): {"enabled": deck.enabled, "minutes": deck.minutes}
+                for did, deck in self.decks.items()
+            },
+            "maxReviewsPerCard": self.max_reviews_per_card,
+            "minDr": self.min_dr,
+            "maxDr": self.max_dr,
+            "order": self.order,
+        }
+
+
+def load_settings(col: Collection) -> TimeBudgetSettings:
+    return TimeBudgetSettings.from_json(col.get_config(CONFIG_KEY, {}) or {})
+
+
+def save_settings(col: Collection, settings: TimeBudgetSettings) -> None:
+    col.set_config(CONFIG_KEY, settings.to_json())
+
+
+def remaining_secs_by_deck(status: Sequence[TimeBudgetDeck]) -> dict[DeckId, int]:
+    return {DeckId(deck.deck_id): deck.remaining_secs for deck in status}
+
+
+def status_by_deck(status: Sequence[TimeBudgetDeck]) -> dict[DeckId, TimeBudgetDeck]:
+    return {DeckId(deck.deck_id): deck for deck in status}
+
+
+DONE_MARK = "\N{WHITE HEAVY CHECK MARK}"
+
+
+def format_status(deck: TimeBudgetDeck) -> str:
+    """A checkmark once nothing is left to study today, else the time left."""
+    return DONE_MARK if deck.done else format_remaining(deck.remaining_secs)
+
+
+def format_remaining(remaining_secs: int) -> str:
+    minutes = max(0, math.ceil(remaining_secs / 60))
+    return tr.qt_misc_time_budget_minutes_left(minutes=str(minutes))
+
+
+def remaining_for_deck(col: Collection, deck_id: DeckId) -> int | None:
+    """Remaining seconds of the budget covering deck_id, if any."""
+    remaining = remaining_secs_by_deck(col.sched.time_budget_status())
+    if not remaining:
+        return None
+    deck = col.decks.get(deck_id, default=False)
+    if not deck or deck["dyn"]:
+        return None
+    for did in [
+        deck_id,
+        *(parent["id"] for parent in reversed(col.decks.parents(deck_id))),
+    ]:
+        if did in remaining:
+            return remaining[did]
+    return None
+
+
+class TimeBudgetDialog(QDialog):
+    """Time per top-level deck, with the shared limits behind a toggle."""
+
+    COL_ENABLED = 0
+    COL_DECK = 1
+    COL_MINUTES = 2
+    DISABLED_OPACITY = 0.5
+
+    def __init__(self, mw: aqt.main.AnkiQt) -> None:
+        super().__init__(mw)
+        self.mw = mw
+        self.setWindowTitle(tr.qt_misc_time_budget_title())
+        disable_help_button(self)
+        self.setWindowModality(Qt.WindowModality.ApplicationModal)
+
+        col = mw.col
+        assert col is not None
+        self.settings = load_settings(col)
+        self.decks = [
+            (DeckId(deck.id), deck.name)
+            for deck in col.decks.all_names_and_ids(
+                skip_empty_default=True, include_filtered=False
+            )
+            if "::" not in deck.name
+        ]
+
+        layout = QVBoxLayout(self)
+        intro = QLabel(tr.qt_misc_time_budget_intro())
+        intro.setWordWrap(True)
+        layout.addWidget(intro)
+
+        self.table = QTableWidget(len(self.decks), 3, self)
+        self.table.setHorizontalHeaderLabels(
+            [
+                tr.qt_misc_time_budget_enabled(),
+                tr.qt_misc_time_budget_deck(),
+                tr.qt_misc_time_budget_minutes(),
+            ]
+        )
+        vertical = self.table.verticalHeader()
+        if vertical is not None:
+            vertical.setVisible(False)
+        header = self.table.horizontalHeader()
+        if header is not None:
+            header.setSectionResizeMode(QHeaderView.ResizeMode.ResizeToContents)
+            header.setSectionResizeMode(self.COL_DECK, QHeaderView.ResizeMode.Stretch)
+        self.enabled_by_row: dict[int, QCheckBox] = {}
+        self.minutes_by_row: dict[int, QSpinBox] = {}
+        for row, (did, name) in enumerate(self.decks):
+            self._populate_row(row, name, self.settings.decks.get(did))
+        layout.addWidget(self.table)
+
+        self.advanced_toggle = QToolButton(self)
+        self.advanced_toggle.setCheckable(True)
+        self.advanced_toggle.setToolButtonStyle(
+            Qt.ToolButtonStyle.ToolButtonTextBesideIcon
+        )
+        self.advanced_toggle.setAutoRaise(True)
+        qconnect(self.advanced_toggle.toggled, self._set_advanced_visible)
+        layout.addWidget(self.advanced_toggle)
+
+        self.advanced = QWidget(self)
+        form = QFormLayout(self.advanced)
+        form.setFieldGrowthPolicy(QFormLayout.FieldGrowthPolicy.FieldsStayAtSizeHint)
+        note = QLabel(tr.qt_misc_time_budget_advanced_intro())
+        note.setWordWrap(True)
+        form.addRow(note)
+        self.max_reviews = self._spin(1, 99, self.settings.max_reviews_per_card)
+        self.min_dr = self._spin(1, 99, self.settings.min_dr, "%")
+        self.max_dr = self._spin(1, 100, self.settings.max_dr, "%")
+        for label, spin, tip in (
+            (
+                tr.qt_misc_time_budget_max_reviews(),
+                self.max_reviews,
+                tr.qt_misc_time_budget_help_max_reviews(),
+            ),
+            (
+                tr.qt_misc_time_budget_min_dr(),
+                self.min_dr,
+                tr.qt_misc_time_budget_help_min_dr(),
+            ),
+            (
+                tr.qt_misc_time_budget_max_dr(),
+                self.max_dr,
+                tr.qt_misc_time_budget_help_max_dr(),
+            ),
+        ):
+            spin.setToolTip(tip)
+            form.addRow(label, spin)
+
+        # card order: drag to reorder
+        self.order = QListWidget(self)
+        self.order.setDragDropMode(QAbstractItemView.DragDropMode.InternalMove)
+        self.order.setDefaultDropAction(Qt.DropAction.MoveAction)
+        for group in complete_order(self.settings.order):
+            item = QListWidgetItem(group_label(group))
+            item.setData(Qt.ItemDataRole.UserRole, group)
+            self.order.addItem(item)
+        self.order.setToolTip(tr.qt_misc_time_budget_order_help())
+        row_height = self.order.sizeHintForRow(0)
+        self.order.setFixedHeight(row_height * self.order.count() + 6)
+        self.order.setFixedWidth(self.order.sizeHintForColumn(0) + 40)
+        order_label = QLabel(tr.qt_misc_time_budget_order())
+        order_label.setToolTip(tr.qt_misc_time_budget_order_help())
+        form.addRow(order_label, self.order)
+        hint = QLabel(tr.qt_misc_time_budget_order_drag())
+        hint.setEnabled(False)
+        form.addRow("", hint)
+        layout.addWidget(self.advanced)
+        self._set_advanced_visible(False)
+
+        buttons = QDialogButtonBox(
+            QDialogButtonBox.StandardButton.Ok | QDialogButtonBox.StandardButton.Cancel
+        )
+        qconnect(buttons.accepted, self.accept)
+        qconnect(buttons.rejected, self.reject)
+        layout.addWidget(buttons)
+
+        self.resize(600, 400)
+        restoreGeom(self, "timeBudgets")
+        self.show()
+
+    def _set_advanced_visible(self, visible: bool) -> None:
+        self.advanced.setVisible(visible)
+        self.advanced_toggle.setArrowType(
+            Qt.ArrowType.DownArrow if visible else Qt.ArrowType.RightArrow
+        )
+        self.advanced_toggle.setText(
+            tr.qt_misc_time_budget_hide_advanced()
+            if visible
+            else tr.qt_misc_time_budget_show_advanced()
+        )
+
+    def _spin(
+        self, minimum: int, maximum: int, value: int, suffix: str = ""
+    ) -> QSpinBox:
+        spin = QSpinBox(self)
+        spin.setRange(minimum, maximum)
+        spin.setValue(max(minimum, min(maximum, value)))
+        if suffix:
+            spin.setSuffix(suffix)
+        return spin
+
+    def _populate_row(self, row: int, name: str, deck: DeckBudget | None) -> None:
+        # The table shows its cell widgets when laying out, so each widget
+        # sits in a container whose contents can be hidden or faded.
+        def container(widget: QWidget) -> QWidget:
+            cell = QWidget(self.table)
+            layout = QHBoxLayout(cell)
+            layout.setContentsMargins(0, 0, 0, 0)
+            widget.setParent(cell)
+            layout.addWidget(widget)
+            return cell
+
+        enabled = QCheckBox()
+        enabled.setChecked(deck is not None and deck.enabled)
+        enabled_cell = container(enabled)
+        enabled_cell.layout().setAlignment(Qt.AlignmentFlag.AlignCenter)  # type: ignore[union-attr]
+        self.table.setCellWidget(row, self.COL_ENABLED, enabled_cell)
+        self.enabled_by_row[row] = enabled
+
+        item = QTableWidgetItem(name)
+        item.setFlags(item.flags() & ~Qt.ItemFlag.ItemIsEditable)
+        self.table.setItem(row, self.COL_DECK, item)
+
+        minutes = self._spin(1, 24 * 60, (deck or DeckBudget()).minutes)
+        self.table.setCellWidget(row, self.COL_MINUTES, container(minutes))
+        self.minutes_by_row[row] = minutes
+
+        def update(checked: bool) -> None:
+            # Unticked rows are faded, and time only applies to enabled decks.
+            opacity = 1.0 if checked else self.DISABLED_OPACITY
+            effect = QGraphicsOpacityEffect(enabled_cell)
+            effect.setOpacity(opacity)
+            enabled_cell.setGraphicsEffect(effect)
+            colour = self.table.palette().color(QPalette.ColorRole.Text)
+            colour.setAlphaF(opacity)
+            item.setForeground(colour)
+            minutes.setVisible(checked)
+
+        update(enabled.isChecked())
+        qconnect(enabled.toggled, update)
+
+    def selected_order(self) -> list[str]:
+        return complete_order(
+            [
+                item.data(Qt.ItemDataRole.UserRole)
+                for row in range(self.order.count())
+                if (item := self.order.item(row)) is not None
+            ]
+        )
+
+    def settings_from_dialog(self) -> TimeBudgetSettings | None:
+        """Updated settings, or None (after warning) if invalid. Settings of
+        decks that are not shown are kept."""
+        if self.min_dr.value() > self.max_dr.value():
+            self.advanced_toggle.setChecked(True)
+            showWarning(tr.qt_misc_time_budget_min_above_max(), parent=self)
+            return None
+        decks = dict(self.settings.decks)
+        for row, (did, _name) in enumerate(self.decks):
+            enabled = self.enabled_by_row[row]
+            minutes = self.minutes_by_row[row]
+            if enabled.isChecked() or did in decks:
+                decks[did] = DeckBudget(
+                    enabled=enabled.isChecked(), minutes=minutes.value()
+                )
+        return TimeBudgetSettings(
+            decks=decks,
+            max_reviews_per_card=self.max_reviews.value(),
+            min_dr=self.min_dr.value(),
+            max_dr=self.max_dr.value(),
+            order=self.selected_order(),
+        )
+
+    def accept(self) -> None:
+        settings = self.settings_from_dialog()
+        if settings is None:
+            return
+        assert self.mw.col is not None
+        save_settings(self.mw.col, settings)
+        saveGeom(self, "timeBudgets")
+        super().accept()
+        self.mw.reset()
+
+    def reject(self) -> None:
+        saveGeom(self, "timeBudgets")
+        super().reject()
+
+
+def open_time_budget_dialog(mw: aqt.main.AnkiQt) -> TimeBudgetDialog:
+    return TimeBudgetDialog(mw)
+
+
+def _prefetch_after_question(_card: Card) -> None:
+    """Score the next batch of a time-budget session while the question is
+    on screen, so the next card rarely waits for it. A no-op unless the
+    current batch is running low (see rslib/src/scheduler/time_budget)."""
+    mw = aqt.mw
+    if mw is None or mw.col is None:
+        return
+    QueryOp(
+        parent=mw,
+        op=lambda col: col.sched.prefetch_time_budget_cards(),
+        success=lambda _scored: None,
+    ).failure(lambda _err: None).run_in_background()
+
+
+gui_hooks.reviewer_did_show_question.append(_prefetch_after_question)

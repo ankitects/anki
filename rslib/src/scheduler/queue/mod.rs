@@ -92,6 +92,15 @@ impl Collection {
         fetch_limit: usize,
         intraday_learning_only: bool,
     ) -> Result<QueuedCards> {
+        let deck_id = self.get_current_deck_id();
+        if let Some(budget) = self.active_time_budget(deck_id)? {
+            return self.get_time_budget_queued_cards(
+                &budget,
+                deck_id,
+                fetch_limit,
+                intraday_learning_only,
+            );
+        }
         let queues = self.get_queues()?;
         let counts = queues.counts();
         let entries: Vec<_> = if intraday_learning_only {
@@ -138,7 +147,10 @@ impl Collection {
     }
 }
 
-fn new_scheduling_context(col: &mut Collection, card: &Card) -> Result<SchedulingContext> {
+pub(crate) fn new_scheduling_context(
+    col: &mut Collection,
+    card: &Card,
+) -> Result<SchedulingContext> {
     Ok(SchedulingContext {
         deck_name: col
             .get_deck(card.original_or_current_deck_id())?
@@ -206,11 +218,13 @@ impl Collection {
     /// transaction, you probably don't need this.
     pub(crate) fn clear_study_queues(&mut self) {
         self.state.card_queues = None;
+        self.state.time_budget_batch = None;
     }
 
     pub(crate) fn maybe_clear_study_queues_after_op(&mut self, op: &OpChanges) {
         if op.op != Op::AnswerCard && op.requires_study_queue_rebuild() {
             self.state.card_queues = None;
+            self.state.time_budget_batch = None;
         }
     }
 
@@ -220,6 +234,7 @@ impl Collection {
         timing: SchedTimingToday,
         is_finished_preview: bool,
     ) -> Result<()> {
+        self.remove_from_time_budget_batch(card.id);
         if let Some(queues) = &mut self.state.card_queues {
             let entry = queues.pop_entry(card.id)?;
             let requeued_learning = if is_finished_preview {

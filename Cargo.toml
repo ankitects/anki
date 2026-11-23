@@ -81,6 +81,7 @@ fluent-syntax = "0.12.0"
 fnv = "1.0.7"
 futures = "0.3.31"
 globset = "0.4.16"
+half = "2.6.0"
 hex = "0.4.3"
 htmlescape = "0.3.1"
 hyper = "1"
@@ -113,7 +114,7 @@ rand = "0.9.4"
 rayon = "1.10.0"
 regex = "1.11.1"
 reqwest = { version = "0.12.20", default-features = false, features = ["json", "socks", "stream", "multipart"] }
-rusqlite = { version = "0.36.0", features = ["trace", "functions", "collation", "bundled"] }
+rusqlite = { version = "0.36.0", features = ["blob", "trace", "functions", "collation", "bundled"] }
 rustls-pemfile = "2.2.0"
 same-file = "1.0.6"
 scopeguard = "1.2.0"

@@ -9,6 +9,7 @@ mod future_due;
 mod hours;
 mod intervals;
 mod retention;
+mod retention_over_time;
 mod retrievability;
 mod reviews;
 mod today;
@@ -35,7 +36,18 @@ impl Collection {
     ) -> Result<anki_proto::stats::GraphsResponse> {
         let guard = self.search_cards_into_table(search, SortMode::NoOrder)?;
         let all = search.trim().is_empty();
-        guard.col.graph_data(all, days)
+        let mut data = guard.col.graph_data(all, days)?;
+        if search.trim() == "deck:current" {
+            let deck_id = guard.col.get_current_deck_id();
+            if let (Some(active), Some(retention)) = (
+                guard.col.active_time_budget(deck_id)?,
+                data.retention_over_time.as_mut(),
+            ) {
+                retention.target_min = Some(active.budget.min_dr.min(100) as f32 / 100.0);
+                retention.target_max = Some(active.budget.max_dr.min(100) as f32 / 100.0);
+            }
+        }
+        Ok(data)
     }
 
     fn graph_data(&mut self, all: bool, days: u32) -> Result<anki_proto::stats::GraphsResponse> {
@@ -67,6 +79,7 @@ impl Collection {
             added: Some(ctx.added_days()),
             reviews: Some(ctx.review_counts_and_times()),
             true_retention: Some(ctx.calculate_true_retention()),
+            retention_over_time: Some(ctx.retention_over_time()),
             future_due: Some(ctx.future_due()),
             intervals: Some(ctx.intervals()),
             stability: Some(ctx.stability()),

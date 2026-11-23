@@ -23,3 +23,9 @@
         display: none;
     }
 }
+
+// Remaining time of an RWKV-Instant time budget
+.time-budget {
+    color: var(--state-review);
+    white-space: nowrap;
+}

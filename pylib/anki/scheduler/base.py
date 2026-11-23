@@ -21,6 +21,7 @@ ScheduleCardsAsNew = scheduler_pb2.ScheduleCardsAsNewRequest
 ScheduleCardsAsNewDefaults = scheduler_pb2.ScheduleCardsAsNewDefaultsResponse
 FilteredDeckForUpdate = decks_pb2.FilteredDeckForUpdate
 RepositionDefaults = scheduler_pb2.RepositionDefaultsResponse
+TimeBudgetDeck = scheduler_pb2.TimeBudgetStatusResponse.Deck
 
 from collections.abc import Sequence
 from typing import overload
@@ -86,6 +87,18 @@ class SchedulerBase(DeprecatedNamesMixin):
 
     def congratulations_info(self) -> CongratsInfo:
         return self.col._backend.congrats_info()
+
+    def time_budget_status(self, check_done: bool = False) -> Sequence[TimeBudgetDeck]:
+        """Remaining study time of decks with an RWKV-Instant time budget.
+
+        check_done also works out whether each deck has anything left to
+        study. That needs the RWKV model and may replay the review log first,
+        so only use it from a background operation."""
+        return self.col._backend.time_budget_status(check_done=check_done)
+
+    def prefetch_time_budget_cards(self) -> bool:
+        "Score the next cards of a time-budget session ahead of time, if due."
+        return self.col._backend.prefetch_time_budget_cards()
 
     def have_buried_siblings(self) -> bool:
         return self.congratulations_info().have_sched_buried
