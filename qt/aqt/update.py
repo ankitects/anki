@@ -115,7 +115,7 @@ def get_latest_release_op(
     return QueryOp(
         parent=parent,
         op=lambda col: col._backend.get_latest_release(
-            include_prerelease=include_prerelease
+            include_prerelease=include_prerelease, portable=False
         ),
         success=on_success,
     )

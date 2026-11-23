@@ -3,7 +3,8 @@ name: Prune coverage baseline caches
 on:
   workflow_run:
     workflows: ["CI"]
-    branches: [main]
+    # master: AnkiQuest-Anki's default branch
+    branches: [main, master]
     types: [completed]
 
 # Delete all coverage-baseline caches except the newest one. The regression
@@ -31,7 +32,7 @@ jobs:
               {
                 owner: context.repo.owner,
                 repo: context.repo.repo,
-                ref: 'refs/heads/main',
+                ref: `refs/heads/${context.payload.repository.default_branch}`,
                 key: 'coverage-baseline-linux-',
                 sort: 'created_at',
                 direction: 'desc',

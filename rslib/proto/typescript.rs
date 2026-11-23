@@ -170,6 +170,27 @@ fn full_name_to_imported_reference(name: &str) -> String {
     format!(
         "{}.{}",
         name.next().unwrap().to_camel_case(),
-        name.next().unwrap()
+        name.next().unwrap().replace('.', "_")
     )
+}
+
+#[cfg(test)]
+mod tests {
+    use super::full_name_to_imported_reference;
+
+    #[test]
+    fn converts_non_nested_types() {
+        assert_eq!(
+            full_name_to_imported_reference("anki.generic.StringList"),
+            "generic.StringList"
+        );
+    }
+
+    #[test]
+    fn converts_nested_types() {
+        assert_eq!(
+            full_name_to_imported_reference("anki.deck_config.DeckConfig.Config"),
+            "deckConfig.DeckConfig_Config"
+        );
+    }
 }

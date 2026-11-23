@@ -29,6 +29,8 @@ impl PreviewState {
             hard: delay_or_return(ctx.preview_delays.hard),
             good: delay_or_return(ctx.preview_delays.good),
             easy: delay_or_return(0),
+            dynamic_desired_retentions: None,
+            dynamic_desired_retention_enabled: false,
         }
     }
 }

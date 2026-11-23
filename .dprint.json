@@ -15,6 +15,7 @@
         "out/**",
         "**/*-lock.json",
         "docs/*.md",
+        "AGENTS.md",
         "qt/aqt/data/web/js/vendor/*.js",
         "ftl/qt-repo",
         "ftl/core-repo",

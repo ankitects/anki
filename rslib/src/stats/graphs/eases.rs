@@ -43,7 +43,7 @@ fn median(data: &mut [f32]) -> f32 {
     }
     data.sort_by(|a, b| a.partial_cmp(b).unwrap());
     let mid = data.len() / 2;
-    if data.len() % 2 == 0 {
+    if data.len().is_multiple_of(2) {
         (data[mid - 1] + data[mid]) / 2.0
     } else {
         data[mid]

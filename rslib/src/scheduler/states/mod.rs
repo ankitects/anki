@@ -1,6 +1,7 @@
 // Copyright: Anki Software, LLC and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
+pub(crate) mod button_intervals;
 pub(crate) mod filtered;
 pub(crate) mod fuzz;
 pub(crate) mod interval_kind;
@@ -16,6 +17,7 @@ pub(crate) mod steps;
 
 pub use filtered::FilteredState;
 use fsrs::NextStates;
+use fuzz::ReviewFuzzConfig;
 pub(crate) use interval_kind::IntervalKind;
 pub use learning::LearnState;
 use load_balancer::LoadBalancerContext;
@@ -29,6 +31,12 @@ pub use review::ReviewState;
 use self::steps::LearningSteps;
 use crate::revlog::RevlogReviewKind;
 use crate::scheduler::answering::PreviewDelays;
+
+const SECONDS_PER_DAY: f32 = 86_400.0;
+
+pub(super) fn fsrs_interval_as_secs(interval_days: f32, minimum_interval_secs: u32) -> u32 {
+    ((interval_days * SECONDS_PER_DAY) as u32).max(minimum_interval_secs.max(1))
+}
 
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub enum CardState {
@@ -89,7 +97,10 @@ pub(crate) struct StateContext<'a> {
     pub fuzz_factor: Option<f32>,
     pub fsrs_next_states: Option<NextStates>,
     pub fsrs_short_term_with_steps_enabled: bool,
+    pub fsrs_learning_queues_disabled: bool,
     pub fsrs_allow_short_term: bool,
+    /// The active model consumes and produces fractional-day intervals.
+    pub fsrs_fractional_intervals: bool,
     // learning
     pub steps: LearningSteps<'a>,
     pub graduating_interval_good: u32,
@@ -100,8 +111,14 @@ pub(crate) struct StateContext<'a> {
     pub hard_multiplier: f32,
     pub easy_multiplier: f32,
     pub interval_multiplier: f32,
+    pub review_fuzz_config: ReviewFuzzConfig,
     pub maximum_review_interval: u32,
+    pub fsrs_minimum_interval_secs: u32,
     pub leech_threshold: u32,
+    /// Only a review card's first answer of the scheduler day can add a lapse.
+    pub count_review_lapse: bool,
+    pub leech_only_if_young: bool,
+    pub fsrs_again_s90: Option<f32>,
     pub load_balancer_ctx: Option<LoadBalancerContext<'a>>,
 
     // relearning
@@ -124,6 +141,16 @@ impl StateContext<'_> {
         (minimum, maximum)
     }
 
+    pub(crate) fn fsrs_uses_learning_queues(&self) -> bool {
+        self.fsrs_next_states.is_none() || !self.fsrs_learning_queues_disabled
+    }
+
+    pub(crate) fn fsrs_uses_short_term_learning_queue(&self) -> bool {
+        (self.fsrs_fractional_intervals || self.fsrs_allow_short_term)
+            && self.fsrs_short_term_with_steps_enabled
+            && self.fsrs_uses_learning_queues()
+    }
+
     #[cfg(test)]
     pub(crate) fn defaults_for_testing() -> Self {
         Self {
@@ -135,8 +162,13 @@ impl StateContext<'_> {
             hard_multiplier: 1.2,
             easy_multiplier: 1.3,
             interval_multiplier: 1.0,
+            review_fuzz_config: ReviewFuzzConfig::default(),
             maximum_review_interval: 36500,
+            fsrs_minimum_interval_secs: 1,
             leech_threshold: 8,
+            count_review_lapse: true,
+            leech_only_if_young: false,
+            fsrs_again_s90: None,
             load_balancer_ctx: None,
             relearn_steps: LearningSteps::new(&[10.0]),
             lapse_multiplier: 0.0,
@@ -149,7 +181,9 @@ impl StateContext<'_> {
             },
             fsrs_next_states: None,
             fsrs_short_term_with_steps_enabled: false,
+            fsrs_learning_queues_disabled: false,
             fsrs_allow_short_term: false,
+            fsrs_fractional_intervals: false,
         }
     }
 }
@@ -161,6 +195,8 @@ pub struct SchedulingStates {
     pub hard: CardState,
     pub good: CardState,
     pub easy: CardState,
+    pub dynamic_desired_retentions: Option<[f32; 4]>,
+    pub dynamic_desired_retention_enabled: bool,
 }
 
 impl From<NewState> for CardState {

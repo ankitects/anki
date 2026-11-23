@@ -40,6 +40,8 @@ use crate::text::sanitize_html_no_images;
 
 define_newtype!(DeckId, i64);
 
+const RWKV_RESPECT_SUBDECK_MINIMUMS_KEY: &str = "jschoreels.rwkv.respect_subdeck_minimums";
+
 impl DeckId {
     pub(crate) fn or(self, other: DeckId) -> Self {
         if self.0 == 0 {
@@ -61,6 +63,41 @@ pub struct Deck {
 }
 
 impl Deck {
+    /// Whether this deck includes its direct subdecks' RWKV minimums.
+    pub(crate) fn rwkv_respect_subdeck_minimums(&self) -> bool {
+        serde_json::from_slice::<serde_json::Value>(&self.common.other)
+            .ok()
+            .and_then(|value| {
+                value
+                    .get(RWKV_RESPECT_SUBDECK_MINIMUMS_KEY)
+                    .and_then(serde_json::Value::as_bool)
+            })
+            .unwrap_or(false)
+    }
+
+    pub(crate) fn set_rwkv_respect_subdeck_minimums(&mut self, enabled: bool) -> Result<()> {
+        if self.rwkv_respect_subdeck_minimums() == enabled {
+            return Ok(());
+        }
+        let mut other: serde_json::Map<String, serde_json::Value> = if self.common.other.is_empty()
+        {
+            Default::default()
+        } else {
+            serde_json::from_slice(&self.common.other)?
+        };
+        if enabled {
+            other.insert(RWKV_RESPECT_SUBDECK_MINIMUMS_KEY.into(), true.into());
+        } else {
+            other.remove(RWKV_RESPECT_SUBDECK_MINIMUMS_KEY);
+        }
+        self.common.other = if other.is_empty() {
+            vec![]
+        } else {
+            serde_json::to_vec(&other)?
+        };
+        Ok(())
+    }
+
     pub fn new_normal() -> Deck {
         Deck {
             id: DeckId(0),
@@ -198,8 +235,32 @@ impl Collection {
 
 #[cfg(test)]
 mod test {
+    use super::DeckSchema11;
     use crate::prelude::*;
     use crate::search::SortMode;
+
+    #[test]
+    fn rwkv_subdeck_minimum_setting_preserves_deck_metadata() -> Result<()> {
+        let mut deck = Deck::new_normal();
+        deck.common.other = br#"{"addon":{"keep":true}}"#.to_vec();
+        assert!(!deck.rwkv_respect_subdeck_minimums());
+        deck.set_rwkv_respect_subdeck_minimums(true)?;
+
+        let legacy: DeckSchema11 = deck.clone().into();
+        let restored: Deck =
+            serde_json::from_slice::<DeckSchema11>(&serde_json::to_vec(&legacy)?)?.into();
+        assert!(restored.rwkv_respect_subdeck_minimums());
+        assert_eq!(
+            serde_json::from_slice::<serde_json::Value>(&restored.common.other)?["addon"],
+            serde_json::json!({"keep": true})
+        );
+        deck.set_rwkv_respect_subdeck_minimums(false)?;
+        assert_eq!(
+            serde_json::from_slice::<serde_json::Value>(&deck.common.other)?,
+            serde_json::json!({"addon": {"keep": true}})
+        );
+        Ok(())
+    }
 
     fn sorted_names(col: &Collection) -> Vec<String> {
         col.storage

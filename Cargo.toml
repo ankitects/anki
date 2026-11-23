@@ -3,7 +3,7 @@ version = "0.0.0"
 authors = ["Anki Software, LLC and contributors <https://faqs.ankiweb.net/>"]
 edition = "2021"
 license = "AGPL-3.0-or-later"
-rust-version = "1.80"
+rust-version = "1.89"
 
 [workspace]
 members = [
@@ -32,9 +32,8 @@ git = "https://github.com/ankitects/linkcheck.git"
 rev = "2c7c081b148f8c1053df33768bc99f05311cb9a0"
 
 [workspace.dependencies.fsrs]
-version = "6.6.2"
-# git = "https://github.com/open-spaced-repetition/fsrs-rs.git"
-# path = "../open-spaced-repetition/fsrs-rs"
+git = "https://github.com/JSchoreels/fsrs-rs.git"
+rev = "bd8932bb33d68bf0ac0e4367b154eec837f7fad2"
 
 [workspace.dependencies]
 # local
@@ -50,15 +49,16 @@ ninja_gen = { "path" = "build/ninja_gen" }
 unicase = "=2.6.0" # any changes could invalidate sqlite indexes
 
 # normal
-ammonia = "4.1.2"
+ammonia = "4.1.9"
 anyhow = "1.0.98"
-async-compression = { version = "0.4.24", features = ["zstd", "tokio"] }
+async-compression = { version = "0.4.51", features = ["zstd", "tokio"] }
 async-stream = "0.3.6"
 async-trait = "0.1.92"
 axum = { version = "0.8.4", features = ["multipart", "macros"] }
 axum-client-ip = "1.1.3"
 axum-extra = { version = "0.12.1", features = ["typed-header"] }
 bitflags = "2.9.1"
+blake2 = "0.10.6"
 blake3 = "1.8.2"
 bytes = "1.11.1"
 camino = "1.1.10"
@@ -81,6 +81,7 @@ fluent-syntax = "0.12.0"
 fnv = "1.0.7"
 futures = "0.3.31"
 globset = "0.4.16"
+half = "2.7.1"
 hex = "0.4.3"
 htmlescape = "0.3.1"
 hyper = "1"
@@ -113,7 +114,7 @@ rand = "0.10.1"
 rayon = "1.10.0"
 regex = "1.11.1"
 reqwest = { version = "0.12.20", default-features = false, features = ["json", "socks", "stream", "multipart"] }
-rusqlite = { version = "0.41.1", default-features = false, features = ["trace", "functions", "collation", "bundled", "fallible_uint", "cache"] }
+rusqlite = { version = "0.41.1", default-features = false, features = ["trace", "functions", "collation", "bundled", "fallible_uint", "cache", "blob"] }
 rustls-pemfile = "2.2.0"
 same-file = "1.0.6"
 scopeguard = "1.2.0"
@@ -130,7 +131,7 @@ syn = { version = "3.0.6", features = ["parsing", "printing"] }
 tar = "0.4.46"
 tempfile = "3.20.0"
 termcolor = "1.4.1"
-tokio = { version = "1.51.6", features = ["fs", "rt-multi-thread", "macros", "signal"] }
+tokio = { version = "1.51.6", features = ["fs", "io-util", "rt-multi-thread", "macros", "signal"] }
 tokio-util = { version = "0.7.15", features = ["io"] }
 tower-http = { version = "0.7.1", features = ["trace"] }
 tracing = { version = "0.1.41", features = ["max_level_trace", "release_max_level_debug"] }

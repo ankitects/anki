@@ -615,7 +615,7 @@ impl ForeignNote {
 
     /// Expects normalized form.
     fn equal_fields_and_tags(&self, other: &Note) -> bool {
-        self.tags.as_ref().map_or(true, |tags| *tags == other.tags)
+        self.tags.as_ref().is_none_or(|tags| *tags == other.tags)
             && self
                 .fields
                 .iter()

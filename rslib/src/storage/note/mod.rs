@@ -8,6 +8,7 @@ use rusqlite::params;
 use rusqlite::Row;
 use unicase::UniCase;
 
+use super::ids_to_string;
 use crate::import_export::package::NoteMeta;
 use crate::notes::NoteTags;
 use crate::prelude::*;
@@ -32,6 +33,43 @@ impl super::SqliteStorage {
             .transpose()
     }
 
+    /// The given notes, by id, read in one query; ids with no note are
+    /// absent.
+    pub(crate) fn get_notes_by_id(&self, nids: &[NoteId]) -> Result<HashMap<NoteId, Note>> {
+        if nids.is_empty() {
+            return Ok(HashMap::new());
+        }
+        let mut sql = String::from(include_str!("get.sql"));
+        sql += " where id in ";
+        ids_to_string(&mut sql, nids);
+        self.db
+            .prepare(&sql)?
+            .query_and_then([], |row| row_to_note(row).map(|note| (note.id, note)))?
+            .collect()
+    }
+
+    /// Read only the requested field for matching notes, without copying all
+    /// fields of every note during a bulk retention-rule or percentile scan.
+    pub(crate) fn get_note_field_by_ids(
+        &self,
+        nids: &[NoteId],
+        notetype_id: NotetypeId,
+        field_index: u16,
+    ) -> Result<HashMap<NoteId, String>> {
+        if nids.is_empty() {
+            return Ok(HashMap::new());
+        }
+        let mut sql =
+            String::from("select id, field_at_index(flds, ?) from notes where mid = ? and id in ");
+        ids_to_string(&mut sql, nids);
+        self.db
+            .prepare(&sql)?
+            .query_and_then(params![field_index, notetype_id], |row| {
+                Ok((row.get::<_, NoteId>(0)?, row.get::<_, String>(1)?))
+            })?
+            .collect()
+    }
+
     pub fn get_note_without_fields(&self, nid: NoteId) -> Result<Option<Note>> {
         self.db
             .prepare_cached(concat!(
@@ -41,6 +79,27 @@ impl super::SqliteStorage {
             .query_and_then(params![nid], row_to_note)?
             .next()
             .transpose()
+    }
+
+    /// Copy only selected values from SQLite's borrowed field text.
+    /// None also covers a malformed note missing a requested field index.
+    pub(crate) fn get_note_fields_at_indices(
+        &self,
+        nid: NoteId,
+        indices: &[usize],
+    ) -> Result<Option<Vec<String>>> {
+        let mut statement = self
+            .db
+            .prepare_cached("SELECT flds FROM notes WHERE id = ?")?;
+        let mut rows = statement.query(params![nid])?;
+        let Some(row) = rows.next()? else {
+            return Ok(None);
+        };
+        let fields = row.get_ref(0)?.as_str()?.split('\x1f').collect::<Vec<_>>();
+        Ok(indices
+            .iter()
+            .map(|&index| fields.get(index).map(|value| (*value).to_owned()))
+            .collect())
     }
 
     pub fn get_all_note_ids(&self) -> Result<HashSet<NoteId>> {

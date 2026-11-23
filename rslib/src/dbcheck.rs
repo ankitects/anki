@@ -1,6 +1,7 @@
 // Copyright: Anki Software, LLC and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
+use std::collections::HashMap;
 use std::collections::HashSet;
 use std::sync::Arc;
 
@@ -16,6 +17,7 @@ use crate::error::AnkiError;
 use crate::error::DbError;
 use crate::error::DbErrorKind;
 use crate::error::Result;
+use crate::notes::UpdateNoteInnerWithoutCardsArgs;
 use crate::notetype::all_stock_notetypes;
 use crate::notetype::AlreadyGeneratedCardInfo;
 use crate::notetype::CardGenContext;
@@ -150,6 +152,11 @@ impl Collection {
         debug!("check review log");
         self.check_revlog(&mut out)?;
 
+        debug!("foreign FSRS memory states");
+        let foreign_cards = self.storage.card_ids_with_foreign_fsrs_state()?;
+        out.card_properties_invalid +=
+            self.repair_foreign_fsrs_memory_states_inner(foreign_cards)?;
+
         debug!("missing decks");
         self.check_missing_deck_names(&mut out)?;
 
@@ -157,6 +164,21 @@ impl Collection {
 
         debug!("invalid ids");
         out.invalid_ids = self.maybe_fix_invalid_ids()?;
+
+        debug!("legacy retrievability cache tables");
+        let migrated_legacy_retrievability_cache_tables = self
+            .storage
+            .migrate_review_retrievability_cache_to_sidecar()?
+            > 0;
+        if migrated_legacy_retrievability_cache_tables
+            || !self
+                .storage
+                .review_retrievability_cache_cleanup_full_sync_marked()?
+        {
+            self.storage
+                .mark_review_retrievability_cache_cleanup_full_sync()?;
+            self.set_schema_modified()?;
+        }
 
         debug!("db check finished: {:#?}", out);
 
@@ -168,6 +190,7 @@ impl Collection {
         let CardFixStats {
             new_cards_fixed,
             other_cards_fixed,
+            fsrs_stability_fixed,
             last_review_time_fixed,
         } = self.storage.fix_card_properties(
             timing.days_elapsed,
@@ -176,7 +199,7 @@ impl Collection {
             self.scheduler_version() == SchedulerVersion::V1,
         )?;
         out.card_position_too_high = new_cards_fixed;
-        out.card_properties_invalid += other_cards_fixed;
+        out.card_properties_invalid += other_cards_fixed + fsrs_stability_fixed;
         out.card_last_review_time_empty = last_review_time_fixed;
 
         // Trigger one-way sync if last_review_time was updated to avoid conflicts
@@ -264,6 +287,18 @@ impl Collection {
 
             self.add_missing_field_tags(Arc::make_mut(&mut nt))?;
 
+            // The cards of the whole notetype in one query rather than one
+            // query per note, each note's cards in card id order, as the
+            // per-note query returns them. Only a note's own step below
+            // changes its cards.
+            let mut cards_by_note: HashMap<NoteId, Vec<AlreadyGeneratedCardInfo>> = HashMap::new();
+            for card in self.storage.existing_cards_for_notetype(ntid)? {
+                cards_by_note.entry(card.nid).or_default().push(card);
+            }
+            for cards in cards_by_note.values_mut() {
+                cards.sort_unstable_by_key(|card| card.id);
+            }
+
             let mut genctx = None;
             for (_, nid) in group {
                 progress.increment(|p| {
@@ -276,10 +311,18 @@ impl Collection {
                 let mut note = self.get_note_fixing_invalid_utf8(nid, out)?;
                 let original = note.clone();
 
-                let cards = self.storage.existing_cards_for_note(nid)?;
+                let cards = cards_by_note.remove(&nid).unwrap_or_default();
 
-                out.card_ords_duplicated += self.remove_duplicate_card_ordinals(&cards)?;
-                out.templates_missing += self.remove_cards_without_template(&nt, &cards)?;
+                let duplicated = self.remove_duplicate_card_ordinals(&cards)?;
+                let without_template = self.remove_cards_without_template(&nt, &cards)?;
+                out.card_ords_duplicated += duplicated;
+                out.templates_missing += without_template;
+                // card generation needs the cards that are left
+                let cards = if duplicated + without_template == 0 {
+                    cards
+                } else {
+                    self.storage.existing_cards_for_note(nid)?
+                };
 
                 // fix fields
                 if note.fields().len() != nt.fields.len() {
@@ -303,9 +346,17 @@ impl Collection {
                         usn,
                     )
                 });
-                self.update_note_inner_generating_cards(
-                    ctx, &mut note, &original, false, norm, true, None,
-                )?;
+                self.update_note_inner_without_cards(UpdateNoteInnerWithoutCardsArgs {
+                    note: &mut note,
+                    original: &original,
+                    notetype: ctx.notetype,
+                    usn: ctx.usn,
+                    mark_note_modified: false,
+                    normalize_text: norm,
+                    update_tags: true,
+                    mtime: None,
+                })?;
+                self.generate_cards_for_existing_note_with_cards(ctx, &note, &cards)?;
             }
         }
 
@@ -480,6 +531,16 @@ mod test {
     use super::*;
     use crate::decks::DeckId;
     use crate::search::SortMode;
+    const FSRS_REVIEW_RETRIEVABILITY_CACHE_TABLE: &str = "search_stats_fsrs_review_retrievability";
+    const RWKV_REVIEW_RETRIEVABILITY_CACHE_TABLE: &str = "search_stats_rwkv_review_retrievability";
+
+    fn main_table_exists(col: &Collection, table: &str) -> Result<bool> {
+        col.storage
+            .db
+            .prepare("SELECT null FROM main.sqlite_master WHERE type = 'table' AND name = ?")?
+            .exists([table])
+            .map_err(Into::into)
+    }
 
     #[test]
     fn cards() -> Result<()> {
@@ -544,6 +605,63 @@ mod test {
     }
 
     #[test]
+    fn check_database_repairs_fsrs_state_when_only_fast_stability_is_missing() -> Result<()> {
+        let mut col = Collection::new();
+        col.set_config_bool(BoolKey::Fsrs, true, false)?;
+        NoteAdder::basic(&mut col).add(&mut col);
+        let mut card = col.get_first_card();
+        card.ctype = crate::card::CardType::Review;
+        card.queue = crate::card::CardQueue::Review;
+        card.interval = 30;
+        card.due = 123;
+        col.storage.update_card(&card)?;
+        col.storage.db.execute(
+            r#"update cards set data = '{"s":20.0,"s_int":20.0,"d":6.0}' where id = ?"#,
+            [card.id],
+        )?;
+
+        let output = col.check_database()?;
+
+        assert_eq!(output.card_properties_invalid, 1);
+        let repaired = col.storage.get_card(card.id)?.unwrap();
+        assert!(repaired.memory_state.unwrap().stability_fast.is_some());
+        assert_eq!((repaired.due, repaired.interval), (123, 30));
+        Ok(())
+    }
+
+    #[test]
+    fn repairs_zero_fsrs_stability_in_card_data() -> Result<()> {
+        let mut col = Collection::new();
+        let nt = col.get_notetype_by_name("Basic")?.unwrap();
+        let mut note = nt.new_note();
+        col.add_note(&mut note, DeckId(1))?;
+        let cid = col.search_cards("", SortMode::NoOrder)?[0];
+
+        col.storage.db.execute(
+            r#"update cards set data='{"s":0.0,"s_int":0.0005,"d":9.932}' where id=?"#,
+            rusqlite::params![cid],
+        )?;
+
+        let out = col.check_database()?;
+        assert_eq!(
+            out,
+            CheckDatabaseOutput {
+                card_properties_invalid: 1,
+                ..Default::default()
+            }
+        );
+        let data: String = col.storage.db.query_row(
+            "select data from cards where id=?",
+            rusqlite::params![cid],
+            |row| row.get(0),
+        )?;
+        assert_eq!(data, r#"{"s":0.0001,"s_int":0.0005,"d":9.932}"#);
+        assert_eq!(col.check_database()?, Default::default());
+
+        Ok(())
+    }
+
+    #[test]
     fn revlog() -> Result<()> {
         let mut col = Collection::new();
 
@@ -564,6 +682,109 @@ mod test {
         assert!(col
             .storage
             .db_scalar::<bool>("select ivl = lastIvl = 1 from revlog")?);
+
+        Ok(())
+    }
+
+    #[test]
+    fn legacy_retrievability_cache_tables_force_one_way_sync() -> Result<()> {
+        let mut col = Collection::new();
+        col.storage
+            .set_schema_modified_time(TimestampMillis(1_000))?;
+        col.storage.set_last_sync(TimestampMillis(1_000))?;
+        col.storage.db.execute_batch(&format!(
+            "
+            CREATE TABLE main.{FSRS_REVIEW_RETRIEVABILITY_CACHE_TABLE} (
+                revlog_id INTEGER NOT NULL,
+                prediction REAL NOT NULL,
+                source TEXT NOT NULL,
+                updated_at INTEGER NOT NULL,
+                sample_role TEXT NOT NULL DEFAULT 'final_fit',
+                fold_index INTEGER NOT NULL DEFAULT -1,
+                PRIMARY KEY (revlog_id, sample_role, fold_index, source)
+            );
+            INSERT INTO main.{FSRS_REVIEW_RETRIEVABILITY_CACHE_TABLE}
+                (revlog_id, prediction, source, updated_at, sample_role, fold_index)
+            VALUES (1, 0.25, 'legacy_fsrs', 123, 'validation_fold', 2);
+            CREATE TABLE main.{RWKV_REVIEW_RETRIEVABILITY_CACHE_TABLE} (
+                revlog_id INTEGER NOT NULL,
+                prediction REAL NOT NULL,
+                source TEXT NOT NULL,
+                updated_at INTEGER NOT NULL,
+                sample_role TEXT NOT NULL DEFAULT 'final_fit',
+                fold_index INTEGER NOT NULL DEFAULT -1,
+                PRIMARY KEY (revlog_id, sample_role, fold_index, source)
+            );
+            INSERT INTO main.{RWKV_REVIEW_RETRIEVABILITY_CACHE_TABLE}
+                (revlog_id, prediction, source, updated_at, sample_role, fold_index)
+            VALUES (2, 0.75, 'legacy_rwkv', 456, 'test_fold', 0);
+            "
+        ))?;
+
+        assert_eq!(col.check_database()?, Default::default());
+
+        assert!(!main_table_exists(
+            &col,
+            FSRS_REVIEW_RETRIEVABILITY_CACHE_TABLE
+        )?);
+        assert!(!main_table_exists(
+            &col,
+            RWKV_REVIEW_RETRIEVABILITY_CACHE_TABLE
+        )?);
+        assert!(col
+            .storage
+            .get_collection_timestamps()?
+            .schema_changed_since_sync());
+        assert!(col
+            .storage
+            .review_retrievability_cache_cleanup_full_sync_marked()?);
+
+        let fsrs: (f64, String, i64) = col.storage.db.query_row(
+            &format!(
+                "SELECT prediction, sample_role, fold_index \
+                 FROM {FSRS_REVIEW_RETRIEVABILITY_CACHE_TABLE} WHERE revlog_id = 1"
+            ),
+            [],
+            |row| Ok((row.get(0)?, row.get(1)?, row.get(2)?)),
+        )?;
+        assert_eq!(fsrs, (0.25, "validation_fold".to_string(), 2));
+
+        let rwkv: (f64, String, i64) = col.storage.db.query_row(
+            &format!(
+                "SELECT prediction, sample_role, fold_index \
+                 FROM {RWKV_REVIEW_RETRIEVABILITY_CACHE_TABLE} WHERE revlog_id = 2"
+            ),
+            [],
+            |row| Ok((row.get(0)?, row.get(1)?, row.get(2)?)),
+        )?;
+        assert_eq!(rwkv, (0.75, "test_fold".to_string(), 0));
+
+        Ok(())
+    }
+
+    #[test]
+    fn legacy_retrievability_cache_cleanup_marker_forces_one_sync() -> Result<()> {
+        let mut col = Collection::new();
+        col.storage
+            .set_schema_modified_time(TimestampMillis(1_000))?;
+        col.storage.set_last_sync(TimestampMillis(1_000))?;
+
+        assert!(!col
+            .storage
+            .review_retrievability_cache_cleanup_full_sync_marked()?);
+        assert_eq!(col.check_database()?, Default::default());
+        let timestamps = col.storage.get_collection_timestamps()?;
+        assert!(timestamps.schema_changed_since_sync());
+        assert!(col
+            .storage
+            .review_retrievability_cache_cleanup_full_sync_marked()?);
+
+        col.storage.set_last_sync(timestamps.schema_change)?;
+        assert_eq!(col.check_database()?, Default::default());
+        assert!(!col
+            .storage
+            .get_collection_timestamps()?
+            .schema_changed_since_sync());
 
         Ok(())
     }
@@ -613,6 +834,99 @@ mod test {
             col.storage.db_scalar::<u32>("select count(*) from cards")?,
             1
         );
+
+        Ok(())
+    }
+
+    fn cards_of_note(col: &Collection, nid: NoteId) -> Result<Vec<(i64, u32, i64, i32)>> {
+        col.storage
+            .db
+            .prepare("select id, ord, did, due from cards where nid = ? order by id")?
+            .query_and_then([nid], |r| Ok((r.get(0)?, r.get(1)?, r.get(2)?, r.get(3)?)))?
+            .collect()
+    }
+
+    /// Per note, Check Database keeps the oldest card of a duplicated
+    /// ordinal, removes the cards of missing templates, and generates the
+    /// missing cards in the deck and at the new-card position of the note's
+    /// existing cards. Notes whose cards have ids in another order than the
+    /// notes themselves each get their own cards.
+    #[test]
+    fn note_cards_are_checked_per_note() -> Result<()> {
+        let mut col = Collection::new();
+        let nt = col
+            .get_notetype_by_name("Basic (and reversed card)")?
+            .unwrap();
+        let other_deck = col.get_or_create_normal_deck("other")?.id;
+        let mut nids = vec![];
+        for i in 0..4 {
+            let mut note = nt.new_note();
+            note.set_field(0, format!("front {i}"))?;
+            note.set_field(1, format!("back {i}"))?;
+            col.add_note(&mut note, DeckId(1))?;
+            nids.push(note.id);
+        }
+        let db = &col.storage.db;
+        // card ids in the reverse order of the notes
+        db.execute_batch("update cards set id = 2800000000000 - id")?;
+        // note 0 lost its reverse card and lives in another deck, its
+        // remaining new card at position 77
+        db.execute("delete from cards where nid = ? and ord = 1", [nids[0]])?;
+        db.execute(
+            "update cards set did = ?, due = 77 where nid = ?",
+            [other_deck.0, nids[0].0],
+        )?;
+        // note 1: two newer duplicates of its forward card, and a card of a
+        // template that does not exist
+        let forward: i64 = db.query_row(
+            "select id from cards where nid = ? and ord = 0",
+            [nids[1]],
+            |r| r.get(0),
+        )?;
+        for (offset, ord) in [(1_000_000, 0), (2_000_000, 0), (3_000_000, 7)] {
+            db.execute(
+                "insert into cards select ?, nid, did, ?, mod, usn, type, queue, due, ivl, factor,
+                 reps, lapses, left, odue, odid, flags, data from cards where id = ?",
+                [forward + offset, ord, forward],
+            )?;
+        }
+        // note 2 lost both cards: nothing to take the deck from
+        db.execute("delete from cards where nid = ?", [nids[2]])?;
+        let untouched = cards_of_note(&col, nids[3])?;
+
+        let out = col.check_database()?;
+        assert_eq!(
+            out,
+            CheckDatabaseOutput {
+                card_ords_duplicated: 2,
+                templates_missing: 1,
+                ..Default::default()
+            }
+        );
+
+        let note0 = cards_of_note(&col, nids[0])?;
+        assert_eq!(note0.len(), 2);
+        assert!(note0.iter().all(|c| c.2 == other_deck.0 && c.3 == 77));
+        assert_eq!(
+            note0.iter().map(|c| c.1).collect::<HashSet<_>>(),
+            HashSet::from([0, 1])
+        );
+        let note1 = cards_of_note(&col, nids[1])?;
+        assert_eq!(
+            note1
+                .iter()
+                .map(|c| (c.0, c.1))
+                .filter(|c| c.1 == 0)
+                .collect::<Vec<_>>(),
+            vec![(forward, 0)]
+        );
+        assert_eq!(note1.len(), 2);
+        let note2 = cards_of_note(&col, nids[2])?;
+        assert_eq!(
+            note2.iter().map(|c| c.1).collect::<HashSet<_>>(),
+            HashSet::from([0, 1])
+        );
+        assert_eq!(cards_of_note(&col, nids[3])?, untouched);
 
         Ok(())
     }

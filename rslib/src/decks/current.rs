@@ -31,7 +31,7 @@ impl Collection {
 
     fn set_current_deck_inner(&mut self, deck: DeckId) -> Result<()> {
         if self.set_current_deck_id(deck)? {
-            self.state.card_queues = None;
+            self.clear_study_queues();
         }
         Ok(())
     }

@@ -12,10 +12,15 @@ decks-zero-minutes-hint = (0 = return card to original deck)
 decks-filter = Filter:
 decks-filter-2 = Filter 2
 
-## column names on the main "Decks" window 
+## column names on the main "Decks" window
 decks-deck = Deck
 decks-learn-header = Learn
 decks-review-header = Due
+# Shown beside a review count reduced by daily limits, including subdeck limits.
+decks-review-limit-tooltip = { $total } review cards are due. Daily review limits allow { $count } to be shown.
+decks-rwkv = RWKV
+decks-reschedule-with-rwkv-curve = Reschedule With RWKV-Curve
+decks-rwkv-reschedule-all-decks = Reschedule All Decks
 
 ##
 decks-unmovable-cards = Show any excluded cards

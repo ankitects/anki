@@ -7,6 +7,8 @@ on:
 
 jobs:
   auto-close:
+    # AnkiQuest-Anki has issues disabled; the rule is upstream's.
+    if: github.repository == 'ankitects/anki'
     runs-on: ubuntu-latest
     permissions:
       pull-requests: write

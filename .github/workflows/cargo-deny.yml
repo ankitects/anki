@@ -3,9 +3,9 @@ name: cargo-deny
 on:
   workflow_dispatch:
   push:
-    branches: [main, 'release/**']
+    branches: [main, master, 'release/**']
   pull_request:
-    branches: [main]
+    branches: [main, master]
     types: [opened, synchronize, reopened]
     paths:
       - "Cargo.lock"

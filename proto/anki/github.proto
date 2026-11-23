@@ -14,10 +14,12 @@ service GithubService {}
 service BackendGithubService {
   rpc GetLatestRelease(LatestReleaseRequest) returns (GithubRelease);
   rpc DownloadRelease(GithubRelease) returns (generic.String);
+  rpc ExtractPortableUpdate(ExtractPortableUpdateRequest) returns (generic.Empty);
 }
 
 message LatestReleaseRequest {
   bool include_prerelease = 1;
+  bool portable = 2;
 }
 
 message GithubRelease {
@@ -25,4 +27,12 @@ message GithubRelease {
   string filename = 2;
   string url = 3;
   string checksum = 4;
+  string target_commitish = 5;
+}
+
+message ExtractPortableUpdateRequest {
+  string archive_path = 1;
+  // Must not already exist; never extract into the running application's
+  // folder.
+  string destination = 2;
 }

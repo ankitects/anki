@@ -56,6 +56,7 @@ mod test {
             queue: CardQueue::DayLearn,
             remaining_steps: 2,
             due: 123,
+            desired_retention: Some(0.76),
             ..Default::default()
         };
         col.add_card(&mut c)?;
@@ -96,11 +97,17 @@ mod test {
             answered_at: TimestampMillis::now(),
             milliseconds_taken: 0,
             custom_data: None,
+            desired_retention_override: Some(0.85),
+            desired_retention_override_is_final: true,
+            rwkv_s90: None,
+            rwkv_retrievability: None,
+            rwkv_review_kind: None,
             from_queue: true,
         })?;
 
         c = col.storage.get_card(c.id)?.unwrap();
         assert_eq!(c.queue, CardQueue::PreviewRepeat);
+        assert_eq!(c.desired_retention, Some(0.76));
 
         // hard
         let next = col.get_scheduling_states(c.id)?;
@@ -112,6 +119,11 @@ mod test {
             answered_at: TimestampMillis::now(),
             milliseconds_taken: 0,
             custom_data: None,
+            desired_retention_override: None,
+            desired_retention_override_is_final: false,
+            rwkv_s90: None,
+            rwkv_retrievability: None,
+            rwkv_review_kind: None,
             from_queue: true,
         })?;
         c = col.storage.get_card(c.id)?.unwrap();
@@ -128,6 +140,11 @@ mod test {
             answered_at: TimestampMillis::now(),
             milliseconds_taken: 0,
             custom_data: None,
+            desired_retention_override: None,
+            desired_retention_override_is_final: false,
+            rwkv_s90: None,
+            rwkv_retrievability: None,
+            rwkv_review_kind: None,
             from_queue: true,
         })?;
         c = col.storage.get_card(c.id)?.unwrap();

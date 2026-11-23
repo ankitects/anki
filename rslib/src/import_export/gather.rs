@@ -29,6 +29,8 @@ pub(super) struct ExchangeData {
     pub(super) media_filenames: HashSet<String>,
     pub(super) days_elapsed: u32,
     pub(super) creation_utc_offset: Option<i32>,
+    /// Card ids in the source package whose FSRS state lacks internal fields.
+    pub(super) foreign_fsrs_card_ids: HashSet<CardId>,
 }
 
 impl ExchangeData {
@@ -51,6 +53,9 @@ impl ExchangeData {
         let allow_filtered = self.enables_filtered_decks();
 
         if with_scheduling {
+            for card in &mut self.cards {
+                guard.col.storage.populate_rwkv_history_reset(card)?;
+            }
             self.revlog = guard.col.gather_revlog()?;
             if !allow_filtered {
                 self.restore_cards_from_filtered_decks();

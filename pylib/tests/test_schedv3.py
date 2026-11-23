@@ -380,6 +380,9 @@ def test_reviews():
     c = copy.copy(cardcopy)
     c.lapses = 7
     c.flush()
+    # The answers above reviewed the card today, and a second lapse on the
+    # same day does not count; drop them so this is the card's first answer.
+    col.db.execute("delete from revlog where cid = ?", c.id)
 
     col.sched.answerCard(c, 1)
     assert c.queue == QUEUE_TYPE_SUSPENDED

@@ -21,6 +21,11 @@ impl From<anki_proto::scheduler::CardAnswer> for CardAnswer {
             answered_at: TimestampMillis(answer.answered_at_millis),
             milliseconds_taken: answer.milliseconds_taken,
             custom_data,
+            desired_retention_override: answer.desired_retention_override,
+            desired_retention_override_is_final: answer.desired_retention_override_is_final,
+            rwkv_s90: answer.rwkv_s90,
+            rwkv_retrievability: answer.rwkv_retrievability,
+            rwkv_review_kind: answer.rwkv_review_kind,
             from_queue: true,
         }
     }
@@ -37,11 +42,21 @@ impl From<anki_proto::scheduler::card_answer::Rating> for Rating {
     }
 }
 
+impl From<crate::scheduler::queue::QueueEntryKind> for anki_proto::scheduler::queued_cards::Queue {
+    fn from(kind: crate::scheduler::queue::QueueEntryKind) -> Self {
+        match kind {
+            crate::scheduler::queue::QueueEntryKind::New => Self::New,
+            crate::scheduler::queue::QueueEntryKind::Review => Self::Review,
+            crate::scheduler::queue::QueueEntryKind::Learning => Self::Learning,
+        }
+    }
+}
+
 impl From<QueuedCard> for anki_proto::scheduler::queued_cards::QueuedCard {
     fn from(queued_card: QueuedCard) -> Self {
         Self {
             card: Some(queued_card.card.into()),
-            states: Some(queued_card.states.into()),
+            states: queued_card.states.map(Into::into),
             context: Some(queued_card.context),
             queue: match queued_card.kind {
                 crate::scheduler::queue::QueueEntryKind::New => {

@@ -42,6 +42,8 @@ pub enum BoolKey {
     FsrsLegacyEvaluate,
     LoadBalancerEnabled,
     FsrsShortTermWithStepsEnabled,
+    FsrsLearningQueuesDisabled,
+    ShowFuzzDeltaAboveAnswerButtons,
     #[strum(to_string = "normalize_note_text")]
     NormalizeNoteText,
     #[strum(to_string = "dayLearnFirst")]
@@ -57,6 +59,8 @@ pub enum BoolKey {
 impl Collection {
     pub fn get_config_bool(&self, key: BoolKey) -> bool {
         match key {
+            BoolKey::FsrsLearningQueuesDisabled => self.get_config_optional(key).unwrap_or(false),
+
             // some keys default to true
             BoolKey::InterruptAudioWhenAnswering
             | BoolKey::ShowIntervalsAboveAnswerButtons
@@ -67,7 +71,7 @@ impl Collection {
             | BoolKey::RestorePositionBrowser
             | BoolKey::RestorePositionReviewer
             | BoolKey::LoadBalancerEnabled
-            | BoolKey::FsrsHealthCheck
+            | BoolKey::FsrsShortTermWithStepsEnabled
             | BoolKey::NormalizeNoteText => self.get_config_optional(key).unwrap_or(true),
 
             // other options default to false
@@ -96,5 +100,31 @@ impl Collection {
 impl Collection {
     pub(crate) fn set_config_bool_inner(&mut self, key: BoolKey, value: bool) -> Result<bool> {
         self.set_config(key, &value)
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn fsrs_short_term_defaults_to_enabled_and_preserves_stored_choice() -> Result<()> {
+        let mut col = Collection::new();
+        let key = BoolKey::FsrsShortTermWithStepsEnabled;
+        assert!(col.get_config_bool(key));
+
+        col.set_config_bool(key, false, false)?;
+        assert!(!col.get_config_bool(key));
+
+        col.remove_config(key.into())?;
+        assert!(col.get_config_bool(key));
+        Ok(())
+    }
+
+    #[test]
+    fn fsrs_learning_queue_bypass_defaults_to_disabled() {
+        let col = Collection::new();
+
+        assert!(!col.get_config_bool(BoolKey::FsrsLearningQueuesDisabled));
     }
 }

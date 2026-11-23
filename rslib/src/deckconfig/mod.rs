@@ -1,12 +1,14 @@
 // Copyright: Anki Software, LLC and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
+mod fork_fields;
 mod schema11;
 mod service;
 pub(crate) mod undo;
 mod update;
 
 pub use anki_proto::deck_config::deck_config::config::AnswerAction;
+pub use anki_proto::deck_config::deck_config::config::FsrsVersion;
 pub use anki_proto::deck_config::deck_config::config::LeechAction;
 pub use anki_proto::deck_config::deck_config::config::NewCardGatherPriority;
 pub use anki_proto::deck_config::deck_config::config::NewCardInsertOrder;
@@ -15,8 +17,12 @@ pub use anki_proto::deck_config::deck_config::config::QuestionAction;
 pub use anki_proto::deck_config::deck_config::config::ReviewCardOrder;
 pub use anki_proto::deck_config::deck_config::config::ReviewMix;
 pub use anki_proto::deck_config::deck_config::Config as DeckConfigInner;
+pub(crate) use fork_fields::deck_config_inner_for_storage;
+pub(crate) use fork_fields::restore_fork_fields_from_other;
 pub use schema11::DeckConfSchema11;
 pub use schema11::NewCardOrderSchema11;
+pub(crate) use update::fsrs7_enable_scheduling_penalties;
+pub(crate) use update::fsrs7_optimize_include_same_day_reviews;
 pub use update::UpdateDeckConfigsRequest;
 
 /// Old deck config and cards table store 250% as 2500.
@@ -27,6 +33,20 @@ use crate::prelude::*;
 use crate::scheduler::states::review::INITIAL_EASE_FACTOR;
 
 define_newtype!(DeckConfigId, i64);
+
+pub const DEFAULT_REVIEW_FUZZ_BASE: f32 = 1.0;
+pub const DEFAULT_REVIEW_FUZZ_FACTOR_SHORT: f32 = 0.15;
+pub const DEFAULT_REVIEW_FUZZ_FACTOR_MID: f32 = 0.10;
+pub const DEFAULT_REVIEW_FUZZ_FACTOR_LONG: f32 = 0.05;
+pub const DEFAULT_REVIEW_FUZZ_ENABLED: bool = true;
+pub(crate) const DEFAULT_RWKV_REVIEW_BATCH_SIZE: u32 = 512;
+pub(crate) const DEFAULT_RWKV_REVIEW_REFRESH_INTERVAL: u32 = 1;
+pub(crate) const DEFAULT_RWKV_REVIEW_PRECOMPUTE_NEXT_CARD: bool = true;
+pub(crate) const DEFAULT_RWKV_REVIEW_ALLOW_SAME_DAY_REVIEW: bool = true;
+pub(crate) const DEFAULT_RWKV_REVIEW_MIN_INTERVENING_REVIEWS: u32 = 5;
+pub(crate) const DEFAULT_RWKV_REVIEW_MIN_ELAPSED_SECS: u32 = 30;
+pub(crate) const DEFAULT_RWKV_REVIEW_FIRST_REVIEW_ELAPSED_FROM_CARD_CREATION: bool = true;
+pub(crate) const DEFAULT_RWKV_REVIEW_ENFORCE_GRADE_ORDER: bool = true;
 
 #[derive(Debug, PartialEq, Clone)]
 pub struct DeckConfig {
@@ -61,6 +81,23 @@ const DEFAULT_DECK_CONFIG_INNER: DeckConfigInner = DeckConfigInner {
     interday_learning_mix: ReviewMix::MixWithReviews as i32,
     leech_action: LeechAction::TagOnly as i32,
     leech_threshold: 8,
+    leech_only_if_young: false,
+    rwkv_review_enabled: false,
+    rwkv_review_batch_size: DEFAULT_RWKV_REVIEW_BATCH_SIZE,
+    rwkv_review_refresh_interval: DEFAULT_RWKV_REVIEW_REFRESH_INTERVAL,
+    rwkv_review_refresh_on_exit: false,
+    rwkv_review_allow_same_day_review: DEFAULT_RWKV_REVIEW_ALLOW_SAME_DAY_REVIEW,
+    same_day_reviews_ignore_review_limit: false,
+    rwkv_review_instant_order_enabled: false,
+    rwkv_review_dynamic_preset_replay: false,
+    rwkv_review_candidate_refresh_enabled: false,
+    rwkv_review_precompute_next_card: DEFAULT_RWKV_REVIEW_PRECOMPUTE_NEXT_CARD,
+    rwkv_review_min_intervening_reviews: DEFAULT_RWKV_REVIEW_MIN_INTERVENING_REVIEWS,
+    rwkv_review_min_elapsed_secs: DEFAULT_RWKV_REVIEW_MIN_ELAPSED_SECS,
+    rwkv_review_first_review_elapsed_from_card_creation:
+        DEFAULT_RWKV_REVIEW_FIRST_REVIEW_ELAPSED_FROM_CARD_CREATION,
+    rwkv_review_enforce_grade_order: DEFAULT_RWKV_REVIEW_ENFORCE_GRADE_ORDER,
+    rwkv_review_minimum_reviews_per_day: 0,
     disable_autoplay: false,
     cap_answer_time_to_secs: 60,
     show_timer: false,
@@ -77,12 +114,31 @@ const DEFAULT_DECK_CONFIG_INNER: DeckConfigInner = DeckConfigInner {
     fsrs_params_4: vec![],
     fsrs_params_5: vec![],
     fsrs_params_6: vec![],
+    fsrs_params_7: vec![],
+    fsrs_minimum_interval_secs: 1,
+    fsrs_dynamic_desired_retention_enabled: false,
+    fsrs_dynamic_desired_retention_params: Vec::new(),
+    fsrs_dynamic_desired_retention_weights: Vec::new(),
+    fsrs_dynamic_desired_retention_avg_drs: Vec::new(),
+    fsrs_dynamic_desired_retention_min: 0.30,
+    fsrs_dynamic_desired_retention_max: 0.995,
+    fsrs_dynamic_desired_retention_fsrs_eq_weights: Vec::new(),
+    fsrs_dynamic_desired_retention_fsrs_eq_drs: Vec::new(),
+    fsrs_dynamic_desired_retention_fixed_target_weights: Vec::new(),
+    fsrs_dynamic_desired_retention_fixed_target_drs: Vec::new(),
+    fsrs_dynamic_desired_retention_clamp: false,
+    fsrs_version: FsrsVersion::Seven as i32,
     desired_retention: 0.9,
     other: Vec::new(),
     historical_retention: 0.9,
     param_search: String::new(),
     ignore_revlogs_before_date: String::new(),
     easy_days_percentages: Vec::new(),
+    review_fuzz_base: None,
+    review_fuzz_factor_short: None,
+    review_fuzz_factor_mid: None,
+    review_fuzz_factor_long: None,
+    review_fuzz_enabled: None,
 };
 
 impl Default for DeckConfig {
@@ -103,19 +159,83 @@ impl Default for DeckConfig {
 }
 
 impl DeckConfig {
+    pub(crate) fn intraday_learning_mix(&self) -> ReviewMix {
+        let Ok(other) = serde_json::from_slice::<serde_json::Value>(&self.inner.other) else {
+            return ReviewMix::MixWithReviews;
+        };
+        let Some(metadata) = other.get("jschoreels.deckoptions") else {
+            return ReviewMix::MixWithReviews;
+        };
+        if let Some(value) = metadata.get("intraday_learning_mix") {
+            return value
+                .as_i64()
+                .and_then(|value| i32::try_from(value).ok())
+                .and_then(|value| ReviewMix::try_from(value).ok())
+                .unwrap_or(ReviewMix::MixWithReviews);
+        }
+        if metadata
+            .get("intraday_learning_before_reviews")
+            .and_then(serde_json::Value::as_bool)
+            == Some(true)
+        {
+            ReviewMix::BeforeReviews
+        } else {
+            ReviewMix::MixWithReviews
+        }
+    }
+
+    /// kuma3: with new cards mixed into reviews, one new card after this many
+    /// reviews; None spreads them evenly (Anki's mix).
+    pub(crate) fn reviews_per_new_card(&self) -> Option<u32> {
+        serde_json::from_slice::<serde_json::Value>(&self.inner.other)
+            .ok()?
+            .get("kuma3.deckoptions")?
+            .get("reviews_per_new_card")?
+            .as_u64()
+            .filter(|&n| n > 0)
+            .map(|n| n.min(9999) as u32)
+    }
+
+    fn params_usable_in_current_fsrs(params: &[f32]) -> bool {
+        matches!(params.len(), 17 | 19 | 21 | 34) && params.iter().all(|w| w.is_finite())
+    }
+
     pub(crate) fn set_modified(&mut self, usn: Usn) {
         self.mtime_secs = TimestampSecs::now();
         self.usn = usn;
     }
 
-    /// Retrieve the FSRS 6.0 params, falling back on 5.0 or 4.x ones.
-    pub fn fsrs_params(&self) -> &Vec<f32> {
-        if !self.inner.fsrs_params_6.is_empty() {
+    pub fn selected_fsrs_params(&self) -> &[f32] {
+        match FsrsVersion::try_from(self.inner.fsrs_version).unwrap_or(FsrsVersion::Seven) {
+            FsrsVersion::Seven => &self.inner.fsrs_params_7,
+            FsrsVersion::Six => &self.inner.fsrs_params_6,
+            FsrsVersion::Five => &self.inner.fsrs_params_5,
+            FsrsVersion::Four => &self.inner.fsrs_params_4,
+        }
+    }
+
+    /// Retrieve FSRS params according to the selected version. FSRS-7 uses
+    /// its own defaults when it has not been optimized; older versions retain
+    /// the legacy stored-parameter fallback behavior.
+    pub fn fsrs_params(&self) -> &[f32] {
+        let version = FsrsVersion::try_from(self.inner.fsrs_version).unwrap_or(FsrsVersion::Seven);
+        if version == FsrsVersion::Seven
+            && (self.inner.fsrs_params_7.len() != fsrs::DEFAULT_PARAMETERS.len()
+                || !self.inner.fsrs_params_7.iter().all(|w| w.is_finite()))
+        {
+            &fsrs::DEFAULT_PARAMETERS
+        } else if Self::params_usable_in_current_fsrs(self.selected_fsrs_params()) {
+            self.selected_fsrs_params()
+        } else if Self::params_usable_in_current_fsrs(&self.inner.fsrs_params_7) {
+            &self.inner.fsrs_params_7
+        } else if Self::params_usable_in_current_fsrs(&self.inner.fsrs_params_6) {
             &self.inner.fsrs_params_6
-        } else if !self.inner.fsrs_params_5.is_empty() {
+        } else if Self::params_usable_in_current_fsrs(&self.inner.fsrs_params_5) {
             &self.inner.fsrs_params_5
-        } else {
+        } else if Self::params_usable_in_current_fsrs(&self.inner.fsrs_params_4) {
             &self.inner.fsrs_params_4
+        } else {
+            &fsrs::FSRS6_DEFAULT_PARAMETERS
         }
     }
 
@@ -271,6 +391,42 @@ pub(crate) fn ensure_deck_config_values_valid(config: &mut DeckConfigInner) {
         36_500,
     );
     ensure_u32_valid(
+        &mut config.fsrs_minimum_interval_secs,
+        default.fsrs_minimum_interval_secs,
+        1,
+        36_500 * 86_400,
+    );
+    ensure_u32_valid(
+        &mut config.rwkv_review_batch_size,
+        default.rwkv_review_batch_size,
+        64,
+        8192,
+    );
+    ensure_u32_valid(
+        &mut config.rwkv_review_refresh_interval,
+        default.rwkv_review_refresh_interval,
+        1,
+        10_000,
+    );
+    ensure_u32_valid(
+        &mut config.rwkv_review_min_intervening_reviews,
+        default.rwkv_review_min_intervening_reviews,
+        0,
+        10_000,
+    );
+    ensure_u32_valid(
+        &mut config.rwkv_review_min_elapsed_secs,
+        default.rwkv_review_min_elapsed_secs,
+        0,
+        86_400,
+    );
+    ensure_u32_valid(
+        &mut config.rwkv_review_minimum_reviews_per_day,
+        default.rwkv_review_minimum_reviews_per_day,
+        0,
+        9999,
+    );
+    ensure_u32_valid(
         &mut config.minimum_lapse_interval,
         default.minimum_lapse_interval,
         1,
@@ -303,7 +459,7 @@ pub(crate) fn ensure_deck_config_values_valid(config: &mut DeckConfigInner) {
     ensure_f32_valid(
         &mut config.desired_retention,
         default.desired_retention,
-        0.7,
+        0.1,
         0.99,
     );
     ensure_f32_valid(
@@ -522,5 +678,104 @@ mod tests {
         );
 
         Ok(())
+    }
+
+    #[test]
+    fn intraday_learning_mix_reads_modes_and_legacy_toggle() -> Result<()> {
+        for (metadata, expected) in [
+            (serde_json::json!({}), ReviewMix::MixWithReviews),
+            (
+                serde_json::json!({"intraday_learning_before_reviews": false}),
+                ReviewMix::MixWithReviews,
+            ),
+            (
+                serde_json::json!({"intraday_learning_before_reviews": true}),
+                ReviewMix::BeforeReviews,
+            ),
+            (
+                serde_json::json!({"intraday_learning_mix": 0}),
+                ReviewMix::MixWithReviews,
+            ),
+            (
+                serde_json::json!({"intraday_learning_mix": 1}),
+                ReviewMix::AfterReviews,
+            ),
+            (
+                serde_json::json!({"intraday_learning_mix": 2}),
+                ReviewMix::BeforeReviews,
+            ),
+            (
+                serde_json::json!({"intraday_learning_mix": 99}),
+                ReviewMix::MixWithReviews,
+            ),
+            (
+                serde_json::json!({"intraday_learning_mix": "before"}),
+                ReviewMix::MixWithReviews,
+            ),
+            (
+                serde_json::json!({"intraday_learning_mix": 1, "intraday_learning_before_reviews": true}),
+                ReviewMix::AfterReviews,
+            ),
+        ] {
+            let mut config = DeckConfig::default();
+            config.inner.other = serde_json::to_vec(&serde_json::json!({
+                "jschoreels.deckoptions": metadata,
+            }))?;
+            assert_eq!(config.intraday_learning_mix(), expected, "{metadata}");
+        }
+        Ok(())
+    }
+
+    #[test]
+    fn fsrs_params_respects_selected_version_when_usable() {
+        let mut config = DeckConfig::default();
+        config.inner.fsrs_version = FsrsVersion::Six as i32;
+        config.inner.fsrs_params_6 = vec![1.0_f32; 21];
+        config.inner.fsrs_params_7 = vec![2.0_f32; 34];
+
+        assert_eq!(config.fsrs_params(), &[1.0_f32; 21]);
+    }
+
+    #[test]
+    fn unoptimized_fsrs7_uses_fsrs7_defaults() {
+        let mut config = DeckConfig::default();
+        config.inner.fsrs_version = FsrsVersion::Seven as i32;
+        config.inner.fsrs_params_7.clear();
+        config.inner.fsrs_params_6 = vec![2.0_f32; 21];
+
+        assert_eq!(config.fsrs_params(), fsrs::DEFAULT_PARAMETERS);
+    }
+
+    #[test]
+    fn unoptimized_legacy_versions_keep_fsrs6_defaults() {
+        for version in [FsrsVersion::Six, FsrsVersion::Five, FsrsVersion::Four] {
+            let mut config = DeckConfig::default();
+            config.inner.fsrs_version = version as i32;
+
+            assert_eq!(config.fsrs_params(), fsrs::FSRS6_DEFAULT_PARAMETERS);
+        }
+    }
+
+    #[test]
+    fn maximum_rwkv_batch_size_is_preserved() {
+        let mut config = DeckConfig::default().inner;
+        config.rwkv_review_batch_size = 8192;
+
+        ensure_deck_config_values_valid(&mut config);
+
+        assert_eq!(config.rwkv_review_batch_size, 8192);
+    }
+
+    #[test]
+    fn invalid_rwkv_batch_size_uses_default() {
+        let mut config = DeckConfig::default().inner;
+        config.rwkv_review_batch_size = 8193;
+
+        ensure_deck_config_values_valid(&mut config);
+
+        assert_eq!(
+            config.rwkv_review_batch_size,
+            DEFAULT_RWKV_REVIEW_BATCH_SIZE
+        );
     }
 }

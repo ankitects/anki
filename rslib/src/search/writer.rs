@@ -84,6 +84,20 @@ fn write_search_node(node: &SearchNode) -> String {
             "{}{operator}{value}",
             escape_comparators(&field.replace(':', "\\:"))
         )),
+        NumericFieldRange {
+            field,
+            min,
+            max,
+            min_inclusive,
+            max_inclusive,
+        } => {
+            let left = if *min_inclusive { "[" } else { "]" };
+            let right = if *max_inclusive { "]" } else { "[" };
+            maybe_quote(&format!(
+                "{}:{left}{min},{max}{right}",
+                field.replace(':', "\\:")
+            ))
+        }
         AddedInDays(u) => format!("added:{u}"),
         EditedInDays(u) => format!("edited:{u}"),
         IntroducedInDays(u) => format!("introduced:{u}"),
@@ -93,6 +107,7 @@ fn write_search_node(node: &SearchNode) -> String {
         NotetypeId(NotetypeIdType(i)) => format!("mid:{i}"),
         Notetype(s) => maybe_quote(&format!("note:{s}")),
         Rated { days, ease } => write_rated(days, ease),
+        FirstGrade(button) => format!("firstgrade:{button}"),
         Tag { tag, mode } => write_single_field("tag", tag, *mode),
         Duplicates { notetype_id, text } => write_dupe(notetype_id, text),
         State(k) => write_state(k),
@@ -185,6 +200,8 @@ fn write_state(kind: &StateKind) -> String {
             Review => "review",
             Learning => "learn",
             Due => "due",
+            RwkvDue => "rwkv:due",
+            RwkvCurveDue => "rwkv-curve:due",
             Buried => "buried",
             UserBuried => "buried-manually",
             SchedBuried => "buried-sibling",
@@ -205,6 +222,8 @@ fn write_property(operator: &str, kind: &PropertyKind) -> String {
         Stability(u) => format!("prop:s{operator}{u}"),
         Difficulty(u) => format!("prop:d{operator}{u}"),
         Retrievability(u) => format!("prop:r{operator}{u}"),
+        RwkvRetrievability(u) => format!("prop:rwkv:r{operator}{u}"),
+        RwkvCurveRetrievability(u) => format!("prop:rwkv-curve:r{operator}{u}"),
         Rated(u, ease) => match ease {
             RatingKind::AnswerButton(val) => format!("prop:rated{operator}{u}:{val}"),
             RatingKind::AnyAnswerButton => format!("prop:rated{operator}{u}"),
@@ -256,6 +275,15 @@ mod test {
         assert_eq!(r#""aNd" "oR""#, normalize_search(r#""aNd" "oR""#).unwrap());
         // normalize numbers
         assert_eq!("prop:ease>1", normalize_search("prop:ease>1.0").unwrap());
+        assert_eq!("prop:r>0.9", normalize_search("prop:r>0.90").unwrap());
+        assert_eq!(
+            "prop:rwkv:r<0.8",
+            normalize_search("prop:rwkv:r<0.80").unwrap()
+        );
+        assert_eq!(
+            "prop:rwkv-curve:r=0.7",
+            normalize_search("prop:rwkv-curve:r=0.70").unwrap()
+        );
         assert_eq!(
             "Frequency>500",
             normalize_search("Frequency>500.0").unwrap()
@@ -263,6 +291,10 @@ mod test {
         assert_eq!(
             "Frequency=500",
             normalize_search("Frequency=500.0").unwrap()
+        );
+        assert_eq!(
+            "Frequency:[500,600[",
+            normalize_search("Frequency:[500.0,600.0[").unwrap()
         );
         assert_eq!(r"foo\:bar>5", normalize_search(r"foo\:bar>5").unwrap());
         for input in [r"x\<5", "<b>", "a=b", "<=5", r"x\<a<5", r"x\\\<5"] {

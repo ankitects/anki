@@ -253,13 +253,46 @@ pub fn new_tempfile_in_parent_of(file: &Path) -> Result<NamedTempFile> {
 /// chances of corruption if there is a crash or power loss directly after the
 /// op, but it can be considerably slower.
 pub fn atomic_rename(file: NamedTempFile, target: &Path, fsync: bool) -> Result<()> {
+    persist_tempfile(file, target, fsync, true)
+}
+
+/// Like [atomic_rename], but fails if the target already exists instead of
+/// replacing it. The completed file is published without exposing partial data.
+pub fn atomic_rename_noclobber(file: NamedTempFile, target: &Path, fsync: bool) -> Result<()> {
+    persist_tempfile(file, target, fsync, false)
+}
+
+fn persist_tempfile(
+    file: NamedTempFile,
+    target: &Path,
+    fsync: bool,
+    overwrite: bool,
+) -> Result<()> {
     if fsync {
         file.as_file().sync_all().context(FileIoSnafu {
             path: file.path(),
             op: FileOp::Sync,
         })?;
     }
-    file.persist(target)?;
+    if overwrite {
+        file.persist(target)?;
+    } else {
+        match file.persist_noclobber(target) {
+            Ok(_) => {}
+            // Android shared storage (/storage/emulated/0, FUSE) refuses both
+            // RENAME_NOREPLACE and hard links with EACCES: plain rename when
+            // the target is still free. Any other error is passed on.
+            Err(err)
+                if matches!(
+                    err.error.kind(),
+                    std::io::ErrorKind::PermissionDenied | std::io::ErrorKind::Unsupported
+                ) && !target.exists() =>
+            {
+                err.file.persist(target)?;
+            }
+            Err(err) => return Err(err.into()),
+        }
+    }
     #[cfg(not(windows))]
     if fsync {
         let abs_path;
@@ -418,6 +451,27 @@ mod test {
     use tempfile::TempDir;
 
     use super::*;
+
+    #[test]
+    fn atomic_rename_noclobber_preserves_existing_file() {
+        let dir = tempdir().unwrap();
+        let target = dir.path().join("backup.colpkg");
+        for contents in [b"first".as_slice(), b"second".as_slice()] {
+            let mut file = new_tempfile_in(&dir).unwrap();
+            file.write_all(contents).unwrap();
+            let result = atomic_rename_noclobber(file, &target, true);
+            if contents == b"first" {
+                result.unwrap();
+            } else {
+                assert_eq!(
+                    result.unwrap_err().source.kind(),
+                    std::io::ErrorKind::AlreadyExists
+                );
+            }
+            assert_eq!(read_file(&target).unwrap(), b"first");
+            assert_eq!(std::fs::read_dir(&dir).unwrap().count(), 1);
+        }
+    }
 
     #[test]
     fn path_traversal() {

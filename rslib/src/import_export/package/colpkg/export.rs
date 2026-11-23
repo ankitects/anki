@@ -10,12 +10,13 @@ use std::path::Path;
 use std::path::PathBuf;
 
 use anki_io::atomic_rename;
+use anki_io::atomic_rename_noclobber;
 use anki_io::new_tempfile;
 use anki_io::new_tempfile_in_parent_of;
 use anki_io::open_file;
 use prost::Message;
 use tempfile::NamedTempFile;
-use zip::write::FileOptions;
+use zip::write::SimpleFileOptions;
 use zip::CompressionMethod;
 use zip::ZipWriter;
 use zstd::stream::raw::Encoder as RawEncoder;
@@ -32,6 +33,7 @@ use crate::collection::CollectionBuilder;
 use crate::import_export::package::media::new_media_entry;
 use crate::import_export::package::media::MediaCopier;
 use crate::import_export::package::media::MediaIter;
+use crate::import_export::package::validate_colpkg;
 use crate::import_export::ExportProgress;
 use crate::prelude::*;
 use crate::progress::ThrottlingProgressHandler;
@@ -103,23 +105,28 @@ fn export_collection_file(
     export_collection(meta, out_path, &mut col_file, col_size, media, tr, progress)
 }
 
-/// Write copied collection data without any media.
+/// Publish copied collection data without media, preserving an existing target.
 pub(crate) fn export_colpkg_from_data(
     out_path: impl AsRef<Path>,
     mut col_data: &[u8],
     tr: &I18n,
 ) -> Result<()> {
+    let out_path = out_path.as_ref();
+    let tempfile = new_tempfile_in_parent_of(out_path)?;
     let col_size = col_data.len();
     let mut progress = ThrottlingProgressHandler::new(Default::default());
     export_collection(
         Meta::new(),
-        out_path,
+        tempfile.path(),
         &mut col_data,
         col_size,
         MediaIter::empty(),
         tr,
         &mut progress,
-    )
+    )?;
+    validate_colpkg(tempfile.path())?;
+    atomic_rename_noclobber(tempfile, out_path, true)?;
+    Ok(())
 }
 
 pub(crate) fn export_collection(
@@ -146,12 +153,12 @@ pub(crate) fn export_collection(
     Ok(())
 }
 
-fn file_options_stored() -> FileOptions<'static, 'static, ()> {
-    FileOptions::<'static, 'static, ()>::default().compression_method(CompressionMethod::Stored)
+fn file_options_stored() -> SimpleFileOptions {
+    SimpleFileOptions::default().compression_method(CompressionMethod::Stored)
 }
 
-fn file_options_default() -> FileOptions<'static, 'static, ()> {
-    FileOptions::<'static, 'static, ()>::default()
+fn file_options_default() -> SimpleFileOptions {
+    SimpleFileOptions::default()
 }
 
 fn write_collection(
@@ -317,6 +324,109 @@ impl<'a, W: Write> MaybeEncodedWriter<'a, W> {
 mod test {
     use super::*;
     use crate::media::files::sha1_of_data;
+
+    #[test]
+    fn backup_filename_collision_preserves_completed_archive() {
+        let dir = tempfile::tempdir().unwrap();
+        let path = dir.path().join("backup.colpkg");
+        CollectionBuilder::new(dir.path().join("collection.anki2"))
+            .build()
+            .unwrap()
+            .export_colpkg(&path, false, false)
+            .unwrap();
+        let original = std::fs::read(&path).unwrap();
+        let data = std::fs::read(dir.path().join("collection.anki2")).unwrap();
+        let error = export_colpkg_from_data(&path, &data, &I18n::template_only()).unwrap_err();
+        assert!(
+            matches!(error, AnkiError::FileIoError { source } if source.source.kind() == io::ErrorKind::AlreadyExists)
+        );
+        assert_eq!(std::fs::read(&path).unwrap(), original);
+        crate::import_export::package::validate_colpkg(&path).unwrap();
+    }
+
+    #[test]
+    fn invalid_snapshot_is_not_published() {
+        let dir = tempfile::tempdir().unwrap();
+        let path = dir.path().join("backup.colpkg");
+        assert!(export_colpkg_from_data(&path, b"not a database", &I18n::template_only()).is_err());
+        assert!(!path.exists());
+        assert_eq!(std::fs::read_dir(&dir).unwrap().count(), 0);
+    }
+
+    #[cfg(unix)]
+    #[test]
+    fn interrupted_backup_preserves_destination() {
+        const NAME: &str = "backup.colpkg";
+        const ENV: &str = "ANKI_TEST_BACKUP_WRITE_FAILURE";
+        if let Some(backup_dir) = std::env::var_os(ENV) {
+            use rand::Rng;
+            use rand::SeedableRng;
+
+            let mut data = vec![0; 64 * 1024];
+            rand::rngs::StdRng::seed_from_u64(5728).fill_bytes(&mut data);
+            let mut original_limit = libc::rlimit {
+                rlim_cur: 0,
+                rlim_max: 0,
+            };
+            assert_eq!(
+                unsafe { libc::getrlimit(libc::RLIMIT_FSIZE, &mut original_limit) },
+                0
+            );
+            // Restore the soft limit before the process exits so coverage output
+            // is not truncated by the backup write-failure simulation.
+            let restore_limit = scopeguard::guard(original_limit, |limit| {
+                assert_eq!(unsafe { libc::setrlimit(libc::RLIMIT_FSIZE, &limit) }, 0);
+            });
+            let write_limit = libc::rlimit {
+                rlim_cur: 512,
+                rlim_max: restore_limit.rlim_max,
+            };
+            assert_eq!(
+                unsafe { libc::setrlimit(libc::RLIMIT_FSIZE, &write_limit) },
+                0
+            );
+            let error = export_colpkg_from_data(
+                Path::new(&backup_dir).join(NAME),
+                &data,
+                &I18n::template_only(),
+            )
+            .unwrap_err();
+            assert!(
+                matches!(error, AnkiError::FileIoError { source } if source.source.kind() == io::ErrorKind::FileTooLarge)
+            );
+            return;
+        }
+        let dir = tempfile::tempdir().unwrap();
+        let path = dir.path().join(NAME);
+        for existing in [false, true] {
+            if existing {
+                std::fs::write(&path, b"previous archive").unwrap();
+            }
+            // Isolate RLIMIT_FSIZE in a subprocess. Ignoring SIGXFSZ makes the
+            // write return an error, exercising cleanup rather than killing the test.
+            let output = std::process::Command::new("sh")
+                .args(["-c", "trap '' XFSZ && exec \"$@\"", "--"])
+                .arg(std::env::current_exe().unwrap())
+                .args(["--exact", "import_export::package::colpkg::export::test::interrupted_backup_preserves_destination", "--nocapture"])
+                .env(ENV, dir.path())
+                .output().unwrap();
+            assert!(
+                output.status.success(),
+                "{} {}",
+                String::from_utf8_lossy(&output.stdout),
+                String::from_utf8_lossy(&output.stderr)
+            );
+            if existing {
+                assert_eq!(std::fs::read(&path).unwrap(), b"previous archive");
+            } else {
+                assert!(!path.exists());
+            }
+            assert_eq!(
+                std::fs::read_dir(&dir).unwrap().count(),
+                usize::from(existing)
+            );
+        }
+    }
 
     #[test]
     fn media_file_writing() {

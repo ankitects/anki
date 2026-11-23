@@ -29,6 +29,7 @@ card-stats-no-card = (No card to display.)
 card-stats-custom-data = Custom Data
 card-stats-fsrs-stability = Stability
 card-stats-fsrs-difficulty = Difficulty
+card-stats-fsrs-computed-r = FSRS computed R
 card-stats-fsrs-retrievability = Retrievability
 card-stats-fsrs-forgetting-curve-title = Forgetting Curve
 card-stats-fsrs-forgetting-curve-first-week = First Week

@@ -57,6 +57,8 @@ message ConfigKey {
     LOAD_BALANCER_ENABLED = 26;
     FSRS_SHORT_TERM_WITH_STEPS_ENABLED = 27;
     FSRS_LEGACY_EVALUATE = 28;
+    SHOW_FUZZ_DELTA_ABOVE_ANSWER_BUTTONS = 29;
+    FSRS_LEARNING_QUEUES_DISABLED = 30;
   }
   enum String {
     SET_DUE_BROWSER = 0;
@@ -126,6 +128,7 @@ message Preferences {
     uint32 time_limit_secs = 5;
     bool load_balancer_enabled = 6;
     bool fsrs_short_term_with_steps_enabled = 7;
+    bool show_fuzz_delta_on_buttons = 8;
   }
   message Editing {
     bool adding_defaults_to_current_deck = 1;

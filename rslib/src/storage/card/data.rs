@@ -14,6 +14,8 @@ use crate::card::FsrsMemoryState;
 use crate::prelude::*;
 use crate::serde::default_on_invalid;
 
+const MIN_PERSISTED_FSRS_STABILITY: f32 = 0.0001;
+
 /// Helper for serdeing the card data column.
 #[derive(Debug, Clone, PartialEq, Default, Serialize, Deserialize)]
 #[serde(default)]
@@ -30,6 +32,18 @@ pub(crate) struct CardData {
         deserialize_with = "default_on_invalid"
     )]
     pub(crate) fsrs_stability: Option<f32>,
+    #[serde(
+        rename = "s_int",
+        skip_serializing_if = "Option::is_none",
+        deserialize_with = "default_on_invalid"
+    )]
+    pub(crate) fsrs_stability_internal: Option<f32>,
+    #[serde(
+        rename = "s_fast",
+        skip_serializing_if = "Option::is_none",
+        deserialize_with = "default_on_invalid"
+    )]
+    pub(crate) fsrs_stability_fast: Option<f32>,
     #[serde(
         rename = "d",
         skip_serializing_if = "Option::is_none",
@@ -54,6 +68,13 @@ pub(crate) struct CardData {
     )]
     pub(crate) last_review_time: Option<TimestampSecs>,
 
+    #[serde(
+        rename = "rwkv_reset_after",
+        skip_serializing_if = "Option::is_none",
+        deserialize_with = "default_on_invalid"
+    )]
+    pub(crate) rwkv_history_reset_after: Option<i64>,
+
     /// A string representation of a JSON object storing optional data
     /// associated with the card, so v3 custom scheduling code can persist
     /// state.
@@ -66,10 +87,13 @@ impl CardData {
         Self {
             original_position: card.original_position,
             fsrs_stability: card.memory_state.as_ref().map(|m| m.stability),
+            fsrs_stability_internal: card.memory_state.as_ref().map(|m| m.stability_internal),
+            fsrs_stability_fast: card.memory_state.as_ref().and_then(|m| m.stability_fast),
             fsrs_difficulty: card.memory_state.as_ref().map(|m| m.difficulty),
             fsrs_desired_retention: card.desired_retention,
             decay: card.decay,
             last_review_time: card.last_review_time,
+            rwkv_history_reset_after: card.rwkv_history_reset_after,
             custom_data: card.custom_data.clone(),
         }
     }
@@ -83,6 +107,8 @@ impl CardData {
             if let Some(difficulty) = self.fsrs_difficulty {
                 return Some(FsrsMemoryState {
                     stability,
+                    stability_internal: self.fsrs_stability_internal.unwrap_or(stability),
+                    stability_fast: self.fsrs_stability_fast,
                     difficulty,
                 });
             }
@@ -92,7 +118,16 @@ impl CardData {
 
     pub(crate) fn convert_to_json(&mut self) -> Result<String> {
         if let Some(v) = &mut self.fsrs_stability {
-            round_to_places(v, 4)
+            round_fsrs_stability(v)
+        }
+        if let Some(v) = &mut self.fsrs_stability_internal {
+            round_fsrs_stability(v)
+        }
+        if let Some(v) = &mut self.fsrs_stability_fast {
+            round_fsrs_stability(v)
+        }
+        if self.fsrs_difficulty.is_some() && self.fsrs_stability == Some(0.0) {
+            self.fsrs_stability = Some(MIN_PERSISTED_FSRS_STABILITY);
         }
         if let Some(v) = &mut self.fsrs_difficulty {
             round_to_places(v, 3)
@@ -110,6 +145,14 @@ impl CardData {
 fn round_to_places(value: &mut f32, decimal_places: u32) {
     let factor = 10_f32.powi(decimal_places as i32);
     *value = (*value * factor).round() / factor;
+}
+
+fn round_fsrs_stability(value: &mut f32) {
+    let was_positive = *value > 0.0;
+    round_to_places(value, 4);
+    if was_positive && *value == 0.0 {
+        *value = MIN_PERSISTED_FSRS_STABILITY;
+    }
 }
 
 impl FromSql for CardData {
@@ -173,15 +216,117 @@ mod test {
         let mut data = CardData {
             original_position: None,
             fsrs_stability: Some(123.45678),
+            fsrs_stability_internal: Some(234.56789),
+            fsrs_stability_fast: None,
             fsrs_difficulty: Some(1.234567),
             fsrs_desired_retention: Some(0.987654),
             decay: Some(0.123456),
             last_review_time: None,
+            rwkv_history_reset_after: None,
             custom_data: "".to_string(),
         };
         assert_eq!(
             data.convert_to_json().unwrap(),
-            r#"{"s":123.4568,"d":1.235,"dr":0.99,"decay":0.123}"#
+            r#"{"s":123.4568,"s_int":234.5679,"d":1.235,"dr":0.99,"decay":0.123}"#
         );
+    }
+
+    #[test]
+    fn compact_floats_preserves_minimum_fsrs_stability() {
+        let mut data = CardData {
+            fsrs_stability: Some(0.0001),
+            fsrs_stability_internal: Some(0.0001),
+            fsrs_stability_fast: None,
+            fsrs_difficulty: Some(1.0),
+            ..Default::default()
+        };
+        assert_eq!(
+            data.convert_to_json().unwrap(),
+            r#"{"s":0.0001,"s_int":0.0001,"d":1.0}"#
+        );
+    }
+
+    #[test]
+    fn compact_floats_preserves_tiny_positive_fsrs_stability() {
+        let mut data = CardData {
+            fsrs_stability: Some(0.00001),
+            fsrs_stability_internal: Some(0.0005),
+            fsrs_stability_fast: None,
+            fsrs_difficulty: Some(9.932),
+            ..Default::default()
+        };
+        assert_eq!(
+            data.convert_to_json().unwrap(),
+            r#"{"s":0.0001,"s_int":0.0005,"d":9.932}"#
+        );
+    }
+
+    #[test]
+    fn compact_floats_repairs_zero_fsrs_memory_stability() {
+        let mut data = CardData {
+            fsrs_stability: Some(0.0),
+            fsrs_stability_internal: Some(0.0005),
+            fsrs_stability_fast: None,
+            fsrs_difficulty: Some(9.932),
+            ..Default::default()
+        };
+        assert_eq!(
+            data.convert_to_json().unwrap(),
+            r#"{"s":0.0001,"s_int":0.0005,"d":9.932}"#
+        );
+    }
+
+    #[test]
+    fn memory_state_reads_internal_stability_when_present() {
+        let data = CardData {
+            fsrs_stability: Some(12.0),
+            fsrs_stability_internal: Some(30.0),
+            fsrs_stability_fast: None,
+            fsrs_difficulty: Some(5.0),
+            ..Default::default()
+        };
+        assert_eq!(
+            data.memory_state(),
+            Some(FsrsMemoryState {
+                stability: 12.0,
+                stability_internal: 30.0,
+                stability_fast: None,
+                difficulty: 5.0,
+            })
+        );
+    }
+
+    #[test]
+    fn memory_state_defaults_internal_stability_to_stability() {
+        let data = CardData {
+            fsrs_stability: Some(12.0),
+            fsrs_difficulty: Some(5.0),
+            ..Default::default()
+        };
+        assert_eq!(
+            data.memory_state(),
+            Some(FsrsMemoryState {
+                stability: 12.0,
+                stability_internal: 12.0,
+                stability_fast: None,
+                difficulty: 5.0,
+            })
+        );
+    }
+
+    #[test]
+    fn from_card_writes_internal_stability_even_when_equal() {
+        let card = crate::card::Card {
+            memory_state: Some(FsrsMemoryState {
+                stability: 12.0,
+                stability_internal: 12.0,
+                stability_fast: None,
+                difficulty: 5.0,
+            }),
+            ..Default::default()
+        };
+        let data = CardData::from_card(&card);
+        assert_eq!(data.fsrs_stability, Some(12.0));
+        assert_eq!(data.fsrs_stability_internal, Some(12.0));
     }
 }

@@ -16,8 +16,11 @@ use anki_proto::config::preferences::BackupLimits;
 use chrono::prelude::*;
 use itertools::Itertools;
 use tracing::error;
+use tracing::warn;
 
+use crate::import_export::package::check_colpkg_header;
 use crate::import_export::package::export_colpkg_from_data;
+use crate::import_export::package::validate_colpkg;
 use crate::prelude::*;
 
 const BACKUP_FORMAT_STRING: &str = "backup-%Y-%m-%d-%H.%M.%S.colpkg";
@@ -40,9 +43,12 @@ impl Collection {
             let tr = self.tr.clone();
             self.storage.checkpoint()?;
             let col_data = read_locked_db_file(&self.col_path)?;
-            self.update_last_backup_timestamp()?;
+            let snapshot_modified = self.storage.get_collection_timestamps()?.collection_change;
+            let last_backup_modified = self.state.last_backup_modified.clone();
             Ok(Some(thread::spawn(move || {
-                backup_inner(&col_data, &backup_folder, limits, &tr)
+                backup_inner(&col_data, &backup_folder, limits, &tr)?;
+                *last_backup_modified.lock().unwrap() = Some(snapshot_modified);
+                Ok(())
             })))
         }
     }
@@ -61,24 +67,27 @@ fn should_skip_backup(
 }
 
 fn has_recent_backup(backup_folder: &Path, recent_mins: u32) -> Result<bool> {
-    let recent_secs = (recent_mins * 60) as u64;
+    let recent_secs = u64::from(recent_mins) * 60;
     let now = SystemTime::now();
     Ok(read_dir(backup_folder)?
         .filter_map(|res| res.ok())
-        .filter_map(|entry| entry.metadata().ok())
-        .filter_map(|meta| {
+        .filter_map(Backup::from_entry)
+        .filter(|backup| {
+            let Ok(meta) = backup.path.metadata() else {
+                return false;
+            };
             // created time unsupported on Android
             #[cfg(target_os = "android")]
-            {
-                meta.modified().ok()
-            }
+            let time = meta.modified();
             #[cfg(not(target_os = "android"))]
-            {
-                meta.created().ok()
-            }
+            let time = meta.created();
+            time.ok()
+                .and_then(|time| now.duration_since(time).ok())
+                .is_some_and(|duration| duration.as_secs() < recent_secs)
         })
-        .filter_map(|time| now.duration_since(time).ok())
-        .any(|duration| duration.as_secs() < recent_secs))
+        // Runs with the collection locked on every periodic check, so only the
+        // header is read; archives were fully validated when they were written.
+        .any(|backup| backup.has_usable_header()))
 }
 
 fn backup_inner<P: AsRef<Path>>(
@@ -88,7 +97,7 @@ fn backup_inner<P: AsRef<Path>>(
     tr: &I18n,
 ) -> Result<()> {
     write_backup(col_data, backup_folder.as_ref(), tr)?;
-    thin_backups(backup_folder, limits)
+    thin_backups(backup_folder, limits, Local::now())
 }
 
 fn write_backup<S: AsRef<OsStr>>(col_data: &[u8], backup_folder: S, tr: &I18n) -> Result<()> {
@@ -97,10 +106,24 @@ fn write_backup<S: AsRef<OsStr>>(col_data: &[u8], backup_folder: S, tr: &I18n) -
     export_colpkg_from_data(out_path, col_data, tr)
 }
 
-fn thin_backups<P: AsRef<Path>>(backup_folder: P, limits: BackupLimits) -> Result<()> {
-    let backups =
-        read_dir(backup_folder)?.filter_map(|entry| entry.ok().and_then(Backup::from_entry));
-    let obsolete_backups = BackupFilter::new(Local::now(), limits).obsolete_backups(backups);
+fn thin_backups<P: AsRef<Path>>(
+    backup_folder: P,
+    limits: BackupLimits,
+    now: DateTime<Local>,
+) -> Result<()> {
+    let backups: Vec<_> = read_dir(backup_folder)?
+        .filter_map(|entry| entry.ok().and_then(Backup::from_entry))
+        .collect();
+    // If all candidates fit, leave every file in place without extracting old
+    // collections. Before any deletion, validate which archives can occupy slots.
+    if BackupFilter::new(now, limits)
+        .obsolete_backups(backups.iter().cloned())
+        .is_empty()
+    {
+        return Ok(());
+    }
+    let obsolete_backups = BackupFilter::new(now, limits)
+        .obsolete_backups(backups.into_iter().filter(Backup::is_usable));
     for backup in obsolete_backups {
         if let Err(error) = remove_file(&backup.path) {
             error!("failed to remove {:?}: {error:?}", &backup.path);
@@ -143,6 +166,9 @@ impl Backup {
 
 impl Backup {
     fn from_entry(entry: DirEntry) -> Option<Self> {
+        if !entry.file_type().ok()?.is_file() {
+            return None;
+        }
         entry
             .file_name()
             .to_str()
@@ -151,6 +177,25 @@ impl Backup {
                 path: entry.path(),
                 datetime,
             })
+    }
+
+    /// Full check, required before a backup may displace older ones.
+    fn is_usable(&self) -> bool {
+        self.passes(validate_colpkg)
+    }
+
+    fn has_usable_header(&self) -> bool {
+        self.passes(check_colpkg_header)
+    }
+
+    fn passes(&self, check: fn(&Path) -> Result<()>) -> bool {
+        match check(&self.path) {
+            Ok(()) => true,
+            Err(error) => {
+                warn!(path = ?self.path, ?error, "ignoring unreadable backup");
+                false
+            }
+        }
     }
 }
 
@@ -252,6 +297,165 @@ impl BackupFilter {
 #[cfg(test)]
 mod test {
     use super::*;
+    use crate::collection::CollectionBuilder;
+
+    fn create_backup(path: &Path) {
+        let col_dir = tempfile::tempdir().unwrap();
+        CollectionBuilder::new(col_dir.path().join("collection.anki2"))
+            .build()
+            .unwrap()
+            .export_colpkg(path, false, false)
+            .unwrap();
+    }
+
+    fn create_legacy_backup(path: &Path, collection: &[u8]) {
+        use std::io::Write;
+
+        let mut zip = zip::ZipWriter::new(std::fs::File::create(path).unwrap());
+        zip.start_file("collection.anki2", zip::write::SimpleFileOptions::default())
+            .unwrap();
+        zip.write_all(collection).unwrap();
+        zip.start_file("media", zip::write::SimpleFileOptions::default())
+            .unwrap();
+        zip.write_all(b"{}").unwrap();
+        zip.finish().unwrap();
+    }
+
+    fn create_invalid_collection_backup(path: &Path) {
+        create_legacy_backup(path, b"not a SQLite collection");
+    }
+
+    #[test]
+    fn corrupt_backups_do_not_displace_valid_backups() {
+        let now = Local
+            .with_ymd_and_hms(2022, 2, 22, 0, 0, 0)
+            .latest()
+            .unwrap();
+        for limits in [
+            BackupLimits {
+                daily: 1,
+                ..Default::default()
+            },
+            BackupLimits {
+                weekly: 1,
+                ..Default::default()
+            },
+            BackupLimits {
+                monthly: 1,
+                ..Default::default()
+            },
+        ] {
+            for corrupt_data in [b"".as_slice(), b"PK\x03\x04incomplete backup".as_slice()] {
+                let dir = tempfile::tempdir().unwrap();
+                let valid = dir.path().join("backup-2000-01-01-00.00.00.colpkg");
+                let corrupt = dir.path().join("backup-2000-02-01-00.00.00.colpkg");
+                create_backup(&valid);
+                let original = std::fs::read(&valid).unwrap();
+                std::fs::write(&corrupt, corrupt_data).unwrap();
+                thin_backups(dir.path(), limits, now).unwrap();
+                assert_eq!(std::fs::read(&valid).unwrap(), original);
+                assert_eq!(std::fs::read(&corrupt).unwrap(), corrupt_data);
+                // A valid newer backup still occupies the slot and removes the old one.
+                create_backup(&corrupt);
+                thin_backups(dir.path(), limits, now).unwrap();
+                assert!(!valid.exists());
+                assert!(corrupt.exists());
+            }
+        }
+    }
+
+    #[test]
+    fn invalid_collections_do_not_displace_valid_backups() {
+        let dir = tempfile::tempdir().unwrap();
+        let valid = dir.path().join("backup-2000-01-01-00.00.00.colpkg");
+        let corrupt = dir.path().join("backup-2000-02-01-00.00.00.colpkg");
+        create_backup(&valid);
+        create_invalid_collection_backup(&corrupt);
+        thin_backups(
+            dir.path(),
+            BackupLimits {
+                daily: 1,
+                ..Default::default()
+            },
+            Local::now(),
+        )
+        .unwrap();
+        assert!(valid.exists());
+        assert!(corrupt.exists());
+    }
+
+    #[test]
+    fn only_usable_backups_suppress_automatic_backup() {
+        let dir = tempfile::tempdir().unwrap();
+        std::fs::write(dir.path().join("unrelated.txt"), b"unrelated").unwrap();
+        let path = dir
+            .path()
+            .join(Local::now().format(BACKUP_FORMAT_STRING).to_string());
+        std::fs::create_dir(&path).unwrap();
+        assert!(!has_recent_backup(dir.path(), 30).unwrap());
+        std::fs::remove_dir(&path).unwrap();
+        for data in [b"".as_slice(), b"PK\x03\x04incomplete backup".as_slice()] {
+            std::fs::write(&path, data).unwrap();
+            assert!(!has_recent_backup(dir.path(), 30).unwrap());
+        }
+        std::fs::remove_file(&path).unwrap();
+        create_invalid_collection_backup(&path);
+        assert!(!has_recent_backup(dir.path(), 30).unwrap());
+        create_backup(&path);
+        assert!(has_recent_backup(dir.path(), 30).unwrap());
+        assert!(!has_recent_backup(dir.path(), 0).unwrap());
+    }
+
+    #[test]
+    fn recent_backup_check_does_not_read_collection_body() {
+        let dir = tempfile::tempdir().unwrap();
+        let path = dir
+            .path()
+            .join(Local::now().format(BACKUP_FORMAT_STRING).to_string());
+        let mut collection = b"SQLite format 3\0".to_vec();
+        collection.resize(4096, 0xff);
+        create_legacy_backup(&path, &collection);
+        // Full validation is left to backup creation and thinning.
+        assert!(validate_colpkg(&path).is_err());
+        assert!(has_recent_backup(dir.path(), 30).unwrap());
+    }
+
+    #[test]
+    fn completion_records_snapshot_timestamp() {
+        let dir = tempfile::tempdir().unwrap();
+        let mut col = CollectionBuilder::new(dir.path().join("collection.anki2"))
+            .build()
+            .unwrap();
+        let snapshot = col
+            .storage
+            .get_collection_timestamps()
+            .unwrap()
+            .collection_change;
+        let task = col
+            .maybe_backup(dir.path().to_path_buf(), true)
+            .unwrap()
+            .unwrap();
+        col.set_modified_time_undoable(TimestampMillis(snapshot.0 + 1), snapshot)
+            .unwrap();
+        task.join().unwrap().unwrap();
+        assert_eq!(
+            *col.state.last_backup_modified.lock().unwrap(),
+            Some(snapshot)
+        );
+        assert!(col.changed_since_last_backup().unwrap());
+        let next = tempfile::tempdir().unwrap();
+        col.maybe_backup(next.path().to_path_buf(), true)
+            .unwrap()
+            .unwrap()
+            .join()
+            .unwrap()
+            .unwrap();
+        assert!(!col.changed_since_last_backup().unwrap());
+        assert!(col
+            .maybe_backup(next.path().to_path_buf(), true)
+            .unwrap()
+            .is_none());
+    }
 
     macro_rules! backup {
         ($num_days_from_ce:expr) => {
