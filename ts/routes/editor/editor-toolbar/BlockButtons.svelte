@@ -9,16 +9,16 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
     import { getPlatformString, registerShortcut } from "@tslib/shortcuts";
     import { onMount } from "svelte";
 
-    import ButtonGroup from "$lib/components/ButtonGroup.svelte";
+    import ButtonGroup from "#lib/components/ButtonGroup.svelte";
     import ButtonGroupItem, {
         createProps,
         setSlotHostContext,
         updatePropsList,
-    } from "$lib/components/ButtonGroupItem.svelte";
-    import ButtonToolbar from "$lib/components/ButtonToolbar.svelte";
-    import DynamicallySlottable from "$lib/components/DynamicallySlottable.svelte";
-    import Icon from "$lib/components/Icon.svelte";
-    import IconButton from "$lib/components/IconButton.svelte";
+    } from "#lib/components/ButtonGroupItem.svelte";
+    import ButtonToolbar from "#lib/components/ButtonToolbar.svelte";
+    import DynamicallySlottable from "#lib/components/DynamicallySlottable.svelte";
+    import Icon from "#lib/components/Icon.svelte";
+    import IconButton from "#lib/components/IconButton.svelte";
     import {
         indentIcon,
         justifyCenterIcon,
@@ -29,10 +29,10 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
         olIcon,
         outdentIcon,
         ulIcon,
-    } from "$lib/components/icons";
-    import Popover from "$lib/components/Popover.svelte";
-    import WithFloating from "$lib/components/WithFloating.svelte";
-    import { execCommand } from "$lib/domlib";
+    } from "#lib/components/icons.js";
+    import Popover from "#lib/components/Popover.svelte";
+    import WithFloating from "#lib/components/WithFloating.svelte";
+    import { execCommand } from "#lib/domlib/index.js";
 
     import { context } from "../NoteEditor.svelte";
     import { editingInputIsRichText } from "../rich-text-input";

@@ -7,12 +7,12 @@ import { registerPackage } from "@tslib/runtime-require";
 import type { Readable } from "svelte/store";
 import { derived, get } from "svelte/store";
 
-import type { Matcher } from "$lib/domlib/find-above";
-import { findClosest } from "$lib/domlib/find-above";
-import type { SurroundFormat } from "$lib/domlib/surround";
-import { boolMatcher, reformat, surround, unsurround } from "$lib/domlib/surround";
-import type { TriggerItem } from "$lib/sveltelib/handler-list";
-import type { InputHandlerAPI } from "$lib/sveltelib/input-handler";
+import type { Matcher } from "#lib/domlib/find-above.js";
+import { findClosest } from "#lib/domlib/find-above.js";
+import type { SurroundFormat } from "#lib/domlib/surround/index.js";
+import { boolMatcher, reformat, surround, unsurround } from "#lib/domlib/surround/index.js";
+import type { TriggerItem } from "#lib/sveltelib/handler-list.js";
+import type { InputHandlerAPI } from "#lib/sveltelib/input-handler.js";
 
 function isValid<T>(value: T | undefined): value is T {
     return Boolean(value);

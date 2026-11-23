@@ -58,9 +58,9 @@ License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
             ]);
         } else {
             stylesPromise = Promise.all([
-                import("$lib/editable/editable-base.scss?url"),
-                import("$lib/editable/content-editable.scss?url"),
-                import("$lib/editable/mathjax.scss?url"),
+                import("#lib/editable/editable-base.scss?url"),
+                import("#lib/editable/content-editable.scss?url"),
+                import("#lib/editable/mathjax.scss?url"),
             ]).then(([editableBase, contentEditable, mathjax]) => [
                 {
                     id: "editableBaseStyle",

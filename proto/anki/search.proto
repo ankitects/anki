@@ -3,12 +3,12 @@
 
 syntax = "proto3";
 
-option java_multiple_files = true;
-
 package anki.search;
 
-import "anki/generic.proto";
 import "anki/collection.proto";
+import "anki/generic.proto";
+
+option java_multiple_files = true;
 
 service SearchService {
   rpc BuildSearchString(SearchNode) returns (generic.String);
@@ -16,8 +16,7 @@ service SearchService {
   rpc SearchNotes(SearchRequest) returns (SearchResponse);
   rpc JoinSearchNodes(JoinSearchNodesRequest) returns (generic.String);
   rpc ReplaceSearchNode(ReplaceSearchNodeRequest) returns (generic.String);
-  rpc FindAndReplace(FindAndReplaceRequest)
-      returns (collection.OpChangesWithCount);
+  rpc FindAndReplace(FindAndReplaceRequest) returns (collection.OpChangesWithCount);
   rpc AllBrowserColumns(generic.Empty) returns (BrowserColumns);
   rpc BrowserRowForId(generic.Int64) returns (BrowserRow);
   rpc SetActiveBrowserColumns(generic.StringList) returns (generic.Empty);
