@@ -10,8 +10,7 @@ build:
   jobs:
     pre_create_environment:
       - asdf plugin add uv
-      - asdf install uv latest
-      - asdf global uv latest
+      - asdf install uv
     create_environment:
       - uv venv "$READTHEDOCS_VIRTUALENV_PATH"
     install:

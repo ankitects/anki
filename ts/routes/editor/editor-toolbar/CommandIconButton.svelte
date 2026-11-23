@@ -1,15 +1,15 @@
 <!--
-Copyright: Ankitects Pty Ltd and contributors
+Copyright: Anki Software, LLC and contributors
 License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 -->
 <script lang="ts">
     import { getPlatformString } from "@tslib/shortcuts";
 
-    import IconButton from "$lib/components/IconButton.svelte";
-    import Shortcut from "$lib/components/Shortcut.svelte";
-    import WithState from "$lib/components/WithState.svelte";
-    import { updateStateByKey } from "$lib/components/WithState.svelte";
-    import { execCommand, queryCommandState } from "$lib/domlib";
+    import IconButton from "#lib/components/IconButton.svelte";
+    import Shortcut from "#lib/components/Shortcut.svelte";
+    import WithState from "#lib/components/WithState.svelte";
+    import { updateStateByKey } from "#lib/components/WithState.svelte";
+    import { execCommand, queryCommandState } from "#lib/domlib/index.js";
 
     import { context as noteEditorContext } from "../NoteEditor.svelte";
     import { editingInputIsRichText } from "../rich-text-input";

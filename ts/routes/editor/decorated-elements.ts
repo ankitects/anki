@@ -1,12 +1,12 @@
-// Copyright: Ankitects Pty Ltd and contributors
+// Copyright: Anki Software, LLC and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
 import { BLOCK_ELEMENTS } from "@tslib/dom";
 
-import { CustomElementArray } from "$lib/editable/decorated";
-import { FrameElement } from "$lib/editable/frame-element";
-import { FrameEnd, FrameStart } from "$lib/editable/frame-handle";
-import { Mathjax } from "$lib/editable/mathjax-element.svelte";
+import { CustomElementArray } from "#lib/editable/decorated.js";
+import { FrameElement } from "#lib/editable/frame-element.js";
+import { FrameEnd, FrameStart } from "#lib/editable/frame-handle.js";
+import { Mathjax } from "#lib/editable/mathjax-element.svelte.js";
 import { parsingInstructions } from "./plain-text-input";
 
 const decoratedElements = new CustomElementArray();
