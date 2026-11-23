@@ -18,6 +18,7 @@ use crate::input::BuildInput;
 
 pub fn node_archive(platform: Platform) -> OnlineArchive {
     match platform {
+        Platform::OpenBSDX64 => panic!("Set NODE_BINARY to a native OpenBSD Node executable"),
         Platform::LinuxX64 => OnlineArchive {
             url: "https://nodejs.org/dist/v22.17.0/node-v22.17.0-linux-x64.tar.xz",
             sha256: "325c0f1261e0c61bcae369a1274028e9cfb7ab7949c05512c5b1e630f7e80e12",
@@ -108,7 +109,7 @@ fn with_cmd_ext(bin: &str) -> Cow<'_, str> {
 
 pub fn setup_node(
     build: &mut Build,
-    archive: OnlineArchive,
+    platform: Platform,
     binary_exports: &[&'static str],
     mut data_exports: HashMap<&str, Vec<Cow<str>>>,
 ) -> Result<()> {
@@ -124,7 +125,7 @@ pub fn setup_node(
             download_and_extract(
                 build,
                 "node",
-                archive,
+                node_archive(platform),
                 hashmap! {
                     "bin" => vec![if cfg!(windows) { "node.exe" } else { "bin/node" }],
                     "npm" => vec![if cfg!(windows) { "npm.cmd " } else { "bin/npm" }]

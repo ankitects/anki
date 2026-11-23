@@ -17,6 +17,7 @@ use crate::Build;
 
 pub fn protoc_archive(platform: Platform) -> OnlineArchive {
     match platform {
+        Platform::OpenBSDX64 => panic!("Set PROTOC_BINARY to a native OpenBSD protoc executable"),
         Platform::LinuxX64 => {
             OnlineArchive {
                 url: "https://github.com/protocolbuffers/protobuf/releases/download/v31.1/protoc-31.1-linux-x86_64.zip",
