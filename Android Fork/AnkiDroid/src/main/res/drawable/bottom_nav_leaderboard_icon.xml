@@ -1,0 +1,8 @@
+<!--
+  SPDX-License-Identifier: GPL-3.0-or-later
+  SPDX-FileComment: Derived from ic_leaderboard.xml and ic_leaderboard_filled.xml
+-->
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:state_selected="true" android:drawable="@drawable/ic_leaderboard_filled" />
+    <item android:drawable="@drawable/ic_leaderboard" />
+</selector>

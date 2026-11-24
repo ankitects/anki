@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+~ Copyright (c) 2023 David Allison <davidallisongithub@gmail.com>
+~
+~ This program is free software; you can redistribute it and/or modify it under
+~ the terms of the GNU General Public License as published by the Free Software
+~ Foundation; either version 3 of the License, or (at your option) any later
+~ version.
+~
+~ This program is distributed in the hope that it will be useful, but WITHOUT ANY
+~ WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+~ PARTICULAR PURPOSE. See the GNU General Public License for more details.
+~
+~ You should have received a copy of the GNU General Public License along with
+~ this program.  If not, see <http://www.gnu.org/licenses/>.
+~
+~
+~ This file incorporates code under the following license
+~ Copyright (C) 2019 The Android Open Source Project
+~
+~ Licensed under the Apache License, Version 2.0 (the "License");
+~ you may not use this file except in compliance with the License.
+~ You may obtain a copy of the License at
+~
+~      http://www.apache.org/licenses/LICENSE-2.0
+~
+~ Unless required by applicable law or agreed to in writing, software
+~ distributed under the License is distributed on an "AS IS" BASIS,
+~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+~ See the License for the specific language governing permissions and
+~ limitations under the License.
+
+~ https://github.com/material-components/material-components-android/blob/54d2c8b87f364ca9cb04cbd9b751efd490bbb56e/lib/java/com/google/android/material/lists/res/layout/material_list_item_two_line.xml#L30
+-->
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    android:clickable="true"
+    android:focusable="true"
+    android:background="?attr/selectableItemBackground"
+    android:minHeight="60dp"
+    >
+    <!-- TODO: use DividerItemDecoration or similar to add space instead of minHeight -->
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/local_or_network"
+        android:background="@color/transparent"
+        android:layout_width="36dp"
+        android:layout_height="48dp"
+
+        android:clickable="false"
+        android:focusable="false"
+
+        app:icon="@drawable/baseline_offline_pin_24"
+        app:iconTint="?attr/colorControlNormal"
+        app:iconSize="24dp"
+        app:iconGravity="start"
+        android:padding="0dp"
+
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"/>
+
+    <com.ichi2.ui.FixedTextView
+        android:id="@+id/text_view_bottom"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:maxLines="1"
+        android:paddingEnd="16dp"
+        android:paddingStart="10dp"
+        android:paddingTop="2dp"
+        android:textAppearance="?attr/textAppearanceSubtitle1"
+        android:textColor="@color/mtrl_list_item_tint"
+        android:textSize="16dp"
+        android:textFontWeight="400"
+        app:layout_constraintEnd_toStartOf="@id/action_button"
+        app:layout_constraintStart_toEndOf="@id/local_or_network"
+        app:layout_constraintTop_toBottomOf="@+id/text_view_top"
+        tools:text="mtrl_list_item_text" />
+
+    <com.ichi2.ui.FixedTextView
+        android:id="@+id/text_view_top"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/text_view_bottom"
+        android:layout_gravity="center_vertical"
+        android:maxLines="2"
+        android:paddingEnd="16dp"
+        android:paddingStart="10dp"
+        android:textSize="12dp"
+        android:textFontWeight="500"
+        android:textAppearance="?attr/textAppearanceBody2"
+        app:layout_constraintEnd_toStartOf="@id/action_button"
+        app:layout_constraintStart_toEndOf="@id/local_or_network"
+        app:layout_constraintTop_toTopOf="@+id/local_or_network"
+        tools:text="mtrl_list_item_secondary_text" />
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/action_button"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+
+        app:icon="@drawable/baseline_download_for_offline_24"
+        app:iconSize="24dp"
+        app:iconPadding="0dp"
+        app:iconGravity="textStart"
+        app:iconTint="?attr/colorControlNormal"
+
+        android:background="?attr/selectableItemBackground"
+
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:shapeAppearance="?attr/shapeAppearanceCornerLarge" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

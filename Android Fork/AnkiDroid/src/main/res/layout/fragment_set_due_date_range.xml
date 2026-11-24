@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- SPDX-License-Identifier: GPL-3.0-or-later -->
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:paddingHorizontal="16dp"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <com.google.android.material.textview.MaterialTextView
+        android:id="@+id/date_range_label"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingTop="8dp"
+        android:layout_marginStart="8dp"
+        style="@style/TextAppearance.Material3.LabelLarge"
+        tools:text="Show card in range"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
+
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/date_range_start_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:paddingBottom="8dp"
+        app:expandedHintEnabled="false"
+        app:suffixText="days"
+        app:layout_constraintTop_toBottomOf="@+id/date_range_label">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/date_range_start_edit_text"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="@string/set_due_date_range_start"
+            android:inputType="number"
+            android:maxLength="5"
+            android:imeOptions="actionNext"
+            android:nextFocusForward="@id/date_range_end_edit_text"
+            />
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/date_range_end_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        app:expandedHintEnabled="false"
+        app:layout_constraintTop_toBottomOf="@+id/date_range_start_layout"
+        app:suffixText="days">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/date_range_end_edit_text"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="@string/set_due_date_range_end"
+            android:inputType="number"
+            android:maxLength="5"
+            android:imeOptions="actionDone" />
+    </com.google.android.material.textfield.TextInputLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

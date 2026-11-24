@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/top_bar"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:paddingStart="@dimen/side_margin"
+    android:paddingEnd="@dimen/side_margin"
+    android:paddingTop="2dp"
+    android:paddingBottom="3dp"
+    android:gravity="center_vertical"
+    android:background="?attr/topBarColor">
+        <com.ichi2.ui.FixedTextView
+            android:id="@+id/new_number"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text=""
+            android:textColor="?attr/newCountColor"
+            android:textSize="14sp"
+            tools:text="13"
+            />
+        <com.ichi2.ui.FixedTextView
+            android:id="@+id/learn_number"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_toEndOf="@+id/new_number"
+            android:paddingStart="8dp"
+            android:text=""
+            android:textColor="?attr/learnCountColor"
+            android:textSize="14sp"
+            tools:text="3"
+            />
+
+        <com.ichi2.ui.FixedTextView
+            android:id="@+id/review_number"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_toEndOf="@+id/learn_number"
+            android:paddingStart="8dp"
+            android:text=""
+            android:textColor="?attr/reviewCountColor"
+            android:textSize="14sp"
+            tools:text="7"
+            />
+
+        <com.ichi2.ui.FixedTextView
+            android:id="@+id/chosen_answer"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAlignment="center"
+            android:layout_centerHorizontal="true"
+            android:minEms="4"
+            android:gravity="center"
+            android:text=""
+            android:textSize="14sp"
+            tools:text="•••"
+            tools:textColor="@color/material_green_500"
+            />
+
+
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_toStartOf="@+id/card_time"
+        android:layout_alignTop="@+id/card_time"
+        android:layout_alignBottom="@+id/card_time"
+        android:layout_toEndOf="@+id/chosen_answer"
+        android:gravity="center" >
+
+        <ImageView
+            android:id="@+id/flag_icon"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:visibility="invisible"
+            android:layout_gravity="center"
+            tools:src="@drawable/ic_flag_red"
+            tools:visibility="visible"
+            />
+        <ImageView
+            android:id="@+id/mark_icon"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:visibility="invisible"
+            android:layout_gravity="center"
+            tools:src="@drawable/ic_star_white_bordered_24dp"
+            tools:visibility="visible"
+            />
+        </LinearLayout>
+        <Chronometer
+            android:id="@+id/card_time"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentEnd="true"
+            android:gravity="end"
+            android:textSize="14sp"
+            android:visibility="invisible"
+            tools:visibility="visible"
+            />
+</RelativeLayout>

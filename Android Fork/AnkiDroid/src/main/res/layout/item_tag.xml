@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- -4dp end so the checkbox aligns with the OK button -->
+<LinearLayout android:id="@+id/tags_dialog_tag_item"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="?attr/selectableItemBackground"
+    android:clickable="true"
+    android:focusable="true"
+    android:gravity="center_vertical"
+    android:minHeight="?android:attr/listPreferredItemHeight"
+    android:orientation="horizontal"
+    android:paddingBottom="5dp"
+    android:paddingEnd="-4dp"
+    android:paddingStart="8dp"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <ImageButton
+        android:id="@+id/expand_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="@drawable/ic_chevron_right_black"
+        android:clickable="false" />
+
+    <TextView
+        android:id="@+id/text_view"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:paddingStart="6dp"
+        android:textSize="16sp"
+        tools:text="Example Tag" />
+
+    <com.ichi2.ui.CheckBoxTriStates
+        android:id="@+id/check_box_view"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:clickable="false"
+        app:cycle_checked_to_indeterminate="false"
+        app:cycle_indeterminate_to_checked="false"/>
+</LinearLayout>

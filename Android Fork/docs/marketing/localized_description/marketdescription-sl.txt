@@ -1,0 +1,36 @@
+Zapomnite si karkoli z AnkiDroidom!
+
+AnkiDroid vam omogoča zelo učinkovito učenje pomnilnih kartic z njihovim prikazovanjem, tik preden jih pozabite. It is fully compatible with the spaced repetition software Anki (including synchronization), which is available for Windows, Linux and macOS.
+
+Preučite vse vrste stvari, kadarkoli in kjerkoli želite. Dobro izkoristite čas čakanja na avtobusu, supermarketih ali v kateremkoli drugem primeru čakanja.
+
+Ustvarite svoje komplete kartic za učenje ali si naložite brezplačne, v mnogih jezikih in o mnogih temah (na voljo jih je več kot 6000).
+
+Dodajte snov preko namiznega programa Anki ali neposredno preko AnkiDroida. Program podpira celo samodejno dodajanje snovi iz slovarja!
+
+★ Glavne značilnosti:
+• podprte vsebine pomnilnih kartic: besedilo, slike, zvoki, LaTeX
+• spaced repetition (AI-optimized FSRS algorithm)
+• vgrajena pretvorba besedila v govor
+• more than 10,000 premade decks
+• pripomoček napredka
+• podrobna statistika
+• sinhronizacija z AnkiWebom
+• odprtokoden
+
+★ Dodatne značilnosti:
+• zapis odgovorov (izbirno)
+• bela tabla
+• urejevalnik/dodajanje kartic
+• brskalnik kartic
+• razporeditev za tabilce
+• uvoz obstoječih zbirk datotek (preko namiznega Ankija)
+• doda kartice po namenu iz drugih programov (npr. slovarji)
+• podpora za pisave po meri
+• sistem za polno varnostno kopiranje
+• krmarjenje s potegi, tapi
+• prilagodljiv
+• dinamično ravnanje s kompleti
+• nočni način
+• 27 jezikov
+• Vse prejšnje različice AnkiDroida lahko prejmete s spletne strani

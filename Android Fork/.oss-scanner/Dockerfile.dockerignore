@@ -1,0 +1,13 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
+
+# Keep .git: the build reads HEAD and installs its hook inside this copy.
+**/.gradle
+**/.kotlin
+**/build
+**/local.properties
+.idea
+.claude
+.codex
+.agents
+**/.DS_Store
+**/hs_err_pid*

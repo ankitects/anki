@@ -1,0 +1,20 @@
+<!--
+  SPDX-License-Identifier: Apache-2.0 AND GPL-3.0-or-later
+  SPDX-FileCopyrightText: Google LLC
+  SPDX-FileComment: Style: Custom outline (derived from Filled flag).
+  SPDX-FileComment: Apache-2.0 base icon; AnkiDroid modifications are GPL-3.0-or-later.
+  SPDX-FileComment: Modified: transparent fill, white 1.6-unit stroke, and widened flagpole (h2 to h3).
+  Base source: https://raw.githubusercontent.com/google/material-design-icons/10ecc14790612ca8fd164e3f4ffe9c16fc50d5b7/android/content/flag/materialicons/black/res/drawable/baseline_flag_24.xml
+-->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24"
+    android:tint="?attr/colorControlNormal">
+    <path
+        android:strokeWidth="1.6"
+        android:pathData="M14.4,6L14,4H5v17h3v-7h5.6l0.4,2h7V6z"
+        android:fillColor="#00000000"
+        android:strokeColor="#ffffff"/>
+</vector>

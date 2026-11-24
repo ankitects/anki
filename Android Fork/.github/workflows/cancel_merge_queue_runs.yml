@@ -1,0 +1,135 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
+name: Cancel Obsolete Merge Queue Runs
+
+# `merge_group: destroyed` identifies the merge group and reason for removal,
+# but is not documented as a supported Actions trigger. Use `delete` instead.
+on:
+  # GitHub deletes temporary branches after discarded groups and successful merges.
+  # Preserve runs for merged commits: their checks also appear on the target branch.
+  delete:
+
+permissions: {}
+
+jobs:
+  cancel:
+    if: >-
+      github.event.ref_type == 'branch' &&
+      startsWith(github.event.ref, 'gh-readonly-queue/')
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      actions: write
+      contents: read
+    steps:
+      # SECURITY: never check out PR code here, use an inline script.
+      - uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
+        with:
+          script: |
+            const deletedBranch = context.payload.ref;
+            const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
+
+            // Target branch names may contain slashes. Refuse unfamiliar queue ref formats.
+            const targetBranch = /^gh-readonly-queue\/(.+)\/pr-\d+-[0-9a-f]{40}$/.exec(deletedBranch)?.[1];
+            if (!targetBranch) {
+              core.setFailed(`Cannot determine the target branch for ${deletedBranch}; skipping cleanup.`);
+              return;
+            }
+
+            // Collect unfinished merge-group workflow runs for this deleted branch.
+            const candidateRuns = await findUnfinishedMergeGroupRuns(deletedBranch);
+            for (const run of candidateRuns) {
+              try {
+                const outcome = await cancelObsoleteRun(run);
+
+                // The branch may have been requeued and its runs may be needed again.
+                if (outcome === 'branch-recreated') return;
+              } catch (error) {
+                core.setFailed(`Could not clean up run ${run.id}: ${error.message}`);
+              }
+            }
+
+            async function findUnfinishedMergeGroupRuns(branch) {
+              const runs = new Map();
+              let discoveryError;
+
+              // Poll three times to reduce the impact of stale API results.
+              // Known defect: all three scans can omit unfinished runs, potentially missing
+              // the entire group. Cleanup can then report success without cancelling them.
+              // There is no automatic follow-up cleanup, so missed runs can continue
+              // consuming runner capacity.
+              // TODO(2026-10-01): Remove when resolved: https://github.com/orgs/community/discussions/206725
+              for (let scan = 0; scan < 3; scan++) {
+                if (scan > 0) await delay(10000);
+                try {
+                  const discovered = await github.paginate(github.rest.actions.listWorkflowRunsForRepo, {
+                    ...context.repo, branch, event: 'merge_group', per_page: 100,
+                  });
+                  for (const run of discovered) {
+                    if (run.event === 'merge_group' && run.head_branch === branch && run.status !== 'completed') {
+                      runs.set(run.id, run);
+                    }
+                  }
+                  discoveryError = undefined;
+                } catch (error) {
+                  discoveryError = error;
+                  core.warning(`Discovery failed: ${error.message}`);
+                }
+              }
+              if (discoveryError) core.setFailed(`Could not finish discovering runs: ${discoveryError.message}`);
+              return runs.values();
+            }
+
+            async function getCancellationStatus(runId) {
+              const { data: run } = await github.rest.actions.getWorkflowRun({ ...context.repo, run_id: runId });
+              if (run.status === 'completed' || run.run_attempt !== 1) return 'ineligible';
+
+              try {
+                await github.rest.git.getRef({ ...context.repo, ref: `heads/${deletedBranch}` });
+                core.info('Skipping cleanup: the queue branch exists again.');
+                return 'branch-recreated';
+              } catch (error) {
+                if (error.status !== 404) throw error;
+              }
+
+              // The target may have advanced since merging, so check ancestry, not just its tip.
+              // Comparison errors must prevent cancellation; a missing queue ref alone is insufficient.
+              const { data: comparison } = await github.rest.repos.compareCommitsWithBasehead({
+                ...context.repo, basehead: `${run.head_sha}...refs/heads/${targetBranch}`, per_page: 1,
+              });
+              if (comparison.status === 'ahead' || comparison.status === 'identical') {
+                core.info(`Skipping ${run.id}: its commit is already on ${targetBranch}.`);
+                return 'merged';
+              }
+              if (comparison.status !== 'behind' && comparison.status !== 'diverged') {
+                throw new Error(`Unexpected comparison status: ${comparison.status}`);
+              }
+              return 'eligible';
+            }
+
+            async function cancelObsoleteRun(run) {
+              let lastError;
+              for (let attempt = 1; attempt <= 3; attempt++) {
+                try {
+                  // Recheck completion, reruns, branch recreation, and merging before each cancellation.
+                  const status = await getCancellationStatus(run.id);
+                  if (status !== 'eligible') return status;
+
+                  core.info(`Cancelling ${run.id}: ${run.name}`);
+                  await github.rest.actions.cancelWorkflowRun({ ...context.repo, run_id: run.id });
+                  return;
+                } catch (error) {
+                  // 409 Conflict => the run could be retried, in which case we skip this run.
+                  const retryable = error.status == null || error.status === 409 || (error.status >= 500 && error.status < 600);
+                  if (!retryable) throw error;
+                  lastError = error;
+                  core.warning(`Run ${run.id}: ${error.message}; rechecking in 5 seconds.`);
+                }
+                await delay(5000);
+              }
+
+              // The run may have finished, been retried, merged, or its branch been recreated.
+              // Recheck once more; if still eligible, report the error without a fourth request.
+              const status = await getCancellationStatus(run.id);
+              if (status === 'eligible') throw lastError;
+              return status;
+            }

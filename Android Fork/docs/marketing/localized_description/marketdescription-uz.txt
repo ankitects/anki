@@ -1,0 +1,36 @@
+AnkiDroid bilan istalgan narsani eslab qoling!
+
+AnkiDroid sizga fleş-kartalarni endi unutay deganingizda körsatib, juda samarali örganişga yordam beradi. U Windows, Linux va macOSʼda mavjud Anki oraliqli takrorlaş dasturiga (şu jumladan sinxronizatsiyaga ham) töliq mos keladi.
+
+Turli xil narsalarni istalgan joy va istalgan vaqtingizda örganing. Avtobus safarlarida, supermarket navbatlarida yoki boşqa har qanday kutiş holatidagi böş vaqtingizdan unumli foydalaning!
+
+Özingizni fleşka-kartalaringizni yarating yoki köplab tillar va mavzular uçun tuzilgan bepul dastalarni yuklab oling (6000 dan ortiq mavjud).
+
+Anki Desktop orqali yoki töğridan-töğri AnkiDroid orqali material qöşing. Ilova hatto luğatdan avtomatik ravişda material qöşişni ham qöllab-quvvatlaydi!
+
+★ Asosiy jihatlar:
+• qöllab-quvvatlanadigan fleş-karta tarkibi: matn, rasmlar, ovoz, LaTeX
+• oraliqli takrorlaş (SI bilan optimallaştirilgan FSRS algoritmi)
+• matn sintezatori integratsiyasi
+• 10 000 dan ortiq tayyor dasta
+• progress vidjeti
+• batafsil statistika
+• AnkiWeb bilan sinxronlaş
+• oçiq manbali
+
+★ Qöşimça funksiyalar
+• javoblarni yoziş (ixtiyoriy)
+• Yozuv taxtasi
+• karta muharriri/qöşuvçisi
+• karta brauzeri
+• planşetga moslaştirilgan
+• mavjud kolleksiya fayllarini import qiliş (Anki Desktop orqali)
+• Kartalarni luğat kabi boşqa ilovalardan niyat bilan qöşing
+• şriftni moslaştiriş
+• töliq zaxiralaş tizimi
+• suriş, bosiş orqali navigatsiya
+• moslaştiriladigan
+• dinamik dastalar bilan işlaş
+• tungi rejim
+• 27 lokalizatsiya
+• AnkiDroidʼni barça oldingi versiyalarini veb-saytdan yuklab oliş mumkin

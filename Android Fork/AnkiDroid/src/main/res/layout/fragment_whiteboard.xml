@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <com.ichi2.anki.ui.windows.reviewer.whiteboard.WhiteboardView
+        android:id="@+id/whiteboard_view"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
+    <com.ichi2.anki.ui.windows.reviewer.whiteboard.WhiteboardToolbar
+        android:id="@+id/whiteboard_toolbar"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="8dp"
+        android:layout_gravity="bottom|center_horizontal"
+        />
+
+</FrameLayout>

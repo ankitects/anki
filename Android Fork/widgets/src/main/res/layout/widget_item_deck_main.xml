@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/widget_deck_row"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:orientation="horizontal"
+    android:gravity="center_vertical"
+    android:baselineAligned="false"
+    android:paddingHorizontal="12dp"
+    android:paddingVertical="6dp"
+    android:theme="@style/Theme.Material3.DynamicColors.DayNight">
+
+    <TextView
+        android:id="@+id/deckName"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="2.8"
+        android:paddingEnd="12dp"
+        android:gravity="center_vertical"
+        android:textColor="?android:attr/textColorPrimary"
+        android:textSize="22sp"
+        android:ellipsize="end"
+        android:maxLines="1"
+        android:singleLine="true"
+        tools:text="Deck1" />
+
+    <TextView
+        android:id="@+id/deckNew"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:paddingEnd="5dp"
+        android:textColor="@color/flag_reviewer_blue"
+        android:textSize="20sp"
+        android:text=""
+        android:gravity="end"
+        android:ellipsize="end"
+        android:maxLines="1"
+        tools:text="50" />
+
+    <TextView
+        android:id="@+id/deckLearn"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:paddingEnd="5dp"
+        android:textColor="@color/material_red_A700"
+        android:textSize="20sp"
+        android:text=""
+        android:gravity="end"
+        android:ellipsize="end"
+        android:maxLines="1"
+        tools:text="50" />
+
+    <TextView
+        android:id="@+id/deckDue"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:textColor="@color/flag_reviewer_green"
+        android:textSize="20sp"
+        android:text=""
+        android:gravity="end"
+        android:ellipsize="end"
+        android:maxLines="1"
+        tools:text="50" />
+
+</LinearLayout>

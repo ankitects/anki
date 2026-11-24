@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ SPDX-License-Identifier: Apache-2.0
+  ~ SPDX-FileCopyrightText: Copyright 2009, The Android Open Source Project
+  -->
+
+<set xmlns:android="http://schemas.android.com/apk/res/android"
+    android:interpolator="@anim/accelerate_quad" >
+
+    <translate
+        android:duration="@android:integer/config_shortAnimTime"
+        android:fromYDelta="0%"
+        android:toYDelta="-75%" />
+
+    <alpha
+        android:duration="@android:integer/config_shortAnimTime"
+        android:fromAlpha="1.0"
+        android:toAlpha="0" />
+
+</set>

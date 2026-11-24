@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:installLocation="auto">
+
+    <!--
+    The Google Play store has a policy that limits usage of MANAGE_EXTERNAL_STORAGE
+    https://support.google.com/googleplay/android-developer/answer/10467955?hl=en
+     -->
+    <uses-permission
+        android:name="android.permission.MANAGE_EXTERNAL_STORAGE"
+        tools:node="remove"
+        tools:ignore="ScopedStorage" />
+
+    <!--
+    Google Play policies prohibit requesting an exemption from battery optimization
+    unless the core function of the app is adversely affected
+    https://developer.android.com/training/monitoring-device-state/doze-standby#support_for_other_use_cases
+     -->
+    <uses-permission
+        android:name="android.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS"
+        tools:node="remove" />
+</manifest> 

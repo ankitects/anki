@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- SPDX-License-Identifier: GPL-3.0-or-later -->
+<resources xmlns:tools="http://schemas.android.com/tools" tools:ignore="DuplicateCrowdInStrings">
+    <style name="Base.Theme.AnkiDroid.Black" parent="Theme.AnkiDroid">
+        <!-- Android colors -->
+        <item name="colorPrimary">@color/material_blue_400</item>
+        <item name="colorSecondary">@color/material_blue_500</item>
+        <item name="colorSecondaryContainer">#252525</item>
+        <item name="colorSurfaceVariant">#252525</item>
+        <item name="colorOnSurfaceVariant">#CCCCCC</item>
+        <item name="colorOutlineVariant">#555555</item>
+        <item name="colorErrorContainer">#4E1517</item>
+        <item name="colorTertiary">#CCCCCC</item>
+        <item name="colorOnTertiary">#000000</item>
+        <item name="colorTertiaryContainer">@color/material_blue_900</item>
+        <item name="colorOnTertiaryContainer">@color/material_blue_100</item>
+        <item name="colorSurfaceContainerHigh">#151515</item>
+        <item name="colorSurfaceContainer">#040A0E</item>
+        <item name="android:colorBackground">@color/black</item>
+        <item name="android:windowBackground">@color/black</item>
+        <item name="preferenceCategoryTitleTextColor">?attr/colorSecondary</item>
+        <!-- Action bar styles -->
+        <item name="appBarColor">@color/black</item>
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+        <item name="windowActionModeOverlay">true</item>
+        <item name="actionBarTextColor">@color/white</item>
+        <!-- Bottom navigation -->
+        <item name="bottomNavActiveIconColor">@color/material_blue_500</item>
+        <!-- Deck list colors -->
+        <item name="selectedRowBackgroundColor">#1a1a1a</item>
+        <item name="dynDeckColor">@color/material_light_blue_500</item>
+        <!-- Count colors -->
+        <item name="newCountColor">@color/material_blue_600</item>
+        <item name="learnCountColor">@color/material_red_400</item>
+        <item name="reviewCountColor">@color/material_green_400</item>
+        <item name="buryCountColor">@color/disabled_gray_dark</item>
+        <item name="zeroCountColor">#202020</item>
+        <!-- Study Screen colors -->
+        <item name="showAnswerButtonBackground">#0c1215</item>
+        <item name="showAnswerColor">@color/black</item>
+        <item name="topBarColor">@color/black</item>
+        <item name="maxTimerColor">@color/material_red_300</item>
+        <item name="showAnswerTextColor">@color/white</item>
+        <item name="againButtonTextColor">@color/material_red_400</item>
+        <item name="hardButtonTextColor">@color/white</item>
+        <item name="goodButtonTextColor">@color/material_green_400</item>
+        <item name="easyButtonTextColor">@color/material_blue_700</item>
+
+        <item name="colorSurfaceDim">#0C0C0C</item>
+        <item name="colorSurfaceBright">#151515</item>
+        <item name="againTextColor">@color/material_red_200</item>
+        <item name="hardTextColor">@color/material_orange_200</item>
+        <item name="goodTextColor">@color/material_light_green_200</item>
+        <item name="easyTextColor">@color/material_light_blue_A100</item>
+        <item name="againBackgroundColor">#170e0e</item>
+        <item name="hardBackgroundColor">#19120c</item>
+        <item name="goodBackgroundColor">#0e1310</item>
+        <item name="easyBackgroundColor">#0c1317</item>
+        <!-- Study Screen button drawables -->
+        <item name="answerButtonRef">@drawable/footer_button_all_black</item>
+        <item name="answerButtonRippleRef">@drawable/footer_button_all_black_ripple</item>
+        <!-- Card Browser Colors -->
+        <item name="cardBrowserDivider">@color/white</item>
+        <!-- Browser colors -->
+        <item name="suspendedColor">#A8A634</item>
+        <item name="markedColor">#391080</item>
+        <!-- Note editor colors -->
+        <item name="duplicateColor">#855</item>
+        <!-- Note editor colors -->
+        <item name="android:textColorHighlight">@color/material_light_blue_900</item>
+        <item name="toolbarBackgroundColor">#616161</item>
+        <item name="buttonShadowColor">#726B6B</item>
+        <item name="buttonRippleColor">#BABABA</item>
+        <item name="buttonForegroundColor">#363636</item>
+        <!-- FAB -->
+        <item name="fabNormalColor">#ff303030</item>
+        <item name="fabPressedColor">#c8303030</item> <!-- 55 less opacity than fabNormalColor -->
+        <!-- Images -->
+        <item name="navDrawerImage">@drawable/nav_drawer_logo_black_theme</item>
+        <!-- Dialog styles -->
+        <item name="android:listPreferredItemHeight">56dip</item>
+        <item name="alertDialogTheme">@style/ThemeOverlay.AnkiDroid.AlertDialog.Black</item>
+        <item name="bottomSheetDialogTheme">@style/ThemeOverlay.App.BottomSheetDialog.Black</item>
+        <item name="popupBackgroundColor">#252525</item>
+
+        <item name="android:navigationBarColor">@color/black</item>
+
+        <!-- Inverse colors, used by snackbars -->
+        <item name="colorSurfaceInverse">#ff303030</item>
+        <item name="colorOnSurfaceInverse">@color/white</item>
+        <item name="colorPrimaryInverse">@color/material_light_blue_300</item>
+
+        <!-- Introduction -->
+        <item name="introductionLogoTransparent">#55111111</item>
+
+        <!-- Card-->
+        <item name="cardViewStyle">@style/BlackCardBackground</item>
+
+        <!-- ProgressDialog-->
+        <item name="dialogBackground">#151515</item>
+
+
+        <item name="incrementerButtonBackground">@color/material_blue_grey_900</item>
+    </style>
+
+    <style name="BlackCardBackground" parent="CardView">
+        <item name="cardBackgroundColor">#151515</item>
+    </style>
+
+    <style name="ThemeOverlay.AnkiDroid.AlertDialog.Black" parent="ThemeOverlay.AnkiDroid.AlertDialog">
+        <item name="android:colorBackground">#151515</item>
+    </style>
+
+    <style name="ThemeOverlay.App.BottomSheetDialog.Black" parent="ThemeOverlay.App.BottomSheetDialog">
+        <item name="android:colorBackground">#151515</item>
+        <item name="elevationOverlayEnabled">false</item>
+    </style>
+
+    <style name="Theme.AnkiDroid.Black" parent="Base.Theme.AnkiDroid.Black"/>
+</resources>

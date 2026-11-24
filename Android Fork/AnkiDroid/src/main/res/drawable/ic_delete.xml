@@ -1,0 +1,20 @@
+<!--
+  ~  Copyright (c) 2023 Ashish Yadav <mailtoashish693@gmail.com>
+  ~
+  ~  This program is free software; you can redistribute it and/or modify it under
+  ~  the terms of the GNU General Public License as published by the Free Software
+  ~  Foundation; either version 3 of the License, or (at your option) any later
+  ~  version.
+  ~
+  ~  This program is distributed in the hope that it will be useful, but WITHOUT ANY
+  ~  WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+  ~  PARTICULAR PURPOSE. See the GNU General Public License for more details.
+  ~
+  ~  You should have received a copy of the GNU General Public License along with
+  ~  this program.  If not, see <http://www.gnu.org/licenses/>.
+  -->
+<vector android:height="24dp" android:viewportHeight="32"
+    android:tint="?attr/colorControlNormal"
+    android:viewportWidth="32" android:width="24dp" xmlns:android="http://schemas.android.com/apk/res/android">
+    <path android:fillColor="#FF000000" android:pathData="M24.2,12.193 L23.8,24.3a3.988,3.988 0,0 1,-4 3.857L12.2,28.157a3.988,3.988 0,0 1,-4 -3.853L7.8,12.193a1,1 0,0 1,2 -0.066l0.4,12.11a2,2 0,0 0,2 1.923h7.6a2,2 0,0 0,2 -1.927l0.4,-12.106a1,1 0,0 1,2 0.066ZM25.523,8.164a1,1 0,0 1,-1 1L7.478,9.164a1,1 0,0 1,0 -2h3.1a1.276,1.276 0,0 0,1.273 -1.148,2.991 2.991,0 0,1 2.984,-2.694h2.33a2.991,2.991 0,0 1,2.984 2.694,1.276 1.276,0 0,0 1.273,1.148h3.1A1,1 0,0 1,25.522 8.164ZM13.587,7.164h4.828a3.3,3.3 0,0 1,-0.255 -0.944,1 1,0 0,0 -0.994,-0.9h-2.33a1,1 0,0 0,-0.994 0.9A3.3,3.3 0,0 1,13.586 7.164ZM14.594,22.315L14.594,13.8a1,1 0,0 0,-2 0v8.519a1,1 0,0 0,2 0ZM19.408,22.315L19.408,13.8a1,1 0,0 0,-2 0v8.519a1,1 0,0 0,2 0Z"/>
+</vector>

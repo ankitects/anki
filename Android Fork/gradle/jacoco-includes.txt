@@ -1,0 +1,8 @@
+com.ichi2.*
+dev.androidbroadcast.vbpd.*
+androidx.appcompat.widget.DialogTitleView
+androidx.appcompat.widget.DialogTitleView$*
+androidx.drawerlayout.widget.ClosableDrawerLayout
+androidx.drawerlayout.widget.ClosableDrawerLayout$*
+com.google.android.material.snackbar.SnackbarPackageWorkaroundKt
+com.google.android.material.snackbar.SnackbarPackageWorkaroundKt$*

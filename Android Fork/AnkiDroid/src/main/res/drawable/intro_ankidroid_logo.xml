@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- SPDX-License-Identifier: GPL-3.0-or-later -->
+
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android" >
+    <item>
+        <shape android:shape="oval">
+            <solid android:color="?attr/introductionLogoTransparent"/>
+
+        </shape>
+    </item>
+    <item android:drawable="@drawable/ankidroid_logo"
+        android:top="18dp"
+        android:left="18dp"
+        android:right="18dp"
+        android:bottom="18dp"
+        />
+</layer-list>

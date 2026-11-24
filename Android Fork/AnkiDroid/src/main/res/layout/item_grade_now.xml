@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- SPDX-License-Identifier: GPL-3.0-or-later -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:orientation="horizontal"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    >
+
+    <com.ichi2.ui.FixedTextView
+        android:id="@+id/grade_text_view"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:minHeight="?attr/listPreferredItemHeight"
+        android:text="@string/binding_add_gesture"
+        android:gravity="center_vertical"
+
+        android:drawablePadding="16dp"
+        android:paddingStart="24dp"
+
+        android:background="?android:attr/selectableItemBackground"
+        android:textAppearance="?attr/textAppearanceBodyLarge"
+
+        tools:drawableStart="@drawable/ic_ease_again"
+        tools:text="Again"
+        />
+
+</LinearLayout>

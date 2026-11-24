@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:tools="http://schemas.android.com/tools" tools:ignore="DuplicateCrowdInStrings">
+    <!--
+        GA4 Measurement ID for AnkiDroid's production Google Analytics property.
+        Format: G-XXXXXXXXXX.
+
+        To obtain your own ID (e.g. for a fork or a dev/test account):
+          1. Sign in to https://analytics.google.com
+          2. Admin -> Create Property (GA4 property, not Universal Analytics)
+          3. Under the property: Data Streams -> Add stream
+          4. Copy the Measurement ID shown at the top of the stream details
+
+        The matching Measurement Protocol api_secret is read at build time as
+        BuildConfig.ANALYTICS_API_KEY (see AnkiDroid/build.gradle.kts). Create it
+        under the same Data Stream -> Measurement Protocol API secrets.
+    -->
+    <string name="ga_trackingId" translatable="false">G-XY625S5VVE</string>
+    <!--
+        Percentage of events actually sent; the rest are dropped client-side to cap volume.
+        GA4 quotas: https://support.google.com/analytics/answer/9267744
+    -->
+    <integer name="ga_sampleFrequency">10</integer>
+</resources>

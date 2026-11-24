@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- SPDX-License-Identifier: GPL-3.0-or-later -->
+
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <item
+        android:id="@+id/action_troubleshoot"
+        android:icon="@drawable/ic_outline_troubleshoot"
+        android:title="@string/schedule_reminders_troubleshoot_menu"
+        app:showAsAction="always" />
+    <item
+        android:id="@+id/action_notification_settings"
+        android:icon="@drawable/ic_settings_black"
+        android:title="@string/schedule_reminders_notification_settings_menu"
+        app:showAsAction="always" />
+</menu>

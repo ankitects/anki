@@ -1,0 +1,16 @@
+<!--
+  SPDX-License-Identifier: Apache-2.0
+  SPDX-FileCopyrightText: Google LLC
+  SPDX-FileComment: Style: Filled
+  Source: https://fonts.gstatic.com/s/i/materialicons/arrow_right_alt/v13/24px.xml
+-->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="20dp"
+    android:height="20dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24"
+    android:autoMirrored="true">
+    <path
+        android:fillColor="#FF000000"
+        android:pathData="M16.01,11H4v2h12.01v3L20,12l-3.99,-4z"/>
+</vector>

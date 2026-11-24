@@ -1,0 +1,74 @@
+Subject: Input dispatching timed out (9ddf6b0 com.ichi2.anki.debug/com.ichi2.anki.analytics.AnrReproActivity is not responding. Waited 5003ms for MotionEvent).
+RssHwmKb: 330904
+RssKb: 330904
+RssAnonKb: 172468
+RssShmemKb: 17920
+VmSwapKb: 20324
+
+
+--- CriticalEventLog ---
+capacity: 20
+events <
+  timestamp_ms: 1791415573072
+  install_packages <
+  >
+>
+events <
+  timestamp_ms: 1791415576635
+  install_packages <
+  >
+>
+timestamp_ms: 1791415618958
+window_ms: 300000
+
+----- dumping pid: 21749 at 488712412
+
+----- pid 21749 at 2026-10-08 00:26:58.957608696+0100 -----
+Cmd line: com.ichi2.anki.debug
+Build fingerprint: 'google/sdk_gphone64_arm64/emu64a:16/BE2A.250530.026.D1/13818094:user/release-keys'
+ABI: 'arm64'
+Build type: optimized
+Debug Store: 3,7,488712421::ID:3,C:E,T:488701781||ID:0,C:P,T:488701780,N:Finish,D:tname=main;tid=2;prid=580da3a||ID:3,C:S,T:488701644,N:BcRcv,D:tname=main;tid=2;act=android.intent.action.BOOT_COMPLETED;cmp=ComponentInfo{com.ichi2.anki.debug/com.ichi2.anki.services.BootService};pkg=com.ichi2.anki.debug;prid=580da3a||ID:1,C:E,T:488701643||ID:2,C:E,T:488700605||ID:2,C:S,T:488700605,N:SchRcv,D:tname=binder:21749_3;tid=164||ID:1,C:S,T:488700593,N:BindApp;;
+suspend all histogram:	Sum: 652us 99% C.I. 0.100us-437.599us Avg: 43.466us Max: 452us
+DALVIK THREADS (44):
+"main" prio=5 tid=1 Waiting
+  | group="main" sCount=1 ucsCount=0 flags=1 obj=0x7215cf78 self=0xb400007125590010
+  | sysTid=21749 nice=-10 cgrp=top-app sched=0/0 handle=0x7231e0b090
+  | state=S schedstat=( 1023869591 50770382 429 ) utm=91 stm=10 core=0 HZ=100
+  | stack=0x7fc5db9000-0x7fc5dbb000 stackSize=8188KB
+  | held mutexes=
+  at jdk.internal.misc.Unsafe.park(Native method)
+  - waiting on an unknown object
+  at java.util.concurrent.locks.LockSupport.park(LockSupport.java:221)
+  at java.util.concurrent.locks.AbstractQueuedSynchronizer.acquire(AbstractQueuedSynchronizer.java:754)
+  at java.util.concurrent.locks.AbstractQueuedSynchronizer.acquireSharedInterruptibly(AbstractQueuedSynchronizer.java:1099)
+  at java.util.concurrent.CountDownLatch.await(CountDownLatch.java:230)
+  at com.ichi2.anki.analytics.AnrReproActivity.deliberatelyBlockMainThread(AnrReproActivity.kt:58)
+  at com.ichi2.anki.analytics.AnrReproActivity.onCreate$lambda$2(AnrReproActivity.kt:43)
+  at com.ichi2.anki.analytics.AnrReproActivity$$ExternalSyntheticLambda4.run(D8$$SyntheticClass:0)
+  at android.os.Handler.handleCallback(Handler.java:995)
+  at android.os.Handler.dispatchMessage(Handler.java:103)
+  at android.os.Looper.loopOnce(Looper.java:248)
+  at android.os.Looper.loop(Looper.java:338)
+  at android.app.ActivityThread.main(ActivityThread.java:9067)
+  at java.lang.reflect.Method.invoke(Native method)
+  at com.android.internal.os.RuntimeInit$MethodAndArgsCaller.run(RuntimeInit.java:593)
+  at com.android.internal.os.ZygoteInit.main(ZygoteInit.java:932)
+DumpLatencyMs: 0.267875
+
+"FinalizerWatchdogDaemon" daemon prio=5 tid=6 Waiting
+  | group="system" sCount=1 ucsCount=0 flags=1 obj=0x235e200 self=0xb400007125591be0
+  | sysTid=21757 nice=4 cgrp=top-app sched=0/0 handle=0x6f3e263500
+  | state=S schedstat=( 78709 553458 2 ) utm=0 stm=0 core=2 HZ=100
+  | stack=0x6f3e160000-0x6f3e162000 stackSize=1037KB
+  | held mutexes=
+  at java.lang.Object.wait(Native method)
+  - waiting on <0x035539ee> (a java.lang.Daemons$FinalizerWatchdogDaemon)
+  at java.lang.Object.wait(Object.java:405)
+  at java.lang.Object.wait(Object.java:543)
+  at java.lang.Daemons$FinalizerWatchdogDaemon.sleepUntilNeeded(Daemons.java:481)
+  - locked <0x035539ee> (a java.lang.Daemons$FinalizerWatchdogDaemon)
+  at java.lang.Daemons$FinalizerWatchdogDaemon.runInternal(Daemons.java:461)
+  at java.lang.Daemons$Daemon.run(Daemons.java:132)
+  at java.lang.Thread.run(Thread.java:1119)
+DumpLatencyMs: 52.5132

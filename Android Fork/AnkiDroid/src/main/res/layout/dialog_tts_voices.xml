@@ -1,0 +1,150 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- SPDX-License-Identifier: GPL-3.0-or-later -->
+<androidx.constraintlayout.widget.ConstraintLayout
+    android:id="@+id/layout2"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:clipToPadding="false"
+    android:gravity="center_vertical"
+    android:orientation="vertical"
+    android:padding="16dp"
+    >
+
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/back_button"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:background="?attr/selectableItemBackground"
+        app:icon="@drawable/ic_baseline_arrow_back_24"
+        android:translationX="-16dp"
+        app:iconGravity="textStart"
+        app:iconPadding="0dp"
+        app:iconSize="24dp"
+        app:iconTint="?attr/colorControlNormal"
+        app:layout_constraintBottom_toTopOf="@+id/progress"
+        app:layout_constraintTop_toTopOf="parent" />
+
+
+    <com.google.android.material.progressindicator.LinearProgressIndicator
+        android:id="@+id/progress"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="-16dp"
+        android:layout_marginEnd="-16dp"
+        android:indeterminate="true"
+        android:paddingTop="8dp"
+        app:layout_constraintStart_toStartOf="@+id/textInputLayout2"
+        app:layout_constraintTop_toBottomOf="@+id/textInputLayout2" />
+
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/textInputLayout2"
+        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="-16dp"
+        android:layout_marginBottom="16dp"
+        android:layout_marginEnd="12dp"
+        app:boxBackgroundColor="@color/text_input_background"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/back_button"
+        app:layout_constraintTop_toTopOf="parent"
+        app:shapeAppearanceOverlay="?attr/shapeAppearanceCornerLarge">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/spoken_text_edit_text"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:drawableStart="@drawable/ic_action_mic"
+            android:drawablePadding="4dp"
+            android:inputType="text"
+            android:maxLines="1"
+            android:padding="8dp"
+            android:text="@string/tts_voices_default_text"
+            />
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/options_buttons"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:background="?attr/selectableItemBackground"
+        app:icon="@drawable/ic_settings_black"
+
+        app:iconSize="24dp"
+        app:iconPadding="0dp"
+        app:iconGravity="textStart"
+
+        app:iconTint="?attr/colorControlNormal"
+        app:layout_constraintBottom_toBottomOf="@+id/chipGroup"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/only_show_uninstalled" />
+
+
+    <com.google.android.material.chip.ChipGroup
+        android:id="@+id/chipGroup"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:paddingTop="12dp"
+        app:layout_constraintStart_toStartOf="@+id/back_button"
+        app:layout_constraintTop_toBottomOf="@+id/textInputLayout2">
+
+        <com.google.android.material.chip.Chip
+            android:id="@+id/toggle_internet_required"
+            style="@style/Widget.Material3.Chip.Filter"
+            app:chipSurfaceColor="@android:color/transparent"
+            app:chipBackgroundColor="@android:color/transparent"
+
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/tts_voices_chip_filter_to_internet"
+            app:chipIcon="@drawable/baseline_wifi_24"
+            app:checkedIconEnabled="false"
+            app:chipIconVisible="true"
+            app:closeIconVisible="false" />
+
+        <com.google.android.material.chip.Chip
+            android:id="@+id/only_show_uninstalled"
+            style="@style/Widget.Material3.Chip.Filter"
+            app:chipSurfaceColor="@android:color/transparent"
+            app:chipBackgroundColor="@android:color/transparent"
+
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/tts_voices_chip_filter_to_installable_audio"
+            app:chipIcon="@drawable/baseline_download_for_offline_24"
+            app:chipIconVisible="true"
+            app:checkedIconEnabled="false"
+            app:closeIconVisible="false" />
+
+    </com.google.android.material.chip.ChipGroup>
+
+
+    <!--
+    HACK: Couldn't get relative positioning to work, so I used absolute
+    use a negative elevation so it doesn't take click events for elements at the top of the screen
+    -->
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/files"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:fastScrollEnabled="true"
+        android:focusable="true"
+        android:scrollbarAlwaysDrawVerticalTrack="true"
+        android:scrollbars="vertical"
+        android:paddingTop="116dp"
+        android:elevation="-2px"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+        tools:listitem="@layout/item_tts_voice"
+        tools:visibility="gone"/>
+
+</androidx.constraintlayout.widget.ConstraintLayout>
+

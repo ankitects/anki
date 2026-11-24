@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- SPDX-License-Identifier: GPL-3.0-or-later -->
+<!-- SPDX-FileCopyrightText: Copyright (c) 2026 Shaan Narendran <shaannaren06@gmail.com> -->
+<resources>
+    <!-- Matches the split-pane activity_homescreen layout. -->
+    <bool name="bottom_navigation_available">false</bool>
+</resources>

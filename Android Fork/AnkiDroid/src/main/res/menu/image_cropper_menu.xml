@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- SPDX-License-Identifier: GPL-3.0-or-later -->
+
+<!-- res/menu/image_cropper_menu.xml -->
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <item
+        android:id="@+id/action_rotate"
+        android:title="@string/image_cropper_action_rotate"
+        android:icon="@drawable/ic_rotate_right"
+        app:showAsAction="always" />
+
+    <!-- Flip parent with submenu -->
+    <item
+        android:id="@+id/action_flip"
+        android:title="@string/image_cropper_action_flip"
+        android:icon="@drawable/ic_flip_horizontal"
+        app:showAsAction="always">
+
+        <menu>
+            <item
+                android:id="@+id/action_flip_horizontally"
+                android:title="@string/image_cropper_action_flip_horizontally" />
+            <item
+                android:id="@+id/action_flip_vertically"
+                android:title="@string/image_cropper_action_flip_vertically" />
+        </menu>
+    </item>
+    
+    <item
+        android:id="@+id/action_done"
+        android:title="@string/multimedia_editor_field_editing_done"
+        android:icon="@drawable/ic_done"
+        app:showAsAction="always" />
+</menu>

@@ -1,0 +1,9 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+
+package regression;
+
+public class Uncovered {
+    public int answer() {
+        return 42;
+    }
+}

@@ -1,0 +1,24 @@
+<!--
+  SPDX-License-Identifier: Apache-2.0 AND GPL-3.0-or-later
+  SPDX-FileCopyrightText: Colton Wiscombe
+  SPDX-FileComment: Style: Filled; Pictogrammers Material Design Icons (arrow-u-left-top).
+  SPDX-FileComment: Apache-2.0 base icon; AnkiDroid modifications are GPL-3.0-or-later.
+  SPDX-FileComment: Modified: replaced the arrowhead with a filled triangle and thickened the U-shaped line.
+  Base source: https://raw.githubusercontent.com/Templarian/MaterialDesign/2424e748e0cc63ab7b9c095a099b9fe239b737c0/svg/arrow-u-left-top.svg
+-->
+<!--
+Based on: https://pictogrammers.com/library/mdi/icon/arrow-u-left-top/
+Change: * Replace arrowhead from L-shape (←) with filled triangle (◀-)  (for consistency with the existing undo icon)
+        * Make U-shape line thicker (for consistency with the existing undo icon)
+-->
+
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24"
+    android:tint="?attr/colorControlNormal">
+  <path
+      android:fillColor="#FFFFFF"
+      android:pathData="M10.014,2.391 L3.639,8.744 9.99,15.119 10,10.012L13.5,10.012C15.86,10.012 17.738,11.89 17.738,14.25 17.738,16.61 15.86,18.488 13.5,18.488L5.738,18.488L5.738,21.012L13.5,21.012C17.232,21.012 20.262,17.982 20.262,14.25 20.262,10.518 17.232,7.488 13.5,7.488L10.004,7.488L10.004,7.482Z"/>
+</vector>

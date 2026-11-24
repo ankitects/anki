@@ -1,0 +1,132 @@
+# ⚠️ Do not rename the file - screenshot_store.yml is referenced by screenshot_compare.yml
+#
+# Adapted from https://github.com/takahirom/roborazzi/blob/4be7f304fa23f2f00fad67ab612aec2035ac9db2/.github/workflows/StoreScreenshot.yml
+# Modified from the original: adapted to AnkiDroid CI conventions.
+#
+# Copyright 2023 takahirom
+# Copyright 2019 Square, Inc.
+# Copyright The Android Open Source Project
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#    http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+
+name: "🛠️ Screenshots: Store Baseline"
+
+on:
+  push:
+    branches:
+      - main
+      - dependency-updates
+  # On PRs, only run this when structural changes occur, to be sure 'main' can still store baselines
+  pull_request:
+    paths:
+      - '.github/workflows/screenshot_*.yml'
+      - 'gradle/libs.versions.toml'
+      - '**/build.gradle'
+      - '**/build.gradle.kts'
+      - 'settings.gradle.kts'
+      - '**/ScreenshotTest.kt'
+      - '**/ScreenshotTestCategory.kt'
+      - 'buildSrc/src/main/kotlin/ankidroid.plugins.screenshots.gradle.kts'
+      - 'tools/compare-screenshot-test.sh'
+
+permissions: {}
+
+env:
+  JAVA_TOOL_OPTIONS: -Dkotlin.daemon.options=autoshutdownIdleSeconds=10
+
+jobs:
+  store-screenshot-test:
+    # On PRs, this verifies the workflow runs on `main`, it's not a store
+    name: ${{ github.event_name == 'push' && 'store' || 'test' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    permissions:
+      contents: read # for clone
+      actions: write # for upload-artifact
+
+    steps:
+      # Work around Ubuntu 26.04's RAM-backed /tmp until the image fix rolls out.
+      # https://github.com/actions/runner-images/pull/14814
+      - name: Keep /tmp on disk
+        if: runner.os == 'Linux'
+        run: |
+          if [ "$(findmnt -n -o FSTYPE --target /tmp)" = "tmpfs" ]; then
+            sudo systemctl mask tmp.mount
+            sudo umount -l /tmp
+          fi
+          df -hT /tmp
+
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Configure JDK
+        uses: actions/setup-java@de7274f081f381c8f8158605e0321c36c376e2e6 # v6.0.1
+        with:
+          distribution: "jetbrains"
+          java-version: "21"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      # Better than caching and/or extensions of actions/setup-java
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@3f5f9adaf7d9fecd50b5935e54106014257a94e6 # v6.4.0
+        with:
+          # Use open source provider: https://github.com/gradle/actions/blob/main/docs/setup-gradle.md#basic-caching
+          cache-provider: basic
+          gradle-version: wrapper
+
+      - name: Warm Gradle Cache
+        # Keep compilation here: robolectricSdkDownload only downloads SDK jars.
+        # Compiling resolves test dependencies within the retry (Issue 21682).
+        # --rerun-tasks repeats compilation but reuses downloaded dependencies.
+        uses: nick-fields/retry@ad984534de44a9489a53aefd81eb77f87c70dc60 # v4.0.0
+        with:
+          timeout_minutes: 10
+          retry_wait_seconds: 60
+          max_attempts: 3
+          command: ./gradlew robolectricSdkDownload compileScreenshotTests -Pscreenshot --daemon
+
+      - name: Record screenshots
+        id: record-test
+        run: |
+          # Use --rerun-tasks to disable cache for test task
+          ./gradlew recordScreenshots -Pscreenshot -Ptheme=light,dark --stacktrace --rerun-tasks
+
+      - name: Upload screenshot baseline
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        if: ${{ always() }}
+        with:
+          name: screenshot  # downloaded by screenshot_compare.yml
+          path: |
+            **/build/outputs/roborazzi
+          retention-days: 30
+
+      - name: Upload screenshot reports
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        if: ${{ always() }}
+        with:
+          name: screenshot-reports
+          path: |
+            **/build/reports
+          retention-days: 30
+
+      - name: Upload screenshot test results
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        if: ${{ always() }}
+        with:
+          name: screenshot-test-results
+          path: |
+            **/build/test-results
+          retention-days: 30

@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    SPDX-License-Identifier: Apache-2.0 AND GPL-3.0-or-later
+    SPDX-FileCopyrightText: Google LLC
+    SPDX-FileComment: Style: Outlined
+    SPDX-FileComment: Material Symbols; FILL=0, wght=400, GRAD=0, opsz=24
+    SPDX-FileComment: Derived from arrow_downward_alt (Apache-2.0); modification licensed under GPL-3.0-or-later.
+    SPDX-FileComment: Modified: shifted all Y coordinates down by 70 viewport units (1.75dp at 24dp); X coordinates unchanged.
+    Source: https://raw.githubusercontent.com/google/material-design-icons/10ecc14790612ca8fd164e3f4ffe9c16fc50d5b7/symbols/android/arrow_downward_alt/materialsymbolsoutlined/arrow_downward_alt_24px.xml
+
+    SortPill-only variant of @drawable/outline_arrow_downward_alt_24 with the path shifted
+    down so the arrow's visual center sits below  the icon's geometric center.
+-->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:tint="?attr/colorControlNormal"
+    android:viewportWidth="960"
+    android:viewportHeight="960">
+    <path
+        android:fillColor="@android:color/white"
+        android:pathData="M480,790L240,550L296,494L440,638L440,270L520,270L520,638L664,494L720,550L480,790Z" />
+</vector>

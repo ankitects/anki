@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:left="24dp"
+        android:top="16dp"
+        android:right="24dp"
+        android:bottom="16dp">
+        <shape android:shape="rectangle">
+            <corners android:radius="@dimen/m3_alert_dialog_corner_size"/>
+            <stroke android:width="?attr/widgetStrokeWidth" android:color="?attr/widgetStrokeColor"/>
+        </shape>
+    </item>
+</layer-list>

@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ SPDX-License-Identifier: GPL-3.0-or-later
+  ~ SPDX-FileCopyrightText: Copyright (c) 2024 Ashish Yadav <mailtoashish693@gmail.com>
+  -->
+<com.google.android.material.textfield.TextInputLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:paddingVertical="4dp"
+    android:id="@+id/edit_text_layout"
+    style="?attr/textInputFilledStyle"
+    android:layout_weight="1"
+    android:gravity="center">
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/edit_field_text"
+            android:textSize="18sp"
+            android:paddingTop="30dp"
+            android:scrollbars="vertical"
+            android:scrollbarStyle="insideOverlay"
+            android:overScrollMode="ifContentScrolls"
+            android:lineSpacingExtra="12sp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+    </com.google.android.material.textfield.TextInputLayout>

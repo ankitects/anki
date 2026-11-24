@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<shape xmlns:android="http://schemas.android.com/apk/res/android">
+    <solid android:color="?attr/appBarColor" />
+    <stroke android:width="?attr/widgetStrokeWidth" android:color="?attr/widgetStrokeColor" />
+    <corners android:radius="32dp" />
+</shape>

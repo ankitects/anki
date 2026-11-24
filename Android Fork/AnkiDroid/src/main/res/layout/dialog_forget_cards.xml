@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- SPDX-License-Identifier: GPL-3.0-or-later -->
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:paddingTop="4dp"
+    android:paddingHorizontal="16dp"
+    android:orientation="vertical"
+    >
+
+    <com.google.android.material.checkbox.MaterialCheckBox
+        android:id="@+id/restore_original_position"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:checked="true"
+        tools:text="Restore original position where possible"
+        />
+
+
+    <com.google.android.material.checkbox.MaterialCheckBox
+        android:id="@+id/reset_lapse_counts"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        tools:text="Reset repetition and lapse counts" />
+
+</LinearLayout>

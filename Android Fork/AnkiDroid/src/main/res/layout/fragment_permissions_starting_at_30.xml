@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context=".ui.windows.permissions.PermissionsStartingAt30Fragment">
+
+    <com.ichi2.anki.ui.windows.permissions.PermissionsItem
+        android:id="@+id/all_files_permission"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:permissionTitle="@string/all_files_access_title"
+        app:permissionSummary="@string/storage_access_summary"
+        app:permissionIcon="@drawable/ic_save_white"
+        app:permission="@string/manage_external_storage_permission"
+        />
+</LinearLayout>

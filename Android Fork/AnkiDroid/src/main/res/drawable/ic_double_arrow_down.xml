@@ -1,0 +1,13 @@
+<!--
+  SPDX-License-Identifier: Apache-2.0
+  SPDX-FileCopyrightText: Google LLC
+  SPDX-FileComment: Style: Filled
+  Source: https://fonts.gstatic.com/s/i/materialicons/keyboard_double_arrow_down/v2/24px.xml
+-->
+<vector xmlns:android="http://schemas.android.com/apk/res/android" android:height="24dp" android:tint="?attr/colorControlNormal" android:viewportHeight="24" android:viewportWidth="24" android:width="24dp">
+      
+    <path android:fillColor="@android:color/white" android:pathData="M18,6.41l-1.41,-1.41l-4.59,4.58l-4.59,-4.58l-1.41,1.41l6,6z"/>
+      
+    <path android:fillColor="@android:color/white" android:pathData="M18,13l-1.41,-1.41l-4.59,4.58l-4.59,-4.58l-1.41,1.41l6,6z"/>
+    
+</vector>

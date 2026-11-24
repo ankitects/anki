@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!--
+  ~ SPDX-License-Identifier: GPL-3.0-or-later
+  -->
+<resources>
+    <string name="app_name" translatable="false">AnkiDroid</string>
+</resources>

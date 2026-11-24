@@ -1,0 +1,402 @@
+name: 🛠️ Emulator Tests
+
+on:
+  schedule:
+    # Weekly emulator coverage, Monday at 03:17 UTC.
+    - cron: '17 3 * * 1'
+  workflow_dispatch:
+    inputs:
+      iterations:
+        description: "Number of iterations to run. Default 1. Max 256."
+        required: true
+        default: 1
+        type: number
+  pull_request:
+  push:
+    # Ignore merge queue branches on push; avoids merge_group+push concurrency race since ref is same
+    branches-ignore:
+      - 'gh-readonly-queue/**'
+      # Dependabot branches are already checked by the pull_request trigger.
+      - 'dependabot/**'
+      # Crowdin translations are already checked by the pull_request trigger.
+      - 'i18n_sync'
+  merge_group:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}-${{ github.event_name == 'schedule' && 'scheduled' || 'ci' }}
+  cancel-in-progress: true
+
+env:
+  JAVA_TOOL_OPTIONS: -Dkotlin.daemon.options=autoshutdownIdleSeconds=10
+
+jobs:
+  # We want to generate our matrix dynamically
+  # Initial job generates the matrix as a JSON, and following job will use deserialize and use the result
+  matrix_prep:
+    # Do not run the scheduled jobs on forks
+    if: (github.event_name == 'schedule' && github.repository == 'ankidroid/Anki-Android') || (github.event_name != 'schedule')
+    runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.build-matrix.outputs.result }}
+    steps:
+      - id: build-matrix
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
+        with:
+          script: |
+            // by default, we will run one iteration
+            let iterationArray = [0]
+
+            // workflow dispatch will be a drop-down of different options
+            if (context.eventName === "workflow_dispatch") {
+              const inputs = ${{ toJSON(inputs) }}
+              console.log('inputs is: ' + JSON.stringify(inputs))
+
+              const iterationInput = inputs.iterations
+              console.log('iterations input is: ' + iterationInput)
+              // this will expand for example with input 5 => [0, 1, 2, 3, 4]
+              iterationArray = []
+              for (let i = 0; i < iterationInput; i++) {
+                iterationArray.push(i);
+              }
+              console.log('iterationArray is: ' + iterationArray)
+            }
+
+            // TODO Refactor to make these dynamic with a minSdk/max bracket only on schedule, not push
+            let apiLevel = [36];
+
+            // These are used for performance tuning what emulator to use.
+            // try different architectures, targets, delays etc
+            let arch = ['x86_64'];
+            let target = ['google_apis', 'google_apis_ps16k'];
+            let include = [];
+            // Keep API 37, the 16 KB emulator and the tablet off the per-change CI path.
+            // Scheduled and manual runs exercise both API levels and targets, plus a tablet.
+            if (context.eventName !== 'schedule' && context.eventName !== 'workflow_dispatch') {
+              target = ['google_apis'];
+            } else {
+              // Keep the minor version: SDK 37 packages use android-37.0.
+              apiLevel.push('37.0');
+              include = iterationArray.map((iteration) => ({
+                "iteration": iteration,
+                "api-level": 36,
+                "arch": "x86_64",
+                "target": "google_apis",
+                "first-boot-delay": 600,
+                "device": "tablet",
+                "profile": "pixel_tablet"
+              }));
+            }
+            let firstBootDelay = [600];
+
+            return {
+              "iteration": iterationArray,
+              "api-level": apiLevel,
+              "arch": arch,
+              "target": target,
+              "first-boot-delay": firstBootDelay,
+              "device": ["phone"],
+              "include": include
+            }
+      - name: Debug Output
+        run: echo "${{ steps.build-matrix.outputs.result }}"
+
+  # This uses the matrix generated from the matrix-prep stage
+  # it will run unit tests on whatever OS combinations are desired
+  emulator_test:
+    name: Android Emulator Test (${{ matrix.api-level }}, ${{ matrix.arch }}, ${{ matrix.target }}, ${{ matrix.first-boot-delay }}, ${{ matrix.iteration }}${{ matrix.device == 'tablet' && ', tablet' || '' }})
+    runs-on: ubuntu-latest
+    needs: matrix_prep
+    timeout-minutes: 75
+    env:
+      CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+      TEST_RELEASE_BUILD: true
+      # Capture startup and kernel logs before ADB is ready; -logcat conflicts with -show-kernel.
+      EMULATOR_OPTIONS: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none -verbose -show-kernel
+      # API 37 otherwise defaults to 96 MiB and panics during init with an OOM.
+      EMULATOR_RAM_SIZE: ${{ matrix.api-level == '37.0' && '2560M' || '' }}
+      # Keep the SDK package at 37.0, but ensure the AVD is recognized as API 37.
+      # API 3 fallback disables the DMA readback required by API 37's graphics mapper.
+      EMULATOR_PRE_LAUNCH_SCRIPT: >-
+        if [ '${{ matrix.api-level }}' = '37.0' ]; then sed -i 's/^target=.*/target=android-37/' "$ANDROID_AVD_HOME/test.ini" "$ANDROID_AVD_HOME/test.avd/config.ini"; fi
+    strategy:
+      fail-fast: false
+      matrix: ${{fromJson(needs.matrix_prep.outputs.matrix)}}
+    steps:
+      - name: Free Disk Space (Ubuntu)
+        uses: insightsengineering/disk-space-reclaimer@dae9fabcb8febe09f6585471948acf9dc9a57489 # v1.1.2
+        with:
+          tools-cache: false
+          android: false
+          dotnet: true
+          haskell: false
+          large-packages: false
+          swap-storage: false
+          docker-images: false
+
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 50
+
+      - name: Enable KVM group perms
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+
+      - name: Configure JDK
+        uses: actions/setup-java@de7274f081f381c8f8158605e0321c36c376e2e6 # v6.0.1
+        with:
+          distribution: "jetbrains"
+          java-version: "21"  # also change jitpack.yml
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@3f5f9adaf7d9fecd50b5935e54106014257a94e6 # v6.4.0
+        timeout-minutes: 5
+        with:
+          # Use open source provider: https://github.com/gradle/actions/blob/main/docs/setup-gradle.md#basic-caching
+          cache-provider: basic
+          # Only write to the cache for builds on the 'main' branches, stops branches evicting main cache
+          # Builds on other branches will only read from main branch cache writes
+          # Comment this and the with: above out for performance testing on a branch
+          cache-read-only: ${{ github.ref != 'refs/heads/main' }}
+
+        # Cache only the per-change emulator: the 16 KB snapshot costs about 2.5 GiB.
+      - name: AVD cache
+        if: matrix.target == 'google_apis' && matrix.device == 'phone'
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        id: avd-cache
+        with:
+          path: |
+            ~/.android/avd/*
+            ~/.android/adb*
+          key: avd-${{ matrix.api-level }}-${{ matrix.arch }}-${{matrix.target}}-v2-
+          restore-keys: |
+            avd-${{ matrix.api-level }}-${{ matrix.arch }}-${{matrix.target}}-v2
+
+      - name: Pin Build Time
+        run: echo "ORG_GRADLE_PROJECT_buildTime=$(date +%s000)" >> "$GITHUB_ENV"
+
+      - name: Raise Gradle Heap
+        # The release smoke build can run out of heap while packaging (#22741).
+        # Every Gradle step in this job shares one daemon, so this applies to all of them.
+        run: echo "org.gradle.jvmargs=-Xmx4g -Dfile.encoding=UTF-8" >> "$GRADLE_USER_HOME/gradle.properties"
+
+      - name: Warm Gradle Cache
+        # This makes sure we fetch gradle network resources with a retry
+        uses: nick-fields/retry@ad984534de44a9489a53aefd81eb77f87c70dc60 # v4.0.0
+        with:
+          timeout_minutes: 15
+          retry_wait_seconds: 60
+          max_attempts: 3
+          command: ./gradlew packagePlayRelease packagePlayReleaseAndroidTest :baselineprofile:packageBenchmarkBenchmark --daemon
+
+      - name: Install Android Emulator
+        # Retry to work around https://github.com/ReactiveCircus/android-emulator-runner/issues/496
+        uses: nick-fields/retry@ad984534de44a9489a53aefd81eb77f87c70dc60 # v4.0.0
+        env:
+          SDK_API_LEVEL: ${{ matrix.api-level }}
+          SDK_TARGET: ${{ matrix.target }}
+          SDK_ARCH: ${{ matrix.arch }}
+          # Keep in sync with sdk-installer.ts in the pinned android-emulator-runner action.
+          SDK_BUILD_TOOLS_VERSION: '37.0.0'
+        with:
+          timeout_minutes: 5
+          retry_wait_seconds: 60
+          max_attempts: 3
+          command: >-
+            "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" --verbose --install
+            "build-tools;$SDK_BUILD_TOOLS_VERSION"
+            platform-tools "platforms;android-$SDK_API_LEVEL"
+            emulator "system-images;android-$SDK_API_LEVEL;$SDK_TARGET;$SDK_ARCH"
+            --channel=0
+          # sdkmanager preserves failed downloads and installation state for resuming.
+          on_retry_command: >-
+            rm -rf "${ANDROID_HOME:?}/.temp"
+            "${ANDROID_HOME:?}/.downloadIntermediates"
+            "${ANDROID_HOME:?}/emulator/.installer"
+            "${ANDROID_HOME:?}/build-tools/${SDK_BUILD_TOOLS_VERSION:?}/.installer"
+            "${ANDROID_HOME:?}/platform-tools/.installer"
+            "${ANDROID_HOME:?}/platforms/android-${SDK_API_LEVEL:?}/.installer"
+            "${ANDROID_HOME:?}/system-images/android-${SDK_API_LEVEL:?}/${SDK_TARGET:?}/${SDK_ARCH:?}/.installer"
+
+      - name: AVD Boot and Snapshot Creation
+        # Warm up the uncached 16 KB and tablet emulators on every run; otherwise only on main cache misses.
+        # Comment the if out to generate snapshots on branch for performance testing
+        if: "${{ matrix.target == 'google_apis_ps16k' || matrix.device == 'tablet' || (steps.avd-cache.outputs.cache-hit != 'true' && github.ref == 'refs/heads/main') }}"
+        uses: reactivecircus/android-emulator-runner@a421e43855164a8197daf9d8d40fe71c6996bb0d # v2.38.0
+        with:
+          api-level: ${{ matrix.api-level }}
+          force-avd-creation: false
+          target: ${{ matrix.target }}
+          arch: ${{ matrix.arch }}
+          profile: ${{ matrix.profile }}
+          emulator-options: ${{ env.EMULATOR_OPTIONS }}
+          ram-size: ${{ env.EMULATOR_RAM_SIZE }}
+          pre-emulator-launch-script: ${{ env.EMULATOR_PRE_LAUNCH_SCRIPT }}
+          sdcard-path-or-size: 100M
+          disable-animations: true
+          # Give the emulator a little time to run and do first boot stuff before taking snapshot
+          script: |
+            touch adb-log.txt
+            $ANDROID_HOME/platform-tools/adb logcat '*:D' >> adb-log.txt &
+            bash .github/adb_retry.sh logcat --clear
+            echo "Generated AVD snapshot for caching."
+
+        # This step is separate so pure install time may be calculated as a step
+      - name: Emulator Snapshot After Firstboot Warmup
+        # Always warm up the 16 KB and tablet emulators. The default emulator only needs it on main cache misses.
+        # Switch the if statements via comment if generating snapshots for performance testing
+        # if: matrix.first-boot-delay != '0'
+        if: "${{ matrix.target == 'google_apis_ps16k' || matrix.device == 'tablet' || (steps.avd-cache.outputs.cache-hit != 'true' && github.ref == 'refs/heads/main') }}"
+        env:
+          FIRST_BOOT_DELAY: ${{ matrix.first-boot-delay }}
+        uses: reactivecircus/android-emulator-runner@a421e43855164a8197daf9d8d40fe71c6996bb0d # v2.38.0
+        with:
+          api-level: ${{ matrix.api-level }}
+          force-avd-creation: false
+          target: ${{ matrix.target }}
+          arch: ${{ matrix.arch }}
+          profile: ${{ matrix.profile }}
+          emulator-options: ${{ env.EMULATOR_OPTIONS }}
+          ram-size: ${{ env.EMULATOR_RAM_SIZE }}
+          pre-emulator-launch-script: ${{ env.EMULATOR_PRE_LAUNCH_SCRIPT }}
+          sdcard-path-or-size: 100M
+          disable-animations: true
+          # Restart zygote to win a config race / Give emulator time to run and do first boot stuff before taking snapshot
+          script: |
+            touch adb-log.txt
+            $ANDROID_HOME/platform-tools/adb logcat '*:D' >> adb-log.txt &
+            bash .github/adb_retry.sh shell su root "setprop ctl.restart zygote"
+            sleep 10
+            sleep $FIRST_BOOT_DELAY
+            bash .github/adb_retry.sh logcat --clear
+            echo "First boot warmup completed."
+
+      - name: Run Emulator Tests
+        uses: reactivecircus/android-emulator-runner@a421e43855164a8197daf9d8d40fe71c6996bb0d # v2.38.0
+        timeout-minutes: 30
+        with:
+          api-level: ${{ matrix.api-level }}
+          force-avd-creation: false
+          target: ${{ matrix.target }}
+          arch: ${{ matrix.arch }}
+          profile: ${{ matrix.profile }}
+          emulator-options: -no-snapshot-save ${{ env.EMULATOR_OPTIONS }}
+          ram-size: ${{ env.EMULATOR_RAM_SIZE }}
+          pre-emulator-launch-script: ${{ env.EMULATOR_PRE_LAUNCH_SCRIPT }}
+          sdcard-path-or-size: 100M
+          disable-animations: true
+          # update workflows/README.md when modifying this script
+          script: |
+            touch adb-log.txt
+            bash .github/disable_art_metrics.sh
+            # Fix "Speech Recognition and Synthesis from Google keeps stopping" causing RootViewWithoutFocusException  
+            bash .github/adb_retry.sh shell settings put global hide_error_dialogs 1
+            bash .github/adb_retry.sh emu screenrecord start --time-limit 1800 video.webm
+            sleep 5
+            bash .github/with_emulator_log.sh adb-log.txt python3 .github/run_emulator_tests.py
+
+      - name: Report Emulator Test Results
+        if: always() && hashFiles('AnkiDroid/build/outputs/androidTest-results/connected/**/TEST-*.xml') != ''
+        run: python3 .github/report_test_failures.py AnkiDroid/build/outputs/androidTest-results/connected adb-log.txt --title "Emulator test failures" --suite ":AnkiDroid:connectedPlayReleaseAndroidTest"
+
+      - name: Build Release Smoke Test
+        run: TEST_RELEASE_BUILD=false ./gradlew packagePlayRelease :baselineprofile:packageBenchmarkBenchmark -x lintVitalPlayRelease --daemon --stacktrace
+
+      - name: Run Release Smoke Test
+        uses: reactivecircus/android-emulator-runner@a421e43855164a8197daf9d8d40fe71c6996bb0d # v2.38.0
+        timeout-minutes: 10
+        with:
+          api-level: ${{ matrix.api-level }}
+          force-avd-creation: false
+          target: ${{ matrix.target }}
+          arch: ${{ matrix.arch }}
+          emulator-options: -no-snapshot-save ${{ env.EMULATOR_OPTIONS }}
+          ram-size: ${{ env.EMULATOR_RAM_SIZE }}
+          pre-emulator-launch-script: ${{ env.EMULATOR_PRE_LAUNCH_SCRIPT }}
+          sdcard-path-or-size: 100M
+          disable-animations: true
+          script: |
+            bash .github/disable_art_metrics.sh
+            bash .github/adb_retry.sh shell settings put global hide_error_dialogs 1
+            TEST_RELEASE_BUILD=false bash .github/with_emulator_cleanup.sh python3 .github/run_release_smoke_test.py
+
+      - name: Configure NDK tools PATH for alignment checking
+        run: |
+          echo "Using pre-installed NDK tools for alignment checking"
+          if [ ! -d "$ANDROID_NDK_LATEST_HOME" ]; then
+            echo "Error: NDK tools not found at $ANDROID_NDK_LATEST_HOME"
+            echo "The NDK should be pre-installed in the runner image. Failing fast."
+            exit 1
+          fi
+
+          NDK_VERSION=$(basename $ANDROID_NDK_LATEST_HOME)
+          echo "Using NDK version: $NDK_VERSION"
+          echo "export PATH=$ANDROID_NDK_LATEST_HOME/toolchains/llvm/prebuilt/linux-x86_64/bin:$PATH" >> $GITHUB_ENV
+
+      - name: Check APK ELF Alignment
+        run: |
+          chmod +x .github/check_elf_alignment.sh
+          APK_PATH="AnkiDroid/build/outputs/apk/play/release/AnkiDroid-play-arm64-v8a-release.apk"
+
+          if [ ! -f "$APK_PATH" ]; then
+            echo "Error: APK file not found at $APK_PATH"
+            echo "The APK should have been built in previous steps. Failing fast."
+            exit 1
+          fi
+
+          echo "Using APK: $APK_PATH"
+          .github/check_elf_alignment.sh $APK_PATH
+
+      - name: Verify zipalign
+        run: |
+          APK_PATH="AnkiDroid/build/outputs/apk/play/release/AnkiDroid-play-arm64-v8a-release.apk"
+          echo "Verifying zipalign with 16KB alignment for $APK_PATH"
+
+          # Find the latest build-tools version dynamically
+          LATEST_BUILD_TOOLS=$(ls -d $ANDROID_HOME/build-tools/* | sort -V | tail -n 1)
+          ZIPALIGN_PATH="$LATEST_BUILD_TOOLS/zipalign"
+          echo "Using zipalign at: $ZIPALIGN_PATH"
+
+          # Verify zipalign exists
+          if [ ! -f "$ZIPALIGN_PATH" ]; then
+            echo "Error: zipalign not found at $ZIPALIGN_PATH"
+            echo "Available build-tools versions:"
+            ls -la $ANDROID_HOME/build-tools/
+            exit 1
+          fi
+
+          # Use the zipalign tool
+          $ZIPALIGN_PATH -c -P 16 -v 4 $APK_PATH
+
+      - name: Upload Test Report
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        if: always()
+        with:
+          name: ${{ matrix.api-level }}-${{ matrix.arch }}-${{matrix.target}}-${{matrix.first-boot-delay}}-${{matrix.iteration}}-${{ matrix.device }}-jacocoAndroidTestReport
+          path: ~/work/Anki-Android/Anki-Android/AnkiDroid/build/reports/jacoco/
+
+      - name: Upload Emulator Log
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        if: always()
+        with:
+          name: ${{ matrix.api-level }}-${{ matrix.arch }}-${{matrix.target}}-${{matrix.first-boot-delay}}-${{matrix.iteration}}-${{ matrix.device }}-adb_logs
+          path: adb-log.txt
+
+      - name: Upload Emulator Screen Record
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        if: always()
+        with:
+          name: ${{ matrix.api-level }}-${{ matrix.arch }}-${{matrix.target}}-${{matrix.first-boot-delay}}-${{matrix.iteration}}-${{ matrix.device }}-adb_video
+          path: video.webm
+
+      - uses: codecov/codecov-action@303a32d7a59b442fa8d48b6a1cc6825c09c847a5 # v7.1.1
+        with:
+          flags: emulator
+          verbose: true
+          fail_ci_if_error: ${{ github.repository == 'ankidroid/Anki-Android' }} # optional (default = false)

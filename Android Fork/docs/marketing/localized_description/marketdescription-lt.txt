@@ -1,0 +1,36 @@
+Naudokite „AnkiDroid“ ir viską atsiminkite!
+
+„AnkiDroid“ programa suteikia galimybę veiksmingai mokytis, parodydama korteles dar prieš spėjant jas pamiršti. It is fully compatible with the spaced repetition software Anki (including synchronization), which is available for Windows, Linux and macOS.
+
+Mokykitės įvairių dalykų bet kada ir bet kur. Išnaudokite laisvą laiką keliaudami autobusu, stovėdami prekybos centro eilėje ar neturėdami ką veikti!
+
+Kurkite atminties kortelių rinkinius patys arba nemokamai juos parsisiųskite įvairiomis kalbomis ir temomis (kurių yra daugiau nei 6000).
+
+Naują medžiagą galite suvesti naudodami kompiuterinę „Anki“ versiją arba mobiliesiems įrenginiams skirtą programėlę „AnkiDroid“. Programa netgi turi galimybę pridėti medžiagą tiesiai iš žodyno!
+
+★ Pagrindinės savybės:
+• palaiko tekstinį, vaizdinį, garsinį ir LaTeX turinį
+• intervalinis kartojimas (AI optimizuotas FSRS algoritmas)
+• integruotas teksto pavertimas garsu
+• daugiau nei 10 000 iš anksto paruoštų kaladžių
+• pažangos stebėjimo valdiklis
+• išsami statistika
+• sinchronizavimas su „AnkiWeb“
+• atviroji programinė įranga
+
+★ Papildomos savybės:
+• atsakymų rašymas ranka (pasirinktinai)
+• rašymo lenta
+• kortelių redagavimo/pridėjimo funkcija
+• kortelių naršyklė
+• planšetėms pritaikytas išdėstymas
+• turimos kolekcijos failų importavimas (naudojant kompiuterinę „Anki“ versiją)
+• kortelių pridėjimas iš kitų programų, pavyzdžiui, žodynų
+• palaikomi individualūs šriftai
+• išsami atsarginių kopijų sistema
+• naršymas braukiant ar baksnojant pirštais
+• individualus pritaikymas
+• dinamiškas rinkinio tvarkymas
+• naktinis režimas
+• 27 lokalizacijos
+• Visas ankstesnes „AnkiDroid“ versijas galima parsisiųsti iš interneto svetainės

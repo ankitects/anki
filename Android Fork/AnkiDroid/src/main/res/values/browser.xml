@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- SPDX-License-Identifier: GPL-3.0-or-later -->
+
+<resources>
+    <string name="pref_browser_search_history">browser_search_history</string>
+    <string name="pref_browser_no_sorting">cardBrowserNoSorting</string>
+</resources>

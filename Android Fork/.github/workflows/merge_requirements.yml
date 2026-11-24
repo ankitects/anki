@@ -1,0 +1,26 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
+name: 🛠️ Merge Requirements
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, labeled, unlabeled]
+  # Required checks must also report a result for merge queue builds.
+  merge_group:
+
+permissions: {}
+
+# Don't cancel runs: this is a fast check which shows as a failing check when canceled.
+
+jobs:
+  squashMerge:
+    name: Squash merge
+    # perf: stops 'merge_group' from allocating a runner
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Requires a squash merge
+        if: github.event.pull_request.commits > 1 && contains(github.event.pull_request.labels.*.name, 'squash-merge')
+        run: |
+          echo "::error::This PR must be squashed before merging. Please squash appropriate commits and force push to resolve this."
+          exit 1

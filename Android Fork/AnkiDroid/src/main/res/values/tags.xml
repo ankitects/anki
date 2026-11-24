@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- SPDX-License-Identifier: GPL-3.0-or-later -->
+
+<!-- Usage: setTag(R.id.tag_slider_listener_set, value) -->
+<resources>
+    <item type="id" name="tag_slider_listener_set"/>
+</resources>

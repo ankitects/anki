@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- SPDX-License-Identifier: GPL-3.0-or-later -->
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:paddingBottom="8dp"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <com.ichi2.ui.FixedTextView
+        android:id="@+id/axis_name"
+        android:paddingStart="16dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="20sp"
+        tools:text="AXIS_X" />
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/select_min_extremity"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+
+        app:icon="@drawable/ic_add"
+        app:iconSize="24dp"
+        app:iconPadding="0dp"
+        app:iconGravity="textStart"
+        app:iconTint="?attr/colorControlNormal"
+
+        android:background="?attr/selectableItemBackground"
+
+        android:enabled="false"
+
+        app:layout_constraintTop_toBottomOf="@id/axis_name"
+        app:layout_constraintStart_toStartOf="parent"
+
+        app:shapeAppearance="?attr/shapeAppearanceCornerLarge"/>
+
+
+    <com.ichi2.ui.AxisValueDisplay
+        android:id="@+id/axis_display"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        app:layout_constraintBottom_toBottomOf="@+id/select_min_extremity"
+        app:layout_constraintEnd_toStartOf="@id/select_max_extremity"
+        app:layout_constraintStart_toEndOf="@id/select_min_extremity"
+        app:layout_constraintTop_toBottomOf="@id/axis_name" />
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/select_max_extremity"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+
+        app:icon="@drawable/ic_add"
+        app:iconSize="24dp"
+        app:iconPadding="0dp"
+        app:iconGravity="textStart"
+        app:iconTint="?attr/colorControlNormal"
+
+        android:background="?attr/selectableItemBackground"
+
+        android:enabled="false"
+
+        app:layout_constraintTop_toBottomOf="@id/axis_name"
+        app:layout_constraintStart_toEndOf="@id/axis_display"
+        app:layout_constraintEnd_toEndOf="parent"
+
+        app:shapeAppearance="?attr/shapeAppearanceCornerLarge" />
+
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>

@@ -1,0 +1,12 @@
+<!--
+  SPDX-License-Identifier: Apache-2.0
+  SPDX-FileCopyrightText: Google LLC
+  SPDX-FileComment: Style: Outlined
+  SPDX-FileComment: Material Symbols; FILL=0, wght=400, GRAD=0, opsz=24
+  Source: https://raw.githubusercontent.com/google/material-design-icons/10ecc14790612ca8fd164e3f4ffe9c16fc50d5b7/symbols/android/arrow_insert/materialsymbolsoutlined/arrow_insert_24px.xml
+-->
+<vector xmlns:android="http://schemas.android.com/apk/res/android" android:height="24dp" android:tint="?colorControlNormal" android:viewportHeight="960" android:viewportWidth="960" android:width="24dp">
+      
+    <path android:fillColor="@android:color/white" android:pathData="M704,720L320,336L320,680L240,680L240,200L720,200L720,280L376,280L760,664L704,720Z"/>
+    
+</vector>

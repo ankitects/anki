@@ -1,0 +1,37 @@
+Memorează orice cu AnkiDroid! 
+ 
+
+AnkiDroid îți permite să înveți foarte eficient cu ajutorul cartonașelor prin afișarea lor chiar înainte de a uita conținutul lor. Este în întregime compatibil cu programul de repetiție spațiată Anki (inclusiv sincronizare), care este disponibil pe Windows, Linux și macOS.
+
+Învață și reține tot felul de lucruri, oriunde și oricând vrei. Fructifică timpul mort din călătoriile cu autobuzul, statul la coadă în supermarket-uri sau în orice altă situație asemănătoare!
+
+Creează-ți propriile pachete de cartonașe sau descarcă pachete gratuite, gata făcute în diverse limbi și domenii (peste 6000 disponibile).
+
+Adaugă informațiile dorite cu ajutorul aplicației pentru desktop Anki sau direct în AnkiDroid. Aplicația acceptă chiar și adăugarea automată a materialului dintr-un dicționar!
+
+★ Caracteristici principale:
+• conținutul cartonașelor permite: text, imagine, sunete, Latex
+• repetiție spațiată (algoritm FSRS optimizat cu AI)
+• integrare text-to-speech
+• peste 10000 de pachete gata făcute
+• widget ce indică progresul și timpul rămas
+• statistici detaliate
+• sincronizare cu AnkiWeb
+• codul aplicației este cu sursă deschisă
+
+Caracteristici suplimentare:
+• scrie răspunsurile (opţional)
+• tablă pentru desenat
+• editor de cartonașe
+• navigator de cartonașe
+• aspect optimizat pentru tablete
+• importă fișiere din Anki Desktop
+• adaugă cartonașe din alte aplicații precum dicționare
+• suport pentru font personalizat
+• sistem complet pentru copii de rezervă
+• navighează prin deplasare cu degetul, apăsare, înclinare
+• personalizabil
+• control dinamic al pachetelor
+• mod de noapte
+• 27 de traduceri
+• toate versiunile anterioare AnkiDroid pot fi descărcate de pe website

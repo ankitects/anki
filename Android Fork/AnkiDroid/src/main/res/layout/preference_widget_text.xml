@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<!-- Note: `android:listPreferredItemHeight` is the minimum height of the preference.
+     In our themes, that's 56 dp. But somehow the actual height of the preference is 53 dp.
+     We are using 48 sp, which corresponds to `android:listPreferredItemHeightSmall`, or 48 dp. -->
+<TextView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@android:id/text1"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:gravity="center"
+    android:minHeight="48sp"
+    android:minWidth="70sp"
+    android:background="@drawable/bg_preference_widget_text"
+    />

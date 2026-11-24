@@ -1,0 +1,36 @@
+Ingat apa-apa jua dengan AnkiDroid!
+
+AnkiDroid membolehkan anda belajara kad imbasan dengan cekap dengan menyemak kad tersebut sebelum anda lupa. It is fully compatible with the spaced repetition software Anki (including synchronization), which is available for Windows, Linux and macOS.
+
+Belajar pelbagai perkara bila-bila dan di mana jua anda mahu. Manfaatkan masa terbiar semasa perjalanan bas, dalam barisan pasar raya atau mana-mana suasana menunggu!
+
+Cipta dek kad imbasan sendiri atau muat turun dek percuma disusun untuk pelbagai bahasa dan topik (lebih dari 6000 tersedia).
+
+Tambah bahan melalui aplikasi desktop Anki atau terus melalui AnkiDroid. Aplikasi ini juga mampu menambah bahan secara automatik daripada kamus!
+
+★ Ciri-ciri utama:
+• kandungan kad imbasan yang disokong: teks, gambar, audio, LaTeX
+• spaced repetition (AI-optimized FSRS algorithm)
+• integrasi teks-ke-ucapan
+• more than 10,000 premade decks
+• widget kemajuan
+• statistik terperinci
+• segerak ke AnkiWeb
+• sumber terbuka
+
+★ ciri-ciri tambahan:
+• tulis jawapan (pilihan)
+• papan putih
+• penyunting/penambah kad
+• pencari kad
+• susun atur tablet
+• import koleksi sedia ada (melalui Anki Desktop)
+• tambah kad mengikut kehendak dari aplikasi lain seperti kamus
+• sokongan fon tersuai
+• sistem sandaran penuh
+• navigasi melalui leretan, sentuhan
+• boleh suaikan
+• pengendalian dek dinamik
+• mod malam
+• 27 penyetempatan
+• Semua versi AnkiDroid dahulu boleh dimuat turun dari laman web

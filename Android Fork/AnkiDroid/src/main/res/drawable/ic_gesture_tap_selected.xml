@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  SPDX-License-Identifier: GPL-3.0-or-later
+  SPDX-FileCopyrightText: 2021 Sven Meier <svenmeier@apache.org>
+  SPDX-FileCopyrightText: 2021 David Allison <davidallisongithub@gmail.com>
+  SPDX-FileComment: Style: Custom; thick outlined circle for a selected tap target.
+  SPDX-FileComment: Derived from Sven Meier's tap-target artwork in PR 8078; redrawn as a separate circle in a 24-unit viewport.
+  Base source: https://raw.githubusercontent.com/ankidroid/Anki-Android/7d3551daabcd5a7ca43a97dce5b46644b228589c/AnkiDroid/src/main/res/drawable/ic_gestures.xml
+  Source: https://raw.githubusercontent.com/ankidroid/Anki-Android/b6431ef39b3fa05c49220d98ae0ce8aa5423549c/AnkiDroid/src/main/res/drawable/ic_gesture_tap_selected.xml
+-->
+
+<vector android:height="24dp"
+    android:viewportHeight="24.0" android:viewportWidth="24.0"
+    android:width="24dp" xmlns:android="http://schemas.android.com/apk/res/android">
+    <path
+        android:name="bottom_right"
+        android:pathData="M2,12
+            A10,10 0 1,1 22,12
+            A10,10 0 1,1 2,12"
+        android:strokeWidth="4"
+        android:strokeColor="?attr/colorControlActivated" />
+</vector>

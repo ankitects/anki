@@ -1,0 +1,17 @@
+<!--
+  SPDX-License-Identifier: Apache-2.0
+  SPDX-FileCopyrightText: Google LLC
+  SPDX-FileComment: Style: Filled (modified remove icon).
+  SPDX-FileComment: Modified: extended the horizontal bar from x=5..19 to x=2..22.
+  Base source: https://raw.githubusercontent.com/google/material-design-icons/10ecc14790612ca8fd164e3f4ffe9c16fc50d5b7/android/content/remove/materialicons/black/res/drawable/baseline_remove_24.xml
+-->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="24.0"
+    android:viewportHeight="24.0"
+    android:tint="?attr/colorControlNormal">
+  <path
+      android:fillColor="#FF000000"
+      android:pathData="M19,13H2v-2h20v2z"/>
+</vector>

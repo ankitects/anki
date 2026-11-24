@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<paths>
+    <external-cache-path path="export/" name="export-directory" />
+    <cache-path path="/" name="cache-directory" />
+    <external-path path="." name="photos" />
+    <external-files-path name="shared_decks" path="shared_decks" />
+    <external-cache-path name="temp-photos" path="temp-photos" />
+</paths>

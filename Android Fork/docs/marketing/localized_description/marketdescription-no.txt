@@ -1,0 +1,36 @@
+Husk hva som helst med AnkiDroid!
+
+AnkiDroid lærer deg innholdet i spørrekort veldig effektivt ved å vise kortene rett før du holder på å glemme innholdet. It is fully compatible with the spaced repetition software Anki (including synchronization), which is available for Windows, Linux and macOS.
+
+Studer hva du vil når og hvor du vil. Utnytt dødtid når du pendler, står i kø på butikken, eller er i andre situasjoner hvor du må vente!
+
+Lag dine egne kortstokker med spørrekort, eller last ned gratis stokker for mange språk og emner (fler enn 6000 er tilgjengelig).
+
+Legg til materiale med skrivebordsapplikasjonen Anki, eller rett i AnkiDroid. Applikasjonen støtter til og med automatisk innlegging av stoff fra ordbøker!
+
+★ Viktige funksjoner:
+• støttede spørrekortinnholdstyper: tekst, bilder, lyder, LaTeX
+• spaced repetition (AI-optimized FSRS algorithm)
+• "tekst til tale"-integrasjon
+• more than 10,000 premade decks
+• fremdriftswidget
+• detaljert statistikk
+• synkronisering med AnkiWeb
+• åpen kildekode
+
+★ Tilleggsfunksjoner:
+• skrive svar (valgfritt)
+• tavle
+• funksjon for å legge til og redigere kort
+• kortutforsker
+• nettbrett-utforming
+• importere eksisterende filer med samlinger (via Anki Desktop)
+• Legg til kort fra andre programmer, for eksempel ordbøker
+• støtte for egne skrifttyper
+• fullt system for sikkerhetskopiering
+• navigasjon ved hjelp av å dra og trykke
+• tilpassbar
+• dynamisk kortstokkhåndtering
+• nattmodus
+• 27 språk
+• Alle tidligere AnkiDroid-versjoner kan lastes ned fra nettstedet

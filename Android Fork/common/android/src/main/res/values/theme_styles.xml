@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- SPDX-License-Identifier: GPL-3.0-or-later -->
+<resources xmlns:tools="http://schemas.android.com/tools" tools:ignore="UnusedResources,DuplicateCrowdInStrings">
+
+    <!-- Action bar. Currently all action bar text is white in every theme. -->
+    <style name="ActionBarStyle" parent="Base.ThemeOverlay.AppCompat.ActionBar">
+        <!-- Colors: hamburger, title text, overflow icon -->
+        <item name="android:textColorPrimary">?attr/actionBarTextColor</item>
+        <!-- Colors: subtitle text -->
+        <item name="android:textColorSecondary">?attr/actionBarTextColor</item>
+        <!-- Overflow menu style -->
+        <item name="popupTheme">@style/ActionBar.Popup</item>
+    </style>
+
+    <!-- For all other action bar popups like overflow menu (except spinner dropdown in Lollipop). -->
+    <style name="ActionBar.Popup" parent="Base.ThemeOverlay.AppCompat.ActionBar">
+        <item name="android:drawSelectorOnTop">false</item>
+        <item name="android:textColorPrimary">?android:attr/textColor</item>
+        <item name="android:textColorSecondary">?android:attr/textColor</item>
+        <item name="android:colorBackground">?attr/popupBackgroundColor</item>
+    </style>
+
+    <style name="OverflowMenuStyle" parent="Widget.Material3.PopupMenu.Overflow">
+        <item name="android:popupBackground">@drawable/bg_popup</item>
+    </style>
+
+    <style name="PopupMenuStyle" parent="Widget.Material3.PopupMenu">
+        <item name="android:popupBackground">@drawable/bg_popup</item>
+    </style>
+
+    <style name="SpinnerStyle" parent="Widget.AppCompat.Spinner">
+        <item name="android:popupBackground">@drawable/bg_popup</item>
+    </style>
+
+    <!-- Switches -->
+    <style name="Preference.SwitchPreferenceCompat.Material3" parent="@style/Preference.SwitchPreferenceCompat.Material">
+        <item name="widgetLayout">@layout/preference_material_switch_widget</item>
+    </style>
+
+    <style name="SliderLabelStyle" parent="Widget.MaterialComponents.Tooltip">
+        <item name="android:textColor">@color/white</item>
+    </style>
+
+    <style name="SliderStyle" parent="Widget.Material3.Slider">
+        <item name="labelStyle">@style/SliderLabelStyle</item>
+        <item name="tickVisible">false</item>
+    </style>
+
+    <style name="PreferenceThemeOverlay.AnkiDroid">
+        <item name="singleLineTitle">false</item>
+    </style>
+
+    <style name="ThemeOverlay.AnkiDroid.AlertDialog" parent="ThemeOverlay.Material3.MaterialAlertDialog">
+        <item name="dialogCornerRadius">@dimen/m3_alert_dialog_corner_size</item>
+        <item name="materialAlertDialogBodyTextStyle">@style/AnkiDroid.AlertDialog.Body.Text</item>
+        <item name="android:windowBackground">@drawable/material_dialog_background</item>
+    </style>
+
+    <style name="AnkiDroid.AlertDialog.Body.Text" parent="MaterialAlertDialog.Material3.Body.Text">
+        <!-- Keep dialog body text consistent with the primary text color -->
+        <item name="android:textColor">?android:attr/textColor</item>
+    </style>
+
+    <style name="AppCompatProgressDialogStyle" parent="ThemeOverlay.AppCompat.Dialog.Alert">
+        <item name="colorAccent">?attr/colorPrimary</item>
+        <item name="android:textColorPrimary">?android:attr/textColor</item>
+        <item name="android:background">?attr/dialogBackground</item>
+        <item name="android:buttonBarButtonStyle">@style/CustomButtonBarButtonStyle</item>
+        <item name="dialogCornerRadius">@dimen/dialog_corner_radius</item>
+    </style>
+
+    <style name="CustomButtonBarButtonStyle" parent="Widget.AppCompat.Button.ButtonBar.AlertDialog">
+        <item name="android:textColor">?attr/colorPrimary</item>
+    </style>
+
+    <style name="ThemeOverlay.App.BottomSheetDialog" parent="ThemeOverlay.Material3.BottomSheetDialog">
+        <item name="android:navigationBarColor" tools:ignore="NewApi">@android:color/transparent</item>
+    </style>
+
+    <style name="Widget.AnkiDroid.WhiteboardToolbarCard.Eink" parent="Widget.Material3.CardView.Elevated">
+        <item name="strokeWidth">?attr/widgetStrokeWidth</item>
+        <item name="strokeColor">?attr/widgetStrokeColor</item>
+        <item name="cardElevation">0dp</item>
+    </style>
+</resources>

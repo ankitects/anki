@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <!-- supportsRtl: must match AnkiDroid/src/main/AndroidManifest.xml (manifest merger) -->
+    <application android:supportsRtl="true">
+        <!-- "Add Note" widget -->
+        <receiver
+            android:name="com.ichi2.widget.AddNoteWidget"
+            android:label="@string/menu_add_note"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/widget_provider_add_note"
+                />
+        </receiver>
+
+        <!-- #14372: Handles updates after the day rollover (04:00). -->
+        <receiver android:name="com.ichi2.widget.DayRolloverAlarm"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="com.ichi2.widget.ACTION_ROLLOVER" />
+                <action android:name="android.intent.action.TIMEZONE_CHANGED" />
+                <action android:name="android.intent.action.TIME_SET" />
+            </intent-filter>
+        </receiver>
+
+        <!-- Service to perform web API queries -->
+        <service android:name="com.ichi2.widget.AnkiDroidWidgetSmall$UpdateService" />
+
+        <!-- Don't disable/enable the widgets here until min API>=31, see issue #15747 & https://issuetracker.google.com/issues/36914010 -->
+        <!-- small widget -->
+        <receiver
+            android:name="com.ichi2.widget.AnkiDroidWidgetSmall"
+            android:label="@string/widget_small"
+            android:exported="true"
+            >
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/widget_provider_small"
+                />
+        </receiver>
+
+        <!-- A widget that displays a deck name and number of cards to review on the Android home screen.
+             The way to add it depends on the phone. It usually consists in a long press on the screen, followed by finding a "widget" button"-->
+        <receiver
+            android:name="com.ichi2.widget.cardanalysis.CardAnalysisWidget"
+            android:label="@string/card_analysis_extra_widget_description"
+            android:exported="false"
+            >
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/widget_provider_card_analysis" />
+        </receiver>
+
+        <!-- A widget that displays a few decks's name and number of cards to review on the Android home screen.
+             The way to add it depends on the phone. It usually consists in a long press on the screen, followed by finding a "widget" button"-->
+        <receiver
+            android:name="com.ichi2.widget.deckpicker.DeckPickerWidget"
+            android:label="@string/deck_picker_widget_description"
+            android:exported="false"
+            >
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/widget_provider_deck_picker" />
+        </receiver>
+
+        <!-- Configuration view for the DeckPickerWidget.
+             It is opened when adding a new deck picker widget and
+             by configuration button which appears when the widget is hold or resized.-->
+        <activity
+            android:name="com.ichi2.widget.deckpicker.DeckPickerWidgetConfig"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_CONFIGURE" />
+            </intent-filter>
+        </activity>
+
+        <!-- Configuration view for the CardAnalysisWidget.
+             It is opened when adding a new widget and
+             by configuration button which appears when the widget is hold or resized.-->
+        <activity
+            android:name="com.ichi2.widget.cardanalysis.CardAnalysisWidgetConfig"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_CONFIGURE" />
+            </intent-filter>
+        </activity>
+    </application>
+
+</manifest>

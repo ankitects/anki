@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- SPDX-License-Identifier: GPL-3.0-or-later -->
+<merge xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/sort_pill_standard"
+        style="@style/Widget.AnkiDroid.SortPillButton"
+        app:icon="@drawable/outline_arrow_downward_alt_24"
+        tools:text="A" />
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/sort_pill_reverse"
+        style="@style/Widget.AnkiDroid.SortPillButton"
+        app:icon="@drawable/outline_arrow_downward_alt_24"
+        tools:text="Z" />
+</merge>

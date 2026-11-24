@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ SPDX-License-Identifier: GPL-3.0-or-later
+  ~ SPDX-FileCopyrightText: Copyright (c) 2011 Norbert Nagold <norbert.nagold@gmail.com>
+  -->
+<resources xmlns:tools="http://schemas.android.com/tools" tools:ignore="DuplicateCrowdInStrings">
+
+    <!-- Custom preferences -->
+    <attr name="allowEmpty" format="boolean" />
+    <attr name="min" format="integer" />
+    <attr name="max" format="integer" />
+
+    <declare-styleable name="CustomPreference">
+        <!-- Whether the preference should automatically set its summary to the value saved for the
+             preference, and update the summary when the value is changed. Defaults to false -->
+        <attr name="useSimpleSummaryProvider" format="boolean"/>
+        <!-- Format `string` or `plurals` to be used as template to build the preference summary.
+             The placeholder is replaced by the preference value, and it must be only one placeholder.
+             If the preference value is updated, the summary is automatically updated as well. -->
+        <attr name="summaryFormat" format="string"/>
+        <!-- Floating label displayed on the dialog text field border. -->
+        <attr name="dialogHint" format="string|reference"/>
+    </declare-styleable>
+
+    <declare-styleable name="RelatedSettingsPreference">
+        <attr name="relatedTitles" format="reference|string" />
+        <attr name="relatedFragments" format="reference|string" />
+    </declare-styleable>
+
+    <declare-styleable name="NumberRangePreferenceCompat">
+        <attr name="min"/>
+        <attr name="max"/>
+    </declare-styleable>
+
+    <declare-styleable name="HtmlHelpPreference">
+        <attr name="substitution1" format="string" />
+        <attr name="substitution2" format="string" />
+        <attr name="substitution3" format="string" />
+    </declare-styleable>
+
+    <declare-styleable name="HeaderPreference">
+        <!-- String array of entries to join in order to build the preference summary -->
+        <attr name="summaryEntries" format="reference"/>
+    </declare-styleable>
+
+    <declare-styleable name="ExtendedPreferenceCategory">
+        <!-- Adds a help button that opens the provided link when tapped -->
+        <attr name="helpLink" format="string"/>
+    </declare-styleable>
+
+    <declare-styleable name="SliderPreference">
+        <!-- Format string to be used as template to display the value
+             There must be ONLY ONE placeholder, which will be replaced by the preference value -->
+        <attr name="displayFormat" format="boolean"/>
+        <!-- Whether to show the value adjacent to the slider -->
+        <attr name="displayValue" format="boolean"/>
+    </declare-styleable>
+
+    <declare-styleable name="ReviewerControlPreference">
+        <!-- The card side the control applies to. Leave unset to let the user choose.
+             If set in an existing preference, a preference upgrade must be made to
+             remove the incompatible values. -->
+        <attr name="cardSide" format="enum">
+            <enum name="question" value="0"/>
+            <enum name="answer" value="1"/>
+        </attr>
+    </declare-styleable>
+
+    <declare-styleable name="PermissionItem">
+        <!-- Title of the permission -->
+        <attr name="permissionTitle" format="string"/>
+        <!-- Brief description of the permission. It can be used to explain to the user
+         why the permission should be granted -->
+        <attr name="permissionSummary" format="string"/>
+        <!-- Icon to be shown at the side of the button -->
+        <attr name="permissionIcon" format="reference"/>
+        <!-- Permission string to be asked.
+         Will be overridden by app:permissions if set -->
+        <attr name="permission" format="string"/>
+        <!-- Array of permission strings to be asked.
+        Overrides app:permission if set -->
+        <attr name="permissions" format="string"/>
+    </declare-styleable>
+
+    <declare-styleable name="CheckBoxTriStates">
+        <attr name="cycle_checked_to_indeterminate" format="boolean" />
+        <attr name="cycle_indeterminate_to_checked" format="boolean" />
+    </declare-styleable>
+
+    <declare-styleable name="AudioWaveform">
+        <attr name="display_vertical_line" format="boolean" />
+        <attr name="android:background" />
+    </declare-styleable>
+</resources>

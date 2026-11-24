@@ -1,0 +1,123 @@
+name: 🛠️ Code Quality Checks
+
+on:
+  workflow_dispatch:
+  pull_request:
+  push:
+    # Ignore merge queue branches on push; avoids merge_group+push concurrency race since ref is same
+    branches-ignore:
+      - 'gh-readonly-queue/**'
+      # Dependabot branches are already checked by the pull_request trigger.
+      - 'dependabot/**'
+      # Crowdin translations are already checked by the pull_request trigger.
+      - 'i18n_sync'
+  merge_group:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  JAVA_TOOL_OPTIONS: -Dkotlin.daemon.options=autoshutdownIdleSeconds=10
+
+jobs:
+  lintKotlin:
+    name: Lint Kotlin
+    timeout-minutes: 20
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 2
+
+      - name: Configure JDK
+        uses: actions/setup-java@de7274f081f381c8f8158605e0321c36c376e2e6 # v6.0.1
+        with:
+          distribution: "jetbrains"
+          java-version: "21"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@3f5f9adaf7d9fecd50b5935e54106014257a94e6 # v6.4.0
+        timeout-minutes: 5
+        with:
+          # Use open source provider: https://github.com/gradle/actions/blob/main/docs/setup-gradle.md#basic-caching
+          cache-provider: basic
+          # Only write to the cache for builds on the 'main' branches, stops branches evicting main cache
+          # Builds on other branches will only read from main branch cache writes
+          # Comment this and the with: above out for performance testing on a branch
+          cache-read-only: ${{ github.ref != 'refs/heads/main' }}
+
+      # Reject versionCode decreases and increases over 100,000.
+      - name: Validate versionCode
+        env:
+          VERSION_CODE_BASE: ${{ github.event.pull_request.base.sha || github.event.merge_group.base_sha || github.event.before }}
+        run: tools/validate-version-code.sh "$VERSION_CODE_BASE"
+
+      - name: Restore TestKit Cache
+        id: testkit-cache
+        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: buildSrc/build/test-kit/caches/modules-2
+          key: testkit-${{ runner.os }}-${{ hashFiles('gradle/libs.versions.toml', 'gradle/wrapper/gradle-wrapper.properties', 'buildSrc/*.kts', 'buildSrc/src/**') }}
+          restore-keys: testkit-${{ runner.os }}-
+
+      - name: Warm Gradle Cache
+        # This makes sure we fetch gradle network resources with a retry
+        uses: nick-fields/retry@ad984534de44a9489a53aefd81eb77f87c70dc60 # v4.0.0
+        with:
+          timeout_minutes: 10
+          retry_wait_seconds: 60
+          max_attempts: 3
+          command: |
+            ./gradlew -p buildSrc downloadTestKitDependencies --daemon &&
+            ./gradlew :AnkiDroid:compileFullDebugJavaWithJavac :AnkiDroid:generateFullDebugAndroidTestLintModel generateDebugAndroidTestLintModel compileLint lint-rules:compileTestJava --daemon
+
+      - name: Test build logic
+        run: ./gradlew -p buildSrc test --daemon
+
+      - name: Save TestKit Cache
+        if: github.ref == 'refs/heads/main' && steps.testkit-cache.outputs.cache-hit != 'true'
+        uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: buildSrc/build/test-kit/caches/modules-2
+          key: ${{ steps.testkit-cache.outputs.cache-primary-key }}
+
+      - name: Run Lint Debug
+        # "lintAll" opts in all modules in 1 flavor to lint, pinning :AnkiDroid to lintFullDebug
+        # update workflows/README.md when modifying this line
+        run: ./gradlew lintAll ktlintCheck lint-rules:test --daemon
+
+  # update workflows/README.md when modifying commands
+  lintJavascript:
+    name: Lint Javascript
+    timeout-minutes: 20
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 1
+
+        # Handled under the pre-commit hook: ./gradlew installGitHook
+
+        # To run manually, run the following inside folder: Anki-Android
+        # npm install --location=global prettier
+        # prettier --check AnkiDroid/**/*.js
+      - name: Prettify AnkiDroid javascript code
+        uses: creyD/prettier_action@8c18391fdc98ed0d884c6345f03975edac71b8f0 # v4.6
+        with:
+          prettier_options: --check AnkiDroid/**/*.js .github/check_alpha_release.js
+          dry: True
+
+      - name: Install Localization
+        run: cd tools/localization && yarn
+
+      - name: Lint Localization
+        run: cd tools/localization && yarn lint
+
+      - name: Format Localization
+        run: cd tools/localization && yarn checkformat

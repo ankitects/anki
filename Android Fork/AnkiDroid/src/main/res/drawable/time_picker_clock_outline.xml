@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- SPDX-License-Identifier: GPL-3.0-or-later -->
+<!-- Outlines the time picker's clock face, which draws its own background in code -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android" android:shape="oval">
+    <stroke android:width="?attr/widgetStrokeWidth" android:color="?attr/widgetStrokeColor" />
+</shape>

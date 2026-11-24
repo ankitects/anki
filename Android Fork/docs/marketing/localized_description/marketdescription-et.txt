@@ -1,0 +1,36 @@
+Jäta kõik meelde AnkiDroidi abil!
+
+AnkiDroid aitab sul kõik efektiivselt meelde jätta mälukaartide abil just enne seda, kui need ära unustad. See on täielikult ühilduv kordava õppimise tarkvaraga Anki (kaasa arvatud sünkroniseerimine), mis on saadaval Windowsil, Linuxil ja macOS-il.
+
+Õpi kõiksuguseid asju kus ja millal sa iganes soovid. Kasuta aega tõhusalt bussiga reisides, ostukeskuse järjekorras ja muudes ootamist vajavates olukordades!
+
+Loo omaenda mälukaartide pakke või laadi alla tasuta kaardipakke, mis on loodud paljude keelte ja teemade jaoks (rohkem kui 6000 saadaval).
+
+Lisa materjali kasutades töölauarakendust Anki või otse AnkiDroidist. Rakendus toetab isegi materjali automaatset lisamist sõnaraamatust!
+
+★ Olulised funktsioonid:
+• toetatud mälukaartide sisu: tekst, pildid, heli, LaTeX
+• ajastatud kordamine (AI-ga optimiseeritud FSRS algoritm)
+• tekst-kõneks integratsioon
+• rohkem kui 10 000 olemasolevat kaardipakki
+• edenemise vidin
+• üksikasjalik statistika
+• sünkroonimine AnkiWebiga
+• avatud lähtekoodiga
+
+★ Lisafunktsioonid:
+• kirjuta vastused (valikuline)
+• tahvel
+• kaardi redaktor ja kaartide lisamine
+• kaardibrauser
+• tahvli paigutus
+• impordi olemasolevaid kogude faile (kasutades Anki Desktopi)
+• lisa kaarte teistest rakendustest nagu näiteks sõnaraamatud
+• kohandatud fontide tugi
+• täielik varukoopiate süsteem
+• navigeerimine viibete ja vajutustega
+• kohandatav
+• dünaamiline kaardipakkide käsitlemine
+• öörežiim
+• 27 tõlget
+• Kõiki vanemaid AnkiDroidi versioone saab alla laadida veebisaidilt

@@ -1,0 +1,38 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+
+plugins {
+    id 'com.android.application'
+    id 'ankidroid.plugins.jacoco'
+}
+
+android {
+    namespace = 'regression.app'
+    compileSdk = libs.versions.compileSdk.get().toInteger()
+    compileSdkMinor = libs.versions.compileSdkMinor.get().toInteger()
+    defaultConfig { minSdk = 24 }
+    flavorDimensions += 'distribution'
+    productFlavors { play { dimension = 'distribution' } }
+}
+
+configurations { tooling }
+dependencies {
+    implementation project(':library')
+    runtimeOnly project(':empty')
+    tooling project(':tooling')
+}
+
+gradle.projectsEvaluated {
+    tasks.named('jacocoUnitTestReport') {
+        println 'Coverage sources: ' + sourceDirectories.files.collect {
+            rootDir.toPath().relativize(it.toPath()).toString().replace(File.separator, '/')
+        }.sort()
+    }
+}
+
+tasks.register('inspectUnitTestCoverage') {
+    def settings = [':app:testPlayDebugUnitTest', ':library:testDebugUnitTest', ':nested:core:test'].collect { path ->
+        def test = tasks.getByPath(path)
+        "${path} coverage=${test.extensions.getByName('jacoco').enabled}".toString()
+    }
+    doLast { settings.each { println it } }
+}

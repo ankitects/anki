@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- SPDX-License-Identifier: GPL-3.0-or-later -->
+<!-- the top gradient for the app intro -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android">
+    <gradient
+        android:startColor="@color/material_light_blue_500"
+        android:endColor="?android:attr/colorBackground"
+        android:type="linear"
+        android:angle="270"
+         />
+</shape>

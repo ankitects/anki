@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- SPDX-License-Identifier: GPL-3.0-or-later -->
+
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:ankidroid="http://schemas.android.com/apk/res-auto"
+    >
+
+    <item
+        android:id="@+id/action_save_columns"
+        android:icon="@drawable/ic_done_white"
+        android:title="@string/save"
+        ankidroid:showAsAction="always"/>
+
+</menu>

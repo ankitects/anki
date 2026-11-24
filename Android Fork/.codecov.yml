@@ -1,0 +1,42 @@
+# the comments are too noisy to be useful
+comment: false
+
+# disable noisy inline-annotations ("Added line [LineNum] was not covered by tests") on PRs (#8296)
+# https://docs.codecov.io/docs/github-checks-beta
+github_checks:
+  annotations: false
+
+# Only active modules may retain a previous unit test upload. Removing a flag also retires
+# its hits in other modules. Emulator coverage is measured on every PR.
+# Gradle checks this block against the active modules and prints a replacement when they change.
+flags:
+  AnkiDroid-test: &unit {carryforward: true}
+  anki-common-test: *unit
+  api-test: *unit
+  common-test: *unit
+  common_android-test: *unit
+  compat-test: *unit
+  feature_browse-test: *unit
+  libanki-test: *unit
+  note-editor-test: *unit
+  vbpd-test: *unit
+  widgets-test: *unit
+
+coverage:
+  range: "36...100"
+  status:
+    project:
+      default:
+        # dropping slightly is ok - this stops the check failing on test timing variability
+        # .12 was observed as the largest variability owing to timing forcing different test branch choice
+        threshold: 0.15
+        # BUG: our coverage fluctuates, so codecov marks this as a build failure (#12227)
+        # stop codecov from failing CI until this is fixed
+        # https://docs.codecov.com/docs/commit-status#informational
+        informational: true
+    patch:
+      default:
+        # BUG: our coverage fluctuates, so codecov marks this as a build failure (#12227)
+        # stop codecov from failing CI until this is fixed
+        # https://docs.codecov.com/docs/commit-status#informational
+        informational: true

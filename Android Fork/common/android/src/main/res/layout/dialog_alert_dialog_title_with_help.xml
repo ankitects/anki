@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    style="?attr/materialAlertDialogTitlePanelStyle"
+    android:paddingStart="24dp"
+    android:paddingEnd="8dp"
+    android:paddingTop="24dp"
+    android:paddingBottom="8dp">
+
+    <ImageView
+        android:id="@+id/title_icon"
+        android:layout_width="24dp"
+        android:layout_height="24dp"
+        style="?attr/materialAlertDialogTitleIconStyle"
+        android:visibility="gone"
+        tools:src="@drawable/ic_sync_problem"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@android:id/title"
+        app:layout_constraintBottom_toBottomOf="@android:id/title"/>
+
+    <androidx.appcompat.widget.DialogTitleView
+        android:id="@android:id/title"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:textAppearance="?attr/textAppearanceHeadlineSmall"
+        android:textColor="?attr/colorOnSurface"
+        android:layout_marginStart="12dp"
+        app:layout_goneMarginStart="0dp"
+        app:layout_constraintStart_toEndOf="@id/title_icon"
+        app:layout_constraintEnd_toStartOf="@id/help_icon"
+        tools:text="Reset Card Progress" />
+
+    <ImageView
+        android:id="@+id/help_icon"
+        style="?attr/materialAlertDialogTitleIconStyle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="?attr/selectableItemBackground"
+        android:padding="8dp"
+        android:src="@drawable/ic_help_black_24dp"
+        android:contentDescription="@string/help"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBottom_toBottomOf="@android:id/title"
+        app:layout_constraintTop_toTopOf="@android:id/title" />
+</androidx.constraintlayout.widget.ConstraintLayout>

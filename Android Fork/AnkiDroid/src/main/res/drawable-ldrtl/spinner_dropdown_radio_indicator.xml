@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<!--
+  RTL version of drawable/spinner_dropdown_radio_indicator: in RTL layouts the
+  check mark sits at the start (left), so the text-side inset goes on the right.
+-->
+<inset xmlns:android="http://schemas.android.com/apk/res/android"
+    android:drawable="?android:attr/listChoiceIndicatorSingle"
+    android:insetRight="8dp" />

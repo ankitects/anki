@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- SPDX-License-Identifier: GPL-3.0-or-later -->
+<!-- Hint text. Material's own hint color uses its baseline palette and is fainter in light themes. -->
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:state_enabled="false" android:alpha="0.38" android:color="?attr/colorOnBackground" />
+    <item android:alpha="0.6" android:color="?attr/colorOnBackground" />
+</selector>

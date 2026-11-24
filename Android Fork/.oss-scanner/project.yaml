@@ -1,0 +1,7 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
+
+repo: https://github.com/ankidroid/Anki-Android
+primary_contact: davidallisongithub@gmail.com
+homepage: https://ankidroid.org
+dockerfile: .oss-scanner/Dockerfile
+threat_model: .oss-scanner/threat_model.md

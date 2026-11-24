@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<!--
+  listChoiceIndicatorSingle with extra space on the text side.
+
+  A CheckedTextView pads its text by exactly the check mark's intrinsic width
+  (drawablePadding does not apply to the check mark), so insetting the
+  indicator is the way to add a gap between the text and the indicator.
+
+  InsetDrawable insets do not auto-mirror; drawable-ldrtl holds the RTL version.
+-->
+<inset xmlns:android="http://schemas.android.com/apk/res/android"
+    android:drawable="?android:attr/listChoiceIndicatorSingle"
+    android:insetLeft="8dp" />

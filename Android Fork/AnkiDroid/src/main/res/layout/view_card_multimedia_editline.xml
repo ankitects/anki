@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/constraint_layout"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <com.ichi2.ui.FixedTextView
+        android:id="@+id/label"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:freezesText="true"
+        android:layout_alignParentStart="true"
+        app:layout_constraintBottom_toTopOf="@+id/edit_text"
+        app:layout_constraintEnd_toStartOf="@+id/toggle_sticky"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        android:layout_marginEnd="16dp"
+        tools:text="Front\nNewline" />
+
+    <ImageButton
+        android:id="@+id/toggle_sticky"
+        android:nextFocusForward="@id/media_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:gravity="end|center_vertical"
+        android:background="@drawable/ic_baseline_push_pin_24"
+        android:layout_marginEnd="16dp"
+        app:layout_constraintEnd_toStartOf="@id/media_button"
+        app:layout_constraintTop_toTopOf="parent"/>
+
+
+    <ImageButton
+        android:id="@+id/media_button"
+        android:nextFocusForward="@id/expand_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:gravity="end|center_vertical"
+        android:background="@drawable/ic_attachment"
+        android:tooltipText="@string/multimedia_editor_attach_tooltip"
+        android:layout_marginEnd="16dp"
+        app:layout_constraintEnd_toStartOf="@id/expand_button"
+        app:layout_constraintTop_toTopOf="parent"/>
+
+    <ImageButton
+        android:id="@+id/expand_button"
+        android:nextFocusForward="@id/edit_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:gravity="end|center_vertical"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:background="@drawable/ic_expand_less_black_24dp"/>
+
+    <androidx.constraintlayout.widget.Barrier
+        android:id="@+id/multimedia_barrier"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:barrierDirection="bottom"
+        app:constraint_referenced_ids="label, media_button, expand_button" />
+
+    <com.ichi2.anki.FieldEditText
+        android:id="@+id/edit_text"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/multimedia_barrier"
+        tools:text="This is a lot of target content to test how multiline values are displayed" />
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>

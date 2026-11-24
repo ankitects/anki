@@ -1,0 +1,14 @@
+<!--
+  SPDX-License-Identifier: Apache-2.0 AND GPL-3.0-or-later
+  SPDX-FileCopyrightText: Google LLC
+  SPDX-FileComment: Style: Filled/Round/Sharp; Material Icons (fiber_manual_record); identical upstream geometry.
+  SPDX-FileComment: Apache-2.0 base icon; AnkiDroid modifications are GPL-3.0-or-later.
+  SPDX-FileComment: Modified: circle radius reduced from 8 to 7.
+  Base source: https://raw.githubusercontent.com/google/material-design-icons/10ecc14790612ca8fd164e3f4ffe9c16fc50d5b7/android/av/fiber_manual_record/materialicons/black/res/drawable/baseline_fiber_manual_record_24.xml
+  Modification source: https://raw.githubusercontent.com/ankidroid/Anki-Android/9c5ce7cc1e6a6cf5a6beb00a8bbe777ae080251d/AnkiDroid/src/main/res/drawable/ic_record.xml
+-->
+<vector android:height="24dp" android:tint="?colorControlNormal"
+    android:viewportHeight="24" android:viewportWidth="24"
+    android:width="24dp" xmlns:android="http://schemas.android.com/apk/res/android">
+    <path android:fillColor="@android:color/white" android:pathData="M12,12m-7,0a7,7 0,1 1,14 0a7,7 0,1 1,-14 0"/>
+</vector>

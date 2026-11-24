@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- SPDX-License-Identifier: GPL-3.0-or-later -->
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    android:title="@string/notification_pref"
+    android:key="@string/pref_notifications_screen_key"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <ListPreference
+        android:defaultValue="1000000"
+        android:entries="@array/notification_minimum_cards_due_labels"
+        android:entryValues="@array/notification_minimum_cards_due_values"
+        android:key="@string/pref_notifications_minimum_cards_due_key"
+        android:title="@string/notification_pref_title"
+        app:useSimpleSummaryProvider="true"/>
+    <SwitchPreferenceCompat
+        android:defaultValue="false"
+        android:key="@string/pref_notifications_vibrate_key"
+        android:title="@string/notification_minimum_cards_due_vibrate" />
+    <SwitchPreferenceCompat
+        android:defaultValue="false"
+        android:key="@string/pref_notifications_blink_key"
+        android:title="@string/notification_minimum_cards_due_blink" />
+</PreferenceScreen>

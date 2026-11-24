@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- SPDX-License-Identifier: GPL-3.0-or-later -->
+<resources xmlns:tools="http://schemas.android.com/tools" tools:ignore="UnusedResources,DuplicateCrowdInStrings">
+
+    <dimen name="mtrl_snackbar_background_corner_radius">8dp</dimen>
+    <dimen name="popup_corner_radius">4dp</dimen>
+    <dimen name="dialog_corner_radius">8dp</dimen>
+</resources>

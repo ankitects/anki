@@ -1,0 +1,67 @@
+name: 🐞 Bug
+description: File a bug
+type: "Bug"
+labels:  ["Needs Triage"]
+
+body:
+
+  - type: checkboxes
+    id: contact
+    attributes:
+      label: Checked for duplicates?
+      description: Quickly search our [issues](https://github.com/ankidroid/Anki-Android/issues?q=is%3Aissue) to see if a similar issue exists
+      options:
+        - label: This issue is not a duplicate
+          required: true
+
+  - type: checkboxes
+    id: desktop-check
+    attributes:
+      label: Does it also happen in the desktop version?
+      description: If so, please report it in [Anki Forums](https://forums.ankiweb.net) instead
+      options:
+        - label: This bug does not occur in the latest version of Anki Desktop
+          required: false
+
+  - type: textarea
+    id: steps
+    attributes:
+      label: What are the steps to reproduce this bug?
+      description: Briefly explain what you did which caused this bug to occur
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected-behaviour
+    attributes:
+      label: Expected behaviour
+      description: Briefly describe what happened, and what should have happened
+    validations:
+      required: true
+
+  - type: textarea
+    id: debug-info
+    attributes:
+      label: Debug info
+      description: Settings - About (bottom of the list) - Copy debug info
+      placeholder: AnkiDroid Debug Info (Starts with "AnkiDroid Version")
+      render: text
+    validations:
+      required: true
+
+  - type: textarea
+    id: extra_info
+    attributes:
+      label: (Optional) Anything else you want to share?
+      placeholder: List any extra information
+
+  - type: checkboxes
+    id: research
+    attributes:
+      label: Research
+      description: Confirm the points below
+      options:
+        - label: I have checked the [manual](https://docs.ankidroid.org/) and the [FAQ](https://github.com/ankidroid/Anki-Android/wiki/FAQ) and could not find a solution to my issue
+          required: true
+        - label: (Optional) I have confirmed the issue is not resolved in the latest alpha release ([instructions](https://docs.ankidroid.org/manual.html#betaTesting))
+          required: false

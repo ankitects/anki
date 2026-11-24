@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--SPDX-License-Identifier: GPL-3.0-or-later -->
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:paddingTop="24dp"
+    android:paddingBottom="24dp"
+    android:clipToPadding="false"
+    android:orientation="vertical">
+
+    <com.ichi2.ui.FixedTextView
+        android:id="@+id/title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        style="@style/MaterialAlertDialog.Material3.Title.Text"
+        android:visibility="gone"
+        tools:visibility="visible"
+        android:paddingStart="16dp"
+        android:paddingBottom="8dp"
+        tools:text="Title"
+        />
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/list"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:scrollbars="vertical"
+        android:fadeScrollbars="false"
+        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+        />
+
+</LinearLayout>

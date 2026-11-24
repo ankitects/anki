@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ SPDX-License-Identifier: GPL-3.0-or-later
+  -->
+<resources>
+    <!-- Material UI side margin: http://web.archive.org/web/20180105203433if_/https://material.io/guidelines/layout/metrics-keylines.html#metrics-keylines-keylines-spacing -->
+    <dimen name="side_margin">16dp</dimen>
+    <dimen name="content_textsize">18sp</dimen>
+    <dimen name="content_vertical_padding">8dp</dimen>
+    <dimen name="keyline_1">16dp</dimen>
+    <dimen name="deck_picker_right_padding">4dp</dimen>
+</resources>

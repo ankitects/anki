@@ -1,0 +1,5 @@
+flags:
+  app-test: &unit {carryforward: true}
+  empty-test: *unit
+  library-test: *unit
+  nested_core-test: *unit

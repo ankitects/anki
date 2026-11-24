@@ -1,0 +1,50 @@
+version: 2
+updates:
+- package-ecosystem: "github-actions"
+  directory: "/"
+  schedule:
+    interval: "daily"
+  open-pull-requests-limit: 10
+  target-branch: dependency-updates
+  groups:
+    codeql:
+      patterns:
+        - "github/codeql-action/*"
+  labels:
+  - "dependencies"
+  cooldown:
+    default-days: 3
+- package-ecosystem: gradle
+  directory: "/"
+  schedule:
+    interval: daily
+    time: "10:00"
+  open-pull-requests-limit: 10
+  target-branch: dependency-updates
+  labels:
+  - "dependencies"
+  cooldown:
+    default-days: 3
+    # Missing Google Maven release dates cause Dependabot to close older AndroidX updates.
+    # https://github.com/dependabot/dependabot-core/issues/16055
+    exclude:
+    - "androidx.*"
+  ignore:
+  # Ignore all Rust backend updates, these are always done as manual pulls
+  - dependency-name: ankiBackend
+- package-ecosystem: npm
+  directory: "/tools/localization"
+  schedule:
+    interval: weekly
+    time: "10:00"
+  open-pull-requests-limit: 10
+  target-branch: dependency-updates
+  groups:
+    non-breaking:
+      update-types:
+        - "minor"
+        - "patch"
+  labels:
+  - "dependencies"
+  cooldown:
+    default-days: 3

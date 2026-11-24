@@ -1,0 +1,34 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+
+plugins {
+    id 'com.android.library' apply false
+    id 'org.jetbrains.kotlin.jvm' apply false
+}
+
+com.ichi2.anki.gradle.JacocoCoverageKt.registerJacocoLibraryVariants(project)
+
+ext.androidTestVariantName = 'Debug'
+
+// Runtime graph: app -> library -> nested:core (a transitive JVM dependency).
+//                   -> empty (a runtime-only Android library without test sources).
+// tooling is on a separate configuration and must be excluded from coverage.
+configure([project(':nested:core'), project(':tooling')]) {
+    apply plugin: 'org.jetbrains.kotlin.jvm'
+    apply plugin: 'jacoco'
+}
+
+configure([project(':library'), project(':empty')]) {
+    apply plugin: 'com.android.library'
+    apply plugin: 'jacoco'
+    android {
+        namespace = "regression.${project.name}"
+        compileSdk = libs.versions.compileSdk.get().toInteger()
+        compileSdkMinor = libs.versions.compileSdkMinor.get().toInteger()
+        defaultConfig { minSdk = 24 }
+        sourceSets { testDebug { kotlin.directories.add('custom-tests') } }
+    }
+    dependencies { implementation project(':nested:core') }
+}
+
+// A runtime library may finish configuring before the app applies coverage.
+evaluationDependsOn(':library')

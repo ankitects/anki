@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- SPDX-License-Identifier: GPL-3.0-or-later -->
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <application>
+        <!-- The intentional ANR must not block or kill the instrumentation process. -->
+        <activity
+            android:name="com.ichi2.anki.testutil.AnrTestActivity"
+            android:excludeFromRecents="true"
+            android:exported="true"
+            android:process=":anr_trace_test"
+            android:theme="@android:style/Theme.Material.Light.NoActionBar" />
+        <service
+            android:name="com.ichi2.anki.testutil.TestInputMethod"
+            android:exported="true"
+            android:permission="android.permission.BIND_INPUT_METHOD">
+            <intent-filter>
+                <action android:name="android.view.InputMethod" />
+            </intent-filter>
+            <meta-data android:name="android.view.im" android:resource="@xml/test_input_method" />
+        </service>
+        <!-- Both components exist only in the instrumentation APK. The provider lets
+             the instrumentation process control the IME in the test APK's process.
+             Control.call() restricts access to callers with the same signing certificate. -->
+        <provider
+            android:name="com.ichi2.anki.testutil.TestInputMethod$Control"
+            android:authorities="${applicationId}.ime"
+            android:exported="true" />
+    </application>
+</manifest>

@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ SPDX-License-Identifier: GPL-3.0-or-later
+  ~ SPDX-FileCopyrightText: Copyright (c) 2011 Norbert Nagold <norbert.nagold@gmail.com>
+  -->
+<resources xmlns:tools="http://schemas.android.com/tools" tools:ignore="DuplicateCrowdInStrings">
+
+    <!-- Android provides a straightforward way to control action bar styles; an additional color attribute
+     specifically for action bar text color isn't necessary, but it simplifies the color setting
+     while making it accessible everywhere and eases the use of themes -->
+    <attr name="actionBarTextColor" format="color"/> <!-- For title and subtitle, and any other text that may appear in action bar-->
+
+    <attr name="incrementerButtonBackground" format="color" />
+    <attr name="incrementerButtonIconColor" format="color" />
+
+    <!-- Deck list colors and expander -->
+    <attr name="selectedRowBackgroundColor" format="color"/> <!-- Selected deck, note type, browser row and settings header -->
+    <attr name="dynDeckColor" format="color"/>
+    <!-- Navigation drawer -->
+    <attr name="navDrawerItemColor" format="color"/>
+    <attr name="navDrawerItemBackground" format="reference"/>
+    <!-- Card count colors -->
+    <attr name="newCountColor" format="color"/>
+    <attr name="learnCountColor" format="color"/>
+    <attr name="reviewCountColor" format="color"/>
+    <attr name="zeroCountColor" format="color"/>
+    <attr name="buryCountColor" format="color"/>
+    <!-- Study Screen button backgrounds -->
+    <attr name="showAnswerButtonBackground" format="color"/>
+    <attr name="answerButtonBackground" format="color"/>
+    <attr name="againButtonBackground" format="color"/>
+    <attr name="hardButtonBackground" format="color"/>
+    <attr name="goodButtonBackground" format="color"/>
+    <attr name="easyButtonBackground" format="color"/>
+    <attr name="showAnswerColor" format="color"/>
+    <attr name="answerButtonRef" format="reference"/> <!-- Shared by all eases -->
+    <!-- Same thing but with a ripple, shared by all eases -->
+    <attr name="answerButtonRippleRef" format="reference"/>
+    <!-- Study Screen button text colors-->
+    <attr name="showAnswerTextColor" format="color"/>
+    <attr name="againButtonTextColor" format="color"/>
+    <attr name="hardButtonTextColor" format="color"/>
+    <attr name="goodButtonTextColor" format="color"/>
+    <attr name="easyButtonTextColor" format="color"/>
+
+    <attr name="againTextColor" format="color"/>
+    <attr name="hardTextColor" format="color"/>
+    <attr name="goodTextColor" format="color"/>
+    <attr name="easyTextColor" format="color"/>
+    <attr name="againBackgroundColor" format="color"/>
+    <attr name="hardBackgroundColor" format="color"/>
+    <attr name="goodBackgroundColor" format="color"/>
+    <attr name="easyBackgroundColor" format="color"/>
+    <attr name="againIconColor" format="color"/>
+    <attr name="hardIconColor" format="color"/>
+    <attr name="goodIconColor" format="color"/>
+    <attr name="easyIconColor" format="color"/>
+    <!-- Card Browser Colors -->
+    <attr name="cardBrowserDivider" format="color"/>
+    <!-- Study Screen other colors -->
+    <attr name="topBarColor" format="color"/>
+    <attr name="maxTimerColor" format="color"/>
+    <!-- Browser colors -->
+    <attr name="suspendedColor" format="color"/>
+    <attr name="buriedColor" format="color"/>
+    <attr name="markedColor" format="color"/>
+    <!-- Note editor colors -->
+    <attr name="duplicateColor" format="color"/>
+    <attr name="toolbarBackgroundColor" format="color"/>
+    <attr name="buttonShadowColor" format="color"/>
+    <attr name="buttonRippleColor" format="color"/>
+    <attr name="buttonForegroundColor" format="color"/>
+    <!-- Images -->
+    <attr name="navDrawerImage" format="reference"/>
+
+    <!-- Introduction -->
+    <attr name="introductionLogoTransparent" format="color"/>
+
+    <!-- FAB -->
+    <attr name="fabNormalColor" format="color"/> <!-- Also color of the Study button in StudyOptions -->
+    <attr name="fabPressedColor" format="color"/>
+    <!-- Popup menus' background color -->
+    <attr name="popupBackgroundColor" format="color"/>
+    <attr name="overflowAndPopupMenuIconColor" format="color"/>
+
+
+    <attr name="dialogBackground" format="color"/>
+
+    <attr name="clozeColor" format="color" />
+
+    <!-- Bottom navigation: selected item indicator and its icon -->
+    <attr name="bottomNavIndicatorColor" format="color"/>
+    <attr name="bottomNavActiveIconColor" format="color"/>
+
+
+
+    <!-- Reminder troubleshooting -->
+    <attr name="reminderTroubleshootingOk" format="color"/>
+    <attr name="reminderTroubleshootingWarning" format="color"/>
+
+
+    <attr name="badgeWarningColor" format="color"/>
+    <attr name="badgeErrorColor" format="color"/>
+    <attr name="badgeTextColor" format="color"/>
+    <attr name="widgetStrokeWidth" format="dimension"/>
+    <attr name="widgetStrokeColor" format="color"/>
+    <attr name="studyScreenElevation" format="dimension"/>
+    <attr name="whiteboardToolbarCardStyle" format="reference"/>
+</resources>

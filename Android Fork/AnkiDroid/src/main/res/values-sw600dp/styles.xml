@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Margin already matches ActionBar height on tablets -->
+    <style name="NavDrawer">
+        <item name="android:layout_marginRight">0dp</item>
+    </style>
+</resources>

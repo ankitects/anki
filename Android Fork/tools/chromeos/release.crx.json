@@ -1,0 +1,6 @@
+{
+    "formFactor": "tablet",
+    "orientation": "landscape",
+    "needsClipboard": true,
+    "resize": "reconfigure"
+}

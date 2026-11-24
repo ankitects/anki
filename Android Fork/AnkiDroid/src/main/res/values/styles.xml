@@ -1,0 +1,230 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:tools="http://schemas.android.com/tools" tools:ignore="UnusedResources,DuplicateCrowdInStrings">
+
+    <style name="Theme.AnkiDroid.Launcher">
+        <item name="android:windowBackground">@drawable/launch_screen</item>
+        <item name="android:colorBackground">@color/material_theme_grey</item>
+        <item name="android:statusBarColor">#3d3d3d</item>
+        <item name="android:navigationBarColor">@color/material_theme_grey</item>
+        <item name="android:windowLightStatusBar">false</item>
+        <item name="android:windowLightNavigationBar" tools:targetApi="o_mr1">false</item>
+    </style>
+
+    <style name="Animation.Translucent" parent="@android:style/Animation.Translucent">
+        <item name="android:windowEnterAnimation">@null</item>
+        <item name="android:windowExitAnimation">@anim/translucent_exit</item>
+    </style>
+
+    <!-- Nav drawer style to set width specified by Material Design specification -->
+    <style name="NavDrawer">
+        <item name="android:layout_marginRight">@dimen/nav_drawer_margin_offset</item>
+    </style>
+
+    <!--  Material Design-style persistent footer button -->
+    <style name="FooterButtonBase">
+        <item name="android:layout_height">48dp</item>
+        <item name="android:textSize">14sp</item>
+        <item name="android:typeface">sans</item>
+        <item name="android:gravity">center</item>
+        <item name="android:layout_gravity">center_vertical</item>
+        <item name="android:singleLine">true</item>
+    </style>
+    <style name="FooterButton" parent="FooterButtonBase">
+        <item name="android:fontFamily">@string/font_fontFamily_medium</item>
+    </style>
+
+    <style name="FooterButtonNextTime">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_gravity">center</item>
+        <item name="android:ellipsize">marquee</item>
+        <item name="android:gravity">bottom|center_horizontal</item>
+        <item name="android:singleLine">true</item>
+        <item name="android:textSize">12sp</item>
+    </style>
+
+    <style name="FooterButtonEaseTextBase" parent="FooterButtonNextTime">
+        <item name="android:textSize">14sp</item>
+        <item name="android:typeface">sans</item>
+    </style>
+    <style name="FooterButtonEaseText" parent="FooterButtonEaseTextBase" >
+        <item name="android:fontFamily">@string/font_fontFamily_medium</item>
+    </style>
+
+    <!-- Styles for each of the 4 answer buttons -->
+    <style name="AgainButton">
+        <item name="answerButtonBackground">?attr/againButtonBackground</item>
+    </style>
+    <style name="HardButton">
+        <item name="answerButtonBackground">?attr/hardButtonBackground</item>
+    </style>
+    <style name="GoodButton">
+        <item name="answerButtonBackground">?attr/goodButtonBackground</item>
+    </style>
+    <style name="EasyButton">
+        <item name="answerButtonBackground">?attr/easyButtonBackground</item>
+    </style>
+    <!-- Ease text -->
+    <style name="AgainButtonEaseStyle" parent="FooterButtonEaseText">
+        <item name="android:textColor">?attr/againButtonTextColor</item>
+    </style>
+    <style name="HardButtonEaseStyle" parent="FooterButtonEaseText">
+        <item name="android:textColor">?attr/hardButtonTextColor</item>
+    </style>
+    <style name="GoodButtonEaseStyle" parent="FooterButtonEaseText">
+        <item name="android:textColor">?attr/goodButtonTextColor</item>
+    </style>
+    <style name="EasyButtonEaseStyle" parent="FooterButtonEaseText">
+        <item name="android:textColor">?attr/easyButtonTextColor</item>
+    </style>
+    <!-- Next time text. Use the same color as the ease text. -->
+    <style name="AgainButtonTimeStyle" parent="FooterButtonNextTime">
+        <item name="android:textColor">?attr/againButtonTextColor</item>
+    </style>
+    <style name="HardButtonTimeStyle" parent="FooterButtonNextTime">
+        <item name="android:textColor">?attr/hardButtonTextColor</item>
+    </style>
+    <style name="GoodButtonTimeStyle" parent="FooterButtonNextTime">
+        <item name="android:textColor">?attr/goodButtonTextColor</item>
+    </style>
+    <style name="EasyButtonTimeStyle" parent="FooterButtonNextTime">
+        <item name="android:textColor">?attr/easyButtonTextColor</item>
+    </style>
+
+    <style name="TabLayoutStyle" parent="Widget.Material3.TabLayout">
+        <item name="materialThemeOverlay">@style/ThemeOverlay.App.TabLayout</item>
+        <item name="tabTextAppearance">@style/TextAppearance.Material3.LabelLarge</item>
+        <item name="tabIndicator">@drawable/tab_layout_indicator_floating_pill</item>
+        <item name="tabIndicatorHeight">14dp</item>
+        <item name="tabTextColor">?attr/actionBarTextColor</item>
+        <item name="tabIndicatorColor">?attr/actionBarTextColor</item>
+    </style>
+    <style name="ThemeOverlay.App.TabLayout" parent="">
+        <item name="colorSurface">?attr/appBarColor</item> <!-- Background -->
+        <item name="colorOnSurfaceVariant">@color/tab_unselected_text_color</item> <!-- Not selected text color -->
+    </style>
+
+    <style name="BottomNavigationViewStyle" parent="@style/Widget.Material3.BottomNavigationView">
+        <item name="materialThemeOverlay">@style/ThemeOverlay.App.BottomNavigationView</item>
+    </style>
+    <style name="ThemeOverlay.App.BottomNavigationView" parent="">
+        <item name="colorSecondaryContainer">?attr/bottomNavIndicatorColor</item> <!-- Selected item indicator -->
+        <item name="colorOnSecondaryContainer">?attr/bottomNavActiveIconColor</item> <!-- Active icon -->
+        <item name="colorOnSurface">?attr/colorPrimary</item> <!-- Active icon -->
+        <item name="colorOnSurfaceVariant">?attr/colorPrimary</item> <!-- Inactive icon & label -->
+        <item name="textAppearanceTitleSmall">@style/TextAppearance.Material3.TitleSmall</item>
+        <item name="textAppearanceLabelLarge">@style/TextAppearance.Material3.LabelLarge</item>
+    </style>
+
+    <!-- padding is hardcoded in Toolbar.java (32) to allow for fixing the scrollview -->
+    <style name="note_editor_toolbar_button">
+        <item name="android:layout_width">44dp</item>
+        <item name="android:layout_height">44dp</item>
+        <item name="android:padding">2dp</item>
+        <item name="android:background">?android:attr/selectableItemBackground</item>
+        <item name="android:tint">@color/black</item>
+    </style>
+
+    <style name="reviewer_whiteboard_editor_button_style">
+        <item name="android:layout_height">40dp</item>
+        <item name="android:layout_width">40dp</item>
+        <item name="android:layout_margin">5dp</item>
+    </style>
+
+
+    <style name="binding_gesture_tap_button">
+        <item name="android:layout_height">0dp</item>
+        <item name="android:layout_width">0dp</item>
+        <item name="layout_constraintWidth_percent">0.125</item>
+        <item name="layout_constraintHeight_percent">0.125</item>
+        <item name="android:background">@drawable/ic_gesture_tap</item>
+    </style>
+
+    <style name="AlertDialogStyle" parent="Theme.AppCompat.Dialog.Alert">
+        <item name="buttonTint">?attr/colorOnPrimary</item>
+        <item name="dialogCornerRadius">@dimen/dialog_corner_radius</item>
+        <item name="android:dialogCornerRadius" tools:targetApi="p">@dimen/dialog_corner_radius</item>
+    </style>
+
+    <style name="ThemeOverlay.AnkiDroid.AlertDialog.FullScreen" parent="ThemeOverlay.AnkiDroid.AlertDialog">
+        <item name="android:windowIsFloating">false</item>
+        <item name="android:windowIsTranslucent">false</item>
+        <item name="android:windowBackground">?android:attr/colorBackground</item>
+    </style>
+
+    <style name="TextAppearance.AnkiDroid.TopAppBar.Title" parent="TextAppearance.Material3.TitleMedium" />
+
+    <style name="TextAppearance.AnkiDroid.TopAppBar.Subtitle" parent="TextAppearance.Material3.ActionBar.Subtitle" />
+
+    <style name="CardView.ViewerStyle" parent="Widget.Material3.CardView.Elevated">
+        <item name="android:elevation">?attr/studyScreenElevation</item>
+        <item name="strokeWidth">?attr/widgetStrokeWidth</item>
+        <item name="strokeColor">?attr/widgetStrokeColor</item>
+    </style>
+
+    <style name="Theme.AppCompat.Transparent.NoActionBar" parent="Theme.AppCompat.Light.DarkActionBar">
+        <item name="android:windowBackground">@android:color/transparent</item>
+        <item name="android:windowNoTitle">true</item>
+        <item name="android:windowIsFloating">true</item>
+        <item name="android:backgroundDimEnabled">false</item>
+        <item name="android:alertDialogStyle">@style/AlertDialogStyle</item>
+    </style>
+
+    <style name="Widget.AnkiDroid.CardView.Recording" parent="CardView">
+        <item name="cardElevation">?attr/studyScreenElevation</item>
+        <item name="cardPreventCornerOverlap">false</item>
+        <item name="contentPadding">0dp</item>
+        <item name="android:clickable">true</item>
+        <item name="android:focusable">true</item>
+        <item name="android:elevation">?attr/studyScreenElevation</item>
+        <item name="cardCornerRadius">16dp</item>
+        <item name="cardUseCompatPadding">false</item>
+        <item name="cardBackgroundColor">?popupBackgroundColor</item>
+    </style>
+
+    <style name="TimePickerStyle" parent="ThemeOverlay.Material3.MaterialTimePicker">
+        <item name="elevationOverlayEnabled">false</item>
+        <item name="chipStyle">@style/TimePickerStyle.Display</item>
+        <item name="materialClockStyle">@style/TimePickerStyle.Clock</item>
+    </style>
+
+    <style name="TimePickerStyle.Display" parent="Widget.Material3.MaterialTimePicker.Display">
+        <item name="chipStrokeWidth">?attr/widgetStrokeWidth</item>
+        <item name="chipStrokeColor">?attr/widgetStrokeColor</item>
+    </style>
+
+    <style name="TimePickerStyle.Clock" parent="Widget.Material3.MaterialTimePicker.Clock">
+        <item name="android:foreground">@drawable/time_picker_clock_outline</item>
+    </style>
+
+    <!-- Applied to a TextInputLayout which should show the error outline, but not an error message. -->
+    <style name="TextAppearance.AnkiDroid.HiddenError" parent="TextAppearance.Design.Error">
+        <item name="android:textSize">0sp</item>
+    </style>
+
+    <style name="Widget.AnkiDroid.SortPillButton" parent="Widget.Material3.Button.UnelevatedButton">
+        <!-- wrap_content + 48dp min size so the pill grows with larger accessibility text scales -->
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:minWidth">48dp</item>
+        <item name="android:minHeight">48dp</item>
+        <!-- Override the parent's horizontal content padding (24dp) to maximise content area
+             in the 48dp-wide button. -->
+        <item name="android:paddingStart">0dp</item>
+        <item name="android:paddingEnd">0dp</item>
+        <item name="android:insetTop">8dp</item>
+        <item name="android:insetBottom">8dp</item>
+        <item name="android:textSize">13sp</item>
+        <item name="android:textStyle">bold</item>
+        <!-- tabular numerals ensures correct centering -->
+        <item name="android:fontFeatureSettings">"tnum"</item>
+        <item name="android:textColor">@color/sort_pill_content_color</item>
+        <item name="iconSize">16dp</item>
+        <item name="iconPadding">2dp</item>
+        <item name="iconGravity">textEnd</item>
+        <item name="iconTint">@color/sort_pill_content_color</item>
+        <item name="backgroundTint">@color/sort_pill_background_color</item>
+        <item name="strokeWidth">?attr/widgetStrokeWidth</item>
+        <item name="strokeColor">?attr/widgetStrokeColor</item>
+    </style>
+</resources>

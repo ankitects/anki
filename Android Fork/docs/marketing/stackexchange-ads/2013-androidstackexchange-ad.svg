@@ -1,0 +1,250 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:xlink="http://www.w3.org/1999/xlink"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   width="210mm"
+   height="297mm"
+   id="svg3101"
+   version="1.1"
+   inkscape:version="0.48.4 r9939"
+   sodipodi:docname="developer-ad-developers-2013.svg"
+   inkscape:export-filename="/home/nico/src/Anki-Android-ankidroid/docs/marketing/developers-ad/developer-ad-dev2013.png"
+   inkscape:export-xdpi="568.52002"
+   inkscape:export-ydpi="568.52002">
+  <defs
+     id="defs3103">
+    <clipPath
+       clipPathUnits="userSpaceOnUse"
+       id="clipPath2815">
+      <rect
+         style="fill:#d533e4;fill-opacity:0.54098361;stroke:none"
+         id="rect1913"
+         width="23"
+         height="30"
+         x="5"
+         y="1"
+         ry="4.6187186"
+         rx="4.6187186" />
+    </clipPath>
+    <linearGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient2878"
+       id="linearGradient2981"
+       gradientUnits="userSpaceOnUse"
+       gradientTransform="matrix(0.954545,0,0,0.965517,1.704545,0.551724)"
+       x1="15.5"
+       y1="5.9497476"
+       x2="4"
+       y2="31" />
+    <linearGradient
+       id="linearGradient2878"
+       inkscape:collect="always">
+      <stop
+         id="stop2880"
+         offset="0"
+         style="stop-color:black;stop-opacity:1" />
+      <stop
+         id="stop2882"
+         offset="1"
+         style="stop-color:#898989;stop-opacity:1" />
+    </linearGradient>
+    <clipPath
+       clipPathUnits="userSpaceOnUse"
+       id="clipPath2868">
+      <rect
+         style="fill:none;stroke:#000000;stroke-width:1;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none"
+         id="rect1950"
+         width="41"
+         height="28"
+         x="19.880381"
+         y="16.849239"
+         ry="4"
+         rx="4" />
+    </clipPath>
+    <linearGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient4825"
+       id="linearGradient2983"
+       gradientUnits="userSpaceOnUse"
+       x1="253.74718"
+       y1="412.82977"
+       x2="188.00023"
+       y2="542.33295" />
+    <linearGradient
+       id="linearGradient4825">
+      <stop
+         id="stop4827"
+         offset="0"
+         style="stop-color:#0084dd;stop-opacity:1" />
+      <stop
+         id="stop4829"
+         offset="1"
+         style="stop-color:white;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient4843"
+       id="linearGradient2985"
+       gradientUnits="userSpaceOnUse"
+       gradientTransform="matrix(0.09240924,0,0,0.09240924,-5.65772,-25.6423)"
+       x1="247"
+       y1="441.86218"
+       x2="292"
+       y2="282.36218" />
+    <linearGradient
+       id="linearGradient4843">
+      <stop
+         style="stop-color:white;stop-opacity:0.49411765;"
+         offset="0"
+         id="stop4845" />
+      <stop
+         style="stop-color:white;stop-opacity:0.25098041;"
+         offset="1"
+         id="stop4847" />
+    </linearGradient>
+    <linearGradient
+       y2="282.36218"
+       x2="292"
+       y1="441.86218"
+       x1="247"
+       gradientTransform="matrix(0.09240924,0,0,0.09240924,-5.65772,-25.6423)"
+       gradientUnits="userSpaceOnUse"
+       id="linearGradient3141"
+       xlink:href="#linearGradient4843"
+       inkscape:collect="always" />
+  </defs>
+  <sodipodi:namedview
+     id="base"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     inkscape:pageopacity="0.0"
+     inkscape:pageshadow="2"
+     inkscape:zoom="7.9195959"
+     inkscape:cx="406.07837"
+     inkscape:cy="576.18286"
+     inkscape:document-units="px"
+     inkscape:current-layer="layer1"
+     showgrid="false"
+     inkscape:window-width="1855"
+     inkscape:window-height="1056"
+     inkscape:window-x="65"
+     inkscape:window-y="24"
+     inkscape:window-maximized="1" />
+  <metadata
+     id="metadata3106">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title></dc:title>
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <g
+     inkscape:label="Ebene 1"
+     inkscape:groupmode="layer"
+     id="layer1">
+    <g
+       style="display:inline"
+       clip-path="url(#clipPath2815)"
+       id="g1912"
+       transform="translate(360.64286,476.36218)"
+       inkscape:export-filename="/home/anst/Dropbox/AnkiDroid/Anki-Android/res/drawable-ldpi/anki.png"
+       inkscape:export-xdpi="216"
+       inkscape:export-ydpi="216">
+      <rect
+         style="fill:#ffffff;fill-opacity:1;stroke:none;display:inline"
+         id="rect1914"
+         width="32"
+         height="32"
+         x="0"
+         y="0"
+         rx="0"
+         ry="0" />
+      <rect
+         rx="4"
+         ry="4"
+         y="2"
+         x="6"
+         height="28"
+         width="21"
+         id="rect1916"
+         style="fill:url(#linearGradient2981);fill-opacity:1;stroke:none" />
+      <g
+         id="g2843"
+         transform="translate(-13.88038,-14.84924)"
+         clip-path="url(#clipPath2868)">
+        <path
+           transform="matrix(0.124827,-0.02362253,0.02362253,0.124827,-4.130425,-17.39127)"
+           d="m 294.46869,523.45259 c -9.08043,8.81335 -45.57491,-17.76993 -58.10148,-15.97712 -12.52658,1.79282 -40.09949,37.54547 -51.28749,31.63294 -11.18801,-5.91252 2.81678,-48.83551 -2.75921,-60.19499 -5.57599,-11.35947 -48.09928,-26.53469 -45.93342,-39.00218 2.16586,-12.46749 47.31577,-12.41208 56.39619,-21.22544 9.08043,-8.81335 10.3725,-53.9448 22.89908,-55.73762 12.52657,-1.79281 26.42597,41.16443 37.61397,47.07695 11.188,5.91252 54.50984,-6.80503 60.08583,4.55445 5.57599,11.35947 -30.98363,37.85309 -33.14948,50.32059 -2.16586,12.46749 23.31643,49.73906 14.23601,58.55242 z"
+           inkscape:randomized="0"
+           inkscape:rounded="0.21"
+           inkscape:flatsided="false"
+           sodipodi:arg2="1.428641"
+           sodipodi:arg1="0.80032243"
+           sodipodi:r2="52"
+           sodipodi:r1="94"
+           sodipodi:cy="456"
+           sodipodi:cx="229"
+           sodipodi:sides="5"
+           id="path1920"
+           style="fill:url(#linearGradient2983);fill-opacity:1;stroke:#ffffff;stroke-width:15.98369503;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none"
+           sodipodi:type="star" />
+      </g>
+      <path
+         inkscape:connector-curvature="0"
+         sodipodi:nodetypes="ccccc"
+         id="path1924"
+         d="m 2.659112,0.45056835 27.630363,0 L 29.457792,20.39883 C 25.879683,16.517642 12.825421,10.535309 3.6153,10.535309 L 2.659112,0.45056835 z"
+         style="fill:url(#linearGradient3141);fill-opacity:1;stroke:none;display:inline" />
+    </g>
+    <text
+       xml:space="preserve"
+       style="font-size:84.01963043px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Sans"
+       x="-516.93835"
+       y="363.53351"
+       id="text3361"
+       sodipodi:linespacing="125%"
+       transform="matrix(0,-1,1,0,0,0)"><tspan
+         sodipodi:role="line"
+         id="tspan3363"
+         x="-516.93835"
+         y="363.53351"
+         style="font-size:8.40196228px;font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-family:Droid Sans;-inkscape-font-specification:Droid Sans Bold">Anki<tspan
+   style="font-weight:normal;-inkscape-font-specification:Droid Sans"
+   id="tspan3449">Droid</tspan></tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:2.94878435px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Sans"
+       x="366.55911"
+       y="509.52274"
+       id="text3365"
+       sodipodi:linespacing="125%"><tspan
+         sodipodi:role="line"
+         x="366.55911"
+         y="509.52274"
+         id="tspan3369"
+         style="-inkscape-font-specification:Droid Sans;font-family:Droid Sans;font-weight:normal;font-style:normal;font-stretch:normal;font-variant:normal">→ Improve a</tspan><tspan
+         sodipodi:role="line"
+         x="366.55911"
+         y="513.20868"
+         id="tspan3422"
+         style="-inkscape-font-specification:Droid Sans;font-family:Droid Sans;font-weight:normal;font-style:normal;font-stretch:normal;font-variant:normal"> flashcards app</tspan><tspan
+         sodipodi:role="line"
+         x="366.55911"
+         y="516.89465"
+         id="tspan3420"
+         style="-inkscape-font-specification:Droid Sans;font-family:Droid Sans;font-weight:normal;font-style:normal;font-stretch:normal;font-variant:normal">→ Foster education</tspan></text>
+  </g>
+</svg>

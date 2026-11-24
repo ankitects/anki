@@ -1,0 +1,31 @@
+<!--
+  SPDX-License-Identifier: GPL-3.0-or-later
+  SPDX-FileCopyrightText: 2021 Sven Meier <svenmeier@apache.org>
+  SPDX-FileComment: Style: Custom; four-direction swipe indicator.
+  SPDX-FileComment: Extracted the swipe path from Sven Meier's ic_gestures.xml in PR 8078.
+  Base source: https://raw.githubusercontent.com/ankidroid/Anki-Android/7d3551daabcd5a7ca43a97dce5b46644b228589c/AnkiDroid/src/main/res/drawable/ic_gestures.xml
+  Source: https://raw.githubusercontent.com/ankidroid/Anki-Android/b6431ef39b3fa05c49220d98ae0ce8aa5423549c/AnkiDroid/src/main/res/drawable/ic_gesture_swipe.xml
+-->
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <!--
+    We display the directional arrows, suggesting that a user can swipe
+
+    Less than API 25, level-list doesn't work with vectors
+    I couldn't get a good solution using drawables (rotation + scale didn't work well together)
+    And it seemed more effort than it was worth to code the drawables by hand
+     -->
+    <item>
+        <vector
+            android:width="154.18196dp"
+            android:height="154.18196dp"
+            android:viewportWidth="15418.196"
+            android:viewportHeight="15418.196">
+            <path
+                android:name="swipe"
+                android:pathData="m3314.4,7707.9 l1244,-1042v397h2486v-2486h-397l1042,-1244 1043,1244h-397v2486h2485v-397l1245,1042 -1245,1043v-397h-2485v2485h397l-1043,1245 -1042,-1245h397L7044.4,8353.9L4558.4,8353.9v397z"
+                android:strokeWidth="100.000"
+                android:strokeColor="#b2b2b2"/>
+        </vector>
+
+    </item>
+</layer-list>

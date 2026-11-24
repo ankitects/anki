@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- SPDX-License-Identifier: GPL-3.0-or-later -->
+<!--
+    Legacy card browser layout for embedded hosts such as bottom navigation.
+    The toolbar is included here because, unlike CardBrowser, embedded hosts do not provide one.
+    Used when the legacy search UI is enabled and the host is not the CardBrowser activity.
+-->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <include layout="@layout/include_browser_toolbar" />
+
+    <include
+        layout="@layout/fragment_card_browser"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1" />
+
+</LinearLayout>

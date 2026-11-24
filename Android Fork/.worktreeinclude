@@ -1,0 +1,5 @@
+# Includes the following files in Claude Code worktrees (gitignore syntax)
+# https://code.claude.com/docs/en/worktrees#copy-gitignored-files-into-worktrees
+#
+# When modifying this file, consider if items should be copied in tools/compare-screenshot-test.sh
+local.properties

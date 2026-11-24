@@ -1,0 +1,413 @@
+#!/bin/bash
+#
+# This script is meant to be used to integrate changes from a release or hotfix
+# branch into the develop branch.
+#
+# Use:
+#   gitflow-integrate
+# to see how to use the tool.
+
+# Add this directory to the path.
+PATH=$(dirname $0)/lib:$PATH
+. bash-util.sh || exit 1
+. git-util.sh || exit 1
+
+
+# Executes the given command, discarding any output to stderr.
+#
+# arguments:
+#   the command to execute
+#
+# stdout:
+#   the output of the command
+#
+# return:
+#   the return value of the command
+function quietly() {
+  "$@" 2>/dev/null
+}
+
+
+# Executes the given command, discarding any output to stdout or stderr.
+#
+# arguments:
+#   the command to execute
+#
+# return:
+#   the return value of the command
+function silently() {
+  "$@" 2>/dev/null >/dev/null
+}
+
+
+# Outputs an error message and exits the script.
+#
+# arguments:
+#   message: one or more strings, the message to be printed
+#
+# stderr:
+#   the message
+function fatal() {
+  echo "FATAL: $*" 1>&2
+  exit 113  # Use a special error code so that we can identify fatal failures.
+}
+
+
+# Output an error message for a missing argument and terminates with a fatal
+# error.
+#
+# arguments:
+#   name: the name of the missing argument
+#
+# stderr:
+#   an error message for the missing argument (to stderr)
+function missing_arg() {
+  fatal "Missing argument: $1"
+}
+
+
+# Output an error message if given any arguments and (in that case) also
+# terminates with a fatal error.
+#
+# arguments:
+#   arguments: the remaining arguments to the function
+function no_more_args() {
+  test $# = 0 || fatal "Too many arguments: $*"
+}
+
+
+# Outputs the body of the commit message for a given commit.
+#
+# arguments:
+#   commit: the SHA of the commit
+#
+# stdout:
+#   the body of the commit message
+function git_commit_body() {
+  local commit="$1"; shift || missing_arg commit
+  no_more_args "$@"
+
+  git log -n1 --format="%B" "$commit" | cat
+}
+
+
+# Outputs the SHAs of the commits up to the given one that are not yet
+# integrated into the base commit.
+#
+# arguments:
+#   commit: the SHA of the commit to integrate
+#   base: the SHA of the base commit to integrate into
+#
+# Outputs:
+#   the abbreviated SHAs of all commits that still need to be integrated
+function git_commits_not_in() {
+  local commit="$1"; shift || missing_arg commit
+  local base="$1"; shift || missing_arg base
+  no_more_args "$@"
+
+  git log --format='%h' --first-parent $base..$commit
+}
+
+
+# Outputs the abbreviated SHA for the given commit.
+#
+# arguments:
+#   commit: the SHA of a commit
+#
+# stdout:
+#   the abbreviated SHA of the commit
+function git_abbrev() {
+  local commit="$1"; shift
+  test $# = 0
+
+  git log -n1 --format=%h "$commit"
+}
+
+
+# Commits the current merge using a specified message.
+#
+# arguments:
+#   passed to 'git commit' itself
+#
+# stdin:
+#   used as the commit message
+function git_commit_merge_with_message() {
+  # Copy the message to the merge message file.
+  cat - >"$(git rev-parse --git-dir)/MERGE_MSG"
+  # And commit the changes without invoking the editor.
+  EDITOR=true git commit "$@"
+}
+
+
+function git_is_branch() {
+  local branch="$1"; shift || missing_arg branch
+  no_more_args "$@"
+
+  git for-each-ref --format='%(refname:short)' refs/heads/ |
+      silently grep "^$branch\$"
+}
+
+# Prints the message that should be used to integrate a given commit.
+#
+# The message can have an optional prefix put in front of it.
+#
+# If the commit is a merge, all changes that were not included in the base
+# commit are added to the message.
+#
+# arguments:
+#   prefix: a prefix to be added to the message
+#   commit: the SHA of the commit to be integrated
+#   base: the SHA of the base commit into which to integrate
+#
+# stdout:
+#   the message to used to integrate commit into base
+function message() {
+  local prefix="$1"; shift || missing_arg prefix
+  local commit="$1"; shift || missing_arg commit
+  local base="$1"; shift || missing_arg base
+  no_more_args "$@"
+
+  # Determines if this is a merge that we want to follow.
+  if git_commit_body "$commit" | silently grep "^Merge pull request #"; then
+    # This is merging a pull request: get the message from the second parent.
+    message "$prefix" "$commit^2" "$base"
+  elif git_commit_body "$commit" | silently grep "^Merge commit '"; then
+    # This is merging some other commit: get the message from the second parent.
+    message "$prefix" "$commit^2" "$base"
+  elif git_commit_body "$commit" | silently grep "^Merge branch '"; then
+    # This is merging some other branch: get the message from the second parent.
+    message "$prefix" "$commit^2" "$base"
+  else
+    if [ $(git_commits_not_in "$commit" "$base" | wc -l) = 1 ]; then
+      # If there is only one commit to integrate, get its message body.
+      echo -n "$prefix"
+      git_commit_body "$commit"
+    else
+      # Otherwise we are actually integrating more than one commit here.
+
+      # Find all the commits being integrated in reverse order.
+      integrated_commits="$(git_commits_not_in "$commit" "$base" | tac)"
+
+      # Construct the subject line using those as a comma-separated list.
+      echo "$prefix${integrated_commits//$'\n'/,}"
+
+      echo  # Add an empty line separating the body.
+
+      # Build the body using the commit messages of the integrated commits
+      # (still in reverse order).
+      for integrated_commit in $integrated_commits; do
+        echo "Commit '$integrated_commit'"
+        git_commit_body "$integrated_commit"
+      done
+    fi
+  fi
+}
+
+
+# Returns true if the message associated with integrating a commit contains a
+# given string.
+#
+# arguments:
+#   string: to be looked for
+#   commit: the SHA of the commit to be integrated
+#   base: the SHA of the base commit into which to do the integrate
+#
+# return:
+#   true if the string was contained in the message
+function message_contains() {
+  local string="$1"; shift || missing_arg string
+  local commit="$1"; shift || missing_arg commit
+  local base="$1"; shift || missing_arg base
+  no_more_args "$@"
+
+  message "" "$commit" "$base" | silently grep "$string"
+}
+
+
+# Determine whether a particular commit should be skipped when being integrated
+# in the given base. 
+#
+# arguments:
+#   commit: the SHA of the commit to be integrated
+#   base: the SHA into which the commit is to be integrated
+#   force_skip: set to 1 if the commit should be skipped
+#   force_merge: set to 1 if the commit should be merged
+#
+# return:
+#   zero if it should be skipped, non-zero otherwise
+function should_skip() {
+  local commit="$1"; shift || missing_arg commit
+  local base="$1"; shift || missing_arg base
+  local force_skip="$1"; shift || missing_arg force_skip
+  local force_merge="$1"; shift || missing_arg force_merge
+  no_more_args "$@"
+
+  if [ "$force_skip" = 1 ]; then
+    # Must skip.
+    return 0
+  elif [ "$force_merge" = 1 ]; then
+    # Must merge.
+    return 1
+  elif message_contains "^@branch-specific$" "$commit" "$base"; then
+    # Skip anything marged with the @branch-specific tag.
+    return 0
+  else
+    # No reason to skip, then merge.
+    return 1
+  fi
+}
+
+
+# Integrates a single change into the given branch.
+#
+# It automatically determines if the commit should be skipped.
+#
+# If either force_skip or force_merge are set to 1, then the logic to
+# automatically determine if the commit should be skipped or merged is ignored.
+#
+# arguments:
+#   commit: the SHA of the commit to be integrated
+#   from_branch: the name of the branch the commit comes from
+#   branch: the name of the branch into which the commit should be integrated
+#   force_skip: set to 1 if the commit should be skipped
+#   force_merge: set to 1 if the commit should be merged
+function integrate() {
+  local commit="$1"; shift || missing_arg commit
+  local from_branch="$1"; shift || missing_arg from_branch
+  local branch="$1"; shift || missing_arg branch
+  local force_skip="$1"; shift || missing_arg force_skip
+  local force_merge="$1"; shift || missing_arg force_merge
+  no_more_args "$@"
+
+  echo "Merging '$commit'"
+
+  local base="$(git_abbrev "$branch")"
+  if should_skip "$commit" "$base" "$force_skip" "$force_merge"; then
+    # We should skip this change: we create a merge commit, but ignore any
+    # change that it would bring in, and make an empty commit for it.
+    git merge "$commit" --no-ff --no-commit -s ours
+    # Finalize the commit by specifying the right message.
+    local prefix="Skipped '$(git_abbrev "$commit")' from $from_branch: "
+    message "$prefix" "$commit" "$base" |
+        git_commit_merge_with_message --allow-empty
+    # Just to be sure, check that there are no changes in the newly commited
+    # change.
+    if [ $(git diff HEAD^ | wc -l) != 0 ]; then
+      echo "WARNING: Skipped change actually had changes."
+    fi
+  else
+    # Otherwise, we should merge the changes from this commit.
+    git merge "$commit" --no-ff --no-commit || (
+        # If there are any conflicts, ask the user to resolve them.
+        echo "Please resolve conflict and press ENTER"
+        read
+    )
+    local prefix="Merged '$(git_abbrev "$commit")' from $from_branch: "
+    message "$prefix" "$commit" "$base" |
+        git_commit_merge_with_message
+  fi
+}
+
+
+# Show the commit message that would be associated with integrating a commit
+# into a branch.
+#
+# args:
+#   commit: the SHA of the commit to be integrated
+#   from_branch: the name of the branch the commit comes from
+#   branch: the name of the branch into which the commit should be integrated
+#   force_skip: set to 1 if the commit should be skipped
+#   force_merge: set to 1 if the commit should be merged
+#
+# stdout:
+#   the message to be associated with the specified commit being integrated
+function show() {
+  local commit="$1"; shift || missing_arg commit
+  local from_branch="$1"; shift || missing_arg from_branch
+  local branch="$1"; shift || missing_arg branch
+  local force_skip="$1"; shift || missing_arg force_skip
+  local force_merge="$1"; shift || missing_arg force_merge
+  no_more_args "$@"
+
+  local base="$(git_abbrev "$branch")"
+  if should_skip "$commit" "$base" "$force_skip" "$force_merge"; then
+    # Finalize the commit by specifying the right message.
+    local prefix="Skipped '$(git_abbrev "$commit")' from $from_branch: "
+    message "$prefix" "$commit" "$base"
+  else
+    local prefix="Merged '$(git_abbrev "$commit")' from $from_branch: "
+    message "$prefix" "$commit" "$base"
+  fi
+}
+
+
+# Prints a help message for the possible commands.
+function show_help() {
+  no_more_args "$@"
+
+  prog_name="$(basename $0)"
+  echo "usage:"
+  echo
+  echo "  $prog_name apply <from> <into>"
+  echo "    Integrates a single commit in <from> to <into>."
+  echo "    Automatically determine whether to skip or merge."
+  echo
+  echo "  $prog_name skip <from> <into>"
+  echo "    Integrates by skipping a single commit in <from> to <into>."
+  echo
+  echo "  $prog_name merge <from> <into>"
+  echo "    Integrates by merging a single commit in <from> to <into>."
+  echo
+  echo "  $prog_name show <from> <into>"
+  echo "    Shows the message associated with integrating a single commit"
+  echo "    in <from> to <into>."
+}
+
+
+# This is the main body of the script.
+function main() {
+  if [ $# = 0 ]; then
+    no_more_args "$@"
+    show_help
+    return 0
+  fi
+
+  local command="$1"; shift || missing_arg command
+  local from="$1"; shift || missing_arg from
+  local into="$1"; shift || missing_arg into
+  no_more_args "$@"
+
+  git_is_branch "$from" || fatal "Invalid branch: $from"
+  git_is_branch "$into" || fatal "Invalid branch: $into"
+
+  local current_branch=$(git branch | grep \* | cut -d ' ' -f2)
+
+  if [ "$current_branch" != "$into" ]; then
+    echo "Not on branch: $into"
+    return 1
+  fi
+
+  # Find the first commit to be integrated, i.e., the oldest one.
+  first_commit=$(git_commits_not_in "$from" "$into" | tail -1)
+  if [ "$first_commit" = "" ]; then
+    echo "Nothing to integrate."
+    return 1
+  fi
+
+  if [ "$command" = "apply" ]; then
+    integrate "$first_commit" "$from" "$into" "0" "0"
+  elif [ "$command" = "skip" ]; then
+    integrate "$first_commit" "$from" "$into" "1" "0"
+  elif [ "$command" = "merge" ]; then
+    integrate "$first_commit" "$from" "$into" "0" "1"
+  elif [ "$command" = "show" ]; then
+    show "$first_commit" "$from" "$into" "0" "0"
+  else
+    echo "Unknown command: $command"
+    return 1
+  fi
+}
+
+# Fail immediate if any command fails.
+set -e -o pipefail
+main "$@"

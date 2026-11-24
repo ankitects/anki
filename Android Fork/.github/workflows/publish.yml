@@ -1,0 +1,155 @@
+name: 🚀 Publish
+
+on:
+  schedule:
+    # Check every Monday (04:30); skip if any release is fewer than seven UTC calendar days old.
+    - cron: "30 4 * * 1"
+  workflow_dispatch:
+    inputs:
+      public:
+        description: "any non-empty value triggers a public build - version not auto-incremented / changelog required"
+        required: false
+        type: string
+
+# We do a checkout using provided github token, but the rest of the activity
+# is from a token from secrets in order to push tags / make releases etc
+permissions:
+  contents: read
+
+# We want concurrency control to allow multiple runs, but serially
+# Otherwise if you run two publishes that upload to google at same time
+# (for instance on a release branch for beta, and main for alpha), google
+# will error as it can only handle one edit in publish account at once
+concurrency:
+  group: ${{ github.workflow }}
+  cancel-in-progress: false
+
+env:
+  JAVA_TOOL_OPTIONS: -Dkotlin.daemon.options=autoshutdownIdleSeconds=10
+
+jobs:
+  check_release:
+    name: 'Check whether a release is due'
+    permissions:
+      contents: read
+      actions: write # Cancel this run when a scheduled publish is skipped.
+    if: github.event_name == 'schedule' && github.repository == 'ankidroid/Anki-Android' && github.ref == 'refs/heads/main'
+    timeout-minutes: 20
+    runs-on: ubuntu-latest
+    outputs:
+      publish: ${{ steps.check.outputs.result }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Configure JDK
+        uses: actions/setup-java@de7274f081f381c8f8158605e0321c36c376e2e6 # v6.0.1
+        with:
+          distribution: "jetbrains"
+          java-version: "21"
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@3f5f9adaf7d9fecd50b5935e54106014257a94e6 # v6.4.0
+        with:
+          cache-provider: basic
+          cache-read-only: true
+
+      - name: Write release metadata
+        run: ./gradlew :AnkiDroid:writeReleaseMetadata --console=plain
+
+      - id: check
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
+        with:
+          script: |
+            const checkAlphaRelease = require('./.github/check_alpha_release.js');
+            return await checkAlphaRelease({ github, context, core });
+
+  release_app:
+    name: 'Release App'
+    # wait for 'check_release' (success/skipped)
+    needs: check_release
+    # Manual releases proceed when the scheduled check is skipped.
+    if: >
+      github.repository == 'ankidroid/Anki-Android' &&
+      !cancelled() &&
+      (
+        github.event_name == 'workflow_dispatch' ||
+        (success() && needs.check_release.outputs.publish == 'true')
+      )
+    timeout-minutes: 120
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 2
+
+      - uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        name: Gradle Cache
+        with:
+          path: ~/.gradle/caches
+          key: gradle-${{ hashFiles('**/*.gradle*') }}-v1
+
+      - name: Configure JDK
+        uses: actions/setup-java@de7274f081f381c8f8158605e0321c36c376e2e6 # v6.0.1
+        with:
+          distribution: "jetbrains"
+          java-version: "21"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Raise Gradle Heap
+        run: |
+          mkdir -p ~/.gradle
+          echo "org.gradle.jvmargs=-Xmx4g -Dfile.encoding=UTF-8" >> ~/.gradle/gradle.properties
+        shell: bash
+
+      - name: Install Release Utilities
+        run: |
+          sudo chown -R $USER /var/lib/gems/
+          sudo chown -R $USER /usr/local/bin
+          gem install asciidoctor
+        shell: bash
+
+      - name: GIT Setup
+        run: |
+          git config --global user.name 'Mike Hardy'
+          git config --global user.email 'github@mikehardy.net'
+          git remote set-url origin git@github.com:$GITHUB_REPOSITORY
+        shell: bash
+
+      - uses: webfactory/ssh-agent@e83874834305fe9a4a2997156cb26c5de65a8555 # v0.10.0
+        with:
+          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+
+      - name: Credential Prep
+        env:
+          ANALYTICS_API_KEY: ${{ secrets.ANALYTICS_API_KEY }}
+        run: |
+          if [ -z "$ANALYTICS_API_KEY" ]; then
+            echo "::warning::⚠️ The ANALYTICS_API_KEY secret is not set, so this release sends analytics with a dummy key"
+            echo "### ⚠️ ANALYTICS_API_KEY is not set: this release sends analytics with a dummy key" >> $GITHUB_STEP_SUMMARY
+          fi
+          echo "ANALYTICS_API_KEY=$ANALYTICS_API_KEY" >> $GITHUB_ENV
+          echo "KEYSTOREPATH=$HOME/src/android-keystore" >> $GITHUB_ENV
+          echo "KEYALIAS=nrkeystorealias" >> $GITHUB_ENV
+          echo "KEYSTOREPWD=${{ secrets.KEYSTORE_PASSWORD }}" >> $GITHUB_ENV
+          echo "KEYPWD=${{ secrets.KEYSTORE_KEY_PASSWORD }}" >> $GITHUB_ENV
+          mkdir ~/src
+          cd ~/src
+          echo "${{ secrets.GOOGLE_PUBLISH_CREDENTIALS }}" | base64 -d > ./AnkiDroid-GCP-Publish-Credentials.json.gz
+          echo "${{ secrets.RELEASES_PUBLISH_TOKEN }}" | base64 -d > ./my-github-personal-access-token.gz
+          echo "${{ secrets.KEYSTORE }}" | base64 -d > ./android-keystore.gz
+          gunzip *.gz
+        shell: bash
+
+      - name: Clone ankidroiddocs for the changelog
+        run: git clone git@github.com:ankidroid/ankidroiddocs ../ankidroiddocs
+        shell: bash
+
+      - name: Build and Release public release
+        if: "${{ github.event.inputs.public != '' }}"
+        run: ./tools/release.sh public
+        shell: bash
+
+      - name: Build and Release test release
+        if: "${{ github.event.inputs.public == '' }}"
+        run: ./tools/release.sh

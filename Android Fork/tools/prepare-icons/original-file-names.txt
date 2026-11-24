@@ -1,0 +1,47 @@
+Keep this file until we've moved to the new file names.
+These files were renamed to match the files used in the anki app.
+We will eventually switch back to their original names. 
+This text shows the relationship between those two sets of names.
+
+ic_action_accept_FROM_ic_done_24px.svg
+ic_action_camera_FROM_ic_camera_alt_24px.svg
+ic_action_cancel_FROM_ic_cancel_24px.svg
+ic_action_email_FROM_ic_email_24px.svg
+ic_action_help_FROM_ic_help_24px.svg
+ic_action_import_export_FROM_ic_import_export_24px.svg
+ic_action_mic_FROM_ic_mic_24px.svg
+ic_action_replay_FROM_ic_replay_24px.svg
+ic_action_search_FROM_ic_search_24px.svg
+ic_action_settings_FROM_ic_settings_24px.svg
+ic_action_storage_FROM_ic_storage_24px.svg
+ic_action_time_FROM_ic_access_time_24px.svg
+ic_dialog_alert_FROM_ic_warning_24px.svg
+ic_dialog_info_FROM_ic_info_24px.svg
+ic_menu_add_FROM_ic_add_circle_outline_24px.svg
+ic_menu_archive_FROM_ic_folder_open_24px.svg
+ic_menu_close_FROM_ic_close_24px.svg
+ic_menu_compose_FROM_ic_create_24px.svg
+ic_menu_delete_FROM_ic_delete_24px.svg
+ic_menu_download_FROM_ic_file_download_24px.svg
+ic_menu_edit_FROM_ic_edit_24px.svg
+ic_menu_help_FROM_ic_help_24px.svg
+ic_menu_home_FROM_ic_home_24px.svg
+ic_menu_info_details_FROM_ic_info_24px.svg
+ic_menu_marked_FROM_ic_star_24px.svg
+ic_menu_mark_FROM_ic_star_outline_24px.svg
+ic_menu_night_checked_FROM_ic_brightness_5_24px.svg
+ic_menu_night_FROM_ic_brightness_3_24px.svg
+ic_menu_preferences_FROM_ic_settings_24px.svg
+ic_menu_search_FROM_ic_search_24px.svg
+ic_menu_send_FROM_ic_send_24px.svg
+ic_menu_sort_by_size_FROM_ic_sort_24px.svg
+ic_menu_star_off_FROM_ic_lens_24px.svg
+ic_menu_statistics_FROM_ic_insert_chart_24px.svg
+ic_menu_upload_FROM_ic_file_upload_24px.svg
+
+ic_action_whiteboard_enable_light_FROM_ic_brush_24px.svg
+ic_menu_refresh_FROM_ic_sync_24px.svg
+ic_menu_revert_FROM_ic_undo_24px.svg
+
+------
+No longer using this: ic_menu_refresh_FROM_ic_refresh_24px.svg

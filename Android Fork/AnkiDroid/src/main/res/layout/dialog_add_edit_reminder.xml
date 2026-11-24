@@ -1,0 +1,258 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.coordinatorlayout.widget.CoordinatorLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/root_layout"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <LinearLayout
+        android:id="@+id/root_linear_layout"
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <androidx.appcompat.widget.Toolbar
+            android:id="@+id/add_edit_reminder_toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:minHeight="?attr/actionBarSize"
+            android:theme="@style/ActionBarStyle"
+            android:background="?attr/appBarColor"
+            tools:title="Add / edit review reminder" />
+
+        <ScrollView
+            android:id="@+id/add_edit_reminder_scrollview"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <LinearLayout
+                android:id="@+id/add_edit_reminder_content"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:paddingTop="24dp"
+                android:paddingHorizontal="24dp">
+
+                <LinearLayout
+                    android:id="@+id/add_edit_reminder_time_section"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:layout_marginBottom="8dp">
+
+                    <com.google.android.material.textview.MaterialTextView
+                        android:id="@+id/add_edit_reminder_time_label"
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_weight="1"
+                        android:gravity="center_vertical"
+                        android:text="@string/add_edit_reminder_time_label"
+                        android:textSize="18sp" />
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/add_edit_reminder_time_button"
+                        android:layout_width="0dp"
+                        android:layout_weight="3"
+                        android:layout_height="match_parent"
+                        app:cornerRadius="8dp"
+                        android:layout_marginStart="12dp"
+                        android:textSize="24sp"
+                        tools:text="12:00" />
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/add_edit_reminder_deck_section"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+
+                    <com.google.android.material.textview.MaterialTextView
+                        android:id="@+id/add_edit_reminder_deck_label"
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_weight="1"
+                        android:gravity="center_vertical"
+                        android:text="@string/add_edit_reminder_deck_label"
+                        android:textSize="18sp" />
+
+                    <com.google.android.material.textview.MaterialTextView
+                        android:id="@+id/add_edit_reminder_deck_name"
+                        android:layout_width="0dp"
+                        android:layout_weight="3"
+                        android:layout_height="match_parent"
+                        android:textAppearance="?attr/textAppearanceListItem"
+                        android:minHeight="?minTouchTargetSize"
+                        android:maxLines="1"
+                        android:gravity="center_vertical"
+                        android:drawableEnd="@drawable/id_arrow_drop_down"
+                        android:background="?attr/selectableItemBackground"
+                        android:ellipsize="end"
+                        android:layout_marginStart="12dp"
+                        tools:text="Deck name here"
+                        />
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/add_edit_reminder_advanced_section"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical">
+
+                    <LinearLayout
+                        android:id="@+id/add_edit_reminder_advanced_dropdown"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:minHeight="?attr/minTouchTargetSize"
+                        android:orientation="horizontal">
+
+                        <ImageView
+                            android:id="@+id/add_edit_reminder_advanced_dropdown_icon"
+                            android:layout_width="32dp"
+                            android:layout_height="32dp"
+                            android:layout_gravity="center_vertical"
+                            android:layout_marginEnd="8dp" />
+
+                        <com.google.android.material.textview.MaterialTextView
+                            android:id="@+id/add_edit_reminder_advanced_label"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="center_vertical"
+                            android:textSize="18sp"
+                            android:text="@string/add_edit_reminder_advanced_label" />
+
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:id="@+id/add_edit_reminder_advanced_content"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="32dp"
+                        android:orientation="vertical">
+
+                        <LinearLayout
+                            android:id="@+id/add_edit_reminder_card_threshold_section"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal">
+
+                            <LinearLayout
+                                android:id="@+id/add_edit_reminder_card_threshold_label_container"
+                                android:layout_width="0dp"
+                                android:layout_weight="1"
+                                android:layout_height="wrap_content"
+                                android:paddingVertical="4dp"
+                                android:orientation="vertical">
+
+                                <com.google.android.material.textview.MaterialTextView
+                                    android:id="@+id/add_edit_reminder_card_threshold_label"
+                                    android:labelFor="@id/add_edit_reminder_card_threshold_input"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:layout_gravity="center_vertical"
+                                    android:textSize="16sp"
+                                    android:text="@string/add_edit_reminder_card_threshold_label" />
+
+                                <com.google.android.material.textview.MaterialTextView
+                                    android:id="@+id/add_edit_reminder_card_threshold_description"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:layout_gravity="center_vertical"
+                                    android:text="@string/add_edit_reminder_card_threshold_description" />
+
+                            </LinearLayout>
+
+                            <com.google.android.material.textfield.TextInputLayout
+                                android:id="@+id/add_edit_reminder_card_threshold_input_wrapper"
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:layout_gravity="center"
+                                android:layout_marginStart="24dp">
+
+                                <com.google.android.material.textfield.TextInputEditText
+                                    android:id="@+id/add_edit_reminder_card_threshold_input"
+                                    android:layout_width="match_parent"
+                                    android:layout_height="wrap_content"
+                                    android:inputType="number" />
+
+                            </com.google.android.material.textfield.TextInputLayout>
+
+                        </LinearLayout>
+
+                        <com.google.android.material.textview.MaterialTextView
+                            android:id="@+id/add_edit_reminder_count_toward_threshold_heading"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:paddingTop="8dp"
+                            android:textSize="16sp"
+                            android:text="@string/add_edit_reminder_count_toward_threshold_heading" />
+
+                        <com.google.android.material.chip.ChipGroup
+                            android:id="@+id/add_edit_reminder_count_chip_group"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            app:chipSpacingHorizontal="16dp"
+                            app:chipSpacingVertical="0dp">
+
+                            <com.google.android.material.chip.Chip
+                                android:id="@+id/add_edit_reminder_count_new_chip"
+                                style="@style/Widget.Material3.Chip.Filter"
+                                app:chipStrokeColor="@color/chip_stroke_color_checked_primary"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                tools:text="New" />
+
+                            <com.google.android.material.chip.Chip
+                                android:id="@+id/add_edit_reminder_count_lrn_chip"
+                                style="@style/Widget.Material3.Chip.Filter"
+                                app:chipStrokeColor="@color/chip_stroke_color_checked_primary"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                tools:text="Learning" />
+
+                            <com.google.android.material.chip.Chip
+                                android:id="@+id/add_edit_reminder_count_rev_chip"
+                                style="@style/Widget.Material3.Chip.Filter"
+                                app:chipStrokeColor="@color/chip_stroke_color_checked_primary"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                tools:text="To Review" />
+
+                        </com.google.android.material.chip.ChipGroup>
+
+                        <LinearLayout
+                            android:id="@+id/add_edit_reminder_only_notify_if_no_reviews_section"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal">
+
+                            <com.google.android.material.checkbox.MaterialCheckBox
+                                android:id="@+id/add_edit_reminder_only_notify_if_no_reviews_checkbox"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content" />
+
+                            <com.google.android.material.textview.MaterialTextView
+                                android:id="@+id/add_edit_reminder_only_notify_if_no_reviews_label"
+                                android:labelFor="@id/add_edit_reminder_only_notify_if_no_reviews_checkbox"
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:text="@string/add_edit_reminder_only_notify_if_no_reviews_label" />
+
+                        </LinearLayout>
+
+                    </LinearLayout>
+
+                </LinearLayout>
+
+            </LinearLayout>
+
+        </ScrollView>
+
+    </LinearLayout>
+
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

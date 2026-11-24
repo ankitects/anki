@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ SPDX-License-Identifier: GPL-3.0-or-later
+  ~ SPDX-FileCopyrightText: Copyright (c) 2011 Norbert Nagold <norbert.nagold@gmail.com>
+  -->
+<resources xmlns:tools="http://schemas.android.com/tools" tools:ignore="UnusedResources,DuplicateCrowdInStrings">
+
+    <color name="whiteboard_eraser">#80808080</color>
+
+    <!-- For Card background in Card Browser -->
+    <color name="flag_red">#FF4747</color>
+    <color name="flag_orange">#FFB647</color>
+    <color name="flag_green">#6FF06F</color>
+    <color name="flag_blue">#5289FF</color>
+    <color name="flag_pink">#FF99F1</color>
+    <color name="flag_turquoise">#85FFEF</color>
+    <color name="flag_purple">#C398EC</color>
+
+    <!-- For flag icons -->
+    <color name="flag_reviewer_orange">#ff9800</color>
+    <color name="flag_reviewer_pink">#FF82EE</color>
+    <color name="flag_reviewer_turquoise">#00D1B5</color>
+    <color name="flag_reviewer_purple">#9649DD</color>
+
+    <!-- Audio Recorder Colors -->
+    <color name="audio_recorder_red">#FF4747</color>
+    <color name="audio_recorder_green">#6FF06F</color>
+    <color name="audio_recorder_grey">#444444</color>
+
+    <!-- color used for the resizable screens-->
+    <color name="idle_divider_color">#C7C7C7</color>
+    <color name="drag_divider_color">#1A90FF</color>
+    <color name="divider_handle_color">#4D4D4D</color>
+</resources>
+

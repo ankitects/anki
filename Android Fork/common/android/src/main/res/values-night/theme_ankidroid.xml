@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- SPDX-License-Identifier: GPL-3.0-or-later -->
+<resources xmlns:tools="http://schemas.android.com/tools" tools:ignore="DuplicateCrowdInStrings">
+    <style name="Base.Theme.AnkiDroid" parent="@style/Theme.Material3.DayNight.NoActionBar">
+        <!-- Android colors -->
+        <item name="colorPrimary">@color/material_blue_400</item>
+        <item name="colorSurface">?android:colorBackground</item>
+        <item name="colorSecondary">@color/material_blue_400</item>
+        <item name="colorOnSurface">@color/white</item>
+        <item name="colorOnBackground">@color/white</item>
+        <item name="colorPrimaryContainer">@color/material_light_blue_900</item>
+        <item name="colorOnPrimaryContainer">@color/material_light_blue_100</item>
+        <item name="android:colorBackground">@color/material_theme_grey</item>
+        <item name="android:windowBackground">@color/material_theme_grey</item>
+        <item name="colorSecondaryContainer">#3C5A6E</item>
+        <item name="colorSurfaceVariant">#263E50</item>
+        <item name="colorOnSurfaceVariant">#D4D4D4</item>
+        <item name="colorOutlineVariant">#5B819B</item>
+        <item name="colorOutline">@color/material_grey_500</item>
+        <item name="colorError">@color/material_red_100</item>
+        <item name="colorOnError">@color/black</item>
+        <item name="colorErrorContainer">#5C191B</item>
+        <item name="colorOnErrorContainer">#FFDAD6</item>
+        <item name="colorTertiary">#78CAFF</item>
+        <item name="colorOnTertiary">#00324D</item>
+        <item name="colorTertiaryContainer">@color/material_blue_900</item>
+        <item name="colorOnTertiaryContainer">@color/material_blue_100</item>
+        <item name="colorOnSecondaryContainer">@color/white</item>
+        <item name="colorSurfaceContainerHigh">#424C54</item>
+        <item name="colorSurfaceContainer">#31373C</item>
+        <item name="preferenceCategoryTitleTextColor">?attr/colorSecondary</item>
+        <!-- Navigation drawer -->
+        <item name="navDrawerItemColor">@color/drawer_item_text</item>
+        <item name="navDrawerItemBackground">@drawable/drawer_item_background_dark</item>
+        <!-- Action bar styles -->
+        <item name="appBarColor">#3d3d3d</item>
+        <item name="bottomNavActiveIconColor">@color/material_blue_500</item>
+        <!-- Deck list colors -->
+        <item name="selectedRowBackgroundColor">#393939</item>
+        <item name="dynDeckColor">@color/material_light_blue_500</item>
+        <!-- Count colors -->
+        <item name="newCountColor">@color/material_indigo_200</item>
+        <item name="learnCountColor">@color/material_red_200</item>
+        <item name="reviewCountColor">@color/material_green_200</item>
+        <item name="buryCountColor">@color/disabled_gray_dark</item>
+        <item name="zeroCountColor">@color/zero_count_color</item>
+        <!-- Study Screen colors -->
+        <item name="showAnswerButtonBackground">#22333f</item>
+        <item name="againButtonBackground">@color/material_red_800</item>
+        <item name="hardButtonBackground">@color/material_blue_grey_800</item>
+        <item name="goodButtonBackground">@color/material_green_800</item>
+        <item name="easyButtonBackground">@color/material_light_blue_800</item>
+        <item name="topBarColor">@color/material_grey_800</item>
+        <item name="maxTimerColor">@color/material_red_300</item>
+        <item name="colorSurfaceDim">#2a2a2a</item>
+        <item name="colorSurfaceBright">#424C54</item>
+        <item name="againTextColor">@color/material_red_200</item>
+        <item name="hardTextColor">@color/material_orange_200</item>
+        <item name="goodTextColor">@color/material_light_green_200</item>
+        <item name="easyTextColor">@color/material_light_blue_A100</item>
+        <item name="againBackgroundColor">#462828</item>
+        <item name="hardBackgroundColor">#4e3122</item>
+        <item name="goodBackgroundColor">#2c3b2c</item>
+        <item name="easyBackgroundColor">#223946</item>
+        <!-- Study Screen button drawables -->
+        <item name="showAnswerColor">@color/material_blue_grey_800</item>
+        <!-- Card Browser Colors -->
+        <item name="cardBrowserDivider">@color/white</item>
+        <!-- Browser colors -->
+        <item name="suspendedColor">@color/material_grey_700</item>
+        <item name="buriedColor">#612B09</item>
+        <item name="markedColor">@color/material_deep_purple_400</item>
+        <!-- Note editor colors -->
+        <item name="duplicateColor">#855</item>
+        <item name="android:textColorHighlight">@color/material_light_blue_900</item>
+        <item name="toolbarBackgroundColor">#616161</item>
+        <item name="buttonShadowColor">#bdbdbd</item>
+        <item name="buttonRippleColor">#BABABA</item>
+        <item name="buttonForegroundColor">#757575</item>
+        <!-- Images -->
+        <item name="navDrawerImage">@drawable/nav_drawer_logo_dark_theme</item>
+        <item name="clozeColor">#1976D2</item>
+        <item name="popupBackgroundColor">#434343</item>
+        <item name="android:windowLightStatusBar">false</item>
+        <!-- Navbar -->
+        <item name="android:windowLightNavigationBar" tools:targetApi="o_mr1">false</item>
+        <item name="android:navigationBarColor">@color/material_theme_grey</item>
+        <!-- Inverse colors, used by snackbars -->
+        <item name="colorSurfaceInverse">#cfcfcf</item>
+        <item name="colorOnSurfaceInverse">@color/material_theme_grey</item>
+        <item name="colorPrimaryInverse">@color/material_light_blue_900</item>
+        <!-- Introduction -->
+        <item name="introductionLogoTransparent">#883d3d3d</item>
+        <item name="incrementerButtonBackground">@color/material_theme_grey</item>
+        <!-- Reminder troubleshooting -->
+        <item name="reminderTroubleshootingOk">@color/google_green_300</item>
+        <item name="reminderTroubleshootingWarning">@color/google_yellow_300</item>
+    </style>
+</resources>

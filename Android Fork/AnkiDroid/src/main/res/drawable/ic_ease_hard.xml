@@ -1,0 +1,17 @@
+<!--
+  SPDX-License-Identifier: Apache-2.0
+  SPDX-FileCopyrightText: Google LLC
+  SPDX-FileComment: Style: Outlined; Material Symbols (check_small).
+  SPDX-FileComment: Material Symbols; FILL=0, wght=400, GRAD=0, opsz=24
+  Source: https://raw.githubusercontent.com/google/material-design-icons/10ecc14790612ca8fd164e3f4ffe9c16fc50d5b7/symbols/android/check_small/materialsymbolsoutlined/check_small_24px.xml
+-->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="960"
+    android:viewportHeight="960"
+    android:tint="?hardIconColor">
+  <path
+      android:pathData="M400,656 L240,496l56,-56 104,104 264,-264 56,56 -320,320Z"
+      android:fillColor="#FFF"/>
+</vector>

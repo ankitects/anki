@@ -1,0 +1,36 @@
+Memorizálj bármit az AnkiDroiddal!
+
+Az AnkiDroid segítségével hatékonyan tanulhatsz szókártyákat, mert akkor szedi elő újra őket, mielőtt elfelejtenéd. It is fully compatible with the spaced repetition software Anki (including synchronization), which is available for Windows, Linux and macOS.
+
+Tanulj meg akármit, bármikor, bárhol, ha rád tör a tanulhatnék! Használd ki jól a buszozás, sorban állás, vagy másféle várakozás miatt kieső időt!
+
+Készíts saját tanulókártya paklikat, vagy tölts le néhányat a több, mint 6000, különböző témájú és nyelvű ingyen elérhető pakli közül!
+
+Adj új szavakat a paklihoz az asztali Ankival, vagy közvetlenül az AnkiDroiddal. Az alkalmazással akár automatikusan is tudsz szavakat hozzáadni egy szótárból!
+
+★ Fő funkciók:
+• támogatott szókártya tartalmak: szöveg, kép, hang, LaTeX
+• spaced repetition (AI-optimized FSRS algorithm)
+• szöveg-beszéd integráció
+• more than 10,000 premade decks
+• előrehaladás widget
+• részletes statisztikák
+• AnkiWeb szinkronizálás
+• nyílt forráskódú
+
+★ További funkciók:
+• válaszok beírása (lehetőség)
+• rajztábla
+• kártya szerkesztő/létrehozó
+• kártya böngésző
+• tabletre optimalizált elrendezés
+• importáld már meglévő gyűjteményed (Anki Desktoppal)
+• kártyák hozzáadása más programokból (pl. szótárak)
+• egyéni betűtípus támogatás
+• teljes mentési rendszer
+• navigáció söpréssel, lenyomással
+• testreszabható
+• dinamikus pakli kezelés
+• éjszakai mód
+• 27 fordítás
+• minden korábbi AnkiDroid verzió letölthető a honlapról

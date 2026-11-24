@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- SPDX-License-Identifier: GPL-3.0-or-later -->
+<resources>
+    <!-- Keep the mappings readable when vertical space is limited. -->
+    <integer name="change_note_type_name_max_lines">1</integer>
+</resources>

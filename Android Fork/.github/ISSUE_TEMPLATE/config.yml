@@ -1,0 +1,17 @@
+blank_issues_enabled: true
+contact_links:
+  - name: Anki Forums
+    url: https://forums.ankiweb.net/
+    about: If your issue also occurs in Anki Desktop, please report it in the forums
+
+  - name: Questions/Support
+    url: https://forums.ankiweb.net/c/ankidroid/help/16
+    about: If you have a question or need support, please post on the user forum.
+
+  - name: Bad Translations
+    url: https://github.com/ankidroid/Anki-Android/wiki/Reporting-Translation-Issues
+    about: Translations may either come from AnkiDroid or Anki Desktop. Anyone can fix issues with AnkiDroid's translations
+
+  - name: Feature Requests/Suggestions
+    url: https://forums.ankiweb.net/c/ankidroid/suggestions/23
+    about: Please post suggestions and feature requests on the user forum.

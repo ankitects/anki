@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Benchmark-only manifest overlay. Merged into the benchmark buildType only.
+  Keeps <profileable> out of production release APKs.
+-->
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <application>
+        <!--
+            Allows Macrobenchmark / Perfetto to attach via adb shell.
+            Required by the :baselineprofile module to collect baseline
+            profiles and run StartupBenchmark. `android:shell="true"`
+            restricts attachment to shell-initiated profiling only.
+        -->
+        <profileable
+            android:shell="true"
+            tools:targetApi="29" />
+    </application>
+
+</manifest>

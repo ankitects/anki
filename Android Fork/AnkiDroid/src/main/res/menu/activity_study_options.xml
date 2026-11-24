@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- SPDX-License-Identifier: GPL-3.0-or-later -->
+
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <item
+        android:id="@+id/action_undo"
+        android:icon="@drawable/ic_undo_white"
+        android:title="@string/undo"
+        app:actionProviderClass="com.ichi2.ui.RtlCompliantActionProvider"
+        app:showAsAction="always"/>
+</menu>

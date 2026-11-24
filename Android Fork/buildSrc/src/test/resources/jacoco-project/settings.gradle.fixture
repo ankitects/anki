@@ -1,0 +1,9 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+
+rootProject.name = 'coverage-discovery-regression'
+include ':app', ':library', ':nested:core', ':empty', ':tooling'
+
+dependencyResolutionManagement {
+    repositories { google(); mavenCentral() }
+    versionCatalogs { libs { from(files('libs.versions.toml')) } }
+}

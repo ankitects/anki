@@ -1,0 +1,212 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ SPDX-License-Identifier: GPL-3.0-or-later
+  ~ SPDX-FileCopyrightText: Copyright (c) 2023 Ashish Yadav <mailtoashish693@gmail.com>
+  -->
+<LinearLayout android:id="@+id/audioView"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:keepScreenOn="true"
+    tools:context=".multimedia.audio.AudioRecordingController">
+
+    <RelativeLayout
+        android:id="@+id/record_buttons_layout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:gravity="center"
+        android:layout_marginTop="12dp"
+        android:layout_marginBottom="8dp"
+        android:layout_marginHorizontal="16dp"
+        android:background="@drawable/bg_rounded_drop_shadow"
+        android:orientation="horizontal">
+
+        <com.ichi2.anki.multimedia.audio.AudioWaveform
+            android:id="@+id/audio_waveform_view"
+            android:layout_height="40dp"
+            android:layout_width="match_parent"
+            android:layout_alignParentStart="true"
+            android:layout_toStartOf="@+id/action_start_recording"
+            android:layout_centerVertical="true"
+            android:layout_marginStart="14dp"
+            android:paddingVertical="6dp"
+            android:background="?android:attr/colorBackground"
+            app:display_vertical_line="false" />
+
+        <com.google.android.material.progressindicator.LinearProgressIndicator
+            android:id="@+id/audio_progress_indicator"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="12dp"
+            android:layout_marginStart="14dp"
+            android:layout_centerVertical="true"
+            android:foregroundGravity="center"
+
+            android:layout_toStartOf="@+id/action_start_recording"
+
+            android:progress="0"
+
+            app:indicatorColor="@color/material_blue_500"
+            app:trackColor="@color/material_light_blue_100"
+            android:visibility="gone"
+            />
+
+        <!-- TODO: Icons are centered manually on the next two buttons-->
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/action_start_recording"
+            style="@style/Widget.Material3.Button.IconButton.Filled"
+
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:layout_gravity="center"
+            android:layout_centerVertical="true"
+            android:layout_toStartOf="@+id/action_cancel_recording"
+
+            android:layout_marginStart="2dp"
+            android:clickable="true"
+            android:focusable="true"
+
+            android:contentDescription="@string/record_voice"
+
+            android:insetBottom="6dp"
+            android:insetLeft="6dp"
+            android:insetRight="6dp"
+            android:insetTop="6dp"
+
+            android:paddingStart="10dp"
+
+            app:backgroundTint="@color/material_grey_100"
+            app:icon="@drawable/ic_record"
+            app:iconGravity="textStart"
+            app:iconSize="24dp"
+            app:iconTint="@color/flag_red"
+            app:strokeColor="@color/flag_red"
+            app:strokeWidth="2dp" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/action_cancel_recording"
+            style="@style/Widget.Material3.Button.IconButton.Filled"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+
+            android:layout_alignParentEnd="true"
+
+            android:insetBottom="0dp"
+            android:insetLeft="0dp"
+            android:insetRight="0dp"
+            android:insetTop="0dp"
+
+            android:paddingStart="11dp"
+
+            app:backgroundTint="@color/transparent"
+            app:icon="@drawable/ic_clear_white"
+            app:iconTint="?attr/editTextColor"
+            app:iconSize="24dp"
+            />
+
+    </RelativeLayout>
+
+    <LinearLayout
+        android:visibility="gone"
+        android:id="@+id/play_buttons_layout"
+        android:layout_width="match_parent"
+        android:orientation="vertical"
+        android:layout_height="match_parent">
+
+        <com.google.android.material.imageview.ShapeableImageView
+            android:id="@+id/audio_file_imageview"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginVertical="2dp"
+            android:minHeight="300px"
+            android:paddingVertical="6dp"
+            android:src="@drawable/round_audio_file_24"
+            android:tint="@color/material_blue_500" />
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginVertical="8dp"
+            android:gravity="center"
+            android:orientation="horizontal"
+            android:visibility="visible">
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/action_rewind"
+                style="@style/Widget.Material3.Button.IconButton.Filled"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="6dp"
+                android:clickable="true"
+                android:focusable="true"
+                android:enabled="false"
+                app:backgroundTint="@color/material_blue_500"
+                app:icon="@drawable/baseline_replay_5_24"
+                app:iconPadding="0dp"
+                app:iconSize="22dp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toStartOf="@id/action_play_recording"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/action_play_recording"
+                style="@style/Widget.Material3.Button.IconButton.Filled"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="10dp"
+                android:clickable="true"
+                android:focusable="true"
+                android:padding="10dp"
+                app:backgroundTint="@color/material_grey_100"
+                app:icon="@drawable/round_play_arrow_24"
+                app:iconPadding="0dp"
+                app:iconSize="50dp"
+                app:iconTint="@color/flag_red"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:strokeColor="@color/flag_red"
+                app:strokeWidth="4dp" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/action_forward"
+                style="@style/Widget.Material3.Button.IconButton.Filled"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="6dp"
+                android:clickable="true"
+                android:focusable="true"
+                android:enabled="false"
+                app:backgroundTint="@color/material_blue_500"
+                app:icon="@drawable/baseline_forward_5_24"
+                app:iconPadding="0dp"
+                app:iconSize="22dp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toEndOf="@id/action_play_recording"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/action_discard_recording"
+                style="@style/Widget.Material3.Button.IconButton.Filled"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="6dp"
+                app:backgroundTint="@color/material_blue_500"
+                app:icon="@drawable/ic_delete"
+                app:iconPadding="0dp"
+                app:iconSize="22dp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toEndOf="@id/action_forward"
+                app:layout_constraintTop_toTopOf="parent" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </LinearLayout>
+
+    <com.google.android.material.divider.MaterialDivider
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:dividerThickness="2dp" />
+</LinearLayout>

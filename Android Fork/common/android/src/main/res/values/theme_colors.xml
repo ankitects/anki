@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ SPDX-License-Identifier: GPL-3.0-or-later
+  ~ SPDX-FileCopyrightText: Copyright (c) 2011 Norbert Nagold <norbert.nagold@gmail.com>
+  -->
+<resources xmlns:tools="http://schemas.android.com/tools" tools:ignore="UnusedResources,DuplicateCrowdInStrings">
+    <color name="transparent">#00000000</color>
+    <color name="white">#ffffff</color>
+    <color name="black">#000000</color>
+    <color name="semi_transparent_black">#80000000</color>
+
+    <color name="answer_buttons_highlight_color">#66FFFFFF</color>
+    <color name="answer_buttons_focus_color">#33FFFFFF</color>
+
+    <!-- The Material Design color palette lives in :common:android (common/android/.../res/values/colors.xml) -->
+
+    <!-- Green from the system 'Battery health' screen -->
+    <color name="google_green_300">#81c995</color>
+    <color name="google_green_700">#388E3C</color>
+
+    <color name="google_yellow_300">#fdd633</color>
+    <color name="warning_orange">#DE4900</color>
+
+    <!-- color used for bury count in study options(same as anki for light and dark) -->
+    <color name="disabled_gray_light">#858585</color>
+    <color name="disabled_gray_dark">#fcfcfc</color>
+</resources>

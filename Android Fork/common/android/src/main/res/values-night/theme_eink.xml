@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- SPDX-License-Identifier: GPL-3.0-or-later -->
+<resources xmlns:tools="http://schemas.android.com/tools" tools:ignore="DuplicateCrowdInStrings">
+    <style name="Base.Theme.AnkiDroid.Eink" parent="Theme.AnkiDroid">
+        <item name="colorPrimary">@color/white</item>
+        <item name="colorOnPrimary">@color/black</item>
+        <item name="colorPrimaryContainer">@color/white</item>
+        <item name="colorOnPrimaryContainer">@color/black</item>
+        <item name="colorPrimaryInverse">@color/white</item>
+        <item name="colorPrimaryFixed">#E0E0E0</item>
+        <item name="colorPrimaryFixedDim">#BDBDBD</item>
+        <item name="colorOnPrimaryFixed">@color/black</item>
+        <item name="colorOnPrimaryFixedVariant">#424242</item>
+        <item name="colorSecondary">@color/white</item>
+        <item name="colorOnSecondary">@color/black</item>
+        <item name="colorSecondaryContainer">#333333</item>
+        <item name="colorOnSecondaryContainer">@color/white</item>
+        <item name="colorSecondaryFixed">#E0E0E0</item>
+        <item name="colorSecondaryFixedDim">#BDBDBD</item>
+        <item name="colorOnSecondaryFixed">@color/black</item>
+        <item name="colorOnSecondaryFixedVariant">#424242</item>
+        <item name="colorTertiary">#BBBBBB</item>
+        <item name="colorOnTertiary">@color/black</item>
+        <item name="colorTertiaryContainer">#1F1F1F</item>
+        <item name="colorOnTertiaryContainer">@color/white</item>
+        <item name="colorTertiaryFixed">#E0E0E0</item>
+        <item name="colorTertiaryFixedDim">#BDBDBD</item>
+        <item name="colorOnTertiaryFixed">@color/black</item>
+        <item name="colorOnTertiaryFixedVariant">#424242</item>
+        <item name="colorError">@color/white</item>
+        <item name="colorOnError">@color/black</item>
+        <item name="colorErrorContainer">#1F1F1F</item>
+        <item name="colorOnErrorContainer">@color/white</item>
+        <item name="android:colorBackground">@color/black</item>
+        <item name="colorOnBackground">@color/white</item>
+        <item name="colorSurface">@color/black</item>
+        <item name="colorOnSurface">@color/white</item>
+        <item name="colorSurfaceVariant">#111111</item>
+        <item name="colorOnSurfaceVariant">#BBBBBB</item>
+        <item name="colorSurfaceInverse">@color/black</item>
+        <item name="colorOnSurfaceInverse">@color/white</item>
+        <item name="colorSurfaceDim">@color/black</item>
+        <item name="colorSurfaceBright">@color/black</item>
+        <item name="colorSurfaceContainerLowest">@color/black</item>
+        <item name="colorSurfaceContainerLow">@color/black</item>
+        <item name="colorSurfaceContainer">@color/black</item>
+        <item name="colorSurfaceContainerHigh">@color/black</item>
+        <item name="colorSurfaceContainerHighest">@color/black</item>
+        <item name="colorOutline">@color/white</item>
+        <item name="colorOutlineVariant">#888888</item>
+        <item name="colorControlNormal">@color/white</item>
+        <item name="android:windowBackground">@android:color/black</item>
+        <item name="preferenceCategoryTitleTextColor">@color/white</item>
+        <item name="fabNormalColor">@color/white</item>
+        <item name="fabPressedColor">@color/white</item>
+
+        <item name="appBarColor">@color/black</item>
+        <item name="actionBarTextColor">@color/white</item>
+
+        <item name="bottomNavIndicatorColor">@color/white</item>
+        <item name="bottomNavActiveIconColor">@color/black</item>
+
+        <item name="navDrawerImage">@drawable/nav_drawer_logo_eink</item>
+        <item name="selectedRowBackgroundColor">#1F1F1F</item>
+        <item name="dynDeckColor">@color/white</item>
+
+        <item name="newCountColor">@color/white</item>
+        <item name="learnCountColor">@color/white</item>
+        <item name="reviewCountColor">@color/white</item>
+        <item name="buryCountColor">@color/material_grey_500</item>
+        <item name="zeroCountColor">@color/material_grey_800</item>
+
+        <item name="againButtonBackground">@color/black</item>
+        <item name="hardButtonBackground">@color/black</item>
+        <item name="goodButtonBackground">@color/black</item>
+        <item name="easyButtonBackground">@color/black</item>
+        <item name="showAnswerTextColor">@color/white</item>
+        <item name="againButtonTextColor">@color/white</item>
+        <item name="hardButtonTextColor">@color/white</item>
+        <item name="goodButtonTextColor">@color/white</item>
+        <item name="easyButtonTextColor">@color/white</item>
+
+        <item name="againTextColor">@color/white</item>
+        <item name="hardTextColor">@color/white</item>
+        <item name="goodTextColor">@color/white</item>
+        <item name="easyTextColor">@color/white</item>
+
+        <item name="againBackgroundColor">@color/black</item>
+        <item name="hardBackgroundColor">@color/black</item>
+        <item name="goodBackgroundColor">@color/black</item>
+        <item name="easyBackgroundColor">@color/black</item>
+
+        <item name="answerButtonRef">@drawable/footer_button_all_eink</item>
+
+        <item name="answerButtonRippleRef">@drawable/footer_button_all_eink_ripple</item>
+
+        <item name="showAnswerButtonBackground">@color/black</item>
+        <item name="showAnswerColor">@color/black</item>
+
+        <item name="cardBrowserDivider">@color/white</item>
+        <item name="android:textColorHighlight">@color/material_grey_800</item>
+        <item name="popupBackgroundColor">@color/black</item>
+        <item name="toolbarBackgroundColor">@color/black</item>
+        <item name="topBarColor">@color/black</item>
+        <item name="overflowAndPopupMenuIconColor">@color/white</item>
+        <item name="incrementerButtonBackground">@color/white</item>
+        <item name="incrementerButtonIconColor">@color/black</item>
+
+        <item name="android:navigationBarColor">?attr/colorSurface</item>
+        <item name="android:windowLightStatusBar">false</item>
+        <item name="android:windowLightNavigationBar" tools:targetApi="o_mr1">false</item>
+
+        <item name="clozeColor">@color/white</item>
+        <item name="navDrawerItemColor">@color/white</item>
+        <item name="alertDialogTheme">@style/ThemeOverlay.AnkiDroid.AlertDialog.Eink</item>
+
+        <item name="badgeErrorColor">@color/white</item>
+        <item name="badgeWarningColor">@color/white</item>
+        <item name="badgeTextColor">@color/black</item>
+        <item name="widgetStrokeWidth">2dp</item>
+        <item name="widgetStrokeColor">@color/white</item>
+        <item name="studyScreenElevation">0dp</item>
+        <item name="elevationOverlayEnabled">false</item>
+
+        <item name="snackbarStyle">@style/SnackbarStyle.Eink</item>
+        <item name="whiteboardToolbarCardStyle">@style/Widget.AnkiDroid.WhiteboardToolbarCard.Eink</item>
+    </style>
+</resources>
