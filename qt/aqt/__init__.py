@@ -632,8 +632,10 @@ def setupGL(pm: aqt.profiles.ProfileManager, driver: VideoDriver | None = None) 
         elif is_mac:
             QCoreApplication.setAttribute(Qt.ApplicationAttribute.AA_UseSoftwareOpenGL)
         elif is_lin:
-            if "QTWEBENGINE_CHROMIUM_FLAGS" not in os.environ:
-                os.environ["QTWEBENGINE_CHROMIUM_FLAGS"] = "--disable-gpu"
+            flags = os.environ.get("QTWEBENGINE_CHROMIUM_FLAGS", "").split()
+            if "--disable-gpu" not in flags:
+                flags.append("--disable-gpu")
+            os.environ["QTWEBENGINE_CHROMIUM_FLAGS"] = " ".join(flags)
         if qtmajor > 5:
             QQuickWindow.setGraphicsApi(QSGRendererInterface.GraphicsApi.Software)
     elif driver == VideoDriver.Metal:
