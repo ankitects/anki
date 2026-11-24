@@ -56,6 +56,10 @@
         android:menuCategory="secondary"
         android:title="@string/backup_restore"/>
     <item
+        android:id="@+id/action_time_budgets"
+        android:menuCategory="secondary"
+        android:title="@string/time_budget_title"/>
+    <item
         android:id="@+id/action_model_browser_open"
         android:menuCategory="secondary"
         android:title="@string/model_browser_label"/>

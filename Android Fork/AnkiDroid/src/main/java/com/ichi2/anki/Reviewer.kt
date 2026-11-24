@@ -130,6 +130,7 @@ import com.ichi2.anki.settings.Prefs
 import com.ichi2.anki.settings.enums.DayTheme
 import com.ichi2.anki.snackbar.showSnackbar
 import com.ichi2.anki.startup.ensureStorageIsReady
+import com.ichi2.anki.timebudget.prefetchTimeBudgetCards
 import com.ichi2.anki.ui.internationalization.sentenceCase
 import com.ichi2.anki.ui.windows.reviewer.ReviewerFragment
 import com.ichi2.anki.utils.ext.cardStatsNoCardClean
@@ -1637,6 +1638,8 @@ open class Reviewer :
         answerTimer.setupForCard(getColUnsafe, currentCard!!)
         delayedHide(100)
         super.displayCardQuestion()
+        // RWKV-Instant time budgets: score the next cards while this question is shown
+        lifecycleScope.prefetchTimeBudgetCards()
     }
 
     @VisibleForTesting

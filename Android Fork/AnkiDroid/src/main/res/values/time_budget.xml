@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- SPDX-License-Identifier: GPL-3.0-or-later -->
+
+<!-- RWKV-Instant time budgets (anki-time-fork). English only, matching ftl/qt/qt-misc.ftl in the
+     desktop fork. -->
+<resources>
+    <string name="time_budget_title">RWKV Time Budgets</string>
+    <string name="time_budget_intro">Decks with a time budget are studied with RWKV-Instant. Cards with the lowest predicted recall are shown first, including cards that are not due yet, until the day\'s time is used up. Answers are still scheduled by FSRS.</string>
+    <string name="time_budget_enabled">Enabled</string>
+    <string name="time_budget_minutes">Minutes per day</string>
+    <string name="time_budget_max_reviews">Max reviews per card per day</string>
+    <string name="time_budget_min_dr">Minimum DR %</string>
+    <string name="time_budget_max_dr">Maximum DR %</string>
+    <string name="time_budget_help_max_reviews">A card answered this many times today is not shown again today.</string>
+    <string name="time_budget_help_min_dr">Cards below this predicted recall are shown even after the time is used up.</string>
+    <string name="time_budget_help_max_dr">Only cards below this predicted recall are shown. The session ends early when none are left.</string>
+    <string name="time_budget_min_above_max">The minimum DR can\'t be higher than the maximum DR.</string>
+    <string name="time_budget_out_of_range">%1$s must be between %2$d and %3$d.</string>
+    <string name="time_budget_show_advanced">Show advanced settings</string>
+    <string name="time_budget_hide_advanced">Hide advanced settings</string>
+    <string name="time_budget_advanced_intro">These apply to all enabled decks.</string>
+    <string name="time_budget_order">Card order</string>
+    <string name="time_budget_order_help">Choose which cards are shown first. Reviews are shown lowest predicted recall first; new cards follow the deck\'s new card limit and order, and are only shown while time is left.</string>
+    <string name="time_budget_move_up">Move up</string>
+    <string name="time_budget_move_down">Move down</string>
+    <string name="time_budget_first_review">First daily review</string>
+    <string name="time_budget_new_cards">New cards</string>
+    <string name="time_budget_re_review">Re-reviews</string>
+    <string name="time_budget_minutes_left">%d min</string>
+    <string name="time_budget_time_left">Time left</string>
+    <string name="time_budget_cards_below_target">Cards to study</string>
+    <string name="time_budget_no_decks">Add a deck first.</string>
+</resources>

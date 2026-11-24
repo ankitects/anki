@@ -51,6 +51,7 @@ import com.ichi2.anki.libanki.Decks
 import com.ichi2.anki.observability.ChangeManager
 import com.ichi2.anki.progress.observeProgress
 import com.ichi2.anki.settings.Prefs
+import com.ichi2.anki.timebudget.formatRemaining
 import com.ichi2.anki.ui.internationalization.sentenceCase
 import com.ichi2.anki.utils.doOnApplyWindowInsets
 import com.ichi2.anki.utils.ext.collectInViewLifecycle
@@ -445,6 +446,15 @@ class StudyOptionsFragment :
 
         val data = state.dataOrNull() ?: return
 
+        val timeBudgetRemainingSecs = data.timeBudgetRemainingSecs
+        if (timeBudgetRemainingSecs != null) {
+            showTimeBudget(studyOptionsView, timeBudgetRemainingSecs, data)
+            totalNewCardsCount.text = data.totalNewCards.toString()
+            totalCardsCount.text = data.numberOfCardsInDeck.toString()
+            activity?.invalidateMenu()
+            return
+        }
+
         newCountText.text = data.newCardsToday.toString()
         learningCountText.text = data.lrnCardsToday.toString()
         reviewCountText.text = data.revCardsToday.toString()
@@ -471,6 +481,28 @@ class StudyOptionsFragment :
         totalNewCardsCount.text = data.totalNewCards.toString()
         totalCardsCount.text = data.numberOfCardsInDeck.toString()
         activity?.invalidateMenu()
+    }
+
+    /**
+     * A deck covered by an RWKV-Instant time budget: the time left and the cards it will show,
+     * instead of the new/learning/review counts. Like _time_budget_table in qt/aqt/overview.py.
+     */
+    private fun showTimeBudget(
+        studyOptionsView: View,
+        remainingSecs: Int,
+        data: DeckStudyData,
+    ) {
+        studyOptionsView.findViewById<TextView>(R.id.studyoptions_new_count_label).setText(R.string.time_budget_time_left)
+        newCountText.text = formatRemaining(requireContext(), remainingSecs)
+        studyOptionsView.findViewById<TextView>(R.id.studyoptions_learning_count_label).setText(R.string.time_budget_cards_below_target)
+        learningCountText.text = (data.newCardsToday + data.lrnCardsToday + data.revCardsToday).toString()
+        // the rows belong to a Group, which sets their visibility: blank the unused one instead
+        studyOptionsView.findViewById<TextView>(R.id.studyoptions_review_count_label).text = ""
+        reviewCountText.text = ""
+        buryInfoLabel.isVisible = false
+        newBuryText.isVisible = false
+        learningBuryText.isVisible = false
+        reviewBuryText.isVisible = false
     }
 
     /**

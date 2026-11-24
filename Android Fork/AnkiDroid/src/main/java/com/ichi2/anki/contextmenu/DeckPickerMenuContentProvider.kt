@@ -96,6 +96,7 @@ class DeckPickerMenuContentProvider(
                 }
                 add(DeckPickerContextMenu.DeckPickerContextMenuOption.DECK_OPTIONS)
                 if (!isDynamic) {
+                    add(DeckPickerContextMenu.DeckPickerContextMenuOption.TIME_BUDGETS)
                     add(DeckPickerContextMenu.DeckPickerContextMenuOption.CUSTOM_STUDY)
                 }
                 add(DeckPickerContextMenu.DeckPickerContextMenuOption.EXPORT_DECK)

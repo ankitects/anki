@@ -47,6 +47,7 @@ import com.ichi2.anki.servicelayer.MARKED_TAG
 import com.ichi2.anki.servicelayer.NoteService
 import com.ichi2.anki.servicelayer.isBuryNoteAvailable
 import com.ichi2.anki.servicelayer.isSuspendNoteAvailable
+import com.ichi2.anki.timebudget.prefetchTimeBudgetCards
 import com.ichi2.anki.tryRedo
 import com.ichi2.anki.tryUndo
 import com.ichi2.anki.ui.windows.reviewer.autoadvance.AnswerAction
@@ -470,6 +471,8 @@ class ReviewerViewModel(
             mutationSignal = CompletableDeferred()
         }
         super.showQuestion()
+        // RWKV-Instant time budgets: score the next cards while this question is shown
+        viewModelScope.prefetchTimeBudgetCards()
         runStateMutationHook()
         updateMarkIcon()
         updateFlagIcon()

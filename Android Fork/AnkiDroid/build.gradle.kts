@@ -65,12 +65,15 @@ val homePath = System.getProperty("user.home")
  * @example edf739d95bad7b370a6ed4398d46723f8219b3cd
  * @see https://docs.gradle.org/current/userguide/configuration_cache_requirements.html#config_cache:requirements:external_processes
  */
+// anki-time-fork: the app is built from a copy outside git, so the build passes the commit
 val gitCommitHash =
-    providers
-        .exec {
-            commandLine("git", "rev-parse", "HEAD")
-        }.standardOutput.asText
-        .map { it.trim() }
+    providers.gradleProperty("forkCommitHash").orElse(
+        providers
+            .exec {
+                commandLine("git", "rev-parse", "HEAD")
+            }.standardOutput.asText
+            .map { it.trim() },
+    )
 
 /**
  * Epoch millis of the build. Displayed on the 'About' screen.
@@ -145,6 +148,14 @@ android {
         versionCode = 22600115
         // If you change this to a new version, you probably also want to update .gradle/workflows/milestone.yml for the new version...
         versionName = "2.26.0alpha15"
+        // anki-time-fork: the release workflow passes these so each build installs as an update
+        // of the previous one (a higher versionCode), and crash reports of the fork do not go to
+        // AnkiDroid's server. See "Android Fork/fork/README.md".
+        project.findProperty("forkVersionCode")?.let { versionCode = it.toString().toInt() }
+        project.findProperty("forkVersionName")?.let { versionName = it.toString() }
+        project.findProperty("forkAcraUrl")?.let {
+            buildConfigField("String", "ACRA_URL", "\"$it\"")
+        }
         testApplicationId = "com.ichi2.anki.tests"
         vectorDrawables.useSupportLibrary = true
         testInstrumentationRunner = "com.ichi2.testutils.NewCollectionPathTestRunner"
@@ -464,7 +475,8 @@ tasks.register<Copy>("installGitHook") {
     }
 }
 // to run manually: `./gradlew installGitHook`
-tasks.named("preBuild").configure { dependsOn("installGitHook") }
+// anki-time-fork: not run on each build. The git repository here is the desktop fork's, whose
+// hooks this would replace, and the build copies the app outside git.
 
 // Fail fast when an emulator's primary user (user 0) is still locked after boot.
 //

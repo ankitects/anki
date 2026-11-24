@@ -39,6 +39,8 @@ const IGNORED_FOLDERS: &[&str] = &[
     "./.venv",
     "./qt/installer/windows-template",
     "./qt/installer/mac-template",
+    // AnkiDroid fork (GPL, its own headers); built by .github/workflows/android.yml
+    "./Android Fork",
 ];
 
 fn main() -> Result<()> {

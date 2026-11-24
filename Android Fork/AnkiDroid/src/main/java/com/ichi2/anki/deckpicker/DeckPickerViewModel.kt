@@ -47,8 +47,12 @@ import com.ichi2.anki.settings.Prefs
 import com.ichi2.anki.sync.MeteredSyncPolicy
 import com.ichi2.anki.sync.syncStatus
 import com.ichi2.anki.syncAuth
+import com.ichi2.anki.timebudget.TimeBudgetBadge
+import com.ichi2.anki.timebudget.timeBudgetBadges
+import com.ichi2.anki.timebudget.timeBudgetStatus
 import com.ichi2.anki.utils.Destination
 import com.ichi2.utils.NetworkUtils
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.channels.Channel
@@ -121,13 +125,20 @@ class DeckPickerViewModel :
      */
     private val flowOfRefreshDeckList = MutableSharedFlow<Unit>(extraBufferCapacity = 1)
 
+    /** Decks studied with an RWKV-Instant time budget: shown with the time left instead of counts */
+    private val flowOfTimeBudgets = MutableStateFlow<Map<DeckId, TimeBudgetBadge>>(emptyMap())
+
+    /** Works out which time-budget decks are done; see [checkTimeBudgetsDone] */
+    private var checkTimeBudgetsDoneJob: Job? = null
+
     val flowOfDeckList =
         combineTransform(
             flowOfDeckDueTree,
             flowOfDeckSearchQuery,
             flowOfFocusedDeck,
             flowOfRefreshDeckList.onStart { emit(Unit) },
-        ) { tree, query, _, _ ->
+            flowOfTimeBudgets,
+        ) { tree, query, _, _, timeBudgets ->
             if (tree == null) {
                 emit(FlattenedDeckList.empty)
                 return@combineTransform
@@ -151,7 +162,7 @@ class DeckPickerViewModel :
 
             emit(
                 FlattenedDeckList(
-                    data = tree.filterAndFlattenDisplay(DeckFilters.create(query), currentDeckId),
+                    data = tree.filterAndFlattenDisplay(DeckFilters.create(query), currentDeckId, timeBudgets),
                     hasSubDecks = tree.children.any { it.children.any() },
                 ),
             )
@@ -460,6 +471,33 @@ class DeckPickerViewModel :
         return viewModelScope.launch(Dispatchers.IO) { loadDeckList() }
     }
 
+    /**
+     * Shows a checkmark for time-budget decks with nothing left today. This needs the RWKV
+     * model, which may first be loaded or rebuilt from the review log, so the deck list is shown
+     * before it is known.
+     */
+    private fun checkTimeBudgetsDone() {
+        checkTimeBudgetsDoneJob?.cancel()
+        checkTimeBudgetsDoneJob =
+            viewModelScope.launch(Dispatchers.IO) {
+                val tree = dueTree ?: return@launch
+                val status =
+                    try {
+                        withCol { timeBudgetStatus(checkDone = true) }
+                    } catch (e: CancellationException) {
+                        throw e
+                    } catch (e: Exception) {
+                        // best effort: the time left is shown already
+                        Timber.w(e, "timeBudgetStatus(checkDone)")
+                        return@launch
+                    }
+                // skip if the deck list was refreshed meanwhile
+                if (dueTree === tree) {
+                    flowOfTimeBudgets.value = tree.timeBudgetBadges(status)
+                }
+            }
+    }
+
     fun onScreenResumed() {
         startupServesFirstRefresh = false
     }
@@ -484,10 +522,23 @@ class DeckPickerViewModel :
         val loadDeckCounts =
             viewModelScope.launch(Dispatchers.IO) {
                 Timber.d("Refreshing deck list")
-                withCol {
-                    dueTree = sched.deckDueTree()
-                    flowOfCollectionHasNoCards.value = isEmpty
-                }
+                val hasTimeBudgets =
+                    withCol {
+                        val tree = sched.deckDueTree()
+                        // only the time left: fast, unlike working out which decks are done
+                        val budgets =
+                            try {
+                                tree.timeBudgetBadges(timeBudgetStatus())
+                            } catch (e: BackendException) {
+                                Timber.w(e, "timeBudgetStatus")
+                                emptyMap()
+                            }
+                        flowOfTimeBudgets.value = budgets
+                        dueTree = tree
+                        flowOfCollectionHasNoCards.value = isEmpty
+                        budgets.isNotEmpty()
+                    }
+                if (hasTimeBudgets) checkTimeBudgetsDone()
 
                 // TODO: This is in the wrong place
                 // Backend returns studiedToday() with newlines for HTML formatting,so we replace them with spaces.

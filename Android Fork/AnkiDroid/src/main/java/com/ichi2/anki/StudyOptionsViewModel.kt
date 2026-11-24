@@ -15,10 +15,12 @@ import com.ichi2.anki.progress.ProgressManager
 import com.ichi2.anki.study.DeckKind
 import com.ichi2.anki.study.StudyAvailability
 import com.ichi2.anki.study.currentDeckStudyState
+import com.ichi2.anki.timebudget.remainingTimeBudgetSecs
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
+import net.ankiweb.rsdroid.BackendException
 import timber.log.Timber
 import java.io.File
 
@@ -115,6 +117,17 @@ class StudyOptionsViewModel :
                 buriedReview = buriedReview,
                 totalNewCards = sched.totalNewForCurrentDeck(),
                 numberOfCardsInDeck = study.cardCount,
+                timeBudgetRemainingSecs =
+                    if (isDynamic) {
+                        null
+                    } else {
+                        try {
+                            remainingTimeBudgetSecs(deckId)
+                        } catch (e: BackendException) {
+                            Timber.w(e, "remainingTimeBudgetSecs")
+                            null
+                        }
+                    },
             )
 
         flowOfIsFilteredDeck.value = isDynamic
@@ -165,6 +178,11 @@ class DeckStudyData(
     val buriedReview: Int,
     val totalNewCards: Int,
     val numberOfCardsInDeck: Int,
+    /**
+     * Remaining seconds of the RWKV-Instant time budget covering the deck (negative once used
+     * up), or null if it has none. The counts are then the cards the time budget will show.
+     */
+    val timeBudgetRemainingSecs: Int? = null,
 ) {
     /** True if any cards (new, learning, or review) are buried. */
     val hasBuriedCards: Boolean get() = buriedNew > 0 || buriedLearning > 0 || buriedReview > 0

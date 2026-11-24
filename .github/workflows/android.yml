@@ -1,0 +1,194 @@
+# Builds the Anki Time Android app ("Android Fork": AnkiDroid with this repository's RWKV time
+# budgets) and publishes the APK in the repository's releases.
+#
+# - a push to main that changes the core or the app (or "Run workflow"): a new release
+#   "android-<version>", marked Latest, so the APK in the releases always matches main.
+#   Older android-* releases are removed, keeping the newest five.
+# - publishing any other release: the APK is attached to it as well.
+#
+# Every build gets a higher versionCode, so an APK installs as an update of the previous one
+# (Obtainium can follow the releases and update the app automatically).
+#
+# Signing: the repository secrets ANDROID_KEYSTORE_BASE64, ANDROID_KEYSTORE_PASSWORD,
+# ANDROID_KEY_ALIAS and ANDROID_KEY_PASSWORD (see "Android Fork/fork/README.md"). Without them,
+# the APK is signed with AnkiDroid's public fallback key.
+#
+# Two jobs, so the code that builds (crate build scripts, Gradle plugins) never holds a token that
+# can write: "build" has a read-only token; "publish" runs no third-party code.
+name: Android APK
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "Android Fork/**"
+      - "rslib/**"
+      - "proto/**"
+      - "ts/**"
+      - "ftl/**"
+      - "Cargo.lock"
+      - "Cargo.toml"
+      - ".github/workflows/android.yml"
+  release:
+    types: [published]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: android-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name != 'release' }}
+
+jobs:
+  build:
+    # releases this workflow creates itself are skipped (they already have the APK)
+    if: github.event_name != 'release' || !startsWith(github.event.release.tag_name, 'android-')
+    runs-on: ubuntu-24.04
+    timeout-minutes: 180
+    outputs:
+      version_name: ${{ steps.version.outputs.version_name }}
+    env:
+      NDK_VERSION: 29.0.14206865
+      WORK: ${{ github.workspace }}/work
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 #v4
+        with:
+          path: src
+          persist-credentials: false
+
+      - name: Version
+        id: version
+        run: |
+          upstream=$(grep -oP '^\s*versionName = "\K[^"]+' "src/Android Fork/AnkiDroid/build.gradle.kts")
+          # above any AnkiDroid 2.x versionCode (2xxxxxxx), and rising with every run
+          code=$((30000000 + GITHUB_RUN_NUMBER))
+          name="${upstream}-time.${GITHUB_RUN_NUMBER}"
+          echo "FORK_VERSION_CODE=$code" >> "$GITHUB_ENV"
+          echo "FORK_VERSION_NAME=$name" >> "$GITHUB_ENV"
+          echo "version_name=$name" >> "$GITHUB_OUTPUT"
+          echo "$name ($code)"
+
+      - name: Java 21
+        uses: actions/setup-java@b6effb05e454b25005698d916606bdc6ffcbf961 # v5
+        with:
+          distribution: temurin
+          java-version: "21"
+
+      - name: Gradle cache
+        uses: gradle/actions/setup-gradle@0723195856401067f7a2779048b490ace7a47d7c # v5.0.2
+
+      - name: Rust cache
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 #v6.1.0
+        with:
+          path: |
+            ~/.cargo/bin
+            ~/.cargo/.crates.toml
+            ~/.cargo/.crates2.json
+            ~/.cargo/registry
+            ~/.cargo/git
+            work/Anki-Android-Backend/target
+            work/Anki-Android-Backend/anki/out
+          key: android-rust-${{ hashFiles('src/Cargo.lock', 'src/Android Fork/fork/build-apk.sh') }}-${{ github.sha }}
+          restore-keys: |
+            android-rust-${{ hashFiles('src/Cargo.lock', 'src/Android Fork/fork/build-apk.sh') }}-
+            android-rust-
+
+      - name: Android SDK packages and NDK
+        run: |
+          sdkmanager="$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager"
+          yes | "$sdkmanager" --licenses > /dev/null || true
+          "$sdkmanager" "platforms;android-36" "platforms;android-37.0" "build-tools;36.0.0" "ndk;$NDK_VERSION" > /dev/null
+          echo "ANDROID_NDK_HOME=$ANDROID_HOME/ndk/$NDK_VERSION" >> "$GITHUB_ENV"
+
+      - name: Signing key
+        env:
+          KEYSTORE: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+          KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+          KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+        run: |
+          if [ -z "$KEYSTORE" ]; then
+            echo "::warning::No ANDROID_KEYSTORE_BASE64 secret: signing with AnkiDroid's public fallback key. See Android Fork/fork/README.md."
+            exit 0
+          fi
+          base64 -d <<< "$KEYSTORE" > "$RUNNER_TEMP/release.jks"
+          {
+            echo "KEYSTOREPATH=$RUNNER_TEMP/release.jks"
+            echo "KEYSTOREPWD=$KEYSTORE_PASSWORD"
+            echo "KEYALIAS=$KEY_ALIAS"
+            echo "KEYPWD=${KEY_PASSWORD:-$KEYSTORE_PASSWORD}"
+          } >> "$GITHUB_ENV"
+
+      - name: Build
+        # Gradle sometimes hangs after packaging: a second run only finishes up
+        run: |
+          build() { bash "src/Android Fork/fork/build-apk.sh" "$WORK"; }
+          build || { echo "::warning::build failed, retrying once"; (cd "$WORK/Anki-Android" && ./gradlew --stop || true); build; }
+
+      - name: Forget the signing key
+        if: always()
+        run: rm -f "$RUNNER_TEMP/release.jks"
+
+      - name: Check and name the APK
+        run: |
+          mkdir out
+          apk="out/AnkiTime-${FORK_VERSION_NAME}-arm64-v8a.apk"
+          cp "$WORK/apk/AnkiTime-arm64-v8a.apk" "$apk"
+          "$ANDROID_HOME/build-tools/36.0.0/apksigner" verify --print-certs "$apk" | grep -E 'DN|SHA-256'
+          "$ANDROID_HOME/build-tools/36.0.0/aapt2" dump badging "$apk" | head -1
+          (cd out && sha256sum *.apk > SHA256SUMS.txt && cat SHA256SUMS.txt)
+
+      - name: Release notes
+        run: |
+          {
+            echo "Android app (AnkiDroid with RWKV time budgets), built from ${GITHUB_SHA}."
+            echo
+            echo "Install **AnkiTime-…-arm64-v8a.apk** on your phone. It installs next to the official"
+            echo "AnkiDroid (package \`com.ichi2.anki.timefork\`) and updates in place when you install a newer one."
+            echo
+            echo "SHA-256:"
+            echo '```'
+            cat out/SHA256SUMS.txt
+            echo '```'
+          } > notes.md
+
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a #v7.0.1
+        with:
+          name: apk
+          path: |
+            out/
+            notes.md
+          retention-days: 7
+
+  # the only job that can write: it runs gh and nothing else
+  publish:
+    needs: build
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    permissions:
+      contents: write
+    env:
+      GH_TOKEN: ${{ github.token }}
+      GH_REPO: ${{ github.repository }}
+      VERSION_NAME: ${{ needs.build.outputs.version_name }}
+    steps:
+      - uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131 # v7.0.0
+        with:
+          name: apk
+
+      - name: Publish
+        env:
+          RELEASE_TAG: ${{ github.event.release.tag_name }}
+        run: |
+          if [ "$GITHUB_EVENT_NAME" = release ]; then
+            gh release upload "$RELEASE_TAG" out/*.apk out/SHA256SUMS.txt --clobber
+            exit 0
+          fi
+          tag="android-$VERSION_NAME"
+          gh release create "$tag" out/*.apk out/SHA256SUMS.txt --target "$GITHUB_SHA" \
+            --title "Anki Time for Android $VERSION_NAME" --notes-file notes.md --latest
+          # keep the newest five android-* releases
+          gh release list --limit 100 --json tagName,createdAt \
+            --jq '[.[] | select(.tagName | startswith("android-"))] | sort_by(.createdAt) | reverse | .[5:] | .[].tagName' |
+            while read -r old; do gh release delete "$old" --yes --cleanup-tag; done

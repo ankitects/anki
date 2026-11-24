@@ -301,7 +301,9 @@ fn build_and_check_reviewer(build: &mut Build) -> Result<()> {
 }
 
 fn check_web(build: &mut Build) -> Result<()> {
-    let fmt_excluded = "{target,extra,.mypy_cache,ts/.svelte-kit,node_modules,.venv}/**";
+    // "Android Fork" is the AnkiDroid fork, formatted by its own tools
+    let fmt_excluded =
+        "{target,extra,.mypy_cache,ts/.svelte-kit,node_modules,.venv,Android Fork}/**";
     let dprint_files = inputs![glob!["**/*.{ts,mjs,js,md,json,toml,scss}", fmt_excluded]];
     let prettier_pattern = "{**/*.svelte,docs-site/**/*.mdx}";
     let prettier_files = inputs![

@@ -197,6 +197,7 @@ import com.ichi2.anki.study.currentDeckStudyState
 import com.ichi2.anki.sync.MeteredSyncPermission
 import com.ichi2.anki.sync.MeteredSyncPolicy
 import com.ichi2.anki.sync.launchCatchingRequiringOneWaySyncDiscardUndo
+import com.ichi2.anki.timebudget.showTimeBudgetDialog
 import com.ichi2.anki.ui.BottomFadeFrameLayout
 import com.ichi2.anki.ui.ResizablePaneManager
 import com.ichi2.anki.ui.animations.fadeIn
@@ -1161,6 +1162,14 @@ open class DeckPicker :
                 Timber.i("Editing deck description for deck '%d'", deckId)
                 showDialogFragment(EditDeckDescriptionDialog.newInstance(deckId))
             }
+            DeckPickerContextMenuOption.TIME_BUDGETS -> {
+                Timber.i("ContextMenu: RWKV time budgets selected")
+                dismissAllDialogFragments()
+                showTimeBudgetDialog {
+                    fragment?.refreshInterface()
+                    updateDeckList()
+                }
+            }
             DeckPickerContextMenuOption.SCHEDULE_REMINDERS -> {
                 Timber.i("Scheduling review reminders for deck '%d'", deckId)
                 dismissAllDialogFragments()
@@ -1558,6 +1567,14 @@ open class DeckPicker :
                     supportFragmentManager,
                     EmptyCardsDialogFragment.TAG,
                 )
+                return true
+            }
+            R.id.action_time_budgets -> {
+                Timber.i("DeckPicker:: RWKV time budgets selected")
+                showTimeBudgetDialog {
+                    fragment?.refreshInterface()
+                    updateDeckList()
+                }
                 return true
             }
             R.id.action_model_browser_open -> {

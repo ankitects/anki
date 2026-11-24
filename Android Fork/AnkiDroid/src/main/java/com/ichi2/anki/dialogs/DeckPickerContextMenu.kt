@@ -13,6 +13,7 @@ import androidx.fragment.app.FragmentManager
 import com.ichi2.anki.CollectionManager.TR
 import com.ichi2.anki.CollectionManager.withCol
 import com.ichi2.anki.CommonString
+import com.ichi2.anki.R
 import com.ichi2.anki.analytics.AnalyticsDialogFragment
 import com.ichi2.anki.compat.requireSerializableCompat
 import com.ichi2.anki.contextmenu.DeckPickerMenuContentProvider
@@ -67,6 +68,7 @@ class DeckPickerContextMenu : AnalyticsDialogFragment() {
         EDIT_DESCRIPTION,
         ADD_CARD,
         SCHEDULE_REMINDERS,
+        TIME_BUDGETS,
         ;
 
         fun label(context: Context): String =
@@ -86,6 +88,7 @@ class DeckPickerContextMenu : AnalyticsDialogFragment() {
                     EDIT_DESCRIPTION -> getString(CommonString.edit_deck_description)
                     ADD_CARD -> TR.actionsAdd()
                     SCHEDULE_REMINDERS -> getString(CommonString.schedule_reminders_title)
+                    TIME_BUDGETS -> getString(R.string.time_budget_title)
                 }
             }
     }

@@ -24,6 +24,7 @@ import com.ichi2.anki.common.utils.ext.requireAutoMirroredDrawable
 import com.ichi2.anki.databinding.ItemDeckBinding
 import com.ichi2.anki.deckpicker.DisplayDeckNode
 import com.ichi2.anki.libanki.DeckId
+import com.ichi2.anki.timebudget.formatBadge
 import kotlinx.coroutines.runBlocking
 import net.ankiweb.rsdroid.RustCleanup
 import com.ichi2.anki.common.android.R as CommonR
@@ -170,13 +171,44 @@ class DeckAdapter(
         binding.deckName.setTextColor(if (node.filtered) deckNameDynColor else deckNameDefaultColor)
 
         // Set the card counts and their colors
+        val timeBudget = node.timeBudget
+        binding.deckNew.isVisible = timeBudget == null
+        binding.deckLearn.isVisible = timeBudget == null
+        if (timeBudget != null) {
+            // RWKV-Instant time budget: the time left (or a checkmark once done) instead of
+            // counts; subdecks studied with their parent's budget show nothing
+            binding.deckReview.text = formatBadge(binding.deckReview.context, timeBudget)
+            binding.deckReview.setTextColor(
+                when {
+                    timeBudget.done -> deckNameDefaultColor
+                    timeBudget.remainingSecs > 0 -> reviewCountColor
+                    else -> zeroCountColor
+                },
+            )
+        } else {
+            setCounts(binding, node)
+        }
+
+        bindListeners(holder, node)
+    }
+
+    private fun setCounts(
+        binding: ItemDeckBinding,
+        node: DisplayDeckNode,
+    ) {
         binding.deckNew.text = node.newCount.toString()
         binding.deckNew.setTextColor(if (node.newCount == 0) zeroCountColor else newCountColor)
         binding.deckLearn.text = node.lrnCount.toString()
         binding.deckLearn.setTextColor(if (node.lrnCount == 0) zeroCountColor else learnCountColor)
         binding.deckReview.text = node.revCount.toString()
         binding.deckReview.setTextColor(if (node.revCount == 0) zeroCountColor else reviewCountColor)
+    }
 
+    private fun bindListeners(
+        holder: ViewHolder,
+        node: DisplayDeckNode,
+    ) {
+        val binding = holder.binding
         holder.binding.deckLayout.setOnClickListener { onDeckSelected(node.did) }
         holder.binding.deckLayout.setOnLongClickListener {
             onDeckContextRequested(node.did)
